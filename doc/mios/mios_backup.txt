@@ -1,0 +1,124 @@
+$Id$
+
+Creating a backup
+=================
+
+Since MIOS V1.4 it is possible to read out all non-volatile memories 
+by using the SysEx read command. This allows you to create backups
+from your system, to analyze the internal data and/or to clone a
+complete setup.
+
+
+Required Steps
+~~~~~~~~~~~~~~
+
+   o start the SysEx tool of MIDI-Ox
+
+
+   o type one of these SysEx commands (depending on PIC derivative) into the command window:
+        F0 00 00 7E 40 00 01 00 00 20 00 F7     (PIC18F452, 32k)
+     or
+        F0 00 00 7E 40 00 01 00 00 40 00 F7     (PIC18F4620, 64k)
+     or
+        F0 00 00 7E 40 00 01 00 00 40 00 F7     (PIC18F4685, lower 64k)
+        F0 00 00 7E 40 00 21 00 00 20 00 F7     (PIC18F4685, upper 32k)
+
+     This command requests the internal flash content
+
+   o Start "Command Window->Send/Receive SysEx"
+
+   o the flash content will appear in the display window. 
+     Save it (Display Window->Save as...) under the name "flash.syx"
+
+
+   o type one of these SysEx commands (depending on PIC derivative) into the command window:
+        F0 00 00 7E 40 00 01 20 00 00 20 F7     (PIC18F452, 1k)
+     or
+        F0 00 00 7E 40 00 01 20 00 01 00 F7     (PIC18F4620/PIC18F4685, 4k)
+
+     This command requests the internal EEPROM content
+
+
+   o Start "Command Window->Send/Receive SysEx"
+
+   o the EEPROM content will appear in the display window. 
+     Save it (Display Window->Save as...) under the name "eeprom.syx"
+
+
+   o if a 32k BankStick is connected to your core, type
+        F0 00 00 7E 40 00 01 40 00 20 00 F7
+     into the command window
+     This command requests the content of the first BankStick (#0)
+
+     Use
+        F0 00 00 7E 40 00 01 40 00 40 00 F7
+     for a 64k BankStick
+
+   o Start "Command Window->Send/Receive SysEx"
+
+   o the BankStick content will appear in the display window. 
+     Save it (Display Window->Save as...) under the name "bankstick_0.syx"
+
+
+   o if additional BankSticks are connected, do the same like above,
+     but change the BankStick ID (1-7) like shown here:
+
+                          +--- BankStick ID
+                          |
+        F0 00 00 7E 40 00 01 40 00 20 00 F7
+        F0 00 00 7E 40 00 11 40 00 20 00 F7
+        F0 00 00 7E 40 00 21 40 00 20 00 F7
+        F0 00 00 7E 40 00 31 40 00 20 00 F7
+        F0 00 00 7E 40 00 41 40 00 20 00 F7
+        F0 00 00 7E 40 00 51 40 00 20 00 F7
+        F0 00 00 7E 40 00 61 40 00 20 00 F7
+        F0 00 00 7E 40 00 71 40 00 20 00 F7
+
+
+     For 64k BankSticks use:
+        F0 00 00 7E 40 00 01 40 00 40 00 F7
+        F0 00 00 7E 40 00 11 40 00 40 00 F7
+        F0 00 00 7E 40 00 21 40 00 40 00 F7
+        F0 00 00 7E 40 00 31 40 00 40 00 F7
+        F0 00 00 7E 40 00 41 40 00 40 00 F7
+        F0 00 00 7E 40 00 51 40 00 40 00 F7
+        F0 00 00 7E 40 00 61 40 00 40 00 F7
+        F0 00 00 7E 40 00 71 40 00 40 00 F7
+
+
+NOTE:
+~~~~~
+
+   The core module will be reset after every read request. Wait
+   until MIOS has been booted before saving the next memory type.
+
+
+Writing back the memory contents
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Just upload the files with MIDI-Ox
+   IMPORTANT: The delay between SysEx strings must be 750 mS!!!
+
+   MIDI-Ox: SysEx->Configure...  -> set "Delay after F7" to 750 mS
+
+
+If your sequencer supports receiving/sending SysEx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   You can just record and playback the received SysEx data
+   with a sequencer like Cubase or Logic
+   In this case, you don't need to take the "Delay after F7"
+   into account, as MIOS already delays the blocks during sending.
+
+   This method allows you to embedd the EEPROM or BankStick content 
+   (e.g. MBSID patches, MBSEQ patterns) into a song.
+
+
+Debugging
+~~~~~~~~~
+
+   The MIOS release contains a syx2hex script which allows you
+   to descramble and to edit the SysEx strings.
+
+
+Thorsten.Klose@midibox.org

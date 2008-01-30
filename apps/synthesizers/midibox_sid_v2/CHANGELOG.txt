@@ -1,0 +1,483 @@
+$Id$
+
+MIDIboxSID V2.0
+~~~~~~~~~~~~~~~
+
+   o created patch structure for Lead engine
+   o removed old sound engine, the new one will be built up from scratch
+   o overworked control surface handler - now we can control left and
+     right SID channel seperately (or together)
+   o press and hold LINK button to select the SID channel (left/right) with GP button #1
+   o this menu also allows to send a patch via SysEx
+   o new patches can now also be received - this is important during
+     development phase to store/restore sound patches via MIDI-Ox
+   o Portamento effect implemented - "normal" and "constant time glide" CTG
+     CTG can be selected in the OSC menu (PMd item)
+   o A third portamento effect implemented: Glissando (PMd item: "Gls")
+   o SusKey and Legato implemented (-> CFG menu)
+   o LFO implemented - in addition to Sine/Triangle/Saw/Pulse/Random
+     now also "Positive" Sine/Triangle/Saw/Pulse is available - they
+     can be inverted with negative depth
+   o menu items with toggle function now never go into "entry" mode
+     where parameter has to be modified with datawheel - this is for
+     faster usage
+   o implemented modulation matrix:
+     - there are 8 modulation paths
+     - each path has two sources: ENV1..2, LFO1..LFO6, Constant 0-127 - much more will be added later
+     - an operation parameter is available for each path:
+       SRC1 only, SRC2 only, SRC1+SRC2, SRC1-SRC2, SRC1*SRC2, XOR, OR, AND, MIN, MAX, 1<2, 1>2, 1=2)
+     - a depth parameter is available for each path
+     - paths can be routed to Pitch Voice 1/2/3, Pulsewidth Voice 1/2/3,
+       Filter and Volume of left/right SID seperately
+     - in addition they can be routed to 2 individual targets 
+       LFO1-6 Rate, LFO1-6 Depth
+       More (e.g. ENV parameters) will be added later
+     - Target 1/Left Channel and Target 2/Right Channel subpath can
+       be inverted for simple stereo effects
+   o added pulsewidth as modulation target
+   o ENV implemented - it provides the parameters 
+     Attack1/ALevel/Attack2/Decay1/DecayLevel/Decay2/Sustain/Release1/
+     ReleaseLevel/Release2 + Curve for Attack/Decay/Release phase
+   o added filter as modulation target
+   o filter of both SIDs now calibratable, settings stored in internal EEPROM
+   o mod matrix + meter display working
+   o init patch function implemented (press & hold LINK button)
+   o random function implemented (press & hold LINK button)
+   o added LFO Rate and Depth as modulation target
+   o the sound won't stop anymore if a note is played during the 
+     patch is changed/initialized/randomized - instead, the new sound
+     will be played
+   o support for slave SIDs (access via MBNet)
+   o new operations: 1<2, 1>2, 1=2
+   o added Volume 1/2 as modulation target
+   o Note, LFO and ENV delay implemented
+     LFO delay and phase only takes effect when sync flag set (not freerunning)
+   o LFO oneshot mode implemented
+   o implemented global clock generator
+     Since there is no free timer resource, it's realized as a clock
+     divider, which is incremented on each update cycle (819.2 uS)
+     A clock event will be trigger each time the clock divider value
+     has been reached. 
+     Div=1 -> event all 1*819.2 uS
+     Div=2 -> event all 2*819.2 uS = 1.6 mS
+     Div=3 -> event all 3*819.2 uS = 2.5 mS
+     etc...
+   o optionally the clock generator can be used as MIDI clock receiver
+     (Mod: Slv) - the MIDI clock can be divided as well
+     Div=3  -> event all 32th notes
+     Div=6  -> event all 16th notes
+     Div=12 -> event all 8th notes
+     Div=24 -> event all 4th notes
+     etc...
+   o "Mod: Auto" not implemented yet - should switch automatically to
+     slave mode when a MIDI clock is received
+   o implementation of Arpeggiator has started
+     it is located in a seperate menu now
+     each voice has its own arpeggiator with own parameter sets (!)
+     it's clocked by the global clock generator
+     Spd divides the global clock again
+     GLn (Gatelength) defines, at which clock between 1 and Spd the
+       gate will be released
+     Rng defines the octave range
+   o Arp: added Up/Down/U&D/D&U/UD2/DU2/Random direction
+   o Arp: added Sorted mode
+   o Arp: added Hold mode
+   o Arp: added "sync divider" mode
+     - if disabled, the clock divider will be reset with a new chord, so
+       that the arp starts immediately - perfect for live playing
+     - if enabled, the clock divider won't be reset, so that it is always
+       in synch with the global clock generator - perfect for MIDI slave mode
+   o "Constant Arp Cycle" implemented
+   o Velocity, Aftertouch, PitchBend, Keynumber, Knob #1-5 now
+     available as modulation source
+   o Knobs controllable via CC
+     - Knob #1 assigned to CC#1 (ModWheel)
+     - Knob #2-5 assigned to CC#16-19
+   o Modulation parameters for Knobs (and Velocity=K#V,
+     Aftertouch=K#A, PitchBender=K#P) are set within the Min/Max
+     boundaries, which can now be edited in the new KNB menu page
+     Note that sweeps from -128..127 and 127..-128 (swapped) are
+     provided
+   o Knob#1-Knob#5 now controllable directly from the CS Step C
+     with the 5 rotary encoders of the oscillator section (select
+     "Assign" layer)
+   o removed "Balance" parameter, as it is redundant
+     Can be realized with:
+     MOD SRC1:K#1 In1:*, In2:o, Dep:127, Vol: L/R
+   o support for AOUT/AOUT_LC
+     - offset values (12 bit, 000-FFF) can be configured in new EXT menu
+   o note: EXT (external) could also be read as "extension", because it
+     the 12bit values could also be used for different purposes ("custom
+     values")
+   o implementation of trigger matrix
+     It consist of 16 sources and 24 targets
+     Sources are:
+       Note On, Note Off, ENV1/2 Decay Phase, ENV1/2 Sustain Phase,
+       LFO1-6 Period, Clock, Clock/4, Clock/16, MIDI Start
+     Targets are:
+       OSC1-3 L/R Gate (6 targets), ENV1/2 Attack, ENV1/2 Release,
+       LFO1-6 Restart, Wavetable 1-4 Reset, Wavetable 1-4 Step
+   o Trigger matrix connections can be configured in new TRG menu
+   o Note that old patches have to be adapted the following way:
+       - Note On: all 6 gates and ENV1/2 attack phase have to be assigned
+       - Note Off: all 6 gates and ENV1/2 release phase have to be assigned
+       - MIDI Start: ENV1/2 Attack and LFO 1-6 have to be assigned
+       - the formerly LFO sync flag has now a new location in the trigger
+         matrix. It has to be assigned in the Note On source. This can
+         also be done from the LFO menu (shortcut for this TRG matrix connection)
+   o Example 1 - LFO Chain:
+     Assign all LFOs to OSC Pitch
+     All LFOs in Oneshot Mode
+     Use different LFO rates and depths
+     Enable following Trigger connections:
+        Note On->L1
+        L1P -> L2
+        L2P -> L3
+        L3P -> L4
+        L4P -> L5
+        L5P -> L6
+        L6P -> L1
+   o Example 2 - ENV Retrigger via LFO1:
+     Assign ENV1 to OSC Pitch
+     Disable the Note On -> E1A connection
+     Enable the LFO1 -> E1A connection
+     Try different LFO1 rates and ENV A/D/S rates
+   o Example 3 - Note Retrigger via LFO1:
+     Enable the LFO1 -> O1L and O1R connection
+     Try different LFO1 rates
+     Try different OSC ADSR values (e.g. A=8, D=5, S=0, R=0) - remind the ADSR bug! :-/
+     Try also different Delays between Left and Right SID
+   o Example 4 - Simple ENV loop:
+     Enable the E1S -> E1A connection
+     Now ENV1 will loop between the attack and sustain phase
+  o new button functions:
+      - Link button now controls SHIFT function (and displays CFG page)
+      - CC button now used as Page Up function (increments OSC/LFO/ENV/MOD/TRG/KNB depending on menu)
+      - Edit button now used as Page Down function (increments OSC/LFO/ENV/MOD/TRG/KNB depending on menu)
+      - Page Up/Down + datawheel (main encoder) allows to change the page via encoder
+      - CC can be activated by pressing SHIFT+CC
+      - Edit can be activated by pressing SHIFT+EDIT
+      - SHIFT+E1/E2/L1..L6 button branches to the Envelope/LFO menu
+  o SHIFT button now increases the speed of rotary encoders
+  o added phase offset synchronisation feature
+    Phases of the oscillators can be shifted in 0.4% steps!
+    There is only one global phase available, which can be configured
+    in the OSC menu. If != 0, the value specifies the phase offset
+    between OSC1->OSC2 and OSC2->OSC3
+  o added F2A (Filter to AOUT) function which allows to forward
+    CutOff/Resonance to 4 AOUT channels (assignments are defined in setup_*.asm)
+  o implemented knob parameters:
+    - list of parameters can be found in mbsidv2_parameter_chart.txt
+    - note that some parameters are not really suitable for live
+      control - the table has been prepared for the WT handler, which
+      will use the same parameter set
+    - two different parameters can be assigned to a knob
+    - the LCD shows the parameter in long format when the assignment is changed
+      (selecting the item with a button does not already show the long format.
+       I tried this, but the behaviour was too confusing... - you need to move
+       the encoder to see the purpose of the value)
+    - the handler automatically scales the knob value to the range of the
+      target parameter. Regardless if a 4bit or a 12bit value should be controlled,
+      the whole knob range from 0..255 will always be used
+    - in addition, the knob range can be scaled a second time from a
+      min to a max value
+    - The formula:
+         resulting parameter value = scale1(scale2(knob value))
+      where scale2() scales over the specified min/max range
+      and scale1() scales over the parameter range
+    - Sounds confusing? Try this: Min=104, Max=152, Pa1=36 (Transpose OSC123)
+      This will modify the 7bit value transpose from -12 to +12 notes
+      (*2 because it's transposed from a 8bit value)
+      Resp.: 128 +/- (2*12)
+    - note that knob changes are non-destructive!
+      This means: changing a parameter will not change the original value. 
+      Accordingly the value visible in the CS menu will stay the same.
+      This is especially required to ensure, that changes made with knobs
+      are really temporary and won't be stored with the "patch save" function.
+    - OSC/Filter parameter changes are always applied on both SID channels. 
+      Offset calculations are done seperately
+    - TODO: "reset original value" function, accessible from the CFG menu,
+      to remove the offsets from the original parameter values
+  o implemented wavetable handler:
+    - there is a WTC (Wavetable Configuration) and a seperate WTE
+     (Wavetable Edit) menu for easier navigation
+    - it is possible to jump from WTC to WTE and back (last menu item)
+    - WTC provides four different wavesets. 
+      You can specify a parameter, SID L/R, Speed (Clock Divider for
+      clock events coming from the trigger matrix),
+      begin, end and loop position (with optional oneshot mode) within wavetable
+    - WTE allows to edit the wavetable like known from MBSID V1
+      Even Notes and ARPs can be played :)
+    - WTE value display can be changed between Hex/Dec view
+    - wavetable values are forwarded to MOD matrix as additional sources
+    - the wavetable pointer can be optionally controlled from the
+      modulation matrix. For this, the "MOD" flag has to be set in
+      the WTC menu. In this mode, the clock divider and loop pointer
+      don't play a role anymore. WT1-WT4 are available as modulation
+      target, the pointer is swept between the begin and end range.
+      Try to control the position with a LFO or an Envelope or the 
+      velocity, and have fun! :)
+  o there is now a new random generator menu which allows to randomize
+    different sections of a patch seperately
+  o LFOs and ENVs can now be synchronized to the global clock (CSn flag)
+    This clock is quadrubled to achieve better resolutions when it is
+    synchronized to MIDI
+    With Div=3, the LFO/ENV will be clocked 4 times for each 32th note,
+    8 times for each 16th, 128 times for each measure...
+    
+    There are predefined rates for MIDI clock synchronisation, which
+    can be selected in the LFO page when CSn is enabled
+    They are starting at rate=245:
+    64/1, 32/1, 16/1, 8/1, 4/1, 2/1, 1/1, 3/4, 1/2, 1/4, 1/16
+
+  o BankStick support
+    a 64k BS can store 127 patches, a 32k BS only 63 patches
+    The BS size will be detected automatically during formatting
+  o a "detune" parameter has been added to the CFG menu. It
+    modifies the finetune of all oscillators
+  o added GAE (gate always active) function - once set, the gate
+    will never be released anymore. Instead, the voice volume has
+    to be lowered externally or with a filter
+  o added ABW (ADSR bug workaround) flag
+    It adds an additional delay before the gate is activated.
+    During this time, the ADSR registers are zeroed to ensure that
+    the envelope has reached its final level before it will be
+    triggered again.
+    If you still notice ADSR hickups with a special configuration,
+    just increase the ADSR delay in the OSC menu
+    Note that the delay needs to be compensated from your sequencer.
+    This feature is experimental and not suitable for live playing
+  o the Env Ctrl button doesn't change the menu anymore
+    so that the 5 rotary encoders of the ENV section can be used to
+    change the currently visible menu items on a more confortable way
+  o added V2A (Volume to AOUT) function which allows to forward
+    the modulated volumes to 2 AOUT channels (assignments are defined in setup_*.asm)
+    The internal volume is set to maximum if the V2A switch is enabled
+  o added ARP oneshot mode
+  o pitch (controlled by pitchbender) got a special parameter number: 80 dec, 0x50 hex
+  o slave cloning function implemented
+    press and hold the MENU button during boot to transfer the firmware 
+    of the master to all slaves via the CAN interface
+    This procedure takes ca. 30 seconds, some messages will be print
+    on screen (if not, something is wrong with the MENU button detection -
+    please inform me in this case)
+  o preparation for multiple engines: seperated SID_SE and CS_MENU_TABLE parts
+  o started with multi engine
+  o implemented ensemble functions, so that different channels and
+    keyboard splitzones can be assigned to multi channel instruments
+    an ensemble contains for each master/slave MBSID:
+    - Bank/Pattern/Flags (like V2A, F2A)
+    - Global Clock Generator settings
+    - Filter calibration values (Min/Max) for left/right channel
+    - the setup for 6 instruments (channel, splitzone, transpose)
+  o the new ensemble menu page can be entered from the main menu:
+    - press the leftmost select button below the LCD to enter ensemble menu
+    - press any other select button below the LCD to enter the patch menu
+  o up to 128 ensembles can be stored in a BankStick (only 32k allocated,
+    so it doesn't matter if a 32k or 64k BankStick is used)
+  o first beta release :)
+  o there is now a S&H (Sample & Hold) operator available in the
+    modmatrix which samples SRC1 whenever SRC2 changes from a negative
+    to a positive value
+  o an incoming patch or bank change request doesn't update the 
+    the patch anymore if it was already selected before. This is to avoid
+    "glitches" when a sequencer sends a program change shortly before
+    a note is played.
+  o the "Knobs" are sending CC values now when the CC function is
+    activated (press SHIFT + Page Up/CC Button to toggle this mode)
+    Other parameters are still not sending CCs over MIDI, as NRPNs
+    are not implemented yet (low priority)
+    The CC numbers are 1 for Knob #1 (Modulation wheel), and 16/17/18/19
+    for Knob #2-#5 (GP values)
+    In addition, Knob #P sends Pitchwheel Events in CC mode
+  o support for analog inputs (J5:A0..A4)
+    This feature has to be enabled in the setup_*.asm file by setting DEFAULT_J5_FUNCTION to 1
+    Conversion results of the analog inputs are directly passed to the knob handler. 
+    This generic approach has the advantage, that it is possible to control 5*2 parameters 
+    within a specified Min/Max range, and that in addition the analog values are available
+    as modulation source within the modulation matrix (K#1..K#5)
+
+    The feature behaves differently on master and slaves:
+    Master: analog inputs are forwarded to the selected SIDs - use this
+            option as replacement for rotary encoders, or for adding
+            analog control elements like pots/faders/joysticks to your CS
+    Slave: analog inputs are only handled internally - use this option
+           for modulation with analog signal generators
+  o added "Notes Off" function to the SHIFT page (replaces Random
+    function which has a seperate menu page anyhow)
+  o implemented bassline engine
+  o support for AOUT_NG module
+  o integrated support for ASID protocol, which has been originally
+    developed for the SIDstation to replay .sid files.
+    (see also http://www.midibox.org/forum/index.php?topic=2038.0)
+    Only the master core (Device ID 00) will play SID tunes!
+    Nice visual effect: the LED matrix of the CS shows three animated 
+    meters whenever a gate flag of an oscillator is set.
+    SID player mode is automatically enabled once an ASID stream is
+    received. It can be exit by stopping the player on the PC, and 
+    pressing the MENU button
+
+    Unfortunately it turned out, that there is currently no SID player
+    available which can replay .sid files properly via MIDI.
+
+    - SIDplay (http://www.d.kth.se/~d93-alo/c64/spw/sidplayw.html)
+      Perfect integration, but plays tunes too fast under WinXP.
+      Works fine under Win95/Win98/WinME. Not tested under Vista
+    - ASID (http://www.sidstation.com/sidsupport.php)
+      Crashes under WinXP once the tune should be played
+    - ASID XP (http://www.sidstation.com/files/asid_xp_1.0.zip)
+      Tunes played correctly, but the MIDI stream is corrupted at 
+      the very beginning when the player is started. Accordingly the
+      sounds are not properly initialized.
+
+    Workaround: start a tune with SIDplay (for proper sound
+    initialisation), thereafter play it with ASID XP
+  o resonance now editable with 8bit resolution (only applicable for F2A option)
+  o implemented global BPM generator, which replaces the global clock divider
+    for more consistent clock handling
+    Now it doesn't make a difference anymore, if MBSID receives a 
+    clock at a certain BPM, or if it generates it internally
+  o support for sustain CC#64 (if CC value >= 0x40, notes will be
+    held, with CC value < 0x40, notes will be released)
+    Currently only supported for lead engine!
+  o drum engine implemented
+  o meter mode now also supported for multi/bassline/drum engine
+  o superpoly function implemented for lead engine (experimental!)
+  o various improvements for drum sequence editing:
+    - cursor now controlled with encoder
+    - the "<" function has been replaced by a rotate function, which
+      allows you to scroll the pattern left/right
+    - the ">" function has been replaced by a direct shortcut to
+      the DRM menu page - the instrument number will be set 
+      automatically according to the selected track
+    - the mod target buttons (named with E1/E2/L1/...L6) now 
+      change to the track editor, and select the appr. track (1-8)
+  o implemented MIDI Clock Master/Slave Auto Detection
+  o bassline/drum sequences now stopped when a MIDI Clock Stop
+    event has been received
+  o bassline/drum sequences now started when a MIDI Clock Start or
+    Continue event has been received
+  o improved "play button" function (e.g. only selected instruments
+    played, selected drum is triggered, etc...)
+  o support for "Sync" button (it just jumps into the ENS->CLK
+    menu for Master/Slave/Auto mode and BPM selection)
+  o support for full parameter access via NRPNs
+    see mbsidv2_parameter_chart.txt for details
+  o possibilities to select a patch:
+      - moving datawheel in main screen (as before)
+      - using Page Up/Down button in main screen and patch main menu
+      - selecting bank and patch in the ENS->SID menu
+  o possibilities to select an ensemble:
+      - pressing MENU + moving datawheel in main screen
+      - using MENU + Page Up/Down button in main screen
+      - using Page Up/Down button in ENS menu
+  o ensemble can now be initialised with preset (-> go into ENS
+    menu, press SHIFT button, select "Ini.Ens" option)
+    Note that Patch and Bank settings won't be touched by
+    this initialisation!
+  o there is now a new EXT page within the ensemble menu which
+    contains following options:
+       - F2A (Filter-to-Analog): was previously located in SID menu
+       - V2A (Volume-to-Analog): was previously located in SID menu
+       - Iv1..Iv8: inversion of output voltage at channel #1..#8
+  o added optional FIP option (Filter Interpolation) which smoothes
+    CutOff changes. It is especially useful when CutOff is changed
+    via CC (-> low resolution) to reduce the steppyness.
+    The option is not useful when the CutOff parameter is modulated from
+    a fast LFO or envelope (on the other hand: it produces interesting
+    effects in such cases ;-)
+  o multi engine: improved approach for routing LFOs to filters (only
+    LFO of last assigned voice will be used for more predictable results)
+  o reduced intensity of LFO pitch modulation for multi and bassline engine
+    (Lead engine: intensity can be reduced by decreasing the depth
+    of the modulation path)
+  o 8 external switches can now be connected to 
+     - DOUT shift register (-> DEFAULT_EXT_SWITCH_DOUT != 0)
+     - port J5 of the core mode (-> DEFAULT_J5_FUNCTION == 3)
+    The switch states are stored in the patch structure, and
+    can be accessed via Control Surface (EXT menu) or via Parameter Change
+    (NRPNs/Knobs/Wavetables)
+  o support for dumping ensembles via SysEx
+  o the SysEx structures are now completely documented under
+    doc/mbsidv2_sysex_implementation.txt
+  o BankStick write via SysEx now gracefully aborted if only 32k BankStick
+    is addressed and patch number >= 065
+    SysEx error number 0x11 ("BankStick too small") will be returned in this case
+  o the "send dump" function of the "shift menu" now sends the edit buffer
+    of the selected SID, which also includes the corresponding device ID.
+    BankStick content won't be overwritten if such a dump is sent back.
+  o menu page automatically changed to the previous selection if SID master
+    or slave selected which is running with a different engine
+  o improved FIP function (linear interpolation of filter cutoff) - it
+    is working now the same way as implemented in MIDIbox CV
+  o F2A and V2A flags moved to new storage position in ensemble - old
+    ensemble setups (where F2A and/or V2A was set) have to be adapted!
+  o added new AOUT forwarding functions:
+     - P2A (Pulsewidth-to-AOUT)
+     - K2A (Key-to-AOUT)
+     - O2A (Oscillator Frequency-to-AOUT)
+    Channel assignments have to be adapted in setup_*.asm - all channels 
+    are disabled by default
+  o added functions to forward the 6 gates/slide/accent signals to the
+    digital outputs at J5. Assignments have to be configured in the
+    setup_*.asm file.
+    Note that DEFAULT_J5_FUNCTION has to be set to 3 in order to
+    enable the digital output function of CORE:J5
+  o "ENV Misc" layer added for MB6582 Control Surface
+  o SIDPlayer: lower line now always cleared when new LCD message
+    is sent by host
+  o changed encoder speed behaviour: values incremented fast by
+    default now. Incrementer is slowed down by pressing the SHIFT button
+    (previously it was the opposite behaviour)
+
+
+MEMO:
+  - in Bassline mode, CCs could control individual knob parameters for
+    left/right channel by using the "current" assignment, and selecting
+    the instrument (L-, -R or LR) via different sets of CC
+
+  - a solution has to be found for bassline mode, how values changed
+    via knobs should be properly forwarded to the edit patch storage
+    for consistent value sets
+    As this method has advantages and disadvantages (e.g. destructive
+    changes in the edit patch are mostly NOT wanted!), maybe a soft-option
+    could be provided (but I'm sure, that most people would disable it
+    quickly once they noticed the disadvantages)
+
+  - There is currently a "Notes Off" in the Shift menu which allows to
+    turn off all notes of the selected SID(s)
+    For more comfort, it could make sense to send this command too all
+    SIDs independent from the SID selection
+    In addition, a "Note On" (Play) command could also be placed into
+    the Shift menu - but where? (maybe as replacement for Init Patch,
+    as a patch can also be initialized by changing the engine)
+
+  - drum engine mode: additional parameter for WT table offset?
+
+  - individual copy/paste/clr function for drum instruments?
+
+  - individual save function for instruments (for all engines)
+
+  - selection of bank/patch within same screen in ENS->SID->Bnk/Pat page
+
+  - if multiple SIDs with different engines are connected, the
+    performed CS modifications (button/encoder turns) can result into
+    a big mess. A fix isn't so easy (easiest but inconsistent solution: the
+    master has to remember the engines of SID1..4 in order to decide,
+    if a parameter is allowed for beeing sent)
+
+  - theoretically it could be possible to modulate 8 of 256 sound
+    parameters (which are normaly only accessible via knobs, WT or NRPN)
+    from the modulation pathes (e.g. envelope or LFO source) by providing
+    a special EXT -> Par (AOUT Value -> Sound Parameter) routing.
+    Since 8 EXT values are available with 12bit resolution, this should
+    be sufficient for most cases.
+    The AOUT option wouldn't be available in such a mode...
+
+  - the external switches could be optionally triggered by notes, or
+    maybe better: reflect the gate of ENV1 and/or ENV2 which is used to switch
+    between attack/decay/sustain and release phase
+    This would be a quite useful function for external ADSR generators
+    Problem: which possibilities are really required, how should it
+    behave for the different engines, how should it be configured? Within ensemble?
+
