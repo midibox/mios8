@@ -49,6 +49,7 @@ unsigned char panic_ctr;
 // the default (dummy) table has been disabled via 
 /////////////////////////////////////////////////////////////////////////////
 MIOS_ENC_TABLE {
+             // sr pin mode
   MIOS_ENC_ENTRY(1, 0, MIOS_ENC_MODE_DETENTED),
   MIOS_ENC_EOT
 };
