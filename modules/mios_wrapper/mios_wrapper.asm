@@ -76,11 +76,6 @@
 
 	org	0x3300		; never change the origin!
 
-;; ---[ Custom LCD driver ]---
-#ifndef DONT_INCLUDE_APP_LCD
-#include "app_lcd.inc"
-#endif
-
 ; Don't enable this --- its only used by a special testcase which checks 
 ; parameter passing on functions which are difficult to verify with
 ; directed tests
@@ -115,6 +110,19 @@ _IRQ_TMP2		res	1
 _IRQ_TMP3		res	1
 _IRQ_TMP4		res	1
 _IRQ_TMP5		res	1
+
+
+;; ==========================================================================
+;;  USER_LCD_* vectors defined externally in $MIOS_PATH/modules/app_lcd/*/*.asm
+;; ==========================================================================
+	extern	USER_LCD_Init
+	extern	USER_LCD_Data
+	extern	USER_LCD_Cmd
+	extern	USER_LCD_Clear
+	extern	USER_LCD_CursorSet
+	extern	USER_LCD_PrintChar
+	extern	USER_LCD_SpecialCharInit
+
 
 ;; ==========================================================================
 ;;  All MIOS hooks in one file
