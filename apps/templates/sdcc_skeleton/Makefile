@@ -6,7 +6,7 @@ LKR_FILE  = $(MIOS_PATH)/etc/lkr/$(PROCESSOR).lkr
 PROJECT   = project
 
 # list of objects that should be created and linked
-OBJS = pic18f452.o mios_wrapper.o main.o
+OBJS = pic18f452.o mios_wrapper.o app_lcd.o main.o
 
 # include pathes (more will be added by .mk files)
 GPASM_INCLUDE = 
@@ -26,3 +26,6 @@ DIST = ./
 
 # include the common.mk file
 include $(MIOS_PATH)/include/makefile/common.mk
+
+# include application specific driver (select app_lcd/dummy if MIOS internal driver used)
+include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
