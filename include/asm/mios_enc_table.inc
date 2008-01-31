@@ -42,8 +42,6 @@ ENC_EOT	MACRO
 	dw	0xffff
 	ENDM
 
-	global	_MIOS_ENC_PIN_TABLE
-
 _MIOS_ENC_PIN_TABLE
 MIOS_ENC_PIN_TABLE
 	;; encoders 1-16
