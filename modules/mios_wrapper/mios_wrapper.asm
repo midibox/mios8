@@ -35,12 +35,43 @@
 
 ;; ---[ configuration table for MIDI processor ]---
 #ifndef DONT_INCLUDE_MIOS_MT_TABLE
-#include "mios_mt_table.inc"
+;; dummy table located in $MIOS_PATH/include/asm
+;; If the application should use MT entries,
+;; just add "-DDONT_INCLUDE_MIOS_MT_TABLE" to MIOS_WRAPPER_DEFINES
+;; and build the table within the C program with:
+;; 
+;; MIOS_MT_TABLE {
+;;   MIOS_MT_ENTRY(0xb0, 0x10), // CC#16
+;;   MIOS_MT_ENTRY(0xb0, 0x11), // CC#17
+;;   MIOS_MT_ENTRY(0xb0, 0x12), // CC#18
+;;   MIOS_MT_ENTRY(0xb0, 0x13), // CC#19
+;;   MIOS_MT_EOT
+;; };
+;; 
+;; The MIOS_MT_* macros are defined in $MIOS_PATH/include/c/cmios.h
+;; 
+;; Note that due to the inflexibility of the MT Table concept, it isn't
+;; recommented for new designs
+#include <mios_mt_table.inc>
 #endif
 
 ;; ---[ configuration table for rotary encoders ]---
 #ifndef DONT_INCLUDE_MIOS_ENC_TABLE
-#include "mios_enc_table.inc"
+;; dummy table located in $MIOS_PATH/include/asm
+;; If the application should use ENC entries,
+;; just add "-DDONT_INCLUDE_MIOS_ENC_TABLE" to MIOS_WRAPPER_DEFINES
+;; and build the table within the C program with:
+;; 
+;; MIOS_ENC_TABLE {
+;;              // sr pin mode
+;;   MIOS_ENC_ENTRY(1, 0, MIOS_ENC_MODE_DETENTED), // VPot #1
+;;   MIOS_ENC_ENTRY(1, 2, MIOS_ENC_MODE_DETENTED), // VPot #2
+;;   MIOS_ENC_ENTRY(1, 4, MIOS_ENC_MODE_DETENTED), // VPot #3
+;;   MIOS_ENC_EOT
+;; };
+;; 
+;; The MIOS_MT_* macros are defined in $MIOS_PATH/include/c/cmios.h
+#include <mios_enc_table.inc>
 #endif
 
 	org	0x3300		; never change the origin!
