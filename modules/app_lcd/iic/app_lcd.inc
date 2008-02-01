@@ -1,10 +1,11 @@
 ; $Id: $
 ;
-; MIOS Custom LCD Driver Skeleton
+; MIOS Custom LCD Driver Example
+; for Matrix Orbital IIC display
 ;
 ; ==========================================================================
 ;
-;  Copyright 1998-2006 Thorsten Klose (tk@midibox.org)
+;  Copyright (C) 2003  Thorsten Klose (tk@midibox.org)
 ;  Licensed for personal non-commercial use only.
 ;  All other rights reserved.
 ; 
@@ -54,7 +55,22 @@
 ;;  if you need some temporary registers, use the given addresses above or
 ;;  locate them to addresses which are not used by the application
 ;; --------------------------------------------------------------------------
-	
+
+;; IIC address of display
+#ifndef APP_LCD_IIC_DEVICE_ADDRESS
+#define APP_LCD_IIC_DEVICE_ADDRESS 0x5a
+#endif
+
+;; contrast value, 0xff == max contrast
+#ifndef APP_LCD_CONTRAST_VALUE
+#define APP_LCD_CONTRAST_VALUE 0x90
+#endif
+
+;; backlight value, 0 == backlight will remain on indefinitely
+#ifndef APP_LCD_BACKLIGHT_VALUE
+#define APP_LCD_BACKLIGHT_VALUE 0x00
+#endif
+
 ;; --------------------------------------------------------------------------
 ;;  This function is called by MIOS when the custom LCD should be initialized
 ;;  In:  MIOS_LCD_OPTION1 - contains the first LCD option given by MIOS_LCD_TypeSet
@@ -62,6 +78,73 @@
 ;;  Out: -
 ;; --------------------------------------------------------------------------
 USER_LCD_Init
+	IRQ_DISABLE				; interrupts have to be disabled during IIC transfer
+
+	;; set contrast
+	call	MIOS_IIC_Start			; start IIC
+	movlw	APP_LCD_IIC_DEVICE_ADDRESS	; send device address
+	call	MIOS_IIC_ByteSend
+	movlw	254				; control code sequence for contrast: 254 80
+	call	MIOS_IIC_ByteSend
+	movlw	80
+	call	MIOS_IIC_ByteSend
+	movlw	APP_LCD_CONTRAST_VALUE		; send contrast value
+	call	MIOS_IIC_ByteSend
+	call	MIOS_IIC_Stop			; stop IIC
+	
+#if APP_LCD_BACKLIGHT_VALUE
+	;; set backlight
+	call	MIOS_IIC_Start			; start IIC
+	movlw	APP_LCD_IIC_DEVICE_ADDRESS	; send device address
+	call	MIOS_IIC_ByteSend
+	movlw	254				; control code sequence for backlight: 254 66
+	call	MIOS_IIC_ByteSend
+	movlw	70				; 66 [timeout] to set backlight, 70 to turn off
+	call	MIOS_IIC_ByteSend
+	movlw	APP_LCD_BACKLIGHT_VALUE		; send backlight value
+	call	MIOS_IIC_ByteSend
+	call	MIOS_IIC_Stop			; stop IIC
+#endif
+
+	IRQ_ENABLE				; enable interrupts
+
+	;; clear display
+	rgoto	USER_LCD_Clear
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: USER_LCD_Data
+;;  DESCRIPTION: sends a data value to the LCD display.<BR>
+;;  On CLCDs: branch directly to USER_LCD_PrintChar<BR>
+;;  On GLCDs: ignore this function!
+;;  IN:  data which should be sent
+;;  OUT: -
+;; --------------------------------------------------------------------------
+USER_LCD_Data
+	;; same as the "send char" function
+	rgoto	USER_LCD_PrintChar
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: USER_LCD_Cmd
+;;  DESCRIPTION: sends a command to the LCD display.<BR>
+;;  On CLCDs: use this function to decode the HD44780 commands if required<BR>
+;;  On GLCDs: ignore this function!
+;;  IN:  command which should be sent
+;;  OUT: -
+;; --------------------------------------------------------------------------
+USER_LCD_Cmd
+	;; not supported by Matrix Orbital protocol
+	;; MEMO: a special handler could be added here which provides the
+	;; initialization of special characters
+	return
+
+;; --------------------------------------------------------------------------
+;;  This function is NOT called by MIOS, but only used by the custom driver
+;;  to read from data register
+;;  In:  -
+;;  Out: WREG - data
+;; --------------------------------------------------------------------------
+USER_LCD_DataRead
+	;; not supported by Matrix Orbital protocol
 	return
 
 ;; --------------------------------------------------------------------------
@@ -71,6 +154,16 @@ USER_LCD_Init
 ;;  Out: -
 ;; --------------------------------------------------------------------------
 USER_LCD_Clear
+	IRQ_DISABLE				; interrupts have to be disabled during IIC transfer
+	call	MIOS_IIC_Start			; start IIC
+	movlw	APP_LCD_IIC_DEVICE_ADDRESS	; send device address
+	call	MIOS_IIC_ByteSend
+	movlw	254				; control code sequence for clear command: 254 88
+	call	MIOS_IIC_ByteSend
+	movlw	88
+	call	MIOS_IIC_ByteSend
+	call	MIOS_IIC_Stop			; stop IIC
+	IRQ_ENABLE				; enable interrupts
 	return
 
 ;; --------------------------------------------------------------------------
@@ -78,11 +171,33 @@ USER_LCD_Clear
 ;;  In:  MIOS_LCD_OPTION1 - contains the first LCD option given by MIOS_LCD_TypeSet
 ;;       MIOS_LCD_OPTION2 - contains the second LCD option given by MIOS_LCD_TypeSet
 ;;       MIOS_GLCD_CURSOR_X - horizontal cursor position (for GLCDs)
-;;       MIOS_GLCD_CURSOR_X - vertical cursor position   (for GLCDs)
-;;       MIOS_LCD_CURSOR    - character cursor position  (for CLCDs)
+;;       MIOS_GLCD_CURSOR_Y - vertical cursor position   (for GLCDs)
+;;       MIOS_LCD_CURSOR_POS - character cursor position  (for CLCDs)
 ;;  Out: -
 ;; --------------------------------------------------------------------------
 USER_LCD_CursorSet
+	IRQ_DISABLE				; interrupts have to be disabled during IIC transfer
+	call	MIOS_IIC_Start			; start IIC
+	movlw	APP_LCD_IIC_DEVICE_ADDRESS	; send device address
+	call	MIOS_IIC_ByteSend
+	movlw	254				; control code sequence for cursor set: 254 71
+	call	MIOS_IIC_ByteSend
+	movlw	71
+	call	MIOS_IIC_ByteSend
+	SET_BSR	MIOS_LCD_CURSOR_POS		; get and send column
+	movf	MIOS_LCD_CURSOR_POS, W, BANKED
+	andlw	0x3f				; cursor pos & 0x3f
+	addlw	1                               ; positions start at 1, not 0...
+	call	MIOS_IIC_ByteSend
+	SET_BSR	MIOS_LCD_CURSOR_POS		; get and send row (line)
+	swapf	MIOS_LCD_CURSOR_POS, W, BANKED
+	rrf	WREG, F
+	rrf	WREG, W
+	andlw	0x03				; (cursor pos >> 6) & 0x03
+	addlw	1                               ; positions start at 1, not 0...
+	call	MIOS_IIC_ByteSend
+	call	MIOS_IIC_Stop			; stop IIC
+	IRQ_ENABLE				; enable interrupts
 	return
 
 ;; --------------------------------------------------------------------------
@@ -91,32 +206,22 @@ USER_LCD_CursorSet
 ;;       all other MIOS_*LCD_* registers
 ;;  Out: GLCDs should justify the X/Y cursor position
 ;; --------------------------------------------------------------------------
-USER_LCD_PrintChar
+USER_LCD_PrintChar 
+	;; temporary save character in MIOS_GLCD_TMP3 
+	SET_BSR MIOS_GLCD_TMP3 
+	movwf MIOS_GLCD_TMP3, BANKED 
+ 
+	IRQ_DISABLE				; interrupts have to be disabled during IIC transfer 
+	call MIOS_IIC_Start			; start IIC 
+	movlw APP_LCD_IIC_DEVICE_ADDRESS	; send device address 
+	call MIOS_IIC_ByteSend 
+	SET_BSR MIOS_GLCD_TMP3 
+	movf MIOS_GLCD_TMP3, W, BANKED		; send character 
+	call MIOS_IIC_ByteSend 
+	call MIOS_IIC_Stop			; stop IIC 
+	IRQ_ENABLE				; enable interrupts 
 	return
 
-;; --------------------------------------------------------------------------
-;;  FUNCTION: USER_LCD_Data
-;;  DESCRIPTION: sends a data value to the LCD display.<BR>
-;;  On CLCDs: branch directly to USER_LCD_PrintChar<BR>
-;;  On GLCDs: ignore this function!
-;;  IN:  data which should be sent
-;;  OUT: -
-;;  NOTE: see the custom_lcd_example for further details
-;; --------------------------------------------------------------------------
-USER_LCD_Data
-	return
-
-;; --------------------------------------------------------------------------
-;;  FUNCTION: USER_LCD_Cmd
-;;  DESCRIPTION: sends a command to the LCD display.<BR>
-;;  On CLCDs: use this function to decode the HD44780 commands if required<BR>
-;;  On GLCDs: ignore this function!
-;;  IN:  command which should be sent
-;;  OUT: -
-;;  NOTE: see the custom_lcd_example for further details
-;; --------------------------------------------------------------------------
-USER_LCD_Cmd
-	return
 
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: USER_LCD_SpecialCharInit
@@ -125,7 +230,7 @@ USER_LCD_Cmd
 ;;       pointer to special char pattern in TBLPTR (consists of 8
 ;;          entries for every character-line)
 ;;  OUT: TBLPTR has to be set to next table entry (TBLPTR+=8)
-;;  NOTE: see the custom_lcd_example for further details
 ;; --------------------------------------------------------------------------
 USER_LCD_SpecialCharInit
+	;; not used by this driver
 	return
