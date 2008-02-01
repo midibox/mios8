@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; MIOS Custom LCD Driver Example
 ; for KS0107/0108 --- with horizontal screen (-> 240x64)

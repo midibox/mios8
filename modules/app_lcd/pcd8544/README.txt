@@ -1,4 +1,4 @@
-$Id: $
+$Id$
 
 Custom Driver for up to 8 * PCD8544 (every display provides a resolution of 84x48)
 

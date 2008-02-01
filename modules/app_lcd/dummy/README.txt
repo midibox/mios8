@@ -1,4 +1,4 @@
-$Id: $
+$Id$
 
 Driver dummy for custom LCDs (selected with LCD type #7)
 

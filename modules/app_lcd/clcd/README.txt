@@ -1,4 +1,4 @@
-$Id: $
+$Id$
 
 Custom Driver for CLCD displays (selected with LCD type #7)
 

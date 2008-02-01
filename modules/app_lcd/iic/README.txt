@@ -1,4 +1,4 @@
-$Id: $
+$Id$
 
 Custom Driver for Matrix Orbital IIC display (selected with LCD type #7)
 

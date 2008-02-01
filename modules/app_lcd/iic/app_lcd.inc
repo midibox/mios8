@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; MIOS Custom LCD Driver Example
 ; for Matrix Orbital IIC display

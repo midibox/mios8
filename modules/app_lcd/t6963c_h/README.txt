@@ -1,4 +1,4 @@
-$Id: $
+$Id$
 
 Custom Driver for for T6963C --- with horizontal screen (-> 240x64)
 

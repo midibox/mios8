@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 
 ;; converted with '$MIOS_BIN_PATH/convpix.pl glcd_font_small.xpm'
 ;; FONT_ENTRY manually added

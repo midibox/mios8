@@ -1,4 +1,4 @@
-$Id: $
+$Id$
 
 Custom Driver for KS0107/0108 --- with horizontal screen (-> up to 240x64)
 

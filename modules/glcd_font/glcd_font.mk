@@ -1,4 +1,4 @@
-# $Id: $
+# $Id$
 # defines the rule for creating the glcd_font_*.o objects,
 # allows also to assemble the glcd_font_*.inc files directly
 

@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; MIOS Custom LCD Driver Example
 ; for T6963C --- with vertical screen (-> 64x240)

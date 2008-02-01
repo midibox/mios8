@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; MIOS Custom LCD Driver Example
 ; for up to 8 * PCD8544 (every display provides a resolution of 84x48)

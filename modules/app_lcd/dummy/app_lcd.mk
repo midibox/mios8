@@ -1,4 +1,4 @@
-# $Id: $
+# $Id$
 # defines the rule for creating the app_lcd.o object, or assembling the app_lcd.inc file directly
 
 # add this directory to include path

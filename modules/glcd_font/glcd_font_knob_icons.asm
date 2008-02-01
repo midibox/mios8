@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; Wrapper for GLCD fonts
 ; To be used for relocatable programs

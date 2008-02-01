@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; Wrapper for app_lcd.inc
 ; To be used for relocatable programs

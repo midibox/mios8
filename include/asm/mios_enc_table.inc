@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; "Dummy" Configuration Table for Rotary Encoders
 ; 
