@@ -17,6 +17,38 @@ Files
   iic_midi.mk:  includes this into Makefile to integrate the module
 
 
+Defines
+~~~~~~~
+
+  used in iic_midi.inc, can be overruled with -D<define>=<value> from command line
+
+;; base address and max number of IIC slaves
+#define IIC_MIDI_BASE_ADDR	0x10
+
+;; maximum supported number of MBHP_IIC_MIDI modules (1..4)
+#define IIC_MIDI_MAX_NUMBER	4
+
+;; use Receive Interrupt lines for faster polling?
+#define IIC_MIDI_USE_RI		1
+
+;; don't use J5 of the core module as digital inputs or RI signals
+#define IIC_MIDI_DONT_USE_J5_INPUTS 0
+
+;; RI_N lines (note: ADC will be turned off in IIC_MIDI_Init if IIC_MIDI_DONT_USE_J5_INPUTS == 0)
+PORT_RI_N_SLAVE0	EQU     PORTA
+TRIS_RI_N_SLAVE0	EQU	TRISA
+PIN_RI_N_SLAVE0		EQU     0
+PORT_RI_N_SLAVE1	EQU     PORTA
+TRIS_RI_N_SLAVE1	EQU	TRISA
+PIN_RI_N_SLAVE1		EQU     1
+PORT_RI_N_SLAVE2	EQU     PORTA
+TRIS_RI_N_SLAVE2	EQU	TRISA
+PIN_RI_N_SLAVE2		EQU     2
+PORT_RI_N_SLAVE3	EQU     PORTA
+TRIS_RI_N_SLAVE3	EQU	TRISA
+PIN_RI_N_SLAVE3		EQU     3
+
+
 Integration Hints
 ~~~~~~~~~~~~~~~~~
 
@@ -66,3 +98,5 @@ _iic_midi_tx_package	EQU	0x079; ..0x7c
 
 
 TODO: allow banked RAM areas as well
+
+

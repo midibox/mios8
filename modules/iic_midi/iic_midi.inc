@@ -25,6 +25,7 @@
 #define IIC_MIDI_BASE_ADDR	0x10
 #endif
 
+;; maximum supported number of MBHP_IIC_MIDI modules (1..4)
 #ifndef IIC_MIDI_MAX_NUMBER
 #define IIC_MIDI_MAX_NUMBER	4
 #endif
@@ -39,7 +40,7 @@
 #define IIC_MIDI_DONT_USE_J5_INPUTS 0
 #endif
 
-;; RI_N lines (note: ADC will be turned off in IIC_MIDI_Init)
+;; RI_N lines (note: ADC will be turned off in IIC_MIDI_Init if IIC_MIDI_DONT_USE_J5_INPUTS == 0)
 #ifndef PORT_RI_N_SLAVE0
 PORT_RI_N_SLAVE0	EQU     PORTA
 #endif
