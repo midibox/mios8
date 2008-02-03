@@ -17,7 +17,7 @@ first MIOS application
 
 The .xpm files are manually created with "xpaint"
 
-The appr. inc files have been converted with $MIOS_BIN_PATH/bin/convpix.pl
+The appr. inc files have been converted with $MIOS_BIN_PATH/convpix.pl
 
 The .asm files are wrappers for relocatable objects, used in
 C applications
