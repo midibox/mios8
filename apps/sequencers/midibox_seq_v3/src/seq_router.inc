@@ -133,12 +133,12 @@ SEQ_ROUTER_CheckIIC1
 #if DEFAULT_IIC1_RI_N_PORT
 	BRA_IFSET DEFAULT_IIC1_RI_N_PORT, DEFAULT_IIC1_RI_N_PIN, ACCESS, SEQ_ROUTER_CheckIIC1_End
 
-	clrf	IIC_MIDI_SLAVE	; (select slave - always 0, we only use one MIDI input to save performance)
+	clrf	_iic_midi_slave	; (select slave - always 0, we only use one MIDI input to save performance)
 	call	IIC_MIDI_Receive
 	bz	SEQ_ROUTER_CheckIIC1_End
 
 	;; only forward normal MIDI events of type 8-e (no system events)
-	movf	IIC_MIDI_RX_PACKAGE+0, W
+	movf	_iic_midi_rx_package+0, W
 	andlw	0x0f
 	xorlw	0x0f
 	bz	SEQ_ROUTER_CheckIIC1_End
@@ -147,9 +147,9 @@ SEQ_ROUTER_CheckIIC1
 	bz	SEQ_ROUTER_CheckIIC1_End
 
 	;; copy event to MIOS_PARAMETER[123]
-	movff	IIC_MIDI_RX_PACKAGE+1, MIOS_PARAMETER1
-	movff	IIC_MIDI_RX_PACKAGE+2, MIOS_PARAMETER2
-	movff	IIC_MIDI_RX_PACKAGE+3, MIOS_PARAMETER3
+	movff	_iic_midi_rx_package+1, MIOS_PARAMETER1
+	movff	_iic_midi_rx_package+2, MIOS_PARAMETER2
+	movff	_iic_midi_rx_package+3, MIOS_PARAMETER3
 
 	;; forward via router
 	movlw	1		; (IIC1 port)

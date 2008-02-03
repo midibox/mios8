@@ -172,13 +172,16 @@ PERFORMANCE_REF_CTR	EQU	0x06b
 
 ;; ==========================================================================
 
-IIC_MIDI_AVAILABLE_SLAVES EQU	0x070
-IIC_MIDI_SLAVE		EQU	0x071
+;; for iic_midi module
+_iic_midi_available_slaves EQU	0x070
+_iic_midi_slave		EQU	0x071
 IIC_MIDI_TMP		EQU	0x072
 IIC_MIDI_TX_RETRY_CTR	EQU	0x073
 IIC_MIDI_BYTES_TO_SEND	EQU	0x074
-IIC_MIDI_RX_PACKAGE	EQU	0x075; ..0x78
-IIC_MIDI_TX_PACKAGE	EQU	0x079; ..0x7c
+_iic_midi_rx_package	EQU	0x075; ..0x78
+_iic_midi_tx_package	EQU	0x079; ..0x7c
+
+;; ==========================================================================
 MIDI_EVNT_PREV_INTERFACE EQU    0x07d
 
 

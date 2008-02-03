@@ -82,7 +82,7 @@ MIDI_EVNT_CheckPort_ChkIIC3
 	movlw	0x08		; compare mask
 	rgoto	MIDI_EVNT_CheckPort_ChkIIC_Cont
 MIDI_EVNT_CheckPort_ChkIIC_Cont
-	andwf	IIC_MIDI_AVAILABLE_SLAVES, W
+	andwf	_iic_midi_available_slaves, W
 	bz	MIDI_EVNT_CheckPort_NotAvail
 	rgoto	MIDI_EVNT_CheckPort_Avail
 
@@ -237,15 +237,15 @@ MIDI_EVNT_Send_IIC3
 	movlw	0x03
 	rgoto	MIDI_EVNT_Send_IIC_Cont
 MIDI_EVNT_Send_IIC_Cont
-	movwf	IIC_MIDI_SLAVE
+	movwf	_iic_midi_slave
 
 	;; send package
 	swapf	MIDI_EVNT0, W
 	andlw	0x0f
-	movwf	IIC_MIDI_TX_PACKAGE+0
-	movff	MIDI_EVNT0, IIC_MIDI_TX_PACKAGE+1
-	movff	MIDI_EVNT1, IIC_MIDI_TX_PACKAGE+2
-	movff	MIDI_EVNT_VALUE, IIC_MIDI_TX_PACKAGE+3
+	movwf	_iic_midi_tx_package+0
+	movff	MIDI_EVNT0, _iic_midi_tx_package+1
+	movff	MIDI_EVNT1, _iic_midi_tx_package+2
+	movff	MIDI_EVNT_VALUE, _iic_midi_tx_package+3
 	goto	IIC_MIDI_Transmit
 	
 	;; ---------------------------------------------------------------------

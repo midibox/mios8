@@ -464,9 +464,11 @@ USER_AIN_NotifyChange
 ;;  Application code (see comments in files)
 ;; ==========================================================================
 
+;; ---[ modules from code library ]---
+#include <iic_midi.inc>		; located in $MIOS_PATH/modules/iic_midi/
+
 ;; ---[ reusable utility functions ]---
 #include "midi_evnt.inc"
-#include "iic_midi.inc"
 #include "midi_rxtx.inc"
 #if DEFAULT_AOUT_MODULE_TYPE == 0
 #include "aout.inc"
