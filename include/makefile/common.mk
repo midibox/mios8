@@ -23,10 +23,10 @@
 OUTDIR = _output
 
 # GPASM execution via wrapper
-GPASM = perl $(MIOS_BIN_PATH)/mios-gpasm.pl -c
+GPASM = sh $(MIOS_BIN_PATH)/mios-gpasm -c
 
 # SDCC execution via wrapper
-SDCC = perl $(MIOS_BIN_PATH)/mios-sdcc.pl -c
+SDCC = sh $(MIOS_BIN_PATH)/mios-sdcc -c
 
 # GPLINK execution (w/o wrapper yet)
 GPLINK = gplink
@@ -55,7 +55,7 @@ GPLINK_FLAGS += -s $(LKR_FILE)
 # add files for distribution
 DIST += $(MIOS_PATH)/include/makefile/common.mk $(MIOS_PATH)/include/c $(MIOS_PATH)/include/asm
 DIST += $(LKR_FILE)
-DIST += $(MIOS_BIN_PATH)/mios-gpasm.pl $(MIOS_BIN_PATH)/mios-sdcc.pl 
+DIST += $(MIOS_BIN_PATH)/mios-gpasm $(MIOS_BIN_PATH)/mios-sdcc
 
 # rule to create a .hex file
 # note: currently we always require a "cleanall", since dependencies (e.g. on .h files) are not properly declared

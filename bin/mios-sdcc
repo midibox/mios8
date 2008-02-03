@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# MIOS specific wrapper for sdcc
+#
+# Executes sdcc
+# Uses "mios-gpasm -fixasm" wrapper to assemble the generated code
+#
+# Thorsten Klose (2008-02-03)
+#
+# SYNTAX: mios-sdcc <sdcc-arguments>
+#
+
+if [ -z "${MIOS_BIN_PATH:-}" ]; then
+  echo "ERROR $0: MIOS_BIN_PATH variable not set!"
+  exit 1
+fi
+
+sdcc --asm="sh ${MIOS_BIN_PATH}/mios-gpasm -fixasm" $@
