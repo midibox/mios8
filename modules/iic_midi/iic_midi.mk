@@ -1,7 +1,7 @@
 # $Id$
 # defines the rule for creating the iic_midi.o object
 
-# (only SDCC include path needs to be extended)
+GPASM_INCLUDE += -I $(MIOS_PATH)/modules/iic_midi
 SDCC_INCLUDE += -I $(MIOS_PATH)/modules/iic_midi
 
 # make rule
