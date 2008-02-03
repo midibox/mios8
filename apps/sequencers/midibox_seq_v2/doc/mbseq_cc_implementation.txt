@@ -1,0 +1,249 @@
+
+
+
+CC Implementation of MIDIbox SEQ
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ CC#    |   Range   | Default | Description
+========+===========+=========+================================================
+0x00/  0| 0x00-0x7f |    0x3c | Layer A of Track 1/2/3/4
+  ...   |           |         | Every track entry consists of 16 bytes
+0x3f/ 63|           |         | 
+
+
+ CC#    |   Range   | Default | Description
+========+===========+=========+================================================
+0x00/  0| 0x00-0x7f |    0x7f | Layer B of Track 1/2/3/4
+  ...   |           |         | Every track entry consists of 16 bytes
+0x3f/ 63|           |         | 
+
+
+ CC#    |   Range   | Default | Description
+========+===========+=========+================================================
+0x00/  0| 0x00-0x7f |    0x0a | Layer C of Track 1/2/3/4
+  ...   |           |         | Every track entry consists of 16 bytes
+0x3f/ 63|           |         | 
+--------+-----------+---------+------------------------------------------------
+
+
+ CC#    |   Range   | Default | Description
+========+===========+=========+================================================
+0x00/  0| 0x00-0x0f |    0x00 | MIDI Channel of Track 1
+0x01/  1| 0x00-0x0f |    0x01 | MIDI Channel of Track 2
+0x02/  2| 0x00-0x0f |    0x02 | MIDI Channel of Track 3
+0x03/  3| 0x00-0x0f |    0x03 | MIDI Channel of Track 4
+--------+-----------+---------+------------------------------------------------
+0x04/  4| 0x09-0x0f |    0x09 | MIDI Event Status Byte of Track 1 (bit 7-4)
+        |           |         |    0x09: Note
+        |           |         |    0x0a: Aftertouch
+        |           |         |    0x0b: Controller
+        |           |         |    0x0c: Program Change
+        |           |         |    0x0d: Channel Pressure
+        |           |         |    0x0e: Pitch Bender
+        |           |         |    0x0f: Redirection to analog outputs
+        |           |         |
+0x05/  5| 0x09-0x0f |    0x09 | MIDI Event Status Byte of Track 2 (bit 7-4)
+0x06/  6| 0x09-0x0f |    0x09 | MIDI Event Status Byte of Track 3 (bit 7-4)
+0x07/  7| 0x09-0x0f |    0x09 | MIDI Event Status Byte of Track 4 (bit 7-4)
+--------+-----------+---------+------------------------------------------------
+0x08/  8| 0x00-0x06 |    0x01 | Mode of Track 1
+        |           |         |    0x00: off
+        |           |         |    0x01: Normal
+        |           |         |    0x02: Transpose
+        |           |         |    0x03: Transpose+Hold
+        |           |         |    0x04: Arpeggiator
+        |           |         |    0x05: Arpeggiator+Hold
+        |           |         |    0x06: Controller
+        |           |         |
+0x09/  9| 0x00-0x06 |    0x00 | Mode of Track 2
+0x0a/ 10| 0x00-0x06 |    0x00 | Mode of Track 3
+0x0b/ 11| 0x00-0x06 |    0x00 | Mode of Track 4
+--------+-----------+---------+------------------------------------------------
+0x0c/ 12| 0x00-0x03 |    0x00 | Direction of Track 1
+        |           |         |    0x00: Forward
+        |           |         |    0x01: Backward
+        |           |         |    0x02: Ping Pong
+        |           |         |    0x03: Random
+        |           |         |
+0x0d/ 13| 0x00-0x03 |    0x00 | Direction of Track 2
+0x0e/ 14| 0x00-0x03 |    0x00 | Direction of Track 3
+0x0f/ 15| 0x00-0x03 |    0x00 | Direction of Track 4
+--------+-----------+---------+------------------------------------------------
+0x10/ 16| 0x00-0x04 |    0x00 | Clock Divider of Track 1
+        |           |         |    0x00: BPM/1
+        |           |         |    0x01: BPM/2
+        |           |         |    0x02: BPM/4
+        |           |         |    0x03: BPM/8
+        |           |         |    0x04: BPM/16
+        |           |         |
+0x11/ 17| 0x00-0x04 |    0x00 | Clock Divider of Track 2
+0x12/ 18| 0x00-0x04 |    0x00 | Clock Divider of Track 3
+0x13/ 19| 0x00-0x04 |    0x00 | Clock Divider of Track 4
+--------+-----------+---------+------------------------------------------------
+0x14/ 20| 0x00-0x0f |    0x0f | Length of Track 1 (1..16 Steps)
+0x15/ 21| 0x00-0x0f |    0x0f | Length of Track 2 (1..16 Steps)
+0x16/ 22| 0x00-0x0f |    0x0f | Length of Track 3 (1..16 Steps)
+0x17/ 23| 0x00-0x0f |    0x0f | Length of Track 4 (1..16 Steps)
+--------+-----------+---------+------------------------------------------------
+0x18/ 24| 0x00-0x0f |    0x04 | Layer Assignments of Track 1
+        |           |         |    [1..0] == 0: Note/Ctrl Number -> Layer A
+        |           |         |    [1..0] == 1: Note/Ctrl Number -> Layer B
+        |           |         |    [1..0] == 2: Note/Ctrl Number -> Layer C
+        |           |         |    [3..2] == 0: Velocity/Value -> Layer A
+        |           |         |    [3..2] == 1: Velocity/Value -> Layer B
+        |           |         |    [3..2] == 2: Velocity/Value -> Layer C
+        |           |         |
+0x19/ 25| 0x00-0x0f |    0x04 | Layer Assignments of Track 2
+0x1a/ 26| 0x00-0x0f |    0x04 | Layer Assignments of Track 3
+0x1b/ 27| 0x00-0x0f |    0x04 | Layer Assignments of Track 4
+--------+-----------+---------+------------------------------------------------
+0x1c/ 28| 0x00-0x0f |    0x02 | Layer Assignments of Track 1
+        |           |         |    [1..0] == 0: Gatelength -> Layer A
+        |           |         |    [1..0] == 1: Gatelength -> Layer B
+        |           |         |    [1..0] == 2: Gatelength -> Layer C
+        |           |         |
+0x1d/ 29| 0x00-0x0f |    0x02 | Layer Assignments of Track 2
+0x1e/ 30| 0x00-0x0f |    0x02 | Layer Assignments of Track 3
+0x1f/ 31| 0x00-0x0f |    0x02 | Layer Assignments of Track 4
+--------+-----------+---------+------------------------------------------------
+0x20/ 32| 0x00-0x0f |    0x00 | Octave Transpose Value of Track 1
+        |           |         |    0x8: no transpose, full range pot control
+        |           |         |    0x9: -7 Octaves
+        |           |         |    0xa: -6 Octaves
+        |           |         |    0xb: -5 Octaves
+        |           |         |    0xc: -4 Octaves
+        |           |         |    0xd: -3 Octaves
+        |           |         |    0xe: -2 Octaves
+        |           |         |    0xf: -1 Octave
+        |           |         |    0x0: +0 Octaves
+        |           |         |    0x1: +1 Octave
+        |           |         |    0x2: +2 Octaves
+        |           |         |    0x3: +3 Octaves
+        |           |         |    0x4: +4 Octaves
+        |           |         |    0x5: +5 Octaves
+        |           |         |    0x6: +6 Octaves
+        |           |         |    0x7: +7 Octaves
+        |           |         |
+0x21/ 33| 0x00-0x0f |    0x00 | Octave Transpose Value of Track 2
+0x22/ 34| 0x00-0x0f |    0x00 | Octave Transpose Value of Track 3
+0x23/ 35| 0x00-0x0f |    0x00 | Octave Transpose Value of Track 4
+--------+-----------+---------+------------------------------------------------
+0x24/ 36| 0x00-0x0f |    0x00 | Semitone Transpose Value of Track 1
+        |           |         |    0x8: -8 semitones
+        |           |         |    0x9: -7 semitones
+        |           |         |    0xa: -6 semitones
+        |           |         |    0xb: -5 semitones
+        |           |         |    0xc: -4 semitones
+        |           |         |    0xd: -3 semitones
+        |           |         |    0xe: -2 semitones
+        |           |         |    0xf: -1 semitones
+        |           |         |    0x0: no transpose
+        |           |         |    0x1: +1 semitones
+        |           |         |    0x2: +2 semitones
+        |           |         |    0x3: +3 semitones
+        |           |         |    0x4: +4 semitones
+        |           |         |    0x5: +5 semitones
+        |           |         |    0x6: +6 semitones
+        |           |         |    0x7: +7 semitones
+        |           |         |
+0x25/ 37| 0x00-0x0f |    0x00 | Semitone Transpose Value of Track 2
+0x26/ 38| 0x00-0x0f |    0x00 | Semitone Transpose Value of Track 3
+0x27/ 39| 0x00-0x0f |    0x00 | Semitone Transpose Value of Track 4
+--------+-----------+---------+------------------------------------------------
+0x28/ 40| 0x00-0x0f |    0x00 | Groove Value of Track 1 (e.g. Shuffle effect)
+0x29/ 41| 0x00-0x0f |    0x00 | Groove Value of Track 2
+0x2a/ 42| 0x00-0x0f |    0x00 | Groove Value of Track 3
+0x2b/ 43| 0x00-0x0f |    0x00 | Groove Value of Track 4
+--------+-----------+---------+------------------------------------------------
+0x2c/ 44| 0x00-0x0f |    0x00 | Groove Style of Track 1
+        |           |         |    0x0: Shuffle
+        |           |         |    0x1: Inverted Shuffle
+        |           |         |    others: reserved
+        |           |         |
+0x2d/ 45| 0x00-0x0f |    0x00 | Groove Style of Track 2
+0x2e/ 46| 0x00-0x0f |    0x00 | Groove Style of Track 3
+0x2f/ 47| 0x00-0x0f |    0x00 | Groove Style of Track 4
+--------+-----------+---------+------------------------------------------------
+0x30/ 48| 0x00-0x0f |    0x0e | Mute Status of Track 1, Step 1-4
+        |           |         |    4 bits
+        |           |         |    if bit set:     mute note
+        |           |         |    if bit cleared: play note
+        |           |         |
+0x31/ 49| 0x00-0x0f |    0x0e | Mute Status of Track 2, Step 1-4
+0x32/ 50| 0x00-0x0f |    0x0e | Mute Status of Track 3, Step 1-4
+0x33/ 51| 0x00-0x0f |    0x0e | Mute Status of Track 4, Step 1-4
+--------+-----------+---------+------------------------------------------------
+0x34/ 52| 0x00-0x0f |    0x0e | Mute Status of Track 1, Step 5-8
+0x35/ 53| 0x00-0x0f |    0x0e | Mute Status of Track 2, Step 5-8
+0x36/ 54| 0x00-0x0f |    0x0e | Mute Status of Track 3, Step 5-8
+0x37/ 55| 0x00-0x0f |    0x0e | Mute Status of Track 4, Step 5-8
+--------+-----------+---------+------------------------------------------------
+0x38/ 56| 0x00-0x0f |    0x0e | Mute Status of Track 1, Step 9-12
+0x39/ 57| 0x00-0x0f |    0x0e | Mute Status of Track 2, Step 9-12
+0x3a/ 58| 0x00-0x0f |    0x0e | Mute Status of Track 3, Step 9-12
+0x3b/ 59| 0x00-0x0f |    0x0e | Mute Status of Track 4, Step 9-12
+--------+-----------+---------+------------------------------------------------
+0x3c/ 60| 0x00-0x0f |    0x0e | Mute Status of Track 1, Step 13-16
+0x3d/ 61| 0x00-0x0f |    0x0e | Mute Status of Track 2, Step 13-16
+0x3e/ 62| 0x00-0x0f |    0x0e | Mute Status of Track 3, Step 13-16
+0x3f/ 63| 0x00-0x0f |    0x0e | Mute Status of Track 4, Step 13-16
+--------+-----------+---------+------------------------------------------------
+0x40/ 64| 0x00-0x02 |    0x00 | Morhping Mode of Track 1
+        |           |         |    0x00: no morphing
+        |           |         |    0x01: smooth morphing
+        |           |         |    0x02: threshold switching
+0x41/ 65| 0x00-0x02 |    0x00 | Morhping Mode of Track 2
+0x42/ 66| 0x00-0x02 |    0x00 | Morhping Mode of Track 3
+0x43/ 67| 0x00-0x02 |    0x00 | Morhping Mode of Track 4
+--------+-----------+---------+------------------------------------------------
+0x44/ 68| 0x00-0x0f |    0x00 | 
+  ...   |           |         | reserved
+0x47/ 71|           |         |
+--------+-----------+---------+------------------------------------------------
+0x48/ 72| 0x00-0x0f |    0x00 | Humanize Intensity of Track 1 (e.g. Shuffle effect)
+0x49/ 73| 0x00-0x0f |    0x00 | Humanize Intensity of Track 2
+0x4a/ 74| 0x00-0x0f |    0x00 | Humanize Intensity of Track 3
+0x4b/ 75| 0x00-0x0f |    0x00 | Humanize Intensity of Track 4
+--------+-----------+---------+------------------------------------------------
+0x4c/ 76| 0x00-0x0f |    0x00 | Humanize Mode of Track 1
+        |           |         |    bit 0: apply random value on 2nd MIDI byte
+        |           |         |    bit 1: apply random value on 3rd MIDI byte
+        |           |         |    bit 2: apply random value on gatelength
+        |           |         |    others: reserved
+        |           |         |
+0x4d/ 77| 0x00-0x0f |    0x00 | Humanize Mode of Track 2
+0x4e/ 78| 0x00-0x0f |    0x00 | Humanize Mode of Track 3
+0x4f/ 79| 0x00-0x0f |    0x00 | Humanize Mode of Track 4
+--------+-----------+---------+------------------------------------------------
+0x44/ 68| 0x00-0x0f |    0x00 | 
+  ...   |           |         | reserved
+0x5f/ 95|           |         |
+--------+-----------+---------+------------------------------------------------
+0x60/ 72| 0x00-0x0f |    0x00 | Morhping Target Pattern, Low Nibble
+0x61/ 73| 0x00-0x07 |    0x00 | Morhping Target Pattern, High Nibble
+--------+-----------+---------+------------------------------------------------
+0x62/ 98| 0x00-0x0f |    0x00 | 
+  ...   |           |         | reserved
+0x77/119|           |         |
+--------+-----------+---------+------------------------------------------------
+0x78/120| 0x00-0x0f |    0x01 | Global Sequencer Configuration
+        |           |         |    [0] 0: MIDI merger on, 1: MIDI merger off (read only)
+        |           |         |    [1] 0: MBLink off, 1: MBLink on (read only)
+--------+-----------+---------+------------------------------------------------
+0x79/121| 0x00-0x0f |    0x00 | Sequencer Options
+        |           |         |    [0] Reset arpeggiator if no key pressed
+        |           |         |    [1] synchronized pattern change
+--------+-----------+---------+------------------------------------------------
+0x7a/122| 0x00-0x0f |    0x0c | BPM lowbyte (bit 6-0)
+0x7b/123| 0x00-0x0f |    0x08 | BPM MSB (bit 7)
+        |           |         | for MIDI clock slave both CCs have to set to 0
+--------+-----------+---------+------------------------------------------------
+0x7c/124| 0x00-0x0f |    0x09 | Metronome MIDI Channel
+--------+-----------+---------+------------------------------------------------
+0x7d/125| 0x00-0x0f |    0x00 | reserved
+--------+-----------+---------+------------------------------------------------
+0x7e/126| -         |       - | reserved, cannot be overwritten
+--------+-----------+---------+------------------------------------------------
+0x7f/127| -         |       - | Device ID, cannot be overwritten, read as 0!
+--------+-----------+---------+------------------------------------------------

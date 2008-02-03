@@ -1,0 +1,55 @@
+
+MIDIO128 V2.1d
+~~~~~~~~~~~~~~
+
+   o MIDIO SysEx ID is now automatically derived from the MIOS Device ID
+
+
+MIDIO128 V2.1b
+~~~~~~~~~~~~~~
+
+   o the initial polarity of "toggle status" was wrong
+
+
+MIDIO128 V2.1a
+~~~~~~~~~~~~~~
+
+   o "program change" and "channel preassure" now sent correctly
+
+   o the 42th and 84th DIN event now sent correctly
+
+   o proper initialization for the case that the DOUTs are inverted 
+     or the DINs are not inverted
+
+   o change in default meta event handler (midio_meta.inc): 
+     nothing will be sent if first byte is 0xff
+
+
+MIDIO128 V2.1
+~~~~~~~~~~~~~
+
+   o three new SysEx commands have been implemented to simplify
+     the configuration data up- and download. It's a block
+     oriented format and therefore doesn't require delays between
+     every byte anymore. This means, that data uploads can
+     now also be realized without the use of MIDI-Ox so long the
+     SysEx tool allows to insert delays between every block
+     ("Delay after F7") - it should be 750 mS - thats the
+     same requirement like for MIOS uploads.
+     More infos can be found here:
+        http://www.uCApps.de/howto_tools_mbsyx.html
+
+   o the mk_midio128_syx.pl script has been updated to support the
+     new upload format. It can be downloaded from here:
+        http://www.uCApps.de/midio128/mk_midio128_syx.zip
+
+
+MIDIO128 V2.0 - MIOS based version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   o the complete MIDIO128 firmware has been ported to MIOS and is
+     now running on a PIC18F452. For new projects it's recommented 
+     to switch to the PIC18F452 because of the higher flexibility, 
+     but also the update of an existing MIDIbox to MIOS makes sense 
+     due to the new features - just only the processor and the 
+     crystal have to be changed. 

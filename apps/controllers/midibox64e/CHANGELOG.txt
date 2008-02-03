@@ -1,0 +1,148 @@
+$Id$
+
+MIDIbox64E V2.2
+~~~~~~~~~~~~~~~
+
+   o a patch mode has been implemented which can be selected as an
+     alternative option to the common "bank" mode in main.asm
+
+     In patch mode, each BankStick contains only one bank
+     configuration (means: encoder/pot/button/label setup), but 
+     128 snapshots! This allows you to prepare one configuration
+     for your MIDI gear, and to store/recall/morph up to 128 scenes.
+
+   o there are two new SysEx commands for storing/restoring patches
+
+   o patches and banks can be changed from external with a 
+     "Program Change" command. The channels are specified in
+     main.asm. Default: Channel 16 - Banks; Channel 15: Patches 
+
+   o some minor bugfixes and improvements
+
+
+MIDIbox64E V2.1
+~~~~~~~~~~~~~~~
+
+   o three new SysEx commands have been implemented to simplify
+     the configuration data up- and download. It's a block
+     oriented format and therefore doesn't require delays between
+     every byte anymore. This means, that data uploads can
+     now also be realized without the use of MIDI-Ox so long the
+     SysEx tool allows to insert delays between every block
+     ("Delay after F7") - it should be 750 mS - thats the
+     same requirement like for MIOS uploads.
+     More infos can be found here:
+        http://www.uCApps.de/howto_tools_mbsyx.html
+
+   o the mk_syx.pl script has been updated to support the
+     new upload format. It can be downloaded from here:
+        http://www.uCApps.de/midibox/mk_syx.zip
+
+   o Bankswitching now significantly faster
+
+   o support for a datawheel (rotary encoder) as replacement for
+     the left/right button. To enable it, set DEFAULT_ENC_DATAWHEEL 
+     to 0 - connect the rotary encoder to pin 4 and 5 of the first
+     DIN shift register, connect the exec button to pin 7 and
+     the snapshot button to pin 6 
+
+   o experimental support for AIN/MF modules
+     Although MIDIbox64E has been designed for rotary encoders, 
+     it can now also handle with up to 64 pots/faders or up to 
+     8 motorfaders.
+     Pots and faders are mapped to the "encoder" entries 64-128.
+     Example: if group width is 16, and group 1 is selected, 
+     encoders are using Entry 1-16, and pots are using entry 64-(number of pots)
+
+   o new hardware setup file for "MIDIbox NG" 
+     -> setup_midibox_ng.asm
+     (8 encoders, 8 motorfaders, 8 touchsensors, 64 buttons)
+
+   o new hardware setup file for "MIDIbox SEQ" 
+     -> setup_midibox_seq.asm
+     (16 encoders + 1 datawheel, 44 buttons)
+
+
+MIDIbox64E V2.0 - MIOS based version of MIDIbox16E
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   o the complete MIDIbox16E firmware has been ported to MIOS and is
+     now running on a PIC18F452. For new projects it's recommented 
+     to switch to the PIC18F452 because of the higher flexibility, 
+     but also the update of an existing MIDIbox to MIOS makes sense 
+     due to the new features - just only the processor and the 
+     crystal have to be changed. 
+
+   o biggest improvement: MIDIbox64E can handle with up to 
+     64 rotary encoders and LEDrings!
+
+   o all 128 virtual pos and 64 button entries stored in a bank can 
+     be updated by incoming MIDI events
+
+   o the previous "subbank" mechanism which divided the 128 encoder
+     entries into 8 "banks within banks" has been renamed to "pages"
+     The width of a page is free definable. This means, that all
+     128 encoder entries can be controlled by MB64E with a single 
+     encoder (low-cost solution) as well as with up to 64 encoders!
+
+   o Note that Serge's vmidibox16e editor (which has been developed 
+     for the PIC16F version) can also interact with the new
+     implementation. 
+     The transfer rate has to be set to a value less than 150, otherwise 
+     the dump won't be received completely. This isn't a bug in MIOS, but 
+     a problem related to the PIC18F which can only save 64 bytes at once 
+     in the internal flash memory (the PIC16F saves 2 bytes (14 bit)
+     at once). 
+
+   o Beside of the MIDI Learn function, MIDI events can now also be
+     edited directly 
+
+   o Support for on-screen editing of pot lables and banknames 
+
+   o up to 8 BankSticks can be handled by the firmware now (-> up to 64 banks) 
+   
+   o the DEFAULT_BANKSTICK_CS setting in main.asm allows you to
+     select a dedicated EEPROM for your application or disable
+     the BankStick support at all. This feature is especially 
+     usefull when different applications are used with the MIDIbox
+
+   o banks can be copied 
+
+   o A morphing function has been added which allows to fade smoothly 
+     between two pot scenes: the current pot positions and the pot positions 
+     saved in a snapshot (bank) 
+
+   o Encoder events can now be triggered via Remote: 
+        F0 00 00 7E 43 [d]9 00 [pot] [value] F7 
+     ([d] = device number (0-7), 
+      [pot] = pot number (0-63), 
+      [value] = pot value (0-127) 
+
+   o Button events (also menu buttons) can now be triggered via Remote: 
+        F0 00 00 7E 43 [d]9 01 [button] [value] F7 
+     ([d] = device number (0-7), 
+      [button] = button number (0-63), 
+      [value] = button value (0=pressed, 1=depressed) 
+
+   o Special Functions can now be triggered via Remote: 
+        F0 00 00 7E 43 [d]9 02 [sfbn] [sfbp] [value] F7 
+     ([d] = device number (0-7), 
+      [sfbn] = special function number (0-127), 
+      [sfbp] = special function parameter (0-127), 
+      [value] = button value (0=pressed, 1=depressed) 
+
+   o A software implemented MIDI Rx/Tx LED function has been integrated 
+
+   o the MIDIbox64E tutorial has been updated (see http://www.ucapps.de)
+
+   o the LCD screen can now be centered for various displays, the
+     cursor positions have to be configured in main.asm
+     (search for DEFAULT_YOFFSET_LINE*)
+
+   o the predefined MIDI channels stored in the bank can now be 
+     overwritten by a global channel
+
+   o various default setup_*.asm files are included in this
+     release which are preconfigured for the original
+     MIDIbox16E, MIDIbox NG and MIDIbox SID hardwares
+

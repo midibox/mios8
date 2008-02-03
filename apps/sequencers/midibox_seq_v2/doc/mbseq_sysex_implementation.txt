@@ -1,0 +1,26 @@
+MIDIboxSEQ SysEx Implementation
+===============================
+
+Which Actions are implemented
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   a) F0 00 00 7E 47 <device-number> 01 <pattern-number> F7
+      Request a Dump of Pattern <pattern-number>
+
+   b) F0 00 00 7E 47 <device-number> 02 <pattern-number> <320 bytes of dump data> F7
+      Write a Dump to Pattern <pattern-number>
+
+   c) F0 00 00 7E 47 <device-number> 03 F7
+      Request a Dump of the whole Bank (128 patterns)
+
+   d) F0 00 00 7E 47 <device-number> 05 AH AL F7
+      Direct Read of parameter (AH = 0..3, AL = 0..7F)
+
+   e) F0 00 00 7E 47 <device-number> 06 AH AL <value> F7
+      Direct Write of parameter (AH = 0..3, AL = 0..7F)
+
+   f) F0 00 00 7E 47 <device number> 0F F7
+      Ping (just sends back the same SysEx string)
+
+
+Thorsten.Klose@midibox.org

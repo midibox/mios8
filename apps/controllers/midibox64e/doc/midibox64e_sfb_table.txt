@@ -1,0 +1,113 @@
+$Id$
+
+This table contains all available Special Function numbers
+and parameters for firmware V2.0 of MIDIbox64E, which can
+be assigned to any button except for the common snapshot
+and the menu buttons.
+
+Special Functions are addressed over Meta Event #FF
+
+Below an example for your private midibox64e.ini - don't worry 
+if you don't understand the meaning of the functions immediately,
+once you've built a MIDIbox64E and played with the parameters, you 
+will be able to justify the setup exactly for your needs :)
+
+---[ BEGIN extract from an example midibox64e.ini ]---------------------------
+[BUTTONS]
+    1.1   =  FF 01 00   # switch to Group #x.1  --  for quick bank access
+    1.2   =  FF 01 01   # switch to Group #x.2  --  for quick bank access
+    1.3   =  FF 01 02   # switch to Group #x.3  --  for quick bank access
+    1.4   =  FF 01 03   # switch to Group #x.4  --  for quick bank access
+    1.5   =  FF 01 04   # switch to Group #x.5  --  for quick bank access
+    1.6   =  FF 01 05   # switch to Group #x.6  --  for quick bank access
+    1.7   =  FF 01 06   # switch to Group #x.7  --  for quick bank access
+    1.8   =  FF 01 07   # switch to Group #x.8  --  for quick bank access
+
+    1.9   =  FF 02 00   # switch to Bank 1  --  for quick access
+    1.10  =  FF 02 01   # switch to Bank 2  --  for quick access
+    1.11  =  FF 02 02   # switch to Bank 3  --  for quick access
+    1.12  =  FF 02 03   # switch to Bank 4  --  for quick access
+    1.13  =  FF 02 04   # switch to Bank 3  --  for quick access
+    1.14  =  FF 02 05   # switch to Bank 4  --  for quick access
+    1.15  =  FF 02 06   # switch to Bank 5  --  for quick access
+    1.16  =  FF 02 07   # switch to Bank 6  --  for quick access
+
+    1.17  =  FF 01 10   # decrement Group without overflow
+    1.18  =  FF 01 12   # increment Group without overflow
+
+    1.19  =  FF 00 02   # switch to MIDI Learn Submenu
+    1.20  =  FF 00 03   # switch to MIDIchannel Submenu
+
+    1.21  =  FF 08 41   # select Group and Bank with any encoder
+
+    1.22  =  FF 08 20   # Encoder in Slow Speed Mode when button is pressed
+    1.23  =  FF 08 20   # Encoder in Slow Speed Mode when button is pressed
+---[ END extract from an example midibox64e.ini ]-----------------------------
+
+
+Here the current list - numbers may varry with different firmware versions!
+
+=========+====================================================================
+Code     | Description
+=========+====================================================================
+80-EF .. | Send MIDI Event
+---------+--------------------------------------------------------------------
+F0-FE .. | Send META Event
+---------+--------------------------------------------------------------------
+FF 00 00 | Switch to Display Submenu
+FF 00 01 | Switch to Bank Submenu
+FF 00 02 | Switch to Patch Submenu
+FF 00 03 | Switch to Learn Submenu
+FF 00 04 | Switch to Global Channel Submenu
+FF 00 05 | Switch to MIDI Learn Submenu
+FF 00 06 | Switch to Morhping Submenu
+FF 00 07 | Switch to Encoder Mode Submenu
+FF 00 08 | Switch to Encoder Speed Submenu
+FF 00 09 | Switch to LED Patterns Submenu
+FF 00 0A | Switch to Edit Bankname Submenu
+FF 00 0B | Switch to Edit Events Submenu
+FF 00 0C | Switch to Edit Labels Submenu
+FF 00 0D | Switch to Copy Bank Submenu
+FF 00 0E | Switch to MIDI Config Submenu
+FF 00 0F | Switch to SysEx Submenu
+---------+--------------------------------------------------------------------
+FF 01 0n | Switch to Group n (n = selected group, n = 0..7)
+FF 01 10 | Decrement Group without overflow
+FF 01 11 | Decrement Group with overflow
+FF 01 12 | Increment Group without overflow
+FF 01 13 | Increment Group with overflow
+---------+--------------------------------------------------------------------
+FF 02 0n | Switch to Bank n (n = selected bank, n = 0..7)
+FF 02 10 | Decrement Bank without overflow
+FF 02 11 | Decrement Bank with overflow
+FF 02 12 | Increment Bank without overflow
+FF 02 13 | Increment Bank with overflow
+---------+--------------------------------------------------------------------
+FF 03 0n | Switch to Bankstick n (n = selected bankstick, n = 0..7)
+FF 03 10 | Decrement Bankstick without overflow
+FF 03 11 | Decrement Bankstick with overflow
+FF 03 12 | Increment Bankstick without overflow
+FF 03 13 | Increment Bankstick with overflow
+---------+--------------------------------------------------------------------
+FF 04 0n | - Save Encoder Positions in current Bank,
+         | - Jump to Bank n (n=0..7),
+         | - Restore Encoder Positions from new bank
+FF 04 10 | Same, but: Decrement Bank without overflow
+FF 04 11 | Same, but: Decrement Bank with overflow
+FF 04 12 | Same, but: Increment Bank without overflow
+FF 04 13 | Same, but: Increment Bank with overflow
+FF 04 40 | Store pot positions in current Bank
+FF 04 41 | Restore pot positions from current Bank
+---------+--------------------------------------------------------------------
+FF 08 00 | switch to "Encoder Normal Speed" Mode
+FF 08 10 | switch to "Encoder Fast Speed" Mode
+FF 08 11 | Encoder in Fast Speed Mode when button is pressed, jump back to
+         | normal mode when button is released
+FF 08 20 | switch to "Encoder Slow Speed" Mode
+FF 08 21 | Encoder in Slow Speed Mode when button is pressed, jump back to
+         | normal mode when button is released
+         |
+FF 08 40 | Select Parameter with encoder during button is pressed
+FF 08 41 | Select Group with the first, Bank with the second, Patch with the third
+         | encoder during button is pressed
+---------+--------------------------------------------------------------------

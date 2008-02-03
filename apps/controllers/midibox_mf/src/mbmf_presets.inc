@@ -1,0 +1,848 @@
+; $Id$
+;
+; MIDIbox MF
+; Presets (EEPROM/Flash Content)
+;
+; ==========================================================================
+;
+;  Copyright 1998-2003 Thorsten Klose (tk@midibox.org)
+;  Licensed for personal non-commercial use only.
+;  All other rights reserved.
+; 
+; ==========================================================================
+
+        ERRORLEVEL      -220    ; suppress "Address exceeds maximum range for this processor."
+	;; this is (unfortunately) required for gpasm
+
+
+; ==========================================================================
+;  Data structure:
+;                      BankStick Addr.   Internal Addr.   
+;   +---------------+  0xfff             0x7bff (FLASH)
+;   | Fader Strings |
+;   +---------------+  0x800             0x7400 (FLASH)
+;   | Reserved      |
+;   +---------------+  0x700             -
+;   | Configuration |
+;   +---------------+  0x690             0x50 (EEPROM)
+;   | Button Values |
+;   +---------------+  0x680             0x40 (EEPROM)
+;   | Fader Values  |
+;   +---------------+  0x600             0x00 (EEPROM)
+;   | reserved      |
+;   +---------------+  0x400             0x7200 (FLASH)
+;   | reserved      |
+;   +---------------+  0x300             0x7100 (FLASH)
+;   | Button Events |
+;   +---------------+  0x200             0x7000 (FLASH)
+;   | Fader Events  |
+;   +---------------+  0x000             0x6e00 (FLASH)
+;
+
+; ==========================================================================
+
+	org	0x06e00		; fader/button events stored at the end of internal flash
+	
+;; This macro generates an FADER entry
+;; Parameters: event_0, event_1, min_value, max_value
+;; normaly we need 8 bits for every event byte, but since we are only able to 
+;; embedd 7-bit events within a SysEx stream, the MSB is masked out. 
+;; However, the MSB (bit 8) is 1 for every MIDI event (0x80-0xff), therefore 
+;; this doesn't hurt. Simmlar approach for event_1: the MSB is 0 for every MIDI 
+;; event (0x00-0x7f), so we can get rid of it.
+FADER_ENTRY MACRO event_0, event_1, min, max
+	db	event_0, event_1, min, max
+	ENDM
+
+;; This macro generates a BUTTON entry
+;; Parameters: event_0, event_1, event_2, mode
+BUTTON_ENTRY MACRO event_0, event_1, event_2, mode
+	db	event_0, event_1, event_2, mode
+	ENDM
+
+;; This macro generates an dummy fader mode entry
+FADER_MODE_ENTRY MACRO 
+	db	0x00, 0x00
+	ENDM
+
+;; This macro generates a dummy led pattern entry
+LED_ENTRY MACRO 
+	db	0x00, 0x00, 0x00, 0x00
+	ENDM
+
+;; This macro generates a fader label entry
+;; Parameters: mode, str
+FADER_LABEL_ENTRY MACRO mode, str
+	db	str, mode
+	ENDM
+
+;; ---[ Controller Fader Bank ]------------------------------------------------
+MBMF_Presets
+MBMF_Presets_FLASH_Lower
+MBMF_Presets_OffsetFaders
+MBMF_Presets_OffsetFadersRge0		; preset: volume (Bn 07)
+	FADER_ENTRY 0xb0, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb1, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb2, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb3, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb4, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb5, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb6, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb7, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb8, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xb9, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xba, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xbb, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xbc, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xbd, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xbe, 0x07, 0x00, 0x7f
+	FADER_ENTRY 0xbf, 0x07, 0x00, 0x7f
+
+MBMF_Presets_OffsetFadersRge1		; preset: panorama (Bn 0A)
+	FADER_ENTRY 0xb0, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb1, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb2, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb3, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb4, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb5, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb6, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb7, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb8, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xb9, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xba, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xbb, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xbc, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xbd, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xbe, 0x0a, 0x00, 0x7f
+	FADER_ENTRY 0xbf, 0x0a, 0x00, 0x7f
+
+MBMF_Presets_OffsetFadersPge2		; preset: reverb (Bn 5B)
+	FADER_ENTRY 0xb0, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb1, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb2, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb3, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb4, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb5, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb6, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb7, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb8, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xb9, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xba, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xbb, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xbc, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xbd, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xbe, 0x5b, 0x00, 0x7f
+	FADER_ENTRY 0xbf, 0x5b, 0x00, 0x7f
+
+MBMF_Presets_OffsetFadersRge3		; preset: chorus (Bn 5D)
+	FADER_ENTRY 0xb0, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb1, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb2, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb3, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb4, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb5, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb6, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb7, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb8, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xb9, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xba, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xbb, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xbc, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xbd, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xbe, 0x5d, 0x00, 0x7f
+	FADER_ENTRY 0xbf, 0x5d, 0x00, 0x7f
+
+MBMF_Presets_OffsetFadersRge4		; preset: Variation (Bn 5E)
+	FADER_ENTRY 0xb0, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb1, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb2, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb3, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb4, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb5, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb6, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb7, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb8, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xb9, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xba, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xbb, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xbc, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xbd, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xbe, 0x5e, 0x00, 0x7f
+	FADER_ENTRY 0xbf, 0x5e, 0x00, 0x7f
+
+MBMF_Presets_OffsetFadersRge5		; preset: CutOff (Bn 4A)
+	FADER_ENTRY 0xb0, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb1, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb2, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb3, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb4, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb5, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb6, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb7, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb8, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xb9, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xba, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xbb, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xbc, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xbd, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xbe, 0x4a, 0x00, 0x7f
+	FADER_ENTRY 0xbf, 0x4a, 0x00, 0x7f
+
+MBMF_Presets_OffsetFadersRge6		; preset: Resonance (Bn 47)
+	FADER_ENTRY 0xb0, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb1, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb2, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb3, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb4, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb5, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb6, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb7, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb8, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xb9, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xba, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xbb, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xbc, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xbd, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xbe, 0x47, 0x00, 0x7f
+	FADER_ENTRY 0xbf, 0x47, 0x00, 0x7f
+
+MBMF_Presets_OffsetFadersRge7		; preset: Modulation (Bn 01)
+	FADER_ENTRY 0xb0, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb1, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb2, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb3, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb4, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb5, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb6, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb7, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb8, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xb9, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xba, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xbb, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xbc, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xbd, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xbe, 0x01, 0x00, 0x7f
+	FADER_ENTRY 0xbf, 0x01, 0x00, 0x7f
+
+
+MBMF_Presets_OffsetButtons
+	;; DIN/DOUT group 0
+	BUTTON_ENTRY 0x90, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x91, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x92, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x93, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x94, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x95, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x96, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x97, 0x30, 0x7f, 0x00
+
+	;; DIN/DOUT group 1
+	BUTTON_ENTRY 0x98, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x99, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x9a, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x9b, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x9c, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x9d, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x9e, 0x30, 0x7f, 0x00
+	BUTTON_ENTRY 0x9f, 0x30, 0x7f, 0x00
+
+	;; DIN/DOUT group 2
+	BUTTON_ENTRY 0xff, 0x08, 0x41, 0x00	; SFB: select bank/group
+	BUTTON_ENTRY 0x90, 0x00, 0x7f, 0x00	; send 90 00 xx (could be used as remote control trigger in Logic/Cubase)
+	BUTTON_ENTRY 0xff, 0x01, 0x10, 0x00	; SFB: Decrement Group
+	BUTTON_ENTRY 0xff, 0x01, 0x12, 0x00	; SFB: Increment Group
+	BUTTON_ENTRY 0x94, 0x54, 0x7f, 0x00	; (Snapshot Button, not used)
+	BUTTON_ENTRY 0x95, 0x54, 0x7f, 0x00	; (Menu Left Button, not used)
+	BUTTON_ENTRY 0x96, 0x54, 0x7f, 0x00	; (Menu Right Button, not used)
+	BUTTON_ENTRY 0x97, 0x54, 0x7f, 0x00	; (Menu Exec Button, not used)
+
+	;; DIN/DOUT group 3
+	BUTTON_ENTRY 0x98, 0x54, 0x7f, 0x00
+	BUTTON_ENTRY 0x99, 0x54, 0x7f, 0x00
+	BUTTON_ENTRY 0x9a, 0x54, 0x7f, 0x00
+	BUTTON_ENTRY 0x9b, 0x54, 0x7f, 0x00
+	BUTTON_ENTRY 0x9c, 0x54, 0x7f, 0x00
+	BUTTON_ENTRY 0x9d, 0x54, 0x7f, 0x00
+	BUTTON_ENTRY 0x9e, 0x54, 0x7f, 0x00
+	BUTTON_ENTRY 0x9f, 0x54, 0x7f, 0x00
+
+	;; DIN/DOUT group 4
+	BUTTON_ENTRY 0x90, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x91, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x92, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x93, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x94, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x95, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x96, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x97, 0x3c, 0x7f, 0x00
+
+	;; DIN/DOUT group 5
+	BUTTON_ENTRY 0x98, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x99, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x9a, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x9b, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x9c, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x9d, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x9e, 0x3c, 0x7f, 0x00
+	BUTTON_ENTRY 0x9f, 0x3c, 0x7f, 0x00
+
+	;; DIN/DOUT group 6
+	BUTTON_ENTRY 0x90, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x91, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x92, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x93, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x94, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x95, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x96, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x97, 0x48, 0x7f, 0x00
+
+	;; DIN/DOUT group 7
+	BUTTON_ENTRY 0x98, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x99, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x9a, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x9b, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x9c, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x9d, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x9e, 0x48, 0x7f, 0x00
+	BUTTON_ENTRY 0x9f, 0x48, 0x7f, 0x00
+
+
+MBMF_Presets_OffsetFaderMode
+	;; Fader Page 0
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+
+	;; Fader Page 1
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+
+	;; Fader Page 2
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+
+	;; Fader Page 3
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+
+	;; Fader Page 4
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+
+	;; Fader Page 5
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+
+	;; Fader Page 6
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+
+	;; Fader Page 7
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+	FADER_MODE_ENTRY
+
+MBMF_Presets_OffsetLEDPatterns
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+	LED_ENTRY
+
+
+
+	;; NOTE: in internal bank, all reads and writes from offset 0x600
+	;; with be forwarded to the EEPROM address 0xf00000!
+	;; by MBMF_BANK_Write, MBMF_BANK_Read
+
+	org	0xf00000	; eeprom base address
+
+MBMF_Presets_OffsetFaderValues
+	;; page 0
+	db	0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f
+	;; page 1
+	db	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40
+	;; page 2
+	db	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40
+	;; page 3
+	db	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40
+	;; page 4
+	db	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40
+	;; page 5
+	db	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40
+	;; page 6
+	db	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	;; page 7
+	db	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+
+MBMF_Presets_OffsetButtonValues
+	;; button:
+	;;            6543         3210
+	db	b'00001111', b'00001111' ; 1st SR
+	db	b'00001111', b'00001111' ; 2nd SR
+	db	b'00001111', b'00001111' ; 3rd SR
+	db	b'00001111', b'00001111' ; 4th SR
+	db	b'00001111', b'00001111' ; 5th SR
+	db	b'00001111', b'00001111' ; 6th SR
+	db	b'00001111', b'00001111' ; 7th SR
+	db	b'00001111', b'00001111' ; 8th SR
+
+
+;; ---[ Misc Configuration ]-------------------------------------------------
+MBMF_Presets_OffsetGlobal
+MBMF_Presets_OffsetMagicNumbers
+	db	BANKSTICK_MAGIC0, BANKSTICK_MAGIC1	; don't change these values, required to identify bankstick format
+MBMF_Presets_OffsetCFG
+	;; note: since SysEx doesn't allow to transfer 8-bit values, they
+	;; are splitted here: first byte is the low-nibble, second byte the high-nibble
+MBMF_Presets_CFG0
+	db	((DEFAULT_TOUCH_SENSOR_MODE&1) << MBMF_CFG0_TSMODE0) | (((DEFAULT_TOUCH_SENSOR_MODE>>1)&1) << MBMF_CFG0_TSMODE1) | (1 << MBMF_CFG0_MERGEROFF), 0x00
+MBMF_Presets_CFG1
+	db	0x00, 0x00
+MBMF_Presets_BANKNAME
+	db	'I','n','t','e','r','n','a','l',' ','B','a','n','k',' ',' ',' '
+MBMF_Presets_RESERVED1
+	db	0x00, 0x00
+MBMF_Presets_RESERVED2
+	db	0x00, 0x00
+MBMF_Presets_RESERVED3
+	db	0x00, 0x00
+MBMF_Presets_RESERVED4
+	db	0x00, 0x00
+MBMF_Presets_RESERVED5
+	db	0x00, 0x00
+MBMF_Presets_RESERVED6
+	db	0x00, 0x00
+MBMF_Presets_RESERVED7
+	db	0x00, 0x00
+MBMF_Presets_RESERVED8
+	db	0x00, 0x00
+MBMF_Presets_TS_SENSITIVITY
+	db	DEFAULT_TOUCH_SENSOR_SENSITIVITY, 0x00
+MBMF_Presets_RESERVED9
+	db	0x00, 0x00
+MBMF_Presets_LED_MAP
+	db	0x00, 0x00
+	db	0x00, 0x00
+	db	0x00, 0x00
+	db	0x00, 0x00
+	db	0x00, 0x00
+	db	0x00, 0x00
+	db	0x00, 0x00
+	db	0x00, 0x00
+MBMF_Presets_DISPLAY_PAGE
+	db	0x00, 0x00
+MBMF_Presets_MORPH_BANK
+	db	0x00, 0x00
+MBMF_Presets_GLOBAL_CHANNEL
+	db	0x00, 0x00
+MBMF_Presets_CALI_UP
+	db	DEFAULT_MF_PWM_DUTY_UP & 0xf, DEFAULT_MF_PWM_DUTY_UP >> 4
+MBMF_Presets_CALI_DOWN
+	db	DEFAULT_MF_PWM_DUTY_DOWN & 0xf, DEFAULT_MF_PWM_DUTY_DOWN >> 4
+MBMF_Presets_PERIOD
+	db	DEFAULT_MF_PWM_PERIOD & 0xf, DEFAULT_MF_PWM_PERIOD >> 4
+
+	;; fill unused area
+	db	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	db	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	db	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+	;; these two entries cannot be overwritten via SysEx.
+	;; it contains the device ID and the to-COM option
+EEPROM_READONLY
+	db	0x00, DEFAULT_DEVICE_ID
+
+
+	org	0x07400		; fader strings
+MBMF_Presets_FLASH_Upper
+MBMF_Presets_OffsetLabels
+
+#define FADER_LABEL_MODE_HEX		0x40
+#define FADER_LABEL_MODE_PM_HEX		0x41
+#define FADER_LABEL_MODE_DEC		0x42
+#define FADER_LABEL_MODE_PM_DEC		0x43
+#define FADER_LABEL_MODE_HEX_B		0x60
+#define FADER_LABEL_MODE_PM_HEX_B		0x61
+#define FADER_LABEL_MODE_DEC_B		0x62
+#define FADER_LABEL_MODE_PM_DEC_B		0x63
+
+		;;      <--------------->  mode
+	FADER_LABEL_ENTRY	"Volume # 1     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume # 2     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume # 3     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume # 4     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume # 5     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume # 6     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume # 7     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume # 8     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume # 9     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume #10     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume #11     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume #12     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume #13     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume #14     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume #15     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Volume #16     ", FADER_LABEL_MODE_DEC_B
+
+		;;      <--------------->  mode
+	FADER_LABEL_ENTRY	"Panorama# 1    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama# 2    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama# 3    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama# 4    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama# 5    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama# 6    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama# 7    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama# 8    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama# 9    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama#10    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama#11    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama#12    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama#13    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama#14    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama#15    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Panorama#16    ", FADER_LABEL_MODE_PM_DEC_B
+
+		;;      <--------------->  mode
+	FADER_LABEL_ENTRY	"Reverb # 1     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb # 2     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb # 3     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb # 4     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb # 5     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb # 6     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb # 7     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb # 8     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb # 9     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb #10     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb #11     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb #12     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb #13     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb #14     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb #15     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Reverb #16     ", FADER_LABEL_MODE_DEC_B
+	
+		;;      <--------------->  mode
+	FADER_LABEL_ENTRY	"Chorus # 1     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus # 2     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus # 3     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus # 4     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus # 5     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus # 6     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus # 7     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus # 8     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus # 9     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus #10     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus #11     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus #12     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus #13     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus #14     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus #15     ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Chorus #16     ", FADER_LABEL_MODE_DEC_B
+
+		;;      <--------------->  mode
+	FADER_LABEL_ENTRY	"Variat. # 1    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. # 2    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. # 3    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. # 4    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. # 5    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. # 6    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. # 7    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. # 8    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. # 9    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. #10    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. #11    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. #12    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. #13    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. #14    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. #15    ", FADER_LABEL_MODE_DEC_B
+	FADER_LABEL_ENTRY	"Variat. #16    ", FADER_LABEL_MODE_DEC_B
+
+		;;      <--------------->  mode
+	FADER_LABEL_ENTRY	"CutOff # 1     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff # 2     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff # 3     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff # 4     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff # 5     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff # 6     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff # 7     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff # 8     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff # 9     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff #10     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff #11     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff #12     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff #13     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff #14     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff #15     ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"CutOff #16     ", FADER_LABEL_MODE_PM_DEC_B
+
+		;;      <--------------->  mode
+	FADER_LABEL_ENTRY	"Resonan.# 1    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.# 2    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.# 3    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.# 4    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.# 5    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.# 6    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.# 7    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.# 8    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.# 9    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.#10    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.#11    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.#12    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.#13    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.#14    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.#15    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Resonan.#16    ", FADER_LABEL_MODE_PM_DEC_B
+
+		;;      <--------------->  mode
+	FADER_LABEL_ENTRY	"Modulat.# 1    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.# 2    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.# 3    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.# 4    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.# 5    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.# 6    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.# 7    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.# 8    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.# 9    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.#10    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.#11    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.#12    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.#13    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.#14    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.#15    ", FADER_LABEL_MODE_PM_DEC_B
+	FADER_LABEL_ENTRY	"Modulat.#16    ", FADER_LABEL_MODE_PM_DEC_B

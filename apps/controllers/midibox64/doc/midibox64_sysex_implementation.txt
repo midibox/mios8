@@ -1,0 +1,120 @@
+$Id$
+
+MIDIbox64 SysEx Implementation
+==============================
+
+Which Actions are implemented
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+<d> stands for the device number 0-7
+
+   a) F0 00 00 7E 43 <d>1 F7
+      Request a Dump
+         <d> = device number (0-7)
+      OBSOLETE!!! ONLY SUPPORTED FOR PIC16F compatibility!!!
+
+   b) F0 00 00 7E 43 <d>2 <dump> F7
+      Write a Dump
+         <d> = device number (0-7)
+         <dump> = 2048 bytes dump data
+      OBSOLETE!!! ONLY SUPPORTED FOR PIC16F compatibility!!!
+
+   c) F0 00 00 7E 43 <d>3 <b> F7
+      Request a block of 256 bytes
+         <d> = device number (0-7)
+         <b> = block number (00-07)
+
+   d) F0 00 00 7E 43 <d>4 <b> <256 bytes> <checksum> F7
+      Write a block of 256 bytes
+         <d> = device number (0-7)
+         <b> = block number (00-07)
+         <256 bytes> = the block data
+         <checksum> = the checksum of <b> and <256 bytes>
+
+   e) F0 00 00 7E 43 <d>5 F7
+      Request all 8 blocks
+         <d> = device number (0-7)
+
+   f) F0 00 00 7E 43 <d>6 <p> F7
+      Request a Patch (Snapshot)
+         <d> = device number (0-7)
+         <p> = patch number (0-127)
+
+   g) F0 00 00 7E 43 <d>7 <p> <96 bytes> <checksum> F7
+      Store a Patch (Snapshot)
+         <d> = device number (0-7)
+         <p> = patch number (0-127)
+         <checksum> = the checksum of <96 bytes>
+
+   f) F0 00 00 7E 43 <d>8 0n F7
+      Request Bank, n = 0 to 15
+
+      Sends an acknowledge when Bank has been changed:
+         F0 00 00 7E 43 <d>F 0n F7
+
+      or a disacknowledge if BankStick not connected:
+         F0 00 00 7E 43 <d>F 7F F7
+
+   g) F0 00 00 7E 43 <d>9 00 <pot> <value> F7
+      Remote Control of a pot
+         <d>     = device number (0-7)
+         <pot>   = pot number (0-63)
+         <value> = pot value (0-127)
+
+   h) F0 00 00 7E 43 <d>9 01 <button> <value> F7
+      Remote Control of a button
+         <d>      = device number (0-7)
+         <button> = button number (0-63)
+         <value>  = button value (0=pressed, 1=depressed)
+
+   i) F0 00 00 7E 43 <d>9 02 <sfbn> <sfbp> <value> F7
+      Remote Control of a special button
+         <d>     = device number (0-7)
+         <sfbn>  = special button number (0-127)
+         <sfbp>  = special button parameter (0-127)
+         <value> = button value (0=pressed, 1=depressed)
+
+   g) F0 00 00 7E 43 <d>F F7
+      Ping (just sends back the same SysEx string)
+
+
+How do I receive a SysEx Dump from the MIDIbox
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are three possibilities:
+
+   1) use Serge's SysExBox or MIDIbox64 Editor: http://mios_tools.midibox.org
+
+   2) enter the SysEx menu and press the Snapshot button.
+      The box will send 8 blocks:
+
+         F0 00 00 7E 43 <d>4 <b> <256 bytes> <checksum> F7
+
+      This is exactly the SysEx data which can be used to
+      write back the configuration into the box.
+
+   3) also a MIDI program is able to request the configuration 
+      with the advantage that the user don't have to enter the 
+      SysEx menu.
+      To request all blocks just send 
+
+         F0 00 00 7E 43 05 F7
+
+      to the box. 8 blocks:
+
+         F0 00 00 7E 43 <d>4 <b> <256 bytes> <checksum> F7
+
+      will be sent back immediately.
+
+
+How do I edit a SysEx Dump
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are two possibilities:
+
+   1) use Serge's MIDIbox64 Editor: http://mios_tools.midibox.org
+
+   2) use the mk_syx script: http://www.uCApps.de/midibox/mk_syx.zip
+
+
+Thorsten.Klose@midibox.org

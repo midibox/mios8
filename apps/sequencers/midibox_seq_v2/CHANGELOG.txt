@@ -1,0 +1,178 @@
+
+MIDIbox64SEQ V2.4a/b/c
+~~~~~~~~~~~~~~~~~~~~~~
+
+   o if not in songmode, the Fwd and Rew button can now be used to
+     increment/decrement the menu value. 
+     This is a nice alternative possibility for "fine adjusting" values
+     without the datawheel
+
+   o the clock rate of the external clock pin is now selectable from
+     96 ppqn to 24/13 ppqn in the BPM menu - just press one of the 16
+     general purpose buttons. With 96 ppqn the clock output is 
+     permanently 1 (thats not a bug)
+     24 ppqn is the standard setting (GP button #4)
+
+   o a new option has been added which allows synchronized pattern 
+     switching, the pattern will be changed with the next measure 
+     (after the 16 steps of the "master track" have been processed)
+
+   o a new option has been added for arpeggiator mode which avoids
+     that the track position will be reset if no note/chord is played
+
+   o there is a new "MBSEQ Options" menu page which allows to select
+     these two new features online
+
+
+MIDIbox64SEQ V2.4
+~~~~~~~~~~~~~~~~~
+
+   o the arpeggiator has been enhanced by "Multi-Arp" events
+     The details are described under http://www.ucapps.de/midibox_seq_tutorial4.html
+
+   o a 24ppqn clock output is now supported to synchronize with vintage 
+     drum machines and sequencers
+     The signal is available at pin #15 (RC0, CORE::J6::RC)
+
+
+MIDIbox64SEQ V2.3
+~~~~~~~~~~~~~~~~~
+
+   o the clock can now be divided by BPM/1,2,3,..15,16 for each track
+     seperately. Before this change it was BPM/1,2,4,8,16,32,64
+     It's possible to switch back to the old behaviour with the
+     DEFAULT_BPM_DIVIDER_BEHAVIOUR switch in main.asm
+
+   o the song menu handling has been overworked:
+     - for 2*2x40 LCD option, there is now an additional info screen
+       at the right side (second display)
+     - song mode can be enabled/disabled in song menu by pressing
+       the SONG button (again)
+     - if not in song mode, the pattern set will be changed
+       immediately (see usecases below for the reason)
+     - song position now named A1..P8 instead of 1..128 for easier
+       orientation
+     - song positions are now divided into parts A..P, each part
+       consists of 8 pattern sets, each pattern set can be looped
+       up to 16 times.
+     - song number, song position, loop/jumps now controllable with
+       the general purpose buttons
+
+   Usecases of the new song handling:
+
+     a) for song mode enter the song menu and press the button twice.
+        Press the "A" button + one of the 16 GP buttons to select the song
+        Press the "B" button + one of the 16 GP buttons to select the part
+        -> the sequencer will change to the part immediately, if the
+        sequencer was not running before, it will be started automatically
+
+     b) this allows you to divide a song into multiple parts. At the
+        end of a part, you can either set a jump to the first step
+        of the part (so that the part loops), or you can set a jump
+        to the next part.
+
+        Note: if a song part consists of 8 song positions, it is not possible
+        to set an additional jump. The sequencer will jump to the next
+        part automatically (this ensures compatibility)
+
+     c) it's always possible to change the part during the sequencer
+        is running - it won't affect the realtime behaviour :)
+        This allows you to change between breaks/fills/chorus or
+        whatever during a live session
+
+     d) If you don't want to use the song mode, the new handling is 
+        still useful for you - it allows to save up to 128 pattern
+        sets within a song.
+        Press the "A" button + one of the 16 GP buttons to select the song
+        Press the "B" button + one of the 16 GP buttons to select the part
+        (this already provides a quick access to 16 pattern sets)
+        Turn the datawheel to select pos 1..8 within a part
+
+        Similar to song mode, changes will take place immediately
+        without affecting the sequencer timings. The selected pattern
+        set will loop endless until you are changing to a new one
+  
+
+MIDIbox64SEQ V2.2
+~~~~~~~~~~~~~~~~~
+
+   o a drum mode has been implemented which allows to play three drum lines
+     per track (makes up to 48 drum lines which can be played in parallel)
+     In this mode, each layer contains one drum line
+     Limitations: each line has a dedicated note and gatelength. Only
+     two velocity values can be specified (normal and accent)
+     The accents can be set when the FAST button is activated
+     More details are described under http://www.ucapps.de/midibox_seq_tutorial3.html
+
+   o single events can now be triggered multiple times (up to 4 times per step)
+     with a delay value of 1-31. The number of triggers and the delay can
+     be selected in the gatelength layer
+     This feature allows to play doubled, triplet and quadrupled notes,
+     which is especially useful for drumrolls, ratterbeats and flams
+     More details are described under http://www.ucapps.de/midibox_seq_tutorial3.html
+
+     Note: the new definition of the gatelength makes old patterns
+     incompatible to previous releases (better to do it now than
+     never) - the gatelength has to be divided by 4 in old patterns
+
+   o a humanizer function has been added which allows to add/subtract 
+     random values from the 2nd MIDI byte (e.g. Note), from the 3rd
+     MIDI byte (e.g. Velocity, CC value, Aftertouch...) and from
+     the gatelength.
+     The humanizer mode and intensity can be selected in the Groove menu
+
+   o two additional gate trigger pins are now available for the AOUT option.
+     The 3rd gate is located at pin RC0 (CORE::J6::RC)
+     The 4th gate is located at pin RC1 (CORE::J6::SC)
+     These pins are only used when no AIN multiplexers are connected 
+     (which is normaly the case when no pots are used)
+
+
+
+MIDIbox64SEQ V2.1
+~~~~~~~~~~~~~~~~~
+
+   o Two morphing modes have been integrated into the application:
+
+     "Smooth morphing": Layer A, B and C (on Notes: Note number,
+     velocity, gatelength - on CC: CC number, value and gatelength)
+     are faded smoothly from one to another pattern.
+     The morph position between these two scenes can be controlled 
+     from the Morph menu, or with the modulation wheel of an external
+     keyboard
+
+     "Threshold morphing" - especially for Note events (Drum patterns):
+     Note and Velocity (Layer A and B) are switched to an alternative 
+     track once the morph position (controlled from the menu or with 
+     a modulation wheel) passes the so called threshold level of the 
+     played step.
+     The threshold can be set for each step seperately in Layer C
+     (normaly used for the gatelength).
+     In other words: the threshold levels of every step are used to determine
+     at which morphing level the sequencer should play the note from 
+     another track
+     The gatelength itself is fixed in this mode.
+
+   o Transpose/Arpeggiator hold key function improved
+
+   o Transpose works also with CC events now
+
+   o Arpeggiator view now always correctly displayed independent from the 
+     track direction
+
+   o Fast button now also speeds up the datawheel
+
+   o gate signals of CV out now handled correctly on overlapping notes
+
+   o IMPORTANT: from now on, the SCLK input of the AOUT module has to
+     be connected to port J10:MD (PIC Pin #28/RD5) of the core module
+
+     The use of MIOS V1.7 is highly recommented, you will notice
+     brighter LEDs
+     see also http://www.ucapps.de/mios_v1_7_hardware_mods.html
+
+
+MIDIbox64SEQ V2.0
+~~~~~~~~~~~~~~~~~
+
+   o initial version

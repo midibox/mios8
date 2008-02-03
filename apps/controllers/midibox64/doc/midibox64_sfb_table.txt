@@ -1,0 +1,112 @@
+$Id$
+
+This table contains all available Special Function numbers
+and parameters for firmware v2.0 of MIDIbox64, which can
+be assigned to any button except for the common snapshot
+and the menu buttons.
+
+Special Functions are addressed over Meta Event #FF
+
+Below an example for your private midibox64.ini - don't worry 
+if you don't understand the meaning of the functions immediately,
+once you've built a MIDIbox64 and played with the parameters, you 
+will be able to justify the setup exactly for your needs :)
+
+NOTE: Of course, special function can also be assigned to the buttons
+with Serges MIDIbox64 Editor, available under http://serge.uCApps.de
+Select a "Meta Event", Channel 16, the HEXADECIMAL VALUE (!!!) of
+the Meta Event Nr. correspond to the Special Function Number,
+the Value correspond to the Special Function Parameter
+
+NOTE2: When you are using Bank Switching Functions, you should assign
+them to the same buttons in every bank!
+
+---[ BEGIN extract from an example midibox64.ini ]----------------------------
+[BUTTONS]
+    # Special Functions assigned to the first 16 buttons:
+    # FF 04 0n (n = Bank Number)
+    # Does: Save Pot Positions in current Bank, 
+    #       Jump to Bank n
+    #       Restore Pot Positions from new Bank
+    # These button assignments are especially usefull if MIDIbox is in Snap
+    # Mode (soft-takeover), if Motorfaders are connected or if you are
+    # using the sequencer (select patterns)
+    1   =  FF 04 00  @OnOff
+    2   =  FF 04 01  @OnOff
+    3   =  FF 04 02  @OnOff
+    4   =  FF 04 03  @OnOff
+    5   =  FF 04 04  @OnOff
+    6   =  FF 04 05  @OnOff
+    7   =  FF 04 06  @OnOff
+    8   =  FF 04 07  @OnOff
+    9   =  FF 04 08  @OnOff
+    10  =  FF 04 09  @OnOff
+    11  =  FF 04 0A  @OnOff
+    12  =  FF 04 0B  @OnOff
+    13  =  FF 04 0C  @OnOff
+    14  =  FF 04 0D  @OnOff
+    15  =  FF 04 0E  @OnOff
+    16  =  FF 04 0F  @OnOff
+
+    # Additional 4 Buttons in the menu section
+
+    # Shortcuts to different menues
+    17  =  FF 00 00  @OnOff  # Switch to Display Menu
+    18  =  FF 00 02  @OnOff  # Switch to MIDI Learn Menu
+
+    # Bank Decrement/Increment without overflow
+    19  =  FF 04 10  @OnOff  # Save, Decrement Bank without overflow, Restore
+    20  =  FF 04 12  @OnOff  # Save, Increment Bank without overflow, Restore
+---[ END extract from an example midibox64.ini ]------------------------------
+
+
+Here the current list - numbers may varry with different firmware versions!
+
+=========+====================================================================
+Code     | Description
+=========+====================================================================
+80-EF .. | Send MIDI Event
+---------+--------------------------------------------------------------------
+F0-FE .. | Send META Event
+---------+--------------------------------------------------------------------
+FF 00 00 | Switch to Display submenu
+FF 00 01 | Switch to Bank submenu
+FF 00 02 | Switch to Global Channel submenu
+FF 00 03 | Switch to MIDI Learn submenu
+FF 00 04 | Switch to Morhping submenu
+FF 00 05 | Switch to Pot Behaviour submenu
+FF 00 06 | Switch to Edit Bankname submenu
+FF 00 07 | Switch to Edit Events submenu
+FF 00 08 | Switch to Edit Lables submenu
+FF 00 09 | Switch to Copy Bank submenu
+FF 00 0A | Switch to MIDI Config submenu
+FF 00 0B | Switch to SysEx submenu
+---------+--------------------------------------------------------------------
+FF 01 xx | Reserved for MIDIbox64E
+---------+--------------------------------------------------------------------
+FF 02 0n | Switch to BankStick Bank n (n = 0..F)
+FF 02 10 | Decrement BankStick Bank without overflow
+FF 02 11 | Decrement BankStick Bank with overflow
+FF 02 12 | Increment BankStick Bank without overflow
+FF 02 13 | Increment BankStick Bank with overflow
+---------+--------------------------------------------------------------------
+FF 03 0n | Switch to BankStick n (n = 0..7)
+FF 03 10 | Decrement BankStick without overflow
+FF 03 11 | Decrement BankStick with overflow
+FF 03 12 | Increment BankStick without overflow
+FF 03 13 | Increment BankStick with overflow
+---------+--------------------------------------------------------------------
+FF 04 0n | - Save Pot Positions in current Bank,
+         | - Jump to Bank n,
+         | - Restore Pot Positions from new bank
+FF 04 10 | Same, but: Decrement BankStick Bank without overflow
+FF 04 11 | Same, but: Decrement BankStick Bank with overflow
+FF 04 12 | Same, but: Increment BankStick Bank without overflow
+FF 04 13 | Same, but: Increment BankStick Bank with overflow
+FF 04 40 | Store pot positions in current Bank
+FF 04 41 | Restore pot positions from current Bank
+---------+--------------------------------------------------------------------
+FF 04 xx | Reserved for MIDIbox64E
+---------+--------------------------------------------------------------------
+FF 08 00 | Reserved for MIDIbox64E
+---------+--------------------------------------------------------------------
