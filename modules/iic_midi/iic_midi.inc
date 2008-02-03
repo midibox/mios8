@@ -41,44 +41,44 @@
 #endif
 
 ;; RI_N lines (note: ADC will be turned off in IIC_MIDI_Init if IIC_MIDI_DONT_USE_J5_INPUTS == 0)
-#ifndef PORT_RI_N_SLAVE0
-PORT_RI_N_SLAVE0	EQU     PORTA
+#ifndef IIC_MIDI_PORT_RI_N_SLAVE0
+#define IIC_MIDI_PORT_RI_N_SLAVE0	PORTA
 #endif
-#ifndef TRIS_RI_N_SLAVE0
-TRIS_RI_N_SLAVE0	EQU	TRISA
+#ifndef IIC_MIDI_TRIS_RI_N_SLAVE0
+#define IIC_MIDI_TRIS_RI_N_SLAVE0	TRISA
 #endif
-#ifndef PIN_RI_N_SLAVE0
-PIN_RI_N_SLAVE0		EQU     0
-#endif
-
-#ifndef PORT_RI_N_SLAVE1
-PORT_RI_N_SLAVE1	EQU     PORTA
-#endif
-#ifndef TRIS_RI_N_SLAVE1
-TRIS_RI_N_SLAVE1	EQU	TRISA
-#endif
-#ifndef PIN_RI_N_SLAVE1
-PIN_RI_N_SLAVE1		EQU     1
+#ifndef IIC_MIDI_PIN_RI_N_SLAVE0
+#define IIC_MIDI_PIN_RI_N_SLAVE0	0
 #endif
 
-#ifndef PORT_RI_N_SLAVE2
-PORT_RI_N_SLAVE2	EQU     PORTA
+#ifndef IIC_MIDI_PORT_RI_N_SLAVE1
+#define IIC_MIDI_PORT_RI_N_SLAVE1	PORTA
 #endif
-#ifndef TRIS_RI_N_SLAVE2
-TRIS_RI_N_SLAVE2	EQU	TRISA
+#ifndef IIC_MIDI_TRIS_RI_N_SLAVE1
+#define IIC_MIDI_TRIS_RI_N_SLAVE1	TRISA
 #endif
-#ifndef PIN_RI_N_SLAVE2
-PIN_RI_N_SLAVE2		EQU     2
+#ifndef IIC_MIDI_PIN_RI_N_SLAVE1
+#define IIC_MIDI_PIN_RI_N_SLAVE1	1
 #endif
 
-#ifndef PORT_RI_N_SLAVE3
-PORT_RI_N_SLAVE3	EQU     PORTA
+#ifndef IIC_MIDI_PORT_RI_N_SLAVE2
+#define IIC_MIDI_PORT_RI_N_SLAVE2	PORTA
 #endif
-#ifndef TRIS_RI_N_SLAVE3
-TRIS_RI_N_SLAVE3	EQU	TRISA
+#ifndef IIC_MIDI_TRIS_RI_N_SLAVE2
+#define IIC_MIDI_TRIS_RI_N_SLAVE2	TRISA
 #endif
-#ifndef PIN_RI_N_SLAVE3
-PIN_RI_N_SLAVE3		EQU     3
+#ifndef IIC_MIDI_PIN_RI_N_SLAVE2
+#define IIC_MIDI_PIN_RI_N_SLAVE2	2
+#endif
+
+#ifndef IIC_MIDI_PORT_RI_N_SLAVE3
+#define IIC_MIDI_PORT_RI_N_SLAVE3	PORTA
+#endif
+#ifndef IIC_MIDI_TRIS_RI_N_SLAVE3
+#define IIC_MIDI_TRIS_RI_N_SLAVE3	TRISA
+#endif
+#ifndef IIC_MIDI_PIN_RI_N_SLAVE3
+#define IIC_MIDI_PIN_RI_N_SLAVE3	3
 #endif
 
 
@@ -134,10 +134,30 @@ IIC_MIDI_Init
 #endif
 
 	;; enable inputs
-	bsf	TRIS_RI_N_SLAVE0, PIN_RI_N_SLAVE0
-	bsf	TRIS_RI_N_SLAVE1, PIN_RI_N_SLAVE1
-	bsf	TRIS_RI_N_SLAVE2, PIN_RI_N_SLAVE2
-	bsf	TRIS_RI_N_SLAVE3, PIN_RI_N_SLAVE3
+#if IIC_MIDI_MAX_NUMBER >= 1
+	bsf	IIC_MIDI_TRIS_RI_N_SLAVE0, IIC_MIDI_PIN_RI_N_SLAVE0
+#endif
+#if IIC_MIDI_MAX_NUMBER >= 2
+	bsf	IIC_MIDI_TRIS_RI_N_SLAVE1, IIC_MIDI_PIN_RI_N_SLAVE1
+#endif
+#if IIC_MIDI_MAX_NUMBER >= 3
+	bsf	IIC_MIDI_TRIS_RI_N_SLAVE2, IIC_MIDI_PIN_RI_N_SLAVE2
+#endif
+#if IIC_MIDI_MAX_NUMBER >= 4
+	bsf	IIC_MIDI_TRIS_RI_N_SLAVE3, IIC_MIDI_PIN_RI_N_SLAVE3
+#endif
+#if IIC_MIDI_MAX_NUMBER >= 5
+	bsf	IIC_MIDI_TRIS_RI_N_SLAVE4, IIC_MIDI_PIN_RI_N_SLAVE4
+#endif
+#if IIC_MIDI_MAX_NUMBER >= 6
+	bsf	IIC_MIDI_TRIS_RI_N_SLAVE5, IIC_MIDI_PIN_RI_N_SLAVE5
+#endif
+#if IIC_MIDI_MAX_NUMBER >= 7
+	bsf	IIC_MIDI_TRIS_RI_N_SLAVE6, IIC_MIDI_PIN_RI_N_SLAVE6
+#endif
+#if IIC_MIDI_MAX_NUMBER >= 8
+	bsf	IIC_MIDI_TRIS_RI_N_SLAVE7, IIC_MIDI_PIN_RI_N_SLAVE7
+#endif
 #endif
 	
 	;; detect all available slaves	
@@ -448,13 +468,13 @@ IIC_MIDI_GetRI_01
 	rgoto	IIC_MIDI_GetRI_1
 IIC_MIDI_GetRI_0
 #if IIC_MIDI_MAX_NUMBER >= 1
-	btfss	PORT_RI_N_SLAVE0, PIN_RI_N_SLAVE0	; the RI signal is low-active
+	btfss	IIC_MIDI_PORT_RI_N_SLAVE0, IIC_MIDI_PIN_RI_N_SLAVE0	; the RI signal is low-active
 	iorlw	0xff
 #endif
 	return
 IIC_MIDI_GetRI_1
 #if IIC_MIDI_MAX_NUMBER >= 2
-	btfss	PORT_RI_N_SLAVE1, PIN_RI_N_SLAVE1	; the RI signal is low-active
+	btfss	IIC_MIDI_PORT_RI_N_SLAVE1, IIC_MIDI_PIN_RI_N_SLAVE1	; the RI signal is low-active
 	iorlw	0xff
 #endif
 	return
@@ -464,13 +484,13 @@ IIC_MIDI_GetRI_23
 	rgoto	IIC_MIDI_GetRI_3
 IIC_MIDI_GetRI_2
 #if IIC_MIDI_MAX_NUMBER >= 3
-	btfss	PORT_RI_N_SLAVE2, PIN_RI_N_SLAVE2	; the RI signal is low-active
+	btfss	IIC_MIDI_PORT_RI_N_SLAVE2, IIC_MIDI_PIN_RI_N_SLAVE2	; the RI signal is low-active
 	iorlw	0xff
 #endif
 	return
 IIC_MIDI_GetRI_3
 #if IIC_MIDI_MAX_NUMBER >= 4
-	btfss	PORT_RI_N_SLAVE3, PIN_RI_N_SLAVE3	; the RI signal is low-active
+	btfss	IIC_MIDI_PORT_RI_N_SLAVE3, IIC_MIDI_PIN_RI_N_SLAVE3	; the RI signal is low-active
 	iorlw	0xff
 #endif
 	return
@@ -483,13 +503,13 @@ IIC_MIDI_GetRI_45
 	rgoto	IIC_MIDI_GetRI_5
 IIC_MIDI_GetRI_4
 #if IIC_MIDI_MAX_NUMBER >= 5
-	btfss	PORT_RI_N_SLAVE4, PIN_RI_N_SLAVE4	; the RI signal is low-active
+	btfss	IIC_MIDI_PORT_RI_N_SLAVE4, IIC_MIDI_PIN_RI_N_SLAVE4	; the RI signal is low-active
 	iorlw	0xff
 #endif
 	return
 IIC_MIDI_GetRI_5
 #if IIC_MIDI_MAX_NUMBER >= 6
-	btfss	PORT_RI_N_SLAVE5, PIN_RI_N_SLAVE5	; the RI signal is low-active
+	btfss	IIC_MIDI_PORT_RI_N_SLAVE5, IIC_MIDI_PIN_RI_N_SLAVE5	; the RI signal is low-active
 	iorlw	0xff
 #endif
 	return
@@ -499,13 +519,13 @@ IIC_MIDI_GetRI_67
 	rgoto	IIC_MIDI_GetRI_7
 IIC_MIDI_GetRI_6
 #if IIC_MIDI_MAX_NUMBER >= 7
-	btfss	PORT_RI_N_SLAVE6, PIN_RI_N_SLAVE6	; the RI signal is low-active
+	btfss	IIC_MIDI_PORT_RI_N_SLAVE6, IIC_MIDI_PIN_RI_N_SLAVE6	; the RI signal is low-active
 	iorlw	0xff
 #endif
 	return
 IIC_MIDI_GetRI_7
 #if IIC_MIDI_MAX_NUMBER >= 8
-	btfss	PORT_RI_N_SLAVE7, PIN_RI_N_SLAVE7	; the RI signal is low-active
+	btfss	IIC_MIDI_PORT_RI_N_SLAVE7, IIC_MIDI_PIN_RI_N_SLAVE7	; the RI signal is low-active
 	iorlw	0xff
 #endif
 	return
