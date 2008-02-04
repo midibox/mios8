@@ -4,7 +4,7 @@
 ;; FONT_ENTRY manually added
 
 GLCD_FONT_SMALL
-	FONT_ENTRY 4, 1, 0, 4	; with/height/X0 offset/char offset
+	FONT_ENTRY 4, 1, 0, 4	; width/height/X0 offset/char offset
 
 	da b'1000000010000000'
 	da b'0000000010000000'

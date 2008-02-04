@@ -3,7 +3,7 @@
 ;; converted with '$MIOS_BIN_PATH/convpix.pl glcd_font_knob_icons.xpm -icons 12 -height 24'
 ;; FONT_ENTRY manually added
 GLCD_FONT_KNOB_ICONS
-	FONT_ENTRY 28, 3, 2, 32	; with/height/X0 offset/char offset
+	FONT_ENTRY 28, 3, 2, 32	; width/height/X0 offset/char offset
 
 	da b'0000000000000000'
 	da b'0000000000000000'

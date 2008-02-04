@@ -2,7 +2,7 @@
 ;; FONT_ENTRY manually added
 
 GLCD_FONT_METER_ICONS_V
-	FONT_ENTRY 8, 4, 0, 8	; with/height/X0 offset/char offset
+	FONT_ENTRY 8, 4, 0, 8	; width/height/X0 offset/char offset
 
 	da b'0000000000000000'
 	da b'0000000000000000'

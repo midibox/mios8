@@ -4,7 +4,7 @@
 ;; FONT_ENTRY manually added
 
 GLCD_FONT_BIG
-	FONT_ENTRY 16, 3, 0, 16	; with/height/X0 offset/char offset
+	FONT_ENTRY 16, 3, 0, 16	; width/height/X0 offset/char offset
 
 	da b'0000000000000000'
 	da b'1111111100000000'
