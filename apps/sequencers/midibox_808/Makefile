@@ -1,0 +1,28 @@
+# $Id$
+
+# define the processor here
+PROCESSOR = p18f4620
+
+# default flags to GPASM here
+GPASM_FLAGS   = 
+
+# include pathes (more will be added by asm_only.mk files)
+GPASM_INCLUDE = 
+
+# optional defines that should be passed to GPASM
+GPASM_DEFINES = 
+
+# default rule that defines the .hex files which should be created
+# note: always require a "cleanall", since dependencies (e.g. on .h and .inc files) are not properly declared
+all: cleanall setup_mbseq_v3.hex setup_mbseq_cd_cd.hex setup_mbseq_tk.hex
+
+
+# include the asm_only.mk file
+include $(MIOS_PATH)/include/makefile/asm_only.mk
+
+# include application specific LCD driver (dummy driver by default)
+include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
+
+# include MBHP_IIC_MIDI driver
+IIC_MIDI_DEFINES += -DIIC_MIDI_USE_RI=0 -DIIC_MIDI_DONT_USE_J5_INPUTS=1
+include $(MIOS_PATH)/modules/iic_midi/iic_midi.mk
