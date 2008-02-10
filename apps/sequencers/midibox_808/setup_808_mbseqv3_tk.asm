@@ -3,6 +3,7 @@
 ; Individual Setup File for TK's MIDIbox SEQ V3
 ;
 ; Detailed infos for customization can be found at http://www.ucapps.de/midibox_seq_options.html
+; and http://www.ucapps.de/midibox_808.html
 ;
 ; BankStick Mode & Allocation Map
 ; Each BankStick (CS0..CS7) has an own entry

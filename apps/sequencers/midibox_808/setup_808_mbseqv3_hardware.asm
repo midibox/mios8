@@ -1,8 +1,9 @@
 ;$Id$
 ;
-; cd_cd's setup File for MIDIbox SEQ V3
+; Default setup File for MIDIbox SEQ V3
 ;
 ; Detailed infos for customization can be found at http://www.ucapps.de/midibox_seq_options.html
+; and http://www.ucapps.de/midibox_808.html
 ;
 ; BankStick Mode & Allocation Map
 ; Each BankStick (CS0..CS7) has an own entry
@@ -18,14 +19,14 @@
 ;       If no entry with "mode 3" or "mode 4" is defined, Song mode will be disabled.
 ;       If no entry with "mode 5" is defined, there will only be one Mixer Map which cannot be stored
 ; If a BankStick is not connected to the MBSEQ, the appr. entry will have no effect
-#define DEFAULT_BANKSTICK_MODE_CS0	2	; 64k
-#define DEFAULT_BANKSTICK_MODE_CS1	2	; 64k
-#define DEFAULT_BANKSTICK_MODE_CS2	2	; 64k
-#define DEFAULT_BANKSTICK_MODE_CS3	2	; 64k
-#define DEFAULT_BANKSTICK_MODE_CS4	2	; 64k
-#define DEFAULT_BANKSTICK_MODE_CS5	2	; 64k
-#define DEFAULT_BANKSTICK_MODE_CS6	5	; Mixer Map (using CS2 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
-#define DEFAULT_BANKSTICK_MODE_CS7	4	; Song mode (using CS3 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
+#define DEFAULT_BANKSTICK_MODE_CS0	1	; 32k
+#define DEFAULT_BANKSTICK_MODE_CS1	1	; 32k
+#define DEFAULT_BANKSTICK_MODE_CS2	5	; Mixer Map (using CS2 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
+#define DEFAULT_BANKSTICK_MODE_CS3	3	; Song mode (using CS3 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
+#define DEFAULT_BANKSTICK_MODE_CS4	1	; 32k
+#define DEFAULT_BANKSTICK_MODE_CS5	1	; 32k
+#define DEFAULT_BANKSTICK_MODE_CS6	1	; 32k
+#define DEFAULT_BANKSTICK_MODE_CS7	1	; 32k
 ;
 ;
 ; Max. length of the DIN/DOUT shift register chain (1-16)
@@ -60,25 +61,25 @@
 ; === Shift Register Matrix ===
 ;
 ; set this value to 1 if each track has its own set of 16 LEDs to display unmuted steps and current sequencer position
-#define DEFAULT_SRM_ENABLED     1
+#define DEFAULT_SRM_ENABLED     0
 ;
 ; define the shift registers to which the anodes of these LEDs are connected
 ; Note: they can be equal to DEFAULT_GP_DOUT_SR_[LH], this saves two shift registers, but doesn't allow a seperate view of UI selections
-#define DEFAULT_SRM_DOUT_L1	3
-#define DEFAULT_SRM_DOUT_R1	4
+#define DEFAULT_SRM_DOUT_L1	6
+#define DEFAULT_SRM_DOUT_R1	9
 ;
 ; define the shift register to which the cathodes of these LEDs are connected
 ; Note that the whole shift register (8 pins) will be allocated! The 4 select lines are duplicated (4 for LED matrix, 4 for button matrix)
 ; The second DOUT_CATHODES2 selection is optional if LEDs with high power consumption are used - set this to 0 if not used
 #define DEFAULT_SRM_DOUT_CATHODES1	5
-#define DEFAULT_SRM_DOUT_CATHODES2	0
+#define DEFAULT_SRM_DOUT_CATHODES2	8
 ;
 ; set this to 1, if DUO colour LEDs are connected to the LED matrix
-#define DEFAULT_SRM_DOUT_DUOCOLOUR	0
+#define DEFAULT_SRM_DOUT_DUOCOLOUR	1
 ;
 ; define the shift registers to which the anodes of the "second colour" (red) LEDs are connected
-#define DEFAULT_SRM_DOUT_L2	0
-#define DEFAULT_SRM_DOUT_R2	0
+#define DEFAULT_SRM_DOUT_L2	7
+#define DEFAULT_SRM_DOUT_R2	10
 ;
 ; set this to 1 if a button matrix is connected
 #define DEFAULT_SRM_BUTTONS_ENABLED 0
@@ -191,7 +192,7 @@
 
 ;; use PORTA and PORTE (J5 of the core module) as trigger output
 ;; NEVER USE THIS TOGETHER WITH ANALOG POTS - IT WILL CAUSE A SHORT CIRCUIT!
-#define DEFAULT_ENABLE_J5_GATES	1
+#define DEFAULT_ENABLE_J5_GATES	0
 
 ;; additional gate triggers are available on common digital output pins of the
 ;; DOUT shift register chain - they are assigned to AOUT channel #16 (Note C-1, C#1, D-1, ...)
