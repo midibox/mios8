@@ -1,6 +1,6 @@
 ; $Id$
 ;
-; MBSEQ Menu "Clock Divider"
+; MBSEQ Menu "Timebase"
 ;
 ; ==========================================================================
 ;
@@ -11,16 +11,6 @@
 ; ==========================================================================
 
 ;; --------------------------------------------------------------------------
-;;  This table contains the edit values
-;; --------------------------------------------------------------------------
-CS_M_TRKDIV_PARAMETERS
- ;;			 CC/value				max	cursor/len	MenuParameterHook
- CS_MENU_PARAMETER_ENTRY -1,					0x0f,   0x40+ 0,  4,	CS_M_TRKDIV_GxTyChanged
- CS_MENU_PARAMETER_ENTRY SEQ_CC_OFFSET_CLK_DIVIDER,		0x3f,	0x40+ 7,  2,	CS_M_TRKDIV_DivChanged
- CS_MENU_PARAMETER_ENTRY SEQ_CC_OFFSET_CLKDIV_FLAGS,		0x01,	0x40+10,  9,	CS_M_TRKDIV_TRPChanged
- CS_MENU_PARAMETER_ENTRY SEQ_CC_OFFSET_CLKDIV_FLAGS,		0x01,	0x40+27,  3,	CS_M_TRKDIV_STMChanged
-
-;; --------------------------------------------------------------------------
 ;;  This is the menu specific GP callback function called by cs_menu_button.inc 
 ;;  when the GP hook has been installed
 ;;  Input:
@@ -28,92 +18,33 @@ CS_M_TRKDIV_PARAMETERS
 ;;     o Button value MIOS_PARAMETER2:
 ;;       - 1 if button has been released (=5V)
 ;;       - 0 if button has been pressed (=0V)
-;;     o encoder incrementer in CS_MENU_ENC_INCREMENTER if encoder has been used
 ;;  Output:
-;;     should return the GP LED values in
-;;     CS_MENU_GP_OVERLAY_DOUT_SR[01]
-;;     should clear CS_MENU_ENC_INCREMENTER if radio-button function desired
+;;     should return the GP LED values in CS_MENU_GP_OVERLAY_DOUT_SR[01]
 ;; --------------------------------------------------------------------------
 CS_M_TRKDIV_GP_Callback
 	;; do nothing if GP button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; branch depending on button
-	BRA_IFSET MIOS_PARAMETER1, 3, ACCESS, CS_M_TRKDIV_GP_Callback_RLower
+	;; store button number in cursor pos
+	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
+
+	;; if button number == 15 -> toggle "Synch To Measure" flag
 	movf	MIOS_PARAMETER1, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRKDIV_GP_Callback_1
-	rgoto	CS_M_TRKDIV_GP_Callback_2
-	rgoto	CS_M_TRKDIV_GP_Callback_3
-	rgoto	CS_M_TRKDIV_GP_Callback_4
-	rgoto	CS_M_TRKDIV_GP_Callback_5
-	rgoto	CS_M_TRKDIV_GP_Callback_6
-	rgoto	CS_M_TRKDIV_GP_Callback_7
-	rgoto	CS_M_TRKDIV_GP_Callback_8
+	xorlw	15
+	bz	CS_M_TRKDIV_GP_Callback_STB
 
-CS_M_TRKDIV_GP_Callback_1
-	clrf	CS_MENU_CURSOR_POS	; select GxTy (Item #0)
-	rgoto	CS_M_TRKDIV_GP_Callback_Cont
-
-CS_M_TRKDIV_GP_Callback_2
-	movlw	1			; select Divider (Item #1)
-	movwf	CS_MENU_CURSOR_POS	
-	rgoto	CS_M_TRKDIV_GP_Callback_Cont
-
-CS_M_TRKDIV_GP_Callback_3
-CS_M_TRKDIV_GP_Callback_4
-	movlw	2			; select and Toggle "Triplets" (Item #2)
-	movwf	CS_MENU_CURSOR_POS
-
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
-	call	CS_M_HLP_TrkCC_Get
-	xorlw	(1 << 1)
-	movwf	CS_MENU_PARAMETER_L
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
-	call	CS_M_HLP_TrkCC_Set
-
-	rgoto	CS_M_TRKDIV_GP_Callback_Cont
-
-CS_M_TRKDIV_GP_Callback_5
-CS_M_TRKDIV_GP_Callback_6
-CS_M_TRKDIV_GP_Callback_7
-	movlw	3			; select and Toggle "Synch to Measure" (Item #3)
-	movwf	CS_MENU_CURSOR_POS
-
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
-	call	CS_M_HLP_TrkCC_Get
-	xorlw	(1 << 0)
-	movwf	CS_MENU_PARAMETER_L
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
-	call	CS_M_HLP_TrkCC_Set
-
-	rgoto	CS_M_TRKDIV_GP_Callback_Cont
-
-CS_M_TRKDIV_GP_Callback_8
-	;; ignore
-	clrf	CS_MENU_ENC_INCREMENTER
-	return
-
-CS_M_TRKDIV_GP_Callback_RLower
-	;; radio button function
-	clrf	CS_MENU_ENC_INCREMENTER
-
-	;; set cursor pos to #1 (divider)
-	movlw	0x01
-	movwf	CS_MENU_CURSOR_POS
-
-	;; set mapped divider
+CS_M_TRKDIV_GP_Callback_TimeBase
+	;; else select timebase depending on button number
 	movf	MIOS_PARAMETER1, W
-	andlw	0x07
+	andlw	0x0f
 	rcall	CS_M_TRKDIV_QuickSelTableGet
 	movwf	TMP1			; store for triplet change
 
 	;; set/clear triplet flag (TMP1.7)
 	movlw	0x00
 	btfsc	TMP1, 7
-	movlw 0x01
+	movlw	0x01
 	movwf	CS_MENU_PARAMETER_L
 	rcall	CS_M_TRKDIV_TRPChanged
 
@@ -122,14 +53,33 @@ CS_M_TRKDIV_GP_Callback_RLower
 	andlw	0x3f
 	movwf	CS_MENU_PARAMETER_L	; set parameter
 	rcall	CS_M_TRKDIV_DivChanged
+
+	;; cursor pos -> selected timebase (for LED output)
+	movff	CS_MENU_CURSOR_POS, CS_TRKDIV_TIMEBASE
+
+	rgoto	CS_M_TRKDIV_GP_Callback_Cont
+
+
+CS_M_TRKDIV_GP_Callback_STB
+	;; toggle "Synch To Bar" flag
+	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
+	call	CS_M_HLP_TrkCC_Get
+	xorlw	(1 << 0)
+	movwf	CS_MENU_PARAMETER_L
+	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
+	call	CS_M_HLP_TrkCC_Set
+
 	;; 	rgoto	CS_M_TRKDIV_GP_Callback_Cont
 
 
 CS_M_TRKDIV_GP_Callback_Cont
+	;; update LEDs
+	rcall	CS_M_TRKDIV_UpdateGPLEDs
 
-	goto	CS_MENU_NewCursorPos	; notify new cursor position and exit
+	;; request display update and exit
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
+	return
 
-	;; (LEDs are updated during re-initialisation)
 
 ;; --------------------------------------------------------------------------
 CS_M_TRKDIV_UpdateGPLEDs
@@ -141,40 +91,36 @@ CS_M_TRKDIV_UpdateGPLEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
-	;; LED 1: GxTy (item #0) selected
-	movf	CS_MENU_CURSOR_POS, W
-	skpnz
-	bsf	CS_MENU_GP_OVERLAY_DOUT_SR0, 0
+	;; LED 1-15: selected timebase
+	BRA_IFSET CS_TRKDIV_TIMEBASE, 7, ACCESS, CS_M_TRKDIV_UpdateGPLEDs_NoQuick
+CS_M_TRKDIV_UpdateGPLEDs_Quick
+	movf	CS_TRKDIV_TIMEBASE, W
+	call	MIOS_HLP_GetBitORMask	; set appr. LED
+	btfss	CS_TRKDIV_TIMEBASE, 3
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	btfsc	CS_TRKDIV_TIMEBASE, 3
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+CS_M_TRKDIV_UpdateGPLEDs_NoQuick
 
-	;; LED 2: Divider (item #1) selected
-	movlw	1
-	cpfseq	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_TRKDIV_UpdateGPLEDs_NoDiv
-CS_M_TRKDIV_UpdateGPLEDs_Div
-	movlw	b'00000010'
-	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR0, F
-CS_M_TRKDIV_UpdateGPLEDs_NoDiv
+	;; LED 16: ResetAtTrkEnd (Synch To Measure)
+	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
+	call	CS_M_HLP_TrkCC_Get
+	andlw	(1 << 0)
+	skpz
+	bsf	CS_MENU_GP_OVERLAY_DOUT_SR1, 7
+	
+	return
 
-	;; LED 3-4: Triplet (item #2) selected
-	movlw	2
-	cpfseq	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_TRKDIV_UpdateGPLEDs_NoTrp
-CS_M_TRKDIV_UpdateGPLEDs_Trp
-	movlw	b'00001100'
-	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR0, F
-CS_M_TRKDIV_UpdateGPLEDs_NoTrp
 
-	;; LED 4: ResetAtTrkEnd (item #2) selected
-	movlw	3
-	cpfseq	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_TRKDIV_UpdateGPLEDs_NoSynch
-CS_M_TRKDIV_UpdateGPLEDs_Synch
-	movlw	b'01110000'
-	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR0, F
-CS_M_TRKDIV_UpdateGPLEDs_NoSynch
+;; --------------------------------------------------------------------------
+;;  Menu Init routine is called when menu page should be initialized
+;; --------------------------------------------------------------------------
+CS_M_TRKDIV_Init
+	;; install callback function for general purpose buttons, used to select an item here
+	TABLE_ADDR CS_M_TRKDIV_GP_Callback
+	call	CS_MENU_SetMenuGPCallbackHook
 
-	;; LED 9-16: mapped length value
-
+	;; determine timebase setting -> CS_TRKDIV_TIMEBASE (for LED output)
 	;; get current value -> TMP1
 	movlw	SEQ_CC_OFFSET_CLK_DIVIDER
 	call	CS_M_HLP_TrkCC_Get
@@ -187,61 +133,11 @@ CS_M_TRKDIV_UpdateGPLEDs_NoSynch
 	;; search position in table (0xff if not found)
 	movf	TMP1, W
 	rcall	CS_M_TRKDIV_QuickSelTableSearch
-	BRA_IFSET WREG, 7, ACCESS, CS_M_TRKDIV_UpdateGPLEDs_NoQuick
-CS_M_TRKDIV_UpdateGPLEDs_Quick
-	call	MIOS_HLP_GetBitORMask	; set appr. LED
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
-CS_M_TRKDIV_UpdateGPLEDs_NoQuick
-	
-	return
+	movwf	CS_TRKDIV_TIMEBASE
 
-;; --------------------------------------------------------------------------
-;;  Menu Init routine is called when menu page should be initialized
-;; --------------------------------------------------------------------------
-CS_M_TRKDIV_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
-	;; install parameter table
-	TABLE_ADDR CS_M_TRKDIV_PARAMETERS	; pointer to table
-	movlw	4				; number of parameters
-	call	CS_MENU_SetMenuParameterTable
-
-	;; init cs menu parameter if item #1 or #2 selected
-	movf	CS_MENU_CURSOR_POS, W
-	bz	CS_M_TRKDIV_Init_Cont
-	addlw	-1
-	bz	CS_M_TRKDIV_Init_1
-	addlw	-1
-	bz	CS_M_TRKDIV_Init_2
-	rgoto	CS_M_TRKDIV_Init_3
-
-CS_M_TRKDIV_Init_1
-	;; normal CC value - already in CS_MENU_PARAMETER_L
-	rgoto	CS_M_TRKDIV_Init_Cont
-
-CS_M_TRKDIV_Init_2
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS	; select bit 1
-	call	CS_M_HLP_TrkCC_Get
-	clrf	CS_MENU_PARAMETER_L
-	btfsc	WREG, 1
-	bsf	CS_MENU_PARAMETER_L, 0
- 	rgoto	CS_M_TRKDIV_Init_Cont
-
-CS_M_TRKDIV_Init_3
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS	; select bit 0
-	call	CS_M_HLP_TrkCC_Get
-	clrf	CS_MENU_PARAMETER_L
-	btfsc	WREG, 0
-	bsf	CS_MENU_PARAMETER_L, 0
-	;; 	rgoto	CS_M_TRKDIV_Init_Cont
-
-CS_M_TRKDIV_Init_Cont
-
-	;; install callback function for general purpose buttons, used to select an item here
-	TABLE_ADDR CS_M_TRKDIV_GP_Callback
-	call	CS_MENU_SetMenuGPCallbackHook
+	;; update LEDs
 	rgoto	CS_M_TRKDIV_UpdateGPLEDs
+
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
@@ -251,13 +147,23 @@ CS_M_TRKDIV_Tick
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	;; <--------------------------------------><-------------------------------------->
-	;; Trk.  Clock Divider  Synch to Measure          Quick Selection: Timebase
-	;; 0000000000000000000--1111111111111111----------2222222222222222-33333333--------
-	;; G1T1    4 (normal)         yes           1/4  3/4  1/8 3/32 1/16 3/64 1/32 1/64
-	;; 4444---55-666666666--------777----------8888899999AAAAABBBBBCCCCCDDDDDEEEEEFFFFF
+	;; BD    TIMEBASE      Selection: 16T                                              
+	;; 00000001111111111111222222222233333333334444444444555555555566666666667777777777
+	;;   1    1T   2    2T   4    4T   8    8T  16   16T  32   32T  64   Odd  EOdd STB 
+	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
+
+	;; for 2x16 LCD:
+	;; 0000000000111111
+	;; 0123456789012345
+	;; <-------------->
+	;; BD    TIMEBASE  
+	;; 0000000111111111
+	;; Selection: 16T  
+	;; 2222222222333333
+
 
 	;; print segments 0-15
-	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKDIV_Tick_RLower
+	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKDIV_Tick_89ABCDEF
 
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	andlw	0x07
@@ -271,149 +177,111 @@ CS_M_TRKDIV_Tick
 	rgoto	CS_M_TRKDIV_Tick_6
 	rgoto	CS_M_TRKDIV_Tick_7
 
-CS_M_TRKDIV_Tick_0_STR	STRING 19, 0x00 + 0, "Trk.  Clock Divider"
 CS_M_TRKDIV_Tick_0
-	TABLE_ADDR CS_M_TRKDIV_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	;; print name of selected track
+	movlw	0x00 + 0
+	call	MIOS_LCD_CursorSet
+
+	call	CS_M_HLP_GetSelectedTrk
+	call	SEQ_TRK_PrnName	; (6 characters)
+
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-CS_M_TRKDIV_Tick_1_STR	STRING 16, 0x00 + 21, "Synch to Measure"
+CS_M_TRKDIV_Tick_1_STR	STRING 14, 0x00 + 6, "TIMEBASE      "
 CS_M_TRKDIV_Tick_1
 	TABLE_ADDR CS_M_TRKDIV_Tick_1_STR
 	call	MIOS_LCD_PrintString
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-CS_M_TRKDIV_Tick_2_STR	STRING 16, 0x80 + 7, "Quick Selection:"
+#if DEFAULT_LCD_WIDTH == 80
+CS_M_TRKDIV_Tick_2_TB_STR  STRING 10, 0x00 + 20, "Selection:"
+CS_M_TRKDIV_Tick_2_STB_STR STRING 13, 0x00 + 20, "Sync to Bar: "
+#else
+CS_M_TRKDIV_Tick_2_TB_STR  STRING 10, 0x40 + 0, "Selection:"
+CS_M_TRKDIV_Tick_2_STB_STR STRING 13, 0x40 + 0, "Sync to Bar: "
+#endif
 CS_M_TRKDIV_Tick_2
-	TABLE_ADDR CS_M_TRKDIV_Tick_2_STR
+	;; if last button has been pressed: print "Sync to Bar: " instead
+	movf	CS_MENU_CURSOR_POS, W
+	xorlw	0x0f
+	bz	CS_M_TRKDIV_Tick_2_STB
+CS_M_TRKDIV_Tick_2_TB
+	TABLE_ADDR CS_M_TRKDIV_Tick_2_TB_STR
 	call	MIOS_LCD_PrintString
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-CS_M_TRKDIV_Tick_3_STR	STRING 8, 0x80 + 24, "Timebase"
-CS_M_TRKDIV_Tick_3
-	TABLE_ADDR CS_M_TRKDIV_Tick_3_STR
+CS_M_TRKDIV_Tick_2_STB
+	TABLE_ADDR CS_M_TRKDIV_Tick_2_STB_STR
 	call	MIOS_LCD_PrintString
+	rgoto	CS_M_TRKDIV_Tick_Cont
+
+CS_M_TRKDIV_Tick_3
+	;; if last button has been pressed: print 4 spaces instead
+	movf	CS_MENU_CURSOR_POS, W
+	xorlw	0x0f
+	bz	CS_M_TRKDIV_Tick_3_STB
+
+CS_M_TRKDIV_Tick_3_TB
+	;; print current selection
+#if DEFAULT_LCD_WIDTH == 80
+	movlw	0x00 + 30
+#else
+	movlw	0x40 + 11
+#endif
+	call	MIOS_LCD_CursorSet
+
+	;; stored in CS_TRKDIV_TIMEBASE
+	movf	CS_TRKDIV_TIMEBASE, W
+	TABLE_ADDR_MUL_W CS_M_TRKDIV_QuickSelStrTable, 4
+	movlw	4
+	call	MIOS_LCD_PrintPreconfString
+
+	movlw	6
+	call	SEQ_LCD_PrintSpaces
+	rgoto	CS_M_TRKDIV_Tick_Cont
+
+CS_M_TRKDIV_Tick_3_STB
+#if DEFAULT_LCD_WIDTH == 80
+	movlw	0x00 + 33
+#else
+	movlw	0x40 + 13
+#endif
+	call	MIOS_LCD_CursorSet
+
+	;; print on/off depending on STB flag
+	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
+	call	CS_M_HLP_TrkCC_Get
+	andlw	(1 << 0)
+	call	SEQ_LCD_PrnOnOff
+
+	;; print 4 spaces
+	movlw	4
+	call	SEQ_LCD_PrintSpaces
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
 CS_M_TRKDIV_Tick_4
-	movlw	0x40 + 0
-	call	MIOS_LCD_CursorSet
-	movlw	0		; item number
-	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_TRKDIV_Tick_Cont
-
 CS_M_TRKDIV_Tick_5
-	movlw	0x40 + 7
-	call	MIOS_LCD_CursorSet
-	movlw	1		; item number
-	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIV_Tick_Cont
-	movlw	SEQ_CC_OFFSET_CLK_DIVIDER
-	call	CS_M_HLP_TrkCC_Get
-	addlw	1
-	call	MIOS_LCD_PrintBCD2
-	rgoto	CS_M_TRKDIV_Tick_Cont
-
-CS_M_TRKDIV_Tick_6_TAB
-	db	"(normal)  "
-	db	"(triplet) "
-
 CS_M_TRKDIV_Tick_6
-	movlw	0x40 + 10
-	call	MIOS_LCD_CursorSet
-	movlw	2		; item number
-	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIV_Tick_Cont
-
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS	; select bit 1
-	call	CS_M_HLP_TrkCC_Get
-	andlw	(1 << 1)
-	skpz
-	movlw	1
-	TABLE_ADDR_MUL_W CS_M_TRKDIV_Tick_6_TAB, 10
-	movlw	10
-	call	MIOS_LCD_PrintPreconfString
-	rgoto	CS_M_TRKDIV_Tick_Cont
-
-
 CS_M_TRKDIV_Tick_7
-	movlw	0x40 + 27
-	call	MIOS_LCD_CursorSet
-	movlw	3		; item number
-	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIV_Tick_Cont
-
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS	; select bit 0
-	call	CS_M_HLP_TrkCC_Get
-	andlw	(1 << 0)
-	bnz	CS_M_TRKDIV_Tick_7_1
-CS_M_TRKDIV_Tick_7_0
-	movlw	'n'
-	call	MIOS_LCD_PrintChar
-	movlw	'o'
-	call	MIOS_LCD_PrintChar
-	movlw	' '
-	call	MIOS_LCD_PrintChar
+#if DEFAULT_LCD_WIDTH == 80
+	;; fill with spaces
+	call	CS_M_HLP_Print10Spaces
+#endif
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-CS_M_TRKDIV_Tick_7_1
-	movlw	'y'
-	call	MIOS_LCD_PrintChar
-	movlw	'e'
-	call	MIOS_LCD_PrintChar
-	movlw	's'
-	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_TRKDIV_Tick_Cont
-
-;; ---
-CS_M_TRKDIV_Tick_RLower
-	;; get current value -> TMP1
-	movlw	SEQ_CC_OFFSET_CLK_DIVIDER
-	call	CS_M_HLP_TrkCC_Get
-	movwf	TMP1
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS	; set flag 7 if triplet mode
-	call	CS_M_HLP_TrkCC_Get
-	btfsc	WREG, 1
-	bsf	TMP1, 7
-
-	;; get current item number of the lower line -> TMP2
+CS_M_TRKDIV_Tick_89ABCDEF_STR
+	db	"  1    1T   2    2T   4    4T   8    8T  16   16T  32   32T  64   Odd  EOdd STB "
+CS_M_TRKDIV_Tick_89ABCDEF
+#if DEFAULT_LCD_WIDTH == 80
+	;; determine string offset
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-8
-	movwf	TMP2
-
-	;; get quick selection value from table -> TMP4
-	rcall	CS_M_TRKDIV_QuickSelTableGet
-	movwf	TMP4
-
-	;; determine if item is selected (TMP1 == TMP4) (-> TMP3.0)
-	setf	TMP3
-	cpfseq	TMP1, ACCESS
-	clrf TMP3
-
-	;; determine cursor position
-	movf	TMP2, W
 	andlw	0x07
-	mullw	5
-	movf	PRODL, W
-	addlw	0xc0 + 1
-	call	MIOS_LCD_CursorSet
+	TABLE_ADDR_MUL_W CS_M_TRKDIV_Tick_89ABCDEF_STR, 10
 
-	;; check if item should be flashed
-	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_M_TRKDIV_Tick_RLower_NoF
-	BRA_IFSET TMP3, 0, ACCESS, CS_M_TRKDIV_Tick_RLower_Spaces
-
-CS_M_TRKDIV_Tick_RLower_NoF
-	movf	TMP2, W
-	rcall	CS_M_TRKDIV_QuickSelStrPrint
-	rgoto	CS_M_TRKDIV_Tick_RLower_Cont
-
-CS_M_TRKDIV_Tick_RLower_Spaces
-	movlw	4
-	call	SEQ_LCD_PrintSpaces
-	;; 	rgoto	CS_M_TRKDIV_Tick_RLower_Cont
-
-CS_M_TRKDIV_Tick_RLower_Cont
-	;; 	rgoto	CS_M_TRKDIV_Tick_Cont
+	;; print 10 characters
+	call	CS_M_HLP_Print10Chars
+#endif
+	;;  	rgoto	CS_M_TRKDIV_Tick_Cont
 
 
 CS_M_TRKDIV_Tick_Cont
@@ -421,7 +289,7 @@ CS_M_TRKDIV_Tick_Cont
 	incf	CS_MENU_REFRESH_ITEM_CTR, F
 	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKDIV_Tick_End
 	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_TRKDIV_Tick_End
+	;; 	rgoto	CS_M_PATTERN_Tick_End
 
 CS_M_TRKDIV_Tick_End
 	return
@@ -429,12 +297,8 @@ CS_M_TRKDIV_Tick_End
 ;; ==========================================================================
 
 ;; --------------------------------------------------------------------------
-;;  This hook is called when the menu parameter value has been changed
+;;  Help Functions to change CC settings
 ;; --------------------------------------------------------------------------
-CS_M_TRKDIV_GxTyChanged
-	call	CS_M_HLP_GxTyChanged
-	rgoto	CS_M_TRKDIV_UpdateGPLEDs
-
 CS_M_TRKDIV_DivChanged
 	movff	CS_MENU_PARAMETER_L, MIOS_PARAMETER1
 	movlw	SEQ_CC_OFFSET_CLK_DIVIDER
@@ -456,38 +320,37 @@ CS_M_TRKDIV_TRPChanged
 	movff	TMP5, CS_MENU_PARAMETER_L
 	return
 
-CS_M_TRKDIV_STMChanged
-	movff	CS_MENU_PARAMETER_L, TMP5	; RMW operation - store menu parameter
-	
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS	; modify bit 0
-	call	CS_M_HLP_TrkCC_Get
-	andlw	~(1 << 0)
-	btfsc	CS_MENU_PARAMETER_L, 0
-	iorlw	(1 << 0)
-	movwf	CS_MENU_PARAMETER_L
-	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS
-	call	CS_M_HLP_TrkCC_Set
-
-	movff	TMP5, CS_MENU_PARAMETER_L
-	return
-
 ;; ==========================================================================
 
 CS_M_TRKDIV_QuickSelTable
-	db	63, 31, 15, 7, 7 | 0x80, 3, 3 | 0x80, 1	; ...+1, bit 7 selects triplets
+	db	63, 63 | 0x80	; ...+1, bit 7 selects triplets
+	db	31, 31 | 0x80
+	db	15, 15 | 0x80
+	db	 7,  7 | 0x80
+	db	 3,  3 | 0x80
+	db	 1,  1 | 0x80
+	db	 0,  5
+	db	 9 | 0x80, 0xff
 
 CS_M_TRKDIV_QuickSelStrTable
 	db	" 1  "
+	db	" 1T "
 	db	" 2  "
+	db	" 2T "
 	db	" 4  "
+	db	" 4T "
 	db	" 8  "
 	db	" 8T "
 	db	" 16 "
 	db	" 16T"
 	db	" 32 "
+	db	" 32T"
+	db	" 64 "
+	db	"Odd "
+	db	"EOdd"
 
 	;; prints 4 characters
-	;; IN: item number (0-7) in WREG
+	;; IN: item number (0-14) in WREG
 CS_M_TRKDIV_QuickSelStrPrint
 	rlf	WREG, W
 	rlf	WREG, W
@@ -529,8 +392,7 @@ CS_M_TRKDIV_QuickSelTableSearchL
 	return
 CS_M_TRKDIV_QuickSelTableSearchN
 	incf	PRODH, F
-	BRA_IFCLR PRODH, 3, ACCESS, CS_M_TRKDIV_QuickSelTableSearchL
+	BRA_IFCLR PRODH, 4, ACCESS, CS_M_TRKDIV_QuickSelTableSearchL
 	retlw	0xff
 
 ;; ==========================================================================
-

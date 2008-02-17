@@ -1,6 +1,6 @@
-;$Id$
+;$Id: setup_mbseq_v3.asm 73 2008-02-03 00:00:52Z tk $
 ;
-; Individual Setup File for TK's MIDIbox SEQ V3
+; Default setup File for MB808
 ;
 ; Detailed infos for customization can be found at http://www.ucapps.de/midibox_seq_options.html
 ; and http://www.ucapps.de/midibox_808.html
@@ -10,7 +10,7 @@
 ;    20: for a 2x20 display (no additional information - screen will be centered, thats all)
 ;    80: for two 2x40 displays
 ;    other values not supported!
-#define DEFAULT_LCD_WIDTH 80
+#define DEFAULT_LCD_WIDTH 16
 ;
 ; Following table allows you to define
 ;   - the track names (must consist of exactly 6 characters!)
@@ -21,22 +21,22 @@
 ;   - the AOUT channel to output velocity (1-8, 0=disabled)
 DEFAULT_TRKINFO MACRO
 	;;       Name     SR  Pin MPort AChn
-	db	"BD    ",  0,  0,   1,    0	; Track 1
-	db	"SD    ",  0,  0,   1,    0	; Track 2
-	db	"LT/LC ",  0,  0,   1,    0	; Track 3
-	db	"MT/MC ",  0,  0,   1,    0	; Track 4
-	db	"HT/HC ",  0,  0,   1,    0	; Track 5
-	db	"CP    ",  0,  0,   1,    0	; Track 6
-	db	"MA    ",  0,  0,   1,    0	; Track 7
-	db	"RS/CL ",  0,  0,   1,    0	; Track 8
-	db	"CB    ",  0,  0,   1,    0	; Track 9
-	db	"CY    ",  0,  0,   1,    0	; Track 10
-	db	"OH    ",  0,  0,   1,    0	; Track 11
-	db	"CH    ",  0,  0,   1,    0	; Track 12
+	db	"BD    ",  1,  1,   1,    0	; Track 1
+	db	"SD    ",  1,  2,   1,    0	; Track 2
+	db	"LT/LC ",  1,  3,   1,    0	; Track 3
+	db	"MT/MC ",  1,  4,   1,    0	; Track 4
+	db	"HT/HC ",  1,  5,   1,    0	; Track 5
+	db	"CP    ",  1,  6,   1,    0	; Track 6
+	db	"MA    ",  1,  7,   1,    0	; Track 7
+	db	"RS/CL ",  4,  0,   1,    0	; Track 8
+	db	"CB    ",  4,  1,   1,    0	; Track 9
+	db	"CY    ",  4,  3,   1,    0	; Track 10
+	db	"OH    ",  4,  4,   1,    0	; Track 11
+	db	"CH    ",  4,  5,   1,    0	; Track 12
 	db	"Ext1  ",  0,  0,   1,    0	; Track 13
 	db	"Ext2  ",  0,  0,   1,    0	; Track 14
 	db	"Ext3  ",  0,  0,   1,    0	; Track 15
-	db	"Ext4  ",  0,  0,   1,    0	; Track 16
+	db	"Acc.  ",  7,  7,   0,    0	; Track 16
 	ENDM
 ;
 ; BankStick Mode & Allocation Map
@@ -52,7 +52,7 @@ DEFAULT_TRKINFO MACRO
 ; If a BankStick is not connected to the MBSEQ, the appr. entry will have no effect
 #define DEFAULT_BANKSTICK_MODE_CS0	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS1	2	; 64k
-#define DEFAULT_BANKSTICK_MODE_CS2	0	; default Mixer BS location in MBSEQ V3 firmware -- disabled to prevent that BankStick will be formatted unintentionally!
+#define DEFAULT_BANKSTICK_MODE_CS2	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS3	4	; Song mode (using CS3 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
 #define DEFAULT_BANKSTICK_MODE_CS4	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS5	2	; 64k
@@ -70,40 +70,40 @@ DEFAULT_TRKINFO MACRO
 ; For MIDI activity monitor: define the DOUT pins for the Rx and Tx LED
 #define DEFAULT_MIDI_MONITOR_ENABLED 1  ; if 1, the Tx/Rx LEDs are enabled
 ;                                    SR            Pin#
-#define DEFAULT_MIDI_RX_LED        (((2 - 1)<<3)+7- 0)	; DOUT SR#2, pin D0
+#define DEFAULT_MIDI_RX_LED        0xff			; not used
 #define DEFAULT_MIDI_TX_LED        0xff			; not used
 ;
 ; The beat indicator LED has to be assigned to a DOUT pin here:
 ;                                    SR            Pin#
-#define DEFAULT_BEAT_INDICATOR_LED (((1 - 1)<<3)+7- 0) ; DOUT SR#1, pin D0
+#define DEFAULT_BEAT_INDICATOR_LED 0xff                 ; not used
 ;                                       ^^^^^^^^^^^ignore!
 ;
 ; The step selection LEDs have to be assigned to DOUT pins here (they are used as beat indicators as well):
-;                                         SR            Pin#
-#define DEFAULT_STEP01_16_INDICATOR_LED (((1 - 1)<<3)+7- 7) ; DOUT SR#1, pin D0
-#define DEFAULT_STEP17_32_INDICATOR_LED (((1 - 1)<<3)+7- 6) ; DOUT SR#1, pin D1
-#define DEFAULT_STEP33_48_INDICATOR_LED (((1 - 1)<<3)+7- 5) ; DOUT SR#1, pin D2
-#define DEFAULT_STEP49_64_INDICATOR_LED (((1 - 1)<<3)+7- 4) ; DOUT SR#1, pin D3
-;                                            ^^^^^^^^^^^ignore!
+;                                         SR          Pin#
+#define DEFAULT_STEP01_16_INDICATOR_LED (((2 - 1)<<3)+ 6) ; DOUT SR#1, pin D5
+#define DEFAULT_STEP17_32_INDICATOR_LED (((2 - 1)<<3)+ 5) ; DOUT SR#1, pin D4
+#define DEFAULT_STEP33_48_INDICATOR_LED (((2 - 1)<<3)+ 3) ; DOUT SR#1, pin D2
+#define DEFAULT_STEP49_64_INDICATOR_LED (((2 - 1)<<3)+ 1) ; DOUT SR#1, pin D3
+;                                            ^^^^^^^^^ignore!
 ;
 ; Some menus are provide the possibility to use 16 "general purpose" buttons
 ; Define the two shift registers which are assigned to this function here:
 ; (valid numbers: 1-16)
-#define DEFAULT_GP_DIN_SR_L	7	; first GP DIN shift register assigned to SR#7
-#define DEFAULT_GP_DIN_SR_R	10	; second GP DIN shift register assigned to SR#10
+#define DEFAULT_GP_DIN_SR_L	3	; first GP DIN shift register assigned to SR#3
+#define DEFAULT_GP_DIN_SR_R	4	; second GP DIN shift register assigned to SR#4
 ;
 ; above these buttons LEDs should be mounted to visualize the played MIDI events,
 ; but also the current sequencer position, the selected pattern, the menu, etc.
 ; Define the two shift registers which are assigned to this function here:	
 ; (valid numbers: 1-16)
 #define DEFAULT_GP_DOUT_SR_L	3	; first GP DOUT shift register assigned to SR#3
-#define DEFAULT_GP_DOUT_SR_R	4	; second GP DOUT shift register assigned to SR#4
+#define DEFAULT_GP_DOUT_SR_R	5	; second GP DOUT shift register assigned to SR#5
 ;
 ;
 ; === Shift Register Matrix ===
 ;
 ; set this value to 1 if each track has its own set of 16 LEDs to display unmuted steps and current sequencer position
-#define DEFAULT_SRM_ENABLED     1
+#define DEFAULT_SRM_ENABLED     0
 ;
 ; define the shift registers to which the anodes of these LEDs are connected
 ; Note: they can be equal to DEFAULT_GP_DOUT_SR_[LH], this saves two shift registers, but doesn't allow a seperate view of UI selections
@@ -124,7 +124,7 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_SRM_DOUT_R2	10
 ;
 ; set this to 1 if a button matrix is connected
-#define DEFAULT_SRM_BUTTONS_ENABLED 1
+#define DEFAULT_SRM_BUTTONS_ENABLED 0
 ; set this to 1 if these buttons should only control the "step triggers" (gate, and other assigned triggers) - and no UI functions
 #define DEFAULT_SRM_BUTTONS_NO_UI   1
 ; define the DIN shift registers to which the button matrix is connected
@@ -146,10 +146,10 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_BPM_DIGITS_COMMON	6
 ;
 ;
-; the speed value for the datawheel (#0) which is used when the "FAST" button is activated:
+; the speed value for the tempo encoder (#0) which is used when the "FAST" button is activated:
 #define DEFAULT_ENC_TEMPO_SPEED_VALUE	3
 ;
-; the speed value for the additional encoders (#1-#16) which is used when the "FAST" button is activated:
+; the speed value for the additional encoders which is used when the "FAST" button is activated:
 #define DEFAULT_ENC_SPEED_VALUE		3
 
 ;; Auto FAST mode: if a layer is assigned to velocity or CC, the fast button will be automatically
@@ -188,7 +188,6 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_MIDI_SONG_CHANGE_VIA_CC	1
 
 
-
 ;; define the pin which should be used as external 24ppqn clock output here
 ;; DEFAULT_EXT_CLK_LAT can be LATC (Pin 0, 1, 2, 4, 5) or LATD (Pin 4)
 ;; Note that this should be an exclusive pin. E.g., if an AOUT module is
@@ -219,25 +218,8 @@ DEFAULT_TRKINFO MACRO
 ;; 0: enable access to the AOUT module
 ;; 1: enable access to the AOUT_LC module
 ;; 2: enable access to the AOUT_NG module
-#define DEFAULT_AOUT_MODULE_TYPE	2
+#define DEFAULT_AOUT_MODULE_TYPE	0
 
-;; use PORTA and PORTE (J5 of the core module) as trigger output
-;; NEVER USE THIS TOGETHER WITH ANALOG POTS - IT WILL CAUSE A SHORT CIRCUIT!
-#define DEFAULT_ENABLE_J5_GATES	0
-
-;; additional gate triggers are available on common digital output pins of the
-;; DOUT shift register chain - they are assigned to AOUT channel #16 (Note C-1, C#1, D-1, ...)
-;; define the shift registers which should be used here (each provides 8 gates)
-;; Note that SRs assigned to this function cannot be used as LED outputs (exclusive function)
-;; Allowed values: 1-16, 0 disables the function, all other values invalid and not allowed
-;; Note: depending on the shift registers you are using, you have to adjust
-;; the DEFAULT_NUMBER_SR value at the top of this configuration
-#define DEFAULT_ENABLE_DOUT_GATE_01_08   0
-#define DEFAULT_ENABLE_DOUT_GATE_09_16   0
-
-;; if set to 1, the DOUT "gates" will send 1mS pulses
-;; useful for analog drums
-#define DEFAULT_DOUT_1MS_TRIGGER	0
 
 
 	org	0x3082		; never change the origin!
@@ -274,47 +256,47 @@ DIN_ENTRY_EOT MACRO
 SEQ_IO_TABLE_DIN
 	;;		Function name		SR#	Pin#
 	;; NOTE: the pins of the 16 general purpose buttons are assigned above, search for DEFAULT_GP_DIN_SR_L (and _R)
-	DIN_ENTRY	SEQ_BUTTON_Scrub,	 1,	 2
-	DIN_ENTRY	SEQ_BUTTON_Metronome,	 1,	 3
+	DIN_ENTRY	SEQ_BUTTON_Scrub,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Metronome,	 0,	 0
 
-	DIN_ENTRY	SEQ_BUTTON_Stop,	 1,	 4
-	DIN_ENTRY	SEQ_BUTTON_Pause,	 1,	 5
-	DIN_ENTRY	SEQ_BUTTON_Play,	 1,	 6
-	DIN_ENTRY	SEQ_BUTTON_Rew,		 1,	 7
-	DIN_ENTRY	SEQ_BUTTON_Fwd,		 2,	 0
+	DIN_ENTRY	SEQ_BUTTON_Stop,	 5,	 5
+	DIN_ENTRY	SEQ_BUTTON_Pause,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Play,	 5,	 3
+	DIN_ENTRY	SEQ_BUTTON_Rew,		 5,	 6
+	DIN_ENTRY	SEQ_BUTTON_Fwd,		 5,	 2
+	DIN_ENTRY	SEQ_BUTTON_Loop,	 5,	 1
 
-	DIN_ENTRY	SEQ_BUTTON_F1,		 2,	 1
-	DIN_ENTRY	SEQ_BUTTON_F2,		 2,	 2
-	DIN_ENTRY	SEQ_BUTTON_F3,		 2,	 3
-	DIN_ENTRY	SEQ_BUTTON_F4,		 2,	 4
+	DIN_ENTRY	SEQ_BUTTON_F1,		 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_F2,		 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_F3,		 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_F4,		 0,	 0
 
-	DIN_ENTRY	SEQ_BUTTON_Alt,		 2,	 5
-	DIN_ENTRY	SEQ_BUTTON_Shift,	 2,	 6
-	DIN_ENTRY	SEQ_BUTTON_Alt,		 2,	 7
+	DIN_ENTRY	SEQ_BUTTON_Alt,		 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Shift,	 2,	 5
+	DIN_ENTRY	SEQ_BUTTON_Alt,		 2,	 4
 
-	DIN_ENTRY	SEQ_BUTTON_Step0116,	 3,	 0
-	DIN_ENTRY	SEQ_BUTTON_Step1732,	 3,	 1
-	DIN_ENTRY	SEQ_BUTTON_Step3348,	 3,	 2
-	DIN_ENTRY	SEQ_BUTTON_Step4964,	 3,	 3
+	DIN_ENTRY	SEQ_BUTTON_Step0116,	 1,	 0
+	DIN_ENTRY	SEQ_BUTTON_Step1732,	 1,	 5
+	DIN_ENTRY	SEQ_BUTTON_Step3348,	 1,	 3
+	DIN_ENTRY	SEQ_BUTTON_Step4964,	 1,	 4
 
-	DIN_ENTRY	SEQ_BUTTON_SectionA,	 3,	 4
-	DIN_ENTRY	SEQ_BUTTON_SectionB,	 3,	 5
-	DIN_ENTRY	SEQ_BUTTON_Loop,	 3,	 6
+	DIN_ENTRY	SEQ_BUTTON_SectionA,	 2,	 0
+	DIN_ENTRY	SEQ_BUTTON_SectionB,	 2,	 1
 
-	DIN_ENTRY	SEQ_BUTTON_Edit,	 4,	 0
-	DIN_ENTRY	SEQ_BUTTON_Mute,	 4,	 1
-	DIN_ENTRY	SEQ_BUTTON_Pattern,	 4,	 2
-	DIN_ENTRY	SEQ_BUTTON_Song,	 4,	 3
+	DIN_ENTRY	SEQ_BUTTON_Edit,	 6,	 4
+	DIN_ENTRY	SEQ_BUTTON_Mute,	 5,	 0
+	DIN_ENTRY	SEQ_BUTTON_Pattern,	 6,	 7
+	DIN_ENTRY	SEQ_BUTTON_Song,	 6,	 5
 
-	DIN_ENTRY	SEQ_BUTTON_Solo,	 4,	 4
-	DIN_ENTRY	SEQ_BUTTON_Fast,	 4,	 5
-	DIN_ENTRY	SEQ_BUTTON_All,		 4,	 6
+	DIN_ENTRY	SEQ_BUTTON_Solo,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Fast,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_All,		 0,	 0
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DIN_ENTRY	SEQ_BUTTON_Group1,	13,	 0
-	DIN_ENTRY	SEQ_BUTTON_Group2,	13,	 1
-	DIN_ENTRY	SEQ_BUTTON_Group3,	13,	 2
-	DIN_ENTRY	SEQ_BUTTON_Group4,	13,	 3
+	DIN_ENTRY	SEQ_BUTTON_Group1,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Group2,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Group3,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Group4,	 0,	 0
 
 	DIN_ENTRY_EOT
 
@@ -361,42 +343,36 @@ SEQ_IO_TABLE_DOUT
 
 	;; NOTE: the four step selection LEDs have to be assigned above, search for DEFAULT_STEP
 
-	DOUT_ENTRY	TMP1, 4,				1,	4	; Section A selected
-	DOUT_ENTRY	TMP1, 5,				1,	5	; Section B selected
-	DOUT_ENTRY	TMP5, 5,				1,	6	; Loop mode active
+	DOUT_ENTRY	TMP1, 4,				2,	7	; Section A selected
+	DOUT_ENTRY	TMP1, 5,				2,	0	; Section B selected
 
-	;; 	DOUT_ENTRY	TMP1, 6,			  1,	  6	; Gate Trigger Layer selected
-	DOUT_ENTRY	TMP1, 7,				1,	6	; Aux Trigger Layer selected
+	;; 	DOUT_ENTRY	TMP1, 6,			  0,	  0	; Gate Trigger Layer selected
+	DOUT_ENTRY	TMP1, 7,				0,	0	; Aux Trigger Layer selected
 
 	;; NOTE: the pin of the beat indicator LED has to be assigned above, search for DEFAULT_BEAT_INDICATOR_LED
 
-	DOUT_ENTRY	TMP2, 0,				2,	0	; Edit Step LED
-	DOUT_ENTRY	TMP2, 1,				2,	1	; Mute LED
-	DOUT_ENTRY	TMP2, 2,				2,	2	; Pattern LED
-	DOUT_ENTRY	TMP2, 3,				2,	3	; Song LED
-	DOUT_ENTRY	TMP2, 7,				2,	4	; Solo LED
-	DOUT_ENTRY	TMP2, 5,				2,	5	; Fast Encoder LED
-	DOUT_ENTRY	TMP2, 6,				2,	6	; Change All Steps LED
+	DOUT_ENTRY	TMP2, 0,				7,	3	; Edit Step LED
+	DOUT_ENTRY	TMP2, 1,				6,	7	; Mute LED
+	DOUT_ENTRY	TMP2, 2,				7,	1	; Pattern LED
+	DOUT_ENTRY	TMP2, 3,				7,	2	; Song LED
+
+	DOUT_ENTRY	TMP2, 7,				0,	0	; Solo LED
+	DOUT_ENTRY	TMP2, 5,				0,	0	; Fast Encoder LED
+	DOUT_ENTRY	TMP2, 6,				0,	0	; Change All Steps LED
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP4, 0,				11,	0	; Group 1 LED
-	DOUT_ENTRY	TMP4, 1,				11,	2	; Group 2 LED (assigned to pin 2 due to DUO LED)
-	DOUT_ENTRY	TMP4, 2,				11,	4	; Group 3 LED (assigned to pin 4 due to DUO LED)
-	DOUT_ENTRY	TMP4, 3,				11,	6	; Group 4 LED (assigned to pin 6 due to DUO LED)
+	DOUT_ENTRY	TMP4, 0,				0,	0	; Group 1 LED
+	DOUT_ENTRY	TMP4, 1,				0,	0	; Group 2 LED (assigned to pin 2 due to DUO LED)
+	DOUT_ENTRY	TMP4, 2,				0,	0	; Group 3 LED (assigned to pin 4 due to DUO LED)
+	DOUT_ENTRY	TMP4, 3,				0,	0	; Group 4 LED (assigned to pin 6 due to DUO LED)
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP4, 5,				12,	0	; Triger Layer A LED
-	DOUT_ENTRY	TMP4, 6,				12,	1	; Triger Layer B LED
-	DOUT_ENTRY	TMP4, 7,				12,	2	; Triger Layer C LED
-
-	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP5, 0,				12,	3	; Play LED
-	DOUT_ENTRY	TMP5, 1,				12,	4	; Stop LED
-	DOUT_ENTRY	TMP5, 2,				12,	5	; Pause LED
-
-	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP5, 3,				12,	6	; Step 1-16 displayed
-	DOUT_ENTRY	TMP5, 4,				12,	7	; Step 17-31 displayed
+	DOUT_ENTRY	TMP5, 0,				 7,	0	; Play LED
+	DOUT_ENTRY	TMP5, 1,				 6,	6	; Stop LED
+	DOUT_ENTRY	TMP5, 2,				 0,	0	; Pause LED
+	DOUT_ENTRY	TMP5, 3,				 6,	5	; Fwd LED
+	DOUT_ENTRY	TMP5, 4,				 6,	4	; Rew LED
+	DOUT_ENTRY	TMP5, 5,				 6,	3	; Loop LED
 
 	;; NOTE: the pins of the MIDI Rx/Tx LEDs are assigned above, search for DEFAULT_MIDI_RX_LED and TX_LED
 	;; NOTE: the pins of the 16 general purpose LEDs are assigned above, search for DEFAULT_GP_DOUT_SR_L and _R
@@ -439,28 +415,11 @@ ENC_EOT	MACRO
 
 MIOS_ENC_PIN_TABLE
 	;;        SR  Pin  Mode
-	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; Tempo Encoder
-	ENC_ENTRY 16,  6,  MIOS_ENC_MODE_DETENTED2	; Instrument Encoder (disabled, use last two pins of SRIO)
-
-	ENC_ENTRY  5,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 1
-	ENC_ENTRY  5,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 2
-	ENC_ENTRY  5,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 3
-	ENC_ENTRY  5,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 4
-	ENC_ENTRY  6,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 5
-	ENC_ENTRY  6,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 6
-	ENC_ENTRY  6,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 7
-	ENC_ENTRY  6,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 8
-	ENC_ENTRY  8,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 9
-	ENC_ENTRY  8,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 10
-	ENC_ENTRY  8,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 11
-	ENC_ENTRY  8,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 12
-	ENC_ENTRY  9,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 13
-	ENC_ENTRY  9,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 14
-	ENC_ENTRY  9,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 15
-	ENC_ENTRY  9,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 16
+	ENC_ENTRY  6,  2,  MIOS_ENC_MODE_DETENTED2	; Tempo Encoder
+	ENC_ENTRY  1,  6,  MIOS_ENC_MODE_DETENTED2	; Instrument Encoder
 
 	;; don't remove this "end-of-table" entry!
-	ENC_EOT
+	ENC_EOT			
 
 
 ;; include the rest of the application

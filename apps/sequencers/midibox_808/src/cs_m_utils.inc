@@ -1,6 +1,6 @@
 ; $Id$
 ;
-; MBSEQ Menu "Utilities"
+; MBSEQ Menu "Step Progression"
 ;
 ; ==========================================================================
 ;
@@ -10,31 +10,6 @@
 ; 
 ; ==========================================================================
 
-;; used "In-Menu" messages
-CS_M_UTILS_MSG_DEFAULT	EQU	0x00
-CS_M_UTILS_MSG_COPY	EQU	0x81
-CS_M_UTILS_MSG_PASTE	EQU	0x82
-CS_M_UTILS_MSG_CLEAR	EQU	0x83
-CS_M_UTILS_MSG_MOVE	EQU	0x84
-CS_M_UTILS_MSG_SCROLL	EQU	0x85
-CS_M_UTILS_MSG_UNDO	EQU	0x86
-
-CS_M_UTILS_TICK_IN_MENU_MSGS
-	db	">COPIED<"	; #1
-	db	">PASTED<"	; #2
-	db	"CLEARED!"	; #3
-	db	">>MOVE<<"	; #4
-	db	">SCROLL<"	; #5
-	db	">>UNDO<<"	; #6
-
-
-;; --------------------------------------------------------------------------
-;;  This table contains the edit values
-;; --------------------------------------------------------------------------
-CS_M_UTILS_PARAMETERS
- ;;			 CC/value				max	cursor/len	MenuParameterHook
- CS_MENU_PARAMETER_ENTRY -1,					0x0f,   0x40+ 0, 4,	CS_M_UTILS_GxTyChanged
-
 ;; --------------------------------------------------------------------------
 ;;  This is the menu specific GP callback function called by cs_menu_button.inc 
 ;;  when the GP hook has been installed
@@ -43,126 +18,25 @@ CS_M_UTILS_PARAMETERS
 ;;     o Button value MIOS_PARAMETER2:
 ;;       - 1 if button has been released (=5V)
 ;;       - 0 if button has been pressed (=0V)
-;;     o encoder incrementer in CS_MENU_ENC_INCREMENTER if encoder has been used
 ;;  Output:
-;;     should return the GP LED values in
-;;     CS_MENU_GP_OVERLAY_DOUT_SR[01]
-;;     should clear CS_MENU_ENC_INCREMENTER if radio-button function desired
+;;     should return the GP LED values in CS_MENU_GP_OVERLAY_DOUT_SR[01]
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_GP_Callback
-	SET_BSR	SEQ_BASE
+	;; all LEDs off when GP button has been depressed
+	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_GP_Callback_On
+CS_M_UTILS_GP_Callback_Off
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-	;; always select track
-	call	CS_M_HLP_GetSelectedTrk
-	movwf	SEQ_EVNTT, BANKED
+CS_M_UTILS_GP_Callback_On
+	;; store button number in cursor pos
+	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
 
-	;; special handling for several IN_MENU messages
-	movf	CS_MENU_ENC_INCREMENTER, W
-	bz	CS_M_UTILS_GP_Callback_Normal
-	movf	CS_IN_MENU_MSG, W
-	xorlw	CS_M_UTILS_MSG_MOVE
-	bz	CS_M_UTILS_GP_Callback_Move
-	xorlw	CS_M_UTILS_MSG_COPY ^ CS_M_UTILS_MSG_MOVE
-	bz	CS_M_UTILS_GP_Callback_Copy
-	xorlw	CS_M_UTILS_MSG_PASTE ^ CS_M_UTILS_MSG_COPY
-	bz	CS_M_UTILS_GP_Callback_Paste
-	xorlw	CS_M_UTILS_MSG_SCROLL ^ CS_M_UTILS_MSG_PASTE
-	bz	CS_M_UTILS_GP_Callback_Scroll
-	rgoto	CS_M_UTILS_GP_Callback_Normal
-
-
-CS_M_UTILS_GP_Callback_Move
-	;; call move handler
-	rcall	CS_M_UTILS_Move
-	;; clear incrementer (no additional encoder action)
-	clrf	CS_MENU_ENC_INCREMENTER, W
-	return
-
-
-CS_M_UTILS_GP_Callback_Copy
-	;; change copy offset and copy marker to begin/end range depending on encoder which has been moved
-	movf	MIOS_PARAMETER1, W
-	bz	CS_M_UTILS_GP_Callback_CopyB
-	btfsc	SEQ_SELECTED_STEPS, BANKED, 0
-	addlw 16
-	movwf	MIOS_PARAMETER1
-	movf	CS_COPYPASTE_END, W
-	cpfslt	MIOS_PARAMETER1, ACCESS
-	rgoto CS_M_UTILS_GP_Callback_CopyE
-CS_M_UTILS_GP_Callback_CopyB
-	movff	CS_COPYPASTE_BEGIN, SEQ_CURRENT_STEP
-	rcall	CS_M_UTILS_StepIncDec
-	incf	CS_COPYPASTE_END, W
-	cpfslt	SEQ_CURRENT_STEP, BANKED
-	rgoto CS_M_UTILS_GP_Callback_CopyBCont
-	movff	SEQ_CURRENT_STEP, CS_COPYPASTE_BEGIN
-CS_M_UTILS_GP_Callback_CopyBCont
-	movff	CS_COPYPASTE_BEGIN, SEQ_CURRENT_STEP; (copy back final position)
-	rgoto	CS_M_UTILS_GP_Callback_CopyCont
-
-CS_M_UTILS_GP_Callback_CopyE
-	movff	CS_COPYPASTE_END, SEQ_CURRENT_STEP
-	rcall	CS_M_UTILS_StepIncDec
-	movf	CS_COPYPASTE_BEGIN, W
-	bz	CS_M_UTILS_GP_Callback_CopyEOk
-	decf	CS_COPYPASTE_BEGIN, W
-	cpfsgt	SEQ_CURRENT_STEP, BANKED
-	rgoto CS_M_UTILS_GP_Callback_CopyECont
-CS_M_UTILS_GP_Callback_CopyEOk
-	movff	SEQ_CURRENT_STEP, CS_COPYPASTE_END
-CS_M_UTILS_GP_Callback_CopyECont
-	movff	CS_COPYPASTE_END, SEQ_CURRENT_STEP; (copy back final position)
-	;; 	rgoto	CS_M_UTILS_GP_Callback_CopyCont
-
-CS_M_UTILS_GP_Callback_CopyCont
-	;; update display depending on selected step position
-	rcall	CS_M_UTILS_StepUpdate
-	;; clear incrementer (no additional encoder action)
-	clrf	CS_MENU_ENC_INCREMENTER, W
-	return
-
-
-CS_M_UTILS_GP_Callback_Paste
-	;; change paste offset
-	rcall	CS_M_UTILS_StepIncDec
-	;; clear incrementer (no additional encoder action)
-	clrf	CS_MENU_ENC_INCREMENTER, W
-	return
-
-
-CS_M_UTILS_GP_Callback_Scroll
-	;; if upper steps page is visible, increment 0x10 to starting point
-	movf	MIOS_PARAMETER1, W
-	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
-	addlw	0x10
-	movwf	SEQ_CURRENT_STEP, BANKED
-	;; update display depending on selected step position
-	rcall	CS_M_UTILS_StepUpdate
-	;; call scroll handler
-	rcall	CS_M_UTILS_Scroll
-	;; clear incrementer (no additional encoder action)
-	clrf	CS_MENU_ENC_INCREMENTER, W
-	return
-
-
-CS_M_UTILS_GP_Callback_Normal
-
-	;; if button number != 0, ignore all encoder movements
-	movf	MIOS_PARAMETER1, W
-	bz	CS_M_UTILS_GP_Callback_EncOk
-	movf	CS_MENU_ENC_INCREMENTER, W
-	bz	CS_M_UTILS_GP_Callback_ButtonOk
-CS_M_UTILS_GP_Callback_EncIgnore
-	clrf	CS_MENU_ENC_INCREMENTER
-	return
-CS_M_UTILS_GP_Callback_ButtonOk
-CS_M_UTILS_GP_Callback_EncOk
-
-
-	;; branch depending on button
+	;; branch depending on button number
 	movf	MIOS_PARAMETER1, W
 	andlw	0x0f
 	JUMPTABLE_2BYTES_UNSECURE
+	rgoto	CS_M_UTILS_GP_Callback_0
 	rgoto	CS_M_UTILS_GP_Callback_1
 	rgoto	CS_M_UTILS_GP_Callback_2
 	rgoto	CS_M_UTILS_GP_Callback_3
@@ -172,286 +46,115 @@ CS_M_UTILS_GP_Callback_EncOk
 	rgoto	CS_M_UTILS_GP_Callback_7
 	rgoto	CS_M_UTILS_GP_Callback_8
 	rgoto	CS_M_UTILS_GP_Callback_9
-	rgoto	CS_M_UTILS_GP_Callback_10
-	rgoto	CS_M_UTILS_GP_Callback_11
-	rgoto	CS_M_UTILS_GP_Callback_12
-	rgoto	CS_M_UTILS_GP_Callback_13
-	rgoto	CS_M_UTILS_GP_Callback_14
-	rgoto	CS_M_UTILS_GP_Callback_15
-	rgoto	CS_M_UTILS_GP_Callback_16
+	rgoto	CS_M_UTILS_GP_Callback_A
+	rgoto	CS_M_UTILS_GP_Callback_B
+	rgoto	CS_M_UTILS_GP_Callback_C
+	rgoto	CS_M_UTILS_GP_Callback_D
+	rgoto	CS_M_UTILS_GP_Callback_E
+	rgoto	CS_M_UTILS_GP_Callback_F
 
-;; ---[ Trk ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_1
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	movlw	0		; cursor pos
+CS_M_UTILS_GP_Callback_0	; Track Copy
+	call	CS_M_HLP_GetSelectedTrk
+	movff	WREG, SEQ_EVNTT
+	rcall	CS_M_UTILS_CopyTrack
 	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-;; ---[ Copy ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_2
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and exit
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_GP_Callback_2_1
-CS_M_UTILS_GP_Callback_2_0
-	bcf	CS_IN_MENU_MSG, 7
-	;; copy track
-	rcall	CS_M_UTILS_Copy
-	;; stop message
-	goto	SEQ_MSG_Stop
+CS_M_UTILS_GP_Callback_1	; Track Paste
+	call	CS_M_HLP_GetSelectedTrk
+	movff	WREG, SEQ_EVNTT
+	rcall	CS_M_UTILS_PasteTrack
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-CS_M_UTILS_GP_Callback_2_1
-	;; print in-menu message
-	movlw	CS_M_UTILS_MSG_COPY
-	movwf	CS_IN_MENU_MSG
+CS_M_UTILS_GP_Callback_2	; Track Clear
+	call	CS_M_HLP_GetSelectedTrk
+	movff	WREG, SEQ_EVNTT
+	rcall	CS_M_UTILS_ClearTrack
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-	;; always select full range
-	SET_BSR	SEQ_BASE
-	clrf	SEQ_CURRENT_STEP, BANKED
-	rcall	CS_M_UTILS_StepUpdate
-	clrf	CS_COPYPASTE_BEGIN
-	call	SEQ_FSR_TrkLen
-	movff	INDF1, CS_COPYPASTE_END
+CS_M_UTILS_GP_Callback_3	; reserved
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-	;; start and hold message and exit
-	call	SEQ_MSG_Start
- 	bsf	CS_STAT, CS_STAT_MESSAGE_HOLD
-	return
+CS_M_UTILS_GP_Callback_4	; Pattern Copy
+	rcall	CS_M_UTILS_CopyPattern
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
+CS_M_UTILS_GP_Callback_5	; Pattern Paste
+	rcall	CS_M_UTILS_PastePattern
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-;; ---[ Paste ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_3
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and exit
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_GP_Callback_3_1
-CS_M_UTILS_GP_Callback_3_0
-	bcf	CS_IN_MENU_MSG, 7
-	;; paste track
-	rcall	CS_M_UTILS_Paste
-	;; stop message
-	goto	SEQ_MSG_Stop
+CS_M_UTILS_GP_Callback_6	; Pattern Clear
+	rcall	CS_M_UTILS_ClearPattern
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-CS_M_UTILS_GP_Callback_3_1
-	;; update undo buffer
-	rcall	CS_M_UTILS_UndoUpdate
-	;; print in-menu message
-	movlw	CS_M_UTILS_MSG_PASTE
-	movwf	CS_IN_MENU_MSG
+CS_M_UTILS_GP_Callback_7	; reserved
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-	;; reset step marker
-	SET_BSR	SEQ_BASE
-	clrf	SEQ_CURRENT_STEP, BANKED
-	rcall	CS_M_UTILS_StepUpdate
-
-	;; start and hold message and exit
-	call	SEQ_MSG_Start
- 	bsf	CS_STAT, CS_STAT_MESSAGE_HOLD
-	return
-
-
-;; ---[ Clr ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_4
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and exit
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_GP_Callback_4_1
-CS_M_UTILS_GP_Callback_4_0
-	bcf	CS_IN_MENU_MSG, 7
-	return
-
-CS_M_UTILS_GP_Callback_4_1
-	;; update undo buffer
-	rcall	CS_M_UTILS_UndoUpdate
-	;; clear track
-	rcall	CS_M_UTILS_Clear
-	;; print in-menu message
-	movlw	CS_M_UTILS_MSG_CLEAR
-	movwf	CS_IN_MENU_MSG
-	return
-
-
-;; ---[ Move ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_5
-	;; disable move encoder
-	movlw	-1
-	movff	WREG, CS_MOVE_ENCODER
-
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and store moved value
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_GP_Callback_5_1
-CS_M_UTILS_GP_Callback_5_0
-	bcf	CS_IN_MENU_MSG, 7
-
-	;; stop message
-	goto	SEQ_MSG_Stop
-
-CS_M_UTILS_GP_Callback_5_1
-	;; update undo buffer
-	rcall	CS_M_UTILS_UndoUpdate
-
-	;; print in-menu message
-	movlw	CS_M_UTILS_MSG_MOVE
-	movwf	CS_IN_MENU_MSG
-
-	;; start and hold message and exit
-	call	SEQ_MSG_Start
- 	bsf	CS_STAT, CS_STAT_MESSAGE_HOLD
-	return
-
-
-;; ---[ Scroll ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_6
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and store moved value
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_GP_Callback_6_1
-CS_M_UTILS_GP_Callback_6_0
-	bcf	CS_IN_MENU_MSG, 7
-
-	;; stop message
-	goto	SEQ_MSG_Stop
-
-CS_M_UTILS_GP_Callback_6_1
-	;; update undo buffer
-	rcall	CS_M_UTILS_UndoUpdate
-
-	;; start with first step
-	clrf	SEQ_CURRENT_STEP, BANKED
-	rcall	CS_M_UTILS_StepUpdate
-
-	;; print in-menu message
-	movlw	CS_M_UTILS_MSG_SCROLL
-	movwf	CS_IN_MENU_MSG
-
-	;; start and hold message and exit
-	call	SEQ_MSG_Start
- 	bsf	CS_STAT, CS_STAT_MESSAGE_HOLD
-	return
-
-
-;; ---[ Random ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_7
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; branch to Random Generator menu
-	movlw	CS_MENU_PAGE_RANDOM
-	goto	CS_M_HLP_ChangePage
-
-
-;; ---[ Undo ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_8
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and exit
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_GP_Callback_8_1
-CS_M_UTILS_GP_Callback_8_0
-	bcf	CS_IN_MENU_MSG, 7
-	return
-
-CS_M_UTILS_GP_Callback_8_1
-	;; Undo last change
+CS_M_UTILS_GP_Callback_8	; Undo
 	rcall	CS_M_UTILS_Undo
-	;; print in-menu message
-	movlw	CS_M_UTILS_MSG_UNDO
-	movwf	CS_IN_MENU_MSG
-	return
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
+CS_M_UTILS_GP_Callback_9	; reserved
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-;; ---[ Save Menu ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_9
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
+CS_M_UTILS_GP_Callback_A	; reserved
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-	;; branch to save menu
-	movlw	CS_MENU_PAGE_SAVE
-	goto	CS_M_HLP_ChangePage
+CS_M_UTILS_GP_Callback_B	; reserved
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-;; ---[ Record Menu ]------------------------------------------------
-CS_M_UTILS_GP_Callback_10
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
+CS_M_UTILS_GP_Callback_C	; reserved
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-	;; branch to save menu
-	movlw	CS_MENU_PAGE_RECORD
-	goto	CS_M_HLP_ChangePage
+CS_M_UTILS_GP_Callback_D	; reserved
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-;; ---[ Options Menu ]------------------------------------------------
-CS_M_UTILS_GP_Callback_11
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; branch to mixer menu
-	movlw	CS_MENU_PAGE_MIXER
-	goto	CS_M_HLP_ChangePage
-
-;; ---[ Options Menu ]------------------------------------------------
-CS_M_UTILS_GP_Callback_12
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; branch to options menu
-	movlw	CS_MENU_PAGE_OPT
-	goto	CS_M_HLP_ChangePage
-
-;; ---[ Port Mute Menu ]------------------------------------------------
-CS_M_UTILS_GP_Callback_13
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; branch to Port Mute menu
-	movlw	CS_MENU_PAGE_PMUTE
-	goto	CS_M_HLP_ChangePage
-
-;; ---[ free ]------------------------------------------------
-CS_M_UTILS_GP_Callback_14
-	return
-
-;; ---[ Mute All ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_15
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; Mute all tracks
+CS_M_UTILS_GP_Callback_E	; Mute All Tracks
 	rcall	CS_M_UTILS_MuteAll
-	;; branch to mute menu
-	movlw	CS_MENU_PAGE_MUTE
-	goto	CS_M_HLP_ChangePage
+	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-;; ---[ UnMute All ]--------------------------------------------------
-CS_M_UTILS_GP_Callback_16
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; UnMute all tracks
+CS_M_UTILS_GP_Callback_F	; UnMute All Tracks
 	rcall	CS_M_UTILS_UnMuteAll
-	;; branch to mute menu
-	movlw	CS_MENU_PAGE_MUTE
-	goto	CS_M_HLP_ChangePage
+	;; 	rgoto	CS_M_UTILS_GP_Callback_Cont
 
+CS_M_UTILS_GP_Callback_Cont
+	;; update LEDs
+	rcall	CS_M_UTILS_UpdateGPLEDs
 
-CS_M_UTILS_GP_Callback_Cont	; toggle function
-	cpfseq	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_UTILS_GP_Callback_Cont_NP
-	return			; pos already selected, increment allowed
-
-CS_M_UTILS_GP_Callback_Cont_NP
-	clrf	CS_MENU_ENC_INCREMENTER
-	movwf	CS_MENU_CURSOR_POS
-	goto	CS_MENU_NewCursorPos	; notify new cursor position and exit
+	;; request display update and exit
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
+	return
 
 
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_UpdateGPLEDs
-	;; flash LEDs
-	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
-	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
-
-	;; first item always active
-	movlw	b'00000001'
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	;; clear all LEDs
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
 
+	;; *don't* flash LEDs
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+
+	;; don't lit LED if cursor pos == 0xff (no option triggered)
+	incf	CS_MENU_CURSOR_POS, W
+	bz	CS_M_UTILS_UpdateGPLEDs_End
+	
+	;; set LED 1-16 depending on last selected option
+	movf	CS_MENU_CURSOR_POS, W
+	call	MIOS_HLP_GetBitORMask
+	btfss	CS_MENU_CURSOR_POS, 3
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	btfsc	CS_MENU_CURSOR_POS, 3
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+
+CS_M_UTILS_UpdateGPLEDs_End
 	return
 
 
@@ -459,19 +162,14 @@ CS_M_UTILS_UpdateGPLEDs
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
-	;; install parameter table
-	TABLE_ADDR CS_M_UTILS_PARAMETERS	; pointer to table
-	movlw	1				; number of parameters
-	call	CS_MENU_SetMenuParameterTable
-
-	;; install callback function for general purpose buttons
+	;; install callback function for general purpose buttons, used to select an item here
 	TABLE_ADDR CS_M_UTILS_GP_Callback
 	call	CS_MENU_SetMenuGPCallbackHook
 
-	;; init LEDs
+	;; set cursor pos to invalid value (0xff) -> no LED will lit
+	setf	CS_MENU_CURSOR_POS
+
+	;; update LEDs
 	rgoto	CS_M_UTILS_UpdateGPLEDs
 
 
@@ -483,91 +181,126 @@ CS_M_UTILS_Tick
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	;; <--------------------------------------><-------------------------------------->
-	;; Trk.        Utility Functions                       Quick Menu Change           
-	;; 00000000001111111122222222222233333333334444444444555555555566666666667777777777
-	;; G1T1 Copy Paste Clr Move Scrl Rand Undo Save Rec. Mix. Opt. PMte     Mute UnMute
+	;; BD    UTILS         Track Copied                                                   
+	;; 00000001111111111111222222222222222233334444444444555555555566666666667777777777
+	;; Cpy/Paste/Clr (Trk) Cpy/Paste/Clr (Ptn) Undo                         Mute UnMute
 	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
 
+	;; for 2x16 LCD:
+	;; 0000000000111111
+	;; 0123456789012345
+	;; <-------------->
+	;; BD    UTILS     
+	;; 0000000111111111
+	;; Track copied    
+	;; 2222222222333333
+
+
 	;; print segments 0-15
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_UTILS_Tick_Upper
-	rgoto	CS_M_UTILS_Tick_Lower
+	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_UTILS_Tick_89ABCDEF
 
-CS_M_UTILS_Tick_Upper_STR
-	db	"Trk.        Utility Functions                       Quick Menu Change           "
-CS_M_UTILS_Tick_Upper
-	;; determine cursor pos
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
-	mullw	10
-	movf	PRODL, W
-	btfsc	CS_MENU_REFRESH_ITEM_CTR, 2
-	iorlw 0x80
+	andlw	0x07
+	JUMPTABLE_2BYTES_UNSECURE
+	rgoto	CS_M_UTILS_Tick_0
+	rgoto	CS_M_UTILS_Tick_1
+	rgoto	CS_M_UTILS_Tick_2
+	rgoto	CS_M_UTILS_Tick_3
+	rgoto	CS_M_UTILS_Tick_4
+	rgoto	CS_M_UTILS_Tick_5
+	rgoto	CS_M_UTILS_Tick_6
+	rgoto	CS_M_UTILS_Tick_7
+
+CS_M_UTILS_Tick_0
+	;; print name of selected track
+	movlw	0x00 + 0
 	call	MIOS_LCD_CursorSet
 
-	;; determine string offset
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	TABLE_ADDR_MUL_W CS_M_UTILS_Tick_Upper_STR, 10
+	call	CS_M_HLP_GetSelectedTrk
+	call	SEQ_TRK_PrnName	; (6 characters)
 
-	;; print string part (10 characters)
-	movlw	10
-	call	MIOS_LCD_PrintPreconfString
-
-	;; if last position reached, print in-menu message at right upper corner of first display
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	xorlw	7
-	bnz	CS_M_UTILS_Tick_Upper_End
-	movf	CS_IN_MENU_MSG, W
-	andlw	0x7f
-	bz	CS_M_UTILS_Tick_Upper_End
-CS_M_UTILS_Tick_Upper_Msg
-	movlw	0x00 + 32
-	call	MIOS_LCD_CursorSet
-	decf	CS_IN_MENU_MSG, W
-	andlw	0x7f
-	TABLE_ADDR_MUL_W CS_M_UTILS_TICK_IN_MENU_MSGS, 8
-	movlw	8 ; characters
-	call	MIOS_LCD_PrintPreconfString
-
-	;; switch back to default message once button has been released (will be updated after ca. 1 second)
-	BRA_IFSET CS_IN_MENU_MSG, 7, ACCESS, CS_M_UTILS_Tick_Upper_End
-	movlw	CS_M_UTILS_MSG_DEFAULT
-	movwf	CS_IN_MENU_MSG
-CS_M_UTILS_Tick_Upper_End
 	rgoto	CS_M_UTILS_Tick_Cont
 
+CS_M_UTILS_Tick_1_STR	STRING 14, 0x00 + 6, "UTILS         "
+CS_M_UTILS_Tick_1
+	TABLE_ADDR CS_M_UTILS_Tick_1_STR
+	call	MIOS_LCD_PrintString
+	rgoto	CS_M_UTILS_Tick_Cont
 
-CS_M_UTILS_Tick_Lower_STR
-	db	"G1T1 Copy Paste Clr Move Scrl Rand Undo Save Rec. Mix. Opt. PMte     Mute UnMute"
-CS_M_UTILS_Tick_Lower
-	;; determine cursor pos
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
-	mullw	10
-	movf	PRODL, W
-	btfsc	CS_MENU_REFRESH_ITEM_CTR, 2
-	iorlw 0x80
-	iorlw	0x40
+CS_M_UTILS_Tick_2_TABLE
+	db	"Track copied    "
+	db	"Track pasted    "
+	db	"Track cleared   "
+	db	"<reserved>      "
+	db	"Pattern copied  "
+	db	"Pattern pasted  "
+	db	"Pattern cleared "
+	db	"<reserved>      "
+	db	"--> Undo <--    "
+	db	"<reserved>      "
+	db	"<reserved>      "
+	db	"<reserved>      "
+	db	"<reserved>      "
+	db	"<reserved>      "
+	db	"Muted all Tracks"
+	db	"Unmuted Tracks  "
+
+CS_M_UTILS_Tick_2
+	;; print last command
+#if DEFAULT_LCD_WIDTH == 80
+	movlw	0x00 + 20
+#else
+	movlw	0x40 + 0
+#endif
 	call	MIOS_LCD_CursorSet
 
+	;; print 16 spaces if no command triggered yet
+	incf	CS_MENU_CURSOR_POS, W
+	bz	CS_M_UTILS_Tick_2_NoCmd
+CS_M_UTILS_Tick_2_Cmd
+	movf	CS_MENU_CURSOR_POS, W
+	TABLE_ADDR_MUL_W CS_M_UTILS_Tick_2_TABLE, 16
+	movlw	16
+	call	MIOS_LCD_PrintPreconfString
+	rgoto	CS_M_UTILS_Tick_Cont
+
+CS_M_UTILS_Tick_2_NoCmd
+	movlw	16
+	call	SEQ_LCD_PrintSpaces
+	rgoto	CS_M_UTILS_Tick_Cont
+
+CS_M_UTILS_Tick_3
+	;; print 4 spaces
+	movlw	0x00 + 36
+	call	MIOS_LCD_CursorSet
+	movlw	4
+	call	SEQ_LCD_PrintSpaces
+	rgoto	CS_M_UTILS_Tick_Cont
+
+CS_M_UTILS_Tick_4
+CS_M_UTILS_Tick_5
+CS_M_UTILS_Tick_6
+CS_M_UTILS_Tick_7
+#if DEFAULT_LCD_WIDTH == 80
+	;; fill with spaces
+	call	CS_M_HLP_Print10Spaces
+#endif
+	rgoto	CS_M_UTILS_Tick_Cont
+
+CS_M_UTILS_Tick_89ABCDEF_STR
+	db	"Cpy/Paste/Clr (Trk) Cpy/Paste/Clr (Ptn) Undo                         Mute UnMute"
+CS_M_UTILS_Tick_89ABCDEF
+#if DEFAULT_LCD_WIDTH == 80
 	;; determine string offset
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	andlw	0x07
-	TABLE_ADDR_MUL_W CS_M_UTILS_Tick_Lower_STR, 10
+	TABLE_ADDR_MUL_W CS_M_UTILS_Tick_89ABCDEF_STR, 10
 
-	;; print string part (10 characters)
-	movlw	10
-	call	MIOS_LCD_PrintPreconfString
-
-	;; if first position, print track number in first 4 characters
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	xorlw	8
-	bnz	CS_M_UTILS_Tick_Lower_End
-	movlw	0x40 + 0
-	call	MIOS_LCD_CursorSet
-	movlw	0		; item number
-	call	CS_M_HLP_PrnGxTy
-CS_M_UTILS_Tick_Lower_End
+	;; print 10 characters
+	call	CS_M_HLP_Print10Chars
+#endif
 	;;  	rgoto	CS_M_UTILS_Tick_Cont
+
 
 CS_M_UTILS_Tick_Cont
 	;; Tick function will be called 16 times
@@ -579,283 +312,192 @@ CS_M_UTILS_Tick_Cont
 CS_M_UTILS_Tick_End
 	return
 
-
 ;; ==========================================================================
-
-;; --------------------------------------------------------------------------
-;;  This hook is called when the menu parameter value has been changed
-;; --------------------------------------------------------------------------
-CS_M_UTILS_GxTyChanged
-	call	CS_M_HLP_GxTyChanged
-	rgoto	CS_M_UTILS_UpdateGPLEDs
-
-;; ==========================================================================
-
-
-;; --------------------------------------------------------------------------
-;;  This function is called from the edit page when a 15-character message
-;;  should be print at the right upper corner
-;; --------------------------------------------------------------------------
-CS_M_UTILS_PrnEditMsg
-	;; print 15 spaces if flash flag cleared
-	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_M_UTILS_PrnEditMsg_NoFlash
-CS_M_UTILS_PrnEditMsg_Flash
-	movlw	15
-	goto	SEQ_LCD_PrintSpaces
-CS_M_UTILS_PrnEditMsg_NoFlash
-
-	movf	CS_IN_MENU_MSG, W
-	xorlw	CS_M_UTILS_MSG_COPY
-	bz	CS_M_UTILS_PrnEditMsg_Copy
-	xorlw	CS_M_UTILS_MSG_PASTE ^ CS_M_UTILS_MSG_COPY
-	bz	CS_M_UTILS_PrnEditMsg_Paste
-	xorlw	CS_M_UTILS_MSG_MOVE ^ CS_M_UTILS_MSG_PASTE
-	bz	CS_M_UTILS_PrnEditMsg_Move
-	xorlw	CS_M_UTILS_MSG_SCROLL ^ CS_M_UTILS_MSG_MOVE
-	bz	CS_M_UTILS_PrnEditMsg_Scroll
-	return
-
-CS_M_UTILS_PrnEditMsg_Copy_STR
-	db	"COPY S "
-CS_M_UTILS_PrnEditMsg_Copy
-	TABLE_ADDR CS_M_UTILS_PrnEditMsg_Copy_STR
-	movlw	7
-	call	MIOS_LCD_PrintPreconfString
-	incf	CS_COPYPASTE_BEGIN, W
-	call	MIOS_LCD_PrintBCD2
-	movlw	'-'
-	call	MIOS_LCD_PrintChar
-	incf	CS_COPYPASTE_END, W
-	call	MIOS_LCD_PrintBCD2
-	movlw	3
-	goto	SEQ_LCD_PrintSpaces
-
-
-CS_M_UTILS_PrnEditMsg_Paste_STR
-	db	"PASTE OFFS. "
-CS_M_UTILS_PrnEditMsg_Paste
-	TABLE_ADDR CS_M_UTILS_PrnEditMsg_Paste_STR
-	movlw	12
-	call	MIOS_LCD_PrintPreconfString
-	SET_BSR	SEQ_BASE
-	incf	SEQ_CURRENT_STEP, W, BANKED
-	call	MIOS_LCD_PrintBCD2
-	movlw	1
-	goto	SEQ_LCD_PrintSpaces
-
-
-CS_M_UTILS_PrnEditMsg_Move_STR
-	db	"MOVE STEPS     "
-CS_M_UTILS_PrnEditMsg_Move
-	TABLE_ADDR CS_M_UTILS_PrnEditMsg_Move_STR
-	movlw	15
-	goto	MIOS_LCD_PrintPreconfString
-	
-CS_M_UTILS_PrnEditMsg_Scroll_STR
-	db	"SCROLL TRACK   "
-CS_M_UTILS_PrnEditMsg_Scroll
-	TABLE_ADDR CS_M_UTILS_PrnEditMsg_Scroll_STR
-	movlw	15
-	goto	MIOS_LCD_PrintPreconfString
-
-;; ==========================================================================
-
-;; --------------------------------------------------------------------------
-;;  This function increments the record step
-;; --------------------------------------------------------------------------
-CS_M_UTILS_StepInc
-	SET_BSR	SEQ_BASE
-
-	;; increment step number
-	incf	SEQ_CURRENT_STEP, F, BANKED
-	;; stay on this step on overrun
-	call	SEQ_FSR_TrkLen
-	movf	INDF1, W
-	cpfsgt	SEQ_CURRENT_STEP, BANKED
-	rgoto CS_M_UTILS_StepInc_NoOv
-	movwf	SEQ_CURRENT_STEP, BANKED
-CS_M_UTILS_StepInc_NoOv
-	rgoto	CS_M_UTILS_StepUpdate
-
-;; --------------------------------------------------------------------------
-;;  This function decrements the record step
-;; --------------------------------------------------------------------------
-CS_M_UTILS_StepDec
-	SET_BSR	SEQ_BASE
-
-	;; decrement step number
-	decf	SEQ_CURRENT_STEP, F, BANKED
-	;; stay on first step on underrun
-	BRA_IFCLR SEQ_CURRENT_STEP, 7, BANKED, CS_M_UTILS_StepDec_NoUn
-	clrf	SEQ_CURRENT_STEP, BANKED
-CS_M_UTILS_StepDec_NoUn
-	rgoto	CS_M_UTILS_StepUpdate
-
-;; --------------------------------------------------------------------------
-;;  This function updates the active step value + the 1-16/17-32 screen
-;; --------------------------------------------------------------------------
-CS_M_UTILS_StepUpdate
-	;; select step 1-16/17-32
-	SET_BSR	SEQ_BASE
-	bcf	SEQ_SELECTED_STEPS, 0, BANKED
-	btfsc	SEQ_CURRENT_STEP, 4, BANKED
-	bsf	SEQ_SELECTED_STEPS, 0, BANKED
-
-	return
-
-;; --------------------------------------------------------------------------
-;;  This function increments/decrements the step number
-;;  IN:	 step number in SEQ_CURRENT_STEP
-;;       Inc/Dec value in CS_MENU_ENC_INCREMENTER
-;;  OUT: new step number in SEQ_CURRENT_STEP
-;; --------------------------------------------------------------------------
-CS_M_UTILS_StepIncDec
-	BRA_IFSET CS_MENU_ENC_INCREMENTER, 7, ACCESS, CS_M_UTILS_StepDec
-	rgoto	CS_M_UTILS_StepInc
-
 
 ;; --------------------------------------------------------------------------
 ;;  Copy Track
-;;  IN: selected track in SEQ_EVNTT
+;;  IN: SEQ_EVNTT: track to be copied into buffer
 ;; --------------------------------------------------------------------------
-CS_M_UTILS_Copy
+CS_M_UTILS_CopyTrack
+	;; calculate pointer to track configuration
+	lfsr	FSR0, SEQ_PATTERN_BUFFER
 	SET_BSR	SEQ_BASE
-	
-	;; use SEQ_EVNTS as loop counter
-	clrf	SEQ_EVNTS, BANKED
-CS_M_UTILS_CopyLoop
-	movlw	0		; Layer A
-	call	SEQ_LAYER_GetVValue
-	movwf	TABLAT
-	lfsr	FSR0, SEQ_COPYPASTE_LAYER_A
-	movf	SEQ_EVNTS, W, BANKED
-	movff	TABLAT, PLUSW0
+	swapf	SEQ_EVNTT, W, BANKED
+	andlw	0xf0
+	addwf	FSR0L, F
 
-	movlw	1		; Layer B
-	call	SEQ_LAYER_GetVValue
-	movwf	TABLAT
-	lfsr	FSR0, SEQ_COPYPASTE_LAYER_B
-	movf	SEQ_EVNTS, W, BANKED
-	movff	TABLAT, PLUSW0
+	;; destination pointer
+	lfsr	FSR1, SEQ_COPYPASTE_T_BUFFER
 
-	movlw	2		; Layer C
-	call	SEQ_LAYER_GetVValue
-	movwf	TABLAT
-	lfsr	FSR0, SEQ_COPYPASTE_LAYER_C
-	movf	SEQ_EVNTS, W, BANKED
-	movff	TABLAT, PLUSW0
+	;; copy track configuration
+	clrf	PRODL
+CS_M_UTILS_CopyTrackLoop1
+	movff	POSTINC0, POSTINC1
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 4, ACCESS, CS_M_UTILS_CopyTrackLoop1
 
-	call	SEQ_TRG_AllGet	; Trigger Layer
-	movwf	TABLAT
-	lfsr	FSR0, SEQ_COPYPASTE_TRG_LAYERS
-	movf	SEQ_EVNTS, W, BANKED
-	movff	TABLAT, PLUSW0
+	;; add offset to triggers
+	movlw	0xf0
+	addwf	FSR0L, F
+	movlw	0x00
+	addwfc	FSR0H, F
 
-CS_M_UTILS_CopyLoopNext
-	incf	SEQ_EVNTS, F, BANKED
-	movlw	32 - 1
-	cpfsgt	SEQ_EVNTS, BANKED
-	rgoto CS_M_UTILS_CopyLoop
+	;; copy triggers
+	clrf	PRODL
+CS_M_UTILS_CopyTrackLoop2
+	movff	POSTINC0, POSTINC1
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 4, ACCESS, CS_M_UTILS_CopyTrackLoop2
 
-	lfsr	FSR1, SEQ_TRK0
-	call	SEQ_FSR_TrkXXX	; determines FSR1 depending on SEQ_EVNTT
-	movff	FSR1L, FSR0L
-	movff	FSR1H, FSR0H
-	lfsr	FSR1, SEQ_COPYPASTE_CFG
-	;; IN: source pointer in FSR0, target pointer in FSR1
-	rcall	CS_M_UTILS_Hlp_CopyCfg
-
-	;; notify that copy&paste buffer is filled
-	bsf	CS_STAT2, CS_STAT2_COPYPASTE_FILLED_P	; assign to pattern
-	bcf	CS_STAT2, CS_STAT2_COPYPASTE_FILLED_M	; clear for mixer
+	;; notify that track copy&paste buffer is filled
+	bsf	CS_STAT2, CS_STAT2_COPYPASTE_FILLED_T
 
 	return
 
 
 ;; --------------------------------------------------------------------------
 ;;  Paste Track
-;;  IN: selected track in SEQ_EVNTT
+;;  IN: SEQ_EVNTT: track to be copied into buffer
 ;; --------------------------------------------------------------------------
-CS_M_UTILS_Paste
-	SET_BSR	SEQ_BASE
-
+CS_M_UTILS_PasteTrack
 	;; branch to clear function if copy&paste buffer not filled
-	BRA_IFCLR CS_STAT2, CS_STAT2_COPYPASTE_FILLED_P, ACCESS, CS_M_UTILS_Clear
+	BRA_IFCLR CS_STAT2, CS_STAT2_COPYPASTE_FILLED_T, ACCESS, CS_M_UTILS_ClearTrack
 
-	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_PASTE_CLR_ALL, BANKED, CS_M_UTILS_Paste_NoCfg
-CS_M_UTILS_Paste_Cfg
-	;; first paste configuration data from buffer
-	;; (trigger layer will be overwritten again inside loop
-	lfsr	FSR0, SEQ_COPYPASTE_CFG
-	lfsr	FSR1, SEQ_TRK0
-	call	SEQ_FSR_TrkXXX	; determines FSR1 depending on SEQ_EVNTT
-	;; IN: source pointer in FSR0, target pointer in FSR1
-	rcall	CS_M_UTILS_Hlp_CopyCfg
-CS_M_UTILS_Paste_NoCfg
+	;; update undo buffer before changing data
+	rcall	CS_M_UTILS_UndoUpdate
 
-	;; paste layers
-	movf	CS_COPYPASTE_BEGIN, W	; (copy buffer offset)
-	movwf	TMP1
-	movf	SEQ_CURRENT_STEP, W, BANKED
-	movwf	SEQ_EVNTS, BANKED	; (paste target offset)
-CS_M_UTILS_PasteLoop
-	lfsr	FSR0, SEQ_COPYPASTE_LAYER_A
-	movf	TMP1, W
-	movff	PLUSW0, MIOS_PARAMETER1
-	movlw	0		; Layer A
-	call	SEQ_LAYER_SetVValue
+	;; source pointer
+	lfsr	FSR0, SEQ_COPYPASTE_T_BUFFER
 
-	lfsr	FSR0, SEQ_COPYPASTE_LAYER_B
-	movf	TMP1, W
-	movff	PLUSW0, MIOS_PARAMETER1
-	movlw	1		; Layer B
-	call	SEQ_LAYER_SetVValue
+	;; calculate pointer to track configuration
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
+	SET_BSR	SEQ_BASE
+	swapf	SEQ_EVNTT, W, BANKED
+	andlw	0xf0
+	addwf	FSR1L, F
 
-	lfsr	FSR0, SEQ_COPYPASTE_LAYER_C
-	movf	TMP1, W
-	movff	PLUSW0, MIOS_PARAMETER1
-	movlw	2		; Layer C
-	call	SEQ_LAYER_SetVValue
+	;; copy track configuration
+	clrf	PRODL
+CS_M_UTILS_PasteTrackLoop1
+	movff	POSTINC0, POSTINC1
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 4, ACCESS, CS_M_UTILS_PasteTrackLoop1
 
-	lfsr	FSR0, SEQ_COPYPASTE_TRG_LAYERS
-	movf	TMP1, W
-	movf	PLUSW0, W
-	call	SEQ_TRG_AllSet
+	;; add offset to triggers
+	movlw	0xf0
+	addwf	FSR1L, F
+	movlw	0x00
+	addwfc	FSR1H, F
 
-CS_M_UTILS_PasteLoopNext
-	incf	TMP1, F		; increment offsets
-	incf	CS_COPYPASTE_END, W	; break if end of copy range has been reached
-	cpfslt	TMP1, ACCESS
-	rgoto CS_M_UTILS_PasteLoopBreak
-	incf	SEQ_EVNTS, F, BANKED
-	movlw	32 - 1
-	cpfsgt	SEQ_EVNTS, BANKED
-	rgoto CS_M_UTILS_PasteLoop
-CS_M_UTILS_PasteLoopBreak
+	;; copy triggers
+	clrf	PRODL
+CS_M_UTILS_PasteTrackLoop2
+	movff	POSTINC0, POSTINC1
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 4, ACCESS, CS_M_UTILS_PasteTrackLoop2
+
+	;; restore MIDI channel/port/note (I find it better, when such settings won't be overwritten)
+	rcall	CS_M_UTILS_Hlp_RestoreMIDI
+
+	;; notify that track copy&paste buffer is filled
+	bsf	CS_STAT2, CS_STAT2_COPYPASTE_FILLED_T
 
 	return
 
 
 ;; --------------------------------------------------------------------------
 ;;  Clear Track
-;;  IN: selected track in SEQ_EVNTT
+;;  IN: SEQ_EVNTT: track to be copied into buffer
 ;; --------------------------------------------------------------------------
-CS_M_UTILS_Clear
-	;; call clear layer function
-	call	SEQ_LAYER_InitLayer
+CS_M_UTILS_ClearTrack
+	;; update undo buffer before changing data
+	rcall	CS_M_UTILS_UndoUpdate
 
-	;; init configuration (if enabled)
-	SET_BSR	SEQ_BASE
-	CALL_IFSET SEQ_CFG0, SEQ_CFG0_PASTE_CLR_ALL, BANKED, SEQ_LAYER_InitCfg
+	;; load preset of specific track
+	movff	SEQ_EVNTT, WREG
+	call	SEQ_BANK_LoadPresetTrk
 
-	;; clear all triggers
-	call	SEQ_FSR_TrkTrgA_0
-	movlw	3*4
-	movwf	TMP1		; used as loop counter
-CS_M_UTILS_ClearLoop
+	;; clear triggers
+	lfsr	FSR1, SEQ_TRG0
+	movff	SEQ_EVNTT, WREG
+	mullw	SEQ_TRGRECORD_LENGTH
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
+
+	movlw	SEQ_TRGRECORD_LENGTH
+	movwf	PRODL
+CS_M_UTILS_ClearTrackLoop
 	clrf	POSTINC1
-	decfsz	TMP1, F
-	rgoto	CS_M_UTILS_ClearLoop
+	decfsz	PRODL, F
+	rgoto	CS_M_UTILS_ClearTrackLoop
+	
+	;; restore MIDI channel/port/note (I find it better, when such settings won't be overwritten)
+	rcall	CS_M_UTILS_Hlp_RestoreMIDI
+
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Copy Pattern
+;; --------------------------------------------------------------------------
+CS_M_UTILS_CopyPattern
+	SET_BSR	SEQ_BASE
+
+	;; notify that pattern copy&paste buffer is filled
+	bsf	CS_STAT2, CS_STAT2_COPYPASTE_FILLED_P
+
+	;; copy pattern into copypaste buffer
+	lfsr	FSR0, SEQ_PATTERN_BUFFER
+	lfsr	FSR1, SEQ_COPYPASTE_P_BUFFER
+	rcall	CS_M_UTILS_Hlp_Copy512
+
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Paste Pattern
+;; --------------------------------------------------------------------------
+CS_M_UTILS_PastePattern
+	SET_BSR	SEQ_BASE
+
+	;; branch to clear function if copy&paste buffer not filled
+	BRA_IFCLR CS_STAT2, CS_STAT2_COPYPASTE_FILLED_P, ACCESS, CS_M_UTILS_ClearPattern
+
+	;; update undo buffer before changing data
+	rcall	CS_M_UTILS_UndoUpdate
+
+	;; copy copypaste buffer into pattern
+	lfsr	FSR0, SEQ_COPYPASTE_P_BUFFER
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
+	rcall	CS_M_UTILS_Hlp_Copy512
+
+	;; restore MIDI channel/port/note (I find it better, when such settings won't be overwritten)
+	rcall	CS_M_UTILS_Hlp_RestoreMIDI
+
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Clear Pattern
+;; --------------------------------------------------------------------------
+CS_M_UTILS_ClearPattern
+	;; update undo buffer before changing data
+	rcall	CS_M_UTILS_UndoUpdate
+
+	;; load preset
+	call	SEQ_BANK_LoadPreset
+
+	;; clear triggers
+	lfsr	FSR1, SEQ_TRG0
+CS_M_UTILS_ClearPatternLoop
+	clrf	POSTINC1
+	movf	FSR1L, W
+	bnz	CS_M_UTILS_ClearPatternLoop
+
+	;; restore MIDI channel/port/note (I find it better, when such settings won't be overwritten)
+	rcall	CS_M_UTILS_Hlp_RestoreMIDI
 
 	return
 
@@ -870,89 +512,24 @@ CS_M_UTILS_Undo
 	btfss	CS_STAT2, CS_STAT2_UNDO_FILLED
 	return
 
-	;; select track
-	movff	CS_UNDO_TRK, SEQ_EVNTT
-
-	;; copy 32 steps
-	clrf	SEQ_EVNTS, BANKED
-CS_M_UTILS_UndoLoop
-	lfsr	FSR0, SEQ_UNDO_LAYER_A
-	movf	SEQ_EVNTS, W, BANKED
-	movff	PLUSW0, MIOS_PARAMETER1
-	movlw	0		; Layer A
-	call	SEQ_LAYER_SetVValue
-
-	lfsr	FSR0, SEQ_UNDO_LAYER_B
-	movf	SEQ_EVNTS, W, BANKED
-	movff	PLUSW0, MIOS_PARAMETER1
-	movlw	1		; Layer B
-	call	SEQ_LAYER_SetVValue
-
-	lfsr	FSR0, SEQ_UNDO_LAYER_C
-	movf	SEQ_EVNTS, W, BANKED
-	movff	PLUSW0, MIOS_PARAMETER1
-	movlw	2		; Layer C
-	call	SEQ_LAYER_SetVValue
-
-	lfsr	FSR0, SEQ_UNDO_TRG_LAYERS
-	movf	SEQ_EVNTS, W, BANKED
-	movf	PLUSW0, W
-	call	SEQ_TRG_AllSet
-
-CS_M_UTILS_UndoLoopNext
-	incf	SEQ_EVNTS, F, BANKED
-	movlw	32 - 1
-	cpfsgt	SEQ_EVNTS, BANKED
-	rgoto CS_M_UTILS_UndoLoop
+	;; copy undo buffer into pattern
+	lfsr	FSR0, SEQ_UNDO_BUFFER
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
+	rcall	CS_M_UTILS_Hlp_Copy512
 
 	return
 
 
 ;; --------------------------------------------------------------------------
 ;;  Update Undo Buffer
-;;  IN: selected track in SEQ_EVNTT
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_UndoUpdate
 	SET_BSR	SEQ_BASE
 
-	;; store track in special variable, so that we restore the right one later
-	movff	SEQ_EVNTT, CS_UNDO_TRK
-
-	;; use SEQ_EVNTS as loop counter
-	clrf	SEQ_EVNTS, BANKED
-CS_M_UTILS_UndoUpdateLoop
-	movlw	0		; Layer A
-	call	SEQ_LAYER_GetVValue
-	movwf	TABLAT
-	lfsr	FSR0, SEQ_UNDO_LAYER_A
-	movf	SEQ_EVNTS, W, BANKED
-	movff	TABLAT, PLUSW0
-
-	movlw	1		; Layer B
-	call	SEQ_LAYER_GetVValue
-	movwf	TABLAT
-	lfsr	FSR0, SEQ_UNDO_LAYER_B
-	movf	SEQ_EVNTS, W, BANKED
-	movff	TABLAT, PLUSW0
-
-	movlw	2		; Layer C
-	call	SEQ_LAYER_GetVValue
-	movwf	TABLAT
-	lfsr	FSR0, SEQ_UNDO_LAYER_C
-	movf	SEQ_EVNTS, W, BANKED
-	movff	TABLAT, PLUSW0
-
-	call	SEQ_TRG_AllGet	; Trigger Layer
-	movwf	TABLAT
-	lfsr	FSR0, SEQ_UNDO_TRG_LAYERS
-	movf	SEQ_EVNTS, W, BANKED
-	movff	TABLAT, PLUSW0
-
-CS_M_UTILS_UndoUpdateLoopNext
-	incf	SEQ_EVNTS, F, BANKED
-	movlw	32 - 1
-	cpfsgt	SEQ_EVNTS, BANKED
-	rgoto CS_M_UTILS_UndoUpdateLoop
+	;; copy pattern into undo buffer
+	lfsr	FSR0, SEQ_PATTERN_BUFFER
+	lfsr	FSR1, SEQ_UNDO_BUFFER
+	rcall	CS_M_UTILS_Hlp_Copy512
 
 	;; notify that undo buffer is filled
 	bsf	CS_STAT2, CS_STAT2_UNDO_FILLED
@@ -960,148 +537,51 @@ CS_M_UTILS_UndoUpdateLoopNext
 	return
 
 ;; --------------------------------------------------------------------------
-;;  Move Step Handler
-;;  IN: selected track in SEQ_EVNTT
+;;  Help Function which copies 512 bytes
+;;  IN: Source Pointer in FSR0, Destination Pointer in FSR1
 ;; --------------------------------------------------------------------------
-CS_M_UTILS_Move
-	;; if encoder number is different from MOVE_ENC, get step, otherwise move step
-
-	;; store step number in TMP1
-	movff	MIOS_PARAMETER1, TMP1
-
-	SET_BSR	SEQ_BASE
-	;; check if first selection
-	movf	CS_MOVE_ENCODER, W
-	xorlw	-1
-	bnz	CS_M_UTILS_Move_NotFirstSel
-
-CS_M_UTILS_Move_FirstSel
-	;; select new step
-	movf	TMP1, W
-	movwf	CS_MOVE_ENCODER
-	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
-	iorlw 0x10
-	movwf	SEQ_CURRENT_STEP, BANKED
-
-	;; store current step value in SEQ_STPBUF_MOVED_VALUE
-	rcall	CS_M_UTILS_StoreMoved
-
-	;; store it also in OLD record and disable current value (clear all triggers)
-	rcall	CS_M_UTILS_StoreOld
-	movlw	0
-	movff	WREG, SEQ_STPBUF_OLD_TRG
-
-	rgoto	CS_M_UTILS_Move_End
-
-
-CS_M_UTILS_Move_NotFirstSel
-	;; check if encoder step matches with moved step
-	movf	CS_MOVE_ENCODER, W
-	xorwf	TMP1, W
-	bz	CS_M_UTILS_Move_It
-
-	;; restore moved value
-	rcall	CS_M_UTILS_RestoreMoved
-
-	;; select new one
-	rgoto	CS_M_UTILS_Move_FirstSel
-
-
-CS_M_UTILS_Move_It
-	;; restore old value
-	rcall	CS_M_UTILS_RestoreOld
-
-	;; set new step
-	rcall	CS_M_UTILS_StepIncDec
-
-	;; store "new" old value
-	rcall	CS_M_UTILS_StoreOld
-
-	;; restore moved value
-	rcall	CS_M_UTILS_RestoreMoved
-
-CS_M_UTILS_Move_End
-	;; update step
-	rcall	CS_M_UTILS_StepUpdate
-
-	;; start & hold message
-	call	SEQ_MSG_Start
- 	bsf	CS_STAT, CS_STAT_MESSAGE_HOLD	; dirty!
-	return
-
-;; --------------------------------------------------------------------------
-;;  This function stores the layer/trigger values of the selected step
-;;  into SEQ_STPBUF_xxx_*
-;;  IN:	 step number in SEQ_CURRENT_STEP
-;; --------------------------------------------------------------------------
-CS_M_UTILS_StoreOld
-	lfsr	FSR0, SEQ_STPBUF_OLD_LAYERA
-	rgoto	CS_M_UTILS_Store
-CS_M_UTILS_StoreMoved
-	lfsr	FSR0, SEQ_STPBUF_MOVED_LAYERA
-	;; 	rgoto	CS_M_UTILS_Store
-
-
-CS_M_UTILS_Store
-	;; copy layer and trigger values
-	SET_BSR	SEQ_BASE
-	
-	;; select Step
-	movff	SEQ_CURRENT_STEP, SEQ_EVNTS
-
-	movlw	0		; Layer A
-	call	SEQ_LAYER_GetVValue
-	movwf	POSTINC0
-	movlw	1		; Layer B
-	call	SEQ_LAYER_GetVValue
-	movwf	POSTINC0
-	movlw	2		; Layer C
-	call	SEQ_LAYER_GetVValue
-	movwf	POSTINC0
-	call	SEQ_TRG_AllGet	; Triggers
-	movwf	POSTINC0
+CS_M_UTILS_Hlp_Copy512
+	clrf	PRODL
+	clrf	PRODH
+CS_M_UTILS_Hlp_Copy512Loop
+	movff	POSTINC0, POSTINC1
+	incf	PRODL, F
+	skpnz
+	incf	PRODH, F
+	BRA_IFCLR PRODH, 1, ACCESS, CS_M_UTILS_Hlp_Copy512Loop
 	return
 
 
 ;; --------------------------------------------------------------------------
-;;  This function restores the layer/trigger values of the selected step
-;;  from SEQ_STPBUF_xxx_*
-;;  IN:	 step number in SEQ_CURRENT_STEP
+;;  Help Function to restore MIDI settings from UNDO buffer
 ;; --------------------------------------------------------------------------
-CS_M_UTILS_RestoreOld
-	lfsr	FSR0, SEQ_STPBUF_OLD_LAYERA
-	rgoto	CS_M_UTILS_Restore
-CS_M_UTILS_RestoreMoved
-	lfsr	FSR0, SEQ_STPBUF_MOVED_LAYERA
-	;; 	rgoto	CS_M_UTILS_Restore
+CS_M_UTILS_Hlp_RestoreMIDI
+	lfsr	FSR0, SEQ_UNDO_BUFFER
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
 
+	;; for all 16 tracks
+	clrf	PRODL
+CS_M_UTILS_Hlp_RestoreMIDILoop
+	movlw	SEQ_TRKCHNx	; MIDI channel and port
+	movff	PLUSW0, TABLAT
+	movff	TABLAT, PLUSW1
 
-CS_M_UTILS_Restore
-	;; copy layer and trigger values
-	SET_BSR	SEQ_BASE
-	
-	;; select track
-	call	CS_M_HLP_GetSelectedTrk
-	movwf	SEQ_EVNTT, BANKED
+	movlw	SEQ_TRKNOTEx	; MIDI Note
+	movff	PLUSW0, TABLAT
+	movff	TABLAT, PLUSW1
 
-	;; select Step
-	movff	SEQ_CURRENT_STEP, SEQ_EVNTS
+	;; TRKVELx and TRKVELAx could be restored as well
 
-	movff	POSTINC0, MIOS_PARAMETER1
-	movlw	0		; Layer A
-	call	SEQ_LAYER_SetVValue
+	;; switch to next track
+	movlw	SEQ_TRKRECORD_LENGTH
+	addwf	FSR0L, F
+	addwf	FSR1L, F
 
-	movff	POSTINC0, MIOS_PARAMETER1
-	movlw	1		; Layer B
-	call	SEQ_LAYER_SetVValue
+	;; loop over all 16 tracks
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 4, ACCESS, CS_M_UTILS_Hlp_RestoreMIDILoop
 
-	movff	POSTINC0, MIOS_PARAMETER1
-	movlw	2		; Layer C
-	call	SEQ_LAYER_SetVValue
-
-	movf	POSTINC0, W
-	goto	SEQ_TRG_AllSet	; Triggers
-
+	return
 
 
 ;; --------------------------------------------------------------------------
@@ -1125,221 +605,3 @@ CS_M_UTILS_UnMuteAll
 	clrf	SEQ_TRKS_MUTED1, BANKED
 	return
 
-
-;; --------------------------------------------------------------------------
-;;  Scroll Track
-;;  Expecting starting point in SEQ_CURRENT_STEP and direction in CS_MENU_ENC_INCREMENTER
-;;  IN: selected track in SEQ_EVNTT
-;; --------------------------------------------------------------------------
-CS_M_UTILS_Scroll
-	SET_BSR	SEQ_BASE
-
-#if 0
-	SET_BSR	SEQ_BASE
-	clrf	SEQ_EVNTT, BANKED
-	clrf	TMP5		; using TMP5 as loop counter
-CS_M_UTILS_ScrollLoop
-	;; check if track selected
-	call	CS_M_HLP_ChkTrkSelected
-	bnz	CS_M_UTILS_ScrollLNext
-#else
-	;; (scroll only one track, so that this function behaves like the others, and so that UNDO is working properly!)
-	;; the track number is already in SEQ_EVNTT
-#endif
-
-	;; shift layers
-	lfsr	FSR0, SEQ_LAYER_VALUES_TRK0_A
-	rcall	CS_M_UTILS_Scroll_Hlp
-	lfsr	FSR0, SEQ_LAYER_VALUES_TRK0_B
-	rcall	CS_M_UTILS_Scroll_Hlp
-	lfsr	FSR0, SEQ_LAYER_VALUES_TRK0_C
-	rcall	CS_M_UTILS_Scroll_Hlp
-
-	;; shift step triggers as well
-	movlw	0
-	rcall	CS_M_UTILS_Scroll_Hlp2
-	movlw	1
-	rcall	CS_M_UTILS_Scroll_Hlp2
-	movlw	2
-	rcall	CS_M_UTILS_Scroll_Hlp2
-
-#if 0
-CS_M_UTILS_ScrollLNext
-	incf	SEQ_EVNTT, F, BANKED
-	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTILS_ScrollLoop
-#endif
-
-	return
-
-
-	;; ---
-CS_M_UTILS_Scroll_Hlp
-	;; determine offset to layer values -> FSR0
-	movf	SEQ_EVNTT, W, BANKED
-	mullw	0x20
-	movf	PRODL, W
-	addwf	FSR0L, F
-	movf	PRODH, W
-	addwf	FSR0H, F
-
-	;; number of steps -> TMP1
-	;; exit if only one step has to be rotated
-	rcall	CS_M_UTILS_Scroll_HlpNumberSteps
-	movwf	TMP1
-	xorlw	1
-	skpnz
-	return
-
-	;; determine how many times we have to rotate -> TMP2
-	BRA_IFCLR CS_MENU_ENC_INCREMENTER, 7, ACCESS, CS_M_UTILS_Scroll_HlpR
-CS_M_UTILS_Scroll_HlpL
-	;; rotate left: shift "number of steps" - 1 times
-	decf	TMP1, W
-	movwf	TMP2
-	rgoto	CS_M_UTILS_Scroll_HlpCnt
-CS_M_UTILS_Scroll_HlpR
-	;; rotate right: shift 1 time
-	movlw	1
-	movwf	TMP2
-CS_M_UTILS_Scroll_HlpCnt
-
-	;; copy FSR0->FSR2
-	movff	FSR0L, FSR2L
-	movff	FSR0H, FSR2H
-
-CS_M_UTILS_Scroll_Hlp_OL
-	;; copy FSR2->FSR0
-	movff	FSR2L, FSR0L
-	movff	FSR2H, FSR0H
-
-	;; determine pointer to last step -> FSR0
-	call	SEQ_FSR_TrkLen
-	movf	INDF1, W
-	addwf	FSR0L, F
-
-	; save last step value in TMP3 and decrement pointer
-	movff	POSTDEC0, TMP3
-
-	;; preload counter (number of steps)
-	decf	TMP1, W
-	movwf	TMP4
-CS_M_UTILS_Scroll_Hlp_IL
-	movff	POSTINC0, POSTDEC0	; save n-1 in n and decrement pointer
-	movf	POSTDEC0, W		; decrement pointer again
-	decfsz	TMP4, F			; loop x times (x = loop length)
-	rgoto	CS_M_UTILS_Scroll_Hlp_IL
-
-	movff	TMP3, PREINC0		; save stored last step in first step
-
-	;; loop until TMP2 is zero
-	decfsz	TMP2, F
-	rgoto	CS_M_UTILS_Scroll_Hlp_OL
-	return
-
-
-	;; ---
-CS_M_UTILS_Scroll_Hlp2
-	movwf	TMP5		; save trigger layer number in TMP5
-
-	SET_BSR	SEQ_BASE
-
-	;; number of steps -> TMP1
-	;; exit if only one step has to be rotated
-	rcall	CS_M_UTILS_Scroll_HlpNumberSteps
-	movwf	TMP1
-	xorlw	1
-	skpnz
-	return
-
-	;; determine how many times we have to rotate -> TMP2
-	BRA_IFCLR CS_MENU_ENC_INCREMENTER, 7, ACCESS, CS_M_UTILS_Scroll_Hlp2R
-CS_M_UTILS_Scroll_Hlp2L
-	;; rotate left: shift "number of steps" - 1 times
-	decf	TMP1, W
-	movwf	TMP2
-	rgoto	CS_M_UTILS_Scroll_Hlp2C
-CS_M_UTILS_Scroll_Hlp2R
-	;; rotate right: shift 1 time
-	movlw	1
-	movwf	TMP2
-CS_M_UTILS_Scroll_Hlp2C
-
-	movff	SEQ_CURRENT_STEP, TMP3	; starting point -> TMP3
-
-CS_M_UTILS_Scroll_Hlp2OL
-	call	SEQ_FSR_TrkLen
-	movf	INDF1, W		; set first step
-	movwf	SEQ_EVNTS, BANKED
-
-	movf	TMP5, W
-	call	SEQ_TRG_Get_Lx		; save last step value in TMP4 and decrement pointer
-	movwf	TMP4
-	decf	SEQ_EVNTS, F, BANKED
-CS_M_UTILS_Scroll_Hlp2IL
-	movf	TMP5, W
-	call	SEQ_TRG_Get_Lx		; save n-1 in n and decrement pointer
-	movwf	TABLAT
-	incf	SEQ_EVNTS, F, BANKED
-	movf	TMP5, W
-	call	SEQ_TRG_Set_Lx
-	decf	SEQ_EVNTS, F, BANKED
-	decf	SEQ_EVNTS, F, BANKED
-	;; loop until loop point has passed
-	decf	TMP3, W
-	cpfseq	SEQ_EVNTS, BANKED
-	rgoto CS_M_UTILS_Scroll_Hlp2IL
-
-	incf	SEQ_EVNTS, F, BANKED	; save stored last step in first step
-	movff	TMP4, TABLAT
-	movf	TMP5, W
-	call	SEQ_TRG_Set_Lx
-
-	;; loop until TMP2 zero
-	decfsz	TMP2, F
-	rgoto	CS_M_UTILS_Scroll_Hlp2OL
-	return
-
-
-;;  returns the number of steps which will be rotated depending on the track length and start position
-CS_M_UTILS_Scroll_HlpNumberSteps
-	call	SEQ_FSR_TrkLen		; track length -> TABLAT
-	movf	INDF1, W
-	andlw	0x1f
-	movwf	TABLAT
-
-	movf	SEQ_CURRENT_STEP, W, BANKED	; starting point -> WREG
-
-	;; calc: track length - starting point
-	subwf	TABLAT, W
-
-	;; return track length on overrun (loop point > track length)
-	btfsc	WREG, 7
-	movf	TABLAT, W
-
-	addlw	1
-
-	return
-
-
-;; --------------------------------------------------------------------------
-;;  Help Routine which copies Configuration Data from FSR0 -> FSR1
-;;  IN: source pointer in FSR0, target pointer in FSR1
-;; --------------------------------------------------------------------------
-CS_M_UTILS_Hlp_CopyCfg
-	clrf	PRODL		; using PRODL as loop counter
-CS_M_UTILS_Hlp_CopyCfgLoop
-	;; skip if MIDI channel
-	movlw	SEQ_TRKCHNx
-	xorwf	PRODL, W
-	bz	CS_M_UTILS_Hlp_CopyCfgLoopNext
-	movff	INDF0, INDF1
-CS_M_UTILS_Hlp_CopyCfgLoopNext
-	;; increment pointers
-	movf	POSTINC1, W
-	movf	POSTINC0, W
-	incf	PRODL, F
-	movlw	SEQ_TRKRECORD_LENGTH - 3*4 - 1	; (dirty!!! don't overwrite triggers - the are located at the end of the record)
-	cpfsgt	PRODL, ACCESS
-	rgoto CS_M_UTILS_Hlp_CopyCfgLoop
-
-	return

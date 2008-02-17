@@ -255,9 +255,6 @@ SEQ_BANK_CheckStick
 	addlw	-1
 	skpnz
 	goto	SEQ_SBANK_CheckStick ; Song 64k
-	addlw	-1
-	skpnz
-	goto	SEQ_MBANK_CheckStick
 	rgoto	SEQ_BANK_CheckStick_End
 
 SEQ_BANK_CheckStick_32kOk
@@ -328,6 +325,8 @@ SEQ_BANK_CheckStick_IntReload
 	TABLE_ADDR TEXT_INTBANK_0		; print message
 	call	MIOS_LCD_PrintMessage
 	call	MIOS_LCD_PrintMessage
+	movlw	0x40				; make it shorter
+	call	MIOS_LCD_MessageStart
 
 	rgoto	SEQ_BANK_CheckStick_Reload		; branch to reload routine
 
@@ -336,14 +335,16 @@ SEQ_BANK_CheckStick_Ext
 	TABLE_ADDR TEXT_EXTBANK_0		; print message
 	call	MIOS_LCD_PrintMessage
 	call	MIOS_LCD_PrintMessage
+	movlw	0x40				; make it shorter
+	call	MIOS_LCD_MessageStart
 
 	;; print BankStick number and Device memory
-	movlw	0x00 + 21
+	movlw	0x00 + 15
 	call	MIOS_LCD_CursorSet
 	movff	SEQ_BANKSTICK_CHK_CTR, WREG
 	call	MIOS_LCD_PrintBCD1
 
-	movlw	0x40 + 13
+	movlw	0x40 + 2
 	call	MIOS_LCD_CursorSet
 	SET_BSR	SEQ_BASE
 	movf	SEQ_BANKSTICK_CHK_CTR, W, BANKED
@@ -380,11 +381,41 @@ SEQ_BANK_CheckStick_Unformatted
 
 SEQ_BANK_CheckStick_Reload
 SEQ_BANK_FormatStick_Reload
+
+	;; if 64k bankstick predefined: check if this is really a 64k EEPROM, if not switch to 32k to prevent data loss
+	SET_BSR	SEQ_BASE
+	movf	SEQ_BANKSTICK_CHK_CTR, W, BANKED
+	call	MIOS_HLP_GetBitANDMask
+	andwf	SEQ_BANKSTICK_SIZE, W, BANKED
+	bz	SEQ_BANK_CheckStick_No32kCheck
+SEQ_BANK_CheckStick_32kCheck
+	clrf	MIOS_PARAMETER1			; read 0x8000/0x8001 from BankStick
+	movlw	0x80
+	movwf	MIOS_PARAMETER2
+	call	MIOS_BANKSTICK_Read
+	xorlw	BANKSTICK_MAGIC0		; if 0x8000 != magic byte 0, it's a 64k stick
+	bnz	SEQ_BANK_CheckStick_No32kCheck
+	call	MIOS_BANKSTICK_Read
+	xorlw	BANKSTICK_MAGIC1		; if 0x8001 != magic byte 1, it's a 64k stick
+	bnz	SEQ_BANK_CheckStick_No32kCheck
+	;; note that this detection has flaws (quick&dirty hack), because if a sequencer pattern
+	;; contains the magic values at the first two addresses, we could wrongly switch to 32k mode.
+	;; The detection could be improved by writing/reading to address 0x8002, and by checking
+	;; if the value has changed at address 0x0002 as well
+	;; something similar has been realized in MBSID V2 (64k marker stored in BankStick),
+	;; but it's too difficult to bring such a feature into a running project -- dangers are too
+	;; high that after a firmware update BankSticks will be reformatted due to a programming error :-/
+	SET_BSR	SEQ_BASE
+	movf	SEQ_BANKSTICK_CHK_CTR, W, BANKED	; force 32k mode
+	call	MIOS_HLP_GetBitANDMask
+	andwf	SEQ_BANKSTICK_SIZE, F, BANKED
+SEQ_BANK_CheckStick_No32kCheck
+
 	;; re-init sequencer
 	call	SEQ_CORE_Init
 
 	;; change message delay counter
-	movlw	100
+	movlw	0x20
 	call	MIOS_LCD_MessageStart
 
 SEQ_BANK_CheckStick_End
@@ -399,10 +430,17 @@ SEQ_BANK_FormatStick
 	movf	SEQ_PATTERN_BANK, W, BANKED
 	call	MIOS_BANKSTICK_CtrlSet	
 
-	;; clear pattern 1-63 (64k BankStick: 1-127)
+	;; load preset into SEQ_PATTERN_BUFFER
+	rcall	SEQ_BANK_LoadPreset
+
+	;; set save bank
+	movff	SEQ_PATTERN_BANK, SEQ_SAVE_PATTERN_BANK
+
+	;; init pattern 1-127 from preset
 	movlw	0x01
 	movff	WREG, SEQ_PATTERN
 SEQ_BANK_FormatStickCopyLoop
+	clrwdt			; feed watchdog
 
 	TABLE_ADDR TEXT_FORMATBANK_0
 	call	MIOS_LCD_PrintMessage
@@ -419,9 +457,9 @@ SEQ_BANK_FormatStickCopyLoop
 	movff	SEQ_PATTERN, WREG
 	call	SEQ_LCD_PrnPattern
 
-	;; copy internal pattern to external pattern
-	movff	SEQ_PATTERN, WREG
-	rcall	SEQ_BANK_CopyFromInternal
+	;; store tracks into pattern
+	movff	SEQ_PATTERN, SEQ_SAVE_PATTERN
+	call	SEQ_DUMP_StoreTrks
 
 	;; increment pattern number until last is reached
 	SET_BSR	SEQ_BASE
@@ -446,13 +484,13 @@ SEQ_BANK_FormatStickCopyLoopEnd
 	movlw	BANKSTICK_MAGIC1
 	call	MIOS_BANKSTICK_Write
 
-	;; clear addresses 0x0002-0x00ff of bankstick
+	;; clear addresses 0x0002-0x01ff of bankstick
 	;; (this area is overlayed by internal bank)
 SEQ_BANK_FormatStickEraseLoop
+	clrwdt
 	movlw	0x00
 	call	MIOS_BANKSTICK_Write
-	movf	MIOS_PARAMETER2, W
-	bnz	SEQ_BANK_FormatStickEraseLoop
+	BRA_IFCLR MIOS_PARAMETER2, 1, ACCESS, SEQ_BANK_FormatStickEraseLoop
 
 	;; switch to internal bank
 	SET_BSR	SEQ_BASE
@@ -463,154 +501,79 @@ SEQ_BANK_FormatStickEraseLoop
 
 
 ;; --------------------------------------------------------------------------
-;;  Copy function
-;;  Modified version: changes MIDI channels and mutes depending on SEQ_PATTERN
-;;  to improve default setup of a freshly formatted bankstick
-;;  IN: source pattern in SEQ_PATTERN/SEQ_PATTERN_BANK
-;;      target pattern in WREG
-;;      TMP3[0] == 0: copy from internal (-> use SEQ_BANK_CopyFromInternal)
-;;      TMP3[0] == 1: copy from external (-> use SEQ_BANK_CopyFromExternal)
-;;  USES: TMP1
+;;  Loads preset into SEQ_PATCH_BUFFER
 ;; --------------------------------------------------------------------------
-SEQ_BANK_CopyFromInternal
-	bcf	TMP3, 0		; copy from internal: TMP3[0] == cleared
-	rgoto	SEQ_BANK_Copy
+SEQ_BANK_LoadPreset
+	TABLE_ADDR SEQ_BANK_PRESET
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
 
-SEQ_BANK_CopyFromExternal
-	bsf	TMP3, 0		; copy from external: TMP3[0] == set
-	;; 	rgoto	SEQ_BANK_Copy
+	;; copy 512 bytes
+	clrf	PRODL
+	clrf	PRODH
+SEQ_BANK_LoadPresetLoop
+	tblrd*+
+	movff	TABLAT, POSTINC1
+	incf	PRODL, F
+	skpnz
+	incf	PRODH, F
+	BRA_IFCLR PRODH, 1, ACCESS, SEQ_BANK_LoadPresetLoop
 
-SEQ_BANK_Copy
-	;; store current pattern in TMP1
-	movff	SEQ_PATTERN, TMP1
-	;; store target pattern in TMP2
-	movwf	TMP2
+	;; and exit
+	return
 
-	;; check if selected BankStick available
-	SET_BSR	SEQ_BASE
-	movf	SEQ_PATTERN_BANK, W, BANKED
-	call	MIOS_HLP_GetBitORMask
-	andwf	SEQ_BANKSTICK_STATUS, W, BANKED
-	bnz	SEQ_BANK_CopyNow
+	;; get preset from include file (also stored in EEPROM)
+SEQ_BANK_PRESET
+#include "seq_preset_pattern.inc"
 
-	TABLE_ADDR TEXT_COPYNOT_0
-	call	MIOS_LCD_PrintMessage
-	goto	MIOS_LCD_PrintMessage
 
-SEQ_BANK_CopyNow
-	;; copy 8*0x40 bytes
-	clrf	TMP5		; used as loop counter
-SEQ_BANK_CopyLoop
-	clrwdt			; feed watchdog
+;; --------------------------------------------------------------------------
+;;  Loads preset into given track
+;;  IN: track number in WREG
+;; --------------------------------------------------------------------------
+SEQ_BANK_LoadPresetTrk
+	;; temporary store track number in TABLAT
+	movwf	TABLAT
 
-	;; calculate block address
-	movf	TMP5, W
-	mullw	0x40
-	movff	PRODL, EEADR
-	movff	PRODH, EEADRH
+	;; get pointer to track
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
+	mullw	SEQ_TRKRECORD_LENGTH
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
 
-	;; read page from source pattern
-	SET_BSR	SEQ_BASE
-	movf	TMP1, W
-	btfss	TMP3, 0; internal pattern selected
-	movlw 0x00 
-	movwf	SEQ_PATTERN, BANKED
-	lfsr	FSR1, SEQ_DATA_BUFFER
-	rcall	SEQ_BANK_ReadPage
+	;; determine offset to preset table
+	movf	TABLAT, W
+	TABLE_ADDR_MUL_W SEQ_BANK_PRESET, 16
+	
+	;; copy 16 bytes
+	movlw	0x10
+	movwf	PRODL
+SEQ_BANK_LoadPresetTrkLoop1
+	tblrd*+
+	movff	TABLAT, POSTINC1
+	decfsz	PRODL, F
+	rgoto	SEQ_BANK_LoadPresetTrkLoop1
 
-	;; get back last address
-	movf	TMP5, W
-	mullw	0x40
-	movff	PRODL, EEADR
-	movff	PRODH, EEADRH
+	;; calculate offset to triggers
+	movlw	0xf0
+	addwf	FSR1L, F
+	movlw	0x00
+	addwfc	FSR1H, F
 
-#if 1
-	;; modification: change MIDI channels and mutes depending on target pattern number (stored in TMP2)
-	;; modification done in range 0x180-0x1ff
-	BRA_IFCLR EEADRH, 0, ACCESS, SEQ_BANK_Copy_G_Skip
-	BRA_IFCLR EEADR, 7, ACCESS, SEQ_BANK_Copy_G_Skip
+	movlw	0xf0
+	addwf	TBLPTRL, F
+	movlw	0x00
+	addwfc	TBLPTRH, F
 
-	BRA_IFSET TMP2, 5, ACCESS, SEQ_BANK_Copy_G23
-SEQ_BANK_Copy_G01
-	BRA_IFSET TMP2, 4, ACCESS, SEQ_BANK_Copy_G1
-SEQ_BANK_Copy_G0
-	;; no modification
-	rgoto	SEQ_BANK_Copy_G_Skip
-
-SEQ_BANK_Copy_G1
-	;; copy channel #5-#8 into data buffer offset SEQ_TRKCHNx
-	SET_BSR SEQ_DATA_BUFFER
-	movlw	4
-	btfsc	EEADR, 6
-	movlw 6
-	movwf	SEQ_DATA_BUFFER + 0 * SEQ_TRKRECORD_LENGTH + SEQ_TRKCHNx, BANKED
-	movlw	5
-	btfsc	EEADR, 6
-	movlw 7
-	movwf	SEQ_DATA_BUFFER + 1 * SEQ_TRKRECORD_LENGTH + SEQ_TRKCHNx, BANKED
-
-	rgoto	SEQ_BANK_Copy_G_Cont
-
-SEQ_BANK_Copy_G23
-	BRA_IFSET TMP2, 4, ACCESS, SEQ_BANK_Copy_G3
-SEQ_BANK_Copy_G2
-	;; copy channel #9-#12 into data buffer offset SEQ_TRKCHNx
-	SET_BSR SEQ_DATA_BUFFER
-	movlw	8
-	btfsc	EEADR, 6
-	movlw 10
-	movwf	SEQ_DATA_BUFFER + 0 * SEQ_TRKRECORD_LENGTH + SEQ_TRKCHNx, BANKED
-	movlw	9
-	btfsc	EEADR, 6
-	movlw 11
-	movwf	SEQ_DATA_BUFFER + 1 * SEQ_TRKRECORD_LENGTH + SEQ_TRKCHNx, BANKED
-
-	rgoto	SEQ_BANK_Copy_G_Cont
-
-SEQ_BANK_Copy_G3
-	;; copy channel #13-#16 into data buffer offset SEQ_TRKCHNx
-	SET_BSR SEQ_DATA_BUFFER
-	movlw	12
-	btfsc	EEADR, 6
-	movlw 14
-	movwf	SEQ_DATA_BUFFER + 0 * SEQ_TRKRECORD_LENGTH + SEQ_TRKCHNx, BANKED
-	movlw	13
-	btfsc	EEADR, 6
-	movlw 15
-	movwf	SEQ_DATA_BUFFER + 1 * SEQ_TRKRECORD_LENGTH + SEQ_TRKCHNx, BANKED
-
-	rgoto	SEQ_BANK_Copy_G_Cont
-
-SEQ_BANK_Copy_G_Cont
-	;; mute all steps
-	clrf	SEQ_DATA_BUFFER + 0 * SEQ_TRKRECORD_LENGTH + SEQ_TRKTRGA_0x, BANKED
-	clrf	SEQ_DATA_BUFFER + 0 * SEQ_TRKRECORD_LENGTH + SEQ_TRKTRGA_1x, BANKED
-	clrf	SEQ_DATA_BUFFER + 0 * SEQ_TRKRECORD_LENGTH + SEQ_TRKTRGA_2x, BANKED
-	clrf	SEQ_DATA_BUFFER + 0 * SEQ_TRKRECORD_LENGTH + SEQ_TRKTRGA_3x, BANKED
-
-	clrf	SEQ_DATA_BUFFER + 1 * SEQ_TRKRECORD_LENGTH + SEQ_TRKTRGA_0x, BANKED
-	clrf	SEQ_DATA_BUFFER + 1 * SEQ_TRKRECORD_LENGTH + SEQ_TRKTRGA_1x, BANKED
-	clrf	SEQ_DATA_BUFFER + 1 * SEQ_TRKRECORD_LENGTH + SEQ_TRKTRGA_2x, BANKED
-	clrf	SEQ_DATA_BUFFER + 1 * SEQ_TRKRECORD_LENGTH + SEQ_TRKTRGA_3x, BANKED
-
-SEQ_BANK_Copy_G_Skip
-	SET_BSR	SEQ_BASE
-#endif
-
-	;; write to target pattern
-	movff	TMP2, SEQ_PATTERN
-	lfsr	FSR1, SEQ_DATA_BUFFER
-	rcall	SEQ_BANK_WritePage
-
-	;; loop until last block reached
-	incf	TMP5, F
-	movlw	8-1
-	cpfsgt	TMP5, ACCESS
-	rgoto SEQ_BANK_CopyLoop
-		
-
-	;; change to old pattern
-	movff	TMP1, SEQ_PATTERN
+	;; copy 16 bytes
+	movlw	0x10
+	movwf	PRODL
+SEQ_BANK_LoadPresetTrkLoop2
+	tblrd*+
+	movff	TABLAT, POSTINC1
+	decfsz	PRODL, F
+	rgoto	SEQ_BANK_LoadPresetTrkLoop2
 
 	;; and exit
 	return
@@ -650,8 +613,6 @@ SEQ_BANK_GetTypeAvailable
 	bz	SEQ_BANK_GetTypeAvailable_S	; Song 32k
 	addlw	-1
 	bz	SEQ_BANK_GetTypeAvailable_S	; Song 64k
-	addlw	-1
-	bz	SEQ_BANK_GetTypeAvailable_M	; Mixer
 
 SEQ_BANK_GetTypeAvailable_Failed
 	andlw	0x00
@@ -666,11 +627,6 @@ SEQ_BANK_GetTypeAvailable_P
 
 SEQ_BANK_GetTypeAvailable_S
 	BRA_IFCLR MB_STAT, MB_STAT_USE_S_BANKSTICK, ACCESS, SEQ_BANK_GetTypeAvailable_Failed
-	iorlw	0x01
-	return
-
-SEQ_BANK_GetTypeAvailable_M
-	BRA_IFCLR MB_STAT, MB_STAT_USE_M_BANKSTICK, ACCESS, SEQ_BANK_GetTypeAvailable_Failed
 	iorlw	0x01
 	return
 
@@ -720,8 +676,8 @@ SEQ_BANK_PrnSize_NA
 
 ;; --------------------------------------------------------------------------
 
-TEXT_EXTBANK_0   STRING 26, 0x00, "* Found BankStick CS#   * "
-TEXT_EXTBANK_1   STRING 26, 0x40, "* Defined as 32k Device * "
+TEXT_EXTBANK_0   STRING 16, 0x00, "* BankStick CS# "
+TEXT_EXTBANK_1   STRING 16, 0x40, "* 32k Device    "
 
 TEXT_INTBANK_0   STRING 16, 0x00, "* Loading Setup "
 TEXT_INTBANK_1   STRING 16, 0x40, "* from Internal "

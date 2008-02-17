@@ -11,16 +11,6 @@
 ; ==========================================================================
 
 ;; --------------------------------------------------------------------------
-;;  This table contains the edit values
-;; --------------------------------------------------------------------------
-CS_M_PATTERN_PARAMETERS
- ;;			 CC/value				max	cursor/len	MenuParameterHook
- CS_MENU_PARAMETER_ENTRY -1,					0x80,	0x40+ 2, 2,	CS_M_PATTERN_PtnChanged
- CS_MENU_PARAMETER_ENTRY -1,					0x80,	0x40+12, 2,	CS_M_PATTERN_PtnChanged
- CS_MENU_PARAMETER_ENTRY -1,					0x80,	0x40+22, 2,	CS_M_PATTERN_PtnChanged
- CS_MENU_PARAMETER_ENTRY -1,					0x80,	0x40+32, 2,	CS_M_PATTERN_PtnChanged
-
-;; --------------------------------------------------------------------------
 ;;  This is the menu specific GP callback function called by cs_menu_button.inc 
 ;;  when the GP hook has been installed
 ;;  Input:
@@ -28,145 +18,112 @@ CS_M_PATTERN_PARAMETERS
 ;;     o Button value MIOS_PARAMETER2:
 ;;       - 1 if button has been released (=5V)
 ;;       - 0 if button has been pressed (=0V)
-;;     o encoder incrementer in CS_MENU_ENC_INCREMENTER if encoder has been used
 ;;  Output:
-;;     should return the GP LED values in
-;;     CS_MENU_GP_OVERLAY_DOUT_SR[01]
-;;     should clear CS_MENU_ENC_INCREMENTER if radio-button function desired
+;;     should return the GP LED values in CS_MENU_GP_OVERLAY_DOUT_SR[01]
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_GP_Callback
 	;; do nothing if GP button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; if incrementer != 0, encoder has been moved: modify pattern number directly
+	;; store button number in cursor pos
+	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
+
+	;; if shift button pressed: change pattern bank
 	SET_BSR	SEQ_BASE
-	movf	CS_MENU_ENC_INCREMENTER, W
-	bz	CS_M_PATTERN_GP_Callback_Button
-CS_M_PATTERN_GP_Callback_Enc
-	;; branch depending on button
-	movf	MIOS_PARAMETER1, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_PATTERN_GP_Callback_1
-	rgoto	CS_M_PATTERN_GP_Callback_2
-	rgoto	CS_M_PATTERN_GP_Callback_3
-	rgoto	CS_M_PATTERN_GP_Callback_4
-	rgoto	CS_M_PATTERN_GP_Callback_5
-	rgoto	CS_M_PATTERN_GP_Callback_6
-	rgoto	CS_M_PATTERN_GP_Callback_7
-	rgoto	CS_M_PATTERN_GP_Callback_8
-	rgoto	CS_M_PATTERN_GP_Callback_9
-	rgoto	CS_M_PATTERN_GP_Callback_10
-	rgoto	CS_M_PATTERN_GP_Callback_11
-	rgoto	CS_M_PATTERN_GP_Callback_12
-	rgoto	CS_M_PATTERN_GP_Callback_13
-	rgoto	CS_M_PATTERN_GP_Callback_14
-	rgoto	CS_M_PATTERN_GP_Callback_15
-	rgoto	CS_M_PATTERN_GP_Callback_16
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_GP_Callback_B
+CS_M_PATTERN_GP_Callback_P
+	;; call general GP routine for pattern selection
+	call	CS_M_HLP_GPPatternSel
 
-CS_M_PATTERN_GP_Callback_1
-CS_M_PATTERN_GP_Callback_2
-	movlw	0
-	movwf	SEQ_SELECTED_GROUP, BANKED
-	movlw	0x00
-	rgoto	CS_M_PATTERN_GP_Callback_EncCont
-
-CS_M_PATTERN_GP_Callback_3
-CS_M_PATTERN_GP_Callback_4
-	movlw	1
-	movwf	SEQ_SELECTED_GROUP, BANKED
-	movlw	0x01
-	rgoto	CS_M_PATTERN_GP_Callback_EncCont
-
-CS_M_PATTERN_GP_Callback_5
-CS_M_PATTERN_GP_Callback_6
-	movlw	2
-	movwf	SEQ_SELECTED_GROUP, BANKED
-	movlw	0x02
-	rgoto	CS_M_PATTERN_GP_Callback_EncCont
-
-CS_M_PATTERN_GP_Callback_7
-CS_M_PATTERN_GP_Callback_8
-	movlw	3
-	movwf	SEQ_SELECTED_GROUP, BANKED
-	movlw	0x03
-	rgoto	CS_M_PATTERN_GP_Callback_EncCont
-
-CS_M_PATTERN_GP_Callback_EncCont
-	movwf	CS_MENU_CURSOR_POS
-	call	CS_MENU_NewCursorPos	; notify new cursor position
-
-	;; if encoder with even number, change bank instead of pattern value
-	BRA_IFSET MIOS_PARAMETER1, 0, ACCESS, CS_M_PATTERN_GP_Callback_Cont
-	;; increment bank
-
-	;; inc/dec value by using the 16 bit add w/ saturation routine
-	lfsr	FSR0, SEQ_NEXT_PATTERN_BANK0	; copy bank into TMP1
-	rrf	MIOS_PARAMETER1, W
-	andlw	0x03
-	addwf	FSR0L, F
-	movf	INDF0, W
+	;; change pattern if one of the right buttons has been pressed
+	BRA_IFCLR MIOS_PARAMETER1, 3, ACCESS, CS_M_PATTERN_GP_Callback_PNoChng
+CS_M_PATTERN_GP_Callback_PChng
+	;; change to a new pattern
+	;; 7th bit cleared: CS_MENU_PARAMETER_L = pattern number + 1
+	;; 7th bit set:     CS_MENU_PARAMETER_L = 0
+	decf	CS_MENU_PARAMETER_L, W
+	movf	CS_MENU_PARAMETER_L, F
+	skpnz
+	movlw	0x80
 	movwf	TMP1
-	clrf	TMP2
 
-	;; set pointer to TMP1 (is located to an even address, thats important when this function is used!)
-	lfsr	FSR1, TMP1
-	;; set max value
-	movlw	0x07
-	movwf	MIOS_PARAMETER1	; low-byte of max value
-	clrf	MIOS_PARAMETER2	; high-byte of max value
-	;; get incrementer
-	movf	CS_MENU_ENC_INCREMENTER, W
-	;; call routine
-	call	MIOS_HLP_16bitAddSaturate
-	;; now [FSR1] = INDF1 = TMP[12] contains the result
-	;; MIOS_PARAMETER1[0] is set when value has been changed
+	movff	TMP1, SEQ_PATTERN
+	movff	SEQ_NEXT_PATTERN_BANK0, SEQ_PATTERN_BANK
 
-	clrf	CS_MENU_ENC_INCREMENTER	; don't increment pattern number
-
-	;; do nothing if update flag of previous operation not set
-	BRA_IFCLR MIOS_PARAMETER1, 0, ACCESS, CS_M_PATTERN_GP_Callback_Cont
-
-	;; change bank
-	SET_BSR	SEQ_BASE
-	movf	CS_MENU_CURSOR_POS, W
-	movwf	SEQ_GROUP, BANKED
-	lfsr	FSR0, SEQ_NEXT_PATTERN0
-	movf	PLUSW0, W
-	andlw	0x7f
-	movwf	SEQ_PATTERN, BANKED
-
-	movff	TMP1, SEQ_PATTERN_BANK
+	;; if PATTERN button pressedt: store pattern
+	BRA_IFSET SEQ_MODE2, SEQ_MODE2_PATTERN_HOLD, BANKED, CS_M_PATTERN_GP_Callback_PSave
+CS_M_PATTERN_GP_Callback_PSel
+	;; select pattern
 	call	SEQ_CORE_ChangePatternSynched
-	rgoto	CS_M_PATTERN_GP_Callback_Cont	
+	rgoto	CS_M_PATTERN_GP_Callback_Cont
 
-CS_M_PATTERN_GP_Callback_9
-CS_M_PATTERN_GP_Callback_10
-CS_M_PATTERN_GP_Callback_11
-CS_M_PATTERN_GP_Callback_12
-CS_M_PATTERN_GP_Callback_13
-CS_M_PATTERN_GP_Callback_14
-CS_M_PATTERN_GP_Callback_15
-CS_M_PATTERN_GP_Callback_16
-	clrf	CS_MENU_ENC_INCREMENTER	; (do nothing)
+CS_M_PATTERN_GP_Callback_PSaveM0
+	STRING 11, 0x00 + 0, "** Pattern "
+CS_M_PATTERN_GP_Callback_PSaveM1
+	STRING 16, 0x40 + 0, "** stored       "	
+CS_M_PATTERN_GP_Callback_PSave
+	;; store pattern
+	movff	SEQ_PATTERN, SEQ_SAVE_PATTERN
+	movff	SEQ_PATTERN_BANK, SEQ_SAVE_PATTERN_BANK
+	call	SEQ_DUMP_StoreTrks
+
+	;; switch to pattern immediately
+	movff	SEQ_SAVE_PATTERN_BANK, SEQ_NEXT_PATTERN_BANK0
+	movff	SEQ_SAVE_PATTERN_BANK, SEQ_PATTERN_BANK0
+	movff	SEQ_SAVE_PATTERN, SEQ_NEXT_PATTERN0
+	movff	SEQ_SAVE_PATTERN, SEQ_PATTERN0
+
+	;; print message
+	TABLE_ADDR CS_M_PATTERN_GP_Callback_PSaveM0
+	call	MIOS_LCD_PrintMessage
+	rcall	CS_M_PATTERN_PrnP	; (5 characters)
+	TABLE_ADDR CS_M_PATTERN_GP_Callback_PSaveM1
+	call	MIOS_LCD_PrintMessage
+
+	;; DIRTY!
+	;; ensure that GP LEDs updated immediately
+	rcall	CS_M_PATTERN_UpdateGPLEDs
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
+	return
+
+
+CS_M_PATTERN_GP_Callback_PNoChng
 	rgoto	CS_M_PATTERN_GP_Callback_Cont
 
 
-CS_M_PATTERN_GP_Callback_Button
-	;; call general GP routine for pattern selection
-	call	CS_M_HLP_GPPatternSel
-	;; save value if one of the right buttons has been pressed
-	RCALL_IFSET MIOS_PARAMETER1, 3, ACCESS, CS_M_PATTERN_PtnChanged
+CS_M_PATTERN_GP_Callback_B
+	;; change bank
+	;; ignore >= 8
+	btfsc	MIOS_PARAMETER1, 3
+	return
+
+	movff	MIOS_PARAMETER1, SEQ_PATTERN_BANK
+	movff	SEQ_NEXT_PATTERN0, SEQ_PATTERN
+	call	SEQ_CORE_ChangePatternSynched
+	;; 	rgoto	CS_M_PATTERN_GP_Callback_Cont
 
 CS_M_PATTERN_GP_Callback_Cont
-	;; update the LEDs and exit
-	;; 	rgoto	CS_M_PATTERN_UpdateGPLEDs
+	;; update LEDs
+	rcall	CS_M_PATTERN_UpdateGPLEDs
 
+	;; request display update and exit
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
+	return
+
+
+;; --------------------------------------------------------------------------
 CS_M_PATTERN_UpdateGPLEDs
 	;; clear all LEDs
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+
+	;; if shift button pressed: display pattern bank
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_UpdateGPLEDs_B
+
+CS_M_PATTERN_UpdateGPLEDs_P
 	;; exit when menu parameter == 0
 	movf	CS_MENU_PARAMETER_L, W
 	skpnz
@@ -185,56 +142,39 @@ CS_M_PATTERN_UpdateGPLEDs
 	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
 	return
 
-;; --------------------------------------------------------------------------
-;;  Called when select button is pressed
-;; --------------------------------------------------------------------------
-CS_M_PATTERN_Select
-	;; do nothing if select button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
+CS_M_PATTERN_UpdateGPLEDs_B
+	SET_BSR	SEQ_BASE
+	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	return
 
-	;; increment pattern group
-	SET_BSR	SEQ_BASE
-	incf	SEQ_SELECTED_GROUP, W, BANKED
-	andlw	0x03
-	movwf	SEQ_SELECTED_GROUP, BANKED
-	goto	CS_MENU_NewCursorPos	; exception: just to update screen, cursor pos will be determined in the init routine
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; allow fast display update
 	bsf	CS_STAT2, CS_STAT2_ALLOW_FAST_DISP_UPDATE
 
-	;; install parameter table
-	TABLE_ADDR CS_M_PATTERN_PARAMETERS	; pointer to table
-	movlw	4				; number of parameters
-	call	CS_MENU_SetMenuParameterTable
-
-	;; set cursor position depending on selected group
-	movff	SEQ_SELECTED_GROUP, CS_MENU_CURSOR_POS
+	;; install callback function for general purpose buttons, used to select an item here
+	TABLE_ADDR CS_M_PATTERN_GP_Callback
+	call	CS_MENU_SetMenuGPCallbackHook
 
 	;; copy current pattern number into parameter
 	;; 7th bit cleared: CS_MENU_PARAMETER_L = pattern number + 1
 	;; 7th bit set:     CS_MENU_PARAMETER_L = 0
-	lfsr	FSR0, SEQ_NEXT_PATTERN0
-	movf	CS_MENU_CURSOR_POS, W
-	BRA_IFSET PLUSW0, 7, ACCESS, CS_M_PATTERN_Init_PMuted
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_NEXT_PATTERN0, 7, BANKED, CS_M_PATTERN_Init_PMuted
 CS_M_PATTERN_Init_PNotMuted
-	incf	PLUSW0, W
+	incf	SEQ_NEXT_PATTERN0, W, BANKED
 	rgoto	CS_M_PATTERN_Init_P_Cont
 CS_M_PATTERN_Init_PMuted
 	movlw	0x00
 CS_M_PATTERN_Init_P_Cont
 	movwf	CS_MENU_PARAMETER_L
 
-	;; install callback function for general purpose buttons, used as pattern select buttons here
-	TABLE_ADDR CS_M_PATTERN_GP_Callback
-	call	CS_MENU_SetMenuGPCallbackHook
+	;; update LEDs
 	rcall	CS_M_PATTERN_UpdateGPLEDs
 
 	;; don't flash LEDs by default, only during a pattern is changed via GP buttons
@@ -247,9 +187,42 @@ CS_M_PATTERN_Init_P_Cont
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_Tick
+	;; layout:
+	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
+	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
+	;; <--------------------------------------><-------------------------------------->
+	;; BD    PATTERN 1:A1* ________________                                              
+	;; 00000001111111111111222222223333333333334444444444555555555566666666667777777777
+	;;  A/a  B/b  C/c  D/d  E/e  F/f  G/g  H/h   1    2    3    4    5    6    7    8  
+	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
+
+	;; for 2x16 LCD:
+	;; 0000000000111111
+	;; 0123456789012345
+	;; <-------------->
+	;; BD    PTN  1:A1*
+	;; 0000000111111111
+	;; ________________
+	;; 2222222222333333
+
+	;; if fast display update, and counter < 0x10, set it to 0x10
+	BRA_IFCLR CS_STAT2, CS_STAT2_FAST_DISPLAY_UPDATE, ACCESS, CS_M_PATTERN_Tick_NotFast
+CS_M_PATTERN_Tick_Fast
+	movlw	0x10
+	cpfslt	CS_MENU_REFRESH_ITEM_CTR, ACCESS
+	rgoto	CS_M_PATTERN_Tick_NotCtrlFix
+	movwf	CS_MENU_REFRESH_ITEM_CTR
+CS_M_PATTERN_Tick_NotCtrlFix
+CS_M_PATTERN_Tick_NotFast
+
+	;; print meter segments 16-31?
+	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_PATTERN_Tick_Meters
+
 	;; print segments 0-15
+	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_PATTERN_Tick_89ABCDEF
+
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x0f
+	andlw	0x07
 	JUMPTABLE_2BYTES_UNSECURE
 	rgoto	CS_M_PATTERN_Tick_0
 	rgoto	CS_M_PATTERN_Tick_1
@@ -259,115 +232,113 @@ CS_M_PATTERN_Tick
 	rgoto	CS_M_PATTERN_Tick_5
 	rgoto	CS_M_PATTERN_Tick_6
 	rgoto	CS_M_PATTERN_Tick_7
-	rgoto	CS_M_PATTERN_Tick_8
-	rgoto	CS_M_PATTERN_Tick_9
-	rgoto	CS_M_PATTERN_Tick_A
-	rgoto	CS_M_PATTERN_Tick_B
-	rgoto	CS_M_PATTERN_Tick_C
-	rgoto	CS_M_PATTERN_Tick_D
-	rgoto	CS_M_PATTERN_Tick_E
-	rgoto	CS_M_PATTERN_Tick_F
 
-;; --- G1 ---
-CS_M_PATTERN_Tick_0
-	;; init vertical bars (if required - function breaks if charset already uploaded)
-	movlw	CS_MENU_CHARSET_VBARS
-	call	CS_SPECIAL_CHARS_Init
+CS_M_PATTERN_Tick_0		; re-used from CS_M_MUTE_Init !!!
+	;; print name of selected track
+	movlw	0x00 + 0
+	call	MIOS_LCD_CursorSet
 
-	movlw	0
-	rcall	CS_M_PATTERN_PrnP
+	call	CS_M_HLP_GetSelectedTrk
+	call	SEQ_TRK_PrnName	; (6 characters)
+
 	rgoto	CS_M_PATTERN_Tick_Cont
 
+#if DEFAULT_LCD_WIDTH == 80
+CS_M_PATTERN_Tick_1_STR	STRING 8, 0x00 + 6, "PATTERN "
+#else
+CS_M_PATTERN_Tick_1_STR	STRING 5, 0x00 + 6, "PTN  "
+#endif
 CS_M_PATTERN_Tick_1
-	movlw	0
-	rcall	CS_M_PATTERN_PrnM
+	TABLE_ADDR CS_M_PATTERN_Tick_1_STR
+	call	MIOS_LCD_PrintString
+
+	;; pattern name (5 characters)
+	rcall	CS_M_PATTERN_PrnP
+
+	;; additional space
+	movlw	' '
+	call	MIOS_LCD_PrintChar
+
 	rgoto	CS_M_PATTERN_Tick_Cont
 
 CS_M_PATTERN_Tick_2
-	movlw	1
-	rcall	CS_M_PATTERN_PrnM
-	movlw	2
-	rcall	CS_M_PATTERN_PrnM
+	;; nothing to do... (normaly filled by meters)
+
+	;; time to init vertical bars (if required - function breaks if charset already uploaded)
+	movlw	CS_MENU_CHARSET_VBARS
+	call	CS_SPECIAL_CHARS_Init
+
 	rgoto	CS_M_PATTERN_Tick_Cont
 
 CS_M_PATTERN_Tick_3
-	movlw	3
-	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
-
-;; --- G2 ---
-CS_M_PATTERN_Tick_4
-	movlw	1
-	rcall	CS_M_PATTERN_PrnP
-	rgoto	CS_M_PATTERN_Tick_Cont
-
-CS_M_PATTERN_Tick_5
+	;; print remaining 4 spaces
+#if DEFAULT_LCD_WIDTH == 80
+	movlw	0x00 + 36
+#else
+	movlw	0x40 + 16
+#endif
+	call	MIOS_LCD_CursorSet
 	movlw	4
-	rcall	CS_M_PATTERN_PrnM
+	call	SEQ_LCD_PrintSpaces
 	rgoto	CS_M_PATTERN_Tick_Cont
 
+CS_M_PATTERN_Tick_4
+CS_M_PATTERN_Tick_5
 CS_M_PATTERN_Tick_6
-	movlw	5
-	rcall	CS_M_PATTERN_PrnM
-	movlw	6
-	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
-
 CS_M_PATTERN_Tick_7
-	movlw	7
-	rcall	CS_M_PATTERN_PrnM
+#if DEFAULT_LCD_WIDTH == 80
+	;; fill with spaces
+	call	CS_M_HLP_Print10Spaces
+#endif
 	rgoto	CS_M_PATTERN_Tick_Cont
 
-;; --- G3 ---
-CS_M_PATTERN_Tick_8
-	movlw	2
-	rcall	CS_M_PATTERN_PrnP
+CS_M_PATTERN_Tick_89ABCDEF_STR_P
+	db	" A/a  B/b  C/c  D/d  E/e  F/f  G/g  H/h   1    2    3    4    5    6    7    8  "
+CS_M_PATTERN_Tick_89ABCDEF_STR_B
+	db	"  1    2    3    4    5    6    7    8                                          "
+CS_M_PATTERN_Tick_89ABCDEF
+#if DEFAULT_LCD_WIDTH == 80
+	;; determine string offset
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	andlw	0x07
+
+	;; if shift button pressed: change pattern bank
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_GP_Callback_B
+CS_M_PATTERN_Tick_89ABCDEF_P
+	TABLE_ADDR_MUL_W CS_M_PATTERN_Tick_89ABCDEF_STR_P, 10
+	call	CS_M_HLP_Print10Chars
 	rgoto	CS_M_PATTERN_Tick_Cont
 
-CS_M_PATTERN_Tick_9
-	movlw	8
-	rcall	CS_M_PATTERN_PrnM
+CS_M_PATTERN_Tick_89ABCDEF_B
+	TABLE_ADDR_MUL_W CS_M_PATTERN_Tick_89ABCDEF_STR_B, 10
+	call	CS_M_HLP_Print10Chars
 	rgoto	CS_M_PATTERN_Tick_Cont
+#endif
 
-CS_M_PATTERN_Tick_A
-	movlw	9
-	rcall	CS_M_PATTERN_PrnM
-	movlw	10
-	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
 
-CS_M_PATTERN_Tick_B
-	movlw	11
-	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
-	
-;; --- G4 ---
-CS_M_PATTERN_Tick_C
-	movlw	3
-	rcall	CS_M_PATTERN_PrnP
-	rgoto	CS_M_PATTERN_Tick_Cont
+CS_M_PATTERN_Tick_Meters
+	;; set cursor
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	andlw	0x0f
+#if DEFAULT_LCD_WIDTH == 80
+	addlw	0x00 + 20
+#else
+	addlw	0x40 + 0
+#endif
+	call	MIOS_LCD_CursorSet
 
-CS_M_PATTERN_Tick_D
-	movlw	12
+	;; print meter
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	andlw	0x0f
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
 
-CS_M_PATTERN_Tick_E
-	movlw	13
-	rcall	CS_M_PATTERN_PrnM
-	movlw	14
-	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
-
-CS_M_PATTERN_Tick_F
-	movlw	15
-	rcall	CS_M_PATTERN_PrnM
-	;; 	rgoto	CS_M_PATTERN_Tick_Cont
+	;;  	rgoto	CS_M_PATTERN_Tick_Cont
 
 CS_M_PATTERN_Tick_Cont
-	;; Tick function will be called 16 times
+	;; Tick function will be called 32 times
 	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_PATTERN_Tick_End
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 5, ACCESS, CS_M_PATTERN_Tick_End
 	clrf	CS_MENU_REFRESH_ITEM_CTR
 	;; 	rgoto	CS_M_PATTERN_Tick_End
 
@@ -377,76 +348,32 @@ CS_M_PATTERN_Tick_End
 ;; ==========================================================================
 
 ;; --------------------------------------------------------------------------
-;;  This help function prints Px at the upper line, and the pattern number
-;;  at the lower line. Pattern index 0-3 expected in WREG
+;;  This help function prints the bank and pattern number
+;;  (5 characters)
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_PrnP
-	movwf	TMP1		; save index n in WREG
-
-	mullw	10		; >Px print at 0x00 + 1 + 10*n
-	movf	PRODL, W
-	addlw	0x00 + 1
-	call	MIOS_LCD_CursorSet
-
 	SET_BSR	SEQ_BASE
-	movf	TMP1, W
-	xorwf	SEQ_SELECTED_GROUP, W, BANKED
-	movlw	' '
-	skpnz
-	movlw	'>'
-	call	MIOS_LCD_PrintChar
-
-	movlw	'G'
-	call	MIOS_LCD_PrintChar
-	movf	TMP1, W
-	addlw	'1'
-	call	MIOS_LCD_PrintChar
-
-	SET_BSR	SEQ_BASE
-	movf	TMP1, W
-	xorwf	SEQ_SELECTED_GROUP, W, BANKED
-	movlw	' '
-	skpnz
-	movlw	'<'
-	call	MIOS_LCD_PrintChar
-
-	movf	PRODL, W	; pattern number print at 0x40 + 0 + 10*n
-	addlw	0x40 + 0
-	call	MIOS_LCD_CursorSet
-
-	lfsr	FSR1, SEQ_NEXT_PATTERN_BANK0
-	movf	TMP1, W
-	incf	PLUSW1, W
+	incf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
 	call	MIOS_LCD_PrintBCD1
+
 	movlw	':'
 	call	MIOS_LCD_PrintChar
 
-	;; saved pattern number -> TMP2
-	lfsr	FSR1, SEQ_NEXT_PATTERN0
-	movf	TMP1, W
-	movff	PLUSW1, TMP2
-	;; if TMP1 == CURSOR_POS, write converted CS_MENU_PARAMETER_L to TMP2
-	movf	TMP1, W
-	cpfseq	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_PATTERN_PrnP_NMP
+	;; write converted CS_MENU_PARAMETER_L to TMP2
 	decf	CS_MENU_PARAMETER_L, W
 	movf	CS_MENU_PARAMETER_L, F
 	skpnz
 	movlw	0x80
 	movwf	TMP2
-CS_M_PATTERN_PrnP_NMP
-
 
 	movf	TMP1, W				; item number
 	rcall	CS_M_PATTERN_PrnCursor		; prints spaces and sets ZERO flag if cursor flashed
 	bz	CS_M_PATTERN_PrnP_Flashed
 CS_M_PATTERN_PrnP_NotFlashed
 	;; if BankStick not available - print "!!" instead of pattern number
-	lfsr	FSR1, SEQ_NEXT_PATTERN_BANK0
-	movf	TMP1, W
-	movf	PLUSW1, W
-	call	MIOS_HLP_GetBitORMask
 	SET_BSR	SEQ_BASE
+	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
+	call	MIOS_HLP_GetBitORMask
 	andwf	SEQ_BANKSTICK_STATUS, W, BANKED
 	bnz	CS_M_PATTERN_PrnP_NotFlashedAv
 CS_M_PATTERN_PrnP_NotFlashedNA
@@ -477,28 +404,13 @@ CS_M_PATTERN_PrnP_NoS
 CS_M_PATTERN_PrnP_SPr
 	goto	MIOS_LCD_PrintChar
 
+
 ;; --------------------------------------------------------------------------
 ;;  This help function prints a vertical meter at the lower line
 ;;  track number 0-15 in WREG
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_PrnM
 	movwf	TMP1		; save index n in WREG
-
-	;; cursor offset: 10*TMP1[3:2] + TMP[1:0] + 5
-	rrf	TMP1, W
-	rrf	WREG, W
-	andlw	0x03
-	mullw	10
-
-	movf	TMP1, W
-	andlw	0x03
-	addwf	PRODL, W
-	addlw	5
-	movwf	TMP3
-
-	addlw	0x40		; lower line
-
-	call	MIOS_LCD_CursorSet
 
 	;; print "M" if track is muted, else vertical meter for track status
 	SET_BSR	SEQ_BASE
@@ -520,30 +432,6 @@ CS_M_PATTERN_PrnM_NotMuted
 	movf	PLUSW1, W
 	goto	SEQ_LCD_PrnVBar
 
-;; --------------------------------------------------------------------------
-;;  This hook is called when the menu parameter value has been changed
-;; --------------------------------------------------------------------------
-CS_M_PATTERN_PtnChanged
-	;; change to a new pattern
-	;; 7th bit cleared: CS_MENU_PARAMETER_L = pattern number + 1
-	;; 7th bit set:     CS_MENU_PARAMETER_L = 0
-	decf	CS_MENU_PARAMETER_L, W
-	movf	CS_MENU_PARAMETER_L, F
-	skpnz
-	movlw	0x80
-	movwf	TMP1
-
-	SET_BSR	SEQ_BASE
-	movf	CS_MENU_CURSOR_POS, W
-	movwf	SEQ_GROUP, BANKED
-	lfsr	FSR0, SEQ_NEXT_PATTERN_BANK0
-	movff	PLUSW0, SEQ_PATTERN_BANK
-	movff	TMP1, SEQ_PATTERN
-
-	call	SEQ_CORE_ChangePatternSynched
-
-	;; update LEDs
-	rgoto	CS_M_PATTERN_UpdateGPLEDs
 
 ;; ==========================================================================
 

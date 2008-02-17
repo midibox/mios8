@@ -81,8 +81,6 @@ SEQ_BUTTON_Handler_Loop
 	bnz	SEQ_BUTTON_Handler_Loop	; next loop if not equal
 
 	;; else: matching pin has been found
-	;; stop messages if button pressed
-	CALL_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_MENU_StopMessage
 	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	rcall	SEQ_BUTTON_Handler_Exec
@@ -271,19 +269,19 @@ SEQ_BUTTON_SRM_Notify_Pin_Cont
 	btfsc	SEQ_BLM_COL_CTR, 0, BANKED
 	bsf	MIOS_PARAMETER1, 3
 
-	;; select track depending on row
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	addwf	FSR1L, F
+	;; select track depending on row (one row == two columns)
+	;; preserve current track group (TRK[3:2])
 	rrf	SEQ_BLM_COL_CTR, W, BANKED
 	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	iorlw	0xf0
-	movwf	INDF1
+	movwf	PRODL
+	movf	SEQ_SELECTED_TRK, W, BANKED
+	andlw	0x0c
+	iorwf	PRODL, W
+	call	CS_M_HLP_SetSelectedTrk
 
 #if DEFAULT_SRM_BUTTONS_NO_UI
 	;; always branch to Mode0 button handler, which activates/deactivates the triggers
-	call	SEQ_GP_Mode0_Button
+	call	CS_M_EDIT_GP_Callback
 #else
 	;; call "normal" GP button handler
 	call	SEQ_GP_Button
@@ -380,10 +378,6 @@ SEQ_BUTTON_GP_Cont
 ;; --------------------------------------------------------------------------
 ;;  The CS menu functions
 ;; --------------------------------------------------------------------------
-SEQ_BUTTON_Select
-	goto	CS_MENU_BUTTON_Select
-SEQ_BUTTON_Exit
-	goto	CS_MENU_BUTTON_Exit
 SEQ_BUTTON_Left
 	goto	CS_MENU_BUTTON_Left
 SEQ_BUTTON_LeftRemote
@@ -392,6 +386,34 @@ SEQ_BUTTON_Right
 	goto	CS_MENU_BUTTON_Right
 SEQ_BUTTON_RightRemote
 	goto	CS_MENU_BUTTON_RightRemote
+
+;; --------------------------------------------------------------------------
+;;  Shift Button
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_Shift
+	;; activate/deactivate shift function
+	SET_BSR	SEQ_BASE
+	bcf	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	btfss	MIOS_PARAMETER2, 0
+	bsf	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+
+	;; request display re-initialisation
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+
+	return
+
+;; --------------------------------------------------------------------------
+;;  Alt/Menu button
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_Alt
+	;; toggle ALT button
+	SET_BSR	SEQ_BASE
+	bcf	SEQ_MODE0, SEQ_MODE0_ALT, BANKED
+	btfss	MIOS_PARAMETER2, 0
+	bsf	SEQ_MODE0, SEQ_MODE0_ALT, BANKED
+
+	return
+
 
 ;; --------------------------------------------------------------------------
 ;;  Start/Stop button function
@@ -428,43 +450,53 @@ SEQ_BUTTON_Pause
 ;;  Rew button function
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Rew
-	;; do nothing if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; special feature: branch to "decrement value" function if not in song mode
-	;; this allows to use this button for modifying the menu value
-	;; alternatively to the rotary encoder
 	SET_BSR	SEQ_BASE
-	GOTO_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, CS_MENU_BUTTON_Left
 
-	;; in songmode: do nothing if sequencer not running
+	;; clear REW hold flag if if button has been depressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Rew_Released
+SEQ_BUTTON_Rew_Pressed
+	bsf	SEQ_MODE2, SEQ_MODE2_REW_HOLD, BANKED ; set hold flag
+
+	;; do nothing if sequencer not running
 	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
 	return
 
-	;; previous song position
+	;; in pattern mode: nudge track backwards
+	btfsc	SEQ_SONG, 7, BANKED
+	goto	SEQ_CORE_NudgeRew
+
+	;; in song mode: previous song position
 	goto	SEQ_SONG_Rew
+
+SEQ_BUTTON_Rew_Released
+	bcf	SEQ_MODE2, SEQ_MODE2_REW_HOLD, BANKED ; clear hold flag
+	return
 
 ;; --------------------------------------------------------------------------
 ;;  Fwd button function
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Fwd
-	;; do nothing if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; special feature: branch to "increment value" function if not in song mode
-	;; this allows to use this button for modifying the menu value
-	;; alternatively to the rotary encoder
 	SET_BSR	SEQ_BASE
-	GOTO_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, CS_MENU_BUTTON_Right
 
-	;; in songmode: do nothing if sequencer not running
+	;; clear FWD hold flag if if button has been depressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Fwd_Released
+SEQ_BUTTON_Fwd_Pressed
+	bsf	SEQ_MODE2, SEQ_MODE2_FWD_HOLD, BANKED ; set hold flag
+
+	;; do nothing if sequencer not running
 	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
 	return
 
+	;; in pattern mode: nudge track forward
+	btfsc	SEQ_SONG, 7, BANKED
+	goto	SEQ_CORE_NudgeFwd
+
 	;; next song position
 	goto	SEQ_SONG_Fwd
+
+SEQ_BUTTON_Fwd_Released
+	bcf	SEQ_MODE2, SEQ_MODE2_FWD_HOLD, BANKED ; clear hold flag
+	return
 
 
 ;; --------------------------------------------------------------------------
@@ -524,54 +556,29 @@ SEQ_BUTTON_Continue
 ;;  enter edit mode
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Edit
-	;; do nothing if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
+	SET_BSR	SEQ_BASE
+
+	;; clear edit hold flag if if button has been depressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Edit_Released
+SEQ_BUTTON_Edit_Pressed
+	bsf	SEQ_MODE1, SEQ_MODE1_EDIT_HOLD, BANKED	; set hold flag
+
+	;; branch to edit page
+	movlw	CS_MENU_PAGE_EDIT
+	goto	CS_M_HLP_ChangePage
+
+SEQ_BUTTON_Edit_Released
+	bcf	SEQ_MODE1, SEQ_MODE1_EDIT_HOLD, BANKED	; clear hold flag
+	bcf	SEQ_MODE1, SEQ_MODE1_EDIT_HOLD_MULTISEL, BANKED	; de-arm multiselection flag
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	return
 
-#if 1
-	;; more induitive usage: if edit button pressed
-	;; - always switch to step 1-16 view
-	SET_BSR	SEQ_BASE
-	bcf	SEQ_SELECTED_STEPS, 0, BANKED
-	;; - always switch to layer A when edit button pressed
-	movlw	0x01
-	movwf	SEQ_SELECTED_LAYERS, BANKED
-	;; - always switch to trigger layer A when edit button pressed
-	movlw	0x01
-	movwf	SEQ_SELECTED_TRG_LAYERS, BANKED
-	;; - if no track selected in current group: select track 1
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	addwf	FSR1L, F
-	movf	INDF1, W
-	andlw	0x0f
-	bnz	SEQ_BUTTON_Edit_TrkSelected
-SEQ_BUTTON_Edit_NoTrkSelected
-	;; clear all selections
-	movlw	0xf0
-	movwf	SEQ_SELECTED_TRKS_G0, BANKED
-	movwf	SEQ_SELECTED_TRKS_G1, BANKED
-	movwf	SEQ_SELECTED_TRKS_G2, BANKED
-	movwf	SEQ_SELECTED_TRKS_G3, BANKED
-	;; select track 1 of current group
-	movlw	0xf1
-	movwf	INDF1
-SEQ_BUTTON_Edit_TrkSelected
-#endif
-
-	;; set/clear encoder fast function if required
-	call	SEQ_ENC_AutoFast
-
-	;; branch to view menu
-	movlw	CS_MENU_PAGE_VIEW
-	goto	CS_M_HLP_ChangePage
 
 ;; --------------------------------------------------------------------------
 ;;  enter mute page
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Mute
 	SET_BSR	SEQ_BASE
-
 	;; clear mute hold flag if if button has been depressed
 	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Mute_Released
 
@@ -588,17 +595,26 @@ SEQ_BUTTON_Mute_Released
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	return
 
+
 ;; --------------------------------------------------------------------------
 ;;  enter pattern mode
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Pattern
-	;; do nothing if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
+	SET_BSR	SEQ_BASE
+
+	;; clear pattern hold flag if if button has been depressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Pattern_Released
+SEQ_BUTTON_Pattern_Pressed
+	bsf	SEQ_MODE2, SEQ_MODE2_PATTERN_HOLD, BANKED ; set hold flag
 
 	;; branch to pattern menu
 	movlw	CS_MENU_PAGE_PATTERN
 	goto	CS_M_HLP_ChangePage
+
+SEQ_BUTTON_Pattern_Released
+	bcf	SEQ_MODE2, SEQ_MODE2_PATTERN_HOLD, BANKED ; clear hold flag
+	return
+	
 
 ;; --------------------------------------------------------------------------
 ;;  toggle song mode
@@ -632,18 +648,6 @@ SEQ_BUTTON_Song_NoToggle
 	;; branch to song menu
 	movlw	CS_MENU_PAGE_SONG
 	goto	CS_M_HLP_ChangePage
-
-;; --------------------------------------------------------------------------
-;;  set menu mode with button
-;; --------------------------------------------------------------------------
-SEQ_BUTTON_Menu
-	;; enter menu mode
-	SET_BSR	SEQ_BASE
-	bcf	SEQ_MODE0, SEQ_MODE0_MENU, BANKED
-	btfss	MIOS_PARAMETER2, 0
-	bsf	SEQ_MODE0, SEQ_MODE0_MENU, BANKED
-
-	return
 
 
 ;; --------------------------------------------------------------------------
@@ -763,203 +767,39 @@ SEQ_BUTTON_Fast
 	goto	SEQ_ENC_ConfigSpeed
 
 
+
 ;; --------------------------------------------------------------------------
-;;  Select Layer A/B/C
+;;  Select Step View
 ;; --------------------------------------------------------------------------
-SEQ_BUTTON_LayerA
+SEQ_BUTTON_Step0116
 	movlw	0
-	rgoto	SEQ_BUTTON_Layerx
-
-SEQ_BUTTON_LayerB
+	rgoto	SEQ_BUTTON_Stepx_Cont
+SEQ_BUTTON_Step1732
 	movlw	1
-	rgoto	SEQ_BUTTON_Layerx
-
-SEQ_BUTTON_LayerC
+	rgoto	SEQ_BUTTON_Stepx_Cont
+SEQ_BUTTON_Step3348
 	movlw	2
-	;; 	rgoto	SEQ_BUTTON_Layerx
-
-SEQ_BUTTON_Layerx
-	movwf	MIOS_PARAMETER1
-
-	SET_BSR	SEQ_BASE
-
-	;; alternative function if not in edit mode
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_BUTTON_Layerx_Edit
-SEQ_BUTTON_Layerx_MPS
-	;; do nothing in mute and pattern mode
-	btfsc	SEQ_MODE0, SEQ_MODE0_MUTE, BANKED
-	return
-	btfsc	SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED
-	return
-	;; do nothing when button has been released
-	btfsc	MIOS_PARAMETER2, 0
-	return
-	;; else (in song mode) set cursor pos
-	movf	MIOS_PARAMETER1, W
-	andlw	0x03
-	movwf	CS_MENU_CURSOR_POS
-
-	;; dirty quickfix: in song mode: save current entry before changing to new cursor pos
-	call	CS_M_SONG_WriteValueChk
-
-	movf	CS_MENU_CURSOR_POS, W
-	goto	CS_MENU_NewCursorPos
-	
-
-SEQ_BUTTON_Layerx_Edit
-	;; exit if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; decode button number
-	movf	MIOS_PARAMETER1, W
-	call	MIOS_HLP_GetBitORMask
-	andlw	0x0f
-
-	;; save value in "SEQ_SELECTED_LAYERS"
-	movwf	SEQ_SELECTED_LAYERS, BANKED
-
-	;; request display reinitialization
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-
-	;; set/clear encoder fast function if required
-	goto	SEQ_ENC_AutoFast
-
-
-
-;; --------------------------------------------------------------------------
-;;  Select Track 1/2/3/4
-;; --------------------------------------------------------------------------
-SEQ_BUTTON_Track1
-	movlw	0
-	rgoto	SEQ_BUTTON_Trackx_Cont
-SEQ_BUTTON_Track2
-	movlw	1
-	rgoto	SEQ_BUTTON_Trackx_Cont
-SEQ_BUTTON_Track3
-	movlw	2
-	rgoto	SEQ_BUTTON_Trackx_Cont
-SEQ_BUTTON_Track4
+	rgoto	SEQ_BUTTON_Stepx_Cont
+SEQ_BUTTON_Step4964
 	movlw	3
-	;; 	rgoto	SEQ_BUTTON_Trackx_Cont
+	;; 	rgoto	SEQ_BUTTON_Stepx_Cont
 
-SEQ_BUTTON_Trackx_Cont
-	movwf	MIOS_PARAMETER1
+SEQ_BUTTON_Stepx_Cont
+	;; do nothing when button has been released
+	btfsc	MIOS_PARAMETER2, 0
+	return
 
+	;; select step view
 	SET_BSR	SEQ_BASE
+	movwf	SEQ_SELECTED_STEPS, BANKED
 
-	;; alternative function if not in edit or mute mode
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_BUTTON_Trackx_Edit
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MUTE, BANKED, SEQ_BUTTON_Trackx_Mute
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED, SEQ_BUTTON_Trackx_Pattern
+	;; if shift button pressed: toggle AUX layer selection
+	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	btg	SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED
 
-SEQ_BUTTON_Trackx_Song
-	;; do nothing when button has been released
-	btfsc	MIOS_PARAMETER2, 0
-	return
-	;; else set cursor pos
-
-	;; dirty quickfix: in song mode: save current entry before changing to new cursor pos
-	CALL_IFSET SEQ_MODE0, SEQ_MODE0_SONG, BANKED, CS_M_SONG_WriteValueChk
-
-	movf	MIOS_PARAMETER1, W
-	andlw	0x03
-	addlw	3
-	movwf	CS_MENU_CURSOR_POS
-	goto	CS_MENU_NewCursorPos
-
-SEQ_BUTTON_Trackx_Pattern
-	;; do nothing when button has been released
-	btfsc	MIOS_PARAMETER2, 0
-	return
-	;; else change pattern group
-	movf	MIOS_PARAMETER1, W
-	andlw	0x03
-	movwf	SEQ_SELECTED_GROUP, BANKED
-	goto	CS_MENU_NewCursorPos	; (updates cursor in pattern menu depending on selected group)
-
-SEQ_BUTTON_Trackx_Edit
-SEQ_BUTTON_Trackx_Mute
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	addwf	FSR1L, F
-
-	;; decode button number
-	movf	MIOS_PARAMETER1, W
-	call	MIOS_HLP_GetBitORMask
-	andlw	0x0f
-	movwf	MIOS_PARAMETER1
-
-	;; only save button state if button has been depressed and exit
-	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Trackx_Hlp_Sav
-
-	;; deselect all tracks which are not in the group
-	lfsr	FSR0, SEQ_SELECTED_TRKS_G0
-	movlw	4
-	movwf	TMP1
-SEQ_BUTTON_Trackx_DeselLoop
-	movf	FSR0L, W
-	xorwf	FSR1L, W
-	bz	SEQ_BUTTON_Trackx_DeselLoopNext
-	movlw	0xf0
-	movwf	INDF0
-SEQ_BUTTON_Trackx_DeselLoopNext
-	incf	FSR0L, F
-	decfsz	TMP1, F
-	rgoto	SEQ_BUTTON_Trackx_DeselLoop	
-	
-
-	;; branch depending on state of all 4 select buttons:
-	;; if only one select button pressed: radio-button function (1 of 4)
-	;; if more than one select button pressed: toggle function (4 of 4)
-	movf	INDF1, W
-	andlw	0xf0
-	xorlw	0xf0
-	bz	SEQ_BUTTON_Trackx_Radio
-SEQ_BUTTON_Trackx_Toggle
-	;; toggle track flag
-	movf	MIOS_PARAMETER1, W
-	xorwf	INDF1, F
- 	rgoto	SEQ_BUTTON_Trackx_End
-SEQ_BUTTON_Trackx_Radio
-	;; select 1 of 4
-	movlw	0xf0
-	andwf	INDF1, F
-	movf	MIOS_PARAMETER1, W
-	iorwf	INDF1, F
-
-	;; toggle between step 1-16/17-32 on doubleclick
-	movf	CS_MENU_DOUBLECLICK_CTR, W
-	bz	SEQ_BUTTON_Trackx_Radio_NoDC
-SEQ_BUTTON_Trackx_Radio_DC
-	btg	SEQ_SELECTED_STEPS, 0, BANKED
-	setf	CS_MENU_DOUBLECLICK_LAST_DIN	; ensure that we have to doubleclick again for next toggle
-SEQ_BUTTON_Trackx_Radio_NoDC
-
-
-	;; 	rgoto	CS_MENU_BUTTON_SID_End
-	
-SEQ_BUTTON_Trackx_End
-	;; save button state
-	rcall	SEQ_BUTTON_Trackx_Hlp_Sav
-
-	;; request display reinitialization
+	;; request display re-initialisation
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 
-	;; set/clear encoder fast function if required and exit
-	goto	SEQ_ENC_AutoFast
-
-
-SEQ_BUTTON_Trackx_Hlp_Sav
-	;; mask out old button status
-	swapf	MIOS_PARAMETER1, W
-	xorlw	0xff
-	andwf	INDF1, F
-
-	;; store new button status (pressed/depressed) in SEQ_SELECTED_TRKS_Gx[7..4]
-	swapf	MIOS_PARAMETER1, W
-	btfsc	MIOS_PARAMETER2, 0
-	iorwf	INDF1, F
 	return
 
 
@@ -967,16 +807,16 @@ SEQ_BUTTON_Trackx_Hlp_Sav
 ;;  Select Group 1/2/3/4
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Group1
-	movlw	0
+	movlw	0 << 2
 	rgoto	SEQ_BUTTON_Groupx_Cont
 SEQ_BUTTON_Group2
-	movlw	1
+	movlw	1 << 2
 	rgoto	SEQ_BUTTON_Groupx_Cont
 SEQ_BUTTON_Group3
-	movlw	2
+	movlw	2 << 2
 	rgoto	SEQ_BUTTON_Groupx_Cont
 SEQ_BUTTON_Group4
-	movlw	3
+	movlw	3 << 2
 	;; 	rgoto	SEQ_BUTTON_Groupx_Cont
 
 SEQ_BUTTON_Groupx_Cont
@@ -986,26 +826,12 @@ SEQ_BUTTON_Groupx_Cont
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; get selected track(s) of current group
+	;; store new track offset, preserve TRK[1:0]
 	SET_BSR	SEQ_BASE
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	movff	PLUSW1, TMP1
-
-	;; clear all selections
-	movlw	0xf0
-	movwf	SEQ_SELECTED_TRKS_G0, BANKED
-	movwf	SEQ_SELECTED_TRKS_G1, BANKED
-	movwf	SEQ_SELECTED_TRKS_G2, BANKED
-	movwf	SEQ_SELECTED_TRKS_G3, BANKED
-	
-	;; set new track group
-	movff	MIOS_PARAMETER1, SEQ_SELECTED_GROUP
-
-	;; store selected tracks in new groups
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	movff	TMP1, PLUSW1
+	movf	SEQ_SELECTED_TRK, W, BANKED
+	andlw	0x03
+	iorwf	MIOS_PARAMETER1, W
+	call	CS_M_HLP_SetSelectedTrk
 
 	;; request display re-initialisation
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
@@ -1014,50 +840,78 @@ SEQ_BUTTON_Groupx_Cont
 
 
 ;; --------------------------------------------------------------------------
-;;  Select Trigger Layer A/B/C
+;;  Select Trigger Layer Gate/Aux
 ;; --------------------------------------------------------------------------
-SEQ_BUTTON_TrgLayerA
-	movlw	0
-	rgoto	SEQ_BUTTON_TrgLayerx_Cont
-SEQ_BUTTON_TrgLayerB
-	movlw	1
-	rgoto	SEQ_BUTTON_TrgLayerx_Cont
-SEQ_BUTTON_TrgLayerC
-	movlw	2
-	rgoto	SEQ_BUTTON_TrgLayerx_Cont
-	;; 	rgoto	SEQ_BUTTON_TrgLayerx_Cont
+SEQ_BUTTON_SectionA
+	movlw	1 << 0
+	rgoto	SEQ_BUTTON_SectionX_Cont
+SEQ_BUTTON_SectionB
+	movlw	1 << 1
+	;; 	rgoto	SEQ_BUTTON_SectionX_Cont
 
-SEQ_BUTTON_TrgLayerx_Cont
+SEQ_BUTTON_SectionX_Cont
 	movwf	MIOS_PARAMETER1
+
+	SET_BSR	SEQ_BASE
+
+	;; only save button state if button has been depressed and exit
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_SectionX_Hlp_Sav
+
+	;; branch depending on state of both select buttons:
+	;; if only one select button pressed: radio-button function (1 of 2)
+	;; if more than one select button pressed: toggle function (2 of 2)	
+	movf	SEQ_SELECTED_AB, W, BANKED
+	andlw	0x30
+	xorlw	0x30
+	bz	SEQ_BUTTON_SectionX_Radio
+SEQ_BUTTON_SectionX_Toggle
+	;; toggle section A/B flag
+	movf	MIOS_PARAMETER1, W
+	xorwf	SEQ_SELECTED_AB, F, BANKED
+ 	rgoto	SEQ_BUTTON_SectionX_End
+SEQ_BUTTON_SectionX_Radio
+	;; select 1 of 2
+	movlw	0x30
+	andwf	SEQ_SELECTED_AB, F, BANKED
+	movf	MIOS_PARAMETER1, W
+	iorwf	SEQ_SELECTED_AB, F, BANKED
+
+	;; 	rgoto	SEQ_BUTTON_SectionX_End
+	
+SEQ_BUTTON_SectionX_End
+	;; save button state
+	rcall	SEQ_BUTTON_SectionX_Hlp_Sav
+
+	;; request display reinitialization
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+
+	return
+
+;; ---
+SEQ_BUTTON_SectionX_Hlp_Sav
+	;; mask out old button status
+	swapf	MIOS_PARAMETER1, W
+	xorlw	0xff
+	andwf	SEQ_SELECTED_AB, F, BANKED
+
+	;; store new button status (pressed/depressed) in SEQ_SELECTED_TRKS_Gx[7..4]
+	swapf	MIOS_PARAMETER1, W
+	btfsc	MIOS_PARAMETER2, 0
+	iorwf	SEQ_SELECTED_AB, F, BANKED
+	return
+
+;; --------------------------------------------------------------------------
+;;  Toggle Loop Mode
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_Loop
+	SET_BSR	SEQ_BASE
 
 	;; do nothing when button has been released
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; select new trigger layer
-	call	MIOS_HLP_GetBitORMask
-	SET_BSR	SEQ_BASE
-	movwf	SEQ_SELECTED_TRG_LAYERS, BANKED
-
-	;; request display re-initialisation
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-
-	return
-
-;; --------------------------------------------------------------------------
-;;  toggle between step 1-16/17-32
-;; --------------------------------------------------------------------------
-SEQ_BUTTON_ToggleStepView
-	;; do nothing if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; toggle display
-	SET_BSR	SEQ_BASE
-	btg	SEQ_SELECTED_STEPS, 0, BANKED
-
-	;; request display re-initialisation
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+	;; toggle mode flag
+	btg	SEQ_MODE2, SEQ_MODE2_LOOP_MODE, BANKED
 
 	return
 
@@ -1070,17 +924,13 @@ SEQ_BUTTON_F1
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; branch to utility menu
-	movlw	CS_MENU_PAGE_UTILS
-	goto	CS_M_HLP_ChangePage
+	return
 
 ;; --------------------------------------------------------------------------
 ;;  F2 button --- implement your favourite function here!
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_F2
-	;; toggle between step 1-16/17-32
-	;; could also be a dedicated button with appr. LED
-	goto	SEQ_BUTTON_ToggleStepView
+	return
 
 ;; --------------------------------------------------------------------------
 ;;  F3 button --- implement your favourite function here!
@@ -1090,46 +940,7 @@ SEQ_BUTTON_F3
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-#if 1
-#if 1
-	call	CS_M_HLP_GetSelectedTrgLayer
-	addlw	1
-	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	btfsc	WREG, 3
-	movlw 0x01
-	SET_BSR	SEQ_BASE
-	movwf	SEQ_SELECTED_TRG_LAYERS, BANKED
-
-	;; request display re-initialisation
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-
 	return
-#else
-	;; unmute all tracks
-	SET_BSR	SEQ_BASE
-	clrf	SEQ_TRKS_MUTED0, BANKED
-	clrf	SEQ_TRKS_MUTED1, BANKED
-
-	;; and branch to mute menu
-	rgoto	SEQ_BUTTON_Mute
-#endif
-#else
-	;; invert all gates
-	SET_BSR	SEQ_BASE
-	call	CS_M_HLP_GetSelectedTrk
-	movwf	SEQ_EVNTT, BANKED
-	clrf	SEQ_EVNTS, BANKED
-SEQ_BUTTON_F3_Loop
-	call	SEQ_TRG_GateGet
-	xorlw	1
-	call	SEQ_TRG_GateSet
-	incf	SEQ_EVNTS, F, BANKED
-	BRA_IFCLR SEQ_EVNTS, 5, BANKED, SEQ_BUTTON_F3_Loop
-	;; request display re-initialisation
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-	return
-#endif
 
 ;; --------------------------------------------------------------------------
 ;;  F4 button --- implement your favourite function here!
@@ -1139,18 +950,4 @@ SEQ_BUTTON_F4
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-#if 0
-	;; mute all tracks
-	SET_BSR	SEQ_BASE
-	setf	SEQ_TRKS_MUTED0, BANKED
-	setf	SEQ_TRKS_MUTED1, BANKED
-
-	;; and branch to mute menu
-	rgoto	SEQ_BUTTON_Mute
-#else
-	;; increment track group and branch to Groupx_Cont function
-	SET_BSR	SEQ_BASE
-	incf	SEQ_SELECTED_GROUP, W, BANKED
-	andlw	0x03	
-	rgoto	SEQ_BUTTON_Groupx_Cont
-#endif
+	return

@@ -23,6 +23,17 @@ CS_MENU_TIMER
 	skpz
 	decf	CS_MENU_DOUBLECLICK_CTR, F
 
+	;; decrement instrument overlay counter until it reaches 0
+	movf	CS_MENU_INST_OVERLAY_CTR, W
+	bz	CS_MENU_TIMER_NoOverlayCtrDec
+CS_MENU_TIMER_OverlayCtrDec
+	decf	CS_MENU_INST_OVERLAY_CTR, F
+	;; if zero is reached, request display update immediately
+	skpnz
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
+CS_MENU_TIMER_NoOverlayCtrDec
+
+
 	;; handle meter counters
 	incf	CS_MENU_METER_DELAY_CTR, F	; on each 4th tick
 	BRA_IFCLR CS_MENU_METER_DELAY_CTR, 2, ACCESS, CS_MENU_TIMER_MeterEnd
@@ -62,17 +73,6 @@ CS_MENU_TIMER_MeterEnd
 	movf	CS_MENU_DEL_CALLBACK_CTR, W
 	skpz
 	decf	CS_MENU_DEL_CALLBACK_CTR, F
-
-	;; decrement message counter if counter > 1
-	decf	CS_MENU_MESSAGE_CTR, W
-	bz	CS_MENU_TIMER_NoMsgDec
-	movf	CS_MENU_MESSAGE_CTR, W
-	bz	CS_MENU_TIMER_NoMsgDec
-	decf	CS_MENU_MESSAGE_CTR, F
-	decf	CS_MENU_MESSAGE_CTR, W
-	skpnz
-	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
-CS_MENU_TIMER_NoMsgDec
 
 	;; handle with cursor
 	incf	CS_MENU_CURSOR_CTR, F

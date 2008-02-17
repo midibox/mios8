@@ -175,8 +175,14 @@ MIDI_EVNT_Send_Int_8x	; Note Off
 MIDI_EVNT_Send_Int_9x	; Note On
 MIDI_EVNT_Send_Int_Ax	; Aftertouch
 MIDI_EVNT_Send_Int_Bx	; Controller
+	movf	MIDI_EVNT0, W		; running status optimisation
+	xorwf	MIDI_EVNT_PORT0_RS, W
+	bz	MIDI_EVNT_Send_Int_89ABx_RS
+MIDI_EVNT_Send_Int_89ABx_NoRS
 	movf	MIDI_EVNT0, W
+	movwf	MIDI_EVNT_PORT0_RS
 	call	MIOS_MIDI_TxBufferPut
+MIDI_EVNT_Send_Int_89ABx_RS
 	movf	MIDI_EVNT1, W
 	andlw	0x7f
 	call	MIOS_MIDI_TxBufferPut
@@ -188,8 +194,14 @@ MIDI_EVNT_Send_Int_Bx	; Controller
 	;; sending two bytes
 MIDI_EVNT_Send_Int_Cx	; Program Change
 MIDI_EVNT_Send_Int_Dx	; Channel Pressure
+	movf	MIDI_EVNT0, W		; running status optimisation
+	xorwf	MIDI_EVNT_PORT0_RS, W
+	bz	MIDI_EVNT_Send_Int_CDx_RS
+MIDI_EVNT_Send_Int_CDx_NoRS
 	movf	MIDI_EVNT0, W
+	movwf	MIDI_EVNT_PORT0_RS
 	call	MIOS_MIDI_TxBufferPut
+MIDI_EVNT_Send_Int_CDx_RS
 	movf	MIDI_EVNT_VALUE, W
 	andlw	0x7f
 	call	MIOS_MIDI_TxBufferPut
@@ -197,8 +209,14 @@ MIDI_EVNT_Send_Int_Dx	; Channel Pressure
 
 	;; sending three bytes (7bit converted to 14bit)
 MIDI_EVNT_Send_Int_Ex	; Pitch Bend
+	movf	MIDI_EVNT0, W		; running status optimisation
+	xorwf	MIDI_EVNT_PORT0_RS, W
+	bz	MIDI_EVNT_Send_Int_Ex_RS
+MIDI_EVNT_Send_Int_Ex_NoRS
 	movf	MIDI_EVNT0, W
+	movwf	MIDI_EVNT_PORT0_RS
 	call	MIOS_MIDI_TxBufferPut
+MIDI_EVNT_Send_Int_Ex_RS
 
 	movlw	0x00
 	BRA_IFCLR MIDI_EVNT_VALUE, 6, ACCESS, MIDI_EVNT_Send_Int_ExLow
@@ -252,151 +270,8 @@ MIDI_EVNT_Send_IIC_Cont
 	;; using AOUT interface
 	;; ---------------------------------------------------------------------
 MIDI_EVNT_Send_AOUT
-	;; Branch depending on CC/Note
-	movf	MIDI_EVNT0, W
-	andlw	0xf0
-	xorlw	0xb0
-	bz	MIDI_EVNT_Send_AOUT_CC
-MIDI_EVNT_Send_AOUT_Note
-	;; if channel 1..8: set only note value on CV OUT #1..8, triggers Gate #1..8
-	;; if channel 9..12: set note/velocity on each pin pair (CV OUT #1/2, #3/4, #5/6, #7/8), triggers Gate #1+2, #3+4, #5+6, #7+8
-	;; if channel 13..15: set velocity/note on each pin pair (CV OUT #1/2, #3/4, #5/6), triggers Gate #1+2, #3+4, #5+6
-	;; if channel 16: trigger the extension pins (DOUT)
-	movf	MIDI_EVNT0, W
-	andlw	0x0f
-	xorlw	0x0f
-	bz	MIDI_EVNT_Send_AOUT_ExtGate
-
-	BRA_IFSET MIDI_EVNT0, 3, ACCESS, MIDI_EVNT_Send_AOUT_Note_NV
-MIDI_EVNT_Send_AOUT_Note_N
-	;; Note only
-	movff	MIDI_EVNT1, MIOS_PARAMETER1
-	movf	MIDI_EVNT0, W
-	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_PinSet
-
-	;; set gate if velocity > 0
-	movf	MIDI_EVNT_VALUE, W
-	skpz
-	movlw	0x01
-	movwf	MIOS_PARAMETER1
-	movf	MIDI_EVNT0, W
-	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_GatePinSet
-
-	rgoto	MIDI_EVNT_Send_AOUT_End
-MIDI_EVNT_Send_AOUT_Note_NV
-	BRA_IFSET MIDI_EVNT0, 2, ACCESS, MIDI_EVNT_Send_AOUT_Note_VN
-
-	;; Note
-	movff	MIDI_EVNT1, MIOS_PARAMETER1
-	rlf	MIDI_EVNT0, W
-	andlw	0x06
-	rcall	MIDI_EVNT_AOUT_PinSet
-
-	;; Velocity (don't update if value is 0)
-	movf	MIDI_EVNT_VALUE, W
-	bz	MIDI_EVNT_Send_AOUT_Note_NV_V0
-	movwf	MIOS_PARAMETER1
-	rlf	MIDI_EVNT0, W
-	andlw	0x06
-	addlw	1
-	rcall	MIDI_EVNT_AOUT_PinSet
-MIDI_EVNT_Send_AOUT_Note_NV_V0
-
-MIDI_EVNT_Send_AOUT_Note_VN_Gate
-	;; set gates if velocity > 0
-	movf	MIDI_EVNT_VALUE, W
-	skpz
-	movlw	0x01
-	movwf	MIOS_PARAMETER1
-
-	rlf	MIDI_EVNT0, W
-	andlw	0x06
-	rcall	MIDI_EVNT_AOUT_GatePinSet
-
-	rlf	MIDI_EVNT0, W
-	andlw	0x06
-	addlw	1
-	rcall	MIDI_EVNT_AOUT_GatePinSet
-
-	rgoto	MIDI_EVNT_Send_AOUT_End
-
-MIDI_EVNT_Send_AOUT_Note_VN
-	;; Velocity (don't update if value is 0)
-	movf	MIDI_EVNT_VALUE, W
-	bz	MIDI_EVNT_Send_AOUT_Note_VN_V0
-	movwf	MIOS_PARAMETER1
-	rlf	MIDI_EVNT0, W
-	andlw	0x06
-	rcall	MIDI_EVNT_AOUT_PinSet
-MIDI_EVNT_Send_AOUT_Note_VN_V0
-
-	;; Note
-	movff	MIDI_EVNT1, MIOS_PARAMETER1
-	rlf	MIDI_EVNT0, W
-	andlw	0x06
-	addlw	1
-	rcall	MIDI_EVNT_AOUT_PinSet
-
-	;; set/clear gates
-	rgoto	MIDI_EVNT_Send_AOUT_Note_VN_Gate
-
-	;; if channel 1..8: sets CV Out #1..8 depending on CC number (16 = #1, 17 = #2, ...) - channel has no effect
-	;; if channel 9..16: sets CV Out #1..8 depending on channel, always sets Gate #1..8
-MIDI_EVNT_Send_AOUT_CC
-	BRA_IFCLR MIDI_EVNT0, 3, ACCESS, MIDI_EVNT_Send_AOUT_CC_N
-MIDI_EVNT_Send_AOUT_CC_C
-	;; derive CV Out Number from Channel Number
-	movff	MIDI_EVNT_VALUE, MIOS_PARAMETER1
-	movf	MIDI_EVNT0, W
-	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_PinSet
-
-	;; gate always set
-	setf	MIOS_PARAMETER1
-	movf	MIDI_EVNT0, W
-	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_GatePinSet
- 	rgoto	MIDI_EVNT_Send_AOUT_End
-
-MIDI_EVNT_Send_AOUT_CC_N
-	;; derive CV Out Number from CC Number
-	movff	MIDI_EVNT_VALUE, MIOS_PARAMETER1
-	movf	MIDI_EVNT1, W
-	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_PinSet
-
-	;; gate always set
-	setf	MIOS_PARAMETER1
-	movf	MIDI_EVNT1, W
-	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_GatePinSet
-	rgoto	MIDI_EVNT_Send_AOUT_End
-
-MIDI_EVNT_Send_AOUT_ExtGate
-	;; exit if note number < 0x24 (C-1)
-	movlw	0x24-1
-	cpfsgt	MIDI_EVNT1, ACCESS
-	rgoto MIDI_EVNT_Send_AOUT_ExtGate_Skip
-	;; exit if note number >= 0x54 (0x24 + 0x30)
-	movlw	0x54
-	cpfslt	MIDI_EVNT1, ACCESS
-	rgoto MIDI_EVNT_Send_AOUT_ExtGate_Skip
-	;; set/clear trigger depending on velocity value
-	movf	MIDI_EVNT_VALUE, W
-	skpz
-	movlw	0x01
-	movwf	MIOS_PARAMETER1
-	movf	MIDI_EVNT1, W
-	addlw	-0x24
-	rcall	MIDI_EVNT_EXT_GatePinSet
-
-MIDI_EVNT_Send_AOUT_ExtGate_Skip
-	rgoto	MIDI_EVNT_Send_AOUT_End
-
-MIDI_EVNT_Send_AOUT_End
-	rgoto	MIDI_EVNT_AOUT_SRUpdate	; update all shift registers of the SR chain
+	;; TODO
+	return
 
 
 	;; ---------------------------------------------------------------------
@@ -450,106 +325,3 @@ MIDI_EVNT_Send_Loop_Cont
 	movff	SEQ_LOOPBACK_STORED_FSR2H, FSR2H
 	movff	SEQ_LOOPBACK_STORED_EVNTT, SEQ_EVNTT
 	return
-
-
-;; --------------------------------------------------------------------------
-;;  FUNCTION: MIDI_EVNT_AOUT_PinSet
-;;  DESCRIPTION: Help Function which sets an AOUT pin independent from the interface
-;;  IN: 
-;;     o pin number in WREG
-;;     o value in MIOS_PARAMETER1
-;; --------------------------------------------------------------------------
-MIDI_EVNT_AOUT_PinSet
-#if DEFAULT_AOUT_MODULE_TYPE == 0	; AOUT
-	goto	AOUT_Pin7bitSet
-#endif
-#if DEFAULT_AOUT_MODULE_TYPE == 1	; AOUT_LC
-	goto	AOUT_LC_Pin7bitSet
-#endif
-#if DEFAULT_AOUT_MODULE_TYPE == 2	; AOUT_NG
-	goto	AOUT_NG_Pin7bitSet
-#endif
-
-;; --------------------------------------------------------------------------
-;;  FUNCTION: MIDI_EVNT_AOUT_GatePinSet
-;;  DESCRIPTION: Help Function which sets a Gate Pin independent from the interface
-;;  IN: 
-;;     o pin number in WREG
-;;     o value in MIOS_PARAMETER1
-;; --------------------------------------------------------------------------
-MIDI_EVNT_AOUT_GatePinSet
-	movwf	PRODL		; temporary store pin number in PRODL
-
-#if DEFAULT_ENABLE_J5_GATES
-	call	J5_DOUT_PinSet
-#endif
-
-#if DEFAULT_AOUT_MODULE_TYPE == 0	; AOUT
-	movlw	2		; only pin #0 and #1
-	cpfslt	PRODL, ACCESS
-	rgoto MIDI_EVNT_AOUT_GatePinSet_NoAOUT
-	movf	PRODL, W
-	call	AOUT_GatePinSet
-MIDI_EVNT_AOUT_GatePinSet_NoAOUT
-#endif
-	return
-
-;; --------------------------------------------------------------------------
-;;  FUNCTION: MIDI_EVNT_DOUT_GatePinSet
-;;  DESCRIPTION: Help Function which sets a Gate Pin at the DOUT register chain
-;;  IN: 
-;;     o pin number in WREG
-;;     o value in MIOS_PARAMETER1
-;; --------------------------------------------------------------------------
-MIDI_EVNT_EXT_GATE_PINS
-	;; for easier mapping, we put the #define values into a table
-	db	DEFAULT_ENABLE_DOUT_GATE_09_16, DEFAULT_ENABLE_DOUT_GATE_17_24
-	db	DEFAULT_ENABLE_DOUT_GATE_25_31, DEFAULT_ENABLE_DOUT_GATE_32_39
-	db	DEFAULT_ENABLE_DOUT_GATE_40_47, DEFAULT_ENABLE_DOUT_GATE_48_55
-
-MIDI_EVNT_EXT_GatePinSet
-	movwf	PRODL		; temporary store pin number in PRODL
-
-	;; get SR number
-	rrf	WREG, W
-	rrf	WREG, W
-	rrf	WREG, W
-	andlw	0x0f		; (ensure that no invalid DOUT will be selected)
-	addlw	LOW(MIDI_EVNT_EXT_GATE_PINS)
-	movwf	TBLPTRL
-	clrf	TBLPTRH
-	movlw	HIGH(MIDI_EVNT_EXT_GATE_PINS)
-	addwfc	TBLPTRH, F
-	tblrd*+
-	movf	TABLAT, W
-	bz	MIDI_EVNT_EXT_GatePinSet_End	; exit if SR is 0
-	decf	TABLAT, F	; -1 - we counting from zero (0, 1, 2, ... 15)
-
-	;; determine pin number: SR*8 + PRODL
-	rlf	TABLAT, W
-	rlf	WREG, W
-	rlf	WREG, W
-	andlw	0x78
-	movwf	TABLAT
-
-	movf	PRODL, W
-	andlw	0x07
-	iorwf	TABLAT, W
-
-	;; now: pin number in WREG, value in MIOS_PARAMETER1
-	call	MIOS_DOUT_PinSet
-	
-MIDI_EVNT_EXT_GatePinSet_End
-	return
-
-;; --------------------------------------------------------------------------
-;;  FUNCTION: MIDI_EVNT_AOUT_SRUpdate
-;;  DESCRIPTION: Help Function which updates the SR chain of the AOUT modules
-;;  independent from the interface
-;; --------------------------------------------------------------------------
-MIDI_EVNT_AOUT_SRUpdate
-#if DEFAULT_AOUT_MODULE_TYPE == 1	; AOUT_LC
-	goto	AOUT_LC_Update
-#else					; AOUT
-	return				; no chain update required (already done in AOUT_Pin7bitSet)
-#endif

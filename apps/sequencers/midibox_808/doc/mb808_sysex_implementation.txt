@@ -1,0 +1,34 @@
+$Id$
+
+MIDIbox808 SysEx Implementation
+===============================
+
+Which Actions are implemented
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   a) F0 00 00 7E 4C <device-number> 01 <bank-number> <pattern-number> F7
+      Request a Dump of Pattern <bank-number>:<pattern-number>
+      <bank-number> = 0x0..0x6
+      <pattern-number> = 0x00..0x7f
+
+   b) F0 00 00 7E 4C <device-number> 02 <bank-number> <pattern-number> <1024 bytes of dump data> F7
+      Write a Dump to Pattern <bank-number>:<pattern-number>
+      <bank-number> = 0x0..0x6
+      <pattern-number> = 0x00..0x7f
+
+   c) F0 00 00 7E 4C <device-number> 03 <bank-number> F7
+      Request a Dump of a whole Bank (128 patterns)
+      <bank-number> = 0x0..0x6
+
+   d) F0 00 00 7E 4C <device-number> 05 <group-number> AH AL F7
+      Direct RAM Read of a dump parameter (AH = 00..07, AL = 00..7F)
+      The <group-number> should be always 00!
+
+   e) F0 00 00 7E 4C <device-number> 06 <group-number> AH AL <value> F7
+      Direct RAM Write of parameter (AH = 00..07, AL = 00..7F)
+      The <group-number> should be always 00!
+
+   f) F0 00 00 7E 4C <device number> 0F 1A F7
+      Ping (just sends back the same SysEx string)
+
+Thorsten.Klose@midibox.org

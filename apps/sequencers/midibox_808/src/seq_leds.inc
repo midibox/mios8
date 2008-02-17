@@ -24,16 +24,12 @@ SEQ_LED_Update
 	;; (see also SEQ_IO_TABLE_DOUT)
 	;; this quick & dirty method saves some memory...
 
-	;; TMP4[3..0] == Selected Group 1-4
-	movf	SEQ_SELECTED_GROUP, W, BANKED
+	;; TMP4[3..0] == Selected track Group 1-4
+	rrf	SEQ_SELECTED_TRK, W, BANKED
+	rrf	WREG, W
 	andlw	0x03
 	call	MIOS_HLP_GetBitORMask
 	movwf	TMP4
-
-	;; TMP4[4..6] == Selected Trigger Layer A-C
-	swapf	SEQ_SELECTED_TRG_LAYERS, W, BANKED
-	andlw	0x70
-	iorwf	TMP4, F
 
 	movlw	0x00
 	;; TMP5[0]: Sequencer Running (Play LED)
@@ -45,63 +41,34 @@ SEQ_LED_Update
 	;; TMP5[2]: Sequencer paused (Pause LED)
 	btfsc	SEQ_STATE, SEQ_STATE_PAUSE, BANKED
 	iorlw 0x04
-	;; TMP5[3]: Step 1-16 displayed
-	btfss	SEQ_SELECTED_STEPS, 0, BANKED
+	;; TMP5[3]: Forward button held
+	btfsc	SEQ_MODE2, SEQ_MODE2_FWD_HOLD, BANKED
 	iorlw 0x08
-	;; TMP5[4]: Step 17-32 displayed
-	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
+	;; TMP5[4]: Rewind button held
+	btfsc	SEQ_MODE2, SEQ_MODE2_REW_HOLD, BANKED
 	iorlw 0x10
+	;; TMP5[5]: Loop function active
+	btfsc	SEQ_MODE2, SEQ_MODE2_LOOP_MODE, BANKED
+	iorlw 0x20
 	movwf	TMP5
 
+
 	;; TMP1[6..0] == 1/2/3/4/A/B/C LEDs
-	clrf	TMP1
 
-	;; branch depending on mode
-	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_LED_Update_NoEdit
-SEQ_LED_Update_Edit
-	;; 1/2/3/4 showing selected tracks
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	movf	PLUSW1, W
-	andlw	0x0f
-	movwf	TMP1
-	;; A/B/C showing selected layers
-	swapf	SEQ_SELECTED_LAYERS, W, BANKED
-	andlw	0x70
-	iorwf	TMP1, F
-	rgoto	SEQ_LED_Update_Edit_Cont
-
-SEQ_LED_Update_NoEdit
-	;; mute mode: only display tracks
-	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_MUTE, BANKED, SEQ_LED_Update_NoMute
-SEQ_LED_Update_Mute
-	;; 1/2/3/4 showing selected tracks
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	movf	PLUSW1, W
-	andlw	0x0f
-	movwf	TMP1
-	rgoto	SEQ_LED_Update_Edit_Cont
-SEQ_LED_Update_NoMute
-
-	;; in pattern/song mode: show cursor position
-	movf	CS_MENU_CURSOR_POS, W
-	btfsc	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
-	addlw -3
+	;; TMP1[0]: Step 1-16 displayed
+	;; TMP1[1]: Step 17-32 displayed
+	;; TMP1[2]: Step 33-48 displayed
+	;; TMP1[3]: Step 49-64 displayed
+	movf	SEQ_SELECTED_STEPS, W, BANKED
+	andlw	0x03
 	call	MIOS_HLP_GetBitORMask
-	andlw	0x0f
-	btfsc	CS_STAT, CS_STAT_CURSOR_FLASH	; (flash LED - makes the different LED/button assignment more induitive)
-	iorwf	TMP1, F
+	movwf	TMP1
 
-	;; in Song Mode: also overlay layer LEDs
-	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_SONG, BANKED, SEQ_LED_Update_Edit_Cont
-	movf	CS_MENU_CURSOR_POS, W
-	call	MIOS_HLP_GetBitORMask
-	swapf	WREG, W
-	andlw	0x70
-	btfsc	CS_STAT, CS_STAT_CURSOR_FLASH	; (flash LED - makes the different LED/button assignment more induitive)
+	;; TMP1[4]: Section A played
+	;; TMP1[5]: Section B played
+	swapf	SEQ_SELECTED_AB, W, BANKED
+	andlw	0x30
 	iorwf	TMP1, F
-SEQ_LED_Update_Edit_Cont
 
 	;; TMP2 holds the SEQ_MODE0
 	movff	SEQ_MODE0, TMP2
@@ -157,21 +124,6 @@ SEQ_LED_UpdateIRQ
 	movff	PRODL, SEQ_IRQ_SAVED_PRODL
 	movff	PRODH, SEQ_IRQ_SAVED_PRODH
 
-	;; ---[ turn on the beat indicator LED on every beat ]---
-	SET_BSR	SEQ_BASE
-	clrf	MIOS_PARAMETER1
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_LED_UpdateIRQ_NoBeat
-	movf	SEQ_CLK_STEP_CTR, W, BANKED
-	andlw	0x0f
-	addlw	-4		; lit for 4/16 of a quarter note
-	bc	SEQ_LED_UpdateIRQ_NoBeat
-SEQ_LED_UpdateIRQ_Beat
-	setf	MIOS_PARAMETER1
-SEQ_LED_UpdateIRQ_NoBeat
-	;; w/o PWM dimmed LED
-	movlw	DEFAULT_BEAT_INDICATOR_LED
-	call	MIOS_DOUT_PinSet
-
 	;; ---[ increment the BLM row counter (used when DEFAULT_SRM_ENABLED or DEFAULT_BPM_DIGITS_ENABLED set ]---
 	incf	SEQ_BLM_ROW_CTR, F, BANKED
 	bcf	SEQ_BLM_ROW_CTR, 2, BANKED	; wrap at 4
@@ -181,6 +133,18 @@ SEQ_LED_UpdateIRQ_NoBeat
 	;; store selected track in IRQ_TMP5[3:0]
 	call	CS_M_HLP_GetSelectedTrk
 	movwf	IRQ_TMP5
+
+	;; get current seq pos, store it in IRQ_TMP3
+	lfsr	FSR1, SEQ_TRKVAR0
+	movf	IRQ_TMP5, W	; (selected track = IRQ_TMP5[3:0])
+	andlw	0x0f
+	mullw	SEQ_TRKVARRECORD_LENGTH
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
+	movlw	SEQ_TRKVARSTEPx
+	movff	PLUSW1, IRQ_TMP3
 
 	;; check if sequencer is running, and the current step position should be marked (either via XOR or second colour of DUO LED)
 	;; notified via IRQ_TMP5[4] for GPLEDs
@@ -195,33 +159,13 @@ SEQ_LED_UpdateIRQ_SeqOn_NoPause
 
 	;; check for GPLEDs
 SEQ_LED_UpdateIRQ_SeqOn_GPLED
-	;; get current seq pos, store it in IRQ_TMP3
-	lfsr	FSR1, SEQ_TRKVAR0
-	movf	IRQ_TMP5, W	; (selected track = IRQ_TMP5[3:0])
-	andlw	0x0f
-	mullw	SEQ_TRKVARRECORD_LENGTH
-	movf	PRODL, W
-	addwf	FSR1L, F
-	movf	PRODH, W
-	addwfc	FSR1H, F
-	movlw	SEQ_TRKVARSTEPx
-	movff	PLUSW1, IRQ_TMP3
-
+	;; (current position in IRQ_TMP3)
 	;; don't print if played step not within view (1-16/17-31)
-	BRA_IFSET SEQ_SELECTED_STEPS, 0, BANKED, SEQ_LED_UpdateIRQ_SeqOn_GPLED_S1
-SEQ_LED_UpdateIRQ_SeqOn_GPLED_S0
-	BRA_IFSET IRQ_TMP3, 4, ACCESS, SEQ_LED_UpdateIRQ_SeqOn_GPLED_NM
-	rgoto	SEQ_LED_UpdateIRQ_SeqOn_GPLED_C
-
-SEQ_LED_UpdateIRQ_SeqOn_GPLED_S1
-	BRA_IFCLR IRQ_TMP3, 4, ACCESS, SEQ_LED_UpdateIRQ_SeqOn_GPLED_NM
-	;; 	rgoto	SEQ_LED_UpdateIRQ_SeqOn_GPLED_C
-
-SEQ_LED_UpdateIRQ_SeqOn_GPLED_C
-	;; check if handshake disable set (which means: track not played due to handshaking)
-	movlw	SEQ_TRKVARSTATE2x
-	BRA_IFSET PLUSW1, SEQ_TRKVARSTATE2_HNDSHK_DIS, ACCESS, SEQ_LED_UpdateIRQ_SeqOn_GPLED_NM
-
+	swapf	SEQ_SELECTED_STEPS, W, BANKED
+	xorwf	IRQ_TMP3, W
+	andlw	0x30
+	bnz	SEQ_LED_UpdateIRQ_SeqOn_GPLED_NM
+SEQ_LED_UpdateIRQ_SeqOn_GPLED_M
 	;; mark position
 	bsf	IRQ_TMP5, 4
 SEQ_LED_UpdateIRQ_SeqOn_GPLED_NM
@@ -254,10 +198,6 @@ SEQ_LED_UpdateIRQ_SeqOn_LM_S1
 	;; 	rgoto	SEQ_LED_UpdateIRQ_SeqOn_LM_C
 
 SEQ_LED_UpdateIRQ_SeqOn_LM_C
-	;; check if handshake disable set (which means: track not played due to handshaking)
-	movlw	SEQ_TRKVARSTATE2x
-	BRA_IFSET PLUSW1, SEQ_TRKVARSTATE2_HNDSHK_DIS, ACCESS, SEQ_LED_UpdateIRQ_SeqOn_LM_NM
-
 	;; mark position
 	bsf	IRQ_TMP5, 5
 SEQ_LED_UpdateIRQ_SeqOn_LM_NM
@@ -275,6 +215,19 @@ SEQ_LED_UpdateIRQ_GPLED
 	movff	SEQ_GP_LED_L, IRQ_TMP1
 	movff	SEQ_GP_LED_R, IRQ_TMP2
 
+	;; flickering feature for INST_OVERLAY
+	;; clear LEDs whenever INST_OVERLAY_CTR[5] set
+	;; in addition, marker disabled on instrument selection
+	movf	CS_MENU_INST_OVERLAY_CTR, W
+	bz	SEQ_LED_UpdateIRQ_GPLED_NoInstOv
+SEQ_LED_UpdateIRQ_GPLED_InstOv
+	btfsc	CS_MENU_INST_OVERLAY_CTR, 5
+	clrf	IRQ_TMP1
+	btfsc	CS_MENU_INST_OVERLAY_CTR, 5
+	clrf	IRQ_TMP2
+	rgoto	SEQ_LED_UpdateIRQ_GPLED_NoMarker
+
+SEQ_LED_UpdateIRQ_GPLED_NoInstOv
 	;; check if a position marker should be XORed
 	BRA_IFCLR IRQ_TMP5, 4, ACCESS, SEQ_LED_UpdateIRQ_GPLED_NoMarker
 SEQ_LED_UpdateIRQ_GPLED_Marker
@@ -440,6 +393,65 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 #endif
 	
 #endif
+
+	;; ---[ turn on the beat and step indicator LEDs on every beat ]---
+	SET_BSR	SEQ_BASE
+	clrf	IRQ_TMP1	; temporary used to indicate on/off state of beat
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_LED_UpdateIRQ_NoBeat
+	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	andlw	0x0f
+	addlw	-4		; lit for 4/16 of a quarter note
+	bc	SEQ_LED_UpdateIRQ_NoBeat
+SEQ_LED_UpdateIRQ_Beat
+	setf	IRQ_TMP1
+SEQ_LED_UpdateIRQ_NoBeat
+	;; forward to BEAT LED
+	movff	IRQ_TMP1, MIOS_PARAMETER1
+	movlw	DEFAULT_BEAT_INDICATOR_LED
+	call	MIOS_DOUT_PinSet
+
+	;; step selection LEDS
+	movf	SEQ_SELECTED_STEPS, W
+	call	MIOS_HLP_GetBitORMask
+	movwf	IRQ_TMP2
+
+	movf	IRQ_TMP1, W
+	bz	SEQ_LED_UpdateIRQ_NoStepBeat
+SEQ_LED_UpdateIRQ_StepBeat
+	;; current position still in IRQ_TMP3
+	swapf	IRQ_TMP3, W
+	andlw	0x03
+	call	MIOS_HLP_GetBitORMask
+	xorwf	IRQ_TMP2, F
+SEQ_LED_UpdateIRQ_NoStepBeat
+
+	;; step 1-16 LED
+	clrf	MIOS_PARAMETER1
+	btfsc	IRQ_TMP2, 0
+	setf	MIOS_PARAMETER1
+	movlw	DEFAULT_STEP01_16_INDICATOR_LED
+	call	MIOS_DOUT_PinSet
+
+	;; step 17-32 LED
+	clrf	MIOS_PARAMETER1
+	btfsc	IRQ_TMP2, 1
+	setf	MIOS_PARAMETER1
+	movlw	DEFAULT_STEP17_32_INDICATOR_LED
+	call	MIOS_DOUT_PinSet
+
+	;; step 33-48 LED
+	clrf	MIOS_PARAMETER1
+	btfsc	IRQ_TMP2, 2
+	setf	MIOS_PARAMETER1
+	movlw	DEFAULT_STEP33_48_INDICATOR_LED
+	call	MIOS_DOUT_PinSet
+
+	;; step 49-64 LED
+	clrf	MIOS_PARAMETER1
+	btfsc	IRQ_TMP2, 3
+	setf	MIOS_PARAMETER1
+	movlw	DEFAULT_STEP49_64_INDICATOR_LED
+	call	MIOS_DOUT_PinSet
 
 SEQ_LED_UpdateIRQ_End
 	;; restore PROD[LH]

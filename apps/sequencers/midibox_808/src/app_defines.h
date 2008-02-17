@@ -20,8 +20,6 @@
 #define MB_STAT_INFO_IN_SONG_PAGE	2 ; tmp. flag used by SEQ_LCD_PrintInfo
 #define MB_STAT_USE_S_BANKSTICK		3 ; if set, the song bankstick will be used by the SEQ_SBANK_ routines
 #define MB_STAT_S_BANKSTICK_AVAILABLE	4 ; if set, the song bankstick is available
-#define MB_STAT_USE_M_BANKSTICK		5 ; if set, the mixer bankstick will be used by the SEQ_MBANK_ routines
-#define MB_STAT_M_BANKSTICK_AVAILABLE	6 ; if set, the mixer map bankstick is available
 
 ;; ==========================================================================
 
@@ -34,19 +32,17 @@
 #define BANKSTICK_SONG_MAGIC0	0x7a ; the same for songs
 #define BANKSTICK_SONG_MAGIC1	0x5c
 
-#define BANKSTICK_MIXER_MAGIC0	0xa3 ; and the same for mixer maps
-#define BANKSTICK_MIXER_MAGIC1	0x16
-
 ;; ==========================================================================
 
 #define SEQ_CFG0_MERGER		0 ; if set, merger is enabled
-#define SEQ_CFG0_T_A_SPLIT	1 ; if set, transpose and arpeggiator are using a splitted keyboard
+#define SEQ_CFG0_PATTERN_SYNCH  1 ; if set, pattern changes will be synchronized
 #define SEQ_CFG0_BPM_CLK_SLAVE	2 ; 0=Master Clock, 1=Slave Clock Mode
 #define SEQ_CFG0_BPM_CLK_AUTO	3 ; 1=Auto Master/Slave mode
 
-#define SEQ_CFG0_PATTERN_SYNCH  4 ; if set, pattern changes will be synchronized
-#define SEQ_CFG0_FOLLOW_SONG	5 ; if set, the song position in the song page will be not be updated during song is played
-#define SEQ_CFG0_PASTE_CLR_ALL	6 ; if set, the paste and copy function will be applied on all track settings (otherwise only on steps)
+#define SEQ_CFG0_FOLLOW_SONG	4 ; if set, the song position in the song page will be not be updated during song is played
+#define SEQ_CFG0_SEND_MIDI_PTN	5 ; if set, pattern changes will be sent via MIDI Program Change
+#define SEQ_CFG0_SEND_MIDI_SONG 6 ; if set, song changes will be sent via MIDI CC
+#define SEQ_CFG0_SEND_MIDI_MUTE 7 ; if set, mute changes will be sent via MIDI CC
 
 ;; ==========================================================================
 
@@ -64,7 +60,7 @@
 #define CS_STAT2_FAST_DISPLAY_UPDATE    2       ; set by CS menu handler when only realtime informations should be print
 #define CS_STAT2_TRK_CHANGED		3	; used in some loops to notify that a track has been changed
 #define CS_STAT2_COPYPASTE_FILLED_P	4	; set if pattern copy/paste buffer is not virgin
-#define CS_STAT2_COPYPASTE_FILLED_M	5	; set if mixer copy/paste buffer is not virgin
+#define CS_STAT2_COPYPASTE_FILLED_T	5	; set if track copy/paste buffer is not virgin
 #define CS_STAT2_UNDO_FILLED		6	; set if undo buffer is not virgin
 #define CS_STAT2_ALL_SAME_VALUE		7	; set if the ALL function should set layer steps to same value
 
@@ -92,10 +88,14 @@ MIDI_EVNT_PORT		EQU	0x013
 MIDI_EVNT0		EQU	0x014
 MIDI_EVNT1		EQU	0x015
 MIDI_EVNT_VALUE		EQU	0x016
+MIDI_EVNT_PORT0_RS      EQU     0x017	; running status of port 0 (for MIDI delay optimisation)
+MIDI_EVNT_PREV_INTERFACE EQU    0x018
 
 ;; used by midi_rxtx.inc
-MIDI_RXTX_RX_CTR	EQU	0x017
-MIDI_RXTX_TX_CTR	EQU	0x018
+MIDI_RXTX_RX_CTR	EQU	0x019
+MIDI_RXTX_TX_CTR	EQU	0x01a
+
+;; free: 0x01b-0x01f
 
 ;; ==========================================================================
 ;;  Variables used by the control surface
@@ -105,7 +105,7 @@ CS_MENU_HEADER_TBLPTRL	EQU	0x021	; used by cs_menu.inc
 CS_MENU_HEADER_TBLPTRH	EQU	0x022	; used by cs_menu.inc
 CS_MENU_ENTRY_TBLPTRL	EQU	0x023	; used by cs_menu.inc
 CS_MENU_ENTRY_TBLPTRH	EQU	0x024	; used by cs_menu.inc
-CS_MENU_MESSAGE_CTR	EQU	0x025	; handled in cs_menu_timer.inc, used for temporary pot messages
+;; free: 0x025
 CS_MENU_POS		EQU	0x026	; menu position
 CS_MENU_NEW_POS		EQU	0x027	; used by the change page function
 CS_MENU_ENTRIES		EQU	0x028	; number of menu entries
@@ -147,28 +147,25 @@ CS_COPYPASTE_BEGIN	EQU	0x059	; used in "cs_m_utils.inc"
 CS_COPYPASTE_END	EQU	0x05a	; used in "cs_m_utils.inc"
 CS_MOVE_ENCODER		EQU	0x05b	; used in "cs_m_utils.inc"
 CS_UNDO_TRK		EQU	0x05c	; used in "cs_m_utils.inc"
-CS_MIXER_MAP		EQU	0x05d	; used in "cs_m_mixer.inc"
-CS_MIXER_PAGE		EQU	0x05e	; used in "cs_m_mixer.inc"
-CS_MIXER_SELECTED_TRK	EQU	0x05f	; used in "cs_m_mixer.inc"
-CS_RANDOM_GEN_REQ	EQU	0x060	; used in "cs_m_trkrnd.inc"
-CS_RANDOM_INTENSITY_LA	EQU	0x061	; used in "cs_m_trkrnd.inc"
-CS_RANDOM_INTENSITY_LB	EQU	0x062	; used in "cs_m_trkrnd.inc"
-CS_RANDOM_INTENSITY_LC	EQU	0x063	; used in "cs_m_trkrnd.inc"
-CS_RANDOM_INTENSITY_TA	EQU	0x064	; used in "cs_m_trkrnd.inc"
-CS_RANDOM_INTENSITY_TB	EQU	0x065	; used in "cs_m_trkrnd.inc"
-CS_RANDOM_INTENSITY_TC	EQU	0x066	; used in "cs_m_trkrnd.inc"
+CS_TRKDIV_TIMEBASE	EQU	0x05d	; used in "cs_m_trkdiv.inc"
+CS_TRKMIDI_NOTE		EQU	0x05e	; used in "cs_m_trkmidi.inc"
+CS_TRKMIDI_OCTAVE	EQU	0x05f	; used in "cs_m_trkmidi.inc"
+
+CS_MENU_INST_OVERLAY_DOUT_SR0 EQU 0x067	; contains the instrument indicator of GP DOUT #0
+CS_MENU_INST_OVERLAY_DOUT_SR1 EQU 0x068	; contains the instrument indicator of GP DOUT #1
+CS_MENU_INST_OVERLAY_CTR EQU	0x069	; display delay for instrument indicator
 
 ;; ==========================================================================
 
-PERFORMANCE_LOAD_CTR_L	EQU	0x067	; for seq_load.inc
-PERFORMANCE_LOAD_CTR_H	EQU	0x068
-PERFORMANCE_LOAD_REG_L	EQU	0x069
-PERFORMANCE_LOAD_REG_H	EQU	0x06a
-PERFORMANCE_REF_CTR	EQU	0x06b
+PERFORMANCE_LOAD_CTR_L	EQU	0x06a	; for seq_load.inc
+PERFORMANCE_LOAD_CTR_H	EQU	0x06b
+PERFORMANCE_LOAD_REG_L	EQU	0x06c
+PERFORMANCE_LOAD_REG_H	EQU	0x06d
+PERFORMANCE_REF_CTR	EQU	0x06e
 
 ;; ==========================================================================
 
-	;; free: 0x6c-0x6f
+	;; free: 0x6f-0x6f
 
 ;; ==========================================================================
 
@@ -182,8 +179,8 @@ _iic_midi_rx_package	EQU	0x075; ..0x78
 _iic_midi_tx_package	EQU	0x079; ..0x7c
 
 ;; ==========================================================================
-MIDI_EVNT_PREV_INTERFACE EQU    0x07d
 
+	;; free: 0x7d-0x7f
 
 ;; ==========================================================================
 
@@ -277,16 +274,12 @@ SEQ_MIDI_CHANNEL	EQU	0x101	; channel which is used for transpose/arpeggiator fun
 SEQ_MIDI_SPLIT_NOTE	EQU	0x102	; split point for transpose/arpeggiator (used when SEQ_CFG0_T_A_SPLIT enabled)
 SEQ_PATTERN		EQU	0x103	; selects pattern for SEQ_BANK* functions
 SEQ_PATTERN_BANK	EQU	0x104	; selects pattern for SEQ_BANK* functions
-SEQ_SBANK_SECTOR	EQU	0x105	; used by SEQ_SBANK to select the sector
-SEQ_GROUP		EQU	0x106	; loop counter for track group (pattern 0-3)
-SEQ_SELECTED_GROUP	EQU	0x107	; UI: the selected group (0-3, not bitwise selection)
-SEQ_SELECTED_LAYERS	EQU	0x108	; UI: bit 2-0: selected layers
-SEQ_SELECTED_TRG_LAYERS	EQU	0x109	; UI: bit 2-0: selected button trigger layers
-SEQ_SELECTED_TRKS_G0	EQU	0x10a	; UI: bit 3-0: selected tracks of group 0, bit 7-4: used as tmp. storage when sel button pressed
-SEQ_SELECTED_TRKS_G1	EQU	0x10b	; UI: bit 3-0: selected tracks of group 1, bit 7-4: used as tmp. storage when sel button pressed
-SEQ_SELECTED_TRKS_G2	EQU	0x10c	; UI: bit 3-0: selected tracks of group 2, bit 7-4: used as tmp. storage when sel button pressed
-SEQ_SELECTED_TRKS_G3	EQU	0x10d	; UI: bit 3-0: selected tracks of group 3, bit 7-4: used as tmp. storage when sel button pressed
-SEQ_SELECTED_STEPS	EQU	0x10e	; UI: bit 0 selects between step 1-16 and 17-32
+	;; free: 0x104..0x109
+SEQ_SELECTED_TRK	EQU	0x10a	; UI: selected track (0-15)
+SEQ_SELECTED_TRKS_0	EQU	0x10b	; UI: selected tracks 0-7
+SEQ_SELECTED_TRKS_1	EQU	0x10c	; UI: selected tracks 8-15
+SEQ_SELECTED_AB		EQU	0x10d	; [0] A selected, [1] B selected, [4] copy of A button, [5] copy of B button (for multi-selection)
+SEQ_SELECTED_STEPS	EQU	0x10e	; UI: bit 0 selects between lower/upper steps, bit 1 between A and B
 SEQ_CURRENT_STEP	EQU	0x10f	; the currently selected step (only one a time)
 SEQ_EVNTS		EQU	0x110	; selects the step which is used by seq_fsr.inc functions
 SEQ_EVNTT		EQU	0x111	; selects the track which is used by seq_core.inc and seq_fsr.inc functions
@@ -303,23 +296,22 @@ SEQ_CLK_TICK4_CTR	EQU	0x119	; clock reference counter (0-24)
 
 SEQ_MODE0		EQU	0x11a	; used by seq_core.inc
 SEQ_MODE1		EQU	0x11b	; used by seq_core.inc
+SEQ_MODE2		EQU	0x11c	; used by seq_core.inc
 
-SEQ_RANDOM_SEED_L	EQU	0x11c	; current random value used by seq_core.inc
-SEQ_RANDOM_SEED_H	EQU	0x11d	; current random value used by seq_core.inc
+SEQ_RANDOM_SEED_L	EQU	0x11d	; current random value used by seq_core.inc
+SEQ_RANDOM_SEED_H	EQU	0x11e	; current random value used by seq_core.inc
 
-SEQ_TRKS_MUTED0		EQU	0x11e	; muted tracks (low-byte)
-SEQ_TRKS_MUTED1		EQU	0x11f	; muted tracks (high-byte)
+SEQ_TRKS_MUTED0		EQU	0x11f	; muted tracks (low-byte)
+SEQ_TRKS_MUTED1		EQU	0x120	; muted tracks (high-byte)
 
-SEQ_BPM			EQU	0x120	; see seq_bpm.inc
-SEQ_CLK_REQ_CTR		EQU	0x121	; see seq_bpm.inc
-SEQ_INCOMING_CLK_DELAY	EQU	0x122	; see seq_bpm.inc
-SEQ_INCOMING_CLK_CTR	EQU	0x123	; see seq_bpm.inc
-SEQ_SENT_CLK_DELAY	EQU	0x124	; see seq_bpm.inc
-SEQ_SENT_CLK_CTR	EQU	0x125	; see seq_bpm.inc
+SEQ_BPM			EQU	0x121	; see seq_bpm.inc
+SEQ_CLK_REQ_CTR		EQU	0x122	; see seq_bpm.inc
+SEQ_INCOMING_CLK_DELAY	EQU	0x123	; see seq_bpm.inc
+SEQ_INCOMING_CLK_CTR	EQU	0x124	; see seq_bpm.inc
+SEQ_SENT_CLK_DELAY	EQU	0x125	; see seq_bpm.inc
+SEQ_SENT_CLK_CTR	EQU	0x126	; see seq_bpm.inc
 
-SEQ_EVNT_NUMBER_CTR	EQU	0x126	; used by seq_core.inc
-SEQ_EVNT_NUMBER		EQU	0x127	; used by seq_layer.inc
-SEQ_EVNT_CHORD_INDEX	EQU	0x128	; used by seq_layer.inc
+;; free: 0x127-0x128
 SEQ_EVNT0		EQU	0x129	; used by seq_layer.inc
 SEQ_EVNT1		EQU	0x12a	; used by seq_layer.inc
 SEQ_EVNT2		EQU	0x12b	; used by seq_layer.inc
@@ -414,28 +406,14 @@ SEQ_ROUTER_MCLK_ENABLED	EQU	0x16b	; used in "seq_router.inc"
 SEQ_NRPN_ADDRESS_LSB	EQU	0x16c	; used in "seq_midi.inc"
 SEQ_NRPN_ADDRESS_MSB	EQU	0x16d	; used in "seq_midi.inc"
 
-SEQ_MIXER_MAP		EQU	0x16e	; used in "seq_mbank.inc"
+SEQ_DRUM_TRIGGERS0	EQU	0x16e	; used in "seq_trk.inc"
+SEQ_DRUM_TRIGGERS1	EQU	0x16f	; used in "seq_trk.inc"
 
-SEQ_PRFTCH_EVNTT	EQU	0x16f	; used in "seq_prftch.inc"
-SEQ_PRFTCH_EVNTS	EQU	0x170	; used in "seq_prftch.inc"
-SEQ_PRFTCH_LAYER	EQU	0x171	; used in "seq_prftch.inc"
+SEQ_SONG		EQU	0x170	; used by CS_M_SONG* only, don't change the order!
+SEQ_EDIT_SONG_POS	EQU	0x171
+SEQ_SONG_RECURSION_CTR	EQU	0x172	; used in "seq_song.inc", SEQ_SONG_FetchPosDirect to avoid a live lock
 
-;; ==================================================================================
-
-SEQ_SONG		EQU	0x172	; used by CS_M_SONG* only, don't change the order!
-SEQ_EDIT_SONG_POS	EQU	0x173
-SEQ_EDIT_SONG_ACTN	EQU	0x174
-SEQ_EDIT_SONG_G0	EQU	0x175   ; used by "cs_m_song.inc"
-SEQ_EDIT_SONG_G1	EQU	0x176
-SEQ_EDIT_SONG_G2	EQU	0x177
-SEQ_EDIT_SONG_G3	EQU	0x178
-SEQ_EDIT_SONG_BANK_G0	EQU	0x179   ; used by "cs_m_song.inc"
-SEQ_EDIT_SONG_BANK_G1	EQU	0x17a
-SEQ_EDIT_SONG_BANK_G2	EQU	0x17b
-SEQ_EDIT_SONG_BANK_G3	EQU	0x17c
-SEQ_SONG_RECURSION_CTR	EQU	0x17d	; used in "seq_song.inc", SEQ_SONG_FetchPosDirect to avoid a live lock
-
-	;; free: 0x17e-0x19d
+	;; free: 0x173-0x19d
 
 ;; ==================================================================================
 
@@ -464,15 +442,7 @@ SEQ_NEXT_PATTERN_BANK1	EQU	0x1ad	; selects the next SEQ_PATTERN_BANK1
 SEQ_NEXT_PATTERN_BANK2	EQU	0x1ae	; selects the next SEQ_PATTERN_BANK2
 SEQ_NEXT_PATTERN_BANK3	EQU	0x1af	; selects the next SEQ_PATTERN_BANK3
 
-SEQ_CHAINHNDSHK_G0	EQU	0x1b0	; used for pattern chaining
-SEQ_CHAINHNDSHK_G1	EQU	0x1b1
-SEQ_CHAINHNDSHK_G2	EQU	0x1b2
-SEQ_CHAINHNDSHK_G3	EQU	0x1b3
-
-SEQ_CHAINHNDSHK_NEXT_G0	EQU	0x1b4	; used for pattern chaining
-SEQ_CHAINHNDSHK_NEXT_G1	EQU	0x1b5
-SEQ_CHAINHNDSHK_NEXT_G2	EQU	0x1b6
-SEQ_CHAINHNDSHK_NEXT_G3	EQU	0x1b7
+	;; free: 0x1b0-0x1b7
 
 SEQ_LOOPBACK_STORED_FSR0L EQU	0x1b8	; used by "midi_evnt.inc"
 SEQ_LOOPBACK_STORED_FSR0H EQU	0x1b9	; used by "midi_evnt.inc"
@@ -482,46 +452,7 @@ SEQ_LOOPBACK_STORED_EVNTT EQU	0x1bc	; used by "midi_evnt.inc"
 
 	;; free: 0x1bd-0x1bf
 
-SEQ_T_NOTE_STACK_0	EQU	0x1c0	; stack for incoming notes (used by transpose function)
-SEQ_T_NOTE_STACK_1	EQU	0x1c1
-SEQ_T_NOTE_STACK_2	EQU	0x1c2
-SEQ_T_NOTE_STACK_3	EQU	0x1c3
-SEQ_T_NOTE_STACK_4	EQU	0x1c4
-SEQ_T_NOTE_STACK_5	EQU	0x1c5
-SEQ_T_NOTE_STACK_6	EQU	0x1c6
-SEQ_T_NOTE_STACK_7	EQU	0x1c7
-SEQ_NOTE_STACK_LEN	EQU	(SEQ_T_NOTE_STACK_7-SEQ_T_NOTE_STACK_0)+1
-
-SEQ_A_NOTE_STACK_0	EQU	0x1c8	; stack for incoming notes (used by arpeggiator function)
-SEQ_A_NOTE_STACK_1	EQU	0x1c9
-SEQ_A_NOTE_STACK_2	EQU	0x1ca
-SEQ_A_NOTE_STACK_3	EQU	0x1cb
-SEQ_A_NOTE_STACK_4	EQU	0x1cc
-SEQ_A_NOTE_STACK_5	EQU	0x1cd
-SEQ_A_NOTE_STACK_6	EQU	0x1ce
-SEQ_A_NOTE_STACK_7	EQU	0x1cf
-	;; SEQ_A_NOTE_STACK_LEN	EQU	(SEQ_A_NOTE_STACK_7-SEQ_A_NOTE_STACK_0)+1
-	;; (must be the same like SEQ_NOTE_STACK_LEN !!!)
-
-SEQ_ARP_NOTE_0_SORTED	EQU	0x1d0	; sorted SEQ_A_NOTE_STACK
-SEQ_ARP_NOTE_1_SORTED	EQU	0x1d1
-SEQ_ARP_NOTE_2_SORTED	EQU	0x1d2
-SEQ_ARP_NOTE_3_SORTED	EQU	0x1d3
-
-SEQ_ARP_NOTE_0_SORTED_HOLD	EQU	0x1d4	; the same for hold mode
-SEQ_ARP_NOTE_1_SORTED_HOLD	EQU	0x1d5
-SEQ_ARP_NOTE_2_SORTED_HOLD	EQU	0x1d6
-SEQ_ARP_NOTE_3_SORTED_HOLD	EQU	0x1d7
-
-SEQ_ARP_NOTE_0_UNSORTED	EQU	0x1d8	; unsorted SEQ_A_NOTE_STACK
-SEQ_ARP_NOTE_1_UNSORTED	EQU	0x1d9
-SEQ_ARP_NOTE_2_UNSORTED	EQU	0x1da
-SEQ_ARP_NOTE_3_UNSORTED	EQU	0x1db
-
-SEQ_ARP_NOTE_0_UNSORTED_HOLD	EQU	0x1dc	; the same for hold mode
-SEQ_ARP_NOTE_1_UNSORTED_HOLD	EQU	0x1dd
-SEQ_ARP_NOTE_2_UNSORTED_HOLD	EQU	0x1de
-SEQ_ARP_NOTE_3_UNSORTED_HOLD	EQU	0x1df
+	;; free: 0x1c0-0x1df
 
 SEQ_LEDM_TRK0_A_L	EQU	0x1e0	; used for led matrix - colour1 LEDs
 SEQ_LEDM_TRK0_A_R	EQU	0x1e1
@@ -575,37 +506,7 @@ SEQ_TRKQUEUE1_END	EQU	0x2bf
 
 ;; -----------------------------------
 
-SEQ_STPBUF_MOVED_LAYERA	EQU	0x2d0
-SEQ_STPBUF_MOVED_LAYERB	EQU	0x2d1
-SEQ_STPBUF_MOVED_LAYERC	EQU	0x2d2
-SEQ_STPBUF_MOVED_TRG	EQU	0x2d3
-SEQ_STPBUF_OLD_LAYERA	EQU	0x2d4
-SEQ_STPBUF_OLD_LAYERB	EQU	0x2d5
-SEQ_STPBUF_OLD_LAYERC	EQU	0x2d6
-SEQ_STPBUF_OLD_TRG	EQU	0x2d7
-
-;; free: 0x2d8-0x2df
-
-;; -----------------------------------
-;; 0x2e0-0x2ff allocated by SEQ_COPYPASTE_CFG !!!
-
-;; -----------------------------------
-;; For Undo function
-SEQ_UNDO_LAYER_A	EQU	0x300	; ..0x31f
-SEQ_UNDO_LAYER_B	EQU	0x320	; ..0x33f
-SEQ_UNDO_LAYER_C	EQU	0x340	; ..0x35f
-SEQ_UNDO_TRG_LAYERS	EQU	0x360	; ..0x37f
-
-;; alternatively for mixer map
-SEQ_MIXER_MAP_BASE	EQU	0x300	; ..0x37f
-SEQ_MIXER_MAP_MIDI	EQU	0x300	; ..0x30f
-SEQ_MIXER_MAP_PRG	EQU	0x310	; ..0x31f
-SEQ_MIXER_MAP_VOL	EQU	0x320	; ..0x32f
-SEQ_MIXER_MAP_PAN	EQU	0x330	; ..0x33f
-SEQ_MIXER_MAP_CC1	EQU	0x340	; ..0x34f
-SEQ_MIXER_MAP_CC2	EQU	0x350	; ..0x35f
-SEQ_MIXER_MAP_CC1ASG	EQU	0x360	; ..0x36f
-SEQ_MIXER_MAP_CC2ASG	EQU	0x370	; ..0x37f
+;; free: 0x2c0-0x37f
 
 ;; -----------------------------------
 
@@ -614,127 +515,72 @@ SEQ_MIXER_MAP_CC2ASG	EQU	0x370	; ..0x37f
 ;; up to here RAM is allocated which exists on PIC18F4620 only, and not on PIC18F452!
 ;; ==================================================================================
 
-;; -----------------------------------
-;; layer A (32 steps per track)
-SEQ_LAYER_VALUES_TRK0_A	EQU     0x600
-SEQ_LAYER_VALUES_TRK1_A	EQU     0x620
-SEQ_LAYER_VALUES_TRK2_A	EQU     0x640
-SEQ_LAYER_VALUES_TRK3_A	EQU     0x660
-SEQ_LAYER_VALUES_TRK4_A	EQU     0x680
-SEQ_LAYER_VALUES_TRK5_A	EQU     0x6a0
-SEQ_LAYER_VALUES_TRK6_A	EQU     0x6c0
-SEQ_LAYER_VALUES_TRK7_A	EQU     0x6e0
-SEQ_LAYER_VALUES_TRK8_A	EQU     0x700
-SEQ_LAYER_VALUES_TRK9_A	EQU     0x720
-SEQ_LAYER_VALUES_TRK10_A EQU     0x740
-SEQ_LAYER_VALUES_TRK11_A EQU     0x760
-SEQ_LAYER_VALUES_TRK12_A EQU     0x780
-SEQ_LAYER_VALUES_TRK13_A EQU     0x7a0
-SEQ_LAYER_VALUES_TRK14_A EQU     0x7c0
-SEQ_LAYER_VALUES_TRK15_A EQU     0x7e0
-
-;; -----------------------------------
-;; layer B (32 steps per track)
-SEQ_LAYER_VALUES_TRK0_B	EQU     0x800
-SEQ_LAYER_VALUES_TRK1_B	EQU     0x820
-SEQ_LAYER_VALUES_TRK2_B	EQU     0x840
-SEQ_LAYER_VALUES_TRK3_B	EQU     0x860
-SEQ_LAYER_VALUES_TRK4_B	EQU     0x880
-SEQ_LAYER_VALUES_TRK5_B	EQU     0x8a0
-SEQ_LAYER_VALUES_TRK6_B	EQU     0x8c0
-SEQ_LAYER_VALUES_TRK7_B	EQU     0x8e0
-SEQ_LAYER_VALUES_TRK8_B	EQU     0x900
-SEQ_LAYER_VALUES_TRK9_B	EQU     0x920
-SEQ_LAYER_VALUES_TRK10_B EQU     0x940
-SEQ_LAYER_VALUES_TRK11_B EQU     0x960
-SEQ_LAYER_VALUES_TRK12_B EQU     0x980
-SEQ_LAYER_VALUES_TRK13_B EQU     0x9a0
-SEQ_LAYER_VALUES_TRK14_B EQU     0x9c0
-SEQ_LAYER_VALUES_TRK15_B EQU     0x9e0
-
-;; -----------------------------------
-;; layer C (32 steps per track)
-SEQ_LAYER_VALUES_TRK0_C	EQU     0xa00
-SEQ_LAYER_VALUES_TRK1_C	EQU     0xa20
-SEQ_LAYER_VALUES_TRK2_C	EQU     0xa40
-SEQ_LAYER_VALUES_TRK3_C	EQU     0xa60
-SEQ_LAYER_VALUES_TRK4_C	EQU     0xa80
-SEQ_LAYER_VALUES_TRK5_C	EQU     0xaa0
-SEQ_LAYER_VALUES_TRK6_C	EQU     0xac0
-SEQ_LAYER_VALUES_TRK7_C	EQU     0xae0
-SEQ_LAYER_VALUES_TRK8_C	EQU     0xb00
-SEQ_LAYER_VALUES_TRK9_C	EQU     0xb20
-SEQ_LAYER_VALUES_TRK10_C EQU     0xb40
-SEQ_LAYER_VALUES_TRK11_C EQU     0xb60
-SEQ_LAYER_VALUES_TRK12_C EQU     0xb80
-SEQ_LAYER_VALUES_TRK13_C EQU     0xba0
-SEQ_LAYER_VALUES_TRK14_C EQU     0xbc0
-SEQ_LAYER_VALUES_TRK15_C EQU     0xbe0
+SEQ_PATTERN_BUFFER	EQU	0x600	; ..0x7ff (512 bytes)
 
 ;; -----------------------------------
 ;;  track record structure
-SEQ_TRKCHAINx		EQU     0x00	; stored in track 1 only
-SEQ_TRKMORPH_PATTERNx	EQU     0x00	; stored in track 2 only
-SEQ_TRKSCALEx		EQU     0x00	; stored in track 3 only
-SEQ_TRKSCALEROOTx	EQU     0x00	; stored in track 4 only (bit [7:4] used, bit [3:0] free)
+;; -----------------------------------
+SEQ_SPARE1		EQU     0x00	; reserved for track mode
+SEQ_TRKCHNx		EQU     0x01	; [3:0] MIDI channel, [7:4] port
+SEQ_TRKNOTEx		EQU	0x02	; MIDI note
+SEQ_TRKVELx		EQU	0x03	; velocity
+SEQ_TRKVELAx		EQU	0x04	; accented velocity
+SEQ_TRKDIR1x		EQU	0x05	; track direction ([3:0] mode, [7:4] replay)
+SEQ_TRKDIR2x		EQU	0x06	; track direction ([3:0] steps fwd, [7:4] jump back)
+SEQ_TRKDIVx		EQU     0x07	; clock divider
+SEQ_TRKGROOVEx		EQU     0x08	; groove mode and intensity
+SEQ_TRKASSGNx		EQU	0x09	; assignments of second trigger layer
+SEQ_TRKLOOPAx		EQU	0x0a	; loop point (for A section)
+SEQ_TRKLASTAx		EQU     0x0b	; track length (for A section)
+SEQ_TRKLOOPBx		EQU	0x0c	; reserved: loop point for B section
+SEQ_TRKLASTBx		EQU     0x0d	; reserved: track length for B section
 
-SEQ_TRKMODEx		EQU     0x01	; track mode
-SEQ_TRKEVNTx		EQU     0x02	; first MIDI byte
-SEQ_TRKEVNTCONST1x	EQU	0x03	; event constant value #1
-SEQ_TRKEVNTCONST2x	EQU	0x04	; event constant value #2
-SEQ_TRKEVNTCONST3x	EQU	0x05	; event constant value #3
-SEQ_TRKCHNx		EQU     0x06	; MIDI channel and port
-SEQ_TRKDIR1x		EQU	0x07	; track direction (mode and replay)
-SEQ_TRKDIR2x		EQU	0x08	; track direction (steps fwd and jump back)
-SEQ_TRKDIVx		EQU     0x09	; clock divider
-SEQ_TRKLENx		EQU     0x0a	; track length
-SEQ_TRKLOOPx		EQU	0x0b
-SEQ_TRKTRANSPx		EQU     0x0c	; octave/semitones transpose value
-SEQ_TRKSPARE1x		EQU     0x0d	; spare byte for future extensions
-SEQ_TRKGROOVEx		EQU     0x0e	; groove mode and intensity
-SEQ_TRKMORPHx		EQU	0x0f	; morph mode
-SEQ_TRKASSGN0x		EQU	0x10	; assignments to gate/skip/acc/glide
-SEQ_TRKASSGN1x		EQU     0x11	; assignments to roll/R.G/R.V
-SEQ_TRKHUMANIZEx	EQU	0x12	; humanize mode and intensity
-SEQ_TRKSPARE2x		EQU     0x13	; spare byte for future extensions
+SEQ_TRKRECORD_LENGTH    EQU     0x10
 
-SEQ_TRKTRGA_0x		EQU     0x14	; step trigger control A
-SEQ_TRKTRGA_1x		EQU     0x15
-SEQ_TRKTRGA_2x		EQU     0x16
-SEQ_TRKTRGA_3x		EQU     0x17
-SEQ_TRKTRGB_0x		EQU     0x18	; step trigger control B
-SEQ_TRKTRGB_1x		EQU     0x19
-SEQ_TRKTRGB_2x		EQU     0x1a
-SEQ_TRKTRGB_3x		EQU     0x1b
-SEQ_TRKTRGC_0x		EQU     0x1c	; step trigger control C
-SEQ_TRKTRGC_1x		EQU     0x1d
-SEQ_TRKTRGC_2x		EQU     0x1e
-SEQ_TRKTRGC_3x		EQU     0x1f
-
-;; used to select the track record (pointer = SEQ_TRK0 + track_number*SEQ_TRKRECORD_LENGTH)
-SEQ_TRKRECORD_LENGTH    EQU     0x20
 
 ;; -----------------------------------
-SEQ_TRK0		EQU	0xc00
-SEQ_TRK1		EQU	SEQ_TRK0 + 1 * SEQ_TRKRECORD_LENGTH	; 0xc20
-SEQ_TRK2		EQU	SEQ_TRK0 + 2 * SEQ_TRKRECORD_LENGTH	; 0xc40
-SEQ_TRK3		EQU	SEQ_TRK0 + 3 * SEQ_TRKRECORD_LENGTH	; 0xc60
-SEQ_TRK4		EQU	SEQ_TRK0 + 4 * SEQ_TRKRECORD_LENGTH	; 0xc80
-SEQ_TRK5		EQU	SEQ_TRK0 + 5 * SEQ_TRKRECORD_LENGTH	; 0xca0
-SEQ_TRK6		EQU	SEQ_TRK0 + 6 * SEQ_TRKRECORD_LENGTH	; 0xcc0
-SEQ_TRK7		EQU	SEQ_TRK0 + 7 * SEQ_TRKRECORD_LENGTH	; 0xce0
-SEQ_TRK8		EQU	SEQ_TRK0 + 8 * SEQ_TRKRECORD_LENGTH	; 0xd00
-SEQ_TRK9		EQU	SEQ_TRK0 + 9 * SEQ_TRKRECORD_LENGTH	; 0xd20
-SEQ_TRK10		EQU	SEQ_TRK0 + 10 * SEQ_TRKRECORD_LENGTH	; 0xd40
-SEQ_TRK11		EQU	SEQ_TRK0 + 11 * SEQ_TRKRECORD_LENGTH	; 0xd60
-SEQ_TRK12		EQU	SEQ_TRK0 + 12 * SEQ_TRKRECORD_LENGTH	; 0xd80
-SEQ_TRK13		EQU	SEQ_TRK0 + 13 * SEQ_TRKRECORD_LENGTH	; 0xda0
-SEQ_TRK14		EQU	SEQ_TRK0 + 14 * SEQ_TRKRECORD_LENGTH	; 0xdc0
-SEQ_TRK15		EQU	SEQ_TRK0 + 15 * SEQ_TRKRECORD_LENGTH	; 0xde0
-SEQ_TRK_END		EQU	SEQ_TRK0 + 16 * SEQ_TRKRECORD_LENGTH-1	; 0xdff
+SEQ_TRK0		EQU	SEQ_PATTERN_BUFFER + 0x000		; 0x600
+SEQ_TRK1		EQU	SEQ_PATTERN_BUFFER + 0x010		; 0x610
+SEQ_TRK2		EQU	SEQ_PATTERN_BUFFER + 0x020		; 0x620
+SEQ_TRK3		EQU	SEQ_PATTERN_BUFFER + 0x030		; 0x630
+SEQ_TRK4		EQU	SEQ_PATTERN_BUFFER + 0x040		; 0x640
+SEQ_TRK5		EQU	SEQ_PATTERN_BUFFER + 0x050		; 0x650
+SEQ_TRK6		EQU	SEQ_PATTERN_BUFFER + 0x060		; 0x660
+SEQ_TRK7		EQU	SEQ_PATTERN_BUFFER + 0x070		; 0x670
+SEQ_TRK8		EQU	SEQ_PATTERN_BUFFER + 0x080		; 0x680
+SEQ_TRK9		EQU	SEQ_PATTERN_BUFFER + 0x090		; 0x690
+SEQ_TRK10		EQU	SEQ_PATTERN_BUFFER + 0x0a0		; 0x6a0
+SEQ_TRK11		EQU	SEQ_PATTERN_BUFFER + 0x0b0		; 0x6b0
+SEQ_TRK12		EQU	SEQ_PATTERN_BUFFER + 0x0c0		; 0x6c0
+SEQ_TRK13		EQU	SEQ_PATTERN_BUFFER + 0x0d0		; 0x6d0
+SEQ_TRK14		EQU	SEQ_PATTERN_BUFFER + 0x0e0		; 0x6e0
+SEQ_TRK15		EQU	SEQ_PATTERN_BUFFER + 0x0f0		; 0x6f0
+
+
+;; -----------------------------------
+;;  Trigger Layers
+;; -----------------------------------
+SEQ_TRGRECORD_LENGTH	EQU	0x10	; 8 bytes for gate layer, 8 bytes for auxiliary layer
+SEQ_TRG0		EQU	SEQ_PATTERN_BUFFER + 0x100		; 0x700
+SEQ_TRG1		EQU	SEQ_PATTERN_BUFFER + 0x110		; 0x710
+SEQ_TRG2		EQU	SEQ_PATTERN_BUFFER + 0x120		; 0x720
+SEQ_TRG3		EQU	SEQ_PATTERN_BUFFER + 0x130		; 0x730
+SEQ_TRG4		EQU	SEQ_PATTERN_BUFFER + 0x140		; 0x740
+SEQ_TRG5		EQU	SEQ_PATTERN_BUFFER + 0x150		; 0x750
+SEQ_TRG6		EQU	SEQ_PATTERN_BUFFER + 0x160		; 0x760
+SEQ_TRG7		EQU	SEQ_PATTERN_BUFFER + 0x170		; 0x770
+SEQ_TRG8		EQU	SEQ_PATTERN_BUFFER + 0x180		; 0x780
+SEQ_TRG9		EQU	SEQ_PATTERN_BUFFER + 0x190		; 0x790
+SEQ_TRG10		EQU	SEQ_PATTERN_BUFFER + 0x1a0		; 0x7a0
+SEQ_TRG11		EQU	SEQ_PATTERN_BUFFER + 0x1b0		; 0x7b0
+SEQ_TRG12		EQU	SEQ_PATTERN_BUFFER + 0x1c0		; 0x7c0
+SEQ_TRG13		EQU	SEQ_PATTERN_BUFFER + 0x1d0		; 0x7d0
+SEQ_TRG14		EQU	SEQ_PATTERN_BUFFER + 0x1e0		; 0x7e0
+SEQ_TRG15		EQU	SEQ_PATTERN_BUFFER + 0x1f0		; 0x7f0
 
 ;; -----------------------------------
 ;;  track variables record structure
+;; -----------------------------------
 SEQ_TRKVARSTATEx	EQU     0x00	; flags: see seq_core.inc (SEQ_TRKVARSTATE_*)
 SEQ_TRKVARSTATE2x	EQU	0x01	; flags: see seq_core.inc (SEQ_TRKVARSTATE2_*)
 SEQ_TRKVARSTEPx		EQU     0x02	; the track position
@@ -753,33 +599,36 @@ SEQ_TRKVARARPPOSx	EQU	0x0c	; arp position counter (for multi arg events)
 SEQ_TRKVARRECORD_LENGTH    EQU     0x10
 
 ;; -----------------------------------
-SEQ_TRKVAR0		EQU	0xe00
-SEQ_TRKVAR1		EQU	SEQ_TRKVAR0 + 1 * SEQ_TRKVARRECORD_LENGTH	; 0xe10
-SEQ_TRKVAR2		EQU	SEQ_TRKVAR0 + 2 * SEQ_TRKVARRECORD_LENGTH	; 0xe20
-SEQ_TRKVAR3		EQU	SEQ_TRKVAR0 + 3 * SEQ_TRKVARRECORD_LENGTH	; 0xe30
-SEQ_TRKVAR4		EQU	SEQ_TRKVAR0 + 4 * SEQ_TRKVARRECORD_LENGTH	; 0xe40
-SEQ_TRKVAR5		EQU	SEQ_TRKVAR0 + 5 * SEQ_TRKVARRECORD_LENGTH	; 0xe50
-SEQ_TRKVAR6		EQU	SEQ_TRKVAR0 + 6 * SEQ_TRKVARRECORD_LENGTH	; 0xe60
-SEQ_TRKVAR7		EQU	SEQ_TRKVAR0 + 7 * SEQ_TRKVARRECORD_LENGTH	; 0xe70
-SEQ_TRKVAR8		EQU	SEQ_TRKVAR0 + 8 * SEQ_TRKVARRECORD_LENGTH	; 0xe80
-SEQ_TRKVAR9		EQU	SEQ_TRKVAR0 + 9 * SEQ_TRKVARRECORD_LENGTH	; 0xe90
-SEQ_TRKVAR10		EQU	SEQ_TRKVAR0 + 10 * SEQ_TRKVARRECORD_LENGTH	; 0xea0
-SEQ_TRKVAR11		EQU	SEQ_TRKVAR0 + 11 * SEQ_TRKVARRECORD_LENGTH	; 0xeb0
-SEQ_TRKVAR12		EQU	SEQ_TRKVAR0 + 12 * SEQ_TRKVARRECORD_LENGTH	; 0xec0
-SEQ_TRKVAR13		EQU	SEQ_TRKVAR0 + 13 * SEQ_TRKVARRECORD_LENGTH	; 0xed0
-SEQ_TRKVAR14		EQU	SEQ_TRKVAR0 + 14 * SEQ_TRKVARRECORD_LENGTH	; 0xee0
-SEQ_TRKVAR15		EQU	SEQ_TRKVAR0 + 15 * SEQ_TRKVARRECORD_LENGTH	; 0xef0
-SEQ_TRKVAR_END		EQU	SEQ_TRKVAR0 + 16 * SEQ_TRKVARRECORD_LENGTH-1	; 0xeff
+SEQ_TRKVAR0		EQU	0x800
+SEQ_TRKVAR1		EQU	SEQ_TRKVAR0 + 1 * SEQ_TRKVARRECORD_LENGTH	; 0x810
+SEQ_TRKVAR2		EQU	SEQ_TRKVAR0 + 2 * SEQ_TRKVARRECORD_LENGTH	; 0x820
+SEQ_TRKVAR3		EQU	SEQ_TRKVAR0 + 3 * SEQ_TRKVARRECORD_LENGTH	; 0x830
+SEQ_TRKVAR4		EQU	SEQ_TRKVAR0 + 4 * SEQ_TRKVARRECORD_LENGTH	; 0x840
+SEQ_TRKVAR5		EQU	SEQ_TRKVAR0 + 5 * SEQ_TRKVARRECORD_LENGTH	; 0x850
+SEQ_TRKVAR6		EQU	SEQ_TRKVAR0 + 6 * SEQ_TRKVARRECORD_LENGTH	; 0x860
+SEQ_TRKVAR7		EQU	SEQ_TRKVAR0 + 7 * SEQ_TRKVARRECORD_LENGTH	; 0x870
+SEQ_TRKVAR8		EQU	SEQ_TRKVAR0 + 8 * SEQ_TRKVARRECORD_LENGTH	; 0x880
+SEQ_TRKVAR9		EQU	SEQ_TRKVAR0 + 9 * SEQ_TRKVARRECORD_LENGTH	; 0x890
+SEQ_TRKVAR10		EQU	SEQ_TRKVAR0 + 10 * SEQ_TRKVARRECORD_LENGTH	; 0x8a0
+SEQ_TRKVAR11		EQU	SEQ_TRKVAR0 + 11 * SEQ_TRKVARRECORD_LENGTH	; 0x8b0
+SEQ_TRKVAR12		EQU	SEQ_TRKVAR0 + 12 * SEQ_TRKVARRECORD_LENGTH	; 0x8c0
+SEQ_TRKVAR13		EQU	SEQ_TRKVAR0 + 13 * SEQ_TRKVARRECORD_LENGTH	; 0x8d0
+SEQ_TRKVAR14		EQU	SEQ_TRKVAR0 + 14 * SEQ_TRKVARRECORD_LENGTH	; 0x8e0
+SEQ_TRKVAR15		EQU	SEQ_TRKVAR0 + 15 * SEQ_TRKVARRECORD_LENGTH	; 0x8f0
 
 
 ;; -----------------------------------
-;; For Copy&Paste function
-SEQ_COPYPASTE_LAYER_A	EQU	0xf00	; ..0xf1f
-SEQ_COPYPASTE_LAYER_B	EQU	0xf20	; ..0xf3f
-SEQ_COPYPASTE_LAYER_C	EQU	0xf40	; ..0xf5f
-SEQ_COPYPASTE_TRG_LAYERS EQU	0xf60	; ..0xf7f
-SEQ_COPYPASTE_CFG	EQU	0x2e0	; ..0x2ff - note the special address range! It has been marked as reserved above!
+;; for Undo function (-> cs_m_utils.inc)
+SEQ_UNDO_BUFFER		EQU	0x900	; ..0xaff (512 bytes)
 
-;; also used by mixer
-SEQ_COPYPASTE_MIXER	EQU	0xf00	; ..0xf7f
+;; -----------------------------------
+;; for Pattern Copy&Paste function (-> cs_m_utils.inc)
+SEQ_COPYPASTE_P_BUFFER	EQU	0xb00	; ..0xcff (512 bytes)
 
+;; -----------------------------------
+;; for Track Copy&Paste function (-> cs_m_utils.inc)
+SEQ_COPYPASTE_T_BUFFER	EQU	0xd00	; ..0xd1f (32 bytes)
+
+;; -----------------------------------
+
+	;; free: 0xd20-0xf7f! :-)

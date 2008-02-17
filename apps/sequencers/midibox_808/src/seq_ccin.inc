@@ -27,7 +27,7 @@ SEQ_CCIN_Set
 SEQ_CCIN_Set_Cmd
 	;; branch depending on command
 	movf	MIOS_PARAMETER2, W
-	JUMPTABLE_2BYTES 11 ; entries
+	JUMPTABLE_2BYTES 10 ; entries
 	rgoto	SEQ_CCIN_Cmd_NOP
 	rgoto	SEQ_CCIN_Cmd_7
 	rgoto	SEQ_CCIN_Cmd_6L
@@ -38,7 +38,6 @@ SEQ_CCIN_Set_Cmd
 	rgoto	SEQ_CCIN_Cmd_B32
 	rgoto	SEQ_CCIN_Cmd_B54
 	rgoto	SEQ_CCIN_Cmd_B76
-	rgoto	SEQ_CCIN_Cmd_TRKMODE_FLAGS
 
 ; ==========================================================================
 
@@ -131,20 +130,6 @@ SEQ_CCIN_Cmd_B76
 	rgoto	SEQ_CCIN_Cmd_End
 
 ;; --------------------------------------------------------------------------
-SEQ_CCIN_Cmd_TRKMODE_FLAGS
-	movlw	0x07
-	andwf	INDF1, F
-	swapf	MIOS_PARAMETER1, W
-	andlw	0xf0
-	iorwf	INDF1, F
-
-	;; UNSORTED flag mapped to [4]
-	btfsc	MIOS_PARAMETER1, 4
-	bsf	INDF1, SEQ_TRKMODE_FLAG_UNSORTED
-
-	rgoto	SEQ_CCIN_Cmd_End
-
-;; --------------------------------------------------------------------------
 SEQ_CCIN_Cmd_End
 	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
@@ -153,31 +138,3 @@ SEQ_CCIN_Cmd_End
 
 
 ;; ==========================================================================
-
-
-;; --------------------------------------------------------------------------
-;;  IN: index of CC parameter in WREG, value in MIOS_PARAMETER1
-;; --------------------------------------------------------------------------
-SEQ_CCIN_SetLayerA
-	lfsr	FSR1, SEQ_LAYER_VALUES_TRK0_A
-	;; 	rgoto	SEQ_CCIN_SetLayer_Cont
-
-SEQ_CCIN_SetLayer_Cont
-	andlw	0x7f
-	movff	MIOS_PARAMETER1, PLUSW1
-	return
-
-;; --------------------------------------------------------------------------
-;;  IN: index of CC parameter in WREG, value in MIOS_PARAMETER1
-;; --------------------------------------------------------------------------
-SEQ_CCIN_SetLayerB
-	lfsr	FSR1, SEQ_LAYER_VALUES_TRK0_B
-	rgoto	SEQ_CCIN_SetLayer_Cont
-
-;; --------------------------------------------------------------------------
-;;  IN: index of CC parameter in WREG, value in MIOS_PARAMETER1
-;; --------------------------------------------------------------------------
-SEQ_CCIN_SetLayerC
-	lfsr	FSR1, SEQ_LAYER_VALUES_TRK0_C
-	rgoto	SEQ_CCIN_SetLayer_Cont
-

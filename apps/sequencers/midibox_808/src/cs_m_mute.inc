@@ -19,8 +19,7 @@
 ;;       - 1 if button has been released (=5V)
 ;;       - 0 if button has been pressed (=0V)
 ;;  Output:
-;;     should return the GP LED values in
-;;     CS_MENU_GP_OVERLAY_DOUT_SR[01]
+;;     should return the GP LED values in CS_MENU_GP_OVERLAY_DOUT_SR[01]
 ;; --------------------------------------------------------------------------
 CS_M_MUTE_GP_Callback
 	;; do nothing if button has been depressed
@@ -48,29 +47,20 @@ CS_M_MUTE_GP_Callback_Sel
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_MUTE_HOLD_MULTISEL, BANKED, CS_M_MUTE_GP_Callback_SelNot1st
 CS_M_MUTE_GP_Callback_Sel1st
 	bsf	SEQ_MODE1, SEQ_MODE1_MUTE_HOLD_MULTISEL, BANKED	; arm multiselection flag
-	movlw	0xf0
-	movwf	SEQ_SELECTED_TRKS_G0, BANKED
-	movwf	SEQ_SELECTED_TRKS_G1, BANKED
-	movwf	SEQ_SELECTED_TRKS_G2, BANKED
-	movwf	SEQ_SELECTED_TRKS_G3, BANKED
+	clrf	SEQ_SELECTED_TRKS_0, BANKED
+	clrf	SEQ_SELECTED_TRKS_1, BANKED
 CS_M_MUTE_GP_Callback_SelNot1st
 
 	;; toggle track selection depending on button number
-	rrf	MIOS_PARAMETER1, W
-	rrf	WREG, W
-	andlw	0x03
-	movwf	SEQ_SELECTED_GROUP, BANKED
-
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	addwf	FSR1L, F
-
 	movf	MIOS_PARAMETER1, W
-	andlw	0x03
 	call	MIOS_HLP_GetBitORMask
-	xorwf	INDF1, F
-	movlw	0xf0		; (for correct function of the track buttons - no multi selections!)
-	iorwf	INDF1, F
+	btfss	MIOS_PARAMETER1, 3
+	iorwf	SEQ_SELECTED_TRKS_0, BANKED
+	btfsc	MIOS_PARAMETER1, 3
+	iorwf	SEQ_SELECTED_TRKS_1, BANKED
+
+	;; select display view of track
+	movff	MIOS_PARAMETER1, SEQ_SELECTED_TRK
 
 	;; request display re-initisation to update the marker
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
@@ -101,21 +91,8 @@ CS_M_MUTE_UpdateGPLEDs_Sel
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
 	;; light up selected tracks
-	movf	SEQ_SELECTED_TRKS_G0, W, BANKED
-	andlw	0x0f
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
-
-	swapf	SEQ_SELECTED_TRKS_G1, W, BANKED
-	andlw	0xf0
-	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR0, F
-
-	movf	SEQ_SELECTED_TRKS_G2, W, BANKED
-	andlw	0x0f
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
-
-	swapf	SEQ_SELECTED_TRKS_G3, W, BANKED
-	andlw	0xf0
-	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR1, F
+	movff	SEQ_SELECTED_TRKS_0, CS_MENU_GP_OVERLAY_DOUT_SR0
+	movff	SEQ_SELECTED_TRKS_1, CS_MENU_GP_OVERLAY_DOUT_SR1
 
 	return
 
@@ -125,9 +102,6 @@ CS_M_MUTE_UpdateGPLEDs_Sel
 CS_M_MUTE_Init
 	;; no parameter table!
 
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; allow fast display update
 	bsf	CS_STAT2, CS_STAT2_ALLOW_FAST_DISP_UPDATE
 
@@ -136,19 +110,18 @@ CS_M_MUTE_Init
 	call	CS_MENU_SetMenuGPCallbackHook
 	rcall	CS_M_MUTE_UpdateGPLEDs
 
+#if DEFAULT_LCD_WIDTH == 80
 	;; print track numbers
 	clrf	TMP1
 CS_M_MUTE_Init_Loop
 	clrf	TMP2		; set TMP2.0 if track selected
 	SET_BSR	SEQ_BASE
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	rrf	TMP1, W
-	rrf	WREG, W
-	andlw	0x03
-	addwf	FSR1L, F
+	lfsr	FSR1, SEQ_SELECTED_TRKS_0
+	btfsc	TMP1, 3
+	incf	FSR1L, F
 
 	movf	TMP1, W
-	andlw	0x03
+	andlw	0x07
 	call	MIOS_HLP_GetBitORMask
 	andwf	INDF1, W
 	bz	CS_M_MUTE_Init_Loop_NotSelected
@@ -179,6 +152,45 @@ CS_M_MUTE_Init_Loop_NotSelected
 
 	incf	TMP1, F
 	BRA_IFCLR TMP1, 4, ACCESS, CS_M_MUTE_Init_Loop
+#else
+	;; special variant for 2x16 LCD:
+	;; 0000000000111111
+	;; 0123456789012345
+	;; <-------------->
+	;; BD    MUTE 1:A1*
+	;; 0000000111111111
+	;; ________________
+	;; 2222222222333333
+
+	;; print name of selected track
+	movlw	0x00 + 0
+	call	MIOS_LCD_CursorSet
+
+	call	CS_M_HLP_GetSelectedTrk
+	call	SEQ_TRK_PrnName	; (6 characters)
+
+	;; print "MUTE "
+	movlw	'M'
+	call	MIOS_LCD_PrintChar
+	movlw	'U'
+	call	MIOS_LCD_PrintChar
+	movlw	'T'
+	call	MIOS_LCD_PrintChar
+	movlw	'E'
+	call	MIOS_LCD_PrintChar
+	movlw	' '
+	call	MIOS_LCD_PrintChar
+
+	;; print pattern name (5 characters)
+	SET_BSR	SEQ_BASE
+	incf	SEQ_NEXT_PATTERN0, W, BANKED
+	movwf	CS_MENU_PARAMETER_L
+	call	CS_M_PATTERN_PrnP
+
+	;; print 4 spaces (for proper init of 2x20 LCDs)
+	movlw	4
+	call	SEQ_LCD_PrintSpaces
+#endif
 
 	return
 
@@ -186,6 +198,7 @@ CS_M_MUTE_Init_Loop_NotSelected
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
 CS_M_MUTE_Tick
+#if DEFAULT_LCD_WIDTH == 80
 	;; init horizontal bars (if required - function breaks if charset already uploaded)
 	movlw	CS_MENU_CHARSET_HBARS
 	call	CS_SPECIAL_CHARS_Init
@@ -229,6 +242,23 @@ CS_M_MUTE_Tick_NotMuted
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	movf	PLUSW1, W
 	call	SEQ_LCD_PrnHBar
+	
+#else ;; DEFAULT_LCD_WIDTH == 80
+	;; init vertical bars (if required - function breaks if charset already uploaded)
+	movlw	CS_MENU_CHARSET_VBARS
+	call	CS_SPECIAL_CHARS_Init
+
+	;; set cursor
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	andlw	0x0f
+	addlw	0x40 + 0
+	call	MIOS_LCD_CursorSet
+
+	;; print meter (re-using function from CS_M_PATTERN)
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	andlw	0x0f
+	call	CS_M_PATTERN_PrnM
+#endif
 
 CS_M_MUTE_Tick_Cont
 	;; Tick function will be called 16 times
@@ -241,4 +271,3 @@ CS_M_MUTE_Tick_End
 	return
 
 ;; ==========================================================================
-

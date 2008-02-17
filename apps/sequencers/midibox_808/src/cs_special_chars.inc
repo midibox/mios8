@@ -5,6 +5,8 @@
 ;  initialized if really necessary - means: when they haven't been
 ;  uploaded before)
 ;
+; Note: Characters can be edited with http://lcd5x8char.midibox.org/
+;
 ; ==========================================================================
 ;
 ;  Copyright 1998-2006 Thorsten Klose (tk@midibox.org)
@@ -114,7 +116,26 @@ CS_SPECIAL_CHARS1
 	db b'00011110', b'00011111'; 3rd and 4th line of special char
 	db b'00011111', b'00011110'; 5th and 6th line of special char
 	db b'00011100', b'00011000'; 7th and 8th line of special char
-	;; others are not used
+	;; char #3: gate/aux off
+	db b'00000000', b'00000000'; line 1 / 2
+	db b'00000000', b'00000100'; line 3 / 4
+	db b'00000100', b'00000000'; line 5 / 6
+	db b'00000000', b'00000000'; line 7 / 8
+	;; char #4: gate on, aux off
+	db b'00000000', b'00000100'; line 1 / 2
+	db b'00001110', b'00011111'; line 3 / 4
+	db b'00011111', b'00001110'; line 5 / 6
+	db b'00000100', b'00000000'; line 7 / 8
+	;; char #4: gate off, aux on
+	db b'00000000', b'00001110'; line 1 / 2
+	db b'00010001', b'00010001'; line 3 / 4
+	db b'00010001', b'00010001'; line 5 / 6
+	db b'00001110', b'00000000'; line 7 / 8
+	;; char #5: gate on, aux on
+	db b'00000000', b'00001110'; line 1 / 2
+	db b'00010001', b'00010101'; line 3 / 4
+	db b'00010101', b'00010001'; line 5 / 6
+	db b'00001110', b'00000000'; line 7 / 8
 
 CS_SPECIAL_CHARS2
 	;; char #1: vbar1

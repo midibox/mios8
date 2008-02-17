@@ -46,12 +46,6 @@ CS_MENU_Init
 #endif
 #endif
 
-	;; default random generator setting
-	movlw	20
-	movwf	CS_RANDOM_INTENSITY_LA
-	movlw	15		; all
-	movwf	CS_RANDOM_INTENSITY_TA
-
 	;; change to DISPLAY page and exit
 	movlw	0x00
 	rgoto	CS_MENU_ChangePage
@@ -69,16 +63,6 @@ CS_MENU_Handler
 	return			; and exit so that messages will not be overwritten!
 CS_MENU_Handler_NoCallback
 
-	;; when not in hold mode and message ctr == 1, clear counter and request init
-	BRA_IFSET CS_STAT, CS_STAT_MESSAGE_HOLD, ACCESS, CS_MENU_Handler_NoCtrReset
-	decf	CS_MENU_MESSAGE_CTR, W
-	bnz	CS_MENU_Handler_NoCtrReset
-	clrf	CS_MENU_MESSAGE_CTR
-	;; clear screen(s)
-	call	SEQ_LCD_Clear
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-CS_MENU_Handler_NoCtrReset
-
 	;; check if display initialization has been requested (CS_STAT.CS_STAT_DISPLAY_INIT_REQ set)
 	BRA_IFCLR CS_STAT, CS_STAT_DISPLAY_INIT_REQ, ACCESS, CS_MENU_Handler_NoInit
 
@@ -90,9 +74,6 @@ CS_MENU_Handler_Init
 	;; clear message flags and counter
 	bcf	CS_STAT, CS_STAT_MESSAGE_HOLD
 	bcf	CS_STAT, CS_STAT_MESSAGE_REQ
-	clrf	CS_MENU_MESSAGE_CTR
-	;; set menu offsets
-	call	SEQ_LCD_SetMenuOffsets
 
 	;; clear don't flash flags (MBSEQ variation)
 #ifdef MB_STAT_DONT_FLASH_L_GP_DOUT
@@ -184,12 +165,6 @@ CS_MENU_Handler_Tick_Req
 #endif
 
 CS_MENU_Handler_Tick_Refresh
-	;; if message has been requested: print it so long as counter > 0
-	BRA_IFSET CS_STAT, CS_STAT_MESSAGE_REQ, ACCESS, CS_MENU_Handler_Tick_Msg
-	;; so long as message counter > 0, print this message
-	movf	CS_MENU_MESSAGE_CTR, W
-	bnz	CS_MENU_Handler_Tick_Msg
-
 	;; if CS_STAT_WITHIN_PAGE flag cleared, we are in the menu - nothing else to do
 	btfss	CS_STAT, CS_STAT_WITHIN_PAGE
 	return
@@ -197,20 +172,6 @@ CS_MENU_Handler_Tick_Refresh
 	;; else call CS_M_*Tick
 	movlw	CS_MENU_ENTRY_TICK_FUNC_OFFSET
 	rgoto	CS_MENU_Hlp_IndirectMenuPageCall
-
-
-CS_MENU_Handler_Tick_Msg
-	;; if message has been requested
-	BRA_IFCLR CS_STAT, CS_STAT_MESSAGE_REQ, ACCESS, CS_MENU_Handler_Tick_Msg_NoReq
-	;; clear request
-	bcf	CS_STAT, CS_STAT_MESSAGE_REQ
-	;; and re-ini message counter (counted every 100 ms, so we take 20 for 2 seconds)
-	movlw	20
-	movwf	CS_MENU_MESSAGE_CTR
-CS_MENU_Handler_Tick_Msg_NoReq
-	movlw	CS_MENU_HEADER_MSG_FUNC_OFFSET
-	rgoto	CS_MENU_Hlp_IndirectMenuHdrCall
-
 
 ;; --------------------------------------------------------------------------
 ;;  Install menu structure, set menu pos to 0
@@ -313,9 +274,6 @@ CS_MENU_CalcEntryPtr
 ;;  if in menu page: call CS_M_*Select
 ;; --------------------------------------------------------------------------
 CS_MENU_Select
-	;; stop current message
-	rcall	CS_MENU_StopMessage
-
 	;; branch if in menu
 	BRA_IFCLR CS_STAT, CS_STAT_WITHIN_PAGE, ACCESS, CS_MENU_Select_Menu
 
@@ -358,8 +316,6 @@ CS_MENU_Enc
 ;;  if in menu page: call CS_M_*Exit and leave menu page
 ;; --------------------------------------------------------------------------
 CS_MENU_Exec
-	;; stop current message
-	rcall	CS_MENU_StopMessage
 	;; request reinit of screen
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	;; reset cursor counter
@@ -612,13 +568,6 @@ CS_MENU_AddMenuParameter
 	btfss	MIOS_PARAMETER1, 0
 	return
 
-#if 0
-	;; clears LCD screen! Only required if a modified menu parameter has nothing to do with the EDIT screen content
-
-	;; stop current message
-	rcall	CS_MENU_StopMessage
-#endif
-
 	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 
@@ -848,55 +797,3 @@ CS_MENU_ChangePage_Ok
 	;; thats all
 	return
 
-
-;; --------------------------------------------------------------------------
-;;  This function holds a message
-;; --------------------------------------------------------------------------
-CS_MENU_HoldMessage
-	;; this is a hack which ensures that values within a menu will be saved
-	;; by the CS_M_*Exit function, before the CS_M_*Init function will be
-	;; called
-	movf	CS_MENU_POS, W
-	rcall	CS_MENU_ChangePage
-	;; hold message
-	bsf	CS_STAT, CS_STAT_MESSAGE_HOLD
-	rgoto	CS_MENU_StartMessage_Cont
-
-;; --------------------------------------------------------------------------
-;;  This function starts a message
-;; --------------------------------------------------------------------------
-CS_MENU_StartMessage
-	;; don't hold message
-	bcf	CS_STAT, CS_STAT_MESSAGE_HOLD
-
-CS_MENU_StartMessage_Cont
-	;; remove request of display init
-	bcf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-
-	;; request message
-	bsf	CS_STAT, CS_STAT_MESSAGE_REQ
-	;; request display update
-	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
-	return
-
-;; --------------------------------------------------------------------------
-;;  This function stops a message
-;; --------------------------------------------------------------------------
-CS_MENU_StopMessage
-	;; stop MIOS message
-	call	MIOS_LCD_MessageStop
-
-	;; don't re-init screen if counter already zero
-	movf	CS_MENU_MESSAGE_CTR, W
-	skpnz
-	return
-
-	;; clear screen(s)
- 	call	SEQ_LCD_Clear
-	;; clear request
-	bcf	CS_STAT, CS_STAT_MESSAGE_REQ
-	;; clear message counter
-	clrf	CS_MENU_MESSAGE_CTR
-	;; request initialization of screen
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-	return

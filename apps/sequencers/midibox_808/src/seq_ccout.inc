@@ -59,7 +59,7 @@ SEQ_CCOUT_Get
 SEQ_CCOUT_Set_Cmd
 	;; branch depending on command
 	movf	MIOS_PARAMETER2, W
-	JUMPTABLE_2BYTES 11 ; entries
+	JUMPTABLE_2BYTES 10 ; entries
 	rgoto	SEQ_CCOUT_Cmd_NOP
 	rgoto	SEQ_CCOUT_Cmd_7
 	rgoto	SEQ_CCOUT_Cmd_6L
@@ -70,7 +70,6 @@ SEQ_CCOUT_Set_Cmd
 	rgoto	SEQ_CCOUT_Cmd_B32
 	rgoto	SEQ_CCOUT_Cmd_B54
 	rgoto	SEQ_CCOUT_Cmd_B76
-	rgoto	SEQ_CCOUT_Cmd_TRKMODE
 
 ; ==========================================================================
 
@@ -136,45 +135,4 @@ SEQ_CCOUT_Cmd_B76
 	andlw	0x03
 	return
 
-;; --------------------------------------------------------------------------
-SEQ_CCOUT_Cmd_TRKMODE
-	swapf	INDF1, W
-	andlw	0x0f
-
-	;; UNSORTED flag mapped to [4]
-	btfsc	INDF1, SEQ_TRKMODE_FLAG_UNSORTED
-	iorlw	(1 << 4)
-	return
-
 ;; ==========================================================================
-
-
-;; --------------------------------------------------------------------------
-;;  IN: index of CC parameter in WREG
-;;  OUT: CC value in WREG
-;; --------------------------------------------------------------------------
-SEQ_CCOUT_GetLayerA
-	lfsr	FSR1, SEQ_LAYER_VALUES_TRK0_A
-	;; 	rgoto	SEQ_CCOUT_GetLayer_Cont
-
-SEQ_CCOUT_GetLayer_Cont
-	andlw	0x3f
-	movf	PLUSW1, W
-	return
-
-;; --------------------------------------------------------------------------
-;;  IN: index of CC parameter in WREG
-;;  OUT: CC value in WREG
-;; --------------------------------------------------------------------------
-SEQ_CCOUT_GetLayerB
-	lfsr	FSR1, SEQ_LAYER_VALUES_TRK0_B
-	rgoto	SEQ_CCOUT_GetLayer_Cont
-
-;; --------------------------------------------------------------------------
-;;  IN: index of CC parameter in WREG
-;;  OUT: CC value in WREG
-;; --------------------------------------------------------------------------
-SEQ_CCOUT_GetLayerC
-	lfsr	FSR1, SEQ_LAYER_VALUES_TRK0_C
-	rgoto	SEQ_CCOUT_GetLayer_Cont
-

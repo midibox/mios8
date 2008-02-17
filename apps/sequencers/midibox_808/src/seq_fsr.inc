@@ -24,6 +24,15 @@ SEQ_FSR_TrkXXX
 	addwfc	FSR1H, F
 	return
 
+SEQ_FSR_TrgXXX
+	movff	SEQ_EVNTT, WREG
+	mullw	SEQ_TRGRECORD_LENGTH
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
+	return
+
 SEQ_FSR_TrkVarXXX
 	movff	SEQ_EVNTT, WREG
 	mullw	SEQ_TRKVARRECORD_LENGTH
@@ -34,22 +43,6 @@ SEQ_FSR_TrkVarXXX
 	return
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKTRANSPx depending on
-;;  SEQ_EVNTT.
-;; --------------------------------------------------------------------------
-SEQ_FSR_TrkTransp
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKTRANSPx
-	rgoto	SEQ_FSR_TrkXXX
-
-;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKEVNT_x depending on
-;;  SEQ_EVNTT.
-;; --------------------------------------------------------------------------
-SEQ_FSR_TrkEvnt
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKEVNTx
-	rgoto	SEQ_FSR_TrkXXX
-
-;; --------------------------------------------------------------------------
 ;;  This function returns a FSR1 pointer to the SEQ_TRKCHN_x depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
@@ -58,11 +51,27 @@ SEQ_FSR_TrkChn
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to SEQ_TRKEVNTCONST1x depending on
+;;  This function returns a FSR1 pointer to SEQ_TRKNOTEx depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
-SEQ_FSR_TrkEvntConst1
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKEVNTCONST1x
+SEQ_FSR_TrkNote
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKNOTEx
+	rgoto	SEQ_FSR_TrkXXX
+
+;; --------------------------------------------------------------------------
+;;  This function returns a FSR1 pointer to SEQ_TRKVELx depending on
+;;  SEQ_EVNTT.
+;; --------------------------------------------------------------------------
+SEQ_FSR_TrkVel
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKVELx
+	rgoto	SEQ_FSR_TrkXXX
+
+;; --------------------------------------------------------------------------
+;;  This function returns a FSR1 pointer to SEQ_TRKVELAx depending on
+;;  SEQ_EVNTT.
+;; --------------------------------------------------------------------------
+SEQ_FSR_TrkVelA
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKVELAx
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------
@@ -74,27 +83,25 @@ SEQ_FSR_TrkDiv
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKLOOPx depending on
+;;  This function returns a FSR1 pointer to the SEQ_TRKLOOP[AB]x depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
-SEQ_FSR_TrkLoop
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLOOPx
+SEQ_FSR_TrkLoopA
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLOOPAx
+	rgoto	SEQ_FSR_TrkXXX
+SEQ_FSR_TrkLoopB
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLOOPBx
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKLENx depending on
+;;  This function returns a FSR1 pointer to the SEQ_TRKLAST[AB]x depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
-SEQ_FSR_TrkLen
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLENx
+SEQ_FSR_TrkLastA
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLASTAx
 	rgoto	SEQ_FSR_TrkXXX
-
-;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKMODEx depending on
-;;  SEQ_EVNTT.
-;; --------------------------------------------------------------------------
-SEQ_FSR_TrkMode
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKMODEx
+SEQ_FSR_TrkLastB
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLASTBx
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------
@@ -122,89 +129,25 @@ SEQ_FSR_TrkVarStep
 	rgoto	SEQ_FSR_TrkVarXXX
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKASSGN0x depending on
+;;  This function returns a FSR1 pointer to the SEQ_TRKASSGNx depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
-SEQ_FSR_TrkAssgn0
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKASSGN0x
+SEQ_FSR_TrkAssgn
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKASSGNx
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKASSGN1x depending on
+;;  This function returns a FSR1 pointer to the SEQ_TRGx+0 depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
-SEQ_FSR_TrkAssgn1
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKASSGN1x
-	rgoto	SEQ_FSR_TrkXXX
+SEQ_FSR_TrgGate
+	lfsr	FSR1, SEQ_TRG0 + 0
+	rgoto	SEQ_FSR_TrgXXX
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKTRGA_0x depending on
+;;  This function returns a FSR1 pointer to the SEQ_TRGx+8 depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
-SEQ_FSR_TrkTrgA_0
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKTRGA_0x
-	rgoto	SEQ_FSR_TrkXXX
-
-;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKTRGB_0x depending on
-;;  SEQ_EVNTT.
-;; --------------------------------------------------------------------------
-SEQ_FSR_TrkTrgB_0
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKTRGB_0x
-	rgoto	SEQ_FSR_TrkXXX
-
-;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKTRGC_0x depending on
-;;  SEQ_EVNTT.
-;; --------------------------------------------------------------------------
-SEQ_FSR_TrkTrgC_0
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKTRGC_0x
-	rgoto	SEQ_FSR_TrkXXX
-
-;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKMORPHx depending on
-;;  SEQ_EVNTT.
-;; --------------------------------------------------------------------------
-SEQ_FSR_TrkMorph0
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKMORPHx
-	rgoto	SEQ_FSR_TrkXXX
-
-;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to SEQ_TRKCHAINx depending on
-;;  SEQ_EVNTT.
-;; --------------------------------------------------------------------------
-SEQ_FSR_TrkChainx
-	SET_BSR	SEQ_BASE
-	
-	BRA_IFSET SEQ_EVNTT, 3, BANKED, SEQ_FSR_TrkChainx_P23
-SEQ_FSR_TrkChainx_P01
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKCHAINx
-	btfsc	SEQ_EVNTT, 2, BANKED
-	lfsr	FSR1, SEQ_TRK4 + SEQ_TRKCHAINx
-	return
-
-SEQ_FSR_TrkChainx_P23
-	lfsr	FSR1, SEQ_TRK8 + SEQ_TRKCHAINx
-	btfsc	SEQ_EVNTT, 2, BANKED
-	lfsr	FSR1, SEQ_TRK12 + SEQ_TRKCHAINx
-	return
-
-;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to SEQ_TRKMORPH_PATTERNx depending on
-;;  SEQ_EVNTT.
-;; --------------------------------------------------------------------------
-SEQ_FSR_TrkMorphPatternx
-	SET_BSR	SEQ_BASE
-	
-	BRA_IFSET SEQ_EVNTT, 3, BANKED, SEQ_FSR_TrkMorphPatternx_P23
-SEQ_FSR_TrkMorphPatternx_P01
-	lfsr	FSR1, SEQ_TRK1 + SEQ_TRKMORPH_PATTERNx
-	btfsc	SEQ_EVNTT, 2, BANKED
-	lfsr	FSR1, SEQ_TRK5 + SEQ_TRKMORPH_PATTERNx
-	return
-
-SEQ_FSR_TrkMorphPatternx_P23
-	lfsr	FSR1, SEQ_TRK9 + SEQ_TRKMORPH_PATTERNx
-	btfsc	SEQ_EVNTT, 2, BANKED
-	lfsr	FSR1, SEQ_TRK13 + SEQ_TRKMORPH_PATTERNx
-	return
+SEQ_FSR_TrgAux
+	lfsr	FSR1, SEQ_TRG0 + 8
+	rgoto	SEQ_FSR_TrgXXX

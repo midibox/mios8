@@ -56,18 +56,6 @@ SEQ_TRKVARSTATE_DISABLED	EQU	7	; set if no pattern is selected to avoid editing 
 SEQ_TRKVARSTATE2_REC_EVNT_ACTIVE EQU	0	; set so long a note/cc is held (for note length measuring)
 SEQ_TRKVARSTATE2_REC_MUTE_NXTSTP EQU	1	; for length...
 SEQ_TRKVARSTATE2_SYNC_MEASURE	 EQU	2	; temporary request for synch to measure (used during pattern switching)
-SEQ_TRKVARSTATE2_HNDSHK_DIS	EQU	3	; for LED matrix display: 1 if track is not played due to handshake
-
-SEQ_TRKMODE_OFF			EQU	0x00	; not bits, but values!
-SEQ_TRKMODE_NORMAL		EQU	0x01
-SEQ_TRKMODE_TRANSPOSE		EQU	0x02
-SEQ_TRKMODE_ARPEGGIATOR		EQU	0x03
-
-SEQ_TRKMODE_FLAG_UNSORTED	EQU	3	; sort mode for arpeggiator
-SEQ_TRKMODE_FLAG_HOLD		EQU	4	; hold mode for transpose/arpeggiator
-SEQ_TRKMODE_FLAG_RESTART	EQU	5	; track restart on key press
-SEQ_TRKMODE_FLAG_FORCE_SCALE	EQU	6	; note values are forced to scale
-SEQ_TRKMODE_FLAG_SUSTAIN	EQU	7	; events are sustained
 
 SEQ_TRKDIR_FORWARD		EQU	0x00	; not bits, but values!
 SEQ_TRKDIR_BACKWARD		EQU	0x01
@@ -91,7 +79,7 @@ SEQ_MODE0_STEP_EDIT		EQU	0	; we are in step edit mode
 SEQ_MODE0_MUTE			EQU	1	; change mute status with GP buttons
 SEQ_MODE0_PATTERN		EQU	2	; change pattern with GP buttons
 SEQ_MODE0_SONG			EQU	3	; we are in song mode
-SEQ_MODE0_MENU			EQU	4	; change menu with GP buttons
+SEQ_MODE0_ALT			EQU	4	; ALT button pressed
 SEQ_MODE0_FAST_ENCODERS		EQU	5	; encoders in fast speed mode
 SEQ_MODE0_CHANGE_ALL_STEPS	EQU	6	; change all steps
 SEQ_MODE0_SOLO			EQU	7	; play current track solo
@@ -101,29 +89,15 @@ SEQ_MODE1_SCRUB			EQU	1	; enable scrub mode
 SEQ_MODE1_RECORD		EQU	2	; we are in step record menu
 SEQ_MODE1_MUTE_HOLD		EQU	3	; if mute button is held
 SEQ_MODE1_MUTE_HOLD_MULTISEL	EQU	4	; used within the MUTE menu to select multiple tracks so long the mute button is held
+SEQ_MODE1_EDIT_HOLD		EQU	5	; the same for EDIT button
+SEQ_MODE1_EDIT_HOLD_MULTISEL	EQU	6	; the same for EDIT button
+SEQ_MODE1_SHIFT			EQU	7	; shift button function
 
-SEQ_TRKCHAIN_12			EQU	0	; track 1/2 chained
-SEQ_TRKCHAIN_34			EQU	1	; track 3/4 chained
-SEQ_TRKCHAIN_1234		EQU	2	; track 1/2/3/4 chained
-
-;; MEMO chain coding:
-;;   - stored in SEQ_TRKCHAINx of track 1 only
-;;   - chaining only possible within pattern (track 1/2/3/4, 5/6/7/8, etc...)
-;;   - TRK1:SEQ_TRKCHAINx[0]: if set, chain between track 1 and 2
-;;   - TRK1:SEQ_TRKCHAINx[1]: if set, chain between track 3 and 4
-;;   - TRK1:SEQ_TRKCHAINx[2]: if set, chain between track 1/2/3/4
-;;   - bit 2 has priority over bit 0/1
-;;   - each pattern group has a handshake register:
-;;     SEQ_CHAINHNDSHK_G0
-;;     ...
-;;     SEQ_CHAINHNDSHK_G3
-;;     bit 0..3 are set at the end of a track run depending on the chain mode,
-;;     a chained tracks waits until it's flag is set
-;;     a sequencer reset/restart will set the flags of the track which should start
-;;     if no chaining is used, all flags are 1
-;;     (complete handling is documented in the source code ;-)
-;; ==========================================================================
-
+SEQ_MODE2_PATTERN_HOLD		EQU	0	; if pattern button held, pattern will be stored
+SEQ_MODE2_FWD_HOLD		EQU	1	; FWD button hold
+SEQ_MODE2_REW_HOLD		EQU	2	; REW button hold
+SEQ_MODE2_LOOP_MODE		EQU	3	; if song loop mode active
+SEQ_MODE2_AUX_SELECTED		EQU	4	; if aux layer is selected
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by USER_Init to initialize the sequencer
@@ -136,21 +110,13 @@ SEQ_CORE_Init
 	movwf	SEQ_RANDOM_SEED_L, BANKED
 	movwf	SEQ_RANDOM_SEED_H, BANKED
 
-	;; select group 0 by default
-	clrf	SEQ_SELECTED_GROUP, BANKED
-
 	;; select track 1 by default
-	movlw	0xf1
-	movwf	SEQ_SELECTED_TRKS_G0, BANKED
-	movlw	0xf0
-	movwf	SEQ_SELECTED_TRKS_G1, BANKED
-	movwf	SEQ_SELECTED_TRKS_G2, BANKED
-	movwf	SEQ_SELECTED_TRKS_G3, BANKED
+	movlw	0
+	call	CS_M_HLP_SetSelectedTrk
 
-	;; select layer 1 by default
-	movlw	0x01
-	movwf	SEQ_SELECTED_LAYERS, BANKED
-	movwf	SEQ_SELECTED_TRG_LAYERS, BANKED
+	;; select section A by default, assume that buttons deselected
+	movlw	(1 << 0) | 0x30
+	movwf	SEQ_SELECTED_AB, BANKED
 
 	;; go into edit mode by default
 	movlw	(1 << SEQ_MODE0_STEP_EDIT)
@@ -159,21 +125,6 @@ SEQ_CORE_Init
 	;; init record mode
 	movlw	(1 << SEQ_RECORD_MODE_REC_LAYER_A) | (1 << SEQ_RECORD_MODE_REC_LAYER_B) | (1 << SEQ_RECORD_MODE_REC_LAYER_C)
 	movwf	SEQ_RECORD_MODE, BANKED
-
-	;; initial transpose and arp hold keys
-	movlw	0x3c		; C-3
-	movwf	SEQ_T_NOTE_STACK_HOLD, BANKED
-	movwf	SEQ_ARP_NOTE_0_SORTED_HOLD, BANKED
-	movwf	SEQ_ARP_NOTE_0_UNSORTED_HOLD, BANKED
-	movlw	0x40		; E-3
-	movwf	SEQ_ARP_NOTE_1_SORTED_HOLD, BANKED
-	movwf	SEQ_ARP_NOTE_1_UNSORTED_HOLD, BANKED
-	movlw	0x43		; G-3
-	movwf	SEQ_ARP_NOTE_2_SORTED_HOLD, BANKED
-	movwf	SEQ_ARP_NOTE_2_UNSORTED_HOLD, BANKED
-	movlw	0x48		; C-4
-	movwf	SEQ_ARP_NOTE_3_SORTED_HOLD, BANKED
-	movwf	SEQ_ARP_NOTE_3_UNSORTED_HOLD, BANKED
 
 	;; disable song
 	movlw	0x80
@@ -188,76 +139,11 @@ SEQ_CORE_Init
 	clrf	SEQ_PATTERN_BANK0, BANKED
 	clrf	SEQ_NEXT_PATTERN_BANK0, BANKED
 
-	movf	SEQ_BANKSTICK_STATUS, W, BANKED
-	andlw	0x01
-	bz	SEQ_CORE_Init_NoBS
-SEQ_CORE_Init_BS
-	movlw	0x10
-	movwf	SEQ_PATTERN1, BANKED
-	movwf	SEQ_NEXT_PATTERN1, BANKED
-	clrf	SEQ_PATTERN_BANK1, BANKED
-	clrf	SEQ_NEXT_PATTERN_BANK1, BANKED
-
-	movlw	0x20
-	movwf	SEQ_PATTERN2, BANKED
-	movwf	SEQ_NEXT_PATTERN2, BANKED
-	clrf	SEQ_PATTERN_BANK2, BANKED
-	clrf	SEQ_NEXT_PATTERN_BANK2, BANKED
-
-	movlw	0x30
-	movwf	SEQ_PATTERN3, BANKED
-	movwf	SEQ_NEXT_PATTERN3, BANKED
-	clrf	SEQ_PATTERN_BANK3, BANKED
-	clrf	SEQ_NEXT_PATTERN_BANK3, BANKED
-
 	;; restore dump
 	call	SEQ_DUMP_RestoreAll
-
-	rgoto	SEQ_CORE_Init_BS_Cont
-
-SEQ_CORE_Init_NoBS
-	movlw	0x00
-	movwf	SEQ_PATTERN1, BANKED
-	movwf	SEQ_PATTERN2, BANKED
-	movwf	SEQ_PATTERN3, BANKED
-
-	clrf	SEQ_PATTERN_BANK1, BANKED
-	clrf	SEQ_PATTERN_BANK2, BANKED
-	clrf	SEQ_PATTERN_BANK3, BANKED
-
-	clrf	SEQ_NEXT_PATTERN1, BANKED
-	clrf	SEQ_NEXT_PATTERN2, BANKED
-	clrf	SEQ_NEXT_PATTERN3, BANKED
-
-	clrf	SEQ_NEXT_PATTERN_BANK1, BANKED
-	clrf	SEQ_NEXT_PATTERN_BANK2, BANKED
-	clrf	SEQ_NEXT_PATTERN_BANK3, BANKED
-
-	;; restore dump
-	call	SEQ_DUMP_RestoreAll
-
-	;; change channels and mutes
-	movlw	0x04
-	movwf	SEQ_EVNTT, BANKED
-SEQ_CORE_Init_NoBS_Loop
-	call	SEQ_FSR_TrkChn
-	movff	SEQ_EVNTT, INDF1
-	call	SEQ_FSR_TrkTrgA_0
-	clrf	POSTINC1
-	clrf	POSTINC1
-	clrf	POSTINC1
-	clrf	POSTINC1
-
-	incf	SEQ_EVNTT, F, BANKED
-	BRA_IFCLR SEQ_EVNTT, 4, BANKED, SEQ_CORE_Init_NoBS_Loop
-SEQ_CORE_Init_BS_Cont
 
 	;; update disable flags
-	clrf	SEQ_GROUP, BANKED
-SEQ_CORE_Init_UpdateTrkDisLoop
-	call	SEQ_CORE_UpdateTrkDisable; update disable flags
-	incf	SEQ_GROUP, F, BANKED
-	BRA_IFCLR SEQ_GROUP, 2, BANKED, SEQ_CORE_Init_UpdateTrkDisLoop
+	call	SEQ_CORE_UpdateTrkDisable
 
 	;; reset song
 	call	SEQ_SONG_Reset
@@ -311,15 +197,6 @@ SEQ_CORE_ResetLoop
 	movf	SEQ_BPM, W, BANKED
 	call	SEQ_BPM_Set
 	SET_BSR	SEQ_BASE
-
-	;; initialize handshake flags
-	clrf	SEQ_GROUP, BANKED
-SEQ_CORE_ResetHndshkLoop
-	call	SEQ_CORE_ResetHndShk
-	incf	SEQ_GROUP, F, BANKED
-	movlw	4-1
-	cpfsgt	SEQ_GROUP, BANKED
-	rgoto SEQ_CORE_ResetHndshkLoop
 
 	return
 
@@ -426,10 +303,13 @@ SEQ_CORE_Tick_End
 	bsf	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
 	;; NOTE: the LED handler flashes the LED when in song menu and song state not active
 
+#if 0
+	;; TODO
 	movf	CS_MENU_POS, W
 	xorlw	CS_MENU_PAGE_RECORD
 	skpnz
 	bsf	SEQ_MODE1, SEQ_MODE1_RECORD, BANKED
+#endif
 
 SEQ_CORE_Tick_NotWithinMenu
 	;; if these three bits *not* set, we are in edit mode
@@ -845,12 +725,8 @@ SEQ_CORE_Clk_NoMetro
 	;; ------------------------------------------------------------------
 	;; starting the big clock loop which handles every single track seperately
 	;; ------------------------------------------------------------------
-	movff	SEQ_CHAINHNDSHK_G0, SEQ_CHAINHNDSHK_NEXT_G0	; prepare temporary handshake registers
-	movff	SEQ_CHAINHNDSHK_G1, SEQ_CHAINHNDSHK_NEXT_G1	; the *CHAINHNDSHK_NEXT* registers will be copied
-	movff	SEQ_CHAINHNDSHK_G2, SEQ_CHAINHNDSHK_NEXT_G2	; back to CHAINHNDSHK at the end of this
-	movff	SEQ_CHAINHNDSHK_G3, SEQ_CHAINHNDSHK_NEXT_G3	; loop - this is to avoid inconsistencies
-
-	clrf	SEQ_EVNTT, BANKED	; using SEQ_EVNTT as loop counter
+	clrf	MIDI_EVNT_PORT0_RS		; clear running status of port 0 (so that it is ensured that we start with status event)
+	clrf	SEQ_EVNTT, BANKED		; using SEQ_EVNTT as loop counter
 SEQ_CORE_Clk_Loop
 	rcall	SEQ_CORE_Calc_TRKx_FSR0		; calculate pointer to SEQ_TRKx -> FSR0
 	rcall	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
@@ -988,16 +864,6 @@ SEQ_CORE_Clk_ManualTrigger
 	;; Determine track position of next step
 	;; ------------------------------------------------------------------
 SEQ_CORE_Clk_Step
-	;; skip track if chaining handshake flag not set
-	;; update HNDSHK_DIS flag here (only relevant for LED display)
-	movlw	SEQ_TRKVARSTATE2x
-	bsf	PLUSW2, SEQ_TRKVARSTATE2_HNDSHK_DIS
-	call	SEQ_CORE_Hlp_ChkHndShk
-	skpnz
-	rgoto	SEQ_CORE_Clk_NextTrack
-	movlw	SEQ_TRKVARSTATE2x
-	bcf	PLUSW2, SEQ_TRKVARSTATE2_HNDSHK_DIS
-
 	;; check for "synch to measure" flag - reset step counter if master track has reached zero again
 	movlw	SEQ_TRKVARSTATE2x	; (set on pattern changes in song or "pattern_synch" mode)
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE, ACCESS, SEQ_CORE_Clk_Step_CtrResetForced
@@ -1064,16 +930,12 @@ SEQ_CORE_Clk_Step_IncDec
 	movlw	SEQ_TRKVARSTEPx
 	movff	PLUSW2, SEQ_CORE_TRK_LASTPOS
 
-	;; if reset has been requested: clear ARP key position counter
-	movlw	SEQ_TRKVARSTATEx
-	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE_POS_RESET, ACCESS, SEQ_CORE_Clk_Step_IncDec_NoR
-SEQ_CORE_Clk_Step_IncDec_R
-	movlw	SEQ_TRKVARARPPOSx
-	clrf	PLUSW2
-SEQ_CORE_Clk_Step_IncDec_NoR
-
 	clrf	SEQ_SKIP_STEP_PROTECTION_CTR, BANKED
 SEQ_CORE_Clk_Step_IncDecLoop
+	;; clear divider counter
+	movlw	SEQ_TRKVARDIVCTRx
+	clrf	PLUSW2
+
 	;; determine next step depending on direction mode
 	call	SEQ_CORE_NextStep
 
@@ -1147,18 +1009,11 @@ SEQ_CORE_Clk_OnEvent_NM
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Clk_OnEventNMS
 	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE_PLAY_STEP, ACCESS, SEQ_CORE_Clk_NextTrack
 SEQ_CORE_Clk_OnEventNMS
-
+#if 0
 	;; skip track if pattern disabled
 	movlw	SEQ_TRKVARSTATEx
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_DISABLED, ACCESS, SEQ_CORE_Clk_Muted
-
-	;; skip track if mode is OFF
-	movlw	SEQ_TRKMODEx
-	movf	PLUSW0, W
-	andlw	0x07
-	skpnz
-	rgoto	SEQ_CORE_Clk_Muted
-
+#endif
 	;; skip track if muted
 	movf	SEQ_EVNTT, W, BANKED
 	call	MIOS_HLP_GetBitORMask
@@ -1204,19 +1059,7 @@ SEQ_CORE_Clk_OnEvent_Random
 	rgoto SEQ_CORE_Clk_NextTrack
 SEQ_CORE_Clk_OnEvent_NoRandomG
 
-	;; start event loop (each track can play up to 4 MIDI events)
-	clrf	SEQ_EVNT_NUMBER_CTR, BANKED
 	bcf	SEQ_STATE, SEQ_STATE_SET_LEN, BANKED	; notifies that a new gate length has to be set
-SEQ_CORE_Clk_OnEvent_Loop
-	;; get event order and store in in SEQ_EVNT_NUMBER
-	movf	SEQ_EVNT_NUMBER_CTR, W, BANKED
-	call	SEQ_LAYER_GetEvntPrio
-	movwf	SEQ_EVNT_NUMBER, BANKED
-
-	;; don't play if return value is 15
-	xorlw	15
-	skpnz
-	rgoto	SEQ_CORE_Clk_NoOnEvent
 
 	;; don't play if retrigger flag not set and retrigger counter (SEQ_TRKVARRETGx[4..0]) > 0
 	movlw	SEQ_TRKVARSTATEx
@@ -1229,13 +1072,9 @@ SEQ_CORE_Clk_OnEvent_NoReTrg
 	rgoto	SEQ_CORE_Clk_NoOnEvent
 SEQ_CORE_Clk_OnEvent_ReTrg
 
-	;; get MIDI event depending on SEQ_EVNT_NUMBER
+	;; get MIDI event
 	call	SEQ_LAYER_GetEvnt
 	;; events now in SEQ_EVNT[012L]
-
-	;; retrigger calculations only have to be done once in a event number loop, so only do this on first event which is sent
-	movf	SEQ_EVNT_NUMBER, W, BANKED
-	bnz	SEQ_CORE_Clk_SendEvent_SkipReTrg
 
 	;; don't handle multiple events per step if event is 0 (muted)
 	movf	SEQ_EVNT0, W, BANKED
@@ -1271,26 +1110,10 @@ SEQ_CORE_Clk_ReTrgNoReload
 
 SEQ_CORE_Clk_SendEvent_SkipReTrg
 
-	;; morph it
-	call	SEQ_MORPH_Event
-
-	;; humanize it
-	call	SEQ_HUMANIZE_Event
-
 	;; groove it
 	call	SEQ_GROOVE_Event
 
-	;; transpose if not in arpeggiator mode
-	movlw	SEQ_TRKMODEx
-	movf	PLUSW0, W
-	andlw	0x07
-	xorlw	SEQ_TRKMODE_ARPEGGIATOR
-	skpz
-	rcall	SEQ_CORE_Transpose
-
-	;; if event == 0, check if we have to stretch the gatelength
-	movf	SEQ_EVNT_NUMBER, W, BANKED	; (only has to be done during first round)
-	bnz	SEQ_CORE_Clk_NoStretch
+	;; check if we have to stretch the gatelength
 	movf	SEQ_EVNT0, W, BANKED
 	bnz	SEQ_CORE_Clk_NoStretch
 	movlw	SEQ_TRKVARSTATEx
@@ -1327,15 +1150,7 @@ SEQ_CORE_Clk_SendEvent_NoteChk
 	movf	SEQ_EVNT2, W, BANKED
 	bz	SEQ_CORE_Clk_SendEvent_NoteChkOE
 	rgoto	SEQ_CORE_Clk_SendEvent_Chk_End
-
-	;; extra check for off event: on chords, it could happen that some
-	;; notes don't get an off event under special circumstances, ensure this here!
 SEQ_CORE_Clk_SendEvent_NoteChkOE
-	movf	SEQ_EVNT_NUMBER, W, BANKED	; if first note is played, and another has no new note value (transition from 4finger to 3finger chord or similar) - play off here
-	bz	SEQ_CORE_Clk_SendEvent_NoteChkEE
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_SET_LEN, BANKED, SEQ_CORE_Clk_SendEvent_NoteChkEE
-	rcall	SEQ_CORE_Hlp_PlayOffEvnt
-SEQ_CORE_Clk_SendEvent_NoteChkEE
 	rgoto	SEQ_CORE_Clk_NoOnEvent
 
 SEQ_CORE_Clk_SendEvent_CCChk
@@ -1347,149 +1162,12 @@ SEQ_CORE_Clk_SendEvent_CCChk
 
 SEQ_CORE_Clk_SendEvent_Chk_End
 
-	;; check for transpose or arpeggiator function
-	movlw	SEQ_TRKMODEx
-	movf	PLUSW0, W
-	andlw	0x07
-	xorlw	SEQ_TRKMODE_TRANSPOSE
-	bz	SEQ_CORE_Clk_SendEvent_Trn	; transpose mode
-	xorlw	SEQ_TRKMODE_ARPEGGIATOR ^ SEQ_TRKMODE_TRANSPOSE
-	bz	SEQ_CORE_Clk_SendEvent_Arp	; arpeggiator mode
-	rgoto	SEQ_CORE_Clk_SendEvent_NM_Ply	; normal mode
-
-	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_SendEvent_Trn
-	movlw	SEQ_TRKMODEx
-	BRA_IFSET PLUSW0, SEQ_TRKMODE_FLAG_HOLD, ACCESS, SEQ_CORE_Clk_SendEvent_TrnH
-	;; select last played note
-	movf	SEQ_T_NOTE_STACK_0, W, BANKED
-	rgoto	SEQ_CORE_Clk_SendEvent_Trn_C
-SEQ_CORE_Clk_SendEvent_TrnH
-	;; select last played note (hold mode)
-	movf	SEQ_T_NOTE_STACK_HOLD, W, BANKED
-SEQ_CORE_Clk_SendEvent_Trn_C
-	movwf	PRODL		; temporary store note number in PRODL
-
-	movf	SEQ_EVNT0, W, BANKED
-	andlw	0xf0
-	xorlw	0x90
-	bz	SEQ_CORE_Clk_SendEvent_Trn_N
-
-	;; Transpose CC
-SEQ_CORE_Clk_SendEvent_Trn_CC
-	;; subtract base note (C-3)
-	movf	PRODL, W	; (note number was stored in PRODL)
-	addlw	-0x3c
-	
-	;; add WREG to CC value and saturate
-	BRA_IFSET WREG, 7, ACCESS, SEQ_CORE_Clk_SendEvent_Trn_CCNeg
-SEQ_CORE_Clk_SendEvent_Trn_CCPos
-	addwf	SEQ_EVNT2, W, BANKED
-	btfsc	WREG, 7
-	movlw 0x7f
-	movwf	SEQ_EVNT2, BANKED
-	rgoto	SEQ_CORE_Clk_SendEvent_NM_Ply
-
-SEQ_CORE_Clk_SendEvent_Trn_CCNeg
-	addwf	SEQ_EVNT2, W, BANKED
-	btfsc	WREG, 7
-	movlw 0x00
-	movwf	SEQ_EVNT2, BANKED
-	rgoto	SEQ_CORE_Clk_SendEvent_NM_Ply
-
-
-	;; Transpose Notes/Aftertouch/etc.
-SEQ_CORE_Clk_SendEvent_Trn_N
-	;; do nothing if note is zero
-	movf	PRODL, W	; (note number was stored in PRODL)
-	skpnz
-	rgoto	SEQ_CORE_Clk_NoOnEvent
-
-	;; subtract base note (C-3)
-	addlw	-0x3c
-
-	;; add WREG to note number and exit this loop on overrun or zero (so that it won't be played)
-	addwf	SEQ_EVNT1, W, BANKED
-	BRA_IFSET WREG, 7, ACCESS, SEQ_CORE_Clk_NoOnEvent
-	bz	SEQ_CORE_Clk_NoOnEvent
-	movwf	SEQ_EVNT1, BANKED
-	rgoto	SEQ_CORE_Clk_SendEvent_NM_Ply
-	
-	;; ------------------------------------------------------------------
-	
-SEQ_CORE_Clk_SendEvent_Arp
-	movlw	SEQ_TRKMODEx
-	BRA_IFSET PLUSW0, SEQ_TRKMODE_FLAG_HOLD, ACCESS, SEQ_CORE_Clk_SendEvent_ArpH
-	lfsr	FSR1, SEQ_ARP_NOTE_0_SORTED
-	btfsc	PLUSW0, SEQ_TRKMODE_FLAG_UNSORTED
-	lfsr	FSR1, SEQ_ARP_NOTE_0_UNSORTED
-	rgoto	SEQ_CORE_Clk_SendEvent_Arp_C
-SEQ_CORE_Clk_SendEvent_ArpH
-	lfsr	FSR1, SEQ_ARP_NOTE_0_SORTED_HOLD
-	btfsc	PLUSW0, SEQ_TRKMODE_FLAG_UNSORTED
-	lfsr	FSR1, SEQ_ARP_NOTE_0_UNSORTED_HOLD
-SEQ_CORE_Clk_SendEvent_Arp_C
-
-	;; arpeggiator cannot work with CC's
-	movf	SEQ_EVNT0, W, BANKED
-	andlw	0xf0
-	xorlw	0x90
-	bnz	SEQ_CORE_Clk_SendEvent_NM_Ply
-
-	;; get the key from the played chor which should be sent to the arpeggiator
-	rcall	SEQ_CORE_Hlp_GetArpKey
-	bnz	SEQ_CORE_Clk_NM45_C
-	;; no arp key hold: play off event (if it exists)
-	rcall	SEQ_CORE_Hlp_PlayOffEvnt
-	rgoto	SEQ_CORE_Clk_NoOnEvent
-SEQ_CORE_Clk_NM45_C
-
-	;; save it temporary in TABLAT
-	movwf	TABLAT
-
-	;; transpose selected note octavewise (SEQ_EVNT[6..4])
-	;; if multi-arp event is selected, get octave from SEQ_EVNT1[4:2]
-	swapf	SEQ_EVNT1, W, BANKED
-	andlw	0x0f
-	addlw	-2
-	bnc	SEQ_CORE_Clk_NM45_C_Multi
-SEQ_CORE_Clk_NM45_C_NoMulti
-	swapf	SEQ_EVNT1, W, BANKED
-	rgoto	SEQ_CORE_Clk_NM45_C_Multi_C
-SEQ_CORE_Clk_NM45_C_Multi
-	rrf	SEQ_EVNT1, W, BANKED
-	rrf	WREG, W
-SEQ_CORE_Clk_NM45_C_Multi_C
-
-	addlw	-4
-	andlw	0x07
-	btfsc	WREG, 2
-	iorlw 0xf8
-	mullw	12		; * octave
-	movf	PRODL, W
-	addwf	TABLAT, W	; add to played note
-	BRA_IFSET WREG, 7, ACCESS, SEQ_CORE_Clk_NoOnEvent; don't play on transp. overflow
-	movwf	SEQ_EVNT1, BANKED
-
-	;; transpose again with track settings (octave/semitones)
-	rcall	SEQ_CORE_Transpose
-	;; don't play on over/underrun
-	movf	SEQ_EVNT0, W, BANKED
-	bz	SEQ_CORE_Clk_NoOnEvent
-
-	;; 	rgoto	SEQ_CORE_Clk_SendEvent_NM_Ply
-
-	;; ------------------------------------------------------------------
-
 SEQ_CORE_Clk_SendEvent_NM_Ply
 	;; skip this if no note event
 	movf	SEQ_EVNT0, W, BANKED
 	andlw	0xf0
 	xorlw	0x90
 	bnz	SEQ_CORE_Clk_SendEvent_NoNEvnt
-
-	;; check for "force to scale"
-	call	SEQ_SCALE_Note
 
 	;; don't check if no note in queue (evnt0 == 0)
 	rcall	SEQ_CORE_Hlp_GetTRKQUEUE0_Ptr	; first byte equal?
@@ -1517,14 +1195,27 @@ SEQ_CORE_Clk_SendEvent_NoLeg
 SEQ_CORE_Clk_SendEvent_NoNEvnt
 	;; ------------------------------------------------------------------
 	;; play the new MIDI event
-	movlw	SEQ_TRKCHNx
-	swapf	PLUSW0, W
-	andlw	0x07
-	movwf	MIDI_EVNT_PORT
+
+	;; get MIDI port (+1) from TRKINFO table
+	;; if 0: MIDI output disabled
+	movf	SEQ_EVNTT, W, BANKED
+	call	SEQ_TRK_GetMIDIPort
+	addlw	-1
+	movwf	MIDI_EVNT_PORT	; we need this value again at SEQ_CORE_Clk_SendEvent_PNoOff
+	addlw	1
+	bz	SEQ_CORE_Clk_SendEvent_NoMIDI
+SEQ_CORE_Clk_SendEvent_MIDI
 	movff	SEQ_EVNT0, MIDI_EVNT0
 	movff	SEQ_EVNT1, MIDI_EVNT1
  	movff	SEQ_EVNT2, MIDI_EVNT_VALUE
 	call	MIDI_EVNT_Send
+SEQ_CORE_Clk_SendEvent_NoMIDI
+
+	;; request to toggle trigger pin
+	SET_BSR	SEQ_BASE
+	movf	SEQ_EVNTT, W, BANKED
+ 	movff	SEQ_EVNT2, MIOS_PARAMETER1
+	call	SEQ_TRK_ReqTrigger
 
 	;; update the meter (for mute menu)
 	rcall	SEQ_CORE_UpdateMeter
@@ -1537,6 +1228,9 @@ SEQ_CORE_Clk_SendEvent_NoNEvnt
 
 	;; store port, off event and length in queue
 	;; exception: CC and length == 0x1f
+	;; another exception: MIDI_EVNT_PORT == 0xff
+	incf	MIDI_EVNT_PORT, W
+	bz	SEQ_CORE_Clk_SendEvent_PNoOff
 	movf	SEQ_EVNT0, W, BANKED
 	andlw	0xf0
 	xorlw	0xb0
@@ -1551,6 +1245,7 @@ SEQ_CORE_Clk_SendEvent_NoCC
 	movff	SEQ_EVNT0, INDF1
 	rcall	SEQ_CORE_Hlp_GetTRKQUEUE1_Ptr
 	movff	SEQ_EVNT1, INDF1
+SEQ_CORE_Clk_SendEvent_PNoOff
 SEQ_CORE_Clk_SendEvent_CCNoOff
 
 	;; notify that a new gate length has to be set
@@ -1560,28 +1255,6 @@ SEQ_CORE_Clk_SendEvent_CCNoOff
 SEQ_CORE_Clk_NoOnEvent
 SEQ_CORE_Clk_OnEventPostponed
 SEQ_CORE_Clk_OnEventPlayed
-
-	;; loop 4 times to play all 4 MIDI events of a track
-	incf	SEQ_EVNT_NUMBER_CTR, F, BANKED
-	movlw	4-1
-	cpfsgt	SEQ_EVNT_NUMBER_CTR, BANKED
-	rgoto SEQ_CORE_Clk_OnEvent_Loop
-
-	;; we are outside the OnEvent loop now
-
-	;; ------------------------------------------------------------------
-	;; stretch note until next note if sustain flag enabled
-	movlw	SEQ_TRKMODEx
-	BRA_IFCLR PLUSW0, SEQ_TRKMODE_FLAG_SUSTAIN, ACCESS, SEQ_CORE_Clk_NoSustain
-SEQ_CORE_Clk_Sustain
-	;; set gatelength to maximum
-	movlw	SEQ_TRKVARQUEUEL_Lx
-	setf	PLUSW2
-	movlw	SEQ_TRKVARQUEUEL_Hx
-	setf	PLUSW2
-
-	rgoto	SEQ_CORE_Clk_NoStretchReq	; (skip stretch check below)
-SEQ_CORE_Clk_NoSustain
 	
 	;; set length if requested (event has been played)
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SET_LEN, BANKED, SEQ_CORE_Clk_NoNewLen
@@ -1666,34 +1339,21 @@ SEQ_CORE_Clk_Muted_NoOff
 	;; switch to next track until last track reached
 	;; ------------------------------------------------------------------
 SEQ_CORE_Clk_NextTrack
-	;; quick fix: 
-	;; reset "sync to measure" after first step has been processed
-	;; this is required for handshaked patterns in song mode...
-	;; temporary solution until a more elegant way has been found!
-	movf	SEQ_CLK_STEP_CTR, W, BANKED
-	bnz	SEQ_CORE_Clk_NextTrack_NoSTMRes
-	movf	SEQ_CLK_TICK6_CTR, W, BANKED
-	bnz	SEQ_CORE_Clk_NextTrack_NoSTMRes
-SEQ_CORE_Clk_NextTrack_STMRes
-	movlw	SEQ_TRKVARSTATE2x
-	bcf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
-SEQ_CORE_Clk_NextTrack_NoSTMRes
-
 	incf	SEQ_EVNTT, F, BANKED	; increment track number
 	movlw	SEQ_NUMBER_TRACKS-1
 	cpfsgt	SEQ_EVNTT, BANKED
 	rgoto SEQ_CORE_Clk_Loop
 
-	;; transfer "next values" into handshake registers
-	movff	SEQ_CHAINHNDSHK_NEXT_G0, SEQ_CHAINHNDSHK_G0
-	movff	SEQ_CHAINHNDSHK_NEXT_G1, SEQ_CHAINHNDSHK_G1
-	movff	SEQ_CHAINHNDSHK_NEXT_G2, SEQ_CHAINHNDSHK_G2
-	movff	SEQ_CHAINHNDSHK_NEXT_G3, SEQ_CHAINHNDSHK_G3
+	;; ------------------------------------------------------------------
+
+	;; now we can trigger requested pins at the same moment
+	call	SEQ_TRK_SetTriggers
 
 	;; ------------------------------------------------------------------
 
 SEQ_CORE_Clk_End
 	;; finally...
+
 #if SEQ_CORE_MEASURE_PERFORMANCE
 	bcf	LATC, 5
 #endif
@@ -1804,9 +1464,8 @@ SEQ_CORE_SetPos_Loop
 	rcall	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
 
 	;; TODO: handle TRKVARSTEPx correctly when in backward mode
-	movlw	SEQ_TRKLENx
-	movf	PLUSW0, W
-	andlw	0x1f
+	rcall	SEQ_CORE_Hlp_GetLastAB
+	andlw	0x1f		; TODO: issue with determining the length when A+B is selected!
 	movwf	TMP2
 
 	;; take tracklength into account! (new pos in TMP1)
@@ -1834,7 +1493,6 @@ SEQ_CORE_SetPos_LoopI_Break
 ;; --------------------------------------------------------------------------
 ;;  Use this function to change to new patterns
 ;;  IN: new pattern/bank numbers in SEQ_PATTERN/SEQ_PATTERN_BANK
-;;      group in SEQ_GROUP
 ;;  OUT: next pattern requests in SEQ_NEXT_PATTERNx/SEQ_NEXT_PATTERN_BANKx when patterns not equal
 ;;  USES: TMP1
 ;; --------------------------------------------------------------------------
@@ -1848,16 +1506,12 @@ SEQ_CORE_ChangePatternSynched
 SEQ_CORE_ChangePatternSynchedSkp
 
 	;; check if SEQ_PATTERN_BANK != SEQ_NEXT_PATTERN_BANKx
-	lfsr	FSR1, SEQ_NEXT_PATTERN_BANK0
-	movf	SEQ_GROUP, W, BANKED
-	movf	PLUSW1, W
+	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
 	cpfseq	SEQ_PATTERN_BANK, BANKED
 	rgoto SEQ_CORE_ChangePattern_Chng
 
 	;; check if SEQ_PATTERN != SEQ_NEXT_PATTERNx
-	lfsr	FSR1, SEQ_NEXT_PATTERN0
-	movf	SEQ_GROUP, W, BANKED
-	movf	PLUSW1, W
+	movf	SEQ_NEXT_PATTERN0, W, BANKED
 	cpfseq	SEQ_PATTERN, BANKED
 	rgoto SEQ_CORE_ChangePattern_Chng
 
@@ -1867,23 +1521,16 @@ SEQ_CORE_ChangePatternSynchedSkp
 SEQ_CORE_ChangePattern_Song
 SEQ_CORE_ChangePattern_Chng
 	;; copy SEQ_PATTERN -> SEQ_NEXT_PATTERNx
-	SET_BSR	SEQ_BASE
-	lfsr	FSR1, SEQ_NEXT_PATTERN0
-	movf	SEQ_GROUP, W, BANKED
-	movff	SEQ_PATTERN, PLUSW1
+	movff	SEQ_PATTERN, SEQ_NEXT_PATTERN0
 
 	;; copy SEQ_PATTERN_BANK -> SEQ_NEXT_PATTERN_BANKx
-	lfsr	FSR1, SEQ_NEXT_PATTERN_BANK0
-	movf	SEQ_GROUP, W, BANKED
-	movff	SEQ_PATTERN_BANK, PLUSW1
+	movff	SEQ_PATTERN_BANK, SEQ_NEXT_PATTERN_BANK0
 
 	;; change immediately if sequencer not running
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_CORE_ChangePattern_Sync
 SEQ_CORE_ChangePattern_NoSync
 	;; set request flag
-	movf	SEQ_GROUP, W, BANKED
-	call	MIOS_HLP_GetBitORMask
- 	iorwf	SEQ_PATTERN_SYNC_TRANSFER_REQ, F, BANKED
+	bsf	SEQ_PATTERN_SYNC_TRANSFER_REQ, 0, BANKED
 	rgoto	SEQ_CORE_ChangePattern_End
 
 SEQ_CORE_ChangePattern_Sync
@@ -1899,35 +1546,20 @@ SEQ_CORE_ChangePattern_End
 ;; --------------------------------------------------------------------------
 ;;  This function changes to a new pattern immediately
 ;;  IN: new pattern in SEQ_NEXT_PATTERNx/SEQ_NEXT_PATTERN_BANKx
-;;      group in SEQ_GROUP
 ;; --------------------------------------------------------------------------
 SEQ_CORE_ChangePattern
 	;; clear request flag
 	SET_BSR	SEQ_BASE
-	movf	SEQ_GROUP, W, BANKED
-	call	MIOS_HLP_GetBitANDMask
-	andwf	SEQ_PATTERN_SYNC_TRANSFER_REQ, F, BANKED
+	bcf	SEQ_PATTERN_SYNC_TRANSFER_REQ, 0, BANKED
 
 	;; transfer SEQ_NEXT_PATTERN_BANKx to SEQ_PATTERN_BANKx
-	lfsr	FSR0, SEQ_NEXT_PATTERN_BANK0
-	lfsr	FSR1, SEQ_PATTERN_BANK0
-	movf	SEQ_GROUP, W, BANKED
-	movff	PLUSW0, PRODL
-	movff	PRODL, PLUSW1
+	movff	SEQ_NEXT_PATTERN_BANK0, SEQ_PATTERN_BANK0
 
 	;; transfer SEQ_NEXT_PATTERN*x to SEQ_PATTERN_*x
-	lfsr	FSR0, SEQ_NEXT_PATTERN0
-	lfsr	FSR1, SEQ_PATTERN0
-	movf	SEQ_GROUP, W, BANKED
-	movff	PLUSW0, PRODL
-	movff	PRODL, PLUSW1
+	movff	SEQ_NEXT_PATTERN0, SEQ_PATTERN0
 
-	;; restore group
-	call	SEQ_DUMP_RestoreTrk
-	call	SEQ_DUMP_RestorePots
-
-	;; initialise handshake flags
-	rcall	SEQ_CORE_ResetHndShk
+	;; restore tracks
+	call	SEQ_DUMP_RestoreTrks
 
 	;; update disable flags and exit
 	rgoto	SEQ_CORE_UpdateTrkDisable
@@ -1939,21 +1571,13 @@ SEQ_CORE_ChangePattern
 ;; --------------------------------------------------------------------------
 SEQ_CORE_ChangePatternCheck
 	SET_BSR	SEQ_BASE
-	clrf	SEQ_GROUP, BANKED
-SEQ_CORE_ChangePatternCheckLoop
+
 	;; check if pattern has already been updated (SEQ_PATTERN_SYNC_TRANSFER_REQ[g] cleared)
-	movf	SEQ_GROUP, W, BANKED
-	call	MIOS_HLP_GetBitORMask
-	andwf	SEQ_PATTERN_SYNC_TRANSFER_REQ, W, BANKED
-	bz	SEQ_CORE_ChangePatternCheckLoopN
+	BRA_IFCLR SEQ_PATTERN_SYNC_TRANSFER_REQ, 0, BANKED, SEQ_CORE_ChangePatternCheckLoopN
 
 	rcall	SEQ_CORE_ChangePattern
 
 SEQ_CORE_ChangePatternCheckLoopN
-	SET_BSR	SEQ_BASE
-	incf	SEQ_GROUP, F, BANKED
-	BRA_IFCLR SEQ_GROUP, 2, BANKED, SEQ_CORE_ChangePatternCheckLoop
-
 	;; clear synch request
 	bcf	SEQ_REQ, SEQ_REQ_SYNCHED_PATTERN_CHANGE, BANKED
 
@@ -1966,85 +1590,62 @@ SEQ_CORE_ChangePatternCheckLoopN
 ;;  In addition, it sets the "synch to measure" flag which ensures, that the
 ;;  clock divider will be reset properly once the next measure has been reached
 ;;  (only relevant for song mode)
-;;  IN: group which should be updated in SEQ_GROUP
 ;; --------------------------------------------------------------------------
 SEQ_CORE_UpdateTrkDisable
 	SET_BSR	SEQ_BASE
 
-	;; pointer to SEQ_TRKVARx -> FSR2
-	lfsr	FSR2, SEQ_TRKVAR0
-	movf	SEQ_GROUP, W, BANKED
-	mullw	4*SEQ_TRKVARRECORD_LENGTH
-	movf	PRODL, W
-	addwf	FSR2L, F
-	movf	PRODH, W
-	addwfc	FSR2H, F
-
 	;; temporary disable interrupts (since the interrupt handlers might also check the DISABLE flag)
 	IRQ_DISABLE
 
-	;; clear the disable flags
-	movlw	SEQ_TRKVARSTATEx + 0*SEQ_TRKVARRECORD_LENGTH
-	bcf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
-	movlw	SEQ_TRKVARSTATEx + 1*SEQ_TRKVARRECORD_LENGTH
-	bcf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
-	movlw	SEQ_TRKVARSTATEx + 2*SEQ_TRKVARRECORD_LENGTH
-	bcf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
-	movlw	SEQ_TRKVARSTATEx + 3*SEQ_TRKVARRECORD_LENGTH
+	clrf	SEQ_EVNTT, BANKED
+SEQ_CORE_UpdateTrkDisableLoop
+	call	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
+
+	;; clear the disable flag
+	movlw	SEQ_TRKVARSTATEx + SEQ_TRKVARRECORD_LENGTH
 	bcf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
 
+#if 0
 	;; set the synch to measure flag (in song or "pattern synch" mode only)
 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_UpdateTrkDisable_Sync
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_UpdateTrkDisable_NoSync
 SEQ_CORE_UpdateTrkDisable_Sync
-	movlw	SEQ_TRKVARSTATE2x + 0*SEQ_TRKVARRECORD_LENGTH
-	bsf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
-	movlw	SEQ_TRKVARSTATE2x + 1*SEQ_TRKVARRECORD_LENGTH
-	bsf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
-	movlw	SEQ_TRKVARSTATE2x + 2*SEQ_TRKVARRECORD_LENGTH
-	bsf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
-	movlw	SEQ_TRKVARSTATE2x + 3*SEQ_TRKVARRECORD_LENGTH
+	movlw	SEQ_TRKVARSTATE2x + SEQ_TRKVARRECORD_LENGTH
 	bsf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
 SEQ_CORE_UpdateTrkDisable_NoSync
+#endif
 
 	;; set the flags when whole pattern has been disabled (SEQ_PATTERNx[7] set)
-	lfsr	FSR1, SEQ_PATTERN0
-	movf	SEQ_GROUP, W, BANKED
-	BRA_IFSET PLUSW1, 7, ACCESS, SEQ_CORE_UpdateTrkDisable_Ok
+	BRA_IFSET SEQ_PATTERN0, 7, BANKED, SEQ_CORE_UpdateTrkDisable_Ok
 
 	;; set the flags if bankstick not available, bank != 0 and pattern number != 0
-	lfsr	FSR1, SEQ_PATTERN_BANK0
-	movf	SEQ_GROUP, W, BANKED
-	movf	PLUSW1, W
+	movf	SEQ_PATTERN_BANK0, W, BANKED
 	call	MIOS_HLP_GetBitORMask
 	andwf	SEQ_BANKSTICK_STATUS, W, BANKED
 	bnz	SEQ_CORE_UpdateTrkDisable_Not
 
 	;; bankstick not available - disable if bank != 0
-	movf	SEQ_GROUP, W, BANKED
-	movf	PLUSW1, W
+	movf	SEQ_PATTERN_BANK0, W, BANKED
 	bnz	SEQ_CORE_UpdateTrkDisable_Ok
 
 	;; or disable if bank == 0 and pattern != 0
-	lfsr	FSR1, SEQ_PATTERN0
-	movf	SEQ_GROUP, W, BANKED
-	movf	PLUSW1, W
-	bnz	SEQ_CORE_UpdateTrkDisable_Not
+	movf	SEQ_PATTERN0, W, BANKED
+	bz	SEQ_CORE_UpdateTrkDisable_Not
 	;; 	rgoto	SEQ_CORE_UpdateTrkDisable_Match
 
 SEQ_CORE_UpdateTrkDisable_Ok
 	;; set the disable flags
 	;; (using 4 flags for the same purpose - we could extent the functionality later)
-	movlw	SEQ_TRKVARSTATEx + 0*SEQ_TRKVARRECORD_LENGTH
-	bsf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
-	movlw	SEQ_TRKVARSTATEx + 1*SEQ_TRKVARRECORD_LENGTH
-	bsf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
-	movlw	SEQ_TRKVARSTATEx + 2*SEQ_TRKVARRECORD_LENGTH
-	bsf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
-	movlw	SEQ_TRKVARSTATEx + 3*SEQ_TRKVARRECORD_LENGTH
+	movlw	SEQ_TRKVARSTATEx + SEQ_TRKVARRECORD_LENGTH
 	bsf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
 
 SEQ_CORE_UpdateTrkDisable_Not
+	;; loop 16 times
+	incf	SEQ_EVNTT, F, BANKED	; increment track number
+	movlw	SEQ_NUMBER_TRACKS-1
+	cpfsgt	SEQ_EVNTT, BANKED
+	rgoto	SEQ_CORE_UpdateTrkDisableLoop
+
 	;; interrupts can be enabled again
 	IRQ_ENABLE
 
@@ -2053,7 +1654,7 @@ SEQ_CORE_UpdateTrkDisable_Not
 
 ;; --------------------------------------------------------------------------
 ;;  calculates the pointer to SEQ_TRKQUEUE0
-;;  IN: SEQ_EVNTT and SEQ_EVNT_NUMBER
+;;  IN: SEQ_EVNTT
 ;;  OUT: pointer in FSR1
 ;; --------------------------------------------------------------------------
 SEQ_CORE_Hlp_GetTRKQUEUE0_Ptr
@@ -2064,13 +1665,11 @@ SEQ_CORE_Hlp_GetTRKQUEUE1_Ptr_C
 	movf	SEQ_EVNTT, W, BANKED
 	mullw	4
 	movf	PRODL, W
-	addwf	SEQ_EVNT_NUMBER, W, BANKED
-	addwf	FSR1L, F
 	return
 
 ;; --------------------------------------------------------------------------
 ;;  calculates the pointer to SEQ_TRKQUEUE1
-;;  IN: SEQ_EVNTT and SEQ_EVNT_NUMBER
+;;  IN: SEQ_EVNTT
 ;;  OUT: pointer in FSR1
 ;; --------------------------------------------------------------------------
 SEQ_CORE_Hlp_GetTRKQUEUE1_Ptr
@@ -2080,7 +1679,7 @@ SEQ_CORE_Hlp_GetTRKQUEUE1_Ptr
 
 ;; --------------------------------------------------------------------------
 ;;  calculates the pointer to SEQ_TRKQUEUEP
-;;  IN: SEQ_EVNTT and SEQ_EVNT_NUMBER
+;;  IN: SEQ_EVNTT
 ;;  OUT: pointer in FSR1
 ;; --------------------------------------------------------------------------
 SEQ_CORE_Hlp_GetTRKQUEUEP_Ptr
@@ -2090,7 +1689,7 @@ SEQ_CORE_Hlp_GetTRKQUEUEP_Ptr
 
 ;; --------------------------------------------------------------------------
 ;;  sends the content of SEQ_TRKQUEUExx via MIDI and clears the queue
-;;  IN: SEQ_EVNTT, SEQ_EVNT_NUMBER, pointer to SEQ_TRKVARx in FSR2
+;;  IN: SEQ_EVNTT, pointer to SEQ_TRKVARx in FSR2
 ;; --------------------------------------------------------------------------
 SEQ_CORE_Hlp_PlayOffEvnt
 	rcall	SEQ_CORE_Hlp_GetTRKQUEUE0_Ptr	; send first byte if != 0
@@ -2126,13 +1725,7 @@ SEQ_CORE_Hlp_PlayOffEvnt_Skip
 ;;  IN: 
 ;; --------------------------------------------------------------------------
 SEQ_CORE_Hlp_PlayTrkOffEvnts
-	clrf	SEQ_EVNT_NUMBER, BANKED
-	rcall	SEQ_CORE_Hlp_PlayOffEvnt
-	incf	SEQ_EVNT_NUMBER, F, BANKED
-	rcall	SEQ_CORE_Hlp_PlayOffEvnt
-	incf	SEQ_EVNT_NUMBER, F, BANKED
-	rcall	SEQ_CORE_Hlp_PlayOffEvnt
-	incf	SEQ_EVNT_NUMBER, F, BANKED
+	;; (called 4 times in MBSEQ V3 - function exists for compatibility reasons)
 	rgoto	SEQ_CORE_Hlp_PlayOffEvnt
 
 
@@ -2144,16 +1737,10 @@ SEQ_CORE_Hlp_PlayAllOffEvnts
 	SET_BSR	SEQ_BASE
 	lfsr	FSR2, SEQ_TRKVAR0
 	clrf	SEQ_EVNTT, BANKED
+
 SEQ_CORE_Hlp_PlayAllOffEvntsOL
-	clrf	SEQ_EVNT_NUMBER, BANKED
-SEQ_CORE_Hlp_PlayAllOffEvntsIL
 	clrwdt
 	rcall	SEQ_CORE_Hlp_PlayOffEvnt; play off event of selected track
-
-	incf	SEQ_EVNT_NUMBER, F, BANKED
-	movlw	4-1
-	cpfsgt	SEQ_EVNT_NUMBER, BANKED
-	rgoto SEQ_CORE_Hlp_PlayAllOffEvntsIL
 
 	movlw	SEQ_TRKVARRECORD_LENGTH	; switch to next record
 	addwf	FSR2L, F
@@ -2231,18 +1818,50 @@ SEQ_CORE_UpdateMeter_Cont
 ;;       SEQ_TRKVARDIVCTRx: divider counter always cleared
 ;;       SEQ_TRKVARSTATEx: PINGPONG and PLAY_STEP modified
 ;; --------------------------------------------------------------------------
-SEQ_CORE_NextStep
 	;; define the bits of TMP3
 #define SEQ_CORE_NEXTSTEP_TMP3_PINGPONG 0
 #define SEQ_CORE_NEXTSTEP_TMP3_PENDULUM 1
 #define SEQ_CORE_NEXTSTEP_TMP3_SAVESTEP 2
+#define SEQ_CORE_NEXTSTEP_TMP3_REVERSE  3
 
-	;; clear divider counter
-	movlw	SEQ_TRKVARDIVCTRx
-	clrf	PLUSW2
+SEQ_CORE_NextStep_Reverse
+	;; (for nudge Rew function)
+	movlw	(1 << SEQ_CORE_NEXTSTEP_TMP3_REVERSE)
+	movwf	TMP3
+	rgoto	SEQ_CORE_NextStep_Reverse_Cont
 
+SEQ_CORE_NextStep
 	;; clear TMP3, which holds some temporary flags (see definitions above)
 	clrf	TMP3
+SEQ_CORE_NextStep_Reverse_Cont
+
+	;; extra for MB808: AB section handling
+	;; if A+B selected: no special handling
+	;; if A selected: switch immediately to A section if current step is located in B section
+	;; if B selected: switch immediately to B section if current step is located in A section
+	movf	SEQ_SELECTED_AB, W
+	andlw	0x03
+	addlw	-1
+	bz	SEQ_CORE_NextStep_SectionA
+	addlw	-1
+	bz	SEQ_CORE_NextStep_SectionB
+	rgoto	SEQ_CORE_NextStep_Section_Cont
+SEQ_CORE_NextStep_SectionA
+	movlw	SEQ_TRKVARSTEPx
+	bcf	PLUSW2, 5	; select step 0..31
+	movlw	SEQ_TRKVARSTEPSAVEDx
+	bcf	PLUSW2, 5	; select step 0..31
+	rgoto	SEQ_CORE_NextStep_Section_Cont
+	
+SEQ_CORE_NextStep_SectionB
+	movlw	SEQ_TRKVARSTEPx
+	bsf	PLUSW2, 5	; select step 32..63
+	movlw	SEQ_TRKVARSTEPSAVEDx
+	bsf	PLUSW2, 5	; select step 32..63
+	;; 	rgoto	SEQ_CORE_NextStep_Section_Cont
+
+SEQ_CORE_NextStep_Section_Cont
+
 
 	;; notify that a step should be played
 	movlw	SEQ_TRKVARSTATEx
@@ -2341,6 +1960,10 @@ SEQ_CORE_NextStep_PrgFwd_Cont
 
 	;; ---[ Forward ]----------------------------------------------------
 SEQ_CORE_NextStep_Fwd
+	;; if reverse flag set, branch to _Bck
+	BRA_IFSET TMP3, SEQ_CORE_NEXTSTEP_TMP3_REVERSE, ACCESS, SEQ_CORE_NextStep_FwdReverse
+SEQ_CORE_NextStep_BckReverse
+
 	;; store current direction
 	movlw	SEQ_TRKVARSTATEx
 	bcf	PLUSW2, SEQ_TRKVARSTATE_BACKWARD
@@ -2352,11 +1975,10 @@ SEQ_CORE_NextStep_Fwd
 	;; jump to first (loop) step if last step has been reached
 	movlw	SEQ_TRKVARSTEPx
 	movff	PLUSW2, TMP1
-	movlw	SEQ_TRKLENx
-	movf	PLUSW0, W
-	andlw	0x1f
+	rcall	SEQ_CORE_Hlp_GetLastAB
+	andlw	0x3f
 	cpfslt	TMP1, ACCESS
-	rgoto SEQ_CORE_NextStep_FwdR
+	rgoto	SEQ_CORE_NextStep_FwdR
 	movwf	TMP2		; store last step in TMP2 for PingPong comparison
 
 	;; otherwise increment step
@@ -2364,16 +1986,9 @@ SEQ_CORE_NextStep_Fwd
 	incf	PLUSW2, F
 
 	;; in pingpong mode: turn direction if last step has been reached after this increment
-	;; if chaining enabled: toggle handshake flags
 	movf	PLUSW2, W	; current step
 	xorwf	TMP2, W		; last step
 	bnz	SEQ_CORE_NextStep_Fwd_NoPPT
-
-	;; handshake not in ping pong or pendulum mode (done in backward direction)
-	BRA_IFSET TMP3, SEQ_CORE_NEXTSTEP_TMP3_PINGPONG, ACCESS, SEQ_CORE_NextStep_Fwd_NoHndShk
-	BRA_IFSET TMP3, SEQ_CORE_NEXTSTEP_TMP3_PENDULUM, ACCESS, SEQ_CORE_NextStep_Fwd_NoHndShk
-	rcall	SEQ_CORE_SetHndShk	; handshake handler
-SEQ_CORE_NextStep_Fwd_NoHndShk
 
 	BRA_IFCLR TMP3, SEQ_CORE_NEXTSTEP_TMP3_PINGPONG, ACCESS, SEQ_CORE_NextStep_Fwd_NoPP
 SEQ_CORE_NextStep_Fwd_PP
@@ -2394,9 +2009,8 @@ SEQ_CORE_NextStep_Fwd_Pen
 
 SEQ_CORE_NextStep_Fwd_NoPen
 	;; set first step
-	movlw	SEQ_TRKLOOPx
-	movf	PLUSW0, W
-	andlw	0x1f
+	rcall	SEQ_CORE_Hlp_GetLoopAB
+	andlw	0x3f
 	movwf	PRODL
 	movlw	SEQ_TRKVARSTEPx
 	movff	PRODL, PLUSW2
@@ -2405,6 +2019,10 @@ SEQ_CORE_NextStep_Fwd_NoPen
 
 	;; ---[ Backward ]---------------------------------------------------
 SEQ_CORE_NextStep_Bck
+	;; if reverse flag set, branch to _Fwd
+	BRA_IFSET TMP3, SEQ_CORE_NEXTSTEP_TMP3_REVERSE, ACCESS, SEQ_CORE_NextStep_BckReverse
+SEQ_CORE_NextStep_FwdReverse
+
 	;; store current direction
 	movlw	SEQ_TRKVARSTATEx
 	bsf	PLUSW2, SEQ_TRKVARSTATE_BACKWARD
@@ -2414,9 +2032,11 @@ SEQ_CORE_NextStep_Bck
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_POS_RESET, ACCESS, SEQ_CORE_NextStep_BckR
 
 	;; jump to last step if first loop step has been reached
-	movlw	SEQ_TRKLOOPx
+	movlw	SEQ_TRKLOOPAx		; loop point of A section
+	btfsc	SEQ_SELECTED_AB, 1, BANKED
+	movlw	SEQ_TRKLOOPBx		; loop point of B section
 	movf	PLUSW0, W
-	andlw	0x1f
+	andlw	0x3f
 	movwf	PRODL
 	movlw	SEQ_TRKVARSTEPx
 	movf	PLUSW2, W
@@ -2428,12 +2048,10 @@ SEQ_CORE_NextStep_Bck
 	decf	PLUSW2, F
 
 	;; in pingpong mode: turn direction if first loop step has been reached after this decrement
-	;; if chaining enabled: toggle handshake flags
 	movlw	SEQ_TRKVARSTEPx
 	movf	PLUSW2, W
 	xorwf	PRODL, W
 	bnz	SEQ_CORE_NextStep_Bck_NoPPT
-	rcall	SEQ_CORE_SetHndShk	; handshake handler
 	BRA_IFCLR TMP3, SEQ_CORE_NEXTSTEP_TMP3_PINGPONG, ACCESS, SEQ_CORE_NextStep_Bck_NoPP
 SEQ_CORE_NextStep_Bck_PP
 	movlw	SEQ_TRKVARSTATEx
@@ -2452,9 +2070,8 @@ SEQ_CORE_NextStep_Bck_Pen
 	rgoto	SEQ_CORE_NextStep_Cont
 SEQ_CORE_NextStep_Bck_NoPen
 	;; set last step (depending on track length)
-	movlw	SEQ_TRKLENx
-	movf	PLUSW0, W
-	andlw	0x1f
+	rcall	SEQ_CORE_Hlp_GetLastAB
+	andlw	0x3f
 	movwf	PRODL
 	movlw	SEQ_TRKVARSTEPx
 	movff	PRODL, PLUSW2
@@ -2497,13 +2114,14 @@ SEQ_CORE_NextStep_RD
 	;; ---[ Random Step ]------------------------------------------------
 SEQ_CORE_NextStep_RS
 	;; iterate until new random step within given track range (from loop to length) has been found
-	movlw	SEQ_TRKLOOPx
+	movlw	SEQ_TRKLOOPAx		; loop point of A section
+	btfsc	SEQ_SELECTED_AB, 1, BANKED
+	movlw	SEQ_TRKLOOPBx		; loop point of B section
 	movf	PLUSW0, W
-	andlw	0x1f
+	andlw	0x3f
 	movwf	TMP1
-	movlw	SEQ_TRKLENx
-	movf	PLUSW0, W
-	andlw	0x1f
+	rcall	SEQ_CORE_Hlp_GetLastAB
+	andlw	0x3f
 	movwf	TMP2
 
 	;; no special measure of TMP1 == TMP2
@@ -2622,10 +2240,9 @@ SEQ_CORE_ResetTrkPos_B
 	bsf	PLUSW2, SEQ_TRKVARSTATE_BACKWARD
 
 	;; determine track position and copy it to SEQ_TRKVARSTEPx
-	;; it's located in SEQ_TRKLENx[4..0] (track length)
-	movlw	SEQ_TRKLENx
-	movf	PLUSW0, W
-	andlw	0x1f
+	;; it's located in SEQ_TRKLAST[AB]x[5..0] (last step)
+	rcall	SEQ_CORE_Hlp_GetLastAB
+	andlw	0x3f
 	movwf	PRODL
 	movlw	SEQ_TRKVARSTEPx
 	movff	PRODL, PLUSW2
@@ -2652,203 +2269,68 @@ SEQ_CORE_ResetTrkPos_B_Cont
 
 
 ;; --------------------------------------------------------------------------
-;;  Resets the handshake flags of the selected track group
-;;  IN: group (0-3) in SEQ_GROUP
+;;  This function returns the last step of a track depending on A/B selection:
+;;  A selected -> return content of TRKLASTAx
+;;  B selected -> return content of TRKLASTBx
+;;  A+B selected -> return content of TRKLASTBx (end is at section B)
+;;  IN: pointer to SEQ_TRKx in FSR0
+;;  OUT: loop step
 ;; --------------------------------------------------------------------------
-SEQ_CORE_ResetHndShk
+SEQ_CORE_Hlp_GetLastAB
 	SET_BSR	SEQ_BASE
 
-	;; determine SEQ_EVNTT of first track of SEQ_GROUP
-	rlf	SEQ_GROUP, W, BANKED
-	rlf	WREG, W
-	andlw	0x0c
-	movwf	SEQ_EVNTT, BANKED
-
-	;; chain configuration -> PRODL
-	call	SEQ_FSR_TrkChainx
-	movff	INDF1, PRODL
-
-	;; pointer to register in FSR1
-	lfsr	FSR1, SEQ_CHAINHNDSHK_G0
-	movf	SEQ_GROUP, W, BANKED
-	addwf	FSR1L, F
-
-	movlw	0x01		; init SEQ_CHAINHNDSHK_Px (always start with track 1)
-	movwf	INDF1
-
-	movf	PRODL, W	; start track 2 when 12 and 1234 chaining not active
-	andlw	(1 << SEQ_TRKCHAIN_12) | (1 << SEQ_TRKCHAIN_1234)
+	movf	SEQ_SELECTED_AB, W, BANKED
 	skpnz
-	bsf	INDF1, 1
+	movlw	0x01		; (invalid selection...)
+	andlw	0x03
+	addlw	-1
+	bz	SEQ_CORE_Hlp_GetLastAB_A
+	addlw	-1
+	bz	SEQ_CORE_Hlp_GetLastAB_B
+	;; A+B - same as B
 
-	;; branch to the end if 1234 flag is active
-	andlw	(1 << SEQ_TRKCHAIN_1234)
-	bnz	SEQ_CORE_ResetHndShk_Cont
+SEQ_CORE_Hlp_GetLastAB_B
+	movlw	SEQ_TRKLASTBx		; last step of B section
+	movf	PLUSW0, W
+	return
 
-	;; now check settings of track 3
-	movf	PRODL, W	; start track 3 if 1234 chaining not active
-	andlw	(1 << SEQ_TRKCHAIN_1234)
-	bnz	SEQ_CORE_ResetHndShk_Cont
-	bsf	INDF1, 2
+SEQ_CORE_Hlp_GetLastAB_A
+	movlw	SEQ_TRKLASTAx		; last step of A section
+	movf	PLUSW0, W
+	return
 
-	movf	PRODL, W	; start track 4 when 34 and 1234 chaining not active
-	andlw	(1 << SEQ_TRKCHAIN_34) | (1 << SEQ_TRKCHAIN_1234)
+
+;; --------------------------------------------------------------------------
+;;  This function returns the loop point of a track depending on A/B selection:
+;;  A selected -> return content of TRKLOOPAx
+;;  B selected -> return content of TRKLOOPBx
+;;  A+B selected -> return content of TRKLOOPAx (restart at section A)
+;;  IN: pointer to SEQ_TRKx in FSR0
+;;  OUT: loop step
+;; --------------------------------------------------------------------------
+SEQ_CORE_Hlp_GetLoopAB
+	SET_BSR	SEQ_BASE
+
+	movf	SEQ_SELECTED_AB, W, BANKED
 	skpnz
-	bsf	INDF1, 3
-
-SEQ_CORE_ResetHndShk_Cont
-	;; reset positions of all tracks which are currently not played
-SEQ_CORE_ResetHndShk_TrkLoop
-	rcall	SEQ_CORE_Calc_TRKx_FSR0		; calculate pointer to SEQ_TRKx -> FSR0
-	rcall	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
-
-	;; clear "HNDSHK_DIS" flag, which is set again if track is not played due to handshaking
-	;; (only used for LED display)
-	movlw	SEQ_TRKVARSTATE2x
-	bcf	PLUSW2, SEQ_TRKVARSTATE2_HNDSHK_DIS
-
-	lfsr	FSR1, SEQ_CHAINHNDSHK_G0
-	movf	SEQ_GROUP, W, BANKED
-	addwf	FSR1L, F
-	movf	SEQ_EVNTT, W, BANKED
+	movlw	0x01		; (invalid selection...)
 	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	andwf	INDF1, W
-	bnz	SEQ_CORE_ResetHndShk_TrkLoopNext
+	addlw	-1
+	bz	SEQ_CORE_Hlp_GetLoopAB_A
+	addlw	-1
+	bz	SEQ_CORE_Hlp_GetLoopAB_B
+	;; A+B - same as A
 
-	;; set "HNDSHK_DIS" flag (only used for LED display)
-	movlw	SEQ_TRKVARSTATE2x
-	bsf	PLUSW2, SEQ_TRKVARSTATE2_HNDSHK_DIS
-
-	;; clear position counters
- 	rcall	SEQ_CORE_ResetTrkPos
-
-	;; now we need to modify the steps, so that the last one is selected (and not the first one!)
-
-	;; branch depending on forward/backward direction
-	movlw	SEQ_TRKDIR1x
+SEQ_CORE_Hlp_GetLoopAB_A
+	movlw	SEQ_TRKLOOPAx		; loop point of A section
 	movf	PLUSW0, W
-	andlw	0x0f
-	xorlw	SEQ_TRKDIR_BACKWARD
-	bnz	SEQ_CORE_ResetHndShk_TrkLoop_F
-SEQ_CORE_ResetHndShk_TrkLoop_B
-	;; select last position (step 1)
-	movlw	SEQ_TRKVARSTEPx
-	clrf	PLUSW2
-	rgoto	SEQ_CORE_ResetHndShk_TrkLoop_B_C
+	return
 
-SEQ_CORE_ResetHndShk_TrkLoop_F
-	;; Forward/PingPong/Random direction
-	;; determine track position and copy it to SEQ_TRKVARSTEPx
-	;; it's located in SEQ_TRKLENx[4..0] (track length)
-	movlw	SEQ_TRKLENx
+SEQ_CORE_Hlp_GetLoopAB_B
+	movlw	SEQ_TRKLOOPBx		; loop point of A section
 	movf	PLUSW0, W
-	andlw	0x1f
-	movwf	PRODL
-	movlw	SEQ_TRKVARSTEPx
-	movff	PRODL, PLUSW2
-
-SEQ_CORE_ResetHndShk_TrkLoop_B_C
-	;; save position (for repeat function)
-	movlw	SEQ_TRKVARSTEPx
-	movff	PLUSW2, PRODL
-	movlw	SEQ_TRKVARSTEPSAVEDx
-	movff	PRODL, PLUSW2
-
-	;; not the first clock anymore...
-	movlw	SEQ_TRKVARSTATEx
-	bcf	PLUSW2, SEQ_TRKVARSTATE_FIRST_CLK	
-
-SEQ_CORE_ResetHndShk_TrkLoopNext
-	incf	SEQ_EVNTT, F, BANKED
-	movf	SEQ_EVNTT, W, BANKED	; 4 tracks
-	andlw	0x03
-	bnz	SEQ_CORE_ResetHndShk_TrkLoop
 	return
 
-
-;; --------------------------------------------------------------------------
-;;  Used by SEQ_CORE_NextStep to toggle the handshake flags
-;;  IN: track in SEQ_EVNTT, pointer to SEQ_TRKx in FSR0, pointer to SEQ_TRKVARx in FSR2
-;;  OUT: new handshake flags in SEQ_CHAINHNDSHK_NEXT_Px
-;;  USES: FSR1 as temporary pointer
-;; --------------------------------------------------------------------------
-SEQ_CORE_SetHndShk
-	;; chain configuration -> PRODL
-	call	SEQ_FSR_TrkChainx
-	movff	INDF1, PRODL
-
-	;; if track 2 or 3: copy PRODL[1] to PRODL[0] for easier handling
-	BRA_IFCLR SEQ_EVNTT, 1, BANKED, SEQ_CORE_SetHndShk_NotT23
-SEQ_CORE_SetHndShk_T23
-	bcf	PRODL, 0
-	btfsc	PRODL, 1
-	bsf	PRODL, 0
-SEQ_CORE_SetHndShk_NotT23
-	
-	;; set handshake flags depending on chaining mode
-	movf	PRODL, W
-	andlw	(1 << SEQ_TRKCHAIN_12) | (1 << SEQ_TRKCHAIN_1234)
-	bz	SEQ_CORE_SetHndShk_End
-
-	lfsr	FSR1, SEQ_CHAINHNDSHK_NEXT_G0; pointer to SEQ_CHAINHNDSHK_NEXT_Px in FSR1
-	rrf	SEQ_EVNTT, W, BANKED
-	rrf	WREG, W
-	andlw	0x03
-	addwf	FSR1L, F
-
-	BRA_IFSET PRODL, SEQ_TRKCHAIN_1234, ACCESS, SEQ_CORE_SetHndShk2
-SEQ_CORE_SetHndShk1	; toggle between 1/2 and 3/4
-	BRA_IFSET SEQ_EVNTT, 1, BANKED, SEQ_CORE_SetHndShk1_23
-SEQ_CORE_SetHndShk1_01
-	BRA_IFSET SEQ_EVNTT, 0, BANKED, SEQ_CORE_SetHndShk1_1
-SEQ_CORE_SetHndShk1_0
-	bcf	INDF1, 0
-	bsf	INDF1, 1
-	rgoto	SEQ_CORE_SetHndShk_End
-SEQ_CORE_SetHndShk1_1
-	bsf	INDF1, 0
-	bcf	INDF1, 1
-	rgoto	SEQ_CORE_SetHndShk_End
-
-SEQ_CORE_SetHndShk1_23
-	BRA_IFSET SEQ_EVNTT, 0, BANKED, SEQ_CORE_SetHndShk1_3
-SEQ_CORE_SetHndShk1_2
-	bcf	INDF1, 2
-	bsf	INDF1, 3
-	rgoto	SEQ_CORE_SetHndShk_End
-SEQ_CORE_SetHndShk1_3
-	bsf	INDF1, 2
-	bcf	INDF1, 3
-	rgoto	SEQ_CORE_SetHndShk_End
-	
-SEQ_CORE_SetHndShk2	; toggle between 1/2/3/4
-	incf	SEQ_EVNTT, W, BANKED
-	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	movwf	INDF1
-	;; 	rgoto	SEQ_CORE_SetHndShk_End
-
-SEQ_CORE_SetHndShk_End
-	return
-
-;; --------------------------------------------------------------------------
-;;  This function returns 0 if the track chaining handshake flag is not set
-;;  IN: track number in SEQ_EVNTT
-;;  OUT: WREG == 0 if flag not set
-;;  USES: FSR1 as temporary pointer
-;; --------------------------------------------------------------------------
-SEQ_CORE_Hlp_ChkHndShk
-	lfsr	FSR1, SEQ_CHAINHNDSHK_G0
-	rrf	SEQ_EVNTT, W, BANKED
-	rrf	WREG, W
-	andlw	0x03
-	addwf	FSR1L, F
-	movf	SEQ_EVNTT, W, BANKED
-	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	andwf	INDF1, W
-	return
 
 ;; --------------------------------------------------------------------------
 ;;  This function returns the gatelength scaled over the clock divider value
@@ -2898,58 +2380,6 @@ SEQ_CORE_ScaleLen
 	incf	PRODL, F
 
 	return
-
-;; --------------------------------------------------------------------------
-;;  this function transposes SEQ_EVNT1 if it is no controller, no program change,
-;;  no pitch bender event
-;;  IN: SEQ_EVNT0: status byte
-;;      SEQ_EVNT1: note value
-;;  OUT: transposed MIDI event in SEQ_EVNT1
-;;       on overrun, SEQ_EVNT0 is forced to zero
-;;  USES: FSR1
-;; --------------------------------------------------------------------------
-SEQ_CORE_Transpose
-	;; transpose only note events
-	SET_BSR	SEQ_BASE
-	movf	SEQ_EVNT0, W, BANKED
-	andlw	0xf0
-	xorlw	0x90
-	bnz	SEQ_CORE_Transpose_End
-
-SEQ_CORE_Transpose_Oct
-	;; add octave transpose value * 12 and note transpose value to SEQ_EVNT1
-	;; force SEQ_EVNT0 to zero on overrun so that the event won't be played
-	call	SEQ_FSR_TrkTransp	; (upper nibble)
-	swapf	INDF1, W
-	andlw	0x0f
-	xorlw	-8 & 0x0f	; no octave transpose when -8
-	bz	SEQ_CORE_Transpose_NoOct
-
-	swapf	INDF1, W
-	andlw	0x0f
-	btfsc	WREG, 3
-	iorlw 0xf0
-	mullw	12		; * octave
-	movf	PRODL, W
-	addwf	SEQ_EVNT1, F, BANKED
-	btfsc	SEQ_EVNT1, 7, BANKED
-	clrf	SEQ_EVNT0, BANKED
-SEQ_CORE_Transpose_NoOct
-
-SEQ_CORE_Transpose_Sem
-	call	SEQ_FSR_TrkTransp	; (lower nibble)
-	movf	INDF1, W
-	andlw	0x0f
-	btfsc	WREG, 3
-	iorlw 0xf0
-	addwf	SEQ_EVNT1, F, BANKED
-	btfsc	SEQ_EVNT1, 7, BANKED
-	clrf	SEQ_EVNT0, BANKED
-SEQ_CORE_Transpose_NoSem
-
-SEQ_CORE_Transpose_End
-	return
-
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called from SEQ_CORE_Clk_Step when record mode is active
@@ -3016,147 +2446,53 @@ SEQ_CORE_RecStep_End
 
 
 ;; --------------------------------------------------------------------------
-;;  This function returns the key from the played chord which should be sent
-;;  to the arpeggiator
-;;  IN: pointer to SEQ_TRKx in FSR0, pointer to chord stack in FSR1, pointer to SEQ_TRKVARx in FSR2
-;;  OUT: note which should be sent to the arpeggiator in WREG
-;;       0 if no note should be played
-;;  USES: TABLAT as temporary register
+;;  This function is called when all tracks should be "nudged" backward
 ;; --------------------------------------------------------------------------
-SEQ_CORE_Hlp_GetArpKey
-	;; check for multi ARP event, flag stored in PRODL[0]
-	bcf	PRODL, 0
-	swapf	SEQ_EVNT1, W, BANKED
-	andlw	0x0f
-	addlw	-2
-	skpc
-	bsf	PRODL, 0
+SEQ_CORE_NudgeRew
+	;; loop through all tracks
+	clrf	SEQ_EVNTT, BANKED
+SEQ_CORE_NudgeRew_Loop
+	call	SEQ_CORE_Calc_TRKx_FSR0		; calculate pointer to SEQ_TRKx -> FSR0
+	call	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
 
-	;; save selected note SEQ_EVNT1[3..2] into TABLAT
-	rrf	SEQ_EVNT1, W, BANKED
-	rrf	WREG, W
-	andlw	0x03
-	movwf	TABLAT
+	;; select previous step (change takes place on next clock)
+	call	SEQ_CORE_NextStep_Reverse
+#if 1
+	;; usability check
+	call	SEQ_CORE_NextStep_Reverse
+	call	SEQ_CORE_NextStep_Reverse
+	call	SEQ_CORE_NextStep_Reverse
+#endif
+	
+	incf	SEQ_EVNTT, F, BANKED	; increment track number
+	movlw	SEQ_NUMBER_TRACKS-1
+	cpfsgt	SEQ_EVNTT, BANKED
+	rgoto	SEQ_CORE_NudgeRew_Loop
+	
 
-	;; 1 note is played, return
-	;;    1: first note  (#0)
-	;;    2: first note  (#0)
-	;;    3: first note  (#0)
-	;;    4: first note  (#0)
-
-	;; 2 notes are played, return
-	;;    1: first note  (#0)
-	;;    2: second note (#1)
-	;;    3: first note  (#0)
-	;;    4: second note (#1)
-
-	;; 3 notes are played, return
-	;;    1: first note  (#0)
-	;;    2: second note (#1)
-	;;    3: third note  (#2)
-	;;    4: first note  (#0)
-
-	;; 4 notes are played, return
-	;;    1: first note  (#0)
-	;;    2: second note (#1)
-	;;    3: third note  (#2)
-	;;    4: fourth note (#3)
-
-	;; how many notes are played?
-	movlw	0x03
-	movf	PLUSW1, W
-	bnz	SEQ_CORE_Hlp_GetArpKey_4
-
-	movlw	0x02
-	movf	PLUSW1, W
-	bnz	SEQ_CORE_Hlp_GetArpKey_3
-
-	movlw	0x01
-	movf	PLUSW1, W
-	bnz	SEQ_CORE_Hlp_GetArpKey_2
-
-SEQ_CORE_Hlp_GetArpKey_1
-	BRA_IFCLR PRODL, 0, ACCESS, SEQ_CORE_Hlp_GetArpKey_1_NoMulti
-SEQ_CORE_Hlp_GetArpKey_1_Multi
-	movlw	0x01
-	movwf	TABLAT
-	rgoto	SEQ_CORE_Hlp_GetArpKey_Multi
-SEQ_CORE_Hlp_GetArpKey_1_NoMulti
-	movf	INDF1, W
 	return
 
-SEQ_CORE_Hlp_GetArpKey_2
-	BRA_IFCLR PRODL, 0, ACCESS, SEQ_CORE_Hlp_GetArpKey_2_NoMulti
-SEQ_CORE_Hlp_GetArpKey_2_Multi
-	movlw	0x02
-	movwf	TABLAT
-	rgoto	SEQ_CORE_Hlp_GetArpKey_Multi
-SEQ_CORE_Hlp_GetArpKey_2_NoMulti
-	movlw	0x00
-	btfsc	TABLAT, 0
-	movlw 0x01
-	movf	PLUSW1, W
-	return
+;; --------------------------------------------------------------------------
+;;  This function is called when all tracks should be "nudged" forward
+;; --------------------------------------------------------------------------
+SEQ_CORE_NudgeFwd
+	;; loop through all tracks
+	clrf	SEQ_EVNTT, BANKED
+SEQ_CORE_NudgeFwd_Loop
+	call	SEQ_CORE_Calc_TRKx_FSR0		; calculate pointer to SEQ_TRKx -> FSR0
+	call	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
 
-SEQ_CORE_Hlp_GetArpKey_3
-	BRA_IFCLR PRODL, 0, ACCESS, SEQ_CORE_Hlp_GetArpKey_3_NoMulti
-SEQ_CORE_Hlp_GetArpKey_3_Multi
-	movlw	0x03
-	movwf	TABLAT
-	rgoto	SEQ_CORE_Hlp_GetArpKey_Multi
-SEQ_CORE_Hlp_GetArpKey_3_NoMulti
-	movlw	0x00
-	BRA_IFSET TABLAT, 1, ACCESS, SEQ_CORE_Hlp_GetArpKey_3_34
-SEQ_CORE_Hlp_GetArpKey_3_12
-	btfsc	TABLAT, 0
-	movlw 0x01
-	rgoto	SEQ_CORE_Hlp_GetArpKey_3_C
-SEQ_CORE_Hlp_GetArpKey_3_34
-	btfss	TABLAT, 0
-	movlw 0x02
-SEQ_CORE_Hlp_GetArpKey_3_C
-	movf	PLUSW1, W
-	return
-
-SEQ_CORE_Hlp_GetArpKey_4
-	BRA_IFCLR PRODL, 0, ACCESS, SEQ_CORE_Hlp_GetArpKey_4_NoMulti
-SEQ_CORE_Hlp_GetArpKey_4_Multi
-	movlw	0x04
-	movwf	TABLAT
-	rgoto	SEQ_CORE_Hlp_GetArpKey_Multi
-SEQ_CORE_Hlp_GetArpKey_4_NoMulti
-	movf	TABLAT, W
-	movf	PLUSW1, W
-	return
-
-SEQ_CORE_Hlp_GetArpKey_Multi
-	movlw	SEQ_TRKVARARPPOSx ; select key
-	movf	PLUSW2, W
-	andlw	0x03
-	movwf	PRODL		; PRODL[1:0] contains the selected note index
-
-	movf	PLUSW1, W	; if current note is zero, key was released in the meantime -> overflow
-	bz	SEQ_CORE_Hlp_GetArpKey_MultiOv0
-
-	movf	PRODL, W
-	addlw	0x01		; increment key number for next step, wrap on overflow (depends on number of pressed keys)
-	cpfsgt	TABLAT, ACCESS
-	rgoto SEQ_CORE_Hlp_GetArpKey_MultiOv
-SEQ_CORE_Hlp_GetArpKey_MultiNoOv
-	movwf	TABLAT		; save new index
-	movlw	SEQ_TRKVARSTEPx	; restore last position so that this step will be played again
-	movff	SEQ_CORE_TRK_LASTPOS, PLUSW2
-	rgoto	SEQ_CORE_Hlp_GetArpKey_MultiOv_C
-
-SEQ_CORE_Hlp_GetArpKey_MultiOv0
-	clrf	PRODL
-SEQ_CORE_Hlp_GetArpKey_MultiOv
-	clrf	TABLAT
-SEQ_CORE_Hlp_GetArpKey_MultiOv_C
-	movlw	SEQ_TRKVARARPPOSx
-	movff	TABLAT, PLUSW2
-
-	;; finally return note which should be played
-	movf	PRODL, W
-	movf	PLUSW1, W
+	;; select next step (change takes place on next clock)
+	call	SEQ_CORE_NextStep
+#if 1
+	;; usability check
+	call	SEQ_CORE_NextStep
+	call	SEQ_CORE_NextStep
+	call	SEQ_CORE_NextStep
+#endif	
+	incf	SEQ_EVNTT, F, BANKED	; increment track number
+	movlw	SEQ_NUMBER_TRACKS-1
+	cpfsgt	SEQ_EVNTT, BANKED
+	rgoto	SEQ_CORE_NudgeFwd_Loop
+	
 	return

@@ -69,8 +69,8 @@ SEQ_SBANK_BS_CS_MODE	EQU	0
 
 ;; --------------------------------------------------------------------------
 ;;  calculates the bankstick address:
-;;     (SEQ_SONG << 11) + (SEQ_SBANK_SECTOR << 8) + EEADR
-;;  IN: SEQ_SONG, SEQ_SBANK_SECTOR, EEADR
+;;     (SEQ_SONG << 11) + EEADR[H]
+;;  IN: SEQ_SONG, EEADR
 ;;  OUT: bankstick address in MIOS_PARAMETER[12]
 ;; --------------------------------------------------------------------------
 SEQ_SBANK_CalcAddress
@@ -88,14 +88,14 @@ SEQ_SBANK_CalcAddress
  ELSE
 	andlw	0x78
  ENDIF
-	iorwf	SEQ_SBANK_SECTOR, W, BANKED
+	iorwf	EEADRH, W
 	movwf	MIOS_PARAMETER2
 	return
 
 ;; --------------------------------------------------------------------------
 ;;  Writes data to BankStick
-;;  IN: Value in WREG, address offset in EEADR, sector in SEQ_SBANK_SECTOR
-;;  OUT: increments address within sector
+;;  IN: Value in WREG, song in SEQ_SONG, address offset in EEADR[H]
+;;  OUT: increments address
 ;; --------------------------------------------------------------------------
 SEQ_SBANK_Write
 	movwf	MIOS_PARAMETER3			; temporary save word in MIOS_PARAMETER3
@@ -119,6 +119,8 @@ SEQ_SBANK_Write
 
 SEQ_SBANK_Write_End
 	incf	EEADR, F			; increment EEPROM address
+	skpnz
+	incf	EEADRH, F
 
 	;; fix BSR after a MIOS routine has been called
 	SET_BSR	SEQ_BASE
@@ -126,7 +128,7 @@ SEQ_SBANK_Write_End
 
 ;; --------------------------------------------------------------------------
 ;;  Writes a page of 64 bytes to BankStick
-;;  IN: Value in FSR1 buffer, address offset in EEADR
+;;  IN: Value in FSR1 buffer, song in SEQ_SONG, address offset in EEADR
 ;;  OUT: increments address by 0x40
 ;; --------------------------------------------------------------------------
 SEQ_SBANK_WritePage
@@ -153,6 +155,8 @@ SEQ_SBANK_WritePage
 SEQ_SBANK_WritePage_End
 	movlw	0x40
 	addwf	EEADR, F			; increment EEPROM address
+	movlw	0
+	addwfc	EEADRH, F
 
 	;; fix BSR after a MIOS routine has been called
 	SET_BSR	SEQ_BASE
@@ -160,7 +164,7 @@ SEQ_SBANK_WritePage_End
 
 ;; --------------------------------------------------------------------------
 ;;  Read data from BankStick
-;;  IN: SEQ_SONG, SEQ_SBANK_SECTOR, EEADR
+;;  IN: SEQ_SONG, EEADR
 ;;  OUT: result in WREG, increments address
 ;; --------------------------------------------------------------------------
 SEQ_SBANK_Read
@@ -176,6 +180,8 @@ SEQ_SBANK_Read
 
 SEQ_SBANK_Read_End
 	incf	EEADR, F
+	skpnz
+	incf	EEADRH, F
 
 	;; fix BSR after a MIOS routine has been called
 	SET_BSR	SEQ_BASE
@@ -266,9 +272,14 @@ SEQ_SBANK_CheckStick_Unformatted
 	rgoto	SEQ_SBANK_FormatStickNow
 
 SEQ_SBANK_CheckStick_Reload
+	;; check if this is really 
 SEQ_SBANK_FormatStick_Reload
 	;; request re-init of page so that new values will be displayed
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+
+	;; change message delay counter
+	movlw	0x20
+	call	MIOS_LCD_MessageStart
 
 SEQ_SBANK_CheckStick_End
 	return
@@ -285,7 +296,7 @@ SEQ_SBANK_FormatStickNow
 	;; select BankStick for songs
 	movlw	SEQ_SBANK_BS_CS
 	call	MIOS_BANKSTICK_CtrlSet	
-	
+
 	;; clear song 1-16 (in mode 4: 1-32)
 	SET_BSR	SEQ_BASE
 	clrf	SEQ_SONG, BANKED
@@ -301,47 +312,38 @@ SEQ_SBANK_FormatStickCopyLoop
 	incf	SEQ_SONG, W, BANKED
 	call	MIOS_LCD_PrintBCD2
 
-	;; initialize song
-	;; 0x000-0x0ff (SEQ_SBANK_SECTOR_CFG):  0x00
-	;; 0x100-0x1ff (SEQ_SBANK_SECTOR_ACTN): 0x00
-	;; 0x200-0x2ff (SEQ_SBANK_SECTOR_G0):   0x00
-	;; 0x300-0x3ff (SEQ_SBANK_SECTOR_G1):   0x80
-	;; 0x400-0x4ff (SEQ_SBANK_SECTOR_G2):   0x80
-	;; 0x500-0x5ff (SEQ_SBANK_SECTOR_G3):   0x80
-	;; 0x600-0x6ff (SEQ_SBANK_SECTOR_BNK_G01): 0x00
-	;; 0x700-0x7ff (SEQ_SBANK_SECTOR_BNK_G23): 0x00
+	;; set song address to 0x000
+	clrf	EEADR
+	clrf	EEADRH
 
-	SET_BSR	SEQ_BASE
-	clrf	SEQ_SBANK_SECTOR, BANKED; SEQ_SBANK_SECTOR used as outer loop counter
-SEQ_SBANK_FormatStickWriteLO
-	clrwdt				; feed the watchdog
+	;; initialize first page with 0
+	lfsr	FSR1, SEQ_DATA_BUFFER
+	clrf	PRODL
+SEQ_SBANK_FormatStickCopyLoopL1
+	clrf	POSTINC1
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 6, ACCESS, SEQ_SBANK_FormatStickCopyLoopL1
 
-	;; init data buffer
-	clrf	TMP1			; TMP1 contains initial value
-	movlw	SEQ_SBANK_SECTOR_G1-1
-	cpfsgt	SEQ_SBANK_SECTOR, BANKED
-	rgoto SEQ_SBANK_FormatStickWriteLP0
-	movlw	SEQ_SBANK_SECTOR_G3+1
-	cpfslt	SEQ_SBANK_SECTOR, BANKED
-	rgoto SEQ_SBANK_FormatStickWriteLP0
-	bsf	TMP1, 7
-SEQ_SBANK_FormatStickWriteLP0
+	;; write first page
+	call	SEQ_SBANK_WritePage
+
+	;; remaining pages completely initialized with 0x80 (no pattern) 0x10 (16 steps delay)
 	lfsr	FSR1, SEQ_DATA_BUFFER
-	movlw	0x40			; copy this value into the write buffer
-	movwf	EEADR
-SEQ_SBANK_FormatStickWriteLP
-	movff	TMP1, POSTINC1
-	decfsz	EEADR, F
-	rgoto	SEQ_SBANK_FormatStickWriteLP
-	
-	clrf	EEADR			; EEADR used as inner loop counter
-SEQ_SBANK_FormatStickWriteLI
-	lfsr	FSR1, SEQ_DATA_BUFFER
-	rcall	SEQ_SBANK_WritePage
-	movf	EEADR, W		; page write increments EEADR by 0x40
-	bnz	SEQ_SBANK_FormatStickWriteLI
-	incf	SEQ_SBANK_SECTOR, F, BANKED
-	BRA_IFCLR SEQ_SBANK_SECTOR, 3, BANKED, SEQ_SBANK_FormatStickWriteLO
+	clrf	PRODL
+SEQ_SBANK_FormatStickCopyLoopL2
+	movlw	0x80
+	movwf	POSTINC1
+	movlw	0x10
+	movwf	POSTINC1
+	movlw	2
+	addwf	PRODL, F
+	BRA_IFCLR PRODL, 6, ACCESS, SEQ_SBANK_FormatStickCopyLoopL2
+
+	;; write pages until address 0x800 reached
+SEQ_SBANK_FormatStickCopyLoopL3
+	clrwdt			; feed watchdog
+	call	SEQ_SBANK_WritePage
+	BRA_IFCLR EEADRH, 3, ACCESS, SEQ_SBANK_FormatStickCopyLoopL3
 
 	;; increment song number until last is reached
 	incf	SEQ_SONG, F, BANKED
@@ -350,6 +352,7 @@ SEQ_SBANK_FormatStickWriteLI
  ELSE
 	BRA_IFCLR SEQ_SONG, 4, BANKED, SEQ_SBANK_FormatStickCopyLoop
  ENDIF
+
 	;; write magic bytes to address 0x0000
 	clrf	MIOS_PARAMETER1
 	clrf	MIOS_PARAMETER2

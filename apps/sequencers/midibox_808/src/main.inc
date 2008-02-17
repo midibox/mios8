@@ -14,7 +14,7 @@
 ;
 MBSEQ_VERSION_STR MACRO
 ; Version:                 <-------------->
-	STRING	16, 0x00, "MBSEQ V3.2c     "
+	STRING	16, 0x00, "MIDIbox 808 V0.1"
 	ENDM
 ; (fixed string length - 16 characters!)
 ;
@@ -113,14 +113,11 @@ USER_Init_PIC_Ok
 
 	call	SEQ_CORE_Init
 
+	;; set page offset of LCD(s)
+	call	SEQ_LCD_SetPageOffsets
+
 	;; init control surface
 	call	CS_MENU_Init
-
-	;; init default LCD offsets for a message page
-	call	SEQ_LCD_SetMsgOffsets
-
-	;; clear mixer map (will be loaded once bankstick detected)
-	call	CS_M_MIXER_ClearMap
 
 	;; ------------------------------------------------------------------
 
@@ -143,10 +140,6 @@ USER_Init_PIC_Ok
 #if DEFAULT_AOUT_MODULE_TYPE == 2
 	;; initialize the AOUT_NG module
 	call	AOUT_NG_Init
-#endif
-
-#if DEFAULT_ENABLE_J5_GATES
-	call	J5_DOUT_Init
 #endif
 
 	;; initialize the IIC MIDI modules
@@ -177,9 +170,6 @@ USER_Tick
 
 	;; ---[ check for incoming MIDI event from IIC1 MIDI In port ]---
 	call	SEQ_ROUTER_CheckIIC1
-
-	;; ---[ call prefetching routine ]---
-	call	SEQ_PRFTCH_Tick
 
 	;; ---[ call sequencer handler ]---
 	call	SEQ_CORE_Tick
@@ -366,23 +356,23 @@ USER_DIN_NotifyToggle
 ;; --------------------------------------------------------------------------
 USER_ENC_NotifyChange
 
-#if DEFAULT_ENC_DATAWHEEL >= 0
-	;; branch to SEQ_ENC_Datawheel if datawheel
+	;; encoder 0: tempo
+	;; encoder 1: instrument selection
+	;; encoder 2-18: GP encoders of MIDIbox SEQ hardware (only used to select instrument, they cannot change values)
 	movf	MIOS_PARAMETER1, W
-	xorlw	DEFAULT_ENC_DATAWHEEL
-	skpnz
-	goto	SEQ_ENC_Datawheel
-#endif
-
-	;; else branch to encoder handler
-	;;  expects encoder number (assigned to step 0-15) in WREG
-#if DEFAULT_ENC_DATAWHEEL == 0
-	decf	MIOS_PARAMETER1, F
-	movf	MIOS_PARAMETER1, W
-#else
-	movf	MIOS_PARAMETER1, W
-#endif
-	goto	SEQ_ENC_Handler
+	bnz	USER_ENC_NotifyChange_NotTempo
+USER_ENC_NotifyChange_Tempo
+	goto	SEQ_ENC_Tempo
+USER_ENC_NotifyChange_NotTempo
+	addlw	-1
+	bnz	USER_ENC_NotifyChange_NotInst
+USER_ENC_NotifyChange_Inst
+	goto	SEQ_ENC_Inst
+USER_ENC_NotifyChange_NotInst
+	addlw	-1
+USER_ENC_NotifyChange_GP
+	movwf	MIOS_PARAMETER1
+	goto	SEQ_ENC_GP
 
 
 ;; --------------------------------------------------------------------------
@@ -408,34 +398,8 @@ USER_SR_Service_Finish
 	call	SEQ_BUTTON_GetRowIRQ
 #endif
 
-#if DEFAULT_DOUT_1MS_TRIGGER
-	;; ---[ 1mS triggers ]---
-	clrf	MIOS_PARAMETER1
-#if DEFAULT_ENABLE_DOUT_GATE_09_16
-	movlw	DEFAULT_ENABLE_DOUT_GATE_09_16 - 1
-	call	MIOS_DOUT_SRSet
-#endif
-#if DEFAULT_ENABLE_DOUT_GATE_17_24
-	movlw	DEFAULT_ENABLE_DOUT_GATE_17_24 - 1
-	call	MIOS_DOUT_SRSet
-#endif
-#if DEFAULT_ENABLE_DOUT_GATE_25_31
-	movlw	DEFAULT_ENABLE_DOUT_GATE_25_31 - 1
-	call	MIOS_DOUT_SRSet
-#endif
-#if DEFAULT_ENABLE_DOUT_GATE_32_39
-	movlw	DEFAULT_ENABLE_DOUT_GATE_32_39 - 1
-	call	MIOS_DOUT_SRSet
-#endif
-#if DEFAULT_ENABLE_DOUT_GATE_40_47
-	movlw	DEFAULT_ENABLE_DOUT_GATE_40_47 - 1
-	call	MIOS_DOUT_SRSet
-#endif
-#if DEFAULT_ENABLE_DOUT_GATE_48_55
-	movlw	DEFAULT_ENABLE_DOUT_GATE_48_55 - 1
-	call	MIOS_DOUT_SRSet
-#endif
-#endif
+	;; ---[ clear 1mS triggers ]---
+	call	SEQ_TRK_ClearTriggers
 
 	;; ---[ for performance measuring ]---
 	call	SEQ_LOAD_IncRefCtr
@@ -479,9 +443,6 @@ USER_AIN_NotifyChange
 #if DEFAULT_AOUT_MODULE_TYPE == 2
 #include "aout_ng.inc"
 #endif
-#if DEFAULT_ENABLE_J5_GATES
-#include "j5_dout.inc"
-#endif
 #include "math_div24_16.inc"
 
 ;; ---[ Control surface functions ]---
@@ -495,36 +456,28 @@ USER_AIN_NotifyChange
 ;; ---[ SEQ BankStick access routines have to be included before CS routines to avoid error warnings w/ gpasm  ]---
 #include "seq_bank.inc"
 #include "seq_sbank.inc"
-#include "seq_mbank.inc"
 
 ;; ---[ Menu pages handlers ]---
 #include "cs_m_hlp.inc"
-#include "cs_m_display.inc"
-#include "cs_m_mixer.inc"
+#include "cs_m_edit.inc"
 #include "cs_m_pattern.inc"
 #include "cs_m_mute.inc"
 #include "cs_m_song.inc"
-#include "cs_m_trkevnt.inc"
-#include "cs_m_trkmode.inc"
 #include "cs_m_trkdir.inc"
 #include "cs_m_trkdiv.inc"
-#include "cs_m_trklen.inc"
-#include "cs_m_trktran.inc"
+#include "cs_m_trkprog.inc"
+#include "cs_m_trkloop.inc"
 #include "cs_m_trkgrv.inc"
 #include "cs_m_trkasg.inc"
 #include "cs_m_trkrnd.inc"
-#include "cs_m_trg.inc"
 #include "cs_m_record.inc"
-#include "cs_m_morph.inc"
 #include "cs_m_bpm.inc"
-#include "cs_m_save.inc"
 #include "cs_m_opt.inc"
-#include "cs_m_metron.inc"
-#include "cs_m_midicfg.inc"
+#include "cs_m_trkvel.inc"
+#include "cs_m_trkmidi.inc"
 #include "cs_m_sysex.inc"
-#include "cs_m_format.inc"
 #include "cs_m_utils.inc"
-#include "cs_m_pmute.inc"
+#include "cs_m_spare.inc"
 
 ;; ---[ MBSEQ kernel ]---
 #include "seq_enc.inc"
@@ -533,21 +486,16 @@ USER_AIN_NotifyChange
 #include "seq_leds.inc"
 #include "seq_gp.inc"
 #include "seq_lcd.inc"
-#include "seq_msg.inc"
 #include "seq_fsr.inc"
 #include "seq_dump.inc"
 #include "seq_ccin.inc"
 #include "seq_ccout.inc"
 #include "seq_cc_table.inc"
 #include "seq_layer.inc"
-#include "seq_prftch.inc"
+#include "seq_trk.inc"
 #include "seq_trg.inc"
-#include "seq_chord.inc"
-#include "seq_scale.inc"
 #include "seq_groove.inc"
 #include "seq_core.inc"
-#include "seq_morph.inc"
-#include "seq_humanize.inc"
 #include "seq_song.inc"
 #include "seq_midi.inc"
 #include "seq_router.inc"

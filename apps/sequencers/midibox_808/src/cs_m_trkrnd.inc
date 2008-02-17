@@ -10,30 +10,6 @@
 ; 
 ; ==========================================================================
 
-;; used "In-Menu" messages
-CS_M_TRKRND_MSG_DEFAULT	EQU	0x00
-CS_M_TRKRND_MSG_RANDOM   EQU	0x81
-CS_M_TRKRND_MSG_CLEAR	EQU	0x82
-CS_M_TRKRND_MSG_UNDO	EQU	0x83
-
-CS_M_TRKRND_TICK_IN_MENU_MSGS
-	db	">RANDOM<"	; #1
-	db	"CLEARED!"	; #2
-	db	">>UNDO<<"	; #3
-
-;; --------------------------------------------------------------------------
-;;  This table contains the edit values
-;; --------------------------------------------------------------------------
-CS_M_TRKRND_PARAMETERS
- ;;			 CC/value				max	cursor/len	MenuParameterHook
- CS_MENU_PARAMETER_ENTRY -1,					0x0f,   0x40+ 0,  4,	CS_M_TRKRND_GxTyChanged
- CS_MENU_PARAMETER_ENTRY -1,                                    0x3f,   0xc0+ 1,  2,	CS_M_TRKRND_LayAChanged
- CS_MENU_PARAMETER_ENTRY -1,                                    0x3f,   0xc0+ 6,  2,	CS_M_TRKRND_LayBChanged
- CS_MENU_PARAMETER_ENTRY -1,                                    0x3f,   0xc0+11,  2,	CS_M_TRKRND_LayCChanged
- CS_MENU_PARAMETER_ENTRY -1,                                    0x0f,   0xc0+16,  2,	CS_M_TRKRND_TrgAChanged
- CS_MENU_PARAMETER_ENTRY -1,                                    0x0f,   0xc0+21,  2,	CS_M_TRKRND_TrgBChanged
- CS_MENU_PARAMETER_ENTRY -1,                                    0x0f,   0xc0+26,  2,	CS_M_TRKRND_TrgCChanged
-
 ;; --------------------------------------------------------------------------
 ;;  This is the menu specific GP callback function called by cs_menu_button.inc 
 ;;  when the GP hook has been installed
@@ -42,177 +18,56 @@ CS_M_TRKRND_PARAMETERS
 ;;     o Button value MIOS_PARAMETER2:
 ;;       - 1 if button has been released (=5V)
 ;;       - 0 if button has been pressed (=0V)
-;;     o encoder incrementer in CS_MENU_ENC_INCREMENTER if encoder has been used
 ;;  Output:
-;;     should return the GP LED values in
-;;     CS_MENU_GP_OVERLAY_DOUT_SR[01]
-;;     should clear CS_MENU_ENC_INCREMENTER if radio-button function desired
+;;     should return the GP LED values in CS_MENU_GP_OVERLAY_DOUT_SR[01]
 ;; --------------------------------------------------------------------------
 CS_M_TRKRND_GP_Callback
+	;; all LEDs off when GP button has been depressed
+	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_TRKRND_GP_Callback_On
+CS_M_TRKRND_GP_Callback_Off
+	setf	CS_MENU_CURSOR_POS	; (invalidate)
+	rgoto	CS_M_TRKRND_GP_Callback_Cont
+
+CS_M_TRKRND_GP_Callback_On
+	;; store button number in cursor pos
+	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
+
+	;; randomize all selected tracks
+	;; button number controls the "intensity"
 	SET_BSR	SEQ_BASE
+	clrf	SEQ_EVNTT, BANKED
+CS_M_TRKRND_GP_Callback_On_Loop
+	;; skip if track not selected
+	lfsr	FSR1, SEQ_SELECTED_TRKS_0
+	rrf	SEQ_EVNTT, W, BANKED
+	rrf	WREG, W
+	rrf	WREG, W
+	andlw	0x01
+	movff	PLUSW1, PRODL
 
-	;; always select track
-	call	CS_M_HLP_GetSelectedTrk
-	movwf	SEQ_EVNTT, BANKED
+	movf	SEQ_EVNTT, W, BANKED
+	andlw	0x07
+	call	MIOS_HLP_GetBitORMask
+	andwf	PRODL, W
+	bz	CS_M_TRKRND_GP_Callback_On_LoopN
 
-	;; branch depending on button
-	movf	MIOS_PARAMETER1, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRKRND_GP_Callback_1
-	rgoto	CS_M_TRKRND_GP_Callback_2
-	rgoto	CS_M_TRKRND_GP_Callback_3
-	rgoto	CS_M_TRKRND_GP_Callback_4
-	rgoto	CS_M_TRKRND_GP_Callback_5
-	rgoto	CS_M_TRKRND_GP_Callback_6
-	rgoto	CS_M_TRKRND_GP_Callback_7
-	rgoto	CS_M_TRKRND_GP_Callback_8
-	rgoto	CS_M_TRKRND_GP_Callback_9
-	rgoto	CS_M_TRKRND_GP_Callback_10
-	rgoto	CS_M_TRKRND_GP_Callback_11
-	rgoto	CS_M_TRKRND_GP_Callback_12
-	rgoto	CS_M_TRKRND_GP_Callback_13
-	rgoto	CS_M_TRKRND_GP_Callback_14
-	rgoto	CS_M_TRKRND_GP_Callback_15
-	rgoto	CS_M_TRKRND_GP_Callback_16
+	incf	CS_MENU_CURSOR_POS, W	; should be at least 1
+	call	CS_M_TRKRND_Gen_T
+CS_M_TRKRND_GP_Callback_On_LoopN
+	incf	SEQ_EVNTT, F, BANKED
+	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_TRKRND_GP_Callback_On_Loop
 
-CS_M_TRKRND_GP_Callback_1
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
+	;; display triggers instead of random indicator LED so long button pressed!
+	goto	CS_M_EDIT_UpdateGPLEDs
+
+CS_M_TRKRND_GP_Callback_Cont
+	;; update LEDs
+	rcall	CS_M_TRKRND_UpdateGPLEDs
+
+	;; request display update and exit
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
 
-	movlw	0		; cursor pos
-	rgoto	CS_M_TRKRND_GP_Callback_Cont
-
-CS_M_TRKRND_GP_Callback_2
-CS_M_TRKRND_GP_Callback_3
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and store moved value
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_TRKRND_GP_Callback_2_1
-CS_M_TRKRND_GP_Callback_2_0
-	bcf	CS_IN_MENU_MSG, 7
-
-	;; stop message
-	goto	SEQ_MSG_Stop
-
-CS_M_TRKRND_GP_Callback_2_1
-	;; request update of all values
-	movlw	0x3f
-	movwf	CS_RANDOM_GEN_REQ
-
-	;; print in-menu message
-	movlw	CS_M_TRKRND_MSG_RANDOM
-	movwf	CS_IN_MENU_MSG
-
-	;; start and hold message and exit
-	call	SEQ_MSG_Start
- 	bsf	CS_STAT, CS_STAT_MESSAGE_HOLD
-	return
-
-CS_M_TRKRND_GP_Callback_4
-CS_M_TRKRND_GP_Callback_5
-	;; do nothing
-	rgoto	CS_M_TRKRND_GP_Callback_EncIgn
-
-CS_M_TRKRND_GP_Callback_6
-	;; Clr
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and exit
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_TRKRND_GP_Callback_6_1
-CS_M_TRKRND_GP_Callback_6_0
-	bcf	CS_IN_MENU_MSG, 7
-	return
-
-CS_M_TRKRND_GP_Callback_6_1
-	;; update undo buffer
-	call	CS_M_UTILS_UndoUpdate
-	;; clear track
-	call	CS_M_UTILS_Clear
-	;; print in-menu message
-	movlw	CS_M_TRKRND_MSG_CLEAR
-	movwf	CS_IN_MENU_MSG
-	return
-
-
-CS_M_TRKRND_GP_Callback_7
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; branch to Utility menu
-	movlw	CS_MENU_PAGE_UTILS
-	goto	CS_M_HLP_ChangePage
-
-
-CS_M_TRKRND_GP_Callback_8
-	;; Undo
-	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and exit
-	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_TRKRND_GP_Callback_8_1
-CS_M_TRKRND_GP_Callback_8_0
-	bcf	CS_IN_MENU_MSG, 7
-	return
-
-CS_M_TRKRND_GP_Callback_8_1
-	;; Undo last change
-	call	CS_M_UTILS_Undo
-	;; print in-menu message
-	movlw	CS_M_TRKRND_MSG_UNDO
-	movwf	CS_IN_MENU_MSG
-	return
-
-
-CS_M_TRKRND_GP_Callback_9
-	bsf	CS_RANDOM_GEN_REQ, 0		; request randomise of LayA
-	movlw	1		; cursor pos
-	rgoto	CS_M_TRKRND_GP_Callback_Cont
-
-CS_M_TRKRND_GP_Callback_10
-	bsf	CS_RANDOM_GEN_REQ, 1		; request randomise of LayB
-	movlw	2		; cursor pos
-	rgoto	CS_M_TRKRND_GP_Callback_Cont
-
-CS_M_TRKRND_GP_Callback_11
-	bsf	CS_RANDOM_GEN_REQ, 2		; request randomise of LayC
-	movlw	3		; cursor pos
-	rgoto	CS_M_TRKRND_GP_Callback_Cont
-
-CS_M_TRKRND_GP_Callback_12
-	bsf	CS_RANDOM_GEN_REQ, 3		; request randomise of TrgA
-	movlw	4		; cursor pos
-	rgoto	CS_M_TRKRND_GP_Callback_Cont
-
-CS_M_TRKRND_GP_Callback_13
-	bsf	CS_RANDOM_GEN_REQ, 4		; request randomise of TrgB
-	movlw	5		; cursor pos
-	rgoto	CS_M_TRKRND_GP_Callback_Cont
-
-CS_M_TRKRND_GP_Callback_14
-	bsf	CS_RANDOM_GEN_REQ, 5		; request randomise of TrgC
-	movlw	6		; cursor pos
-	rgoto	CS_M_TRKRND_GP_Callback_Cont
-
-
-CS_M_TRKRND_GP_Callback_15
-CS_M_TRKRND_GP_Callback_16
-	;; do nothing
-	rgoto	CS_M_TRKRND_GP_Callback_EncIgn
-
-
-CS_M_TRKRND_GP_Callback_Cont	; toggle function
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	cpfseq	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_TRKRND_GP_Callback_Cont_NP
-	return			; pos already selected, increment allowed
-
-CS_M_TRKRND_GP_Callback_Cont_NP
-	clrf	CS_MENU_ENC_INCREMENTER
-	movwf	CS_MENU_CURSOR_POS
-	goto	CS_MENU_NewCursorPos	; notify new cursor position and exit
-
-CS_M_TRKRND_GP_Callback_EncIgn
-	clrf	CS_MENU_ENC_INCREMENTER
-	return
 
 ;; --------------------------------------------------------------------------
 CS_M_TRKRND_UpdateGPLEDs
@@ -220,24 +75,23 @@ CS_M_TRKRND_UpdateGPLEDs
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
 
-	;; flash LEDs
-	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
-	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+	;; *don't* flash LEDs
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
-	;; LED 1: GxTy (item #0) selected
+	;; don't lit LED if cursor pos == 0xff (no option triggered)
+	incf	CS_MENU_CURSOR_POS, W
+	bz	CS_M_TRKRND_UpdateGPLEDs_End
+	
+	;; set LED 1-16 depending on last selected option
 	movf	CS_MENU_CURSOR_POS, W
-	skpnz
-	bsf	CS_MENU_GP_OVERLAY_DOUT_SR0, 0
-
-	;; LED 9-14: LayA..TrgC selected
-	movf	CS_MENU_CURSOR_POS, W
-	bz	CS_M_TRKRND_UpdateGPLEDs_NoLT
-CS_M_TRKRND_UpdateGPLEDs_LT
-	addlw	-1
 	call	MIOS_HLP_GetBitORMask
+	btfss	CS_MENU_CURSOR_POS, 3
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	btfsc	CS_MENU_CURSOR_POS, 3
 	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
-CS_M_TRKRND_UpdateGPLEDs_NoLT
 
+CS_M_TRKRND_UpdateGPLEDs_End
 	return
 
 
@@ -245,201 +99,144 @@ CS_M_TRKRND_UpdateGPLEDs_NoLT
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_TRKRND_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
-	;; install parameter table
-	TABLE_ADDR CS_M_TRKRND_PARAMETERS	; pointer to table
-	movlw	7				; number of parameters
-	call	CS_MENU_SetMenuParameterTable
-
-	;; copy value into menu parameter depending on cursor pos
-	movf	CS_MENU_CURSOR_POS, W
-	bz	CS_M_TRKRND_Init_Cont	; (pos 0: track number, already prepared)
-CS_M_TRKRND_Init_Pos
-	addlw	-1
-	lfsr	FSR1, CS_RANDOM_INTENSITY_LA
-	movff	PLUSW1, CS_MENU_PARAMETER_L
-CS_M_TRKRND_Init_Cont
-
-	;; install callback function for general purpose buttons, used as ext clock divider buttons here
+	;; install callback function for general purpose buttons, used to select an item here
 	TABLE_ADDR CS_M_TRKRND_GP_Callback
 	call	CS_MENU_SetMenuGPCallbackHook
+
+	;; set cursor pos to invalid value (0xff) -> no LED will lit
+	setf	CS_MENU_CURSOR_POS
+
+	;; update LEDs
 	rgoto	CS_M_TRKRND_UpdateGPLEDs
+
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
 CS_M_TRKRND_Tick
-	;; check for random generator request
-	movf	CS_RANDOM_GEN_REQ, W
-	bz	CS_M_TRKRND_Tick_NoGenReq
-CS_M_TRKRND_Tick_GenReq
-	;; select track
-	call	CS_M_HLP_GetSelectedTrk
-	movff	WREG, SEQ_EVNTT
-
-	;; update undo buffer
-	call	CS_M_UTILS_UndoUpdate
-
-	;; generate new values
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 0, ACCESS, CS_M_TRKRND_Gen_LA
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 1, ACCESS, CS_M_TRKRND_Gen_LB
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 2, ACCESS, CS_M_TRKRND_Gen_LC
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 3, ACCESS, CS_M_TRKRND_Gen_TA
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 4, ACCESS, CS_M_TRKRND_Gen_TB
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 5, ACCESS, CS_M_TRKRND_Gen_TC
-
-	;; clear all requests
-	clrf	CS_RANDOM_GEN_REQ
-CS_M_TRKRND_Tick_NoGenReq
-
 	;; layout:
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	;; <--------------------------------------><-------------------------------------->
-	;; Trk.          Random Generator          LayA LayB LayC TrgA TrgB TrgC           
-	;; 00000000001111111111222222222233333333334444444444555555555566666666667777777777
-	;; G1T1  Generate           Clr. Util Undo  64   --   --   All  --   --            
-	;; 88888888888888-----------999999999999999AAAAABBBBBCCCCCDDDDDEEEEEFFFFF----------
+	;; BD    RANDOM        Randomize # 1                                                  
+	;; 00000001111111111111222222222233333333334444444444555555555566666666667777777777
+	;;   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16  
+	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
+
+	;; for 2x16 LCD:
+	;; 0000000000111111
+	;; 0123456789012345
+	;; <-------------->
+	;; BD    RANDOM    
+	;; 0000000111111111
+	;; Randomize # 1   
+	;; 2222222222333333
+
 
 	;; print segments 0-15
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKRND_Tick_Upper
+	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKRND_Tick_89ABCDEF
+
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	andlw	0x07
-	bz	CS_M_TRKRND_Tick_8
-	addlw	-1
-	bz	CS_M_TRKRND_Tick_9
-	addlw	-1
-	bz	CS_M_TRKRND_Tick_ABC
-	addlw	-1
-	bz	CS_M_TRKRND_Tick_ABC
-	addlw	-1
-	bz	CS_M_TRKRND_Tick_ABC
-	rgoto	CS_M_TRKRND_Tick_DEF
+	JUMPTABLE_2BYTES_UNSECURE
+	rgoto	CS_M_TRKRND_Tick_0
+	rgoto	CS_M_TRKRND_Tick_1
+	rgoto	CS_M_TRKRND_Tick_2
+	rgoto	CS_M_TRKRND_Tick_3
+	rgoto	CS_M_TRKRND_Tick_4
+	rgoto	CS_M_TRKRND_Tick_5
+	rgoto	CS_M_TRKRND_Tick_6
+	rgoto	CS_M_TRKRND_Tick_7
 
-CS_M_TRKRND_Tick_Upper_STR
-	db	"Trk.          Random Generator          LayA LayB LayC TrgA TrgB TrgC           "
-CS_M_TRKRND_Tick_Upper
-	;; determine cursor pos
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
-	mullw	10
-	movf	PRODL, W
-	btfsc	CS_MENU_REFRESH_ITEM_CTR, 2
-	iorlw 0x80
+CS_M_TRKRND_Tick_0
+	;; print name of selected track
+	movlw	0x00 + 0
 	call	MIOS_LCD_CursorSet
 
+	call	CS_M_HLP_GetSelectedTrk
+	call	SEQ_TRK_PrnName	; (6 characters)
+
+	rgoto	CS_M_TRKRND_Tick_Cont
+
+CS_M_TRKRND_Tick_1_STR	STRING 14, 0x00 + 6, "RANDOM        "
+CS_M_TRKRND_Tick_1
+	TABLE_ADDR CS_M_TRKRND_Tick_1_STR
+	call	MIOS_LCD_PrintString
+	rgoto	CS_M_TRKRND_Tick_Cont
+
+#if DEFAULT_LCD_WIDTH == 80
+CS_M_TRKRND_Tick_2_STR	STRING 10, 0x00 + 20, "Randomize "
+#else
+CS_M_TRKRND_Tick_2_STR	STRING 10, 0x40 + 0, "Randomize "
+#endif
+CS_M_TRKRND_Tick_2
+	;; only print so long cursor pos valid (== button pressed)
+	incf	CS_MENU_CURSOR_POS, W
+	bz	CS_M_TRKRND_Tick_2_NoBtn
+CS_M_TRKRND_Tick_2_Btn
+	TABLE_ADDR CS_M_TRKRND_Tick_2_STR
+	call	MIOS_LCD_PrintString
+	rgoto	CS_M_TRKRND_Tick_Cont
+
+CS_M_TRKRND_Tick_2_NoBtn
+	;; fill with spaces
+	call	CS_M_HLP_Print10Spaces
+	rgoto	CS_M_TRKRND_Tick_Cont
+
+CS_M_TRKRND_Tick_3
+	;; only print so long cursor pos valid (== button pressed)
+	incf	CS_MENU_CURSOR_POS, W
+	bz	CS_M_TRKRND_Tick_3_NoBtn
+CS_M_TRKRND_Tick_3_Btn
+#if DEFAULT_LCD_WIDTH == 80
+	movlw	0x00 + 30
+#else
+	movlw	0x40 + 10
+#endif
+	call	MIOS_LCD_CursorSet
+
+	;; print button number
+	movlw	'#'
+	call	MIOS_LCD_PrintChar
+	incf	CS_MENU_CURSOR_POS, W
+	call	MIOS_LCD_PrintBCD2
+	;; and fill with spaces
+	movlw	7
+	call	SEQ_LCD_PrintSpaces
+	rgoto	CS_M_TRKRND_Tick_Cont
+
+CS_M_TRKRND_Tick_3_NoBtn
+#if DEFAULT_LCD_WIDTH == 80
+	;; fill with spaces
+	call	CS_M_HLP_Print10Spaces
+#endif
+	rgoto	CS_M_TRKRND_Tick_Cont
+
+
+CS_M_TRKRND_Tick_4
+CS_M_TRKRND_Tick_5
+CS_M_TRKRND_Tick_6
+CS_M_TRKRND_Tick_7
+#if DEFAULT_LCD_WIDTH == 80
+	;; fill with spaces
+	call	CS_M_HLP_Print10Spaces
+#endif
+	rgoto	CS_M_TRKRND_Tick_Cont
+
+CS_M_TRKRND_Tick_89ABCDEF_STR
+	db	"  1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16  "
+CS_M_TRKRND_Tick_89ABCDEF
+#if DEFAULT_LCD_WIDTH == 80
 	;; determine string offset
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	mullw	10
-	movlw	LOW(CS_M_TRKRND_Tick_Upper_STR)
-	addwf	PRODL, W
-	movwf	TBLPTRL
-	movlw	HIGH(CS_M_TRKRND_Tick_Upper_STR)
-	addwfc	PRODH, W
-	movwf	TBLPTRH
+	andlw	0x07
+	TABLE_ADDR_MUL_W CS_M_TRKRND_Tick_89ABCDEF_STR, 10
 
-	;; print string part (10 characters)
-	movlw	10
-	call	MIOS_LCD_PrintPreconfString
+	;; print 10 characters
+	call	CS_M_HLP_Print10Chars
+#endif
+	;;  	rgoto	CS_M_TRKRND_Tick_Cont
 
-	;; if last position reached, print in-menu message at right upper corner of first display
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	xorlw	7
-	bnz	CS_M_TRKRND_Tick_Upper_End
-	movf	CS_IN_MENU_MSG, W
-	andlw	0x7f
-	bz	CS_M_TRKRND_Tick_Upper_End
-CS_M_TRKRND_Tick_Upper_Msg
-	movlw	0x00 + 32
-	call	MIOS_LCD_CursorSet
-	decf	CS_IN_MENU_MSG, W
-	andlw	0x7f
-	TABLE_ADDR_MUL_W CS_M_TRKRND_TICK_IN_MENU_MSGS, 8
-	movlw	8 ; characters
-	call	MIOS_LCD_PrintPreconfString
-
-	;; switch back to default message once button has been released (will be updated after ca. 1 second)
-	BRA_IFSET CS_IN_MENU_MSG, 7, ACCESS, CS_M_TRKRND_Tick_Upper_End
-	movlw	CS_M_TRKRND_MSG_DEFAULT
-	movwf	CS_IN_MENU_MSG
-CS_M_TRKRND_Tick_Upper_End
-	rgoto	CS_M_TRKRND_Tick_Cont
-
-
-CS_M_TRKRND_Tick_8_STR	STRING 8, 0x40 + 6, "Generate"
-CS_M_TRKRND_Tick_8
-	movlw	0x40 + 0
-	call	MIOS_LCD_CursorSet
-	
-	movlw	0		; item number
-	call	CS_M_HLP_PrnGxTy
-
-	TABLE_ADDR CS_M_TRKRND_Tick_8_STR
-	call	MIOS_LCD_PrintString
-	rgoto	CS_M_TRKRND_Tick_Cont
-
-CS_M_TRKRND_Tick_9_STR	STRING 14, 0x40 + 25, "Clr. Util Undo"
-CS_M_TRKRND_Tick_9
-	TABLE_ADDR CS_M_TRKRND_Tick_9_STR
-	call	MIOS_LCD_PrintString
-	rgoto	CS_M_TRKRND_Tick_Cont
-
-CS_M_TRKRND_Tick_ABC
-	;; determine cursor pos
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-0x0a
-	mullw	5
-	movlw	0xc0 + 1
-	addwf	PRODL, W
-	call	MIOS_LCD_CursorSet
-
-	lfsr	FSR1, CS_RANDOM_INTENSITY_LA
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-0x0a
-	movf	PLUSW1, W
-	bz	CS_M_TRKRND_Tick_ABCDEF_Dis
-	call	MIOS_LCD_PrintBCD2
- 	rgoto	CS_M_TRKRND_Tick_Cont
-
-CS_M_TRKRND_Tick_DEF
-	;; determine cursor pos
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-0x0d
-	mullw	5
-	movlw	0xc0 + 16
-	addwf	PRODL, W
-	call	MIOS_LCD_CursorSet
-
-	lfsr	FSR1, CS_RANDOM_INTENSITY_TA
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-0x0d
-	movf	PLUSW1, W
-	bz	CS_M_TRKRND_Tick_ABCDEF_Dis
-	xorlw	0x0f
-	bz	CS_M_TRKRND_Tick_DEF_All
-	xorlw	0x0f
-	call	MIOS_LCD_PrintBCD2
-	movlw	' '
-	call	MIOS_LCD_PrintChar
- 	rgoto	CS_M_TRKRND_Tick_Cont
-
-CS_M_TRKRND_Tick_DEF_All
-	movlw	'A'
-	call	MIOS_LCD_PrintChar
-	movlw	'l'
-	call	MIOS_LCD_PrintChar
-	movlw	'l'
-	call	MIOS_LCD_PrintChar
- 	rgoto	CS_M_TRKRND_Tick_Cont
-
-CS_M_TRKRND_Tick_ABCDEF_Dis
-	movlw	'-'
-	call	MIOS_LCD_PrintChar
-	movlw	'-'
-	call	MIOS_LCD_PrintChar
-	;; 	rgoto	CS_M_TRKRND_Tick_Cont
 
 CS_M_TRKRND_Tick_Cont
 	;; Tick function will be called 16 times
@@ -454,158 +251,14 @@ CS_M_TRKRND_Tick_End
 ;; ==========================================================================
 
 ;; --------------------------------------------------------------------------
-;;  This hook is called when the menu parameter value has been changed
-;; --------------------------------------------------------------------------
-CS_M_TRKRND_GxTyChanged
-	call	CS_M_HLP_GxTyChanged
-	rgoto	CS_M_TRKRND_UpdateGPLEDs
-
-CS_M_TRKRND_LayAChanged
-	movff	CS_MENU_PARAMETER_L, CS_RANDOM_INTENSITY_LA
-	rgoto	CS_M_TRKRND_UpdateGPLEDs
-
-CS_M_TRKRND_LayBChanged
-	movff	CS_MENU_PARAMETER_L, CS_RANDOM_INTENSITY_LB
-	rgoto	CS_M_TRKRND_UpdateGPLEDs
-
-CS_M_TRKRND_LayCChanged
-	movff	CS_MENU_PARAMETER_L, CS_RANDOM_INTENSITY_LC
-	rgoto	CS_M_TRKRND_UpdateGPLEDs
-
-CS_M_TRKRND_TrgAChanged
-	movff	CS_MENU_PARAMETER_L, CS_RANDOM_INTENSITY_TA
-	rgoto	CS_M_TRKRND_UpdateGPLEDs
-
-CS_M_TRKRND_TrgBChanged
-	movff	CS_MENU_PARAMETER_L, CS_RANDOM_INTENSITY_TB
-	rgoto	CS_M_TRKRND_UpdateGPLEDs
-
-CS_M_TRKRND_TrgCChanged
-	movff	CS_MENU_PARAMETER_L, CS_RANDOM_INTENSITY_TC
-	rgoto	CS_M_TRKRND_UpdateGPLEDs
-
-;; ==========================================================================
-
-	;; returns random number depending on CS_RANDOM_INTENSITY
-	;; mean value in MIOS_PARAMETER1
-	;; range in MIOS_PARAMETER2
-CS_M_TRKRND_Gen_GetNumber
-	;; 0x40 +/- RAND*CS_RANDOM_INTENSITY*0x20
-	call	SEQ_CORE_GenRandomNumber
-	movf	MIOS_PARAMETER2, W
-	mulwf	SEQ_RANDOM_SEED_L, BANKED
-
-	;; add/subtract depending on SEQ_RANDOM_SEED_H[0]
-	BRA_IFCLR SEQ_RANDOM_SEED_H, 0, BANKED, CS_M_TRKRND_Gen_GetNumber_Add
-CS_M_TRKRND_Gen_GetNumber_Sub
-	movf	PRODH, W
-	subwf	MIOS_PARAMETER1, W
-	;; saturate on overflow
-	btfsc	WREG, 7
-	movlw 0x00
-	movwf	PRODL
-
-	;; value should never be 0x00
-	movf	PRODL, W
-	skpnz
-	addlw	1
-	return
-
-CS_M_TRKRND_Gen_GetNumber_Add
-	movf	PRODH, W
-	addwf	MIOS_PARAMETER1, W
-	;; saturate on overflow
-	btfsc	WREG, 7
-	movlw 0x7f
-	return
-
-
-;; --------------------------------------------------------------------------
-;;  Randomizes the current track depending on CS_RANDOM_INTENSITY_xx
-;;  IN: selected track in SEQ_EVNTT
-;; --------------------------------------------------------------------------
-CS_M_TRKRND_Gen_LA
-	movlw	0		; Layer A
-	rgoto	CS_M_TRKRND_Gen_L
-
-CS_M_TRKRND_Gen_LB
-	movlw	1		; Layer B
-	rgoto	CS_M_TRKRND_Gen_L
-
-CS_M_TRKRND_Gen_LC
-	movlw	2		; Layer C
-	rgoto	CS_M_TRKRND_Gen_L
-
-CS_M_TRKRND_Gen_TA
-	movlw	0		; Layer A
-	rgoto	CS_M_TRKRND_Gen_T
-
-CS_M_TRKRND_Gen_TB
-	movlw	1		; Layer B
-	rgoto	CS_M_TRKRND_Gen_T
-
-CS_M_TRKRND_Gen_TC
-	movlw	2		; Layer C
-	rgoto	CS_M_TRKRND_Gen_T
-
-;; --------------------------------------------------------------------------
-CS_M_TRKRND_Gen_L
-	movwf	TMP1		; store layer in TMP1
-	
-	lfsr	FSR1, CS_RANDOM_INTENSITY_LA
-	movff	PLUSW1, TMP2	; store intensity in TMP2
-
-	;; don't touch if intensity is 0
-	movf	TMP2, W
-	bz	CS_M_TRKRND_Gen_L_End
-
-	SET_BSR	SEQ_BASE
-	
-	clrf	SEQ_EVNTS, BANKED
-CS_M_TRKRND_Gen_L_Loop
-	;; length?
-	call	SEQ_FSR_TrkEvnt
-	movff	INDF1, MIOS_PARAMETER1
-	movf	TMP1, W		; Layer number
-	call	SEQ_LAYER_GetVType
-	xorlw	SEQ_LAYER_V_LEN
-	bz	CS_M_TRKRND_Gen_L_Loop_Len
-CS_M_TRKRND_Gen_L_Loop_NoLen
-	movlw	0x40			; 0x40
-	movwf	MIOS_PARAMETER1
-	movf	TMP2, W			; +/- 63
-	movwf	MIOS_PARAMETER2
-	rgoto	CS_M_TRKRND_Gen_L_Loop_Cont
-CS_M_TRKRND_Gen_L_Loop_Len
-	movlw	0x10			; 0x10
-	movwf	MIOS_PARAMETER1
-	rrf	TMP2, W			; +/- 15
-	rrf	WREG, W
-	andlw	0x0f
-	movwf	MIOS_PARAMETER2
-CS_M_TRKRND_Gen_L_Loop_Cont
-	rcall	CS_M_TRKRND_Gen_GetNumber
-	movwf	MIOS_PARAMETER1
-	movf	TMP1, W		; Layer
-	call	SEQ_LAYER_SetVValue
-
-	incf	SEQ_EVNTS, F, BANKED
-	movlw	32 - 1
-	cpfsgt	SEQ_EVNTS, BANKED
-	rgoto CS_M_TRKRND_Gen_L_Loop
-
-CS_M_TRKRND_Gen_L_End
-	return
-
+;; randomisation of selected trigger layer (Gate or Aux)
+;; Expecting "intensity" in WREG, and track in SEQ_EVNTT
 ;; --------------------------------------------------------------------------
 CS_M_TRKRND_Gen_T
-	movwf	TMP1		; store layer in TMP1
-	
-	lfsr	FSR1, CS_RANDOM_INTENSITY_TA
-	movff	PLUSW1, TMP2	; store intensity in TMP2
+	movwf	TMP1		; store intensity in TMP1
 
 	;; don't touch if intensity is 0
-	movf	TMP2, W
+	movf	TMP1, W
 	bz	CS_M_TRKRND_Gen_T_End
 
 	SET_BSR	SEQ_BASE
@@ -615,7 +268,7 @@ CS_M_TRKRND_Gen_T_Loop
 	movlw	0x01		; set by default
 	movwf	MIOS_PARAMETER1
 	;; always set if intensity == 15
-	movf	TMP2, W
+	movf	TMP1, W
 	xorlw	0x0f
 	bz	CS_M_TRKRND_Gen_T_Loop_Set
 CS_M_TRKRND_Gen_T_Loop_Chk	
@@ -623,19 +276,27 @@ CS_M_TRKRND_Gen_T_Loop_Chk
 	movf	SEQ_RANDOM_SEED_L, W, BANKED
 	xorwf	SEQ_RANDOM_SEED_H, W, BANKED
 	andlw	0x0f
-	cpfslt	TMP2, ACCESS
-	rgoto CS_M_TRKRND_Gen_T_Loop_Set
+	cpfslt	TMP1, ACCESS
+	rgoto	CS_M_TRKRND_Gen_T_Loop_Set
 	clrf	MIOS_PARAMETER1	; clear trigger
 CS_M_TRKRND_Gen_T_Loop_Set
-	movf	TMP1, W		; layer A/B/C
-	call	SEQ_TRG_SetLayer
+	;; gate or aux?
+	call	CS_M_HLP_GetSelectedTrgLayer
+	bnz	CS_M_TRKRND_Gen_T_Loop_Set_Aux
+CS_M_TRKRND_Gen_T_Loop_Set_Gate
+	movf	MIOS_PARAMETER1, W
+	call	SEQ_TRG_GateSet
+	rgoto	CS_M_TRKRND_Gen_T_Loop_Next
+CS_M_TRKRND_Gen_T_Loop_Set_Aux
+	movf	MIOS_PARAMETER1, W
+	call	SEQ_TRG_AuxSet
+	;; 	rgoto	CS_M_TRKRND_Gen_T_Loop_Next
 
+CS_M_TRKRND_Gen_T_Loop_Next
 	incf	SEQ_EVNTS, F, BANKED
-	movlw	32 - 1
+	movlw	64 - 1
 	cpfsgt	SEQ_EVNTS, BANKED
-	rgoto CS_M_TRKRND_Gen_T_Loop
+	rgoto	CS_M_TRKRND_Gen_T_Loop
 
 CS_M_TRKRND_Gen_T_End
 	return
-
-
