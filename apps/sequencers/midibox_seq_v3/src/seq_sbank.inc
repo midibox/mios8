@@ -270,6 +270,10 @@ SEQ_SBANK_FormatStick_Reload
 	;; request re-init of page so that new values will be displayed
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 
+	;; change message delay counter
+	movlw	0x20
+	call	MIOS_LCD_MessageStart
+
 SEQ_SBANK_CheckStick_End
 	return
 

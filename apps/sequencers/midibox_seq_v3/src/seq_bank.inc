@@ -380,11 +380,41 @@ SEQ_BANK_CheckStick_Unformatted
 
 SEQ_BANK_CheckStick_Reload
 SEQ_BANK_FormatStick_Reload
+
+	;; if 64k bankstick predefined: check if this is really a 64k EEPROM, if not switch to 32k to prevent data loss
+	SET_BSR	SEQ_BASE
+	movf	SEQ_BANKSTICK_CHK_CTR, W, BANKED
+	call	MIOS_HLP_GetBitANDMask
+	andwf	SEQ_BANKSTICK_SIZE, W, BANKED
+	bz	SEQ_BANK_CheckStick_No32kCheck
+SEQ_BANK_CheckStick_32kCheck
+	clrf	MIOS_PARAMETER1			; read 0x8000/0x8001 from BankStick
+	movlw	0x80
+	movwf	MIOS_PARAMETER2
+	call	MIOS_BANKSTICK_Read
+	xorlw	BANKSTICK_MAGIC0		; if 0x8000 != magic byte 0, it's a 64k stick
+	bnz	SEQ_BANK_CheckStick_No32kCheck
+	call	MIOS_BANKSTICK_Read
+	xorlw	BANKSTICK_MAGIC1		; if 0x8001 != magic byte 1, it's a 64k stick
+	bnz	SEQ_BANK_CheckStick_No32kCheck
+	;; note that this detection has flaws (quick&dirty hack), because if a sequencer pattern
+	;; contains the magic values at the first two addresses, we could wrongly switch to 32k mode.
+	;; The detection could be improved by writing/reading to address 0x8002, and by checking
+	;; if the value has changed at address 0x0002 as well
+	;; something similar has been realized in MBSID V2 (64k marker stored in BankStick),
+	;; but it's too difficult to bring such a feature into a running project -- dangers are too
+	;; high that after a firmware update BankSticks will be reformatted due to a programming error :-/
+	SET_BSR	SEQ_BASE
+	movf	SEQ_BANKSTICK_CHK_CTR, W, BANKED	; force 32k mode
+	call	MIOS_HLP_GetBitANDMask
+	andwf	SEQ_BANKSTICK_SIZE, F, BANKED
+SEQ_BANK_CheckStick_No32kCheck
+
 	;; re-init sequencer
 	call	SEQ_CORE_Init
 
 	;; change message delay counter
-	movlw	100
+	movlw	0x20
 	call	MIOS_LCD_MessageStart
 
 SEQ_BANK_CheckStick_End
@@ -449,6 +479,7 @@ SEQ_BANK_FormatStickCopyLoopEnd
 	;; clear addresses 0x0002-0x00ff of bankstick
 	;; (this area is overlayed by internal bank)
 SEQ_BANK_FormatStickEraseLoop
+	clrwdt
 	movlw	0x00
 	call	MIOS_BANKSTICK_Write
 	movf	MIOS_PARAMETER2, W

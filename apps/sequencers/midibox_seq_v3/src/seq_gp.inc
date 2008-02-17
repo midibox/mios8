@@ -139,15 +139,15 @@ SEQ_GP_Mode0_Button
 	;; branch if button has been depressed
 	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_GP_Mode0_Button_Depr
 
-	;; store button number in SEQ_CURRENT_STEP and SEQ_EVNTS
+	;; determine step number depending on SEQ_SELECTED_STEPS[0],
+	;; add offset to button number and store in SEQ_CURRENT_STEP and SEQ_EVNTS
 	movf	MIOS_PARAMETER1, W
 	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
 	addlw	0x10
 	movwf	SEQ_CURRENT_STEP, BANKED
 	movwf	SEQ_EVNTS, BANKED
 
-	;; mute step defined in MIOS_PARAMETER1
-	;; store mask used for XOR operation in TMP1
+	;; determine store mask used for XOR operation in TMP1
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitORMask
 	movwf	TMP1
@@ -419,9 +419,11 @@ SEQ_GP_SRM_NormalCopy
 	call	CS_M_HLP_GetSelectedGroupOffset
 	movwf	SEQ_EVNTT, BANKED
 
+#if 0	; not used anymore
 	;; selected track -> TMP1
 	call	CS_M_HLP_GetSelectedTrk
 	movwf	TMP1
+#endif
 
 	;; determine first SEQ_EVNTS
 	movlw	0x00

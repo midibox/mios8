@@ -1074,6 +1074,10 @@ SEQ_CORE_Clk_Step_IncDec_NoR
 
 	clrf	SEQ_SKIP_STEP_PROTECTION_CTR, BANKED
 SEQ_CORE_Clk_Step_IncDecLoop
+	;; clear divider counter
+	movlw	SEQ_TRKVARDIVCTRx
+	clrf	PLUSW2
+
 	;; determine next step depending on direction mode
 	call	SEQ_CORE_NextStep
 
@@ -2029,7 +2033,7 @@ SEQ_CORE_UpdateTrkDisable_NoSync
 	lfsr	FSR1, SEQ_PATTERN0
 	movf	SEQ_GROUP, W, BANKED
 	movf	PLUSW1, W
-	bnz	SEQ_CORE_UpdateTrkDisable_Not
+	bz	SEQ_CORE_UpdateTrkDisable_Not
 	;; 	rgoto	SEQ_CORE_UpdateTrkDisable_Match
 
 SEQ_CORE_UpdateTrkDisable_Ok
@@ -2236,10 +2240,6 @@ SEQ_CORE_NextStep
 #define SEQ_CORE_NEXTSTEP_TMP3_PINGPONG 0
 #define SEQ_CORE_NEXTSTEP_TMP3_PENDULUM 1
 #define SEQ_CORE_NEXTSTEP_TMP3_SAVESTEP 2
-
-	;; clear divider counter
-	movlw	SEQ_TRKVARDIVCTRx
-	clrf	PLUSW2
 
 	;; clear TMP3, which holds some temporary flags (see definitions above)
 	clrf	TMP3

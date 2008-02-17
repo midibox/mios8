@@ -37,11 +37,15 @@
 ;
 ; For MIDI activity monitor: define the DOUT pins for the Rx and Tx LED
 #define DEFAULT_MIDI_MONITOR_ENABLED 1  ; if 1, the Tx/Rx LEDs are enabled
-#define DEFAULT_MIDI_RX_LED 0x0f	; DOUT SR#2, pin D0
-#define DEFAULT_MIDI_TX_LED 0xff	; not used
+;                                    SR            Pin#
+#define DEFAULT_MIDI_RX_LED        (((2 - 1)<<3)+7- 0)	; DOUT SR#2, pin D0
+#define DEFAULT_MIDI_TX_LED        0xff			; not used
+;                                       ^^^^^^^^^^^ignore!
 ;
 ; The beat indicator LED has to be assigned to a DOUT pin here:
-#define DEFAULT_BEAT_INDICATOR_LED 0x07	; DOUT SR#1, pin D0
+;                                    SR            Pin#
+#define DEFAULT_BEAT_INDICATOR_LED (((1 - 1)<<3)+7- 0) ; DOUT SR#1, pin D0
+;                                       ^^^^^^^^^^^ignore!
 ;
 ; Some menus are provide the possibility to use 16 "general purpose" buttons
 ; Define the two shift registers which are assigned to this function here:
@@ -237,7 +241,7 @@
 ; ==========================================================================
 
 DIN_ENTRY MACRO function, sr, pin
-	dw	function, (pin + 8*(sr-1))
+	dw	function, (pin + 8*((sr-1)&0xff))
 	ENDM
 
 DIN_ENTRY_EOT MACRO
@@ -368,9 +372,9 @@ SEQ_IO_TABLE_DOUT
 	DOUT_ENTRY	TMP4, 3,				11,	6	; Group 4 LED (assigned to pin 6 due to DUO LED)
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP4, 5,				12,	0	; Triger Layer A LED
-	DOUT_ENTRY	TMP4, 6,				12,	1	; Triger Layer B LED
-	DOUT_ENTRY	TMP4, 7,				12,	2	; Triger Layer C LED
+	DOUT_ENTRY	TMP4, 5,				12,	0	; Trigger Layer A LED
+	DOUT_ENTRY	TMP4, 6,				12,	1	; Trigger Layer B LED
+	DOUT_ENTRY	TMP4, 7,				12,	2	; Trigger Layer C LED
 
 	;; OPTIONAL! see CHANGELOG.txt
 	DOUT_ENTRY	TMP5, 0,				12,	3	; Play LED

@@ -18,14 +18,14 @@
 ;       If no entry with "mode 3" or "mode 4" is defined, Song mode will be disabled.
 ;       If no entry with "mode 5" is defined, there will only be one Mixer Map which cannot be stored
 ; If a BankStick is not connected to the MBSEQ, the appr. entry will have no effect
-#define DEFAULT_BANKSTICK_MODE_CS0	1	; 32k
-#define DEFAULT_BANKSTICK_MODE_CS1	1	; 32k
+#define DEFAULT_BANKSTICK_MODE_CS0	2	; 64k
+#define DEFAULT_BANKSTICK_MODE_CS1	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS2	5	; Mixer Map (using CS2 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
-#define DEFAULT_BANKSTICK_MODE_CS3	3	; Song mode (using CS3 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
-#define DEFAULT_BANKSTICK_MODE_CS4	1	; 32k
-#define DEFAULT_BANKSTICK_MODE_CS5	1	; 32k
-#define DEFAULT_BANKSTICK_MODE_CS6	1	; 32k
-#define DEFAULT_BANKSTICK_MODE_CS7	1	; 32k
+#define DEFAULT_BANKSTICK_MODE_CS3	4	; Song mode (using CS3 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
+#define DEFAULT_BANKSTICK_MODE_CS4	2	; 64k
+#define DEFAULT_BANKSTICK_MODE_CS5	2	; 64k
+#define DEFAULT_BANKSTICK_MODE_CS6	2	; 64k
+#define DEFAULT_BANKSTICK_MODE_CS7	2	; 64k
 ;
 ;
 ; Max. length of the DIN/DOUT shift register chain (1-16)
@@ -37,11 +37,15 @@
 ;
 ; For MIDI activity monitor: define the DOUT pins for the Rx and Tx LED
 #define DEFAULT_MIDI_MONITOR_ENABLED 1  ; if 1, the Tx/Rx LEDs are enabled
-#define DEFAULT_MIDI_RX_LED 0x0f	; DOUT SR#2, pin D0
-#define DEFAULT_MIDI_TX_LED 0xff	; not used
+;                                    SR            Pin#
+#define DEFAULT_MIDI_RX_LED        (((2 - 1)<<3)+7- 0)	; DOUT SR#2, pin D0
+#define DEFAULT_MIDI_TX_LED        0xff			; not used
+;                                       ^^^^^^^^^^^ignore!
 ;
 ; The beat indicator LED has to be assigned to a DOUT pin here:
-#define DEFAULT_BEAT_INDICATOR_LED 0x07	; DOUT SR#1, pin D0
+;                                    SR            Pin#
+#define DEFAULT_BEAT_INDICATOR_LED (((1 - 1)<<3)+7- 0) ; DOUT SR#1, pin D0
+;                                       ^^^^^^^^^^^ignore!
 ;
 ; Some menus are provide the possibility to use 16 "general purpose" buttons
 ; Define the two shift registers which are assigned to this function here:
@@ -236,7 +240,7 @@
 ; ==========================================================================
 
 DIN_ENTRY MACRO function, sr, pin
-	dw	function, (pin + 8*(sr-1))
+	dw	function, (pin + 8*((sr-1)&0xff))
 	ENDM
 
 DIN_ENTRY_EOT MACRO
@@ -367,9 +371,9 @@ SEQ_IO_TABLE_DOUT
 	DOUT_ENTRY	TMP4, 3,				11,	6	; Group 4 LED (assigned to pin 6 due to DUO LED)
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP4, 5,				12,	0	; Triger Layer A LED
-	DOUT_ENTRY	TMP4, 6,				12,	1	; Triger Layer B LED
-	DOUT_ENTRY	TMP4, 7,				12,	2	; Triger Layer C LED
+	DOUT_ENTRY	TMP4, 5,				12,	0	; Trigger Layer A LED
+	DOUT_ENTRY	TMP4, 6,				12,	1	; Trigger Layer B LED
+	DOUT_ENTRY	TMP4, 7,				12,	2	; Trigger Layer C LED
 
 	;; OPTIONAL! see CHANGELOG.txt
 	DOUT_ENTRY	TMP5, 0,				12,	3	; Play LED

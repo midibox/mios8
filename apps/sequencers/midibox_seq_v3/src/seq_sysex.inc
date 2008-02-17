@@ -62,7 +62,7 @@ SEQ_SYSEX_Parser
 	incf	SEQ_SYSEX_STATE, F, BANKED
 	movf	SEQ_SYSEX_STATE, W, BANKED
 	andlw	0x07
-	xorlw	0x06	; wait for 6 bytes (f0 00 00 7E 47 <device-id>)
+	xorlw	0x06	; wait for 6 bytes (f0 00 00 7E 4A <device-id>)
 	bnz	SEQ_SYSEX_SysExCheckOk
 
 	;; SysEx ID received, lets go
@@ -551,10 +551,12 @@ SEQ_SYSEX_SendDump
 	;; send requested pattern bank and number
 	SET_BSR	SEQ_BASE
 	movf	SEQ_SYSEX_TARGET_BANK, W, BANKED
+	andlw	0x7f
 	call	MIOS_MIDI_TxBufferPut
 
 	SET_BSR	SEQ_BASE
 	movf	SEQ_SYSEX_TARGET_PATTERN, W, BANKED
+	andlw	0x7f
 	call	MIOS_MIDI_TxBufferPut
 
 	;; clear checksum

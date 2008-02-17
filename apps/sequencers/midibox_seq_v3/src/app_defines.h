@@ -688,7 +688,7 @@ SEQ_TRKDIR1x		EQU	0x07	; track direction (mode and replay)
 SEQ_TRKDIR2x		EQU	0x08	; track direction (steps fwd and jump back)
 SEQ_TRKDIVx		EQU     0x09	; clock divider
 SEQ_TRKLENx		EQU     0x0a	; track length
-SEQ_TRKLOOPx		EQU	0x0b
+SEQ_TRKLOOPx		EQU	0x0b	; loop point
 SEQ_TRKTRANSPx		EQU     0x0c	; octave/semitones transpose value
 SEQ_TRKSPARE1x		EQU     0x0d	; spare byte for future extensions
 SEQ_TRKGROOVEx		EQU     0x0e	; groove mode and intensity
