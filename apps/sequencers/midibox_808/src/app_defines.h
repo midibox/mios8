@@ -364,7 +364,7 @@ SEQ_REMOTE_CTR		EQU	0x14e	; used by "seq_remote.inc"
 
 SEQ_RECORD_MODE		EQU	0x14f	; used by "cs_m_record.inc"
 SEQ_RECORD_STEP		EQU	0x150	; used by "cs_m_record.inc"
-SEQ_RECORD_CURRENT_EVNT1 EQU	0x151	; used by "cs_m_record.inc"
+	;; free: 0x151
 SEQ_RECORD_LENGTH_CTR   EQU     0x152   ; used by "cs_m_record.inc" and "seq_core.inc"
 
 SEQ_MORPH_CHANNEL	EQU	0x153	; used by "seq_midi.inc" and "cs_m_morph.inc"
@@ -413,7 +413,10 @@ SEQ_SONG		EQU	0x170	; used by CS_M_SONG* only, don't change the order!
 SEQ_EDIT_SONG_POS	EQU	0x171
 SEQ_SONG_RECURSION_CTR	EQU	0x172	; used in "seq_song.inc", SEQ_SONG_FetchPosDirect to avoid a live lock
 
-	;; free: 0x173-0x19d
+SEQ_LIVEPLAY_METERS0	EQU	0x173	; GP overlay for live playing mode
+SEQ_LIVEPLAY_METERS1	EQU	0x174	; GP overlay for live playing mode
+
+	;; free: 0x175-0x19d
 
 ;; ==================================================================================
 

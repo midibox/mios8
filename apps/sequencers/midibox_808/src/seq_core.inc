@@ -54,8 +54,7 @@ SEQ_TRKVARSTATE_POS_RESET	EQU	6	; set by seq_midi.inc if position of ARP/Transpo
 SEQ_TRKVARSTATE_DISABLED	EQU	7	; set if no pattern is selected to avoid editing of trigger/layer values
 
 SEQ_TRKVARSTATE2_REC_EVNT_ACTIVE EQU	0	; set so long a note/cc is held (for note length measuring)
-SEQ_TRKVARSTATE2_REC_MUTE_NXTSTP EQU	1	; for length...
-SEQ_TRKVARSTATE2_SYNC_MEASURE	 EQU	2	; temporary request for synch to measure (used during pattern switching)
+SEQ_TRKVARSTATE2_SYNC_MEASURE	 EQU	1	; temporary request for synch to measure (used during pattern switching)
 
 SEQ_TRKDIR_FORWARD		EQU	0x00	; not bits, but values!
 SEQ_TRKDIR_BACKWARD		EQU	0x01
@@ -70,10 +69,6 @@ SEQ_TRKDIV_TRIPLETS		EQU	7	; play triplets
 
 SEQ_RECORD_MODE_STEP		EQU	0	; if 0: live record, if 1: step record
 SEQ_RECORD_MODE_AUTOSTART	EQU	1	; if 1: start sequencer with first key
-SEQ_RECORD_MODE_REC_LAYER_A	EQU	4	; if 1: record layer A
-SEQ_RECORD_MODE_REC_LAYER_B	EQU	5	; if 1: record layer B
-SEQ_RECORD_MODE_REC_LAYER_C	EQU	6	; if 1: record layer C
-SEQ_RECORD_MODE_REC_CC		EQU	7	; if 1: CC should be recorded, otherwise a note
 
 SEQ_MODE0_STEP_EDIT		EQU	0	; we are in step edit mode
 SEQ_MODE0_MUTE			EQU	1	; change mute status with GP buttons
@@ -97,6 +92,7 @@ SEQ_MODE2_PATTERN_HOLD		EQU	0	; if pattern button held, pattern will be stored
 SEQ_MODE2_FWD_HOLD		EQU	1	; FWD button hold
 SEQ_MODE2_REW_HOLD		EQU	2	; REW button hold
 SEQ_MODE2_LOOP_MODE		EQU	3	; if song loop mode active
+SEQ_MODE2_LIVEPLAY		EQU	3	; currently assigned to loop button (therefore same flag): liveplay mode
 SEQ_MODE2_AUX_SELECTED		EQU	4	; if aux layer is selected
 
 ;; --------------------------------------------------------------------------
@@ -123,8 +119,7 @@ SEQ_CORE_Init
 	movwf	SEQ_MODE0, BANKED
 
 	;; init record mode
-	movlw	(1 << SEQ_RECORD_MODE_REC_LAYER_A) | (1 << SEQ_RECORD_MODE_REC_LAYER_B) | (1 << SEQ_RECORD_MODE_REC_LAYER_C)
-	movwf	SEQ_RECORD_MODE, BANKED
+	clrf	SEQ_RECORD_MODE, BANKED
 
 	;; disable song
 	movlw	0x80
@@ -279,12 +274,10 @@ SEQ_CORE_Tick_End
 	bnz	SEQ_CORE_Tick
 
 
-	;; update the EDIT/MUTE/PATTERN/SONG/RECORD flag depending on menu
+	;; update the EDIT/MUTE/PATTERN/SONG flag depending on menu
 	IRQ_DISABLE
 	movlw	~((1 << SEQ_MODE0_STEP_EDIT) | (1 << SEQ_MODE0_MUTE) | (1 << SEQ_MODE0_PATTERN) | (1 << SEQ_MODE0_SONG))
 	andwf	SEQ_MODE0, F, BANKED
-	movlw	~((1 << SEQ_MODE1_RECORD))
-	andwf	SEQ_MODE1, F, BANKED
 	BRA_IFCLR CS_STAT, CS_STAT_WITHIN_PAGE, ACCESS, SEQ_CORE_Tick_NotWithinMenu
 
 	movf	CS_MENU_POS, W
@@ -302,14 +295,6 @@ SEQ_CORE_Tick_End
 	skpnz
 	bsf	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
 	;; NOTE: the LED handler flashes the LED when in song menu and song state not active
-
-#if 0
-	;; TODO
-	movf	CS_MENU_POS, W
-	xorlw	CS_MENU_PAGE_RECORD
-	skpnz
-	bsf	SEQ_MODE1, SEQ_MODE1_RECORD, BANKED
-#endif
 
 SEQ_CORE_Tick_NotWithinMenu
 	;; if these three bits *not* set, we are in edit mode
@@ -1809,6 +1794,15 @@ SEQ_CORE_UpdateMeter_Note
 
 SEQ_CORE_UpdateMeter_Cont
 	movwf	INDF1
+
+	;; set liveplay meter flag as well
+	movf	SEQ_EVNTT, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	btfss	SEQ_EVNTT, 3, BANKED
+	iorwf	SEQ_LIVEPLAY_METERS0, F, BANKED
+	btfsc	SEQ_EVNTT, 3, BANKED
+	iorwf	SEQ_LIVEPLAY_METERS1, F, BANKED
+
 	return
 
 ;; --------------------------------------------------------------------------
@@ -2221,9 +2215,7 @@ SEQ_CORE_ResetTrkPos
 	BRA_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_AUTOSTART, BANKED, SEQ_CORE_ResetTrkPos_RASSkip	; (MEMO: don't know another way yet to avoid that the note length of the first note won't be recorded in autostart mode)
 	movlw	SEQ_TRKVARSTATE2x
 	bcf	PLUSW2, SEQ_TRKVARSTATE2_REC_EVNT_ACTIVE
-	bcf	PLUSW2, SEQ_TRKVARSTATE2_REC_MUTE_NXTSTP
 	clrf	SEQ_RECORD_STEP, BANKED
-	clrf	SEQ_RECORD_CURRENT_EVNT1, BANKED
 	clrf	SEQ_RECORD_LENGTH_CTR, BANKED
 SEQ_CORE_ResetTrkPos_RASSkip
 
@@ -2395,52 +2387,16 @@ SEQ_CORE_RecStep
 	;; only relevant for live recording mode
 	BRA_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_STEP, BANKED, SEQ_CORE_RecStep_End
 
-	;; not relevant for CC events
-	BRA_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_CC, BANKED, SEQ_CORE_RecStep_End
-
-	;; check if current track is selected
-	call	CS_M_HLP_ChkTrkSelected
-	bnz	SEQ_CORE_RecStep_End
-
 	;; check if event active
 	movlw	SEQ_TRKVARSTATE2x
 	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE2_REC_EVNT_ACTIVE, ACCESS, SEQ_CORE_RecStep_NoGate
 SEQ_CORE_RecStep_Gate
-	movff	SEQ_EVNTS, SEQ_EVNT0
-	movff	SEQ_CORE_TRK_LASTPOS, SEQ_EVNTS
-	movlw	0x1f
-	movwf	SEQ_EVNTL, BANKED
-	call	SEQ_LAYER_SaveEvntL
-	movff	SEQ_EVNT0, SEQ_EVNTS
-
-	movlw	0
-	call	SEQ_TRG_GateSet
-	movlw	0x11
-	movwf	SEQ_EVNTL, BANKED
-	call	SEQ_LAYER_SaveEvntL
+	;; clear gate of new step (overwrite function)
+	clrf	SEQ_EVNT1, BANKED	; (not relevant)
+	clrf	SEQ_EVNT2, BANKED
+	call	SEQ_LAYER_SaveEvnt
 SEQ_CORE_RecStep_NoGate
 
-	movlw	SEQ_TRKVARSTATE2x
-	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE2_REC_MUTE_NXTSTP, ACCESS, SEQ_CORE_RecStep_NoChkG
-SEQ_CORE_RecStep_ChkG
-	bcf	PLUSW2, SEQ_TRKVARSTATE2_REC_MUTE_NXTSTP
-
-	movlw	SEQ_TRKVARSTATE2x
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_REC_EVNT_ACTIVE, ACCESS, SEQ_CORE_RecStep_ChkG_NL
-SEQ_CORE_RecStep_ChkG_L
-	movff	SEQ_EVNTS, SEQ_EVNT0
-	movff	SEQ_CORE_TRK_LASTPOS, SEQ_EVNTS
-	movff	SEQ_RECORD_LENGTH_CTR, SEQ_EVNTL
-	call	SEQ_LAYER_SaveEvntL
-	movff	SEQ_EVNT0, SEQ_EVNTS
-SEQ_CORE_RecStep_ChkG_NL
-
-	call	SEQ_TRG_GateGet
-	bnz	SEQ_CORE_RecStep_NoChkG
-	movlw	0x4
-	movwf	SEQ_EVNTL, BANKED
-	call	SEQ_LAYER_SaveEvntL
-SEQ_CORE_RecStep_NoChkG
 SEQ_CORE_RecStep_End
 	return
 

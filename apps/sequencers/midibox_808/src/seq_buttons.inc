@@ -447,7 +447,7 @@ SEQ_BUTTON_Pause
 	
 
 ;; --------------------------------------------------------------------------
-;;  Rew button function
+;;  Rwd button function
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Rew
 	SET_BSR	SEQ_BASE
@@ -456,6 +456,10 @@ SEQ_BUTTON_Rew
 	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Rew_Released
 SEQ_BUTTON_Rew_Pressed
 	bsf	SEQ_MODE2, SEQ_MODE2_REW_HOLD, BANKED ; set hold flag
+
+	;; if shift button pressed: branch to rotate function
+	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	goto	CS_M_UTILS_RotateLeft
 
 	;; do nothing if sequencer not running
 	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
@@ -487,6 +491,10 @@ SEQ_BUTTON_Fwd_Pressed
 	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
 	return
 
+	;; if shift button pressed: branch to rotate function
+	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	goto	CS_M_UTILS_RotateRight
+
 	;; in pattern mode: nudge track forward
 	btfsc	SEQ_SONG, 7, BANKED
 	goto	SEQ_CORE_NudgeFwd
@@ -503,12 +511,16 @@ SEQ_BUTTON_Fwd_Released
 ;;  Play button function
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Play
+	;; if shift button pressed: start/stop record mode
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Record
+
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
+SEQ_BUTTON_Play_From_Rec
 	;; restart sequencer
-	SET_BSR	SEQ_BASE
 	movlw	(1 << SEQ_REQ_START)
 	movwf	SEQ_REQ, BANKED
 
@@ -525,6 +537,10 @@ SEQ_BUTTON_Play_Auto
 ;;  Stop button function
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Stop
+	;; if shift button pressed: start/stop pause mode
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Pause
+
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
@@ -551,6 +567,25 @@ SEQ_BUTTON_Continue
 	movlw	(1 << SEQ_REQ_CONT)
 	movwf	SEQ_REQ, BANKED
 	return
+
+;; --------------------------------------------------------------------------
+;;  Record button function
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_Record
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; toggle record mode
+	SET_BSR	SEQ_BASE
+	btg	SEQ_MODE1, SEQ_MODE1_RECORD, BANKED
+
+	;; if record has been activated, and sequencer not playing: play now
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_BUTTON_Record_End
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_BUTTON_Play_From_Rec
+SEQ_BUTTON_Record_End
+	return
+
 
 ;; --------------------------------------------------------------------------
 ;;  enter edit mode

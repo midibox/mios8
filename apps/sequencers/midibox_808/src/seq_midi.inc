@@ -217,10 +217,12 @@ SEQ_MIDI_NoteOn
 	skpnz
 	rgoto	SEQ_MIDI_NoteOff
 
+#if 0
 	;; prevent that incoming note-on events will be forwarded to transpose/
 	;; arpeggiator function while record mode is active
 	btfsc	SEQ_MODE1, SEQ_MODE1_RECORD, BANKED
 	return
+#endif
 
 	;; go through list of 16 tracks
 	;; search for matching MIDI channel and note definition
@@ -242,7 +244,9 @@ SEQ_MIDI_NoteOn_Loop
 	bnz	SEQ_MIDI_NoteOn_Loop_Next
 
 	movf	SEQ_EVNTT, W, BANKED		; request trigger
-	call	SEQ_TRK_ReqTrigger	
+	call	SEQ_TRK_ReqTrigger
+
+	call	SEQ_CORE_UpdateMeter		; update meter as well
 
 SEQ_MIDI_NoteOn_Loop_Next
 	incf	SEQ_EVNTT, F, BANKED

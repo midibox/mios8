@@ -41,12 +41,13 @@ CS_M_TRKMIDI_GP_Callback_NoteOct
 CS_M_TRKMIDI_GP_Callback_Note
 	movf	MIOS_PARAMETER1, W	; set new note
 	movwf	CS_TRKMIDI_NOTE
-	rgoto	CS_M_TRKMIDI_GP_Callback_Cont
+	rgoto	CS_M_TRKMIDI_GP_Callback_NoteCnt
 CS_M_TRKMIDI_GP_Callback_Oct
 	movf	MIOS_PARAMETER1, W
 	addlw	-12+3			; set new octave
 	movwf	CS_TRKMIDI_OCTAVE
 
+CS_M_TRKMIDI_GP_Callback_NoteCnt
 	;; forward new note/octave to track parameter
 	rcall	CS_M_TRKMIDI_SetNoteOct
 
@@ -183,7 +184,7 @@ CS_M_TRKMIDI_Tick_0
 	call	MIOS_LCD_CursorSet
 
 	call	CS_M_HLP_GetSelectedTrk
-	call	SEQ_TRK_PrnName	; (6 characters)
+	call	CS_M_HLP_PrnTrkNameOrRec	; (6 characters)
 
 	rgoto	CS_M_TRKMIDI_Tick_Cont
 

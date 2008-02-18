@@ -122,18 +122,9 @@ CS_M_HLP_TrkCC_Set
 	clrf	SEQ_EVNTT, BANKED
 CS_M_HLP_TrkCC_Set_Loop
 	;; skip if track not selected
-	lfsr	FSR1, SEQ_SELECTED_TRKS_0
-	rrf	SEQ_EVNTT, W, BANKED
-	rrf	WREG, W
-	rrf	WREG, W
-	andlw	0x01
-	movff	PLUSW1, PRODL
+	rcall	CS_M_HLP_ChkTrkSelected
+	bnz	CS_M_HLP_TrkCC_Set_Loop_Next
 
-	movf	SEQ_EVNTT, W, BANKED
-	andlw	0x07
-	call	MIOS_HLP_GetBitORMask
-	andwf	PRODL, W
-	bz	CS_M_HLP_TrkCC_Set_Loop_Next
 	movff	SEQ_EVNTT, MIOS_PARAMETER2
 	movf	SEQ_EVNTS, W, BANKED
 	call	SEQ_CCIN_Set
@@ -154,7 +145,7 @@ CS_M_HLP_ChkTrkSelected
 	rrf	SEQ_EVNTT, W, BANKED
 	rrf	WREG, W
 	rrf	WREG, W
-	andlw	0x07
+	andlw	0x01
 	addwf	FSR1L, F
 
 	movf	SEQ_EVNTT, W, BANKED
@@ -297,3 +288,23 @@ CS_M_HLP_Print10Chars
 	goto	MIOS_LCD_PrintPreconfString
 
 
+;; --------------------------------------------------------------------------
+;;  Help routine to print the track name in normal mode, and to print "!REC! "
+;;  in record mode
+;;  always outputs 6 characters
+;; --------------------------------------------------------------------------
+CS_M_HLP_PrnTrkNameOrRec
+	SET_BSR	SEQ_BASE
+	GOTO_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_TRK_PrnName
+	movlw	'!'
+	call	MIOS_LCD_PrintChar
+	movlw	'R'
+	call	MIOS_LCD_PrintChar
+	movlw	'E'
+	call	MIOS_LCD_PrintChar
+	movlw	'C'
+	call	MIOS_LCD_PrintChar
+	movlw	'!'
+	call	MIOS_LCD_PrintChar
+	movlw	' '
+	goto	MIOS_LCD_PrintChar

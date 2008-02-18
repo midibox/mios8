@@ -56,10 +56,10 @@ SEQ_LAYER_GetEvnt_AltPattern	; direct entry point for SEQ_MORPH: alternative pat
 	;; note velocity is constant value depending on accent flag
 	call	SEQ_TRG_AccentGet
 	bnz	SEQ_LAYER_GetEvnt_Accent
-SEQ_LAYER_GetEvnt_Accent
+SEQ_LAYER_GetEvnt_NoAccent
 	call	SEQ_FSR_TrkVel
 	rgoto	SEQ_LAYER_GetEvnt_Accent_Cont
-SEQ_LAYER_GetEvnt_NoAccent
+SEQ_LAYER_GetEvnt_Accent
 	call	SEQ_FSR_TrkVelA
 SEQ_LAYER_GetEvnt_Accent_Cont
 	movff	INDF1, SEQ_EVNT2
@@ -135,16 +135,26 @@ SEQ_LAYER_Hlp_SetPattern
 
 ;; --------------------------------------------------------------------------
 ;;  This function saves a MIDI event to the given track and step
-;;  IN: SEQ_EVNT_NUMBER: Number of MIDI event of the track (0-2)
-;;      SEQ_EVNTT: track number (0-15)
+;;  IN: SEQ_EVNTT: track number (0-15)
 ;;      SEQ_EVNTS: step number (0-63)
 ;;      SEQ_EVNT[12] and SEQ_EVNTL: the event/length which should be saved
 ;;      SEQ_RECORD_MODE: various control flags
 ;;  USES: TBLPTR[LH], TABLAT, EEADR, PROD[LH]
 ;; --------------------------------------------------------------------------
 SEQ_LAYER_SaveEvnt
+	SET_BSR	SEQ_BASE
+
+	;; velocity 0: clear gate, otherwise set gate
+	;; TODO: set Aux trigger depending on velocity?
+	movf	SEQ_EVNT2, W, BANKED
+	skpz
+	movlw	1
+	call	SEQ_TRG_GateSet
+
+	;; request display update
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 SEQ_LAYER_SaveEvntL
-	;; TODO
+	;; TODO?
 	return
 
 

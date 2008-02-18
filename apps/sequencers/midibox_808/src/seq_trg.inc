@@ -220,7 +220,7 @@ SEQ_TRG_Delay4Get
 ;;  These "Set" functions change the assigned value (0 or 1) to a given
 ;;  function for the given step
 ;;  IN: value in WREG (0 or 1)
-;;      step number in SEQ_EVNTS (0-31)
+;;      step number in SEQ_EVNTS (0-63)
 ;;      track number in SEQ_EVNTT (0-15)
 ;;      trigger assignments in TRKASSGN[01]x
 ;;  OUT: -

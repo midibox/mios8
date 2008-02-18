@@ -52,6 +52,25 @@ SEQ_LED_Update
 	iorlw 0x20
 	movwf	TMP5
 
+#if 1
+	;; extra for shared button in MB808 frontpanel (can be made more generic later)
+	;; - Play button shows record state
+	;; - Stop button shows pause state
+	;; - loop button disabled
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_LED_Update_NoShift
+SEQ_LED_Update_Shift
+	bcf	TMP5, 0
+	btfsc	SEQ_MODE1, SEQ_MODE1_RECORD, BANKED
+	bsf	TMP5, 0
+
+	bcf	TMP5, 1
+	btfsc	SEQ_STATE, SEQ_STATE_PAUSE, BANKED
+	bsf	TMP5, 1
+
+	bcf	TMP5, 5
+
+SEQ_LED_Update_NoShift
+#endif
 
 	;; TMP1[6..0] == 1/2/3/4/A/B/C LEDs
 
@@ -228,6 +247,16 @@ SEQ_LED_UpdateIRQ_GPLED_InstOv
 	rgoto	SEQ_LED_UpdateIRQ_GPLED_NoMarker
 
 SEQ_LED_UpdateIRQ_GPLED_NoInstOv
+
+	;; live meters active?
+	;; TODO: find new mode - currently controlled with "loop" button
+	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_LIVEPLAY, BANKED, SEQ_LED_UpdateIRQ_GPLED_NoLivePM
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_ALT, BANKED, SEQ_LED_UpdateIRQ_GPLED_NoLivePM
+SEQ_LED_UpdateIRQ_GPLED_LivePM
+	movff	SEQ_LIVEPLAY_METERS0, IRQ_TMP1
+	movff	SEQ_LIVEPLAY_METERS1, IRQ_TMP2
+SEQ_LED_UpdateIRQ_GPLED_NoLivePM
+
 	;; check if a position marker should be XORed
 	BRA_IFCLR IRQ_TMP5, 4, ACCESS, SEQ_LED_UpdateIRQ_GPLED_NoMarker
 SEQ_LED_UpdateIRQ_GPLED_Marker

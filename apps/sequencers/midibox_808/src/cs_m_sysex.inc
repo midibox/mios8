@@ -128,7 +128,7 @@ CS_M_SYSEX_Tick_0
 	call	MIOS_LCD_CursorSet
 
 	call	CS_M_HLP_GetSelectedTrk
-	call	SEQ_TRK_PrnName	; (6 characters)
+	call	CS_M_HLP_PrnTrkNameOrRec	; (6 characters)
 
 	rgoto	CS_M_SYSEX_Tick_Cont
 

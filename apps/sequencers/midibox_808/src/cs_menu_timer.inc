@@ -36,23 +36,37 @@ CS_MENU_TIMER_NoOverlayCtrDec
 
 	;; handle meter counters
 	incf	CS_MENU_METER_DELAY_CTR, F	; on each 4th tick
+#if 0
+	;; for MB808: make it faster
 	BRA_IFCLR CS_MENU_METER_DELAY_CTR, 2, ACCESS, CS_MENU_TIMER_MeterEnd
+#else
+	BRA_IFCLR CS_MENU_METER_DELAY_CTR, 1, ACCESS, CS_MENU_TIMER_MeterEnd
+#endif
 	clrf	CS_MENU_METER_DELAY_CTR
 CS_MENU_TIMER_Meter
 	;; request fast display update (important for realtime information on LCD)
 	bsf	CS_STAT2, CS_STAT2_FAST_DISPLAY_UPDATE_REQ
 
 	lfsr	FSR1, CS_MENU_METER_CTR_BEGIN
-	movlw	16
-	movwf	IRQ_TMP1
+	clrf	IRQ_TMP1
 CS_MENU_TIMER_MeterLoop
 	movf	INDF1, W	; decrement until 0 reached
-	skpz
+	bz	CS_MENU_TIMER_MeterLoop_Next
 	decf	INDF1, F
+
+	;; if zero reached: clear liveplay meter flag as well
+	SET_BSR	SEQ_BASE
+	bnz	CS_MENU_TIMER_MeterLoop_Next
+	movf	IRQ_TMP1, W
+	call	MIOS_HLP_GetBitANDMask
+	btfss	IRQ_TMP1, 3
+	andwf	SEQ_LIVEPLAY_METERS0, F, BANKED
+	btfsc	IRQ_TMP1, 3
+	andwf	SEQ_LIVEPLAY_METERS1, F, BANKED
 CS_MENU_TIMER_MeterLoop_Next
 	movf	POSTINC1, W	; increment counter
-	decfsz	IRQ_TMP1, F
-	rgoto	CS_MENU_TIMER_MeterLoop
+	incf	IRQ_TMP1, F
+	BRA_IFCLR IRQ_TMP1, 4, ACCESS, CS_MENU_TIMER_MeterLoop
 CS_MENU_TIMER_MeterEnd
 
 	;; we want to flash the cursor with following "waveform":

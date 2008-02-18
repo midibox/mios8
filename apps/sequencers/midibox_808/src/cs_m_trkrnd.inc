@@ -38,18 +38,8 @@ CS_M_TRKRND_GP_Callback_On
 	clrf	SEQ_EVNTT, BANKED
 CS_M_TRKRND_GP_Callback_On_Loop
 	;; skip if track not selected
-	lfsr	FSR1, SEQ_SELECTED_TRKS_0
-	rrf	SEQ_EVNTT, W, BANKED
-	rrf	WREG, W
-	rrf	WREG, W
-	andlw	0x01
-	movff	PLUSW1, PRODL
-
-	movf	SEQ_EVNTT, W, BANKED
-	andlw	0x07
-	call	MIOS_HLP_GetBitORMask
-	andwf	PRODL, W
-	bz	CS_M_TRKRND_GP_Callback_On_LoopN
+	call	CS_M_HLP_ChkTrkSelected
+	bnz	CS_M_TRKRND_GP_Callback_On_LoopN
 
 	incf	CS_MENU_CURSOR_POS, W	; should be at least 1
 	call	CS_M_TRKRND_Gen_T
@@ -154,7 +144,7 @@ CS_M_TRKRND_Tick_0
 	call	MIOS_LCD_CursorSet
 
 	call	CS_M_HLP_GetSelectedTrk
-	call	SEQ_TRK_PrnName	; (6 characters)
+	call	CS_M_HLP_PrnTrkNameOrRec	; (6 characters)
 
 	rgoto	CS_M_TRKRND_Tick_Cont
 

@@ -217,7 +217,7 @@ CS_M_UTILS_Tick_0
 	call	MIOS_LCD_CursorSet
 
 	call	CS_M_HLP_GetSelectedTrk
-	call	SEQ_TRK_PrnName	; (6 characters)
+	call	CS_M_HLP_PrnTrkNameOrRec	; (6 characters)
 
 	rgoto	CS_M_UTILS_Tick_Cont
 
@@ -605,3 +605,152 @@ CS_M_UTILS_UnMuteAll
 	clrf	SEQ_TRKS_MUTED1, BANKED
 	return
 
+
+;; --------------------------------------------------------------------------
+;;  Rotates the selected track(s) to the left
+;;  Used by SEQ_BUTTON_Rew while SHIFT button pressed
+;; --------------------------------------------------------------------------
+CS_M_UTILS_RotateLeft
+	SET_BSR	SEQ_BASE
+	clrf	SEQ_EVNTT, BANKED
+CS_M_UTILS_RotateLeft_OLoop
+	;; skip if track not selected
+	call	CS_M_HLP_ChkTrkSelected
+	bnz	CS_M_UTILS_RotateLeft_OLoopN
+
+	;; rotate between loop points (depends on selected step view)
+	rcall	CS_M_UTILS_Hlp_GetStartEnd	; start in MIOS_PARAMETER1, end in MIOS_PARAMETER2
+
+	;; don't rotate if start/end equal
+	movf	MIOS_PARAMETER1, W
+	xorwf	MIOS_PARAMETER2, W
+	bz	CS_M_UTILS_RotateLeft_OLoopN
+
+	;; store value of leftmost step
+	movff	MIOS_PARAMETER1, SEQ_EVNTS
+	call	SEQ_TRG_GateGet
+	movwf	TMP1
+	call	SEQ_TRG_AuxGet
+	movwf	TMP2
+
+	;; start rotation
+CS_M_UTILS_RotateLeft_ILoop
+	incf	SEQ_EVNTS, F, BANKED
+
+	call	SEQ_TRG_GateGet
+	decf	SEQ_EVNTS, F, BANKED
+	call	SEQ_TRG_GateSet
+	incf	SEQ_EVNTS, F, BANKED
+	
+	call	SEQ_TRG_AuxGet
+	decf	SEQ_EVNTS, F, BANKED
+	call	SEQ_TRG_AuxSet
+	incf	SEQ_EVNTS, F, BANKED
+
+	;; continue until last step+1 reached
+	movf	SEQ_EVNTS, W, BANKED
+	xorwf	MIOS_PARAMETER2, W
+	bnz	CS_M_UTILS_RotateLeft_ILoop
+
+	;; copy values of previously first step to new last step
+	movf	TMP1, W
+	call	SEQ_TRG_GateSet
+	movf	TMP2, W
+	call	SEQ_TRG_AuxSet
+	
+CS_M_UTILS_RotateLeft_OLoopN
+	incf	SEQ_EVNTT, F, BANKED
+	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTILS_RotateLeft_OLoop
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Rotates the selected track(s) to the right
+;;  Used by SEQ_BUTTON_Fwd while SHIFT button pressed
+;; --------------------------------------------------------------------------
+CS_M_UTILS_RotateRight
+	SET_BSR	SEQ_BASE
+	clrf	SEQ_EVNTT, BANKED
+CS_M_UTILS_RotateRight_OLoop
+	;; skip if track not selected
+	call	CS_M_HLP_ChkTrkSelected
+	bnz	CS_M_UTILS_RotateRight_OLoopN
+
+	;; rotate between loop points (depends on selected step view)
+	rcall	CS_M_UTILS_Hlp_GetStartEnd	; start in MIOS_PARAMETER1, end in MIOS_PARAMETER2
+
+	;; don't rotate if start/end equal
+	movf	MIOS_PARAMETER1, W
+	xorwf	MIOS_PARAMETER2, W
+	bz	CS_M_UTILS_RotateRight_OLoopN
+
+	;; store value of rightmost step
+	movff	MIOS_PARAMETER2, SEQ_EVNTS
+	call	SEQ_TRG_GateGet
+	movwf	TMP1
+	call	SEQ_TRG_AuxGet
+	movwf	TMP2
+
+	;; start rotation
+CS_M_UTILS_RotateRight_ILoop
+	decf	SEQ_EVNTS, F, BANKED
+
+	call	SEQ_TRG_GateGet
+	incf	SEQ_EVNTS, F, BANKED
+	call	SEQ_TRG_GateSet
+	decf	SEQ_EVNTS, F, BANKED
+	
+	call	SEQ_TRG_AuxGet
+	incf	SEQ_EVNTS, F, BANKED
+	call	SEQ_TRG_AuxSet
+	decf	SEQ_EVNTS, F, BANKED
+
+	;; continue until first step reached
+	movf	SEQ_EVNTS, W, BANKED
+	xorwf	MIOS_PARAMETER1, W
+	bnz	CS_M_UTILS_RotateRight_ILoop
+
+	;; copy values of previously last step to new first step
+	movf	TMP1, W
+	call	SEQ_TRG_GateSet
+	movf	TMP2, W
+	call	SEQ_TRG_AuxSet
+	
+CS_M_UTILS_RotateRight_OLoopN
+	incf	SEQ_EVNTT, F, BANKED
+	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTILS_RotateRight_OLoop
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Help function that returns step 0/32 (depending on selected step view)
+;;  in MIOS_PARAMETER1, and the endpoint in MIOS_PARAMETER2
+;; --------------------------------------------------------------------------
+CS_M_UTILS_Hlp_GetStartEnd
+	SET_BSR	SEQ_BASE
+
+	;; branch depending on step view (lower/upper steps)
+	BRA_IFSET SEQ_SELECTED_STEPS, 1, BANKED, CS_M_UTILS_Hlp_GetStartEnd_B
+CS_M_UTILS_Hlp_GetStartEnd_A
+	call	SEQ_FSR_TrkLoopA
+	movff	INDF1, MIOS_PARAMETER1
+	call	SEQ_FSR_TrkLastA
+	movff	INDF1, MIOS_PARAMETER2
+	rgoto	CS_M_UTILS_Hlp_GetStartEnd_Cont
+
+CS_M_UTILS_Hlp_GetStartEnd_B
+	call	SEQ_FSR_TrkLoopB
+	movff	INDF1, MIOS_PARAMETER1
+	call	SEQ_FSR_TrkLastB
+	movff	INDF1, MIOS_PARAMETER2
+	;; 	rgoto	CS_M_UTILS_Hlp_GetStartEnd_Cont
+CS_M_UTILS_Hlp_GetStartEnd_Cont
+	;; swap if end < start
+	movf	MIOS_PARAMETER1, W
+	cpfslt	MIOS_PARAMETER2
+	return
+
+	movff	MIOS_PARAMETER2, PRODL
+	movff	MIOS_PARAMETER1, MIOS_PARAMETER2
+	movff	PRODL, MIOS_PARAMETER1
+	return
