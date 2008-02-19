@@ -73,19 +73,6 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_MIDI_RX_LED        0xff			; not used
 #define DEFAULT_MIDI_TX_LED        0xff			; not used
 ;
-; The beat indicator LED has to be assigned to a DOUT pin here:
-;                                    SR            Pin#
-#define DEFAULT_BEAT_INDICATOR_LED 0xff                 ; not used
-;                                       ^^^^^^^^^^^ignore!
-;
-; The step selection LEDs have to be assigned to DOUT pins here (they are used as beat indicators as well):
-;                                         SR          Pin#
-#define DEFAULT_STEP01_16_INDICATOR_LED (((2 - 1)<<3)+ 6) ; DOUT SR#1, pin D5
-#define DEFAULT_STEP17_32_INDICATOR_LED (((2 - 1)<<3)+ 5) ; DOUT SR#1, pin D4
-#define DEFAULT_STEP33_48_INDICATOR_LED (((2 - 1)<<3)+ 3) ; DOUT SR#1, pin D2
-#define DEFAULT_STEP49_64_INDICATOR_LED (((2 - 1)<<3)+ 1) ; DOUT SR#1, pin D3
-;                                            ^^^^^^^^^ignore!
-;
 ; Some menus are provide the possibility to use 16 "general purpose" buttons
 ; Define the two shift registers which are assigned to this function here:
 ; (valid numbers: 1-16)
@@ -221,6 +208,14 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_AOUT_MODULE_TYPE	0
 
 
+;; 0: disables swing pot
+;; 1: enables swing pot, connected to pin J5:A0
+;;    NOTE: to avoid random swing values, set this #define to 0 when NO pot is connected!
+;;    alternatively, you can clamp pin J5:A0 to ground
+#ifndef DEFAULT_SWING_POT_CONNECTED
+#define DEFAULT_SWING_POT_CONNECTED 0
+#endif
+
 
 	org	0x3082		; never change the origin!
 ; ==========================================================================
@@ -302,81 +297,60 @@ SEQ_IO_TABLE_DIN
 
 
 ; ==========================================================================
-;  The following table defines all available DOUT pins with the appr.
-;  register and bit which is assigned to the pin
-;  CS_MENU_LED_Update uses this table to update all LEDs
-; 
-;  The register name and bit number can be found on the left, 
-;  the shift register and pin number on the right side.
+;  Following statements are used to assign LED functions to DOUT pins
 ;
-;  SR/pin numbers:
-;     SR =  1 for the first DOUT shift register
-;     SR =  2 for the second DOUT shift register
-;     ...
-;     SR = 16 for the last DOUT shift register
+;  To enable a LED function, specify the shift register number SR (1-16),
+;  and the pin number (0-7).
+;  Note that Pin 0 is D7 of the DOUT register, Pin 1 is D6, ... Pin 7 is D0
 ;
-;     Pin = 0 for the D7 output pin of the shift register
-;     Pin = 1 for the D6 output pin of the shift register
-;     ...
-;     Pin = 7 for the last input pin (D0) of the shift register
-;
-;  Set the SR and pin number to 0 if a LED function should not be used
-;
-;  The table must end with DOUT_ENTRY_EOT!
+;  With SR value = 0, the LED function will be disabled
 ; ==========================================================================
 
-DOUT_ENTRY MACRO reg, bit, sr, pin
-        if sr == 0		; J5 selected
-		dw	reg, bit | ((pin | 0x80) << 8)
-	else			; SR selected
-		dw	reg, bit | ((pin + 8*(sr-1)) << 8)
-	endif
-	ENDM
+;;                         SR    ignore    Pin
+LED_STEP01_16	EQU	((( 2   -1)<<3)+    6)
+LED_STEP17_32	EQU	((( 2   -1)<<3)+    5)
+LED_STEP33_48	EQU	((( 2   -1)<<3)+    3)
+LED_STEP49_64	EQU	((( 2   -1)<<3)+    1)
 
-DOUT_ENTRY_EOT MACRO
-	dw	0x0000, 0x0000
-	ENDM
-	
-SEQ_IO_TABLE_DOUT
-	;;                                        Note: Pin #0 is the D7 output of first SR!
-	;;		Register and bit			SR#	Pin#	  Description
+;;                         SR    ignore    Pin
+LED_SECTION_A	EQU	((( 2   -1)<<3)+    7)
+LED_SECTION_B	EQU	((( 2   -1)<<3)+    0)
 
-	;; NOTE: the four step selection LEDs have to be assigned above, search for DEFAULT_STEP
+;;                         SR    ignore    Pin
+LED_EDIT	EQU	((( 7   -1)<<3)+    3)
+LED_MUTE	EQU	((( 6   -1)<<3)+    7)
+LED_PATTERN	EQU	((( 7   -1)<<3)+    1)
+LED_SONG	EQU	((( 7   -1)<<3)+    2)
 
-	DOUT_ENTRY	TMP1, 4,				2,	7	; Section A selected
-	DOUT_ENTRY	TMP1, 5,				2,	0	; Section B selected
+;;                         SR    ignore    Pin
+LED_SOLO	EQU	((( 0   -1)<<3)+    0)
+LED_FAST	EQU	((( 0   -1)<<3)+    0)
+LED_ALL		EQU	((( 0   -1)<<3)+    0)
 
-	;; 	DOUT_ENTRY	TMP1, 6,			  0,	  0	; Gate Trigger Layer selected
-	DOUT_ENTRY	TMP1, 7,				0,	0	; Aux Trigger Layer selected
+;;                         SR    ignore    Pin
+LED_GROUP1	EQU	((( 0   -1)<<3)+    0)
+LED_GROUP2	EQU	((( 0   -1)<<3)+    0)
+LED_GROUP3	EQU	((( 0   -1)<<3)+    0)
+LED_GROUP4	EQU	((( 0   -1)<<3)+    0)
 
-	;; NOTE: the pin of the beat indicator LED has to be assigned above, search for DEFAULT_BEAT_INDICATOR_LED
+;;                         SR    ignore    Pin
+LED_SHIFT	EQU	((( 6   -1)<<3)+    2)
+LED_ALT		EQU	((( 6   -1)<<3)+    1)
 
-	DOUT_ENTRY	TMP2, 0,				7,	3	; Edit Step LED
-	DOUT_ENTRY	TMP2, 1,				6,	7	; Mute LED
-	DOUT_ENTRY	TMP2, 2,				7,	1	; Pattern LED
-	DOUT_ENTRY	TMP2, 3,				7,	2	; Song LED
+;;                         SR    ignore    Pin
+LED_RECORD	EQU	((( 7   -1)<<3)+    4)
+LED_AUX		EQU	((( 7   -1)<<3)+    5)
 
-	DOUT_ENTRY	TMP2, 7,				0,	0	; Solo LED
-	DOUT_ENTRY	TMP2, 5,				0,	0	; Fast Encoder LED
-	DOUT_ENTRY	TMP2, 6,				0,	0	; Change All Steps LED
+;;                         SR    ignore    Pin
+LED_PLAY	EQU	((( 7   -1)<<3)+    0)
+LED_STOP	EQU	((( 6   -1)<<3)+    6)
+LED_PAUSE	EQU	((( 0   -1)<<3)+    0)
+LED_FWD		EQU	((( 6   -1)<<3)+    5)
+LED_REW		EQU	((( 6   -1)<<3)+    4)
+LED_LOOP	EQU	((( 6   -1)<<3)+    3)
 
-	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP4, 0,				0,	0	; Group 1 LED
-	DOUT_ENTRY	TMP4, 1,				0,	0	; Group 2 LED (assigned to pin 2 due to DUO LED)
-	DOUT_ENTRY	TMP4, 2,				0,	0	; Group 3 LED (assigned to pin 4 due to DUO LED)
-	DOUT_ENTRY	TMP4, 3,				0,	0	; Group 4 LED (assigned to pin 6 due to DUO LED)
-
-	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP5, 0,				 7,	0	; Play LED
-	DOUT_ENTRY	TMP5, 1,				 6,	6	; Stop LED
-	DOUT_ENTRY	TMP5, 2,				 0,	0	; Pause LED
-	DOUT_ENTRY	TMP5, 3,				 6,	5	; Fwd LED
-	DOUT_ENTRY	TMP5, 4,				 6,	4	; Rew LED
-	DOUT_ENTRY	TMP5, 5,				 6,	3	; Loop LED
-
-	;; NOTE: the pins of the MIDI Rx/Tx LEDs are assigned above, search for DEFAULT_MIDI_RX_LED and TX_LED
-	;; NOTE: the pins of the 16 general purpose LEDs are assigned above, search for DEFAULT_GP_DOUT_SR_L and _R
-	DOUT_ENTRY_EOT
+;;                         SR    ignore    Pin
+LED_BEAT	EQU	((( 0   -1)<<3)+   0)
 
 
 ;; --------------------------------------------------------------------------

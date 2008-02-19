@@ -74,19 +74,6 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_MIDI_RX_LED        (((2 - 1)<<3)+7- 0)	; DOUT SR#2, pin D0
 #define DEFAULT_MIDI_TX_LED        0xff			; not used
 ;
-; The beat indicator LED has to be assigned to a DOUT pin here:
-;                                    SR            Pin#
-#define DEFAULT_BEAT_INDICATOR_LED (((1 - 1)<<3)+7- 0) ; DOUT SR#1, pin D0
-;                                       ^^^^^^^^^^^ignore!
-;
-; The step selection LEDs have to be assigned to DOUT pins here (they are used as beat indicators as well):
-;                                         SR            Pin#
-#define DEFAULT_STEP01_16_INDICATOR_LED (((1 - 1)<<3)+7- 7) ; DOUT SR#1, pin D0
-#define DEFAULT_STEP17_32_INDICATOR_LED (((1 - 1)<<3)+7- 6) ; DOUT SR#1, pin D1
-#define DEFAULT_STEP33_48_INDICATOR_LED (((1 - 1)<<3)+7- 5) ; DOUT SR#1, pin D2
-#define DEFAULT_STEP49_64_INDICATOR_LED (((1 - 1)<<3)+7- 4) ; DOUT SR#1, pin D3
-;                                            ^^^^^^^^^^^ignore!
-;
 ; Some menus are provide the possibility to use 16 "general purpose" buttons
 ; Define the two shift registers which are assigned to this function here:
 ; (valid numbers: 1-16)
@@ -221,23 +208,13 @@ DEFAULT_TRKINFO MACRO
 ;; 2: enable access to the AOUT_NG module
 #define DEFAULT_AOUT_MODULE_TYPE	0
 
-;; use PORTA and PORTE (J5 of the core module) as trigger output
-;; NEVER USE THIS TOGETHER WITH ANALOG POTS - IT WILL CAUSE A SHORT CIRCUIT!
-#define DEFAULT_ENABLE_J5_GATES	0
-
-;; additional gate triggers are available on common digital output pins of the
-;; DOUT shift register chain - they are assigned to AOUT channel #16 (Note C-1, C#1, D-1, ...)
-;; define the shift registers which should be used here (each provides 8 gates)
-;; Note that SRs assigned to this function cannot be used as LED outputs (exclusive function)
-;; Allowed values: 1-16, 0 disables the function, all other values invalid and not allowed
-;; Note: depending on the shift registers you are using, you have to adjust
-;; the DEFAULT_NUMBER_SR value at the top of this configuration
-#define DEFAULT_ENABLE_DOUT_GATE_01_08   0
-#define DEFAULT_ENABLE_DOUT_GATE_09_16   0
-
-;; if set to 1, the DOUT "gates" will send 1mS pulses
-;; useful for analog drums
-#define DEFAULT_DOUT_1MS_TRIGGER	0
+;; 0: disables swing pot
+;; 1: enables swing pot, connected to pin J5:A0
+;;    NOTE: to avoid random swing values, set this #define to 0 when NO pot is connected!
+;;    alternatively, you can clamp pin J5:A0 to ground
+#ifndef DEFAULT_SWING_POT_CONNECTED
+#define DEFAULT_SWING_POT_CONNECTED 0
+#endif
 
 
 	org	0x3082		; never change the origin!
@@ -274,7 +251,7 @@ DIN_ENTRY_EOT MACRO
 SEQ_IO_TABLE_DIN
 	;;		Function name		SR#	Pin#
 	;; NOTE: the pins of the 16 general purpose buttons are assigned above, search for DEFAULT_GP_DIN_SR_L (and _R)
-	DIN_ENTRY	SEQ_BUTTON_Scrub,	 1,	 2
+	DIN_ENTRY	SEQ_BUTTON_Loop,	 1,	 2
 	DIN_ENTRY	SEQ_BUTTON_Metronome,	 1,	 3
 
 	DIN_ENTRY	SEQ_BUTTON_Stop,	 1,	 4
@@ -299,7 +276,7 @@ SEQ_IO_TABLE_DIN
 
 	DIN_ENTRY	SEQ_BUTTON_SectionA,	 3,	 4
 	DIN_ENTRY	SEQ_BUTTON_SectionB,	 3,	 5
-	DIN_ENTRY	SEQ_BUTTON_Loop,	 3,	 6
+	DIN_ENTRY	SEQ_BUTTON_AuxSel,	 3,	 6
 
 	DIN_ENTRY	SEQ_BUTTON_Edit,	 4,	 0
 	DIN_ENTRY	SEQ_BUTTON_Mute,	 4,	 1
@@ -320,84 +297,60 @@ SEQ_IO_TABLE_DIN
 
 
 ; ==========================================================================
-;  The following table defines all available DOUT pins with the appr.
-;  register and bit which is assigned to the pin
-;  CS_MENU_LED_Update uses this table to update all LEDs
-; 
-;  The register name and bit number can be found on the left, 
-;  the shift register and pin number on the right side.
+;  Following statements are used to assign LED functions to DOUT pins
 ;
-;  SR/pin numbers:
-;     SR =  1 for the first DOUT shift register
-;     SR =  2 for the second DOUT shift register
-;     ...
-;     SR = 16 for the last DOUT shift register
+;  To enable a LED function, specify the shift register number SR (1-16),
+;  and the pin number (0-7).
+;  Note that Pin 0 is D7 of the DOUT register, Pin 1 is D6, ... Pin 7 is D0
 ;
-;     Pin = 0 for the D7 output pin of the shift register
-;     Pin = 1 for the D6 output pin of the shift register
-;     ...
-;     Pin = 7 for the last input pin (D0) of the shift register
-;
-;  Set the SR and pin number to 0 if a LED function should not be used
-;
-;  The table must end with DOUT_ENTRY_EOT!
+;  With SR value = 0, the LED function will be disabled
 ; ==========================================================================
 
-DOUT_ENTRY MACRO reg, bit, sr, pin
-        if sr == 0		; J5 selected
-		dw	reg, bit | ((pin | 0x80) << 8)
-	else			; SR selected
-		dw	reg, bit | ((pin + 8*(sr-1)) << 8)
-	endif
-	ENDM
+;;                         SR    ignore    Pin
+LED_STEP01_16	EQU	((( 1   -1)<<3)+    0)
+LED_STEP17_32	EQU	((( 1   -1)<<3)+    1)
+LED_STEP33_48	EQU	((( 1   -1)<<3)+    2)
+LED_STEP49_64	EQU	((( 1   -1)<<3)+    3)
 
-DOUT_ENTRY_EOT MACRO
-	dw	0x0000, 0x0000
-	ENDM
-	
-SEQ_IO_TABLE_DOUT
-	;;                                        Note: Pin #0 is the D7 output of first SR!
-	;;		Register and bit			SR#	Pin#	  Description
+;;                         SR    ignore    Pin
+LED_SECTION_A	EQU	((( 1   -1)<<3)+    4)
+LED_SECTION_B	EQU	((( 1   -1)<<3)+    5)
+LED_LOOP	EQU	((( 1   -1)<<3)+    6)
 
-	;; NOTE: the four step selection LEDs have to be assigned above, search for DEFAULT_STEP
+;;                         SR    ignore    Pin
+LED_EDIT	EQU	((( 2   -1)<<3)+    0)
+LED_MUTE	EQU	((( 2   -1)<<3)+    1)
+LED_PATTERN	EQU	((( 2   -1)<<3)+    2)
+LED_SONG	EQU	((( 2   -1)<<3)+    3)
 
-	DOUT_ENTRY	TMP1, 4,				1,	4	; Section A selected
-	DOUT_ENTRY	TMP1, 5,				1,	5	; Section B selected
-	DOUT_ENTRY	TMP5, 5,				1,	6	; Loop mode active
+;;                         SR    ignore    Pin
+LED_SOLO	EQU	((( 2   -1)<<3)+    4)
+LED_FAST	EQU	((( 2   -1)<<3)+    5)
+LED_ALL		EQU	((( 2   -1)<<3)+    6)
 
-	;; NOTE: the pin of the beat indicator LED has to be assigned above, search for DEFAULT_BEAT_INDICATOR_LED
+;;                         SR    ignore    Pin
+LED_GROUP1	EQU	(((11   -1)<<3)+    0)
+LED_GROUP2	EQU	(((11   -1)<<3)+    2)
+LED_GROUP3	EQU	(((11   -1)<<3)+    4)
+LED_GROUP4	EQU	(((11   -1)<<3)+    6)
 
-	DOUT_ENTRY	TMP2, 0,				2,	0	; Edit Step LED
-	DOUT_ENTRY	TMP2, 1,				2,	1	; Mute LED
-	DOUT_ENTRY	TMP2, 2,				2,	2	; Pattern LED
-	DOUT_ENTRY	TMP2, 3,				2,	3	; Song LED
-	DOUT_ENTRY	TMP2, 7,				2,	4	; Solo LED
-	DOUT_ENTRY	TMP2, 5,				2,	5	; Fast Encoder LED
-	DOUT_ENTRY	TMP2, 6,				2,	6	; Change All Steps LED
+;;                         SR    ignore    Pin
+LED_SHIFT	EQU	((( 0   -1)<<3)+    0)
+LED_ALT		EQU	((( 0   -1)<<3)+    0)
 
-	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP4, 0,				11,	0	; Group 1 LED
-	DOUT_ENTRY	TMP4, 1,				11,	2	; Group 2 LED (assigned to pin 2 due to DUO LED)
-	DOUT_ENTRY	TMP4, 2,				11,	4	; Group 3 LED (assigned to pin 4 due to DUO LED)
-	DOUT_ENTRY	TMP4, 3,				11,	6	; Group 4 LED (assigned to pin 6 due to DUO LED)
+;;                         SR    ignore    Pin
+LED_RECORD	EQU	((( 0   -1)<<3)+    0)
+LED_AUX		EQU	((( 0   -1)<<3)+    0)
 
-	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP4, 5,				12,	0	; Trigger Layer A LED
-	DOUT_ENTRY	TMP4, 6,				12,	1	; Trigger Layer B LED
-	DOUT_ENTRY	TMP4, 7,				12,	2	; Trigger Layer C LED
+;;                         SR    ignore    Pin
+LED_PLAY	EQU	((( 0   -1)<<3)+    0)
+LED_STOP	EQU	((( 0   -1)<<3)+    0)
+LED_PAUSE	EQU	((( 0   -1)<<3)+    0)
+LED_FWD		EQU	((( 0   -1)<<3)+    0)
+LED_REW		EQU	((( 0   -1)<<3)+    0)
 
-	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP5, 0,				12,	3	; Play LED
-	DOUT_ENTRY	TMP5, 1,				12,	4	; Stop LED
-	DOUT_ENTRY	TMP5, 2,				12,	5	; Pause LED
-
-	;; OPTIONAL! see CHANGELOG.txt
-	DOUT_ENTRY	TMP5, 3,				12,	6	; Step 1-16 displayed
-	DOUT_ENTRY	TMP5, 4,				12,	7	; Step 17-31 displayed
-
-	;; NOTE: the pins of the MIDI Rx/Tx LEDs are assigned above, search for DEFAULT_MIDI_RX_LED and TX_LED
-	;; NOTE: the pins of the 16 general purpose LEDs are assigned above, search for DEFAULT_GP_DOUT_SR_L and _R
-	DOUT_ENTRY_EOT
+;;                         SR    ignore    Pin
+LED_BEAT	EQU	((( 1   -1)<<3)+    7)
 
 
 ;; --------------------------------------------------------------------------

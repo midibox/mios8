@@ -91,12 +91,22 @@ SEQ_ENC_Inst
 	movwf	TMP1
 	clrf	TMP2
 
+	;; if all tracks selected: set TMP1 to 16
+	incf	SEQ_SELECTED_TRKS_0, W, BANKED
+	bnz	SEQ_ENC_Inst_NotAll
+	incf	SEQ_SELECTED_TRKS_1, W, BANKED
+	bnz	SEQ_ENC_Inst_NotAll
+SEQ_ENC_Inst_All
+	movlw	0x10
+	movwf	TMP1
+SEQ_ENC_Inst_NotAll	
+
 	;; inc/dec value by using the 16 bit add w/ saturation routine
 	;; set pointer to CS_MENU_PARAMETER_L (is located to an even address, thats important when this function is used!)
 	lfsr	FSR1, TMP1
 
 	;; set max value
-	movlw	15
+	movlw	15+1
 	movwf	MIOS_PARAMETER1		; low-byte of max value
 	movf	MIOS_PARAMETER2, W	; load incrementer before clearing MIOS_PARAMETER2
 	clrf	MIOS_PARAMETER2		; high-byte of max value
@@ -106,14 +116,31 @@ SEQ_ENC_Inst
 	;; now [FSR1] = INDF1 = CS_MENU_PARAMETER_[LH] contains the result
 	;; MIOS_PARAMETER1[0] is set when value has been changed
 
+#if 0
 	;; don't change instrument if parameter not changed
 	BRA_IFCLR MIOS_PARAMETER1, 0, ACCESS, SEQ_ENC_Inst_NoChange
+#endif
 SEQ_ENC_Inst_Change
 	;; set new instrument
+	BRA_IFSET TMP1, 4, ACCESS, SEQ_ENC_Inst_ChangeAll
+SEQ_ENC_Inst_ChangeNotAll
 	movf	TMP1, W
 	call	CS_M_HLP_SetSelectedTrk
-SEQ_ENC_Inst_NoChange
+	rgoto	SEQ_ENC_Inst_Cont
 
+SEQ_ENC_Inst_ChangeAll
+	SET_BSR	SEQ_BASE
+	setf	SEQ_SELECTED_TRKS_0, BANKED
+	setf	SEQ_SELECTED_TRKS_1, BANKED
+
+	clrf	SEQ_SELECTED_TRK, BANKED	; (first track displayed)
+
+	setf	CS_MENU_INST_OVERLAY_DOUT_SR0
+	setf	CS_MENU_INST_OVERLAY_DOUT_SR1
+	rgoto	SEQ_ENC_Inst_ChangeAll_Cont
+
+SEQ_ENC_Inst_Cont	
+SEQ_ENC_Inst_NoChange
 SEQ_ENC_GP_Cont			; also used by SEQ_ENC_GP, expects instrument in TMP1
 	;; temporary output instrument on GP LEDs
 	clrf	CS_MENU_INST_OVERLAY_DOUT_SR0
@@ -126,6 +153,7 @@ SEQ_ENC_GP_Cont			; also used by SEQ_ENC_GP, expects instrument in TMP1
 	btfsc	TMP1, 3
 	movwf	CS_MENU_INST_OVERLAY_DOUT_SR1
 
+SEQ_ENC_Inst_ChangeAll_Cont
 	movlw	0x80
 	movwf	CS_MENU_INST_OVERLAY_CTR
 

@@ -62,12 +62,37 @@ CS_M_EDIT_GP_Callback_Loop
 	andlw	0x07
 	addwf	FSR1L, F
 
+	;; if this is the first time: xor bit and remember state (so that all other tracks are changed to same state)
+	BRA_IFSET CS_STAT2, CS_STAT2_TRK_CHANGED, ACCESS, CS_M_EDIT_GP_Callback_Loop_NotFr
+CS_M_EDIT_GP_Callback_Loop_First
 	;; XOR
 	movf	TMP1, W
 	xorwf	INDF1, F
 
+	;; remember state
+	movf	INDF1, W
+	andwf	TMP1, W
+	bcf	TMP2, 0
+	skpz
+	bsf	TMP2, 0
+
 	;; notify that trigger has been toggled
 	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED
+
+	rgoto	CS_M_EDIT_GP_Callback_Loop_Next
+
+CS_M_EDIT_GP_Callback_Loop_NotFr
+	;; branch depending on 0/1 state of first modified step
+	BRA_IFSET TMP2, 0, ACCESS, CS_M_EDIT_GP_Callback_Loop_NFr1
+CS_M_EDIT_GP_Callback_Loop_NFr0
+	comf	TMP1, W
+	andwf	INDF1, F
+	rgoto	CS_M_EDIT_GP_Callback_Loop_Next
+
+CS_M_EDIT_GP_Callback_Loop_NFr1
+	movf	TMP1, W
+	iorwf	INDF1, F
+	;; 	rgoto	CS_M_EDIT_GP_Callback_Loop_Next
 
 CS_M_EDIT_GP_Callback_Loop_Next
 	incf	SEQ_EVNTT, F, BANKED

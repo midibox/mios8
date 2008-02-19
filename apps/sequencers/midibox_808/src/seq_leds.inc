@@ -11,6 +11,34 @@
 ; 
 ; ==========================================================================
 
+	;; help macro to make LED assignments easier
+SEQ_LED_UPDATE_DOUT MACRO register, flag, bank, dout
+	clrf	MIOS_PARAMETER1
+	btfsc	register, flag, bank
+	setf	MIOS_PARAMETER1
+	movlw	dout
+	rcall	SEQ_LED_Update_PinSet
+	ENDM
+
+SEQ_LED_UPDATE_DOUT_W_SHIFT MACRO register, flag, bank, dout
+	LOCAL	no_shift
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, no_shift
+	clrf	MIOS_PARAMETER1
+	btfsc	register, flag, bank
+	setf	MIOS_PARAMETER1
+	movlw	dout
+	rcall	SEQ_LED_Update_PinSet
+no_shift:
+	ENDM
+
+SEQ_LED_UPDATE_DOUT_INV MACRO register, flag, bank, dout
+	setf	MIOS_PARAMETER1
+	btfsc	register, flag, bank
+	clrf	MIOS_PARAMETER1
+	movlw	dout
+	rcall	SEQ_LED_Update_PinSet
+	ENDM
+
 ;; --------------------------------------------------------------------------
 ;;  this function is called by cs_menu.inc on every "display" update
 ;; --------------------------------------------------------------------------
@@ -18,120 +46,138 @@ SEQ_LED_Update
 	;; update GP LEDs
 	call	SEQ_GP_LED_Update
 
+	;; disable IRQs to avoid inconsistencies (or flickering LEDs while alternate SHIFT assignments are made)
+	IRQ_DISABLE
+
 	SET_BSR	SEQ_BASE
 
-	;; use temporary registers which hold some LED flags which are not saved anywhere else
-	;; (see also SEQ_IO_TABLE_DOUT)
-	;; this quick & dirty method saves some memory...
+ IF LED_SECTION_A < 128
+	SEQ_LED_UPDATE_DOUT SEQ_SELECTED_AB, 0, BANKED, LED_SECTION_A
+ ENDIF
+ IF LED_SECTION_B < 128
+	SEQ_LED_UPDATE_DOUT SEQ_SELECTED_AB, 1, BANKED, LED_SECTION_B
+ ENDIF
 
-	;; TMP4[3..0] == Selected track Group 1-4
+
+ IF LED_EDIT < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, LED_EDIT
+ ENDIF
+ IF LED_MUTE < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_MUTE, BANKED, LED_MUTE
+ ENDIF
+ IF LED_PATTERN < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED, LED_PATTERN
+ ENDIF
+
+	;; extra: the song LED flashes if no song selected, and it is permanent on if song mode active
+ IF LED_SONG < 128
+SEQ_LED_Update_SongLED
+	clrf	MIOS_PARAMETER1
+	btfsc	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
+	setf	MIOS_PARAMETER1
+	
+	btfsc	SEQ_STATE, SEQ_STATE_SONG, BANKED
+	setf	MIOS_PARAMETER1
+	
+	BRA_IFSET SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_LED_Update_SongLED_NoFl
+	btfss	CS_STAT, CS_STAT_CURSOR_FLASH
+	clrf	MIOS_PARAMETER1
+SEQ_LED_Update_SongLED_NoFl
+	movlw	LED_SONG
+	rcall	SEQ_LED_Update_PinSet
+ ENDIF
+
+
+
+ IF LED_SOLO < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_SOLO, BANKED, LED_SOLO
+ ENDIF
+ IF LED_FAST < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_FAST_ENCODERS, BANKED, LED_FAST
+ ENDIF
+ IF LED_ALL < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, LED_ALL
+ ENDIF
+
+		
+	;; track group 1-4
 	rrf	SEQ_SELECTED_TRK, W, BANKED
 	rrf	WREG, W
 	andlw	0x03
 	call	MIOS_HLP_GetBitORMask
-	movwf	TMP4
+	movwf	PRODL
 
-	movlw	0x00
-	;; TMP5[0]: Sequencer Running (Play LED)
-	btfsc	SEQ_STATE, SEQ_STATE_RUN, BANKED
-	iorlw 0x01
-	;; TMP5[1]: Sequencer not running (Stop LED)
-	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
-	iorlw 0x02
-	;; TMP5[2]: Sequencer paused (Pause LED)
-	btfsc	SEQ_STATE, SEQ_STATE_PAUSE, BANKED
-	iorlw 0x04
-	;; TMP5[3]: Forward button held
-	btfsc	SEQ_MODE2, SEQ_MODE2_FWD_HOLD, BANKED
-	iorlw 0x08
-	;; TMP5[4]: Rewind button held
-	btfsc	SEQ_MODE2, SEQ_MODE2_REW_HOLD, BANKED
-	iorlw 0x10
-	;; TMP5[5]: Loop function active
-	btfsc	SEQ_MODE2, SEQ_MODE2_LOOP_MODE, BANKED
-	iorlw 0x20
-	movwf	TMP5
+ IF LED_GROUP1 < 128
+	SEQ_LED_UPDATE_DOUT PRODL, 0, ACCESS, LED_GROUP1
+ ENDIF
+ IF LED_GROUP2 < 128
+	SEQ_LED_UPDATE_DOUT PRODL, 1, ACCESS, LED_GROUP2
+ ENDIF
+ IF LED_GROUP3 < 128
+	SEQ_LED_UPDATE_DOUT PRODL, 2, ACCESS, LED_GROUP3
+ ENDIF
+ IF LED_GROUP4 < 128
+	SEQ_LED_UPDATE_DOUT PRODL, 3, ACCESS, LED_GROUP4
+ ENDIF
+
+
+ IF LED_SHIFT < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, LED_SHIFT
+ ENDIF
+ IF LED_ALT < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_ALT, BANKED, LED_ALT
+ ENDIF
+
+
+ IF LED_RECORD < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, LED_RECORD
+ ENDIF
+ IF LED_AUX < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED, LED_AUX
+ ENDIF
+
+
+ IF LED_PLAY < 128
+	SEQ_LED_UPDATE_DOUT SEQ_STATE, SEQ_STATE_RUN, BANKED, LED_PLAY
+ ENDIF
+ IF LED_STOP < 128
+	SEQ_LED_UPDATE_DOUT_INV SEQ_STATE, SEQ_STATE_RUN, BANKED, LED_STOP
+ ENDIF
+ IF LED_PAUSE < 128
+	SEQ_LED_UPDATE_DOUT SEQ_STATE, SEQ_STATE_PAUSE, BANKED, LED_PAUSE
+ ENDIF
+ IF LED_FWD < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE2, SEQ_MODE2_FWD_HOLD, BANKED, LED_FWD
+ ENDIF
+ IF LED_REW < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE2, SEQ_MODE2_REW_HOLD, BANKED, LED_REW
+ ENDIF
+ IF LED_LOOP < 128
+	SEQ_LED_UPDATE_DOUT SEQ_MODE2, SEQ_MODE2_LOOP_MODE, BANKED, LED_LOOP
+ ENDIF
 
 #if 1
 	;; extra for shared button in MB808 frontpanel (can be made more generic later)
-	;; - Play button shows record state
-	;; - Stop button shows pause state
-	;; - loop button disabled
-	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_LED_Update_NoShift
-SEQ_LED_Update_Shift
-	bcf	TMP5, 0
-	btfsc	SEQ_MODE1, SEQ_MODE1_RECORD, BANKED
-	bsf	TMP5, 0
-
-	bcf	TMP5, 1
-	btfsc	SEQ_STATE, SEQ_STATE_PAUSE, BANKED
-	bsf	TMP5, 1
-
-	bcf	TMP5, 5
-
-SEQ_LED_Update_NoShift
+ IF LED_PLAY < 128
+	SEQ_LED_UPDATE_DOUT_W_SHIFT SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, LED_PLAY
+ ENDIF
+ IF LED_STOP < 128
+	SEQ_LED_UPDATE_DOUT_W_SHIFT SEQ_STATE, SEQ_STATE_PAUSE, BANKED, LED_STOP
+ ENDIF
+ IF LED_MUTE < 128
+	SEQ_LED_UPDATE_DOUT_W_SHIFT SEQ_MODE0, SEQ_MODE0_SOLO, BANKED, LED_MUTE
+ ENDIF
 #endif
 
-	;; TMP1[6..0] == 1/2/3/4/A/B/C LEDs
+	IRQ_ENABLE
 
-	;; TMP1[0]: Step 1-16 displayed
-	;; TMP1[1]: Step 17-32 displayed
-	;; TMP1[2]: Step 33-48 displayed
-	;; TMP1[3]: Step 49-64 displayed
-	movf	SEQ_SELECTED_STEPS, W, BANKED
-	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	movwf	TMP1
 
-	;; TMP1[4]: Section A played
-	;; TMP1[5]: Section B played
-	swapf	SEQ_SELECTED_AB, W, BANKED
-	andlw	0x30
-	iorwf	TMP1, F
-
-	;; TMP2 holds the SEQ_MODE0
-	movff	SEQ_MODE0, TMP2
-	;; TMP3 holds the SEQ_MODE1
-	movff	SEQ_MODE1, TMP3
-
-	;; extra: the song LED flashes if no song selected, and it is permanent on if song mode active
-SEQ_LED_Update_SongLED
-	btfsc	SEQ_STATE, SEQ_STATE_SONG, BANKED
-	bsf	TMP2, SEQ_MODE0_SONG
-	BRA_IFSET SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_LED_Update_SongLED_NoFl
-	btfss	CS_STAT, CS_STAT_CURSOR_FLASH
-	bcf	TMP2, SEQ_MODE0_SONG
-SEQ_LED_Update_SongLED_NoFl
-
-	;; ----
-
-	;; go through the DOUT map
-	TABLE_ADDR SEQ_IO_TABLE_DOUT
-SEQ_LED_Update_Loop
-	tblrd*+				; get low-byte of register address
-	movf	TABLAT, W		; load it in WREG
-	movwf	FSR0L			; and store it in FSR0L
-	tblrd*+				; get high byte
-	movff	TABLAT, FSR0H		; store it in FSR0H without touching WREG
-	iorwf	TABLAT, W		; or the byte with WREG --- if both bytes are zero, the result will be zero
-	bz	SEQ_LED_Update_Loop_End	; in this case jump to the end
-
-	tblrd*+				; get flag-number
-	movf	TABLAT, W
-	call	MIOS_HLP_GetBitORMask	; get appr. OR mask (1 of 8)
-	andwf	INDF0, W		; AND this with the register specified in the table
-	skpz				; LED value: 0 if result zero, 1 if result != zero
-	movlw	0x01
-	movwf	MIOS_PARAMETER1		; store result in MIOS_PARAMETER1
-	tblrd*+				; read pin number from table
-	movf	TABLAT, W		; get pin number
-	CALL_IFCLR TABLAT, 7, ACCESS, MIOS_DOUT_PinSet	; and finally set the pin of SR if bit #7 cleared
-	;; 	IFSET	TABLAT, 7, call J5_DOUT_PinSet		; or pin of J5 if bit #7 set (SR #0 in cs_menu_io_tables.inc)
-	rgoto	SEQ_LED_Update_Loop	; next entry
-
-SEQ_LED_Update_Loop_End
 	return
 
+
+	;; help function (rgoto only requires 2 bytes instead of 4 bytes)
+SEQ_LED_Update_PinSet
+	goto	MIOS_DOUT_PinSet
 
 
 ;; --------------------------------------------------------------------------
@@ -434,10 +480,12 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 SEQ_LED_UpdateIRQ_Beat
 	setf	IRQ_TMP1
 SEQ_LED_UpdateIRQ_NoBeat
+ IF LED_BEAT < 128
 	;; forward to BEAT LED
 	movff	IRQ_TMP1, MIOS_PARAMETER1
-	movlw	DEFAULT_BEAT_INDICATOR_LED
+	movlw	LED_BEAT
 	call	MIOS_DOUT_PinSet
+ ENDIF
 
 	;; step selection LEDS
 	movf	SEQ_SELECTED_STEPS, W
@@ -455,32 +503,40 @@ SEQ_LED_UpdateIRQ_StepBeat
 SEQ_LED_UpdateIRQ_NoStepBeat
 
 	;; step 1-16 LED
+ IF LED_STEP01_16 < 128
 	clrf	MIOS_PARAMETER1
 	btfsc	IRQ_TMP2, 0
 	setf	MIOS_PARAMETER1
-	movlw	DEFAULT_STEP01_16_INDICATOR_LED
+	movlw	LED_STEP01_16
 	call	MIOS_DOUT_PinSet
+ ENDIF
 
 	;; step 17-32 LED
+ IF LED_STEP17_32 < 128
 	clrf	MIOS_PARAMETER1
 	btfsc	IRQ_TMP2, 1
 	setf	MIOS_PARAMETER1
-	movlw	DEFAULT_STEP17_32_INDICATOR_LED
+	movlw	LED_STEP17_32
 	call	MIOS_DOUT_PinSet
+ ENDIF
 
 	;; step 33-48 LED
+ IF LED_STEP33_48 < 128
 	clrf	MIOS_PARAMETER1
 	btfsc	IRQ_TMP2, 2
 	setf	MIOS_PARAMETER1
-	movlw	DEFAULT_STEP33_48_INDICATOR_LED
+	movlw	LED_STEP33_48
 	call	MIOS_DOUT_PinSet
+ ENDIF
 
 	;; step 49-64 LED
+ IF LED_STEP49_64 < 128
 	clrf	MIOS_PARAMETER1
 	btfsc	IRQ_TMP2, 3
 	setf	MIOS_PARAMETER1
-	movlw	DEFAULT_STEP49_64_INDICATOR_LED
+	movlw	LED_STEP49_64
 	call	MIOS_DOUT_PinSet
+ ENDIF
 
 SEQ_LED_UpdateIRQ_End
 	;; restore PROD[LH]

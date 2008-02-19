@@ -968,8 +968,12 @@ SEQ_CORE_Clk_Step_NotPosted
 	;; Don't send new event so long it hasn't been synched to measure
 	;; (this is only relevant for dynamic sync on pattern changes in song or "pattern synch" mode!)
 	;; ------------------------------------------------------------------
+	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_Clk_Step_SyncMute
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_Step_NoSyncMute
+SEQ_CORE_Clk_Step_SyncMute
 	movlw	SEQ_TRKVARSTATE2x	; (set on pattern changes in song mode)
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE, ACCESS, SEQ_CORE_Clk_Muted
+SEQ_CORE_Clk_Step_NoSyncMute
 
 	;; ------------------------------------------------------------------
 	;; Don't send new event if sequencer not in RUN mode
@@ -1594,11 +1598,11 @@ SEQ_CORE_UpdateTrkDisableLoop
 	;; set the synch to measure flag (in song or "pattern synch" mode only)
 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_UpdateTrkDisable_Sync
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_UpdateTrkDisable_NoSync
+#endif
 SEQ_CORE_UpdateTrkDisable_Sync
 	movlw	SEQ_TRKVARSTATE2x + SEQ_TRKVARRECORD_LENGTH
 	bsf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
 SEQ_CORE_UpdateTrkDisable_NoSync
-#endif
 
 	;; set the flags when whole pattern has been disabled (SEQ_PATTERNx[7] set)
 	BRA_IFSET SEQ_PATTERN0, 7, BANKED, SEQ_CORE_UpdateTrkDisable_Ok

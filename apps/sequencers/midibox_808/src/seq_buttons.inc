@@ -614,6 +614,11 @@ SEQ_BUTTON_Edit_Released
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Mute
 	SET_BSR	SEQ_BASE
+
+	;; if shift button pressed: activate solo function
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Solo
+
 	;; clear mute hold flag if if button has been depressed
 	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Mute_Released
 
@@ -834,6 +839,22 @@ SEQ_BUTTON_Stepx_Cont
 
 	;; request display re-initialisation
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Toggle Loop Mode
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_AuxSel
+	SET_BSR	SEQ_BASE
+
+	;; do nothing when button has been released
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; toggle aux_selected flag
+	btg	SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED
 
 	return
 

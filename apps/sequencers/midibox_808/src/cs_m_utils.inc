@@ -754,3 +754,28 @@ CS_M_UTILS_Hlp_GetStartEnd_Cont
 	movff	MIOS_PARAMETER1, MIOS_PARAMETER2
 	movff	PRODL, MIOS_PARAMETER1
 	return
+
+
+;; --------------------------------------------------------------------------
+;;  This function changes the groove intensity value of all tracks
+;;  IN: intensity (0-15) in WREG
+;; --------------------------------------------------------------------------
+CS_M_UTIL_ChangeGrooveIntens
+	;; store value in MIOS_PARAMETER1
+	movwf	MIOS_PARAMETER1
+
+	;; loop through all tracks
+	SET_BSR	SEQ_BASE
+	clrf	SEQ_EVNTT, BANKED
+CS_M_UTIL_ChangeGrooveIntensLoop
+	movff	SEQ_EVNTT, MIOS_PARAMETER2
+	movlw	SEQ_CC_OFFSET_GROOVE_VALUE
+	call	SEQ_CCIN_Set
+	SET_BSR	SEQ_BASE
+
+	incf	SEQ_EVNTT, F, BANKED
+	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTIL_ChangeGrooveIntensLoop
+
+	;; request display update and exit
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
+	return

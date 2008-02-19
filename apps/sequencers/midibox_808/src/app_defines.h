@@ -513,6 +513,22 @@ SEQ_TRKQUEUE1_END	EQU	0x2bf
 
 ;; -----------------------------------
 
+;; ==========================================================================
+;;  AIN registers
+;;  (located in AIN RAM area - we have our own AIN handler)
+;; ==========================================================================
+AIN_INPUT_CTR		EQU	0x380
+AIN_INPUT_CHANGED	EQU	0x381
+AIN_INPUT_CHANGED_TMP	EQU	0x382
+AIN_VALUE_0		EQU	0x383
+AIN_VALUE_1		EQU	0x384
+AIN_VALUE_2		EQU	0x385
+AIN_VALUE_3		EQU	0x386
+AIN_VALUE_4		EQU	0x387
+AIN_VALUE_5		EQU	0x388
+AIN_VALUE_6		EQU	0x399
+AIN_VALUE_7		EQU	0x39a
+
 
 ;; ==================================================================================
 ;; up to here RAM is allocated which exists on PIC18F4620 only, and not on PIC18F452!

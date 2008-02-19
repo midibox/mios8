@@ -18,6 +18,7 @@ Please read also CHANGELOG.txt for the last changes.
 
 Some precompiled setups are part of this package:
    o setup_808_default.hex             (setup for MB808 users)
+   o setup_808_with_swingpot.hex       (setup for MB808 users, PCB stuffed with Swing Pot)
    o setup_808_mbseqv3_hardware.hex    (setup for MIDIbox SEQ V3 users)
    o setup_808_mbseqv3_tk.hex          (setup for TK's MIDIbox SEQ V3)
 

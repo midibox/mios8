@@ -145,6 +145,11 @@ USER_Init_PIC_Ok
 	;; initialize the IIC MIDI modules
 	call	IIC_MIDI_Init
 
+#if DEFAULT_SWING_POT_CONNECTED
+	;; initialize our own AIN driver
+	call	AIN_Init
+#endif
+
 	;; initialize RI_N pin (switch to input)
 	;; Note: RC3 is input by default, and it has installed a pull-up on the core module
 	;; thats perfect!
@@ -183,6 +188,11 @@ USER_Tick
 #if DEFAULT_SRM_BUTTONS_ENABLED
 	;; ---[ button matrix ]---
 	call	SEQ_BUTTON_SRM_Handler
+#endif
+
+#if DEFAULT_SWING_POT_CONNECTED
+	;; ---[ AD handler ]---
+	call	AIN_Handler
 #endif
 
 	return
@@ -407,6 +417,11 @@ USER_SR_Service_Finish
 	;; ---[ handle with control surface variables (flashing cursor, etc) ]---
 	call	CS_MENU_TIMER
 
+#if DEFAULT_SWING_POT_CONNECTED
+	;; ---[ AD conversion ]---
+	call	AIN_Tick
+#endif
+
 	;; workaround for MIOS V1.9 bug (will be fixed in MIOS V1.9e)
 	SET_BSR	0x500
 	return
@@ -420,8 +435,39 @@ USER_SR_Service_Finish
 ;;     o MSB value in MIOS_PARAMETER3
 ;; --------------------------------------------------------------------------
 USER_AIN_NotifyChange
-	;; pots not supported by MBSEQ V3
+
+	;; NOTE: WE HAVE OUR OWN AIN HANDLER IN ain.inc
+	;; THE MIOS DRIVER IS NOT USED, THEREFORE THIS FUNCTION WILL NEVER BE CALLED !!!
+
 	return
+
+;; --------------------------------------------------------------------------
+;;  This function is called by the ain.inc driver when a pot has been moved
+;;  Input:
+;;     o Pot number in WREG and MIOS_PARAMETER1
+;;     o 8bit value in MIOS_PARAMETER2
+;; --------------------------------------------------------------------------
+AIN_NotifyChange
+	;; exit if pin number >= 1 (only a single pot is connected)
+	movlw	1
+	cpfslt	MIOS_PARAMETER1, ACCESS
+	return
+
+#if 0
+	;; for testing the pot
+	movlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_MIDI_TxBufferPut
+	rrf	MIOS_PARAMETER2, W
+	andlw	0x7f
+	call	MIOS_MIDI_TxBufferPut
+#endif
+
+	;; change groove intensity (4bit) of all tracks
+	swapf	MIOS_PARAMETER2, W
+	andlw	0x0f
+	goto	CS_M_UTIL_ChangeGrooveIntens
 
 	
 ;; ==========================================================================
@@ -443,6 +489,7 @@ USER_AIN_NotifyChange
 #if DEFAULT_AOUT_MODULE_TYPE == 2
 #include "aout_ng.inc"
 #endif
+#include "ain.inc"
 #include "math_div24_16.inc"
 
 ;; ---[ Control surface functions ]---
