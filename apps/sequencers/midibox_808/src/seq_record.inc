@@ -1,4 +1,4 @@
-; $Id: seq_midi.inc 97 2008-02-17 18:32:55Z tk $
+; $Id$
 ;
 ; MIDIboxSEQ
 ; Record Function

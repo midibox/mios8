@@ -1,4 +1,4 @@
-; $Id: seq_trg.inc 73 2008-02-03 00:00:52Z tk $
+; $Id$
 ;
 ; MIDIboxSEQ
 ; Functions related to Tracks (Track Names, trigger pin assignments, etc..)

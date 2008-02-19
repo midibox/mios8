@@ -1,4 +1,4 @@
-; $Id: cs_m_trkdir.inc 73 2008-02-03 00:00:52Z tk $
+; $Id$
 ;
 ; MBSEQ Menu "Step Progression"
 ;

@@ -1,4 +1,4 @@
-; $Id: seq_presets.inc 73 2008-02-03 00:00:52Z tk $
+; $Id$
 ;
 ; MIDIboxSEQ
 ; Preset Pattern (included into EEPROM and from seq_bank.inc to initialize pattern

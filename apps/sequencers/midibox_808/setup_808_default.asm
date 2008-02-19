@@ -1,4 +1,4 @@
-;$Id: setup_mbseq_v3.asm 73 2008-02-03 00:00:52Z tk $
+;$Id$
 ;
 ; Default setup File for MB808
 ;

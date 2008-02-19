@@ -1,4 +1,4 @@
-; $Id: cs_m_midicfg.inc 73 2008-02-03 00:00:52Z tk $
+; $Id$
 ;
 ; MBSEQ Menu for editing the MIDI Note/Octave/Channel
 ;

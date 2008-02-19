@@ -1,4 +1,4 @@
-;$Id: setup_mbseq_v3.asm 73 2008-02-03 00:00:52Z tk $
+;$Id$
 ;
 ; Special setup for MB808, which enables the swing pot
 ;
