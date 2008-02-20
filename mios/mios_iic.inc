@@ -10,7 +10,7 @@
 ; 
 ; ==========================================================================
 
-;; IIC Pins for the external EEPROM (BankStick)
+;; IIC Pins (SCL/SDA)
 MIOS_IIC_PORT_SCL    EQU     PORTD
 MIOS_IIC_LAT_SCL     EQU     LATD
 MIOS_IIC_TRIS_SCL    EQU     TRISD
