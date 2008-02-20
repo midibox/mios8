@@ -1600,7 +1600,7 @@ SEQ_CORE_UpdateTrkDisableLoop
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_UpdateTrkDisable_NoSync
 #endif
 SEQ_CORE_UpdateTrkDisable_Sync
-	movlw	SEQ_TRKVARSTATE2x + SEQ_TRKVARRECORD_LENGTH
+	movlw	SEQ_TRKVARSTATE2x
 	bsf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
 SEQ_CORE_UpdateTrkDisable_NoSync
 
@@ -1623,9 +1623,8 @@ SEQ_CORE_UpdateTrkDisable_NoSync
 	;; 	rgoto	SEQ_CORE_UpdateTrkDisable_Match
 
 SEQ_CORE_UpdateTrkDisable_Ok
-	;; set the disable flags
-	;; (using 4 flags for the same purpose - we could extent the functionality later)
-	movlw	SEQ_TRKVARSTATEx + SEQ_TRKVARRECORD_LENGTH
+	;; set the disable flag
+	movlw	SEQ_TRKVARSTATEx
 	bsf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
 
 SEQ_CORE_UpdateTrkDisable_Not
