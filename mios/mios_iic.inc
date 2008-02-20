@@ -12,9 +12,11 @@
 
 ;; IIC Pins for the external EEPROM (BankStick)
 MIOS_IIC_PORT_SCL    EQU     PORTD
+MIOS_IIC_LAT_SCL     EQU     LATD
 MIOS_IIC_TRIS_SCL    EQU     TRISD
 MIOS_IIC_PIN_SCL     EQU     5
 MIOS_IIC_PORT_SDA    EQU     PORTA
+MIOS_IIC_LAT_SDA     EQU     LATA
 MIOS_IIC_TRIS_SDA    EQU     TRISA
 MIOS_IIC_PIN_SDA     EQU     4
 
@@ -76,12 +78,12 @@ MIOS_IIC_Start
 #if RA4_IS_OPEN_DRAIN == 0
 	bcf	MIOS_IIC_TRIS_SDA, MIOS_IIC_PIN_SDA	; SDA = output
 #endif
-	bsf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 1
-	bsf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
+	bsf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 1
+	bsf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
 	rcall	MIOS_IIC_Delay_600ns_Stretch
-	bcf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 0
+	bcf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 0
 	rcall	MIOS_IIC_Delay_600ns
-	bcf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
+	bcf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
 	return
 
 ;; --------------------------------------------------------------------------
@@ -99,30 +101,30 @@ MIOS_IIC_Start
 ;;      see MIOS_IIC_ByteSend and MIOS_IIC_ByteReceive
 ;; --------------------------------------------------------------------------
 MIOS_IIC_Stop
-	bcf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
-	bcf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 0
+	bcf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
+	bcf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 0
 	rcall	MIOS_IIC_Delay_600ns
-	bsf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
+	bsf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
 	rcall	MIOS_IIC_Delay_600ns_Stretch
-	bsf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 1
+	bsf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 1
 	return
 
 ;; --------------------------------------------------------------------------
 ;;  Check Ack
 ;; --------------------------------------------------------------------------
 MIOS_IIC_CheckAck
-	bsf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA = input
+	bsf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA = input
 #if RA4_IS_OPEN_DRAIN == 0
 	bsf	MIOS_IIC_TRIS_SDA, MIOS_IIC_PIN_SDA	; SDA = input
 #endif
 	nop
 	nop
-	bsf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
+	bsf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
 	rcall	MIOS_IIC_Delay_600ns_Stretch
 	btfsc	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA
 	bcf	MIOS_BOX_STAT, MIOS_BOX_STAT_BS_AVAILABLE ; notify that EEPROM is not available
 	
-	bcf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
+	bcf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
 	rcall	MIOS_IIC_Delay_1300ns
 #if RA4_IS_OPEN_DRAIN == 0
 	bcf	MIOS_IIC_TRIS_SDA, MIOS_IIC_PIN_SDA	; SDA = output
@@ -150,7 +152,7 @@ MIOS_IIC_CheckAck
 ;; --------------------------------------------------------------------------
 MIOS_IIC_NakSend
 	;; currently SCL = 0 and SDA=1
-	bsf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 1
+	bsf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 1
 	rgoto	MIOS_IIC_AckSend_Cont
 
 ;; --------------------------------------------------------------------------
@@ -169,15 +171,15 @@ MIOS_IIC_NakSend
 ;; --------------------------------------------------------------------------
 MIOS_IIC_AckSend
 	;; currently SCL = 0 and SDA=1
-	bcf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 0
+	bcf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 0
 MIOS_IIC_AckSend_Cont
 #if RA4_IS_OPEN_DRAIN == 0
 	bcf	MIOS_IIC_TRIS_SDA, MIOS_IIC_PIN_SDA	; SDA = output
 #endif
 	nop						; wait > 100 ns
-	bsf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
+	bsf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
 	rcall	MIOS_IIC_Delay_600ns_Stretch
-	bcf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
+	bcf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
 	rgoto	MIOS_IIC_Delay_1300ns
 	
 ;; --------------------------------------------------------------------------
@@ -238,14 +240,14 @@ MIOS_IIC_ByteSend
 	movwf	MIOS_IIC_CTR, BANKED
 MIOS_IIC_ByteSendLoop
 	btfsc	MIOS_IIC_BUFFER, 7, BANKED
-	bsf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 1
+	bsf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 1
 	btfss	MIOS_IIC_BUFFER, 7, BANKED
-	bcf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 0
+	bcf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA -> 0
 	nop						; relax
 	nop
-	bsf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
+	bsf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
 	rcall	MIOS_IIC_Delay_600ns_Stretch
-	bcf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
+	bcf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
 							; (wait > 1.3 us)
 	rcall	MIOS_IIC_Delay_600ns
 	rlf	MIOS_IIC_BUFFER, F, BANKED		; shift left value
@@ -311,7 +313,7 @@ MIOS_IIC_ByteSendLoop
 MIOS_IIC_ByteReceive
 	SET_BSR	MIOS_IIC_BUFFER
 	clrf	MIOS_IIC_BUFFER, BANKED
-	bsf	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA	; SDA = input
+	bsf	MIOS_IIC_LAT_SDA, MIOS_IIC_PIN_SDA	; SDA = input
 #if RA4_IS_OPEN_DRAIN == 0
 	bsf	MIOS_IIC_TRIS_SDA, MIOS_IIC_PIN_SDA		; SDA = input
 #endif
@@ -321,7 +323,7 @@ MIOS_IIC_ByteReceive
 MIOS_IIC_ByteReceiveLoop
 	nop						; relax
 	nop
-	bsf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
+	bsf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 1
 	rcall	MIOS_IIC_Delay_600ns_Stretch
 
 	rlf	MIOS_IIC_BUFFER, F, BANKED		; shift left buffer
@@ -329,7 +331,7 @@ MIOS_IIC_ByteReceiveLoop
 	btfsc	MIOS_IIC_PORT_SDA, MIOS_IIC_PIN_SDA
 	bsf	MIOS_IIC_BUFFER, 0, BANKED
 	
-	bcf	MIOS_IIC_PORT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
+	bcf	MIOS_IIC_LAT_SCL, MIOS_IIC_PIN_SCL	; SCL -> 0
 							; (wait > 1.3 us)
 	rcall	MIOS_IIC_Delay_600ns
 	decfsz	MIOS_IIC_CTR, F, BANKED			; loop
