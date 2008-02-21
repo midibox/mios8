@@ -723,6 +723,14 @@ SEQ_CORE_Clk_NextP
 	rgoto SEQ_CORE_Clk_NextP_End
 	BRA_IFCLR SEQ_REQ, SEQ_REQ_SYNCHED_PATTERN_CHANGE, BANKED, SEQ_CORE_Clk_NextP_NoSynch
 SEQ_CORE_Clk_NextP_Synch
+	;; in song mode: wait until loop counter has been reseted
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_NextP_Synch_NoSong
+SEQ_CORE_Clk_NextP_Synch_Song
+	movf	SEQ_SONG_LOOP, W, BANKED
+	xorwf	SEQ_SONG_LOOP_MAX, W, BANKED
+	bnz	SEQ_CORE_Clk_NextP_End	
+SEQ_CORE_Clk_NextP_Synch_NoSong
+	;; pattern change at last tick before next measure is reached
 	movlw	64-2
 	cpfseq	SEQ_CLK_STEP_CTR, BANKED
 	rgoto SEQ_CORE_Clk_NextP_End
@@ -1125,8 +1133,10 @@ SEQ_CORE_Clk_Step_NotPosted
 	;; Don't send new event so long it hasn't been synched to measure
 	;; (this is only relevant for dynamic sync on pattern changes in song or "pattern synch" mode!)
 	;; ------------------------------------------------------------------
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_Step_NoSyncMute
 	movlw	SEQ_TRKVARSTATE2x	; (set on pattern changes in song mode)
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE, ACCESS, SEQ_CORE_Clk_Muted
+SEQ_CORE_Clk_Step_NoSyncMute
 
 	;; ------------------------------------------------------------------
 	;; Don't send new event if sequencer not in RUN mode
@@ -1998,8 +2008,11 @@ SEQ_CORE_UpdateTrkDisable
 	bcf	PLUSW2, SEQ_TRKVARSTATE_DISABLED
 
 	;; set the synch to measure flag (in song or "pattern synch" mode only)
+	;; TK: now used in all modes - it's important when switching between patterns with different timebase or progression parameters
+#if 0
 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_UpdateTrkDisable_Sync
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_UpdateTrkDisable_NoSync
+#endif
 SEQ_CORE_UpdateTrkDisable_Sync
 	movlw	SEQ_TRKVARSTATE2x + 0*SEQ_TRKVARRECORD_LENGTH
 	bsf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
