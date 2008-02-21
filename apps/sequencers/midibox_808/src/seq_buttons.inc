@@ -511,8 +511,12 @@ SEQ_BUTTON_Fwd_Released
 ;;  Play button function
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Play
-	;; if shift button pressed: start/stop record mode
+	;; if ALT button pressed: branch to tap tempo function
 	SET_BSR	SEQ_BASE
+	btfsc	SEQ_MODE0, SEQ_MODE0_ALT, BANKED
+	goto	SEQ_BUTTON_TapTempo
+
+	;; if shift button pressed: start/stop record mode
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Record
 
 	;; do nothing if button has been depressed
@@ -584,6 +588,38 @@ SEQ_BUTTON_Record
 	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_BUTTON_Record_End
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_BUTTON_Play_From_Rec
 SEQ_BUTTON_Record_End
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Tap Tempo Button
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_TapTempo
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; call TAP function
+	call	SEQ_BPM_TapTempo
+
+	;; print tap message
+	call	SEQ_LCD_PrnTapTempo
+
+	movlw	0x80		; short display time
+	call	MIOS_LCD_MessageStart
+
+	;; if tap button has been pressed >= 5 times, start sequencer automatically if not already running
+	SET_BSR	SEQ_BASE
+	movf	SEQ_TAPTEMPO_BEAT_CTR, W, BANKED
+	andlw	0xfc
+	bz	SEQ_BUTTON_TapTempo_NoAutoStart
+SEQ_BUTTON_TapTempo_AutoStart
+	movlw	(1 << SEQ_REQ_START)
+	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
+	movwf	SEQ_REQ, BANKED
+SEQ_BUTTON_TapTempo_NoAutoStart
+
+	;; and exit
 	return
 
 

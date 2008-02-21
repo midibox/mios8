@@ -416,7 +416,20 @@ SEQ_SONG_RECURSION_CTR	EQU	0x172	; used in "seq_song.inc", SEQ_SONG_FetchPosDire
 SEQ_LIVEPLAY_METERS0	EQU	0x173	; GP overlay for live playing mode
 SEQ_LIVEPLAY_METERS1	EQU	0x174	; GP overlay for live playing mode
 
-	;; free: 0x175-0x19d
+SEQ_TAPTEMPO_BEAT_CTR	EQU	0x175	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_MEAN_L	EQU	0x176	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_MEAN_H	EQU	0x177	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE0_L	EQU	0x178	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE0_H	EQU	0x179	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE1_L	EQU	0x17a	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE1_H	EQU	0x17b	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE2_L	EQU	0x17c	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE2_H	EQU	0x17d	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE3_L	EQU	0x17e	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE3_H	EQU	0x17f	; used in "seq_core.inc" for tap tempo function
+
+
+	;; free: 0x178-0x19d
 
 ;; ==================================================================================
 
