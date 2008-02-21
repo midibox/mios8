@@ -301,6 +301,7 @@ SEQ_LED_UpdateIRQ_GPLED_NoInstOv
 SEQ_LED_UpdateIRQ_GPLED_LivePM
 	movff	SEQ_LIVEPLAY_METERS0, IRQ_TMP1
 	movff	SEQ_LIVEPLAY_METERS1, IRQ_TMP2
+	rgoto	SEQ_LED_UpdateIRQ_GPLED_NoMarker
 SEQ_LED_UpdateIRQ_GPLED_NoLivePM
 
 	;; check if a position marker should be XORed
