@@ -389,12 +389,12 @@ SID_ENS_BPM_Update
 
 	movff	MATH_AARGB0, INTCON	; enable IRQs again (if they were enabled before...)
 
+	;; ensure that timer0 interrupt not enabled
+	bcf	INTCON, T0IE
+
 	;; internal clock source, 16bit, prescaler 1:2
  	movlw	(1 << TMR0ON)
 	movwf	T0CON
-
-	;; ensure that timer0 interrupt not enabled
-	bcf	INTCON, T0IE
 
 	return
 
