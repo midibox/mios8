@@ -69,6 +69,24 @@ SEQ_LED_Update
 	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED, LED_PATTERN
  ENDIF
 
+	;; extra: the pattern LED flashes if a pattern should be stored
+ IF LED_PATTERN < 128
+SEQ_LED_Update_PatternLED
+	clrf	MIOS_PARAMETER1
+	btfsc	SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED
+	setf	MIOS_PARAMETER1
+
+	movlw	CS_MENU_PAGE_PATTERN_S
+	xorwf	CS_MENU_POS, W
+	bnz	SEQ_LED_Update_PatternLED_NoFl
+SEQ_LED_Update_PatternLED_Fl
+	btfss	CS_STAT, CS_STAT_CURSOR_FLASH
+	clrf	MIOS_PARAMETER1
+SEQ_LED_Update_PatternLED_NoFl
+	movlw	LED_PATTERN
+	rcall	SEQ_LED_Update_PinSet
+ ENDIF
+
 	;; extra: the song LED flashes if no song selected, and it is permanent on if song mode active
  IF LED_SONG < 128
 SEQ_LED_Update_SongLED
@@ -190,11 +208,17 @@ SEQ_LED_UpdateIRQ
 	movff	PRODH, SEQ_IRQ_SAVED_PRODH
 
 	;; ---[ increment the BLM row counter (used when DEFAULT_SRM_ENABLED or DEFAULT_BPM_DIGITS_ENABLED set ]---
+	SET_BSR	SEQ_BASE
 	incf	SEQ_BLM_ROW_CTR, F, BANKED
 	bcf	SEQ_BLM_ROW_CTR, 2, BANKED	; wrap at 4
 
 	;; ---[ update the GP LEDs ]---
 
+	;; display marker edit page, don't display it in song, pattern and mute page
+	;; marker stored in IRQ_TMP5, [3:0] holds the GP LED number, flag [4] and [5] enable it
+	clrf	IRQ_TMP5
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_LED_UpdateIRQ_NoMarker
+SEQ_LED_UpdateIRQ_MakeMarker
 	;; store selected track in IRQ_TMP5[3:0]
 	call	CS_M_HLP_GetSelectedTrk
 	movwf	IRQ_TMP5
@@ -234,6 +258,7 @@ SEQ_LED_UpdateIRQ_SeqOn_GPLED_M
 	;; mark position
 	bsf	IRQ_TMP5, 4
 SEQ_LED_UpdateIRQ_SeqOn_GPLED_NM
+SEQ_LED_UpdateIRQ_NoMarker
 
 
 #if DEFAULT_SRM_ENABLED

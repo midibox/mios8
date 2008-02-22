@@ -88,12 +88,11 @@ SEQ_MODE1_EDIT_HOLD		EQU	5	; the same for EDIT button
 SEQ_MODE1_EDIT_HOLD_MULTISEL	EQU	6	; the same for EDIT button
 SEQ_MODE1_SHIFT			EQU	7	; shift button function
 
-SEQ_MODE2_PATTERN_HOLD		EQU	0	; if pattern button held, pattern will be stored
-SEQ_MODE2_FWD_HOLD		EQU	1	; FWD button hold
-SEQ_MODE2_REW_HOLD		EQU	2	; REW button hold
-SEQ_MODE2_LOOP_MODE		EQU	3	; if song loop mode active
-SEQ_MODE2_LIVEPLAY		EQU	3	; currently assigned to loop button (therefore same flag): liveplay mode
-SEQ_MODE2_AUX_SELECTED		EQU	4	; if aux layer is selected
+SEQ_MODE2_FWD_HOLD		EQU	0	; FWD button hold
+SEQ_MODE2_REW_HOLD		EQU	1	; REW button hold
+SEQ_MODE2_LOOP_MODE		EQU	2	; if song loop mode active
+SEQ_MODE2_LIVEPLAY		EQU	2	; currently assigned to loop button (therefore same flag): liveplay mode
+SEQ_MODE2_AUX_SELECTED		EQU	3	; if aux layer is selected
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by USER_Init to initialize the sequencer
@@ -133,6 +132,9 @@ SEQ_CORE_Init
 	movwf	SEQ_NEXT_PATTERN0, BANKED
 	clrf	SEQ_PATTERN_BANK0, BANKED
 	clrf	SEQ_NEXT_PATTERN_BANK0, BANKED
+
+	;; clear pattern chain
+	call	SEQ_CORE_ChainClr
 
 	;; restore dump
 	call	SEQ_DUMP_RestoreAll
@@ -284,14 +286,16 @@ SEQ_CORE_Tick_End
 	xorlw	CS_MENU_PAGE_MUTE
 	skpnz
 	bsf	SEQ_MODE0, SEQ_MODE0_MUTE, BANKED
-
-	movf	CS_MENU_POS, W
-	xorlw	CS_MENU_PAGE_PATTERN
+	xorlw	CS_MENU_PAGE_PATTERN ^ CS_MENU_PAGE_MUTE
 	skpnz
 	bsf	SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED
-
-	movf	CS_MENU_POS, W
-	xorlw	CS_MENU_PAGE_SONG
+	xorlw	CS_MENU_PAGE_PATTERN_B ^ CS_MENU_PAGE_PATTERN
+	skpnz
+	bsf	SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED
+	xorlw	CS_MENU_PAGE_PATTERN_S ^ CS_MENU_PAGE_PATTERN_B
+	skpnz
+	bsf	SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED
+	xorlw	CS_MENU_PAGE_SONG ^ CS_MENU_PAGE_PATTERN_S
 	skpnz
 	bsf	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
 	;; NOTE: the LED handler flashes the LED when in song menu and song state not active
@@ -327,6 +331,10 @@ SEQ_CORE_Start
 	;; in order to find this out, we set the RUN flag here. If it has been cleared, we don't continue with the start procedure
 	SET_BSR	SEQ_BASE
 	bsf	SEQ_STATE, SEQ_STATE_RUN, BANKED
+
+	;; if chain mode: change to first pattern
+	clrf	SEQ_CHAIN_PLAY_PTR, BANKED
+	call	SEQ_CORE_ChainNextPos
 
 	;; reset song
 	call	SEQ_SONG_Reset
@@ -540,6 +548,11 @@ SEQ_CORE_Clk_Reference_ResetT
 SEQ_CORE_Clk_Reference_ResetS
 	;; clear step counter
 	clrf	SEQ_CLK_STEP_CTR, BANKED
+
+	;; in pattern mode: ensure that screen is updated on every new bar
+	;; for consistent screen
+	btfsc	SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 SEQ_CORE_Clk_Reference_NoOv
 
 	;; ------------------------------------------------------------------
@@ -562,12 +575,14 @@ SEQ_CORE_Clk_StopManual
 SEQ_CORE_Clk_NoStopManual
 
 	;; ------------------------------------------------------------------
-	;; song mode: request next pattern if sequencer running and last position reached
+	;; song or chain mode: request next pattern if sequencer running and last position reached
 	;; ------------------------------------------------------------------
 SEQ_CORE_Clk_NextPS
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_CORE_Clk_NextPS_End
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	bnz	SEQ_CORE_Clk_NextPS_Chain
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_NextPS_End
-
+SEQ_CORE_Clk_NextPS_Chain
 	movlw	6-2	; (this value has to be adjusted - depends on the time which is necessary to load 4 patterns)
 	cpfseq	SEQ_CLK_TICK6_CTR, BANKED
 	rgoto SEQ_CORE_Clk_NextPS_End
@@ -575,7 +590,12 @@ SEQ_CORE_Clk_NextPS
 	cpfseq	SEQ_CLK_STEP_CTR, BANKED
 	rgoto SEQ_CORE_Clk_NextPS_End
 SEQ_CORE_Clk_NextPS_Request
+	;; song mode has higher priority
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_NextPS_RequestChain
 	call	SEQ_SONG_NextPos
+	rgoto	SEQ_CORE_Clk_NextPS_End	
+SEQ_CORE_Clk_NextPS_RequestChain
+	call	SEQ_CORE_ChainNextPos
 SEQ_CORE_Clk_NextPS_End	
 
 	;; ------------------------------------------------------------------
@@ -966,8 +986,13 @@ SEQ_CORE_Clk_Step_NotPosted
 
 	;; ------------------------------------------------------------------
 	;; Don't send new event so long it hasn't been synched to measure
-	;; (this is only relevant for dynamic sync on pattern changes in song or "pattern synch" mode!)
+	;; (this is only relevant for dynamic sync on pattern changes in song or "pattern synch" mode or "chain" mode!)
 	;; ------------------------------------------------------------------
+#if 0
+	;; TK: let's check if it works better without mute (because of Nudge function...)
+	movf	SEQ_CHAIN_TOP, W
+	bnz	SEQ_CORE_Clk_Step_SyncMute
+#endif
 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_Clk_Step_SyncMute
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_Step_NoSyncMute
 SEQ_CORE_Clk_Step_SyncMute
@@ -1490,9 +1515,12 @@ SEQ_CORE_SetPos_LoopI_Break
 	;; -> SEQ_CORE_ChangePattern_Song
 SEQ_CORE_ChangePatternSynched
 	SET_BSR	SEQ_BASE
-	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_ChangePatternSynchedSkp
+	movf	SEQ_CHAIN_TOP, W
+	skpz
 	bsf	SEQ_REQ, SEQ_REQ_SYNCHED_PATTERN_CHANGE, BANKED
-SEQ_CORE_ChangePatternSynchedSkp
+
+	btfsc	SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED
+	bsf	SEQ_REQ, SEQ_REQ_SYNCHED_PATTERN_CHANGE, BANKED
 
 	;; check if SEQ_PATTERN_BANK != SEQ_NEXT_PATTERN_BANKx
 	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
@@ -1596,6 +1624,8 @@ SEQ_CORE_UpdateTrkDisableLoop
 
 #if 0
 	;; set the synch to measure flag (in song or "pattern synch" mode only)
+	movf	SEQ_CHAIN_TOP, W
+	bnz	SEQ_CORE_UpdateTrkDisable_Sync
 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_UpdateTrkDisable_Sync
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_UpdateTrkDisable_NoSync
 #endif
@@ -2429,6 +2459,21 @@ SEQ_CORE_NudgeRew_Loop
 	rgoto	SEQ_CORE_NudgeRew_Loop
 	
 
+	;; decrement step counter
+	movlw	-4*4		; (4 times resolution)
+	addwf	SEQ_CLK_STEP_CTR, F, BANKED
+
+	;; reset on underrun
+	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	andlw	0xc0
+	bz	SEQ_CORE_NudgeRew_NoOver
+SEQ_CORE_NudgeRew_Over
+	movlw	0x3f
+	andwf	SEQ_CLK_STEP_CTR, F, BANKED
+	;; (here we could switch to previous pos)
+	;; 	call	SEQ_CORE_ChainPrevPos
+SEQ_CORE_NudgeRew_NoOver
+
 	return
 
 ;; --------------------------------------------------------------------------
@@ -2441,17 +2486,124 @@ SEQ_CORE_NudgeFwd_Loop
 	call	SEQ_CORE_Calc_TRKx_FSR0		; calculate pointer to SEQ_TRKx -> FSR0
 	call	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
 
-	;; select next step (change takes place on next clock)
-	call	SEQ_CORE_NextStep
-#if 1
-	;; usability check
+	;; jump 4 steps (change takes place on next clock)
 	call	SEQ_CORE_NextStep
 	call	SEQ_CORE_NextStep
 	call	SEQ_CORE_NextStep
-#endif	
+	call	SEQ_CORE_NextStep
+
 	incf	SEQ_EVNTT, F, BANKED	; increment track number
 	movlw	SEQ_NUMBER_TRACKS-1
 	cpfsgt	SEQ_EVNTT, BANKED
 	rgoto	SEQ_CORE_NudgeFwd_Loop
+
+
+	;; increment step counter
+	movlw	4*4		; (4 times resolution)
+	addwf	SEQ_CLK_STEP_CTR, F, BANKED
+
+	;; reset on overrun (and increment pattern if in chain mode)
+	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	andlw	0xc0
+	bz	SEQ_CORE_NudgeFwd_NoOver
+SEQ_CORE_NudgeFwd_Over
+	movlw	0x3f
+	andwf	SEQ_CLK_STEP_CTR, F, BANKED
+	call	SEQ_CORE_ChainNextPos
+SEQ_CORE_NudgeFwd_NoOver
+
 	
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  This function clears the pattern chain
+;; --------------------------------------------------------------------------
+SEQ_CORE_ChainClr
+	SET_BSR	SEQ_BASE
+
+	clrf	PRODL
+	lfsr	FSR1, SEQ_PATTERN_CHAIN
+SEQ_CORE_ChainClrLoop
+	clrf	POSTINC1
+	incf	PRODL, F
+	bnz	SEQ_CORE_ChainClrLoop
+
+	clrf	SEQ_CHAIN_PLAY_PTR, BANKED
+	clrf	SEQ_CHAIN_TOP, BANKED
+	return
+
+;; --------------------------------------------------------------------------
+;;  This function adds a pattern/bank to the chain
+;;  IN: pattern in SEQ_PATTERN, bank in SEQ_PATTERN_BANK
+;; --------------------------------------------------------------------------
+SEQ_CORE_ChainAdd
+	SET_BSR	SEQ_BASE
+
+	;; exit if top of chain reached
+	movf	SEQ_CHAIN_TOP, W
+	xorlw	0x7f
+	bz	SEQ_CORE_ChainAdd_End
+
+	;; determine pointer to chain entry
+	lfsr	FSR1, SEQ_PATTERN_CHAIN
+	clrc
+	rlf	SEQ_CHAIN_TOP, W, BANKED
+	addwf	FSR1L, F
+
+	;; add bank and pattern to chain
+	movff	SEQ_PATTERN_BANK, POSTINC1
+	movff	SEQ_PATTERN, POSTINC1
+
+	;; increment top pointer
+	incf	SEQ_CHAIN_TOP, F, BANKED
+
+SEQ_CORE_ChainAdd_End
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  This function changes SEQ_PATTERN0/SEQ_PATTERN_BANK0 to the next chain
+;;  entry.
+;; --------------------------------------------------------------------------
+SEQ_CORE_ChainNextPos
+	SET_BSR	SEQ_BASE
+
+	movf	SEQ_CHAIN_TOP, W
+	bz	SEQ_CORE_ChainNextPos_End
+
+	;; determine pointer to chain entry
+	lfsr	FSR1, SEQ_PATTERN_CHAIN
+	clrc
+	rlf	SEQ_CHAIN_PLAY_PTR, W, BANKED
+	addwf	FSR1L, F
+
+	;; get bank and pattern from chain
+	movff	POSTINC1, SEQ_PATTERN_BANK
+	movff	POSTINC1, SEQ_PATTERN
+
+	;; increment play pointer, wrap on top entry
+	incf	SEQ_CHAIN_PLAY_PTR, F, BANKED
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	cpfslt	SEQ_CHAIN_PLAY_PTR, BANKED
+	clrf	SEQ_CHAIN_PLAY_PTR
+
+	;; compare with currently played pattern
+	;; don't change if identical
+	movf	SEQ_PATTERN0, W, BANKED
+	xorwf	SEQ_PATTERN, W, BANKED
+	andlw	0x7f
+	bnz	SEQ_CORE_ChainNextPos_New
+	movf	SEQ_PATTERN_BANK0, W, BANKED
+	xorwf	SEQ_PATTERN_BANK, W, BANKED
+	bnz	SEQ_CORE_ChainNextPos_New
+	rgoto	SEQ_CORE_ChainNextPos_End
+
+SEQ_CORE_ChainNextPos_New
+	;; change to new pattern immediately
+	movff	SEQ_PATTERN, SEQ_NEXT_PATTERN0
+	movff	SEQ_PATTERN_BANK, SEQ_NEXT_PATTERN_BANK0
+	rcall	SEQ_CORE_ChangePattern
+
+SEQ_CORE_ChainNextPos_End
 	return

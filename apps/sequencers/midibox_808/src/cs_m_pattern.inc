@@ -22,23 +22,95 @@
 ;;     should return the GP LED values in CS_MENU_GP_OVERLAY_DOUT_SR[01]
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_GP_Callback
-	;; do nothing if GP button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
+	;; if shift button pressed: always clear state of rightmost buttons
+	SET_BSR	SEQ_BASE
+	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	clrf	CS_PATTERN_GP_STATE_R
+	
+	;; branch depending on button status
+	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_PATTERN_GP_Callback_Pressed
+CS_M_PATTERN_GP_Callback_Depr
+	;; exit immediately if leftmost GP buttons
+	btfss	MIOS_PARAMETER1, 3
 	return
+
+	;; exit if shift button pressed (chain mode)
+	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	return
+
+	;; clear button flag
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_HLP_GetBitANDMask
+	andwf	CS_PATTERN_GP_STATE_R, F
+
+	;; if only one button is pressed anymore: change back to corresponding pattern
+	movf	CS_PATTERN_GP_STATE_R, W
+	xorlw	0x01
+	bz	CS_M_PATTERN_GP_Callback_Depr_C
+	xorlw	0x02 ^ 0x01
+	bz	CS_M_PATTERN_GP_Callback_Depr_C
+	xorlw	0x04 ^ 0x02
+	bz	CS_M_PATTERN_GP_Callback_Depr_C
+	xorlw	0x08 ^ 0x04
+	bz	CS_M_PATTERN_GP_Callback_Depr_C
+	xorlw	0x10 ^ 0x08
+	bz	CS_M_PATTERN_GP_Callback_Depr_C
+	xorlw	0x20 ^ 0x10
+	bz	CS_M_PATTERN_GP_Callback_Depr_C
+	xorlw	0x40 ^ 0x20
+	bz	CS_M_PATTERN_GP_Callback_Depr_C
+	xorlw	0x80 ^ 0x40
+	bz	CS_M_PATTERN_GP_Callback_Depr_C
+
+	rgoto	CS_M_PATTERN_UpdateGPLEDs
+
+
+CS_M_PATTERN_GP_Callback_Depr_C
+	;; determine button number which corresponds to pattern
+	movlw	0x00
+	btfsc	CS_PATTERN_GP_STATE_R, 1
+	movlw	0x01
+	btfsc	CS_PATTERN_GP_STATE_R, 2
+	movlw	0x02
+	btfsc	CS_PATTERN_GP_STATE_R, 3
+	movlw	0x03
+	btfsc	CS_PATTERN_GP_STATE_R, 4
+	movlw	0x04
+	btfsc	CS_PATTERN_GP_STATE_R, 5
+	movlw	0x05
+	btfsc	CS_PATTERN_GP_STATE_R, 6
+	movlw	0x06
+	btfsc	CS_PATTERN_GP_STATE_R, 7
+	movlw	0x07
+	iorlw	0x08
+	movwf	MIOS_PARAMETER1
+
+	;; no button pressed anymore: clear all flags
+	clrf	CS_PATTERN_GP_STATE_R
+
+	;; change to corresponding pattern
+	;; 	rgoto	CS_M_PATTERN_GP_Callback_Pressed
+
+
+CS_M_PATTERN_GP_Callback_Pressed
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_GP_Callback_PrShift
+	;; if not in chain mode, and rightmost GP buttons: set appr. state flag
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_HLP_GetBitORMask
+	btfsc	MIOS_PARAMETER1, 3
+	iorwf	CS_PATTERN_GP_STATE_R, F
+CS_M_PATTERN_GP_Callback_PrShift
 
 	;; store button number in cursor pos
 	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
 
-	;; if shift button pressed: change pattern bank
-	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_GP_Callback_B
-CS_M_PATTERN_GP_Callback_P
 	;; call general GP routine for pattern selection
 	call	CS_M_HLP_GPPatternSel
 
-	;; change pattern if one of the right buttons has been pressed
-	BRA_IFCLR MIOS_PARAMETER1, 3, ACCESS, CS_M_PATTERN_GP_Callback_PNoChng
+	;; change pattern if one of the right GP buttons has been pressed
+	BRA_IFCLR MIOS_PARAMETER1, 3, ACCESS, CS_M_PATTERN_GP_Callback_Cont
 CS_M_PATTERN_GP_Callback_PChng
+
 	;; change to a new pattern
 	;; 7th bit cleared: CS_MENU_PARAMETER_L = pattern number + 1
 	;; 7th bit set:     CS_MENU_PARAMETER_L = 0
@@ -51,57 +123,42 @@ CS_M_PATTERN_GP_Callback_PChng
 	movff	TMP1, SEQ_PATTERN
 	movff	SEQ_NEXT_PATTERN_BANK0, SEQ_PATTERN_BANK
 
-	;; if PATTERN button pressedt: store pattern
-	BRA_IFSET SEQ_MODE2, SEQ_MODE2_PATTERN_HOLD, BANKED, CS_M_PATTERN_GP_Callback_PSave
-CS_M_PATTERN_GP_Callback_PSel
-	;; select pattern
+	;; if shift button pressed: add pattern to chain
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_GP_Callback_Chain
+CS_M_PATTERN_GP_Callback_P
+	;; else clear chain
+	call	SEQ_CORE_ChainClr
+	;; and change to pattern immediately
 	call	SEQ_CORE_ChangePatternSynched
 	rgoto	CS_M_PATTERN_GP_Callback_Cont
 
-CS_M_PATTERN_GP_Callback_PSaveM0
-	STRING 11, 0x00 + 0, "** Pattern "
-CS_M_PATTERN_GP_Callback_PSaveM1
-	STRING 16, 0x40 + 0, "** stored       "	
-CS_M_PATTERN_GP_Callback_PSave
-	;; store pattern
-	movff	SEQ_PATTERN, SEQ_SAVE_PATTERN
-	movff	SEQ_PATTERN_BANK, SEQ_SAVE_PATTERN_BANK
-	call	SEQ_DUMP_StoreTrks
+CS_M_PATTERN_GP_Callback_Chain
+	;; add pattern to chain
+	call	SEQ_CORE_ChainAdd
 
-	;; switch to pattern immediately
-	movff	SEQ_SAVE_PATTERN_BANK, SEQ_NEXT_PATTERN_BANK0
-	movff	SEQ_SAVE_PATTERN_BANK, SEQ_PATTERN_BANK0
-	movff	SEQ_SAVE_PATTERN, SEQ_NEXT_PATTERN0
-	movff	SEQ_SAVE_PATTERN, SEQ_PATTERN0
-
+#if 0
 	;; print message
-	TABLE_ADDR CS_M_PATTERN_GP_Callback_PSaveM0
+	TABLE_ADDR CS_M_PATTERN_GP_Callback_ChainM0
 	call	MIOS_LCD_PrintMessage
-	rcall	CS_M_PATTERN_PrnP	; (5 characters)
-	TABLE_ADDR CS_M_PATTERN_GP_Callback_PSaveM1
+	movff	SEQ_CHAIN_TOP, WREG
+	call	MIOS_LCD_PrintBCD3
+	movlw	7
+	call	SEQ_LCD_PrintSpaces
+
+	TABLE_ADDR CS_M_PATTERN_GP_Callback_ChainM1
 	call	MIOS_LCD_PrintMessage
+	call	CS_M_PATTERN_PrnP	; (5 characters)
+	movlw	4
+	call	SEQ_LCD_PrintSpaces
+#endif
 
 	;; DIRTY!
 	;; ensure that GP LEDs updated immediately
 	rcall	CS_M_PATTERN_UpdateGPLEDs
 	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
 	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
-	return
 
-
-CS_M_PATTERN_GP_Callback_PNoChng
-	rgoto	CS_M_PATTERN_GP_Callback_Cont
-
-
-CS_M_PATTERN_GP_Callback_B
-	;; change bank
-	;; ignore >= 8
-	btfsc	MIOS_PARAMETER1, 3
-	return
-
-	movff	MIOS_PARAMETER1, SEQ_PATTERN_BANK
-	movff	SEQ_NEXT_PATTERN0, SEQ_PATTERN
-	call	SEQ_CORE_ChangePatternSynched
 	;; 	rgoto	CS_M_PATTERN_GP_Callback_Cont
 
 CS_M_PATTERN_GP_Callback_Cont
@@ -112,6 +169,11 @@ CS_M_PATTERN_GP_Callback_Cont
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
 
+CS_M_PATTERN_GP_Callback_ChainM0
+	STRING 10, 0x00 + 0, "** Chain #"
+CS_M_PATTERN_GP_Callback_ChainM1
+	STRING 11, 0x40 + 0, "** Pattern "
+
 
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_UpdateGPLEDs
@@ -119,11 +181,6 @@ CS_M_PATTERN_UpdateGPLEDs
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
 
-	;; if shift button pressed: display pattern bank
-	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_UpdateGPLEDs_B
-
-CS_M_PATTERN_UpdateGPLEDs_P
 	;; exit when menu parameter == 0
 	movf	CS_MENU_PARAMETER_L, W
 	skpnz
@@ -137,16 +194,13 @@ CS_M_PATTERN_UpdateGPLEDs_P
 	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
 
 	;; last 8 leds: (CS_MENU_PARAMETER_L-1)[2..0]
+	;; + state of GP buttons if SHIFT button not pressed (no chain mode)
 	decf	CS_MENU_PARAMETER_L, W
 	call	MIOS_HLP_GetBitORMask
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
-	return
-
-CS_M_PATTERN_UpdateGPLEDs_B
 	SET_BSR	SEQ_BASE
-	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
-	call	MIOS_HLP_GetBitORMask
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	iorwf	CS_PATTERN_GP_STATE_R, W
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
 	return
 
 
@@ -238,9 +292,44 @@ CS_M_PATTERN_Tick_0		; re-used from CS_M_MUTE_Init !!!
 	movlw	0x00 + 0
 	call	MIOS_LCD_CursorSet
 
+	;; extra: print chain info if SHIFT button pressed or chain mode active
+	SET_BSR	SEQ_BASE
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	bnz	CS_M_PATTERN_Tick_0_Chain
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_Tick_0_Chain
+CS_M_PATTERN_Tick_0_NoChain
 	call	CS_M_HLP_GetSelectedTrk
 	call	CS_M_HLP_PrnTrkNameOrRec	; (6 characters)
+	rgoto	CS_M_PATTERN_Tick_Cont
 
+CS_M_PATTERN_Tick_0_Chain
+	;; if top >= 100, special view
+	movlw	100
+	cpfslt	SEQ_CHAIN_TOP, BANKED
+	bz	CS_M_PATTERN_Tick_0_Chain_33
+CS_M_PATTERN_Tick_0_Chain_22
+	movf	SEQ_CHAIN_PLAY_PTR, W, BANKED
+	skpnz
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	call	MIOS_LCD_PrintBCD2
+	movlw	'/'
+	call	MIOS_LCD_PrintChar
+	SET_BSR	SEQ_BASE
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	call	MIOS_LCD_PrintBCD2
+	movlw	' '
+	call	MIOS_LCD_PrintChar
+	rgoto	CS_M_PATTERN_Tick_Cont
+
+CS_M_PATTERN_Tick_0_Chain_33
+	movf	SEQ_CHAIN_PLAY_PTR, W, BANKED
+	skpnz
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	call	MIOS_LCD_PrintBCD3
+	;; no slash... :-/
+	SET_BSR	SEQ_BASE
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	call	MIOS_LCD_PrintBCD3
 	rgoto	CS_M_PATTERN_Tick_Cont
 
 #if DEFAULT_LCD_WIDTH == 80
@@ -292,26 +381,15 @@ CS_M_PATTERN_Tick_7
 #endif
 	rgoto	CS_M_PATTERN_Tick_Cont
 
-CS_M_PATTERN_Tick_89ABCDEF_STR_P
+CS_M_PATTERN_Tick_89ABCDEF_STR
 	db	" A/a  B/b  C/c  D/d  E/e  F/f  G/g  H/h   1    2    3    4    5    6    7    8  "
-CS_M_PATTERN_Tick_89ABCDEF_STR_B
-	db	"  1    2    3    4    5    6    7    8                                          "
 CS_M_PATTERN_Tick_89ABCDEF
 #if DEFAULT_LCD_WIDTH == 80
 	;; determine string offset
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	andlw	0x07
 
-	;; if shift button pressed: change pattern bank
-	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_GP_Callback_B
-CS_M_PATTERN_Tick_89ABCDEF_P
-	TABLE_ADDR_MUL_W CS_M_PATTERN_Tick_89ABCDEF_STR_P, 10
-	call	CS_M_HLP_Print10Chars
-	rgoto	CS_M_PATTERN_Tick_Cont
-
-CS_M_PATTERN_Tick_89ABCDEF_B
-	TABLE_ADDR_MUL_W CS_M_PATTERN_Tick_89ABCDEF_STR_B, 10
+	TABLE_ADDR_MUL_W CS_M_PATTERN_Tick_89ABCDEF_STR, 10
 	call	CS_M_HLP_Print10Chars
 	rgoto	CS_M_PATTERN_Tick_Cont
 #endif

@@ -508,6 +508,8 @@ AIN_NotifyChange
 #include "cs_m_hlp.inc"
 #include "cs_m_edit.inc"
 #include "cs_m_pattern.inc"
+#include "cs_m_pattern_b.inc"
+#include "cs_m_pattern_s.inc"
 #include "cs_m_mute.inc"
 #include "cs_m_song.inc"
 #include "cs_m_trkdir.inc"

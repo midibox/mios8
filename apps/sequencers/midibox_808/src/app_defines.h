@@ -150,6 +150,7 @@ CS_UNDO_TRK		EQU	0x05c	; used in "cs_m_utils.inc"
 CS_TRKDIV_TIMEBASE	EQU	0x05d	; used in "cs_m_trkdiv.inc"
 CS_TRKMIDI_NOTE		EQU	0x05e	; used in "cs_m_trkmidi.inc"
 CS_TRKMIDI_OCTAVE	EQU	0x05f	; used in "cs_m_trkmidi.inc"
+CS_PATTERN_GP_STATE_R	EQU	0x060	; state of right pattern select buttons
 
 CS_MENU_INST_OVERLAY_DOUT_SR0 EQU 0x067	; contains the instrument indicator of GP DOUT #0
 CS_MENU_INST_OVERLAY_DOUT_SR1 EQU 0x068	; contains the instrument indicator of GP DOUT #1
@@ -428,6 +429,8 @@ SEQ_TAPTEMPO_AVERAGE2_H	EQU	0x17d	; used in "seq_core.inc" for tap tempo functio
 SEQ_TAPTEMPO_AVERAGE3_L	EQU	0x17e	; used in "seq_core.inc" for tap tempo function
 SEQ_TAPTEMPO_AVERAGE3_H	EQU	0x17f	; used in "seq_core.inc" for tap tempo function
 
+SEQ_CHAIN_PLAY_PTR	EQU	0x180	; used in "seq_core.inc" to go through chain
+SEQ_CHAIN_TOP		EQU	0x181	; used in "seq_core.inc" to store top if chain
 
 	;; free: 0x178-0x19d
 
@@ -663,4 +666,12 @@ SEQ_COPYPASTE_T_BUFFER	EQU	0xd00	; ..0xd1f (32 bytes)
 
 ;; -----------------------------------
 
-	;; free: 0xd20-0xf7f! :-)
+	;; free: 0xd20-0xdff! :-)
+
+;; -----------------------------------
+;; for pattern chains
+SEQ_PATTERN_CHAIN	EQU	0xe00	; ..0xeff
+
+;; -----------------------------------
+
+	;; free: 0xf00-0xf7f! :-)

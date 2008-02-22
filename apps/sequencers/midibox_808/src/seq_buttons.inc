@@ -676,20 +676,32 @@ SEQ_BUTTON_Mute_Released
 ;;  enter pattern mode
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Pattern
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; if SHIFT button pressed: branch to bank menu
 	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Pattern_Bank
 
-	;; clear pattern hold flag if if button has been depressed
-	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Pattern_Released
-SEQ_BUTTON_Pattern_Pressed
-	bsf	SEQ_MODE2, SEQ_MODE2_PATTERN_HOLD, BANKED ; set hold flag
+	;; if ALT button pressed: branch to save menu
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_ALT, BANKED, SEQ_BUTTON_Pattern_Save
 
-	;; branch to pattern menu
+	;; clear state of right select buttons
+	clrf	CS_PATTERN_GP_STATE_R
+
+	;; branch to normal pattern menu
 	movlw	CS_MENU_PAGE_PATTERN
 	goto	CS_M_HLP_ChangePage
 
-SEQ_BUTTON_Pattern_Released
-	bcf	SEQ_MODE2, SEQ_MODE2_PATTERN_HOLD, BANKED ; clear hold flag
-	return
+SEQ_BUTTON_Pattern_Bank
+	movlw	CS_MENU_PAGE_PATTERN_B
+	goto	CS_M_HLP_ChangePage
+	
+SEQ_BUTTON_Pattern_Save
+	movlw	CS_MENU_PAGE_PATTERN_S
+	goto	CS_M_HLP_ChangePage
 	
 
 ;; --------------------------------------------------------------------------
