@@ -1,6 +1,6 @@
 ; $Id$
 ;
-; Prepared Setup File for 6581 SID
+; Setup File for TK's MIDIbox SID
 ;
 
 
