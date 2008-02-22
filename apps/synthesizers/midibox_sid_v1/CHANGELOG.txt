@@ -1,0 +1,329 @@
+$Id$
+
+MIDIboxSID V1.7303b
+~~~~~~~~~~~~~~~~~~~
+
+   o the 4bit volume parameter of the SID can now be directly
+     modulated from ENV2. This possibility allows to replace the
+     oscillator envelopes and helps to overcome the ADSR bug.
+     This feature can be enabled with the fourth flag (E2V) of the 
+     "sound engine option"
+
+   o with the fifth "sound engine option" GSA (gate stays active)
+     the gate of the oscillators will not be cleared anymore if
+     a MIDI note has been released.
+     This allows to control the amplitude envelope of a sound
+     completely via filter or E2V modulation independent from the
+     OSC ADSR release rate.
+
+   o the arpeggiator has been overworked, now the arp cycle has always
+     a constant time. If one key is pressed, it is stepped with normal
+     rate, with two keys at double rate, three keys triple rate, 
+     four keys quadrupled rate. 
+     This approach improves the live handling and yields more musical results
+     If the arpeggiator is synched to MIDI clock, use following
+     rate settings:
+       - 64th note: 124
+       - 32th note: 118
+       - 16th note: 106
+       - 8th note: 82
+       - 4th note: 34
+
+
+   o the filter control curve can now be scaled between a min
+     and max range of 0..2047 - this is (currently) a static
+     configuration which has to be made in the .asm file (search
+     for DEFAULT_FILTER_TYPE).
+     It's also possible to switch between two different types and
+     calibration sets via an external pin (search for DEFAULT_FILTER_TYPE_SWITCH)
+
+   o cosmetic change: displayed patch number now padded with zeros
+
+   o The LCD now prints an informative message when a patch has been uploaded
+     via SysEx
+
+
+MIDIboxSID V1.7303
+~~~~~~~~~~~~~~~~~~
+
+   o this version requires MIOS V1.9 or higher!
+     It won't run with older MIOS versions, since the address space
+     >= 0x7c00 is allocated
+
+   o a new CC parameter for "sound engine options" has been added. 
+     It provides up to 7 flags which allow to change the characteristic 
+     of the sound engine and to save the settings within a patch.
+     All currently available sound engine options (303, FIP and E2P -
+     see below) can be changed in the new SEO menu
+
+   o a 303 mode has been implemented which changes the characteristic
+     of the filter, envelopes and wavetable sequencer so that the SID
+     can be used to play TB303-typical bassline sequences.
+     The details are described at http://www.ucapps.de/howto_sid_bassline.html
+
+     The option has to be enabled with the first flag (303) of the 
+     "sound engine option"
+
+   o the filter output curve can now be optionally interpolated 
+     in order to smooth modifications of the CC#46 cutoff value. 
+     The interpolation can be activated with the second flag (FIP)
+     of the "sound engine option"
+
+   o an alternative portamento mode has been added, which uses ENV2
+     to realize a constant time glide/slide.
+     Best results can be achieved with Attack=rate,
+     Decay/Sustain/Release=0, Curve > 32. This results into
+     a shape which is similar to the charging/decharging curve 
+     of a capacitor. Try this with SusKey and Legato enabled.
+     This feature can be enabled with the third flag (E2P) of the 
+     "sound engine option"
+
+   o a new CC parameter for "filter key tracking" has been added (CC#116)
+
+   o "ENABLE_AOUT 2" selects a low-cost AOUT module
+     (currently it only outputs CutOff as 12bit value, once I got
+     the Curtis chips I will do some experiments with 8bit CutOff
+     and 8bit Resonance)
+
+   o a new flag has been added to the MIDI sync parameter CC#125 which
+     allows to send MIDI clock events from the wavetable sequencer. 
+     Each step sends a clock in normal mode. 
+     In 303 mode, each step sends 6 clocks
+
+   o the internal WT editor now allows to modify the parameters
+     of a whole track at once, this speeds up the initialisation
+     of a new WT sequence. Just select the step position beyond 31
+     ("All" will be print) and modify the Mod, #1, #2 or #3 column
+
+   o the WT editor now marks parameters with a '!' so long they haven't
+     been stored in EEPROM
+
+   o the WT editor now prints notes/arpeggio keys/holds when the appr.
+     WT parameter assignment is within the range CC#8..CC#12
+
+   o it's now possible to play a note (or to start/stop a WT sequence)
+     by holding one or multiple SID buttons and pressing the
+     menu button. The selected SID number(s) will be inverted on
+     screen so long the note (or sequence) is active.
+     Note that the Note event could play different SIDs at the same
+     time if they are assigned to the same MIDI channel.
+
+   o each second LFO now provides a Sample & Hold functionality when
+     switched to random mode. LFO2, 4 and 5 hold the waveform of
+     LFO1, 3 and 5 for each period run.
+     Example: 
+        - in the modulation matrix, enable LFO2 modulation for the
+          Pitch of OSC1 -> this is the S&H output
+        - set LFO2 to random mode, Rate=70, Depth doesn't matter
+        - set LFO1 to sine or random mode, and vary Rate and Depth
+
+   o the LEDs of the modulation matrix are now also used for metering
+     the output values of LFO1-6 and ENV1-2
+
+     This new mode can be selected by pressing two mod target buttons
+     at the same time (e.g. O1 and O2 pitch). It can also be enabled
+     automatically after startup by changing the DEFAULT_LEDMATRIX_MODE
+     setting in main.asm or setup_*.asm
+
+   o support for 24LC512 EEPROMs - it has to be enabled with the
+     DEFAULT_BS_TYPE flag in main.asm or setup_*.asm
+
+   o a lot of minor bugfixes and improvements have been made
+
+
+MIDIboxSID V1.7
+~~~~~~~~~~~~~~~
+
+   o support for multiple BankSticks
+     The bank can be changed 
+        - with CC#0 at the selected MIDI channel (master and slaves)
+        - with F0 00 00 7E 46 <device-number> 0B <bank> F7 (master only)
+        - in the CFG menu (master and slaves)
+
+   o when a Node in the Modulation Matrix is enabled/disabled, the
+     CS changes to the appr. Envelope/LFO menu
+
+   o the complete sound engine has been overworked to save memory
+
+   o there is now a 6th LFO waveform which forwards analog conversion
+     results from the first 6 analog inputs (J5 port of the core
+     module) to the LFOs. 
+     This allows you to control the SID with analog signals
+     The LFO Depth controls the impact on the modulation target
+     The LFO Rate controls the update cycle - a lower rates result to
+     very stuttering effects, the highest rate (127 -> 812 uS sample
+     period) to a very accurate control of Frequencies/Pulsewidths/Filter
+
+     Thinkable analog sources are pots, joysticks, CV outs, ...
+
+   o some minor bugfixes and improvements
+
+
+MIDIboxSID V1.6
+~~~~~~~~~~~~~~~
+
+   o a split function has been implemented which allows to assign the
+     three SID voices to different (or overlapping) keyboard zones.
+     By using the transpose function in addition, you are now able
+     to play each voice individually from a single MIDI channel.
+     This feature is also usefull to layer multiple SID sounds to
+     different keyboard zones (requires SID slaves)
+
+   o the velocity/modulation/aftertouch configuration can now be found
+     in a seperate menu (VMA), the split function can be controlled
+     from the CFG menu
+
+   o an auto configuration for the SID device ID and the CS handler
+     has been implemented which is enabled by default. The SID device 
+     ID will be derived from the MIOS device ID. The control surface
+     will be disabled if the device ID is != 0x00 (and therefore the
+     core acts as a slave).
+     This simplifies the configuration of a 4 SID system
+
+   o several setup and .syx files for 6581/8580 with or without control 
+     surface are included in this package so that in most cases no 
+     assembler is required to configure the application
+
+   o IMPORTANT: from now on, the SCLK input of the SID module has to
+     be connected to port J10:MD (PIC Pin #28/RD5) of the core module
+
+     The use of MIOS V1.7 is highly recommented (especially CS users
+     will notice advantages - brighter LEDs, brighter modulation matrix!)
+     see also http://www.ucapps.de/mios_v1_7_hardware_mods.html
+
+
+MIDIboxSID V1.6 Alpha3
+~~~~~~~~~~~~~~~~~~~~~~
+
+   o the handling of SID Slave patch changes is faster now
+
+   o Special Characters are now in a seperate file (special_characters.inc)
+     to simplify the use with different LCD drivers. The application
+     gets use of the MIOS_BOX_CFG0_USE_GLCD flag to determine if a 
+     character or graphical display is connected (requires MIOS V1.6 or higher)
+
+
+MIDIboxSID V1.6 Alpha2
+~~~~~~~~~~~~~~~~~~~~~~
+
+   o menu handling has been slightly changed. The page scrolls now
+     directly with the datawheel and not with the cursor anymore.
+     If you like the old style, then enable the CS_MENU_OLD_STYLE
+     switch within main.asm
+
+   o Wavetable sequencer now properly reset when MIDI Sync enabled
+
+   o support for optional CBM8580 filter switch (jumper) which can 
+     be connected to pin RC.3 (CORE::J6::SI). This mechanism has 
+     to be enabled with CBM8580_FILTER_SWITCH in main.asm --- 
+     it's disabled by default! The pin number is free definable.
+     A 10k pull-up should be added to this pin, this is already the
+     case for RC.3 when you are using the original MBHP core module.
+     Jumper open: 6581 filter, Jumper closed: 8580 filter
+
+
+MIDIboxSID V1.6 Alpha1
+~~~~~~~~~~~~~~~~~~~~~~
+
+   o optional oscillator phase synchronization for more percussive
+     sounds (idea by Jess D. Skov-Nielsen)
+     New CS Menu Entry: OPS in the OSC menu
+
+   o non-linear envelopes with flexible CURVE parameter which 
+     allows you to bend the attack, decay and/or release curve to 
+     upward/downward direction (idea and implementation hints
+     by Jess D. Skov-Nielsen)
+     See also: http://www.ucapps.de/midibox_sid/mbsid_curve1.jpg
+               http://www.ucapps.de/midibox_sid/mbsid_curve2.jpg
+               http://www.ucapps.de/midibox_sid/mbsid_curve3.jpg
+     New CS Menu entries: Cur and CAs in the ENV menu
+
+   o optimized linear response of the 8580 filter (implementation
+     hints by Jess D. Skov-Nielsen)
+     NOTE: due to the higher dynamic range, you've to increase the
+     CutOff value of the old patches
+
+   o correctly calculated Note->frequency table (implementation
+     hints by Jess D. Skov-Nielsen)
+
+   o more stable wavetable sequencer timings (based on experiences 
+     with MIDIbox SEQ)
+
+   o optimized display handler to avoid long delays of more 
+     than 1 mS
+
+   o experimental AOUT support (7 CV out assigned to the existing 
+     outputs of the modulation matrix, 1 channel to the filter 
+     resonance parameter). For the final version it's planned
+     to integrate the AOUT into a seperate modulation matrix,
+     and to add new CC's to a seperate AOUT channel
+
+
+MIDIboxSID V1.5b
+~~~~~~~~~~~~~~~~
+
+   o Most parts of the software engine have been revised in order to
+     improve the sound quality. The most drastic change has been made 
+     in the pitch modulation - now it works independent from the 
+     "Pitch Range" setting; LFO and envelope waveforms are added 
+     linearly to the frequency like known from common synthesizers. 
+     The depth parameter of LFOs & Envelopes follows an exponential 
+     curve. Unfortunately these changes make V1.5 incompatible to 
+     patches which have been created with the old firmwares
+
+   o the filter driver of the software engine has been significantly 
+     improved for the 8580. A MP3 example can be found under 
+     MBHP->MIDIbox SID->Design
+
+   o the arpeggiator now sorts the pressed keys from the lowest to 
+     the highest note in order to improve the usability during a 
+     live session
+
+   o -> CC#8 - CC#11 allow to play notes with the wavetable sequencer 
+     and to combine it also with the arpeggiator in order to realize 
+     complex polyphonic textures. An MP3 example can be found under 
+     MBHP->MIDIbox SID->Design
+
+   o the Wavetable Sequencer/Arpeggiator, LFOs and Envelopes can be 
+     optionally synchronized to the MIDI clock (-> CC#125)
+
+   o a MIDI clock start command (FA) now resets all LFOs
+
+   o the LFO now provides an additional pseudo random waveform
+
+   o to-COM interface now officially supported
+
+   o Control Surface: all new parameters have been integrated into 
+     the menu structure
+
+   o The JSynth based editor has been updated
+
+   o The presets patches have been updated - 
+     76 sounds/sequencers/arpeggiator textures are available now
+
+
+MIDIboxSID V1.4/18FStepC
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+   o The third and last step supports a lot of rotary encoders, buttons and LEDs.
+     See also MBHP->MIDIbox SID->Step C
+
+
+MIDIboxSID V1.4/18FStepB
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+   o The second step allows to control up to 4 SIDs from one control unit.
+     See also MBHP->MIDIbox SID->Step B
+
+
+MIDIboxSID V1.4/18FStepA
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+   o The first step of the control surface has been finished.
+     See also MBHP->MIDIbox SID->Control Unit 
+
+
+MIDIboxSID V1.4/18F
+~~~~~~~~~~~~~~~~~~~
+
+   o Port to PIC18F452 as MIOS application, will provide a control surface later.

@@ -1,0 +1,72 @@
+$Id$
+
+MIDIbox CV V1.2
+~~~~~~~~~~~~~~~
+
+  o support for MBHP_AOUT_NG module
+
+  o support for BankStick. 
+    Up to 128 patches can be stored in a 32k BankStick (24LC256), 
+    they can either be selected from the control surface, or via
+    Program Change (channel assignable in main.asm)
+
+    !!! IMPORTANT !!!
+    BankStick at CS#0 will be formatted automatically if this hasn't
+    been done before. This could lead to data loss if you upload
+    the application into a MIDIbox which is normaly running with
+    another firmware which accesses the BankStick (e.g. MBSID or MBSEQ)
+    Solution: either remove the BankStick from core module, or 
+    disable it in main.asm (-> DEFAULT_BANKSTICK_NUMBER 0)
+
+  o added linear interpolation function which allows to smooth 
+    the CV output curve by a configurable slew rate from 1 mS to 64 mS
+    This feature is especially useful when CV outputs are controlled
+    by 7bit velocity or CC values, as it gets use of the full 12bit
+    resolution and reduces zipper noise dramatically.
+
+  o legato/mono/poly mode setting now selectable for each channel seperately
+
+  o main page now displays patch number, patch name and 8 animated
+    (short-triggered) activity meters
+
+  o there is now a DIN sync start/stop output available at pin C.1
+    (CORE::J7:SC)
+
+  o the DIN sync clock output is now located at pin C.0 by default
+    (CORE::J7:RC, consistent with MBSEQ)
+
+  o minor bugfixes
+
+
+MIDIbox CV V1.1
+~~~~~~~~~~~~~~~
+
+  o support for MBHP_AOUT_LC module
+
+  o a calibration menu page has been added
+
+  o the gate polarity can now be changed seperately for each channel
+
+  o an output curve can now be selected for each channel seperately
+    Available curves: 1V/Oct, Hz/V, Inverted, Exponential
+
+  o a clock output is now provided to generate pulses from an incoming
+    MIDI clock. Provided rates: 24 ppqn / 1..16 and 96/46/32 ppqn (interpolated)
+    The default pin is RD4 (Core Module, J14)
+    The default pulsewidth is 1 mS
+    Both settings can be changed in main.asm
+
+  o NOTE: the 8 gate outputs are available at J5, this option is
+    DISABLED by default, it has to be enabled by setting
+    the ENABLE_J5 switch to 1 in main.asm
+
+    This is to reduce the risk that somebody doesn't read the 
+    documentation and uploads the firmware on a MIDIbox64 (or similar), 
+    where J5 is used as pot input. A short circuit would happen which 
+    could destroy the port drivers!
+
+
+MIDIbox CV V1.0
+~~~~~~~~~~~~~~~
+
+  o initial version

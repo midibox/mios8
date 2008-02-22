@@ -1,0 +1,154 @@
+; $Id$
+;
+; MIDIbox SID
+; Presets (EEPROM content)
+;
+; ==========================================================================
+;
+;  Copyright 1998-2006 Thorsten Klose (tk@midibox.org)
+;  Licensed for personal non-commercial use only.
+;  All other rights reserved.
+; 
+; ==========================================================================
+
+        ERRORLEVEL      -220    ; suppress "Address exceeds maximum range for this processor."
+	;; this is (unfortunately) required for gpasm
+
+	org	0xf00000	; eeprom base address
+
+EEPROM_PATCHNAME
+	de      'I','n','t','e','r','n','a','l',' ','P','a','t','c','h',' ',' '
+
+;; NOTE: due to a bug in the PIC18F assembler, we have to define the presets on a very laborious way
+
+EEPROM_VOLUME		de 0x7f, 0	;; 0x10
+EEPROM_POLY		;de 0		;; 0x11
+EEPROM_SUSKEY		de 0, 0		;; 0x12
+EEPROM_MIDI_SYNC	;de 0		;; 0x13
+EEPROM_OSC_PHASE_SYNC	de 0, 0		;; 0x14
+EEPROM_ENV_CURVES	;de 0		;; 0x15
+EEPROM_SE_OPTION	de 0, 0		;; 0x16
+EEPROM_WT_PATCH		;de 0		;; 0x17
+EEPROM_FILTER_CHANNELS	de 0, 0x01	;; 0x18
+EEPROM_FILTER_MODE	;de 0x01	;; 0x19
+EEPROM_FILTER_CUTOFF	de 0x40, 0	;; 0x1a
+EEPROM_FILTER_RESONANCE	;de 0		;; 0x1b
+EEPROM_FILTER_LFO	de 0, 0		;; 0x1c
+EEPROM_FILTER_ENV	;de 0		;; 0x1d
+EEPROM_ENV_1_CURVE	de 0x40, 0x40	;; 0x1e
+EEPROM_ENV_2_CURVE	;de 0		;; 0x1f
+
+EEPROM_VOICE1_TRANSPOSE	de 0x40, 0x40	;; 0x20
+EEPROM_VOICE1_FINETUNE	;de 0x40	;; 0x21
+EEPROM_VOICE1_PITCHRANGE de 0x02, 0x00	;; 0x22
+EEPROM_VOICE1_PORTAMENTO ;de 0x00	;; 0x23
+EEPROM_VOICE1_WAVEFORM	de 0x04, 0x40	;; 0x24
+EEPROM_VOICE1_PULSEWIDTH ;de 0x40	;; 0x25
+EEPROM_VOICE1_ARPEGGIATOR de 0, 0	;; 0x26
+EEPROM_VOICE1_DELAY	;de 0		;; 0x27
+EEPROM_VOICE1_ATTACK	de 0, 0		;; 0x28
+EEPROM_VOICE1_DECAY	;de 0		;; 0x29
+EEPROM_VOICE1_SUSTAIN	de 0x7f, 0	;; 0x2a
+EEPROM_VOICE1_RELEASE	;de 0		;; 0x2b
+EEPROM_VOICE1_LFO_PITCH	de 0, 0			;; 0x2c
+EEPROM_VOICE1_LFO_PW	;de 0		;; 0x2d
+EEPROM_VOICE1_ENV	de 0, 0		;; 0x2e
+EEPROM_VOICE1_RESERVED	;de 0		;; 0x2f
+
+EEPROM_VOICE2_TRANSPOSE	de 0x40, 0x42	;; 0x30
+EEPROM_VOICE2_FINETUNE	;de 0x42	;; 0x31
+EEPROM_VOICE2_PITCHRANGE de 0x02, 0x00	;; 0x32
+EEPROM_VOICE2_PORTAMENTO ;de 0x00	;; 0x33
+EEPROM_VOICE2_WAVEFORM	de 0x04, 0x40	;; 0x34
+EEPROM_VOICE2_PULSEWIDTH ;de 0x40	;; 0x35
+EEPROM_VOICE2_ARPEGGIATOR de 0, 0	;; 0x36
+EEPROM_VOICE2_DELAY	;de 0		;; 0x37
+EEPROM_VOICE2_ATTACK	de 0, 0		;; 0x38
+EEPROM_VOICE2_DECAY	;de 0		;; 0x39
+EEPROM_VOICE2_SUSTAIN	de 0x7f, 0	;; 0x3a
+EEPROM_VOICE2_RELEASE	;de 0		;; 0x3b
+EEPROM_VOICE2_LFO_PITCH	de 0, 0		;; 0x3c
+EEPROM_VOICE2_LFO_PW	;de 0		;; 0x3d
+EEPROM_VOICE2_ENV	de 0, 0		;; 0x3e
+EEPROM_VOICE2_RESERVED	;de 0		;; 0x3f
+
+EEPROM_VOICE3_TRANSPOSE	de 0x40, 0x3e	;; 0x40
+EEPROM_VOICE3_FINETUNE	;de 0x3e	;; 0x41
+EEPROM_VOICE3_PITCHRANGE de 0x02, 0x00	;; 0x42
+EEPROM_VOICE3_PORTAMENTO ;de 0x00	;; 0x43
+EEPROM_VOICE3_WAVEFORM	de 0x04, 0x40	;; 0x44
+EEPROM_VOICE3_PULSEWIDTH ;de 0x40	;; 0x45
+EEPROM_VOICE3_ARPEGGIATOR de 0, 0	;; 0x46
+EEPROM_VOICE3_DELAY	;de 0		;; 0x47
+EEPROM_VOICE3_ATTACK	de 0, 0		;; 0x48
+EEPROM_VOICE3_DECAY	;de 0		;; 0x49
+EEPROM_VOICE3_SUSTAIN	de 0x7f, 0	;; 0x4a
+EEPROM_VOICE3_RELEASE	;de 0		;; 0x4b
+EEPROM_VOICE3_LFO_PITCH	de 0, 0		;; 0x4c
+EEPROM_VOICE3_LFO_PW	;de 0		;; 0x4d
+EEPROM_VOICE3_ENV	de 0, 0		;; 0x4e
+EEPROM_VOICE3_RESERVED	;de 0		;; 0x4f
+
+
+EEPROM_VELOCITY_ASSIGN	de 0, 0		;; 0x50
+EEPROM_VELOCITY_INIT	;de 0		;; 0x51
+EEPROM_VELOCITY_DEPTH	de 0x7f, 0	;; 0x52
+EEPROM_MODULATION_ASSIGN ;de 0		;; 0x53
+EEPROM_MODULATION_INIT	de 0, 0x7f	;; 0x54
+EEPROM_MODULATION_DEPTH	;de 0x7f	;; 0x55
+EEPROM_AFTERTOUCH_ASSIGN de 0, 0	;; 0x56
+EEPROM_AFTERTOUCH_INIT	;de 0		;; 0x57
+EEPROM_AFTERTOUCH_DEPTH	de 0x7f, 0x00	;; 0x58
+EEPROM_WAVETABLE_RATE	;de 0x00	;; 0x59
+EEPROM_WAVETABLE_P1_ASSIGN de 0x20, 0x10;; 0x5a
+EEPROM_WAVETABLE_P2_ASSIGN ;de 0x10	;; 0x5b
+EEPROM_WAVETABLE_P3_ASSIGN de 0x2e, 0	;; 0x5c
+EEPROM_RESERVED8	;de 0		;; 0x5c
+EEPROM_RESERVED10	de 0, 0		;; 0x5e
+EEPROM_RESERVED11	;de 0		;; 0x5f
+
+EEPROM_LFO1_MODE	de 0x07, 0x10	;; 0x60
+EEPROM_LFO1_RATE	;de 0x10	;; 0x61
+EEPROM_LFO1_DEPTH	de 0x7f, 0x07	;; 0x62
+EEPROM_LFO2_MODE	;de 0x07	;; 0x63
+EEPROM_LFO2_RATE	de 0x20, 0x00	;; 0x64
+EEPROM_LFO2_DEPTH	;de 0x00	;; 0x65
+EEPROM_LFO3_MODE	de 0x01, 0x03	;; 0x66
+EEPROM_LFO3_RATE	;de 0x03	;; 0x67
+EEPROM_LFO3_DEPTH	de 0x7f, 0x01	;; 0x68
+EEPROM_LFO4_MODE	;de 0x01	;; 0x69
+EEPROM_LFO4_RATE	de 0x40, 0x00	;; 0x6a
+EEPROM_LFO4_DEPTH	;de 0x00	;; 0x6b
+EEPROM_LFO5_MODE	de 0x01, 0x50	;; 0x6c
+EEPROM_LFO5_RATE	;de 0x50	;; 0x6d
+EEPROM_LFO5_DEPTH	de 0x7f, 0x01	;; 0x6e
+EEPROM_LFO6_MODE	;de 0x01	;; 0x6f
+EEPROM_LFO6_RATE	de 0x60, 0x00	;; 0x70
+EEPROM_LFO6_DEPTH	;de 0x00	;; 0x71
+EEPROM_ENV1_DEPTH	de 0x7f, 0x40	;; 0x72
+EEPROM_ENV1_ATTACK	;de 0x40	;; 0x73
+EEPROM_ENV1_DECAY	de 0x40, 0x40	;; 0x74
+EEPROM_ENV1_SUSTAIN	;de 0x40	;; 0x75
+EEPROM_ENV1_RELEASE	de 0x40, 0x00	;; 0x76
+EEPROM_ENV2_DEPTH	;de 0x00	;; 0x77
+EEPROM_ENV2_ATTACK	de 0x60, 0x60	;; 0x78
+EEPROM_ENV2_DECAY	;de 0x60	;; 0x79
+EEPROM_ENV2_SUSTAIN	de 0x20, 0x40	;; 0x7a
+EEPROM_ENV2_RELEASE	;de 0x40	;; 0x7b
+
+EEPROM_CFG_BASE
+EEPROM_V3_CHANNEL	de (DEFAULT_MIDI_CHANNEL-1)&0xf, (DEFAULT_MIDI_CHANNEL-1)&0xf ;; 0x7c - can only be written with CFG command
+EEPROM_V2_CHANNEL	;de 0		;; 0x7d - can only be written with CFG command
+EEPROM_V1_CHANNEL		de (DEFAULT_MIDI_CHANNEL-1)&0xf, DEFAULT_DEVICE_ID ;; 0x7e - can only be written with CFG command
+EEPROM_DEVICE		;de 0x00	;; 0x7f - can only be written with CFG command
+
+
+EEPROM_WAVETABLE
+	de	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	de	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	de	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	de	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	de	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	de	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	de	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	de	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

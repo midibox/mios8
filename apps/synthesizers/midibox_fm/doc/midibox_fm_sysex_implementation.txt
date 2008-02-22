@@ -1,0 +1,96 @@
+$Id$
+
+MIDIbox FM SysEx Implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Implemented SysEx Commands
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   a) F0 00 00 7E 49 <device> 01 <type> <bank> <patch> F7
+
+      Request Dump of Patch/Drum/Ensemble
+
+         <device>: device number 00-7F
+         <type>:   see type definitions below
+         <bank>:   bank (0-7)
+         <patch>:  voice:    00-7F
+                   drum:     00-0F
+                   ensemble: 00-1F
+      
+
+   b) F0 00 00 7E 49 <device> 02 <type> <bank> <patch> <256 bytes> <checksum> F7
+
+      Write a dump to Patch/Drum/Ensemble
+
+         <device>: device number 00-7F
+         <type>:   see type definitions below
+         <bank>:   bank (0-7)
+         <patch>:  voice:    00-7F
+                   drum:     00-0F
+                   ensemble: 00-1F
+
+         <256 bytes>: dump data
+                      voice: byte 00-0F contain the patch name!
+                             byte 10-7F: same like midibox_fm_cc_voice.txt
+                             byte 80-FF: wavetable
+                      drum:  byte 00-5F: same like midibox_fm_cc_drum.txt
+                             byte 60-FF: always 0
+                      ensm.: byte 00-3F: same like midibox_fm_par_ensemble.txt
+                             byte 40-FF: always 0
+         <checksum>: 2s complement checksum over 256 bytes dump data
+
+                             
+   c) F0 00 00 7E 49 <device> 06 <type> <ah> <al> <value> F7
+
+      Direct Write of parameter (AH = 0..1, AL = 0..7F)
+
+         <device>: device number 00-7F
+         <type>:   see type definitions below
+         <ah>:     0: address=00..7F, 1: address=80..FF
+         <al>:     address low byte (7-bit)
+         <value>:  value to be written
+
+
+   d) F0 00 00 7E 49 <device> 0F F7
+      Ping (just sends back the same SysEx string)
+
+
+Type definitions
+~~~~~~~~~~~~~~~~
+
+   00: Voice #1, EEPROM access (exception: command #06 always accesses RAM)
+   01: Voice #2, EEPROM access (exception: command #06 always accesses RAM)
+   02: Voice #3, EEPROM access (exception: command #06 always accesses RAM)
+   03: Voice #4, EEPROM access (exception: command #06 always accesses RAM)
+   08: Voice #1, direct RAM access
+   09: Voice #2, direct RAM access
+   0A: Voice #3, direct RAM access
+   0B: Voice #4, direct RAM access
+
+   10: Drums, EEPROM access
+   18: Drums, direct RAM access
+
+   70: Ensemble, EEPROM access
+   78: Ensemble, direct RAM access
+
+Note that direct RAM writes/reads are not possible for wavetables - it
+will be written into EEPROM instead, this can stall the synth engine for ca. 2 mS!
+
+
+Response Messages
+~~~~~~~~~~~~~~~~~
+
+   Acknowledge:
+      F0 00 00 7E 49 <device> 0F F7
+
+   DisAcknowledge (Error)
+      F0 00 00 7E 49 <device> 0E <error-code> F7
+
+      <error-code>:
+         01 == received less bytes then expected
+         03 == wrong checksum
+         0a == bankstick or patch/drumset/ensemble not available
+         0b == parameter not available
+
+
+Thorsten.Klose@midibox.org
