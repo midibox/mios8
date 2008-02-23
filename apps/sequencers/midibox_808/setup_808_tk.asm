@@ -10,7 +10,7 @@
 ;    20: for a 2x20 display (no additional information - screen will be centered, thats all)
 ;    80: for two 2x40 displays
 ;    other values not supported!
-#define DEFAULT_LCD_WIDTH 16
+#define DEFAULT_LCD_WIDTH 20
 ;
 ; Following table allows you to define
 ;   - the track names (must consist of exactly 6 characters!)
