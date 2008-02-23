@@ -257,42 +257,53 @@ SEQ_GP_Button_LivePlay
 	;; set also to SEQ_EVNTT
 	movff	MIOS_PARAMETER1, SEQ_EVNTT
 
+	;; prepare MIDI event
+	call	SEQ_FSR_TrkChn			; MIDI channel -> MIDI_EVNT0
+	movf	INDF1, W
+	andlw	0x0f
+	iorlw	0x90
+	movwf	MIDI_EVNT0
+	
+	call	SEQ_FSR_TrkNote			; note number -> MIDI_EVNT1
+	movff	INDF1, MIDI_EVNT1
+
 	;; button depressed? only forward to record function (if record mode enabled)
 	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, SEQ_GP_Button_LivePlay_NoteOn
 
 SEQ_GP_Button_LivePlay_NoteOff
-	clrf	MIOS_PARAMETER3			; clear velocity value
+	clrf	MIDI_EVNT_VALUE			; clear velocity value
 	rgoto	SEQ_GP_Button_LivePlay_NoteOff_C; and continue here
 
 SEQ_GP_Button_LivePlay_NoteOn
+	;; set velocity to maximum
+	movlw	0x7f
+	movwf	MIDI_EVNT_VALUE
 
 	movf	SEQ_EVNTT, W, BANKED		; request trigger
 	call	SEQ_TRK_ReqTrigger
 	call	SEQ_TRK_SetTriggers		; update all triggers
 	call	SEQ_CORE_UpdateMeter		; update meter as well
 
-	;; set velocity to maximum
-	movlw	0x7f
-	movwf	MIOS_PARAMETER3
+SEQ_GP_Button_LivePlay_NoteOff_C
 
-SEQ_GP_Button_LivePlay_NoteOff_C	
-	;; forward to record function if enabled
-	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_GP_Button_LivePlay_End
-
-	;; MIDI event depends on button number
+	;; play MIDI event if port enabled
 	movf	SEQ_EVNTT, W, BANKED		; check if MIDI port enabled
 	call	SEQ_TRK_GetMIDIPort
-	bz	SEQ_GP_Button_LivePlay_End
-
-	call	SEQ_FSR_TrkChn			; MIDI channel -> MIOS_PARAMETER1
-	movf	INDF1, W
-	andlw	0x0f
-	iorlw	0x90
-	movwf	MIOS_PARAMETER1
+	addlw	-1
+	movwf	MIDI_EVNT_PORT
+	addlw	1
+	bz	SEQ_GP_Button_LivePlay_NoMIDI
+SEQ_GP_Button_LivePlay_MIDI
+	call	MIDI_EVNT_Send
+SEQ_GP_Button_LivePlay_NoMIDI
 	
-	call	SEQ_FSR_TrkNote			; note number -> MIOS_PARAMETER2
-	movff	INDF1, MIOS_PARAMETER2
+	;; forward to record function if enabled
+	SET_BSR	SEQ_BASE
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_GP_Button_LivePlay_End
 
+	movff	MIDI_EVNT0, MIOS_PARAMETER1
+	movff	MIDI_EVNT1, MIOS_PARAMETER2
+	movff	MIDI_EVNT_VALUE, MIOS_PARAMETER3
 	call	SEQ_RECORD_NotifyEvent
 SEQ_GP_Button_LivePlay_End
 	return

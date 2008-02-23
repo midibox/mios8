@@ -17,7 +17,7 @@
 ;   - the DOUT shift registers (SR) to which the drum triggers are connected
 ;     (1-16; 0 disables assignment)
 ;   - the DOUT pin to which the drum triggers are connected (0-7)
-;   - the MIDI output port (0=disabled, 1=Default, 2=Internal, 3=IIC1, 4=IIC2, 5=IIC3, 6=IIC4)
+;   - the MIDI output port (0=disabled, 1=Default, 2=Internal, 3=IIC1, 4=IIC2, 5=IIC3, 6=IIC4, 7=Trigger Only)
 ;   - the AOUT channel to output velocity (1-8, 0=disabled)
 DEFAULT_TRKINFO MACRO
 	;;       Name     SR  Pin MPort AChn
@@ -36,7 +36,7 @@ DEFAULT_TRKINFO MACRO
 	db	"Ext1  ",  0,  0,   1,    0	; Track 13
 	db	"Ext2  ",  0,  0,   1,    0	; Track 14
 	db	"Ext3  ",  0,  0,   1,    0	; Track 15
-	db	"Acc.  ",  7,  7,   0,    0	; Track 16
+	db	"Acc.  ",  7,  7,   7,    0	; Track 16
 	ENDM
 ;
 ; BankStick Mode & Allocation Map

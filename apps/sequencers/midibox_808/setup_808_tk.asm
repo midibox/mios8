@@ -17,26 +17,26 @@
 ;   - the DOUT shift registers (SR) to which the drum triggers are connected
 ;     (1-16; 0 disables assignment)
 ;   - the DOUT pin to which the drum triggers are connected (0-7)
-;   - the MIDI output port (0=disabled, 1=Default, 2=Internal, 3=IIC1, 4=IIC2, 5=IIC3, 6=IIC4)
+;   - the MIDI output port (0=disabled, 1=Default, 2=Internal, 3=IIC1, 4=IIC2, 5=IIC3, 6=IIC4, 7=Trigger Only)
 ;   - the AOUT channel to output velocity (1-8, 0=disabled)
 DEFAULT_TRKINFO MACRO
 	;;       Name     SR  Pin MPort AChn
-	db	"BD    ",  1,  1,   0,    0	; Track 1
-	db	"SD    ",  1,  2,   0,    0	; Track 2
-	db	"LT/LC ",  1,  3,   0,    0	; Track 3
-	db	"MT/MC ",  1,  4,   0,    0	; Track 4
-	db	"HT/HC ",  1,  5,   0,    0	; Track 5
-	db	"CP    ",  1,  6,   0,    0	; Track 6
-	db	"MA    ",  1,  7,   0,    0	; Track 7
-	db	"RS/CL ",  4,  0,   0,    0	; Track 8
-	db	"CB    ",  4,  1,   0,    0	; Track 9
-	db	"CY    ",  4,  3,   0,    0	; Track 10
-	db	"OH    ",  4,  4,   0,    0	; Track 11
-	db	"CH    ",  4,  5,   0,    0	; Track 12
+	db	"BD    ",  1,  1,   7,    0	; Track 1
+	db	"SD    ",  1,  2,   7,    0	; Track 2
+	db	"LT/LC ",  1,  3,   7,    0	; Track 3
+	db	"MT/MC ",  1,  4,   7,    0	; Track 4
+	db	"HT/HC ",  1,  5,   7,    0	; Track 5
+	db	"CP    ",  1,  6,   7,    0	; Track 6
+	db	"MA    ",  1,  7,   7,    0	; Track 7
+	db	"RS/CL ",  4,  0,   7,    0	; Track 8
+	db	"CB    ",  4,  1,   7,    0	; Track 9
+	db	"CY    ",  4,  3,   7,    0	; Track 10
+	db	"OH    ",  4,  4,   7,    0	; Track 11
+	db	"CH    ",  4,  5,   7,    0	; Track 12
 	db	"Ext1  ",  0,  0,   1,    0	; Track 13
 	db	"Ext2  ",  0,  0,   1,    0	; Track 14
 	db	"Ext3  ",  0,  0,   1,    0	; Track 15
-	db	"Acc.  ",  7,  7,   0,    0	; Track 16
+	db	"Acc.  ",  7,  7,   7,    0	; Track 16
 	ENDM
 ;
 ; BankStick Mode & Allocation Map

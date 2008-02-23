@@ -1176,39 +1176,12 @@ SEQ_CORE_Clk_SendEvent_CCChk
 
 SEQ_CORE_Clk_SendEvent_Chk_End
 
-SEQ_CORE_Clk_SendEvent_NM_Ply
-	;; skip this if no note event
-	movf	SEQ_EVNT0, W, BANKED
-	andlw	0xf0
-	xorlw	0x90
-	bnz	SEQ_CORE_Clk_SendEvent_NoNEvnt
-
-	;; don't check if no note in queue (evnt0 == 0)
-	rcall	SEQ_CORE_Hlp_GetTRKQUEUE0_Ptr	; first byte equal?
-	movf	INDF1, W
-	bz	SEQ_CORE_Clk_SendEvent_NoLeg
-
-	;; if current note equal to new note, send off event AFTER new note
-	xorwf	SEQ_EVNT0, W, BANKED
-	bnz	SEQ_CORE_Clk_SendEvent_NoOff
-
-	rcall	SEQ_CORE_Hlp_GetTRKQUEUE1_Ptr	; second byte equal?
-	movf	INDF1, W
-	xorwf	SEQ_EVNT1, W, BANKED
-	bnz	SEQ_CORE_Clk_SendEvent_NoOff
-
-	rcall	SEQ_CORE_Hlp_PlayOffEvnt	; play off event
-	rgoto	SEQ_CORE_Clk_SendEvent_NoLeg
-
-SEQ_CORE_Clk_SendEvent_NoOff
-	;; current note != old note: play off event later for a proper legato
-	movlw	SEQ_TRKVARSTATEx
-	bsf	PLUSW2, SEQ_TRKVARSTATE_LEGATO
-SEQ_CORE_Clk_SendEvent_NoLeg
-
-SEQ_CORE_Clk_SendEvent_NoNEvnt
 	;; ------------------------------------------------------------------
 	;; play the new MIDI event
+
+	movff	SEQ_EVNT0, MIDI_EVNT0
+	movff	SEQ_EVNT1, MIDI_EVNT1
+ 	movff	SEQ_EVNT2, MIDI_EVNT_VALUE
 
 	;; get MIDI port (+1) from TRKINFO table
 	;; if 0: MIDI output disabled
@@ -1219,9 +1192,6 @@ SEQ_CORE_Clk_SendEvent_NoNEvnt
 	addlw	1
 	bz	SEQ_CORE_Clk_SendEvent_NoMIDI
 SEQ_CORE_Clk_SendEvent_MIDI
-	movff	SEQ_EVNT0, MIDI_EVNT0
-	movff	SEQ_EVNT1, MIDI_EVNT1
- 	movff	SEQ_EVNT2, MIDI_EVNT_VALUE
 	call	MIDI_EVNT_Send
 SEQ_CORE_Clk_SendEvent_NoMIDI
 
