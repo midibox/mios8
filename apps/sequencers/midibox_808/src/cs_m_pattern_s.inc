@@ -63,6 +63,7 @@ CS_M_PATTERN_S_GP_Callback_Save
 	;; this is to ensure, thats somebody overwrites multiple patterns
 	;; if he doesn't remember, that he is still in save page
 	movlw	CS_MENU_PAGE_PATTERN
+#if 0
 	call	CS_M_HLP_ChangePage
 
 	;; print message
@@ -81,6 +82,9 @@ CS_M_PATTERN_S_GP_Callback_Save
 	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
 	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
 	return
+#else
+	goto	CS_M_HLP_ChangePage
+#endif
 
 
 CS_M_PATTERN_S_GP_Callback_NoSave

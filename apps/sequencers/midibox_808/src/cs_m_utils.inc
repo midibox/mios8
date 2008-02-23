@@ -75,16 +75,16 @@ CS_M_UTILS_GP_Callback_3	; reserved
 	setf	CS_MENU_CURSOR_POS	; (invalidate)
 	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-CS_M_UTILS_GP_Callback_4	; Pattern Copy
-	rcall	CS_M_UTILS_CopyPattern
+CS_M_UTILS_GP_Callback_4	; Step Copy
+	rcall	CS_M_UTILS_CopySteps
 	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-CS_M_UTILS_GP_Callback_5	; Pattern Paste
-	rcall	CS_M_UTILS_PastePattern
+CS_M_UTILS_GP_Callback_5	; Step Paste
+	rcall	CS_M_UTILS_PasteSteps
 	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-CS_M_UTILS_GP_Callback_6	; Pattern Clear
-	rcall	CS_M_UTILS_ClearPattern
+CS_M_UTILS_GP_Callback_6	; Step Clear
+	rcall	CS_M_UTILS_ClearSteps
 	rgoto	CS_M_UTILS_GP_Callback_Cont
 
 CS_M_UTILS_GP_Callback_7	; reserved
@@ -95,8 +95,8 @@ CS_M_UTILS_GP_Callback_8	; Undo
 	rcall	CS_M_UTILS_Undo
 	rgoto	CS_M_UTILS_GP_Callback_Cont
 
-CS_M_UTILS_GP_Callback_9	; reserved
-	setf	CS_MENU_CURSOR_POS	; (invalidate)
+CS_M_UTILS_GP_Callback_9	; Pattern Clear
+	rcall	CS_M_UTILS_ClearPattern
 	rgoto	CS_M_UTILS_GP_Callback_Cont
 
 CS_M_UTILS_GP_Callback_A	; reserved
@@ -183,7 +183,7 @@ CS_M_UTILS_Tick
 	;; <--------------------------------------><-------------------------------------->
 	;; BD    UTILS         Track Copied                                                   
 	;; 00000001111111111111222222222222222233334444444444555555555566666666667777777777
-	;; Cpy/Paste/Clr (Trk) Cpy/Paste/Clr (Ptn) Undo                         Mute UnMute
+	;; Cpy/Paste/Clr (Trk) Cpy/Paste/Clr (View)Undo ClrPtn                  Mute UnMute
 	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
 
 	;; for 2x16 LCD:
@@ -232,12 +232,12 @@ CS_M_UTILS_Tick_2_TABLE
 	db	"Track pasted    "
 	db	"Track cleared   "
 	db	"<reserved>      "
-	db	"Pattern copied  "
-	db	"Pattern pasted  "
-	db	"Pattern cleared "
+	db	"Steps copied    "
+	db	"Steps pasted    "
+	db	"Steps cleared   "
 	db	"<reserved>      "
 	db	"--> Undo <--    "
-	db	"<reserved>      "
+	db	"Pattern cleared "
 	db	"<reserved>      "
 	db	"<reserved>      "
 	db	"<reserved>      "
@@ -288,7 +288,7 @@ CS_M_UTILS_Tick_7
 	rgoto	CS_M_UTILS_Tick_Cont
 
 CS_M_UTILS_Tick_89ABCDEF_STR
-	db	"Cpy/Paste/Clr (Trk) Cpy/Paste/Clr (Ptn) Undo                         Mute UnMute"
+	db	"Cpy/Paste/Clr (Trk) Cpy/Paste/Clr (View)Undo ClrPtn                  Mute UnMute"
 CS_M_UTILS_Tick_89ABCDEF
 #if DEFAULT_LCD_WIDTH == 80
 	;; determine string offset
@@ -357,7 +357,7 @@ CS_M_UTILS_CopyTrackLoop2
 
 ;; --------------------------------------------------------------------------
 ;;  Paste Track
-;;  IN: SEQ_EVNTT: track to be copied into buffer
+;;  IN: SEQ_EVNTT: destination track
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_PasteTrack
 	;; branch to clear function if copy&paste buffer not filled
@@ -399,15 +399,12 @@ CS_M_UTILS_PasteTrackLoop2
 	;; restore MIDI channel/port/note (I find it better, when such settings won't be overwritten)
 	rcall	CS_M_UTILS_Hlp_RestoreMIDI
 
-	;; notify that track copy&paste buffer is filled
-	bsf	CS_STAT2, CS_STAT2_COPYPASTE_FILLED_T
-
 	return
 
 
 ;; --------------------------------------------------------------------------
 ;;  Clear Track
-;;  IN: SEQ_EVNTT: track to be copied into buffer
+;;  IN: SEQ_EVNTT: destination track
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_ClearTrack
 	;; update undo buffer before changing data
@@ -435,6 +432,133 @@ CS_M_UTILS_ClearTrackLoop
 	
 	;; restore MIDI channel/port/note (I find it better, when such settings won't be overwritten)
 	rcall	CS_M_UTILS_Hlp_RestoreMIDI
+
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Copy Step View
+;; --------------------------------------------------------------------------
+CS_M_UTILS_CopySteps
+	SET_BSR	SEQ_BASE
+
+	;; calculate pointer to trigger layer (take step view offset into account)
+	lfsr	FSR1, SEQ_TRG0
+	clrc
+	rlf	SEQ_SELECTED_STEPS, W, BANKED
+	addwf	FSR1L, F
+
+	;; pointer to buffer -> FSR0
+	lfsr	FSR0, SEQ_COPYPASTE_S_BUFFER
+
+	clrf	SEQ_EVNTT, BANKED	; loop over 16 tracks
+CS_M_UTILS_CopyStepsLoop
+	;; copy 16 gate steps into buffer
+	movff	POSTINC1, POSTINC0
+	movff	POSTDEC1, POSTINC0
+
+	;; switch to aux layer
+	movlw	8
+	addwf	FSR1L, F
+
+	;; copy 16 aux steps into buffer
+	movff	POSTINC1, POSTINC0
+	movff	POSTDEC1, POSTINC0
+
+	;; switch to next track
+	movlw	8
+	addwf	FSR1L, F
+
+	;; loop 16 times
+	incf	SEQ_EVNTT, F, BANKED
+	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTILS_CopyStepsLoop
+
+	;; notify that steps copy&paste buffer is filled
+	bsf	CS_STAT2, CS_STAT2_COPYPASTE_FILLED_S
+
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Paste Steps
+;;  IN: SEQ_EVNTT: destination track
+;; --------------------------------------------------------------------------
+CS_M_UTILS_PasteSteps
+	;; branch to clear function if copy&paste buffer not filled
+	BRA_IFCLR CS_STAT2, CS_STAT2_COPYPASTE_FILLED_S, ACCESS, CS_M_UTILS_ClearSteps
+
+	;; update undo buffer before changing data
+	rcall	CS_M_UTILS_UndoUpdate
+
+	;; calculate pointer to trigger layer (take step view offset into account)
+	lfsr	FSR1, SEQ_TRG0
+	clrc
+	rlf	SEQ_SELECTED_STEPS, W, BANKED
+	addwf	FSR1L, F
+
+	;; pointer to buffer -> FSR0
+	lfsr	FSR0, SEQ_COPYPASTE_S_BUFFER
+
+	clrf	SEQ_EVNTT, BANKED	; loop over 16 tracks
+CS_M_UTILS_PasteStepsLoop
+	;; copy 16 gate steps from buffer
+	movff	POSTINC0, POSTINC1
+	movff	POSTINC0, POSTDEC1
+
+	;; switch to aux layer
+	movlw	8
+	addwf	FSR1L, F
+
+	;; copy 16 aux steps from buffer
+	movff	POSTINC0, POSTINC1
+	movff	POSTINC0, POSTDEC1
+
+	;; switch to next track
+	movlw	8
+	addwf	FSR1L, F
+
+	;; loop 16 times
+	incf	SEQ_EVNTT, F, BANKED
+	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTILS_PasteStepsLoop
+
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Clear Step view
+;;  IN: SEQ_EVNTT: destination track
+;; --------------------------------------------------------------------------
+CS_M_UTILS_ClearSteps
+	;; update undo buffer before changing data
+	rcall	CS_M_UTILS_UndoUpdate
+
+	;; calculate pointer to trigger layer (take step view offset into account)
+	lfsr	FSR1, SEQ_TRG0
+	clrc
+	rlf	SEQ_SELECTED_STEPS, W, BANKED
+	addwf	FSR1L, F
+
+	clrf	SEQ_EVNTT, BANKED	; loop over 16 tracks
+CS_M_UTILS_ClearStepsLoop
+	;; clear 16 gate steps
+	clrf	POSTINC1
+	clrf	POSTDEC1
+
+	;; switch to aux layer
+	movlw	8
+	addwf	FSR1L, F
+
+	;; clear 16 aux steps
+	clrf	POSTINC1
+	clrf	POSTDEC1
+
+	;; switch to next track
+	movlw	8
+	addwf	FSR1L, F
+
+	;; loop 16 times
+	incf	SEQ_EVNTT, F, BANKED
+	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTILS_ClearStepsLoop
 
 	return
 

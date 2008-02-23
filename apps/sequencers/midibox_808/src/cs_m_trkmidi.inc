@@ -107,7 +107,7 @@ CS_M_TRKMIDI_UpdateGPLEDs_NoteOct
 	movf	CS_TRKMIDI_OCTAVE, W
 	addlw	1		; (shift to LED position 13..16)
 	call	MIOS_HLP_GetBitORMask
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR1, F
 
 	return
 

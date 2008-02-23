@@ -65,31 +65,76 @@ CS_M_TRKLOOP_UpdateGPLEDs
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
 
-	;; flash LEDs
-	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
-	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+	;; don't flash LEDs
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
-	;; LED 1-16: last/loop pointer
+	;; determine first/last/loop pointer depending on A/B view
+	;; -> first step copied to TMP1
+	;; -> loop point copied to TMP2
+	;; -> last step copied to TMP3
 	SET_BSR	SEQ_BASE
-	movlw	SEQ_CC_OFFSET_LASTA
-	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	movf	SEQ_SELECTED_AB, W, BANKED
+	andlw	0x03
+	addlw	-1
+	bz	CS_M_TRKLOOP_UpdateGPLEDs_A
+	addlw	-1
+	bz	CS_M_TRKLOOP_UpdateGPLEDs_B	
+CS_M_TRKLOOP_UpdateGPLEDs_A
+	movlw	0x00
+	movwf	TMP1
 	movlw	SEQ_CC_OFFSET_LOOPA
 	call	CS_M_HLP_TrkCC_Get
-	movwf	PRODL
+	movwf	TMP2
+	movlw	SEQ_CC_OFFSET_LASTA
+	call	CS_M_HLP_TrkCC_Get
+	movwf	TMP3
+	rgoto	CS_M_TRKLOOP_UpdateGPLEDs_Cont
 
-	;; check if within the selected view
-	swapf	SEQ_SELECTED_STEPS, W, BANKED	; (switches between upper/lower and A/B steps)
-	xorwf	PRODL, W
+CS_M_TRKLOOP_UpdateGPLEDs_B
+	movlw	0x20
+	movwf	TMP1
+	movlw	SEQ_CC_OFFSET_LOOPB
+	call	CS_M_HLP_TrkCC_Get
+	movwf	TMP2
+	movlw	SEQ_CC_OFFSET_LASTB
+	call	CS_M_HLP_TrkCC_Get
+	movwf	TMP3
+	rgoto	CS_M_TRKLOOP_UpdateGPLEDs_Cont
+CS_M_TRKLOOP_UpdateGPLEDs_Cont
+
+	;; start with selected step view
+	swapf	SEQ_SELECTED_STEPS, W, BANKED
 	andlw	0x30
-	bnz	CS_M_TRKLOOP_UpdateGPLEDs_End
+	movwf	PRODL
+CS_M_TRKLOOP_UpdateGPLEDs_Loop
+	;; set LED if:
+	;; step counter >= loop point (TMP2)
+	;; step counter <= last step (TMP3)
+	movf	TMP2, W
+	bz	CS_M_TRKLOOP_UpdateGPLEDs_Loop0Ok
+	addlw	-1
+	cpfsgt	PRODL
+	rgoto	CS_M_TRKLOOP_UpdateGPLEDs_LoopNx
+CS_M_TRKLOOP_UpdateGPLEDs_Loop0Ok
+
+	incf	TMP3, W
+	cpfslt	PRODL
+	rgoto	CS_M_TRKLOOP_UpdateGPLEDs_LoopNx
 
 	movf	PRODL, W
 	call	MIOS_HLP_GetBitORMask
 	btfss	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR0, F
 	btfsc	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
-
+	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR1, F
+CS_M_TRKLOOP_UpdateGPLEDs_LoopNx
+	;; loop 16 times
+	incf	PRODL, F
+	movf	PRODL, W
+	andlw	0x0f
+	bnz	CS_M_TRKLOOP_UpdateGPLEDs_Loop
+	
 CS_M_TRKLOOP_UpdateGPLEDs_End
 	return
 

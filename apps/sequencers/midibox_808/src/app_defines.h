@@ -61,8 +61,8 @@
 #define CS_STAT2_TRK_CHANGED		3	; used in some loops to notify that a track has been changed
 #define CS_STAT2_COPYPASTE_FILLED_P	4	; set if pattern copy/paste buffer is not virgin
 #define CS_STAT2_COPYPASTE_FILLED_T	5	; set if track copy/paste buffer is not virgin
-#define CS_STAT2_UNDO_FILLED		6	; set if undo buffer is not virgin
-#define CS_STAT2_ALL_SAME_VALUE		7	; set if the ALL function should set layer steps to same value
+#define CS_STAT2_COPYPASTE_FILLED_S	6	; set if step copy/paste buffer is not virgin
+#define CS_STAT2_UNDO_FILLED		7	; set if undo buffer is not virgin
 
 ;; ==========================================================================
 
@@ -663,6 +663,12 @@ SEQ_COPYPASTE_P_BUFFER	EQU	0xb00	; ..0xcff (512 bytes)
 ;; -----------------------------------
 ;; for Track Copy&Paste function (-> cs_m_utils.inc)
 SEQ_COPYPASTE_T_BUFFER	EQU	0xd00	; ..0xd1f (32 bytes)
+
+;; -----------------------------------
+
+;; -----------------------------------
+;; for Step Copy&Paste function (-> cs_m_utils.inc)
+SEQ_COPYPASTE_S_BUFFER	EQU	0xd20	; ..0xd3f (32 bytes)
 
 ;; -----------------------------------
 

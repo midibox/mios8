@@ -809,11 +809,6 @@ SEQ_BUTTON_All
 #if DEFAULT_BEHAVIOUR_BUTTON_ALL
 	;; Toggle Mode (default)
 
-	;; holding the button switches the "CHANGE_ALL_STEPS" flag
-	bcf	CS_STAT2, CS_STAT2_ALL_SAME_VALUE
-	btfss	MIOS_PARAMETER2, 0
-	bsf	CS_STAT2, CS_STAT2_ALL_SAME_VALUE
-
 	;; exit if button depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
@@ -985,6 +980,22 @@ SEQ_BUTTON_SectionX_Radio
 SEQ_BUTTON_SectionX_End
 	;; save button state
 	rcall	SEQ_BUTTON_SectionX_Hlp_Sav
+
+	;; select new step view depending on A/B
+	movf	SEQ_SELECTED_AB, W, BANKED
+	andlw	0x03
+	addlw	-1
+	bz	SEQ_BUTTON_SectionX_ViewA
+	addlw	-1
+	bz	SEQ_BUTTON_SectionX_ViewB
+SEQ_BUTTON_SectionX_ViewA
+	movlw	0x00
+	rgoto	SEQ_BUTTON_SectionX_View_Cont
+SEQ_BUTTON_SectionX_ViewB
+	movlw	0x02
+	;; 	rgoto	SEQ_BUTTON_SectionX_View_Cont
+SEQ_BUTTON_SectionX_View_Cont
+	movwf	SEQ_SELECTED_STEPS, BANKED
 
 	;; request display reinitialization
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ

@@ -214,11 +214,6 @@ SEQ_LED_UpdateIRQ
 
 	;; ---[ update the GP LEDs ]---
 
-	;; display marker edit page, don't display it in song, pattern and mute page
-	;; marker stored in IRQ_TMP5, [3:0] holds the GP LED number, flag [4] and [5] enable it
-	clrf	IRQ_TMP5
-	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_LED_UpdateIRQ_NoMarker
-SEQ_LED_UpdateIRQ_MakeMarker
 	;; store selected track in IRQ_TMP5[3:0]
 	call	CS_M_HLP_GetSelectedTrk
 	movwf	IRQ_TMP5
@@ -235,6 +230,11 @@ SEQ_LED_UpdateIRQ_MakeMarker
 	movlw	SEQ_TRKVARSTEPx
 	movff	PLUSW1, IRQ_TMP3
 
+	;; display marker edit page, don't display it in song, pattern and mute page
+	;; marker stored in IRQ_TMP5, [3:0] holds the GP LED number, flag [4] and [5] enable it
+	clrf	IRQ_TMP5
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_LED_UpdateIRQ_NoMarker
+SEQ_LED_UpdateIRQ_MakeMarker
 	;; check if sequencer is running, and the current step position should be marked (either via XOR or second colour of DUO LED)
 	;; notified via IRQ_TMP5[4] for GPLEDs
 	;; notified via IRQ_TMP5[5] for matrix LEDs
