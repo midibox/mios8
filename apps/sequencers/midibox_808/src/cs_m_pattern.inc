@@ -121,7 +121,22 @@ CS_M_PATTERN_GP_Callback_PChng
 	movwf	TMP1
 
 	movff	TMP1, SEQ_PATTERN
+
+	;; new bank?
+	SET_BSR	SEQ_BASE
+	movf	CS_PATTERN_NEW_BANK, W
+	bz	CS_M_PATTERN_GP_Callback_PChngNB
+CS_M_PATTERN_GP_Callback_PChngB
+	addlw	-1
+	rrf	WREG, W
+	andlw	0x07
+	movwf	SEQ_PATTERN_BANK, BANKED
+	movwf	SEQ_NEXT_PATTERN_BANK0, BANKED
+	clrf	CS_PATTERN_NEW_BANK
+	rgoto	CS_M_PATTERN_GP_Callback_PChngBC
+CS_M_PATTERN_GP_Callback_PChngNB
 	movff	SEQ_NEXT_PATTERN_BANK0, SEQ_PATTERN_BANK
+CS_M_PATTERN_GP_Callback_PChngBC
 
 	;; if shift button pressed: add pattern to chain
 	SET_BSR	SEQ_BASE
@@ -431,8 +446,28 @@ CS_M_PATTERN_Tick_End
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_PrnP
 	SET_BSR	SEQ_BASE
+
+	;; new bank pre-selection?
+	movf	CS_PATTERN_NEW_BANK, W
+	bz	CS_M_PATTERN_PrnP_NoNewBank
+CS_M_PATTERN_PrnP_NewBank
+	;; flashing bank to notify, that change hasn't take place yet
+	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_M_PATTERN_PrnP_NewBank_NoFlsh
+	movlw	' '
+	call	MIOS_LCD_PrintChar
+	rgoto	CS_M_PATTERN_PrnP_NewBank_Cont
+CS_M_PATTERN_PrnP_NewBank_NoFlsh
+	addlw	-1
+	rrf	WREG, W
+	andlw	0x07
+	addlw	1
+	call	MIOS_LCD_PrintBCD1
+	rgoto	CS_M_PATTERN_PrnP_NewBank_Cont
+
+CS_M_PATTERN_PrnP_NoNewBank
 	incf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
 	call	MIOS_LCD_PrintBCD1
+CS_M_PATTERN_PrnP_NewBank_Cont
 
 	movlw	':'
 	call	MIOS_LCD_PrintChar
@@ -444,13 +479,43 @@ CS_M_PATTERN_PrnP
 	movlw	0x80
 	movwf	TMP2
 
-	movf	TMP1, W				; item number
-	rcall	CS_M_PATTERN_PrnCursor		; prints spaces and sets ZERO flag if cursor flashed
-	bz	CS_M_PATTERN_PrnP_Flashed
-CS_M_PATTERN_PrnP_NotFlashed
+	;; if new bank requested: change bit 6
+	movf	CS_PATTERN_NEW_BANK, W
+	bz	CS_M_PATTERN_PrnP_UL_NoChange
+CS_M_PATTERN_PrnP_UL_Change
+	bcf	TMP2, 6
+	decf	CS_PATTERN_NEW_BANK, W
+	btfsc	WREG, 0
+	bsf	TMP2, 6
+CS_M_PATTERN_PrnP_UL_NoChange
+
+	;; if new bank/section selection and cursor flashes: print two spaces instead of pattern number
+	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_M_PATTERN_PrnP_Ptn_NoFlsh
+CS_M_PATTERN_PrnP_Ptn_FlshChk
+	movf	CS_PATTERN_NEW_BANK, W
+	bnz	CS_M_PATTERN_PrnP_Ptn_Flsh
+	SET_BSR	SEQ_BASE
+	movf	TMP2, W
+	xorwf	SEQ_NEXT_PATTERN0, W, BANKED
+	bz	CS_M_PATTERN_PrnP_Ptn_NoFlsh
+CS_M_PATTERN_PrnP_Ptn_Flsh
+	movlw	2
+	call	SEQ_LCD_PrintSpaces
+	rgoto	CS_M_PATTERN_PrnP_Ptn_Cont
+CS_M_PATTERN_PrnP_Ptn_NoFlsh
+
 	;; if BankStick not available - print "!!" instead of pattern number
 	SET_BSR	SEQ_BASE
+	movf	CS_PATTERN_NEW_BANK, W
+	bz	CS_M_PATTERN_PrnP_InvNoNewB
+CS_M_PATTERN_PrnP_InvNewB
+	addlw	-1
+	rrf	WREG, W
+	andlw	0x07
+	rgoto	CS_M_PATTERN_PrnP_InvNewB_Cont
+CS_M_PATTERN_PrnP_InvNoNewB
 	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
+CS_M_PATTERN_PrnP_InvNewB_Cont
 	call	MIOS_HLP_GetBitORMask
 	andwf	SEQ_BANKSTICK_STATUS, W, BANKED
 	bnz	CS_M_PATTERN_PrnP_NotFlashedAv
@@ -459,13 +524,12 @@ CS_M_PATTERN_PrnP_NotFlashedNA
 	call	MIOS_LCD_PrintChar
 	movlw	'!'
 	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_PATTERN_PrnP_Flashed
+	rgoto	CS_M_PATTERN_PrnP_Ptn_Cont
+
 CS_M_PATTERN_PrnP_NotFlashedAv
 	movf	TMP2, W
 	call	SEQ_LCD_PrnPattern
-CS_M_PATTERN_PrnP_Flashed
-
-
+CS_M_PATTERN_PrnP_Ptn_Cont
 
 	;; print "*" if pattern synched to measure
 	BRA_IFSET TMP2, 7, ACCESS, CS_M_PATTERN_PrnP_NoS
@@ -512,20 +576,3 @@ CS_M_PATTERN_PrnM_NotMuted
 
 
 ;; ==========================================================================
-
-;; --------------------------------------------------------------------------
-;;  This function prints spaces if the item (specified in WREG) is
-;;  selected by cursor, and CS_STAT, CS_STAT_CURSOR_FLASH is cleared
-;;  ZERO flag set if cursor flashed
-;; --------------------------------------------------------------------------
-CS_M_PATTERN_PrnCursor
-	BRA_IFCLR MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT, ACCESS, CS_M_PATTERN_PrnCursorAll
-	BRA_IFCLR MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT, ACCESS, CS_M_PATTERN_PrnCursorR
-CS_M_PATTERN_PrnCursorAll
-	;; flash both digits
-	goto	CS_MENU_CursorHandler2
-
-CS_M_PATTERN_PrnCursorR
-	;; flash only right digit
-	;; TODO
-	goto	CS_MENU_CursorHandler2

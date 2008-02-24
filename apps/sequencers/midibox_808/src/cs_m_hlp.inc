@@ -121,9 +121,11 @@ CS_M_HLP_TrkCC_Set
 	;; loop through the tracks, using SEQ_EVNTT as loop counter
 	clrf	SEQ_EVNTT, BANKED
 CS_M_HLP_TrkCC_Set_Loop
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, CS_M_HLP_TrkCC_Set_Loop_All
 	;; skip if track not selected
 	rcall	CS_M_HLP_ChkTrkSelected
 	bnz	CS_M_HLP_TrkCC_Set_Loop_Next
+CS_M_HLP_TrkCC_Set_Loop_All
 
 	movff	SEQ_EVNTT, MIOS_PARAMETER2
 	movf	SEQ_EVNTS, W, BANKED
@@ -157,27 +159,6 @@ CS_M_HLP_ChkTrkSelected
 	return
 
 ;; --------------------------------------------------------------------------
-;;  Help routine to seq SEQ_PATTERN and SEQ_PATTERN_BANK depending on SEQ_EVNTT
-;; --------------------------------------------------------------------------
-CS_M_HLP_SetPatternAndBank
-	SET_BSR	SEQ_BASE
-
-	lfsr	FSR1, SEQ_PATTERN0
-	rrf	SEQ_EVNTT, W, BANKED
-	rrf	WREG, W
-	andlw	0x03
-	addwf	FSR1L, F
-	movf	INDF1, W
-	andlw	0x7f			; (bit #7 must be cleared)
-	movwf	SEQ_PATTERN, BANKED
-
-	movlw	(SEQ_PATTERN_BANK0-SEQ_PATTERN0)
-	addwf	FSR1L, F
-	movf	INDF1, W
-	movwf	SEQ_PATTERN_BANK, BANKED
-	return
-
-;; --------------------------------------------------------------------------
 ;;  Help routine to select a pattern with the GP buttons
 ;;  can be called from CS_M_xxx_GP_Callback
 ;; --------------------------------------------------------------------------
@@ -192,12 +173,12 @@ CS_M_HLP_GPPatternSel
 	;; left 8 buttons or right 8 buttons pressed?
 	BRA_IFSET MIOS_PARAMETER1, 3, ACCESS, CS_M_HLP_GPPatternSel_R
 CS_M_HLP_GPPatternSel_L
-	;; left side selects pattern group A-H/a-h
+	;; left side selects pattern group A-H
 	;; 8 buttons at the right side (which select 1-8) should flash now
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	;; 8 buttons at the left side not
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
-	;; select pattern group A-H/a-h depending on pressed button --- don't change bank until 1-8 button has been pressed!
+	;; select pattern group A-H depending on pressed button --- don't change bank until 1-8 button has been pressed!
 
 	;; mask out first 3 bits (save current pattern number in TMP1)
 	movf	TMP2, W
@@ -212,11 +193,18 @@ CS_M_HLP_GPPatternSel_L
 	andlw	0x38
 	iorwf	TMP2, F
 
-	;; if new pattern number equal to old button number, toggle 6th bit
-	movf	TMP1, W
-	xorwf	TMP2, W
-	skpnz
-	btg	TMP2, 6
+	;; add requested (or current) lower/upper bank flag
+	movf	CS_PATTERN_NEW_BANK, W
+	bz	CS_M_HLP_GPPatternSel_L_NoNewBnk
+CS_M_HLP_GPPatternSel_L_NewBnk
+	addlw	-1
+	btfsc	WREG, 0
+	bsf	TMP2, 6
+	rgoto	CS_M_HLP_GPPatternSel_L_NewBnk_C
+CS_M_HLP_GPPatternSel_L_NoNewBnk
+	btfsc	TMP1, 6
+	bsf	TMP2, 6
+CS_M_HLP_GPPatternSel_L_NewBnk_C
 
 	;; save result
 	incf	TMP2, W
@@ -234,6 +222,16 @@ CS_M_HLP_GPPatternSel_R
 	movf	MIOS_PARAMETER1, W
 	andlw	0x07
 	iorwf	TMP2, F
+
+	;; add requested (or current) lower/upper bank flag
+	movf	CS_PATTERN_NEW_BANK, W
+	bz	CS_M_HLP_GPPatternSel_R_NoNewBnk
+CS_M_HLP_GPPatternSel_R_NewBnk
+	addlw	-1
+	bcf	TMP2, 6
+	btfsc	WREG, 0
+	bsf	TMP2, 6
+CS_M_HLP_GPPatternSel_R_NoNewBnk
 
 	;; change value (will also update LEDs)
 	incf	TMP2, W

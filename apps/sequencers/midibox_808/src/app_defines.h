@@ -32,10 +32,13 @@
 #define BANKSTICK_SONG_MAGIC0	0x7a ; the same for songs
 #define BANKSTICK_SONG_MAGIC1	0x5c
 
+#define BANKSTICK_MIXER_MAGIC0	0xa3 ; only used to identify a "MBSEQ V3 mixer bankstick"
+#define BANKSTICK_MIXER_MAGIC1	0x16 ; it will be automatically ignored (and not re-formatted)
+
 ;; ==========================================================================
 
 #define SEQ_CFG0_MERGER		0 ; if set, merger is enabled
-#define SEQ_CFG0_PATTERN_SYNCH  1 ; if set, pattern changes will be synchronized
+		             ;  1 not used anymore (was synched pattern change, now available as SHIFT function)
 #define SEQ_CFG0_BPM_CLK_SLAVE	2 ; 0=Master Clock, 1=Slave Clock Mode
 #define SEQ_CFG0_BPM_CLK_AUTO	3 ; 1=Auto Master/Slave mode
 
@@ -151,6 +154,7 @@ CS_TRKDIV_TIMEBASE	EQU	0x05d	; used in "cs_m_trkdiv.inc"
 CS_TRKMIDI_NOTE		EQU	0x05e	; used in "cs_m_trkmidi.inc"
 CS_TRKMIDI_OCTAVE	EQU	0x05f	; used in "cs_m_trkmidi.inc"
 CS_PATTERN_GP_STATE_R	EQU	0x060	; state of right pattern select buttons
+CS_PATTERN_NEW_BANK	EQU	0x061	; pre-selects new bank
 
 CS_MENU_INST_OVERLAY_DOUT_SR0 EQU 0x067	; contains the instrument indicator of GP DOUT #0
 CS_MENU_INST_OVERLAY_DOUT_SR1 EQU 0x068	; contains the instrument indicator of GP DOUT #1
@@ -343,8 +347,7 @@ SEQ_MIDIPOS_MSB		EQU	0x13f	; used by the SEQ_MIDI_ClkPosParser
 SEQ_BANKSTICK_CHK_CTR	EQU	0x140	; used in "seq_bank.inc"
 SEQ_BANKSTICK_STATUS	EQU	0x141	; used in "seq_bank.inc" (each BankStick has an own available flag)
 SEQ_BANKSTICK_SIZE	EQU	0x142	; used in "seq_bank.inc" (each BankStick has a size flag - 0=32k, 1=64k)
-
-SEQ_DISPLAY_PAGE	EQU	0x143	; the selected display page (menu #0)
+SEQ_BANKSTICK_DISABLED	EQU	0x143	; used in "seq_bank.inc" to disable Mixer-BankSticks (so that they won't be reformatted)
 
 SEQ_GP_LED_L		EQU	0x144	; status of the general purpose LEDs (left side)
 SEQ_GP_LED_R		EQU	0x145	; status of the general purpose LEDs (right side)

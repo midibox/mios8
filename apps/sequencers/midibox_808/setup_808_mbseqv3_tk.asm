@@ -50,9 +50,10 @@ DEFAULT_TRKINFO MACRO
 ; NOTE: only one BankStick can be used as Song Storage, only one for Mixer Maps
 ;       If no entry with "mode 3" or "mode 4" is defined, Song mode will be disabled.
 ; If a BankStick is not connected to the MBSEQ, the appr. entry will have no effect
+; If a "MBSEQ Mixer BankStick" is connected, it will be automatically ignored (and not re-formatted)
 #define DEFAULT_BANKSTICK_MODE_CS0	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS1	2	; 64k
-#define DEFAULT_BANKSTICK_MODE_CS2	0	; default Mixer BS location in MBSEQ V3 firmware -- disabled to prevent that BankStick will be formatted unintentionally!
+#define DEFAULT_BANKSTICK_MODE_CS2	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS3	4	; Song mode (using CS3 to ensure compatibility with Atmel EEPROMs which only provide 4 CS addresses)
 #define DEFAULT_BANKSTICK_MODE_CS4	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS5	2	; 64k
@@ -251,7 +252,7 @@ DIN_ENTRY_EOT MACRO
 SEQ_IO_TABLE_DIN
 	;;		Function name		SR#	Pin#
 	;; NOTE: the pins of the 16 general purpose buttons are assigned above, search for DEFAULT_GP_DIN_SR_L (and _R)
-	DIN_ENTRY	SEQ_BUTTON_Loop,	 1,	 2
+	DIN_ENTRY	SEQ_BUTTON_Live,	 1,	 2
 	DIN_ENTRY	SEQ_BUTTON_Metronome,	 1,	 3
 
 	DIN_ENTRY	SEQ_BUTTON_Stop,	 1,	 4
@@ -315,7 +316,7 @@ LED_STEP49_64	EQU	((( 1   -1)<<3)+    3)
 ;;                         SR    ignore    Pin
 LED_SECTION_A	EQU	((( 1   -1)<<3)+    4)
 LED_SECTION_B	EQU	((( 1   -1)<<3)+    5)
-LED_LOOP	EQU	((( 1   -1)<<3)+    6)
+LED_LIVE	EQU	((( 1   -1)<<3)+    6)
 
 ;;                         SR    ignore    Pin
 LED_EDIT	EQU	((( 2   -1)<<3)+    0)

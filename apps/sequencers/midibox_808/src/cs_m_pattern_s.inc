@@ -46,7 +46,22 @@ CS_M_PATTERN_S_GP_Callback_Save
 	movwf	TMP1
 
 	movff	TMP1, SEQ_PATTERN
+
+	;; new bank?
+	SET_BSR	SEQ_BASE
+	movf	CS_PATTERN_NEW_BANK, W
+	bz	CS_M_PATTERN_S_GP_Callback_NSveB
+CS_M_PATTERN_S_GP_Callback_SaveB
+	addlw	-1
+	rrf	WREG, W
+	andlw	0x07
+	movwf	SEQ_PATTERN_BANK, BANKED
+	movwf	SEQ_NEXT_PATTERN_BANK0, BANKED
+	clrf	CS_PATTERN_NEW_BANK
+	rgoto	CS_M_PATTERN_S_GP_Callback_NSveC
+CS_M_PATTERN_S_GP_Callback_NSveB
 	movff	SEQ_NEXT_PATTERN_BANK0, SEQ_PATTERN_BANK
+CS_M_PATTERN_S_GP_Callback_NSveC
 
 	;; store pattern
 	movff	SEQ_PATTERN, SEQ_SAVE_PATTERN

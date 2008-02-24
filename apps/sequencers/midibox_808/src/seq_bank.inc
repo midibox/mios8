@@ -241,7 +241,14 @@ SEQ_BANK_CheckStick
 	andlw	0x07
 	movwf	SEQ_BANKSTICK_CHK_CTR, BANKED
 
+	;; ignore if BankStick disabled (-> MBSEQ V3 Mixer BankStick)
+	call	MIOS_HLP_GetBitORMask
+	andwf	SEQ_BANKSTICK_DISABLED, W, BANKED
+	skpz
+	rgoto	SEQ_BANK_CheckStick_End
+
 	;; load table entry
+	movf	SEQ_BANKSTICK_CHK_CTR, W, BANKED
 	rcall	SEQ_BANK_GetType
 
 	;; exit if value is neither 1 (32k BankStick) nor 2 (64k BankStick) nor 3 (Song BankStick) is selected
@@ -375,6 +382,30 @@ SEQ_BANK_CheckStrick_Ext_NoMsg
 	bz	SEQ_BANK_CheckStick_Reload
 SEQ_BANK_CheckStick_Unformatted
 
+	;; check if this is a MBSEQ Mixer BankStick
+	;; in such a case, disable the stick, don't reformat it!
+	clrf	MIOS_PARAMETER1
+	clrf	MIOS_PARAMETER2
+	call	MIOS_BANKSTICK_Read
+	xorlw	BANKSTICK_MIXER_MAGIC0
+	bnz	SEQ_BANK_CheckStick_NoMixerBS
+	call	MIOS_BANKSTICK_Read
+	xorlw	BANKSTICK_MIXER_MAGIC1
+	bnz	SEQ_BANK_CheckStick_NoMixerBS
+	;; disable Mixer BankStick
+	SET_BSR	SEQ_BASE
+	movf	SEQ_BANKSTICK_CHK_CTR, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	iorwf	SEQ_BANKSTICK_DISABLED, F, BANKED
+	;; print message
+	TABLE_ADDR TEXT_MIXBANK_0
+	call	MIOS_LCD_PrintMessage
+	movff	SEQ_BANKSTICK_CHK_CTR, WREG
+	call	MIOS_LCD_PrintBCD1
+	call	MIOS_LCD_PrintMessage
+	rgoto	SEQ_BANK_CheckStick_End
+	
+SEQ_BANK_CheckStick_NoMixerBS
 	;; format BankStick
 	movff	SEQ_BANKSTICK_CHK_CTR, SEQ_PATTERN_BANK
 	rgoto	SEQ_BANK_FormatStick
@@ -682,6 +713,9 @@ TEXT_EXTBANK_1   STRING 16, 0x40, "* 32k Device    "
 TEXT_INTBANK_0   STRING 16, 0x00, "* Loading Setup "
 TEXT_INTBANK_1   STRING 16, 0x40, "* from Internal "
 	
+TEXT_MIXBANK_0   STRING 15, 0x00, "* Mixer BS @CS#"
+TEXT_MIXBANK_1   STRING 16, 0x40, "* -> disabled!  "
+
 TEXT_FORMATBANK_0 STRING 16, 0x00, "* Formatting    "
 TEXT_FORMATBANK_1 STRING 16, 0x40, "* Pattern x:xx  "
 

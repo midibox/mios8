@@ -90,7 +90,7 @@ SEQ_MODE1_SHIFT			EQU	7	; shift button function
 
 SEQ_MODE2_FWD_HOLD		EQU	0	; FWD button hold
 SEQ_MODE2_REW_HOLD		EQU	1	; REW button hold
-SEQ_MODE2_LOOP_MODE		EQU	2	; if song loop mode active
+SEQ_MODE2_LIVE_MODE		EQU	2	; if live play mode active
 SEQ_MODE2_LIVEPLAY		EQU	2	; currently assigned to loop button (therefore same flag): liveplay mode
 SEQ_MODE2_AUX_SELECTED		EQU	3	; if aux layer is selected
 
@@ -993,7 +993,7 @@ SEQ_CORE_Clk_Step_NotPosted
 	movf	SEQ_CHAIN_TOP, W
 	bnz	SEQ_CORE_Clk_Step_SyncMute
 #endif
-	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_Clk_Step_SyncMute
+	;; 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_Clk_Step_SyncMute
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_Step_NoSyncMute
 SEQ_CORE_Clk_Step_SyncMute
 	movlw	SEQ_TRKVARSTATE2x	; (set on pattern changes in song mode)
@@ -1489,8 +1489,10 @@ SEQ_CORE_ChangePatternSynched
 	skpz
 	bsf	SEQ_REQ, SEQ_REQ_SYNCHED_PATTERN_CHANGE, BANKED
 
+#if 0
 	btfsc	SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED
 	bsf	SEQ_REQ, SEQ_REQ_SYNCHED_PATTERN_CHANGE, BANKED
+#endif
 
 	;; check if SEQ_PATTERN_BANK != SEQ_NEXT_PATTERN_BANKx
 	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
@@ -1596,7 +1598,7 @@ SEQ_CORE_UpdateTrkDisableLoop
 	;; set the synch to measure flag (in song or "pattern synch" mode only)
 	movf	SEQ_CHAIN_TOP, W
 	bnz	SEQ_CORE_UpdateTrkDisable_Sync
-	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_UpdateTrkDisable_Sync
+	;; 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_UpdateTrkDisable_Sync
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_UpdateTrkDisable_NoSync
 #endif
 SEQ_CORE_UpdateTrkDisable_Sync

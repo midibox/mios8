@@ -124,20 +124,16 @@ SEQ_ENC_Inst_Change
 	;; set new instrument
 	BRA_IFSET TMP1, 4, ACCESS, SEQ_ENC_Inst_ChangeAll
 SEQ_ENC_Inst_ChangeNotAll
+	SET_BSR	SEQ_BASE
+	bcf	SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED
+
 	movf	TMP1, W
 	call	CS_M_HLP_SetSelectedTrk
 	rgoto	SEQ_ENC_Inst_Cont
 
 SEQ_ENC_Inst_ChangeAll
 	SET_BSR	SEQ_BASE
-	setf	SEQ_SELECTED_TRKS_0, BANKED
-	setf	SEQ_SELECTED_TRKS_1, BANKED
-
-	clrf	SEQ_SELECTED_TRK, BANKED	; (first track displayed)
-
-	setf	CS_MENU_INST_OVERLAY_DOUT_SR0
-	setf	CS_MENU_INST_OVERLAY_DOUT_SR1
-	rgoto	SEQ_ENC_Inst_ChangeAll_Cont
+	bsf	SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED
 
 SEQ_ENC_Inst_Cont	
 SEQ_ENC_Inst_NoChange
@@ -146,11 +142,11 @@ SEQ_ENC_GP_Cont			; also used by SEQ_ENC_GP, expects instrument in TMP1
 	clrf	CS_MENU_INST_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_INST_OVERLAY_DOUT_SR1
 	
-	movf	TMP1, W
+	movf	SEQ_SELECTED_TRK, W, BANKED
 	call	MIOS_HLP_GetBitORMask
-	btfss	TMP1, 3
+	btfss	SEQ_SELECTED_TRK, 3, BANKED
 	movwf	CS_MENU_INST_OVERLAY_DOUT_SR0
-	btfsc	TMP1, 3
+	btfsc	SEQ_SELECTED_TRK, 3, BANKED
 	movwf	CS_MENU_INST_OVERLAY_DOUT_SR1
 
 SEQ_ENC_Inst_ChangeAll_Cont

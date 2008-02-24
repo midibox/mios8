@@ -151,7 +151,7 @@ SEQ_REMOTE_Handler_Sub
 	rgoto	SEQ_BUTTON_GP8		; C-3 (0x30)
 	rgoto	SEQ_BUTTON_SectionB	; C#3 (0x31)
 	rgoto	SEQ_BUTTON_GP9		; D-3 (0x32)
-	rgoto	SEQ_BUTTON_Loop		; D#3 (0x33)
+	rgoto	SEQ_BUTTON_Live		; D#3 (0x33)
 	rgoto	SEQ_BUTTON_GP10		; E-3 (0x34)
 	rgoto	SEQ_BUTTON_GP11		; F-3 (0x35)
 	rgoto	SEQ_REMOTE_Ignore	; F#3 (0x36)

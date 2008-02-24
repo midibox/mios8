@@ -487,13 +487,13 @@ SEQ_BUTTON_Fwd
 SEQ_BUTTON_Fwd_Pressed
 	bsf	SEQ_MODE2, SEQ_MODE2_FWD_HOLD, BANKED ; set hold flag
 
-	;; do nothing if sequencer not running
-	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
-	return
-
 	;; if shift button pressed: branch to rotate function
 	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
 	goto	CS_M_UTILS_RotateRight
+
+	;; do nothing if sequencer not running
+	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
+	return
 
 	;; in pattern mode: nudge track forward
 	btfsc	SEQ_SONG, 7, BANKED
@@ -511,13 +511,10 @@ SEQ_BUTTON_Fwd_Released
 ;;  Play button function
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Play
-	;; if ALT button pressed: branch to tap tempo function
 	SET_BSR	SEQ_BASE
-	btfsc	SEQ_MODE0, SEQ_MODE0_ALT, BANKED
-	goto	SEQ_BUTTON_TapTempo
 
-	;; if shift button pressed: start/stop record mode
-	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Record
+	;; if SHIFT button pressed: branch to tap tempo function
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_TapTempo
 
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
@@ -628,6 +625,10 @@ SEQ_BUTTON_TapTempo_NoAutoStart
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Edit
 	SET_BSR	SEQ_BASE
+
+	;; if shift button pressed: activate All function
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_All
 
 	;; clear edit hold flag if if button has been depressed
 	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Edit_Released
@@ -822,6 +823,9 @@ SEQ_BUTTON_All
 	btfss	MIOS_PARAMETER2, 0
 	bsf	SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED
 #endif
+
+	;; request display re-initisation
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	return
 
 
@@ -1016,17 +1020,20 @@ SEQ_BUTTON_SectionX_Hlp_Sav
 	return
 
 ;; --------------------------------------------------------------------------
-;;  Toggle Loop Mode
+;;  Toggle Live Mode
 ;; --------------------------------------------------------------------------
-SEQ_BUTTON_Loop
+SEQ_BUTTON_Live
 	SET_BSR	SEQ_BASE
+
+	;; if shift button pressed: start/stop record mode
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Record
 
 	;; do nothing when button has been released
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
 	;; toggle mode flag
-	btg	SEQ_MODE2, SEQ_MODE2_LOOP_MODE, BANKED
+	btg	SEQ_MODE2, SEQ_MODE2_LIVE_MODE, BANKED
 
 	return
 

@@ -268,6 +268,31 @@ SEQ_SBANK_CheckStrick_Ext_NoMsg
 	bz	SEQ_SBANK_CheckStick_Reload
 SEQ_SBANK_CheckStick_Unformatted
 
+	;; check if this is a MBSEQ Mixer BankStick
+	;; in such a case, disable the stick, don't reformat it!
+	clrf	MIOS_PARAMETER1
+	clrf	MIOS_PARAMETER2
+	call	MIOS_BANKSTICK_Read
+	xorlw	BANKSTICK_MIXER_MAGIC0
+	bnz	SEQ_SBANK_CheckStick_NoMixerBS
+	call	MIOS_BANKSTICK_Read
+	xorlw	BANKSTICK_MIXER_MAGIC1
+	bnz	SEQ_SBANK_CheckStick_NoMixerBS
+	;; disable Mixer BankStick
+	SET_BSR	SEQ_BASE
+	movf	SEQ_BANKSTICK_CHK_CTR, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	iorwf	SEQ_BANKSTICK_DISABLED, F, BANKED
+	;; print message
+	TABLE_ADDR TEXT_MIXBANK_0
+	call	MIOS_LCD_PrintMessage
+	movff	SEQ_BANKSTICK_CHK_CTR, WREG
+	call	MIOS_LCD_PrintBCD1
+	call	MIOS_LCD_PrintMessage
+	rgoto	SEQ_SBANK_CheckStick_End
+	
+SEQ_SBANK_CheckStick_NoMixerBS
+
 	;; format BankStick
 	rgoto	SEQ_SBANK_FormatStickNow
 

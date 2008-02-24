@@ -50,6 +50,7 @@ DEFAULT_TRKINFO MACRO
 ; NOTE: only one BankStick can be used as Song Storage, only one for Mixer Maps
 ;       If no entry with "mode 3" or "mode 4" is defined, Song mode will be disabled.
 ; If a BankStick is not connected to the MBSEQ, the appr. entry will have no effect
+; If a "MBSEQ Mixer BankStick" is connected, it will be automatically ignored (and not re-formatted)
 #define DEFAULT_BANKSTICK_MODE_CS0	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS1	2	; 64k
 #define DEFAULT_BANKSTICK_MODE_CS2	2	; 64k
@@ -259,7 +260,7 @@ SEQ_IO_TABLE_DIN
 	DIN_ENTRY	SEQ_BUTTON_Play,	 5,	 3
 	DIN_ENTRY	SEQ_BUTTON_Rew,		 5,	 6
 	DIN_ENTRY	SEQ_BUTTON_Fwd,		 5,	 2
-	DIN_ENTRY	SEQ_BUTTON_Loop,	 5,	 1
+	DIN_ENTRY	SEQ_BUTTON_Live,	 5,	 1
 
 	DIN_ENTRY	SEQ_BUTTON_F1,		 0,	 0
 	DIN_ENTRY	SEQ_BUTTON_F2,		 0,	 0
@@ -347,7 +348,7 @@ LED_STOP	EQU	((( 6   -1)<<3)+    6)
 LED_PAUSE	EQU	((( 0   -1)<<3)+    0)
 LED_FWD		EQU	((( 6   -1)<<3)+    5)
 LED_REW		EQU	((( 6   -1)<<3)+    4)
-LED_LOOP	EQU	((( 6   -1)<<3)+    3)
+LED_LIVE	EQU	((( 6   -1)<<3)+    3)
 
 ;;                         SR    ignore    Pin
 LED_BEAT	EQU	((( 0   -1)<<3)+   0)

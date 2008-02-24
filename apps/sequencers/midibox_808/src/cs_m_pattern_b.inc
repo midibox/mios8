@@ -27,17 +27,13 @@ CS_M_PATTERN_B_GP_Callback
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; ignore button >= 8
-	btfsc	MIOS_PARAMETER1, 3
-	return
-
 	;; store button number in cursor pos
 	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
 
-	;; change bank
-	movff	MIOS_PARAMETER1, SEQ_PATTERN_BANK
-	movff	SEQ_NEXT_PATTERN0, SEQ_PATTERN
-	call	SEQ_CORE_ChangePatternSynched
+	;; pre-select new bank
+	;; bank change takes place in pattern page
+	incf	MIOS_PARAMETER1, W
+	movwf	CS_PATTERN_NEW_BANK
 
 	;; update LEDs
 	rcall	CS_M_PATTERN_B_UpdateGPLEDs
@@ -53,10 +49,45 @@ CS_M_PATTERN_B_UpdateGPLEDs
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
 
+	;; bank change requested?
+	movf	CS_PATTERN_NEW_BANK, W
+	bnz	CS_M_PATTERN_B_UpdateGPLEDs_Chng
+CS_M_PATTERN_B_UpdateGPLEDsNChng
+	;; display current bank (+Upper/Lower)
 	SET_BSR	SEQ_BASE
-	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
+	clrc
+	rlf	SEQ_PATTERN_BANK0, W, BANKED
+	movwf	PRODL
+	btfsc	SEQ_PATTERN0, 6, BANKED
+	bsf	PRODL, 0
+
+	movf	PRODL, W
 	call	MIOS_HLP_GetBitORMask
+	btfss	PRODL, 3
 	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	btfsc	PRODL, 3
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+
+	;; don't flash LEDs
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+
+	return
+
+CS_M_PATTERN_B_UpdateGPLEDs_Chng
+	;; display requested bank
+	addlw	-1
+	movwf	PRODL
+	call	MIOS_HLP_GetBitORMask
+	btfss	PRODL, 3
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	btfsc	PRODL, 3
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+
+	;; flash LEDs
+	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
+	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+
 	return
 
 
@@ -85,7 +116,7 @@ CS_M_PATTERN_B_Tick
 	;; <--------------------------------------><-------------------------------------->
 	;; BD    P.BANK  1:A1* ________________                                              
 	;; 00000001111111111111222222223333333333334444444444555555555566666666667777777777
-	;;   1    2    3    4    5    6    7    8                                          
+	;;   1U   1L   2U   2L   3U   3L   4U   4L   5U   5L   5U   5L   6U   6L   7U   7L 
 	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
 
 	;; for 2x16 LCD:
@@ -185,7 +216,7 @@ CS_M_PATTERN_B_Tick_7
 	rgoto	CS_M_PATTERN_B_Tick_Cont
 
 CS_M_PATTERN_B_Tick_89ABCDEF_STR
-	db	"  1    2    3    4    5    6    7    8                                          "
+	db	"  1U   1L   2U   2L   3U   3L   4U   4L   5U   5L   5U   5L   6U   6L   7U   7L "
 CS_M_PATTERN_B_Tick_89ABCDEF
 #if DEFAULT_LCD_WIDTH == 80
 	;; determine string offset

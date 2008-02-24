@@ -50,15 +50,12 @@ CS_M_OPT_GP_Callback
 	rgoto	CS_M_OPT_GP_Callback_E
 	rgoto	CS_M_OPT_GP_Callback_F
 
-CS_M_OPT_GP_Callback_0		; Synch To Measure
-	;; toggle flag
-	SET_BSR	SEQ_BASE
-	btg	SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED
-	rgoto	CS_M_OPT_GP_Callback_Cont
-
-CS_M_OPT_GP_Callback_1		; Follow Pattern/Song
+CS_M_OPT_GP_Callback_0		; Follow Pattern/Song
 	SET_BSR	SEQ_BASE
 	btg	SEQ_CFG0, SEQ_CFG0_FOLLOW_SONG, BANKED
+	rgoto	CS_M_OPT_GP_Callback_Cont
+
+CS_M_OPT_GP_Callback_1		; reserved
 	rgoto	CS_M_OPT_GP_Callback_Cont
 
 CS_M_OPT_GP_Callback_2		; reserved
@@ -130,10 +127,8 @@ CS_M_OPT_UpdateGPLEDs
 
 	;; copy flags to LED positions
 	SET_BSR	SEQ_BASE
-	btfsc	SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED
-	bsf	CS_MENU_GP_OVERLAY_DOUT_SR0, 0
 	btfsc	SEQ_CFG0, SEQ_CFG0_FOLLOW_SONG, BANKED
-	bsf	CS_MENU_GP_OVERLAY_DOUT_SR0, 1
+	bsf	CS_MENU_GP_OVERLAY_DOUT_SR0, 0
 	btfsc	SEQ_CFG0, SEQ_CFG0_SEND_MIDI_PTN, BANKED
 	bsf	CS_MENU_GP_OVERLAY_DOUT_SR1, 0
 	btfsc	SEQ_CFG0, SEQ_CFG0_SEND_MIDI_SONG, BANKED
@@ -166,7 +161,7 @@ CS_M_OPT_Tick
 	;; <--------------------------------------><-------------------------------------->
 	;; BD    OPTIONS       SynchToMeas: on                                                
 	;; 00000001111111111111222222222222233333334444444444555555555566666666667777777777
-	;;  STM Follow                              Ptn  Sng  Mute (MIDI Change)           
+	;; Follow                                   Ptn  Sng  Mute (MIDI Change)           
 	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
 
 	;; for 2x16 LCD:
@@ -211,8 +206,8 @@ CS_M_OPT_Tick_1
 	rgoto	CS_M_OPT_Tick_Cont
 
 CS_M_OPT_Tick_2_TABLE
-	db	"SynchToMeas:"
 	db	"Follow Song:"
+	db	"            "
 	db	"            "
 	db	"            "
 	db	"            "
@@ -263,7 +258,7 @@ CS_M_OPT_Tick_3
 	andlw	0x0f
 	JUMPTABLE_2BYTES_UNSECURE
 	rgoto	CS_M_OPT_Tick_3_0
-	rgoto	CS_M_OPT_Tick_3_1
+	rgoto	CS_M_OPT_Tick_3_Inv
 	rgoto	CS_M_OPT_Tick_3_Inv
 	rgoto	CS_M_OPT_Tick_3_Inv
 	rgoto	CS_M_OPT_Tick_3_Inv
@@ -280,12 +275,6 @@ CS_M_OPT_Tick_3
 	rgoto	CS_M_OPT_Tick_3_Inv
 
 CS_M_OPT_Tick_3_0
-	movlw	0x00
-	btfsc	SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED
-	movlw	0x01
-	rgoto	CS_M_OPT_Tick_3_Cont
-
-CS_M_OPT_Tick_3_1
 	movlw	0x00
 	btfsc	SEQ_CFG0, SEQ_CFG0_FOLLOW_SONG, BANKED
 	movlw	0x01
@@ -334,7 +323,7 @@ CS_M_OPT_Tick_7
 	rgoto	CS_M_OPT_Tick_Cont
 
 CS_M_OPT_Tick_89ABCDEF_STR
-	db	" STM Follow                              Ptn  Sng  Mute (MIDI Change)           "
+	db	"Follow                                   Ptn  Sng  Mute (MIDI Change)           "
 CS_M_OPT_Tick_89ABCDEF
 #if DEFAULT_LCD_WIDTH == 80
 	;; determine string offset

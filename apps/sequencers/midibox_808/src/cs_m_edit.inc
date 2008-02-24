@@ -49,9 +49,11 @@ CS_M_EDIT_GP_Callback_Normal
 
 	clrf	SEQ_EVNTT, BANKED
 CS_M_EDIT_GP_Callback_Loop
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, CS_M_EDIT_GP_Callback_Loop_All
 	;; check if track selected
 	call	CS_M_HLP_ChkTrkSelected
 	bnz	CS_M_EDIT_GP_Callback_Loop_Next
+CS_M_EDIT_GP_Callback_Loop_All
 
 	;; get pointer to button trigger register depending on selected trigger layer
 	call	CS_M_HLP_GetSelectedTrgLayerPtr	;  -> FSR1
@@ -105,6 +107,9 @@ CS_M_EDIT_GP_Callback_Loop_Next
 
 
 CS_M_EDIT_GP_Callback_Sel
+	;; clear "all steps" flag
+	bcf	SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED
+
 	;; if multi selection not set (will be set after the first selection), clear all track selections
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_EDIT_HOLD_MULTISEL, BANKED, CS_M_EDIT_GP_Callback_SelNot1st
 CS_M_EDIT_GP_Callback_Sel1st
@@ -166,10 +171,18 @@ CS_M_EDIT_UpdateGPLEDs_Sel
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
+	;; if all flag set: light up all tracks
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, CS_M_EDIT_UpdateGPLEDs_Sel_NotAll
+CS_M_EDIT_UpdateGPLEDs_Sel_All
+	;; light up all tracks
+	setf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	setf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	return
+
+CS_M_EDIT_UpdateGPLEDs_Sel_NotAll
 	;; light up selected tracks
 	movff	SEQ_SELECTED_TRKS_0, CS_MENU_GP_OVERLAY_DOUT_SR0
 	movff	SEQ_SELECTED_TRKS_1, CS_MENU_GP_OVERLAY_DOUT_SR1
-
 	return
 
 

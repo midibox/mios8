@@ -40,14 +40,36 @@ CS_M_TRKLOOP_GP_Callback
 	;; set LAST/LOOP value depending on shift button
 	BRA_IFSET SEQ_SELECTED_STEPS, 1, BANKED, CS_M_TRKLOOP_GP_Callback_B
 CS_M_TRKLOOP_GP_Callback_A
+	;; for more induitive usage: if selected step < LOOPA, change LOOPA instead of LASTA independent of SHIFT button
+	movlw	SEQ_CC_OFFSET_LOOPA
+	call	CS_M_HLP_TrkCC_Get
+	cpfslt	CS_MENU_PARAMETER_L
+	rgoto	CS_M_TRKLOOP_GP_Callback_A_Shft
+CS_M_TRKLOOP_GP_Callback_A_LoopA
+	movlw	SEQ_CC_OFFSET_LOOPA
+	rgoto	CS_M_TRKLOOP_GP_Callback_A_Cont
+CS_M_TRKLOOP_GP_Callback_A_Shft
+
+	;; if button number < LOOPA
 	movlw	SEQ_CC_OFFSET_LASTA
 	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
 	movlw	SEQ_CC_OFFSET_LOOPA
 	rgoto	CS_M_TRKLOOP_GP_Callback_A_Cont
 CS_M_TRKLOOP_GP_Callback_B
+	;; for more induitive usage: if selected step < LOOPB, change LOOPB instead of LASTB independent of SHIFT button
+	movlw	SEQ_CC_OFFSET_LOOPB
+	call	CS_M_HLP_TrkCC_Get
+	cpfslt	CS_MENU_PARAMETER_L
+	rgoto	CS_M_TRKLOOP_GP_Callback_B_Shft
+CS_M_TRKLOOP_GP_Callback_B_LoopB
+	movlw	SEQ_CC_OFFSET_LOOPB
+	rgoto	CS_M_TRKLOOP_GP_Callback_B_Cont
+CS_M_TRKLOOP_GP_Callback_B_Shft
+
 	movlw	SEQ_CC_OFFSET_LASTB
 	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
 	movlw	SEQ_CC_OFFSET_LOOPB
+CS_M_TRKLOOP_GP_Callback_B_Cont
 CS_M_TRKLOOP_GP_Callback_A_Cont
 	call	CS_M_HLP_TrkCC_Set
 
