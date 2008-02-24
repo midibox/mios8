@@ -261,6 +261,9 @@ SEQ_GP_Button_LivePlay
 	movf	MIOS_PARAMETER1, W
 	call	CS_M_HLP_SetSelectedTrk
 
+	;; deactivate "all" function (to avoid inconsistencies)
+	bcf	SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED
+
 	;; set also to SEQ_EVNTT
 	movff	MIOS_PARAMETER1, SEQ_EVNTT
 

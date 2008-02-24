@@ -2554,7 +2554,7 @@ SEQ_CORE_ChainNextPos
 	movff	POSTINC1, SEQ_PATTERN_BANK
 	movff	POSTINC1, SEQ_PATTERN
 
-	;; increment play pointer, wrap on top entry
+	;; increment play pointer and wrap on top entry
 	incf	SEQ_CHAIN_PLAY_PTR, F, BANKED
 	movf	SEQ_CHAIN_TOP, W, BANKED
 	cpfslt	SEQ_CHAIN_PLAY_PTR, BANKED
@@ -2569,13 +2569,23 @@ SEQ_CORE_ChainNextPos
 	movf	SEQ_PATTERN_BANK0, W, BANKED
 	xorwf	SEQ_PATTERN_BANK, W, BANKED
 	bnz	SEQ_CORE_ChainNextPos_New
-	rgoto	SEQ_CORE_ChainNextPos_End
+	rgoto	SEQ_CORE_ChainNextPos_Cont
 
 SEQ_CORE_ChainNextPos_New
 	;; change to new pattern immediately
 	movff	SEQ_PATTERN, SEQ_NEXT_PATTERN0
 	movff	SEQ_PATTERN_BANK, SEQ_NEXT_PATTERN_BANK0
 	rcall	SEQ_CORE_ChangePattern
+	;; 	rgoto	SEQ_CORE_ChainNextPos_Cont
+
+SEQ_CORE_ChainNextPos_Cont
+	;; if oneshot mode: clear chain if last position reached
+	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_CHAIN_ONESHOT, BANKED, SEQ_CORE_ChainNextPos_NoClear
+	movf	SEQ_CHAIN_PLAY_PTR, W, BANKED
+	bnz	SEQ_CORE_ChainNextPos_NoClear
+SEQ_CORE_ChainNextPos_Clear
+	rcall	SEQ_CORE_ChainClr
+SEQ_CORE_ChainNextPos_NoClear
 
 SEQ_CORE_ChainNextPos_End
 	return

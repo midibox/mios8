@@ -38,7 +38,7 @@
 ;; ==========================================================================
 
 #define SEQ_CFG0_MERGER		0 ; if set, merger is enabled
-		             ;  1 not used anymore (was synched pattern change, now available as SHIFT function)
+#define SEQ_CFG0_CHAIN_ONESHOT  1 ; if set, a pattern chain will be cleared after it has been processed
 #define SEQ_CFG0_BPM_CLK_SLAVE	2 ; 0=Master Clock, 1=Slave Clock Mode
 #define SEQ_CFG0_BPM_CLK_AUTO	3 ; 1=Auto Master/Slave mode
 
