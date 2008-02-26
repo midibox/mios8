@@ -31,9 +31,9 @@ CS_M_EDIT_GP_Callback
 	SET_BSR	SEQ_BASE
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_EDIT_HOLD, BANKED, CS_M_EDIT_GP_Callback_Sel
 CS_M_EDIT_GP_Callback_Normal
-	;; determine step number depending on SEQ_SELECTED_STEPS[1:0],
+	;; determine step number depending on SEQ_SELECTED_STEP_VIEW[1:0],
 	;; add offset to button number and store in SEQ_CURRENT_STEP and SEQ_EVNTS
-	swapf	SEQ_SELECTED_STEPS, W, BANKED
+	swapf	SEQ_SELECTED_STEP_VIEW, W, BANKED
 	andlw	0x30
 	addwf	MIOS_PARAMETER1, W
 	movwf	SEQ_CURRENT_STEP, BANKED
@@ -155,7 +155,7 @@ CS_M_EDIT_UpdateGPLEDs_Normal
 	call	CS_M_HLP_GetSelectedTrgLayerPtr	;  -> FSR1
 
 	;; add step offset
-	rlf	SEQ_SELECTED_STEPS, W, BANKED
+	rlf	SEQ_SELECTED_STEP_VIEW, W, BANKED
 	andlw	0x06
 	addwf	FSR1L, F
 
@@ -272,7 +272,7 @@ CS_M_EDIT_Tick_2
 #endif
 	;; print step view
 	SET_BSR	SEQ_BASE
-	swapf	SEQ_SELECTED_STEPS, W, BANKED	; (switches between upper/lower and A/B steps)
+	swapf	SEQ_SELECTED_STEP_VIEW, W, BANKED	; (switches between A/B/C/D view)
 	andlw	0x30
 	movwf	PRODL
 	addlw	1
@@ -381,7 +381,7 @@ CS_M_EDIT_Tick_Lower
 
 	;; print triggers of current step
 	SET_BSR	SEQ_BASE
-	swapf	SEQ_SELECTED_STEPS, W, BANKED	; (switches between upper/lower and A/B steps)
+	swapf	SEQ_SELECTED_STEP_VIEW, W, BANKED	; (switches between A/B/C/D view)
 	andlw	0x30
 	addwf	CS_MENU_REFRESH_ITEM_CTR, W
 	addlw	-8

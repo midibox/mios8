@@ -32,45 +32,28 @@ CS_M_TRKLOOP_GP_Callback
 
 	;; determine step depending on current view
 	SET_BSR	SEQ_BASE
-	swapf	SEQ_SELECTED_STEPS, W, BANKED	; (switches between upper/lower and A/B steps)
+	swapf	SEQ_SELECTED_STEP_VIEW, W, BANKED	; (switches between upper/lower and A/B steps)
 	andlw	0x30
 	addwf	MIOS_PARAMETER1, W
 	movwf	CS_MENU_PARAMETER_L
 
 	;; set LAST/LOOP value depending on shift button
-	BRA_IFSET SEQ_SELECTED_STEPS, 1, BANKED, CS_M_TRKLOOP_GP_Callback_B
-CS_M_TRKLOOP_GP_Callback_A
-	;; for more induitive usage: if selected step < LOOPA, change LOOPA instead of LASTA independent of SHIFT button
-	movlw	SEQ_CC_OFFSET_LOOPA
+	;; for more induitive usage: if selected step < LOOP, change LOOP instead of LAST independent of SHIFT button
+	movlw	SEQ_CC_OFFSET_LOOP
 	call	CS_M_HLP_TrkCC_Get
 	cpfslt	CS_MENU_PARAMETER_L
-	rgoto	CS_M_TRKLOOP_GP_Callback_A_Shft
-CS_M_TRKLOOP_GP_Callback_A_LoopA
-	movlw	SEQ_CC_OFFSET_LOOPA
-	rgoto	CS_M_TRKLOOP_GP_Callback_A_Cont
-CS_M_TRKLOOP_GP_Callback_A_Shft
+	rgoto	CS_M_TRKLOOP_GP_Callback_Shft
+CS_M_TRKLOOP_GP_Callback_Loop
+	movlw	SEQ_CC_OFFSET_LOOP
+	rgoto	CS_M_TRKLOOP_GP_Callback_Cont
+CS_M_TRKLOOP_GP_Callback_Shft
 
-	;; if button number < LOOPA
-	movlw	SEQ_CC_OFFSET_LASTA
+	;; if button number < LOOP
+	movlw	SEQ_CC_OFFSET_LAST
 	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
-	movlw	SEQ_CC_OFFSET_LOOPA
-	rgoto	CS_M_TRKLOOP_GP_Callback_A_Cont
-CS_M_TRKLOOP_GP_Callback_B
-	;; for more induitive usage: if selected step < LOOPB, change LOOPB instead of LASTB independent of SHIFT button
-	movlw	SEQ_CC_OFFSET_LOOPB
-	call	CS_M_HLP_TrkCC_Get
-	cpfslt	CS_MENU_PARAMETER_L
-	rgoto	CS_M_TRKLOOP_GP_Callback_B_Shft
-CS_M_TRKLOOP_GP_Callback_B_LoopB
-	movlw	SEQ_CC_OFFSET_LOOPB
-	rgoto	CS_M_TRKLOOP_GP_Callback_B_Cont
-CS_M_TRKLOOP_GP_Callback_B_Shft
-
-	movlw	SEQ_CC_OFFSET_LASTB
-	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
-	movlw	SEQ_CC_OFFSET_LOOPB
-CS_M_TRKLOOP_GP_Callback_B_Cont
-CS_M_TRKLOOP_GP_Callback_A_Cont
+	movlw	SEQ_CC_OFFSET_LOOP
+	;; 	rgoto	CS_M_TRKLOOP_GP_Callback_Cont
+CS_M_TRKLOOP_GP_Callback_Cont
 	call	CS_M_HLP_TrkCC_Set
 
 	;; update LEDs
@@ -91,42 +74,22 @@ CS_M_TRKLOOP_UpdateGPLEDs
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
-	;; determine first/last/loop pointer depending on A/B view
+	;; determine first/last/loop pointer depending on displayed viewview
 	;; -> first step copied to TMP1
 	;; -> loop point copied to TMP2
 	;; -> last step copied to TMP3
 	SET_BSR	SEQ_BASE
-	movf	SEQ_SELECTED_AB, W, BANKED
-	andlw	0x03
-	addlw	-1
-	bz	CS_M_TRKLOOP_UpdateGPLEDs_A
-	addlw	-1
-	bz	CS_M_TRKLOOP_UpdateGPLEDs_B	
-CS_M_TRKLOOP_UpdateGPLEDs_A
 	movlw	0x00
 	movwf	TMP1
-	movlw	SEQ_CC_OFFSET_LOOPA
+	movlw	SEQ_CC_OFFSET_LOOP
 	call	CS_M_HLP_TrkCC_Get
 	movwf	TMP2
-	movlw	SEQ_CC_OFFSET_LASTA
+	movlw	SEQ_CC_OFFSET_LAST
 	call	CS_M_HLP_TrkCC_Get
 	movwf	TMP3
-	rgoto	CS_M_TRKLOOP_UpdateGPLEDs_Cont
-
-CS_M_TRKLOOP_UpdateGPLEDs_B
-	movlw	0x20
-	movwf	TMP1
-	movlw	SEQ_CC_OFFSET_LOOPB
-	call	CS_M_HLP_TrkCC_Get
-	movwf	TMP2
-	movlw	SEQ_CC_OFFSET_LASTB
-	call	CS_M_HLP_TrkCC_Get
-	movwf	TMP3
-	rgoto	CS_M_TRKLOOP_UpdateGPLEDs_Cont
-CS_M_TRKLOOP_UpdateGPLEDs_Cont
 
 	;; start with selected step view
-	swapf	SEQ_SELECTED_STEPS, W, BANKED
+	swapf	SEQ_SELECTED_STEP_VIEW, W, BANKED
 	andlw	0x30
 	movwf	PRODL
 CS_M_TRKLOOP_UpdateGPLEDs_Loop
@@ -180,7 +143,7 @@ CS_M_TRKLOOP_Tick
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	;; <--------------------------------------><-------------------------------------->
-	;; BD    LOOPPOINTS    A:xx/xx  B:xx/xx                                            
+	;; BD    LOOPPOINTS    Loop:xx   End:xx                                              
 	;; 00000001111111111111222222223333333333334444444444555555555566666666667777777777
 	;;   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16  
 	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
@@ -191,7 +154,7 @@ CS_M_TRKLOOP_Tick
 	;; <-------------->
 	;; BD    LOOPPOINTS
 	;; 0000000111111111
-	;; A:xx/xx  B:xx/xx
+	;; Loop:xx   End:xx
 	;; 2222222233333333
 
 
@@ -226,66 +189,41 @@ CS_M_TRKLOOP_Tick_1
 	call	MIOS_LCD_PrintString
 	rgoto	CS_M_TRKLOOP_Tick_Cont
 
-CS_M_TRKLOOP_Tick_2
 #if DEFAULT_LCD_WIDTH == 80
-	movlw	0x00 + 20
+CS_M_TRKLOOP_Tick_2_STR	STRING 5, 0x00 + 20, "Loop:"
 #else
-	movlw	0x40 + 0
+CS_M_TRKLOOP_Tick_2_STR	STRING 5, 0x40 + 00, "Loop:"
 #endif
-	call	MIOS_LCD_CursorSet
+CS_M_TRKLOOP_Tick_2
+	TABLE_ADDR CS_M_TRKLOOP_Tick_2_STR
+	call	MIOS_LCD_PrintString
 
-	;; print loop points for A section
-	movlw	'A'
-	call	MIOS_LCD_PrintChar
-	movlw	':'
-	call	MIOS_LCD_PrintChar
-
-	movlw	SEQ_CC_OFFSET_LOOPA
+	movlw	SEQ_CC_OFFSET_LOOP
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1
 	call	MIOS_LCD_PrintBCD2
 
-	movlw	'/'
-	call	MIOS_LCD_PrintChar
-
-	movlw	SEQ_CC_OFFSET_LASTA
-	call	CS_M_HLP_TrkCC_Get
-	addlw	1
-	call	MIOS_LCD_PrintBCD2
-
-	movlw	' '
-	call	MIOS_LCD_PrintChar
+	movlw	3
+	call	SEQ_LCD_PrintSpaces
 	rgoto	CS_M_TRKLOOP_Tick_Cont
 
-CS_M_TRKLOOP_Tick_3
+
 #if DEFAULT_LCD_WIDTH == 80
-	movlw	0x00 + 28
+CS_M_TRKLOOP_Tick_3_STR	STRING 4, 0x00 + 30, "End:"
 #else
-	movlw	0x40 + 8
+CS_M_TRKLOOP_Tick_3_STR	STRING 4, 0x40 + 10, "End:"
 #endif
-	call	MIOS_LCD_CursorSet
+CS_M_TRKLOOP_Tick_3
+	TABLE_ADDR CS_M_TRKLOOP_Tick_3_STR
+	call	MIOS_LCD_PrintString
 
-	;; print loop points for B section
-	movlw	' '
-	call	MIOS_LCD_PrintChar
-	movlw	'B'
-	call	MIOS_LCD_PrintChar
-	movlw	':'
-	call	MIOS_LCD_PrintChar
-
-	movlw	SEQ_CC_OFFSET_LOOPB
+	movlw	SEQ_CC_OFFSET_LAST
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1
 	call	MIOS_LCD_PrintBCD2
 
-	movlw	'/'
-	call	MIOS_LCD_PrintChar
-
-	movlw	SEQ_CC_OFFSET_LASTB
-	call	CS_M_HLP_TrkCC_Get
-	addlw	1
-	call	MIOS_LCD_PrintBCD2
-
+	movlw	4
+	call	SEQ_LCD_PrintSpaces
 	rgoto	CS_M_TRKLOOP_Tick_Cont
 
 CS_M_TRKLOOP_Tick_4
@@ -305,7 +243,7 @@ CS_M_TRKLOOP_Tick_89ABCDEF
 
 	;; print two step numbers (depends on step view)
 	SET_BSR	SEQ_BASE
-	swapf	SEQ_SELECTED_STEPS, W, BANKED	; (switches between upper/lower and A/B steps)
+	swapf	SEQ_SELECTED_STEP_VIEW, W, BANKED	; (switches between upper/lower and A/B steps)
 	andlw	0x30
 	movwf	TMP1
 	movf	CS_MENU_REFRESH_ITEM_CTR, W

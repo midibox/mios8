@@ -856,33 +856,93 @@ SEQ_BUTTON_Fast
 
 
 ;; --------------------------------------------------------------------------
-;;  Select Step View
+;;  Select Section A/B/C/D and Step View
 ;; --------------------------------------------------------------------------
-SEQ_BUTTON_Step0116
+SEQ_BUTTON_SectionA
 	movlw	0
-	rgoto	SEQ_BUTTON_Stepx_Cont
-SEQ_BUTTON_Step1732
+	rgoto	SEQ_BUTTON_Sectionx_Cont
+SEQ_BUTTON_SectionB
 	movlw	1
-	rgoto	SEQ_BUTTON_Stepx_Cont
-SEQ_BUTTON_Step3348
+	rgoto	SEQ_BUTTON_Sectionx_Cont
+SEQ_BUTTON_SectionC
 	movlw	2
-	rgoto	SEQ_BUTTON_Stepx_Cont
-SEQ_BUTTON_Step4964
+	rgoto	SEQ_BUTTON_Sectionx_Cont
+SEQ_BUTTON_SectionD
 	movlw	3
-	;; 	rgoto	SEQ_BUTTON_Stepx_Cont
+	;; 	rgoto	SEQ_BUTTON_Sectionx_Cont
 
-SEQ_BUTTON_Stepx_Cont
+SEQ_BUTTON_Sectionx_Cont
+	movwf	MIOS_PARAMETER1
+
+	SET_BSR	SEQ_BASE
+
+	;; only save button state if button has been depressed and exit
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_SectionX_Hlp_Sav
+
+	;; select new step view depending on last pressed button
+	movff	MIOS_PARAMETER1, SEQ_SELECTED_STEP_VIEW
+
+	;; branch depending on state of both select buttons:
+	;; if only one select button pressed: radio-button function (1 of 2)
+	;; if more than one select button pressed: toggle function (2 of 2)	
+	movf	SEQ_SELECTED_ABCD, W, BANKED
+	andlw	0xf0
+	xorlw	0xf0
+	bz	SEQ_BUTTON_SectionX_Radio
+SEQ_BUTTON_SectionX_Toggle
+	;; toggle section A/B flag
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_HLP_GetBitORMask
+	xorwf	SEQ_SELECTED_ABCD, F, BANKED
+ 	rgoto	SEQ_BUTTON_SectionX_End
+SEQ_BUTTON_SectionX_Radio
+	;; select 1 of 2
+	movlw	0xf0
+	andwf	SEQ_SELECTED_ABCD, F, BANKED
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_HLP_GetBitORMask
+	iorwf	SEQ_SELECTED_ABCD, F, BANKED
+
+	;; 	rgoto	SEQ_BUTTON_SectionX_End
+	
+SEQ_BUTTON_SectionX_End
+	;; save button state
+	rcall	SEQ_BUTTON_SectionX_Hlp_Sav
+
+	;; request display reinitialization
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+
+	return
+
+;; ---
+SEQ_BUTTON_SectionX_Hlp_Sav
+	;; mask out old button status
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_HLP_GetBitANDMask
+	swapf	WREG, W
+	andwf	SEQ_SELECTED_ABCD, F, BANKED
+
+	;; store new button status (pressed/depressed) in SEQ_SELECTED_TRKS_Gx[7..4]
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_HLP_GetBitORMask
+	swapf	WREG, W
+	btfsc	MIOS_PARAMETER2, 0
+	iorwf	SEQ_SELECTED_ABCD, F, BANKED
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Select Gate Layer
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_LayerGate
+	SET_BSR	SEQ_BASE
+
 	;; do nothing when button has been released
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; select step view
-	SET_BSR	SEQ_BASE
-	movwf	SEQ_SELECTED_STEPS, BANKED
-
-	;; if shift button pressed: toggle AUX layer selection
-	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
-	btg	SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED
+	;; select gate layer
+	bcf	SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED
 
 	;; request display re-initialisation
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
@@ -891,17 +951,20 @@ SEQ_BUTTON_Stepx_Cont
 
 
 ;; --------------------------------------------------------------------------
-;;  Toggle Loop Mode
+;;  Select Auxiliary Layer
 ;; --------------------------------------------------------------------------
-SEQ_BUTTON_AuxSel
+SEQ_BUTTON_LayerAux
 	SET_BSR	SEQ_BASE
 
 	;; do nothing when button has been released
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; toggle aux_selected flag
-	btg	SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED
+	;; select aux layer
+	bsf	SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED
+
+	;; request display re-initialisation
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 
 	return
 
@@ -941,83 +1004,6 @@ SEQ_BUTTON_Groupx_Cont
 
 	return
 
-
-;; --------------------------------------------------------------------------
-;;  Select Trigger Layer Gate/Aux
-;; --------------------------------------------------------------------------
-SEQ_BUTTON_SectionA
-	movlw	1 << 0
-	rgoto	SEQ_BUTTON_SectionX_Cont
-SEQ_BUTTON_SectionB
-	movlw	1 << 1
-	;; 	rgoto	SEQ_BUTTON_SectionX_Cont
-
-SEQ_BUTTON_SectionX_Cont
-	movwf	MIOS_PARAMETER1
-
-	SET_BSR	SEQ_BASE
-
-	;; only save button state if button has been depressed and exit
-	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_SectionX_Hlp_Sav
-
-	;; branch depending on state of both select buttons:
-	;; if only one select button pressed: radio-button function (1 of 2)
-	;; if more than one select button pressed: toggle function (2 of 2)	
-	movf	SEQ_SELECTED_AB, W, BANKED
-	andlw	0x30
-	xorlw	0x30
-	bz	SEQ_BUTTON_SectionX_Radio
-SEQ_BUTTON_SectionX_Toggle
-	;; toggle section A/B flag
-	movf	MIOS_PARAMETER1, W
-	xorwf	SEQ_SELECTED_AB, F, BANKED
- 	rgoto	SEQ_BUTTON_SectionX_End
-SEQ_BUTTON_SectionX_Radio
-	;; select 1 of 2
-	movlw	0x30
-	andwf	SEQ_SELECTED_AB, F, BANKED
-	movf	MIOS_PARAMETER1, W
-	iorwf	SEQ_SELECTED_AB, F, BANKED
-
-	;; 	rgoto	SEQ_BUTTON_SectionX_End
-	
-SEQ_BUTTON_SectionX_End
-	;; save button state
-	rcall	SEQ_BUTTON_SectionX_Hlp_Sav
-
-	;; select new step view depending on A/B
-	movf	SEQ_SELECTED_AB, W, BANKED
-	andlw	0x03
-	addlw	-1
-	bz	SEQ_BUTTON_SectionX_ViewA
-	addlw	-1
-	bz	SEQ_BUTTON_SectionX_ViewB
-SEQ_BUTTON_SectionX_ViewA
-	movlw	0x00
-	rgoto	SEQ_BUTTON_SectionX_View_Cont
-SEQ_BUTTON_SectionX_ViewB
-	movlw	0x02
-	;; 	rgoto	SEQ_BUTTON_SectionX_View_Cont
-SEQ_BUTTON_SectionX_View_Cont
-	movwf	SEQ_SELECTED_STEPS, BANKED
-
-	;; request display reinitialization
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-
-	return
-
-;; ---
-SEQ_BUTTON_SectionX_Hlp_Sav
-	;; mask out old button status
-	swapf	MIOS_PARAMETER1, W
-	xorlw	0xff
-	andwf	SEQ_SELECTED_AB, F, BANKED
-
-	;; store new button status (pressed/depressed) in SEQ_SELECTED_TRKS_Gx[7..4]
-	swapf	MIOS_PARAMETER1, W
-	btfsc	MIOS_PARAMETER2, 0
-	iorwf	SEQ_SELECTED_AB, F, BANKED
-	return
 
 ;; --------------------------------------------------------------------------
 ;;  Toggle Live Mode

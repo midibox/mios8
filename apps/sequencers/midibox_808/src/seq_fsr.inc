@@ -83,25 +83,19 @@ SEQ_FSR_TrkDiv
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKLOOP[AB]x depending on
+;;  This function returns a FSR1 pointer to the SEQ_TRKLOOPx depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
-SEQ_FSR_TrkLoopA
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLOOPAx
-	rgoto	SEQ_FSR_TrkXXX
-SEQ_FSR_TrkLoopB
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLOOPBx
+SEQ_FSR_TrkLoop
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLOOPx
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------
-;;  This function returns a FSR1 pointer to the SEQ_TRKLAST[AB]x depending on
+;;  This function returns a FSR1 pointer to the SEQ_TRKLASTx depending on
 ;;  SEQ_EVNTT.
 ;; --------------------------------------------------------------------------
-SEQ_FSR_TrkLastA
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLASTAx
-	rgoto	SEQ_FSR_TrkXXX
-SEQ_FSR_TrkLastB
-	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLASTBx
+SEQ_FSR_TrkLast
+	lfsr	FSR1, SEQ_TRK0 + SEQ_TRKLASTx
 	rgoto	SEQ_FSR_TrkXXX
 
 ;; --------------------------------------------------------------------------

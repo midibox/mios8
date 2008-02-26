@@ -270,14 +270,14 @@ SEQ_IO_TABLE_DIN
 	DIN_ENTRY	SEQ_BUTTON_Shift,	 2,	 6
 	DIN_ENTRY	SEQ_BUTTON_Alt,		 2,	 7
 
-	DIN_ENTRY	SEQ_BUTTON_Step0116,	 3,	 0
-	DIN_ENTRY	SEQ_BUTTON_Step1732,	 3,	 1
-	DIN_ENTRY	SEQ_BUTTON_Step3348,	 3,	 2
-	DIN_ENTRY	SEQ_BUTTON_Step4964,	 3,	 3
+	DIN_ENTRY	SEQ_BUTTON_SectionA,	 3,	 0
+	DIN_ENTRY	SEQ_BUTTON_SectionB,	 3,	 1
+	DIN_ENTRY	SEQ_BUTTON_SectionC,	 3,	 2
+	DIN_ENTRY	SEQ_BUTTON_SectionD,	 3,	 3
 
-	DIN_ENTRY	SEQ_BUTTON_SectionA,	 3,	 4
-	DIN_ENTRY	SEQ_BUTTON_SectionB,	 3,	 5
-	DIN_ENTRY	SEQ_BUTTON_AuxSel,	 3,	 6
+	DIN_ENTRY	SEQ_BUTTON_LayerGate,	 3,	 4
+	DIN_ENTRY	SEQ_BUTTON_LayerAux,	 3,	 5
+	DIN_ENTRY	SEQ_BUTTON_Live,	 3,	 6
 
 	DIN_ENTRY	SEQ_BUTTON_Edit,	 4,	 0
 	DIN_ENTRY	SEQ_BUTTON_Mute,	 4,	 1
@@ -308,14 +308,14 @@ SEQ_IO_TABLE_DIN
 ; ==========================================================================
 
 ;;                         SR    ignore    Pin
-LED_STEP01_16	EQU	((( 1   -1)<<3)+    0)
-LED_STEP17_32	EQU	((( 1   -1)<<3)+    1)
-LED_STEP33_48	EQU	((( 1   -1)<<3)+    2)
-LED_STEP49_64	EQU	((( 1   -1)<<3)+    3)
+LED_SECTION_A	EQU	((( 1   -1)<<3)+    0)
+LED_SECTION_B	EQU	((( 1   -1)<<3)+    1)
+LED_SECTION_C	EQU	((( 1   -1)<<3)+    2)
+LED_SECTION_D	EQU	((( 1   -1)<<3)+    3)
 
 ;;                         SR    ignore    Pin
-LED_SECTION_A	EQU	((( 1   -1)<<3)+    4)
-LED_SECTION_B	EQU	((( 1   -1)<<3)+    5)
+LED_LAYER_GATE	EQU	((( 1   -1)<<3)+    4)
+LED_LAYER_AUX	EQU	((( 1   -1)<<3)+    5)
 LED_LIVE	EQU	((( 1   -1)<<3)+    6)
 
 ;;                         SR    ignore    Pin

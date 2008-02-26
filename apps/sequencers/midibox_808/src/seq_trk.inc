@@ -55,13 +55,18 @@ SEQ_TRK_ReqTrigger
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called from SEQ_CORE_Clk and SEQ_MIDI_NoteOn to update all triggers
-;;  that have been requested at the same time moment
+;;  that have been requested at the same moment
 ;;  IN: trigger states in SEQ_DRUM_TRIGGERS[01]
 ;;  OUT: SEQ_DRUM_TRIGGERS[01] will be cleared during update
 ;; --------------------------------------------------------------------------
 SEQ_TRK_SetTriggers
 	SET_BSR	SEQ_BASE
 
+	;; interrupts must be disabled during DOUT update to ensure, that all triggers
+	;; are set during the same SRIO update cycle
+	movff	INTCON, PRODH		; store current interrupt status in PRODH
+	IRQ_DISABLE			; disable IRQs
+	
 	;; get offset to table
 	movlw	LOW(SEQ_TRK_INFO_TABLE)
 	addlw	SEQ_TRK_INFO_TABLE_OFFSET_SR
@@ -104,6 +109,9 @@ SEQ_TRK_SetTriggersLoop_Next
 	rgoto	SEQ_TRK_SetTriggersLoop
 
 SEQ_TRK_SetTriggersLoop_Break
+
+	movff	PRODH, INTCON		; restore interrupt status from PRODH
+
 	return	
 
 

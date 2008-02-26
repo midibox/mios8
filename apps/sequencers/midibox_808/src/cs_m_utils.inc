@@ -445,7 +445,7 @@ CS_M_UTILS_CopySteps
 	;; calculate pointer to trigger layer (take step view offset into account)
 	lfsr	FSR1, SEQ_TRG0
 	clrc
-	rlf	SEQ_SELECTED_STEPS, W, BANKED
+	rlf	SEQ_SELECTED_STEP_VIEW, W, BANKED
 	addwf	FSR1L, F
 
 	;; pointer to buffer -> FSR0
@@ -493,7 +493,7 @@ CS_M_UTILS_PasteSteps
 	;; calculate pointer to trigger layer (take step view offset into account)
 	lfsr	FSR1, SEQ_TRG0
 	clrc
-	rlf	SEQ_SELECTED_STEPS, W, BANKED
+	rlf	SEQ_SELECTED_STEP_VIEW, W, BANKED
 	addwf	FSR1L, F
 
 	;; pointer to buffer -> FSR0
@@ -535,7 +535,7 @@ CS_M_UTILS_ClearSteps
 	;; calculate pointer to trigger layer (take step view offset into account)
 	lfsr	FSR1, SEQ_TRG0
 	clrc
-	rlf	SEQ_SELECTED_STEPS, W, BANKED
+	rlf	SEQ_SELECTED_STEP_VIEW, W, BANKED
 	addwf	FSR1L, F
 
 	clrf	SEQ_EVNTT, BANKED	; loop over 16 tracks
@@ -847,36 +847,28 @@ CS_M_UTILS_RotateRight_OLoopN
 
 
 ;; --------------------------------------------------------------------------
-;;  Help function that returns step 0/32 (depending on selected step view)
+;;  Help function that returns last and end step depending on selected step view
 ;;  in MIOS_PARAMETER1, and the endpoint in MIOS_PARAMETER2
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_Hlp_GetStartEnd
 	SET_BSR	SEQ_BASE
 
-	;; branch depending on step view (lower/upper steps)
-	BRA_IFSET SEQ_SELECTED_STEPS, 1, BANKED, CS_M_UTILS_Hlp_GetStartEnd_B
-CS_M_UTILS_Hlp_GetStartEnd_A
-	call	SEQ_FSR_TrkLoopA
+	call	SEQ_FSR_TrkLoop
 	movff	INDF1, MIOS_PARAMETER1
-	call	SEQ_FSR_TrkLastA
+	call	SEQ_FSR_TrkLast
 	movff	INDF1, MIOS_PARAMETER2
-	rgoto	CS_M_UTILS_Hlp_GetStartEnd_Cont
 
-CS_M_UTILS_Hlp_GetStartEnd_B
-	call	SEQ_FSR_TrkLoopB
-	movff	INDF1, MIOS_PARAMETER1
-	call	SEQ_FSR_TrkLastB
-	movff	INDF1, MIOS_PARAMETER2
-	;; 	rgoto	CS_M_UTILS_Hlp_GetStartEnd_Cont
-CS_M_UTILS_Hlp_GetStartEnd_Cont
 	;; swap if end < start
 	movf	MIOS_PARAMETER1, W
 	cpfslt	MIOS_PARAMETER2
-	return
+	rgoto	CS_M_UTILS_Hlp_GetStartEnd_Cont
 
 	movff	MIOS_PARAMETER2, PRODL
 	movff	MIOS_PARAMETER1, MIOS_PARAMETER2
 	movff	PRODL, MIOS_PARAMETER1
+
+CS_M_UTILS_Hlp_GetStartEnd_Cont
+	;; TODO: branch depending on step view
 	return
 
 

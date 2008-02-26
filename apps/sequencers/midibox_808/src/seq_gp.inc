@@ -198,7 +198,7 @@ SEQ_GP_SRM_NormalCopy
 	call	CS_M_HLP_GetSelectedTrgLayerPtr	;  -> FSR1
 
 	;; add step offset
-	movf	SEQ_SELECTED_STEPS, W, BANKED
+	movf	SEQ_SELECTED_STEP_VIEW, W, BANKED
 	rlf	WREG, W
 	andlw	0x06
 	addwf	FSR1L, F

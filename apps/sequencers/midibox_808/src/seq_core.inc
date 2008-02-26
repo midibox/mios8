@@ -110,8 +110,8 @@ SEQ_CORE_Init
 	call	CS_M_HLP_SetSelectedTrk
 
 	;; select section A by default, assume that buttons deselected
-	movlw	(1 << 0) | 0x30
-	movwf	SEQ_SELECTED_AB, BANKED
+	movlw	(1 << 0) | 0xf0
+	movwf	SEQ_SELECTED_ABCD, BANKED
 
 	;; go into edit mode by default
 	movlw	(1 << SEQ_MODE0_STEP_EDIT)
@@ -1448,8 +1448,8 @@ SEQ_CORE_SetPos_Loop
 	rcall	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
 
 	;; TODO: handle TRKVARSTEPx correctly when in backward mode
-	rcall	SEQ_CORE_Hlp_GetLastAB
-	andlw	0x1f		; TODO: issue with determining the length when A+B is selected!
+	movlw	SEQ_TRKLASTx
+	movf	PLUSW0, W
 	movwf	TMP2
 
 	;; take tracklength into account! (new pos in TMP1)
@@ -1834,33 +1834,8 @@ SEQ_CORE_NextStep
 	clrf	TMP3
 SEQ_CORE_NextStep_Reverse_Cont
 
-	;; extra for MB808: AB section handling
-	;; if A+B selected: no special handling
-	;; if A selected: switch immediately to A section if current step is located in B section
-	;; if B selected: switch immediately to B section if current step is located in A section
-	movf	SEQ_SELECTED_AB, W
-	andlw	0x03
-	addlw	-1
-	bz	SEQ_CORE_NextStep_SectionA
-	addlw	-1
-	bz	SEQ_CORE_NextStep_SectionB
-	rgoto	SEQ_CORE_NextStep_Section_Cont
-SEQ_CORE_NextStep_SectionA
-	movlw	SEQ_TRKVARSTEPx
-	bcf	PLUSW2, 5	; select step 0..31
-	movlw	SEQ_TRKVARSTEPSAVEDx
-	bcf	PLUSW2, 5	; select step 0..31
-	rgoto	SEQ_CORE_NextStep_Section_Cont
-	
-SEQ_CORE_NextStep_SectionB
-	movlw	SEQ_TRKVARSTEPx
-	bsf	PLUSW2, 5	; select step 32..63
-	movlw	SEQ_TRKVARSTEPSAVEDx
-	bsf	PLUSW2, 5	; select step 32..63
-	;; 	rgoto	SEQ_CORE_NextStep_Section_Cont
-
-SEQ_CORE_NextStep_Section_Cont
-
+	;; fix steps for the case that a new section has been selected
+	rcall	SEQ_CORE_FixABCD
 
 	;; notify that a step should be played
 	movlw	SEQ_TRKVARSTATEx
@@ -1973,9 +1948,11 @@ SEQ_CORE_NextStep_BckReverse
 
 	;; jump to first (loop) step if last step has been reached
 	movlw	SEQ_TRKVARSTEPx
-	movff	PLUSW2, TMP1
-	rcall	SEQ_CORE_Hlp_GetLastAB
-	andlw	0x3f
+	movf	PLUSW2, W
+	andlw	0x0f
+	movwf	TMP1
+	movlw	SEQ_TRKLASTx
+	movf	PLUSW0, W
 	cpfslt	TMP1, ACCESS
 	rgoto	SEQ_CORE_NextStep_FwdR
 	movwf	TMP2		; store last step in TMP2 for PingPong comparison
@@ -1986,6 +1963,7 @@ SEQ_CORE_NextStep_BckReverse
 
 	;; in pingpong mode: turn direction if last step has been reached after this increment
 	movf	PLUSW2, W	; current step
+	andlw	0x0f
 	xorwf	TMP2, W		; last step
 	bnz	SEQ_CORE_NextStep_Fwd_NoPPT
 
@@ -2000,17 +1978,66 @@ SEQ_CORE_NextStep_Fwd_NoPP
 	;; reset to first loop step
 SEQ_CORE_NextStep_FwdR
 	;; in pendulum mode: switch to backward direction
-	BRA_IFCLR TMP3, SEQ_CORE_NEXTSTEP_TMP3_PENDULUM, ACCESS, SEQ_CORE_NextStep_Fwd_NoPen
-SEQ_CORE_NextStep_Fwd_Pen
+	BRA_IFCLR TMP3, SEQ_CORE_NEXTSTEP_TMP3_PENDULUM, ACCESS, SEQ_CORE_NextStep_FwdR_NoPen
+SEQ_CORE_NextStep_FwdR_Pen
 	movlw	SEQ_TRKVARSTATEx
 	bsf	PLUSW2, SEQ_TRKVARSTATE_BACKWARD
 	rgoto	SEQ_CORE_NextStep_Cont
 
-SEQ_CORE_NextStep_Fwd_NoPen
-	;; set first step
-	rcall	SEQ_CORE_Hlp_GetLoopAB
-	andlw	0x3f
+SEQ_CORE_NextStep_FwdR_NoPen
+	;; branch depending on track length
+	movlw	SEQ_TRKLASTx
+	incf	PLUSW0, W
+	BRA_IFSET WREG, 6, ACCESS, SEQ_CORE_NextStep_FwdR_64
+	BRA_IFSET WREG, 5, ACCESS, SEQ_CORE_NextStep_FwdR_32
+
+SEQ_CORE_NextStep_FwdR_16
+	;; set first step + 16 (for correct step section fixing - will be done below)
+	movlw	SEQ_TRKVARSTEPx
+	movf	PLUSW2, W
+	addlw	0x10
+	andlw	0x30
 	movwf	PRODL
+	movlw	SEQ_TRKLOOPx
+	movf	PLUSW0, W
+	andlw	0x0f
+	iorwf	PRODL, F
+
+	;; position reset: ensure that we are starting at section A
+	movlw	SEQ_TRKVARSTATEx
+	btfsc	PLUSW2, SEQ_TRKVARSTATE_POS_RESET
+	bcf	PRODL, 4
+	btfsc	PLUSW2, SEQ_TRKVARSTATE_POS_RESET
+	bcf	PRODL, 5
+	rgoto	SEQ_CORE_NextStep_FwdR_Cont
+
+
+SEQ_CORE_NextStep_FwdR_32
+	;; set first step + 32 (for correct step section fixing - will be done below)
+	movlw	SEQ_TRKVARSTEPx
+	movf	PLUSW2, W
+	addlw	0x20
+	andlw	0x30
+	movwf	PRODL
+	movlw	SEQ_TRKLOOPx
+	movf	PLUSW0, W
+	andlw	0x1f
+	iorwf	PRODL, F
+
+	;; position reset: ensure that we are starting at section AB or CD
+	movlw	SEQ_TRKVARSTATEx
+	btfsc	PLUSW2, SEQ_TRKVARSTATE_POS_RESET
+	bcf	PRODL, 4
+	rgoto	SEQ_CORE_NextStep_FwdR_Cont
+
+
+SEQ_CORE_NextStep_FwdR_64
+	;; set first step
+	movlw	SEQ_TRKLOOPx
+	movff	PLUSW0, PRODL
+	;; 	rgoto	SEQ_CORE_NextStep_FwdR_Cont
+
+SEQ_CORE_NextStep_FwdR_Cont
 	movlw	SEQ_TRKVARSTEPx
 	movff	PRODL, PLUSW2
 	rgoto	SEQ_CORE_NextStep_Cont
@@ -2031,14 +2058,11 @@ SEQ_CORE_NextStep_FwdReverse
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_POS_RESET, ACCESS, SEQ_CORE_NextStep_BckR
 
 	;; jump to last step if first loop step has been reached
-	movlw	SEQ_TRKLOOPAx		; loop point of A section
-	btfsc	SEQ_SELECTED_AB, 1, BANKED
-	movlw	SEQ_TRKLOOPBx		; loop point of B section
-	movf	PLUSW0, W
-	andlw	0x3f
-	movwf	PRODL
+	movlw	SEQ_TRKLOOPx
+	movff	PLUSW0, PRODL
 	movlw	SEQ_TRKVARSTEPx
 	movf	PLUSW2, W
+	andlw	0x0f
 	xorwf	PRODL, W
 	bz	SEQ_CORE_NextStep_BckR
 
@@ -2049,6 +2073,7 @@ SEQ_CORE_NextStep_FwdReverse
 	;; in pingpong mode: turn direction if first loop step has been reached after this decrement
 	movlw	SEQ_TRKVARSTEPx
 	movf	PLUSW2, W
+	andlw	0x0f
 	xorwf	PRODL, W
 	bnz	SEQ_CORE_NextStep_Bck_NoPPT
 	BRA_IFCLR TMP3, SEQ_CORE_NEXTSTEP_TMP3_PINGPONG, ACCESS, SEQ_CORE_NextStep_Bck_NoPP
@@ -2062,19 +2087,65 @@ SEQ_CORE_NextStep_Bck_NoPP
 	;; reset to last step
 SEQ_CORE_NextStep_BckR
 	;; in pendulum mode: switch to forward direction
-	BRA_IFCLR TMP3, SEQ_CORE_NEXTSTEP_TMP3_PENDULUM, ACCESS, SEQ_CORE_NextStep_Bck_NoPen
-SEQ_CORE_NextStep_Bck_Pen
+	BRA_IFCLR TMP3, SEQ_CORE_NEXTSTEP_TMP3_PENDULUM, ACCESS, SEQ_CORE_NextStep_BckR_NoPen
+SEQ_CORE_NextStep_BckR_Pen
 	movlw	SEQ_TRKVARSTATEx
 	bcf	PLUSW2, SEQ_TRKVARSTATE_BACKWARD
 	rgoto	SEQ_CORE_NextStep_Cont
-SEQ_CORE_NextStep_Bck_NoPen
-	;; set last step (depending on track length)
-	rcall	SEQ_CORE_Hlp_GetLastAB
-	andlw	0x3f
+SEQ_CORE_NextStep_BckR_NoPen
+	;; branch depending on track length
+	movlw	SEQ_TRKLASTx
+	incf	PLUSW0, W
+	BRA_IFSET WREG, 6, ACCESS, SEQ_CORE_NextStep_BckR_64
+	BRA_IFSET WREG, 5, ACCESS, SEQ_CORE_NextStep_BckR_32
+
+SEQ_CORE_NextStep_BckR_16
+	;; set last step - 16 (for correct step section fixing - will be done below)
+	movlw	SEQ_TRKVARSTEPx
+	movf	PLUSW2, W
+	addlw	-0x10
+	andlw	0x30
 	movwf	PRODL
+	movlw	SEQ_TRKLASTx
+	movf	PLUSW0, W
+	andlw	0x0f
+	iorwf	PRODL, F
+
+	;; position reset: ensure that we are starting at section D
+	movlw	SEQ_TRKVARSTATEx
+	btfsc	PLUSW2, SEQ_TRKVARSTATE_POS_RESET
+	bsf	PRODL, 4
+	btfsc	PLUSW2, SEQ_TRKVARSTATE_POS_RESET
+	bsf	PRODL, 5
+	rgoto	SEQ_CORE_NextStep_BckR_Cont
+
+SEQ_CORE_NextStep_BckR_32
+	;; set last step - 32 (for correct step section fixing - will be done below)
+	movlw	SEQ_TRKVARSTEPx
+	movf	PLUSW2, W
+	addlw	-0x20
+	andlw	0x30
+	movwf	PRODL
+	movlw	SEQ_TRKLASTx
+	movf	PLUSW0, W
+	andlw	0x1f
+	iorwf	PRODL, F
+
+	;; position reset: ensure that we are starting at section B or D
+	movlw	SEQ_TRKVARSTATEx
+	btfsc	PLUSW2, SEQ_TRKVARSTATE_POS_RESET
+	bsf	PRODL, 4
+	rgoto	SEQ_CORE_NextStep_BckR_Cont
+
+SEQ_CORE_NextStep_BckR_64
+	;; set last step
+	movlw	SEQ_TRKLASTx
+	movff	PLUSW0, PRODL
+	;; 	rgoto	SEQ_CORE_NextStep_BckR_Cont
+
+SEQ_CORE_NextStep_BckR_Cont
 	movlw	SEQ_TRKVARSTEPx
 	movff	PRODL, PLUSW2
-
 	rgoto	SEQ_CORE_NextStep_Cont
 SEQ_CORE_NextStep_BckP
 
@@ -2113,15 +2184,10 @@ SEQ_CORE_NextStep_RD
 	;; ---[ Random Step ]------------------------------------------------
 SEQ_CORE_NextStep_RS
 	;; iterate until new random step within given track range (from loop to length) has been found
-	movlw	SEQ_TRKLOOPAx		; loop point of A section
-	btfsc	SEQ_SELECTED_AB, 1, BANKED
-	movlw	SEQ_TRKLOOPBx		; loop point of B section
-	movf	PLUSW0, W
-	andlw	0x3f
-	movwf	TMP1
-	rcall	SEQ_CORE_Hlp_GetLastAB
-	andlw	0x3f
-	movwf	TMP2
+	movlw	SEQ_TRKLOOPx
+	movff	PLUSW0, TMP1
+	movlw	SEQ_TRKLASTx
+	movff	PLUSW0, TMP2
 
 	;; no special measure of TMP1 == TMP2
 	movwf	PRODL
@@ -2190,7 +2256,10 @@ SEQ_CORE_NextStep_Save
 SEQ_CORE_NextStep_NoSave
 
 SEQ_CORE_NextStep_End
-	return
+
+	;; fix steps again if we got an overrun
+	;; and exit
+	rgoto	SEQ_CORE_FixABCD
 
 
 ;; --------------------------------------------------------------------------
@@ -2238,9 +2307,8 @@ SEQ_CORE_ResetTrkPos_B
 
 	;; determine track position and copy it to SEQ_TRKVARSTEPx
 	;; it's located in SEQ_TRKLAST[AB]x[5..0] (last step)
-	rcall	SEQ_CORE_Hlp_GetLastAB
-	andlw	0x3f
-	movwf	PRODL
+	movlw	SEQ_TRKLASTx
+	movff	PLUSW0, PRODL
 	movlw	SEQ_TRKVARSTEPx
 	movff	PRODL, PLUSW2
 	rgoto	SEQ_CORE_ResetTrkPos_B_Cont
@@ -2266,66 +2334,102 @@ SEQ_CORE_ResetTrkPos_B_Cont
 
 
 ;; --------------------------------------------------------------------------
-;;  This function returns the last step of a track depending on A/B selection:
-;;  A selected -> return content of TRKLASTAx
-;;  B selected -> return content of TRKLASTBx
-;;  A+B selected -> return content of TRKLASTBx (end is at section B)
+;;  This function fixes the section in which the track is currently played
+;;  depending on selected section
 ;;  IN: pointer to SEQ_TRKx in FSR0
-;;  OUT: loop step
+;;      pointer to SEQ_TRKVARx in FSR2
 ;; --------------------------------------------------------------------------
-SEQ_CORE_Hlp_GetLastAB
-	SET_BSR	SEQ_BASE
-
-	movf	SEQ_SELECTED_AB, W, BANKED
-	skpnz
-	movlw	0x01		; (invalid selection...)
+SEQ_CORE_FixABCD
+	;; if currently played section doesn't match with selected section, fix track position
+	movlw	SEQ_TRKVARSTEPx	; section located in bit [5:4]
+	swapf	PLUSW2, W
 	andlw	0x03
-	addlw	-1
-	bz	SEQ_CORE_Hlp_GetLastAB_A
-	addlw	-1
-	bz	SEQ_CORE_Hlp_GetLastAB_B
-	;; A+B - same as B
+	movwf	PRODL
 
-SEQ_CORE_Hlp_GetLastAB_B
-	movlw	SEQ_TRKLASTBx		; last step of B section
-	movf	PLUSW0, W
-	return
+	;; determine if section is enabled
+	call	MIOS_HLP_GetBitORMask
+	andwf	SEQ_SELECTED_ABCD, W, BANKED
+	andlw	0x0f
+	bnz	SEQ_CORE_FixABCD_End
 
-SEQ_CORE_Hlp_GetLastAB_A
-	movlw	SEQ_TRKLASTAx		; last step of A section
-	movf	PLUSW0, W
-	return
-
-
-;; --------------------------------------------------------------------------
-;;  This function returns the loop point of a track depending on A/B selection:
-;;  A selected -> return content of TRKLOOPAx
-;;  B selected -> return content of TRKLOOPBx
-;;  A+B selected -> return content of TRKLOOPAx (restart at section A)
-;;  IN: pointer to SEQ_TRKx in FSR0
-;;  OUT: loop step
-;; --------------------------------------------------------------------------
-SEQ_CORE_Hlp_GetLoopAB
-	SET_BSR	SEQ_BASE
-
-	movf	SEQ_SELECTED_AB, W, BANKED
+	;; ok, we need to fix the section
+	;; to avoid crashes: if no section is selected (unlikely), force section A
+	movf	SEQ_SELECTED_ABCD, W, BANKED
+	andlw	0x0f
+	movlw	0xf1
 	skpnz
-	movlw	0x01		; (invalid selection...)
+	movwf	SEQ_SELECTED_ABCD, BANKED
+
+	;; find out next valid section depending on forward/backward direction
+	;; and track length
+	movlw	SEQ_TRKLASTx
+	incf	PLUSW0, W
+	BRA_IFSET WREG, 6, ACCESS, SEQ_CORE_FixABCD_64
+	BRA_IFSET WREG, 5, ACCESS, SEQ_CORE_FixABCD_32
+
+SEQ_CORE_FixABCD_16
+	movlw	SEQ_TRKVARSTATEx
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_BACKWARD, ACCESS, SEQ_CORE_FixABCD_16_FindLoop_Bck
+
+SEQ_CORE_FixABCD_16_FindLoop_Fwd
+	incf	PRODL, W
 	andlw	0x03
-	addlw	-1
-	bz	SEQ_CORE_Hlp_GetLoopAB_A
-	addlw	-1
-	bz	SEQ_CORE_Hlp_GetLoopAB_B
-	;; A+B - same as A
+	movwf	PRODL
+	call	MIOS_HLP_GetBitORMask
+	andwf	SEQ_SELECTED_ABCD, W, BANKED
+	andlw	0x0f
+	bz	SEQ_CORE_FixABCD_16_FindLoop_Fwd
+	rgoto	SEQ_CORE_FixABCD_FindLoop_Cont
 
-SEQ_CORE_Hlp_GetLoopAB_A
-	movlw	SEQ_TRKLOOPAx		; loop point of A section
-	movf	PLUSW0, W
-	return
+SEQ_CORE_FixABCD_16_FindLoop_Bck
+	decf	PRODL, W
+	andlw	0x03
+	movwf	PRODL
+	call	MIOS_HLP_GetBitORMask
+	andwf	SEQ_SELECTED_ABCD, W, BANKED
+	andlw	0x0f
+	bz	SEQ_CORE_FixABCD_16_FindLoop_Bck
+	rgoto	SEQ_CORE_FixABCD_FindLoop_Cont
 
-SEQ_CORE_Hlp_GetLoopAB_B
-	movlw	SEQ_TRKLOOPBx		; loop point of A section
-	movf	PLUSW0, W
+
+SEQ_CORE_FixABCD_32
+	btg	PRODL, 1			; toggle between AB and CD
+
+	movf	SEQ_SELECTED_ABCD, W, BANKED	; check if section enabled
+	btfss	PRODL, 1
+	andlw	0x03
+	btfsc	PRODL, 1
+	andlw	0x0c
+	bnz	SEQ_CORE_FixABCD_FindLoop_Cont
+	btg	PRODL, 1			; if not: toggle back
+	rgoto	SEQ_CORE_FixABCD_FindLoop_Cont
+
+SEQ_CORE_FixABCD_64
+	;; nothing to do - we stay in current section
+	rgoto	SEQ_CORE_FixABCD_End
+
+
+SEQ_CORE_FixABCD_FindLoop_Cont
+	swapf	PRODL, F	; move [1:0] to [5:4]
+
+	;; new section in PRODL[5:4], copy it to bit [5:4] of current step
+	movlw	SEQ_TRKVARSTEPx
+	movf	PLUSW2, W
+	andlw	0x0f
+	iorwf	PRODL, W
+	movwf	PRODH
+	movlw	SEQ_TRKVARSTEPx
+	movff	PRODH, PLUSW2
+
+	movlw	SEQ_TRKVARSTEPSAVEDx
+	movf	PLUSW2, W
+	andlw	0x0f
+	iorwf	PRODL, W
+	movwf	PRODH
+	movlw	SEQ_TRKVARSTEPSAVEDx
+	movff	PRODH, PLUSW2
+
+SEQ_CORE_FixABCD_End
 	return
 
 

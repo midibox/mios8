@@ -283,8 +283,8 @@ SEQ_PATTERN_BANK	EQU	0x104	; selects pattern for SEQ_BANK* functions
 SEQ_SELECTED_TRK	EQU	0x10a	; UI: selected track (0-15)
 SEQ_SELECTED_TRKS_0	EQU	0x10b	; UI: selected tracks 0-7
 SEQ_SELECTED_TRKS_1	EQU	0x10c	; UI: selected tracks 8-15
-SEQ_SELECTED_AB		EQU	0x10d	; [0] A selected, [1] B selected, [4] copy of A button, [5] copy of B button (for multi-selection)
-SEQ_SELECTED_STEPS	EQU	0x10e	; UI: bit 0 selects between lower/upper steps, bit 1 between A and B
+SEQ_SELECTED_ABCD	EQU	0x10d	; [3:0] A/B/C/D selected, [7:4] copy of A/B/C/D button (for multi-selection)
+SEQ_SELECTED_STEP_VIEW	EQU	0x10e	; [1:0] if A/B/C/D view should be edited
 SEQ_CURRENT_STEP	EQU	0x10f	; the currently selected step (only one a time)
 SEQ_EVNTS		EQU	0x110	; selects the step which is used by seq_fsr.inc functions
 SEQ_EVNTT		EQU	0x111	; selects the track which is used by seq_core.inc and seq_fsr.inc functions
@@ -568,10 +568,8 @@ SEQ_TRKDIR2x		EQU	0x06	; track direction ([3:0] steps fwd, [7:4] jump back)
 SEQ_TRKDIVx		EQU     0x07	; clock divider
 SEQ_TRKGROOVEx		EQU     0x08	; groove mode and intensity
 SEQ_TRKASSGNx		EQU	0x09	; assignments of second trigger layer
-SEQ_TRKLOOPAx		EQU	0x0a	; loop point (for A section)
-SEQ_TRKLASTAx		EQU     0x0b	; track length (for A section)
-SEQ_TRKLOOPBx		EQU	0x0c	; reserved: loop point for B section
-SEQ_TRKLASTBx		EQU     0x0d	; reserved: track length for B section
+SEQ_TRKLOOPx		EQU	0x0a	; loop point
+SEQ_TRKLASTx		EQU     0x0b	; track length
 
 SEQ_TRKRECORD_LENGTH    EQU     0x10
 
