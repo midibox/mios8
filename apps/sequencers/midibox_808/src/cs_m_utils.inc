@@ -858,17 +858,43 @@ CS_M_UTILS_Hlp_GetStartEnd
 	call	SEQ_FSR_TrkLast
 	movff	INDF1, MIOS_PARAMETER2
 
+	;; add step offset depending on selected view
+	;; note that it also depends on the track length
+	incf	MIOS_PARAMETER2, W
+	BRA_IFSET WREG, 6, ACCESS, CS_M_UTILS_Hlp_GetStartEnd_64
+	BRA_IFSET WREG, 5, ACCESS, CS_M_UTILS_Hlp_GetStartEnd_32
+CS_M_UTILS_Hlp_GetStartEnd_16
+	movlw	0x0f
+	andwf	MIOS_PARAMETER1, F
+
+	swapf	SEQ_SELECTED_STEP_VIEW, W, BANKED
+	andlw	0x30
+	addwf	MIOS_PARAMETER1, F
+	addwf	MIOS_PARAMETER2, F
+	rgoto	CS_M_UTILS_Hlp_GetStartEnd_Cont
+
+CS_M_UTILS_Hlp_GetStartEnd_32
+	movlw	0x1f
+	andwf	MIOS_PARAMETER1, F
+
+	swapf	SEQ_SELECTED_STEP_VIEW, W, BANKED
+	andlw	0x20
+	addwf	MIOS_PARAMETER1, F
+	addwf	MIOS_PARAMETER2, F
+	rgoto	CS_M_UTILS_Hlp_GetStartEnd_Cont
+
+CS_M_UTILS_Hlp_GetStartEnd_64
+
+CS_M_UTILS_Hlp_GetStartEnd_Cont
 	;; swap if end < start
 	movf	MIOS_PARAMETER1, W
 	cpfslt	MIOS_PARAMETER2
-	rgoto	CS_M_UTILS_Hlp_GetStartEnd_Cont
+	return
 
 	movff	MIOS_PARAMETER2, PRODL
 	movff	MIOS_PARAMETER1, MIOS_PARAMETER2
 	movff	PRODL, MIOS_PARAMETER1
 
-CS_M_UTILS_Hlp_GetStartEnd_Cont
-	;; TODO: branch depending on step view
 	return
 
 
