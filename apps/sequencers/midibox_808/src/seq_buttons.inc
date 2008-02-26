@@ -874,7 +874,24 @@ SEQ_BUTTON_SectionD
 SEQ_BUTTON_Sectionx_Cont
 	movwf	MIOS_PARAMETER1
 
+	;; if shift button pressed: only change step view, don't change section selection
 	SET_BSR	SEQ_BASE
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Sectionx_NoShift
+SEQ_BUTTON_Sectionx_Shift
+	;; ignore if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; select new step view depending on last pressed button
+	movff	MIOS_PARAMETER1, SEQ_SELECTED_STEP_VIEW
+
+	;; request display reinitialization
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+
+	return
+
+
+SEQ_BUTTON_Sectionx_NoShift	
 
 	;; only save button state if button has been depressed and exit
 	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_SectionX_Hlp_Sav
