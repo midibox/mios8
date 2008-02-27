@@ -491,6 +491,7 @@ AIN_NotifyChange
 #endif
 #include "ain.inc"
 #include "math_div24_16.inc"
+#include "mios_bankstick_nb.inc"
 
 ;; ---[ Control surface functions ]---
 ;; ---[ NOTE: these are not the same files like used in MB64, MB64E, MBMF! ]---

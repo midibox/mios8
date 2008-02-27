@@ -270,17 +270,19 @@ CS_M_TRKRND_Gen_T_Loop_Chk
 	rgoto	CS_M_TRKRND_Gen_T_Loop_Set
 	clrf	MIOS_PARAMETER1	; clear trigger
 CS_M_TRKRND_Gen_T_Loop_Set
-	;; gate or aux?
-	call	CS_M_HLP_GetSelectedTrgLayer
-	bnz	CS_M_TRKRND_Gen_T_Loop_Set_Aux
+	;; gate layer selected?
+	BRA_IFCLR SEQ_SELECTED_LAYERS, 0, BANKED, CS_M_TRKRND_Gen_T_Loop_Set_NotG
 CS_M_TRKRND_Gen_T_Loop_Set_Gate
 	movf	MIOS_PARAMETER1, W
 	call	SEQ_TRG_GateSet
-	rgoto	CS_M_TRKRND_Gen_T_Loop_Next
+CS_M_TRKRND_Gen_T_Loop_Set_NotG
+
+	;; aux layer selected?
+	BRA_IFCLR SEQ_SELECTED_LAYERS, 1, BANKED, CS_M_TRKRND_Gen_T_Loop_Set_NotA
 CS_M_TRKRND_Gen_T_Loop_Set_Aux
 	movf	MIOS_PARAMETER1, W
 	call	SEQ_TRG_AuxSet
-	;; 	rgoto	CS_M_TRKRND_Gen_T_Loop_Next
+CS_M_TRKRND_Gen_T_Loop_Set_NotA
 
 CS_M_TRKRND_Gen_T_Loop_Next
 	incf	SEQ_EVNTS, F, BANKED

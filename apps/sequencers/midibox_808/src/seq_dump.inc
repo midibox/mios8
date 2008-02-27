@@ -28,8 +28,8 @@ SEQ_DUMP_RestoreAll
 ;;      target pattern in SEQ_SAVE_PATTERN/SEQ_SAVE_PATTERN_BANK
 ;; --------------------------------------------------------------------------
 SEQ_DUMP_StoreAll
- 	rcall	SEQ_DUMP_StoreTrks
-	rgoto	SEQ_DUMP_StoreGlobal
+	rcall	SEQ_DUMP_StoreGlobal
+ 	rgoto	SEQ_DUMP_StoreTrks
 
 ;; --------------------------------------------------------------------------
 ;;  This function restores the pattern from EEPROM/BankStick
@@ -65,8 +65,10 @@ SEQ_DUMP_RestoreTrksLoop
 ;;  IN: target pattern in SEQ_SAVE_PATTERN/SEQ_SAVE_PATTERN_BANK
 ;; --------------------------------------------------------------------------
 SEQ_DUMP_StoreTrks
+	bsf	LATD, 4
 	SET_BSR	SEQ_BASE
 
+#if 0
 	;; set pattern number and bank
 	movff	SEQ_SAVE_PATTERN, SEQ_PATTERN
 	movff	SEQ_SAVE_PATTERN_BANK, SEQ_PATTERN_BANK
@@ -82,6 +84,10 @@ SEQ_DUMP_StoreTrksLoop
 	movlw	0x00
 	addwfc	FSR1H, F
 	BRA_IFCLR EEADRH, 1, ACCESS, SEQ_DUMP_StoreTrksLoop
+#else
+	;; start non-blocking write operation
+	call	SEQ_BANK_WritePattern_NB
+#endif
 
 	return
 

@@ -158,6 +158,44 @@ SEQ_BANK_WritePage_End
 	return
 
 ;; --------------------------------------------------------------------------
+;;  Similar to SEQ_BANK_WritePage, but starts non-blocking write operation
+;;  if BankStick selected by SEQ_PATTERN
+;;  IN: -
+;;  OUT: -
+;; --------------------------------------------------------------------------
+SEQ_BANK_WritePattern_NB
+	;; always start at address 0x000, and select pattern base address
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
+	clrf	EEADR
+	clrf	EEADRH
+
+	;; store current pattern in SEQ_SAVE_*
+	movff	SEQ_PATTERN, SEQ_SAVE_PATTERN
+	movff	SEQ_PATTERN_BANK, SEQ_SAVE_PATTERN_BANK
+
+	;; clear store counter
+	SET_BSR	SEQ_BASE
+	clrf	SEQ_BANKSTICK_SAVE_CTR, BANKED
+
+	;; branch to internal bank if bankstick is not available or pattern is 0
+	rcall	SEQ_BANK_GetBankStickAvailable
+	bz	SEQ_BANK_WritePageInternal
+	SET_BSR	SEQ_BASE
+	movf	SEQ_PATTERN, W, BANKED
+	andlw	0x7f
+	bz	SEQ_BANK_WritePageInternal
+
+	;; increment store counter - first page will be programmed
+	SET_BSR	SEQ_BASE
+	incf	SEQ_BANKSTICK_SAVE_CTR, F, BANKED
+
+	rcall	SEQ_BANK_CalcAddress		; determine address
+ 	call	MIOS_BANKSTICK_WritePage_NB	; start write operation
+
+	SET_BSR	SEQ_BASE			; fix BSR after a MIOS routine has been called
+	return
+
+;; --------------------------------------------------------------------------
 ;;  Read data from EEPROM or BankStick
 ;;  IN: address offset in EEADR[H]
 ;;  OUT: result in WREG, increments address
@@ -235,6 +273,11 @@ SEQ_BANK_ReadPage_End
 ;; --------------------------------------------------------------------------
 SEQ_BANK_CheckStick
 	SET_BSR	SEQ_BASE
+
+	;; branch if save counter > 0
+	movf	SEQ_BANKSTICK_SAVE_CTR, W, BANKED
+	skpz
+	rgoto	SEQ_BANK_StoreStick
 
 	;; increment check counter, wrap at 8
 	incf	SEQ_BANKSTICK_CHK_CTR, W, BANKED
@@ -530,6 +573,64 @@ SEQ_BANK_FormatStickEraseLoop
 	;; reload bank
 	rgoto	SEQ_BANK_FormatStick_Reload
 
+
+;; --------------------------------------------------------------------------
+;;  Used for non-blocking store operations
+;; --------------------------------------------------------------------------
+SEQ_BANK_StoreStick
+	;; select BankStick for patterns
+	SET_BSR	SEQ_BASE
+	movf	SEQ_SAVE_PATTERN_BANK, W, BANKED
+	call	MIOS_BANKSTICK_CtrlSet
+
+	;; check if BankStick available again
+	call	MIOS_BANKSTICK_CheckAvail
+	bz	SEQ_BANK_StoreStick_End
+SEQ_BANK_StoreStick_Avail
+	bcf	LATD, 4
+	;; increment save counter
+	;; once it reaches 0x09, all pages have been saved
+	SET_BSR	SEQ_BASE
+	incf	SEQ_BANKSTICK_SAVE_CTR, F, BANKED
+	movf	SEQ_BANKSTICK_SAVE_CTR, W, BANKED
+	xorlw	0x09
+	bnz	SEQ_BANK_StoreStick_Avail_NextP
+SEQ_BANK_StoreStick_Avail_LastP
+	;; stop store operation
+	clrf	SEQ_BANKSTICK_SAVE_CTR, BANKED
+	rgoto	SEQ_BANK_StoreStick_End
+
+SEQ_BANK_StoreStick_Avail_NextP
+	;; select pattern and bank
+	movff	SEQ_SAVE_PATTERN, SEQ_PATTERN
+	movff	SEQ_SAVE_PATTERN_BANK, SEQ_PATTERN_BANK
+
+	;; select current address - we need to store 8 pages (512 bytes)
+	decf	SEQ_BANKSTICK_SAVE_CTR, W, BANKED
+	mullw	0x40
+	movff	PRODL, EEADR
+	movff	PRODH, EEADRH
+
+	;; select buffer address
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
+
+	;; select BankStick and set address
+	rcall	SEQ_BANK_CalcAddress
+ 	call	MIOS_BANKSTICK_WritePage_NB	; start write operation
+	bsf	LATD, 4
+
+	movlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x00
+	call	MIOS_MIDI_TxBufferPut
+	movff	SEQ_BANKSTICK_SAVE_CTR, WREG
+	call	MIOS_MIDI_TxBufferPut
+SEQ_BANK_StoreStick_End
+	return
 
 ;; --------------------------------------------------------------------------
 ;;  Loads preset into SEQ_PATCH_BUFFER

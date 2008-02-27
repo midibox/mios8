@@ -30,28 +30,15 @@ CS_M_HLP_ChangePage_New
 	movf	TMP1, W
 	goto	CS_MENU_ChangePage
 
-
-;; --------------------------------------------------------------------------
-;;  Help routine to return the number of the selected button trigger layer
-;; --------------------------------------------------------------------------
-CS_M_HLP_GetSelectedTrgLayer
-	SET_BSR	SEQ_BASE
-
-	movlw	0x01
-	btfss	SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED
-	movlw	0x00
-
-	andlw	0xff		; (fix ZERO flag)
-	return
-
 ;; --------------------------------------------------------------------------
 ;;  Help routine to return the pointer to selected trigger layer in FSR1
+;;  If multiple layers are selected, show gate layer
 ;; --------------------------------------------------------------------------
 CS_M_HLP_GetSelectedTrgLayerPtr
 	SET_BSR	SEQ_BASE
 
 	;; simple if only two layers provided...
-	BRA_IFSET SEQ_MODE2, SEQ_MODE2_AUX_SELECTED, BANKED, CS_M_HLP_GetSelectedTrgLayerPtrA
+	BRA_IFCLR SEQ_SELECTED_LAYERS, 0, BANKED, CS_M_HLP_GetSelectedTrgLayerPtrA
 CS_M_HLP_GetSelectedTrgLayerPtrG
 	goto	SEQ_FSR_TrgGate
 CS_M_HLP_GetSelectedTrgLayerPtrA

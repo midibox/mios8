@@ -92,7 +92,6 @@ SEQ_MODE2_FWD_HOLD		EQU	0	; FWD button hold
 SEQ_MODE2_REW_HOLD		EQU	1	; REW button hold
 SEQ_MODE2_LIVE_MODE		EQU	2	; if live play mode active
 SEQ_MODE2_LIVEPLAY		EQU	2	; currently assigned to loop button (therefore same flag): liveplay mode
-SEQ_MODE2_AUX_SELECTED		EQU	3	; if aux layer is selected
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by USER_Init to initialize the sequencer
@@ -112,6 +111,10 @@ SEQ_CORE_Init
 	;; select section A by default, assume that buttons deselected
 	movlw	(1 << 0) | 0xf0
 	movwf	SEQ_SELECTED_ABCD, BANKED
+
+	;; select gate layer by default, assume that buttons deselected
+	movlw	(1 << 0) | 0xf0
+	movwf	SEQ_SELECTED_LAYERS, BANKED
 
 	;; go into edit mode by default
 	movlw	(1 << SEQ_MODE0_STEP_EDIT)

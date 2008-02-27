@@ -54,47 +54,25 @@ CS_M_EDIT_GP_Callback_Loop
 	call	CS_M_HLP_ChkTrkSelected
 	bnz	CS_M_EDIT_GP_Callback_Loop_Next
 CS_M_EDIT_GP_Callback_Loop_All
+	;; gate layer selected?
+	BRA_IFCLR SEQ_SELECTED_LAYERS, 0, BANKED, CS_M_EDIT_GP_Callback_Loop_NotG
+CS_M_EDIT_GP_Callback_Loop_Gate
+	;; get pointer to gate layer
+	call	SEQ_FSR_TrgGate
 
-	;; get pointer to button trigger register depending on selected trigger layer
-	call	CS_M_HLP_GetSelectedTrgLayerPtr	;  -> FSR1
+	;; call help function which toggles the step
+	rcall	CS_M_EDIT_GP_Callback_Hlp_Stp
+CS_M_EDIT_GP_Callback_Loop_NotG
 
-	;; add step offset
-	rlf	SEQ_EVNTS, W, BANKED
-	swapf	WREG, W
-	andlw	0x07
-	addwf	FSR1L, F
+	;; aux layer selected?
+	BRA_IFCLR SEQ_SELECTED_LAYERS, 1, BANKED, CS_M_EDIT_GP_Callback_Loop_NotA
+CS_M_EDIT_GP_Callback_Loop_Aux
+	;; get pointer to aux layer
+	call	SEQ_FSR_TrgAux
 
-	;; if this is the first time: xor bit and remember state (so that all other tracks are changed to same state)
-	BRA_IFSET CS_STAT2, CS_STAT2_TRK_CHANGED, ACCESS, CS_M_EDIT_GP_Callback_Loop_NotFr
-CS_M_EDIT_GP_Callback_Loop_First
-	;; XOR
-	movf	TMP1, W
-	xorwf	INDF1, F
-
-	;; remember state
-	movf	INDF1, W
-	andwf	TMP1, W
-	bcf	TMP2, 0
-	skpz
-	bsf	TMP2, 0
-
-	;; notify that trigger has been toggled
-	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED
-
-	rgoto	CS_M_EDIT_GP_Callback_Loop_Next
-
-CS_M_EDIT_GP_Callback_Loop_NotFr
-	;; branch depending on 0/1 state of first modified step
-	BRA_IFSET TMP2, 0, ACCESS, CS_M_EDIT_GP_Callback_Loop_NFr1
-CS_M_EDIT_GP_Callback_Loop_NFr0
-	comf	TMP1, W
-	andwf	INDF1, F
-	rgoto	CS_M_EDIT_GP_Callback_Loop_Next
-
-CS_M_EDIT_GP_Callback_Loop_NFr1
-	movf	TMP1, W
-	iorwf	INDF1, F
-	;; 	rgoto	CS_M_EDIT_GP_Callback_Loop_Next
+	;; call help function which toggles the step
+	rcall	CS_M_EDIT_GP_Callback_Hlp_Stp
+CS_M_EDIT_GP_Callback_Loop_NotA
 
 CS_M_EDIT_GP_Callback_Loop_Next
 	incf	SEQ_EVNTT, F, BANKED
@@ -134,7 +112,49 @@ CS_M_EDIT_GP_Callback_SelNot1st
 	;; 	rgoto	CS_M_EDIT_GP_Callback_End
 	
 CS_M_EDIT_GP_Callback_End
-	;; 	rgoto	CS_M_EDIT_UpdateGPLEDs
+ 	rgoto	CS_M_EDIT_UpdateGPLEDs
+
+
+;; --------------------------------------------------------------------------
+;; used inside CS_M_EDIT_GP_Callback_Loop to toggle a step
+;; expecting base pointer to layer in FSR1, step in SEQ_EVNTS, step mask in TMP1
+CS_M_EDIT_GP_Callback_Hlp_Stp
+	;; add step offset
+	rlf	SEQ_EVNTS, W, BANKED
+	swapf	WREG, W
+	andlw	0x07
+	addwf	FSR1L, F
+
+	;; if this is the first time: xor bit and remember state (so that all other tracks are changed to same state)
+	BRA_IFSET CS_STAT2, CS_STAT2_TRK_CHANGED, ACCESS, CS_M_EDIT_GP_Callback_Hlp_StpNFr
+CS_M_EDIT_GP_Callback_Hlp_Stp_Fr
+	;; XOR
+	movf	TMP1, W
+	xorwf	INDF1, F
+
+	;; remember state
+	movf	INDF1, W
+	andwf	TMP1, W
+	bcf	TMP2, 0
+	skpz
+	bsf	TMP2, 0
+
+	;; notify that trigger has been toggled
+	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED
+
+CS_M_EDIT_GP_Callback_Hlp_StpNFr
+	;; branch depending on 0/1 state of first modified step
+	BRA_IFSET TMP2, 0, ACCESS, CS_M_EDIT_GP_Callback_Hlp_Stp_S1
+CS_M_EDIT_GP_Callback_Hlp_Stp_S0
+	comf	TMP1, W
+	andwf	INDF1, F
+	return
+
+CS_M_EDIT_GP_Callback_Hlp_Stp_S1
+	movf	TMP1, W
+	iorwf	INDF1, F
+	return
+
 
 ;; --------------------------------------------------------------------------
 CS_M_EDIT_UpdateGPLEDs
@@ -315,17 +335,28 @@ CS_M_EDIT_Tick_5
 	call	CS_M_HLP_GetSelectedTrk
 	movff	WREG, SEQ_EVNTT
 
-	;; trigger layer 0: always print gate
-	call	CS_M_HLP_GetSelectedTrgLayer
+	;; branch depending on selected layer(s)
+	SET_BSR	SEQ_BASE
+	decf	SEQ_SELECTED_LAYERS, W, BANKED
+	andlw	0x03
 	bz	CS_M_EDIT_Tick_5_Gate
+	addlw	-1
+	bz	CS_M_EDIT_Tick_5_Aux
+	rgoto	CS_M_EDIT_Tick_5_GateAux
+
+CS_M_EDIT_Tick_5_Gate
+	movlw	16			; will print "Gate "
+	call	SEQ_TRG_PrnType		; (5 characters)
+	rgoto	CS_M_EDIT_Tick_Cont
+
 CS_M_EDIT_Tick_5_Aux
 	call	SEQ_FSR_TrkAssgn	; get aux assignment
 	movf	INDF1, W		; print type
 	call	SEQ_TRG_PrnType		; (5 characters)
 	rgoto	CS_M_EDIT_Tick_Cont
 
-CS_M_EDIT_Tick_5_Gate
-	movlw	16			; will print "Gate "
+CS_M_EDIT_Tick_5_GateAux
+	movlw	17			; will print "G/Aux"
 	call	SEQ_TRG_PrnType		; (5 characters)
 	rgoto	CS_M_EDIT_Tick_Cont
 

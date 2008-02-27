@@ -45,11 +45,12 @@ SEQ_TRG_NAMES
 	db	"Spare " ; 15
 
 	db	"Gate "  ; 16
+	db	"G/Aux"  ; 17
 
 
 ;; --------------------------------------------------------------------------
 ;;  This function prints the trigger assignment type assigned to the auxiliary layer
-;;  IN: WREG: 0-16: trigger type (0-15: Aux name, 16: prints "Gate "
+;;  IN: WREG: 0-16: trigger type (0-15: Aux name, 16: prints "Gate ", 17: prints "G/Aux"
 ;;  OUT: 5 characters
 ;;  USES: BSR, TBLPTR[LH], TABLAT, PROD[LH]
 ;; --------------------------------------------------------------------------

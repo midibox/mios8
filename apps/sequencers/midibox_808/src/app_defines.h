@@ -98,7 +98,9 @@ MIDI_EVNT_PREV_INTERFACE EQU    0x018
 MIDI_RXTX_RX_CTR	EQU	0x019
 MIDI_RXTX_TX_CTR	EQU	0x01a
 
-;; free: 0x01b-0x01f
+;; free: 0x01b-0x01e
+
+MIOS_BANKSTICK_TMP	EQU	0x01f	; used in mios_bankstick_nb.inc
 
 ;; ==========================================================================
 ;;  Variables used by the control surface
@@ -280,11 +282,12 @@ SEQ_MIDI_SPLIT_NOTE	EQU	0x102	; split point for transpose/arpeggiator (used when
 SEQ_PATTERN		EQU	0x103	; selects pattern for SEQ_BANK* functions
 SEQ_PATTERN_BANK	EQU	0x104	; selects pattern for SEQ_BANK* functions
 	;; free: 0x104..0x109
-SEQ_SELECTED_TRK	EQU	0x10a	; UI: selected track (0-15)
-SEQ_SELECTED_TRKS_0	EQU	0x10b	; UI: selected tracks 0-7
-SEQ_SELECTED_TRKS_1	EQU	0x10c	; UI: selected tracks 8-15
-SEQ_SELECTED_ABCD	EQU	0x10d	; [3:0] A/B/C/D selected, [7:4] copy of A/B/C/D button (for multi-selection)
-SEQ_SELECTED_STEP_VIEW	EQU	0x10e	; [1:0] if A/B/C/D view should be edited
+SEQ_SELECTED_TRK	EQU	0x109	; UI: selected track (0-15)
+SEQ_SELECTED_TRKS_0	EQU	0x10a	; UI: selected tracks 0-7
+SEQ_SELECTED_TRKS_1	EQU	0x10b	; UI: selected tracks 8-15
+SEQ_SELECTED_ABCD	EQU	0x10c	; [3:0] A/B/C/D selected, [7:4] copy of A/B/C/D button (for multi-selection)
+SEQ_SELECTED_STEP_VIEW	EQU	0x10d	; [1:0] if A/B/C/D view should be edited
+SEQ_SELECTED_LAYERS	EQU	0x10e	; [0] gate layer selected, [1] aux layer selected, [5:4] copy of layer buttons (for multi-selection)
 SEQ_CURRENT_STEP	EQU	0x10f	; the currently selected step (only one a time)
 SEQ_EVNTS		EQU	0x110	; selects the step which is used by seq_fsr.inc functions
 SEQ_EVNTT		EQU	0x111	; selects the track which is used by seq_core.inc and seq_fsr.inc functions
@@ -345,30 +348,30 @@ SEQ_MIDIPOS_LSB		EQU	0x13e	; used by the SEQ_MIDI_ClkPosParser
 SEQ_MIDIPOS_MSB		EQU	0x13f	; used by the SEQ_MIDI_ClkPosParser
 
 SEQ_BANKSTICK_CHK_CTR	EQU	0x140	; used in "seq_bank.inc"
-SEQ_BANKSTICK_STATUS	EQU	0x141	; used in "seq_bank.inc" (each BankStick has an own available flag)
-SEQ_BANKSTICK_SIZE	EQU	0x142	; used in "seq_bank.inc" (each BankStick has a size flag - 0=32k, 1=64k)
-SEQ_BANKSTICK_DISABLED	EQU	0x143	; used in "seq_bank.inc" to disable Mixer-BankSticks (so that they won't be reformatted)
+SEQ_BANKSTICK_SAVE_CTR	EQU	0x141	; used in "seq_bank.inc" for non-blocking write operations
+SEQ_BANKSTICK_STATUS	EQU	0x142	; used in "seq_bank.inc" (each BankStick has an own available flag)
+SEQ_BANKSTICK_SIZE	EQU	0x143	; used in "seq_bank.inc" (each BankStick has a size flag - 0=32k, 1=64k)
+SEQ_BANKSTICK_DISABLED	EQU	0x144	; used in "seq_bank.inc" to disable Mixer-BankSticks (so that they won't be reformatted)
 
-SEQ_GP_LED_L		EQU	0x144	; status of the general purpose LEDs (left side)
-SEQ_GP_LED_R		EQU	0x145	; status of the general purpose LEDs (right side)
-SEQ_BLM_ROW_CTR	        EQU	0x146	; used by seq_leds.inc when DEFAULT_TRACK_LEDS_ENABLED set
-SEQ_BLM_COL_CTR		EQU	0x147	; used by "seq_button.inc"
+SEQ_GP_LED_L		EQU	0x145	; status of the general purpose LEDs (left side)
+SEQ_GP_LED_R		EQU	0x146	; status of the general purpose LEDs (right side)
+SEQ_BLM_ROW_CTR	        EQU	0x147	; used by seq_leds.inc when DEFAULT_TRACK_LEDS_ENABLED set
+SEQ_BLM_COL_CTR		EQU	0x148	; used by "seq_button.inc"
 
-SEQ_ENC_INC		EQU	0x148	; used by seq_enc.inc to save the incrementer
+SEQ_ENC_INC		EQU	0x149	; used by seq_enc.inc to save the incrementer
 
-SEQ_LCD_PREVIOUS_EVNTL	EQU	0x149	; used by SEQ_LCD_PrnPTypeVal_L for perfect length display
-SEQ_LCD_PREVIOUS_EVNTL_CTR EQU	0x14a
+SEQ_LCD_PREVIOUS_EVNTL	EQU	0x14a	; used by SEQ_LCD_PrnPTypeVal_L for perfect length display
+SEQ_LCD_PREVIOUS_EVNTL_CTR EQU	0x14b
 
-SEQ_SAVE_PATTERN	EQU	0x14b	; used by CS_M_SAVE* to store the save pattern
-SEQ_SAVE_PATTERN_BANK	EQU	0x14c	; used by CS_M_SAVE* to store the save pattern
+SEQ_SAVE_PATTERN	EQU	0x14c	; used by CS_M_SAVE* to store the save pattern
+SEQ_SAVE_PATTERN_BANK	EQU	0x14d	; used by CS_M_SAVE* to store the save pattern
 
-SEQ_PORTS_MUTED		EQU	0x14d	; used by seq_core.inc
+SEQ_PORTS_MUTED		EQU	0x14e	; used by seq_core.inc
 
-SEQ_REMOTE_CTR		EQU	0x14e	; used by "seq_remote.inc"
+SEQ_REMOTE_CTR		EQU	0x14f	; used by "seq_remote.inc"
 
-SEQ_RECORD_MODE		EQU	0x14f	; used by "cs_m_record.inc"
-SEQ_RECORD_STEP		EQU	0x150	; used by "cs_m_record.inc"
-	;; free: 0x151
+SEQ_RECORD_MODE		EQU	0x150	; used by "cs_m_record.inc"
+SEQ_RECORD_STEP		EQU	0x151	; used by "cs_m_record.inc"
 SEQ_RECORD_LENGTH_CTR   EQU     0x152   ; used by "cs_m_record.inc" and "seq_core.inc"
 
 SEQ_MORPH_CHANNEL	EQU	0x153	; used by "seq_midi.inc" and "cs_m_morph.inc"
