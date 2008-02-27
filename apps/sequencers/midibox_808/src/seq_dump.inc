@@ -65,7 +65,6 @@ SEQ_DUMP_RestoreTrksLoop
 ;;  IN: target pattern in SEQ_SAVE_PATTERN/SEQ_SAVE_PATTERN_BANK
 ;; --------------------------------------------------------------------------
 SEQ_DUMP_StoreTrks
-	bsf	LATD, 4
 	SET_BSR	SEQ_BASE
 
 #if 0

@@ -587,7 +587,6 @@ SEQ_BANK_StoreStick
 	call	MIOS_BANKSTICK_CheckAvail
 	bz	SEQ_BANK_StoreStick_End
 SEQ_BANK_StoreStick_Avail
-	bcf	LATD, 4
 	;; increment save counter
 	;; once it reaches 0x09, all pages have been saved
 	SET_BSR	SEQ_BASE
@@ -621,14 +620,6 @@ SEQ_BANK_StoreStick_Avail_NextP
 	;; select BankStick and set address
 	rcall	SEQ_BANK_CalcAddress
  	call	MIOS_BANKSTICK_WritePage_NB	; start write operation
-	bsf	LATD, 4
-
-	movlw	0xb0
-	call	MIOS_MIDI_TxBufferPut
-	movlw	0x00
-	call	MIOS_MIDI_TxBufferPut
-	movff	SEQ_BANKSTICK_SAVE_CTR, WREG
-	call	MIOS_MIDI_TxBufferPut
 SEQ_BANK_StoreStick_End
 	return
 
