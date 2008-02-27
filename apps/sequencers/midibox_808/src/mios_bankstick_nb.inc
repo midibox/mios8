@@ -1,4 +1,4 @@
-; $Id: mios_bankstick.inc 53 2008-01-30 22:52:41Z tk $
+; $Id$
 ;
 ; Experimental version of $MIOS_PATH/mios/mios_bankstick.inc, which allows
 ; non-blocking page writes into EEPROM
