@@ -19,15 +19,15 @@ CS_MENU_SPECIAL_CHARS
 	;; due to an imperfection in the MPASM we have
 	;; to write two bytes in every line :-(
 	;; char #0: left-arrow
-	db b'00000011', b'00000111'; 1st and 2nd line of special char
-	db b'00001111', b'00011111'; 3rd and 4th line of special char
-	db b'00011111', b'00001111'; 5th and 6th line of special char
-	db b'00000111', b'00000011'; 7th and 8th line of special char
+	db b'00000001', b'00000011'; 1st and 2nd line of special char
+	db b'00000111', b'00000011'; 3rd and 4th line of special char
+	db b'00000001', b'00000000'; 5th and 6th line of special char
+	db b'00000000', b'00000000'; 7th and 8th line of special char
 	;; char #1: right-arrow
-	db b'00011000', b'00011100'; 1st and 2nd line of special char
-	db b'00011110', b'00011111'; 3rd and 4th line of special char
-	db b'00011111', b'00011110'; 5th and 6th line of special char
-	db b'00011100', b'00011000'; 7th and 8th line of special char
+	db b'00000000', b'00000000'; 1st and 2nd line of special char
+	db b'00000000', b'00010000'; 3rd and 4th line of special char
+	db b'00011000', b'00011100'; 5th and 6th line of special char
+	db b'00011000', b'00010000'; 7th and 8th line of special char
 	;; char #2: inverted 1
 	db b'00011011', b'00010011'; 1st and 2nd line of special char
 	db b'00011011', b'00011011'; 3rd and 4th line of special char
@@ -54,7 +54,7 @@ CS_MENU_SPECIAL_CHARS
 	db b'00011111', b'00011111'; 5th and 6th line of special char
 	db b'00011111', b'00011111'; 7th and 8th line of special char
 	;; char #7: left/right arrow
-	db b'00000100', b'00000100'; line 1 / 2
-	db b'00001110', b'00011111'; line 3 / 4
-	db b'00011111', b'00001110'; line 5 / 6
-	db b'00000100', b'00000100'; line 7 / 8
+	db b'00000001', b'00000011'; line 1 / 2
+	db b'00000111', b'00010011'; line 3 / 4
+	db b'00011001', b'00011100'; line 5 / 6
+	db b'00011000', b'00010000'; line 7 / 8
