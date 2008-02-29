@@ -75,10 +75,6 @@ AOUT_Init
 	;; transfer inversion flags to AOUT_INVERTED
 	movff	MIOS_PARAMETER1, AOUT_INVERTED
 
-	;; call hardware specific initialisation
-	;; (function located in selected aout_*.inc)
-	rcall	AOUT_InitHW
-
 	;; set all voltages to 0V
 	clrf	MIOS_PARAMETER1	; using MIOS_PARAMETER1 as loop counter
 	lfsr	FSR1, AOUT_VALUES
@@ -88,12 +84,44 @@ AOUT_Init_Loop
 	incf	MIOS_PARAMETER1, F
 	BRA_IFCLR MIOS_PARAMETER1, 3, ACCESS, AOUT_Init_Loop	; loop 8 times
 
+	;; init hardware and request AOUT update
+	rcall	AOUT_ReInit
+
+	;; update channels and exit
+	rgoto	AOUT_Update
+
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: AOUT_ReInit
+;;  DESCRIPTION: This function re-initializes the AOUT module, and requests 
+;;  an refresh of all output channels according to the stored values in AOUT_VALUES
+;; 
+;;  The update will take place once AOUT_Update is called (e.g. from USER_Tick)
+;; 
+;;  Background info: the AOUT_Pin*Set functions only request an update if the
+;;  output value has been changed (comparison between new and previous value)
+;;  This improves performance a lot, especially when AOUT values are written
+;;  periodically from a timer interrupt (see MIDIbox SID and MIDIbox FM)
+;; 
+;;  However, sometimes it is useful to force a refresh, e.g. after a patch
+;;  change, to ensure that all AOUT channels are up-to-date, because it allows
+;;  to connect (or exchange) the AOUT module during runtime.
+;;  IN:   -
+;;  OUT:  -
+;;  USES: BSR
+;; --------------------------------------------------------------------------
+AOUT_ReInit
+	;; call hardware specific initialisation
+	;; (function located in selected aout_*.inc)
+	;; especially required for MBHP_AOUT_NG module to initialize TLV5630 registers
+	rcall	AOUT_InitHW
+
+
 	;; request update of all channels
 	SET_BSR	AOUT_UPDATE_REQ
 	setf	AOUT_UPDATE_REQ, BANKED
 
-	;; update channels and exit
-	rgoto	AOUT_Update
+	return
 
 
 ;; --------------------------------------------------------------------------
@@ -218,5 +246,7 @@ AOUT_Pin12bitSet
 ;;  USES: PROD[LH] and MIOS_PARAMETER[123] as temporary registers
 ;; --------------------------------------------------------------------------
 ;; (function located in selected aout_*.inc)
+
+
 
 
