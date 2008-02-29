@@ -14,6 +14,12 @@
 ;;  Called from USER_Tick to update the gates
 ;; --------------------------------------------------------------------------
 SID_GATES_Update
+	IRQ_DISABLE
+	call	AOUT_Update
+	IRQ_ENABLE
+
+	;; ---[ update gate pins ]---
+	call	SID_GATES_Update
 	;; do nothing if gate bits have not been changed
 	SET_BSR	GATES
 	movf	GATES, W, BANKED
