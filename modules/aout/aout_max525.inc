@@ -168,7 +168,7 @@ AOUT_Update_Hlp_NotInverted
 
 
 ;; --------------------------------------------------------------------------
-;;  Internal function to load a 16bit value into TLV5630
+;;  Internal function to load a 16bit value into MAX525
 ;;  IN: word in MIOS_PARAMETER[12]
 ;;  USES: MIOS_PARAMETER3 as temporary register
 ;; --------------------------------------------------------------------------

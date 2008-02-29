@@ -163,7 +163,7 @@ AOUT_Update_Hlp_8_8
 
 
 ;; --------------------------------------------------------------------------
-;;  Internal function to load a 16bit value into TLV5630
+;;  Internal function to load a 16bit value into two 74HC595
 ;;  IN: word in MIOS_PARAMETER[12]
 ;;  USES: MIOS_PARAMETER3 as temporary register
 ;; --------------------------------------------------------------------------
