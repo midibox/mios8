@@ -139,7 +139,7 @@ GATES_LAST		EQU	0x06d
 
 ;; for AOUT driver, located in $MIOS_PATH/modules/aout.inc
 AOUT_INVERTED		EQU	0x06e
-AOUT_UPDATE_REQ		EQU	0x06f  ; ..0x7f (8 * 16bit words)
+AOUT_UPDATE_REQ		EQU	0x06f
 AOUT_VALUES		EQU	0x070  ; ..0x7f (8 * 16bit words)
 
 ;; ==========================================================================
