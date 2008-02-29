@@ -107,13 +107,11 @@ USER_Init
 	bsf	DEFAULT_FILTER_TYPE_SWITCH_TRIS, DEFAULT_FILTER_TYPE_SWITCH_PIN
 #endif
 
-	;; initialize the AOUT module if enabled
-#if ENABLE_AOUT == 1
-	call	SID_AOUT_Init
-#endif
-#if ENABLE_AOUT == 2
-	call	SID_AOUT_LC_Init
-#endif
+	;; initialize the AOUT module
+	clrf	MIOS_PARAMETER1			; inversion flags (will be changed during runtime)
+	clrf	MIOS_PARAMETER2			; reserved for future extensions
+	clrf	MIOS_PARAMETER3			; reserved for future extensions
+	call	AOUT_Init
 
 	;; initialize the integrated MIDI merger
 	movlw	MIOS_MIDI_MERGER_DISABLED	; should be disabled for a synthesizer
@@ -133,6 +131,11 @@ USER_Init
 USER_Tick
 	;; ---[ check BankStick status ]---
 	call	SID_BANK_CheckStick
+
+	;; ---[ update AOUTs channels (if enabled) ]---
+	IRQ_DISABLE
+	call	AOUT_Update
+	IRQ_DISABLE
 
 	;; ---[ call SID shift register handler ]---
 	call	SID_SR_Handler
@@ -447,6 +450,22 @@ USER_AIN_NotifyChange
 #include "cs_menu_cc_table.inc"
 #endif
 
+;; ---[ modules from code library ]---
+; override default pin definitions of AOUT driver
+#define AOUT_LAT_CS	LATC	; The chip select pin CS#
+#define AOUT_TRIS_CS	TRISC	; is connected to Port C.3 
+#define AOUT_PIN_CS	3	; (CANNOT be shared with other outputs!)
+;
+#define AOUT_LAT_DIN	LATC	; The data input pin DIN
+#define AOUT_TRIS_DIN	TRISC	; is connected to Port C.1
+#define AOUT_PIN_DIN	1	; (can be shared with other outputs)
+;
+#define AOUT_LAT_SCLK	LATC	; The shift clock input pin SCLK
+#define AOUT_TRIS_SCLK	TRISC	; is connected to Port C.0
+#define AOUT_PIN_SCLK	0	; (can be shared with other outputs)
+; include AOUT driver (located in $MIOS_PATH/modules/aout/)
+#include <aout.inc>
+
 ;; ---[ reusable functions ]---
 #include "math_mul16_16.inc"
 #include "midi_rxtx.inc"
@@ -463,11 +482,6 @@ USER_AIN_NotifyChange
 #include "sid_wt.inc"
 #include "sid_midi.inc"
 #include "sid_sysex.inc"
-#if ENABLE_AOUT == 2
-#include "sid_aout_lc.inc"
-#else
-#include "sid_aout.inc"
-#endif
 #include "sid_ccin.inc"
 #include "sid_ccout.inc"
 #include "sid_cc_table.inc"

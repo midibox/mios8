@@ -164,27 +164,20 @@ CS_MENU_WT_MODIFIED	EQU	0x066	; each parameter column has it's own flag
 MIDI_RXTX_RX_CTR	EQU	0x067
 MIDI_RXTX_TX_CTR	EQU	0x068
 
-	;; free: 0x69-0x6e
+;; ==========================================================================
+
+AOUT_FILTER_TMP_L	EQU	0x069	; used in sid_sw.inc as temporary storage for filter value
+AOUT_FILTER_TMP_H	EQU	0x06a
 
 ;; ==========================================================================
 
-AOUT_GATE		EQU	0x06f	; (4 gate bits, the upper 4 are used as shadow registers to determine changes)
-AOUT0_L			EQU	0x070	; 8 * 12 bit values, bit #15 is used internally as "changed" flag
-AOUT0_H			EQU	0x071
-AOUT1_L			EQU	0x072
-AOUT1_H			EQU	0x073
-AOUT2_L			EQU	0x074
-AOUT2_H			EQU	0x075
-AOUT3_L			EQU	0x076
-AOUT3_H			EQU	0x077
-AOUT4_L			EQU	0x078
-AOUT4_H			EQU	0x079
-AOUT5_L			EQU	0x07a
-AOUT5_H			EQU	0x07b
-AOUT6_L			EQU	0x07c
-AOUT6_H			EQU	0x07d
-AOUT7_L			EQU	0x07e
-AOUT7_H			EQU	0x07f
+	;; free: 0x6b-0x6d
+
+;; ==========================================================================
+
+AOUT_INVERTED		EQU	0x06e
+AOUT_UPDATE_REQ		EQU	0x06f
+AOUT_VALUES		EQU	0x070  ; ..0x07f (8 * 16bit words)
 
 ;; ==========================================================================
 	;; note: 0x080-0x0ff used by CS_SIDS1

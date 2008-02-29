@@ -341,11 +341,10 @@ SIDSW_Filter_TB303_Cont
 	;; result in IRQ_TMP[12]
 
 	;; direct forward to AOUT
-	;; TODO: implement a special AOUT matrix
-#if ENABLE_AOUT
+#if AOUT_INTERFACE_TYPE
 	;; (note: will be converted and interpolated below!!!)
-	movff	IRQ_TMP1, AOUT0_L
-	movff	IRQ_TMP2, AOUT0_H
+	movff	IRQ_TMP1, AOUT_FILTER_TMP_L
+	movff	IRQ_TMP2, AOUT_FILTER_TMP_H
 #endif
 
 	BRA_IFCLR SID_SE_OPTION, SE_OPTION_TB303, BANKED, SIDSW_Filter_ConvNotTB303
@@ -432,83 +431,74 @@ SIDSW_Filter_ConvTB303Cont
 	movff	IRQ_TMP2, SID_FC_H
 
 	;; special interpolation for AOUT filter value
-#if ENABLE_AOUT
-	movff	AOUT0_L, IRQ_TMP1
-	movff	AOUT0_H, IRQ_TMP2
+#if AOUT_INTERFACE_TYPE
+	movff	AOUT_FILTER_TMP_L, IRQ_TMP1
+	movff	AOUT_FILTER_TMP_H, IRQ_TMP2
 
 	lfsr	FSR2, FIP2_BASE
 	CALL_IFSET SID_SE_OPTION, SE_OPTION_FIP, BANKED, SIDSW_Hlp_IP
 
-	;; convert to 12bit
-	swapf	IRQ_TMP2, W
-	andlw	0x0f
-	movwf	AOUT0_H
-
-	swapf	IRQ_TMP2, W
-	andlw	0xf0
-	movwf	AOUT0_L
-	swapf	IRQ_TMP1, W
-	andlw	0x0f
-	iorwf	AOUT0_L, F
+	;; forward to AOUT channel #0
+	movff	IRQ_TMP1, MIOS_PARAMETER1
+	movff	IRQ_TMP2, MIOS_PARAMETER2
+	movlw	0
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 #endif
 
 
 SIDSW_Handler_End
 
 	;; TODO: implement a special AOUT matrix
-#if ENABLE_AOUT
-	SET_BSR	SID_BASE
-
+#if AOUT_INTERFACE_TYPE
 	;; AOUT1: resonance
+	SET_BSR	SID_BASE
 	movf	SID_RESONANCE_7BIT, W, BANKED
 	BRA_IFCLR SID_SE_OPTION, SE_OPTION_TB303, BANKED, SIDSW_Handler_Res_NoAcc
 	BRA_IFCLR SID_V1_BASE + SID_Vx_MODE, SID_MODE_ACCENT, BANKED, SIDSW_Handler_Res_NoAcc
 	addlw	0x40
 	btfsc	WREG, 7
-	movlw 0x7f
+	movlw	0x7f
 SIDSW_Handler_Res_NoAcc
 	mullw	32
-	movff	PRODL, AOUT1_L
-	movff	PRODH, AOUT1_H
+	movff	PRODL, MIOS_PARAMETER1
+	movff	PRODH, MIOS_PARAMETER2
+	movlw	1
+	call	AOUT_Pin16bitSet
 
 	;; AOUT2/3/4: PW OSC1/2/3
-	movff	SID_V1_PW_L, AOUT2_L
-	movff	SID_V1_PW_H, AOUT2_H
-	movff	SID_V2_PW_L, AOUT3_L
-	movff	SID_V2_PW_H, AOUT3_H
-	movff	SID_V3_PW_L, AOUT4_L
-	movff	SID_V3_PW_H, AOUT4_H
+	movff	SID_V1_PW_L, MIOS_PARAMETER1
+	movff	SID_V1_PW_H, MIOS_PARAMETER2
+	movlw	2
+	call	AOUT_Pin16bitSet
+
+	movff	SID_V2_PW_L, MIOS_PARAMETER1
+	movff	SID_V2_PW_H, MIOS_PARAMETER2
+	movlw	3
+	call	AOUT_Pin16bitSet
+
+	movff	SID_V3_PW_L, MIOS_PARAMETER1
+	movff	SID_V3_PW_H, MIOS_PARAMETER2
+	movlw	4
+	call	AOUT_Pin16bitSet
 
 	;; AOUT5/6/7: Pitch OSC1/2/3
-	swapf	SID_V1_FRQ_L, W, BANKED
-	andlw	0x0f
-	movwf	AOUT5_L
-	swapf	SID_V1_FRQ_H, W, BANKED
-	andlw	0xf0
-	iorwf	AOUT5_L
-	swapf	SID_V1_FRQ_H, W, BANKED
-	andlw	0x0f
-	movwf	AOUT5_H
+	movff	SID_V1_FRQ_L, MIOS_PARAMETER1
+	movff	SID_V1_FRQ_H, MIOS_PARAMETER2
+	movlw	5
+	call	AOUT_Pin16bitSet
 
-	swapf	SID_V2_FRQ_L, W, BANKED
-	andlw	0x0f
-	movwf	AOUT6_L
-	swapf	SID_V2_FRQ_H, W, BANKED
-	andlw	0xf0
-	iorwf	AOUT6_L, F
-	swapf	SID_V2_FRQ_H, W, BANKED
-	andlw	0x0f
-	movwf	AOUT6_H
+	movff	SID_V2_FRQ_L, MIOS_PARAMETER1
+	movff	SID_V2_FRQ_H, MIOS_PARAMETER2
+	movlw	6
+	call	AOUT_Pin16bitSet
 
-	swapf	SID_V3_FRQ_L, W, BANKED
-	andlw	0x0f
-	movwf	AOUT7_L
-	swapf	SID_V3_FRQ_H, W, BANKED
-	andlw	0xf0
-	iorwf	AOUT7_L, F
-	swapf	SID_V3_FRQ_H, W, BANKED
-	andlw	0x0f
-	movwf	AOUT7_H
+	movff	SID_V3_FRQ_L, MIOS_PARAMETER1
+	movff	SID_V3_FRQ_H, MIOS_PARAMETER2
+	movlw	7
+	call	AOUT_Pin16bitSet
+
+	SET_BSR	SID_BASE
 #endif
 
 	;; copy 7-bit value of resonance to SID register
@@ -714,7 +704,7 @@ SIDSW_Note_GateClrReq
 	bz	SIDSW_Note_NoFilterREnv
 	movf	SID_FILTER_ENVS, W, BANKED
 SIDSW_Note_NoFilterREnv
-#if ENABLE_AOUT
+#if AOUT_INTERFACE_TYPE
 	movlw	0x03
 #endif
 	movwf	IRQ_TMP1
@@ -786,7 +776,7 @@ SIDSW_Note_NoFilterLFO
 	bz	SIDSW_Note_NoFilterAEnv
 	movf	SID_FILTER_ENVS, W, BANKED
 SIDSW_Note_NoFilterAEnv
-#if ENABLE_AOUT
+#if AOUT_INTERFACE_TYPE
 	movlw	0x03
 #endif
 	movwf	IRQ_TMP1

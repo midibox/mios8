@@ -123,11 +123,22 @@
 #define DEFAULT_MIDI_RX_LED 0x41	; DOUT SR#8, pin D0
 #define DEFAULT_MIDI_TX_LED 0x42	; DOUT SR#8, pin D1
 
-	;; 0: no AOUT module
-	;; 1: enable access to the AOUT module via Port J6
-	;; 2: enable access to the AOUT_LC module via Port J6
-	;; (status: experimental)
-#define ENABLE_AOUT 0
+	;; define the AOUT interface which is used here:
+	;;   1: one MBHP_AOUT module
+	;;   2: up to 4 (chained) MBHP_AOUT_LC modules
+	;;   3: one MBHP_AOUT_NG module
+	;; all other values invalid!
+#define AOUT_INTERFACE_TYPE 3
+
+	;; only relevant if one or more AOUT_LC modules are used:
+	;; define the resolution configuration here
+	;;   0: first channel 12bit, second channel 4bit
+	;;   1: first channel 8bit, second channel 8bit
+	;; all other values invalid!
+#define AOUT_LC_RESOLUTION_OPTION_M1 0
+#define AOUT_LC_RESOLUTION_OPTION_M2 0
+#define AOUT_LC_RESOLUTION_OPTION_M3 0
+#define AOUT_LC_RESOLUTION_OPTION_M4 0
 
 	;; enable the 6th LFO waveform (analog inputs)
 #define ENABLE_AIN_LFO_WAVEFORM 0

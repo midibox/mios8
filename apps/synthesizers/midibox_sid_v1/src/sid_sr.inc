@@ -105,25 +105,6 @@ SID_SR_NoV3Sync
 
 	IRQ_ENABLE				; enable interrupts again
 
-#if ENABLE_AOUT
-	;; TODO: define a useful purpose of the gate pins
-	;; now just transfer the gate bit of OSC1 and OSC2
-	SET_BSR	SID_BASE
-	bcf	AOUT_GATE, 0
-	btfsc	SID_V1_CTRL, 0, BANKED
-	bsf	AOUT_GATE, 0
-
-	bcf	AOUT_GATE, 1
-	btfsc	SID_V2_CTRL, 0, BANKED
-	bsf	AOUT_GATE, 1
-
-#if ENABLE_AOUT == 2
-	call	SID_AOUT_LC_Update
-#else
-	call	SID_AOUT_Update
-#endif
-#endif
-
 	bcf	SID_STAT, SID_STAT_FORCE_REFRESH; clear refresh request (if it has been set before)
 
 	SET_BSR	SID_BASE
