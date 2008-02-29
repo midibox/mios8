@@ -229,14 +229,8 @@ USER_Tick
 	;; enable engine (only required after startup or after a SysEx/MBNet patch upload)
 	bcf	SID_STAT, SID_STAT_ENGINE_DISABLE_LEVEL0
 
-	;; ---[ update AOUTs channels (if enabled) ]---
-	IRQ_DISABLE
-	movff	SID_LOCAL_ENS+SID_ENSx_AOUT_INVERTED, AOUT_INVERTED
-	call	AOUT_Update
-	IRQ_DISABLE
-
-	;; ---[ update gate pins ]---
-	call	SID_GATES_Update
+	;; ---[ update AOUTs channels and gates ]---
+	call	SID_EXT_Update
 
 	;; if not in SIDPLAY mode:
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER, ACCESS, USER_Tick_SIDPlayEnabled
