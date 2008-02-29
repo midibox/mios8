@@ -36,7 +36,7 @@
 	;; 0: J5 has no function at all (analog inputs don't need to be connected to ground)
 	;; 1: J5 used for analog inputs - A0..A4 control Knob#1..#5, A5..A7 are not used at all
 	;; 2: J5 used as digital output (pins can be added in cs_menu_io_tables.inc as "shift register #0")
-	;; 3: J5 used as digital output for external switches (replacement for DEFAULT_EXT_SWITCH_DOUT, ENABLE_AOUT must be != 0)
+	;; 3: J5 used as digital output for external switches (replacement for DEFAULT_EXT_SWITCH_DOUT, AOUT_INTERFACE_TYPE must be != 0)
 #define DEFAULT_J5_FUNCTION	3
 
 	;; DOUT/DIN shift register matrix:
@@ -62,11 +62,24 @@
 	;; 0 disables the SRIO chain
 #define DEFAULT_SRIO_NUMBER		10
 
-	;; 0: no AOUT module
-	;; 1: enable access to the AOUT module via Port J6
-	;; 2: enable access to the AOUT_LC module via Port J6
-	;; 3: enable access to the AOUT_NG module via Port J6
-#define ENABLE_AOUT 3
+
+	;; define the AOUT interface which is used here:
+	;;   1: one MBHP_AOUT module
+	;;   2: up to 4 (chained) MBHP_AOUT_LC modules
+	;;   3: one MBHP_AOUT_NG module
+	;; all other values invalid!
+#define AOUT_INTERFACE_TYPE 3
+
+	;; only relevant if one or more AOUT_LC modules are used:
+	;; define the resolution configuration here
+	;;   0: first channel 12bit, second channel 4bit
+	;;   1: first channel 8bit, second channel 8bit
+	;; all other values invalid!
+#define AOUT_LC_RESOLUTION_OPTION_M1 0
+#define AOUT_LC_RESOLUTION_OPTION_M2 0
+#define AOUT_LC_RESOLUTION_OPTION_M3 0
+#define AOUT_LC_RESOLUTION_OPTION_M4 0
+
 
 	;; the 8 external switches can be routed to a DOUT shift register:
 	;; 0: not used

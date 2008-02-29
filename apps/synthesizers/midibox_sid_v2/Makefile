@@ -19,3 +19,6 @@ all: cleanall setup_6581.hex setup_8580.hex setup_tk.hex setup_mb6582.hex
 
 # include the asm_only.mk file
 include $(MIOS_PATH)/include/makefile/asm_only.mk
+
+# include AOUT driver
+include $(MIOS_PATH)/modules/aout/aout.mk

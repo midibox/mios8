@@ -1809,19 +1809,16 @@ SIDSE_Pitch_Key_AOUT
 	movf	TABLAT, W
 	bz	SIDSE_Pitch_Key_NoAOUT	; channel assignment disabled
 
-	;; copy key value to IRQ_TMP[12]
-	clrf	IRQ_TMP1
+	;; copy key value to MIOS_PARAMETER[12]
+	clrf	MIOS_PARAMETER1
 	clrc
 	rlf	SID_SE_TRANSPOSED_NOTE, W, BANKED
-	movwf	IRQ_TMP2
+	movwf	MIOS_PARAMETER2
 	
-	;; forward IRQ_TMP[12] to AOUTx_LH[TABLAT-1]
-	lfsr	FSR1, AOUT0_L
+	;; forward MIOS_PARAMETER[12] to channel #TABLAT-1
 	decf	TABLAT, W
-	rlf	WREG, W
-	andlw	0xfe
-	addwf	FSR1L, F
-	rcall	SIDSE_Hlp_EXT_AOUT_Transfer
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 
 	;; notify that channel has already been updated by K2A function
 	decf	TABLAT, W
@@ -1851,17 +1848,14 @@ SIDSE_Pitch_Osc_AOUT
 	movf	TABLAT, W
 	bz	SIDSE_Pitch_Osc_NoAOUT	; channel assignment disabled
 
-	;; copy oscillator frequency to IRQ_TMP[12]
-	movff	POSTINC2, IRQ_TMP1
-	movff	POSTDEC2, IRQ_TMP2
+	;; copy oscillator frequency to MIOS_PARAMETER[12]
+	movff	POSTINC2, MIOS_PARAMETER1
+	movff	POSTDEC2, MIOS_PARAMETER2
 
-	;; forward IRQ_TMP[12] to AOUTx_LH[TABLAT-1]
-	lfsr	FSR1, AOUT0_L
+	;; forward MIOS_PARAMETER[12] to channel #TABLAT-1
 	decf	TABLAT, W
-	rlf	WREG, W
-	andlw	0xfe
-	addwf	FSR1L, F
-	rcall	SIDSE_Hlp_EXT_AOUT_Transfer
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 
 	;; notify that channel has already been updated by O2A function
 	decf	TABLAT, W
@@ -1987,13 +1981,12 @@ SIDSE_PW_AOUT
 	movf	TABLAT, W
 	bz	SIDSE_PW_NoAOUT		; channel assignment disabled
 	
-	;; forward IRQ_TMP[12] to AOUTx_LH[TABLAT-1]
-	lfsr	FSR1, AOUT0_L
+	;; forward IRQ_TMP[12] to channel #TABLAT-1
+	movff	IRQ_TMP1, MIOS_PARAMETER1
+	movff	IRQ_TMP2, MIOS_PARAMETER2
 	decf	TABLAT, W
-	rlf	WREG, W
-	andlw	0xfe
-	addwf	FSR1L, F
-	rcall	SIDSE_Hlp_EXT_AOUT_Transfer
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 
 	;; notify that channel has already been updated by P2A function
 	decf	TABLAT, W
@@ -2176,10 +2169,14 @@ SIDSE_Filter_AOUT
 	bz	SIDSE_Filter_AOUT_NoCutOff
 #endif
 
-	lfsr	FSR1, AOUT0_L + 2*(DEFAULT_F2A_CUTOFF_L_AOUT-1)
+	;; forward IRQ_TMP[12] to channel predefined channel
+	movff	IRQ_TMP1, MIOS_PARAMETER1
+	movff	IRQ_TMP2, MIOS_PARAMETER2
+	movlw	DEFAULT_F2A_CUTOFF_L_AOUT-1
 	btfsc	SID_SE_ELEMENT_NUM, 0, BANKED
-	lfsr	FSR1, AOUT0_L + 2*(DEFAULT_F2A_CUTOFF_R_AOUT-1)
-	rcall	SIDSE_Hlp_EXT_AOUT_Transfer
+	movlw	DEFAULT_F2A_CUTOFF_R_AOUT-1
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 
 	;; notify that channel has already been updated by F2A function
 	;; (for faster handling, do this for all enabled channels each time this function is called)
@@ -2204,12 +2201,13 @@ SIDSE_Filter_AOUT_NoCutOff
 
 	;; resonance (8bit)
 	movlw	SID_Ix_L_Fx_RESONANCE
-	movff	PLUSW0, IRQ_TMP2
-	clrf	IRQ_TMP1
-	lfsr	FSR1, AOUT0_L + 2*(DEFAULT_F2A_RESONANCE_L_AOUT-1)
+	movff	PLUSW0, MIOS_PARAMETER2
+	clrf	MIOS_PARAMETER1
+	movlw	DEFAULT_F2A_RESONANCE_L_AOUT-1
 	btfsc	SID_SE_ELEMENT_NUM, 0, BANKED
-	lfsr	FSR1, AOUT0_L + 2*(DEFAULT_F2A_RESONANCE_R_AOUT-1)
-	rcall	SIDSE_Hlp_EXT_AOUT_Transfer
+	movlw	DEFAULT_F2A_RESONANCE_R_AOUT-1
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 
 	;; notify that channel has already been updated by F2A function
 	;; (for faster handling, do this for all enabled channels each time this function is called)
@@ -2308,10 +2306,13 @@ SIDSE_Filter_Vol_AOUT
 	bz	SIDSE_Filter_Vol_NoAOUT
 #endif
 
-	lfsr	FSR1, AOUT0_L + 2*(DEFAULT_V2A_VOLUME_L_AOUT-1)
+	movff	IRQ_TMP1, MIOS_PARAMETER1
+	movff	IRQ_TMP2, MIOS_PARAMETER2
+	movlw	DEFAULT_V2A_VOLUME_L_AOUT-1
 	btfsc	SID_SE_ELEMENT_NUM, 0, BANKED
-	lfsr	FSR1, AOUT0_L + 2*(DEFAULT_V2A_VOLUME_R_AOUT-1)
-	rcall	SIDSE_Hlp_EXT_AOUT_Transfer
+	movlw	DEFAULT_V2A_VOLUME_R_AOUT-1
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 
 	;; notify that channel has already been updated by V2A function
 	;; (for faster handling, do this for all enabled channels each time this function is called)
@@ -2332,7 +2333,6 @@ SIDSE_Filter_Vol_NoAOUT
 ;; This function handles the AOUTs
 ;; Used by Bassline/Drum and Multi Engine
 ;; IN: pointer to SID_Ix_EXT_PARx_L in FSR0 (patch record)
-;;     pointer to AOUTx_L in FSR1 (aout target)
 ;;     EXT number in SID_SE_ELEMENT_NUM
 ;; --------------------------------------------------------------------------
 SIDSE_BDM_EXT
@@ -2342,11 +2342,12 @@ SIDSE_BDM_EXT
 	andwf	SID_SE_EXT_ALLOCATED, W, BANKED
 	bnz	SIDSE_BDM_EXT_End
 
-	;; store 16bit offset in IRQ_TMP[12]
-	movff	POSTINC0, IRQ_TMP1
-	movff	POSTDEC0, IRQ_TMP2
-
-	call	SIDSE_Hlp_EXT_AOUT_Transfer
+	;; store 16bit offset in MIOS_PARAMETER[12]
+	movff	POSTINC0, MIOS_PARAMETER1
+	movff	POSTDEC0, MIOS_PARAMETER2
+	movf	SID_SE_ELEMENT_NUM, W, BANKED
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 
 SIDSE_BDM_EXT_End
 	return
@@ -2357,9 +2358,9 @@ SIDSE_BDM_EXT_End
 ;; IN: -
 ;; --------------------------------------------------------------------------
 SIDSE_EXT_Switches
-	lfsr	FSR1, AOUT_GATE			; for easier addressing
+	lfsr	FSR1, GATES			; for easier addressing
 
-	;; copy switch state from patch to AOUT_GATE
+	;; copy switch state from patch to GATES
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_CUSTOM_SW, INDF1
 
 	;; help macro to improve oversight
@@ -2663,46 +2664,6 @@ SIDSE_Hlp_ENV_GetBendedValueCont
 	movff	TABLAT, MIOS_PARAMETER1
 	tblrd*+
 	movff	TABLAT, MIOS_PARAMETER2
-	return
-
-
-
-;; --------------------------------------------------------------------------
-;;  FUNCTION: SIDSE_Hlp_EXT_AOUT_Transfer
-;;  DESCRIPTION: transfers 16bit value in IRQ_TMP[12] to EXT registers
-;;  IN: 16bit value in IRQ_TMP[12]
-;;      pointer to AOUTx_L in FSR1 (aout target)
-;; --------------------------------------------------------------------------
-SIDSE_Hlp_EXT_AOUT_Transfer
-	;; convert to 12bit -> PROD[LH]
-	swapf	IRQ_TMP2, W
-	andlw	0x0f
-	movwf	PRODH
-	swapf	IRQ_TMP2, W
-	andlw	0xf0
-	movwf	PRODL
-	swapf	IRQ_TMP1, W
-	andlw	0x0f
-	iorwf	PRODL, F
-
-	;; check if value has been changed
-	movf	PRODL, W
-	xorwf	INDF1, W
-	bnz	SIDSE_Hlp_EXT_AOUT_Transfer_Chng
-	movf	POSTINC1, W	; (increment)
-	movf	PRODH, W
-	xorwf	POSTDEC1, W
-	andlw	0x7f
-	bz	SIDSE_Hlp_EXT_AOUT_Transfer_End
-SIDSE_Hlp_EXT_AOUT_Transfer_Chng
-
-	;; transfer to AOUT
-	movff	PRODL, POSTINC1
-	movf	PRODH, W
-	andlw	0x7f
-	movwf	POSTDEC1
-
-SIDSE_Hlp_EXT_AOUT_Transfer_End
 	return
 
 

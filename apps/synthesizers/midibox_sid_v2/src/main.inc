@@ -189,16 +189,11 @@ USER_Init_NoCS
 	call	J5_DOUT_Init
 #endif
 
-	;; initialize the AOUT module if enabled
-#if ENABLE_AOUT == 1
-	call	SID_AOUT_Init
-#endif
-#if ENABLE_AOUT == 2
-	call	SID_AOUT_LC_Init
-#endif
-#if ENABLE_AOUT == 3
-	call	SID_AOUT_NG_Init
-#endif
+	;; initialize the AOUT module
+	clrf	MIOS_PARAMETER1			; inversion flags (will be changed during runtime)
+	clrf	MIOS_PARAMETER2			; reserved for future extensions
+	clrf	MIOS_PARAMETER3			; reserved for future extensions
+	call	AOUT_Init
 
 	;; initialize the integrated MIDI merger
 	movlw	MIOS_MIDI_MERGER_DISABLED	; should be disabled for a synthesizer
@@ -234,16 +229,14 @@ USER_Tick
 	;; enable engine (only required after startup or after a SysEx/MBNet patch upload)
 	bcf	SID_STAT, SID_STAT_ENGINE_DISABLE_LEVEL0
 
-	;; ---[ update AOUTs (if enabled) ]---
-#if ENABLE_AOUT == 1
-	call	SID_AOUT_Update
-#endif
-#if ENABLE_AOUT == 2
-	call	SID_AOUT_LC_Update
-#endif
-#if ENABLE_AOUT == 3
-	call	SID_AOUT_NG_Update
-#endif
+	;; ---[ update AOUTs channels (if enabled) ]---
+	IRQ_DISABLE
+	movff	SID_LOCAL_ENS+SID_ENSx_AOUT_INVERTED, AOUT_INVERTED
+	call	AOUT_Update
+	IRQ_DISABLE
+
+	;; ---[ update gate pins ]---
+	call	SID_GATES_Update
 
 	;; if not in SIDPLAY mode:
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER, ACCESS, USER_Tick_SIDPlayEnabled
@@ -699,6 +692,22 @@ AIN_NotifyChange_Loop_Next
 ;;  Application code (see comments in files)
 ;; ==========================================================================
 
+;; ---[ modules from code library ]---
+; override default pin definitions of AOUT driver
+#define AOUT_LAT_CS	LATC	; The chip select pin CS#
+#define AOUT_TRIS_CS	TRISC	; is connected to Port C.3 
+#define AOUT_PIN_CS	3	; (CANNOT be shared with other outputs!)
+;
+#define AOUT_LAT_DIN	LATC	; The data input pin DIN
+#define AOUT_TRIS_DIN	TRISC	; is connected to Port C.1
+#define AOUT_PIN_DIN	1	; (can be shared with other outputs)
+;
+#define AOUT_LAT_SCLK	LATC	; The shift clock input pin SCLK
+#define AOUT_TRIS_SCLK	TRISC	; is connected to Port C.0
+#define AOUT_PIN_SCLK	0	; (can be shared with other outputs)
+; include AOUT driver (located in $MIOS_PATH/modules/aout/)
+#include <aout.inc>
+
 ;; ---[ reusable functions ]---
 #include "math_mul16_16.inc"
 #include "math_div24_16.inc"
@@ -735,6 +744,7 @@ AIN_NotifyChange_Loop_Next
 #include "sid_ebank.inc"
 #include "sid_tune.inc"
 #include "sid_sr.inc"
+#include "sid_gates.inc"
 #include "sid_se.inc"
 #include "sid_se_l.inc"
 #include "sid_se_b.inc"
@@ -747,15 +757,6 @@ AIN_NotifyChange_Loop_Next
 #include "sid_midi_m.inc"
 #include "sid_sysex.inc"
 #include "sid_mbnet.inc"
-#if ENABLE_AOUT == 2
-#include "sid_aout_lc.inc"
-#else
-#if ENABLE_AOUT == 3
-#include "sid_aout_ng.inc"
-#else
-#include "sid_aout.inc"
-#endif
-#endif
 #include "sid_knob.inc"
 #include "sid_parin.inc"
 #include "sid_parout.inc"

@@ -160,17 +160,8 @@ SID_ENS_Init_Local_Loop2
 	cpfsgt	TABLAT, ACCESS
 	rgoto SID_ENS_Init_Local_Loop2
 
-	;; ensure that all AOUTs will be updated
-	lfsr	FSR1, AOUT0_H
-	movlw	8
-	movwf	TABLAT
-SID_ENS_Init_Local_Loop3
-	bcf	POSTINC1, 7	; request refresh of AOUT register
-	movf	POSTINC1, W	; (switch to next AOUTx_H)
-	decfsz	TABLAT, F
-	rgoto	SID_ENS_Init_Local_Loop3
-
-	return
+	;; re-initialize AOUT channels
+	goto	AOUT_ReInit
 
 
 ;; --------------------------------------------------------------------------

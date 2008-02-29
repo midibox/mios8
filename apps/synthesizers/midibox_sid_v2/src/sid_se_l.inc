@@ -206,23 +206,22 @@ SIDSE_L_Handler_Filter_NotR
 	;; ------------------------------------------------------------------
 	;; 2nd Cycle: AOUTs (External/Extensions)
 	;; ------------------------------------------------------------------
-SIDSE_L_HANDLER_EXT_MACRO MACRO patch_base, aout_base, mod_base
+SIDSE_L_HANDLER_EXT_MACRO MACRO patch_base, mod_base
 	lfsr	FSR0, patch_base
-	lfsr	FSR1, aout_base
 	lfsr	FSR2, mod_base
 	call	SIDSE_L_EXT
 	incf	SID_SE_ELEMENT_NUM, F, BANKED
 	ENDM
 
 	clrf	SID_SE_ELEMENT_NUM, BANKED
-	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR1_L, AOUT0_L, SID_MOD_TARG_EXT1_L
-	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR2_L, AOUT1_L, SID_MOD_TARG_EXT2_L
-	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR3_L, AOUT2_L, SID_MOD_TARG_EXT3_L
-	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR4_L, AOUT3_L, SID_MOD_TARG_EXT4_L
-	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR5_L, AOUT4_L, SID_MOD_TARG_EXT5_L
-	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR6_L, AOUT5_L, SID_MOD_TARG_EXT6_L
-	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR7_L, AOUT6_L, SID_MOD_TARG_EXT7_L
-	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR8_L, AOUT7_L, SID_MOD_TARG_EXT8_L
+	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR1_L, SID_MOD_TARG_EXT1_L
+	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR2_L, SID_MOD_TARG_EXT2_L
+	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR3_L, SID_MOD_TARG_EXT3_L
+	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR4_L, SID_MOD_TARG_EXT4_L
+	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR5_L, SID_MOD_TARG_EXT5_L
+	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR6_L, SID_MOD_TARG_EXT6_L
+	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR7_L, SID_MOD_TARG_EXT7_L
+	SIDSE_L_HANDLER_EXT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_EXT_PAR8_L, SID_MOD_TARG_EXT8_L
 
 
 	;; ------------------------------------------------------------------
@@ -254,17 +253,6 @@ SIDSE_L_Handler_End
 ;;  (temporary)
 ;; --------------------------------------------------------------------------
 SIDSE_L_UpdateStatRegs
-#if ENABLE_SWINSID
-	;; test for SwinSID phase modulation
-	SET_BSR	AOUT0_L
-	swapf	AOUT0_H, W, BANKED
-	andlw	0xf0
-	movwf	IRQ_TMP1
-	swapf	AOUT0_L, W, BANKED
-	andlw	0x0f
-	iorwf	IRQ_TMP1, F
-#endif
-
 SIDSE_UPDATESTAT_MACRO	MACRO p_base, sid_base, swinsid_mode, swinsid_phase
 	LOCAL	SIDSE_L_UpdateStatRegs_NoADSR
 
@@ -290,13 +278,8 @@ SIDSE_L_UpdateStatRegs_NoADSR
 #if ENABLE_SWINSID
 	movlw	SID_Ix_Vx_SWINSID_MODE
 	movff	PLUSW0, swinsid_mode
-#if 0
 	movlw	SID_Ix_Vx_SWINSID_PHASE
 	movff	PLUSW0, swinsid_phase
-#else
-	;; test for SwinSID phase modulation
-	movff	IRQ_TMP1, swinsid_phase
-#endif
 #endif
 	ENDM
 
@@ -665,16 +648,16 @@ SIDSE_L_EXT
 	andwf	SID_SE_EXT_ALLOCATED, W, BANKED
 	bnz	SIDSE_L_EXT_End
 
-	;; store 16bit offset in IRQ_TMP[12]
-	movff	POSTINC0, IRQ_TMP1
-	movff	POSTDEC0, IRQ_TMP2
+	;; store 16bit offset in MIOS_PARAMETER[12]
+	movff	POSTINC0, MIOS_PARAMETER1
+	movff	POSTDEC0, MIOS_PARAMETER2
 
 	;; pointer to SID_MOD_TARG_EXTx_L already in FSR2
 	;; add modulation value to offset
 	movf	POSTINC2, W
-	addwf	IRQ_TMP1, F
+	addwf	MIOS_PARAMETER1, F
 	movf	POSTINC2, W
-	addwfc	IRQ_TMP2, F
+	addwfc	MIOS_PARAMETER2, F
 
 	;; saturate
 	BRA_IFSET INDF2, 7, ACCESS, SIDSE_L_EXT_Mod_SatNeg
@@ -683,21 +666,23 @@ SIDSE_L_EXT_Mod_SatPos
 	bnz	SIDSE_L_EXT_Mod_SatPos_Sat
 	bnc	SIDSE_L_EXT_Mod_Sat_NoSat
 SIDSE_L_EXT_Mod_SatPos_Sat
-	setf	IRQ_TMP1
-	setf	IRQ_TMP2
+	setf	MIOS_PARAMETER1
+	setf	MIOS_PARAMETER2
 	rgoto	SIDSE_L_EXT_Mod_Sat_Cont
 SIDSE_L_EXT_Mod_SatNeg
 	comf	INDF2, W
 	bnz	SIDSE_L_EXT_Mod_SatNeg_Sat
 	bc	SIDSE_L_EXT_Mod_Sat_NoSat
 SIDSE_L_EXT_Mod_SatNeg_Sat
-	clrf	IRQ_TMP1
-	clrf	IRQ_TMP2
+	clrf	MIOS_PARAMETER1
+	clrf	MIOS_PARAMETER2
 	;; 	rgoto	SIDSE_L_EXT_Mod_Sat_Cont
 SIDSE_L_EXT_Mod_Sat_Cont
 SIDSE_L_EXT_Mod_Sat_NoSat
 
-	call	SIDSE_Hlp_EXT_AOUT_Transfer
+	movf	SID_SE_ELEMENT_NUM, W, BANKED
+	call	AOUT_Pin16bitSet
+	SET_BSR	SID_BASE
 
 SIDSE_L_EXT_End
 	return

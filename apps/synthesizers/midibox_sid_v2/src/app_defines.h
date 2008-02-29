@@ -775,40 +775,32 @@ FIPx_DIV_VALUE_H	EQU	0x05
 ;;  AIN registers
 ;;  (located in AIN RAM area - we have our own AIN handler)
 ;; ==========================================================================
-AIN_INPUT_CTR		EQU	0x3e3
-AIN_INPUT_CHANGED	EQU	0x3e4
-AIN_INPUT_CHANGED_TMP	EQU	0x3e5
-AIN_VALUE_0		EQU	0x3e6
-AIN_VALUE_1		EQU	0x3e7
-AIN_VALUE_2		EQU	0x3e8
-AIN_VALUE_3		EQU	0x3e9
-AIN_VALUE_4		EQU	0x3ea
-AIN_VALUE_5		EQU	0x3eb
-AIN_VALUE_6		EQU	0x3ec
-AIN_VALUE_7		EQU	0x3ed
+AIN_INPUT_CTR		EQU	0x3e0
+AIN_INPUT_CHANGED	EQU	0x3e1
+AIN_INPUT_CHANGED_TMP	EQU	0x3e2
+AIN_VALUE_0		EQU	0x3e3
+AIN_VALUE_1		EQU	0x3e4
+AIN_VALUE_2		EQU	0x3e5
+AIN_VALUE_3		EQU	0x3e6
+AIN_VALUE_4		EQU	0x3e7
+AIN_VALUE_5		EQU	0x3e8
+AIN_VALUE_6		EQU	0x3e9
+AIN_VALUE_7		EQU	0x3ea
 
 ;; ==========================================================================
-;;  AOUT registers
+;;  Gate registers
 ;;  (located in AIN RAM area - we have our own AIN handler)
 ;; ==========================================================================
-AOUT_GATE		EQU	0x3ee	; 8 gate bits
-AOUT_GATE_SHADOW	EQU	0x3ef	; shadow register - helps to determine changes
-AOUT0_L			EQU	0x3f0	; 8 * 12 bit values, bit #15 is used internally as "changed" flag
-AOUT0_H			EQU	0x3f1
-AOUT1_L			EQU	0x3f2
-AOUT1_H			EQU	0x3f3
-AOUT2_L			EQU	0x3f4
-AOUT2_H			EQU	0x3f5
-AOUT3_L			EQU	0x3f6
-AOUT3_H			EQU	0x3f7
-AOUT4_L			EQU	0x3f8
-AOUT4_H			EQU	0x3f9
-AOUT5_L			EQU	0x3fa
-AOUT5_H			EQU	0x3fb
-AOUT6_L			EQU	0x3fc
-AOUT6_H			EQU	0x3fd
-AOUT7_L			EQU	0x3fe
-AOUT7_H			EQU	0x3ff
+GATES			EQU	0x3eb
+GATES_LAST		EQU	0x3ec
+
+;; ==========================================================================
+;;  AOUT registers (used in $MIOS_PATH/modules/aout.inc)
+;;  (located in AIN RAM area - we have our own AIN handler)
+;; ==========================================================================
+AOUT_INVERTED		EQU	0x3ee
+AOUT_UPDATE_REQ		EQU	0x3ef
+AOUT_VALUES		EQU	0x3f0  ; ..0x37f (8 * 16bit words)
 
 ;; ==========================================================================
 ;;  Patch Record Structure
