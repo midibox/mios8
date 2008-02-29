@@ -71,16 +71,11 @@ USER_Init
 	movlw	0x00			; disable touch sensor
 	call	MIOS_SRIO_TS_SensitivitySet
 
-	;; initialize the AOUT module if enabled
-#if ENABLE_AOUT == 1
-	call	MBFM_AOUT_Init
-#endif
-#if ENABLE_AOUT == 2
-	call	MBFM_AOUT_LC_Init
-#endif
-#if ENABLE_AOUT == 3
-	call	MBFM_AOUT_NG_Init
-#endif
+	;; initialize the AOUT module
+	clrf	MIOS_PARAMETER1			; inversion flags (will be changed during runtime)
+	clrf	MIOS_PARAMETER2			; reserved for future extensions
+	clrf	MIOS_PARAMETER3			; reserved for future extensions
+	call	AOUT_Init
 
 	;; initialize the integrated MIDI merger
 	movlw	MIOS_MIDI_MERGER_DISABLED	; should be disabled for a synthesizer
@@ -122,17 +117,8 @@ USER_Tick
 	;; ---[ call the wavetable handler ]---
 	call	MBFM_WT_Handler
 
-	;; ---[ update AOUTs if enabled ]---
-#if ENABLE_AOUT == 1
+	;; ---[ update AOUTs channels (if enabled) ]---
 	call	MBFM_AOUT_Update
-#endif
-#if ENABLE_AOUT == 2
-	call	MBFM_AOUT_LC_Update
-#endif
-#if ENABLE_AOUT == 3
-	call	MBFM_AOUT_NG_Update
-#endif
-
 
 	;; ---[ for performance measuring ]---
 	call	MBFM_LOAD_IncLoadCtr
@@ -412,6 +398,22 @@ USER_AIN_NotifyChange
 #include "cs_menu_tables.inc"
 #endif
 
+;; ---[ modules from code library ]---
+; override default pin definitions of AOUT driver
+#define AOUT_LAT_CS	LATC	; The chip select pin CS#
+#define AOUT_TRIS_CS	TRISC	; is connected to Port C.3 
+#define AOUT_PIN_CS	3	; (CANNOT be shared with other outputs!)
+;
+#define AOUT_LAT_DIN	LATC	; The data input pin DIN
+#define AOUT_TRIS_DIN	TRISC	; is connected to Port C.1
+#define AOUT_PIN_DIN	1	; (can be shared with other outputs)
+;
+#define AOUT_LAT_SCLK	LATC	; The shift clock input pin SCLK
+#define AOUT_TRIS_SCLK	TRISC	; is connected to Port C.0
+#define AOUT_PIN_SCLK	0	; (can be shared with other outputs)
+; include AOUT driver (located in $MIOS_PATH/modules/aout/)
+#include <aout.inc>
+
 ;; ---[ reusable functions ]---
 #include "math_mul16_16.inc"
 #include "special_characters.inc"
@@ -421,6 +423,8 @@ USER_AIN_NotifyChange
 #include "mbfm_reg.inc"
 #include "mbfm_sysex.inc"
 #include "mbfm_midi.inc"
+#include "mbfm_aout.inc"
+#include "mbfm_gates.inc"
 #include "mbfm_se.inc"
 #include "mbfm_wt.inc"
 #include "mbfm_bank.inc"
@@ -428,17 +432,6 @@ USER_AIN_NotifyChange
 #include "mbfm_drum.inc"
 #include "mbfm_ens.inc"
 #include "mbfm_voice.inc"
-
-#if ENABLE_AOUT == 2
-#include "mbfm_aout_lc.inc"
-#else
-#if ENABLE_AOUT == 3
-#include "mbfm_aout_ng.inc"
-#else
-#include "mbfm_aout.inc"
-#endif
-#endif
-
 #include "mbfm_frq.inc"
 #include "mbfm_eg_table.inc"
 #include "mbfm_lfo_table.inc"

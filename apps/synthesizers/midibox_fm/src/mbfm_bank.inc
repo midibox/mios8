@@ -551,20 +551,16 @@ MBFM_BANK_StoreA
 	movlw	0x10		; stored from 0x10-0x1f
 	movwf	MIOS_PARAMETER1
 	clrf	MIOS_PARAMETER2
-	lfsr	FSR1, AOUT_BASE
+	lfsr	FSR1, MBFM_AOUT_BASE
 MBFM_BANK_StoreALoop
-	movlw	AOUTx_ASSIGN
-	movf	PLUSW1, W
+	movf	POSTINC1, W
 	call	MIOS_BANKSTICK_Write
-	movlw	AOUTx_OFFSET
-	movf	PLUSW1, W
+	movf	POSTINC1, W
 	call	MIOS_BANKSTICK_Write
 	
-	movlw	AOUT_RECORD_LEN
-	addwf	FSR1L, F
-	movlw	AOUT8_BASE + AOUT_RECORD_LEN - 1
-	cpfsgt	FSR1L, ACCESS
-	rgoto MBFM_BANK_StoreALoop
+	movf	MIOS_PARAMETER1, W	; loop 16 times
+	andlw	0x0f
+	bnz	MBFM_BANK_StoreALoop
 
 	return
 
@@ -583,22 +579,16 @@ MBFM_BANK_LoadA
 	movlw	0x10		; stored from 0x10-0x1f
 	movwf	MIOS_PARAMETER1
 	clrf	MIOS_PARAMETER2
-	lfsr	FSR1, AOUT_BASE
+	lfsr	FSR1, MBFM_AOUT_BASE
 MBFM_BANK_LoadALoop
 	call	MIOS_BANKSTICK_Read
-	movwf	TABLAT
-	movlw	AOUTx_ASSIGN
-	movff	TABLAT, PLUSW1
+	movwf	POSTINC1
 	call	MIOS_BANKSTICK_Read
-	movwf	TABLAT
-	movlw	AOUTx_OFFSET
-	movff	TABLAT, PLUSW1
+	movwf	POSTINC1
 	
-	movlw	AOUT_RECORD_LEN
-	addwf	FSR1L, F
-	movlw	AOUT8_BASE + AOUT_RECORD_LEN - 1
-	cpfsgt	FSR1L, ACCESS
-	rgoto MBFM_BANK_LoadALoop
+	movf	MIOS_PARAMETER1, W	; loop 16 times
+	andlw	0x0f
+	bnz	MBFM_BANK_LoadALoop
 
 	return
 

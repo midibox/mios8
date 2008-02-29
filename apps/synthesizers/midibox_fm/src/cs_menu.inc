@@ -1787,7 +1787,7 @@ CS_MENU_Hlp_AddHHOCOffset
 ;; --------------------------------------------------------------------------
 CS_MENU_Hlp_AddAOUTOffset
 	movf	CS_MENU_SELECTED_AOUT, W
-	mullw	AOUT_RECORD_LEN
+	mullw	MBFM_AOUT_RECORD_LEN
 	movf	PRODL, W
 	addwf	CS_MENU_PARAMETER_IX, F
 	return

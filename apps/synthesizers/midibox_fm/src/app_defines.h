@@ -202,27 +202,26 @@ PERFORMANCE_LOAD_REG_L	EQU	0x052
 PERFORMANCE_LOAD_REG_H	EQU	0x053
 PERFORMANCE_REF_CTR	EQU	0x054
 
+	;; free: 0x55-0x5b
 
 ;; ==========================================================================
-AOUT_GATE		EQU	0x05f	; (4 gate bits, the upper 4 are used as shadow registers to determine changes)
+GATES			EQU	0x05c
+GATES_LAST		EQU	0x05d
 
+;; ==========================================================================
+;; AOUT registers used by $MIOS_PATH/modules/aout.inc
+AOUT_INVERTED		EQU	0x05e
+AOUT_UPDATE_REQ		EQU	0x05f
+AOUT_VALUES		EQU	0x060;..0x6f
 
-AOUT_BASE		EQU	0x060
-AOUT_RECORD_LEN		EQU	0x04
+;; ==========================================================================
+;; MBFM specific aout registers
+;; don't change structure - it's stored this way in BankStick (-> see mbfm_bank.inc)
+MBFM_AOUT_BASE		EQU	0x070;..0x7f
+MBFM_AOUT_RECORD_LEN	EQU	0x02
 
-AOUTx_ASSIGN		EQU	0x00	; AOUT channel assignment
-AOUTx_OFFSET		EQU	0x01	; 7bit offset of channel
-AOUTx_L			EQU	0x02	; 12 bit value, bit #15 is used internally as "changed" flag
-AOUTx_H			EQU	0x03
-
-AOUT1_BASE		EQU	AOUT_BASE + 0 * AOUT_RECORD_LEN ; 0x060-0x063
-AOUT2_BASE		EQU	AOUT_BASE + 1 * AOUT_RECORD_LEN ; 0x064-0x067
-AOUT3_BASE		EQU	AOUT_BASE + 2 * AOUT_RECORD_LEN ; 0x068-0x06b
-AOUT4_BASE		EQU	AOUT_BASE + 3 * AOUT_RECORD_LEN ; 0x06c-0x06f
-AOUT5_BASE		EQU	AOUT_BASE + 4 * AOUT_RECORD_LEN ; 0x070-0x073
-AOUT6_BASE		EQU	AOUT_BASE + 5 * AOUT_RECORD_LEN ; 0x074-0x077
-AOUT7_BASE		EQU	AOUT_BASE + 6 * AOUT_RECORD_LEN ; 0x078-0x07b
-AOUT8_BASE		EQU	AOUT_BASE + 7 * AOUT_RECORD_LEN ; 0x07c-0x07f
+MBFM_AOUTx_ASSIGN	EQU	0x00	; AOUT channel assignment
+MBFM_AOUTx_OFFSET	EQU	0x01	; 7bit offset of channel
 
 ;; ==========================================================================
 

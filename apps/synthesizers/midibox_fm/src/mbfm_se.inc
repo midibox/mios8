@@ -183,7 +183,7 @@ MBFM_SE_Handler_Loop_Next
 	;; do some additional things at the first clock cycle
 	BRA_IFSET MBFM_SE_STAT, MBFM_SE_STAT_UPDATE_REGS, BANKED, MBFM_SE_Handler_NoAOUTUpdate
 MBFM_SE_Handler_AOUTUpdate
-#if ENABLE_AOUT
+#if AOUT_INTERFACE_TYPE
 	call	MBFM_SE_AOUT
 #endif
 MBFM_SE_Handler_NoAOUTUpdate
@@ -1812,12 +1812,11 @@ MBFM_SE_Wt_Loop_Next
 ;;  DESCRIPTION: help function which handles the AOUTs
 ;; --------------------------------------------------------------------------
 MBFM_SE_AOUT
-	lfsr	FSR1, AOUT_BASE
 	clrf	MBFM_SE_VOICE_CTR, BANKED	; using VOICE_CTR as AOUT counter
 MBFM_SE_AOUT_Loop
 	;; pointer to assigned instrument -> FSR0
 	lfsr	FSR0, MBFM_I1_BASE
-	movlw	AOUTx_ASSIGN
+	movlw	MBFM_AOUTx_ASSIGN
 	swapf	PLUSW1, W
 	andlw	0x03
 	mullw	MBFM_Ix_RECORD_LEN
@@ -1825,6 +1824,12 @@ MBFM_SE_AOUT_Loop
 	addwf	FSR0L, F
 	movf	PRODH, W
 	addwf	FSR0H, F
+
+	;; pointer to MBFM_AOUT_BASE -> FSR1
+	lfsr	FSR1, MBFM_AOUT_BASE
+	rlf	MBFM_SE_VOICE_CTR, W, BANKED
+	andlw	0xfe
+	addwf	FSR1L, F
 
 	;; pointer to voice -> FSR2
 	lfsr	FSR2, MBFM_V1_BASE
@@ -1843,7 +1848,7 @@ MBFM_SE_AOUT_Loop
 	clrf	MBFM_SE_MOD_RESULT_U, BANKED
 
 	;; handle LFO1
-	movlw	AOUTx_ASSIGN
+	movlw	MBFM_AOUTx_ASSIGN
 	BRA_IFCLR PLUSW1, 0, ACCESS, MBFM_SE_AOUT_Mod_NoLFO1
 	movlw	MBFM_Ix_LFO1_DEPTH_A
 	movf	PLUSW0, W
@@ -1861,7 +1866,7 @@ MBFM_SE_AOUT_Mod_LFO1
 MBFM_SE_AOUT_Mod_NoLFO1
 
 	;; handle LFO2
-	movlw	AOUTx_ASSIGN
+	movlw	MBFM_AOUTx_ASSIGN
 	BRA_IFCLR PLUSW1, 1, ACCESS, MBFM_SE_AOUT_Mod_NoLFO2
 	movlw	MBFM_Ix_LFO2_DEPTH_A
 	movf	PLUSW0, W
@@ -1879,7 +1884,7 @@ MBFM_SE_AOUT_Mod_LFO2
 MBFM_SE_AOUT_Mod_NoLFO2
 
 	;; handle EG5
-	movlw	AOUTx_ASSIGN
+	movlw	MBFM_AOUTx_ASSIGN
 	BRA_IFCLR PLUSW1, 2, ACCESS, MBFM_SE_AOUT_Mod_NoEG5
 	movlw	MBFM_Ix_EG5_DEPTH_A
 	movf	PLUSW0, W
@@ -1893,7 +1898,7 @@ MBFM_SE_AOUT_Mod_EG5
 MBFM_SE_AOUT_Mod_NoEG5
 
 	;; add modulation value to left-aligned offset
-	movlw	AOUTx_OFFSET
+	movlw	MBFM_AOUTx_OFFSET
 	rlf	PLUSW1, W
 	andlw	0xfe
 	addwf	MBFM_SE_MOD_RESULT_H, F, BANKED
@@ -1915,45 +1920,15 @@ MBFM_SE_AOUT_Mod_SatNeg
 	;; 	rgoto	MBFM_SE_AOUT_Mod_SatCont
 	
 MBFM_SE_AOUT_Mod_SatCont
-	;; copy mod result to AOUT_[LH] and set "changed" flag if required
-	movlw	AOUTx_L
-	movff	PLUSW1, IRQ_TMP1
-	movlw	AOUTx_H
-	movff	PLUSW1, IRQ_TMP2
-	bcf	IRQ_TMP2, 7	; clear "changed" flag
 
-	;; low-byte -> MBFM_SE_MOD_VALUE
-	swapf	MBFM_SE_MOD_RESULT_H, W, BANKED
-	andlw	0xf0
-	movwf	MBFM_SE_MOD_VALUE, BANKED
-	swapf	MBFM_SE_MOD_RESULT_L, W, BANKED
-	andlw	0x0f
-	iorwf	MBFM_SE_MOD_VALUE, F, BANKED
+	;; transfer modulation result to AOUT channel
+	movff	MBFM_SE_MOD_RESULT_L, MIOS_PARAMETER1
+	movff	MBFM_SE_MOD_RESULT_H, MIOS_PARAMETER2
+	movf	MBFM_SE_VOICE_CTR, W, BANKED
+ 	call	AOUT_Pin16bitSet
+	SET_BSR	MBFM_BASE
 
-	;; high-byte -> MBFM_SE_MOD_RESULT_H
-	swapf	MBFM_SE_MOD_RESULT_H, W, BANKED
-	andlw	0x0f
-	movwf	MBFM_SE_MOD_RESULT_H, BANKED
-
-	;; transfer new value to AOUT_[LH] if different from old value
-	movf	IRQ_TMP1, W
-	xorwf	MBFM_SE_MOD_VALUE, W, BANKED
-	bnz	MBFM_SE_AOUT_Loop_NewValue
-	movf	IRQ_TMP2, W
-	xorwf	MBFM_SE_MOD_RESULT_H, W, BANKED
-	bz	MBFM_SE_AOUT_Loop_NoNewValue
-
-MBFM_SE_AOUT_Loop_NewValue
-	movlw	AOUTx_L
-	movff	MBFM_SE_MOD_VALUE, PLUSW1
-	movlw	AOUTx_H
-	movff	MBFM_SE_MOD_RESULT_H, PLUSW1
-
-MBFM_SE_AOUT_Loop_NoNewValue
 MBFM_SE_AOUT_Loop_Next
-	;; switch to next record
-	movlw	AOUT_RECORD_LEN
-	addwf	FSR1L, F
 	;; loop until last AOUT channel reached
 	incf	MBFM_SE_VOICE_CTR, F, BANKED
 	BRA_IFCLR MBFM_SE_VOICE_CTR, 3, BANKED, MBFM_SE_AOUT_Loop
