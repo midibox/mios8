@@ -155,7 +155,7 @@ AOUT_Update_Hlp_8_8
 
 	movlw	3				; second channel: 8bit
 	movf	PLUSW1, W			; high-byte -> MIOS_PARAMETER2
-	btfsc	MIOS_PARAMETER3, 0		; inversion?
+	btfsc	MIOS_PARAMETER3, 1		; inversion?
 	xorlw	0xff
 	movwf	MIOS_PARAMETER2
 	rgoto	AOUT_LoadWord
