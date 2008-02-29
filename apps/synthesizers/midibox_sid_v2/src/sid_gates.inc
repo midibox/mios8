@@ -1,4 +1,4 @@
-; $Id: sid_gates.inc 44 2008-01-30 21:39:30Z tk $
+; $Id$
 ;
 ; Gate Pin update handler
 ; 
