@@ -77,15 +77,10 @@ USER_Init
 	call	MIOS_SRIO_DebounceSet
 
 	;; initialize the AOUT module
-#if DEFAULT_AOUT_INTERFACE == 1
-	call	CV_AOUT_Init
-#endif
-#if DEFAULT_AOUT_INTERFACE == 2
-	call	CV_AOUT_LC_Init
-#endif
-#if DEFAULT_AOUT_INTERFACE == 3
-	call	CV_AOUT_NG_Init
-#endif
+	clrf	MIOS_PARAMETER1			; inversion flags
+	clrf	MIOS_PARAMETER2			; reserved for future extensions
+	clrf	MIOS_PARAMETER3			; reserved for future extensions
+	call	AOUT_Init
 
 	;; initialize J5 for driving LEDs if enabled
 #if ENABLE_J5
@@ -110,16 +105,34 @@ USER_Init
 USER_Tick
 	;; map the internal CV voices to the AOUT channels
 	call	CV_MAP_Update
+
 	;; call the AOUT handler which updates CV outputs on request
-#if DEFAULT_AOUT_INTERFACE == 1
-	call	CV_AOUT_Update
-#endif
-#if DEFAULT_AOUT_INTERFACE == 2
-	call	CV_AOUT_LC_Update
-#endif
-#if DEFAULT_AOUT_INTERFACE == 3
-	call	CV_AOUT_NG_Update
-#endif
+	IRQ_DISABLE
+	call	AOUT_Update
+
+	;; update gates if requested
+	;; do nothing if gate bits have not been changed
+	SET_BSR	GATES
+	movf	GATES, W, BANKED
+	xorwf	GATES_LAST, W, BANKED
+	bz	USER_Tick_NoGates
+USER_Tick_Gates
+	movff	GATES, GATES_LAST
+
+	;; set J5 pins if enabled
+#if ENABLE_J5
+	movff	CV_GATE_POLARITY, WREG
+	xorwf	GATES, W, BANKED
+	call	J5_DOUT_Set
+#endif	
+
+	SET_BSR	GATES
+	movff	CV_GATE_POLARITY, WREG
+	xorwf	GATES, W, BANKED
+	call	AOUT_DigitalPinsSet
+USER_Tick_NoGates
+
+	IRQ_ENABLE
 
 	;; ---[ check BankStick status ]---
  	call	CV_BANK_CheckStick
@@ -333,6 +346,9 @@ USER_AIN_NotifyChange
 ;;  Application code (see comments in files)
 ;; ==========================================================================
 
+;; ---[ modules from code library ]---
+#include <aout.inc>		; located in $MIOS_PATH/modules/aout/
+
 ;; ---[ reusable utility functions ]---
 #include "midi_evnt.inc"
 #include "math_mul16_16.inc"
@@ -374,16 +390,6 @@ USER_AIN_NotifyChange
 #include "cv_map.inc"
 #include "cv_ip.inc"
 #include "cv_clk.inc"
-
-#if DEFAULT_AOUT_INTERFACE == 1
-#include "cv_aout.inc"
-#endif
-#if DEFAULT_AOUT_INTERFACE == 2
-#include "cv_aout_lc.inc"
-#endif
-#if DEFAULT_AOUT_INTERFACE == 3
-#include "cv_aout_ng.inc"
-#endif
 
 ;; ---[ Output Curve Table (Curve 0 is always linear (1V/Oct) ]---
 #include "cv_curve1_table.inc"

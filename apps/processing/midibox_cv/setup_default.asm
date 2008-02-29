@@ -43,18 +43,18 @@
 ;   2: up to 4 (chained) MBHP_AOUT_LC modules
 ;   3: one MBHP_AOUT_NG module
 ; all other values invalid!
-#define DEFAULT_AOUT_INTERFACE 1
+#define AOUT_INTERFACE_TYPE 1
 ;
 ;
 ; only relevant if one or more AOUT_LC modules are used:
 ; define the resolution configuration here
-;   1: first channel 12bit, second channel 4bit
-;   2: first channel 8bit, second channel 8bit
+;   0: first channel 12bit, second channel 4bit
+;   1: first channel 8bit, second channel 8bit
 ; all other values invalid!
-#define DEFAULT_AOUT_LC_1_RESOLUTION 1	; 1st AOUT_LC module
-#define DEFAULT_AOUT_LC_2_RESOLUTION 1	; 2nd AOUT_LC module
-#define DEFAULT_AOUT_LC_3_RESOLUTION 1	; 3rd AOUT_LC module
-#define DEFAULT_AOUT_LC_4_RESOLUTION 1	; 4th AOUT_LC module
+#define AOUT_LC_RESOLUTION_OPTION_M1 0
+#define AOUT_LC_RESOLUTION_OPTION_M2 0
+#define AOUT_LC_RESOLUTION_OPTION_M3 0
+#define AOUT_LC_RESOLUTION_OPTION_M4 0
 ;
 ;
 ; define the pin which should be used as external clock output here

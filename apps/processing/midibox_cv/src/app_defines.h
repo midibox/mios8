@@ -131,24 +131,16 @@ CS_MENU_SAVE_ORIGINAL_PATCH_NAME EQU 0x04b ; used in cs_m_display to store the o
 
 ;; ==========================================================================
 
-AOUT_GATE		EQU	0x06e
-AOUT_GATE_LAST		EQU	0x06f
-AOUT0_L			EQU	0x070	; 8 * 12 bit values, bit #15 is used internally as "changed" flag
-AOUT0_H			EQU	0x071
-AOUT1_L			EQU	0x072
-AOUT1_H			EQU	0x073
-AOUT2_L			EQU	0x074
-AOUT2_H			EQU	0x075
-AOUT3_L			EQU	0x076
-AOUT3_H			EQU	0x077
-AOUT4_L			EQU	0x078
-AOUT4_H			EQU	0x079
-AOUT5_L			EQU	0x07a
-AOUT5_H			EQU	0x07b
-AOUT6_L			EQU	0x07c
-AOUT6_H			EQU	0x07d
-AOUT7_L			EQU	0x07e
-AOUT7_H			EQU	0x07f
+;; gates
+GATES			EQU	0x06c
+GATES_LAST		EQU	0x06d
+
+;; ==========================================================================
+
+;; for AOUT driver, located in $MIOS_PATH/modules/aout.inc
+AOUT_INVERTED		EQU	0x06e
+AOUT_UPDATE_REQ		EQU	0x06f  ; ..0x7f (8 * 16bit words)
+AOUT_VALUES		EQU	0x070  ; ..0x7f (8 * 16bit words)
 
 ;; ==========================================================================
 

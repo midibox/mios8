@@ -32,8 +32,8 @@ CV_MAP_RequestUpdateAll_Loop
 	rgoto CV_MAP_RequestUpdateAll_Loop
 
 	;; ensure that gates will be updated
-	comf	AOUT_GATE, W
-	movwf	AOUT_GATE_LAST
+	comf	GATES, W
+	movwf	GATES_LAST
 
 	return
 
@@ -56,7 +56,7 @@ CV_MAP_Update_Loop_GateClr
 
 	movf	CV_CURRENT_CHANNEL, W, BANKED
 	call	MIOS_HLP_GetBitANDMask
-	andwf	AOUT_GATE, F
+	andwf	GATES, F
 	rgoto	CV_MAP_Update_Loop_Gate_End
 CV_MAP_Update_Loop_NoGateClr
 
@@ -66,7 +66,7 @@ CV_MAP_Update_Loop_GateSet
 
 	movf	CV_CURRENT_CHANNEL, W, BANKED
 	call	MIOS_HLP_GetBitORMask
-	iorwf	AOUT_GATE, F
+	iorwf	GATES, F
 	;;	rgoto	CV_MAP_Update_Loop_Gate_End
 CV_MAP_Update_Loop_NoGateSet
 CV_MAP_Update_Loop_Gate_End
@@ -95,12 +95,11 @@ CV_MAP_Update_Loop_CV
 	movf	PLUSW0, W
 	bnz	CV_MAP_Update_Loop_NoAOUT
 CV_MAP_Update_Loop_AOUT
-	lfsr	FSR0, AOUT0_L
-	clrc
-	rlf	CV_CURRENT_CHANNEL, W, BANKED
-	movff	CV_AOUT_L, PLUSW0
-	addlw	1
-	movff	CV_AOUT_H, PLUSW0
+	movf	CV_CURRENT_CHANNEL, W, BANKED
+	movff	CV_AOUT_L, MIOS_PARAMETER1
+	movff	CV_AOUT_H, MIOS_PARAMETER2
+	call	AOUT_Pin12bitSet
+	SET_BSR	CV_BASE
 CV_MAP_Update_Loop_NoAOUT
 
 	;; enable IRQs again
@@ -607,7 +606,7 @@ CV_MAP_Refresh
 	SET_BSR	CV_BASE
 
 	;; clear gates
-	clrf	AOUT_GATE
+	clrf	GATES
 
 	;; restore note/velocity/CC/NRPN/PitchWheel values from patch
 	clrf	CV_CURRENT_CHANNEL, BANKED
