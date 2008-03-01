@@ -30,5 +30,7 @@ include $(MIOS_PATH)/include/makefile/common.mk
 # include application specific driver (select app_lcd/dummy if MIOS internal driver used)
 include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
 
-# include additional module specific make rules
+# include AOUT driver
+# interface types: MBHP_AOUT=1, MBHP_AOUT_LC=2, MBHP_AOUT_NG=3
+AOUT_DEFINES += -DAOUT_INTERFACE_TYPE=1
 include $(MIOS_PATH)/modules/aout/aout.mk

@@ -74,9 +74,6 @@ void Tick(void) __wparam
 {
   // call tick function of MAP module
   MAP_Tick();
-
-  // update the requested pins
-  AOUT_Update();
 }
 
 /////////////////////////////////////////////////////////////////////////////

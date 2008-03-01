@@ -1,6 +1,6 @@
 $Id$
 
-Analog Toolbox V1.1                    (C) 2005 Thorsten Klose (tk@midibox.org)
+Analog Toolbox V1.2                    (C) 2005 Thorsten Klose (tk@midibox.org)
 ===============================================================================
 
 This application allows to output analog values at the AOUT module
@@ -19,9 +19,8 @@ A precompiled binary is already part of this package:
    o project.syx (can be loaded into any SysEx upload tool)
 
 Following tools are required to recompile the code:
-   o SDCC v2.5.0
+   o SDCC v2.7.0
    o gputils
-   o perl
 
 The details are described under http://www.ucapps.de/mios_c.html
 
@@ -69,16 +68,17 @@ Description about the most important files:
 
    - main.c: the main program with all MIOS hooks
 
-   - aout.c: the AOUT module driver (1)
+   - midi.c: the MIDI processing module (1)
 
-   - midi.c: the MIDI processing module (2)
+   - lfo.c: provides two digital LFOs (2)
 
-   - lfo.c: provides two digital LFOs (3)
-
-   - eg.c: provides an envelope generator (4)
+   - eg.c: provides an envelope generator (3)
 
    - map.c: handles the "signal processing" (analog output values are
-     determined here) (5)
+     determined here) (4)
+
+   - modules/aout/: the AOUT module driver (5)
+
 
 There are additional .h files for all .c files which contain
 general definitions and the declaration of global functions/variables
@@ -87,32 +87,7 @@ get use of these globals
 
 
 -------------------------------------------------------------------------------
-(1) aout.c
-
-this module provides following global variables:
-   
-   unsigned int aout_value[8]   (12bit value)
-
-   accessible with:
-      aout_value[0]    for the first AOUT
-      aout_value[1]    for the second AOUT
-      ...
-      aout_value[7]    for the 8th AOUT
-
-
-
-   aout_gates_t aout_gates    (union with two elements: G0 and G1)
-
-   accessible with:
-      aout_gates.G0    for the first gate on the AOUT module
-      aout_gates.G1    for the second gate on the AOUT module
-
-
-   value changes will lead to an automatic update on the AOUT module
-
-
--------------------------------------------------------------------------------
-(2) midi.c
+(1) midi.c
 
 this module provides following global variables:
 
@@ -142,7 +117,7 @@ this module provides following global variables:
 
 
 -------------------------------------------------------------------------------
-(3) lfo.c
+(2) lfo.c
 
 By default two digital LFOs are provided, the selectable rate goes
 from 0.016 Hz to 97.4 Hz (see lfo_table.inc) - however, above 20 Hz
@@ -162,7 +137,7 @@ Following global variables are available:
    unsigned int  lfo0_value, lfo1_value   the LFO waveform from 0..65535 (16 bit)
 
 -------------------------------------------------------------------------------
-(4) eg.c
+(3) eg.c
 
 By default one digital ADSR envelope generator is provided, the selectable
 attack/decay/release rate goes from 1 mS to 2731 mS (see eg_table.inc)
@@ -177,7 +152,7 @@ Following global variables are available:
    unsigned char eg0_attack, eg0_decay, eg0_sustain, eg0_release  the ADSR values from 0..255
 
 -------------------------------------------------------------------------------
-(5) map.c
+(4) map.c
 
 Thats the central file where incoming and internal values are
 routed to outgoing values (aout_value[0..7], ...)
@@ -186,17 +161,17 @@ Please read the file to get some inspirations
 
 Note that sometimes values need to be converted depending on the
 resolution. For better readability, some macros have been defined
-which can be found in aout.h
+which can be found in map.h
 
-Example: aout_value[0] is a 12bit value, MIOS_AIN_PinGet(0) delivers
-a 10-bit value. In order to convert this to a 12bit value, just use
-the CONV_10BIT_TO_12BIT macro:
+Example: AOUT value is always a 16bit value, MIOS_AIN_PinGet(0) delivers
+a 10-bit value. In order to convert this to a 16bit value, just use
+the CONV_10BIT_TO_16BIT macro:
 
-   aout_value[0] = CONV_10BIT_TO_12BIT(MIOS_AIN_PinGet(0));
+   AOUT_Pin16bitSet(0, CONV_10BIT_TO_16BIT(MIOS_AIN_PinGet(0));
 
 so that the most significant bit of the 10bit value is aligned to the
-most significant bit of the 12bit value (in fact the value is
-multiplicated by 4, resp. it is leftshifted 2 times)
+most significant bit of the 16bit value (in fact the value is
+multiplicated by 1024, resp. it is leftshifted 6 times)
 
 
 Additional notes to digital inputs and outputs: if DINX4 and/or DOUTX4
@@ -242,5 +217,11 @@ void MAP_MIDIClock(void)
   // do anything here
 }
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
+-------------------------------------------------------------------------------
+(5) modules/aout
+
+-> see modules/aout/README.txt
 
 ===============================================================================

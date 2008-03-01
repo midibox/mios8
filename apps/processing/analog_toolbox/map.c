@@ -19,11 +19,31 @@
 #include <pic18fregs.h>
 
 #include "main.h"
-#include "aout.h"
+#include <aout.h>
 #include "midi.h"
 #include "lfo.h"
 #include "eg.h"
 #include "map.h"
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Structures
+/////////////////////////////////////////////////////////////////////////////
+typedef union {
+  struct {
+    unsigned ALL:8;
+  };
+  struct {
+    unsigned G0:1;  // 1st gate pin
+    unsigned G1:1;  // 2nd gate pin
+    unsigned G2:1;  // 3rd gate pin
+    unsigned G3:1;  // 4th gate pin
+    unsigned G4:1;  // 5th gate pin
+    unsigned G5:1;  // 6th gate pin
+    unsigned G6:1;  // 7th gate pin
+    unsigned G7:1;  // 8th gate pin
+  };
+} gates_t;
 
 /////////////////////////////////////////////////////////////////////////////
 // Global variables
@@ -68,24 +88,29 @@ void MAP_Tick(void)
 {
   int result;
   unsigned char value_8bit;
+  gates_t gates;
+
+  ///////////////////////////////////////////////////////////////////////////
+  // clear all gate flags (will be re-assigned on each update cycle)
+  gates.ALL = 0;
 
   ///////////////////////////////////////////////////////////////////////////
   // AOUT #1: forward Note value of MIDI channel #1
-  aout_value[0] = CONV_7BIT_TO_12BIT(midi_note[0].NOTE);
+  AOUT_Pin7bitSet(0, midi_note[0].NOTE);
   // first gate: forward gate (Note On/Off) of MIDI channel #1
-  aout_gates.G0 = midi_note[0].GATE;
+  gates.G0 = midi_note[0].GATE;
 
   ///////////////////////////////////////////////////////////////////////////
   // AOUT #2: forward CC#1 (Modwheel) of MIDI channel #1
-  aout_value[1] = CONV_7BIT_TO_12BIT(midi_cc_chn0[1]);
+  AOUT_Pin7bitSet(1, midi_cc_chn0[1]);
   // second gate: 1 if CC#1 value >= 64, else 0
-  aout_gates.G1 = midi_cc_chn0[1] >= 64 ? 1 : 0;
+  gates.G1 = midi_cc_chn0[1] >= 64 ? 1 : 0;
 
   ///////////////////////////////////////////////////////////////////////////
   // AOUT #3: forward AIN0 + AIN1 - AIN2
   // saturation if result < 0
   result = MIOS_AIN_PinGet(0) + MIOS_AIN_PinGet(1) - MIOS_AIN_PinGet(2);
-  aout_value[2] = result >= 0 ? result : 0;
+  AOUT_Pin16bitSet(2, CONV_12BIT_TO_16BIT(result >= 0 ? result : 0));
 
   ///////////////////////////////////////////////////////////////////////////
   // AOUT #4: forward f(AIN3) -- the function describes a sinewave
@@ -94,23 +119,23 @@ void MAP_Tick(void)
 
   value_8bit = CONV_10BIT_TO_8BIT(MIOS_AIN_PinGet(3)); // convert 10bit value to 8bit
   value_8bit = sinewave[value_8bit];                   // map to sinwave table
-  aout_value[3] = CONV_8BIT_TO_12BIT(value_8bit);      // convert to 12bit
+  AOUT_Pin16bitSet(3, CONV_8BIT_TO_16BIT(value_8bit)); // convert to 16bit
 
   ///////////////////////////////////////////////////////////////////////////
   // AOUT #5: forward f(t) -- the function describes a saw wave
   // t is driven by LFO0, the rate is modified with AIN4
   lfo0_rate = CONV_10BIT_TO_8BIT(MIOS_AIN_PinGet(4));
-  aout_value[4] = CONV_16BIT_TO_12BIT(lfo0_value);
+  AOUT_Pin16bitSet(4, lfo0_value);
 
   ///////////////////////////////////////////////////////////////////////////
   // AOUT #6: forward f(t) -- the function describes a sine wave
   // t is driven by LFO1, the rate is modified with AIN5
   lfo1_rate = CONV_10BIT_TO_8BIT(MIOS_AIN_PinGet(5));
-  aout_value[5] = CONV_8BIT_TO_12BIT(sinewave[CONV_16BIT_TO_8BIT(lfo1_value)]);
+  AOUT_Pin16bitSet(5, CONV_8BIT_TO_16BIT(sinewave[CONV_16BIT_TO_8BIT(lfo1_value)]));
 
   ///////////////////////////////////////////////////////////////////////////
   // AOUT #7: forward EG0 output
-  aout_value[6] = CONV_16BIT_TO_12BIT(eg0_value);
+  AOUT_Pin16bitSet(6, eg0_value);
   eg0.GATE = midi_note[0].GATE; // EG triggered with MIDI note at Channel #1
 
 #if 1
@@ -126,5 +151,12 @@ void MAP_Tick(void)
   eg0_sustain = midi_cc_chn0[18]; // CC#18
   eg0_release = midi_cc_chn0[19]; // CC#19
 #endif
+
+
+  // update analog outputs
+  AOUT_Update();
+
+  // update the digital gates
+  AOUT_DigitalPinsSet(gates.ALL);
 }
 

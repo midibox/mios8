@@ -37,10 +37,17 @@ CV_IP_Handler_Loop
  	rcall	CV_IP_Sub
 
 	;; transfer to AOUT handler
+	swapf	IRQ_TMP2, W
+	andlw	0xf0
+	movwf	MIOS_PARAMETER2
+	swapf	IRQ_TMP1, W
+	andlw	0x0f
+	iorwf	MIOS_PARAMETER2, F
+	swapf	IRQ_TMP1, W
+	andlw	0xf0
+	movwf	MIOS_PARAMETER1
 	movf	IRQ_TMP5, W
-	movff	IRQ_TMP1, MIOS_PARAMETER1
-	movff	IRQ_TMP2, MIOS_PARAMETER2
-	call	AOUT_Pin12bitSet
+	call	AOUT_Pin16bitSet
 
 CV_IP_Handler_Loop_Next
 	movlw	CVIP2_BASE-CVIP1_BASE

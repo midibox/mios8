@@ -95,10 +95,17 @@ CV_MAP_Update_Loop_CV
 	movf	PLUSW0, W
 	bnz	CV_MAP_Update_Loop_NoAOUT
 CV_MAP_Update_Loop_AOUT
+	swapf	CV_AOUT_H, W, BANKED
+	andlw	0xf0
+	movwf	MIOS_PARAMETER2
+	swapf	CV_AOUT_L, W, BANKED
+	andlw	0x0f
+	iorwf	MIOS_PARAMETER2, F
+	swapf	CV_AOUT_L, W, BANKED
+	andlw	0xf0
+	movwf	MIOS_PARAMETER1
 	movf	CV_CURRENT_CHANNEL, W, BANKED
-	movff	CV_AOUT_L, MIOS_PARAMETER1
-	movff	CV_AOUT_H, MIOS_PARAMETER2
-	call	AOUT_Pin12bitSet
+	call	AOUT_Pin16bitSet
 	SET_BSR	CV_BASE
 CV_MAP_Update_Loop_NoAOUT
 

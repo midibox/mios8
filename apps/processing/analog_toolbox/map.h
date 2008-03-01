@@ -21,24 +21,31 @@
 #define CONV_16BIT_TO_12BIT(val) ((val) >> 4)
 #define CONV_16BIT_TO_8BIT(val)  ((val) >> 8)
 
+#define CONV_12BIT_TO_16BIT(val) ((val) << 4)
+#define CONV_12BIT_TO_8BIT(val)  ((val) >> 4)
+
+#define CONV_10BIT_TO_16BIT(val) ((val) << 6)
 #define CONV_10BIT_TO_12BIT(val) ((val) << 2)
 #define CONV_10BIT_TO_11BIT(val) ((val) << 1)
 #define CONV_10BIT_TO_9BIT(val)  ((val) >> 1)
 #define CONV_10BIT_TO_8BIT(val)  ((val) >> 2)
 #define CONV_10BIT_TO_7BIT(val)  ((val) >> 3)
 
+#define CONV_9BIT_TO_16BIT(val)  ((val) << 7)
 #define CONV_9BIT_TO_12BIT(val)  ((val) << 3)
 #define CONV_9BIT_TO_11BIT(val)  ((val) << 2)
 #define CONV_9BIT_TO_10BIT(val)  ((val) << 1)
 #define CONV_9BIT_TO_8BIT(val)   ((val) >> 1)
 #define CONV_9BIT_TO_7BIT(val)   ((val) >> 2)
 
+#define CONV_8BIT_TO_16BIT(val)  ((val) << 8)
 #define CONV_8BIT_TO_12BIT(val)  ((val) << 4)
 #define CONV_8BIT_TO_11BIT(val)  ((val) << 3)
 #define CONV_8BIT_TO_10BIT(val)  ((val) << 2)
 #define CONV_8BIT_TO_9BIT(val)   ((val) << 1)
 #define CONV_8BIT_TO_7BIT(val)   ((val) >> 1)
 
+#define CONV_7BIT_TO_16BIT(val)  ((val) << 9)
 #define CONV_7BIT_TO_12BIT(val)  ((val) << 5)
 #define CONV_7BIT_TO_11BIT(val)  ((val) << 4)
 #define CONV_7BIT_TO_10BIT(val)  ((val) << 3)
