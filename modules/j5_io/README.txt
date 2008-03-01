@@ -53,6 +53,9 @@ include $(MIOS_PATH)/modules/j5_io/j5_io.mk
 
   3) main.c: add J5_Init(<tris-value>) to Init() hook
 
+     <tris-value>: e.g. 0x00 for output, 0xff for input, 
+                   0xf0 for upper pins input and lower pins output
+
 
 
 "Assembler-Only" Applications
@@ -69,10 +72,11 @@ include $(MIOS_PATH)/modules/j5_io/j5_io.mk
   2) Makefile: include j5_io.mk
 
   3) main.asm (or main.inc): add following code to USER_Init hook
-     movlw   0x<tris-value>
+     movlw   <tris-value>
      call    J5_IO_Init
 
-     <tris-value>: e.g. 0x00 for output, 0xff for input
+     <tris-value>: e.g. 0x00 for output, 0xff for input, 
+                   0xf0 for upper pins input and lower pins output
 
 
 
