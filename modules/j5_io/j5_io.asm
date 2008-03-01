@@ -41,16 +41,46 @@ J5_IO code
 
 ;_J5_IO_Init	; (direct parameter passing via WREG)
 
+#if J5_IO_DONT_USE_OUTPUT_FUNCTIONS
+_J5_IO_Set
+J5_IO_Set
+	;; stub
+	return
+#else
 ;_J5_IO_Set	; (direct parameter passing via WREG)
+#endif
 
+#if J5_IO_DONT_USE_OUTPUT_FUNCTIONS
+_J5_IO_PinSet
+J5_IO_PinSet
+	;; stub
+	return
+#else
 _J5_IO_PinSet	; (unsigned char, unsigned char)
 	movff	FSR0L, FSR2L
  	movff	PREINC2, MIOS_PARAMETER1
 	rgoto	J5_IO_PinSet
+#endif
 
+#if J5_IO_DONT_USE_INPUT_FUNCTIONS
+_J5_IO_Get
+J5_IO_Get
+	;; stub
+	andlw	0x00
+	return
+#else
 ;_J5_IO_Get	; (direct parameter passing via WREG)
+#endif
 
-;_J5_IO_GetPin	; (direct parameter passing via WREG)
+#if J5_IO_DONT_USE_INPUT_FUNCTIONS
+_J5_IO_PinGet
+J5_IO_PinGet
+	;; stub
+	andlw	0x00
+	return
+#else
+;_J5_IO_PinGet	; (direct parameter passing via WREG)
+#endif
 
 ; ==========================================================================
 	END

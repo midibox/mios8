@@ -14,7 +14,7 @@ Files
   iic_midi.inc: can be included into "asm-only" programs (non-relocatable code)
   iic_midi.asm: relocatable wrapper for C based applications
   iic_midi.h:   C headers
-  iic_midi.mk:  includes this into Makefile to integrate the module
+  iic_midi.mk:  include this into Makefile to integrate the module
 
 
 Defines
@@ -73,7 +73,7 @@ include $(MIOS_PATH)/modules/iic_midi/iic_midi.mk
 "Assembler-Only" Applications
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  1b) add application specific #defines to the assembly code (e.g. in
+  1a) add application specific #defines to the assembly code (e.g. in
       your setup_*.asm file), e.g.:
       #define IIC_MIDI_USE_RI              0
       #define IIC_MIDI_DONT_USE_J5_INPUTS  1
