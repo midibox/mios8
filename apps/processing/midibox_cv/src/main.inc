@@ -77,9 +77,6 @@ USER_Init
 	call	MIOS_SRIO_DebounceSet
 
 	;; initialize the AOUT module
-	clrf	MIOS_PARAMETER1			; inversion flags
-	clrf	MIOS_PARAMETER2			; reserved for future extensions
-	clrf	MIOS_PARAMETER3			; reserved for future extensions
 	call	AOUT_Init
 
 	;; initialize J5 for driving LEDs if enabled
@@ -106,33 +103,8 @@ USER_Tick
 	;; map the internal CV voices to the AOUT channels
 	call	CV_MAP_Update
 
-	;; call the AOUT handler which updates CV outputs on request
-	IRQ_DISABLE
-	call	AOUT_Update
-
-	;; update gates if requested
-	;; do nothing if gate bits have not been changed
-	SET_BSR	GATES
-	movf	GATES, W, BANKED
-	xorwf	GATES_LAST, W, BANKED
-	bz	USER_Tick_NoGates
-USER_Tick_Gates
-	movff	GATES, GATES_LAST
-
-	;; set J5 pins if enabled
-#if ENABLE_J5
-	movff	CV_GATE_POLARITY, WREG
-	xorwf	GATES, W, BANKED
-	call	J5_DOUT_Set
-#endif	
-
-	SET_BSR	GATES
-	movff	CV_GATE_POLARITY, WREG
-	xorwf	GATES, W, BANKED
-	call	AOUT_DigitalPinsSet
-USER_Tick_NoGates
-
-	IRQ_ENABLE
+	;; update external ports (AOUT/gate pins)
+	call	CV_EXT_Update
 
 	;; ---[ check BankStick status ]---
  	call	CV_BANK_CheckStick
@@ -388,6 +360,7 @@ USER_AIN_NotifyChange
 #include "cv_midi.inc"
 #include "cv_sysex.inc"
 #include "cv_map.inc"
+#include "cv_ext.inc"
 #include "cv_ip.inc"
 #include "cv_clk.inc"
 
