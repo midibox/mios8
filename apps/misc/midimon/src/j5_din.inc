@@ -27,39 +27,20 @@
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: J5_DIN_Init
 ;;  DESCRIPTION: This function initializes J5 as digital input
-;;     Pin #0: RA.0
-;;     Pin #1: RA.1
-;;     Pin #2: RA.2
-;;     Pin #3: RA.3
-;;     Pin #4: RA.5
-;;     Pin #5: RE.0
-;;     Pin #6: RE.1
-;;     Pin #7: RE.2
 ;;  IN:   -
 ;;  OUT:  -
 ;;  USES: -
 ;; --------------------------------------------------------------------------
 J5_DIN_Init
+	;; initialize pins for input
+	movlw	0xff
+	call	J5_IO_Init
+
 	;; init status register with 0xff (assuming low-active logic)
 	setf	J5_DIN_STATUS
 
 	;; no changes (yet)
 	clrf	J5_DIN_STATUS_CHANGED
-
-	;; disable the ADC which allocates the analog pins
-	movlw	0x07
-	movwf	ADCON1
-
-	;; turn OFF the output drivers of PORTA and PORTE
-	;; (note: if you want to use some of them as output instead, just set the appr. line to "bcf TRISx, x"
-	bsf	TRISA, 0	; Pin RA.0 = input
-	bsf	TRISA, 1	; Pin RA.1 = input
-	bsf	TRISA, 2	; Pin RA.2 = input
-	bsf	TRISA, 3	; Pin RA.3 = input
-	bsf	TRISA, 5	; Pin RA.5 = input
-	bsf	TRISE, 0	; Pin RE.0 = input
-	bsf	TRISE, 1	; Pin RE.1 = input
-	bsf	TRISE, 2	; Pin RE.2 = input
 
 	return
 
@@ -123,19 +104,8 @@ J5_DIN_Update
 	;; registers are stored/restored by the interrupt handler in order
 	;; to avoid conflicts)
 
-	;; J5_DIN_STATUS[3..0] == PORTA[3..0]
-	movf	PORTA, W
-	andlw	0x0f
-	;; J5_DIN_STATUS[4] == PORTA[5]
-	btfsc	PORTA, 5
-	iorlw	0x10
+	call	J5_IO_Get
 	movwf	MIOS_PARAMETER1
-	
-	;; J5_DIN_STATUS[7..6] == PORTE[2..0]
-	swapf	PORTE, W
-	rlf	WREG, W
-	andlw	0xe0
-	iorwf	MIOS_PARAMETER1, F
 
 	;; now compare the new values with the values from the last call
 	movf	MIOS_PARAMETER1, W

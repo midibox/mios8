@@ -136,7 +136,8 @@ USER_Init_PIC_Ok
 	call	AOUT_Init
 
 #if DEFAULT_ENABLE_J5_GATES
-	call	J5_DOUT_Init
+	movlw	0x00
+	call	J5_IO_Init
 #endif
 
 	;; initialize the IIC MIDI modules
@@ -480,13 +481,15 @@ USER_AIN_NotifyChange
 ; include AOUT driver (located in $MIOS_PATH/modules/aout/)
 #include <aout.inc>
 
+#if DEFAULT_ENABLE_J5_GATES
+#define J5_IO_DONT_USE_INPUT_FUNCTIONS 1
+#include <j5_io.inc>
+#endif
+
 
 ;; ---[ reusable utility functions ]---
 #include "midi_evnt.inc"
 #include "midi_rxtx.inc"
-#if DEFAULT_ENABLE_J5_GATES
-#include "j5_dout.inc"
-#endif
 #include "math_div24_16.inc"
 
 ;; ---[ Control surface functions ]---

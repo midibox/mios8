@@ -186,7 +186,8 @@ USER_Init_NoCS
 #endif
 #if (DEFAULT_J5_FUNCTION == 2) || (DEFAULT_J5_FUNCTION == 3)
 	;; initialize J5 for driving LEDs if enabled
-	call	J5_DOUT_Init
+	movlw	0x00
+	call	J5_IO_Init
 #endif
 
 	;; initialize the AOUT module
@@ -699,10 +700,12 @@ AIN_NotifyChange_Loop_Next
 ; include AOUT driver (located in $MIOS_PATH/modules/aout/)
 #include <aout.inc>
 
+#define J5_IO_DONT_USE_INPUT_FUNCTIONS 1
+#include <j5_io.inc>
+
 ;; ---[ reusable functions ]---
 #include "math_mul16_16.inc"
 #include "math_div24_16.inc"
-#include "j5_dout.inc"
 #include "ain.inc"
 #include "mbnet.inc"
 

@@ -197,7 +197,7 @@ CS_MENU_LED_Update_Loop
 #if DEFAULT_SRM_LEDS_DOUT
 	CALL_IFSET TABLAT, 7, ACCESS, CS_MENU_MATRIX_PinSet	; or pin of LED matrix if bit #7 set
 #else
-	CALL_IFSET TABLAT, 7, ACCESS, J5_DOUT_PinSet		; or pin of J5 if bit #7 set (SR #0 in cs_menu_io_tables.inc)
+	CALL_IFSET TABLAT, 7, ACCESS, J5_IO_PinSet		; or pin of J5 if bit #7 set (SR #0 in cs_menu_io_tables.inc)
 #endif
 	rgoto	CS_MENU_LED_Update_Loop	; next entry
 

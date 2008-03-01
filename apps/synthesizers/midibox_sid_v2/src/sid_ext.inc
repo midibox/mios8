@@ -48,7 +48,7 @@ SID_EXT_Update_Gates
 #if DEFAULT_J5_FUNCTION == 3
 	SET_BSR	GATES
 	movf	GATES, W, BANKED
-	call	J5_DOUT_Set
+	call	J5_IO_Set
 #endif
 
 SID_EXT_Update_Gates_Skip

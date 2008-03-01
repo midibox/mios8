@@ -33,7 +33,7 @@ SEQ_EXT_Update_Gates
 
 #if DEFAULT_ENABLE_J5_GATES
 	movf	GATES, W, BANKED
-	call	J5_DOUT_PinSet
+	call	J5_IO_PinSet
 #endif
 
 	SET_BSR	GATES

@@ -92,7 +92,8 @@ USER_Init
 
 	;; initialize J5 for driving LEDs if enabled
 #if ENABLE_J5
-	call	J5_DOUT_Init
+	movlw	0x00
+	call	J5_IO_Init
 #endif
 
 #if ENABLE_AIN_LFO_WAVEFORM
@@ -463,10 +464,12 @@ USER_AIN_NotifyChange
 ; include AOUT driver (located in $MIOS_PATH/modules/aout/)
 #include <aout.inc>
 
+#define J5_IO_DONT_USE_INPUT_FUNCTIONS 1
+#include <j5_io.inc>
+
 ;; ---[ reusable functions ]---
 #include "math_mul16_16.inc"
 #include "midi_rxtx.inc"
-#include "j5_dout.inc"
 #include "special_characters.inc"
 
 ;; ---[ SID kernel ]---

@@ -26,5 +26,8 @@ include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
 # include MBHP_IIC_MIDI driver
 include $(MIOS_PATH)/modules/iic_midi/iic_midi.mk
 
+# include J5 IO driver
+include $(MIOS_PATH)/modules/j5_io/j5_io.mk
+
 # include AOUT driver
 include $(MIOS_PATH)/modules/aout/aout.mk

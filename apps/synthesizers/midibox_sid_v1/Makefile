@@ -23,5 +23,8 @@ include $(MIOS_PATH)/include/makefile/asm_only.mk
 # include application specific LCD driver (dummy driver by default)
 include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
 
+# include J5 IO driver
+include $(MIOS_PATH)/modules/j5_io/j5_io.mk
+
 # include AOUT driver
 include $(MIOS_PATH)/modules/aout/aout.mk

@@ -336,7 +336,11 @@ USER_AIN_NotifyChange
 ;; ==========================================================================
 ;;  Application code (see comments in files)
 ;; ==========================================================================
-	
+
+;; ---[ modules from code library ]---
+#define J5_IO_DONT_USE_OUTPUT_FUNCTIONS 1
+#include <j5_io.inc>
+
 ;; ---[ reusable utility functions ]---
 #include "j5_din.inc"
 #include "leddigits.inc"

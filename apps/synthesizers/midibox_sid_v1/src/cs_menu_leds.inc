@@ -199,7 +199,7 @@ CS_MENU_LED_Update_Loop
 	tblrd*+				; read pin number from table
 	movf	TABLAT, W		; get pin number
 	CALL_IFCLR TABLAT, 7, ACCESS, MIOS_DOUT_PinSet	; and finally set the pin of SR if bit #7 cleared
-	CALL_IFSET TABLAT, 7, ACCESS, J5_DOUT_PinSet		; or pin of J5 if bit #7 set (SR #0 in cs_menu_io_tables.inc)
+	CALL_IFSET TABLAT, 7, ACCESS, J5_IO_PinSet		; or pin of J5 if bit #7 set (SR #0 in cs_menu_io_tables.inc)
 	rgoto	CS_MENU_LED_Update_Loop	; next entry
 
 CS_MENU_LED_Update_End
