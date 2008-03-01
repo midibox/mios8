@@ -113,6 +113,7 @@ BYTES_TO_SEND_TABLE
 ;;  OUT:  detected slaves in _iic_midi_available_slaves
 ;;  USES: -
 ;; --------------------------------------------------------------------------
+_IIC_MIDI_Init			; (for C)
 IIC_MIDI_Init
 	;; enable clock stretching
 	movlw	0x01
@@ -365,6 +366,7 @@ IIC_MIDI_TransmitStart_Disabled
 ;;  USES: -
 ;;  EXAMPLE:
 ;; --------------------------------------------------------------------------
+_IIC_MIDI_TransmitByte			; (for C)
 IIC_MIDI_TransmitByte
 	movwf	IIC_MIDI_TMP		; temporary store value
 
@@ -414,6 +416,7 @@ IIC_MIDI_TransmitByte_End
 ;;  USES: -
 ;;  EXAMPLE:
 ;; --------------------------------------------------------------------------
+_IIC_MIDI_TransmitStop		; (for C)
 IIC_MIDI_TransmitStop
 	goto	MIOS_IIC_Stop
 

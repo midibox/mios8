@@ -23,6 +23,7 @@ AOUT_InitHW
 ;; --------------------------------------------------------------------------
 ;;  Sets the digital pins (see aout.inc for details)
 ;; --------------------------------------------------------------------------
+_AOUT_DigitalPinsSet		; (for C)
 AOUT_DigitalPinsSet
 	;; nothing to do
 	return
@@ -31,6 +32,7 @@ AOUT_DigitalPinsSet
 ;; --------------------------------------------------------------------------
 ;;  Update function (see aout.inc for details)
 ;; --------------------------------------------------------------------------
+_AOUT_Update			; (for C)
 AOUT_Update
 	;; nothing to do
 	return

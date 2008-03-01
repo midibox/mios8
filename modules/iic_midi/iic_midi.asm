@@ -56,8 +56,7 @@ IIC_MIDI code
 ; ==========================================================================
 	;; C function wrappers
 
-_IIC_MIDI_Init
-	rgoto	IIC_MIDI_Init
+;_IIC_MIDI_Init		; (no parameters)
 
 _IIC_MIDI_Receive
 	movwf	_iic_midi_slave
@@ -77,11 +76,9 @@ _IIC_MIDI_TransmitStart
 	movwf	_iic_midi_slave
 	rgoto	IIC_MIDI_TransmitStart
 
-_IIC_MIDI_TransmitByte
-	rgoto	IIC_MIDI_TransmitByte
+;_IIC_MIDI_TransmitByte		; (direct parameter passing)
 
-_IIC_MIDI_TransmitStop
-	rgoto	IIC_MIDI_TransmitStop
+;_IIC_MIDI_TransmitStop		; (no parameters)
 
 ; ==========================================================================
 	END

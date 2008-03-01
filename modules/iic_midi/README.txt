@@ -20,8 +20,10 @@ Files
 Defines
 ~~~~~~~
 
-  used in iic_midi.inc, can be overruled with -D<define>=<value> from command line
-
+  used in iic_midi.inc
+    C programs (relocatable code): can be overruled with -D<define>=<value> from command line 
+    Assembly programs: has to be defined within program before "#include <iic_midi.inc>"
+  
 ;; base address and max number of IIC slaves
 #define IIC_MIDI_BASE_ADDR	0x10
 
@@ -71,14 +73,14 @@ include $(MIOS_PATH)/modules/iic_midi/iic_midi.mk
 "Assembler-Only" Applications
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  1) main.asm (or main.inc): include <iic_midi.inc>
+  1b) add application specific #defines to the assembly code (e.g. in
+      your setup_*.asm file), e.g.:
+      #define IIC_MIDI_USE_RI              0
+      #define IIC_MIDI_DONT_USE_J5_INPUTS  1
 
-  2) Makefile: include iic_midi.mk, and enhance IIC_MIDI_DEFINES if required:
----
-# include MBHP_IIC_MIDI driver
-IIC_MIDI_DEFINES += -DIIC_MIDI_USE_RI=0 -DIIC_MIDI_DONT_USE_J5_INPUTS=1
-include $(MIOS_PATH)/modules/iic_midi/iic_midi.mk
----
+  1b) main.asm (or main.inc): #include <iic_midi.inc>
+
+  2) Makefile: include iic_midi.mk
 
   3) main.asm (or main.inc): call IIC_MIDI_Init from USER_Init hook
 

@@ -66,14 +66,14 @@
 ;;  FUNCTION: AOUT_Init
 ;;  DESCRIPTION: This function initializes the connected AOUT module
 ;;  It should be called from USER_Init during startup
-;;  IN:   inversion flags in MIOS_PARAMETER1
-;;        future extension flags in MIOS_PARAMETER[23] (should be initialized with zero)
 ;;  OUT:  -
 ;;  USES: BSR, MIOS_PARAMETER[123] as temporary registers
 ;; --------------------------------------------------------------------------
+_AOUT_Init			; (for C)
 AOUT_Init
-	;; transfer inversion flags to AOUT_INVERTED
-	movff	MIOS_PARAMETER1, AOUT_INVERTED
+	;; clear inversion flags
+	SET_BSR	AOUT_INVERTED
+	clrf	AOUT_INVERTED, BANKED
 
 	;; set all voltages to 0V
 	clrf	MIOS_PARAMETER1	; using MIOS_PARAMETER1 as loop counter
@@ -110,6 +110,7 @@ AOUT_Init_Loop
 ;;  OUT:  -
 ;;  USES: BSR
 ;; --------------------------------------------------------------------------
+_AOUT_ReInit		; (for C)
 AOUT_ReInit
 	;; call hardware specific initialisation
 	;; (function located in selected aout_*.inc)
@@ -121,6 +122,33 @@ AOUT_ReInit
 	SET_BSR	AOUT_UPDATE_REQ
 	setf	AOUT_UPDATE_REQ, BANKED
 
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: AOUT_InvertedSet
+;;  DESCRIPTION: This function sets the inversion flags for the 8 AOUT channels
+;;  IN:   flags in WREG
+;;  OUT:  -
+;;  USES: BSR
+;; --------------------------------------------------------------------------
+_AOUT_InvertedSet		; (for C)
+AOUT_InvertedSet
+	SET_BSR	AOUT_INVERTED
+	movwf	AOUT_INVERTED, BANKED
+	return
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: AOUT_InvertedGet
+;;  DESCRIPTION: This function returns the inversion flags for the 8 AOUT channels
+;;  IN:   -
+;;  OUT:  flags in WREG
+;;  USES: BSR
+;; --------------------------------------------------------------------------
+_AOUT_InvertedGet		; (for C)
+AOUT_InvertedGet
+	SET_BSR	AOUT_INVERTED
+	movf	AOUT_INVERTED, W, BANKED
 	return
 
 
@@ -189,40 +217,6 @@ AOUT_Pin7bitSet
 	clrf	MIOS_PARAMETER1
 
 	;; change channel
-	rgoto	AOUT_Pin16bitSet
-
-
-;; --------------------------------------------------------------------------
-;;  FUNCTION: AOUT_Pin12bitSet
-;;  DESCRIPTION: This function sets an output channel to a given 12-bit value.
-;;  Since the AOUT driver supports up to 16bit resolution, the lower bits
-;;  will be padded with zero
-;;  The output value won't be transfered to the module immediately, but will 
-;;  be buffered in AOUT_[LH] instead. By calling AOUT_Update the requested
-;;  changes will take place.
-;;  IN:   channel number in WREG, 12bit value in MIOS_PARAMETER[12]
-;;  OUT:  -
-;;  USES: FSR1, BSR, MIOS_PARAMETER3 as temporary register
-;; --------------------------------------------------------------------------
-AOUT_Pin12bitSet
-	;; temporary store channel number in MIOS_PARAMETER3
-	movwf	MIOS_PARAMETER3
-
-	;; convert 12bit to 16bit value - LSBs padded with zeros
-	swapf	MIOS_PARAMETER2, W
-	andlw	0xf0
-	movwf	MIOS_PARAMETER2
-
-	swapf	MIOS_PARAMETER1, W
-	andlw	0x0f
-	iorwf	MIOS_PARAMETER2, F
-
-	swapf	MIOS_PARAMETER1, F
-	movlw	0xf0
-	andwf	MIOS_PARAMETER1, F
-
-	;; change channel
-	movf	MIOS_PARAMETER3, W
 	rgoto	AOUT_Pin16bitSet
 
 
