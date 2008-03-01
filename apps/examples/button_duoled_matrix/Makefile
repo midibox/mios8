@@ -31,7 +31,8 @@ include $(MIOS_PATH)/include/makefile/common.mk
 include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
 
 # include Button/Duo-LED driver
-# (commented out defines are for MBSEQ V3 configuration)
+# commented out defines are shift register assignments of MBSEQ V3 hardware
+# see $MIOS_PATH/modules/blm/blm.inc for default assignments
 #BLM_DEFINES += -DBLM_DOUT_L1=6 -DBLM_DOUT_R1=9
 #BLM_DEFINES += -DBLM_DOUT_CATHODES1=5 -DBLM_DOUT_CATHODES2=8
 #BLM_DEFINES += -DBLM_CATHODES_INV_MASK=0x00

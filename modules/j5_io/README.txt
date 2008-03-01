@@ -51,7 +51,9 @@ J5_IO_DEFINES += -DJ5_IO_DONT_USE_INPUT_FUNCTIONS=1
 include $(MIOS_PATH)/modules/j5_io/j5_io.mk
 ---
 
-  3) main.c: add J5_Init(<tris-value>) to Init() hook
+  3) main.c: #include <j5_io.h>
+
+  4) main.c: add J5_Init(<tris-value>) to Init() hook
 
      <tris-value>: e.g. 0x00 for output, 0xff for input, 
                    0xf0 for upper pins input and lower pins output

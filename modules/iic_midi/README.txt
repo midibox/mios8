@@ -66,7 +66,9 @@ IIC_MIDI_DEFINES += -DIIC_MIDI_USE_RI=0 -DIIC_MIDI_DONT_USE_J5_INPUTS=1
 include $(MIOS_PATH)/modules/iic_midi/iic_midi.mk
 ---
 
-  3) main.c: add IIC_MIDI_Init() to Init() hook
+  3) main.c: #include <iic_midi.h>
+
+  4) main.c: add IIC_MIDI_Init() to Init() hook
 
 
 

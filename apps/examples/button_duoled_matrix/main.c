@@ -226,7 +226,7 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is NOT called by MIOS, but by the scan matrix handler
-// in blm.asm, when a pin of the scan matrix has been toggled
+// in $MIOS_PATH/modules/blm, when a pin of the scan matrix has been toggled
 // Note: in addition to "pin" and "value", the "blm_button_column" and
 // "blm_button_row" are available as global variables (defined in blm.h)
 /////////////////////////////////////////////////////////////////////////////
