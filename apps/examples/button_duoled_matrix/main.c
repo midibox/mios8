@@ -44,7 +44,6 @@ void Init(void) __wparam
   // initialize the shift registers
   MIOS_SRIO_NumberSet(16);           // use up to 16 shift registers
   MIOS_SRIO_UpdateFrqSet(1);         // set update frequency
-  MIOS_SRIO_TS_SensitivitySet(0);    // disable touch sensors
 }
 
 /////////////////////////////////////////////////////////////////////////////

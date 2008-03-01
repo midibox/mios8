@@ -103,7 +103,6 @@ include $(MIOS_PATH)/modules/blm/blm.mk
   // initialize the shift registers
   MIOS_SRIO_NumberSet(16);           // use up to 16 shift registers
   MIOS_SRIO_UpdateFrqSet(1);         // set update frequency
-  MIOS_SRIO_TS_SensitivitySet(0);    // disable touch sensors
 ---
 
   5) main.c: add following code to Tick() hook
