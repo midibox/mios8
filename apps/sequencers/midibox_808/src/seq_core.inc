@@ -1333,11 +1333,6 @@ SEQ_CORE_Clk_NextTrack
 
 	;; ------------------------------------------------------------------
 
-	;; now we can trigger requested pins at the same moment
-	call	SEQ_TRK_SetTriggers
-
-	;; ------------------------------------------------------------------
-
 SEQ_CORE_Clk_End
 	;; finally...
 

@@ -124,6 +124,9 @@ USER_Tick
 	;; ---[ call sequencer handler ]---
 	call	SEQ_CORE_Tick
 
+	;; ---[ update AOUTs channels and gates ]---
+	call	SEQ_EXT_Update
+
 	;; ---[ send out CFG CC's if requested ]---
 	call	SEQ_CCOUT_Handler
 
@@ -353,10 +356,26 @@ USER_AIN_NotifyChange
 ;;  Application code (see comments in files)
 ;; ==========================================================================
 
+;; ---[ modules from code library ]---
+; override default pin definitions of AOUT driver
+#define AOUT_LAT_CS	LATC	; The chip select pin CS#
+#define AOUT_TRIS_CS	TRISC	; is connected to Port C.5
+#define AOUT_PIN_CS	5	; (CANNOT be shared with other outputs!)
+;
+#define AOUT_LAT_DIN	LATD	; The data input pin DIN
+#define AOUT_TRIS_DIN	TRISD	; is connected to Port D.4
+#define AOUT_PIN_DIN	4	; (can be shared with other outputs)
+;
+#define AOUT_LAT_SCLK	LATD	; The shift clock input pin SCLK
+#define AOUT_TRIS_SCLK	TRISD	; is connected to Port D.5
+#define AOUT_PIN_SCLK	5	; (can be shared with other outputs)
+; include AOUT driver (located in $MIOS_PATH/modules/aout/)
+#include <aout.inc>
+
+
 ;; ---[ reusable utility functions ]---
 #include "midi_evnt.inc"
 #include "midi_rxtx.inc"
-#include "aout.inc"
 #include "math_div24_16.inc"
 
 ;; ---[ Control surface functions ]---
@@ -419,6 +438,7 @@ USER_AIN_NotifyChange
 #include "seq_midi.inc"
 #include "seq_sysex.inc"
 #include "seq_bpm.inc"
+#include "seq_ext.inc"
 
 ;; ---[ BPM table ]---
 ;; #include "bpm_table.inc"

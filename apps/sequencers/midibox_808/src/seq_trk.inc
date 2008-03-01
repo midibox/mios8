@@ -45,11 +45,32 @@ SEQ_TRK_PrnName
 ;;      velocity (for forwardning to AOUT) in MIOS_PARAMETER1
 ;; --------------------------------------------------------------------------
 SEQ_TRK_ReqTrigger
+	;; temporary store trigger number in MIOS_PARAMETER2
+	movwf	MIOS_PARAMETER2
+
+	;; request trigger
 	lfsr	FSR1, SEQ_DRUM_TRIGGERS0	; select register
 	btfsc	WREG, 3
 	lfsr	FSR1, SEQ_DRUM_TRIGGERS1
 	call	MIOS_HLP_GetBitORMask		; get pin mask
 	iorwf	INDF1, F			; set request flag
+
+	;; check for AOUT assignment
+	movf	MIOS_PARAMETER2, W	; pin number was temporary stored in MIOS_PARAMETER2
+	TABLE_ADDR_MUL_W SEQ_TRK_INFO_TABLE, SEQ_TRK_INFO_TABLE_WIDTH
+	movlw	SEQ_TRK_INFO_TABLE_OFFSET_ACHN
+	addwf	TBLPTRL, F
+	movlw	0
+	addwfc	TBLPTRH, F
+
+	tblrd*+
+	movf	TABLAT, W
+	bz	SEQ_TRK_ReqTrigger_NoAOUT
+SEQ_TRK_ReqTrigger_AOUT
+	movf	MIOS_PARAMETER2, W	; pin number was temporary stored in MIOS_PARAMETER2
+	call	AOUT_Pin7bitSet		; velocity passed in MIOS_PARAMETER1
+SEQ_TRK_ReqTrigger_NoAOUT
+
 	return
 
 

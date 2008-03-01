@@ -197,32 +197,16 @@ SEQ_DATA_BUFFER		EQU	0x080
 SEQ_DATA_BUFFER_END	EQU	0x0bf
 
 ;; ==========================================================================
-
-;; used by aout.inc and aout_lc.inc
-AOUT_SR_NUMBER		EQU	0x0c0
-AOUT_SR_CTR		EQU	0x0c1
-AOUT_SR_BIT_CTR		EQU	0x0c2
-AOUT_SR_L		EQU	0x0c3
-AOUT_SR_H		EQU	0x0c4
-AOUT_GATE		EQU	0x0c5
-AOUT_GATE_OVERLAP	EQU	0x0c6
-;; free: 0x0c7
-AOUT0_L			EQU	0x0c8
-AOUT0_H			EQU	0x0c9
-AOUT1_L			EQU	0x0ca
-AOUT1_H			EQU	0x0cb
-AOUT2_L			EQU	0x0cc
-AOUT2_H			EQU	0x0cd
-AOUT3_L			EQU	0x0ce
-AOUT3_H			EQU	0x0cf
-AOUT4_L			EQU	0x0d0
-AOUT4_H			EQU	0x0d1
-AOUT5_L			EQU	0x0d2
-AOUT5_H			EQU	0x0d3
-AOUT6_L			EQU	0x0d4
-AOUT6_H			EQU	0x0d5
-AOUT7_L			EQU	0x0d6
-AOUT7_H			EQU	0x0d7
+;; 8 gate pins
+GATES			EQU	0x0c0
+GATES_LAST		EQU	0x0c1
+	
+;; ==========================================================================
+;; used by AOUT driver ($MIOS_PATH/modules/aout/)
+AOUT_INVERTED		EQU	0x0c2
+AOUT_UPDATE_REQ		EQU	0x0c3
+;; free: 0xc2-0xc7
+AOUT_VALUES		EQU	0x0c8;..0x0d7 (8 * 16bit words)
 
 ;; ==========================================================================
 

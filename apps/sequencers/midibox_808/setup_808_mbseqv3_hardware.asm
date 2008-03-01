@@ -204,10 +204,23 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_IIC1_RI_N_PIN	3
 
 
-;; 0: enable access to the AOUT module
-;; 1: enable access to the AOUT_LC module
-;; 2: enable access to the AOUT_NG module
-#define DEFAULT_AOUT_MODULE_TYPE	0
+;; define the AOUT interface which is used here:
+;;   1: one MBHP_AOUT module
+;;   2: up to 4 (chained) MBHP_AOUT_LC modules
+;;   3: one MBHP_AOUT_NG module
+;; all other values invalid!
+#define AOUT_INTERFACE_TYPE 1
+
+;; only relevant if one or more AOUT_LC modules are used:
+;; define the resolution configuration here
+;;   0: first channel 12bit, second channel 4bit
+;;   1: first channel 8bit, second channel 8bit
+;; all other values invalid!
+#define AOUT_LC_RESOLUTION_OPTION_M1 1
+#define AOUT_LC_RESOLUTION_OPTION_M2 1
+#define AOUT_LC_RESOLUTION_OPTION_M3 1
+#define AOUT_LC_RESOLUTION_OPTION_M4 1
+
 
 ;; 0: disables swing pot
 ;; 1: enables swing pot, connected to pin J5:A0

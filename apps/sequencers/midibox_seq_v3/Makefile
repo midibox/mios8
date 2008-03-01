@@ -24,5 +24,7 @@ include $(MIOS_PATH)/include/makefile/asm_only.mk
 include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
 
 # include MBHP_IIC_MIDI driver
-IIC_MIDI_DEFINES += -DIIC_MIDI_USE_RI=0 -DIIC_MIDI_DONT_USE_J5_INPUTS=1
 include $(MIOS_PATH)/modules/iic_midi/iic_midi.mk
+
+# include AOUT driver
+include $(MIOS_PATH)/modules/aout/aout.mk

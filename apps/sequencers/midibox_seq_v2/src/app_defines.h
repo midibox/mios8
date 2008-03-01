@@ -77,14 +77,7 @@ MIDI_EVNT_VALUE		EQU	0x015
 MIDI_RXTX_RX_CTR	EQU	0x016
 MIDI_RXTX_TX_CTR	EQU	0x017
 
-;; used by aout.inc
-AOUT_SR_NUMBER		EQU	0x018
-AOUT_SR_CTR		EQU	0x019
-AOUT_SR_BIT_CTR		EQU	0x01a
-AOUT_SR_L		EQU	0x01b
-AOUT_SR_H		EQU	0x01c
-AOUT_GATE		EQU	0x01d
-AOUT_GATE_OVERLAP	EQU	0x01e
+;; free: 0x018-0x01f
 
 ;; ==========================================================================
 ;;  Variables used by the control surface
@@ -289,7 +282,19 @@ SEQ_CCFDBK_SAVED_FSR1H	EQU	0x16a
 
 ;; -----------------------------------
 
-	;; free: 0x16b-0x17f
+	;; free: 0x16b
+
+;; -----------------------------------
+;; 8 gate pins
+GATES			EQU	0x16c
+GATES_LAST		EQU	0x16d
+
+;; -----------------------------------
+
+;; used by AOUT driver ($MIOS_PATH/modules/aout/)
+AOUT_INVERTED		EQU	0x16e
+AOUT_UPDATE_REQ		EQU	0x16f
+AOUT_VALUES		EQU	0x170;..0x17f (8 * 16bit words)
 
 ;; -----------------------------------
 ;; pot layer A

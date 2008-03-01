@@ -136,50 +136,18 @@ MIDI_EVNT_Send_Fx_Pair_CC
 	call	AOUT_Pin7bitSet
 MIDI_EVNT_Send_Fx_Pair_NoVel
 
-	;; enhanced gate bit handling:
-	;;    note on  when MIDI_EVNT_VALUE > 0
-	;;    note off when MIDI_EVNT_VALUE == 0
-	;; if note on and AOUT_GATE[chn] already set, then AOUT_GATE_OVERLAP = 1
-	;; if note off and AOUT_GATE_OVERLAP set, then ignore gate off
-
-	;; temporary save bitmask of corresponding channel in AOUT_SR_L
+	;; set/clear gate if channel < 4
 	movf	MIDI_EVNT0, W
-	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	movwf	AOUT_SR_L
-
+	andlw	0xfc
+	bnz	MIDI_EVNT_Send_Fx_Gate_Skip
+MIDI_EVNT_Send_Fx_Gate
 	movf	MIDI_EVNT_VALUE, W
-	bz	MIDI_EVNT_Send_Fx_GateOff
-MIDI_EVNT_Send_Fx_GateOn
-	setf	MIOS_PARAMETER1		; used by AOUT_GatePinSet
-	movf	AOUT_GATE, W		; gate bit already set?
-	andwf	AOUT_SR_L, W		; yes? Then we have an overlapping note
-	bz	MIDI_EVNT_Send_Fx_GateOn_NoOver
-MIDI_EVNT_Send_Fx_GateOn_Overlap
-	movf	AOUT_SR_L, W		; notify overlapping note
-	iorwf	AOUT_GATE_OVERLAP, F
-	rgoto	MIDI_EVNT_Send_Fx_Gate_Skip	; and DONT set gate to 1
-
-MIDI_EVNT_Send_Fx_GateOn_NoOver
-	movf	AOUT_SR_L, W		; set gate bit
-	iorwf	AOUT_GATE, F
-	rgoto	MIDI_EVNT_Send_Fx_Gate_Cont
-	
-MIDI_EVNT_Send_Fx_GateOff
-	clrf	MIOS_PARAMETER1		; used by AOUT_GatePinSet
-	comf	AOUT_SR_L, W		; clear gate bit
-	andwf	AOUT_GATE, F
-	movf	AOUT_GATE_OVERLAP, W	; overlap flag set?
-	andwf	AOUT_SR_L, W		; just continue of not set
-	bz	MIDI_EVNT_Send_Fx_Gate_Cont
-	comf	AOUT_SR_L, W		; else clear overlap flag and DONT set gate to 0!
-	andwf	AOUT_GATE_OVERLAP, F
-	rgoto	MIDI_EVNT_Send_Fx_Gate_Skip
-
-MIDI_EVNT_Send_Fx_Gate_Cont
-	movf	MIDI_EVNT0, W
+	skpz
+	movlw	0x01
+	movwf	MIOS_PARAMETER1
+	rrf	MIDI_EVNT0, W
 	andlw	0x03
-	call	AOUT_GatePinSet
+	rcall	MIDI_EVNT_AOUT_GatePinSet
 
 MIDI_EVNT_Send_Fx_Gate_Skip
 	rgoto	MIDI_EVNT_Send_End
@@ -189,11 +157,41 @@ MIDI_EVNT_Send_Fx_Single
 	movf	MIDI_EVNT0, W
 	andlw	0x07
 	call	AOUT_Pin7bitSet
+
+	movf	MIDI_EVNT_VALUE, W
+	skpz
+	movlw	0x01
+	movwf	MIOS_PARAMETER1
+	movf	MIDI_EVNT0, W
+	andlw	0x07
+	rcall	MIDI_EVNT_AOUT_GatePinSet
+
 	;; 	rgoto	MIDI_EVNT_Send_End
 
 MIDI_EVNT_Send_End
 	goto	MIOS_MIDI_EndStream
 
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: MIDI_EVNT_AOUT_GatePinSet
+;;  DESCRIPTION: Help Function which sets a Gate Pin independent from the interface
+;;  IN: 
+;;     o pin number in WREG
+;;     o value in MIOS_PARAMETER1
+;; --------------------------------------------------------------------------
+MIDI_EVNT_AOUT_GatePinSet
+	SET_BSR	GATES
+	movf	MIOS_PARAMETER1, F
+	bz	MIDI_EVNT_AOUT_PinSet0
+MIDI_EVNT_AOUT_PinSet1
+	call	MIOS_HLP_GetBitORMask
+	iorwf	GATES, F, BANKED
+	return
+
+MIDI_EVNT_AOUT_PinSet0
+	call	MIOS_HLP_GetBitANDMask
+	andwf	GATES, F, BANKED
+	return
 
 ;; ==========================================================================
 ;;  FUNCTION: MIDI_EVNT_PrintNote

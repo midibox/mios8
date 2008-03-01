@@ -190,9 +190,6 @@ USER_Init_NoCS
 #endif
 
 	;; initialize the AOUT module
-	clrf	MIOS_PARAMETER1			; inversion flags (will be changed during runtime)
-	clrf	MIOS_PARAMETER2			; reserved for future extensions
-	clrf	MIOS_PARAMETER3			; reserved for future extensions
 	call	AOUT_Init
 
 	;; initialize the integrated MIDI merger
@@ -738,7 +735,7 @@ AIN_NotifyChange_Loop_Next
 #include "sid_ebank.inc"
 #include "sid_tune.inc"
 #include "sid_sr.inc"
-#include "sid_gates.inc"
+#include "sid_ext.inc"
 #include "sid_se.inc"
 #include "sid_se_l.inc"
 #include "sid_se_b.inc"

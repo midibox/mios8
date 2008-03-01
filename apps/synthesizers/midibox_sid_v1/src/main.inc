@@ -108,9 +108,6 @@ USER_Init
 #endif
 
 	;; initialize the AOUT module
-	clrf	MIOS_PARAMETER1			; inversion flags (will be changed during runtime)
-	clrf	MIOS_PARAMETER2			; reserved for future extensions
-	clrf	MIOS_PARAMETER3			; reserved for future extensions
 	call	AOUT_Init
 
 	;; initialize the integrated MIDI merger
@@ -135,7 +132,7 @@ USER_Tick
 	;; ---[ update AOUTs channels (if enabled) ]---
 	IRQ_DISABLE
 	call	AOUT_Update
-	IRQ_DISABLE
+	IRQ_ENABLE
 
 	;; ---[ call SID shift register handler ]---
 	call	SID_SR_Handler

@@ -1,6 +1,6 @@
 ; $Id$
 ;
-; Gate Pin update handler
+; AOUT and Gate pin handler
 ; 
 ; ==========================================================================
 ;
@@ -11,24 +11,25 @@
 ; ==========================================================================
 
 ;; --------------------------------------------------------------------------
-;;  Called from USER_Tick to update the gates
+;;  Called from USER_Tick to update the AOUT channels and gates
 ;; --------------------------------------------------------------------------
-SID_GATES_Update
+SID_EXT_Update
+	;; disable interrupts to ensure data consistency
 	IRQ_DISABLE
-	call	AOUT_Update
-	IRQ_ENABLE
 
-	;; ---[ update gate pins ]---
-	call	SID_GATES_Update
+	;; forward inversion flags to AOUT driver
+	movff	SID_LOCAL_ENS+SID_ENSx_AOUT_INVERTED, WREG
+	call	AOUT_InvertedSet
+
+	;; update AOUT channels
+	call	AOUT_Update
+
 	;; do nothing if gate bits have not been changed
 	SET_BSR	GATES
 	movf	GATES, W, BANKED
 	xorwf	GATES_LAST, W, BANKED
-	bz	SID_GATES_Update_End
-
-	;; disable interrupts to ensure data consistency
-	IRQ_DISABLE
-
+	bz	SID_EXT_Update_Gates_Skip
+SID_EXT_Update_Gates
 	;; store new state
 	movff	GATES, GATES_LAST
 
@@ -50,8 +51,9 @@ SID_GATES_Update
 	call	J5_DOUT_Set
 #endif
 
+SID_EXT_Update_Gates_Skip
+
 	;; enable interrupts again
 	IRQ_ENABLE
 
-SID_GATES_Update_End
 	return

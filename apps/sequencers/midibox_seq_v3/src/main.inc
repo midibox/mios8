@@ -132,18 +132,8 @@ USER_Init_PIC_Ok
 	movlw	DEFAULT_SRIO_DEBOUNCE_CTR ; set debounce counter
 	call	MIOS_SRIO_DebounceSet
 
-#if DEFAULT_AOUT_MODULE_TYPE == 0
 	;; initialize the AOUT module
 	call	AOUT_Init
-#endif
-#if DEFAULT_AOUT_MODULE_TYPE == 1
-	;; initialize the AOUT_LC module
-	call	AOUT_LC_Init
-#endif
-#if DEFAULT_AOUT_MODULE_TYPE == 2
-	;; initialize the AOUT_NG module
-	call	AOUT_NG_Init
-#endif
 
 #if DEFAULT_ENABLE_J5_GATES
 	call	J5_DOUT_Init
@@ -183,6 +173,9 @@ USER_Tick
 
 	;; ---[ call sequencer handler ]---
 	call	SEQ_CORE_Tick
+
+	;; ---[ update AOUTs channels and gates ]---
+	call	SEQ_EXT_Update
 
 	;; ---[ send out CFG CC's if requested ]---
 	call	SEQ_CCOUT_Handler
@@ -465,20 +458,32 @@ USER_AIN_NotifyChange
 ;; ==========================================================================
 
 ;; ---[ modules from code library ]---
+#define IIC_MIDI_USE_RI			0
+#define IIC_MIDI_DONT_USE_J5_INPUTS	1
+#define IIC_MIDI_PORT_RI_N_SLAVE1       DEFAULT_IIC1_RI_N_PORT
+#define IIC_MIDI_TRIS_RI_N_SLAVE1       DEFAULT_IIC1_RI_N_TRIS
+#define IIC_MIDI_PIN_RI_N_SLAVE1        DEFAULT_IIC1_RI_N_PIN
 #include <iic_midi.inc>		; located in $MIOS_PATH/modules/iic_midi/
+
+; override default pin definitions of AOUT driver
+#define AOUT_LAT_CS	LATC	; The chip select pin CS#
+#define AOUT_TRIS_CS	TRISC	; is connected to Port C.5
+#define AOUT_PIN_CS	5	; (CANNOT be shared with other outputs!)
+;
+#define AOUT_LAT_DIN	LATD	; The data input pin DIN
+#define AOUT_TRIS_DIN	TRISD	; is connected to Port D.4
+#define AOUT_PIN_DIN	4	; (can be shared with other outputs)
+;
+#define AOUT_LAT_SCLK	LATD	; The shift clock input pin SCLK
+#define AOUT_TRIS_SCLK	TRISD	; is connected to Port D.5
+#define AOUT_PIN_SCLK	5	; (can be shared with other outputs)
+; include AOUT driver (located in $MIOS_PATH/modules/aout/)
+#include <aout.inc>
+
 
 ;; ---[ reusable utility functions ]---
 #include "midi_evnt.inc"
 #include "midi_rxtx.inc"
-#if DEFAULT_AOUT_MODULE_TYPE == 0
-#include "aout.inc"
-#endif
-#if DEFAULT_AOUT_MODULE_TYPE == 1
-#include "aout_lc.inc"
-#endif
-#if DEFAULT_AOUT_MODULE_TYPE == 2
-#include "aout_ng.inc"
-#endif
 #if DEFAULT_ENABLE_J5_GATES
 #include "j5_dout.inc"
 #endif
@@ -553,6 +558,7 @@ USER_AIN_NotifyChange
 #include "seq_router.inc"
 #include "seq_sysex.inc"
 #include "seq_bpm.inc"
+#include "seq_ext.inc"
 #include "seq_load.inc"
 
 ;; ---[ MBSEQ EEPROM content ]---

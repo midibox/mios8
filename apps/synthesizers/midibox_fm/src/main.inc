@@ -72,9 +72,6 @@ USER_Init
 	call	MIOS_SRIO_TS_SensitivitySet
 
 	;; initialize the AOUT module
-	clrf	MIOS_PARAMETER1			; inversion flags (will be changed during runtime)
-	clrf	MIOS_PARAMETER2			; reserved for future extensions
-	clrf	MIOS_PARAMETER3			; reserved for future extensions
 	call	AOUT_Init
 
 	;; initialize the integrated MIDI merger

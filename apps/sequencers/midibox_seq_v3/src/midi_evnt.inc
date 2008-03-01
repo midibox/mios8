@@ -273,7 +273,7 @@ MIDI_EVNT_Send_AOUT_Note_N
 	movff	MIDI_EVNT1, MIOS_PARAMETER1
 	movf	MIDI_EVNT0, W
 	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_PinSet
+	call	AOUT_Pin7bitSet
 
 	;; set gate if velocity > 0
 	movf	MIDI_EVNT_VALUE, W
@@ -292,7 +292,7 @@ MIDI_EVNT_Send_AOUT_Note_NV
 	movff	MIDI_EVNT1, MIOS_PARAMETER1
 	rlf	MIDI_EVNT0, W
 	andlw	0x06
-	rcall	MIDI_EVNT_AOUT_PinSet
+	call	AOUT_Pin7bitSet
 
 	;; Velocity (don't update if value is 0)
 	movf	MIDI_EVNT_VALUE, W
@@ -301,7 +301,7 @@ MIDI_EVNT_Send_AOUT_Note_NV
 	rlf	MIDI_EVNT0, W
 	andlw	0x06
 	addlw	1
-	rcall	MIDI_EVNT_AOUT_PinSet
+	call	AOUT_Pin7bitSet
 MIDI_EVNT_Send_AOUT_Note_NV_V0
 
 MIDI_EVNT_Send_AOUT_Note_VN_Gate
@@ -329,7 +329,7 @@ MIDI_EVNT_Send_AOUT_Note_VN
 	movwf	MIOS_PARAMETER1
 	rlf	MIDI_EVNT0, W
 	andlw	0x06
-	rcall	MIDI_EVNT_AOUT_PinSet
+	call	AOUT_Pin7bitSet
 MIDI_EVNT_Send_AOUT_Note_VN_V0
 
 	;; Note
@@ -337,7 +337,7 @@ MIDI_EVNT_Send_AOUT_Note_VN_V0
 	rlf	MIDI_EVNT0, W
 	andlw	0x06
 	addlw	1
-	rcall	MIDI_EVNT_AOUT_PinSet
+	call	AOUT_Pin7bitSet
 
 	;; set/clear gates
 	rgoto	MIDI_EVNT_Send_AOUT_Note_VN_Gate
@@ -351,7 +351,7 @@ MIDI_EVNT_Send_AOUT_CC_C
 	movff	MIDI_EVNT_VALUE, MIOS_PARAMETER1
 	movf	MIDI_EVNT0, W
 	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_PinSet
+	call	AOUT_Pin7bitSet
 
 	;; gate always set
 	setf	MIOS_PARAMETER1
@@ -365,7 +365,7 @@ MIDI_EVNT_Send_AOUT_CC_N
 	movff	MIDI_EVNT_VALUE, MIOS_PARAMETER1
 	movf	MIDI_EVNT1, W
 	andlw	0x07
-	rcall	MIDI_EVNT_AOUT_PinSet
+	call	AOUT_Pin7bitSet
 
 	;; gate always set
 	setf	MIOS_PARAMETER1
@@ -396,7 +396,7 @@ MIDI_EVNT_Send_AOUT_ExtGate_Skip
 	rgoto	MIDI_EVNT_Send_AOUT_End
 
 MIDI_EVNT_Send_AOUT_End
-	rgoto	MIDI_EVNT_AOUT_SRUpdate	; update all shift registers of the SR chain
+	return
 
 
 	;; ---------------------------------------------------------------------
@@ -453,24 +453,6 @@ MIDI_EVNT_Send_Loop_Cont
 
 
 ;; --------------------------------------------------------------------------
-;;  FUNCTION: MIDI_EVNT_AOUT_PinSet
-;;  DESCRIPTION: Help Function which sets an AOUT pin independent from the interface
-;;  IN: 
-;;     o pin number in WREG
-;;     o value in MIOS_PARAMETER1
-;; --------------------------------------------------------------------------
-MIDI_EVNT_AOUT_PinSet
-#if DEFAULT_AOUT_MODULE_TYPE == 0	; AOUT
-	goto	AOUT_Pin7bitSet
-#endif
-#if DEFAULT_AOUT_MODULE_TYPE == 1	; AOUT_LC
-	goto	AOUT_LC_Pin7bitSet
-#endif
-#if DEFAULT_AOUT_MODULE_TYPE == 2	; AOUT_NG
-	goto	AOUT_NG_Pin7bitSet
-#endif
-
-;; --------------------------------------------------------------------------
 ;;  FUNCTION: MIDI_EVNT_AOUT_GatePinSet
 ;;  DESCRIPTION: Help Function which sets a Gate Pin independent from the interface
 ;;  IN: 
@@ -478,21 +460,19 @@ MIDI_EVNT_AOUT_PinSet
 ;;     o value in MIOS_PARAMETER1
 ;; --------------------------------------------------------------------------
 MIDI_EVNT_AOUT_GatePinSet
-	movwf	PRODL		; temporary store pin number in PRODL
-
-#if DEFAULT_ENABLE_J5_GATES
-	call	J5_DOUT_PinSet
-#endif
-
-#if DEFAULT_AOUT_MODULE_TYPE == 0	; AOUT
-	movlw	2		; only pin #0 and #1
-	cpfslt	PRODL, ACCESS
-	rgoto MIDI_EVNT_AOUT_GatePinSet_NoAOUT
-	movf	PRODL, W
-	call	AOUT_GatePinSet
-MIDI_EVNT_AOUT_GatePinSet_NoAOUT
-#endif
+	SET_BSR	GATES
+	movf	MIOS_PARAMETER1, F
+	bz	MIDI_EVNT_AOUT_PinSet0
+MIDI_EVNT_AOUT_PinSet1
+	call	MIOS_HLP_GetBitORMask
+	iorwf	GATES, F, BANKED
 	return
+
+MIDI_EVNT_AOUT_PinSet0
+	call	MIOS_HLP_GetBitANDMask
+	andwf	GATES, F, BANKED
+	return
+
 
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: MIDI_EVNT_DOUT_GatePinSet
@@ -542,14 +522,3 @@ MIDI_EVNT_EXT_GatePinSet
 MIDI_EVNT_EXT_GatePinSet_End
 	return
 
-;; --------------------------------------------------------------------------
-;;  FUNCTION: MIDI_EVNT_AOUT_SRUpdate
-;;  DESCRIPTION: Help Function which updates the SR chain of the AOUT modules
-;;  independent from the interface
-;; --------------------------------------------------------------------------
-MIDI_EVNT_AOUT_SRUpdate
-#if DEFAULT_AOUT_MODULE_TYPE == 1	; AOUT_LC
-	goto	AOUT_LC_Update
-#else					; AOUT
-	return				; no chain update required (already done in AOUT_Pin7bitSet)
-#endif
