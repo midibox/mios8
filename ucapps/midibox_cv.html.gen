@@ -1,0 +1,351 @@
+HEADER 3 MIDIbox CV
+
+<H1>MIDIbox CV</H1>
+
+<A NAME="features"></A>
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Feature list:</H2></DT>
+  <UL CLASS=CL TYPE=DISC>
+    <LI> requires <A HREF="mbhp_core.html">CORE</A> and <A HREF="mbhp_aout.html">AOUT</A> or <A HREF="mbhp_aout_lc.html">AOUT_LC</A> module</LI>
+    <LI> up to 8 CV outputs with 12 bit resolution</LI>
+    <LI> 8 gate outputs</LI>
+    <LI> Outputs can be assigned to 16 MIDI Channels and Note/Velocity/Aftertouch/CC/NRPN/Pitchbender events</LI>
+    <LI> 8 independent Note stacks with 16 notes depth!</LI>
+    <LI> Mono/Legato/8*Poly mode</LI>
+    <LI> selectable Pitchbender range</LI>
+    <LI> Octave and Semitones Transpose function</LI>
+    <LI> Keyboard Split/Layer function</LI>
+    <LI> Selectable Gate Polarity</LI>
+    <LI> Selectable Output Curve: V/Oct, Hz/V, Inverted, Exponential</LI>
+    <LI> Interpolation function (smoother) with selectable slew rate from (1mS..64mS)</LI>
+    <LI> DIN Sync Output (StartStop and Clock) with various dividers and multipliers (96ppqn .. 24ppqn / 16)</LI>
+    <LI> Easy to use Calibration Function</LI>
+    <LI> MIDI Merger (<A HREF="midibox_link.html">MIDIbox Link</A> compatible)</LI>
+    <LI> support for <A HREF="mbhp_bankstick.html">BankStick</A>, stores 128 patches</LI>
+    <LI> configuration via 4 buttons/LCD or via SysEx</LI>
+  </UL>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware Options </H2></DT>
+  <DD>
+    <P CLASS=DESC>Following options have to be considered when you are planning your MIDIbox CV:
+    <UL CLASS=CL>
+      <LI><A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module: either one MBHP_AOUT or up to 4xMBHP_AOUT_LC or one MBHP_AOUT_NG module can be handled by a single MIDIbox CV.
+        <UL CLASS=CL>
+          <LI><A HREF="mbhp_aout.html">MBHP_AOUT</A>: high quality interface with eight 12-bit CV outputs. Two MAX525 are required, these DACs are <B>very expensive</B> (each chip ca. 30 EUR!).<BR>
+            <A HREF="midibox_cv/mbcv_aout_interconnections.pdf">Interconnections to MBHP_AOUT module</A></LI>
+          <LI><A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A>: low-cost interface with two CV outputs, either 12-bit/8-bit or 8-bit/8-bit configuration. Four MBHP_AOUT_LC modules can be chained in order to get eight outputs. This interface is really cheap, but it takes some time to build the module due to the high number of resistors.<BR>
+            <A HREF="midibox_cv/mbcv_aout_lc_interconnections.pdf">Interconnections to MBHP_AOUT_LC module</A></LI>
+          <LI><A HREF="mbhp_aout.html">MBHP_AOUT_NG</A>: high quality interface with eight 12-bit CV outputs. One TLV5630 is required - best value! (US $15)<BR>
+            <A HREF="midibox_cv/mbcv_aout_ng_interconnections.pdf">Interconnections to MBHP_AOUT_NG module</A></LI>
+          <LI>Alternative DACs could also be handled by MIDIbox CV, but this requires a driver adaption. The drivers can be found in cv_aout.inc and cv_aout_lc.inc</LI>
+        </UL>
+      </LI>
+      <LI><A HREF="mbhp_lcd.html">2x16 LCD</A>: the most comfortable solution to configure the MIDIbox CV is by using the menu interface. At least for debugging it makes sense to spent the core a LCD (a 2x16 backlit LCD is available for 7.50 EUR at <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A>), therefore the usage without a LCD/menu hasn't been focused during the development. The configuration can be changed from a PC via SysEx, but an editor is not available (yet). Therefore please consider to build the menu interface!</LI>
+      <LI><A HREF="mbhp_din.html">DINX1</A>: a shift register is required for the 4 menu buttons (resp. the two menu buttons + the datawheel, see below). It doesn't make sense to build a complete DINX4 module just for 4 digital inputs, therefore I suggest to build a single 74HC165 shift registers + 9*10k resistors on the same veroboard where your buttons are mounted.<BR>
+      <LI>4 buttons or 2 buttons/datawheel: the menu navigation requires at least one Exit and one Select button. For data entry either Inc/Dec Buttons, or a datawheel (rotary encoder) can be used.<BR>
+         <A HREF="midibox_cv/mbcv_4buttons.pdf">Interconnection diagram for 4 button configuration</A><BR>
+         <A HREF="midibox_cv/mbcv_2buttons_datawheel.pdf">Interconnection diagram for 2 buttons and one datawheel configuration</A></LI>
+      <LI><A HREF="mbhp_bankstick.html">BankStick</A>: a 24LC256 BankStick is recommented, it allows you to store 128 patches. Patches can be named for best oversight. Multiple BankSticks are not supported, but the stick is hot-swappable.<BR>
+    </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware Configuration </H2></DT>
+  <DD><P CLASS=DESC>Since MIDIbox CV supports so many different hardware options, it is evtl. required to customize the firmware. The basic setup which will propably never be altered cannot be edited from the menu interface, instead it has to be changed in the main.asm file of the application.</P>
+
+  <UL CLASS=CL>
+    <LI>Buttons and optional datawheel
+      <UL CLASS=CL>
+        <LI>4 Buttons: thats the default setup which doesn't need to be changed if you are planning to use it. Following defines in main.asm select the pin numbers of the "DINX1" module:
+<TT><PRE>
+#define DEFAULT_DIN_MENU_EXEC         7
+#define DEFAULT_DIN_MENU_RIGHT        6
+#define DEFAULT_DIN_MENU_LEFT         5
+#define DEFAULT_DIN_MENU_SELECT       4
+</PRE></TT>
+        </LI>
+        <LI>2 Buttons and one datawheel: DEFAULT_ENC_DATAWHEEL must be set to 0 in order to select the first encoder. The encoder connections are specified in mios_tables.inc, the Exec and Select pin number in main.asm
+<TT><PRE>
+;; mios_tables.inc:
+;;        SR  Pin  Mode
+ENC_ENTRY  1,  4,  MIOS_ENC_MODE_DETENTED       ; Data Wheel
+;;       (and  5)
+
+;; main.asm:
+#define DEFAULT_DIN_MENU_EXEC         7
+#define DEFAULT_DIN_MENU_SELECT       6
+</PRE></TT>
+        </LI>      
+      </UL>
+    </LI>
+    <LI>Gate Outputs: if a MBHP_AOUT module is used, two gate outputs are provided by the module itself, they are assigned to CV1 and CV2. The remaining outputs are available directly at the J5 socket of the core module. This is the only option for the MBHP_AOUT_LC and MBHP_AOUT_NG module (there is no disadvantage!). <BR>
+        Note that the gate outputs at J5 are <B>not enabled by default</B>. This is to reduce the risk that somebody doesn't read the documentation and uploads the firmware on a MIDIbox64 (or similar), where J5 is used as pot input. A short circuit would happen which could destroy the port drivers.<BR>
+        Therefore J5 has to be enabled explicitely in main.asm:
+<TT><PRE>
+; use PORTA and PORTE (J5 of the core module) for 8 additional gate outputs
+#define ENABLE_J5 0
+</PRE></TT>
+    </LI>
+    <LI>AOUT interface: it has to be specified, if a common MBHP_AOUT, MBHP_AOUT_LC or MBHP_AOUT_NG module is connected to the core:
+<TT><PRE>
+;   1: one MBHP_AOUT module
+;   2: up to 4 (chained) MBHP_AOUT_LC modules
+;   3: one MBHP_AOUT_NG module
+#define DEFAULT_AOUT_INTERFACE 1
+</PRE></TT>
+    </LI>
+    <LI>If one or more MBHP_AOUT_LC modules are used, the resolution configuration has to be specified in addition:
+<TT><PRE>
+;   1: first CV output 12bit, second CV output 4bit
+;   2: first CV output 8bit, second CV output 8bit
+#define DEFAULT_AOUT_LC_1_RESOLUTION 1  ; 1st AOUT_LC module
+#define DEFAULT_AOUT_LC_2_RESOLUTION 1  ; 2nd AOUT_LC module
+#define DEFAULT_AOUT_LC_3_RESOLUTION 1  ; 3rd AOUT_LC module
+#define DEFAULT_AOUT_LC_4_RESOLUTION 1  ; 4th AOUT_LC module
+</PRE></TT>
+    </LI>
+    <LI>The sync clock output is available at pin RC0 of the PIC (port J6:SC of the core module) by default, the pin can be changed if desired:
+<TT><PRE>
+#define DEFAULT_EXT_CLK_LAT            LATC
+#define DEFAULT_EXT_CLK_PIN            0
+</PRE></TT>
+
+    <LI>The sync start/stop output is available at pin RC1 of the PIC (port J6:RC of the core module) by default, the pin can be changed if desired:
+<TT><PRE>
+#define DEFAULT_EXT_START_STOP_LAT     LATC
+#define DEFAULT_EXT_START_STOP_PIN     1
+</PRE></TT>
+
+    <LI>Also the pulsewidth of the clock output can be configured in pieces of 500 uS. By default it's 1 mS:
+<TT><PRE>
+; 0 -> 500 uS
+; 1 -> 1   mS
+; 2 -> 1.5 mS
+; etc...
+#define DEFAULT_EXT_CLK_PULSEWIDTH 1
+</PRE></TT>
+    </LI>
+
+    <LI>The Chip Select number of the BankStick which is used by MBCV can be defined:
+<TT><PRE>
+; 0: disables BankStick, 1..8: selects CS#0..CS#7
+; If you are unsure about the right value, use 1 (for CS#0, all CS inputs
+; tied to ground), even when no BankStick is connected
+; ("hotplug", will be detected automatically)
+#define DEFAULT_BANKSTICK_NUMBER 1
+</PRE></TT>
+    </LI>
+
+    <LI>The MIDI channel for patch changes can be defined here:
+<TT><PRE>
+; 0: patches can only be changed from CS, 1-16: MIDI channel for program changes
+#define DEFAULT_PATCH_CHANGE_CHANNEL 1
+</PRE></TT>
+    </LI>
+
+
+    <LI>Once all changes have been made, the application has to be rebuilt like described at <A HREF="howto_tools_gpasm.html">this HowTo page</A>.</LI>
+  </UL>
+
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Menus </H2></DT>
+  <DD>
+  <P CLASS=DESC>The purpose of the buttons/datawheel:
+    <UL CLASS=CL>
+      <LI><B>EXIT:</B> use this button to exit the current menu page</LI>
+      <LI><B>SELECT:</B> in most menus this button is used to select the parameter (cursor position)</LI>
+      <LI><B>LEFT/RIGHT</B> or <B>Datawheel:</B> increments/decrements the selected parameter</LI>
+    </UL>
+  </P>
+
+  <P CLASS=DESC>And here a description about the available menu pages:</P>
+
+  <TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu01.gif" width=97 height=19 ALT="Main Page"></P><P CLASS=INFO>Main Page</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu01_01.gif" width=194 height=38 ALT="" align="left">This is the initial screen after power-on. It consists of the patch number, 8 meters which display the CV output value and which show animated triggers when the value is changed via MIDI. At the bottom line the patch name is displayed.<BR>The patch number P001..P128 can be changed within this page by pressing the left/right button/turning the datawheel.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu01_02.gif" width=194 height=38 ALT="" align="left">Changes in the configuration can be stored within this page by pressing the SELECT button for more than 2 seconds.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu01_03.gif" width=194 height=38 ALT="" align="left">You will be asked for the patch destination. Note that the lower line displays the name of the patch which will be overwritten!<BR>Press SELECT again to continue with the next page, otherwise press EXIT to abort the saving process.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu01_04.gif" width=194 height=38 ALT="" align="left">You will be asked for the new patch name. Press SELECT to move the cursor to the next character. SELECT has to be pressed 17 times (16 characters + confirmation) to finally store the configuration. Note that also in this page the process can be aborted by pressing the EXIT button.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu02.gif" width=97 height=19 ALT="MIDI Events"></P><P CLASS=INFO>MIDI Events</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu02_00a.gif" width=194 height=38 ALT="" align="left">In most menus you can select the CV output and other parameters.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu02_00b.gif" width=194 height=38 ALT="" align="left">The cursor position can be changed with the SELECT button.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu02_01.gif" width=194 height=38 ALT="" align="left">In this submenu the incoming MIDI events can be assigned to the 8 CV outputs. With "Note" the appr. CV output will change its voltage level on incoming Notes (1V/octave).<BR>In addition, the voltage level can be shifted with the PitchBender depending on the selected Pitchbender Range (-> see Pitchrange menu). Each CV output has it's own note stack (-> see Note Handling menu).</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu02_02.gif" width=194 height=38 ALT="" align="left">With "Vel." the voltage level changes with the velocity of the Note.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu02_03.gif" width=194 height=38 ALT="" align="left">With "ATch." the voltage level changes with incoming Aftertouch events.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu02_04.gif" width=194 height=38 ALT="" align="left">With "CC" the voltage level is changed with incoming MIDI controller events. The CC number has to be selected seperately in the "CC/NRPN number" submenu.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu02_05.gif" width=194 height=38 ALT="" align="left">With "NRPN" the voltage level is changed with incoming NRPN events. This is a special CC format which transfers a value in 14-bit resolution. The NRPN LSB number (CC#98) has to be selected seperately in the "CC/NRPN number" submenu. The MSB (CC#99) is always 0. The MSB data is transfered with CC#6, the LSB data with CC#38.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu02_06.gif" width=194 height=38 ALT="" align="left">With "PitchBender" the voltage level is changed with incoming PitchBender events.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu03.gif" width=97 height=19 ALT="Transpose"></P><P CLASS=INFO>Transpose</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu03_01.gif" width=194 height=38 ALT="" align="left">CV output which are assigned to Notes can be transposed individually by -8/+7 octaves and -8/+7 semitones.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu04.gif" width=97 height=19 ALT="Keyboard Zone"></P><P CLASS=INFO>Keyboard Zone</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu04_01.gif" width=194 height=38 ALT="" align="left">CV outputs which are assigned to Notes can be splitted into different keyboard zones. This allows you to play different sounds with a single keyboard. You are also able to layer sounds by overlapping the zones and transposing the notes.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu05.gif" width=97 height=19 ALT="Pitchrange"></P><P CLASS=INFO>Pitchrange</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu05_01.gif" width=194 height=38 ALT="" align="left">CV outputs which are assigned to Notes can be controlled with a Pitchbender in addition. This submenu allows you to define about how many semitones the Pitchbender should shift the voltage level in negative and positive direction.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu06.gif" width=97 height=19 ALT="Note Handling"></P><P CLASS=INFO>Note Handling</P></TD>
+    <TD>
+      <P CLASS=DESC>MIDIbox CV provides an individual note stack for each CV output. A note stack is not only advantageous for poly, but only for mono synths, because it improves live playing - without a note stack the Legato/Mono mode couldn't determine the held keys:
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu06_01.gif" width=194 height=38 ALT="" align="left">Legato means that the gate will be switched on with the first pressed key, and it will be switched off when all keys are released.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu06_02.gif" width=194 height=38 ALT="" align="left">Mono means that the gate will be re-triggered if a new key is pressed or if a key is released while other keys are still held.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu06_03.gif" width=194 height=38 ALT="" align="left">Poly assigns all played keys to different CV outputs. The first note will always be forwarded to CV output #1, the second to #2, to third to #3 and so on <B>if</B> the appr. outputs are assigned to Notes in the MIDI event menu. This means, that you are still able to use the last outputs for other MIDI events.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu07.gif" width=97 height=19 ALT="CC/NRPN"></P><P CLASS=INFO>CC/NRPN Number</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu07_01.gif" width=194 height=38 ALT="" align="left">In this submenu the CC or NRPN LSB number has to be selected which is used when the appr. output reacts on CC or NRPN events.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu08.gif" width=97 height=19 ALT="Gate Polarity"></P><P CLASS=INFO>Gate Polarity</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu08_01.gif" width=194 height=38 ALT="" align="left">the polarity of each individual gate output can be changed in this menu page. We have positive gate outputs by default (Gate goes high when a key is pressed).</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu08_02.gif" width=194 height=38 ALT="" align="left">By changing the polarity, the gate will be inverted (gate goes low when a key is pressed).</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu09.gif" width=97 height=19 ALT="Output Curve"></P><P CLASS=INFO>Output Curve</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu09_01.gif" width=194 height=38 ALT="" align="left">The output curve for each individual CV output can be changed in this menu page. 1V/Oct is a linear curve which is provided by most synthesizers.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu09_02.gif" width=194 height=38 ALT="" align="left">The V/Hz scaling is suitable for synths like the Korg MS-20. Note that this output behaviour needs to be calibrated, the calibration process is described below.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu09_03.gif" width=194 height=38 ALT="" align="left">Optionally the linear output curve can be inverted if desired.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu09_04.gif" width=194 height=38 ALT="" align="left">An exponential curve is also available, this could be helpful if a CV output is assigned to velocity.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu09_2.gif" width=97 height=19 ALT="Interpolation"></P><P CLASS=INFO>Interpolation</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu09_2_01.gif" width=194 height=38 ALT="" align="left">The interpolation function allows you to smooth the CV output with a selectable slew rate from 1mS to 64mS (in steps of 2^n).</IMG></P>
+      <P CLASS=DESC>This feature is especially useful when CV outputs are controlled by 7bit velocity or CC values, as it gets use of the full 12bit resolution and reduces zipper noise dramatically.<BR>
+    <B>Demo:</B><BR>
+    **MP3**"http://www.ucapps.de/mp3/midibox_cv/mbcv_without_interpolation.mp3"#ffffff** <SPAN CLASS=LI><I>CC filter sweep without interpolation</I></SPAN><BR>
+    **MP3**"http://www.ucapps.de/mp3/midibox_cv/mbcv_with_interpolation.mp3"#ffffff** <SPAN CLASS=LI><I>CC filter sweep with interpolation</I></SPAN><BR>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu10.gif" width=97 height=19 ALT="Clock Divider"></P><P CLASS=INFO>Clock Divider</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu10_02.gif" width=194 height=38 ALT="" align="left">A clock sync output is available at J14 of the core module which is triggered on each incoming MIDI clock. The MIDI clock has a resolution of 24ppqn (24 pulses per quarter note).</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu10_01.gif" width=194 height=38 ALT="" align="left">Optionally the resolution of the clock can be increased by 32, 48 or 96 ppqn. This is realized by using a software implemented "phase locked loop" (PLL).</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu10_03.gif" width=194 height=38 ALT="" align="left">The 24ppqn MIDI clock can also be divided by 1, 2, 3, 4, 5, ... 16 if desired.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu11.gif" width=97 height=19 ALT="Calibration"></P><P CLASS=INFO>Calibration</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu11_01.gif" width=194 height=38 ALT="" align="left">This menu page simplifies the calibration of the AOUT module.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu11_02.gif" width=194 height=38 ALT="" align="left">Different voltages can be selected (Minimum, Middle, Maximum, 1.00V, 2.00V, 4.00V and 8.00V), which have to be measured at the CV output.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu11_03.gif" width=194 height=38 ALT="" align="left"> If the output values don't match, they can be adjusted on the gain and offset trimmers.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu11_04.gif" width=194 height=38 ALT="" align="left">The calibration process is described below. It should be mentioned here, that calibration is especially required when you are switching between the 1V/Oct to the Hz/V output curve characteristic.</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu12.gif" width=97 height=19 ALT="MIDI Configuration"></P><P CLASS=INFO>MIDI Configuration</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu12_01.gif" width=194 height=38 ALT="" align="left">The MIDI merger allows you to plug the MIDIbox and a keyboard to a computer w/o the need for a second MIDI In interface. Just plug the MIDI Out of your keyboard to the MIDI In of MIDIbox and the MIDI Out of the MIDIbox to the MIDI In of your computer.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu12_02.gif" width=194 height=38 ALT="" align="left">If you connect the MIDI In of the MIDIbox with MIDI Out of your computer, you should disable the MIDI merger in order to avoid endless feedback loops.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu12_04.gif" width=194 height=38 ALT="" align="left">If multiple MIDIboxes should be cascaded based on the <A HREF="midibox_link.html">MIDIbox Link</A> concept, all MIDIboxes have to be declared as MIDIbox Link Forwarding Point...</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu12_03.gif" width=194 height=38 ALT="" align="left">except for the last MIDIbox which has to be declared as MIDIbox Link Endpoint.</IMG></P>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu12_05.gif" width=194 height=38 ALT="" align="left"><B>Note:</B> In this menu, you are also able to enable the MIDIbox-to-COM option with the SELECT button. Find more informations at the <A HREF="midibox_to_com.html">MIDIbox-to-COM Interface Page</A>!</IMG></P>
+    </TD>
+  </TR>
+
+  <!---------------------------------------------------------------------------->
+  <TR>
+    <TD><P><IMG SRC="midibox_cv/menu13.gif" width=97 height=19 ALT="Send SysEx"></P><P CLASS=INFO>Send SysEx</P></TD>
+    <TD>
+      <P CLASS=DESC><IMG SRC="midibox_cv/menu13_01.gif" width=194 height=38 ALT="" align="left">In this submenu the device ID can be selected, and a SysEx dump which contains the current configuration can be triggered manually with the SELECT button.<BR>Note that the device ID won't be saved in the EEPROM memory, it will be derived from the MIOS device ID after power-on.</P</IMG>
+    </TD>
+  </TR>
+
+  </TABLE>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Calibration </H2></DT>
+  <DD>
+    <P CLASS=DESC>The CV outputs can be easily calibrated from the Calibration menu page. You need a multimeter to measure the output levels, with digital multimeters it's easier than with analog multimeters. Note that especially cheap multimeters could have a tolerance of 0.5% and more, which means, that if you measure 8.00V, the real voltage level could be in between 8.04V and 7.96V. Especially AOUT_LC users will notice an additional linearity error which is caused by not perfectly matching values of the 10k resistors. Therefore don't consume too much time to get perfectly matching levels, try to find the best fitting values!
+    <UL CLASS=CL>
+      <LI><B>1V/Octave</B>: the maximum voltage should be 10.67V. This value is derived from the available number of notes (128): 10.67V / 128 = 0.0834V, an octave consists of 12 semitones -> 12*0.0834V = 1.00V<BR>
+          MBHP_AOUT_LC users have to calibrate the offset first: select "Min.", and adjust the offset trimpot until the CV out reaches 0.00V<BR>
+          Thereafter select "Max." and adjust the gain trimpot until the voltage reaches ca. 10.67V<BR>
+          Now doublecheck the gain: select 1.00V, 2.00V, 4.00V and 8.00V and adjust the gain until the selected values are reached as good as possible.</LI>
+      <LI><B>Hz/V</B>: the maximum voltage should be 10.24V. This value has been choosen to simplify the calculation of the required voltage levels for each note. With 10.24V and 12bit resolution, each DAC step can increase the voltage by 0.005V.<BR>
+      <I>Important:</I> first go into the "Output Curve" page and select "Hz/V", otherwise you will measure the wrong results. This curve has to be selected for each CV seperately which should use this characteristic.<BR>
+      Thereafter go into the calibration menu, adjust the offset (if required), select the maximum voltage, adjust the gain until 10.24V is reached, then try 1.00V, 2.00V, 4.00V and 8.00V</LI>
+      <LI><B>Bipolar voltages (e.g. -5V/+5V)</B>: some synths require a bipolar voltage to control sound parameters like Finetune, ADSR, CutOff/Resonance, etc.<BR>
+          Users of a MBHP_AOUT module need to add the <A HREF="mbhp/mbhp_aout_balanced_cv.pdf">Balanced CV extension</A> to each output in order to get the possibility for adjusting the output voltage below 0V<BR>
+          An offset trimpot is already available on the AOUT_LC and AOUT_NGmodule.<BR>
+          In order to calibrate the balanced CV, first select "Middle" and adjust the offset trimpot until 0.00V is reached. Thereafter select "Min.-" and "Max." and change the levels there by adjusting the gain trimpot. Check the "Middle" voltage again and iterate, until you've found perfectly matching settings.</LI>
+    </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Outlook </H2></DT>
+  <DD>
+    <P CLASS=INFO>Sooner or later MIDIbox CV will support the <A HREF="mbhp_shx8.html">MBHP_SHX8</A> module, so that up to 64 CV outputs are available. However, due to memory limitations this solution won't be able to manage a 64 note polyphonic mode ;-) But it isn't a big problem to enhance the firmware by an option which allows to control the 56 remaining outputs always via CC.</P>
+    <P CLASS=INFO>A S&H multiplexer solution could also be useful for the <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> module, it would mean that with a single module eight 12bit outputs can be realized without much soldering effort.</P>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Credits </H2></DT>
+  <DD><P CLASS=DESC><IMG SRC="midibox_cv/mbcv_francois.jpg" width=250 height=130 ALT="" align="left">This is the MIDIbox CV of Francois Buat. He gave me a lot of useful suggestions for improvements, and we tested the firmware together on synths like the Minimoog, Korg MS-20, rsf Kobol Expander, Polykobol II, etc...</IMG></P><BR>
+  </DD>
+</DL>
+
+FOOTER

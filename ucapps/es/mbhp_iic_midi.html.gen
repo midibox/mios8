@@ -1,0 +1,408 @@
+HEADER 3 MBHP IIC MIDI Module
+
+<h1>Plataforma de Hardware MIDIbox, M&oacute;dulo IIC MIDI</h1>
+<p></p><center><img src="mbhp/mbhp_iic_midi_sideview.jpg" height="464" width="550"></center><p></p>
+<p class="INFO">El m&oacute;dulo IIC MIDI provee un puente entre IIC and MIDI, y solo consiste en un miscocontrolador PIC16F88 de <a href="http://www.microchip.com" target="_blank">Microchip</a>, que funciona con un firmware especial (&iexcl;no MIOS!).</p>
+<p class="INFO">IIC y MIDI son ambas interfaces seriales:
+</p><ul class="CL">
+  <li>IIC (Inter-IC, la abreviatura "I2C"
+tambi&eacute;n se usa a menudo) est&aacute; preparada para intercambio
+r&aacute;pido de datos entre m&uacute;ltiples dispositivos via un solo
+reloj y una&nbsp; l&iacute;nea de datos. </li><li>MIDI (Musical Instrument Digital Interface) es una
+interfaz as&iacute;ncrona que probablemente conozcas muy bien (de otro
+modo no te interesar&iacute;a esta web) ;-)
+</li></ul><p></p>
+<p class="INFO">La combinaci&oacute;n de estas dos interfaces abre la
+posibilidad de acceder a m&uacute;ltiples puertos&nbsp;MIDI In y Out
+desde un solo <a href="mbhp_core.html">microcontrolador</a>.
+Adem&aacute;s, los esclavos IIC MIDI se ocupan del manejo de algunos
+altos niveles de protocolo MIDI para aliviar al core master
+ahorr&aacute;ndole tiempo y tareas de memoria intensiva. Esto mejora el
+funcionamiento en general.</p>
+<p class="INFO">Se ha preparado el firmware para hasta 4 esclavos IIC MIDI conectados v&iacute;a bus IIC a un solo master:<br>
+</p><center><img src="mbhp/mbhp_iic_midi_bus.gif" height="250" width="550"></center><p></p>
+<p class="INFO">Cada esclavo necesita una direcci&oacute;n
+&uacute;nica, que debe ser seleccionada con dos jumpers (codificado
+binario). En teor&iacute;a se podr&iacute;an a&ntilde;adir127 esclavos
+al bus alterando la direcci&oacute;n base desde el firmware, pero en la
+pr&aacute;ctica, la carga del bus puede incrementarse hasta un nivel en
+el que los buffers se saturan y los datos se pierden. Las
+consideraciones de Rendimiento son un tema complejo, y no s&eacute; si
+alg&uacute;n d&iacute;a encontrar&eacute; tiempo para explicar todos
+los aspectos al detalle, pero puedo decir que no deber&iacute;a haber
+problemas de rendimiento con 4 esclavos IIC_MIDI&nbsp; - esta es la
+configuraci&oacute;n que uso para mi propio <a href="midi_router.html">Router MIDI</a>, que ser&aacute; probado con dureza en , en condiciones de uso real, en los pr&oacute;ximos a&ntilde;os :)</p>
+<p class="INFO">Hay que mencionar que no s&oacute;lo se pueden a&ntilde;adir m&oacute;dulos MBHP_IIC_MIDI al bus IIC, sino tambi&eacute;n <a href="mbhp_bankstick.html">BankSticks</a>
+(IIC EEPROMs), IIC LCDs o incluso otros microcontroladores con interfaz
+de esclavo IIC - el firmware de MBHP_IIC_MIDI se puede usar como
+plantilla para este tipo de inventos, como sensores especiales,
+extensiones anal&oacute;gicas/digitales IO, puentes a RS232, puertos
+PS2&nbsp;o... &iquest;qu&eacute; me dices de ethernet, un enlace
+wireless o un m&oacute;dem? ;-)</p>
+<dl><dt></dt><h2> <img src="images/bullet.gif" alt=""> Casos de Uso </h2>
+  <dd>
+  <p class="DESC">El m&oacute;dulo se ha desarrollado con los siguientes usos en mente:
+  </p><ul class="CL">
+    <li>como "apa&ntilde;o" para el irritante <a href="http://forum.microchip.com/tm.aspx?m=85120" target="_blank">error de silicona EUSART</a>,
+que se da en los PICs m&aacute;s recientes como el PIC18F4620
+(dispositivo flash 64k) y &nbsp;el PIC18F4550 (dispositivo USB), y que
+afecta a la fiabilidad del puerto MIDI Out</li>
+    <li>como base para un <a href="midi_router.html">Router </a><a href="midi_router.html">MIDI</a> flexible</li>
+    <li>como una simple posibilidad para conseguir puertos MIDI In y Out adicionales, independientes, para proyectos como <a href="midibox_seq.html">MIDIbox SEQ</a> y <a href="midibox_sid.html">MIDIbox SID</a></li>
+    <li>como plantilla para inventos m&aacute;s poderosos, desarrollados por miembros de la comunidad MIDIbox! :-)</li>
+  </ul> </dd></dl>
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Configuraci&oacute;n e Interconexiones </h2>
+  <dd>
+    <p class="DESC">El esquema <a href="mbhp/mbhp_iic_midi.pdf">MBHP_IIC_MIDI</a> contiene un super-set de todos los componentes soportados por el firmware.</p>
+<p class="DESC">Tambi&eacute;n hay una versi&oacute;n reducida <a href="mbhp/mbhp_iic_midi_out_only.pdf">"OUT solo"</a>
+disponible, que solo contiene las partes que hacen falta para un solo
+puerto MIDI Out&nbsp; - Esta versi&oacute;n es especialmente
+interesante para la gente que quiere usar el m&oacute;dulo como
+apa&ntilde;o para el error EUSART. Recuerda que este circuito puede ser
+simplificado a&uacute;n m&aacute;s quit&aacute;ndole los LEDs de Power
+y Tx, pero en ese caso, la correcci&oacute;n de errores ser&iacute;a
+complicada. Asumiendo que este circuito m&iacute;nimo se construye en
+un vector - o tabla de l&iacute;neas, el precio del PIC16F88, cristal
+de 20 MHz, 4 capacitadores, 4 resistencias y LEDs no supera los 5
+&euro; en total!</p>
+<p class="DESC">De vuelta a la versi&oacute;n completa:hay que
+seleccionar con jumpers la direcci&oacute;n de&nbsp;MBHP_IIC_MIDI en el
+puerto J3. Por defecto, ambos jumpers deben ser colocados para
+seleccionar la direcci&oacute;n 0x10. Quitando los jumpers, se pueden
+seleccionar las direcciones 0x12, 0x14 o 0x16. <b>Cada m&oacute;dulo
+esclavo necesita una direcci&oacute;n &uacute;nica en el bus IIC,
+as&iacute; que &iexcl;nunca uses la misma configuraci&oacute;n para
+m&aacute;s de un m&oacute;dulo!</b><br>
+</p><center><img src="mbhp/mbhp_iic_midi_jumpers.gif" height="204" width="551"></center><p></p>
+<p class="DESC">El puerto J4 es un puerto "de enlace MIDIbox" , que da MIDI IN/OUT en el nivel TTL. Se puede conectar a un m&oacute;dulo&nbsp;<a href="mbhp_ltc.html">MBHP_LTC</a>
+para duplicar el MIDI OUT, y para obtener un MIDI THRU. Tambi&eacute;n
+se puede usar J4 para una conexi&oacute;n directa con otro
+m&oacute;dulo Core sin necesidad de usar optoacopladores.</p>
+<p class="DESC">El puerto J1 no se usa actualmente, es de libre personalizaci&oacute;n en el firmware.</p>
+<p class="DESC">Por &uacute;ltimo, pero no menos importante, J2: este
+es el puerto IIC hecho como un header DIL para simplificar el cableado
+del bus 1:1 entre esclavos y master. 4 de estos pines (Vs/Vd para
+alimentaci&oacute;n, SC/SD para IIC) se tienen que conectar a los&nbsp;<b>pines con el mismo nombre</b>
+en CORE::J4 y a IIC_MIDI::J2 de los otros esclavos. La salida RI# es
+una se&ntilde;al especial que identifica que el buffer de
+recepci&oacute;n se ha llenadoS&oacute;lo lo usar&aacute;n un
+peque&ntilde;o n&uacute;mero de aplicaciones y debe estar conectado al
+m&oacute;dulo Core; puedes encontrar m&aacute;s detalles en las
+p&aacute;ginas apropiadas de proyecto. Si no se da ninguna referencia,
+deja este pin abierto. Nunca conectes juntas las l&iacute;neas RI# de
+los esclavos, esto causar&iacute;a un cortocircuito.</p>
+<p class="DESC">Un diagrama de conexi&oacute;n simplificado:<br>
+</p><center><img src="mbhp/mbhp_iic_midi_interconnections.gif" height="429" width="550"></center><p></p>
+<p class="DESC"><b>Nota importante para usuarios de MBHP_CORE_V2:</b>
+es necesaria una resistencia pull-up de 1k entre el Vd y la
+l&iacute;nea SC, soldada directamente al CORE::J4 para permitir
+"estrechamiento de reloj" ("clock
+stretching"). Este es un m&eacute;todo para retrasar transferencias
+seriales cuando un esclavo no puede responder inmediatamente a una
+petici&oacute;n del master. La resistencia para la l&iacute;nea SD
+tambi&eacute;n est&aacute; disponible en el m&oacute;dulo Core
+(CORE::R2).<br>Los
+usuarios de MBHP_CORE_V3 se dar&aacute;n cuenta de que ambas
+resistencias ya est&aacute;n puestas - no hace falta a&ntilde;adir nada!</p>
+</dd></dl>
+<dl><dt></dt><h2> <img src="images/bullet.gif" alt=""> Adaptador de programaci&oacute;n para PIC16F88&nbsp;</h2>
+  <dd><p class="DESC">Es probable que SmashTV y Mike distribuyan PIC16F88
+pre-programados en el futuro, pero ya que este servicio a&uacute;n no
+est&aacute; disponible, tendr&aacute;s que "quemar" el firmware en el
+PIC16F88 por tus propios medios, usando un programador PIC como <a href="mbhp_burner.html">MBHP_BURNER</a>.</p>
+<p class="DESC">Para programadores de 40 pines ser&aacute; necesario un adaptador a 18 pines. El esquema est&aacute; <a href="mbhp/mbhp_burner_16f88_adapter.pdf">aqu&iacute;</a>.
+</p><p class="DESC">Fotos del adaptador de programaci&oacute;n:<br>
+</p><center><img src="mbhp/mbhp_burner_16f88_adapter.jpg" height="200" width="345"></center><p></p>
+<p class="DESC">El voltaje de programaci&oacute;n es de 13.1V ( &iexcl;dispositivo PIC16F!), Hay que usar el software de programaci&oacute;n <a href="http://www.sprut.de/electronic/soft/pbrenner.htm" target="_blank">PBrenner</a>.</p>
+  </dd>
+</dl><dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Protocolo de transferencia MBHP_IIC_MIDI&nbsp; </h2>
+  <dd> <p class="DESC">Se describen los detalles del protocolo I2C en <a href="http://www.semiconductors.philips.com/acrobat/literature/9398/39340011_21.pdf">especificaciones de bus I2C</a> de <a href="http://www.philips-semiconductors.com" target="_blank">Philips</a>. Mientras est&eacute;s usando las <a href="cmios_fun.html#MIOS_IIC_AckSend">funciones MIOS</a>
+para acceder al m&oacute;dulo, no necesitas ocuparte de estas
+corrientes de bits - solo contin&uacute;a hasta el siguiente
+cap&iacute;tulo en el que se describen los algoritmos de acceso.</p>
+<p class="DESC"><b>Direcci&oacute;n del Esclavo:</b>
+la direcci&oacute;n puede llevar a confusi&oacute;n, as&iacute; que he
+de aclarar que la direcci&oacute;n de&nbsp;MBHP_IIC_MIDI es la
+direcci&oacute;n del esclavo IIC cambiada de puesto hacia la izquierda
+(multiplicada por dos). Ejemplo: la direcci&oacute;n IIC 0x08 es la
+direcci&oacute;n MBHP_IIC_MIDI&nbsp;0x10. Esto es para simplificar la
+programaci&oacute;n cuando se a&ntilde;ade el bit R/W# a la
+direcci&oacute;n. Esta es tambi&eacute;n la raz&oacute;n de que las
+direcciones MBHP_IIC_MIDI son siempre n&uacute;meros.</p>
+    <p class="DESC">Si
+se env&iacute;a 0x10 tras una condici&oacute;n de Start (inicio),
+estamos comenzando una operaci&oacute;n de escritura en el primer
+m&oacute;dulo
+MBHP_IIC_MIDI, cuando se env&iacute;a 0x11, comenzamos una
+operaci&oacute;n de lectura.</p></dd><dd>
+<p class="DESC"><b>Transferencias a&nbsp;MIDI OUT:</b>
+Las transferencias al puerto OUT son operaciones de "escritura Master".
+Despu&eacute;s de que el master haya mandado la condici&oacute;n de
+Start y la direcci&oacute;n, contin&uacute;a con los bytes de datos,
+que son directamente redirigidos hacia el buffer MIDI Tx del
+m&oacute;dulo MBHP_IIC_MIDI. Despu&eacute;s del &uacute;ltimo byte, ha
+de enviarse una condici&oacute;n de Stop para liberar el bus:<br>
+</p><center><img src="mbhp/mbhp_iic_midi_tx.gif" height="57" width="548"></center><p></p>
+ <p class="DESC">El
+buffer
+Tx tiene un tama&ntilde;o de 96 bytes. Una vez que est&aacute; lleno,
+el esclavo responder&aacute; con una NAK (not acknoweledge /no
+reconocimiento , A bit=1). En este caso, el master tiene que mandar una
+condici&oacute;n de Stop, luego puede reintentarlo.<br>No
+se permite la condici&oacute;n de Restart (reinicio)(inicio sin
+condici&oacute;n de Stop) debido al error de silicona en el
+m&oacute;dulo&nbsp;SSP de la mayor&iacute;a de derivados del PIC16F.</p></dd><dd>
+<p class="DESC">El
+valor de datos "0xff" (255 decimal) tiene un prop&oacute;sito especial
+ya que se usa como s&iacute;mbolo de modo de comandos. El modo de
+comandos se ha preparado para futuras expansiones del firmware. Se
+soportan las siguientes secuencias:<br>
+</p><ul class="CL">
+  <li><b>FF 00:</b> mete y saca el modo de comandos, sin m&aacute;s acciones.</li>
+  <li><b>FF FF:</b> mete el modo de comandos, env&iacute;a 0xff a trav&eacute;s del MIDI OUT, sale del modo de comandos.</li>
+  <li><b>FF &lt;cmd&gt; &lt;data1&gt; ... &lt;data_n&gt;:</b>
+mete el modo de comandos, se enrama con IIC_CMD_Handler en iic_cmd.asm
+en cada byte que est&eacute; siendo recibido. El n&uacute;mero
+m&aacute;ximo de bytes de datos ha de ser determinado dentro del
+handler, actualmente, el handler solo sale del modo de comandos
+despu&eacute;s del primer byte de datos.</li>
+</ul><p></p>
+<p class="DESC">El modo de comandos conlleva al siguiente requerimiento: si
+0xff ("MIDI Reset") debe ser redirigido al puerto MIDI OUT, el master tiene que enviarlo dos veces v&iacute;a IIC.</p>
+<p class="DESC"><b>Transferencias desde MIDI IN:</b>
+el master puede o votar el estado de recepci&oacute;n
+v&iacute;a&nbsp;IIC, o comprobar la salida&nbsp; RI# poco-activa del
+m&oacute;dulo&nbsp; MBHP_IIC_MIDI (la soluci&oacute;n m&aacute;s
+r&aacute;pida, pero requiere una se&ntilde;al adicional de
+conexi&oacute;n al master).
+En caso de voto v&iacute;a IIC, han de ser enviadas una
+condici&oacute;n de start y la direcci&oacute;n. La etiqutea R/W# debe
+ser 1 (Master Read operation). Luego, el master puede leer el primer
+byte que contiene el "tipo de paquete" . Si es 0, el master puede
+abortar la transacci&oacute;n enviando una NAK y una condici&oacute;n
+de Stop:<br>
+</p><center><img src="mbhp/mbhp_iic_midi_rx_type0.gif" height="53" width="554"></center><p></p>
+<p class="DESC">Si el tipo de paquete no es cero, el master debe leer hasta tres bytes adicionales:<br>
+</p><center><img src="mbhp/mbhp_iic_midi_rx_type_ne_0.gif" height="101" width="550"></center><p></p>
+<p class="DESC">La codificaci&oacute;n de un "paquete" est&aacute; inspirada en la especificaci&oacute;n <a href="http://www.usb.org/developers/devclass_docs" target="_blank">USB MIDI</a>.
+Usar este formato tiene una ventaja, que un router MIDI-&gt;IIC-&gt;USB
+s&oacute;lo necesita redirigir el paquete a la pipa IN del host USB (El
+tipo de paquete es el CIN, y el n&uacute;mero de cable puede ser OReado
+al high-nibble). Esto tambi&eacute;n simplifica la
+implementaci&oacute;n de un MIDI merger, ya que para todos los paquetes
+aparte de SysEx, las corrientes de redirecci&oacute;n no tienen que ser
+bloqueadas - MBHP_IIC_MIDI
+transmite el evento MIDI completo:<br>
+
+s    <table border="0" cellpadding="1" cellspacing="1" width="100%">
+  <tbody><tr>
+    <td class="TABCOLOR1"><font size="2"><strong>Tipo</strong></font></td>
+    <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td>
+    <td class="TABCOLOR1"><font size="2"><strong>Descripci&oacute;n</strong></font></td>
+  </tr>
+  <tr>
+    <td class="TABCOLOR2">0x00</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">No paquete - todo los bytes son cero</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x01</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">reservado</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x02</td>
+    <td class="TABCOLOR2">2</td>
+    <td class="TABCOLOR2">mensajes de dos bytes comunes de sistema como MTC, Song Select, etc.</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x03</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">mensajes de tres bytes comunes de sistema como SPP, etc.</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x04</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">SysEx comienza o contin&uacute;a</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x05</td>
+<td class="TABCOLOR2">1</td>
+    <td class="TABCOLOR2">mensaje de un solo byte com&uacute;n de sistema o que env&iacute;a sysex con el siguiente byte solo</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x06</td>
+    <td class="TABCOLOR2">2</td>
+    <td class="TABCOLOR2">SysEx env&iacute;a con los siguientes dos bytes</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x07</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">SysEx&nbsp;env&iacute;a con los siguientes tres bytes</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x08</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">Nota Off</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x09</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">Nota On</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x0a</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">Presi&oacute;n multi-tecla</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x0b</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">Cambio de Control</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x0c</td>
+    <td class="TABCOLOR2">2</td>
+    <td class="TABCOLOR2">Cambio de programa</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x0d</td>
+    <td class="TABCOLOR2">2</td>
+    <td class="TABCOLOR2">Presi&oacute;n de Canal</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x0e</td>
+    <td class="TABCOLOR2">3</td>
+    <td class="TABCOLOR2">Cambio de PitchBend</td>
+  </tr><tr>
+  </tr><tr>
+    <td class="TABCOLOR2">0x0f</td>
+    <td class="TABCOLOR2">1</td>
+    <td class="TABCOLOR2">&Uacute;nico Byte</td>
+  </tr><tr>
+</tr></tbody></table>
+</p>
+
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> algoritmos de acceso MBHP_IIC_MIDI </h2>
+  <dd>
+    <p class="DESC">Con MIOS V1.9 y superiores, se puede acceder al dispositivo MBHP_IIC_MIDI de las siguientes maneras:</p>
+    <p class="DESC"><b>Redirecci&oacute;n del Buffer Tx MIOS:</b> las operaciones de <a href="cmios_fun.html#MIOS_MIDI_TxBufferPut">MIOS_MIDI_TxBufferPut</a> se pueden redirigir a un esclavo seleccionando la direcci&oacute;n con la funci&oacute;n <a href="cmios_fun.html#MIOS_MIDI_InterfaceSet">MIOS_MIDI_InterfaceSet</a>:<br>
+<tt><pre>  // env&iacute;a reloj MIDI a trav&eacute;s del MIDI Out interno con tasa de baudios normal<br>  MIOS_MIDI_InterfaceSet(MIOS_MIDI_INTERFACE_COMMON);<br>  MIOS_MIDI_TxBufferPut(0xf8);<br><br>  // env&iacute;a reloj MIDI a trav&eacute;s de MBHP_IIC_MIDI con direcci&oacute;n 0x10<br>  MIOS_MIDI_InterfaceSet(0x10);<br>  MIOS_MIDI_TxBufferPut(0xf8);<br><br>  // vuelve a la interfaz por defecto<br>  MIOS_MIDI_InterfaceAutoSet();<br></pre></tt></p>
+<p class="DESC"><b>Redirecci&oacute;n Tx por defecto:</b>
+con el Bootloader de MIOS V1.2 y superiores, las operaciones del buffer
+Tx ser&aacute;n autom&aacute;ticamente redirigidos a un m&oacute;dulo
+MBHP_IIC_MIDI estableciendo la direcci&oacute;n en el byte 5 del
+cabecero ID. Ejemplo ID: 0000000000100000: env&iacute;a los datos MIDI
+salientes al m&oacute;dulo MBHP_IIC_MODULE con direcci&oacute;n 0x10.
+La direcci&oacute;n se puede cambiar con <a href="cmios_fun.html#MIOS_MIDI_InterfaceSet">MIOS_MIDI_InterfaceSet</a> en el tiempo de funcionamiento, y se puede volver a establecer el valor por defecto con <a href="cmios_fun.html#MIOS_MIDI_InterfaceAutoSet">MIOS_MIDI_InterfaceAutoSet</a></p>
+<p class="DESC"><b>Funci&oacute;n de Recepci&oacute;n:</b> se puede usar esta funci&oacute;n para recibir un paquete MIDI:<br>
+<tt><pre>// arsenal global que almacena el paquete<br>unsigned char iic_midi_package[4];<br><br>/////////////////////////////////////////////////////////////////////////////<br>// Esta funci&oacute;n vota el m&oacute;dulo MBHP_IIC_MIDI dado para un nuevo paquete<br>// devuelve != 0 en un nuevo paquete, los datos se copiar&aacute;n en el arsenal global<br>// "iic_midi_package[4]" (esto es para agilizar el paso de par&aacute;metros)<br>/////////////////////////////////////////////////////////////////////////////<br>unsigned char IIC_MIDI_Receive(unsigned char addr) __wparam<br>{<br>  // start IIC access<br>  MIOS_IIC_Start();<br><br>  // env&iacute;a direcci&oacute;n, aborta si se recibe NAK<br>  if( !MIOS_IIC_ByteSend(addr | 1) ) {<br>    MIOS_IIC_Stop();<br>    return 0;<br>  }<br><br>  // recibe el tipo de paquete, aborta si el tipo es 0x00<br>  if( (iic_midi_package[0] = MIOS_IIC_ByteReceive()) == 0x00 ) {<br>    MIOS_IIC_NakSend();  // abort transfer<br>    MIOS_IIC_Stop();     // stop IIC<br>    return 0;<br>  }<br>  MIOS_IIC_AckSend();<br><br>  // recibe tres bytes<br>  iic_midi_package[1] = MIOS_IIC_ByteReceive();<br>  MIOS_IIC_AckSend();<br>  iic_midi_package[2] = MIOS_IIC_ByteReceive();<br>  MIOS_IIC_AckSend();<br>  iic_midi_package[3] = MIOS_IIC_ByteReceive();<br>  MIOS_IIC_NakSend();<br><br>  //pata acceso IIC<br>  MIOS_IIC_Stop();<br><br>  return 1;<br>}<br></pre></tt></p>
+<p class="DESC"><b>Funci&oacute;n de Transmisi&oacute;n:</b> se puede usar esta funci&oacute;n para enviar un paquete&nbsp;MIDI:<br>
+<tt><pre>//esta tabla contiene el n&uacute;mero de bytes, dependiendo del tipo de paquete<br>const unsigned char iic_midi_type_bytes[16] = { 0,0,2,3,3,1,2,3,3,3,3,3,2,2,3,1 };<br><br>/////////////////////////////////////////////////////////////////////////////<br>// Esta funci&oacute;n env&iacute;a un paquete al m&oacute;dulo MBHP_IIC_MIDI dado,<br>//el contenido del paquete se espera en el arsenal global  iic_midi_package[4]<br>// devuelve 0 si el m&oacute;dulo no est&aacute; disponible<br>/////////////////////////////////////////////////////////////////////////////<br>unsigned char IIC_MIDI_Send(unsigned char addr) __wparam<br>{<br>  unsigned char retry_ctr;<br>  unsigned char i;<br>  unsigned char num_bytes;<br><br>  // inicia acceso IIC<br>  MIOS_IIC_Start();<br><br>  // env&iacute;a direcci&oacute;n<br>  retry_ctr = 0;<br>  while( !MIOS_IIC_ByteSend(addr) ) {<br>    // el esclavo ha enviado un NAK - reintentar 255 veces<br>    MIOS_IIC_Stop();<br>    if( ++retry_ctr == 255 )<br>      return 0;<br>    MIOS_IIC_Start();<br>  }<br><br>  // env&iacute;a paquete<br>  num_bytes = iic_midi_type_bytes[iic_midi_package[0] &amp; 0x0f];<br>  for(i=0; i&lt;num_bytes; ++i) {<br>    retry_ctr = 0;<br>    while( !MIOS_IIC_ByteSend(iic_midi_package[i+1]) ) {<br>      // el esclavo ha enviado un NAK- reintentar<br>      // &iexcl;hay que enviar de nuevo la direcci&oacute;n!<br>      MIOS_IIC_Stop();<br>      MIOS_IIC_Start();<br>      while( !MIOS_IIC_ByteSend(addr) ) {<br>	MIOS_IIC_Stop();<br>	if( ++retry_ctr == 255 )<br>	  return 0;<br>	MIOS_IIC_Start();<br>      }<br>    }<br>  }<br><br>  // para accso IIC<br>  MIOS_IIC_Stop();<br><br>  // se ha transmitido el paquete completo<br>  return 1;<br>}<br></pre></tt></p>
+<p class="DESC">Recuerda
+que la funci&oacute;n IIC_MIDI_Send() puede ser "embellecida" usando
+una funci&oacute;n separada para enviar la direcci&oacute;n- He elegido
+la versi&oacute;n larga para simplificar su lectura. Puedes encontrar
+una versi&oacute;n ensambladora optimizada en el proyecto <a href="midi_router.html">MIDI Router</a>&nbsp;.</p>
+  <p class="DESC">Por
+favor, recuerda que esta versi&oacute;n no se ocupa de la
+condici&oacute;n especial para mandar un byte&nbsp;"0xff" a
+trav&eacute;s del MIDI&nbsp; - La versi&oacute;n ensamblada optimizada
+solo se llamar&aacute; recurrentemente. Este m&eacute;todo realmente
+explotar&aacute; el ejemplo superior.</p>
+<p class="DESC"><b>Enrutamiento MIDI:</b>
+Los ejemplos superiores pueden parecer complejos, pero simplifican
+mucho el enrutamiento MIDI -the above examples might look complex, but
+they simplify MIDI routing a
+lot - aqu&iacute; un simple y &uacute;til c&oacute;digo, que redirige
+los paquetes entrantes del primer m&oacute;dulo MBHP_IIC_MIDI al
+segundo:<br>
+<tt><pre>/////////////////////////////////////////////////////////////////////////////<br>// MIOS llama a esta funci&oacute;n despu&eacute;s del arranque para inicializar la aplicaci&oacute;n<br>/////////////////////////////////////////////////////////////////////////////<br>void Init(void) __wparam<br>{<br>  // enable clock stretching<br>  MIOS_IIC_CtrlSet(0x01);<br>}<br><br>/////////////////////////////////////////////////////////////////////////////<br>// MIOS llama a esta funci&oacute;n en el loop principal, cuando no hay nada m&aacute;s que hacer<br>/////////////////////////////////////////////////////////////////////////////<br>void Tick(void) __wparam<br>{<br>  if( IIC_MIDI_Receive(0x10) ) {<br>    if( !IIC_MIDI_Send(0x12) ) {<br>      MIOS_LCD_Clear();<br>      MIOS_LCD_PrintCString("Slave 0x12 not connected");<br>      MIOS_LCD_MessageStart(255);<br>    }<br>  }<br>}<br></pre></tt></p>
+<p class="DESC">Aqu&iacute; una variante que solo redirige los paquetes de Cambio de Control (CC):<br>
+<tt><pre>/////////////////////////////////////////////////////////////////////////////<br>//MIOS llama a esta funci&oacute;n en el loop principal, cuando no hay nada m&aacute;s que hacer<br>/////////////////////////////////////////////////////////////////////////////<br>void Tick(void) __wparam<br>{<br>  if( IIC_MIDI_Receive(0x10) &amp;&amp; iic_midi_package[0] == 0x0b ) {<br>    if( !IIC_MIDI_Send(0x12) ) {<br>      MIOS_LCD_Clear();<br>      MIOS_LCD_PrintCString("Slave 0x12 not connected");<br>      MIOS_LCD_MessageStart(255);<br>    }<br>  }<br>}<br></pre></tt></p>
+</dd></dl><dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Descarga </h2>
+   <dd>
+   </dd><dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">los datos PCB se pueden visionar, modificar y convertir con <a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>M&oacute;dulo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Esquema</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Datos de base</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Vista R&aacute;pida</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_IIC_MIDI</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_iic_midi.pdf">mbhp_iic_midi.pdf</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_iic_midi_v3.brd">mbhp_iic_midi_v3.brd</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_iic_midi_v3.gif">mbhp_iic_midi_v3.gif</a></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_IIC_MIDI</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_iic_midi_out_only.pdf">mbhp_iic_midi_out_only.pdf</a></td>
+      <td class="TABCOLOR2">no planeado</td>
+      <td class="TABCOLOR2">-</td>
+    </tr>
+  </tbody></table></dd>
+
+  <dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Firmware</font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Archivo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td>
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Descripci&oacute;n</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_iic_midi_v1_0b.zip">mbhp_iic_midi_v1_0b.zip</a></td>
+      <td class="TABCOLOR2">23k</td>
+      <td class="TABCOLOR2">Este paquete contiene el firmware precompilado y el c&oacute;digo fuente de para el PIC16F88</td>
+    </tr>
+  </tbody></table></dd>
+
+  <dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Informaci&oacute;n adicional</font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Archivo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td>
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Descripci&oacute;n</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_iic_midi_orderlist.txt">mbhp_iic_midi_orderlist.txt</a></td>
+      <td class="TABCOLOR2">1k</td>
+      <td class="TABCOLOR2"><a href="http://www.reichelt.de/" target="_blank">lista de pedido Reichelt</a></td>
+    </tr>
+  </tbody></table></dd></dl>
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Probando </h2>
+  <dd><p class="DESC">Puedes encontrar una aplicaci&oacute;n de software loopback (iic_midi_sw_loopback) en la secci&oacute;n <a href="mios_download.html">MIOS Download</a>,
+que escanea buscando esclavos disponibles, y redirige directamente los
+datos MIDI entrantes a los puertos de salida de los mismos
+esclavos&nbsp;MBHP_IIC_MIDI. Esta es una aplicaci&oacute;n perfecta
+para probar el m&oacute;dulo ( o los m&oacute;dulos) y se pueden usar
+los archivos iic_midi.asm/iic_midi.h &nbsp;inclu&iacute;dos&nbsp;como
+controlador de m&oacute;dulo para aplicaciones propias.</p><p>
+  </p></dd></dl>
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> M&aacute;s PICs </h2>
+<dd><p class="DESC"><img src="mbhp/mbhp_iic_midi_connected_to_core.jpg" height="320" width="500"><br>A single full stuffed MBHP_IIC_MIDI module connected to a MBHP_CORE (SmashTV's PCB version)</p></dd>
+  <dd><p class="DESC"><img src="mbhp/mbhp_iic_midi_two_out_only.jpg" height="487" width="500"><br>Dos m&oacute;dulos solo MIDI-Out&nbsp; (versi&oacute;n PCB de SmashTV's)</p></dd>
+</dl><dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Agradecimientos </h2>
+  <dd><p class="DESC">Gracias
+a SmashTV, que crearon la base PCB y a Michael Klein, que me
+proporcion&oacute; muchas placas-prototipo de forma gratu&iacute;ta
+(&iexcl;gran servicio!)</p><p></p></dd></dl>
+
+FOOTER

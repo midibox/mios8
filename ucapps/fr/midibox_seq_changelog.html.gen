@@ -1,0 +1,301 @@
+HEADER 3 ChangeLog of MIDIbox SEQ
+            <center>
+            <h1>MIDIbox SEQ V3 Change Log</h1>
+
+            </center>
+
+            <center>
+            <h3>Last Release: V3.2a @ 2007-09-02</h3>
+
+            </center>
+
+            <img src="images/1x1dot.gif" alt="" height="10"><br>
+
+            <ul class="CL">
+
+              <li><i>V3.2c</i>
+                <ul>
+
+                  <li>Prise en charge du module AOUT_NG </li>
+
+                  <li>les sorties gate sur J5 fonctionnent de
+nouveau </li>
+
+                </ul>
+
+                <br>
+
+              </li>
+
+              <li><i>V3.2b</i>
+                <ul>
+
+                  <li>R&eacute;-&eacute;dition pour GPUTILS</li>
+
+                </ul>
+
+                <br>
+
+              </li>
+
+              <li><i>V3.2a</i>
+                <ul>
+
+                  <li>Le menu Record dispose maintenant d'une
+option
+"Toggle Gate" qui permet d'activer/effacer le trigger Gate du pas
+s&eacute;lectionn&eacute; - utilisez cette fonction pour
+effacer/rapeller un pas enregistr&eacute; involontairement.</li>
+
+                  <li>Les touches "remotes" ne sont plus
+renvoy&eacute;es vers le gestionnaire/routeur MIDI.</li>
+
+                  <li>Les r&eacute;glages du Router pour le
+second port MIDI In sont maintenant stock&eacute;s dans l'EEPROM.</li>
+
+                  <li> La fonction de changement de Pattern et de
+Song
+via MIDI pr&eacute;c&eacute;demment
+impl&eacute;ment&eacute;e peut
+maintenant &ecirc;tre d&eacute;sactiv&eacute;e en
+&eacute;ditant les
+entr&eacute;es "DEFAULT_MIDI_PATTERN_CHANGE_CC" et
+"DEFAULT_MIDI_SONG_CHANGE_VIA_PC" dans le fichier setup_*.asm.</li>
+
+                  <li>L'Arpeggiator peut maintenant jouer les
+notes
+"sans note de r&eacute;f&eacute;rence", c'est &agrave; dire
+juste en
+fonction de l'ordre dans lequel les notes ont &eacute;t&eacute;
+re&ccedil;ues.<br>
+
+Cette option peut &ecirc;tre
+activ&eacute;e/d&eacute;sactiv&eacute;e dans le menu "Track
+Mode".</li>
+
+                </ul>
+
+              </li>
+
+            </ul>
+
+            <ul class="CL">
+
+              <li><i>V3.2</i>
+                <ul>
+
+                  <li> Les Songs peuvent maintenant
+&ecirc;tre s&eacute;lectionn&eacute;es via Program Change </li>
+
+                  <li> les Pattern des groupes #1-#4 peuvent
+maintenant &ecirc;tre s&eacute;lectionn&eacute;s via
+CC#112..CC#115 </li>
+
+                  <li> Prise en charge des bases temporelles
+ternaires (Triplet)<br>
+
+L'affichage de la page "clock divider" a &eacute;t&eacute;
+refait: <br>
+
+                    <img src="midibox_seq/cs3/menu08_01.gif" alt="Clock Divider" height="19" width="481"> </li>
+
+                  <li> Ajout d'un mode "MIDI clock Auto" : le
+s&eacute;quenceur passe automatiquement en mode master lorsque la
+touche Play est enfonc&eacute;e. Il bascule automatiquement en mode
+slave si une MIDI clock ou des &eacute;v&egrave;nements MIDI
+Start/Stop/Continue sont re&ccedil;us.<br>
+
+Cette fonction (activ&eacute;e par d&eacute;faut) peut
+&ecirc;tre d&eacute;sactiv&eacute;e via le menu BPM. </li>
+
+                  <li> Ajout d'un pin start/stop, sur le pin
+J6:SC (RC1) du module Core. </li>
+
+                  <li> Prise en charge d'un second port MIDI IN
+(sur le premier module MBHP_IIC_MIDI)<br>
+
+Pour utiliser ce port, la ligne RI_N du module IIC doit &ecirc;tre
+connect&eacute;e au pin J6:SI (RC3) du module Core (-&gt; voir <a href="midibox_seq/mbseq_v3_interconnections.pdf">ce
+sch&eacute;ma</a>).<br>
+
+Ce port MIDI IN peut &ecirc;tre utilis&eacute; comme
+entr&eacute;e alternative pour la r&eacute;ception de Notes
+(-&gt; Transposer/Arpeggiator), de CCs (-&gt;
+Param&egrave;tres) ou de Program Changes.<br>
+
+Ce deuxi&egrave;me port MIDI IN *ne peut pas* &ecirc;tre
+utilis&eacute;
+pour la r&eacute;ception d'une MIDI clock (utilisez pour
+&ccedil;a le
+port MIDI IN du module Core), ou pour recevoir/renvoyer des
+donn&eacute;es SysEx !<br>
+
+                  </li>
+
+                  <li> La page "MIDI config" a
+&eacute;t&eacute; refaite.<br>
+
+Le MIDI Router peut maintenant router les
+&eacute;v&egrave;nements
+re&ccedil;us sur le deuxi&egrave;me port MIDI IN vers les ports
+MIDI OUT<br>
+
+                    <img src="midibox_seq/cs3/menu19_01.gif" alt="MIDI Cfg" height="19" width="481"> </li>
+
+                  <li> La gamme de
+r&eacute;f&egrave;rence peut maintenant &ecirc;tre soit
+"globale" soit relative aux patterns. A la diff&eacute;rence du
+mode global (o&ugrave; la gamme est stock&eacute;e dans l'
+EEPROM interne), si la gamme de r&eacute;f&egrave;rence est
+stock&eacute;e dans un des patterns G1/G2/G3 ou G4, elle sera
+automatiquement mise &agrave; jour (si diff&eacute;rente) lors
+d'un changement de pattern. <br>
+
+Seul un des 4 groupes peut stocker la gamme de
+r&eacute;f&egrave;rence, vous pouvez choisir lequel via le menu
+UTIL-&gt;OPT<br>
+
+                    <img src="midibox_seq/cs3/menu25_01.gif" alt="Options" height="19" width="481"> </li>
+
+                  <li> La gamme de
+r&eacute;f&egrave;rence peut de plus
+&ecirc;tre contr&ocirc;l&eacute;e via le CC#3, donc aussi
+par le port
+Loopback. Ce qui signifie que cette gamme peut &ecirc;tre
+modifi&eacute;e
+dynamiquement par une piste envoyant le CC appropri&eacute; vers le
+port Loopback.<br>
+
+Le CC ne fonctionne que lorsque la gamme de
+r&eacute;f&egrave;rence est en mode "Global" (menu
+UTIL-&gt;OPT) </li>
+
+                  <li> La fondamentale de la gamme peut
+maintenant
+&ecirc;tre modifi&eacute;e via le menu UTIL-&gt;OPT (par
+d&eacute;faut
+elle est d&eacute;finie en fonction de la note de base du
+Transposer-&gt; r&eacute;glage "KEYB" )<br>
+
+Comme pour la gamme de r&eacute;f&egrave;rence, la fondamentale
+est soit globale soit relative &agrave; un pattern. </li>
+
+                  <li> Les fonctions "paste" et "clear" sont
+maintenant
+applicable soit &agrave; la piste enti&egrave;re (comme dans la
+V3.1),
+soit seulement au pas (comme dans une des pr&eacute;-version V3.0)
+"Steps only" est le r&eacute;glage par d&eacute;faut (je
+pr&eacute;f&egrave;re ce mode).<br>
+
+Le comportement de cette fonction est modifiable via le menu
+UTIL-&gt;OPT. </li>
+
+                  <li> Prise en charge d'un &eacute;cran LED
+digits &agrave; trois chiffres, pour l'affichage du BPM en mode
+Master. L'&eacute;cran affiche "SLA" en mode Slave (pas de
+d&eacute;tection du BPM pour cet &eacute;cran!)<br>
+
+Vous trouverez les sch&eacute;mas ici: <a href="midibox_seq_options.html">MIDIbox SEQ V3 Hardware
+Options</a> </li>
+
+                  <li> Corrections de bugs. </li>
+
+                </ul>
+
+              </li>
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+              <li><i>V3.1</i>
+                <ul>
+
+                  <li>ajout d'une nouvelle page "Random
+Generator", qui remplace l'ancienne fonction Random du menu Utility.<br>
+
+                    <img src="midibox_seq/cs3/menu27_01.gif" alt="Random" height="19" width="481"><br>
+
+Dans cette page, l'intensit&eacute; pour les trois Layers de
+param&egrave;tres et les trois Trigger-Layers peut &ecirc;tre
+configur&eacute;e ind&eacute;pendamment</li>
+
+                  <li>la fonction "Synch to
+Measure"&nbsp;remets maintenant
+&agrave; z&eacute;ro la position de lecture, et plus
+particuli&egrave;rement les param&egrave;tres de progressions -
+vous
+allez appr&eacute;cier l'effet :-)</li>
+
+                  <li> Support des BankSticks 64k,
+assign&eacute;s au stockage des Songs (Mode 4)<br>
+
+Ceci permet de sauvegarder jusqu'&agrave; 32 Songs<br>
+
+Si vous utilisier un BankStick 64k en mode 32k, la partie haute ne sera
+pas initialis&eacute;e. Pour une initialisation
+compl&egrave;te, suivez la proc&eacute;dure suivante:
+                    <ul class="CL">
+
+                      <li>1) Cr&eacute;ez une sauvegarde des
+32k du BankStick que vous utilisiez. Ceci peut &ecirc;tre fait
+depuis MIDI-Ox avec la requ&ecirc;te SysEx suivante:<br>
+
+F0 00 00 7E 40 00 31 40 00 20 00 F7<br>
+
+(Note: le bit 6:4 du septi&egrave;me byte s&eacute;lectionne le
+num&eacute;ro de BankStick, il est suppos&eacute; ici que le
+BankStick est connect&eacute; sur CS3 - si ce n'est pas le cas,
+changez cette valeur, par ex. pour CS7 utilisez la valeur "71" au lieu
+de "31")<br>
+
+MIDI-Ox doit recevoir 37896 Bytes<br>
+
+NOTE: dans MIDI-Ox configurez "Delay after F7" sur 600 mS.Ce
+param&egrave;tre est accessible via le menu Setup-&gt;Configure
+de la fen&ecirc;tre SysEx Tool</li>
+
+                      <li>2) Basculez vers le menu FORMATet
+formattez le&nbsp;BankStick Song.</li>
+
+                      <li>3) Uploadez votre sauvegarde
+du&nbsp;BankStick 32k</li>
+
+                    </ul>
+
+                  </li>
+
+                  <li>la valeur "Loop x16" pour la fonction
+Song&nbsp; &eacute;tait manquante.Cette valeur a
+&eacute;t&eacute; rajout&eacute;e entre "x15" et "Jump
+Pos", de fait les actions "Jump Pos", "Jump Song" et "Dump Mixer Map"
+de vos Songs existantes doivent &ecirc;tre re-adapt&eacute;es!</li>
+
+                  <li>le pointeur de position de Song entrant
+n'&eacute;tait pas g&eacute;r&eacute; correctement en mode
+MIDI clock "slave", le s&eacute;quenceur se
+d&eacute;synchronisait - le probl&egrave;me est
+corrig&eacute; dans cette version.</li>
+
+                  <li>divers bugfixes.</li>
+
+                </ul>
+
+              </li>
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+              <li><i>V3.0</i>
+                <ul>
+
+                  <li>Version initiale.</li>
+
+                  <li> Les d&eacute;tails sur les changements
+par rapport &agrave; la MIDIbox SEQ V2 sont d&eacute;cris dans
+le fichier CHANGELOG.txt de l'archive de l'application.</li>
+
+                </ul>
+
+              </li>
+
+            </ul>
+FOOTER

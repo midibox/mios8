@@ -1,0 +1,357 @@
+HEADER 3 MIDI Interface Troubleshooting
+            <h1>Troubleshooting : L'interface MIDI</h1>
+
+            <p class="INFO"><i>Cette
+page est consacr&eacute;e au
+"troubleshooting" des modules CORE bas&eacute; sur les PIC18F452.
+Pour
+les anciens projets bas&eacute;s sur les PIC16F , voir</i><i>&nbsp;<a href="howto_debug_midi_pic16f.html">ici</a></i></p>
+
+            <p class="INFO">Une
+bonne connection MIDI est requise pour
+charger le MIOS et&nbsp; ses applications .Vous ne pouvez pas
+utiliser
+un programmateur de PIC, uniquement une interface MIDI. Une fois que
+le
+"bootstrap loader" a &eacute;t&eacute; "flash&eacute;" dans
+le PIC, le
+module MBHP_BURNER n'est plus n&eacute;cessaire, vous n'avez plus
+qu'&agrave;
+vous assurer que la connection MIDI fonctionne correctement.</p>
+
+            <p class="INFO"><b>NEWS:</b>
+L'Upload du MIOS est
+maintenant simplifi&eacute; en utilisant <a href="http://miosstudio.midibox.org">MIOS Studio</a>.
+Ce guide fait toujours r&eacute;f&eacute;rence
+&agrave;
+l'Upload via MIDI-Ox, une mise &agrave; jour est pr&eacute;vue.
+Essayez
+les deux solutions, MIDI-Ox et le nouveau "Loader" de MIOS Studio.</p>
+
+            <p class="DESC">Le
+" bootstrap loader" envoie une
+requ&egrave;te pour l'Upload au le d&eacute;marrage :</p>
+
+            <center><img src="howtodebug/upload_request.gif" alt="" height="76" width="240"></center>
+
+            <br>
+
+Vous savez ainsi si votre PIC est op&eacute;rationnel . Tant
+que
+le MIOS
+n'a pas &eacute;t&eacute; charg&eacute;, cette
+requ&ecirc;te est
+envoy&eacute;e environ toute les deux
+secondes, et juste une fois au d&eacute;marrage lorsque que le MIOS
+est
+charg&eacute;.
+            <p class="DESC"><br>
+
+Si
+le message de la requ&ecirc;te ne
+s'affiche pas, v&eacute;rifiez que les
+principaux&nbsp;composants de
+votre module CORE sont pr&eacute;sents et correctement
+soud&eacute;s :
+            </p>
+
+            <ul class="CL">
+
+              <li><b>TEST PROG1: </b>Si vous
+n'&ecirc;tes pas sur que le "Bootstrap
+Loader" a bien &eacute;t&eacute; flash&eacute;,&nbsp;
+utilisez la
+fonction de v&eacute;rification de IC-Prog/P18</li>
+
+              <li><b>TEST CORE1: </b>Assurez-vous de
+la pr&eacute;sence du quartz 10 MHz
+sur le module CORE&nbsp; (PIC18F : quartz 10 MHz)</li>
+
+              <li><b>TEST CORE2:</b> seulement valable pour les PCBs MBHP_CORE_V1 et MBHP_CORE_V2 :<b> </b> <a href="mbhp/mbhp_core_5.jpg">Les
+5 jumpers</a>&nbsp;sont-ils bien pr&eacute;sents sur le
+"programming port" (J3 sur le
+module CORE) ?</li>
+
+              <li><b>TEST CORE3: </b>V&eacute;rifier
+les soudures et les connections<br>
+
+              </li>
+
+              <li><b>TEST CORE4: </b>Mesurez la
+tension Vdd de l'alimentation&nbsp; :&nbsp;<a href="howtodebug/mbhp_core_extract_measuring_vdd.gif">mbhp_core_extract_measuring_vdd.gif</a></li>
+
+              <li><b>TEST CORE5: </b>V&eacute;rifiez
+la masse de l'alimentation :&nbsp;<a href="howtodebug/mbhp_core_extract_measuring_gnd.gif">mbhp_core_extract_measuring_gnd.gif</a></li>
+
+              <li><b>TEST CORE6: </b>V&eacute;rifiez
+la polarit&eacute; sur vos
+connecteurs MIDI :&nbsp;<a href="howtodebug/mbhp_core_extract_midi_plugs.gif">mbhp_core_extract_midi_plugs.gif</a></li>
+
+              <li><b>TEST CORE7: </b>V&eacute;rifiez
+la polarit&eacute; de la Diode de protection D1:&nbsp; <a href="howtodebug/mbhp_core_extract_d1.gif">mbhp_core_extract_midi_d1.gif</a></li>
+
+              <li><b>TEST CORE8: </b>V&eacute;rifiez
+la valeur des resistances sur les
+ports MIDI Out : R8 and R7=220 Ohm (code couleur : rouge-rouge-marron)</li>
+              <li><b>TEST CORE9:</b> Juste pour &ecirc;tre s&ucirc;r: ce diagramme repr&eacute;sente la connection entre le module CORE et votre PC:&nbsp; <a href="howtodebug/mbhp_core_midi_crosslink.gif">mbhp_core_midi_crosslink.gif</a></li>
+              <li><b>TEST CORE10:</b> si vous constatez un grand nombre de message comme dans&nbsp; <a href="howtodebug/rxtx_feedback.gif">cette capture d'&eacute;cran</a>,
+c'est qu'il y a un court-circuit entre les pins Rx et Tx du PIC.
+V&eacute;rifiez les pistes allant du port&nbsp; MIDI-Link&nbsp; J11 aux
+pins
+Rx/Tx pour les connections directes (voir le <a href="mbhp/mbhp_core.gif">layout</a> et le <a href="mbhp/mbhp_core.pdf">sch&eacute;ma</a>),
+vous pouvez grattez avec pr&eacute;caution &agrave; l'aide d'un
+tournevis plat entre les pistes afin de vous assurer qu'elles ne soient
+pas en contact.</li>
+              <li><b>TEST CORE11:</b> l'upload du code peut aussi
+&eacute;chouer si aucun (ou un trop petit) condensateur de "bypass" est
+connect&eacute; sur le rail d'alimentation du PIC. Une
+cons&eacute;quence possible est, par exemple, qu'une requ&ecirc;te du
+genre "F0 F0 F0 F0 7E F0 00 01" soit &eacute;mise par le PIC au lieu du
+message&nbsp; SysEx correct "F0 00 00 7E 40 ... F7". Un autre effet
+peut &ecirc;tre qu'un message soit effectivement re&ccedil;u par votre
+interface MIDI, mais que rien ne s'affiche dans votre moniteur MIDI en
+raison de la caract&egrave;re invalide du message. Ces cas de figure
+peuvent survenir m&ecirc;me si les tests de bouclage IO et Software
+dont il est question ensuite sont pass&eacute;s avec succ&eacute;s,<br>
+Si ceci arrive, v&eacute;rifiez que le condensateur 2200 uF&nbsp; (C5
+du module CORE) est proprement soud&eacute;. Si vous n'&ecirc;tes pas
+certains de l'&eacute;tat du condensateur car vous l'avez
+r&eacute;cup&eacute;r&eacute; sur du vieux mat&eacute;riel, essayez
+avec un autre.<br>
+Si vous utilisez l'alimentation optimis&eacute;e pour la MIDIbox SID,
+"bypassez" les pins ext&eacute;rieurs du 7805&nbsp; (non
+install&eacute;), afin que C5 soit en contact avec les rails
++5V/Ground&nbsp; (voir aussi <a href="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</a>)!</li>
+
+              <li><b>TEST OUT1: </b>Connectez une
+LED au port MIDI Out et v&eacute;rifiez
+si elle clignote:&nbsp;<a href="howtodebug/mbhp_core_extract_out_led.gif">mbhp_core_extract_out_led.gif</a></li>
+
+
+              <li><b>TEST OUT2:</b> Quelqu'un a fait remarquer sur le
+forum que le MIDI Out de son module CORE ne fonctionnait pas en raison
+"d'un probl&ecirc;me de compatibilit&eacute;" entre l'alimentation
+qu'il utilisait et l'alimentation &agrave; d&eacute;coupage de son PC.
+La solution consiste &agrave; d&eacute;connecter le pin central du port
+J12 (masse du port MIDI Out)</li>
+
+            </ul>
+
+Vous devriez avoir r&eacute;solu les probl&egrave;mes au niveau
+du
+module CORE.
+            <p></p>
+
+            <p class="INFO">C&ocirc;t&eacute;
+PC :
+            </p>
+
+            <ul class="CL">
+
+              <li><b>TEST PC1: </b>V&eacute;rifier
+la configuration de MIDI-Ox -&nbsp;<a href="mios/bootstrap_sysex0.gif">avez-vous correctement
+s&eacute;lectionn&eacute; les ports MIDI?</a></li>
+
+              <li><b>TEST PC2: </b>Assurez-vous du
+bon fonctionnement de votre interface
+MIDI : Connectez le MIDI Out de votre PC directement au MIDI In (du PC)
+et envoyez un dump SysEx avec la fonction "Send/Receive SysEx" de
+MIDI-Ox. Le nombre de&nbsp; bytes envoy&eacute;s doit
+correspondre au
+nombre de bytes re&ccedil;us. Si ce n'est pas le cas , mettez
+&agrave;
+jours les drivers de votre interface MIDI /Carte son. Si vous ne pouvez
+pas ou que c'est d&eacute;j&agrave; fait, tentez de
+r&eacute;duire le "
+Low Level Output Buffer size" (normalement &agrave; 2048) et
+d'augmenter le delai de sortie " output delay "(normalement
+&agrave; 0
+ms) dans le menu de configuration de MIDI-Ox :&nbsp;<a href="mios/bootstrap_sysex1.gif">MIDI-Ox SysEx configuration
+menu</a></li>
+
+            </ul>
+
+            <p class="INFO">Nous
+voyons maintenant la requ&ecirc;te d'
+Upload . Essayer d' Uploader le MIOS, le core devrait r&eacute;agir
+par
+un message apr&eacute;s chaque bloc re&ccedil;u, comme dans
+l'illustration ci-dessous :
+            </p>
+
+            <center><img src="howtodebug/upload_acknowledge.gif" alt="" height="175" width="243"></center>
+
+            <br>
+
+            <b>Note:</b>
+les "checksums" diff&eacute;rent d'un
+programme &agrave; l'autre.<br>
+
+            <p class="INFO">Si
+rien ne se passe, votre port MIDI-In ne
+fonctionne probablement pas :
+            </p>
+
+            <ul class="CL">
+
+              <li><b>TEST IN1: </b>V&eacute;rifier
+la valeur de la r&eacute;sistance au
+port MIDI In :
+R11=220 Ohm (code couleur : rouge-rouge-marron), R6=1.2kOhm
+(marron-rouge-rouge),
+R5=5.6kOhm (vert-bleu-rouge).</li>
+              <li><b>TEST IN2:</b> V&eacute;rifiez de nouveau la polarit&eacute; de vos connecteurs MIDI plugs: <a href="howtodebug/mbhp_core_extract_midi_plugs.gif">mbhp_core_extract_midi_plugs.gif</a> - il se peut que les deux pins du port MIDI In soit invers&eacute;s...</li>
+
+
+              <li><b>TEST IN3: </b>Soudez deux
+cable sur la face inf&eacute;rieure du module
+CORE comme expliqu&eacute; ici :&nbsp; <a href="mbhp/mbhp_core_midiin_debug.gif">mbhp_core_midiin_debug.gif</a>.&nbsp;La
+LED doit
+s'allumer (tenez compte de la polarit&eacute; de la LED, La
+patte la plus courte = cathode, elle doit &ecirc;tre
+connect&eacute;e
+via la r&eacute;sistance &agrave; la borne
+Vss). Tant qu'un simple &eacute;v&egrave;nement MIDI est
+envoy&eacute;, vous ne devriez observer aucun changement, et la LED devrait
+clignoter lorsque vous envoyez un message continu de type SysEx.<br>
+
+                <b>Note:</b>
+tant que la LED reste connect&eacute;e
+directement sur le pin Rx, le PIC ne recevra pas le flux MIDI en
+raison de la consommation de la LED. Cette m&eacute;thode n'est
+donc
+utile que pour s'assurer de la pr&eacute;sence d'un signal MIDI au
+pin
+RX .</li>
+
+              <li><b>TEST IN4: </b>Si la LED ne
+s'allume pas , connectez l'anode
+&agrave; l'optocoupleur&nbsp; (Pin IC2:6). Si elle ne s'allume
+toujours
+pas, connectez l'anode au +5V&nbsp; de l' optocoupleur (Pin IC2:8)</li>
+
+              <li><b>TEST IN5: </b>Si vous n'avez
+toujours pas d&eacute;tect&eacute;
+d'o&ugrave; vient l'erreur, essayez ce qui suit:&nbsp; <a href="mbhp/mbhp_core_midiin_debug2.gif">mbhp_core_midiin_debug2.gif</a>&nbsp;-
+dans cette configuration , la LED ne devrait s'allumer que lorsqu'un
+message MIDI est re&ccedil;u. Plus vous envoyez
+d'&eacute;v&egrave;nements MIDI, plus la LED doit briller. Si
+la LED
+ne s'allume pas, v&eacute;rifiez de nouveau la polarit&eacute;
+de la
+Diode de
+protection D1 plac&eacute;e avant&nbsp; l'optocoupleur.
+Re-v&eacute;rifiez aussi la polarit&eacute;&nbsp;de votre
+c&acirc;ble MIDI .</li>
+
+              <li><b>TEST IN6: </b>Test "standalone" pour l'optocoupleur:&nbsp;<a href="howtodebug/mbhp_core_extract_opto_test.gif">mbhp_core_extract_opto_test.gif</a></li>
+
+              <li><b>TEST IN7: </b>Un
+deuxi&egrave;me test "standalone" pour
+l'optocoupleur, cette fois-ci, l'optocoupleur n'est pas
+install&eacute; sur le module CORE :&nbsp;<a href="howtodebug/mbhp_core_opto_test.gif">mbhp_core_opto_test.gif</a></li>
+
+              <li><b>TEST INOUT1: </b>Pour finir ,
+assurez-vous que les 4 ports MIDI
+fonctionnent : retirez le PIC de son support et faites une boucle MIDI
+en cr&eacute;ant un "pont" entre les pins Rx et Tx comme sur le
+sch&eacute;ma suivant : <a href="howtodebug/mbhp_core_extract_io_loopback.gif">mbhp_core_extract_io_loopback.gif</a>.&nbsp;Envoyez
+un dump SysEx avec la fonction "Send/Receive SysEx" de
+MIDI-Ox . Le nombre de&nbsp; bytes envoy&eacute;s doit
+correspondre au
+nombre de bytes re&ccedil;us.</li>
+
+            </ul>
+
+            <b><br>
+
+D&eacute;connectez
+la LED apr&eacute;s ces tests , sinon
+le PIC ne recevra aucun flux MIDI !</b>
+            <p class="INFO"><br>
+
+V&eacute;rifications
+logicielles suppl&eacute;mentaires:
+            </p>
+
+            <ul class="CL">
+
+              <li><b>TEST SW1: </b>Le bootstrap
+loader est normalement suffisant pour v&eacute;rifier les ports
+MIDI IN et OUT, mais dans certaines circonstances une alternative
+"firmware" pourrait s'av&eacute;rer utile , et permettre une
+meilleure d&eacute;tection de la cause initiale d'un
+probl&egrave;me d'upload du code.<br>
+
+L' <a href="mios/sw_loopback_test.zip">application test
+de bouclage MIDI</a>&nbsp;est un
+fichier .hex et peut &ecirc;tre programm&eacute;e directement
+dans le PIC.<br>
+
+Connectez le MIDI OUT de votre MIDIbox au MIDI IN de votre ordinateur
+et le MIDI IN de votre MIDIbox au MIDI OUT de votre ordinateur. Allumez
+votre MIDIbox. Activez le clavier MIDI virtuel dans MIDI-OX. Appuyez
+sur quelques touches(Q-W-E-R-T-Y...) et observez les messages dans la
+fen&ecirc;tre de MIDI-OX . Si vous ne voyez que les
+&eacute;venements KEYBOARD, le firmware RxTx ne renvoie pas les
+bytes MIDI entrant au port MIDI OUT. Si une longue liste
+d'&eacute;v&egrave;nements s'affiche alors que vous n'avez
+appuy&eacute; sur qu'une seule touche, il s'agit probablement d'une
+boucle MIDI (v&eacute;rifiez votre configuration des ports MIDI
+(PORTS menu). Si les messages qui apparaissent correspondent
+&agrave; <a href="howtodebug/midibox_debug_rxtx.gif">cette
+image</a>&nbsp;(chaque &eacute;v&egrave;nement deux
+fois), vos ports MIDI IN
+et OUT fonctionnent.<br>
+
+                <b>Note:</b>
+La nouvelle version de MIDI-Ox dispose de fen&ecirc;tre
+s&eacute;par&eacute;e pour le IN et le OUT.<br>
+
+                <b>Note2:</b>
+Le pin RD4 (CORE::J14) change d'&eacute;tat &agrave; chaque
+byte MIDI entrant, &ccedil;a peut &ecirc;tre une aide
+suppl&eacute;mentaire pour le d&eacute;bogage.&nbsp;</li>
+              <li><b>TEST SW2: </b>(seulement utile si vous avez programm&eacute; votre PIC &agrave; l'aide de votre propre programmateur): Certains
+programmateurs de PIC&nbsp; ne sont pas en mesure de changer le
+champ ID, qui sp&eacute;cifie au MIOS l'ID de l'appareil, le type
+de LCD et plus particuli&egrave;rement l'&eacute;tat de
+l'option "to-COM" (baudrate diff&eacute;rent de l'interface MIDI
+classique). Cela ne poserait aucun probl&egrave;me si l'ID
+n'&eacute;tait constitu&eacute;e que de z&eacute;ro
+(comme&nbsp; dans la plupart des cas pour la MIDIbox), mais
+malheureusement le champ ID est sur FFFFFFFFFFFFFFFF par defaut. <a href="mios/mios_bootstrap_picstart_workaround_v1.zip">Ce
+programme</a>&nbsp;vous permettra de
+corriger l'ID ,vous trouverez plus d'explications
+sur la marche &agrave; suivre dans l'ent&ecirc;te du fichier
+"main.asm" .</li>
+
+            </ul>
+
+            <p class="INFO"><b>N.B.
+:</b> Si vous avez un module&nbsp;<a href="mbhp_ltc.html">MBHP_LTC</a>&nbsp;,
+les tests avec des LEDs sont plus
+ais&eacute;s car elles sont dans ce cas "bufferis&eacute;es", et il
+n'est pas n&eacute;cessaire de les d&eacute;connecter avant de
+communiquer avec d'autres appareils MIDI. Si
+ces conseils ne vous ont pas
+aid&eacute;, il n'est pas exclu que l'interface MIDI du PC ne
+fonctionne pas. Les ports "joystick", plus particuli&egrave;rement,
+peuvent &ecirc;tre source de probl&egrave;mes - souvent
+&agrave; cause
+de leur pilote ou d'un mauvais r&eacute;glage dans le bios de la
+carte-m&egrave;re (IRQ enabled?). Certaine carte-son sont vendues
+avec
+des pilotes "bugg&eacute;s", il est n&eacute;cessaire de les
+mettre
+&agrave; jour (par exemple: Soundblaster Audigy,
+SEK'D Prodif, ...). Les adaptateurs MIDI "&eacute;conomiques" (sans
+optocoupleur) dans la plupart des cas ne fonctionneront pas, il vaut
+mieux &agrave; la place faire une connection "1:1" via le
+port "MIDIbox Link"&nbsp; du module CORE, comme
+illustr&eacute; dans
+le sch&eacute;ma suivant : <a href="mbhp/mbhp_midi_gameport.gif">mbhp_midi_gameport.gif</a>.</p>
+
+            <p class="INFO"><b>Bonne Chance!</b></p>
+
+FOOTER

@@ -1,0 +1,94 @@
+HEADER 3 MIOS C Example
+
+<H3>Sending 14bit NRPN Events on Rotary Encoder movements</H3>
+
+<P CLASS=INFO>We want to send absolute 14bit values on encoder movements in following format: <I>NRPN &lt;low:encoder&gt; &lt;high:00&gt; &lt;LSB:value & 0x7f&gt; &lt;MSB:value >> 7&gt;</I>.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>At the top of the main.c file, we have to specify an array of "unsigned int" (16bit values) which hold the absolute value:</P>
+
+<TT><PRE>
+// absolute values are stored in this array
+unsigned int enc_value[8];
+</PRE></TT>
+
+<P CLASS=INFO>Within the Init() function, you have to specify, how many shift registers are connected to the core, and which encoder speed mode should be taken:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  unsigned char i;
+
+  // set shift register update frequency
+  MIOS_SRIO_UpdateFrqSet(1); // ms
+
+  // we need to set at least one IO shift register pair
+  MIOS_SRIO_NumberSet(16); // for 128 pins
+
+  // set speed mode for 8 encoders
+  for(i=0; i<8; ++i) {
+    // available speed modes: SLOW, NORMAL and FAST
+    MIOS_ENC_SpeedSet(i, MIOS_ENC_SPEED_FAST, 7); // encoder, speed mode, divider
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>We add the code which should be executed on rotary encoder movements to the ENC_NotifyChange() function. It increments/decrements the absolute value depending on the encoder turn direction and sends the new value over the MIDI interface, if it has been changed:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when an encoder has been moved
+// incrementer is positive when encoder has been turned clockwise, else
+// it is negative
+/////////////////////////////////////////////////////////////////////////////
+void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
+{
+  unsigned int value;
+
+  // do nothing if encoder number greater than array size
+  if( encoder >= sizeof(enc_value) )
+    return;
+
+  // add incrementer to absolute 16bit value by using a MIOS help function
+  value = enc_value[encoder];
+  if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 0x3fff) ) {
+    // store new value and send it
+    enc_value[encoder] = value;
+
+    MIOS_MIDI_TxBufferPut(0xb0);           // NRPN CC at MIDI Channel #1
+    MIOS_MIDI_TxBufferPut(0x62);           // NRPN# LSB
+    MIOS_MIDI_TxBufferPut(encoder);
+    MIOS_MIDI_TxBufferPut(0x63);           // NRPN# MSB
+    MIOS_MIDI_TxBufferPut(0x00);
+    MIOS_MIDI_TxBufferPut(0x26);           // NRPN Data LSB
+    MIOS_MIDI_TxBufferPut((unsigned char)(value & 0x7f));
+    MIOS_MIDI_TxBufferPut(0x06);           // NRPN Data MSB
+    MIOS_MIDI_TxBufferPut((unsigned char)((value >> 7) & 0x7f));
+  }
+}
+</PRE></TT>
+
+
+<P CLASS=INFO><B>IMPORTANT:</B> the pins to which the encoders are connected must be specified in mios_wrapper/mios_tables.inc. Search for <B>MIOS_ENC_PIN_TABLE</B> and replace the first ENC_EOT entries (which terminate the table) by:</P>
+
+<TT><PRE>
+MIOS_ENC_PIN_TABLE
+        ;;        SR  Pin  Mode
+        ENC_ENTRY  1,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 1
+        ENC_ENTRY  1,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 2
+        ENC_ENTRY  1,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 3
+        ENC_ENTRY  1,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 4
+        ENC_ENTRY  2,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 5
+        ENC_ENTRY  2,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 6
+        ENC_ENTRY  2,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 7
+        ENC_ENTRY  2,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 8
+</PRE></TT>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

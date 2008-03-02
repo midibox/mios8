@@ -1,0 +1,115 @@
+HEADER 3 hex2syx.pl
+
+<h1>script hex2syx.pl&nbsp;</h1>
+
+<p class="INFO">El script hex2syx.pl nos da un m&eacute;todo
+alternativo para cargar un archivo .hex en el core MIOS. El uso es
+menos c&oacute;modo que con&nbsp;<a href="http://miosstudio.midibox.org">MIOS Studio</a> (-&gt; Puedes encontrar un HowTo en la p&aacute;gina del cargador <a href="mios_bootstrap.html">MIOS Bootstrap</a>), por eso, solo lo recomiendo para aquellos que no puedan hacer funcionar Java en su ordenador.</p>
+
+<h2>Convirtiendo .hex a .syx</h2>
+
+<p class="DESC">El hex2syx.pl convierte un archivo .hex (el formato de
+salida del enlazador) en un archivo .syx. La descarga se
+transmitir&aacute; de manera desordenada, ya que el protocolo SysEx no
+permite la transferencia de valores de&nbsp;8-bit. En vez de eso, la
+descarga al completo ser&aacute; enviada en paquetes de 7-bit y
+reconvertido a valores de 8 bits por el receptor.</p>
+
+<table align="center" cellpadding="0" cellspacing="20">
+
+  <tbody><tr>
+    <td><a href="http://www.perl.com" target="_blank"><img src="images/lcamel.gif" alt="Link to the perl.com" height="81" width="72"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Descarga PERL si no lo tienes ya instalado en el ordenador&nbsp;.<br>Usuarios Unix: &nbsp;Viene con la mayor&iacute;a de las distribuciones.<br>Usuarios Windows: Usad <a href="http://www.activestate.com/Products/Download/Register.plex?id=ActivePerl" target="_blank">Active Perl</a>.<br>Usuarios&nbsp;Mac: Usad <a href="http://www.macperl.com/" target="_blank">MacPerl</a></span></td>
+  </tr>
+
+  <tr>
+    <td><a href="http://www.midiox.com" target="_blank"><img src="images/moxtitle.gif" alt="Link to the MIDI-OX site" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"> Descarga MIDI-OX de <a href="http://www.midiox.com" target="_blank">este sitio</a>.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="howtosysex/snap1.gif"><img src="howtosysex/snap1.gif" alt="snap1.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"> Arranca MIDI-OX &nbsp;Y configura los puertos Midi de entrada y salida (IN/OUT).</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/bootstrap_sysex0.gif"><img src="mios/bootstrap_sysex0.gif" alt="snap1.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Aseg&uacute;rate
+de que el flujo de datos del puerto MIDI de entrada (IN) no es
+redirigido al puerto MIDI de salida (OUT), para evitar un bucle de
+regeneraci&oacute;n .<br>Deselecciona el Auto Switch en la esquina
+inferior izquierda antes de seleccionar el puerto MIDI de entrada o
+salida para que esta conexi&oacute;n no se produzca
+autom&aacute;ticamente.Chequea el mapeado de puertos a la derecha:
+&iexcl;el puerto MIDI no deber&iacute;a aparecer en la lista!</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="howtosysex/snap2.gif"><img src="howtosysex/snap2.gif" alt="snap2.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"> Aseg&uacute;rate de que SysEx est&eacute; habilitado.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="howtosysex/snap3.gif"><img src="howtosysex/snap3.gif" alt="snap3.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"> Start the SysEx tool.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="howtosysex/snap4.gif"><img src="howtosysex/snap4.gif" alt="snap4.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"> Go into the configure menu.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/bootstrap_sysex1.gif"><img src="mios/bootstrap_sysex1.gif" alt="bootstrap_sysex1.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"> Pon el valor "Delay after F7" en <b>750 mS</b>.<br>Pon el valor "Low level output buffer size" en <b>2048 bytes</b>.<br>No
+actives los otros retrasos ( delays) como para las MIDIboxes basadas en
+el PIC16F- Los retrasos entre cada byte ya no son necesarios.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/bootstrap_sysex4.gif"><img src="mios/bootstrap_sysex4.gif" alt="snap1.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Abre un shell y cambia el directorio que contiene la aplicaci&oacute;n. Solo inicia el archivo batch "CONVERT.BAT" (tecleando <i>convert</i>), o teclea la linea de comando entera <i>perl mk_syx.pl main.hex</i> para convertir este archivo hex en un archivo syx.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/bootstrap_sysex5.gif"><img src="mios/bootstrap_sysex5.gif" alt="snap1.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Ahora carga este archivo con MIDI-Ox y env&iacute;alo a tu MIDIbox.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/bootstrap_sysex6.gif"><img src="mios/bootstrap_sysex6.gif" alt="snap1.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">
+Si se asignara al core una ID de dispositiv 0x00, el archivo syx tiene
+que ser generado con el par&aacute;metro&nbsp; "-device_id".</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/bootstrap_sysex7.gif"><img src="mios/bootstrap_sysex7.gif" alt="snap1.gif" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">
+F&iacute;jate en la sutil diferencia: Solo se ha cambiado el sexto byte
+de cada bloque SysEx; Esto significa que tambi&eacute;n puedes
+modificar el n&uacute;mero de dispositivo a mano, pero recuerda que el
+archivo .syx contiene m&uacute;ltiples bloques (que empiezan con F0)-
+la ID de dispositivo tiene que ser cambiada en todos los bloques!</span></td>
+  </tr>
+
+</tbody></table>
+
+
+<h2>Carga de .syx en Mac</h2>
+<p class="INFO">La <a href="http://www.snoize.com/SysExLibrarian/">Librer&iacute;a SysEx</a>, creada por <a href="http://www.snoize.com">Snoize</a>, permite la carga de archivos .syx en MacOS X.
+<br>Gracias a Normen por este atajo! &Eacute;l usa la siguiente configuraci&oacute;n:</p><br><p></p><center><a href="http://www.snoize.com/SysExLibrarian/"><img src="howto_tools/macos_syx_librarian.jpg" height="361" width="431"></a></center><p></p>
+
+FOOTER

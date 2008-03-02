@@ -1,0 +1,313 @@
+HEADER 3 MBHP USB Module
+
+<h1>Plataforma de Hardware MIDIbox, M&oacute;dulo USB&nbsp;</h1>
+
+<h2>NOTA: HAY UN M&Oacute;DULO USB ALTERNATIVO DE BAJO COSTE <a href="mbhp_usb_pic.html">EN DESARROLLO</a>!</h2>
+
+<p></p><center><img src="mbhp/mbhp_usb.jpg" height="384" width="512"></center><p></p>
+
+<p class="INFO">El m&oacute;dulo USB tiene 2 puertos MIDI In y 2
+puertos MIDI Out que est&aacute;n enlazados al ordenador via USB. El
+controlador est&aacute; basado en la <a href="http://www.usb.org/developers/devclass_docs/midi10.pdf">Definici&oacute;n de Clase de Dispositivo (Device Class Definition)</a> de <a href="http://www.usb.org" target="_blank">www.usb.org</a> y funciona con todos los sistemas operativos que soporten esta clase:: WinME, Win2k, WinXP, Mac OS X, Linux, <a href="http://www.pegasosppc.com/" target="_blank">Pegasos</a>, MorphOS y OS4.<br>
+<i>Nota: la clase de dispositivo MIDI-USB&nbsp; <b>not</b>&nbsp;soportada por Win95, Win98, Win98SE, OS/2 o Mac OS9!</i></p>
+
+<p class="INFO">De momento el m&oacute;dulo solo se ha probado
+en&nbsp;WinME, WinXP y Linux (v2.4.21), No puedo garantizar que
+funcione tambi&eacute;n en otros sistemas operativos, aunque soporten
+el mismo tipo de clase. Durante el desarrollo me encontr&eacute; con
+algunas anomal&iacute;as, como que el controlador de Microsoft no hace
+caso de la especificaci&oacute;n o directamente se cuelga el driver o
+el SO completo. ( por ej. si se usan los descriptores del Spec 1:1,
+WinME se cuelga inmediatamente ;-). De momento he encontrado unos
+parches para que la implementaci&oacute;n actual funcione sin cuelgues.
+Pero sigue habiendo tres imperfecciones que hay que tener en cuenta
+antes de empezar con este m&oacute;dulo.:</p>
+<ul class="CL">
+   <li>El controlador de Microsoft no soporta
+multi-cliente. Esto significa que solo un programa puede acceder al
+puerto MIDI al mismo tiempo.</li>
+   <li>El controlador de Microsoft
+no es capaz de enviar sin errores una cadena SysEx que es
+distribu&iacute;da a trav&eacute;s de buffers m&uacute;ltiples. Hay que
+enviar la cadena SysEx desde un solo buffer&nbsp;(esto afecta a la
+descarga de MIOS, tienes que incrementar el tama&ntilde;o de salida de bajo nivel desde 256 hasta 2048 en el <a href="mios/bootstrap_sysex1.gif">men&uacute; port config MIDI-Ox&nbsp;</a>).</li>
+   <li>El
+controlador de Microsoft no permite cambiar de nombre de dispositivo al
+m&oacute;dulo USB. En la distribuci&oacute;n alemana de Windows los
+puertos se llaman&nbsp; <a href="mbhp/mbhp_usb_proto1_3.gif">"Audiogeraet" (Dispositivo de Audio&nbsp;)</a>. Usa "regedit" , busca su nombre y c&aacute;mbialo a "MBHP_USB"</li>
+</ul>
+<p class="INFO">En cualquier caso, aparte de estos problemas, el
+m&oacute;dulo funciona bien (con WinME y Linux...). Si construyes este
+m&oacute;dulo, por favor, no olvides contarme tu experiencia!</p>
+<p class="INFO">Pero tambi&eacute;n hay buenas noticias:</p>
+<ul class="CL">
+   <li>el controlador de Linux soporta multi-cliente y no tiene m&aacute;s problemas con las cadenas SysEx.</li>
+</ul>
+<p class="INFO">&nbsp;;-)</p>
+
+<p class="INFO">El firmware del USB est&aacute; escrito en C, c&oacute;digo abierto y bajo licencia <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank">GPL</a>
+para aquellos que quieran mejorar su controlador o solo den sus
+primeros pasos en el mundo de los USB. El c&oacute;digo se ha
+desarrollado con la herramienta gratu&iacute;ta EZ-USB que se puede
+descargar de la web de <a href="http://www.cypress.com/" target="_blank">Cypress.</a>
+(Design Resources-&gt;Developer Kits-&gt;Universal Serial Bus-&gt;Full
+Speed Peripherals-&gt;AN2131-DK001 EZ-USB Development Kit-&gt;EZ-USB
+Development Tools V2.61.700 - 62 MB!).<br>Recuerda que estas
+herramientas no son necesarias para hacer funcionar el m&oacute;dulo
+MBHP USB, el panel de control que permite cargar el firmware viene en
+el paquete mbhp_usb_v1_2.zip!</p>
+
+<p class="INFO">El coraz&oacute;n del m&oacute;dulo es el AN2131SC de <a href="http://www.cypress.com">Cypress</a>, un derivado de 8051 con perif&eacute;rico USB integrado. La ventaja de este chip es su disponibilidad (<a href="http://www.reichelt.de">Reichelt</a>: 10.50 EUR, <a href="http://www.digikey.com/">DigiKey</a>:
+US $10.50), la memoria SDRAM de 8k integrada, que te evita tener que
+instalar una memoria externa, el bootloader IIC que carga el firmware
+desde una EEPROM (24LC64) a una SRAM durante el encendido, y, por
+supuesto, el kit de desarrollo gratu&iacute;to EZ-USB&nbsp;.</p>
+
+<p class="INFO">Desventajas de este chip: solo est&aacute; disponible en un paquete SMD! esto significa que necesitas:</p><ul class="CL"><li>nociones de soldadura (evita soldar este m&oacute;dulo si eres un principiante)</li>
+   <li>un
+buen soldador o estaci&oacute;n de soldadura con una cabeza
+peque&ntilde;a! Mejor si es con regulaci&oacute;n de temperatura.(que
+debe ser de 310&deg; Celsius/590 F).</li>
+   <li>un aspirador de soldadura por si sueldas por error dos pines cercanos</li>
+</ul>
+
+<p class="INFO">Estas condiciones hacen que el m&oacute;dulo USB&nbsp;<b>no</b>
+sea un sustituto barato de una interfaz MIDI, aunque las partes
+electr&oacute;nicas no cuesten m&aacute;s de 20 &euro;. Es solo una
+alternativa para verdaderos entusiastas de la electr&oacute;nica o para
+los que hayan terminado con &eacute;xito todos los m&oacute;dulos MBHP
+y ...&iexcl;busquen un nuevo desaf&iacute;o! ;-)<br>Si est&aacute;s buscando una alternativa barata, compra un <a href="http://www.m-audio.com" target="_blank">M-Audio MIDIsport 2x2</a> &nbsp;por unos 90 &euro;, busca un dispositivo similar en&nbsp;<a href="http://www.ebay.de" target="_blank">EBay</a> o&nbsp;compra algunas tarjetas de sonido con interfaz MIDI de segunda mano.</p>
+
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Descarga </h2>
+   <dd>
+   </dd><dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Los datos PCB se pueden visionar, modificar y convertir con&nbsp;<a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>M&oacute;dulo</strong></font></td><td class="TABCOLOR1"><font size="2"><strong>Esquema</strong></font></td><td class="TABCOLOR1"><font size="2"><strong>Datos de Base</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Vista R&aacute;pida</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_USB_V1</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_usb.pdf">mbhp_usb.pdf</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_usb_v1b.brd">mbhp_usb_v1b.brd</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_usb_v1b.gif">mbhp_usb_v1b.gif</a></td>
+    </tr>
+    <tr>
+      <td colspan="4" class="TABCOLOR2"><b>Nota:</b>
+la diferencia entre mbhp_usb_v1 y mbhp_usb_v1b: olvidamos introducir el
+comando "ratsnest" antes de salvar el archivo, por eso el plano de
+tierra no se ve&iacute;a bien, as&iacute; como la conexi&oacute;n entre
+los pines 3 y 4 de IC2. Si has creado ya tu propia PCB, comprueba que
+esos pines est&eacute;n conectados a tierra. Si has encargado una PCB
+prefabricada ver&aacute;s que esa conexi&oacute;n ya est&aacute; hecha.</td></tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_USB mini</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_usb_mini.pdf">mbhp_usb_mini.pdf</a></td>
+      <td class="TABCOLOR2">---</td>
+      <td class="TABCOLOR2">---</td>
+    </tr>
+  </tbody></table></dd>
+
+
+  <dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Firmware</font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>archivo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td><td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong><span style="text-decoration: underline;">Descripci&oacute;n</span></strong></font></td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_usb_v1_2.zip">mbhp_usb_v1_2.zip</a></td>
+      <td class="TABCOLOR2">453k</td>
+      <td class="TABCOLOR2">Este
+paquete contiene el firmware pre-compilado, el c&oacute;digo fuente y
+el panel de control EZ-USB. Recuerda que la EEPROM solo se puede cargar
+en Windows con la aplicaci&oacute;n EZ-USB.<br>Nuevo: v1_2 contiene un
+archivo .syx que se puede descargar v&iacute;a core MIOS. Se ha
+a&ntilde;adido una descripci&oacute;n de los archivos. La diferencia
+entre v1_1 y v1_2: &iexcl;cada puerto es precargado con 128 bytes!</td>
+    </tr>
+  </tbody></table></dd>
+
+  <dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Informaci&oacute;n adicional</font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Archivo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td><td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>descripci&oacute;n</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_usb_orderlist.txt">mbhp_usb_orderlist.txt</a></td>
+      <td class="TABCOLOR2">1k</td>
+      <td class="TABCOLOR2"><a href="http://www.reichelt.de/" target="_blank">Lista de &nbsp;pedido para Reichelt</a></td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_usb_connections_case1.pdf">mbhp_usb_connections_case1.pdf</a></td>
+      <td class="TABCOLOR2">5k</td>
+      <td class="TABCOLOR2">C&oacute;mo conectar 1 m&oacute;dulo core y un teclado MIDI</td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_usb_connections_case2.pdf">mbhp_usb_connections_case2.pdf</a></td>
+      <td class="TABCOLOR2">5k</td>
+      <td class="TABCOLOR2">C&oacute;mo conectar 2 m&oacute;dulos core</td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_usb_connections_case3.pdf">mbhp_usb_connections_case3.pdf</a></td>
+      <td class="TABCOLOR2">5k</td>
+      <td class="TABCOLOR2">C&oacute;mo usar el standalone del m&oacute;dulo</td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_usb_connections_case4.pdf">mbhp_usb_connections_case4.pdf</a></td>
+      <td class="TABCOLOR2">5k</td>
+      <td class="TABCOLOR2">C&oacute;mo alimentar un m&oacute;dulo core v&iacute;a USB</td></tr></tbody></table></dd></dl><dl><h2> <img src="images/bullet.gif" alt=""> Puertos disponibles </h2>
+   <dd>
+<p class="DESC">El m&oacute;dulo USB provee las siguientes interfaces:</p>
+  </dd><dd><table class="BOX" border="1" cellpadding="0" cellspacing="5" width="100%">
+
+    <tbody><tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Nombre</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>No.de pins</strong></font></td>
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Descripci&oacute;n</strong></font></td></tr><tr><td class="TABCOLOR2">J1</td>
+      <td class="TABCOLOR2">2</td>
+      <td class="TABCOLOR2">Puerto
+de alimentaci&oacute;n externa. Se puede usar para alimentar el
+m&oacute;dulo USB de manera externa si el Vout de tu ordenador o
+port&aacute;til no es lo suficientemente "fuerte" (en este caso, el
+Jumper&nbsp;Power Supply junto al puerto USB debe ser abierto!) o se
+puede usar este puerto para alimentar un m&oacute;dulo Core (en este
+caso, el Jumper Power Supply junto al puerto USB debe cerrarse!)</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J2</td>
+      <td class="TABCOLOR2">2</td>
+      <td class="TABCOLOR2">Conexi&oacute;n a un Led de encendido. Recomendado para correcci&oacute;n de errores!</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J3</td>
+      <td class="TABCOLOR2">4</td>
+      <td class="TABCOLOR2">puerto IIC para futuras extensiones (por ej. un dispositivo de audio)</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J4</td>
+      <td class="TABCOLOR2">2</td>
+      <td class="TABCOLOR2">LED indicador MIDI-Inpara puerto #1</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J5</td>
+      <td class="TABCOLOR2">2</td>
+      <td class="TABCOLOR2">LED indicador MIDI-Out para puerto #1</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J6</td>
+      <td class="TABCOLOR2">2</td>
+      <td class="TABCOLOR2">LED indicador MIDI-In para puerto #2</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J7</td>
+      <td class="TABCOLOR2">2</td>
+      <td class="TABCOLOR2">LED indicador MIDI-Out para puerto #2</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J8</td>
+      <td class="TABCOLOR2">4</td>
+      <td class="TABCOLOR2">Enlace
+directo a J11 del m&oacute;dulo Core, puerto #1. Nota: el pin Vd (+5V)
+no debe conectarse para evitar problemas de alimentaci&oacute;n. Si
+quieres &nbsp;proveer el m&oacute;dulo core, usa J1 en su lugar.</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J9</td>
+      <td class="TABCOLOR2">4</td>
+      <td class="TABCOLOR2">Enlace directo a J11 del m&oacute;dulo core, puerto #2</td>
+    </tr>
+
+  </tbody></table></dd>
+  
+</dl>
+
+
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Componentes Utilizados </h2>
+   <dd>
+<p class="DESC">Aqu&iacute; hay una lista de los componentes usados. Puedes encontrar una lista de pedido completa para <a href="http://www.reichelt.de" target="_blank">Reichelt</a> pulsando <a href="mbhp/mbhp_usb_orderlist.txt">aqu&iacute;</a>, lista de partes Mouser para US: ver <a href="http://mbhp.coinoptech.com" target="_blank">P&aacute;gina Web de SmashTV; </a>si tienes una lista de pedido para un distribuidor de tu pa&iacute;s, si&eacute;ntete libre de publicarla aqu&iacute;!</p>
+  </dd>
+</dl>
+
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Gu&iacute;a de Soldadura </h2>
+  <dd>
+<p class="DESC">Aqu&iacute; teneis unas fotos del primer prototipo.
+Recuerda que la base final "mbhp_usb_v1" &nbsp;parece diferente.
+A&ntilde;adir&eacute; los comentarios tan pronto como haya soldado la
+PCB de&nbsp;Mike.</p>
+  </dd><dd><table cellpadding="0" cellspacing="0">
+    <tbody><tr>
+      <td><img src="mbhp/mbhp_usb_1.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_2.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_3.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_4.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_5.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_6.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_7.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_8.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_9.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_10.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_11.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_12.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_usb_13.jpg" alt="" border="0" height="384" width="512"></td>
+    </tr>
+
+  </tbody></table></dd>
+  
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Gu&iacute;a de Instalaci&oacute;n </h2>
+  <dd>
+<p class="DESC">No escrita a&uacute;n. De todos modos es bastante
+f&aacute;cil. Conecta tu PC Windows con el m&oacute;dulo USB.
+Despu&eacute;s de conectarlo te pedir&aacute; el
+controlador&nbsp;EZ-USB, que puedes encontrar en el archivo
+mbhp_usb_v1_2&nbsp;. Despu&eacute;s de que el controlador se haya
+instalado, podr&aacute;s cargar el firmware con el panel de control
+EZ-USB&nbsp;. Tambi&eacute;n podr&aacute;s grabar el firmware en la
+EEPROM 24LC64 . Haciendo esto, el m&oacute;dulo iniciar&aacute; con o
+sin el controlador EZ-USB y en otros sistemas operativos.</p>
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Funcionamiento </h2>
+  <dd>
+<p class="DESC">El funcionamiento no es problema ;-) ver tambi&eacute;n <a href="http://www.midibox.org/forum/index.php?topic=2342.0">los resultados de Benchmark</a></p></dd></dl><dl><h2> <img src="images/bullet.gif" alt=""> Cr&eacute;ditos </h2>
+  <dd><p class="DESC">Muchas
+gracias a SmashTV, que me dieron un mont&oacute;n de consejos de
+dise&ntilde;o muy &uacute;tiles y crearon la base PCB del m&oacute;dulo
+USB- Tambi&eacute;n me hicieron las dos placas del prototipo!! :-)</p><p>
+  
+</p></dd></dl>
+
+FOOTER

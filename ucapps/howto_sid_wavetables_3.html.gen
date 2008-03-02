@@ -1,0 +1,143 @@
+HEADER 3 Wavetable Sounds Tutorial #3
+
+<H1>Wavetable Sounds Tutorial #3</H1>
+
+<P CLASS=INFO><B>WARNING:</B> This tutorial describes features of MIDIbox SID V1 - they are partly handled on a different way in MIDIbox SID V2. More details can be found in the <A HREF="midibox_sid_manual.html">MBSID V2 User Manual</A>.</P>
+
+<P CLASS=INFO>This tutorial session does focus on arpeggiator textures made with the sequencer of <A HREF="midibox_sid.html">MIDIbox SID</A>. All patches which are discussed below can either be entered with the JSynthLib based editor, or directly from the Control Surface. The ready made patches can be downloaded from <A HREF="midibox_sid/tutor3_patches_v1.zip" TARGET="_blank">this location</A>.</P>
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_short_arp.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Short Arpeggios</B><BR>
+In this example, arpeggios are created in the same manner like known from old C64 tunes. A wavetable is used to control the waveform, and the transpose value of one or all three voices. The wavetable is played with a high rate. This method is also known as "broken chords" - the notes of a chord are played so fast, that one could think, that they are played simultaneously.
+<UL CLASS=CL>
+  <LI>create a new patch, set Pulse wave for all three oscillators.</LI>
+  <LI>Assign LFO1 to Pulsewidth of Voice1, LFO2 to PW Voice2, LFO3 to PW Voice3 - Depth ca. +/- 8 (vary between LFOs), Rate ca. 85 (very between LFOs)</LI>
+  <LI>assign track 1 of the Wavetable to CC#32 (Voice 1/2/3 Waveform)</LI>
+  <LI>assign track 2 of the Wavetable to CC#16 (Voice 1/2/3 Transpose)</LI>
+  <LI>Wavetable Rate: start with 1, increase to 115 (which corresponds to 50 Hz update rate)</LI>
+  <LI>enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1   #2
+00   Play   04   40
+01   Play  +00   43
+02   Play  +00   47
+03   Play  +00   4C
+04   Play  +00   40
+05   Play  +00   43
+06   Play  +00   47
+07   Play  +00   4C
+08   Play  +00   40
+09   End   +00  +00  
+</PRE></TT></LI>
+  <LI>This wavetable will roll the transposed notes of a major chord exactly 2 times, thereafter the gate will be released (sound will stop).</LI>
+  <LI>In difference to the Arpeggiator, which runs seperate from the wavetable, this method has the advantage, that only a single key needs to be pressed on a MIDI keyboard to play an arpeggio. The Arpeggiator requires to play the whole chord (up to 4 keys). But you can also see the disadvantage: always the same chord type is played, e.g. it is not so easy to switch from major to minor by using this method.</LI>
+  <LI>A possibility to overcome this limitation is the use of <A HREF="midibox_sid/sid_cc_implementation_chart.txt">CC#12 ("Select Wavetable Patch Number")</A>. You could prepare several wavetables in different patch slots, and switch over to it while playing without switching to a new patch.</LI>
+</UL>
+  </TD></TR>
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_arp_notes.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Arp Notes</B><BR>
+A much more flexible way to create arpeggios is one of the special features of MIDIbox SID: Notes can be directly played from a Wavetable (like if you would play it from a sequencer), and it's not only possible to play and transpose static notes sequences (hex code 02-7B), but chords played on a keyboard can also be directly forwarded to the sound engine (hex code 7C-7F).<BR>
+In the JSynthLib editor, these special chord notes are accessible with the keywords "KEY1", "KEY2", "KEY3" and "KEY4". The Control Surface uses the same name - just turn the encoder full right until you see "KY1".."KY4".<BR>
+Following example should give you a starting point:
+<UL CLASS=CL>
+  <LI>create a new patch, change from Mono mode to "WT Seq Only" - now the notes being played are under direct control of the WT sequencer.</LI>
+  <LI>assign track 1 of the Wavetable to CC#8 (Voice 1/2/3 Note)</LI>
+  <LI>assign track 2 of the Wavetable to CC#16 (Voice 1/2/3 Transpose)</LI>
+  <LI>Wavetable Rate: 36 (slow)</LI>
+  <LI>enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1   #2
+00   Play  KEY1  40
+01   Play  KEY2  40
+02   Play  KEY3  40
+03   Play  KEY1  4C
+04   Play  KEY1  40
+05   Play  KEY2  40
+06   Play  KEY3  40
+07   Play  KEY1  4C
+08   Goto   00  +00  
+</PRE></TT></LI>
+  <LI>just play different chords on the keyboard and have some fun :)</LI>
+</UL>
+  </TD></TR>
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_arp_notes2.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Arp Notes #2</B><BR>
+In the previous example, the purpose of the hex codes 00 and 01 were not mentioned. So: 00 (or in JSynthLib: "---") is used to release the gate, and 01 (JSynthLib: "+++") is used to hold the gate.<BR>
+The following example goes a little bit further. The wavetable is clocked from an external MIDI sequencer in order to keep MIDIbox SID in synch with a drum machine:
+<UL CLASS=CL>
+  <LI>create a new patch, change from Mono mode to "WT Seq Only" - now the notes being played are under direct control of the WT sequencer.</LI>
+  <LI>assign track 1 of the Wavetable to CC#8 (Voice 1/2/3 Note)</LI>
+  <LI>assign track 2 of the Wavetable to CC#16 (Voice 1/2/3 Transpose)</LI>
+  <LI>Wavetable Rate: 123, enable MIDI clock synchronization (Control Surface: CFG menu, "Clk" parameter)</LI>
+  <LI>enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1   #2
+00   Play  KEY1  34
+01   Play  ---   34
+02   Play  KEY2  34
+03   Play  ---   34
+04   Play  KEY1  40
+05   Play  ---   40
+06   Play  KEY2  40
+07   Play  ---   40
+08   Play  KEY1  4C
+09   Play  ---   4C
+0A   Play  KEY2  4C
+0B   Play  ---   4C
+0C   Goto   00  +00  
+</PRE></TT></LI>
+  <LI>start your MIDI sequencer (in order to send a MIDI clock to MIDIbox SID), and press two notes on a keyboard, or send them from the sequencer.</LI>
+  <LI>The MIDI clock divider can be controlled with the WT rate, here some typical values:
+  <UL CLASS=CL>
+    <LI>126: 8 WT steps = 1/4 note</LI>
+    <LI>123: 8 WT steps = 1/2 note</LI>
+    <LI>117: 8 WT steps = 1 note</LI>
+  </UL>
+</UL>
+  </TD></TR>
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_poly_arp.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Polyphonic Arpeggios</B><BR>
+With the last example of this session I would like to highlight, that polyphonic arpeggio textures can be created by using all three tracks of the wavetable sequencer:
+  <LI>create a new patch, change from Mono mode to "WT Seq Only" - now the notes being played are under direct control of the WT sequencer.</LI>
+  <LI>use similar sound settings for all three voices.</LI>
+  <LI>assign track 1 of the Wavetable to CC#9 (Voice 1 Note)</LI>
+  <LI>assign track 2 of the Wavetable to CC#10 (Voice 2 Note)</LI>
+  <LI>assign track 3 of the Wavetable to CC#11 (Voice 3 Note)</LI>
+  <LI>Wavetable Rate: 123, enable MIDI clock synchronization (Control Surface: CFG menu, "Clk" parameter)</LI>
+  <LI>enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1   #2   #3
+00   Play  ---  KEY2 KEY3
+01   Play  ---  ---  --- 
+02   Play  KEY1 ---  --- 
+03   Play  ---  KEY2 KEY3
+04   Play  ---  ---  --- 
+05   Play  ---  KEY2 KEY3
+06   Play  KEY1 ---  --- 
+07   Play  ---  ---  --- 
+08   Goto   00  +00  
+</PRE></TT></LI>
+  <LI>For more inspirations, just have a look into the patch settings A064-A076 of the MIDIbox SID preset library.</LI>
+</UL>
+  </TD></TR>
+
+</TABLE>
+
+
+<H2>Related Links</H2>
+
+<UL CLASS=CL>
+  <LI><A HREF="midibox_sid/tutor3_patches_v1.zip">tutor3_patches_v1.zip</A></LI>
+  <LI><A HREF="midibox_sid.html">MIDIbox SID Page</A> - official location of the preset library</LI>
+</UL>
+
+FOOTER

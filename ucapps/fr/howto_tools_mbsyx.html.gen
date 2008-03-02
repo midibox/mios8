@@ -1,0 +1,162 @@
+HEADER 3 MIDIbox .syx configuration
+
+            <p class="INFO"><i>Cette page est consacr&eacute;e au
+Firmwares des PIC18F452 bas&eacute;s sur <a href="mios.html">MIOS</a>.
+Pour les anciens projets bas&eacute;s sur les PIC16F ,voir <a
+ href="howto_tools_mbsyx_pic16f.html">cette page<br>
+            </a></i></p>
+            <h1>MIDIbox .syx configuration</h1>
+            <p class="INFO">Certaines applications "MIOS" ,comme la <a
+ href="midibox64.html">MIDIbox64</a>, <a href="midibox64e.html">MIDIbox64E</a>,
+            <a href="midibox_mf.html">MIDIbox MF</a> et la <a
+ href="midio128.html">MIDIO128</a> proposent des options de
+configuration additionelles integr&eacute;es aux "BANKs". A la
+diff&eacute;rence du code programme,
+ces "memory dumps" peuvent &ecirc;tre charg&eacute;s "on-the-fly" ,
+pendant le fonctionement normal de la MIDIbox, et certaines des
+applications permettent &eacute;galement de sauvegarder ces "dumps" sur
+un <a href="mbhp_bankstick.html">BankStick</a>, afin de vous permettre
+de passer d'un setup &agrave; l'autre tr&egrave;s rapidement.<br>
+            </p>
+            <p></p>
+            <p class="INFO">Il y a deux fa&ccedil;on d'&eacute;diter le
+contenu d'une "Bank". Vous pouvez aussi bien utiliser <a
+ href="midibox/mk_syx.zip">mk_syx</a> ou <a
+ href="midio128/mk_midio128_syx.zip">mk_midio128_syx</a> script pour
+une &eacute;dition en mode texte&nbsp; (la mani&egrave;re la plus
+rapide pour changer un grand nombre de r&eacute;glages), que vous
+servir des "Serge's vmidibox editors" que vous trouverez d&eacute;cris <a
+ href="howto_tools_syxedit.html">ici</a> (GUI configuration).</p>
+            <p class="INFO"><b>Les "Serge's editor" ne supporte
+&agrave; ce jour toutes les nouvelles fonctions des </b><b>firmwares</b><b>
+PIC18F, la m&eacute;thode d&eacute;crite ici reste donc la seule
+fa&ccedil;on d'acc&eacute;der &agrave; toutes les possibilit&eacute;s
+offertes par les nouveaux firmwares !</b></p>
+            <table align="center" cellpadding="0" cellspacing="20">
+              <tbody>
+                <tr>
+                  <td><a href="http://www.midiox.com/" target="_blank"><img
+ src="images/moxtitle.gif" alt="Link to the MIDI-OX site" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">T&eacute;l&eacute;chargez
+MIDI-OX depuis <a href="http://www.midiox.com/" target="_blank">ce site</a>.</span></td>
+                </tr>
+                <tr>
+                  <td><a href="http://www.perl.com/" target="_blank"><img
+ src="images/lcamel.gif" alt="Link to the perl.com" height="81"
+ width="72"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">T&eacute;l&eacute;chargez</span><span
+ class="NORM"> "perl" si il n'est pas install&eacute;
+sur votre ordinateur.<br>
+Utilisateurs d'Unix : il est le plus souvent inclu dans votre
+distribution.<br>
+                  </span><span class="NORM">Utilisateurs de </span><span
+ class="NORM">Windows :&nbsp; <a
+ href="http://www.activestate.com/Products/Download/Register.plex?id=ActivePerl"
+ target="_blank">Active Perl</a>.<br>
+                  </span><span class="NORM">Utilisateurs de </span><span
+ class="NORM">Mac :&nbsp; <a href="http://www.macperl.com/"
+ target="_blank">MacPerl</a></span></td>
+                </tr>
+                <tr>
+                  <td><a href="howto_tools/mbsyx1.gif"><img
+ src="howto_tools/mbsyx1.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">Ouvrez un fichier " .ini" avec
+votre &eacute;diteur de texte favori et changez les r&eacute;glages
+selon vos besoins.</span></td>
+                </tr>
+                <tr>
+                  <td><a href="howto_tools/mbsyx2.gif"><img
+ src="howto_tools/mbsyx2.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">Ouvrez une invite de commandes
+et placez-vous dans le r&eacute;pertoire qui contient le fichier ".ini
+".<br>
+Lancez le script mk_syx.pl en tapant : " <i>perl mk_syx.pl [ini-file]</i>."<br>
+Exemple: <i>perl mk_syx.pl midibox64.ini</i></span></td>
+                </tr>
+                <tr>
+                  <td><a href="howtosysex/snap1.gif"><img
+ src="howtosysex/snap1.gif" alt="snap1.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">Lancez maintenant MIDI-OX et
+configurez les ports MIDI In/Out .</span></td>
+                </tr>
+                <tr>
+                  <td><a href="mios/bootstrap_sysex0.gif"><img
+ src="mios/bootstrap_sysex0.gif" alt="snap1.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">Assurez-vous que les
+&eacute;v&egrave;nements se pr&eacute;sentant au port MIDI IN ne sont
+pas renvoy&eacute;s au port MIDI OUT</span><span class="NORM"> afin
+d'&eacute;viter une boucle MIDI !</span><span class="NORM"> (la case en
+bas &agrave; gauche permet de d&eacute;sactiver la connection
+automatique lors de la s&eacute;lection des ports).<br>
+                  </span><span class="NORM">V&eacute;rifier le routage
+(mapping) des ports sur la partie droite : le </span><span class="NORM">port
+                  </span><span class="NORM">MIDI In ne devrait pas
+appara&icirc;tre dans la liste!</span></td>
+                </tr>
+                <tr>
+                  <td><a href="howtosysex/snap2.gif"><img
+ src="howtosysex/snap2.gif" alt="snap2.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">Assurez-vous que le</span><span
+ class="NORM"> SysEx est activ&eacute;.</span></td>
+                </tr>
+                <tr>
+                  <td><a href="howtosysex/snap3.gif"><img
+ src="howtosysex/snap3.gif" alt="snap3.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">D&eacute;marrez l'outil SysEx .</span></td>
+                </tr>
+                <tr>
+                  <td><a href="howtosysex/snap4.gif"><img
+ src="howtosysex/snap4.gif" alt="snap4.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">Allez dans le menu de
+configuration .</span></td>
+                </tr>
+                <tr>
+                  <td><a href="mios/bootstrap_sysex1.gif"><img
+ src="mios/bootstrap_sysex1.gif" alt="snap5.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">R&eacute;glez "Delay after F7"
+sur <b>750 mS</b>.<br>
+                  </span><span class="NORM">R&eacute;glez </span><span
+ class="NORM">"Low level output buffer size" sur <b>2048 bytes</b>.<br>
+N'activez pas les autres d&eacute;lais comme pour les MIDIbox
+bas&eacute;es sur les PIC16F - les d&eacute;lais entre chaque byte ne
+sont plus n&eacute;cessaires!<br>
+                  </span></td>
+                </tr>
+                <tr>
+                  <td><a href="howto_tools/mbsyx3_pic18f.gif"><img
+ src="howto_tools/mbsyx3_pic18f.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">Ouvrez le fichier ".syx"</span></td>
+                </tr>
+                <tr>
+                  <td><a href="howto_tools/mbsyx4_pic18f.gif"><img
+ src="howto_tools/mbsyx4_pic18f.gif" width="160"></a></td>
+                  <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+                  <td><span class="NORM">Envoyez-le &agrave; la&nbsp;
+MIDIbox/MIDIO.</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <h1>.syx Upload on a Mac</h1>
+            <p class="INFO">Le <a
+ href="http://www.snoize.com/SysExLibrarian/">SysEx Librarian</a>
+r&eacute;alis&eacute; par <a href="http://www.snoize.com/">Snoize</a>
+vous permet d'uploader le fichier " .syx "sous MacOS X. <br>
+MERCI Normen pour ce conseil ! Il utilise la configuration suivante:</p>
+            <p></p>
+            <p></p>
+            <center><a href="http://www.snoize.com/SysExLibrarian/"><img
+ src="howto_tools/macos_syx_librarian.jpg" height="361" width="431"></a></center>
+            <p></p>
+
+FOOTER

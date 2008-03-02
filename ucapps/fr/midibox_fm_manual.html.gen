@@ -1,0 +1,631 @@
+HEADER 3 MIDIbox FM User Manual
+
+<h1>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; MIDIbox FM</h1><h1>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;Manuel Utilisateur</h1>
+
+<p></p><center><a href="midibox_fm/mbfm_frontpanel.gif"><img src="midibox_fm/mbfm_frontpanel.jpg" height="109" width="575"></a></center><p></p>
+
+<p class="INFO">Ce manuel est avant tout destin&eacute; &agrave; ceux qui envisagent d'ajouter une Surface de Contr&ocirc;le &agrave; leur<span style="text-decoration: underline;"> </span><a href="midibox_fm.html">MIDIbox FM</a>
+. Les utilisateurs qui ont opt&eacute; pour la solution&nbsp;Low-Cost
+(uniquement avec les modules MBHP_CORE+MBHP_OPL3) y trouveront quand
+m&ecirc;me dans la description des Menus en fin de page quelques
+informations sur les diff&eacute;rents param&egrave;tres sonores (qui
+peuvent&nbsp;bien s&ucirc;r&nbsp;&ecirc;tre modifi&eacute;s via SysEx avec l'&eacute;diteur d&eacute;di&eacute; bas&eacute; sur <a href="jsynthlib.html">JSynthLib</a>&nbsp;).</p>
+
+<p class="INFO">La Surface de Contr&ocirc;le de la MIDIbox FM propose une interface utilisateur assez similaire &agrave; celle de la <a href="midibox_sid_cs.html">MIDIbox SID CS</a>
+, dont l'efficacit&eacute; n'est plus &agrave; prouver, avec quelques
+diff&eacute;rences relatives aux particuliarit&eacute;s du
+synth&eacute; FM. Plus de 450 param&egrave;tres sont accessibles
+&agrave; partir des Menus, organis&eacute;s suivant une structure
+"horizontale", afin d'&eacute;viter &agrave; l'utilisateur les affres,
+vite &eacute;puisants, des "clic-doubleclic-tripleclic" que nous
+imposent certains modules-expandeurs en rack.</p>
+
+<p class="INFO">Le grand nombre de param&egrave;tres r&eacute;duit la
+flexibilit&eacute; dans le choix des configurations mat&eacute;rielles.
+Par exemple, l'utilisation d'un &eacute;cran LCD 2x40 est fortement
+recommand&eacute;e afin que les noms des Patchs de tous les Instruments
+soient simultan&eacute;ment visibles sur la page Principale. Dans
+certains sous-menus, les param&egrave;tres sont organis&eacute;s de
+fa&ccedil;on &agrave; permettre une &eacute;dition directe mais cette
+organisation implique que huit valeurs soient visible
+simultan&eacute;ment (et s&eacute;lectionnables via les boutons "Soft")
+- exemple: La page des Envellopes EG5 propose les param&egrave;tres
+Attack - AttackLevel - Decay1 - DecayLevel - Decay2 - Sustain - Release
+- Curve -..." dans la partie gauche, et tous les "depht"
+(intensit&eacute; de la modulation) dans la partie droite.Avec un LCD
+2x16, seules trois entr&eacute;es du menu sont visibles, avec un
+&eacute;cran 2x20 seulement quatre. Une configuration avec deux
+&eacute;crans de 2x40 ne peut pas &ecirc;tre impl&eacute;ment&eacute;e
+car la gestion de deux &eacute;crans LCDs affecterait trop les
+performances du moteur sonore.</p>
+
+<p class="INFO">Vous aurez besoin au minimum d'un encodeur rotatif,
+pour la "data dial" ou "datawheel", requise pour changer &nbsp;la
+valeur du param&egrave;tre en cours d'&eacute;dition. Quatre encodeurs
+suppl&eacute;mentaires sont utilis&eacute;s comme "V-Pots", afin de
+pouvoir acc&eacute;der directement aux param&egrave;tres
+affich&eacute;s. Il n'est pas possible d'utiliser des
+Potentiom&egrave;tres analogiques car ces derniers ne permettent pas
+une gestion "sans sauts" lorsque l'on passe d'un menu &agrave; l'autre.
+D'autre part la solution d'une "programmation- mega
+potars-compl&egrave;te" avec un potar d&eacute;di&eacute; pour chaque
+partam&egrave;tre des Op&eacute;rateurs n'apporte pas grand chose
+&agrave; l'ergonomie et &agrave; la gestion des param&egrave;tres
+(m&ecirc;me avec une fonction "soft-take over"), mais ceci ne devient
+vraiment &eacute;vident que lorsque l'on a essay&eacute; sur la machine
+de naviguer entre les Patchs. ;-)</p>
+
+<p class="INFO">Les diff&eacute;rentes pages "V-Pot" sont accessible
+directement avec la "matrice de s&eacute;lection", qui consiste en 6x4
+LEDs et 6+4 boutons. A chaque fois qu'un des boutons de la matrice est
+enfonc&eacute;, la LED de la page V-Pot correspondante s'allume et
+l'affichage bascule imm&eacute;diatement sur la page correspondante (la
+bascule entrre les Menus CFG
+peut &ecirc;tre en option d&eacute;sactiv&eacute;, si cela ne
+correspond pas &agrave; votre mani&egrave;re de travailler). Cette
+gestion pr&eacute;sente deux avantages: elle permet un acc&eacute;s
+rapides aux pages des menus, &nbsp;et elle permet d'&eacute;diter les
+param&egrave;tres les plus importants de plusieurs&nbsp;mani&egrave;res
+(par ex. acc&eacute;der aux Volumes des quatres Op&eacute;rateurs
+simultan&eacute;ment sans avoir &agrave; s&eacute;lectionner un OP
+avant). Les pages User peuvent &ecirc;tre customis&eacute;es dans le
+code source selon vos besoins
+(cs_menu_tables.inc).
+</p><p class="INFO">Un passage rapide d'un Op&eacute;rateur &agrave;
+l'autre est possible gr&acirc;ce aux quatre boutons de s&eacute;lection
+OP sur la gauche de la matrice. Vous pouvez soit, en ne pressant qu'un
+seul bouton &agrave; la fois, passer d'une page
+OP &agrave; l'autre, soit, en maintenant enfonc&eacute; le bouton
+correspondant &agrave; votre premi&egrave;re s&eacute;lection tout en
+appuyant simultan&eacute;ment sur un ou plusieurs autres,
+s&eacute;lectionner plusieurs OPs &agrave; la fois - auquel cas
+l'&eacute;dition d'un param&egrave;tre affectera tous les OPs
+s&eacute;lectionn&eacute;s.</p>
+
+<p class="INFO">Ce mode de s&eacute;lection a aussi &eacute;t&eacute;
+&eacute;galement impl&eacute;ment&eacute; pour la gestion des quatres
+Instruments. Il est, de fait, &eacute;galement possible de changer
+simultan&eacute;ment la valeur d'un param&egrave;tre pour les quatre
+OPs des quatre Instruments, d'un seul geste (pratique pour faire des
+variations brutales et des changement de sons saccad&eacute;s!).</p>
+
+<p class="INFO">Le bouton Instr/OP permet de basculer entre s&eacute;lection Instrument/Operator (ce qui permet d'&eacute;conomiser 4 boutons)</p>
+
+<h2>Page Principale</h2>
+
+<img src="midibox_fm/cs/main.gif" alt="" height="38" width="482">
+
+<p class="DESC">Cette page est affich&eacute;e au d&eacute;marrage,
+elle indique le noms des Patchs et des Instruments (partiellement, car
+un nom de patch peut contenir 16 caract&egrave;res mais seulement 9
+caract&egrave;res sont affich&eacute;s ici), les num&eacute;ros de
+Banques et de patchs correspondants et les canaux MIDI.
+L'ast&eacute;risque ( '*' ) indique quel instrument est actuellement
+s&eacute;lectionn&eacute;.<br>La Datawheel permet dans ce menu de
+changer de Patch(s), tous les boutons "Soft" ont ici la m&ecirc;me
+fonction: basculer vers la page de garde du Menu</p>
+
+<h2>Page de Garde du Menu</h2>
+
+<img src="midibox_fm/cs/menu_top.gif" alt="" height="38" width="602">
+
+<p class="INFO">Vous pouvez s&eacute;lectionn&eacute; ici l'une des10
+pages du Menu. Les pages AOUT et USER sont visible en faisant
+d&eacute;filer la page vers la droite &agrave; l'aide de la Datawheel.
+Chacun des boutons Soft permet d'acc&eacute;der &agrave; la page dont
+le nom est affich&eacute; au dessus.</p>
+
+<h2>Page ENS (Ensemble)&nbsp;</h2>
+
+<img src="midibox_fm/cs/menu_ens.gif" alt="" height="19" width="451">
+
+<p class="DESC">Vous trouverez dans les captures d'&eacute;crans LCD
+des pages ici illustr&eacute;es avec de petits caract&egrave;res, ceci
+afin d'am&eacute;liorer la lisibilit&eacute; de ce manuel. Sur votre
+machine, en r&eacute;alit&eacute; seuls 8 caract&egrave;res au maximum
+sont visibles sur l'&eacute;cran, mais vous pouvez par exemple faire
+d&eacute;filer la page "View" &agrave; l'aide de la Datawheel.
+Lorsqu'un &eacute;l&eacute;ment est s&eacute;lectionn&eacute; &agrave;
+l'aide d'une des touches Soft, la Datawheel sert alors &agrave;
+modifier la valeur de ce param&egrave;tre. Lorsque vous appuyez sur la
+touche ESC, vous pouvez de nouveau faire d&eacute;filer la
+fen&ecirc;tre. Une seconde pression sur la touche ESC r&eacute;activera
+le menu pr&eacute;c&eacute;demment s&eacute;lectionn&eacute;.</p>
+
+<p class="DESC">La page ENS est destin&eacute;e &agrave;
+l'&eacute;dition de param&egrave;tres globaux des Instruments, ces
+param&egrave;tres sont sauvegard&eacute;s comme environnement
+g&eacute;n&eacute;ral de la machine, ind&eacute;pendamment des
+Patchs.&nbsp;
+</p><ul>
+  <li><b>EBnk</b>: le BankStick o&ugrave; sont sauvegard&eacute;s les param&egrave;tres globaux de l'Ensemble</li>
+  <li><b>Ens.</b>: le num&eacute;ro de l'Ensemble</li>
+  <li><b>Inst</b>:
+s&eacute;lectionne le(s) instrument(s) que vous souhaitez modifier,
+mais il est plus simple pour s&eacute;lectionner des instruments
+d'utiliser les touches d&eacute;di&eacute;es.</li>
+  <li><b>IBnk</b> et <b>Ptch</b>: les num&eacute;ros de Banque et de Patch de l'instrument.</li>
+  <li><b>Name</b>: pour &eacute;diter le nom du Patch <img src="midibox_fm/cs/edit_name.gif" alt="" height="38" width="482"></li>
+  <li><b>Chan</b>: le canal MIDI de l'Instrument</li>
+  <li><b>SPLw</b>/<b>SPUp</b>:
+vous pouvez ici d&eacute;finir la zone clavier - limites haute et basse
+- dans laquelle sera jou&eacute; l'Instrument. En modifiant les notes
+maxi et mini (et la valeur de transposition) il est possible de
+r&eacute;aliser des points de split afin de pouvoir jouer de plusieurs
+Instruments sur un m&ecirc;me canal, chacun assign&eacute; &agrave; une
+zone diff&eacute;rente.</li>
+  <li><b>Vol.</b>: Le volume
+g&eacute;n&eacute;ral, qui affecte le volume de toutes les porteuses
+(carrier). Avec une valeur de Vol=64, les valeurs de volume des
+porteuses ne seront pas modifi&eacute;es, avec Vol&lt;64 les valeurs de
+volume seront att&eacute;nu&eacute;es, avec Vol&gt;64 elles seront
+augment&eacute;es.</li>
+  <li><b>Vel.</b>: la courbe de sensibilit&eacute; &agrave; la v&eacute;locit&eacute; (<i>Flat</i>/<i>Hard</i>/<i>Soft</i>)</li>
+  <li><b>Tran</b>: transposition des Voix par -64 .. +63 semitones</li>
+  <li><b>Uni.</b>:
+Unisono - cette fonction vraiment sp&eacute;ciale vous permet
+d'&eacute;largir le champs st&eacute;r&eacute;o et "l'ampleur" d'un son
+en jouant deux voix l&eacute;g&egrave;rement d&eacute;tun&eacute;es sur
+deux canaux audios distincts. La valeur permet de doser le
+d&eacute;tunage. La voix d&eacute;tun&eacute;e en n&eacute;gatif sera
+jou&eacute;e sur les canaux audio 1 et/ou 3 (en fonction des canaux
+activ&eacute;s),&nbsp;La voix d&eacute;tun&eacute;e en positif sera jou&eacute;e sur les canaux&nbsp;2 et/ou 4.</li>
+  <li><b>OP12</b>:
+s&eacute;lectionne les canaux audio vers lesquels sera rout&eacute;e la
+premi&egrave;re paire d'Op&eacute;rateur (Sortie de la premi&egrave;re
+porteuse)</li>
+  <li><b>OP34</b>:&nbsp;s&eacute;lectionne les canaux
+audio vers lesquels sera rout&eacute;e la seconde paire
+d'Op&eacute;rateur (Sortie de la deuxi&egrave;me porteuse)</li>
+</ul>
+<p></p>
+
+<h2>Page INS (Instrument)</h2>
+
+<img src="midibox_fm/cs/menu_ins.gif" alt="" height="19" width="541">
+
+<p class="DESC">La page Instruments permet d'&eacute;diter tous les
+param&egrave;tres g&eacute;n&eacute;raux des instruments qui ne
+concernent pas les Op&eacute;rateurs, ces param&egrave;tres sont
+sauv&eacute;s dans les emplacements m&eacute;moires Patchs.
+</p><ul>
+  <li><b>Inst</b>: s&eacute;lectionne le(s) instrument(s) que vous souhaitez modifier,
+mais il est plus simple pour s&eacute;lectionner des instruments
+d'utiliser les touches d&eacute;di&eacute;es.</li>
+  <li><b>Play</b>: s&eacute;lectionne le mode de jeu <i>Mono</i> (une note jou&eacute;e &agrave; la fois), <i>Legato</i> (identique &agrave; Mono,mais l&agrave;, &nbsp;les attaques ne seront pas rejou&eacute;e en cas de superposition de notes), <i>Poly</i> (jusqu'&agrave;&nbsp;6 voix de polyphonie).</li>
+  <li><b>Con.</b>:
+les modes de connections entre les Op&eacute;rateurs, aussi
+appell&eacute; "algorithmes". l'OPL3 propose (seulement) 4 algorithmes:<br>
+
+  <table align="center" cellpadding="5" cellspacing="5">
+    <tbody><tr>
+      <td> <img src="midibox_fm/cs/alg_0.gif" alt="" height="76" width="111"><i>F*F</i> </td>
+      <td> <img src="midibox_fm/cs/alg_1.gif" alt="" height="76" width="111"><i>1+F</i> </td>
+    </tr>
+    <tr>
+      <td> <img src="midibox_fm/cs/alg_2.gif" alt="" height="76" width="111"><i>F+F</i> </td>
+      <td> <img src="midibox_fm/cs/alg_3.gif" alt="" height="76" width="111"><i>AFA</i> </td>
+    </tr>
+  </tbody></table>
+  </li>
+  <li><b>Fdbk</b>:
+il est possible de renvoyer la sortie de l'OP1 sur son entr&eacute;e.
+Seule une plage de valeur de 0-7 est disponible (limitation de OPL3). </li><li><b>PRng</b>:
+le champ d'action du pitchbend, vous pouvez ici choisir de combien de
+demi-tons la molette de pitch petu transposer au maximum. Ceci affecte
+aussi le champ du param&egrave;tre Finetune.</li>
+  <li><b>Fine</b>: Permet un ajustage fin de l'accordage. Tr&eacute;s utile pour "grossir" vos sons.</li>
+  <li><b>Port</b>: portamento (slide)</li>
+  <li><b>SusK</b>:
+SusKey - lorsque cette option est s&eacute;lectionn&eacute;e, le
+portamento n'est actif que lorsque plusieurs notes sont jou&eacute;es
+simultan&eacute;ment)</li>
+  <li><b>MSyn</b>: Synchronisation MIDI, pour synchroniser sur une horloge MIDI externe le s&eacute;quenceur de table d'onde (<i>W</i>), les LFOs (<i>L</i>) et/ou l'envellope EG5 (<i>E</i>).</li>
+  <li><b>VCC</b>, <b>MCC</b>, <b>ACC</b>:
+il est possible d'assigner un CC &agrave; la
+v&eacute;locit&eacute;/modulation wheel/intensit&eacute; de
+l'aftertouch&nbsp;. le num&eacute;ro de CC cible est configurable ici.</li>
+  <li><b>VIni</b>, <b>MIni</b>, <b>AIni</b>:
+La valeur initiale qui est renvoy&eacute;e quand la source de
+modulation est &agrave; son minimum peut &ecirc;tre d&eacute;finie ici.
+Cette valeur initiale est r&eacute;gl&eacute;e sur 0 si le depth est
+&gt; 0, ou &agrave; la valeur maximale du param&egrave;tre CC si le
+depth est &lt; 0</li>
+  <li><b>VDep</b>, <b>MDep</b>, <b>ADep</b>: l'intensit&eacute; (depth) de la modulation sur le param&egrave;tre CC cible est d&eacute;fini ici (-64..63)</li>
+</ul>
+<p></p>
+
+<h2>Page OP (Operator)</h2>
+
+<img src="midibox_fm/cs/menu_op.gif" alt="" height="19" width="391">
+
+<p class="DESC">Vous pouvez sur cette page &eacute;diter tous les param&egrave;tres relatifs aux Op&eacute;rateurs:
+</p><ul>
+  <li><b>OP</b>: s&eacute;lection des Op&eacute;rateurs qui
+doivent &ecirc;tre modifi&eacute;s,&nbsp;mais il est plus simple pour
+les&nbsp;s&eacute;lectionner d'utiliser les touches
+d&eacute;di&eacute;es.</li>
+  <li><b>Wave</b>: s&eacute;lection de la forme d'onde de l'Op&eacute;rateur:
+  <table align="center" cellpadding="5" cellspacing="5">
+    <tbody><tr>
+      <td> <img src="midibox_fm/cs/ws_0.gif" alt="" height="61" width="81"><i>1</i> </td>
+      <td> <img src="midibox_fm/cs/ws_1.gif" alt="" height="61" width="81"><i>2</i> </td>
+      <td> <img src="midibox_fm/cs/ws_2.gif" alt="" height="61" width="81"><i>3</i> </td>
+      <td> <img src="midibox_fm/cs/ws_3.gif" alt="" height="61" width="81"><i>4</i> </td>
+    </tr>
+    <tr>
+      <td> <img src="midibox_fm/cs/ws_4.gif" alt="" height="61" width="81"><i>4</i> </td>
+      <td> <img src="midibox_fm/cs/ws_5.gif" alt="" height="61" width="81"><i>5</i> </td>
+      <td> <img src="midibox_fm/cs/ws_6.gif" alt="" height="61" width="81"><i>6</i> </td>
+      <td> <img src="midibox_fm/cs/ws_7.gif" alt="" height="61" width="81"><i>7</i> </td>
+    </tr>
+  </tbody></table>
+  </li>
+  <li><b>Vol</b>:
+si l'op&eacute;rateur sert de modulateur, le niveau de volume
+contr&ocirc;le l'intensit&eacute; de la modulation. Pour les porteuses,
+il d&eacute;finie l'amplitude. </li><li><b>Mult</b>: le multiplicateur (1-16) appliqu&eacute; &agrave; la fr&eacute;quence de l'Op&eacute;rateur:
+  <table align="center" border="1" cellpadding="2" cellspacing="2">
+    <tbody><tr><td><b>MULT</b></td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+    <tr><td><i>Multiplier</i></td><td>0.5</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>10</td><td>12</td><td>12</td><td>15</td><td>15</td></tr>
+  </tbody></table></li>
+  <li><b>Atck</b>: &nbsp;temps d'Attaque de l'envellope (0-15)</li>
+  <li><b>Atck</b>: &nbsp;temps de Decay de l'envellope (0-15)</li>
+  <li><b>Sust</b>: &nbsp;niveau de Sustain&nbsp;de l'envellope (0-15)</li>
+  <li><b>Rel.</b>: &nbsp;temps de Release de l'envellope (0-15)</li>
+  <li><b>Trem</b>:
+active le Tr&eacute;molo sur la voix (modulation de l'amplitude). La
+fr&eacute;quence du Tr&eacute;molo est fixe: 3.7 Hz --- il s'agit d'une
+fonction int&eacute;gr&eacute;e &agrave; l'OPL3, les LFOs du moteur
+sonore MBFM permettent de r&eacute;aliser des effets plus complexes.</li>
+  <li><b>Vibr</b>:
+active le Vibrato sur la voix (modulation
+basse-fr&eacute;quence).&nbsp;La fr&eacute;quence du Vibrato est fixe:
+6.1 Hz ---&nbsp;il
+s'agit d'une fonction int&eacute;gr&eacute;e &agrave; l'OPL3, les LFOs
+du moteur sonore MBFM permettent de r&eacute;aliser des effets plus
+complexes.</li>
+  <li><b>EGT</b>: lorsque cette fonction est
+activ&eacute;e, l'envellope est tenue jusqu'&agrave; un message gate
+off. Lorsqu'elle est d&eacute;sactiv&eacute;e, la phase de sustain est
+saut&eacute;e - la dur&eacute;e de la note d&eacute;pends du
+r&eacute;glage du Decay et du Release, et non du temps de tenue de note
+sur le clavier (ou le s&eacute;quenceur) .</li>
+  <li><b>KSR</b>: le
+taux de "Key Scale" - avec cette fonction active, les temps
+d'attack/decay diminuent avec la noteur de note (pitch plus haut =
+notes plus courtes.</li>
+  <li><b>KSL</b>: le niveau de "Key Scale" - si &gt;0 db, le volume d&eacute;croit d'autant que le pitch est haut.</li>
+</ul>
+<p></p>
+
+
+<h2>Page LFO (Low-Frequency-Oscillator)</h2>
+
+<img src="midibox_fm/cs/menu_lfo.gif" alt="" height="19" width="361">
+
+<p class="DESC">Vous pouvez &eacute;diter dans cette page les
+param&egrave;tres des LFOs. Les LFOs ne sont pas des fonctions
+int&eacute;gr&eacute;es au chip OPL3, elles sont
+"&eacute;mul&eacute;es" par le puissant moteur sonore MIDIbox FM.
+Chacune des 6 voix dispose de ses propres LFOs (12 LFOs au total,
+g&eacute;r&eacute;s en parall&egrave;le) :
+</p><ul>
+  <li><b>LFO</b>: s&eacute;lection du LFO1 ou du LFO2</li>
+  <li><b>Wave</b>:
+selection de la forme d'onde du LFO: Sine, Tri, Saw, Pulse, Random.
+Deux formes d'ondes sont r&eacute;serv&eacute;es pour des
+impl&eacute;mentations futures</li>
+  <li><b>Sync</b>:&nbsp;lorsque cette fonction est
+activ&eacute;e, le LFO red&eacute;marre &agrave; chaque nouvelle note</li>
+  <li><b>Phase</b>: la valeur initiale de la forme d'onde du LFO prise en compte &agrave; son re-d&eacute;clenchement&nbsp;(0-127)</li>
+  <li><b>Rate</b>: la vitesse du LFO. Consultez le fichier <a href="midibox_fm/midibox_fm_cc_voice.txt">midibox_fm_cc_voice.txt</a> pour conna&icirc;tre les fr&eacute;quences s&eacute;lectionnables</li>
+  <li><b>DepP</b>:
+l'intensit&eacute; du LFO appliqu&eacute;e au Pitch (&agrave; la
+fr&eacute;quence de la voix). Les valeurs possibles vont de -64..64.
+Une intensit&eacute; n&eacute;gative produit une forme d'onde
+invers&eacute;e.</li>
+  <li><b>DVo1</b>/<b>DVo2</b>/<b>DVo3</b>/<b>DVo4</b>: l'intensit&eacute; du LFO appliqu&eacute;e aux volumes des op&eacute;rateurs&nbsp;(-64..63)</li>
+  <li><b>DepL</b>: le LFO1 peut moduler la vitesse du LFO2, le LFO2 peut moduler la vitesse du LFO1 (-64..63)</li>
+  <li><b>DepA</b>: l'intensit&eacute; du LFO appliqu&eacute;e aux &nbsp;sorties AOUT qui y sont assign&eacute;es (-64..63)</li>
+</ul>
+<p></p>
+
+<h2>Page EG5 (Envelope Generator #5)</h2>
+
+<img src="midibox_fm/cs/menu_eg5.gif" alt="" height="19" width="481">
+
+<p class="DESC">Cette page permet d'&eacute;diter les param&egrave;tres
+des cinq g&eacute;n&eacute;rateurs d'envellopes.&nbsp;Les EG5 ne sont
+pas des fonctions
+int&eacute;gr&eacute;es au chip OPL3, elles sont
+"&eacute;mul&eacute;es" par le puissant moteur sonore MIDIbox FM. A la
+diff&eacute;rence d'un EG classique, l'EG5 propose 5
+phases.&nbsp;Chacune des 6 voix dispose de son propre EG5 (6 EG5 au
+total,
+g&eacute;r&eacute;s en parall&egrave;le) :
+</p><ul>
+  <li><b>Atck</b>:&nbsp;temps d'Attaque (0-127)</li>
+  <li><b>ALvl</b>: niveau de l' Attaque(0-127)</li>
+  <li><b>Dec1</b>: temps de Decay de la premi&egrave;re phase de decay (0-127)</li>
+  <li><b>DLvl</b>: niveau du Decay&nbsp;de la premi&egrave;re phase de decay (0-127)</li>
+  <li><b>Dec2</b>:&nbsp;temps de Decay de la deuxi&egrave;me phase de decay (0-127)</li>
+  <li><b>Sust</b>: le niveau de Sustain (0-127)</li>
+  <li><b>Rel.</b>: le temps de Release (0-127)</li>
+  <li><b>Curv</b>: une courbe non lin&eacute;aire peut &ecirc;tre appliqu&eacute;es aux valeurs de temps de l'envellope (-64..63)</li>
+  <li><b>CAs</b>:
+ce r&eacute;glage d&eacute;finie &agrave; quelles phases est
+appliqu&eacute;e la courbe non lin&eacute;aire
+(Attack/Decay1/Decay2/Release)</li>
+  <li><b>DepP</b>:
+l'intensit&eacute; de l'EG5&nbsp;appliqu&eacute;e au Pitch (&agrave; la
+fr&eacute;quence de la voix).&nbsp;Les valeurs possibles vont de -64..64.
+Une intensit&eacute; n&eacute;gative produit une forme d'onde
+invers&eacute;e.</li>
+  <li><b>DVo1</b>/<b>DVo2</b>/<b>DVo3</b>/<b>DVo4</b>:&nbsp;l'intensit&eacute; de l'EG5 appliqu&eacute;e aux volumes des op&eacute;rateurs&nbsp; (-64..63)</li>
+  <li><b>DepL</b>: l'EG5&nbsp;peut moduler la vitesse du LFO1 (-64..63)</li>
+  <li><b>DepA</b>: l'intensit&eacute; de l'EG5 appliqu&eacute;e aux &nbsp;sorties AOUT qui y sont assign&eacute;es (-64..63)</li>
+</ul>
+<p></p>
+
+
+<h2>Page WT (Wavetable Sequencer-S&eacute;quenceur de Table d'Ondes)</h2>
+
+<img src="midibox_fm/cs/menu_wt.gif" alt="" height="38" width="602">
+
+<p class="DESC">Cette page permet d'&eacute;diter les param&egrave;tres
+du s&eacute;quenceur de table d'ondes.
+Une table d'onde peut aller jusqu'&agrave; 32 pas et 3 pistes. Chaque
+piste peut modifier un param&egrave;tre CC &agrave; une
+fr&eacute;quence pouvant monter &agrave; 500 Hz. Les param&egrave;tres
+CC disponibles sont list&eacute;s dans le fichier<span style="text-decoration: underline;"> </span><a href="midibox_fm/midibox_fm_cc_voice.txt">midibox_fm_cc_voice.txt</a>.
+</p><ul>
+  <li><b>Step</b>: le pas de la table d'ondes 0-31</li>
+  <li><b>Mode</b>: <i>--</i> (ignorer ce pas), <i>Play</i> (jouer ce pas), <i>Jump</i> (saut vers le pas sp&eacute;cifi&eacute; en #1), <i>End</i> (fin de s&eacute;quence).</li>
+  <li><b>#1</b>, <b>#2</b>, <b>#3</b>:
+les valeurs qui vont &ecirc;tres renvoy&eacute;es vers les CCs. Il est
+possible d'entrer des valeurs relatives ou absolues. Avec des valeurs
+relatives, la valeur du CC est d'abord analys&eacute;e puis la valeur
+choisie ici lui est soustraite ou ajout&eacute;e, et le r&eacute;sultat
+est renvoy&eacute; vers le param. CC - ceci permet de cr&eacute;er des
+s&eacute;quences de contr&ocirc;leurs progressives.</li>
+  <li><b>Rate</b>: La vitesse &agrave; laquelle sera jou&eacute;e la table d'ondes.</li>
+  <li><b>Sync</b>: <i>Note</i> : le s&eacute;quenceur red&eacute;marre &agrave; chaque nouvelle note, <i>Step</i> : le s&eacute;quenceur avance d'un pas &agrave; chaque nouvelle note, <i>Free</i> le s&eacute;quenceur n'est pas synchronis&eacute; (mode&nbsp;course libre).</li>
+  <li><b>CC#1</b>, <b>CC#2</b>, <b>CC#3</b>: les num&eacute;ros de CC pilot&eacute;s par le s&eacute;quenceur.</li>
+</ul>
+<p></p>
+
+<h2>Page DRUM</h2>
+
+<img src="midibox_fm/cs/menu_drum.gif" alt="" height="38" width="482">
+
+<p class="DESC">La MIDIbox FM dispose d'une partie Percussion FM
+g&eacute;r&eacute;e en parall&egrave;le des quatres parties
+Instruments. Vous disposez donc d'une voix par son de percussion, sans
+alt&eacute;rer la polyphonie des parties Instruments :-)<br>Vous pouvez
+sauver jusqu'&agrave; 16 Kits de Percussion par BankStick, soit 8*16 =
+128 Kits de Percussion au total si vous avez install&eacute; 8
+BankSticks. Les Kits de Percussions peuvent &ecirc;tre
+s&eacute;lectionn&eacute;s avec la Datawheel dans cette page.
+</p><h2>Page DRUM -&gt; BD</h2>
+
+<img src="midibox_fm/cs/menu_bd.gif" alt="" height="38" width="602">
+
+<p class="DESC">La "Bass Drum" (grosse caisse) est compos&eacute;e
+&agrave; partir d'un "modulateur" et d'une porteuse (voir info sur la
+synth&egrave;se FM). Optionnellement, la porteuse peut &ecirc;tre
+utilis&eacute;e seule, sans la modulation&nbsp;(mode AM):
+</p><ul>
+  <li><b>OP</b>: s&eacute;lection &nbsp;des modulateur/porteuses</li>
+  <li><b>Vol.</b>: le niveau de modulation/amplitude
+  </li><li><b>Mult</b>:
+le multiplicateur (1-16)&nbsp; appliqu&eacute; &agrave; la
+fr&eacute;quence de l'Op&eacute;rateur (voir description de la page OP)
+</li><li><b>Wave</b>: s&eacute;lection de la forme d'onde de l'op&eacute;rateur&nbsp;(voir description de la page OP)
+  </li><li><b>Atck</b>, <b>Dec.</b>, <b>Sust</b>, <b>Rel.</b>: l'envellope de l'op&eacute;rateur
+  </li><li><b>Fdbk</b>:
+il est possible de renvoyer la sortie de l'op&eacute;rateur sur son
+entr&eacute;e. Seule une plage de valeur de 0 &agrave; 7 est disponible
+(limitation de l'OPL3)
+  </li><li><b>CON</b>: <i>FM </i>: une paire modulateur/porteuse est utilis&eacute;e, <i>AM</i> : la porteuse est utilis&eacute;e sans le modulateur
+</li></ul>
+<p></p>
+
+<h2>DRUM -&gt; Page SD</h2>
+
+<img src="midibox_fm/cs/menu_sd.gif" alt="" height="38" width="482">
+
+<p class="DESC">La Snare (caisse claire):
+</p><ul>
+  <li><b>Vol.</b>: r&eacute;glage de l'amplitude
+  </li><li><b>Mult</b>: le multiplicateur qui est appliqu&eacute; (1-16) --- c'est le seul moyen de changer la fr&eacute;quence de la SD&nbsp;
+  </li><li><b>Wave</b>:&nbsp;s&eacute;lection de la forme d'onde de l'op&eacute;rateur&nbsp;(voir description de la page OP)
+  </li><li><b>Atck</b>, <b>Dec.</b>, <b>Sust</b>, <b>Rel.</b>:&nbsp;l'envellope de l'op&eacute;rateur
+</li></ul>
+<p></p>
+
+<h2>DRUM -&gt; TOM Page</h2>
+
+<img src="midibox_fm/cs/menu_tom.gif" alt="" height="38" width="482">
+
+<p class="DESC">Les Toms:
+</p><ul>
+  <li><b>Vol.</b>:&nbsp;r&eacute;glage de l'amplitude
+  </li><li><b>Mult</b>:&nbsp;le multiplicateur qui est appliqu&eacute; (1-16) appliqu&eacute; &agrave; la fr&eacute;quence du Tom
+  </li><li><b>Wave</b>:&nbsp;s&eacute;lection de la forme d'onde de l'op&eacute;rateur&nbsp;(voir description de la page OP)
+  </li><li><b>Atck</b>, <b>Dec.</b>, <b>Sust</b>, <b>Rel.</b>:&nbsp;l'envellope de l'op&eacute;rateur
+</li></ul>
+<p></p>
+
+<h2>DRUM -&gt; HH Page</h2>
+
+<img src="midibox_fm/cs/menu_hh.gif" alt="" height="38" width="482">
+
+<p class="DESC">Deux sets de param&egrave;tres peuvent &ecirc;tre
+d&eacute;finis ici pour les HiHats : un pour le HH "open", l'autre pour
+le HH "closed". Ces param&egrave;tres sont copi&eacute;s dans les
+registres de
+l'OPL3 en fonction de la note MIDI re&ccedil;ue :
+</p><ul>
+  <li><b>HH</b>: bascule entre HitHat Ouvert/Ferm&eacute;
+  </li><li><b>Vol.</b>:&nbsp;r&eacute;glage de l'amplitude
+  </li><li><b>Mult</b>: le multiplicateur qui est appliqu&eacute; (1-16) appliqu&eacute; &agrave; la fr&eacute;quence du HiHat&nbsp;
+  </li><li><b>Wave</b>:&nbsp;s&eacute;lection de la forme d'onde de l'op&eacute;rateur&nbsp;(voir description de la page OP)
+  </li><li><b>Atck</b>, <b>Dec.</b>, <b>Sust</b>, <b>Rel.</b>:&nbsp;l'envellope de l'op&eacute;rateur
+</li></ul>
+<p></p>
+
+<h2>DRUM -&gt; CYM Page</h2>
+
+<img src="midibox_fm/cs/menu_cym.gif" alt="" height="38" width="482">
+
+<p class="DESC">La Cymbale:
+</p><ul>
+  <li><b>Vol.</b>:&nbsp;r&eacute;glage de l'amplitude
+  </li><li><b>Mult</b>:le multiplicateur qui est appliqu&eacute; (1-16) appliqu&eacute; &agrave; la fr&eacute;quence de la Cymbale
+  </li><li><b>Wave</b>:&nbsp;s&eacute;lection de la forme d'onde de l'op&eacute;rateur&nbsp;(voir description de la page OP)
+  </li><li><b>Atck</b>, <b>Dec.</b>, <b>Sust</b>, <b>Rel.</b>:&nbsp;l'envellope de l'op&eacute;rateur
+</li></ul>
+<p></p>
+
+<h2>DRUM -&gt; Page FRQ</h2>
+
+<img src="midibox_fm/cs/menu_frq.gif" alt="" height="38" width="482">
+
+<p class="DESC">Ce sous-menu permet de changer la fr&eacute;quence des
+sons de percussions. En raison de certaines limitations de l'OPL3, il
+n'est pas possible de choisir ind&eacute;pendamment les
+fr&eacute;quences des parties HiHat/Tom/Cymbale (la Bass Drum dispose
+d'un r&eacute;glage propre et la fr&eacute;quence de base de la Caisse
+Claire est fixe, elle ne peut &ecirc;tre chang&eacute;e qu'en lui
+appliquant un coef. multiplicateur). Ces limitations finalement
+permettent une autre approche et des r&eacute;sultats
+int&eacute;ressants lorsque la fr&eacute;quence est &eacute;dit&eacute;
+&agrave; l'aide de la fonction <b>Decr.</b> Ce param&egrave;tre
+diminue &agrave; chaque d&eacute;clenchement de note la
+fr&eacute;quence jusqu'&agrave; ce qu'elle atteigne la valeur
+z&eacute;ro.</p>
+
+<h2>Page DRUM -&gt; OUT</h2>
+
+<img src="midibox_fm/cs/menu_out.gif" alt="" height="38" width="482">
+
+<p class="DESC">Vous pouvez dans ce sous-menu mapper les sons de
+percussions vers les quatre sorties audio. L'OPL3 route d'office les
+sons Snare/HiHat et Tom/Cymbale sur les m&ecirc;mes canaux.</p>
+
+<h2>Page DRUM -&gt; MIDI</h2>
+
+<img src="midibox_fm/cs/menu_midi.gif" alt="" height="19" width="391">
+
+<p class="DESC">Ce sous-menu permet d'&eacute;diter le canal MIDI et
+les zones clavier pour les percussion. Si plus d'un demi-ton est
+allou&eacute; &agrave; un des sons de percussion, la fr&eacute;quence
+de l'instrument augmentera &agrave; chaque note (tr&eacute;s utile pour
+les Toms)</p>
+
+<h2>Page SAVE</h2>
+
+<img src="midibox_fm/cs/menu_save.gif" alt="" height="38" width="482">
+
+<p class="DESC">Cette page vous permet de sauvegarder vos configurations sur les BankSticks:
+</p><ul>
+  <li><b>Type</b>: s&eacute;lection du type de donn&eacute;es: Patch/Drumset/Ensemble
+  </li><li><b>Bank</b>: s&eacute;lection du BankStick: A-H
+  </li><li><b>Slot</b>:
+s&eacute;lection du num&eacute;ro de&nbsp;Patch/Drumset/Ensemble. Note:
+si aucun BankStick n'est connect&eacute;, seul un Patch, un Drumset et
+un Ensemble peuvent &ecirc;tres sauv&eacute;es dans l'EEPROM interne.
+LesWavetables ne sont stock&eacute;es que sur BankSticks
+(et elle ne fonctionnent pas sans) </li><li><b>do!</b>: sauvegardez votre travail.
+</li></ul>
+<p></p>
+
+<h2>Page AOUT</h2>
+
+<img src="midibox_fm/cs/menu_aout.gif" alt="" height="38" width="482">
+
+<p class="DESC">La page AOUT permet d'assigner les sources de
+modulation d'instrument &agrave; un canal AOUT. Notez que les sorties
+analogiques (CV) sont une option qui n&eacute;cessite l'installation
+d'un module <a href="mbhp_aout.html">MBHP_AOUT</a> .</p>
+<ul>
+  <li><b>AOUT</b>: s&eacute;lection du canal AOUT que vous souhaitez configurer (1-8)
+  </li><li><b>Inst</b>: assigne un instrument (1-4) au canal AOUT&nbsp;
+  </li><li><b>Assg</b>:
+assigne une ou plusieurs sources de modulation &agrave; ce canal AOUT
+(L:
+premier LFO, L: second LFO, E: Envellopes EG5) -- le taux de modulation
+doit &ecirc;tre ajust&eacute; dans les menus LFO/EG5 , ce dernier
+param&egrave;tre est sauv&eacute; avec le Patch Instrument</li><li><b>Offs</b>: ajout d'un offset aux sources de modulation (-64..63)
+</li></ul>
+<p></p>
+
+
+<h2>Page USER</h2>
+
+<img src="midibox_fm/cs/menu_user.gif" alt="" height="19" width="481">
+
+<p class="DESC">Cette page contieent un ensemble de param&egrave;tres configurables via le fichier <i>cs_menu_tables.inc</i>
+selon vos besoins. Les quatre premiers groupes de param&egrave;tres
+sont &agrave; s&eacute;lectionner &agrave; l'aide des boutons
+USER1/2/3/4 de la matrice de s&eacute;lection V-Pot. Voici les
+r&eacute;glages par d&eacute;faut:
+</p><ul>
+  <li><b>I1Vl</b>, <b>I2Vl</b>, <b>I3Vl</b>, <b>I4Vl</b>: acc&eacute;s direct aux volumes des instruments</li>
+  <li><b>I1Tr</b>, <b>I2Tr</b>, <b>I3Tr</b>, <b>I4Tr</b>: acc&eacute;s direct aux valeurs de&nbsp;transposition des&nbsp;instruments</li>
+  <li><b>L1Rt</b>, <b>L2Rt</b>, <b>L1DP</b>, <b>L2DP</b>: acc&eacute;s direct aux &nbsp;vitesses des LFO1/2 et aux param&egrave;tres&nbsp;Pitch Depth des LFO1/2&nbsp;</li>
+  <li><b>BD V</b>, <b>SD V</b>, <b>HHOV</b>, <b>HHCV</b>:&nbsp;acc&eacute;s direct aux volumes des Percussions, Bass Drum, Snare Drum, Open et Closed HiHat</li>
+</ul>
+<p></p>
+
+
+<h2>Page CFG (non acc&eacute;ssible depuis la structure du menu)</h2>
+
+<img src="midibox_fm/cs/menu_cfg.gif" alt="" height="38" width="482">
+
+<p class="INFO">Le bouton CFG permet d'acc&eacute;der &agrave; une page
+sp&eacute;ciale dans laquelle vous pouvez activer/d&eacute;sactiver des
+fonctions sp&eacute;cifique au syst&egrave;me et sauvegarder votre
+travail rapidement.
+</p><ul class="CL"><li><b>Merger</b>:&nbsp;active/d&eacute;sactive le MIDI merger</li>
+    <li><b>CC</b>:&nbsp;active/d&eacute;sactive le mode "&eacute;mission de CC" (utile pour enregistrer vos variations de param&egrave;tres dans un s&eacute;quenceur)</li>
+    <li><b>MJmp</b>: active/d&eacute;sactive&nbsp;le changement automatique de menu lors de l'utilisation des boutons de la matrice de s&eacute;lection</li>
+    <li><b>SyxD</b>:
+envoi d'un dump SysEx en fonction des param&egrave;tres en cours
+d'&eacute;dition. A la page Main ou dans un menu ENS l'Ensemble sera
+dump&eacute;, dans le menu Drum, le Drumset sera dump&eacute;, dans les
+autres menus, le Patch de l'Instrument en cours d'&eacute;dition sera
+dump&eacute;.</li>
+    <li><b>PSav</b>: sauvegarde de l'Instrument en cours d'&eacute;dition</li>
+    <li><b>DSav</b>:&nbsp;sauvegarde du Drumset en cours d'&eacute;dition</li>
+    <li><b>ESav</b>:&nbsp;sauvegarde de l'Ensemble en cours d'&eacute;dition</li>
+    <li><b>Save All</b>: sauvegarde de tout le setup (les 4 Instruments, drumset, ensemble)</li>
+</ul><p></p>
+
+
+<h2>Pr&eacute;paration</h2>
+
+<p class="INFO">Une fois le <a href="mios.html">MIOS</a> et l'application <a href="midibox_fm.html">MIDIbox FM</a>&nbsp; <a href="mios_bootstrap.html">upload&eacute;e</a>
+dans le module CORE, un son de E-Piano peut &ecirc;tre jou&eacute; sur
+les canaux MIDI 1/2/3/4, et les drums peuvent &ecirc;tres jou&eacute;s
+sur le canal MIDI&nbsp;16.</p>
+<p class="INFO">Sans BankStick, seul un Patch interne, un Drumset
+interne et un Ensemble interne sont disponibles. De fait, installez au
+moins un BankStick afin de pouvoir sauvegarder jusqu'&agrave; 128
+Patches (+16 drumsets +32 ensembles).</p>
+<p class="INFO">Un BankStick vierge doit d'abord &ecirc;tre
+format&eacute;. Cette op&eacute;ration est effectu&eacute;e
+automatiquement par l'applicationd&eacute;s qu'un nouveau BankStick est
+d&eacute;tect&eacute; (apr&eacute;s d&eacute;marrage ou en
+fonctionnement). Notez que la proc&eacute;dure de formatage prends un
+certain temps (env. 2-3 Minutes), et qu'aucun son ne peut &ecirc;tre
+jou&eacute; pendant cette proc&eacute;dure. Ceci peut entra&icirc;ner
+des confusions, plus particuli&egrave;rement si aucun &eacute;cran
+n'est branch&eacute;, fa&icirc;tes donc vos premiers tests sans
+connecter de BankStick.</p>
+<p class="INFO">Une fois le BankStick format&eacute;, les preset patchs
+peuvent &ecirc;tres upload&eacute;s. Ces patches sont disponibles
+&agrave; la section download de la <a href="midibox_fm.html">MIDIbox FM</a>. le fichier README contient quelques informations utiles sur les outils pouvant vous simplifier l'upload des fichiers .syx .</p>
+
+FOOTER

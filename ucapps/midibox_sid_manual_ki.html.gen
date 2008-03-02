@@ -1,0 +1,73 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Known Issues and Troubleshooting Tips
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>Known Issues and Troubleshooting Tips</H1>
+
+<P CLASS=INFO>This is a "living document", which will be extended from time to time whenever a "strange behaviour" has been reported by a user which could be interesting for other people, not at least for troubleshooting an apparently non-functional MIDIbox SID.</P>
+
+<UL CLASS=CL>
+  <LI><I>[1]</I> <B>PIC not starting, no MIDI output/input, code upload not possible, etc...</B><BR>
+    Please follow this <A HREF="howto_debug_midi.html">Troubleshooting Guide</A></LI>
+  <LI><I>[2]</I> <B>Blank screen</B><BR>
+    LCD won't be initialized so long <A HREF="mios.html">MIOS</A> hasn't been uploaded via <A HREF="mios_bootstrap.html">MIOS Bootstrap Loader</A></LI>
+  <LI><I>[3]</I> <B>Core reboots after MIDIbox SID application has been uploaded, or it behaves randomly</B><BR>
+    <UL CLASS=CL>
+      <LI><I>[3a]</I> Use the latest <A HREF="http://www.midibox.org/mios_studio/">MIOS Studio</A> version (v7.5 or higher) - earlier versions don't support the PIC18F4685, a code upload won't be complete and will definitely crash.</LI>
+      <LI><I>[3b]</I> Ensure that following pull-up resistors have been mounted on the core mode (<A HREF="mbhp/mbhp_core_v3.pdf">Schematic</A>): R2, R6, R9, R10, R12 --- in general it makes sense to stuff the whole core module if you are unsure.</LI>
+      <LI><I>[3c]</I> Ensure that in addition the 1k pull-up and 1N4148 diode for the CAN interface has been added as shown in <A HREF="midibox_sid/mbsid_v2_communication.pdf">this schematic</A>.<BR>Resistor and diode are even required if no slave module is used!</LI>
+      <LI><I>[3d]</I> Ensure that the D0-D3 data lines of your LCD are not connected to the core module (LCD is accessed in 4bit mode to keep the ECAN Rx/Tx pins free)</LI>
+    </UL>
+  <LI><I>[18]</I> <B>LCD freezes immediately or after some seconds, synth still functional</B><BR>
+     A rare number of LCDs don't support 4-bit access mode properly. This has been noticed on two PLED displays and one VFD display so far, "normal" HD44780 or KS0066 LCDs are working stable. Sometimes nibbles are swapped, so that the communication with the CLCD driver of MIOS is disturbed. 4-bit mode is required, as pin RB2 and RB3 are used for the CAN interface. If you notice such an issue, you could activate the alternative "custom" LCD driver, which is already part of the MIDIbox SID V2 firmware. It uses 8-bit mode by using two pins on port E to replace the two pins being used by the CAN. LCD pins D0 and D1 should be connected to PIC pins RB0 and RB1, and LCD pins D2 and D3 connect to PIC pins RE1 and RE2. The driver can be permanently activated via PIC ID Header (LCD type 7, see also <A HREF="mios_bootstrap.html">Bootloader page</A>), or by activating the DEFAULT_USE_CUSTOM_LCD_DRIVER switch in the setup_*.asm file</LI>
+
+  <LI><I>[4]</I> <B>Slave Cores not found by Master</B><BR>
+    Ensure that each slave has its own MIOS Device ID (01, 02, 03). The ID of the master core has to be 00. The ID has to be programmed into the PIC ID Header. If this hasn't been done while burning the <A HREF="mios_bootstrap.html">Bootloader</A>, you can do this also with the change_id application, which is available at the <A HREF="mios_download.html">MIOS Download</A> page.</LI>
+  <LI><I>[5]</I> <B>Buttons/Encoders not working</B><BR>
+    Please follow this <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=din_module">Troubleshooting Guide</A></LI>
+  <LI><I>[6]</I> <B>No sound from SID</B><BR>
+    Try the mbsid_interconnection_test and sid_testtone application, which can be found at the <A HREF="mios_download.html">MIOS Download page</A>. The testing procedure is explained in the main.asm file.<BR>
+    Just to highlight it again: the application won't run before you've uploaded MIOS (the operating system).<BR>
+    The audio output of the <A HREF="mbhp_sid.html">MBHP_SID</A> module has to be connected to a mixer or audio amplifier, a direct connection to a loudspeaker or headphones won't work.</LI>
+  <LI><I>[7]</I> <B>Still no sound from SID</B><BR>
+    Check the MIDI channel. If you are unsure (e.g. no LCD connected to Core Module), try all 16 MIDI channels with your keyboard/sequencer</LI>
+  <LI><I>[8]</I> <B>Background noise</B><BR>
+    Ensure that the Audio In of the <A HREF="mbhp_sid.html">MBHP_SID</A> module is connected to ground when not used.<BR>
+    A certain digital background noise is common on a 6581 due to a design weakness. It's much less (-90 dB) on a 6582/8580.<BR>
+    Another known SID bug is the leackage issue in the VCA part (especially 6581) - the oscillators are not completely silent once a note has been played. If you are using a compressor a noise gate in the Fx chain, search for a setting which eliminates this noise</LI>
+  <LI><I>[9]</I> <B>50 Hz or 60 Hz buzz</B><BR>
+     Consider to build an optimized PSU (Power Supply Unit) like explained in the <A HREF="midibox_sid_manual_hw.html">Hardware Options</A> chapter.</LI>
+  <LI><I>[10]</I> <B>Some buttons or LEDs are not working</B><BR>
+    Depending on the selected sound engine, some buttons and LEDs have no function. E.g., in Multi mode, OSC and ENV is always 1, and LFO toggles between 1 and 2. The modulation matrix buttons have no function at all, and the matrix LEDs display the number of the selected instrument.<BR>
+    For a complete CS test, select a patch which uses the Lead engine.</LI>
+  <LI><I>[11]</I> <B>Modulation matrix doesn't show matrix connections, but flickers strangly</B><BR>
+    It's not a bug, but a feature! ;-)<BR>
+    Maybe you've selected the meter mode, which displays the MOD output values (e.g. LFO and ENV output) - press two column buttons of the modulation matrix to switch back to normal display mode.<BR>
+When the bassline/drum or multi engine is running, the LED matrix displays level meters instead, which allow you to monitor the voice allocation.</LI>
+  <LI><I>[12]</I> <B>Meter display mode doesn't display MOD/level meter output of slaves.</B><BR>
+    This is not possible due to conceptional reasons - it only displays the MOD outputs of the master SID</LI>
+  <LI><I>[13]</I> <B>Some mixed oscillator waveforms don't output a sound</B><BR>
+     Thats normal on a 6581, it works on a 6582/8580 - see also the demo samples in the <A HREF="midibox_sid_manual_l.html">Lead Engine chapter</A></LI>
+  <LI><I>[14]</I> <B>Some patches of the preset banks are incomplete</B><BR>
+     Ensure that you've uploaded the .syx files with a delay of 750 mS between each SysEx string. See also the README.txt of the patches/ directory for configuration details</LI>
+  <LI><I>[15]</I> <B>Knob values of master or slaves are changing randomly</B><BR>
+     Propably you've selected the "analog input option" (DEFAULT_J5_FUNCTION set to 1) in order to connect pots/faders/joysticks to the master, and forgot to clamp all unusued analog inputs to ground (see also <A HREF="mbhp/auaimbctg.pdf">auaimbctg.pdf</A>).<BR>Due to the cloning mechanism, which transfers the firmware of the master to the slaves, this requirement has to be considered for all core modules!<BR>
+     Clamping unused J5 inputs to ground is not required if DEFAULT_J5_FUNCTION is set to 0 (J5 disabled --- default!) or 2 (J5 used as digital output)</LI>
+
+  <LI><I>[16]</I> <B>I haven't found a way to play a 8xSID MBSID V2 as a single polyphonic synth</B><BR>
+     A special "Super-Poly" mode is planned for a post v2.0 release - see also <A HREF="http://www.midibox.org/forum/index.php?topic=9457.msg68404#msg68404" TARGET="_blank">this article</A>.<BR>Update: <A HREF="http://www.midibox.org/forum/index.php?topic=9947.0" TARGET="_blank">here</A>.<BR>
+     Update (2007-09-30): An experimental solution for 4 stereo lead voices has been implemented, see <A HREF="midibox_sid_manual_e.html">Ensemble Page</A>.</LI>
+
+  <LI><I>[17]</I> <B>I haven't found a way to synchronize the internal clock of all 4 cores</B><BR>
+     This is related to [16], a possibility will be provided later after some evaluations. Currently wavetable and bassline/drum sequencers can only be synched with an external MIDI clock - this works quite well, and is the prefered solution anyhow if you are planning to sync MIDIbox SID with an external sequencer.</LI>
+
+  <LI><I>[18]</I> <B>Multi/Drum engine: one or more voices are not used when Multi/Drum instruments are played - why?</B><BR>
+   This is related to the enhanced voice allocation algorithm - check the VAs settings in the CFG/DRM menu page. If one or more instruments are explicit assigned to O1..O6, the appr. voice cannot be allocated by the remaining instruments anymore (there is only one exception: if all voices are assigned to specific oscillators in drum mode, the "exclusive reservation" will be ignored).<BR>
+   This approach is important for a static filter or sync/ringmodulation routing, and therefore no bug.<BR>
+   The VAs (Voice Assignment) setting can be found in the CFG (multi engine) or DRM (Drum Engine) menu. It can be easily overlooked when doing modifications on patches from other users.<BR>
+   <I>Tip:</I> if you own a MIDIbox SID with LED matrix, enable the level metering mode to monitor the voice allocation (works for Multi and Drum engine, when the patch is played on the master core SID1)</LI>
+
+</UL>
+
+FOOTER

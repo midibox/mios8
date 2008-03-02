@@ -1,0 +1,143 @@
+HEADER 3 MIOS C Example
+
+<H3>Printing special characters on a LCD</H3>
+
+<P CLASS=INFO>All HD44780 compatible character LCDs provide the possibility to define up to 8 special characters, which consist of 5x8 pixels. These characters can be print with character code 0x00..0x07. The example below demonstrates, how to print a vertical bar, which reflects the position of the last changed pot.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>The last AIN pin should be stored in a variable, define this at the top of main.c:</P>
+
+<TT><PRE>
+// last AIN pin number
+unsigned char last_ain_pin;
+</PRE></TT>
+
+<P CLASS=INFO>In addition, we define an "aggregate", which describes the structure of a byte. Only one bit of the byte is used here to requests a display update. For more informations regarding the "app_flags_t" aggregate, please refer to <A HREF="mios_c_lcd_out.html">this example</A>.</P>
+
+<TT><PRE>
+// definition of application status byte
+typedef union {
+  struct {
+    unsigned ALL:8;
+  };
+  struct {
+    unsigned DISPLAY_UPDATE_REQ:1;  // requests a display update
+  };
+} app_flags_t;
+
+// status of application
+app_flags_t app_flags;
+</PRE></TT>
+
+<P CLASS=INFO>Now the table which contains the layout of the special characters. A nice web based editor has been created by Captain Haskings and can be loaded from <A HREF="http://lcd5x8char.midibox.org" TARGET="_blank">this location</A>.</P>
+
+<TT><PRE>
+// special character set
+// can be edited with http://lcd5x8char.midibox.org/
+const unsigned char charset_vert_bars[8*8] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x1f,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x1f, 0x1f, 0x1f,
+  0x00, 0x00, 0x00, 0x00, 0x1f, 0x1f, 0x1f, 0x1f,
+  0x00, 0x00, 0x00, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f,
+  0x00, 0x00, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f,
+  0x00, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f,
+  0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f,
+  };
+</PRE></TT>
+
+<P CLASS=INFO>Let's continue: Within the Init() function, you have to specify, how many pots are connected to the core:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  // initialize the AIN driver
+  MIOS_AIN_NumberSet(64);   // 64 pots are connected
+  MIOS_AIN_Muxed();         // the AINX4 modules are used
+  MIOS_AIN_DeadbandSet(7);  // should be 7 when 7bit resolution is used
+}
+</PRE></TT>
+
+<P CLASS=INFO>The display should be cleared within the DISPLAY_Init() function. From there you can also print static strings which will never change, and you can initialize the special characters. Don't do this in the normal Init() function, because at the time it is called, the LCD is not initialized!</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when the display content should be 
+// initialized. Thats the case during startup and after a temporary message
+// has been printed on the screen
+/////////////////////////////////////////////////////////////////////////////
+void DISPLAY_Init(void) __wparam
+{
+  // clear screen
+  MIOS_LCD_Clear();
+
+  // init special character set (characters will be print with 0x00...0x07)
+  MIOS_CLCD_SpecialCharsInit(charset_vert_bars);
+
+  // print static messages
+  MIOS_LCD_CursorSet(0x00); // first line
+  MIOS_LCD_PrintCString("Last AIN Pin:");
+
+  // request display update
+  app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+</PRE></TT>
+
+<P CLASS=INFO>As mentioned above, the DISPLAY_Tick() function is called whenever nothing else is to do. It should react on update requests, clear the flag and print out the information:</P>
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called in the mainloop when no temporary message is shown
+//  on screen. Print the realtime messages here
+/////////////////////////////////////////////////////////////////////////////
+void DISPLAY_Tick(void) __wparam
+{
+  // do nothing if no update has been requested
+  if( !app_flags.DISPLAY_UPDATE_REQ )
+    return;
+
+  // clear request
+  app_flags.DISPLAY_UPDATE_REQ = 0;
+
+  // print DIN number and 10bit value in second line
+  MIOS_LCD_CursorSet(0x40); // second line
+  MIOS_LCD_PrintBCD3(last_ain_pin);
+  MIOS_LCD_PrintChar(':');
+  MIOS_LCD_PrintBCD4(MIOS_AIN_PinGet(last_ain_pin));
+
+  // add a vertical bar (special char 0..7)
+  // scale 7bit value from 0..7, this can be done by dividing
+  // it by 16 -- the fastest way to do this is just to shift right
+  // the value 4 times (2^4 = 16)
+  MIOS_LCD_PrintChar(MIOS_AIN_Pin7bitGet(last_ain_pin) >> 4);
+}
+</PRE></TT>
+
+<P CLASS=INFO>At the end we put something into the AIN_NotifyChange() function. It should send a CC event when a pot has been moved, and it should initiate a display update:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a pot has been moved
+/////////////////////////////////////////////////////////////////////////////
+void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
+{
+  // a pot has been moved, send CC# at channel 1
+  MIOS_MIDI_TxBufferPut(0xb0); // CC at channel 1
+  MIOS_MIDI_TxBufferPut(pin);  // pin number corresponds to CC number
+  MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(pin));   // don't send 10bit pin_value,
+                                                     // but 7bit value
+
+  // save pin number and request display update
+  last_ain_pin = pin;
+  app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+</PRE></TT>
+
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

@@ -1,0 +1,100 @@
+HEADER 3 MIDIbox SID V2 User Manual --- SwinSID Review
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- SwinSID Review </H1>
+
+<P CLASS=INFO><A HREF="http://www.swinkels.tvtom.pl/swinsid/" TARGET="_blank">SwinSID</A> is an Atmel AVR based SID emulation created by Swinkels. Initially it was intended as replacement module for the original SID chip housed in a C64, but it works fine with <A HREF="midibox_sid.html">MIDIbox SID</A> as well.</P>
+
+<P CLASS=DESC>Meanwhile Swinkels has enhanced the firmware dramatically, so that it can be used as inexpensive Stereo-SID option for MIDIbox SID. Even though a 1:1 emulation cannot be expected from a microcontroller without DSP capabilities (however, PC/Mac based solutions are not capable of emulating the SID accurately as well), it is still an attractive project for people who are not able to find enough SIDs for a fully stuffed MIDIbox SID, for people who are searching for alternative/additional sounds, and/or for people who cannot resist to build every SynthDIY project available on the web. :)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> The Hardware </H2>
+
+<P CLASS=DESC>The SwinSID firmware is running on a single ATmega8515 (Mono), or two ATmega8515 (Stereo). Each AVR handles the complete SID emulation independently at a sampling rate of 31.25kHz. In order to achieve such a high rate, the AVRs are overclocked at 24 MHz!</P>
+
+<P CLASS=DESC>The DAC is connected to the "master" AVR only. The "slave" AVR transfers the sample words of the right audio channel to the master via a simple parallel interface.</P>
+
+<P CLASS=DESC>Each AVR has a dedicated chip-select input to differ between SID register accesses directed to the left, right or both audio channels, which qualifies this solution perfectly for MIDIbox SID. Like known from the <A HREF="mbhp_sid.html">MBHP_SID</A> module, two 74HC595 are required as serial->parallel interface to <A HREF="mbhp_core.html">MIDIbox Core</A>.</P>
+
+<P CLASS=DESC>Note that thanks to the interface compatibility, it is possible to control two MBHP_SID modules, and one Stereo-SwinSID module from the same MBHP_CORE in parallel!</P>
+
+<CENTER><IMG SRC="midibox_sid/swinsid_prototype.jpg" WIDTH=500 HEIGHT=374><BR>A picture of the prototype. Note that at the second AVR has been added later (a stereo option wasn't planned at the beginning) - therefore it's placed with a different orientation.</IMG></CENTER>
+
+<P CLASS=DESC>Virtually all 16bit I2S DACs are compatible to SwinSID, even newer ones which require a second "system clock" (256xsampling frequency) for digital interpolation. Swinkels is using a TDA1543 (unfortunately discontinued, but still available e.g. at <A HREF="http://www.voti.nl" TARGET="_blank">Voti</A>), I tested a TDA1387 (poor quality, cannibalized from an old Soundblaster AWE32 soundcard), and a PCM1725 (best quality, available e.g. at <A HREF="http://www.farnell.com" TARGET="_blank">Farnell</A>). TDA1387 and PCM1725 require SMD soldering-skills, whereas TDA1543 comes in a DIY-friendly Dual-Inline package!</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Pros & Cons </H2>
+
+<P CLASS=DESC>As a fan of the original SID for more than 20 years I would like to give my personal statements about SwinSID, and provide some demo samples for some first impressions.</P>
+
+<P CLASS=DESC>After I got the hardware up&running, and listened to the first sounds, I was a bit dissapointed from the sound quality due to the aliasing and distortion effects - something what I haven't experienced with the original SID. Meanwhile I've learned, that such effects are mainly related to the sampling frequency, oversampling factor (to reduce disharmonics on higher oscillator frequencies) and interpolation rate (to reduce disharmonics on lower oscillator frequencies). All synthesizers, which are based on the sample technology, are affected by such issues, and the only counteractive measure is to spend as much compute power as possible.</P>
+
+<P CLASS=DESC>On the other hand, I realized that Swinkels did his best to bring the emulation to the max. I find his implementation superior to other AVR based synths like the well known "AVR Synth" and "AvrX", when I compare the sampling frequency, DAC resolution, number of oscillators, and especially the quality of low pass filter.</P>
+
+<P CLASS=DESC>IMHO a better sound quality can only be achieved with less DIY-friendly and much more expensive DSP or FPGA based hardware.</P>
+
+<P CLASS=DESC><B>PROs:</B>
+<UL CLASS=CL>
+  <LI><B>+</B> Inexpensive and easy to build replacement for SID chip</LI>
+  <LI><B>+</B> Hardware-Compatible to original SID (no software adaptions required)</LI>
+  <LI><B>+</B> Stereo Option with two AVRs</LI>
+  <LI><B>+</B> Possibility to control two MBHP_SID (stuffed with original SID chips) and one Stereo-SwinSID module in parallel from a single MBHP_CORE</LI>
+  <LI><B>+</B> Realtime synthesis with ZERO latency! </LI>
+  <LI><B>+</B> More waveforms</LI>
+  <LI><B>+</B> White noise generator</LI>
+  <LI><B>+</B> All three oscillators provide a sub-oscillator function with selectable waveform; waveform can be reversed.</LI>
+  <LI><B>+</B> FM between oscillators (instead of ringmodulator function)</LI>
+  <LI><B>+</B> Perfectly working ADSR (the ADSR of the original SID has flaws!) </LI>
+  <LI><B>+</B> Fat low-pass filter </LI>
+</UL>
+
+
+<P CLASS=DESC><B>CONs:</B>
+<UL CLASS=CL>
+  <LI><B>-</B> Aliasing Effects </LI>
+  <LI><B>-</B> Not 100% sound compatible (e.g. Noise waveform, sync function) </LI>
+  <LI><B>-</B> No multi state filter (for Bandpass/Highpass/Notch) </LI>
+  <LI><B>-</B> No ringmodulation </LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Demo samples </H2>
+
+<P CLASS=DESC>Following samples have been created with SwinSID, controlled from a MIDIbox SID V2.</P>
+
+<P CLASS=DESC>
+**MP3**"http://www.ucapps.de/mp3/swinsid/swinsid_wizardry.mp3"#ffffff**
+<B>Wizardry</B><BR>
+Demonstration of the available waveforms (w/o noise waveform) <I>[1]</I><BR>
+The tune is based on the C64 game, .sid file taken from <A HREF="http://www.hvsc.c64.org" TARGET="_blank">HVSC</A>, converted with <A HREF="http://www.remix64.com/new_sid2midi_version.html" TARGET="_blank">sid2midi</A>, played with the <A HREF="midibox_sid_manual_m.html">Multi Engine</A>. Song Author: Mike Alsop</P>
+
+<P CLASS=DESC>
+**MP3**"http://www.ucapps.de/mp3/swinsid/swinsid_fm_seq.mp3"#ffffff**
+<B>FM sounds</B><BR>
+A demonstration of the Frequency Modulation feature. Each oscillator can act as modulator and/or carrier. From time to time the pitch is slowly changed while the tune is playing to demonstrate different FM timbres. <I>[2]</I></P>
+
+<P CLASS=DESC>
+**MP3**"http://www.ucapps.de/mp3/swinsid/swinsid_preview1.mp3"#ffffff**
+<B>Filter Fun</B><BR>
+A recording made during prototyping phase which demonstrates the self resonating filter <I>[2], [3]</I></P>
+
+<P CLASS=DESC>
+**MP3**"http://www.ucapps.de/mp3/swinsid/swinsid_preview2.mp3"#ffffff**
+<B>Bassline Fun</B><BR>
+SwinSID controlled from the <A HREF="midibox_sid_manual_b.hml">Bassline Engine</A>. In the background FM modulated oscillators through a reverb effect. <I>[2], [3]</I></P>
+
+<P CLASS=DESC>
+**MP3**"http://www.ucapps.de/mp3/swinsid/swinsid_drums.mp3"#ffffff**
+<B>New food for the drum machine</B><BR>
+SwinSID allows you to create very nice <A HREF="midibox_sid_manual_d.html">Drum Kits</A>, which sound different to the original SID, but not less interesting for fans of electronic drums and percussions <I>[2]</I></P>
+
+
+<P CLASS=DESC>
+[1] raw sound output of SwinSID<BR>
+[2] external effects have been added<BR>
+[3] StylusRMX based drums have been added
+</I></P>
+
+FOOTER

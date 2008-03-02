@@ -1,0 +1,267 @@
+HEADER 3 MBHP USB Module
+
+<H1>MIDIbox Hardware Platform, USB Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_usb.jpg" width=512 height=384></CENTER></P>
+
+<P CLASS=INFO>The USB module provides 2 MIDI In and 2 MIDI Out ports which are linked to the computer via USB. The driver is based on the official <A HREF="http://www.usb.org/developers/devclass_docs/midi10.pdf">Device Class Definition</A> from <A HREF="http://www.usb.org" TARGET="_blank">www.usb.org</A> and plays together with every operating system which supports this class: WinME, Win2k, WinXP, Mac OS X, Linux, <A HREF="http://www.pegasosppc.com/" TARGET="_blank">Pegasos</A>, MorphOS and OS4.<BR>
+<I>Note: the MIDI-USB device class is <B>not</B> supported by Win95, Win98, Win98SE, OS/2 or Mac OS9!</I></P>
+
+<P CLASS=INFO>The module has currently only be tested with WinME, WinXP and Linux (v2.4.21), I cannot guarantee that it also works with other operating systems, although they support the same driver class. During the development I noticed some anomalies where the Microsoft driver doesn't comply to the specification or just crashes either the firmware or the complete OS (e.g., if the example descriptors from the Spec are used 1:1, WinME crashes immediately ;-). In the meantime I was able to find workarounds so that the current implementation runs without crashes. But there are still three imperfections which should be considered before starting with this module:</P>
+<UL CLASS=CL>
+   <LI>The Microsoft driver isn't multiclient capable. This means, that only one program can allocate a MIDI port at the same time.</LI>
+   <LI>The Microsoft driver isn't able to send one SysEx string which is distributed over multiple buffers without errors. The complete SysEx string has to be sent from a single buffer (this affects the MIOS download, in the <A HREF="mios/bootstrap_sysex1.gif">MIDI-Ox port config menu</A>, you have to increase the Low level Output buffer size from 256 to 2048).</LI>
+   <LI>The Microsoft driver doesn't allow the USB module to change the device name. In the german distribution of Windows the ports are just called <A HREF="mbhp/mbhp_usb_proto1_3.gif">"Audiogeraet" (Audio Device)</A>. Use "regedit" and search for this name and change it to "MBHP_USB"</LI>
+</UL>
+<P CLASS=INFO>However, apart from these problems the module is running fine (under WinME and Linux...). If you build this module please don't forget to report me your experiences!</P>
+<P CLASS=INFO>But there are also good news:</P>
+<UL CLASS=CL>
+   <LI>The Linux driver is multiclient capable and has no problems with longer SysEx strings</LI>
+</UL>
+<P CLASS=INFO>...just for the records ;-)</P>
+
+<P CLASS=INFO>The USB firmware is written in C, open source and licensed under <A HREF="http://www.gnu.org/copyleft/gpl.html" TARGET="_blank">GPL</A> for people who want to improve the driver or just take it as first step into the world of USB. The code has been developed with the free available EZ-USB toolchain which can be downloaded from the <A HREF="http://www.cypress.com/" TARGET="_blank">Cypress</A> website (Design Resources->Developer Kits->Universal Serial Bus->Full Speed Peripherals->AN2131-DK001 EZ-USB Development Kit->EZ-USB Development Tools V2.61.700 - 62 MB!).<BR>Note that these tools are not required to get the MBHP USB module running, the control panel which allows to upload the firmware comes with the mbhp_usb_v1_2.zip package!</P>
+
+<P CLASS=INFO>The heart of the module is the AN2131SC from <A HREF="http://www.cypress.com">Cypress</A>, a 8051 derivative with integrated USB peripheral. The advantage of this chip is the availability for hobbyists (<A HREF="http://www.reichelt.de">Reichelt</A>: 10.50 EUR, <A HREF="http://www.digikey.com/">DigiKey</A>: US $10.50), the embedded 8k SRAM which saves you from attaching an external memory, the IIC bootloader which loads the firmware from a EEPROM (24LC64) into the SRAM during power-on, and of course the free EZ-USB development kit.</P>
+
+<P CLASS=INFO>Disadvantage of this chip: it's only available in a SMD package! This means that you need:</P>
+<UL CLASS=CL>
+   <LI>some soldering skills (beware of soldering this module when you just started with electronics)</LI>
+   <LI>a good soldering iron or station with a small tip! Best with temperature regulation (soldering temperature should be about 310° Celsius/590 Fahrenheit).</LI>
+   <LI>a desoldering pump for the case that you unintentionally soldered two neighboured pins</LI>
+</UL>
+
+<P CLASS=INFO>These requirements make the USB module <B>not</B> to a cheap replacement to a commercial MIDI Interface, although the electronic parts don't cost more than 20 Euro! It's only an alternative for real electronic enthusiasts or for people who finished every MBHP module successfully and looking for a new kick! ;-)<BR>If you are searching for a cheap alternative, buy a <A HREF="http://www.m-audio.com" TARGET="_blank">M-Audio MIDIsport 2x2</A> for about 90 EUR, search for a similar device at <A HREF="http://www.ebay.de" TARGET="_blank">EBay</A> or buy some second-hand soundcards with MIDI interface.</P>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_USB_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb.pdf">mbhp_usb.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_v1b.brd">mbhp_usb_v1b.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_v1b.gif">mbhp_usb_v1b.gif</A></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR2><B>Note:</B> the difference between mbhp_usb_v1 and mbhp_usb_v1b: we forgot to enter the "ratsnest" command before saving the file, therefore the ground plane wasn't visible as well as the connection between pin 3 and 4 of IC2. If you've created your own PCB, check that these pins are connected to ground. If you've ordered a premade PCB from Mike, you will notice that this connection is already there.</TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_USB mini</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_mini.pdf">mbhp_usb_mini.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>---</TD>
+      <TD CLASS=TABCOLOR2>---</TD>
+    </TR>
+  </TABLE></DD>
+
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Firmware</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_v1_2.zip">mbhp_usb_v1_2.zip</A></TD>
+      <TD CLASS=TABCOLOR2>453k</TD>
+      <TD CLASS=TABCOLOR2>This package contains the precompiled firmware, the source code and the EZ-USB control panel. Note that the EEPROM can only be burned under Windows with the EZ-USB application.<BR>New: v1_2 contains a .syx file which can be downloaded via a MIOS core. A description about the various files has been added. Difference between v1_1 and v1_2: each port is buffered with 128 bytes now!</TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_orderlist.txt">mbhp_usb_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_connections_case1.pdf">mbhp_usb_connections_case1.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>5k</TD>
+      <TD CLASS=TABCOLOR2>How to connect 1 core module and one MIDI keyboard</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_connections_case2.pdf">mbhp_usb_connections_case2.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>5k</TD>
+      <TD CLASS=TABCOLOR2>How to connect 2 core modules</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_connections_case3.pdf">mbhp_usb_connections_case3.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>5k</TD>
+      <TD CLASS=TABCOLOR2>How to use the module standalone</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_connections_case4.pdf">mbhp_usb_connections_case4.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>5k</TD>
+      <TD CLASS=TABCOLOR2>How to power a core module via USB</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the USB module:</P>
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>J1</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>External power supply port. Can either be used to power the USB module from external if the Vout of your computer or especially laptop is not "strong" enough (in this case the Power Supply Jumper near by the USB port should be opened!) or this port can be used to power a core module (in this case the Power Supply Jumper near by the USB port should be closed!)</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>Connection to a Power-LED. Recommented for debugging!</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J3</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>IIC port for future extensions (e.g an Audio Device)</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J4</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>MIDI-In indicator LED for port #1</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J5</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>MIDI-Out indicator LED for port #1</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J6</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>MIDI-In indicator LED for port #2</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J7</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>MIDI-Out indicator LED for port #2</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J8</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>Direct link to J11 of a core module, port #1. Note: the Vd pin (+5V) should not be connected to avoid power problems. If you would like to supply the core module, use J1 instead.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J9</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>Direct link to J11 of a core module, port #2</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Used Components </H2></DT>
+   <DD>
+<P CLASS=DESC>Here a list of the used components. A complete orderlist for <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> can be found <A HREF="mbhp/mbhp_usb_orderlist.txt">here</A>, Mouser partlist for the US: see <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Website</A>, if you have a orderlist for a distributor on your country, feel free publish it on this page!</P>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+<P CLASS=DESC>Here are some photos made with the first protype. Note that the final layout "mbhp_usb_v1" looks different. Comments will be added as soon as I've soldered the PCB from Mike.</P>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_1.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_2.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_3.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_4.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_5.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_6.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_7.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_8.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_9.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_10.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_11.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_12.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_usb_13.jpg" WIDTH=512 HEIGHT=384 BORDER=0 ALT=""></TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Installation Guide </H2></DT>
+  <DD>
+<P CLASS=DESC>Not written yet. However, it's fairly easy: connect your Windows PC with the USB module, thereafter you will be asked for the EZ-USB driver which can be found in the mbhp_usb_v1_2 archive. After this driver has been installed, you will be able to upload the firmware with the EZ-USB control panel. You are also able to burn the firmware into the 24LC64 EEPROM. By doing this, the module will start w/o the EZ-USB driver and on other operating systems.</P>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Performance </H2></DT>
+  <DD>
+<P CLASS=DESC>The performance is no issue ;-) See also <A HREF="http://www.midibox.org/forum/index.php?topic=2342.0">the Benchmark Results</A></P>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Credits </H2></DT>
+  <DD><P CLASS=DESC>A big thank-you goes to SmashTV who gave me a lot of usefull design tips and created the PCB layout of the USB module - he has also made the two prototype boards for me! :-)<P>
+  </DD>
+</DL>
+
+FOOTER

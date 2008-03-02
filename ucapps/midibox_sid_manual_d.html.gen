@@ -1,0 +1,208 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Drum Engine
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- Drum Engine</H1>
+
+<P CLASS=INFO>The drum engine provides prepared "drum models" with optimized parameter sets, which allow you to create chiptune typical percussive sounds on a fast and easy way.</P>
+
+<P CLASS=INFO>Each patch can store up to 16 drum instruments (-> drum kit), which can either be played via MIDI, or from an internal sequencer.<P>
+
+<P CLASS=INFO>Since a SID features only 3 oscillators, and a core can only access two SIDs, a dynamic voice allocation is used, similar to the <A HREF="midibox_sid_manual_m.html">Multi Engine</A>. This means, that 6 of 16 instruments can be played the same time from a single core. If your MIDIbox SID is stuffed with multiple core/SID modules, you can easily extend the number of voices and instruments of course. This approach is especially useful, if drum sounds should be routed to different Fx busses. Within the <A HREF="midibox_sid_manual_e.html">Ensemble</A> configuration the drum sections can be assigned to individual keyboard zones and/or MIDI channels.</P>
+
+<P CLASS=INFO>When drums are triggered via MIDI Notes, the velocity can control one sound parameter of the drum model. This can be configured for each instrument individually. For example the ADSR sustain value (-> volume), the tuning (-> frequency), the wavetable speed, etc... it's even possible, that the velocity of one instrument controls the sound parameter of another instrument in all thinkable combinations. This is especially interesting for ringmodulated sounds.</P>
+
+<P CLASS=INFO>Alternatively, drums can be played from an internal 8 track/16 steps sequencer. Each track controls two drum instruments. 8 Drum patterns are stored within the patch, and the pattern can be interactively selected from a MIDI keyboard on the same way like known from the <A HREF="midibox_sid_manual_b.html">Bassline Engine</A>. It's an ideal solution for extensive jam sessions. :-)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Sound Demos </H2>
+
+<P CLASS=INFO>The sound samples below should demonstrate the wide range of adjustability of the drum models.
+<UL CLASS=CL>
+  <LI>**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_drums_bd_examples.mp3"#ffffff** <SPAN CLASS=LI>BD1 and BD2</SPAN></LI>
+  <LI>**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_drums_sd_examples.mp3"#ffffff** <SPAN CLASS=LI>SD1 and SD2</SPAN></LI>
+  <LI>**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_drums_fx_examples.mp3"#ffffff** <SPAN CLASS=LI>FX1, FX4 and FX5</SPAN></LI>
+</UL>
+
+<P CLASS=INFO>In the next demo, bassline and drum engine are played together. This is a live recording; the sequences and sound parameters are controlled from a MIDI keyboard. Note: the bass drum is very low-tuned and cannot be regognized with cheap speakers.<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_drums_demo1.mp3"#ffffff**</P>
+
+<P CLASS=DESC>Following drum kits and sequences are part of the preset library. They are played by two SIDs, which are controlled by a single core. Note that some drum sounds are not played if only one SID is connected. For such a configuration, you should at least enable mono mode (-> <A HREF="midibox_sid_manual_e.html">Ensemble</A>) so that all instruments are assigned to the single SID!<BR>
+<UL CLASS=CL>
+  <LI>**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_drums_preset_a033.mp3"#ffffff** <SPAN CLASS=LI>A033: Drum Kit 1</SPAN></LI>
+  <LI>**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_drums_preset_a034.mp3"#ffffff** <SPAN CLASS=LI>A034: Drum Kit 2</SPAN></LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Root Menu </H2>
+<P CLASS=DESC>This is the root menu of the Drum Engine:
+<CENTER><IMG SRC="midibox_sid/cs2/d_root1.gif" width=434 height=38 ALT="Root"></IMG></CENTER><BR>
+<P CLASS=DESC>The root menu gives you quick access the submenus, which are described below.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> "Shift" Menu </H2>
+
+<P CLASS=DESC>To initialise a drum patch, press the SHIFT (formerly LINK) button, and press the second select button below the LCD to change to the Dr (Drum) engine:</P>
+<CENTER><IMG SRC="midibox_sid/cs2/d_shift1.gif" width=242 height=38 ALT="Shift"></IMG></CENTER></P>
+
+<P CLASS=DESC>Take note, that the default patch is a very "cheap" one where all sound parameters are set to their default value in order to give you a proper start for editing a new drum kit.</P>
+<P CLASS=DESC>Better drum kits can be found in the preset bank from A033 upwards</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SEQuencer menu </H2>
+
+<P CLASS=DESC>As the TRx0x-style sequencer is the most important feature of the drum engine, the appr. page can be entered with the first item of the root menu.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/d_seq1.gif" width=338 height=38 ALT="Sequencer"></IMG></CENTER><BR>
+
+<P CLASS=DESC>A sequence pattern consists of 8 tracks with 16 steps, and 8 patterns are embedded within a patch.</P>
+
+<P CLASS=DESC>Following functions are available in the SEQ page:<BR>
+<UL CLASS=CL>
+  <LI><B>SEQ:</B> selects 1 of 8 patterns, which should be edited</LI>
+  <LI><B>Trk:</B> selects 1 of 8 tracks, which should be edited</LI>
+  <LI><B>EDT:</B> enters the step <B>ED</B>i<B>t</B>or, more infos about this special page below.</LI>
+  <LI><B>Cpy:</B> copies the current pattern into a buffer</LI>
+  <LI><B>Pst:</B> paste: copies the buffer content into the current pattern</LI>
+  <LI><B>Clr:</B> clears the current pattern</LI>
+  <LI><B>SQC:</B> shortcut to the SQC page</LI>
+</UL>
+
+<P CLASS=INFO>The step editor displays the 16 steps of the selected track, and allows you to modify them. The characters at the upper line are standing for:
+<UL CLASS=CL>
+  <LI><B>.:</B> no instrument is played</LI>
+  <LI><B>*:</B> primary instrument will be played</LI>
+  <LI><B>A:</B> primary instrument will be played accented (increased sustain, decreased decay)</LI>
+  <LI><B>S:</B> the secondary instrument will be played (w/o accent)</LI>
+</UL>
+
+<UL CLASS=CL>
+  <LI>Track 1 Controls Instrument #1 (primary: * and A) and #2 (secondary: S)</LI>
+  <LI>Track 2 Controls Instrument #3 (primary: * and A) and #4 (secondary: S)</LI>
+  <LI>Track 3 Controls Instrument #5 (primary: * and A) and #6 (secondary: S)</LI>
+  <LI>Track 4 Controls Instrument #7 (primary: * and A) and #8 (secondary: S)</LI>
+  <LI>Track 5 Controls Instrument #9 (primary: * and A) and #10 (secondary: S)</LI>
+  <LI>Track 6 Controls Instrument #11 (primary: * and A) and #12 (secondary: S)</LI>
+  <LI>Track 7 Controls Instrument #13 (primary: * and A) and #14 (secondary: S)</LI>
+  <LI>Track 8 Controls Instrument #15 (primary: * and A) and #16 (secondary: S)</LI>
+</UL>
+
+<P CLASS=INFO>The advantage of this method: it saves memory (8 sequences available instead of 4), and it allows to realize the typical Open/Close HH or High/Low Tom scheme from a single track.</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/d_edt1.gif" width=242 height=38 ALT="Sequencer Edit"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>G/A/S:</B> toggles the selected step between Off/Gate On/Accented/Secondary mode</LI>
+  <LI><B>Rot:</B> activates a rotate function, which allows you to scroll the pattern left/right. Press the button again to deactivate this function.</LI>
+  <LI><B>Rnd:</B> overwrites the track with a random pattern</LI>
+  <LI><B>Clr:</B> clears the track</LI>
+  <LI><B>DRM:</B> jumps into the DRM menu page. The instrument number will be set automatically according to the selected track</LI>
+</UL>
+
+<P CLASS=INFO>The step is selected with the main encoder.<BR>
+Take note that the track can be selected with the Up/Down buttons of the control surface while in this page. Additionally, tracks can be directly selected with the 8 mod target buttons (named with E1/E2/L1/...L6).</P>
+
+
+<P CLASS=DESC>The sequencer configuration page contains following items:</P>
+<CENTER><IMG SRC="midibox_sid/cs2/d_sqc1.gif" width=290 height=38 ALT="Sequencer Config"></IMG></CENTER><BR>
+
+<UL CLASS=CL>
+  <LI><B>On:</B> enables/disables the sequencer function. <I>If disabled, drums can be directly played via MIDI!</I></LI>
+  <LI><B>Seq:</B> selects the initial pattern after a patch change. A pattern is normaly started <B>and selected</B> by pressing a note on a keyboard. So, this value is only relevant if you are using an alternative start method (e.g. MIDI start event if MBSID Clock generator in slave mode)</LI>
+  <LI><B>Spd:</B> the sequence speed, derived from the global BPM rate (Ensemble->Clk menu). Since the BPM generator is running at quadrupled clock rate, the frequency should be divided by 4 in order to get back the "normal" BPM rate.</LI>
+  <LI><B>Len:</B> the track length (1..16 steps)</LI>
+  <LI><B>S16:</B> if active, pattern changes (e.g. via MIDI keyboard) won't take place immediately, but once the next bar is played. This allows you to synchronize pattern changes to a 4/4 measure.</LI>
+  <LI><B>SEQ:</B> shortcut to the SEQ page</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> DRuM menu menu </H2>
+
+<P CLASS=INFO>This is the only page where drum instruments are edited:<BR>
+<CENTER><IMG SRC="midibox_sid/cs2/d_drm1.gif" width=313 height=19 ALT="Drums"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>Ins(trument):</B> selects the drum instrument (1..16)</LI>
+  <LI><B>Mdl (Model):</B> selects the drum model - the number of available models depends on the firmware version</LI>
+  <LI><B>Attack/Decay/Sustain/Release:</B> controls the VCA envelope of the SID oscillator.</LI>
+  <LI><B>Tun(e):</B> controls the pitch from -2..+2 octaves in 256 steps.</LI>
+  <LI><B>GL (Gatelength):</B> changes the gatelength from -127..0..128 (256 steps)</LI>
+  <LI><B>Spd (Speed):</B> changes the wavetable speed from -127..0..128 (256 steps)</LI>
+  <LI><B>PAR:</B> each drum model provides a special parameter which changes specific parts of the wavetable, for example the pitch of a specific WT step, or the noise frequency. This parameter is adjustable from -127..0..128 (256 steps)</LI>
+  <LI><B>VAs:</B> the voice assignment:
+    <UL CLASS=CL>
+      <LI><B>LR (Left/Right):</B> instrument is either played on the left, or right SID audio channel (6 voices available).</BR>
+      <LI><B>L- (Left):</B> instrument is only played on the left SID audio channel (3 voices available).</LI>
+      <LI><B>-R (Right):</B> instrument is only played on the right SID audio channel (3 voices available).</LI>
+      <LI><B>O1..O6:</B> selects an individual oscillator for the instrument. Take note, that this option also locks the oscillator for instruments which haven't explicitely assigned it. Example: if all Instruments are assigned to LR, but Instrument #3 and #4 to OSC3, only these two instruments will use this oscillator, and all others will share the remaining ones.</LI>
+    </UL>
+    <SPAN CLASS=LI>The voice assignment is important, whenever drum sounds are ringmodulated, or routed through the filter (the filter is not switched dynamically, as this would result into unwanted "popping" sounds). Also for routing to external Fx busses it's useful to predefine the SID audio output channel (L- or -R).</SPAN>
+  </LI>
+  <LI><B>VeA (Velocity Assignment):</B> allows to control a single sound parameter with the Note velocity. In difference to the appr. Knob function (-> KNB menu), they are working individually for each instrument. See also the <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">MIDIbox SID V2 parameter chart</A> for available controllers.</P>
+  <LI><B>Rnd (Random):</B> a randomizer which only changes the currently selected instrument - it's a very useful feature for finding exotic sound configurations!</P>
+</UL>
+</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> FILter menu </H2>
+
+<P CLASS=DESC>Within the filter menu you can control the parameters of the SID filter. Each SID has only one 12db multistate filter, which can be assigned to the three oscillators and/or to the external audio input. Note that by default changes will take place for the left and right channel. By selecting a single channel within the "Shift" menu, you can do modifications for the two filters seperately.</P>
+<P CLASS=DESC>Use the voice assigmment option within the DRM menu (-> VAs) if only specific drum instruments should be filtered.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/d_fil1.gif" width=338 height=38 ALT="Filter"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>Chn (Channel):</B> assigns the filter to oscillator channel 1/2/3</LI>
+  <LI><B>Cut (CutOff):</B> sets the cutoff frequency (12bit value) from 000 to FFF (hexadecimal format).</LI>
+  <LI><B>Res (Resonance):</B> is a peaking effect which emphasizes frequency components at the CutOff frequency of the filter, causing a sharper sound. The intensity of the resonance can be set from 0-15.</LI>
+  <LI><B>Mod (Filter Mode):</B> sets the filter mode - note that mixed notes like Lowpass/Highpass are possible, which results into a notch effect (inverted bandpass).
+    <UL CLASS=CL>
+      <LI><B>L (Lowpass):</B> all frequency components below the Cutoff frequency are passed unaltered, while all frequency components above the Cutoff are attenuated at a rate of appr. 12 dB/Octave</LI>
+      <LI><B>B (Bandpass):</B> all frequency components above and below the Cutoff frequency are attenuated at a rate of appr. 6 dB/Octave</LI>
+      <LI><B>H (Highpass):</B> all frequency components above the Cutoff frequency are passed unaltered, while all frequency components below the Cutoff are attenuated at a rate of appr. 12 dB/Octave</LI>
+    </UL>
+  </LI>
+  <LI><B>Ext (External):</B> external Audio IN is passed to the filter</LI>
+  <LI><B>3Of (3rd oscillator off):</B> a special SID function which disconnects the oscillator 3 output from the mixer. This allows to use OSC3 for sync/ringmodulation without any undesirable output.</LI>
+  <LI><B>FIP (Filter Interpolation):</B> this option smoothes CutOff changes. It is especially useful when CutOff is changed via CC (-> low resolution). to reduce the steppiness. The option is not useful when the CutOff parameter is modulated rom a fast LFO or envelope (on the other hand: it produces interesting effects in such cases ;-)</LI>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ConFiGuration menu </H2>
+
+<P CLASS=DESC>Some basic settings for the MBSID Drum engine are collected here.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/d_cfg1.gif" width=242 height=38 ALT="Configuration"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>ACh:</B> audio channel (Left/Right) - selects the left/right or both audio channels. Selection is only relevant for the Vol(ume) parameter.</LI>
+  <LI><B>Vol (Volume):</B> adjusts the output volume of the SID.</LI>
+  <LI><B>ABW (ADSR Bug Workaround):</B> (independent from L/R flag) an option which provides a method to overcome the ADSR bug.<BR>
+The drum engine handles this option differently from the other engines. The test bit will be set together with gate for ca. 30 mS in order to reset the oscillator and to start the envelope. The waveform generator will be turned off durig this time in order to disable the sound output. After this delay, the waveform will be enabled again, and the drum sound starts immediately without wacky timings.<BR>
+This approach is also known as "hard-sync", and used in most C64 tunes.<BR>
+It results into a more deterministic sound output, but the latency makes it unsuitable for live playing. So, this feature can only be used in conjunction with the internal sequencer, or with an external sequencer which allows to compensate the delay.<BR>
+Note also, that a part of the ADSR attack phase is skipped (however, thats no real issue for drum sounds...)<BR>
+Due to the better results, this option is enabled by default!<BR>
+<I>Hot tip:</I>: there is a simple trick which allows you to play a bassline and drum sequence in synch during a live session: just add an audio delay unit with t_delay=30 mS (e.g. VST based) to the SID outputs which are playing the basslines in order to compensate the timings.</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> KNoBs menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/d_knb1.gif" width=626 height=38 ALT="Knobs"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Knob assignments are available as well. The special coding of the parameter table (see <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">MIDIbox SID V2 parameter chart</A>) allows to control sound parameters individually for a specific, or the currently selected drum instrument.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> EXTernal menu </H2>
+<CENTER><IMG SRC="midibox_sid/cs2/d_ext1.gif" width=385 height=19 ALT="Externals"></IMG></CENTER><BR>
+
+<P CLASS=DESC>In difference to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, CV outputs are not available as modulation target. The static voltage levels and switch states can be changed here.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SAVe menu </H2>
+
+<P CLASS=DESC>...is available as well of course! :)</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/d_sav1.gif" width=242 height=38 ALT="Save"></IMG></CENTER><BR>
+
+<CENTER><IMG SRC="midibox_sid/cs2/d_sav2.gif" width=242 height=38 ALT="Save"></IMG></CENTER>
+</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> RaNDom Generator menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/d_rnd1.gif" width=338 height=38 ALT="Random"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Parts of a drum patch can be randomized with a single push on the button.<BR>
+Please note, that good results can be found faster by using the randomize function within the DRM and SEQ editor page, because it only changes the currently selected item, and doesn't overwrite the parameters/patterns of the remaining instruments/sequences.</P>
+
+FOOTER

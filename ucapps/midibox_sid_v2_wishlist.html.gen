@@ -1,0 +1,85 @@
+HEADER 3 MIDIbox SID V2 Wish List
+
+<H1>MIDIbox SID V2 Wish List</H1>
+
+<P CLASS=INFO>The aim of this page is to collect all thoughts I had on a redesigned MIDbox SID firmware so far. This is a living document and will be modified/enhanced in future without prewarning (please don't translate to avoid inconsistencies!).</P>
+
+<P CLASS=INFO>If you have further suggestions for features, feel free to discuss them in <A HREF="http://www.midibox.org/forum/index.php?topic=6564.0" TARGET="_blank">this forum article.</A>.</P>
+
+<P CLASS=INFO>The MIDIbox SID project was started 2002 on a PIC16F877 controller, a compatible version for PIC18F452 and MIOS was released 2 years later. The firmware has been continuously enhanced, always with full patch compatibility in mind. Unfortunately this sometimes lead to compromises of which I'm not very happy about. E.g., a patch is divided in two parts: 128 bytes for sound parameters, and 128 bytes for wavetable data. The 128 byte parameter space is completely allocated in the meantime, partly with time consuming "packed bitfields" - it cannot be extented anymore. Another point is, that due to performance considerations for the small PIC16F877 some parameters are working with low resolutions, e.g. LFO/ENV depth works with 6bit + 1 bit for polarity. This leads to a stepiness, which could be easily avoided by using 8bit or higher resolutions. I also don't really like the overloaded menu structure, which makes it difficult to create specific sounds.</P>
+
+<P CLASS=INFO>So, such quirks should be solved with a redesigned version. I want to start with the implementation in january 2007, I assume that the final release will be ready very fast if everything is planned properly (this document and the long time span until the start). Most features which are listed here have already been evaluated in MIDIbox FM, MIDIbox SEQ and MIDIbox SID-D, so that I don't expect difficulities.</P>
+
+<P CLASS=INFO>I also would like to mention here, that parts of the ideas below have been suggested by MIDIbox users (thanks for your inspirations!). Parts of the feature list are the same like known from <A HREF="http://www.sidstation.com" TARGET="_blank">SidStation</A>, <A HREF="http://www.prophet64.com" TARGET="_blank">Prophet64</A> or <A HREF="http://www.hardsid.com" TARGET="_blank">Hard SID</A>, but with the typical MIDIbox touch (a real MIDI synth with best realtime capabilities, sophisticated control surface, highest refresh rate: 1220 Hz!). This is no sold out of their ideas, but it's just the continuation of the MIDIbox SID project, in the hope to offer a nice alternative solution.</P>
+
+<H2>Hardware requirements</H2>
+
+<P CLASS=DESC>I don't want to throw away my existing case, therefore it can be considered, that MBSID V2 will run with the same hardware. New functions will be accessible with special key combinations. However, customizations (e.g. more buttons or knobs) will still be possible, but without much support from my side. The "Control Extension" (see below) will add some more control elements in form of a "breakout" box.</P>
+
+<P CLASS=DESC><B>Update:</B> the LINK/CC/EDIT buttons got a new/modified function! The LINK button has the purpose of a SHIFT button (the MIDI link is obsolete, since MIDIbox Link has been replaced by <A HREF="midibox_network.html">MBNet</A>). In addition, it displays a special configuration page, which for example allows you to switch between left and right SID channel. The CC button is used for "Page Up" (increments OSC/LFO/ENV/MOD/TRG/KNB), and the Edit button is used for "Page Down" (decrements OSC/LFO/ENV/MOD/TRG/KNB). SHIFT+CC and SHIFT+EDIT still switch the CC/Edit function like before (means: the two LED labels are still valid).<BR>
+This changed behaviour should be considered when labling a new front panel</P>
+
+<P CLASS=DESC>The microcontroller (PIC18F452) has to be replaced by a newer PIC18F4685. This chip contains more code memory (96k instead of 32k) and more RAM (3328 instead of 1536 bytes). In addition it provides a ECAN interface for direct communication with the slaves - this will open <B>a lot</B> of new possibilities! See also <A HREF="http://www.midibox.org/forum/index.php?topic=8328.0" TARGET="_blank">this forum article</A>.</P>
+
+<H2>Features</H2>
+
+<P CLASS=DESC>Finally a loose list of planned features:
+<UL CLASS=CL>
+  <LI><B>Stereo Option:</B> it will be possible to control two <A HREF="mbhp_sid.html">MBHP_SID</A> modules from a single core in order to realize stereo effects and/or to enhance the polyphony, see also the subsystem approach below</LI>
+  <LI><B>Ensemble:</B> very similar to <A HREF="midibox_fm.html"</A>MIDIbox FM</A>, MBSID V2 will seperate patch specific settings from general settings like MIDI Channel and Split points.<BR>In addition, an "overrule option" for patch parameters like Transpose, Volumes, CC assignments, etc. will be provided, so that they can be changed within an ensemble without touching the patch - and that on the other hand, these important parameters are still part of the patch if somebody doesn't like to work with seperated configuration levels (patch only).<BR>
+  The biggest benefit: a whole master/slave setup can stored and changed independent from the used instruments.</LI>
+  <LI><B>NRPN:</B> for improved extensibility and resolution, 14bit NRPNs will be used instead of 7bit CCs</LI>
+  <LI><B>CC assignments:</B> 5 custom knobs will be available in form of CC, NRPN, and as physical knobs on the control surface (assign layer).<BR>
+  Up to 4 parameters will be assignable on each CC/knob, the parameter range can be reduced (!) for better live adjustments capabilities (e.g. sometimes you only want to sweep over a certain CutOff range, and not over the full range!)<BR>
+  Assignments will be stored within the patch and ensemble structure, and can be easily customized for each Instrument.</LI>
+  <LI><B>The analog inputs</B> should be assignable as well - to multiple parameters, with selectable range.</LI>
+  <LI><B>4 Synthesizer Subsystems:</B> instead of an overloaded flood of multi purpose parameters, I'm planning to integrate 4 dedicated subsystems. They cannot run in parallel on a single core, but they can be quickly selected. A transition to another subsystem will initialize the patch properly to allow an easy start without pre-initialisation work.<BR>
+  Possible Subsystems are:
+  <UL CLASS=CL>
+    <LI><B>MBSID-Lead</B>: very similar to MBSID V1, but with improved parameter set. There will be a second modulation matrix for the second SID for easy creation of stereo effects.</LI>
+    <LI><B>MBSID-Drum</B>: this will turn the MIDIbox into a SID drum machine with prepared elements for Bass Drum, 2 Snare Drums, 6 Toms, Hi Hats, 2 Cymbals, and some free changable Fx sounds (e.g. for Bongo, Cowbell, etc.).<BR>
+Drums can be assigned to the two SID modules seperately.<BR>
+Each drum patch will contain 16 * 32step tracks for the available drum elements. It will be possible to switch between different patches (which consists of sound parameters and the sequence) in zero-time.</LI>
+    <LI><B>MBSID-Bassline</B>: this will turn the MIDIbox into a bassline which can produce 303ish sounds. This possibility already exists in MBSID V1.7303 (well hidden), but the dedicated menu structure will simplify the usage.<BR>
+The second SID can be used for a second, independent bassline<BR>
+Each Bassline patch will contain the sound parameter set and 2 * 32 step patterns. It will be possible to switch between different patches (which consists of sound parameters and the sequences) in zero-time.</LI>
+    <LI><B>MBSID-Multi</B>: will be dedicated for C64ish tunes, where each oscillator acts as an individual instrument. The patches will provide less parameters (e.g. only 2 LFOs and 1 Envelope), but they can be switched very fast (zero time) - maybe up to 16 or 32 instruments will be stored in RAM. Each oscillator has its dedicated MIDI channel, instruments are selected via Program Change. With the second SID module, up to 6 instruments can be played at the same time on each core.<BR>
+Multi mode will also be the prefered mode for polyphonic voices, since each voice will get it's own modulators and can be assigned to the same patch (easier editing)</LI>
+  </UL></P>
+  <P CLASS=DESC>The subsystem approach opens the possibility to use the MBSID Slaves for running different subsystems at the same time without uploading another firmware - they will be controllable from the Control Surface of the master, the menu structures will change automatically depending on the selected subsystem.<BR>
+  Example setup: SID Master as Lead, first SID Slave as Drum synth, second SID Slave as Bassline synth, third SID slave as Multi for C64 typical beeps and blops.</P>
+  <P CLASS=DESC>A fully stuffed system consists of 1 master, 3 slaves and 8 SID modules (personally I will use 8 SID modules: two with 6581, two with 6582, four with 8580)
+  </LI>
+  <LI><B>BankSticks:</B> 64k BankSticks will be supported to increase the number of patches. A BankStick can hold patches for different subsystems, the patch size is fixed to 512 bytes (-> 128 patches per BankStick). Up to 8 BankSticks can be connected to the master. The slaves don't require a BankStick, all patches are stored at the master side and transfered to the slaves via CAN.</LI>
+  <LI><B>Non-destructive CC/ModWheel/Velocity/Aftertouch/WT assignments:</B> in MBSID V1, parameter settings can get lost if a parameter assignment is changed during runtime. This will be fixed by using a new (partly double buffered) data structure. Not all parameters will be assignable anymore, but most (the one for which it's really useful - e.g., it doesn't make sense to assign the Modwheel to Poly/Legato/Mono or Split point parameters).</LI>
+  <LI><B>WT improvements:</B> especially for the drum and bassline subsystem, the formerly known "WT sequencer" will be renamed to "sequencer" (in order to avoid confusion), and it will provide some sequencer specific functions like gatelength, accent, slide, groove styles (shuffle), BPM dividers, direction, randomness, etc.<BR>
+Features which already exist in MBSID V1 (e.g. MIDI clock synchronisation, loop points, arpeggiator textures) will still be available of course.<BR>
+Wavetables will be handled seperately by MBSID-Lead, MBSID-Drum and MBSID-Multi in a slightly different form than today (changed assignment possibilities - only really useful assignments will be provided). One new key feature will be the possibility to run the wavetable tracks with different speeds, and to trigger them individually (via trigger matrix). It should also be possible to control the wavetable position with a LFO or envelope. In order to increase the number of tracks without wasting too much memory within the patch storage structure, only one single table will be provided, but with free configurable entry and loop points for each track, so that the user can define the desired memory allocation by himself.</LI>
+  <LI><B>Polyphony improvements:</B> a super-polyphony mode will allow to combine several cores to a single polyphonic instrument - voices will be distruted by the master, it will use a modified voice handler of MIDIbox FM</LI>
+  <LI><B>Communication with the Slaves via CAN:</B> currently, the slaves are connected to the same MIDI Out which is used for a connected to the PC. Under special circumstances this can lead to a feedback loop, if the host sequencer doesn't provide filter capabilities. By using a seperate bus (CAN), this feedback loop can be prevented. In addition, CAN transfers (1 Mbit/s) are much faster than MIDI (31.25 kbit/s), and they are bidirectional, so that it will "feel" like a single microcontroller accesses all 8 SIDs directly.</LI>
+  <LI><B>ENV improvements:</B> the software implemented envelopes will be extended to multi-step envelopes, e.g. HADDSR, and they will provide a loop point.</LI>
+  <LI><B>LFO improvements:</B> it will be possible to specify the starting phase, if a LFO is synched to a trigger. Some additional waveforms will be provided as well. The usage of the Sample&Hold function will be easier.</LI>
+  <LI><B>Arpeggiator improvements:</B> even the sequencer allows to realize complex arpeggiator textures, a flexible "push-button" solution would be helpful for more comfortable usage. So, the simple arpeggiator will be enhanced by Octave Up/Down with selectable range, different direction modes (up, down, up/down, as played, random), gatelengths, speed modes, switch between "constant arp cycle" like implemented into v1.7303b and traditional behaviour</LI>
+  <LI><B>Internal BPM generator:</B> to control the arpeggiators and wavetables with a selectable tempo (instead of an abstract rate) without external MIDI clock (MBSID V1 can already do this with external MIDI clock)</LI>
+  <LI><B>Modulation matrix enhancements:</B> currently there are two Envelopes and 6 LFOs statically assigned to the modulation matrix. With MBSID V2 it should be possible to change the assignments (-> more modulation sources), and to use "modifiers" in addition. "Modifiers" (known from Waldorf XT Synth) allow to combine modulation sources with mathematical functions. E.g. LFO1 / LFO2" or "MIDI Note * Modwheel" - and even complex operations like "LFO1 S&H LFO2" or "Modwheel filter" (applies a low-pass filter) - let's see, which modifiers can be handled by the PIC...</LI>
+  <LI><B>Trigger matrix:</B> in addition to the modulation matrix, a trigger matrix will be implemented, which allows to route trigger events like MIDI notes/clock/start, LFO period, WT events to targets like LFO sync, ENV (re-)trigger, ENV loop (re-)trigger, wavetable (re-)trigger - two seperate entry points e.g. for attack/release phase of a note, sequencer (re-)trigger, etc.</LI>
+  <LI><B>Integrated Random Patch/Wavetable/Sequence generator:</B> for generating unbelievable sounds, wavetables and sequences with a single push on a button.</LI>
+  <LI><B>Storing setup for external Fx:</B> if external effects like Compressor, EQs, Chorus, Delay, Reverb are added to the Audio Out, it would be nice to integrate the setup of this gear into the patch structure. This can either by done by providing a set of CCs, which are sent through MIDI Out when a new patch is selected, or by providing a set of program change parameters (but this would not work with VST effects)</LI>
+  <LI><B>CV out routing matrix:</B> with individual depth and offset at the end of the signal path for modulation of external analog stuff like filters, VCAs (amplitude modulation, stereo effects...), etc.<BR>
+This feature already exists in MBSID V1 (up to 8 CV outs are provided), but the routing matrix and depth/offset parameter will improve the flexibility of individual channel assignments for each patch.<BR>
+Gates should also be provided, they should be part of the trigger matrix (see the possibilities which are listed there). Polarity should be selectable, also the generation of pulses on falling and/or rising edge of the internal trigger source(s). In addition, it should be possible to control the gates from the drum sequencer.</LI>
+  <LI><B>Selectable Oscillator Phase Offset:</B> OSC shifted by 12.5%, 25%, 33%, 37.5%, 50%, 62.5%, 66%, 87.5% - important for "fat" mono and stereo sounds</LI>
+  <LI>the information, which SID and caps have been used should be stored in the patch. SIDs: 0=no definition, 1=6581, 2=6582, 3=8580; caps: 0=470pF, 1=1nF, 2=2.2nF, 3=4.7nF, 4=6.8nF, 5=10nF, 6=22nF, 7=47nF, 8=100nF</LI>
+
+  <LI><B>MBSID Control Extension:</B> as discussed in <A HREF="http://www.midibox.org/forum/index.php?topic=5680.0" TARGET="_blank">this article</A>, but I think that I will overwork the concept so that it is also useful for the other subsystems.<BR>
+This control extension is something like a "breakout box", which is dedicated for easy editing of bass- and drumline sequences. For the MBSID-Lead and MBSID-Multi subsystem it could be used as simple keyboard, for mutes/solo or for quick patch changes. We will see. I propably won't start with this extension before next year - first I want to see MBSID V2 completely working.</LI>
+</UL>
+</P>
+
+
+<H2> Work in Progress </H2>
+
+<P CLASS=INFO>The <A HREF="midibox_sid_manual.html">MIDIbox SID V2 Manual</A> is under construction. It gives you an impression about the new functions, and it provides some demo samples.</P>
+
+
+FOOTER

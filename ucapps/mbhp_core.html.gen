@@ -1,0 +1,375 @@
+HEADER 3 MBHP Core Module
+
+<H1>MIDIbox Hardware Platform, Core Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_core_v3.jpg" width=550 height=400></CENTER></P>
+
+<P CLASS=INFO>The core module is the brain of every project which is based on the MIDIbox hardware platform. Main part of this module is the PIC18F452, a microcontroller manufactured by <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>. It is clocked at 40 MHz (externaly with a 10 MHz crystal) and offers enough performance to handle with all the analog and digital modules with latencies below 1ms. The PIC is a "system on chip" (SoC), this means, it contains not only a CPU, but also an integrated 32k flash program memory, 1536 bytes data memory, 256 bytes data EEPROM, and a lot of usefull peripherals like AD-converter and UART (for MIDI). I decided to use PIC controllers for my MIDI applications many years ago, and I stayed by this product family because of the low prices and worldwide availability for hobbyists. In distance to other (more modern) microcontrollers, the PIC is easy to program, requires no external memories, is almost non-destroyable and comes in a handy DIP package, so that also electronic beginners can work with this chip without the danger of damaging small SMD pins within some seconds with their soldering iron.</P>
+<P CLASS=INFO>A nice outlook for the future is, that Microchip still considers pin compatible devices. The MBHP started with a PIC16F877, in the meantime PIC18F452 is used, and for memory intensive projects like <A HREF="midibox_seq.html">MIDIbox SEQ V3</A> or <A HREF="midibox_sid.html">MIDIbox SID V2</A> the PIC18F4620/PIC18F4685. So long this upgrade path is given, a switch to another microcontroller family (like <A HREF="http://www.atmel.com" TARGET="_blank">Atmel</A> devices) with all it's advantages, but also disadvantages, is not required, and hard/software compatible applications can still be expected in the next years.</P>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_CORE_V3 </H2></DT>
+   <DD>
+<P CLASS=DESC>In the meantime, the core module has reached it's third version. There are some minor improvements in the circuit and layout. However, the old modules can still be used. For the convenience of users who haven't populated an old board yet, a <A HREF="mbhp_core_old.html">special webpage</A> has been created which contains the old documentation.</P>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_CORE_V3</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_v3.pdf">mbhp_core_v3.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_v3.brd">mbhp_core_v3.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_v3.gif">mbhp_core_v3.gif</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_orderlist.txt">mbhp_core_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the core module:</P>
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>J1</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>Connection to the powersupply. Either the output of a 7V-10V transformer, or a wall adapter can be used. 500 mA is recommented, especially if a backlit display is used, but MIDIfilter and MIDImerger work also with ca. 100 mA. AC or DC doesn't matter, since the rectifier behind J1 converts to DC anyhow. Also the polarity has not to be taken into account. </TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2><B>When used as +5V output:</B> to supply other core modules in a multiprocessor environment, so that you only have to mount the parts for the power supply (X1, IC3, C5, C6) on one core module. <B>Restriction:</B> the 7805 gets very hot when it delivers currents above 500 mA, so only core modules without backlit display like MIDIO128, MIDImerger, MIDIfilter should be supplied over this port.<BR>
+      <B>When used as +5V input: </B> for supplying from J2 of another core module, or from an external stabilized Power Supply Unit (PSU). In both cases the voltage regulator (IC3) should not be connected, also the rest of the voltage stabilization circuit between J1 and J2 (X1, C5, C6) can be left out. If the core module (and all connected modules to this branch) drains more than 100 mA, it's recommented to mount C5 directly to J2 (a small cable between the outer soldering pads of the left-out 7805 will do this).<BR><B>Please note</B> that supplying multiple core modules from one "main" core is only recommented if the overall circuit doesn't consume more than ca. 500 mA, otherwise the 7805 will get too hot! Especially if LEDs and/or LCDs with backlight are connected to all cores, it's better to spent one 7805 for each core.<BR>
+Examples for J2 wiring can be found in the <A HREF="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">SID interconnection diagram</A> and in the <A HREF="midibox_lc/midibox_ng_switching_psu.pdf">MIDIbox LC PSU example</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J3</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>obsolete since v3</B></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J4</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>Interface to the <A HREF="mbhp_bankstick.html">BankStick</A>, to MBHP_IIC_* modules like <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A>, and to the <A HREF="midimerger.html">second MIDI IN port for MIDImerger</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J5</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>Interface to the <A HREF="mbhp_ain.html">AIN module</A> for MIDIbox64 and MIDIbox64E. There are also some application which use this pin as digital in- or output.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J6</TD>
+      <TD CLASS=TABCOLOR2>5</TD>
+      <TD CLASS=TABCOLOR2>Interface to the <A HREF="mbhp_ain.html">AIN module</A> for MIDIbox64 and MIDIbox64E</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J7</TD>
+      <TD CLASS=TABCOLOR2>5</TD>
+      <TD CLASS=TABCOLOR2>Interface to the <A HREF="mbhp_mf.html">MF module</A>, sometimes also used for the <A HREF="mbhp_aout.html">MBHP_AOUT</A> or <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> module.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J8</TD>
+      <TD CLASS=TABCOLOR2>5</TD>
+      <TD CLASS=TABCOLOR2>Interface to the <A HREF="mbhp_dout.html">DOUT module</A> chain.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J9</TD>
+      <TD CLASS=TABCOLOR2>5</TD>
+      <TD CLASS=TABCOLOR2>Interface to the <A HREF="mbhp_din.html">DIN module</A> chain.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J10</TD>
+      <TD CLASS=TABCOLOR2>8</TD>
+      <TD CLASS=TABCOLOR2>Interface to application specific module extensions like the <A HREF="mbhp_sid.html">SID module</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J11</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>MIDI digital IO port, interface to the <A HREF="mbhp_ltc.html">LED/Thru/COM module</A>. Can also be used to cascade multiple core modules in a long MIDI chain (see <A HREF="midibox_link.html">MIDIbox Link</A>). <B>Note:</B> Don't plug the optocoupler (IC2, 6N138) into the socket when using the J11:MI (MIDI-IN) pin as an input, otherwise the Rx input will get the data from two different sources, which is not provided by the MIDI protocol (point-to-point). A <A HREF="midimerger.html">MIDImerger</A> is necessary to combine multiple MIDI IN sources.<BR>In other words: when using the <A HREF="mbhp_ltc.html">COM module</A> or when connecting the J11:MO of one core module to J11:MI of another core module, or when connecting the core module directly with the <A HREF="mbhp/mbhp_midi_gameport.gif">Gameport</A>, the optocoupler of the other module should not be plugged into the socket to avoid a corrupted MIDI data stream.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J12</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>MIDI OUT port. See the schematic, how to connect a MIDI socket to this port.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J13</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>MIDI IN port. See the schematic, how to connect a MIDI socket to this port.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J14</TD>
+      <TD CLASS=TABCOLOR2>1</TD>
+      <TD CLASS=TABCOLOR2>used by <A HREF="mios.html">MIOS</A> as touch sensor strobe line. Sometimes also used for debugging purposes.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J15</TD>
+      <TD CLASS=TABCOLOR2>16</TD>
+      <TD CLASS=TABCOLOR2>Interface to a <A HREF="mbhp_lcd.html">LC display module</A>.</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Used Components </H2></DT>
+   <DD>
+<P CLASS=DESC>Here a list of the used components. A complete orderlist for <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> can be found <A HREF="mbhp/mbhp_core_orderlist.txt">here</A>, Mouser partlist for the US: see <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Website</A>, if you have a orderlist for a distributor on your country, feel free publish it on this page!</P>
+
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Value</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>IC1</TD>
+      <TD CLASS=TABCOLOR2>PIC18F452 (or PIC18F4620 or PIC18F4685)</TD>
+      <TD CLASS=TABCOLOR2>The PIC microcontroller, which is running under <A HREF="mios.html">MIOS</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>C1, C2, Q1</TD>
+      <TD CLASS=TABCOLOR2>2*33pF<BR>10 MHz for PIC18F* derivatives</TD>
+      <TD CLASS=TABCOLOR2>The resonant circuit for the internal oscillator of the PIC. <B>Note:</B> a 10 MHz crystal with <I>parallel cut</I> has to be used. There are also crystals for serial resonant circuits available (mostly used in radio applications) which will not deliver the correct frequency in connection with the PIC oscillator.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R1</TD>
+      <TD CLASS=TABCOLOR2>100</TD>
+      <TD CLASS=TABCOLOR2>This resistor connects the low-active reset input of the PIC (MCLR#) with +5V. During power-on, a "slow" flank on this input guarantees that the PIC will be reset correctly. You can plug a Reset button to the PIC if you want, this button has to be connected between the MCLR#-Pin and Vss (ground). In this case, the resistor avoids a short during reset.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R2, R12</TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2>These 1k Resistors to +5V (Pull-Up) are necessary for the IIC interface. Without this resistor the MIDIbox could hang up, frequently reset or send invalid MIDI data once it tries to access an IIC device - therefore please never omit these parts!</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R3</TD>
+      <TD CLASS=TABCOLOR2>10k</TD>
+      <TD CLASS=TABCOLOR2>not really necessary ,-)</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>T1</TD>
+      <TD CLASS=TABCOLOR2>BC337</TD>
+      <TD CLASS=TABCOLOR2>controls the current through the LCD backlight</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R4</TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2>protects the base of the BC337 from high currents.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>P1</TD>
+      <TD CLASS=TABCOLOR2>10k</TD>
+      <TD CLASS=TABCOLOR2>With this trimmpot the backlight luminance can be controlled.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>P2</TD>
+      <TD CLASS=TABCOLOR2>10k</TD>
+      <TD CLASS=TABCOLOR2>This trimmpot controlls the LCD contrast</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>IC2</TD>
+      <TD CLASS=TABCOLOR2>6N138</TD>
+      <TD CLASS=TABCOLOR2>Every MIDI device comes with such an optocoupler which isolates the MIDI Input from the device on the other side, just to avoid any damage.<BR>For the case that you don't find a 6N138, you can also use a 6N139 (it's pin compatible). Also the 6N136 has been sucessfully tested, but it requires a <A HREF="mbhp/mbhp_core_6n136_variant.jpg">modification</A> in the circuit (thanks Arto for testing!)</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R5, R6</TD>
+      <TD CLASS=TABCOLOR2>5.6k, 1.2k</TD>
+      <TD CLASS=TABCOLOR2>Pull-Ups/Downs for the optocoupler, values suggested by Bjorn Julin.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>D1</TD>
+      <TD CLASS=TABCOLOR2>1N4148</TD>
+      <TD CLASS=TABCOLOR2>Protection diode for the MIDI Input which avoids damage on the optocoupler if the MIDI In pins are swapped by fault.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R7, R8, R11</TD>
+      <TD CLASS=TABCOLOR2>220</TD>
+      <TD CLASS=TABCOLOR2>protection resistors for the MIDI ports, they limits the current if the MIDI ports are shortened by fault.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R9, R10</TD>
+      <TD CLASS=TABCOLOR2>10k</TD>
+      <TD CLASS=TABCOLOR2>Pull-Ups for digital inputs, they ensure defined signals if the <A HREF="mbhp_din.html">DIN modules</A> are not connected.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>IC3</TD>
+      <TD CLASS=TABCOLOR2>7805</TD>
+      <TD CLASS=TABCOLOR2>A voltage regulator which regulates the incoming voltage to clean 5V independent from the current load and temperature. It allows over 1.0A load current if adequate heat sinking is provided, without heater up to 500mA are ok.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>C5, C6</TD>
+      <TD CLASS=TABCOLOR2>2200uF, 330nF</TD>
+      <TD CLASS=TABCOLOR2>For ripple rejection on the input side of the regulator.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>C3, C4</TD>
+      <TD CLASS=TABCOLOR2>10uF, 100nF</TD>
+      <TD CLASS=TABCOLOR2>For ripple rejection on the circuit side.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>C7, C8</TD>
+      <TD CLASS=TABCOLOR2>100nF</TD>
+      <TD CLASS=TABCOLOR2>The additional bypass caps have to be placed on the bottom side of the PCB, as close to the power pins of the PIC as possible.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>X1</TD>
+      <TD CLASS=TABCOLOR2>B40C800</TD>
+      <TD CLASS=TABCOLOR2>A bridge rectifier for 40V/800mA in a round package. Normaly such a rectifier is only necessary if the board is supplied with AC, but it is recommented to use it also with DC in order to prevent damage if the power lines are twisted. Optionally this rectifier can be replaced by 4 1N4001 diodes like shown in the circuit diagram.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J*</TD>
+      <TD CLASS=TABCOLOR2>*</TD>
+      <TD CLASS=TABCOLOR2>All connectors are optional, the cables can also be soldered directly into the board. Otherwise I suggest SIL headers (header sockets), known from PC motherboards. They are cheap and usefull.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>DIL</TD>
+      <TD CLASS=TABCOLOR2>SOCKETS</TD>
+      <TD CLASS=TABCOLOR2>Don't forget to buy sockets for the PIC and the optocoupler. The PIC requires a 40 pin DIL socket, the optocoupler a 8 pin DIL socket.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>MIDI</TD>
+      <TD CLASS=TABCOLOR2>SOCKETS</TD>
+      <TD CLASS=TABCOLOR2>2 MIDI sockets are required for MIDI In/Out.</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_v3_1.jpg" WIDTH=280 HEIGHT=358 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Start with soldering the 4 bridges which save you from creating a 2-layer board. You can use the cutted legs of caps and resistors, before you throw them away after you finished all the modules! :-)<BR>The 1k resistor R12 should also be soldered very early, because it will be covered by the 40 pin socket later.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_v3_2.jpg" WIDTH=280 HEIGHT=366 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Start with mounting the parts.<BR>Please keep in mind, that for the electrolytic caps C5 and C4, for the diode D1, for the transistor T1 and for the two ICs (PIC and optocoupler) you have to take the polarity into account. If you are unsure, just compare the schematic, or open the .brd file with Eagle.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_v3_3.jpg" WIDTH=280 HEIGHT=341 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>The 7805 can be bended a little like shown at this picture. This is required, if you are using a DIL plug for the LCD socket J8</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_v3_4.jpg" WIDTH=280 HEIGHT=353 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Two isolated cables have to be added at the bottom of the PCB (see also <A HREF="mbhp/mbhp_core_v3.gif">quickview</A>). They are only required by special modules (e.g. IIC devices, SID module). So long you are sure, that the uploaded programs will never access such devices, then you can left these bridges out.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_v3_5.jpg" WIDTH=280 HEIGHT=288 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Apply power to the module after all parts except the PIC and the optocoupler are mounted. Check the voltage levels between the most important pins with a multimeter (analog or digital doesn't matter) before plugging the PIC and the 6N138 into the socket:<BR>
+IC1:MCLR(1) - IC1:Vss(12) = 5V<BR>
+IC1:Vdd(11) - IC1:Vss(12) = 5V<BR>
+IC1:Vdd(32) - IC1:Vss(31) = 5V<BR>
+IC2(8) - IC2:(5) = 5V</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_v3_6.jpg" WIDTH=280 HEIGHT=363 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>A picture of a finished board - you will notice some differences between this and the other core modules at my website, this is because I've built a lot of variations in the meantime.<BR>The picture shows the latest version.<BR>
+      The next step is to <A HREF="mios_bootstrap.html">upload MIOS</A>, and if this doesn't work, to <A HREF="howto_debug_midi.html">troubleshoot your MIDI connections</A>.</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Cable Soldering Addendum (due to requests)</H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/cable_soldering1.jpg" WIDTH=320 HEIGHT=250 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>first cut the cable ends with a cutter</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/cable_soldering2.jpg" WIDTH=320 HEIGHT=250 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>the cable ends should be tinned to ensure proper junctions</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/cable_soldering3.jpg" WIDTH=320 HEIGHT=250 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>also the connectors should be tinned</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/cable_soldering4.jpg" WIDTH=320 HEIGHT=250 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2> now you can solder the cables to the connectors very easily without additional tin</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+FOOTER

@@ -1,0 +1,53 @@
+HEADER 3 Short JSynthLib Guide
+
+<H1>A short JSynthLib Guide</H1>
+
+<P CLASS=INFO><A HREF="http://www.jsynthlib.org" TARGET="_blank">JSynthLib</A> is an Open Source Universal Synthesizer Patch Editor / Librarian written in the Java Language. Beside a bunch of commercial synths, it provides an editor for <A HREF="midibox_sid.html">MIDIbox SID</A> and <A HREF="midibox_fm.html">MIDIbox FM</A>, which gives you access to all sound parameters and the wavetable sequencer. Since the official beta release of JSynthLib as well as the MIDI API of Java v1.5 has some flaws, I created this short guide in order to describe the required steps to setup JSynthLib for a MIDIbox properly.</P>
+
+<H2>Java installation</H2>
+
+<P CLASS=DESC>The latest release is Java V1.5.0_06, which is called "J2SE 5.0" at the sun website. The runtime environment (JRE) can be downloaded from <A HREF="http://java.sun.com" TARGET="_blank">java.sun.com</A>. Here a <A HREF="http://java.sun.com/j2se/1.5.0/download.jsp" TARGET="_blank">direct link</A>. Note that the development kit (JDK) is only required, if you are planning to (re)compile java sources. So long you only want to use precompiled java programs, then the JRE package is all you need.</P>
+
+<H2>JSynthLib installation</H2>
+
+<P CLASS=DESC>The JSynthLib release consists of a single .jar package, which can be started by double-clicking on it. From the command shell (e.g. Linux) it can be started with "java -jar &lt;filename&gt;".</P>
+
+<P CLASS=INFO>Unfortunately the official 0.20-beta release at the <A HREF="http://www.jsynthlib.org" TARGET="_blank">JSynthLib Website</A> has a bug in the synthdriver of MIDIbox SID, which prevents you from uploading patches correctly. Since updates are very rare, I provide a snapshot release from the CVS here:</P>
+<P CLASS=DESC> --&gt; <A HREF="http://www.midibox.org/jsynthlib/JSynthLib-Snapshot-2006-01-28.jar.zip">JSynthLib-Snapshot-2006-01-28.jar.zip</A></P>
+
+<P CLASS=DESC>Note that I've tested this snapshot with MBSID and MBFM only, I cannot guarantee that the remaining synth drivers are working!</P>
+
+<H2>Selecting MIDIbox SID/FM driver</H2>
+
+<P CLASS=DESC>If JSynthLib has been started the first time, the MIDI interface and required synth drivers have to be selected. Go to Window->Preferences->MIDI, and select the MIDI In/Out port, to which one of your synths is connected:</BR>
+<IMG SRC="howto_jsynthlib/jsynthlib-midi.gif" WIDTH=666 HEIGHT=333></IMG><BR>
+(<I>The reason why I've choosen "MIDI Yoke" as output port is described below</I>)</P>
+
+<P CLASS=DESC>Go to the "Synth Driver" tab, click on "Add Device..." and search for "MIDIbox SID" and "MIDIbox FM":<BR>
+<IMG SRC="howto_jsynthlib/jsynthlib-driver.gif" WIDTH=600 HEIGHT=309></IMG></P>
+
+<H2>Editing a Patch</H2>
+
+<P CLASS=DESC>Now you can either create a new patch library, or you can load an existing one, like the presets which can be downloaded from the <A HREF="midibox_sid.html">MIDIbox SID</A> and <A HREF="midibox_fm.html">MIDIbox FM</A> page.</P>
+
+<P CLASS=DESC>By double-clicking on an bank entry, the whole bank will be transfered to the MIDIbox (BankStick required!). You can edit individual patches by right-clicking on the bank:<BR>
+<IMG SRC="howto_jsynthlib/jsynthlib-edit-bank.gif" WIDTH=650 HEIGHT=364></IMG></P>
+
+<P CLASS=DESC>A patch can be edit by right-clicking on the appr. entry:<BR>
+<IMG SRC="howto_jsynthlib/jsynthlib-edit-patch.gif" WIDTH=644 HEIGHT=618></IMG></P>
+
+<H2>Java MIDI Bug</H2>
+
+<P CLASS=DESC>With Java 1.5, Sun introduced an improved support for MIDI interfaces. It works very well with common MIDI events, but has some problems with SysEx strings: once a SysEx string is sent, which is shorter then the previous strings, additional bytes will be appended. Example: if a MIDIbox SID patch is sent, which consists of 262 bytes, and thereafter a sound parameter change is sent by the editor (11 bytes), 262 bytes will be sent again - the 11 new bytes at the beginning, and the remaining 251 bytes of the previous SysEx message at the end. This not only increases the latency of parameter changes, but also violates the MIDI protocol.</P>
+
+<P CLASS=DESC>This effect has been observed under Windows XP with different MIDI interfaces. It doesn't happen on Linux and Mac OSX. It's not related to JSynthLib itself, since other Java MIDI programs behave similar. In 2004, I wrote a short program which reproduces the bug, and issued it into the error data base. The ticket vanished after some months - so it seems, that Sun doesn't take care about such flaws...</P>
+
+<P CLASS=DESC>However, there is cure: by sending all SysEx strings through a virtual loopback device like "MIDI Yoke", and forwarding it to the output of the MIDI interface, the additional bytes will be eliminated.</P>
+
+<P CLASS=DESC>MIDI Yoke can be downloaded from the <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-Ox</A> website. The monitor is required as well in order to forward the MIDI stream. Once installed, you need to setup the port routing like shown below:<BR>
+<IMG SRC="howto_jsynthlib/midiox-loopback_small.gif" WIDTH=600 HEIGHT=358></IMG></P>
+
+<P CLASS=DESC>Btw.: this solution also helps, if your MIDI interface is not multi client capable (if only one program can access the MIDI port). Just send the MIDI data to the MIDI Yoke port instead.</P>
+
+FOOTER
+

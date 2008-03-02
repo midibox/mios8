@@ -1,0 +1,79 @@
+HEADER 3 MBHP BankStick
+
+<h1>Plataforma de Hardware MIDIbox, BankStick</h1>
+
+<p></p><center><img src="mbhp/mbhp_bankstick.jpg" height="188" width="442"></center><p></p>
+
+<p class="INFO">MIDIbox64, MIDIbox64SEQ, MIDIbox16E y MIDIbox SID son
+los primeros controladores MIDI en todo el mundo en incluir un
+dispositivo de almacenamiento de bancos intercambiable, de
+conexi&oacute;n y reproducci&oacute;n r&aacute;pidas: el <b>BankStick</b>.
+Si encuentras controladores comerciales con las mismas
+caracter&iacute;sticas en los pr&oacute;ximos a&ntilde;os, ya sabes de
+d&oacute;nde vino la idea :-)</p>
+
+<p class="DESC">Cada BankStick es capaz de almacenar16 (MIDIbox64) o 32
+(MIDIbox16E) o 128 (MIDIbox64SEQ, MIDIbox SID y MIDIbox FM)
+configuraciones diferentes. Desde que se utiliza el standard 32kb IIC
+EEPROM, estas peque&ntilde;as cositas son realmente baratas (alrededor
+de 2-3 EUR). Necesitas un stick para Reaktor, uno para Logic (o
+Cubase/Cakewalk/Sonar/Ableton desde luego), alguno de tus
+sintetizadores, etc... :).</p>
+
+<p class="DESC">Aqu&iacute; est&aacute; el diagrama del circuito simple para un BankStick:</p>
+
+<p></p><center><img src="mbhp/mbhp_bankstick.gif" height="233" width="554"></center><p></p>
+
+<p class="DESC">Lemonhorse escribi&oacute; un&nbsp; <a href="http://www.subfrequenz.net/techlog/mbox64b.htm" target="_blank">reporte</a>
+sobre un interruptor mec&aacute;nico para m&uacute;ltiples BankSticks,
+integrado en una MIDIbox. Este interruptor es &uacute;til para
+MIDIboxes basadas en el PIC16F que no soportan la selecci&oacute;n de
+EEPROM basada en software.</p>
+
+<p class="DESC"><b>Disponibilidad del 24LC256 de Microchip y 24C256 de Atmel:</b><br>
+   </p><ul>
+      <li><i>24C256</i>, Parte #ST 24C256 BN6 en <a href="http://www.reichelt.de" target="_blank">Reichelt</a>
+por 2.10 &euro; (el n&uacute;mero de parte implica que esto es un
+EEPROM de ST, pero desde el 2004 env&iacute;an un dispositivo Atmel con
+entradas CS (selecci&oacute;n de chip)</li>
+      <li><i>24LC256-I/P</i>, Parte #150234-14 en <a href="http://www.conrad.com" target="_blank">Conrad</a> por alrededor de 2.80 &euro;</li>
+      <li><i>24LC256-E/P-ND</i> en <a href="http://www.digikey.com" target="_blank">Digikey</a> por unos US $2.40</li>
+      <li><i>579-24LC256-I/P</i> en <a href="http://www.mouser.com" target="_blank">Mouser</a> por unos US $1.70</li>
+   </ul>
+<p></p>
+
+<p class="DESC">Alternativamente se puede usar una EEPROM <i>M24256 de</i>
+ST&nbsp;, pero recuerda que este dispositivo no dota de las entradas de
+selecci&oacute;n de chip que le hacen falta a MIOS para direccionar uno
+de los ocho BankSticks. &iexcl;La direcci&oacute;n del M24256 se fija
+en 0!</p>
+
+<p class="DESC">Recuerda tambi&eacute;n que el <i>Atmel 24C256</i> solo
+tiene dos entradas de selecci&oacute;n de chip (A0 and A1) lo que
+limita el n&uacute;mero m&aacute;ximo a&nbsp; 4. Parece que solo los
+derivados de Microchip tienen 3 selectores de chip.</p>
+
+<p class="DESC">El concepto de BankStick tambi&eacute;n se ha integrado en&nbsp; <a href="mios.html">MIOS</a>.
+Est&aacute;n disponibles numerosas funciones de sistema para lectura y
+escritura (MIOS_BANKSTICK_*), para que puedas usar la EEPROM como
+memoria externa no vol&aacute;til para tus propias aplicaciones. Usando
+los pines de direcci&oacute;n A0-A2, se pueden a&ntilde;adir hasta 8
+chips al bus IIC (J4 del m&oacute;dulo Core). De esta manera el
+tama&ntilde;o m&aacute;ximo de memoria disponible es 8*32kb = 256kb.
+Los tiempos de acceso: lee - sobre 100 uS, escribe - alrededor de 10
+ms, escritura de p&aacute;gina (64 byte a la vez) - alrededor de 10 ms.</p>
+
+<p></p><center><img src="mbhp/mbhp_multi_bankstick.gif" height="257" width="550"></center><p></p>
+
+<p class="DESC">Recuerda que puedes reemplazar el 24LC256 por un
+24LC512. Aunque a&uacute;n no haya ninguna aplicaci&oacute;n que
+soporte esta EEPROM de 64k, MIOS puede acceder al espacio completo de
+direcci&oacute;n de 16-bit. Poniendo 8 * 24LC512, hay disponibles hasta
+512k.</p>
+
+
+<p></p><center><img src="mbhp/mbhp_bankstick_pcb.jpg" height="222" width="500"></center><p></p>
+
+<p class="DESC"><a href="http://www.mikes-elektronikseite.com" target="_blank">Mike</a> ha creado un PCB para una placa de&nbsp;8 BankStick.</p>
+
+FOOTER

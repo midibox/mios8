@@ -1,0 +1,98 @@
+HEADER 3 MIOS C Example
+
+<H3>Realizing a Soft-Takeover function for pots</H3>
+
+<P CLASS=INFO>We want to prevent that pot values are "jumping" when the values are changed in the host application, and thereafter a pot is moved. This requires, that the host application sends the new pot value to the core.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>We define two arrays, one which contains the last pot values which have been sampled, and another which stores the value which has been sent by the host to the core module. This "active" value will be enhanced by a flag (bit #7), which notifies if the pot has passed this value - only if the flag is set, the new value will be sent out.</P>
+
+<TT><PRE>
+// absolute values are stored in these arrays
+unsigned char pot_last_value[64];
+unsigned char pot_active_value[64];
+</PRE></TT>
+
+<P CLASS=INFO>Within the Init() function, you have to specify, how many pots are connected to the core, and if AIN multiplexers are used:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  // initialize the AIN driver
+  MIOS_AIN_NumberSet(64);  // 64 pots are connected
+  MIOS_AIN_Muxed();        // the AINX4 modules are used
+  MIOS_AIN_DeadbandSet(7); // should be 7 when 7bit resolution is used
+}
+</PRE></TT>
+
+<P CLASS=INFO>We add the code which should store the incoming values sent from the host program to the MPROC_NotifyReceivedEvnt() hook:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  // if CC#0..CC#63 has been received at MIDI channel 1, store new active value
+  if( evnt0 == 0xb0 && evnt1 <= 63 ) {
+    pot_active_value[evnt1] = evnt2; // this clears also the "overtake" flag, bit 7
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>We add the code which should be executed on pot movements to the AIN_NotifyChange() function:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a pot has been moved
+/////////////////////////////////////////////////////////////////////////////
+void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
+{
+  // get last, new and active 7bit value
+  unsigned char last_value   = pot_last_value[pin];
+  unsigned char new_value    = MIOS_AIN_Pin7bitGet(pin);
+  unsigned char active_value = pot_active_value[pin];
+
+  // check if "overtake" flag is set
+  if( active_value & 0x80 ) {
+    // in this case we copy the new value to the active value variable
+    // and we set the "overtake" flag
+    active_value = new_value | 0x80;
+  } else {
+    // overtake flag is not set, branch depending on direction
+    if( new_value > last_value ) {
+      // pot has been turned clockwise
+      // set "overtake" flag if active value has been passed
+      if( last_value < (active_value&0x7f) && new_value >= (active_value&0x7f) )
+        active_value = new_value | 0x80;
+    } else {
+      // pot has been turned anti-clockwise
+      // set "overtake" flag if active value has been passed
+      if( last_value > (active_value&0x7f) && new_value <= (active_value&0x7f) )
+        active_value = new_value | 0x80;
+    }
+  }
+
+  // store new active and "last" value in array
+  pot_last_value[pin]   = new_value;
+  pot_active_value[pin] = active_value;
+
+  // send MIDI event if "overtake" flag is set
+  if( active_value & 0x80 ) {
+    MIOS_MIDI_TxBufferPut(0xb0); // CC at channel 1
+    MIOS_MIDI_TxBufferPut(pin);  // pin number corresponds to CC number
+    MIOS_MIDI_TxBufferPut(active_value & 0x7f);
+  }
+}
+</PRE></TT>
+
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

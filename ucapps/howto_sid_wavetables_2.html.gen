@@ -1,0 +1,202 @@
+HEADER 3 Wavetable Sounds Tutorial #2
+
+<H1>Wavetable Sounds Tutorial #2</H1>
+
+<P CLASS=INFO><B>WARNING:</B> This tutorial describes features of MIDIbox SID V1 - they are partly handled on a different way in MIDIbox SID V2. More details can be found in the <A HREF="midibox_sid_manual.html">MBSID V2 User Manual</A>.</P>
+
+<P CLASS=INFO>This tutorial gives some inspirations for using the Wavetable sequencer of <A HREF="midibox_sid.html">MIDIbox SID</A> to modulate sound parameters. All patches which are discussed below can either be entered with the JSynthLib based editor, or directly from the Control Surface. The ready made patches can be downloaded from <A HREF="midibox_sid/tutor2_patches_v1.zip" TARGET="_blank">this location</A>.</P>
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_trancegate.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Trancegate</B><BR>
+The "Trancegate" effect is mostly used with long poly pads and a delay Fx. It rhytmically gates the audio output with a voltage/digitally controlable amplifier or filter. The DCA of the SID chip is not suitable for a trancegate, because once the sustain level has been lowered, it cannot be increased anymore. We will modulate the filter cutoff frequency instead.<BR>
+<UL CLASS=CL>
+  <LI>create a new patch, enable Poly Mode, set Saw wave for all three oscillators.</LI>
+  <LI>enable the lowpass (LP) filter for all three oscillators.</LI>
+  <LI>assign track 1 of the Wavetable to CC#46 (Filter CutOff Frequency)
+  <LI>adjust the Wavetable Rate to 94 and enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1
+00   Play   60
+01   Play   08
+02   Play   60
+03   Play   08
+04   Play   60
+05   Play   60
+06   Play   60
+07   Play   08
+08   Goto   00
+</PRE></TT></LI>
+  <LI>now play some chords. In the MP3 you will hear the SID "dry" without effects for the first 13 seconds, thereafter a delay Fx is inserted, a bass is added to the off-beat position, and some drums are played.</LI>
+  <LI>In order to get the trancegate properly in-synch with the drums, I recomment the use of the MIDI clock synchronization feature. Once enabled, set the Wavetable Rate to 126 (sequencer stepped with each quarter note).</LI>
+</UL>
+  </TD></TR>
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_dropdown.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Dropdown</B><BR>
+Let's do some cheap computer game effects:
+<UL CLASS=CL>
+  <LI>select Triangle waveform on OSC1, the other two oscillators should be disabled ("off" flag)</LI>
+  <LI>configure ENV1: Depth=+63, Attack=0, Decay=82, Sustain=0, Release=0</LI>
+  <LI>set the first Wavetable track parameter to CC#105 (Voice1 Assigned Envelopes)</LI>
+  <LI>adjust the Wavetable Rate to 109 and enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1
+00   Play   01
+01   Play   00
+02   Goto   00
+</TT></PRE></LI>
+  <LI>this sequence will toggle the ENV1 assignment of voice1 pitch each step, the result can be listened in the first part of the MP3</LI>
+</UL>
+
+  Now an effect which is a little bit more tricky:
+<UL CLASS=CL>
+  <LI>set CC#17 (Voice1 Single Transpose) for track 1 instead of the envelope assignment
+  <LI>adjust the Wavetable Rate to 98 and enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1
+00   Play   58
+01   Play  -04
+02   Play  +01
+03   Play  -02
+04   Play  +03
+05   Goto   01
+</TT></PRE></LI>
+  <LI>The loop between step 01 and 04 will decrease or increase the transpose value of voice1 - check the results in the second part of the MP3</LI>
+  </TD></TR>
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_scary.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Scary</B><BR>
+Just another cheap computer game effect which gets use of the ringmodulator. The ringmod multiplies the output of two oscillators, the resulting waveform is enriched by non-harmonic overtones. Note that it only works properly with the Triangle waveform! If the "ringmod" flag is enabled for OSC2, this oscillator will be "ringmodulated" with OSC1. The OSC3 ringmod flag enables the combination with OSC2, the OSC1 ringmod flag enables the combination with OSC3. Ringmodulation sounds interesting once the pitch frequency of one of the combined oscillators is sweeped - this can be done with the LFOs/ENVs --- or --- the Wavetable sequencer :)
+<UL CLASS=CL>
+  <LI>enable the Triangle waveform for OSC1 and OSC2, and set the "ring" flag of OSC2. Now the output of OSC2 is ringmodulated by OSC1</LI>
+  <LI>track 1 of the Wavetable sequencer should control CC#17 (Voice 1 Single Transpose)</LI>
+  <LI>adjust the Wavetable Rate to 107 and enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1
+00   Play   40
+01   Play  +02
+02   Play  -02
+03   Play  -02
+04   Play  +03
+05   Goto   01
+</TT></PRE></LI>
+  <LI>possible variation: use OSC3 in addition, enable the ringmod flag, assign Wavetable track 2 to CC#19 (Voice 3 Single Transpose) and add another sequence there.</LI>
+</UL>
+  </TD></TR>
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_guitar.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Guitar</B><BR>
+The next patch works only nice in conjunction with a guitar amp (or a simulated amp based on VST). 
+<UL CLASS=CL>
+  <LI>enable Legato mode (gate is only re-triggered when no other note is currently played) and SysKey ("fingered portamento" - similar to Legato the slide effect is only used when no other note is currently played). Portamento speed for all oscillators ca. 30</LI>
+  <LI>select the Pulse waveform for all oscillators, Pulsewidth ca. 22</LI>
+  <LI>Envelope settings: A=0, D=48, S=70, R=76</LI>
+  <LI>Filter: Bandpass (BP) for all oscillators, initial cutoff ca. 46, maximum resonance</LI>
+  <LI>ENV1 assigned to filter: Depth=+25, Attack=0, Decay=58, Sustain=0, Release=27</LI>
+  <LI>LFO1 assigned to Pulsewidth of all oscillators, LFO1 depth ca. +25</LI>
+  <LI>Wavetable track 1 assigned to CC#64 (LFO1 Rate), adjust the Wavetable Rate to 77 and enter following sequence:<BR>
+<TT><PRE>
+STEP CMD    #1
+00   Play   60
+01   Play   50
+02   Play   30
+03   Play   20
+04   End    00
+</PRE></TT>
+  This will modulate the LFO1 Rate every time the gate is triggered (a note is played while no other is active). The patch is played "dry" (without effects) the first 15 seconds, thereafter the guitar amp simulation ("Banana Electrique" ensemble of the Reaktor Library) is turned on, and some drums are played.</LI>
+</UL>
+  </TD></TR>
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_syncsaw_stereo.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>SyncSaw Stereo</B><BR>
+This is a stereo patch which can be reproduced if your MIDIbox SID is stuffed with at least two SIDs. Alternatively you can record the sound two times (the second time with a modulated Wavetable) and overdub the samples in your sequencer.<BR>
+It gets use of the sync flag - similar to the ringmod flag, OSC1 syncs OSC2, OSC2 syncs OSC3, OSC3 syncs OSC1. Sync gets interesting once the frequency of the sync target is sweeped. In this example, it will be sweeped with LFO1, the LFO depth is modulated by a Wavetable sequencer in a different way for the left and the right channels in order to achieve a stereo effect.
+<UL CLASS=CL>
+  <LI>OSC3: enable the Saw waveform and transpose by -12</LI>
+  <LI>OSC1: enable the Saw waveform and set the sync flag</LI>
+  <LI>ENV1: depth=+63, Attack=0, Decay=72, Sustain=0, Release=0</LI>
+  <LI>LFO1: Rate=24</LI>
+  <LI>Wavetable: Track1 assigned to CC#72 (LFO1 Depth), adjust the Wavetable Rate to 5 and enter following sequence:
+<TT><PRE>
+STEP CMD    #1
+00   Play   40
+01   Play  +00
+02   Play  +00
+03   Play  +00
+04   Play  +01
+05   Play  +01
+06   Play  +02
+07   Play  +02
+08   Play  +02
+09   Play  +04
+0A   Play  +04
+0B   Play  +04
+0C   End    00
+</PRE></TT>
+  This will slowly increase the LFO Depth until it reaches 20</LI>
+  <LI>For the right channel patch, replace the + by a - sign. This will decrease the depth until it reaches -20. Result: listen to the MP3
+</UL>
+  </TD></TR>
+
+  <TR><TD>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_filter_stereo.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM><B>Filter Stereo</B><BR>
+This intention of this patch is to control the filter cutoff frequency with a LFO, and to vary the LFO depth rhythmically to some drums from the left to the right, and back to the left channel.
+<UL CLASS=CL>
+  <LI>enable the Pulse waveform on OSC1-3, Pulsewidth=64</LI>
+  <LI>set transpose to -12, set finetune of OSC2 (only) to -5, and of OSC3 (only) to +5 in order to make the summed sound more "fat"</LI>
+  <LI>LFO1-3 should modulate the Pulsewidth of OSC1-3. Set all LFOs to "unsynced" (freerunning) mode, set slightly different Rates between 50..60, and Depths between -25 and +25</LI>
+  <LI>LFO4 should modulate the filter CutOff frequency. Rate: see below
+  <LI>The wavetable controls the LFO4 Depth (CC#74). Rate: see below, sequence:
+<TT><PRE>
+STEP CMD    #1
+00   Play   40
+01   Play   40
+02   Play   40
+03   Play   40
+04   Play   5C
+05   Play   40
+06   Goto   04
+</PRE></TT></LI>
+  <LI>The second patch (for the right audio channel) uses this modified sequence:
+<TT><PRE>
+STEP CMD    #1
+00   Play   40
+01   Play   40
+02   Play   40
+03   Play   40
+04   Play   40
+05   Play   5C
+06   Goto   04
+</PRE></TT></LI>
+  <LI>when you are playing a note, the patch won't sound very interesting, because it "works" only on some special ratios between the wavetable Rate, the LFO4 Rate and last but not least the BPM of the song (which plays some drums)</LI>
+  <LI>therefore enable MIDI Clock Synchronization for the Wavetable sequencer and the LFOs (your host sequencer must send a MIDI clock to MIDIbox SID).<BR>
+      Set the Wavetable rate to 126, and the LFO4 Rate to 110 - now it should sound much better, no? :)</LI>
+    <LI>In the MP3 example the patch is played with different variations:
+    <UL CLASS=CL>
+      <LI><I>0:00-0:13</I> default patch. The CutOff frequency is slowly sweeped from the Control Surface at both channels at the same time. This can be realized very easily by pressing the SID1 and SID2 button at the same time - now each parameter change affects both SIDs.</LI>
+      <LI><I>0:13-0:27</I> the same again with a drumline in background. This is to demonstrate how important it is to sync the WT/LFO rate to the BPM
+      <LI><I>0:27-0:41</I> now the Sync flag is enabled for all oscillators. If you are using the Control Surface, ensure that all three oscillators are selected (OSC menu, first item), if in addition both SIDs are selected, you can switch to Sync flag for all six oscillators with a single push on the Sync/Ring button</LI>
+      <LI><I>0:41-0:54</I> here the filter type is changed from Bandpass to Highpass</LI>
+      <LI><I>0:55-1:08</I> back to the Bandpass filter (BP), the LFO4 rate of a single (!) SID is changed from 110 to 89 - this results into a new rhythmic pattern.</LI>
+    </UL>
+  </UL>
+  </TD></TR>
+
+</TABLE>
+
+
+<H2>Related Links</H2>
+
+<UL CLASS=CL>
+  <LI><A HREF="midibox_sid/tutor2_patches_v1.zip">tutor2_patches_v1.zip</A></LI>
+</UL>
+
+FOOTER

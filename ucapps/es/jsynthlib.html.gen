@@ -1,0 +1,124 @@
+HEADER 3 Short JSynthLib Guide
+
+<h1>Una gu&iacute;a corta de JSynthLib</h1>
+<p class="INFO"><a href="http://www.jsynthlib.org/" target="_blank">JSynthLib</a>
+es un Editor de Parches/ Librer&iacute;as para Sintetizador, de
+C&oacute;digo Abierto, escrito en lenguaje Java. A diferencia de un
+mont&oacute;n de sintes comerciales, est&aacute; dotado de un
+editor
+para <a href="../midibox_sid.html">MIDIbox
+SID</a> y <a href="../midibox_fm.html">MIDIbox
+FM</a>,
+que te da acceso a todos los par&aacute;metros de sonido y al
+secuenciador Wavetable. Dado que la versi&oacute;n Beta oficial de
+JSynthLib, as&iacute; como el MIDI API de Java v1.5, tienen algunos
+defectos, he creado esta gu&iacute;a reducida para describir los
+pasos
+requeridos para la correcta instalaci&oacute;n y
+configuraci&oacute;n
+de JSynthLib para una MIDIbox..</p><h2>Instalaci&oacute;n
+de Java</h2>
+<p class="DESC">La &uacute;ltima versi&oacute;n
+es&nbsp;Java V1.5.0_06,
+que se llama "J2SE 5.0" en la web de Sun. El runtime environment (JRE)
+&nbsp;se puede descargar de&nbsp;<a href="http://java.sun.com/" target="_blank">java.sun.com</a>.
+Aqu&iacute; un enlace&nbsp;<a href="http://java.sun.com/j2se/1.5.0/download.jsp" target="_blank">directo</a>.
+Recuerda que el kit de desarrollo&nbsp;(JDK) solo hace falta si
+planeas
+(re)compilar fuentes Java&nbsp;. Mientras solo quieras usar
+programas
+java pre-compilados, solo necesitar&aacute;s el paquete JRE.</p><h2>Instalaci&oacute;n
+de JSynthLib</h2>
+<p class="DESC">La versi&oacute;n de JSynthLib
+consiste en un
+s&oacute;lo paquete .jar que puede ser iniciado haciendo doble clic
+sobre &eacute;l, desde la ventana de comandos(por ej. Linux) se
+puede
+iniciar con&nbsp;"java -jar &lt;nombredearchivo&gt;".</p>
+<p class="INFO">Desafortunadamente, la versi&oacute;n
+oficial 0.20-beta de la&nbsp;<a href="http://www.jsynthlib.org/" target="_blank">P&aacute;gina web de JSynthLib</a>
+tiene un error en el synthdriver de MIDIbox SID, que no te
+dejar&aacute; cargar los parches correctamente. Dado que las
+actualizaciones son muy poco frecuentes, os doy una versi&oacute;n
+de
+evaluaci&oacute;n del CVS aqu&iacute;:</p>
+<p class="DESC"> --&gt; <a href="http://www.midibox.org/jsynthlib/JSynthLib-Snapshot-2006-01-28.jar.zip">JSynthLib-Snapshot-2006-01-28.jar.zip</a></p>
+<p class="DESC">Recordad que solo he probado esto con
+MBSID y MBFM,
+&iexcl;No puedo garantizar que los drivers de sintetizador que
+queden
+sigan funcionando!</p><h2>Seleccionando el controlador
+MIDIbox SID/FM</h2>
+Si JSynthLib ha sido iniciado por primera vez, deben
+seleccionarse la interfaz MIDI y los controladores de sintetizador. Ve
+a&nbsp;Window-&gt;Preferences-&gt;MIDI, y selecciona el
+puerto MIDI
+In/Out al que est&eacute; conectado uno de tus sintetizadores.:<br><p class="DESC">
+<img src="howto_jsynthlib/jsynthlib-midi.gif" height="333" width="666">&nbsp;<br>(<i>La
+raz&oacute;n por la que he elegido "MIDI Yoke" como puerto de
+salida, se describe abajo</i>)&nbsp;</p><p class="DESC">Ve a la pesta&ntilde;a "Synth Driver",
+pulsa
+sobre&nbsp;"Add Device..."(a&ntilde;adir dispositivo) y
+busca"MIDIbox
+SID" y "MIDIbox FM":<br>
+<img src="howto_jsynthlib/jsynthlib-driver.gif" height="309" width="600"></p><h2>Editando un parche</h2>
+<p class="DESC">Ahora puedes crear una librer&iacute;a
+de parches, o
+puedes cargar una ya existente, como las pre-configuraciones que pueden
+ser descargadas de la p&aacute;gina de <a href="../midibox_sid.html">MIDIbox
+SID</a> y <a href="../midibox_fm.html">MIDIbox
+FM</a>.</p>
+Haciendo doble clic sobre una entrada del banco, todo
+el banco ser&aacute; transferido a la MIDIbox (&iexcl;necesario
+BankStick!). Puedes editar parches individuales pulsando con
+bot&oacute;n derecho sobre el banco:<br><p class="DESC">
+<img src="howto_jsynthlib/jsynthlib-edit-bank.gif" height="364" width="650"></p><p class="DESC">Se
+puede editar un parche haciendo clic-derecho sobre la entrada apropiada:<br>
+<img src="howto_jsynthlib/jsynthlib-edit-patch.gif" height="618" width="644"></p><h2>Error
+Java MIDI&nbsp;</h2>
+<p class="DESC">Con Java 1.5, Sun ha introducido un
+soporte mejorado
+para interfaces MID. Funciona muy bien con eventos MIDI comunes, pero
+tiene algunos problemas con las secuencias SysEx: una vez se ha mandado
+una secuencia SysEx m&aacute;s corta que las secuencias previas, se
+a&ntilde;adir&aacute;n bytes adicionales. Ejemplo: si se
+env&iacute;a
+un parche MIDIbox SID, aud consiste en&nbsp;262 bytes, y , por
+tanto,
+el editor env&iacute;a un cambio de valor de par&aacute;metro
+(11
+bytes), se volver&aacute;n a enviar 262 bytes - Los 11 bytes nuevos
+al
+principio, y los siguientes 251 bytes que quedan del mensaje SysEx
+previo, al final. Esto no solo incrementa la latencia de cambios de
+par&aacute;metro, sin oque adem&aacute;s viola el protocolo
+MIDI.</p>
+<p class="DESC">Este efecto se ha observado en Windows XP
+con
+diferentes interfaces MIDI. No ocurre en Linux ni en Mac OSX.
+&nbsp;Tampoco est&aacute; relacionado con JSynthLib en
+s&iacute; mismo,
+ya que otros programas MIDI Java se comportan de forma similar. En
+2004, escrib&iacute; un programa corto que reproduce el error y lo
+introduje en su base de datos de errores. El ticket de consulta
+desapareci&oacute; pasados unos meses- as&iacute; que parece
+que a Sun
+no le importan ese tipo de errores...</p>
+<p class="DESC">En cualquier caso, existe una cura :
+Mandando todas las
+secuencias SysEx a trav&eacute;s de un dispositivo virtual loopback
+como "MIDI Yoke" y redirigi&eacute;ndolo hacia la salida de la
+interfaz
+MIDI, eliminar&aacute; los bytes adicionales.</p>
+Puedes descargar MIDI de la web de <a href="http://www.midiox.com/" target="_blank">MIDI-Ox</a>&nbsp;.
+El monitor tambi&eacute;n hace falta para transmitir el flujo MIDI.
+Una
+vez instalado, tienes que configurar el enrutamiento de puertos como se
+muestra debajo:<br><p class="DESC">
+<img src="howto_jsynthlib/midiox-loopback_small.gif" height="358" width="600"></p><p class="DESC">Nota.:
+esta soluci&oacute;n tambi&eacute;n ayuda, si tu
+interfaz MIDI no soporta multi cliente (Si solo un programa puede
+acceder al puerto MIDI). Solo tienes que enviar los datos MIDI al
+puerto MIDI Yoke.</p>
+
+FOOTER

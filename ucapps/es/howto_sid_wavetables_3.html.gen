@@ -1,0 +1,142 @@
+HEADER 3 Wavetable Sounds Tutorial #3
+
+<h1>Tutorial de Sonidos Wavetable #3</h1>
+
+<p class="INFO">Esta sesi&oacute;n del tutorial se centra en las texturas de arpegiador hechas con el secuenciador de <a href="midibox_sid.html">MIDIbox SID</a>.
+Tambi&eacute;n se puede acceder a todos los parches que se discuten
+abajo a trav&eacute;s del editor basado en JSynthLib, de desde la
+Superficie de Control.. Los parches pre-fabricados se pueden descargar
+de <a href="midibox_sid/tutor3_patches_v1.zip" target="_blank">este sitio</a>.</p>
+
+<table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+
+  <tbody><tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_short_arp.mp3"#dddddd**<br>
+    <span class="NORM"><b>Short Arpeggios (Arpegios Cortos)</b><br>En
+este ejemplo, se crean los arpegios de la misma manera que las
+melod&iacute;as del viejo C64. Se usa un Wavetable para controlar la
+forma de onda y el valor transpose de una o las tres voces. Se
+reproduce el wavetable con una tasa alta. Tambi&eacute;n se conoce este
+m&eacute;todo como "broken chords" (acordes rotos) - las notas de un
+acorde se reproducen tan deprisa, que uno podr&iacute;a pensar que se
+reproducen simultaneamente.
+<ul class="CL">
+  <li>crea un nuevo parche, establece la onda Pulse para los tres osciladores.</li>
+  <li>Asigna LFO1 al Pulsewidth de la Voz 1, LFO2 a&nbsp;<span class="NORM">Voz 2</span> PW&nbsp;, LFO3 a&nbsp;<span class="NORM">Voice 3</span> PW&nbsp; - Depth ca. +/- 8 (var&iacute;a entre LFOs), Rate ca. 85 (var&iacute;a entre LFOs)</li>
+  <li>asigna la pista 1 del Wavetable a CC#32 (Voces 1/2/3 Waveform)</li>
+  <li>asigna la pista 2 del Wavetable a CC#16 (Voces 1/2/3 Transpose)</li>
+  <li>Tasa
+de Wavetable: empieza con 1, se incrementa hasta 115 (lo que
+corresponde con una tasa de actualizaci&oacute;n de 50 Hz&nbsp;)</li>
+  <li>introduce la siguiente frecuencia:<br>
+<tt><pre>STEP CMD    #1   #2<br>00   Play   04   40<br>01   Play  +00   43<br>02   Play  +00   47<br>03   Play  +00   4C<br>04   Play  +00   40<br>05   Play  +00   43<br>06   Play  +00   47<br>07   Play  +00   4C<br>08   Play  +00   40<br>09   End   +00  +00  <br></pre></tt></li>
+  <li>Este
+wavetable har&aacute; rodar las notas transportadas de un acorde mayor
+exactamente dos veces, despu&eacute;s de eso la gate ser&aacute;
+liberada( el sonido parar&aacute;).</li>
+  <li>A diferencia del
+Arpeggiator, que funciona separada de la Wavetable, este m&eacute;todo
+tiene una ventaja, que s&oacute;lo se necesita pulsar una tecla del
+teclado MIDI para reproducir un arpegio. El arpegiador requiere la
+reproducci&oacute;n del acorde completo (hasta 4 teclas). Pero
+tambi&eacute;n hay una desventaja: siempre se reproduce el mismo tipo
+de acorde, por ej. no es tan f&aacute;cil pasar de acorde mayor a menor
+usando este m&eacute;todo.</li>
+  <li>Una posibilidad para saltarse esta limitaci&oacute;n es usar <a href="midibox_sid/sid_cc_implementation_chart.txt">CC#12 ("Select Wavetable Patch Number"/seleccionar n&uacute;mero de parche Wavetable)</a>.
+Puedes preparar muchos Wavetables en diferentes ranuras de parche, y
+pasar de uno a otro mientras se reproduce sin cambiar a un nuevo parche.</li>
+</ul>
+  </span></td></tr>
+
+  <tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_arp_notes.mp3"#dddddd**<br>
+    <span class="NORM"><b>Notas Arp&nbsp;</b><br>
+Una manera mucho m&aacute;s flexible para crear arpeggions, es una de
+las funciones especiales de MIDIbox SID: Se pueden reproducir notas
+directamente desde un Wavetable
+(como se reproducir&iacute;a desde un secuenciador), y no solo es
+posible reproducir y transportar secuencias de notas est&aacute;ticas (</span><span class="NORM">codigo </span><span class="NORM">hex 02-7B),
+pero los acordes tocados en un teclado tambi&eacute;n se pueden redirigir al motor de sonido(c&oacute;digo hex 7C-7F).<br>
+En el editor JSynthLib, estas notas especiales de acorde son
+tambi&eacute;n accesibles con las palabras clave "KEY1", "KEY2", "KEY3"
+y "KEY4". la Superficie de Control utiliza el mismo nombre- solo pon el
+encoder a la derecha del todo hasta que veas
+"KY1".."KY4".<br>
+El siguiente ejemplo deber&iacute;a darte un punto de partida:
+<ul class="CL">
+  <li>crea un nuevo parche, cambia de modo Mono a "WT
+Seq Only" - ahora las notas se est&aacute;n reproduciendo bajo el control directo del secuenciador WT.</li>
+  <li>asigna la pista 1 del Wavetable a CC#8 (Nota Voz 1/2/3)</li>
+  <li>asigna la pista&nbsp;2 del Wavetable a CC#16 (Nota Voz 1/2/3 Transpose)</li>
+  <li>Tasa Wavetable: 36 (despacio)</li>
+  <li>introduce la siguiente frecuencia:<br>
+<tt><pre>STEP CMD    #1   #2<br>00   Play  KEY1  40<br>01   Play  KEY2  40<br>02   Play  KEY3  40<br>03   Play  KEY1  4C<br>04   Play  KEY1  40<br>05   Play  KEY2  40<br>06   Play  KEY3  40<br>07   Play  KEY1  4C<br>08   Goto   00  +00  <br></pre></tt></li>
+  <li>solo tienes que tocar acordes diferentes en el teclado y p&aacute;salo bien&nbsp; :)</li>
+</ul>
+  </span></td></tr>
+
+  <tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_arp_notes2.mp3"#dddddd**<br>
+    <span class="NORM"><b>Notas Arp #2</b><br>En
+el ejemplo anterior, el prop&oacute;sito de los c&oacute;digos hex 00 y
+01 no se mencionaba. As&iacute; que&nbsp;: 00 (o en JSynthLib: "---")
+se usa para liberar el gate , y 01 (JSynthLib: "+++")se usa para
+sostener el gate.<br>El siguiente ejemplo va un poco m&aacute;s lejos.
+Se sincroniza la Wavetable desde un secuenciador MIDI externo para
+mantener MIDIbox SID en sincron&iacute;a con una m&aacute;quina de
+percusi&oacute;n:
+<ul class="CL">
+  <li>crea un nuevo parche, cambia desde modo Mono
+a&nbsp;"WT Seq Only" - ahora las notas reproducidas est&aacute;n bajo
+el control directo del secuenciador WT.</li>
+  <li>asigna la pista 1 del Wavetable a CC#8 (<span class="NORM">Nota </span>Voz 1/2/3)</li>
+  <li>asigna la pista 2 del Wavetable a CC#16 (Transpose Voz 1/2/3)</li>
+  <li>Tasa
+Wavetable: 123, habilita la sincronizaci&oacute;n de reloj MIDI
+(Superficie de&nbsp;Control: menu CFG, par&aacute;metro"Clk")</li>
+  <li>introducir la siguiente frecuencia:<br>
+<tt><pre>STEP CMD    #1   #2<br>00   Play  KEY1  34<br>01   Play  ---   34<br>02   Play  KEY2  34<br>03   Play  ---   34<br>04   Play  KEY1  40<br>05   Play  ---   40<br>06   Play  KEY2  40<br>07   Play  ---   40<br>08   Play  KEY1  4C<br>09   Play  ---   4C<br>0A   Play  KEY2  4C<br>0B   Play  ---   4C<br>0C   Goto   00  +00  <br></pre></tt></li>
+  <li>Inicia
+tu secuenciador MIDI (para mandar un reloj MIDI a MIDIbox SID), y pulsa
+dos notas en el teclado, o env&iacute;alas desde el secuenciador.</li>
+  <li>El divisor del reloj MIDI se puede controlar con la tasa WT, aqu&iacute; hay algunos valores t&iacute;picos:
+  <ul class="CL">
+    <li>126: 8 pasos WT = 1/4 nota</li>
+    <li>123: 8 pasos WT = 1/2 nota</li>
+    <li>117: 8 pasos WT = 1 nota</li>
+  </ul>
+</li></ul>
+  </span></td></tr>
+
+  <tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_poly_arp.mp3"#dddddd**<br>
+    <span class="NORM"><b>Arpegios Polif&oacute;nicos</b><br>Con
+el &uacute;ltimo ejemplo de esta sesi&oacute;n me gustar&iacute;a
+destacar, que las texturas polif&oacute;nicas de arpegio se pueden
+crear usando las tres pistas del secuenciador wavetable: <li>crea un nuevo parche , cambia de modo Mono a "WT Seq Only" -
+ahora las notas que reproducen est&aacute;n bajo el control directo del secuenciador WT.</li>
+  <li>usa configuraciones de sonido para las tres voces.</li>
+  <li>asigna la pista 1 del Wavetable a CC#9 (Nota Voz 1)</li>
+  <li>asigna la pista 2 del Wavetable a CC#10 (Nota Voz 2)</li>
+  <li><span class="NORM"></span>asigna la pista 3 del Wavetable a CC#11 (Nota Voz 3)</li>
+  <li>Tasa
+Wavetable: 123, habilita la sincronizaci&oacute;n de reloj MIDI
+(Superficie de Control: men&uacute; CFG menu, par&aacute;metro "Clk")</li>
+  <li>introduce la siguiente frecuencia:<br>
+<tt><pre>STEP CMD    #1   #2   #3<br>00   Play  ---  KEY2 KEY3<br>01   Play  ---  ---  --- <br>02   Play  KEY1 ---  --- <br>03   Play  ---  KEY2 KEY3<br>04   Play  ---  ---  --- <br>05   Play  ---  KEY2 KEY3<br>06   Play  KEY1 ---  --- <br>07   Play  ---  ---  --- <br>08   Goto   00  +00  <br></pre></tt></li>
+  <li>Para
+m&aacute;s inspiraciones, echa un vistazo a las configuraciones de
+parche A064-A076 de la librer&iacute;a pre-instalada de MIDIbox SID.</li>
+
+  </span></td></tr>
+
+</tbody></table>
+
+
+<h2>Enlaces Relacionados</h2>
+
+<ul class="CL">
+  <li><a href="midibox_sid/tutor3_patches_v1.zip">tutor3_patches_v1.zip</a></li>
+  <li><a href="midibox_sid.html">MIDIbox SID Page</a> - localizaci&oacute;n oficial de la librer&iacute;a</li></ul>
+
+FOOTER

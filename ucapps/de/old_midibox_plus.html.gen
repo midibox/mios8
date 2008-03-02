@@ -1,0 +1,731 @@
+HEADER 3 Low-Cost MIDI-Knobbox
+
+<A HREF="midibox_de.html">--> Genug von dem alten Zeug, zur&uuml;ck zur MIDIbox Hauptseite</A>
+
+
+<CENTER><H1>MIDIbox Plus</H1></CENTER>
+<CENTER><H3>Erstellt im Januar 2000</H3></CENTER>
+
+<P><CENTER><IMG SRC="midibox/midibox_plus_foto.jpg" width=575></CENTER></P>
+
+<P CLASS=DESC>Die MIDIbox Plus ist ein komplettes Re-Design der ersten
+MIDIbox mit besserer Hardware (PIC16F874) und neuen Funktionen:</P>
+
+<A NAME="features"></A>
+<DL>
+<DD> <IMG SRC="images/bullet.gif" ALT="">16 &uuml;bergeordnete Superlayer
+<DD> <IMG SRC="images/bullet.gif" ALT="">768 abspeicherbare Poti-Einstellungen
+<DD> <IMG SRC="images/bullet.gif" ALT="">Spezielle Layer f&uuml;r AWE/SBLive, XG, GM, Softwaresynthesizer und Mixer
+<DD> <IMG SRC="images/bullet.gif" ALT="">Optionaler Snapper and Relative Mode
+<DD> <IMG SRC="images/bullet.gif" ALT="">(simpler) MIDI Learn Mode
+<DD> <IMG SRC="images/bullet.gif" ALT="">LC-Display
+<DD> <IMG SRC="images/bullet.gif" ALT="">MIDI-Merger
+</DL>
+
+<P CLASS=DESC>Die Superlayer bieten eine weitere M&ouml;glichkeit, zwischen den Layern zu
+wechseln. Sie erweitern die MIDIbox auf insgesamt 96 Layer:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+
+<TR>
+<TD> <P CLASS=INFO>Superlayer 1-8</P> </TD>
+<TD>
+<P CLASS=DESC><B>Alle Controller von 0 bis 127, ideal f&uuml;r Softwaresynthesizer. Jeder
+Controller ist in jeweils 3 Layern vorhanden, so kann bequem zwischen verschiedenen
+Soundeinstellungen hin- und hergeschaltet werden.</B>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>Superlayer 9.1-4 und 10.1-4</P> </TD>
+<TD>
+<P CLASS=DESC><B>4 Layer AWE/Soundblaster Live</B>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>Superlayer 9.5-6 und 10.5-6</P> </TD>
+<TD>
+<P CLASS=DESC><B>2 Layer GM Synthesizer</B>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>Superlayer 11 und 12</P> </TD>
+<TD>
+<P CLASS=DESC><B>6 Layer XG Synthesizer</B>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>Superlayer 13-16</P> </TD>
+<TD>
+<P CLASS=DESC><B>6 Layer Mixer-Einstellungen (Volume, Panning, Modulation, Effekte) f&uuml;r alle 16 MIDI-Kan&auml;le</B>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>Direct Mode</P> </TD>
+<TD>
+<P CLASS=DESC><B>Mit den Potis und Buttons k&ouml;nnen NoteOn und Controller Events gesendet werden. Die Konfiguration erfolgt &uuml;ber eine MIDI Learn Funktion.</B>
+</TD>
+</TR>
+
+</TABLE>
+
+<P CLASS=DESC>Ein LC-Display sorgt f&uuml;r eine bessere &Uuml;bersicht, es kann jedoch
+auf Wunsch auch weggelassen werden, wenn daf&uuml;r kein Geld mehr &uuml;brig ist.
+Es gibt zwei Anzeigemodi: den Fader-Modus und den Value-Modus. Zwischen den beiden Modi
+kann durch Doppelklick auf einer beliebigen Layertaste umgeschaltet werden.</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+<TR>
+   <TD>
+      <P CLASS=INFO>Fader Mode</P>
+      <IMG SRC="midibox/midibox_plus_display1.jpg" width=250 height=75>
+   </TD>
+   <TD>
+      <P CLASS=INFO>Value Mode</P>
+      <IMG SRC="midibox/midibox_plus_display2.jpg" width=250 height=75>
+   </TD>
+</TR>
+</TABLE>
+
+<P CLASS=DESC>Ebenfalls integriert ist ein MIDI-Merger. Mit ihm ist es m&ouml;glich,
+weitere MIDI-Ger&auml;te an die MIDIbox anzuschliessen und deren Datenstrom mit dem
+der MIDIbox zusammenzuf&uuml;hren, was eine zweite MIDI-Schnittstelle einspart. 
+Ausserdem kann die Box auf diese Weise kaskadiert werden, falls man 16, 24, 32 oder
+mehr Regler braucht. :-)</P>
+
+<A NAME="Layers"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Die verf&uuml;gbaren Layer </H2></DT>
+   <DD>
+<P CLASS=DESC>F&uuml;r Software-Synthesizer stehen insgesamt 64 Layer zur Verf&uuml;gung, dass heisst,
+es k&ouml;nnen insgesamt 512 Einstellungen &uuml;ber die MIDIbox angesteuert werden. Die
+Controller-Nummern der einzelnen Layer sind:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>01-1, 01-3, 01-5</P></TD>
+<TD><P CLASS=SMALLDESC>$00 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$01 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$02 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$03 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$04 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$05 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$06 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$07 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>01-2, 01-4, 01-6</P></TD>
+<TD><P CLASS=SMALLDESC>$08 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$09 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$0a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$0b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$0c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$0d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$0e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$0f XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>02-1, 02-3, 02-5</P></TD>
+<TD><P CLASS=SMALLDESC>$10 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$11 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$12 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$13 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$14 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$15 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$16 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$17 XX</P></TD>
+</TR>
+
+<TD><P CLASS=SMALLDESC>02-2, 02-4, 02-6</P></TD>
+<TD><P CLASS=SMALLDESC>$18 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$19 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1f XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>03-1, 03-3, 03-5</P></TD>
+<TD><P CLASS=SMALLDESC>$20 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$21 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$22 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$23 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$24 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$25 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$26 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$27 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>03-2, 03-4, 03-6</P></TD>
+<TD><P CLASS=SMALLDESC>$28 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$29 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$2a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$2b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$2c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$2d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$2e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$2f XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>04-1, 04-3, 04-5</P></TD>
+<TD><P CLASS=SMALLDESC>$30 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$31 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$32 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$33 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$34 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$35 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$36 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$37 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>04-2, 04-4, 04-6</P></TD>
+<TD><P CLASS=SMALLDESC>$38 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$39 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$3a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$3b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$3c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$3d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$3e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$3f XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>05-1, 05-3, 05-5</P></TD>
+<TD><P CLASS=SMALLDESC>$40 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$41 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$42 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$43 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$44 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$45 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$46 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$47 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>05-2, 05-4, 05-6</P></TD>
+<TD><P CLASS=SMALLDESC>$48 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$49 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$4a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$4b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$4c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$4d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$4e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$4f XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>06-1, 06-3, 06-5</P></TD>
+<TD><P CLASS=SMALLDESC>$50 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$51 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$52 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$53 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$54 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$55 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$56 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$57 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>06-2, 06-4, 06-6</P></TD>
+<TD><P CLASS=SMALLDESC>$58 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$59 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$5a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$5b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$5c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$5d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$5e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$5f XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>07-1, 07-3, 07-5</P></TD>
+<TD><P CLASS=SMALLDESC>$60 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$61 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$62 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$63 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$64 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$65 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$66 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$67 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>07-2, 07-4, 07-6</P></TD>
+<TD><P CLASS=SMALLDESC>$68 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$69 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$6a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$6b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$6c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$6d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$6e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$6f XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>08-1, 08-3, 08-5</P></TD>
+<TD><P CLASS=SMALLDESC>$70 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$71 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$72 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$73 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$74 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$75 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$76 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$77 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>08-2, 08-4, 08-6</P></TD>
+<TD><P CLASS=SMALLDESC>$78 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$79 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$7a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$7b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$7c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$7d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$7e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$7f XX</P></TD>
+</TR>
+</TABLE>
+
+<P CLASS=DESC>Der EMU Chip l&auml;sst sich am einfachsten &uuml;ber den MIDI-Monitor (erfordert
+einen weiteren MIDI-In-Kanal zum Anspielen der Noten) oder &uuml;ber einen Sequenzer
+ansteuern. Um die wichtigsten Parameter des EMU zu erreichen, br&auml;uchte man
+eigentlich mehr als 8 Potis. Aus diesem Grund habe ich die Parameter in vier Gruppen eingeteilt,
+die im Superlayer 9 und 10 anzuw&auml;hlen sind:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>09-1, 10-1</P></TD>
+<TD><P CLASS=SMALLDESC>Volume</P></TD>
+<TD><P CLASS=SMALLDESC>Panorama</P></TD>
+<TD><P CLASS=SMALLDESC>Expression</P></TD>
+<TD><P CLASS=SMALLDESC>Modulation</P></TD>
+<TD><P CLASS=SMALLDESC>LP CutOff</P></TD>
+<TD><P CLASS=SMALLDESC>LP Reson.</P></TD>
+<TD><P CLASS=SMALLDESC>Chorus</P></TD>
+<TD><P CLASS=SMALLDESC>Reverb</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>09-2, 10-2</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1 Freq.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->Vol.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->CutOff</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2 Freq.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2->Pitch</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>09-3, 10-3</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Hold</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Decay</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Sustain</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Release</P></TD>
+<TD><P CLASS=SMALLDESC>Env1->Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>Env1->CutOff</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>09-4, 10-4</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Hold</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Decay</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Sustain</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Release</P></TD>
+<TD><P CLASS=SMALLDESC>- </P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+</TR>
+</TABLE>
+
+<P CLASS=DESC>GM-Synthesizer k&ouml;nnen mit der MIDIbox Plus im Superlayer 9 und 10 angesteuert werden:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>09-5, 10-5</P></TD>
+<TD><P CLASS=SMALLDESC>Volume</P></TD>
+<TD><P CLASS=SMALLDESC>Panorama</P></TD>
+<TD><P CLASS=SMALLDESC>Expression</P></TD>
+<TD><P CLASS=SMALLDESC>Modulation</P></TD>
+<TD><P CLASS=SMALLDESC>Portamento</P></TD>
+<TD><P CLASS=SMALLDESC>Chorus</P></TD>
+<TD><P CLASS=SMALLDESC>Reverb</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>09-6, 10-6</P></TD>
+<TD><P CLASS=SMALLDESC>Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Decay</P></TD>
+<TD><P CLASS=SMALLDESC>Release</P></TD>
+<TD><P CLASS=SMALLDESC>Vib. Delay</P></TD>
+<TD><P CLASS=SMALLDESC>Vib. Rate</P></TD>
+<TD><P CLASS=SMALLDESC>Vib. Depth</P></TD>
+<TD><P CLASS=SMALLDESC>CutOff</P></TD>
+<TD><P CLASS=SMALLDESC>Resonance</P></TD>
+</TR>
+</TABLE>
+
+<P CLASS=DESC>XG-Synthesizer k&ouml;nnen mit der MIDIbox Plus im Superlayer 11 und 12 angesteuert werden:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>11-1, 12-1</P></TD>
+<TD><P CLASS=SMALLDESC>Volume</P></TD>
+<TD><P CLASS=SMALLDESC>Panorama</P></TD>
+<TD><P CLASS=SMALLDESC>Expression</P></TD>
+<TD><P CLASS=SMALLDESC>Modulation</P></TD>
+<TD><P CLASS=SMALLDESC>Portamento</P></TD>
+<TD><P CLASS=SMALLDESC>Chorus</P></TD>
+<TD><P CLASS=SMALLDESC>Reverb</P></TD>
+<TD><P CLASS=SMALLDESC>Variation</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>11-2, 12-2</P></TD>
+<TD><P CLASS=SMALLDESC>Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Decay</P></TD>
+<TD><P CLASS=SMALLDESC>Release</P></TD>
+<TD><P CLASS=SMALLDESC>Vib. Delay</P></TD>
+<TD><P CLASS=SMALLDESC>Vib. Rate</P></TD>
+<TD><P CLASS=SMALLDESC>Vib. Depth</P></TD>
+<TD><P CLASS=SMALLDESC>CutOff</P></TD>
+<TD><P CLASS=SMALLDESC>Resonance</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>11-3, 12-3</P></TD>
+<TD><P CLASS=SMALLDESC>Pitch Init</P></TD>
+<TD><P CLASS=SMALLDESC>Pitch Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Pitch Release</P></TD>
+<TD><P CLASS=SMALLDESC>Pitch Rel. Time</P></TD>
+<TD><P CLASS=SMALLDESC>Vel. Limit Low</P></TD>
+<TD><P CLASS=SMALLDESC>Vel. Limit High</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>11-4, 12-4</P></TD>
+<TD><P CLASS=SMALLDESC>Bender Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>Filter</P></TD>
+<TD><P CLASS=SMALLDESC>Amplitude</P></TD>
+<TD><P CLASS=SMALLDESC>LFO PMOD</P></TD>
+<TD><P CLASS=SMALLDESC>FMOD Depth</P></TD>
+<TD><P CLASS=SMALLDESC>AMOD</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>11-5, 12-5</P></TD>
+<TD><P CLASS=SMALLDESC>Modul. Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>Filter</P></TD>
+<TD><P CLASS=SMALLDESC>Amplitude</P></TD>
+<TD><P CLASS=SMALLDESC>LFO PMOD</P></TD>
+<TD><P CLASS=SMALLDESC>FMOD Depth</P></TD>
+<TD><P CLASS=SMALLDESC>AMOD</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>11-6, 12-6</P></TD>
+<TD><P CLASS=SMALLDESC>PAT Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>Filter</P></TD>
+<TD><P CLASS=SMALLDESC>Amplitude</P></TD>
+<TD><P CLASS=SMALLDESC>LFO PMOD</P></TD>
+<TD><P CLASS=SMALLDESC>FMOD Depth</P></TD>
+<TD><P CLASS=SMALLDESC>AMOD</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+</TR>
+</TABLE>
+
+
+<P CLASS=DESC>&Uuml;ber Superlayer 13-16 stehen Mixer-Funktionen zur Verf&uuml;gung:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>13-1, 15-1: Volume Lo</P></TD>
+<TD><P CLASS=SMALLDESC>Chn1</P></TD>
+<TD><P CLASS=SMALLDESC>Chn2</P></TD>
+<TD><P CLASS=SMALLDESC>Chn3</P></TD>
+<TD><P CLASS=SMALLDESC>Chn4</P></TD>
+<TD><P CLASS=SMALLDESC>Chn5</P></TD>
+<TD><P CLASS=SMALLDESC>Chn6</P></TD>
+<TD><P CLASS=SMALLDESC>Chn7</P></TD>
+<TD><P CLASS=SMALLDESC>Chn8</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>14-1, 16-1: Volume Hi</P></TD>
+<TD><P CLASS=SMALLDESC>Chn9</P></TD>
+<TD><P CLASS=SMALLDESC>Chn10</P></TD>
+<TD><P CLASS=SMALLDESC>Chn11</P></TD>
+<TD><P CLASS=SMALLDESC>Chn12</P></TD>
+<TD><P CLASS=SMALLDESC>Chn13</P></TD>
+<TD><P CLASS=SMALLDESC>Chn14</P></TD>
+<TD><P CLASS=SMALLDESC>Chn15</P></TD>
+<TD><P CLASS=SMALLDESC>Chn16</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>13-2, 15-2: Panning Lo</P></TD>
+<TD><P CLASS=SMALLDESC>Chn1</P></TD>
+<TD><P CLASS=SMALLDESC>Chn2</P></TD>
+<TD><P CLASS=SMALLDESC>Chn3</P></TD>
+<TD><P CLASS=SMALLDESC>Chn4</P></TD>
+<TD><P CLASS=SMALLDESC>Chn5</P></TD>
+<TD><P CLASS=SMALLDESC>Chn6</P></TD>
+<TD><P CLASS=SMALLDESC>Chn7</P></TD>
+<TD><P CLASS=SMALLDESC>Chn8</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>14-2, 16-2: Panning Hi</P></TD>
+<TD><P CLASS=SMALLDESC>Chn9</P></TD>
+<TD><P CLASS=SMALLDESC>Chn10</P></TD>
+<TD><P CLASS=SMALLDESC>Chn11</P></TD>
+<TD><P CLASS=SMALLDESC>Chn12</P></TD>
+<TD><P CLASS=SMALLDESC>Chn13</P></TD>
+<TD><P CLASS=SMALLDESC>Chn14</P></TD>
+<TD><P CLASS=SMALLDESC>Chn15</P></TD>
+<TD><P CLASS=SMALLDESC>Chn16</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>13-3, 15-3: Modulation Lo</P></TD>
+<TD><P CLASS=SMALLDESC>Chn1</P></TD>
+<TD><P CLASS=SMALLDESC>Chn2</P></TD>
+<TD><P CLASS=SMALLDESC>Chn3</P></TD>
+<TD><P CLASS=SMALLDESC>Chn4</P></TD>
+<TD><P CLASS=SMALLDESC>Chn5</P></TD>
+<TD><P CLASS=SMALLDESC>Chn6</P></TD>
+<TD><P CLASS=SMALLDESC>Chn7</P></TD>
+<TD><P CLASS=SMALLDESC>Chn8</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>14-3, 16-3: Modulation Hi</P></TD>
+<TD><P CLASS=SMALLDESC>Chn9</P></TD>
+<TD><P CLASS=SMALLDESC>Chn10</P></TD>
+<TD><P CLASS=SMALLDESC>Chn11</P></TD>
+<TD><P CLASS=SMALLDESC>Chn12</P></TD>
+<TD><P CLASS=SMALLDESC>Chn13</P></TD>
+<TD><P CLASS=SMALLDESC>Chn14</P></TD>
+<TD><P CLASS=SMALLDESC>Chn15</P></TD>
+<TD><P CLASS=SMALLDESC>Chn16</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>13-4, 15-4: Reverb Lo</P></TD>
+<TD><P CLASS=SMALLDESC>Chn1</P></TD>
+<TD><P CLASS=SMALLDESC>Chn2</P></TD>
+<TD><P CLASS=SMALLDESC>Chn3</P></TD>
+<TD><P CLASS=SMALLDESC>Chn4</P></TD>
+<TD><P CLASS=SMALLDESC>Chn5</P></TD>
+<TD><P CLASS=SMALLDESC>Chn6</P></TD>
+<TD><P CLASS=SMALLDESC>Chn7</P></TD>
+<TD><P CLASS=SMALLDESC>Chn8</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>14-4, 16-4: Reverb Hi</P></TD>
+<TD><P CLASS=SMALLDESC>Chn9</P></TD>
+<TD><P CLASS=SMALLDESC>Chn10</P></TD>
+<TD><P CLASS=SMALLDESC>Chn11</P></TD>
+<TD><P CLASS=SMALLDESC>Chn12</P></TD>
+<TD><P CLASS=SMALLDESC>Chn13</P></TD>
+<TD><P CLASS=SMALLDESC>Chn14</P></TD>
+<TD><P CLASS=SMALLDESC>Chn15</P></TD>
+<TD><P CLASS=SMALLDESC>Chn16</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>13-5, 15-5: Chorus Lo</P></TD>
+<TD><P CLASS=SMALLDESC>Chn1</P></TD>
+<TD><P CLASS=SMALLDESC>Chn2</P></TD>
+<TD><P CLASS=SMALLDESC>Chn3</P></TD>
+<TD><P CLASS=SMALLDESC>Chn4</P></TD>
+<TD><P CLASS=SMALLDESC>Chn5</P></TD>
+<TD><P CLASS=SMALLDESC>Chn6</P></TD>
+<TD><P CLASS=SMALLDESC>Chn7</P></TD>
+<TD><P CLASS=SMALLDESC>Chn8</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>14-5, 16-5: Chorus Hi</P></TD>
+<TD><P CLASS=SMALLDESC>Chn9</P></TD>
+<TD><P CLASS=SMALLDESC>Chn10</P></TD>
+<TD><P CLASS=SMALLDESC>Chn11</P></TD>
+<TD><P CLASS=SMALLDESC>Chn12</P></TD>
+<TD><P CLASS=SMALLDESC>Chn13</P></TD>
+<TD><P CLASS=SMALLDESC>Chn14</P></TD>
+<TD><P CLASS=SMALLDESC>Chn15</P></TD>
+<TD><P CLASS=SMALLDESC>Chn16</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>13-6, 15-6: Variation Lo</P></TD>
+<TD><P CLASS=SMALLDESC>Chn1</P></TD>
+<TD><P CLASS=SMALLDESC>Chn2</P></TD>
+<TD><P CLASS=SMALLDESC>Chn3</P></TD>
+<TD><P CLASS=SMALLDESC>Chn4</P></TD>
+<TD><P CLASS=SMALLDESC>Chn5</P></TD>
+<TD><P CLASS=SMALLDESC>Chn6</P></TD>
+<TD><P CLASS=SMALLDESC>Chn7</P></TD>
+<TD><P CLASS=SMALLDESC>Chn8</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=SMALLDESC>14-6, 16-6: Variation Hi</P></TD>
+<TD><P CLASS=SMALLDESC>Chn9</P></TD>
+<TD><P CLASS=SMALLDESC>Chn10</P></TD>
+<TD><P CLASS=SMALLDESC>Chn11</P></TD>
+<TD><P CLASS=SMALLDESC>Chn12</P></TD>
+<TD><P CLASS=SMALLDESC>Chn13</P></TD>
+<TD><P CLASS=SMALLDESC>Chn14</P></TD>
+<TD><P CLASS=SMALLDESC>Chn15</P></TD>
+<TD><P CLASS=SMALLDESC>Chn16</P></TD>
+</TR>
+</TABLE>
+
+   </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Alternative Modi </H2></DT>
+   <DD>
+<P CLASS=DESC>Drei alternative Modi stehen zur Verf&uuml;gung, die speziell zur Ansteuerung von heutzutage g&auml;ngigen Sequenzern und Software-Synthesizern eingebaut wurden. Sie lassen sich w&auml;hrend des Einschaltvorgangs selektieren: MIDIbox ausschalten, entsprechende Taste dr&uuml;cken, MIDIbox wieder einschalten. Eine genaue Erkl&auml;rung der Modi befindet sich im <A HREF="old_midibox_intro_de.html">Tutorial</A>.
+
+<CENTER>
+   <TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3>
+
+   <TR>
+   <TH> <P CLASS=INFO>Taste</P> </TH>
+   <TH> <P CLASS=INFO>Funktion</P> </TH>
+   </TR>
+
+   <TR>
+   <TD> <P CLASS=INFO><B>Layer 5</B></P> </TD>
+   <TD> <P CLASS=INFO>Relative Mode</P> </TD>
+   </TR>
+
+   <TR>
+   <TD> <P CLASS=INFO><B>Layer 6</B></P> </TD>
+   <TD> <P CLASS=INFO>Snapper Mode</TD>
+   </TR>
+
+   <TR>
+   <TD> <P CLASS=INFO><B>Memo</B></P> </TD>
+   <TD> <P CLASS=INFO>MIDI Learn Mode (->Direct Mode)<BR>Mit der 16 Pot Version direkt anw&auml;hlbar</TD>
+   </TR>
+
+   <TR>
+   <TD> <P CLASS=INFO><B>Reset</B></P> </TD>
+   <TD> <P CLASS=INFO>Direct Mode<BR>Mit der 16 Pot Version direkt anw&auml;hlbar</TD>
+   </TR>
+
+   <TR>
+   <TD> <P CLASS=INFO><B>Layer 5 + Reset</B></P> </TD>
+   <TD> <P CLASS=INFO>Relative & Direct Mode</P> </TD>
+   </TR>
+
+   <TR>
+   <TD> <P CLASS=INFO><B>Layer 6 + Reset</B></P> </TD>
+   <TD> <P CLASS=INFO>Snapper & Direct Mode</TD>
+   </TR>
+
+   </TABLE>
+</CENTER>
+
+   </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Demo-Song </H2></DT>
+   <DD>
+<P CLASS=DESC>Demo-Songs, die ich mit einer AWE64, SBLive Value und nat&uuml;rlich der MIDIbox erstellt habe, sind unter
+<A HREF="http://www.mp3.de/home/frequencies" TARGET="_blank">http://www.mp3.de/home/frequencies</A>
+zu finden.
+   </DD>
+</DL>
+
+FOOTER

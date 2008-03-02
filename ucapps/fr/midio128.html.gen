@@ -1,0 +1,600 @@
+HEADER 3 MIDIO128
+
+            <h1>MIDIO128</h1>
+
+            <h3>Date de Cr&eacute;ation: Septembre 2001</h3>
+
+
+            <p class="INFO">L'interface MIDIO128 vous permet de contr&ocirc;ler 128
+sorties digitales via des commandes MIDI et d'envoyer des messages MIDI
+en fonction de l'&eacute;tat d'un maximum de 128 entr&eacute;es
+digitales.</p>
+
+            <p class="INFO">La MIDIO128 a &eacute;t&eacute;
+con&ccedil;ue &agrave; l'origine pour "midifier" un tr&eacute;s vieil
+"orchestrion" (piano m&eacute;canique) appell&eacute; Frati. Son
+propri&eacute;taire, Willy, en donne une description <a href="http://mmd.foxtail.com/Archives/Digests/199910/1999.10.24.02.html" target="_blank">ici</a> et plus en d&eacute;tails&nbsp;<a href="http://mmd.foxtail.com/Tech/mvdReijden.html" target="_blank">ici</a>. Un jour Willy me demanda de l'aide pour r&eacute;aliser une interface entre son orchestrion et son
+PC, afin de pouvoir enregistrer et rejouer les airs du cylindre via
+MIDI. Il n'&eacute;tait pas tr&eacute;s compliqu&eacute; pour moi, en
+partant du design de la MIDIbox64, de cr&eacute;er une application qui
+r&eacute;ponde &agrave; ses besoins, et c'est ce que j'ai donc fait. :)
+Il y a probablement d'autres gens qui souhaiteront pouvoir
+contr&ocirc;ler ce genre d'instrument ou d'autres appareils
+&eacute;lectroniques commes des jeux de lumi&egrave;res, des moteurs ou
+simplement leur machine &agrave; caf&eacute;. La MIDIO128 est faite
+pour eux...&nbsp;&nbsp;</p>
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Le Hardware </h2>
+
+   <dd>
+                <p class="DESC">La conception mat&eacute;rielle est relativement simple. Elle repose sur la <a href="mbhp.html">MBHP</a> et le <a href="mios.html">MIOS</a>,
+ce qui lui permettra d'accueuillir si n&eacute;cessaire de nouvelles
+options dans le futur. Le PIC est connect&eacute; aux ports MIDI In/Out
+et &agrave; deux longues cha&icirc;nes de registres en s&eacute;rie:
+une cha&icirc;ne pour les entr&eacute;es, une pour les sorties. Si vous
+d&eacute;sirez vous lan&ccedil;er dans ce projet mais que vous n'avez
+pas besoin des 128 entr&eacute;es/sorties, vous n'&ecirc;tes pas
+oblig&eacute; d'installer tous les "shift registers" (chaque shift
+register g&egrave;re 8 entr&eacute;es ou 8 sorties). La seule chose
+importante, c'est que la derni&egrave;re entr&eacute;e du dernier shift
+register soit mise &agrave; la masse (0V), afin d'&eacute;viter au
+firmware de traiter des donn&eacute;es invalides. </p>
+              </dd>
+            </dl>
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Le Software </h2>
+
+   <dd>
+                <p class="DESC">Le logiciel scanne les 128 entr&eacute;es en 1mS. Si
+l'&eacute;tat d'un pin d'entr&eacute;e &agrave; chang&eacute;, le
+programme cherchedans un large table au l'&eacute;v&egrave;nement MIDI
+pr&eacute;d&eacute;fini qui correspond &agrave; cette
+entr&eacute;e&nbsp;, et l'envoie sur le port MIDI out:</p>
+
+
+                <table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+
+  <tbody>
+                    <tr>
+
+    <th> 
+                      <p class="INFO">Ev&egrave;nements MIDI</p>
+
+                      
+                      <p class="INFO">Sortants</p>
+
+ 
+    </th>
+                      <th> 
+                      
+                      <p class="DESC">Aux changements d'&eacute;tat<br>
+
+&nbsp;des&nbsp;pins d'entr&eacute;e, envoie:</p>
+
+
+  </th>
+                    </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>9n xx v1, 9n yy v2</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">Ev&egrave;nement de Note, canal n<br>
+num&eacute;ro xx v1 si l'entr&eacute;e=0V<br>
+num&eacute;ro&nbsp;yy v2&nbsp;si l'entr&eacute;e=5V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>An xx v1, An yy v2</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">Ev&egrave;nement Aftertouch&nbsp;,&nbsp;canal n<br>
+num&eacute;ro&nbsp;xx v1&nbsp;si l'entr&eacute;e=0V<br>
+num&eacute;ro&nbsp;yy v2&nbsp;si l'entr&eacute;e=5V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>Bn xx v1, Bn yy v2</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">Ev&egrave;nement Controller,&nbsp;canal n<br>
+num&eacute;ro&nbsp;xx v1&nbsp;si l'entr&eacute;e=0V<br>
+num&eacute;ro&nbsp;yy v2&nbsp;si l'entr&eacute;e=5V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>Cn xx</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">Ev&egrave;nement Program Change,&nbsp;canal n<br>
+num&eacute;ro&nbsp;xx v1&nbsp;si l'entr&eacute;e=0V<br>
+num&eacute;ro&nbsp;yy v2&nbsp;si l'entr&eacute;e=5V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>Dn xx</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">Ev&egrave;nement Channel Aftertouch,&nbsp;canal n</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>En xx v1, En yy v2</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">Ev&egrave;nement Pitchbender,&nbsp;canal n<br>
+num&eacute;ro&nbsp;xx v1&nbsp;si l'entr&eacute;e=0V<br>
+num&eacute;ro&nbsp;yy v2&nbsp;si l'entr&eacute;e=5V</p>
+                      </td>
+
+  </tr>
+
+                  </tbody>
+                </table>
+
+
+                <p class="DESC">Sur les &eacute;v&egrave;nements MIDI entrants, le
+logiciel cherche dans un autre tableau si un pin de sortie est
+assign&eacute; &agrave; cet &eacute;v&egrave;nement MIDI et active (ou
+inverse) l'&eacute;tat du(des) pin(s) si il y a correspondance:</p>
+
+
+                <table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+
+  <tbody>
+                    <tr>
+
+    <th> 
+                      
+                      <p class="INFO">Ev&egrave;nements<br>
+
+MIDI<br>
+
+Entrants</p>
+
+ 
+    </th>
+                      <th> 
+                      <p class="DESC">Pin de Sortie:</p>
+
+  </th>
+                    </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>9n xx vv</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">0V si vv=00, sinon 5V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>An xx vv</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">0V si vv=00, sinon 5V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>Bn xx vv</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">0V si vv=00, sinon 5V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>Cn xx</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">Deux modes sont configurables dans le fichier midio128.ini&nbsp;:<br>
+                      <i>Normal Mode:</i>
+aux &eacute;v&egrave;nements "program change" entrants, le pin de
+sortie correspondant basculera de 0V &agrave; 5V et vice versa<br>
+                      <i>Alternative Mode:</i>
+aux &eacute;v&egrave;nements "program change" entrants, tous les pins
+de sortie (assign&eacute;s aux "program change") d'un m&ecirc;me canal
+seront mis &agrave; 0V, mais le pin assign&eacute; au canal et &agrave;
+la valeur de "program change" sera mis 5V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>Dn xx</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">Toggle: 0V si l'&eacute;tat actuel du pin de sortie est &agrave; 5V<br>
+5V si l'&eacute;tat actuel du pin de sortie est &agrave; 0V</p>
+                      </td>
+
+  </tr>
+
+  <tr>
+
+    <td> 
+                      <p class="INFO"><i>En xx vv</i></p>
+ </td>
+
+    <td> 
+                      <p class="DESC">0V si vv=00, sinon 5V</p>
+                      </td>
+
+  </tr>
+
+                  </tbody>
+                </table>
+
+
+                <p class="DESC">Les &eacute;v&egrave;nements MIDI pour tous les pins IO
+peuvent &ecirc;tre configur&eacute;s dans le script
+"mk_midio128_syx.pl", qui convertit un fichier texte " .ini" en fichier
+de Dump SysEx Dump. Le dump SysEx doit ensuite &ecirc;tre envoy&eacute;
+&agrave; la MIDIO128 via MIDI. Vous pouvez donc r&eacute;assigner les
+IOs autant de fois que vous voulez, facilement et sans avoir &agrave;
+reprogrammer compl&egrave;tement le PIC. :)</p>
+
+                <p class="DESC"><i>Notez que la polarit&eacute; des pins
+d'entr&eacute;es et de sorties (&eacute;tat logique negatif ou positif)
+peut &eacute;galement &ecirc;trec configur&eacute;e dans le fichier
+midio128.ini.</i></p>
+
+
+   </dd>
+
+            </dl>
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Merger MIDI </h2>
+
+   <dd>
+                <p class="DESC">Le Merger MIDI doit &ecirc;tre activ&eacute; dans le fichier midio128.ini (voir <a href="midio128/mk_midio128_syx.zip">mk_midio128_syx.zip</a>).
+Si vous l'activez, la MIDIO128 renverra tous les
+&eacute;v&egrave;nement MIDI entrants vers le port MIDI Out. Cela vous
+permet de cascader plusieurs appareils MIDI, par exemple de brancher
+une autre MIDIO128, une MIDIbox ou un clavier avant ou apr&eacute;s la
+MIDIO128.</p>
+
+   </dd>
+
+            </dl>
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> L'Interface </h2>
+
+   <dd>
+                <p class="DESC">Chaque pin de sortie peut v&eacute;hiculer
+jusqu'&agrave; 10-20 mA. C'est suffisant pour des applications
+digitales ou des LEDs. Pour contr&ocirc;ler des relais, des lampes, des
+moteurs ou des machines &agrave; caf&eacute;, je vous recompmande
+d'utiliser des transistors Darlington ULN2803, &eacute;conomiques et
+pratiques. Vous trouverez un lien vers la datasheet plus bas.</p>
+
+                <p class="DESC">Les entr&eacute;es digitales r&eacute;agissent &agrave;
+des signaux de niveau TTL, c'est &agrave; dire qu'elles passent
+&agrave; "0" avec un signal inf&eacute;rieur &agrave; 0.5V et passe
+&agrave; "1" avec un signal sup&eacute;rieur &agrave; environ 3V. <b>Ne chargez pas les entr&eacute;es avec des niveaux sup&eacute;rieurs &agrave; 5V!!!</b>
+&nbsp;R&eacute;f&eacute;rez-vous aux sch&eacute;mas de la&nbsp;
+MIDIbox64 si vous souhaitez utiliser des boutons. Les Optocoupleurs
+aident &agrave; isoler la MIDIO128 d'autres mat&eacute;riels critiques.</p>
+
+   </dd>
+
+            </dl>
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Comment configurer la MIDIO128 </h2>
+
+   <dd>
+                <p class="DESC">Utilisez le script <a href="midio128/mk_midio128_syx.zip">mk_midio128_syx.zip</a> pour assigner les &eacute;v&egrave;nements MIDI aux I/O et l'&eacute;diteur de Serge <a href="http://miostools.midibox.org" target="_blank">SysExBox</a> pour transf&eacute;rer les donn&eacute;es de configuration &agrave; la MIDIO128.</p>
+
+   </dd>
+
+            </dl>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> T&eacute;l&eacute;chargements </h2>
+
+  <dd>
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+
+    <tbody>
+                    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Sch&eacute;mas &amp; PCBs</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Fichier</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Taille</strong></font></td>
+
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Description</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp.html">MBHP</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">voir MIDIbox Hardware Platform</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Firmware</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mios_download.html">MIOS Download</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Portage vers le&nbsp;PIC18F452 avec les Codes Source, publi&eacute;s sous license GNU GPL</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="pic16f_firmwares.html">PIC16F Firmwares</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Firmware pour le PIC16F877 (d&eacute;pass&eacute;, n'utilisez pas ce micro-contr&ocirc;leur pour de nouvelles MIDIbox!)</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midio128_changelog.html">ChangeLog</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Le ChangeLog de la MIDIO128&nbsp;</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>G&eacute;n&eacute;rateur de fichier "</strong></font><font size="3"><strong>.syx"&nbsp;</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midio128/mk_midio128_syx.zip">mk_midio128_syx.zip</a></td>
+
+      <td class="TABCOLOR2">11k</td>
+
+      <td class="TABCOLOR2">Pour cr&eacute;er les dumps de configuration pour la MIDIO128</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midio128/midio128_sysex_implementation.txt">sysex_implementation.txt</a></td>
+
+      <td class="TABCOLOR2">2k</td>
+
+      <td class="TABCOLOR2">L'impl&eacute;mentation SysEx&nbsp;</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Gestionnaire de</strong></font><font size="3"><strong> Download/Upload&nbsp;</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://miostools.midibox.org" target="_blank">miostools.midibox.org</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Gestionnaire de Download/Upload par <a href="mailto:serge@programmeert.com">Serge</a></td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>PCBs alternatifs (voir aussi <a href="mbhp.html">MBHP</a>)</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midio128/midio128_pcb_rasmus.zip">midio128_pcb_rasmus.zip</a></td>
+
+      <td class="TABCOLOR2">1.38MB</td>
+
+      <td class="TABCOLOR2">mod&egrave;le de PCB par <a href="mailto:rasmail@mail.dk">Rasmus</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midio128/midio128_pcb_roman.zip">midio128_pcb_roman.zip</a></td>
+
+      <td class="TABCOLOR2">675k</td>
+
+      <td class="TABCOLOR2">mod&egrave;le de PCB par <a href="mailto:roman.krause@online-club.de">Roman Krause</a></td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Misc.</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://forum.ucapps.de">MIDIbox Forum</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Le support du Forum MIDIbox</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://wiki.midibox.org" target="_blank">MIDIbox Wiki</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Une foule d'informations compl&eacute;mentaires sur les MIDIbox, MIOS et la MIDIO128</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox/midi_thru.gif">midi_thru.gif</a></td>
+
+      <td class="TABCOLOR2">50k</td>
+
+      <td class="TABCOLOR2">Port MIDI Thru&nbsp;Optionnel </td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midio128/relay_example.pdf">relay_example.pdf</a></td>
+
+      <td class="TABCOLOR2">6k</td>
+
+      <td class="TABCOLOR2">Comment connecter des relais &agrave; la MIDIO128</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midio128/uln2803.pdf">uln2803.pdf</a></td>
+
+      <td class="TABCOLOR2">96k</td>
+
+      <td class="TABCOLOR2">datasheet des transistors Darlington ULN2803</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_doutx1_reed_relays.pdf">mbhp_doutx1_reed_relays.pdf</a></td>
+
+      <td class="TABCOLOR2">9k</td>
+
+      <td class="TABCOLOR2">Comment connecter des relais Reed &agrave; un module DOUT&nbsp; - voir aussi&nbsp;<a href="mbhp/mbhp_doutx1_reed_relays.jpg">cette photo</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midio128/fratipcb.jpg">fratipcb.jpg</a></td>
+
+      <td class="TABCOLOR2">33k</td>
+
+      <td class="TABCOLOR2">Une photo de l'interface MIDI pour le Frati&nbsp;</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://mmd.foxtail.com/Tech/mvdReijden.html">mvdReijden.html</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Une article sur le projet MIDIO128 par Willy van Reijden</td>
+
+    </tr>
+
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+            </dl>
+
+
+FOOTER

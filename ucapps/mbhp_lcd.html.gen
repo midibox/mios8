@@ -1,0 +1,137 @@
+HEADER 3 MBHP LCD Module
+
+<H1>MIDIbox Hardware Platform, LCD Infos</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_lcd.jpg" width=500 height=117></CENTER></P>
+
+<P CLASS=INFO>J15 of the core module allows to connect a LCD. Following table shows which options are available depending on the PIC derivative and application.</P>
+
+<P CLASS=INFO>Please note that there are some additional hints at the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=lcds" TARGET="_blank">MIDIbox Wiki</A> page!</P>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Supported LCD options </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Character LCD</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>PIC16F designs</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG><A HREF="mios.html">MIOS</A></STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""></TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""><BR>LCD<BR>type<BR>#0</TD>
+      <TD CLASS=TABCOLOR2>The old PIC16F based firmware as well as all MIOS applications are able to drive character LCDs. Such displays are available for few money in many different variants, most of them comply to the HD44780 industrial standard from <A HREF="http://semiconductor.hitachi.com" TARGET="_blank">Hitachi</A>. Regardless of the number of provided characters (2x16, 2x20, 4x16, 4x20), they are communicating over the same bus interface with the core. But note, that the supported display types depend on the firmware or MIOS application. For instance, if you connect a 2x20 characters display to the MIDIbox64, the 2x4 field at the right side will stay blank. MIOS applications are mostly more flexible and allow you to customize the screen by enhancing the source code, therefore a general statement - which LCD is the best for your MIDIbox - cannot be given here. Please search on the project pages for more informations regarding the supported display sizes or ask in the <A HREF="http://forum.ucapps.de">MIDIbox forum</A> if you are unsure.<BR><B>Availability:</B>At every <A HREF="wheretoorder.html">good sorted electronic store</A> and especially at <A HREF="http://www.ebay.de" TARGET="_blank">EBay</A> (search for <I>2x16 lcd</I> or similar). Order numbers for <A HREF="http://www.reichelt.de">Reichelt</A>: LCD 162C LED (2x16 with backlight, 12.70 EUR), LCD 164A LED (4x16 with backlight, 20.90 EUR), LCD 202A LED (2x20 with backlight, 13.10 EUR), LCD 204A LED (4x20 with backlight, 27.20 EUR)<BR>
+<B>Connectivity:</B>During the design phase of the core module I took focus on easy soldering and tried to place as less bridges as possible on the board. As an side effect, the pin assignments of the LCD interface J15 unfortunately aren't straightforward. So, you have to take special care for the interconnections.<BR>Following schematic show, how to connect a LCD 162C display from <A HREF="http://www.displaytech.com.hk/" TARGET="_blank">Displaytech</A> to the interface. <I>Please note, that the pin assignments are different on some other displays!</I> Sometimes the pins are mirrored, sometimes the backlight pads are on another place. Fortunately the order of the bus pins is the same on every display! So, before you buy one, try also to get a datasheet from the display: consult <A HREF="http://www.google.com" TARGET="_blank">www.google.com</A>, keywords: "displayname datasheet".<BR>
+<B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd.pdf">mbhp_lcd.pdf</A><BR>
+If a PIC18F4685 is used in the project (-> <A HREF="midibox_sid.html">MIDIbox SID V2</A>), the LCD is accessed in 4bit mode. Accordingly, the data pins D0/D1/D2 and D3 should be left open at core and LCD side (don't connect them to ground!) - see <A HREF="mbhp/mbhp_lcd_4bit.pdf">mbhp_lcd_4bit.pdf</A></TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>2 x Character LCDs</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""><BR>LCD<BR>type<BR>#0</TD>
+      <TD CLASS=TABCOLOR2>Two character LCDs are natively supported by <A HREF="mios.html">MIOS</A>, but only two applications using this option yet: MIDIbox LC and MIDIbox SEQ. However, people with programming skills are free to add this option also to their own MIOS application (the second display can be addressed by adding 0x80 to the cursor position).<BR>
+<B>Connectivity:</B> Both displays have to be connected to the same data and control pins at J15, only the E (enable) input of the second LCD requires a dedicated output (pin C.4, J10:RC) which is not routed to J15 and therefore has to be soldered directly to the core module.<BR>
+<B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_2xclcd.pdf">mbhp_2xclcd.pdf</A><BR>
+<B>Photo:</B> <A HREF="http://www.midibox.org/midibox_gallery/axel15.jpg">follow this link</A></TD>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Multiple Character LCDs</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""><BR>LCD<BR>type<BR>#0</TD>
+      <TD CLASS=TABCOLOR2>This option has been introduced with MIOS V1.2, but no application has been written yet which get use of this feature. Multiple CLCDs can be driven by changing the address of the E (Enable) pin dynamically with the <A HREF="mios_fun/MIOS_LCD_TypeSet.html">MIOS_LCD_TypeSet</A> function. Every time you want to access another display with a MIOS_LCD_* function, you have to call MIOS_LCD_TypeSet before in order to set the appr. enable line.<BR>
+<B>Connectivity:</B>  Any free pin of the PIC can be used for the enable line. For instance, if your application doesn't use the analog pins at J5 of the core module, you are able to connect 8 additional LCDs. You could also program a multiplexer interface in order to address even more LCDs by routing the enable line to one PIC pin.<BR>
+<B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_nxclcd.pdf">mbhp_nxclcd.pdf</A><BR></TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>KS0107/KS0108 or HD61202 based graphical LCD</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""><BR>LCD<BR>type<BR>#1</TD>
+      <TD CLASS=TABCOLOR2>
+GLCDs which are KS0107/KS0108 or HD61202 compatible are the prefered displays when using the graphic LCD option of MIOS. GLCDs are handled like character LCDs, that means that you can use the same MIOS_LCD_* functions to set the cursor and to print characters, strings and values. By default 5x8 characters are used, but you are also able to change the font in order to print bigger or smaller characters, icons or pictures.<BR>
+The performance of the KS0107 and HD61202 controller is perfect, as the pixel information is stored in the <A HREF="mbhp/mbhp_glcd_vertical.gif">vertical direction</A>. This means, that only 5 bus accesses are required to print a 5x8 character (however, the Y position must be aligned to 8 pixels in the vertical direction).<BR>Note that currently only the MIDIbox LC applications gets use of customized fonts and icons.<BR>
+<B>Connectivity:</B> the bus interface is similar to a character based LCD, but every 128x64 block needs a CS (chip select) line. Since these lines are gated through the E (enable) pin, it was possible to share the CS lines with other PIC outputs. The MIOS driver takes care for possible conflicts.<BR>
+All graphical LCDs require a negative voltage to drive the Liquid Crystal cells. Some LCDs provide an inbuild DC converter, some others not. The schematic below shows a MAX759 voltage converter which can be used if a Vout pin is not provided by the GLCD.<BR>
+<B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_glcd0.pdf">mbhp_glcd0.pdf</A> and <A HREF="mbhp/mbhp_glcd_64240a.pdf">mbhp_glcd_64240a.pdf</A> (Displaytech 64240A)<BR>
+<B>Photos:</B> <A HREF="mbhp/mbhp_glcd0_photo.jpg">follow this link</A><BR>or see the MIDIbox LC in Action: <A HREF="midibox_lc/mblc_lcd_page1.jpg">[1]</A> <A HREF="midibox_lc/mblc_lcd_page2.jpg">[2]</A> <A HREF="midibox_lc/mblc_lcd_page3.jpg">[3]</A></TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>T6963C based graphical LCD, horizontal screen</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""><BR>LCD<BR>type<BR>#7</TD>
+      <TD CLASS=TABCOLOR2>
+T6963C based displays are cheap and popular, but the performance is extreme poor compared to LCD type #1 which has been introduced above, therefore the use of such displays is not recommented, although MIOS provides a "custom driver", which can be found in the <A HREF="mios_download.html">download section</A>. The driver ensures that the display can be accessed in the same way like a KS0108 based LCD, but since the pixel information is stored in the <A HREF="mbhp/mbhp_glcd_horizontal.gif">horizontal direction</A>, MIOS has to rotate every character, icon and picture by 90 degress. And it has to take care that only the shape of the character will be overwritten (-> in worst case two Read-Modify-Write transfers have to be performed for every 8-bit word). This means, that 2*5*8 =  80 bus accesses are required to print a 5x8 character!<BR>Note that this display should only be used for applications which don't rely on realtime behaviour. This display is not qualified for MIOS applications which receive MIDI data as there is a potential risk of buffer overruns.<BR>
+<B>Connectivity:</B> the bus interface is similar to a character based LCD.<BR>
+All graphical LCDs require a negative voltage to drive the Liquid Crystal cells. Some LCDs provide an inbuild DC converter, some others not. The schematic below shows a MAX759 voltage converter which can be used if a Vout pin is not provided by the GLCD.<BR>
+<B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd7_t6963c.pdf">mbhp_lcd7_t6963c.pdf</A><BR>
+<B>Photo:</B> <A HREF="mbhp/mbhp_lcd7_t6963c_h_photo.jpg">follow this link</A></TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>T6963C based graphical LCD, vertical screen</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""><BR>LCD<BR>type<BR>#7</TD>
+      <TD CLASS=TABCOLOR2>
+There is an alternative driver for T6963C based display available in the <A HREF="mios_download.html">download</A> section which doesn't rotate the T6963C screen output by 90 degress, therefore the performance is much better compared to the default MIOS driver (realtime behaviour is given again). However, such variations are only practicable for very customized applications and only usefull for experienced people with PIC programming skills.<BR>
+<B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd7_t6963c.pdf">mbhp_lcd7_t6963c.pdf</A><BR>
+<B>Photo:</B> <A HREF="mbhp/mbhp_lcd7_t6963c_v_photo.jpg">follow this link</A></TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>PCD8544 based graphical LCD</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""><BR>LCD<BR>type<BR>#7</TD>
+      <TD CLASS=TABCOLOR2>
+PCD8544 LCDs are very small and providing only a resolution of 84x48. But they are connected via a serial interface with a small number of wires to the MIOS core, therefore up to 8 LCDs can be handled by the driver w/o performance loss. It's possible to use three of the displays as KS0108 replacement for <A HREF="midibox_lc.html.gen">MIDIbox LC</A>, but you can also use it with any other MIDIbox --- also a completely new designed MIDIbox application could be programmed which gets use of all 8 displays (e.g. for 8 control channels) --- but please keep in mind, that due to the low resolution only 14x6 characters are displayed by default. A smaller font could be used to display 21 or 28 characters per line, but the appr. program modifications won't be supported from my side (you have to write the appr. code into the application by yourself).<BR>
+Note: regardless of the serial interface, the performance of this display is even better than the performance of a KS0108. I whished the manufacturers would produce larger displays with this perfect interface!<BR>
+<B>Wiring Diagrams:</B> <A HREF="mbhp/mbhp_lcd7_pcd8544_cheap_single.pdf">mbhp_lcd7_pcd8544_cheap_single.pdf</A>, <A HREF="mbhp/mbhp_lcd7_pcd8544_cheap_multiple.pdf">mbhp_lcd7_pcd8544_cheap_multiple.pdf</A><BR>
+<B>Photo:</B> <A HREF="mbhp/mbhp_glcd_pcd5844.jpg">follow this link</A><BR>
+<B>More informations:</B> see <A HREF="http://serdisplib.sourceforge.net/ser/pcd8544.html" TARGET="_blank">this sourceforge page</A>.</TD>
+    </TR>
+
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Custom LCD driver</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""><BR>LCD<BR>type<BR>#7</TD>
+      <TD CLASS=TABCOLOR2>
+Since MIOS V1.3 it is possible to integrate a custom LCD driver into the application. This allows programmers to write low-level drivers not only for GLCDs, but also for IIC or LED digit displays, without "touching" the operating system. And they are able to use the same MIOS_LCD_* functions like for other displays.<BR>Two examples are already mentioned above - the T6963C driver has been removed from the main MIOS release and is now available as seperate module (app_lcd.inc) which can be linked into every application.<BR>
+Another example is given with the IIC driver which accesses Magic Orbital LCDs via the IIC interface. This interface is normaly used by the BankStick, but can also be used to access other IIC devices.<BR>
+<B>NOTE:</B>All IIC devices are connected to port CORE:J4 in parallel like shown in <A HREF="mbhp/mbhp_lcd7_iic.pdf">this schematic</A>.</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD>
+<P CLASS=DESC>Jim Henry wrote a superb guide which can be downloaded from the MIDIbox server: <A HREF="http://www.midibox.org/users/jim_henry/building_a_midibox_lcd_cable.pdf">building_a_midibox_lcd_cable.pdf</A>.
+
+<P CLASS=DESC>Please note that there are some additional hints at the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=lcds" TARGET="_blank">MIDIbox Wiki</A> page!</P>
+  </DD>
+</DL>
+
+FOOTER

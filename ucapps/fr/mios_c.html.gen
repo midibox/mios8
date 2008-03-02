@@ -1,0 +1,545 @@
+HEADER 3 MIOS C Interface
+
+            <h1>MIOS : L'Interface C</h1>
+
+
+            <p class="INFO">La
+programmation des applications&nbsp;<a href="mios.html">MIOS</a>&nbsp;en C sera dans l'avenir une bonne
+alternative au language assembleur, ce language de haut-niveau
+&eacute;tant facile &agrave; comprendre, moins enclin
+&agrave; l'erreur
+et plus facilement r&eacute;-utilisable. Les points faibles du C
+sont
+de moins bonnes performances et un code plus volumineux, ce qui
+implique que les applications comme la <a href="midibox_sid.html">MIDIbox SID</a> ou <a href="midibox_seq.html">MIDIbox SEQ</a>&nbsp;ne pourront
+&ecirc;tre programm&eacute;es int&eacute;gralement en C,
+notament
+&agrave; cause de la taille r&eacute;duite des
+m&eacute;moires flash et
+RAM du PIC18F452 (dans la plupart des cas n&eacute;anmoins
+suffisantes
+- mais pas pour de telles fonctionnalit&eacute;s...). Ce
+probl&egrave;me sera probablement r&eacute;solu au fur et
+&agrave;
+mesure de la sortie de nouveaux chips &agrave; la connectique
+compatible et disposants de plus de m&eacute;moire, mais cela
+prendra
+plusieurs ann&eacute;es.</p>
+
+            
+            <p class="INFO"></p>
+
+            <p class="DESC">Malgr&eacute;s ces contraintes, la combinaison du MIOS et du C
+est
+une bonne solution. Pourquoi ? Parce que le MIOS (le syst&egrave;me
+d'exploitation) est programm&eacute; en language assembleur et
+sp&eacute;cialement optimis&eacute; pour la rapidit&eacute;
+d'&eacute;xecution. Il traite un grand nombre de t&acirc;ches
+de
+performance critiques , desquelles l'utilisateur n'a plus &agrave;
+se
+soucier. Le MIOS contient un grand nombre de fonctions - vous dispensant d'avoir &agrave;
+r&eacute;inventer la roue - et permet au programmateur de
+r&eacute;aliser son projet MIDI avec succ&eacute;s sans
+&ecirc;tre
+oblig&eacute; de ma&icirc;triser les connaissances de fond sur
+les
+traitements IO haute performance et la gestion du MIDI
+appropri&eacute;e.</p>
+
+
+            <p class="DESC">Du
+coup, l'utilisateur peut simplement commencer &agrave; programmer
+dans la couche "application" , o&ugrave; l'optimisation du code dans
+la plupart des cas n'a pas trop d'importance, avec l'assurance que les
+fonctions seront trait&eacute;es avec la m&ecirc;me
+rapidit&eacute;, qu'elles aient &eacute;t&eacute;
+programm&eacute;es en C ou en assembleur . Bien s&ucirc;r, le
+r&eacute;sultat d&eacute;pend aussi et en grande partie de
+l'application et du compileur utilis&eacute;, mais il est d'ores et
+d&eacute;j&agrave; possible de programmer de pas mal de choses sans
+trop d'effort. Et plus d'utilisateurs se lanceront dans la
+programmation en C, plus d'exemples de codes pourront &ecirc;tre
+partag&eacute;s par la communaut&eacute;, et plus vite
+apparaitront de nouvelles applications...</p>
+
+
+            <p class="DESC">Pour
+l'instant, je ne suis pas en mesure de bien d&eacute;finir ce qui
+avec raison doit &ecirc;tre programm&eacute; en C ou ce qui
+doit &ecirc;tre programm&eacute; en assembleur - c'est une base
+de connaissance &agrave; &eacute;tablir dans les mois
+&agrave; venir - vos opinions sont les bienvenues! Gardez
+&agrave; l'esprit que le m&eacute;lange du language C et de
+l'assembleur est toujours possible dans la couche "application". Mon
+opinion pour le moment : l'interface utilisateur (boutons, gestion des
+LED, des &eacute;crans, MIDI IO) peut &ecirc;tre
+impl&eacute;ment&eacute;e en C sans grands
+d&eacute;savantages, mais les routines qui doivent interagir
+rapidement (comme les pilotes de p&eacute;riph&eacute;riques,
+ou encore les algorythmes destin&eacute;s &agrave; traiter un
+grand nombre de donn&eacute;es) doivent &ecirc;tre
+programm&eacute;es dans des modules en assembleur distincts puis
+appel&eacute;es depuis le C.</p>
+
+
+            <h2>R&eacute;alisation Technique</h2>
+
+
+            <p class="DESC">Pour
+le MIOS , cela ne fait aucune diff&eacute;rence qu'une routine
+attach&eacute;e aux routines d'appel&nbsp; USER_*&nbsp;
+soit en C ou en assembleur, car cette &eacute;ventualit&eacute;
+a &eacute;t&eacute; prise en compte d&egrave;s les
+premi&egrave;res phases de la conception. Le MIOS est toujours
+branch&eacute; sur les entr&eacute;es USER_* en
+pr&eacute;sence d'&eacute;v&egrave;nements,
+entr&eacute;es qui font partie de l'application. De l&agrave;,
+l'application peut appeler la fonction en C si n&eacute;cessaire.</p>
+
+
+            <p class="DESC">Les
+fonctions MIOS (MIOS_*) peuvent le plus souvent &ecirc;tre
+appel&eacute;e depuis un programme en C sans perte de performance,
+du moment qu'il n'y a qu'un param&egrave;tre en entr&eacute;e
+et en sortie. Une fonction impliquant plus de param&egrave;tres
+requiert du code suppl&eacute;mentaire afin de copier les
+param&egrave;tres en C (ceux qui sont mis dans la pile)
+dans&nbsp; MIOS_PARAMETER[123].</p>
+
+
+            <p class="DESC">Si
+tout cela est nouveau pour vous, ne vous en inqui&eacute;tez pas trop - vous n'avez pas vraiment &agrave; vous soucier de ces
+consid&eacute;rations sur les traitements "bas-niveau" .</p>
+
+
+            <p class="DESC">Servez-vous
+simplement du "Wrapper" contenant tous les codes requis afin de
+"linker" les fonctions en C au
+MIOS. Ce "wrapper" est inclu dans l'archive "MIOS C Wrapper" .</p>
+
+
+            <p class="DESC">Le
+code du wrapper est tr&egrave;s d&eacute;pendant du compileur
+utilis&eacute;. Actuellement seul le&nbsp;<a href="http://sdcc.sourceforge.net" target="_blank">SDCC</a>&nbsp;est
+support&eacute;, car il se trouve &ecirc;tre le seul
+compileur pour l'architecture des PIC18F qui soit disponible
+gratuitement. La version choisie du compileur a aussi son importance,
+car le passage de param&egrave;tre n'est pas encore stable. De fait,
+utilisez seulement les versions officielles (pas les snapshots) qui ont
+&eacute;t&eacute; test&eacute;es avec le wrapper. La version actuelle
+est la 2.7.0<br>
+En outre, le module appropri&eacute; est
+nomm&eacute; "PIC16",
+ce qui ne signifie pas qu'il soit destin&eacute; aux PIC16Fxxx,
+mais bien &agrave; la s&eacute;rie des PIC18F avec un codage sur des
+mots de 16-bit . Ce module est encore en d&eacute;veloppement et du
+coup pas forc&eacute;ment bien document&eacute;&nbsp; - mais il
+fonctionne d'ores et d&eacute;j&agrave; bien et sera
+am&eacute;lior&eacute; d'un jour sur l'autre.</p>
+            <p class="DESC">Les fichiers suivants sont
+aussi inclus dans l'archive du Wrapper:
+            </p>
+            <ul class="CL">
+
+   <li>main.c: un
+squelette qui contient les entr&eacute;es-utilisateur (user hook) -
+ajoutez
+vos codes ici!</li>
+
+   <li>cmios.h: le
+fichier d'en-t&ecirc;te (header file) de ce qui est inclu depuis le
+fichier main.c et contenant les d&eacute;clarations en C des&nbsp;<a href="cmios_fun.html">fonctions </a><a href="mios_fun.html">MIOS</a>.</li>
+
+   <li>pic18f452.c et pic18f452.h: contient les d&eacute;finitions des SFR pour le PIC18F452</li>
+
+   <li>make.bat: un script batch qui d&eacute;finie quelques variables et appelle make_sub.bat</li>
+
+   <li>project.lkr:
+le script "linker" MPLKR qui d&eacute;finit les zones m&eacute;moires
+disponibles (et qui masque les r&eacute;gions d&eacute;j&agrave;
+r&eacute;serv&eacute;es pour le MIOS)</li>
+
+   <li>tools\make_sub.bat:&nbsp;un
+script "batch" contenant toute les &eacute;tapes requises pour construire
+un projet
+   </li>
+              <li>tools\fixasm.pl:&nbsp;un script perl qui ins&egrave;re des "workarounds" dans le code en
+assembleur g&eacute;n&eacute;r&eacute; par le SDCC. les buts de ces
+"workarounds" sont document&eacute;s dans le fichier perl et
+peuvent changer dans le futur, en fonction de la version du SDCC. La
+plupart d'entre-eux n'auront plus de raison d'&ecirc;tre dans les
+semaines &agrave; venir (je suis en contact avec les auteurs du
+module pic16).</li>
+
+   <li>tools\hex2syx.pl:&nbsp;convertit l'application en binaire
+(project.hex) en un fichier chargeable via MIDI (fichier ".syx ")</li>
+
+            </ul>
+
+            <p></p>
+
+
+            <p class="DESC"><i>Note
+aux utilisateurs avanc&eacute;s : il y a une pile (stack)
+utilisateur et IRQ s&eacute;par&eacute;e d&eacute;finie
+dans l'en-t&ecirc;te du fichier
+mios_wrapper/mios_wrapper.asm qui peut &ecirc;tre
+augment&eacute;e si n&eacute;cessaire pour de plus larges
+programmes (ou r&eacute;duite).</i><i>&nbsp;
+Jetez aussi un oeil sur les applications plus importantes bas&eacute;es
+sur SDCC, comme les MIDIbox MM et MIDIbox LC, qui vous montreront
+comment g&eacute;rer des interactions complexes avec le MIOS.</i></p>
+
+
+            <h2>Pr&eacute;paration</h2>
+
+
+            <p>Ces
+&eacute;tapes sont requises afin de mettre en place l'environnement
+de d&eacute;veloppement:</p>
+            <p>
+
+            <table align="center" cellpadding="0" cellspacing="20">
+
+
+  <tbody>
+                <tr>
+
+    <td><a href="http://gputils.sourceforge.net" target="_blank"><img src="howto_tools/gputils.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">T&eacute;l&eacute;chargez</span><span class="NORM">&nbsp;<a href="https://sourceforge.net/project/showfiles.php?group_id=41924" target="_blank">GPUTILS-WIN32 package from sourceforge.net</a>
+qui contient l'assembleur et le linker. Notez que le code
+g&eacute;n&eacute;r&eacute; par SDCC le plus souvent ne peut &ecirc;tre
+enti&egrave;rement compil&eacute; avec MPASMWIN de MPLAB IDE (notament
+&agrave; cause des noms d&eacute;passant la limite de&nbsp; 32
+caract&egrave;res), Du coup cet assembler/linker est requis.</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="http://www.perl.com" target="_blank"><img src="images/lcamel.gif" alt="Link to the perl.com" height="81" width="72"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">T&eacute;l&eacute;chargez</span><span class="NORM"> Perl </span><span class="NORM">s'il n'est pas
+d&eacute;j&agrave; install&eacute; sur votre ordinateur.</span><br>
+
+
+                  <span class="NORM">Utilisateurs
+d'Unix : il est le plus souvent inclu dans votre distribution.</span><span class="NORM"><br>
+Sous Windows&nbsp;:&nbsp; <a href="http://www.activestate.com/Products/Download/Register.plex?id=ActivePerl" target="_blank">Active Perl</a>.</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="http://sdcc.sourceforge.net" target="_blank"><img src="howto_tools/sdcc.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">T&eacute;l&eacute;chargez pour
+finir</span><span class="NORM"> <a href="http://sourceforge.net/project/showfiles.php?group_id=599" target="_blank">la version 2.7.0&nbsp;de SDCC</a>.<br>
+</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/sdcc2_en.gif">ble<img src="howto_tools/sdcc2_en.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Ajoutez le chemin vers</span><span class="NORM">&nbsp;GPUTILS, perl et le compileur SDCC&nbsp;</span><span class="NORM">&agrave; vos variables
+d'environnement "Path" si ce n'est d&eacute;j&agrave;
+fait . Cela peut &ecirc;tre fait dans le menu de configuration
+syst&egrave;me de NT/2000/XP (clic droit sur "poste de travail" -
+"propri&eacute;t&eacute;s" - "avanc&eacute;" - </span><span class="NORM">"variables d'environnement</span><span class="NORM">") -
+(
+version allemande</span><span class="NORM"> <a href="howto_tools/sdcc2.gif">ici</a>)<br>
+                  </span><span class="NORM">
+Les utilisateurs de Windows95/98/ME doit d&eacute;finir les
+variables dans C:\AUTOEXEC.BAT (et &eacute;ventuellement
+red&eacute;marrer leur ordinateur).</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/sdcc3.gif"><img src="howto_tools/sdcc3.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Exemple: le r&eacute;glage de
+mes chemins (path) est:&nbsp;</span><span class="NORM">"C:\Programme\sdcc\bin;C:\Programme\Perl\bin;C:\Programme\gputils\bin\"&nbsp;</span><span class="NORM"> (les chemins sont s&eacute;par&eacute;s par un point
+virgule)</span></td>
+
+  </tr>
+
+
+              </tbody>
+            </table>
+
+
+
+            </p>
+            <h2>Compiler votre premier programme en C</h2>
+
+
+            <table align="center" cellpadding="0" cellspacing="20">
+
+
+  <tbody>
+                <tr>
+
+    <td><a href="howto_tools/sdcc1.gif"><img src="howto_tools/sdcc1.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Ouvrez une invite de commande
+et placez vous dans le r&eacute;pertoire o&ugrave; vous avez
+d&eacute;compr&eacute;ss&eacute; l'archive MIOS SDCC Wrapper.</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/sdcc4.gif"><img src="howto_tools/sdcc4.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Ouvrez le fichier main.c dans
+votre &eacute;diteur de texte favori. Vous voyez ici une capture
+d'&eacute;cran d' Emacs, mon &eacute;diteur
+pr&eacute;f&eacute;r&eacute; sous Windows et Unix. Et si tous ne le
+trouvent pas forc&eacute;ment ergonomique - il reste l'un des
+&eacute;diteurs les plus performants (avec notament des languages de
+programmation int&eacute;gr&eacute;s et un grand nombre d'extensions :
+explorateur HTML, mail, "newsreader", jeux... ;-) , m&ecirc;me si il
+requiert une longue pratique pour &ecirc;tre utilis&eacute;
+efficacement. La version pour Windows peut &ecirc;tre
+t&eacute;l&eacute;charg&eacute;e ici :</span><span class="NORM">&nbsp;<a href="http://www.gnu.org/software/emacs/windows/ntemacs.html" target="_blank">emacs@Win</a>.<br>
+                  <a href="http://www.ultraedit.com/" target="_blank">Ultraedit</a></span><span class="NORM">, sous Windows seulement, est une bonne alternative</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/sdcc5.gif"><img src="howto_tools/sdcc5.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Une fois les modifications
+effectu&eacute;es dans le code source, vous devez lancer le fichier
+"make" (un script batch nomm&eacute; make.bat). Il ex&eacute;cutera
+toutes les commandes n&eacute;cessaires pour assembler votre
+application et convertir le fichier main.c en un fichier project.syx
+pr&ecirc;t pour l'upload via MIDI.</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="mios/mios_studio7.gif"><img src="mios/mios_studio7_small.gif" alt="" height="128" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Now load the project.hex file with <a href="http://miosstudio.midibox.org" target="_blank">MIOS Studio</a>, like described at the <a href="mios_bootstrap_newbies.html">MIOS Bootstrap Loader</a> page.<br>
+Note that this tool also provides some powerful debugging capabilities.</span></td>
+
+  </tr>
+
+
+              </tbody>
+            </table>
+
+
+            <p><b>Note:</b> Le wrapper SDCC fait partie de l'archive "sdcc_skeleton", que vous trouverez &agrave; la page <a href="mios_download.html">MIOS Download</a>&nbsp;. Le module CORE doit fonctionner avec MIOS V1.8 (ou sup&eacute;rieur).</p>
+
+
+
+
+            <p class="DESC"><b>Addendum 01/2006:</b> si des
+multiplications, divisions,&nbsp;operations de pointer, etc. sont
+utilis&eacute;es dans le code en .c&nbsp;, le linker peut ne pas
+r&eacute;ussir en raison de fonctions de la librairie "libsdcc.lib"
+manquantes.
+La librairie usuelle pour la s&eacute;rie des pic16 n'est pas
+compatible avec le MIOS, j'en ai donc cr&eacute;&eacute; une
+sp&eacute;ciale que vous pouvez t&eacute;l&eacute;charger <a href="mios/mios_libsdcc_v2_7_0.zip">ici</a>. Consultez le fichier README.txt pour plus de d&eacute;tails.</p>
+
+
+            <h2>Exemples de Programmations</h2>
+            <table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+
+
+  <tbody>
+                <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_send_ain.html">CODE</a></span></td>
+
+    <td><span class="NORM">Envoi d'&eacute;v&egrave;nements MIDI &agrave; partir de mouvements de potentiom&egrave;tres</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_send_mapped.html">CODE</a></span></td>
+
+    <td><span class="NORM">Envoi d'&eacute;v&egrave;nements MIDI mapp&eacute;s &agrave; partir de mouvements de potentiom&egrave;tres</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_send_range.html">CODE</a></span></td>
+
+    <td><span class="NORM">Etalonnage de valeurs de potentiom&egrave;tres</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_send_ain_takeover.html">CODE</a></span></td>
+
+    <td><span class="NORM">Realisation d'une fonction "Soft-Takeover" pout potentiom&egrave;tres</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_send_din.html">CODE</a></span></td>
+
+    <td><span class="NORM">Envoi d'&eacute;v&egrave;nements MIDI &agrave; partir de mouvements de boutons</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_set_dout.html">CODE</a></span></td>
+
+    <td><span class="NORM">Contr&ocirc;le de 128 LEDs via MIDI</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_send_enc_rel.html">CODE</a></span></td>
+
+    <td><span class="NORM">Envoi d'&eacute;v&egrave;nements MIDI relatifs &agrave; partir de mouvements d'encodeurs</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_send_enc_abs7.html">CODE</a></span></td>
+
+    <td><span class="NORM">Envoi d'&eacute;v&egrave;nements MIDI</span><span class="NORM">&nbsp;7bit&nbsp;</span><span class="NORM">&agrave; partir de mouvements d'encodeurs</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_send_enc_abs14.html">CODE</a></span></td>
+
+    <td><span class="NORM">Envoi d'&eacute;v&egrave;nements</span><span class="NORM">&nbsp;NRPN</span><span class="NORM"> 14bit&nbsp;</span><span class="NORM"></span><span class="NORM">&agrave; partir de mouvements d'encodeurs</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_handle_mf.html">CODE</a></span></td>
+
+    <td><span class="NORM">Un gestionnaire de Faders Motoris&eacute;s simple</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_filter_cc.html">CODE</a></span></td>
+
+    <td><span class="NORM">Filtrage de tous les &eacute;v&egrave;nements MIDI Event &agrave; l'exception des messages Bn 07 xx (Contr&ocirc;leurs Volumes)</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_forward_chn1.html">CODE</a></span></td>
+
+    <td><span class="NORM">Renvoi des &eacute;v&egrave;nements uniquement du Canal #1</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_cc_to_nrpn.html">CODE</a></span></td>
+
+    <td><span class="NORM">Convertion CC vers NRPN</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_nrpn_to_cc.html">CODE</a></span></td>
+
+    <td><span class="NORM">Convertion NRPN vers CC</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_pic_pin.html">CODE</a></span></td>
+
+    <td><span class="NORM">Pilotage des pins du PIC via MIDI</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_lcd_out.html">CODE</a></span></td>
+
+    <td><span class="NORM">Affichage de valeurs sur un &eacute;cran LCD</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td width="30"><span class="BIG"><a href="mios_c_lcd_schars.html">CODE</a></span></td>
+
+    <td><span class="NORM">Utilisation de caract&egrave;res sp&eacute;ciaux sur un &eacute;cran LCD</span></td>
+
+  </tr>
+
+
+              </tbody>
+            </table>
+            <p class="INFO"></p>
+
+
+FOOTER

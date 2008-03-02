@@ -1,0 +1,31 @@
+HEADER 3 MIOS C Example
+
+<H3>Filter out every MIDI Event except Bn 07 xx (Volume Controllers)</H3>
+
+<P CLASS=INFO>We want to create a MIDI filter, which only forwards CC#07 (Volume Controllers).</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  // check for CC at any Channel, and forward event on CC#07 (volume)
+  // for understanding the MIDI coding, please refer to the MIDI spec 
+  // (-> http://www.borg.com/~jglatt/tech/midispec.htm)
+
+  if( (evnt0 & 0xf0) == 0xb0 && evnt1 == 0x07 ) {
+    // both values are matching, forward complete MIDI event to MIDI Out
+    MIOS_MIDI_TxBufferPut(evnt0);
+    MIOS_MIDI_TxBufferPut(evnt1);
+    MIOS_MIDI_TxBufferPut(evnt2);
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

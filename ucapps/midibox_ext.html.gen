@@ -1,0 +1,160 @@
+HEADER 3 MIDIbox Extensions
+
+<CENTER><H1>External MIDIbox Extensions</H1></CENTER>
+
+<P CLASS=DESC>Not only pots or faders can be connected to the analog and digital inputs of the MIDIbox, but nearly everything which delivers a voltage between 0V and 5V. </P>
+<P CLASS=DESC>This page is a tray for all those circuits, invented by the MIDIbox Users. Get inspired and feel free to contact <A HREF="mailto:tk@midibox.org">me</A> if you would like to publish your own extensions!</P>
+
+<HR>
+
+<H2> MIDI Drums by <A HREF="mailto:admir@iname.com">Admir Salahovic</A> </H2>
+<P CLASS=INFO> Converting drum pad signals to MIDI events requires a lot of additional programming effort, but Admir Salahovic did it. Find his frequently updated homepage under <A HREF="http://www.terra.es/personal4/admir_s/" TARGET="_blank">http://www.terra.es/personal4/admir_s/</A></P>
+
+<HR>
+
+<H2> Expression Pedal Connector by <A HREF="mailto:matteo@alchemystudio.it">Matteo Bosi</A> </H2>
+<P CLASS=INFO> This circuit illustrates how to connect an Expression Pedal to the MIDIbox: <A HREF="midibox_ext/ep/expressionpedal.gif">expressionpedal.gif</A> (32 k)</P>
+
+
+<HR>
+
+<H2> A Breath Controller circuit, also made by <A HREF="mailto:matteo@alchemystudio.it">Matteo Bosi</A> </H2>
+<P CLASS=INFO>Design by Matteo Bosi (2002) <a href="mailto:matteo@alchemystudio.it">matteo@alchemystudio.it</A> - Visit my site and listen to my music at <a href="http://www.alchemystudio.it" target="_blank">http://www.alchemystudio.it</a></p>
+
+<p CLASS=INFO>NOTE: I take NO responsibility for any damage that can occur to you or to your 
+  instrumentation while you are building or using this addon (even if it is due 
+  to an error in this documentation). I'm not a master in electronic, so perhaps 
+  there is a better way to design this circuit and obtain a better efficiency. 
+  However, I assure this schematic works fine. Do not complain with me if the 
+  results obtained by using this schematics don't suit your taste!! Instead, contact 
+  me and let's try togeter to resolve the problems! Current schematic is 1.0, 
+  and may be improved in the future (I hope!). if you have any question or suggestion, 
+  please write to <a href="mailto:matteo@alchemystudio.it">matteo@alchemystudio.it </a></p>
+
+<p CLASS=INFO>I would like to thank very much Ian Fritz (<a href="mailto:ijfritz@earthlink.net">ijfritz@earthlink.net</a>), 
+  designer of the "<a href="http://home.earthlink.net/~ijfritz/" target="_blank">Stealth 
+  Wind Controller</a>", who helped me in choosing the sensor and in electronic 
+  design. I would also like to thank Thorsten Klose (you should know where to 
+  find him!) , MIDIBOX creator, for his wonderful MIDI projects and all the help 
+  he gave to me. </p>
+
+<p CLASS=DESC>This file describes you how to build a breath controller (BC) addon for Thorsten 
+  Klose's Midibox. My BC is something that converts the breath you blow in a small 
+  tube into an electrical voltage, and drives this signal directly to one of the 
+  Midibox analog input. You will use the BC instead of one pot of your midibox. 
+  I designed also a "switch circuit" that allows you to choose to use a pot or 
+  my BC, so that when you don't need it you will not loose a pot! How do you use 
+  a BC and why you should build it? I decided to go on this design basically for 
+  fun and for personal interest, but also because I very often use sampled breath 
+  instruments in my songs (flutes, trumpets...). With a BC you can add a LOT of 
+  realism to your sequenced parts, basically because when you use the BC it's 
+  like to play a "real" wind instrument. The feel you obtain in this way is unique! 
+  Often, you assign the BC to the MIDI control 2 (breath controller) or to MIDI 
+  control 11 (expression). In this way, with the BC you can vary the volume of 
+  the note played just by blowing more or less into the tube of the BC, as you 
+  were playing a real wind instrument. More advanced sample programming let's 
+  you control also the filter and so, the more you blow, the more higher frequency 
+  you add, just like in real life. If you search on web about resources and tips 
+  about BC, you'll learn in how many different way you can use it, both in sequencing 
+  and in live playing. The main part of this design is the pressur sensor SDX01G2, 
+  built by Sensym (you can find infos at <a href="http://www.sensortechnics.com" target="_blank">www.sensortechnics.com</a> 
+  or by typing SDX01G2 in <a href="http://www.google.com" target="_blank">google</a> 
+  for example). It measure a gage pressure in the range of 0-1 psi (0-60 mbar) 
+  and output a signal that go from 0 to 18 mV. You can view its specification 
+  by <a href="midibox_ext/breath/sdx01g2.pdf">downloading the datasheet file</a>. This sensor works 
+  in "common mode". It has two outputs (+ and -): when you apply a power supply, 
+  its output raises to about 3V and, when pressure is applied to the sensor, the 
+  + output will raise by 0-18mV (proportional to the pressure applied) and the 
+  - output will diminish by 0-18mV. All this electrical characteristic apply when 
+  the sensor is supplied with 20Vcc. You can use a lower power supply, and these 
+  voltage will vary proportionally. When you breath into a tube without much effort, 
+  you produce a pressure that is far below the maximum range measured by this 
+  sensor (60mbar), so the SDX01G2 is perfect for the purpose of measuring your 
+  breath pressure. The circuit is basically an instrumentation amplifier followd 
+  by a second gain stage with an offset calibration. You can download all the 
+  schematics <a href="midibox_ext/breath/Breath_controller_schematics.zip">here</a> and download 
+  the list of all components <a href="midibox_ext/breath/Breath_controller_components.txt">here</a></p>
+<p>The file <a href="midibox_ext/breath/Breath_controller_Schematics1.gif">Breath_controller_Schematics1 
+  </a>shows how to build the power supply (I used a 12V power supply, mainly because 
+  I plan to build Admir Edrums, and it will require that power supply). This is 
+  a classic schematics (I think) so no comment is required. Just be sure to connect 
+  the right polarity of the electrolitic and tantal capacitor! The second drawing 
+  of this file shows the connections of the sensor itself (you should also see 
+  the <a href="midibox_ext/breath/sdx01g2.pdf">datasheet</a>). the out + and out - will be connected 
+  directly to pins 3 and 5 of LM324 op-amp (see next) The last drawing show how 
+  to connect the BC to your midibox, with a two way switch that lets you choose 
+  between the use of a pot and the use of the BC. You need to bring the 0V (ground) 
+  and the 5V FROM Midibox TO the BC unit and the BC signal out FROM BC unit TO 
+  Midibox. I used a stereo jack for this purpose (see photos - coming soon!). 
+  Practically, you need to remove the wire that go from a pot to the 4051 (at 
+  the pot side!) and bring this wire to the switch. Then, you connect the other 
+  part of the switch to the signal coming from BC unit, and then solder a wire 
+  form the central pin of the switch to the 4051 input you just removed. The file 
+  <a href="midibox_ext/breath/Breath_controller_Schematics2.gif">Breath_controller_Schematics2</a> 
+  is the BC unit itself. I will not explain all the circuit, but will give just 
+  some hints. There are two amplification stage, the first (the three op-amps 
+  on the left) is an instrumentation amplifier with a variable gain, defined by 
+  the pot P1 (perhaps the gain on this stage should be a little higher, but schematics 
+  are just at 1.0!). The basic idea of this amp is that resistors R1,R3,R4,R5,R6,R7 
+  should be exactly the same. I used 5 100K resistor at 1% for R1,R3,R4,R5,R6 
+  and a 82K + a 22K trimmer for what should be R7 (perhaps it's better also here 
+  a 100K 1% resistor!). By using the trimmer you sohuld adjust the amplification 
+  offset of the first stage gain. The amplified signal is then drived to a second 
+  amplificator (the op-amp on the far right) that is a differential amplifier. 
+  With the use of P3 trimmer you can set the final offset and also obtain a "blowing 
+  threshold", i.e. the voltage (your controller number output from midibox) begin 
+  to raise only when a certain amount of pressure is applied to the sensor. The 
+  final amplified signal is then drived to a clamping diode that set the 5V reference 
+  from the midibox. I used 8V supply, so that the maximum output from the LM324 
+  op-amp is about 6,8V. We cannot apply this voltage to a PIC analog input, because 
+  it will be damaged. DON'T FORGET THE DIODE!!! This clamping design is similar 
+  to the one used by Thorsten with his LFO unit. I'm not quite sure about the 
+  usefulness of the R12 resistor, but anyway, I mounted it and everything works! 
+</p>
+<p CLASS=DESC>The last file (<a href="midibox_ext/breath/Breath_controller_connections.gif">Breath_controller_connections</a>) 
+  shows how I have arranged all the components into a normal board.</p>
+
+<p CLASS=DESC>To show how my BC works I provided 3 files. The first (<a href="midibox_ext/breath/trumpets.mid">trumpets.mid</a>) 
+  is just a MIDI example of the data my unit gives out. I assigned my BC to CC2, 
+  so you can view, along the notes I played with my midikeyboard, also the CC 
+  of the breath controller (CC2). Please note that the MIDI is recorded "live", 
+  with very few correction in my sequencer. The CC2 messages are recorded with 
+  my BC unit WHILE I was playing the trumpet sequence - a simple improvisation 
+  so, please, no comment about the music itself! ;-) The second is the file is<a href="http://www.ucapps.de/mp3/midibox_ext/breath/Trumpets_withoutBC.mp3"> 
+  Trumpets_withoutBC.mp3</a> that is just a "rendering" of the midifile WITHOUT 
+  the use of the BC control change messages. I used a professional trumpets bank, 
+  found in a samples CD i obtain with my soundcard Creamware Pulsar. The sound 
+  bank is used "as is", without any additional programming in the sampler. The 
+  third file <a href="http://www.ucapps.de/mp3/midibox_ext/breath/Trumpets_withBC.mp3">Trumpets_withBC.mp3</a> show you the 
+  result obtained by using the BC along with a basic sample programming. The sampler 
+  used is the Creamware STS3000. I assigned the CC2 to the filter cutoff frequency 
+  AND the loudness controll. The more high is the CC2 data, the more the sample 
+  is played loud and the more high is the filter cutoff frequency. Again, I want 
+  to remeber that the BC unit was played LIVE, while hitting the notes on the 
+  keyboard! </p>
+<p CLASS=INFO>More mp3 and MIDI examples are coming, as soon as I'll compose new songs ;-) </p>
+<p CLASS=INFO>&nbsp;</p>
+<p CLASS=INFO>Matteo Bosi</p>
+
+<P CLASS=INFO>P.S.: here are some photos of the breath controller: <A HREF="midibox_ext/breath/breath1.jpg">1</A>, <A HREF="midibox_ext/breath/breath2.jpg">2</A>, <A HREF="midibox_ext/breath/breath3.jpg">3</A>, <A HREF="midibox_ext/breath/breath4.jpg">4</A>, <A HREF="midibox_ext/breath/breath5.jpg">5</A>, <A HREF="midibox_ext/breath/breath6.jpg">6</A>, <A HREF="midibox_ext/breath/breath7.jpg">7</A></P>
+
+
+<HR>
+
+<H2> 3 LFO Extension (and CV Input example) by <A HREF="mailto:tk@midibox.org">Thorsten Klose</A> </H2>
+<P CLASS=INFO> This is primary a learning example that demonstrates how to connect circuits with a symmetrical output voltage (here: -12V to 12V) to the MIDIbox without the danger of blowing up the PIC.<BR><I>Never apply voltages below 0V or above 5V to the analog/digital input pins of the PIC!</I></P>
+<P CLASS=INFO> Note that the sound itself is not comming from the LFOs, but from a MIDI synthesizer. The LFOs are used to modulate the sound parameters like VCO Frequency, CutOff Frequency, Resonance, Sync., Effect parameters of the synth. This is achieved by connecting the LFOs to one of the 8/16/64 analog inputs of the MIDIbox. The box samples the curve comming from the LFOs and sends out a continuous MIDI controller stream to the synthesizer. It's like you are twisting the knobs by yourself, but the LFOs are faster than your fingers and they are working full automatically.<BR>A word to Example #6: it demonstrates that this extension can be used as a nice "random rhythm- and scratching machine" ;-) </P>
+<DL>
+   <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="midibox_ext/lfo/lfo_schematic.pdf" TARGET="_blank">lfo_schematic.pdf</A> <FONT SIZE=-1> <I>(14 k)</I> Schematic of the LFO extension (+Mixer and Interface Unit) </FONT></DT>
+   <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="midibox_ext/lfo/lfo_powersupply.pdf" TARGET="_blank">lfo_powersupply.pdf</A> <FONT SIZE=-1> <I>(6 k)</I> +/- 12 V Power Supply </FONT></DT>
+      <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="midibox_ext/lfo/lfo_indicator.gif">lfo_indicator.gif</A> <FONT SIZE=-1> <I>(5k)</I> simple LED indicator for the LFOs by </FONT><A HREF="mailto:groovejet@freenet.de">Peter</A></DT>
+      <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="midibox_ext/lfo/lfo_pcb.zip">lfo_pcb.zip</A> <FONT SIZE=-1> <I>(8k)</I> PCB Layout by </FONT><A HREF="mailto:mirolaf@planet.nl">Olaf van Kampen</A></DT>
+   <DT> <IMG SRC="images/bullet.gif" ALT=""> <FONT SIZE=-1>Using one LFO:</FONT> <A HREF="http://www.ucapps.de/mp3/midibox_ext/lfo/lfodemo1.mp3">1</A> <FONT SIZE=-1> <I>(567 k)</I> </FONT></DT>
+   <DT> <IMG SRC="images/bullet.gif" ALT=""> <FONT SIZE=-1>Using three LFOs:</FONT> <A HREF="http://www.ucapps.de/mp3/midibox_ext/lfo/lfodemo2.mp3">2</A> <FONT SIZE=-1> <I>(485 k)</I> </FONT> <A HREF="http://www.ucapps.de/mp3/midibox_ext/lfo/lfodemo3.mp3">3</A> <FONT SIZE=-1> <I>(113 k)</I> </FONT> <A HREF="http://www.ucapps.de/mp3/midibox_ext/lfo/lfodemo4.mp3">4</A> <FONT SIZE=-1> <I>(98 k)</I> </FONT> <A HREF="http://www.ucapps.de/mp3/midibox_ext/lfo/lfodemo5.mp3">5</A> <FONT SIZE=-1> <I>(102 k)</I> </FONT> <A HREF="http://www.ucapps.de/mp3/midibox_ext/lfo/lfodemo6.mp3">6</A> <FONT SIZE=-1> <I>(1065 k)</I></FONT></DT>
+   <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="midibox_ext/lfo/breadboard.jpg">breadboard.jpg</A> <FONT SIZE=-1> <I>(31 k)</I> The circuit on a breadboard</FONT></DT>
+   <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="http://www.intersil.com/design/parametric/productinfo.asp?pn=ICL8038CCPD" TARGET="_blank">ICL8038</A> <FONT SIZE=-1> Datasheet </FONT></DT>
+   <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="http://www.national.com/pf/LM/LM324.html" TARGET="_blank">LM324</A> <FONT SIZE=-1> Datasheet </FONT></DT>
+</DL>
+
+
+FOOTER

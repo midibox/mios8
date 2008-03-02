@@ -1,0 +1,124 @@
+HEADER 3 MIOS C Example
+
+<H3>Sending 7bit MIDI Events on Rotary Encoder movements</H3>
+
+<P CLASS=INFO>We want to send absolute 7bit values on encoder movements in following format: <I>CC &lt;encoder&gt; &lt;value&gt;</I>.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>At the top of the main.c file, we have to specify an array of "unsigned char" (8bit values) which hold the absolute value:</P>
+
+<TT><PRE>
+// absolute values are stored in this array
+unsigned char enc_value[8];
+</PRE></TT>
+
+<P CLASS=INFO>Within the Init() function, you have to specify, how many shift registers are connected to the core, and which encoder speed mode should be taken:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  unsigned char i;
+
+  // set shift register update frequency
+  MIOS_SRIO_UpdateFrqSet(1); // ms
+
+  // we need to set at least one IO shift register pair
+  MIOS_SRIO_NumberSet(16); // for 128 pins
+
+  // set speed mode for 8 encoders
+  for(i=0; i<8; ++i) {
+    // available speed modes: SLOW, NORMAL and FAST
+    MIOS_ENC_SpeedSet(i, MIOS_ENC_SPEED_FAST, 2); // encoder, speed mode, divider
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>We add the code which should be executed on rotary encoder movements to the ENC_NotifyChange() function. It increments/decrements the absolute value depending on the encoder turn direction and sends the new value over the MIDI interface, if it has been changed:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when an encoder has been moved
+// incrementer is positive when encoder has been turned clockwise, else
+// it is negative
+/////////////////////////////////////////////////////////////////////////////
+void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
+{
+  unsigned char new_value;
+
+  // do nothing if encoder number greater than array size
+  if( encoder >= sizeof(enc_value) )
+    return;
+
+  // add incrementer to absolute value, store result in new_value
+  new_value = enc_value[encoder] + incrementer;
+
+  // branch depending on direction
+  if( incrementer >= 0 ) {
+    // overrun check: if new value >= 0x80, force to 0x7f (127)
+    if( new_value >= 0x80 )
+      new_value = 0x7f;
+  } else {
+    // underrun check: if new value >= 0x80, force to 0x00 (0)
+    if( new_value >= 0x80 )
+      new_value = 0x00;
+  }
+
+  // store and send absolute value if it has been changed
+  if( new_value != enc_value[encoder] ) {
+    enc_value[encoder] = new_value;
+    MIOS_MIDI_TxBufferPut(0xb0);           // CC at MIDI Channel #1
+    MIOS_MIDI_TxBufferPut(0x10 + encoder); // CC# is 0x10 (16) for first encoder
+    MIOS_MIDI_TxBufferPut(new_value);
+  }
+}
+</PRE></TT>
+
+
+<P CLASS=INFO><B>Note:</B> by using the MIOS_HLP_16bitAddSaturate() help function, this routine can be simplified like shown below:</P>
+
+<TT><PRE>
+void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
+{
+  unsigned int value;
+
+  // do nothing if encoder number greater than array size
+  if( encoder >= sizeof(enc_value) )
+    return;
+
+  // add incrementer to absolute value by using a MIOS help function
+  value = (unsigned int)enc_value[encoder];
+  if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 0x7f) ) {
+    // store new value and send it
+    enc_value[encoder] = (unsigned char)value;
+
+    MIOS_MIDI_TxBufferPut(0xb0);           // CC at MIDI Channel #1
+    MIOS_MIDI_TxBufferPut(0x10 + encoder); // CC# is 0x10 (16) for first encoder
+    MIOS_MIDI_TxBufferPut((unsigned char)value);
+  }
+}
+</PRE></TT>
+
+
+<P CLASS=INFO><B>IMPORTANT:</B> the pins to which the encoders are connected must be specified in mios_wrapper/mios_tables.inc. Search for <B>MIOS_ENC_PIN_TABLE</B> and replace the first ENC_EOT entries (which terminate the table) by:</P>
+
+<TT><PRE>
+MIOS_ENC_PIN_TABLE
+        ;;        SR  Pin  Mode
+        ENC_ENTRY  1,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 1
+        ENC_ENTRY  1,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 2
+        ENC_ENTRY  1,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 3
+        ENC_ENTRY  1,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 4
+        ENC_ENTRY  2,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 5
+        ENC_ENTRY  2,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 6
+        ENC_ENTRY  2,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 7
+        ENC_ENTRY  2,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 8
+</PRE></TT>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

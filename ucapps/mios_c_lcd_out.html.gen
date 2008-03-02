@@ -1,0 +1,127 @@
+HEADER 3 MIOS C Example
+
+<H3>Printing values on a LCD</H3>
+
+<P CLASS=INFO>We want to print the last changed DIN pin on a LCD. Of course, we could do this directly within the DIN_NotifyToggle() function, with the disadvantage, that a lot of useless information would be transfered to the screen, if several pins are toggling at the same moment. On slow LCDs and high frequently toggles this would increase the latency of your application significantly, therefore a more sophisticated method is described here, which is used by nearly all MIOS applications.</P>
+
+<P CLASS=INFO>The idea is to print only the last pin change, when nothing else is to do (so: after all pin changes have been processed). This might look "over-engineered" in this simple example, but you will see the advantages, once your application gets more complex, and reacts also on pot/encoder/incoming MIDI events.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>The last DIN pin should be stored in a variable, define this at the top of main.c:</P>
+
+<TT><PRE>
+// last DIN pin number
+unsigned char last_din_pin;
+</PRE></TT>
+
+<P CLASS=INFO>In addition, we define an "aggregate", which describes the structure of a byte. Only one bit of the byte is used here to requests a display update:</P>
+
+<TT><PRE>
+// definition of application status byte
+typedef union {
+  struct {
+    unsigned ALL:8;
+  };
+  struct {
+    unsigned DISPLAY_UPDATE_REQ:1;  // requests a display update
+  };
+} app_flags_t;
+
+// status of application
+app_flags_t app_flags;
+</PRE></TT>
+
+<P CLASS=INFO>Note: the aggregate could also be defined in a main.h file, which is included from main.c - the app_flags variable could be exported from there ('extern app_flags_t app_flags;'), so that it is accessible from other modules. Examples for this method can be found in nearly all <A HREF="mios_download.html">C applications</A>.
+
+<P CLASS=INFO>Let's continue: Within the Init() function, you have to specify, how many shift registers are used by the application:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  // set shift register update frequency
+  MIOS_SRIO_UpdateFrqSet(1); // ms
+
+  // we need to set at least one IO shift register pair
+  MIOS_SRIO_NumberSet(16); // for up to 128 pins
+
+  // debouncing value for DINs
+  MIOS_SRIO_DebounceSet(10);
+}
+</PRE></TT>
+
+<P CLASS=INFO>The display should be cleared within the DISPLAY_Init() function. From there you can also print static strings which will never change. Don't do this in the normal Init() function, because at the time it is called, the LCD is not initialized!</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when the display content should be 
+// initialized. Thats the case during startup and after a temporary message
+// has been printed on the screen
+/////////////////////////////////////////////////////////////////////////////
+void DISPLAY_Init(void) __wparam
+{
+  // clear screen
+  MIOS_LCD_Clear();
+
+  // print static messages
+  MIOS_LCD_CursorSet(0x00); // first line
+  MIOS_LCD_PrintCString("Last DIN Pin:");
+
+  // request display update
+  app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+</PRE></TT>
+
+<P CLASS=INFO>As mentioned above, the DISPLAY_Tick() function is called whenever nothing else is to do. It should react on update requests, clear the flag and print out the information:</P>
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called in the mainloop when no temporary message is shown
+//  on screen. Print the realtime messages here
+/////////////////////////////////////////////////////////////////////////////
+void DISPLAY_Tick(void) __wparam
+{
+  // do nothing if no update has been requested
+  if( !app_flags.DISPLAY_UPDATE_REQ )
+    return;
+
+  // clear request
+  app_flags.DISPLAY_UPDATE_REQ = 0;
+
+  // print DIN number and value in second line
+  MIOS_LCD_CursorSet(0x40); // second line
+  MIOS_LCD_PrintBCD3(last_din_pin);
+  MIOS_LCD_PrintChar(':');
+  MIOS_LCD_PrintBCD1(MIOS_DIN_PinGet(last_din_pin));
+}
+</PRE></TT>
+
+<P CLASS=INFO>At the end we put something into the DIN_NotifyToggle() function. It should send a Note Event when a button is pressed/depressed, and it should initiate a display update:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when an button has been toggled
+// pin_value is 1 when button released, and 0 when button pressed
+/////////////////////////////////////////////////////////////////////////////
+void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
+{
+  // a button has been pressed, send Note at channel 1
+  MIOS_MIDI_BeginStream();
+  MIOS_MIDI_TxBufferPut(0x90); // Note at channel 1
+  MIOS_MIDI_TxBufferPut(pin);  // pin number corresponds to note number
+  MIOS_MIDI_TxBufferPut(pin_value ? 0x00 : 0x7f); // buttons are high-active
+  MIOS_MIDI_EndStream();
+
+  // notify display handler in DISPLAY_Tick() that DIN value has changed
+  last_din_pin = pin;
+  app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+</PRE></TT>
+
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

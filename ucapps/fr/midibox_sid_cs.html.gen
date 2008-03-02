@@ -1,0 +1,317 @@
+HEADER 3 MIDIbox SID
+
+<h1>MIDIbox SID "Control Surface"</h1>
+<h3>Date de Cr&eacute;ation: 2003</h3>
+
+<p></p><center><img src="midibox_sid_cs/mini_unit.jpg" height="233" width="550"></center>
+
+<p class="INFO"><br>
+</p>
+            <p class="INFO">La MIDIbox SID "Control surface" a pour but
+de permettre une navigation ergonomique dans les menus de
+l'application, afin d'avoir acc&eacute;s rapidement &agrave; tous les
+param&egrave;tres &eacute;ditables. Elle est tr&eacute;s peu gourmande
+en m&eacute;moire et laisse suffisament de ressources pour la
+programmation de fonction d&eacute;di&eacute;es &agrave;
+l'&eacute;dition des sons. Cette surface de Contr&ocirc;le supporte
+diff&eacute;rentes configurations mat&eacute;rielles, permettant ainsi
+&agrave; l'utilisateur de d&eacute;cider quelle somme investir dans son
+synth&eacute;tiseur SID.</p>
+
+
+<p class="INFO">Si vous n'avez pas encore lu la page de <a href="mios.html">pr&eacute;sentation du MIOS</a>,
+je vous recommande de le faire avant tout, car l'unit&eacute; de
+Contr&ocirc;le n'est support&eacute;e qu'avec la version PIC18F de la
+MIDIbox SID. Il n'existe aucun moyen de r&eacute;aliser cette
+derni&egrave;re autour d'un Core &eacute;quip&eacute; d'un PIC16F,
+cette s&eacute;rie de chip ayant de trop faibles performances. Les
+modules CORE avec un PIC16F ne peuvent donc &ecirc;tre utilis&eacute;s
+que pour r&eacute;aliser un module sonore sans interface et uniquement
+pilotable via MIDI. Une future version permettra de piloter gr&acirc;ce
+&agrave; l'option <a href="midibox_link.html">MIDIbox link</a>
+des modules COREs PIC16F (et PIC18F) depuis la Control Surface PIC18F.</p>
+
+<h2>Historique:</h2>
+
+
+  <ul class="CL">
+    <li> <a href="midibox_sid_cs.html"><b>Step A:</b></a> <i>termin&eacute;</i>
+- une unit&eacute; de contr&ocirc;le avec quelques boutons de
+navigation et un encodeur rotatif (datawheel) optionnel pour
+l'entr&eacute;e des donn&eacute;es.</li>
+    <li> <a href="midibox_sid_csB.html"><b>Step B:</b></a>&nbsp;<i>termin&eacute;</i> - offre la possibilit&eacute; de piloter 4 SIDs depuis la Control Surface</li>
+    <li> <a href="midibox_sid_csC.html"><b>Step C:</b></a>&nbsp;<i>termin&eacute;</i> - la  <a href="midibox_sid/mbsid_surface4.gif">surface</a><a href="midibox_sid/mbsid_surface4.gif"> de contr&ocirc;le </a><a href="midibox_sid/mbsid_surface4.gif">compl&egrave;te</a></li>
+  </ul>
+
+<h2>Options Mat&eacute;rielles</h2>
+
+<p class="DESC">Actuellement,&nbsp;les options suivantes sont
+propos&eacute;es. En fonction de vos choix, vous devez configurer votre
+MIDIbox SID en &eacute;ditant le fichier <b>main.asm</b>, pr&eacute;sent dans <a href="mios_download.html">le code source de l'application</a>:</p>
+  <ul class="CL">
+    <li> <b>LCD</b><b> 2x40 </b> <img src="midibox_sid_cs/2x40.gif" alt="2x40 option" height="38" width="482"><br>Avec encodeur rotatif (<a href="midibox_sid_cs/2x40_enc.pdf">2x40_enc.pdf</a>) ou boutons Inc/Dec (<a href="midibox_sid_cs/2x40_b.pdf">2x40_b.pdf</a>), un bouton MENU et 10 boutons de s&eacute;lection.</li>
+    <li> <b>LCD</b><b> 2x20</b> <img src="midibox_sid_cs/2x20.gif" alt="2x20 option" height="38" width="242"><br>Avec encodeur rotatif&nbsp;(<a href="midibox_sid_cs/2x20_enc.pdf">2x20_enc.pdf</a>)&nbsp;ou boutons Inc/Dec (<a href="midibox_sid_cs/2x20_b.pdf">2x20_b.pdf</a>),&nbsp;un bouton MENU et 5 boutons de s&eacute;lection.</li>
+    <li> <b>2x16 LCD</b> <img src="midibox_sid_cs/2x16.gif" alt="2x16 option" height="38" width="194"><br>Avec encodeur rotatif&nbsp;(<a href="midibox_sid_cs/2x16_enc.pdf">2x16_enc.pdf</a>)&nbsp;ou boutons Inc/Dec (<a href="midibox_sid_cs/2x16_b.pdf">2x16_b.pdf</a>),&nbsp;un bouton MENU et 4 boutons de s&eacute;lection.</li>
+  </ul>
+
+<p class="DESC">J'ai d&eacute;cid&eacute; d'utiliser un LCD 2x20 LCD pour ma <a href="midibox_sid/mbsid_surface4.jpg">Surface de Contr&ocirc;le</a>,
+car un LCD 2x40 serait trop grand pour la fa&ccedil;ade, et de plus pas
+forc&eacute;ment n&eacute;cessaire avec les encodeurs
+suppl&eacute;mentaires . M&ecirc;me avec la surface de contr&ocirc;le
+compl&egrave;te, l'unit&eacute; d'&eacute;dition (encodeurs, LCD,
+boutons de s&eacute;lection) reste utile, notament pour &eacute;diter
+les wavetables et pour configurer quelques options
+(canal MIDI, num&eacute;ro de patch&nbsp;, nom de patch, etc...)</p>
+
+<h2>Navigation dans les Menus</h2>
+
+<p class="DESC">La navigation dans les menus est librement
+inspir&eacute;e des fonctionnalit&eacute;s offertes pour
+contr&ocirc;ler les VST par la Logic Control, et de la gestion des
+menus de ma calculatrice HP48&nbsp; ;-)</p>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/nav1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Un curseur clignotant (lentement) vous indique le param&egrave;tre actuellement s&eacute;lectionn&eacute;. Ici: OSC</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/nav2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Si
+le param&egrave;tre qui doit &ecirc;tre &eacute;dit&eacute; n'est pas
+visible &agrave; l'&eacute;cran, vous pouvez faire d&eacute;filer la
+liste des param&egrave;tres avec l'encodeur rotatif&nbsp; <i>(ou les
+boutons Inc/Dec - par la suite il ne sera plus rappell&eacute; que
+l'encodeur peut &ecirc;tre remplac&eacute; par deux boutons&nbsp;)</i></span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/nav3.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">L'encodeur fait d&eacute;filer les param&egrave;tres un par un...</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/nav4.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">...jusqu'&agrave; ce que le dernier soit visible</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/nav5.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Une
+fois que vous avez trouver votre param&egrave;tre, appuyez simplement
+sur le boutons de s&eacute;lection correspondant pour activer le mode
+Edit.</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/nav6.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Editer la valeur avec l'encodeur.</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/nav7.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Vous
+pouvez appuyer &agrave; n'importe quel moment sur un bouton de
+s&eacute;lection si vous souhaitez &eacute;diter un autre
+param&egrave;tre.</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/nav8.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Appuyez ensuite sur le bouton Menu pour quitter le mode Edit.</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/main1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Appuyez de nouveau sur le bouton Menu pour acc&eacute;der au Menu suivant.</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Description des Param&egrave;tres</h2>
+
+<p class="DESC">Voici une&nbsp;pr&eacute;sentation rapide des
+param&egrave;tres d'&eacute;dition des noms disponibles. Notez que les
+versions &agrave; venir de la MIDIbox SID proposerons probablement des
+options dont vous ne trouverez pas la description ici!</p>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/main1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Depuis la page principale, vous pouvez choisir d'acc&eacute;der &agrave; diff&eacute;rents sous-menus: <b>OSC</b> (oscillateurs), <b>FIL</b> (filtres), <b>LFO</b> (low frequency oscillators/oscillateur basse fr&eacute;quence), <b>ENV</b> (enveloppes), <b>MOD</b> (modulation matrix/matrice de modulation), ...</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/main2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>WT</b> (wavetables/tables d'ondes), <b>CFG</b> (configuration), <b>SAV</b> (sauvegarde des patchs)</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Sous-menu OSC</h2>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/osc1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>OSC</b>
+s&eacute;lectionne le(s) oscillateur(s). Les param&egrave;tres de
+droite sont ceux de l'oscillateur s&eacute;lectionn&eacute;. Si
+plusieurs oscillateurs sont s&eacute;lectionn&eacute;s, seules les
+valeurs du premier sont affich&eacute;es, mais les changements de
+valeur affecteront tous les Osc. s&eacute;lectionn&eacute;s.<br><b>WAV</b> : Waveform (forme d'onde)<br>
+<b>S/R</b> : Sync/Ringmodulation<br>
+<b>Del</b> : Delay<b><br>
+Atk</b> : Attack</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/osc2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Dec</b> Decay, <b>Sus</b> Sustain, <b>Rel</b> Release, <b>PRnl</b> Pitch Range, <b>Trn</b> Transpose</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/osc3.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Trn</b> Transpose, <b>Fin</b> Finetune, <b>Por</b> Portamento Rate, <b>Arp</b> Arpeggiator Rate, <b>PW</b> Pulsewidth</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Sous-menu FIL (Filtres)</h2>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/fil1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Chn</b> : canaux assign&eacute;s aux filtres, <b>Cut</b> Cutoff Frequency, <b>Res</b> Resonance, <b>Mod</b> Mode (<b>L</b>: Lowpass, <b>B</b>: Bandpass, <b>H</b> Highpass)</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/fil2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Ext</b> permet d'activer le filtre pour l'entr&eacute;e audio, <b>3Of</b> d&eacute;sactive le troisi&egrave;me oscillateur.</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Sous-menu LFO</h2>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/lfo1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>LFO</b> permet de s&eacute;lectionner l'un des 6 LFOs, <b>Wav</b> s&eacute;lectionne sa forme d'onde (<b>Sin</b> sine, <b>Tri</b> Triangle, <b>Saw</b> Saw, <b>Pul</b> Pulse), <b>Rte</b> LFO rate (vitesse), <b>Dep</b> LFO depth (intensit&eacute;), <b>Syn</b> synchronisation au &eacute;v&egrave;nements de note (le LFO red&eacute;marre &agrave; chaque note)&nbsp; (<b>no</b>: LFO libre, <b>All</b>: &agrave; chaque note, <b>Asn</b>: aux notes assign&eacute;es au m&ecirc;me canal)</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Sous-menu ENV</h2>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/env1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>ENV</b> permet de s&eacute;lectionner l'une des deux enveloppes</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/env2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Dep</b>: intensit&eacute;, <b>Atk</b> Attack, <b>Dec</b> Decay, <b>Sus</b> Sustain, <b>Rel</b> Release</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Sous-menu MOD</h2>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/mod1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Mod</b> permet de s&eacute;lectionner le param&egrave;tre cible affect&eacute; par la modulation: <b>O[123]P: </b></span><span class="NORM">pitch</span><span class="NORM"> des OSC 1/2/3&nbsp;, <b>O[123]W:&nbsp;</b> </span><span class="NORM">pulsewidth</span><span class="NORM"> des OSC1/2/3&nbsp;, <b>Fil</b>: filtre</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/mod2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Les param&egrave;tres <b>E1</b>, <b>E2</b> (enveloppes 1 et 2), <b>L1</b>, <b>L2</b>, <b>L3</b>, <b>L4</b>, <b>L5</b>, <b>L6</b>
+(LFO 1 &agrave; 6) vous permettent d'affecter ou non ces sources de
+modulation au param&egrave;tre cible pr&eacute;c&eacute;demment
+s&eacute;lectionn&eacute;.</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Sous-menu WT (Wave Tables)</h2>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/wt2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Pos</b> permet de s&eacute;lectionner le pas &agrave; &eacute;diter, <b>Mod</b> le mode pour ce pas (<b>Ply</b>: Play/jou&eacute;, <b>Jmp</b>: Jump/saut&eacute;, <b>End</b> end/fin). <b>#1</b>, <b>#2</b> et <b>#3</b>: &eacute;ditez ici la valeur des trois param&egrave;tres affect&eacute;s, pour ce pas.</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/wt3.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Rte</b> Rate (vitesse) de la table d'onde, <b>CC1-3:&nbsp;</b>s&eacute;lectionnez ici les num&eacute;ros de CC affect&eacute;s par le s&eacute;quenceur de table d'onde.</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/wt4.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Note:
+comme il est difficile de se rappeller des num&eacute;ros de CC, le nom
+du CC correspondant s'affichera lorsque vous &eacute;ditez cette
+entr&eacute;e.</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Sous-menu CFG (configuration)</h2>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/cfg1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>Chn</b>: canal MIDI, <b>Dev</b>: Device ID (seule l'ID de la surface de contr&ocirc;le peut &ecirc;tre modifi&eacute; par ce menu!), <b>Nam</b> Nom du Patch, <b>Vol</b> volume, <b>Ply</b> Play mode (<b>Mon</b> mono, <b>Leg</b> legato, <b>WTS</b> uniquement les notes jou&eacute;es par le </span><span class="NORM">s&eacute;quenceur</span><span class="NORM"> Wavetable&nbsp;, <b>Pol</b> Poly)</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/cfg2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>SuK</b>: SusKey on/off.<br>
+<b>Clk</b>: Clock, sources de synchro (<b>Int</b> toutes les param&egrave;tres cibles synchronis&eacute; en interne, ou (combinaisons des valeurs suivantes): <b>W:</b> Wavetable, <b>L:</b> LFOs, <b>E:</b> Envelopes, pour synchro externe de ces modulations).<br>
+<b>VCC</b>: num&eacute;ro de CC assign&eacute; &agrave; la v&eacute;locit&eacute;, <b>VIn</b>:Valeur initiale, <b>VDp</b>: intensit&eacute;</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/cfg3.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>MCC</b>:&nbsp;</span><span class="NORM">num&eacute;ro de CC assign&eacute; &agrave; la molette de modulation</span><span class="NORM">, <b>MIn</b>&nbsp;</span><span class="NORM">Valeur initiale</span><span class="NORM">, <b>MDp</b> Depth (intensit&eacute;), <b>ACC</b>&nbsp;</span><span class="NORM"></span><span class="NORM">num&eacute;ro de CC assign&eacute; &agrave; l'</span><span class="NORM">aftertouch, <b>MIn</b>&nbsp;</span><span class="NORM">Valeur initiale</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/cfg4.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"><b>ADp</b> intensit&eacute; de l'Aftertouch</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/cfg5.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Lorsque vous s&eacute;lectionnez <b>Nam</b>, une nouvelle page s'affiche, vous permettant d'&eacute;diter le nom du Patch.</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Page Principale</h2>
+
+<table cellpadding="0" cellspacing="20">
+  <tbody><tr>
+    <td><img src="midibox_sid_cs/top1.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Appuyez
+deux fois sur la touche Enter pour revenir &agrave; la page principale.
+Vous pouvez alors s&eacute;lectionner les patchs. Informations
+affich&eacute;es: <b>P</b> Num&eacute;ro de Patch, <b>C</b> canal MIDI, <b>1234</b> SIDs s&eacute;lectionn&eacute;s</span></td>
+  </tr>
+  <tr>
+    <td><img src="midibox_sid_cs/top2.gif" alt="" height="38" width="242"></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Note:
+le num&eacute;ro de Patch ainsi que les param&egrave;tres
+modifi&eacute;s seront envoy&eacute;s &agrave; tous les&nbsp;SIDs
+s&eacute;lectionn&eacute;s</span></td>
+  </tr>
+</tbody></table>
+
+
+<h2>Ce n'est pas assez pour vous?</h2>
+<p class="INFO"><a href="midibox_sid_csB.html">...alors continuez par l&agrave;...</a></p>
+FOOTER

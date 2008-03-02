@@ -1,0 +1,213 @@
+HEADER 3 MBHP USB PIC Module
+
+<H1>MIDIbox Hardware Platform, USB PIC Module</H1>
+
+<P CLASS=INFO>This module was planned as a cheap and easy alternative solution to the <A HREF="mbhp_usb.html">MBHP_USB</A> module. It is based on the PIC18F4550 (or PIC18F2550) which is available for less than 6 US$</P>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Summary</H2></DT>
+<UL CLASS=CL>
+<LI>In general this MIDI interface works fine under Windows and Linux, but there is a potential risk for data loss when large SysEx dumps are sent and received concurrently. However, MIOS uploads are unidirectional, and therefore working stable enough.</LI>
+<LI>Windows legacy driver is not multiclient capable. This means: you have to close your MIDI software (or release the MIDI ports) when using MIOS Studio</LI>
+<LI>The module is not working correctly under Mac OS X (tested with Leopard only)</LI>
+<LI>The latest PIC18F4550 (or PIC18F2550) revision 5 is required to overcome the EUSART bug</LI>
+<LI>No PCB available (yet), but MBHP_CORE module can be used. Just add the USB socket, a 470 nF cap, replace the crystal by a 20 MHz type, and add a Reset and Bootloader button.</LI>
+</UL>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> History - MBHP_USB_PIC firmware, first attempt</H2></DT>
+   <DD>
+<P CLASS=DESC>Initially the implementation of the firmware was planned as a nice one-day project, as I didn't expect much effort for doing a port of the Cypress based <A HREF="mbhp_usb.html">MBHP_USB</A> to the PIC architecture, which I know pretty well. The USB descriptors for USB MIDI, the MIDI parser, the interrupt handlers for MIDI Rx/Tx were ready to be re-used.</P>
+
+<P CLASS=DESC>So, at a rainy weekend in March 2005 I downloaded the USB framework from the Microchip homepage, installed the USB bootloader (for quick program updates), and integrated the basic MIDI handling code into the CDC example. During the first tests I already noticed that the example code didn't work so stable as expected. Under stress conditions, received MIDI data got lost, and transmitted MIDI data was sporatically corrupted.</P>
+
+<P CLASS=DESC>After some hours I couldn't believe anymore that this was caused by my own code, so I started to debug the transmitting issue first by writing a short program, which just forwards incoming MIDI data to the output port. Even this minimal code was failing: on large SysEx dumps, sometimes more data was forwarded than received. We know that data can get lost when a "serial forwarder" doesn't send out the incoming stream with at least the same speed (bottleneck issue), but how can bytes be added into the stream when the software is primitive enough, so that programming errors can be excluded?<BR>
+<CENTER><IMG SRC="mbhp/mbhp_usb_pic_eusart_bug.gif" WIDTH=501 HEIGHT=365</IMG></CENTER></P>
+
+<P CLASS=DESC>Intuitively I tested the same code on a "known good" device - the PIC18F452. It was working fine! I assumed a physical issue (Device overclocked? Voltage unstable? Untested silicon with defects? Noisy Rx/Tx line?), however - three PIC18F4550 and three PIC18F4520 were showing the same effecs on different prototype boards. I read about the new EUSART peripheral and assumed software incompatibilities, but according to datasheets it should behave identical to the old version. I searched in the errata sheets for possible errors, but even the documented interrupt bug wasn't relevant, as I wasn't using interrupts anymore at this time. So I continued to analyse the effects by creating a test scenario with two chips: a PIC18F452 which sends and receives data to/from a PIC18F4550, and which toggles a pin on mismatches so that a wrongly transmitted byte can be captured with a scope. Later I also added an "dynamic delay" into the forwarding routine running on PIC18F4550 to emulate jitter which is caused by interrupt handlers in realworld applications. This setup allowed me to reproduce the issue very easily, and to visualize the additionally sent bytes on a scope.</P>
+
+<P CLASS=DESC>To make it short - the additional bytes were sent due to a silicon bug in the new EUSART peripheral. See also this <A HREF="http://forum.microchip.com/tm.aspx?m=85120" TARGET="_blank">article</A> in the Microchip forum, where I reported my observations. I had to contact the Microchip support multiple times to point out, that this is a silicon bug which exists in many derivatives which were produced in the past. Finally they decided to add an hint into the errata sheets of some (but not all) affected devices. It describes the defect and a possible software workaround.</P>
+
+<P CLASS=DESC>Some words to the suggested workaround (see <A HREF="http://ww1.microchip.com/downloads/en/DeviceDoc/80220g.pdf">errata sheet</A>, bug #19): both are not acceptable for my usecases due to a potential risk for buffer overflows at the receiver side while streaming data. Especially for <A HREF="mios.html">MIOS</A> such workarounds are not applicable, as the performance is affected too much, and as there are not free timer resouces.</P>
+
+<P CLASS=DESC>So, what was the result: I stopped the firmware development after it was clear that there is a silicon bug, especially because I wasn't able to ensure anymore, that even if this bug should ever be fixed in later revisions, somebody is able to determine if a mailorder company like Mouser or Reichelt offers the "good" or "bad" one.</P>
+
+<P CLASS=DESC>Regardless of this bad experience, I followed the progress at Microchip in the following months, and infrequently tested new chip revisions of PIC18F4550, PIC18F4520 and PIC18F4620 by ordering samples. Between 2005 and 2007 all devices were affected, even when the bug was not listed in the errata sheet of the appr. chip revision. Microchip support didn't really react on such inconsistencies (statement: "bug will be fixed in future"). They still haven't managed their documentation issues.</P>
+
+<P CLASS=DESC>FYI: December 2007 I got a PIC18F4550 rev.5 where the EUSART bug is finally fixed.</P>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> History - MBHP_USB_PIC firmware, second attempt</H2></DT>
+   <DD>
+<P CLASS=DESC>One year later, in spring 2006, I continued with the firmware; as a feasible workaround I planned the usage of an external MIDI transmitter/receiver connected via IIC - the <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module. I rewrote the complete firmware in assembly language, as the 3-month evaluation license of MPLAB-C18 compiler already timed out, and since I wanted to ensure that everybody is able to compile the firmware under Windows/Linux/MacOS without buying expensive tools. Also performance reasons lead to this decition - there was a high risk that code generated by the freely available SDCC compiler was too slow for handling 5 MIDI In and 4 MIDI Out ports.</P>
+
+<P CLASS=DESC>Yes, you are reading correctly: the intention was to handle 4 <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> modules + the working "internal" EUSART based MIDI In port from a single USB device:<BR>
+
+<IMG SRC="mbhp/mbhp_iic_midi_preview.jpg" WIDTH=550 HEIGHT=341>
+
+<P CLASS=DESC>In general the firmware was running fine on my Windows and Linux PC, but I wasn't happy about the windows legacy driver implementation for the USB MIDI protocol, since it doesn't come with multiclient capabilities. I was mainly working under Windows this time, e.g. to develop and upload new firmware with MIOS Studio while having MIDI-Ox and Reaktor or Logic Audio running in parallel - this is a strong requirement for my workflow.</P>
+
+<P CLASS=DESC>Another issue I noticed was unexpected data loss during transfers of large SysEx dumps, which happens when outgoing data is loopbacked from MIDI Out to the MIDI In port. I called this effect "blocked pipes" in <A HREF="http://www.midibox.org/forum/index.php/topic,6413.0.html" TARGET="_blank">this german article</A>, as it describes the effect pretty well: under heavy load the IN pipe is sporatically blocked for several miliseconds if the OUT pipe is not serviced immediatly after the host has sent new data. The following scope snapshot illustriates this effect:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_usb_pic_blocked_pipes.jpg" WIDTH=320 HEIGHT=240</IMG></CENTER></P>
+
+<P CLASS=DESC>The lower channel toggles whenever the IN/OUT endpoint handler (USBCLS_EP2_Handler) is called, and the upper channel mirrors the BD2_STAT.UOWN flag, which is set so long the SIE owns the IN buffer.</P>
+
+<P CLASS=DESC>This effect can cause buffer underruns at the MIDI receiver site. I doublechecked this by replacing each third byte of a SysEx stream by the number of free bytes in the receive buffer:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_usb_pic_rx_underflow.gif" WIDTH=556 HEIGHT=434</IMG></CENTER></P>
+
+<P CLASS=DESC>This "trace" shows, that a) much less bytes are received than transmitted, and b) that there are dramatic jumps in the number of free bytes. E.g. 0x7f -> 0x5a means: we had to buffer 37 bytes. At a baudrate of 32150, this means, that the IN endpoint was blocked for ca. 11 mS - and this time is matching with the waveforms on the scope!<BR>
+Since this happens multiple times during the transfer of a SysEx stream, the receive buffer will underrun very quickly and cause data loss. Note: when MIDI In and Out are directly loopbacked!</P>
+
+<P CLASS=DESC>It doesn't happen when MIDI In/Out are connected to a MIDI device which receives/transmits SysEx data quasi unidirectional. E.g., when large SysEx dumps are sent from one MIDI interface to MBHP_USB_PIC, or vice versa, no data will get lost.</P>
+
+<P CLASS=DESC>Btw.: this effect even happens, when the firmware skips USBCLKS_EP2_Hander_Out so long the receiver buffer has to be emptied. So, preventing that packages will be forwarded to MIDI Out so long something is received doesn't help.</P>
+
+<P CLASS=DESC>It still isn't clear to me, if this is a PIC or Windows related issue. I wasn't able to reproduce it under Linux at this time, but the reason could be, that the appr. USB drivers are running under different timing conditions (e.g. slower or faster as the Windows driver...).</P>
+
+<P CLASS=DESC>Interestingly I read in different forums, that USB devices from Korg, Behringer and ESI, which were using the legacy Windows driver as well, had similar issues with SysEx transfers. These companies provide alternative drivers, which are unfortunately protected and cannot be re-used for private projects just by adapting the USB descriptors. And another interesting point, which totally confuses me, is that I wasn't able to reproduce it with the AN2131SC based <A HREF="mbhp_usb.html">MBHP_USB</A> interface.</P>
+
+<P CLASS=DESC>Meanwhile I lost the interest on USB (again), and created the <A HREF="midi_router.html">MIDI Router</A> instead, which offers a much higher flexibility for my usecases, as this project allows to forward MIDI streams of different devices even without a computer and with best timings.</P>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> History - MBHP_USB_PIC firmware, third attempt</H2></DT>
+   <DD>
+<P CLASS=DESC>In the following months I frequently got EMails and forum requests concerning the MBHP_USB_PIC project. People intended to save money with this DIY solution, or they intended to use the firmware as a template for their own projects. I never found the motivation to release the project properly due to the reasons described above, and therefore distributed the firmware privately with a big warning about the known limitations.</P>
+
+<P CLASS=DESC>For my own interests, as a new and happy Mac OS user, I tested the firmware with a PIC18F4550 rev.5 under Leopard in January 2008. Unfortunately it doesn't work better as under Windows - in distance: just send some MIDI notes, thereafter a SysEx string - this will hang up the MIDI Out port (to USB experts: the OUT endpoint doesn't receive any message anymore, BDn_STAT_UOWN is permanently set, no USB error is reported). Reconnect the interface, start with some SysEx messages: works. Send some notes: no MIDI out data anymore! MIDI In port is working better, but not perfectly (data loss on higher data rates).
+<CENTER><IMG SRC="mbhp/mbhp_usb_pic_macos_issue.gif" WIDTH=600 HEIGHT=488</IMG></CENTER></P>
+
+<P CLASS=DESC>Thereafter I tried two other PIC based MIDI USB firmwares, which are freely available in the web: <A HREF="http://www.nutsvolts.com/downloads.php" TARGET="_blank">Robert Lang's MIDI-nator firmware</A>: same effects as with MBHP_USB_PIC. Synthex's firmware for the <A HREF="http://www.megadrum.info/downloads.php" TARGET="_blank">Megadrum project</A>: same effects as with MBHP_USB_PIC. :-(</P>
+
+<P CLASS=DESC>I tried the Cypress based <A HREF="mbhp_usb.html">MBHP_USB</A> under Mac OS instead: works perfectly! Even better than under Windows (multiclient capability! :-))</P>
+
+<P CLASS=DESC>I incorporated all the framework errata which are documented in <A HREF="http://forum.microchip.com/tm.aspx?m=275422" TARGET="_blank">this Microchip forum article</A>, but they don't solve the problem. I also found a bug in my own code (risk that wrong byte counter used in the OUT ringbuffer), unfortunately no cure!</P>
+
+<P CLASS=DESC>I feel that I'm not able to continue debugging without a hardware based USB analyser. But they are too expensive, especially for a sparetime project.</P>
+
+<P CLASS=DESC>Therefore I decided to freeze the project again, and to publish the firmware with its known imperfections "as-is" for the case that somebody wants to help debugging, wants to use it as a learning example, or can live with the bugs.</P>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Installation </H2></DT>
+   <DD>
+<P CLASS=DESC>For those who are not deterred from the bad news above, I describe the installation procedure here.</P>
+
+<P CLASS=DESC>I strongly recomment you to install the Microchip USB bootloader, which can be found in the download section at the end of this page. The package contains a .hex file which has to be programmed into the PIC with a programmer like <A HREF="mbhp_burner.html">MBHP_BURNER</A>. Once this has been done, you will be able to download updates of the MBHP_USB_PIC firmware with a comfortable Windows application very quickly.</P>
+
+<P CLASS=DESC>Users of other operating systems have no benefit from this USB bootloader, and need to program the MBHP_USB_PIC firmware directly (e.g. under Linux with "pkp").</P>
+
+<P CLASS=DESC>Once your core is up&running, Windows will ask you for a driver - it can be found in the "pc_usb_driver" directory of the bootloader package.</P>
+
+<P CLASS=DESC>Now you can start the "Pdfsusb" application and load the firmware "project.hex", which can be found in the MBHP_USB_PIC release package:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_usb_pic_bootloader.gif" WIDTH=560 HEIGHT=483</IMG></CENTER></P>
+
+<P CLASS=DESC>Thereafter press the "Program Device", afterwards the "Execute" button of the application, or reset the PIC with the <A HREF="mbhp/mbhp_usb_pic18f4550.pdf">Reset Button</A> of your board. Windows should re-connect to the USB device and find an "Audiodevice" (in german installations: "Audioger&auml;t"). MIDI-Ox should show this device as well (if not: re-start MIDI-Ox if it was opened before!)</P>
+
+<P CLASS=DESC>Now the PIC will always boot with the MBHP_USB_PIC firmware after a reset or power-on. Whenever you want to update the firmware, press the <A HREF="mbhp/mbhp_usb_pic18f4550.pdf">Bootloader Button</A> together with the <A HREF="mbhp/mbhp_usb_pic18f4550.pdf">Reset Button</A>, thereafter release (only) the <A HREF="mbhp/mbhp_usb_pic18f4550.pdf">Reset Button</A> until Windows notifies you about the USB device exchange with a sound (this will happen immediately after reset). Now depress the <A HREF="mbhp/mbhp_usb_pic18f4550.pdf">Bootloader Button</A> and select the "PICDEM FS USB 0 (Boot)" device again (selector will be empty so long you haven't done this) in the Pdfusb application, load the new .hex file and press the "Program Device" button.</P>
+
+<P CLASS=DESC>If you are planning to connect <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> modules as IO extension, you need to recompile the firmware with different settings in MAKEFILE.SPEC: set IIC_MIDI_MAX_NUMBER to 4 and NUMBER_MIDI_INTERFACES to 5. Windows users just start the make.bat file (doubleclick on it from the Explorer, or type "make" in the command line). Linux/MacOS users have to type "tools/mkmk.pl MAKEFILE.SPEC; make" instead. SDCC and GPASM are required for compilation, it's basically the same toolchain which is used for <A HREF="mios_c.html">C based MIOS applications</A>.</P>
+
+
+<P CLASS=DESC>A wiring diagram for the modules can be found <A HREF="mbhp/mbhp_usb_pic_with_iic.pdf">here</A>. Note that open RA0/1/2/3 input pins (which are not connected to the RI# line of a <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module) need to be connected to Vdd (+5V), otherwise the firmware could behave randomly (slow down or crash), as it isn't able to determine anymore, if a module has received some data or not. This special requirement has only to be considered when IIC_MIDI_MAX_NUMBER has to be set to a value != 0 in MAKEFILE.SPEC - and this explains also, why I disabled this option by default.</P>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Firmware Structure </H2></DT>
+   <DD>
+<P CLASS=DESC>This information is relevant for people who want to debug or enhance the firmware. The code is splitted over different modules for a clean seperation of functions. It's completely implemented in assembly language, so that everybody is able to compile the firmware under Windows/Linux/MacOS without buying expensive tools. SDCC is required to create the USB descriptor tables (it was the simplest way, as packed, non-padded arrays cannot be defined with GPASM). For extensions it could be possible to add C modules in future, but note that SDCC cannot generate performant code to handle data packages and buffers in such an efficient way like I did in the USB class driver.</P>
+
+<P CLASS=DESC>Description of the most important files:<BR>
+<UL CLASS=CL>
+<LI><B>main.asm:</B> start vectors, interrupt handler, initialisation
+     routine and main loop.<BR>
+     Note that the start and interrupt vector is located at 0x000/0x008 (for usage without bootloader) and 0x800/0x808 (for usage with bootloader). It isn't required to switch between these two locations, as the bootloader will ignore the lower addresses.</LI>
+<LI><B>usbdrv.asm:</B> USB driver based on Microchip Framework, rewritten in assembly</LI>
+<LI><B>usbdsc.c:</B> USB descriptors for USB MIDI</LI>
+<LI><B>usbcls.asm:</B> USB MIDI Class Driver which can handle up to 5 IO ports</LI>
+<LI><B>midi.asm:</B> IO buffer handling for internal MIDI interface</LI>
+<LI><B>int_midi.asm:</B> MIDI parser and interface to usbcls.asm (USB MIDI Package Handlers)</LI>
+<LI><B>iic.asm:</B> IIC transfer routines</LI>
+<LI><B>iic_midi.asm:</B> Interface to usbcls.asm (USB MIDI Package Handlers)</LI>
+</UL>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_USB_PIC18F4550_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_pic18f4550.pdf">mbhp_usb_pic18f4550.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>-</TD>
+      <TD CLASS=TABCOLOR2>-</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_USB_PIC18F2550_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_pic18f2550.pdf">mbhp_usb_pic18f2550.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>-</TD>
+      <TD CLASS=TABCOLOR2>-</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_USB_PIC_WITH_IIC</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_pic_with_iic.pdf">mbhp_usb_pic_with_iic.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>-</TD>
+      <TD CLASS=TABCOLOR2>-</TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Firmware and Bootloader</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_pic_v1.zip">mbhp_usb_pic_v1.zip</A></TD>
+      <TD CLASS=TABCOLOR2>42k</TD>
+      <TD CLASS=TABCOLOR2>MBHP_USB_PIC firmware + source code</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/microchip_usb_bootloader.zip">microchip_usb_bootloader.zip</A></TD>
+      <TD CLASS=TABCOLOR2>988k</TD>
+      <TD CLASS=TABCOLOR2>The USB bootloader which I downloaded from the <A HREF="http://www.microchip.com" TARGET="_blank">Microchip Website</A> anno 2005. I wasn't able to find it there anymore, but I guess that it's burried somewhere under... don't know... however, this version runs fine!</TD>
+    </TR>
+  </TABLE></DD>
+
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Is it possible to merge MIOS with the firmware? </H2></DT>
+   <DD>
+<P CLASS=DESC>No, this isn't possible due to resource conflicts (clock frequency, allocated IO pins, internal RAM areas dedicated for USB endpoint buffers). Just take MBHP_USB_PIC as a seperate MIDI interface, and cross-connect the MIDI I/O ports to a <A HREF="mbhp_core.html">MBHP_CORE</A> (MBHP_USB_PIC MIDI In->MBHP_CORE MIDI Out, MBHP_USB_PIC MIDI Out->MBHP_CORE MIDI In). The usage of optocouplers is recommented to avoid ground loops between your PC and your audio gear!</P>
+  </DD>
+</DL>
+
+
+FOOTER

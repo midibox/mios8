@@ -1,0 +1,48 @@
+HEADER 3 MBHP BankStick
+
+<H1>MIDIbox Hardware Platform, BankStick</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_bankstick.jpg" width=442 height=188></CENTER></P>
+
+<P CLASS=INFO>The BankStick is supported by many MIDIbox projects as exchangeable, hot plug&playable storage device. It consists of a 32k or 64k I2C EEPROM (24LC256, resp. 24LC512).</P>
+
+<P CLASS=DESC>These EEPROMs allow to configure an address at the three chip select pins #1, #2 and #3, so that up to 8 EEPROMs can be connected together, and accessed individually by the <A HREF="mbhp_core.html">MBHP_CORE</A> module:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_multi_bankstick.gif" width=550 height=257></CENTER></P>
+
+<P CLASS=DESC>MIOS applications allow to swap a BankStick during runtime on a similar way like known from USB memory sticks. For my own MIDIboxes I'm mostly using a Sub-D socket, since the EEPROM fits nice into the case. But you are free to use a different plug type and/or case for the EEPROM if you like.<BR>
+Circuit:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_bankstick.gif" width=554 height=233></CENTER><BR>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Manufactures </H2>
+
+<P CLASS=DESC>IIC EEPROMs are mainly manufactured by Microchip, Atmel and ST. They are compatible, but unfortunately have a small, but annoying difference: the number of available chip select inputs!<BR>
+<UL CLASS=CL>
+  <LI><B>Microchip EEPROMs:</B> named "24LC256" (32k) and "24LC512" (64k). They provide three chip select inputs, so that you are able to attach up to 8 devices on the IIC bus.</LI>
+  <LI><B>Atmel EEPROMs:</B> named "24C256", there is no 64k device! Only two chip select inputs (A0 and A1) are provided, which limits the maximum number to 4.</LI>
+  <LI><B>ST EEPROMs:</B> named "M24256" - don't buy them, they only have a single chip select input, so that only a single BankStick can be accessed on the IIC bus.</LI>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Availability </H2>
+
+<P CLASS=DESC><UL CLASS=CL>
+  <LI><I>24C256</I>, Part #ST 24C256 BN6 at <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> for EUR 1.20 (the part number implies that this is an EEPROM from ST, but since 2004 they deliver an Atmel device with CS (chip select) inputs</LI>
+  <LI><I>24LC256-I/P</I>, Part #150234-14 at <A HREF="http://www.conrad.com" TARGET="_blank">Conrad</A> for around EUR 2.80</LI>
+  <LI><I>24LC256-E/P-ND</I> at <A HREF="http://www.digikey.com" TARGET="_blank">Digikey</A> for around US $2.40</LI>
+  <LI><I>579-24LC256-I/P</I> at <A HREF="http://www.mouser.com" TARGET="_blank">Mouser</A> for around US $1.70</LI>
+   </UL>
+</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MIOS Support </H2>
+
+<P CLASS=DESC>The BankStick concept has been integrated into <A HREF="mios.html">MIOS</A>. Several system functions are available for reading and writing (MIOS_BANKSTICK_*), so that you are able to use the EEPROM as external non-volatile memory for your own applications. By using the address pins A0-A2, up to 8 chips can be attached to the IIC bus (J4 of the core module). In this way the maximum available memory size is 8*32k = 256k with 24LC256 devices, resp. 8*64k = 512k with 24LC512 devices. The access times: reads - about 100 uS, writes - about 10 ms, page writes (64 byte at once) - about 10 ms.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Should I buy a 24LC256 or 24LC512? </H2>
+
+<P CLASS=DESC>You can use 24LC512s with applications, which were made for 24LC256 based BankSticks. In such a case, only the lower half of the memory will be accessed. A small number of applications can handle a single 24LC512 like two 24LC256, but due to the programming and especially testing effort for all the variations, such an option is mostly not provided.</P>
+
+<P CLASS=DESC>For newer applications like <A HREF="midibox_sid.html">MIDIbox SID V2</A>, <A HREF="midibox_seq.html">MIDIbox SEQ V3</A> or <A HREF="midibox_808.html">MIDIbox 808</A>, the usage of 64k BankSticks is recommented to store the full number of patches/patterns per bank.</P>
+
+<P CLASS=DESC>For example, the MIDIbox SID V2 patch size is 512 bytes, and since the "Program Change" MIDI event allows to send 128 different values, 128*512 = 64k are required to store a bank of 128 patches. With a 24LC256, you could only store 64 patches per bank (the bank itself is selected with CC#0)</P>
+
+FOOTER

@@ -1,0 +1,47 @@
+HEADER 3 MIOS C Example
+
+<H3>Send Note Events on digital input changes</H3>
+
+<P CLASS=INFO>We want to send Note events when a button connected to the (up to) 128 DIN pins is pressed/depressed.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>Within the Init() function, you have to specify, how many DINX4 shift registers are connected to the core:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  // set shift register update frequency
+  MIOS_SRIO_UpdateFrqSet(1); // ms
+
+  // we need to set at least one IO shift register pair
+  MIOS_SRIO_NumberSet(16); // for 128 pins
+
+  // debouncing value for DINs
+  MIOS_SRIO_DebounceSet(10);
+}
+</PRE></TT>
+
+<P CLASS=INFO>We add the code which should be executed on button movements to the DIN_NotifyToggle() function:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when an button has been toggled
+// pin_value is 1 when button released, and 0 when button pressed
+/////////////////////////////////////////////////////////////////////////////
+void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
+{
+  MIOS_MIDI_TxBufferPut(0x90); // Note Event at channel #1
+  MIOS_MIDI_TxBufferPut(pin);  // just forward the pin number (0..127)
+  MIOS_MIDI_TxBufferPut(pin_value ? 0x00 : 0x7f); // Velocity = 0x7f when 
+                                                  // button pressed, else 0x00
+}
+</PRE></TT>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

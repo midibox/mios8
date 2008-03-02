@@ -1,0 +1,75 @@
+HEADER 3 MIOS C Example
+
+<H3>Convert CC#0 to NRPN Cutoff for MC303 and CC#1 to NRPN resonance</H3>
+
+<P CLASS=INFO>We want to create a MIDI converter, which translates the Modwheel Event to a NRPN.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  // check MIDI channel, it should be 0 (-> channel #1)
+  if( (evnt0 & 0x0f) == 0 ) {
+
+    switch( evnt0 & 0xf0 ) {
+      case 0x80: // Note-Off: 3 bytes
+      case 0x90: // Note-On: 3 bytes
+      case 0xa0: // Aftertouch: 3 bytes
+      case 0xe0: // Pitchbend: 3 bytes
+        MIOS_MIDI_TxBufferPut(evnt0);
+        MIOS_MIDI_TxBufferPut(evnt1);
+        MIOS_MIDI_TxBufferPut(evnt2);
+        break;
+      case 0xc0: // Program Change: 2 bytes
+      case 0xd0: // Poly Aftertouch: 2 bytes
+        MIOS_MIDI_TxBufferPut(evnt0);
+        MIOS_MIDI_TxBufferPut(evnt1);
+        break;
+
+      case 0xb0: // CC: 3 bytes
+	// check for CC #0 at Channel #1
+	if     ( evnt0 == 0xb0 && evnt1 == 0x00 )
+	  MyFun_Send_MC303_NRPN(evnt0, 0x20, evnt2); // send NRPN LSB = 0x20 (CutOff)
+	else if(  evnt0 == 0xb0 && evnt1 == 0x01 )
+	  MyFun_Send_MC303_NRPN(evnt0, 0x20, evnt2); // send NRPN LSB = 0x20 (Resonance)
+	else {
+	  // just forward CC without change
+          MIOS_MIDI_TxBufferPut(evnt0);
+          MIOS_MIDI_TxBufferPut(evnt1);
+          MIOS_MIDI_TxBufferPut(evnt2);
+	}
+
+      default:
+        // note: status messages (>= 0xf0) must be handled within MPROC_NotifyReceivedByte)
+        break;
+     }
+  }
+}
+</PRE></TT>>
+
+<P CLASS=INFO>As you've propably noticed, the function "MyFun_Send_MC303_NRPN" is called. This function sends a NRPN event, customized for the MC303:</P>
+
+<TT><PRE>
+void MyFun_Send_MC303_NRPN(
+  unsigned char evnt0, unsigned char nrpn_lsb, unsigned char value)
+{
+  MIOS_MIDI_TxBufferPut(evnt0);    // send Bn
+  MIOS_MIDI_TxBufferPut(0x63);     // Send NRPN MSB 01 (0x63 0x01)
+  MIOS_MIDI_TxBufferPut(0x01);
+  MIOS_MIDI_TxBufferPut(0x62);     // Send NRPN LSB <nrpn> (0x62 <nrpn_lsb>)
+  MIOS_MIDI_TxBufferPut(nrpn_lsb);
+  MIOS_MIDI_TxBufferPut(0x06);     // send NRPN MSB value (0x06 <value>)
+  MIOS_MIDI_TxBufferPut(value);
+}
+</PRE></TT>
+
+<P CLASS=INFO>If SysEx or Realtime messages should be forwarded as well, then you need to enhance the MPROC_NotifyReceivedByte() function like shown in <A HREF="mios_c_forward_chn1.html">this example</A></P>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

@@ -1,0 +1,103 @@
+HEADER 3 MIDIbox SID
+
+<H1>MIDIbox SID Control Surface Step B</H1>
+<H3>Created 2003</H3>
+
+<P><CENTER><IMG SRC="midibox_sid_cs/sid4fun.jpg" width=575 height=450></CENTER></P>
+
+<P CLASS=INFO><B>WARNING:</B> This tutorial describes features of MIDIbox SID V1 - they are partly handled on a different way in MIDIbox SID V2. More details can be found in the <A HREF="midibox_sid_manual.html">MBSID V2 User Manual</A>.</P>
+
+<P CLASS=INFO>Step B of MIDIbox SID allows to access three additional SID modules from a single control unit. Although every SID module still needs its own core, this solution has some advantages compared to the <A HREF="midibox_sid/mbsid_stereo.jpg">parallel MIDI wiring</A> of multiple devices:</P>
+<UL CLASS=CL>
+   <LI>all parameters can be accessed without using a computer</LI>
+   <LI>all Slave SIDs can share a <A HREF="mbhp_bankstick.html">BankStick</A> with the Master SID (planned: up to 8 BankSticks)</LI>
+   <LI>realtime parameter changes can be easily routed to multiple SIDs at once - an important feature for amazing stereo effects and fat unisono sounds</LI>
+   <LI>additional play modes like Super-Poly, Super-Arpeggiator, Split, Layer, Unisono are possible and planned for future extensions.</LI>
+</UL>
+
+<H2>Realization</H2>
+
+<P CLASS=DESC>Before discussing the hardware some words to the realization: messages to the slave SIDs are transported over the common MIDI interface of the core module. Every slave requires an unique device ID in the MIDI network so that the master is able to address every SID seperately. The device ID is independent from the MIDI channel to which the SID has been assigned in order to allow a flexible setup. For example, if the same channel is selected for all SIDs, different sounds - played with a single keyboard - can be distributed across the stereo panorama. If every SID uses its own channel, more complex tunes can be played (<I>Note: the PIC18F implementation of MIDIbox SID allows to split the voices over different keyboard zones, so that up to 12 voices can be played and layered individually.</I>).</P>
+
+<P CLASS=DESC>As already mentioned before, the Master shares the sound patches stored in the BankStick with the slaves. This reduces the costs and allows the use of the same setup without copying the BankStick content from one SID to the other.<BR>The slave modules should not be stuffed with a BankStick.</P>
+
+<P CLASS=DESC>Incoming MIDI events like Notes and CC's will be forwarded by the integrated MIDI merger to the slaves when the "Link" mode is enabled. Only unidirectional transfers are possible, this means, the master cannot fetch data from a slave and therefore never knows the exact state of it. However, this limitation can be disregarded so long as it is ensured that the slave behaves deterministic, and this is fortunately the case in this simple system. A bidirectional connection (either Point-to-Point, bus, package oriented or a circular chain) would require additional hardware and a sophisticated protocol which wouldn't be really target-oriented. There are only three imperfections: the master never knows if a slave is online (the user has to ensure this) and - a more software related problem - if the master receives CCs and SysEx streams which addresses the slaves, he just forwards these events and doesn't analyze the content. This can lead to an inconsistent data base if the user modifies the same sound parameter with a computer or MIDI controller, and with the MIDIbox SID control surface at the same time. This problem doesn't occur on events which addresses the master itself. A fix for this problem is not planned due to the high effort. In reality it doesn't really hurt!<BR>The third limitation has a direct impact on your MIDI setup: since the MIDI merger of the core module forwards every incoming event to the MIDI Out for the slaves, also your computer will receive (back) these events. You have to ensure that your software doesn't return the messages likewise in order to avoid an endless feedback loop. Note that this problem doesn't occur when the "Link" mode is disabled.</P>
+
+<H2>Hardware</H2>
+
+<P CLASS=DESC>Yes, it is possible to use stepB without any slave SID or with one or two... the maximum number of supported slave SIDs is three.</P>
+
+<P CLASS=DESC>The master core has to be stuffed with a PIC18F452, the appr. firmware is available at the <A HREF="mios_download.html">MIOS download</A> page. The slave cores can either be stuffed with a PIC18F452 or PIC16F877 - so, if you still own some old PIC16F derivatives, this is the chance to reuse them!</P>
+
+<P CLASS=DESC>The MIDI interfaces of master and slave modules can be connected via port J11 of the core module. With this direct digital connection an optocoupler is not required on the slave site (-> <B>Only the MIDI In port of the master module requires an optocoupler</B>).<BR>
+<A HREF="midibox_sid_cs/sid_csB_connections.gif">This diagram</A> shows the required MIDI connections.</P>
+
+<P CLASS=DESC>A single power supply can be used for all modules, although the power input of the core is rated to 9V. The whole system (4 core modules and 4 SID modules) draws about 600 mA. Note that especially the 7805 of the master core module can get very hot when a backlit LCD is connected. This can lead to problems if the SID module is stuffed with a 6581, as this chip needs 12V for working and therefore at least 15V at the power input (before the 7812) - the 7805 will convert the 10V voltage difference into heat and this can lead to trouble. A simple workaround is the use of a 7809, connected behind the rectifier of the core module. Since the 78xx needs DC, it's recommented to connect this voltage regulator between C9 (the 2200uF cap behind the rectifier) of the SID module and C5 of the core module like <A HREF="mbhp/mbhp_core_power_fix.pdf">shown here</A>.</P>
+<P CLASS=DESC>The best solution is the use of the original C64 power supply unit since it delivers 5V DC for the core and additional 9V for the SID module - a schematic can be found <A HREF="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">here</A>.</P>
+<P CLASS=INFO>Of course, it's also possible to create a single PCB for the whole circuit. See also the questions from Nebula in <A HREF="http://www.midibox.org/forum/index.php?topic=994.15">this forum article</A>.</P>
+
+<P CLASS=DESC>The audio outputs of all SIDs can either be cascaded (Audio Out SID1->Audio In SID2->Audio Out SID2->...) or <A HREF="midibox_sid_cs/mbhp_sid_joined_audio.gif">connected in parallel</A> via 10k resistors in order to get a 2-channel signal from 4 SID channels. Note that both methods are lossy. An active mixer, realized with operating amplifiers (OPs) would be better, but requires a biased voltage (+/- 9V or more). The best and most flexible solution is the use 4 seperate channel strips on a mixer or soundcard for every SID, because this allows you to change the position of the sound source across the stereo panarama and to lead every signal to a dedicated Fx unit.</P>
+
+<P CLASS=DESC>The multi SID solution definitely requires at least the minimal control unit which has been introduced <A HREF="midibox_sid_cs.html">here</A>. 7 additional buttons and LEDs are required for a perfect interaction with the SIDs, an example configuration can be found in this diagram: <A HREF="midibox_sid_cs/2x20_enc_multi.pdf">2x20_enc_multi.pdf</A>. Note that the DIN and DOUT pinning can be changed in the MIOS application (see main.asm header) - in order to save a DOUTX1 module, it's also possible to use the free J5 to drive the LEDs, see <A HREF="midibox_sid_cs/2x20_enc_multi_w_j5.pdf">this schematic</A>. In this case the SR ID has to be changed from 1 to 0 in cs_menu_io_tables.inc.</P>
+
+<H2>Preparation of PIC18F cores</H2>
+
+<P CLASS=DESC>Step by step:
+<UL CLASS=CL>
+   <LI>it's assumed that the bootstrap loader already exists in the PIC18F, that the master has MIOS ID 0x00, and the slaves MIOS ID 0x01, 0x02 and 0x03 - if you've forgotten to set the correct ID, use the change_id application which can be found in the <A HREF="mios_download.html">MIOS download section</A> to change the ID header. In this case you have to ensure that only one slave is connected directly to tyour PC, otherwise all core modules which received this application will have the same ID again!</LI>
+   <LI>upload MIOS V1.8 or higher into the master core module like described at the <A HREF="mios_bootstrap.html">MIOS bootstrap</A> page. If a newer MIOS version is available, use the latest one!</LI>
+   <LI>upload the SID application into the master module. There are several prepared .hex files in the SID package, use either "setup_6581_with_cs.hex" or "setup_8580_with_cs.hex", depending on the SID which is stuffed on the SID module</LI>
+   <LI>test the master before continuing with the slaves! You can use the virtual keyboard of MIDI-Ox to play some notes. Note that MIDI Channel #1 is selected by default, but if a BankStick is connected, the channel could be different depending on the last saved setup. The MIDI channel will be displayed on LCD, so please check it!</LI>
+   <LI>unplug the master PIC, and put a PIC used for the slave core into the master core module.
+   <LI>install MIOS for the first slave with MIOS device ID 0x01</LI>
+   <LI>upload the SID application into the slave module. The SID package comes with already prepared .hex files for the slaves</LI>
+   <LI>do the same for the other slaves (ID 0x02 and 0x03)</LI>
+   <LI>test the slaves on the master module first (they are all assigned to MIDI channel #1 by default).</LI>
+   <LI>now plug the PICs into the core of the slave. Enable MIDIbox Link on the core (if you haven't connected a Link button + LED, do it now!), and play a note again to check if some sound is coming out of the slave SID.</LI>
+</UL>
+
+<P CLASS=DESC>There is also a "through master" programming method for the slave SIDs, but it isn't very newbie friendly, and therefore not recommented here! It's described at the bottom of <A HREF="mios_bootstrap_newbies.html">this page</A>.
+
+<H2>Preparation of PIC16F slaves</H2>
+
+If PIC16F slaves are connected, you have to change their device ID by hand. The first slave requires ID 1, the second slave ID 2, the third slave ID 3. This step can be done with MIDI-Ox, just connect <B>only one</B> core with your PC and send following SysEx string: <I>F0 00 00 7E 46 [old device-number] 0D 03 00 [new device-number] F7</I>.<BR>
+<B>Slave 1: </B> F0 00 00 7E 46 00 0D 03 00 01 F7<BR>
+<B>Slave 2: </B> F0 00 00 7E 46 00 0D 03 00 02 F7<BR>
+<B>Slave 3: </B> F0 00 00 7E 46 00 0D 03 00 03 F7</P>
+
+<H2>Handling</H2>
+
+<P><CENTER><IMG SRC="midibox_sid_cs/sid_csB_panel.gif" width=575 height=252></CENTER></P>
+
+<P CLASS=DESC>See the <A HREF="midibox_sid_cs.html">Introduction of the control unit</A> how to navigate through the menus. Following table lists the function of the additional buttons and LEDs.</P>
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+  <TR>
+    <TD> <SPAN CLASS=BIG>SID1-4</SPAN></TD>
+    <TD> <SPAN CLASS=NORM>Use these buttons to select the SID(s).<BR>They behave like "radio buttons" if only one is pressed so that you can quickly change between the SID setups. It's also possible to select multiple SIDs by holding one of the SID buttons and pushing the additional SID buttons - in this case every parameter change will be sent not only to one, but to all selected SIDs.<BR>
+Here a <A HREF="http://www.midibox.org/videos/mbsid_cs_sidbuttons.avi">video</A></SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD> <SPAN CLASS=BIG>Link (*)</SPAN></TD>
+    <TD> <SPAN CLASS=NORM>This button enables the MIDI merger, thus establishes the connection to the slave SIDs. Note that this function is switched off after startup. You can change this behaviour by setting the< <I>#define CS_MENU_DEFAULT_LINK</I> to 1 in the main.asm of the firmware.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD> <SPAN CLASS=BIG>CC (*)</SPAN></TD>
+    <TD> <SPAN CLASS=NORM>This function activates the CC mode. If enabled, manual parameter changes from the control unit will be sent out as CC MIDI events over the MIDI Out port. If this port is connected to your computer, you are able to record these events with your recording software in order to automate parameter changes (e.g filter sweeps or portamento slides)</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD> <SPAN CLASS=BIG>Edit (*)</SPAN></TD>
+    <TD> <SPAN CLASS=NORM>If the edit mode is enabled, all parameter changes will be saved automatically into the current selected patch before you select another patch. The LED flashes slowly if there is something to save in order to warn you.</SPAN></TD>
+  </TR>
+</TABLE>
+
+<P CLASS=DESC>(*) <B>Please note:</B> in <A HREF="midibox_sid_v2_wishlist.html">MIDIbox SID V2</A>, these buttons got a new/modified function! The LINK button has the purpose of a SHIFT button (the MIDI link is obsolete, since MIDIbox Link has been replaced by <A HREF="midibox_network.html">MBNet</A>). In addition, it displays a special configuration page, which for example allows you to switch between left and right SID channel. The CC button is used for "Page Up" (increments OSC/LFO/ENV/MOD/TRG/KNB), and the Edit button is used for "Page Down" (decrements OSC/LFO/ENV/MOD/TRG/KNB). SHIFT+CC and SHIFT+EDIT still switch the CC/Edit function like before (means: the two LED labels are still valid).<BR>
+This changed behaviour should be considered when labling a new front panel</P>
+
+<H2>Wanna tweak more?</H2>
+<P CLASS=INFO><A HREF="midibox_sid_csC.html">...then continue here...</A></P>
+
+FOOTER

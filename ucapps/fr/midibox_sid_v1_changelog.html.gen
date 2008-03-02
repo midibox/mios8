@@ -1,0 +1,1746 @@
+HEADER 3 ChangeLog of MIDIbox SID V1
+            
+            
+            
+            
+            
+            <center>
+            
+            
+            
+            
+            
+            <h1>MIDIbox SID V1: Change Log</h1>
+
+
+
+
+
+            </center>
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <center>
+            
+            
+            
+            
+            
+            <h3>Derni&egrave;re Version: V1.7a @ 2005-04-16</h3>
+
+
+
+
+
+            </center>
+
+
+
+
+
+
+
+            <img src="images/1x1dot.gif" alt="" height="5"><br>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <p class="DESC">Le dernier firmware, les sch&eacute;mas et des informations compl&eacute;mentaires sont disponibles sur la page&nbsp; <a href="midibox_sid.html">http://www.uCApps.de/midibox_sid.html</a>, l'application MIOS sur la page&nbsp; <a href="mios_download.html">Concepts-&gt;MIOS-&gt;Download</a>.<br>
+
+
+
+
+
+Les versions pr&eacute;c&eacute;dentes du firmware sont disponibles ici :&nbsp;<a href="http://www.uCApps.de/midibox_sid/">http://www.uCApps.de/midibox_sid/</a> , dans les archives&nbsp;midibox_sid_v*.zip</p>
+
+
+
+
+
+
+
+            <img src="images/1x1dot.gif" alt="" height="10"><br>
+
+            <br>
+
+            
+            <ul class="CL">
+
+              <li><i>V1.7303b</i>
+   
+                
+                <ul>
+
+                  <li>le param&egrave;tre 4bit du volume du SID peut
+d&eacute;sormais &ecirc;tre directement modul&eacute; par l'ENV2. Ceci
+permet de remplacer les envellopes de l'oscillateur et permet
+d'&eacute;viter le bug de l'ADSR.<br>
+
+Cette fonction peut &ecirc;tre activ&eacute;e avec le quatri&egrave;me flag (E2V) des options 
+     "sound engine"</li>
+
+                  <li>avec le cinqui&egrave;me flag GSA (gate stays
+active) des options "sound engine",&nbsp; le gate des&nbsp;oscillateurs
+ne sera plus initialis&eacute; si une note MIDI note a
+&eacute;t&eacute; relach&eacute;e.<br>
+
+Ceci permet de contr&ocirc;ler l'amplitude de l'envellope d'un son
+compl&egrave;tement via une modulation du filtre ou de l'E2V,
+ind&eacute;pendamment du taux de relachement (release) de l' ADSR de l'
+OSC.</li>
+
+                  <li>l'arp&eacute;giateur a &eacute;t&eacute;
+retravaill&eacute;, d&eacute;sormais le cycle de l'arp &agrave;
+toujours la m&ecirc;me dur&eacute;e: si une touche est enfonc&eacute;e,
+elle est s&eacute;quenc&eacute;e au taux normal, avec deux touches, la
+vitesse double, avec trois touches, la vitesse triple, avec quatre
+touches, au quadruple. <br>
+
+Cette nouvelle approche am&eacute;liore le jeu live et donne de
+meilleurs r&eacute;sultats musicalement lorsque l'arp&eacute;giateur
+est synchronis&eacute; &agrave; l'horloge MIDI. Utilisez les vitesse
+suivantes:<br>
+
+
+     
+                    
+                    <ul>
+
+                      <li>64th note: 124</li>
+
+                      <li>32th note: 118</li>
+
+                      <li>16th note: 106</li>
+
+                      <li>8th note: 82</li>
+
+                      <li>4th note: 34</li>
+
+                    
+                    </ul>
+
+                  </li>
+
+                  <li>la courbe de contr&ocirc;le du filtre peut
+maintenant &ecirc;tre &eacute;talonn&eacute;e entre un taux min et max,
+de 0 &agrave; 2047 - c'est (pour l'instant) une configuration statique
+qui doit &ecirc;tre d&eacute;finie dans le fichier .asm&nbsp;
+(cherchez&nbsp; DEFAULT_FILTER_TYPE).<br>
+
+Il est &eacute;galement possible de basculer entre deux types et
+calibration diff&eacute;rents via un pin externe (cherchez
+DEFAULT_FILTER_TYPE_SWITCH)</li>
+
+                  <li>changements "cosm&eacute;tiques": le num&eacute;ro de patch est maintenant pr&eacute;c&eacute;d&eacute; de zeros</li>
+
+                  <li>L'&eacute;cran LCD affiche maintenant un message informatif lorsqu'un patch a &eacute;t&eacute; upload&eacute; via SysEx</li>
+
+                  <li>une nouvelle librairie de preset est maintenant disponible sur la page MIDIbox SID&nbsp;</li>
+
+                
+                </ul>
+
+
+              </li>
+
+            
+            </ul>
+
+            <br>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <ul class="CL">
+
+
+
+
+
+
+
+              <li><i>V1.7303</i>
+   
+                
+                
+                
+                <ul>
+
+
+                  <li>cette version requiert le MIOS V1.9 ou sup&eacute;rieur!<br>
+
+
+
+Cette version ne tournera pas sur les versions
+pr&eacute;c&eacute;dentes du MIOS dans la mesure o&ugrave; l'espace
+m&eacute;moire &gt;= 0x7c00 a &eacute;t&eacute; allou&eacute;.</li>
+
+
+                  <li>un nouveau param&egrave;tre CC a
+&eacute;t&eacute; rajout&eacute; pour les options du moteur sonore. Il
+permet de configurer 7 options qui permettent de changer les
+caract&eacute;ristiques du moteur sonore et de sauvegarder ces
+r&eacute;glages dans un patch. Toutes les options du moteur sonore
+(303, FIP et E2P - voir plus bas) peuvent &ecirc;tres
+&eacute;dit&eacute;es via le menu SEO (sound engine option)</li>
+
+
+                  <li>un mode 303 a &eacute;t&eacute;
+impl&eacute;ment&eacute;: il permet de changer les
+caract&eacute;ristiques du filtre, des envellopes et du
+s&eacute;quenceur &agrave; table d'onde, ceci afin de permettre au SID
+de jouer des lignes de basse typique des TB303. Vous trouverez plus de
+d&eacute;tails sur la page <a href="howto_sid_bassline.html">howto_sid_bassline.html</a>.<br>
+
+
+
+Cette option doit &ecirc;tre activ&eacute;e gr&acirc;ce au premier param&egrave;tre (303) du menu "SEO".</li>
+
+
+                  <li>La courbe de sortie du filtre peut
+d&eacute;sormais &ecirc;tre interpol&eacute;e afin de rendre plus
+douces les transitions de valeur du CC#46 (cutoff). <br>
+
+
+
+L'interpolation peut &ecirc;tre activ&eacute;e gr&acirc;ce au second param&egrave;tre (FIP)&nbsp;du menu "SEO"</li>
+
+
+                  <li>un mode alternatif de portamento a
+&eacute;t&eacute; impl&eacute;ment&eacute;, il utilise l'ENV2 pour
+r&eacute;aliser des glide/slide constants.<br>
+
+
+
+Les meilleurs r&eacute;sultats seront obtenus avec une Attack=rate,
+Decay/Sustain/Release=0, Curve &gt; 32. Il en r&eacute;sulte une courbe
+qui est similaire &agrave; la courbe de chargement/d&eacute;chargement
+d'un condensateur. Essayer ce r&eacute;glage avec les options SusKey et
+Legato activ&eacute;e. L'option peut &ecirc;tre activ&eacute;e
+gr&acirc;ce au troisi&egrave;me param&egrave;tre (E2P)&nbsp;du menu
+"SEO"</li>
+
+
+                  <li>un nouveau param&egrave;tre CC a &eacute;t&eacute; ajout&eacute; pour "filter key tracking" (CC#116)</li>
+
+
+                  <li> "ENABLE_AOUT 2" s&eacute;lectionne un module&nbsp;AOUT&nbsp;"low-cost"
+(il ne renvoie actuellement qu'une valeur pour le&nbsp;CutOff sur
+12bit, une fois que j'aurais re&ccedil;u des chips de Curtis, je ferais
+des exp&eacute;riences avec des valeursCutOff
+     8bit et R&eacute;sonance 8bit&nbsp;) </li>
+
+
+                  <li>une nouvelle option a &eacute;t&eacute;
+ajout&eacute;e pour le param&egrave;tre MIDI sync CC#125 . Elle permet
+d'envoyer des &eacute;v&egrave;nements MIDI Clock &agrave; partir du
+s&eacute;quenceur &agrave; table d'ondes. Chaque pas envoie 1 signal
+clock en mode normal<br>
+
+
+
+En mode 303, chaque pas envoie 6 signaux clock</li>
+
+
+                  <li>L'&eacute;diteur interne WT permets maintenant de
+modifier les param&egrave;tres de toute une piste &agrave; la fois,
+ceci acc&eacute;l&egrave;re l'initialisation d'une nouvelle
+s&eacute;quence WT. S&eacute;lectionnez simplement une position de pas
+au dessus de 31 ("All" s'affiche) et modifier le param&egrave;tre Mod,
+colonnes #1, #2 or #3&nbsp;</li>
+
+
+                  <li>L'&eacute;diteur WT marque d&eacute;sormais les
+param&egrave;tre d'un '!' tant qu'ils n'ont pas &eacute;t&eacute;
+sauvegard&eacute;s dans l'EEPROM</li>
+
+
+                  <li>L'&eacute;diteur WT affiche maintenant
+"notes/arpeggio keys/holds" lorsque le param&egrave;tre
+WT&nbsp;correspondant est compris entre CC#8..CC#12</li>
+
+
+                  <li>Il est maintenant possible de jouer une note (ou
+de lancer/arr&ecirc;ter une s&eacute;quence&nbsp;WT) en maintenant
+enfonc&eacute; un ou plusieurs boutons du SID et en appuyant sur le
+bouton Menu. Les num&eacute;ros de SID s&eacute;lectionn&eacute;s
+seront invers&eacute;s sur l'&eacute;cran tant que la note (ou la
+s&eacute;quence) est active.<br>
+
+
+
+Notez que l'&eacute;v&egrave;nement de Note peut faire jouer
+diff&eacute;rent SIDs dans le m&ecirc;me tempssi ils sont
+assign&eacute;s au m&ecirc;me canal MIDI.</li>
+
+
+                  <li>Chaque second LFO propose d&eacute;sormais une
+fonction Sample &amp; Hold&nbsp; lorsqu'il sont en mode Random. LFO2, 4
+et 5 prolongent la forme d'onde du LFO1, 3 et 5 pendant chaque
+p&eacute;riode de la forme d'onde.<br>
+
+
+
+
+     Exemple: <br>
+
+
+
+
+     
+                    
+                    
+                    
+                    <ul class="CL">
+
+
+                      <li>dans la matrice de modulation, activez la modulation du LFO2 pour le
+          Pitch de l' OSC1 -&gt; c'est la sortie S&amp;H&nbsp;</li>
+
+
+                      <li>s&eacute;lectionnez pour le LFO2 le mode Random, Rate=70, le param&egrave;tre Depth importe peu</li>
+
+
+                      <li>s&eacute;lectionnez pour le LFO1 le mode Sine ou Random, et fa&icirc;tes varier les param&egrave;tres Rate et&nbsp;Depth</li>
+
+
+                    
+                    
+                    </ul>
+
+
+
+                  </li>
+
+
+                  <li>Les LEDs de la matrice de modulation sont
+maintenant aussi utilis&eacute;es pour avoir une vue des valeurs de
+sorties des LFO1-6&nbsp;et des ENV1-2<br>
+
+
+
+Ce nouveau mode est activ&eacute; par d&eacute;faut, et vous pouvez
+basculer vers l'ancien mode (qui montre les assignements de la matrice
+de modulation) en appuyant simultan&eacute;ment sur deux boutons "Mod
+Target" (par ex. O1 et O2 pitch). Les assignements sont aussi
+affich&eacute;s automatiquement tant que l'un des bouton "Mod Target"
+est enfonc&eacute;.</li>
+
+
+                  <li>Prise en charge des&nbsp; EEPROMs 24LC512- cette
+prise en charge doit &ecirc;tre activ&eacute;e en &eacute;ditant
+l'entr&eacute;e DEFAULT_BS_TYPE dans le fichier main.asm ou setup_*.asm</li>
+
+
+                  <li>plus quelques corrections de bugs et&nbsp;am&eacute;liorations..</li>
+
+
+                
+                
+                </ul>
+
+
+
+              </li>
+
+
+              <li><i>V1.7</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+   <li>prise en charge simultan&eacute;e&nbsp;de plusieurs BankSticks<br>
+
+
+
+
+
+Il est possible de changer de Banque: 
+       
+                    
+                    
+                    
+                    
+                    
+                    <ul>
+
+
+
+
+
+
+         <li>avec le CC#0 sur le canal MIDI pr&eacute;d&eacute;fini (master et slaves)</li>
+
+
+
+
+
+
+         <li>avec la commande SysEx F0 00 00 7E 46 &lt;device-number&gt; 0B <bank> F7 (master seul)</bank></li>
+
+
+
+
+
+
+         <li>dans le menu CFG (master et slaves)</li>
+
+
+
+
+
+
+       
+                    
+                    
+                    
+                    
+                    
+                    </ul>
+
+
+
+
+
+
+   </li>
+
+
+
+
+
+
+
+   <li>lorsque qu'une modulation est activ&eacute;e/d&eacute;sactiv&eacute;e dans la matrice de modulation, la
+     CS bascule sur le menu Enveloppe/LFO correspondant.</li>
+
+
+
+
+
+
+
+   <li>le moteur sonore complet a &eacute;t&eacute; refondu pour r&eacute;cup&eacute;rer de la m&eacute;moire.</li>
+
+
+
+
+
+
+
+   <li>une sixi&egrave;me forme d'onde est disponible comme LFO,
+elle permet de renvoyer le r&eacute;sultat de la conversion analogique
+des signaux captur&eacute;s sur les 6 premi&egrave;res entr&eacute;es
+analogiques (port J5 du module CORE) vers les LFOs. <br>
+
+
+Vous pouvez ainsi piloter les param&egrave;tres du SID avec des
+signaux analogiques. Le param&egrave;tre LFO Depth contr&ocirc;le
+l'intensit&eacute; de la modulation, le param&egrave;tre LFO Rate
+contr&ocirc;le le taux de rafra&icirc;chissement - un taux faible
+permet d'obtenir des effets tr&eacute;s syncop&eacute;s, le taux
+maximum (127 -&gt; 812 uS/&eacute;chantillon) permet un contr&ocirc;le
+pr&eacute;cis et continu, adapt&eacute; pour le contr&ocirc;le des
+param&egrave;tres Fr&eacute;quences/Pulsewidths/Filtre.<br>
+
+
+
+
+
+Ces entr&eacute;es analogiques peuvent &ecirc;tre pilot&eacute;es par des&nbsp;joysticks, des sorties CV, ...</li>
+
+
+
+
+
+
+
+   <li>quelques corrections de bugs, quelques am&eacute;liorations</li>
+
+
+
+
+
+
+
+   <li> <a href="midibox_sid/preset_patches_v1.zip">128 patches sont d&eacute;sormais disponibles</a></li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+              <li><i>V1.6 final</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+   <li>une fonction "Split" a &eacute;t&eacute;
+impl&eacute;ment&eacute;e, elle permet d'assigner les troix voix du SID
+&agrave; diff&eacute;rentes zones d'un clavier (avec superposition
+possible). En utilisant ce mode en conjonction avec la fonction
+"Transpose", il est d&eacute;sormais possible de jouer chaque note
+ind&eacute;pendamment sur le m&ecirc;me canal MIDI.<br>
+
+
+
+
+
+Cette fonction permet &eacute;galement de superposer diff&eacute;rents
+sons sur plusieurs zones du clavier (requiert des SIDs esclaves)</li>
+
+
+
+
+
+
+
+   <li> la configuration des param&egrave;tres
+v&eacute;locit&eacute;/modulation/aftertouch est maintenant accessible
+via un menu s&eacute;par&eacute; (VMA), la fonction Split est
+&eacute;ditable via le menu CFG .</li>
+
+
+
+
+
+
+
+   <li>une configuration automatique des IDs mat&eacute;rielles des
+SIDs et du gestionnaire de la CS a &eacute;t&eacute;
+impl&eacute;ment&eacute;e, elle est activ&eacute;e par d&eacute;faut.
+L'ID SID sera d&eacute;riv&eacute;e de l'ID materielle MIOS. La Surface
+de Contr&ocirc;le sera d&eacute;sactiv&eacute;e si l'ID est != 0x00.<br>
+
+
+
+
+Cette option simplifie la configuration des syst&egrave;me &agrave; 4 SIDs.</li>
+
+
+
+
+
+
+
+   <li>Diff&eacute;rents fichier setup et .syx pour les SIDs
+6581/8580 avec ou sans surface de contr&ocirc;le sont inclus das
+l'archive. Ainsi, dans la plupart des cas, il n'est pas
+n&eacute;cessaire d'avoir &agrave; passer par l'assembleur pour la
+configuration de l'application.&nbsp;</li>
+
+
+
+
+
+
+
+   <li> <b>IMPORTANT:</b> &agrave; partir de cette version,
+l'entr&eacute;e SCLK du module SID doit &ecirc;tre connect&eacute;e au
+port J10:MD (Pin du PIC&nbsp; #28/RD5) du module CORE.<br>
+
+
+
+
+L'utilisation de la version 1.7 du MIOS (ou sup&eacute;rieure) est
+fortement recommand&eacute;e (en particulier si vous utilisez la CS :
+LEDs plus brillantes, notamment pour la matrice de modulation. Voir
+aussi:&nbsp; <a href="mios_v1_7_hardware_mods.html">http://www.ucapps.de/mios_v1_7_hardware_mods.html</a></li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+              <li><i>V1.6 alpha3</i>
+                
+                
+                
+                
+                
+                <p class="INFO">NOTE: alpha signifie que toutes les
+fonctions pr&eacute;vues pour la version 1.6 ne sont pas encore
+impl&eacute;ment&eacute;es, et les nouvelles fonctions sont
+susceptibles d'&ecirc;tre chang&eacute;es ou modifi&eacute;es. La
+documentation de fait n'a pas encore &eacute;t&eacute; mise &agrave;
+jour, et l'&eacute;diteur JSynth
+Editor ne supporte pas encore le pilotage &agrave; distance des
+nouvelles fonctions. Tout ceci sera fait une fois la version finale 1.6
+termin&eacute;e.</p>
+
+
+
+
+
+
+                
+                
+                
+                
+                
+                <p class="INFO">Cela ne signifie pas que cette version
+est dans une phase de test, ce n'est pas une version beta pleine de
+bugs ou avec des fonctions inexploitables, loin de l&agrave;! De
+nombreuse personnes ont d&eacute;j&agrave; construit cette machine et
+jouent avec! :-)</p>
+
+
+
+
+
+
+                
+                
+                
+                
+                
+                <p class="INFO">Notez que le d&eacute;veloppement du
+firmware pour les PIC16F est termin&eacute; - la version 1.5b est le
+dernier firmware pour les PIC16F! Ces derniers restent compatibles avec
+les versions MIOS, mais ne vous permettront pas d'avoir acc&eacute;s
+aux enveloppes non lin&eacute;aire, &agrave; la synchro des
+oscillateurs ou encore &agrave; l'algorythme am&eacute;lior&eacute;
+pour le filtre du 8580, etc...</p>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+   <li>la gestion des changements de patch sur les SID esclaves est plus rapide,etc..</li>
+
+
+
+
+
+
+
+   <li>les caract&egrave;res sp&eacute;ciaux sont
+d&eacute;sormais impl&eacute;ment&eacute;s dans un fichier
+s&eacute;par&eacute; (special_characters.inc) afin de simplifier
+l'utilisation de diff&eacute;rents pilotes LCD. L'application utilise
+le "flag" MIOS_BOX_CFG0_USE_GLCD pour d&eacute;terminer si il s'agit
+d'un &eacute;cran graphique ou &agrave; caract&egrave;res (requiert
+MIOS V1.6 ou sup&eacute;rieur)</li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+              <li><i>V1.6 alpha2</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+   <li>la gestion des menus a &eacute;t&eacute;
+l&eacute;g&egrave;rement modifi&eacute;e. Le defilement des pages se
+fait d&eacute;sormais directement avec la datawheel, sans plus avoir
+recours aux touches "inc/dec". Si vous tenez &agrave; conserver
+l'ancien comportement, configurez l'entr&eacute;e CS_MENU_OLD_STYLE
+dans le fichier main.asm.</li>
+
+
+
+
+
+
+
+   <li>le reset du sequenceur de table d'ondes s'effectue correctement lorsque la synchro&nbsp; MIDI est activ&eacute;e.</li>
+
+
+
+
+
+
+
+   <li>support optionnel d'un switch pour le filtre CBM8580 (par
+jumper), qui peut &ecirc;tre connect&eacute; au pin RC.3
+(CORE::J6::SI). Ce m&eacute;canisme doit &ecirc;tre activ&eacute; en
+&eacute;ditant l'entr&eacute;e CBM8580_FILTER_SWITCH dans le fichier
+main.asm --- il est d&eacute;sactiv&eacute; par d&eacute;faut! Le
+num&eacute;ro de pin est librement d&eacute;finnissable. Une
+r&eacute;sistance pull-up 10k doit &ecirc;tre ajout&eacute;e sur ce
+pin, ce qui est d&eacute;j&agrave; le cas pour le pin RC.3 si vous
+utilisez la version originale du module CORE. Jumper ouvert:filtre 6581, Jumper ferm&eacute;: filtre 8580 </li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+              <li><i>V1.6 alpha1</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+
+   
+
+
+   <li> synchronisation optionnelle de la phase des
+oscillos pour obtenir des sons plus percussifs (une id&eacute;e de Jess
+D. Skov-Nielsen)<br>
+
+
+
+
+
+
+     Nouvelle entr&eacute;e dans le menu de la CS: OPS dans le menu OSC</li>
+
+
+
+
+                  <li>nouvelles enveloppes non-lin&eacute;aires avec
+des param&egrave;tres de COURBE flexibles, ce qui permet de modifier
+les courbe d'attack, decay et/ou release dans un sens comme dans
+l'autre (id&eacute;e et conseils pour l'impl&eacute;mentation de Jess
+D. Skov-Nielsen)<br>
+
+
+
+
+
+
+     Voir aussi: <a href="http://www.ucapps.de/midibox_sid/mbsid_curve1.jpg">Example1</a>
+               <a href="http://www.ucapps.de/midibox_sid/mbsid_curve2.jpg">Example2</a>
+               <a href="http://www.ucapps.de/midibox_sid/mbsid_curve3.jpg">Example3</a><br>
+
+
+
+
+
+
+     Nouvelles entr&eacute;es dans le menu de la CS: Cur et CAs dans le menu ENV</li>
+
+
+
+
+
+
+
+   <li>r&eacute;ponse lin&eacute;aire optimis&eacute;e du filtre
+8580 (conseils pour l'implementation de Jess D. Skov-Nielsen) NOTE: la
+dynamique &eacute;tant maintenant sup&eacute;rieure, vous devez
+augmenter les valeurs de cut-off &nbsp;pour vos anciens patches.</li>
+
+
+
+
+
+
+
+   <li>calcul de la table Note-&gt;fr&eacute;quence correct (conseils pour l'implementation par Jess D. Skov-Nielsen)</li>
+
+
+
+
+
+
+
+   <li>timing du s&eacute;quenceur de table d'onde am&eacute;lior&eacute; (bas&eacute; sur les experimentations sur le MIDIbox SEQ)</li>
+
+
+
+
+
+
+
+   <li>optimisation du gestionnaire d'affichage afin d'&eacute;viter des d&eacute;lais sup&eacute;rieurs &agrave; 1 mS</li>
+
+
+
+
+
+
+
+   <li>support exp&eacute;rimental du module AOUT (7 sorties CV
+assign&eacute;es aux sorties de la matrice de modulation, 1 canal pour
+la r&eacute;sonnance du filtre). Il est pr&eacute;vu pour la version
+finale d'int&eacute;grer le module AOUT dans une matrice de modulation
+s&eacute;par&eacute;e, et d'ajouter de nouveaux CC sur un canal
+s&eacute;par&eacute; du module AOUT</li>
+
+
+
+
+
+
+   <li>les nouveaux CCs "Curve Assign" (#110), "Curve ENV1/2" (#86,
+#87), "OSC Sync" (#124) peuvent &ecirc;tre &eacute;dit&eacute;s depuis
+la surface de contr&ocirc;le aussi bien que <a href="midibox_sid/sid_cc_implementation_chart.txt">par MIDI</a>.</li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+              <li><i>V1.5b</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+      <li>La majeure partie du logiciel a &eacute;t&eacute;
+revisit&eacute;e afin d'am&eacute;liorer la qualit&eacute; sonore. Le
+changement le plus drastique a &eacute;t&eacute; fait dans la
+modulation du Pitch - qui fonctionne d&eacute;sormais
+ind&eacute;pendamment du param&egrave;tre "Pitch
+Range"; les formes d'ondes des LFOs et enveloppes modulent de
+fa&ccedil;on lin&eacute;aire la fr&eacute;quence, comme c'est le cas
+sur la plupart des synth&eacute;s . Le param&egrave;tre Depth des
+LFOs et des Enveloppes suit une courbe exponnentielle.<br>
+
+
+
+
+Malheureusement ces changements rendent la V1.5 incompatible avec les
+patches r&eacute;alis&eacute;s avec les firmwares
+pr&eacute;c&eacute;dents.</li>
+
+
+
+
+
+
+      <li>le pilote du filtre du moteur sonore a &eacute;t&eacute;
+significativement am&eacute;lior&eacute; pour les 8580. Un exemple mp3
+est disponible &agrave; la page <a href="midibox_sid.html">MBHP-&gt;MIDIbox SID-&gt;Design</a></li>
+
+
+
+
+
+
+      <li>l'arp&eacute;giateur trie d&eacute;sormais les notes
+jou&eacute;es de la plus basse &agrave; la plus haute, afin de le
+rendre plus efficace lors de jeu live.</li>
+
+
+
+
+
+
+      <li><a href="midibox_sid/sid_cc_implementation_chart.txt">les -&gt; CC#8 - CC#11</a>permettent
+de jouer des notes avec le s&eacute;quenceur de table d'ondes et de les
+combiner avec l'arp&eacute;giateur pour obtenir des textures
+polyphoniques complexes.&nbsp;Un exemple mp3 est disponible &agrave; la
+page <a href="midibox_sid.html">MBHP-&gt;MIDIbox SID-&gt;Design</a>
+      </li>
+
+
+
+
+
+                  <li>le s&eacute;quenceur de table d'onde,
+l'arp&eacute;giateur, les LFOs et les Enveloppes peuvent &ecirc;tre
+synchronis&eacute;s &agrave; l'horloge MIDI&nbsp; (<a href="midibox_sid/sid_cc_implementation_chart.txt">-&gt; CC#125</a>)</li>
+
+
+
+
+
+
+      <li>une commande start de l'horloge MIDI (FA) entra&icirc;ne un reset des LFOs</li>
+
+
+
+
+
+
+      <li>le LFO dispose maintenant d'une forme d'onde pseudo-al&eacute;atoire</li>
+
+
+
+
+
+
+      <li>l'interface <a href="midibox_to_com.html">to-COM</a> est officiellement support&eacute;e
+      </li>
+
+
+
+
+
+                  <li>Control Surface: tous les nouveaux param&egrave;tres ont &eacute;t&eacute; ajout&eacute;s dans la structure des menus</li>
+
+
+
+
+
+
+      <li>l'&eacute;diteur JSynth a &eacute;t&eacute; mis &agrave; jour</li>
+
+
+
+
+
+
+      <li>les patches d'origines ont &eacute;t&eacute; mis &agrave;
+jour - 76 sons/s&eacute;quenceurs/arp&eacute;giateurs sont
+d&eacute;sormais disponibles</li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.4/18FStepC</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+      <li>la troisi&egrave;me et derni&egrave;re &eacute;tape est
+termin&eacute;e, elle permet de disposer de nombreux encodeurs, de
+boutons et de LEDs.<br>
+
+
+
+
+Voir aussi <a href="midibox_sid_csC.html">MBHP-&gt;MIDIbox SID-&gt;Step C</a></li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.4/18FStepB</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+      <li>La seconde &eacute;tape: jusqu'&agrave; 4 SIDs peuvent
+&ecirc;tre contr&ocirc;l&eacute;s depuis une seule unit&eacute; de
+contr&ocirc;le<br>
+
+
+
+
+Voir aussi&nbsp;<a href="midibox_sid_csB.html">MBHP-&gt;MIDIbox SID-&gt;Step B</a></li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.4/18FStepA</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+      <li>La premi&egrave;re &eacute;tape de la r&eacute;alisation de la surface de contr&ocirc;le est termin&eacute;e.</li>
+
+
+
+Voir aussi&nbsp; <a href="midibox_sid_cs.html">MBHP-&gt;MIDIbox SID-&gt;Control Unit</a>
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.4/18F</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+      <li>Portage vers les PIC18F452 en tant qu'application MIOS,
+ce qui permettra par la suite de disposer d'une surface de
+contr&ocirc;le.</li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.4</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+      <li>les Patches peuvent maintenant &ecirc;tre sauvegard&eacute;s sur un BankStick</li>
+
+
+
+
+
+
+      <li>une commande Program Change permet de selectionner l'un des 128 patches d'un BankStick</li>
+
+
+
+
+
+
+      <li>En plus des modes de jeu Mono et Poly, un mode legato est maintenant disponible.</li>
+
+
+
+
+
+
+      
+
+
+      <li>Prise en charge d'un affichage LCD - nom de
+patch, num&eacute;ro de programme, canal MIDI et num&eacute;ro de
+machine sont affichables.</li>
+
+
+
+                  <li>Notez que les commandes SysEx ont <a href="midibox_sid/midibox_sid_sysex_implementation.txt">chang&eacute;es</a>. En compl&eacute;ment du firmware, le nouvel &eacute;diteur&nbsp;<a href="midibox_sid/jsynth_017_with_mbsid_rel4.zip">JSynthLib editor</a> est requis.</li>
+
+
+
+
+
+
+      <li>50 presets de sons sont disponibles&nbsp;<a href="midibox_sid/example_patches_v4.zip">ici</a></li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.3</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+      <li>Un s&eacute;quenceur de tables d'ondes a
+&eacute;t&eacute; int&eacute;gr&eacute; dans le firmware, il vous
+permet de cr&eacute;er des s&eacute;quences de formes d'ondes et de CC.
+Cette fonction est un *must* pour les sons de percussions dans la
+tradition des C64
+:) . Vous trouverez &eacute;galement un nouveau morceau de d&eacute;mo (<a href="http://members.tripod.de/ucapps/midibox_sid/mbsid_demo8.mp3">mbsid_demo8.mp3</a>) donnant un aper&ccedil;u du potentiel de cette fonction (note:&nbsp;<b>tous</b>
+les sons ont &eacute;t&eacute;s cr&eacute;&eacute;s avec la MIDIbox
+SID! Ils ont &eacute;t&eacute;s pass&eacute;s dans des effets externes).<br>
+
+
+
+Le nouveau <a href="midibox_sid/jsynth_017_with_mbsid_rel3.zip">JSynthLib editor</a> est requiq pour &eacute;diter les tables. Voici quelques <a href="midibox_sid/example_patches_v3.zip">Exemples de Patches</a></li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.2</i>
+   
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+
+
+
+      <li>Interactions possibles via SysEx avec le nouvel &eacute;diteur JSynthLib&nbsp;</li>
+
+
+
+
+
+
+   
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.1</i>
+  
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+12 CC's ont &eacute;t&eacute;s ajout&eacute;s pour cette version, vous
+trouvere les nouvelles commandes recens&eacute;es dans le fichier <a href="midibox_sid/sid_cc_implementation_chart.txt">sid_cc_implementation_chart.txt</a>.
+    <li>Avec
+le nouveau mode Poly jusqu'&agrave; 3 notes differentes peuvent
+&ecirc;tres jou&eacute;es simultan&eacute;ment. Le Mode Poly Mode doit
+&ecirc;tre activ&eacute; via le CC 127.</li>
+
+
+
+
+
+
+    <li>V&eacute;locit&eacute;, Aftertouch and et la molette de
+Modulation peuvent d&eacute;sormais &ecirc;tres assign&eacute;s
+&agrave; n'importe quel param&egrave;tre de la MIDIbox SID. Tr&eacute;s
+utile pour le jeu "live"!! :-) Vous pouvez s&eacute;lectionner le
+param&egrave;tre cible, l'intensit&eacute;, la direction et la valeur
+initiale. Des modulations crois&eacute;es sont &eacute;galement
+possibles (par exemple la V&eacute;locit&eacute; pour contr&ocirc;ler
+la fr&eacute;quence du CutOff, l'Aftertouch pour contr&ocirc;ler
+l'intensit&eacute; de la modulation de la v&eacute;locit&eacute;, et la
+molette de modulation pour contr&ocirc;ler la valeur initiale de la
+V&eacute;locit&eacute; - &ccedil;a &agrave; l'air dingue, mais
+&ccedil;a marche!!! ;-). Nouveau CC's: Assignement: CC 117-119, Valeur
+initiale: CC 2-4,
+Depth (intensit&eacute;): CC 13-15.</li>
+
+
+
+
+
+
+    <li>Une option "Sus-Key" a &eacute;t&eacute; ajout&eacute;e.
+Elle optimise le jeu "live" en conjonction avec le portamento (glide). Avec cette fonction,
+le portamento n'est actif que lorsqu'au moins deux notes sont
+jou&eacute;es simultan&eacute;ment. Le Portamento sera "bypass&eacute;"
+lorsqu'une seule touche est pr&eacute;ss&eacute;e. La fonction
+Sus-Key doit &ecirc;tre activ&eacute;e avec le CC 116.</li>
+
+
+
+
+
+
+    <li>L'Environment pour Logic destin&eacute; &agrave; la MIDIbox SID a &eacute;t&eacute; mis &agrave; jour.</li>
+
+
+
+
+
+
+  
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+
+
+
+
+
+
+              <li><i>V1.0</i>
+  
+                
+                
+                
+                
+                
+                <ul>
+
+
+
+Version initiale. En plus des fonctions standards du SID (trois
+oscillateurs,
+triangle/saw/pulse/noise et formes d'ondes mixtes, enveloppes
+ind&eacute;pendantes pour les amplitudes, sync &amp; ringmodulation,
+filtre multi-bande12db low/band/highpass/notch), les fonctions
+suivantes ont &eacute;t&eacute;s impl&eacute;ment&eacute;es: <li> 2 enveloppes suppl&eacute;mentaires pouvant &ecirc;tres assign&eacute;es aux Pitch, Pulsewidth et aux Filtres</li>
+
+
+
+
+
+
+    <li>
+6 LFOs suppl&eacute;mentaires avec diff&eacute;rentes formes
+d'ondes&nbsp;pouvant &ecirc;tres assign&eacute;es aux Pitch, Pulsewidth
+et aux Filtres</li>
+
+
+
+
+
+
+    <li> Fine Tuning (r&eacute;glage fin du pitch)</li>
+
+
+
+
+
+
+    <li> Pitch Bender</li>
+
+
+
+
+
+
+    <li> Portamento/Glide</li>
+
+
+
+
+
+
+    <li> Delais</li>
+
+
+
+
+
+
+    <li> Arp&eacute;giateur (un SID *doit* avoir son arp&eacute;giateur ;-)</li>
+
+
+
+
+
+
+  
+                
+                
+                
+                
+                
+                </ul>
+
+
+
+
+
+
+              </li>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            </ul>
+
+
+
+
+
+
+
+FOOTER

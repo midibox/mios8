@@ -1,0 +1,1346 @@
+HEADER 3 MBHP AOUT LC Module
+
+            
+            
+            
+            
+            
+            <h1>MIDIbox Hardware Platform, Module</h1>
+
+
+
+            
+            
+            
+            <h1>AOUT LC&nbsp;</h1>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <p></p>
+
+
+
+
+
+            
+            
+            
+            
+            
+            <center><img src="mbhp/mbhp_aout_lc.jpg" height="251" width="378"></center>
+
+
+
+
+
+            
+            
+            
+            
+            
+            <p></p>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <p class="INFO">Le module MBHP_AOUT_LC (Low Cost) a pour
+vocation d'offrir une interface de sorties analogiques
+r&eacute;alisable avec des composants faciles &agrave; se procurer,
+dans quelque pays que ce soit. Je me suis lanc&eacute; dans ce projet
+apr&eacute;s une discussion avec Karl
+Dalen, sur la difficult&eacute; de trouver des projets DIY de DACs
+reposants sur une interface s&eacute;rie. Il me proposa <a href="http://www.midibox.org/users/kd/KDdac.pdf">ces circuits</a>,
+et j'ai opt&eacute; pour la solution bas&eacute;e sur des composants
+"discrets", car c'&eacute;tait la plus simple &agrave; mettre en
+oeuvre. Puisqu'il s'est av&eacute;r&eacute; que nous n'&eacute;tions
+pas les seuls &agrave; trouver un int&eacute;r&ecirc;t &agrave; un tel
+circuit, voici donc le PCB "pr&ecirc;t &agrave; l'emploi" pour la
+MIDIbox Hardware
+Platform !</p>
+
+
+
+            
+            
+            
+            <p class="INFO">Pr&eacute;ambule du Traducteur : vous trouverez ici &agrave; plusieurs reprise la notion de circuits ou de composants "<span style="font-style: italic;">DISCRETS</span>",
+afin d'&eacute;viter toute confusion, voici la d&eacute;finition
+exacte: Composant discret =&nbsp;Composant &eacute;lectronique
+&eacute;l&eacute;mentaire (exemple&nbsp;: diode, transistor,
+r&eacute;sistance, etc.)", Circuit discret = Circuit constitu&eacute;
+de composants &eacute;l&eacute;mentaires.</p>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <p class="DESC">A la diff&eacute;rence du module <a href="mbhp_aout.html">MBHP_AOUT</a>
+, ce projet ne n&eacute;cessite aucun circuit int&eacute;gr&eacute; DAC
+particulier (cher et difficile &agrave; trouver), remplac&eacute; ici
+par un r&eacute;seau de r&eacute;sistances "discret" de type
+R-2R&nbsp;en &eacute;chelle (ladder). Le montage de ce circuit,
+comparativement &agrave; d'autres conceptions, n&eacute;cessite
+beaucoup plus de soudures (et donc de temps), mais la MBHP a pour
+vocation d'offrir une plateforme "Do-It-Yourself", nous laisserons donc
+cette critique au monde auquel elle appartient, celui des projets
+commerciaux ;) . Malgr&eacute;s tout, il est toujours possible de
+remplacer le r&eacute;seau de r&eacute;sistances par un DAC disposant
+d'une interface parall&egrave;le (voir les <a href="http://www.midibox.org/users/kd/KDdac.pdf">sch&eacute;mas</a>
+de Karl), tout en concervant l'avantage de cette conception, c'est
+&agrave; dire la possibilit&eacute; d'acc&eacute;der aux DACs via une
+"cha&icirc;ne s&eacute;rie" (-&gt; moins de pins sur l'uC sont
+allou&eacute;s), et le pilote de la partie logicielle n'a pas besoin
+d'&ecirc;tre adapt&eacute; &agrave; une interface propri&eacute;taire.</p>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <p class="DESC">En ce qui concerne la qualit&eacute; des
+sorties de ce "DAC discret",
+il est important de noter que celle-ci d&eacute;pend directement de la
+qualit&eacute; des r&eacute;sistances choisies. Leur tol&eacute;rance
+doit &ecirc;tre de 1% ou moins (r&eacute;sistances &agrave; films
+m&eacute;tal) et d'une stabilit&eacute; sup&eacute;rieure vis &agrave;
+vis de la temp&eacute;rature (sans aller jusqu'&agrave; choisir des
+r&eacute;sistances de type Tempco, comme celle requises pour certains
+filtres ou oscillateurs audio, elles vous couteraient plus
+ch&egrave;res que les chips du modules AOUT classique, et sont aussi
+dures &agrave; trouver!). Le meilleur moyen afin d'obtenir un
+r&eacute;sultat optimal, c'est tout simplement de commander un lot de
+100 pi&egrave;ces (par exemple chez <a href="http://www.conrad.com" target="_blank">Conrad</a>:
+lot de 100 * r&eacute;sistances film m&eacute;tal 10k : 1.33 EUR,
+num&eacute;ro de commande
+#408280), et de les tester afin de s&eacute;lectionner celles dont les
+valeurs sont les plus proches les unes des autres pour le r&eacute;seau
+"ladder".</p>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <p class="DESC">Un autre probl&ecirc;me typique des DACs
+"pas cher" (pas seulement pour ce circuit, mais aussi pour les DACs en
+circuit int&eacute;gr&eacute;s), c'est qu'ils g&eacute;n&egrave;rent un
+"bruit parasite" &agrave; chaque fois qu'un nouveau voltage est
+s&eacute;lectionn&eacute;. L'intensit&eacute; de ce bruit
+d&eacute;pend des bits qui sont bascul&eacute;s lors de la
+s&eacute;lection d'un nouveau voltage - donc plus les bits
+"bascul&eacute;s" ont une position importante dans le mot, d'autant
+augmente
+l'intensit&eacute; de ce bruit parasite. Bien que cette pertubation
+soit clairement visible sur mon oscilloscope, je n'ai encore
+not&eacute; aucun effet audible ni avec un filtre Moog "discret" ni
+avec un filtre &agrave; base de CEM3378 (IC). Les test avec des VCOs
+Korg MS-20 ont eux aussi &eacute;t&eacute; concluants, ces derniers se sont
+tr&eacute;s bien comport&eacute;s, pilot&eacute;s par ce circuit. Cette
+mise en garde s'adresse donc surtout &agrave; ceux qui souhaite un
+r&eacute;sultat parfait! Ce bruit parasite peut &ecirc;tre
+compl&egrave;tement &eacute;limin&eacute; en ajoutant un circuit
+S&amp;H (Sample &amp; Hold) derri&egrave;re le DAC. En utilisant un <a href="mbhp_shx8.html">NJU7304</a>
+, il est possible &eacute;galement d'augmenter le nombre de canaux
+disponibles - mais cette solution requiert de nouveau un IC
+sp&eacute;cial ou d'ajouter un autre circuit avec un trop grand nombre
+de composants discrets - on va vers le d&eacute;sastre! :-/</p>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <p class="DESC">Pour ceux que cette pr&eacute;sentation n'a
+pas totalement d&eacute;courag&eacute;, voici deux exemples audio
+repr&eacute;sentatifs des r&eacute;sultats que l'on peut esp&eacute;rer
+obtenir avec un module AOUT_LC connect&eacute; entre une MIDIbox SID et
+un filtre
+CEM3378: <a href="http://www.midibox.org/forum/index.php?topic=5538.0" target="_blank">Forum Posting #1</a>, <a href="http://www.midibox.org/forum/index.php?topic=5633.0" target="_blank">Forum Posting #2</a>.</p>
+
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <dl>
+
+
+
+
+
+
+   <dt></dt>
+
+
+
+
+
+              
+              
+              
+              
+              
+              <h2> <img src="bullet.gif" alt=""> T&eacute;l&eacute;chargements </h2>
+
+
+
+
+
+
+   <dd>
+   </dd>
+
+
+
+
+
+              <dd>
+                
+                
+                
+                
+                
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+
+
+
+
+
+    <tbody>
+
+
+
+
+
+                    <tr>
+
+
+
+
+
+
+      <td colspan="4" class="TABCOLOR1"><font size="3">les mod&egrave;les de PCB peuvent &ecirc;tre ouverts, modifi&eacute;s et convertis 
+avec</font><font size="3">&nbsp;<a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <td class="TABCOLOR1"><font size="2"><strong>Module</strong></font></td>
+
+
+
+
+
+
+      <td class="TABCOLOR1"><font size="2"><strong>Sch&eacute;ma</strong></font></td>
+
+
+
+
+
+
+      <td class="TABCOLOR1"><font size="2"><strong>Layout</strong></font></td>
+
+
+
+
+
+
+      <td class="TABCOLOR1"><font size="2"><strong>Aper&ccedil;u</strong></font></td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <td class="TABCOLOR2"><i>MBHP_AOUT_LC_V1</i></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_aout_lc.pdf">mbhp_aout_lc.pdf</a></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_aout_lc_v1.brd">mbhp_aout_lc_v1.brd</a></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_aout_lc_v1.gif">mbhp_aout_lc_v1.gif</a></td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+  
+                  
+                  
+                  
+                  
+                  
+                  </tbody>
+                
+                
+                
+                
+                
+                </table>
+
+
+
+
+
+              </dd>
+
+
+
+
+
+
+
+  <dd>
+                
+                
+                
+                
+                
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+
+
+
+
+
+    <tbody>
+
+
+
+
+
+                    <tr>
+
+
+
+
+
+
+      <td colspan="4" class="TABCOLOR1"><font size="3">Informations Compl&eacute;mentaires</font></td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <td class="TABCOLOR1"><font size="2"><strong>Fichiers</strong></font></td>
+
+
+
+
+
+
+      <td class="TABCOLOR1"><font size="2"><strong>Taille</strong></font></td>
+
+
+
+
+
+
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Description</strong></font></td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_aout_lc_orderlist.txt">mbhp_aout_lc_orderlist.txt</a></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2">1k</td>
+
+
+
+
+
+
+      <td class="TABCOLOR2">Liste de commande chez <a href="http://www.reichelt.de/" target="_blank">Reichelt</a></td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/dokuwiki/doku.php?id=bipolar_12v_psu">bipolar_12v_psu</A></TD>
+      <TD CLASS=TABCOLOR2>Wiki</TD>
+      <TD CLASS=TABCOLOR2>Wiki article about bipolar PSUs (required to get a +/- 12V voltage)</TD>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+  
+                  
+                  
+                  
+                  
+                  
+                  </tbody>
+                
+                
+                
+                
+                
+                </table>
+
+
+
+
+
+              </dd>
+
+
+
+
+
+
+  
+            
+            
+            
+            
+            
+            </dl>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <dl>
+
+
+
+
+
+
+   <dt></dt>
+
+
+
+
+
+              
+              
+              
+              
+              
+              <h2> <img src="bullet.gif" alt=""> R&eacute;solution </h2>
+
+
+
+
+
+
+   <dd>
+                
+                
+                
+                
+                
+                <p class="DESC">Afin d'offrir une plus grande
+flexibilit&eacute;, le PCB du module MBHP_AOUT_LC permet de
+s&eacute;lectionner deux couples de r&eacute;solutions diff&eacute;rentes. Le
+premier canal peut aussi bien &ecirc;tre contr&ocirc;ler avec une
+r&eacute;solution de 12bit ou de 8bit, le second canal avec une
+r&eacute;solution de 4bit ou 8bit&nbsp;:</p>
+
+
+
+
+
+
+                
+                
+                
+                
+                
+                <p></p>
+
+
+
+
+
+                
+                
+                
+                
+                
+                <center><img src="mbhp/mbhp_aout_lc_res_options.gif" height="100" width="548"></center>
+
+
+
+
+
+                
+                
+                
+                
+                
+                <p></p>
+
+
+
+
+
+
+                
+                
+                
+                
+                
+                <p class="DESC">L'option 12/4 bit est utilis&eacute;e avec la <a href="midibox_sid.html">MIDIbox SID</a> (l'ouverture du filtre est pilot&eacute; sur 12bit, la r&eacute;sonnance sur seulement 4bit).<br>
+
+
+Dans le firmware de la <a href="midibox_cv.html">MIDIbox CV</a> il est
+possible de s&eacute;lectionner la r&eacute;solution. 8/8bit est tout
+&agrave; fait suffisant lorsqu'il s'agit de piloter des entr&eacute;es
+CV de type V/Oct via des messages de Note ou d'&eacute;v&egrave;nements
+de type CC. 12/4bit est &agrave; pr&eacute;f&eacute;rer lorsque le
+canal #1 est connect&eacute; sur une entr&eacute;e CV de type Hz/V, ou
+si vous souhaiter g&eacute;n&eacute;rer des &eacute;v&egrave;nements
+d'une plus haute r&eacute;solution (NRPNs, PitchWheel).</p>
+
+
+
+
+
+
+  </dd>
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            </dl>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <dl>
+
+
+
+
+
+
+   <dt></dt>
+
+
+
+
+
+              
+              
+              
+              
+              
+              <h2> <img src="bullet.gif" alt=""> Connections </h2>
+
+
+
+
+
+
+   <dd>
+   </dd>
+
+
+
+
+
+              <dd>
+                
+                
+                
+                
+                
+                <p class="INFO">Les projets suivant prennent en charge
+le module MBHP_AOUT_LC - notez que les connections sur le module CORE
+diff&egrave;rent d'un projet sur l'autre:<br>
+
+
+
+
+
+
+   </p>
+
+
+
+
+
+                
+                
+                
+                
+                
+                <dl>
+
+
+
+
+
+
+     <dd></dd>
+
+
+
+
+
+                
+                
+                
+                
+                
+                </dl>
+
+
+
+
+
+                
+                
+                
+                
+                
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+
+
+
+
+
+                
+                
+                
+                
+                
+                </table>
+
+
+
+
+
+                
+                
+                
+                
+                
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+
+
+
+
+
+     <tbody>
+
+
+
+
+
+                    <tr>
+
+
+
+
+
+
+       <td class="TABCOLOR1"><font size="2"><strong>Sch&eacute;mas</strong></font></td>
+
+
+
+
+
+
+       <td class="TABCOLOR1"><font size="2"><strong>AOUT_LC:J1:SO</strong></font></td>
+
+
+
+
+
+
+       <td class="TABCOLOR1"><font size="2"><strong>AOUT_LC:J1:SC</strong></font></td>
+
+
+
+
+
+
+       <td class="TABCOLOR1"><font size="2"><strong>AOUT_LC:J1:RC</strong></font></td>
+
+
+
+
+
+
+     </tr>
+
+
+
+
+
+
+     <tr>
+
+
+
+
+
+
+       <td class="TABCOLOR2"><a href="midibox_cv/mbcv_aout_lc_interconnections.pdf">MIDIbox CV</a></td>
+
+
+
+
+
+
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J10:RC (RC4)</strong></font></td>
+
+
+
+
+
+
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J10:MD (RD5)</strong></font></td>
+
+
+
+
+
+
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J10:SO (RC5)</strong></font></td>
+
+
+
+
+
+
+     </tr>
+
+
+
+
+
+
+     <TR>
+       <TD CLASS=TABCOLOR2><A HREF="midibox_fm/mbfm_aout_lc_interconnections.pdf">MIDIbox FM</A></TD>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:SC (RC1)</STRONG></FONT></Td>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:RC (RC0)</STRONG></FONT></Td>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:SI (RC3)</STRONG></FONT></Td>
+     </TR>
+     <tr>
+
+
+
+
+
+
+       <td class="TABCOLOR2"><a href="midibox_sid/mbsid_aout_lc_interconnections.pdf">MIDIbox SID (*)</a></td>
+
+
+
+
+
+
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:SC (RC1)</strong></font></td>
+
+
+
+
+
+
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:RC (RC0)</strong></font></td>
+
+
+
+
+
+
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:SI (RC3)</strong></font></td>
+
+
+
+
+
+
+     </tr>
+
+
+
+
+
+
+     
+                  
+                  
+                  
+                  
+                  
+                  </tbody>
+                
+                
+                
+                
+                
+                </table>
+
+
+
+
+
+                
+                
+                
+                
+                
+                <p class="INFO">(*) MIDIbox SID V1.7303 et sup&eacute;rieur!
+   </p>
+
+
+
+
+
+              </dd>
+
+
+
+
+
+            
+            
+            
+            
+            
+            </dl>
+
+
+
+
+
+
+  
+
+
+            
+            
+            
+            
+            
+            <dl>
+
+
+
+
+
+
+  <dt></dt>
+
+
+
+
+
+              
+              
+              
+              
+              
+              <h2> <img src="bullet.gif" alt=""> Guide de Soudage </h2>
+
+
+
+
+
+
+  <dd>
+  </dd>
+
+
+
+
+
+              <dd>
+                
+                
+                
+                
+                
+                <table cellpadding="0" cellspacing="0">
+
+
+
+
+
+
+    <tbody>
+
+
+
+
+
+                    <tr>
+
+
+
+
+
+
+      <td><img src="mbhp/mbhp_aout_lc_1.jpg" alt="" border="0" height="182" width="280"></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2">Commencez par souder les 7 ponts
+qui vous &eacute;vitent d'avoir &agrave; r&eacute;aliser un PCB
+&agrave; deux couches.&nbsp;Utilisez pour cela le reste des pattes de vos r&eacute;sistances et condensateurs que 
+vous avez d&eacute;j&agrave; mont&eacute;s, et attendez d'avoir fini tous vos modules avant de les 
+jeter! :-)</td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <td><img src="mbhp/mbhp_aout_lc_2.jpg" alt="" border="0" height="172" width="280"></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2">Montez tous les composants &agrave; l'exception des ICs et v&eacute;rifiez les tensions d'alimentation (voir le <a href="mbhp/mbhp_aout_lc.pdf">sch&eacute;ma</a>)</td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <td><img src="mbhp/mbhp_aout_lc_3.jpg" alt="" border="0" height="185" width="280"></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2">Ajouter le c&acirc;ble entre les
+pin #9 de l' IC2 et le pin J2, au dos du PCB. Notez que ce c&acirc;ble
+n'est requis que lorsque plusieurs modules MBHP_AOUT_LC sont
+cha&icirc;n&eacute;s.)</td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <td><img src="mbhp/mbhp_aout_lc_4.jpg" alt="" border="0" height="192" width="280"></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2">Montez les jumpers et le c&acirc;ble n&eacute;cessaires pour s&eacute;lectionner la r&eacute;solution&nbsp;sur le connecteur J3.</td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+    <tr>
+
+
+
+
+
+
+      <td><img src="mbhp/mbhp_aout_lc_5.jpg" alt="" border="0" height="180" width="280"></td>
+
+
+
+
+
+
+      <td class="TABCOLOR2">Installez les ICs et
+v&eacute;rifiez de nouveaux les tensions d'alimentation. Vous pouvez
+maintenant connecter le module &agrave; votre&nbsp;MIDIbox - Les
+connections d&eacute;pendent de votre application, voir plus haut.</td>
+
+
+
+
+
+
+    </tr>
+
+
+
+
+
+
+  
+                  
+                  
+                  
+                  
+                  
+                  </tbody>
+                
+                
+                
+                
+                
+                </table>
+
+
+
+
+
+              </dd>
+
+
+
+
+
+
+  
+            
+            
+            
+            
+            
+            </dl>
+
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            <dl>
+
+
+
+
+
+
+   <dt></dt>
+
+
+
+
+
+              
+              
+              
+              
+              
+              <h2> <img src="bullet.gif" alt=""> Calibration </h2>
+
+
+
+
+
+
+   <dd>
+                
+                
+                
+                
+                
+                <p class="DESC">Chaque canal dispose de "trimmers"
+ind&eacute;pendants pour le gain et l'offset qui vous permettront
+d'ajuster le champ des tensions de sorties.</p>
+
+
+
+
+
+
+                
+                
+                
+                
+                
+                <p class="DESC"><a href="midibox_cv.html">MIDIbox CV</a>&nbsp;: suivez simplement les instructions disponibles &agrave; la page MIDIbox CV.</p>
+
+
+
+
+
+
+                
+                
+                
+                
+                
+                <p class="DESC"><a href="midibox_sid.html">MIDIbox SID</a>&nbsp;: ouvrez le fichier "main.asm" de l'application et param&eacute;trez l'option "ENABLE_AOUT" sur 2. <a href="howto_tools_mpasm.html">Recompilez</a> ensuite
+le projet et uploadez le nouveau fichier .hex vers votre module CORE.
+Vous pouvez desormais piloter le canal #1 avec le knob "Filter", et le
+canal #2 avec le knob "resonance". Si vous n'avez pas construit la
+Surface de Contr&ocirc;le, envoyez simplement des messages CC#46
+(CutOff) et CC#47 (Resonance) &agrave; votre MIDIbox.<br>
+
+
+Et &ccedil;a devient vraiment fun quand la sortie CV vers un filtre
+externe est modul&eacute;e par les envellopes et les LFOs! :-)</p>
+
+
+
+
+
+
+  </dd>
+
+
+
+
+
+
+            
+            
+            
+            
+            
+            </dl>
+
+
+
+
+
+
+FOOTER

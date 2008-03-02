@@ -1,0 +1,228 @@
+HEADER 3 MBHP LTC Module
+
+<H1>MIDIbox Hardware Platform, LED/Thru/COM Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_ltc.jpg" width=500 height=361></CENTER></P>
+
+<P CLASS=INFO>The LTC (LED/Thru/COM) module is a multi-purpose board which provides:
+  <UL CLASS=CL>
+    <LI> a MIDI IN LED driver</LI>
+    <LI> a MIDI OUT LED driver</LI>
+    <LI> a MIDI THRU port driver</LI>
+    <LI> a 2nd MIDI OUT port driver</LI>
+    <LI> a MIDIbox-to-COM port (see <A HREF="midibox_to_com.html">MIDIbox-to-COM page</A>)</LI>
+  </UL>
+</P>
+<P CLASS=INFO>Mostly not all chips have to be mounted. Following two configurations are useful:</P>
+<P CLASS=DESC>1) you want to monitor the MIDI In/Out activity with LEDs and you need a second MIDI Out and/or a MIDI Thru for a particular MIDI device (i.E for a second PC) - in this case the LTC module acts as a <B>passive</B> MIDI module with a <B>Tx Input</B> and a <B>Rx Input</B>. You have to stuff the two 74HC00 which drive the LEDs and the additional MIDI ports (beside of the resistors and capacitors)<BR>
+<CENTER><IMG SRC="mbhp/mbhp_ltc_passive.gif" width=454 height=534></CENTER></P>
+<P CLASS=DESC>2) you want to monitor the MIDI In/Out activity with LEDs and want to connect your Core module to the RS232 port of a PC/Mac - in this case the LTC module acts as an <B>active</B> MIDI module with a <B>Tx Input</B> and a <B>Rx Output</B> which supplies the Rx Input of the PIC. You have to stuff one 74HC00 for the LEDs and the MAX232 (beside of the resistors and capacitors), and you have to remove the optocoupler from the Core module in order to avoid a short-circuit (only one driver is allowed for the Rx Input of the PIC, either the 6N138, or the MAX232, or a second Core module)
+<CENTER><IMG SRC="mbhp/mbhp_ltc_active.gif" width=454 height=534></CENTER></P>
+
+<P CLASS=INFO>Here an additional example to give you an understanding how a serial <A HREF="midibox_link.html">MIDIbox Link</A> between two or more CORE modules has to be realized when the To-COM option (MAX232 stuffed) is used:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_ltc_active_mblink.gif" width=450 height=310></CENTER></P></P>
+
+<P CLASS=INFO>And here an example how the To-COM option works with MIDIbox SID Master/Slave module(s):<BR>
+<CENTER><IMG SRC="mbhp/mbhp_ltc_active_mbsid.gif" width=449 height=306></CENTER></P></P>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_LTC_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ltc.pdf">mbhp_ltc.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ltc_v1.brd">mbhp_ltc_v1.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ltc.gif">mbhp_ltc.gif</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ltc_orderlist.txt">mbhp_ltc_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_to_com.html">MIDIbox-to-COM</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>The MIDIbox-to-COM Interface</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the LTC module:</P>
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>J1</TD>
+      <TD CLASS=TABCOLOR2>5</TD>
+      <TD CLASS=TABCOLOR2>Interface to CORE:J11 - power input (0/+5V) and Rx/Tx signals.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>+/- connection to the MIDI-IN LED.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J3</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>+/- connection to the MIDI-OUT LED.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J4</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>MIDI THRU port. See the schematic, how to connect a MIDI socket to this port.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J5</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>a second MIDI OUT port. See the schematic, how to connect a MIDI socket to this port.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J6</TD>
+      <TD CLASS=TABCOLOR2>9</TD>
+      <TD CLASS=TABCOLOR2>This is the interface to the COM-port of your PC. A 9-pole sub-d socket (female) has to be used.</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Used Components </H2></DT>
+   <DD>
+<P CLASS=DESC>Here a list of the used components. A complete orderlist for <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> can be found <A HREF="mbhp/mbhp_ltc_orderlist.txt">here</A>, Mouser partlist for the US: see <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Website</A>, if you have a orderlist for a distributor on your country, feel free publish it on this page!</P>
+
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Value</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>IC1, IC2</TD>
+      <TD CLASS=TABCOLOR2>74HC00</TD>
+      <TD CLASS=TABCOLOR2>4*NAND gates, used as driver for LEDs and MIDI ports</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>IC3</TD>
+      <TD CLASS=TABCOLOR2>MAX232</TD>
+      <TD CLASS=TABCOLOR2>a RS232-port driver which converts 5V to +/- 12 V --- only necessary if MIDIbox-to-COM option should be used.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R1, R2</TD>
+      <TD CLASS=TABCOLOR2>470</TD>
+      <TD CLASS=TABCOLOR2>series resistance for the LEDs. Without these resistors the LED would be destroyed!</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>C5, C6</TD>
+      <TD CLASS=TABCOLOR2>10uF</TD>
+      <TD CLASS=TABCOLOR2>charging capacitors for the monoflop circuit. If you prefer fast flickering LEDs, lower the values to 1uF</B></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>C7, C8</TD>
+      <TD CLASS=TABCOLOR2>100nF</TD>
+      <TD CLASS=TABCOLOR2>The additional bypass caps have to be placed on the bottom side of the PCB, as close to the +5V power input of the 74HC00 as possible.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R3, R4</TD>
+      <TD CLASS=TABCOLOR2>100k</TD>
+      <TD CLASS=TABCOLOR2>decharging resistors for the monoflop circuit, value should not be changed in order to avoid high decharging currents.</B></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>R5, R6, R7, R8</TD>
+      <TD CLASS=TABCOLOR2>220</TD>
+      <TD CLASS=TABCOLOR2>protection resistors for the MIDI ports, they limits the current if the MIDI ports are shortened by fault.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>C1, C2, C3, C4</TD>
+      <TD CLASS=TABCOLOR2>100 nF</TD>
+      <TD CLASS=TABCOLOR2>capacitors for the charge pumps of the MAX232. Not necessary if the to-COM option of the LTC should not be used.</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ltc_1.jpg" WIDTH=280 HEIGHT=234 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Start with soldering the 5 bridges which save you from creating a 2-layer board. You can use the cutted legs of caps and resistors, before you throw them away after you finished all the modules! :-) Note that for one bridge an isolated cable has to be used, since it crosses another bridge</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ltc_2.jpg" WIDTH=280 HEIGHT=200 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Stuff the resistors, capacitors, sockets, connectors.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ltc_7.jpg" WIDTH=280 HEIGHT=221 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Add also the two additional Bypass Caps between Vdd and ground (Vss) of each 74HC00 on the bottom side of the PCB as close to the +5V power input of the 74HC00 as possible. They improve the power integrity.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ltc_3.jpg" WIDTH=280 HEIGHT=272 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Connect the LTC to the Core module and check the voltage levels on the IC sockets:<BR>
+IC1:Vdd(14) - IC1:Vss(7) = 5V<BR>
+IC2:Vdd(14) - IC2:Vss(7) = 5V<BR>
+IC3:Vdd(16) - IC3:Vss(15) = 5V</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ltc_6.jpg" WIDTH=280 HEIGHT=290 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Now stuff the two 74HC00 if you want to use the LTC module like descriped above in option 1)</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ltc_5.jpg" WIDTH=280 HEIGHT=296 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Don't use the optocoupler and the MAX232 at the same time!</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ltc_4.jpg" WIDTH=280 HEIGHT=297 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Stuff the MAX232 if you want to use the LTC module like descriped above in option 2)</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+FOOTER

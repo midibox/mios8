@@ -1,0 +1,156 @@
+HEADER 3 MBHP AOUT LC Module
+
+<H1>MIDIbox Hardware Platform, AOUT LC Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_aout_lc.jpg" width=378 height=251></CENTER></P>
+
+<P CLASS=INFO>The idea behind the MBHP_AOUT_LC module was to realize control outputs with parts that are easy to get in most countries. I started with this project after a discussion with Karl Dalen about the difficulity to find DIY friendly DACs with a serial interface. He proposed <A HREF="http://www.midibox.org/users/kd/KDdac.pdf">these circuits</A>, and I selected the discrete solution because of the simplicity. Some people requested to bring a ready made PCB into the MIDIbox Hardware Platform, so here it is!</P>
+
+<P CLASS=DESC>In difference to the <A HREF="mbhp_aout.html">MBHP_AOUT</A> or <A HREF="">MBHP_AOUT_NG</A> module, this project doesn't require a special (expensive and hard to get) DAC IC, instead resistors are formed to a discrete R-2R ladder network. Building such a circuit means a lot of soldering effort, but as the MBHP is indented as a Do-It-Yourself platform, and not as a commercial product, this argument is very weak. However, the resistor ladder could be replaced by a DAC with parallel interface (see Karl's <A HREF="http://www.midibox.org/users/kd/KDdac.pdf">schematics</A>), this would still have the advantage, that the DACs are accessible via a serial chain (-> low number of uC pins are allocated), and that the software driver doesn't need to be adapted for a proprietary interface.</P>
+
+<P CLASS=DESC>Regarding the quality of the "discrete DAC" outputs it should be mentioned, that it directly depends on the chosen resistors. The tolerance should be 1% or lower (Metalfilm) and stable over the typical temperature range. The results can be dramatically improved by selecting the best matching resistors: just buy a set of 100 pieces (e.g. at <A HREF="http://www.conrad.com" TARGET="_blank">Conrad</A>: a set of 100 * 10k metalfilm resistors for 1.33 EUR, part number #408280), measure the resistance and take the ones with the best matching values for the ladder circuit.</P>
+
+<P CLASS=DESC>Another typical problem of cheap DACs (not only of this circuit, but also for cheap integrated DACs) is, that there is some "zipper noise" each time a new voltage is selected. The intensity of this noise depends on the bits which are toggled when a new voltage is selected - the leftmost bits (most signifigant bits) will produce the highest zipper noise. Even I can see this noise on my scope, I haven't noticed an audible effect with a discrete Moog- and CEM3378 filter, yet. Also CV controlled Korg MS-20 oscillators are working well with it. However, this is an explicit warning for those who expect perfect results! The zipper noise can be completely eliminated by adding a S&H circuit behind the DAC. By using the <A HREF="mbhp_shx8.html">NJU7304</A> this would also increase the number of available channels - on the other hand this solution requires once again a special IC or a lot of additional discrete ciruitry - it's a disaster! :-/</P>
+
+<P CLASS=DESC>For those who don't feel disappointed yet, here two audio examples which demonstrate which results can be expected when the AOUT_LC module is connected between a MIDIbox SID and a CEM3378 filter: <A HREF="http://www.midibox.org/forum/index.php?topic=5538.0" TARGET="_blank">Forum Posting #1</A>, <A HREF="http://www.midibox.org/forum/index.php?topic=5633.0" TARGET="_blank">Forum Posting #2</A>.</P>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_AOUT_LC_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_aout_lc.pdf">mbhp_aout_lc.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_aout_lc_v1.brd">mbhp_aout_lc_v1.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_aout_lc_v1.gif">mbhp_aout_lc_v1.gif</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_aout_lc_orderlist.txt">mbhp_aout_lc_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/dokuwiki/doku.php?id=bipolar_12v_psu">bipolar_12v_psu</A></TD>
+      <TD CLASS=TABCOLOR2>Wiki</TD>
+      <TD CLASS=TABCOLOR2>Wiki article about bipolar PSUs (required to get a +/- 12V voltage)</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Resolution </H2></DT>
+   <DD>
+<P CLASS=DESC>In order to increase the flexibility, the MBHP_AOUT_LC PCB provides two different resolution options. The first channel can either be controlled with 12bit or 8bit resolution, the second channel with 4bit or 8bit resolution:</P>
+<P><CENTER><IMG SRC="mbhp/mbhp_aout_lc_res_options.gif" width=548 height=100></CENTER></P>
+<P CLASS=DESC>The 12/4 bit option is used by <A HREF="midibox_sid.html">MIDIbox SID</A> (the filter is controlled with 12bit, the resonance with 4bit only).<BR>
+In the <A HREF="midibox_cv.html">MIDIbox CV</A> firmware the resolution option is selectable. 8/8bit is enough if the module should control V/Oct CV inputs via Note or CC events. 12/4bit should be selected if channel #1 is connected to a Hz/V input, or if high-resolution events (NRPNs, PitchWheel) are desired.</P>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Pinning </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+<P CLASS=INFO>Following projects support the MBHP_AOUT_LC module - note that the pinning to the Core module is different:<BR>
+   <DL>
+     <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+     <TR>
+       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></tD>
+       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>AOUT_LC:J1:SO</STRONG></FONT></TD>
+       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>AOUT_LC:J1:SC</STRONG></TD>
+       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>AOUT_LC:J1:RC</STRONG></FONT></TD>
+     </TR>
+     <TR>
+       <TD CLASS=TABCOLOR2><A HREF="midibox_cv/mbcv_aout_lc_interconnections.pdf">MIDIbox CV</A></TD>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J10:RC (RC4)</STRONG></FONT></Td>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J10:MD (RD5)</STRONG></FONT></Td>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J10:SO (RC5)</STRONG></FONT></Td>
+     </TR>
+     <TR>
+       <TD CLASS=TABCOLOR2><A HREF="midibox_fm/mbfm_aout_lc_interconnections.pdf">MIDIbox FM</A></TD>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:SC (RC1)</STRONG></FONT></Td>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:RC (RC0)</STRONG></FONT></Td>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:SI (RC3)</STRONG></FONT></Td>
+     </TR>
+     <TR>
+       <TD CLASS=TABCOLOR2><A HREF="midibox_sid/mbsid_aout_lc_interconnections.pdf">MIDIbox SID (*)</A></TD>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:SC (RC1)</STRONG></FONT></Td>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:RC (RC0)</STRONG></FONT></Td>
+       <TD CLASS=TABCOLOR2><FONT SIZE=2><STRONG>CORE:J6:SI (RC3)</STRONG></FONT></Td>
+     </TR>
+     </TABLE><P CLASS=INFO>(*) MIDIbox SID V1.7303 and higher!</DD>
+   </DL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_aout_lc_1.jpg" WIDTH=280 HEIGHT=182 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Start with soldering the 7 bridges which save you from creating a 2-layer board. You can use the cutted legs of caps and resistors, before you throw them away after you finished all the modules! :-)</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_aout_lc_2.jpg" WIDTH=280 HEIGHT=172 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Mount all parts except for the ICs and check the power supply voltages (see <A HREF="mbhp/mbhp_aout_lc.pdf">schematic</A>)</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_aout_lc_3.jpg" WIDTH=280 HEIGHT=185 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Add the wire between pin #9 of IC2 and J2 at the bottom. Note that this wire is only required if the module should be chained with other MBHP_AOUT_LC modules.)</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_aout_lc_4.jpg" WIDTH=280 HEIGHT=192 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Mount the jumpers and the additional wire at J3 in order to select the resolution.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_aout_lc_5.jpg" WIDTH=280 HEIGHT=180 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Stuff the ICs and check the power again. Now you can connect the module to your MIDIbox - the pinning depends on the application, see above.</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Setup and Calibration </H2></DT>
+   <DD>
+<P CLASS=DESC>Each channel provides a seperate gain and offset trimmer which allow you to adjust the output voltage range.</P>
+<P CLASS=DESC><A HREF="midibox_cv.html">MIDIbox CV</A> users: just follow the instructions at the MIDIbox CV page.</P>
+<P CLASS=DESC><A HREF="midibox_sid.html">MIDIbox SID V1</A> users: open the "main.asm" file of the application and set the "ENABLE_AOUT" switch to 2. Thereafter <A HREF="howto_tools_gpasm.html">rebuild</A> the project and upload the new .hex file to the core. Now you can control channel #1 with the filter knob, and channel #2 with the resonance knob. If you haven't built the control surface, then just send CC#46 (CutOff) and CC#47 (Resonance) to the MIDIbox.<BR>The fun begins once the filter output voltage is modulated by the envelopes and LFOs! :-)</P>
+<P CLASS=DESC><A HREF="midibox_sid.html">MIDIbox SID V2</A> users: open the "setup_*.asm" file of the application and set the "ENABLE_AOUT" switch to 2. Thereafter <A HREF="howto_tools_gpasm.html">rebuild</A> the project and upload the new .hex file to the core. You can control channel #1 with the filter knob, and channel #2 with the resonance knob with F2A option enabled (-> Ensemble Menu). With two chained MBHP_AOUT_LC modules, you can control CutOff and Resonance of the right channel SID the same way. With V2A, volume can be handled a similar way (4 chained AOUT_LC modules required for this case). With F2A and V2A option disabled, up to 8 channels can be controlled from the modulation matrix and within the EXT page. All these possibilities are documented in the <A HREF="midibox_sid_manual.html">MIDIbox SID Users Manual</A>.</P>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Alternative solutions for CV outputs</H2></DT>
+  <DD>
+    <UL CLASS=CL>
+      <LI><A HREF="mbhp_aout.html">MBHP_AOUT_LC module</A></LI>
+      <LI><A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG module</A></LI>
+    </UL>
+  </DD>
+</DL>
+
+FOOTER

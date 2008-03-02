@@ -1,0 +1,222 @@
+HEADER 3 Wavetable Sounds Tutorial #1
+
+<h1>Tutorial de Sonidos Wavetable #1</h1>
+<p class="INFO">Este tutorial describe c&oacute;mo analizar y recrear sonidos wavetable de melod&iacute;as SID con el SID MIDIbox.</p>
+<p class="DESC">El t&eacute;rmino "wavetable" se usa en la comunidad
+C64 para un m&eacute;todo de s&iacute;ntesis, en el que la forma de
+onda y la frecuencia de una voz SID se modula tan r&aacute;pido que los
+sonidos de salida resultantes parecen una nueva forma de onda,
+funci&oacute;n que originariamente el chip no provee por s&iacute;
+mismo.Los cambios de par&aacute;metro se almacenan en una tabla- esa es
+la raz&oacute;n de este nombre- La t&eacute;cnica no est&aacute;
+relacionada con la "s&iacute;ntesis&nbsp;wavetable", que se basa en
+muestras de audio.</p>
+<p class="DESC"><a href="midibox_sid.html">MIDIbox SID</a> provee un
+secuenciador wavetable muy gen&eacute;rico, que no solo controla la
+forma de onda y su frecuencia, sino cualquier par&aacute;metro CC (ver
+tambi&eacute;n la <a href="midibox_sid/sid_cc_implementation_chart.txt">lista de todos los par&aacute;metros CC</a>).
+Est&aacute;n disponibles tres pistas de hasta 32 pasos, que pueden
+controlar 3 CCs diferentes.Para sonidos comunes wavetable, es
+suficiente controlar la forma de onda (OSC1 waveform: CC#33) y el valor
+de transporte (OSC1 transpose: CC#17) de una &uacute;nica voz.
+Tambi&eacute;n es posible controlar los valores&nbsp;waveform/transpose
+de todos los osciladores al mismo tiempo (CC#32 y CC#16), o modular el
+CC de un segundo oscilador en paralelo con el primero. Otro uso
+interesante de la tercera pista restante es la modulaci&oacute;n de un
+LFO o par&aacute;metro de envolvente; debo mencionar que el
+secuenciador wavetable se puede usar para tocar notas y frases de
+arpegiador- &iexcl;los m&eacute;todos apropiados se discuten en el siguiente
+fasc&iacute;culo del tutorial!</p>
+<h2>Copiando sonidos de tambor t&iacute;picos de&nbsp;C64 mirando las formas de onda</h2>
+<p class="DESC">La creaci&oacute;n de wavetables debe parecerse a
+la alquimia avanzada, pero su uso es muy f&aacute;cil y abre un nuevo
+potencial para los sonidos una vez que conoces lo b&aacute;sico. Se
+pueden aprender de melod&iacute;as SID ya existentes. En este tutorial,
+tomar&eacute; como ejemplo  el tambor de base de "Auf Wiedersehen Monty"
+de Rob Hubbard&nbsp;(esta canci&oacute;n me impresion&oacute; tanto en
+los 80, que nunca fui capaz de olvidar esos groove drums). As&iacute;
+que, &iquest;por qu&eacute; no echar un vistazo a la muestra de audio
+de esta canci&oacute;n reproducido con un SID original? Bueno, es
+dif&iacute;cil extraer el tambor de base en s&iacute; mismo, porque se
+reproducen al mismo tiempo otros sonidos. Esto dificulta&nbsp;la
+localizaci&oacute;n de la forma de onda y diferenciarla del resto de la
+suma de audio. </p>
+<p class="DESC">Pero hay ayuda: hoy en d&iacute;a se pueden reproducir canciones SID con emuladores en el PC. <a href="http://www.geocities.com/SiliconValley/Lakes/5147/sidplay/download.html" target="_blank">SIDPLAY</a>
+es uno viejo, pero a diferencia del sidplay2, permite enmudecer canales
+de voces del SID (View-&gt;Mixer). El canal aislado se puede reproducir
+tanto con un SID emulado como con <a href="http://www.midibox.org/forum/index.php?topic=2038.0" target="_blank">la MIDIbox</a>.
+Pero el m&eacute;todo m&aacute;s sencillo es escribir la salida del SID
+emulado en un archivo .wav ("File-&gt;Save as", seleccionar tipo de
+archivo ".wav")</p><p class="DESC">Aqu&iacute; finalmente una vista de la base de tambores emulada, que empieza en&nbsp; 0:38, canal #2:
+<img src="howto_sid_wavetables/mbsid-d_bassdrum_emulated.gif" height="130" width="609">
+</p>
+<p class="DESC">Tenemos las siguientes partes:
+</p><ul class="CL">
+  <li>empieza con una onda triangular, que se mantiene activa durante 20 mS</li>
+  <li>luego hay una parte corta de ruido durante 20 mS</li><li>acaba con una onda de pulso, la frecuencia y la amplitud se hacen m&aacute;s bajas</li></ul><p class="DESC">En
+las canciones SID, las secuencias wavetable est&aacute;n, en su mayor
+parte, divididas en fotogramas de 20 mS, lo que est&aacute; relacionado
+con la manera en la que los trackers est&aacute;n inclu&iacute;dos en
+los juegos (se les llama desde una interrupci&oacute;n de l&iacute;nea
+de trama, la frecuencia de llamada depende del ratio de
+actualizaci&oacute;n de pantalla, que es de 50 Hz en sistemas PAL (50Hz
+-&gt; periodo 20 mS)).</p>
+<p class="DESC">Para reconstruir la forma de onda, primero tienes que
+seleccionar la misma tasa de wavetable. Dado que MIDIbox SID temporiza
+el motor de sonido mucho m&aacute;s deprisa que un C64 (ciclo de
+actualizaci&oacute;n de 0.819 mS), la wavetable tiene que ser
+ralentizada. Se puede calcular el periodo de actualizaci&oacute;n de la
+wavetable con la siguiente f&oacute;rmula:: <i>periodo = 2 * (127-tasa) * 0.819mS</i>. &nbsp;Para obtener un periodo de 20 mS, la tasa apropiada es 115 In order to get a period of 20 mS.</p>
+<p class="DESC">Ahora puedes asignarle la pista uno a CC#33 (forma de
+onda OSC1) y la pista 2 a CC#17 (OSC1 transpose). Prueba a seguir la
+secuencia (tambi&eacute;n puedes usar el editor JSynthLib, o edita esta
+secuencia directamente desde el control de superficie SID)
+</p><pre><tt>STEP CMD    #1  #2  #3<br>00   Play   01  40 +00   # Reproduce tri&aacute;ngulo, transportado por  +0 (40 es la mitad)<br>01   Play   08 +00 +00   # Reproduce ruido, valor de transporte no tocado<br>02   Play   04 +00 +00   # Reproduce un pulso, valor de transporte no tocado<br>03   Play   14 -07 +00   # Libera bit de gate, valor de transporte disminuye  -7<br>03   Play  +00 -07 +00   # valor de transporte disminuye -7<br>03   Play  +00 -07 +00   # </tt><tt>valor de transporte disminuye -7<br></tt><tt>06   End   +00 +00 +00   # para (stop)  el wavetable<br></tt></pre>
+<p class="DESC">Para difuminar el waveform despu&eacute;s de que el bit
+de&nbsp;gate haya sido liberado, necesitas incrementar la tasa de
+liberaci&oacute;n de la envolvente OSC DCA. Toca algunas notas en el
+teclado para probar el sonido.</p><h2>Copiar trazando los cambios de registro SID</h2><p class="DESC">El
+m&eacute;todo descrito arriba no es el id&oacute;neo para copiar un
+sonido de wavetable 1:1, porque las frecuencias (valores de transporte)
+tienen que ser determinadas a o&iacute;do (por ej. comparando
+frecuencias. &iquest;No ser&iacute;a mejor extraer los valores que est&aacute;n
+escritos en los registros de sonido SID, directamente del
+archivo.sid&nbsp;? S&iacute; - esto es posible usando una herramienta
+de trazado. Encontr&eacute; SIDDump V1.0 en <a href="http://covertbitops.c64.org" target="_blank">covertbitops.c64.org</a>
+, muy &uacute;til para este tipo de an&aacute;lisis. Procesa el archivo
+.sid emulando el&nbsp;C64 CPU, y descarga los cambios de registro SID a
+STDOUT.</p>
+<p class="DESC">De vuelta al tambor de base- estos son los cambios de registro que SIDdump ha trazado:
+<code></code></p><pre>| Frame | Freq Note/Abs WF ADSR Pul | Freq Note/Abs WF ADSR Pul | Freq Note/Abs..<br>+-------+---------------------------+---------------------------+--------------..<br>...<br>|  1937 | ....  ... ..  08 0000 ... | 0EA3  A-3 AD  11 08F8 ... | 057B  E-2 9C ..<br>|  1938 | ....  ... ..  .. .... ... | 40A3 (B-5 C7) 81 .... ... | 684C (G-6 CF)..<br>|  1939 | ....  ... ..  .. .... ... | 0B23 (E-3 A8) 41 .... ... | ....  ... .. ..<br>|  1940 | ....  ... ..  .. .... ... | 0923 (C#3 A5) 40 .... ... | 057B (E-2 9C)..<br>|  1941 | ....  ... ..  .. .... ... | 03CE (A#1 96) .. .... ... | ....  ... .. ..<br>|  1942 | 2BD6  ... ..  .. .... ... | ....  ... ..  .. .... ... | ....  ... .. ..<br></pre>
+
+<p class="DESC">(El principio del archivo, y las columnas de m&aacute;s
+a la derecha "channel 3" y "filter" est&aacute;n cortadas para mejorar
+el aspecto de esta p&aacute;gina)</p>
+
+<p class="DESC">Para aquellos que est&eacute;n interesados, aqu&iacute;
+hay una explicaci&oacute;n acerca de los cambios de valor en el
+canal&nbsp;#2. Si te sientes confuso, s&oacute;lo tienes que ir al
+siguiente cap&iacute;tulo , en el que se describe un m&eacute;todo
+simplificador.</p><p class="DESC">En la primera fila puedes ver:
+</p><ul class="CL">
+  <li>nota A-3 con forma de onda triangular, valores ADSR&nbsp;: A=0, D=8, S=F, R=8</li>
+  <li>nota B-5 con forma de onda de ruido</li><li>nota E-3 con forma de onda de pulso</li>
+  <li>nota C#3, pulso, gate liberado</li>
+  <li>nota A#1 (pulso, gate a&uacute;n liberado)</li>
+</ul>
+
+<p class="DESC">Para la "traducci&oacute;n" al formato de par&aacute;metros SID MIDIbox&nbsp;, hay que tener en cuenta lo siguiente:
+</p><ul class="CL">
+<li>se procesa un fotograma cada 20 mS (50 Hz), la tasa wavetable apropiada de&nbsp;MIDIbox SID es 115 (ver arriba).<br>Si
+sabes el tiempo en el que se reproduce el sonido, se puede calcular el
+n&uacute;mero de fotograma apropiado con: fotograma = 50 * segundos</li>
+<li>el semitono "A-3" de SID-Dump es equivalente al semitono "A-2" de MIDIbox SID (la misma octava es mostrada por MIDI-Ox)</li>
+<li>Cuando usas un par&aacute;metro de transporte (CC#16..CC#19), es
+m&aacute;s f&aacute;cil calcular las diferencias entre los
+n&uacute;meros en la columna "Abs": <ul class="CL">
+    <li>empezamos
+con valor de transporte 40 (transpose (transporte) es un
+par&aacute;metro de polarizaci&oacute;n negativa, 40 es el valor
+central) - nota: para MIDIbox SID-D se requiere el ajuste de este valor
+de inicializaci&oacute;n, para que el sonido siempre empiece con la
+frecuencia deseada. MBSID-D reproduce "C-3", &nbsp;lo que significa que
+la nota debe ser transportada a&nbsp;-3 para empezar con A-2<br>El valor de transporte inicial resultante es 40-03 = 3C</li>
+    <li>transporte entre fotogramas 1. y 2.: C7-AD = +1A</li>
+    <li>transporte entre fotogramas 2. y 3.: A8-C7 = -1F</li>
+    <li>transporte entre fotogramas 3. y 4.: A5-A8 = -03</li>
+    <li>transporte entre fotogramas 4. y 5. : 96-A5 = -0F</li>
+  </ul>Todos
+los n&uacute;meros est&aacute;n en formato hexadecimal- Es &uacute;til
+tener una calculadora que soporte esto (Yo uso mi querida HP48GX)</li>
+  <li>los dos d&iacute;gitos del par&aacute;metro WF son barridos en MIDIbox SID CC#32..CC#35 (ver <a href="midibox_sid/sid_cc_implementation_chart.txt">lista de implementaci&oacute;n sid_cc.txt</a>)</li>
+  <li>hay que multiplicar por 8 los valores ADSR&nbsp;</li>
+</ul>
+<h2>Convirtiendo trazados SID</h2>
+<p class="DESC">La automatizaci&oacute;n del re-c&aacute;lculo de los
+valores de registro SID a par&aacute;metros
+MIDIbox SID CC puede ahorrar mucho tiempo, para ello, hice un script
+PERL que lee el archivo de descarga y lo convierte a un formato que
+puede ser metido directamente en la wavetable. Puedes descargar el
+script de <a href="midibox_sid/siddump_convert_v1.zip">aqu&iacute;</a>. 
+</p><p class="DESC">Despu&eacute;s de que el trazado&nbsp;SIDdump de salida haya sido escrito en un archivo inmediato:<br>
+<tt><pre>   siddump.exe Auf_Wiedersehen_Monty.sid &gt; dump<br></pre></tt>el conversor puede ser iniciado con (por ejemplo):
+<tt><pre>   perl siddump_convert.pl dump -track 2 -time 0:38 -lines 100<br></pre></tt>o se puede escribir la descarga completa convertida en un nuevo archivo con:
+<tt><pre>   perl siddump_convert.pl dump -track 2 -frame 0 &gt; converted<br></pre></tt>
+
+Aqu&iacute;, la salida convertida:
+<code></code></p><pre>| Fotograma | Tiempo  | Freq Nota/Abs WF ADSR Pul | MBSID Wave Transpose Att Dec Sus Rel |<br>+-------+-------+---------------------------+--------------------------------------+<br>...<br>|  1937 |  0:38 | 0EA3  A-3 AD  11 08F8 ... |         01  49 ( 49)   0  64 120  64 |<br>|  1938 |  0:38 | 40A3 (B-5 C7) 81 .... ... |         08 +1A ( 63) ... ... ... ... |<br>|  1939 |  0:38 | 0B23 (E-3 A8) 41 .... ... |         04 -1F ( 44) ... ... ... ... |<br>|  1940 |  0:38 | 0923 (C#3 A5) 40 .... ... |         14 -03 ( 41) ... ... ... ... |<br>|  1941 |  0:38 | 03CE (A#1 96) .. .... ... |        +00 -0F ( 32) ... ... ... ... |<br>|  1942 |  0:38 | ....  ... ..  .. .... ... |        +00 +00 (+00) ... ... ... ... |<br></pre>
+<p class="DESC">Los valores ADSR de la derecha se pueden introducir
+directamente en el editor de parches de MIDIbox SID&nbsp;(o superficie
+de control...) -
+tambi&eacute;n se pueden copiar directamente los valores wavetable:
+</p><pre><tt>STEP CMD    #1  #2<br>00   Play   01  49<br>01   Play   08 +1A<br>02   Play   04 -1F<br>03   Play   14 -03<br>03   Play  +00 -0F<br>03   Play  +00 +00  # (1) ver notas abajo<br>03   Play  +00 +00<br>03   Play  +00 +00<br>06   End    7F +00  # (2) (stop) para la wavetable y resetea ADSR<br></tt></pre>Ver tambi&eacute;n este <a href="howto_sid_wavetables/mbsid-d_jsynthlib_view.gif">pantallazo de JSynthLib</a>.<p></p>
+<p class="DESC">Reproduce C-3 (la "nota central") en el teclado -
+&iexcl;deber&iacute;as escuchar exactamente el tambor de base del
+archivo .sid! :-)</p>
+<p class="DESC"><i>(1) para permitir que la nota se desvanezca correctamente, hay que insertar algunas filas vac&iacute;as</i><br>
+<i>(2) "End 7F" ha sido introducido con MIDIbox SID-D, y tambi&eacute;n
+ser&aacute; soportado por el firmware com&uacute;n de MIDIbox
+SID&nbsp;&gt; v1.7 - este comando resetea los registros de
+envolvente&nbsp; para evitar los&nbsp;
+"hick-ups" (picos) de </i><i>ADSR</i><i>, que se pueden dar debido a un error de silicona en el chip de sonido SID .</i></p>
+<p class="DESC">Y as&iacute; es como queda finalmente la forma de onda, reproducida por hardware-SID:
+<img src="howto_sid_wavetables/mbsid-d_bassdrum_sid.gif" height="133" width="650">
+</p>
+<p class="DESC">&iquest;Echas algo de menos? &iexcl;S&iacute;, la onda
+triangular no es visible! Esto se debe al irritante error de delay ADSR
+del SID:&nbsp; El error tiene diferentes efectos, que han sido
+corregidos por by Dag Lem,
+y documentados en el <a href="ftp://ftp.zimmers.net/pub/cbm/crossplatform/emulators/resid/" target="_blank">c&oacute;digo fuente de reSID</a>.
+sidplay2 usa este motor, m&aacute;s
+nuevo, y por ello emula el SID de manera mucho m&aacute;s precisa que
+SIDPLAY (desafortunadamente sidplay2 no permite enmudecer canales...).
+El gate se demora hasta ca.30mS!</p>
+<p class="DESC">Esta demora puede eliminarse completamente
+estableciendo la tasa de liberaci&oacute;n de&nbsp;ADSR en 0. Pero en
+este caso, el sonido no se desvanece m&aacute;s (-&gt; menos
+din&aacute;mico):</p>
+<img src="howto_sid_wavetables/mbsid-d_bassdrum_sid_rel0.gif" height="130" width="502">
+<p class="DESC">Esta es tambi&eacute;n la explicaci&oacute;n de por
+qu&eacute; la mayor&iacute;a de los sonidos preestablecidos del MIDIbox
+SID com&uacute;n no usan liberaci&oacute;n- a&ntilde;ade una latencia
+inaceptable, que solo puede ser compensada reproduciendo 30 mS
+antes&nbsp;las notas&nbsp;MIDI  (no hay problema con los secuenciadores
+host de hoy en d&iacute;a si se reproduce en directo), o cortando la
+demora inicial de la muestra grabada.</p><p class="DESC">En la
+configuraci&oacute;n por defecto de MIDIbox SID-D, se acepta esta
+demora (los tambores se reproducen por alg&uacute;n secuenciador de
+cualquier manera, no en directo). De cualquier manera la pista de
+percusi&oacute;n debe ser reproducida con una demora de&nbsp;-30mS, o
+los tambores deben ser reproducidos por un sampler, una vez hayan sido
+correctamente sintonizados y coincidan con el resto de instrumentos
+usados en la canci&oacute;n.</p>
+<h2>Reproducir percusi&oacute;n wavetable</h2>
+<p class="DESC">Con el firmware com&uacute;n de MIDIbox SID, solo se
+puede reproducir un parche por cada par de core/SID. Solo hay una
+wavetable de 3 pistas por cada parche, y cambiar entre los parches
+tarda cierto tiempo, hecho que no interesa mientras reproduces una
+secuencia de sonidos de tambores diferentes. En otras palabras: el
+firmware com&uacute;n est&aacute; bien cuando quieres crear sonidos
+aislados del tipo de los del C64, grabarlos y reproducirlos con un
+sampler, pero no es lo adecuado para reproducir una secuencia de
+percusi&oacute;n directamente desde un &uacute;nico SID. Este tipo de
+limitaci&oacute;n es poco &oacute;ptima si se debe sintonizar un set
+completo de tambores para la canci&oacute;n, por ello he implementado
+un firmware alternativo optimizado para percusi&oacute;n: MIDIbox SID-D.</p>
+<p class="DESC">Puedes encontrar m&aacute;s informaci&oacute;n sobre&nbsp;MIDIbox SID-D solo&nbsp;en <a href="http://www.midibox.org/forum/index.php?topic=5703.0" target="_blank">este art&iacute;culo del foro</a>. Crear&eacute; una p&aacute;gina web individual una vez que el firmware est&eacute; terminado.</p>
+<p class="DESC">En esta demo de sonido he usado los sonidos de tambor
+copiados del tema de Rob Hubbard's "Auf Wiedersehen Monty". Los parches
+tambi&eacute;n forman parte de la librer&iacute;a preestablecida de
+MBSID-D (carpeta TK, primer drumkit)<br>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid-d_demo2.mp3"#ffffff**
+</p>
+<h2>Enlaces relacionados</h2>
+<ul class="CL">
+  <li><a href="http://hvsc.c64.org/" target="_blank">The High Voltage SID Collection (HVSC)</a></li>
+  <li><a href="http://www.geocities.com/SiliconValley/Lakes/5147/sidplay/download.html" target="_blank">SIDPLAY and SIDPLAY 2</a></li>
+  <li><a href="http://covertbitops.c64.org" target="_blank">SIDdump</a></li>
+  <li><a href="midibox_sid/siddump_convert_v1.zip">siddump_convert</a></li>
+  <li><a href="http://www.perl.com" target="_blank">Perl</a>, <a href="http://www.activestate.com/Products/Download/Register.plex?id=ActivePerl" target="_blank">Active Perl (Windows)</a></li>
+</ul>
+
+FOOTER

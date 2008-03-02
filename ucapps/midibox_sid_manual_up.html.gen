@@ -1,0 +1,51 @@
+HEADER 3 MIDIbox SID V2 User Manual --- V1 Upgrade
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- V1 Upgrade</H1>
+
+<P CLASS=INFO>This chapter lists the requirements for a hardware upgrade from MIDIbox SID V1 to the new MIDIbox SID V2 firmware.</P>
+
+<UL CLASS=CL>
+  <LI>PIC18F452 needs to be replaced by a PIC18F4685. This is a quite new microcontroller, which is unfortunately hard to find in common webshops yet.<BR>
+<A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV</A> did a batch order and provides the PIC with preburned Bootloader and MIOS for an extremely fair price to the community (<B>$9.95 !!!</B> Compare it with stock listings under <A HREF="http://www.findchips.com">findchips.com</A> and you won't find cheaper offerings for single parts!)<BR>
+     Doc is doing the distribution for Europe for those guys who want to save shipping costs - just contact him in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A></LI>
+
+  <LI>If your core module is based on MBHP_CORE_V2, please add R12 (the additional 1k pull-up resistor for IIC modules) like shown in the <A HREF="mbhp_core.html">MBHP_CORE_V3</A> schematic.</LI>
+  <LI>If your SID module is based on MBHP_SID_V2, please follow <A HREF="mbhp_sid_old.html">these instructions</A>.<BR>
+<I>Hint:</I> If it was already working with v1.7303, then there is no need for changing the MBHP_CORE->MBHP_SID interconnections.</LI>
+  <LI>If you are planning to use the stereo option (two SID chips controlled from a single core - recommented for a great sound experience!), just connect the second module like the first one. Only the CS# line of the second SID has a different routing (MBHP_SID::J2:SO -> MBHP_CORE::J14), so that individual accesses are possible.</LI>
+  <LI>Disconnect the four data lines D0-D3 of your LCD and let them unconnected (open). The LCD is accessed in 4bit mode to free the ECAN pins (see also <A HREF="mbhp/mbhp_lcd_4bit.pdf">mbhp_lcd_4bit.pdf</A>)</LI>
+  <LI>Add a 1k pull-up to the CAN receive input as shown in <A HREF="midibox_sid/mbsid_v2_communication.pdf">this schematic</A>.<BR>This resistor is even required if no slave module is used, otherwise the firmware could crash during the boot phase!</LI>
+  <LI>if you have used 32k BankSticks (24LC256) in the past, it makes sense to replace them by 64k BankSticks (24LC512), so that 128 patches can be stored in each bank! Note, that the 8th BankStick is used to store ensembles, 32k are sufficient here.</LI>
+</UL>
+
+<P CLASS=INFO>Following changes are only required if slaves are connected to the master core:<BR>
+  <UL CLASS=CL>
+    <LI>Change the MIDI connections to the slaves as shown in <A HREF="midibox_sid/mbsid_v2_communication.pdf">this schematic</A>, so that all slaves receive the same MIDI In data stream like the master core (J11:MI inputs of slaves connected to J11:MI of master)</LI>
+    <LI>Add the CAN bus connections as shown in <A HREF="midibox_sid/mbsid_v2_communication.pdf">this schematic</A>. Each core requires a diode (e.g. 1N4148)</LI>
+  </UL>
+</P>
+
+<P CLASS=INFO>Thats all - have fun! :-)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Partlist for a complete MIDIbox SID V1 upgrade </H2>
+
+<P CLASS=DESC>Assumed, that you own a completely stuffed MIDIbox SID V1, following parts are required for the upgrade:<BR>
+<UL CLASS=CL>
+  <LI>4 * (or 2 *, see below) PIC18F4685</LI>
+  <LI>1 * 1k resistor</LI>
+  <LI>+4 * 1k resistors if your core modules are based on MBHP_CORE_V2 schematic</LI>
+  <LI>4 * 1N4148 diode</LI>
+  <LI>+3 * 24LC512 (assumed, that 3 * 128 patches are sufficient for your needs, old 32k BankSticks can still be used, they will store 64 patches)</LI>
+</UL>
+
+<P CLASS=DESC>Plus 4 * <A HREF="mbhp_sid.html">MBHP_SID</A> modules if you are so crazy like those other guys who always want to bring their MIDIbox to the max! ;-)</P>
+
+<P CLASS=DESC>If you don't want to spend the money for additional modules, my strong recommentation is to connect 2 MBHP_SID modules to the master and a single slave, and to pass on the two unused core modules, so that only two PIC18F4685 are required.<BR>
+With such a configuration the upgrade costs you about US $20..$30 (+ shipping)</P>
+
+
+FOOTER

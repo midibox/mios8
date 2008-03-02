@@ -1,0 +1,84 @@
+HEADER 3 MIOS C Example
+
+<H3>Convert NRPN to CC</H3>
+
+<P CLASS=INFO>In difference to the <A HREF="mios_c_cc_to_nrpn.html">CC-to-NRPN example</A>, we want to convert incoming NRPN parameters to common CCs. In order to avoid conflicts, all incoming CC events on Channel #1 will be filtered, only NRPNs will be processed, and once the MSB value has been received, it will be forwarded as 'simple' CC.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  // static variables don't "forget" their values when the function
+  // is called again - we are using them to store the NRPN address/data
+  static unsigned char nrpn_msb;
+  static unsigned char nrpn_lsb;
+  static unsigned char nrpn_value_msb;
+  static unsigned char nrpn_value_lsb;
+
+  // check MIDI channel, it should be 0 (-> channel #1)
+  if( (evnt0 & 0x0f) == 0 ) {
+
+    switch( evnt0 & 0xf0 ) {
+      case 0x80: // Note-Off: 3 bytes
+      case 0x90: // Note-On: 3 bytes
+      case 0xa0: // Aftertouch: 3 bytes
+      case 0xe0: // Pitchbend: 3 bytes
+        MIOS_MIDI_TxBufferPut(evnt0);
+        MIOS_MIDI_TxBufferPut(evnt1);
+        MIOS_MIDI_TxBufferPut(evnt2);
+        break;
+      case 0xc0: // Program Change: 2 bytes
+      case 0xd0: // Poly Aftertouch: 2 bytes
+        MIOS_MIDI_TxBufferPut(evnt0);
+        MIOS_MIDI_TxBufferPut(evnt1);
+        break;
+
+      case 0xb0: // CC: 3 bytes
+	// only listen on first MIDI channel
+	if( evnt0 == 0xb0 ) {
+	  switch( evnt1 ) {
+  	    case 0x63: // NRPN MSB
+	      nrpn_msb = evnt2; // store it
+	      break;
+  	    case 0x62: // NRPN LSB
+	      nrpn_lsb = evnt2; // store it
+	      break;
+  	    case 0x26: // NRPN Value LSB
+	      nrpn_value_lsb = evnt2; // store it
+	      break;
+  	    case 0x06: // NRPN Value MSB
+	      nrpn_value_msb = evnt2; // store it...
+
+	      // ...and forward CC
+	      MIOS_MIDI_TxBufferPut(evnt0);
+	      MIOS_MIDI_TxBufferPut(nrpn_lsb); // could also be mapped
+	      MIOS_MIDI_TxBufferPut(nrpn_value_msb);
+	      break;
+  	    default:
+	      // all other CCs are ignored
+	  }
+	} else {
+	  // CCs on all other channels are forwarded directly
+          MIOS_MIDI_TxBufferPut(evnt0);
+          MIOS_MIDI_TxBufferPut(evnt1);
+          MIOS_MIDI_TxBufferPut(evnt2);
+	}
+
+      default:
+        // note: status messages (>= 0xf0) must be handled within MPROC_NotifyReceivedByte)
+        break;
+     }
+  }
+}
+</PRE></TT>>
+
+<P CLASS=INFO>If SysEx or Realtime messages should be forwarded as well, then you need to enhance the MPROC_NotifyReceivedByte() function like shown in <A HREF="mios_c_forward_chn1.html">this example</A></P>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

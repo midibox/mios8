@@ -1,0 +1,293 @@
+HEADER 3 ChangeLog of MIDIbox SEQ
+
+            <center>
+            <h1>MIDIbox SEQ Change Log</h1>
+            </center>
+
+            <center>
+            <h3>Derni&egrave;re version: V2.4c @&nbsp;2006-07-24</h3>
+            </center>
+
+
+            <img src="images/1x1dot.gif" alt="" height="10"><br>
+
+
+            <ul class="CL">
+
+
+              <li><i>V2.4a/b/c</i>
+  
+                <ul>
+
+   <li>En dehors du mode SONG, les boutons
+Fwd et Rew permettent maintenant
+d'incr&eacute;menter/d&eacute;cr&eacute;menter les valeurs en cours
+d'&eacute;dition. C'est une bonne alternative &agrave; la Datawheel
+pour r&eacute;aliser des "ajustages fins" de vos param&egrave;tres.</li>
+
+
+   <li>La
+r&eacute;solution du signal envoy&eacute; sur le pin "clock output"
+peut maintenant &ecirc;tre &eacute;talonn&eacute;e de 96 ppqn &agrave;
+24/13 ppqn, via le menu BPM - une fois dans ce menu, appuyez simplement sur l'un des 16
+boutons GP pour s&eacute;lectionner l'une des diff&eacute;rentes
+valeurs disponibles. Avec une valeur de 96 ppqn la sortie clock est en
+permanance &agrave; 1 (ce n'est pas un bug)<br>
+
+     24 ppqn correspond au r&eacute;glage standard (bouton GP #4)</li>
+
+
+   <li>Une
+nouvelle option permet d&eacute;sormais de synchroniser les changements
+de patterns au changement de mesure (le changement de pattern sera
+effectif apr&eacute;s que le 16&egrave;me pas de la piste "master" ait
+&eacute;t&eacute; jou&eacute;)</li>
+
+
+   <li>Ajout
+d'une nouvelle option pour le mode arpegiateur, elle vous permet de
+choisir si le s&eacute;quenceur repart du premiers pas
+lorsqu'une nouvelle note ou accord&nbsp;est jou&eacute;, ou si la
+lecture continue, vous permettant ainsi de jouer des notes/accords
+diff&eacute;rents &agrave; diff&eacute;rents pas.</li>
+
+
+   <li>Une
+nouvelle page est diponible dans le menu: "MBSEQ Options". Vous pouvez
+via cette page configurer les deux nouvelles options d&eacute;crites
+plus haut, directement sur la machine.</li>
+                </ul>
+              </li>
+              <br>
+
+              <li><i>V2.4</i>
+  
+                <ul>
+
+   <li>L'arp&eacute;giateur dispose maintenant d'un mode "&eacute;v&egrave;nements&nbsp;Multi-Arp"<br>
+Vous trouverez une description d&eacute;taill&eacute;e de ce mode dans le <a href="midibox_seq_tutorial4.html">4&egrave;me tutoriel</a></li>
+
+
+   <li>Impl&eacute;mentation
+de la prise en charge d'une sortie "clock" 24ppqn qui permet d'envoyer
+une synchro vers les appareils "vintages" disposant de ce type
+d'entr&eacute;e d'horloge. Ce signal est disponible sur le pin #15
+(RC0, CORE::J6::RC)</li>
+
+  
+                </ul>
+
+              </li>
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+              <li><i>V2.3</i></li>
+              <ul>
+                <li>L'horloge peut d&eacute;sormais &ecirc;tre
+divis&eacute;e par: BPM/1,2,3,..15,16 ind&eacute;pendamment pour chaque
+piste. Avant, seules les divisions de l'horloge BPM/1,2,4,8,16,32,64
+&eacute;taient disponibles. Vous pouvez revenir &agrave; cet ancien
+mode en &eacute;ditant l'entr&eacute;e DEFAULT_BPM_DIVIDER_BEHAVIOUR
+dans le fichier main.asm.</li>
+                <li>La gestion du menu SONG a &eacute;t&eacute; revis&eacute;e:</li>
+                <ul>
+                  <li>pour l'option 2*LCD 2x40, le second LCD (&agrave; droite) sert &agrave; afficher des informations suppl&eacute;mentaires</li>
+                  <li>le Mode SONG peut &ecirc;tre
+activ&eacute;/d&eacute;sactiv&eacute; depuis le Menu SONG en appuyant
+(une nouvelle fois) sur la touche SONG</li>
+                  <li>si le Mode SONG est d&eacute;sactiv&eacute;, le
+changement de "Set" de pattern (groupe de 1 &agrave; 4 Patterns) sera
+imm&eacute;diat (voir plus bas pour les exemples d'utilisation)</li>
+                  <li>les positions de Song sont d&eacute;sormais
+d&eacute;sign&eacute;es par A1..P8 au lieu de 1..128, pour une meilleure
+lisibilit&eacute;</li>
+                  <li>les positions de Song sont d&eacute;sormais
+divis&eacute;es en Parts allant de A &agrave; P, chaque Part contient 8
+"Pattern Sets", et chaque Pattern Set peut &ecirc;tre boucl&eacute;
+jusqu'&agrave; 16 fois</li>
+                  <li>Les
+num&eacute;ros de SONG,&nbsp;les positions de SONG, et les points de Bouclage/Saut&nbsp;
+sont maintenant accessibles directement avec les boutons GP 1&agrave; 16</li>
+                </ul>
+              </ul>
+              <ul>
+                <li>Exemples d'utilisation pour la nouvelle gestion du Mode SONG:</li>
+                <ul>
+                  <li>a) Pour activer le Mode SONG, placez-vous dans le menu SONG et appuyez deux fois sur la touche SONG.<br>
+
+Enfoncez la touche "A" + l'un des 16 boutons GP pour s&eacute;lectionner la Song<br>
+
+Enfoncez la touche "B" + l'un des 16 boutons GP pour s&eacute;lectionner la Part<br>
+
+-&gt; le s&eacute;quenceur passera imm&eacute;diatement &agrave; la
+Part s&eacute;lectionn&eacute;e, si le s&eacute;quenceur n'&eacute;tait
+pas en lecture, celle-ci d&eacute;marrera automatiquement.</li>
+                  <li>b) Cela vous permet de diviser une Song en
+plusieurs Parts. A la fin de la Part, vous pouvez programmer un Saut
+vers le premier pas (la Part sera boucl&eacute;e), ou vous pouvez
+programmer un Saut vers la Part suivante.<br>
+
+Note: si une Song contient 8 positions de Song, il n'est pas possible
+de programmer de Saut suppl&eacute;mentaire. Le s&eacute;quenceur
+sautera &agrave; la Part suivante automatiquement (pour assurer la
+compatibilit&eacute;)</li>
+                  <li>c) Il est possible de passer d'une Part &agrave;
+une autre quand le s&eacute;quenceur est en lecture - sans affecter le
+comportement temps r&eacute;el :)<br>
+
+Cela vous permet de d&eacute;clencher manuellement des breaks/fills/chorus... pendant une session live.</li>
+                  <li>M&ecirc;me
+si vous n'avez pas l'habitude de travailler en mode SONG, ces nouvelles
+impl&eacute;mentations vous seront utiles:&nbsp; vous
+pouvez maintenant sauvegarder 128 "Pattern Sets" dans un emplacement
+SONG.<br>
+
+Enfoncez la touche "A" + l'un des 16 boutons GP pour s&eacute;lectionner la Song<br>
+
+
+Enfoncez la touche "B" + l'un des 16 boutons GP pour s&eacute;lectionner la Part<br>
+
+(ceci vous permet d'acc&eacute;der directement &agrave; l'un des 16 Pattern Sets)<br>
+
+Tournez la datawheel pour s&eacute;lectionner la position 1..8 &agrave; l'int&eacute;rieur de la Part.<br>
+
+Comme en Mode SONG, les changements seront imm&eacute;diat sans
+affecter le &nbsp;timing du s&eacute;quenceur. Le Pattern Set sera
+jou&eacute; en boucle jusqu'&agrave; ce que vous en s&eacute;lectionnez
+un nouveau.</li>
+                </ul>
+              </ul>
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+              <li><i>V2.2</i>
+  
+                <ul>
+                  <li>Impl&eacute;mentation d'un mode "DRUM", il permet de jouer trois parties de percussions (ou "drum lines") par
+piste (16x3=48 "drum lines" qui peuvent &ecirc;tre jou&eacute;es
+simultan&eacute;ment!)<br>
+Dans ce mode, chaque Layer joue une "drum line".<br>
+
+Limitations: chaque "drum line", contrairement au piste classique, ne
+dispose que d'une&nbsp; note et d'une valeur "gatelength" communes
+&agrave; tous les pas. Et seules deux valeurs de v&eacute;locit&eacute;
+(normal et accent) peuvent &ecirc;tre sp&eacute;cifi&eacute;es.<br>
+Les accents peuvent &ecirc;tre assign&eacute;s aux pas en activant la touche Fast.<br>
+Vous trouverez plus de d&eacute;tails dans le&nbsp;<a href="midibox_seq_tutorial3.html">Tutoriel #3</a></li>
+                  <li>Les
+&eacute;v&egrave;nements peuvent d&eacute;sormais &ecirc;tre
+d&eacute;clench&eacute;s plusieurs fois (jusqu'&agrave; 4 fois par pas)
+avec un d&eacute;lai entre chacun red&eacute;clenchement
+r&eacute;glable de 1&agrave; 31 ticks. Le nombre de
+red&eacute;clenchements et le d&eacute;lai peuvent &ecirc;tre
+sp&eacute;cifi&eacute;s dans le Layer "gatelength".<br>
+Cette fonction
+vous permet de programmer des croches, triolets et double-croches, ce
+qui s'av&egrave;re tr&eacute;s utile pour les roulements, syncopes et
+flams.<br>
+Vous trouverez plus de d&eacute;tails dans le&nbsp;<a href="midibox_seq_tutorial3.html">Tutoriel #3</a><br>
+
+
+     <b>Note:</b>
+la nouvelle d&eacute;finition des gatelength (tenue
+d'&eacute;v&egrave;nements) rends les anciens Patterns incompatibles
+avec cette mise &agrave; jour (mais mieux vaut maintenant que jamais) -
+la gatelength doit &ecirc;tre divis&eacute;es par 4 pour les anciens
+patterns</li>
+                  <li>Une fonction "humanizer" permet
+d'ajouter/soustraire des valeurs al&eacute;atoires au&nbsp; 2nd byte
+MIDI&nbsp;(e.g. Note), au 3rd byte MIDI (e.g. V&eacute;locit&eacute;,
+valeur CC, Aftertouch...) et &agrave; la gatelength.<br>
+Le
+mode "humanizer" et son intensit&eacute; peuvent &ecirc;tre
+s&eacute;lectionn&eacute;s et &eacute;dit&eacute;s via le menu Groove.</li>
+                  <li>Deux pins suppl&eacute;mentaires pour les "gate trigger" sont d&eacute;sormais disponibles pour l'option AOUT:<br>
+-le 3&egrave;me gate sur le pin RC0 (CORE::J6::RC)<br>
+-le 4&egrave;me gate sur le pin RC1 (CORE::J6::SC)<br>
+Ces pins ne sont disponibles que lorsqu'aucun multiplexeur AIN n'est connect&eacute; 
+     (ce qui correspond &agrave; la configuration classique o&ugrave; des encodeurs remplacent les potentiom&egrave;tres)</li>
+                </ul>
+
+              </li>
+
+
+              <li><i>V2.1</i>
+  
+                <ul>
+
+   <li>Impl&eacute;mentation de deux modes "MORPHING" dans l'application:
+    
+                    <ul>
+
+     <li>"Smooth
+morphing": Les Layer A, B et C (pour les Notes: Num&eacute;ros de Note,
+v&eacute;locit&eacute;s, gatelength - pour les CC: num&eacute;ros de CC,
+valeurs et gatelength) sont progressivement transpos&eacute;s des
+valeurs d'un pattern aux valeurs d'un second pattern.<br>
+La
+position du morphing entre ces deux sc&egrave;nes peut &ecirc;tre
+contr&ocirc;l&eacute;e avec la Datawheel ou bien avec la molette de
+modulation d'un clavier MIDI.</li>
+
+
+     <li>"Threshold morphing" -
+Plus particuli&egrave;rement d&eacute;di&eacute; aux
+&eacute;v&egrave;nements de Note&nbsp;(patterns Drum): Note et
+V&eacute;locit&eacute; (Layer A et B) sont jou&eacute;s depuis une
+autre piste d&eacute;s que le seuil de
+Morph&nbsp;(contr&ocirc;l&eacute; avec la Datawheel ou bien avec la
+molette de modulation d'un clavier MIDI)&nbsp;est d&eacute;pass&eacute;
+pour le pas.<br>
+Le seuil peut &ecirc;tre r&eacute;gl&eacute; ind&eacute;pendamment pour chaque pas dans le Layer C
+     (normalement utilis&eacute; pour les gatelength).<br>
+En d'autres
+mots: le seuil sert &agrave; d&eacute;terminer &agrave; partir de
+quelle valeur un pas sera jou&eacute; depuis un autre pattern: en
+dessous du Threshold, c'est le pas du pattern actuel qui est
+jou&eacute;, au dessus, c'est le pas du pattern cible qui est
+jou&eacute;.<br>
+La&nbsp;longueur d'&eacute;v&egrave;nement "gatelength" est fixe dans ce mode.</li>
+
+    
+                    </ul>
+
+
+   </li>
+                  <li>la fonction Transpose/Arpeggiator hold (tenue) a &eacute;t&eacute; am&eacute;lior&eacute;e.</li>
+                  <li>le mode Transpose fonctionne d&eacute;sormais aussi sur les &eacute;v&egrave;nements CC.</li>
+                  <li>L'affichage du mode Arpeggiator reste correct ind&eacute;pendamment du r&eacute;glage "Direction".</li>
+                  <li>la touche Fast affecte maintenant aussi la datawheel.</li>
+                  <li> Les signaux "gate" pour la sortie CV sont g&eacute;r&eacute;s correctement m&ecirc;me en cas de superpositions de notes.</li>
+                  <li> <b>IMPORTANT:</b>&nbsp;d&eacute;sormais, l'entr&eacute;e SCLK du module AOUT doit &ecirc;tre
+connect&eacute;e au&nbsp;port J10:MD (PIC Pin #28/RD5) du module CORE.<br>
+L'utilisation
+du MIOS V1.7 (ou sup&eacute;rieur) est fortement recommand&eacute;e,
+vous obtiendrez notament des LEDs plus brillantes.<br>
+voir aussi: <a href="mios_v1_7_hardware_mods.html">http://www.ucapps.de/mios_v1_7_hardware_mods.html</a></li>
+
+  
+                </ul>
+
+              </li>
+
+
+              <img src="images/1x1dot.gif" alt="" height="20"><br>
+
+              <li><i>V2.0 -&nbsp;</i><i>Version bas&eacute;e sur le MIOS</i>
+  
+                <ul>
+
+    <li>Version initiale</li>
+
+  
+                </ul>
+
+              </li>
+
+
+            </ul>
+
+
+FOOTER

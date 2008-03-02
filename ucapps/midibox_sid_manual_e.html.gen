@@ -1,0 +1,139 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Ensembles
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- Ensembles</H1>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Introduction </H2>
+<P CLASS=DESC>An ensemble contains a collection of four patches, which are assigned to the MBSID master and the three MBSID slaves. In addition, it contains some global settings for each seperate unit which are not stored within a patch, like BPM generator settings, AOUT assignments and filter calibration values. MIDI channels and keyboard splitzones can be defined for up to 6 instruments per MBSID unit (relevant for multi patches).</P>
+
+<P CLASS=DESC>These informations are stored in a seperate BankStick, so that you are able to define up to 128 different ensembles. Unfortunately it takes up to 250 mS while switching between the ensembles, as a lot of data is read from different BankSticks (mainly the 400 kbit/s IIC interface limits the speed here). Therefore it is not possible to switch between different patches without a noticable delay!</P>
+
+<P CLASS=DESC>Ensemble E001 is always stored in internal EEPROM. This is the only available ensemble for the case that no special BankStick is connected to the master core. It is not recommented to store data here, as it will be overwritten with each firmware update!</P>
+
+<P CLASS=DESC>The "Ensemble BankStick" has to be assigned to CS#7 (Pin 1, 2 and 3 tied to +5V). It doesn't matter if it is a 32k (24LC256) or 64k (24LC512) type, as only a 32k range is allocated.</P>
+
+<P CLASS=DESC>Please keep also in mind, that due to the high number of definable MIDI channels and splitzones (summa summarum up to 24 different instruments could be used if 4 multi or drum patches are selected) chances are high to loose the oversight. Therefore it makes sense to define some basic channel assignments in a special ensemble (e.g. E002) which matches perfectly with your gear (keyboards, sequencers), and to re-use it for different variations by selecting and copying it to other ensemble slots. Unfortunately it is not possible to name the ensembles, so you have to live with the numbers E001..E128.</P>
+
+<P CLASS=DESC>Please keep also in mind, that due to special implementation reasons, only the sections of connected slaves will be stored into BankStick. This means: if you store an ensemble while not all slaves are connected to the CAN interface, the sections of the missing slaves won't be overwritten (but this could also be seen as an advantage ;-)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Root Menu </H2>
+<P CLASS=DESC>Within the main screen, press the <B>LEFTMOST SELECT BUTTON</B> to enter the ensemble root menu.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/root_ens1.gif" width=290 height=38 ALT="Ens Root"></IMG></CENTER><BR>
+<P CLASS=DESC>It gives you quick access the submenus, which are described below.</P>
+<P CLASS=DESC>The ensemble can be changed by pressing the PAGE UP/DOWN button within this screen (*). Moving the datawheel within this page. Patch and global parameter changes will take place immediately for all SIDs.<BR>
+Note that the ensemble can also be changed from the main screen by pressing the MENU button while moving the datawheel or pressing UP/DOWN.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SID menu </H2>
+<CENTER><IMG SRC="midibox_sid/cs2/ens_sid1.gif" width=242 height=38 ALT="SID"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>SID:</B> selects the SID (1/2/3/4) which should be configured. Multi-Selections can be done with the four SID buttons (press and hold one SID button, while pressing additional SID buttons) - parameter changes take place on all selected SIDs.</LI>
+  <LI><B>Bnk (Bank):</B> selects the BankStick from which the patch is read. 8 BankSticks are provided: A..H, whereas H is normaly used for ensembles - reading patches from this BankStick is not possible.</LI>
+  <LI><B>Pat (Patch):</B> selects the patch, which can also be changed in the main screen. A 24LC256 (32k) BankStick can store 64 patches, a 24LC512 (64) BankStick 128 patches</LI>
+  <LI><B>Mon (Mono/Stereo Switch):</B> by default it is assumed that two SID chips are connected to a core. By activating the Mono switch, both SIDs play the same sound. This affects the engines the following way:<BR>
+    <UL CLASS=CL>
+      <LI>Lead: the sound of the left channel is also played on the right channel. Special settings for the right channel don't have any effect. The OSC detune parameter works slightly different: the first oscillator is not detuned.</LI>
+      <LI>Bassline: only one bassline available, it plays on both SIDs</LI>
+      <LI>Drum: only three voices available</LI>
+      <LI>Multi: only three voices available, static assignments to Voice 4/5/6 are redirected to Voice 1/2/3</LI>
+    </UL></LI>
+  <LI><B>SPV (Super Poly Voices):</B> this is currently an experimental feature which allows to play lead instruments with multiple SID cores in a polyphonic manner. The usage is not selfexplaining, and it requires some additional configuration to get it properly working.<BR>
+  The superpoly handler couples 2, 3 or 4 SID cores (master/slaves). Only lead patches are supported by this function (yet), accordingly it isn't possible to play 8 voices individually, only 4 mono or stereo voices.<BR>
+  Following configurations are possible:<BR>
+  <UL CLASS=CL>
+    <LI>SPV=off: no effect</LI>
+    <LI>SPV=1: superpoly mode with SID1 only - it doesn't make much sense</LI>
+    <LI>SPV=2: superpoly mode with SID1 and SID2 (2 voices)</LI>
+    <LI>SPV=3: superpoly mode with SID1, SID2 and SID3 (3 voices)</LI>
+    <LI>SPV=4: superpoly mode with SID1, SID2, SID3 and SID4 (4 voices)</LI>
+  </UL>
+  <SPAN CLASS=LI>SPV, MIDI Channel, Split Zone and Patch/Bank number have to be set to the same values, this is not done automatically. Just select all SIDs in order to synchronize the settings. This can be done by selecting all (used) SIDs the same time with the SID buttons (press&hold SID1, press the remaining SID buttons, change values).<BR>
+  Following audio sample demonstrates the possibilities. Note that 4 different tracks have been recorded, one after another (overdubbing). Each instrument (Strings/Bass/Lead Start, Main) is played by 3 stereo SID cores in superpoly mode (SPV=3):<BR>
+  **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_superpoly_experiment.mp3"#ffffff**
+</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> CLocK menu </H2>
+<P CLASS=DESC>A global clock generator is available which sends clock events to the
+  <UL CLASS=CL>
+    <LI>LFOs (when the CSn function is enabled - can be done for each LFO seperately)</LI>
+    <LI>ENVs (when the CSn function is enabled - can be done for each envelope seperately)</LI>
+    <LI>Arpeggiators</LI>
+    <LI>Wavetables (if MOD flag not enabled)</LI>
+    <LI>Trigger Matrix (1:1, 1:4 and 1:16)</LI>
+  </UL>
+</P>
+<CENTER><IMG SRC="midibox_sid/cs2/ens_clk1.gif" width=242 height=38 ALT="Clock"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>SID:</B> selects the SID (1/2/3/4) which should be configured. Multi-Selections can be done with the four SID buttons.</LI>
+  <LI><B>BPM:</B> selects the beats-per-minute. This value is only used in master mode. In slave mode, the BPM is controlled from an external MIDI clock master.</LI>
+  <LI><B>Mode:</B>
+    <UL CLASS=CL>
+      <LI><B>Mst (Master):</B> the internal BPM generator is used, which is running at 96ppqn resolution.</LI>
+      <LI><B>Slv (Slave): </B> the clock generator quadruples the incoming MIDI clock and takes it as reference.</LI>
+      <LI><B>Auto:</B> the clock generator switches automatically between master and slave mode.<BR>
+      Slave mode is activated whenever a MIDI Clock command has been received. Master mode is activated when no MIDI clock has been received for ca. one second.</LI>
+    </UL>
+  </LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> FILter menu </H2>
+<CENTER><IMG SRC="midibox_sid/cs2/ens_fil1.gif" width=242 height=38 ALT="FIL"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>SID:</B> selects the SID (1/2/3/4) which should be configured. Multi-Selections can be done with the four SID buttons.</LI>
+  <LI><B>ACh:</B> selects the audio channel: L (Left), R (Right) or LR (both)</LI>
+  <LI><B>Min/Max:</B> this is a global, patch independent minimum/maximum value which scales the Cutoff between the given range. It allows you to calibrate your SID (especially the 6582 and 8580) for a suitable operation range. In general 000/FFF (full range) is fine for a 6581, 000/600 are recommented for 6582 and 8580.</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> INStrument menu </H2>
+<CENTER><IMG SRC="midibox_sid/cs2/ens_ins1.gif" width=290 height=38 ALT="INS"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>SID:</B> selects the SID (1/2/3/4) which should be configured. Multi-Selections can be done with the four SID buttons.</LI>
+  <LI><B>Ins:</B> selects the instrument (1-6). Depending on the patch type, a different number of instruments is really used:
+    <UL CLASS=CL>
+      <LI><B>Lead:</B> only settings of first instrument are used.</LI>
+      <LI><B>Bassline:</B> the first instrument is used for the left SID channel, the second for the right SID channel. The remaining instruments are not used.</LI>
+      <LI><B>Drum:</B> only settings of first instrument are used.</LI>
+      <LI><B>Multi:</B> all 6 instrument settings are used</LI>
+    </UL>
+  </LI>
+  <LI><B>Chn:</B> specifies the MIDI channel (1-16) of the instrument.<BR>
+It's also possible to disable the MIDI channel (turn the encoder full-right) - in this case the instrument won't be played (default for Instrument 2-6).</LI>
+  <LI><B>SpL</B>/<B>SpU</B>: defines the lower and upper keyboard limit in between the instrument can be played. By changing the limits (and the transpose value) it's possible to realize keyboard zones, so that different instruments can be played on a single channel independent from each other.</LI>
+  <LI><B>Trn:</B> allows to transpose the instrument semitone-wise.</LI>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> EXTernal menu </H2>
+<CENTER><IMG SRC="midibox_sid/cs2/ens_ext1.gif" width=337 height=19 ALT="SID"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>SID:</B> selects the SID (1/2/3/4) which should be configured. Multi-Selections can be done with the four SID buttons.</LI>
+  <LI><B>F2A (Filter to Analog):</B> Cutoff and Resonance are forwarded to external CV outputs as well (assignments have to be done in the setup_*.asm file). Note that the effective Cutoff frequency <B>behind</B> the modulation path is taken. This allows you to easily replace the internal filter by an external.<BR>
+Please note also, that the filter range can be adjusted with the calibration parameters (min/max) of the ENS->FIL menu.</LI>
+  <LI><B>V2A (Volume to Analog):</B> Volumes are forwarded to external CV outputs as well (assignments have to be done in the setup_*.asm file). Note that the effective volume value <B>behind</B> the modulation path is taken - accordingly you are able to realize an external VCA to overcome the ADSR bug.</LI>
+  <LI><B>P2A (Pulsewidth to Analog):</B> Pulsewidth values of up to 6 oscillators are forwarded to external CV outputs (assignments have to be done in the setup_*.asm file) - the output behind the modulation path is taken.</LI>
+  <LI><B>K2A (Key to Analog):</B> Key values of up to 6 oscillators are forwarded to external CV outputs (assignments have to be done in the setup_*.asm file) - together with the gate functions (which have to be configured in setup_*.asm as well) this allows you to play external analog synths with the MBSID engines (e.g. bassline). The slide and accent flag can be forwarded to digital outputs at port CORE:J5 as well, giving you the possibility to control the analog part of a TB303 (or similar analog bassline synth).</LI>
+  <LI><B>O2A (Oscillator Frequency to Analog):</B> Similar to K2A, but the frequency behind the modulation path is taken. Portamento/Slide effect, Finetune and Pitchbender are added as well. This opens new possibilities to play your analog synth(s). E.g., lead engine: enjoy all the stereo modulation possibilities. Bassline: two basslines can be played per core. Multi: polyphonic playing of up to 6 analog synths.<BR>
+Disadvantage of this option: it changes the frequency scale to V/octave, accordingly the SID chip won't play enjoyable sound anymore. So, O2A can only be used in isolated manner (temporary mute the audio outputs of the SID module(s) so long O2A is activated, or use the core module without MBHP_SID modules - e.g. as MBSID slave)</LI>
+  <LI><B>Iv1..Iv8:</B> allows you to invert the analog output voltages. This option could save you from adding additional circuitry (e.g. it allows you to control the CutOff CV of a SSM2044 filter without inverting OPAmp stage).</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SAVe menu </H2>
+<CENTER><IMG SRC="midibox_sid/cs2/ens_sav1.gif" width=242 height=38 ALT="SAV"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>E#:</B> selects the ensemble which should be overwritten</LI>
+  <LI><B>do!</B> stores the ensemble.<BR>
+         Note that naming is not supported.<BR>
+         Only the configuration sections of available MBSIDs will be stored.<BR>
+         The last stored ensemble will be reloaded after power-on.</LI>
+</UL>
+
+
+
+FOOTER

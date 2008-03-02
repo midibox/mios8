@@ -1,0 +1,186 @@
+HEADER 3 MBHP IIC SpeakJet Module
+
+<H1>MIDIbox Hardware Platform, IIC SpeakJet Module</H1>
+
+<H2> !!! This page is under construction !!! </H2>
+
+<P CLASS=INFO>Short comments to the features of this module:<BR>
+<UL CLASS=CL>
+  <LI>SpeakJet accessible via IIC, device ID 0x20, 0x22, 0x24 or 0x26 (selectable via two jumpers at J2)</LI>
+  <LI>In addition, the SpeakJet can be controlled from a COM port. The two serial streams are merged within PIC16F88</LI>
+  <LI>For debugging, the received IIC data is forwarded to COM Rx as well</LI>
+  <LI>SpeakJet baudrate configured to 19200 baud during startup</LI>
+  <LI>Audio Amp circuit not part of schematic yet - a good solution will be part of the final schematic</LI>
+</UL>
+</P>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MIDIbox SpeakJet Application</H2></DT>
+  <DD>
+    <P CLASS=INFO>Audiocommander has developed an application for this module! Details, firmware and an improved circuit can be found in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=midibox_speakjet">MIDIbox Wiki</A>.</P>
+  </DD>
+
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> For Programmers: MBHP_IIC_SPEAKJET access algorithm </H2></DT>
+  <DD>
+    <P CLASS=DESC>With MIOS V1.9 and higher, the MBHP_IIC_SPEAKJET module can be accessed in the following transmit functions:</P>
+<TT><PRE>
+// allowed IDs: 0x20, 0x22, 0x24 or 0x26 
+// (selectable with J2 of the MBHP_IIC_SPEAKJET module)
+#define SPEAKJET_SLAVE_ID 0x20
+
+// this variable contains the current slave number
+unsigned char slave;
+
+/////////////////////////////////////////////////////////////////////////////
+// This function initializes the interface to MBHP_IIC_SPEAKJET
+/////////////////////////////////////////////////////////////////////////////
+void IIC_SPEAKJET_Init(void) __wparam
+{
+  MIOS_IIC_Stop();  // init IIC interface
+
+  slave = 0xff;     // set invalid slave number
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// This function starts a serial transfer to SpeakJet
+// it terminates with 0 if the IIC device is busy or not available
+/////////////////////////////////////////////////////////////////////////////
+unsigned char IIC_SPEAKJET_TransmitStart(unsigned char _slave) __wparam
+{
+  unsigned char retry_ctr;
+
+  // invalidate slave number
+  // (to avoid that TransmitByte will send something if slave not available)
+  slave = 0xff;
+
+  // start IIC access
+  MIOS_IIC_Start();
+
+  // send address
+  retry_ctr = 0;
+  while( !MIOS_IIC_ByteSend((SPEAKJET_SLAVE_ID & 0xfe) + (_slave << 1)) ) {
+    // slave has sent a NAK - retry 255 times
+    MIOS_IIC_Stop();
+    if( ++retry_ctr == 255 )
+      return 0;
+    MIOS_IIC_Start();
+  }
+
+  // store slave number
+  slave = _slave;
+
+  return 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function sends a byte to the SpeakJet
+// the transfer must be initiated via IIC_SPEAKJET_TransmitStart first
+// it terminates with 0 if the IIC device is busy or not available
+/////////////////////////////////////////////////////////////////////////////
+unsigned char IIC_SPEAKJET_TransmitByte(unsigned char value) __wparam
+{
+  unsigned char retry_ctr;
+
+  if( slave == 0xff )
+    return 0;
+
+  // send byte
+  retry_ctr = 0;
+  while( !MIOS_IIC_ByteSend(value) ) {
+    // slave has sent a NAK - retry
+    // the address needs to be sent again!
+    if( !IIC_SPEAKJET_TransmitStart(slave) )
+      return 0;
+  }
+
+  // the complete package has been transmitted
+  return 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function finishes a transfer to the SpeakJet
+/////////////////////////////////////////////////////////////////////////////
+void IIC_SPEAKJET_TransmitStop(void) __wparam
+{
+  // stop IIC access
+  MIOS_IIC_Stop();
+
+  // invalidate slave number
+  // (to avoid that slave will send something before transfer has been started)
+  slave = 0xff;
+}
+</PRE></TT></P>
+
+    <P CLASS=DESC>Example which just forwards incoming Note Events to the SpeakJet:</P>
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  // init interface to MBHP_IIC_SPEAKJET
+  IIC_SPEAKJET_Init();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  if( evnt0 == 0x90 ) {
+    IIC_SPEAKJET_TransmitStart(0);
+    IIC_SPEAKJET_TransmitByte(evnt1 | 0x80);
+    IIC_SPEAKJET_TransmitStop();
+  }
+}
+</PRE></TT></P>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_IIC_SPEAKJET</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_speakjet_prelim.pdf">mbhp_iic_speakjet_prelim.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>final layout under construction</TD>
+      <TD CLASS=TABCOLOR2>-</TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Firmware</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_speakjet_v1_0.zip">mbhp_iic_speakjet_v1_0.zip</A></TD>
+      <TD CLASS=TABCOLOR2>20k</TD>
+      <TD CLASS=TABCOLOR2>This package contains the precompiled firmware and the source code for PIC16F88</TD>
+    </TR>
+  </TABLE></DD>
+
+  </DD>
+
+</DL>
+
+<P CLASS=DESC><B>Imortant note for MBHP_CORE_V2 users:</B> an additional 1k pull-up resistor is required between the Vd and SC line, it has to be directly soldered at CORE::J4 in order to allow "clock stretching". Thats a method to delay serial transfers when a slave cannot response immediately on a master request. The pull-up resistor for the SD line is already available at the core module (CORE::R2).<BR>
+MBHP_CORE_V3 users will notice, that both pull-up resistors are already available - no additional resistor needs to be added!</P>
+
+
+FOOTER

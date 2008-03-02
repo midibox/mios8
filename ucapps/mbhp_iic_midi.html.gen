@@ -1,0 +1,451 @@
+HEADER 3 MBHP IIC MIDI Module
+
+<H1>MIDIbox Hardware Platform, IIC MIDI Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_iic_midi_sideview.jpg" width=550 height=464></CENTER></P>
+
+<P CLASS=INFO>The IIC MIDI module provides a bridge between IIC and MIDI, and mainly consists of a PIC16F88 microcontroller from <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>, which runs with a special firmware (not MIOS!).</P>
+
+<P CLASS=INFO>IIC and MIDI are both serial interfaces:
+<UL CLASS=CL>
+  <LI>IIC (Inter-IC, the abbreviation "I2C" is oftenly used as well) is qualified for fast data exchange between multiple devices via a single clock and data line
+  <LI>MIDI (Musical Instrument Digital Interface) is the asynchrous interface you propably know very well (otherwise you wouldn't be interested in this site ;-)
+</UL></P>
+
+<P CLASS=INFO>Combining these two interfaces opens the possibility to access multiple MIDI In and Out ports from a single <A HREF="mbhp_core.html">microcontroller</A>. In addition, the IIC MIDI "slaves" are doing some high level MIDI protocol handling in order to relieve the "master" core from time and memory intensive tasks. This improves the overall performance.</P>
+
+<P CLASS=INFO>The firmware has been prepared for up to 4 IIC MIDI slaves connected via the IIC bus to a single master:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_iic_midi_bus.gif" width=550 height=250></CENTER></P>
+
+<P CLASS=INFO>Each slave needs an unique address, which has to be be selected with two jumpers (binary coded). In theory up to 127 slaves could be attached to the bus by altering the base address within the firmware, but in practice the bus load could increase to a level, where buffers overflow and data get lost. Performance considerations are a complex topic, and I don't know if I will ever find the time to explain all the aspects in detail here, but I can say, that there shouldn't be performance issues with up to 4 IIC_MIDI slaves - this is the configuration I'm using for my own <A HREF="midi_router.html">MIDI Router</A>, which will be heavily tested under reallife conditions in the next years :)</P>
+
+<P CLASS=INFO>As a sidenote it should be mentioned, that not only MBHP_IIC_MIDI modules can be attached to the IIC bus, but also <A HREF="mbhp_bankstick.html">BankSticks</A> (IIC EEPROMs), IIC LCDs or even other microcontrollers with IIC slave interface - the MBHP_IIC_MIDI firmware can be used as template for such "gadgets", like special sensors, analog/digital IO extensions, bridges to RS232, PS2 ports or... how about ethernet, a wireless link or a modem? ;-)</P>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Use Cases </H2></DT>
+  <DD>
+  <P CLASS=DESC>The module has been developed with following use cases in mind:
+  <UL CLASS=CL>
+    <LI>as "workaround" for the annoying <A HREF="http://forum.microchip.com/tm.aspx?m=85120" TARGET="_blank">EUSART silicon bug</A>, which exists in most newer PICs such as PIC18F4620 (64k flash device) and PIC18F4550 (USB device), and which affects the reliability of the MIDI Out port</LI>
+    <LI>as basis for a flexible <A HREF="midi_router.html">MIDI Router</A></LI>
+    <LI>as simple possibility to get additional, independent MIDI In and Out ports for projects like <A HREF="midibox_seq.html">MIDIbox SEQ</A> and <A HREF="midibox_sid.html">MIDIbox SID</A></LI>
+    <LI>as template for even more powerful gadgets, developed by members of the MIDIbox community! :-)</LI>
+  </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Configuration and Interconnections </H2></DT>
+  <DD>
+    <P CLASS=DESC>The <A HREF="mbhp/mbhp_iic_midi.pdf">MBHP_IIC_MIDI</A> schematic contains a superset of all components which are supported by the firmware.</P>
+
+    <P CLASS=DESC>There is also a reduced <A HREF="mbhp/mbhp_iic_midi_out_only.pdf">"OUT only"</A> version available, which only contains the parts that are required for a single MIDI Out port - this version is especially interesting for people, who want to use the module as workaround for the EUSART bug. Note that this circuit could be downstripped even more by removing the Power and Tx LED, but in this case debugging could get difficult. Assumed, that this minimal circuit is built on a vector- or stripeboard, the costs for the PIC16F88, 20 MHz crystal, 4 caps, 4 resistors and 2 LEDs are just only ca. 5 EUR in total!</P>
+
+<P CLASS=DESC>Back to the complete version: the MBHP_IIC_MIDI address needs to be selected with jumpers at the J3 port. By default, both jumpers should be stuffed in order to select address 0x10. By removing jumpers, address 0x12, 0x14 or 0x16 can be selected. <B>Each slave module needs an unique address at the IIC bus, therefore never use the same configuration for more than one module!</B><BR>
+<CENTER><IMG SRC="mbhp/mbhp_iic_midi_jumpers.gif" width=551 height=204></CENTER></P>
+
+<P CLASS=DESC>Port J4 is a "MIDIbox Link" port, which provides MIDI IN/OUT at TTL level. It can be connected to a <A HREF="mbhp_ltc.html">MBHP_LTC</A> module in order to duplicate the MIDI OUT, and to get a MIDI THRU. J4 can also be used for a direct connection to another core module without using optocouplers.</P>
+
+<P CLASS=DESC>Port J1 is currently not used, it's free for customizations in the firmware.</P>
+
+<P CLASS=DESC>Last not least J2: this is the IIC port which is realized as a DIL header in order to simplify the 1:1 bus wiring between slaves and master. 4 of these pins (Vs/Vd for power, SC/SD for IIC) have to be connected to the <B>pins with the same name</B> at CORE::J4 and to IIC_MIDI::J2 of the other slaves. The RI# output is a special signal which identicates, that the receive buffer has been filled. It will only be used by a small number of applications and need to be connected to the core module, further details can be found at the appr. project pages. If no special hint is given, let this pin open. Never connect the RI# lines of the slaves together, because this will cause a short circuit!</P>
+
+<P CLASS=DESC>A simplified interconnection diagram:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_iic_midi_interconnections.gif" width=550 height=429></CENTER></P>
+
+<P CLASS=DESC><B>Imortant note for MBHP_CORE_V2 users:</B> an additional 1k pull-up resistor is required between the Vd and SC line, it has to be directly soldered at CORE::J4 in order to allow "clock stretching". Thats a method to delay serial transfers when a slave cannot response immediately on a master request. The pull-up resistor for the SD line is already available at the core module (CORE::R2).<BR>
+MBHP_CORE_V3 users will notice, that both pull-up resistors are already available - no additional resistor needs to be added!</P>
+
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> PIC16F88 programming adapter</H2></DT>
+  <DD>
+<P CLASS=DESC>Propably SmashTV and Mike will provide pre-programmed PIC16F88 in future, but so long this service is not available, you need to "burn" the firmware into the PIC16F88 by yourself (alternatively you could ask somebody in the forum) by using a PIC programmer like <A HREF="mbhp_burner.html">MBHP_BURNER</A>.</P>
+
+<P CLASS=DESC>For 40 pin programmers an adapter to 18 pin is required, the schematic is located <A HREF="mbhp/mbhp_burner_16f88_adapter.pdf">here</A>.
+<P CLASS=DESC>Pictures of the programming adapter:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_burner_16f88_adapter.jpg" width=345 height=200></CENTER></P>
+
+<P CLASS=DESC>The programming voltage is 13.1V (PIC16F device!), the programming software <A HREF="http://www.sprut.de/electronic/soft/pbrenner.htm" TARGET="_blank">PBrenner</A> has to be used.</P>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_IIC_MIDI transfer protocol </H2></DT>
+  <DD>
+    <P CLASS=DESC>Details about the I2C protocol are described in the <A HREF="http://www.semiconductors.philips.com/acrobat/literature/9398/39340011_21.pdf">I2C bus specification</A> of <A HREF="http://www.philips-semiconductors.com" TARGET="_blank">Philips</A>. So long you are using <A HREF="cmios_fun.html#MIOS_IIC_AckSend">MIOS functions</A> to access the module, you don't need to take care about these bitstreams - just continue at the next chapter which describes the access algorithms.</P>
+
+    <P CLASS=DESC><B>Slave address:</B> the address could be confusing, therefore it will be mentioned first, that the MBHP_IIC_MIDI address is the IIC slave address leftshifted one (multiplied by two). Example: IIC address 0x08 is MBHP_IIC_MIDI address 0x10. This is to simplify the programming when appending the R/W# bit to the address. Thats also the reason, why MBHP_IIC_MIDI addresses are always even numbers.</P>
+    <P CLASS=DESC>If 0x10 is sent after a Start condition, we are starting a write operation on the first MBHP_IIC_MIDI module, when 0x11 is sent, we are starting a read operation.</P>
+
+    <P CLASS=DESC><B>Transfers to MIDI OUT:</B> Transfers to the OUT port are "Master Write" operations. After the master has sent the Start condition and the address, it continues with the data bytes, which are directly forwarded to the MIDI Tx buffer of the MBHP_IIC_MIDI module. After the last byte a Stop condition has to be sent in order to release the bus:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_iic_midi_tx.gif" width=548 height=57></CENTER></P>
+
+    <P CLASS=DESC>The Tx buffer has a size of 96 bytes. Once the buffer is full, the slave will respond with a NAK (not acknoweledge, A bit=1). In this case, the master needs to send a Stop condition, thereafter it can retry.<BR>
+A Restart condition (start without Stop condition) is not allowed due to a silicon bug in the SSP module of most PIC16F derivatives.</P>
+
+    <P CLASS=DESC>The data value "0xff" (255 decimal) has a special purpose, because it is used as command mode token. The command mode has been prepared for future expansions of the firmware. Following sequences are currently supported:<BR>
+<UL CLASS=CL>
+  <LI><B>FF 00:</B> enters and exits command mode, no further action.</LI>
+  <LI><B>FF FF:</B> enters command mode, sends 0xff over MIDI OUT, exits command mode.</LI>
+  <LI><B>FF &lt;cmd&gt; &lt;data1&gt; ... &lt;data_n&gt;:</B> enters command mode, branches to IIC_CMD_Handler in iic_cmd.asm on each byte being received. The maximum number of data bytes has to be determined within the handler, currently the handler just exits command mode after the first data byte.</LI>
+</UL></P>
+
+<P CLASS=DESC>The command mode leads to following requirement: if 0xff ("MIDI Reset") should be forwarded to the MIDI OUT port, the master has to sent it twice via IIC.</P>
+
+    <P CLASS=DESC><B>Transfers from MIDI IN:</B> the master can either poll the receive state via IIC, or it can check the low-active RI# output of the MBHP_IIC_MIDI module (fastest solution, but requires an additional signal connection to the master). In case of polling via IIC, a Start condition and the address has to be sent. The R/W# flag must be 1 (Master Read operation). Thereafter the master can read the first byte which contains the "package type". If it is 0, the master can abort the transaction by sending NAK and a Stop condition:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_iic_midi_rx_type0.gif" width=554 height=53></CENTER></P>
+
+    <P CLASS=DESC>If the package type is not zero, the master has to read up to three additional bytes:<BR>
+<CENTER><IMG SRC="mbhp/mbhp_iic_midi_rx_type_ne_0.gif" width=550 height=101></CENTER></P>
+
+    <P CLASS=DESC>The coding of a "package" is inspired from the <A HREF="http://www.usb.org/developers/devclass_docs" TARGET="_blank">USB MIDI</A> specification. Using this format has the advantage, that a MIDI-&gt;IIC-&gt;USB router just only needs to forward the package to the IN pipe of the USB host (the package type is the CIN, and the cable number can be ORed to the high-nibble). It also simplifies the implementation of a MIDI merger, because for all packages beside of SysEx, the forwarding streams don't need to be locked - MBHP_IIC_MIDI transmits the complete MIDI event:<BR>
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=1 CELLPADDING=1>
+  <TR>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Type</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x00</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>No package - all bytes are zero</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x01</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>reserved</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x02</td>
+    <TD CLASS=TABCOLOR2>2</td>
+    <TD CLASS=TABCOLOR2>two-byte system common messages like MTC, Song Select, etc.</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x03</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>three-byte system common messages like SPP, etc.</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x04</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>SysEx starts or continues</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x05</td>
+s    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>Single-byte system common message or sysex sends with following single byte</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x06</td>
+    <TD CLASS=TABCOLOR2>2</td>
+    <TD CLASS=TABCOLOR2>SysEx sends with following two bytes</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x07</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>SysEx sends with following three bytes</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x08</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>Note Off</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x09</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>Note On</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x0a</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>Poly-Key Press</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x0b</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>Control Change</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x0c</td>
+    <TD CLASS=TABCOLOR2>2</td>
+    <TD CLASS=TABCOLOR2>Program Change</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x0d</td>
+    <TD CLASS=TABCOLOR2>2</td>
+    <TD CLASS=TABCOLOR2>Channel Preassure</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x0e</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>PitchBend Change</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0x0f</td>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>Single Byte</td>
+  <TR>
+</TABLE>
+</P>
+
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_IIC_MIDI access algorithms </H2></DT>
+  <DD>
+    <P CLASS=DESC>With MIOS V1.9 and higher, the MBHP_IIC_MIDI device can be accessed in the following ways:</P>
+    <P CLASS=DESC><B>MIOS Tx Buffer Redirection:</B> <A HREF="cmios_fun.html#MIOS_MIDI_TxBufferPut">MIOS_MIDI_TxBufferPut</A> operations can be redirected to a slave by selecting the address with <A HREF="cmios_fun.html#MIOS_MIDI_InterfaceSet">MIOS_MIDI_InterfaceSet</A> function:<BR>
+<TT><PRE>
+  // send MIDI clock over internal MIDI Out with normal baudrate
+  MIOS_MIDI_InterfaceSet(MIOS_MIDI_INTERFACE_COMMON);
+  MIOS_MIDI_TxBufferPut(0xf8);
+
+  // send MIDI clock over MBHP_IIC_MIDI with address 0x10
+  MIOS_MIDI_InterfaceSet(0x10);
+  MIOS_MIDI_TxBufferPut(0xf8);
+
+  // switch back to default interface
+  MIOS_MIDI_InterfaceAutoSet();
+</PRE></TT></P>
+
+    <P CLASS=DESC><B>Default Tx Redirection:</B> with MIOS Bootloader V1.2 and higher, Tx buffer operations will be automatically redirected to a MBHP_IIC_MIDI module by setting the address in byte 5 if the ID header. ID Example: 0000000000100000: sends outgoing MIDI data to MBHP_IIC_MODULE with address 0x10. The address can still be changed with the <A HREF="cmios_fun.html#MIOS_MIDI_InterfaceSet">MIOS_MIDI_InterfaceSet</A> during runtime, and it can be set back to the default value with <A HREF="cmios_fun.html#MIOS_MIDI_InterfaceAutoSet">MIOS_MIDI_InterfaceAutoSet</A></P>
+
+    <P CLASS=DESC><B>Receive function:</B> following function can be used to receive a MIDI package:<BR>
+<TT><PRE>
+
+// global array which stores the package
+unsigned char iic_midi_package[4];
+
+/////////////////////////////////////////////////////////////////////////////
+// This function polls the given MBHP_IIC_MIDI module for a new package
+// it returns != 0 on a new package, the data will be copied into the
+// global array "iic_midi_package[4]" (this is to speed up parameter passing)
+/////////////////////////////////////////////////////////////////////////////
+unsigned char IIC_MIDI_Receive(unsigned char addr) __wparam
+{
+  // start IIC access
+  MIOS_IIC_Start();
+
+  // send address, abort if NAK received
+  if( !MIOS_IIC_ByteSend(addr | 1) ) {
+    MIOS_IIC_Stop();
+    return 0;
+  }
+
+  // receive package type, abort if type is 0x00
+  if( (iic_midi_package[0] = MIOS_IIC_ByteReceive()) == 0x00 ) {
+    MIOS_IIC_NakSend();  // abort transfer
+    MIOS_IIC_Stop();     // stop IIC
+    return 0;
+  }
+  MIOS_IIC_AckSend();
+
+  // receive three bytes
+  iic_midi_package[1] = MIOS_IIC_ByteReceive();
+  MIOS_IIC_AckSend();
+  iic_midi_package[2] = MIOS_IIC_ByteReceive();
+  MIOS_IIC_AckSend();
+  iic_midi_package[3] = MIOS_IIC_ByteReceive();
+  MIOS_IIC_NakSend();
+
+  // stop IIC access
+  MIOS_IIC_Stop();
+
+  return 1;
+}
+</PRE></TT></P>
+
+    <P CLASS=DESC><B>Transmit function:</B> following function can be used to send a MIDI package:<BR>
+<TT><PRE>
+// this table contains the number of bytes depending on the package type
+const unsigned char iic_midi_type_bytes[16] = { 0,0,2,3,3,1,2,3,3,3,3,3,2,2,3,1 };
+
+/////////////////////////////////////////////////////////////////////////////
+// This function sends a package to the given MBHP_IIC_MIDI module
+// the package content is expected in the global array iic_midi_package[4]
+// 0 is returned if the module is not available
+/////////////////////////////////////////////////////////////////////////////
+unsigned char IIC_MIDI_Send(unsigned char addr) __wparam
+{
+  unsigned char retry_ctr;
+  unsigned char i;
+  unsigned char num_bytes;
+
+  // start IIC access
+  MIOS_IIC_Start();
+
+  // send address
+  retry_ctr = 0;
+  while( !MIOS_IIC_ByteSend(addr) ) {
+    // slave has sent a NAK - retry 255 times
+    MIOS_IIC_Stop();
+    if( ++retry_ctr == 255 )
+      return 0;
+    MIOS_IIC_Start();
+  }
+
+  // send package
+  num_bytes = iic_midi_type_bytes[iic_midi_package[0] & 0x0f];
+  for(i=0; i&lt;num_bytes; ++i) {
+    retry_ctr = 0;
+    while( !MIOS_IIC_ByteSend(iic_midi_package[i+1]) ) {
+      // slave has sent a NAK - retry
+      // the address needs to be sent again!
+      MIOS_IIC_Stop();
+      MIOS_IIC_Start();
+      while( !MIOS_IIC_ByteSend(addr) ) {
+	MIOS_IIC_Stop();
+	if( ++retry_ctr == 255 )
+	  return 0;
+	MIOS_IIC_Start();
+      }
+    }
+  }
+
+  // stop IIC access
+  MIOS_IIC_Stop();
+
+  // the complete package has been transmitted
+  return 1;
+}
+</PRE></TT></P>
+
+  <P CLASS=DESC>Note that the IIC_MIDI_Send() function can be "beautified" by using a seperate function for sending the address - I've choosen the long version to simplify the reading. An assembly optimized version can be found in the <A HREF="midi_router.html">MIDI Router</A> project.</P>
+  <P CLASS=DESC>Please note also, that this version doesn't take care about the special condition for sending a "0xff" byte over MIDI - the assembly optimized version will just be called recursively. This method would really "explode" the above example.</P>
+
+    <P CLASS=DESC><B>MIDI Routing:</B> the above examples might look complex, but they simplify MIDI routing a lot - here a simple snippet, which forwards incoming packages from the first MBHP_IIC_MIDI module to the second:<BR>
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  // enable clock stretching
+  MIOS_IIC_CtrlSet(0x01);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS in the mainloop when nothing else is to do
+/////////////////////////////////////////////////////////////////////////////
+void Tick(void) __wparam
+{
+  if( IIC_MIDI_Receive(0x10) ) {
+    if( !IIC_MIDI_Send(0x12) ) {
+      MIOS_LCD_Clear();
+      MIOS_LCD_PrintCString("Slave 0x12 not connected");
+      MIOS_LCD_MessageStart(255);
+    }
+  }
+}
+</PRE></TT></P>
+
+   <P CLASS=DESC>Here a variant, which only forwards Control Change (CC) packages:<BR>
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS in the mainloop when nothing else is to do
+/////////////////////////////////////////////////////////////////////////////
+void Tick(void) __wparam
+{
+  if( IIC_MIDI_Receive(0x10) && iic_midi_package[0] == 0x0b ) {
+    if( !IIC_MIDI_Send(0x12) ) {
+      MIOS_LCD_Clear();
+      MIOS_LCD_PrintCString("Slave 0x12 not connected");
+      MIOS_LCD_MessageStart(255);
+    }
+  }
+}
+</PRE></TT></P>
+
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_IIC_MIDI</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi.pdf">mbhp_iic_midi.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi_v3.brd">mbhp_iic_midi_v3.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi_v3.gif">mbhp_iic_midi_v3.gif</A></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_IIC_MIDI</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi_out_only.pdf">mbhp_iic_midi_out_only.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>not planned</TD>
+      <TD CLASS=TABCOLOR2>-</TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Firmware</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi_v1_0b.zip">mbhp_iic_midi_v1_0b.zip</A></TD>
+      <TD CLASS=TABCOLOR2>23k</TD>
+      <TD CLASS=TABCOLOR2>This package contains the precompiled firmware and the source code for PIC16F88</TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi_orderlist.txt">mbhp_iic_midi_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+  </TABLE></DD>
+
+  </DD>
+
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Testing </H2></DT>
+  <DD><P CLASS=DESC>A software loopback application (iic_midi_sw_loopback) can be found in the <A HREF="mios_download.html">MIOS Download</A> section, which scans for available slaves, and directly forwards incoming MIDI data to the output ports of the same MBHP_IIC_MIDI slaves. This is a perfect application to test the module(s), and the included iic_midi.asm/iic_midi.h files can be used as module driver for selfwritten applications as well.<P>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> More PICs </H2></DT>
+
+  <DD><P CLASS=DESC><IMG SRC="mbhp/mbhp_iic_midi_connected_to_core.jpg" width=500 height=320><BR>A single full stuffed MBHP_IIC_MIDI module connected to a MBHP_CORE (SmashTV's PCB version)</IMG></P></DD>
+  <DD><P CLASS=DESC><IMG SRC="mbhp/mbhp_iic_midi_two_out_only.jpg" width=500 height=487><BR>Two MIDI-Out only modules (SmashTV's PCB version)</IMG></P></DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Credits </H2></DT>
+  <DD><P CLASS=DESC>Thank-you goes to SmashTV who created the PCB layout, and to Michael Klein who supplied me with several free prototype boards (great service!)<P>
+  </DD>
+</DL>
+
+FOOTER

@@ -1,0 +1,90 @@
+HEADER 3 MIOS C Example
+
+<H3>Filter out all MIDI events which are not sent on Channel #1</H3>
+
+<P CLASS=INFO>We want to create a MIDI filter, which only forwards MIDI events which are sent over MIDI Channel #1.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  // check MIDI channel, it should be 0 (-> channel #1)
+  if( (evnt0 & 0x0f) == 0 ) {
+
+    // before forwarding, we have to differ between 2-byte and 3-byte MIDI events!
+    // for understanding the MIDI coding, please refer to the MIDI spec 
+    // (-> http://www.borg.com/~jglatt/tech/midispec.htm)
+
+    switch( evnt0 & 0xf0 ) {
+      case 0x80: // Note-Off: 3 bytes
+      case 0x90: // Note-On: 3 bytes
+      case 0xa0: // Aftertouch: 3 bytes
+      case 0xb0: // CC: 3 bytes
+      case 0xe0: // Pitchbend: 3 bytes
+        MIOS_MIDI_TxBufferPut(evnt0);
+        MIOS_MIDI_TxBufferPut(evnt1);
+        MIOS_MIDI_TxBufferPut(evnt2);
+        break;
+      case 0xc0: // Program Change: 2 bytes
+      case 0xd0: // Poly Aftertouch: 2 bytes
+        MIOS_MIDI_TxBufferPut(evnt0);
+        MIOS_MIDI_TxBufferPut(evnt1);
+        break;
+      default:
+        // note: status messages must be handled within MPROC_NotifyReceivedByte()
+        break;
+     }
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>If SysEx or Realtime messages should be forwarded as well, then you need to enhance the MPROC_NotifyReceivedByte() function like shown below:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a MIDI byte has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedByte(unsigned char byte) __wparam
+{
+  static char fx_status;
+
+  // normal MIDI events are forwarded in MPROC_NotifyReceivedEvnt
+  // this function handles sysex and realtime messages
+  if( byte & 0x80 ) { // Status message
+    if( byte >= 0xf0 )
+      MIOS_MIDI_TxBufferPut(byte); // transfer byte
+
+    // determine status
+    if( byte == 0xf0 ) {
+      fx_status = 0xff; // forward until 0xf7
+    } else if( byte == 0xf7 ) {
+      fx_status = 0;    // f7 reached, no forward
+    } else if( byte == 0xf1 || byte == 0xf3 ) {
+      fx_status = 1;    // expecting one additional byte
+    } else if( byte == 0xf2 ) {
+      fx_status = 2;    // expecting two additional bytes
+    } else {
+      fx_status = 0;    // expecting no additional byte
+    }
+  } else {
+    // check if fx status active
+    if( fx_status ) {
+      // forward data byte
+      MIOS_MIDI_TxBufferPut(byte);
+
+      // decrement counter if required
+      if( fx_status != 0xff )
+        --fx_status;
+    }
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

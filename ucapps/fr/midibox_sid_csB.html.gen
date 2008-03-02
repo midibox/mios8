@@ -1,0 +1,264 @@
+HEADER 3 MIDIbox SID
+
+<h1>MIDIbox SID "Control Surface Step B"</h1>
+<h3>Date de Cr&eacute;ation: 2003</h3>
+
+<p></p><center><img src="midibox_sid_cs/sid4fun.jpg" height="450" width="575"></center><p></p>
+
+<p class="INFO">La Control Surface "Step B" pour la MIDIbox SID permet de
+contr&ocirc;ler 3 modules SID suppl&eacute;mentaires depuis
+l'unit&eacute; de contr&ocirc;le. Chaque module SID requiert un module
+CORE d&eacute;di&eacute;, mais cette solution pr&eacute;sente quelques
+avantages compar&eacute;e au <a href="midibox_sid/mbsid_stereo.jpg">cablage MIDI en parall&egrave;le</a>&nbsp;:</p>
+<ul class="CL">
+   <li>tous les param&egrave;tres sont acc&eacute;ssibles sans avoir besoin de passer par un ordinateur</li>
+   <li>tous les modules SIDs esclaves peuvent partager le m&ecirc;me <a href="mbhp_bankstick.html">BankStick</a> avec le SID ma&icirc;tre (jusqu'&agrave; 8 BankSticks)</li>
+   <li>les
+changements de param&egrave;tres peuvent &ecirc;tre rout&eacute;s en
+temps r&eacute;el simultan&eacute;ment sur plusieurs SIDs&nbsp; - une
+fonction essentielle pour cr&eacute;er des effets st&eacute;r&eacute;o
+ou de gros sons mono.</li>
+   <li>des mode de jeu
+suppl&eacute;mentaires&nbsp;Super-Poly,&nbsp;Super-Arpeggiator, Split,
+Layer, Unisono deviennent possibles et seront impl&eacute;ment&eacute;s
+dans les prochaines mises &agrave; jours.</li>
+</ul>
+
+<h2>R&eacute;alisation</h2>
+
+<p class="DESC">Avant de parler de la partie mat&eacute;rielle, voici
+quelques informations sur le principe du SID Step B: les messages vers
+les modules SIDs esclaves transitent par l'interface MIDI classique du
+module CORE. Chaque module esclave requiert une Device ID
+diff&eacute;rente dans la cha&icirc;ne MIDI afin que le module
+ma&icirc;tre puissent communiquer ind&eacute;pendamment avec chaque SID
+. La Device ID est ind&eacute;pendante du canal MIDI auquel le
+SID a &eacute;t&eacute; assign&eacute;, pour permettre une plus grande
+souplesse dans la configuration. Par exemple, si le m&ecirc;me canal
+est s&eacute;lectionn&eacute; pour tous les SIDs, diff&eacute;rents
+sons - jou&eacute; depuis le m&ecirc;me clavier - peuvent &ecirc;tre
+r&eacute;partis dans l'image st&eacute;r&eacute;o. Si chaque SID
+utilise son propre canal, des timbres plus complexes peuvent
+r&eacute;alis&eacute;s (<i>Note: l'impl&eacute;mentation PIC18F de la
+MIDIbox SID permet de r&eacute;partir les voix sur plusieurs zones du
+clavier (split), ainsi jusqu'&agrave; 12 voix peuvent &ecirc;tre
+superpos&eacute;es&nbsp;ou jou&eacute;es ind&eacute;pendamment</i>).</p>
+
+<p class="DESC">Comme mentionn&eacute; plus haut, le ma&icirc;tre
+partage le Patch stock&eacute; dans le BankStick avec les modules
+esclaves. Cela permet de r&eacute;duire le co&ucirc;t et d'utiliser un
+m&ecirc;me setup pour plusieur SIDs sans avoir &agrave; copier les Patchs
+d'un BanckStick vers l'autre.<br>Aucun BanckStick ne doit &ecirc;tre install&eacute; sur les modules esclaves.</p>
+
+<p class="DESC">Les &eacute;v&egrave;nements MIDI entrants comme les
+Notes ou les CC sont renvoy&eacute;s par le MIDI merger
+int&eacute;gr&eacute; vers les modules esclaves lorsque le mode "Link"
+est actif. Seuls des transferts uni-directionnels sont
+possibles, ce qui signifie que le ma&icirc;tre ne peut recevoir de
+donn&eacute;es des esclaves, et du coup ne conna&icirc;t jamais
+l'&eacute;tat exact des ces derniers. Cette limitation ne pose aucun
+probl&egrave;me tant que les modules esclaves se comportent de la
+mani&egrave;re d&eacute;termin&eacute;e, ce qui est heureusement le cas
+dans ce simple syst&egrave;me. Une connection bi-directionnelle
+(Point-to-Point, bus, orient&eacute;e "paquet", ou cha&icirc;ne
+circulaire) demanderait une partie mat&eacute;rielle
+suppl&eacute;mentaire et un protocole sophistiqu&eacute; qui ne soit
+pas orient&eacute; "cible". Cette liaison uni-directionnelle ne
+pr&eacute;sente que trois d&eacute;savantages: le ma&icirc;tre ne peut
+savoir si un module esclave est connect&eacute; ou non (c'est donc
+&agrave; l'utilisateur de le notifier) et - un probl&egrave;me
+plut&ocirc;t relatif &agrave; la partie logicielle - lorsque le
+ma&icirc;tre re&ccedil;oit des messages CCs et SysEx destin&eacute;s
+aux esclaves, il se contente de les renvoyer vers ces derniers sans en
+analyser le contenu. Cela peut induire des commandes
+incoh&eacute;rentes si l'utilisateur modifie un param&egrave;tre
+simultan&eacute;ment avec la Surface de Contr&ocirc;le et depuis un
+ordinateur ou un autre contr&ocirc;leur MIDI. Ce probl&egrave;me ne
+concerne pas les messages destin&eacute;s au module ma&icirc;tre. Trouver
+une solution &agrave; ce probl&egrave;me demanderait trop d'efforts et
+de complications, mais ce n'est finalement pas si g&ecirc;nant!<br>La
+troisi&egrave;me limitation concernent votre config MIDI&nbsp;: vu que
+le MIDI
+merger du module CORE renvoie&nbsp; chaque &eacute;v&egrave;nement MIDI
+entrant sur le MIDI Out pour les esclaves, votre ordinateur aussi
+recevra ces donn&eacute;es (boucle). Vous devez donc vous assurer que
+votre s&eacute;quenceur ne renvoie pas de nouveau ces
+&eacute;v&egrave;nements (fonction MIDI thru). Notez que ce
+probl&egrave;me n'apparait pas lorsque le mode "LINK" est
+d&eacute;sactiv&eacute;.</p>
+
+<h2>Hardware</h2>
+
+<p class="DESC">Il est possible d'utiliser l'interface stepB sans aucun
+module SID esclave, ou bien avec un, deux ou trois SID esclaves...
+Trois &eacute;tant le nombre maximal de SID esclaves possible.</p>
+
+<p class="DESC">Le module CORE ma&icirc;tre doit &ecirc;tre
+mont&eacute; avec un PIC18F452, le firmware appropri&eacute; est
+disponible &agrave; la page <a href="mios_download.html">MIOS download</a>&nbsp;. Les modules CORE esclaves peuvent eux&nbsp;&ecirc;tre &eacute;quip&eacute;s aussi bien d'un PIC18F452 que d'un
+PIC16F877 - donc, s'il vous reste quelques vieux PIC16F, voici une bonne occasion de les recycler!</p>
+
+<p class="DESC">L'interfacage MIDI des modules ma&icirc;tre et esclaves se fait via le port J11 des modules CORE.
+Avec cette connection digitale directe, il n'est plus n&eacute;cessaire
+d'utiliser un optocoupleur c&ocirc;t&eacute; esclave (-&gt; <b>Seul le port MIDI In du module CORE ma&icirc;tre requiert un optocoupleur</b>).<br>
+<a href="midibox_sid_cs/sid_csB_connections.gif">Ce diagramme</a> montre les inter-connections MIDI n&eacute;cessaires.</p>
+
+<p class="DESC">Une alimentation unique peut &ecirc;tre partag&eacute;e
+par tous les modules. Le syst&egrave;me entier
+(4 modules COREs et 4 modules SIDs) dra&icirc;ne aux alentours de 600
+mA. Notez que le 7805 du module CORE ma&icirc;tre peut devenir
+tr&eacute;s chaud lorsqu'un LCD r&eacute;tro-&eacute;clair&eacute; est
+utilis&eacute;. Ceci peut poser probl&egrave;me si un module SID est
+&eacute;quip&eacute; d'un SID- 6581, car ce chip requiert du 12V pour
+travailler et du coup au moins 15V en entr&eacute;e avant le 7812) - le
+7805 va dissiper la diff&eacute;rence de 10V en chaleur. Le moyen le
+plus simple de contourner le probl&egrave;me est d'utiliser un 7809,
+connect&eacute; apr&eacute;s le pont-rectifieur du module CORE. Dans la
+mesure o&ugrave; les 78xx n&eacute;cessite d'&ecirc;tre
+aliment&eacute;s en DC, il est recommand&eacute; de connecter ce
+r&eacute;gulateur de tension entre C9 (le condensateur 2200uF
+derri&egrave;re le pont-rectifieur) du module SID ET C5 du module CORE,
+comme expliqu&eacute; <a href="mbhp/mbhp_core_power_fix.pdf">ici</a>.</p>
+<p class="DESC">La meilleure solution consiste &agrave;
+r&eacute;cup&eacute;rer l'alimentation d'origine du C64, car celle-ci
+d&eacute;livre et du 5V DC pour le CORE et du 9V pour le module SID -
+Vous trouverez le sch&eacute;ma <a href="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">ici</a>.</p>
+<p class="INFO">Vous pouvez &eacute;galement r&eacute;aliser un PCB
+unique pour tout le circuit. R&eacute;f&eacute;rez-vous aux questions
+de&nbsp; Nebula dans <a href="http://www.midibox.org/forum/index.php?topic=994.15">cet article du forum</a>.</p>
+
+<p class="DESC">Les sorties audio des SIDs peuvent au choix &ecirc;tre
+cascad&eacute;es (Audio Out SID1-&gt;Audio In SID2-&gt;Audio Out
+SID2-&gt;...) ou <a href="midibox_sid_cs/mbhp_sid_joined_audio.gif">connect&eacute;es en parall&egrave;le</a>
+via des r&eacute;sistances de 10k , afin d'obtenir deux canaux mixant
+les quatres signaux des quatres SIDs&nbsp;. Notez qu'aucune de ces deux
+solutions n'est la meilleure. Un mixer actif, r&eacute;alis&eacute;
+&agrave; base d'amplis Op (AOPs) serait l'id&eacute;al, mais
+demanderait une tension de polarisation (+/- 9V&nbsp;ou plus). La
+meilleure solution, la plus flexible, consiste &agrave; utiliser 4
+canaux distincts sur une table de mix ou une carte son, un pour chaque
+SID, car ceci vous laisse la possibilit&eacute; de jouer avec les
+panoramiques et de router ind&eacute;pendamment les 4 sorties dans des
+effets s&eacute;par&eacute;s.</p>
+
+<p class="DESC">La configuration multi-SID requiert au minimum la surface de contr&ocirc;le minimum d&eacute;crite <a href="midibox_sid_cs.html">ici</a>.
+7 boutons suppl&eacute;mentaires et quelques LEDs sont
+n&eacute;cessaires pour une parfaite interaction avec les SIDs, un
+exemple de configuration est disponible ici: <a href="midibox_sid_cs/2x20_enc_multi.pdf">2x20_enc_multi.pdf</a>.
+Notez que l'assignation des pins DIN et DOUT peuvent &ecirc;tre
+modifi&eacute;e dans l'application MIOS (voir fichier d'en-t&ecirc;te
+"main.asm") - Si vous souhaiter &eacute;conomiser un module DOUTX1, il
+est possible d'utiliser les pins libres du port J5 (sur le CORE) pour
+piloter les LEDs, voir <a href="midibox_sid_cs/2x20_enc_multi_w_j5.pdf">ce sch&eacute;ma</a>. Dans ce cas le param&egrave;tre SR ID doit &ecirc;tre chang&eacute; de 1 vers 0 dans le fichier "cs_menu_io_tables.inc".</p>
+
+<h2>Pr&eacute;paration des modules COREs PIC18F cores</h2>
+
+<p class="DESC">Step by step:
+</p><ul class="CL">
+   
+   <li>Nous partons du principe qu'&agrave;
+ce stade le bootstrap loader est charg&eacute; dans le PIC18F, et que
+le module ma&icirc;tre &agrave; l'ID MIOS: 0x00, et les esclaves l'ID
+MIOS: 0x01, 0x02 et 0x03 - si vous avez oubli&eacute; de d&eacute;finir
+l'ID correcte ID, utilisez l'application "change_id", disponible sur la
+page <a href="mios_download.html">MIOS download</a>, pour modifier
+l'en-t&ecirc;te ID. Dans ce cas vous devez vous assurer qu'un seul
+module esclave est connect&eacute; directement &agrave; votre PC, dans
+le cas contraire, tous les CORE charg&eacute;s avec cette application
+se retrouverait avec la m&ecirc;me ID!</li><li>Uploader le MIOS V1.7 ou sup&eacute;rieur dans le module ma&icirc;tre en suivant les instructions de la page <a href="mios_bootstrap.html">MIOS bootstrap</a>.Utilisez toujours la derni&egrave;re version disponible du MIOS!</li>
+
+   <li>Uploader l'application SID dans le module ma&icirc;tre. Vous trouverez dans l'archive SID diff&eacute;rents fichiers
+.syx, utilisez soit le fichier "setup_6581_with_cs.syx" ou
+"setup_8580_with_cs.syx", en fonction du type de chip SID install&eacute; dans vos modules.</li>
+   <li>Testez
+le ma&icirc;tre avant d'aller plus loin! Vous pouvez vouys servir du
+clavier virtuel de MIDI-Ox pour jouer quelques notes.
+Notez que le canal MIDI #1 est s&eacute;lectionn&eacute; par
+d&eacute;faut, mais si un BankStick est connect&eacute;, le canal peut
+&ecirc;tre diff&eacute;rent en fonction du dernier Setup
+sauvegard&eacute;. Le canal MIDI est affich&eacute; sur l'&eacute;cran
+LCD, v&eacute;rifiez donc!</li>
+   <li>Appuyez
+maintenant sur la touche LINK pour ouvrir la connection vers les
+modules esclaves. si vous ne disposez pas (encore) de ce boutons,
+envoyez <i>F0 00 00 7E 40 00 0D 01 00 58 28 00 01 00 00 00 00 00 00 F7</i> au module ma&icirc;tre - cette commande SysEx active le MIDI merger int&eacute;gr&eacute;.
+   </li><li>Pr&eacute;parez
+le MIOS pour votre premier module esclave avec l'ID MIOS 0x01 - vous
+devez recompiler le fichier mios_v1_x.hex file (remplacez v1_x par la
+version actuelle, le fichier est situ&eacute; dans le r&eacute;pertoire
+hex/ de l'archive MIOS) avec "perl hex2syx.pl mios_v1_x.hex -os_upload
+-device_id 0x01"</li>
+   <li>Uploadez le fichier g&eacute;n&eacute;r&eacute; mios_v1_x.syx .</li>
+   <li>Uploader
+l'application SID dans le module esclave. L'archive SID contient des
+fichiers .syx pr&eacute;par&eacute;s pour chaque ID esclave.</li>
+   <li>Recommencez l'op&eacute;ration pour les autres modules esclaves (ID 0x02 et 0x03)</li>
+   <li>Testez les modules esclaves.&nbsp;Notez que le canal MIDI #1 est s&eacute;lectionn&eacute; par d&eacute;faut, mais si un
+BankStick est connect&eacute;, le canal peut &ecirc;tre diff&eacute;rent en fonction du
+dernier Setup sauvegard&eacute;.</li>
+</ul>
+
+<h2>Pr&eacute;paration des modules esclaves PIC16F</h2>Si des modules
+esclaves &eacute;quip&eacute;s de PIC16F sont connect&eacute;s, vous
+devez changer leur ID mat&eacute;rielle manuellement. Le premier
+esclaves requiert l'ID 1, le second esclave l'ID 2, le troisi&egrave;me
+l'ID 3. Cette op&eacute;ration peut &ecirc;tre faite avec MIDI-Ox,
+connectez simplement <b>un seul core</b> &agrave; votre PC et envoyez les commandes SysEx suivantes&nbsp;: <i>F0 00 00 7E 46 [old device-number] 0D 03 00 [new device-number] F7</i>.<br>
+<b>Slave 1: </b> F0 00 00 7E 46 00 0D 03 00 01 F7<br>
+<b>Slave 2: </b> F0 00 00 7E 46 00 0D 03 00 02 F7<br>
+<b>Slave 3: </b> F0 00 00 7E 46 00 0D 03 00 03 F7<p></p>
+
+<h2>Prise en Main</h2>
+
+<p></p><center><img src="midibox_sid_cs/sid_csB_panel.gif" height="252" width="575"></center><p></p>
+
+<p class="DESC">R&eacute;f&eacute;rez-vous &agrave; l' <a href="midibox_sid_cs.html">Introduction sur l'unit&eacute; de contr&ocirc;le</a> pour savoir comment naviguer dans les menus. Le tableau suivant liste les fonctions des boutons et LEDs suppl&eacute;mentaires.</p>
+
+<table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+  <tbody><tr>
+    <td> <span class="BIG">SID1-4</span></td>
+    <td> <span class="NORM">Utilisez ces touches pour s&eacute;lectionner le(s) SID(s).<br>Ils
+se comportent en bouton "radio" lorsqu'un seul est press&eacute;, ce
+qui vous permet de passer rapidement d'un SID &agrave; l'autre. Il est
+&eacute;galement possible de s&eacute;lectionner plusieurs SIDs
+simultan&eacute;ment en maintenant enfonc&eacute; l'un des bouton SID
+pendant que vous s&eacute;lectionnez les suivants - dans ce cas les
+changements affecteront tous les SIDs s&eacute;lectionn&eacute;s.
+Here a <A HREF="http://www.midibox.org/videos/mbsid_cs_sidbuttons.avi">video</A></SPAN></TD>
+  </tr>
+
+  <tr>
+    <td> <span class="BIG">Link</span></td>
+    <td> <span class="NORM">Ce
+boutons active le MIDI merger, et de fait &eacute;tabli la connection
+vers les modules esclaves. Notez que cette fonction est
+d&eacute;sactiv&eacute;e au d&eacute;marrage. Vous pouvez
+invers&eacute; ce comportement en mettant sur 1 l'entr&eacute;e &lt; <i>#define CS_MENU_DEFAULT_LINK</i> dans le fichier main.asm du firmware.</span></td>
+  </tr>
+
+  <tr>
+    <td> <span class="BIG">CC</span></td>
+    <td> <span class="NORM">Cette
+fonction active le mode CC. Lorsque ce mode est actif, les changements
+effectu&eacute;s manuellement via l'unit&eacute; de contr&ocirc;le
+seront transmis comme &eacute;v&egrave;nements CC vers le port MIDI
+Out. Si vous avez connect&eacute; ce port au MIDI In de votre
+ordinateur, vous pouvez enregistrez vos mouvements et variations (par
+exemple les mouvements de filtre ou les slides du portamento)</span></td>
+  </tr>
+
+  <tr>
+    <td> <span class="BIG">Edit</span></td>
+    <td> <span class="NORM">Lorsque
+le mode EDIT est actif, tous les changements de param&egrave;tres
+effectu&eacute;s seront automatiquement sauvegard&eacute; dans le patch
+actuellement s&eacute;lectionn&eacute; avant de basculer vers un autre
+patch. La LED clignote lentement afin de vous informez que des
+modifications ont &eacute;t&eacute; faites (et qu'il a donc quelque
+chose &agrave; sauvegarder).</span></td>
+  </tr>
+</tbody></table>
+
+<h2>Cela ne vous suffit toujours pas?!</h2>
+<p class="INFO"><a href="midibox_sid_csC.html">...alors, allons un peu plus loin, par ici...</a></p>
+FOOTER

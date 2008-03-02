@@ -1,0 +1,88 @@
+HEADER 3 ChangeLog of MIDIbox CV
+
+<CENTER><H1>MIDIbox CV Change Log</H1></CENTER>
+<CENTER><H3>Last Release: V1.2 @ 2007-12-07</H3></CENTER>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<UL CLASS=CL>
+
+<LI><I>V1.2</I>
+  <UL>
+  <LI>support for MBHP_AOUT_NG module</LI>
+
+  <LI>support for BankStick.<BR>
+    Up to 128 patches can be stored in a 32k BankStick (24LC256),
+    they can either be selected from the control surface, or via
+    Program Change (channel assignable in main.asm)<BR>
+    <B>!!! IMPORTANT !!!</B><BR>
+    BankStick at CS#0 will be formatted automatically if this hasn't
+    been done before. This could lead to data loss if you upload
+    the application into a MIDIbox which is normaly running with
+    another firmware which accesses the BankStick (e.g. MBSID or MBSEQ)
+    Solution: either remove the BankStick from core module, or
+    disable it in main.asm (-> DEFAULT_BANKSTICK_NUMBER 0)</LI>
+
+  <LI> added linear interpolation function which allows to smooth 
+    the CV output curve by a configurable slew rate from 1 mS to 64 mS
+    This feature is especially useful when CV outputs are controlled
+    by 7bit velocity or CC values, as it gets use of the full 12bit
+    resolution and reduces zipper noise dramatically.<BR>
+    <B>Demo:</B><BR>
+    **MP3**"http://www.ucapps.de/mp3/midibox_cv/mbcv_without_interpolation.mp3"#ffffff** <SPAN CLASS=LI><I>CC filter sweep without interpolation</I></SPAN><BR>
+    **MP3**"http://www.ucapps.de/mp3/midibox_cv/mbcv_with_interpolation.mp3"#ffffff** <SPAN CLASS=LI><I>CC filter sweep with interpolation</I></SPAN><BR>
+  </LI>
+
+  <LI> legato/mono/poly mode setting now selectable for each channel seperately</LI>
+
+  <LI> main page now displays patch number, patch name and 8 animated
+    (short-triggered) activity meters</LI>
+
+  <LI> there is now a DIN sync start/stop output available at pin C.1
+    (CORE::J7:SC)</LI>
+
+  <LI> the DIN sync clock output is now located at pin C.0 by default
+    (CORE::J7:RC, consistent with MBSEQ)</LI>
+
+  <LI> minor bugfixes</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.1</I>
+  <UL>
+  <LI>support for MBHP_AOUT_LC module</LI>
+
+  <LI>a calibration menu page has been added</LI>
+
+  <LI>the gate polarity can now be changed seperately for each channel</LI>
+
+  <LI>an output curve can now be selected for each channel seperately.<BR>
+    Available curves: 1V/Oct, Hz/V, Inverted, Exponential</LI>
+
+  <LI>a clock output is now provided to generate pulses from an incoming
+    MIDI clock. Provided rates: 24 ppqn / 1..16 and 96/46/32 ppqn (interpolated)<BR>
+    The default pin is RD4 (Core Module, J14)<BR>
+    The default pulsewidth is 1 mS<BR>
+    Both settings can be changed in main.asm</LI>
+
+  <LI><B>NOTE:</B> the 8 gate outputs are available at J5, this option is
+    DISABLED by default, it has to be enabled by setting
+    the ENABLE_J5 switch to 1 in main.asm<BR>
+    This is to reduce the risk that somebody doesn't read the 
+    documentation and uploads the firmware on a MIDIbox64 (or similar), 
+    where J5 is used as pot input. A short circuit would happen which 
+    could destroy the port drivers!</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.0</I>
+  <UL>
+    <LI> initial release</LI>
+  </UL>
+</LI>
+
+</UL>
+
+FOOTER

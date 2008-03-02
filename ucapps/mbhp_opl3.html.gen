@@ -1,0 +1,180 @@
+HEADER 3 MBHP OPL3 Module
+
+<H1>MIDIbox Hardware Platform, OPL3 Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_opl3.jpg" width=600 height=449></CENTER></P>
+
+<P CLASS=INFO>This page describes the technical details of the MBHP_OPL3 module, which is used in the <A HREF="midibox_fm.html">MIDIbox FM</A> project.</P>
+
+<P CLASS=DESC>FM synthesis became very popular in the 80s after Yamaha released the GS1, and two years later the DX7, which was some kind of revolution these days since most synthesizers were normaly based on analogue parts and limited to the possibilities of additive/subtractive synthesis. FM synthesis is very hard to realize with analog componets, because it requires a stable relation between the modulator(s) and carrier oscillators for audible (or lets say musical) results. Yamaha developed (and patented) a digital solution which was the basis for various chipsets. Fortunately Yamaha did not only build these chips exclusively into their own synthesizers, they also started a product line of OEM chips dedicated for video games and home computers - for example YM2149 (used in the Atari ST, MSX, Intellivision and ZX Spectrum), YM3812 (used in AdLib and early Sound Blaster sound cards) and finally the YMF262 (used in Sound Blaster Pro 2.0 and later cards until the OPL3 was ousted by wavetable synth chips in the late 90s) - computer ventors prefered these FM chips since they were cheap and covered a wide range of instruments.</P>
+
+<P CLASS=DESC>More in-depth informations about FM and the OPL3 can be found here:
+  <UL CLASS=CL>
+    <LI><A HREF="http://www.angelfire.com/music/creon/bgfm.htm" TARGET="_blank">A Beginner's Guide to FM Synthesis</A></LI>
+    <LI><A HREF="http://www.soundonsound.com/sos/may00/articles/synth.htm" TARGET="_blank">Sound-On-Sound article about FM synthesis</A></LI>
+    <LI><A HREF="http://news.harmony-central.com/Newp/1998/PLG100DX.html" TARGET="_blank">A nice abstract about the history of Yamaha FM synthesis</A></LI>
+    <LI><A HREF="http://www.vorc.org/text/column/hally/ymxxxx.html" TARGET="_blank">Vortexions page on sound chips</A></LI>
+    <LI><A HREF="http://www.fit.vutbr.cz/~arnost/opl/opl3.html" TARGET="_blank">Programmer's Guide to Yamaha YMF 262/OPL3 FM Music Synthesizer</A></LI>
+    <LI><A HREF="http://www.fit.vutbr.cz/~arnost/opl/lost+found/ymf262.pdf" TARGET="_blank">YMF262 datasheet</A></LI>
+    <LI><A HREF="http://www.jaero.sk/elektro/yac512-m.pdf" TARGET="_blank">YAC512 datasheet</A></LI>
+  </UL>
+</P>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Technical Details </H2></DT>
+  <DD>
+    <P CLASS=DESC>The YMF262 sound chip was mostly sold in a 24-pin SOP package which is (unfortunately) hard to handle for soldering novices. It provides an 8bit parallel interface to the registers, requires a stable clock source of 14.318 MHz and one or two seperate DACs (YAC512). The parallel interface is directly connected to the "LCD" port of the <A HREF="mbhp_core.html">MBHP_CORE</A> module, most pins are shared with the LCD in order to reduce the IO pin count. The DAC outputs are directly connected to the YAC512. Sound cards are mostly stuffed with only one YMF/YAC pair (I've never seen a card with two YAC512) which results to 2 audio channels. With an additional YAC512 four seperate channels are available, which is especially useful if the outputs should be routed through different external effects.</P>
+    <P CLASS=DESC>Each YAC512 requires an quad-OP amp for reference voltages and the sample&hold stage. The outputs of the S&H stages are buffered again by a third OP amp, which acts as a low-pass filter, before the signal goes to the audio jacks.</P>
+    <P CLASS=DESC>Note that the OP amps are powered from a balanced voltage source (+/- 12V). I specified this large voltage range since it allows to take the same PSU like for the <A HREF="mbhp_aout.html">MBHP_AOUT</A> module. The TL074s can be alternatively powered from +/-5V to +/-18V.
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Availability </H2></DT>
+  <DD>
+    <P CLASS=DESC>It isn't so easy to find a distributor who still has the YMF262/YAC512 in stock and sells them in low-quantities (-> try <A HREF="http://www.ic-distributors.com/HTML_ICD_Y.shtml" TARGET="_blank">this site</A>). However, the MIDIbox community has already organized a bulk order (<A HREF="http://www.midibox.org/forum/index.php?topic=3696.0">see this Forum posting</A>), and future orders are feasible if enough people are interested.</P>
+    <P CLASS=DESC>Another way to get the treasured chips is to canibalize them from old soundcards. Thats how I got the chips for the prototype - I purchased some old soundcards from <A HREF="http://www.ebay.com" TARGET="_blank">Ebay</A> for ca. 1 EUR each (people don't know what they miss ;-)) and desoldered the SMD chips like described below. Unfortunately the sellers normaly don't specifiy if an OPL3 chipset is on board or not, but sometimes this information is available somewhere in the web. Here a list of some cards which are known as applicable:<BR>
+    <UL CLASS=CL>
+      <LI>Creative Soundblaster Pro II (or Soundblaster Pro 2)</LI>
+      <LI>Creative Soundblaster 16 (not the VALUE version!)</LI>
+      <LI>Creative Soundblaster Pro SCSI</LI>
+      <LI>Creative Soundblaster 16 SCSI (CT1770)</LI>
+      <LI>Creative Vibra 16 (CT2260)</LI>
+      <LI>Creative Vibra 16 (CT2800)</LI>
+      <LI>Creative Vibra 16 (CT2810)</LI>
+      <LI>Creative Vibra 16 PnP (CT2890)</LI>
+      <LI>Creative SB16 MCD (CT1750)</LI>
+      <LI>Media Vision Pro AudioSpectrum 16</LI>
+      <LI>Media Vision Jazz 16</LI>
+      <LI>Media Vision PAS16 LMSI 1992 (IXW-PAS16P)</LI>
+      <LI>Media Vision PROAUDIO 3D</LI>
+      <LI>Turtle Beach Tropez Rev 2.0</LI>
+      <LI>Turtle Beach Monte Carlo (P/N 500.2)</LI>
+      <LI>ESS AudioDrive</LI>
+      <LI>Aztech Sound Galaxy</LI>
+      <LI>Aztech Sound Galaxy Washington 16</LI>
+      <LI>Aztech Sound Galaxy Nova 16</LI>
+      <LI>Aztech AZT2316-S</LI>
+      <LI>Mozart ISA</LI>
+      <LI>Mediamagic ISP-16</LI>
+      <LI>TeleVideo teleWave Q32=/SRS (Rev.C)</LI>
+      <LI>Televideo Telesound Pro16</LI>
+      <LI>Adlib Gold 1000</LI>
+      <LI>Windows SOUNDSYSTEM (rev B.)</LI>
+      <LI>OPTi 930 Soundsystem (S0930S0010)</LI>
+    </UL></P>
+    <P CLASS=DESC>Soundcards which are known that they are not stuffed with an OPL3 chipset:<BR>
+    <UL CLASS=CL>
+      <LI>Creative Soundblaster 1.0, 1.5, 2.0, Pro</LI>
+      <LI>Creative Soundblaster 16 VALUE (PNP)</LI>
+      <LI>all new soundcards which are produced today</LI>
+      <LI>all PCI soundcards (search for ISA cards)</LI>
+    </UL>
+    </P>
+    <P CLASS=INFO>Please let me know if you've found an applicable soundcard which is not in the list!</P>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_OPL3_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_opl3.pdf">mbhp_opl3.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_opl3_v1a.brd">mbhp_opl3_v1a.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_opl3_v1a.gif">mbhp_opl3_v1a.gif</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_opl3_orderlist.txt">mbhp_opl3_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_opl3_interconnections.pdf">mbhp_opl3_interconnections.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>7k</TD>
+      <TD CLASS=TABCOLOR2>Interconnection diagram for CORE/OPL3 module</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/dokuwiki/doku.php?id=bipolar_12v_psu">bipolar_12v_psu</A></TD>
+      <TD CLASS=TABCOLOR2>Wiki</TD>
+      <TD CLASS=TABCOLOR2>Wiki article about bipolar PSUs (required to get a +/- 12V voltage)</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Desoldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_opl3_desolder1.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></IMG></TD>
+      <TD CLASS=TABCOLOR2>Desoldering the YMF262 and YAC512 from and old soundblaster (or compatible) card is one of the most critical things in this project which requires some practice. The easiest way I found out is the use of an isolated copper cable (can be taken from a old coil or transformer), which has to be threaded beneath the small SMD pins.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_opl3_desolder2.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></IMG></TD>
+      <TD CLASS=TABCOLOR2>Add some solder-tin to the pins and remove it again with a solder sucker. This will not only remove the new solder, but also the small portion of tin which was there before. Now you can pull on the copper wire while the tip of your soldering iron still heats up the pins a little to lift up the pins from the PCB without any damage!</TD>
+      <TD CLASS=TABCOLOR2></TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_opl3_desolder3.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></IMG></TD>
+      <TD CLASS=TABCOLOR2>You have to do the same on the YAC512.<BR>It makes sense to train this method on some of the other SMD chips before. Very important: don't heat up the chips too much!!!</TD>
+      <TD CLASS=TABCOLOR2></TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_opl3_1.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></IMG></TD>
+      <TD CLASS=TABCOLOR2>At the beginning the SMD chips should be mounted at the bottom of the PCB. Just solder some tin to the pads, make sure that no tin clumps are between the tracks (!), attach the chip and head up each single pin a little.<BR><B>Note:</B> a soldering iron with a small tip is absolutely required!</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_opl3_2.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></IMG></TD>
+      <TD CLASS=TABCOLOR2>The second YAC512 is an optional chip for two additional audio channels. On a common soundblaster soundcard you will only find one YAC512, this means that you have to purchase two cards. If you have only one, just left the appr. pads of the second YAC512 open.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_opl3_3.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></IMG></TD>
+      <TD CLASS=TABCOLOR2>Now add the 8 bridges at the top of the PCB.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_opl3_4.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></IMG></TD>
+      <TD CLASS=TABCOLOR2>Mount each part, but left out the TL074 from the sockets to test the voltages. Attach the +5V connection from J2 of the core module first and check if the green LED lits. If it doesn't, you've probably a short on the PCB! Remove the power-supply <B>immediately</B> and visually check for the error.<BR>Thereafter connect the +12V/-12V power supply. If the LED gets brighter, remove it <B>immediately</B> and search for soldering errors. Measure the voltages at pin 4 and 11 of the TL074 (see schematic).</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_opl3_5.jpg" WIDTH=280 HEIGHT=218 BORDER=0 ALT=""></IMG></TD>
+      <TD CLASS=TABCOLOR2>Finally switch off the power-supplies, put the TL074s into the sockets, and add the additional connections like described in <A HREF="mbhp/mbhp_opl3_interconnections.pdf">mbhp_opl3_interconnections.pdf</A><BR>
+In the <A HREF="mios_download.html">MIOS Download</A> section you can find a testprogram, which allows you to check the interconnections (follow the instructions in the the main.asm file). There is also a testtone application, which sends a 1kHz tone over all 4 channels.</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+FOOTER

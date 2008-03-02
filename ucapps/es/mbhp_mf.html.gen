@@ -1,0 +1,235 @@
+HEADER 3 MBHP MF Module
+
+<H1>MIDIbox Hardware Platform, Motorfader Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_mf.jpg" alt="MBHP MF Module" width=600 height=370></CENTER></P>
+
+
+<P CLASS=INFO>The MF module allows the <A HREF="mbhp_core.html">CORE</A> to control 8 motorfaders (or motorpots) with up to 10-bit resolution. Note that not each type of motorfader is qualified for this module, the details are described below.</P>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_MF_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf.pdf">mbhp_mf.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf_v1.brd">mbhp_mf_v1.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf_v1.gif">mbhp_mf_v1.gif</A></TD>
+    </TR>
+  </TABLE></DD>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf_orderlist.txt">mbhp_mf_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf_interconnections.pdf">mbhp_mf_interconnections.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>8k</TD>
+      <TD CLASS=TABCOLOR2>connection diagram for the MF module</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_din_touchsensors.pdf">mbhp_din_touchsensors.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>4k</TD>
+      <TD CLASS=TABCOLOR2>connection diagram for the touch sensor detection</TD>
+    </TR>
+  </TABLE></DD>
+</DL>
+
+<P CLASS=INFO><A HREF="mbhp/mbhp_mf_orderlist.txt">List of components</A></P>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> History </H2></DT>
+  <DD>
+  <P CLASS=INFO>The development of the MF driver has a long history. Here an overview which should document the progress from a very experimental state to the current solution:</P>
+  <UL CLASS=CL>
+    <LI>first experiments were started in October 2001 by Rasmus and Arne. They used some analog circuirity to realise a feedback control loop.<BR>The schematics of this first approach can be downloaded from <A HREF="mbhp/mf/mf_comp_release2.gif">this location</A>. Note that this unit is not supported by any officially released MIDIbox firmware - it has only be published for learning purposes!<BR>Basically it exists of a DAC which receives the target value from the PIC software. The DAC converts this digital value to an analog voltage, which is forwarded to a comparator unit. The comparator compares the reference voltage with the current voltage delivered by the fader wiper, and outputs two signals: one for "fader position too low", and another for "fader position too high". These signals are connected to the TC4427 H-Bridge, which supplies the power and controls the spin direction until the motor reaches the target position, so that both status signals are 0 (see also <A HREF="http://www.robotroom.com/HBridge.html" TARGET="_blank">David Cook's page</A>, where more informations about H-Bridges can be found).</LI>
+
+    <LI>disadvantage of this circuit was the complexity. A seperate unit was required for each fader, the part costs and area consumption was dramatically high. Early enough, before the first release, we fortunately found out, that the DAC and comparator circuit can be completely replaced by software. The firmware had been changed, so that the comparison was made after the AD conversion. The output signals "fader position too high" and "..too low" were now directly provided by the PIC, so that only the H-Bridges were required anymore. The two signals were shifted out to a 74HC595 register, in theory it was possible to control any number of faders with a single PIC in this way, however, in practice it was limited by the maximum number of analog inputs (64)</LI>
+
+    <LI>later a hysteresis loop had been added to the firmware in order to prevent the unstable state, where the fader is very close to the target position, but never reaches it exactly, and therefore oscillates around this position. This hysteresis feature has been replaced by the so called "deadband" in the meantime - this is a threshold value which defines the area of a value range where mismatches are ignored. The mathematical term:<BR>"target_position_reached = ABS(target_position-current_position) < deadband"</LI>
+
+    <LI>the next step was the implementation of concurrent motor control, which not only allows to recall snapshots, but to move the faders in realtime when new target positions are sent by the automation engine of the host application (MIDI sequencer). Concurrent movements are very timing critical, since the analog fader values have to be measured and compared consecutively by an interrupt driven timer --- very fast! Therefore it wasn't possible anymore to control more than 8 faders with a single PIC. However, this drawback is acceptable when the price of a PIC is compared to the price of 8 motorfaders.</LI>
+
+    <LI>the motor control was still not perfect. Sometimes the faders were moved so fast, that they exceeded the deadband, even on multiple "retries" (note that the deadband defines the effective resolution). The solution was to slow down the motors once they reached the deadband. This motor speed control can be achieved with pulse width modulation (PWM): than shorter the distance between current and target position, than lower the duty cycle of the signals which control the H-Bridge.</LI>
+
+    <LI>the big problem with PWM is, that it produces an additional buzzing noise (it's exactly the same noise which makes commercial (low-quality) motorfader controllers so loud). There are two ways to overcome this problem: either the PWM period frequency has to be increased to a non-audible range, or it has to be decreased, so that the noise doesn't sound so annoying. Faster PWM with higher resolution is not possible with the PIC solution that I've implemented, since it requires a dedicated internal capture & compare peripheral for each motorfader.<BR>
+Therefore in MIOS V1.8 I choosed the alternative solution - I slowed down the PWM and made the PWM period as well as the duty cycle configurable for the user, so that it can be justified for different fader types and MF voltages:<BR>
+<CENTER><IMG SRC="mbhp/mf/mbmf_pwm_settings.gif" WIDTH=320 HEIGHT=379 ></IMG></CENTER><BR>
+The MF driver switches automatically to PWM mode, once the distance between current and target position is less than 10% of the value range (value found during experiments with different fader types). In earlier implementations, the PWM duty cycle was varied depending on the distance, but it turned out that this leads to uncontrollable effects due to an increased number of parameters which influence the motor driver (parameters which are not always transparent to the user).<BR>Sidenote: two different Duty Cycles have to be specified, one for upward moves, another for downward moves. The reason is, that I noticed different speeds depending on the fader direction, which can be compensated with these different duty cycles.</LI>
+   <LI>during the development of the overworked MIOS V1.8 driver I had the idea for another interesting improvement of the motor control algorithm: when the width of the deadband is varied depending on the time where the fader is within the deadband, it is possible to slow down the fader very early, so that it (mostly) doesn't "overshoot" the target position. <BR>This is a very dynamic process, therefore I've created a diagram based on measuring results which are optionally logged in SRAM when the MF driver is active:<BR>
+<CENTER><IMG SRC="mbhp/mf/mf_dynamic_deadband_dsc.gif" WIDTH=320 HEIGHT=199></IMG></CENTER></LI>
+   </UL>
+   </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Current State </H2></DT>
+  <DD>
+  <P CLASS=INFO>The MIOS V1.8 driver is currently the most satisfying implementation thanks to the adjustable low-frequency PWM, and the dynamic deadband feature. However, there is still room for improvements, but I must highlight that they cannot be realized with the CORE/MF hardware:</P>
+  <UL CLASS=CL>
+    <LI>there is a silent, but audible buzz-noise, which gets louder than more faders are moving at the same time. The only measure to reduce this noise is the use of high-frequency PWM (like mentioned above), but this requires a different microcontroller with at least eight high-resolution capture & compare units, or a dedicated microcontroller for each fader.</LI>
+    <LI>I noticed slight differences in the motor response of my ALPS faders, although they have been purchased at the same time (so that it can be assumed that they are from the same "batch"). 5 of 8 faders can be controlled exactly with v_mf = 7.0V, but the response of the remaining 3 faders is better with lower or higher voltages (6.5V..7.5V). A possible solution would be a dedicated voltage regulation for each motorfader.</LI>
+    <LI>motorfaders with "coreless motors" cannot be controlled with this solution. The power consumption of coreless motors is significantly higher, so that the TC4427 will be overloaded (motor voltage drops to less than 5V). Another problem is, that with higher currents the motor gets so fast, that the changing positions cannot be sampled often enough.<BR>In other words: the MF driver approach is absolutely unsufficient for this type of motors, and there is no way to overcome this problem with changes in the MF hardware or MIOS driver. Coreless motors require a different concept, which I don't plan to develop by myself (I don't use such faders).</LI>
+   </UL>
+   </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Qualified Motorfaders </H2></DT>
+  <DD>
+  <P CLASS=INFO>Another important point which should be highlighted here is that not every motorfader is qualified for the MIOS driver. In fact only three types have been found yet which are working ok, all other tested motorfaders cannot be controlled properly.<BR>If you are planning to use a motorfader which is not listed here, please test a sample first (don't buy them all at once!) and inform me, respecively the MIDIbox community, about the results.</P>
+  <TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Type Number</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2 ROWSPAN=2><SPAN CLASS=NORM><B>ALPS<BR>RSAON11M9</B><BR><I>OK</I></TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/rsaon11m9.jpg" WIDTH=319 HEIGHT=101 ALIGN=left>acceptable noise<BR>good response<BR>with touch sensor!</IMG></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/rsaon11m9.gif" WIDTH=319 HEIGHT=248 ALIGN=left>Reaches the target position after ca. 200 mS (worst case).<BR>Adequate settings:<BR>v_mf = 7.5V,<BR>PWM Period: 3,<BR>Duty Cycle: 1<BR>(<A HREF="mbhp/mf/final/rsaon11m9.gif">full view</A>)</IMG></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2 ROWSPAN=2><SPAN CLASS=NORM><B>PANASONIC<BR>EVANMKP08B14</B><BR><I>OK</I></TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/evanmkp08b14.jpg" WIDTH=319 HEIGHT=94 ALIGN=left>silent<BR>fast response (sometimes too fast), very good value, unfortunately no touch sensors!</IMG></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/evanmkp08b14.gif" WIDTH=318 HEIGHT=251 ALIGN=left>Reaches the target position after ca. 200 mS (worst case).<BR>Adequate settings:<BR>v_mf = 7.5V,<BR>PWM Period: 3,<BR>Duty Cycle: 1<BR>(<A HREF="mbhp/mf/final/evanmkp08b14.gif">full view</A>)</IMG></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2 ROWSPAN=2><SPAN CLASS=NORM><B>ALPS<BR>RSAOK11VP</B><BR><I>:-/</I></TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/rsaok11vp.jpg" WIDTH=321 HEIGHT=128 ALIGN=left>similar to RSAON11M9, but more expensive and<BR>very loud!!!<BR></IMG></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/rsaok11vp.gif" WIDTH=318 HEIGHT=248 ALIGN=left>Reaches the target position after ca. 200 mS (worst case).<BR>Adequate settings:<BR>v_mf = 7.5V,<BR>PWM Period: 6,<BR>Duty Cycle: 2<BR>(<A HREF="mbhp/mf/final/rsaok11vp.gif">full view</A>)</IMG></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2 ROWSPAN=2><SPAN CLASS=NORM><B>ALPS<BR>RSAOK11W</B><BR><I>:-(</I></TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/rsaok11w.jpg" WIDTH=321 HEIGHT=125 ALIGN=left>high quality fader, but due to coreless motor not qualified for MBHP_MF module and MIOS driver<BR></IMG></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/rsaok11w.gif" WIDTH=318 HEIGHT=251 ALIGN=left>Reaches the target position after ca. 500 mS due to overloaded TC4427. Would move much faster with additional MOSFET driver.<BR>Used settings:<BR>v_mf = 7.5V,<BR>PWM Period: 0,<BR>Duty Cycle: 0<BR>(<A HREF="mbhp/mf/final/rsaok11w.gif">full view</A>)</IMG></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2 ROWSPAN=2><SPAN CLASS=NORM><B>Penny&Giles<BR>PGF6100</B><BR><I>:-(</I></TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="mbhp/mf/final/pgf6100.jpg" WIDTH=320 HEIGHT=175 ALIGN=left>high quality fader, but due to coreless motor not qualified for MBHP_MF module and MIOS driver<BR></IMG></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>due to high power consumption it wasn't possible to control the motor properly with the MBHP_MF module</TD>
+    </TR>
+  </TABLE>
+
+  <UL CLASS=CL>
+
+  <P CLASS=INFO>Motorpots have also been tested with the MIOS MF driver (ALPS 10KBX2). They are working without problems, since they are very slow compared to faders.</P>
+   </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Availability of Motorfaders</H2></DT>
+  <DD>
+   <UL>
+      <LI><A HREF="http://www.allelectronics.com/cgi-bin/category.cgi?category=search&item=MSP-10K&type=store" TARGET="_blank">PANASONIC #EVANMKP08B14</A> at <A HREF="http://www.allelectronics.com" TARGET="_blank">All Electronics Corp./USA</A> for around US $7</LI>
+      <LI><A HREF="http://www.alps.de" TARGET="_blank">ALPS Fader #RSAON11M9</A> at <A HREF="http://www.albs.de" TARGET="_blank">albs ALLTRONIC/Germany</A> for around EUR 20</A></LI>
+      <LI><A HREF="http://www.deltron-emcon.com/jkcm/default.aspx?pg=14" TARGET="_blank">ALPS Fader #RSAON11M9</A> at <A HREF="http://www.deltron-emcon.com/jkcm/default.aspx?pg=14" TARGET="_blank">Deltron Roxburgh/UK</A> for around £10</A></LI>
+      <LI><A HREF="http://www.conrad.com/" TARGET="_blank">ALPS Fader RSAON11M9, ordering number #442081-07</A> at <A HREF="http://www.conrad.cm/" TARGET="_blank">Conrad</A> for around 23 EUR</A></LI>
+   </UL>
+   </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_mf_1.jpg" WIDTH=280 HEIGHT=230 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Start with soldering the 13 bridges which save you from creating a 2-layer board. You can use the cutted legs of caps and resistors, before you throw them away after you finished all the modules!</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_mf_2.jpg" WIDTH=280 HEIGHT=232 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Mount all components except for the ICs.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_mf_3.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Note that diodes have a direction which has to be taken into account!</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_mf_4.jpg" WIDTH=280 HEIGHT=207 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Connect the MF module with the CORE module like described <A HREF="mbhp/mbhp_mf_interconnections.pdf">here</A>.<BR>Not shown here: apply power to the modules and check the Vss/Vdd voltage levels before you plug any IC into a socket!</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_mf_5.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>MF module connected with CORE and motorfaders.</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Calibration </H2></DT>
+  <DD>
+    <P CLASS=INFO>Calibration means to find out the best motor voltage (v_mf) and PWM Period/Duty cycle/Deadband settings for your setup. You can get an orientation above ("Qualified Motorfaders"), but it makes sense to optimize the values once the faders are mounted in a case.</P>
+    <P CLASS=INFO>The <B>mf_calibration</B> application is available at the <A HREF="mios_download.html">MIOS download</A> page. Once it has been uploaded, you can use the first fader to move all other faders at once. The calibration values are displayed on the LCD, and they can be changed with button #1-16 (the first 16 buttons which are connected to the first DINX4 module). Once you found the best settings, you can enter them into the main.asm (or main.h) file of the appr. application that you are planning to use with your hardware (like MIDIbox MF, MIDIbox LC, MIDIbox MM, etc...).</P>
+    <P CLASS=INFO>Sidenote to the deadband values: than higher the values, than lower the effective resolution.</P>
+    <P CLASS=INFO>The AIN deadband limits the resolution of values which are reported to the application (USER_AIN_NotifyPinChange hook). For applications which are working with 7bit MIDI events (e.g. MIDIbox MF), an AIN deadband of 7 <B>must</B> be specified (Note: 7 doesn't stand for 7bit, but for a deadband of +/- 7. Since MIOS works with 10bit internally, it means that changes within the "3bit - 1" range (2^3-1) are ignored).<BR>All other motorfader applications are using special protocols which support higher resolutions, therefore a lower AIN deadband makes sense. A deadband of 0 results to jittering values (see also <A HREF="http://www.avishowtech.com/midibox/wiki/index.php/Question%20and%20Answers#QA19" TARGET="_blank">#QA19 of the MIDIbox FAQ</A>), therefore 1..3 should be prefered.</P>
+    <P CLASS=INFO>Details reg. the MF deadband can be found above. Due to the dynamic deadband feature, this value is not so important anymore. It defines the final deadband which is used at the last state before the MF driver doesn't retry to adjust the position anymore. MF Deadband = 1 is a save value!</P>
+    <P CLASS=INFO>The <B>mf_direct_control</B> application is a special program which doesn't use the MF driver at all, but allows you to move up/down the faders directly with button #1-16. This helps to debug the connections to the faders.</P>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Touch Sensors </H2></DT>
+  <DD>
+  <P CLASS=INFO>Most motorfaders have integrated touch sensors, which can be used to send special MIDI events to the host application (e.g. to control the automation), and which are used to suspend the motor driver when a fader is moved manually.</P>
+  <P CLASS=INFO>All MIDIbox applications which support motorfaders provide three different touch sensor modes. The mode has to be selected in the main.asm or main.h file:</P>
+    <UL CLASS=CL>
+      <LI><B>Mode 0:</B> touch sensor events (pressed/depressed) are only forwarded to the host program (MIDI events)</LI>
+      <LI><B>Mode 1:</B> like mode 0, but additionally the motors are suspended by MIOS, so that they are not moved so long as the touch sensor is pressed</LI>
+      <LI><B>Mode 2:</B> like mode 0+1, additionally no fader move will be reported to the host application (no MIDI event) so long the touch sensor is <B>not</B> pressed.</LI>
+    </UL>
+  <P CLASS=INFO>Mode 1 is mostly the default setting to avoid circular troubleshooting requests in the MIDIbox forum from people who don't read this information before starting the application - the faders wouldn't send MIDI events if no touch sensors are connected, or if they are not working properly.</P>
+  <P CLASS=INFO>Mode 2 should be the prefered setting once the touch sensors are working properly. The big advantage is, that the faders won't send events due to case vibrations or any other jitter source.</P>
+  <P CLASS=INFO>Also the touch sensitivity can be specified. Than higher the value, than more sensitive the sensor inputs. 3 is normaly a save setting.</P>
+  <P CLASS=INFO>The schematic for touch sensors is located <A HREF="mbhp/mbhp_din_touchsensors.pdf">here<A/>. Note that the sensors are connected to a common DINX4 module. The 10k pull-up resistors at the appr. input pins have to be removed (!), and there are 8 additional 47k resistors which are going to J14 of the core module. The J14 pin periodically sends short pulses to probe the capacitance at the sensor. Once the sensor is touched, the capacitance will increase, this stretches the pulses at the DIN pins, and this effect will be determined by the MIOS SRIO driver. More details can be found in <A HREF="http://www.midibox.org/forum/index.php?topic=1544.0" TARGET="_blank">this forum article</A>.</P>
+
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Credits </H2></DT>
+  <DD>
+    <P CLASS=DESC>Thanks to Rasmus (<A HREF="mailto:rasmail@mail.dk">rasmail@mail.dk</A>) and his friend Arne who made most of the preworking stuff. They found the basic concepts and experimented with the analog parts. Especially Rasmus' tests and suggestions were very helpfull during the brainstorming and rapid prototyping phase. :)</P>
+    <P CLASS=DESC>Also thanks to <A HREF="mailto:david@robotroom.com">david@robotroom.com</A> for his excellent course in H-Bridges at <A HREF="http://www.robotroom.com/HBridge.html" TARGET="_blank">www.robotroom.com/HBridge.html</A>.</P>
+    <P CLASS=DESC>Thanks to Steven C. who donated a Panasonic motorfader for testing purposes.</P>
+    <P CLASS=DESC>Thanks to <A HREF="http://www.albs.de" TARGET="_blank">albs.de</A> - they lent me a RSAOK11VP and RSAOK11W sample for testing purposes.</P>
+  </DD>
+</DL>
+
+
+FOOTER

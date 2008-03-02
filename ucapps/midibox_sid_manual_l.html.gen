@@ -1,0 +1,435 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Lead Engine
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- Lead Engine</H1>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Main Screen </H2>
+<P CLASS=DESC>This is the main screen which is visible after startup. You can always go back to this screen by pressing the MENU button one or two times (depending on the current hierarchy level).<BR>
+<CENTER><IMG SRC="midibox_sid/cs2/main1.gif" width=242 height=38 ALT="Main Screen"></IMG></CENTER></P>
+<P CLASS=DESC>The screen shows the activated SID (corresponds to SID1/2/3/4 LED) and Ensemble (E001..E128), the bank and patch number, the MIDI channel, and the patch name of the selected SID.</P>
+<P CLASS=DESC>By moving the datawheel, the patch can be changed within the current bank. The bank can only be changed within the ensemble menu.</P>.
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Root Menu </H2>
+<P CLASS=DESC>Within the main screen, press one of the <B>RIGHT SELECT BUTTONS</B> (#2, #3, #4 or #5) to enter the root menu. The leftmost select button will enter the ensemble menu, which is described <A HREF="midibox_sid_manual_e.html">here</A>.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/root1.gif" width=337 height=19 ALT="Root"></IMG></CENTER><BR>
+<P CLASS=DESC>It gives you quick access the submenus, which are described below.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> "Shift" Menu </H2>
+
+<P CLASS=DESC>By pressing the SHIFT (formerly LINK) button, a special menu will be displayed which gives you quick access to following functions:</P>
+<CENTER><IMG SRC="midibox_sid/cs2/shift1.gif" width=242 height=38 ALT="Shift"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>SIDn:</B> toggles between LR, L- and -R. Here you can specify, if OSC, FIL and MOD parameter modifications should affect only the left, the right, or both SID channels. The SID number (SID1, SID2, SID3, SID4) has to be selected with the deticated SID buttons.</LI>
+  <LI><B>Engine:</B> currently only Ld for Lead. Later you can select between Lead/Multi/Bassline/Drums</LI>
+  <LI><B>Note Off:</B> disables the notes of all selected SIDs</LI>
+  <LI><B>Init:</B> initializes a patch depending on the selected engine.</LI>
+  <LI><B>Dump:</B> sends a SysEx dump of the currently selected patch.</LI>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> OSCillator menu </H2>
+
+<P CLASS=DESC>Within the oscillator menu you can control the parameters of the 2*3 SID oscillators. Note that by default changes will take place for the left and right channel. By selecting a single channel within the "Shift" menu, you can do modifications for the six oscillators seperately.</P> 
+<CENTER><IMG SRC="midibox_sid/cs2/osc1.gif" width=409 height=19 ALT="Oscillator"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>OSC (Oscillator):</B> selects a single oscillator (1--, -2-, --3) or multiple oscillators (e.g. -23 or 123)</LI>
+  <LI><B>Wav (Waveform):</B> selects the waveform:<BR>
+    <UL CLASS=CL>
+      <LI><B>Tri:</B> Triangle</LI>
+      <LI><B>Saw:</B> Sawtooth</LI>
+      <LI><B>T+S:</B> Triangle + Sawtooth (mixed)</LI>
+      <LI><B>Pul:</B> Pulse</LI>
+      <LI><B>P+T:</B> Pulse + Triangle (mixed)</LI>
+      <LI><B>P+S:</B> Pulse + Sawtooth (mixed)</LI>
+      <LI><B>PST:</B> Pulse + Sawtooth + Triangle (mixed)</LI>
+      <LI><B>Noi:</B> Noise</LI>
+    </UL><BR>
+    <SPAN CLASS=LI>In following audio example, the different waveforms are played from a 8580:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_waveforms_8580.mp3"#ffffff**</SPAN><BR>
+    <SPAN CLASS=LI>And here the same sequence played on a 6581 - you will notice, that some mixed waveforms don't work on this older SID. And note especially the background noise, which is produced by a leackage issue in the VCA/mixer section:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_waveforms_6581.mp3"#ffffff**</SPAN>
+  </LI>
+  <LI><B>S/R:</B> activates Sync and/or Ringmodulation.<BR>
+    <UL CLASS=CL>
+      <LI>The <B>sync</B> flag synchronises the fundamental frequency of a slave oscillator with the fundamental frequency of a master oscillator, producing a "hard sync" effect. Varying the frequency of the slave oscillator with respect to the master prodcues a wide range of complex harmonic structures from the slave oscillator at the frequency of the master oscillator. In order for sync to occur, the master oscillator should be set to a frequency lower than the frequency of the slave.<BR>
+  The sync assignments are hardwired within the SID:<BR>
+      OSC1 can be synched by OSC3<BR>
+      OSC2 can be synched by OSC1<BR>
+      OSC3 can be synched by OSC2<BR>
+    <SPAN CLASS=LI>An audio sample where OSC3 syncs OSC1. The frequency of OSC3 is increased by an envelope. OSC3 itself is silent (3Of in FIL menu selected):<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_sync.mp3"#ffffff**</SPAN>
+      </LI>
+      <LI>The <B>ringmodulation</B> flag works only when a <B>triangle</B> waveform is selected!<BR>
+        It multiplies the output of one oscillator with the output of another, which results into non-harmonic overtone structures for creating bell/gong sounds and special "metallic" effects.<BR>
+  The ringmodulation assignments are hardwired within the SID:<BR>
+      OSC1 can be modulated with OSC3<BR>
+      OSC2 can be modulated with OSC1<BR>
+      OSC3 can be modulated with OSC2<BR>
+    <SPAN CLASS=LI>An audio sample where OSC3 is ringmodulated with OSC1. The OSC1 frequency is slowly increased.:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_ring.mp3"#ffffff**</SPAN><BR>
+    <SPAN CLASS=LI>And here a sample where the Sync and Ring flag are activated the same time.<BR>Don't cry baby, MBSID V2 will be released soon!<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_syncring.mp3"#ffffff**</SPAN><BR>
+      </LI>
+    </UL></LI>
+  <LI><B>Delay/Attack/Decay/Sustain/Release:</B> controls the VCA envelope of the SID oscillator.</LI>
+  <LI><B>PRn (Pitchrange)</B> the semitone range within Pitchbender and Finetune can increase/decrease the frequency.</LI>
+  <LI><B>Trn (Transpose):</B> the semitone transpose value (-64..+63). +12 will transpose by one +1 octave, whereas -12 will transpose by -1 octave.<BR>
+    In following audio sample the sequence begins with transpose=0, after a while it will be decreased to -12 (-1 octave), and later to -24 (-2 octaves):<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_transp.mp3"#ffffff**
+  </LI>
+  <LI><B>Finetune:</B> allows to slightly decrease/increase the frequency within the given pitchrange. Use this parameter on different oscillators to make the resulting sound more fat! Note that there is an additional Detune parameter at the end of this page which can do this automatically for all 6 oscillators.<BR>
+    Demonstration of using finetune on three oscillators (see also the detune example below):<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_finetune.mp3"#ffffff**
+  </LI>
+  <LI><B>Por (Portamento)</B> sets the intensity of the portamento (glide) effect. When changing from one to another note, this effect will continously sweep the frequency until the target frequency has been reached. There are three different portamento modes available; they can be selected with the <B>PMd</B> item:
+    <UL CLASS=CL>
+      <LI><B>Normal:</B> "normal" portamento, also known as "logarithmic portamento". The sweep time depends on the frequency.</LI>
+      <LI><B>CTG:</B> linear constant time glide - the sweep time is always the same, independent from the frequency.</LI>
+      <LI><B>Gls:</B> glissando: the frequency is sweeped in semitone steps, like if you would strum over the keyboard from one to another note.</LI>
+    </UL>
+  <SPAN CLASS=LI>Demonstration of the three portamento modes:</SPAN><BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_porta.mp3"#ffffff**
+  </LI>
+  <LI><B>Phs (Oscillator Phase Offset):</B> this function allows you to synchronize the phases of all three oscillators.<BR>
+  With Phs=0 they are freerunning - this is the prefered option for "analog" sounds. With Phs=1, they will be started at the same moment, whereas with Phs>1 the phase offset between the oscillators will be controlled in 0.4% steps (!).
+  In following audio sample the oscillator phase offset between three pulse waveforms is slowly changed from 0..33% - once this value is reached, the resulting frequency is 3 times higher than the base frequency:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_phaseoffset.mp3"#ffffff**<BR>
+  </LI>
+  <LI><B>PW (Pulsewidth):</B> this 12bit value (range 000-FFF, displayed in hexadecimal format) controls the duty cycle of a pulse waveform. This parameter has no effect on other waveforms. A 1:1 duty cycle is set with value 0x800.<BR>
+  In this sample each oscillator got an own LFO for pulsewidth modulation. The modulation values for the right channel are inverted - this results into a nice stereo effect:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_pw.mp3"#ffffff**
+  </LI>
+  <LI><B>PMd (Portamento Mode):</B> see description above.</LI>
+  <LI><B>GSA (Gate Stays Active):</B> once activated, the VCA envelope won't be released anymore, resulting into a permanent sound. This allows you to control the sound volume completely with the internal, or an external filter, or with an external VCA. It's an option which allows you to overcome the infamous ADSR bug of the SID.</LI>
+  <LI><B>Det (Detune):</B> detunes all oscillators by increasing/decreasing the finetune parameter. This allows you to create fat sounds with a single encoder turn! (therefore the same value is visible in all OSC pages)
+    <UL CLASS=CL>
+      <LI>Left SID channel: OSC1 +detune/4, OSC2 +detune, OSC3 -detune</LI>
+      <LI>Right SID channel: OSC1 -detune/4, OSC2 -detune, OSC3 +detune</LI>
+    </UL>
+  <SPAN CLASS=LI>Demonstration of using detune on six oscillators (stereo - compare with finetune example above):<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_osc_detune.mp3"#ffffff**
+  </LI>      
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> FILter menu </H2>
+
+<P CLASS=DESC>Within the filter menu you can control the parameters of the SID filter. Each SID has only one 12db multistate filter, which can be assigned to the three oscillators and/or to the external audio input. Note that by default changes will take place for the left and right channel. By selecting a single channel within the "Shift" menu, you can do modifications for the two filters seperately.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/fil1.gif" width=338 height=38 ALT="Filter"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>Chn (Channel):</B> assigns the filter to oscillator channel 1/2/3</LI>
+  <LI><B>Cut (CutOff):</B> sets the cutoff frequency (12bit value) from 000 to FFF (hexadecimal format).</LI>
+  <LI><B>Res (Resonance):</B> is a peaking effect which emphasizes frequency components at the CutOff frequency of the filter, causing a sharper sound. The intensity of the resonance can be set from 0-15.</LI>
+  <LI><B>Mod (Filter Mode):</B> sets the filter mode - note that mixed notes like Lowpass/Highpass are possible, which results into a notch effect (inverted bandpass).
+    <UL CLASS=CL>
+      <LI><B>L (Lowpass):</B> all frequency components below the Cutoff frequency are passed unaltered, while all frequency components above the Cutoff are attenuated at a rate of appr. 12 dB/Octave</LI>
+      <LI><B>B (Bandpass):</B> all frequency components above and below the Cutoff frequency are attenuated at a rate of appr. 6 dB/Octave</LI>
+      <LI><B>H (Highpass):</B> all frequency components above the Cutoff frequency are passed unaltered, while all frequency components below the Cutoff are attenuated at a rate of appr. 12 dB/Octave</LI>
+    </UL>
+  </LI>
+  <LI><B>Ext (External):</B> external Audio IN is passed to the filter</LI>
+  <LI><B>3Of (3rd oscillator off):</B> a special SID function which disconnects the oscillator 3 output from the mixer. This allows to use OSC3 for sync/ringmodulation without any undesirable output.</LI>
+  <LI><B>FIP (Filter Interpolation):</B> this option smoothes CutOff changes. It is especially useful when CutOff is changed via CC (-> low resolution). to reduce the steppiness. The option is not useful when the CutOff parameter is modulated rom a fast LFO or envelope (on the other hand: it produces interesting effects in such cases ;-)</LI>
+</UL>
+
+<P CLASS=DESC>Here a quick demonstration of the SID filters. In the first example two 6581 from calendar week 40/84 and 25/84 are used, which sound very different and which are therefore not really qualified for stereo patches. On the other hand they sound warm and analog - but note especially the background noise at the end, a typical issue of the 6581!<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_filter_6581.mp3"#ffffff**<BR>
+<P CLASS=DESC>In the second example the same sequence is played on two 8580R5 from the same batch:
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_filter_8580.mp3"#ffffff**</P>
+<P CLASS=INFO>Decide for yourself which one sounds better!</P>
+<P CLASS=DESC><I>To be honest: <B>I want them all! A MBSID V2 can be stuffed with 8 SIDs, so what? :-)</B></I></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LFO menu </H2>
+
+<P CLASS=DESC>The lead engine provides six low frequency oscillators which can be assigned to different modulation targets within the modulation matrix.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/lfo1.gif" width=434 height=38 ALT="LFO"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>LFO:</B> selects one of 6 LFOs.</LI>
+  <LI><B>Wav (Waveform):</B> selects the shape of the LFO. Following waveforms are provided: Sine, Triangle, Pulse, Ramp (Sawtooth), Random (Sample&Hold), and positive Sine/Triangle/Pulse/Ramp</LI>
+  <LI><B>Rte (Rate):</B> the speed of the LFO can be adjusted from 0.008 Hz (1) to ca. 45 Hz (255).</LI>
+  <LI><B>Csn (Clock Synchronisation):</B> allows you to synchronize the LFO speed to the global clock generator. This is especially useful when a clock is provided from a MIDI clock master.<BR>
+      Rate 245-255 get special presets for different period lengths which are matching with 64 whole notes down to 1/16 note.</LI>
+  <LI><B>Dep (Depth):</B> the intensity of the LFO effect. It can be controlled from -128 to +127. A negative value inverts the LFO waveform.</LI>
+  <LI><B>Snc (Sync):</B> the LFO will be restarted with each new note.</LI>
+  <LI><B>Del (Delay):</B> works only in conjunction with the Sync flag. With a delay>0, the LFO will be held inactive before it will be restarted.</LI>
+  <LI><B>Phs (Phase):</B> works only in conjunction with the Sync flag. Specifies the phase (0-255) at which the LFO will be restarted. With 64, the LFO will start at 25%, with 128, the LFO will start at the middle.</LI>
+  <LI><B>One (Oneshot):</B> only one period of the LFO waveform will be processed, thereafter the LFO is stopped and has to be retriggered from a trigger matrix source (see below).</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ENVelope menu </H2>
+
+<P CLASS=DESC>The lead engine provides two additional envelopes which can be assigned to different modulation targets within the modulation matrix.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/env1.gif" width=457 height=19 ALT="Envelope"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>ENV:</B> selects one of 2 ENVs.</LI>
+  <LI><B>Dep (Depth):</B> the intensity of the envelope effect. It can be controlled from -128 to +127. A negative value inverts the ENV waveform.</LI>
+  <LI><B>Del (Delay):</B> delay the attack phase of the envelope.</LI>
+  <LI><B>At1/ALv/At2 (Attack Rate/Level):</B> sets the attack rate and attack level between the two attack phases.</LI>
+  <LI><B>De1/DLv/De2 (Decay Rate/Level):</B> sets the decay rate and decay level between the two decay phases.</LI>
+  <LI><B>Sus (Sustain):</B> sets the sustain level.</LI>
+  <LI><B>Re1/RLv/Re2 (Release Rate/Level):</B> sets the release rate and release level between the two release phases.</LI>
+  <LI><B>CuA/CuD/CuR (Curve Attack/Decay/Release):</B> with curve=0, the rates are linear, whereas with negative values (-128..-1) the curve of the appr. envelope phase can be bended down, and with 1..127 it can be bended up.<BR>
+    This is a simple way to imitate the exponential charging/decharging curve of a capacitor, so that the envelope behaves like an analog circuit. But note that the relation between the rate and the curve parameter is not linear (than higher the curve intensity, than shorter the waveform), and it needs some practice to achieve good results.</LI>
+  <LI><B>LpB/LpE (Loop Begin/End):</B> allows to cycle between two phases. Once the phase specified with LpE has been finished, the envelope generator will jump back to the phase specified with LpB. Not all combinations make sense.</LI>
+  <LI><B>CSn (Clock Synchronisation):</B> allows to synchronise the envelope rates to the global clock generator. This especially makes sense when the generator is clocked from an external MIDI master.</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MODulation matrix menu </H2>
+
+<P CLASS=DESC>The modulation matrix provides 8 independent pathes. Within each path, two sources are combined by an operator. A depth parameter is applied before the result is distributed to multiple targets. This powerful approach is basically inspired from Waldorf synthesizers (Modifier concept).</P>
+<CENTER><IMG SRC="midibox_sid/cs2/mod1.gif" width=409 height=19 ALT="Modulation Matrix"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>MOD (modulation path):</B> selects one of the eight modulation paths, which should be displayed.</LI>
+  <LI><B>Sr1 and Sr2 (Source #1 and #2):</B> the predefinitions are matching with the MIDIbox SID1 assignments, but you can change them as desired.<BR>Following sources are available:
+    <UL CLASS=CL>
+      <LI><B>---:</B> disable source</LI>
+      <LI><B>EG1, EG2:</B> Envelope 1 and 2</LI>
+      <LI><B>LFO..6:</B> LFO 1-6</LI>
+      <LI><B>MP1..8:</B> the modulation result of path 1-8 is available as source as well. This allows you to chain multiple operations on different sources!</LI>
+      <LI><B>MdW:</B> last received modulation wheel position</LI>
+      <LI><B>Key:</B> last received note value</LI>
+      <LI><B>K#1..5:</B> position of Knob 1-5 (see Knob menu)</LI>
+      <LI><B>L#V:</B> last received Velocity</LI>
+      <LI><B>L#P:</B> last received Pitchbender position</LI>
+      <LI><B>L#A:</B> last received Aftertouch value</LI>
+      <LI><B>WT1..4:</B> value provided from wavtable 1-4 (see wavetable concept below)</LI>
+      <LI><B>0..127:</B> a constant value - especially useful in conjunction with the binary or Min/Max operators.</LI>
+    </UL>
+  </LI>
+  <LI><B>Op (Operation):</B> the operation which is applied on the two sources:
+    <UL CLASS=CL>
+      <LI><B>---:</B> disable operation (no modulation)</LI>
+      <LI><B>Sr1:</B> Source 1 only</LI>
+      <LI><B>Sr2:</B> Source 2 only</LI>
+      <LI><B>1+2:</B> Source 1 added to Source 2</LI>
+      <LI><B>1-2:</B> Source 2 substracted from Source 1</LI>
+      <LI><B>1*2:</B> Source 1 multiplied with Source 2</LI>
+      <LI><B>XOR:</B> binary XOR operation between Source 1 and 2</LI>
+      <LI><B>OR:</B> binary OR operation between Source 1 and 2</LI>
+      <LI><B>AND:</B> binary AND operation between Source 1 and 2</LI>
+      <LI><B>MIN:</B> forwards either Source 1 or 2, the minimum value will be taken</LI>
+      <LI><B>MAX:</B> forwards either Source 1 or 2, the maximum value will be taken</LI>
+      <LI><B>1<2:</B> generates a positive pulse when Source 1 is less than Source 2</LI>
+      <LI><B>1>2:</B> generates a positive pulse when Source 1 is greater than Source 2</LI>
+      <LI><B>1=2:</B> generates a positive pulse when Source 1 is equal to Source 2</LI>
+      <LI><B>S&H:</B> Sample & Hold - samples the value of Source 1 whenever Source 2 changes from a negative to a positive value. The direct integration into the MOD matrix is an unusual, but very powerful solution, as in difference to common synths it not only allows you to capture values periodically (e.g. by using a LFO), but with any pattern. E.g., you could trigger the capturing from the wavetable sequencer, or with a certain modwheel or velocity level (requires a second MOD path which is doing a comparison 1>2)</LI>
+    </UL>
+  </LI>
+  <LI><B>Tr1 and Tr2 (Target 1 and 2):</B> following modulation targets are available:<BR>
+    <UL CLASS=CL>
+      <LI><B>Pt1..6:</B> Oscillator pitch. OSC1-3 are the oscillators of the left channel SID, OSC4-6 the right channel SID</LI>
+      <LI><B>PW1..6:</B> Pulsewidth. OSC1-3 are the oscillators of the left channel SID, OSC4-6 the right channel SID</LI>
+      <LI><B>Fl1 and Fl2:</B> CutOff frequency of left/right SID filter</LI>
+      <LI><B>Vl1 and Vl2:</B> Volume of left/right SID</LI>
+      <LI><B>LD..6:</B> LFO depths</LI>
+      <LI><B>LR1..6:</B> LFO rates</LI>
+      <LI><B>Ex1..8:</B> the external control voltage (CV) channels</LI>
+      <LI><B>WT1..4:</B> the wavetable positions of WT1..4 (MOD flag must be enabled in WTC menu)</LI>
+    </UL>
+  <LI><B>Dep (Depth):</B> allows to control the intensity of the modulation result from -128..127. A negative value will invert the result</LI>
+  <LI><B>In1 and In2 (Inversion):</B> an additional possibility to invert the result, but for Target 1 and 2, resp. for left and right SID channel seperately. Inverting one channel mostly leads to very interesting stereo effects!</LI>
+  <LI><B>Pt1..Vol</B>: 2*8 additional modulation targets are available for each path which can be enabled/disabled in this menu, and with the LED modulation matrix of the control surface. They are statically assigned to OSC 1..3 Pitch, Pulsewidth, to Filter CutOff and Volume. The left and right channel can be enabled seperately. Remind the inversion function for nice stereo effects!</LI>
+</UL>
+
+<P CLASS=DESC>Demos:<BR>
+<UL CLASS=CL>
+  <LI>**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_demo1.mp3"#ffffff**<BR>
+    <SPAN CLASS=LI>2*3 slightly detuned pulse waveforms.<BR>The pitch is modulated by a LFO (saw waveform), combined via AND operator with a constant value. The constant value is manually changed with a knob. The modulation result is sometimes crazy, sometimes surprising, sometimes just exactly what we expect from an 8bit synth :)</SPAN>
+  </LI>
+  <LI>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_demo2.mp3"#ffffff**<BR>
+    <SPAN CLASS=LI>2*3 filtered mixed waveforms (pulse/saw/triangle).<BR>The filter is modulated by one LFO, the volume by another LFO. The depth of volume modulation is 0 at the beginning, and changed to +127 at 0:07<BR>
+The amount of volume modulation is inverted between left and right channel.<BR>
+Rate of LFO which modulates volume is changed at 0:13<BR>
+A third modulation path is used at 0:26, where LFO1 and LFO2 rate is controlled by an envelope<BR>
+Who needs a Leslie? :)</SPAN>
+  </LI>
+  <LI>See random example at the bottom of this page for some randomly selected combinations of modulation sources/targets/operations</LI>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> TRiGger matrix menu </H2>
+
+<P CLASS=DESC>Commonly known from modular synthesizers, it's possible to trigger functions of MIDIbox SID from various, predefined sources, which can result into very lively effects.</P>
+<P CLASS=DESC>A trigger you propably already know is the envelope gate, which is activated on a Note On event. Why not restarting the envelope when a LFO period has passed, when a (divided) MIDI clock has been received, or when a second envelope has reached the sustain phase? The trigger matrix allows you to combine such events.</P>
+<P CLASS=DESC>Another nice possibility is to restart LFOs, or to step through a wavetable which modifies sound parameters.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/trg1.gif" width=601 height=19 ALT="Trigger Matrix"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>TRG (Trigger Source):</B> selects the trigger source which should be displayed:
+    <UL CLASS=CL>
+      <LI><B>NOn:</B> a Note On event has been received</LI>
+      <LI><B>EOf:</B> a Note Off event has been received</LI>
+      <LI><B>E1S/E2S:</B> Envelope Sustain Phase has been reached</LI>
+      <LI><B>L1P..L6P:</B> LFO period</LI>
+      <LI><B>Clk:</B> global clock event</LI>
+      <LI><B>Cl4:</B> triggered on each 4th global clock event</LI>
+      <LI><B>C16:</B> triggered on each 16th global clock event</LI>
+      <LI><B>MSt:</B> MIDI Clock Start event has been received</LI>
+    </UL>
+  <LI><B>O1L..O3L/O1R..O3R:</B> (Re-)trigger gate of oscillator 1..3 of left/right SID channel (assigned to NOn and NOf by default, whereas NOf has a special purpose here: it clears the gate instead of retriggering it)</LI>
+  <LI><B>E1A/E2A:</B> start attack phase of ENV1/ENV2 (assigned to NOn and MSt by default)</LI>
+  <LI><B>E1R/E2R:</B> start release phase of ENV1/ENV2 (assigned to NOf by default)</LI>
+  <LI><B>L1..L6:</B> restart LFO1..LFO6 (the NOn->L1..L6 connection can also be controlled with the Snc flag in the LFO menu)</LI>
+  <LI><B>W1R..W4R:</B> restart wavetable 1..4 (assigned to NOn by default)</LI>
+  <LI><B>W1S..W4S:</B> increment step of wavetable 1..4 (assigned to Clk by default)</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ConFiGuration menu </H2>
+
+<P CLASS=DESC>Some basic settings for the MBSID Lead engine are collected here.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/cfg1.gif" width=242 height=38 ALT="Configuration"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>Vol (Volume):</B> adjusts the output volume of the SID. Note that the SID mixer only provides a 4bit volume, but 7bit (0-127) can be modified here (for the V2A feature). Set the volume to the middle value (64) if it should be modulated from the modulation matrix!</LI>
+  <LI><B>Leg (Legato):</B>
+    <UL CLASS=CL>
+      <LI><B>Legato off (Mono mode):</B> the gate (or to be exact: the NOn event of the trigger matrix) will be re-triggered whenever a new note is played on the keyboard.</LI>
+      <LI><B>Legato on:</B> the gate (or to be exact: the NOn event of the trigger matrix) will only be re-triggered so long no other note is played.</LI>
+    </UL>
+  </LI>
+  <LI><B>WTO (Wavetable Only):</B> only the wavetable can play notes - useful if it plays arpeggiator or note sequences</LI>
+  <LI><B>SuK (SusKey):</B> if enabled, the portamento effect will only be activated if more than one note is played. Also known as "fingered portamento". Very useful in conjunction with external sequencers (like <A HREF="midibox_seq.html">MIDIbox SEQ</A> to trigger a glide on overlapping notes.</LI>
+  <LI><B>ABW (ADSR Bug Workaround):</B> an option which provides a less usual method to overcome the ADSR bug. Whenever the envelope is retriggered, the ADSR registers will be zeroed for at least 30 mS (time can be increased with the delay parameter). Thereafter the original ADSR values will be written back, and the gate will be activated. This results into a more deterministic envelope, but the latency makes it unsuitable for live playing. So, this feature can only be used in conjunction with a sequencer, which allows to compensate the delay (which allows to play the notes earlier by a given time).</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ARPeggiator menu </H2>
+
+<P CLASS=DESC>In "digitunes" (also known as 8bit tunes), an arpeggiator is mostly used to produce fast "broken chords". The notes of a chord are quickly cycled, so that the listener (nearly) gets the impression that a whole chord is played, even the oscillators itself are only played monophonic.<BR>
+A more common usage of the arpeggiator, which you propably also know from other synthesizers, is the slow automated stepping through the notes of a chord. In this case the step speed and the gatelength is mostly derived from an incoming MIDI clock to synch the notes with a sequencer.</P>
+<P CLASS=DESC>Both variants are possible with the MIDIbox SID arpeggiator. And a special feature is, that each of the 2*3 oscillator (left/right channel) has its own arpeggiator, so that different rhythmical textures can be generated and played the same time.</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/arp1.gif" width=530 height=38 ALT="Arpeggiator"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>OSC (Oscillator):</B> selects a single oscillator (1--, -2-, --3) or multiple oscillators (e.g. -23 or 123). Left/Right/Both SID channel has to be selected in the "shift" menu.</LI>
+  <LI><B>On:</B> enables the arpeggiator effect.</LI>
+  <LI><B>Dir (Direction):</B> Up/Down/Up&Down/Down&Up/UD2/DU2/Random - the direction and order in which the notes are stepped. To simplify the understanding, here the behaviour when a chord of four notes (1234) is played:<BR>
+  <UL CLASS=CL>
+    <LI><B>Up:</B> 123412341...</LI>
+    <LI><B>Down:</B> 432143214...</LI>
+    <LI><B>U&D (Up&Down):</B> 12343212343...</LI>
+    <LI><B>D&U (Down&Up):</B> 43212343212...</LI>
+    <LI><B>UD2 (Up&Down #2):</B> 12344321123443...</LI>
+    <LI><B>DU2 (Down&Up #2):</B> 43211234432112...</LI>
+    <LI><B>Random:</B> randomly selected keys</LI>
+  </UL>
+  </LI>
+  <LI><B>Sor (Sorted):</B> if enabled, the played notes are sorted. Otherwise they are used in the same order like played on the keyboard (the note you played the first time will be played at the first position).</LI>
+  <LI><B>Hld (Hold):</B> the arpeggiator continues to play when the keys are released. It starts with a new chord once at least one new note is played.</LI>
+  <LI><B>Spd (Speed):</B> the arpeggiator speed derived from the global clock. If the global clock is synched to a MIDI clock master (slave mode), and the divider is 3, a speed value of 1 will step the arpeggiator on each 32th note. A value of 2 on each 16th note, a value of 8 on each beat.</LI>
+  <LI><B>GLn (Gatelength):</B> the gatelength. Should be less than the speed value to take effect. Should be higher than the speed value for C64 style "broken chords".</LI>
+  <LI><B>Rng (Octave Range):</B> with an octave range > 1 the notes will be stepped multiple times over different octaves</LI>
+  <LI><B>Snc (Synch to Note):</B> the arpeggiator is restarted whenever a new note is played</LI>
+  <LI><B>CAC (Constant Arp Cycle):</B> the arpeggiator speed varies with the number of played notes, so that the overwhole arp cycle time is always the same (works only correctly with up to 4 notes)</LI>
+  <LI><B>One (Oneshot):</B> arpeggiator sequence will be stepped one time, thereafter the arp will stop until a new chord is played.</LI>
+<P CLASS=DESC>Example for arp at fast speed:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_arp_fast.mp3"#ffffff**<BR>
+Switching through the direction modes (boring C-Dur chord, only for demonstration):<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_arp_slow.mp3"#ffffff**<BR>
+Having some fun with upward direction, octave range 3:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_arp_slow2.mp3"#ffffff**<BR>
+</P>
+
+<P CLASS=DESC>Note: in difference to other arpeggiator implementations of synths I know, the arp will continue to cycle the notes, even when no key is played anymore, and therefore all OSC gates are released. This matches with the behaviour in C64 tunes.<BR>
+In addition, if you release some - but not all - keys while a chord is played, the old chord continues to play until at least one new key has been pressed. This is to improve live playing. If you don't like this behaviour, you can disable it in sid_midi.inc (set EXP_ARP_BEHAVIOUR to 0)</P>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> WaveTable Configuration menu </H2>
+
+<P CLASS=DESC>The term "Wavetable" is used by the C64 community for a synthesis method, where the waveform and frequency of a SID voice is modulated so fast, that the resulting output sounds like a new waveform, which is originally not provided by the soundchip itself. The parameter changes are stored in a table - that's the reason for this name - the technique is not related to "wavetable synthesis", which is based on audio samples.</P>
+
+<P CLASS=DESC><A HREF="midibox_sid.html">MIDIbox SID</A> provides a very generic wavetable sequencer, which can not only control the waveform and frequency, but any parameter which is also accessible via NRPN (see also the <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">MIDIbox SID V2 parameter chart</A>). In MIDIbox SID V2, four tracks of up to 32 steps are available, which can control 4 different CCs. For common wavetable sounds, it's enough to control the waveform (OSC1 waveform: Parameter #33) and the transpose value (OSC1 transpose: CC#37) of a single voice. It's also possible to control the waveform/transpose value of all oscillators at the same time (CC#32 and CC#36), or to modulate the CC of the other oscillators in parallel to the first one. Another interesting usage of the remaining two tracks is the modulation of LFO or envelope parameters; it should also be mentioned, that the wavetable sequencer can be used to play notes and arpeggiator phrases.</P>
+<P CLASS=DESC>For MIDIbox SID V1 some tutorials are available, which will sooner or later be adapted to the new V2 engine: <A HREF="howto_sid_wavetables_1.html">HowTo #1</A>, <A HREF="howto_sid_wavetables_2.html">HowTo #2</A>, <A HREF="howto_sid_wavetables_3.html">HowTo #3</A>.</P>
+<P CLASS=DESC>Differences to V1:
+  <UL CLASS=CL>
+    <LI>4 instead of 3 wavetables</LI>
+    <LI>independent speed and loop points</LI>
+    <LI>free configurable start and end point within the 128 byte range</LI>
+    <LI>resetable and stepable from the trigger matrix (e.g. via LFO)</LI>
+    <LI>using WT values as modulation source</LI>
+    <LI>controling the WT position from the modulation matrix</LI>
+    <LI>Left/Right/Both SID channels selectable</LI>
+  </UL>
+</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/wtc1.gif" width=482 height=38 ALT="WT Configuration"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>WT1..4:</B> selects the wavetable</LI>
+  <LI><B>Par (Parameter):</B> changes the parameter assignment. Once you move the encoder, a special page will be displayed which shows the parameter name in long format:
+<CENTER><IMG SRC="midibox_sid/cs2/wtc2.gif" width=242 height=38 ALT="WT Assignment"></IMG></CENTER></LI>
+  <LI><B>SID:</B> allows to select, if the left, right or both channels should be controlled from the wavetable.</LI>
+  <LI><B>Spd (Speed):</B> the wavetable speed derived from the global clock. If the global clock is synched to a MIDI clock master (slave mode), and the divider is 3, a speed value of 1 will step the wavetable on each 32th note. A value of 2 on each 16th note, a value of 8 on each beat.</LI>
+  <LI><B>MOD:</B> if enabled, the wavetable position will be controlled from a modulation target (-> MOD menu) within the begin and end range. The speed and loop parameter has no effect in this case.</LI>
+  <LI><B>Beg (Begin):</B> the start position within the wavetable (0x00, 0x20, 0x40, 0x60 by default)</LI>
+  <LI><B>End:</B> the end position within the wavetable (0x1f, 0x3f, 0x5f, 0x7f by default)</LI>
+  <LI><B>Lop (Loop):</B> if disabled, the wavetable will only be played once (oneshot mode). Once enabled, the wavetable will be looped between the Loop and End position</LI>
+  <LI><B>Val (Value Format):</B> switches between hexadecimal and decimal display mode</LI>
+  <LI><B>WTE:</B> shortcut to the WTE (wavetable editor) menu</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> WaveTable Editor menu </H2>
+
+<P CLASS=DESC>In order to improve the oversight and handling, the wavetable has to be edited in a seperate menu page. This has also the advantage, that in this page the wavetable position can be selected with the PAGE UP/DOWN buttons, whereas within the WTC menu these buttons select the wavetable number.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/wte1.gif" width=338 height=38 ALT="WT Edit"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>Pos (Position):</B> the position within the wavetable (0-128, whereas mostly 0-31 is relevant for a common wavetable). Turn the encoder full-right to select "All" - in this case, a WT modification will be copied over to all entries of a column.</LI>
+  <LI><B>2nd..5th column:</B> the wavetable entries. At the top you will see the address, at the bottom the relative or absolute value.</LI>
+  <LI><B>Val (Value Format):</B> switches between hexadecimal and decimal display mode</LI>
+  <LI><B>WTC:</B> shortcut to the WTC (wavetable configuration) menu</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> KNoBs menu </H2>
+
+<P CLASS=DESC>The idea behind the "knobs" function is to have a set of 5 controllers, which can be used to change preselected sound parameters within a min/max range. Each patch has its own set, so that the sound designer can prepare parameter assignments as they are most useful for live control.</P>
+<P CLASS=DESC>Knob values can not only be changed within the KNB menu, but also with the 5 rotary encoders of the OSC assign layer. In addition, they can be controlled via MIDI, giving access to the parameters on a generic way (e.g. for automation). Knob1 is assigned to CC#1 (Modulation Wheel), and Knob2-5 to CC#16-19</P>
+<P CLASS=DESC>Three additional "knob" functions are available for Velocity (K#V), Pitchbender (K#P) and Aftertouch (K#A).</P>
+<P CLASS=DESC>Knob values are also accessible as modulation source (-> see MOD menu) regardless of the knob assignments.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/knb1.gif" width=626 height=38 ALT="Knobs"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>K#1..K#5:</B> the actual knob values, range: 0..255. They can be changed from this menu, via MIDI or via control surface, if the "assign" control layer of the OSC section is activated.</LI>
+  <LI><B>K#V, K#P, K#A:</B> the additional knob functions for Velocity/Pitchbender/Aftertouch.<BR>
+By default, K#P is assigned to <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">parameter #80</A> (Voice 1/2/3 Pitch Bender), which controls the pitch within the given pitch range. This assignment can be replaced by another one to change the purpose of the pitchwheel of your keyboard (beside of the modulation wheel you can use it as second controller). Or a second assignment can be made; e.g. transposing a single oscillator which has the sync flag set - you must try it out! :)</LI>
+  <LI><B>Knb (Knob):</B> selects a knob for which the Min/Max/Parameter assignment should be changed.</LI>
+  <LI><B>Pa1/Pa2 (Parameter Assignment 1 and 2):</B> one knob can control up to two parameters. All available parameters are listed in the <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">MIDIbox SID V2 parameter chart</A>, and the full name is displayed on screen when the assignment is changed with a rotary encoder.<BR>
+    <B>Note:</B> a parameter is automatically scaled between 0..255 independent from the original resolution (1bit to 12bit)</LI>
+  <LI><B>Min/Max:</B> allows to specify the range within the parameter should be changed with a knob. If Min is greater than Max, the resulting value will be inverted.</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> EXTernal menu </H2>
+<P CLASS=DESC>Up to 8 external control voltages (CV) can be output by MIDIbox SID via a <A HREF="mbhp_aout.html">MBHP_AOUT</A> interface, or up to four <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> interfaces. They are available as modulation target, and can be controlled via NRPN, CC (Knobs) and wavetable. This menu allows you to set the offsets of the control voltages (they are stored in the patch)</P>
+<P CLASS=DESC>Note that it is not a requirement that the modulated CV values control external hardware - they could also be used by internal - optional - engine extensions in future.</LI>
+<P CLASS=DESC>In addition, 8 digital switch outputs are predefined which allow you to enable/disable external effects. Yes, it would be fine if they would be controllable from the trigger matrix as well, but unfortunately there is no place within the trigger matrix anymore! :-( However, maybe a workaround (e.g. optional replacing of WT assignments to Switch assignments) could be feasible if somebody really finds this feature useful.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/ext1.gif" width=385 height=19 ALT="External"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>A#1..A#8 (analog output 1..8): </B> 12bit value (internally 16bit), displayed in hexadecimal format (range 000-FFF)</LI>
+  <LI><B>S#1..S#8 (digital switches 1..8): </B> switches on/off an external digital pin</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SAVe menu </H2>
+
+<P CLASS=DESC>Within the save menu a patch can be stored in the given bank/patch slot. The name of the currently stored patch is displayed, so that you know, which one is overwritten once you press the Do! (third selection) button.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/sav1.gif" width=242 height=38 ALT="Save"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Before the patch will be stored, you will be asked for the new name. Confirm with the first select button (below SAVE)
+<CENTER><IMG SRC="midibox_sid/cs2/sav2.gif" width=242 height=38 ALT="Save"></IMG></CENTER>
+</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> RaNDom Generator menu </H2>
+
+<P CLASS=DESC>This generator allows to randomize single parts, or the whole patch with slightly constrained values (to improve the results). 
+<CENTER><IMG SRC="midibox_sid/cs2/rnd1.gif" width=530 height=38 ALT="Random"></IMG></CENTER><BR>
+<P CLASS=DESC>Following quickly generated random patches speak for themself:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_rnd.mp3"#ffffff**
+</P>
+
+
+
+FOOTER

@@ -1,0 +1,251 @@
+HEADER 3 MBHP OPL3 Module
+
+<h1>Plataforma de Hardware MIDIbox, M&oacute;dulo OPL3</h1><center><img src="mbhp/mbhp_opl3.jpg" height="449" width="600"></center><p></p>
+
+<p class="INFO">Esta p&aacute;gina describe los detalles t&eacute;cnicos del m&oacute;dulo MBHP_OPL3, que se usa en el proyecto <a href="midibox_fm.html">MIDIbox FM</a>&nbsp;.</p>
+
+<p class="DESC">La s&iacute;ntesis FM se hizo muy popular en los 80
+despu&eacute;s de que Yamaha sacase el GS1, y dos a&ntilde;os
+m&aacute;s tarde el DX7, que fue como una revoluci&oacute;n en aquellos
+d&iacute;as porque la mayor&iacute;a de los sintetizadores estaban
+basados en partes anal&oacute;gicas y limitados a las posibilidades de
+la s&iacute;ntesis aditiva /sustractiva. Es muy dif&iacute;cil hacer
+s&iacute;ntesis&nbsp; FM con componentes anal&oacute;gicos, porque hace
+falta una relaci&oacute;n estable entre los moduladores y los
+osciladores del portador para conseguir resultados audibles(o
+musicales). Yamaha desarroll&oacute; (y patent&oacute;) una
+soluci&oacute;n digital que fue la base de varios chipsets.
+Afortunadamente Yamaha no s&oacute;lo construy&oacute; estos chips
+exclusivamente en sus propios sintetizadores, tambi&eacute;n comenzaron
+con una l&iacute;nea de producto de chips OEM para videojuegos y
+ordenadores personales.- por ejemplo YM2149 (usado en la&nbsp;Atari ST,
+MSX, Intellivision y ZX Spectrum), YM3812 (usado en AdLib y antiguas
+tarjetas de sonido Sound Blaster) y finalmente el YMF262 (usado en
+Sound Blaster Pro 2.0 y tarjetas posteriores hasta que el OPL3 fue
+reemplazado por los chips wavetable synth a finales de los 90s) - Los
+vendedores de ordenador prefirieron estos chips FM porque eran baratos
+y cubr&iacute;an un amplio rango de instrumentos .</p>
+
+<p class="DESC">Puedes encontrar informaci&oacute;n m&aacute;s exhaustiva sobre FM y el OPL3 aqu&iacute;:
+  </p><ul class="CL">
+    <li><a href="http://www.angelfire.com/music/creon/bgfm.htm" target="_blank">Gu&iacute;a para principiantes de s&iacute;ntesis FM&nbsp;</a></li>
+    <li><a href="http://www.soundonsound.com/sos/may00/articles/synth.htm" target="_blank">Art&iacute;culo de Sonido-Sobre-Sonido sobre s&iacute;ntesis FM&nbsp;</a></li>
+    <li><a href="http://news.harmony-central.com/Newp/1998/PLG100DX.html" target="_blank">Un bonito abstracto sobre la historia de la s&iacute;ntesis FM de Yamaha</a></li>
+    <li><a href="http://www.vorc.org/text/column/hally/ymxxxx.html" target="_blank">Vortexiones en chips de sonido</a></li>
+    <li><a href="http://www.fit.vutbr.cz/%7Earnost/opl/opl3.html" target="_blank">Gu&iacute;a de programaci&oacute;n para Yamaha YMF 262/OPL3 sintetizador Musical FM</a></li>
+    <li><a href="http://www.fit.vutbr.cz/%7Earnost/opl/lost+found/ymf262.pdf" target="_blank">YMF262 datasheet</a></li>
+    <li><a href="http://www.jaero.sk/elektro/yac512-m.pdf" target="_blank">YAC512 datasheet</a></li>
+  </ul>
+<p></p>
+
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Detalles t&eacute;cnicos </h2>
+  <dd>
+    <p class="DESC">El
+chip de sonido YMF262 se vendi&oacute; en su mayor&iacute;a en un
+paquete SOP de 24-pin que es (desafortunadamente) dif&iacute;cil de
+manejar para los principiantes en soldadura. Provee una interfaz
+paralela de 8bit para los registros, requiere una fuente de reloj
+estable de 14.318 MHz y uno o dos DACs separados (YAC512). La interfaz
+paralela se conecta directamente al puerto LCD del m&oacute;dulo <a href="mbhp_core.html">MBHP_CORE</a>&nbsp;,
+la mayor&iacute;a de los pines se comparten con la LCS para reducir el
+conteo de pin IO. Las salidas del&nbsp; DAC est&aacute;n conectadas
+directamente al YAC512. La mayor&iacute;a de las tarjetas de sonido
+vienen con un s&oacute;lo par de&nbsp;YMF/YAC&nbsp; (Nunca he visto una
+tarjeta con dos YAC512) lo que resulta en 2 canales de audio. Con un
+YAC512 adicional, habr&aacute; 4 canales disponibles, lo que es
+especialmente &uacute;til si hay que enrutar las salidas por diferentes
+efectos externos.</p></dd><dd><p class="DESC">Cada YAC512 requiere un
+amp quad-OP para voltajes de referencia y el fase
+sample&amp;hold&nbsp;. Las salidas de las fases S&amp;H se cargan de
+nuevo por un tercer amp OP, que act&uacute;a como un filtro de bajo
+paso, antes de que la se&ntilde;al vaya a los jacks de audio.</p>
+    <p class="DESC">Recuerda
+que los amps OP se alimentan desde una fuente de voltaje balanceada
+(+/- 12V). Especifiqu&eacute; este amplio rango de voltaje dado que
+permite coger el mismo PSU que el m&oacute;dulo <a href="mbhp_aout.html">MBHP_AOUT</a>&nbsp;. Los TL074s pueden ser alimentados alternativamente desde &nbsp;+/-5V hasta +/-18V.
+  
+</p></dd></dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Disponibilidad </h2>
+  <dd>
+    <p class="DESC">No
+es tan f&aacute;cil encontrar un distribuidor que a&uacute;n tenga los
+YMF262/YAC512 en stock y los venda en peque&ntilde;as
+cantidades(-&gt;prueba en <a href="http://www.ic-distributors.com/HTML_ICD_Y.shtml" target="_blank">este sitio</a>). En cualquier caso, la comunidad&nbsp;MIDIbox ya ha organizado un pedido al mayor (<a href="http://www.midibox.org/forum/index.php?topic=3696.0">ver este post del Foro</a>), y son factibles futuros pedidos si hay suficiente gente interesada.</p></dd><dd>
+    <p class="DESC">Otra
+manera de conseguir los valiosos chips es sacarlos de viejas tarjetas
+de sonido. As&iacute; es como consegu&iacute; los chips del prototipo-
+compr&eacute; algunas tarjetas viejas en&nbsp;<a href="http://www.ebay.com" target="_blank">Ebay</a>
+por m&aacute;s o menos 1 EUR cada una (la gente no sabe lo que se
+pierde ;-)) y chips SMD desoldados como se describe abajo.
+Desafortunadamente, los vendedores no especifican si tiene un chipset
+OPL3, pero a veces esta informaci&oacute;n est&aacute; disponible en
+alg&uacute;n sitio en la Web. Aqu&iacute; teneis una lista algunas
+tarjetas que s&iacute; tienen OPL3:<br>
+    </p><ul class="CL">
+      <li>Creative Soundblaster Pro II (o Soundblaster Pro 2)</li>
+      <li>Creative Soundblaster 16 (&iexcl;No la versi&oacute;n VALUE&nbsp;!)</li>
+      <li>Creative Soundblaster Pro SCSI</li>
+      <li>Creative Soundblaster 16 SCSI (CT1770)</li>
+      <li>Creative Vibra 16 (CT2260)</li>
+      <li>Creative Vibra 16 (CT2800)</li>
+      <li>Creative Vibra 16 (CT2810)</li>
+      <li>Creative Vibra 16 PnP (CT2890)</li>
+      <li>Creative SB16 MCD (CT1750)</li>
+      <li>Media Vision Pro AudioSpectrum 16</li>
+      <li>Media Vision Jazz 16</li>
+      <li>Media Vision PAS16 LMSI 1992 (IXW-PAS16P)</li>
+      <li>Media Vision PROAUDIO 3D</li>
+      <li>Turtle Beach Tropez Rev 2.0</li>
+      <li>Turtle Beach Monte Carlo (P/N 500.2)</li>
+      <li>ESS AudioDrive</li>
+      <li>Aztech Sound Galaxy</li>
+      <li>Aztech Sound Galaxy Washington 16</li>
+      <li>Aztech Sound Galaxy Nova 16</li>
+      <li>Aztech AZT2316-S</li>
+      <li>Mozart ISA</li>
+      <li>Mediamagic ISP-16</li>
+      <li>TeleVideo teleWave Q32=/SRS (Rev.C)</li>
+      <li>Televideo Telesound Pro16</li>
+      <li>Adlib Gold 1000</li>
+      <li>Windows SOUNDSYSTEM (rev B.)</li>
+      <li>OPTi 930 Soundsystem (S0930S0010)</li>
+    </ul><p></p>
+    <p class="DESC">Tarjetas de sonido que NO tienen chipset OPL3:<br>
+    </p><ul class="CL">
+      <li>Creative Soundblaster 1.0, 1.5, 2.0, Pro</li>
+      <li>Creative Soundblaster 16 VALUE (PNP)</li>
+      <li>todas las tarjetas nuevas que se producen actualmente</li>
+      <li>todas las tarjetas de sonido PCI&nbsp; (busca tarjetas ISA)</li>
+    </ul>
+    <p></p>
+    <p class="INFO">&iexcl;Por favor, d&eacute;jame saber si has encontrado una tarjeta de sonido que sirva que no est&eacute; en la lista!</p>
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Descarga </h2>
+  <dd>
+  </dd><dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Los datos PCB se pueden visionar, modificar y convertir con <a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>M&oacute;dulo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Esquema</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Datos de Base</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Vista r&aacute;pida</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_OPL3_V1</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_opl3.pdf">mbhp_opl3.pdf</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_opl3_v1.brd">mbhp_opl3_v1.brd</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_opl3_v1.gif">mbhp_opl3_v1.gif</a></td>
+    </tr>
+  </tbody></table></dd>
+
+  <dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Informaci&oacute;n adicional</font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Archivo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td>
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Descripci&oacute;n</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_opl3_orderlist.txt">mbhp_opl3_orderlist.txt</a></td>
+      <td class="TABCOLOR2">1k</td>
+      <td class="TABCOLOR2"><a href="http://www.reichelt.de/" target="_blank">lista de pedido para Reichelt</a></td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_opl3_interconnections.pdf">mbhp_opl3_interconnections.pdf</a></td>
+      <td class="TABCOLOR2">7k</td>
+      <td class="TABCOLOR2">Diagrama de interconexi&oacute;n para el m&oacute;dulo CORE/OPL3</td></tr><tr><td class="TABCOLOR2"><a href="http://www.midibox.org/dokuwiki/doku.php?id=bipolar_12v_psu">bipolar_12v_psu</a></td>
+      <td class="TABCOLOR2">Wiki</td>
+      <td class="TABCOLOR2">Art&iacute;culo del Wiki sobre PSUs bipolares (tienen que obtener un voltaje de&nbsp; +/- 12V&nbsp;)</td>
+    </tr>
+  </tbody></table></dd>
+  
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Gu&iacute;a de Desoldadura </h2>
+  <dd>
+  </dd><dd><table cellpadding="0" cellspacing="0">
+    <tbody><tr>
+      <td><img src="mbhp/mbhp_opl3_desolder1.jpg" alt="" border="0" height="210" width="280"></td>
+      <td class="TABCOLOR2">Desoldar
+los YMF262 y YAC512 de una tarjeta de sonido vieja (o compatible) es
+una de las cosas m&aacute;s cr&iacute;ticas de este proyecto ya que
+requiere bastante pr&aacute;ctica. La forma m&aacute;s f&aacute;cil que
+he encontrado es usar un cable de cobre aislado ( que puedes coger de
+un viejo transformador), que debe enroscarse debajo de los pines SMD
+peque&ntilde;os.</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_opl3_desolder2.jpg" alt="" border="0" height="210" width="280"></td>
+      <td class="TABCOLOR2">A&ntilde;ade
+un poco de esta&ntilde;o a los pines y qu&iacute;talo con un aspirador
+de soldadura. Esto no s&oacute;lo quitar&aacute; la nueva soldadura,
+sino que tambi&eacute;n se llevar&aacute; un poco de la soldadura
+anterior. Ahora puedes tirar del cable de cobre mientras la punta de tu
+plancha de soldadura est&aacute; a&uacute;n calentando un poco los
+pines, para levantar los pines de la PCB sin hacerles ning&uacute;n
+da&ntilde;o.!</td>
+      <td class="TABCOLOR2"></td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_opl3_desolder3.jpg" alt="" border="0" height="210" width="280"></td>
+      <td class="TABCOLOR2">Tienes que hacer lo mismo en el YAC512.<br>Es mejor probar antes con otros chips SMD.<br>Muy importante: &iexcl;no calientes demasiado los chips!!!</td>
+      <td class="TABCOLOR2"></td>
+    </tr>
+  </tbody></table></dd>
+  
+</dl><dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Gu&iacute;a de soldadura </h2>
+  <dd>
+  </dd><dd><table cellpadding="0" cellspacing="0">
+    <tbody><tr>
+      <td><img src="mbhp/mbhp_opl3_1.jpg" alt="" border="0" height="210" width="280"></td>
+      <td class="TABCOLOR2">Al
+principio hay que montar los chips SMD en la parte de abajo de la PCB.
+Solo suelda un poco de esta&ntilde;o a los pads, aseg&uacute;rate de
+que no haya esta&ntilde;o entre las pistas (!), pon el chip y dirige
+cada pin un poquito.<br><b>Nota:</b> &iexcl;es absolutamente necesario un soldador con punta peque&ntilde;a !</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_opl3_2.jpg" alt="" border="0" height="210" width="280"></td>
+      <td class="TABCOLOR2">El
+segundo YAC512 es un chip opcional para dos canales de audio. En una
+sound blaster com&uacute;n solo habr&aacute; un YAC512, esto significa
+que tendr&aacute;s que comprar dos tarjetas. Si solo tienes una, solo
+tienes que dejar abiertos los pads del segundo YAC512.</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_opl3_3.jpg" alt="" border="0" height="210" width="280"></td>
+      <td class="TABCOLOR2">Ahora a&ntilde;ade los 8 puentes en la parte de arriba de la PCB.</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_opl3_4.jpg" alt="" border="0" height="210" width="280"></td>
+      <td class="TABCOLOR2">Monta
+cada parte, pero deja fuera de los sockets en TL074 para revisar los
+voltajes. Pon la coneci&oacute;n de +5V de&nbsp; J2 del m&oacute;dulo
+core y comprueba que el LED verde est&eacute; encendido. Si no lo
+est&aacute;, es probable que tengas un corto en la PCB! Quita la fuente
+de alimentaci&oacute;n&nbsp;<b>inmediatamente </b>y revisa visualmente en busca del error.<br>Despu&eacute;s conecta la fuente de alimentaci&oacute;n de +12V/-12V&nbsp;. Si el LED brilla m&aacute;s, qu&iacute;tala&nbsp;<b>inmediatamente</b> y busca errores de soldadura. Mide los voltajes en los pines 4 y 11 del TL074 (ver esquema).</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_opl3_5.jpg" alt="" border="0" height="218" width="280"></td>
+      <td class="TABCOLOR2">Finalmente
+desenchufa las fuentes de alimentaci&oacute;n, pon los TL074s en sus
+sockets, y a&ntilde;ade las conexiones adicionales como se describe en <a href="mbhp/mbhp_opl3_interconnections.pdf">mbhp_opl3_interconnections.pdf</a><br>
+En la secci&oacute;n de&nbsp; <a href="mios_download.html">Descargas MIOS</a>
+puedes encontrar un programa de pruebas, que te permite comprobar las
+interconexiones (sigue las instrucciones del archivo main.asm).
+Tambi&eacute;n hay una aplicaci&oacute;n de prueba de tono, que
+env&iacute;a un tono de 1kHz por los 4 canales.</td>
+    </tr></tbody></table></dd></dl>
+
+
+FOOTER

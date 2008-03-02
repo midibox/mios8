@@ -1,0 +1,199 @@
+HEADER 3 Low-Cost MIDI-Knobbox
+
+<A HREF="midibox_de.html">--> Genug von dem alten Zeug, zur&uuml;ck zur MIDIbox Hauptseite</A>
+
+<CENTER><H1>Low-Cost MIDI-Knobbox</H1></CENTER>
+<CENTER><H1>* * * E X P I R E D * * *</H1></CENTER>
+<CENTER><H3>Erstellt im Juni 1998, Ver&ouml;ffentlicht in Elektor 2/2000</H3></CENTER>
+
+<P><CENTER><IMG SRC="midibox/midibox_foto.jpg" width=575></CENTER></P>
+
+<A NAME="Hardware"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Die Hardware </H2></DT>
+   <DD>
+<P CLASS=DESC>Das Herzst&uuml;ck der MIDIbox besteht aus einem PIC 16F84 von
+<A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>, der mit 10 MHz getaktet ist
+und somit eine ausreichend hohe Performance zum Handling der Potentiomenter
+und zum Versenden der MIDI-Messages bietet.</P>
+<P CLASS=DESC>Als AD-Umsetzer kommt ein MAX 186 von <A HREF="http://www.maxim-ic.com" TARGET="_blank">Maxim</A>
+zum Einsatz, den ich eigentlich nur deshalb ausgew&auml;hlt habe, weil er sich
+sehr einfach &uuml;ber wenige Pins ansteuern l&auml;sst und zudem
+bereits einen 8-Kanal-Multiplexer f&uuml;r die Potis enth&auml;lt.</P>
+   </DD>
+</DL>
+
+<A NAME="Software"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Die Software </H2></DT>
+   <DD>
+<P CLASS=DESC>Die Software war schnell geschrieben, die Testphase dauerte umso
+l&auml;nger... Konzeptionell habe ich mit der Zeit einiges umgeworfen, doch
+mittlerweile kann zumindest ich mit der MIDIbox ziemlich effektiv arbeiten.
+Das Source-Listing der MIDIbox 1 befindet sich <A HREF="midibox/midibox_source.asm">hier</A>
+(ACHTUNG: es gibt mittlerweile ein <A HREF="old_midibox_plus_de.html">komplettes Redesign!</A>).
+Sorry wegen des Spagetti-Codes, aber ein PIC l&auml;sst sich aufgrund des
+sehr kleinen Programmspeichers nicht so strukturiert wie gewohnt programmieren. :-(</P>
+<P CLASS=DESC>Falls sich jemand mit der PIC-Programmierung auskennt, kann er nat&uuml;rlich
+jederzeit den Code erweitern, um bspw. die MIDIbox auf andere Soundkarten oder Synthesizer
+abzustimmen. 
+   </DD>
+</DL>
+</A>
+
+<A NAME="Layers"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Die verf&uuml;gbaren Layer </H2></DT>
+   <DD>
+<P CLASS=DESC>F&uuml;r Software-Synthesizer stehen zwei Layer zur Verf&uuml;gung, dass heisst,
+es k&ouml;nnen insgesamt 16 Einstellungen &uuml;ber die MIDIbox angesteuert werden. Die
+Controller-Nummern von Layer 1 und 2 sind:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>1</P></TD>
+<TD><P CLASS=SMALLDESC>$10 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$11 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$12 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$13 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$14 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$15 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$16 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$17 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>2</P></TD>
+<TD><P CLASS=SMALLDESC>$18 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$19 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1f XX</P></TD>
+</TR>
+</TABLE>
+
+<P CLASS=DESC>Der EMU Chip l&auml;sst sich am einfachsten &uuml;ber den MIDI-Monitor (erfordert
+einen weiteren MIDI-In-Kanal zum Anspielen der Noten) oder &uuml;ber einen Sequenzer
+ansteuern. Um die wichtigsten Parameter des EMU zu erreichen, br&auml;uchte man
+eigentlich mehr als 8 Potis. Aus diesem Grund habe ich die Parameter in vier Gruppen eingeteilt,
+die im Layer 3-6 anzuw&auml;hlen sind:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>3</P></TD>
+<TD><P CLASS=SMALLDESC>Volume</P></TD>
+<TD><P CLASS=SMALLDESC>Panorama</P></TD>
+<TD><P CLASS=SMALLDESC>Expression</P></TD>
+<TD><P CLASS=SMALLDESC>Modulation</P></TD>
+<TD><P CLASS=SMALLDESC>LP CutOff</P></TD>
+<TD><P CLASS=SMALLDESC>LP Reson.</P></TD>
+<TD><P CLASS=SMALLDESC>Chorus</P></TD>
+<TD><P CLASS=SMALLDESC>Reverb</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>4</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1 Freq.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->Vol.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->CutOff</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2 Freq.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2->Pitch</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>5</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Hold</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Decay</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Sustain</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Release</P></TD>
+<TD><P CLASS=SMALLDESC>Env1->Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>Env1->CutOff</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>6</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Hold</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Decay</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Sustain</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Release</P></TD>
+<TD><P CLASS=SMALLDESC>- </P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+</TR>
+</TABLE>
+
+   </DD>
+</DL>
+
+<A NAME="Nachbauen"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Nachbauen </H2></DT>
+   <DD>
+<P CLASS=DESC>Der Nachbau der MIDIbox d&uuml;rfte nicht allzu schwierig sein,
+sofern man mit dem L&ouml;tkolben umzugehen weiss. Um die Software in den PIC
+zu bekommen ist leider ein Programmer-Kit notwendig. Ich verf&uuml;ge gl&uuml;cklicherweise
+&uuml;ber ein Picstart Plus-Kit (bei Elektor gewonnen :), das jedoch nicht
+gerade billig ist. Meines Wissens existieren aber auch Minimal-Kits im Internet,
+die sich &uuml;ber die Parallele Schnittstelle eines PCs ansteuern lassen.
+Besonders empfehlenswert halte ich den <A HREF="http://www.rotgradpsi.de/mc/" TARGET="_blank">Minimal-Programmer</A> 
+von Martin Clausen, der mit wenig Aufwand nachzubauen ist und sogar 16F87x-PICs
+f&uuml;r die MIDIbox Plus brennen kann.<BR>
+Wenn Dir der Aufwand zum Bau eines Programmers zu gross ist, bin ich auch bereit, 
+kostenlos einen PIC zu brennen, sofern er mir per Post zusammen mit dem R&uuml;ckporto 
+zugeschickt wird.</P>
+   </DD>
+</DL>
+
+<A NAME="Ergebnisse"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Ergebnisse </H2></DT>
+   <DD>
+<I>FUN FUN FUN !!!</I>
+<P CLASS=DESC>Erst mit der MIDIbox ist mir klar geworden, wie sehr mich Tastatur- 
+und Mausbedienung bisher am Sound-T&uuml;fteln hinderten, und wieviel man
+aus einer AWE64 herausholen kann, ohne irgendwelche Samples zu klauen.<BR>
+Drei kleine H&ouml;rbeispiele sollen belegen, welche Sounds meine AWE64 nach l&auml;ngeren
+Schrauborgien pl&ouml;tzlich ausspuckte:</P>
+   <DL>
+      <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="http://www.ucapps.de/mp3/midibox/bsp1.mp3">bsp1.mp3</A> <FONT SIZE=-1> <I>(140k)</I> LFO-Spielereien </FONT></DT>
+      <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="http://www.ucapps.de/mp3/midibox/bsp2.mp3">bsp2.mp3</A> <FONT SIZE=-1> <I>(154k)</I> Drum-Jam </FONT></DT>
+      <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="http://www.ucapps.de/mp3/midibox/bsp3.mp3">bsp3.mp3</A> <FONT SIZE=-1> <I>(119k)</I> Techno-Sequenz (habe ich mal aus dem Radio aufgeschnappt... ;) </FONT></DT>
+   </DL>
+
+   </DD>
+</DL>
+
+FOOTER

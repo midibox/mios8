@@ -1,0 +1,185 @@
+HEADER 3 Low-Cost MIDI Knobbox
+
+<A HREF="midibox.html">--> Enough from the old stuff, go back to the MIDIbox page</A>
+
+<CENTER><H1>Low-Cost MIDI-Knobbox</H1></CENTER>
+<CENTER><H1>* * * E X P I R E D * * *</H1></CENTER>
+<CENTER><H3>Created in June 1998, published in Elektor 2/2000</H3></CENTER>
+
+<P><CENTER><IMG SRC="midibox/midibox_foto.jpg" width=575></CENTER></P>
+
+<A NAME="Hardware"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> The Hardware </H2></DT>
+   <DD>
+<P CLASS=DESC>The main part of the MIDIbox is the Microcontroller PIC 16F84 by 
+<A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>, which is clocked
+with 10 MHz. It gives enough performance to handle the potentiometers and to
+send MIDI data. The AD converter MAX 186 by <A HREF="http://www.maxim-ic.com" TARGET="_blank">Maxim</A>
+is used to measure the voltage from the potentiometers and convert it into
+digital data streams. And thats nearly all of the Box. Yeah, its really simple. :)
+   </DD>
+</DL>
+
+<A NAME="Software"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> The Software </H2></DT>
+   <DD>
+<P CLASS=DESC>The software was developed very quickly, the test phase took much
+longer. New concepts, new routines... but now the handling is very
+effective. The final source code of MIDIbox 1 is <A HREF="midibox/midibox_source.asm">here</A>.
+But look up for the <A HREF="old_midibox_plus.html">completly re-design</A>!
+I appologize for the spagetti code, but compress a complex program into 1k
+program memory must take compromises. If you are firm with PIC programming, you
+can extend the source code by your needs.
+   </DD>
+</DL>
+
+<A NAME="Layers"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Layers </H2></DT>
+   <DD>
+<P CLASS=DESC>Two layers are available for software synthesizers. This mean, you can change 16 parameters with your MIDIbox. The Layer 1 and 2 Map:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>1</P></TD>
+<TD><P CLASS=SMALLDESC>$10 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$11 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$12 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$13 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$14 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$15 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$16 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$17 XX</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>2</P></TD>
+<TD><P CLASS=SMALLDESC>$18 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$19 XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1a XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1b XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1c XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1d XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1e XX</P></TD>
+<TD><P CLASS=SMALLDESC>$1f XX</P></TD>
+</TR>
+</TABLE>
+
+<P CLASS=DESC>Also the MIDIbox supports controlling soundcards with EMU chip like AWE and Soundblaster Live! You can play with your EMU soundcard over a MIDI monitor with MIDI thru function or with a sequencer. The Map for the EMU Chip is:</P>
+
+<TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 WIDTH=525>
+<TR>
+<TH><P CLASS=INFO>Layer</P></TH>
+<TH><P CLASS=INFO>Pot1</P></TH>
+<TH><P CLASS=INFO>Pot2</P></TH>
+<TH><P CLASS=INFO>Pot3</P></TH>
+<TH><P CLASS=INFO>Pot4</P></TH>
+<TH><P CLASS=INFO>Pot5</P></TH>
+<TH><P CLASS=INFO>Pot6</P></TH>
+<TH><P CLASS=INFO>Pot7</P></TH>
+<TH><P CLASS=INFO>Pot8</P></TH>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>3</P></TD>
+<TD><P CLASS=SMALLDESC>Volume</P></TD>
+<TD><P CLASS=SMALLDESC>Panorama</P></TD>
+<TD><P CLASS=SMALLDESC>Expression</P></TD>
+<TD><P CLASS=SMALLDESC>Modulation</P></TD>
+<TD><P CLASS=SMALLDESC>LP CutOff</P></TD>
+<TD><P CLASS=SMALLDESC>LP Reson.</P></TD>
+<TD><P CLASS=SMALLDESC>Chorus</P></TD>
+<TD><P CLASS=SMALLDESC>Reverb</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>4</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1 Freq.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->Vol.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO1->CutOff</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2 Freq.</P></TD>
+<TD><P CLASS=SMALLDESC>LFO2->Pitch</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>5</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Hold</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Decay</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Sustain</P></TD>
+<TD><P CLASS=SMALLDESC>Env1 Release</P></TD>
+<TD><P CLASS=SMALLDESC>Env1->Pitch</P></TD>
+<TD><P CLASS=SMALLDESC>Env1->CutOff</P></TD>
+</TR>
+
+<TR>
+<TD><P CLASS=DESC>6</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Delay</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Attack</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Hold</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Decay</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Sustain</P></TD>
+<TD><P CLASS=SMALLDESC>Env2 Release</P></TD>
+<TD><P CLASS=SMALLDESC>- </P></TD>
+<TD><P CLASS=SMALLDESC>-</P></TD>
+</TR>
+</TABLE>
+
+   </DD>
+</DL>
+
+<A NAME="How to build it"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Nachbauen </H2></DT>
+   <DD>
+<P CLASS=DESC>Its easy to build the Box, you can do it yourself without
+much effort, if you know the right end of the soldering iron. To put
+the software into the PIC, you need the PICplus programmer kit or one
+of the minimal programmer, which are available in the internet. I would
+comment the <A HREF="http://www.rotgradpsi.de/mc/" TARGET="_blank">minimal programmer</A>
+by Martin Clausen which is easy to build and can also burn the
+16F87x for MIDIbox Plus!<BR>
+Anyway, if you see no chance to program the PIC, I can do it for you. You only
+have to send a PIC to me. I will get no money for this, but don't forget 
+to send me also some stamps for shipping.
+   </DD>
+</DL>
+
+<A NAME="Results"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Ergebnisse </H2></DT>
+   <DD>
+<I>FUN FUN FUN !!!</I>
+<P CLASS=DESC>With the MIDIbox I realize, that keyboard and mouse is
+only a handicap when making music. Now I create my own sounds without
+stole it from soundfont archives. Yeah, its really cool. :)
+Here are some examples which were recorded at the first week after
+the MIDIbox was running:</P>
+   <DL>
+      <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="http://www.ucapps.de/mp3/midibox/bsp1.mp3">bsp1.mp3</A> <FONT SIZE=-1> <I>(140k)</I> LFO experiments </FONT></DT>
+      <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="http://www.ucapps.de/mp3/midibox/bsp2.mp3">bsp2.mp3</A> <FONT SIZE=-1> <I>(154k)</I> Drum Jam </FONT></DT>
+      <DT> <IMG SRC="images/bullet.gif" ALT=""> <A HREF="http://www.ucapps.de/mp3/midibox/bsp3.mp3">bsp3.mp3</A> <FONT SIZE=-1> <I>(119k)</I> Techno-Sequence (melody taken from radio... ;) </FONT></DT>
+   </DL>
+
+   </DD>
+</DL>
+
+FOOTER

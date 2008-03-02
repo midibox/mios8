@@ -1,0 +1,352 @@
+HEADER 3 MIDIbox FM User Manual
+
+<H1>MIDIbox FM User Manual</H1>
+
+<P><CENTER><A HREF="midibox_fm/mbfm_frontpanel.gif"><IMG SRC="midibox_fm/mbfm_frontpanel.jpg" width=575 height=109"></A></CENTER></P>
+
+<P CLASS=INFO>This User Manual is relevant for all people who are interested in extending their <A HREF="midibox_fm.html">MIDIbox FM</A> by a control surface. Users who are planning to build the low-cost solution (MBHP_CORE+MBHP_OPL3 only) will find some informations about the available sound parameters (which alternatively can be changed via SysEx by using the <A HREF="jsynthlib.html">JSynthLib</A> based editor) in the menu descriptions at the end of this page.</P>
+
+<P CLASS=INFO>The MIDIbox FM Control surface provides a similar user interface like the well established <A HREF="midibox_sid_cs.html">MIDIbox SID CS</A> with some small modifications which consider the special features of the FM synth. More than 450 parameters are accessible from the menus, which are held in "flat hierarchies" to avoid that click-doubleclick-tripleclick horror known (and disregarded) from common rack synth modules.</P>
+
+<P CLASS=INFO>The huge number of parameters restricts the flexibility in possible configurations. E.g., the use of a 2x40 LCD is strongly recommented so that the patch names of all instruments are visible on the main screen. In some submenus the parameters are arranged in a way which makes a quick access to relevant values only possible if eight values are visible (and selectable via soft-buttons) at once - example: the EG5 envelope page with the parameters Attack - AttackLevel - Decay1 - DecayLevel - Decay2 - Sustain - Release - Curve -..." in the leftmost view, and all depths in the rightmost view of the page. With a 2x16 display only three menu entries are visible, with a 2x20 display only four. A double-2x40 solution is not supported since two LCDs would affect the performance of the synth engine too much.</P>
+
+<P CLASS=INFO>At least one rotary encoder for the "data dial" is required to change the currently selected parameter. Four additional encoders are used as V-Pots for quick access to the most important parameters. Analog pots cannot be connected since they don't allow a jumpless free handling when switching between the instruments/operators/V-Pot views. Also the oftenly requested "mega-pot programmer solution" with dedicated pots for each operator value doesn't really improve the handling (even with a so called soft-overtake function) - unfortunately most people only understand this once they are starting to change between different patches. ;-)</P>
+
+<P CLASS=INFO>The V-Pot view can be changed with the "selection matrix", which consists of 6x4 LEDs and 6+4 buttons. Each time a matrix button is pressed, the LED of the appr. selected V-Pot view will lit and the LCD will change immediately to the menu which matches with the selection (the menu switching can be optionally disabled from the CFG menu if it disturbs the personal workflow). This handling has two advantages: it gives a fast access to the menu pages, and it allows to change the most important parameters in a different manner (e.g. access to the volume of all four operators at the same time without selecting the OP before). The User views can be customized in the source code (cs_menu_tables.inc) for own needs.
+
+<P CLASS=INFO>Fast access between the operators is possible with the four OP select buttons at the left side. These buttons behave like "radio buttons" if only one is pressed for a quick change between the OP pages. It's also possible to select multiple operators by holding one, and pushing the additional OP buttons - in this case every parameter change affects all selected operators at once.</P>
+
+<P CLASS=INFO>The same selection handling is provided for the four instruments. It's even possible to set a parameter of four OPs and four instruments to the same value at the same time (nice for quick changes on stacked sounds).</P>
+
+<P CLASS=INFO>The Instr/OP button toggles between Instrument/Operator selection (this saves four additional buttons)</P>
+
+<H2>Main Screen</H2>
+
+<IMG SRC="midibox_fm/cs/main_inst.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>This page is displayed after power-on, it shows the ensemble bank/number, the selected instrument (multi-selections are only displayed by LEDs), the patch bank/number, the full patch name, the MIDI channel, and the assigned audio channels (an OR operation between the OP12 and OP34 assignments).<BR>The data dial changes the selected patch(es) in this menu, each soft button has the same function: switching to the top of the menu structure</P>
+
+<IMG SRC="midibox_fm/cs/main.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>This is an alternative view (called "full view") which can be selected within the CFG menu page. This view shows the patch names of the four instruments (partly, since a patch name consists of 16 characters, but only 9 characters are displayed here), the appr. bank and patch numbers and the MIDI channels. The '*' marker indicates which instruments are selected.</P>
+
+<H2>Menu Top</H2>
+
+<IMG SRC="midibox_fm/cs/menu_top.gif" width=602 height=38 ALT=""></IMG>
+
+<P CLASS=INFO>10 Menu entries are selectable here. The AOUT and USER item will get visible when you scroll the page to the right with the data dial. Each soft button selects the submenus, which are described below.</P>
+
+<H2>ENS (Ensemble) Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_ens.gif" width=451 height=19 ALT=""></IMG>
+
+<P CLASS=DESC>From now on some LCD pages are demonstrated in a small font to improve the readability of this manual. In reality never more than 8 items are visible at the screen, the "page view" can be scrolled with the data dial. If an item is selected with a soft button, the data dial is used to modify the parameter value instead. If the ESC button is pressed, the page can be scrolled again. If the ESC button is pressed once more, the previous menu will be activated.</P>
+
+<P CLASS=DESC>In the ensemble page some general instrument parameters can be edited which are saved in the environment setup and not in the patches.
+<UL>
+  <LI><B>EBnk</B>: the BankStick in which the environment setup is stored</LI>
+  <LI><B>Ens.</B>: the environment number</LI>
+  <LI><B>Inst</B>: selects the instruments which should be modified, but it's normaly faster to use the appr. select buttons of the control surface for that.</LI>
+  <LI><B>IBnk</B> and <B>Ptch</B>: the bank and patch number of the instrument.</LI>
+  <LI><B>Name</B>: selects a special edit mode for the patch name <IMG SRC="midibox_fm/cs/edit_name.gif" width=482 height=38 ALT=""></IMG></LI>
+  <LI><B>Chan</B>: the MIDI Channel of the instrument</LI>
+  <LI><B>SPLw</B>/<B>SPUp</B>: defines the lower and upper keyboard limit in between the instrument can be played. By changing the limits (and the transpose value) it's possible to realize split points, so that different instruments can be played on a single channel independent from each other.</LI>
+  <LI><B>Vol.</B>: the main volume which affects all carrier volumes. With Vol=64 the carrier volumes won't be affected, with Vol<64 the volumes will be damped, with Vol>64 they will be amplified.</LI>
+  <LI><B>Vel.</B>: the velocity sensitivity (<I>Flat</I>/<I>Hard</I>/<I>Soft</I>) which also influences the resulting carrier volumes</LI>
+  <LI><B>Tran</B>: transpose the voices by -64 .. 63 semitones</LI>
+  <LI><B>Uni.</B>: Unisono - a very special feature which spreads the stereo spectrum by playing two voices slightly detuned at different audio channels. The value defines how much the voices are detuned. The negative detuned voice will be played at channel 1 and/or 3 (depends on which channels are activated), the positive detuned voice at channel 2 and/or 4.</LI>
+  <LI><B>OP12</B>: selects the audio channels to which the first operator pair (output of the first carrier) will be routed</LI>
+  <LI><B>OP34</B>: selects the audio channels to which the second operator pair (output of the second carrier) will be routed</LI>
+</UL>
+</P>
+
+<H2>INS (Instrument) Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_ins.gif" width=541 height=19 ALT=""></IMG>
+
+<P CLASS=DESC>In the instrument page all general instrument parameters can be edited which are saved in the patch memory and not part of the operators.
+<UL>
+  <LI><B>Inst</B>: selects the instruments which should be modified, but it's normaly faster to use the appr. select buttons of the control surface for that.</LI>
+  <LI><B>Play</B>: selects the play mode: <I>Mono</I> (always a single voice will be played), <I>Legato</I> (like Mono, but the gate won't be retriggered if more than one note is played), <I>Poly</I> up to 6 voices can be played at once.</LI>
+  <LI><B>Con.</B>: the connections between the operators, also known as "algorithms". The OPL3 provides (only) 4 algorithms:<BR>
+
+  <TABLE ALIGN=CENTER CELLSPACING=5 CELLPADDING=5>
+    <TR>
+      <TD> <IMG SRC="midibox_fm/cs/alg_0.gif" width=111 height=76 ALT=""><I>F*F</I></IMG> </TD>
+      <TD> <IMG SRC="midibox_fm/cs/alg_1.gif" width=111 height=76 ALT=""><I>1+F</I></IMG> </TD>
+    </TR>
+    <TR>
+      <TD> <IMG SRC="midibox_fm/cs/alg_2.gif" width=111 height=76 ALT=""><I>F+F</I></IMG> </TD>
+      <TD> <IMG SRC="midibox_fm/cs/alg_3.gif" width=111 height=76 ALT=""><I>AFA</I></IMG> </TD>
+    </TR>
+  </TABLE>
+  </LI>
+  <LI><B>Fdbk</B>: it's possible to feedback the output of OP1 to its input. Only a value range of 0-7 is provided (OPL3 limitation)
+  <LI><B>PRng</B>: the pitchrange which defines at how much semitones the pitchwheel can transpose a note. It also defines the range of the Finetune parameter</LI>
+  <LI><B>Fine</B>: allows to detune the voice frequency slightly. Especially nice on stacked sounds to make it fat.</LI>
+  <LI><B>Port</B>: portamento effect (slide)</LI>
+  <LI><B>SusK</B>: SusKey - if enabled, the portamento will only be activated if more than one note is played</LI>
+  <LI><B>MSyn</B>: MIDI Synchronization, allows to synchronize the wavetable sequencer (<I>W</I>), the LFOs (<I>L</I>) and/or the EG5 envelope (<I>E</I>) to the incoming MIDI clock</LI>
+  <LI><B>VCC</B>, <B>MCC</B>, <B>ACC</B>: it is possible to assign a CC to the velocity/modulation wheel/aftertouch intensity. The CC target is defined here</LI>
+  <LI><B>VIni</B>, <B>MIni</B>, <B>AIni</B>: The initial value which is taken when the modulation source is at the lowest level has to be defined here. The initial value is normaly set to 0 if depth > 0, or to the maximum value of the CC parameter if the depth is < 0</LI>
+  <LI><B>VDep</B>, <B>MDep</B>, <B>ADep</B>: the depth which the modulation source applies to the CC target is defined here (-64..63)</LI>
+</UL>
+</P>
+
+<H2>OP (Operator) Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_op.gif" width=391 height=19 ALT=""></IMG>
+
+<P CLASS=DESC>In this page all parameters which relate to the operators can be modified:
+<UL>
+  <LI><B>OP</B>: selects the operator(s) which should be modified, but it's normaly faster to use the appr. select buttons of the control surface for that.</LI>
+  <LI><B>Wave</B>: selects the waveform of the operator:
+  <TABLE ALIGN=CENTER CELLSPACING=5 CELLPADDING=5>
+    <TR>
+      <TD> <IMG SRC="midibox_fm/cs/ws_0.gif" width=81 height=61 ALT=""><I>1</I></IMG> </TD>
+      <TD> <IMG SRC="midibox_fm/cs/ws_1.gif" width=81 height=61 ALT=""><I>2</I></IMG> </TD>
+      <TD> <IMG SRC="midibox_fm/cs/ws_2.gif" width=81 height=61 ALT=""><I>3</I></IMG> </TD>
+      <TD> <IMG SRC="midibox_fm/cs/ws_3.gif" width=81 height=61 ALT=""><I>4</I></IMG> </TD>
+    </TR>
+    <TR>
+      <TD> <IMG SRC="midibox_fm/cs/ws_4.gif" width=81 height=61 ALT=""><I>4</I></IMG> </TD>
+      <TD> <IMG SRC="midibox_fm/cs/ws_5.gif" width=81 height=61 ALT=""><I>5</I></IMG> </TD>
+      <TD> <IMG SRC="midibox_fm/cs/ws_6.gif" width=81 height=61 ALT=""><I>6</I></IMG> </TD>
+      <TD> <IMG SRC="midibox_fm/cs/ws_7.gif" width=81 height=61 ALT=""><I>7</I></IMG> </TD>
+    </TR>
+  </TABLE>
+  </LI>
+  <LI><B>Vol</B>: if the operator is acting as a modulator, the volume level controls the modulation intensity. For carriers it sets the amplitude.
+  <LI><B>Mult</B>: the multiplier (1-16) which is applied on the operator frequency:
+  <TABLE ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=2>
+    <TR><TD><B>MULT</B></TD><TD>0</TD><TD>1</TD><TD>2</TD><TD>3</TD><TD>4</TD><TD>5</TD><TD>6</TD><TD>7</TD><TD>8</TD><TD>9</TD><TD>10</TD><TD>11</TD><TD>12</TD><TD>13</TD><TD>14</TD><TD>15</TD></TR>
+    <TR><TD><I>Multiplier</I></TD><TD>0.5</TD><TD>1</TD><TD>2</TD><TD>3</TD><TD>4</TD><TD>5</TD><TD>6</TD><TD>7</TD><TD>8</TD><TD>9</TD><TD>10</TD><TD>10</TD><TD>12</TD><TD>12</TD><TD>15</TD><TD>15</TD></TR>
+  </TABLE></LI>
+  <LI><B>Atck</B>: the Attack rate of the envelope (0-15)</LI>
+  <LI><B>Atck</B>: the Decay rate of the envelope (0-15)</LI>
+  <LI><B>Sust</B>: the Sustain level of the envelope (0-15)</LI>
+  <LI><B>Rel.</B>: the Release rate of the envelope (0-15)</LI>
+  <LI><B>Trem</B>: turns tremolo on for the voice (amplitude modulation). The frequency is fixed to 3.7 Hz --- this is an OPL3 internal feature, the LFO of the MBFM sound engine allows more flexible effects</LI>
+  <LI><B>Vibr</B>: turns vibrato on for the voice (low frequency modulation). The frequency is fixed to 6.1 Hz --- this is an OPL3 internal feature, the LFO of the MBFM sound engine allows more flexible effects</LI>
+  <LI><B>EGT</B>: if enabled, the envelope will be sustained until the gate is turned off. If disabled, the sustain phase of the envelope will be ommited - the envelope continues with the release phase immediately while the gate is active.</LI>
+  <LI><B>KSR</B>: the Key Scale Rate - if enabled, the attack/decay becomes faster as the pitch increases.</LI>
+  <LI><B>KSL</B>: the Key Scale Level - if >0 db, the volume decreases as the pitch increases.</LI>
+</UL>
+</P>
+
+
+<H2>LFO (Low-Frequency-Oscillator) Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_lfo.gif" width=361 height=19 ALT=""></IMG>
+
+<P CLASS=DESC>In this page the parameters of the two LFOs can be modified. The LFOs are not part of the OPL3 chip, but "emulated" by the mighty MIDIbox FM sound engine. Each of the 6 voices has its dedicated LFOs (makes 12 LFOs in total which are handled in parallel):
+<UL>
+  <LI><B>LFO</B>: selects LFO1 or LFO2</LI>
+  <LI><B>Wave</B>: selects the waveform of the LFO: Sine, Tri, Saw, Pulse, Random. 2 additional waveforms are reserved for future use</LI>
+  <LI><B>Sync</B>: if enabled, the LFO will be reset with the gate</LI>
+  <LI><B>Phase</B>: the reset value of the LFO waveform which will be taken on sync (0-127)</LI>
+  <LI><B>Rate</B>: the LFO rate. See the <A HREF="midibox_fm/midibox_fm_cc_voice.txt">midibox_fm_cc_voice.txt</A> for the selectable frequencies.</LI>
+  <LI><B>DepP</B>: the LFO depth which is applied on the pitch (voice frequency). The value range of all depths goes from -64..64. A negative depth results into an inverted waveform.</LI>
+  <LI><B>DVo1</B>/<B>DVo2</B>/<B>DVo3</B>/<B>DVo4</B>: the LFO depth which is applied on the operator volumes (-64..63)</LI>
+  <LI><B>DepL</B>: LFO1 can modulate the Rate of LFO2, LFO2 can modulate the Rate of LFO1 (-64..63)</LI>
+  <LI><B>DepA</B>: the LFO depth which is applied to the assigned AOUT (-64..63)</LI>
+</UL>
+</P>
+
+<H2>EG5 (Envelope Generator #5) Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_eg5.gif" width=481 height=19 ALT=""></IMG>
+
+<P CLASS=DESC>In this page the parameters of the fith envelope generator can be modified. The EG5 is not part of the OPL3 chip, but "emulated" by the mighty MIDIbox FM sound engine. In difference to the common EGs, it provides 5 phases. Each of the 6 voices has its dedicated EG5 (makes 6 EG5s in total which are handled in parallel):
+<UL>
+  <LI><B>Atck</B>: the Attack Rate (0-127)</LI>
+  <LI><B>ALvl</B>: the Attack Level (0-127)</LI>
+  <LI><B>Dec1</B>: the Decay Rate of the first decay phase (0-127)</LI>
+  <LI><B>DLvl</B>: the Decay Level of the first decay phase (0-127)</LI>
+  <LI><B>Dec2</B>: the Decay Rate of the second decay phase (0-127)</LI>
+  <LI><B>Sust</B>: the Sustain Level (0-127)</LI>
+  <LI><B>Rel.</B>: the Release Level (0-127)</LI>
+  <LI><B>Curv</B>: an non-linear curve can be applied to the rates (-64..63)</LI>
+  <LI><B>CAs</B>: this setting defines during which phases the non-linear curve is used (Attack/Decay1/Decay2/Release)</LI>
+  <LI><B>DepP</B>: the EG5 depth which is applied on the pitch (voice frequency). The value range of all depths goes from -64..64. A negative depth results into an inverted waveform.</LI>
+  <LI><B>DVo1</B>/<B>DVo2</B>/<B>DVo3</B>/<B>DVo4</B>: the EG5 depth which is applied on the operator volumes (-64..63)</LI>
+  <LI><B>DepL</B>: EG5 can modulate the Rate of LFO1 (-64..63)</LI>
+  <LI><B>DepA</B>: the EG5 depth which is applied to the assigned AOUT (-64..63)</LI>
+</UL>
+</P>
+
+
+<H2>WT (Wavetable Sequencer) Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_wt.gif" width=602 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>In this page the parameters of the wavetable sequencer can be modified. The wavetable consists of up to 32 steps and 3 tracks. Each track can modify a CC parameter with a speed of up to 500 Hz. The available CC parameters are listed in <A HREF="midibox_fm/midibox_fm_cc_voice.txt">midibox_fm_cc_voice.txt</A>.
+<UL>
+  <LI><B>Step</B>: the wavetable step 0-31</LI>
+  <LI><B>Mode</B>: <I>--</I> (ignore this step), <I>Play</I> (play this step), <I>Jump</I> (jump to the step specified in #1), <I>End</I> (stop sequence)</LI>
+  <LI><B>#1</B>, <B>#2</B>, <B>#3</B>: the values which will be forwarded to the CCs. It's possible to specify absolute and relative values. On relative values the current CC will be read, the constant will be added or subtracted, thereafter the CC will be written back - this allows progressive sequence flows</LI>
+  <LI><B>Rate</B>: the speed at which the wavetable sequence will be played</LI>
+  <LI><B>Sync</B>: <I>Note</I> sequencer reset with each new note, <I>Step</I> sequencer will be stepped one forward with each new note, <I>Free</I> wavetable sequencer won't be synced (freerunning mode)</LI>
+  <LI><B>CC#1</B>, <B>CC#2</B>, <B>CC#3</B>: the CC's which are controlled by the sequencer</LI>
+</UL>
+</P>
+
+<H2>DRUM Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_drum.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>MIDIbox FM provides a seperate FM percussion unit which is handled in parallel to the 4 instruments. Each percussion element has its own voice, so that the 6 instrument voices are not affected by heavy drum solos :-)<BR>
+Up to 16 Drumsets can be stored in each BankStick, makes 8*16 = 128 Drumsets in total if 8 BankSticks are connected. The drumset can be selected with the data dial inside this drum menu.</A>.
+
+<H2>DRUM -> BD Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_bd.gif" width=602 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>The Bass Drum consists of a modulator and carrier pair. Optionally the carrier can be used standalone without modulation (AM mode):
+<UL>
+  <LI><B>OP</B>: selects modulator/carrier</LI>
+  <LI><B>Vol.</B>: sets the modulation level / amplitude
+  <LI><B>Mult</B>: the multiplier (1-16) which is applied on the operator frequency (see description of OP page)
+  <LI><B>Wave</B>: selects the waveform of the operator (see description of OP page)
+  <LI><B>Atck</B>, <B>Dec.</B>, <B>Sust</B>, <B>Rel.</B>: controls the envelope of the operator
+  <LI><B>Fdbk</B>: it's possible to feedback the output of the modulator to its input. Only a value range of 0-7 is provided (OPL3 limitation)
+  <LI><B>CON</B>: <I>FM</I>: a modulator/carrier pair is used, <I>AM</I> the carrier is used without modulator
+</UL>
+</P>
+
+<H2>DRUM -> SD Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_sd.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>The Snare Drum:
+<UL>
+  <LI><B>Vol.</B>: sets the amplitude
+  <LI><B>Mult</B>: the multiplier (1-16) which is applied --- this is the only way to change the SD frequency
+  <LI><B>Wave</B>: selects the waveform of the operator (see description of OP page)
+  <LI><B>Atck</B>, <B>Dec.</B>, <B>Sust</B>, <B>Rel.</B>: controls the envelope of the operator
+</UL>
+</P>
+
+<H2>DRUM -> TOM Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_tom.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>The Toms:
+<UL>
+  <LI><B>Vol.</B>: sets the amplitude
+  <LI><B>Mult</B>: the multiplier (1-16) which is applied on the Tom frequency
+  <LI><B>Wave</B>: selects the waveform of the operator (see description of OP page)
+  <LI><B>Atck</B>, <B>Dec.</B>, <B>Sust</B>, <B>Rel.</B>: controls the envelope of the operator
+</UL>
+</P>
+
+<H2>DRUM -> HH Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_hh.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>Two HiHat parameters can be defined, one for "open", another for "closed" HiHat. The parameters are copied into the appr. OPL3 registers depending on the MIDI note which is triggered:
+<UL>
+  <LI><B>HH</B>: switches between Open/Closed HiHat
+  <LI><B>Vol.</B>: sets the amplitude
+  <LI><B>Mult</B>: the multiplier (1-16) which is applied on the HiHat frequency
+  <LI><B>Wave</B>: selects the waveform of the operator (see description of OP page)
+  <LI><B>Atck</B>, <B>Dec.</B>, <B>Sust</B>, <B>Rel.</B>: controls the envelope of the operator
+</UL>
+</P>
+
+<H2>DRUM -> CYM Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_cym.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>The Cymbal:
+<UL>
+  <LI><B>Vol.</B>: sets the amplitude
+  <LI><B>Mult</B>: the multiplier (1-16) which is applied on the Cymbal frequency
+  <LI><B>Wave</B>: selects the waveform of the operator (see description of OP page)
+  <LI><B>Atck</B>, <B>Dec.</B>, <B>Sust</B>, <B>Rel.</B>: controls the envelope of the operator
+</UL>
+</P>
+
+<H2>DRUM -> FRQ Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_frq.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>This submenu allows to change the frequencies of the drum sounds. Due to OPL3 limitations it isn't possible to use independent frequencies on HiHat/Tom/Cymbal (Bass Drum has it's own frequency and the base frequency of the Snare Drum is static and can only be multiplied). This sounds like a big limitation, but in fact the results are very interesting and unique once the frequencies are modulated by the <B>Decr.</B> parameter. This parameter decreases the frequency until it reaches zero on each note trigger</P>
+
+<H2>DRUM -> OUT Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_out.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>This submenu maps the percussion instruments to the four audio outputs. Due to OPL3 limitations Snare/HiHat and Tom/Cymbal are using the same audio path.</P>
+
+<H2>DRUM -> MIDI Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_midi.gif" width=391 height=19 ALT=""></IMG>
+
+<P CLASS=DESC>In this submenu the MIDI channel and the keyboard ranges for the percussion instruments can be modified. If more than one seminote is allocated by a drum voice, the frequency will be increased with every semitone (especially useful for Toms)</P>
+
+<H2>SAVE Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_save.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>This page allows to store the parameter setups into the connected BankSticks:
+<UL>
+  <LI><B>Type</B>: switches between Patch/Drumset/Ensemble
+  <LI><B>Bank</B>: selects BankStick A-H
+  <LI><B>Slot</B>: selects the Patch/Drumset/Ensemble number. Note: if no BankStick is connected, only one Patch, one Drumset and one Ensemble can be saved into the internal EEPROM. Wavetables are only stored in BankSticks (they are not working without)
+  <LI><B>do!</B>: saves your creation
+</UL>
+</P>
+
+<H2>AOUT Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_aout.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=DESC>The AOUT page allows to assign the modulation sources of an instrument to an AOUT channel. Note that analog (CV) outputs are an optional feature which require a <A HREF="mbhp_aout.html">MBHP_AOUT</A> module.</P>
+<UL>
+  <LI><B>AOUT</B>: selects the AOUT channel which should be configured (1-8)
+  <LI><B>Inst</B>: assigns an instrument to the AOUT channel (1-4)
+  <LI><B>Assg</B>: assigns one or more modulation sources to the AOUT channel (L: first LFO, L: second LFO, E: envelope generator EG5) -- the modulation depth has to be adjusted seperately in the LFO/EG5 menu page and is saved with the instrument patch
+  <LI><B>Offs</B>: adds an offset to the modulation sources (-64..63)
+</UL>
+</P>
+
+
+<H2>USER Page</H2>
+
+<IMG SRC="midibox_fm/cs/menu_user.gif" width=481 height=19 ALT=""></IMG>
+
+<P CLASS=DESC>This page contains a parameter set which can be customized in <I>cs_menu_tables.inc</I> for own needs. The first four parameter groups are selected with the USER1/2/3/4 button of the V-Pot selection matrix. Here the default setup:
+<UL>
+  <LI><B>I1Vl</B>, <B>I2Vl</B>, <B>I3Vl</B>, <B>I4Vl</B>: direct access to the instrument volumes</LI>
+  <LI><B>I1Tr</B>, <B>I2Tr</B>, <B>I3Tr</B>, <B>I4Tr</B>: direct access to the transpose values of the instruments</LI>
+  <LI><B>L1Rt</B>, <B>L2Rt</B>, <B>L1DP</B>, <B>L2DP</B>: direct access to the LFO1/2 Rate and LFO1/2 Pitch Depth parameter</LI>
+  <LI><B>BD V</B>, <B>SD V</B>, <B>HHOV</B>, <B>HHCV</B>: direct access to the volumes of Bass Drum, Snare Drum, Open and Closed HiHat</LI>
+</UL>
+</P>
+
+
+<H2>CFG Page (not selectable from menu structure)</H2>
+
+<IMG SRC="midibox_fm/cs/menu_cfg.gif" width=482 height=38 ALT=""></IMG>
+
+<P CLASS=INFO>With the CFG button a special page will be displayed which allows to enable/disable system specific functions and which provide a quick save.
+<UL CLASS=CL><LI><B>Merger</B>: enables/disables the MIDI merger</LI>
+    <LI><B>CC</B>: enables/disables the CC send mode (useful for recording parameter changes with a sequencer)</LI>
+    <LI><B>MJmp</B>: enables/disables automatic menu changes on matrix button selections</LI>
+    <LI><B>SyxD</B>: sends a SysEx dump depending on the current context. At the main page and within the ENS menu the ensemble will be dumped, in the drum menus the Drumset will be dumped, in all other menus the current instrument patch will be dumped.</LI>
+    <LI><B>PSav</B>: saves the current patch (only)</LI>
+    <LI><B>DSav</B>: saves the current drumset</LI>
+    <LI><B>ESav</B>: saves the current ensemble</LI>
+    <LI><B>View</B>: toggles between "instrument view" and "full view" in the main page</LI>
+</UL></P>
+
+
+<H2>Preparation</H2>
+
+<P CLASS=INFO>Once <A HREF="mios.html">MIOS</A> and the <A HREF="midibox_fm.html">MIDIbox FM</A> application have been <A HREF="mios_bootstrap.html">uploaded</A> to the Core module, an E-Piano sound can be played over MIDI channel 1/2/3/4, and drums an be played over MIDI Channel 16.</P>
+<P CLASS=INFO>Without a BankStick only one internal patch, one internal drumset and one internal ensemble is available. Therefore at least one BankStick should be connected to increase the number of available patches to 128 (+16 drumsets +32 ensembles).</P>
+<P CLASS=INFO>A blank BankStick has to be formatted first. This will be done automatically by the application once a new BankStick has been detected (after power-on or during runtime). Note that the formatting procedure takes some time (ca. 2-3 Minutes), during this time no sound can be played. This could be confusing, especially if no LCD is connected, therefore please do your first tests without a BankStick.</P>
+<P CLASS=INFO>After the BankStick has been formatted, the preset patches can be uploaded. These patches are available in the <A HREF="midibox_fm.html">MIDIbox FM</A> download section. The README contains some useful informations about tools which simplify the upload of these .syx files.</P>
+
+FOOTER

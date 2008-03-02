@@ -1,0 +1,75 @@
+HEADER 3 MBHP IIC SpeakJet Module
+
+<h1>Plataforma de Hardware MIDIbox&nbsp;, M&oacute;dulo SpeakJet IIC</h1>
+<h2> &iexcl;&iexcl;&iexcl; Esta p&aacute;gina est&aacute; en construcci&oacute;n !!! </h2>
+<p class="INFO">Comentarios cortos sobre las caracter&iacute;sticas de este m&oacute;dulo:<br>
+</p><ul class="CL">
+  <li>SpeakJet accessible v&iacute;a IIC, ID de dispositivo 0x20, 0x22, 0x24 o 0x26 (seleccionable con dos jumpers en J2)</li>
+  <li>Adicionalmente,
+el SpeakJet se puede controlar desde un puerto COM. Las dos corrientes
+seriales son fusionadas dentro del PIC16F88</li>
+  <li>Para correcci&oacute;n de errores, el dato IIC recibido tambi&eacute;n se redirige a&nbsp;COM Rx</li>
+  <li>La tasa de baudios de SpeakJet est&aacute; configurada en 19200 baudios durante el arranque</li>
+  <li>Circuito de Audio Amp a&uacute;n no es parte del esquema -en el esquema final se incluir&aacute; una buena soluci&oacute;n</li>
+</ul>
+<p></p>
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Aplicaci&oacute;n SpeakJet MIDIbox&nbsp;</h2></dl><dl>
+  <dd>
+    <p class="INFO">Audiocommander
+ha desarrollado una aplicaci&oacute;n para este m&oacute;dulo! Puedes
+encontrar los detalles, firmware y un circuito mejorado en el <a href="http://www.midibox.org/dokuwiki/doku.php?id=midibox_speakjet">Wiki MIDIbox</a>.</p>
+  </dd>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Para Programadores: algoritmo de acceso MBHP_IIC_SPEAKJET&nbsp; </h2>
+  <dd>
+    <p class="DESC">Con
+MIOS V1.9 y superiores, se puede acceder al m&oacute;dulo
+MBHP_IIC_SPEAKJET con las siguientes funciones de transmisi&oacute;n:</p>
+<tt><pre>//  IDs permitidas: 0x20, 0x22, 0x24 or 0x26 <br>// (seleccionable con J2 del m&oacute;dulo MBHP_IIC_SPEAKJET)<br>#define SPEAKJET_SLAVE_ID 0x20<br><br>// esta variable contiene la n&uacute;mero de esclavo actual<br>unsigned char slave;<br><br>/////////////////////////////////////////////////////////////////////////////<br>// Esta funci&oacute;n inicializa la interfaz para MBHP_IIC_SPEAKJET<br>/////////////////////////////////////////////////////////////////////////////<br>void IIC_SPEAKJET_Init(void) __wparam<br>{<br>  MIOS_IIC_Stop();  // init IIC interface<br><br>  slave = 0xff;     // set invalid slave number<br>}<br><br><br>/////////////////////////////////////////////////////////////////////////////<br>// Esta funci&oacute;n empieza una transmisi&oacute;n serial a  SpeakJet<br>// termina en 0 si el dispositivo IIC est&aacute; ocupado o no disponible<br>/////////////////////////////////////////////////////////////////////////////<br>unsigned char IIC_SPEAKJET_TransmitStart(unsigned char _slave) __wparam<br>{<br>  unsigned char retry_ctr;<br><br>  // invalidar n&uacute;mero de esclavo<br>  // (para evitar que TransmitByte env&iacute;e algo si el esclavo no est&aacute; disponiible)<br>  slave = 0xff;<br><br>  // inicia acceso IIC<br>  MIOS_IIC_Start();<br><br>  // env&iacute;a direcci&oacute;n<br>  retry_ctr = 0;<br>  while( !MIOS_IIC_ByteSend((SPEAKJET_SLAVE_ID &amp; 0xfe) + (_slave &lt;&lt; 1)) ) {<br>    // el esclavo ha enviado un NAK - reintentar 255 veces<br>    MIOS_IIC_Stop();<br>    if( ++retry_ctr == 255 )<br>      return 0;<br>    MIOS_IIC_Start();<br>  }<br><br>  // almacena n&uacute;mero de esclavo<br>  slave = _slave;<br><br>  return 1;<br>}<br><br>/////////////////////////////////////////////////////////////////////////////<br>// Esta funci&oacute;n env&iacute;a un byte al SpeakJet<br>// la transferencia debe ser iniciada primero v&iacute;a IIC_SPEAKJET_TransmitStart <br>// termina en 0 si el dispositivo IIC est&aacute; ocupado o no disponible<br>/////////////////////////////////////////////////////////////////////////////<br>unsigned char IIC_SPEAKJET_TransmitByte(unsigned char value) __wparam<br>{<br>  unsigned char retry_ctr;<br><br>  if( slave == 0xff )<br>    return 0;<br><br>  // env&iacute;a byte<br>  retry_ctr = 0;<br>  while( !MIOS_IIC_ByteSend(value) ) {<br>    // el esclavo ha enviado un NAK - reintentar<br>    // &iexcl; hay que enviar de nuevo la direcci&oacute;n!!<br>    if( !IIC_SPEAKJET_TransmitStart(slave) )<br>      return 0;<br>  }<br><br>  // Se ha transmitido el paquete completo&nbsp;</pre></tt></dd><dd><tt><pre>return 1;<br>}<br><br>/////////////////////////////////////////////////////////////////////////////<br>// Esta funci&oacute;n termina una transferencia al  SpeakJet<br>/////////////////////////////////////////////////////////////////////////////<br>void IIC_SPEAKJET_TransmitStop(void) __wparam<br>{<br>  // detiene acceso IIC<br>  MIOS_IIC_Stop();<br><br>  // invalidar n&uacute;mero de esclavo<br>  // (para evitar que el esclavo mande algo antes de que haya empezado la transferencia)<br>  slave = 0xff;<br>}<br></pre></tt><p></p>
+<p class="DESC">Ejemplo que solo redirige los Eventos de Nota entrantes hacia el SpeakJet:</p>
+<tt><pre>/////////////////////////////////////////////////////////////////////////////<br>// MIOS llama a esta funci&oacute;n despu&eacute;s del arranque para inicializar la aplicaci&oacute;n<br>/////////////////////////////////////////////////////////////////////////////<br>void Init(void) __wparam<br>{<br>  // init interface to MBHP_IIC_SPEAKJET<br>  IIC_SPEAKJET_Init();<br>}<br><br>/////////////////////////////////////////////////////////////////////////////<br>// MIOS llama a esta funci&oacute;n cuando se ha recibido un evento MIDI completo<br>/////////////////////////////////////////////////////////////////////////////<br>void MPROC_NotifyReceivedEvnt(<br>  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam<br>{<br>  if( evnt0 == 0x90 ) {<br>    IIC_SPEAKJET_TransmitStart(0);<br>    IIC_SPEAKJET_TransmitByte(evnt1 | 0x80);<br>    IIC_SPEAKJET_TransmitStop();<br>  }<br>}<br></pre></tt><p></p>
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Descarga </h2>
+   <dd>
+   </dd><dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">los datos PCB se pueden visionar, modificar y convertir con&nbsp; <a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>M&oacute;dulo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Esquema</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Datos de base</strong></font></td><td class="TABCOLOR1"><font size="2"><strong>Vista r&aacute;pida</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_IIC_SPEAKJET</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_iic_speakjet_prelim.pdf">mbhp_iic_speakjet_prelim.pdf</a></td>
+      <td class="TABCOLOR2">base final en construcci&oacute;n</td>
+      <td class="TABCOLOR2">-</td>
+    </tr>
+  </tbody></table></dd>
+
+  <dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Firmware</font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Archivo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td><td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong><span style="text-decoration: underline;">Descripci&oacute;n</span></strong></font></td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_iic_speakjet_v1_0.zip">mbhp_iic_speakjet_v1_0.zip</a></td>
+      <td class="TABCOLOR2">20k</td>
+      <td class="TABCOLOR2">Este paquete contiene el firmware precompilado y el c&oacute;digo fuente para PIC16F88</td>
+    </tr>
+  </tbody></table></dd></dl>
+<p class="DESC"><b>Nota importante para usuarios del MBHP_CORE_V2:</b>
+Se necesita una resistencia pull-up adicional de 1k entre Vd y la
+l&iacute;nea SC, debe soldarse directamente en CORE::J4 para permitir
+"estrechamiento de reloj" ("clock stretching"). Este es un
+m&eacute;todo para retrasar las transferencias seriales cuando un
+esclavo no puede responder inmediatamente a una petici&oacute;n del
+master. La resistencia pull-up para la l&iacute;nea SD ya est&aacute;
+disponible en el m&oacute;dulo core (CORE::R2).<br>
+Los usuarios de MBHP_CORE_V3 se dr&aacute;n cuenta de que ambas
+resistencias pull-up ya est&aacute;n puestas- &iexcl;No hace falta
+a&ntilde;adir ninguna resistencia adicional!</p>
+
+
+FOOTER

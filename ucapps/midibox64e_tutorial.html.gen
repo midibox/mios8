@@ -1,0 +1,483 @@
+HEADER 3 MIDIbox64E V2.x Tutorial
+
+<P><H1>MIDIbox64E Tutorial V2.x</H1>
+
+<P CLASS=INFO>MIDIbox64E is built, the power supply is switched on, the MIDI cable is connected - and now? This lesson shows you, how to operate with the Box.</P>
+
+<P CLASS=INFO>For a first test you should get a MIDI monitor with MIDI Thru function for the PC to look for the incoming MIDI signals. Most MIDI monitors provide the possibility to forward MIDI data to another MIDI device like your soundcard or software synthesizer. I recommend the <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-OX</A> tool from Jamie O'Connell and Jerry Jorgenrud which is really great!</P>
+
+<P><IMG SRC="midibox64e/midibox64e_intro_pic.jpg" ALT="MIDIbox64E" WIDTH=720 HEIGHT=423></P>
+
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+
+<TR>
+<TD> <P CLASS=INFO>(1,2,3)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Menu Exec/Right/Left:</B>
+Navigation through the menus, can be optionally disabled so that the buttons are available as MIDI triggers if the menu functions are not required for your box.</P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(4)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Snapshot/Special Function Button:</B>
+Press it shortly to recall the last settings, press it long to save the current pot and button settings.<BR>The purpose of this button alternates in some submenus:<BR>
+<I>In Bank menu:</I> Format Bank<BR>
+<I>In MIDI Learn menu:</I> set button mode<BR>
+<I>In Morphing menu:</I> select morph group<BR>
+<I>In Edit menus:</I> set cursor<BR>
+<I>In Copy menu:</I> copy bank<BR>
+<I>In MIDI config menu:</I> switch between MIDI and MIDIbox-to-COM interface<BR>
+<I>In SysEx menu:</I> Send SysEx Dump</P>
+</TD>
+</TR>
+
+
+<TR>
+<TD> <P CLASS=INFO>(5, 7)</P> </TD>
+<TD>
+<P CLASS=DESC><B>SFB and MIDI Trigger Buttons:</B>
+to trigger MIDI events like Note On/Off, Controller, Program Change and to exec special functions which are described <A HREF="midibox64e/midibox64e_sfb_table.txt">here</A>... free assignable via MIDI Learn, on-screen editor or SysEx Dump<BR>
+<I>In Bank Select and Copy Menu:</I> used to select one of 8 banks quickly (requires BankStick)<BR>
+<B>Note that MIOS allows to connect up to 128 buttons, but the MIDIbox64E application only handles with 64 buttons maximum to keep the SysEx dump compatible with the old PIC16F implementation.</B><BR>
+By default the four blue buttons are assigned to following <A HREF="midibox64e/midibox64e_sfb_table.txt">special functions</A>:<BR>
+<I>F1:</I> FF 08 41 - select group and bank<BR>
+<I>F2:</I> FF 08 40 - select one of 128 parameters<BR>
+<I>F3:</I> FF 08 11 - all encoders in fast mode<BR>
+<I>F4:</I> FF 08 21 - all encoders in slow mode<BR>
+<B>(7) not shown here: up to 64 buttons and 64 LEDs can be handled by the MIDIbox64E like known from the MIDIbox64</B>
+</P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(6)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Encoders with LED rings:</B>
+Up to <B>64 rotary encoders</B> can be connected, <B>64 optional LED rings</B> with up to 16 LEDs for each are also supported.
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(8)</P> </TD>
+<TD>
+<P CLASS=DESC><B>LC Display:</B>
+for the visualization of pot values and for the configuration. Any display which is supported by MIOS can be used, some examples are listed at the <A HREF="mbhp_lcd.html">MBHP_LCD</A> page, but also a self-written driver can be used. The screen layout can be customized in cs_m_display.inc</P>
+</TD>
+</TR>                                                             
+
+<TR>
+<TD> <P CLASS=INFO>(9)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Bankstick:</B>
+optional, exchangable memory extension</P>
+</TD>
+</TR>                                                             
+
+</TABLE>
+
+<P CLASS=DESC>After switching on the box the MIDI monitor should show the controller messages like this: <I>bn 07 XX</I> (E=pot 0-16, XX=value). If not: check the circuit, the cable, your Wintendo installation. If this doesnt help, curse Wintendo and your soundcard!<BR><B>A Debug HowTo can be found <A HREF="howto_debug_midi.html">here</A>.</B></P>
+
+<H2>Menu Handling</H2>
+<P CLASS=DESC>The menu handling is quite simple. The menu page is selected by the Menu-Left/Right Button, and with the Menu-Exec Button the submenu can be invoked and leaved. Below an introduction of the different submenus:</P>
+
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs04.gif" width=194 height=38 ALT="Displaymenu"></P><P CLASS=INFO>Display Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>In this submenu three different display pages are selectable by the Menu-Left/Right buttons:</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs15.gif" width=194 height=38 ALT="Display Page 1/1"></TD>
+     <TD><P CLASS=INFO>The first page shows the current bank (here: INT=Internal) and the encoder group (with 16 encoders: group 1-8 = 128 virtual knobs). It shows also the last sent MIDI event. The format (label and number) of a encoder event can be customized for every single encoder, button events are only displayed in standard format.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs16.gif" width=194 height=38 ALT="Display Page 1/2"></TD>
+     <TD><P CLASS=INFO></P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs17.gif" width=194 height=38 ALT="Display Page 2"></TD>
+     <TD><P CLASS=INFO>The second page shows an overview of the encoder and button row from where the last event has been sent.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs18.gif" width=194 height=38 ALT="Display Page 3/1"></TD>
+     <TD><P CLASS=INFO>The third page is a mix between the first and the second page: encoder and button events are only displayed in short hex format, the encoder/button row status is displayed at the second line.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs19.gif" width=194 height=38 ALT="Display Page 3/2"></TD>
+     <TD><P CLASS=INFO></P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs05.gif" width=194 height=38 ALT="Bankmenu"></P><P CLASS=INFO>Bank Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>The MIDIboxes are the worldwide first MIDI controllers with an exchangable, hot plug&playable bank storage device: the <B>BankStick</B>. If you find commercial controllers with the same feature in some years, you know from where the idea comes from. <BR>Every BankStick is capable of storing 8 different setups. Since a standard 32k IIC EEPROM is used, these sweet little things are really cheap (about 5 EUR). So just take one stick for Reaktor, one for Logic (or Cubase/Cakewalk/Sonar/Ableton of course), some for your Synthesizers, etc... :)<BR>The simple circuit diagramm for the BankStick can be found <A HREF="mbhp_bankstick.html">here</A>.</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox/midibox64_bankstick.jpg" width=161 height=69 ALT="The BankStick"></TD>
+     <TD><P CLASS=INFO>An opened BankStick case. I'm using 9 pol SubD plugs, but you can also decide to use another type of plug with at least 4 pins.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs20.gif" width=194 height=38 ALT="No Stick found"></TD>
+     <TD><P CLASS=INFO>An asterisk (*) is added to the bank number if no BankStick is available. The MIDIbox switches automatically to the internal bank.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs22.gif" width=194 height=38 ALT="Stick found"></TD>
+     <TD><P CLASS=INFO>The asterisk (*) disappears immediately as soon as you plug the BankStick into the socket. Now you are able to select the bank with the Left/Right Menu buttons.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/mb_bankshort1.jpg" width=161 ALT="Bank LED"></TD>
+     <TD><P CLASS=INFO>One of 16 LED lights up, depending on the selected bank.</P></TD>
+  </TR>
+     <TD><IMG SRC="midibox64e_tutor/mb_bankshort2.jpg" width=161 ALT="Manual Select"></TD>
+     <TD><P CLASS=INFO>You are also able to select a bank directly with the lower MIDI Trigger Buttons - only in this menu.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs25.gif" width=194 height=38 ALT="BankStick Format"></TD>
+     <TD><P CLASS=INFO>By pressing the snapshot button <I>for 2 seconds</I> the BankStick will be formated.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs26.gif" width=194 height=38 ALT="BankStick Format"></TD>
+     <TD><P CLASS=INFO>The formatting procedure copies the internal bank into the external bank</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs24.gif" width=194 height=38 ALT="Multiple BankSticks"></TD>
+     <TD><P CLASS=INFO>Note that with V2.x up to 8 BankSticks can be connected to the MIDIbox, so that up to 64 Banks are available.<BR>A bank can also be selected via MIDI (-> Program Change command)</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs05_5.gif" width=194 height=38 ALT="GlobalChnmenu"></P><P CLASS=INFO>Global Channel Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs61.gif" width=194 height=38 ALT="Global Channel --"></TD>
+     <TD><P CLASS=INFO>When <B>--</B> is displayed, all events will be sent over the predefined channels which are stored in the Bank.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs62.gif" width=194 height=38 ALT="Global Channel 3"></TD>
+     <TD><P CLASS=INFO>Use the Cursor Left/Right button to select a global MIDI channel which will be used for all encoder and button events instead of the predefined channels.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs06.gif" width=194 height=38 ALT="MIDI Learn"></P><P CLASS=INFO>MIDI Learn Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>The MIDI Learn function allows to customize the encoders and buttons for your own needs. How does it work: plug a MIDI cable from the MIDI IN port of the MIDIbox to the MIDI Out port of your keyboard or PC. Enter the MIDI Learn Mode. Now, the box waits for a message from MIDI IN:</P>
+
+  <P><IMG SRC="midibox64e_tutor/cs27.gif" width=194 height=38 ALT="MIDI Learn 0"></P>
+
+  <P CLASS=DESC>Send a controller to the MIDIbox (just use your Synth or MIDI-OX for this). The MIDIbox regogninzes all MIDI events and displays the last received one:</P>
+
+  <P><IMG SRC="midibox64e_tutor/cs28.gif" width=194 height=38 ALT="MIDI Learn 1"></P>
+
+  <P CLASS=DESC>If you want to assign the event to a encoder, just rotate it shortly. If a button should learn the event, just push the button.</P>
+  <P CLASS=DESC>"Learn Single" means, that the controller will be learned from one Encoder or Button, only. But sometimes, it is usefull to assign all encoders or buttons with the same controller but for different channels. MIDIbox offers a special function for this, just select it with the menu buttons:</P>
+
+  <P><IMG SRC="midibox64e_tutor/cs29.gif" width=194 height=38 ALT="MIDI Learn 2"></P>
+
+  <P CLASS=DESC>It is also possible to increment the controller value automatically. This is favorable, if all encoders or buttons should be quickly assigned to unique numbers:</P>
+
+  <P><IMG SRC="midibox64e_tutor/cs30.gif" width=194 height=38 ALT="MIDI Learn 3"></P>
+
+  <P CLASS=DESC>A special feature is implemented for the buttons: the behaviour of every button can be specified with the Snapshot Button before a event will be assigned to it:</P>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs31.gif" width=194 height=38 ALT="MIDI Learn 4"></TD>
+     <TD><P CLASS=INFO>Send learned value when button pressed, send zero when button released.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs32.gif" width=194 height=38 ALT="MIDI Learn 5"></TD>
+     <TD><P CLASS=INFO>Send learned value only when button pressed, don't send a zero value when button released.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs33.gif" width=194 height=38 ALT="MIDI Learn 6"></TD>
+     <TD><P CLASS=INFO>Send learned value with the first keypress, send zero value with the second keypress.</P></TD>
+  </TR>
+  </TABLE>
+
+  <P CLASS=DESC>Beside of controller events, Note On/Off, Program Change, PitchBender, ... can be learned:</P>
+  <P>
+    <IMG SRC="midibox64e_tutor/cs34.gif" width=194 height=38 ALT="MIDI Learn 7">
+    <IMG SRC="midibox64e_tutor/cs35.gif" width=194 height=38 ALT="MIDI Learn 8">
+    <IMG SRC="midibox64e_tutor/cs36.gif" width=194 height=38 ALT="MIDI Learn 9">
+    <IMG SRC="midibox64e_tutor/cs37.gif" width=194 height=38 ALT="MIDI Learn 10">
+    <IMG SRC="midibox64e_tutor/cs39.gif" width=194 height=38 ALT="MIDI Learn 11">
+    <IMG SRC="midibox64e_tutor/cs40.gif" width=194 height=38 ALT="MIDI Learn 12">
+  </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs07.gif" width=194 height=38 ALT="Morphing Fun"></P><P CLASS=INFO>Morhphing Function</P></TD>
+  <TD>
+    <P CLASS=INFO>The morphing function allows you to fade smoothly between two encoder scenes - between the current position of the encoders and the position which are saved in a bank - with a single encoder.
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs41.gif" width=194 height=38 ALT="Morhping"></TD>
+     <TD><P CLASS=DESC>Once you enter this menu, the encoders will change their purpose. The 8 first encoders are used to fade between 8 groups, every group exists of 16 parameters (virtual knobs).</TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs42.gif" width=194 height=38 ALT="Morhping"></TD>
+     <TD><P CLASS=DESC>Just play with the encoders and check the MIDI output (note: MIDI-Ox comes with a nice MIDI status screen which gives you the best overview).</TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs43.gif" width=194 height=38 ALT="Morhping"></TD>
+     <TD><P CLASS=DESC>Use the 9th encoder to fade all 128 parameters at once</TD>
+  </TR>
+  </TR>
+     <TD><IMG SRC="midibox64e_tutor/mb_bankshort2.jpg" width=161 ALT="Morph Bank Select"></TD>
+     <TD><P CLASS=INFO>By pressing one of the 16 bank select buttons you can morph between different setups which are saved in the BankStick. By holding the bank select button for 2 seconds, the current pot positions will overtaken to realize jumpless parameter moves.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs08.gif" width=194 height=38 ALT="Encoder Mode"></P><P CLASS=INFO>Encoder Mode</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs46.gif" width=194 height=38 ALT="EncMode"></TD>
+     <TD><P CLASS=DESC>First of all you have to turn the encoder which should be configured (here: entry #128: last encoder of group 8<BR>
+     The appr. setting appears: "absolute" values. Absolute means, that the encoder will send a MIDI command which contains a value between min and max (normaly 0 and 127). Most MIDI equipment only works with such events. Disadvantage: merely a 7bit value range is possible and a feedback connection is required for jumpless parameterchanges in case that a parameter is not only controlled by the MIDIbox64E, but also by the target device (e.g a synthesizer which changes his internal parameters on program changes).</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs47.gif" width=194 height=38 ALT="EncMode"></TD>
+     <TD><P CLASS=DESC>Press the "Right" button to change the mode. Here "40 +/- speed" is selected. In all relative modes the MIDIbox64E doesn't know the absolute value anymore <B>(*)</B>, it only sends the commands which increment or decrement the value on the target device. All known variants are available: here 40 +/- speed, which can be handled by software synthesizers from <A HREF="http://www.nativeinstruments.com" TARGET="_blank">Native Instruments</A>.<BR><B>(*)</B> LED-Rings can still be updated by incoming MIDI events which contain the absolute value. See Reaktor configuration example below.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs48.gif" width=194 height=38 ALT="EncMode"></TD>
+     <TD><P CLASS=DESC>00 +/- speed can be handled by <A HREF="http://www.steinberg.de" TARGET="_blank">Steinberg</A> products.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs49.gif" width=194 height=38 ALT="EncMode"></TD>
+     <TD><P CLASS=DESC>40 +/- 1 can be selected if the target device cannot handle with the speed value. That means: in this mode the encoder sends 3F for decrementing and 41 for incrementing, with a speed setting it could also send 3D or 43 if you turn the encoder very fast.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs50.gif" width=194 height=38 ALT="EncMode"></TD>
+     <TD><P CLASS=DESC>Similar, but with 00 +/- 1. The encoder will send 7F for decrementing and 01 for incrementing.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs50_1.gif" width=194 height=38 ALT="EncMode"></TD>
+     <TD><P CLASS=DESC>A special relative mode which sends increment/decrement events like described in the <A HREF="http://www.midi.org" TARGET="_blank">MIDI specification</A>: Bn 60 xx for incrementing and Bn 61 xx for decrementing (n = channel number, xx = parameter number).</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+<TR>
+
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs08_1.gif" width=194 height=38 ALT="Encoder Speed"></P><P CLASS=INFO>Encoder Speed</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs50_2.gif" width=194 height=38 ALT="EncModeN"></TD>
+     <TD><P CLASS=DESC>Turn the encoder to select an entry, thereafter change the speed with the cursor left/right buttons. In normal speed mode an encoder will send the values from 00 to 7F on a 360° revolution.
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs50_3.gif" width=194 height=38 ALT="EncModeS"></TD>
+     <TD><P CLASS=DESC>In slow mode an encoder will increment/decrement a value on every 8th step only.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs50_4.gif" width=194 height=38 ALT="EncModeF"></TD>
+     <TD><P CLASS=DESC>In fast mode an encoder will increment/descrement with higher values, so that you can sweep from the minimum to the maximum value about 4 times faster.</P></TD>
+  </TR>
+  </TABLE>
+  <P CLASS=INFO><B>Note:</B> the speed of all encoders can also be varied at once by assigning the special functions ""FF 08 00", "FF 08 10" and "FF 08 20" to buttons, see the <A HREF="midibox64e/midibox64e_sfb_table.txt">SFB table</A>.</P></TD>
+
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs08_2.gif" width=194 height=38 ALT="LED Patterns"></P><P CLASS=INFO>LED Patterns</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs50_5.gif" width=194 height=38 ALT="LED Pattern"></TD>
+     <TD><P CLASS=DESC>Turn the encoder to select 1 of 4 LED patterns for each entry seperately. The pattern will be displayed on the LEDring, and it will be "sweeped" automatically from the minimum to the maximum position. Note: the patterns can be customized by using the mk_syx script or Serge's MIDIbox64E editor.
+  </TR>
+  </TABLE>
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs09.gif" width=194 height=38 ALT="Edit Bankname"></P><P CLASS=INFO>Integrated bankname editor</P></TD>
+  <TD>
+    <P CLASS=DESC>In this menu page the bankname of the current selected bank can be edited. Use the left/right button to change the character and use the snapshot button to move the cursor.<BR>
+    <IMG SRC="midibox64e_tutor/cs50.gif" width=194 height=38 ALT="Edit Bankname">
+    </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs10.gif" width=194 height=38 ALT="Edit Events"></P><P CLASS=INFO>Integrated MIDI event editor</P></TD>
+  <TD>
+    <P CLASS=DESC>In this menu page the MIDI events assigned to the encoders and buttons can be edited directly. Select the encoder or button by moving (touching) it, use the left/right button to change the value and use the snapshot button to move the cursor.<BR>
+    <IMG SRC="midibox64e_tutor/cs51.gif" width=194 height=38 ALT="Edit Encoder Event">
+    <IMG SRC="midibox64e_tutor/cs52.gif" width=194 height=38 ALT="Edit Button Event">
+    </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs11.gif" width=194 height=38 ALT="Edit Lable"></P><P CLASS=INFO>Integrated encoder label editor</P></TD>
+  <TD>
+    <P CLASS=DESC>In this menu page the labels and number formats can be edited for every single encoder. Select the encoder by moving it, use the left/right button to change the characters/number format and use the snapshot button to move the cursor.<BR>
+    <IMG SRC="midibox64e_tutor/cs53.gif" width=194 height=38 ALT="Edit Label">
+    </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs12.gif" width=194 height=38 ALT="Copy Bank"></P><P CLASS=INFO>Copy submenu</P></TD>
+  <TD>
+    <P CLASS=INFO>In this menu the current bank can be copied to another bank.</P>
+
+    <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+    <TR>   
+      <TD><IMG SRC="midibox64e_tutor/cs54.gif" width=194 height=38 ALT="Copy select"></TD>
+      <TD><P CLASS=DESC>The target bank can either be select with the left/right buttons...</TD>
+    </TR>
+    </TR>
+      <TD><IMG SRC="midibox64e_tutor/mb_bankshort2.jpg" width=161 ALT="Copy Buttons"></TD>
+      <TD><P CLASS=INFO>...or with the bank select buttons.</P></TD>
+    </TR>
+    <TR>   
+      <TD><IMG SRC="midibox64e_tutor/cs55.gif" width=194 height=38 ALT="Copy start"></TD>
+      <TD><P CLASS=DESC>Hold the snapshot button for 2 seconds to start the copy procedure.</TD>
+    </TR>
+  </TABLE>
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs13.gif" width=194 height=38 ALT="MIDIMenu"></P><P CLASS=INFO>MIDI Config. submenu</P></TD>
+  <TD>
+    <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+    <TR>   
+      <TD><IMG SRC="midibox64e_tutor/cs56.gif" width=194 height=38 ALT="Merger0"></TD>
+      <TD><P CLASS=DESC>The MIDI merger allows you to plug the MIDIbox and a keyboard to a computer w/o the need for a second MIDI In interface. Just plug the MIDI Out of your keyboard to the MIDI In of MIDIbox and the MIDI Out of the MIDIbox to the MIDI In of your computer.</P>
+    </TR>
+    <TR>   
+      <TD><IMG SRC="midibox64e_tutor/cs57.gif" width=194 height=38 ALT="Merger1"></TD>
+      <TD><P CLASS=DESC>If you connect the MIDI In of the MIDIbox with MIDI Out of your computer, you should disable the MIDI merger in order to avoid endless feedback loops.</P>
+   </TR>
+    <TR>   
+      <TD><IMG SRC="midibox64e_tutor/cs59.gif" width=194 height=38 ALT="Merger2"></TD>
+      <TD><P CLASS=DESC>If multiple MIDIboxes should be cascaded based on the <A HREF="midibox_link.html">MIDIbox Link</A> concept, all MIDIboxes have to be declared as MIDIbox Link Forwarding Point...</P>
+   </TR>
+    <TR>   
+      <TD><IMG SRC="midibox64e_tutor/cs58.gif" width=194 height=38 ALT="Merger3"></TD>
+      <TD><P CLASS=DESC>except for the last MIDIbox which has to be declared as MIDIbox Link Endpoint.</P>
+   </TR>
+   </TABLE>
+   <P CLASS=DESC><B>Note:</B> In this menu, you are also able to enable the MIDIbox-to-COM option with the snapshot button (4). Find more informations at the <A HREF="midibox_to_com.html">MIDIbox-to-COM Interface Page</A>!</P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs14.gif" width=194 height=38 ALT="SysEx"></P><P CLASS=INFO>SysEx submenu</P></TD>
+  <TD>
+    <P CLASS=DESC>In this submenu the device ID can be selected, and a SysEx dump can be triggered manually by using the Snapshot button.<BR>
+      <IMG SRC="midibox64e_tutor/cs60.gif" width=194 height=38 ALT="SysEx menu"><BR>
+      See also the <A HREF="howtosysex.html">SysEx HowTo</A> for further informations.
+    </P>
+  </TD>
+</TR>
+
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs63.gif" width=194 height=38 ALT="SelPar"></P><P CLASS=INFO>Change Parameter</P></TD>
+  <TD>
+    <P CLASS=INFO>When you press a button which is assigned to <A HREF="midibox64e/midibox64e_sfb_table.txt">SFB</A> "FF 08 40", you are able to change the mapping of the 128 parameters (which are predefined in the the 8 groups). This enables you to exceed the group borders and to change the parameters on-the-fly without changing the whole bank setup.<BR>
+Following example demonstrates, how to work with the parameter selection mode - the sample/midibox64e_sid.ini setup of the <A HREF="midibox/mk_syx.zip">mk_syx</A> archive is used here to control the <A HREF="midibox_sid.html">MIDIbox SID</A>:<BR>
+<IMG SRC="midibox64e_tutor/selparameter.jpg" width=320 height=228 ALT="SelParPic"></P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs64.gif" width=194 height=38 ALT="SelPar1"></TD>
+     <TD><P CLASS=DESC>The "Select" button is pressed and the display shows: Map 1 (<I>Group 1</I>) . 1 (<I>Encoder 1</I>), -> (<I>is assigned to</I>), 1 (<I>Parameter #1</I>). Below the parameter name and value is displayed "Transpose V1 00"</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs65.gif" width=194 height=38 ALT="SelPar2"></TD>
+     <TD><P CLASS=DESC>While the last encoder E16 is turned the new parameter will be selected - this encoder will control the "ENV1 Depth" of the MIDIbox SID.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs66.gif" width=194 height=38 ALT="SelPar3"></TD>
+     <TD><P CLASS=DESC>Encoder E15 will control the "Filter Resonance"</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs67.gif" width=194 height=38 ALT="SelPar4"></TD>
+     <TD><P CLASS=DESC>Encoder E14" the "Filter CutOff" frequency.<BR>Release the Select Button - ready!</P></TD>
+  </TR>
+  </TABLE>
+    <P CLASS=INFO>Result: with this feature you can assemble your bank setup quickly for temporary use. There are a lot of thinkable usemodels:<BR>
+  <UL CLASS=CL>
+    <LI>use only one group with the most important settings like Volume, Panorama, EQs, and use the last encoder as variable control element for all the other Fx parameters</LI>
+    <LI>assign 16 parameters from different banks to the 16 encoders just to get access over it without bankswitching during your synthesizer session. This saves your from the tiresome SysEx configuration procedure.</LI>
+    <LI>Built a MIDIbox64E with only 1 LCD, 8 buttons and 1 encoder to get access over up to 128 parameters - it works! :)</LI>
+   </UL></P>
+   <P CLASS=INFO>Remark: this feature requires a LCD!</P>
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64e_tutor/cs68.gif" width=194 height=38 ALT="SelBP"></P><P CLASS=INFO>Select Group/Bank</P></TD>
+  <TD>
+    <P CLASS=INFO>Some <A HREF="midibox64e/midibox64e_sfb_table.txt">Special Function Buttons</A> are available to switch between different groups and banks. 
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64e_tutor/cs69.gif" width=194 height=38 ALT="SelBP"></TD>
+     <TD><P CLASS=DESC>Once you press on such a button, the bank info screen will pop up which displays your selection</P></TD>
+  </TR>
+  </TABLE>
+    <P CLASS=INFO>Think about the best solution for your personal workflow before starting with building a MIDIbox64E, here some examples:<BR>
+  <UL CLASS=CL>
+    <LI><B>the minimal solution:</B> use one "group increment" button only to switch between the 8 groups. It works, but the handling will be slowed down once you miss the group you tried to select (<A HREF="midibox64e/midibox64e_sfb_table.txt">SFB</A> "FF 01 13")</LI>
+    <LI><B>the better solution:</B> use one "group increment" and one "group decrement" button (<A HREF="midibox64e/midibox64e_sfb_table.txt">SFB</A> "FF 01 12" and "FF 01 10")</LI>
+    <LI><B>the prefered solution:</B> use 8 "group select" buttons to access the groups with a single touch (<A HREF="midibox64e/midibox64e_sfb_table.txt">SFB</A> "FF 01 00" to "FF 01 07")</LI>
+    <LI><B>the superb solution:</B> use 8 "group select" and 8 "bank select" buttons to select also the banks with a single touch (<A HREF="midibox64e/midibox64e_sfb_table.txt">SFB</A> "FF 01 00" to "FF 01 07" and "FF 02 00" to "FF 02 07")</LI>
+    <LI><B>the deluxe solution:</B> use 2 * 8 additional LEDs and map the appr. DOUT shift registers to the group and bank number.</LI>
+    <LI><B>the extraordinary solution:</B> use <A HREF="midibox64e/midibox64e_sfb_table.txt">SFB</A> "FF 08 41" to select the group and the bank with the first two encoders so long as the button is pressed</LI>
+  </TD>
+<TR>
+
+</TABLE>
+
+<H2>Configuration via SysEx Dump</H2>
+<P CLASS=DESC>See the <A HREF="howtosysex.html">SysEx HowTo</A> for further informations. Note that some features like Min/Max values for the encoders, or patterns for the LEDs, ... can only be configured via SysEx.</P>
+
+<H2>Configuration example for Reaktor (or any other software synthesizer by <A HREF="http://www.nativeinstruments.com" TARGET="_blank">NI</A>)</H2>
+<P CLASS=DESC>MIDI In/Out should be connected to the MIDI Out/In of your computer. Now you have two possibilities to control Reaktor:
+  <UL CLASS=CL>
+    <LI>Encoders in absolute mode: best choice if you control the virtual instruments not only with MIDIbox64E, but also with MIDIbox64 or any other MIDI controller which sends absolute values. The parameter "SubOsc" is assigned to Controller Bn 10 xx (10 hex = 16 dec), Remote is enabled, panel to remote is also enabled for the feedback, so that the absolute value will be updated when you move the fader with the mouse.<BR>
+        <IMG SRC="midibox64e_tutor/reaktor_abs.gif" width=394 height=532 ALT="Reaktor Absolute Mode">
+    </LI>
+    <LI>Encoders in relative mode (40 +/- speed): best choice if you control the virtual instruments with MIDIbox64E only. Remote, Incremental and Panel to MIDI enabled, Remote to MIDI is also enabled to get back the absolute value of the changed parameter in order to update the LED ring.<BR>
+        <IMG SRC="midibox64e_tutor/reaktor_rel.gif" width=384 height=522 ALT="Reaktor Relative Mode">
+    </LI>
+  </UL>
+
+</P>
+
+<H2>FAQ, Tips & Tricks</H2>
+<P CLASS=DESC>Please find the collected knowledge in the <A HREF="http://wiki.midibox.org">MIDIbox Wiki</A> and at the <A HREF="http://forum.ucapps.de">MIDIbox Forum</A></P>
+
+</DL>
+
+FOOTER

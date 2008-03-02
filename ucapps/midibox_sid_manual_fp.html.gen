@@ -1,0 +1,187 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Frontpanel
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- Frontpanel</H1>
+
+<P CLASS=INFO>This chapter introduces the frontpanel of the MIDIbox SID V2. It should give you a feeling about the minimum requirements and an oversight about possible options, which are provided by the firmware.</P>
+
+<CENTER><A HREF="midibox_sid/cs2/fp/mbsidv2_front_full.gif"><IMG SRC="midibox_sid/cs2/fp/mbsidv2_front.gif" width=550 height=178 ALT="MIDIbox SID V2 Frontpanel"></IMG></A></CENTER>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> V1 vs. V2 Frontpanel </H2>
+
+<P CLASS=DESC>As highlighted multiple times on my website and in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A>, one of the hardest requirements during the design phase of MIDIbox SID V2 was to keep the frontpanel compatible with MIDIbox SID V1, so that nobody has to throw away his old case. This requirement has been successfully implemented - I'm still very happy with my own frontpanel which can be seen above. The only things which have been changed/enhanced are the functions of some buttons and encoders. The labels have been modified in the <A HREF="midibox_sid/mbsidv2_front.fpd">Frontpanel template</A>, which can be viewed and edited with Frontpanel Designer, a freeware available at <A HREF="http://www.schaeffer-apparatebau.de" TARGET="_blank">Schaeffer Apparatebau</A>. So, if you are planning to create your own frontpanel, please use the new template as origin.</P>
+
+<P CLASS=DESC>However, the original panel has been created 2003, and in the meantime there are new features where a dedicated button or LED would be "nice-to-have". Such additional options are mentioned below, and it is your own decition to add them to your own frontpanel design or not.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Minimum Control Surface </H2>
+
+<P CLASS=DESC>This option has been formerly called "Step A Surface" - it already gives you full access to all sound parameters, but control elements which allow direct modifications without stepping through the menu pages are missing. It's a trade off between ergnomoy and hardware costs.</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/fp/mbsidv2_front_mini1.gif" width=400 height=176 ALT="MIDIbox SID V2 Minimum Frontpanel"></IMG></CENTER>
+
+<P CLASS=DESC>It consists of a <A HREF="midibox_sid/cs2/2x20.gif">2x20 LCD</A>, 9 buttons and one rotary encoder, accordingly 11 digital inputs of a <A HREF="mbhp_din.html">MBHP_DIN</A> module are required. You can either etch a DINX2 module by yourself (2 shift registers provide 16 inputs), you can build the circuit on a veroboard (e.g. the same one on which the parts are mounted), or you can buy a premade DINX4 board, where you only need to stuff the two first shift registers.</P>
+
+<P CLASS=DESC>The 5 select buttons are used to navigate through the menus, and to select a parameter which should be modified with the rotary encoder (usage example: see <A HREF="midibox_sid_manual_fs.html">First Steps Guide</A>). The button below the encoder (called MENU button) is used to exit a menu page. The rotary encoder increments/decrements the sound parameter and scrolls through the pages.</P>
+
+<P CLASS=DESC>The SHIFT button was formerly called LINK button. It has a new purpose compared to MIDIbox SID V1 - now it displays a special page which allows to select the Left/Right audio channel, to change the sound engine, to initialise a patch, to generate a random patch and to send out a SysEx dump of the patch.<BR>
+In addition, values are incremented slower (more precisely) so long this button is pressed.</P>
+
+<P CLASS=DESC>Especially for the Sound Engine selection there is no alternative control possible, therefore this button is a hard requirement.</P>
+
+<P CLASS=DESC>The Up/Down buttons have been added to the minimal control surface, as there are two digital input pins free anyhow. They are not really required, but speed up the menu navigation. Depending on the menu page, they can be used to increment/decrement the OSC/LFO/ENV/MOD/WT/Knob/... number from any page view without scrolling to the leftmost menu entry. Within the root menu and main screen, they can be used to change the patch/ensemble number.<BR>
+These two buttons were formerly used to activate the CC/Edit function - both functions are still accessible by pressing SHIFT+UP (for CC) or SHIFT+DOWN (for Edit).</P>
+
+<P CLASS=DESC>Alternatively a <A HREF="midibox_sid/cs2/2x16.gif">2x16 LCD</A> can be used (of costs do matter). This is no optimal solution, as the main page won't be displayed completely anymore. Within menu pages only 4 instead of 5 parameters are visible the same time (page has to be scrolled to see the remaining parameters of the same page). An advantage of this variant is, that you would only need a single shift register ("DINX1"), to which the rotary encoder (2 pins), the selection buttons (4 pins), the menu button (1 pin) and the SHIFT button (1 pin) are connected.</P>
+
+<P CLASS=DESC>Another LCD option is the usage of a <A HREF="midibox_sid/cs2/2x40.gif">2x40 LCD</A> which displays up to 10 sound parameters the same time. Such a large screen is especially nice when editing MOD matrix pathes or wavetables, but it increases the frontpanel size. This option requires 10 select buttons instead of 5, accordingly 16 pins will be allocated by one rotary encoder and 14 buttons (-> two shift registers required).</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Minimum Control Surface for Multiple SIDs </H2>
+
+<P CLASS=DESC>This option has been formerly called "Step B Surface" - four "SID" buttons are added which allow you to select the SID (master/slave) which should be accessed. They behave like "radio buttons" if only one is pressed so that you can quickly change between the SID setups. It's also possible to select multiple SIDs by holding one of the SID buttons and pushing the additional SID buttons - in this case every parameter change will be sent not only to one, but to all selected SIDs.</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/fp/mbsidv2_front_mini2.gif" width=400 height=178 ALT="MIDIbox SID V2 Minimum Frontpanel"></IMG></CENTER>
+
+<P CLASS=DESC>It makes sense to add LEDs which show the SID selection. This requires a <A HREF="mbhp_dout.html">DOUT</A> module with a single shift register (etch your own, build the circuit on a veroboard, or buy a premade MBHP_DOUTX4 board). As this would only allocate 4 pins, you could add three additional LEDs for the SHIFT/UP/DOWN buttons. The LED next to the SHIFT button will flash on each BPM beat later (not implemented yet), the UP LED shows if the CC function is active, and the DOWN LED shows, if the edit function is active.</P>
+
+<P CLASS=DESC>Alternatively, J5 of the core module can be used as DOUT replacement by setting DEFAULT_J5_FUNCTION to mode 2 in the setup_*.asm file - this saves you from building a DOUT module, but prevents you from using J5 as analog input port.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Complete Control Surface --- OSC section </H2>
+
+<P CLASS=DESC>The complete control surface consists of several sections; the OSC section controls oscillator specific parameters, and gives you direct access to the flexible "Knob" functions.</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/fp/mbsidv2_osc.gif" width=350 height=118 ALT="OSC Section"></IMG></CENTER>
+
+<P CLASS=DESC>The 5 rotary encoders are mapped to three layers (ENV, MISC and KNOBS) which can be selected with the CTRL button. The OSC buttons allows you to select one of three oscillators. If parameters of multiple oscillators should be changed the same time, the appr. selection flags have to be changed within the menu (leftmost page). There is an additional button for waveform selection, and another for Sync/Ringmodulation selection. 12 LEDs display the current selection status.</P>
+
+<P CLASS=DESC>Note that a patch actually consists of 6 oscillator sets - 3 for the left audio channel, 3 for the right audio channel. By default, parameters of both channels are changed the same time. If a specific audio channel should be modified, press the SHIFT button and select L/R accordingly (only valid for Lead engine).</P>
+
+<P CLASS=DESC>The knob layer gives you access to 5 customizable parameters, which can be assigned to two different sound parameters, and which are also available as modulation sources. A Min/Max range can be specified for each knob individually. Assignments and ranges are stored within the patch structure - so, each patch can have its own set. This feature is intended for ergnomic usage during live playing, but also for easy MIDI automation (activate the CC function to send knob movements, so that they can be recorded with a sequencing software).</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Complete Control Surface --- FILTER section </H2>
+
+<P CLASS=DESC>The filter section gives you direct access to CutOff Frequency and Resonance. Two buttons allow you to change the filter channel assignments, and the multi state filter type (Lowpass, Bandpass, Highpass - multiple selections possible). 8 LEDs are used to display the selections.</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/fp/mbsidv2_filter.gif" width=150 height=122 ALT="Filter Section"></IMG></CENTER>
+
+<P CLASS=DESC>Two of these LEDs are not really useful and could be omitted on a new frontpanel: EXT notifies, that the external Audio Input is routed through the filter, and 3O (Oscillator 3 off) disables the audio path of the third oscillator (useful for sync sounds). Both functions cannot be selected with the Channel/Filtermode buttons; instead there are special flags within the Filter menu page for individual control.</P>
+
+<P CLASS=DESC>As for the OSC section, also the Filter section has two parameter sets - one for each audio channel. By default, parameters of both channels are changed the same time. If a specific audio channel should be modified, press the SHIFT button and select L/R accordingly (valid for all sound engines).</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Complete Control Surface --- LFO section </H2>
+
+<P CLASS=DESC>The LFO section gives you direct access to LFO rate and depth. You can select the LFO (1-6 for Lead Engine, 1-2 for Multi Engine) and the waveform.</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/fp/mbsidv2_lfo.gif" width=231 height=120 ALT="LFO Section"></IMG></CENTER>
+
+<P CLASS=DESC>Note that MIDIbox SID provides more than 5 waveforms - the additional waveforms are displayed with special LED patterns (for all "positive" waveforms, the Random LED lits together with another one. E.g., for positive Sine, Random + Sine LED are activated)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Complete Control Surface --- ENV section </H2>
+
+<P CLASS=DESC>The ENV section gives you direct access to the Depth/Attack/Decay/Release parameter of two envelopes (Lead engine only, Multi engine: one envelope).</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/fp/mbsidv2_env.gif" width=320 height=119 ALT="ENV Section"></IMG></CENTER>
+
+<P CLASS=DESC>The Ctrl button switches between envelope and assign layer. The assign layer can be adapted for own needs within the firmware. By default, it controls the 5 parameters which are visible on screen. This is a very powerful feature, which especially speeds up editing wavetables.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Complete Control Surface --- Modulation Matrix </H2>
+
+<P CLASS=DESC>This is propably the most extraordinary feature of MIDIbox SID: the modulation matrix allows you to enable modulation source->target connections very quickly. It works like a patchbay.</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/fp/mbsidv2_matrix.gif" width=500 height=187 ALT="Modulation Matrix"></IMG></CENTER>
+
+<P CLASS=DESC>There are 8 rows of predefined modulation sources (ENV1..2, LFO1..LFO6), and 7 (optionally 8) columns of predefined modulation targets (OSC Pitch/Pulsewidth, Filter, Volume).</P>
+
+<P CLASS=DESC>Thanks to the flexible modulation path concept, modulation sources can be changed and combined within the MOD menu, therefore the E1..2/L1..6 only give a rough orientation. When selecting a source button, you will see the actual sources and the operator on screen.</P>
+
+<P CLASS=DESC>The mapping of modulation targets cannot be changed, but it is possible to add two additional targets for enhanced modulations (e.g. controlling LFO depth/rate or external CV outputs).</P>
+
+
+<P CLASS=DESC>The Modulation Matrix section provides seperate parameter sets for the left and right audio channel. By default, mod path connections are done for both channels. If a specific audio channel should be modified, press the SHIFT button and select L/R accordingly (only valid for Lead engine).</P>
+
+<P CLASS=DESC>With MIDIbox SID V2 the Volume is available as 8th modulation target column. Although the SID chip only provides a 4bit resolution for this parameter, some nice tremolo effects can be produced. If you are planning a new frontpanel, you could consider to add the 8th column. Users of the old frontpanel can control the assignments from the LCD menu.</P>
+
+<P CLASS=DESC>Note that the modulation matrix feature is only provided by the Lead Engine. The multi engine prints the current instrument number instead. For bassline and drum engine, it is planned to use the matrix as display for sequencer steps, and/or as selection matrix for patterns.</P>
+
+<P CLASS=DESC>Alternatively the LED matrix can be used for metering the output values of the modulation pathes. This mode can be selected by pressing two mod target buttons the same time (e.g. O1 and O2 pitch). It can also be enabled automatically after startup by changing the DEFAULT_LEDMATRIX_MODE setting in setup_*.asm</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Analog Control Elements </H2>
+
+<P CLASS=DESC>With MIDIbox SID V2, analog control elements like pots, faders and joysticks are natively supported. Everything you can find in the forum about such an extension for V1 is obsolete, especially because a dedicated driver is used instead of MIOS_AIN for optimized performance.</P>
+
+<P CLASS=DESC>This feature has to be explicitely enabled within the setup_*.asm file by setting DEFAULT_J5_FUNCTION to 1 - once you did this, all unusued analog inputs must be clamped to ground in order to prevent random values! This is especially required for the slave modules, when the master firmware will be transfered to the slaves via ECAN (clone feature).</P>
+
+<P CLASS=DESC>All 8 analog inputs are sampled with a frequency of 125 Hz. Multiplexing (-> MBHP_AIN module) is *not* supported! So, 8 inputs are maximum.</P>
+
+<P CLASS=DESC>The firmware currently only uses the first 5 inputs of J5, the remaining 3 are reserved for future features.</P>
+
+<P CLASS=DESC>The converted values are forwarded to the knob handler. This generic approach gives you all advantages of the knob concept: value changes can be forwarded to two sound parameters, a Min/Max range can be specified, and the converted values are also available as modulation source!</P>
+
+<P CLASS=DESC>The feature behaves differently on master and slaves:
+  <UL CLASS=CL>
+    <LI><B>Master:</B> analog inputs are forwarded to the *selected* SIDs. This has the advantage, that each SID can be controlled from a single set of pots and/or joysticks. If you find this impractical, a small and harmless firmware patch (AIN_NotifyChange: remove the branch to "AIN_NotifyChange_Master") allows you to realize a dedicated control for the master only.</LI>
+    <LI><B>Slave:</B> analog inputs are only handled internally independent from the selection.</LI>
+  </UL>
+
+<P CLASS=DESC>Note that this feature can also be used to control the SID from analog signal sources, e.g. from an analog step sequencer, or an analog LFO.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Additional Buttons/LEDs/Encoders </H2>
+  
+<P CLASS=DESC>Users have started to add additional buttons, LEDs and encoders to their frontpanel. The search function of the <A HREF="http://forum.midibox.org/" TARGET="_blank">forum</A> gives you some links to reports and source codes. One of the most advanced mod is Wilba's MB-6582. Infos can be found in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_6582" TARGET="_blank">Wiki</A>.</P>
+
+<P CLASS=DESC>If you only want to reassign buttons and/or encoders to different DIN pins, or LEDs to different DOUT pins, e.g. to improve the layout of your frontpanel boards, you should be able to do this without learning the PIC assembly language:
+<UL CLASS=CL>
+  <LI><B>Buttons:</B> there is a table in setup_*.asm which maps all button functions to digital input pins. Search for CS_MENU_DIN_TABLE</LI>
+  <LI><B>Rotary Encoders:</B> there is a table in setup_*.asm which maps all encoder functions to digital input pins. Search for MIOS_ENC_PIN_TABLE</LI>
+  <LI><B>LEDs:</B> there is a table in setup_*.asm which maps all LED functions to digital output pins. Search for CS_MENU_DOUT_TABLE</LI>
+</UL>
+
+<P CLASS=DESC>For assembly experts: new button functions can be implemented in cs_menu_button.inc, new LED functions in cs_menu_leds.inc, new encoder functions in cs_menu_enc.inc and cs_menu_enc_table.inc (difficult and not straightforward!)</P>
+
+<P CLASS=DESC>Here a list of additional button functions, which are available in the release package, and can be selected within setup_*.asm if desired:<BR>
+<UL CLASS=CL>
+  <LI><B>M_Vol (Matrix Volume)</B>: selects the 8th line of the modulation matrix. To be used in combination with 8 additional LEDs, which have to be connected as described in <A HREF="midibox_sid_cs/mbsid_v2_dout_default.pdf">mbsid_v2_dout_default.pdf</A></LI>
+  <LI><B>Play</B>: is doing the same like "SID1..4 + MENU" (see list of special button combinations)</LI>
+  <LI><B>SID_LR</B>: switches between Left/Right or both SID audio channels</LI>
+  <LI><B>M_Mode</B>: switches the LED matrix between normal Matrix display and Meter display mode; is doing the same like pressing two MOD SOURCE buttons the same time (see list of special button combinations)</LI>
+  <LI><B>Fil_ExtIn</B>: enables/disables the external input routing through the filter (can also be done from the filter menu page)</LI>
+  <LI><B>Sync</B>: jumps to the ENS->CLK menu (allows you to setup BPM and MIDI Clock Mode)</LI>
+</UL>
+
+<P CLASS=CL>Following additional LED functions are available in the release package:<BR>
+<UL CLASS=CL>
+  <LI><B>Play LED:</B>: should be used in conjunction with the <B>Play</B> Button</LI>
+  <LI><B>Meter/Matrix LEDs:</B>: should be used in conjunction with the <B>M_Mode</B> Button</LI>
+  <LI><B>SID L/R LEDs:</B>: should be used in conjunction with the <B>SID_LR</B> Button</LI>
+  <LI><B>LFO Positive LED:</B>: extension for the LFO waveform LEDs - lits when the LFO waveform is only within the positive range (normaly, the 5 LFO waveform LEDs display a special pattern in this case)</LI>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Special Button Combinations </H2>
+
+<P CLASS=DESC>Here a list of special button combinations:<BR>
+<UL CLASS=CL>
+  <LI><B>MENU during version number is displayed:</B> transfers the current firmware to all slaves (Cloning Function). This should be done whenever a new firmware has been uploaded to the master. Press and hold this button during power-on, until a special cloning message appears on screen. If cloning doesn't start with the method, trigger the button multiple times during the MIDIbox SID version number is displayed on the LCD.</LI>
+  <LI><B>SHIFT:</B> a menu with special functions appears. These functions can be triggered (as usual) with the SELECT buttons.</LI>
+  <LI><B>SHIFT + encoder movement:</B> encoder slow-down (for precise value changes)</LI>
+  <LI><B>SHIFT + UP:</B> CC mode on/off. In CC mode, a "knob" (rotary encoders within the OSC->Knob layer, or analog pots/joysticks) sends out value changes via MIDI Out, e.g. to your sequencer. The values can be recorded for MIDI automation.</LI>
+  <LI><B>SHIFT + DOWN:</B> EDIT mode on/off. In this mode, all parameter changes will be saved automatically into the currently selected patch whenever you change to a new patch. The LED flashes slowly if there is something to save in order to warn you, that the old patch will be overwritten.</LI>
+  <LI><B>SID1..4 + MENU:</B> plays a note until this button combination is pressed again.</LI>
+  <LI><B>DATAWHEEL + MENU:</B> within main screen: changes ensemble (DATAWHEEL w/o MENU: changes patch)</LI>
+  <LI><B>PAGE UP/DOWN + MENU:</B> within main screen: changes ensemble (PAGE UP/DOWN w/o MENU: changes patch)</LI>
+  <LI><B>MOD TARGET buttons E1..L6:</B> jumps into the MOD menu and selects the appr. modulation path 1-8 <I>(Lead engine only)</I></LI>
+  <LI><B>SHIFT+MOD TARGET</B>: jumps into the appr. Envelope/LFO page (E1/E2/L1..L6) <I>(Lead engine only)</I></LI>
+  <LI><B>Pressing two MOD SOURCE buttons the same time:</B> toggles the 8x8 LED matrix between modulation matrix and metering mode.</LI>
+</UL>
+
+FOOTER

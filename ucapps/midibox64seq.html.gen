@@ -1,0 +1,566 @@
+HEADER 3 MIDIbox 64 SEQ
+
+<H1>MIDIbox 64 SEQ</H1>
+<H3>Created 2001-2003</H3>
+
+<P><CENTER><IMG SRC="midibox/midibox64_foto.jpg" width=575></CENTER></P>
+
+
+<H1><B>Important:</B> this page describes the old PIC16F based sequencer which was very limited compared to the redesigned "MIDIbox SEQ". If you are planning to build a new sequencer, then please <A HREF="midibox_seq.html">follow this link</A></H1>
+
+<A NAME="features"></A>
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Feature list <B>of the old PIC16F based version</B>:</H2></DT>
+  <UL CLASS=CL TYPE=DISC>
+    <LI> Every pot-row controls one track.</LI>
+    <LI>  4 independent tracks are available</LI>
+    <LI> Each track consists of 3 layers which can be assigned to
+    <UL CLASS=CL>
+       <LI> Note Number, Velocity, Gate Length (on Note Events)</LI>
+       <LI> CC Number, CC Value, Gate Length (on Controllers) </LI>
+    </UL>
+    </LI>
+    <LI> available modes for every track: Normal/Transpose/Transpose+Hold/Arpeggiator/Arp.+Hold/Controller</LI>
+    <LI> available directions for every track: Forward/Backward/PingPong/Random</LI>
+    <LI> available clock divider for every track: BPM/1, BPM/2, BPM/4, BPM/8, BPM/16 </LI>
+    <LI> available length for every track: 1-16</LI>
+    <LI> 12 layers can be assigned indiviually</LI>
+    <LI> 48-250 BPM or external sync via MIDI clock</LI>
+    <LI> 8 Presets </LI>
+    <LI> Manual step triggering</LI>
+    <LI> 128 patterns can be saved in every BankStick</LI>
+    <LI> patterns can be looped and chained</LI>
+  </UL>
+</DL>
+
+<H1><B>Important:</B> this page describes the old PIC16F based sequencer which was very limited compared to the redesigned "MIDIbox SEQ". If you are planning to build a new sequencer, then please <A HREF="midibox_seq.html">follow this link</A></H1>
+
+<A NAME="Hardware"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Menus </H2></DT>
+   <DD>
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs01.gif" width=194 height=38 ALT="Displaymenu"></P><P CLASS=INFO>Display Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>This is the main screen which provides following views:</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs30.gif" width=194 height=38 ALT="Display View 1"></TD>
+     <TD><P CLASS=INFO>Layer A is selected, pattern A1. Current step: 1/16 of Track 1. All steps are unmuted.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs31.gif" width=194 height=38 ALT="Display View 2"></TD>
+     <TD><P CLASS=INFO>Layer B has been selected.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs32.gif" width=194 height=38 ALT="Display View 3"></TD>
+     <TD><P CLASS=INFO>A pot of Track #1 has been moved. Layer A has been assigned to the note value, therefore you will see the four notes of one beat.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs33.gif" width=194 height=38 ALT="Display View 4"></TD>
+     <TD><P CLASS=INFO>Layer B has been selected which is assigned to velocity. Now you will see bars instead of notes for an better oversight.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs34.gif" width=194 height=38 ALT="Display View 5"></TD>
+     <TD><P CLASS=INFO>Layer C has been assigned to the gatelength.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs35.gif" width=194 height=38 ALT="Display View 6"></TD>
+     <TD><P CLASS=INFO>Track #2 - Layer C has been assigned to the CC number, all CC numbers are set to 2Eh.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs36.gif" width=194 height=38 ALT="Display View 7"></TD>
+     <TD><P CLASS=INFO>Layer B of Track #2 controls the CC value.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs37.gif" width=194 height=38 ALT="Display View 8"></TD>
+     <TD><P CLASS=INFO>Layer A of Track #2 controls the gatelength.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs38.gif" width=194 height=38 ALT="Display View 9"></TD>
+     <TD><P CLASS=INFO>Sequencer is running, current step: 5/16. Active Track: 1. Track 3 and 4 are muted.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs02.gif" width=194 height=38 ALT="Patternsmenu"></P><P CLASS=INFO>Patterns Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>MIDIbox64seq is the worldwide first MIDI controller with an exchangable, hot plug&playable bank storage device: the <B>BankStick</B>. If you find commercial controllers with the same feature in some years, you know from where the idea comes from. <BR>Every BankStick is capable of storing 128 different sequencer patterns. Since a standard 32k IIC EEPROM is used, these sweet little things are really cheap (about 5 EUR), so why not using several sticks for several songs or synthesizers...<BR>The simple circuit diagramm for the BankStick can be found <A HREF="mbhp_bankstick.html">here</A>.</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox/midibox64_bankstick.jpg" width=161 height=69 ALT="The BankStick"></TD>
+     <TD><P CLASS=INFO>An opened BankStick case. I'm using 9 pol SubD plugs, but you can also decide to use another type of plug with at least 4 pins.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs40.gif" width=194 height=38 ALT="No Stick found"></TD>
+     <TD><P CLASS=INFO>The LCD shows this message if no BankStick is connected. In this case, only one internal pattern is available.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs41.gif" width=194 height=38 ALT="Stick found"></TD>
+     <TD><P CLASS=INFO>This message appears immediately as soon as you plug the BankStick into the socket. Now you are able to select the pattern with the Left/Right Menu buttons or alternatively by the general purpose buttons (the first 8 GP buttons select the pattern group A-H/a-h, the second 8 GP buttons select the pattern number 1-8)</P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs42.gif" width=194 height=38 ALT="BankStick Format"></TD>
+     <TD><P CLASS=INFO>A new BankStick has to be formatted before it can be used. Just select a bank and press the Snapshot Button <I>for 3 seconds</I> in order to write the internal bank into the BankStick. Every bank has to be formatted seperately. This procedure is only necessary once!</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs04.gif" width=194 height=38 ALT="TrkEvtMenu"></P><P CLASS=INFO>Track Event Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>This menu allows you to assign a MIDI event (Note or CC) to the tracks. The track number has to be selected with the Start/Stop/Select button. </P>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs43.gif" width=194 height=38 ALT="Select Note"></TD>
+     <TD><P CLASS=INFO>With the Left/Right menu button you can either assign a note to this track...</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs44.gif" width=194 height=38 ALT="Select CC"></TD>
+     <TD><P CLASS=INFO>...or a MIDI controller (CC). Also the MIDI channel has to be specified in this menu.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs05.gif" width=194 height=38 ALT="TrkModeMenu"></P><P CLASS=INFO>Track Mode Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>Each track can run in an indivual mode which has to be specified in this menu. The track number has to be selected with the Start/Stop/Select button. </P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs45.gif" width=194 height=38 ALT="TrkMode View 1"></TD>
+     <TD><P CLASS=INFO>Use this mode to disable the track.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs46.gif" width=194 height=38 ALT="TrkMode View 2"></TD>
+     <TD><P CLASS=INFO>Common sequencer mode, notes or CC's are just played.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs47.gif" width=194 height=38 ALT="TrkMode View 3"></TD>
+     <TD><P CLASS=INFO>If the track runs in this mode, an external MIDI keyboard can be used to transpose the notes.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs48.gif" width=194 height=38 ALT="TrkMode View 4"></TD>
+     <TD><P CLASS=INFO>Same like above, but track will not be reset when no key is pressed.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs49.gif" width=194 height=38 ALT="TrkMode View 5"></TD>
+     <TD><P CLASS=INFO>the Arpeggiator mode works similar to the Transpose mode, but up to 4 keys can be transpose up to 4 successive steps with different values</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs50.gif" width=194 height=38 ALT="TrkMode View 6"></TD>
+     <TD><P CLASS=INFO>Same like above, but the track will not be reset when no key is pressed.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs51.gif" width=194 height=38 ALT="TrkMode View 7"></TD>
+     <TD><P CLASS=INFO>This special mode allows you to disable the sequencer function for the appr. track and to use the 16 pots for sending CC messages - nice for manual filter sweeps, etc. :) </P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs06.gif" width=194 height=38 ALT="TrkDirMenu"></P><P CLASS=INFO>Track Direction Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>Each track can run in an indivual direction which has to be specified in this menu. The track number has to be selected with the Start/Stop/Select button. </P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs52.gif" width=194 height=38 ALT="TrkDir View 1"></TD>
+     <TD><P CLASS=INFO>Track runs from the left to the right.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs53.gif" width=194 height=38 ALT="TrkDir View 2"></TD>
+     <TD><P CLASS=INFO>Track runs from the right to the left.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs54.gif" width=194 height=38 ALT="TrkDir View 3"></TD>
+     <TD><P CLASS=INFO>Track direction alternates.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs55.gif" width=194 height=38 ALT="TrkDir View 4"></TD>
+     <TD><P CLASS=INFO>Track direction changes randomly.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs07.gif" width=194 height=38 ALT="TrkDivMenu"></P><P CLASS=INFO>Track Divider Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>A clock divider can be assigned to every track in order to slow down the sequence. The track number has to be selected with the Start/Stop/Select button. </P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs56.gif" width=194 height=38 ALT="TrkDiv View 1"></TD>
+     <TD><P CLASS=INFO>A divider value from BPM/1 to...</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs57.gif" width=194 height=38 ALT="TrkDiv View 5"></TD>
+     <TD><P CLASS=INFO>...BPM/16 is supported.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs08.gif" width=194 height=38 ALT="TrkLenMenu"></P><P CLASS=INFO>Track Length Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>Each track can run with an indivual length which has to be specified in this menu. The track number has to be selected with the Start/Stop/Select button. </P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs58.gif" width=194 height=38 ALT="TrkLen View 1"></TD>
+     <TD><P CLASS=INFO>A track length from 1 step to 16 steps is supported.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs09.gif" width=194 height=38 ALT="AssgnMenu"></P><P CLASS=INFO>Layer Assign Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>Each layer of a track can be mapped to one of three functions (The layer and track number has to be selected with the Start/Stop/Select button). This feature allows you to configure the layers for your private needs. For example, if you mainly want to change the Notes with Track #1, a filter CC with Track #2, the filter ADSR decay value with Track #3, the slide function with Track #4, you can assign all these parameters to layer A. All other functions like velocity, CC number, gatelength, can be mapped to the other layers.<BR>Configuration Example:</P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs59.gif" width=194 height=38 ALT="Assgn View 1"></TD>
+     <TD><P CLASS=INFO>If track #1 plays notes: assign the note values to layer A<BR>If track #1 player CC's: assign the CC numbers to layer A</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs60.gif" width=194 height=38 ALT="Assgn View 2"></TD>
+     <TD><P CLASS=INFO>If track #1 plays notes: assign the velocity values to layer B<BR>If track #1 player CC's: assign the CC value to layer B</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs61.gif" width=194 height=38 ALT="Assgn View 3"></TD>
+     <TD><P CLASS=INFO>Assign the gatelength to layer C</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs11.gif" width=194 height=38 ALT="NextMenu"></P><P CLASS=INFO>Next Pattern Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>This menu allows you to chain patterns:</P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs62.gif" width=194 height=38 ALT="Next View 1"></TD>
+     <TD><P CLASS=INFO>This is the default setup: the pattern will stay selected after it has been finished - it will be played in an endless loop.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs63.gif" width=194 height=38 ALT="Next View 2"></TD>
+     <TD><P CLASS=INFO>With the GP or Left/Right buttons the next pattern can be specified to which the sequencer should switch after the current pattern has been finished. You are also able to specify how much times the pattern should be played before it switches to another pattern (press the Start/Stop/Select button to change the number of loops).</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs12.gif" width=194 height=38 ALT="ManualTrigger"></P><P CLASS=INFO>Manual Trigger Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>This menu allows you to trigger a single step manually with one of the 16 GP buttons. The note(s) and controller(s) will be played exactly with the original parameters and length. This intention behind this feature is to allow a more relaxed offline editing of the tracks ;-)</P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs64.gif" width=194 height=38 ALT="Trg View 1"></TD>
+     <TD><P CLASS=INFO>Either all tracks can be triggered at once...</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs65.gif" width=194 height=38 ALT="Trg View 2"></TD>
+     <TD><P CLASS=INFO>...or a step of a single track.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs13.gif" width=194 height=38 ALT="ShiftMenu"></P><P CLASS=INFO>Shift Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>This menu allows you to shift the starting point of the sequencer...</P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs66.gif" width=194 height=38 ALT="Shift View 1"></TD>
+     <TD><P CLASS=INFO>...from step 1 to 2-16</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs14.gif" width=194 height=38 ALT="BPMMenu"></P><P CLASS=INFO>BPM Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>This submenu allows you to setup the speed of the sequencer:</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs67.gif" width=194 height=38 ALT="SEQ BPM Master"></TD>
+     <TD><P CLASS=INFO>BPMs from 48 to 250 can be selected with the Left/Right buttons. In this case, the MIDIbox64 sequencer acts as MIDI clock master and you can synchronize other MIDI sequencers with the MIDIbox.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs68.gif" width=194 height=38 ALT="SEQ BPM Slave"></TD>
+     <TD><P CLASS=INFO>With the leftmost position (below 48 BPM) the Slave Mode is selected. In this case, the MIDIbox64 sequencer acts as MIDI clock slave and can be synchronized to other MIDI sequencers.</P></TD>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs15.gif" width=194 height=38 ALT="CopyMenu"></P><P CLASS=INFO>Copy Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>Use this menu page to copy (or save) the current pattern to another destination.</P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs69.gif" width=194 height=38 ALT="Copy View 1"></TD>
+     <TD><P CLASS=INFO>note that you can either use the Left/Right buttons, or the 16 GP buttons to select the target pattern.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs16.gif" width=194 height=38 ALT="PresetMenu"></P><P CLASS=INFO>Preset Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <P CLASS=DESC>8 presets are available which can be copied into the current pattern for a fast&easy setup:</P>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs70.gif" width=194 height=38 ALT="Preset View 1"></TD>
+     <TD><P CLASS=INFO>Track 1-4 send notes on MIDI Channel 1, 2, 3, 4</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs71.gif" width=194 height=38 ALT="Preset View 2"></TD>
+     <TD><P CLASS=INFO>Track 1-4 send controllers on MIDI Channel 1, 2, 3, 4</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs72.gif" width=194 height=38 ALT="Preset View 3"></TD>
+     <TD><P CLASS=INFO>Track1/3 send notes on channel 1/2, track 2/4 send controllers on channel 1/2</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs73.gif" width=194 height=38 ALT="Preset View 4"></TD>
+     <TD><P CLASS=INFO>Track 1 sends notes on channel 1, track 2-4 send controllers (Track 4 with Ping Pong effect)</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs74.gif" width=194 height=38 ALT="Preset View 5"></TD>
+     <TD><P CLASS=INFO>Track 1-4 trigger drum samples (Bass Drum, Snare, Closed/Opened HiHat) on MIDI Channel 10</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs75.gif" width=194 height=38 ALT="Preset View 6"></TD>
+     <TD><P CLASS=INFO>Track 1-4 send CC#7 controllers for a nice gater effect on Channel 1-4</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs76.gif" width=194 height=38 ALT="Preset View 7"></TD>
+     <TD><P CLASS=INFO>Track 1-4 send notes on Channel 1 in various sequencer modes (Normal/Transpose/T+Hold/Arpeggiator) at the same time</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="mb64seq_tutor/cs77.gif" width=194 height=38 ALT="Preset View 8"></TD>
+     <TD><P CLASS=INFO>same like above, but with additional dividers and PingPongs</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs17.gif" width=194 height=38 ALT="MIDIMenu"></P><P CLASS=INFO>MIDI Config. Submenu</P></TD>
+  <TD>
+    <P CLASS=DESC>The MIDI merger allows you ie. to plug the MIDIbox and a keyboard to a computer w/o a second MIDI In interface. Just plug the MIDI Out of your keyboard to the MIDI In of MIDIbox and the MIDI Out of the MIDIbox to the MIDI In of your computer. If you connect the MIDI In of the MIDIbox with MIDI Out of your computer, you should disable the MIDI merger in order to avoid endless feedback loops.</P>
+    <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+    <TR>   
+      <TD><IMG SRC="mb64seq_tutor/cs78.gif" width=194 height=39 ALT="Merger Display"></TD>
+      <TD><P CLASS=INFO>In this mode, you are also able to enable the MIDIbox-to-COM option with the Start/Stop/Select Button (4). Find more informations on the <A HREF="midibox_to_com.html">MIDIbox-to-COM Interface Page</A>!</P></TD>
+    </TR>
+    </TABLE>
+  </TD>
+</TR>
+
+
+
+<TR>
+  <TD><P><IMG SRC="mb64seq_tutor/cs18.gif" width=194 height=38 ALT="SysExMenu"></P><P CLASS=INFO>SysEx Submenu</P></TD>
+  <TD>
+    <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+    <TR>   
+      <TD><IMG SRC="mb64seq_tutor/cs79.gif" width=194 height=38 ALT="SysEx View 1"></TD>
+      <TD><P CLASS=INFO>This menu allows you to send the pattern setup to another sequencer. In theory. But in praxis the PIC16F firmware of the sequencer is not able to receive a pattern due to memory limitations - this feature will be enabled in the MIOS based implementation.</P></TD>
+    </TR>
+    </TABLE>
+  </TD>
+</TR>
+
+
+</TABLE>
+
+   </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Limitations of the PIC16F based firmware </H2></DT>
+   <P CLASS=INFO>Due to memory limitations the PIC16F based firmware comes with some known imperfections which will be fixed in the <A HREF="midibox_seq.html">MIOS</A> based implementation:</P>
+  <UL CLASS=CL TYPE=DISC>
+    <LI> Layer C contains only one value for the whole row (Layer A, B: 16 values). This restriction was necessary due to limited RAM - in the PIC18F452 version this limitation will not exist. Workaround: assign a static sequencer function to Layer C. If the track should play a drum, just assign the note number to layer A, velcoity to layer B and the gatelength to Layer C (-> gatelength never change). Or if you want to sequence a MIDI controller, assign the CC Value to Layer A, the gatelength to Layer B and the CC number to Layer C (-> CC number never change)</LI>
+    <LI> Buttons and LED functions are not free assignable to DIN/DOUT pins. Find the available IO pins in these files: <A HREF="mbhp/mbhp_dinx4_mb64seq.pdf">mbhp_dinx4_mb64seq.pdf</A> and <A HREF="mbhp/mbhp_doutx4_mb64seq.pdf">mbhp_doutx4_mb64seq.pdf</A></LI>
+    <LI> SysEx dumps cannot be received</LI>
+    <LI> the 16 "general purpose" LEDs only show the status of the "active track". The MIOS based version will allow to use 64 LEDs for all 64 pots.</LI>
+    <LI> the layer assign function should be enhanced so that track functions can also be mapped to other pot rows, so that all three parameters of one track are controllable without switching to another layer.</LI>
+    <LI> the GP buttons should also be used to select the track mode, track length, clock divider etc. depending on the active submenu.</LI>
+    <LI> a "performance" and "edit" mode. The pattern should be played endless in edit mode, it should not be switched to the "next pattern" like in performance mode</LI>
+    <LI> no Song mode, the "next pattern" feature is very hard to use</LI>
+    <LI> only one pattern can be played at the same time. The <A HREF="midibox_seq.html">MIOS</A> based implementation allows to play 4 patterns at once -> 16 tracks!</LI>
+    <LI> Groove styles (Shuffle etc...) - a very essential feature for drum patterns - are only supported by the <A HREF="midibox_seq.html">MIOS</A> based implementation!</LI>
+    <LI> the sequencer core should be reusable for other control surfaces (e.g for a TB303 like user interface)</LI>
+    <LI> the <A HREF="midibox_seq.html">MIOS</A> based implementation offers an optimized control surface for sequencers with two 2x40 LCDs and 17 rotary encoders. Please keep in mind that controlling so much tracks and layers with common pots makes no fun, once you've to switch between the layers in order to edit an existing sequence!</LI>
+    <LI> note also that this firmware has been discontinued and won't be maintained in the future. The <A HREF="midibox_seq.html">MIOS</A> based implementation provides an option which allows you to re-use your existing MIDIbox64seq hardware (called MIDIbox SEQ Vintage), you just only have to exchange the PIC and the crystal.</LI>
+  </UL>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Schematics & PCBs</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp.html">MBHP</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>see MIDIbox Hardware Platform</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_mb64seq.pdf">mbhp_dinx4_mb64seq.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>4k</TD>
+      <TD CLASS=TABCOLOR2>button pin assignments</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_mb64seq.pdf">mbhp_doutx4_mb64seq.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>4k</TD>
+      <TD CLASS=TABCOLOR2>LED pin assignments</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Firmware</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="pic16f_firmwares.html">PIC16F Firmwares</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Firmware for PIC16F877 (expired, don't use it for new MIDIboxes!)</TD>
+    </TR>
+
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Walkthroughs & Tutorials</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://monopole.ph.qmw.ac.uk/~thomas/synthdiy/TBbox1.htm" TARGET="_blank">Report</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mailto:s.thomas@qmul.ac.uk">Steven Thomas</A> wrote a report about his TB3030+MIDIbox64 Sequencer Project. Check this site if you are searching for an extravagand enclosure!</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox64_tutorial.html" TARGET="_blank">Tutorial</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>The MIDIbox64 tutorial</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Misc.</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://forum.ucapps.de">MIDIbox Forum</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Support at the MIDIbox Forum</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://wiki.midibox.org" TARGET="_blank">MIDIbox Wiki</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>A lot of additional informations on MIDIbox</TD>
+    </TR>
+  </TABLE></DD>
+</DL>
+
+
+<DL><DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Sequencer Demo Samples </H2></DT>
+   <DL> <P CLASS=INFO>These samples are intended for people who want to know more about the advantages of a hardware step sequencer. Note that the parts are mostly played live within one evening regardless of the sound quality. You see: the results come fast and sound interesting :)<BR>A Yamaha AN1x Synthesizer and XG card were used as sound source.</P>
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3>
+  <TR>
+    <TD> <A HREF="http://www.ucapps.de/mp3/midibox/mb64_demo1.mp3">MP3</A> <I>(515k)</I> </TD>
+    <TD> <SPAN CLASS=NORM>A classical step sequencer loop. Four voices are played simultaneously <BR>
+    <I>(Seq Mode Independent, Loop Mode 1111, Play Mode 1111, Loop Length 16)</I></SPAN></TD>
+    </TD>
+</TR>                                                             
+
+  <TR>
+    <TD> <A HREF="http://www.ucapps.de/mp3/midibox/mb64_demo2.mp3">MP3</A> <I>(990k)</I> </TD>
+    <TD> <SPAN CLASS=NORM>This sample demonstrates how fast a gater effect can be realized. One pot track controls the VCA of a saw sound. Only 4 pots are played in a loop, this allows to change the gate times fast and unique for every cycle.<BR>
+At the beginning, the gate time of pot #1 is gained, thereafter the gate time of pot #3, then pot #2. After 25 seconds, some effects are modified (because the gater effect lives on modulation of parameters) and drums are played.</BR>
+    <I>(Seq Mode Independent, Loop Mode 1---, Play Mode L111, Loop Length 4)</I></SPAN></TD>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <A HREF="http://www.ucapps.de/mp3/midibox/mb64_demo3.mp3">MP3</A> <I>(1550k)</I> </TD>
+    <TD> <SPAN CLASS=NORM>You hear the reason why I built the sequencer. ;-)<BR>
+    A deep dark sound is played. After 30 seconds, the sequencer is started. It modulates the sync intensity and cutoff frequency of the sound. Later, the pots deticated for the cutoff frequency are moved to get a special rythmic feeling.<BR>
+    <I>(Seq Mode Independent, Loop Mode 11--, Play Mode 2211, Loop Length 16)</I></SPAN></TD>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <A HREF="http://www.ucapps.de/mp3/midibox/mb64_demo4.mp3">MP3</A> <I>(380k)</I> </TD>
+    <TD> <SPAN CLASS=NORM>3 pot tracks and the button track are playing 4 drum samples of a XG sound card. After 12 seconds, the fourth pot track is switched on which additionally modulates the cutoff frequency.<BR>
+    <I>(Seq Mode Independent, Loop Mode 1111, Play Mode 1112, Loop Length 16)</I></SPAN></TD>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <A HREF="http://www.ucapps.de/mp3/midibox/mb64_demo5.mp3">MP3</A> <I>(235k)</I> </TD>
+    <TD> <SPAN CLASS=NORM>Two voices are played simultaneously. Pot track #1 and #2 controlls the cutoff frequency and resonance of the first, pot track #3 and #4 the parameters of the second voice.<BR>
+    <I>(Seq Mode Independent, Loop Mode 1111, Play Mode 1111, Loop Length 16)</I></SPAN></TD>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <IMG SRC="images/new.gif" ALT="NEW"> <A HREF="http://www.ucapps.de/mp3/midibox/mb64_demo6.mp3">MP3</A> <I>(996k)</I> </TD>
+    <TD> <SPAN CLASS=NORM>A techno-like song, uses the transpose function. Only the lead sound is controlled by the MIDIbox64 sequencer (notes and sync rate), the other sounds are coming from a RM1x groovebox, which is synchronized via MIDI clock.<BR>
+    <I>(Seq Mode Tranpose, Loop Mode ---1, Play Mode ---2, Loop Length 8)</I></SPAN></TD>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <IMG SRC="images/new.gif" ALT="NEW"> <A HREF="http://www.ucapps.de/mp3/midibox/mb64_demo7.mp3">MP3</A> <I>(540k)</I> </TD>
+    <TD> <SPAN CLASS=NORM>A classical electronic arpeggiator tune. MIDIbox track 1-3 sends the notes, the independent track #4 the cutoff controllers<BR>
+    <I>(Seq Mode Arpeggiator, Loop Mode ---1, Play Mode ---2, Loop Length 16)</I></SPAN></TD>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <IMG SRC="images/new.gif" ALT="NEW"> <A HREF="http://www.ucapps.de/mp3/midibox/mb64_demo8.mp3">MP3</A> <I>(344k)</I> </TD>
+    <TD> <SPAN CLASS=NORM>Arpeggiator speed increased from 100 BPM to 250 BPM.<BR>
+    Do you remember the C=64? :-)<BR>
+    <I>(Seq Mode Arpeggiator, Loop Mode ----, Play Mode ----, Loop Length 4)</I></SPAN></TD>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <A HREF="http://mp3.de/frequencies" TARGET="_blank">LINK</A></TD>
+    <TD> <SPAN CLASS=NORM>Find the Songs 'Floating Sequences' and 'Get Sequenced' at this page. It especially demonstrates the different play modes of the sequencer.</SPAN>
+    </TD>
+  </TR>                                                             
+
+  </TABLE></DL>
+</DL>
+
+<P><CENTER><IMG SRC="images/workbench.jpg" width=575></CENTER><SPAN CLASS=MEDIUM>TK in the DIY corner.</SPAN></P>
+
+
+FOOTER

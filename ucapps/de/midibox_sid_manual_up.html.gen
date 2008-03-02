@@ -1,0 +1,50 @@
+HEADER 3 MIDIbox SID V2 User Manual --- V1 Upgrade
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- V1 Upgrade</H1>
+
+<P CLASS=INFO>In diesem Kapitel sind die Anforderungen f&uuml;r einen Hardware-Upgrade von MIDIbox SID V1 zur neuen MIDIbox SID V2 Firmware aufgelistet.</P>
+
+<UL CLASS=CL>
+  <LI>Der PIC18F452 wird durch einen PIC18F4685 ausgetauscht. Dies ist ein ziemlich neuer Mikrocontroller, der leider noch nicht bei Reichelt verf&uuml;gbar ist.<BR>
+<A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV</A> k&uuml;mmert sich um Sammelbestellungen, und bietet den PIC mit vorprogrammierten Bootloader und MIOS zu einem ziemlich fairen Preis an (<B>$9.95 !!!</B> Vergleiche mit handels&uuml;blichen Preisen unter <A HREF="http://www.findchips.com">findchips.com</A> und Du wirst keine g&uuml;nstigeren Angebote f&uuml;r einzelne Chips finden!)<BR>
+     Doc k&uuml;mmert sich um die Distribution in Europa f&uuml;r Leute, die Versandkosten sparen wollen. Er ist via PM im <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> zu erreichen.</LI>
+
+  <LI>Falls Dein Core Modul auf MBHP_CORE_V2 basiert, sollte R12 (der zus&auml;tzliche 1k Pull-Up Widerstand f&uuml;r IIC Module) hinzugef&uuml;gt werden wie im <A HREF="mbhp_core.html">MBHP_CORE_V3</A> Schaltplan zu ersehen ist.</LI>
+  <LI>Falls Dein SID Modul auf MBHP_SID_V2 basiert, befolge bitte <A HREF="mbhp_sid_old.html">diese Anweisungen</A>.<BR>
+<I>Hinweis:</I> die Anweisungen d&uuml;rfen ignoriert werden, wenn die Hardware bereits mit v1.7303 lief - in diesem Fall sind keine Aenderungen an den MBHP_CORE->MBHP_SID Verbindungen notwendig.</LI>
+  <LI>Falls Du die Stereo Option verwenden m&ouml;chtest (zwei SID chips werden von einem einzigen Core Modul angesteuert - empfohlene Konfiguration f&uuml;r eine "great sound experience"!), schliesse das zweite SID Modul einfach wie das erste an. Lediglich die Verbindung der CS# Leitung des zweiten SID Moduls unterscheidet sich (MBHP_SID::J2:SO -> MBHP_CORE::J14), so dass der SID individuell angesprochen werden kann.</LI>
+  <LI>Die vier Datenleitungen D0-D3 des LCDs m&uuml;ssen getrennt werden (offen lassen!). Das LCD wird im 4bit Modus angesprochen, so dass die beiden ECAN pins frei liegen.</LI>
+  <LI>L&ouml;te einen 1k Pull-Up Widerstand an den CAN Receive Eingang wie in <A HREF="midibox_sid/mbsid_v2_communication.pdf">diesem Schaltplan</A> zu ersehen.<BR>Dieser Widerstand ist selbst dann notwendig, wenn kein Slave Core angeschlossen ist, ansonsten wird die Firmware bereits w&auml;hrend der Boot Phase abst&uuml;rzen!</LI>
+  <LI>Falls Du bisher 32k BankSticks (24LC256) verwendet hast, macht es Sinn, diese durch 64k BankSticks (24LC512) auszutauschen, so dass 128 Patches pro Bank gespeichert werden k&ouml;nnen! Der achte BankStick wird &uuml;brigens zum Speichern von Ensembles verwendet, zu diesem Zweck ist ein 32k EEPROM ausreichend.</LI>
+</UL>
+
+<P CLASS=INFO>Folgende &Auml;nderungen sind nur dann notwendig, wenn Slaves am Master Core angeschlossen sind:<BR>
+  <UL CLASS=CL>
+    <LI>Die MIDI Verbindungen zu den Slaves &auml;ndern sich wie in <A HREF="midibox_sid/mbsid_v2_communication.pdf">diesem Schaltplan</A> zu ersehen. Die Slaves empfangen nun die gleichen MIDI Daten wie der Master (parallele Verbindung, J11:MI Eingang der Slaves direkt mit J11:MI Eingang des Masters verbunden)</LI>
+    <LI>Erstelle die CAN Bus Verbindungen wie in <A HREF="midibox_sid/mbsid_v2_communication.pdf">diesem Schaltplan</A> zu ersehen. Die Transmit Ausg&auml;nge der Cores werden &uuml;ber eine Diode (bspw. 1N4148) angekoppelt.</LI>
+  </UL>
+</P>
+
+<P CLASS=INFO>Das ist auch schon alles - have fun! :-)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Bauteilliste f&uuml;r einen kompletten MIDIbox SID V1 upgrade </H2>
+
+<P CLASS=DESC>Wenn Du bereits eine voll best&uuml;ckte MIDIbox SID V1 besitzt, m&uuml;ssen f&uuml;r den Upgrade folgende Bauteile hinzugekauft werden:<BR>
+<UL CLASS=CL>
+  <LI>4 * (oder 2 *, siehe unten) PIC18F4685</LI>
+  <LI>1 * 1k Widerstand</LI>
+  <LI>+4 * 1k Widerst&auml;nde falls die Core Module noch auf MBHP_CORE_V2 basieren</LI>
+  <LI>4 * 1N4148 Diode</LI>
+  <LI>+3 * 24LC512 EEPROMs (unter der Annahme, dass Dir 3 * 128 patches ausreichen. Die alten 32k BankSticks k&ouml;nnen weiterverwendet werden, bspw. f&uuml;r die weiteren B&auml;nke (nur 64 Patches werden pro Bank gespeichert, bis zu 7 sind m&ouml;glich), oder f&uuml;r Ensembles (Bank 8).</LI>
+</UL>
+
+<P CLASS=DESC>Plus 4 * <A HREF="mbhp_sid.html">MBHP_SID</A> modules falls Du so verr&uuml;ckt bist wie viele andere, und Deine MIDIbox mit der maximalen Konfiguration ausstatten m&ouml;chtest! ;-)</P>
+
+<P CLASS=DESC>F&uuml;r diejenigen, die keine zus&auml;tzlichen SID Module kaufen m&ouml;chten, empfehle ich w&auml;rmstens die Verwendung der Stereo Option! In diesem Falle werden nur noch zwei statt vier Core Module (und nur zwei PIC18F4685) ben&ouml;tigt.<BR>
+Der Upgrade w&uuml;rde Dich f&uuml;r solch eine Konfiguration gerade mal 20..25 EUR (+Versand) kosten.</P>
+
+FOOTER

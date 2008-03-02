@@ -1,0 +1,469 @@
+HEADER 3 MIDIbox 808
+
+<TABLE WIDTH="100%" border=0 cellpadding=0 cellspacing=0>
+
+<TR><TD width=600>
+<H1>MIDIbox 808</H1>
+<H1>Specification</H1>
+</TD><TD></TD></TR>
+
+<TR><TD width=600>
+  <img src="midibox_808/808_front_v0_7.gif" width=575>
+</TD><TD></TD></TR>
+
+
+<TR><TD width=600>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Work in Progress! </H2>
+
+<P CLASS=DESC>This page discusses the specs of the upcoming MIDIbox 808 drum sequencer. The firmware is in beta state and can be downloaded from the bottom of this page. It's mainly based on the <A HREF="midibox_seq.html">MIDIbox SEQ V3</A> firmware, but got a lot of changes in the user interface and data structures.</P>
+
+</TD><TD></TD></TR>
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Introduction </H2>
+<P CLASS=DESC>MIDIbox 808 is a variant of <A HREF="midibox_seq.html">MIDIbox SEQ V3</A> and is mainly intended as drum sequencer for Jeff Farr's <A HREF="http://www.eight-oh-eight.org" TARGET="_blank">MB808</A> project. But it is possible to use the firmware for other "analog drums" projects as well, or as MIDI drum sequencer.</P>
+
+<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/Z3d6U9ahh_E"></param><embed src="http://www.youtube.com/v/Z3d6U9ahh_E" type="application/x-shockwave-flash" width="425" height="350"></embed></object><BR><SPAN CLASS=INFO>MIDIbox 808 Introduction Video (<A HREF="http://www.youtube.com/watch?v=Z3d6U9ahh_E" TARGET="_blank">YouTube</A>)</SPAN>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+
+<P CLASS=DESC>Differences in comparison to <A HREF="midibox_seq.html">MIDIbox SEQ V3</A>:
+<UL CLASS=CL>
+  <LI>Minimal (=inexpensive) control surface with 33 buttons, 35 LEDs and 1 rotary encoder. Additional control elements (e.g. 4x16 Button/Duo-LED matrix, Instrument selection encoder, BPM LED digit display, 2x16 LCD or two 2x40 LCD, etc...) are supported as well, but they are not required to experience the full potential of the firmware!</LI>
+  <LI>Patterns are stored in a new (incompatible!) data structure, optimized for 16 drum tracks with up to 64 steps and 2 layers (gate/auxiliary)</LI>
+  <LI>A pattern is divided into 4 sections (A/B/C/D), which can be used for variations.</LI>
+  <LI>The auxiliary layer can be used to trigger one of following functions: skip step, Flam, random gate, jump to random step, Accent (for external instruments), Step Microdelay (to add manual shuffling) + placeholders for future extensions</LI>
+  <LI>One track can be optionally used as global accent (requirement for MB808 drums). Note that this accent layer has it's own time base and step progression!!!  </LI>
+  <LI>Simple to use chain pattern function (alternative to song mode)</LI>
+  <LI>Live recording function allows to record all 16 instruments in one run, controlled from the GP buttons, or from an external MIDI device (drum pads or MIDI keyboard). The MIDI solution has the advantage, that the auxiliary trigger layer (e.g. accent or flam) can be controlled with the velocity of MIDI Note events.</LI>
+  <LI>Sequencer can be perfectly synched to <A HREF="midibox_seq.html">MIDIbox SEQ V3</A> or similar sequencer/groove boxes/recording software, either as MIDI clock master or slave. A DIN synch output for clocking vintage gear (e.g. original TR-808, TR-909, TB-303, etc...) is provided as well. A DIN synch input is not provided!</LI>
+</UL>
+
+<P CLASS=DESC>It is possible to run the firmware on the original <A HREF="midibox_seq.html">MIDIbox SEQ V3</A> hardware, but not all control elements will be used. The 16 GP rotary encoders are used to select the instrument (they don't change values), the two 2x40 LCD will be enabled to show the correlating button functions, but the messages won't be so selfexplaining like known from MBSEQ (many abbreviations...) to allow easy re-use between 2x40 and 2x80 output functions.</P>
+<P CLASS=DESC>In other words: the option to install MIDIbox 808 firmware on MIDIbox SEQ V3 is provided for people who want to evaluate this alternative solution, or just want to spend some nice hours with a dedicated drum sequencer. BankSticks won't be re-formatted while switching the firmware - but because of the changed data structure, patterns will output "random data" when played with a different firmware!</P>
+</TD><TD></TD></TR>
+
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware Requirements </H2>
+
+<P CLASS=DESC>Either the <A HREF="http://www.eight-oh-eight.org" TARGET="_blank">MB808 PCB</A>, or following modules:</P>
+<UL CLASS=CL>
+  <LI>1 x <A HREF="mbhp_core.html">MBHP_CORE</A>, stuffed with PIC18F4620</LI>
+  <LI>2 x <A HREF="mbhp_din.html">MBHP_DINX4</A> (only 6 74HC165 shift registers used)</LI>
+  <LI>2 x <A HREF="mbhp_dout.html">MBHP_DOUTX4</A> (7 74HC595 shift registers used)</LI>
+  <LI>1 rotary encoder (for tempo, could also be used for additonal purposes in future)</LI>
+  <LI>33 buttons</LI>
+  <LI>35 LEDs (33 could be integrated into buttons, 2 additional LEDs to display selected layer and record mode)</LI>
+  </LI>
+</UL>
+</TD><TD></TD></TR>
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Optional Hardware </H2>
+
+<UL CLASS=CL>
+  <LI>An "Instrument selection" encoder as alternative possibility to select a single track, or all tracks together.</LI>
+  <LI>A "swing" pot, which controls the "groove intensity" with a higher resolution (in groove layer, only 3bit = 8 values selectable). This pot is already part of MB808 PCB.</LI>
+  <LI>Button/LED functions, that are located in the SHIFT or ALT layer, can be assigned to dedicated buttons/LEDs (e.g. Record, Pause, ALL, Solo, etc...)</LI>
+  <LI>2x16 LCD for better overview over selected mode, edited steps, pattern, song position, etc... Some nice animations (e.g. in mute page: meters which visualize the track activity) are provided as well :)</LI>
+  <LI>or two 2x40 LCDs to show the correlated GP button functions depending on the selected page.</LI>
+  <LI>3 LED digits for BPM display (requires two additional 74HC595 shift registers)</LI>
+  <LI>4x16 Button/Duo-LED matrix (<A HREF="mbhp/button_duoled_matrix.pdf">Pinning of Button/Duo-LED matrix</A> <I>(Note: circuit needs to be improved for high-current LEDs!)</I>)<BR>
+      It will be possible to edit 4 tracks at once, or a single track in 64 step view!<BR>
+      Matrix can either be used in addition to the 16 GP buttons/LEDs, or the upper row of the matrix replaces the GP functions.</LI>
+  <LI>4 "group select" buttons + LEDs (only required if 4x16 Button/Duo-LED matrix used)</LI>
+  <LI>MBHP_AOUT, MBHP_AOUT_LC or MBHP_AOUT_NG to output velocity. Please note, that each track has only two velocity values defined (accented and not accented). It isn't possible to set individual velocities for each step.</LI>
+</UL>
+</TD><TD></TD></TR>
+
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Button Functions </H2>
+
+<P CLASS=DESC>When you look on the <A HREF="midibox_808/808_front_v0_7.gif">Frontpanel</A> again, you will notice a SHIFT and ALT button. They are used to select different button layers, labeled with red and green font. It would be possible to combine SHIFT+ALT to a new layer in future.</P>
+
+<P CLASS=DESC>Please note, that the frontpanel labeling is not intended "for production", but only to visualize the layers. The final frontpanel has to be discussed in the <A HREF="http://www.eight-oh-eight.org/phpbb2/index.php" TARGET="_blank">MB808 forum</A>.</P>
+
+<P CLASS=DESC><I><B>Menu Page Selection</B></I><BR>
+
+<P CLASS=DESC>By pressing the ALT button, the GP LEDs will display the currently selected menu page. The page can be changed by pressing the appr. GP button above the green labels.</P>
+</TD><TD></TD></TR>
+
+<TR><TD COLSPAN=2>
+<IMG SRC="midibox_808/808_menu.gif" WIDTH=763 HEIGHT=94></IMG>
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=1 CELLPADDING=1>
+  <TR>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Page</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1 COLSPAN=16><FONT SIZE=2><STRONG>Functions</STRONG></FONT></td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Edit</td>
+    <TD CLASS=TABCOLOR2 COLSPAN=16>Same as EDIT button - only available as additional way to select the edit page.</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Util(ity)</td>
+    <TD CLASS=TABCOLOR2>Copy Track</td>
+    <TD CLASS=TABCOLOR2>Paste Track</td>
+    <TD CLASS=TABCOLOR2>Clear Track</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>Copy Steps</td>
+    <TD CLASS=TABCOLOR2>Paste Steps</td>
+    <TD CLASS=TABCOLOR2>Clear Steps</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>Undo</td>
+    <TD CLASS=TABCOLOR2>Clear Pattern</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>MuteAll</td>
+    <TD CLASS=TABCOLOR2>UnMute All</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Opt(ions)</td>
+    <TD CLASS=TABCOLOR2>Oneshot Pattern Chains</td>
+    <TD CLASS=TABCOLOR2><B>Follow Pattern/Song (default)</B></td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>Send Pattern changes via MIDI CC</td>
+    <TD CLASS=TABCOLOR2>Send Song changes via MIDI CC</td>
+    <TD CLASS=TABCOLOR2>Send Mute changes via MIDI CC</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Dir(ection)</td>
+    <TD CLASS=TABCOLOR2><B>Forward (default)</B></td>
+    <TD CLASS=TABCOLOR2>Backward</td>
+    <TD CLASS=TABCOLOR2>PingPong</td>
+    <TD CLASS=TABCOLOR2>Pendulum</td>
+    <TD CLASS=TABCOLOR2>Rand.Dir</td>
+    <TD CLASS=TABCOLOR2>Rand.Step</td>
+    <TD CLASS=TABCOLOR2>Rand.D+S</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Timeb(ase)</td>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>1T</td>
+    <TD CLASS=TABCOLOR2>2</td>
+    <TD CLASS=TABCOLOR2>2T</td>
+    <TD CLASS=TABCOLOR2>4</td>
+    <TD CLASS=TABCOLOR2>4T</td>
+    <TD CLASS=TABCOLOR2>8</td>
+    <TD CLASS=TABCOLOR2>8T</td>
+    <TD CLASS=TABCOLOR2><B>16 (default)</B></td>
+    <TD CLASS=TABCOLOR2>16T</td>
+    <TD CLASS=TABCOLOR2>32</td>
+    <TD CLASS=TABCOLOR2>32T</td>
+    <TD CLASS=TABCOLOR2>64</td>
+    <TD CLASS=TABCOLOR2>Odd</td>
+    <TD CLASS=TABCOLOR2>Extreme Odd</td>
+    <TD CLASS=TABCOLOR2>Restart Track on each Bar (Measure)</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Prog(ression)</td>
+    <TD CLASS=TABCOLOR2><B>Fwd 1 (default)</B></td>
+    <TD CLASS=TABCOLOR2>Fwd 2</td>
+    <TD CLASS=TABCOLOR2>Fwd 3</td>
+    <TD CLASS=TABCOLOR2>Fwd 4</td>
+    <TD CLASS=TABCOLOR2>Fwd 5</td>
+    <TD CLASS=TABCOLOR2>Fwd 6</td>
+    <TD CLASS=TABCOLOR2>Fwd 7</td>
+    <TD CLASS=TABCOLOR2>Fwd 8</td>
+    <TD CLASS=TABCOLOR2><B>Back 0 (default)</B></td>
+    <TD CLASS=TABCOLOR2>Back 1</td>
+    <TD CLASS=TABCOLOR2>Back 2</td>
+    <TD CLASS=TABCOLOR2>Back 3</td>
+    <TD CLASS=TABCOLOR2>Back 4</td>
+    <TD CLASS=TABCOLOR2>Back 5</td>
+    <TD CLASS=TABCOLOR2>Back 6</td>
+    <TD CLASS=TABCOLOR2>Back 7</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Loop</td>
+    <TD CLASS=TABCOLOR2 COLSPAN=16>Allows to set the loop points of a step.<BR>
+    There is a loop and end point. The loop point defines where the pattern should continue after the end point has been played (in other words: the end point defines the track length)<BR>
+    The GP LEDs show the steps between these points.<BR>
+    If you select a GP button right of the loop point, the end point will be changed.<BR>
+    If you select a GP button left of the loop point, or if you press the SHIFT button, the loop point will be changed.<BR>
+    Note that the track length can be set between 17 and 32 steps by setting the end point in section B. By doing so, section AB and CD will be combined to single section.<BR>
+    A track length of more than 32 steps requires an end point at section C or E. By doing so, ABCD will be combined, and there are no seperately selectable sections anymore.<BR>
+    <B>Hint:</B> activate the "All function" (SHIFT+Edit button) to change the lengh of all tracks at once!</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Groove</td>
+    <TD CLASS=TABCOLOR2>Off</td>
+    <TD CLASS=TABCOLOR2><B>Shuffle (default)</B></td>
+    <TD CLASS=TABCOLOR2>Inv. Shuffle</td>
+    <TD CLASS=TABCOLOR2>Shuffle 2</td>
+    <TD CLASS=TABCOLOR2>Inv. Shuffle 2</td>
+    <TD CLASS=TABCOLOR2>Shuffle 3</td>
+    <TD CLASS=TABCOLOR2>Shuffle 4</td>
+    <TD CLASS=TABCOLOR2>Shuffle 5</td>
+    <TD CLASS=TABCOLOR2><B>Intensity 0 (default)</B></td>
+    <TD CLASS=TABCOLOR2>Intensity 1</td>
+    <TD CLASS=TABCOLOR2>Intensity 2</td>
+    <TD CLASS=TABCOLOR2>Intensity 3</td>
+    <TD CLASS=TABCOLOR2>Intensity 4</td>
+    <TD CLASS=TABCOLOR2>Intensity 5</td>
+    <TD CLASS=TABCOLOR2>Intensity 6</td>
+    <TD CLASS=TABCOLOR2>Intensity 7</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Assign</td>
+    <TD CLASS=TABCOLOR2>Accent</td>
+    <TD CLASS=TABCOLOR2>Skip Step</td>
+    <TD CLASS=TABCOLOR2><B>Flam 1 (default)</B></td>
+    <TD CLASS=TABCOLOR2>Flam 2</td>
+    <TD CLASS=TABCOLOR2>Flam 3</td>
+    <TD CLASS=TABCOLOR2>Flam 4</td>
+    <TD CLASS=TABCOLOR2>Random Gate</td>
+    <TD CLASS=TABCOLOR2>Random Jump</td>
+    <TD CLASS=TABCOLOR2>MicroDelay 1</td>
+    <TD CLASS=TABCOLOR2>MicroDelay 2</td>
+    <TD CLASS=TABCOLOR2>MicroDelay 3</td>
+    <TD CLASS=TABCOLOR2>MicroDelay 4</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Rand(om)</td>
+    <TD CLASS=TABCOLOR2 COLSPAN=16>16 GP buttons used for obscure random options.<BR>
+    Note that it also works with multiple selected tracks.<BR>
+    E.g., select LT/MT/HT tracks, and randomize them - it rocks! :-)</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>BPM</td>
+    <TD CLASS=TABCOLOR2>Master</td>
+    <TD CLASS=TABCOLOR2>Slave</td>
+    <TD CLASS=TABCOLOR2><B>Auto (default)</B></td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2>-</td>
+    <TD CLASS=TABCOLOR2><B>Int 1:1 (default)</B></td>
+    <TD CLASS=TABCOLOR2>Int 1:2</td>
+    <TD CLASS=TABCOLOR2>Int 1:4</td>
+    <TD CLASS=TABCOLOR2>Int 1:8</td>
+    <TD CLASS=TABCOLOR2>Ext 1:1</td>
+    <TD CLASS=TABCOLOR2>Ext 1:2</td>
+    <TD CLASS=TABCOLOR2><B>Ext 1:4 (default)</B></td>
+    <TD CLASS=TABCOLOR2>Ext 1:8</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Vel</td>
+    <TD CLASS=TABCOLOR2 COLSPAN=16>SHIFT button not pressed: velocity unaccented steps<BR>
+      SHIFT button pressed: velocity of accented steps.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>MIDI</td>
+    <TD CLASS=TABCOLOR2 COLSPAN=16>SHIFT button not pressed: select a MIDI note with the 12 leftmost buttons, and the octave (1/2/3/4) with the 4 rightmost buttons.<BR>
+    SHIFT button pressed: assign MIDI channel</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>SysEx</td>
+    <TD CLASS=TABCOLOR2 COLSPAN=16>Allows to send a SysEx dump of current pattern or whole Bank for embedding into a DAW based project. The button number correlates to the device ID of the dump.</TD>
+  </TR>
+</TABLE>
+</TD></TR>
+
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+<TR><TD width=600>
+<P CLASS=DESC><I><B>Mode Selection</B></I><BR>
+<IMG SRC="midibox_808/808_modesel.gif" WIDTH=388 HEIGHT=207></IMG>
+
+<UL CLASS=CL>
+  <LI><B>Mute:</B> mute/unmute tracks</LI>
+  <LI><B>SHIFT+Mute:</B> solo (only) the selected track(s)</LI>
+  <LI><B>Pattern:</B> enters pattern selection page: GP buttons select one of 64 patterns within the current bank<BR>
+   The left side of the GP buttons select the pattern section: A/B/C/D/E/F/G/H<BR>
+   The right side selects the actual pattern within the section, e.g. A1, A2, A3, ... A8.<BR>
+   The sequencer will only change to a new pattern if you press one of the right side GP buttons (so that you can change to a new section or bank without disturbing the currently played sequence).<BR>
+   Pressing multiple buttons allow non-destructive changes (e.g. press 1: A1 will be played. Press 2 in addition: A2 will be played. Release 2: A1 will be played again. Release 1: A1 still be played)</LI>
+  <LI><B>SHIFT+Pattern:</B> enters bank selection page: the GP buttons select one of 16 banks. A 64k BankStick can store 2 Banks (-> 128 patterns), which are called "Upper" and "Lower" bank, and print on the display with capital or lower case letter (A1: pattern in upper bank, a1: pattern in lower bank).<BR>
+   A 32k BankStick can only store a single Bank (-> 64 patterns)<BR>
+   A Bank change won't take place immediately - you have to enter a new pattern number in the PATTERN page so the bank will be changed.</LI>
+  <LI><B>ALT+Pattern:</B> store pattern page: The target location has to be entered the same way as descriped above: select the section (A/B/C/D/E/F/G/H) with the left GP buttons, and the target location (1/2/3/4/5/6/7/8) with the right GP buttons. The bank can be pre-selected with "SHIFT+Pattern" if desired, otherwise the current bank will be used.<BR>
+  After the store operation, the sequencer will switch back to the pattern selection page to ensure, that you don't accidently overwrite multiple patterns.</LI>
+  <LI><B>Song:</B> select song 1-16</LI>
+  <LI><B>SHIFT+Song:</B> select song 17-32 (requires 64k BankStick)</LI>
+  <LI><B>Edit:</B> normal editing mode</LI>
+  <LI><B>HOLD Edit:</B> direct selection of track(s) - see next chapter</LI>
+  <LI><B>SHIFT+Edit:</B> activates/deactivates "change all" function - changes will take place on all 16 tracks when activated</LI>
+</UL>
+</TD><TD></TD></TR>
+
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+<TR><TD width=600>
+<P CLASS=DESC><I><B>Entering a pattern chain</B></I><BR>
+<P CLASS=DESC>The pattern selection page provides a chain function, which allows you to enter a chain of pattern changes. The chain will be automatically looped until a single pattern is entered without pressing the SHIFT button, or it will be processed only once (and not loop) if the "oneshot" option is enabled in ALT-Options menu.<BR>
+Usage example:<BR>
+<UL CLASS=CL>
+  <LI>press PATTERN button</LI>
+  <LI>press&hold SHIFT button</LI>
+  <LI>press GP button #9, B1 will be added to the chain</LI>
+  <LI>press GP button #9 again, a second B1 will be added to the chain</LI>
+  <LI>press GP button #10, B2 will be added to the chain</LI>
+  <LI>press GP button #11, B3 will be added to the chain</LI>
+  <LI>the sequencer has already started to process the chain. It switches to the next pattern after each 16 steps (one bar)</LI>
+  <LI>release SHIFT button</LI>
+  <LI>note that you can always add patterns to the chain by pressing&holding SHIFT again. A chain consist of up to 128 pattern changes.</LI>
+  <LI>exit chain mode by selecting a pattern w/o pressing SHIFT button.<BR>
+      The chain will be automatically cleared in oneshot mode, after the last pattern has been selected.</LI>
+</UL>
+</P>
+</TD><TD></TD></TR>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+<TR><TD width=600>
+<P CLASS=DESC><I><B>Track selection</B></I><BR>
+<P CLASS=DESC>Tracks can be selected the following ways:</P>
+<UL CLASS=CL>
+  <LI><B>Inst Encoder:</B> allows you to select a single track quickly. The track will be displayed by the GP LEDs for a short moment.<BR>
+  The last position of the encoder activates all tracks together. This is especially useful, when global changes should be made (e.g. selecting groove mode)</LI>
+  <LI><B>Press&Hold Edit button:</B> alternatively, one or more tracks can be selected with the GP buttons so long the edit button is pressed.<BR>
+     Especially the multi selection is very useful, because they allow changes on the OH/CH or LT/MT/HT track parameters at the same time (especially important when timebase or progression is modified while sequencer is running)</LI>
+  <LI><B>Live play mode:</B> if live play mode is activated, the last "tapped" track will be automatically selected. This allows you to quickly search for the track of a certain instrument (you will hear it while tapping the GP button...)</LI>
+</UL>
+</TD><TD></TD></TR>
+
+
+<TR><TD width=600>
+<P CLASS=DESC><I><B>A/B/C/D buttons and LEDs</B></I><BR>
+<IMG SRC="midibox_808/808_stepsel.gif" WIDTH=411 HEIGHT=156></IMG>
+
+<UL CLASS=CL>
+  <LI><B>A:</B> play and edit step 1-16</LI>
+  <LI><B>B:</B> play and edit step 17-32</LI>
+  <LI><B>C:</B> play and edit step 33-48</LI>
+  <LI><B>D:</B> play and edit step 49-64</LI>
+  <LI><B>Multiselection:</B> press more than one button to combine sections to a chain. E.g., if A+C+D are pressed, the pattern will be looped between A, C and D section, until you press a single button again.</LI>
+</UL>
+
+<P CLASS=DESC>The LEDs of the step selection buttons have two functions:<BR>
+<UL CLASS=CL>
+  <LI>lit solid to notify the section(s) which is/are played</LI>
+  <LI>the LED of the currently played section flashes synchronously to the beat</LI>
+</UL>
+
+<P CLASS=DESC>By pressing SHIFT+Section button, it is possible to edit a section, while the sequencer plays another one (e.g. edit B, while section A is played).</P>
+
+<P CLASS=DESC>Please note: if the track length is &gt;16 steps, AB and CD section will be automatically combined. If track length is &gt;32 steps, ABCD will be combined.</P>
+</TD><TD></TD></TR>
+
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+<P CLASS=DESC><I><B>Transport</B></I><BR>
+<IMG SRC="midibox_808/808_transport.gif" WIDTH=524 HEIGHT=184></IMG>
+
+<UL CLASS=CL>
+  <LI><B>Live:</B> enables/disables live play mode, which allows you to trigger the drums manually with the GP buttons.</LI>
+  <LI><B>Record (SHIFT+Live):</B>  activates live recording function. Tracks can either be recorded by tapping the GP buttons (live play mode has to be enabled in addition), or from an external MIDI device (keyboard, drum pads, ...)</LI>
+  <LI><B>Rew:</B> Pattern mode: switch back 4 steps synchronously (nudge).<BR>
+         Song mode: switch to previous pattern</LI>
+  <LI><B>Fwd:</B> Pattern mode: switch forward 4 steps synchronously (nudge).<BR>
+         Song mode: switch to next pattern</LI>
+  <LI><B>Rotate &lt;&gt;: (SHIFT+Rew/Fwd)</B> rotates (scrolls) the selected track(s) to left/right direction between the given loop points (!) and within the selected step view (if step 1-16 or 17-32 selected: rotate between A loop points, if step 33-48 or 49-64 selected: rotate between B loop points). This function is especially useful after a random pattern has been generated.</LI>
+  <LI><B>Stop:</B> stop sequencer</LI>
+  <LI><B>Pause (SHIFT+Stop):</B> pauses sequencer</LI>
+  <LI><B>Play:</B> start sequencer. Pattern/Song will be restarted if button is pressed while sequencer already playing (same behaviour as known from Logic Audio)</LI>
+  <LI><B>Tap (SHIFT+Play):</B> "tap tempo" function: tap it at least four times to define the BPM tempo<BR>
+  If the sequencer is currently stopped, it will start automatically with the 5th tap</LI>
+</UL>
+</TD><TD></TD></TR>
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Encoder/Pot Functions </H2>
+
+<P CLASS=DESC><UL CLASS=CL>
+<LI><B>Inst(rument) Encoder:</B> allows to select the track that should be edited. While this encoder is moved, one of 16 GP LEDs will flash for a short time to notify the selected track. The last position of the encoder activates all tracks together. This is especially useful, when global changes should be made (e.g. selecting groove mode)<BR>
+Note that alternatively one or more tracks can be selected with the GP buttons while EDIT button is pressed&held - accordingly, this encoder is only an optional feature (I must admit, that I only find it useful to select all tracks with a single turn).</LI>
+<LI><B>Swing Pot:</B> this pot (= absolute values) allows to change the "swing intensity" if one of the groove functions is activated.</LI>
+<LI><B>Tempo:</B> allows to change the BPM</LI>
+
+</TD><TD></TD></TR>
+
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Mapped button functions of MIDIbox SEQ V3 hardware </H2>
+<UL CLASS=CL>
+  <LI>Track 1/2/3/4 are mapped to the A/B/C/D buttons</LI>
+  <LI>Layer A/B are mapped to Gate/Aux layer selection buttons</LI>
+  <LI>Layer C is assigned to Live button</LI>
+  <LI>F1..F4 have no function yet (could be used for copy/paste/... later)</LI>
+  <LI>Exit and Menu button are mapped to ALT function.</LI>
+  <LI>Select button is mapped to SHIFT function.</LI>
+  <LI>Datawheel is mapped to tempo encoder</LI>
+  <LI>GP encoders are used to select a track</LI>
+</UL>
+</TD><TD></TD></TR>
+
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Current State </H2>
+
+<P CLASS=DESC>The firmware is up&running, but not all planned features have been implemented yet. However, it's already quite stable, and therefore worth for a beta release! :-) The missing functions will be available soon:</P>
+<UL CLASS=CL>
+  <LI>Song mode not implemented yet (MBSEQ V3 code needs to be overworked)</LI>
+  <LI>Micro Delay function of Auxilary layer not implemented yet</LI>
+</UL>
+
+<P CLASS=DESC>Additional planned features:</P>
+<UL CLASS=CL>
+  <LI> find a button combination to temporary activate accent for all tracks</LI>
+  <LI> find a button combination to activate "loop mode" when a song is playing: holds current pattern so long function activated. Especially useful if a pattern should be edited in song mode (the sequencer won't switch to the next pattern so long loop function is activated)</LI>
+  <LI> more random generator options</LI>
+  <LI> alternative view on the 4x16 LED matrix to display all 64 steps of a track</LI>
+  <LI> proper loop point handling if track length &gt; 16</LI>
+  <LI> background saving of patterns (currently the engine can stuck for up to 100 mS while a pattern is stored into BankStick)</LI>
+</UL>
+</TD><TD></TD></TR>
+
+
+<TR><TD width=600>
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Beta Version </H2>
+
+<P CLASS=DESC>Link to current beta version: <A HREF="mios/midibox_808_v0_8b.zip">midibox_808_v0_8b.zip</A></P>
+
+<P CLASS=DESC>Before uploading the new firmware, please update to <A HREF="mios_download.html">MIOS V1.9f</A> first if this hasn't been done yet, otherwise the Tap Tempo function won't work.</P>
+
+<P CLASS=DESC>The release package contains a prepared .hex file for MIDIbox SEQ V3 hardware (-> setup_808_mbseqv3_hardware.hex) and for the MB808 hardware (-> setup_808_default.hex or setup_808_with_swingpot.hex)</P>
+
+<P CLASS=DESC>MB808 users: please note, that the data structure is not compatible to Moogah's MBSEQ V2 based version! The BankStick will be reformatted after the new firmware has been uploaded!! So, please remove the BankStick (or create a <A HREF="mios/mios_backup.txt">backup</A>. If somebody is interested, I could write a pattern converter for the new format.</P>
+
+</TABLE>
+FOOTER

@@ -1,0 +1,44 @@
+HEADER 3 MIOS C Example
+
+<H3>Send CC Events on pot movements</H3>
+
+<P CLASS=INFO>We want to send a CC event when a pot is moved.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>Within the Init() function, you have to specify, how many pots are connected to the core, and if AIN multiplexers are used:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  // initialize the AIN driver
+  MIOS_AIN_NumberSet(1);   // only one pot is connected
+  MIOS_AIN_UnMuxed();      // no AINX4 modules are used
+  MIOS_AIN_DeadbandSet(7); // should be 7 when 7bit resolution is used
+}
+</PRE></TT>
+
+<P CLASS=INFO>We add the code which should be executed on pot movements to the AIN_NotifyChange() function:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a pot has been moved
+/////////////////////////////////////////////////////////////////////////////
+void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
+{
+  // a pot has been moved, send CC#<pin-number> at channel 1
+  MIOS_MIDI_TxBufferPut(0xb0); // CC at channel 1
+  MIOS_MIDI_TxBufferPut(pin);  // pin number corresponds to CC number
+  MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(pin));   // don't send 10bit pin_value,
+                                                     // but 7bit value
+}
+</PRE></TT>
+
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

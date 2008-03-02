@@ -1,0 +1,263 @@
+HEADER 3 MIOS Bootstrap Loader for Newbies
+
+<h1>Le MIOS Bootstrap Loader, pour les D&eacute;butants.</h1>
+
+<p class="INFO">Le MIOS Bootstrap Loader est un firmware sp&eacute;cial pour le PIC18F qui permet de charger le <a href="mios.html">MIOS</a>
+(le syst&egrave;me d'exploitation) et l'application MIOS (le programme)
+dans la m&eacute;moire Flash &nbsp;du PIC, via une simple interface MIDI. </p>
+
+<p class="DESC">Le principal avantage du "bootstrap" (un bootstrap est
+un tout petit programme qui permet d'en lancer un plus gros, pour faire
+simple), c'est qu'il permet de se passer d'une interface de
+programmation sp&eacute;cifique telle que le <a href="mbhp_burner.html">MBHP_BURNER</a>
+lorsque l'on veut simplement installer une application (ou le MIOS)
+dans la MIDIbox. Il vous suffit d'acheter un PIC18F452 "pr&eacute;-
+programm&eacute;" chez <a href="http://mbhp.avishowtech.com/buy.html" target="_blank">SmashTV</a> ou <a href="http://www.mikes-elektronikseite.com/midiseite.htm" target="_blank">Mike</a>, ou de demander &agrave; un ami ou &agrave; un membre du <a href="http://forum.midibox.org/" target="_blank">Forum</a><a href="http://forum.midibox.org" target="_blank"> MIDIbox&nbsp;</a>
+qui poss&egrave;de d&eacute;j&agrave; un module de programmation de
+"br&ucirc;ler" ce firmware dans le PIC (l'image m&eacute;moire du
+Bootstrap Loader est disponible sur <a href="mios_download.html">cette page</a>).</p>
+
+<p class="DESC">Mais m&ecirc;me ceux qui dispose d'un module de
+programmation tireront profit du bootstrap loader, car son utilisation
+est plus simple: il est possible avec le bootstrap loader d'uploader de
+nouveaux codes "&agrave; la vol&eacute;e" sans avoir &agrave; retirer
+le PIC du module <a href="mbhp_core.html">MBHP_CORE</a> , et la programmation ne prends que quelques secondes!</p>
+
+<h2>Deux Bootstrap?</h2>
+
+<p class="DESC">Oui, en fait il existe deux Bootstrap Loader: le
+premier, le bootstrap primaire, ne dispose que de fonctions &eacute;l&eacute;mentaires, il
+n'est actif que pendant environ 2 secondes apr&eacute;s la mise sous
+tension; le second Loader, lui, fait partie int&eacute;grante du
+MIOS. Le protocole de communication est le m&ecirc;me pour les deux
+loaders, ainsi les m&ecirc;mes utilitaires peuvent servir pour les deux.</p>
+
+<p class="DESC">Il est essentiel de comprendre que le MIOS (le
+syst&egrave;me d'exploitation) ne peut &ecirc;tre upload&eacute; vers le PIC
+qu'&agrave; l'aide du premier Loader. Les applications
+n&eacute;cessitent elle que le MIOS soit pr&eacute;alablement
+charg&eacute; dans le PIC - si vous ne parvenez pas &agrave; uploader
+une application, c'est qu'une erreur dans le code de celle-ci bloque le
+processus ou a inscrit des donn&eacute;es sur des zones
+r&eacute;serv&eacute;es, mais dans ce cas, il vous suffit
+d'effectuer une remise &agrave; z&eacute;ro (en mettant hors
+tension puis en rallumant votre machine ou en utilisant le pin reset
+-pin#1 du PIC &agrave; la masse), ainsi le loader primaire va remettre la partie flashable en bon ordre. </p>
+
+<h2>Upload du MIOS</h2>
+
+<p class="DESC">Une fois le firmware du Bootstrap charg&eacute; dans le
+PIC, votre module CORE ne fera rien de plus. L'&eacute;cran LCD par
+exemple n'affichera toujours rien, et si vous essayez &agrave; ce stade
+d'uploader une application, rien de plus ne se passera: il vous faut
+d'abord charger le MIOS, autrement dit le syst&egrave;me d'exploitation
+qui g&egrave;re tous les services de base (par ex. la gestion du
+protocole MIDI, la gestion des Potar/Bouton/Encoder, la gestion des
+sorties LED et LCD, etc). Commen&ccedil;ons donc par charger le MIOS,
+ce fabuleux logiciel!</p>
+
+<table align="center" cellpadding="0" cellspacing="20">
+
+  <tbody><tr>
+    <td><a href="http://miosstudio.midibox.org" target="_blank"><img src="images/midibox_logo.gif" alt="Link to MIOS Studio" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"> <a href="http://miosstudio.midibox.org" target="_blank">T&eacute;l&eacute;chargez MIOS Studio</a>
+- c'est un programme reposant sur un environment JAVA
+d&eacute;di&eacute; au MIOS, comprenant de nombreux outils
+sp&eacute;cifiques (MIDI notamment). MIOS Studio tourne sous PC et sous
+Mac.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="http://java.sun.com" target="_blank"><img src="mios/mios_download_java.gif" alt="Link to java.sun.com" height="84" width="163"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">T&eacute;l&eacute;chargez le <a href="http://java.sun.com" target="_blank">Java Runtime Environment</a> pour votre type d'ordinateur (Mac ou PC) si il n'est pas d&eacute;j&agrave; install&eacute;.</span></td>
+  </tr>
+
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Interconnectez les ports MIDI de votre module CORE et de votre ordinateur:&nbsp;
+<ul class="CL">
+  <li>MIDI In Core -&gt; MIDI Out PC/Mac</li>
+  <li>MIDI Out Core -&gt; MIDI In PC/Mac</li>
+</ul></span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/mios_studio1.gif"><img src="mios/mios_studio1_small.gif" alt="" height="128" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Ouvrez la fen&ecirc;tre "MIDI Device Routing" de MIOS Studio, clic-droit sur le Port MIDI
+In de votre interface MIDI, et routez-le vers "MIOS Studio In Port"</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/mios_studio2.gif"><img src="mios/mios_studio2_small.gif" alt="" height="128" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Clic-droit sur le Port</span><span class="NORM">&nbsp;MIDI Out de votre interface&nbsp; MIDI, et routez-le vers "MIOS Studio
+Out port". Maintenant les utilitaires de MIOS Studio sont en mesure de communiquer avec votre module CORE.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/mios_studio3.gif"><img src="mios/mios_studio3_small.gif" alt="" height="128" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM"></span>Ouvrez
+le "MIDI In Monitor" - il devrait afficher des messages
+SysEx, toutes les 2 secondes. Il s'agit d'une "upload
+request", ou requ&ecirc;te d'upload, &eacute;mise par le&nbsp;
+bootstrap loader primaire. Le loader envoie ce message &agrave; chaque
+mise sous tension, pour dire: "je suis l&agrave; et &ccedil;a marche".
+Une fois que que vous aurez upload&eacute; le MIOS, cette requ&ecirc;te ne
+sera &eacute;mise qu'une seule fois, &agrave; la mise sous tension.
+Cela signifie que le syst&egrave;me d'exploitation (le MIOS) est
+correctement install&eacute;.</td>
+  </tr>
+
+  <tr>
+    <td>&nbsp;</td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Si cette requ&ecirc;te d'upload ne s'affiche pas, consultez le </span><a href="howto_debug_midi.html"><span class="NORM"></span></a><a href="howto_debug_midi.html"><span class="NORM"></span></a><a href="howto_debug_midi.html">guide</a><a href="howto_debug_midi.html"> "troubleshooting </a><span class="NORM"><a href="howto_debug_midi.html">MIDI"</a>, qui recense les probl&egrave;mes les&nbsp;plus couramment rencontr&eacute;s.</span></td>
+  </tr>
+
+  <tr>
+    <td><a href="mios/mios_studio4.gif"><img src="mios/mios_studio4_small.gif" alt="" height="128" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Si
+la requ&ecirc;te s'affiche, alors ouvrez la fen&ecirc;tre "upload" et
+s&eacute;lectionnez le fichier-image (.hex file) correspondant &agrave; la
+version la plus r&eacute;cente du MIOS. Cette capture d'&eacute;cran
+montre "mios_v1_8.hex", mais une version plus r&eacute;cente existe
+peut-&ecirc;tre. Utilisez toujours la derni&egrave;re mise &agrave;
+jours du MIOS!<br>le MIOS comme les diff&eacute;rentes applications sont t&eacute;l&eacute;chargeables sur <a href="mios_download.html">cette page</a>.</span></td>
+  </tr>
+
+</tbody></table>
+
+<p class="DESC">Si aucune erreur n'a &eacute;t&eacute; report&eacute;e
+par l'utilitaire d'upload (pour vous en assurer, faites d&eacute;filer
+la fen&ecirc;tre du log et v&eacute;rifiez le status de chaque
+message), on peut supposer que le MIOS est install&eacute;.
+Apr&eacute;s avoir red&eacute;marr&eacute;, vous ne devriez voir qu'une
+seule requ&ecirc;te d'upload dans votre fen&ecirc;tre "MIDI in
+monitor". Si vous avez connect&eacute; un &eacute;cran LCD au module
+CORE, un message de
+copyright et quelques secondes plus tard le message READY. devrait
+s'afficher.</p>
+
+<h2>Upload d'une application</h2>
+
+<p class="DESC">Vous pouvez maintenant charger une application, pendant
+que le MIOS tourne. vous pouvez changer d'application n'importe quand,
+le syst&ecirc;me effectuera toujours un red&eacute;marrage apr&eacute;s
+l'upload d'une application (&ccedil;a n'est pas une erreur, c'est
+normal), afin que l'application soit proprement initialis&eacute;e.
+Notez qu'il n'est pas possible de faire tourner plusieurs applications
+en parall&egrave;le - une nouvelle application charg&eacute;e
+&eacute;crasera toujours la pr&eacute;c&eacute;dente.</p>
+
+<table align="center" cellpadding="0" cellspacing="20">
+
+  <tbody><tr>
+    <td><a href="mios/mios_studio6.gif"><img src="mios/mios_studio6_small.gif" alt="" height="128" width="160"></a></td>
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+    <td><span class="NORM">Dans
+cette exemple, le fichier main.hex file de l'application "MIDImon" est
+upload&eacute;. l'&eacute;cran LCD affiche tous les
+&eacute;v&egrave;nements MIDI entrants - tr&egrave;s pratique pour
+d&eacute;bugger des instruments MIDI sans avoir recours &agrave; un
+ordinateur.</span></td>
+  </tr>
+
+</tbody></table>
+
+<p class="DESC">Apr&eacute;s avoir install&eacute; cette application,
+ici MIDImon, vous allez devoir faire face &agrave; une nouvelle
+"difficult&eacute;": la configuration mat&eacute;rielle! L'application
+elle-m&ecirc;me ne peut pas d&eacute;terminer si un &eacute;cran LCD
+est connect&eacute; au module CORE ou non. Celle-ci (MIDImon) est
+configur&eacute;e par d&eacute;faut pour un &eacute;cran LCD 4x20
+caract&egrave;res, et si vous n'avez install&eacute; qu'un &eacute;cran
+LCD 2x16, une partie des informations devant &ecirc;tre
+affich&eacute;es ne sera pas visible. Cependant, le progammeur de cette
+application a, avec beaucoup de bienveillance, pens&eacute; &agrave;
+impl&eacute;menter quelques options pour vous permettre
+diff&eacute;rentes configuration mat&eacute;rielles. La plupart de ces
+options de configuration sont en g&eacute;n&eacute;ral accessibles en
+&eacute;ditant le fichier main.asm que vous trouverez dans l'archive
+contenant l'application en assembleur, et dans le fichier main.h pour
+les applications en C (vous trouverez parfois &eacute;galement un
+fichier README.txt avec quelques explications
+&eacute;l&eacute;mentaires). L'&eacute;dition de ce ou ces fichiers
+requiert ensuite une recompilation de l'application (encore &agrave; ce
+stade en C ou en assembleur) en fichier .hex (c'est ce type de fichier
+que vous allez uploader dans votre machine, voir plus haut).<br><a href="howto_tools_mpasm.html">Ce Pas &agrave; Pas</a> vous explique comment &eacute;diter les codes sources et comment ensuite les recompiler en fichier .hex.</p>
+
+<h2>Quelques Conseils de Plus</h2>
+
+<p class="DESC">
+</p><ul class="CL">
+  <li>Si vous uploadez une application qui interagit avec les entr&eacute;es analogiques du PIC ou celles d'un module AIN (par ex. <a href="midibox64.html">MIDIbox64</a> ou <a href="midibox_lc.html">MIDIbox LC</a>),
+le CORE va envoyer un flux ininterrompu d'&eacute;v&egrave;nements MIDI
+tant qu'aucun
+potar/fader ou autre source de voltage n'est connect&eacute; sur les
+entr&eacute;es analogiques- de fait toutes les entr&eacute;es
+analogiques inutilis&eacute;es doivent &ecirc;tre mises &agrave; la
+masse.<br>R&eacute;f&eacute;rez-vous &agrave; <a href="mbhp/auaimbctg.pdf">ce diagramme de connection</a> pour bien comprendre.</li>
+  <li>si
+plusieurs modules CORE sont connect&eacute;s sur un m&ecirc;me port
+MIDI port en parall&egrave;le ou dans une cha&icirc;ne s&eacute;rie,
+chaque module CORE doit avoir sa propre "device ID", afin que
+l'utilitaire d'upload puisse envoyer les bonnes donn&eacute;es au bon
+module. La "device ID" est une partie de l'en-t&ecirc;te ID, qui ne
+peut &ecirc;tre modifi&eacute;e que lors de la programmation de la
+m&eacute;moire flash, gr&acirc;ce au Bootstrap Loader, ou en utilisant
+l'application <a href="mios_download.html">change_id</a>&nbsp;.<br>La
+"device ID" s&eacute;lectionn&eacute;e dans la fen&ecirc;tre d'upload
+doit correspondre &agrave; la "device ID" du module CORE &agrave; qui
+est destin&eacute; l'upload.<br>Tant que vous n'avez qu'une MIDIbox
+connect&eacute;e sur votre port MIDI, il est plus simple d'utiliser la
+"device ID 00". Un projet comme la MIDIbox SID n&eacute;cessite
+d'utiliser diff&eacute;rentes "device IDs" (le module CORE ma&icirc;tre
+se voit attribuer l' ID 00, les modules esclaves les IDs 01, 02 et 03)</li>
+  <li>Et
+dans le cas de la MIDIbox SID, les utilisateurs vont rencontrer ce
+probl&egrave;me:&nbsp; les sorties MIDI Out des modules esclaves ne
+sont pas connect&eacute;es au PC (seule l'est le MIDI Out du module
+CORE ma&icirc;tre). De fait, l'utilitaire d'upload de MIOS studio ne va
+pas continuer apr&eacute;s l'envoi du premier bloc de code, puisqu'il
+n'aura pas re&ccedil;u la confirmation de r&eacute;ception.<br>Il y a deux fa&ccedil;on de contourner ce probl&egrave;me:
+  <ul class="CL">
+    <li><b>la m&eacute;thode "Newbie":</b>
+installez le PIC du ou des modules esclaves dans le support du module
+core ma&icirc;tre et programmez-le(s) de la m&ecirc;me mani&egrave;re
+que pour le PIC du module ma&icirc;tre. Seules diff&eacute;rences: vous
+devez prendre un autre fichier .hex, et vous devez changez la device
+ID. Cette solution pr&eacute;sente l'avantage de vous assurer que
+l'upload c'est correctement d&eacute;roul&eacute; et que l'application
+est correctement charg&eacute;e, avec l'ensemble core/SID ma&icirc;tre
+comme "r&eacute;ference".</li>
+    <li><b>la m&eacute;thode&nbsp;"</b><b>Expert":</b>
+s&eacute;lectionnez l'option "Don't use feedback from core" dans la
+fen&ecirc;tre d'upload de MIOS Studio, assurez-vous que vous avez
+charg&eacute; le bon fichier .hex et que vous avez
+s&eacute;lectionn&eacute; la device ID correcte. Activez le MIDI merger
+du module ma&icirc;tre en appuyant sur le bouton "Link" de la surface
+de contr&ocirc;le (si vous ne l'avez pas encore construite, utilisez la
+premi&egrave;re m&eacute;thode), et cliquez sur le bouton "start" -
+MIOS Studio va envoyez tous les blocs de code sans attendre les
+messages de confirmation entre chaque bloc. Si cette m&eacute;thode est
+tr&eacute;s pratique, elle peut aussi s'av&eacute;rer risqu&eacute;e si
+une erreur survient pendant l'upload (par exemple &agrave; cause d'uneconnection
+MIDI instable), car vous n'en serait pas averti. De fait, utilisez
+l'option "Use feedback from core" d&egrave;s qu'une connection
+bilat&eacute;rale est possible.</li>
+  </ul></li>
+  <ul><li>Si pour
+quelque raison que ce soit MIOS
+Studio ne fonctionne pas sur votre ordinateur, vous pouvez utiliser le
+script "hex2syx" afin de proc&eacute;der &agrave; l'upload via un
+utilitaire MIDI standard. Vous trouverez plus d'infos <a href="howto_tools_hex2syx.html">sur cette page</a>.
+</li></ul></ul>
+<p></p>
+
+FOOTER

@@ -1,0 +1,218 @@
+HEADER 3 ChangeLog of MIDIbox Plus
+
+<CENTER><H1>MIDIbox Plus Change Log</H1></CENTER>
+<CENTER><H3>Last Release: V1910 @ 2003-01-23</H3></CENTER>
+
+<IMG SRC="images/1x1dot.gif" height=5 ALT=""><BR>
+
+<P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_plus.html">http://www.uCApps.de/midibox_plus.html</A><BR>
+Non-current firmware releases can be found under <A HREF="http://www.uCApps.de/midibox/">http://www.uCApps.de/midibox/</A>midibox_plus_v*.zip</P>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<UL CLASS=CL>
+
+<LI><I>V1.910</I>
+  <UL> 
+    <LI>Due to a lot of requests I've created a new single-layer PCB layout with Eagle Light - a free layout software which has also been used to design the MBHP modules. Advantage: now the ready-made board can be purchased at "Mikes Elektronikseite" for just 6 Euros! :-) More Informations can be found <A HREF="midibox_plus.html">here</A>.<BR>
+    I also made some slight hardware changes in order to improve the quality:
+    <UL>
+       <LI>as some users noticed problems with the CNY17-II, this optocoupler has been replaced by a 6N138</LI>
+       <LI>now the busy flag of the LCD will be taken into account. In this way the access to the LCD works faster, as the driver hasn't to wait for a constant time, but can continue for sending characters when the LCD notifies that it is ready.<BR>This change requires an additional wire between Pin #23 of the PIC and the R/W input of the LCD. Without this connection the display will not response!</LI>
+       <LI>Diodes have been added to the button matrix - this prevents an unwanted feedback effect when more than one button is pressed at the same time.</LI>
+       <LI>The voltage reference inputs at Pin #4 and #5 are not used anymore, this simplified the layout.</LI>
+       <LI>The formerly unused half of the 74HC00 is now used for a MIDI-In LED</LI>
+    </UL>        
+    </LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.909</I>
+  <UL> 
+    <LI>The LCD driver has been optimized for speed, in this way a potential MIDI buffer overrun failure will be avoided - the MIDIbox Plus reacts in realtime (again) :-)</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.908</I>
+  <UL> 
+    <LI>MIDIbox-to-COM mode now selectable from the MIDI merger submenu.</LI>
+    <LI>Bugfix for internal Merger: MIDI clock was not handled correctly.</LI>
+    <LI>Bugfix for min/max values</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.907</I>
+  <UL> 
+    <LI>The behaviour of the MIDIbox in Snap Mode has been changed. Before the change, it was necessary to move the pot to exactly the right position before MIDI events were sent. Now values are sent immediately when the pot passes the position.</LI>
+    <LI>In Snap Mode, the red indicator LED now lits when the last turned pot value is "snapped".</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.906</I>
+  <UL> 
+    <LI>The analog input conversion routine has been revised in order to eliminate potential jitter problems. Up to now the MIDIbox works internally with 8 bit values.</LI>
+    <LI>The pot handler have been enhanced to achieve a higher flexibility: min and max values are definable for every pot. The CC values are automatically scaled over the whole pot moving range dependent on your settings. That means, if you define a range from $30 to $4F, the value $30 will be sent when the pot is on the left side and the CC value slowly increases up to $4F until the pot reaches the end of the right side.</LI>
+    <LI>The SysEx Dump structure have been enhanced by min/max entries. See the new mk_syx.pl script at <A HREF="http://www.uCApps.de/midibox/mk_syx.zip">http://www.uCApps.de/midibox/mk_syx.zip</A>.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.905</I>
+  <UL>
+    <LI>Bugfix for "Dynamic Pot Priority" feature.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.904</I>
+  <UL>
+    <LI>The simple snapshot button has been enhanced by a Save/Recall button. Press the button for one second to save the pot settings, tap it shortly to recall the settings. Note that with a PIC16F874, only the values of the first 8 banks can be saved. With a PIC16F877, all 16 Banks can be saved.</LI>
+    <LI>Special save/recall functionality for Snap/Relative/Parallax Mode.</LI>
+    <LI>Indicator LED lits when the currently turned pot reaches the last-saved value.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.903</I>
+  <UL>
+    <LI>A MTC display mode has been added</LI>
+    <LI>"Parallax Mode" has been implemented</LI>
+    <LI>With the internal feedback in Snap/Relative/Parallax Mode no need for a "MIDI Thru" function at PC side anymore</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.902</I>
+  <UL>
+    <LI>Menu Handling of MIDIbox64 has been adapted to MIDIbox16/8. This simplifies the maintenance for me (programming and documentation)</LI>
+    <LI>Four additional buttons: Menu Exec/Left/Right and Snapshot on Port B. See Schematic.</LI>
+    <LI>8 buttons are available as MIDI triggers, now</LI>
+    <LI>Two new display modes has been added: Hex/Bar and Dec/Bar Mode</LI>
+    <LI>The MIDI Learn mode has been enhanced: Program changes, Aftertouch, Channel Pressure, Pitch Bender can be learned
+    <LI>Automatic MIDI Learn Row feature of MIDIbox64 adapted.</LI>
+    <LI>Box options (Merger on/off, Pot Behaviour) are saved in non-volatile memory.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.901</I>
+  <UL>
+    <LI>SysEx Dump of the whole bank setup can be requested and transfered to the MIDIbox</LI>
+    <LI>A new menu page has been added to trigger a SysEx Dump manually</LI>
+    <LI>Note that SysEx transfers <B>to</B> the MIDIbox must have a delay of 3-5 ms for each byte</LI>
+    <LI>Change in the behaviour of Dec/Hex Display: if a pot event is already displayed, it doesn't change the position on the display when another pot will be moved</LI>
+    <LI>Change in Dec Display Mode: A 'P' before the number should make clear, that the pot number is displayed instead of the controller number</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.900 - Big Bang Version</I>
+  <UL>
+    <LI>Forget the layers and superlayers, forget the memo/reset button, forget the different keycuts during startup... up to now, we are talking about 16 banks with 16 configurable pots and 6 (later 8) configurable buttons.</LI>
+    <LI>With the ex-superlayer switches, one of 16 customizable banks can be selected, now</LI>
+    <LI>Button 1-6 are configurable MIDI triggers w/ configurable behaviour</LI>
+    <LI>Button 7 is used to select the menu page (see below)</LI>
+    <LI>Button 8 is used to change the parameter of the menu page</LI>
+    <LI>Menu #1: Display Mode: Choose between three different Display modes (Bars/Hex Values/Dec Values) with button 8</LI>
+    <LI>Menu #2: Box Mode: Choose between three different Box Modes: Normal/Snap/Relative. A fourth mode (Parallax Mode) is comming sooner or later</LI>
+    <LI>#3: MIDI Learn. Send a controller to the MIDIbox (ie. with MIDI-OX) and turn the wanted pot or push the wanted button to assign the controller or note event (Program Change and Pitch Bender events are available in future). A different behaviour can be assigned to each button with button 8: On/Off Value, On Value, Toggle Value. If you are using MIDI-OX to send the controller, note that byte3 (the value itself) should be greater than zero (e.g. 127)</LI>
+    <LI>#4: MIDI Merger On/Off. Note, that in Snapper and Relative mode, the Merger is switched off independend from this setting, because in this modes you should connect the MIDI Out of your PC to the MIDI In of MIDIbox.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.805</I>
+  <UL>
+    <LI>The button handling in "normal mode" is completely different, now. Press Layer button 1-6 to change the layer as before. Long-Click on the button to save the current pot values, Double-Click on the button to restore the reset values. The previous "Memo" and "Reset" buttons are free for new functions. The Memo button is used to switch the display mode (now it's called Display Button). The Reset button should switch the Box Mode, later (Mode Button).</LI>
+    <LI>The "Value Display" Mode has been exchanged by a mode first implemented for MIDIbox64: the sent MIDI events of the last two turned pots will be displayed. Switch between the Value and Bar Display with the "Display" Button.</LI>
+    <LI>The MIDI Learn function has been enhanced: enter MIDI learn mode and send a MIDI event to the box. Press a button once for "On/Off" Values, and doubleclick for "On" Values.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.804</I>
+  <UL>
+    <LI>Display Routine of 8 pot version has been enhanced for Relative/Snapper Mode.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.803</I>
+  <UL>
+    <LI>A Bugfix was necessary for PIC16F877: nether use mirrored memory areas... :-/</LI>
+  </UL>
+</LI>
+
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.802</I>
+  <UL>
+    <LI>The conversion routine has been improved and the pot handler works with dynamic priorities, now. The result is a latency time of less than 1 ms :-)</LI>
+    <LI>A Relative Mode has been added. See the <A HREF="midibox_tutorial.html" TARGET="_blank">MIDIbox Tutorial</A> for further details. To enter this mode, hold Button 5 during Startup.</LI>
+  </UL>
+</LI>
+
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.801</I>
+  <UL>
+    <LI>Snapper Mode and Direct Mode work together. Press Button 6 and the Reset button during Startup</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.800</I>
+  <UL>
+    <LI>A Snapper Mode has been added. See the <A HREF="midibox_tutorial.html" TARGET="_blank">MIDIbox Tutorial</A> for further details. The Snapper Mode works with GP and Mixer Layers, only. MIDI In must be connected with MIDI Out of the receiver (computer/synthesizer). The Merger is switched off in this mode to avoid feedback loops.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.700</I>
+  <UL>
+    <LI>A MIDI Learn and Direct Mode has been implemented. It allows to assign received MIDI events to pots or buttons. Enter MIDI Learn by holding the Memo Button during Startup. Enter Direct Mode by holding the Reset Button.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.600</I>
+  <UL>
+    <LI>ADC routines have been optimized for 10k pots - faster responce, more stable values.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.508</I>
+  <UL>
+    <LI>Some changes in the source code (modularization) - no enhancements for the users.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.507</I>
+  <UL>
+    <LI>Special firmware with layers for GranuLab.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.506</I>
+  <UL>
+    <LI>Some small modifications allow to connect 16 pots instead if 8 pots. The 8 pot hardware can be simply extended to 16 pots by using external multiplexers.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.505-V1.500</I>
+  <UL>
+    <LI>No records</LI>
+  </UL>
+</LI>
+
+</UL>
+
+FOOTER

@@ -1,0 +1,675 @@
+HEADER 3 MIDIbox 64 SEQ
+
+<h1>SEQ MIDIbox 64&nbsp;</h1>
+<h3>Creado en 2001-2003</h3>
+
+<p></p><center><img src="midibox/midibox64_foto.jpg" width="575"></center><p></p>
+<h1><b>Importante:</b> esta p&aacute;gina describe el secuenciador
+basado en el viejo PIC16F, que era mucho m&aacute;s limitado comparado
+con el redise&ntilde;ado "SEQ MIDIbox". Si planeas constru&iacute;r un
+nuevo secuenciador, <a href="midibox_seq.html">sigue este enlace</a></h1>
+<a name="features"></a>
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Lista de caracter&iacute;sticas de la versi&oacute;n basada en el<b> PIC16F</b>:</h2>
+  <ul class="CL" type="disc">
+    <li>Cada fila de potes controla una pista.</li>
+    <li>  Disponibles 4 pistas independientes</li>
+    <li>Cada pista consiste de 3 capas que se puedes asignar a :
+    <ul class="CL">
+       <li> N&uacute;mero de Nota, Velocidad, Longitud de Gate (en eventos de Nota)</li>
+       <li>N&uacute;mero CC, Valor CC, Longitud de Gate (en Controladores) </li>
+    </ul>
+    </li>
+    <li> modos disponibles para cada pista&nbsp;: Normal/Transpose/Transpose+Hold/Arpeggiator/Arp.+Hold/Controller</li>
+    <li> direcciones disponibles para cada pista: Forward/Backward/PingPong/Random</li>
+    <li>divisor de reloj disponible para cada pista: BPM/1, BPM/2, BPM/4, BPM/8, BPM/16 </li>
+    <li> longitud disponible para cada pista: 1-16</li>
+    <li> se pueden asignar 12 capas individualmente</li>
+    <li> 48-250 BPM o sincronizaci&oacute;n externa v&iacute;a reloj MIDI</li>
+    <li> 8 Presets </li>
+    <li>Activaci&oacute;n manual de paso</li>
+    <li> se pueden guardar128 patrones en cada BankStick</li>
+    <li>los patrones se pueden encadenar y es posible hacer bucles con ellos</li>
+  </ul>
+</dl>
+<h1><b>Importante:</b> esta p&aacute;gina describe el secuenciador
+basado en el viejo PIC16F que era muy limitado en comparaci&oacute;n
+con el redise&ntilde;ado "SEQ MIDIbox". Si planeas construir un nuevo
+secuenciador, sigue <a href="midibox_seq.html">este enlace</a></h1>
+<a name="Hardware"></a>
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Men&uacute;s </h2>
+   <dd>
+<table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+<tbody><tr>
+  <td><p><img src="mb64seq_tutor/cs01.gif" alt="Displaymenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Display&nbsp;</p></td>
+  <td>
+  <p class="DESC">Pantalla principal que da las siguientes vistas:</p>
+<table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs30.gif" alt="Display View 1" height="38" width="194"></td>
+     <td><p class="INFO">Capa A seleccionada, patr&oacute;n A1. Paso actual: 1/16 &nbsp;de Pista 1. Todos los pasos son "des-silenciados".</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs31.gif" alt="Display View 2" height="38" width="194"></td>
+     <td><p class="INFO">Capa B seleccionada.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs32.gif" alt="Display View 3" height="38" width="194"></td>
+     <td><p class="INFO">Se ha movido un pote de la Pista #1. Capa A asignada al valor de la nota, por eso ver&aacute;s las 4 notas de un beat.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs33.gif" alt="Display View 4" height="38" width="194"></td>
+     <td><p class="INFO">Capa B seleccionada y asignada a velocidad. Ahora ver&aacute;s barras en vez de notas para mejor visualizaci&oacute;n..</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs34.gif" alt="Display View 5" height="38" width="194"></td>
+     <td><p class="INFO">Capa C asignada a la longitud de gate.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs35.gif" alt="Display View 6" height="38" width="194"></td>
+     <td><p class="INFO">Pista #2 - Capa C asignada al n&uacute;mero CC, todos los n&uacute;meros CC se establecen en 2Eh.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs36.gif" alt="Display View 7" height="38" width="194"></td>
+     <td><p class="INFO">Capa B de Pista #2 controla el valor CC&nbsp;.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs37.gif" alt="Display View 8" height="38" width="194"></td>
+     <td><p class="INFO">Capa A de Pista #2 controla la longitud de gate.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs38.gif" alt="Display View 9" height="38" width="194"></td>
+     <td><p class="INFO">Secuenciador funcionando, paso actual: 5/16. Pista activa: 1. Pistas 3 y 4 enmudecidas.</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr><tr>
+  <td><p><img src="mb64seq_tutor/cs02.gif" alt="Patternsmenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Patterns (Patrones) </p></td><td><p class="DESC">MIDIbox64seq
+es el primer controlador MIDI a nivel mundial que incluye un
+dispositivo de almacenamiento intercambiable y de conexi&oacute;n en
+caliente: el <b>BankStick</b>. Si encuentras controladores comerciales
+con la misma caracter&iacute;stica en los pr&oacute;ximos a&ntilde;os,
+ya sabes de d&oacute;nde vino la idea. <br>Cada BankStick es capaz de
+almacenar hasta&nbsp;16 configuraciones diferentes. Desde que se usa el
+standard 32k IIC EEPROM, estos cacharritos son realmente baratos
+(alrededor de 5 EUR). As&iacute; que hazte con un stick para Reaktor,
+otro para Logic (or Cubase/Cakewalk/Sonar/Ableton, por supuesto),
+algunos para tus sintetizadores, etc... :)<br>El diagrama simple del circuito para el BankStick <a href="mbhp_bankstick.html">aqu&iacute;</a>.<a href="mbhp_bankstick.html"></a>.</p>
+<table align="center" cellpadding="3" cellspacing="2">
+  </table><table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="midibox/midibox64_bankstick.jpg" alt="The BankStick" height="69" width="161"></td>
+     <td><p class="INFO">Una
+caja de BankStick abierta. Estoy usando 9 enchufes&nbsp;pol SubD, pero
+tambi&eacute;n puedes usar otro tipo de enchufe con al menos 4 pines.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs40.gif" alt="No Stick found" height="38" width="194"></td>
+     <td><p class="INFO">La
+LCD muestra este mensaje si no hay ning&uacute;n BankStick conectado.
+En ese caso solo habr&aacute; disponible un patr&oacute;n interno.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs41.gif" alt="Stick found" height="38" width="194"></td>
+     <td><p class="INFO">Este
+mensaje aparece inmediatamente despu&eacute;s de enchufar el BankStick
+en el socket. Ahora puedes seleccionar el patr&oacute;n con los botones
+de men&uacute; izqdo./dcho.o, alternativamente, con los botones de
+prop&oacute;sito general (los primeros&nbsp;8 botones GP(prop&oacute;sito general) seleccionan el
+grupo de patr&oacute;n A-H/a-h, Los siguientes 8 botones GP seleccionan
+el n&uacute;mero de patr&oacute;n 1-8)</p>
+  </td></tr><tr>   
+     <td><img src="mb64seq_tutor/cs42.gif" alt="BankStick Format" height="38" width="194"></td>
+     <td><p class="INFO">Hay que formatear un nuevo BankStick antes de poder usarlo. Solo selecciona un banco y pulsa el bot&oacute;n&nbsp;Snapshot <i>durante 3 segundos </i>para
+escribir el banco interno en el BankStick. Cada banco debe ser
+formateado por separado.&iexcl;Este proceso solo es necesario una vez!</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr><tr>
+  <td><p><img src="mb64seq_tutor/cs04.gif" alt="TrkEvtMenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Track Event (evento de pista)</p></td><td><p class="DESC">Este
+men&uacute; te permite asignar un evento MIDI (Nota o CC) a las pistas.
+El n&uacute;mero de pista tiene que ser seleccionado con el
+bot&oacute;n&nbsp;Start/Stop/Select. </p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  </table><table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs43.gif" alt="Select Note" height="38" width="194"></td>
+     <td><p class="INFO">Con el bot&oacute;n de men&uacute; izqdo/dcho. puedes asignar una nota a esta pista&nbsp;...</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs44.gif" alt="Select CC" height="38" width="194"></td>
+     <td><p class="INFO">...o un controlador MIDI (CC). Tambi&eacute;n hay que especificar el canal MIDI en este men&uacute;.</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr>
+
+<tr>
+  <td><p><img src="mb64seq_tutor/cs05.gif" alt="TrkModeMenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Track Mode (Modo de pista)</p></td>
+  <td>
+  <p class="DESC">Cada
+pista puede tener un modo individual que se ha de especificar en este
+men&uacute;. El n&uacute;mero de pista se selecciona con el
+bot&oacute;n Start/Stop/Select&nbsp;. </p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs45.gif" alt="TrkMode View 1" height="38" width="194"></td>
+     <td><p class="INFO">Usa este modo para deshabilitar la pista.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs46.gif" alt="TrkMode View 2" height="38" width="194"></td>
+     <td><p class="INFO">Modo com&uacute;n de secuenciador, se reproducen notas o CCs&nbsp;.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs47.gif" alt="TrkMode View 3" height="38" width="194"></td>
+     <td><p class="INFO">Si la pista est&aacute; en este modo, se puede usar un teclado MIDI externo para transportar las notas.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs48.gif" alt="TrkMode View 4" height="38" width="194"></td>
+     <td><p class="INFO">Lo mismo de arriba, pero la pista no se resetear&aacute; cuando no haya ninguna tecla presionada.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs49.gif" alt="TrkMode View 5" height="38" width="194"></td>
+     <td><p class="INFO">el modo&nbsp;Arpeggiator
+funciona de manera similar al modo Transpose, pero se puede aplicar
+transpose a hasta 4 teclas hasta 4 pasos sucesivos con diferentes
+valores</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs50.gif" alt="TrkMode View 6" height="38" width="194"></td>
+     <td><p class="INFO">Lo mismo de arriba, pero la pista no se resetea cuando no haya teclas presionadas.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs51.gif" alt="TrkMode View 7" height="38" width="194"></td>
+     <td><p class="INFO">Este
+modo especial te permite deshabilitar la funci&oacute;n secuenciador
+para la pista apropiada y usar los 16 potes para enviar mensajes CC -
+estupendo para cambios manuales de filtro, etc... :) </p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr><tr>
+  <td><p><img src="mb64seq_tutor/cs06.gif" alt="TrkDirMenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Track Direction (direcci&oacute;n de pista)</p></td>
+  <td>
+  <p class="DESC">Cada
+pista puede ir en una direcci&oacute;n individual que ha de ser
+especificado en este men&uacute;. Hay que seleccionar el n&uacute;mero
+de pista con el bot&oacute;n Start/Stop/Select&nbsp;. </p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs52.gif" alt="TrkDir View 1" height="38" width="194"></td>
+     <td><p class="INFO">La pista va desde la izquierda a la derecha.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs53.gif" alt="TrkDir View 2" height="38" width="194"></td>
+     <td><p class="INFO">La pista va de derecha a izquierda.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs54.gif" alt="TrkDir View 3" height="38" width="194"></td>
+     <td><p class="INFO">Se alterna la direcci&oacute;n de pista.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs55.gif" alt="TrkDir View 4" height="38" width="194"></td>
+     <td><p class="INFO">La direcci&oacute;n de la pista cambia de manera aleatoria.</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr>
+
+<tr>
+  <td><p><img src="mb64seq_tutor/cs07.gif" alt="TrkDivMenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Track Divider (divisor de pista) </p></td><td><p class="DESC">Se
+puede asignar un divisor de reloj a cada pista para ralentizar la
+secuencia. Hay que seleccionar el n&uacute;mero de pista con el
+bot&oacute;n Start/Stop/Select. </p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs56.gif" alt="TrkDiv View 1" height="38" width="194"></td>
+     <td><p class="INFO">Un valor divisor desde BPM/1 hasta...</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs57.gif" alt="TrkDiv View 5" height="38" width="194"></td>
+     <td><p class="INFO">...BPM/16 soportado.</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr>
+
+<tr>
+  <td><p><img src="mb64seq_tutor/cs08.gif" alt="TrkLenMenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Track Length (Longitud de pista)&nbsp;</p></td>
+  <td>
+  <p class="DESC">Cada
+pista puede ir con una longitud individual que ha de ser especificada
+en este men&uacute;.. El n&uacute;mero de pista se selecciona con el
+bot&oacute;n Start/Stop/Select&nbsp;. </p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs58.gif" alt="TrkLen View 1" height="38" width="194"></td>
+     <td><p class="INFO">Soportada longitud de pista desde 1 hasta 16 pasos.</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr><tr>
+  <td><p><img src="mb64seq_tutor/cs09.gif" alt="AssgnMenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Layer Assign (Asignaci&oacute;n de capa)&nbsp;</p></td>
+  <td>
+  <p class="DESC">Se
+puede mapear cada capa de pista a una de estas 3 funciones (La capa y
+n&uacute;mero de pista se seleccionan con el bot&oacute;n
+Start/Stop/Select&nbsp;). Esta caracter&iacute;stica te permite
+configurar las capas para tu necesidades espec&iacute;ficas. Por
+ejemplo, si solo quieres cambiar las Notas con la Pista #1, un filtro
+CC con la pista #2, el valor decay del filtro ADSR con la pista #3, la
+funci&oacute;n slide con la pista #4, puedes asignar todos estos
+par&aacute;metros a la capa A. Todas las dem&aacute;s funciones, como
+velocidad, n&uacute;mero CC y longitud de gate se pueden mapear hacia
+las otras capas.<br>Ejemplo de configuraci&oacute;n:</p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs59.gif" alt="Assgn View 1" height="38" width="194"></td>
+     <td><p class="INFO">Si la pista #1 reproduce notas: asigna los valores de la nota a la capa A<br>Si la pista&nbsp;#1 reproduce CCs: asigna los n&uacute;meros&nbsp;CC a la capa A</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs60.gif" alt="Assgn View 2" height="38" width="194"></td>
+     <td><p class="INFO">Si la pista #1 reproduce notas: asigna los valores de velocidad a la capa B<br>Si la pista #1 reproduce&nbsp;CCs: asigna el valor CC a la capa B</p></td>
+  </tr><tr>   
+     <td><img src="mb64seq_tutor/cs61.gif" alt="Assgn View 3" height="38" width="194"></td>
+     <td><p class="INFO">Asigna la longitud de gate a la capa C</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr>
+
+<tr>
+  <td><p><img src="mb64seq_tutor/cs11.gif" alt="NextMenu" height="38" width="194"></p><p class="INFO">Submen&uacute;
+  
+  Next Pattern( siguiente patr&oacute;n)</p></td><td><p class="DESC">Este men&uacute; te permite encadenar patrones:</p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs62.gif" alt="Next View 1" height="38" width="194"></td>
+     <td><p class="INFO">Esta
+es la configuraci&oacute;n por defecto: el patr&oacute;n se
+quedar&aacute; seleccionado despu&eacute;s de haber terminado- se
+reproducir&aacute; en un bucle infinito.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs63.gif" alt="Next View 2" height="38" width="194"></td>
+     <td><p class="INFO">Con
+los botones GP o los izqdos/dchos.se puede especificar el siguiente
+patr&oacute;n al que debe cambiar el secuenciador despu&eacute;s de que
+el patr&oacute;n actual haya terminado. Tambi&eacute;n puedes
+especificar cu&aacute;ntas veces se debe reproducir antes de cambiar a
+otro patr&oacute;n (pulsa el bot&oacute;n de Start/Stop/Select para
+cambiar el n&uacute;mero de bucles).</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr>
+
+<tr>
+  <td><p><img src="mb64seq_tutor/cs12.gif" alt="ManualTrigger" height="38" width="194"></p><p class="INFO">Submen&uacute;
+  
+  Manual Trigger (activaci&oacute;n manual)</p></td>
+  <td>
+  <p class="DESC">Este
+men&uacute; te permite accionar manualmente un solo paso con uno de los
+16 botones GP. La(s) nota(s) y el(los) controlador(es) se
+reproducir&aacute;n con los par&aacute;metros y longitudes originales.
+La intenci&oacute;n de esta caracter&iacute;stica es permitir una edici&oacute;n de las pistas m&aacute;s relajada. ;-)</p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs64.gif" alt="Trg View 1" height="38" width="194"></td>
+     <td><p class="INFO">Tambi&eacute;n se pueden accionar todas las pistas a la vez...</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs65.gif" alt="Trg View 2" height="38" width="194"></td>
+     <td><p class="INFO">...o un paso de una sola pista.</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr><tr>
+  <td><p><img src="mb64seq_tutor/cs13.gif" alt="ShiftMenu" height="38" width="194"></p><p class="INFO">Submen&uacute; Shift </p></td><td><p class="DESC">Este men&uacute; te permite cambiar el punto de partida del secuenciador...</p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs66.gif" alt="Shift View 1" height="38" width="194"></td>
+     <td><p class="INFO">...del paso 1 al 2-16</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr><tr>
+  <td><p><img src="mb64seq_tutor/cs14.gif" alt="BPMMenu" height="38" width="194"></p><p class="INFO">Submen&uacute;
+   BPM&nbsp;</p></td>
+  <td>
+  <p class="DESC">Este submen&uacute; te permite establecer la velocidad del secuenciador:</p>
+ <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs67.gif" alt="SEQ BPM Master" height="38" width="194"></td>
+     <td><p class="INFO">BPMs
+desde 48 hasta 250 seleccionables con los botones izqdo./dcho. En este
+caso, el secuenciador MIDIbox64 act&uacute;a como reloj master MIDI y
+lo puedes sincronizar con otros secuenciadores MIDI con la MIDIbox.</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs68.gif" alt="SEQ BPM Slave" height="38" width="194"></td>
+     <td><p class="INFO">Con
+la posici&oacute;n de m&aacute;s a la izquierda (por debajo de 48 BPM)
+se selecciona&nbsp;el modo Slave. En este caso, el secuenciador
+MIDIbox64 act&uacute;a como reloj MIDI slave y se puede sincronizar con
+otros secuenciadores MIDI.</p></td>
+  </tr></tbody></table>
+  </td>
+</tr><tr>
+  <td><p><img src="mb64seq_tutor/cs15.gif" alt="CopyMenu" height="38" width="194"></p><p class="INFO">Submen&uacute;
+  Copy </p></td><td><p class="DESC">Usa esta p&aacute;gina del men&uacute; para copiar (o salvar) el patr&oacute;n actual a otra destino..</p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs69.gif" alt="Copy View 1" height="38" width="194"></td>
+     <td><p class="INFO">recuerda que puedes usar los botones izqdo./dcho, o los 16 botones GP para seleccionar el patr&oacute;n objetivo.</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr>
+<tr>
+  <td><p><img src="mb64seq_tutor/cs16.gif" alt="PresetMenu" height="38" width="194"></p><p class="INFO">Submen&uacute;
+  
+  Preset</p></td>
+  <td>
+  <p class="DESC">hay
+disponibles 8 presets que se pueden copiar en el patr&oacute;n actual
+para una configuraci&oacute;n f&aacute;cil y r&aacute;pida:</p>
+  <table align="center" cellpadding="3" cellspacing="2">
+  <tbody><tr>   
+     <td><img src="mb64seq_tutor/cs70.gif" alt="Preset View 1" height="38" width="194"></td>
+     <td><p class="INFO">La Pista 1-4 env&iacute;a notas por canal MIDI 1, 2, 3, 4</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs71.gif" alt="Preset View 2" height="38" width="194"></td>
+     <td><p class="INFO">La Pista 1-4 env&iacute;a controladores por canal MIDI 1, 2, 3, 4</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs72.gif" alt="Preset View 3" height="38" width="194"></td>
+     <td><p class="INFO">La Pista&nbsp;1/3 env&iacute;a notas por el canal 1/2, la pista 2/4 env&iacute;a controladores por el canal 1/2</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs73.gif" alt="Preset View 4" height="38" width="194"></td>
+     <td><p class="INFO">La pista 1 env&iacute;a notas por el canal 1, la pista 2-4 env&iacute;a controladores&nbsp; (Pista&nbsp;4 con efecto Ping Pong)</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs74.gif" alt="Preset View 5" height="38" width="194"></td>
+     <td><p class="INFO">La Pista 1-4 activa las muestras de percusi&oacute;n (Bass Drum, Snare, Closed/Opened HiHat) por el canal MIDI&nbsp;10</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs75.gif" alt="Preset View 6" height="38" width="194"></td>
+     <td><p class="INFO">La pista 1-4 env&iacute;a controladores CC#7 para un efecto de gate por el canal 1-4</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs76.gif" alt="Preset View 7" height="38" width="194"></td>
+     <td><p class="INFO">La
+pista 1-4 env&iacute;a notas por el canal 1 en varios modos de
+secuenciador (Normal/Transpose/T+Hold/Arpeggiator) al mismo tiempo</p></td>
+  </tr>
+  <tr>   
+     <td><img src="mb64seq_tutor/cs77.gif" alt="Preset View 8" height="38" width="194"></td>
+     <td><p class="INFO">lo mismo de arriba, pero con divisores y&nbsp;PingPongs adicionales</p></td>
+  </tr>
+  </tbody></table>
+  </td>
+</tr>
+
+
+<tr>
+  <td><p><img src="mb64seq_tutor/cs17.gif" alt="MIDIMenu" height="38" width="194"></p><p class="INFO">Submen&uacute;
+  
+  MIDI Config.&nbsp;</p></td>
+  <td>
+    <p class="DESC">El
+fusor MIDI te permite, por ejemplo, enchufar la MIDIbox y un teclado a
+un ordenador y a una segunda interfaz MIDI. Solo enchufa el MIDI Out de
+tu teclado al MIDI In de la&nbsp;MIDIbox y el MIDI Out de la MIDIbox al
+MIDI In de tu ordenador. Si conectas el MIDI In de tu MIDIbox con el
+MIDI Out de tu ordenador, debes deshabilitar el fusor MIDI para evitar
+bucles retroalimentados.</p>
+    <table align="center" cellpadding="3" cellspacing="2">
+    <tbody><tr>   
+      <td><img src="mb64seq_tutor/cs78.gif" alt="Merger Display" height="39" width="194"></td>
+      <td><p class="INFO">En
+este modo, tambi&eacute;n podr&aacute;s habilitar la opci&oacute;n
+MIDIbox-to-COM con el bot&oacute;n de&nbsp; Start/Stop/Select (4).
+Tienes m&aacute;s informaci&oacute;n en la p&aacute;gina <a href="midibox_to_com.html">Interfaz MIDIbox-to-COM&nbsp;</a>!</p></td>
+    </tr>
+    </tbody></table>
+  </td>
+</tr><tr>
+  <td><p><img src="mb64seq_tutor/cs18.gif" alt="SysExMenu" height="38" width="194"></p><p class="INFO">Submen&uacute;
+  SysEx&nbsp;</p></td>
+  <td>
+    <table align="center" cellpadding="3" cellspacing="2">
+    <tbody><tr>   
+      <td><img src="mb64seq_tutor/cs79.gif" alt="SysEx View 1" height="38" width="194"></td>
+      <td><p class="INFO">En
+teor&iacute;a, este men&uacute; te permite enviar la
+configuraci&oacute;n del patr&oacute;n a otro secuenciador, pero en la
+pr&aacute;ctica, el firmware del PIC16F del secuenciador no es capaz de
+recibir un patr&oacute;n por limitaciones de memoria - esta
+caracter&iacute;stica se habilitar&aacute; en la implementaci&oacute;n
+basada en MIOS.</p></td>
+    </tr>
+    </tbody></table>
+  </td>
+</tr></tbody></table>
+</dd>
+</dl>
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Limitaciones del firmware basado en el PIC16F&nbsp; </h2>
+   <p class="INFO">Debido
+a limitaciones de memoria, el firmware basado en el PIC16F tiene
+algunas imperfecciones que se solucionar&aacute;n en la
+implementaci&oacute;n basada en <a href="midibox_seq.html">MIOS</a>:</p>
+  <ul class="CL" type="disc">
+    <li>La Capa C s&oacute;lo contiene un valor para toda la fila (Capa A, B: 16
+valores). Esta restricci&oacute;n es necesaria por la limitada RAM - en versi&oacute;n
+PIC18F452 esta limitaci&oacute;n no existe. Apa&ntilde;o: asigna una funci&oacute;n de secuenciador 
+est&aacute;tica a la capa C. Si la pista debe reproducir una
+percusi&oacute;n, asigna el n&uacute;mero de nota a la capa A, la
+velocidad a la capa B y la longitud de gate a la capa C&nbsp; (-&gt; la
+longitud de gate nunca cambia). O si quieres secuenciar un controlador
+MIDI, asigna el valor CC a la capa A, la longitud de gate a la capa B y
+el n&uacute;mero CC a la capa C (-&gt; el n&uacute;mero CC nunca cambia)</li>
+    <li>Los
+botones y las funciones LED no son libremente asignables a los pines
+DIN/DOUT. Puedes encontrar los pines IO disponibles en estos archivos: <a href="mbhp/mbhp_dinx4_mb64seq.pdf">mbhp_dinx4_mb64seq.pdf</a> y <a href="mbhp/mbhp_doutx4_mb64seq.pdf">mbhp_doutx4_mb64seq.pdf</a></li>
+    <li> No se pueden recibir las descargas SysEx</li>
+    <li>los
+64 leds de "Prop&oacute;sito general" solo muestran el estado de la
+pista activa. la versi&oacute;n basada en MIOS te permitir&aacute; usar
+64 LEDspara los 64 potes.</li>
+    <li>La funci&oacute;n de
+asignaci&oacute;n de capa debe ser habilitada para que las funciones de
+pista se puedan mapear a otras filas de potes, para que los tres
+par&aacute;metros de una pista sean controlables sin cambiar a otra
+capa.</li>
+    <li>Los botones de GP(prop&oacute;sito general) se
+deben usar tambi&eacute;n para seleccionar el modo de pista, la
+longitud de pista, el divisor del reloj, etc. Dependiendo del
+submen&uacute; activo.</li>
+    <li>modos "performance"
+(actuaci&oacute;n) y "edit"(editar) . El patr&oacute;n se
+reproducir&aacute; sin fin en el modo edit, no debe cambiarse al
+siguiente patr&oacute;n como en el modo performance.</li>
+    <li> no hay modo de Canci&oacute;n, la caracter&iacute;stica de "siguiente patr&oacute;n" es de muy dif&iacute;cil uso</li>
+    <li>solo se puede reproducir un patr&oacute;n a la vez. La implementaci&oacute;n basada en <a href="midibox_seq.html">MIOS</a> permite reproducir 4 patrones al mismo tiempo -&gt; &iexcl;16 pistas!</li>
+    <li>Estilos
+Groove (Shuffle etc...) - una caracter&iacute;stica esencial para los
+patrones de percusi&oacute;n - solo soportados por la
+implementaci&oacute;n basada en <a href="midibox_seq.html">MIOS</a>&nbsp;!</li>
+    <li>el
+core del secuenciador debe ser reutilizable para otras superficies de
+control (por ej para una interfaz de usuario como de un TB303)</li>
+    <li> la implementaci&oacute;n basada en&nbsp;<a href="midibox_seq.html">MIOS</a>
+ofrece una superficie de control optimizada para secuenciadores con dos
+LCDs de 2x40 LCDs y 17 rotary encoders. &iexcl;Mant&eacute;n en mente que no
+es nada divertido controlar demasiadas pistas y capas con potes comunes una
+vez tengas que cambiar entre las capas para editar una secuencia
+existente!</li>
+    <li>Recuerda
+tambi&eacute;n que este firmware ha dejado de desarrollarse y no se
+har&aacute; en el futuro. La implementaci&oacute;n basada en <a href="midibox_seq.html">MIOS</a>
+tiene una opci&oacute;n que te permite re-utilizar tu hardware
+MIDIbox64seq (llamada&nbsp; MIDIbox SEQ Vintage), solo tienes que
+cambiar el PIC y el cristal..</li>
+  </ul>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Descarga </h2>
+  <dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+    <tbody><tr>
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Esquema y&nbsp;PCBs</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Archivo</strong></font></td><td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td><td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong><span style="text-decoration: underline;">Descripci&oacute;n</span></strong></font></td></tr><tr><td class="TABCOLOR2"><a href="mbhp.html">MBHP</a></td>
+      <td class="TABCOLOR2">LINK</td>
+      <td class="TABCOLOR2">ver Plataforma de Hardware MIDIbox</td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_dinx4_mb64seq.pdf">mbhp_dinx4_mb64seq.pdf</a></td>
+      <td class="TABCOLOR2">4k</td>
+      <td class="TABCOLOR2">asignaciones de pines para botones</td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_doutx4_mb64seq.pdf">mbhp_doutx4_mb64seq.pdf</a></td>
+      <td class="TABCOLOR2">4k</td>
+      <td class="TABCOLOR2">asignaciones de pin para LED </td></tr><tr><td colspan="3" class="TABCOLOR1"><font size="3"><strong>Firmware</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="pic16f_firmwares.html">PIC16F Firmwares</a></td>
+      <td class="TABCOLOR2">LINK</td>
+      <td class="TABCOLOR2">Firmware para el PIC16F877 (caducado, no lo uses para MIDIboxes nuevas!)</td>
+    </tr>
+
+
+    <tr>
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Paseos y Tutoriales</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="http://monopole.ph.qmw.ac.uk/%7Ethomas/synthdiy/TBbox1.htm" target="_blank">Reportaje</a></td>
+      <td class="TABCOLOR2">LINK</td>
+      <td class="TABCOLOR2"><a href="mailto:s.thomas@qmul.ac.uk">Steven Thomas</a>
+escribi&oacute; un reportaje sobre su proyecto de
+secuenciador&nbsp;TB3030+MIDIbox64. &iexcl;Mira en este sitio si buscas una caja
+extravagante!</td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="midibox64_tutorial.html" target="_blank">Tutorial</a></td>
+      <td class="TABCOLOR2">LINK</td>
+      <td class="TABCOLOR2">tutorial MIDIbox64 </td></tr><tr><td colspan="3" class="TABCOLOR1"><font size="3"><strong>Misc.</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="http://forum.ucapps.de">Foro MIDIbox</a></td><td class="TABCOLOR2">LINK</td>
+      <td class="TABCOLOR2">Soporte en el Foro MIDIbox</td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="http://wiki.midibox.org" target="_blank">MIDIbox Wiki</a></td>
+      <td class="TABCOLOR2">LINK</td>
+      <td class="TABCOLOR2">Un mont&oacute;n de informaci&oacute;n adicional sobre MIDIbox&nbsp;</td>
+    </tr>
+  </tbody></table></dd>
+</dl>
+
+
+<dl><dt></dt><h2> <img src="images/bullet.gif" alt=""> Muestras "Demo" de secuenciador </h2>
+   <dl> <p class="INFO">Estos
+samples son para la gente que quiere saber m&aacute;s sobre las
+ventajas de hardware de secuenciador por pasos. Recuerda que la
+mayor&iacute;a de las partes se hicieron en vivo en una tarde sin
+importar mucho la calidad de sonido. Los resultados se ven
+r&aacute;pidamente y el sonido es muy interesante:)<br>Se usaron como fuente de sonidos un Sintetizador Yamaha AN1x y una tarjeta XG.</p>
+<table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+  <tbody><tr>
+    <td> <a href="http://www.ucapps.de/mp3/midibox/mb64_demo1.mp3">MP3</a> <i>(515k)</i> </td>
+    <td> <span class="NORM">Un cl&aacute;sico bucle de secuenciador por pasos. Se reproducen 4 voces simult&aacute;neamente&nbsp;<br>
+    <i>(Seq Mode Independent, Loop Mode 1111, Play Mode 1111, Loop Length 16)</i></span></td>
+    
+</tr>                                                             
+
+  <tr>
+    <td> <a href="http://www.ucapps.de/mp3/midibox/mb64_demo2.mp3">MP3</a> <i>(990k)</i> </td>
+    <td> <span class="NORM">Esta
+muestra demuestra lo r&aacute;pido que se puede hacer un efecto de
+gate. Una pista de pote controla el VCA de un sonido visto. Solo se
+reproducen 4 potes en un bucle, lo que permite cambiar los tiempos de
+gate r&aacute;pidamente y de manera &uacute;nica para cada ciclo.<br>
+Al principio, se alcanza el tiempo de gate del pote #1, despu&eacute;s,
+el tiempo de gate del pote #3, luego el pote #2. Despu&eacute;s de 25
+segundos se modifican algunos efectos (porque el efecto gater reside en
+la modulaci&oacute;n de los par&aacute;metros)
+y se empiezan a reproducir las percusiones.<br>
+    <i>(Seq Mode Independent, Loop Mode 1---, Play Mode L111, Loop Length 4)</i></span></td>
+    
+  </tr>                                                             
+
+  <tr>
+    <td> <a href="http://www.ucapps.de/mp3/midibox/mb64_demo3.mp3">MP3</a> <i>(1550k)</i> </td>
+    <td> <span class="NORM">Est&aacute;s escuchando la raz&oacute;n por la que constru&iacute; el secuenciador. ;-)<br>Se
+reproduce un sonido profundo, oscuro. Despu&eacute;s de 30 segundos se
+inicia el secuenciador. Modula la intensidad de sincronizaci&oacute;n y
+la frecuencia cutoff del sonido. Derspu&eacute;s, los potes dedicados a
+la frecuencia cutoff pasan a tomar un "feeling" especiamente
+r&iacute;tmico..<br>
+    <i>(Seq Mode Independent, Loop Mode 11--, Play Mode 2211, Loop Length 16)</i></span></td>
+    
+  </tr>                                                             
+
+  <tr>
+    <td> <a href="http://www.ucapps.de/mp3/midibox/mb64_demo4.mp3">MP3</a> <i>(380k)</i> </td>
+    <td> <span class="NORM">3
+pistas de pote y la pista de bot&oacute;n est&aacute;n reproduciendo 4
+muestras de percusi&oacute;n de una tarjeta de sonido XG.
+Despu&eacute;s de 12 segundos, la cuarta pista de pote se cambia por la
+que modula adicionalmente la frecuencia cutoff.<br>
+    <i>(Seq Mode Independent, Loop Mode 1111, Play Mode 1112, Loop Length 16)</i></span></td>
+    
+  </tr>                                                             
+
+  <tr>
+    <td> <a href="http://www.ucapps.de/mp3/midibox/mb64_demo5.mp3">MP3</a> <i>(235k)</i> </td>
+    <td> <span class="NORM">Se reproducen dos voces simult&aacute;neamente. Las pistas de pote #1 y #2 controlan la frecuencia
+cutoff y la resonancia de la primera, las pistas de pote #3 y #4 controlan los par&aacute;metros de la segunda voz..<br>
+    <i>(Seq Mode Independent, Loop Mode 1111, Play Mode 1111, Loop Length 16)</i></span></td>
+    
+  </tr>                                                             
+
+  <tr>
+    <td> <img src="images/new.gif" alt="NEW"> <a href="http://www.ucapps.de/mp3/midibox/mb64_demo6.mp3">MP3</a> <i>(996k)</i> </td>
+    <td> <span class="NORM">Un
+tema&nbsp;techno que usa la funci&oacute;n&nbsp;transpose. Solo el
+sonido "de plomo" se controla con el secuenciador MIDIbox64 (notas y
+tasa de sincronizaci&oacute;n), los otros sonidos vienen de una caja de
+ritmos RM1x, que se sincroniza v&iacute;a reloj MIDI.<br>
+    <i>(Seq Mode Tranpose, Loop Mode ---1, Play Mode ---2, Loop Length 8)</i></span></td>
+    
+  </tr>                                                             
+
+  <tr>
+    <td> <img src="images/new.gif" alt="NEW"> <a href="http://www.ucapps.de/mp3/midibox/mb64_demo7.mp3">MP3</a> <i>(540k)</i> </td>
+    <td> <span class="NORM">Una
+cl&aacute;sica melod&iacute;a electr&oacute;nica de arpegiador. La
+pista MIDIbox 1-3 env&iacute;a las notas , la pista independiente #4
+env&iacute;a los controladores cutoff <i>(Seq Mode Arpeggiator, Loop Mode ---1, Play Mode ---2, Loop Length 16)</i></span></td>
+    </tr><tr>
+    <td> <img src="images/new.gif" alt="NEW"> <a href="http://www.ucapps.de/mp3/midibox/mb64_demo8.mp3">MP3</a> <i>(344k)</i> </td>
+    <td> <span class="NORM">Velocidad de Arpeggiator incrementada de 100 BPM a 250 BPM.<br>
+    Recuerdas la C=64? :-)<br>
+    <i>(Seq Mode Arpeggiator, Loop Mode ----, Play Mode ----, Loop Length 4)</i></span></td>
+    
+  </tr> <tr>
+    <td> <a href="http://mp3.de/frequencies" target="_blank">LINK</a></td>
+    <td> <span class="NORM">Puedes
+encontrar aqu&iacute; las "secuencias flotantes" ('Floating Sequences')
+y "Secu&eacute;nciate"('Get Sequenced'). Muestra especialmente los
+diferentes modos de reproducci&oacute;n del secuenciador.</span>
+    </td>
+  </tr>                                                             
+
+  </tbody></table></dl>
+</dl>
+
+<p></p><center><img src="images/workbench.jpg" width="575"></center><span class="MEDIUM">TK en el rinc&oacute;n DIY.</span><p></p>
+
+
+FOOTER

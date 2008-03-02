@@ -1,0 +1,58 @@
+HEADER 3 MIOS C Example
+
+<H3>Output Note Number on PortB, and set gate on Pin C.0</H3>
+
+<P CLASS=INFO>We want to copy incoming note numbers to Port B of the PIC, and we want to utilize pin C.0 as a gate output.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  // Output Note number on Port B
+  // set Port C.0 on Note On Event, clear it on Note Off Event
+  if( evnt0 == 0x80 || evnt0 == 0x90 ) {
+
+    // 90 xx 00 is the same like a note off event!
+
+    if( evnt0 == 0x80 || evnt2 == 0x00 ) {
+
+      // Note Off
+      PORTCbits.RC0 = 0; // clear gate
+
+    } else {
+
+      // Note On
+      PORTCbits.RC0 = 1; // set gate
+      PORTB = evnt1;     // set note number
+
+    }
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>The available port SFR names are defined in the "pic18f452.h" file.</P>
+
+<P CLASS=INFO>Note that Port B is normaly used for the LCD, in this example we have to unconnect it. In addition, we have to turn on the pin drivers of PortB. This is normaly done when the application is started, the best place is the Init() function:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  TRISB = 0x00; // enable drivers of port B
+  // for more details about the available SFRs, just have a look into
+  // the PIC18F452 datasheet, which is available at the Microchip
+  // homepage: http://www.microchip.com
+}
+</PRE></TT>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

@@ -1,0 +1,85 @@
+HEADER 3 Differences between MBHP_CORE_V3 and MBHP_CORE_V2
+
+<H1>Differences between MBHP_CORE_V3 and MBHP_CORE_V2</H1>
+
+<P CLASS=INFO>This page contains some old docs which are only required if you are going to populate the an old version of the core module. The most current version is documented <A HREF="mbhp_core.html">here</A>.<BR>
+The main differences:
+<UL CLASS=CL>
+   <LI>the programming port J3 has been removed, since in-circuit-programming is now realized via the MIDI interface</LI>
+   <LI>J6/J7 and J8/J9 have been combined to 2*5 pin DIL sockets</LI>
+   <LI>the crystal is now mounted at the top of the board</LI>
+   <LI>the 1k pull-up resistor R12 has been added to the J4:RC port - this enhancement is required if you are planning to use a MBHP_IIC_* module like <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A>.</LI>
+   <LI>two bypass caps C7 and C8 have been added to improve the power integrity.</LI>
+</UL>
+</P>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_CORE_V2</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_v2.pdf">mbhp_core_v2.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_v2.brd">mbhp_core_v2.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_v2.gif">mbhp_core_v2.gif</A></TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_1.jpg" WIDTH=280 HEIGHT=367 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Start with soldering the 5 bridges which save you from creating a 2-layer board. You can use the cutted legs of caps and resistors, before you throw them away after you finished all the modules! :-)</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_2.jpg" WIDTH=280 HEIGHT=350 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>The crystal has to be soldered on the bottom side. Take care that the metal case doesn't get in touch with tracks; isolation can be ensured by using an adhesive tape (sticky tape, "tesa film") underneath the crystal (not shown here).</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_3.jpg" WIDTH=280 HEIGHT=379 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Mount the parts. This picture shows two types of sockets: 1-row and 2-row SIL headers (for example J3, J4, J15...) and special connectors (J1, J2, J5, J12, J13...) which are available at Reichelt (called printplugs (="printstecker" in german). But don't get confused, SIL headers can be used for every port.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_4.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Don't forget the 6th bridge, which has to be soldered between the SC pin of J4 and <B>Pin #28</B> of the PIC (was Pin #22 in earlier MIOS releases and PIC16F based projects). An isolated cable is recommented!</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_8.jpg" WIDTH=280 HEIGHT=159 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Add also the two additional Bypass Caps on the bottom side of the PCB as close to the power inputs of the PIC as possible. They improve the power integrity. </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_5.jpg" WIDTH=280 HEIGHT=122 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Note that the module will not work without 5 jumpers on the programming interface J3.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_6.jpg" WIDTH=280 HEIGHT=207 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Apply power to the module after all parts except the PIC and the optocoupler are mounted. Check the voltage levels between the most important pins with a multimeter (analog or digital doesn't matter) before plugging the PIC and the 6N138 into the socket:<BR>
+IC1:MCLR(1) - IC1:Vss(12) = 5V<BR>
+IC1:Vdd(11) - IC1:Vss(12) = 5V<BR>
+IC1:Vdd(32) - IC1:Vss(31) = 5V<BR>
+IC2(8) - IC2:(5) = 5V</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_7.jpg" WIDTH=280 HEIGHT=374 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>A picture of a finished board - just for nostalgic reasons ;-)<BR>This was the official layout between 2002 and 2006</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+FOOTER

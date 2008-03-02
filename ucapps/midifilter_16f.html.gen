@@ -1,0 +1,96 @@
+HEADER 3 MIDIfilter/Processor
+
+<H1>MIDIfilter/Processor</H1>
+<H3>Created in April 2002</H3>
+
+<P><CENTER><IMG SRC="midifilter/midifilter.jpg" width=575></CENTER></P>
+
+<HR>
+<P CLASS=INFO>This is an older page which describes the PIC16F based MIDIfilter. In the meantime MIDI events can be processed on a much easier way by using the C wrapper of MIOS -> see <A HREF="midifilter.html">this page</A>.</P>
+<HR>
+
+<P CLASS=INFO>This small but powerful application allows you to create a <B>really</B> full-customable MIDI filter and processor for just 10-20 Euros (or less, if you are able to get a cheaper PIC). Only disadvantage: some basic programming skills are required, because this circuit doesn't come with buttons and LCD fuer the configuration or with a SysEx dump mechanism. On the other hand, take this project as a chance to learn how to program microcontrollers, and don't hesitate to play with the code - enhance the routines and watch the results.</P>
+<P CLASS=INFO>In fact, this project is a MIDI processing environment. The MIDI handler which analyses the incoming MIDI datastreams is already programmed, and it branches to several routines when a complete event like Note On or CC has been received. These routines can be changed without the knowledge, what the rest of the program is doing. You are able just to send out the received event, to change bytes within the event, to toggle output pins of the PIC or whatever you can imagine :)</P>
+
+<A NAME="examples"></A>
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Coding examples </H2></DT>
+  <UL CLASS=CLBIG TYPE=DISC>
+    <LI> <A HREF="midifilter_16f_example1.html">Example1: Only forward Volume controllers</A> </LI>
+    <LI> <A HREF="midifilter_16f_example2.html">Example2: Only forward events of Channel 0</A> </LI>
+    <LI> <A HREF="midifilter_16f_example3.html">Example3: Convert CC to NRPN</A> </LI>
+    <LI> <A HREF="midifilter_16f_example4.html">Example4: Drive pins with MIDI</A> </LI>
+  </UL>
+</DL>
+
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<A NAME="hardware"></A>
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Some words to the Hardware </H2></DT>
+  <DD> <P CLASS=DESC>Well, since all my MIDI applications are based on PIC processors, I just used this microcontroller once more for this project. <I>My advantage:</I> the code was ready for use in within one hour ;-)  --- <I>your advantage:</I> many people are using the same processor and could give you support - regarding the hardware realisation, burner, software tips&tricks. Ok, there are a lot of cheaper PIC processors which are able for doing the same job, but their memory is limited (not good for enhancements) or they don't contain a flash memory, but only an one-time-programmable memory (OTP), or they are not available for quantities below 1000 :-/<BR>So I decided to use the PIC16F874 again, the availability is great (worldwide!), it costs just 10 EUR (ca. US $10) and it is programmable with the MBHP_BURNER programmer.</P></DD>
+</DL>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<A NAME="software"></A>
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> How to change the Software </H2></DT>
+  <UL CLASS=CLBIG TYPE=DISC>
+    <LI> Download and unzip the source code </LI>
+    <LI> Download the free available MPLAB environment from the <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A> site </LI>
+    <LI> Start MPLAB after the installation </LI>
+    <LI> Open the filter.pjt project </LI>
+    <LI> Open the proc.inc file </LI>
+    <LI> Change it for your needs </LI>
+    <LI> Start "make project" or just press the F10 button </LI>
+    <LI> After that, a new main.hex file has been created </LI>
+    <LI> Burn the new code into the PIC (see the <A HREF="howtoprog.html">HowToProg</A> page) </LI>
+    <LI> Test the program with <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-OX</A> or your MIDI gear </LI>
+    <LI> See the <A HREF="http://www.piclist.com" TARGET="_blank">PIClist</A> for some further coding examples </LI>
+  </UL>
+</DL>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<A NAME="download"></A>
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Schematic</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midifilter/midifilter.pdf">midifilter.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>8k</TD>
+      <TD CLASS=TABCOLOR2>MIDIfilter Circuit</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp.html">MBHP</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>see also the MIDIbox Hardware Platform</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Source Code</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midifilter/filter_v1.4.zip">filter_v1.4.zip</A></TD>
+      <TD CLASS=TABCOLOR2>8k</TD>
+      <TD CLASS=TABCOLOR2>Source Code of MIDI Filter for PIC16F87x-20</TD>
+    </TR>
+  </TABLE></DD>
+</DL>
+
+<HR>
+<P CLASS=INFO>This is an older page which describes the PIC16F based MIDIfilter. In the meantime MIDI events can be processed on a much easier way by using the C wrapper of MIOS -> see <A HREF="midifilter.html">this page</A>.</P>
+<HR>
+
+FOOTER

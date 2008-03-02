@@ -1,0 +1,124 @@
+HEADER 3 ChangeLog of MIDIO128
+
+<center><h1>MIDIO128: Change Log</h1></center>
+<center><h3>Derni&egrave;re Version: V2.1c @ 2005-02-25</h3></center>
+
+<img src="images/1x1dot.gif" alt="" height="10"><br>
+
+<ul class="CL">
+
+<li><i>V2.1b/v2.1c</i>
+  <ul>
+  <li>La polarit&eacute; initiale du "toggle status" &eacute;tait &eacute;rron&eacute;e.</li>
+  <li>les DOUT "clignotaient" lorsque le renvoie des DIN&nbsp;&eacute;tait activ&eacute;.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V2.1a</i>
+  <ul>
+  <li>"program change" et "channel preassure" sont maintenant envoy&eacute;s correctement.</li>
+  <li>les 42i&egrave;me et 84i&egrave;me &eacute;v&egrave;nement DIN&nbsp;sont maintenant envoy&eacute;s correctement.</li>
+  <li>Initialisation
+maintenant correcte lorsque l'&eacute;tat des DOUTs est invers&eacute;
+ou que l'&eacute;tat des DINs ne l'est pas.</li>
+  <li>Changement dans
+la gestion par d&eacute;faut des &eacute;v&egrave;nements Meta
+(midio_meta.inc): rien n'est &eacute;mis si le premier byte est 0xff</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V2.1</i>
+  <ul>
+   <li>Trois nouvelles commandes SysEx ont
+&eacute;t&eacute; impl&eacute;ment&eacute;es pour l'upload/download des
+donn&eacute;es de configuration. Les donn&eacute;es &eacute;tant
+transmises "par bloc" dans ce format, il n'est plus requis
+d'ins&eacute;rer un delai entre chaque bytes. Du coup il n'est plus
+forc&eacute;ment n&eacute;cessaire d'utiliser MIDI-Ox, du moment que
+votre outil SysEx permet d'ins&eacute;rer un delai entre chaque bloc
+("Delay after F7") - ce delai doit &ecirc;tre de 750 mS - le m&ecirc;me que celui requis pour l'upload du MIOS.<br>Vous trouverez plus d'info&nbsp;<a href="howto_tools_mbsyx.html">ici</a></li>
+
+   <li>Le
+script mk_syx.pl a &eacute;t&eacute; mis &agrave; jour afin de prendre
+en charge le nouveau format d'upload. Il est
+t&eacute;l&eacute;chargeable&nbsp;<a href="midio128/mk_midio128_syx.zip">ici</a></li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V2.0 - Version bas&eacute;e sur le MIOS</i>
+  <ul>
+   <li>Le
+firmware MIDIO128 complet a &eacute;t&eacute; port&eacute; sur
+le&nbsp;MIOS&nbsp;et il tourne maintenant avec un PIC18F452. Si vous
+commencez un nouveau
+projet, il est recommand&eacute; de choisir le PIC18F452. D'abord pour
+sa plus grande flexibilit&eacute;, mais aussi parce que le portage du
+firmware MIDIbox sur le MIOS apporte un certain nombre de nouvelles
+fonctionnalit&eacute;s - seul le processeur et le crystal
+n&eacute;cessite d'&ecirc;tre chang&eacute;s. </li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.006/V1.005</i>
+  <ul>
+    <li>Trois modes diff&eacute;rents
+peuvent maintenant &ecirc;tre s&eacute;lectionn&eacute;s
+ind&eacute;pendamment pour les 128 inputs: OnOff, OnOnly, Toggle. La
+derni&egrave;re mise &agrave; jour du script <a href="midio128/mk_midio128_syx.zip">mk_midio128_syx</a> est requis pour la configuration de ces param&egrave;tres.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.004</i>
+  <ul>
+    <li>La polarit&eacute; des pins
+d'entr&eacute;e et de&nbsp;sortie est maintenant configurable pour
+obtenir des &eacute;tats logiques soit positifs soit n&eacute;gatifs.</li>
+    <li>Si
+la nouvelle option "forward input to output" (renvoyer l'entr&eacute;e
+vers la sortie) est activ&eacute;e, les changements sur les pins
+d'entr&eacute;e seront transmis aux pins de sortie correspondant&nbsp;.</li>
+    <li>Un reset des &eacute;tats logiques est automatiquement effectu&eacute; si un dump SysEx est re&ccedil;u.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.003</i>
+  <ul>
+    <li>Une routine configurable de
+"debbouncing" (gestion des rebonds) pour tous les pins d'entr&eacute;es
+a &eacute;t&eacute; impl&eacute;ment&eacute;e. Le delay est
+configurable de 1ms &agrave; 255ms</li>
+    <li>"Alternative Program Change Behaviour", comportement alternatif des "program change"&nbsp; (voir la description dans le fichier midio128.ini )</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.002</i>
+  <ul>
+    <li>Un Merger MIDI a &eacute;t&eacute; int&eacute;gr&eacute;, il doit &ecirc;tre activ&eacute; dans le fichier midio128.ini</li>
+    <li>Ev&egrave;nements MIDI On/Off&nbsp; assignables ind&eacute;pendamment pour les pins d'entr&eacute;es.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.001</i>
+  <ul>
+    <li>Annul&eacute;e</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.000</i>
+  <ul>
+    <li>Version initiale</li>
+  </ul>
+</li>
+
+</ul>
+
+FOOTER

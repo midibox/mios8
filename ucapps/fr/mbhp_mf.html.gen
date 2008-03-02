@@ -1,0 +1,481 @@
+HEADER 3 MBHP MF Module
+<h1>MIDIbox Hardware Platform, Motorfader</h1>
+<p></p><center><img src="mbhp/mbhp_mf.jpg" alt="MBHP MF Module" height="370" width="600"></center><p></p>
+<p class="INFO">Le module MF permet au module <a href="mbhp_core.html">CORE</a>
+de contr&ocirc;ler 8 faders motoris&eacute;s (ou pots
+motoris&eacute;s) avec une r&eacute;solution allant
+jusqu'&agrave; 10-bit. Notez que tous les types de faders
+motoris&eacute;s ne sont pas support&eacute;s par le module MF,
+ceci est d&eacute;taill&eacute; plus bas.</p>
+<dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> T&eacute;l&eacute;chargements </h2>
+<dd>
+</dd><dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+<tbody><tr>
+<td colspan="4" class="TABCOLOR1"><font size="3">les mod&egrave;les de PCB peuvent &ecirc;tre ouverts, modifi&eacute;s et convertis avec</font><font size="3">&nbsp;<a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+</tr>
+<tr>
+<td class="TABCOLOR1"><font size="2"><strong>Module</strong></font></td>
+<td class="TABCOLOR1"><font size="2"><strong>Sch&eacute;ma</strong></font></td>
+<td class="TABCOLOR1"><font size="2"><strong>Layout</strong></font></td>
+<td class="TABCOLOR1"><font size="2"><strong>Aper&ccedil;u</strong></font></td>
+</tr>
+<tr>
+<td class="TABCOLOR2"><i>MBHP_MF_V1</i></td>
+<td class="TABCOLOR2"><a href="mbhp/mbhp_mf.pdf">mbhp_mf.pdf</a></td>
+<td class="TABCOLOR2"><a href="mbhp/mbhp_mf_v1.brd">mbhp_mf_v1.brd</a></td>
+<td class="TABCOLOR2"><a href="mbhp/mbhp_mf_v1.gif">mbhp_mf_v1.gif</a></td>
+</tr>
+</tbody></table></dd>
+<dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+<tbody><tr>
+<td colspan="4" class="TABCOLOR1"><font size="3">Informations compl&eacute;mentaires</font></td>
+</tr>
+<tr>
+<td class="TABCOLOR1"><font size="2"><strong>Fichiers</strong></font></td>
+<td class="TABCOLOR1"><font size="2"><strong>Taille</strong></font></td>
+<td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Description</strong></font></td>
+</tr>
+<tr>
+<td class="TABCOLOR2"><a href="mbhp/mbhp_mf_orderlist.txt">mbhp_mf_orderlist.txt</a></td>
+<td class="TABCOLOR2">1k</td>
+<td class="TABCOLOR2">Liste de commande chez <a href="http://www.reichelt.de/" target="_blank">Reichelt</a>&nbsp;</td>
+</tr>
+<tr>
+<td class="TABCOLOR2"><a href="mbhp/mbhp_mf_interconnections.pdf">mbhp_mf_interconnections.pdf</a></td>
+<td class="TABCOLOR2">8k</td>
+<td class="TABCOLOR2">Diagramme de connection pour le module MF&nbsp;</td>
+</tr>
+<tr>
+<td class="TABCOLOR2"><a href="mbhp/mbhp_din_touchsensors.pdf">mbhp_din_touchsensors.pdf</a></td>
+<td class="TABCOLOR2">4k</td>
+<td class="TABCOLOR2">Diagramme de connection&nbsp;pour les touch-sensors</td>
+</tr>
+</tbody></table></dd>
+</dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Composants Utilis&eacute;s&nbsp;</h2>
+            <h2>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <a href="mbhp/mbhp_mf_orderlist.txt">Liste des composants</a><br>
+            </h2>
+
+<dd><dl>
+<h2> <img src="images/bullet.gif" alt=""> Historique </h2>
+<dd>
+<p class="INFO">Le d&eacute;veloppement du pilote MF a une longue
+histoire. Voici un petit r&eacute;sum&eacute; pour vous expliquer
+comment du stade purement exp&eacute;rimental nous sommes
+arriv&eacute;s &agrave;&nbsp;la solution actuelle :</p>
+<ul class="CL">
+                    <li>Rasmus et Arne ont commenc&eacute; leurs
+premi&egrave;res exp&eacute;rimentations en Octobre 2001. Ils ont
+utilis&eacute; des circuits analogiques pour concevoir une "feedback
+control loop" (en fran&ccedil;ais "commande en boucle ferm&eacute;e",
+vous trouverez facilement des informations sur ce principe sur des
+sites consacr&eacute;s &agrave; la robotique) .<br>Les sch&eacute;mas de cette premi&egrave;re approche peuvent &ecirc;tre t&eacute;l&eacute;charg&eacute;s&nbsp;<a href="mbhp/mf/mf_comp_release2.gif">ici</a>.
+Notez que ce circuit n'est pris en charge par aucun firmware MIDIbox -
+il n'a &eacute;t&eacute; mis en ligne qu'&agrave; des fins informatives!<br>Il
+repose sur un DAC (Convertisseur Digital/Analogique) qui re&ccedil;oit
+la valeur cible de l'application charg&eacute;e dans le PIC. Le DAC
+convertit la valeur digitale en voltage (analogique, donc), voltage qui
+est
+ensuite renvoy&eacute; dans un circuit comparateur. Le circuit
+comparateur compare le voltage de r&eacute;f&eacute;rence et le voltage
+actuel d&eacute;fini par la position du curseur, et renvoie deux
+signaux: un pour "position du fader trop basse", et un autre pour
+"position du fader trop haute". Ces signaux sont connect&eacute;s
+au&nbsp;H-Bridge TC4427(en fran&ccedil;ais: <a href="http://fribotte.free.fr/bdtech/Drivers/DrivesPontH.html">pont en H</a>),
+qui d&eacute;livre l'alimentation et contr&ocirc;le le sens de rotation
+jusqu'&agrave; que le fader atteigne la position cible, quand ces deux
+signaux sont &agrave; 0 (voir aussi <a href="http://www.robotroom.com/HBridge.html" target="_blank">la page de David Cook's</a>, vous y trouverez d'autres informations sur les&nbsp;H-Bridges&nbsp;).</li>
+
+<li>L'inconv&eacute;nient de ce circuit, c'est sa complexit&eacute;. Un
+circuit distinct est requis pour chaque fader, le co&ucirc;t des composants
+et&nbsp;la place n&eacute;cessaire deviennent vite trop importants.
+Heureusement, avant que soit termin&eacute;e cette premi&egrave;re version,
+nous nous sommes rendu compte que les fonctions du DAC et du circuit
+comparateur pouvaient &ecirc;tre compl&egrave;tement assum&eacute;es par
+la partie logicielle. Le firmware a donc &eacute;t&eacute;
+modifi&eacute; afin que la comparaison soit faite apr&eacute;s la
+conversion AD. Les signaux de sortie "position du fader trop haute" et
+"..trop basse" sont maintenant directement fournis par le PIC, du coup
+seuls les H-Bridges sont encore n&eacute;cessaires. Les deux signaux sont
+envoy&eacute;s vers un shift-register
+74HC595, par ce moyen, il est th&eacute;oriquement possible de
+contr&ocirc;ler &nbsp;un nombre illimit&eacute; de faders avec un seul
+PIC, mais dans la pratique, ce nombre est en fait limit&eacute; au
+nombre d'entr&eacute;es analogiques(64)</li>
+<li>plus tard une &nbsp;boucle d'hyst&eacute;r&eacute;sis a
+&eacute;t&eacute; ajout&eacute;e dans le software afin de
+contre-balancer les &eacute;tats instables, lorsque le fader est
+tr&eacute;s proche de la position cible, mais ne l'atteint jamais
+compl&egrave;tement, et du coup oscille autour de la position. Cette
+fonction "hysteresis" a &eacute;t&eacute; en suivant remplac&eacute;
+par la fonction "deadband" - cette une valeur seuil (threshold) qui
+d&eacute;finit la zone de la course o&ugrave; les
+erreurs sont ignor&eacute;es. La fonction est r&eacute;alis&eacute;e
+selon la formule math&eacute;matique:<br>"position_cible_atteinte = ABS(position_cible-position_actuelle) &lt; deadband"&nbsp;</li>
+                    <li>l'&eacute;tape suivante consista &agrave;
+impl&eacute;menter un contr&ocirc;le moteur ad&eacute;quat, qui non
+seulement devait permettre de rappeller les snapshots, mais aussi
+d'animer les faders en temps r&eacute;el lorsque des valeurs cibles
+&eacute;taient envoy&eacute;es par l'automation de l'application
+h&ocirc;te (s&eacute;quenceur MIDI). Le timing des mouvements
+simultan&eacute;s est vraiment critique, car les valeurs analogiques
+des faders doivent &ecirc;tre mesur&eacute;es et compar&eacute;es
+cons&eacute;cutivement par un timer pilot&eacute; par une interruption
+--- et tr&eacute;s rapidement!
+Du coup il n'&eacute;tait plus possible de piloter plus de 8 faders
+avec un seul PIC. Mais ceci reste tout &agrave; fait acceptable lorsque
+l'on compare le prix d'un
+PIC &agrave; celui de 8 faders motoris&eacute;s.</li>
+
+<li>le contr&ocirc;le moteur n'&eacute;tait toujours pas parfait.
+Parfois les faders &eacute;taient d&eacute;plac&eacute;s si vite qu'ils
+exc&eacute;daient la "deadband", m&ecirc;me apr&eacute;s plusieurs
+tentatives (notez que la "deadband" d&eacute;finie la r&eacute;solution
+effective). La solution consista donc &agrave; ralentir les moteurs une
+fois qu'ils entraient dans la&nbsp;"deadband". Ce contr&ocirc;le de
+la vitesse des moteurs a pu &ecirc;tre obtenu par une "pulse width
+modulation - modulation de la largeur d'impulsion (PWM), en diminuant
+le rapport cyclique du signal contr&ocirc;lant le H-Bridge au fur et
+&agrave; mesure que l'&eacute;cart entre la position cible et la
+position actuelle diminuait.</li>
+<li>le gros probl&egrave;me avec la PWM, c'est qu'elle produit un bruit
+parasite
+(c'est ce qui rend les faders motoris&eacute;s de mauvaise
+qualit&eacute; si bruyant). Il y a deux fa&ccedil;on de contourner ce
+probl&egrave;me: soit la p&eacute;riode de la PWM doit &ecirc;tre
+augment&eacute;e jusqu'&agrave; une fr&eacute;quence inaudible, ou elle
+doit &ecirc;tre abaiss&eacute;e afin d'obtenir un son moins
+d&eacute;sagr&eacute;able. Une PWM avec&nbsp;une r&eacute;solution plus
+importante n'est pas r&eacute;alisable avec l'impl&eacute;mentation du
+PIC telle que je l'ai con&ccedil;ue, cela n&eacute;cessiterait un
+p&eacute;riph&eacute;rique de capture et de comparaison pour chaque
+fader motoris&eacute;.<br>De
+fait, pour le MIOS V1.8 j'ai choisi l'autre solution - j'ai
+diminu&eacute; la fr&eacute;quence de la PWM et j'ai laiss&eacute; la
+possibilit&eacute; pour l'utilisateur de r&eacute;gler la
+p&eacute;riode de la fr&eacute;quence aussi bien que le rapport cyclique de la PWM&nbsp;, afin
+que le pilote puisse s'adapter &agrave; diff&eacute;rents types de
+faders et diff&eacute;rents voltages de moteur:<br>
+<center><img src="mbhp/mf/mbmf_pwm_settings.gif" height="379" width="320"></center><br>Le
+pilote MF bascule automatiquement en mode PWM d&eacute;s que la
+distance entre la position actuelle et la position cible est
+inf&eacute;rieure &agrave; 10% de la course totale
+(cette valeur a &eacute;t&eacute; d&eacute;finie en
+exp&eacute;rimentant plusieurs types de faders). Dans les
+impl&eacute;mentations qui suivirent, le rapport cyclique de la PWM a
+&eacute;t&eacute; rendu d&eacute;pendant de la distance, mais il s'est
+av&eacute;r&eacute; que cela induisait des effets ind&eacute;sirables,
+d&ucirc;s au nombre suppl&eacute;mentaire de param&egrave;tres
+influen&ccedil;ant le pilote des moteurs (param&egrave;tres pas
+toujours transparents pour l'utilisateur).<br>Note:
+deux rapport cyclique (Duty Cycles) doivent &ecirc;tre
+sp&eacute;cifi&eacute;s, un pour les mouvements vers le haut, un autre
+pour les mouvements vers le bas. J'ai remarqu&eacute; que la vitesse
+pouvait varier selon la direction, et le r&eacute;glage
+s&eacute;par&eacute; de deux rapport cyclique permet donc de compenser
+cette diff&eacute;rence de vitesse.</li>
+<li>lors du d&eacute;veloppement du pilote final pour le MIOS V1.8,
+j'ai pens&eacute; &agrave; une am&eacute;lioration int&eacute;ressante
+de l'algorithme du pilote moteur: lorsque l'on fait varier la largeur
+de la deadband lorsque le fader s'y trouve, il devient possible de
+ralentir le fader suffisament t&ocirc;t, afin qu'il ne d&eacute;passe
+pas (dans la majorit&eacute; des cas) la position cible. <br>C'est
+r&eacute;ellement un processus dynamique, j'ai donc cr&eacute;&eacute;
+un diagramme, bas&eacute; sur le r&eacute;sultat des mesures
+r&eacute;alis&eacute;es, qui est optionnellement charg&eacute; dans la
+SRAM lorsque le pilote MF est actif:<br>
+<center><img src="mbhp/mf/mf_dynamic_deadband_dsc.gif" height="199" width="320"></center></li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Etat Actuel Du Pilote </h2>
+<dd>
+<p class="INFO">Le pilote MIOS V1.8 est pour l'instant
+l'impl&eacute;mentation la plus satisfaisante gr&acirc;ce &agrave; la
+PWM basse fr&eacute;quence ajustable, et la "deadband" dynamique. Si
+des am&eacute;liorations sont toujours possibles, elles ne pourront
+&ecirc;tre r&eacute;alis&eacute;es avec la configuration
+mat&eacute;rielle CORE/MF actuelle:</p>
+<ul class="CL">
+<li>le l&eacute;ger bruit parasite, et qui augmente avec le nombre de
+faders d&eacute;plac&eacute;s simultan&eacute;ment reste audible. La
+seule fa&ccedil;on de le r&eacute;duire est d'utiliser une
+haute-fr&eacute;quence pour la PWM (comme mentionn&eacute; plus haut),
+mais &ccedil;a n&eacute;cessiterait un autre micro-contr&ocirc;leur
+avec huit unit&eacute;s de capture
+&amp; comparaison haute r&eacute;solution, ou un micro-contr&ocirc;leur
+d&eacute;di&eacute; pour chaque fader.</li>
+<li>J'ai remarqu&eacute; de l&eacute;g&egrave;res diff&eacute;rences
+entre les r&eacute;ponses de mes faders ALPS,
+bien qu'ils aient tous &eacute;t&eacute; achet&eacute;s&nbsp;en m&ecirc;me temps (et l'on peut
+supposer qu'ils ont &eacute;t&eacute; produit dans le m&ecirc;me
+"bain"). 5 des 8 faders peuvent &ecirc;tre contr&ocirc;l&eacute;s avec
+un voltage v_mf = 7.0V, mais la r&eacute;ponse des trois autres faders
+est meilleure avec des voltages inf&eacute;rieurs ou sup&eacute;rieurs
+(6.5V..7.5V). Une r&eacute;gulation du voltage ind&eacute;pendante pour
+chaque fader permet de r&eacute;soudre ce probl&egrave;me.</li>
+<li>les faders motoris&eacute;s "coreless motors" ne peuvent &ecirc;tre
+contr&ocirc;l&eacute;s par ce biais l&agrave;. La consommation des
+moteurs "coreless" est significativement sup&eacute;rieure, et les
+TC4427 seraient surcharg&eacute;s (le voltage des moteurs baisse
+&agrave; moins de 5V). l'autre probl&egrave;me c'est qu'avec une
+intensit&eacute; plus &eacute;lev&eacute;e, les moteurs vont si vite
+qu'il n'est plus possible de sampler leur position suffisament souvent..<br>En
+d'autres mots: par cette approche du pilote MF, il n'est pas possible
+d'obtenir des performances suffisantes pour contr&ocirc;ler ce type de
+faders, et il n'est pas possible de contourner ce probl&egrave;me ni en
+modifiant le hardware du module ni en intervenant sur le pilote du MIOS.
+Les moteurs "coreless" requi&egrave;rent une conception totalement
+diff&eacute;rente, conception &agrave; laquelle je ne compte pas me
+consacrer moi-m&ecirc;me (je n'utilise pas de tels faders).</li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Faders Motoris&eacute;s Compatibles </h2>
+<dd>
+<p class="INFO">Il est important encore de pr&eacute;ciser que tous les
+faders motoris&eacute;s ne sont pas pris en charge par le pilote MIOS.
+En r&eacute;alit&eacute;, pour l'instant seuls trois types de faders se
+sont r&eacute;v&eacute;l&eacute;s bien fonctionner, tous les autres
+faders test&eacute;s n'ont pu &ecirc;tre contr&ocirc;l&eacute;s
+correctement.<br>Si vous pr&eacute;voyez d'utiliser des faders qui ne
+font pas partie de la liste indiqu&eacute;e plus bas, essayez d'abord
+avec un &eacute;chantillon (ne les achetez pas tous d'un coup!) et
+tenez-nous inform&eacute;s, la communaut&eacute; MIDIbox ainsi que
+moi-m&ecirc;me, des r&eacute;sultats obtenus.</p>
+<table border="0" cellpadding="0" cellspacing="5" width="100%">
+<tbody><tr>
+<td class="TABCOLOR1"><font size="2"><strong>Type Number</strong></font></td>
+<td class="TABCOLOR1"><font size="2"><strong>Description</strong></font></td>
+</tr>
+<tr>
+<td class="TABCOLOR2" rowspan="2"><span class="NORM"><b>ALPS<br>RSAON11M9</b><br><i>OK</i></span></td>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/rsaon11m9.jpg" align="left" height="101" width="319">bruit acceptable<br>bonne r&eacute;ponse avec les touch sensor!</td>
+</tr>
+<tr>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/rsaon11m9.gif" align="left" height="248" width="319">Atteint la position cible en environ<br>
+&nbsp;200 mS (dans le plus mauvais cas).<br>R&eacute;glages ad&eacute;quats:<br>v_mf = 7.5V,<br>P&eacute;riode PWM&nbsp;: 3,<br>Duty Cycle: 1<br>(<a href="mbhp/mf/final/rsaon11m9.gif">full view</a>)</td>
+</tr>
+<tr>
+<td class="TABCOLOR2" rowspan="2"><span class="NORM"><b>PANASONIC<br>EVANMKP08B14</b><br><i>OK</i></span></td>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/evanmkp08b14.jpg" align="left" height="94" width="319">silencieux, r&eacute;ponse rapide (parfois trop rapide), de tr&eacute;s bonne qualit&eacute;, malheureusement sans touch sensors</td>
+</tr>
+<tr>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/evanmkp08b14.gif" align="left" height="251" width="318">Atteint la position cible en environ. 200 mS (dans le&nbsp;plus mauvais cas).<br>
+R&eacute;glages ad&eacute;quats:<br>
+v_mf = 7.5V,<br>
+P&eacute;riode PWM&nbsp;: 3,<br>
+Duty Cycle: 1<br>(<a href="mbhp/mf/final/evanmkp08b14.gif">full view</a>)</td>
+</tr>
+<tr>
+<td class="TABCOLOR2" rowspan="2"><span class="NORM"><b>ALPS<br>RSAOK11VP</b><br><i>:-/</i></span></td>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/rsaok11vp.jpg" align="left" height="128" width="321">similaire au RSAON11M9, mais plus chers et vraiment bruyants!!!<br></td>
+</tr>
+<tr>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/rsaok11vp.gif" align="left" height="248" width="318">Atteint la position cible en environ<br>
+&nbsp;200 mS (dans le plus mauvais cas).<br>
+
+R&eacute;glages ad&eacute;quats:<br>
+
+v_mf = 7.5V,<br>
+
+P&eacute;riode PWM&nbsp;: 6,<br>Duty Cycle: 2<br>(<a href="mbhp/mf/final/rsaok11vp.gif">full view</a>)</td>
+</tr>
+<tr>
+<td class="TABCOLOR2" rowspan="2"><span class="NORM"><b>ALPS<br>RSAOK11W</b><br><i>:-(<br>
+INUTILISABLE</i></span></td>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/rsaok11w.jpg" align="left" height="125" width="321">fader de grande qualit&eacute;, mais inutilisables avec le module MBHP_MF et le pilote MIOS &agrave; cause du moteur "coreless"<br></td>
+</tr>
+<tr>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/rsaok11w.gif" align="left" height="251" width="318">Reaches
+the target position en environ 500 mS en raison de la surcharge du
+TC4427. Serait plus rapide avec un pilote MOSFET&nbsp;.<br>R&eacute;glages utilis&eacute;s:<br>v_mf = 7.5V,<br>PWM Period: 0,<br>Duty Cycle: 0<br>(<a href="mbhp/mf/final/rsaok11w.gif">full view</a>)</td>
+</tr>
+<tr>
+<td class="TABCOLOR2" rowspan="2"><span class="NORM"><b>Penny&amp;Giles<br>PGF6100</b><br><i>:-(<br>
+INUTILISABLE</i></span></td>
+<td class="TABCOLOR2"><img src="mbhp/mf/final/pgf6100.jpg" align="left" height="175" width="320">fader de grande qualit&eacute;, mais inutilisables avec le module MBHP_MF et le pilote MIOS &agrave; cause du moteur "coreless"</td>
+</tr>
+<tr>
+<td class="TABCOLOR2">Impossible &agrave; contr&ocirc;ler corectement avec le module&nbsp; MBHP_MF en raison de sa consommation trop importante</td>
+</tr>
+</tbody></table>
+<ul class="CL">
+<p class="INFO">Les potentiom&egrave;tres rotatifs motoris&eacute;s
+(Motorpots) ont aussi &eacute;t&eacute; test&eacute;s avec le pilote
+MIOS MF (ALPS 10KBX2). Ils fonctionnent sans probl&egrave;me car il
+sont beaucoup plus lents que les faders motoris&eacute;s.</p>
+</ul></dd></dl>
+<dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Disponibilit&eacute;s Des Faders Motoris&eacute;s</h2>
+<dd>
+<ul>
+<li><a href="http://www.allelectronics.com/cgi-bin/category.cgi?category=search&amp;item=MSP-10K&amp;type=store" target="_blank">PANASONIC #EVANMKP08B14</a> chez <a href="http://www.allelectronics.com" target="_blank">All Electronics Corp./USA</a> pour environ 7$ US </li>
+<li><a href="http://www.alps.de" target="_blank">ALPS Fader #RSAON11M9</a> chez <a href="http://www.albs.de" target="_blank">albs ALLTRONIC/Germany</a>&nbsp;pour environ&nbsp;20 EUR</li>
+<li><a href="http://www.deltron-emcon.com/jkcm/default.aspx?pg=14" target="_blank">ALPS Fader #RSAON11M9</a> chez <a href="http://www.deltron-emcon.com/jkcm/default.aspx?pg=14" target="_blank">Deltron Roxburgh/UK</a>&nbsp;pour environ 10&pound;</li>
+<li><a href="http://www.conrad.com/" target="_blank">ALPS Fader RSAON11M9, num&eacute;ro de commande #442081-07</a> chez <a href="http://www.conrad.cm/" target="_blank">Conrad</a>&nbsp;pour environ 23 EUR</li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Guide De Soudage </h2>
+<dd>
+</dd><dd><table cellpadding="0" cellspacing="0">
+<tbody><tr>
+<td><img src="mbhp/mbhp_mf_1.jpg" alt="" border="0" height="230" width="280"></td>
+<td class="TABCOLOR2">Commencez par souder les 13 ponts, ces derniers
+vous &eacute;vitent d'avoir &agrave; r&eacute;aliser un pcb double-face
+(2-layer). Utilisez pour cela le reste des pattes de vos
+r&eacute;sistances et condensateurs que vous avez d&eacute;j&agrave;
+mont&eacute;s, et attendez d'avoir fini tous vos modules avant de les
+jeter! :-)</td>
+</tr>
+<tr>
+<td><img src="mbhp/mbhp_mf_2.jpg" alt="" border="0" height="232" width="280"></td>
+<td class="TABCOLOR2">Montez tous composants &agrave; l'exception des ICs.</td>
+</tr>
+<tr>
+<td><img src="mbhp/mbhp_mf_3.jpg" alt="" border="0" height="210" width="280"></td>
+<td class="TABCOLOR2">Notez que les diodes ont une polarit&eacute; &agrave; respecter!</td>
+</tr>
+<tr>
+<td><img src="mbhp/mbhp_mf_4.jpg" alt="" border="0" height="207" width="280"></td>
+<td class="TABCOLOR2">Connectez le module MF au module CORE module comme d&eacute;crit <a href="mbhp/mbhp_mf_interconnections.pdf">ici</a>.<br>Non
+repr&eacute;sent&eacute; ici: alimentez vos modules et v&eacute;rifiez
+les voltages Vss/Vdd avant d'installer tout IC dans son support!</td>
+</tr>
+<tr>
+<td><img src="mbhp/mbhp_mf_5.jpg" alt="" border="0" height="210" width="280"></td>
+<td class="TABCOLOR2">Module MF connect&eacute; au CORE et motorfaders.</td>
+</tr>
+</tbody></table></dd>
+</dl>
+<dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Calibration </h2>
+<dd>
+                  <p class="INFO">La calibration consiste &agrave;
+d&eacute;finir le meilleur voltage pour le moteur (v_mf) ainsi que la
+p&eacute;riode et le rapport cyclique (Duty
+cycle), pour la PWM, et la
+Deadband&nbsp;. Vous trouverez une base pour vos r&eacute;glages plus
+haut ("Faders Motoris&eacute;s Compatibles"), mais il est
+pr&eacute;f&eacute;rable d'optimiser ces r&eacute;glages une fois que
+les faders sont install&eacute;s dans la MIDIbox.</p>
+
+<p class="INFO">L'application <b>mf_calibration</b> est disponible &agrave; la page <a href="mios_download.html">MIOS download</a>&nbsp;.
+Une fois upload&eacute;e, vous pouvez utiliser le premier fader pour
+d&eacute;placer tous les faders d'un coup. Les valeurs de calibration
+sont affich&eacute;es sur l'&eacute;cran
+LCD, et elles peuvent &ecirc;tres chang&eacute;es &agrave; l'aide des
+boutons #1-16 (les 16 premiers boutons connect&eacute;s au premier
+module DINX4). Une fois que vous avez trouv&eacute; le meilleur
+r&eacute;glage, vous pouvez l'inscrire dans le fichier main.asm (ou
+main.h) de l'application que vous pr&eacute;voyez d'utiliser (MIDIbox
+MF, MIDIbox LC, MIDIbox MM, etc...).</p>
+<p class="INFO">Une pr&eacute;cision &agrave; propos des valeurs de
+la&nbsp;deadband: plus cette valeur sera haute, plus basse sera la
+r&eacute;solution effective.</p>
+<p class="INFO">La deadband AIN limite la r&eacute;solution
+des valeurs renvoy&eacute;es &agrave; l'application (entr&eacute;e
+USER_AIN_NotifyPinChange). Pour les applications avec des
+&eacute;venements MIDI 7bit (par exemple MIDIbox MF), une Deadband AIN
+de 7 <b>doit</b> &ecirc;tre sp&eacute;cifi&eacute;e (Note: 7 ne
+signifie pas 7bit, mais une deadband de +/-
+7. Dans la mesure ou le MIOS travaille en interne avec une
+r&eacute;solution de 10bit, cela signifie que les changements dans une
+bande de "3bit - 1" (2^3-1) sont ignor&eacute;s).<br>Toutes
+les autres applications Motorfader utilisent un protocole
+sp&eacute;cial qui supporte des r&eacute;solutions sup&eacute;rieures,
+de fait une deadband AIN plus basse est pr&eacute;f&eacute;rable&nbsp;.
+Une
+deadband de 0 entra&icirc;ne des valeurs instables (jitter) - (voir
+aussi <a href="http://www.avishowtech.com/midibox/wiki/index.php/Question%20and%20Answers#QA19" target="_blank">#QA19 de la FAQ MIDIbox</a>), des valeurs de 1..3 seront plus adapt&eacute;es.</p>
+                  <p class="INFO">Des d&eacute;tails concernant la valeur Deadband MF sont donn&eacute;s plus haut. Gr&acirc;ce &agrave; son
+comportement dynamique, le r&eacute;glage de cette valeur est moins critique. Il d&eacute;finit la
+deadband qui est utilis&eacute;e au dernier stade, lorsque le pilote MF
+n'essaie plus d'ajuster la position du fader. Une valeur&nbsp; Deadband MF  = 1 devrait convenir!</p>
+</dd><dd>
+<p class="INFO">L'application <b>mf_direct_control</b> est un programme
+sp&eacute;cial qui n'utilise pas le pilote MF, mais qui permet d'animer
+les faders vers le haut/vers directement avec les boutons
+#1-16. Cela vous aidera &agrave; d&eacute;boguer les connections de vos
+faders.</p>
+                </dd>
+
+</dl>
+<dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Touch Sensors </h2>
+<dd>
+<p class="INFO">La plupart des faders motoris&eacute;s disposent de
+touch sensors, qui peuvent &ecirc;tre utilis&eacute;s pour envoyer des
+&eacute;v&egrave;nements MIDI particuliers &agrave; l'application
+h&ocirc;te (pour par exemple contr&ocirc;ler l'automation), et qui sont
+utilis&eacute;s pour arr&ecirc;ter les moteurs lorsque les faders sont
+d&eacute;plac&eacute;s manuellement- vous permettant ainsi de reprendre
+la main sur l'automation.</p>
+<p class="INFO">Toutes les applications MIDIbox qui supportent les
+faders motoris&eacute;s proposent trois modes touch sensor. Ce mode
+doit &ecirc;tre s&eacute;lectionn&eacute; pr&eacute;alablement en
+modifiant le fichier main.asm ou
+main.h&nbsp;:</p>
+<ul class="CL">
+<li><b>Mode 0:</b> les &eacute;v&egrave;nements touch sensor&nbsp;
+(press&eacute;/relach&eacute;) sont uniquement renvoy&eacute;s &agrave;
+l'application h&ocirc;te (&eacute;v&egrave;nements MIDI)</li>
+<li><b>Mode 1:</b>
+identique au mode 0, mais en plus les moteurs sont arr&ecirc;t&eacute;s
+par le MIOS, et ne seront plus actifs tant que le touch sensor est
+press&eacute;</li><li><b>Mode 2:</b>
+identique aux modes 0+1, mais l&agrave;, aucun mouvement de faders ne
+sera renvoy&eacute; &agrave; l'application h&ocirc;te (pas
+d'&eacute;v&egrave;nements MIDI) tant que vous n'appuyez pas sur un
+touch sensor.</li>
+</ul>
+<p class="INFO">Le Mode 1 est dans la plupart des cas le r&eacute;glage
+par d&eacute;faut afin d'&eacute;viter de voir
+r&eacute;appara&icirc;tre sur le forum MIDIbox toujours les m&ecirc;mes
+questions, pos&eacute;es par ceux qui n'ont pas pris le temps de lire
+ces pages&nbsp; - les faders dans ce mode n'enverront pas
+d'&eacute;v&egrave;nements
+MIDI si il n'y a pas de touch sensor connect&eacute;s ou si ils ne
+fonctionnent pas correctement.</p>
+<p class="INFO">Le Mode
+2 sera le r&eacute;glage &agrave; pr&eacute;f&eacute;rer une fois que
+les touch sensors fonctionnent correctement. Le gros avantage de ce
+mode, c'est que les faders n'enverront pas d'&eacute;v&egrave;nements
+non d&eacute;sir&eacute;s caus&eacute;s par des vibrations du
+contr&ocirc;leur ou par n'importe quelle autre source de jitter.</p>
+<p class="INFO">La sensibilt&eacute; des touch sensor peut aussi
+&ecirc;tre sp&eacute;cifi&eacute;e. Avec des valeurs plus hautes, ils
+seront plus sensibles. 3 est normalement une valeur ad&eacute;quate.</p>
+<p class="INFO">Le sch&eacute;ma pour les touch sensors est disponible <a href="mbhp/mbhp_din_touchsensors.pdf">ici</a><a>.
+Notez que les sensors se connectent sur un module DINX4. Les r&eacute;sistances&nbsp;pull-up </a><a>10k</a><a>
+doivent &ecirc;tre retir&eacute;es sur les pins auxquels sont
+connect&eacute;s les sensors(!), et il y a 8 r&eacute;sistances 47k
+suppl&eacute;mentaires entre le module DIN et J14 du module CORE. Le
+pin J14 pin envoie p&eacute;riodiquement de courtes impulsions pour
+mesurer la&nbsp; charge capacitive des sensors. D&eacute;s qu'un sensor
+est touch&eacute;, sa </a><a>charge capacitive augmente</a><a>, et
+l'impulsion est alors per&ccedil;ue par les pins du module DIN, le
+pilote MIOS SRIO interpr&egrave;te alors le changement d'&eacute;tat.
+Vous trouverez plus d'informations dans </a><a href="http://www.midibox.org/forum/index.php?topic=1544.0" target="_blank">cet article du forum</a>.</p>
+</dd>
+</dl>
+<dl>
+<dt></dt><h2> <img src="images/bullet.gif" alt=""> Cr&eacute;dits </h2>
+<dd>
+<p class="DESC">Remerciements &agrave; Rasmus (<a href="mailto:rasmail@mail.dk">rasmail@mail.dk</a>) et &agrave; son ami Arne&nbsp;qui ont r&eacute;alis&eacute; la
+majeur partie du travail pr&eacute;paratoire. Ils ont mis au point les
+concepts de base et les ont exp&eacute;riment&eacute;s avec les
+composants analogiques. Les tests et les suggestions de
+Rasmus ont &eacute;t&eacute; des plus utiles lors du
+brainstorming et de la r&eacute;alisation des prototypes. :)</p>
+<p class="DESC">Remerciements aussi &agrave;&nbsp;<a href="mailto:david@robotroom.com">david@robotroom.com</a>&nbsp;pour son excellent cours sur les H-Bridges : <a href="http://www.robotroom.com/HBridge.html" target="_blank">www.robotroom.com/HBridge.html</a>.</p>
+<p class="DESC">Remerciement &agrave; Steven C. qui nous a fait don d'un fader motoris&eacute; Panasonic pour nos tests.</p>
+<p class="DESC">Remerciements &agrave; <a href="http://www.albs.de" target="_blank">albs.de</a> qui ont bien voulu me pr&ecirc;ter un exemplaire des faders RSAOK11VP et RSAOK11W&nbsp;pour nos tests.</p>
+</dd>
+</dl>
+FOOTER

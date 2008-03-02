@@ -1,0 +1,161 @@
+HEADER 3 MIOS Bootstrap Loader
+
+<h1>MIOS Bootstrap Loader</h1>
+
+<p class="INFO">El cargador MIOS bootstrap te permite escribir
+aplicaciones, pero tambi&eacute;n el sistema operativo en s&iacute;
+mismo en la memoria flash de un PIC18F452, mediante la interfaz MIDI,
+sin que sea necesario el uso de un dispositivo espec&iacute;fico para
+programaci&oacute;n como el m&oacute;dulo <a href="mbhp_burner.html">MBHP_BURNER&nbsp;</a>.
+Es posible intercambiar c&oacute;digo"al-vuelo". El desarrollo de nuevo
+c&oacute;digo puede ser mucho m&aacute;s eficientemente manejado dado
+que ya no hace falta desconectar la MIDIbox para conectar el adaptador
+de programaci&oacute;n al enchufe ICP, ni esperar dos minutos
+hasta que el contenido de la flash haya sido actualizado; Con el
+cargador MIOS todo este inc&oacute;modo procedimiento no lleva
+m&aacute;s de 3 segundos para una aplicaci&oacute;n com&uacute;n.&nbsp;</p><br><h2>Toma Dos</h2>
+
+<p class="DESC">De hecho, el MIOS tiene dos cargadores bootstrap, el cargador primario y el cargador secundario:
+</p><ul class="CL">
+   <li>El cargador primario se activa
+inmediatamente despu&eacute;s del encendido por unos 2 segundos.
+Durante ese tiempo el cargador espera que alg&uacute;n comando SysEx
+inicialice la escritura flash. Si este comando no es recibido, el cargador
+se desactiva a s&iacute; mismo y se iniciar&aacute; MIOS.</li>
+   <li>El
+cargador secundario se activa despu&eacute;s de que haya arrancado MIOS
+y la aplicaci&oacute;n ya est&eacute; funcionando. A diferencia del
+primer cargador, el secundario no permite sobreescrir la memoria
+ocupada por el sistema operativo. Este tipo de protecci&oacute;n
+impide que destruyas MIOS si tu aplicaci&oacute;n se superpone al
+sistema por error.&nbsp;</li></ul><br><p class="DESC">Despu&eacute;s de
+la carga, y en caso de un fallo de la aplicaci&oacute;n ("pantallazo
+azul"), el PIC se resetear&aacute; y el cargador primario se
+volver&aacute; a iniciar durante 2 segundos. Si tu aplicaci&oacute;n se
+cuelga muy pronto, de manera que no puedas corregir el error
+intercambiando c&oacute;digo en el runtime (tiempo de pasada), el cargador primario te
+salvar&aacute; el d&iacute;a.&nbsp; :)</p>
+
+<p class="DESC"><i>De todos modos, estas caracter&iacute;sticas no
+hacen que el cargador bootstrap sea una herramienta solo&nbsp;para
+desarrolladores- El usuario com&uacute;n tiene la ventaja de no tener
+que fabricarse un m&oacute;dulo MBHP_BURNER, puede pedirle a otros
+que le hagan este trabajo. Una vez que se haya cargado el cargador
+primario en el PIC, podr&aacute;s actualizar el sistema operativo y las
+aplicaciones sin un grabador de PICs.</i></p>
+
+<p class="DESC"><i>Y aqu&iacute;, otra nota para dejarlo claro: &iexcl;no es
+posible utilizar ninguna aplicaci&oacute;n MIOS sin el cargador
+bootstrap o sin haber cargado el MIOS previamente! &nbsp;El proceso de
+carga se describe un poco m&aacute;s abajo en esta misma p&aacute;gina.</i></p>
+
+<h2>Opciones de arranque</h2>
+
+<p class="DESC">El cargador bootstrap tiene que conocer dos
+par&aacute;metros importantes: la ID del dispositivo MIDI, que
+deber&iacute;a se el &uacute;nico n&uacute;mero en una cadena de
+m&uacute;ltiples MIDIboxes, y la BaudRate (tasa de baudios).
+Actualmente se puede elegir entre la baudrate de MIDI com&uacute;n
+(31250) y la tasa usada por la interfaz&nbsp;<a href="midibox_to_com.html">MIDIbox-to-COM</a>&nbsp;(38400).<br>Un
+tercer par&aacute;metro permite definir el tipo de LCD conectada, para
+que MIOS pueda seleccionar el controlador adecuado antes de imprimir un
+mensaje en pantalla. Actualmente soporta pantallas de caracteres (1x8,
+1x16, 2x16, 2x20, 2x40, 4x16, 4x40) y LCDs gr&aacute;ficas basadas en
+KS0108, Los otros tipos de GLCD &nbsp;requieren un controlador especial
+que est&aacute; incrustado en la aplicaci&oacute;n.</p>
+<p class="DESC"><i>Info para desarrolladores de c&oacute;digo: MIOS usa las siguientes funciones durante la fase de arranque: <a href="mios_fun/MIOS_MIDI_DeviceIDAutoSet.html">MIOS_MIDI_DeviceIDAutoSet</a>, <a href="mios_fun/MIOS_MIDI_InterfaceAutoSet.html">MIOS_MIDI_InterfaceAutoSet</a>, <a href="mios_fun/MIOS_LCD_TypeAutoSet.html">MIOS_LCD_TypeAutoSet</a>,
+para que no te tengas que ocupar de estas configuraciones. Nunca
+sobreescribas estos modos de no ser estrictamente necesario, as&iacute;
+aseguras la compatibilidad con diferentes configuraciones de hardware..</i></p>
+
+<p class="DESC">Con Bootloader V1.2 o versiones superiores, es posible usar un m&oacute;dulo <a href="mbhp_iic_midi.html">MBHP_IIC_MIDI</a>
+&nbsp;como puerto de salida MIDI out por defecto. Esto est&aacute;
+pensado para que funcione con el bug de EUSART de los nuevos derivados
+de PIC que contengan EUSART.</p>
+
+<p class="DESC">Las opciones de arranque est&aacute;n localizadas en el
+cabecero de &nbsp;la ID PIC, que puede ser modificada usando IC-Prog o
+la aplicaci&oacute;n "change_id". La ID del dispositivo&nbsp;SysEx se
+encuentra en bitfield ID[57-63], el modo UART en la ID[55], El tipo de
+LCD en ID[48..51], la direcci&oacute;n MBHP_IIC_MIDI &nbsp;para la
+redirecci&oacute;n MIDI Out est&aacute; en&nbsp;ID[40..47]. Aqu&iacute;
+hay unos ejemplos de configuraci&oacute;n:</p>
+<table class="BOX" align="center" border="1" cellpadding="10" cellspacing="2" width="100%">
+  <tbody><tr>
+     <td><span class="NORM"> ID = 0000000000000000<br><b>USA ESTE SI NO EST&Aacute;S SEGURO!</b> </span></td>
+     <td><span class="NORM"> ID de Dispositivo= 0x00<br>interfaz MIDI com&uacute;n<br>LCD de caracteres </span></td>
+     <td rowspan="4" width="140"><a href="mios/bootstrap_id_header.gif"><img src="mios/bootstrap_id_header.gif" alt="The configurable ID header" height="85" width="135"></a><br><span class="NORM">Un pantallazo de IC-Prog que muestra la localizaci&oacute;n de la secci&oacute;n ID<br><b>Nota:</b>Si
+est&aacute;s usando un solo core, es altamente recomendable seleccionar
+la ID de dispositivo = 0x00 - En los ejemplos de la izquierda se usan
+diferentes IDs para indicar la posici&oacute;n.</span></td>
+  </tr>
+  <tr>
+     <td><span class="NORM"> ID = 0000000000000012 </span></td>
+     <td><span class="NORM"> ID de Dispositivo</span><span class="NORM">&nbsp;= 0x12<br></span><span class="NORM">interfaz MIDI com&uacute;n</span><br><span class="NORM">LCD de caracteres</span></td>
+  </tr>
+  <tr>
+     <td><span class="NORM"> ID = 0000000000000142 </span></td>
+     <td><span class="NORM"> ID de Dispositivo</span><span class="NORM"></span><span class="NORM">&nbsp;= 0x42<br>interfaz MIDIbox-to-COM<br>LCD de caracteres</span></td>
+  </tr>
+  <tr>
+     <td><span class="NORM"> ID = 0000000000001000 </span></td>
+     <td><span class="NORM"> ID de Dispositivo</span><span class="NORM"></span><span class="NORM">&nbsp;= 0x00<br>interfaz MIDI com&uacute;n<br>LCD gr&aacute;fica (KS0108) </span></td>
+  </tr>
+  <tr>
+     <td><span class="NORM"> ID = 0000000000120000 </span></td>
+     <td><span class="NORM"> </span><span class="NORM"> ID de Dispositivo</span><span class="NORM"></span><span class="NORM">&nbsp;= 0x00<br></span><span class="NORM">interfaz MIDI com&uacute;n</span><br><span class="NORM">Redirecci&oacute;n de flujo de salida MIDI Out al MBHP_IIC_MIDI con direcci&oacute;n 0x12</span></td>
+  </tr>
+</tbody></table>
+
+<p class="DESC">SmashTV escribi&oacute; una bonita interfaz en l&iacute;nea para seleccionar los valores <a href="http://www.avishowtech.com/mbhp/idgen.html" target="_blank">PIC ID&nbsp;</a>!</p>
+
+
+<h2>Restricciones</h2>
+
+<p class="DESC">Con fin de mejorar la velocidad, la descarga es
+almacenada en 1k del buffer RAM antes de ser escrita en la memoria
+flash. Por eso los bloques m&aacute;s grandes que 1k no pueden ser
+cargados de una vez.&nbsp;De cualquier manera, tanto el script
+hex2syx.pl como MIOS Studio, se ocupan de esta restricci&oacute;n
+partiendo el programa en varias secuencias SysEx.<br>Una vez que un
+bloque de 1k ha sido cargado ( esto tarda unos 330 mS), el
+cargador se pondr&aacute; en estado de programaci&oacute;n durante unos
+400 mS. Durante este tiempo, &iexcl; los eventos MIDI entrantes
+ser&aacute;n ignorados! La herramienta SysEx tiene que insertar
+retrasos entre las secuencias SysEx para prevenir p&eacute;rdidas de
+datos. Otras herramientas que pueden hacerlo muy bien son&nbsp;<a href="http://www.midiox.com" target="_blank">MIDI-Ox</a> para Windows, y&nbsp; <a href="http://www.snoize.com/SysExLibrarian/">SysEx Librarian</a> para MacOSX</p>
+
+<p class="DESC">Nota:&nbsp;MIOS Studio&nbsp;parte el c&oacute;digo en
+octetos de 256 bytes para superar algunos problemas de WinXP/Java con
+algunas interfaces MIDI, el retraso entre estos bloques es
+aproximadamente de 300uS.</p>
+
+
+<h2>MIOS Studio</h2>
+
+<p class="INFO"><a href="http://miosstudio.midibox.org">MIOS Studio</a>
+simplifica la carga de c&oacute;digo, provee un medio para
+correcci&oacute;n de errores para el desarrollo de c&oacute;digo, y
+mucho m&aacute;s.&iexcl; No te pierdas esta herramienta basada en Java!</p>
+
+<p class="INFO">Puedes encontrar m&aacute;s informaci&oacute;n sobre el uso de esta herramienta en la p&aacute;gina de <a href="mios_bootstrap_newbies.html">Novatos</a>.</p>
+
+<h2>hex2syx.pl</h2>
+
+<p class="INFO">El script hex2syx.pl proporciona un m&eacute;todo
+alternativo para cargar un archivo .hex a la core de MIOS. El uso es
+menos c&oacute;modo que con <a href="http://miosstudio.midibox.org">MIOS Studio</a> (-&gt; Puedes encontrar un HowTo en la p&aacute;gina del <a href="mios_bootstrap.html">cargador Bootstrap MIOS&nbsp;</a>), por esto solo lo recomiendo a la gente a la que no le funcione Java en el ordenador.</p>
+
+<h2>Especificaciones del protocolo SysEx&nbsp;</h2>
+
+<p class="INFO">Por si resulta interesante, los comandos de error y los c&oacute;digos de SysEx est&aacute;n descritos en <a href="mios/mios_sysex_implementation.txt">este documento</a>.
+
+</p><h2>Funcionamiento</h2>
+<ul class="CL">
+   <li>Carga de MIOS (12k): 9 segundos</li>
+   <li>Carga de una aplicaci&oacute;n t&iacute;pica (4k): 3 segundos</li>
+</ul>
+
+<h2>Descarga</h2>
+<p class="DESC"><a href="mios_download.html">Aqu&iacute;.</a></p>
+FOOTER

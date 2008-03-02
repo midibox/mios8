@@ -1,0 +1,129 @@
+HEADER 3 MIOS C Example
+
+<H3>A simple handler for Motorfaders</H3>
+
+<P CLASS=INFO>We want to send a CC controller, when a motorfader is moved, and adjust the fader position on incoming CC events.</P>
+
+<P CLASS=INFO>In order to simplify this example, motorfaders are statically assigned to CC#16..CC#23 of MIDI Channel #1.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>Within the Init() function, you have to configure the AIN and MF driver:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  // initialize the AIN driver
+  MIOS_AIN_NumberSet(8);   // 8 motorfaders are connected
+  MIOS_AIN_UnMuxed();      // the AINX4 modules are *never* used with motorfaders!
+  MIOS_AIN_DeadbandSet(7); // should be 7 when 7bit resolution is used
+
+  // initialize the MF driver
+  MIOS_MF_Enable();        // Enable access to MBHP_MF module
+  MIOS_MF_DeadbandSet(3);  // should be <= AIN_Deadband
+  MIOS_MF_PWM_DutyCycleDownSet(1); // see http://www.ucapps.de/mbhp_mf.html
+  MIOS_MF_PWM_DutyCycleUpSet(1);   // (values do depend on fader type)
+  MIOS_MF_PWM_PeriodSet(3);        //
+}
+</PRE></TT>
+
+<P CLASS=INFO>We add the code which should be executed on fader movements to the AIN_NotifyChange() function:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a pot has been moved
+/////////////////////////////////////////////////////////////////////////////
+void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
+{
+  // a fader has been moved, send CC# at channel 1
+  MIOS_MIDI_TxBufferPut(0xb0);   // CC at channel 1
+  MIOS_MIDI_TxBufferPut(pin+16); // pin number corresponds to CC number + 16
+  MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(pin));   // don't send 10bit pin_value,
+                                                     // but 7bit value
+}
+</PRE></TT>
+
+<P CLASS=INFO>The fader position should be adjusted if CC#16..CC#23 is received at MIDI Channel #1. The appr. code has to be added to DIN_NotifyToggle()</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  unsigned char fader;
+
+  // listen on CC#16..CC#23 of MIDI channel 1
+  if( evnt0 == 0xb0 && evnt1 >= 16 && evnt1 <= 23 ) {
+    // move motorfader to new position
+    // fader number: 0-7 (evnt1 - 16)
+    fader = evnt1 - 16;
+    // fader value: a 10bit value is expected, therefore we
+    //              have to convert the 7bit CC to 10bit
+    //              by leftshifting it 3 times
+    MIOS_MF_FaderMove(fader, (unsigned int)evnt2 << 3);
+  }
+}
+</PRE></TT>
+
+<HR>
+
+<P CLASS=INFO><B>Touchsensors:</B> Most motorfaders have integrated touch sensors, which can be used to suspend the motor driver when a fader is moved manually. Following extensions are required to realize this. Note that the touch sensors are connected to pin 120..127 (last shift register of the DIN chain).</P>
+
+<P CLASS=INFO>Add this to the Init() hook:</P>
+<TT><PRE>
+  // initialize SRIO driver
+  MIOS_SRIO_UpdateFrqSet(1);       // shift register update frequency (1/ms)
+  MIOS_SRIO_NumberSet(16);         // for up to 128 pins
+  MIOS_SRIO_DebounceSet(10);       // debouncing value for DINs
+  MIOS_SRIO_TS_SensitivitySet(3);  // sensitivity of touch sensors
+</PRE></TT>
+
+<P CLASS=INFO>Suspend the motors from the DIN_NotifyToggle() hook - the specified motor will stop immediately when a touch sensor gets activated, and it will be controlable again once the touch sensor has been released:</P>
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when an button has been toggled
+// pin_value is 1 when button released, and 0 when button pressed
+/////////////////////////////////////////////////////////////////////////////
+void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
+{
+  // touch sensors are connected to pin 120..127
+  if( pin >= 120 && pin <= 127 ) {
+    // the fader number (0-7) is "pin - 120"
+    // enable suspend if sensor active (pin_value == 0)
+    if( pin_value == 0 )
+      MIOS_MF_SuspendEnable(pin - 120);
+    else
+      MIOS_MF_SuspendDisable(pin - 120);
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>Modifiy the MPROC_NotifyReceivedEvnt() hook, so that an incoming MIDI event is ignored so long the appr. motor is suspended:</P>
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(
+  unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+  unsigned char fader;
+
+  if( evnt0 == 0xb0 && evnt1 >= 16 && evnt1 <= 23 ) {
+    // move motorfader to new position IF NOT SUSPENDED!
+    // fader number: 0-7 (evnt1 - 16)
+    fader = evnt1 - 16;
+    if( MIOS_MF_SuspendGet(fader) == 0 )
+      MIOS_MF_FaderMove(fader, (unsigned int)evnt2 << 3);
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

@@ -1,0 +1,71 @@
+HEADER 3 The MIDIbox Operating System
+
+<H1>The MIDIbox Operating System</H1>
+
+<P><CENTER><IMG SRC="mios/mios_intro.jpg" alt="" width=550 height=400></CENTER></P>
+
+<P CLASS=INFO>The <B>MI</B>DIbox <B>O</B>perating <B>S</B>ystem (<B>MIOS</B>) has been developed to the requirements of flexible MIDI controller applications. In difference to dedicated solutions, like today's commercial products or PIC16F based MIDIboxes, MIOS follows the concept of an open computing system as fundament for idea exchange and personal adaptions. The <A HREF="midibox_gallery.html">MIDIbox Gallery</A> already points out different oppinions in terms of panel design, control elements and prefered workflow. Most of these MIDI controllers are based on <A HREF="midibox64.html">MIDIbox64</A>, <A HREF="midibox16e.html">MIDIbox16E</A> or <A HREF="midio128.html">MIDIO128</A> and therefore limited to the provided features of the firmware. With MIOS, such controllers can be enhanced to multipurpose devices with exchangeable program code, totally customized to the appr. host application, synthesizer or similar "MIDI devices". By releasing the application source codes, everybody will be free to use them as template for modifications and improvements. In this manner MIOS breaks down the skill barrier to getting started with PIC microcontrollers and allows - even people new to electronics - to realize projects far away from the main stream.</P>
+
+<H2>Specs</H2>
+
+<P CLASS=DESC>The operating system consist of some kind of kernel that provides user hooks to hard- and software events, and which offers functions for a simple interaction with modules of the <A HREF="mbhp.html">MIDIbox Hardware Platform</A>. One core module, stuffed with a PIC18F452, can handle with:</P>
+  <UL CLASS=CL>
+    <LI> up to 128 digital inputs</LI>
+    <LI> up to 128 digital outputs</LI>
+    <LI> up to 64 analog inputs</LI>
+    <LI> character and graphical dotmatrix LCDs</LI>
+    <LI> BankSticks (IIC EEPROMs)</LI>
+    <LI> one MIDI In, one MIDI Out, optionally as <A HREF="midibox_to_com.html">to-COM interface</A></LI>
+  </UL>
+
+<P CLASS=DESC>Several drivers have been included which manage following control tasks in background:</P>
+  <UL CLASS=CL>
+    <LI> MIDI IO processing</LI>
+    <LI> <A HREF="mios_bootstrap.html">Bootstrap loader</A></LI>
+    <LI> analog conversion of up to 64 pots, faders or other analog sources with a 10-bit resolution</LI>
+    <LI> motor handling for up to 8 motorfaders with a 10-bit resolution</LI>
+    <LI> handling of up to 64 detented/non-detented rotary encoders</LI>
+    <LI> handling of up to 128 buttons, touchsensors or similar digital input devices</LI>
+    <LI> handling of up to 128 LEDs, relays, Digital-Analog-Converters or similar output devices. In multiplex mode a nearly unlimited number of LEDs, LED rings and LED digits can be driven</LI>
+    <LI> Read/Write from/to EEPROM, Flash, BankStick</LI>
+    <LI> PIC18F cores linkable via <A HREF="midibox_link.html">MIDIbox Link</A></LI>
+  </UL>
+
+<P CLASS=DESC>The whole operating system has been written in assembly language and have been optimized for speed. MIOS currently allocates 8k of program memory (additional 4k are reserved for future extensions) and 640 bytes of RAM. The system architecture is quite stable, additional functions which load the CPU are not planned. The SRIO handler requires just only 75 uS to fetch the data from 128 digital input pins and to write out data to 128 digital output pins. 16 rotary encoders are handled within 100 uS. Analog inputs are scanned in background, every 200 uS a conversion result is available, on changes outside a definable deathband a user hook will be triggered. Up to 256 MIDI events can trigger dedicated functions, the processing of the event list requires about 300 uS. MIDI events can also be processed by a user routine for sysex parsing or similar jobs. A user timer allows to realize time triggered code, best example is the <A HREF="midibox_sid.html">MIDIbox SID</A> adaption which runs 1:1 cycle accurate to the PIC16F version (but one cycle is processed 3 times faster than on the PIC16F). Several measures have been taken to allow a unified interaction with MIOS: all MIOS runtime variables have been located to the BANKED RAM area and don't allocate the ACCESS page. Input and output parameters of functions and hooks are transferred over WREG, three additional registers (MIOS_PARAMETER[123]) and the FSR1 pointer. TBLPTR[LH], TABLAT, PROD[LH], FSR0 and FSR2 are saved and restored if a MIOS function temporary gets use of these SFRs.</P>
+
+<P CLASS=DESC>Due to this consequential application interface (API), support for the C and other high-level languages is possible - see the <A HREF="mios_c.html">MIOS C introduction</A>.</P>
+
+
+
+<H2>MIOS applications</H2>
+
+<P CLASS=DESC>Now some words to the most interesting part: which applications can be realized with MIOS. In respect to the limitations of the sweet little PIC it should be clear that it isn't possible to implement a workstation with a splendidly constructed graphical user interface, support for audio samples, video processing, voice recognition or similar memory eating programs. The strengths of a PIC microcontroller are microsecond accurate IO interactions and realtime processing. Here a few examples, some of them have already been implemented (see the <A HREF="mios_download.html">MIOS Download page</A>:</P>
+  <UL CLASS=CL>
+    <LI> generic MIDI control device with pots/faders/buttons/motorfaders/encoders/leds/led-rings</LI>
+    <LI> MIDI IO processing device</LI>
+    <LI> emulation of existing controllers (for instance Logic Control or Steinberg Houston)</LI>
+    <LI> sequencers</LI>
+    <LI> synthesizers</LI>
+    <LI> ...add your whishes here...</LI>
+  </UL>
+<P CLASS=DESC>Of course, MIOS allows also to manage other jobs outside the world of MIDI, here some inspirations:</P>
+  <UL CLASS=CL>
+    <LI> Robotics</LI>
+    <LI> Light control</LI>
+    <LI> HiFi equipment control</LI>
+    <LI> Game computer</LI>
+    <LI> Kid's computer</LI>
+    <LI> Handheld</LI>
+    <LI> ...add your whishes here...</LI>
+  </UL>
+
+<H2>MIOS hardware</H2>
+
+<P CLASS=DESC>MIOS is a dedicated operating system for the PIC18F452 microcontroller, manufactured by <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>. It is pin compatible to the PIC16F877 which has been used in my previous projects, therefore it can be plugged into the same <A HREF="mbhp_core.html">MBHP Core module</A>. Only one additional modification is required: <B>the 20 MHz crystal has to be exchanged by a 10 MHz crystal</B>! This is necessary, as the PIC quadruples the XTAL frequency to 40 MHz internally (unfortunately Microchip forgot to include a 1:2 PLL option).<BR>All other <A HREF="mbhp.html">MBHP modules</A> can be reused and compatible to the new chip without further modifications.</P>
+<P CLASS=DESC>The PIC18F452 I/P features more internal flash, much more internal RAM, some new instructions and a better system architecture as the PIC16F family. It is available for the same price as the PIC16F877 in most countries (appr. 10-15 Euro, in the US ca. US $7, see also the <A HREF="wheretoorder.html">Where-to-order</A> page), therefore it is highly recommented to use the new microcontroller instead of the PIC16F. Rumor has it that free samples of the PIC18F452 I/P and the 24LC256 (BankStick) can be ordered at the <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A> page.</P>
+
+<H2>Questions & Answers addendum</H2>
+
+<P CLASS=DESC>This addendum is now part of the <A HREF="http://wiki.midibox.org" TARGET="_blank">MIDIbox Wiki</A>. Search for MIOSFAQ</P>
+
+FOOTER

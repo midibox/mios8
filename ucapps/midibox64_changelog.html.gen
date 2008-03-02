@@ -1,0 +1,346 @@
+HEADER 3 ChangeLog of MIDIbox64
+
+<CENTER><H1>MIDIbox64 Change Log</H1></CENTER>
+<CENTER><H3>Last Release: V2.4 @ 2005-05-29</H3></CENTER>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<UL CLASS=CL>
+
+<LI><I>V2.4</I>
+  <UL>
+   <LI> a patch mode has been implemented which can be selected as an
+     alternative option to the common "bank" mode in main.asm<BR>
+     In patch mode, each BankStick contains only one bank
+     configuration (means: pot/button/label setup), but 
+     128 snapshots! This allows you to prepare one configuration
+     for your MIDI gear, and to store/recall/morph up to 128 scenes.</LI>
+
+   <LI> there are two new SysEx commands for storing/restoring patches</LI>
+
+   <LI> patches and banks can be changed from external with a 
+     "Program Change" command. The channels are specified in
+     main.asm. Default: Channel 16 - Banks; Channel 15: Patches </LI>
+
+   <LI> some minor bugfixes and improvements</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V2.3</I>
+  <UL>
+   <LI>three new SysEx commands have been implemented to simplify
+     the configuration data up- and download. It's a block
+     oriented format and therefore doesn't require delays between
+     every byte anymore. This means, that data uploads can
+     now also be realized without the use of MIDI-Ox so long the
+     SysEx tool allows to insert delays between every block
+     ("Delay after F7") - it should be 750 mS - thats the
+     same requirement like for MIOS uploads.<BR>
+     More infos can be found <A HREF="howto_tools_mbsyx.html">here</A>.</LI>
+
+   <LI>the mk_syx.pl script has been updated to support the
+     new upload format. It can be downloaded from <A HREF="midibox/mk_syx.zip">here</A>.</LI>
+
+   <LI>the AMUX extension is now working, but not documented yet</LI>
+
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V2.2</I>
+  <UL>
+
+   <LI>Bankswitching now significantly faster</LI>
+
+   <LI>experimental support for 8 AOUTs (can be controlled via MIDI and
+     from the pots, assigned to the first 8 pot positions)</LI>
+
+   <LI>AMUX extension (64 analog outputs by using 8 sample & hold chips,
+     each with 8 outputs) in preparation, but not implemented yet</LI>
+
+   <LI>experimental support for drum triggers - driver needs some
+     improvements!</LI>
+
+   <LI>MTC code or alternatively the MIDIclock + BPM are now displayed
+     in a new last display page</LI>
+
+   <LI>support for a datawheel (rotary encoder) as replacement for
+     the left/right button. To enable it, set DEFAULT_ENC_DATAWHEEL 
+     to 0 - connect the rotary encoder to pin 4 and 5 of the first
+     DIN shift register, connect the exec button to pin 7 and
+     the snapshot button to pin 6 </LI>
+
+   <LI>Matthias Schreiber has integrated a Page-Mode for MIDIBoxes 
+     with only 16 pots. Using the SF-Buttons you are able to switch
+     between pots 1-16; 17-32; 33-48; 49-64 in the same bank. So 64 
+     pot-events could be used per bank instead of only 16.<BR>
+     These SF-Buttons are added for the Page-Mode:<BR>
+     FF 05 10 | Decrement BankStick Bank without overflow<BR>
+     FF 05 11 | Decrement BankStick Bank with overflow<BR>
+     FF 05 12 | Increment BankStick Bank without overflow<BR>
+     FF 05 13 | Increment BankStick Bank with overflow<BR>
+     Example panel layout: <A HREF="http://www.midibox.org/midibox_gallery/matthias1.jpg">here</A></LI>
+
+   <LI>PayC has added some improvements especially for 4x16 displays</LI>
+
+   <LI>seperate layout files for 2x16, 2x20, 4x16 and 4x20 LCDs
+     to simplify future improvements for various display sizes.
+     The display size has to be selected in main.asm (DEFAULT_LCD_SIZE)</LI>
+
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V2.1</I>
+  <UL>
+   <LI> Douglas Pederick has integrated a 4th display mode especially
+     for 4x20 displays</LI>
+
+   <LI> the LCD screen can now be centered for various displays, the
+     cursor positions have to be configured in main.asm
+     (search for DEFAULT_YOFFSET_LINE*)</LI>
+
+   <LI> MB64_POT_ScaleValue fixed (reverse direction didn't work)</LI>
+
+   <LI> the DEFAULT_BANKSTICK_CS setting in main.asm allows you to
+     select a dedicated EEPROM for your application or disable
+     the BankStick support at all. This feature is especially 
+     usefull when different applications are used with the MIDIbox</LI>
+
+   <LI> the predefined MIDI channels stored in the bank can now be 
+     overwritten by a global channel</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V2.0 - MIOS based version</I>
+  <UL>
+    <LI>the complete MIDIbox64 firmware has been ported to <A HREF="mios.html">MIOS</A> and is now running on a PIC18F452. For new projects it's recommented to switch to the PIC18F452 because of the higher flexibility, but also the update of an existing MIDIbox to MIOS makes sense due to the new features - just only the processor and the crystal have to be changed.</LI>
+    <LI>V2.0 is almost compatible to the PIC16F firmware, only the dynamic jitter filter is not available anymore (not required, MIOS works internally with 10bit resolution) and the 4-line LCD flag has been replaced by the possibility to freely customize the screen (see cs_m_display.inc), so that any kind of LCD which is supported by MIOS can be adapted to this firmware.</LI>
+    <LI>Note that Serge's vmidibox64 editor (which has been developed for the PIC16F version) can also interact with the new implementation. The transfer rate has to be set to a value less than 150, otherwise the dump won't be received completely. This isn't a bug in MIOS, but a problem related to the PIC18F which can only save 64 bytes at once in the internal flash memory (the PIC16F saves 2 bytes (14 bit) at once).</LI>
+    <LI>Beside of the MIDI Learn function, MIDI events can now also be edited directly</LI>
+    <LI>Support for on-screen editing of pot lables and banknames</LI>
+    <LI>up to 8 BankSticks can be handled by the firmware now (-> up to 128 banks)</LI>
+    <LI>banks can be copied</LI>
+    <LI>A morphing function has been added which allows to fade smoothly between two pot scenes: the current pot positions and the pot positions saved in a snapshot (bank)</LI>
+    <LI>Pot events can now be triggered via Remote: <I>F0 00 00 7E 43 [d]9 00 [pot] [value] F7</I> ([d] = device number (0-7), [pot] = pot number (0-63), [value] = pot value (0-127)</LI>
+    <LI>Button events (also menu buttons) can now be triggered via Remote: <I>F0 00 00 7E 43 [d]9 01 [button] [value] F7</I> ([d] = device number (0-7), [button] = button number (0-63), [value] = button value (0=pressed, 1=depressed)</LI>
+    <LI>Special Functions can now be triggered via Remote: <I>F0 00 00 7E 43 [d]9 02 [sfbn] [sfbp] [value] F7</I> ([d] = device number (0-7), [sfbn] = special function number (0-127), [sfbp] = special function parameter (0-127), [value] = button value (0=pressed, 1=depressed)</LI>
+    <LI>A software implemented MIDI Rx/Tx LED function has been integrated</LI>
+    <LI>the <A HREF="midibox64_tutorial.html">MIDIbox64 tutorial</A> has been updated</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.00</I>
+  <UL>
+    <LI>Sequencer part has been removed and is now available as dedicated and improved application (see <A HREF="http://forum.ucapps.de/cgi-bin/yabb/YaBB.cgi?board=news;action=display;num=1035749682">this article</A>)
+    <LI>Also the motorfader part has been seperated, see <A HREF="mbhp_mf.html" TARGET="_blank">MF module description</A>
+    <LI>MIDIbox64 now supports 64 pots, 64 buttons, 64 LEDs
+    <LI>a device ID from 0-7 is now selectable in the SysEx menu; this allows you to address MIDIboxes in a long MIDI chain via SysEx (every box should become it's own ID)
+    <LI>people who don't use a LCD can select the device ID and MIDIbox-to-COM option directly in the .hex file before burning the PIC. Patch instructions can be found in the README.txt of the firmware archive
+    <LI>the new "disable navigation buttons" option can be activated if the 4 first buttons should be used as common MIDI triggers
+    <LI>the navigation buttons are automatically disabled when no LCD is connected
+    <LI>5 new display modes are available now
+    <LI>Banks can be named
+    <LI>MIDI time code (MTC) will be displayed at Page #5
+    <LI>several minor bugfixes and improvements
+    <LI>New <A HREF="midibox/mk_syx.zip">mk_syx.zip</A> script and <A HREF="http://serge.ucapps.de" TARGET="_blank">MIDIbox64 Editor</A>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.034</I>
+  <UL>
+    <LI>Keyboard handler transpose function of the sequencer now works on the same way like known from monophonic synthesizers (or in other words: like the MIDIbox SID in mono mode ;-)
+    <LI>New SysEx command "Switch Bank" allows to change a bank via MIDI (see also <A HREF="midibox/midibox64_sysex_implementation.txt">midibox64_sysex_implementation.txt</A>). It will be used by one of the next releases of <A HREF="http://serge.ucapps.de" TARGET="_blank">Serge's editor</A> to access all banks via remote. The feature could also be usefull in conjunction with sequencer software like Logic Audio to switch to a bank depending on the selected Song, Window, VST PlugIn (as far as the software supports such an automization).</A>
+    <LI>New SysEx command "Partial Write" allows to write quickly into particular memory locations (see also <A HREF="midibox/midibox64_sysex_implementation.txt">midibox64_sysex_implementation.txt</A>). It's a feature especially for the editor.</A>
+    <LI>Optimization for MIDI controllable LEDs to ensure that no MIDI data get lost when the MIDIbox receives a continuous MIDI stream. Restriction: only the MIDI event assignments which are embedded in the internal bank will be taken into account for the LEDs.</LI>
+    <LI>Addresses of the special functions for increment/decrement bank have been changed to match with the MIDIbox16E format. Note: a complete setup file for Serge's Editor can now be found <A HREF="midibox/vmb64presets.ini">here</A>.</LI>
+    <LI>comes also with some minor optimizations and bugfixes which have been done in the last weeks...</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.033</I>
+  <UL>
+    <LI>An additional firmware has been created for the MIDIbox Hardware Platform with a different pot addressing scheme which simplifies the wiring.</LI>
+    <LI>Faster automatic button repeat mechanism for the menu buttons.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.032</I>
+  <UL>
+    <LI>Some Special Functions have been implemented which can be assigned to the buttons. These functions allow to customize the box for your very own requirements:
+       <UL>
+          <LI>MIDI Event <I>or</I></LI>
+          <LI>META Event <I>or</I></LI>
+          <LI>Shortcut to a submenu <I>or</I></LI>
+          <LI>Set/Increment/Decrement BankStick bank (optionally with automatic save/restore) <I>or</I></LI>
+          <LI>Store/Restore current Bank <I>or</I></LI>
+          <LI>Sequencer: Mute/Unmute pot column <I>or</I></LI>
+          <LI>Sequencer: Mute/Unmute whole track <I>or</I></LI>
+          <LI>Sequencer: Set/Increment/Decrement Loop Length</LI>
+       </UL>
+       Find a complete list and some instructions for the customization here: <A HREF="midibox/midibox64_sfb_table.txt">midibox64_sfb_table.txt</A><BR>
+       The <A HREF="midibox/mk_syx.zip">mk_syx</A> script comes with some special examples for SFB (midibox64_sfb.ini) and the Sequencer (midibox64_seq*.ini).<BR>
+       More Special Functions will be available in future.</LI>
+    <LI>Display Mode #4 (Sequencer Status) now shows additional informations: current bank, loop position, loop length, muted tracks, muted columns. With a 4-line display, you will also see all informations from Display Mode #3 (a barline and the currently modified controller/note)</LI>
+    <LI>Button Debouncing now independent from number of pots - you will notice a faster response.</LI>
+    <LI>A bug has been fixed in the SysEx receiving routine which prevented fast&secure download from <A HREF="http://serge.uCApps.de" TARGET="_blank">Serge's Editor and Download Manager</A>. Now the possible download rates are: 150 bytes/s (internal bank), 200 bytes/s (BankStick)</LI>
+    <LI>Several other minor bugfixes & enhancements</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.031</I>
+  <UL> <I>Note: most of the new functions require an update of the <A HREF="midibox/mk_syx.zip">mk_syx</A> script</I>
+    <LI>The behaviour of the MIDIbox in Snap Mode has been changed. Before the change, it was necessary to move the pot to exactly the right position before MIDI events were sent. Now values are sent immediately when the pot passes the position.</LI>
+    <LI>new switch: AUTO_SNAPSHOT. If enabled, and a bank is changed via Program Change or within the Bank Submenu, MIDIbox will automatically restore and send the last-saved settings of the new bank.</LI>
+    <LI>new switch for the motor extension: MF_TOUCH_DETECTION. if enabled, the motor driver and MIDI event OUT handler will notice when a fader is moved manually and react accordingly: If the MIDIbox receives a new value for a fader, manual fader moves will not be sent out for about 1s. If if the touch sensor input is 0V, or a motorfader is moved manually, all incoming values for the currently moved fader will be ignored for about 1s.<BR>
+NOTE: you need to connect at least a pull-up at Pin RD4 (#27) of the PIC otherwise the firmware will react randomly. More informations can be found here: <A HREF="midibox/midibox64_mf_touchsensor.pdf">midibox64_mf_touchsensor.pdf</A></LI>
+    <LI>6 different sequencer modes are available now: Independent (thats the old mode), Combined, Transpose, Transpose+Hold, Arpeggiator, Arpeggiator+Hold. Further details can be found in the <A HREF="midibox64_tutorial.html">MIDIbox64 Tutorial</A>, Demo Songs <A HREF="midibox64.html">here</A></LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.030</I>
+  <UL>
+    <LI>two new settings for the motordriver have been implemented: Motorfader Speed (0-127) and Mode (Precise or Quick). See the appr. entries in the <A HREF="midibox/mk_syx.zip">midibox64.ini</A> file for further details. With these settings you are able to optimize the driver behaviour for the motorfaders you are using.</LI>
+    <LI>a new motorfader submenu has been added which allows you to play with different speed/mode settings "online".</LI>
+    <LI>the CONNECTED_POTS setting in the midibox64.ini file allows you to speed up the box if less than 64 pots are connected. Especially users of motorfaders will like this option, because the box will react faster on position changes. Other users will not notify a big change because of the dynamic priorities feature, which also ensures low latencies.</LI>
+    <LI>SNAPSHOT_AT_POWERON: if enabled, the MIDIbox64 will send the current pot settings when it is switched on.</LI>
+    <LI>now you have to press the snapshot button in the BankStick submenu longer than 3 seconds in order to avoid unwanted BankStick formats.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.029</I>
+  <UL>
+    <LI>Users who own a BankStick are able to name the events for every pot in every bank - in this way the display gets more ergonomic. Hexadecimal as well as decimal values can be displayed in addition. Also +/- value ranges are supported. The strings have to be defined within the midibox64.ini file. See the <A HREF="midibox64_tutorial.html">MIDIbox64 Tutorial</A> for some examples.</LI>
+    <LI>new switch: SEND_PC_ON_BANKCHANGE. If enabled, the MIDIbox sends a Program Change Event on every bank change. Very usefull if you would like to alternate the settings in your MIDI application automatically with the bank change (supported by Logic, Cubase, MIDI-OX Mapper)</LI>
+    <LI>new switch: RECEIVE_PC_FOR_BANKCHANGE. If enabled, the MIDIbox switches the bank when a Program Change on MIDI Channel F (CF <bank>) has been received</LI>
+    <LI>new switch: MIDI_THROUGH_FILTER. should be enabled to avoid MIDI feedback loops. All MIDI events, which are assigned to the pots and buttons will not be forwarded by the MIDI merger.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.028</I>
+  <UL> <I>By now a 1k PullUp resistor is required at Pin RA4 of the PIC. Currently this resistor connection is not provided by the PCB, you have to mount it with two wires! Refer to the <A HREF="midibox/midibox64_core.pdf">MIDIbox64 Core Schematic</A></I>
+    <LI>with this release the MIDIbox64 is the worldwide first MIDI controller with a exchangable, hot plug&playable bank storage device: the <B>BankStick</B>. If you find commercial controllers with the same feature in some years, you know from where the idea comes from. ;-)<BR>Every BankStick can save up to 16 different setups. Since a standard 32k IIC EEPROM is used, these sweet little things are really cheap (about 5 EUR). So just take one stick for Reaktor, one for Logic (or Cubase/Cakewalk/Sonar/Ableton of course), some for your Synthesizers, etc... :). More infos regarding the BankStick can be found in the <A HREF="midibox64_tutorial.html">MIDIbox64 Tutorial</A>.</LI>
+    <LI>the SysEx dump structure has been changed again. All settings are configurable now, find the new mk_syx script <A HREF="midibox/mk_syx.zip">here</A>.</LI>
+    <LI>the MIDIbox-to-COM mode can be configured from the MIDI Merger menu. No special firmware is required for this option anymore. Find more infos <A HREF="midibox_to_com.html">here</A>.</LI>
+    <LI>last but not least: the motordriver has been improved; faders are moved much more smoother now.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.027</I>
+  <UL> 
+    <LI>a "MIDI Through Filter" has been implemented for the Motor Extension. This filter has to be enabled within the midibox64.ini file when using motorfaders with Emagic Logic Audio in order to avoid feedback loops. Possibly this filter is also usefull for other MIDI applications.</LI>
+    <LI>a "Dyanmic Jitter Filter" can be enabled within the midibox64.ini file. It eliminates unstable pot values: slow pot changes will only be processed when they are stable for at least 20 ms (without the filter: ca. 500 us), fast pot changes will be processed immediately (500 us) if the CC value difference is >= 2.<BR>Normally this filter is not necessary, but if you notice jitter on the analog inputs and don't find a way to fix the hardware, just try out the software solution.</LI>
+    <LI>support for +16 additional LEDs (see <A HREF="midibox/midibox64_sr.pdf">midibox64_sr.pdf</A>).</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.026</I>
+  <UL> 
+    <LI>support for optional motor extension (see <A HREF="midibox/midibox64_mf.pdf">midibox64_mf.pdf</A>). More informations regarding this extension which enables you to drive up to 64 Motorfader/Motorpots are available <A HREF="midibox64_mf.html">here</A>.<BR>Up to 64 motordevices can be connected, the number has to be set in the .ini file (see <A HREF="midibox/mk_syx.zip">mk_syx.zip</A>).</LI>
+    <LI>the LED driver has been improved: every LED can be switched on/off via MIDI with the same event which is triggered by the appropriate button.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.025</I>
+  <UL> 
+    <LI>support for optional +16 Button Extension (see <A HREF="midibox/midibox64_sr.pdf">midibox64_sr.pdf</A>). The are full configurable via MIDI Learn or the (new) <A HREF="midibox/mk_syx.zip">mk_syx.zip</A> script.</LI>
+    <LI>support for 4*16 LC Displays. With such a LCD all 64 pot bars are displayed at once (Display Mode 1), the last two sent MIDI events are displayed together with the appropriate pot row (Display Mode 3), the sequencer status is displayed together with the last moved pot and the appropriate row (Display Mode 5). All other display modes are only usefull for 2*16 LCDs.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.024</I>
+  <UL> 
+    <LI>The analog input conversion routine has been revised in order to eliminate potential jitter problems. Up to now the MIDIbox works internally with 8 bit values.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.023</I>
+  <UL> 
+    <LI>The pot handler have been enhanced in order to achieve a higher flexibility: min and max values are definable for every pot. The CC values are automatically scaled over the whole pot moving range dependent on your settings. That means, if you define a range from $30 to $4F, the value $30 will be sent when the pot is on the left side and the CC value slowly increases up to $4F until the pot reaches the end of the right side.</LI>
+    <LI>The SysEx Dump structure have been enhanced by min/max entries. See the new mk_syx.pl script at <A HREF="midibox/mk_syx.zip">mk_syx.zip</A>.</LI>
+    <LI>A hyteresis behaviour have been implemented for the Snap mode. With a hysteresis value of 0 the box behaves like before: the pot "snaps" until it exactly reaches the received CC position. With a higher hysteresis the pot snaps in between the hysteresis loop which depends on the pot position and the moving direction.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.022</I>
+  <UL> <I>Some small but usefull enhancements</I>
+    <LI>Meta Events allow you to send full customizable (programmable) MIDI data on pot or button movements. With this new feature you are able to send out SysEx strings - or - more than one Note Event with a button - or - mathematical functions over pot values - or -- well -- what you want.<BR><B>Disadvantage:</B> Meta Events are not definable via MIDI Learn, they have to be embedded directly into the firmware. All what you need is the source code of the firmware (available by mail request) and the free MPLAB environment by Microchip. The Meta Event function is isolated from the main code modules and reusable on further releases. Some examples demonstrate the most common cases.<BR><B>Advantage:</B> MIDIbox64 is the only free available MIDI controller which is <I>really</I> free programmable without any restrictions ;-)</LI>
+    <LI>The LED controller number (formerly Bn 77 vv) can be defined via SysEx Dump</LI>
+    <LI>Alternatively to the MIDI Learn function the MIDIbox can be configured via MIDI Dump. The new mk_syx.pl script converts a textbased .ini file to a .syx MIDI Dump file. It can be found under <A HREF="http://www.uCApps.de/midibox/mk_syx.zip">http://www.uCApps.de/midibox/mk_syx.zip</A>.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.021</I>
+  <UL>
+    <LI>Merger will not be automatically switched off in Snap Mode anymore. It has to be done manually to avoid feedback loops if your software echos every incoming MIDI event. On the other hand an enabled MIDI merger allows you to cascade MIDIboxes in Snap Mode</LI>
+    <LI>MIDI Learn for the formerly unused four "general purpose" control buttons. They are nice to control a sequencer like Cubase (MIDI remote)</LI>
+    <LI>the 16 LEDs can be controlled directly via MIDI. To switch off a LED send Bn 77 00 (n is the channel/number of LED, 77 hex = 119 decimal). To switch on a LED send Bn 77 7F.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.020</I>
+  <UL> <I>All Features of MIDIbox Plus (and more) are available now</I>
+    <LI>Snap/Relative/"Parallax" pot behaviour have been adapted</LI>
+    <LI>MIDI Learn has been enhanced: every type of MIDI Event (Note On/Off, Controller, Aftertouch, PitchBend, Program Change, ...) can be assigned to the pots and buttons.</LI>
+    <LI>A different behaviour can be assigned to each button: On/Off Value, On Value, Toggle Value.</LI>
+    <LI>Two additional display modes have been implemented: "Show last sent MIDI Event and current Pot Row" and "Sequencer Display"</LI>
+    <LI>Change in the behaviour of the MIDI Event Display: if a pot event is already displayed, it doesn't change the position on the display when another pot will be moved</LI>
+    <LI>The simple snapshot button has been enhanced to a Save/Recall button. Press the button for one second to save the pot settings, tap it shortly to recall the settings.</LI>
+    <LI>Special save/recall functionality for Snap/Relative/Parallax Mode.</LI>
+    <LI>SysEx Dump of the whole bank setup can be requested and transfered to the MIDIbox64. Note that SysEx transfers <B>to</B> the MIDIbox must have a delay of 10 ms for each byte.</LI>
+    <LI>In sequencer mode, the buttons are used as "Mute Buttons". This allows you to mute and unmute a whole pot column very quickly (nice for live playing)</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.011</I>
+  <UL> <I>The '874 version is frozen and will not be enhanced in the future.</I>
+    <LI>Bugfix for "Dynamic Pot Priority" feature.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V0.010</I>
+  <UL> First official Beta Release for PIC16F874 and PIC16F877.<BR>Following Features have been implemented:
+    <LI>Control over 64 Pots and 24 Buttons</LI>
+    <LI>MIDI Learn Mode for every Pot/Button</LI>
+    <LI>Different Displays for Pots and Buttons</LI>
+    <LI>Menu with 2 cursor and 1 exec button</LI>
+    <LI>LCD Backlight Control</LI>
+    <LI>Snapshot Key</LI>
+    <LI>MIDI Learn for Single Pot/Button, automatic Row Channel, automatic Row Add</LI>
+    <LI>Note/Controller Sequencer</LI>
+    <LI>Send MIDI Sync (MIDI Clock Master)</LI>
+    <LI>Receive MIDI Sync (MIDI Clock Slave)</LI>
+    <LI>Set BPM</LI>
+    <LI>Set Note Length</LI>
+    <LI>Buttons trigger Notes or Controller </LI>
+    <LI>Pots control Notes (Velocity) or Controller (Value)</LI>
+    <LI>control over the LEDs</LI>
+    <LI>Different sequencer modes</LI>
+    <LI>concat pot rows, different loop lengths (2-64 pots)</LI>
+    <LI>Dynamic priorities for the pots. The result is a latency time of less than 1 ms :-)</LI>
+  </UL>
+</LI>
+
+</UL>
+
+FOOTER

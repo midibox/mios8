@@ -1,0 +1,214 @@
+HEADER 3 Wavetable Sounds Tutorial #3
+
+
+            <h1>Wavetable Sounds: Tutoriel #3</h1>
+
+
+            <p class="INFO">Ce tutoriel est d&eacute;di&eacute; aux
+sonorit&eacute;s que l'on peut obtenir avec l'arp&eacute;giateur et le
+s&eacute;quenceur de la <a href="midibox_sid.html">MIDIbox SID</a>.
+Tous les patchs dont il est question ici peuvent &ecirc;tre au choix
+&eacute;diter via JSynthLib ou directement via la Surface de
+Contr&ocirc;le. Vous pouvez t&eacute;l&eacute;charger ces patchs <a href="midibox_sid/tutor3_patches_v1.zip" target="_blank">ici</a>.</p>
+
+
+            <table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+
+
+  <tbody>
+                <tr>
+
+    <td><span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_short_arp.mp3"#dddddd**<BR><b>Arpeggios courts</b><br>
+Dans cet exemple, les arpeggios sont cr&eacute;&eacute;s de la
+m&ecirc;me fa&ccedil;on que pour les titres C64&nbsp;. Une table d'onde
+est utilis&eacute; pour piloter la forme d'onde, et la valeur de
+transposition d'une ou de toutes les voix. La table d'onde est
+jou&eacute;e &agrave; une vitesse &eacute;lev&eacute;e. Cette
+m&eacute;thode est aussi connue sous le nom de "broken chords" - les
+notes d'un accord sont jou&eacute;es successivement mais si rapidement
+que l'on peut penser qu'elle sont jou&eacute;es simultan&eacute;ment.
+
+                  <ul class="CL">
+
+  <li>cr&eacute;ez un nouveau patch, selectionnez la forme d'onde Pulse pour les trois oscillateurs.</li>
+
+  <li>Assignez le LFO1 &agrave; la Pulsewidth de la Voix1, le LFO2
+&agrave; la PW de la Voix2, le LFO3 &agrave; la PW de la Voix3 - le
+Depth &agrave; env. +/- 8 (avec de l&eacute;g&egrave;res variations
+d'un LFO &agrave; l'autre), le Rate &agrave; env. 85 (<span class="NORM">avec de l&eacute;g&egrave;res variations d'un LFO &agrave; l'autre</span>)</li>
+
+  <li>assignez la piste 1 de la Wavetable au CC#32 (forme d'onde des voix 1/2/3)</li>
+
+  <li>assignez la piste&nbsp; 2 de la Wavetable au CC#16 (Transposition des voix 1/2/3)</li>
+
+  <li>Rate de la Wavetable&nbsp;: commencez avec 1, augmentez
+jusqu'&agrave; 115 (ce qui correspond &agrave; un taux de
+rafraichissement de 50 Hz)</li>
+
+  <li>entrez la s&eacute;quence suivante:<br>
+
+                      <tt>
+                      <pre>STEP CMD    #1   #2<br>00   Play   04   40<br>01   Play  +00   43<br>02   Play  +00   47<br>03   Play  +00   4C<br>04   Play  +00   40<br>05   Play  +00   43<br>06   Play  +00   47<br>07   Play  +00   4C<br>08   Play  +00   40<br>09   End   +00  +00  <br></pre>
+                      </tt></li>
+
+  <li>Cette wavetable va jouer les notes d'un accord majeur
+exactement deux fois, ensuite le gate sera relach&eacute; (le son va
+s'arr&ecirc;ter).</li>
+
+  <li>A la diff&eacute;rence de l'Arp&eacute;giateur, qui tourne
+ind&eacute;pendamment de la wavetable, cette m&eacute;thode
+pr&eacute;sente l'avantage suivant : une seule note a besoin
+d'&ecirc;tre jou&eacute;e depuis un clavier MIDI pour jouer un
+arpeggio. L'Arp&eacute;giateur requiert de jouer l'accord complet&nbsp;
+(jusqu'&agrave; 4 touches). Mais vous pouvez aussi y voir un
+d&eacute;savantage: c'est toujours le m&ecirc;me accord qui est
+jou&eacute;, il n'est donc pas facile de passer d'un accord majeur
+&agrave; un accord mineur avec cette m&eacute;thode.</li>
+
+  <li>Un moyen de contourner cette limitation est d'utiliser le <a href="midibox_sid/sid_cc_implementation_chart.txt">CC#12 ("Select Wavetable Patch Number")</a>.
+Vous pouvez pr&eacute;parez plusieurs wavetables dans diff&eacute;rents
+emplacements de patchs, et passer de l'un &agrave; l'autre pendant le
+jeu sans basculer vers un nouveau patch&nbsp;.</li>
+                  </ul>
+
+    </span></td>
+  </tr>
+
+
+  <tr>
+
+    <td><span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_arp_notes.mp3"#dddddd**<BR><b>Arp Notes</b><br>
+Une fa&ccedil;on plus flexible de cr&eacute;er des arpeggios est
+possible gr&acirc;ce &agrave; une fonction propre &agrave; la MIDIbox
+SID: les Notes peuvent &ecirc;tre directement jou&eacute;es par la
+Wavetable (comme si elles &eacute;taient jou&eacute;es depuis un
+s&eacute;quenceur), et il est possible non seulement de jouer et de
+transposer des s&eacute;quences de notes statiques (hex code 02-7B),
+mais il &eacute;galement possible de renvoyer les accords jou&eacute;s
+sur un clavier directement vers le moteur sonore (hex code 7C-7F).<br>
+Dans l'&eacute;diteur JSynthLib, ces notes d'accord sont accessibles
+avec les mots-cl&eacute;s "KEY1", "KEY2", "KEY3" et "KEY4". La surface
+de contr&ocirc;le utilise la m&ecirc;me d&eacute;nomination - tournez
+simplemnt l'encodeur vers la droite jusqu'&agrave; ce que
+s'affiche&nbsp; "KY1".."KY4".<br>
+Utilisez l'exemple suivant comme point de d&eacute;part:
+                  <ul class="CL">
+
+  <li>cr&eacute;ez un nouveau patch, changez le mode Mono pour "WT
+Seq Only" - maintenant les notes jou&eacute;es sont sous le
+contr&ocirc;le direct du s&eacute;quenceur WT&nbsp;.</li>
+
+  <li>assignez la piste 1 de la Wavetable au CC#8 (note des Voix 1/2/3&nbsp;)</li>
+
+  <li>assignez la piste 2 de la Wavetable au CC#16 (Transposition des Voix 1/2/3&nbsp;)</li>
+
+  <li>Wavetable Rate: 36 (lent)</li>
+
+  <li><span class="NORM">entrez la s&eacute;quence suivante</span>:<br>
+
+                      <tt>
+                      <pre>STEP CMD    #1   #2<br>00   Play  KEY1  40<br>01   Play  KEY2  40<br>02   Play  KEY3  40<br>03   Play  KEY1  4C<br>04   Play  KEY1  40<br>05   Play  KEY2  40<br>06   Play  KEY3  40<br>07   Play  KEY1  4C<br>08   Goto   00  +00  <br></pre>
+                      </tt></li>
+
+  <li>jouez maintenant diff&eacute;rents accords sur votre clavier et amusez-vous! :)</li>
+                  </ul>
+
+    </span></td>
+  </tr>
+
+
+  <tr>
+
+    <td><span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_arp_notes2.mp3"#dddddd**<BR><b>Arp Notes #2</b><br>
+Dans l'exemple pr&eacute;c&eacute;dent, le but des codes hex&nbsp; 00
+et 01 n'est pas mentionn&eacute;. Donc: 00 (ou dans JSynthLib: "---")
+est utilis&eacute; pour relacher le gate, et 01 (JSynthLib: "+++") est
+utilis&eacute; pour maintenir le gate.<br>
+L'exemple suivant va un peu plus loin. La wavetable est
+synchronis&eacute;e depuis un s&eacute;quenceur MIDI externe afin de
+garder la MIDIbox SID synchronis&eacute;e avec une bo&icirc;te &agrave;
+rythme:
+
+                  <ul class="CL">
+
+  <li>cr&eacute;ez un nouveau patch, changez le mode Mono pour "WT Seq Only" -<span class="NORM"> maintenant les notes jou&eacute;es sont sous le contr&ocirc;le direct du s&eacute;quenceur WT&nbsp;.</span></li>
+
+  <li>assignez la piste 1 de la Wavetable au CC#8 (note des Voix 1/2/3)</li>
+
+  <li>assignez la piste 2 de la Wavetable au CC#16&nbsp;<span class="NORM">(Transposition des Voix 1/2/3&nbsp;)</span></li>
+
+  <li>Wavetable Rate: 123, activez la synchro MIDI&nbsp; (Control Surface: CFG menu, <span class="NORM"> param&egrave;tre</span>"Clk")</li>
+
+  <li><span class="NORM"><span class="NORM">entrez la s&eacute;quence suivante</span>:</span>
+                      <tt>
+                      <pre>STEP CMD    #1   #2<br>00   Play  KEY1  34<br>01   Play  ---   34<br>02   Play  KEY2  34<br>03   Play  ---   34<br>04   Play  KEY1  40<br>05   Play  ---   40<br>06   Play  KEY2  40<br>07   Play  ---   40<br>08   Play  KEY1  4C<br>09   Play  ---   4C<br>0A   Play  KEY2  4C<br>0B   Play  ---   4C<br>0C   Goto   00  +00  <br></pre>
+                      </tt></li>
+
+  <li>lancez votre s&eacute;quenceur MIDI (afin d'envoyer le message
+d'horloge MIDI &agrave; la MIDIbox SID), et jouez deux notes sur votre
+clavier, ou envoyez-les depuis le s&eacute;quenceur.</li>
+
+  <li>le ratio du diviseur de l'horloge MIDI peut &ecirc;tre
+contr&ocirc;l&eacute; avec le taux (rate) du WT&nbsp;, voici quelques
+valeurs typiques:
+                      <ul class="CL">
+
+    <li>126: 8 WT steps = 1/4 note</li>
+
+    <li>123: 8 WT steps = 1/2 note</li>
+
+    <li>117: 8 WT steps = 1 note</li>
+                      </ul>
+                    </li>
+                  </ul>
+
+    </span></td>
+  </tr>
+
+
+  <tr>
+
+    <td><span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_poly_arp.mp3"#dddddd**<BR><b>Arpeggios </b></span><span class="NORM"><b>Polyphoniques</b></span><span class="NORM"><br>
+Dans ce dernier exemple, je souhaite montrer comment r&eacute;aliser
+des arpeggios polyphoniques en utilisant les trois pistes du
+s&eacute;quenceur&nbsp;wavetable&nbsp;: <li>cr&eacute;ez un nouveau patch, changez le mode Mono pour "WT Seq Only" -&nbsp;<span class="NORM"><span class="NORM">maintenant les notes jou&eacute;es sont sous le contr&ocirc;le direct du s&eacute;quenceur WT&nbsp;.</span></span></li>
+
+  <li>utilisez des r&eacute;glages similaires pour la sonorit&eacute; des trois voix.</li>
+
+  <li>assignez la piste 1 de la Wavetable au CC#9 (note de la Voix 1)</li>
+
+  <li>assignez la piste 2 de la Wavetable au CC#10 (note de la Voix 2)</li>
+
+  <li>assignez la piste 3 de la Wavetable au CC#11 (note de la Voix 3)</li>
+
+  <li>Wavetable Rate: 123, activez la synchro MIDI&nbsp; (Control Surface: CFG menu, param&egrave;tre "Clk"&nbsp;)</li>
+
+  <li>entrez la s&eacute;quence suivante:<br>
+
+                    <tt>
+                    <pre>STEP CMD    #1   #2   #3<br>00   Play  ---  KEY2 KEY3<br>01   Play  ---  ---  --- <br>02   Play  KEY1 ---  --- <br>03   Play  ---  KEY2 KEY3<br>04   Play  ---  ---  --- <br>05   Play  ---  KEY2 KEY3<br>06   Play  KEY1 ---  --- <br>07   Play  ---  ---  --- <br>08   Goto   00  +00  <br></pre>
+                    </tt></li>
+
+  <li>Pour plus d'inspiration, jetez un oeil sur les patchs A064-A076 de la librairie de presets de la MIDIbox SID&nbsp;.</li>
+
+
+    </span></td>
+  </tr>
+              </tbody>
+            </table>
+
+
+
+            <h2>Liens</h2>
+
+
+            <ul class="CL">
+
+  <li><a href="midibox_sid/tutor3_patches_v1.zip">tutor3_patches_v1.zip</a></li>
+
+  <li><a href="midibox_sid.html">MIDIbox SID Page</a> - vous y trouverez la librairie de presets</li>
+
+            </ul>
+
+
+FOOTER

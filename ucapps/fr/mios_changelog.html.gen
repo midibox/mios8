@@ -1,0 +1,229 @@
+HEADER 3 ChangeLog of MIOS
+
+<CENTER><H1>MIOS Change Log</H1></CENTER>
+<CENTER>
+  <H3>Derni&egrave;re Version : V1.9f @ 2007-09-02</H3>
+</CENTER>
+
+<IMG SRC="images/1x1dot.gif" height=5 ALT=""><BR>
+
+<UL CLASS=CL>
+
+
+<LI><I>V1.9f</I>
+  <UL CLASS=CL>
+   <LI> Timer0 est disponible comme ressource suppl&eacute;mentaire si le pilote AIN n'est pas activ&eacute;.<BR>
+     Aucun hook sp&eacute;cifique n'est disponible, mais ce timer peut &ecirc;tre utilis&eacute; pour des mesures temporelles sur 16 bits.</LI>
+
+   <LI> Le pilote AIN fonctionne d&eacute;sormais correctement avec les PIC18F4620/PIC18F4685.</LI>
+
+   <LI> La fonction de sauvegarde fonctionne d&eacute;sormais correctement pour les p&eacute;riph&eacute;riques flash >32k des PIC18F4620 et PIC18F4685 (voir aussidoc/mios_backup.txt).
+   <LI> Un nouveau mode pour les encodeurs rotatifs est disponible: "MIOS_ENC_MODE_DETENTED3", il fonctionne de mani&egrave;re similaire &agrave; MIOS_ENC_MODE_DETENTED2, mais l'incr&eacute;mentation de la valeur se fait "pendant le click ", et non plus "apr&eacute;s le click "</LI>
+  </UL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.9e</I>
+  <UL CLASS=CL>
+   <LI>la priorit&eacute; du gestionnaire  &quot;MIDI Rx Handler&quot; modifi&eacute;e (il a d&eacute;sormais la plus haute priorit&eacute;)</LI>
+
+   <LI>MIOS_HLP_GetIndex_2bytes tient d&eacute;sormais compte de la limite de 64k (uniquement valable pour les PIC18F4685 et PIC18F4682)</LI>
+
+   <LI>le &quot;debouncing&quot; n'est pas effectu&eacute;  (ou les actions DIN sont ignor&eacute;es) si BSR est modifi&eacute; pendant un hook USER_SR_Service_Finish.</LI>
+
+   <LI>La requ&ecirc;te de download pour les Banksticks  64k  (24LC512) fonctionne maintenant. </LI>
+  </UL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+
+<li><em>V1.9d</em></li>
+</UL>
+
+<ul>
+  <ul>
+    <li>prise en charge des PIC18F4685 et&nbsp; PIC18F4682</li>
+  </ul>
+  <ul>
+    <li> initialisation du mode 4bit CLCD retravaill&eacute;</li>
+  </ul>
+  <ul>
+    <li>mode 4bit CLCD s&eacute;lectionn&eacute; par  d&eacute;faut pour les PIC18F4685 et PIC18F4682 pour lib&eacute;rer le  pin&nbsp; ECAN pins sur RB2 et RB3<br>
+      Notez que les pins D0-D3 du CLCD ne doivent pas &ecirc;tre  connect&eacute;s au PIC dans ce cas, mais reli&eacute;s &agrave; la  masse!</li>
+  </ul>
+  <ul>
+    <li>nouvelle version V1.2b du Bootloader&nbsp;: prise en charge des nouveaux PICs<br>
+      les drivers de Sortie du Port B ne sont plus activ&eacute;s pendant la phase d'initialisation.</li>
+  </ul>
+</ul>
+<ul>
+  <li><em>V1.9c</em>
+      <ul>
+        <li>Changement dans la m&eacute;thode de "debouncing"  du MIOS pour les boutons. Avant cette modification,&nbsp;c'&eacute;tait  toute la proc&eacute;dure de scan des SRIO qui &eacute;tait  d&eacute;sactiv&eacute;e, avec comme r&eacute;sultat l'interruption  momentan&eacute;e de la gestion des registres DOUT&nbsp;. Ceci  entra&icirc;nait comme effet secondaire un scintillement des matrices  de LEDs et des sauts en cas d'utilisation d'encodeurs haute  r&eacute;solution.<br>
+          Avec cette version, seuls les DINs qui ne sont pas assign&eacute;s  &agrave; des encodeurs sont debounc&eacute;s, et le scan des SRIO est  maintenu en permanence afin que les registres DOUT soient toujours mis  &agrave; jour.</li>
+        <li>MIOS_MIDI_InterfaceSet/MIOS_MIDI: le baudrate de  l'(E)USART n'est actualis&eacute; que lorsque la valeur a  &eacute;t&eacute; chang&eacute;e, ce qui previent de tout reset du  g&eacute;n&eacute;rateur de baudrate - ce qui entra&icirc;nait des  bytes MIDI invalides en cas de basculements rapides entre un port  MBHP_IIC externe et le port MIDI interne.</li>
+      </ul>
+    <img src="http://www.ucapps.de/precedents%20upload/images/1x1dot.gif" alt="" height="20"><br>
+  </li>
+  <li><em>V1.9b</em>
+      <ul>
+        Les changements ne concernent que les PIC18F4620!
+        <li>retour sur  la modification de la fonction MIOS_EEPROM_* en raison d'une  incompatibilit&eacute; avec les applications MIOS bas&eacute;es sur les  PIC18F452 (elles n'initialisent pas EEADRH) EEADRH doit maintenant  &ecirc;tre incr&eacute;ment&eacute;/activ&eacute; depuis l'application  si cela est requis.</li>
+      </ul>
+  </li>
+</ul>
+<ul>
+  <li><em>V1.9</em>
+      <ul>
+        <li>L'espace allou&eacute; au bootloader a  &eacute;t&eacute; d&eacute;plac&eacute; de 0x7c00-0x7fff &agrave;  0x0000-0x0400. Ceci lib&egrave;re le bloc sup&eacute;rieur de 1k pour  les applications, et &eacute;galise la taille d'allocation  m&eacute;moire entre les PIC18F452, PIC18F4620 et futurs PICs. </li>
+        <li>La police par d&eacute;faut pour les &eacute;crans graphiques a &eacute;t&eacute; d&eacute;plac&eacute;e de 0x28fc vers 0x7cfc</li>
+        <li>Ces deux changements assurent une compatibilit&eacute; avec toutes les applications. <br>
+          Des nouvelles versions des applications MIDIbox SID, MIDIbox SEQ,  MIDIbox FM, MIDIbox64 et MIDIbox64E vont occup&eacute; ce bloc de 1k  block dans de tr&eacute;s brefs d&eacute;lais, elles ne seront donc  plus compatibles avec les MIOS V1.8 et versions  pr&eacute;c&eacute;dentes. De fait, une mise &agrave; jour vers le MIOS  V1.9 est fortement recommand&eacute;!</li>
+        <li>Un nouveau Bootloader a &eacute;t&eacute; r&eacute;alis&eacute; (V1.2)</li>
+        <li>Une archive pour la mise &agrave; jour vers le MIOS V1.9 et le Bootloader V1.2 est disponible ici: <a href="http://www.ucapps.de/mios/mios_update_v1_9.zip">http://www.ucapps.de/mios/mios_update_v1_9.zip</a>.<br>
+          Tout est fait pour que la mise &agrave; jour se passe sans probl&egrave;me (lisez attentivement le fichier ReadMe).</li>
+        <li>Le MIOS et le Bootloader prennent  d&eacute;sormais en charge le module MBHP_IIC_MIDI comme port MIDI Out  alternatif. L'adresse du module doit &ecirc;tre sp&eacute;cifi&eacute;e  dans l'en-t&ecirc;te ID, byte 5<br>
+          Exemple: 0000000000100000 redirige tous les messages&nbsp;MIDI Out vers le premier module MBHP_IIC_MIDI.<br>
+          Le but de ce module est de contourner le bug "silicon" des nouveaux  PICs comme le PIC18F4620 et qui dispose de l'EUSART. Notez que cette  en-t&ecirc;te ID peut &ecirc;tre modifi&eacute; avec l'application  "change_id", sans avoir besoin d'un programmateur de PIC&nbsp;.</li>
+        <li>La fonction MIOS_MIDI_InterfaceSet permet  maintenant de changer l'interface cible de MIOS_MIDI_TxBufferPut  &agrave; la vol&eacute;e.</li>
+        <li>La fonction&nbsp;MIOS_IIC_ByteSend renvoie maintenant un flag ACK invers&eacute; pour un usage plus simple sous C</li>
+        <li>Ont &eacute;t&eacute; ajout&eacute;es aux descriptions des fonctions MIOS des d&eacute;clarations en C et des exemples -&gt; <a href="http://www.ucapps.de/cmios_fun.html">cmios_fun.html</a></li>
+        <li>Le MIOS n'est plus sous licence GPL. Il reste en  Open-Source, mais l'utilisation &agrave; des fins commerciales n'est  pas possible sans mon autorisation.</li>
+      </ul>
+    <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  </li>
+  <li><em>V1.8</em>
+      <ul>
+        <li>Le gestionnaire d'interruption sauvegarde  d&eacute;sormais aussi FSR0L et FSR0H. Ceci permet l'utilisation de programme  en C compil&eacute;s avec sdcc</li>
+        <li>Un wrapper pour le compiler SDCC est maintenant  disponible dans une archive s&eacute;par&eacute;e. Vous trouverez plus  d'informations ici: <a href="http://www.ucapps.de/mios_c.html">http://www.ucapps.de/mios_c.html</a></li>
+        <li>Le pilote de faders motoris&eacute;s a  &eacute;t&eacute; revu. Le nouveau concept repose sur un principe de  "deadband dynamique" et une PWM configurable utilis&eacute;e lorsque le  fader atteint la position cible.<br>
+          Plus de d&eacute;tails: <a href="http://www.ucapps.de/mbhp_mf.html">http://www.ucapps.de/mbhp_mf.html</a></li>
+        <li>Lors d'un upload ou download du MIOS, le  num&eacute;ro de BankStick est maintenant s&eacute;lectionn&eacute;  avec une extension d'adressage qui fait partie de la commande.</li>
+        <li>Le r&eacute;glage "Brown Out Reset" (BOR) dans le  secteur de configuration change automatiquement lorsque le MIOS  d&eacute;tecte des r&eacute;glages incorrects - la partie  correspondante du secteur est r&eacute;-&eacute;crite et la puce est  initialis&eacute;e.<br>
+          Nouveau r&eacute;glages: Brown Out Reset &agrave; 4.5V<br>
+          Ceci afin de s'assurer que le PIC n'acc&egrave;dera pas au  d&eacute;marrage &agrave; des p&eacute;riph&eacute;riques qui ne  peuvent fonctionner &agrave; des voltages &lt; 4.5V (par ex. le  BankStick, qui pourrait recevoir une commande d'&eacute;criture non  souhait&eacute;e)</li>
+        <li>Prise en charge des PIC18F4620 (64k flash)<br>
+          Malheureusement ce mod&egrave;le n'est pour l'instant pas vraiment utilisable       avec le MIOS en raison d'un bug "sillicon" sur le p&eacute;riph&eacute;rique EUSART (rev3)</li>
+      </ul>
+  </li>
+  <li><em>V1.7</em>
+      <ul>
+        <p>cette version requiert quelques  l&eacute;g&egrave;res modifications des connections du module CORE,  afin d'am&eacute;liorer les performances du MIOS. Plus d'information <a href="http://www.ucapps.de/mios_v1_7_hardware_mods.html">ici</a>.</p>
+        <li>les signaux transmis au DOUT restent stables  pendant&nbsp; la phase d'update.<br>
+        </li>
+        <li>l'acc&egrave;s aux BankStick (IIC) ne  "g&egrave;le" plus les interruptions.<br>
+        </li>
+        <li>la charge CPU g&eacute;n&eacute;r&eacute;e par la  gestion des encodeurs a &eacute;t&eacute; r&eacute;duite afin  d'am&eacute;liorer le&nbsp; comportement "temps r&eacute;el" du MIOS<br>
+        </li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.6</em>
+      <ul>
+        <li>MIOS_MIDI_TxBufferPut est d&eacute;sormais  une  "atomic operation" * afin de pr&eacute;venir&nbsp; certains  disfonctionnements lorsque cette fonction est ex&eacute;cut&eacute;e et  que simultan&eacute;ment le gestionnaire Tx charge de nouvelle  donn&eacute;es depuis le  buffer.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  &nbsp; (* atomic operation : op&eacute;ration pour laquelle le  processeur peut simultan&eacute;ment lire et &eacute;crire par le  m&ecirc;me bus, les autres t&acirc;ches ne pouvant &ecirc;tre  ex&eacute;cut&eacute;e que lorsque celle-ci est termin&eacute;e.)<br>
+        </li>
+        <li>MIOS_Timer_ReInit peut &ecirc;tre utilis&eacute;  pour r&eacute;-initialiser le timer sans demander un reset, afin de  pouvoir changer la fr&eacute;quence du timer progressivement.</li>
+        <li>MIOS_BANKSTICK_ReadPage, MIOS_EEPROM_WritePage et  MIOS_EEPROM_ReadPage sont de nouvelles fonctions pour des transferts de  donn&eacute;es plus rapides.<br>
+        </li>
+        <li>nouvelles fonctions USER_LCD_Data, USER_LCD_Cmd,  USER_LCD_SpecialCharInit pour les pilotes d'&eacute;cran LCD  adapt&eacute;s.</li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.5b</em>
+      <ul>
+        <li> Bugfix: &agrave; cause d'un registre non  prot&eacute;g&eacute; , le client MIDI renvoyait le mauvais byte vers  le buffer MIDI Rx . Cela se produisait lorsque qu'un  &eacute;v&egrave;nement MIDI avait &eacute;t&eacute; re&ccedil;u en  mode Running Status et que l'application avait &eacute;crit par dessus  l' IRQ_TMP1 dans l'entr&eacute;e USER_MIDI_NotifyRx . Le client MIDI  utilise d&eacute;sormais un registre interne.<br>
+        </li>
+        <li>prise en charge des CLCDs avec une interface  4bit, r&eacute;f&eacute;rez-vous &agrave; la description de la fonction <a href="http://www.ucapps.de/mios_fun.html#MIOS_LCD_TypeSet">MIOS_LCD_TypeSet</a></li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.5 - la premi&egrave;re version en OPEN SOURCE</em>
+      <ul>
+        <li>lorsque MIOS_SRIO_TS_SensitivitySet est  appell&eacute; avec WREG == 0x00, le Pin RD.4 "touch sensor" (J14 of  the core module) ne sera plus pilot&eacute; par le MIOS  d&eacute;sormais et du coup sera disponible pour d'autres utilisations.<br>
+        </li>
+        <li>le gestionnaire AIN a &eacute;t&eacute;  optimis&eacute; en machine "deux &eacute;tats" (two-step state) avec  une fr&eacute;quence d'&eacute;chantillonage de 200 uS.</li>
+        <li>les d&eacute;crochages de  USER_MPROC_NotifyTimeout ont &eacute;t&eacute; fix&eacute;s.<br>
+        </li>
+        <li>les registres internes ont &eacute;t&eacute;  r&eacute;organis&eacute;s pour une meilleure lisibilit&eacute;. Les  applications ne devraient pas &ecirc;tre affect&eacute;es par ces  changements.<br>
+        </li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.4b</em>
+      <ul>
+        <li>le curseur de mappage LCD&nbsp;  (MIOS_LCD_YAddressSet en conjonction avec MIOS_LCD_CursorSet) ne  fonctionne pas correctement avec les &eacute;crans 4 lignes (cursor pos  &gt;= 0x80 est renvoy&eacute;e vers un second &eacute;cran, bien que  les troisi&egrave;me et quatri&egrave;me lignes soit mapp&eacute;es  vers la position &lt; 0x80).</li>
+        <li> USER_MPROC_NotifyReceivedEvent et  USER_MPROC_NotifyFoundEvent: aux &eacute;v&egrave;nements MIDI sur  2 byte (program change et channel pressure), le second byte,  copi&eacute; dans MIOS_PARAMETER2, est maintenant aussi copi&eacute;  vers le troisi&egrave;me byte (MIOS_PARAMETER3) pour une meilleure  prise en charge dans certaines applications MIDIbox.<br>
+        </li>
+        <li>nouvelle fonction MIOS_MF_TouchDetectionReset:  effectue un reset de la fonction logicielle de d&eacute;tection tactile  de sorte que le fader soit correctement repositionn&eacute; qu'il ait  &eacute;t&eacute; manuellement d&eacute;plac&eacute; ou non.<br>
+        </li>
+        <li>les interruptions ne sont plus gel&eacute;es  pendant une op&eacute;ration d'&eacute;criture vers le BankStick afin  d'am&eacute;liorer la capacit&eacute; temps r&eacute;el du MIOS et plus  sp&eacute;cialement pour &eacute;viter la perte de donn&eacute;es MIDI  lors des cycles d'&eacute;criture.<br>
+        </li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.4</em>
+      <ul>
+        <li>les fonctions IIC sont d&eacute;sormais  accessibles, elle peuvent &ecirc;tre utilis&eacute;es pour  acc&eacute;der &agrave; tous les composants compatibles IIC&nbsp; via  le port J4 en parall&egrave;le des BankSticks. Exemple: voir le pilote  lcd7_iic .<br>
+        </li>
+        <li>deux nouvelles entr&eacute;es (hook) sont  disponibles : elles permettent de monitorer le trafic MIDI entrant et  sortant : USER_MIDI_NotifyRx et USER_MIDI_NotifyTx.</li>
+        <li>Le pilote de faders motoris&eacute;s fonctionne  mieux d&eacute;sormais lorsque des faders Panasonic sont  utilis&eacute;s. Nouvelles valeurs de  calibration recommand&eacute;es: Alps: 0x0e@8V, Panasonic: 0x0c@8V</li>
+        <li>"debouncing" automatique ajout&eacute; au pilote  SRIO qui compense les pics momentan&eacute;s  g&eacute;n&eacute;r&eacute;s par certains boutons bon march&eacute;.  R&eacute;f&eacute;rez-vous &agrave; la description  d&eacute;taill&eacute;e de la fonction MIOS_SRIO_DebounceSet . Ajoutez  simplement cette fonction au d&eacute;but de votre application  (apr&eacute;s USER_Init) si n&eacute;cessaire.</li>
+        <li>un nouveau type d'&eacute;cran #6 a  &eacute;t&eacute; ajout&eacute;, il redirige les caract&egrave;res  simples et les requ&egrave;tes vers l'interface MIDI. Le protocole  utilis&eacute; est document&eacute; &agrave; la page : <a href="http://www.ucapps.de/mios/mios_sysex_implementation.txt">http://www.ucapps.de/mios/mios_sysex_implementation.txt</a></li>
+        <li>un client de message LCD a &eacute;t&eacute;  ajout&eacute; au processeur MIDI . les caract&egrave;res entr&eacute;s  seront affich&eacute;s pendant 2 secondes sur l'&eacute;cran. Par  ailleurs le m&ecirc;me protocole sera support&eacute; par MBHP_TV dans  les jours &agrave; venir.<br>
+        </li>
+        <li>il est d&eacute;sormais possible d'&eacute;crire  directement sur le BankStick via MIDI. Ceci permet d'int&eacute;grer le  contenu du BankStick &agrave; l'application en allouant ces  donn&eacute;es dans la tranche d'adresses&nbsp;  0x400000-0x407fff (24LC256; 32k) &agrave;&nbsp; 0x400000-0x40ffff  (24LC512;  64k). De m&ecirc;me l'upload depuis diff&eacute;rents BankSticks est  pris en charge par la fonction  BankStick select.</li>
+        <li>il est d&eacute;sormais possible de lire  directement sur la Flash/EEPROM interne et le BankStick externe via  MIDI. C'est une bonne aide au d&eacute;boguage, mais aussi un moyen de  faire des sauvegardes et de copier  (cloner) le contenu d'un BankStick.</li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.3</em>
+      <ul>
+        <li>il est maintenant possible d'int&eacute;grer un  pilote LCD personnalis&eacute;  qui n'est pas support&eacute; d'origine par le MIOS.  R&eacute;f&eacute;rez-vous &agrave; la documentation  MBHP-&gt;LCD.</li>
+        <li>jusqu'&agrave; 8 BankSticks peuvent &ecirc;tre  accessible via le m&ecirc;me bus IIC en utilisant la fonction  MIOS_BANKSTICK_CtrlSet . Notez que cette option ne fonctionne pas avec  les&nbsp; EEPROM M24256 de ST, uniquement avec les EEPROM 24LC256 de  Microchip. R&eacute;f&eacute;rez-vous &agrave; la documentation  MBHP-&gt;BankStick.</li>
+        <li>la fonction MIOS_HLP_Dec2BCD peut &ecirc;tre  utilis&eacute;e pour convertir des valeurs d&eacute;cimales 16 bit en  BCD (par exemple pour renvoyer les chiffres d'un nombre d&eacute;cimal  par l'interface MIDI ou pour afficher des nombres sur un &eacute;cran  &agrave; segment LED ).</li>
+        <li> MIOS_LCD_PrintBCD4 et MIOS_LCD_PrintBCD5 peuvent  &ecirc;tre utilis&eacute;s pour afficher des valeurs 16 bit sous forme  d&eacute;cimale.<br>
+        </li>
+        <li>la fonction MIOS_MF_StartupSpeedSet permets de  donner un "kick" au faders motoris&eacute;s lorsqu'ils d&eacute;marrent  (peut &ecirc;tre test&eacute; avec l'application mf_calibration.  L'application MIDIbox LC dispose d'un menu calibration ).</li>
+        <li>les modes "speed" du pilote encodeurs ont  &eacute;t&eacute; re-&eacute;crit, r&eacute;f&eacute;rez-vous &agrave;  la description de la fonction MIOS_ENC_SpeedSet pour plus de  d&eacute;tails. L'application "enc_speed_v1_3" vous permettra de tester  les diff&eacute;rents r&eacute;glages.</li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.2</em>
+      <ul>
+        <li> MIOS_LCD_TypeSet offre des param&egrave;tres  additionnels.<br>
+        </li>
+        <li>la selection de lignes pour les &eacute;crans  bas&eacute;s sur les KS0108 ou HD61202 peut maintenant &ecirc;tre  invers&eacute;e.<br>
+        </li>
+        <li>pilote GLCD pour les &eacute;crans &agrave; base  de T6963c . Les performances de cet &eacute;cran sont vraiment  mauvaises, il est de fait conseill&eacute; de ne pas l'utiliser pour  les applications qui doivent r&eacute;agir en temps r&eacute;el, comme  par exemple la MIDIbox LC et autre "r&eacute;cepteur" ou moniteur MIDI.<br>
+        </li>
+        <li>le pin "enable" des LCDs &agrave;  caract&egrave;res peut d&eacute;sormais &ecirc;tre chang&eacute; en  cours de fonctionnement. Il est de fait possible de connecter plusieurs  LCDs sur un module CORE, le nombre maximum de LCDs pouvant &ecirc;tre  pris en charge par l'application est limit&eacute; par le nombre de  pins restant libres.<br>
+        </li>
+        <li>&eacute;criture rapide sur le BankStick et l'  EEPROM sans v&eacute;rification.<br>
+        </li>
+        <li>&eacute;criture par page sur le BankStick (64  bytes d'un coup).</li>
+        <li>allocation dynamique du sampling pour les  potentiom&egrave;tre multiplex&eacute;s  (latence am&eacute;lior&eacute;e, notament pour les MIDIbox Plus et  MIDIbox64).</li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.1</em>
+      <ul>
+        <li>des imperfections dans les gestionnaires SRIO et  MF ont &eacute;t&eacute; fix&eacute;es dans cette version.<br>
+        </li>
+        <li> MIOS_HLP_16bitAddSaturate:&nbsp; addition 16 bit  avec  saturation. Utile en conjonction avec les encodeurs. Cette fonction  sera utilis&eacute;e dans les applications &agrave; venir (MIDIbox HN  en fait d&eacute;j&agrave; usage dans  hn_enc.inc).</li>
+        <li>prise en charge des encodeurs "avec  d&eacute;tente" (voir  mios_tables.inc).</li>
+        <li> MIOS_DIN_PinAutoRepeatEnable,  MIOS_DIN_PinAutoRepeatDisable, MIOS_DIN_PinAutoRepeatGet: une fonction  "auto-repeat" assignable pour n'importe quel bouton. Excellent pour  l'entr&eacute;e de donn&eacute;es.</li>
+        <li> MIOS_CLCD_SpecialCharInit,  MIOS_CLCD_SpecialCharsInit: permet d'initialiser les huit  caract&egrave;res sp&eacute;ciaux des LCDs.</li>
+        <li> MIOS_LCD_YAddressSet: permet d'activer un second  LCD &agrave; caract&egrave;res.<br>
+        </li>
+      </ul>
+  </li>
+  <img src="http://www.ucapps.de/images/1x1dot.gif" alt="" height="20"><br>
+  <li><em>V1.0</em>
+      <ul>
+        <li>version initiale.</li>
+      </ul>
+  </li>
+</ul>
+<UL CLASS=CL>
+  <LI>  
+  <LI></LI>
+</UL>
+FOOTER

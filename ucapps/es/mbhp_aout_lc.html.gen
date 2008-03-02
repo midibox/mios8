@@ -1,0 +1,199 @@
+HEADER 3 MBHP AOUT LC Module
+
+<h1>Plataforma de Hardware MIDIbox, M&oacute;dulo AOUT LC</h1>
+
+<p></p><center><img src="mbhp/mbhp_aout_lc.jpg" height="251" width="378"></center><p></p>
+
+<p class="INFO">La idea detr&aacute;s del m&oacute;dulo MBHP_AOUT_LC
+era hacer salidas de control con partes que fueran f&aacute;ciles de
+encontrar en la mayor&iacute;a de los pa&iacute;ses. Empec&eacute; con
+este proyecto despu&eacute;s de varias discusiones con Karl Dalen sobre
+la dificultad de encontrar DACs DIY amigables con interfaz serial.
+&Eacute;l propuso <a href="http://www.midibox.org/users/kd/KDdac.pdf">estos circuitos</a>,
+y seleccion&eacute; esta soluci&oacute;n por su simplicidad. Algunas
+personas pidieron una PCB prefabricada en la Plataforma de Hardware
+MIDIbox, as&iacute; que &iexcl;aqu&iacute; est&aacute;!</p>
+
+<p class="DESC">A diferencia del m&oacute;dulo <a href="mbhp_aout.html">MBHP_AOUT</a>,
+para este proyecto no se necesita ning&uacute;n DAC IC especial (caro y
+dif&iacute;cil de encontrar), en lugar de eso, las resistencias forman
+una discreta red de escalera R-2R. Construir este tipo de circuito
+significa mucho esfuerzo en la soldadura, pero dado que MBHP es una
+plataforma hazlo-t&uacute;-mismo, y no es un producto comercial, este
+argumento es muy d&eacute;bil. En cualquier caso, la escalera de
+resistencias puede ser sustitu&iacute;da por un DAC con interfaz
+paralela (ver&nbsp; <a href="http://www.midibox.org/users/kd/KDdac.pdf">esquema de&nbsp;Karl</a>),
+esto tambi&eacute;n tendr&iacute;a la ventaja de que los DACs son
+accesibles a trav&eacute;s de una cadena serial (-&gt; se coloca un
+bajo n&uacute;mero de pins uC), y que el controlador de software no
+necesita ser adaptado a una interfaz de propietario.</p><p class="DESC">Si
+observamos la calidad de las salidas "discretas DAC" habr&iacute;a que
+mencionar que depende directamente de las resistencias elegidas. La
+tolerancia debe ser del 1% o m&aacute;s baja (Metalfilm) y estable por
+encima del rango t&iacute;pico de temperatura. Los resultados pueden
+ser dram&aacute;ticamente mejorados seleccionando las resistencias
+m&aacute;s compatibles: solo tienes que comprar un set de 100 piezas
+(por ej. en&nbsp; <a href="http://www.conrad.com" target="_blank">Conrad</a>:
+un set de 100 * 10k resistencias metalfilm por 1.33 EUR, n&uacute;mero
+de parte #408280), mide la resistencia y escoge las que tengan valores
+m&aacute;s compatibles para el circuito escalera.</p>
+
+<p class="DESC">Otro problema com&uacute;n de los DACs baratos (no solo
+de este circuito, sino de los DACs integrados baratos) es que se
+escucha un sonido como de cremallera cada vez que se selecciona un
+nuevo voltaje. La intensidad de este ruido depende de los bits que sean
+activados cuando se seleccione un nuevo voltaje - los bits de
+m&aacute;s a la derecha ( los m&aacute;s significativos)
+producir&aacute;n el sonido de cremallera m&aacute;s alto. Aunque puedo
+ver este ruido mi oscil&oacute;grafo, no he notado ning&uacute;n efecto
+audible con un Moog - y un filtro CEM3378. Tambi&eacute;n funcionan
+bien con &eacute;l los osciladores Korg MS-20 con CV controlado. En
+cualquier caso, esto es una advertencia expl&iacute;cita para aquellos
+que esperan resultados perfectos. El ruido de cremallera se puede
+eliminar completamente a&ntilde;adiendo un circuito S&amp;H
+detr&aacute;s del DAC. Usando el &nbsp;<a href="mbhp_shx8.html">NJU7304</a>
+tambi&eacute;n se incrementar&iacute;a el n&uacute;mero de canales
+disponibles - por otra parte, esta soluci&oacute;n requiere de nuevo un
+IC especial o un mont&oacute;n de circuiter&iacute;a adicional -
+&iexcl;es un desastre! :-/</p>
+<p class="DESC">Para aquellos que a&uacute;n no se sientan
+desilusionados, aqu&iacute; hay dos ejemplos de audio que demuestran
+los resultados a esperar si se conecta el m&oacute;dulo AOUT_LC entre
+un&nbsp; MIDIbox SID y un filtro CEM3378&nbsp;: <a href="http://www.midibox.org/forum/index.php?topic=5538.0" target="_blank">Mensaje del Foro #1</a>, <a href="http://www.midibox.org/forum/index.php?topic=5633.0" target="_blank">Mensaje del Foro #2</a>.</p>
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Descarga </h2>
+   <dd>
+   </dd><dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Los datos&nbsp;PCB &nbsp;se pueden ver, modificar y convertir con <a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>M&oacute;dulo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Esquema</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Datos de Fondo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Vista r&aacute;pida</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_AOUT_LC_V1</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_aout_lc.pdf">mbhp_aout_lc.pdf</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_aout_lc_v1.brd">mbhp_aout_lc_v1.brd</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_aout_lc_v1.gif">mbhp_aout_lc_v1.gif</a></td>
+    </tr>
+  </tbody></table></dd>
+<dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Informaci&oacute;n adicional</font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Archivo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td>
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Descripci&oacute;n</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_aout_lc_orderlist.txt">mbhp_aout_lc_orderlist.txt</a></td>
+      <td class="TABCOLOR2">1k</td>
+      <td class="TABCOLOR2">Lista de pedido <a href="http://www.reichelt.de/" target="_blank">Reichelt</a>&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><a href="http://www.midibox.org/dokuwiki/doku.php?id=bipolar_12v_psu">bipolar_12v_psu</a></td>
+      <td class="TABCOLOR2">Wiki</td>
+      <td class="TABCOLOR2">Art&iacute;culo del Wiki sobre PSUs bipolares (necesarias para conseguir un voltaje de&nbsp; +/- 12V)</td>
+    </tr>
+  </tbody></table></dd>
+  </dl><dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Resoluci&oacute;n </h2>
+   <dd>
+<p class="DESC">Para poder incrementar la flexibilidad, el MBHP_AOUT_LC
+PCB tiene dos opciones diferentes de resoluci&oacute;n. El primer canal
+se puede controlar a resoluciones de12bit o 8bit, el segundo canal con
+resoluci&oacute;n de 4bit o 8bit&nbsp;:</p>
+<p></p><center><img src="mbhp/mbhp_aout_lc_res_options.gif" height="100" width="548"></center><p></p>
+<p class="DESC"> <a href="midibox_sid.html">MIDIbox SID</a> usa la opci&oacute;n 12/4 bit&nbsp;(el filtro se controla con 12 bits, la resonancia con solo 4bit).<br>
+En el firmware de <a href="midibox_cv.html">MIDIbox CV</a>
+la opci&oacute;n de resoluci&oacute;n es seleccionable. 8/8bit es
+suficiente si el m&oacute;dulo debe controlar entradas V/Oct CV via
+Note o eventos CC. Se debe seleccionar 12/4bit si el canal #1
+est&aacute; conectado a una entrada Hz/V, o si se desean eventos de
+alta resoluci&oacute;n (NRPNs, PitchWheel).</p></dd><dd>
+  </dd>
+</dl><dl><dt></dt><h2> <img src="images/bullet.gif" alt=""> Conexi&oacute;n de Pines</h2><dd><p class="INFO">Los
+siguientes proyectos soportan el m&oacute;dulo MBHP_AOUT_LC&nbsp; -
+recuerda que la conexi&oacute;n de pines al m&oacute;dulo Core module
+es diferente:<br>
+   </p><dl>
+     <dd></dd></dl><table border="0" cellpadding="0" cellspacing="5" width="100%">
+</table><table border="0" cellpadding="0" cellspacing="5" width="100%">
+     <tbody><tr>
+       <td class="TABCOLOR1"><font size="2"><strong>Esquema</strong></font></td>
+       <td class="TABCOLOR1"><font size="2"><strong>AOUT_LC:J1:SO</strong></font></td>
+       <td class="TABCOLOR1"><font size="2"><strong>AOUT_LC:J1:SC</strong></font></td>
+       <td class="TABCOLOR1"><font size="2"><strong>AOUT_LC:J1:RC</strong></font></td>
+     </tr>
+     <tr>
+       <td class="TABCOLOR2"><a href="midibox_cv/mbcv_aout_lc_interconnections.pdf">MIDIbox CV</a></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J10:RC (RC4)</strong></font></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J10:MD (RD5)</strong></font></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J10:SO (RC5)</strong></font></td>
+     </tr>
+     <tr>
+       <td class="TABCOLOR2"><a href="midibox_fm/mbfm_aout_lc_interconnections.pdf">MIDIbox FM</a></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:SC (RC1)</strong></font></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:RC (RC0)</strong></font></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:SI (RC3)</strong></font></td>
+     </tr>
+     <tr>
+       <td class="TABCOLOR2"><a href="midibox_sid/mbsid_aout_lc_interconnections.pdf">MIDIbox SID (*)</a></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:SC (RC1)</strong></font></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:RC (RC0)</strong></font></td>
+       <td class="TABCOLOR2"><font size="2"><strong>CORE:J6:SI (RC3)</strong></font></td>
+     </tr>
+     </tbody></table><p class="INFO">(*) MIDIbox SID V1.7303 y superiores!
+   </p></dd></dl><dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Gu&iacute;a de soldadura </h2>
+  <dd>
+  </dd><dd><table cellpadding="0" cellspacing="0">
+    <tbody><tr>
+      <td><img src="mbhp/mbhp_aout_lc_1.jpg" alt="" border="0" height="182" width="280"></td>
+      <td class="TABCOLOR2">Empieza soldando los 7 puentes que te evitar&aacute;n&nbsp;crear una placa de dos capas. Puedes usar patillas cortadas de
+capacitadores y resistencias, antes de tirarlas cuando hayas acabado
+todos los m&oacute;dulos :-)</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_aout_lc_2.jpg" alt="" border="0" height="172" width="280"></td>
+      <td class="TABCOLOR2">Monta todas las partes excepto los ICs y comprueba los voltajes de la fuente de alimentaci&oacute;n (ver <a href="mbhp/mbhp_aout_lc.pdf">esquema</a>)</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_aout_lc_3.jpg" alt="" border="0" height="185" width="280"></td>
+      <td class="TABCOLOR2">A&ntilde;ade
+el cable entre el pin&nbsp; #9 de IC2 y J2 por la parte de abajo.
+(Recuerda que este cable solo hace falta si el m&oacute;dulo debe ser
+encadenado a otros m&oacute;dulos MBHP_AOUT_LC)</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_aout_lc_4.jpg" alt="" border="0" height="192" width="280"></td>
+      <td class="TABCOLOR2">Monta los jumpers y el cable adicional en J3 para seleccionar la resoluci&oacute;n</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_aout_lc_5.jpg" alt="" border="0" height="180" width="280"></td>
+      <td class="TABCOLOR2">Pon
+los ICs y vuelve a comprobar la alimentaci&oacute;n. Ahora puedes
+conectar el m&oacute;dulo a tu MIDIbox- la conexi&oacute;n de pines
+depende de la aplicaci&oacute;n. Ver arriba.</td>
+    </tr>
+  </tbody></table></dd>
+  </dl><dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Calibraci&oacute;n </h2>
+   <dd>
+<p class="DESC">Cada canal tiene un trimmer de gain y otro de offset separados, lo que te permite ajustar el rango de voltaje de salida.</p>
+<p class="DESC">Usuarios <a href="midibox_cv.html">MIDIbox CV</a>: seguid las instrucciones de la p&aacute;gina MIDIbox CV.</p>
+<p class="DESC">Usuarios <a href="midibox_sid.html">MIDIbox SID</a>&nbsp;:
+abrid el archivo "main.asm" de la aplicaci&oacute;n y pon el switch de
+"ENABLE_AOUT" en el 2. Despu&eacute;s de eso,&nbsp;<a href="howto_tools_mpasm.html">reconstruye</a>
+el proyecto y sube el nuevo archivo&nbsp;.hex al Core. Ahora puedes
+controlar el canal #1 con el potenci&oacute;metro del filtro, y el
+canal #2 con el potenci&oacute;metro de resonancia. Si no has
+constru&iacute;do la superficie de control, solo tienes que enviar
+CC#46 (CutOff) y CC#47 (Resonance) a la MIDIbox.<br>La diversi&oacute;n empieza una vez se ha modulado el voltaje de salida del filtro con las envolventes y LFOs! :-)</p>
+  </dd></dl>
+
+FOOTER

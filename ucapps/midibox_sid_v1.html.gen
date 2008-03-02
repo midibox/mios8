@@ -1,0 +1,466 @@
+HEADER 3 MIDIbox SID
+
+<H1>MIDIbox SID V1</H1>
+<H3>Created 2002/2003</H3>
+
+<P><CENTER><IMG SRC="midibox_sid/midibox_sid_cs2.jpg" width=575 height=502></CENTER></P>
+
+<P CLASS=INFO><B>NOTE:</B> This design is expired! In 2007 MIDIbox SID V2 has been developed which replaced the old version. See <A HREF="midibox_sid.html">this page</A> for more details.</P>
+
+<P CLASS=INFO>Are you tired of virtual synthesizers, samplers and wavetable machines? Are you seeking for the unique sound of the vintage homecomputer days. Did you know that the sound device from one of the most popular computers of the 80's - the C64 - can produce awesome sounds like a modern synth? Did you ever build a low-budget synthesizer by your own? Well, maybe the MIDIbox SID could be interesting for you. :-)</P>
+
+<P CLASS=INFO>MIDIbox SID allows you to control the SID sound chip over MIDI. This isn't a revolutionary idea, some people realized something similar some years before:
+  <UL CLASS=CL>
+    <LI> <A HREF="http://web.archive.org/web/20070309055445/http://stud1.tuwien.ac.at/~e9426444/index.html" TARGET="_blank">SID Homepage</A> by Andreas Varga with some interesting technical background informations</LI>
+    <LI> <A HREF="http://hct.ece.ubc.ca/research/sidgroove/indexold.html" TARGET="_blank">SIDgroove</A> a DIY SID synthesizer, Master/Slave design, well documented</LI>
+    <LI> <A HREF="http://www.buchi.de/" TARGET="_blank">Parallel SID</A> - another DIY SID synthesizer - thanks to Buchi for the warning regarding the Audio Out of the SID!</LI>
+    <LI> <A HREF="http://catchpole.net/sidrack.html" TARGET="_blank">SIDrack</A> by Christian Catchpole</LI>
+    <LI> <A HREF="http://www.funet.fi/pub/cbm/schematics/computers/c64/" TARGET="_blank">C64 schematics</A> gives usefull informations for the filter caps and the output amplifier</LI>
+    <LI> <A HREF="http://www.sidstation.com" TARGET="_blank">SidStation</A> - a commercial product with SID inside</LI>
+    <LI> <A HREF="http://www.hardsid.com/" TARGET="_blank">HardSID</A> - another commercial product with SID inside</LI>
+  </UL>
+</P>
+
+<P CLASS=INFO>MIDIbox SID is a non-commercial & "DIY-only" project. Beside of the common SID functions (three oscillators, triangle/saw/pulse/noise and mixed waveforms, independent envelope generators for the amplitudes, sync & ringmodulation, 12db multistate low/band/highpass/notch filter) it features:
+  <UL CLASS=CL>
+    <LI> 2 additional envelopes with optional non-linear curve which can be assigned to Pitch, Pulsewidth and Filters</LI>
+    <LI> 6 additional LFOs with different waveforms which can be assigned to Pitch, Pulsewidth and Filters</LI>
+    <LI> Fine Tuning</LI>
+    <LI> Pitch Bender</LI>
+    <LI> Portamento/Glide function</LI>
+    <LI> Delays</LI>
+    <LI> optional Oscillator Synchronization</LI>
+    <LI> Arpeggiator (a SID *must* have an arpeggiator ;-)</LI>
+    <LI> Poly, Mono and Legato Mode</LI>
+    <LI> seperate keyboard zones for each voice (key splitting) allows to play voices seperately</LI>
+    <LI> Free controller assignments to Modulation Wheel, Velocity and Aftertouch</LI>
+    <LI> wave and CC sequences which allow more percussive sounds (Wavetables)</LI>
+    <LI> the wavetable sequencer can be combined with the arpeggiator in order to realize complex textures</LI>
+    <LI> LFOs, Envelopes, Wavetables, Arpeggios optionally syncable via external MIDI clock</LI>
+    <LI> LFOs can be combined for Sample&Hold effect</LI>
+    <LI> up to 6 CV ins with 8 bit resolution which are forwarded to the LFOs (6th waveform) and can control the OSC frequency, pulsewidth and filter</LI>
+    <LI> up to 8 CV outs with 12 bit resolution - <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> and <A HREF="mbhp_aout.html">MBHP_AOUT</A> are supported</LI>
+    <LI> OS independent SysEx editor based on <A HREF="jsynthlib.html">JSynthLib</A></LI>
+    <LI> <A HREF="mbhp_bankstick.html">BankStick</A> support (128 sound patches per stick, up to 8 can be connected)</LI>
+    <LI> Bassline (303) Mode</LI>
+    <LI> optional filter CutOff frequency interpolation</LI>
+    <LI> optional "Constant Time Slide"</LI>
+    <LI> can be used as .sid file player (see <A HREF="mios_download.html">MIOS Download</A> section)
+    <LI> optional <A HREF="midibox_sid_cs.html">minimal control unit</A> (Step A)
+    <LI> the possibility to control up to <A HREF="midibox_sid_csB.html">4 SIDs</A>  (Step B)
+    <LI> a complete <A HREF="midibox_sid_csC.html">control surface</A> (Step C)
+  </UL>
+</LI>
+
+<P CLASS=INFO>Following features are planned:
+  <UL CLASS=CL>
+    <LI> see the plans for <A HREF="midibox_sid_v2_wishlist.html">MIDIbox SID V2</A></LI>
+  </UL>
+</LI>
+
+<P CLASS=INFO><I>Addendum: Due to never-ending questions regarding the advantages of this microcontroller based project, I'm forced to write more explicitely:</I> The MIDIbox SID has been designed to get sounds out of the SID which cannot be achieved with other solutions. In difference to programs that are running on the C64 like the <A HREF="http://www.df.lth.se/~triad/triad/ftp/MIDI/" TARGET="_blank">Triad MIDIslave</A>, <A HREF="http://gallium.prg.dtu.dk/anyware/" TARGET="_blank">AnyWare M64</A> or the <A HREF="http://www.prophet64.com/" TARGET="_blank">Prophet64</A>, MIDIbox SID features more software implemented high-resolution modulation sources (LFOs, EGs), independent sound engines for all 3 voices and a low-latency MIDI interface (no note drops...) - these capabilities can only be realized with a CPU that runs much faster than the 6502. In difference to the PC based <A HREF="http://www.hardsid.com" TARGET="_blank">HardSID</A>, MIDIbox SID features a higher refresh rate (from the HardSID functional description: "up to 500Hz refresh rate - very low latency. No other SID synth can compare to the HardSID Synth" they oversaw that the non-PC solution MIDIbox SID has an update rate of 1220 Hz! ;-). In addition, MIDIbox SID provides real live playing feeling and unique add-ons like the modulation matrix, complex, chord based arpeggiator textures, CV outputs for analog extensions and the subtle control surface of course.</P>
+
+<P><CENTER><IMG SRC="midibox_sid/midibox_sid.jpg" width=575 height=347></CENTER></P>
+<P CLASS=INFO>The picture above shows the minimum hardware requirements to get the SID synthesizer running. In this low-cost configuration, the parameters are only accessible via MIDI - a list of available CC's can be found <A HREF="midibox_sid/sid_cc_implementation_chart.txt">here</A>. How to manage so much settings??? Although it would be possible to change them all with a common MIDI controller, this solution isn't be very usefull (ca. 90 pots and 130 buttons are required - most commercial controllers don't support LCD messages or only provide a LED digit display which makes the controlling even more difficult). So, a MIDI controller is only usefull to change the most important parameters of the oscillators, the filters, the envelopes and the LFOs, other CCs cannot be handled ergonomically.<BR>With a computer the possibilities are better. I created a nice <A HREF="midibox_sid/mbsid_environment_v1_1.gif">control panel</A> for Logic Audio, which gives me access over the complete MIDIbox SID engine :-) - Note that such panels can also be realized with Cubase and Cakewalk Sonar (feel free to publish your creation here!).<BR>Since V1.2, the MIDIbox SID can also interact with a JSynthLib based editor which runs on every OS which supports java (Windows/Mac OS/Linux/Solaris/...):</P>
+
+<P CLASS=DESC><CENTER><A HREF="midibox_sid/mbsid_editor_preview2.gif"><IMG SRC="midibox_sid/mbsid_editor_preview2_pre.gif" WIDTH=540 HEIGHT=323></A></CENTER>
+<BR><CENTER><A HREF="midibox_sid/mbsid_editor_preview2.gif">Click here for full size view</A></CENTER></P>
+
+<P CLASS=INFO>However - nothing is better than a physical interface. These additional info pages describe how the MIDIbox SID can be enriched by a lot of LEDs, buttons and rotary encoders: <A HREF="midibox_sid_cs.html">Step A</A>, <A HREF="midibox_sid_csB.html">Step B</A>, <A HREF="midibox_sid_csC.html">Step C</A>.</P>
+
+<DL><DT><H2> MIDIbox SID Demo Samples </H2></DT>
+   <DL>
+ <P CLASS=INFO>Following samples don't reflect the typical C64 sound (see the links above for raw SID examples), but should demonstrate the possibilites of the MIDIbox SID in conjunction with external Fx gear. All samples were recorded via overdub and enriched with effects under Logic. Drums are supplied by a Yamaha RM1x.<BR>The used sound patches can also be found in the download section.</P>
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3>
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo_random_patches.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>The bad sounds first - some random patches which have been created with the mk_sid_random.pl script (4096 premade random patches are part of the preset library). They demonstrate the possibilities of the mighty MIDIbox SID sound engine</SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/Auf_Wiedersehen_Monty_(MIDIbox_SID_Remix).mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>The final demo song - a Remix of the famous C64 tune "Auf Wiedersehen Monty" from Rob Hubbard and Ben Daglish. All sounds except for the drums are played with the SID. Internal Effects from Logic Audio have been added</SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_moog_demo.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>This is the "Delta Theme" from Rob Hubbard played with an external Moog filter, which is controlled by the AOUT module. See also <A HREF="http://www.midibox.org/forum/index.php?topic=2821.0" TARGET="_blank">this forum article</A> for more informations and samples. </SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo2.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>three oscillators, 3 LFOs, 1 envelope generator & dynamically controlled portamento in action - an interesting brass sound! :-)<BR>
+I was asked how many voices have been overlapped for this sample - well, only <B>one</B> monophonic voice with static LFO settings has been used. I recorded it two times - for the left and for the right audio channel. The portamento is switched on/off by the sequencer - I created this example with my MIDIbox64 sequencer & the MIDIbox SID within 15 minutes after I had the intention to make "something with brass" ;-) </SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo3.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>three pulse waveforms, slightly detuned & pulse wide modulated - do you know this melody from somewhere? </SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo4.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>a sync sound with an extreme envelope modulation rate - play it with low volume if you don't want to destroy your loudspeakers! ;-)</SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo5.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>a ring modulated sound with activated portamento</SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo6.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>three independent arpeggiator generators which are clocked with extreme frequencies </SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo8.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>A demonstration of the new wavetable feature which allows to create sequences of waveforms and CC controllers for more percussive sounds. Note that all sounds have been created with the MIDIbox SID. The sounds have been enriched with external effects from Logic Audio, this makes the noise so exciting! :-)</SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo9_4.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>3 x MIDIbox SID with some external echo delays and chorus effects can sound like a Virus ;-)</SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_v1_5_wt_plus_arp.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>This example demonstrates the new possibilities which are provided with firmware V1.5: the arpeggiator can be combined with the wavetable sequencer in order to realize complex polyphonic arpeggiator textures. </SPAN>
+  </TD></TR>                                                             
+
+  <TR><TD COLSPAN=2>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_v1_5_filter.mp3"#dddddd**<BR>
+    <SPAN CLASS=NORM>This example demonstrates the new filter driver of software engine v1.5 which improves the quality of the 8580 significantly. First you will hear the 6581, thereafter the 8580!</SPAN>
+  </TD></TR>                                                             
+
+  <TR>
+    <TD> <A HREF="howto_sid_bassline.html">LINK</A></TD>
+    <TD> <SPAN CLASS=NORM>Examples for MIDIbox SID in 303 (Bassline) mode
+    </SPAN>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <A HREF="http://mp3.de/frequencies" TARGET="_blank">LINK</A></TD>
+    <TD> <SPAN CLASS=NORM>Find the Song 'Lovesong for my SIDs' at this page :-)</SPAN>
+    </TD>
+  </TR>                                                             
+
+  <TR>
+    <TD> <A HREF="http://www.monome.de" TARGET="_blank">LINK</A></TD>
+    <TD> <SPAN CLASS=NORM>Two pro tracks made by Julian</SPAN>
+    </TD>
+  </TR>                                                             
+
+  </TABLE></DL>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware options </H2></DT>
+   <DD>
+   <P CLASS=INFO>The MIDIbox SID can be extended successively from the minimal configuration to the complete control surface with up to 4 SIDs.</P>
+   <DD>
+    <TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Minimal requirements</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>PIC16F</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG><A HREF="mios.html">PIC18F</A></STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""></TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""></TD>
+      <TD CLASS=TABCOLOR2>See <A HREF="midibox_sid/midibox_sid.jpg">this picture</A>.<BR>
+      Required modules:
+      <UL CLASS=CL>
+        <LI>a <A HREF="mbhp_core.html">MBHP_CORE</A> module which controls the SID and provides the MIDI interface, plus</LI>
+        <LI>a <A HREF="mbhp_sid.html">MBHP_SID</A> module which is stuffed with the SID and includes an audio amplifier and the serial bus interface to the core.</LI>
+        <LI>a power supply unit - either AC or DC, ca. 12V for the 8580 or 15V for the 6501, ca. 300 mA. Although normaly 6-9V are recommented for the core module, it can be supplied from the same source like the SID due to the low power consumption (the 7805 doesn't get too hot). See also the <A HREF="mbhp_sid.html">MBHP_SID</A> page how to re-use the original C64 PSU.</LI>
+      </UL>
+      Costs:
+      <UL CLASS=CL>
+         <LI>all parts for the core and SID module (without the SID itself): ca. 25 EUR + shipping</LI>
+         <LI>one vectorboard: ca. 3 EUR, or premade PCBs (available at <A HREF="http://www.mikes-elektronikseite.de/midiseite.htm" TARGET="_blank">www.mikes-elektronikseite.de</A> and <A HREF="http://mbhp.coinoptech.com/" TARGET="_blank">http://mbhp.coinoptech.com</A>): 12 EUR/US $14 + shipping</LI>
+         <LI>a power supply unit (of C64 PSU not re-used): ca. 6 EUR</LI>
+      </UL>
+      Optional ("nice-to-have") extensions:
+      <UL CLASS=CL>
+        <LI>a <A HREF="mbhp_burner.html">MBHP_BURNER</A> module which allows you to burn the PIC by yourself (note: the PIC18F452 has only to be burned once with the <A HREF="mios_bootstrap.html">Bootstraploader</A>, thereafter firmware updates are possible via MIDI - SmashTV offers a burning service at <A HREF="http://mbhp.coinoptech.com/" TARGET="_blank">his site</A>)</LI>
+        <LI>one or more <A HREF="mbhp_bankstick.html">BankSticks</A> to store the sound patches.</LI>
+        <LI>a <A HREF="mbhp_ltc.html">MBHP_LTC</A> module which provides MIDI In/Out LEDs and a RS232 interface.</LI>
+        <LI>a <A HREF="mbhp_usb.html">MBHP_USB</A> module which provides a connection to the USB (only recommented for soldering experts!)</LI>
+        <LI>a <A HREF="mbhp_lcd.html">2x20 LCD</A> to display the current patch name, patch number and MIDI channel.</LI>
+        <LI>a nice case</LI>
+      </UL>
+</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Control Unit (Step A)</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>PIC16F</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG><A HREF="mios.html">PIC18F</A></STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""></TD>
+      <TD CLASS=TABCOLOR2>See also <A HREF="midibox_sid_cs.html">this page</A>.<BR>
+      Additional parts and modules:
+      <UL CLASS=CL>
+        <LI>a 2x20 LCD (or larger)</LI>
+        <LI>a <A HREF="mbhp_core.html">MBHP_DINX1</A> module - premade PCBs are not available for this small circuit, so you have to build it on a vectorboard. Alternatively you could use a DINX4 module.</LI>
+        <LI>a rotary encoder (datawheel, endless pot)<BR>A detented encoder is recommented for precise data entry</LI>
+        <LI>an improved PSU (ca. 500 mA)
+        <LI>6 buttons (or more if larger LCD is used)</LI>
+      </UL>
+      Costs: ca. 20-25 EUR for a backlit 2x20 LCD, 1..2 EUR for the rotary encoder, 1..6 EUR for all buttons (depends on the quality)
+      </TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Multi SID solution (Step B)</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>PIC16F</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG><A HREF="mios.html">PIC18F</A></STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""></TD>
+      <TD CLASS=TABCOLOR2>See also <A HREF="midibox_sid_csB.html">this page</A>.<BR>
+      Additional parts and modules:
+      <UL CLASS=CL>
+        <LI>n x core modules</LI>
+        <LI>n x SID modules</LI>
+        <LI>the control unit (see above)</LI>
+        <LI>an improved PSU (ca. 800 mA) - the C64 PSU should be prefered due to the seperate +5V output for the core modules
+        <LI>7 additional buttons</LI>
+        <LI>7 LEDs</LI>
+      </UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Complete Control Surface (Step C)</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>PIC16F</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG><A HREF="mios.html">PIC18F</A></STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>no</TD>
+      <TD CLASS=TABCOLOR2><IMG SRC="images/bullet.gif" ALT=""></TD>
+      <TD CLASS=TABCOLOR2>See also <A HREF="midibox_sid_csC.html">this page</A>.<BR>
+      Additional parts and modules:
+      <UL CLASS=CL>
+        <LI>n x core modules</LI>
+        <LI>n x SID modules</LI>
+        <LI>the minimal control unit (see above)</LI>
+        <LI>an improved PSU (ca. 1A) - the C64 PSU should be prefered due to the seperate +5V output for the core module(s)
+        <LI>3 <A HREF="mbhp_din.html">DINX4</A> modules</LI>
+        <LI>2 <A HREF="mbhp_dout.html">DOUTX4</A> modules</LI>
+        <LI>14 additional rotary encoders (in difference to the datawheel, non-detented encoders are recommented here, but detented will also work fine, for example M-SW-ROT from <A HREF="http://www.voti.nl/winkel/producten.html#M-SW-ROT" TARGET="_blank">Voti</A> or the Bourns encoders from <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Shop</A>)</LI>
+        <LI>32 additional buttons</LI>
+        <LI>99 LEDs</LI>
+        <LI>a nice frontpanel</LI>
+      </UL>
+      Costs: most expensive parts are the rotary encoders (ca. 15 EUR) and especially the frontpanel (selfmade ca. 25 EUR + a lot of time, premade ca. 100..150 EUR!)
+      </TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Questions & Answers </H2></DT>
+  <DD>
+    <P CLASS=DESC>This addendum is now part of the <A HREF="http://wiki.midibox.org" TARGET="_blank">MIDIbox Wiki</A>. Search for MIDIboxSIDFAQ</P>
+
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Schematics & PCBs</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp.html">MBHP</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>see MIDIbox Hardware Platform. A CORE and a SID module is required</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid_cs.html">MBSID CS</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Control Unit</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid_csB.html">MBSID CS B</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Control Unit, Step B</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid_csC.html">MBSID CS C</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Control Unit, Step C</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid_walkthrough_v1.html">Walkthrough</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Walkthrough</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Firmware</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mios_download.html">MIOS Download</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Port to PIC18F452 with Source code, published under GNU GPL</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="pic16f_firmwares.html">PIC16F Firmwares</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Firmware for PIC16F877 (expired, don't use it for new MIDIboxes!)</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid/sid_cc_implementation_chart.txt">sid_cc_implementation_chart.txt</A></TD>
+      <TD CLASS=TABCOLOR2>25k</TD>
+      <TD CLASS=TABCOLOR2>all available sound parameters</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid/midibox_sid_sysex_implementation.txt">sysex_implementation.txt</A></TD>
+      <TD CLASS=TABCOLOR2>2k</TD>
+      <TD CLASS=TABCOLOR2>the SysEx format</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid_changelog.html">ChangeLog</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>MIDIbox SID ChangeLog</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Preset Patches</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid/preset_patches_20060820.zip">preset_patches_20060820.zip</A></TD>
+      <TD CLASS=TABCOLOR2>400k</TD>
+      <TD CLASS=TABCOLOR2>128+55 Preset Patches for MIDIbox SID + 4096 Random Patches + Random Generator. Please read the README.txt for further informations</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.automatic-brain.de/midibox/" TARGET="_blank">www.automatic-brain.de/midibox</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>TL's MIDIbox SID Patch Manager for Windows</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>SysEx Editor</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="jsynthlib.html">JSynthLib</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>JSynthLib based MIDIbox SID editor</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Blogs (a lot of pictures of the creation process!)</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/forum/index.php?topic=5277.0" TARGET="_blank">Forum Article</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Blog by Wisefire</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/forum/index.php?topic=5950.0" TARGET="_blank">Forum Article</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>German Blog by Dimi</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/forum/index.php?topic=5955.0" TARGET="_blank">Forum Article</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>German Blog by Mesak</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Tutorials</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="howto_sid_wavetables_1.html">#1</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Wavetable Tutorial #1</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="howto_sid_wavetables_2.html">#2</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Wavetable Tutorial #2</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="howto_sid_wavetables_3.html">#3</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Wavetable Tutorial #3</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="howto_sid_bassline.html">#303</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Bassline Tutorial</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Misc.</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://wiki.midibox.org" TARGET="_blank">MIDIbox Wiki</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>A lot of additional informations on MIDIbox, MIOS and MIDIbox SID</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="http://forum.midibox.org">MIDIbox Forum</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>Support at the MIDIbox Forum</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox_sid/SIDEnvironment_V1_1.zip">SIDEnvironment_V1_1.zip</TD>
+      <TD CLASS=TABCOLOR2>34k</TD>
+      <TD CLASS=TABCOLOR2>a Logic Audio Environment for the MIDIbox SID V1.1 and higher (<A HREF="midibox_sid/mbsid_environment_v1_1.gif">Snapshot</A>)</TD>
+    </TR>
+  </TABLE></DD>
+</DL>
+
+<A NAME="constructions"></A>
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Construction examples</H2></DT>
+  <P CLASS=INFO><IMG SRC="midibox_sid/mbsid_stereo.jpg" width=575 height=431><BR>Two MIDIbox SID without control surface - the low-cost solution</IMG></P>
+  <P CLASS=INFO><IMG SRC="midibox_sid/midibox_sid_crazy.jpg" width=575 height=431><BR><B>SID Crazy:</B> A view on Ian Hurlock's floor after he cannibalized some old C64s ;-)</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/thomas4.jpg" width=575 height=431><BR>Thomas's MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/arto1.jpg" width=575 height=431><BR>Arto's MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/dan_sid1.jpg" width=320 height=240><BR>d2k's MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/pay_c9.jpg" width=575 height=431><BR>PayC's MIDIbox SID (it's the upper one ;-)</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/paul1.jpg" width=575 height=431><BR>Trapstate's MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/michele1.jpg" width=575 height=316><BR>Majo's MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/chriss2.jpg" width=575 height=431><BR>Chriss' MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/matteo9.jpg" width=575 height=375><BR>Matteo's MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/seppoman2.jpg" width=575 height=204><BR>Seppoman's MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/steven1.jpg" width=575 height=431><BR>Steven's MIDIbox SID</IMG></P>
+  <P CLASS=INFO><IMG SRC="http://www.midibox.org/midibox_gallery/jurbo2.jpg" width=575 height=431><BR>Jurbo's MIDIbox SID</IMG></P>
+  <P CLASS=INFO>more pictures can be found in the <A HREF="midibox_gallery.html">MIDIbox Gallery</A></P>
+</DL>
+
+
+<P CLASS=INFO><B>NOTE:</B> This design is expired! In 2007 MIDIbox SID V2 has been developed which replaced the old version. See <A HREF="midibox_sid.html">this page</A> for more details.</P>
+
+
+FOOTER

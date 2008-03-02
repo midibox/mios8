@@ -1,0 +1,94 @@
+HEADER 3 hex2syx.pl
+
+<H1>hex2syx.pl script</H1>
+
+<P CLASS=INFO>The hex2syx.pl script provides an alternative method to upload a .hex file to a MIOS core. The usage is less comfortable than with <A HREF="http://miosstudio.midibox.org">MIOS Studio</A> (-> HowTo can be found at the <A HREF="mios_bootstrap.html">MIOS Bootstrap Loader page</A>), therefore I only suggest it to people who are not able to get Java running on their computer.</P>
+
+<H2>Converting .hex to .syx</H2>
+
+<P CLASS=DESC>The hex2syx.pl converts a .hex file (the output format of the linker) to a .syx file. The memory dump will be transmitted in a scrambled form, since the SysEx protocol doesn't allow the transfer of 8-bit values. Instead the whole dump will be sent in 7-bit packages, and converted back by the receiver to 8-bit values.</P>
+
+<TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0>
+
+  <TR>
+    <TD><A HREF="http://www.perl.com" TARGET="_blank"><IMG SRC="images/lcamel.gif" WIDTH=72 HEIGHT=81 ALT="Link to the perl.com"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Download perl if it isn't installed on your computer yet.<BR>Unix users: it comes mostly with your distribution.<BR>Windows users: take <A HREF="http://www.activestate.com/Products/Download/Register.plex?id=ActivePerl" TARGET="_blank">Active Perl</A>.<BR>Mac users: take <A HREF="http://www.macperl.com/" TARGET="_blank">MacPerl</A></SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="http://www.midiox.com" TARGET="_blank"><IMG SRC="images/moxtitle.gif" WIDTH=160 ALT="Link to the MIDI-OX site"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Download MIDI-OX from <A HREF="http://www.midiox.com" TARGET="_blank">this site</A>.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap1.gif"><IMG SRC="howtosysex/snap1.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Start MIDI-OX and configure the MIDI In/Out Ports.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/bootstrap_sysex0.gif"><IMG SRC="mios/bootstrap_sysex0.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Ensure that the datastream from the MIDI In port is not forwarded to the MIDI Out port in order to avoid a feedback loop! Deselect the Auto-switch in the lower left corner before selecting a MIDI In/Out port so that this connection will not be done automatically. Check the port mapping at the right side: the MIDI In port should not appear in the list!</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap2.gif"><IMG SRC="howtosysex/snap2.gif" WIDTH=160 ALT="snap2.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Ensure that SysEx is enabled.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap3.gif"><IMG SRC="howtosysex/snap3.gif" WIDTH=160 ALT="snap3.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Start the SysEx tool.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap4.gif"><IMG SRC="howtosysex/snap4.gif" WIDTH=160 ALT="snap4.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Go into the configure menu.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/bootstrap_sysex1.gif"><IMG SRC="mios/bootstrap_sysex1.gif" WIDTH=160 ALT="bootstrap_sysex1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Set "Delay after F7" to <B>750 mS</B>.<BR>Set "Low level output buffer size" to <B>2048 bytes</B>.<BR>Don't activate the other delays like for the PIC16F-based MIDIboxes - delays between every byte are not necessary anymore!</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/bootstrap_sysex4.gif"><IMG SRC="mios/bootstrap_sysex4.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Open a shell and change to the directory which contains the application. Simply start the batch file "CONVERT.BAT" (by typing <I>convert</I>), or type the whole command line <I>perl mk_syx.pl main.hex</I> to convert this .hex file to a .syx file</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/bootstrap_sysex5.gif"><IMG SRC="mios/bootstrap_sysex5.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Now load this file with MIDI-Ox and send it to your MIDIbox.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/bootstrap_sysex6.gif"><IMG SRC="mios/bootstrap_sysex6.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> If a different device ID than 0x00 is assigned to your core, the .syx file has to be generated again with the "-device_id" parameter.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/bootstrap_sysex7.gif"><IMG SRC="mios/bootstrap_sysex7.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Note the slight difference: only the 6th byte of every SysEx block has been changed, this means: you could also modify the device number by hand, but keep in mind that one .syx file contains multiple blocks (which are beginning with F0) - the device ID has to be changed for all blocks!</SPAN></TD>
+  </TR>
+
+</TABLE>
+
+
+<H2>.syx Upload on a Mac</H2>
+<P CLASS=INFO>The <A HREF="http://www.snoize.com/SysExLibrarian/">SysEx Librarian</A> made by <A HREF="http://www.snoize.com">Snoize</A> allows the upload of .syx files under MacOS X.
+<BR>Thanks Normen for this hint! He uses following configuration:<P>
+<P><CENTER><A HREF="http://www.snoize.com/SysExLibrarian/"><IMG SRC="howto_tools/macos_syx_librarian.jpg" WIDTH=431 HEIGHT=361></A></CENTER></P>
+
+FOOTER
+

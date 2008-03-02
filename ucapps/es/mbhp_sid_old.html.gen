@@ -1,0 +1,104 @@
+HEADER 3 Differences between MBHP_SID_V3 and MBHP_SID_V2
+
+<h1>Diferencias entre MBHP_SID_V3 y MBHP_SID_V2</h1>
+
+<p class="INFO">Esta p&aacute;gina contiene algunos documentos antiguos
+que solo son necesarios si vas a hacerte una versi&oacute;n vieja del
+m&oacute;dulo SID . La versi&oacute;n nueva est&aacute; documentada <a href="mbhp_sid.html">aqu&iacute;</a>.<br>Las diferencias principales&nbsp;:
+</p><ul class="CL">
+  <li>Se ha quitado del circuito el oscilador de 1
+MHz. Si el reloj del SID funciona de forma as&iacute;ncrona en
+relaci&oacute;n al PIC, puede que se active la puerta de un DCO no
+intencionadamente. Se describen los detalles en <a href="http://www.midibox.org/forum/index.php?topic=5748.0" target="_blank">este art&iacute;culo del foro</a></li><li>Ahora est&aacute; muy recomendado registrar el m&oacute;dulo SID desde el Core ::J7:SO/PIC Pin #17&nbsp;</li>
+  <li>Se ha replanteado el cableado de J2, de manera que la conexi&oacute;n&nbsp;1:1 al J10 del <a href="mbhp_core.html">m&oacute;dulo Core</a> es de nuevo posible</li><li>R1 (una pull-up de 10k&nbsp;) se ha eliminado, era solo un artefacto de mis primeros experimentos y no era realmente necesario.</li>
+   <li>se han a&ntilde;adido dos capacitadores bypass C13 y C14 para mejorar el rendimiento energ&eacute;tico.</li>
+</ul>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Descarga </h2>
+  <dd>
+  </dd><dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Los datos&nbsp;PCB se pueden visionar, modificar y convertir con <a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>M&oacute;dulo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Esquema</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Datos de Base</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Vista r&aacute;pida</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_SID_V2</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v2.pdf">mbhp_sid_v2.pdf</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v2.brd">mbhp_sid_v2.brd</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v2.gif">mbhp_sid_v2.gif</a></td>
+    </tr>
+  </tbody></table></dd>
+  
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> MBHP_CORE -&gt; interconexiones MBHP_SID_V2 </h2>
+  <dd>
+  <p class="INFO">Este diagrama muestra c&oacute;mo hay que conectar un m&oacute;dulo&nbsp;V2 al Core:
+  </p><center><img src="mbhp/mbhp_sid_v2_core_interconnections.gif" height="730" width="300"></center><p>
+  
+</p></dd></dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Gu&iacute;a de Soldadura </h2>
+  <dd>
+  </dd><dd><table cellpadding="0" cellspacing="0">
+    <tbody><tr>
+      <td><img src="mbhp/mbhp_sid_1.jpg" alt="" border="0" height="332" width="280"></td>
+      <td class="TABCOLOR2">Empieza
+soldando los 5 puentes que te evitaran crear una placa de dos capas.
+Puedes usar patillas cortadas de capacitadores y resistencias, antes de
+tirarlas :-)</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_sid_6.jpg" alt="" border="0" height="206" width="280"></td>
+      <td class="TABCOLOR2">A&ntilde;ade
+tambi&eacute;n los dos capacitadores Bypass adicionales entre Vss y la
+tierra de cada 74HC595 en la parte inferior de la PCB, tan cerca como
+sea posible de la entrada de alimentaci&oacute;n del 74HC595. Mejoran
+la integridad energ&eacute;tica.</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_sid_2.jpg" alt="" border="0" height="265" width="280"></td>
+      <td class="TABCOLOR2">Monta
+todas las partes excepto los 3 ICS. Dale energ&iacute;a al
+m&oacute;dulo y comprueba el nivel de voltaje entre el pin IC1:Vdd(28)
+y IC1:Vss(14) - debe ser de 12V para el 6581 SID, y 9V para el 8580 SID.</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_sid_3.jpg" alt="" border="0" height="290" width="280"></td>
+      <td class="TABCOLOR2">Ahora conecta el puerto J2 del m&oacute;dulo SID con el puerto J10 del m&oacute;dulo core como se describe&nbsp;<b>arriba - &iexcl;no conexi&oacute;n 1:1!</b><br>Asegura los siguientes niveles de voltaje:<br>
+IC1:Vcc(25) - IC1:Vss(14) = 5V<br>
+IC2:Vdd(16) - IC2:Vss(8) = 5V<br>
+IC3:Vdd(16) - IC3:Vss(8) = 5V<br>
+</td>
+    </tr>
+    <tr>
+      <td><img src="mbhp/mbhp_sid_4.jpg" alt="" border="0" height="365" width="280"></td>
+      <td class="TABCOLOR2">Tal
+y como se describe arriba, el reloj debe ser provisto desde Core::J7:SO
+(PIC Pin #17, que est&aacute; configurado como salida PWM de 1MHz&nbsp;
+con ciclo de duty 1:1&nbsp;) - esto requiere una conexi&oacute;n
+cruzada adicional entre&nbsp; MBHP_SID y MBHP_CORE.</td>
+    </tr>
+  </tbody></table></dd>
+  
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Probando </h2>
+  <dd>
+    <p class="DESC">Muchos de los detalles se describen en el <a href="midibox_sid_walkthrough.html">Paseo por MIDIbox SID.</a> Un res&uacute;men: una vez que hayas cargado la aplicaci&oacute;n <a href="midibox_sid.html">MIDIbox SID</a>, podr&aacute;s reproducir unas cuantas notas en el canal MIDI #1.<br>Si
+no escuchas ning&uacute;n sonido, carga la aplicaci&oacute;n
+sid_testtone para asegurar que el core puede acceder al m&oacute;dulo
+SID. Si sigues sin escuchar nada, prueba con mbsid_interconnection_test
+para comprobar que funcionan todas las interconexiones entre CORE y
+m&oacute;dulo SID.<br>Se pueden descargar estos tres programas de la p&aacute;gina de <a href="mios_download.html">Descarga MIOS.</a></p></dd></dl>
+
+FOOTER

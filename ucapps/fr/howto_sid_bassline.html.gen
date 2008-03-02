@@ -1,0 +1,647 @@
+HEADER 3 MIDIbox SID Bassline Tutorial
+
+<A HREF="midibox_sid_manual_b.html">*** NEW *** MIDIbox SID V2 Bassline -> follow this link</A><BR>
+
+            
+            
+            <h1>MIDIbox SID Bassline: Tutoriel</h1>
+
+
+
+
+            
+            
+            <p class="DESC">Avec la version v1.7303, une nouvelle option a &eacute;t&eacute; introduite pour le moteur sonore, qui permet &agrave; la&nbsp; <a href="midibox_sid.html">MIDIbox SID</a> de sonner un peu plus comme les "303". Les parties suivantes du moteur sonore se comporte diff&eacute;remment:<br>
+
+
+
+            </p>
+
+
+            
+            
+            <ul class="CL">
+
+
+
+
+  <li>Les g&eacute;n&eacute;rateurs d'envellopes ENV1 et ENV2 ne
+fonctionnent que dans&nbsp; une course positive. la valeur Depht
+(quantit&eacute; de modulation) est augment&eacute;e pour les notes
+accentu&eacute;es.</li>
+
+
+
+
+  <li>La fr&eacute;quence du CutOff du filtre travaille sur une &eacute;chelle r&eacute;duite (typique des 303).</li>
+
+
+
+
+  <li>Les notes avec Accent sont d&eacute;clench&eacute;es avec une
+v&eacute;locit&eacute; (&gt;= 64) ou avec le flag Accent du
+s&eacute;quenceur WT. le flag accent&nbsp;:
+                
+                
+                <ul class="CL">
+
+
+
+      <li>augmente la r&eacute;sonnance du filtre</li>
+
+
+
+      <li>augmente la profondeur des envellopes</li>
+
+
+
+      <li>r&eacute;duit le taux de Decay des envellopes</li>
+
+
+
+    
+                
+                
+                </ul>
+
+
+
+  </li>
+
+
+
+
+  <li>le s&eacute;quenceur wavetable fonctionne comme le s&eacute;quenceur des 303&nbsp;:
+    
+                
+                
+                <ul class="CL">
+
+
+
+      <li>la premi&egrave;re piste permet de contr&ocirc;ler
+l'accent, le gate et le slide. l'Accent est une valeur 4 bit et est
+situ&eacute;e dans les premiers (&agrave; droite) chiffre de la valeur
+hex&nbsp; (&eacute;chelle de valeur&nbsp;: 0..F). D&eacute;s que
+&gt;=8, le flag Accent est activ&eacute;. En plus, le niveau du sustain
+de la voix&nbsp;1 est contr&ocirc;l&eacute; - ainsi plus la valeur est
+haute, plus la sortie de l'oscillateur sera &eacute;lev&eacute;e.<br>
+
+
+Le 5i&egrave;me bit contr&ocirc;le le flag "gate". Si il est
+activ&eacute;, la note sera jou&eacute;e, sinon, la note ne sera pas
+jou&eacute;e mais le pitch reste pilot&eacute; par la piste 2
+(utilis&eacute; pour les slides)<br>
+
+
+Le 6i&egrave;me bit contr&ocirc;le le flag "slide".&nbsp;Si il est
+activ&eacute;, la note sera li&eacute;e &agrave; la note du pas
+suivant. Si les hauteurs des notes sont diff&eacute;rentes, le pitch
+sera augment&eacute;/diminu&eacute; de fa&ccedil;on progressive
+jusqu'&agrave; ce que la valeur d&eacute;finie soit atteinte.<br>
+
+
+
+      <b>Exemples:</b>
+        
+                    
+                    
+                    <ul class="CL">
+
+
+
+          <li><tt>16</tt>: joue la note sans accent</li>
+
+
+
+          <li><tt>1C</tt>: joue la note accentu&eacute;e</li>
+
+
+
+          <li><tt>0C</tt>: ne joue aucune note, mais le flag Accent
+sera activ&eacute; (ce qui signifie: decay ENV1/ENV2&nbsp;
+diminu&eacute; - de bons effets peuvent ainsi &ecirc;tre obtenus avec
+de longues envellopes)</li>
+
+
+
+          <li><tt>36</tt>: note jou&eacute;e avec le slide activ&eacute;</li>
+
+
+
+          <li><tt>3C</tt>: slide + gate + accent</li>
+
+
+
+          <li><tt>26</tt>: note non jou&eacute;e, mais le slide est
+activ&eacute;&nbsp;: la note, sans &ecirc;tre jou&eacute;e, servira de
+point de d&eacute;part pour le slide de la note suivante,&nbsp; (c'est
+une chose difficile &agrave; programmer via MIDI et qui rend le
+s&eacute;quenceur des TB303 si particulier!)</li>
+
+
+
+        
+                    
+                    
+                    </ul>
+
+
+
+      </li>
+
+
+
+
+      <li>la seconde piste contr&ocirc;le le pitch de la voix 1 -
+les notes ne seront jou&eacute;es que si le flag gate sur la piste 1
+est activ&eacute;!</li>
+
+
+
+      <li>la troisi&egrave;me piste est librement utilisable, elle peut &ecirc;tre assign&eacute;e &agrave; n'importe quel CC</li>
+
+
+
+      <li>le s&eacute;quenceur est synchronis&eacute; sur chaque 1/16 note</li>
+
+
+
+      <li>le s&eacute;quenceur peut recevoir <span style="font-weight: bold;">et</span><b> &eacute;mettre </b>l'horloge MIDI &nbsp;pour une synchro avec d'autres machines MIDI</li>
+
+
+
+    
+                
+                
+                </ul>
+
+
+
+  </li>
+
+
+
+
+  <li>S&eacute;lectionnable comme option pour le moteur sonore,
+un m&eacute;canisme de "glide &agrave; temps constant" typique des
+TB-303 a &eacute;t&eacute; impl&eacute;ment&eacute;. Le glide &agrave;
+temps constant utilise l'ENV2. Il permet d'obtenir un glissement de la
+fr&eacute;quence d'une note &agrave; l'autre lorsque le flag "slide"
+est activ&eacute; (s&eacute;quenceur WT&nbsp;), ou lorsqu'une nouvelle note est jou&eacute;e tandis que la pr&eacute;c&eacute;dente est maintenue (clavier MIDI: le
+SusKey doit &ecirc;tre activ&eacute;).</li>
+
+
+
+            
+            
+            </ul>
+
+
+            
+            
+            <p></p>
+
+
+
+
+            
+            
+            <h2>Param&egrave;tres sonores importants</h2>
+
+
+
+
+            
+            
+            <p class="DESC">Les param&egrave;tres les plus importants pour le mode 303 sont:<br>
+
+
+
+            </p>
+
+
+            
+            
+            <ul class="CL">
+
+
+
+  <li><b>Waveform</b> - Saw, Pulse ou forme d'onde mixte (par ex.
+Triangle et Pulse).La Pulsewidth doit &ecirc;tre r&eacute;gl&eacute;e
+aux alentours de 70 pour des sons typique TB303, avec une modulation de
+la
+pulsewidth &ccedil;a sonne plus comme un SID&nbsp;</li>
+
+
+
+  <li><b>CutOff et R&eacute;sonnance:</b> bien entendu! ;-)</li>
+
+
+
+  <li><b>ENV1:</b> doit &ecirc;tre assign&eacute;e au filtre. En
+raison de certains changements&nbsp;(voir liste plus haut) le Depth
+fonctionne comme l' "EnvMod" d'une TB-303.</li>
+
+
+
+  <li><b>ENV2:</b> utilis&eacute;e pour les glide &agrave; temps
+constant lorsque cette option est activ&eacute;e, mais peut
+&eacute;galement &ecirc;tre utilis&eacute; pour la pulsewidth ou le
+pitch.</li>
+
+
+
+  <li><b>ENV1 Attack:</b> normalement non-disponible sur une TB303, cela peut malgr&eacute;s tout permettre d'obtenir des effets int&eacute;ressants</li>
+
+
+
+  <li><b>ENV1 Decay:</b> tr&eacute;s important - fait varier ce param&egrave;tre pendant le jeu d'une s&eacute;quence</li>
+
+
+
+  <li><b>ENV1 Sustain:</b> doit &ecirc;tre utilis&eacute; pour contr&ocirc;ler l'offset du CutOff&nbsp;</li>
+
+
+
+  <li><b>Curve:</b> un param&egrave;tre essentiel pour une
+&eacute;mulation r&eacute;aliste de la
+303, car il permet de modifier le contour d'une envellope
+jusqu'&agrave; ce que la courbe ressemble &agrave; celle d'un
+condensateur qui se charge/dd&eacute;charge (&agrave; ce sujet,
+remerciements &agrave; Jess D. Skov-Nielsen qui m'a fourni
+l'algorythme!).<br>
+Pour les patchs du tutoriel, le param&egrave;tre de la courbe est
+assign&eacute; au Decay de l'ENV1&nbsp; (Filtre) et &agrave; l'Attack
+de l'ENV2&nbsp; (Constant Time Glide).</li>
+
+
+
+            
+            
+            </ul>
+
+
+            
+            
+            <p></p>
+
+
+
+
+            
+            
+            <h2>Cr&eacute;er des Patterns avec JSynthLib</h2>
+
+
+
+
+            
+            
+            <p class="INFO">Dans JSynthLib, l'option #0 du moteur sonore (SE) doit &ecirc;tre activ&eacute; pour le mode 303, et l'option #2 pour le glide &agrave; temps constant:<br>
+
+
+
+            </p>
+
+
+            
+            
+            <center><img src="midibox_sid/jsynthlib/tb303_option.gif" height="141" width="334"></center>
+
+
+            <br>
+Le mode Portamento doit &ecirc;tre r&eacute;gl&eacute; sur "Fingered" (SusKey).<br>
+Le mode Play doit &ecirc;tre r&eacute;gl&eacute; sur "WT Seq only" si
+le s&eacute;quenceur WT est utilis&eacute;, ou sur "Legato" si les
+notes sont jou&eacute;es depuis un clavier MIDI ou un s&eacute;quenceur
+externe.
+            <p></p>
+
+
+
+
+            
+            
+            <p class="DESC">Les param&egrave;tres WT: la piste 1 ne
+doit &ecirc;tre assign&eacute;e &agrave; aucun CC, car elle
+contr&ocirc;le les slide/gate/accent. La piste 2 doit &ecirc;tre
+assign&eacute;e au CC#9 (note Voix 1) - d'autres CCs ne
+g&eacute;n&egrave;reront aucun changements, ceci afin d'assurer une
+compatibilt&eacute; avec le mode Normal. La piste 3 peut piloter
+n'importe quel param&egrave;tre, par ex. le CutOff du filtre (CC#46):<br>
+
+
+
+            </p>
+
+
+            
+            
+            <center><img src="midibox_sid/jsynthlib/wt3.gif" height="299" width="363"></center>
+
+
+            
+            
+            <p></p>
+
+
+
+
+            
+            
+            <h2>Cr&eacute;er des Patterns avec la Surface de Contr&ocirc;le</h2>
+
+
+
+
+            
+            
+            <p class="DESC">La Surface de Contr&ocirc;le dispose d'une
+page menu sp&eacute;ciale pour les param&egrave;tres du moteur sonore:
+SEO. Dans cette page, les flags 303 et E2P
+(Envelope-to-Pitch) doivent &ecirc;tre activ&eacute;s:<br>
+
+
+
+            </p>
+
+
+            
+            
+            <center><img src="midibox_sid_cs/seo1.gif" height="38" width="242"></center>
+
+
+            
+            
+            <p></p>
+
+
+
+
+            
+            
+            <p class="DESC">Et il y a une autre page sp&eacute;ciale pour le mode 303, pour acc&eacute;der aux param&egrave;tres les plus importants:<br>
+
+
+
+            </p>
+
+
+            
+            
+            <center><img src="midibox_sid_cs/303_1.gif" height="38" width="578"></center>
+
+
+            <br>
+
+
+
+            
+            
+            <ul class="CL">
+
+
+
+  <li><b>Pos:</b> position du S&eacute;quenceur, comme dans le menu WT&nbsp;</li>
+
+
+
+  <li><b>Mod:</b> mode Step&nbsp; (-/Ply/Jmp/End),&nbsp;comme dans le menu WT</li>
+
+
+
+  <li><b>S/G:</b> flags Slide et Gate (chiffre hex de gauche de la piste 1 du WT)</li>
+
+
+
+  <li><b>Acc:</b> Accent (chiffre hex de droite de la piste 1 du WT)</li>
+
+
+
+  <li><b>Nte:</b> note jou&eacute;e (piste 2 du WT)</li>
+
+
+
+  <li><b>#3:</b> troisi&egrave;me piste du WT</li>
+
+
+
+  <li><b>Rte:</b> vitesse de la wavetable</li>
+
+
+
+  <li><b>P#:</b> permet de s&eacute;lectionner une wavetable d'un
+autre patch &agrave; la vol&eacute;e et sans d&eacute;lai (identique au
+CC#12). Ce qui signifie que vous acc&eacute;s rapidement &agrave; 128
+patterns!</li>
+
+
+
+  <li><b>Cut:</b> Fr&eacute;quence du CutOff</li>
+
+
+
+  <li><b>Res:</b> Fr&eacute;quence de R&eacute;sonnance</li>
+
+
+
+  <li><b>Mod:</b> (EnvMod) - Depth de l'ENV1</li>
+
+
+
+  <li><b>Dec:</b> Decay de l'ENV1</li>
+
+
+
+            
+            
+            </ul>
+
+
+            
+            
+            <p></p>
+
+
+
+
+            
+            
+            <h2>Exemples</h2>
+
+
+
+
+            
+            
+            <table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+
+
+
+
+  <tbody>
+
+
+                <tr>
+
+
+
+    <td><span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_bassline_pulse.mp3"#dddddd**<BR><b>Premiers pas avec la forme d'onde Pulse</b><br>
+
+
+Six </span><span class="NORM">patterns </span><span class="NORM">diff&eacute;rents
+ont &eacute;t&eacute; utilis&eacute;s pour le MP3 de d&eacute;mo. Ils
+sont la plupart du temps chang&eacute;s apr&eacute;s huit mesures
+&agrave; l'aide du CC#12, qui peut &ecirc;tre transmis depuis un
+s&eacute;quenceur externe, et qui eest aussi acc&eacute;ssible depuis
+le menu 303 de la Surface de Contr&ocirc;le.<br>
+L'EnvMod (ENV1 Depth), le Decay (ENV1 Decay) et le CutOff sont
+modul&eacute;s de temps en temps pour illustrer les possibilit&eacute;s
+de cr&eacute;ation.<br>
+La premi&egrave;re s&eacute;quence commence avec quelques notes de basse non accentu&eacute;es:<br>
+
+
+
+                  <tt>
+                  
+                  
+                  <pre>STEP CMD    #1   #2   CS: S/G  Acc  Note<br>00   Play   17  E-2       o *    7  E-2<br>01   Play   00  E-1       o o    7  E-1<br>02   Play   17  E-1       o *    7  E-1<br>03   Play   17  E-2       o *    7  E-2<br>04   Play   00  E-2       o o    7  E-2<br>05   Play   00  E-2       o o    7  E-2<br>06   Play   17  E-3       o *    7  E-3<br>07   Play   00  E-2       o o    7  E-2<br>08   Goto   00  +00<br></pre>
+                  </tt><br>
+Seules les notes avec le flag gate activ&eacute; sont jou&eacute;es,
+les autres notes peuvent aussi &ecirc;tre r&eacute;gl&eacute;es sur
+"---", mais j'ai trouv&eacute; plus utile de remplir tous les pas
+- mieux pour exp&eacute;rimenter les slides - ce qui est fait &agrave;
+partir de 0:26 du morceau de d&eacute;mo: <tt>
+                  
+                  
+                  <pre>STEP CMD    #1   #2   CS: S/G  Acc  Note<br>00   Play   37  E-2       * *    7  E-2<br>01   Play   00  E-1       o o    7  E-1<br>02   Play   17  E-1       o *    7  E-1<br>03   Play   37  E-2       * *    7  E-2<br>04   Play   37  E-1       * *    7  E-1<br>05   Play   37  E-2       * *    7  E-2<br>06   Play   37  E-3       * *    7  E-3<br>07   Play   37  E-2       * *    7  E-2<br>08   Goto   00  +00<br></pre>
+
+
+                  </tt><br>
+Pour les autres patterns utilis&eacute;s, jetez un oeil dans le fichier .patchlib (or .syx) de ce tutoriel.
+    </span></td>
+  </tr>
+
+
+
+
+  <tr>
+
+
+
+    <td><span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_bassline_multi.mp3"#dddddd**<BR><b>Multi Bassline</b><br>
+Ce second exemple peut servir de source d'inspiration pour utiliser plusieurs SIDs simultan&eacute;ment 
+    
+                  
+                  
+                  <ul class="CL">
+
+
+
+      <li>Le morceau commence par une ligne de basse groovy ("TB303 - Multi A1")</li>
+
+
+
+      <li>&agrave; partir de 0:14 un pattern "saw" est ajout&eacute;. Il joue les notes les plus hautes ("TB303 - Multi B1")</li>
+
+
+
+      <li>&agrave; partir de 0:28 un pattern "saw"
+diff&eacute;rent est jou&eacute; seul, il utilise le filtre Passe-Bande
+au lieu du filtre Passe-Bas - joli effet! :) ("TB303 -
+Multi C1")</li>
+
+
+
+      <li>&agrave; partir de 0:45 tous les patterns sont
+jou&eacute;s ensemble ("TB303 - Multi A2" "..B2" "..C2") - &ccedil;a
+sonne vraiment "loud" ;-)</li>
+                  </ul>
+
+
+                  <br>
+
+
+The three core modules are synchronized with Logic Audio via MIDI. If
+you want to try the same, you have to enable MIDI clock synchronization
+for the Wavetable, and you have to set the wavetable rate to 127. </span></td>
+  </tr>
+
+
+
+
+  <tr>
+
+
+
+    <td><p><span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo12.mp3"#dddddd**<BR>
+            </span>**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo13.mp3"#dddddd**<BR>
+            <span class="NORM"><b>Filtre Externe et Distortion</b><br>
+            Comme vous l'avez sans doute remarqu&eacute;, la r&eacute;sonnance du
+        filtre du SID n'est pas aussi "intense" que celle que l'on trouve sur
+        les TB-303. Du coup les sons acid typique des 303 (le plus souvent avec
+        distortion) ne peuvent &ecirc;tre obtenus avec un SID tout seul. Mais
+        il existe une solution qui ouvre de nouvelles perspectives: vous pouvez
+        ajouter un filtre analogique, et contr&ocirc;ler le CutOff et la
+        R&eacute;sonnance directement depuis la MIDIbox SID!<br>
+        La solution la plus &eacute;conomique (et absolument suffisante) reste d'utiliser un module <a href="mbhp_aout_lc.html">MBHP_AOUT_LC</a>&nbsp;. La r&eacute;solution plus &eacute;lev&eacute;e du module <a href="mbhp_aout.html">MBHP_AOUT</a> n'est pas n&eacute;cessaire pour piloter des filtres.<br>
+        J'ai test&eacute; un filtre Moog "ladder" (<a href="http://www.euronet.nl/%7Erja/Emusic/Moog/" target="_blank">Sch&eacute;ma de Rick Jansen</a>)
+        et un filtre Low-Pass sur circuit int&eacute;gr&eacute; CEM3378. Ils
+        fonctionnent tous deux tr&eacute;s bien! Je suppose que &ccedil;a
+        serait encore mieux avec le circuit original du filtre des TB-303 - ce
+        que j'esp&egrave;re pouvoir tester un jour ou l'autre.<br>
+        Les deux morceaux MP3 ont &eacute;t&eacute; cr&eacute;&eacute;s au tout
+        d&eacute;but de la conception du mode 303. Le premier MP3 est
+        r&eacute;alis&eacute; &agrave; l'aide d'un CEM3378, le second avec un
+        filtre Moog. Aujourd'hui, le mode 303 sonne beaucoup plus
+        "p&ecirc;chu". Malgr&eacute;s tout je trouve ces premiers essais
+        tr&eacute;s convaincants, je remixerais tout &ccedil;a avec la nouvelle
+        impl&eacute;mentation du mode 303 d&eacute;s que j'aurais un peu de
+        temps devant moi (et que j'aurais remis la main sur les projets .lso
+        originaux
+        ;-)<br>
+        N.B. : la ligne de basse du premier titre est inspir&eacute;e de la librairie </span><span class="NORM">HVSC</span><span class="NORM"> </span><span class="NORM">"Logical.sid</span><span class="NORM">" de Stember_Rudolf/ </span></p>
+      </td>
+  </tr>
+              </tbody>
+            </table>
+
+
+
+
+            
+            
+            <h2>Liens</h2>
+
+
+
+
+            
+            
+            <ul class="CL">
+
+
+
+  <li><a href="midibox_sid/bassline_tutor_patches_v1.zip" target="_blank">bassline_tutor_patches_v1.zip</a></li>
+
+
+
+            
+            
+            </ul>
+
+
+
+
+            
+            
+            <p class="CL">Notez que tous les patches ont
+&eacute;t&eacute; optimis&eacute;s pour le SID 8580. Le filtre 6581 ne
+sonne pas id&eacute;alement pour des sonorit&eacute;s 303, il est trop
+"doux" et "&eacute;touff&eacute;".</p>
+
+
+
+
+FOOTER

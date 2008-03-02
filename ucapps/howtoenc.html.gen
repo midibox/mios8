@@ -1,0 +1,142 @@
+
+HEADER 3 How to use rotary encoders
+
+<CENTER><H1>How to use Rotary Encoders</H1></CENTER>
+
+<HR>
+<P CLASS=DESC><B>NOTE:</B> The informations on this page are outdated since Rotary Encoders are natively supported by <A HREF="midibox16e.html">MIDIbox16E!</P>
+<HR>
+
+<H2><A HREF="mailto:rasmail@mail.dk">Rasmus</A> wrote:</H2>
+
+<P CLASS=DESC>The idea with rotary encoders connected to the MIDIO128 is intended to 
+have the abillity to send relative controller messages (increase-decrease).</P>
+
+<P CLASS=DESC>You will need to have a MIDI device wich can respond to relative messages. 
+The advantage is that the rotary encoder will increase or decrease CC values
+from a given point in opposite to the continous control messages wich 
+send a specific CC value 0-127 depending on the pot position, which in 
+certain cercumstances is not very practical.</P>
+
+<P CLASS=DESC>It can work like this: in opposite to normal controller messages wich can 
+send CC values from (0-127 dec) or (00-7F hex) the relative messages will 
+repeating send pulses repeating the same message.</P>
+
+<P CLASS=DESC>A rotary encoder is in principle a little switch wich sends pulses 
+(like pushing and releasing a momentary push buttom) when its rotating.
+It sends 6 pulses or more in one revolution.
+To have the ability to define which direction the encoder is rotating 
+can be solved by having two rows of contacts wich are a little bit displaced:</P>
+
+<PRE>
+            ___     ___     ___     ___     ___
+Channel1 __|   |___|   |___|   |___|   |___|   
+          ___     ___     ___     ___     ___   
+Channel2 |   |___|   |___|   |___|   |___|   |_
+</PRE>
+
+<P CLASS=DESC>When comming from left side channel 1 has a high or low pulse first.
+When comming from right side channel 2 has the low or high pulse first.
+The pulses we will need is the point where both contactrows are high or low
+at the same time. And at the same time we can now have information about 
+wich direction we are going by the help of a RS FlipFlop logic, which
+has followed the transitions before this state.</P>
+
+<P CLASS=DESC><A HREF="howtoenc/rotary_encoder_ciruit.gif">Find the schematic diagram for the circuit here.</A></P>
+
+<P CLASS=DESC>The little curcuit that my good friend Arne and I have made have two inputs 
+and two outputs. It will be used to determine wich input is comming first 
+so that when both inputs are on, a puls will be send on the output, but only 
+to one of the outputs, depending on wich of the inputs came first.</P>
+
+<P CLASS=DESC>To get the encoder to work together with the MIDIO128 we will need to 
+use two inputs to use one encoder. The inputs could be programmed to send (f.eks) Note Events:</P>
+<PRE>
+# Number #  Event on logic 1 # Event on logic 0
+###############################################
+       1 =  90 30 00           90 30 00
+       2 =  90 30 7F           90 30 7F
+</PRE>
+
+<P CLASS=DESC>A useable message could be the data wheel-slider    
+many midi devices will respond to this message.
+It will edit the value of the selected parameter of your device:<P>
+<PRE>
+# B0 60 7F = data up
+# B0 61 7F = data down
+# B0 defines the CC channel to be send on. 
+# Other possibilities: B1, B2... BF
+###############################################
+# Number #  Event on logic 1 # Event on logic 0
+###############################################
+       1 =  B0 60 7F           B0 60 7F
+       2 =  B0 61 7F           B0 61 7F
+</PRE>
+
+<P CLASS=DESC>Suitable contacting encoders can be found in farnell catalog under digital output potentiometers where channel a leads channel b by 90 degree!!! Optical encoders should work as well byt may need additional components to drive the direction detection curcuit!</P>
+
+<P CLASS=DESC>OK good luck with rotary encoders on the midio128 by Thorsten Klose</P>
+
+<P CLASS=DESC>Sincerely Rasmus</P>
+
+<P CLASS=DESC>P.S.: Farnell part # for tested encoders: 733-751 and 109-113 (expensive!) - if you find a cheaper source, please publish the link at the MIDIbox forum!</P>
+
+<IMG SRC="images/1x1dot.gif" height=30 ALT=""><BR>
+
+
+
+<H2>Remark from Thorsten:</H2>
+<P CLASS=DESC>Here is an extract from a <I>midio128.ini</I> setup file which allows to control the MIDI software from Native Instruments like Reaktor or FM7 with 8 incremental encoders:</P>
+<PRE>
+[TYPE]
+   midio128
+
+# disable merger, this avoids feedback loops
+[MERGER]
+   disabled
+
+# Debounce time should be disabled in order to get 
+# a response time of < 1ms
+[DEBOUNCE_TIME]
+   0
+
+# NI software expects: B0 nn 40-ticks for decrementing
+#                      B0 nn 40+ticks for incrementing
+[MIDI_OUT]
+    1 =  B0 00 3F   B0 00 3F
+    2 =  B0 00 41   B0 00 41
+    3 =  B0 01 3F   B0 01 3F
+    4 =  B0 01 41   B0 01 41
+    5 =  B0 02 3F   B0 02 3F
+    6 =  B0 02 41   B0 02 41
+    7 =  B0 03 3F   B0 03 3F
+    8 =  B0 03 41   B0 03 41
+    9 =  B0 04 3F   B0 04 3F
+   10 =  B0 04 41   B0 04 41
+   11 =  B0 05 3F   B0 05 3F
+   12 =  B0 05 41   B0 05 41
+   13 =  B0 06 3F   B0 06 3F
+   14 =  B0 06 41   B0 06 41
+   15 =  B0 07 3F   B0 07 3F
+   16 =  B0 07 41   B0 07 41
+</PRE>
+
+
+
+<IMG SRC="images/1x1dot.gif" height=30 ALT=""><BR>
+
+
+<H2>A posting from <A HREF="mailto:panspermia23@lycos.com">Cubensis</A>:</H2>
+
+<P CLASS=DESC>I've just completed testing a relatively simple hardware extention to use rotary encoders instead of momentary switches (ie. for data dials, jogs, bank switches, etc). It uses 2 of the midibox's button inputs per encoder, one each for CW and CCW. The hardware extention itself contains only 6 parts for each encoder added (1 x 74HC14, 1 x 74HC74, 2 x 100nF caps, 2 x 10k res). I will have a pcb layout for a 5 encoder extention made soon, which i can give to thorsten to put online if anyone wants it. With the addition of a little firmware these button inputs could be used as infinite analog-sytle pots (still working on firmware for this). The hardware could be simplified further by moving the D-FF's functions into firmware but unless your gonna have 20 encoders, the D-FF's wont cost you that much extra and they offload the task from the PIC.</P>
+
+<P CLASS=DESC>Cubensis</P>
+
+<P CLASS=DESC>PS.: All info and circuit schematics were taken from this site <A HREF="http://www.interq.or.jp/japan/se-inoue/e_ckt10.htm">http://www.interq.or.jp/japan/se-inoue/e_ckt10.htm</A> so a big thanks to <A HREF="mailto:hobby_elec@yahoo.com">Seiichi Inoue</A>.<BR>
+PPS.: For the purpose of the midibox, only the chatter prevention and up/down detection circuits are needed ;) </P>
+
+<HR>
+<P CLASS=DESC><B>NOTE:</B> The informations on this page are outdated since Rotary Encoders are natively supported by <A HREF="midibox16e.html">MIDIbox16E!</P>
+<HR>
+
+FOOTER_NOCOPYRIGHT

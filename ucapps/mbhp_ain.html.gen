@@ -1,0 +1,182 @@
+HEADER 3 MBHP AIN Module
+
+<H1>MIDIbox Hardware Platform, Analog IN Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_ainx4.jpg" width=500 height=428></CENTER></P>
+
+<P CLASS=INFO>The AIN module comes with 4051 multiplexers for analog signals, each multiplexer provides 8 inputs. Currently only the layout for an ainx4 module with 4 multiplexers (=32 inputs) can be found here, I will add some more variations in the future. A full featured MIDIbox64 with 64 pots or faders requires two of these modules.</P>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_AINX4_V2</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainx4.pdf">mbhp_ainx4.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainx4_v2.brd">mbhp_ainx4_v2.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainx4.gif">mbhp_ainx4.gif</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainx4_orderlist.txt">mbhp_ainx4_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainx4_64pots.pdf">mbhp_ainx4_64pots.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>16k</TD>
+      <TD CLASS=TABCOLOR2>How to connect 64 pots to the <A HREF="midibox64.html">MIDIbox64</A> with 2 * AINX4</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/auaimbctg.pdf">auaimbctg.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>11k</TD>
+      <TD CLASS=TABCOLOR2>Important reminder!</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the ainx4 module:</P>
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>J1, J2, J3, J4</TD>
+      <TD CLASS=TABCOLOR2>8</TD>
+      <TD CLASS=TABCOLOR2>Analog inputs of the 4051 multiplexers. Have to be connected with the sliders of pots/faders, or can also be used as CV input (0V/5V), see also the <A HREF="midibox_ext.html">MIDIbox Extensions Page</A>. All unused analog inputs have to be clamped to ground (Vss), otherwise your MIDIbox will send out a lot of random MIDI events!</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J5</TD>
+      <TD CLASS=TABCOLOR2>6</TD>
+      <TD CLASS=TABCOLOR2>Interface to J5 of the core module. J5:Vs and J5:Vd are the power pins, J5:A0..J5:A3 are the analog outputs of the multiplexers.<BR>If you leave out a 4051, clamp the appr. analog input (J5:A0, ... J5:A3) to ground in order to avoid random MIDI events.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J6</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>Interface to J6 of the core module. These are the address pins of the multiplexers which allow the MIDIbox to select one of eigth inputs, the appr. signal will be routed to the output of the 4051. Connection matrix:<BR>AINX4 J5:A -> CORE J6:RC<BR>AINX4 J5:B -> CORE J6:SC<BR>AINX4 J5:C -> CORE J6:SI<BR>The other two pins of J6 of the core module (J6:Vd and J6:Vs) don't have to be connected with the AINX4 module.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J7</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>Power supply pins for the pots/faders.</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Used Components </H2></DT>
+   <DD>
+<P CLASS=DESC>Here a list of the used components. A complete orderlist for <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> can be found <A HREF="mbhp/mbhp_ainx4_orderlist.txt">here</A>, Mouser partlist for the US: see <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Website</A>, if you have a orderlist for a distributor on your country, feel free publish it on this page!</P>
+
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Value</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>IC1, IC2, IC3, IC4</TD>
+      <TD CLASS=TABCOLOR2>4051</TD>
+      <TD CLASS=TABCOLOR2>The analog multiplexers</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>C1-C4</TD>
+      <TD CLASS=TABCOLOR2>100nF</TD>
+      <TD CLASS=TABCOLOR2>The additional bypass caps have to be placed on the bottom side of the PCB, as close to the +5V power input of the 4051 as possible.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J*</TD>
+      <TD CLASS=TABCOLOR2>*</TD>
+      <TD CLASS=TABCOLOR2>All connectors are optional, the cables can also be soldered directly into the board. Otherwise I suggest SIL headers (header sockets), known from PC motherboards. They are cheap and usefull.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>DIL</TD>
+      <TD CLASS=TABCOLOR2>SOCKETS</TD>
+      <TD CLASS=TABCOLOR2>Don't forget to buy sockets for the 4051 multiplexers. 4 * 16 pin DIL sockets are required.</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_1.jpg" WIDTH=280 HEIGHT=123 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Start with soldering the 9 bridges which save you from creating a 2-layer board. You can use the cutted legs of caps and resistors, before you throw them away after you finished all the modules! :-)</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_3.jpg" WIDTH=280 HEIGHT=123 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Mount the sockets and connectors.<BR><B>Note:</B> analog experts suggest not to use sockets here, search in the web for the reasons. For beginners I strongly suggest the use of sockets! </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_4.jpg" WIDTH=280 HEIGHT=118 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>4 additional bridges have to be connected via isolated cables between the analog outputs of the 4051 and J5</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_5.jpg" WIDTH=280 HEIGHT=272 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>This picture shows how to connect two AINX4 modules together. The J6 plugs (address pins) have to be joined 1:1, same with the power supply pins of J5</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_10.jpg" WIDTH=280 HEIGHT=126 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Add also the four additional Bypass Caps between Vdd and ground of each chip on the bottom side of the PCB as close to the +5V power input of the 4051 as possible. They improve the power integrity. Since there isn't a ground rail near by the +5V input, I've used a so called "shrink hose" (german: Schrumpfschlauch) to isolate the cap leg which goes to ground.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_6.jpg" WIDTH=280 HEIGHT=305 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Now add the connection cable to the core module. See also the <A HREF="mbhp/mbhp_midibox64.gif">MIDIbox64 Module Diagramm</A> and <A HREF="mbhp/mbhp_ainx4_64pots.pdf">mbhp_ainx4_64pots.pdf</A> for further details.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_7.jpg" WIDTH=280 HEIGHT=254 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Connection to the core module.</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_8.jpg" WIDTH=280 HEIGHT=142 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Two AINX4 modules connected with 64 pots (backside)</TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ain_9.jpg" WIDTH=280 HEIGHT=142 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Two AINX4 modules connected with 64 pots (frontside). It's on you how to attach the modules on the chassis</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+FOOTER

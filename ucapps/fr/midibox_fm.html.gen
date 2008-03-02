@@ -1,0 +1,1023 @@
+HEADER 3 MIDIbox FM
+
+
+            <h1>MIDIbox FM</h1>
+
+            <h3>Date de Cr&eacute;ation: 2004/2005</h3>
+
+
+            <p></p>
+            <center><img src="midibox_fm/midibox_fm.jpg" height="105" width="578"></center>
+            <p></p>
+
+
+            <p class="INFO">La MIDIbox FM utilise le chip sonore Yamaha YMF262&nbsp; (<a href="mbhp_opl3.html">aussi appell&eacute; OPL3</a>)
+pour g&eacute;n&eacute;rer les c&eacute;l&egrave;bres
+sonorit&eacute;s&nbsp; FM qui ont fait la r&eacute;putation des cartes
+son Soundblaster (et compatible) du d&eacute;but des ann&eacute;es 90s.
+En plus des fonctionnalit&eacute;s sp&eacute;cifiques &agrave;
+l'OPL3&nbsp; (6 voix &agrave; quatre op&eacute;rateurs, 5 instruments de 
+percussion), une impl&eacute;mentation logicielle de plusieurs
+sources de modulation permet d'en tirer des sonorit&eacute;s riches et
+les possibilit&eacute;s de cr&eacute;ation s'en trouvent &eacute;tendues.</p>
+
+
+            <dl>
+              <dt></dt>
+            </dl>
+            <h2>Architecture Sonore </h2>
+            <dl>
+
+  
+              <dl>
+                <p class="DESC"><b>OPERATEUR (OP): </b></p>
+
+    
+                <ul class="CL">
+
+      <li> 8 formes d'ondes diff&eacute;rentes</li>
+
+      <li>niveau
+de sortie ajustable sur une r&eacute;solution de 6-bit, qui affecte
+soit l'amplitude de sortie (carrier, ou "porteuse") ou bien le taux de
+modulation (modulator, ou "modulateur")</li>
+
+      <li>un multiplicateur de fr&eacute;quence avec une r&eacute;solution de 4-bit</li>
+
+      <li>un
+g&eacute;n&eacute;rateur d'enveloppe simple (ADSR), chaque
+param&egrave;tre avec une r&eacute;solution de 4-bit. La phase de
+Sustain peut &ecirc;tre supprim&eacute;e</li>
+
+      <li> key scaling (0 db/oct, 1.5dB/oct, 3.0dB/oct, 6.0dB/oct)</li>
+
+      <li>key tracking assignable &agrave; l'enveloppe (notes plus aigues = plus courtes, notes plus graves = tenue plus longue)</li>
+
+      <li> Vibrato et Tremolo (fr&eacute;quence fixe)</li>
+
+      <li> Feedback avec une r&eacute;solution de 3-bit (seulement pour le premier OP)</li>
+
+    
+                </ul>
+
+  
+              </dl>
+
+
+  
+              <dl>
+                <p class="DESC"><b>Une VOIX consiste en 4 Op&eacute;rateurs (OP):</b> </p>
+
+    
+                <ul class="CL">
+
+      <li>Pitch commun pour les 4 OP (le d&eacute;tunage entre les op&eacute;rateurs d'une m&ecirc;me voix n'est pas possible)</li>
+
+      <li> 4 mode de connections diff&eacute;rents entre chaque OP (algorithmes)</li>
+
+      <li>
+2 LFOs impl&eacute;ment&eacute;s dans la partie logicielle, ils peuvent
+&ecirc;tres assign&eacute;s aux volumes des OPs et au pitch</li>
+
+      <li>
+1 g&eacute;n&eacute;rateur d'enveloppe impl&eacute;ment&eacute; dans
+la partie logicielle, qui peut &ecirc;tre assign&eacute; aux volumes
+des OPs et au pitch</li>
+
+    
+                </ul>
+
+  
+              </dl>
+
+
+  
+              <dl>
+                <p class="DESC"><b>Un INSTRUMENT contr&ocirc;le une ou plusieurs Voix (jusqu'&agrave; 6)</b><b></b><b>:</b> </p>
+
+    
+                <ul class="CL">
+
+      <li>mode de jeu mono/legato/poly&nbsp;</li>
+
+      <li>gestion dynamique de la polyphonie (les notes les plus longues seront mut&eacute;es les premi&egrave;res)</li>
+
+      <li>course du pitch bend et du finetune (accordage fin) ajustable</li>
+
+      <li> portamento (avec option de jeu "Sus-Key")
+      </li>
+                  <li>la V&eacute;locit&eacute; peut &ecirc;tre rout&eacute;e vers n'importe quel CC d'un des param&egrave;tres sonores</li>
+
+      <li>la molette de Modulation&nbsp;peut &ecirc;tre rout&eacute;e vers n'importe quel CC d'un des param&egrave;tres sonores</li>
+
+      <li>l'Aftertouch&nbsp;peut &ecirc;tre rout&eacute; vers n'importe quel CC d'un des param&egrave;tres sonores</li>
+
+      <li>un
+s&eacute;quenceur de table d'ondes de 32 pas avec une fr&eacute;quence
+allant jusqu'&agrave; 500 Hz peut &ecirc;tre rout&eacute; sur 3 CC des
+param&egrave;tres sonores</li>
+
+      <li>les LFOs/EG5/s&eacute;quenceur WT peuvent &ecirc;tre synchronis&eacute;s &agrave; l'horloge MIDI&nbsp;</li>
+
+    
+                </ul>
+
+  
+              </dl>
+
+
+  
+              <dl>
+                <p class="DESC"><b>LFOs:</b> </p>
+
+    
+                <ul class="CL">
+
+      <li> 5 formes d'ondes</li>
+
+      <li> rate (vitesse) de 0.032 Hz to 45 Hz</li>
+
+      <li>
+key sync (d&eacute;marre ou red&eacute;marre &agrave; chaque message
+"note-on") et d&eacute;but de phase ajustable(0&deg;-360&deg;)</li>
+
+      <li>le
+LFO&nbsp;peut moduler: le "pitch depth" d'une voix, les volumes des 4
+OPs, la fr&eacute;quence de l'autre LFO, l'amplitude d'une sortie AOUT
+(CV)</li>
+
+      <li>r&eacute;glage de l'intensit&eacute; de modulation ind&eacute;pendant pour chaque param&egrave;tre cible</li>
+
+    
+                </ul>
+
+  
+              </dl>
+
+
+  
+              <dl>
+                <p class="DESC"><b>&nbsp;EG5 (g&eacute;n&eacute;rateur d'envellopes):</b> </p>
+
+    
+                <ul class="CL">
+
+      <li>une courbe attack-decay1-decay2-sustain-release (7 param&egrave;tres). vitesse de 2 mS &agrave; 27 secondes</li>
+
+      <li>une fonction assignable de courbe non-lin&eacute;aire pour les attack/decay/release</li>
+
+      <li>l'EG5
+peut moduler:&nbsp;le "pitch depth" d'une voix,&nbsp;les volumes des 4
+OPs, la fr&eacute;quence du LFO1,&nbsp;l'amplitude d'une sortie AOUT
+(CV)</li>
+
+      <li>r&eacute;glage de l'intensit&eacute; de modulation ind&eacute;pendant pour chaque param&egrave;tre cible</li>
+                </ul>
+
+  
+              </dl>
+
+
+  
+              <dl>
+                <p class="DESC"><b>S&eacute;quenceur de table d'ondes:</b> </p>
+
+    
+                <ul class="CL">
+
+      <li> 3 param&egrave;tres CC assignables</li>
+
+      <li> 32 pas</li>
+
+      <li> contr&ocirc;le absolu (0-127) ou relatif (-64..63)</li>
+
+      <li> 3 modes de jeu (note, note step, course libre)</li>
+
+      <li> fr&eacute;quence de 2 Hz &agrave; 500 Hz</li>
+
+    
+                </ul>
+
+  
+              </dl>
+
+
+  
+              <dl>
+                <p class="DESC"><b>Ensemble (4 instruments):</b> </p>
+
+    
+                <ul class="CL">
+
+      <li>un num&eacute;ro de patch et de banque (8 * 128 patches peuvent &ecirc;tre sauvegard&eacute;s avec 8 BankSticks)</li>
+
+      <li>un canal MIDI pour chaque instrument</li>
+
+      <li>zone "keyboard split"</li>
+
+      <li>volume g&eacute;n&eacute;ral</li>
+
+      <li>courbes de v&eacute;locit&eacute; (Flat/Hard/Soft)</li>
+
+      <li>transposition par demi-tons</li>
+
+      <li>fonction
+"Unisono" (alloue deux voix d&eacute;tun&eacute;es l'une par rapport
+&agrave; l'autre-polyphonie divis&eacute;e par deux avec cette option) </li>
+                  <li>routing ind&eacute;pendant des OP1/2 et OP3/4 vers les 4 canaux de sortie</li>
+
+    
+                </ul>
+
+  
+              </dl>
+
+
+  
+              <dl>
+                <p class="DESC"><b>Canal Percussion:</b> </p>
+
+    
+                <ul class="CL">
+
+      <li> 2-OP Bass Drum (grosse caisse)</li>
+
+      <li> 1-OP Snare (caisse claire)</li>
+
+      <li> 1-OP Tom</li>
+
+      <li> 1-OP HiHat (open et closed)</li>
+
+      <li> 1-OP Cymbal</li>
+
+      <li>fr&eacute;quence ajustable (BD: ind&eacute;pendant, Tom/HiHat/Cymbal: coupl&eacute;es)</li>
+
+      <li>zones clavier configurables pour chaque percussion</li>
+
+    
+                </ul>
+
+  
+              </dl>
+
+            </dl>
+
+
+            <dl>
+              <h2><br>
+ </h2>
+              <h2>Autres Fonctions </h2>
+
+  
+              <dl>
+
+    
+                <ul class="CL">
+
+      <li>&eacute;dition
+en temps r&eacute;el de tous les param&egrave;tres sonores via messages
+CC, SysEx ou avec la surface de contr&ocirc;le</li>
+
+      <li>surface de contr&ocirc;le avec &eacute;cran LCD 2x40, 5 encodeurs rotatifs, 24 boutons, 34 LEDs (voir aussi <a href="midibox_fm_manual.html">le Manuel MIDIbox FM</a>)</li>
+
+      <li>chaque BankStick permet de sauvegarder 128 Patches, 16 Kits de Percussions et 32 Ensembles</li>
+
+      <li>jusqu'&agrave; 8 BankSticks peuvent &ecirc;tre connect&eacute;s simultan&eacute;ment</li>
+
+      <li>
+8 sorties CV optionnelles, elles peuvent &ecirc;tres pilot&eacute;es
+par les LFOs et l' EG5s pour contr&ocirc;ler des filtres Analogiques,
+des VCAs, des effets, etc...</li>
+
+    
+                </ul>
+
+  
+              </dl>
+
+            </dl>
+
+
+
+            <dl>
+              <dt></dt>
+              <h2> MIDIbox FM : D&eacute;mos </h2>
+
+   
+              <dl>
+
+ 
+                <p class="INFO">Toutes
+les d&eacute;mos ne sont pas forc&eacute;ment repr&eacute;sentatives du
+son "brut" de OPL3, mais vous donnerons un bon aper&ccedil;u de ce que
+l'on peut faire avec la MIDIbox FM et quelques effets externes...</p>
+
+                <table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+
+  <tbody>
+                    <tr>
+
+    
+    <td> <span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_fm/mbfm_demo1.mp3"#dddddd**<BR>
+La
+premi&egrave;re d&eacute;mo. 4 voix jouent un son type E-Piano, la
+s&eacute;quence d'arp&eacute;giateur "morph" est r&eacute;alis&eacute;e
+avec le <a href="midibox_seq.html">MIDIbox SEQ</a>. De 0:00 &agrave;
+0:32 vous ententrez la sortie "brute" de l'OPL3, &agrave; partir de
+0:34, le son est enrichi d'un chorus et d'un delay. </span>
+    </td>
+
+  </tr>
+                                                             
+
+  <tr>
+
+    
+    <td> <span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_fm/mbfm_demo2.mp3"#dddddd**<BR>
+Cette
+seconde d&eacute;mo a &eacute;t&eacute; enregistr&eacute;e une fois que
+les voix de percussions FM ont &eacute;t&eacute; mises en place. Le
+bruit de fond est d&ucirc; aux AOPs LM314, ces derniers ont &eacute;t&eacute; remplac&eacute;s par
+des TL074 pour &eacute;viter ce probl&egrave;me. </span>
+    </td>
+
+  </tr>
+                                                             
+
+  <tr>
+
+    
+    <td> <span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_fm/mbfm_demo4.mp3"#dddddd**<BR>
+C'est
+une collection de sons et d'airs r&eacute;alis&eacute;s pendant le
+d&eacute;veloppement du moteur sonore, surtout pour tester des
+fonctions telles que le
+portamento, les enveloppes et les LFOs. </span>
+    </td>
+
+  </tr>
+                                                             
+
+  <tr>
+
+    
+    <td> <span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_fm/mbfm_demo5.mp3"#dddddd**<BR>
+Un
+groove avec les drums de la MIDIbox FM, avec un &eacute;cho externe.
+Les param&egrave;tres sont modifi&eacute;s en temps r&eacute;els
+pendant le jeu de la s&eacute;quence, afin d'explorer un peu les
+possibilit&eacute;s sonores.&nbsp; </span>
+    </td>
+
+  </tr>
+                                                             
+
+  <tr>
+
+    
+    <td> <span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_fm/mbfm_demo_random_patches.mp3"#dddddd**<BR>
+Quelques
+patches g&eacute;n&eacute;r&eacute;s al&eacute;atoirement gr&acirc;ce
+au script "mk_fm_random.pl"&nbsp;
+- histoire de d&eacute;montrer les possibilit&eacute;s du moteur sonore
+de la MIDIbox FM. Les effets de st&eacute;r&eacute;o ont
+&eacute;t&eacute; r&eacute;alis&eacute;s en jouant le m&ecirc;me Patch
+sur quatre Instruments. Si le S&eacute;quenceur de Table d'Ondes ou les
+LFOs sont en mode "freerunning" (course libre), la sortie de chaque
+instrument va sonner (vraiment) diff&eacute;remment. Les sorties sont
+rout&eacute;es vers des canaux de sortie diff&eacute;rents, qui sont
+r&eacute;partis sur l'image st&eacute;r&eacute;o du mix. Un delai
+externe a &eacute;t&eacute; ajout&eacute; pour envelopper un peu tout
+&ccedil;a!</span>
+    </td>
+
+  </tr>
+                                                             
+
+  <tr>
+
+    
+    <td> <span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_fm/mbfm_demo6.mp3"#dddddd**<BR>
+Cette d&eacute;mo concerne l'utilisation du module AOUT (sorties CV) - un filtre analogique type Moog externe (<a href="http://www.euronet.nl/%7Erja/Emusic/Moog/" target="_blank">sch&eacute;ma par Rick Jansen</a>)
+a &eacute;t&eacute; connect&eacute; &agrave; l'une des huit sorties CV.
+Comme que je ne poss&egrave;de qu'un exemplaire de ce filtre, les
+diff&eacute;rents sons ont &eacute;t&eacute; enregistr&eacute;s les uns
+apr&eacute;s les autres, en overdub. Le titre s'arr&ecirc;te &agrave;
+1:29 (c'est pas une erreur de t&eacute;l&eacute;chargement)<br>
+Pouvez-vous sortir des sons pareils avec un synth&eacute; FM classique? ;-)</span>
+    </td>
+
+  </tr>
+                    <tr>
+
+    
+    <td> <span class="NORM">**MP3**"http://www.ucapps.de/mp3/midibox_fm/PimpMyBehringer.mp3"#dddddd**<BR>
+Une d&eacute;mo qui utilise la MIDIbox FM + 4 modules
+MBHP_AOUT_LC&nbsp; + 4 filtres CEM3378&nbsp; - mon setup actuel. Voir
+aussi&nbsp;<a href="http://www.midibox.org/forum/index.php?topic=6542.0" target="_blank">cet article du forum</a>.</span>
+    </td>
+
+  </tr>
+                                                             
+
+                                                               
+
+  
+                  </tbody>
+                </table>
+              </dl>
+
+            </dl>
+
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Editeur SysEx </h2>
+
+   <dd>
+                <p class="INFO">un aper&ccedil;u de l'&eacute;diteur bas&eacute; sur <a href="jsynthlib.html">JSynthLib</a> , les fen&ecirc;tres pour les patches et les percussions:</p>
+
+
+                <p class="DESC"></p>
+                <center><a href="midibox_fm/mbfm_patch_panel_pre1.gif"><img src="midibox_fm/mbfm_patch_panel_pre1.jpg" height="334" width="575"></a></center>
+
+                <br>
+                <center><a href="midibox_fm/mbfm_patch_panel_pre1.gif">Cliquez ici pour agrandir</a></center>
+                <p></p>
+
+
+                <p class="DESC"></p>
+                <center><a href="midibox_fm/mbfm_drum_panel_pre1.gif"><img src="midibox_fm/mbfm_drum_panel_pre1.jpg" height="431" width="575"></a></center>
+
+                <br>
+                <center><a href="midibox_fm/mbfm_drum_panel_pre1.gif">Cliquez ici pour agrandir</a></center>
+                <p></p>
+
+
+                <p class="DESC"></p>
+                <center><a href="midibox_fm/mbfm_ens_panel_pre1.gif"><img src="midibox_fm/mbfm_ens_panel_pre1.gif" height="211" width="501"></a></center>
+
+
+   </dd>
+
+            </dl>
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Co&ucirc;ts du Mat&eacute;riel </h2>
+
+   <dd>
+   
+                <p class="INFO">la
+MIDIbox
+FM peut tr&egrave;s bien &ecirc;tre construite progressivement, en
+commen&ccedil;ant par un simple module de synth&egrave;se sans
+&eacute;cran LCD ni &eacute;l&eacute;ments de contr&ocirc;le, pour
+ensuite devenir une unit&eacute; en rack (ou une version desktop) avec
+une surface de contr&ocirc;le compl&egrave;te.</p>
+
+   
+                <p class="INFO">Des sons peuvent &ecirc;tre produits d&egrave;s que le module <a href="mbhp_opl3.html">MBHP_OPL3</a> a &eacute;t&eacute; connect&eacute; au module <a href="mbhp_core.html">MBHP_CORE</a>.
+Tous les param&egrave;tres sont &eacute;ditables via un ordinateur
+gr&acirc;ce &agrave; l'&eacute;diteur SysEx bas&eacute; sur JSynthLib,
+en temps r&eacute;el bien entendu. L'installation d'un <a href="mbhp_bankstick.html">BankStick</a>
+est quand m&ecirc;me recommand&eacute;e, sinon vous ne pourrez
+sauvegarder dans la m&eacute;moire interne qu'un seul Patch, un
+Ensemble et un Kit de Percussion. Les Wavetables (table d'ondes) ne
+peuvent &ecirc;tres pour leur part sauvegard&eacute;es que sur un
+BankSticks. Notez que vous avez la possibilit&eacute; de connecter
+jusqu'&agrave; huit BankSticks - un grand nombre d'emplacements de
+sauvegarde est tr&eacute;s utile lorsque l'on souhaite acc&eacute;der
+rapidement aux banques de presets. Chaque BankStick permet de sauver 128
+Patches sonores,
+16 Kits de Percussions et 32 Ensembles.</p>
+
+   
+                <p class="INFO">L'&eacute;tape
+suivante consiste &agrave; ajoutert un &eacute;cran LCD 2x40&nbsp;+
+huit&nbsp;boutons de navigation + un bouton ESC + un bouton CFG&nbsp;+
+quatre boutons de s&eacute;lection Instr/OP + 10 LEDs + une
+Datawheel&nbsp;(encodeur rotatif) - Vous pourrez ainsi &eacute;diter
+tous les param&egrave;tres disponibles directement sur la machine. Pour
+ces extensions, un module <a href="mbhp_din.html">MBHP_DINX4</a> et un module<span style="text-decoration: underline;"> </span><a href="mbhp_dout.html">MBHP_DOUTX4</a> sont requis, &agrave; connecter sur le module CORE.</p>
+
+   
+                <p class="INFO">La derni&egrave;re &eacute;tape consiste &agrave; ajouter quatre "V-Pots" + la matrice de s&eacute;lection de 6+4 boutons et 6*4
+LEDs. Aucun module DINX4 ou DOUTX4 n'est requis pour cette extension.</p>
+
+   
+                <p class="INFO">R&eacute;ferez-vous &eacute;galement au <a href="midibox_fm_manual.html">Manuel </a><a href="midibox_fm_manual.html">MIDIbox FM</a> qui d&eacute;crit plus en d&eacute;tails les diff&eacute;rentes options de l'interface utilisateur!</p>
+
+   
+                <p class="INFO">Vous
+trouverez ci-dessous une liste des co&ucirc;ts de la "MIDIbox FM" -
+vous pouvez aussi tenter d'&eacute;conomiser un peu en choisisant des
+boutons moins chers, en r&eacute;alisant vous m&ecirc;me le boitier ou
+la fa&ccedil;ade ou en organisant des achats group&eacute;s sur le&nbsp;<a href="http://forum.midibox.org/" target="_blank">Forum</a><a href="http://forum.midibox.org" target="_blank"> MIDIbox</a>!</p>
+
+   
+                <p class="INFO">Vous pouvez commander des PCBs pr&ecirc;t &agrave; l'emploi sur les sites <a href="http://www.mikes-elektronikseite.de/midiseite.htm" target="_blank">www.mikes-elektronikseite.de</a> ou <a href="http://mbhp.coinoptech.com/" target="_blank">http://mbhp.coinoptech.com</a>. SmashTV propose &eacute;galement des kits complets pour les modules CORE, DINX4 et DOUTX4 !!!</p>
+
+   
+                <p class="INFO">Les prix et les num&eacute;ros de commandes sont pour <a href="http://www.reichelt.de" target="_blank">Reichelt</a>
+sauf sp&eacute;cification contraire. Vous trouverez une liste de sites
+de ventes de composants en dehors de l'allemagne sur la page <a href="http://www.midibox.org/dokuwiki/where_to_order_components">WhereToOrder</a>.</p>
+
+   </dd>
+              <dd>
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+    <tbody>
+                    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Configuration Minimale</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Composants</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Description</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Prix</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp_core.html">1 module&nbsp; MBHP_CORE</a><br>
+                      </td>
+
+      <td class="TABCOLOR2">le cerveau de la MIDIbox FM</td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_core_orderlist.txt">Composants: env. 20 EUR</a><br>
+
+                          PCB: env. 6 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp_opl3.html">1 module MBHP_OPL3</a><br>
+                      </td>
+
+      <td class="TABCOLOR2">et voici la bouche! :-)</td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_opl3_orderlist.txt">Composants: env. 8 EUR</a><br>
+
+                          PCB: env. 6 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">1 YMF262<br>
+1 ou 2 YAC512</td>
+
+      <td class="TABCOLOR2">le chip Yamaha OPL3 chip et le(s) DAC(s)</td>
+
+      <td class="TABCOLOR2">&agrave; r&eacute;cup&egrave;rer sur une vieille carte son (ex. Soundblaster Pro)</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">PSU 5V (Alimentation)</td>
+
+      <td class="TABCOLOR2">Alim murale (Power supply) 9V / 500 mA "MW 17-GS/6"</td>
+
+      <td class="TABCOLOR2">env. 6 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">PSU +/- 12V</td>
+
+      <td class="TABCOLOR2">&nbsp;J'utilise
+un transformateur 2x12V tr&eacute;s bon march&eacute;, mais la
+manipulation des hautes tensions est &agrave; r&eacute;server aux
+experts en &eacute;lectronique! Si quelqu'un conna&icirc;t une
+meilleure alternative (et pas cher), qu'il me le dise!</td>
+
+      <td class="TABCOLOR2">???</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">BankStick</td>
+
+      <td class="TABCOLOR2">1 x 24C256, Composant #ST 24C256 BN6 chez <a href="http://www.reichelt.de" target="_blank">Reichelt</a>. Note: les EEPROM Atmel
+ne dispose que de deux lignes "chip select", ce qui signifie qu'avec
+celle-ci, vous ne pourrez connecter que 4 BankSticks en
+parall&egrave;le (voir aussi la page <a href="mbhp_bankstick.html">BankStick</a></td>
+
+      <td class="TABCOLOR2">ca. 2 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Boitier + Surface de Contr&ocirc;le optionnelle</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp_din.html">1 module DINX4</a><br>
+                      </td>
+
+      <td class="TABCOLOR2">Entr&eacute;es digitales pour les boutons et les encodeurs</td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_dinx4_orderlist.txt">Composants: env. 5 EUR</a><br>
+
+                          PCBs: env. 5 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp_dout.html">1 module DOUTX4</a><br>
+                      </td>
+
+      <td class="TABCOLOR2">Sorties digitales pour les LEDs et la matrice de boutons</td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_doutx4_orderlist.txt">Composants: env. 3 EUR</a><br>
+
+                          PCB: env. 5 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">LCD</td>
+
+      <td class="TABCOLOR2">Ecran LCD 2x40 Displaytech "LCD 402A LED"</td>
+
+      <td class="TABCOLOR2">env. 25 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">24 boutons</td>
+
+      <td class="TABCOLOR2">ex. : 6 <i>couleur</i>s (<i>couleur</i> = BL, GN, GR, RT, SW) (gros boutons) et 10 x "TASTER 3301D"</td>
+
+      <td class="TABCOLOR2">env. 11 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">4 diodes</td>
+
+      <td class="TABCOLOR2">for the button matrix, you can take 4*1N4148</td>
+
+      <td class="TABCOLOR2">ca. 0.10 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">34 LEDs</td>
+
+      <td class="TABCOLOR2">ex. : "LED 3mm St <i>colour</i>"</td>
+
+      <td class="TABCOLOR2">env.&nbsp;2 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">5 encodeurs</td>
+
+      <td class="TABCOLOR2">ex. :  M-SW-ROT de <a href="http://www.voti.nl/winkel/producten.html#M-SW-ROT" target="_blank">Voti</a> ou les encodeurs Bourns de <a href="http://mbhp.coinoptech.com" target="_blank">SmashTV's Shop</a> </td>
+
+      <td class="TABCOLOR2">env.&nbsp;6 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">5 Knobs</td>
+
+      <td class="TABCOLOR2">5 x "DK13-164 black-soft" chez <a href="http://www.albs.de" target="_blank">Albs</a></td>
+
+      <td class="TABCOLOR2">env.&nbsp;5 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">2 platine d'essai</td>
+
+      <td class="TABCOLOR2">Pour monter les Boutons/Encodeurs/LEDs: "H25PR200"</td>
+
+      <td class="TABCOLOR2">env.. 4 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">Boitier</td>
+
+      <td class="TABCOLOR2">19" 2U rack #460 018 from <a href="http://www.pollin.de" target="_blank">Pollin</a></td>
+
+      <td class="TABCOLOR2">env.&nbsp;30 EUR</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">Fa&ccedil;ade</td>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/mbfm_front_v1.fpd">mbfm_front_v1.fpd</a> chez <a href="http://www.schaeffer-apparatebau.de" target="_blank">Schaeffer Apparatebau</a></td>
+
+      <td class="TABCOLOR2">env.&nbsp;60 EUR</td>
+
+    </tr>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+  
+            </dl>
+
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> T&eacute;l&eacute;chargements </h2>
+
+  <dd>
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+    <tbody>
+                    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Sch&eacute;mas &amp; PCBs</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Fichier</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Taille</strong></font></td>
+
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Description</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp.html">MBHP</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">voir
+la partie "MIDIbox Hardware Platform". Un module CORE et un module OPL3
+sont requis.Pour la Surface de Contr&ocirc;le (optionnelle), ajoutez un
+&eacute;cran LCD 2x40, un module DINX4 et un module DOUTX4.</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/mbfm_din_default.pdf">mbfm_din_default.pdf</a></td>
+
+      <td class="TABCOLOR2">12k</td>
+
+      <td class="TABCOLOR2">Connections des Boutons/Encodeurs</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/mbfm_dout_default.pdf">mbfm_dout_default.pdf</a></td>
+
+      <td class="TABCOLOR2">12k</td>
+
+      <td class="TABCOLOR2">Connections des LED</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://www.midibox.org/midibox_fm_photos/">Pictures</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Quelques photos des entrailles de la MIDIbox FM</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/mbfm_front_v1.fpd">mbfm_front_v1.fpd</a></td>
+
+      <td class="TABCOLOR2">3k</td>
+
+      <td class="TABCOLOR2">Projet de fa&ccedil;ade &eacute;ditable avec le logiciel ""Frontpanel Designer" de <a href="http://www.schaeffer-apparatebau.de" target="_blank">Schaeffer Apparatebau</a></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/mbfm_back_v1.fpd">mbfm_back_v1.fpd</a></td>
+
+      <td class="TABCOLOR2">3k</td>
+
+      <td class="TABCOLOR2">La face arri&egrave;re</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Firmware</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mios_download.html">MIOS Download</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Binaires pr&eacute;compil&eacute;es et code source, publi&eacute;s sous license GNU GPL</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm_changelog.html">ChangeLog</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">ChangeLog de la MIDIbox FM&nbsp;</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Documentation</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm_manual.html">Manual</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Manuel Utilisateur</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>CC/SysEx</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/midibox_fm_cc_voice.txt">midibox_fm_cc_voice.txt</a></td>
+
+      <td class="TABCOLOR2">28k</td>
+
+      <td class="TABCOLOR2">Tous les param&egrave;tres disponibles pour les Voix</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/midibox_fm_cc_drums.txt">midibox_fm_cc_drums.txt</a></td>
+
+      <td class="TABCOLOR2">9k</td>
+
+      <td class="TABCOLOR2">Tous les param&egrave;tres disponibles pour les Drums</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/midibox_fm_par_ensemble.txt">midibox_fm_par_ensemble.txt</a></td>
+
+      <td class="TABCOLOR2">5k</td>
+
+      <td class="TABCOLOR2">Tous les param&egrave;tres disponibles par Ensemble</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="midibox_fm/midibox_fm_sysex_implementation.txt">midibox_fm_sysex_implementation.txt</a></td>
+
+      <td class="TABCOLOR2">5k</td>
+
+      <td class="TABCOLOR2">L'impl&eacute;mention SysEx&nbsp;</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Preset Patches</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://www.ucapps.de/midibox_fm/preset_patches_20050212.zip">preset_patches_20050212.zip</a></td>
+
+      <td class="TABCOLOR2">775k</td>
+
+      <td class="TABCOLOR2">128
+Preset Patches pour la MIDIbox FM + 4096 Random Patches + Random
+Generator. Consultez le fichier README.txt pour plus d'informations</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="jsynthlib.html">JSynthLib</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Editeur pour la MIDIbox FM, bas&eacute; sur JSynthLib </td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://www.automatic-brain.de/midibox/" target="_blank">www.automatic-brain.de/midibox</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Patch Manager par TL pour la MIDIbox FM, pour Windows</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td colspan="3" class="TABCOLOR1"><font size="3"><strong>Misc.</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://wiki.midibox.org" target="_blank">MIDIbox Wiki</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Des informations suppl&eacute;mentaires sur les MIDIbox, le MIOS et la MIDIbox FM</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="http://forum.midibox.org">MIDIbox Forum</a></td>
+
+      <td class="TABCOLOR2">LINK</td>
+
+      <td class="TABCOLOR2">Le support du Forum MIDIbox</td>
+
+    </tr>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+            </dl>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> &nbsp;Exemples de Constructions </h2>
+
+  <dd>
+                <p class="INFO"><img src="13.jpg" height="433" width="575"><br>
+L'int&eacute;rieur de la MIDIbox FM - <a href="http://www.midibox.org/midibox_fm_photos/">d'autres photos ici</a>.</p>
+              </dd>
+
+            </dl>
+
+
+FOOTER

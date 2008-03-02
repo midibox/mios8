@@ -1,0 +1,212 @@
+HEADER 3 MIDIbox Network
+
+<H1>MIDIbox Network (MBNet)</H1>
+<H3>Defined in January 2007</H3>
+
+<P CLASS=INFO>The MIDIbox Network concept is the basis for linking multiple <A HREF="mbhp_core.html">Core Modules</A> in the upcoming <A HREF="midibox_sid_v2_wishlist.html">MIDIbox SID V2</A> project, and it will replace the <A HREF="midibox_link.html">MIDIbox Link</A> which was used in the previous version.</P>
+
+<P CLASS=INFO>The High Level Protocol (HLP) has been prepared for communication with other MIDIbox applications over the same network. It is multimaster capable. Up to 128 network nodes are supported. 8 nodes can act as a master, and all nodes can operate as slaves.</P>
+
+<P CLASS=INFO>Note that it isn't the intention to define an universal protocol for multiple purposes. The scope is on exchanging control informations and RAM buffer contents, similar to <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=midi_specification">MIDI</A>, but much faster and especially bidirectional without the need for point-to-point connections (MIDI Out->MIDI In).</P>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Physical/Transfer Layer </H2></DT>
+  <DD><P CLASS=DESC>For the physical/transfer layer the <A HREF="http://en.wikipedia.org/wiki/Controller_Area_Network" TARGET="_blank">CAN (Controller Area Network)</A> standard has been selected, since many inexpensive microcontrollers are available in the meantime, which include an integrated CAN controller. The PIC18F4685 is predestinated for <A HREF="mios.html">MIOS</A>, as it not only contains an ECAN peripheral, but also enough RAM (no compatibility issues) and more than enough flash memory (96k) for upcoming MIDIbox applications.</P>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> High Level Protocol </H2></DT>
+  <DD><P CLASS=DESC>The HLP uses a simple request-acknowledge scheme. A master sends a message to the slave and waits for a response, before the next message is sent. There is no stack-based implementation allowed like known from TCP. The software based flow control throttles the bandwidth, but also reduces the memory and data managing requirements for the slaves. The CPU load is low compared to other bidirectional interfaces like IIC or SPI, the bitrate is higher (1 MBit/s), accordingly CAN is a good selection for performance critical applications.</P>
+
+<P CLASS=DESC>The ECAN peripheral is configured in Mode 1 (Enhanced Legacy Mode) with 1 transmit buffer for sending commands, 7 receive buffers for receiving commands from different masters, and a dedicated transmit and receive buffer for handling the acknowledge messages.</P>
+
+<P CLASS=DESC>CAN frames are sent in extended format with 29 bit identifier. Parts of the identifier contain control or address informations. The acceptance mask only filters the bitfield 10:3 (8 bits). 7 bits for addressing the node, and another for seperating acknowledge messages:</P>
+
+<P><CENTER><IMG SRC="mbnet/mbnet_id.gif" width=500 height=74></CENTER></P>
+
+<P CLASS=DESC>The 2-bit wide TOS (Type-Of-Service) field qualifies the CAN message for different purposes. Together with the A (acknowledge) flag, 8 different types are available:<P>
+
+<P><TABLE WIDTH="100%" BORDER=0 CELLSPACING=1 CELLPADDING=1>
+  <TR>
+    <TD CLASS=TABCOLOR1 WIDTH=20><FONT SIZE=2><STRONG>A</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1 WIDTH=20><FONT SIZE=2><STRONG>TOS</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Purpose</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Control Field</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Payload</STRONG></FONT></td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0</td>
+    <TD CLASS=TABCOLOR2>0</td>
+    <TD CLASS=TABCOLOR2>Special Service</td>
+    <TD CLASS=TABCOLOR2>Bitfield 18:11 contains the service ID, Bitfield 26:19 is unused</td>
+    <TD CLASS=TABCOLOR2>depends on service, see below</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0</td>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>Read RAM</td>
+    <TD CLASS=TABCOLOR2>Bitfield 26:11 contains the address (16-bit, 64k address space), the acknowledge response with TOS=1 will always contain 8 bytes, starting from the given address.<BR>Depending on the application, the RAM could be segmented into different partitions for different purposes (e.g. Patch, Ensemble, Drumkit)</td>
+    <TD CLASS=TABCOLOR2>unused</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0</td>
+    <TD CLASS=TABCOLOR2>2</td>
+    <TD CLASS=TABCOLOR2>Write RAM</td>
+    <TD CLASS=TABCOLOR2>Bitfield 26:11 contains the address (16-bit, 64k address space).</td>
+    <TD CLASS=TABCOLOR2>1-8 bytes which will be written into RAM</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>Ping</td>
+    <TD CLASS=TABCOLOR2>unused, the acknowledge response with TOS=0 will contain 8 bytes with the Pong Response (see below)</td>
+    <TD CLASS=TABCOLOR2>unused</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 WIDTH=20><FONT SIZE=2><STRONG>A</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1 WIDTH=20><FONT SIZE=2><STRONG>TOS</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Purpose</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Control Field</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Payload</STRONG></FONT></td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>0</td>
+    <TD CLASS=TABCOLOR2>Acknowledge Response with status "Ok"</td>
+    <TD CLASS=TABCOLOR2>Bitfield 18:11 contains the node ID of the sender for doublechecking the flow.</td>
+    <TD CLASS=TABCOLOR2>no payload on normal replies.<BR>8 bytes on a ping response ("Pong"). Structure see below.</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>Acknowledge Response on Read</td>
+    <TD CLASS=TABCOLOR2>Bitfield 18:11 contains the node ID of the sender for doublechecking the flow.</td>
+    <TD CLASS=TABCOLOR2>8 bytes, starting from the requested address (A=0, TOS=1)</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>2</td>
+    <TD CLASS=TABCOLOR2>Acknowledge Response with status "Retry"</td>
+    <TD CLASS=TABCOLOR2>Bitfield 18:11 contains the node ID of the sender.</td>
+    <TD CLASS=TABCOLOR2>Sent when a slave was not ready for handling the requested TOS, e.g. if it has been temporary locked by another master.</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>3</td>
+    <TD CLASS=TABCOLOR2>Acknowledge Response with status "Error"</td>
+    <TD CLASS=TABCOLOR2>Bitfield 18:11 contains the node ID of the sender.</td>
+    <TD CLASS=TABCOLOR2>Sent on an unknown or invalid message.</td>
+  <TR>
+</TABLE>
+</P>
+
+<P CLASS=DESC>The Node field contains the MIOS Device ID (0-127) of the receiver, and the MS field contains bitfield 6:4 of the MIOS Device ID of the master (0, 16, 32, 48, ... 112), to which the slave will acknowledge. Accordingly, the MIOS Device ID of the master is reduced to 8 possible values. Bitfield 3:0 has to be 0!</P>
+
+<P CLASS=DESC>If a slave doesn't respond within 10 miliseconds, it can be assumed that it is not connected to the network. Optionally the master can retry the transmission.</P>
+
+<P CLASS=DESC>A master can detect a slave during runtime by sending a ping, waiting for the pong response, and checking the content of the payload (hot-plug).</P>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Ping Response (Device Identifier) </H2></DT>
+  <DD><P CLASS=DESC>The Ping Response ("Pong") contains an 8 byte identifier which allows the master to determine the compatibility of the detected slave.</P>
+
+<P><TABLE WIDTH="100%" BORDER=0 CELLSPACING=1 CELLPADDING=1>
+  <TR>
+    <TD CLASS=TABCOLOR1 WIDTH=40><FONT SIZE=2><STRONG>Byte #</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0</td>
+    <TD CLASS=TABCOLOR2>Protocol Version - currently: 1</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>1-4</td>
+    <TD CLASS=TABCOLOR2>4 Characters which identify the Slave Type.<BR>Currently supported: "SID " (MIDIbox SID)</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>5</td>
+    <TD CLASS=TABCOLOR2>Major Version Number of the Firmware.<BR>For "SID ": 1 or 2</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>6-7</td>
+    <TD CLASS=TABCOLOR2>Subversion Number of the Firmware, 16bit value, little-endian coded (low-byte first)</td>
+  <TR>
+</TABLE>
+</P>
+
+<P CLASS=DESC>The identifier not only allows a master to check, if a slave is compatible, e.g. with the control surface. It also allows to switch between different parameter and control structures. If for example a <A HREF="midibox_sid.html">MIDIbox SID</A> receives the identifier of a <A HREF="midibox_fm.html">MIDIbox FM</A>, it could automatically adapt the menu and encoder/button/LED functions to this different synthesizer.</P>
+<P CLASS=DESC>However, the HLP is not flexible enough for exchanging meta informations about synthesizers and control surfaces. The application must be prepared for supporting new devices. New synths will always require a firmware update (and some programming effort), so long they are not a derivative of an already supported synth.
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Special Service </H2></DT>
+  <DD><P CLASS=DESC>The Special Service TOS (0) can be seen as a TOS extension with up to 256 additional commands to a slave. Command 0-15 is reserved for the HLP and MIOS, whereas Command 16-127 is application specific.</P>
+
+<P><TABLE WIDTH="100%" BORDER=0 CELLSPACING=1 CELLPADDING=1>
+  <TR>
+    <TD CLASS=TABCOLOR1 WIDTH=40><FONT SIZE=2><STRONG>Service</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>0</td>
+    <TD CLASS=TABCOLOR2>Lock receiver for the given master (MS field).<BR>The receiver will stall the main thread (interrupts still allowed) and only reply to incoming messages from the master which has requested the lock. If another master has already locked, the receiver will send a retry response.<BR>This command should be used for fast bulk dumps to ensure best transfer rates with best response times.</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>1</td>
+    <TD CLASS=TABCOLOR2>Unlock receiver. Once this message has been received, the receiver will continue the main thread. Upcoming messages could be acknowledged with higher latencies (typical 100 uS..1mS, up to 10 mS)</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>2, 3</td>
+    <TD CLASS=TABCOLOR2>reserved for HLP specific services</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>4</td>
+    <TD CLASS=TABCOLOR2>MIOS call: USER_Init - payload=0 (no parameters)</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>5</td>
+    <TD CLASS=TABCOLOR2>MIOS call: USER_MPROC_DebugTrigger - payload=4 bytes (values copied into WREG and MIOS_PARAMETER[123])</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>6</td>
+    <TD CLASS=TABCOLOR2>MIOS call: USER_MPROC_NotifyReceivedEvent - payload=3 bytes (values copied into MIOS_PARAMETER[123])</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>7</td>
+    <TD CLASS=TABCOLOR2>MIOS call: USER_MPROC_NotifyReceivedByte - payload=1 byte (value copied into WREG and MIOS_PARAMETER1)</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>8</td>
+    <TD CLASS=TABCOLOR2>MIOS call: USER_DIN_NotifyToggle - payload=2 bytes (values copied into WREG and MIOS_PARAMETER[12])</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>9</td>
+    <TD CLASS=TABCOLOR2>MIOS call: USER_ENC_NotifyChange - payload=2 bytes (values copied into WREG and MIOS_PARAMETER[12])</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>10</td>
+    <TD CLASS=TABCOLOR2>MIOS call: USER_AIN_NotifyChange - payload=3 bytes (values copied into WREG and MIOS_PARAMETER[123])</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>11-15</td>
+    <TD CLASS=TABCOLOR2>reserved for additional MIOS calls</td>
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>16-127</td>
+    <TD CLASS=TABCOLOR2>Application specific services</td>
+  <TR>
+</TABLE>
+</P>
+
+<P CLASS=DESC>MIOS calls are useful for remote-controlling a MIDIbox. Button, Pot and Encoder movements can be simulated from another MIDIbox. Note that the application has to avoid recursions by itself. It must be prevented, that a button/pot/encoder movement starts a new CAN message, which could violate the simple request/acknowledge scheme of the HLP.</P>
+<P CLASS=DESC>Note also, that remote controlling could fail, if the application takes the controller (button/encoder/pot) value from a MIOS function, instead of the passed MIOS_PARAMETERs</P>
+<P CLASS=DESC>The call of USER_NotifyReceivedByte could bypass the integrated MIDI merger, incoming MIDI bytes could be mixed up with incoming CAN messages and "confuse" e.g. the SysEx parser. Therefore these messages only work under special circumstances. The prefered solution for applications is to provide dedicated special commands for SysEx-like transactions, or to allow access to the internal memory via RAM read/write (TOS 1/2) transactions.</P>
+  </DD>
+</DL>
+
+FOOTER

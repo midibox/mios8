@@ -1,0 +1,309 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Hardware Options
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- Hardware Options</H1>
+
+<P CLASS=INFO>MIDIbox SID V2 can be extended successively from the minimal configuration to the complete control surface with up to 8 SIDs. The overall hardware costs mainly depend on the quality of components, and on the availability of the SID chip. Costs can be reduced by organizing group orders in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A>!</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Minimal Setup </H2>
+
+<P><CENTER><IMG SRC="midibox_sid/midibox_sid_minimal.jpg" width=280 height=313></CENTER></P>
+
+<P CLASS=DESC>The picture above shows the minimum hardware requirements to get the SID synthesizer running. In this low-cost configuration, the sound parameters are only accessible via SysEx <B>(*)</B>. With an additional BankStick, 128 patches can be stored and recalled via Program Change (up to 7 BankSticks are supported for patch storage).</P>
+
+<P CLASS=DESC>The estimated price for this setup is ca. 30..50 EUR (price mainly depends on the availability of the SID chip).</P>
+
+<P CLASS=DESC><B>(*)</B> at this time, MIDIbox SID V2 is in beta stage, and a SysEx editor is not available yet. It is planned to provide a platform independent, Java based editor like known from MIDIbox SID V1</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Stereo Setup </H2>
+
+<P CLASS=DESC>With MIDIbox SID V2, two SID chips can be controlled from a single core. The firmware provides many features which simplify the creation of stereo effects. If you have the choice between building two seperate MIDIbox SIDs, or just to control the two SIDs from a single core, I would strongly recomment to go for the stereo setup.</P>
+
+<P CLASS=DESC>In following demo, some preset patches are played with a stereo setup - except for a limiter, no additional external effects have been used:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_stereo_demo.mp3"#ffffff**</SPAN></P>
+
+<P CLASS=DESC>The same sequences have been recorded again with a Mono setup - direct download (e.g. for comparison with headphones): <A HREF="http://www.ucapps.de/mp3/midibox_sid/mbsidv2_stereo_demo.mp3">Stereo</A> <A HREF="http://www.ucapps.de/mp3/midibox_sid/mbsidv2_mono_demo.mp3">Mono</A> </P>
+
+<P CLASS=DESC>Another advantage of the stereo setup: in multi mode 6 polyphonic voices/instruments can be played from a single core:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_multi.mp3"#ffffff**</SPAN></P>
+
+<P CLASS=DESC>In following demo, one core controls two <A HREF="midibox_sid_manual_b.html">basslines</A> - more infos can be found in <A HREF="http://www.midibox.org/forum/index.php?topic=9599.0" TARGET="_blank">this forum posting</A>.<BR>
+Warning: >8 MB, very repetive stuff!<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_bassline_demo2.mp3"#ffffff**</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Multi SID Setup </H2>
+
+<P CLASS=DESC>If you like the SID sound so much (like me), and if you are planning to play multiple patches in a song without the need for overdubbing (recording the sequences seperately with a single synth), especially for finetuning the sounds so that they fit together, then you could consider to build multiple MIDIbox SID V2.</P>
+
+<P CLASS=DESC>It is possible to control up to 3 additional synths from the same frontpanel. The first core, which also manages the control surface, will act as a "master", and the remaining cores are handled as "slaves". Communication is realized over a fast CAN interface, this approach is called <A HREF="midibox_network.html">MBNet</A>.</P>
+
+<P CLASS=DESC>MBNet is a seperate communication channel, which works much faster than MIDI and allows bidirectional data exchange over a single wire. The CAN protocol is normaly used in automotive and industrial applications, where reliability does matter. So, it is not just a "tinkering solution", it's a professional approach.</P>
+
+<P CLASS=DESC><A HREF="midibox_sid/mbsid_v2_communication.pdf">This schematic</A> shows, how the cores have to be connected together. Each core module needs a unique MIOS device ID in the network. This ID is burned into the "PIC ID header" together with the <A HREF="mios_bootstrap.html">Bootloader</A>. The master should get the ID 00, the slaves ID 01, 02 and 03. If you bought a preburned PIC, e.g. from SmashTV or Mike, and forgot to specify the right MIOS Device IDs, you can change them later with the "change_id" application, which can be downloaded from <A HREF="mios_download.html">this page</A>. There are prepared .hex files (device_id_01.hex .. device_id_03.hex), which you can use without rebuilding the application.</P>
+
+<P CLASS=DESC>As uploading an application requires a bidirectional MIDI connection to the slaves, you temporary need to attach the MIDI Out port of your MIDIbox SID to the slave MIDI outs. Alternatively you can plug the PIC18F4685s which should work as slave temporary into the master socket and upload (and especially test!) the applications from there.</P>
+
+<P CLASS=DESC>Once MIOS and the MIDIbox SID V2 application has been installed, you don't need to repeat this time consuming procedure for firmware updates anymore, as a "cloning" mechanism is available, which allows you to transfer the firmware of a master to all slaves via MBNet. This should be done after every firmware update - just press the MENU button during power-on, until the Cloning message appears on screen.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SID chip selection </H2>
+
+<P CLASS=DESC>There are two different SID derivatives: the 6581 (first version, initially used by C64 in the "brown breadbox case"), and the 8580 (later version, used by C64 in the flat gray case). There is also a 6582, which was sold as replacement for defective 8580s, and which sounds very similar (or identical?).</P>
+
+<P CLASS=DESC>Main difference between the two derivatives is the supply voltage and filter caps. 6581 has to be supplied with 12V and requires 470pF caps, 8580 and 6582 with 9V and requires 22nF caps. This has to be considered when building the <A HREF="mbhp_sid.html">MBHP_SID</A> module.</P>
+
+<P CLASS=DESC>But there are also sound differences. It is difficult to say, which one sounds better, as both have their advantages... the filter of 6581 sounds more moody and dirty, whereas the filter of 8580/6582 sounds more precisely. Resonance has nearly no effect on the 6581, some mixed waveforms are not working, and it has a much higher background noise (see also demo samples in the <A HREF="midibox_sid_manual_l.html">Lead Engine chapter</A>), therefore the 8580/6582 is normaly the prefered choice, especially for filtered basslines.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Power Supply Unit (PSU) </H2>
+
+<P CLASS=DESC>Two different voltages are required for the digital and analog domain. All digital chips require 5V, whereas the SID requires 12V (6581) or 9V (8580/6582) in addition.</P>
+
+<P CLASS=DESC>For a minimal setup a single AC or DC PSU which delivers ca. 12V for CORE/SID module with 8580, or 15V for CORE/SID module with 6501 works fine. It should deliver up to 500 mA. Although normaly 6-9V are recommented for supplying the core module in order to avoid that the 7805 regulator gets too hot, it can be supplied from the same PSU like the SID due to the low power consumption.</P>
+
+<P CLASS=DESC>Once you add a LCD with backlight, the power consumption increases so much that this solution doesn't work anymore. The 7805 gets much hotter, and you will propably also hear a silent 50Hz/60Hz buzz at the Audio Out. A seperate PSU for the SID module helps here, or the "optimized C64 PSU circuit.</P>
+
+<P CLASS=DESC>I did some experiments with different PSU and regulation circuits, and finally found out that re-using the power supply which came with the C64 is the best solution. Not only that most users already own such a PSU if they canibalized the SID from an old C64... the main reason which qualifies this PSU is, that it already contains a 5V regulator for higher currents (so that the 7805s of the core modules can be removed), and that it provides a seperate AC output which can be used to provite an unregulated voltage for the SID module:<BR>
+<A HREF="mbhp/mbhp_8xsid_c64_psu_optimized.pdf">mbhp_8xsid_c64_psu_optimized.pdf</A></P>
+
+<P CLASS=DESC>Be careful when working with a C64 PSU which has no special fuse socket. The internal fuse could burn on a short circuit, and it is nearly impossible to open the case (and especially to close the case once it has been somehow opened). I for myself fortunately never came to such situation (although I shortened the PSU outputs multiple times by fault), but other users reported such issues in the past.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Control Voltage outputs (CV/AOUT) </H2>
+
+<P CLASS=DESC>MIDIbox SID V2 can control up to 8 analog outputs by connecting an <A HREF="mbhp_aout.html">MBHP_AOUT</A> module, or up to 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> modules to the core.</P>
+
+<P CLASS=DESC>There are so many possibilities, that a special chapter has been spent - see <A HREF="midibox_sid_manual_cv.html">CV Options</A>.
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Analog Control Inputs </H2>
+
+<P CLASS=DESC>MIDIbox SID V2 provides 8 analog inputs (5 currently used, 3 reserved for future features). They can be used to connect additional pots/faders or joysticks for direct sound control, but they could also be driven from analog signal generators. More info can be found in the <A HREF="midibox_sid_manual_fp.html">Frontpanel chapter</A>.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SID Audio Input </H2>
+
+<P CLASS=DESC>The SID chip provides an audio input, which can be used to route external signals through the filter. So long no external source drives the audio input (J4 of the SID module), use a jumper to connect it to ground instead, otherwise you will notice some additional background noise!</P>
+
+<P CLASS=DESC>An inventive guy called AlphA found out, that by forwarding the Audio Out to the Audio In through a resistor the sonic characteristics of the SID can be dramatically changed (<A HREF="http://www.bigmech.com/misc/c64mods/feedbackloop.html" TARGET="_blank">Link to the website</A>.
+
+<P CLASS=DESC>See also <A HREF="http://www.midibox.org/forum/index.php?topic=7662.msg64774#msg64774" TARGET="_blank">this forum article</A> for additional infos.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Control Surface </H2>
+
+<P CLASS=DESC>...is discussed in detail in the <A HREF="midibox_sid_manual_fp.html">Frontpanel chapter</A>.</P>
+
+<CENTER><IMG SRC="midibox_sid/mbsid_cs3.jpg" width=575 height=232></CENTER>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Detented and/or Non-Detented Encoders? </H2>
+
+<P CLASS=DESC>It is recommented, to use a detented rotary encoder as menu controller (datawheel), and non-detented encoders for remaining parameters if a complete control surface is build.</P>
+
+<P CLASS=DESC>The detented encoder allows more exact control, whereas non-detented encoders are better for fast parameter sweeps. Note that the detents can be easily removed (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoder_specifications" TARGET="_blank">this Wiki page</A> and <A HREF="http://www.midibox.org/forum/index.php?topic=3140.0">this forum posting</A>).
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Modulation Matrix with transistor drivers </H2>
+
+<P CLASS=DESC>The modulation matrix consists of 8x7 (optionally 8x8) LEDs, which are driven by a 74HC595. As this output current of this shift register is limited to 20 mA, low-current LEDs should be used, which are mostly not much more expensive than low-cost LEDs.</P>
+
+<P CLASS=DESC>Alternatively transistor drivers can be added to the 74HC595, which is used as common line driver. The DEFAULT_SRM_USE_SINKDRIVERS switch in your setup_*.asm file has to be enabled in this case, so that the outputs are inverted. See <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_6582" TARGET="_blank">Wilba's Wiki page</A> for a schematic.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> BankSticks </H2>
+
+<P CLASS=DESC>Both, 24LC256 (32k) and 24LC512 (64k) are supported <A HREF="mbhp_bankstick.html">BankSticks</A>, but 24LC512 are recommented, as it can store 128 patches.</P>
+
+<P CLASS=DESC>Up to 7 BankSticks can be used for storing patches, each needs a unique device address (CS=0..CS=7).</P>
+
+<P CLASS=DESC>The 8th BankStick at CS#7 (E0/E1/E2 pin of BankStick connected to Vd (5V)) will be used to store ensembles. It doesn't matter of you are using a 24LC256 or 24LC512 here, in both cases 128 ensembles will be stored in the lower 32k range.<BR>
+
+<P CLASS=DESC>Note that your MIDIbox SID will also work without BankSticks, but in this case only a single patch and a single ensemble can be stored within the internal EEPROM, which isn't a really useful setup and therefore not recommented.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware costs </H2>
+
+<P CLASS=INFO>Premade PCBs can be purchased at <A HREF="http://www.mikes-elektronikseite.de/midiseite.htm" TARGET="_blank">www.mikes-elektronikseite.de</A> or <A HREF="http://mbhp.coinoptech.com/" TARGET="_blank">http://mbhp.coinoptech.com</A>. They also purchase complete kits for the modules and some of the other parts (like rotary encoders).</P>
+
+<P CLASS=INFO>Prices and ordering numbers are from <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> if not specified. A list of alternative electronic shops outside germany can be found in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=where_to_order_components">Wiki</A></P>
+
+<P CLASS=INFO><B>Note:</B> The PIC18F4685 is a quite new microcontroller, which is unfortunately hard to find in common webshops yet.<BR>
+<A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV</A> did a batch order and provides the PIC with preburned Bootloader and MIOS for an extremely fair price to the community (<B>$9.95 !!!</B> Compare it with stock listings under <A HREF="http://www.findchips.com">findchips.com</A> and you won't find cheaper offerings for single parts!)<BR>
+     Doc is doing the distribution for Europe for those guys who want to save shipping costs - just contact him in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A></P>
+
+
+    <TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Minimal requirements</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+      <TD CLASS=TABCOLOR1 WIDTH=120><FONT SIZE=2><STRONG>Price</STRONG></FONT></TD>
+    </TR>
+    <TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp_core.html">1 MBHP_CORE</A><BR>module</TD>
+      <TD CLASS=TABCOLOR2>the brain of MIDIbox SID<BR><B>It must be stuffed with a PIC18F4685 !!!</B></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_orderlist.txt">Parts: ca. 20 EUR</A><BR>
+                          PCB: ca. 6 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp_sid.html">1 MBHP_SID</A><BR>module</TD>
+      <TD CLASS=TABCOLOR2>Module which is stuffed with the SID and includes an audio amplifier and the serial bus interface to the core.</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_sid_orderlist.txt">Parts: ca. 5 EUR</A><BR>
+                          PCB: ca. 5 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>SID chip</TD>
+      <TD CLASS=TABCOLOR2>Canibalized from an old C64 (e.g. purchased on EBay), or ordered from hardware resellers (keyword: Hong Kong)</TD>
+      <TD CLASS=TABCOLOR2>0..20 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp_bankstick.html">BankStick</A></TD>
+      <TD CLASS=TABCOLOR2>at least 1 x 24LC512-I/P, Part #4915665 from <A HREF="http://www.farnell.com" TARGET="_blank">Farnell</A>, Part #579-24LC512-I/P from <A HREF="http://www.mouser.com" TARGET="_blank">Mouser</A>, Part #24LC512 from <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV</A>.</TD>
+      <TD CLASS=TABCOLOR2>ca. 3 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>1k resistor</TD>
+      <TD CLASS=TABCOLOR2>one 1k resistor is required for the CAN receive input (J15:D3 of the core module), even when no slaves are connected to the core!</TD>
+      <TD CLASS=TABCOLOR2>0.10 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>PSU</TD>
+      <TD CLASS=TABCOLOR2>A power supply unit - either AC or DC, ca. 12V for the CORE/SID module with 8580 or 15V for CORE/SID module with 6581, ca. 500 mA. Although normaly 6-9V are recommented for the core module, it can be supplied from the same source like the SID due to the low power consumption (the 7805 doesn't get too hot). See also the <A HREF="mbhp_sid.html">MBHP_SID</A> page how to re-use the original C64 PSU.
+</TD>
+      <TD CLASS=TABCOLOR2>ca. 0..6 EUR</TD>
+    </TR>
+
+
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Stereo SID</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp_sid.html">+1 MBHP_SID</A><BR>module</TD>
+      <TD CLASS=TABCOLOR2>same like above</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_sid_orderlist.txt">Parts: ca. 5 EUR</A><BR>
+                          PCB: ca. 5 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>+1 SID chip</TD>
+      <TD CLASS=TABCOLOR2>Canibalized from an old C64 (e.g. purchased on EBay), or ordered from hardware resellers (keyword: Hong Kong)</TD>
+      <TD CLASS=TABCOLOR2>0..20 EUR</TD>
+    </TR>
+
+
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Minimal Control Unit</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+      <TD CLASS=TABCOLOR1 WIDTH=120><FONT SIZE=2><STRONG>Price</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp_lcd.html">2x20 LCD</A></TD>
+      <TD CLASS=TABCOLOR2>e.g. Part #LCD 202A LED from <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A></TD>
+      <TD CLASS=TABCOLOR2>ca. 10..15 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp_din.html">DINX2</A><BR>module</TD>
+      <TD CLASS=TABCOLOR2>premade PCBs are not available for this small circuit, so you have to build it on a vectorboard. Alternatively you could use a DINX4 module</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_orderlist.txt">Parts: ca. 5 EUR</A><BR>
+                          PCB: ca. 5 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>1 encoder</TD>
+      <TD CLASS=TABCOLOR2>A detented encoder is recommented for precise data entry, for example M-SW-ROT from <A HREF="http://www.voti.nl/winkel/producten.html#M-SW-ROT" TARGET="_blank">Voti</A> or the Bourns encoders from <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Shop</A> </TD>
+      <TD CLASS=TABCOLOR2>ca. 1..2 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>9 buttons</TD>
+      <TD CLASS=TABCOLOR2>for example "DT 6 <I>colour</I>" (<I>colour</I> = BL, GN, GR, RT, SW)</TD>
+      <TD CLASS=TABCOLOR2>6.50 EUR</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>Veroboard</TD>
+      <TD CLASS=TABCOLOR2>buttons/encoders/LCD can be simply stuffed on a verboard, e.g. H25PR200 from <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A></TD>
+      <TD CLASS=TABCOLOR2>2.25 EUR</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Multi SID solution</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR2>
+      Additional parts and modules:<BR>
+      <UL CLASS=CL>
+        <LI>n x core modules</LI>
+        <LI>n x 1N4148 diodes (for CAN bus)</LI>
+        <LI>m x SID modules</LI>
+        <LI>the minimal control unit (see above)</LI>
+        <LI>an improved PSU (ca. 800 mA) - the C64 PSU should be prefered due to the seperate +5V output for the core modules
+        <LI>4 additional buttons</LI>
+        <LI>a <A HREF="mbhp_dout.html">DOUTX1</A> module</LI>
+        <LI>7 LEDs</LI>
+      </UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Complete Control Surface (Step C)</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=3  CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=3  CLASS=TABCOLOR2>
+      Additional parts and modules:<BR>
+      <UL CLASS=CL>
+        <LI>n x core modules</LI>
+        <LI>m x SID modules</LI>
+        <LI>the minimal control unit (see above)</LI>
+        <LI>an improved PSU (ca. 1A) - the C64 PSU should be prefered due to the seperate +5V output for the core module(s)
+        <LI>3 <A HREF="mbhp_din.html">DINX4</A> modules</LI>
+        <LI>2 <A HREF="mbhp_dout.html">DOUTX4</A> modules</LI>
+        <LI>14 additional rotary encoders (in difference to the datawheel, non-detented encoders are recommented here, but detented will also work fine, for example M-SW-ROT from <A HREF="http://www.voti.nl/winkel/producten.html#M-SW-ROT" TARGET="_blank">Voti</A> or the Bourns encoders from <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Shop</A>)</LI>
+        <LI>32 additional buttons</LI>
+        <LI>99 LEDs</LI>
+        <LI>ca. 2-3 veroboards for mounting the buttons/encoders/LEDs</LI>
+        <LI>a nice frontpanel</LI>
+      </UL>
+      Costs: most expensive parts are the rotary encoders (ca. 15 EUR) and especially the frontpanel (selfmade ca. 25 EUR + a lot of time, premade ca. 100..150 EUR!)
+      </TD>
+    </TR>
+
+  </TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Complete PCB </H2>
+
+<P CLASS=DESC>The modular approach used in <A HREF="mbhp.html">MBHP</A> has the high advantage of improved exchangeability and testability. On the other hand, MIDIbox SID V2 has reached a level, where up to 20 modules are involved, which doesn't make it easy to bring everything into a case. Not for forget, that a single PCB saves costs and makes the hardware more robust.</P>
+
+<P CLASS=DESC>Wilba has created a customized PCB for his MB-6582, that he has introduced in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_6582" TARGET="_blank">Wiki</A>. A batch order of these PCBs has been started for those people who are interested in an all-in-one solution - details can be found in the Wiki.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Resources </H2>
+
+<UL CLASS=CL>
+   <LI><B>Firmware</B>: see <A HREF="http://www.midibox.org/forum/index.php?topic=9457.0" TARGET="_blank">this forum article</A></LI>
+   <LI><B>Connection diagram for buttons & encoders</B>: <A HREF="midibox_sid_cs/mbsid_v2_din_default.pdf">mbsid_v2_din_default.pdf</A></LI>
+   <LI><B>Connection diagram for LEDs</B>: <A HREF="midibox_sid_cs/mbsid_v2_dout_default.pdf">mbsid_v2_dout_default.pdf</A></LI>
+   <LI><B>Connection diagram for the power wiring</B>: <A HREF="mbhp/mbhp_8xsid_c64_psu_optimized.pdf">mbhp_8xsid_c64_psu_optimized.pdf</A></LI>
+   <LI><B>Interconnection diagram for MBNet and MIDI interconnections</B>: <A HREF="midibox_sid/mbsid_v2_communication.pdf">mbsid_v2_communication.pdf</A></LI>
+   <LI><B>More Photos</B>: <A HREF="http://www.midibox.org/midibox_sid_photos/" TARGET="_blank">midibox_sid_photos/</A></LI>
+   <LI><B>Frontpanel template</B>: <A HREF="midibox_sid_cs/mbsidv2_front.fpd">mbsidv2_front.fpd</A> - can be edited with Frontpanel Designer, available at <A HREF="http://www.schaeffer-apparatebau.de" TARGET="_blank">Schaeffer Apparatebau</A> (*)</LI>
+</UL>
+
+
+FOOTER

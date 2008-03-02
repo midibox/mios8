@@ -1,0 +1,168 @@
+HEADER 3 MIOS status
+
+<H1>MIOS - the MIDIbox Operating System</H1>
+<H3>Status</H3>
+
+<PRE>
+   ||
+   ||   Done:
+   ||
+  0%|   o new PIC18F instructions learned
+   ||   o performance of PIC18F452 evaluated
+   ||   o first concepts for an uniformed MIDI system, based
+   ||     on experiences from MIDIbox controllers, sequencer, synth
+   ||   o quick&dirty port of MIDIbox16e firmware in order to learn
+   ||     more about the pitholes with the new controller
+   ||   o LC protocol machine (will be moved to application layer later)
+   ||   o Bootstrap loader written which allows to upload the firmware
+   ||     via MIDI. Performance: 1k = 400 mS, 32k (whole flash) in 13 s
+   ||   o perl script written which converts .hex to .syx
+   ||   o new interrupt driven, buffered MIDI Tx/Rx driver written
+   ||     buffer overruns are prevented
+   ||   o generic MIDI protocol machine written
+   ||   o generic MIDIbox Link support implemented
+   ||   o MIDI processor which allows to map up to 256 MIDI events to
+   ||     control elements (Pots/Fader, Encoders, Buttons, LEDs, ...)
+   ||     Result: list of 256 events is processed in 300 uS @ 40MHz
+   ||     (PIC16F: more than 2 mS @ 20 MHz)
+   ||   o generic shiftregister In/Out driver
+   ||   o 2 exact user timer hooks for timing driven code (sequencer, 
+   ||     SID softwaresynth part)
+   ||   o generic rotary encoder driver. Results: 16 encoders are 
+   ||     scanned within 100 uS, 64 encoders within 400 uS
+   ||     (excellent performance for the MBSID Control surface :-)
+   ||   o generic interrupt driven analog inputs driver, every 200 uS
+   ||     one of 64 pots is sampled in background, 
+   ||     w/ adjustable jitter filter, resolution: 10 bit
+   ||   o unified, 2-layer LCD driver implemented:
+   ||     The first layer accesses the LCD hardware directly. Currently
+   ||     two hardware models are provided: graphical LCDs based on
+   ||     KS0108 or compatible chips, and dotmatrix (character)
+   ||     LCDs based on HD44780 or compatible. 
+   ||     Other graphical LCDs will be supported later, for dotmatrix
+   ||     displays (1x8, 1x16, 2x16, 2x20, 4x20, 2x40, 4x40)
+   ||     no additional changes are required.
+   ||     The second layer is used by the applications to print
+   ||     characters, print hexadecimal and BCD values, print strings
+   ||     and to show temporal info messages for some seconds.
+   ||     By using only the upper layer, applications written for dotmatrix
+   ||     displays will also run with graphical LCDs and vice versa, so
+   ||     long as no graphical elements are used.
+   ||     A X-offset for up to 4 lines can be specified in order to 
+   ||     center the screen if necessary.
+   ||   o an exact millisecond-counter has been integrated
+   ||   o an exact millisecond-delay has been integrated
+   ||   o a flexible font/picture manager has been added which
+   ||     provides an indexed access to characters and
+   ||     animated icons
+   ||   o a motorfader driver for up to 8 unmuxed analog inputs
+   ||     has been implemented. Resolution of fader positions: 10-bit. 
+   ||     The motor speed is controlled by pulse-wide modulated signals 
+   ||     Speed resolution: 5bit (32 speed levels)
+   ||     WOW! I haven't expected that higher resolutions make such a
+   ||     big difference compared to the MIDIbox MF driver which works
+   ||     with the standard 7-bit resolution/16 speed levels
+   ||   o a suspend function for motorfaders have been implemented. It's
+   ||     usefull in conjunction with touchsensors
+   ||   o memory access routines (read/write Flash/EEPROM/BankStick)
+   ||     with lifetime-saving and error detection features have been
+   ||     implemented
+   ||   o a secondary bootstrap loader has been implemented which allows
+   ||     to upload a user application during the operating system is
+   ||     running. Overwrite of primary loader and OS will be prevented
+   ||   o documentation of user functions started (more than 100
+   ||     functions available - ca. 10000 lines of assembler code -
+   ||     12k flash memory allocated by OS)
+   ||   o suspend/resume functions for user and system task have been
+   ||     implemented. Also a "warmboot" is supported now
+   ||   o a debug interface has been implemented which is accessible
+   ||     by SysEx commands. It allows to read/write the RAM and
+   ||     and to call public MIOS functions. The planned Java-based
+   ||     diagnostic terminal will use these commands later to 
+   ||     control the operating system via remote. Btw.: on this way
+   ||     the MIDIbox could also be fully controlled via TCP/IP over 
+   ||     your Intranet or the Internet! ;-)
+   ||   o all written routines have been sorted
+   ||   o MIOS has been divided from the application layer
+   ||   o the Logic/Mackie Control emulation has been ported to MIOS. 
+   ||     No problems so far.
+   ||     It seems that only one core module is required to perform
+   ||     the complete emulation (graphical LCD, 8 motorfaders, 
+   ||     9 encoders, 8 LED rings, 96 buttons, 64 LEDs), but I have to
+   ||      change the wiring of my MIDIbox LC to ensure this.
+   ||   o wiring changed - no performance impact noticed - perfect :)
+   ||   o a <A HREF="mios_fun.html">Functions Reference</A> has been generated
+   ||   o first release of MIOS: done
+   ||   o MIDIbox LC application (open source)
+   ||   o MIDIbox HN (Houston) application (open source)
+   ||   o finally the <A HREF="mios_bootstrap.html">bootstrap loader and upload procedure</A> has been
+   ||     documented
+   ||   o the first "toy of the week" has been released: a Magic MIDI Delay
+   ||   o I've heart the first noise from my MIDIbox SID/18F :-)
+   ||   o I've heart plenty more noise from my MIDIbox SID/18F
+   ||     performance is great!
+   ||     enough CPU power free for the control surface and some AOUTs
+   ||   o an imperfection of MIOS V1.0 and the bootstrap loader has been
+   ||     fixed which appeared when realtime messages like MIDI clock
+   ||     and Active Sense were send during the upload of new code.
+   ||     The encoder handler sometimes left out a increment due to
+   ||     a missing codeline (copy&paste error ;-)
+   ||     These issues are solved now in mios_v1_0b and 
+   ||     mios_bootstrap_loader_v1_1 (please update!)
+   ||   o Hint for MIDIbox LC users: if you notice that the motorfaders
+   ||     don't move smoothly, increase the MIDI bandwidth in Logic
+   ||     to 100% under Preferences->Control Surface->Settings
+   ||     Now it's also recommended to increase the motorfader supply
+   ||     voltage to 8V and to set the MF Calibration value to 0x0e
+   ||   o MIDIbox SID (without control surface) application has
+   ||     been released.
+   ||   o all MIOS applications are now licensed under GNU GPL
+   ||     (see <A HREF="http://www.gnu.org/copyleft/gpl.html" TARGET="_blank">www.gnu.org/copyleft/gpl.html</A>)
+   ||     All source files now include the official GPL header
+   ||   o Toy of the week: MIDIbox Tiny Control (TC)
+   ||   o MIOS V1.1 has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||   o An <A HREF="mios.html">introduction page</A> has been written.
+   ||   o Step A of the MIDIbox SID control surface has been completed
+   ||   o some more examples have been uploaded (AIN/Enc/MF)
+   ||   o new release of MIDIbox LC V1.1.2
+   ||   o Bugfix for MIOS bootstrap loader (new release v1.1b): incoming
+   ||     Note/Controller/etc. events during startup prevented MIOS 
+   ||     from booting. Now the loader ignores all MIDI messages 
+   ||     with the exception of his own SysEx string
+   ||   o new release MIDIbox LC V1.1.2b: horizontal bars for 2LCD option
+   ||   o new release MBSID V1.4_stepA3: patch select and save function
+   ||   o MIOS V1.2 has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||   o MIOS V1.3 has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||   o MIDIbox SID control surface Step ABC has been released
+   ||   o MIOS V1.4 has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||   o some new applications examples have been released
+   ||   o the MIOS port of MIDIbox64 has been released
+   ||   o MIOS V1.4b has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||   o the MIOS port of MIDIbox64E has been released
+   ||   o the MIOS port of MIDIbox MF has been released
+   ||   o the MIOS port of MIDIO128 has been released
+   ||   o the MIOS port of MIDImon has been released
+   ||   o MIOS V1.5 has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||   o MIOS V1.5b has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||   o MIOS V1.6 has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||   o the MIOS port of MIDIbox SEQ has been released
+   ||   o MIOS V1.7 has been released (see <A HREF="mios_changelog.html">ChangeLog</A>)
+   ||                
+   ||
+  -++-  ToDo:
+   ||
+   ||   o more examples
+   ||   o more documentation about the available MIOS hooks
+   ||   o Java GUI to convert and upload .hex files via MIDI
+   ||   o a diagnostics terminal with command interface to all functions
+   ||   o MIDIbox NG
+   ||   o ...
+   ||   o ...
+   ||   o ...
+   ||
+100%|
+   ||
+   \/
+</PRE>
+
+FOOTER

@@ -1,0 +1,217 @@
+HEADER 3 Differences between MBHP_SID_V3 and MBHP_SID_V2
+
+            <h1>Differences between MBHP_SID_V3 and MBHP_SID_V2</h1>
+
+
+            <p class="INFO">Cette page contients quelques informations
+relatives &agrave; l'ancienne version, elles ne vous seront utiles que
+si vous souhaitez assembler un module SID dans cette
+pr&eacute;c&eacute;dente version.&nbsp;La version actuelle est celle
+d&eacute;crite <a href="mbhp_sid.html">sur cette page</a>.<br>
+            </p>
+            <p class="INFO">
+Les diff&eacute;rences principales:
+            </p>
+            <ul class="CL">
+
+  <li>le quartz 1 MHz a &eacute;t&eacute; retir&eacute; du circuit.
+Si l'horloge du SID n'est pas synchronis&eacute;e au PIC, il peut
+arriver que le gate d'un DCO soit d&eacute;clench&eacute;
+involontairement. Vous trouverez plus de d&eacute;tails dans <a href="http://www.midibox.org/forum/index.php?topic=5748.0" target="_blank">cet article du forum</a><br>
+Il est maintenant fortement recommand&eacute; de synchronis&eacute; le module SID depuis le module CORE ::J7:SO/PIC Pin #17</li>
+
+  <li>La connectique sur J2 a &eacute;t&eacute; r&eacute;arrang&eacute;e, afin qu'une connection 1:1 vers J10 du <a href="mbhp_core.html">module</a><a href="mbhp_core.html"> Core</a> soit de nouveau possible</li>
+
+  <li>R1 (une r&eacute;sistance 10k "pull-up") a &eacute;t&eacute;
+retir&eacute;e, car elle n'&eacute;tait qu'un reliquat de mes
+premi&egrave;res exp&eacute;rimentations et n'&eacute;tait pas
+r&eacute;ellement n&eacute;cessaire</li>
+
+   <li>deux condensateurs de "bypass", C13 et C14, ont
+&eacute;t&eacute; ajout&eacute;s pour un meilleur lissage de la tension
+d'alimentation</li>
+
+            </ul>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> T&eacute;l&eacute;chargements </h2>
+
+  <dd>
+  </dd>
+              <dd>
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+    <tbody>
+                    <tr>
+
+      <td colspan="4" class="TABCOLOR1"><font size="3">Les mod&egrave;les de PCB peuvent &ecirc;tre ouverts, modifi&eacute;s et convertis avec</font><font size="3">&nbsp;<a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Module</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Sch&eacute;ma</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Layout</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Aper&ccedil;u</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><i>MBHP_SID_V2</i></td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v2.pdf">mbhp_sid_v2.pdf</a></td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v2.brd">mbhp_sid_v2.brd</a></td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v2.gif">mbhp_sid_v2.gif</a></td>
+
+    </tr>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+  
+            </dl>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Interconnections MBHP_CORE -&gt; MBHP_SID_V2&nbsp; </h2>
+
+  <dd>
+  
+                <p class="INFO">Ce diagramme montre de quelle mani&egrave;re doit &ecirc;tre connect&eacute; au module CORE un module SID V2:
+  </p>
+                <center><img src="mbhp/mbhp_sid_v2_core_interconnections.gif" height="730" width="300"></center>
+                <p>
+  
+                </p>
+              </dd>
+            </dl>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Guide de Soudage </h2>
+
+  <dd>
+  </dd>
+              <dd>
+                <table cellpadding="0" cellspacing="0">
+
+    <tbody>
+                    <tr>
+
+      <td><img src="mbhp/mbhp_sid_1.jpg" alt="" border="0" height="332" width="280"></td>
+
+      <td class="TABCOLOR2">Commencez par souder les 5 ponts, ces derniers
+vous &eacute;vitent d'avoir &agrave; r&eacute;aliser un pcb double-face
+(2-layer). Utilisez pour cela le reste des pattes de vos
+r&eacute;sistances et condensateurs que vous avez d&eacute;j&agrave;
+mont&eacute;s, et attendez d'avoir fini tous vos modules avant de les
+jeter! :-)</td>
+
+    </tr>
+
+    <tr>
+
+      <td><img src="mbhp/mbhp_sid_6.jpg" alt="" border="0" height="206" width="280"></td>
+
+      <td class="TABCOLOR2">Montez les deux condensateurs "bypass" sur la
+partie inf&eacute;rieure du PCB entre les pins Vss et la masse de
+chaque
+74HC595 et aussi pr&eacute;s que possible de l'entr&eacute;
+d'alimentation +5V des 74HC595. Ils am&eacute;liorent
+l'int&eacute;grit&eacute; de l'alimentation&nbsp;.</td>
+
+    </tr>
+
+    <tr>
+
+      <td><img src="mbhp/mbhp_sid_2.jpg" alt="" border="0" height="265" width="280"></td>
+
+      <td class="TABCOLOR2">Montez tous les autres composants &agrave;
+l'exception des trois ICs. Alimentez le module et v&eacute;rifiez les
+tensions entre les pins IC1:Vdd(28) et
+IC1:Vss(14) - vous devez avoir 12V pour le SID 6581, 9V pour leSID 8580&nbsp;.</td>
+
+    </tr>
+
+    <tr>
+
+      <td><img src="mbhp/mbhp_sid_3.jpg" alt="" border="0" height="290" width="280"></td>
+
+      <td class="TABCOLOR2">Connectez maintenant le port J2 du module SID&nbsp;au port J10 du module CORE comme d&eacute;crit <b>plus haut - ce n'est pas une connection 1:1&nbsp;!</b><br>
+Assurez-vous de la valeur des tensions suivantes:<br>
+
+
+IC1:Vcc(25) - IC1:Vss(14) = 5V<br>
+
+
+IC2:Vdd(16) - IC2:Vss(8) = 5V<br>
+
+
+IC3:Vdd(16) - IC3:Vss(8) = 5V<br>
+
+                      </td>
+
+    </tr>
+
+    <tr>
+
+      <td><img src="mbhp/mbhp_sid_4.jpg" alt="" border="0" height="365" width="280"></td>
+
+      <td class="TABCOLOR2">Comme il est
+expliqu&eacute; plus haut, l'horloge doit &ecirc;tre fourni par le
+Core:J7 (PIC Pin
+#17, qui est configur&eacute; comme sortie 1MHz PWM avec un cycle
+"duty" 1:1&nbsp;) - Ce signal d'horloge requiert donc un connection
+suppl&eacute;mentaire entre les modules MBHP_SID et MBHP_CORE.</td>
+
+    </tr>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+  
+            </dl>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Test </h2>
+
+  <dd>
+    
+                <p class="DESC">Vous trouverez tous les d&eacute;tails dans le&nbsp;<a href="midibox_sid_walkthrough.html">MIDIbox SID Walkthrough</a>.&nbsp;Voici un r&eacute;sum&eacute; en quelques mots: une fois que vous avez upload&eacute; l'application <a href="midibox_sid.html">MIDIbox SID</a>&nbsp;vous pouvez jouer des notes sur le canal MIDI #1.<br>
+
+Si vous n'entendez aucun son, uploadez l'application sid_testtone afin
+de vous assurer que le module CORE communique correctement avec le
+module SID. Si vous n'entendez toujours aucun son, essayez avec
+l'application mbsid_interconnection_test afin de tester si toutes les
+interconnections entre les modules CORE et SID fonctionnent.<br>
+
+Ces trois programmes sont t&eacute;l&eacute;chargeables sur la page <a href="mios_download.html">MIOS Download</a>.</p>
+
+  </dd>
+
+            </dl>
+
+
+
+FOOTER

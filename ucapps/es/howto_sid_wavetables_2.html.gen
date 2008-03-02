@@ -1,0 +1,206 @@
+HEADER 3 Wavetable Sounds Tutorial #2
+
+<h1>Tutorial de Sonidos Wavetable #2</h1>
+
+<p class="INFO">Este tutorial da algunas ideas del uso del secuenciador Wavetable del <a href="midibox_sid.html">MIDIbox SID</a>
+para modular par&aacute;metros de sonido. Todos los parches que se
+discuten abajo tambi&eacute;n pueden introducirse con el editor basado
+en JSynthLib, o directamente desde la Superficie de Control. Los
+parches prefabricados se pueden descargar de <a href="midibox_sid/tutor2_patches_v1.zip" target="_blank">este sitio</a>.</p>
+
+<table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+<tbody><tr><td>
+   **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_trancegate.mp3"#dddddd**<br>
+    <span class="NORM"><b>Trancegate</b><br>El
+efecto"Trancegate" es mayormente usado con multi-pads largos y un
+efecto delay. Bloquea r&iacute;tmicamente la salida de audio con un
+amplificador o filtro controlable por voltaje/digitalmente. El DCA del
+chip SID no es apropiado para un trancegate, porque una vez se ha
+bajado el nivel de sustain, no se puede volver a incrementar. En vez de
+eso, modularemos la frecuencia de corte del filtro.<br>
+<ul class="CL">
+  <li>crea un nuevo parche, habilita el modo Poly, establece la onda&nbsp;Saw para los tres osciladores.</li>
+  <li>habilita el filtro lowpass (LP)para los tres osciladores.</li>
+  <li>asigna la pista 1 del Wavetable a CC#46 (Frecuencia de CutOff del Filtro)
+  </li><li>ajusta la Tasa de Wavetable a 94 e introduce la siguiente frecuencia:<br>
+<tt><pre>STEP CMD    #1<br>00   Play   60<br>01   Play   08<br>02   Play   60<br>03   Play   08<br>04   Play   60<br>05   Play   60<br>06   Play   60<br>07   Play   08<br>08   Goto   00<br></pre></tt></li>
+  <li>ahora
+reproduce unos acordes. El el MP3 escuchar&aacute;s el SID "seco", sin
+efectos durante los 13 primeros segundos, despu&eacute;s se inserta
+un&nbsp;delay Fx, se a&ntilde;ade un bajo a la posici&oacute;n
+off-beat, y se reproducen algunos tambores.</li>
+  <li>Para hacer que
+el trancegate sincronice correctamente con los tambores, recomiendo el
+uso de la funci&oacute;n de&nbsp;sincronizaci&oacute;n del reloj MIDI.
+Una vez habilitada, pon la tasa de&nbsp;Wavetable en 126 (secuenciador
+camina con cada cuarto de nota).</li>
+</ul>
+  </span></td></tr>
+<tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_dropdown.mp3"#dddddd**<br>
+    <span class="NORM"><b>Dropdown</b><br>Hagamos algunos efectos baratos de juegos de ordenador:
+<ul class="CL">
+  <li>selecciona Triangle waveform (forma de onda triangular) en OSC1, los otros dos osciladores deben ser desactivados (<span class="NORM">etiqueta</span>"off")</li>
+  <li>configura ENV1: Depth=+63, Attack=0, Decay=82, Sustain=0, Release=0</li>
+  <li>establece el primer par&aacute;metro de pista Wavetable en CC#105 (Voice1 Assigned Envelopes)</li>
+  <li>ajusta la Tasa Wavetable en 109 e introduce la siguiente secuencia:<br>
+<tt></tt><pre><tt>STEP CMD    #1<br>00   Play   01<br>01   Play   00<br>02   Goto   00<br></tt></pre></li>
+  <li>esta
+secuencia activar&aacute; la asignaci&oacute;n ENV1 del pitch de la voz
+1 en cada paso, puedes escuchar el resultado en la primera parte del MP3</li>
+</ul>
+Ahora un efecto un poco m&aacute;s complicado:
+<ul class="CL">
+  <li>establece CC#17 (Voice1 Single Transpose) para la pista 1 en vez de la asignaci&oacute;n de envolvente
+  </li><li>ajusta la Tasa de Wavetable en 98 e introduce la siguiente secuencia:<br>
+<tt></tt><pre><tt>STEP CMD    #1<br>00   Play   58<br>01   Play  -04<br>02   Play  +01<br>03   Play  -02<br>04   Play  +03<br>05   Goto   01<br></tt></pre></li>
+  <li>El
+loop que hay entre el paso 01 y el 04 decrecer&aacute;
+o&nbsp;incrementar&aacute; el valor transpose de la voz 1 - comprueba
+los resultados en la segunda parte del MP3</li>
+  </ul></span></td></tr>
+ <tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_scary.mp3"#dddddd**<br>
+    <span class="NORM"><b>Scary</b><br>
+Solo es otro efecto barato de videojuego que hace uso del
+"ringmodulator". El ringmod multiplica la salida de dos osciladores, la
+forma de onda resultante se enriquece con sobre-tonos no
+arm&oacute;nicos. &iexcl;Recuerda que esto solo funciona bien con la
+forma de onda de tri&aacute;ngulo! Si la etiqueta "ringmod" est&aacute;
+habilitada para&nbsp;OSC2, este oscilador sera "ring-modulado" con
+OSC1. La etiqueta ringmod OSC3 habilita la combinaci&oacute;n
+con&nbsp;OSC2, la etiqueta ringmod OSC1 habilita la combinaci&oacute;n
+con OSC3. &nbsp;la Ring-modulaci&oacute;n suena interesante una vez se
+ha barrido la drecuencia de pitch de uno de los osciladores combinados
+- esto se puede hacer con LFOs/ENVs --- o --- el secuenciador Wavetable
+:)
+<ul class="CL">
+  <li>habilita la forma de onda Triangle para OSC1 y
+OSC2, y establece la etiqueta "ring" de OSC2. Ahora la salida de OSC2
+est&aacute; siendo ring-modulada por OSC1</li>
+  <li>la pista 1 del secuenciador Wavetable debe controlar CC#17 (Voice 1 Single Transpose)</li>
+  <li>ajusta la Tasa Wavetable en 107 e introduce la siguiente frecuencia:<br>
+<tt></tt><pre><tt>STEP CMD    #1<br>00   Play   40<br>01   Play  +02<br>02   Play  -02<br>03   Play  -02<br>04   Play  +03<br>05   Goto   01<br></tt></pre></li>
+  <li>variaci&oacute;n <span class="NORM">posible </span>:
+usa, adicionalmente, OSC3&nbsp;, habilita la etiqueta ringmod&nbsp;,
+asigna la pista2 Wavetable a CC#19 (Voice 3 Single Transpose) y
+a&ntilde;ade otra secuencia ah&iacute;.</li>
+</ul>
+  </span></td></tr>
+<tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_guitar.mp3"#dddddd**<br>
+    <span class="NORM"><b>Guitar</b><br>El
+siguiente parche solo funciona bien en conjunto con un ampli de
+guitarra (o una simulaci&oacute;n de ampli basada en&nbsp;VST). <ul class="CL">
+  <li>habilita el modo Legato (el gate solo es
+re-accionado cuando no se est&aacute; reproduciendo ninguna otra nota)
+y SysKey ("fingered portamento" - similar al Legato, el efecto slide
+solo se usa cuando no se est&aacute; reproduciendo ninguna otra nota).
+la velocidad de Portamento para todos los osciladores ca. 30</li>
+  <li>selecciona la forma de onda Pulse para todos los osciladores, Pulsewidth ca. 22</li>
+  <li>Configuraci&oacute;n de envolventes: A=0, D=48, S=70, R=76</li>
+  <li>Filtro: Bandpass (BP) para todos los osciladores, cutoff inicial ca. 46, m&aacute;xima resonancia</li>
+  <li>ENV1 asignado a filtro: Depth=+25, Attack=0, Decay=58, Sustain=0, Release=27</li>
+  <li>LFO1 asignado a Pulsewidth de todos los osciladores, LFO1 depth ca. +25</li>
+  <li>pista
+1 de Wavetable asignada a&nbsp; CC#64 (Tasa LFO1&nbsp;), ajusta la tasa
+de&nbsp;Wavetable Rate a 77 e introduce la siguiente secuencia:<br>
+<tt><pre>STEP CMD    #1<br>00   Play   60<br>01   Play   50<br>02   Play   30<br>03   Play   20<br>04   End    00<br></pre></tt>Esto
+modular&aacute; la tasa de LFO1 Rate cada vez que se active el gate (se
+reproduce una nota mientras no haya otra activa). El parche se
+reproduce "en seco" (sin efectos) los primeros 15 segundos,
+despu&eacute;s el ampli de guitarra ("Banana Electrique" ensemble de la
+Librer&iacute;a Reaktor) se activa, y se reproducen algunos tambores.</li>
+</ul>
+  </span></td></tr>
+<tr><td>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_syncsaw_stereo.mp3"#dddddd**<br>
+    <span class="NORM"><b>SyncSaw Stereo</b><br>
+Este es un parche est&eacute;reo que se puede reproducir si tu MIDIbox
+SID est&aacute; implementado con al menos dos SIDs. Alternativamente,
+puedes grabar el sonido dos veces (la segunda vez con una Wavetable
+modulada) the second time with a modulated Wavetable) y sobre-copiar
+las muestras en tu secuenciador.<br>Hace uso de la etiqueta sync - similar a la etiqueta ringmod, OSC1 sincroniza
+OSC2, OSC2&nbsp;</span><span class="NORM">sincroniza</span><span class="NORM"> OSC3, OSC3 </span><span class="NORM">sincroniza</span><span class="NORM">
+OSC1. Sync se hace interesante una vez que se ha barrido la frecuencia
+del objetivo a sincronizar. En este ejemplo, se barrer&aacute; con
+LFO1, la profundidad de LFO es modulada por un secuenciador Wavetable
+de manera diferente para los canales izquierdo y derecho para conseguir
+el efecto est&eacute;reo.
+<ul class="CL">
+  <li>OSC3: habilita la forma de onda Saw y el transpose en -12</li>
+  <li>OSC1: habilita la forma de onda Saw y establece la etiqueta sync</li>
+  <li>ENV1: depth=+63, Attack=0, Decay=72, Sustain=0, Release=0</li>
+  <li>LFO1: Tasa=24</li>
+  <li>Wavetable: Pista 1 asignada a CC#72 (LFO1 Depth), ajusta la Tasa de&nbsp;Wavetable en 5 e introduce la siguiente secuencia:
+<tt><pre>STEP CMD    #1<br>00   Play   40<br>01   Play  +00<br>02   Play  +00<br>03   Play  +00<br>04   Play  +01<br>05   Play  +01<br>06   Play  +02<br>07   Play  +02<br>08   Play  +02<br>09   Play  +04<br>0A   Play  +04<br>0B   Play  +04<br>0C   End    00<br></pre></tt>Esto incrementar&aacute; lentamente la Profundidad LFO hasta que alcance 20</li>
+  <li>Para
+el parche del canal derecho, reemplaza el signo + por un signo - . Esto
+decrecer&aacute; la profundidad hasta que alcance&nbsp;-20. Resultado:
+escucha el MP3
+</li></ul>
+  </span></td></tr>
+<tr><td>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_filter_stereo.mp3"#dddddd**<br>
+    <span class="NORM"><b>Filter Stereo</b><br>La
+intenci&oacute;n de este parche es controlar la frecuencia de cutoff
+del filtro con un LFO, y variar la profundidad LFO r&iacute;tmicamente
+para algunos tambores, del canal izquierdo al derecho y de vuelta al
+izquierdo.
+<ul class="CL">
+  <li>habilita la forma de onda Pulse en OSC1-3, Pulsewidth=64</li>
+  <li>establece
+el transpose en -12, establece finetune de OSC2 (solo) en -5, y el de
+OSC3 (solo) en +5 para hacer la sonar la suma de sonidos un poco
+m&aacute;s "gruesa"</li>
+  <li>LFO1-3
+debe modular el Pulsewidth de OSC1-3. Pon todos los LFOs en modo "unsynced"
+(freerunning), Pon Rates(tasas) ligeramente distintas entre 50..60, y
+Depths (profundidades) entre -25 y +25</li>
+  <li>LFO4 debe modular la frecuencia de CutOff del filtro. Tasa: ver abajo
+  </li><li>La&nbsp;wavetable controla la profundidad de LFO4 (CC#74). Tasa: ver secuencia abajo:
+<tt><pre>STEP CMD    #1<br>00   Play   40<br>01   Play   40<br>02   Play   40<br>03   Play   40<br>04   Play   5C<br>05   Play   40<br>06   Goto   04<br></pre></tt></li>
+  <li>El segundo parche(para el canal derecho de audio) usa esta secuencia modificada:<tt><pre>STEP CMD    #1<br>00   Play   40<br>01   Play   40<br>02   Play   40<br>03   Play   40<br>04   Play   40<br>05   Play   5C<br>06   Goto   04<br></pre></tt></li>
+  <li>Cuando
+reproduces una nota el parche no sonar&aacute; muy interesante, porque
+solo funciona en algunos ratios especiales entre la tasa del Wavetable,
+la Tasa&nbsp;LFO4 y por &uacute;ltimo, pero no menos importante, el BPM
+de la canci&oacute;n (que reproduce algunos tambores)</li>
+  <li>As&iacute;
+que habilita la Sincronizaci&oacute;n de Reloj MIDI para el
+secuenciador Wavetable y los LFOs (Tu secuenciador host debe enviar un
+reloj MIDI al MIDIbox SID).<br>
+      Pon la Tasa Wavetable en 126, y la Tasa LFO4 en 110 - ahora deber&iacute;a sonar mucho mejor, &iquest;no? :)</li>
+    <li>En el ejemplo MP3 se reproduce un ejemplo del parche con diferentes variaciones:
+    <ul class="CL">
+      <li><i>0:00-0:13</i>
+parche por defecto. La frecuencia de CutOff es barrida lentamente de la
+Superficie de Control en los dos canales al mismo tiempo. Esto se puede
+hacer f&aacute;cilmente pulsando los botones&nbsp;SID1 y SID2 al mismo
+tiempo - Ahora cada cambio de par&aacute;metro afecta a ambas SIDs.</li>
+      <li><i>0:13-0:27</i>
+Lo mismo de nuevo con una l&iacute;nea de percusi&oacute;n en el fondo.
+Esto es para mostrar lo importante que es sincronizar la tasa WT/LFO
+con el BPM </li><li><i>0:27-0:41</i>
+Ahora la etiqueta Sync est&aacute; habilitada para todos los
+osciladores. Si est&aacute;s usando la Superficie de Control,
+aseg&uacute;rate de que los tres osciladores est&eacute;n seleccionados
+(men&uacute; OSC, primer elemento), si adem&aacute;s est&aacute;n
+seleccionadas ambas SIDs&nbsp;, puedes accionar la etiqueta&nbsp;Sync
+para todos los osciladores pulsando una sola vez el bot&oacute;n
+Sync/Ring</li>
+      <li><i>0:41-0:54</i> aqu&iacute; se cambia el tipo de filtro de Bandpass a Highpass</li>
+      <li><i>0:55-1:08</i>
+de vuelta al filtro Bandpass (BP), la tasa LFO4 de un solo (!) SID se
+cambia de 110 a 89 - de esto resulta un nuevo patr&oacute;n
+r&iacute;tmico.</li>
+    </ul>
+  </li></ul>
+  </span></td></tr>
+</tbody></table>
+<h2>Enlaces relacionados</h2>
+<ul class="CL">
+  <li><a href="midibox_sid/tutor2_patches_v1.zip">tutor2_patches_v1.zip</a></li>
+</ul>
+
+FOOTER

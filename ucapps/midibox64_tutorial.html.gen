@@ -1,0 +1,376 @@
+HEADER 3 MIDIbox64 V2.x Tutorial
+
+<P><H1>MIDIbox64 V2.x Tutorial</H1>
+
+<P CLASS=INFO>MIDIbox64 is built, the power supply is switched on, the MIDI cable is connected - and now? This lesson shows you, how to operate with the Box.</P>
+
+<P CLASS=INFO>For a first test you should get a MIDI monitor with MIDI Thru function for the PC to look for the incoming MIDI signals. Most MIDI monitors provide the possibility to forward MIDI data to another MIDI device like your soundcard or software synthesizer. I recommend the <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-OX</A> tool from Jamie O'Connell and Jerry Jorgenrud which is really great!</P>
+
+<P><IMG SRC="midibox/midibox64_intro_pic.jpg" ALT="MIDIbox64" WIDTH=723 HEIGHT=521></P>
+
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+
+<TR>
+<TD> <P CLASS=INFO>(1,2,3)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Menu Exec/Right/Left:</B>
+Navigation through the menus, can be optionally disabled so that the buttons are available as MIDI triggers if the menu functions are not required for your box.</P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(4)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Snapshot/Special Function Button:</B>
+Press it shortly to recall the last settings, press it long to save the current pot and button settings.<BR>The purpose of this button alternates in some submenus:<BR>
+<I>In Bank menu:</I> Format Bank<BR>
+<I>In MIDI Learn menu:</I> set button mode<BR>
+<I>In Morphing menu:</I> select morph group<BR>
+<I>In Edit menus:</I> set cursor<BR>
+<I>In Copy menu:</I> copy bank<BR>
+<I>In MIDI config menu:</I> switch between MIDI and MIDIbox-to-COM interface<BR>
+<I>In SysEx menu:</I> Send SysEx Dump</P>
+</TD>
+</TR>
+
+
+<TR>
+<TD> <P CLASS=INFO>(5, 8)</P> </TD>
+<TD>
+<P CLASS=DESC><B>SFB and MIDI Trigger Buttons:</B>
+to trigger MIDI events like Note On/Off, Controller, Program Change and to exec special functions which are described <A HREF="midibox/midibox64_sfb_table.txt">here</A>... free assignable via MIDI Learn, on-screen editor or SysEx Dump<BR>
+<I>In Bank Select and Copy Menu:</I> used to select one of 16 banks quickly (requires BankStick)<BR>
+<B>Note that MIOS allows to connect up to 128 buttons, but the MIDIbox64 application only handles with 64 buttons maximum to keep the SysEx dump compatible with the old PIC16F implementation.</B>
+</P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(7)</P> </TD>
+<TD>
+<P CLASS=DESC><B>LEDs:</B>
+Used to indicate if a button is pressed or not. Especially usefull when a button is configured for toggle mode. Can also be assigned to other functions (-> DOUT mapping)<BR><I>In Bank Select and Copy Menu</I>: the first 16 LEDs are used to indicate the current selected bank<BR>
+<I>Special Feature:</I> can also be switched on/off via MIDI<BR>
+<B>Note that MIOS allows to connect up to 128 LEDs, but the MIDIbox64 application only handles with 64 LEDs maximum to keep the SysEx dump compatible with the old PIC16F implementation.</B></P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(6)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Pots:</B>
+Knobs, Faders, Pots... take your favourite name for these things. ;-)</P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(9)</P> </TD>
+<TD>
+<P CLASS=DESC><B>LC Display:</B>
+for the visualization of pot values and for the configuration. Any display which is supported by MIOS can be used, some examples are listed at the <A HREF="mbhp_lcd.html">MBHP_LCD</A> page, but also a self-written driver can be used. The screen layout can be customized in cs_m_display.inc</P>
+</TD>
+</TR>                                                             
+
+</TABLE>
+
+<P CLASS=DESC>After switching on the box the MIDI monitor should show the controller messages like this: <I>bC 1P XX</I> (C=channel, P=pot 0-7, XX=value). If not: check the circuit, the cable, your Wintendo installation. If this doesnt help, curse Wintendo and your soundcard!<BR><B>A Debug HowTo can be found <A HREF="howto_debug_midi.html">here</A>.</B></P>
+
+<H2>Menu Handling</H2>
+<P CLASS=DESC>The menu handling is quite simple. The menu page is selected by the Menu-Left/Right Button, and with the Menu-Exec Button the submenu can be invoked and leaved. Below an introduction of the different submenus:</P>
+
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs04.gif" width=194 height=38 ALT="Displaymenu"></P><P CLASS=INFO>Display Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>In this submenu three different display pages are selectable by the Menu-Left/Right buttons:</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs15.gif" width=194 height=38 ALT="Display Page 1/1"></TD>
+     <TD><P CLASS=INFO>The first page shows the current bank (here: INT=Internal) and the pot mode (N=Normal, S=Snap, R=Relative, P=Parallax). It shows also the last sent MIDI event. The format (label and number) of a pot event can be customized for every single pot, button events are only displayed in standard format.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs16.gif" width=194 height=38 ALT="Display Page 1/2"></TD>
+     <TD><P CLASS=INFO></P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs17.gif" width=194 height=38 ALT="Display Page 2"></TD>
+     <TD><P CLASS=INFO>The second page shows an overview of the pot and button row from where the last event has been sent.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs18.gif" width=194 height=38 ALT="Display Page 3/1"></TD>
+     <TD><P CLASS=INFO>The third page is a mix between the first and the second page: pot and button events are only displayed in short hex format, the pot/button row status is displayed at the second line.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs19.gif" width=194 height=38 ALT="Display Page 3/2"></TD>
+     <TD><P CLASS=INFO></P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs05.gif" width=194 height=38 ALT="Bankmenu"></P><P CLASS=INFO>Bank Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>MIDIbox64 is the worldwide first MIDI controller with an exchangable, hot plug&playable bank storage device: the <B>BankStick</B>. If you find commercial controllers with the same feature in some years, you know from where the idea comes from. <BR>Every BankStick is capable of storing 16 different setups. Since a standard 32k IIC EEPROM is used, these sweet little things are really cheap (about 5 EUR). So just take one stick for Reaktor, one for Logic (or Cubase/Cakewalk/Sonar/Ableton of course), some for your Synthesizers, etc... :)<BR>The simple circuit diagramm for the BankStick can be found <A HREF="mbhp_bankstick.html">here</A>.</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox/midibox64_bankstick.jpg" width=161 height=69 ALT="The BankStick"></TD>
+     <TD><P CLASS=INFO>An opened BankStick case. I'm using 9 pol SubD plugs, but you can also decide to use another type of plug with at least 4 pins.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs20.gif" width=194 height=38 ALT="No Stick found"></TD>
+     <TD><P CLASS=INFO>An asterisk (*) is added to the bank number if no BankStick is available. The MIDIbox switches automatically to the internal bank.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs22.gif" width=194 height=38 ALT="Stick found"></TD>
+     <TD><P CLASS=INFO>The asterisk (*) disappears immediately as soon as you plug the BankStick into the socket. Now you are able to select the bank with the Left/Right Menu buttons.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/mb_bankshort1.jpg" width=161 ALT="Bank LED"></TD>
+     <TD><P CLASS=INFO>One of 16 LED lights up, depending on the selected bank.</P></TD>
+  </TR>
+     <TD><IMG SRC="midibox64_tutor/mb_bankshort2.jpg" width=161 ALT="Manual Select"></TD>
+     <TD><P CLASS=INFO>You are also able to select a bank directly with the lower MIDI Trigger Buttons - only in this menu.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs25.gif" width=194 height=38 ALT="BankStick Format"></TD>
+     <TD><P CLASS=INFO>By pressing the snapshot button <I>for 2 seconds</I> the BankStick will be formated.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs26.gif" width=194 height=38 ALT="BankStick Format"></TD>
+     <TD><P CLASS=INFO>The formatting procedure copies the internal bank into the external bank</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs24.gif" width=194 height=38 ALT="Multiple BankSticks"></TD>
+     <TD><P CLASS=INFO>Note that with V2.x up to 8 BankSticks can be connected to the MIDIbox, so that up to 128 Banks are available.<BR>A bank can also be selected via MIDI (-> Program Change command)</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs05_5.gif" width=194 height=38 ALT="GlobalChnmenu"></P><P CLASS=INFO>Global Channel Submenu</P></TD>
+  <TD>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs61.gif" width=194 height=38 ALT="Global Channel --"></TD>
+     <TD><P CLASS=INFO>When <B>--</B> is displayed, all events will be sent over the predefined channels which are stored in the Bank.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs62.gif" width=194 height=38 ALT="Global Channel 3"></TD>
+     <TD><P CLASS=INFO>Use the Cursor Left/Right button to select a global MIDI channel which will be used for all pot and button events instead of the predefined channels.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs06.gif" width=194 height=38 ALT="MIDI Learn"></P><P CLASS=INFO>MIDI Learn Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>The MIDI Learn function allows to customize the pots and buttons for your own needs. How does it work: plug a MIDI cable from the MIDI IN port of the MIDIbox to the MIDI Out port of your keyboard or PC. Enter the MIDI Learn Mode. Now, the box waits for a message from MIDI IN:</P>
+
+  <P><IMG SRC="midibox64_tutor/cs27.gif" width=194 height=38 ALT="MIDI Learn 0"></P>
+
+  <P CLASS=DESC>Send a controller to the MIDIbox (just use your Synth or MIDI-OX for this). The MIDIbox regogninzes all MIDI events and displays the last received one:</P>
+
+  <P><IMG SRC="midibox64_tutor/cs28.gif" width=194 height=38 ALT="MIDI Learn 1"></P>
+
+  <P CLASS=DESC>If you want to assign the event to a pot, just turn it "total right" and to "total left". If a button should learn the event, just push the button.</P>
+  <P CLASS=DESC>"Learn Single" means, that the controller will be learned from one Pot or Button, only. But sometimes, it is usefull to assign all pots or buttons with the same controller but for different channels. MIDIbox offers a special function for this, just select it with the menu buttons:</P>
+
+  <P><IMG SRC="midibox64_tutor/cs29.gif" width=194 height=38 ALT="MIDI Learn 2"></P>
+
+  <P CLASS=DESC>It is also possible to increment the controller value automatically. This is favorable, if all pots or buttons should be quickly assigned to unique numbers:</P>
+
+  <P><IMG SRC="midibox64_tutor/cs30.gif" width=194 height=38 ALT="MIDI Learn 3"></P>
+
+  <P CLASS=DESC>A special feature is implemented for the buttons: the behaviour of every button can be specified with the Snapshot Button before a event will be assigned to it:</P>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs31.gif" width=194 height=38 ALT="MIDI Learn 4"></TD>
+     <TD><P CLASS=INFO>Send learned value when button pressed, send zero when button released.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs32.gif" width=194 height=38 ALT="MIDI Learn 5"></TD>
+     <TD><P CLASS=INFO>Send learned value only when button pressed, don't send a zero value when button released.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs33.gif" width=194 height=38 ALT="MIDI Learn 6"></TD>
+     <TD><P CLASS=INFO>Send learned value with the first keypress, send zero value with the second keypress.</P></TD>
+  </TR>
+  </TABLE>
+
+  <P CLASS=DESC>Beside of controller events, Note On/Off, Program Change, PitchBender, ... can be learned:</P>
+  <P>
+    <IMG SRC="midibox64_tutor/cs34.gif" width=194 height=38 ALT="MIDI Learn 7">
+    <IMG SRC="midibox64_tutor/cs35.gif" width=194 height=38 ALT="MIDI Learn 8">
+    <IMG SRC="midibox64_tutor/cs36.gif" width=194 height=38 ALT="MIDI Learn 9">
+    <IMG SRC="midibox64_tutor/cs37.gif" width=194 height=38 ALT="MIDI Learn 10">
+    <IMG SRC="midibox64_tutor/cs39.gif" width=194 height=38 ALT="MIDI Learn 11">
+    <IMG SRC="midibox64_tutor/cs40.gif" width=194 height=38 ALT="MIDI Learn 12">
+  </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs07.gif" width=194 height=38 ALT="Morphing Fun"></P><P CLASS=INFO>Morhphing Function</P></TD>
+  <TD>
+    <P CLASS=INFO>The morphing function allows you to fade smoothly between two pot scenes - between the current position of the pots and the position which are saved in a bank - with a single pot.
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs41.gif" width=194 height=38 ALT="Morhping"></TD>
+     <TD><P CLASS=DESC>For using this function, you have to declare at least one of the pots as Morphing controller. Up to 5 pots can be assigned: one is used to morph all pots at once (Gl=global), the other four to morph every pot row seperately (G1/G2/G3/G4=Group 1/2/3/4).</TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs42.gif" width=194 height=38 ALT="Morhping"></TD>
+     <TD><P CLASS=DESC>The pot number can be selected by using the left/right button, the cursor position with the snapshot button. In this example the first pot is used to fade all pot values.</TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs43.gif" width=194 height=38 ALT="Morhping"></TD>
+     <TD><P CLASS=DESC>This example shows how to configure the MIDIbox64 to morph every pot row seperately. The first pot of every row is used here</TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs44.gif" width=194 height=38 ALT="Morhping"></TD>
+     <TD><P CLASS=DESC>In this example pot #1 is used to morph the first and the second pot row, and pot #2 to morph the third and fourth pot row.</TD>
+  </TR>
+  </TR>
+     <TD><IMG SRC="midibox64_tutor/mb_bankshort2.jpg" width=161 ALT="Morph Bank Select"></TD>
+     <TD><P CLASS=INFO>By pressing one of the 16 bank select buttons you can morph between different setups which are saved in the BankStick. By holding the bank select button for 2 seconds, the current pot positions will overtaken to realize jumpless parameter moves.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs08.gif" width=194 height=38 ALT="PotMode"></P><P CLASS=INFO>Pot Behaviour</P></TD>
+  <TD>
+    <P CLASS=INFO>(Ideas to this modes were originated by <A HREF="mailto:frankgl@cyberway.com.sg">Frank</A> and <A HREF="mailto:klive@smug.adelaide.edu.au">Kieran</A>. The Descriptions are partly quoted from the Access Virus Synthesizer Manual. Copyright 2001 by <A HREF="http://www.access-music.de" TARGET="_blank">Access Music GmbH</A>. See the <A HREF="http://forum.ucapps.de">MIDIbox Forum</A> for further details)</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs46.gif" width=194 height=38 ALT="PotMode 0"></TD>
+     <TD><P CLASS=DESC><B>Normal Mode:</B> the parameter jumps directly and absolutely to the value determined by the current position of the knob.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs47.gif" width=194 height=38 ALT="PotMode 1"></TD>
+     <TD><P CLASS=DESC><B>Snap Mode (Soft-Overtake):</B> When you adjust a knob in Snap Mode, the original setting determines the value until the point where the movement of the knob passes beyond this position. In other words, the parameter does not jump to the value as in Normal Mode. However, keep in mind that your adjustments have no effect on the parameter until the knob "snaps" on at the position equivalent to the original parameter. In SNAP mode, an right arrow symbol appears instead of the parameter bar. It indicates in which direction the knob must be turned to exceed the current parameter value. Arrow Left implies the value is lower. The parameter bar appears when the value is "snapped".</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs48.gif" width=194 height=38 ALT="PotMode 2"></TD>
+     <TD><P CLASS=DESC><B>Relative Mode:</B> When you adjust a knob in Relative Mode, the parameter is affected immediately but not absolutely. In other words, the parameter change from the original value to the new value now reflects precisely the amount you adjusted the given knob. ie if the knob value is +30, and when you switch over, the value is now +50, the knob continues on as if it were at the parameter-set +50 position, so when you turn the knob (even though the knob physically is at +30) the next parameter value will be +51 (even though the knob is at +31). Obvoiusly, the downside is that in an unfavorable configuration - the worst case scenario being a maximum parameter value and a knob position at the minimum value - you do not have the full control range of the knob at your disposal. To counteract this situation, you have to turn the knob in the opposite direction to adjust the physical knob position so that it is equivalent to the actual parameter value (ie. turn the knob up to maximum, which will sync it with the maximum parameter value).</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox64_tutor/cs49.gif" width=194 height=38 ALT="PotMode 3"></TD>
+     <TD><P CLASS=DESC><B>Parallax Mode:</B> The name is cool, isn't it? ;-) A description regarding this mode can be found <A HREF="midibox/midibox_plus_parallax.gif">here</A></P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs09.gif" width=194 height=38 ALT="Edit Bankname"></P><P CLASS=INFO>Integrated bankname editor</P></TD>
+  <TD>
+    <P CLASS=DESC>In this menu page the bankname of the current selected bank can be edited. Use the left/right button to change the character and use the snapshot button to move the cursor.<BR>
+    <IMG SRC="midibox64_tutor/cs50.gif" width=194 height=38 ALT="Edit Bankname">
+    </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs10.gif" width=194 height=38 ALT="Edit Events"></P><P CLASS=INFO>Integrated MIDI event editor</P></TD>
+  <TD>
+    <P CLASS=DESC>In this menu page the MIDI events assigned to the pots and buttons can be edited directly. Select the pot or button by moving (touching) it, use the left/right button to change the value and use the snapshot button to move the cursor.<BR>
+    <IMG SRC="midibox64_tutor/cs51.gif" width=194 height=38 ALT="Edit Pot Event">
+    <IMG SRC="midibox64_tutor/cs52.gif" width=194 height=38 ALT="Edit Button Event">
+    </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs11.gif" width=194 height=38 ALT="Edit Lable"></P><P CLASS=INFO>Integrated pot label editor</P></TD>
+  <TD>
+    <P CLASS=DESC>In this menu page the labels and number formats can be edited for every single pot. Select the pot by moving it, use the left/right button to change the characters/number format and use the snapshot button to move the cursor.<BR>
+    <IMG SRC="midibox64_tutor/cs53.gif" width=194 height=38 ALT="Edit Label">
+    </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs12.gif" width=194 height=38 ALT="Copy Bank"></P><P CLASS=INFO>Copy submenu</P></TD>
+  <TD>
+    <P CLASS=INFO>In this menu the current bank can be copied to another bank.</P>
+
+    <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+    <TR>   
+      <TD><IMG SRC="midibox64_tutor/cs54.gif" width=194 height=38 ALT="Copy select"></TD>
+      <TD><P CLASS=DESC>The target bank can either be select with the left/right buttons...</TD>
+    </TR>
+    </TR>
+      <TD><IMG SRC="midibox64_tutor/mb_bankshort2.jpg" width=161 ALT="Copy Buttons"></TD>
+      <TD><P CLASS=INFO>...or with the bank select buttons.</P></TD>
+    </TR>
+    <TR>   
+      <TD><IMG SRC="midibox64_tutor/cs55.gif" width=194 height=38 ALT="Copy start"></TD>
+      <TD><P CLASS=DESC>Hold the snapshot button for 2 seconds to start the copy procedure.</TD>
+    </TR>
+  </TABLE>
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs13.gif" width=194 height=38 ALT="MIDIMenu"></P><P CLASS=INFO>MIDI Config. submenu</P></TD>
+  <TD>
+    <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+    <TR>   
+      <TD><IMG SRC="midibox64_tutor/cs56.gif" width=194 height=38 ALT="Merger0"></TD>
+      <TD><P CLASS=DESC>The MIDI merger allows you to plug the MIDIbox and a keyboard to a computer w/o the need for a second MIDI In interface. Just plug the MIDI Out of your keyboard to the MIDI In of MIDIbox and the MIDI Out of the MIDIbox to the MIDI In of your computer.</P>
+    </TR>
+    <TR>   
+      <TD><IMG SRC="midibox64_tutor/cs57.gif" width=194 height=38 ALT="Merger1"></TD>
+      <TD><P CLASS=DESC>If you connect the MIDI In of the MIDIbox with MIDI Out of your computer, you should disable the MIDI merger in order to avoid endless feedback loops.</P>
+   </TR>
+    <TR>   
+      <TD><IMG SRC="midibox64_tutor/cs59.gif" width=194 height=38 ALT="Merger2"></TD>
+      <TD><P CLASS=DESC>If multiple MIDIboxes should be cascaded based on the <A HREF="midibox_link.html">MIDIbox Link</A> concept, all MIDIboxes have to be declared as MIDIbox Link Forwarding Point...</P>
+   </TR>
+    <TR>   
+      <TD><IMG SRC="midibox64_tutor/cs58.gif" width=194 height=38 ALT="Merger3"></TD>
+      <TD><P CLASS=DESC>except for the last MIDIbox which has to be declared as MIDIbox Link Endpoint.</P>
+   </TR>
+   </TABLE>
+   <P CLASS=DESC><B>Note:</B> In this menu, you are also able to enable the MIDIbox-to-COM option with the snapshot button (4). Find more informations at the <A HREF="midibox_to_com.html">MIDIbox-to-COM Interface Page</A>!</P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox64_tutor/cs14.gif" width=194 height=38 ALT="SysEx"></P><P CLASS=INFO>SysEx submenu</P></TD>
+  <TD>
+    <P CLASS=DESC>In this submenu the device ID can be selected, and a SysEx dump can be triggered manually by using the Snapshot button.<BR>
+      <IMG SRC="midibox64_tutor/cs60.gif" width=194 height=38 ALT="SysEx menu"><BR>
+      See also the <A HREF="howto_tools_mbsyx.html">SysEx HowTo</A> for further informations.
+    </P>
+  </TD>
+</TR>
+
+</TABLE>
+
+<H2>MIDIbox wiring</H2>
+<P CLASS=DESC>Find some examples below. MIDI In of a MIDIbox has only be connected if you would like to use the Snap/Relative/Parallax (or Motorfader) Mode, the MIDI Learn function or the configuration via SysEx. If the MIDI Thru function is enabled in your sequencer (default setting in Cubase!) switch off the integrated MIDI merger of the MIDIbox in order to avoid feedback loops!</P>
+
+<P><IMG SRC="midibox64_tutor/merging0.gif" ALT="merging example 1" WIDTH=742 HEIGHT=362></P>
+<P><IMG SRC="midibox64_tutor/merging1.gif" ALT="merging example 2" WIDTH=742 HEIGHT=362></P>
+<P><IMG SRC="midibox64_tutor/merging2.gif" ALT="merging example 3" WIDTH=742 HEIGHT=362></P>
+<P><IMG SRC="midibox64_tutor/merging3.gif" ALT="merging example 4" WIDTH=742 HEIGHT=362></P>
+
+<H2>FAQ, Tips & Tricks</H2>
+<P CLASS=DESC>Please find the collected knowledge in the <A HREF="http://wiki.midibox.org">MIDIbox Wiki</A> and at the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A>, and don't forget to take a look into Tor Arne's  great <A HREF="http://midibox64.mystifistisk.net/" TARGET="_blank">Walkthrough</A></P>
+
+</DL>
+
+FOOTER

@@ -1,0 +1,253 @@
+HEADER 3 MIDIbox SID
+
+<H1>MIDIbox SID Control Surface</H1>
+<H3>Created 2003</H3>
+
+<P><CENTER><IMG SRC="midibox_sid_cs/mini_unit.jpg" width=550 height=233></CENTER></P>
+
+<P CLASS=INFO><B>WARNING:</B> This tutorial describes features of MIDIbox SID V1 - they are partly handled on a different way in MIDIbox SID V2. More details can be found in the <A HREF="midibox_sid_manual.html">MBSID V2 User Manual</A>.</P>
+
+<P CLASS=INFO>The intention behind the minimal MIDIbox SID Control surface was to provide a flexible menu navigation for a fast access to all parameters. It doesn't allocate too much memory so that enough program space is still free for even more sound features, and it supports various hardware options, so that users can decide how much money (and panel area) they want to spent for their SID synthesizer.</P>
+
+<P CLASS=INFO>If you haven't read the <A HREF="mios.html">introduction of MIOS</A> yet, you should do it now, because the control unit is only supported by the PIC18F version of MIDIbox SID. There is no way to integrate something similar into the PIC16F version due to the limitations of this product family. Therefore the PIC16F based cores can only be used as pure sound devices whose parameters are soley controllable via MIDI. However, a later version of the control surface will provide a <A HREF="midibox_link.html">link</A> to PIC16F (and PIC18F) cores so that several MIDIbox SIDs running with the older chip can be accessed from the PIC18F control unit.</P>
+
+<H2>Plans</H2>
+
+<P CLASS=DESC>Current implementation status:</P>
+  <UL CLASS=CL>
+    <LI> <A HREF="midibox_sid_cs.html"><B>Step A:</B></A> <I>done</I> - a minimal control unit w/ some navigations buttons and an optional rotary encoder for data entry</LI>
+    <LI> <A HREF="midibox_sid_csB.html"><B>Step B:</B></A> <I>done</I> - the possibility to control up to 4 SIDs from the control surface</LI>
+    <LI> <A HREF="midibox_sid_csC.html"><B>Step C:</B></A> <I>done</I> - the  <A HREF="midibox_sid/mbsid_surface4.gif">complete control surface</A></LI>
+  </UL>
+
+<H2>Hardware options</H2>
+
+<P CLASS=DESC>Currently following options are provided. They have to be configured in the <B>main.asm</B> file of the <A HREF="mios_download.html">application source code</A>:</P>
+  <UL CLASS=CL>
+    <LI> <B>2x40 LCD</B> <IMG SRC="midibox_sid_cs/2x40.gif" ALT="2x40 option" WIDTH=482 HEIGHT=38><BR>
+         <B>SCHEMATIC:</B> With rotary encoder (<A HREF="midibox_sid_cs/2x40_enc.pdf">2x40_enc.pdf</A>) or Inc/Dec buttons (<A HREF="midibox_sid_cs/2x40_b.pdf">2x40_b.pdf</A>), one menu and 10 selection buttons.</LI>
+    <LI> <B>2x20 LCD</B> <IMG SRC="midibox_sid_cs/2x20.gif" ALT="2x20 option" WIDTH=242 HEIGHT=38><BR>
+         <B>SCHEMATIC:</B> With rotary encoder (<A HREF="midibox_sid_cs/2x20_enc.pdf">2x20_enc.pdf</A>) or Inc/Dec buttons (<A HREF="midibox_sid_cs/2x20_b.pdf">2x20_b.pdf</A>), one menu and 5 selection buttons.</LI>
+    <LI> <B>2x16 LCD</B> <IMG SRC="midibox_sid_cs/2x16.gif" ALT="2x16 option" WIDTH=194 HEIGHT=38><BR>
+         <B>SCHEMATIC:</B> With rotary encoder (<A HREF="midibox_sid_cs/2x16_enc.pdf">2x16_enc.pdf</A>) or Inc/Dec buttons (<A HREF="midibox_sid_cs/2x16_b.pdf">2x16_b.pdf</A>), one menu and 4 selection buttons.</LI>
+  </UL>
+
+<P CLASS=DESC>I will use a 2x20 LCD for my <A HREF="midibox_sid/mbsid_surface4.jpg">own control surface</A>, since a 2x40 is too big for the panel, and not necessary anyhow due to the additional encoders. With the complete setup the data entry unit is still usefull for editing wavetables and for further configurations (MIDI channel, patch number, patch name, etc...)</P>
+
+<H2>Menu navigation</H2>
+
+<P CLASS=DESC>The menu navigation is based on inspirations from the VST control feature of Logic Control and the menu handling of my HP48 calculator ;-)</P>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/nav1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> A (slow) blinking cursor notifies the selected menu item. Here: OSC</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/nav2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>If the item, which should be modified, is not visible on screen, you can scroll through the parameter list with the rotary encoder <I>(or Inc/Dec buttons - in the following it will not be mentioned anymore that the encoder can be replaced by two buttons)</I></SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/nav3.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>the parameters are shifted to the left step by step by the encoder...</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/nav4.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>...until the end of item list has been reached</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/nav5.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Once you've found the parameter, just press the appropriate selection button to enter the edit mode.</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/nav6.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Tweak the encoder to change the value.</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/nav7.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>You can press another selection button anytime to edit another value.</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/nav8.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>And you've to press the menu button to leave the edit mode.</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/main1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Press the menu button again to change to the next upper menu.</SPAN></TD>
+  </TR>
+</TABLE>
+
+<H2>Meaning of the parameters</H2>
+
+<P CLASS=DESC>Here a short introduction of the available parameters. Note that upcoming versions of MIDIbox SID could provide even more which are not listed here!</P>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/main1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>In the main section you can select between several submenus: <B>OSC</B> (oscillators), <B>FIL</B> (filters), <B>LFO</B> (low frequency oscillators), <B>ENV</B> (envelopes), <B>MOD</B> (modulation matrix), ...</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/main2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>WT</B> (wavetables), <B>CFG</B> (configuration), <B>SAV</B> (save patch)</SPAN></TD>
+  </TR>
+</TABLE>
+
+<H2>OSC submenu</H2>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/osc1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>OSC</B> selects the oscillator(s). The parameters right to this item are displayed accordingly. If more than one oscillator is selected, only the values of the first will be displayed, but the values of all selected will be changed.<BR><B>WAV</B> stands for waveform, <B>S/R</B> for Sync/Ringmodulation, <B>Del</B> for Delay, <B>Atk</B> for Attack.</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/osc2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Dec</B> Decay, <B>Sus</B> Sustain, <B>Rel</B> Release, <B>PRnl</B> Pitch Range, <B>Trn</B> Transpose</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/osc3.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Trn</B> Transpose, <B>Fin</B> Finetune, <B>Por</B> Portamento Rate, <B>Arp</B> Arpeggiator Rate, <B>PW</B> Pulsewidth</SPAN></TD>
+  </TR>
+</TABLE>
+
+<H2>FIL submenu</H2>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/fil1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Chn</B> Channels which are assigned to the filter, <B>Cut</B> Cutoff Frequency, <B>Res</B> Resonance, <B>Mod</B> Mode (<B>L</B>: Lowpass, <B>B</B>: Bandpass, <B>H</B> Highpass)</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/fil2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Ext</B> activates filter also for the audio input, <B>3Of</B> disables the 3rd oscillator.</SPAN></TD>
+  </TR>
+</TABLE>
+
+<H2>LFO submenu</H2>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/lfo1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>LFO</B> selects 1 of 6 LFOs, <B>Wav</B> selects the waveform (<B>Sin</B> since, <B>Tri</B> Triangle, <B>Saw</B> Saw, <B>Pul</B> Pulse), <B>Rte</B> LFO rate, <B>Dep</B> LFO depth, <B>Syn</B> synchronization to note events (<B>no</B> unsynced, <B>All</B> to all notes, <B>Asn</B> to assigned notes of the same channel</B>)</TD>
+  </TR>
+</TABLE>
+
+<H2>ENV submenu</H2>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/env1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>ENV</B> selects 1 of 2 envelopes</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/env2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Dep</B> envelope depth, <B>Atk</B> Attack, <B>Dec</B> Decay, <B>Sus</B> Sustain, <B>Rel</B> Release</SPAN></TD>
+  </TR>
+</TABLE>
+
+<H2>MOD submenu</H2>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/mod1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Mod</B> selects the modulation target: <B>O[123]P</B> OSC1/2/3 pitch, <B>O[123]W</B> OSC1/2/3 pulsewidth, <B>Fil</B> filter</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/mod2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>With <B>E1</B>, <B>E2</B>, <B>L1</B>, <B>L2</B>, <B>L3</B>, <B>L4</B>, <B>L5</B>, <B>L6</B> the modulation sources (envelopes and LFOs) can be assigned to the selected targets.</SPAN></TD>
+  </TR>
+</TABLE>
+
+<H2>WT submenu</H2>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/wt2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Pos</B> selects wavetable entry, <B>Mod</B> the mode (<B>Ply</B>: Play, <B>Jmp</B>: Jump, <B>End</B> end). <B>#1</B>, <B>#2</B> and <B>#3</B> are the parameters which are modified with every step.</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/wt3.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Rte</B> the play rate (speed) of the wavetable, <B>CC1-3</B> the CC values which are modified by the wavetable sequencer</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/wt4.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Btw.: since it's difficult to remember all available CC numbers, the CC parameter string will be displayed when you modify the number</SPAN></TD>
+  </TR>
+</TABLE>
+
+<H2>CFG submenu</H2>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/cfg1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Chn</B> MIDI channel, <B>Dev</B> Device ID (only the ID of the control surface can be changed here!), <B>Nam</B> Patch Name, <B>Vol</B> volume, <B>Ply</B> Play mode (<B>Mon</B> mono, <B>Leg</B> legato, <B>WTS</B> Notes only controlled by Wavetable sequencer, <B>Pol</B> Poly)</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/cfg2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>SuK</B> SusKey on/off, <B>Clk</B> Clock sources (<B>Int</B> all targets clocked from internal, else combinations of: <B>W:</B> Wavetable, <B>L:</B> LFOs, <B>E:</B> Envelopes are clocked from external), <B>VCC</B> CC number assigned to velocity, <B>VIn</B> Init value, <B>VDp</B> Depth</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/cfg3.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>MCC</B> CC number assigned to the modulation wheel, <B>MIn</B> Init value, <B>MDp</B> Depth, <B>ACC</B> CC number assigned to the aftertouch, <B>MIn</B> Init value</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/cfg4.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>ADp</B> Aftertouch depth</SPAN></TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/cfg5.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>When you select the <B>Nam</B> item, an edit screen will appear which allows you to change the patch name</SPAN></TD>
+  </TR>
+</TABLE>
+
+<H2>Top Screen</H2>
+
+<TABLE CELLSPACING=20 CELLPADDING=0>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/top1.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Press the enter button twice to reach the top screen. Here you can select the patch with the rotary encoder. Additional informations: <B>P</B> Patch number, <B>C</B> MIDI Channel, <B>1234</B> selected SIDs</TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC="midibox_sid_cs/top2.gif" WIDTH=242 HEIGHT=38 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Note: patch number as well as parameter changes will be forwarded to all selected SIDs</SPAN></TD>
+  </TR>
+</TABLE>
+
+
+<P CLASS=DESC>(*) <B>Please note:</B> in <A HREF="midibox_sid_v2_wishlist.html">MIDIbox SID V2</A>, the LINK/CC/EDIT buttons got a new/modified function! The LINK button has the purpose of a SHIFT button (the MIDI link is obsolete, since MIDIbox Link has been replaced by <A HREF="midibox_network.html">MBNet</A>). In addition, it displays a special configuration page, which for example allows you to switch between left and right SID channel. The CC button is used for "Page Up" (increments OSC/LFO/ENV/MOD/TRG/KNB), and the Edit button is used for "Page Down" (decrements OSC/LFO/ENV/MOD/TRG/KNB). SHIFT+CC and SHIFT+EDIT still switch the CC/Edit function like before (means: the two LED labels are still valid).<BR>
+This changed behaviour should be considered when labling a new front panel</P>
+
+<H2>Wanna tweak more?</H2>
+<P CLASS=INFO><A HREF="midibox_sid_csB.html">...then continue here...</A></P>
+
+FOOTER

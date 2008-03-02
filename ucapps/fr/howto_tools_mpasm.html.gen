@@ -1,0 +1,120 @@
+HEADER 3 Short MPASM Guide
+
+            <h1>MPASM : Quelques Explications</h1>
+            <h1></h1>
+
+
+<HR>
+<P CLASS=INFO><B>Note:</B> The usage of MPASM is expired, all MIOS applications have to be compiled with <A HREF="howto_tools_gpasm.html">GPASM</A> now!</P>
+<HR>
+
+            <p class="INFO">MPASM fait partie de MPLAB IDE, une suite
+d'outils gratuite fournie par <a href="http://www.microchip.com/" target="_blank">Microchip</a>, le
+fabriquant des micro-contr&ocirc;leurs PIC. A chaque fois que vous changez le
+code d'une des applications MIOS, ce code doit &ecirc;tre
+r&eacute;assembl&eacute; et converti en un fichier ".syx" - Suivez ce
+guide pas-&agrave;-pas:</p>
+            <p>
+
+            <table align="center" cellpadding="0" cellspacing="20">
+
+
+  <tbody>
+                <tr>
+
+    <td><a href="http://www.microchip.com/stellent/idcplg?IdcService=SS_GET_PAGE&amp;nodeId=1406&amp;dDocName=en019469&amp;part=SW007002" target="_blank"><img src="images/microchip.gif" alt="Link to the microchip.com" height="60" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">T&eacute;l&eacute;chargez
+l'environnement de d&eacute;veloppement MPLAB IDE si il n'est pas encore
+install&eacute; sur votre ordinateur.</span><br>
+                  <span class="NORM">
+        <a href="http://ww1.microchip.com/downloads/en/DeviceDoc/mp760a.zip">Voici le lien direct vers la version 7.60a</a></span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/mpasm2.gif"><img src="howto_tools/mpasm2.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Ouvrez votre &eacute;diteur de texte habituel, ici vous pouvez voir une capture d'&eacute;cran d'</span><span class="NORM">Emacs, mon</span><span class="NORM"> &eacute;diteur
+pr&eacute;f&eacute;r&eacute; sous Windows et Unix. Si tous ne le
+trouvent pas forc&eacute;ment ergonomique - il reste l'un des
+&eacute;diteurs les plus performants (avec notament des languages de
+programmation int&eacute;gr&eacute;s et un grand nombre d'extensions :
+explorateur HTML , mail, "newsreader", jeux... ;-) , mais il
+requiert
+une longue pratique pour &ecirc;tre utilis&eacute; efficacement. La
+version pour Windows peut &ecirc;tre t&eacute;l&eacute;charg&eacute;e
+ici :</span><span class="NORM">&nbsp;<a href="http://www.gnu.org/software/emacs/windows/ntemacs.html" target="_blank">emacs@Win</a>.<br>
+&nbsp;<a href="http://www.ultraedit.com/" target="_blank">Ultraedit</a>&nbsp;</span><span class="NORM">pour Windows uniquement, est une bonne
+alternative, tout comme l'&eacute;diteur int&eacute;gr&eacute;</span><span class="NORM"> de</span><span class="NORM"> <a href="howto_tools_mplab.html">MPLAB</a>.</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/mpasm4.gif"><img src="howto_tools/mpasm4.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Une fois les changements
+effectu&eacute;s dans le code source , ouvrez l'assembleur de MPASM .
+Vous le trouverez dans le r&eacute;pertoire&nbsp; MCHIP_Tools de MPLAB.<br>
+                  </span><span class="NORM"> S&eacute;lectionnez le
+fichier
+".asm" que vous d&eacute;sirez assembler&nbsp; et cliquez sur le bouton
+"Assemble" . Le fichier ainsi cr&eacute;&eacute; portera le m&ecirc;me
+nom, avec l'extension ".hex" .</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="mios/mios_studio8.gif"><img src="mios/mios_studio8_small.gif" alt="" height="128" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Si le compileur ne rapporte aucune erreur
+(*), le nouveau fichier .HEX peut &ecirc;tre charg&eacute; dans votre
+MIDIbox &agrave; l'aide de MIOS Studio (voir aussi <a href="mios_bootstrap_newbies.html">cette page</a>).</span></td>
+
+  </tr>
+
+
+              </tbody>
+            </table>
+
+
+            </p>
+            <p class="INFO">(*) S<span class="NORM">i MPASM&nbsp;
+affiche des avertissements ou&nbsp; vous
+pr&eacute;vient de la pr&eacute;sence d'erreurs, le fichier ".hex" NE
+SERA PAS mis &agrave; jour! Dans ce cas, lisez le rapport d'erreur
+(fichier ".err" : main.err), il contient tous les messages et
+r&eacute;f&eacute;rences aux parties &eacute;rron&eacute;es du code.
+Vous pouvez aussi consulter le fichier ".lst" (main.lst), contenant la
+liste compl&egrave;te des op&eacute;rations ainsi que les rapports
+d'erreurs et les avertissement.</span> Si vous avez compil&eacute; le
+fichier "main.asm", le nom du fichier d'erreur sera&nbsp; "main.err".
+Ou si vous avez compil&eacute; le fichier "setup_8580.asm", le fichier
+sera nomm&eacute;&nbsp; "setup_8580.err", etc...<br>
+Une des erreurs les plus courante survient lorsque le chemin du fichier
+fait plus de 64 caract&egrave;res. Je ne comprends toujours pas
+pourquoi MPLAB continue aujourd'hui de fonctionner avec des limitations
+datant de l'&eacute;poque de Win3.1&nbsp;... le seul moyen d'y
+rem&eacute;dier est de d&eacute;placer le dossier source vers un
+r&eacute;pertoire plus haut, par exemple en cr&eacute;ant &agrave; la
+racine du lecteur un dossier C:\mios directory.</p>
+
+<HR>
+<P CLASS=INFO><B>Note:</B> The usage of MPASM is expired, all MIOS applications have to be compiled with <A HREF="howto_tools_gpasm.html">GPASM</A> now!</P>
+<HR>
+
+FOOTER

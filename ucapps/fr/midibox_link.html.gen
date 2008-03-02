@@ -1,0 +1,100 @@
+HEADER 3 MIDIbox Link
+
+<h1>MIDIbox Link</h1>
+<h3>Date de Cr&eacute;ation: D&eacute;cembre 2002</h3>
+
+<p class="DESC">J'ai finalement trouv&eacute; le moyen d'&eacute;viter
+les probl&egrave;mes de boucles MIDI qui survenaient lors du
+cha&icirc;nage de plusieurs MIDIbox tournant avec la fonction MIDI
+merger activ&eacute;e. Ma premi&egrave;re id&eacute;e f&ucirc;t
+d'ajouter une connection mat&eacute;rielle suppl&eacute;mentaire (un
+syst&egrave;me "MIDIbox Link" physique), qui se comporterait comme une
+seconde connection MIDI entre les MIDIbox.&nbsp;Mais une telle connection serait instable et sensibles aux variations externes
+(EMC), et pourrait planter &agrave; n'importe quel petit parasitage sur
+les c&acirc;bles entre les modules Core. La seule solution &agrave; ce
+probl&egrave;me serait d'ajouter des composants, de ralentir les
+transferts tout en corrigeant les erreurs.</p>
+ 
+<p class="DESC">Du coup, je suis parti dans une autre voie. J'ai
+utilis&eacute; une cha&icirc;ne MIDI classique en ins&eacute;rant des
+bytes "Begin" et "End" afin de distinguer les &eacute;v&egrave;nements
+devant quitter la cha&icirc;ne de ceux devant &ecirc;tres
+renvoy&eacute;s par le dernier maillon de la cha&icirc;ne vers le MIDI
+Out. En d'autres mots: tous les &eacute;v&egrave;nements MIDI
+g&eacute;n&eacute;r&eacute;s par les modules Core sont marqu&eacute;s
+et ainsi forc&eacute;ment renvoy&eacute;s sur le dernier MIDI Out.</p>
+ 
+<p class="DESC">Et voil&agrave; - &ccedil;a fonctionne sans composants suppl&eacute;mentaires!</p>
+ 
+<p class="DESC">Voici quelques sch&eacute;mas pour rendre tout &ccedil;a plus clair:</p>
+
+<center><a href="midibox_link/tunnel2.gif"><img src="midibox_link/tunnel2.gif" width="575"></a></center>
+
+<p class="DESC">La premi&egrave;re image montre le probl&egrave;me de
+bouclage MIDI possible lorsque tous les Mergers sont activ&eacute;s.
+Ceci peut &ecirc;tre n&eacute;cessaire (par exemple) si 3 modules avec
+motorfaders sont connect&eacute;s ensembles et que l'application
+h&ocirc;te doit envoyer la position des moteurs &agrave; tous les
+modules Cores, et que les &eacute;v&egrave;nements MIDI &eacute;mis par
+les MIDIbox doivent &ecirc;tre renvoy&eacute;s vers l'h&ocirc;te. Si le
+programme h&ocirc;te n'est pas en mesure de filtrer les
+&eacute;v&egrave;nements qu'il a d&eacute;j&agrave; envoy&eacute;, il
+va de nouveau les renvoy&eacute;s, et ainsi de suite, jusqu'&agrave; ce
+que le programme (ou Windows) plante :-/</p>
+ 
+<center><a href="midibox_link/tunnel3.gif"><img src="midibox_link/tunnel3.gif" width="575"></a></center>
+ 
+<p class="DESC">La solution: chaque &eacute;v&egrave;nement devant
+&ecirc;tre envoy&eacute; &agrave; l'h&ocirc;te est inclu dans une trame
+constitu&eacute;e d'un byte "start" et d'un byte "stop". Cette trame
+sera prise en compte par le dernier Core avec le merger
+d&eacute;sactiv&eacute;. Seuls les &eacute;v&egrave;nements avec cette
+trame seront renvoy&eacute;s sur le MIDI Out, tous les autres seront
+filtr&eacute;s.</p>
+ 
+<p class="DESC">Voici le sch&eacute;ma des connectionS MIDI - notez qu'il n'y a qu'une route, qui passe "au travers" des Cores 1 &agrave; 3.</p>
+ 
+<center><a href="midibox_link/tunnel1.gif"><img src="midibox_link/tunnel1.gif" width="575"></a></center>
+ 
+<p class="DESC">Le meilleur pour la fin: par ce moyen, des informations
+autres que des &eacute;v&egrave;nements MIDI peuvent &ecirc;tre
+transmises sur la connection MIDI, informations qui seront
+filtr&eacute;es pour ne pas &ecirc;tre en bout de cha&icirc;ne
+renvoy&eacute;es vers le programme h&ocirc;te - par exemple des
+informations de type caract&egrave;res pour LCD
+(afin de n'utiliser qu'un seul LCD sur le Core 3 pour tous les Cores)
+ou des messages de changement de Banques. De nouvelles
+fonctionnalit&eacute; qui peuvent &ecirc;tre impl&eacute;ment&eacute;es
+tr&eacute;s facilement. :-)</p>
+
+<p class="DESC"><b>PIC16F:</b> le MIDIbox Link a &eacute;t&eacute; int&eacute;gr&eacute;s aux firmwares suivants: <a href="midibox64.html">MIDIbox64</a>, <a href="midibox16e.html">MIDIbox16e</a>, <a href="mbhp_mf.html">MIDIbox MF</a>.</p>
+
+<p class="DESC"><b>PIC18F (MIOS)</b>: le MIDIbox Link est int&eacute;gr&eacute; au syst&egrave;me d'exploitation. Voir aussi la description de la fonction <a href="http://www.ucapps.de/mios_fun.html#MIOS_MIDI_MergerSet">MIOS_MIDI_MergerSet</a>.</p>
+
+<p class="DESC">Le MIDIbox Link s'active via le menu de configuration MIDI, avec <a href="http://miostools.midibox.org" target="_blank">l'Editeur GUI</a> ou part le script <a href="midibox/mk_syx.zip">mk_syx</a>&nbsp;.
+Toutes les MIDIbox except&eacute;e la derni&egrave;re de la
+cha&icirc;ne doivent &ecirc;tre r&eacute;gl&eacute;es sur "MIDIbox
+Link Forwarding Point", la derni&egrave;re sur "MIDIbox Link Endpoint".</p>
+
+<p class="DESC">Si un gros syst&egrave;me MIDI avec un menu de
+navigation complet pour de multiples Cores doit &ecirc;tre
+r&eacute;alis&eacute;, il est fortement recommand&eacute; d'utiliser le
+<a href="mios.html">MIOS</a>, car ce syst&egrave;me est beaucoup plus flexible, comparativement aux firmwares PIC16F. Voici une configuration possible:</p>
+<center><a href="midibox_link/tunnel4.gif"><img src="midibox_link/tunnel4.gif" width="575"></a></center>
+<p class="DESC">Le premier Core fournit l'interface de navigation via
+menus. Il envoit des informations de contr&ocirc;les au dernier Core
+qui g&eacute;rent alors les &eacute;v&egrave;nements de sorties comme
+les LCD, LEDs, LED digits. D'autre modules Core plac&eacute;s entre le
+premier et le dernier peuvent aussi rajouter des messages de
+contr&ocirc;le sur le flux MIDI si n&eacute;cessaire.<br>Eventuellement,
+le premier Core peut convertir des messages MIDI entrants en signaux de
+contr&ocirc;le et les renvoyer vers les autres Cores, par ex. pour
+piloter la fonction "soft-overtake" des potars, pour d&eacute;placer
+les faders motoris&eacute;s, pour changer les patterns de LEDrings
+directement.... Il peut &eacute;galement envoyer des messages pour
+assigner des &eacute;v&egrave;nements MIDI aux
+potars/faders/encodeurs. De cette mani&egrave;re, diff&eacute;rents
+setup peuvent &ecirc;tre g&eacute;r&eacute;s par un seul module Core,
+afin de simplifier la programmation.</p>
+
+FOOTER

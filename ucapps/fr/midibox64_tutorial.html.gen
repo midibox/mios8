@@ -1,0 +1,616 @@
+HEADER 3 MIDIbox64 V2.x Tutorial
+<p></p><h1>Guide d'utilisation MIDIbox64 V2.x&nbsp;</h1>
+<p class="INFO">Votre
+MIDIbox64 est termin&eacute;e, vous venez de la mettre sous
+tension, votre c&acirc;ble MIDI est branch&eacute; - et
+maintenant...? Ce tutoriel vous aidera &agrave; prendre en main
+votre MIDIbox.</p>
+<p class="INFO">Pour les
+premiers tests, vous aurez besoin sur votre PC d'un moniteur MIDI avec une fonction MIDI Thru, afin de pouvoir
+v&eacute;rifier quels &eacute;v&egrave;nements MIDI
+"sortent" de votre MIDIBOX. La plupart des moniteurs MIDI vous
+permettent de renvoyer (en interne) les donn&eacute;es MIDI sur le
+MIDI in de votre carte son ou de votre synth&eacute;tiseur logiciel.
+Je vous recommande <a href="http://www.midiox.com" target="_blank">MIDI-OX</a>
+de Jamie O'Connell et Jerry Jorgenrud qui est tr&eacute;s complet,
+et bien s&ucirc;r MIOS Studio qui dispose aussi d'une
+fen&ecirc;tre de monitoring MIDI et de possibilit&eacute; de
+mappage des ports!</p>
+<p><img src="midibox/midibox64_intro_pic.jpg" alt="MIDIbox64" height="521" width="723"></p>
+<table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+<tbody><tr>
+<td> <p class="INFO">(1,2,3)</p> </td>
+<td>
+<p class="DESC"><b>Touches "Menu": Exec/Right/Left:</b>
+ces touches vous permettent de naviguer entre les menus, elles peuvent
+&eacute;ventuellement &ecirc;tre
+d&eacute;sactiv&eacute;es si vous n'avez pas besoin de naviguer
+dans les menus (tout peut &ecirc;tre configur&eacute; au
+pr&eacute;alable avec le script <a href="http://www.ucapps.de/midibox/mk_syx.zip">mk_syx.pl</a> ), dans ce cas vous pouvez alors utiliser les boutons comme triggers MIDI classiques.</p>
+</td>
+</tr>
+<tr>
+<td> <p class="INFO">(4)</p> </td>
+<td>
+<p class="DESC"><b>Touche Snapshot/Special Function&nbsp;:</b>
+pressez-la bri&egrave;vement pour rappeller vos
+pr&eacute;c&eacute;dents r&eacute;glages (ceux
+enregistr&eacute;s dans la banque), pressez-la plus longuement pour
+sauvegarder les r&eacute;glages actuels de vos potars/faders.<br>Cette touche assume des fonctions diff&eacute;rentes dans certains sous-menus:<br>
+<i>Dans le menu Bank:</i> formate la&nbsp;Banque<br>
+<i>Dans le menu</i><i>&nbsp;MIDI Learn&nbsp;:</i> s&eacute;lectionne le mode&nbsp;des boutons (voir plus loin)<br>
+<i>Dans le menu</i><i>&nbsp;Morphing :</i> s&eacute;lectionne le groupe pour la fonction morph&nbsp;(voir plus loin)<br>
+<i>Dans le menu</i><i>&nbsp;Edit&nbsp;:</i> d&eacute;place le curseur<br>
+<i>Dans le menu</i><i>&nbsp;Copy&nbsp;:</i> copie la Banque<br>
+<i>Dans le menu</i><i>&nbsp;MIDI config&nbsp;:</i> permet de basculer entre MIDI et MIDIbox-to-COM interface<br>
+<i>Dans le menu </i><i>SysEx&nbsp;:</i> lance le Dump SysEx</p>
+</td>
+</tr>
+<tr>
+<td> <p class="INFO">(5, 8)</p> </td>
+<td>
+<p class="DESC"><b>Touches SFB (special Functions) et touches MIDI Trigger&nbsp;:</b>
+elles permettent de d&eacute;clencher des
+&eacute;v&egrave;nements MIDI tels que Note On/Off,
+Contr&ocirc;leur Continu, Program Change et d'ex&eacute;cuter
+les fonctions sp&eacute;ciales qui sont
+d&eacute;crites&nbsp; <a href="midibox/midibox64_sfb_table.txt">ici</a>...
+elle sont librement assignables&nbsp;via MIDI Learn, ou
+&agrave; l'&eacute;cran par le menu Edit Event, ou encore par
+Dump SysEx<br>
+<i>Dans les menus</i><i> Bank Select et Copy&nbsp;:</i>
+elles sont utilis&eacute;es pour s&eacute;lectionner rapidement
+l'une des 16 banques (si vous avez install&eacute; un BankStick)<br>
+<b>Notez que le MIOS permet de
+connecter jusqu'&agrave; 128 boutons, mais l'application MIDIbox64
+ne g&egrave;re que 64 boutons au maximum afin de garder le Dump
+SysEx compatible avec l'ancienne impl&eacute;mentation
+PIC16F&nbsp;.</b>
+</p>
+</td>
+</tr>
+<tr>
+<td> <p class="INFO">(7)</p> </td>
+<td>
+<p class="DESC"><b>LEDs:</b>
+Elles sont utilis&eacute;es pour visualiser l'&eacute;tat des
+boutons. Cela s'av&egrave;re &nbsp;utile plus
+particuli&egrave;rement lorsque les boutons sont
+configur&eacute;s en mode Toggle. Elles peuvent &ecirc;tres
+&eacute;galement assign&eacute;es &agrave; d'autres
+fonctions (-&gt; DOUT mapping)<br><i>Dans les menus</i><i>&nbsp;Bank Select et Copy&nbsp;</i>: les 16 premi&egrave;res LEDs servent &agrave; visualiser la Banque actuellement s&eacute;lectionn&eacute;e<br>
+<i>Fonction sp&eacute;ciale:</i> peuvent aussi &ecirc;tre allum&eacute;e/&eacute;teinte via MIDI.<br>
+<b>Notez que le MIOS permet de connecter jusqu'&agrave; </b><b>128 LEDs,&nbsp;</b><b>mais l'application MIDIbox64 ne g&egrave;re que 64 LEDs au maximum afin
+de garder le Dump SysEx compatible avec l'ancienne impl&eacute;mentation PIC16F</b></p>
+</td>
+</tr>
+<tr>
+<td> <p class="INFO">(6)</p> </td>
+<td>
+<p class="DESC"><b>Pots:</b>&nbsp;
+Knobs, Faders, Potars... appellez ces choses la comme vous voulez. ;-)</p>
+</td>
+</tr>
+<tr>
+<td> <p class="INFO">(9)</p> </td>
+<td>
+<p class="DESC"><b>Ecran LCD:</b>
+Pour visualiser la valeur des potars et configurer votre MIDIbox.
+N'importe quel type d'&eacute;cran support&eacute; par le MIOS
+peut &ecirc;tre utilis&eacute; ici, vous trouverez quelques
+exemples sur la page <a href="mbhp_lcd.html">MBHP_LCD</a>,
+mais vous pouvez &eacute;galement installer un autre type
+d'&eacute;cran en cr&eacute;ant vous-m&ecirc;me le pilote
+appropri&eacute;. L'affichage peut &ecirc;tre adapt&eacute;
+en &eacute;ditant le fichier cs_m_display.inc</p>
+</td>
+</tr> </tbody></table>
+<p class="DESC">Apr&eacute;s avoir mis votre MIDIbox sous tension, le moniteur MIDI devrait afficher le message de contr&ocirc;leur: <i>bC 1P XX</i>
+(C=canal P=potar 0-7, XX=valeur). Si ce n'es pas le cas:
+v&eacute;rifiez le circuit, le c&acirc;ble, votre
+installation Wintendo&nbsp;. Si &ccedil;a ne vous aide pas,
+maudissez Wintendo et votre carte son!<br><b>Un guide pour la r&eacute;solution des probl&egrave;mes est disponible <a href="http://www.ucapps.de/howto_debug_midi_fr.html">ici</a>.</b></p>
+<h2>Gestion des MENUS</h2>
+<p class="DESC">La
+navigation dans les Menus de la MIDIbox est tr&eacute;s simple.
+Vous passez d'un menu &agrave; l'autre avec les touches
+Menu-Left/Right, ou la datawheel si vous en avez install&eacute;
+une &agrave; la place des boutons de navigation, et vous entrez
+dans les sous-menus en pressant la touche Menu-Exec, et vous revenez
+ensuite &agrave; la page de s&eacute;lection des Menus en
+appuyant &agrave; nouveau sur cette touche. Voici une
+pr&eacute;sentation de ce vous trouverez dans les sous-menus:</p>
+<table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+<tbody><tr>
+<td><p><img src="midibox64_tutor/cs04.gif" alt="Displaymenu" height="38" width="194"></p><p class="INFO">Display Submenu</p>
+<p class="INFO">sous-Menu "Affichage"</p>
+</td>
+<td>
+<p class="DESC">Dans ce
+sous-Menu, vous pouvez s&eacute;lectionner &agrave; l'aide de
+la touche Menu-Left/Right (ou de la datawheel) l'un de ces trois modes
+d'affichage&nbsp;:</p>
+<table align="center" cellpadding="3" cellspacing="2">
+<tbody><tr> <td><img src="midibox64_tutor/cs15.gif" alt="Display Page 1/1" height="38" width="194"></td>
+<td><p class="INFO">La
+premi&egrave;re page affiche la Banque actuelle (ici: INT=Internal,
+la Banque interne de la MIDIbox, disponible m&ecirc;me si vous
+n'avez pas de BankStick) et le mode des Potars (N=Normal, S=Snap,
+R=Relative, P=Parallax). Le dernier &eacute;v&egrave;nement
+MIDI est aussi affich&eacute;. Le "format" (nom et
+num&eacute;ro) d'un &eacute;v&egrave;nement de potar peut
+&ecirc;tre librement &eacute;dit&eacute;, individuellement
+pour chaque potar, les &eacute;v&egrave;nements des boutons
+sont seulement affich&eacute;s de fa&ccedil;on standard.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs16.gif" alt="Display Page 1/2" height="38" width="194"></td>
+<td><p class="INFO"></p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs17.gif" alt="Display Page 2" height="38" width="194"></td>
+<td><p class="INFO">La
+seconde page affiche une vue g&eacute;n&eacute;rale de la
+rang&eacute;e de potars et de boutons du dernier
+&eacute;v&egrave;nement envoy&eacute;.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs18.gif" alt="Display Page 3/1" height="38" width="194"></td>
+<td><p class="INFO">La
+troisi&egrave;me page est un m&eacute;lange des deux
+premi&egrave;res: les &eacute;v&egrave;nements de potar et
+de bouton sont seulement affich&eacute;s en hexa, le statut de la
+rang&eacute;e de potar/button est visualisable sur la seconde ligne.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs19.gif" alt="Display Page 3/2" height="38" width="194"></td>
+<td><p class="INFO"></p></td>
+</tr>
+</tbody></table>
+</td>
+</tr>
+<tr>
+<td><p><img src="midibox64_tutor/cs05.gif" alt="Bankmenu" height="38" width="194"></p><p class="INFO">Bank Submenu</p>
+<p class="INFO">sous-Menu "Banques"</p>
+</td>
+<td>
+<p class="DESC">La
+MIDIbox64 est le premier contr&ocirc;leur MIDI au monde
+&agrave; proposer un support de sauvegarde externe "plug and play"
+et connectable &agrave; chaud : le BankStick. Si vous rencontrez
+d'ici quelques ann&eacute;es un contr&ocirc;leur disposant d'un
+tel support de sauvegarde, vous saurez d'o&ugrave; vient le
+concept!&nbsp;<br>Dans la
+mesure o&ugrave; nous utilisons ici des IIC EEPROM de 32kb, ces
+petites choses se r&eacute;v&egrave;lent tr&egrave;s
+&eacute;conomiques (aux alentours de 2-3 EUR). Il ne vous reste
+plus qu'&agrave; vous munir d'un chip pour Reaktor, un pour Logic
+(ou Cubase/Cakewalk/Sonar/Ableton, bien entendu), et de quelques autres
+pour vos Synth&eacute;tiseurs, etc... :).<br>Vous trouverez le diagramme du circuit pour le BankStick <a href="mbhp_bankstick.html">ici</a>.</p>
+<table align="center" cellpadding="3" cellspacing="2">
+<tbody><tr> <td><img src="midibox/midibox64_bankstick.jpg" alt="The BankStick" height="69" width="161"></td>
+<td><p class="INFO">Le
+boitier d'un BankStick ouvert. J'utilise un connecteur SubD 9
+p&ocirc;les, mais vous pouvez choisir n'importe quel type de
+connecteur disposant d'au moins 4 broches.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs20.gif" alt="No Stick found" height="38" width="194"></td>
+<td><p class="INFO">Une
+ast&eacute;risque (*) est ajout&eacute; derri&egrave;re le
+num&eacute;ro de Banque si aucun BankStick n'est
+connect&eacute;. Dans ce cas la MIDIbox bascule automatiquement sur
+la Banque Interne.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs22.gif" alt="Stick found" height="38" width="194"></td>
+<td><p class="INFO">L'
+asterisque (*) dispara&icirc;t d&eacute;s que vous connectez un
+BankStick. Vous pouvez maintenant s&eacute;lectionner la Banque
+avec les touches Menus Left/Right (ou la Datawheel).</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/mb_bankshort1.jpg" alt="Bank LED" width="161"></td>
+<td><p class="INFO">Une des 16 LEDs s'allume, en fonction de la Banque s&eacute;lectionn&eacute;e.</p></td>
+</tr>
+<tr><td><img src="midibox64_tutor/mb_bankshort2.jpg" alt="Manual Select" width="161"></td>
+<td><p class="INFO">Vous
+pouvez &eacute;galement s&eacute;lectionner les Banques
+&agrave; l'aide des 16 premiers boutons MIDI Trigger -&nbsp;
+uniquement lorsque vous &ecirc;tes dans ce menu. (ou dans les menus Morph et Copy)</p>
+<p class="INFO"></p>
+</td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs25.gif" alt="BankStick Format" height="38" width="194"></td>
+<td><p class="INFO">En appuyant pendant&nbsp;<i>2 secondes</i> sur la touche Snapshot, le BankStick sera format&eacute;.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs26.gif" alt="BankStick Format" height="38" width="194"></td>
+<td><p class="INFO">La proc&eacute;dure de formatage copie la Banque Interne dans le Bankstick.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs24.gif" alt="Multiple BankSticks" height="38" width="194"></td>
+<td><p class="INFO">Notez
+qu'avec la version V2.x jusqu'&agrave; 8 BankSticks peuvent
+&ecirc;tre connect&eacute;s &agrave; la MIDIbox, ce qui
+vous fait 128 Banques disponibles.<br>Vous pouvez aussi s&eacute;lectionner une Banque via MIDI (-&gt;commande de Program Change&nbsp;)</p></td>
+</tr>
+</tbody></table>
+</td>
+</tr>
+<tr>
+<td><p><img src="midibox64_tutor/cs05_5.gif" alt="GlobalChnmenu" height="38" width="194"></p><p class="INFO">Global Channel Submenu</p>
+<p class="INFO">sous-Menu "Canal MIDI Global"</p>
+</td>
+<td>
+<table align="center" cellpadding="3" cellspacing="2">
+<tbody><tr> <td><img src="midibox64_tutor/cs61.gif" alt="Global Channel --" height="38" width="194"></td>
+<td><p class="INFO">Lorsque l'&eacute;cran affiche <b>--</b>&nbsp;,
+tous les &eacute;v&egrave;nements seront &eacute;mis sur
+les canaux s&eacute;lectionn&eacute;s dans la Banque
+elle-m&ecirc;me (voir Menu Edit Event).</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs62.gif" alt="Global Channel 3" height="38" width="194"></td>
+<td><p class="INFO">Utilisez
+les touches Left/Right (ou la datawheel) pour s&eacute;lectionner
+le canal MIDI global qui sera utilis&eacute; pour tous les
+&eacute;v&egrave;nements de potars/boutons &agrave; la
+place des canaux d&eacute;finis &agrave; l'int&eacute;rieur
+des Banques.</p></td>
+</tr>
+</tbody></table>
+</td>
+</tr>
+<tr>
+<td><p><img src="midibox64_tutor/cs06.gif" alt="MIDI Learn" height="38" width="194"></p><p class="INFO">MIDI Learn Submenu</p>
+<p class="INFO">sous-Menu "MIDI learn"</p>
+</td>
+<td>
+<p class="DESC">La
+fonction MIDI Learn (d&eacute;tection des donn&eacute;es MIDI
+entrantes) vous permet de configurer et d'assigner facilement vos
+potars/boutons. Son utilisation est tr&eacute;s simple: branchez un
+c&acirc;ble MIDI du Port MIDI out de votre clavier ou de votre PC
+au port MIDI IN de la MIDIbox&nbsp;&nbsp;.
+S&eacute;lectionnez le sous-menu MIDI learn, vous &ecirc;tes
+maintenant en Mode "apprentissage" MIDI, la MIDIbox attends de recevoir
+un message quelconque sur le port MIDI IN:</p>
+<p><img src="midibox64_tutor/cs27.gif" alt="MIDI Learn 0" height="38" width="194"></p>
+<p class="DESC">Envoyez
+un message MIDI &agrave; votre MIDIbox (tournez un potars de votre
+synth&eacute;, appuyez sur une touche de votre clavier MIDI ou
+utlisez MIDIox). La MIDIbox reconnait tous les types
+d'&eacute;v&egrave;nements MIDI et affichera le dernier
+re&ccedil;u:</p>
+<p><img src="midibox64_tutor/cs28.gif" alt="MIDI Learn 1" height="38" width="194"></p>
+<p class="DESC">Si
+vous d&eacute;sirez assigner cet &eacute;v&egrave;nement
+&agrave; un potar, tournez celui-ci "&agrave; fond" vers la
+droite puis "&agrave; fond" vers la gauche. Si vous
+d&eacute;sirez assigner cet &eacute;v&egrave;nement
+&agrave; un bouton, appuyez simplement sur celui-ci.</p>
+<p class="DESC">"Learn Single" signifie que le contr&ocirc;leur sera assign&eacute; &agrave; un seul potar ou bouton.&nbsp;</p>
+<p class="DESC">Mais
+il peut &ecirc;tre parfois pratique d'assigner le m&ecirc;me
+contr&ocirc;leur &agrave; tous les potars/boutons, mais chacun
+sur un canal MIDI diff&eacute;rent. La MIDIbox offre une fonction
+sp&eacute;ciale pour cela, "Learn Row Chn", que vous pouvez
+s&eacute;lectionner gr&acirc;ce au bouton Menu Left/Right (ou
+la Datawheel):</p>
+<p><img src="midibox64_tutor/cs29.gif" alt="MIDI Learn 2" height="38" width="194"></p>
+<p class="DESC">Il
+est possible &eacute;galement d'incr&eacute;menter
+automatiquement le num&eacute;ro de contr&ocirc;leur. C'est la
+fonction "Learn Row Add" . C'est plus particuli&egrave;rement utile
+si vous voulez que chaque potar est une assignation
+diff&eacute;rente (sur le m&ecirc;me canal MIDI, bien que vous
+puissiez ensuite changer celui-ci individuellement pour chaque potar).
+Si par exemple vous envoyez un message CC N&deg;&nbsp;01
+&agrave; votre MIDIbox et que vous l'assignez comme
+indiqu&eacute; plus haut au premier potar, vous aurez en
+s&eacute;lectionnant cette option votre deuxi&egrave;me potar
+assign&eacute; au CC N&deg; 02, le troisi&egrave;me au CC
+N&deg; 03 et ainsi de suite :</p>
+<p><img src="midibox64_tutor/cs30.gif" alt="MIDI Learn 3" height="38" width="194"></p>
+<p class="DESC">Une
+fonctionnalit&eacute; sp&eacute;ciale a
+&eacute;t&eacute; impl&eacute;ment&eacute;e pour les
+boutons: le comportement de chaque bouton peut &ecirc;tre
+configur&eacute; gr&acirc;ce &agrave; la touche Snapshot
+avant d'assigner l'&eacute;v&egrave;nement:</p>
+<table align="center" cellpadding="3" cellspacing="2">
+<tbody><tr> <td><img src="midibox64_tutor/cs31.gif" alt="MIDI Learn 4" height="38" width="194"></td>
+<td><p class="INFO">Envoie la valeur "apprise" lorsque vous appuyez sur le bouton, envoie la valeur Z&eacute;ro lorque vous le rel&acirc;chez.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs32.gif" alt="MIDI Learn 5" height="38" width="194"></td>
+<td><p class="INFO">Envoie
+la valeur "apprise" lorsque vous appuyez sur le bouton, n'envoie aucune
+valeur (n'envoie rien du tout) lorsque vous le rel&acirc;chez.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs33.gif" alt="MIDI Learn 6" height="38" width="194"></td>
+<td><p class="INFO">Envoie
+la valeur "apprise" lors d'une premi&egrave;re pression sur le
+bouton, envoie une valeur Z&eacute;ro lors d'une
+deuxi&egrave;me pression (rien n'est &eacute;mis lorsque vous
+rel&acirc;chez le bouton)</p></td>
+</tr>
+</tbody></table>
+<p class="DESC">En
+plus des &eacute;v&egrave;nements de contr&ocirc;leur
+continu (CC), la MIDIbox reconnait aussi les messages Note On/Off,
+Program Change, PitchBender, ...&nbsp;:</p>
+<p>
+<img src="midibox64_tutor/cs34.gif" alt="MIDI Learn 7" height="38" width="194">
+<img src="midibox64_tutor/cs35.gif" alt="MIDI Learn 8" height="38" width="194">
+<img src="midibox64_tutor/cs36.gif" alt="MIDI Learn 9" height="38" width="194">
+<img src="midibox64_tutor/cs37.gif" alt="MIDI Learn 10" height="38" width="194">
+<img src="midibox64_tutor/cs39.gif" alt="MIDI Learn 11" height="38" width="194">
+<img src="midibox64_tutor/cs40.gif" alt="MIDI Learn 12" height="38" width="194">
+</p>
+</td>
+</tr>
+<tr>
+<td><p><img src="midibox64_tutor/cs07.gif" alt="Morphing Fun" height="38" width="194"></p><p class="INFO">Morhphing Function</p>
+<p class="INFO">sous-Menu "Morphing"</p>
+</td>
+<td>
+<p class="INFO">La
+fonction "Morphing" vous permet de passer progressivement d'une
+"sc&egrave;ne", c'est &agrave; dire un ensemble de valeurs de
+potar, &agrave; une autre - entre les valeurs/positions actuelles des potars
+et les valeurs/positions sauv&eacute;es dans une Banque&nbsp; -
+tout ceci en tournant un seul potentiom&egrave;tre!</p>
+                  <p class="INFO">Exemple: assignez les
+potentiom&egrave;tres de votre synth&eacute; virtuel au potar de votre
+MIDIbox, travaillez un son (qui vous plait), une fois que vous
+&ecirc;tes sastisfait sauvegardez la banque. Travaillez ensuite un
+autre son, plus ou moins diff&eacute;rent (plut&ocirc;t plus, pour des
+r&eacute;sultat impr&eacute;vus!). Programmez ensuite une
+s&eacute;quence de notes dans votre s&eacute;quenceur, et pendant
+qu'elle tourne, jouez avec le Morph comme expliqu&eacute;
+ci-apr&eacute;s.</p>
+                  <p class="INFO">Autre exemple: cette fois-ci pour le
+mixage (ou le remix) de votre dernier morceau (ou de votre premier,
+vous lui offrirait ainsi une seconde vie..): Configurez votre MIDIbox
+afin qu'elle contr&ocirc;le la table de mixage de votre
+s&eacute;quenceur, assignez plus particuli&egrave;rement les pans et
+les sends au potars, et travaillez un mix un peu "exc&eacute;ssif", qui
+correspondra &agrave; point fort de votre morceau (une mont&eacute;e)
+ou &agrave; une ambiance "confuse" qui pourra faire une splendide
+intro, avec par exemple des &eacute;l&egrave;ments compl&egrave;tement
+&agrave; gauche ou &agrave; droite et "noy&eacute;s" dans une reverb.
+Sauvez votre banque. Revenez ensuite au mixage "normal" de votre
+morceau, &agrave; la mise en place "statique" des
+&eacute;l&egrave;ments. Sauvez la banque. Et "morphez"....<br>
+ <table align="center" cellpadding="3" cellspacing="2">
+<tbody><tr> <td><img src="midibox64_tutor/cs41.gif" alt="Morhping" height="38" width="194"></td>
+<td><p class="DESC">Pour
+cette fonction, vous devez d'abord d&eacute;clarer au moins un
+potar qui contr&ocirc;lera le morphing. Vous pouvez assigner
+jusqu'&agrave; 5 potars: l'un sera utilis&eacute; pour morpher
+tous les potars d'un coup (Gl=global), les 4 autres pour morpher
+chacun une rang&eacute;e de potentiom&egrave;tre&nbsp; (G1/G2/G3/G4=Group
+1/2/3/4).</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs42.gif" alt="Morhping" height="38" width="194"></td>
+<td><p class="DESC">Le
+num&eacute;ro du/des potar(s) peut &ecirc;tre
+s&eacute;lectionn&eacute; avec les touches left/right (ou la
+datawheel), vous pouvez passer d'un groupe &agrave; l'autre avec la
+touche Snapshot. Dans cet exemple c'est le premier potar qui est
+utilis&eacute; pour morpher tous les potars d'un coup.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs43.gif" alt="Morhping" height="38" width="194"></td>
+<td><p class="DESC">Cet
+exemple vous montre comment configurer la MIDIbox64 pour morpher chaque
+rang&eacute;e de potar s&eacute;par&eacute;ment.Ici, le
+premier potar de chaque rang&eacute;e est utilis&eacute;. </p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs44.gif" alt="Morhping" height="38" width="194"></td>
+<td><p class="DESC">Dans
+cet exemple le pot #1 est utilis&eacute; pour morpher la
+premi&egrave;re et la seconde rang&eacute;e, et le pot #2 pour
+morpher la troisi&egrave;me et la quatri&egrave;me.</p></td>
+</tr>
+<tr><td><img src="midibox64_tutor/mb_bankshort2.jpg" alt="Morph Bank Select" width="161"></td>
+<td><p class="INFO">En
+pressant l'un des 16 boutons de s&eacute;lection de Banque, vous
+pouvez morpher entre diff&eacute;rents setups sauv&eacute;s
+dans le BankStick. En maintenant un de ces boutons press&eacute;
+pendant deux secondes, les positions actuelles des potars&nbsp;passeront
+aux positions/ valeurs sauv&eacute;es dans la Banque correspondante
+progressivement .</p></td>
+</tr>
+</tbody></table>
+                  </p>
+</td>
+</tr><tr>
+</tr><tr>
+<td><p><img src="midibox64_tutor/cs08.gif" alt="PotMode" height="38" width="194"></p><p class="INFO">Comportement des potentiom&egrave;tres</p></td>
+<td>
+<p class="INFO">(L'id&eacute;e d'impl&eacute;menter ces diff&eacute;rents modes vient de <a href="mailto:frankgl@cyberway.com.sg">Frank</a> et <a href="mailto:klive@smug.adelaide.edu.au">Kieran</a>. Les descriptions sont en partie extraites du manuel du Synth&eacute;tiseur&nbsp; Access Virus&nbsp;. Copyright 2001 by <a href="http://www.access-music.de" target="_blank">Access Music GmbH</a>. Voir sur le <a href="http://forum.ucapps.de/">Forum </a><a href="http://forum.ucapps.de">MIDIbox</a> pour plus de d&eacute;tails)</p>
+<table align="center" cellpadding="3" cellspacing="2">
+<tbody><tr> <td><img src="midibox64_tutor/cs46.gif" alt="PotMode 0" height="38" width="194"></td>
+<td><p class="DESC"><b>Mode </b><b>Normal:</b>
+le param&egrave;tre saute directement et de fa&ccedil;on
+absolue &agrave; la valeur d&eacute;termin&eacute;e par la
+position actuelle du potar.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs47.gif" alt="PotMode 1" height="38" width="194"></td>
+<td>
+<p class="DESC"><b>Mode</b><b> Snap&nbsp;(Soft-Overtake):</b> Lorsque vous ajustez un potentiom&egrave;tre en Mode
+Snap, le r&eacute;glage original (celui sauvegard&eacute;)
+d&eacute;termine la position dans la course du
+potentiom&egrave;tre &agrave; partir de laquelle celui-ci
+deviendra actif. En d'autres mots, le param&egrave;tre ne saute pas
+d'un coup &agrave; la valeur correspondant &agrave; la position
+du potentiom&egrave;tre, comme en mode Normal&nbsp;.<br>
+De
+fait , le potar n'&eacute;mettra aucune donn&eacute;e MIDI tant
+qu'il ne sera pas pass&eacute; par la position
+enregistr&eacute;e pr&eacute;c&eacute;demment. En mode
+SNAP, une fl&egrave;che est affich&eacute;e &agrave; la
+place du bargraphe symbolisant la valeur du param&egrave;tre. Elle
+indique dans quelle direction doit &ecirc;tre tourn&eacute; le
+potar pour repasser par la position enregistr&eacute;e. Le
+bargraphe r&eacute;apparait lorsque le potar a atteint cette
+position.</p>
+</td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs48.gif" alt="PotMode 2" height="38" width="194"></td>
+<td><p class="DESC"><b>Mode </b><b>Relative:</b>
+Lorsque vous ajustez un potentiom&egrave;tre en mode Relatif, il
+est actif imm&eacute;diatement, au contraire du mode Snap, mais pas
+de mani&egrave;re absolue, au contraire du mode Normal. En d'autres
+mots, la valeur du param&egrave;tre augmente ou diminue
+relativement &agrave; la course parcourue par le potar :c'est
+&agrave; dire que si la position actuelle du potar correspond
+&agrave; la valeur +30,&nbsp;et qu'en changeant de banque la
+valeur du param&egrave;tre contr&ocirc;l&eacute; par ce
+m&ecirc;me potar est de +50, le potentiom&egrave;tre agira
+comme s'il se trouvait d&eacute;j&agrave; &agrave; la
+position +50, et commencera imm&eacute;diatement &agrave;
+incr&eacute;menter ou d&eacute;cr&eacute;menter cette
+valeur&nbsp; (+51,+52.. m&ecirc;me si il est en
+r&eacute;alit&eacute; &agrave; la position +31,+32...). Le
+point faible de ce mode c'est que vous pouvez ne pas avoir de suite le
+contr&ocirc;le du champ total du param&egrave;tre - par exemple
+si votre potar se trouve &agrave; sa position minimale
+(compl&egrave;tement &agrave; gauche), et que le
+param&egrave;tre est &agrave; sa valeur maximale, vous ne
+pouvez alors ni diminuer la valeur&nbsp; puisque le potar est en
+bout de course, ni l'augmenter puisqu'elle est
+d&eacute;j&agrave; au maximum . Dans ce cas vous devez d'abord
+tourner le potar jusqu'&agrave; ce que sa position corresponde
+&agrave; la valeur du param&egrave;tre, vous reprendrez ainsi
+le contr&ocirc;le du param&egrave;tre.</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs49.gif" alt="PotMode 3" height="38" width="194"></td>
+<td>
+<p class="DESC"><b>Parallax Mode:</b> C'est un nom terrible, non!? ;-) Une description de ce mode est disponible&nbsp;<a href="midibox/midibox_plus_parallax.gif">ici</a></p>
+                        <p class="DESC">Pour faire simple, votre
+potentiom&egrave;tre n'aura plus une course lin&eacute;aire, mais par
+exemple incr&eacute;mentera le param&egrave;tre d'autant plus
+rapidement que&nbsp;la distance entre sa position r&eacute;elle et la
+fin de sa course sera faible par rapport &agrave; l'&eacute;cart
+s&eacute;parant la valeur actuelle du param&egrave;tre de son maximum.<br>
+Ou, au contraire, si la distance entre la position du potar et la fin
+de sa course est importante et que l'&eacute;cart entre la valeur
+actuelle du param&egrave;tre et son maximum est faible, le potar
+incr&eacute;mentera la valeur lentement.</p>
+</td>
+</tr>
+
+
+</tbody></table>
+</td>
+</tr><tr>
+</tr><tr>
+<td><p><img src="midibox64_tutor/cs09.gif" alt="Edit Bankname" height="38" width="194"></p><p class="INFO">Edition&nbsp;du nom des Banques</p></td>
+<td>
+<p class="DESC">Dans ce menu vous pouvez nommer la Banque en cours
+d'&eacute;dition.
+Utilisez les touches left/right (ou la datawheel) pour modifier les
+caract&egrave;res et le bouton Snapshot pour passer d'un
+caract&egrave;re &agrave; l'autre.<br>
+<img src="midibox64_tutor/cs50.gif" alt="Edit Bankname" height="38" width="194">
+</p>
+</td>
+</tr>
+<tr>
+<td><p><img src="midibox64_tutor/cs10.gif" alt="Edit Events" height="38" width="194"></p><p class="INFO">Edition des &eacute;v&egrave;nements MIDI</p></td>
+<td>
+<p class="DESC">Ce menu vous permet d'&eacute;diter directement
+&agrave; l'&eacute;cran l'assignation des &eacute;v&egrave;nements MIDI
+aux potars/boutons. S&eacute;lectionnez le potar/bouton en le
+tournant/pressant,&nbsp;Utilisez les touches left/right (ou la
+datawheel) pour modifier la valeur&nbsp;et le bouton Snapshot pour
+passer d'un param&egrave;tre &agrave; l'autre<br>
+<img src="midibox64_tutor/cs51.gif" alt="Edit Pot Event" height="38" width="194">
+<img src="midibox64_tutor/cs52.gif" alt="Edit Button Event" height="38" width="194">
+</p>
+</td>
+</tr>
+<tr>
+<td><p><img src="midibox64_tutor/cs11.gif" alt="Edit Lable" height="38" width="194"></p><p class="INFO">Edition du nom des potar</p></td>
+<td>
+<p class="DESC">Dans ce menu, vous pouvez attribuer un
+nom/num&eacute;ro individuellement pour chaque
+potar.&nbsp;S&eacute;lectionnez le potar en le tournant,&nbsp;Utilisez
+les touches left/right (ou la datawheel) pour modifier les
+caract&egrave;res/num&eacute;ros&nbsp;et le bouton Snapshot pour passer
+d'un caract&egrave;re &agrave; l'autre.<br>
+<img src="midibox64_tutor/cs53.gif" alt="Edit Label" height="38" width="194">
+</p>
+</td>
+</tr>
+<tr>
+<td><p><img src="midibox64_tutor/cs12.gif" alt="Copy Bank" height="38" width="194"></p><p class="INFO">sous-Menu Copier</p></td>
+<td>
+<p class="INFO">Ce menu vous permet de copier la Banque actuelle dans une autre Banque.</p>
+<table align="center" cellpadding="3" cellspacing="2">
+<tbody><tr> <td><img src="midibox64_tutor/cs54.gif" alt="Copy select" height="38" width="194"></td>
+<td><p class="DESC">La Banque cible peut aussi bien &ecirc;tre s&eacute;lectionn&eacute;e avec les touches left/right (ou la datawheel)...</p></td>
+</tr>
+<tr><td><img src="midibox64_tutor/mb_bankshort2.jpg" alt="Copy Buttons" width="161"></td>
+<td><p class="INFO">...qu'avec les boutons Bank Select ...</p></td>
+</tr>
+<tr> <td><img src="midibox64_tutor/cs55.gif" alt="Copy start" height="38" width="194"></td>
+<td><p class="DESC">Maintenez la touche Snapshot enfonc&eacute;e pendant 2 secondes pour lancer la copie.</p></td>
+</tr>
+</tbody></table>
+</td>
+</tr><tr>
+</tr><tr>
+<td><p><img src="midibox64_tutor/cs13.gif" alt="MIDIMenu" height="38" width="194"></p><p class="INFO">MIDI Config. submenu</p>
+                  <p class="INFO">sous-Menu de Configuration MIDI</p>
+</td>
+<td>
+<table align="center" cellpadding="3" cellspacing="2">
+<tbody><tr> <td><img src="midibox64_tutor/cs56.gif" alt="Merger0" height="38" width="194"></td>
+<td><p class="DESC">Le MIDI merger vous permet de connecter votre
+MIDIbox MIDIbox et par exemple un clavier MIDI sans occuper un port
+MIDI suppl&eacute;mentaire sur votre interface. Branchez simplement le
+MIDI Out de votre clavier au MIDI In de la MIDIbox et le MIDI Out de
+la&nbsp; MIDIbox au port MIDI In de votre ordinateur.</p>
+</td></tr>
+<tr> <td><img src="midibox64_tutor/cs57.gif" alt="Merger1" height="38" width="194"></td>
+<td><p class="DESC">Si vous connectez le MIDI Out de votre ordinateur
+au MIDI In de votre MIDIbox, vous devez d&eacute;sactiver le MIDI
+merger pour &eacute;viter de cr&eacute;er une boucle MIDI.</p>
+</td></tr>
+<tr> <td></td>
+<td><p class="DESC">Si vous cascadez plusieurs MIDIbox en utilisant l'option <a href="midibox_link.html">MIDIbox Link</a>, toutes les MIDIBOX doivent &ecirc;tre d&eacute;clar&eacute;es comme: MIDIbox Link Forwarding Point...</p>
+</td></tr>
+<tr> <td><img src="midibox64_tutor/cs58.gif" alt="Merger3" height="38" width="194"></td>
+<td><p class="DESC">&agrave; l'exception de la derni&egrave;re qui doit &ecirc;tre r&eacute;gl&eacute;e sur:&nbsp; MIDIbox Link Endpoint.</p>
+</td></tr>
+</tbody></table>
+<p class="DESC"><b>Note:</b> Dans ce menu vous pouvez aussi activer
+l'option MIDIbox-to-COM en utilisant le bouton Snapshot (4). Vous
+trouverez plus d'information sur cette page: <a href="midibox_to_com.html">MIDIbox-to-COM Interface</a>!&nbsp;</p>
+</td>
+</tr>
+<tr>
+<td><p><img src="midibox64_tutor/cs14.gif" alt="SysEx" height="38" width="194"></p><p class="INFO">SysEx submenu</p>
+                  <p class="INFO">sous-Menu SysEx</p>
+</td>
+<td>
+<p class="DESC">Ce menu vous permet de s&eacute;lectionner l' ID de
+votre MIDIbox, et vous pouvez lancer un Dump SysEx manuellement en
+pressant sur la touche Snapshot.<br>
+<img src="midibox64_tutor/cs60.gif" alt="SysEx menu" height="38" width="194"><br>Voir aussi le <a href="howtosysex.html">SysEx HowTo</a> pour de plus amples informations.
+</p>
+</td>
+</tr>
+</tbody></table>
+<h2>Connection de la MIDIbox&nbsp;</h2>
+<p class="DESC">Voici quelques exemples typiques de connection. Le MIDI
+In de la MIDIbox doit &ecirc;tre connect&eacute; au MIDI out de votre
+ordinateur si vous voulez utiliser les modes Snap/Relative/Parallax (ou
+des Faders Motoris&eacute;s), la fonction MIDI
+Learn ou la configuration via SysEx. Si l'option MIDI Thru est
+activ&eacute;e dans votre s&eacute;quenceur (c'est le r&eacute;glage
+par d&eacute;faut dans Cubase!), d&eacute;sactivez le MIDI merger
+int&eacute;gr&eacute; de la MIDIbox&nbsp;pour &eacute;viter de cr&eacute;er une boucle MIDI !</p>
+<p><img src="midibox64_tutor/merging0.gif" alt="merging example 1" height="362" width="742"></p>
+<p><img src="midibox64_tutor/merging1.gif" alt="merging example 2" height="362" width="742"></p>
+<p><img src="midibox64_tutor/merging2.gif" alt="merging example 3" height="362" width="742"></p>
+<p><img src="midibox64_tutor/merging3.gif" alt="merging example 4" height="362" width="742"></p>
+<h2>FAQ, Tips &amp; Tricks</h2>
+<p class="DESC">Vous trouverez r&eacute;unies sur le <a href="http://wiki.midibox.org">MIDIbox Wiki</a> et le <a href="http://forum.ucapps.de/">Forum</a><a href="http://forum.ucapps.de"> MIDIbox</a>
+toutes les informations et exp&eacute;riences accumul&eacute;es par les
+utilisateurs des MIDIbox, et n'oubliez pas de jeter un oeil sur le
+superbe <a href="http://midibox64.mystifistisk.net/" target="_blank">Pas-&agrave;-pas</a> de Tor Arne&nbsp;</p>
+FOOTER

@@ -1,0 +1,106 @@
+HEADER 3 MIDI Interface Troubleshooting (PIC16F version)
+
+<H1>MIDI Interface Troubleshooting (PIC16F version)</H1>
+
+<P CLASS=INFO><I>This page has been written for troubleshooting a core module stuffed with the PIC16F877 or PIC16F874. For newer MIOS based PIC18F projects see <A HREF="howto_debug_midi.html">this page</A></I></P>
+
+<P CLASS=INFO>This page gives you some instructions how to debug the MIDI IN/OUT Ports of MIDIbox Plus, MIDIbox64 and MIDIO128.<P>
+
+<P CLASS=INFO>Click on the pictures for the original size.</P>
+
+<TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0 >
+
+  <TR>
+    <TD><A HREF="http://www.midiox.com" TARGET="_blank"><IMG SRC="howtodebug/moxtitle.gif" WIDTH=160 ALT="Link to the MIDI-OX site"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Download MIDI-OX from <A HREF="http://www.midiox.com" TARGET="_blank">this site</A>.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtodebug/snap1.gif"><IMG SRC="howtodebug/snap1.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Start MIDI-OX and configure the MIDI IN/OUT Ports.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtodebug/midi_menu.gif"><IMG SRC="howtodebug/midi_menu.gif" WIDTH=160 ALT="midi_menu.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Please ensure inside the menu that the events from the MIDI IN ports are not attached to the MIDI OUT ports, because this could cause a MIDI feedback loop when running the RxTx Test.</SPAN></TD>
+
+  </TR>
+
+
+</TABLE>
+
+<H2>Testing the MIDI OUT Port</H2>
+
+<TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0 >
+
+  <TR>
+    <TD><A HREF="howtodebug/test_tx.hex.zip"><IMG SRC="howtodebug/download.jpg" WIDTH=160 ALT="Download Tx Firmware"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Download the <A HREF="howtodebug/test_tx.hex.zip">Test Tx</A> Firmware and burn it into your PIC. This firmware runs with all PIC16F87x derivatives at 20 MHz oscillator clock.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtodebug/midibox_debug_tx.gif"><IMG SRC="howtodebug/midibox_debug_tx.gif" WIDTH=160 ALT="midibox_debug_tx.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Connect the MIDI OUT of your MIDIbox with the MIDI IN of your computer. Turn on your MIDIbox. Check the messages in the MIDI-OX window. Every 0.5 seconds a controller should appear on the screen. If not, check the MIDI port configuration of MIDI-OX first.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtodebug/midi_out_led.gif"><IMG SRC="howtodebug/midi_out_led.gif" WIDTH=160 ALT="midi_out_led.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>If this doesn't help, disconnect the MIDI cable and attach a LED on the MIDI OUT Port. The LED should flicker every 0.5 seconds. If not, the MIDI OUT stuff is not connected correctly, the PIC does not run (check the power supply and the crystal connections) or the PIC burning failed.<BR>Note that the LED has a polarity and only flickers if the (-) (short) wire is connected with the Tx pin and the (+) (long) wire via a resistor with +5V.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtodebug/midi_out_fix.gif"><IMG SRC="howtodebug/midi_out_fix.gif" WIDTH=160 ALT="midi_out_fix.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>If the LED flickers but your PC still does not receive MIDI messages, check the polarity of your MIDI plug. One of the most frequently made errors: the two Tx pins are twisted. Just exchange the pins and try it out again.<BR>Another reason could be, that the current of the MIDI OUT port is too low. Bypass one of the 220 Ohm resistors and check if the MIDI interface of your computer is able to receive with this fix. <B>NEVER BYPASS BOTH RESISTORS, THIS COULD DAMAGE YOUR MIDI INTERFACE</B> (if it doesn't include a special protection like the MIDIbox).</SPAN></TD>
+  </TR>
+
+</TABLE>
+
+
+<H2>Testing the MIDI IN Port</H2>
+
+<TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0 >
+
+  <TR>
+    <TD><A HREF="howtodebug/test_rxtx.hex.zip"><IMG SRC="howtodebug/download.jpg" WIDTH=160 ALT="Download RxTx Firmware"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Download the <A HREF="howtodebug/test_rxtx.hex.zip">Test RxTx</A> Firmware and burn it into your PIC. This firmware runs with all PIC16F87x derivatives at 20 MHz oscillator clock.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtodebug/midibox_debug_rxtx.gif"><IMG SRC="howtodebug/midibox_debug_rxtx.gif" WIDTH=160 ALT="midibox_debug_rxtx.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Connect the MIDI OUT of your MIDIbox with the MIDI IN of your computer and the MIDI IN of your MIDIbox with the MIDI OUT of your computer. Turn on your MIDIbox. Activate the MIDI Keyboard in MIDI-OX. Press some keys (Q-W-E-R-T-Y...) and check the messages in the MIDI-OX window. If you only see the KEYBOARD events, the RxTx firmware doesn't forward the incoming MIDI bytes to the MIDI out. If you see a lot of messages after typing once the keyboard, you possibly have a MIDI feedback loop (check the MIDI Port menu). If you see the messages like on the picture (every event twice), your MIDIbox works correctly.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtodebug/midi_cable_led.gif"><IMG SRC="howtodebug/midi_cable_led.gif" WIDTH=160 ALT="midi_cable_led.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>If the forwarding doesn't work, disconnect the MIDI cable from your MIDIbox IN port and attach a LED on the MIDI jack. The LED should flicker when your PC sends a MIDI event. If not, the MIDI OUT port of your PC doesn't work or possibly the MIDI cable is broken?</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtodebug/midi_in_fix.gif"><IMG SRC="howtodebug/midi_in_fix.gif" WIDTH=160 ALT="midi_in_fix.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>If the LED flickers but the MIDIbox still does not receive MIDI messages, check the polarity of your MIDI IN and OUT plug. One of the most frequently made errors: the two pins are twisted. Just exchange the pins and try it out again.<BR>Another reason could be, that the current through the MIDI IN port is too low. Change the value of the red marked pullup-resistor (note the different optocouplers for MIDIbox Plus and the other MIDIboxes). For example, try out a 1k, 1.2k, 1.8k, 2.2k resistor -- if you don't own such a resistor, but others, connect two or three in parallel or serial (I hope that you still know the formulas for parallel and serial resistor networks from school ;-).<BR><I>New:</I>Two people noticed, that their MIDI In port with CNY17-II works better, when the 220 Ohm resistor is bypassed with a cable. It seems, that the MIDI Out of their PC doesn't bring enough current to drive the CNY17-II.</SPAN></TD>
+  </TR>
+
+</TABLE>
+
+<H2>Still no success?</H2>
+
+<UL CLASS=CL>
+   <LI>The LED on MIDI Out flickers but your MIDI device (PC, Synth, ...) is not able to receive: Are you using the right crystal? 20 MHz with <B>parallel cut</B> is a must. There are also 20 MHz crystals with serial cut, which are mostly used on HF units. But such crystals <B>don't</B> work with the PIC microcontroller and could cause a wrong MIDI baudrate.</LI>
+   <LI>Nothing happens: check the power supply. Check if your PIC is burned correctly (use the VERIFY function of your programmer in order to test the flash content). Some people noticed problems with the JDM programmer, but had more luck with Martin Clausens programmer (see the <A HREF="howtoprog.html">HowToProg</A> page).</LI>
+   <LI>before giving up: try out the <A HREF="midibox_to_com.html">MIDIbox-to-COM Interface</A>
+   <LI>...or connect your box directly with the Gameport: <A HREF="mbhp/mbhp_midi_gameport.gif">mbhp_midi_gameport.gif</A></A>
+</LI>
+</UL>
+
+FOOTER

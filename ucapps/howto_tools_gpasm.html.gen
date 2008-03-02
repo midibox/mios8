@@ -1,0 +1,62 @@
+HEADER 3 Short GPASM Guide
+
+<H1>A short GPASM Guide</H1>
+
+<P CLASS=INFO>GPASM is part of the <A HREF="http://gputils.sourceforge.net" TARGET="_blank">GPUTILS</A> toolchain. In distance to the Windows propritary <A HREF="howto_tools_mpasm.html">MPASM</A>, it is available for most major operating systems like Windows, Linux and MacOS. Therefore all MIOS applications have been migrated to this freeware meanwhile.</P>
+
+<P CLASS=INFO>Whenever you change the source code of a MIOS application, it has to be reassembled and converted to a .hex file - here a step by step guide:<P>
+
+<TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0>
+
+  <TR>
+    <TD><A HREF="http://gputils.sourceforge.net" TARGET="_blank"><IMG SRC="howto_tools/gputils.gif" WIDTH=160></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Download and install the <A HREF="https://sourceforge.net/project/showfiles.php?group_id=41924" TARGET="_blank">GPUTILS package from sourceforge.net</A>; it contains the GPASM assembler.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howto_tools/mpasm2.gif"><IMG SRC="howto_tools/mpasm2.gif" WIDTH=160></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Open your favourite text editor in order to edit the source files. This is a snapshot of Emacs, my prefered editor under Windows and Unix. However, not everybody finds it userfriendly - it's one of the most powerful editors (with integrated programming language and endless extensions like HTML browser, mail, newsreader, games ;-), but requires a lot of practice before it can be used efficiently. The windows version can be downloaded from here: <A HREF="http://www.gnu.org/software/emacs/windows/ntemacs.html" TARGET="_blank">emacs@Win</A>.<BR>A good alternative editor for Windows (only) is <A HREF="http://www.ultraedit.com/" TARGET="_blank">Ultraedit</A> or <A HREF="http://www.textpad.com/news/index.html" TARGET="_blank">TextPad</A> or <A HREF="http://notepad-plus.sourceforge.net" TARGET="_blank">Notepad++</A>.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howto_tools/gpasm4.gif"><IMG SRC="howto_tools/gpasm4.gif" WIDTH=160></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Windows Users:</B> after changes have been made in the source code, you have to execute the "make.bat" file of the source code package. This batch file can either be double-clicked from the Explorer, or it can be executed from the command shell like shown in this picture. The make.bat file contains "gpasm" commands with application specific parameters.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howto_tools/gpasm4_unix.gif"><IMG SRC="howto_tools/gpasm4_unix.gif" WIDTH=160></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>Linux/MacOS/etc.. Users:</B> open a command shell, change to the application directory and type "make" - this will process the Makefile. With "make clean" all temporary files except for the .hex dump(s) will be removed, with "make cleanall" all generated files will be removed.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/mios_studio8.gif"><IMG SRC="mios/mios_studio8_small.gif" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> If the assembler notified no errors (*), the new .hex file can now be uploaded by using MIOS Studio (see also <A HREF="mios_bootstrap_newbies.html">this page</A>).</SPAN></TD>
+  </TR>
+
+</TABLE>
+
+<P CLASS=INFO>(*) If GPASM notifies errors or warnings, the .hex file will NOT be updated! In such a case have a look into the .err file (e.g. main.err) which contains all messages and references to the incorrect parts of the code. You could also check the .lst file (e.g. main.lst) which contains the whole listing - plus errors and warnings.
+If you assembled "main.asm", the name of the error file is "main.err". Or if you assembled "setup_8580.asm", the filename is "setup_8580.err", etc...</P>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Update </H2>
+
+<P CLASS=INFO>Currently I'm going to change the project structure (again), so that it's easier to maintain all existing applications. Unfortunately it makes the build step a little bit more complicated for Windows users, because the "make.bat" file won't be supported anymore. Instead, you need to install a POSIX emulation in order to process the same Makefile, that is used by Mac and Linux users.</P>
+
+<P CLASS=INFO>So, beside of GPUTILS, you need some additional tools which are temporary located here: <A HREF="http://www.ucapps.de/tmp/posix_bin.zip">posix_bin.zip</A>. This directory has been taken from the WinAVR toolchain, it's a reduced variant of <A HREF="http://www.mingw.org/msys.shtml" TARGET="_blank">MSYS</A>, which can be freely used and distributed.</P>
+
+<P CLASS=INFO>Just copy it anywhere at your harddisk, e.g. C:\posix_bin</P>
+
+<P CLASS=INFO>Thereafter open a command shell, and enhance the PATH variable, e.g.: <BR>
+set PATH=C:\posix_bin;%PATH% 
+</P>
+
+<P CLASS=INFO>Now you are able to build a new .hex file from the command shell by typing "make" within the downloaded application directory (where "Makefile" is located)</P>
+
+FOOTER
+

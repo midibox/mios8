@@ -1,0 +1,145 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Multi Engine
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- Multi Engine</H1>
+
+<P CLASS=INFO>In this chapter it is assumed that you are already familar with the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, so that only the differences need to be explained in detail.</P>
+
+<P CLASS=INFO>Main difference of the Multi engine is the dynamical voice allocation. Instead of fixed assignments, voices will be selected automatically for six independent instruments.</P>
+
+<P CLASS=DESC>Advantages:
+  <UL CLASS=CL>
+    <LI>Instruments can be played polyphonic. Algorithm: "oldest note will be killed first" (same handling as used in <A HREF="midibox_fm.html">MIDIbox FM</A>).</LI>
+    <LI>But also monophonic assignments are possible, which allows to play up to 6 different instruments the same time (Sidenote: which means, that if your MIDIbox SID is stuffed with 4 cores and 8 SIDs, you can play up to 24 instruments - this section talks about the engine running on a single core, but you are free to use it on multiple cores in parallel).<LI>
+    <LI>MIDI channel assignments and keyboard zones can be configured within an <A HREF="midibox_sid_manual_e.html">Ensemble</A></LI>
+    <LI>Each voice has two dedicated LFOs and one envelope with individual depths for Pitch, Pulsewidth and Filter CutOff modulation (makes 12 LFOs and 6 ENVs which are running in parallel!)</LI>
+    <LI>In addition, each voice has an own wavetable (makes 6 wavetables which can run in parallel!!!)</LI>
+    <LI>There are individual velocity and pitchbender assignments for each instrument, but also global velocity/pitchbender/aftertouch and 5 knob assignments which can control the parameters of a specific, or all instruments</LI>
+  </UL></P>
+
+<P CLASS=DESC>But there are also disadvantages, which are mainly based on the construction of the SID chip:
+  <UL CLASS=CL>
+    <LI>6 voices are only available when two SID chips are connected to the MIDIbox SID core (each SID chip contains three oscillators). With a single SID, the 6 instruments have to share three voices, which only makes sense when they are not played the same time.</LI>
+    <LI>in most cases it's better to center the two audio channels (especially in poly mode) - stereo sounds can only be realized by using two instruments and assigning them to specific voices (-> see CFG page), but the <A HREF="midibox_sid_manual_l.html">Lead Engine</A> provides more sophisticated functions for stereo effects!</LI>
+    <LI>no modulation and trigger matrix available. There are only static modulation assignments (LFO1/LFO2/ENV -> Pitch/Pulsewidth/Filter), but with individual depths!</LI>
+    <LI>external CV outputs can only be modulated via (steppy) wavetables, or with the F2A (Filter-to-Analog) option in the <A HREF="midibox_sid_manual_e.html">Ensemble</A> menu.</LI>
+    <LI>biggest drawback: each SID chip provides only a single filter for three oscillators! Oscillator assignments to the filter are static and they are not dynamically changed by the voice allocator to avoid loud, unintentional switching sounds.</LI>
+    <LI>and another imperfection of the SID chip should be highlighted again: due to the ADSR bug it can happen, that with certain VCA ADSR settings (especially high attack, decay and/or release rates), a note will be broken while it starts to play. Best working ADSR settings have to be tried out while playing the song. Or A, D and R has to be set to 0 (sustain=15).<BR>
+    Alternatively the ABW (ADSR Bug Workaround) function can be activated, but this results into a latency of at least 30 mS.</LI>
+  </UL>
+</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Root Menu </H2>
+<P CLASS=DESC>This is the root menu of the multi engine. In difference to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, you will miss the MOD (Modulation Matrix) and TRG (Trigger Matrix) entries.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/m_root1.gif" width=289 height=19 ALT="Root"></IMG></CENTER><BR>
+<P CLASS=DESC>The root menu gives you quick access the submenus, which are described below.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> "Shift" Menu </H2>
+
+<P CLASS=DESC>To initialise a Multi Patch, press the SHIFT (formerly LINK) button, and press the second select button below the LCD to change to the Ml (Multi) engine:</P>
+<CENTER><IMG SRC="midibox_sid/cs2/m_shift1.gif" width=242 height=38 ALT="Shift"></IMG></CENTER></P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> OSCillator menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_osc1.gif" width=385 height=19 ALT="Oscillator"></IMG></CENTER><BR>
+
+<P CLASS=DESC>All parameters have the same purpose like described for the <A HREF="midibox_sid_manual_l.html">Lead engine</A>. Instead of the OSC (oscillator), the <B>Ins</B>trument has to be selected (1-6).</P>
+
+<P CLASS=DESC>Note that due to the voice allocation algorithm, there is no fixed relation between instrument and oscillator number by default. Sync and Ringmodulation effects have to be handled with special care, as the audio pathes for these effects are fixed within the SID chip. A static voice assignment has to be used for these functions (-> CFG menu) to get them properly working.</P>
+
+<P CLASS=DESC>The variable oscillator phase has only a simple replacement (Phs flag) which restarts the oscillator when the gate is activated. This feature is also known as "hard-sync" and especially useful for percussive sounds.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> FILter menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_fil1.gif" width=338 height=38 ALT="Filter"></IMG></CENTER><BR>
+
+<P CLASS=DESC>As mentioned above, the filter channels are not automatically routed to avoid loud switching sounds while voices are re-assigned. Therefore filtered sounds require a static voice assignment (-> CFG menu) which matches with the enabled filter channel. Alternatively it can be used for a single polyphonic instrument - in this case, all filter channels should be enabled.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LFO menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_lfo1.gif" width=578 height=38 ALT="LFO"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Each instrument features two LFOs with fixed modulation routing to Pitch, Pulsewidth and Filter. The modulation depth for these targets can be changed individually (<B>D.P</B> (Depth Pitch), <B>DPW</B> (Depth Pulsewidth), <B>D.F</B> (Depth Filter).</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ENVelope menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_env1.gif" width=434 height=38 ALT="Envelope"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Each instrument provides one envelope with fixed modulation routing to Pitch, Pulsewidth and Filter. The modulation depth for these targets can be changed individually (<B>D.P</B> (Depth Pitch), <B>DPW</B> (Depth Pulsewidth), <B>D.F</B> (Depth Filter).</P>
+<P CLASS=DESC>In difference to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, only Attack, Decay, Sustain and Release phase is available. The curve parameter affects all ramps.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ConFiGuration menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_cfg1.gif" width=482 height=38 ALT="Configuration"></IMG></CENTER><BR>
+
+<P CLASS=DESC>In difference to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, this page has a new <B>VAs</B> (Voice Assignments) parameter which provides following selections:
+<UL CLASS=CL>
+  <LI><B>LR (Left/Right):</B> instrument is either played on the left, or right SID audio channel (6 voices available).</BR>
+  <LI><B>L- (Left):</B> instrument is only played on the left SID audio channel (3 voices available).</LI>
+  <LI><B>-R (Right):</B> instrument is only played on the right SID audio channel (3 voices available).</LI>
+  <LI><B>O1..O6:</B> selects an individual oscillator for the instrument. Take note, that this option also locks the oscillator for instruments which haven't explicitely assigned it. Example: if all Instruments are assigned to LR, but Instrument #3 and #4 to OSC3, only these two instruments will use this oscillator, and all others will share the remaining ones.</LI>
+</UL>
+<P CLASS=INFO><I>If the Mono option is activated in the <A HREF="midibox_sid_manual_e.html">Ensemble Menu</A>, voices of the instrument are always assigned to both SID audio channels (3 voices only).</I></P>
+
+<P CLASS=DESC>Also new in this menu is the <B>Poly</B> flag, which should be selfexplaining! :-) Up to 6 voices can be played the same time. If more than 6 keys are pressed on the keyboard, the oldest note will be killed first. If Poly mode is not activated, the instrument will be played mono (only a single voice is allocated).</P>
+
+<P CLASS=DESC><B>VeA</B> (Velocity Assignment) and <B>PbA</B> (Pitchbender Assignment) allow to control a single sound parameter with the Note velocity and the Pitchbender. In difference to the appr. Knob function (-> KNB menu), they are working individually for each instrument.</P>
+
+<P CLASS=DESC>The configuration menu has a small inconsistency: the Volume is handled globally for each SID chip and not individually for each seperate voice. Sorry for that, but I haven't found a better place.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ARPeggiator menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_arp1.gif" width=530 height=38 ALT="Arpeggiator"></IMG></CENTER><BR>
+
+<P CLASS=DESC>The arpeggiator works exactly like for the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>. Polyphonic arpeggios are not supported (the Poly flag in the CFG menu has no effect) - it always plays on a single voice.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> WaveTable Configuration and Editor menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_wtc1.gif" width=386 height=38 ALT="WT Configuration"></IMG></CENTER><BR>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_wte1.gif" width=434 height=38 ALT="WT Edit"></IMG></CENTER><BR>
+
+<P CLASS=DESC>The wavetable sequencer works similar to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, but instead of 4, up to 6 wavetables can be played in parallel! Each instrument has its individual wavetable. The parameter set is different (see <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">MIDIbox SID V2 parameter chart</A>).</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> KNoBs menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_knb1.gif" width=626 height=38 ALT="Knobs"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Knob assignments are available as well. They are working independent from the instrument layer and can control all instruments of a patch. The special coding of the parameter table (see <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">MIDIbox SID V2 parameter chart</A>) allows to control sound parameters individually for a specific instrument, or for all instruments.</P>
+
+<P CLASS=DESC>Note that each instrument has an additional, dedicated velocity and pitchbender assignment, which has to be configured in the CFG menu.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> EXTernal menu </H2>
+<CENTER><IMG SRC="midibox_sid/cs2/m_ext1.gif" width=385 height=19 ALT="External"></IMG></CENTER><BR>
+
+<P CLASS=DESC>In difference to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, CV outputs are not available as modulation target. The static voltage levels and switch states can be changed here.</P>
+<P CLASS=DESC>The only way to modulate analog outputs within multi patches is the use of the F2A (Filter-to-Analog) option, which can be activated in the <A HREF="midibox_sid_manual_e.html">Ensemble menu</A>.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SAVe menu </H2>
+
+<P CLASS=DESC>...is available as well of course! :)</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_sav1.gif" width=242 height=38 ALT="Save"></IMG></CENTER><BR>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_sav2.gif" width=242 height=38 ALT="Save"></IMG></CENTER>
+</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> RaNDom Generator menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/m_rnd1.gif" width=434 height=38 ALT="Random"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Note, that in Multi mode you can try the random function by controlling a single instrument over a dedicated channel, or by controlling all instruments over a single channel.</P>
+
+FOOTER

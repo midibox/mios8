@@ -1,0 +1,79 @@
+HEADER 3 MIDI Interface Troubleshooting (PIC16F version)
+<h1>Interfaz MIDI -soluci&oacute;n de problemas  (version PIC16F)</h1>
+<p class="INFO"><i>Esta p&aacute;gina se ha escrito para la
+soluci&oacute;n de problemas de un m&oacute;dulo core montado con los
+PIC16F877 o PIC16F874. Para proyectos MIOS m&aacute;s recientes basados
+en&nbsp;PIC18F mire <a href="howto_debug_midi.html">esta p&aacute;gina</a></i></p>
+<p class="INFO">Esta p&aacute;gina te da algunas instrucciones para
+correcci&oacute;n de errores de los puertos MIDI In y MIDI Out del
+&nbsp;MIDIbox Plus, MIDIbox64 y MIDIO128.</p><p></p><p class="INFO">Pulsa sobre las im&aacute;genes para ver en tama&ntilde;o original.</p>
+<table align="center" cellpadding="0" cellspacing="20">
+<tbody><tr><td><a href="http://www.midiox.com" target="_blank"><img src="howtodebug/moxtitle.gif" alt="Link to the MIDI-OX site" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM"> Descarga&nbsp;MIDI-OX de <a href="http://www.midiox.com" target="_blank">este sitio</a>.</span></td></tr><tr><td><a href="howtodebug/snap1.gif"><img src="howtodebug/snap1.gif" alt="snap1.gif" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM"> Inicia MIDI-OX y configura los puertos&nbsp;MIDI IN/OUT.</span></td></tr><tr><td><a href="howtodebug/midi_menu.gif"><img src="howtodebug/midi_menu.gif" alt="midi_menu.gif" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM">
+Aseg&uacute;rate dentro del men&uacute; de qe kis eventos de los
+puertos MIDI In no est&aacute;n asignados a los puertos MIDI Out,
+porque esto podr&iacute;a causar un bucle retroalimentado MIDI durante
+el test de&nbsp;RxTx.</span></td></tr></tbody></table>
+<h2>Probando el puerto MIDI OUT</h2><table align="center" cellpadding="0" cellspacing="20">
+<tbody><tr><td><a href="howtodebug/test_tx.hex.zip"><img src="howtodebug/download.jpg" alt="Download Tx Firmware" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM">Descarga el firmware&nbsp;<a href="howtodebug/test_tx.hex.zip">Test Tx</a> &nbsp;y c&aacute;rgalo en tu PIC. Este firmware funciona con todos los derivados del PIC16F87x con reloj oscilador de 20 MHz.</span></td></tr>
+<tr><td><a href="howtodebug/midibox_debug_tx.gif"><img src="howtodebug/midibox_debug_tx.gif" alt="midibox_debug_tx.gif" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td> <td><span class="NORM">Conecta
+el MIDI Out de tu MIDIbox con el MIDI In de tu ordenador. Enciende la
+MIDIbox. Comprueba los mensajes en la ventana de MIDI-OX. Debe aparecer
+un controlador en la pantalla cada 0.5 segundos.Si no lo hace,
+comprueba la configuraci&oacute;n de los puertos MIDI rn MIDI-OX.</span></td></tr>
+<tr> <td><a href="howtodebug/midi_out_led.gif"><img src="howtodebug/midi_out_led.gif" alt="midi_out_led.gif" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM">Si esto no ayuda, desconecta el cable MIDI y conecta un LED al puerto MIDIOut. El LED debe titilar cada 0.5 segundos. Si no lo hace, el puerto
+MIDI Out no est&aacute; correctamente conectado, el PIC no
+funciona(comprueba fuente de energ&iacute;a y conexi&oacute;n de los
+cristales) o es que ha fallado el quemado del PIC.<br>Recuerda que el
+LED tiene polaridad y solo funciona si el cable (-) (corto) est&aacute;
+conectado con el pin Tx y el cable (+) (largo) via resistencia con +5V.</span></td></tr><tr><td><a href="howtodebug/midi_out_fix.gif"><img src="howtodebug/midi_out_fix.gif" alt="midi_out_fix.gif" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM">Si
+el LED titila pero tu PC sigue sin recibir mensajes MIDI, comprueba la
+polaridad de tu conector MIDI. Uno de los errores m&aacute;s
+frecuentes&nbsp;: los dos pines Tx est&aacute;n enrollados. Solo cambia
+los pines y vuelve a probar.<br>Otra raz&oacute;n podr&iacute;a ser que
+la corriente del puerto MIDI Out es demasiado baja. Puentea una de las
+resistencias de 20Ohm y comprueba si tu ordenador puede recibir con
+este apa&ntilde;o.&nbsp;<b>NUNCA PUENTEES LAS DOS RESISTENCIAS, ESTO PODR&Iacute;A DA&Ntilde;AR TU INTERFAZ MIDI.</b>(si no incluye una protecci&oacute;n especial como el MIDIbox).</span></td></tr></tbody></table><h2>Probando el puerto&nbsp;MIDI IN</h2>
+<table align="center" cellpadding="0" cellspacing="20">
+<tbody><tr><td><a href="howtodebug/test_rxtx.hex.zip"><img src="howtodebug/download.jpg" alt="Download RxTx Firmware" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM">Descarga el Firmware <a href="howtodebug/test_rxtx.hex.zip">Test RxTx</a> y qu&eacute;malo en tu PIC. Este firmware funciona con todos los derivados del PIC16F87x con reloj oscilador de 20 MHz.</span></td></tr>
+<tr><td><a href="howtodebug/midibox_debug_rxtx.gif"><img src="howtodebug/midibox_debug_rxtx.gif" alt="midibox_debug_rxtx.gif" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td> <td><span class="NORM">Conecta el MIDI OUT de tu MIDIbox con el MIDI IN de tu ordenador, y el MIDI IN
+de tu MIDIbox con el MIDI OUT de tu ordenador. Enciende
+tu&nbsp;MIDIbox. Activa el teclado virtual MIDI en&nbsp;MIDI-OX. Pulsa
+algunas teclas (Q-W-E-R-T-Y...) y comprueba los mensajes en la ventana
+de MIDI-OX. Si solo ves los eventos&nbsp; KEYBOARD, el firmware RxTx no
+redirecciona los bytes MIDI entrantes hacia el MIDI Out. Si ves un
+mont&oacute;n de mensajes despu&eacute;s de teclear una sola vez, es
+posible que tengas un bucle MIDI retroalimentado ( comprueba el
+men&uacute; de Puerto MIDI). Si ves mensjes como los de la imagen (cada
+evento por duplicado), tu MIDIbox funciona correctamente.</span></td></tr><tr><td><a href="howtodebug/midi_cable_led.gif"><img src="howtodebug/midi_cable_led.gif"alt="midi_cable_led.gif" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM">Si
+el direccionamiento no funciona, desconecta el cable MIDI del puerto
+MIDI In de la MIDIbox y pon un led en el jack MIDI. El LED
+deber&iacute;a parpadear cuando tu PC env&iacute;a un evento MIDI. Si
+no se enciende, el puerto MIDI Out de tu PC no funciona o el cable MIDI
+est&aacute; roto.</span></td></tr><tr><td><a href="howtodebug/midi_in_fix.gif"><img src="howtodebug/midi_in_fix.gif" alt="midi_in_fix.gif" width="160"></a></td><td><img src="images/1x1dot.gif" alt="" width="10"></td><td><span class="NORM">Si
+el LED parpadea pero la MIDIbox sigue sin recibir mensajes MIDI,
+comprueba la polaridad de tus conectores&nbsp;MIDI IN y OUT&nbsp;.&nbsp;</span><span class="NORM">Uno
+de los errores m&aacute;s frecuentes&nbsp;: los dos pines Tx
+est&aacute;n enrollados. Solo cambia los pines y vuelve a probar.</span><br><span class="NORM">Otra
+raz&oacute;n podr&iacute;a ser que la corriente del puerto MIDI In es
+demasiado baja. Cambia el valor de la resistencia pullup marcada de
+rojo (recuerda los diferentes optoacopladores para MIDIbox Plus y las
+otras MIDIboxes). Por ejemplo, prueba una resistencia de 1k, 1.2k,
+1.8k, 2.2k&nbsp; -- si no tienes una de estas , sino otras, conecta dos
+o tres en serial o paralelo (espero que a&uacute;n recuerdes del
+colegio las f&oacute;rmulas de redes de resistencias en paralelo y en
+serie ;-).<br><i>Nuevo:</i> Dos personas se dieron cuenta de que su
+puerto MIDI con CNY17-II funciona mejor cuando la resistencia
+de&nbsp;220 Ohm se puentea con un cable. Parece que el MIDI Out de su
+PC no les da suficiente corriente para manejar el CNY17-II.</span></td></tr></tbody></table>
+<h2>&iquest;A&uacute;n sin &eacute;xito?</h2><ul class="CL"> <li>El lLED en el MIDI Out parpadea, pero tu
+dispositivo MIDI (PC, Synth, ...) sigue sin recibir&nbsp;:
+&iquest;Est&aacute;s usando el cristal adecuado? Debe ser de 20 MHz con
+<b>corte paralelo</b>. Tambi&eacute;n hay cristales de 20 MHz con corte
+serial, que se suelen usar en unidades HF. Pero estos cristales NO
+funcionan con&nbsp; el microcontrolador PIC y puede causar una tasa de baudios MIDI err&oacute;nea.</li><li>No
+pasa nada: comprueba la fuente de energ&iacute;a. Comprueba si tu PIC
+se ha quemado correctamente (usa la funci&oacute;n VERIFY de tu
+programador para testar el contenido de la flash). Algunas personas han
+tenido problemas con el programador JDM&nbsp;, pero tuvieron m&aacute;s
+suerte con el programador Martin Clausens (ver la p&aacute;gina de <a href="howtoprog.html">HowToProg</a>&nbsp;).</li><li>Antes de rendirte: prueba la&nbsp; <a href="midibox_to_com.html">Interfaz MIDIbox-to-COM</a></li><li>...o conecta tu box directamente al Puerto de Juegos: <a href="mbhp/mbhp_midi_gameport.gif">mbhp_midi_gameport.gif</a></li></ul>
+FOOTER

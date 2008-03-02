@@ -1,0 +1,166 @@
+HEADER 3 ChangeLog of MIDIbox SEQ
+
+<CENTER><H1>MIDIbox SEQ V3 Change Log</H1></CENTER>
+<CENTER><H3>Last Release: V3.2c @ 2008-01-22</H3></CENTER>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<UL CLASS=CL>
+
+<LI><I>V3.2c</I>
+  <UL>
+    <LI>Support for AOUT_NG module</LI>
+    <LI>J5 gate outputs are working again</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V3.2b</I>
+  <UL>
+    <LI>Re-Release for GPUTILS</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V3.2a</I>
+  <UL>
+   <LI> the record page got a "Toggle Gate" function which allows to set/clear
+     the gate trigger of the selected step - use it to delete/recall
+     an unintentionally recorded step</LI>
+
+   <LI> remote keys not forwarded to MIDI parser/router anymore</LI>
+
+   <LI> router settings of second MIDI In now stored in EEPROM</LI>
+
+   <LI> the previously introduced pattern and song change via MIDI
+     function can now be disabled with the DEFAULT_MIDI_PATTERN_CHANGE_CC
+     and DEFAULT_MIDI_SONG_CHANGE_VIA_PC switch within the setup_*.asm file</LI>
+
+   <LI> Arpeggiator can play notes in "unsorted order" now.<BR>
+     Sorting can be enabled/disabled within the "Track Mode" menu.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+
+<LI><I>V3.2</I>
+  <UL>
+   <LI> Song can now be selected via Program Change
+
+   <LI> Pattern of group #1-#4 can now be selected via CC#112..CC#115
+
+   <LI> support for Triplet timebase<BR>
+     The layout of the clock divider page has been overworked<BR>
+       <IMG SRC="midibox_seq/cs3/menu08_01.gif" width=481 height=19 ALT="Clock Divider"></CENTER>
+
+   <LI> added MIDI clock Auto mode: sequencer switches automatically
+     to master mode, when the PLAY button is pressed to start a pattern.
+     It will automatically switch to slave mode, when a MIDI clock/Start/Stop/Continue
+     event has been received.<BR>
+     This function (which is enabled by default) can be disabled in the BPM page
+
+   <LI> added external start/stop pin, available at pin J6:SC (RC1 pin)
+     of the core module
+
+   <LI> support for second MIDI IN port (located at first MBHP_IIC_MIDI module)<BR>
+
+     In order to use this feature, the RI_N line of the IIC module has
+     to be connected to J6:SI (RC3 pin) of the core module (-> see <A HREF="midibox_seq/mbseq_v3_interconnections.pdf">this schematic</A>).<BR>
+
+     This MIDI IN port can be used as alternative input for receiving
+     Notes (-> Transposer/Arpeggiator), CCs (-> Parameters) or Program Changes<BR>
+
+     The second MIDI IN can *not* be used as input for MIDI clock (use the
+     MIDI IN port of the core module instead), or for receiving/forwarding
+     SysEx data!<BR>
+
+   <LI> the MIDI config page has been overworked.<BR>
+     The MIDI Router can now route events from the second MIDI IN to
+     the MIDI OUT ports<BR>
+       <IMG SRC="midibox_seq/cs3/menu19_01.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER>
+
+   <LI> the scale can now be controlled globally or pattern based.
+     In distance to the global scale (which is stored in internal
+     EEPROM), the pattern based scale is located within the G1/G2/G3
+     or G4 pattern and will be automatically changed when a new pattern
+     is selected.<BR>
+     Only one group can control the scale, this has to be selected in
+     the UTIL->OPT page<BR>
+       <IMG SRC="midibox_seq/cs3/menu25_01.gif" width=481 height=19 ALT="Options"></CENTER>
+
+   <LI> the global scale can now also be controlled via CC#3, and especially 
+     via internal loopback. This means, that a track can change the
+     scale dynamically if it outputs CCs to the LOOP port.<BR>
+     The CC works only with enabled "Global Scale" control mode (UTIL->OPT page)
+
+   <LI> the root note of the scale can now be statically selected (by default
+     it is derived from the base note of the transposer -> KEYB setting)<BR>
+     Like the scale, the root note is either controlled globally or from a pattern
+
+   <LI> the paste and clear function is now either applied on the whole track
+     (like in V3.1), or only on steps (like in a pre V3.0 versions)
+     "Steps only" is the default behaviour (personally I prefer it)<BR>
+     The behaviour can be configured within the UTIL->OPT page.
+
+   <LI> support for 3 LED digits, which display the BPM in master mode
+     "SLA" is displayed in slave mode (no BPM detection available!)<BR>
+     Schematic can be found at the <A HREF="midibox_seq_options.html">MIDIbox SEQ V3 Hardware Options page</A>
+
+   <LI> various bugfixes
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+
+<LI><I>V3.1</I>
+  <UL>
+   <LI> added new Random Generator page, which replaces the simple Random function
+     of the Utility menu.<BR>
+       <IMG SRC="midibox_seq/cs3/menu27_01.gif" width=481 height=19 ALT="Random"></CENTER><BR>
+
+     Within this page, the intensity of the three parameter layers and
+     three trigger layers can be configured seperately</LI>
+
+   <LI> the "Synch to Measure" function now also resets the track position,
+     and especially the progression parameters - you will like the effect :)</LI>
+
+   <LI> Support for 64k BankSticks assigned as Song Storage (Mode 4)<BR>
+     Allows to store up to 32 Songs<BR>
+     If you've used a 64k BankStick in 32k mode before, the upper
+     part won't be initialized. Following procedure is recommented
+     for doing this:
+     <UL CLASS=CL>
+       <LI>1) Create a Backup of the lower 32k part of the BankStick
+          This can be done with MIDI-Ox with following SysEx request:<BR>
+          F0 00 00 7E 40 00 31 40 00 20 00 F7<BR>
+          (Note: bit 6:4 of the 7th byte selects the BankStick number, it's assumed
+           that the BankStick is connected to CS3 - if not, change the
+           number, e.g. for CS7 use "71" instead of "31")<BR>
+         MIDI-Ox should receive 37896 Bytes<BR>
+         NOTE: in MIDI-Ox please configure the "Delay after F7" to 600 mS
+         This can be done under Setup->Configure within the SysEx Tool Window</LI>
+       <LI>2) Change to the FORMAT page and format the song BankStick</LI>
+       <LI>3) upload the previously received 32k BankStick content</LI>
+     </UL>
+   <LI> Song action "Loop x16" was missing. It has been inserted between
+     the x15 and "Jump Pos" action, accordingly the "Jump Pos", "Jump Song"
+     and "Dump Mixer Map" Actions of existing songs need to be adapted!</LI>
+
+   <LI> an incoming Song position pointer event was not handled correctly
+     in MIDI clock slave mode, the sequencer was out of sync - this has
+     been corrected in this version</LI>
+
+   <LI> various bugfixes</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V3.0</I>
+  <UL>
+    <LI> initial release</LI>
+    <LI> details about the changes compared to MIDIbox SEQ V2 are described in the CHANGELOG.txt file of the release package.</LI>
+  </UL>
+</LI>
+</UL>
+
+FOOTER

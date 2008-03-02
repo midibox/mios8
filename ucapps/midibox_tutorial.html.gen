@@ -1,0 +1,261 @@
+HEADER 3 MIDIbox Plus Tutorial
+
+<P><H1>MIDIbox Plus Tutorial</H1>
+
+<P CLASS=INFO>MIDIbox is built, the power supply is switched on, the MIDI cable is connected - and now? This lesson shows you, how to operate with the Box.</P>
+
+<P CLASS=INFO>For a first test you should get a MIDI monitor with MIDI Thru function for the PC to look for the incoming MIDI signals. Most MIDI monitors provide the possibility to forward MIDI data to another MIDI device like your soundcard or software synthesizer. I recommend the <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-OX</A> tool from Jamie O'Connell and Jerry Jorgenrud which is really great!</P>
+
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+
+<TR>
+<TH ROWSPAN=13> <IMG SRC="midibox/midibox_plus_intro.jpg" WIDTH=320 HEIGHT=631> </TD>
+<TH> <SPAN CLASS=MEDIUM>No#</SPAN> </TH>
+<TH> <SPAN CLASS=MEDIUM>Description</SPAN> </TH>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(1,2,3)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Menu Exec/Right/Left:</B>
+Navigation through the menus</P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(4)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Snapshot/Special Function Button:</B>
+Press it shortly to recall the last settings, press it long to save the current pot settings.<BR>In some submenus, this button offers special functions:<BR>
+<I>In MIDI Learn Menu:</I> set Button Mode<BR>
+<I>In Merger menu:</I> switch between MIDI and MIDIbox-to-COM interface<BR>
+<I>In SysEx Menu:</I> Send SysEx Dump</P>
+</TD>
+</TR>
+
+
+<TR>
+<TD> <P CLASS=INFO>(5)</P> </TD>
+<TD>
+<P CLASS=DESC><B>LC Display:</B>
+for the visualization of pot values and for the configuration.</P>
+</TD>
+</TR>                                                             
+
+<TR>
+<TD> <P CLASS=INFO>(6)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Pots:</B>
+Knobs, Pots... take your favourite name for these things. ;-)<BR>Note that Faders can also be used.</P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(7)</P> </TD>
+<TD>
+<P CLASS=DESC><B>MIDI Trigger Buttons:</B>
+to trigger MIDI events like Note On/Off, Controller, Program Change... free assignable via MIDI Learn or SysEx Dump</P>
+</TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(8)</P> </TD>
+<TD>
+<P CLASS=DESC><B>MIDI-IN LED:</B>
+flashes when MIDI events are received through the MIDI IN port. Optional - the second half of the 74HC00 has to be used to drive this LED.</P></TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(9)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Init Value LED:</B>
+lits when the last turned pot is on the same position like the saved value. In Snap mode, this LED lits when the value is "snapped" (see description below).</P></TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(a)</P> </TD>
+<TD>
+<P CLASS=DESC><B>MIDI-OUT LED:</B>
+flashes when MIDI events are sent through the MIDI OUT port.</P></TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(b)</P> </TD>
+<TD>
+<P CLASS=DESC><B>MIDI-IN Port:</B>
+For receiving MIDI events. Has to be connected with the OUT port of another MIDI device, e.g. for the MIDI Learn and Snap function.</P></TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(c)</P> </TD>
+<TD>
+<P CLASS=DESC><B>MIDI-OUT Port:</B>
+For sending MIDI events. Has to be connected with the IN port of another MIDI device.</P></TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(d)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Bank Switches:</B>
+four switches to select one of 16 banks (binary coding).</P></TD>
+</TR>
+
+<TR>
+<TD> <P CLASS=INFO>(e)</P> </TD>
+<TD>
+<P CLASS=DESC><B>Power Supply:</B>
+input for a wall adapter.</P></TD>
+</TR>
+
+</TABLE>
+
+
+<P CLASS=DESC>After switching on the box the MIDI monitor should show the controller messages like this: <I>bC 1P XX</I> (C=channel, P=pot 0-7, XX=value). The green LED should flush. If not: check the circuit, the cable, your Wintendo installation. If this doesnt help, curse Wintendo and your soundcard!<BR><B>A Debug HowTo can be found <A HREF="howto_debug_midi_pic16f.html">here</A>.</B></P>
+
+<H2>The Banks concept</H2>
+<P CLASS=DESC>Sixteen Knobs are available, but this is not enough for modifing complex sounds. For instance the AWE soundcard provides over 32 soundparameters. Normaly you don't need to change it at the same time. So you can spread it on some banks and just switch between the parameters by changing the bank. MIDIbox provides sixteen full customizable banks. The bank setups can be saved and exchanged via SysEx Dumps.</P>
+
+<H2>Menu Handling</H2>
+<P CLASS=DESC>The menu handling is quite simple. The menu page is selected by the Menu-Left/Right Button, and with the Menu-Exec Button the submenu can be invoked and leaved.<BR>Below an introduction of the different submenus:</P>
+
+
+<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+
+<TR>
+  <TD><P><IMG SRC="midibox_tutor/mb_m_display.jpg" width=161 height=47 ALT="Displaymenu"></P><P CLASS=INFO>Display Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>In this submenu five different display modes are selectable by the Menu-Left/Right buttons:</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_d0.jpg" width=161 height=47 ALT="Display Mode0"></TD>
+     <TD><P CLASS=INFO>The normal mode. At the left upper corner the selected bank is displayed. The N stands for "normal pot behaviour" (see below). The circles at the right upper corner are for the MIDI buttons. They will be filled on a pushed button. At the lower line, a bar for every pot is displayed.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_d1.jpg" width=161 height=47 ALT="Display Mode1"></TD>
+     <TD><P CLASS=INFO>In Hex mode, the last two sent Pot MIDI events will be displayed.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_d2.jpg" width=161 height=47 ALT="Display Mode2"></TD>
+     <TD><P CLASS=INFO>In Dec mode, the number of the turned pot and the sent value will be displayed.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_d3.jpg" width=161 height=47 ALT="Display Mode3"></TD>
+     <TD><P CLASS=INFO>A mix between normal and hex mode.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_d4.jpg" width=161 height=47 ALT="Display Mode4"></TD>
+     <TD><P CLASS=INFO>A mix between normal and dec mode.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_d5.jpg" width=161 height=47 ALT="Display Mode5"></TD>
+     <TD><P CLASS=INFO>In MTC mode, the received MIDI Time Code will be displayed.</P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox_tutor/mb_m_learn.jpg" width=161 height=47 ALT="MIDI Learn"></P><P CLASS=INFO>MIDI Learn Submenu</P></TD>
+  <TD>
+  <P CLASS=DESC>The MIDI Learn function allows to customize the pots and buttons for your own needs. How does it work: plug a MIDI cable from the MIDI IN port of the MIDIbox to the MIDI Out port of your keyboard or PC. Enter the MIDI Learn Mode. Now, the box waits for a message from MIDI IN:</P>
+
+  <P><IMG SRC="midibox_tutor/mb_l0.jpg" width=161 height=47 ALT="MIDI Learn 0"></P>
+
+  <P CLASS=DESC>Send a controller to the MIDIbox (just use your Synth or MIDI-OX for this). The MIDIbox regogninzes all MIDI events and displays the last received one:</P>
+
+  <P><IMG SRC="midibox_tutor/mb_l1.jpg" width=161 height=47 ALT="MIDI Learn 1"></P>
+
+  <P CLASS=DESC>If you want to assign the event to a pot, just turn it "total right" and to "total left". If a button should learn the event, just push the button.</P>
+  <P CLASS=DESC>"Learn Single" means, that the controller will be learned from one Pot or Button, only. But sometimes, it is usefull to assign all pots or buttons with the same controller but for different channels. MIDIbox offers a special function for this, just select it with the menu buttons:</P>
+
+  <P><IMG SRC="midibox_tutor/mb_l2.jpg" width=161 height=47 ALT="MIDI Learn 2"></P>
+
+  <P CLASS=DESC>It is also possible to add the controller value automatically. This is favorable, if all pots or buttons should be quickly assigned to unique numbers:</P>
+
+  <P><IMG SRC="midibox_tutor/mb_l3.jpg" width=161 height=47 ALT="MIDI Learn 3"></P>
+
+  <P CLASS=DESC>A special feature is implemented for the buttons: the behaviour of every button can be specified with the Snapshot Button before a event will be assigned to it:</P>
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_l4.jpg" width=161 height=47 ALT="MIDI Learn 4"></TD>
+     <TD><P CLASS=INFO>Send learned value when button pressed, send zero when button released.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_l5.jpg" width=161 height=47 ALT="MIDI Learn 5"></TD>
+     <TD><P CLASS=INFO>Send learned value only when button pressed, don't send a zero value when button released.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_l6.jpg" width=161 height=47 ALT="MIDI Learn 6"></TD>
+     <TD><P CLASS=INFO>Send learned value with the first keypress, send zero value with the second keypress.</P></TD>
+  </TR>
+  </TABLE>
+
+  <P CLASS=DESC>Beside of controller events, Note On/Off, Program Change, PitchBender, ... can be learned:</P>
+  <P>
+    <IMG SRC="midibox_tutor/mb_l7.jpg" width=161 height=47 ALT="MIDI Learn 7">
+    <IMG SRC="midibox_tutor/mb_l8.jpg" width=161 height=47 ALT="MIDI Learn 8">
+    <IMG SRC="midibox_tutor/mb_l9.jpg" width=161 height=47 ALT="MIDI Learn 9">
+  </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox_tutor/mb_m_sysex.jpg" width=161 height=47 ALT="SysEx"></P><P CLASS=INFO>Save and Restore of Bank Setups via SysEx Dump</P></TD>
+  <TD>
+    <P CLASS=DESC>See the <A HREF="howtosysex.html">SysEx HowTo</A> for further informations. Note that some functions like Min/Max values for the pots can only be configured via SysEx.
+    </P>
+  </TD>
+</TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox_tutor/mb_m_potmode.jpg" width=161 height=47 ALT="PotMode"></P><P CLASS=INFO>Normal, Snapper and Relative Mode</P></TD>
+  <TD>
+    <P CLASS=INFO>(Ideas to this modes were originated by <A HREF="mailto:frankgl@cyberway.com.sg">Frank</A> and <A HREF="mailto:klive@smug.adelaide.edu.au">Kieran</A>. The Descriptions are partly quoted from the Access Virus Synthesizer Manual. Copyright 2001 by <A HREF="http://www.access-music.de" TARGET="_blank">Access Music GmbH</A>. See the <A HREF="http://forum.ucapps.de">MIDIbox Forum</A> for further details)</P>
+
+  <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_pm0.jpg" width=161 height=47 ALT="PotMode 0"></TD>
+     <TD><P CLASS=DESC><B>Normal Mode:</B> the parameter jumps directly and absolutely to the value determined by the current position of the knob.</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_pm1.jpg" width=161 height=47 ALT="PotMode 1"></TD>
+     <TD><P CLASS=DESC><B>Snap Mode:</B> When you adjust a knob in Snap Mode, the original setting determines the value until the point where the movement of the knob passes beyond this position. In other words, the parameter does not jump to the value as in Normal Mode. However, keep in mind that your adjustments have no effect on the parameter until the knob "snaps" on at the position equivalent to the original parameter. In SNAP mode, an right arrow symbol appears instead of the parameter bar. It indicates in which direction the knob must be turned to exceed the current parameter value. Arrow Left implies the value is lower. The parameter bar appears when the value is "snapped".</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_pm2.jpg" width=161 height=47 ALT="PotMode 2"></TD>
+     <TD><P CLASS=DESC><B>Relative Mode:</B> When you adjust a knob in Relative Mode, the parameter is affected immediately but not absolutely. In other words, the parameter change from the original value to the new value now reflects precisely the amount you adjusted the given knob. ie if the knob value is +30, and when you switch over, the value is now +50, the knob continues on as if it were at the parameter-set +50 position, so when you turn the knob (even though the knob physically is at +30) the next parameter value will be +51 (even though the knob is at +31). Obvoiusly, the downside is that in an unfavorable configuration - the worst case scenario being a maximum parameter value and a knob position at the minimum value - you do not have the full control range of the knob at your disposal. To counteract this situation, you have to turn the knob in the opposite direction to adjust the physical knob position so that it is equivalent to the actual parameter value (ie. turn the knob up to maximum, which will sync it with the maximum parameter value).</P></TD>
+  </TR>
+  <TR>   
+     <TD><IMG SRC="midibox_tutor/mb_pm3.jpg" width=161 height=47 ALT="PotMode 3"></TD>
+     <TD><P CLASS=DESC><B>Parallax Mode:</B> The name is cool, isn't it? ;-) A description regarding this mode can be found <A HREF="midibox/midibox_plus_parallax.gif">here</A></P></TD>
+  </TR>
+  </TABLE>
+  </TD>
+<TR>
+
+<TR>
+  <TD><P><IMG SRC="midibox_tutor/mb_m_merger.jpg" width=161 height=37 ALT="Merger"></P><P CLASS=INFO>MIDI Merger</P></TD>
+  <TD>
+    <P CLASS=DESC>The MIDI merger allows you ie. to plug the MIDIbox and a keyboard to a computer w/o a second MIDI In interface. Just plug the MIDI Out of your keyboard to the MIDI In of MIDIbox and the MIDI Out of the MIDIbox to the MIDI In of your computer. But please note that for the Snapper and Relative Mode, you must connect the MIDI In of the MIDIbox with MIDI Out of your computer, otherwise this modes will not work correctly. Also, in this case, you should make sure that the MIDI merger is switched off to avoid feedback loops.</P>
+    <TABLE ALIGN=CENTER CELLSPACING=2 CELLPADDING=3 >
+    <TR>   
+      <TD><IMG SRC="midibox_tutor/mb_merger.jpg" width=161 height=37 ALT="Merger Display"></TD>
+      <TD><P CLASS=INFO>In this mode, you are also able to enable the MIDIbox-to-COM option with the Snapshot Button (4). Find more informations on the <A HREF="midibox_to_com.html">MIDIbox-to-COM Interface Page</A>!</P></TD>
+    </TR>
+    </TABLE>
+  </TD>
+</TR>
+</TABLE>
+
+<H2>Controlling MIDI units with NRPN or SysEx controllers</H2>
+<P CLASS=DESC>Older versions of MIDIbox Plus offered the possibility to control AWE/SBLive, XG and GM synthesizer directly. The conversion of the poti values to NRPN and SysEx controllers was handled internaly. These routines allocated a lot of program memory and made it impossible to add new features (note that RAM-Extensions are not available for PICs... ;-)<BR>But with the MIDI Mapping function of <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-OX</A> everything changed. The MIDI Mapper allows to translate any controller values to any MIDI events. With the help of this powerfull tool, everyone is able to control synthesizers and soundcards which were not provided by me, and for me it opened the possibility to use the free memory for functions that are hard to find on commercial controllers. :)</P>
+
+
+<H2>FAQ, Tips & Tricks</H2>
+<P CLASS=DESC>Please find the collected knowledge in the <A HREF="http://wiki.midibox.org">MIDIbox Wiki</A> and at the <A HREF="http://forum.ucapps.de">MIDIbox Forum</A>.</P>
+
+</DL>
+
+FOOTER

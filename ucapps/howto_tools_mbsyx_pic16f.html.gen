@@ -1,0 +1,89 @@
+HEADER 3 MIDIbox .syx configuration
+
+<P CLASS=INFO><I>This page has been written for the old PIC16F877/PIC16F874 firmwares. For newer MIOS based PIC18F projects see <A HREF="howto_tools_mbsyx.html">this page</A></I></P>
+
+<H1>MIDIbox .syx configuration</H1>
+
+<P CLASS=INFO>Some MIDIbox applications like <A HREF="midibox_plus.html">MIDIbox Plus</A>, <A HREF="midibox64.html">MIDIbox64</A>, <A HREF="midibox64e.html">MIDIbox64E</A>, <A HREF="midibox_mf.html">MIDIbox MF</A> and <A HREF="midio128.html">MIDIO128</A> are providing additional configuration possibilities which are part of a "Bank". In difference to the program code, such memory dumps can be uploaded on-the-fly during runtime, and some of the applications also allow to store the dumps in a <A HREF="mbhp_bankstick.html">BankStick</A>, so that you are able to switch between different setups very quickly.<P>
+
+<P CLASS=INFO>There are two ways to edit the bank content. You can either use the <A HREF="midibox/mk_syx.zip">mk_syx</A> or <A HREF="midio128/mk_midio128_syx.zip">mk_midio128_syx</A> script for a text based configuration (the fastest way to customize a large number of settings), or you can use Serge's vmidibox editors which are described <A HREF="howto_tools_syxedit.html">here</A> (GUI based configuration).
+
+<TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0>
+
+  <TR>
+    <TD><A HREF="http://www.midiox.com" TARGET="_blank"><IMG SRC="images/moxtitle.gif" WIDTH=160 ALT="Link to the MIDI-OX site"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Download MIDI-OX from <A HREF="http://www.midiox.com" TARGET="_blank">this site</A>.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="http://www.perl.com" TARGET="_blank"><IMG SRC="images/lcamel.gif" WIDTH=72 HEIGHT=81 ALT="Link to the perl.com"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Download perl if it isn't installed on your computer.<BR>Unix users: it comes mostly with your distribution.<BR>Windows users: take <A HREF="http://www.activestate.com/Products/Download/Register.plex?id=ActivePerl" TARGET="_blank">Active Perl</A>.<BR>Mac users: take <A HREF="http://www.macperl.com/" TARGET="_blank">MacPerl</A></SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howto_tools/mbsyx1.gif"><IMG SRC="howto_tools/mbsyx1.gif" WIDTH=160></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Open a .ini file with your favourite text editor and change the settings for your needs.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howto_tools/mbsyx2.gif"><IMG SRC="howto_tools/mbsyx2.gif" WIDTH=160></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Open a shell and change to the directory which contains the .ini file. Start the mk_syx.pl script with <I>perl mk_syx.pl [ini-file]</I>.<BR>Example: <I>perl mk_syx.pl midibox64.ini</I></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap1.gif"><IMG SRC="howtosysex/snap1.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Now Start MIDI-OX and configure the MIDI In/Out Ports.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/bootstrap_sysex0.gif"><IMG SRC="mios/bootstrap_sysex0.gif" WIDTH=160 ALT="snap1.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Ensure that the datastream from the MIDI In port is not forwarded to the MIDI Out port in order to avoid a feedback loop! Deselect the Auto-switch in the lower left corner before selecting a MIDI In/Out port so that this connection will not be done automatically. Check the port mapping at the right side: the MIDI In port should not appear in the list!</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap2.gif"><IMG SRC="howtosysex/snap2.gif" WIDTH=160 ALT="snap2.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Ensure that SysEx is enabled.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap3.gif"><IMG SRC="howtosysex/snap3.gif" WIDTH=160 ALT="snap3.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Start the SysEx tool.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap4.gif"><IMG SRC="howtosysex/snap4.gif" WIDTH=160 ALT="snap4.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Go into the configure menu.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howto_tools/midiox_mbsyx_setup.gif"><IMG SRC="howto_tools/midiox_mbsyx_setup.gif" WIDTH=160 ALT="snap5.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM><B>IMPORTANT:</B> the SysEx tool configuration is <B>different</B> to the configuration required for the <A HREF="mios_bootstrap.html">Bootstrap Loader</A>! For a bank upload, the Low Level Output Buffer has to be configured to : Size = 1 Byte, Delay = 20 ms!</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howto_tools/mbsyx3.gif"><IMG SRC="howto_tools/mbsyx3.gif" WIDTH=160></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Load the .syx file</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="howtosysex/snap7.gif"><IMG SRC="howtosysex/snap7.gif" WIDTH=160 ALT="snap7.gif"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Send it to the MIDIbox/MIDIO.</SPAN></TD>
+  </TR>
+
+
+</TABLE>
+
+FOOTER
+

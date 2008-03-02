@@ -1,0 +1,270 @@
+HEADER 3 ChangeLog of MIDIbox64E
+
+<center><h1>MIDIbox64E Change Log</h1></center>
+<center><h3>Derni&egrave;re version: V2.2 @ 2005-05-29</h3></center>
+
+<img src="images/1x1dot.gif" alt="" height="10"><br>
+
+<ul class="CL">
+
+<li><i>V2.2</i>
+  <ul>
+   <li>Un mode Patch a &eacute;t&eacute;
+impl&eacute;ment&eacute;: c'est une alternative au mode "Bank"
+classique que vous pouvez s&eacute;lectionner dans le fichier "main.asm".<br>
+En
+mode Patch, chaque BankStick contient seulement une banque
+d'assignation (c'est &agrave; dire l'assignation des
+pots/boutons/noms), mais 128 snapshots! Cela vous permet de
+pr&eacute;parer une configuration pour votre appareil MIDI, et de
+sauver, rappeller ou "morpher" jusqu'&agrave; 128 sc&egrave;nes/presets</li>
+
+   <li>Deux nouvelles commandes SysEx pour sauver/restaurer les Patchs.</li>
+
+   <li>Patchs et Banques peuvent maintenant &ecirc;tre appell&eacute;es depuis une commande 
+     "Program Change" externe. Le canal pour la commande est a configurer dans le fichier
+     main.asm. Par defaut: Canal 16 - Banks; Canal 15: Patchs. </li>
+
+   <li>Quelques bugs fix&eacute;s et quelques am&eacute;liorations.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V2.1</i>
+  <ul>
+   <li>Trois nouvelles commandes SysEx ont
+&eacute;t&eacute; impl&eacute;ment&eacute;es pour l'upload/download des
+donn&eacute;es de configuration. Les donn&eacute;es &eacute;tant
+transmises "par bloc" dans ce format, il n'est plus requis
+d'ins&eacute;rer un delai entre chaque bytes. Du coup il n'est plus
+forc&eacute;ment n&eacute;cessaire d'utiliser MIDI-Ox, du moment que
+votre outil SysEx permet d'ins&eacute;rer un delai entre chaque bloc
+("Delay after F7") - ce delai doit &ecirc;tre de 750 mS - le m&ecirc;me que celui requis pour l'upload du MIOS.<br>Vous trouverez plus d'info <a href="howto_tools_mbsyx.html">ici</a>.</li>
+
+   <li>Le
+script mk_syx.pl a &eacute;t&eacute; mis &agrave; jour afin de prendre
+en charge le nouveau format d'upload. Il est
+t&eacute;l&eacute;chargeable <a href="midibox/mk_syx.zip">ici</a>.</li>
+
+   <li>Le passage d'une banque &agrave; une autre est maintenant signicativement plus rapide.</li>
+
+   
+
+   <li>Prise
+en charge d'une Datawheel (encodeur rotatif) en remplacement des
+boutons left/right. Pour l'activer, r&eacute;glez DEFAULT_ENC_DATAWHEEL
+sur 0 - connectez l'encodeur rotatif aux pins 4 et 5 du premier shift
+registerDIN, connectez le bouton Exec au pin 7 et le bouton Snapshot au pin 6.  </li><li>Prise en charge exp&eacute;rimentale des modules AIN/MF.<br>Bien
+que la MIDIbox64E soit &agrave; l'origine destin&eacute;e &agrave; la
+gestion d'encodeurs rotatifs, elle peut d&eacute;sormais prendre en
+charge 64 pots/faders ou jusqu'&agrave; 8 faders motoris&eacute;s.<br>Les Pots et faders sont
+redirig&eacute;s sur les entr&eacute;es (logicielles) "encodeurs"
+&nbsp;64-128. Exemple: si les groupes comprennent 16 entr&eacute;es, et
+que le groupe 1 est s&eacute;lectionn&eacute;, les encodeurs occupent
+les entr&eacute;es 1-16, et les potars les entr&eacute;es 64-(nombre de
+potars)</li>
+
+   <li>Nouveau fichier de configuration pour le hardware "MIDIbox NG"<br>
+     -&gt; setup_midibox_ng.asm<br>
+     (8 encodeurs, 8 faders motoris&eacute;s, 8 touchsensors, 64 boutons).</li>
+
+   <li>Nouveau fichier de configuration pour le hardware&nbsp;"MIDIbox SEQ" <br>
+     -&gt; setup_midibox_seq.asm<br>
+     (16 encodeurs + 1 datawheel, 44 boutons).</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V2.0 - version bas&eacute;e sur le MIOS - la MIDIbox16E est rebaptis&eacute;e MIDIbox64E</i>
+  <ul>
+   <li>Le firmware MIDIbox16E complet a &eacute;t&eacute; port&eacute; sur le&nbsp;MIOS&nbsp;et il tourne maintenant avec un PIC18F452. Si vous commencez un nouveau
+projet, il est recommand&eacute; de choisir le PIC18F452. D'abord pour
+sa plus grande flexibilit&eacute;, mais aussi parce que le portage du
+firmware MIDIbox sur le MIOS apporte un certain nombre de nouvelles
+fonctionnalit&eacute;s - seul le processeur et le crystal
+n&eacute;cessite d'&ecirc;tre chang&eacute;s. </li>
+
+   <li>Principale am&eacute;lioration: la MIDIbox64E peut d&eacute;sormais prendre en charge jusqu'&agrave; 
+     64 encodeurs rotatifs et autant de LEDrings!</li>
+
+   <li>Les
+128 entr&eacute;es "virtual pots" et les 64 entr&eacute;es "boutons"
+stock&eacute;es dans une banque peuvent &ecirc;tres actualis&eacute;es
+par les &eacute;v&egrave;nements MIDI entrants.</li>
+
+   <li>Le
+pr&eacute;c&eacute;dent principe des "subbank" (qui divisait les 128
+entr&eacute;es d'une banque en 8 "subbank") a &eacute;t&eacute;
+abandonn&eacute; au profit d'un syst&egrave;me de "pages". Le nombre
+d'entr&eacute;es par page est librement configurable. Cela veut dire
+que les 128 entr&eacute;es d'une banque peuvent &ecirc;tre
+contr&ocirc;l&eacute;es par un seul encodeurs (128 Pages contenant
+chacune 1 entr&eacute;e), c'est la solution &eacute;conomique, ou par
+un maximum de 64 encodeurs!</li>
+
+   <li>Notez
+que l'&eacute;diteur de Serge's "vmidibox64" (qui a &eacute;t&eacute;
+d&eacute;velopp&eacute; pour la version PIC16F&nbsp;) peut aussi
+interagir avec la nouvelle impl&eacute;mentation. Le taux de transfert
+doit &ecirc;tre r&eacute;gl&eacute; &agrave; une valeur
+inf&eacute;rieure &agrave; 150, dans le cas contraire, les dumps ne
+seraient pas re&ccedil;us correctement. Ce n'est pas d&ucirc; &agrave;
+un bug du MIOS, mais &agrave; un probl&egrave;me relatif au PIC18F qui
+ne peut sauver que 64
+bytes &agrave; la fois dans sa m&eacute;moire flash interne (le PIC16F
+sauve 2 bytes
+(14 bit) &agrave; la fois). </li>
+
+   <li>En plus de la fonction "MIDI
+Learn", les &eacute;v&egrave;nements MIDI peuvent maintenant
+&ecirc;tre &eacute;dit&eacute;s directement &agrave; l'&eacute;cran.</li> 
+
+   <li>Support de l'&eacute;dition &agrave; l'&eacute;cran du noms des pots et des Banques </li>
+
+   <li>Jusqu'&agrave;
+8 BankSticks sont maintenant pris en charges simultan&eacute;ment par
+le firmware (-&gt; jusqu'&agrave; 64 banques) </li>
+   
+   <li>Le
+r&eacute;glage DEFAULT_BANKSTICK_CS dans le fichier main.asm vous
+permet de choisir d'avoir une&nbsp;EEPROM d&eacute;di&eacute;e
+par&nbsp;application ou de d&eacute;sactiver compl&egrave;tement la
+prise en charge des BankStick. Cette fonctionnalit&eacute; est plus
+particuli&egrave;rement utile lorsque que vous souhaitez utiliser votre
+MIDIbox avec plusieurs applications.</li>
+
+   <li>Les&nbsp;Banques peuvent &ecirc;tre copi&eacute;es. </li>
+
+   <li>Une
+fonction morphing a &eacute;t&eacute; impl&eacute;ment&eacute;e, elle
+permet de passer d'une sc&egrave;ne &agrave; une autre progressivement:
+de la position actuelle des potars &agrave; la position des potars
+sauv&eacute;e dans un snapshot (bank). </li>
+
+   <li>Les
+&eacute;v&egrave;nements "encodeur" peuvent maintenant
+&ecirc;tre d&eacute;clench&eacute;s &agrave; distance (Remote):<span style="font-style: italic;"></span><br>
+        F0 00 00 7E 43 [d]9 00 [pot] [value] F7 <br>
+     ([d] =&nbsp;num&eacute;ro "device" (0-7), <br>
+      [pot] = num&eacute;ro de pot&nbsp; (0-63), <br>
+      [valeur] = valeur du pot (0-127) </li>
+
+   <li>Les
+&eacute;v&egrave;nements des boutons (y compris les
+boutons Menu)&nbsp;peuvent maintenant &ecirc;tre
+d&eacute;clench&eacute;s &agrave; distance (Remote):&nbsp;<br>
+        F0 00 00 7E 43 [d]9 01 [bouton] [valeur] F7 <br>
+     ([d] = num&eacute;ro "device"&nbsp; (0-7), <br>
+      [bouton] = button number (0-63), <br>
+      [valeur] = valeur du bouton (0=enfonc&eacute;, 1=rel&acirc;ch&eacute;) </li>
+
+   <li>Les "Special Functions" peuvent maintenant &ecirc;tre d&eacute;clench&eacute;s &agrave; distance (Remote):<br>
+        F0 00 00 7E 43 [d]9 02 [sfbn] [sfbp] [valeur] F7 <br>
+     ([d] = num&eacute;ro "device"&nbsp;(0-7), <br>
+      [sfbn] = num&eacute;ro de la "special function"&nbsp; (0-127), <br>
+      [sfbp] = param&egrave;tre de la "special function"&nbsp; (0-127), <br>
+      [valeur] =&nbsp;valeur du bouton&nbsp;(0=enfonc&eacute;, 1=rel&acirc;ch&eacute;) </li>
+
+   <li>Une fonction logicielle pour des LEDs MIDI Rx/Tx&nbsp; a &eacute;t&eacute; int&eacute;gr&eacute;e au firmware. </li>
+
+   <li>Le tutoriel MIDIbox64E a &eacute;t&eacute; mis &agrave; jour.</li>
+
+   <li>L'affichage
+peut d&eacute;sormais &ecirc;tre centr&eacute; pour s'adapter &agrave;
+diff&eacute;rente taille d'&eacute;cran LCD, les positions du curseurs
+sont configurables dans le fichier main.asm (cherchez:
+DEFAULT_YOFFSET_LINE*)</li>
+
+   <li>Un canal MIDI
+global peut maintenant &ecirc;tre d&eacute;fini, il est prioritaire sur
+les canaux MIDI d&eacute;finis dans les banques.</li>
+
+   <li>Plusieurs
+fichiers setup_*.asm files sont inclus dans l'archive de cette version,
+ils sont pr&eacute;configur&eacute;s pour s'adapter aux hardwares
+originaux des MIDIbox16E, MIDIbox NG et MIDIbox SID.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.03</i>
+  <ul>
+    <li>Prise en charge de 40 boutons et 32 LEDs, comme sur la MIDIbox64.
+    </li><li>Chaque
+encodeur peut &ecirc;tre assign&eacute; ind&eacute;pendamment aux modes
+"fast" ou "slow" par le menu "encoder configuration" ou via SysEx (voir
+la mise &agrave; jour du script <a href="midibox/mk_syx.zip">mk_syx</a>&nbsp;).
+    </li><li>La
+nouvelle "special function" (SFB) "Select Parameter" vous permet de
+s&eacute;lectionner des param&egrave;tres diff&eacute;rents "&agrave;
+la vol&eacute;e" sans changer de banque. Vous trouverez plus de
+d&eacute;tails dans le <a href="midibox16e_tutorial.html">tutoriel MIDIbox16E</a>.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.02</i>
+  <ul>
+    <li>Une nouvelle commande SysEx "Switch Bank" permet de changer de banque via MIDI (voir aussi <a href="midibox16e/midibox16e_sysex_implementation.txt">midibox16e_sysex_implementation.txt</a>). Elle sera utilis&eacute;e dans une prochaine version du <a href="http://serge.ucapps.de" target="_blank">Serge's editor</a>
+pour acc&eacute;der &agrave; n'importe quelle banque "&agrave;
+distance". Cette fonctionnalit&eacute; peut aussi &ecirc;tre
+utilis&eacute;e en conjonction avec les s&eacute;quenceurs software
+comme Logic Audio pour passer automatiquement sur la banque
+appropri&eacute;e en fonction de la Song, de la fen&egrave;tre, ou du
+pluggin VST (dans mesure o&ugrave; votre logiciel prends en charge ce
+genre d'automation). </li><li>Une nouvelle commande SysEx "Partial Write" permet
+d'&eacute;crire rapidement dans un emplacement m&eacute;moire
+particulier (voir aussi <a href="midibox16e/midibox16e_sysex_implementation.txt">midibox16e_sysex_implementation.txt</a>). Cette fonctionnalit&eacute; est destin&eacute;s aux &eacute;diteurs comme celui de Serge.
+    </li><li>Note: un fichier Setup complet pour le <a href="http://serge.ucapps.de/" target="_blank">Serge's Editor</a> est maintenant disponible <a href="midibox/vmb16Epresets.ini">ici</a>.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.01</i>
+  <ul>
+    <li>L'assignement des pins du Port C
+(entr&eacute;es Encodeurs, sorties LED-rings) ont &eacute;t&eacute;
+modifi&eacute;e pour rendre le firmware compatible avec la <a href="mbhp.html">MIDIbox Hardware Platform</a>.</li>
+  </ul>
+</li>
+
+<img src="images/1x1dot.gif" alt="" height="20"><br>
+<li><i>V1.00</i>
+  <ul>Version initiale.<br>Les fonctions suivantes ont &eacute;t&eacute; impl&eacute;ment&eacute;es:
+    <li>Gestion des Encodeurs Rotatifs avec interpolation (r&eacute;solution doubl&eacute;e).</li>
+    <li>8 Banques internes.</li>
+    <li>Support des BankStick (+4*8=32 banques par BankStick).</li>
+    <li>Support des &eacute;crans 2*16 caract&egrave;res.</li>
+    <li>Support (facultatif) des LED-Rings avec jusqu'&agrave; 16*16 LEDs.</li>
+    <li>4 mod&egrave;les de LED-Ring librement configurables pour chaque banque.</li>
+    <li>Navigation dans les Menus avec 2 boutons curseur et 1 bouton Exec.</li>
+    <li>Differents Modes d'Affichage (Display Modes).</li>
+    <li>Edition du nom des &eacute;v&egrave;nements (requiert un BankStick).</li>
+    <li>Bouton Snapshot avec fonction alternative Save/Recall.</li>
+    <li>Mode "MIDI Learn" pour chaque encodeur.</li>
+    <li>MIDI Learn par encodeur (Single encoder), par canal (automatic row channel), par num&eacute;ro (automatic row add).</li>
+    <li>Des "Meta Events" vous permettent d'envoyer des commandes SysEx ou autres.</li>
+    <li>Merger MIDI.&nbsp;</li>
+    <li>Changements de setup via SysEx.</li>
+    <li>Valeurs min/max pour les encodeurs.</li>
+    <li>Envoi de valeurs absolues: xx xx [du min au max]</li>
+    <li>Envoi de valeurs&nbsp;relatives: xx xx 40 +/- speed</li>
+    <li>Envoi d'&eacute;v&egrave;nements relatifs: xx xx 00 +/- speed</li>
+    <li>Envoi d'&eacute;v&egrave;nements relatifs: xx xx 40 +/- 1</li>
+    <li>Envoi d'&eacute;v&egrave;nements relatifs: xx xx 00 +/- 1</li>
+    <li>Envoi d'&eacute;v&egrave;nements&nbsp;CC&nbsp;relatifs: CC Inc/Dec xx</li>
+    <li>Mode Progressif pour les
+Encodeurs (plus l'encodeur est tourn&eacute; rapidement, plus
+l'incr&eacute;mentation/d&eacute;cr&eacute;mentation est importante).</li>
+    <li>Bouton "Fast" pour activer le Mode Progressif.</li>
+    <li>Bouton "Slow".</li>
+    <li>20 boutons "MIDI Trigger" avec "special functions" optionnelles.</li>
+    <li>Plusieurs comportements pour les boutons, comme sur la MIDIbox Plus.</li>
+    <li>Filtrage d'&eacute;v&egrave;nements MIDI optionnel pour le merger.</li>
+  </ul>
+</li>
+
+
+</ul>
+
+FOOTER

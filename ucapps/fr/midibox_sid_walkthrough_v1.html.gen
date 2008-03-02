@@ -1,0 +1,428 @@
+HEADER 3 MIDIbox SID V1 Walkthrough
+
+<h1>MIDIbox SID V1: marche &agrave; suivre</h1>
+
+<P CLASS=INFO><B><I>NOTE:</I> This is a walkthrough for an expired design. The MIDIbox SID V2 Walkthrough is located <A HREF="midibox_sid_walkthrough.html">here</A>.</B></P>
+
+<p class="INFO">Cette page r&eacute;sume les &eacute;tapes requises pour construire avec succ&eacute;s une <a href="midibox_sid_v1.html">MIDIbox SID</a>.
+J'ai fait en sorte de recenser ici la plupart des obstacles
+rencontr&eacute;s par tous ceux qui se sont lanc&eacute;s dans la
+construction sans &ecirc;tre familiers des projets MIDIbox.</p>
+
+<p class="INFO">Si quelques pr&eacute;cisions ou conseils pouvaient
+&ecirc;tre ajout&eacute;s, n'h&eacute;sitez pas &agrave; m'en faire
+part, le but &eacute;tant de r&eacute;unir sur une m&ecirc;me page les
+information disp&eacute;rs&eacute;es entre le <a href="http://www.ucapps.de" target="_blank">Site</a>, le <a href="http://wiki.midibox.org" target="_blank">MIDIbox Wiki</a> et le <a href="http://forum.midibox.org" target="_blank">Forum</a>.</p>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Pr&eacute;parer la construction </h2>
+  <dd>
+    <ul class="CL">
+      <li>Si
+il s'agit de votre premi&egrave;re MIDIbox, il est plus prudent de
+commencer par la configuration MIDIbox SID minimale, simplement
+constitu&eacute;e d'un module <a href="mbhp_core.html">CORE</a> et d'un module <a href="mbhp_sid.html">SID</a>.
+Vous pourrez toujours faire &eacute;voluer votre MIDIbox plus tard en y
+ajoutant une Surface de Conr&ocirc;le (CS) et plusieurs SIDs esclaves,
+sans rien jeter de cette premi&egrave;re configuration!</li>
+      <li>Vous
+pouvez pr&eacute;voir d'investir dans un &eacute;cran LCD 2x20, cela
+s'av&egrave;rera tr&eacute;s utile en phase de d&eacute;buggage (si
+n&eacute;cessaire).</li>
+      <li>Bien que votre MIDIbox SID puisse fonctionner sans <a href="mbhp_bankstick.html">BankStick</a>,
+il est pr&eacute;f&eacute;rable de s'en procurer au moins un, dans le
+cas contraire, vous ne pourrez sauvegarder qu'un seul patch &agrave; la
+fois.</li>
+      <li>La <a href="midibox_sid_cs.html">Surface de Contr&ocirc;le Step A</a>
+ne revient finalement pas tr&eacute;s ch&egrave;re, elle requiert
+simplement un 74HC165, 8 r&eacute;sistances 10k, 6 boutons et un
+encodeur rotatif. Elle vous permettra d'&eacute;diter tous les
+param&egrave;tres sonores sans avoir besoin d'un ordinateur.</li>
+      <li>La page <a href="midibox_sid_v1.html">MIDIbox SID</a>
+recense les diff&eacute;rentes options mat&eacute;rielles. Vous y
+trouverez &eacute;galement des liens vers les layouts des PCBs et les
+listes de composants, ainsi qu'une estimation des co&ucirc;ts. Le plus
+simple reste de commander les PCBs et les composants sous forme de
+"kits" sur les sites <a href="http://mbhp.coinoptech.com/" target="_blank">http://mbhp.coinoptech.com</a> ou <a href="http://www.mikes-elektronikseite.de/midiseite.htm" target="_blank">www.mikes-elektronikseite.de</a></li>
+      <li>Si vous pr&eacute;voyez de commander s&eacute;par&eacute;ment les pi&egrave;ces, consultez la page <a href="http://www.midibox.org/dokuwiki/where_to_order_components" target="_blank">WhereToOrder</a>&nbsp;, vous y trouverez des liens vers des fournisseurs permettant des commandes en ligne.</li>
+      <li>Il
+est parfois int&eacute;ressant sur le long terme de commander les
+pi&egrave;ces en plus grosse quantit&eacute; que celle requise pour les
+circuits. Par exemple, commander deux fois 20 r&eacute;sistances de
+10k&nbsp; peut co&ucirc;ter plus cher que de commander directement un
+pack de 100 pi&egrave;ces.</li>
+      <li>Voici des composants fr&eacute;quement utilis&eacute;s pour la <a href="mbhp.html">MIDIbox Hardware Platform</a>: 
+         <ul class="CL">
+            <li>R&eacute;sistances: 220 Ohm, 1k Ohm, 10k Ohm (toutes en 1/4 Watt)</li>
+            <li>Condensateurs: 100 nF, 10 uF</li>
+            <li>74HC595 ("shift register DOUT") and 74HC165 ("shift register DIN")</li>
+            <li>"BankSticks" (EEPROMs 24LC256)</li>
+            <li>support pour CI 16pin&nbsp;</li>
+            <li>connecteurs SIL 1-row&nbsp; et DIL 2-row&nbsp;</li>
+            <li>nappe</li>
+            <li>platine d'&eacute;ssai/platine prototype/stripeboards pour le montage des composants (boutons, LEDs, etc..)</li>
+         </ul></li>
+      <ul><li>En
+plus des modules SID et CORE, vourez aussi besoin d'une alimentation
+(PSU/Power-Supply-Unit). Dans la mesure ou les deux types de SID
+n&eacute;cessite chacun un voltage diff&eacute;rent (6581: 12V, 8580:
+9V), il est difficile de trouver une alimentation qui convienne au deux.<br>Exemple:
+si vous choisissez une PSU avec du 15V pour le module SID et pour le
+module CORE&nbsp;, le r&eacute;gulateur 78L12 ne consommera qu'une
+diff&eacute;rence de 3V cot&eacute; SID, mais le r&eacute;gulateur 7805
+du module CORE devrait consommer 15V-5V = 10V! au r&eacute;sultat, le
+7805 va extr&egrave;mement chauffer, et encore plus si le module CORE
+dra&icirc;ne un courant important (par exemple si un LCD
+r&eacute;tro-&eacute;clair&eacute; y est connect&eacute;). <br>Du
+coup, je vous recommande si possible d'utiliser l'alimentation
+d'origine des C64, (que vous poss&eacute;dez probablement si vous avez
+r&eacute;cup&eacute;r&eacute; votre SID sur un vieux C64), car elles
+d&eacute;livre les voltages appropri&eacute;s. J'ai pu &eacute;galement
+remarquer que cette PSU donne de tr&eacute;s bon r&eacute;sultat en
+terme de rapport signal/bruit pour les sorties audio du SID.<br>Voici un lien vers le sch&eacute;ma de connections: <a href="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</a>
+(ne soyez pas embrouill&eacute; par la configuration 4 CORE/SID, ce
+circuit fonctionne tout pareil pour une config avec un CORE / un SID) </li></ul><li>Boitier: vous pouvez pour commencer assembler
+votre MIDIbox dans une bo&icirc;te en carton (une boite de chaussure ou
+le carton de vos pizzas ;-), et voir plus tard pour trouver un plus
+joli boitier - r&eacute;cup&eacute;rez celui d'un appareils hors
+d'usage ou achetez en un neuf. Ceci d&eacute;pends vraiment de vos
+go&ucirc;ts personnels, je ne saurais mieux vous conseiller.</li>
+      <li>Outillage
+n&eacute;cessaire: Fer &agrave; souder (min. 15W, pas plus de 30W), une
+panne fine pour&nbsp; composants &eacute;lectronique, de la soudure,
+tournevis, cutter (pour couper les c&acirc;bles), une pince &agrave;
+nez plat, un multi-m&egrave;tre pour v&eacute;rifier les tensions (un
+mod&egrave;le de base et pas cher suffira!)</li>
+      <li>Autres outils utiles: pompes &agrave; d&eacute;ssouder, perceuse</li>
+      <li>Comment souder: chercher dans google "r&eacute;aliser une soudure" - exemple (en anglais): <a href="http://www.kpsec.freeuk.com/solder.htm" target="_blank">www.kpsec.freeuk.com/solder.htm</a></li>
+    </ul>
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Mise en place du module CORE </h2>
+  <dd>
+    <ul class="CL">
+      <li>la page <a href="mbhp_core.html">MBHP_CORE</a> contient un guide pour la soudure des composants et la construction du module.</li>
+      <li>Terminez
+et testez le module CORE avant de continuer avec le module SID - cela
+simplifiera le d&eacute;buggage en cas de probl&egrave;me!</li>
+      <li>Une fois assembl&eacute;, vous devez v&eacute;rifier les tensions AVANT de d'installer les CI dans leurs support (voir la page <a href="mbhp_core.html">MBHP_CORE</a>)</li>
+      <li>Si
+vous avez achet&eacute; un PIC pr&eacute;-programm&eacute; avec
+le&nbsp;MIOS Bootstrap loader, vous pouvez passer &agrave; la suite,
+dans le cas contraire vous devez d'abord charger le Loader dans le PIC
+- r&eacute;f&eacute;rez-vous &agrave; <a href="mios_bootstrap.html">cette page</a>.
+      </li><li>Connectez les prises MIDI In et Out &agrave; votre ordinateur, ouvrez un moniteur MIDI tel que <a href="http://www.midiox.com" target="_blank">MIDI-Ox</a> et v&eacute;rifiez que le CORE envoie bien la "requ&egrave;te d'upload"</li><li>
+      Vous devez maintenant uploader le MIOS (le syst&egrave;me d'exploitation). je vous recommande pour ce faire <a href="http://miosstudio.midibox.org" target="_blank">MIOS Studio</a>, car son utilisation est plus simple que pour d'autre &eacute;diteurs SysEx.</li>
+      <li>Le MIOS ainsi que toutes les applications MIOS sont disponible sur la page <a href="mios_download.html">MIOS Download</a>.
+      </li><li>Si vous ne parvenez pas &agrave; uploader le MIOS, suivez les instructions donn&eacute;es sur la page <a href="howto_debug_midi.html">MIDI troubleshooting guide</a>
+avant de demander de l'aide sur le forum. Les plus fr&eacute;quentes
+causes d'&eacute;checs: court-circuits sur le module CORE, mauvaises
+connections des embases MIDI In/Out, inversions des pins sur les
+embases MIDI&nbsp;, dysfonctionnement de votre interface MIDI ou bugg
+des pilotes MIDI.</li>
+      <li>Notez que l'&eacute;cran LCD (si vous
+en avez connect&eacute; un) n'affichera aucun text tant que le MIOS
+n'aura pas &eacute;t&eacute; upload&eacute;. L'&eacute;cran LCD doit
+afficher des barres noires sur la ligne sup&eacute;rieure tant qu'il
+n'a pas &eacute;t&eacute; initialis&eacute;. Si vous ne voyez rien,
+v&eacute;rifiez plus particuli&egrave;rement le potentiom&egrave;tre de
+contraste ainsi qu'une fois de plus vos connections. Plus
+d'informations sur la page <a href="http://www.midibox.org/dokuwiki/howto_connect_a_lcd" target="_blank">MIDIbox Wiki - HowToConnectLCD</a>.
+      </li><li>V&eacute;rifiez
+si le MIOS a &eacute;t&eacute; corectement upload&eacute;: le LCD
+affichera un message de copyright apr&eacute;s la mise sous tension,
+vous devriez ensuite voir s'afficher "READY." sur la ligne
+sup&eacute;rieure.</li>
+      <li>Si aucun &eacute;cran n'est
+connect&eacute;, vous pouvez uploader l'utilitaire crc. Il enverra un
+"checksum" via MIDI, que vous pourrez voir &agrave; l'aide d'un
+moniteur MIDI.<br>
+          <b>NOTE:</b> si votre interface MIDI
+n'est pas "multi-client", vous devez fermer MIOS-Studio avant de lancer
+votre moniteur MIDI. Ou vous pouvez plus simplement utiliser le
+moniteur MIDI int&eacute;gr&eacute; &agrave; MIOS Studio (pour plus de
+d&eacute;tails, voir: <a href="http://miosstudio.midibox.org" target="_blank">miosstudio.midibox.org</a></li>
+      <li>Une
+fois que toutes ces v&eacute;rifications ont &eacute;t&eacute;
+pass&eacute;es avec succ&eacute;s, vous pouvez passer au module SID.</li>
+    </ul>
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Tests du module SID </h2>
+  <dd>
+    <ul class="CL">
+      <li>La page <a href="mbhp_sid.html">MBHP_SID</a>&nbsp;contient un guide pour la soudure des composants et la construction du module.</li>
+      <li>N'installer
+pas le SID et les deux 74HC595 dans leurs supports avant d'effectuer
+les v&eacute;rifications pr&eacute;liminaires des tensions. Connectez
+le SID au module CORE comme expliqu&eacute; dans ces sch&eacute;mas: <a href="mbhp/mbhp_sid_c64_psu.pdf">mbhp_sid_c64_psu.pdf</a>, <a href="mbhp/mbhp_4xsid_c64_psu.pdf">mbhp_4xsid_c64_psu.pdf</a>, <a href="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</a>.
+Tous font r&eacute;f&eacute;rence aux alimentations des C64, mais elle
+vous renseigneront aussi si vous utilisez d'autres types
+d'alimentations. </li><li><b>Notez</b> que les interconnections avec CORE::J10 et CORE::J2 <span style="font-weight: bold;">NE SONT PAS</span>&nbsp; 1:1&nbsp;. Le pin J2:SC du module SID <span style="font-weight: bold;">NE DOIT PAS</span>
+&ecirc;tre connect&eacute; au pin J10:SC du core, mais bien au pin
+J10:MD du core. Ceci est clairement montr&eacute; dans le diagramme
+d'interconnection.</li>
+      <li>Utilisez toujours la derni&egrave;re version de l'application midibox_sid disponible &agrave; la page <a href="mios_download.html">download</a>&nbsp;.
+Des versions plus anciennes pourraient &ecirc;tre incompatibles avec
+votre mat&eacute;riel. Les versions les plus r&eacute;centes sont
+souvent &agrave; l'&eacute;tat de "beta, et sont mises avant tout
+&agrave; la disposition des utilisateurs exp&eacute;riment&eacute;s qui
+ont consult&eacute; avec attention les sujets correspondants sur le
+forum.</li>
+      <li>Vous pouvez maintenant charger l'application
+MIDIbox SID. Vous trouverez dans l'archive plusieurs fichiers .hex (et
+.syx). Si vous utilisez MIOS Studio, seuls les fichiers .hex files vous
+seront utiles. Les fichiers .syx sont convertis en fichiers .hex files
+pour des uploads directs avec d'autres utilitaires SysEx.</li>
+      <li>Cherchez le fichier the .hex qui correspond &agrave; vos besoin: <i>main.hex</i>
+correspond au setup de ma propre MIDIbox SID avec la surface de
+contr&ocirc;le Step C et des SIDs 8580. Vous trouverez
+diff&eacute;rents setup pour les SIDs 8580 et 6581 SIDs, pour les
+modules ma&icirc;tres et esclaves. </li><li>Si vous avez un doute, utilisez le fichier main.hex
+pour vos premiers test. Cela n'a pas vraiment d'importance que la
+Surface de Contr&ocirc;le (CS) soit activ&eacute;e ou non, la
+principale diff&eacute;rence r&eacute;side dans le comportement au
+niveau des &eacute;v&egrave;nements MIDI entrants et sortants (par ex.
+la version CS va envoy&eacute; trois dumps SysEx aux modules esclaves
+apr&eacute;s le&nbsp;d&eacute;marrage).</li>
+      <li>Jouez
+une note sur le canal MIDI #1, vous pouvez aussi bien le faire &agrave;
+l'aide d'un clavier MIDI, du clavier virtuel de MIOS Studio/MIDI-Ox, ou
+d'un s&eacute;quencer. Vous devriez entendre un son basique de type
+"pulse". C'est le son pr&eacute;-r&eacute;gl&eacute;, sauvegard&eacute;
+dans l'EEPROM du PIC.</li>
+      <li>Vous pouvez aussi uploader l'application sid_testtone, disponible sur la page <a href="mios_download.html">MIOS download</a>
+. Cette application joue uniquement un son &agrave; 1kHz "triangle"
+d&eacute;s que le MIOS a d&eacute;marr&eacute; (pas besoin de
+s&eacute;quenceur ou de clavier MIDI pour jouer la note).</li>
+      <li>Si
+vous n'entendez aucun son, il est possible qu'il y ait un
+probl&egrave;me de connection entre les modules SID et CORE, ou un
+court-circuit/probl&egrave;me de soudure sur le module SID.
+L'application mbsid_interconnection_test disponible sur la page <a href="mios_download.html">MIOS download</a>
+vous permettra de v&eacute;rifier si le module CORE pilote correctement
+les pins du module SID. Vous trouverez dans le fichier main.asm de
+cette application la marche &agrave; suivre. Si l'un des pins du SID ne
+peut pas &ecirc;tre pilot&eacute;, vous saurez que le probl&egrave;me
+est li&eacute; &agrave; votre mat&eacute;riel.</li>
+      <li>Une fois
+le test des interconnections r&eacute;ussi, il reste quelques
+d&eacute;tails &agrave; conna&icirc;tre, qui ne sont pas
+forc&eacute;ment anodins:&nbsp; <ul class="CL">
+          
+          <li>Les
+sorties audio du SID n'ont pas un niveau aussi &eacute;lev&eacute; que
+mes autres synth&eacute;s, vous devez l'amplifier si n&eacute;cessaire.
+Ou ajoutez simplement un compresseur (hardware ou software) - cela vous
+permettra d'obtenir des sons plus puissants!</li><li>Vous entendez un
+buzz (fort ou non) &agrave; 50Hz ou 60Hz en fond: cela peut &ecirc;tre
+soit un probl&egrave;me de cablage (boucle de masse) ou un
+probl&egrave;mle avec votre alimentation. Le sch&eacute;ma <a href="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</a>
+inclut quelques conseils afin d'&eacute;liminer ce buzz
+(pr&eacute;d&eacute;rez l'utilisation d'une alimentation de C64 PSU,
+utilisez du c&acirc;ble blind&eacute;, vous pouvez &eacute;galement
+enrouler vos c&acirc;bles les uns autour des autres par paires, afin
+d'am&eacute;liorer leur isolation, et t&acirc;cher d'&eacute;loigner
+vos c&acirc;bles&nbsp;audio de ceux de&nbsp;l'alim!)</li>
+          <li>Vous
+entendez un bruit parasite &agrave; une haute fr&eacute;quence en fond:
+c'est propre aux chips SID. Les 6581 sont plus particuli&egrave;rement
+affect&eacute;s par ce probl&egrave;me.</li>
+          <li>Apr&eacute;s
+qu'un son ait &eacute;t&eacute; jou&eacute;, vous l'entendrez parfois
+continuer &agrave; jouer en fond: c'est &eacute;galement un
+d&eacute;faut propre au VCA du chip SID.</li>
+          <li>La r&eacute;sonnance du filtre n'a presque pas d'effet: c'est propre au SID, consultez <a href="http://interview.sonikmatter.com/data/bob_yannes.php" target="_blank">l'Interview with Bob Yannes</a></li>
+          <li>Les
+patches preset qui utilise le filtre sonne de mani&egrave;re bizarre:
+les caract&eacute;ristiques du filtre des 6581 sont diff&eacute;rentes
+de celles du 8580, du coup, vous trouverez deux librairies de presets
+dans l'archive. Il est aussi <span style="font-weight: bold;">tr&eacute;s</span>
+important que votre CORE soit upload&eacute; avec la bonne
+configuration pour le filtre - il y a deux fichiers .hex/.syx
+pr&eacute;-compil&eacute;s dans l'archive, l'un pour le 6581, l'autre
+pour le 8580, le r&eacute;glage par d&eacute;faut du fichier main.hex
+correspond au filtre du 8580.</li>
+        </ul>
+      </li><li>Customisation
+de l'application: ceci peut &ecirc;tre fait en &eacute;ditant votre
+configuration dans le fichier main.asm
+(ou dans le fichier setup_*.asm que vous avez choisi en fonction de vos
+besoin). Si vous effectuez des changements, vous devez recompiler
+l'application en suivant la proc&eacute;dure d&eacute;crite&nbsp;<a href="howto_tools_mpasm.html">ici</a>.
+        <ul class="CL">
+          <li>liser toutes les infos donn&eacute;es en en-t&ecirc;te du fichier main.asm de l'application MIDIbox SID!</li>
+          <li>DEFAULT_DEVICE_ID et AUTO_DEVICE_ID: ne touchez pas &agrave; ces r&eacute;glages, ils sont parfaits.</li>
+          <li>CBM8580_FILTER_FIX: doit &ecirc;tre sur 1 si vous utilisez un SID 8580.</li>
+          <li>CBM8580_FILTER_SWITCH*:
+fonction optionnelle pour basculer entre les algorythme de
+contr&ocirc;le des filtres 6581 et 8580 &agrave; l'aide d'un switch ou
+d'un jumper sur les pins IO correspondants. Ce r&eacute;glages est
+utile <b>seulement</b> lorsque deux modules SID (un avec un 6581,
+l'autre avec un
+8580) sont connect&eacute;s sur le m&ecirc;me CORE. Cette option a
+&eacute;t&eacute; r&eacute;clam&eacute;e par un utilisateur pour
+r&eacute;pondre aux besoins sp&eacute;cifiques &agrave; sa
+configuration mat&eacute;rielle MIDIbox SID, dans les autres cas, vous
+pouvez ignorer cette fonction!</li>
+          <li>CS_ENABLED et AUTO_CS_ENABLED: active/d&eacute;sactive la surface de contr&ocirc;le.</li>
+          <li>CS_MENU_DISPLAYED_ITEMS: d&eacute;finie la taille de l'&eacute;cran et le nombre de boutons "menu select" .</li>
+          <li>CS_MENU_USE_INCDEC_BUTTONS:
+optionnellement l'encodeur pour la datawheel de la surface de
+contr&ocirc;le Step A peut &ecirc;tre remplac&eacute; par deux boutons
+pour incr&eacute;menter/d&eacute;cr&eacute;menter les valeurs.&nbsp;</li>
+          <li>CS_MENU_USE_DETENTED_ENCODER
+et CS_MENU_ENC_SPEED_VALUE : r&eacute;glages sp&eacute;cifiques aux
+encodeurs rotatifs qui d&eacute;pendent du type d'encodeurs que vous
+utilisez. Notez que en plus le type (avec d&eacute;tente ou sans
+d&eacute;tente) doit &ecirc;tre sp&eacute;cifi&eacute; dans le fichier
+mios_tables.inc.</li>
+          <li>CS_MENU_DEFAULT_LINK: doit &ecirc;tre sur 1 pour un setup avec un couple Master-Slave sans surface de contr&ocirc;le.</li>
+          <li>ENABLE_AOUT: active l'extension sorties CV&nbsp;. 1 pour le module <a href="mbhp_aout.html">MBHP_AOUT</a>&nbsp;, 2 pour le module <a href="mbhp_aout_lc.html">MBHP_AOUT_LC</a>&nbsp;.</li>
+          <li>ENABLE_AIN_LFO_WAVEFORM:
+permet d'utiliser les 6 entr&eacute;es analogiques du port J5 du module
+CORE COMME&nbsp; 6&egrave;me forme d'onde pour les LFOs - par ce biais,
+des mouvements de potars ou de joystick peuvent &ecirc;tre
+rout&eacute;s via la matrice de modulation vers le Pitch, la Pulsewidth
+et le Filtre.</li>
+          <li>les autres options r&eacute;pondent
+&agrave; des demandes sp&eacute;cifiques d'utilisateurs - si vous ne
+comporenez pas la raison de leur pr&eacute;sence, contentez-vous de les
+laisser en l'&eacute;tat!</li>
+        </ul>
+      </li><li>Patches Preset: ils sont disponibles dans une archive .zip sur la page <a href="midibox_sid_v1.html">MIDIbox SID V1</a>&nbsp; et requiert ,pour &ecirc;tres charg&eacute;s au moins un <a href="bankstick.html">BankStick</a>. Vous pouvez utiliser l'&eacute;diteur JSynthLib ou le <a href="http://www.automatic-brain.de/midibox/" target="_blank">TL's Patch Manager</a>.
+      </li><li>Edition des Patches sonores: plusieurs possibilit&eacute;s:
+        <ul class="CL">
+          <li>En
+utilisant un contr&ocirc;leur MIDI ou votre s&eacute;quenceur
+h&ocirc;te - les num&eacute;ros de CC sont list&eacute;s dans le
+fichier <a href="midibox_sid/sid_cc_implementation_chart.txt">sid_cc_implementation_chart.txt</a></li>
+          <li>Il
+existe aussi un VSTi qui vous permet d'&eacute;diter la plupart (mais
+pas tous) des param&egrave;tres CC depuis un s&eacute;quenceur
+h&ocirc;te: <a href="http://www.saschazone.de/ger/vst/index.htm" target="_blank">www.saschazone.de</a></li>
+          <li>L'&eacute;diteur bas&eacute; sur <a href="jsynthlib.html">JSynthLib</a>, qui vous donne acc&eacute;s &agrave; tous les param&egrave;tres, et qui vous permet de sauvegarder vos Patches.</li>
+          <li>Ou simplement d'utiliser la Surface de contr&ocirc;le Step A/B/C</li>
+        </ul>
+      </li><li><b>Important:</b>
+lorsqu'un nouveau BankStick est connect&eacute;, une proc&eacute;dure
+de formatage est lanc&eacute;e, elle dure environ une minute. Vous
+verrez s'afficher sur l'&eacute;cran un message sp&eacute;cifique, et
+le&nbsp;SID produira quelques bips &agrave; chaque slot de Patche
+format&eacute;
+- mais pour les utilisateurs ne disposant pas d'&eacute;cran LCD, cela
+peut pr&ecirc;ter &agrave; confusion dans la mesure o&ugrave; les
+fonctionnalit&eacute;s MIDI sont d&eacute;sactiv&eacute;es le temps de
+cette op&eacute;ration! Il est donc pr&eacute;f&eacute;rable de ne
+connecter le Bankstick qu'une fois ces premiers tests termin&eacute;s.</li>
+    </ul>
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Construire une surface de contr&ocirc;le Step A </h2>
+  <dd>
+    <ul class="CL">
+      <li>Bien qu'il soit possible, comme indiqu&eacute; sur la page <a href="midibox_sid_cs.html">Step A</a>
+, de choisir entre plusieurs taille de LCD et diff&eacute;rentes
+configuration boutons/encodeurs, je vous recommande fortement
+d'utiliser un &eacute;cran LCD 2x20&nbsp;, 6
+boutons "menu" et un encodeur rotatif. la gestion des menus a
+&eacute;t&eacute; optimis&eacute;e pour cette configuration, les autres
+solutions vous obligeraient &agrave; ces compromis: <ul class="CL">
+          <li>boutons
+INC/DEC buttons: peu pratique &agrave; l'usage, les variations
+progressives de param&egrave;tres deviennent tr&eacute;s difficile
+&agrave; r&eacute;aliser.</li>
+          <li>LCD 2x16: seules 4 entr&eacute;es du menu sont affich&eacute;es, alors que parfois 5
+seraient pr&eacute;f&eacute;rables, par ex.
+pour la section ENV. Dans un tel cas, vous serez oblig&eacute; de "scroller"
+le menu afin d'atteindre le 5i&egrave;me param&egrave;tre qui appartient au m&ecirc;me
+groupe.</li><li>
+          2x40
+LCD: meilleur affichage pour l'&eacute;dition, dans la plupart des page
+vous n'aurez pas besoin de "scroller", mais sur la page principale
+(o&ugrave; le patch est affich&eacute;) seule la partie gauche est
+utilis&eacute;e, mais ce n'est pas inesth&eacute;tique.&nbsp;</li>
+        </ul></li>
+      <li>Wisefire a lanc&eacute; un bon <a href="http://www.midibox.org/forum/index.php?topic=5277.0" target="_blank">Blog</a> sur le sujet. J'ajouterais des commentaires sur cette partie si n&eacute;cessaire.</li>
+    </ul>
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Mise en place de la configuration Master-Slave (Step B) </h2>
+  <dd>
+    <ul class="CL">
+      <li>Les d&eacute;tails de cette &eacute;tape (par ex. l'installation d'un SIDs esclave)sont recens&eacute;s&nbsp;<a href="midibox_sid_csB.html">ici</a></li>
+    </ul>
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt="">&nbsp;</h2></dl><h2>Mise en place de la Surface de Contr&ocirc;le Step C </h2><dl>
+  <dd>
+    <ul class="CL">
+      <li>Tous les sch&eacute;mas, diagrammes, et projet de fa&ccedil;ade sont r&eacute;unis <span style="text-decoration: underline;"></span><a href="midibox_sid_csC.html">ici</a></li>
+      <li>Pr&eacute;parez toutes vos platines pour les boutons/encodeurs/LEDs et prenez-en des mesures <b>avant</b>
+de vous lancer dans la r&eacute;alisation ou la commande de la
+fa&ccedil;ade! Assemblez-les dans un carton d'abord et assurez-vous
+d'abord de l'ergonomie de votre design,&nbsp; ceci est plus
+particuli&egrave;rement requis si vous comptez r&eacute;-arranger vos
+composants pour cr&eacute;er une MIDIbox originale, Testez tout avant
+de passer commande!</li>
+      <li>Ergonomie/navigation: lorsque vous
+tournez un encodeur, ou lorsque vous appuyez sur un bouton, l'affichage
+du LCD bascule sur la page apropri&eacute;e, vous voyez ainsi la valeur
+modifi&eacute;e sur l'&eacute;cran. Les encodeurs des sections OSC et
+ENV sont arrang&eacute; dans le m&ecirc;me ordre que sur l'&eacute;cran
+(5 entr&eacute;es menu -&gt; 5 encoders). Un autre exemple: en pressant
+le bouton OSC Ctrl l'affichage bascule vers la page correspondant aux 5
+param&egrave;tres "Misc". C'est &agrave; dire qu'en agissant sur les
+boutons et les encodeurs, l'affichage s'actualise et reste ainsi
+toujours en relation avec vos actions sur la Surface de contr&ocirc;le.</li>
+      <li>Les
+groupes "assign" dans les sections OSC et
+ENV peuvent &ecirc;tre customis&eacute;s via le fichier
+cs_menu_enc_table.inc - vous pouvez assigner d'autres
+param&egrave;tres, vous pouvez les utiliser pour envoyer des messages
+de contr&ocirc;le MIDI (absolus or relatifs) vers d'autres
+synth&eacute;tiseurs,&nbsp;ou vous pouvez les utiliser pour contr&ocirc;ler directement les param&egrave;tres affich&eacute;s
+(particuli&egrave;rement utile pour la pager WT sequencer!) - par
+d&eacute;faut, le groupe Assign de la section OSC envoies les
+CC#16..CC#20 sur le canal MIDI 16, et le groupe
+Assign de la section ENV contr&ocirc;le les entr&eacute;es du menu
+directement.</li>
+      <li>L'assignement
+des Boutons et des LEDs peut &ecirc;tre adapt&eacute; &agrave; votre
+mat&eacute;riel dans le fichier cs_menu_io_tables.inc, l'assignation
+par defaut correspond &agrave; ma propre config mat&eacute;rielle (voir
+<a href="midibox_sid_cs/mbsid_din_default.pdf">mbsid_din_default.pdf</a> et <a href="midibox_sid_cs/mbsid_dout_default.pdf">mbsid_dout_default.pdf</a></li>
+      <li>L'assignement des Encodeurs peut &ecirc;tre adapt&eacute; dans le fichier mios_tables.inc si n&eacute;cessaire.</li>
+      <li>Parfois
+les utilisateurs demandent si ils doivent pr&eacute;voir de futures
+impl&eacute;mentations lors de la conception de la fa&ccedil;ade. Ma
+r&eacute;ponse en g&eacute;n&eacute;ral: je ne changerais plus la
+fa&ccedil;ade de mon propre mat&eacute;riel, du coup vous ne risquez
+rien en optant pour ma configuration&nbsp; boutons/LEDs/encodeurs
+(quelque soit leur arrangement).Les nouvelles fonctions seront
+accessibles via des menus ou l'impl&eacute;mentation de fonction
+alternative pour les boutons existant. Par exemple, pour la MIDIbox SID
+V2 une matrice de modulation d&eacute;di&eacute;e pour les sorties CV
+est pr&eacute;vue, elle sera contr&ocirc;lable via la matrice de
+modulation normale dans un menu sp&eacute;cial.</li>
+    </ul>
+  </dd>
+</dl>
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Plus de Conseils... </h2>
+  <dd><p class="DESC">...sont disponibles dans la <a href="http://www.midibox.org/dokuwiki/midibox_sid_faq" target="_blank">FAQ </a><a href="http://www.midibox.org/dokuwiki/midibox_sid_faq" target="_blank">MIDIbox SID</a> et sur le <a href="http://www.midibox.org/forum/index.php?board=26.0" target="_blank">Forum</a> (utilisez la fonction "search"!)</p>
+  </dd>
+</dl>
+
+FOOTER

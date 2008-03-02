@@ -1,0 +1,151 @@
+HEADER 3 MIDIbox SID V2 Walkthrough
+
+<H1>MIDIbox SID V2 Walkthrough</H1>
+
+<P CLASS=INFO>This page summarizes the steps which are required to successfully build a <A HREF="midibox_sid.html">MIDIbox SID V2</A>. It lists especially all those pitholes which where noticed in the last years by people who are not familar with MIDIbox projects.</P>
+
+<P CLASS=INFO>Sidenote: the old walkthrough of the expired MIDIbox SID V1 design is located <A HREF="midibox_sid_walkthrough_v1.html">here</A>.</P>
+
+<P CLASS=INFO>If a certain hint is missing, then please let me know. I will try to collect all related informations here, which are normaly scattered over the <A HREF="http://www.ucapps.de" TARGET="_blank">Homepage</A>, the <A HREF="http://wiki.midibox.org" TARGET="_blank">MIDIbox Wiki</A> and the <A HREF="http://forum.midibox.org" TARGET="_blank">Forum</A>.</P>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Planning the construction </H2></DT>
+  <DD>
+    <UL CLASS=CL>
+      <LI>If you've never built a MIDIbox project before, it makes sense to start with the minimal MIDIbox SID solution, which consists of a <A HREF="mbhp_core.html">CORE</A> and <A HREF="mbhp_sid.html">SID</A> module. You can expand your MIDIbox later by a Control Surface and multiple slave SIDs, there is nothing which has to be thrown away!</LI>
+      <LI>You should also consider to purchase a 2x20 LCD, it's very helpful for debugging</LI>
+      <LI>Even a MIDIbox SID can run without a <A HREF="mbhp_bankstick.html">BankStick</A>, you should consider to buy at least one, otherwise you are not able to store more than one sound patch. Up to 8 24LC512 can be stuffed, one of them (selected with CS#=7) is used to store ensemble configurations.</LI>
+      <LI>The <A HREF="midibox_sid_manual_fp.html">Minimal Control Surface</A> isn't that expensive, it requires only two 74HC165, 16*10k resistors, 9 buttons and a rotary encoder. It allows you to edit all SID parameters without a computer.</LI>
+      <LI>The <A HREF="midibox_sid_manual_hw.html">Hardware manual</A> page lists some hardware options. This list also contains references to PCB layouts and part lists, plus a rough estimation of the costs. The simplest solution is just to order the PCBs and the parts in form of "kits" at <A HREF="http://mbhp.coinoptech.com/" TARGET="_blank">http://mbhp.coinoptech.com</A> or <A HREF="http://www.mikes-elektronikseite.de/midiseite.htm" TARGET="_blank">www.mikes-elektronikseite.de</A></LI>
+      <LI>If you are planning to hunt for the parts by yourself, check the <A HREF="http://www.midibox.org/dokuwiki/where_to_order_components" TARGET="_blank">WhereToOrder</A> page, which contains links to some advisable mailorder companies.</LI>
+      <LI>sometimes it's cheaper in longterm to order more pieces of electronic components than listed in the order lists. For example, ordering 20 * 10k resistors two times can cost much more than just ordering a 100 pieces pack one time.</LI>
+      <LI>Parts which are frequently used in the <A HREF="mbhp.html">MIDIbox Hardware Platform</A>: 
+         <UL CLASS=CL>
+            <LI>Resistors: 220 Ohm, 1k Ohm, 10k Ohm (all 1/4 Watt)</LI>
+            <LI>Capacitors: 100 nF, 10 uF</LI>
+            <LI>74HC595 ("DOUT shift register") and 74HC165 ("DIN shift register")</LI>
+            <LI>"BankSticks" (24LC512 EEPROMs recommented for MIDIbox SID V2!)</LI>
+            <LI>16pin IC sockets</LI>
+            <LI>1-row SIL and 2-row DIL headers</LI>
+            <LI>Ribbon Cable</LI>
+            <LI>breadboards/prototype boards/stripeboards for mounting control elements (buttons, LEDs, etc..)</LI>
+         </UL></LI>
+      <LI>Beside of SID and CORE module, you also need a PSU (Power-Supply-Unit). Since the SID requires two different voltages (6581: 12V, 8580: 9V), it's hard to find a PSU which fits perfectly.<BR>Example: if you are taking a PSU with 15V for the SID module as well as for the CORE module, the 78L12 voltage regulator has to consume only 3V difference, but the 7805 voltage regulator at the CORE module has to consume 15V-5V = 10V! As a result, the 7805 will get extremely hot, especially if the core draws a lot of current (e.g. when a LCD with backlight is supplied in addition). <BR>Therefore I strongly recomment the use of the original C64 PSU, which you propably already own (if you've canibalized an old C64), and which delivers the right voltages. I've also noticed, that this PSU leads to perfect signal/noise ratios on the SID audio output.<BR>Here a link to the interconnection plan: <A HREF="mbhp/mbhp_8xsid_c64_psu_optimized.pdf">mbhp_8xsid_c64_psu_optimized.pdf</A> (don't be confused about the 4xCORE/8xSID configuration, this circuit works as well with only one CORE/SID pair)
+      <LI>Enclosure: at the beginning you could mount the modules on a carton (shoe or pizza box ;-), later you can search for a nice case - either take the case of an old defective device or buy a new one. Since tastes are very individual, I cannot give much more tips for this decition.</LI>
+      <LI>Required tools: Soldering iron (min. 15W, not more than 30W), thin soldering tip for small electronical parts, soldering tin, screwdrivers, cutter (for cutting cables), flat nose pliers, a multimeter for measuring voltages (can be a cheap one!)</LI>
+      <LI>Useful tools: desoldering pump, drill</LI>
+      <LI>Learning soldering: search in google for "soldering guide" - example: <A HREF="http://www.kpsec.freeuk.com/solder.htm" TARGET="_blank">www.kpsec.freeuk.com/solder.htm</A></LI>
+    </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Setup the CORE module </H2></DT>
+  <DD>
+    <UL CLASS=CL>
+      <LI>The <A HREF="mbhp_core.html">MBHP_CORE</A> page contains a soldering guide, which gives you an overview about how to build the module.</LI>
+      <LI>Take note that MIDIbox SID V2 requires a PIC18F4685 instead of the PIC18F452!<BR>
+This is a quite new microcontroller, which is unfortunately hard to find in common webshops yet.<BR>
+<A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV</A> did a batch order and provides the PIC with preburned Bootloader and MIOS for an extremely fair price to the community (<B>$9.95 !!!</B> Compare it with stock listings under <A HREF="http://www.findchips.com">findchips.com</A> and you won't find cheaper offerings for single parts!)<BR>
+     Doc is doing the distribution for Europe for those guys who want to save shipping costs - just contact him in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A></LI>
+      <LI>Complete and test the core module before continuing with the SID module(s) - this makes the debugging process easier!</LI>
+      <LI>After it has been built, you should check the voltages first before putting the ICs into the socket (see <A HREF="mbhp_core.html">MBHP_CORE</A>)</LI>
+      <LI>If you've purchased an preburned PIC with MIOS Bootstrap loader, you are ready to continue, otherwise you have to program the Loader into the PIC first - see also <A HREF="mios_bootstrap.html">this page</A>.
+      <LI>Connect the MIDI In and Out with your computer, open a MIDI Monitor like <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-Ox</A> and check if the core sends the so called "upload request"<LI>
+      <LI>Now you need to upload MIOS (the operating system). I suggest the use of <A HREF="http://miosstudio.midibox.org" TARGET="_blank">MIOS Studio</A>, since the usage is very easy compared to SysEx tools.</LI>
+      <LI>MIOS as well as all MIOS applications are available at the <A HREF="mios_download.html">MIOS Download page</A>.
+      <LI>If you are not able to upload MIOS, then please continue at the <A HREF="howto_debug_midi.html">MIDI troubleshooting guide</A> before asking for help in the forum. Most frequent reasons for failures: Short circuits on core module, MIDI In/Out connected wrong, two pins of the MIDI socket swapped, MIDI interface not running or bugs in MIDI driver</LI>
+      <LI>Note that the LCD (if connected) won't show any text so long MIOS hasn't been uploaded. The LCD should show black bars at the upper bar so long it is not initialized. If you don't see anything, check the connections again, and check especially the contrast pot. More infos also in the <A HREF="http://www.midibox.org/dokuwiki/howto_connect_a_lcd" TARGET="_blank">MIDIbox Wiki - HowToConnectLCD page</A>.
+      <LI>Test if the MIOS was uploaded successfully: the LCD will show a copyright message after power-on, thereafter you should see "READY." at the upper line.</LI>
+      <LI>If no LCD is connected, you could upload the crc utility. It will send a checksum over MIDI, which can be displayed with a MIDI Monitor.<BR>
+          <B>NOTE:</B> if your MIDI interface is not multi client capable, you need to close MIOS-Studio before starting the MIDI Monitor. Or you can just use the internal MIDI Monitor of MIOS Studio (details see <A HREF="http://miosstudio.midibox.org" TARGET="_blank">miosstudio.midibox.org</A></LI>
+      <LI>When all these checks were successfull, you can start with the SID module</LI>
+    </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Testing the SID module </H2></DT>
+  <DD>
+    <UL CLASS=CL>
+      <LI>The <A HREF="mbhp_sid.html">MBHP_SID</A> page contains a soldering guide, which gives you an overview about how to build the module.</LI>
+      <LI>Don't plug the SID and the two 74HC595 into the sockets before the initial voltage checks. Connect the SID to the CORE like described in one of the following schematics: <A HREF="mbhp/mbhp_sid_c64_psu.pdf">mbhp_sid_c64_psu.pdf</A>, <A HREF="mbhp/mbhp_8xsid_c64_psu_optimized.pdf">mbhp_8xsid_c64_psu_optimized.pdf</A>. All of them refer to the C64 PSU, but they are also informative if you are using a different PSU
+      <LI><B>Note</B> that there are differences between the CORE->SID interconnections of an "old" and an "current" MBHP_SID layout. Older boards need a different wiring like described <A HREF="mbhp_sid_old.html.gen">here</A>.</LI>
+      <LI>Always use the latest midibox_sid release which is available at the <A HREF="mios_download.html">download</A> page. Older releases could be incompatible with your hardware. Newer versions are mostly in beta state, and only intended for experts who've read the appr. threads in the forum.</LI>
+      <LI>Now you could just upload the MIDIbox SID application. You will notice several .hex files in the .zip package (see README.txt of this package).</LI>
+      <LI>Search the .hex file which fits for your needs: <I>setup_6581.hex</I> and <I>setup_8580.asm</I> are nearly indendical, only difference is the filter calibration value which will be written into the ensemble BankStick during formatting (6581 uses range 000..FFF, 8580 range 000..600).</LI>
+      <LI>Play a note at MIDI Channel #1, you could either use a MIDI keyboard, the virtual keyboard of MIOS Studio/MIDI-Ox, or a sequencer. You should hear a cheap pulse sound. This is the preset sound, which is stored in the internal EEPROM of the PIC</LI>
+      <LI>Alternatively you could upload the sid_testtone application, which is available at the <A HREF="mios_download.html">MIOS download</A> page. This application just plays a 1kHz triangle wave after MIOS has been booted (no MIDI keyboard or sequencer required to play a note)</LI>
+      <LI>If you don't hear any sound, then there could be a problem with the connections between CORE and SID module, or a short circuit at the SID module itself? The mbsid_interconnection_test available at the <A HREF="mios_download.html">MIOS download</A> page allows you to check, if the CORE module can control the pins of the SID. The main.asm file of this application contains the required steps. If one of the SID pins cannot be controlled, then you know, that the problem must be related to your hardware.</LI>
+      <LI>If the interconnection test was successfull, and you are able to play sounds, here some additional infos to things, which are not obvious:
+        <UL CLASS=CL>
+          <LI>The SID audio out is not so loud as on my other synths: thats correct, you need to amplify it if required. Or just add a (hardware or software) compressor - this makes sense anyhow for more powerful sounds!</LI>
+          <LI>You hear a (silent or loud) 50Hz or 60Hz buzz in the background: thats either a wiring (ground loop) or PSU problem. The <A HREF="mbhp/mbhp_8xsid_c64_psu_optimized.pdf">mbhp_8xsid_c64_psu_optimized.pdf</A> diagram includes some tips how to eliminate the buzz sound (consider the use of a C64 PSU, use shielded audio cables!)</LI>
+          <LI>You hear high-frequency noise in the background: thats a known issue with the SID chip. Especially the 6581 is affected by this problem.</LI>
+          <LI>After a sound has been played, you can sometimes still hear it in the background: thats also an known issue with the VCA of the SID chip.</LI>
+          <LI>The filter resonance has nearly no effect: known SID issue, see also the <A HREF="http://interview.sonikmatter.com/data/bob_yannes.php" TARGET="_blank">Interview with Bob Yannes</A></LI>
+          <LI>The preset patches which get use of the filter are sounding strange: the filter characteristic of the 6581 and 8580 are different, therefore you need to adapt the calibration values in the <A HREF="midibox_sid_manual_e.html">Ensemble</A>.</LI>
+        </UL>
+      <LI>Customizing the application: this can be done by editing the settings in setup_*.asm (take the file which already fits your needs). After a change, you have to rebuild the application like described <A HREF="howto_tools_gpasm.html">here</A>.
+      <LI>Preset patches: they are located in the presets/ directory of the release package. Note that MBSID V2 patches are not compatible to MBSID V1, therefore files with the old format need to be converted. This can be done with the tools/v1_to_v2.pl script of the release package.<BR>
+      The .syx file can currently only uploaded with a SysEx tool like MIDI-Ox. A patch editor is currently in work, it will be part of MIOS Studio.<BR>
+      One <A HREF="bankstick.html">24LC512 BankStick</A> is required to store the 128 preset patches.</LR>
+      <LI><B>Important:</B> up to 8 BankSticks can be connected (the one with CS=7 is used for ensembles). When a new BankStick is connected, a format process will be started, which takes at least one minute. You will see a special message on screen, and the SID will output some beeps on each formated patch slot - but for users who have no LCD connected this process could lead to confusion, since the MIDI functions of the box are not accessible until BankStick is completely initialized! So - please connect the BankStick <B>after</B> you've finished the first tests.</LI>
+    </UL>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Connecting a second SID module for stereo sounds</H2></DT>
+  <DD>
+    <UL CLASS=CL>
+      <LI>As you can see in <A HREF="mbhp/mbhp_8xsid_c64_psu_optimized.pdf">mbhp_8xsid_c64_psu_optimized.pdf</A>, the second SID module is connected to the same port as the first one. Just only the MBHP_SID:J2:SO input is connected to MBHP_CORE:J14 instead, so that the core module can access the SID registers individually.</LI>
+    </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Building a Minimal Control Surface </H2></DT>
+  <DD>
+    <UL CLASS=CL>
+      <LI>Although the <A HREF="midibox_sid_manual_hw.html">CS Manual</A> page lists the possibilities for different display sizes and encoder/button solutions, I strongly recomment the use of a 2x20 LCD, 6 menu buttons, a SHIFT, a PAGE UP and DOWN button, and a rotary encoder. The whole menu handling has been optimized for this setup, all other options lead to following compromisses:
+        <UL ClASS=CL>
+          <LI>INC/DEC buttons: very ugly usage, parameter sweeps cannot be realized efficiently</LI>
+          <LI>2x16 LCD: only 4 menu items are displayed, but sometimes 5 are desired, e.g. for the ENV section. This means, that you need to scroll the menu to the right in order to see the 5th parameter, which normaly belongs to the same parameter set.</LI>
+          <LI>2x40 LCD: better overview, in most menu pages you don't need to scroll anymore, but in the mainpage (where the patch is displayed) only the left half is used, which doesn't look very aesthetical</LI>
+        </UL></LI>
+    </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Setup the Master-Slave configuration</H2></DT>
+  <DD>
+    <UL CLASS=CL>
+      <LI>Details (e.g. the installation of slave SIDs) is listed <A HREF="midibox_sid_manual_hw.html">here</A></LI>
+    </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Setup the Step C Control Surface </H2></DT>
+  <DD>
+    <UL CLASS=CL>
+      <LI>All required schematics, diagrams, default frontpanel layouts are listed <A HREF="midibox_sid_manual_hw.html">here</A></LI>
+      <LI>Prepare all button/encoder/LED boards and measure the dimensions <B>before</B> you are starting with the frontpanel! Mount it on a carton first, and check the handling - this is especially required, if you are planning to re-arrange the parts for your own MIDIbox. Try it out before the order!</LI>
+      <LI>General handling: when you are moving a rotary encoder, or when you are pressing a button, the LCD menu will jump to the appr. menu page, so that you can see the modified value on screen. The encoders at the OSC and ENV section are arranged in the same order like on the display (5 menu items -> 5 encoders). Another example: pressing the OSC Ctrl button will scroll the menu automatically to the page which fits with the 5 "Misc" section. This means, that by pressing buttons, and moving encoders, you have a direct and fast interaction with the LCD menu</LI>
+      <LI>Button and LED assignments can be adapted to the hardware in cs_menu_io_tables.inc, by default they are matching with my own hardware (see <A HREF="midibox_sid_cs/mbsid_v2_din_default.pdf">mbsid_v2_din_default.pdf</A> and <A HREF="midibox_sid_cs/mbsid_v2_dout_default.pdf">mbsid_v2_dout_default.pdf</A></LI>
+      <LI>Encoder assignments can be adapted in the setup_*.asm file if required</LI>
+      <LI>Sometimes people are asking, if they need to take future enhancements into account for their panel design. General statement from my side: I will never change my own frontpanel anymore, therefore you are at the save side when your own panel includes the same buttons/LEDs/encoders (the arrangement doesn't matter). Future functions will be available as alternative key functions. E.g., for MIDIbox SID V2 a dedicated modulation matrix for the CV outs are planned, they will be controlable from the normal modulation matrix within a special menu.</LI>
+    </UL>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Additional Hints... </H2></DT>
+  <DD><P CLASS=DESC>...can be found in the <A HREF="midibox_sid_manual.html">User Manual</A>, <A HREF="http://www.midibox.org/dokuwiki/midibox_sid_faq" TARGET="_blank">MIDIbox SID FAQ</A> (note: some infos have been written for MBSID V1, and they are obsolete for MBSID V2 - this FAQ definitely needs improvements) and in the <A HREF="http://www.midibox.org/forum/index.php?board=26.0" TARGET="_blank">Forum</A> (use the search function!)</P>
+  </DD>
+</DL>
+
+FOOTER

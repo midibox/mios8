@@ -1,0 +1,114 @@
+HEADER 3 MIDIfilter/Processor Example 1
+
+<H1>MIDIfilter/Processor Example 1</H1>
+<H3>Filter out every MIDI Event except Bn 07 xx (Volume Controllers)</H3>
+
+<PRE>
+;
+; MIDI Processor
+;
+; EXAMPLE 1: Filter out every MIDI Event except Bn 07 xx (Volume Controllers)
+;
+; Copyright 2001 by Thorsten Klose
+; Commercial use without my permission is strictly forbidden!
+;
+
+;; --------------------------------------------------------------------------
+;;  PROC Received 8n: called on a Note Off Event
+;;  In:	MIDI_LASTEVENT0: 8n, n = midi channel
+;;      MIDI_LASTEVENT1: note number
+;;      MIDI_LASTEVENT2: velocity
+;; --------------------------------------------------------------------------
+PROC_Received8n
+	;; do nothing
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received 9n: called on a Note On Event
+;;  In:	MIDI_LASTEVENT0: 9n, n = midi channel
+;;      MIDI_LASTEVENT1: note number
+;;      MIDI_LASTEVENT2: velocity
+;; --------------------------------------------------------------------------
+PROC_Received9n
+	;; do nothing
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received An: called on an Aftertouch Event
+;;  In:	MIDI_LASTEVENT0: An, n = midi channel
+;;      MIDI_LASTEVENT1: note number
+;;      MIDI_LASTEVENT2: preasure
+;; --------------------------------------------------------------------------
+PROC_ReceivedAn
+	;; do nothing
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received Bn: called on a Controller Event
+;;  In:	MIDI_LASTEVENT0: Bn, n = midi channel
+;;      MIDI_LASTEVENT1: CC number
+;;      MIDI_LASTEVENT2: CC value
+;; --------------------------------------------------------------------------
+PROC_ReceivedBn
+	;; check if MIDI_LASTEVENT1 (CC number) is 0x07
+	movf	MIDI_LASTEVENT1, W
+	xorlw	0x07
+	bz	PROC_ReceivedBn07
+
+	;; didn't receive Bn 07 xx, don't send event
+	return
+
+	;; received Bn 07 xx, send event
+PROC_ReceivedBn07
+	movf	MIDI_LASTEVENT0, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT1, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received Cn: called on a Controller Event
+;;  In:	MIDI_LASTEVENT0: Cn, n = midi channel
+;;      MIDI_LASTEVENT2: program number (AND NOT MIDI_LASTEVENT1!)
+;; --------------------------------------------------------------------------
+PROC_ReceivedCn
+	;; do nothing
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received Dn: called on a Poly Aftertouch Event
+;;  In:	MIDI_LASTEVENT0: Dn, n = midi channel
+;;      MIDI_LASTEVENT2: note number (AND NOT MIDI_LASTEVENT1!)
+;; --------------------------------------------------------------------------
+PROC_ReceivedDn
+	;; do nothing
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received En: called on an Pitch Bender Event
+;;  In:	MIDI_LASTEVENT0: En, n = midi channel
+;;      MIDI_LASTEVENT1: Pitch Bender High Byte
+;;      MIDI_LASTEVENT2: Pitch Bender Low Byte
+;; --------------------------------------------------------------------------
+PROC_ReceivedEn
+	;; do nothing
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received Fx: called on an System Event
+;;  In: MIDI_LASTEVENT0: Fx, x = System Service
+;;      MIDI_LASTEVENT1: contains the byte of a sysex or MTC stream when
+;;                       MIDI_EXPBYTES == 0
+;;      MIDI_LASTEVENT1: contains the byte of a sysex or MTC stream when
+;;                       MIDI_FxSTATUS != 0
+;;      MIDI_FxSTATUS:   if 0, send MIDI_LASTEVENT0, else MIDI_LASTEVENT1
+;; --------------------------------------------------------------------------
+PROC_ReceivedFx
+        ;; do nothing
+        return
+
+</PRE>
+
+FOOTER

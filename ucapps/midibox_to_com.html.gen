@@ -1,0 +1,105 @@
+HEADER 3 MIDIbox-to-COM Interface
+
+<H1>MIDIbox-to-COM Interface</H1>
+<H3>Created in January 2002</H3>
+
+<P CLASS=INFO>The MIDIbox-to-COM interface enables you to connect the MIDIbox to a COM (RS232) port instead of a MIDI port. It saves one MIDI-IN and one MIDI-OUT for your MIDI equipment. The data is transfered about 20% faster than via MIDI.</P>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<A NAME="Hardware"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware Requirements </H2></DT>
+   <DD>
+<P CLASS=DESC>The MIDI interface of the MIDIbox must be replaced by a RS232 interface. The MAX232 chip does this simple job, it just shifts the TTL voltage levels of the PIC to the -12/+12 V levels of the RS232 port.</P>
+    <CENTER><A HREF="midibox/midibox_com_schematic.gif"><IMG SRC="midibox/midibox_com_schematic.gif" WIDTH=500 ALT="midibox_com_schematic.gif"></A></CENTER>
+   </DD>
+</DL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<A NAME="Driver"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Driver Requirements </H2></DT>
+   <DD>
+<P CLASS=DESC>I tested the RS232 interface with the <A HREF="http://www.yamaha.co.uk/xg/html/software/s_serial.htm" TARGET="_blank">CBX serial port driver</A> by Yamaha and noticed no problems. :)<BR>The <A HREF="http://www.edirol.com/index.php?option=com_content&task=view&id=67&Itemid=394" TARGET="_blank">Roland Driver</A> works also fine (search for serial MIDI driver)!<BR>And here a third driver, provided by <A HREF="http://www.kawaius.com/archive/download_archive.html">Kawai for the K5000 workstation</A>. Nenad reported that the two driver above failed on his computer, but the (much simpler) Kawai driver works.</P>
+   </DD>
+</DL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<A NAME="Firmware"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Firmware Requirements </H2></DT>
+   <DD>
+<P CLASS=DESC><B>PIC16F</B>: The RS232 interface is supported by MIDIbox Plus since v1.908, MIDIbox64, MIDIbox16E, MIDIbox64SEQ and MIDIO128.</P>
+<P CLASS=DESC><B>PIC18F (MIOS)</B>: MIDIbox-to-COM is part of the operating system. See also the functional description of <A HREF="http://www.ucapps.de/mios_fun.html#MIOS_MIDI_InterfaceSet">MIOS_MIDI_InterfaceSet</A>.</P>
+   </DD>
+</DL>
+
+<A NAME="second"></A>
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> How to plug a MIDI device to a MIDIbox with MIDIbox-to-COM Interface</H2></DT>
+   <DD>
+<P CLASS=DESC>This could work with the <A HREF="midimerger.html">MIDI Merger</A> project. To use the Merger as a baudrate converter, just change following lines in the MIDI Merger source code:</P>
+<PRE>
+;; code located in init.inc, function: Init_USART:
+;;
+        SWITCHBANK_0_1
+        movlw   (1 << TXEN)     ; set baudrate: 31250
+        movwf   TXSTA
+        movlw   0x09
+        movwf   SPBRG
+        SWITCHBANK_1_0
+
+must be changed to:
+
+        SWITCHBANK_0_1
+        movlw   (1 << TXEN) | (1 << BRGH) ; set baudrate: 38400
+        movwf   TXSTA
+        movlw   0x20
+        movwf   SPBRG
+        SWITCHBANK_1_0
+</PRE>
+<P CLASS=DESC>On this way, the Hardware UART is clocked with 38400 baud, but the software UART runs with the MIDI baurate anymore. Following interconnections are necessary:</P>
+<UL CLASS=CL>
+  <LI><I>MIDI In1</I> of the merger to MIDI-Out of the MIDI device (i.e. a MIDI Keyboard)</LI>
+  <LI><I>MIDI In2</I> of the merger directly - without optocoupler - to the output of the MAX232 (Pin 12)</LI>
+  <LI><I>MIDI Out</I> of the merger directly - without optocoupler - to the Rx port of the MIDIbox-PIC.</I>
+</UL>
+   </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Schematic/PCB</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midibox/midibox_com_schematic.gif">midibox_com_schematic.gif</A></TD>
+      <TD CLASS=TABCOLOR2>9k</TD>
+      <TD CLASS=TABCOLOR2>RS232 Interface</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp_ltc.html">MBHP LTC</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>This PCB provides a MIDIbox-to-COM port</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Testing the RS232 interface</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="howto_debug_midi.html">PIC16F MIDI Troubleshooting</A></TD>
+      <TD CLASS=TABCOLOR2>LINK</TD>
+      <TD CLASS=TABCOLOR2>HowToDebug the MIDI Interface</TD>
+    </TR>
+  </TABLE></DD>
+</DL>
+
+
+FOOTER

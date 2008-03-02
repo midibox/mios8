@@ -1,0 +1,200 @@
+HEADER 3 MIDIbox SID Bassline Tutorial
+<h1>Tutorial SID Bassline MIDIbox</h1>
+
+<A HREF="midibox_sid_manual_b.html">*** NEW *** MIDIbox SID V2 Bassline -> follow this link</A><BR>
+
+<p class="DESC">&nbsp;Con la versi&oacute;n v1.7303, se ha introducido una nueva opci&oacute;n de motor, que hace sonar al <a href="midibox_sid.html">MIDIbox SID</a> &nbsp;m&aacute;s "303ero". En concreto, se manejan de modo diferente las siguientes partes del motor:<br>
+</p><ul class="CL">
+<li>Los generadores de envolvente&nbsp;ENV1 y
+ENV2 funcionan solamente dentro del rango positivo. El valor de
+profundidad (cantidad de modulaci&oacute;n) se incrementa en notas
+acentuadas.</li>
+<li>La frecuencia del filtro de corte (cutoff) trabaja en un rango limitado (t&iacute;pico de 303).</li>
+<li>Las
+notas acentuadas son accionadas con la velocidad (&gt;= 64) o con la
+etiqueta de acentuar del secuenciador WT. La etiqueta de acentuar: <ul class="CL">
+      <li>incrementa la resonancia del filtro</li>
+      <li> incrementa la profundidad de las envolventes</li>
+      <li>decrece el ratio de decaimiento de las envolventes</li></ul></li><li>el secuenciador de tabla de ondas trabaja como un secuenciador 303&nbsp;:
+    <ul class="CL">
+      <li>La
+primera pista permite controlar el acento,&nbsp;gate y slide. El acento
+es un valor de 4 bits localizado en el primer d&iacute;gito (de la
+derecha) del valor hex (rango &nbsp;de valor: 0..F). Una vez que sea
+&gt;=8, la etiqueta de acento se establece. Adicionalmente el nivel de
+sustento de la voz 1 es controlado- cuanto mayor es el valor,
+m&aacute;s alta es la salida del oscilador.<br>El 5&ordm; bit controla
+la etiqueta de gate. Si se establece, esta nota se reproducir&aacute;,
+si no se establece, la nota no se reproducir&aacute;, pero el pitch
+seguir&aacute; estando controlado por la pista 2 ( muy &uacute;til para
+slides)<br>El 6&ordm; bit controla la etiqueta de slide. Si se
+establece, la nota se atar&aacute; con la nota del siguiente paso. Si
+los valores de nota son diferentes, el pitch ser&aacute;
+incrementado/decrecido continuamente hasta que se alcanza el valor
+final.<br>
+      <b>Ejemplos:</b>
+        <ul class="CL">
+          <li><tt>16</tt>: reproduce nota com&uacute;n sin acento</li>
+          <li><tt>1C</tt>: reproduce nota con acento</li>
+          <li><tt>0C</tt>:
+no reproduce ninguna nota, pero la etiqueta de acento se establece (lo
+que significa: ENV1/ENV2 decaimiento decrecido - Se pueden hacer
+efectos muy chulos con envolventes grandes)</li>
+          <li><tt>36</tt>: la nota se reproducir&aacute; con slide activado</li>
+          <li><tt>3C</tt>: slide + gate + acento</li>
+          <li><tt>26</tt>:
+la nota no se reproduce, pero slide se activa - significa: que la nota
+actual ser&aacute; el punto de comienzo del slide para la siguiente
+nota, pero la nota actual no se reproducir&aacute; (esto es algo muy
+dif&iacute;cil de controlar via MIDI ...y lo que hace tan especiales a
+los secuenciadores TB303!)</li>
+        </ul>
+      </li><li>La
+segunda pista controla el pitch de la voz 1 -&iexcl;las notas solo se
+reproducir&aacute;n si se ha establecido la etiqueta gate en la pista 1!</li>
+      <li>La tercera pista es de uso libre y puede ser asignada a cualquier CC</li>
+      <li>el secuenciador est&aacute; sincronizado en cada nota 1/16</li>
+      <li>el secuenciador puede recibir <span style="font-weight: bold;">y enviar</span> sincronizaci&oacute;n MIDI para sincronizarse con otros dispositivos MIDI</li>
+    </ul>
+  </li>
+<li>Adicionalmente, se ha implementado con un mecanismo de&nbsp;"deslizamiento constante del tiempo", t&iacute;pico del TB-303, que est&aacute; disponible como opci&oacute;n independiente de motor de sonido. El&nbsp;deslizamiento constante del tiempo hace uso de&nbsp;ENV2.
+Barre la frecuencia entre las dos notas cuando se establece la etiqueta
+de slide (WT sequencer), o cuando se reproduce una nueva nota mientras
+se mantiene la antigua (en teclado MIDI, SusKey debe estar activado).</li>
+</ul><p></p>
+
+<h2>Par&aacute;metros de Sonido Importantes</h2><p class="DESC">Los par&aacute;metros de sonido m&aacute;s importantes en el modo 303 son:<br>
+</p><ul class="CL">
+  <li><b>Forma de Onda</b> - Sierra, pulso, o
+formas de onda mezcladas (por ej. Tri&aacute;ngulo y Pulso). La
+amplitud del pulso (Pulsewidth) debe ser de alrededor de&nbsp;70 para
+un sonido 303 t&iacute;pico; con modulaci&oacute;n de amplitud de pulso
+suena m&aacute;s como un SID</li>
+  <li><b>CutOff y Resonancia:</b> por supuesto ;-)</li>
+  <li><b>ENV1:</b>
+debe ser asignado a un filtro. Dadas las caracter&iacute;sticas
+cambiadas (ver lista arriba), la Profundidad (Depth) funciona como el
+"EnvMod" de un TB-303.</li>
+  <li><b>ENV2:</b> Se usa para slides de
+tiempo constantes si est&aacute; acticado, pero tambi&eacute;n puede
+usarse para modular amplitud de pulso o pitch.</li>
+  <li><b>ENV1 Attack:</b> normaly not available on a TB303, but can produce great effects</li>
+  <li><b>ENV1 Decay:</b> muy importante - s&oacute;lo r&oacute;zalo durante la reproducci&oacute;n de una secuencia</li>
+  <li><b>ENV1 Sustain:</b> debe ser utilizado para controlar el&nbsp;CutOff offset</li>
+  <li><b>Curve:</b>
+un par&aacute;metro extremadamente importante para una emulaci&oacute;n
+realista de&nbsp;303, dado que permite doblar la forma de una
+envolvente hasta que parezca la curva de carga/descarga de un
+capacitador (gracias de nuevo a Jess D. Skov-Nielsen por pasarme el
+algoritmo!).<br>En los parches de tutorial, el par&aacute;metro de
+curva se asigna a ENV1 Decay&nbsp; (Filtro) y ENV2 Attack
+(Deslizamiento Constante del tiempo).</li>
+</ul><p></p>
+<h2>Creando Patrones con JSynthLib</h2>
+<p class="INFO">En JSynthLib, debe activarse&nbsp; la opci&oacute;n #0 de Motor de Sonido (SE) para el modo 303, y la opci&oacute;n #2 para deslizamiento constante:<br>
+</p><center><img src="midibox_sid/jsynthlib/tb303_option.gif" height="141" width="334"></center><br>
+El modo Portamento debe establecerse en&nbsp;"Fingered" (SusKey).<br>
+El modo Play debe establecerse en "WT Seq only" si se est&aacute;
+usando el secuenciador WT&nbsp;, o en "Legato" si las notas se
+reproducen desde un secuenciador o teclado externo.<p></p>
+<p class="DESC">Los par&aacute;metros WT&nbsp;: No se debe asignar la
+pista 1 a ning&uacute;n CC, ya que controla&nbsp;slide/gate/accent. La
+pista 2 debe asignarse a CC#9 (Voz 1 Nota) - CCs diferentes no hacen
+ninguna diferencia, esto es solo para la compatibilidad con el modo
+normal. La Pista 3 puede controlar cualquier par&aacute;metro, por ej.
+Filter CutOff (CC#46):<br>
+</p><center><img src="midibox_sid/jsynthlib/wt3.gif" height="299" width="363"></center><p></p>
+<h2>Creando Patrones en la Superficie de Control</h2>
+<p class="DESC">La Superficie de control (Control Surface) tiene una
+p&aacute;gina de men&uacute; especial para los par&aacute;metros de
+motor de sonido: SEO. Es en esta p&aacute;gina donde deben activarse
+las etiqyetas de 303 y E2P (Envelope-to-Pitch)&nbsp;:<br>
+</p><center><img src="midibox_sid_cs/seo1.gif" height="38" width="242"></center><p></p>
+<p class="DESC">Y hay otra p&aacute;gina especial para el modo 303, que provee los par&aacute;metros m&aacute;s importantes:<br>:<br>
+</p><center><img src="midibox_sid_cs/303_1.gif" height="38" width="578"></center><br>
+<ul class="CL">
+  <li><b>Pos:</b> Posici&oacute;n de secuenciador, igual que en el men&uacute; WT</li>
+  <li><b>Mod:</b> Modo Step (-/Ply/Jmp/End), igual que en el men&uacute; WT</li>
+  <li><b>S/G:</b> Etiquetas Slide y Gate (d&iacute;gito hex de la izquierda de la Pista 1 de WT)</li><li><b>Acc:</b> Accent (d&iacute;gito hex de la derecha de la Pista 1 de WT)</li>
+  <li><b>Nte:</b> nota reproducida (WT pista 2)</li>
+  <li><b>#3:</b> Tercera pista WT&nbsp;</li>
+  <li><b>Rte:</b> ratio de wavetable</li>
+  <li><b>P#:</b>
+te permite seleccionar un wavetable de otro parche al-vuelo sin delay
+(igual que CC#12). Esto significa que tienes un acceso r&aacute;pido a
+!hasta 128 patrones de secuenciador!</li>
+  <li><b>Cut:</b> Frecuencia CutOff</li>
+  <li><b>Res:</b> Frecuencia Resonance</li>
+  <li><b>Mod:</b> (EnvMod) - Depth (profundidad) de ENV1</li>
+  <li><b>Dec:</b> Decay (decaimiento) de ENV1</li>
+</ul><p></p>
+<h2>Ejemplos</h2>
+<table class="BOX" align="center" border="1" cellpadding="3" cellspacing="2" width="100%">
+<tbody><tr><td>
+   **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_bassline_pulse.mp3"#dddddd**<br>
+    <span class="NORM"><b>Primeros pasos con forma de onda de pulso</b><br>
+Se han usado seis patrones diferentes en la demo MP3. Est&aacute;n
+cambiadas (en su mayor&iacute;a) despu&eacute;s de 8 mediciones
+con&nbsp;CC#12, que pueden ser enviadas desde un secuenciador externo,
+y que adem&aacute;s son accesibles dentro del men&uacute; 303 de la
+superficie de control.<br>
+EnvMod (ENV1 Depth), Decay (ENV1 Decay) y CutOff son barridos cada cierto tiempo para demostrar las posibilidades.<br>La primera secuencia empieza con algunas notas simples de bajo no acentuadas:<br>
+<tt><pre>STEP CMD    #1   #2   CS: S/G  Acc  Note<br>00   Play   17  E-2       o *    7  E-2<br>01   Play   00  E-1       o o    7  E-1<br>02   Play   17  E-1       o *    7  E-1<br>03   Play   17  E-2       o *    7  E-2<br>04   Play   00  E-2       o o    7  E-2<br>05   Play   00  E-2       o o    7  E-2<br>06   Play   17  E-3       o *    7  E-3<br>07   Play   00  E-2       o o    7  E-2<br>08   Goto   00  +00<br></pre></tt><br>
+Solo se reproducen las notas con una etiqueta gate activada, las notas
+restantes tambi&eacute;n se pueden establecer en "---", pero
+encontr&eacute; m&aacute;s &uacute;til rellenar los huecos -estupendo
+para experimentos con slide- esto se hace desde el tiempo 0:26 de la
+pista demo:
+<tt><pre>STEP CMD    #1   #2   CS: S/G  Acc  Note<br>00   Play   37  E-2       * *    7  E-2<br>01   Play   00  E-1       o o    7  E-1<br>02   Play   17  E-1       o *    7  E-1<br>03   Play   37  E-2       * *    7  E-2<br>04   Play   37  E-1       * *    7  E-1<br>05   Play   37  E-2       * *    7  E-2<br>06   Play   37  E-3       * *    7  E-3<br>07   Play   37  E-2       * *    7  E-2<br>08   Goto   00  +00<br></pre></tt><br>Para el uso de otros patrones, por favor, echa un vistazo al archivo .patchlib (o .syx) de este tutorial.
+  </span></td></tr>
+<tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_tutor_bassline_multi.mp3"#dddddd**<br><span class="NORM"><b>Multi Bassline</b><br>
+    El segundo ejemplo deber&iacute;a inspirar el uso simult&aacute;neo de m&uacute;ltiples SIDs. 
+    <ul class="CL">
+      <li>La pista empieza con una l&iacute;nea de bajo groovy&nbsp; ("TB303 - Multi A1")</li>
+      <li>en
+0:14 se a&ntilde;ade un patr&oacute;n de sierra (saw). Se reproduce en
+el rango de nota superior para una separaci&oacute;n clara ("TB303 -
+Multi B1")</li>
+      <li>en 0:28 se reproduce en solitario un
+patr&oacute;n de sierra diferente, usa el filtro bandbass en vez del de
+lowpass - un efecto chulo!! :) ("TB303 - Multi C1")</li>
+      <li>en 0:45 todos se reproducen a la vez  ("TB303 - Multi A2" "..B2" "..C2") - se pone muy alto ;-)</li>
+    </ul><br>Los
+tres m&oacute;dulos core est&aacute;n sincronizados con Logic Audio
+v&iacute;a MIDI. Si quieres probar a hacer lo mismo, tienes que activar
+sincronizaci&oacute;n de reloj&nbsp;MIDI para el wavetable, y
+establecer en 127 el ratio de wavetable. </span></td></tr>
+<tr><td>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo12.mp3"#dddddd**<br>
+    **MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsid_demo13.mp3"#dddddd**<br>
+    <span class="NORM"><b>Filtros Externos y Distorsi&oacute;n</b><br>Como
+probablemente ya te hayas dado cuenta, la resonancia del filtro SID no
+es tan intensiva como la del original TB-303. Por ello, los
+t&iacute;picos sonidos &aacute;cidos (en su mayor&iacute;a con
+distorsi&oacute;n) no se pueden hacer con la misma calidad con un solo
+SID. Pero hay una soluci&oacute;n que abre un amplio rango de nuevas
+posibilidades: &nbsp;puedes a&ntilde;adir un filtro anal&oacute;gico
+externo, y controlar el CutOff y Resonance directamente desde el
+motor&nbsp;</span><span class="NORM">SID</span><span class="NORM"> MIDIbox&nbsp;!<br>Una soluci&oacute;n barata y suficientemente eficiente para generar controles de voltaje es el m&oacute;dulo <a href="mbhp_aout_lc.html">MBHP_AOUT_LC</a>&nbsp;. Para filtros no es necesaria la m&aacute;s alta exactitud y mucho m&aacute;s alto precio del <a href="mbhp_aout.html">MBHP_AOUT</a> .<br>He probado un filtro latter Moog&nbsp;(<a href="http://www.euronet.nl/%7Erja/Emusic/Moog/" target="_blank">Esquema de Rick Jansen</a>)
+y un filtro low-pass CEM3378 integrado, como mucho.&iexcl;Funciona
+fenomenal! Supongo que sonar&iacute;a incluso mejor con un circuito de
+filtro original del TB-303 - esto es algo que quiero probar.<br> Las
+dos pistas MP3 se han creado en un estadio muy pront&iacute;o del
+dise&ntilde;o del modo 303.&nbsp; La primera se hizo con un CEM3378, la
+segunda con un filtro Moog. Ahora, el 303 suena mucho m&aacute;s
+pele&oacute;n. De todos modos, creo que los antiguos son muy
+impresionantes, y har&eacute; una remezcla alg&uacute;n d&iacute;a que
+tenga un rato(y especialmente los archivos .lso ;-)<br>
+Otra&nbsp;nota: la l&iacute;nea de bajo de la primera melod&iacute;a
+est&aacute; inspirada en Stember_Rudolf/Logical.sid de la
+librer&iacute;a HVSC&nbsp; </span></td></tr>
+</tbody></table>
+<h2>Enlaces relacionados</h2>
+<ul class="CL">
+  <li><a href="midibox_sid/bassline_tutor_patches_v1.zip" target="_blank">bassline_tutor_patches_v1.zip</a></li>
+</ul>
+<p class="CL">Recuerda que todos los parches han sido optimizados para
+un SID de 8580. El filtro del 6581 no funciona muy bien para los
+sonidos 303, es demasiado "blando" y "suave".</p>
+FOOTER

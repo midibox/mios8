@@ -1,0 +1,207 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Bassline Engine
+
+<P CLASS=INFO><B><A HREF="midibox_sid_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox SID V2</H1>
+<H1>User Manual --- Bassline Engine</H1>
+
+<P CLASS=INFO>In this chapter it is assumed that you are already familar with the <A HREF="midibox_sid_manual_l.html">Lead</A> and <A HREF="midibox_sid_manual_m.html">Multi Engine</A>, so that only the differences need to be explained in detail.</P>
+
+<P CLASS=INFO>The bassline engine is optimized - as the name says - for bass sounds and sequences. It provides two instruments, the first is always assigned to the left audio channel, the second to the right audio channel. They can be controlled independent from each other over different MIDI channels and/or keyboard zones assignments in the <A HREF="midibox_sid_manual_e.html">Ensemble menu</A>. Alternatively, they can be controlled with the same keys by assigning them to the same MIDI channel and keyboard zone - this allows to play layered/stereo sounds or combined sequences.</P>
+
+<P CLASS=DESC>Following use cases have been considered:
+  <UL CLASS=CL>
+    <LI><B>Direct MIDI Control:</B> active when sequencer mode within the SQC menu not enabled. The bassline can be directly played from a MIDI keyboard. Accent is activated with velocity >= 64, slide is activated when more than one key is played the same time (Sus-Key, sometimes also called "fingered" mode).</LI>
+    <LI><B>Sequencer Mode:</B> can be activated within the SQC menu. One of 8 sequences can be selected by playing a note on a MIDI keyboard. Note C selects sequence 1, Note C# selects sequence 2, ... Note G Sequence 8. With Note G#, A, A# and B the current sequence is deselected (not played). The octave doesn't matter (no transpose).<BR>
+    Bassline L and R (left and right channel) share the same sequence memory. Different sequences can be selected for these basslines by assigning the instruments to different MIDI channels and/or keyboard zones within the <A HREF="midibox_sid_manual_e.html">Ensemble</A><BR>
+    In order to ensure, that both basslines are in sync, they are always started together. It is possible to start with a single bassline by disabling the second one in the preselection (Seq=-- in SQC menu)<BR>
+    The sequencer continues to play when the MIDI key has been released (hold function). This allows you to tweak sound parameters with both hands - whenever you want to select a new sequence, play a new note. Whenever you want to stop the sequence, play G#/A/A# or B.<BR>
+    Optionally the sequence can be preselected before the next measure (16 steps) is reached (S16 flag in SQC menu). Personally I prefer not to use this feature, as switching between different sequences in between a measure results into great variations (prefered configuration for jam sessions! :)</LI>
+    <LI><B>Arpeggiator Mode:</B> is available as well and provides the same parameters like known from the Lead and Multi Engine.<BR>
+    Note that it isn't possible to combine the sequencer with the arpeggiator - arpeggios have to be played from an external keyboard (or external sequencer...).</LI>
+  </UL>
+</P>
+
+<P CLASS=DESC>The bassline sequencer works like known from Roland TB-303. Up to 16 steps can be played. Each step consists of Note/Gate/Accent/Slide/Octave and an additional, free assignable sound parameter. Each patch contains 8 sequences, which can be selected from a MIDI keyboard, within the SQC menu, or from the modulation matrix buttons of the control surface.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Sound Demos </H2>
+
+<P CLASS=DESC>Here a MP3 sample from my first spontaneous jam session with the completely overworked MBSID V2 bassline engine - note that this recording is the work of 30 minutes and not more (no optimisations, no MIDI automation). Sequences are played internally, they are selected from a MIDI keyboard. Parameters are tweaked from the Control Surface. The MIDIbox is synchronized via external MIDI clock to Logic Audio. Drums are played from a Spectrasonics Stylus RMX VST.<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_bassline_demo1.mp3"#ffffff**</P>
+
+<P CLASS=DESC>The second jam session, where one SID used a feedbacked audio out (see also <A HREF="http://www.midibox.org/forum/index.php?topic=9599.0" TARGET="_blank">this forum posting</A>).<BR>
+Warning: >8 MB, very repetive stuff!<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_bassline_demo2.mp3"#ffffff**</P>
+
+<P CLASS=DESC>Another jam session, which is also documented on video -> <A HREF="http://www.youtube.com/watch?v=FrgdErwTJ5o" TARGET="_blank">YouTube</A>.<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_sid/mbsidv2_bassline_demo3.mp3"#ffffff**<BR>
+<A HREF="midibox_sid/mbsidv2_bassline_demo3_patches.zip
+">This package</A> contains the two patches which have been used in this demo + a "HowTo"</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Root Menu </H2>
+<P CLASS=DESC>This is the root menu of the bassline engine. In difference to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, you will miss the MOD (Modulation Matrix), TRG (Trigger Matrix) and WTC/WTE (Wavetable) entries. Instead, you will notice a new SEQ and SQC (Sequencer/Configuration menu)</P>
+<CENTER><IMG SRC="midibox_sid/cs2/b_root1.gif" width=265 height=19 ALT="Root"></IMG></CENTER><BR>
+<P CLASS=DESC>The root menu gives you quick access the submenus, which are described below.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> "Shift" Menu </H2>
+
+<P CLASS=DESC>To initialise a Bassline Patch, press the SHIFT (formerly LINK) button, and press the second select button below the LCD to change to the Bs (Bassline) engine:</P>
+<CENTER><IMG SRC="midibox_sid/cs2/b_shift1.gif" width=242 height=38 ALT="Shift"></IMG></CENTER></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SEQuencer menu </H2>
+
+<P CLASS=DESC>As the TB303-style sequencer is the most important feature of the bassline engine, the appr. page can be entered with the first item of the root menu.</P>
+<CENTER><IMG SRC="midibox_sid/cs2/b_seq1.gif" width=530 height=38 ALT="Sequencer"></IMG></CENTER><BR>
+
+<P CLASS=DESC>A sequence pattern consists of 16 steps, and 8 patterns are embedded within a patch. The pattern memory is shared between the two basslines.</P>
+
+<P CLASS=DESC>Following functions are available in the SEQ page:<BR>
+<UL CLASS=CL>
+  <LI><B>SEQ:</B> selects 1 of 8 patterns, which should be edited</LI>
+  <LI><B>Pos:</B> the step number. It can also be changed with the Page Up/Down button (prefered usage)</LI>
+  <LI><B>Nte:</B> the note which should be played by the step</LI>
+  <LI><B>Oct:</B> the octave (Down/-/Up). Additional (fixed) transposing is possible within the OSC menu</LI>
+  <LI><B>S/G:</B> slide and gate flag. With activated slide, the note will be stretched to the next step, and the portamento function will be activated when the next step is played.<BR>
+  The note will only be played if the gate flag is set.</LI>
+  <LI><B>Acc:</B> the accent flag causes following changes:
+    <UL CLASS=CL>
+      <LI>Note will be played with maximum sustain value</LI>
+      <LI>LFO and envelope depth will be increased by the "Accent value", which can be specified within the LFO/ENV menu.</LI>
+      <LI>the envelope generator will select a special Decay value (DeA), which is normaly shorter than the "normal" decay, so that the envelope will reach the sustain phase faster.</LI>
+    </UL></LI>
+  <LI><B>Par:</B> allows to control a specific sound parameter in addition to the note (2nd parameter track, see also SQC menu)</LI>
+  <LI><B>Cpy:</B> copies the current pattern into a buffer</LI>
+  <LI><B>Pst:</B> paste: copies the buffer content into the current pattern</LI>
+  <LI><B>Clr:</B> clears the current pattern</LI>
+  <LI><B>SQC:</B> shortcut to the SQC page</LI>
+</UL>
+
+<P CLASS=DESC>The sequencer configuration page contains following items:</P>
+<CENTER><IMG SRC="midibox_sid/cs2/b_sqc1.gif" width=386 height=38 ALT="Sequencer Configuration"></IMG></CENTER><BR>
+
+<UL CLASS=CL>
+  <LI><B>ACh:</B> audio channel (Left/Right) - selects the bassline. Changes will be done for both basslines (LR), for the left one only (L-) or for the right one only (-R)</LI>
+  <LI><B>On:</B> enables/disables the sequencer function. <I>If disabled, the bassline can be directly played via MIDI!</I></LI>
+  <LI><B>Seq:</B> selects the initial pattern after a patch change. A pattern is normaly started <B>and selected</B> by pressing a note on a keyboard. So, this value is only relevant if you are using an alternative start method (e.g. MIDI start event if MBSID Clock generator in slave mode)</LI>
+  <LI><B>Spd:</B> the sequence speed, derived from the global BPM rate (Ensemble->Clk menu). Since the BPM generator is running at quadrupled clock rate, the frequency should be divided by 4 in order to get back the "normal" BPM rate.</LI>
+  <LI><B>Len:</B> the track length (1..16 steps)</LI>
+  <LI><B>S16:</B> if active, pattern changes (e.g. via MIDI keyboard) won't take place immediately, but once the next bar is played. This allows you to synchronize pattern changes to a 4/4 measure.</LI>
+  <LI><B>Par:</B> specifies the sound parameter which is controlled by the "parameter track" (Par value within the SEQ menu). All available parameters are listed <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">here</A>. Due to the special coding, it is possible to control both, the current, or a specific (L/R) bassline from the parameter track ("Current" means for this case not the LR selection on the control surface, but the bassline which plays the sequence)</LI>
+  <LI><B>SEQ:</B> shortcut to the SEQ page</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> OSCillator menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_osc1.gif" width=361 height=19 ALT="Oscillator"></IMG></CENTER><BR>
+
+<P CLASS=DESC>All parameters have the same purpose like described for the <A HREF="midibox_sid_manual_l.html">Lead engine</A>. Instead of the OSC (oscillator), the <B>A</B>udio <B>Ch</B>annel has to be selected (LR/L-/-R).</P>
+
+<P CLASS=DESC>Note that currently only a single oscillator is used by a bassline. Mainly due to the reason, that there is only a single filter anyhow. For later releases, some unisono options (e.g. detune) and Sync/Ringmodulation options are planned - they will result in a less TB303-like, but more "SIDish" sound.</P>
+
+<P CLASS=DESC>The variable oscillator phase has only a simple replacement (Phs flag) which restarts the oscillator when the gate is activated. This feature is also known as "hard-sync" and especially useful for percussive sounds.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> FILter menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_fil1.gif" width=386 height=38 ALT="Filter"></IMG></CENTER><BR>
+
+<P CLASS=DESC>In difference to the <A HREF="midibox_sid_manual_l.html">Lead engine</A>, there is an additional <B>KTr</B> (Keytrack) parameter which increases the CutOff depending on the played note based on the keytrack factor (0..127). The usage is especially important on high resonance filter sounds, as it keeps the resonant frequency spectrum "on-track" with the note.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LFO menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_lfo1.gif" width=313 height=19 ALT="LFO"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Each instrument features two LFOs with fixed modulation routing to Pitch, Pulsewidth and Filter. The modulation depth for these targets can be changed individually (<B>D.P</B> (Depth Pitch), <B>DPW</B> (Depth Pulsewidth), <B>D.F</B> (Depth Filter).</P>
+
+<P CLASS=DESC>The <B>Acc</B>ent parameter at the end of the page specifies, how much the depth values will be increased when a note is played "accented" (SEQ: accent flag, MIDI: velocity >= 64).</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ENVelope menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_env1.gif" width=530 height=38 ALT="Envelope"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Each instrument provides one envelope with fixed modulation routing to Pitch, Pulsewidth and Filter. The modulation depth for these targets can be changed individually (<B>D.P</B> (Depth Pitch), <B>DPW</B> (Depth Pulsewidth), <B>D.F</B> (Depth Filter).</P>
+<P CLASS=DESC>In difference to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, only Attack, Decay, Sustain and Release phase is available. The curve parameter affects all ramps.</P>
+
+<P CLASS=DESC>The <B>Acc</B>ent parameter at the end of the page specifies, how much the depth values will be increased when a note is played "accented" (SEQ: accent flag, MIDI: velocity >= 64).</P>
+
+<P CLASS=DESC>In addition, a special decay value will be selected on accented notes (<B>DeA</B>), which should be shorter than the "normal" decay, so that the envelope will reach the sustain phase faster.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ARPeggiator menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_arp1.gif" width=530 height=38 ALT="Arpeggiator"></IMG></CENTER><BR>
+
+<P CLASS=DESC>The arpeggiator works exactly like for the <A HREF="midibox_sid_manual_l.html">Lead Engine</A></P>
+
+<P CLASS=DESC>Note that the sequencer and arpeggiator functions are handled mutually exclusive - they cannot be used the same time.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> KNoBs menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_knb1.gif" width=626 height=38 ALT="Knobs"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Knob assignments are available as well. The special coding of the parameter table (see <A HREF="midibox_sid/mbsidv2_parameter_chart.txt">MIDIbox SID V2 parameter chart</A>) allows to control sound parameters individually for a specific bassline, for the currently selected, or for both basslines.</P>
+
+<P CLASS=DESC>The typical TB303 parameters CutOff/Resonance/EnvMod/Decay/Accent are assigned to the 5 knob functions by default. This generic approach allows you to control either both basslines, the currently selected (first, second or both), or a dedicated (first or second) bassline depending on the parameter assignment numbers. It's possible to assign a second parameter to the same knob, a min/max range can be specified, values can be received from MIDI, and they are sent to MIDI if the CC function of the Control Surface is activated for easy recording of parameter changes (MIDI automation). Last but not least, knob values can be controlled from analog inputs. This means, that you could also control them with pots or joysticks.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> EXTernal menu </H2>
+<CENTER><IMG SRC="midibox_sid/cs2/b_ext1.gif" width=385 height=19 ALT="External"></IMG></CENTER><BR>
+
+<P CLASS=DESC>In difference to the <A HREF="midibox_sid_manual_l.html">Lead Engine</A>, CV outputs are not available as modulation target. The static voltage levels and switch states can be changed here.</P>
+<P CLASS=DESC>The only way to modulate analog outputs within multi patches is the use of the F2A (Filter-to-Analog) option, which can be activated in the <A HREF="midibox_sid_manual_e.html">Ensemble menu</A>.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SAVe menu </H2>
+
+<P CLASS=DESC>...is available as well of course! :)</P>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_sav1.gif" width=242 height=38 ALT="Save"></IMG></CENTER><BR>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_sav2.gif" width=242 height=38 ALT="Save"></IMG></CENTER>
+</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> RaNDom Generator menu </H2>
+
+<CENTER><IMG SRC="midibox_sid/cs2/b_rnd1.gif" width=289 height=19 ALT="Random"></IMG></CENTER><BR>
+
+<P CLASS=DESC>Note/Gate/Slide/Accent and the sound parameter track can be randomized seperately.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Special Control Surface Handling </H2>
+
+<P CLASS=DESC>The OSC and ENV selection buttons behave different: they select the bassline (LR/L-/-R).</P>
+
+<P CLASS=DESC>The modulation matrix displays the selected sequence as horizontal (left channel) and vertical (right channel) bar. The sequence can be changed with the appr. modulation matrix button - this is an alternative solution if you don't want to select a sequence with a MIDI keyboard.</P>
+
+<P CLASS=DESC>Once the sequencer is playing, the LED matrix turns into a step display with flashing LEDs. Since there are only 8 LEDs in a column/row, two steps have to share the same LED. Anyhow, you will like the effect, it looks nice! :) Due to implementation reasons, the special step display works only when basslines are played on the master core.<BR>
+If you built your MIDIbox SID based on the old <A HREF="midibox_sid_manual_fp.html">Frontpanel</A>, the 8th row will be missing, accordingly the 8th sequence cannot be selected/displayed for the left channel bassline - sorry!</P>
+
+<P CLASS=DESC>Sequences can be started from the control surface with the Play button. If this button isn't available on your frontpanel, just hold the SID1/SID2/SID3 and/or SID4 button and press menu. The sequence will stop with the Note Off function, which is available within the Shift page.</P>
+
+<P CLASS=DESC>If all these buttons are not part of your frontpanel, sequences can only be started/stopped via MIDI.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Recommented Ensemble Configuration </H2>
+
+<P CLASS=DESC>For easiest usage of the sequence selection feature, it is recommented to create a special <A HREF="midibox_sid_manual_e.html">Ensemble</A> configuration, in which the two basslines are assigned to the same MIDI channel. By creating a split point at C-4, it is possible to control the "left" bassline with the lower keyboard range, and the "right" bassline with the upper keyboard range.</P>
+
+<P CLASS=DESC>Ensemble->Ins Configuration for Bassline L:<BR>
+<CENTER><IMG SRC="midibox_sid/cs2/b_ens_ins1.gif" width=290 height=38 ALT="Ensemble"></IMG></CENTER><BR>
+<P CLASS=DESC>Ensemble->Ins Configuration for Bassline R:<BR>
+<CENTER><IMG SRC="midibox_sid/cs2/b_ens_ins2.gif" width=290 height=38 ALT="Ensemble"></IMG></CENTER></P>
+
+<P CLASS=DESC>If more than two basslines should be controlled from the same keyboard (played on the slave SIDs), the ranges need to be reduced to dedicated octaves.</P>
+
+<P CLASS=DESC>If the basslines should be synchronized to an external MIDI clock master, just select Slave mode within the Ensemble->Clk menu:</P>
+<CENTER><IMG SRC="midibox_sid/cs2/b_ens_clk1.gif" width=242 height=38 ALT="Ensemble"></IMG></CENTER></P>
+
+<P CLASS=DESC>Only in slave mode, sequences will be started and stopped via MIDI Start/Stop events - in Master mode such events are ignored.</P>
+
+<P CLASS=DESC>Note that using the slave mode is currently the only way to keep basslines played on multiple cores in synch. An inter-core synchronisation hasn't been implemented yet (see also <A HREF="midibox_sid_manual_ki.html">this page</A>).<P>
+
+FOOTER

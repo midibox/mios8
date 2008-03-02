@@ -1,0 +1,185 @@
+HEADER 3 MIDIfilter/Processor Example 3
+
+<H1>MIDIfilter/Processor Example 3</H1>
+<H3>Convert CC#0 to NRPN Cutoff for MC303 and CC#1 to NRPN resonance</H3>
+
+<PRE>
+;
+; MIDI Processor
+;
+; EXAMPLE 3: Convert CC#0 to NRPN Cutoff for MC303 and CC#1 to NRPN resonance
+;
+; Copyright 2001 by Thorsten Klose
+; Commercial use without my permission is strictly forbidden!
+;
+
+;; --------------------------------------------------------------------------
+;;  PROC Received 8n: called on a Note Off Event
+;;  In:	MIDI_LASTEVENT0: 8n, n = midi channel
+;;      MIDI_LASTEVENT1: note number
+;;      MIDI_LASTEVENT2: velocity
+;; --------------------------------------------------------------------------
+PROC_Received8n
+	movf	MIDI_LASTEVENT0, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT1, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received 9n: called on a Note On Event
+;;  In:	MIDI_LASTEVENT0: 9n, n = midi channel
+;;      MIDI_LASTEVENT1: note number
+;;      MIDI_LASTEVENT2: velocity
+;; --------------------------------------------------------------------------
+PROC_Received9n
+	movf	MIDI_LASTEVENT0, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT1, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received An: called on an Aftertouch Event
+;;  In:	MIDI_LASTEVENT0: An, n = midi channel
+;;      MIDI_LASTEVENT1: note number
+;;      MIDI_LASTEVENT2: preasure
+;; --------------------------------------------------------------------------
+PROC_ReceivedAn
+	movf	MIDI_LASTEVENT0, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT1, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received Bn: called on a Controller Event
+;;  In:	MIDI_LASTEVENT0: Bn, n = midi channel
+;;      MIDI_LASTEVENT1: CC number
+;;      MIDI_LASTEVENT2: CC value
+;; --------------------------------------------------------------------------
+PROC_ReceivedBn
+
+	;; (note: you could also get the NRPN address with a condition table,
+	;;  which would save a lot of code - this example is just for
+	;;  education)
+
+	;; branch when CC number is 0x00
+	movf	MIDI_LASTEVENT1, W
+	xorlw	0x00
+	bz	PROC_ReceivedBn00
+	
+	;; branch when CC number is 0x01
+	movf	MIDI_LASTEVENT1, W
+	xorlw	0x01
+	bz	PROC_ReceivedBn01
+
+	movf	MIDI_LASTEVENT0, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT1, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+
+	;; the other variants
+PROC_ReceivedBn00
+	movlw	0x20				; NRPN LSB = 0x20
+	goto	PROC_ReceivedBn_SendNRPN	; continue here
+	
+PROC_ReceivedBn01
+	movlw	0x21				; NRPN LSB = 0x20
+
+	;; goto	PROC_ReceivedBn_SendNRPN	; continue here
+	;; (this jump is not really necessary, since the target is the next instr.)
+
+PROC_ReceivedBn_SendNRPN
+	movwf	TMP1				; store number in temp. register
+
+	movf	MIDI_LASTEVENT0, W		; send Bn
+	call	MIDI_SendByte
+	movlw	0x63				; Send NRPN MSB 01 (0x63 0x01)
+	call	MIDI_SendByte
+	movlw	0x01
+	call	MIDI_SendByte
+	movlw	0x62				; SEND NRPN LSB <TMP1> (0x62 <TMP1>)
+	call	MIDI_SendByte
+	movf	TMP1, W
+	call	MIDI_SendByte
+	movlw	0x06				; send NRPN MSB value (06 <MIDI_LASTEVENT2>)
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+	
+;; --------------------------------------------------------------------------
+;;  PROC Received Cn: called on a Controller Event
+;;  In:	MIDI_LASTEVENT0: Cn, n = midi channel
+;;      MIDI_LASTEVENT2: program number (AND NOT MIDI_LASTEVENT1!)
+;; --------------------------------------------------------------------------
+PROC_ReceivedCn
+	movf	MIDI_LASTEVENT0, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received Dn: called on a Poly Aftertouch Event
+;;  In:	MIDI_LASTEVENT0: Dn, n = midi channel
+;;      MIDI_LASTEVENT2: note number (AND NOT MIDI_LASTEVENT1!)
+;; --------------------------------------------------------------------------
+PROC_ReceivedDn
+	movf	MIDI_LASTEVENT0, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received En: called on an Pitch Bender Event
+;;  In:	MIDI_LASTEVENT0: En, n = midi channel
+;;      MIDI_LASTEVENT1: Pitch Bender High Byte
+;;      MIDI_LASTEVENT2: Pitch Bender Low Byte
+;; --------------------------------------------------------------------------
+PROC_ReceivedEn
+	movf	MIDI_LASTEVENT0, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT1, W
+	call	MIDI_SendByte
+	movf	MIDI_LASTEVENT2, W
+	call	MIDI_SendByte
+	return
+
+;; --------------------------------------------------------------------------
+;;  PROC Received Fx: called on an System Event
+;;  In: MIDI_LASTEVENT0: Fx, x = System Service
+;;      MIDI_LASTEVENT1: contains the byte of a sysex or MTC stream when
+;;                       MIDI_FxSTATUS != 0
+;;      MIDI_FxSTATUS:   if 0, send MIDI_LASTEVENT0, else MIDI_LASTEVENT1
+;; --------------------------------------------------------------------------
+PROC_ReceivedFx
+        ;; branch depending on MIDI_FxSTATUS
+        movf    MIDI_FxSTATUS, W
+        bnz     PROC_ReceivedFx_SendByte
+        
+PROC_ReceivedFx_SendCommand
+        movf    MIDI_LASTEVENT0, W
+        call    MIDI_SendByte
+        return
+
+PROC_ReceivedFx_SendByte
+        movf    MIDI_LASTEVENT1, W
+        call    MIDI_SendByte
+        return
+</PRE>
+
+FOOTER

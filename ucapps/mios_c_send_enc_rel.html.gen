@@ -1,0 +1,69 @@
+HEADER 3 MIOS C Example
+
+<H3>Sending relative MIDI Events on Rotary Encoder movements</H3>
+
+<P CLASS=INFO>We want to send relative CC events on encoder movements in following format: <I>CC &lt;encoder&gt; &lt;+/- speed&gt;</I>.</P>
+
+<P CLASS=INFO>Copy the SDCC skeleton into a new directory, open the main.c file and enhance the hooks like described below. Thereafter type "make" in the command shell, and upload the new project.hex file to the core.</P>
+
+<P CLASS=INFO>Within the Init() function, you have to specify, how many shift registers are connected to the core, and which encoder speed mode should be taken:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam
+{
+  unsigned char i;
+
+  // set shift register update frequency
+  MIOS_SRIO_UpdateFrqSet(1); // ms
+
+  // we need to set at least one IO shift register pair
+  MIOS_SRIO_NumberSet(16); // for 128 pins
+
+  // set speed mode for 8 encoders
+  for(i=0; i<8; ++i) {
+    // available speed modes: SLOW, NORMAL and FAST
+    MIOS_ENC_SpeedSet(i, MIOS_ENC_SPEED_FAST, 2); // encoder, speed mode, divider
+  }
+}
+</PRE></TT>
+
+<P CLASS=INFO>We add the code which should be executed on rotary encoder movements to the ENC_NotifyChange() function:</P>
+
+<TT><PRE>
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when an encoder has been moved
+// incrementer is positive when encoder has been turned clockwise, else
+// it is negative
+/////////////////////////////////////////////////////////////////////////////
+void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
+{
+  MIOS_MIDI_TxBufferPut(0xb0);           // CC at MIDI Channel #1
+  MIOS_MIDI_TxBufferPut(0x10 + encoder); // CC# is 0x10 (16) for first encoder
+  MIOS_MIDI_TxBufferPut((0x40 + incrementer) & 0x7f);
+  // this "40 +/- speed" format is used by NI software and some others
+}
+</PRE></TT>
+
+
+<P CLASS=INFO><B>IMPORTANT:</B> the pins to which the encoders are connected must be specified in mios_wrapper/mios_tables.inc. Search for <B>MIOS_ENC_PIN_TABLE</B> and replace the first ENC_EOT entries (which terminate the table) by:</P>
+
+<TT><PRE>
+MIOS_ENC_PIN_TABLE
+        ;;        SR  Pin  Mode
+        ENC_ENTRY  1,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 1
+        ENC_ENTRY  1,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 2
+        ENC_ENTRY  1,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 3
+        ENC_ENTRY  1,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 4
+        ENC_ENTRY  2,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 5
+        ENC_ENTRY  2,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 6
+        ENC_ENTRY  2,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 7
+        ENC_ENTRY  2,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 8
+</PRE></TT>
+
+<P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>
+
+FOOTER

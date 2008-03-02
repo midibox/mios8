@@ -1,0 +1,319 @@
+HEADER 3 MBHP JDM Module
+
+<h1>Plataforma de Hardware MIDIbox, M&oacute;dulo programador JDM </h1><h2>NOTA: ESTE M&Oacute;DULO SE HA REEMPLAZADO POR EL <a href="mbhp_burner.html">MBHP_BURNER</a>!</h2>
+<p></p><center><img src="mbhp/mbhp_jdm.jpg" height="620" width="500"></center><p></p>
+<p class="INFO">El programador JDM es una soluci&oacute;n de bajo coste
+para la introducci&oacute;n de un programa en la memoria flash interna
+del PIC. Adem&aacute;s de los planes originales de Jens Dyekj&aelig;r
+Madsen, que puedes encontrar en esta <a href="http://www.jdm.homepage.dk/newpic.htm" target="_blank">web</a>,
+tambi&eacute;n hay muchos esquemas modificados en la web. R1 y el
+voltaje de&nbsp;D5 son modificaciones adicionales que son necesarias
+para todos los PICs recientes que vienen con una capacidad de
+programaci&oacute;n de bajo voltaje (que, de hecho, el programador JDM
+no utiliza y debe ser deshabilitada con la resistencia pulldown en el
+pin RB3) y un valor ligeramente incrementado para el diodo Z para
+cumplir las especificaciones de programaci&oacute;n del&nbsp; PIC16F87x
+y PIC18F452 (Nota: si no puedes encontrar un zener de 8,7V, coge uno de
+8,2V, funcionar&aacute; en la mayor&iacute;a de los casos).</p>
+
+<p class="DESC">IC-Prog por <a href="mailto:bgijzen@ic-prog.com">Bonny Gijzen</a>
+parece ser el software de quemado m&aacute;s flexible, ya que no solo
+soporta el JDM, sino muchos otros programadores. Se puede descargar
+aqu&iacute;: <a href="http://www.ic-prog.com" target="_blank">http://www.ic-prog.com</a>.
+Configura IC-Prog como se describe en el archivo de ayuda y carga el
+archivo .hex de MIDIbox. Este archivo incluye el volcado de memoria del
+firmware y todas las configuraciones necesarias:</p>
+<center><a href="howtoprog/icprog_conf2.gif"><img src="howtoprog/icprog_conf2.gif" width="575"></a></center>
+<br><a href="howtoprog/icprog_conf.gif">Pulsa aqu&iacute; para verlo en
+tama&ntilde;o completo - Recuerda que los datos y&nbsp; checksum
+dependen del firmware (archivo .hex&nbsp;)que hayas cargado</a>
+
+<p class="DESC">Antes de empezar a programar el chip, por favor, revisa
+tu circuito de programaci&oacute;n en el men&uacute; Hardware
+Check&nbsp;.<br><b>Importante:</b> no midas los voltajes con un
+osciloscopio o instrumentos similares que est&eacute;n conectados a
+tierra como tu PC, ya que esto falsificar&iacute;a los resultados de la
+medici&oacute;n: (el JDM usa al conexi&oacute;n de tierra para Vdd).
+Usa un mult&iacute;metro con bater&iacute;a. Sigue estas instrucciones:</p>
+
+<ul class="CL">
+
+<li>Ve a Settings-&gt;Hardware menu, ponlo en "JDM Programmer",
+selecciona el Puerto (COM1, COM2, ...?), Selecciona Interface Direct
+I/O (bueno para Windows 9x) o API (Windows ME/NT/2000/XP). Comienza
+con&nbsp;I/O Delay 0, No inviertas ninguna se&ntilde;al:<br>
+<center><img src="howtoprog/icprog_conf3.gif" height="304" width="363"></center></li>
+
+<li>Ahora selecciona el dispositivo correcto:: Settings-&gt;Device-&gt;Microchip PIC-&gt;<b>PIC18F452</b> (o <b>PIC16F874</b> o <b>PIC16F877</b> para MIDIboxes PIC16F&nbsp;)</li>
+
+<li>Start Settings-&gt;Options, ve al sub-men&uacute; "Programming"&nbsp;</li>
+
+<li>Habilita "Verfiy after programming" y "Verify during programming".
+La &uacute;ltima opci&oacute;n asegura que se te notifiquen
+inmediatamente los errores de programaci&oacute;n. La primera
+opci&oacute;n es especialmente necesaria para los derivados de
+PIC16F87xA, ya que&nbsp;IC-Prog no verifica estos chips durante la
+programaci&oacute;n.
+<center><img src="howtoprog/icprog_conf5.gif" height="319" width="383"></center></li>
+
+<li>Ve al submen&uacute; "Misc", habilita "Vcc control for JDM" y selecciona "Realtime" en Process Priority
+<center><img src="howtoprog/icprog_conf6.gif" height="319" width="383"></center></li>
+
+<li>Ve a&nbsp;Settings-&gt;men&uacute; Hardware Check</li>
+
+<li>Prepara tu mult&iacute;metro y revisa los voltajes de tu programador.<br>
+<b>Nota:</b> cuando se deshabilita una se&ntilde;al, el voltaje cae
+hasta 0V muy, muy despacio, ya que los capacitadores no se descargan
+con una carga. As&iacute; que no est&eacute;s pendiente de los valores
+de se&ntilde;ales desactivadas, solo revisa las se&ntilde;ales
+habilitadas.<br>
+<b>Nota2:</b> los voltajes cambiar&aacute;n a los valores correctos y
+especificados cuando haya un PIC en el socket. El prop&oacute;sito de
+la revisi&oacute;n de hardware no es ver los voltajes correctos, sino
+asegurarse de que las se&ntilde;ales puedan ser controladas (switched
+on/off) por tu PC. Si te quieres asegurar de que el voltaje no sea
+demasiado alto en la carga para verificar que el circuito est&eacute;
+correctamente cableado, conecta temporalmente una resistencia de 1k
+entre Vss y el "pin en pruebas".</li>
+
+<li>&iexcl;&iexcl;&iexcl;Aseg&uacute;rate de que <b>no haya PIC </b>en el socket de programaci&oacute;n!!!</li>
+
+<li>Pulsa sobre "Enable Data Out": La caja de&nbsp;Data In debe ser
+autom&aacute;ticamente seleccionada para soporte de hardware (Data
+Out-&gt;Data In). Desconecta "Data out" de nuevo. No te preocupes si
+Data In se acciona en los siguientes tests, este es el comportamiento
+normal.</li>
+
+<li>Pulsa sobre "Enable MCLR", mide el voltaje entre Vss (Pin 12/31) y MCLR# (Pin 1) : ca. 14 V</li>
+
+<li>Deshabilita todas las se&ntilde;ales</li>
+
+<li>Pulsa sobre "Enable Vcc", mide el voltaje entre Vss (Pin 12/31) y Vdd (Pin 11/32): ca. 5 V </li>
+
+<li>Si esta prueba falla, aseg&uacute;rate de que la opci&oacute;n "Vcc
+control for JDM" est&eacute; activada en el submen&uacute;&nbsp;
+"Misc"(Settings-&gt;Options)</li>
+
+<li>Deshabilita todas las se&ntilde;ales</li>
+
+<li>Pulsa sobre "Enable clock", mide el voltaje entre Vss (Pin 12/31) y RB6 (Pin 39): ca. 5 V +/- 1 V</li>
+
+<li>Deshabilita todas las se&ntilde;ales</li>
+
+<li>Pulsa sobre&nbsp;"Enable Data Out", mide el voltaje entre Vss (Pin 12/31) y RB7 (Pin 40): ca 5 V +/- 0.5 V</li>
+
+<li>Ahroa enchufa el PIC en el socket de programaci&oacute;n.</li>
+
+<li>Start Command-&gt;Read All</li>
+
+<li>Durante la lectura:<br>
+Mide el voltaje entreVss (Pin 12/31) y MCLR# (Pin 1) : ca. 13.7 V<br>
+Mide el voltaje entre Vss (Pin 12/31) y Vdd (Pin 11/32): ca. 5.1 V<br>
+No tiene sentido medir los voltajes de los otros pines, ya que se accionan muy r&aacute;pido.<br>
+<b>Nota:</b> El programador JDM no funcionar&aacute; cuando pruebes estos pines con un osciloscopio (GND-&gt;Earth problem)</li>
+
+<li>Si no mides&nbsp;13.7V entre Vss y MCLR cuando el PIC est&eacute;
+enchufado, puedes incrementar/decrecer el voltaje con el I/O Delay en
+el men&uacute; Hardware. Retrasos m&aacute;s bajos incrementan el
+voltaje, retrasos m&aacute;s altos decrecer&aacute;n el voltaje! Me di
+cuenta de que no se pueden alcanzar 13.7V cuando se accede al JDM a
+trav&eacute;s de las funciones API de Windows</li>
+
+<li>Start File-&gt;Open File: carga el firmware (archivo .hex&nbsp;) en IC-Prog</li>
+
+<li>Start Command-&gt;Program All</li>
+
+<li>Ahora pasar&aacute;n unos 3 min. hasta que el PIC est&eacute;
+programado. Si la escritura no funciona, IC-Prog lo notificar&aacute;
+como "Verify failed" cuando esten marcadas "Verfiy after programming" y
+"Verify during programming" en Settings-&gt;Options-&gt;submen&uacute;
+Programming&nbsp;<br>
+<b>Nota:</b>Parece que con algunos PCs, el proceso de
+programaci&oacute;n solo pasa cuando el pin 5 (GND) del enchufe
+SubD-Plug est&aacute; conectado con el ch&aacute;sis de metal(tierra)
+del conector.</li>
+
+</ul>
+
+<p class="DESC">Despu&eacute;s de que la programaci&oacute;n est&eacute; hecha, tu PIC estar&aacute; preparado&nbsp; :)</p>
+
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Descarga </h2>
+   <dd>
+   </dd><dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">los datos PCB se pueden visionar, modificar y convertir con&nbsp;<a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>M&oacute;dulo&nbsp;</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Esquema</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Datos de Base</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Vista r&aacute;pida</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2"><i>MBHP_JDM_V2</i></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_jdm_v2_sm.gif">mbhp_jdm_v2_sm.gif</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_jdm_v2.brd">mbhp_jdm_v2.brd</a></td>
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_jdm_v2.gif">mbhp_jdm_v2.gif</a></td>
+    </tr>
+  </tbody></table></dd>
+
+  <dd><table border="0" cellpadding="0" cellspacing="5" width="100%">
+    <tbody><tr>
+      <td colspan="4" class="TABCOLOR1"><font size="3">Informaci&oacute;n adicional</font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Archivo</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>Tama&ntilde;o</strong></font></td><td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong><span style="text-decoration: underline;">Descripci&oacute;n</span></strong></font></td></tr><tr><td class="TABCOLOR2"><a href="mbhp/mbhp_jdm_orderlist.txt">mbhp_jdm_orderlist.txt</a></td>
+      <td class="TABCOLOR2">1k</td>
+      <td class="TABCOLOR2"><a href="http://www.reichelt.de/" target="_blank">Lista de pedido para Reichelt</a></td>
+    </tr>
+  </tbody></table></dd>
+  
+</dl>
+
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Compatibilidad </h2>
+   <dd><p class="DESC">Ver la <a href="http://www.jdm.homepage.dk/newpic.htm" target="_blank">p&aacute;gina original</a> de Jens Dyekj&aelig;r Madsen</p></dd>
+</dl>
+
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Puertos Disponibles </h2>
+   <dd>
+<p class="DESC">El m&oacute;dulo JDM proporciona las siguientes interfaces:</p>
+  </dd><dd><table class="BOX" border="1" cellpadding="0" cellspacing="5" width="100%">
+
+    <tbody><tr>
+      <td class="TABCOLOR1"><font size="2"><strong>Nombre</strong></font></td>
+      <td class="TABCOLOR1"><font size="2"><strong>N&ordm;. de pins</strong></font></td>
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Descripci&oacute;n</strong></font></td>
+    </tr>
+    <tr>
+      <td class="TABCOLOR2">J1</td>
+      <td class="TABCOLOR2">9</td>
+      <td class="TABCOLOR2">Esta es la interfaz para el puerto COM de tu PC. Hay que usar un socket 9-pole sub-d (hembra).</td>
+    </tr>
+
+    <tr>
+      <td class="TABCOLOR2">J2</td>
+      <td class="TABCOLOR2">10</td>
+      <td class="TABCOLOR2">Esto es la interfaz de programaci&oacute;n en-circuito para&nbsp;J3 del m&oacute;dulo MBHP.</td>
+    </tr>
+  </tbody></table></dd>
+  
+</dl>
+
+
+<dl>
+   <dt></dt><h2> <img src="images/bullet.gif" alt=""> Componentes Utilizados </h2>
+   <dd>
+<p class="DESC"><a href="mbhp/mbhp_jdm_orderlist.txt">Aqu&iacute;</a> hay una lista de los componentes utilizados. Puedes encontrar una lista de pedido completa para <a href="http://www.reichelt.de" target="_blank">Reichelt</a> y <a href="http://www.mouser.com" target="_blank">Mouser</a> en <a href="mbhp/mbhp_jdm_orderlist.txt">este sitio</a>, la lista de partes Mouser para US: ver <a href="http://mbhp.coinoptech.com" target="_blank">Web de SmashTV</a>,
+si tienes una lista de pedido para un distribuidor de tu pa&iacute;s,
+si&eacute;ntete libre de publicarlo en esta p&aacute;gina!</p>
+  </dd>
+</dl>
+
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Gu&iacute;a de Soldadura </h2>
+  <dd>
+  </dd><dd><table cellpadding="0" cellspacing="0" width="100%">
+    <tbody><tr>
+      <td><img src="mbhp/mbhp_jdm_1.jpg" alt="" border="0" height="146" width="280"></td>
+      <td class="TABCOLOR2">Empieza
+soldando los dos puentes que te evitar&aacute;n tener que hacer una
+placa de dos capas. Puedes usar las patillas cortadas de capacitadores
+y resistencias antes de tirarlas! :-)</td>
+    </tr>
+
+    <tr>
+      <td><img src="mbhp/mbhp_jdm_2.jpg" alt="" border="0" height="142" width="280"></td>
+      <td class="TABCOLOR2">Coloca los componentes: socket-IC, Resistencias, Capacitadores, Diodos, Transistores, Conectores...</td>
+    </tr>
+
+    <tr>
+      <td><img src="mbhp/mbhp_jdm_3.jpg" alt="" border="0" height="116" width="280"></td>
+      <td class="TABCOLOR2">Esta imagen muestra los dos puentes adicionales en el conector de programaci&oacute;n en-circuito , hecho con cables aislados.</td>
+    </tr>
+
+    <tr>
+      <td><img src="mbhp/mbhp_jdm_4.jpg" alt="" border="0" height="267" width="280"></td>
+      <td class="TABCOLOR2">Conecta el programador a tu PC y mide los voltajes como se describe arriba.</td>
+    </tr>
+
+    <tr>
+      <td><img src="mbhp/mbhp_jdm_5.jpg" alt="" border="0" height="295" width="280"></td>
+      <td class="TABCOLOR2">Despu&eacute;s, enchufa el PIC en el socket e intenta programar el chip.</td>
+    </tr>
+
+    <tr>
+      <td><img src="mbhp/mbhp_jdm_6.jpg" alt="" border="0" height="193" width="280"></td>
+      <td class="TABCOLOR2">Tambi&eacute;n puedes programar el PIC con un Adaptador de Programaci&oacute;n En- Circuito.</td>
+    </tr>
+
+    <tr>
+      <td><img src="mbhp/mbhp_jdm_7.jpg" alt="" border="0" height="206" width="280"></td>
+      <td class="TABCOLOR2">Esto es un conector PCB 1:1 2-filas de fabricaci&oacute;n propia , como los componentes de PC.</td>
+    </tr>
+
+    <tr>
+      <td><img src="mbhp/mbhp_jdm_8.jpg" alt="" border="0" height="98" width="280"></td>
+      <td class="TABCOLOR2">Otra vista del conector casero. Mira la p&aacute;gina <a href="mbhp_lcd.html">LCD</a>, para ver c&oacute;mo se hace este conector.</td>
+    </tr>
+
+    <tr>
+      <td><img src="mbhp/mbhp_jdm_9.jpg" alt="" border="0" height="76" width="280"></td>
+      <td class="TABCOLOR2">El mismo circuito en una placa de vectores.</td>
+    </tr>
+  </tbody></table></dd>
+  
+</dl>
+
+
+<dl>
+  <dt></dt><h2> <img src="images/bullet.gif" alt=""> Soluci&oacute;n de problemas </h2>
+  <dd>
+    <ul class="CL">
+      <li>Compara
+tu circuito con el esquema y la base PCB una y otra vez- Revisa
+especialmente la polaridad de los diodos, capacitadores y transistores.
+Aseg&uacute;rate de que las soldaduras est&eacute;n bien (sin falsos
+contactos)</li>
+      <li>IC-Prog a veces se olvida alguna
+opci&oacute;n bajo circonstancias desconocidas (por ej. el retraso I/O
+y el n&uacute;mero de puerto COM&nbsp;). As&iacute; que si falla el
+proceso de quemado, aseg&uacute;rate de tu configuraci&oacute;n no se
+ha cambiado.</li>
+      <li>Prueba diferentes valores de retraso I/O - ver tambi&eacute;n <a href="http://www.midibox.org/cgi-bin/yabb/YaBB.cgi?board=troubleshooting;action=display;num=1072037312">este post</a>.</li>
+      <li><a href="http://www.midibox.org/cgi-bin/yabb/YaBB.cgi?board=troubleshooting;action=display;num=1054103454">Sigue este enlace</a> si eres usuario de WinXP (&iexcl;gracias Rowan!)</li>
+      <li>Usa
+la funci&oacute;n de verificaci&oacute;n de IC-Prog para asegurar que
+el firmware se haya quemado correctamente si ves que el PIC no funciona.</li>
+      <li>No quemes un firmare de PIC16F877 en el PIC18F452 - el PIC18F no tiene c&oacute;digo compatible!<br>Todos
+los firmwares&nbsp;PIC16F (usados en los anteriores proyectos)
+est&aacute;n publicados como un archivo .hex file, para el PIC18F solo
+tienes que quemar el&nbsp; <a href="mios_bootstrap.html">Bootloader</a>, as&iacute; el sistema operativo y las aplicaciones ser&aacute;n programadas v&iacute;a MIDI.</li><li>Aqu&iacute; hay algunas historias de &eacute;xito (problemas raros que han sido resueltos) <a href="http://www.midibox.org/cgi-bin/yabb/YaBB.cgi?board=troubleshooting;action=display;num=1040106004;start=2#2" target="_blank">Historia #1</a> <a href="http://www.midibox.org/cgi-bin/yabb/YaBB.cgi?board=troubleshooting;action=display;num=1042977205;start=2#2" target="_blank">Historia #2</a> <a href="http://www.midibox.org/cgi-bin/yabb/YaBB.cgi?board=troubleshooting;action=display;num=1040106004;start=10#10" target="_blank">Historia #3</a>&nbsp;<a href="http://www.midibox.org/cgi-bin/yabb/YaBB.cgi?board=troubleshooting;action=display;num=1056027618;start=1#1" target="_blank"> Historia #4</a>
+</li>
+    <li>Si el voltaje MCLR# no fuera suficientemente alto (este
+problema se ha visto en port&aacute;tiles, pero tambi&eacute;n en PCs
+con un puerto COM d&eacute;bil), puedes proporcionar este voltaje desde
+el exterior como en el esquema de debajo.Usa o dos bater&iacute;as de
+9V o un PSU que entrega al menos&nbsp;15V. No hace falta ning&uacute;n
+regulador ya que los diodos zener limitan el voltaje. No olvides la
+resistencia de 220 Ohm&nbsp; - que limita la corriente y protege el
+circuito JDM.<br><img src="mbhp/mbhp_jdm_vpp_fix.gif" alt="alternative external power supply for JDM"></li>
+      <li>Enchufa
+el PIC directamente al socket del m&oacute;dulo JDM cuando lo quemes
+por primera vez, porque un PIC borrado necesita una resistencia
+pull-down en el pin RB3 (PIC18F452: en pin RB5!) que deshabilita el
+modo de programaci&oacute;n de bajo voltaje:<br><img src="mbhp/mbhp_jdm_lvp_fix.gif" alt="disable the LVP mode"></li>
+      <li><a href="http://perso.wanadoo.es/siscobf/descargas/WinPic800.zip" target="_blank">WinPic800</a>
+es un software de programaci&oacute;n alternativo -merece la pena
+probarlo si falla IC-Prog. Tambi&eacute;n soporta PICs m&aacute;s
+nuevos como el PIC18F4620.<br>MTE ha escrito alguna informaci&oacute;n en el <a href="http://www.midibox.org/dokuwiki/doku.php?id=jdm_with_winpic800">Wiki</a>.</li>
+    </ul>
+  </dd>
+</dl>
+
+
+FOOTER

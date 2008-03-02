@@ -1,0 +1,495 @@
+HEADER 3 MBHP SID Module
+
+            <h1 style="text-align: center;">MIDIbox Hardware Platform, le Module SID</h1>
+
+
+            <p></p>
+            <center><img src="mbhp/mbhp_sid_v3.jpg" height="388" width="550"></center>
+            <p></p>
+
+
+            <p class="INFO">Vous trouverez plus d'informations sur le module SID sur la page consacr&eacute;e &agrave; la <a href="midibox_sid.html">MIDIbox SID</a>&nbsp;,&nbsp;ici sont juste regroup&eacute;es les informations techniques.</p>
+
+
+            <p class="DESC">Au
+contraire des l'impl&eacute;mentations habituelles du
+synth&eacute;tiseur SID, j'ai
+d&eacute;cid&eacute; de connecter le module au port J10 du
+module&nbsp;<a href="mbhp_core.html">Core</a>&nbsp;par le biais d'une interface s&eacute;rie en utilisant des
+"shift-registers".&nbsp;La latence reste pour tous les acc&eacute;s au
+dessous de 50 uS, et la diff&eacute;rence avec une interface
+parall&egrave;le est imperceptible. Cette m&eacute;thode permet
+de simplifier la conception pour les utilisateurs (encore)
+inexp&eacute;riment&eacute;s tout en obtenant une plus grande
+fiabilit&eacute;.</p>
+
+
+            <p class="DESC">Le module
+requiert une seconde alimentation 12V filtr&eacute;e et stable pour
+la section Audio du chip 6581.&nbsp;Le courant consomm&eacute;
+n'exc&eacute;dant pas 100 mA, la version
+"all&eacute;g&eacute;e" du
+7812, le 78L12, peut &ecirc;tre utilis&eacute;e comme
+r&eacute;gulateur de tension. Si vous pr&eacute;voyez
+d'utiliser le 8580 &agrave; la place du 6581, l'alimentation doit
+&ecirc;tre de 9V -&nbsp;remplacez dans ce cas le 78L12 par un 78L09 (ou
+7809...). Notez que l'alimentation d'origine du C64 peut
+&ecirc;tre r&eacute;cup&eacute;r&eacute;e pour
+alimenter le module SID, bien qu'elle ne d&eacute;livre
+que 9V AC - le 5V DC qui est aussi fourni par cette alim permet d'obtenir une tension de 14V (voir les sch&eacute;mas plus
+bas). Si vous ne voulez pas vous servir de l'alimentation du C64, vous
+pouvez alimenter les deux modules (Core et Sid) avec le m&ecirc;me
+transformateur ou adaptateur mural. Vous devez avoir 14-15V AC
+(!!!avant!!! les r&eacute;gulateurs) pour avoir un bon son sans
+bruit de fond.</p>
+
+            <p class="DESC">Le SID
+fonctionne &agrave; une fr&eacute;quence de 1 MHz. Vous devez utiliser comme source d'horloge <b>la sortie PWM du PIC (Core:J7/PIC Pin #17)</b>.
+L'utilisation d'un quartz telle que d&eacute;crite dans les anciens
+sch&eacute;ma est maintenant d&eacute;conseill&eacute;e, car cette
+configuration peut poser probl&egrave;me (vous trouverez plus de
+d&eacute;tails dans <a href="http://www.midibox.org/forum/index.php?topic=5748.0" target="_blank">cet article du forum</a>).<br>
+Notez que seul le nouveau layout du module MBHP_SID dispose de pads
+pour cette connection. si vous avez assembl&eacute; un module
+bas&eacute; sur la version&nbsp; _v2 du layout,&nbsp;vous devez souder
+un c&acirc;ble directement depuis
+l'entr&eacute;e&nbsp;CLK du SID vers le module CORE ::J7:SO/PIC Pin #17.</p>
+
+
+            <p class="DESC">Un Audio IN
+et un Audio OUT sont disponibles sur le module. Le petit transistor
+derri&egrave;re la sortie du SID n'a pas pour but d'amplifier le
+signal, mais de pr&eacute;server le SID de tout dommage - ne
+bypassez jamais cette protection! Si vous ne parvenez pas &agrave;
+trouver un BC547, prenez n'importe quel transistor "general purpose
+NPN" - prenez garde aux brochages! Le
+SID dispose aussi d'un Audio IN qui permet &agrave; des signaux
+externes d'&ecirc;tre trait&eacute;s
+par le filtre multimode 12db et mix&eacute;s avec la sortie du SID.</p>
+
+
+            <p class="DESC">Les deux
+condensateurs entre les Pins 1/2 et 3/4 du SID sont requis pour le filtre analogique. Les valeurs id&eacute;ales
+peuvent vari&eacute;es en fonction de la version du chip SID que
+vous avez choisie, du coup il peut &ecirc;tre utile de ne pas juste
+commander les condos 470 pF pour le 6581, et 22nF pour le 8580
+(ce sont les valeurs extraites des sch&eacute;mas originaux), mais
+de commander aussi quelques autres paires: 1nF, 2.2nF, 4.7nF, 6.8nF - juste
+pour s'assurer que l'on ne puisse obtenir de meilleurs
+r&eacute;sultats avec d'autres valeurs.</p>
+
+
+            <p class="DESC">Le PCB a
+&eacute;t&eacute; con&ccedil;u afin de pouvoir
+&ecirc;tre empil&eacute; sur le module CORE, et les deux cartes
+ne prendront pas plus de place qu'un paquet de cigarrettes (cela
+s'av&eacute;rera utile si vous d&eacute;cidez de vous lancer
+dans une configuration SID st&eacute;reo ou quattro&nbsp; :)</p>
+
+
+            <p class="INFO">Si cela vous int&eacute;resse, voici une&nbsp;<a href="http://interview.sonikmatter.com/data/bob_yannes.php" target="_blank">Interview with Bob Yannes</a>&nbsp;qui a cr&eacute;e le chip SID voil&agrave; 20 ans et fonda un peu plus tard la marque de synth&eacute; Ensoniq.</p>
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> MBHP_SID_V2 </h2>
+
+   <dd>
+                <p class="DESC">A ce jour, le module SID est
+propos&eacute; dans sa troisi&egrave;me version, avec quelques
+am&eacute;liorations dans le circuit et le layout. Malgr&eacute;s tout,
+les anciens modules peuvent toujours &ecirc;tres utilis&eacute;s.&nbsp;A
+l'attention des utilisateurs &agrave; qui il resterait une ancienne
+version du circuit &agrave; monter, une<span style="text-decoration: underline;"> </span><a href="mbhp_sid_old.html">page sp&eacute;ciale</a>&nbsp;a &eacute;t&eacute; cr&eacute;&eacute;, elle contient toutes les informations relatives &agrave; l'ancien module.</p>
+
+  </dd>
+
+            </dl>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt="">&nbsp;T&eacute;l&eacute;chargements</h2>
+            </dl>
+            <dl>
+
+  <dd>
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+    <tbody>
+                    <tr>
+
+      <td colspan="4" class="TABCOLOR1"><font size="3">les mod&egrave;les de PCB peuvent &ecirc;tre ouverts, modifi&eacute;s et convertis avec</font><font size="3">&nbsp;<a href="http://www.cadsoft.de/download.htm" target="_blank">Eagle Light</a></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Module</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Sch&eacute;mas</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Layout</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Aper&ccedil;u</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><i>MBHP_SID_V3</i></td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v3.pdf">mbhp_sid_v3.pdf</a></td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v3.brd">mbhp_sid_v3.brd</a></td>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_v3.gif">mbhp_sid_v3.gif</a></td>
+
+    </tr>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+
+  <dd>
+                <table border="0" cellpadding="0" cellspacing="5" width="100%">
+
+    <tbody>
+                    <tr>
+
+      <td colspan="4" class="TABCOLOR1"><font size="3">Informations compl&eacute;mentaires</font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Fichiers</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Taille</strong></font></td>
+
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Description</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_orderlist.txt">mbhp_sid_orderlist.txt</a></td>
+
+      <td class="TABCOLOR2">1k</td>
+
+      <td class="TABCOLOR2"><a href="http://www.reichelt.de/" target="_blank">liste de commande chez </a><a href="http://www.reichelt.de/" target="_blank">Reichelt</a>&nbsp;</td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2"><a href="mbhp/mbhp_sid_c64_psu.pdf">mbhp_sid_c64_psu.pdf</a></td>
+
+      <td class="TABCOLOR2">5k</td>
+
+      <td class="TABCOLOR2">Comment connecter l'alimentation du C64 au module CORE et au module SID</td>
+
+    </tr>
+
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>5k</TD>
+      <TD CLASS=TABCOLOR2>How to connect the C64 power supply unit to <A HREF="midibox_sid_csB.html">MIDIbox SID V1 CS Step B</A> (optimized version for best signal/noise ratio)</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_8xsid_c64_psu_optimized.pdf">mbhp_8xsid_c64_psu_optimized.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>5k</TD>
+      <TD CLASS=TABCOLOR2>Same for MIDIbox SID V2 (stereo SIDs, optimized version for best signal/noise ratio)</TD>
+    </TR>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+  
+            </dl>
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt="">&nbsp;Ports Disponibles</h2>
+            </dl>
+            <dl>
+
+   <dd>
+                <p class="DESC">Les interfaces suivantes sont disponibles sur le module SID:</p>
+
+  </dd>
+              <dd>
+                <table class="BOX" border="1" cellpadding="0" cellspacing="5" width="100%">
+
+
+    <tbody>
+                    <tr>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Nom</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Nbre de pins</strong></font></td>
+
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Description</strong></font></td>
+
+    </tr>
+
+    <tr>
+
+      <td class="TABCOLOR2">J1</td>
+
+      <td class="TABCOLOR2">2</td>
+
+      <td class="TABCOLOR2">Connection vers l'alimentation. Vous pouvez
+utilisez la sortie 15V d'un transformateur ou d'un adaptateur mural. Il
+est recommand&eacute; d'avoir au moins 100 mA&nbsp;.&nbsp;Vous pouvez choisir aussi bien une
+alimentation DC ou AC, un pont rectifieur derri&egrave;re J1 assurant
+un courant DC de toute fa&ccedil;on. De fait, la polarit&eacute; n'a
+pas d'importance non plus. </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td class="TABCOLOR2">J2</td>
+
+      <td class="TABCOLOR2">8</td>
+
+      <td class="TABCOLOR2">Le port J2 alimente le SID en +5V depuis le module CORE et transporte les signaux s&eacute;rie de contr&ocirc;le.
+Notez que pour obtenir un meilleur rapport signal/bruit, il est
+pr&eacute;f&eacute;rable de connecter les pins +5V/Ground directement
+sur J2 du module CORE, comme expliqu&eacute; ici: <a href="mbhp/mbhp_sid_c64_psu.pdf">mbhp_sid_c64_psu.pdf</a> et <a href="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</a>
+. </td>
+
+    </tr>
+
+
+    <tr>
+
+      <td class="TABCOLOR2">J3</td>
+
+      <td class="TABCOLOR2">2</td>
+
+      <td class="TABCOLOR2">L' Audio Out du module SID (voir la description plus haut).</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td class="TABCOLOR2">J4</td>
+
+      <td class="TABCOLOR2">2</td>
+
+      <td class="TABCOLOR2">L' Audio In&nbsp;du module SID (voir la description plus haut).</td>
+
+    </tr>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+  
+            </dl>
+
+
+
+            <dl>
+
+   <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Composants Utilis&eacute;s </h2>
+
+   <dd>
+                <p class="DESC">Voici la liste des composants utilis&eacute;s. Une liste de commande compl&egrave;te chez&nbsp;<a href="http://www.reichelt.de/" target="_blank">Reichelt</a>&nbsp;est disponible <a href="mbhp/mbhp_sid_orderlist.txt">ici</a>,&nbsp;pour les U.S.A. une liste de commande chez MOUSER est disponible sur le site de <a href="http://mbhp.coinoptech.com" target="_blank">SmashTV</a>,&nbsp;et si vous avez fait une liste pour un fournisseur dans votre pays,
+n'h&eacute;sitez pas &agrave; me la faire parvenir, elle sera
+publi&eacute;e ici.</p>
+
+
+  </dd>
+              <dd>
+                <table class="BOX" border="1" cellpadding="0" cellspacing="5" width="100%">
+
+
+    <tbody>
+                    <tr>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Nom</strong></font></td>
+
+      <td class="TABCOLOR1"><font size="2"><strong>Valeur</strong></font></td>
+
+      <td class="TABCOLOR1" nowrap="nowrap"><font size="2"><strong>Description</strong></font></td>
+
+    </tr>
+
+
+    <tr>
+
+      <td class="TABCOLOR2">IC1</td>
+
+      <td class="TABCOLOR2">6581 or 8580</td>
+
+      <td class="TABCOLOR2">Le fameux SID, dont la production a
+malheureusement &eacute;t&eacute; arr&ecirc;t&eacute;e, mais il peut
+&ecirc;tre "cannibalis&eacute;" sur n'importe quel C64. Si vous ne
+disposez pas d&eacute;j&agrave; d'un ordinateur C64, vous pourrez en
+trouver&nbsp;d'occasion aux puces ou sur <a href="http://www.ebay.com" target="_blank">EBay</a>&nbsp;pour pas grand chose :-)<br>
+Personnelement, je pr&eacute;f&egrave;re le 8580 pour la meilleure qualit&eacute; de son filtre!</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td class="TABCOLOR2">IC2/IC3</td>
+
+      <td class="TABCOLOR2">74HC595</td>
+
+      <td class="TABCOLOR2">Serial registers pour les entr&eacute;es reset, address et data du SID.</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td class="TABCOLOR2">R2</td>
+
+      <td class="TABCOLOR2">1k</td>
+
+      <td class="TABCOLOR2">Cette r&eacute;sistance source est requise pour la sortie "open-drain" du SID.</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td class="TABCOLOR2">Autres composants</td>
+
+      <td class="TABCOLOR2">voir sch&eacute;ma</td>
+
+      <td class="TABCOLOR2">voir sch&eacute;ma</td>
+
+    </tr>
+
+
+    <tr>
+
+      <td class="TABCOLOR2">DIL</td>
+
+      <td class="TABCOLOR2">SOCKETS</td>
+
+      <td class="TABCOLOR2">N'oubliez pas de vous procurer des supports
+(sockets) pour les shift registers et le SID. 1 support 28 pin DIL (SID) et 2 supports 16 pins DIL (74HC595).</td>
+
+    </tr>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+  
+            </dl>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt="">&nbsp;Guide de Soudage</h2>
+            </dl>
+            <dl>
+
+  <dd>
+  </dd>
+              <dd>
+                <table cellpadding="0" cellspacing="0">
+
+    <tbody>
+                    <tr>
+
+      <td><img src="mbhp/mbhp_sid_v3_1.jpg" alt="" border="0" height="368" width="280"></td>
+
+      <td class="TABCOLOR2">Commencez par souder les&nbsp;3&nbsp;ponts, ces derniers
+vous &eacute;vitent d'avoir &agrave; r&eacute;aliser un pcb double-face
+(2-layer). Utilisez pour cela le reste des pattes de vos
+r&eacute;sistances et condensateurs que vous avez d&eacute;j&agrave;
+mont&eacute;s, et attendez d'avoir fini tous vos modules avant de les
+jeter! :-)</td>
+
+    </tr>
+
+    <tr>
+
+      <td><img src="mbhp/mbhp_sid_v3_2.jpg" alt="" border="0" height="270" width="280"></td>
+
+      <td class="TABCOLOR2">Montez tous les autres composants &agrave;
+l'exception des trois ICs. Alimentez le module et v&eacute;rifiez les
+tensions entre les pins IC1:Vdd(28) et
+IC1:Vss(14) - vous devez avoir 12V pour le SID 6581, 9V pour leSID 8580&nbsp;.</td>
+
+    </tr>
+
+    <tr>
+
+      <td><img src="mbhp/mbhp_sid_v3_3.jpg" alt="" border="0" height="313" width="280"></td>
+
+      <td class="TABCOLOR2">Connectez maintenant le port J2 du module SID&nbsp;au port J10 du module CORE comme d&eacute;crit ici:<br>
+&nbsp;<a href="mbhp/mbhp_sid_c64_psu.pdf">mbhp_sid_c64_psu.pdf</a> et <a href="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</a><br>
+Assurez-vous de la valeur des tensions suivantes:<br>
+
+IC1:Vcc(25) - IC1:Vss(14) = 5V<br>
+
+IC2:Vdd(16) - IC2:Vss(8) = 5V<br>
+
+IC3:Vdd(16) - IC3:Vss(8) = 5V<br>
+
+                      <br>
+Programmez le <a href="mios.html">MIOS</a> et le <a href="midibox_sid.html">firmware MIDIbox SID</a> dans le PIC en suivant les proc&eacute;dures d&eacute;crites <a href="mios_bootstrap.html">ici</a>,&nbsp;installez les trois ICs, connectez l' Audio Out (J3)
+&agrave; votre amplificateur ou &agrave; votre table de mixage et
+connectez votre clavier MIDI, votre MIDIbox ou votre ordinateur au
+module CORE.<br>
+
+
+Vous voil&agrave; pr&ecirc;t pour de longues sessions avec votre nouveau compagnon, le SID! :-)</td>
+
+
+    </tr>
+
+  
+                  </tbody>
+                </table>
+              </dd>
+
+  
+            </dl>
+
+
+            <dl>
+
+  <dt></dt>
+              <h2> <img src="images/bullet.gif" alt=""> Test </h2>
+
+  <dd>
+    
+                <p class="DESC">Vous trouverez tous les d&eacute;tails dans le <a href="midibox_sid_walkthrough.html">MIDIbox SID Walkthrough</a>. voici un r&eacute;sum&eacute; en quelques mots: une fois que vous avez upload&eacute; l'application <a href="midibox_sid.html">MIDIbox SID</a>, vous pouvez jouer des notes sur le canal MIDI #1.<br>
+Si vous n'entendez aucun son, uploadez l'application sid_testtone afin
+de vous assurer que le module CORE communique correctement avec le
+module SID. Si vous n'entendez toujours aucun son, essayez avec
+l'application mbsid_interconnection_test afin de tester si toutes les
+interconnections entre les modules CORE et SID fonctionnent.<br>
+Ces trois programmes sont t&eacute;l&eacute;chargeables sur la page <a href="mios_download.html">MIOS Download</a>&nbsp;.</p>
+
+  </dd>
+
+            </dl>
+
+
+FOOTER

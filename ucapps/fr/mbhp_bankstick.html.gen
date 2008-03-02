@@ -1,0 +1,134 @@
+HEADER 3 MBHP BankStick
+
+            <h1>MIDIbox Hardware Platform, BankStick</h1>
+
+
+            <p></p>
+            <center><img src="mbhp/mbhp_bankstick.jpg" height="188" width="442"></center>
+            <p></p>
+
+
+            <p class="INFO">Le BankStick, pris en charge par la plupart
+des projets MIDIbox, est un support de sauvegarde interchangeable et
+"hot-plug&amp;play". Il repose sur des EEPROMI2C 32k ou 64k (24LC256, et 24LC512). </p>
+
+
+            <p class="DESC">Ces EEPROMs permettent de configurer des
+adresses sp&eacute;cifiques via les pins #1, #2 et #3, il est ainsi
+possible de connecter ensemble 8 EEPROMs, et d'y acc&eacute;der
+individuellement depuis le module <a href="mbhp_core.html">MBHP_CORE</a>&nbsp;:<br>
+
+            </p>
+            <center><img src="mbhp/mbhp_multi_bankstick.gif" height="257" width="550"></center>
+            <p></p>
+
+
+            <p class="DESC">Les applications MIOS permettent de changer
+de BankStick pendant que la MIDIbox tourne, comme on peut le faire avec
+un memory stick USB&nbsp;. Pour mes propres MIDIboxes j'utilise une
+fiche Sub-D, car les EEPROMs s'ins&egrave;rent sans difficult&eacute;
+dans le boitier du connecteur. Mais vous pouvez utiliser d'autres types
+de connecteur et/ou de boitiers pour les EEPROMs si vous le souhaitez.<br>
+
+Circuit:<br>
+
+            </p>
+            <center><img src="mbhp/mbhp_bankstick.gif" height="233" width="554"></center>
+            <br>
+
+
+
+            <h2> <img src="images/bullet.gif" alt=""> Fabricants: </h2>
+
+
+            <p class="DESC">Les EEPROMs IIC sont principalement
+fabriqu&eacute;es par Microchip, Atmel et ST. Elles sont compatibles,
+mais malheureusement sont l&eacute;g&egrave;rement diff&eacute;rentes:
+elles ne disposent pas toutes du m&ecirc;me nombre d'entr&eacute;es
+"chip select"!<br>
+
+            </p>
+            <ul class="CL">
+
+  <li><b>EEPROMs </b><b>Microchip&nbsp;:</b> nomm&eacute;es "24LC256"
+(32k) et "24LC512" (64k). Elles disposent de trois entr&eacute;es "chip
+select", vous pouvez donc en installer jusqu'&agrave; 8 sur le bus IIC.</li>
+
+  <li><b>EEPROMs </b><b>Atmel&nbsp;:</b>&nbsp;nomm&eacute;es
+"24C256", elles n'existent pas en 64k! Seulement deux entr&eacute;es
+"chip select" (A0 et A1) sont disponibles, ce qui limite le
+nombre&nbsp; de puces installable &agrave; 4.</li>
+
+  <li><b>EEPROMs </b><b>ST&nbsp;:</b>&nbsp;nomm&eacute;es "M24256" -
+n'achetez pas celles-ci, elles ne disposent que d'une seule
+entr&eacute;es "chip select", du coup il n'est possible
+d'acc&eacute;der qu'&agrave; un seul BankStick sur le bus IIC.</li>
+
+            </ul>
+
+
+            <h2> <img src="images/bullet.gif" alt=""> Disponibilit&eacute;: </h2>
+
+
+            <ul class="CL">
+
+  <li><i>24C256</i>, Part #ST 24C256 BN6 chez <a href="http://www.reichelt.de" target="_blank">Reichelt</a>
+, pour 1.20E (le num&eacute;ro de catalogue laisse penser qu'il s'agit
+d'EEPROM de la marque ST, mais depuis 2004 ils fournissent des puces
+ATMEL disposant d'entr&eacute;es CS (chip select)</li>
+
+  <li><i>24LC256-I/P</i>, Part #150234-14 chez&nbsp; <a href="http://www.conrad.com" target="_blank">Conrad</a> pour environ 2.80E</li>
+
+  <li><i>24LC256-E/P-ND</i> chez&nbsp; <a href="http://www.digikey.com" target="_blank">Digikey</a>&nbsp;pour environ US $2.40</li>
+
+  <li><i>579-24LC256-I/P</i> chez&nbsp; <a href="http://www.mouser.com" target="_blank">Mouser</a> pour environ US $1.70</li>
+
+   
+            </ul>
+
+            <p></p>
+
+
+            <h2> <img src="images/bullet.gif" alt=""> Prise en charge MIOS: </h2>
+
+
+            <p class="DESC">Le concept de BankStick a &eacute;t&eacute; int&eacute;gr&eacute; au&nbsp; <a href="mios.html">MIOS</a>.
+Diff&eacute;rentes fonctions sont disponibles pour la lecture et
+l'&eacute;criture (MIOS_BANKSTICK_*), vous pouvez donc utiliser les
+EEPROMs comme m&eacute;moire externe non-volatile pour vos propres
+applications. En utilisant les pins d'adressage A0-A2, jusqu'&agrave; 8
+chips peuvent &ecirc;tre reli&eacute;es au bis IIC&nbsp; (J4 du module
+Core). Ainsi, la taille m&eacute;moire maximum disponible est: 8*32k =
+256k avec des puces 24LC256, et 8*64k = 512k avec des 24LC512. Le temps
+d'acc&eacute;s: en lecture - environ 100 uS, en &eacute;criture -
+environ 10 ms, "page writes" (64 byte d'un coup) - environ 10 ms.</p>
+
+
+            <h2> <img src="images/bullet.gif" alt=""> Choisir entre les 24LC256 et les 24LC512? </h2>
+
+
+            <p class="DESC">Vous pouvez utiliser les puces 24LC512 avec
+les applications con&ccedil;ues pour les BankStick &agrave; base de
+24LC256. Dans ce cas, seule la moiti&eacute; inf&eacute;rieure de la
+m&eacute;moire sera utilis&eacute;e. Quelques applications peuvent
+g&eacute;rer une puces 24LC512 comme s'il s'agissait de deux 24LC256,
+mais &agrave; cause des efforts suppl&eacute;mentaires que cela
+implique au niveau programmation et surtout au niveau des tests
+&agrave; effectuer pour toutes les variations, dans la plupart des cas
+une telle configuration n'est pas propos&eacute;e.</p>
+
+
+            <p class="DESC">Pour les derni&egrave;res applications telles que <a href="midibox_sid.html">MIDIbox SID V2</a>, <a href="midibox_seq.html">MIDIbox SEQ V3</a> ou <a href="midibox_808.html">MIDIbox 808</a>,
+l'utilisation d'un BankStick 64k est recommand&eacute; afin de pouvoir
+sauvegarder le nombre maximum de patches/patterns par bank.</p>
+
+
+            <p class="DESC">Par exemple, la taille d'un patch MIDIbox
+SID est de 512 bytes, et dans la mesure o&ugrave; un message MIDI
+"Program Change" permet d'envoyer 128 valeurs diff&eacute;rentes,
+128*512 = 64k sont requis pour sauvegarder une Bank de 128 patchs. Avec
+un 24LC256, vous ne pourrez stocker que 64 patchs par bank (la banque
+elle m&ecirc;me est s&eacute;lectionn&eacute;e avec le CC#0)</p>
+
+
+FOOTER
