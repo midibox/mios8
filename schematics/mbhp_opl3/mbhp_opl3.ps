@@ -1,0 +1,1332 @@
+%!PS-Adobe-3.0
+%%Title: mbhp_opl3
+%%Creator: Xcircuit v3.1
+%%CreationDate: Thu Feb  9 23:27:00 2006
+%%Pages: 1
+%%BoundingBox: 159 65 453 727
+%%DocumentNeededResources: font Helvetica font Times-Roman font Courier 
+%%+ font Courier-Bold font Symbol 
+%%EndComments
+%%BeginProlog
+%
+%  PostScript prolog for output from xcircuit
+%  Version: 2.4
+%
+%  Electrical circuit (and otherwise general) drawing program
+%
+%  Written by Tim Edwards 8/5/93--1/15/03  (tim@bach.ece.jhu.edu)
+%  The Johns Hopkins University
+%
+%%BeginResource: procset XCIRCproc 2.4 2
+% supporting definitions --- these are the primary xcircuit types.
+
+/XCIRCsave save def
+/topmat matrix currentmatrix def
+
+/fontslant { /slant exch def [1 0 slant 1 0 0] 
+    exch findfont exch makefont dup length dict /ndict exch def
+    { 1 index /FID ne { ndict 3 1 roll put } { pop pop } ifelse } forall
+    ndict definefont pop} def
+/ul { dup type /stringtype eq showflag 1 eq and { gsave 
+   currentpoint topmat setmatrix 0 0 moveto 2 index stringwidth pop (_)
+   false charpath flattenpath pathbbox grestore exch pop 1 index
+   sub setlinewidth exch pop currentpoint 3 -1 roll add moveto 0
+   rlineto stroke moveto } if } def
+/ol { dup type /stringtype eq showflag 1 eq and { gsave gsave
+   currentpoint topmat setmatrix 2 index stringwidth pop 3 index
+   true charpath flattenpath pathbbox grestore exch pop
+   exch pop topmat setmatrix (_) true charpath pathbbox grestore
+   exch pop 1 index sub setlinewidth exch pop currentpoint
+   exch 4 1 roll exch sub add moveto pop 0 rlineto stroke
+   moveto } if } def
+/stW { gsave currentpoint newpath moveto true charpath flattenpath
+	pathbbox pop exch pop sub grestore } def
+/Ts {mark Tabs aload pop counttomark 1 add array astore /Tabs exch def Tabs
+	0 currentpoint pop put} def
+/Tbn {mark Tabs aload pop counttomark dup 2 add 1 roll cleartomark 1 sub} def
+/Tb { 0 1 Tbn {Tabs exch get dup currentpoint pop lt
+	{currentpoint exch pop moveto exit} {pop} ifelse } for } def
+/Tf { Tbn -1 0 {Tabs exch get dup currentpoint pop gt
+	{currentpoint exch pop moveto exit} {pop} ifelse } for } def
+/qS { (aa) stW (a a) stW sub 4 div 0 Kn } def
+/hS { qS qS } def
+/pspc 0 def
+/cf0 { scalefont setfont } bind def
+/Kn { dup kY add /kY exch def rmoveto } bind def
+/ss { /fscale fscale 0.67 mul def currentfont 0.67 cf0 0 fscale0 fscale mul
+	0.33 mul neg Kn} def
+/Ss { /fscale fscale 0.67 mul def currentfont 0.67 cf0 0 fscale0 fscale mul
+	0.67 mul Kn } def
+/ns { 0 kY neg Kn /kY 0 def /fscale 1.0 def xfont0 1.0 cf0 } def
+/CR { ns 0 /Bline Bline fscale0 neg add def Bline moveto } def
+/cf { dup type /realtype ne {1.0} if exch findfont exch kY 0 eq
+	{ 40 mul dup /fscale0 exch def cf0 /xfont0 currentfont def}
+	{fscale0 mul fscale mul cf0} ifelse } def
+/ctmk { counttomark dup 2 add -1 roll pop } bind def
+/label { gsave translate 0 0 moveto dup scale neg /rotval exch def
+	/just exch def just 16 and 0 gt {gsave rotval rotate 0 1 dtransform
+	gsave pagemat setmatrix idtransform exch grestore 1 0 dtransform
+	gsave pagemat setmatrix idtransform exch grestore dup abs 1e-9 lt
+	{pop mul 0 gt} {3 1 roll pop pop 0 lt} ifelse grestore {-1 /rotval
+	rotval neg def /just just dup 3 and 1 ne {3 xor} if def} {1} ifelse
+	exch -1e-9 lt {-1 /rotval rotval neg def /just just dup 12 and
+	4 ne {12 xor} if def} {1} ifelse scale } if /showflag 0 def
+	/fspc pspc def /Bline 0 def /Tabs 0 array def /fscale 1.0 def
+	/kY 0 def gsave dup 1 add copy 0 exch 1 0 dtransform exch atan rotate
+	{exch dup type /stringtype eq {true charpath flattenpath} {exec}
+	ifelse } repeat pop pathbbox grestore 3 -1 roll pop 3 1 roll just
+	1 and 0 gt {just 2 and 0 gt {exch pop neg fspc sub} {exch sub 0.5
+	mul neg} ifelse} {pop neg fspc add} ifelse exch Bline exch just 4
+	and 0 gt {just 8 and 0 gt {exch pop neg fspc sub} {add 0.5 mul neg}
+	ifelse} {pop neg fspc add} ifelse rotval rotate Kn currentpoint
+	translate /showflag 1 def /Bline 0 def /Tabs 0 array def /fscale
+	1.0 def /kY 0 def {dup type /stringtype eq {show}{exec} ifelse}
+	repeat grestore } def
+/pinlabel { 4 index 32 and 0 ne hlevel 0 eq or { /pspc 10 def label
+	/pspc 0 def } { pop pop pop pop pop {pop} repeat } ifelse } def
+/pinglobal { pinlabel } def
+/infolabel { pinlabel } def
+
+/scb { setrgbcolor } bind def  /sce { defColor aload pop scb } bind def
+/cRedef {/defColor currentcolor 3 array astore def} def
+/begingate { /hlevel hlevel 1 add def /defColor currentcolor sce 3 array
+	astore def gsave sce translate 0 0 moveto neg rotate dup abs scale
+	} bind def
+/makeparm  {3 string cvs dup length 1 add string /tstr exch def tstr exch
+	1 exch putinterval tstr 0 (v) putinterval tstr cvn} bind def
+/beginparm { -1 1 {makeparm exch def} for
+	dup type /arraytype eq { aload length -1 1 {makeparm exch def}
+	for } if begingate } bind def
+/endgate { /hlevel hlevel 1 sub def grestore defColor aload pop cRedef
+	scb} bind def
+
+/hlevel 0 def
+/tmpa [1 0 0 1 0 0] def
+/gar {8 8 true tmpa {<c0 c0 00 00 0c 0c 00 00>} imagemask} bind
+{8 8 true tmpa {<30 70 60 02 03 07 06 20>} imagemask} bind
+{8 8 true tmpa {<0c 1e 1e 0c c0 e1 e1 c0>} imagemask} bind
+{8 8 true tmpa {<0f 0f 0f 0f f0 f0 f0 f0>} imagemask} bind
+{8 8 true tmpa {<3f f3 e1 e1 f3 3f 1e 1e>} imagemask} bind
+{8 8 true tmpa {<df cf 8f 9f fd fc f8 f9>} imagemask} bind
+{8 8 true tmpa {<ff 3f 3f ff ff f3 f3 ff>} imagemask} bind 7 array astore def
+/ppaint { gsave clip tmpa dup setmatrix pathbbox neg exch neg 4 2 roll
+  neg 4 -1 roll 2 copy gt {exch} if 8 div ceiling 8 mul 4 2 roll neg 2 copy
+  gt {exch} if 8 div ceiling 8 mul 3 -1 roll -8 5 -1 roll
+  { 3 index exch 5 exch put dup -8 3 index { 3 index
+  exch 4 exch put 3 index exec } for } for pop pop pop pop grestore } bind def
+/setstyles {
+  currentlinewidth mul setlinewidth /style exch def
+  style 1 and 0 gt not {closepath} if
+  style 2 and 0 gt {currentlinewidth 4 mul dup 2 array astore 0 setdash} if
+  style 4 and 0 gt {0.5 currentlinewidth 4 mul 2 array astore 0 setdash} if
+  gsave style 16 and 0 gt { style 224 and -5 bitshift style 256 and 0 gt {
+  7 exch sub 8 div dup 1 exch sub currentrgbcolor 3 array astore
+  {3 copy mul add 4 1 roll pop} forall pop pop setrgbcolor eofill}
+  {dup 7 lt {gar exch get ppaint} {pop eofill} ifelse} ifelse}
+  {style 256 and 0 gt {1 setgray eofill} if} ifelse grestore style 8 and 0 gt 
+  style 512 eq or {newpath} {stroke} ifelse grestore} def     
+
+/polygon { gsave /num exch def moveto num 1 sub {lineto} repeat setstyles } def
+/xcarc   { gsave newpath arc setstyles } def
+/elb { matrix currentmatrix 7 -1 roll 7 -1 roll translate 5 1 roll 4 -1 roll
+	3 index div 1 scale } def
+/ele { 0 4 1 roll 0 4 1 roll } bind def
+/ellipse { gsave elb newpath ele arc setmatrix setstyles } def
+/pellip  { elb ele arc setmatrix } def
+/nellip  { elb ele arcn setmatrix } def
+/spline  { gsave moveto curveto setstyles } def
+/polyc   { {lineto} repeat } bind def
+/beginpath { gsave moveto } bind def
+/endpath { setstyles } bind def
+/bop	 { 1 setlinecap 0 setlinejoin 6 setmiterlimit 0 0 0 scb cRedef } def
+/psinsertion {/PSobj save def /showpage {} def bop rotate translate dup scale} def
+/end_insert {PSobj restore} def
+/setpagemat {/pagemat matrix currentmatrix def} def
+/inchscale  {setpagemat 0.375 mul dup scale} def
+/cmscale    {setpagemat 0.35433071 mul dup scale} def
+
+%%EndResource
+%%EndProlog
+
+% XCircuit output starts here.
+
+/5V {
+begingate
+1 1.00 -32 0 32 0 2 polygon
+1 1.00 0 0 0 -32 2 polygon
+(V) {/Times-Roman cf} (+5) {/Symbol cf} 4 17 0 0.90 0 8 label
+endgate
+} def
+
+/fuenf {
+begingate
+0.50 0 0 0 5V
+1 1.00 0 -8 0 0 2 polygon
+1 1.00 -16 0 16 0 2 polygon
+endgate
+} def
+
+/gnd {
+begingate
+1 1.00 0 0 0 -32 2 polygon
+1 1.00 -32 -32 32 -32 2 polygon
+1 1.00 -18 -46 18 -46 2 polygon
+1 1.00 -4 -60 4 -60 2 polygon
+endgate
+} def
+
+/_polarized {
+begingate
+1 1.00 0 -64 0 -6 2 polygon
+1 1.00 0 64 0 6 2 polygon
+1 1.00 -32 6 32 6 2 polygon
+1 1.00 0 -80 74 66.00 114.00 xcarc
+1.000 0.000 0.000 scb
+(t) {/Times-Roman cf} 2 9 0 1.00 0 64 pinlabel
+(b) {/Times-Roman cf} 2 13 0 1.00 0 -64 pinlabel
+0.192 0.541 0.353 scb
+(spice:C%i %pt %pb 1.0P) {/Times-Roman cf} 2 0 0 1.00 -208 -160 infolabel
+(sim:e %pt %pb %pb) {/Times-Roman cf} 2 0 0 1.00 -208 -208 infolabel
+endgate
+} def
+
+/dot {
+% trivial
+begingate
+248 1.00 0 0 6 0.00 360.00 xcarc
+1.000 0.000 0.000 scb
+(x) {/Times-Roman cf} 2 29 0 1.00 0 0 pinlabel
+endgate
+} def
+
+/capacitor {
+begingate
+1 1.00 0 -64 0 -6 2 polygon
+1 1.00 0 64 0 6 2 polygon
+1 1.00 -32 6 32 6 2 polygon
+1 1.00 -32 -6 32 -6 2 polygon
+1.000 0.000 0.000 scb
+(c.1) {/Times-Roman cf} 2 9 0 1.00 0 64 pinlabel
+(c.2) {/Times-Roman cf} 2 13 0 1.00 0 -64 pinlabel
+0.192 0.541 0.353 scb
+(spice:C%i %pc.1 %pc.2 1.0P) {/Times-Roman cf} 2 0 0 1.00 -208 -160 infolabel
+(sim:c %pc.1 %pc.2) {/Times-Roman cf} 2 0 0 1.00 -208 -208 infolabel
+endgate
+} def
+
+/_5V {
+begingate
+1 1.00 -32 0 32 0 2 polygon
+1 1.00 0 0 0 -32 2 polygon
+(V) {/Times-Roman cf} (+5) {/Symbol cf} 4 17 0 0.90 0 8 label
+1.000 0.000 0.000 scb
+(dVdd) {/Times-Roman cf} 2 13 0 1.00 0 -32 pinglobal
+endgate
+} def
+
+/circle {
+% trivial
+begingate
+1 1.00 16 0 6 0.00 360.00 xcarc
+1 1.00 0 0 10 0 2 polygon
+1.000 0.000 0.000 scb
+(out) {/Times-Roman cf} 2 4 0 1.00 16 0 pinlabel
+(out) {/Times-Roman cf} 2 7 0 1.00 0 0 pinlabel
+endgate
+} def
+
+/resistor {
+begingate
+1 1.00 0 64 0 36 2 polygon
+1 1.00 0 -64 0 -36 2 polygon
+1 1.00 0 -36 14 -30 -14 -18 14 -6 -14 6 14 18 -14 30 0 36 8 polygon
+1.000 0.000 0.000 scb
+(r.1) {/Times-Roman cf} 2 9 0 1.00 0 64 pinlabel
+(r.2) {/Times-Roman cf} 2 13 0 1.00 0 -64 pinlabel
+0.192 0.541 0.353 scb
+(spice:R%i %pr.1 %pr.2 1.0K) {/Times-Roman cf} 2 0 0 1.00 -208 -160 infolabel
+(sim:r %pr.1 %pr.2) {/Times-Roman cf} 2 0 0 1.00 -208 -208 infolabel
+endgate
+} def
+
+/diode {
+begingate
+248 1.00 -18 -16 0 16 18 -16 3 polygon
+1 1.00 0 -48 0 -16 2 polygon
+1 1.00 0 48 0 16 2 polygon
+1 1.00 -18 16 18 16 2 polygon
+1.000 0.000 0.000 scb
+(d.m) {/Times-Roman cf} 2 9 0 1.00 0 48 pinlabel
+(d.p) {/Times-Roman cf} 2 13 0 1.00 0 -48 pinlabel
+endgate
+} def
+
+/polarized {
+begingate
+1 1.00 0 -64 0 -6 2 polygon
+1 1.00 0 64 0 6 2 polygon
+1 1.00 -32 6 32 6 2 polygon
+1 1.00 0 -80 74 66.00 114.00 xcarc
+endgate
+} def
+
+%%Page: 1 1
+%%PageOrientation: Landscape
+/pgsave save def bop
+% 2265 1721 offsets
+90 rotate -94 -517 translate
+0.3600 inchscale
+2.6000 setlinewidth
+
+(MIDIbox Hardware Platform) {/Helvetica cf} 2 20 0 0.75 5609 649 label
+0 3.00 5577 681 5577 505 6057 505 6057 681 4 polygon
+(\(C\) T. Klose 2004-10-26) {/Helvetica cf} 2 20 0 0.75 5609 553 label
+0.000 0.000 1.000 scb
+(MBHP_OPL3_V1) {/Helvetica cf} 2 20 0 0.75 5609 601 label
+sce
+0 1.00 1913 2297 1913 2265 1929 2265 1929 2297 4 polygon
+0 1.00 1913 2233 1913 2201 1929 2201 1929 2233 4 polygon
+0 1.00 1913 2169 1913 2137 1929 2137 1929 2169 4 polygon
+0 1.00 1913 2105 1913 2073 1929 2073 1929 2105 4 polygon
+0 1.00 1913 2041 1913 2009 1929 2009 1929 2041 4 polygon
+0 1.00 1913 1977 1913 1945 1929 1945 1929 1977 4 polygon
+0 1.00 1913 1913 1913 1881 1929 1881 1929 1913 4 polygon
+0 1.00 1913 1849 1913 1817 1929 1817 1929 1849 4 polygon
+0 1.00 1913 1785 1913 1753 1929 1753 1929 1785 4 polygon
+0 3.00 1913 2345 1913 1513 1593 1513 1593 2345 4 polygon
+0 1.00 1593 2297 1593 2265 1577 2265 1577 2297 4 polygon
+0 1.00 1593 2233 1593 2201 1577 2201 1577 2233 4 polygon
+0 1.00 1593 2169 1593 2137 1577 2137 1577 2169 4 polygon
+0 1.00 1593 2105 1593 2073 1577 2073 1577 2105 4 polygon
+0 1.00 1593 2041 1593 2009 1577 2009 1577 2041 4 polygon
+0 1.00 1593 1977 1593 1945 1577 1945 1577 1977 4 polygon
+0 1.00 1593 1913 1593 1881 1577 1881 1577 1913 4 polygon
+0 1.00 1593 1849 1593 1817 1577 1817 1577 1849 4 polygon
+0 1.00 1593 1785 1593 1753 1577 1753 1577 1785 4 polygon
+0 1.00 1721 2345 1721 2313 1785 2313 1785 2345 4 polygon
+(IC1 YMF262) {/Courier-Bold cf} 2 16 90 2.00 1721 2169 label
+(1) {/Courier cf} 2 23 0 0.50 1561 2297 label
+(3) {/Courier cf} 2 23 0 0.50 1561 2169 label
+(2) {/Courier cf} 2 23 0 0.50 1561 2233 label
+(4) {/Courier cf} 2 23 0 0.50 1561 2105 label
+(5) {/Courier cf} 2 23 0 0.50 1561 2041 label
+(6) {/Courier cf} 2 23 0 0.50 1561 1977 label
+(7) {/Courier cf} 2 23 0 0.50 1561 1913 label
+(8) {/Courier cf} 2 23 0 0.50 1561 1849 label
+(9) {/Courier cf} 2 23 0 0.50 1561 1785 label
+(24) {/Courier cf} 2 20 0 0.50 1945 2297 label
+0.000 0.000 1.000 scb
+(Vdd) {/Courier cf} 2 20 0 0.75 1609 2281 label
+(IRQ#) {/Courier cf} 2 20 0 0.75 1609 2217 label
+(IC#) {/Courier cf} 2 20 0 0.75 1609 2153 label
+(A0) {/Courier cf} 2 20 0 0.75 1609 2089 label
+(A1) {/Courier cf} 2 20 0 0.75 1609 2025 label
+(RD#) {/Courier cf} 2 20 0 0.75 1609 1897 label
+(CS#) {/Courier cf} 2 20 0 0.75 1609 1833 label
+(TEST) {/Courier cf} 2 20 0 0.75 1609 1769 label
+(D0) {/Courier cf} 2 20 0 0.75 1609 1705 label
+(CLK_M) {/Courier cf} 2 23 0 0.75 1897 2281 label
+sce
+0 1.00 1593 1721 1593 1689 1577 1689 1577 1721 4 polygon
+0 1.00 1593 1657 1593 1625 1577 1625 1577 1657 4 polygon
+0 1.00 1593 1593 1593 1561 1577 1561 1577 1593 4 polygon
+0.000 0.000 1.000 scb
+(D1) {/Courier cf} 2 20 0 0.75 1609 1641 label
+(Vss) {/Courier cf} 2 20 0 0.75 1609 1577 label
+sce
+(10) {/Courier cf} 2 23 0 0.50 1561 1721 label
+(11) {/Courier cf} 2 23 0 0.50 1561 1657 label
+(12) {/Courier cf} 2 23 0 0.50 1561 1593 label
+0.000 0.000 1.000 scb
+(WR#) {/Courier cf} 2 20 0 0.75 1609 1961 label
+sce
+0 1.00 1913 1721 1913 1689 1929 1689 1929 1721 4 polygon
+0 1.00 1913 1657 1913 1625 1929 1625 1929 1657 4 polygon
+0 1.00 1913 1593 1913 1561 1929 1561 1929 1593 4 polygon
+0.000 0.000 1.000 scb
+(CLK_S) {/Courier cf} 2 23 0 0.75 1897 2217 label
+(DOCD) {/Courier cf} 2 23 0 0.75 1897 2153 label
+(DOAB) {/Courier cf} 2 23 0 0.75 1897 2089 label
+(SMPAC) {/Courier cf} 2 23 0 0.75 1897 2025 label
+(SMPBD) {/Courier cf} 2 23 0 0.75 1897 1961 label
+(D7) {/Courier cf} 2 23 0 0.75 1897 1897 label
+(D6) {/Courier cf} 2 23 0 0.75 1897 1833 label
+(D5) {/Courier cf} 2 23 0 0.75 1897 1769 label
+(D4) {/Courier cf} 2 23 0 0.75 1897 1705 label
+(D3) {/Courier cf} 2 23 0 0.75 1897 1641 label
+(D2) {/Courier cf} 2 23 0 0.75 1897 1577 label
+sce
+(23) {/Courier cf} 2 20 0 0.50 1945 2233 label
+(22) {/Courier cf} 2 20 0 0.50 1945 2169 label
+(21) {/Courier cf} 2 20 0 0.50 1945 2105 label
+(20) {/Courier cf} 2 20 0 0.50 1945 2041 label
+(19) {/Courier cf} 2 20 0 0.50 1945 1977 label
+(18) {/Courier cf} 2 20 0 0.50 1945 1913 label
+(17) {/Courier cf} 2 20 0 0.50 1945 1849 label
+(16) {/Courier cf} 2 20 0 0.50 1945 1785 label
+(15) {/Courier cf} 2 20 0 0.50 1945 1721 label
+(14) {/Courier cf} 2 20 0 0.50 1945 1657 label
+(13) {/Courier cf} 2 20 0 0.50 1945 1593 label
+0 1.00 2921 2233 2921 2201 2937 2201 2937 2233 4 polygon
+0 1.00 2921 2169 2921 2137 2937 2137 2937 2169 4 polygon
+0 1.00 2921 2105 2921 2073 2937 2073 2937 2105 4 polygon
+0 1.00 2921 2041 2921 2009 2937 2009 2937 2041 4 polygon
+0 1.00 2921 1977 2921 1945 2937 1945 2937 1977 4 polygon
+0 1.00 2921 1913 2921 1881 2937 1881 2937 1913 4 polygon
+0 1.00 2921 1849 2921 1817 2937 1817 2937 1849 4 polygon
+0 1.00 2921 1785 2921 1753 2937 1753 2937 1785 4 polygon
+0 3.00 2921 2281 2921 1705 2601 1705 2601 2281 4 polygon
+0 1.00 2601 2233 2601 2201 2585 2201 2585 2233 4 polygon
+0 1.00 2601 2169 2601 2137 2585 2137 2585 2169 4 polygon
+0 1.00 2601 2105 2601 2073 2585 2073 2585 2105 4 polygon
+0 1.00 2601 2041 2601 2009 2585 2009 2585 2041 4 polygon
+0 1.00 2601 1977 2601 1945 2585 1945 2585 1977 4 polygon
+0 1.00 2601 1913 2601 1881 2585 1881 2585 1913 4 polygon
+0 1.00 2601 1849 2601 1817 2585 1817 2585 1849 4 polygon
+0 1.00 2601 1785 2601 1753 2585 1753 2585 1785 4 polygon
+0 1.00 2729 2281 2729 2249 2793 2249 2793 2281 4 polygon
+(IC2 YAC512) {/Courier-Bold cf} 2 16 90 1.50 2745 2169 label
+(1) {/Courier cf} 2 23 0 0.50 2569 2233 label
+(3) {/Courier cf} 2 23 0 0.50 2569 2105 label
+(2) {/Courier cf} 2 23 0 0.50 2569 2169 label
+(4) {/Courier cf} 2 23 0 0.50 2569 2041 label
+(5) {/Courier cf} 2 23 0 0.50 2569 1977 label
+(6) {/Courier cf} 2 23 0 0.50 2569 1913 label
+(7) {/Courier cf} 2 23 0 0.50 2569 1849 label
+(8) {/Courier cf} 2 23 0 0.50 2569 1785 label
+(16) {/Courier cf} 2 20 0 0.50 2953 2233 label
+0.000 0.000 1.000 scb
+(Vdd) {/Courier cf} 2 20 0 0.75 2617 2217 label
+(Vss) {/Courier cf} 2 20 0 0.75 2617 2153 label
+(Vdd) {/Courier cf} 2 20 0 0.75 2617 2089 label
+(DIN) {/Courier cf} 2 20 0 0.75 2617 2025 label
+(CLK) {/Courier cf} 2 20 0 0.75 2617 1961 label
+(SMP2) {/Courier cf} 2 20 0 0.75 2617 1833 label
+(SMP1) {/Courier cf} 2 20 0 0.75 2617 1769 label
+(CV) {/Courier cf} 2 23 0 0.75 2905 2217 label
+(FSEL) {/Courier cf} 2 20 0 0.75 2617 1897 label
+(TST2) {/Courier cf} 2 23 0 0.75 2905 2153 label
+(MP) {/Courier cf} 2 23 0 0.75 2905 2089 label
+(AOUT) {/Courier cf} 2 23 0 0.75 2905 2025 label
+(SWIN) {/Courier cf} 2 23 0 0.75 2905 1961 label
+(CH2) {/Courier cf} 2 23 0 0.75 2905 1897 label
+(CH1) {/Courier cf} 2 23 0 0.75 2905 1833 label
+(TST1) {/Courier cf} 2 23 0 0.75 2905 1769 label
+sce
+(15) {/Courier cf} 2 20 0 0.50 2953 2169 label
+(14) {/Courier cf} 2 20 0 0.50 2953 2105 label
+(13) {/Courier cf} 2 20 0 0.50 2953 2041 label
+(12) {/Courier cf} 2 20 0 0.50 2953 1977 label
+(11) {/Courier cf} 2 20 0 0.50 2953 1913 label
+(10) {/Courier cf} 2 20 0 0.50 2953 1849 label
+(9) {/Courier cf} 2 20 0 0.50 2953 1785 label
+1 1.00 1577 2281 1497 2281 1497 2313 3 polygon
+1.00 0 1497 2313 fuenf
+1 1.00 2585 2217 2505 2217 2505 2249 3 polygon
+1.00 0 2505 2249 fuenf
+1 1.00 2585 2089 2505 2089 2505 2121 3 polygon
+1.00 0 2505 2121 fuenf
+1 1.00 2585 1897 2505 1897 2505 1929 3 polygon
+1.00 0 2505 1929 fuenf
+1 1.00 2585 2153 2553 2153 2553 2137 3 polygon
+0.50 0 2553 2153 gnd
+1 1.00 2937 1769 3017 1769 3017 1801 3 polygon
+1.00 0 3017 1801 fuenf
+1 1.00 1577 1897 1497 1897 1497 1929 3 polygon
+1.00 0 1497 1929 fuenf
+1 1.00 1577 1577 1497 1577 1497 1545 3 polygon
+0.50 0 1497 1561 gnd
+0 1.00 3689 2297 3689 2265 3705 2265 3705 2297 4 polygon
+0 1.00 3689 2233 3689 2201 3705 2201 3705 2233 4 polygon
+0 1.00 3689 2169 3689 2137 3705 2137 3705 2169 4 polygon
+0 1.00 3689 2105 3689 2073 3705 2073 3705 2105 4 polygon
+0 1.00 3689 2041 3689 2009 3705 2009 3705 2041 4 polygon
+0 1.00 3689 1977 3689 1945 3705 1945 3705 1977 4 polygon
+0 1.00 3689 1913 3689 1881 3705 1881 3705 1913 4 polygon
+0 3.00 3689 2345 3689 1817 3433 1817 3433 2345 4 polygon
+0 1.00 3433 2297 3433 2265 3417 2265 3417 2297 4 polygon
+0 1.00 3433 2233 3433 2201 3417 2201 3417 2233 4 polygon
+0 1.00 3433 2169 3433 2137 3417 2137 3417 2169 4 polygon
+0 1.00 3433 2105 3433 2073 3417 2073 3417 2105 4 polygon
+0 1.00 3433 2041 3433 2009 3417 2009 3417 2041 4 polygon
+0 1.00 3433 1977 3433 1945 3417 1945 3417 1977 4 polygon
+0 1.00 3433 1913 3433 1881 3417 1881 3417 1913 4 polygon
+0 1.00 3529 2345 3529 2313 3593 2313 3593 2345 4 polygon
+(IC3  TL074) {/Courier-Bold cf} 2 16 90 1.50 3545 2233 label
+(1) {/Courier cf} 2 23 0 0.50 3401 2297 label
+(3) {/Courier cf} 2 23 0 0.50 3401 2169 label
+(2) {/Courier cf} 2 23 0 0.50 3401 2233 label
+(4) {/Courier cf} 2 23 0 0.50 3401 2105 label
+(5) {/Courier cf} 2 23 0 0.50 3401 2041 label
+(6) {/Courier cf} 2 23 0 0.50 3401 1977 label
+(7) {/Courier cf} 2 23 0 0.50 3401 1913 label
+(14) {/Courier cf} 2 20 0 0.50 3721 2297 label
+0.000 0.000 1.000 scb
+(O1) {/Courier cf} 2 20 0 0.75 3449 2281 label
+(I1-) {/Courier cf} 2 20 0 0.75 3449 2217 label
+(I1+) {/Courier cf} 2 20 0 0.75 3449 2153 label
+(Vss) {/Courier cf} 2 20 0 0.75 3449 2089 label
+(I2+) {/Courier cf} 2 20 0 0.75 3449 2025 label
+(O2) {/Courier cf} 2 20 0 0.75 3449 1897 label
+(O4) {/Courier cf} 2 23 0 0.75 3673 2281 label
+(I2-) {/Courier cf} 2 20 0 0.75 3449 1961 label
+(I4-) {/Courier cf} 2 23 0 0.75 3673 2217 label
+(I4+) {/Courier cf} 2 23 0 0.75 3673 2153 label
+(Vcc) {/Courier cf} 2 23 0 0.75 3673 2089 label
+(I3+) {/Courier cf} 2 23 0 0.75 3673 2025 label
+(I3-) {/Courier cf} 2 23 0 0.75 3673 1961 label
+(O3) {/Courier cf} 2 23 0 0.75 3673 1897 label
+sce
+(13) {/Courier cf} 2 20 0 0.50 3721 2233 label
+(12) {/Courier cf} 2 20 0 0.50 3721 2169 label
+(11) {/Courier cf} 2 20 0 0.50 3721 2105 label
+(10) {/Courier cf} 2 20 0 0.50 3721 2041 label
+(9) {/Courier cf} 2 20 0 0.50 3721 1977 label
+(8) {/Courier cf} 2 20 0 0.50 3721 1913 label
+1 1.00 3705 2089 3769 2089 2 polygon
+1 1.00 3769 2105 3769 2073 3785 2089 3769 2105 4 polygon
+1 1.00 3353 2089 3417 2089 2 polygon
+1 1.00 3353 2105 3353 2073 3337 2089 3353 2105 4 polygon
+1.000 0.000 0.000 scb
+(+12V) {/Helvetica cf} 2 16 0 0.75 3273 2089 label
+(-12V) {/Helvetica cf} 2 16 0 0.75 3785 2089 label
+sce
+1 1.00 3417 2281 3353 2281 3353 2217 3417 2217 4 polygon
+1 1.00 3417 1961 3353 1961 3353 1897 3417 1897 4 polygon
+1 1.00 3705 1897 3769 1897 3769 1961 3705 1961 4 polygon
+1 1.00 3705 2217 3769 2217 3769 2281 3705 2281 4 polygon
+0.75 0 3145 2169 _polarized
+0.50 0 3145 2137 gnd
+(+) {/Helvetica cf} 2 16 0 0.75 3161 2177 label
+(-) {/Helvetica cf} 2 16 0 0.75 3161 2137 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 20 0 0.75 3193 2153 label
+sce
+1.00 0 3145 2217 dot
+1.00 0 3353 2281 dot
+1 1.00 3417 2025 2937 2025 2 polygon
+1.00 0 3353 1897 dot
+1 1.00 3417 2153 3273 2153 3273 2217 2937 2217 4 polygon
+1 1.00 3353 2281 3033 2281 3033 2089 2937 2089 4 polygon
+0.75 0 3209 1977 capacitor
+1.00 0 3209 2025 dot
+0.000 0.000 0.000 scb
+(68pF) {/Courier cf} 2 20 0 0.75 3241 1961 label
+sce
+0.50 0 3209 1945 gnd
+1 1.00 2937 1897 3081 1897 3081 1785 3817 1785 3817 2025 3705 2025 6 polygon
+1 1.00 2937 1833 3049 1833 3049 1657 3865 1657 3865 2153 3705 2153 6 polygon
+0.75 0 3209 1737 capacitor
+0.50 0 3209 1705 gnd
+1.00 0 3209 1785 dot
+0.75 0 3257 1609 capacitor
+0.50 0 3257 1577 gnd
+1.00 0 3257 1657 dot
+1.000 0.000 0.000 scb
+(+12V) {/Helvetica cf} 2 17 0 0.75 3449 2585 label
+sce
+0 1.00 2921 1225 2921 1193 2937 1193 2937 1225 4 polygon
+0 1.00 2921 1161 2921 1129 2937 1129 2937 1161 4 polygon
+0 1.00 2921 1097 2921 1065 2937 1065 2937 1097 4 polygon
+0 1.00 2921 1033 2921 1001 2937 1001 2937 1033 4 polygon
+0 1.00 2921 969 2921 937 2937 937 2937 969 4 polygon
+0 1.00 2921 905 2921 873 2937 873 2937 905 4 polygon
+0 1.00 2921 841 2921 809 2937 809 2937 841 4 polygon
+0 1.00 2921 777 2921 745 2937 745 2937 777 4 polygon
+0 3.00 2921 1273 2921 697 2601 697 2601 1273 4 polygon
+0 1.00 2601 1225 2601 1193 2585 1193 2585 1225 4 polygon
+0 1.00 2601 1161 2601 1129 2585 1129 2585 1161 4 polygon
+0 1.00 2601 1097 2601 1065 2585 1065 2585 1097 4 polygon
+0 1.00 2601 1033 2601 1001 2585 1001 2585 1033 4 polygon
+0 1.00 2601 969 2601 937 2585 937 2585 969 4 polygon
+0 1.00 2601 905 2601 873 2585 873 2585 905 4 polygon
+0 1.00 2601 841 2601 809 2585 809 2585 841 4 polygon
+0 1.00 2601 777 2601 745 2585 745 2585 777 4 polygon
+0 1.00 2729 1273 2729 1241 2793 1241 2793 1273 4 polygon
+(IC4 YAC512) {/Courier-Bold cf} 2 16 90 1.50 2745 1161 label
+(1) {/Courier cf} 2 23 0 0.50 2569 1225 label
+(3) {/Courier cf} 2 23 0 0.50 2569 1097 label
+(2) {/Courier cf} 2 23 0 0.50 2569 1161 label
+(4) {/Courier cf} 2 23 0 0.50 2569 1033 label
+(5) {/Courier cf} 2 23 0 0.50 2569 969 label
+(6) {/Courier cf} 2 23 0 0.50 2569 905 label
+(7) {/Courier cf} 2 23 0 0.50 2569 841 label
+(8) {/Courier cf} 2 23 0 0.50 2569 777 label
+(16) {/Courier cf} 2 20 0 0.50 2953 1225 label
+0.000 0.000 1.000 scb
+(Vdd) {/Courier cf} 2 20 0 0.75 2617 1209 label
+(Vss) {/Courier cf} 2 20 0 0.75 2617 1145 label
+(Vdd) {/Courier cf} 2 20 0 0.75 2617 1081 label
+(DIN) {/Courier cf} 2 20 0 0.75 2617 1017 label
+(CLK) {/Courier cf} 2 20 0 0.75 2617 953 label
+(SMP2) {/Courier cf} 2 20 0 0.75 2617 825 label
+(SMP1) {/Courier cf} 2 20 0 0.75 2617 761 label
+(CV) {/Courier cf} 2 23 0 0.75 2905 1209 label
+(FSEL) {/Courier cf} 2 20 0 0.75 2617 889 label
+(TST2) {/Courier cf} 2 23 0 0.75 2905 1145 label
+(MP) {/Courier cf} 2 23 0 0.75 2905 1081 label
+(AOUT) {/Courier cf} 2 23 0 0.75 2905 1017 label
+(SWIN) {/Courier cf} 2 23 0 0.75 2905 953 label
+(CH2) {/Courier cf} 2 23 0 0.75 2905 889 label
+(CH1) {/Courier cf} 2 23 0 0.75 2905 825 label
+(TST1) {/Courier cf} 2 23 0 0.75 2905 761 label
+sce
+(15) {/Courier cf} 2 20 0 0.50 2953 1161 label
+(14) {/Courier cf} 2 20 0 0.50 2953 1097 label
+(13) {/Courier cf} 2 20 0 0.50 2953 1033 label
+(12) {/Courier cf} 2 20 0 0.50 2953 969 label
+(11) {/Courier cf} 2 20 0 0.50 2953 905 label
+(10) {/Courier cf} 2 20 0 0.50 2953 841 label
+(9) {/Courier cf} 2 20 0 0.50 2953 777 label
+1 1.00 2585 1209 2505 1209 2505 1241 3 polygon
+1.00 0 2505 1241 fuenf
+1 1.00 2585 1081 2505 1081 2505 1113 3 polygon
+1.00 0 2505 1113 fuenf
+1 1.00 2585 889 2505 889 2505 921 3 polygon
+1.00 0 2505 921 fuenf
+1 1.00 2585 1145 2553 1145 2553 1129 3 polygon
+0.50 0 2553 1145 gnd
+1 1.00 2937 761 3017 761 3017 793 3 polygon
+1.00 0 3017 793 fuenf
+0 1.00 3689 1289 3689 1257 3705 1257 3705 1289 4 polygon
+0 1.00 3689 1225 3689 1193 3705 1193 3705 1225 4 polygon
+0 1.00 3689 1161 3689 1129 3705 1129 3705 1161 4 polygon
+0 1.00 3689 1097 3689 1065 3705 1065 3705 1097 4 polygon
+0 1.00 3689 1033 3689 1001 3705 1001 3705 1033 4 polygon
+0 1.00 3689 969 3689 937 3705 937 3705 969 4 polygon
+0 1.00 3689 905 3689 873 3705 873 3705 905 4 polygon
+0 3.00 3689 1337 3689 809 3433 809 3433 1337 4 polygon
+0 1.00 3433 1289 3433 1257 3417 1257 3417 1289 4 polygon
+0 1.00 3433 1225 3433 1193 3417 1193 3417 1225 4 polygon
+0 1.00 3433 1161 3433 1129 3417 1129 3417 1161 4 polygon
+0 1.00 3433 1097 3433 1065 3417 1065 3417 1097 4 polygon
+0 1.00 3433 1033 3433 1001 3417 1001 3417 1033 4 polygon
+0 1.00 3433 969 3433 937 3417 937 3417 969 4 polygon
+0 1.00 3433 905 3433 873 3417 873 3417 905 4 polygon
+0 1.00 3529 1337 3529 1305 3593 1305 3593 1337 4 polygon
+(IC5  TL074) {/Courier-Bold cf} 2 16 90 1.50 3545 1225 label
+(1) {/Courier cf} 2 23 0 0.50 3401 1289 label
+(3) {/Courier cf} 2 23 0 0.50 3401 1161 label
+(2) {/Courier cf} 2 23 0 0.50 3401 1225 label
+(4) {/Courier cf} 2 23 0 0.50 3401 1097 label
+(5) {/Courier cf} 2 23 0 0.50 3401 1033 label
+(6) {/Courier cf} 2 23 0 0.50 3401 969 label
+(7) {/Courier cf} 2 23 0 0.50 3401 905 label
+(14) {/Courier cf} 2 20 0 0.50 3721 1289 label
+0.000 0.000 1.000 scb
+(O1) {/Courier cf} 2 20 0 0.75 3449 1273 label
+(I1-) {/Courier cf} 2 20 0 0.75 3449 1209 label
+(I1+) {/Courier cf} 2 20 0 0.75 3449 1145 label
+(Vss) {/Courier cf} 2 20 0 0.75 3449 1081 label
+(I2+) {/Courier cf} 2 20 0 0.75 3449 1017 label
+(O2) {/Courier cf} 2 20 0 0.75 3449 889 label
+(O4) {/Courier cf} 2 23 0 0.75 3673 1273 label
+(I2-) {/Courier cf} 2 20 0 0.75 3449 953 label
+(I4-) {/Courier cf} 2 23 0 0.75 3673 1209 label
+(I4+) {/Courier cf} 2 23 0 0.75 3673 1145 label
+(Vcc) {/Courier cf} 2 23 0 0.75 3673 1081 label
+(I3+) {/Courier cf} 2 23 0 0.75 3673 1017 label
+(I3-) {/Courier cf} 2 23 0 0.75 3673 953 label
+(O3) {/Courier cf} 2 23 0 0.75 3673 889 label
+sce
+(13) {/Courier cf} 2 20 0 0.50 3721 1225 label
+(12) {/Courier cf} 2 20 0 0.50 3721 1161 label
+(11) {/Courier cf} 2 20 0 0.50 3721 1097 label
+(10) {/Courier cf} 2 20 0 0.50 3721 1033 label
+(9) {/Courier cf} 2 20 0 0.50 3721 969 label
+(8) {/Courier cf} 2 20 0 0.50 3721 905 label
+1 1.00 3705 1081 3769 1081 2 polygon
+1 1.00 3769 1097 3769 1065 3785 1081 3769 1097 4 polygon
+1 1.00 3353 1081 3417 1081 2 polygon
+1 1.00 3353 1097 3353 1065 3337 1081 3353 1097 4 polygon
+1.000 0.000 0.000 scb
+(+12V) {/Helvetica cf} 2 16 0 0.75 3273 1081 label
+(-12V) {/Helvetica cf} 2 16 0 0.75 3785 1081 label
+sce
+1 1.00 3417 1273 3353 1273 3353 1209 3417 1209 4 polygon
+1 1.00 3417 953 3353 953 3353 889 3417 889 4 polygon
+1 1.00 3705 889 3769 889 3769 953 3705 953 4 polygon
+1 1.00 3705 1209 3769 1209 3769 1273 3705 1273 4 polygon
+0.75 0 3145 1161 _polarized
+0.50 0 3145 1129 gnd
+(+) {/Helvetica cf} 2 16 0 0.75 3161 1169 label
+(-) {/Helvetica cf} 2 16 0 0.75 3161 1129 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 20 0 0.75 3193 1145 label
+sce
+1.00 0 3145 1209 dot
+1.00 0 3353 1273 dot
+1 1.00 3417 1017 2937 1017 2 polygon
+1.00 0 3353 889 dot
+1 1.00 3417 1145 3273 1145 3273 1209 2937 1209 4 polygon
+1 1.00 3353 1273 3033 1273 3033 1081 2937 1081 4 polygon
+0.75 0 3209 969 capacitor
+1.00 0 3209 1017 dot
+0.000 0.000 0.000 scb
+(68pF) {/Courier cf} 2 20 0 0.75 3241 953 label
+sce
+0.50 0 3209 937 gnd
+1 1.00 2937 889 3081 889 3081 777 3817 777 3817 1017 3705 1017 6 polygon
+1 1.00 2937 825 3049 825 3049 649 3865 649 3865 1145 3705 1145 6 polygon
+0.75 0 3209 729 capacitor
+0.000 0.000 0.000 scb
+(2.7nF) {/Courier cf} 2 20 0 0.75 3241 713 label
+sce
+0.50 0 3209 697 gnd
+1.00 0 3209 777 dot
+0.75 0 3257 601 capacitor
+0.000 0.000 0.000 scb
+(2.7nF) {/Courier cf} 2 20 0 0.75 3289 585 label
+sce
+0.50 0 3257 569 gnd
+1.00 0 3257 649 dot
+1 1.00 2585 953 2409 953 2409 1961 2585 1961 4 polygon
+1 1.00 2409 1961 2409 2217 1929 2217 3 polygon
+1.00 0 2409 1961 dot
+1 1.00 1929 1961 2265 1961 2265 1833 2585 1833 4 polygon
+1 1.00 2585 825 2265 825 2265 1833 3 polygon
+1.00 0 2265 1833 dot
+1 1.00 1929 2025 2297 2025 2297 1769 2585 1769 4 polygon
+1 1.00 2297 1769 2297 761 2585 761 3 polygon
+1.00 0 2297 1769 dot
+1 1.00 1929 2089 2377 2089 2377 2025 2585 2025 4 polygon
+1 1.00 1929 2153 2345 2153 2345 1017 2585 1017 4 polygon
+0 3.00 2185 2569 2185 2441 1977 2441 1977 2569 4 polygon
+1 1.00 2153 2457 2153 2409 2 polygon
+0.50 0 2154 2424 gnd
+1 1.00 2009 2553 2009 2601 2 polygon
+0.50 0 2009 2601 _5V
+(7) {/Courier cf} 2 23 0 0.50 2169 2425 label
+(14) {/Courier cf} 2 23 0 0.50 2041 2585 label
+1 1.00 2009 2457 2009 2409 2 polygon
+1.00 90 2009 2409 circle
+(8) {/Courier cf} 2 23 0 0.50 2169 2585 label
+(1) {/Courier cf} 2 23 0 0.50 2025 2425 label
+(QO1) {/Courier cf} 2 21 0 0.75 2081 2537 label
+(14.318 MHz) {/Courier cf} 2 21 0 0.75 2081 2489 label
+1 1.00 2153 2569 2153 2633 2345 2633 2345 2281 1929 2281 5 polygon
+0.75 90 2761 2441 _polarized
+(+) {/Helvetica cf} 2 16 0 0.75 2777 2449 label
+(-) {/Helvetica cf} 2 16 0 0.75 2729 2449 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 20 0 0.75 2729 2489 label
+sce
+0.75 270 2761 2377 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 20 0 0.75 2713 2329 label
+sce
+1 1.00 2713 2377 2697 2377 2697 2441 2713 2441 4 polygon
+1 1.00 2809 2441 2825 2441 2825 2377 2809 2377 4 polygon
+1.00 0 2697 2409 dot
+1.00 0 2825 2409 dot
+1 1.00 2697 2409 2617 2409 2617 2377 3 polygon
+0.50 0 2617 2393 gnd
+1 1.00 2825 2409 2905 2409 2905 2441 3 polygon
+1.00 0 2905 2441 fuenf
+0.75 90 1753 2521 _polarized
+(+) {/Helvetica cf} 2 16 0 0.75 1769 2529 label
+(-) {/Helvetica cf} 2 16 0 0.75 1721 2529 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 20 0 0.75 1721 2569 label
+sce
+0.75 270 1753 2457 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 20 0 0.75 1705 2409 label
+sce
+1 1.00 1705 2457 1689 2457 1689 2521 1705 2521 4 polygon
+1 1.00 1801 2521 1817 2521 1817 2457 1801 2457 4 polygon
+1.00 0 1689 2489 dot
+1.00 0 1817 2489 dot
+1 1.00 1689 2489 1609 2489 1609 2457 3 polygon
+0.50 0 1609 2473 gnd
+1 1.00 1817 2489 1897 2489 1897 2521 3 polygon
+1.00 0 1897 2521 fuenf
+1.00 270 3033 1961 resistor
+1 1.00 2985 1961 2937 1961 2 polygon
+1 1.00 3097 1961 3113 1961 3113 1897 3353 1897 4 polygon
+0.000 0.000 0.000 scb
+(33) {/Courier cf} 2 20 0 0.75 3033 1929 label
+sce
+1.00 270 3033 953 resistor
+1 1.00 3097 953 3113 953 3113 889 3353 889 4 polygon
+0.000 0.000 0.000 scb
+(33) {/Courier cf} 2 20 0 0.75 3033 921 label
+sce
+1 1.00 2985 953 2937 953 2 polygon
+0.000 1.000 0.000 scb
+(Power LED) {/Helvetica cf} 2 20 90 0.50 1702 841 label
+0.000 0.937 0.000 scb
+1.00 180 1769 809 diode
+1 1.00 1745 825 1729 801 2 polygon
+1 1.00 1745 793 1729 769 2 polygon
+1 1.00 1729 801 1729 809 2 polygon
+1 1.00 1729 801 1737 801 2 polygon
+1 1.00 1729 769 1729 777 2 polygon
+1 1.00 1729 769 1737 769 2 polygon
+sce
+1.00 180 1769 961 resistor
+(470) {/Courier cf} 2 23 0 0.75 1841 929 label
+(R1) {/Courier cf} 2 23 0 0.75 1753 969 label
+1 1.00 1769 761 1769 713 2 polygon
+0.000 0.000 0.000 scb
+0.50 0 1769 729 gnd
+sce
+1 1.00 1769 857 1769 905 2 polygon
+1 1.00 1769 1017 1769 1065 2 polygon
+0.50 0 1769 1065 5V
+0 1.00 4809 1881 4809 1849 4825 1849 4825 1881 4 polygon
+0 1.00 4809 1817 4809 1785 4825 1785 4825 1817 4 polygon
+0 1.00 4809 1753 4809 1721 4825 1721 4825 1753 4 polygon
+0 1.00 4809 1689 4809 1657 4825 1657 4825 1689 4 polygon
+0 1.00 4809 1625 4809 1593 4825 1593 4825 1625 4 polygon
+0 1.00 4809 1561 4809 1529 4825 1529 4825 1561 4 polygon
+0 1.00 4809 1497 4809 1465 4825 1465 4825 1497 4 polygon
+0 3.00 4809 1929 4809 1401 4553 1401 4553 1929 4 polygon
+0 1.00 4553 1881 4553 1849 4537 1849 4537 1881 4 polygon
+0 1.00 4553 1817 4553 1785 4537 1785 4537 1817 4 polygon
+0 1.00 4553 1753 4553 1721 4537 1721 4537 1753 4 polygon
+0 1.00 4553 1689 4553 1657 4537 1657 4537 1689 4 polygon
+0 1.00 4553 1625 4553 1593 4537 1593 4537 1625 4 polygon
+0 1.00 4553 1561 4553 1529 4537 1529 4537 1561 4 polygon
+0 1.00 4553 1497 4553 1465 4537 1465 4537 1497 4 polygon
+0 1.00 4649 1929 4649 1897 4713 1897 4713 1929 4 polygon
+(IC6  TL074) {/Courier-Bold cf} 2 16 90 1.50 4665 1817 label
+(1) {/Courier cf} 2 23 0 0.50 4521 1881 label
+(3) {/Courier cf} 2 23 0 0.50 4521 1753 label
+(2) {/Courier cf} 2 23 0 0.50 4521 1817 label
+(4) {/Courier cf} 2 23 0 0.50 4521 1689 label
+(5) {/Courier cf} 2 23 0 0.50 4521 1625 label
+(6) {/Courier cf} 2 23 0 0.50 4521 1561 label
+(7) {/Courier cf} 2 23 0 0.50 4521 1497 label
+(14) {/Courier cf} 2 20 0 0.50 4841 1881 label
+0.000 0.000 1.000 scb
+(O1) {/Courier cf} 2 20 0 0.75 4569 1865 label
+(I1-) {/Courier cf} 2 20 0 0.75 4569 1801 label
+(I1+) {/Courier cf} 2 20 0 0.75 4569 1737 label
+(Vss) {/Courier cf} 2 20 0 0.75 4569 1673 label
+(I2+) {/Courier cf} 2 20 0 0.75 4569 1609 label
+(O2) {/Courier cf} 2 20 0 0.75 4569 1481 label
+(O4) {/Courier cf} 2 23 0 0.75 4793 1865 label
+(I2-) {/Courier cf} 2 20 0 0.75 4569 1545 label
+(I4-) {/Courier cf} 2 23 0 0.75 4793 1801 label
+(I4+) {/Courier cf} 2 23 0 0.75 4793 1737 label
+(Vcc) {/Courier cf} 2 23 0 0.75 4793 1673 label
+(I3+) {/Courier cf} 2 23 0 0.75 4793 1609 label
+(I3-) {/Courier cf} 2 23 0 0.75 4793 1545 label
+(O3) {/Courier cf} 2 23 0 0.75 4793 1481 label
+sce
+(13) {/Courier cf} 2 20 0 0.50 4841 1817 label
+(12) {/Courier cf} 2 20 0 0.50 4841 1753 label
+(11) {/Courier cf} 2 20 0 0.50 4841 1689 label
+(10) {/Courier cf} 2 20 0 0.50 4841 1625 label
+(9) {/Courier cf} 2 20 0 0.50 4841 1561 label
+(8) {/Courier cf} 2 20 0 0.50 4841 1497 label
+1 1.00 4825 1673 4889 1673 2 polygon
+1 1.00 4889 1689 4889 1657 4905 1673 4889 1689 4 polygon
+1.000 0.000 0.000 scb
+(-12V) {/Helvetica cf} 2 16 0 0.75 4905 1673 label
+sce
+1 1.00 4473 1673 4537 1673 2 polygon
+1 1.00 4473 1689 4473 1657 4457 1673 4473 1689 4 polygon
+1.000 0.000 0.000 scb
+(+12V) {/Helvetica cf} 2 16 0 0.75 4393 1673 label
+sce
+0.75 0 3513 2457 _polarized
+0.50 0 3513 2425 gnd
+(+) {/Helvetica cf} 2 16 0 0.75 3529 2465 label
+(-) {/Helvetica cf} 2 16 0 0.75 3529 2425 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 21 0 0.75 3513 2377 label
+sce
+0.75 0 3417 2457 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 21 0 0.75 3417 2377 label
+sce
+0.50 0 3417 2425 gnd
+1 1.00 3417 2505 3513 2505 2 polygon
+1.00 0 3465 2505 dot
+1 1.00 3465 2505 3465 2553 3449 2553 3465 2569 3481 2553 3465 2553 6 polygon
+1.000 0.000 0.000 scb
+(-12V) {/Helvetica cf} 2 17 0 0.75 3641 2585 label
+sce
+0.75 180 3705 2457 _polarized
+0.50 0 3705 2425 gnd
+(+) {/Helvetica cf} 2 16 0 0.75 3721 2433 label
+(-) {/Helvetica cf} 2 16 0 0.75 3721 2473 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 21 0 0.75 3705 2377 label
+sce
+0.75 0 3609 2457 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 21 0 0.75 3609 2377 label
+sce
+0.50 0 3609 2425 gnd
+1 1.00 3609 2505 3705 2505 2 polygon
+1.00 0 3657 2505 dot
+1 1.00 3657 2505 3657 2553 3641 2553 3657 2569 3673 2553 3657 2553 6 polygon
+1.000 0.000 0.000 scb
+(+12V) {/Helvetica cf} 2 17 0 0.75 3449 1577 label
+sce
+0.75 0 3513 1449 _polarized
+0.50 0 3513 1417 gnd
+(+) {/Helvetica cf} 2 16 0 0.75 3529 1457 label
+(-) {/Helvetica cf} 2 16 0 0.75 3529 1417 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 21 0 0.75 3513 1369 label
+sce
+0.75 0 3417 1449 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 21 0 0.75 3417 1369 label
+sce
+0.50 0 3417 1417 gnd
+1 1.00 3417 1497 3513 1497 2 polygon
+1.00 0 3465 1497 dot
+1 1.00 3465 1497 3465 1545 3449 1545 3465 1561 3481 1545 3465 1545 6 polygon
+1.000 0.000 0.000 scb
+(-12V) {/Helvetica cf} 2 17 0 0.75 3641 1577 label
+sce
+0.75 180 3705 1449 _polarized
+0.50 0 3705 1417 gnd
+(+) {/Helvetica cf} 2 16 0 0.75 3721 1425 label
+(-) {/Helvetica cf} 2 16 0 0.75 3721 1465 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 21 0 0.75 3705 1369 label
+sce
+0.75 0 3609 1449 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 21 0 0.75 3609 1369 label
+sce
+0.50 0 3609 1417 gnd
+1 1.00 3609 1497 3705 1497 2 polygon
+1.00 0 3657 1497 dot
+1 1.00 3657 1497 3657 1545 3641 1545 3657 1561 3673 1545 3657 1545 6 polygon
+1.000 0.000 0.000 scb
+(+12V) {/Helvetica cf} 2 17 0 0.75 4569 2265 label
+sce
+0.75 0 4633 2137 _polarized
+0.50 0 4633 2105 gnd
+(+) {/Helvetica cf} 2 16 0 0.75 4649 2145 label
+(-) {/Helvetica cf} 2 16 0 0.75 4649 2105 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 21 0 0.75 4633 2057 label
+sce
+0.75 0 4537 2137 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 21 0 0.75 4537 2057 label
+sce
+0.50 0 4537 2105 gnd
+1 1.00 4537 2185 4633 2185 2 polygon
+1.00 0 4585 2185 dot
+1 1.00 4585 2185 4585 2233 4569 2233 4585 2249 4601 2233 4585 2233 6 polygon
+1.000 0.000 0.000 scb
+(-12V) {/Helvetica cf} 2 17 0 0.75 4761 2265 label
+sce
+0.75 180 4825 2137 _polarized
+0.50 0 4825 2105 gnd
+(+) {/Helvetica cf} 2 16 0 0.75 4841 2113 label
+(-) {/Helvetica cf} 2 16 0 0.75 4841 2153 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 21 0 0.75 4825 2057 label
+sce
+0.75 0 4729 2137 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 21 0 0.75 4729 2057 label
+sce
+0.50 0 4729 2105 gnd
+1 1.00 4729 2185 4825 2185 2 polygon
+1.00 0 4777 2185 dot
+1 1.00 4777 2185 4777 2233 4761 2233 4777 2249 4793 2233 4777 2233 6 polygon
+1.00 270 4329 1801 resistor
+1.00 270 4329 1545 resistor
+1.00 270 5033 1545 resistor
+1.00 270 5033 1801 resistor
+0.50 0 4265 1801 gnd
+0.50 0 4265 1545 gnd
+0.50 0 5097 1545 gnd
+0.50 0 5097 1801 gnd
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 4361 1769 label
+(10k) {/Courier cf} 2 21 0 0.75 4361 1513 label
+(10k) {/Courier cf} 2 21 0 0.75 5065 1513 label
+(10k) {/Courier cf} 2 21 0 0.75 5065 1769 label
+sce
+1 1.00 4969 1801 4825 1801 2 polygon
+1.00 270 4329 1737 resistor
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 4361 1705 label
+sce
+1.00 270 4329 1609 resistor
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 4361 1577 label
+sce
+1.00 270 5033 1609 resistor
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 5065 1577 label
+sce
+1.00 270 5033 1737 resistor
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 5065 1705 label
+sce
+1 1.00 4969 1737 4825 1737 2 polygon
+1 1.00 4969 1609 4825 1609 2 polygon
+1 1.00 4969 1545 4825 1545 2 polygon
+1 1.00 4393 1801 4537 1801 2 polygon
+1.00 180 4457 1865 resistor
+1 1.00 4457 1929 4505 1929 4505 1865 4537 1865 4 polygon
+0.000 0.000 0.000 scb
+(22k) {/Courier cf} 2 21 0 0.75 4457 1961 label
+sce
+0.75 0 4409 1865 capacitor
+1 1.00 4393 1737 4537 1737 2 polygon
+1 1.00 4393 1609 4537 1609 2 polygon
+1 1.00 4393 1545 4537 1545 2 polygon
+1 1.00 4409 1817 4409 1801 2 polygon
+1 1.00 4409 1913 4409 1929 4457 1929 3 polygon
+1.00 0 4457 1929 dot
+1.00 0 4505 1929 dot
+0.000 0.000 0.000 scb
+(100pF) {/Courier cf} 2 21 0 0.75 4361 1897 label
+sce
+1.00 0 4457 1801 dot
+1.00 0 4409 1801 dot
+1.00 180 4457 1481 resistor
+0.75 0 4409 1481 capacitor
+1 1.00 4409 1529 4409 1545 2 polygon
+1 1.00 4409 1433 4409 1417 4505 1417 4505 1481 4537 1481 5 polygon
+0.000 0.000 0.000 scb
+(100pF) {/Courier cf} 2 21 0 0.75 4361 1449 label
+(22k) {/Courier cf} 2 21 0 0.75 4457 1385 label
+sce
+1.00 0 4457 1417 dot
+1.00 0 4409 1545 dot
+1.00 0 4457 1545 dot
+1.00 0 4505 1417 dot
+1.00 180 4921 1865 resistor
+0.75 0 4969 1865 capacitor
+1 1.00 4969 1817 4969 1801 2 polygon
+1 1.00 4969 1913 4969 1929 4873 1929 4873 1865 4825 1865 5 polygon
+1.00 0 4921 1929 dot
+1.00 0 4873 1929 dot
+1.00 0 4921 1801 dot
+1.00 0 4969 1801 dot
+0.000 0.000 0.000 scb
+(22k) {/Courier cf} 2 21 0 0.75 4921 1961 label
+(100pF) {/Courier cf} 2 21 0 0.75 5017 1897 label
+sce
+1.00 180 4921 1481 resistor
+0.75 0 4969 1481 capacitor
+1 1.00 4969 1529 4969 1545 2 polygon
+1 1.00 4969 1433 4969 1417 4873 1417 4873 1481 4825 1481 5 polygon
+1.00 0 4921 1545 dot
+1.00 0 4969 1545 dot
+1.00 0 4921 1417 dot
+1.00 0 4873 1417 dot
+0.000 0.000 0.000 scb
+(22k) {/Courier cf} 2 21 0 0.75 4921 1385 label
+(100pF) {/Courier cf} 2 21 0 0.75 5017 1449 label
+sce
+1 1.00 4265 1609 3961 1609 3961 1897 3769 1897 4 polygon
+1.00 0 3769 1897 dot
+1.00 0 3769 2217 dot
+1 1.00 3769 2217 4009 2217 4009 1737 4265 1737 4 polygon
+1.00 0 3769 1273 dot
+1.00 0 3769 953 dot
+1 1.00 5945 2089 11 0.00 360.00 xcarc
+1 1.00 5945 2153 11 0.00 360.00 xcarc
+0 2.00 5913 2185 5913 2041 5977 2041 5977 2185 4 polygon
+0.000 0.000 1.000 scb
+(Vs) {/Courier cf} 2 23 0 0.50 5945 2073 label
+(O1) {/Courier cf} 2 23 0 0.50 5945 2137 label
+sce
+(J4) {/Courier cf} 2 21 0 0.75 5937 2201 label
+1 1.00 5945 2089 5865 2089 5865 2025 3 polygon
+0.50 0 5866 2040 gnd
+1 1.00 5945 2153 5817 2153 2 polygon
+0.612 0.125 0.937 scb
+(AUDIO Out #1) {/Courier cf} 2 21 270 0.75 6009 2121 label
+sce
+1.00 270 5769 2153 resistor
+0.000 0.000 0.000 scb
+(220) {/Courier cf} 2 21 0 0.75 5785 2121 label
+sce
+0.75 270 5545 2153 polarized
+(+) {/Courier cf} 2 23 0 0.50 5529 2185 label
+(-) {/Courier cf} 2 23 0 0.50 5577 2185 label
+(C31) {/Courier cf} 2 21 0 0.75 5537 2217 label
+(10uF) {/Courier cf} 2 20 0 0.75 5561 2137 label
+1 1.00 5625 2153 5593 2153 2 polygon
+1 1.00 5625 2153 5705 2153 2 polygon
+1.00 180 5673 2089 resistor
+0.50 0 5674 2040 gnd
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 5721 2073 label
+sce
+(R17) {/Courier cf} 2 21 0 0.75 5745 2185 label
+(R16) {/Courier cf} 2 23 0 0.75 5649 2089 label
+1 1.00 5945 1753 11 0.00 360.00 xcarc
+1 1.00 5945 1817 11 0.00 360.00 xcarc
+0 2.00 5913 1849 5913 1705 5977 1705 5977 1849 4 polygon
+0.000 0.000 1.000 scb
+(Vs) {/Courier cf} 2 23 0 0.50 5945 1737 label
+(O2) {/Courier cf} 2 23 0 0.50 5945 1801 label
+sce
+(J5) {/Courier cf} 2 21 0 0.75 5937 1865 label
+1 1.00 5945 1753 5865 1753 5865 1689 3 polygon
+0.50 0 5866 1704 gnd
+1 1.00 5945 1817 5817 1817 2 polygon
+0.612 0.125 0.937 scb
+(AUDIO Out #2) {/Courier cf} 2 21 270 0.75 6009 1785 label
+sce
+1.00 270 5769 1817 resistor
+0.000 0.000 0.000 scb
+(220) {/Courier cf} 2 21 0 0.75 5785 1785 label
+sce
+0.75 270 5545 1817 polarized
+(+) {/Courier cf} 2 23 0 0.50 5529 1849 label
+(-) {/Courier cf} 2 23 0 0.50 5577 1849 label
+(C32) {/Courier cf} 2 21 0 0.75 5537 1881 label
+(10uF) {/Courier cf} 2 20 0 0.75 5561 1801 label
+1 1.00 5625 1817 5593 1817 2 polygon
+1 1.00 5625 1817 5705 1817 2 polygon
+1.00 180 5673 1753 resistor
+0.50 0 5674 1704 gnd
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 5721 1737 label
+sce
+(R19) {/Courier cf} 2 21 0 0.75 5745 1849 label
+(R18) {/Courier cf} 2 23 0 0.75 5649 1753 label
+1 1.00 5945 1417 11 0.00 360.00 xcarc
+1 1.00 5945 1481 11 0.00 360.00 xcarc
+0 2.00 5913 1513 5913 1369 5977 1369 5977 1513 4 polygon
+0.000 0.000 1.000 scb
+(Vs) {/Courier cf} 2 23 0 0.50 5945 1401 label
+(O3) {/Courier cf} 2 23 0 0.50 5945 1465 label
+sce
+(J6) {/Courier cf} 2 21 0 0.75 5937 1529 label
+1 1.00 5945 1417 5865 1417 5865 1353 3 polygon
+0.50 0 5866 1368 gnd
+1 1.00 5945 1481 5817 1481 2 polygon
+0.612 0.125 0.937 scb
+(AUDIO Out #3) {/Courier cf} 2 21 270 0.75 6009 1449 label
+sce
+1.00 270 5769 1481 resistor
+0.000 0.000 0.000 scb
+(220) {/Courier cf} 2 21 0 0.75 5785 1449 label
+sce
+0.75 270 5545 1481 polarized
+(+) {/Courier cf} 2 23 0 0.50 5529 1513 label
+(-) {/Courier cf} 2 23 0 0.50 5577 1513 label
+(C33) {/Courier cf} 2 21 0 0.75 5537 1545 label
+(10uF) {/Courier cf} 2 20 0 0.75 5561 1465 label
+1 1.00 5625 1481 5593 1481 2 polygon
+1 1.00 5625 1481 5705 1481 2 polygon
+1.00 180 5673 1417 resistor
+0.50 0 5674 1368 gnd
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 5721 1401 label
+sce
+(R21) {/Courier cf} 2 21 0 0.75 5745 1513 label
+(R20) {/Courier cf} 2 23 0 0.75 5649 1417 label
+1 1.00 5945 1081 11 0.00 360.00 xcarc
+1 1.00 5945 1145 11 0.00 360.00 xcarc
+0 2.00 5913 1177 5913 1033 5977 1033 5977 1177 4 polygon
+0.000 0.000 1.000 scb
+(Vs) {/Courier cf} 2 23 0 0.50 5945 1065 label
+(O4) {/Courier cf} 2 23 0 0.50 5945 1129 label
+sce
+(J7) {/Courier cf} 2 21 0 0.75 5937 1193 label
+1 1.00 5945 1081 5865 1081 5865 1017 3 polygon
+0.50 0 5866 1032 gnd
+1 1.00 5945 1145 5817 1145 2 polygon
+0.612 0.125 0.937 scb
+(AUDIO Out #4) {/Courier cf} 2 21 270 0.75 6009 1113 label
+sce
+1.00 270 5769 1145 resistor
+0.000 0.000 0.000 scb
+(220) {/Courier cf} 2 21 0 0.75 5785 1113 label
+sce
+0.75 270 5545 1145 polarized
+(+) {/Courier cf} 2 23 0 0.50 5529 1177 label
+(-) {/Courier cf} 2 23 0 0.50 5577 1177 label
+(C34) {/Courier cf} 2 21 0 0.75 5537 1209 label
+(10uF) {/Courier cf} 2 20 0 0.75 5561 1129 label
+1 1.00 5625 1145 5593 1145 2 polygon
+1 1.00 5625 1145 5705 1145 2 polygon
+1.00 180 5673 1081 resistor
+0.50 0 5674 1032 gnd
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 21 0 0.75 5721 1065 label
+sce
+(R23) {/Courier cf} 2 21 0 0.75 5745 1177 label
+(R22) {/Courier cf} 2 23 0 0.75 5649 1081 label
+1 1.00 4505 1929 4505 2025 5433 2025 5433 2153 5497 2153 5 polygon
+1 1.00 4505 1417 4505 1305 5353 1305 5353 1817 5497 1817 5 polygon
+1 1.00 1289 1641 11 0.00 360.00 xcarc
+1 1.00 1289 1705 11 0.00 360.00 xcarc
+1 1.00 1289 1769 11 0.00 360.00 xcarc
+1 1.00 1289 1833 11 0.00 360.00 xcarc
+1 1.00 1289 1481 11 0.00 360.00 xcarc
+0 2.00 1257 1993 1257 1593 1321 1593 1321 1993 4 polygon
+0.000 0.000 1.000 scb
+(D2) {/Courier cf} 2 23 0 0.50 1289 1465 label
+(D1) {/Courier cf} 2 23 0 0.50 1289 1625 label
+(A1) {/Courier cf} 2 23 0 0.50 1289 1817 label
+(WR) {/Courier cf} 2 23 0 0.50 1289 1753 label
+sce
+(J2_1) {/Courier cf} 2 21 0 0.75 1281 2009 label
+0.000 0.000 1.000 scb
+(D0) {/Courier cf} 2 23 0 0.50 1289 1689 label
+sce
+1 1.00 1289 1225 11 0.00 360.00 xcarc
+1 1.00 1289 1289 11 0.00 360.00 xcarc
+1 1.00 1289 1353 11 0.00 360.00 xcarc
+1 1.00 1289 1417 11 0.00 360.00 xcarc
+1 1.00 1289 1161 11 0.00 360.00 xcarc
+0.000 0.000 1.000 scb
+(D7) {/Courier cf} 2 23 0 0.50 1289 1145 label
+(D6) {/Courier cf} 2 23 0 0.50 1289 1209 label
+(D3) {/Courier cf} 2 23 0 0.50 1289 1401 label
+(D4) {/Courier cf} 2 23 0 0.50 1289 1337 label
+(D5) {/Courier cf} 2 23 0 0.50 1289 1273 label
+sce
+1 1.00 1289 1705 1577 1705 2 polygon
+1 1.00 1289 1641 1577 1641 2 polygon
+1 1.00 1289 1769 1449 1769 1449 1961 1577 1961 4 polygon
+1 1.00 1289 1897 11 0.00 360.00 xcarc
+1 1.00 1289 1961 11 0.00 360.00 xcarc
+0.000 0.000 1.000 scb
+(RS) {/Courier cf} 2 23 0 0.50 1289 1945 label
+(A0) {/Courier cf} 2 23 0 0.50 1289 1881 label
+sce
+1 1.00 1289 1833 1417 1833 1417 2025 1577 2025 4 polygon
+1 1.00 1305 1897 1385 1897 1385 2089 1577 2089 4 polygon
+1 1.00 1289 1961 1353 1961 1353 2153 1577 2153 4 polygon
+1 1.00 1289 1481 1449 1481 1449 1385 1961 1385 1961 1577 1929 1577 6 polygon
+0 2.00 1257 969 1257 841 1321 841 1321 969 4 polygon
+(J1) {/Courier cf} 2 21 0 0.75 1281 985 label
+1 1.00 1289 873 11 0.00 360.00 xcarc
+1 1.00 1289 937 11 0.00 360.00 xcarc
+0.000 0.000 1.000 scb
+(Vd) {/Courier cf} 2 23 0 0.50 1289 921 label
+(Vs) {/Courier cf} 2 23 0 0.50 1289 857 label
+sce
+1.00 0 1369 969 fuenf
+1 1.00 1369 969 1369 937 1289 937 3 polygon
+1 1.00 1289 873 1369 873 1369 841 3 polygon
+0.50 0 1369 857 gnd
+1 1.00 1289 1417 1417 1417 1417 1353 1993 1353 1993 1641 1929 1641 6 polygon
+1 1.00 1289 1353 1385 1353 1385 1321 2025 1321 2025 1705 1929 1705 6 polygon
+1 1.00 1289 1289 1369 1289 1369 1289 2057 1289 2057 1769 1929 1769 6 polygon
+1 1.00 1289 1225 2089 1225 2089 1833 1929 1833 4 polygon
+1 1.00 1289 1161 2121 1161 2121 1897 1929 1897 4 polygon
+1 1.00 1577 1833 1449 1833 2 polygon
+1.00 0 1449 1833 dot
+0 2.00 4201 2441 4201 2233 4265 2233 4265 2441 4 polygon
+(J3) {/Courier cf} 2 21 0 0.75 4225 2457 label
+1 1.00 4233 2345 11 0.00 360.00 xcarc
+1 1.00 4233 2409 11 0.00 360.00 xcarc
+0.000 0.000 1.000 scb
+(V+) {/Courier cf} 2 23 0 0.50 4233 2393 label
+(Vs) {/Courier cf} 2 23 0 0.50 4233 2329 label
+sce
+1 1.00 4233 2345 4313 2345 4313 2329 3 polygon
+0.50 0 4313 2345 gnd
+1 1.00 4233 2281 11 0.00 360.00 xcarc
+0.000 0.000 1.000 scb
+(V-) {/Courier cf} 2 23 0 0.50 4233 2265 label
+sce
+1 1.00 4233 2281 4297 2281 2 polygon
+1 1.00 4297 2297 4297 2265 4313 2281 4297 2297 4 polygon
+1.000 0.000 0.000 scb
+(-12V) {/Helvetica cf} 2 16 0 0.75 4313 2281 label
+sce
+1 1.00 4233 2409 4297 2409 2 polygon
+1 1.00 4297 2425 4297 2393 4313 2409 4297 2425 4 polygon
+1.000 0.000 0.000 scb
+(+12V) {/Helvetica cf} 2 16 0 0.75 4313 2409 label
+0.000 0.000 0.000 scb
+(C1) {/Courier cf} 2 20 0 0.75 1705 2505 label
+(C2) {/Courier cf} 2 20 0 0.75 1769 2473 label
+(C3) {/Courier cf} 2 20 0 0.75 2713 2425 label
+(C4) {/Courier cf} 2 20 0 0.75 2777 2393 label
+(C15) {/Courier cf} 2 20 0 0.75 3353 2473 label
+(C16) {/Courier cf} 2 20 0 0.75 3449 2473 label
+(C17) {/Courier cf} 2 20 0 0.75 3561 2473 label
+(C18) {/Courier cf} 2 20 0 0.75 3641 2473 label
+(C19) {/Courier cf} 2 20 0 0.75 3353 1465 label
+(C20) {/Courier cf} 2 20 0 0.75 3449 1465 label
+(C21) {/Courier cf} 2 20 0 0.75 3561 1465 label
+(C22) {/Courier cf} 2 20 0 0.75 3641 1465 label
+sce
+0.75 90 2777 1433 _polarized
+(+) {/Helvetica cf} 2 16 0 0.75 2793 1441 label
+(-) {/Helvetica cf} 2 16 0 0.75 2745 1441 label
+0.000 0.000 0.000 scb
+(10uF) {/Courier cf} 2 20 0 0.75 2745 1481 label
+sce
+0.75 270 2777 1369 capacitor
+0.000 0.000 0.000 scb
+(100nF) {/Courier cf} 2 20 0 0.75 2729 1321 label
+sce
+1 1.00 2729 1369 2713 1369 2713 1433 2729 1433 4 polygon
+1 1.00 2825 1433 2841 1433 2841 1369 2825 1369 4 polygon
+1.00 0 2713 1401 dot
+1.00 0 2841 1401 dot
+1 1.00 2713 1401 2633 1401 2633 1369 3 polygon
+0.50 0 2633 1385 gnd
+1 1.00 2841 1401 2921 1401 2921 1433 3 polygon
+1.00 0 2921 1433 fuenf
+0.000 0.000 0.000 scb
+(C5) {/Courier cf} 2 20 0 0.75 2729 1417 label
+(C6) {/Courier cf} 2 20 0 0.75 2793 1385 label
+(C23) {/Courier cf} 2 20 0 0.75 4473 2153 label
+(C24) {/Courier cf} 2 20 0 0.75 4569 2153 label
+(C25) {/Courier cf} 2 20 0 0.75 4681 2153 label
+(C26) {/Courier cf} 2 20 0 0.75 4761 2153 label
+(C27) {/Courier cf} 2 20 0 0.75 4393 1785 label
+(C28) {/Courier cf} 2 20 0 0.75 4393 1561 label
+(C29) {/Courier cf} 2 20 0 0.75 4937 1561 label
+(C30) {/Courier cf} 2 20 0 0.75 4953 1785 label
+(R6) {/Courier cf} 2 20 0 0.75 4457 1785 label
+(R9) {/Courier cf} 2 20 0 0.75 4457 1561 label
+(R12) {/Courier cf} 2 20 0 0.75 4873 1561 label
+(R15) {/Courier cf} 2 20 0 0.75 4873 1785 label
+(R13) {/Courier cf} 2 20 0 0.75 5001 1833 label
+(R14) {/Courier cf} 2 20 0 0.75 4969 1721 label
+(R10) {/Courier cf} 2 20 0 0.75 5001 1641 label
+(R11) {/Courier cf} 2 20 0 0.75 4985 1529 label
+(R5) {/Courier cf} 2 20 0 0.75 4265 1721 label
+(R4) {/Courier cf} 2 20 0 0.75 4265 1817 label
+(R7) {/Courier cf} 2 20 0 0.75 4265 1625 label
+(R8) {/Courier cf} 2 20 0 0.75 4265 1561 label
+(R2) {/Courier cf} 2 20 0 0.75 3001 1993 label
+(R3) {/Courier cf} 2 20 0 0.75 3001 985 label
+(C9) {/Courier cf} 2 20 0 0.75 3161 1753 label
+(C10) {/Courier cf} 2 20 0 0.75 3193 1625 label
+(C13) {/Courier cf} 2 20 0 0.75 3145 745 label
+(C14) {/Courier cf} 2 20 0 0.75 3193 617 label
+(2.7nF) {/Courier cf} 2 20 0 0.75 3289 1593 label
+(2.7nF) {/Courier cf} 2 20 0 0.75 3241 1721 label
+(C11) {/Courier cf} 2 20 0 0.75 3081 1177 label
+(C12) {/Courier cf} 2 20 0 0.75 3145 985 label
+(C7) {/Courier cf} 2 20 0 0.75 3097 2185 label
+(C8) {/Courier cf} 2 20 0 0.75 3161 1993 label
+sce
+1.00 0 5673 1145 dot
+1.00 0 5673 1481 dot
+1.00 0 5673 1817 dot
+1.00 0 5673 2153 dot
+1 1.00 4873 1417 4873 1145 5497 1145 3 polygon
+1 1.00 5497 1481 5289 1481 5289 1993 4873 1993 4873 1929 5 polygon
+1 1.00 3769 1273 5209 1273 5209 1737 5097 1737 4 polygon
+1 1.00 5081 1609 5161 1609 5161 953 3769 953 4 polygon
+0 2.00 1257 1513 1257 1113 1321 1113 1321 1513 4 polygon
+(J2_2) {/Courier cf} 2 21 0 0.75 1281 1529 label
+1.000 0.000 0.000 scb
+(These pins are mirrored on the PCB !!!) {/Helvetica cf} 2 20 90 1.00 1222 1897 
+label
+pgsave restore showpage
+
+%%Trailer
+XCIRCsave restore
+%%EOF

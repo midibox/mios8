@@ -1,0 +1,1966 @@
+%!PS-Adobe-3.0
+%%Title: button_duoled_matrix
+%%Creator: XCircuit v3.4 rev3
+%%CreationDate: Sat Jul  7 23:31:51 2007
+%%Pages: 1
+%%BoundingBox: 0 0 612 792
+%%DocumentNeededResources: font Helvetica font Helvetica-Bold font Times-Roman 
+%%EndComments
+%%BeginProlog
+%
+%  PostScript prolog for output from xcircuit
+%  Version: 3.3
+%
+%  Electrical circuit (and otherwise general) drawing program
+%
+%  Written by Tim Edwards 8/5/93--7/13/05  (tim.edwards@multigig.com)
+%  The Johns Hopkins University (1993-2004)
+%  MultiGiG, Inc. (2004-present)
+%
+%%BeginResource: procset XCIRCproc 3.3 0
+%
+% supporting definitions --- these are the primary xcircuit types.
+
+/XCIRCsave save def
+/topmat matrix currentmatrix def
+
+/fontslant { /slant exch def [1 0 slant 1 0 0] 
+    exch findfont exch makefont dup length dict /ndict exch def
+    { 1 index /FID ne { ndict 3 1 roll put } { pop pop } ifelse } forall
+    ndict definefont pop} def
+/ul { dup type /stringtype eq showflag 1 eq and { gsave 
+   currentpoint topmat setmatrix 0 0 moveto 2 index stringwidth pop (_)
+   false charpath flattenpath pathbbox grestore exch pop 1 index
+   sub setlinewidth exch pop currentpoint 3 -1 roll add moveto 0
+   rlineto stroke moveto } if } def
+/ol { dup type /stringtype eq showflag 1 eq and { gsave gsave
+   currentpoint topmat setmatrix 2 index stringwidth pop 3 index
+   true charpath flattenpath pathbbox grestore exch pop
+   exch pop topmat setmatrix (_) true charpath pathbbox grestore
+   exch pop 1 index sub setlinewidth exch pop currentpoint
+   exch 4 1 roll exch sub add moveto pop 0 rlineto stroke
+   moveto } if } def
+/stW { gsave currentpoint newpath moveto true charpath flattenpath
+	pathbbox pop exch pop sub grestore } def
+/Ts {mark Tabs aload pop counttomark 1 add array astore /Tabs exch def Tabs
+	0 currentpoint pop put} def
+/Tbn {mark Tabs aload pop counttomark dup 2 add 1 roll cleartomark 1 sub} def
+/Tb { 0 1 Tbn {Tabs exch get dup currentpoint pop lt
+	{currentpoint exch pop moveto exit} {pop} ifelse } for } def
+/Tf { Tbn -1 0 {Tabs exch get dup currentpoint pop gt
+	{currentpoint exch pop moveto exit} {pop} ifelse } for } def
+/qS { (aa) stW (a a) stW sub 4 div 0 Kn } def
+/hS { qS qS } def
+/pspc 0 def
+/cf0 { scalefont setfont } bind def
+/Kn { dup kY add /kY exch def rmoveto } bind def
+/ss { /fscale fscale 0.67 mul def currentfont 0.67 cf0 0 fscale0 fscale mul
+	0.33 mul neg Kn} def
+/Ss { /fscale fscale 0.67 mul def currentfont 0.67 cf0 0 fscale0 fscale mul
+	0.67 mul Kn } def
+/ns { 0 kY neg Kn /kY 0 def /fscale 1.0 def xfont0 1.0 cf0 } def
+/CR { ns 0 /Bline Bline fscale0 neg add def Bline moveto } def
+/cf { dup type /realtype ne {1.0} if exch findfont exch kY 0 eq
+	{ 40 mul dup /fscale0 exch def cf0 /xfont0 currentfont def}
+	{fscale0 mul fscale mul cf0} ifelse } def
+/ctmk { counttomark dup 2 add -1 roll pop } bind def
+/label { gsave translate 0 0 moveto dup scale neg /rotval exch def
+	/just exch def just 384 and 0 gt {/mshow {pop} def} {/mshow {show}
+	def} ifelse just 16 and 0 gt {gsave rotval rotate 0 1 dtransform
+	gsave pagemat setmatrix idtransform exch grestore 1 0 dtransform
+	gsave pagemat setmatrix idtransform exch grestore dup abs 1e-9 lt
+	{pop mul 0 gt} {3 1 roll pop pop 0 lt} ifelse grestore {-1 /rotval
+	rotval neg def /just just dup 3 and 1 ne {3 xor} if def} {1} ifelse
+	exch -1e-9 lt {-1 /rotval rotval neg def /just just dup 12 and
+	4 ne {12 xor} if def} {1} ifelse scale } if /showflag 0 def
+	/fspc pspc def /Bline 0 def /Tabs 0 array def /fscale 1.0 def
+	/kY 0 def gsave dup 1 add copy 0 exch 1 0 dtransform exch atan rotate
+	{exch dup type /stringtype eq {true charpath flattenpath} {dup type
+	/arraytype eq {exec} {12 string cvs true charpath flattenpath} ifelse}
+	ifelse} repeat pop pathbbox grestore 3 -1 roll pop 3 1 roll just
+	1 and 0 gt {just 2 and 0 gt {exch pop neg fspc sub} {exch sub 0.5
+	mul neg} ifelse} {pop neg fspc add} ifelse exch Bline exch just 4
+	and 0 gt {just 8 and 0 gt {exch pop neg fspc sub} {add 0.5 mul neg}
+	ifelse} {pop neg fspc add} ifelse rotval rotate Kn currentpoint
+	translate /showflag 1 def /Bline 0 def /Tabs 0 array def /fscale
+	1.0 def /kY 0 def {dup type /stringtype eq {mshow} {dup type
+	/arraytype eq {exec} {12 string cvs mshow} ifelse} ifelse} repeat
+	grestore } def
+/pinlabel { 4 index 32 and 0 ne hlevel 0 eq or { /pspc 10 def label
+	/pspc 0 def } { pop pop pop pop pop {pop} repeat } ifelse } def
+/pinglobal { pinlabel } def
+/infolabel { pinlabel } def
+/graphic { gsave 4 index cvx exec /DataSource get resetfile translate
+	0 0 moveto neg rotate dup scale cvx exec image grestore } def
+
+/scb { setrgbcolor } bind def  /sce { defColor aload pop scb } bind def
+/cRedef {/defColor currentcolor 3 array astore def} def
+/begingate {dup type /dicttype ne {1 dict} if begin	% default params
+	dup type /dicttype ne {1 dict} if begin		% instanced params
+	/hlevel hlevel 1 add def /defColor currentcolor sce 3 array
+	astore def gsave sce translate 0 0 moveto neg rotate dup abs scale
+	} bind def
+/endgate { /hlevel hlevel 1 sub def grestore defColor aload pop cRedef
+	scb end end} bind def
+
+/hlevel 0 def
+/tmpa [1 0 0 1 0 0] def
+/gar {8 8 true tmpa {<c0 c0 00 00 0c 0c 00 00>} imagemask} bind
+{8 8 true tmpa {<30 70 60 02 03 07 06 20>} imagemask} bind
+{8 8 true tmpa {<0c 1e 1e 0c c0 e1 e1 c0>} imagemask} bind
+{8 8 true tmpa {<0f 0f 0f 0f f0 f0 f0 f0>} imagemask} bind
+{8 8 true tmpa {<3f f3 e1 e1 f3 3f 1e 1e>} imagemask} bind
+{8 8 true tmpa {<df cf 8f 9f fd fc f8 f9>} imagemask} bind
+{8 8 true tmpa {<ff 3f 3f ff ff f3 f3 ff>} imagemask} bind 7 array astore def
+/ppaint { gsave clip tmpa dup setmatrix pathbbox neg exch neg 4 2 roll
+  neg 4 -1 roll 2 copy gt {exch} if 8 div ceiling 8 mul 4 2 roll neg 2 copy
+  gt {exch} if 8 div ceiling 8 mul 3 -1 roll -8 5 -1 roll
+  { 3 index exch 5 exch put dup -8 3 index { 3 index
+  exch 4 exch put 3 index exec } for } for pop pop pop pop grestore } bind def
+/setstyles {
+  currentlinewidth mul setlinewidth /style exch def
+  style 1 and 0 gt not {closepath} if
+  style 2 and 0 gt {currentlinewidth 4 mul dup 2 array astore 0 setdash} if
+  style 4 and 0 gt {0.5 currentlinewidth 4 mul 2 array astore 0 setdash} if
+  gsave style 16 and 0 gt { style 224 and -5 bitshift style 256 and 0 gt {
+  7 exch sub 8 div dup 1 exch sub currentrgbcolor 3 array astore
+  {3 copy mul add 4 1 roll pop} forall pop pop setrgbcolor eofill}
+  {dup 7 lt {gar exch get ppaint} {pop eofill} ifelse} ifelse}
+  {style 256 and 0 gt {1 setgray eofill} if} ifelse grestore style 8 and 0 gt 
+  style 512 eq or {newpath} {stroke} ifelse grestore} def     
+
+/polygon { gsave /num exch def moveto num 1 sub {lineto} repeat setstyles } def
+/xcarc   { gsave newpath arc setstyles } def
+/elb { matrix currentmatrix 7 -1 roll 7 -1 roll translate 5 1 roll 4 -1 roll
+	3 index div 1 scale } def
+/ele { 0 4 1 roll 0 4 1 roll } bind def
+/ellipse { gsave elb newpath ele arc setmatrix setstyles } def
+/pellip  { elb ele arc setmatrix } def
+/nellip  { elb ele arcn setmatrix } def
+/spline  { gsave moveto curveto setstyles } def
+/polyc   { {lineto} repeat } bind def
+/beginpath { gsave moveto } bind def
+/endpath { setstyles } bind def
+/bop	 { 1 setlinecap 0 setlinejoin 6 setmiterlimit 0 0 0 scb cRedef } def
+/psinsertion {/PSobj save def /showpage {} def /setpagedevice {pop} def bop
+	rotate translate dup scale} def
+/end_insert {PSobj restore} def
+/setpagemat {/pagemat matrix currentmatrix def} def
+/inchscale  {setpagemat 0.375 mul dup scale} def
+/cmscale    {setpagemat 0.35433071 mul dup scale} def
+
+%%EndResource
+%%EndProlog
+
+% XCircuit output starts here.
+
+%%BeginSetup
+
+/dot {
+begingate
+248 1.00 0 0 6 0.00 360.00 xcarc
+endgate
+} def
+
+/no_pushbutton {
+begingate
+1 1.00 -32 0 32 0 2 polygon
+1 1.00 0 32 0 0 2 polygon
+1 1.00 -64 -16 -16 -16 2 polygon
+1.00 0 -16 -16 dot
+1 1.00 16 -16 64 -16 2 polygon
+1.00 0 16 -16 dot
+endgate
+} def
+
+/diode {
+begingate
+248 1.00 -18 -16 0 16 18 -16 3 polygon
+1 1.00 0 -48 0 -16 2 polygon
+1 1.00 0 48 0 16 2 polygon
+1 1.00 -18 16 18 16 2 polygon
+1.000 0.000 0.000 scb
+(d.m) {/Times-Roman cf} 2 9 0 1.00 0 48 pinlabel
+(d.p) {/Times-Roman cf} 2 13 0 1.00 0 -48 pinlabel
+endgate
+} def
+
+/_dot {
+% trivial
+begingate
+248 1.00 0 0 6 0.00 360.00 xcarc
+1.000 0.000 0.000 scb
+(x) {/Times-Roman cf} 2 29 0 1.00 0 0 pinlabel
+endgate
+} def
+
+
+%%EndSetup
+
+%%Page: 1 1
+%%PageOrientation: Portrait
+%%PageBoundingBox: 0 0 612 792
+/pgsave save def bop
+0.2500 inchscale
+2.6000 setlinewidth 2477 6808 translate
+
+(MIDIbox Hardware Platform) {/Helvetica cf} 2 20 0 0.75 -1488 -4624 label
+0 3.00 -1520 -4592 -1520 -4768 -1040 -4768 -1040 -4592 4 polygon
+(\(C\) T. Klose 2006-11-05) {/Helvetica cf} 2 20 0 0.75 -1488 -4720 label
+0.000 0.000 1.000 scb
+(Button/Duo-LED Matrix) {/Helvetica cf} 2 20 0 0.75 -1488 -4672 label
+sce
+1.00 90 -1232 -576 no_pushbutton
+1.00 90 -1104 -576 no_pushbutton
+1.00 90 -976 -576 no_pushbutton
+1.00 90 -848 -576 no_pushbutton
+1.00 90 -720 -576 no_pushbutton
+1.00 90 -592 -576 no_pushbutton
+1.00 90 -336 -576 no_pushbutton
+1.00 360 -352 -672 diode
+1.00 90 -464 -576 no_pushbutton
+1.00 360 -480 -672 diode
+1.00 360 -608 -672 diode
+1.00 360 -736 -672 diode
+1.00 360 -864 -672 diode
+1.00 360 -992 -672 diode
+1.00 360 -1120 -672 diode
+1.00 360 -1248 -672 diode
+1.00 90 -1232 -864 no_pushbutton
+1.00 90 -1104 -864 no_pushbutton
+1.00 90 -976 -864 no_pushbutton
+1.00 90 -848 -864 no_pushbutton
+1.00 90 -720 -864 no_pushbutton
+1.00 90 -592 -864 no_pushbutton
+1.00 90 -336 -864 no_pushbutton
+1.00 360 -352 -960 diode
+1.00 90 -464 -864 no_pushbutton
+1.00 360 -480 -960 diode
+1.00 360 -608 -960 diode
+1.00 360 -736 -960 diode
+1.00 360 -864 -960 diode
+1.00 360 -992 -960 diode
+1.00 360 -1120 -960 diode
+1.00 360 -1248 -960 diode
+1.00 90 -1232 -1152 no_pushbutton
+1.00 90 -1104 -1152 no_pushbutton
+1.00 90 -976 -1152 no_pushbutton
+1.00 90 -848 -1152 no_pushbutton
+1.00 90 -720 -1152 no_pushbutton
+1.00 90 -592 -1152 no_pushbutton
+1.00 90 -336 -1152 no_pushbutton
+1.00 360 -352 -1248 diode
+1.00 90 -464 -1152 no_pushbutton
+1.00 360 -480 -1248 diode
+1.00 360 -608 -1248 diode
+1.00 360 -736 -1248 diode
+1.00 360 -864 -1248 diode
+1.00 360 -992 -1248 diode
+1.00 360 -1120 -1248 diode
+1.00 360 -1248 -1248 diode
+1.00 90 -1232 -1440 no_pushbutton
+1.00 90 -1104 -1440 no_pushbutton
+1.00 90 -976 -1440 no_pushbutton
+1.00 90 -848 -1440 no_pushbutton
+1.00 90 -720 -1440 no_pushbutton
+1.00 90 -592 -1440 no_pushbutton
+1.00 90 -336 -1440 no_pushbutton
+1.00 360 -352 -1536 diode
+1.00 90 -464 -1440 no_pushbutton
+1.00 360 -480 -1536 diode
+1.00 360 -608 -1536 diode
+1.00 360 -736 -1536 diode
+1.00 360 -864 -1536 diode
+1.00 360 -992 -1536 diode
+1.00 360 -1120 -1536 diode
+1.00 360 -1248 -1536 diode
+0.612 0.122 0.937 scb
+1 2.00 -1248 -720 -1296 -720 -1296 -1744 3 polygon
+1 2.00 -1248 -1008 -1296 -1008 2 polygon
+1 2.00 -1248 -1296 -1296 -1296 2 polygon
+1 2.00 -1248 -1584 -1296 -1584 2 polygon
+1 2.00 -1120 -720 -1168 -720 -1168 -1744 3 polygon
+1 2.00 -1120 -1008 -1168 -1008 2 polygon
+1 2.00 -1120 -1296 -1168 -1296 2 polygon
+1 2.00 -1120 -1584 -1168 -1584 2 polygon
+1 2.00 -992 -720 -1040 -720 -1040 -1744 3 polygon
+1 2.00 -992 -1008 -1040 -1008 2 polygon
+1 2.00 -992 -1296 -1040 -1296 2 polygon
+1 2.00 -992 -1584 -1040 -1584 2 polygon
+1 2.00 -864 -720 -912 -720 -912 -1744 3 polygon
+1 2.00 -864 -1008 -912 -1008 2 polygon
+1 2.00 -864 -1296 -912 -1296 2 polygon
+1 2.00 -864 -1584 -912 -1584 2 polygon
+1 2.00 -736 -720 -784 -720 -784 -1744 3 polygon
+1 2.00 -736 -1008 -784 -1008 2 polygon
+1 2.00 -736 -1296 -784 -1296 2 polygon
+1 2.00 -736 -1584 -784 -1584 2 polygon
+1 2.00 -608 -720 -656 -720 -656 -1744 3 polygon
+1 2.00 -608 -1008 -656 -1008 2 polygon
+1 2.00 -608 -1296 -656 -1296 2 polygon
+1 2.00 -608 -1584 -656 -1584 2 polygon
+1 2.00 -480 -720 -528 -720 -528 -1744 3 polygon
+1 2.00 -480 -1008 -528 -1008 2 polygon
+1 2.00 -480 -1296 -528 -1296 2 polygon
+1 2.00 -480 -1584 -528 -1584 2 polygon
+1 2.00 -352 -720 -400 -720 -400 -1744 3 polygon
+1 2.00 -352 -1008 -400 -1008 2 polygon
+1 2.00 -352 -1296 -400 -1296 2 polygon
+1 2.00 -352 -1584 -400 -1584 2 polygon
+0.361 0.675 0.933 scb
+1 2.00 -1248 -512 -64 -512 2 polygon
+1 2.00 -1248 -800 64 -800 2 polygon
+1 2.00 -1248 -1088 192 -1088 2 polygon
+1 2.00 -1248 -1376 320 -1376 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 1056 -528 1056 -512 2464 -512 3 polygon
+1 2.00 1248 -528 1248 -512 2 polygon
+1 2.00 1312 -528 1312 -512 2 polygon
+1 2.00 1440 -528 1440 -512 2 polygon
+1 2.00 1504 -528 1504 -512 2 polygon
+1 2.00 1632 -528 1632 -512 2 polygon
+1 2.00 1696 -528 1696 -512 2 polygon
+1 2.00 1056 -816 1056 -800 2464 -800 3 polygon
+1 2.00 1120 -816 1120 -800 2 polygon
+1 2.00 1248 -816 1248 -800 2 polygon
+1 2.00 1312 -816 1312 -800 2 polygon
+1 2.00 1440 -816 1440 -800 2 polygon
+1 2.00 1504 -816 1504 -800 2 polygon
+1 2.00 1632 -816 1632 -800 2 polygon
+1 2.00 1696 -816 1696 -800 2 polygon
+1 2.00 1056 -1104 1056 -1088 2464 -1088 3 polygon
+1 2.00 1120 -1104 1120 -1088 2 polygon
+1 2.00 1248 -1104 1248 -1088 2 polygon
+1 2.00 1312 -1104 1312 -1088 2 polygon
+1 2.00 1440 -1104 1440 -1088 2 polygon
+1 2.00 1504 -1104 1504 -1088 2 polygon
+1 2.00 1632 -1104 1632 -1088 2 polygon
+1 2.00 1696 -1104 1696 -1088 2 polygon
+1 2.00 1056 -1392 1056 -1376 2464 -1376 3 polygon
+1 2.00 1120 -1392 1120 -1376 2 polygon
+1 2.00 1248 -1392 1248 -1376 2 polygon
+1 2.00 1312 -1392 1312 -1376 2 polygon
+1 2.00 1440 -1392 1440 -1376 2 polygon
+1 2.00 1504 -1392 1504 -1376 2 polygon
+1 2.00 1632 -1392 1632 -1376 2 polygon
+1 2.00 1696 -1392 1696 -1376 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1056 -576 diode
+1 1.00 1076 -568 1092 -544 1084 -548 3 polygon
+1 1.00 1092 -544 1092 -552 2 polygon
+1 1.00 1076 -584 1092 -560 1084 -564 3 polygon
+1 1.00 1092 -560 1092 -568 2 polygon
+1.00 0 1248 -576 diode
+1 1.00 1268 -568 1284 -544 1276 -548 3 polygon
+1 1.00 1284 -544 1284 -552 2 polygon
+1 1.00 1268 -584 1284 -560 1276 -564 3 polygon
+1 1.00 1284 -560 1284 -568 2 polygon
+1.00 0 1440 -576 diode
+1 1.00 1460 -568 1476 -544 1468 -548 3 polygon
+1 1.00 1476 -544 1476 -552 2 polygon
+1 1.00 1460 -584 1476 -560 1468 -564 3 polygon
+1 1.00 1476 -560 1476 -568 2 polygon
+1.00 0 1632 -576 diode
+1 1.00 1652 -568 1668 -544 1660 -548 3 polygon
+1 1.00 1668 -544 1668 -552 2 polygon
+1 1.00 1652 -584 1668 -560 1660 -564 3 polygon
+1 1.00 1668 -560 1668 -568 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1120 -576 diode
+1 1.00 1140 -568 1156 -544 1148 -548 3 polygon
+1 1.00 1156 -544 1156 -552 2 polygon
+1 1.00 1140 -584 1156 -560 1148 -564 3 polygon
+1 1.00 1156 -560 1156 -568 2 polygon
+1.00 0 1312 -576 diode
+1 1.00 1332 -568 1348 -544 1340 -548 3 polygon
+1 1.00 1348 -544 1348 -552 2 polygon
+1 1.00 1332 -584 1348 -560 1340 -564 3 polygon
+1 1.00 1348 -560 1348 -568 2 polygon
+1.00 0 1504 -576 diode
+1 1.00 1524 -568 1540 -544 1532 -548 3 polygon
+1 1.00 1540 -544 1540 -552 2 polygon
+1 1.00 1524 -584 1540 -560 1532 -564 3 polygon
+1 1.00 1540 -560 1540 -568 2 polygon
+1.00 0 1696 -576 diode
+1 1.00 1716 -568 1732 -544 1724 -548 3 polygon
+1 1.00 1732 -544 1732 -552 2 polygon
+1 1.00 1716 -584 1732 -560 1724 -564 3 polygon
+1 1.00 1732 -560 1732 -568 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1056 -864 diode
+1 1.00 1076 -856 1092 -832 1084 -836 3 polygon
+1 1.00 1092 -832 1092 -840 2 polygon
+1 1.00 1076 -872 1092 -848 1084 -852 3 polygon
+1 1.00 1092 -848 1092 -856 2 polygon
+1.00 0 1248 -864 diode
+1 1.00 1268 -856 1284 -832 1276 -836 3 polygon
+1 1.00 1284 -832 1284 -840 2 polygon
+1 1.00 1268 -872 1284 -848 1276 -852 3 polygon
+1 1.00 1284 -848 1284 -856 2 polygon
+1.00 0 1440 -864 diode
+1 1.00 1460 -856 1476 -832 1468 -836 3 polygon
+1 1.00 1476 -832 1476 -840 2 polygon
+1 1.00 1460 -872 1476 -848 1468 -852 3 polygon
+1 1.00 1476 -848 1476 -856 2 polygon
+1.00 0 1632 -864 diode
+1 1.00 1652 -856 1668 -832 1660 -836 3 polygon
+1 1.00 1668 -832 1668 -840 2 polygon
+1 1.00 1652 -872 1668 -848 1660 -852 3 polygon
+1 1.00 1668 -848 1668 -856 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1120 -864 diode
+1 1.00 1140 -856 1156 -832 1148 -836 3 polygon
+1 1.00 1156 -832 1156 -840 2 polygon
+1 1.00 1140 -872 1156 -848 1148 -852 3 polygon
+1 1.00 1156 -848 1156 -856 2 polygon
+1.00 0 1312 -864 diode
+1 1.00 1332 -856 1348 -832 1340 -836 3 polygon
+1 1.00 1348 -832 1348 -840 2 polygon
+1 1.00 1332 -872 1348 -848 1340 -852 3 polygon
+1 1.00 1348 -848 1348 -856 2 polygon
+1.00 0 1504 -864 diode
+1 1.00 1524 -856 1540 -832 1532 -836 3 polygon
+1 1.00 1540 -832 1540 -840 2 polygon
+1 1.00 1524 -872 1540 -848 1532 -852 3 polygon
+1 1.00 1540 -848 1540 -856 2 polygon
+1.00 0 1696 -864 diode
+1 1.00 1716 -856 1732 -832 1724 -836 3 polygon
+1 1.00 1732 -832 1732 -840 2 polygon
+1 1.00 1716 -872 1732 -848 1724 -852 3 polygon
+1 1.00 1732 -848 1732 -856 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1056 -1152 diode
+1 1.00 1076 -1144 1092 -1120 1084 -1124 3 polygon
+1 1.00 1092 -1120 1092 -1128 2 polygon
+1 1.00 1076 -1160 1092 -1136 1084 -1140 3 polygon
+1 1.00 1092 -1136 1092 -1144 2 polygon
+1.00 0 1248 -1152 diode
+1 1.00 1268 -1144 1284 -1120 1276 -1124 3 polygon
+1 1.00 1284 -1120 1284 -1128 2 polygon
+1 1.00 1268 -1160 1284 -1136 1276 -1140 3 polygon
+1 1.00 1284 -1136 1284 -1144 2 polygon
+1.00 0 1440 -1152 diode
+1 1.00 1460 -1144 1476 -1120 1468 -1124 3 polygon
+1 1.00 1476 -1120 1476 -1128 2 polygon
+1 1.00 1460 -1160 1476 -1136 1468 -1140 3 polygon
+1 1.00 1476 -1136 1476 -1144 2 polygon
+1.00 0 1632 -1152 diode
+1 1.00 1652 -1144 1668 -1120 1660 -1124 3 polygon
+1 1.00 1668 -1120 1668 -1128 2 polygon
+1 1.00 1652 -1160 1668 -1136 1660 -1140 3 polygon
+1 1.00 1668 -1136 1668 -1144 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1120 -1152 diode
+1 1.00 1140 -1144 1156 -1120 1148 -1124 3 polygon
+1 1.00 1156 -1120 1156 -1128 2 polygon
+1 1.00 1140 -1160 1156 -1136 1148 -1140 3 polygon
+1 1.00 1156 -1136 1156 -1144 2 polygon
+1.00 0 1312 -1152 diode
+1 1.00 1332 -1144 1348 -1120 1340 -1124 3 polygon
+1 1.00 1348 -1120 1348 -1128 2 polygon
+1 1.00 1332 -1160 1348 -1136 1340 -1140 3 polygon
+1 1.00 1348 -1136 1348 -1144 2 polygon
+1.00 0 1504 -1152 diode
+1 1.00 1524 -1144 1540 -1120 1532 -1124 3 polygon
+1 1.00 1524 -1120 1524 -1128 2 polygon
+1 1.00 1524 -1160 1540 -1136 1532 -1140 3 polygon
+1 1.00 1524 -1136 1524 -1144 2 polygon
+1.00 0 1696 -1152 diode
+1 1.00 1716 -1144 1732 -1120 1724 -1124 3 polygon
+1 1.00 1732 -1120 1732 -1128 2 polygon
+1 1.00 1716 -1160 1732 -1136 1724 -1140 3 polygon
+1 1.00 1732 -1136 1732 -1144 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1056 -1440 diode
+1 1.00 1076 -1432 1092 -1408 1084 -1412 3 polygon
+1 1.00 1092 -1408 1092 -1416 2 polygon
+1 1.00 1076 -1448 1092 -1424 1084 -1428 3 polygon
+1 1.00 1092 -1424 1092 -1432 2 polygon
+1.00 0 1248 -1440 diode
+1 1.00 1268 -1432 1284 -1408 1276 -1412 3 polygon
+1 1.00 1284 -1408 1284 -1416 2 polygon
+1 1.00 1268 -1448 1284 -1424 1276 -1428 3 polygon
+1 1.00 1284 -1424 1284 -1432 2 polygon
+1.00 0 1440 -1440 diode
+1 1.00 1460 -1432 1476 -1408 1468 -1412 3 polygon
+1 1.00 1476 -1408 1476 -1416 2 polygon
+1 1.00 1460 -1448 1476 -1424 1468 -1428 3 polygon
+1 1.00 1476 -1424 1476 -1432 2 polygon
+1.00 0 1632 -1440 diode
+1 1.00 1652 -1432 1668 -1408 1660 -1412 3 polygon
+1 1.00 1668 -1408 1668 -1416 2 polygon
+1 1.00 1652 -1448 1668 -1424 1660 -1428 3 polygon
+1 1.00 1668 -1424 1668 -1432 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1120 -1440 diode
+1 1.00 1140 -1432 1156 -1408 1148 -1412 3 polygon
+1 1.00 1156 -1408 1156 -1416 2 polygon
+1 1.00 1140 -1448 1156 -1424 1148 -1428 3 polygon
+1 1.00 1156 -1424 1156 -1432 2 polygon
+1.00 0 1312 -1440 diode
+1 1.00 1332 -1432 1348 -1408 1340 -1412 3 polygon
+1 1.00 1348 -1408 1348 -1416 2 polygon
+1 1.00 1332 -1448 1348 -1424 1340 -1428 3 polygon
+1 1.00 1348 -1424 1348 -1432 2 polygon
+1.00 0 1504 -1440 diode
+1 1.00 1524 -1432 1540 -1408 1532 -1412 3 polygon
+1 1.00 1540 -1408 1540 -1416 2 polygon
+1 1.00 1524 -1448 1540 -1424 1532 -1428 3 polygon
+1 1.00 1540 -1424 1540 -1432 2 polygon
+1.00 0 1696 -1440 diode
+1 1.00 1716 -1432 1732 -1408 1724 -1412 3 polygon
+1 1.00 1732 -1408 1732 -1416 2 polygon
+1 1.00 1716 -1448 1732 -1424 1724 -1428 3 polygon
+1 1.00 1732 -1424 1732 -1432 2 polygon
+0.400 0.400 0.400 scb
+(#1) {/Helvetica cf} 2 21 0 1.50 -1248 -416 label
+(#2) {/Helvetica cf} 2 21 0 1.50 -1120 -416 label
+(#3) {/Helvetica cf} 2 21 0 1.50 -992 -416 label
+(#4) {/Helvetica cf} 2 21 0 1.50 -864 -416 label
+(#5) {/Helvetica cf} 2 21 0 1.50 -736 -416 label
+(#6) {/Helvetica cf} 2 21 0 1.50 -608 -416 label
+(#7) {/Helvetica cf} 2 21 0 1.50 -480 -416 label
+(#8) {/Helvetica cf} 2 21 0 1.50 -352 -416 label
+(#1) {/Helvetica cf} 2 21 0 1.50 1088 -416 label
+(#2) {/Helvetica cf} 2 21 0 1.50 1280 -416 label
+(#3) {/Helvetica cf} 2 21 0 1.50 1472 -416 label
+(#4) {/Helvetica cf} 2 21 0 1.50 1664 -416 label
+1.000 0.000 0.000 scb
+1.00 0 1824 -576 diode
+1 1.00 1844 -568 1860 -544 1852 -548 3 polygon
+1 1.00 1860 -544 1860 -552 2 polygon
+1 1.00 1844 -584 1860 -560 1852 -564 3 polygon
+1 1.00 1860 -560 1860 -568 2 polygon
+1.00 0 2016 -576 diode
+1 1.00 2036 -568 2052 -544 2044 -548 3 polygon
+1 1.00 2052 -544 2052 -552 2 polygon
+1 1.00 2036 -584 2052 -560 2044 -564 3 polygon
+1 1.00 2052 -560 2052 -568 2 polygon
+1.00 0 2208 -576 diode
+1 1.00 2228 -568 2244 -544 2236 -548 3 polygon
+1 1.00 2244 -544 2244 -552 2 polygon
+1 1.00 2228 -584 2244 -560 2236 -564 3 polygon
+1 1.00 2244 -560 2244 -568 2 polygon
+1.00 0 2400 -576 diode
+1 1.00 2420 -568 2436 -544 2428 -548 3 polygon
+1 1.00 2436 -544 2436 -552 2 polygon
+1 1.00 2420 -584 2436 -560 2428 -564 3 polygon
+1 1.00 2436 -560 2436 -568 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1888 -576 diode
+1 1.00 1908 -568 1924 -544 1916 -548 3 polygon
+1 1.00 1924 -544 1924 -552 2 polygon
+1 1.00 1908 -584 1924 -560 1916 -564 3 polygon
+1 1.00 1924 -560 1924 -568 2 polygon
+1.00 0 2080 -576 diode
+1 1.00 2100 -568 2116 -544 2108 -548 3 polygon
+1 1.00 2116 -544 2116 -552 2 polygon
+1 1.00 2100 -584 2116 -560 2108 -564 3 polygon
+1 1.00 2116 -560 2116 -568 2 polygon
+1.00 0 2272 -576 diode
+1 1.00 2292 -568 2308 -544 2300 -548 3 polygon
+1 1.00 2308 -544 2308 -552 2 polygon
+1 1.00 2292 -584 2308 -560 2300 -564 3 polygon
+1 1.00 2308 -560 2308 -568 2 polygon
+1.00 0 2464 -576 diode
+1 1.00 2484 -568 2500 -544 2492 -548 3 polygon
+1 1.00 2500 -544 2500 -552 2 polygon
+1 1.00 2484 -584 2500 -560 2492 -564 3 polygon
+1 1.00 2500 -560 2500 -568 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 1888 -528 1888 -512 2 polygon
+1 2.00 2016 -528 2016 -512 2 polygon
+1 2.00 2080 -528 2080 -512 2 polygon
+1 2.00 2208 -528 2208 -512 2 polygon
+1 2.00 2272 -528 2272 -512 2 polygon
+1 2.00 2400 -528 2400 -512 2 polygon
+1 2.00 2464 -528 2464 -512 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1824 -864 diode
+1 1.00 1844 -856 1860 -832 1852 -836 3 polygon
+1 1.00 1860 -832 1860 -840 2 polygon
+1 1.00 1844 -872 1860 -848 1852 -852 3 polygon
+1 1.00 1860 -848 1860 -856 2 polygon
+1.00 0 2016 -864 diode
+1 1.00 2036 -856 2052 -832 2044 -836 3 polygon
+1 1.00 2052 -832 2052 -840 2 polygon
+1 1.00 2036 -872 2052 -848 2044 -852 3 polygon
+1 1.00 2052 -848 2052 -856 2 polygon
+1.00 0 2208 -864 diode
+1 1.00 2228 -856 2244 -832 2236 -836 3 polygon
+1 1.00 2244 -832 2244 -840 2 polygon
+1 1.00 2228 -872 2244 -848 2236 -852 3 polygon
+1 1.00 2244 -848 2244 -856 2 polygon
+1.00 0 2400 -864 diode
+1 1.00 2420 -856 2436 -832 2428 -836 3 polygon
+1 1.00 2436 -832 2436 -840 2 polygon
+1 1.00 2420 -872 2436 -848 2428 -852 3 polygon
+1 1.00 2436 -848 2436 -856 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1888 -864 diode
+1 1.00 1908 -856 1924 -832 1916 -836 3 polygon
+1 1.00 1924 -832 1924 -840 2 polygon
+1 1.00 1908 -872 1924 -848 1916 -852 3 polygon
+1 1.00 1924 -848 1924 -856 2 polygon
+1.00 0 2080 -864 diode
+1 1.00 2100 -856 2116 -832 2108 -836 3 polygon
+1 1.00 2116 -832 2116 -840 2 polygon
+1 1.00 2100 -872 2116 -848 2108 -852 3 polygon
+1 1.00 2116 -848 2116 -856 2 polygon
+1.00 0 2272 -864 diode
+1 1.00 2292 -856 2308 -832 2300 -836 3 polygon
+1 1.00 2308 -832 2308 -840 2 polygon
+1 1.00 2292 -872 2308 -848 2300 -852 3 polygon
+1 1.00 2308 -848 2308 -856 2 polygon
+1.00 0 2464 -864 diode
+1 1.00 2484 -856 2500 -832 2492 -836 3 polygon
+1 1.00 2500 -832 2500 -840 2 polygon
+1 1.00 2484 -872 2500 -848 2492 -852 3 polygon
+1 1.00 2500 -848 2500 -856 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 1888 -816 1888 -800 2 polygon
+1 2.00 2016 -816 2016 -800 2 polygon
+1 2.00 2080 -816 2080 -800 2 polygon
+1 2.00 2208 -816 2208 -800 2 polygon
+1 2.00 2272 -816 2272 -800 2 polygon
+1 2.00 2400 -816 2400 -800 2 polygon
+1 2.00 2464 -816 2464 -800 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1824 -1152 diode
+1 1.00 1844 -1144 1860 -1120 1852 -1124 3 polygon
+1 1.00 1860 -1120 1860 -1128 2 polygon
+1 1.00 1844 -1160 1860 -1136 1852 -1140 3 polygon
+1 1.00 1860 -1136 1860 -1144 2 polygon
+1.00 0 2016 -1152 diode
+1 1.00 2036 -1144 2052 -1120 2044 -1124 3 polygon
+1 1.00 2052 -1120 2052 -1128 2 polygon
+1 1.00 2036 -1160 2052 -1136 2044 -1140 3 polygon
+1 1.00 2052 -1136 2052 -1144 2 polygon
+1.00 0 2208 -1152 diode
+1 1.00 2228 -1144 2244 -1120 2236 -1124 3 polygon
+1 1.00 2244 -1120 2244 -1128 2 polygon
+1 1.00 2228 -1160 2244 -1136 2236 -1140 3 polygon
+1 1.00 2244 -1136 2244 -1144 2 polygon
+1.00 0 2400 -1152 diode
+1 1.00 2420 -1144 2436 -1120 2428 -1124 3 polygon
+1 1.00 2436 -1120 2436 -1128 2 polygon
+1 1.00 2420 -1160 2436 -1136 2428 -1140 3 polygon
+1 1.00 2436 -1136 2436 -1144 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1888 -1152 diode
+1 1.00 1908 -1144 1924 -1120 1916 -1124 3 polygon
+1 1.00 1924 -1120 1924 -1128 2 polygon
+1 1.00 1908 -1160 1924 -1136 1916 -1140 3 polygon
+1 1.00 1924 -1136 1924 -1144 2 polygon
+1.00 0 2080 -1152 diode
+1 1.00 2100 -1144 2116 -1120 2108 -1124 3 polygon
+1 1.00 2116 -1120 2116 -1128 2 polygon
+1 1.00 2100 -1160 2116 -1136 2108 -1140 3 polygon
+1 1.00 2116 -1136 2116 -1144 2 polygon
+1.00 0 2272 -1152 diode
+1 1.00 2292 -1144 2308 -1120 2300 -1124 3 polygon
+1 1.00 2308 -1120 2308 -1128 2 polygon
+1 1.00 2292 -1160 2308 -1136 2300 -1140 3 polygon
+1 1.00 2308 -1136 2308 -1144 2 polygon
+1.00 0 2464 -1152 diode
+1 1.00 2484 -1144 2500 -1120 2492 -1124 3 polygon
+1 1.00 2500 -1120 2500 -1128 2 polygon
+1 1.00 2484 -1160 2500 -1136 2492 -1140 3 polygon
+1 1.00 2500 -1136 2500 -1144 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 1888 -1104 1888 -1088 2 polygon
+1 2.00 2016 -1104 2016 -1088 2 polygon
+1 2.00 2080 -1104 2080 -1088 2 polygon
+1 2.00 2208 -1104 2208 -1088 2 polygon
+1 2.00 2272 -1104 2272 -1088 2 polygon
+1 2.00 2400 -1104 2400 -1088 2 polygon
+1 2.00 2464 -1104 2464 -1088 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1824 -1440 diode
+1 1.00 1844 -1432 1860 -1408 1852 -1412 3 polygon
+1 1.00 1860 -1408 1860 -1416 2 polygon
+1 1.00 1844 -1448 1860 -1424 1852 -1428 3 polygon
+1 1.00 1860 -1424 1860 -1432 2 polygon
+1.00 0 2016 -1440 diode
+1 1.00 2036 -1432 2052 -1408 2044 -1412 3 polygon
+1 1.00 2052 -1408 2052 -1416 2 polygon
+1 1.00 2036 -1448 2052 -1424 2044 -1428 3 polygon
+1 1.00 2052 -1424 2052 -1432 2 polygon
+1.00 0 2208 -1440 diode
+1 1.00 2228 -1432 2244 -1408 2236 -1412 3 polygon
+1 1.00 2244 -1408 2244 -1416 2 polygon
+1 1.00 2228 -1448 2244 -1424 2236 -1428 3 polygon
+1 1.00 2244 -1424 2244 -1432 2 polygon
+1.00 0 2400 -1440 diode
+1 1.00 2420 -1432 2436 -1408 2428 -1412 3 polygon
+1 1.00 2436 -1408 2436 -1416 2 polygon
+1 1.00 2420 -1448 2436 -1424 2428 -1428 3 polygon
+1 1.00 2436 -1424 2436 -1432 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1888 -1440 diode
+1 1.00 1908 -1432 1924 -1408 1916 -1412 3 polygon
+1 1.00 1924 -1408 1924 -1416 2 polygon
+1 1.00 1908 -1448 1924 -1424 1916 -1428 3 polygon
+1 1.00 1924 -1424 1924 -1432 2 polygon
+1.00 0 2080 -1440 diode
+1 1.00 2100 -1432 2116 -1408 2108 -1412 3 polygon
+1 1.00 2116 -1408 2116 -1416 2 polygon
+1 1.00 2100 -1448 2116 -1424 2108 -1428 3 polygon
+1 1.00 2116 -1424 2116 -1432 2 polygon
+1.00 0 2272 -1440 diode
+1 1.00 2292 -1432 2308 -1408 2300 -1412 3 polygon
+1 1.00 2308 -1408 2308 -1416 2 polygon
+1 1.00 2292 -1448 2308 -1424 2300 -1428 3 polygon
+1 1.00 2308 -1424 2308 -1432 2 polygon
+1.00 0 2464 -1440 diode
+1 1.00 2484 -1432 2500 -1408 2492 -1412 3 polygon
+1 1.00 2500 -1408 2500 -1416 2 polygon
+1 1.00 2484 -1448 2500 -1424 2492 -1428 3 polygon
+1 1.00 2500 -1424 2500 -1432 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 1888 -1392 1888 -1376 2 polygon
+1 2.00 2016 -1392 2016 -1376 2 polygon
+1 2.00 2080 -1392 2080 -1376 2 polygon
+1 2.00 2208 -1392 2208 -1376 2 polygon
+1 2.00 2272 -1392 2272 -1376 2 polygon
+1 2.00 2400 -1392 2400 -1376 2 polygon
+1 2.00 2464 -1392 2464 -1376 2 polygon
+1 2.00 1824 -1392 1824 -1376 2 polygon
+1 2.00 1824 -1104 1824 -1088 2 polygon
+1 2.00 1824 -816 1824 -800 2 polygon
+1 2.00 1824 -528 1824 -512 2 polygon
+0.400 0.400 0.400 scb
+(#5) {/Helvetica cf} 2 21 0 1.50 1856 -416 label
+(#6) {/Helvetica cf} 2 21 0 1.50 2048 -416 label
+(#7) {/Helvetica cf} 2 21 0 1.50 2240 -416 label
+(#8) {/Helvetica cf} 2 21 0 1.50 2432 -416 label
+0.933 0.604 0.000 scb
+1 2.00 1056 -624 1008 -624 1008 -1744 3 polygon
+1 2.00 1248 -624 1200 -624 1200 -1712 3 polygon
+1 2.00 1440 -624 1392 -624 1392 -1680 3 polygon
+1 2.00 1632 -624 1584 -624 1584 -1648 3 polygon
+1 2.00 1824 -624 1776 -624 1776 -1616 3 polygon
+1 2.00 2016 -624 1968 -624 1968 -1584 3 polygon
+1 2.00 2208 -624 2160 -624 2160 -1552 3 polygon
+1 2.00 2400 -624 2352 -624 2352 -1520 3 polygon
+0.180 0.545 0.341 scb
+1 2.00 1120 -624 1168 -624 1168 -1600 3 polygon
+1 2.00 1312 -624 1360 -624 1360 -1632 3 polygon
+1 2.00 1504 -624 1552 -624 1552 -1664 3 polygon
+1 2.00 1888 -624 1936 -624 1936 -1664 3 polygon
+1 2.00 2272 -624 2320 -624 2320 -1664 3 polygon
+1 2.00 2464 -624 2512 -624 2512 -1664 3 polygon
+1 2.00 1696 -624 1744 -624 1744 -1664 3 polygon
+1 2.00 2080 -624 2128 -624 2128 -1664 3 polygon
+1 2.00 1120 -912 1168 -912 2 polygon
+1 2.00 1312 -912 1360 -912 2 polygon
+1 2.00 1504 -912 1552 -912 2 polygon
+1 2.00 1696 -912 1744 -912 2 polygon
+1 2.00 1888 -912 1936 -912 2 polygon
+1 2.00 2080 -912 2128 -912 2 polygon
+1 2.00 2272 -912 2320 -912 2 polygon
+1 2.00 2464 -912 2512 -912 2 polygon
+1 2.00 2464 -1200 2512 -1200 2 polygon
+1 2.00 2464 -1488 2512 -1488 2 polygon
+1 2.00 2272 -1488 2320 -1488 2 polygon
+1 2.00 2272 -1200 2320 -1200 2 polygon
+1 2.00 2080 -1200 2128 -1200 2 polygon
+1 2.00 2080 -1488 2128 -1488 2 polygon
+1 2.00 1888 -1488 1936 -1488 2 polygon
+1 2.00 1696 -1488 1744 -1488 2 polygon
+1 2.00 1504 -1488 1552 -1488 2 polygon
+1 2.00 1312 -1488 1360 -1488 2 polygon
+1 2.00 1312 -1200 1360 -1200 2 polygon
+1 2.00 1504 -1200 1552 -1200 2 polygon
+1 2.00 1696 -1200 1744 -1200 2 polygon
+0.933 0.604 0.000 scb
+1 2.00 1056 -912 1008 -912 2 polygon
+1 2.00 1056 -1200 1008 -1200 2 polygon
+1 2.00 1056 -1488 1008 -1488 2 polygon
+1 2.00 1248 -1488 1200 -1488 2 polygon
+1 2.00 1248 -1200 1200 -1200 2 polygon
+1 2.00 1248 -912 1200 -912 2 polygon
+1 2.00 1440 -912 1392 -912 2 polygon
+1 2.00 1440 -1200 1392 -1200 2 polygon
+1 2.00 1440 -1488 1392 -1488 2 polygon
+1 2.00 1632 -1488 1584 -1488 2 polygon
+1 2.00 1632 -1200 1584 -1200 2 polygon
+1 2.00 1632 -912 1584 -912 2 polygon
+1 2.00 1824 -912 1776 -912 2 polygon
+1 2.00 1824 -1200 1776 -1200 2 polygon
+1 2.00 1824 -1488 1776 -1488 2 polygon
+1 2.00 2016 -1488 1968 -1488 2 polygon
+1 2.00 2016 -1200 1968 -1200 2 polygon
+1 2.00 2016 -912 1968 -912 2 polygon
+1 2.00 2208 -912 2160 -912 2 polygon
+1 2.00 2208 -1200 2160 -1200 2 polygon
+1 2.00 2208 -1488 2160 -1488 2 polygon
+1 2.00 2400 -1488 2352 -1488 2 polygon
+1 2.00 2400 -1200 2352 -1200 2 polygon
+1 2.00 2400 -912 2352 -912 2 polygon
+1.00 0 1008 -912 _dot
+1.00 0 1008 -1200 _dot
+1.00 0 1008 -1488 _dot
+1.00 0 1200 -1488 _dot
+1.00 0 1200 -1200 _dot
+1.00 0 1200 -912 _dot
+1.00 0 1392 -912 _dot
+1.00 0 1392 -1200 _dot
+1.00 0 1392 -1488 _dot
+1.00 0 1584 -1488 _dot
+1.00 0 1584 -1200 _dot
+1.00 0 1584 -912 _dot
+1.00 0 1776 -912 _dot
+1.00 0 1776 -1200 _dot
+1.00 0 1776 -1488 _dot
+1.00 0 1968 -1488 _dot
+1.00 0 1968 -1200 _dot
+1.00 0 1968 -912 _dot
+1.00 0 2160 -912 _dot
+1.00 0 2160 -1200 _dot
+1.00 0 2160 -1488 _dot
+1.00 0 2352 -1488 _dot
+1.00 0 2352 -1200 _dot
+1.00 0 2352 -912 _dot
+0.180 0.545 0.341 scb
+1.00 0 1168 -912 _dot
+1.00 0 1168 -1200 _dot
+1.00 0 1168 -1488 _dot
+1.00 0 1360 -912 _dot
+1.00 0 1360 -1200 _dot
+1.00 0 1360 -1488 _dot
+1.00 0 1552 -1488 _dot
+1.00 0 1552 -1200 _dot
+1.00 0 1552 -912 _dot
+1.00 0 1744 -912 _dot
+1.00 0 1744 -1200 _dot
+1.00 0 1744 -1488 _dot
+1.00 0 1936 -1488 _dot
+1.00 0 1936 -1200 _dot
+1.00 0 1936 -912 _dot
+1.00 0 2128 -912 _dot
+1.00 0 2128 -1200 _dot
+1.00 0 2128 -1488 _dot
+1.00 0 2320 -1488 _dot
+1.00 0 2320 -1200 _dot
+1.00 0 2320 -912 _dot
+1.00 0 2512 -912 _dot
+1.00 0 2512 -1200 _dot
+1.00 0 2512 -1488 _dot
+1 2.00 1120 -1200 1168 -1200 2 polygon
+1 2.00 1120 -1488 1168 -1488 2 polygon
+1 2.00 1888 -1200 1936 -1200 2 polygon
+0.627 0.125 0.941 scb
+1.00 0 -1296 -1008 _dot
+1.00 0 -1296 -1296 _dot
+1.00 0 -1296 -1584 _dot
+1.00 0 -1168 -1584 _dot
+1.00 0 -1040 -1584 _dot
+1.00 0 -912 -1584 _dot
+1.00 0 -784 -1584 _dot
+1.00 0 -656 -1584 _dot
+1.00 0 -528 -1584 _dot
+1.00 0 -400 -1584 _dot
+1.00 0 -400 -1296 _dot
+1.00 0 -528 -1296 _dot
+1.00 0 -656 -1296 _dot
+1.00 0 -784 -1296 _dot
+1.00 0 -912 -1296 _dot
+1.00 0 -1040 -1296 _dot
+1.00 0 -1168 -1296 _dot
+1.00 0 -1168 -1008 _dot
+1.00 0 -1040 -1008 _dot
+1.00 0 -912 -1008 _dot
+1.00 0 -784 -1008 _dot
+1.00 0 -656 -1008 _dot
+1.00 0 -528 -1008 _dot
+1.00 0 -400 -1008 _dot
+0.361 0.675 0.933 scb
+1.00 0 -1120 -800 _dot
+1.00 0 -992 -800 _dot
+1.00 0 -864 -800 _dot
+1.00 0 -736 -800 _dot
+1.00 0 -608 -800 _dot
+1.00 0 -480 -800 _dot
+1.00 0 -352 -800 _dot
+1.00 0 -352 -1088 _dot
+1.00 0 -352 -512 _dot
+1.00 0 -480 -512 _dot
+1.00 0 -608 -512 _dot
+1.00 0 -736 -512 _dot
+1.00 0 -864 -512 _dot
+1.00 0 -992 -512 _dot
+1.00 0 -1120 -512 _dot
+1.00 0 -1120 -1088 _dot
+1.00 0 -992 -1088 _dot
+1.00 0 -864 -1088 _dot
+1.00 0 -736 -1088 _dot
+1.00 0 -608 -1088 _dot
+1.00 0 -480 -1088 _dot
+1.00 0 -1120 -1376 _dot
+1.00 0 -992 -1376 _dot
+1.00 0 -864 -1376 _dot
+1.00 0 -736 -1376 _dot
+1.00 0 -608 -1376 _dot
+1.00 0 -480 -1376 _dot
+1.00 0 -352 -1376 _dot
+0.000 0.000 1.000 scb
+1.00 0 1120 -1376 _dot
+1.00 0 1248 -1376 _dot
+1.00 0 1312 -1376 _dot
+1.00 0 1440 -1376 _dot
+1.00 0 1504 -1376 _dot
+1.00 0 1632 -1376 _dot
+1.00 0 1696 -1376 _dot
+1.00 0 1824 -1376 _dot
+1.00 0 1888 -1376 _dot
+1.00 0 2016 -1376 _dot
+1.00 0 2080 -1376 _dot
+1.00 0 2208 -1376 _dot
+1.00 0 2272 -1376 _dot
+1.00 0 2400 -1376 _dot
+1.00 0 2400 -1088 _dot
+1.00 0 2272 -1088 _dot
+1.00 0 2208 -1088 _dot
+1.00 0 2080 -1088 _dot
+1.00 0 2016 -1088 _dot
+1.00 0 1888 -1088 _dot
+1.00 0 1824 -1088 _dot
+1.00 0 1696 -1088 _dot
+1.00 0 1632 -1088 _dot
+1.00 0 1504 -1088 _dot
+1.00 0 1440 -1088 _dot
+1.00 0 1312 -1088 _dot
+1.00 0 1248 -1088 _dot
+1.00 0 1120 -1088 _dot
+1.00 0 1120 -800 _dot
+1.00 0 1248 -800 _dot
+1.00 0 1312 -800 _dot
+1.00 0 1440 -800 _dot
+1.00 0 1504 -800 _dot
+1.00 0 1632 -800 _dot
+1.00 0 1696 -800 _dot
+1.00 0 1824 -800 _dot
+1.00 0 1888 -800 _dot
+1.00 0 2016 -800 _dot
+1.00 0 2080 -800 _dot
+1.00 0 2208 -800 _dot
+1.00 0 2272 -800 _dot
+1.00 0 2400 -800 _dot
+1 2.00 1120 -528 1120 -512 2 polygon
+1.00 0 1120 -512 _dot
+1.00 0 1248 -512 _dot
+1.00 0 1312 -512 _dot
+1.00 0 1440 -512 _dot
+1.00 0 1504 -512 _dot
+1.00 0 1632 -512 _dot
+1.00 0 1696 -512 _dot
+1.00 0 1824 -512 _dot
+1.00 0 1888 -512 _dot
+1.00 0 2016 -512 _dot
+1.00 0 2080 -512 _dot
+1.00 0 2208 -512 _dot
+1.00 0 2272 -512 _dot
+1.00 0 2400 -512 _dot
+0.627 0.125 0.941 scb
+1 2.00 -1296 -1760 16 0.00 360.00 xcarc
+1 2.00 -1168 -1760 16 0.00 360.00 xcarc
+1 2.00 -1040 -1760 16 0.00 360.00 xcarc
+1 2.00 -912 -1760 16 0.00 360.00 xcarc
+1 2.00 -784 -1760 16 0.00 360.00 xcarc
+1 2.00 -656 -1760 16 0.00 360.00 xcarc
+1 2.00 -528 -1760 16 0.00 360.00 xcarc
+1 2.00 -400 -1760 16 0.00 360.00 xcarc
+(D0) {/Helvetica-Bold cf} 2 21 0 1.50 -1296 -1824 label
+(D1) {/Helvetica-Bold cf} 2 21 0 1.50 -1168 -1824 label
+(D2) {/Helvetica-Bold cf} 2 21 0 1.50 -1040 -1824 label
+(D3) {/Helvetica-Bold cf} 2 21 0 1.50 -912 -1824 label
+(D4) {/Helvetica-Bold cf} 2 21 0 1.50 -784 -1824 label
+(D5) {/Helvetica-Bold cf} 2 21 0 1.50 -656 -1824 label
+(D6) {/Helvetica-Bold cf} 2 21 0 1.50 -528 -1824 label
+(D7) {/Helvetica-Bold cf} 2 21 0 1.50 -400 -1824 label
+(DEFAULT_SRM_DIN_L) {/Helvetica-Bold cf} 2 21 0 1.50 -848 -1904 label
+0.000 0.000 1.000 scb
+1.00 0 1056 -512 _dot
+1.00 0 1056 -800 _dot
+1.00 0 1056 -1088 _dot
+1.00 0 1056 -1376 _dot
+1 2.00 1056 -512 448 -512 2 polygon
+1 2.00 1056 -800 576 -800 2 polygon
+1 2.00 1056 -1088 704 -1088 2 polygon
+1 2.00 1056 -1376 832 -1376 2 polygon
+0.361 0.675 0.933 scb
+1 2.00 -64 -1760 16 0.00 360.00 xcarc
+(D7) {/Helvetica-Bold cf} 2 21 0 1.50 -64 -1824 label
+1 2.00 64 -1760 16 0.00 360.00 xcarc
+(D6) {/Helvetica-Bold cf} 2 21 0 1.50 64 -1824 label
+1 2.00 192 -1760 16 0.00 360.00 xcarc
+(D5) {/Helvetica-Bold cf} 2 21 0 1.50 192 -1824 label
+1 2.00 320 -1760 16 0.00 360.00 xcarc
+(D4) {/Helvetica-Bold cf} 2 21 0 1.50 320 -1824 label
+0.000 0.000 1.000 scb
+1 2.00 448 -1760 16 0.00 360.00 xcarc
+(D3) {/Helvetica-Bold cf} 2 21 0 1.50 448 -1824 label
+1 2.00 576 -1760 16 0.00 360.00 xcarc
+(D2) {/Helvetica-Bold cf} 2 21 0 1.50 576 -1824 label
+1 2.00 704 -1760 16 0.00 360.00 xcarc
+(D1) {/Helvetica-Bold cf} 2 21 0 1.50 704 -1824 label
+1 2.00 832 -1760 16 0.00 360.00 xcarc
+(D0) {/Helvetica-Bold cf} 2 21 0 1.50 832 -1824 label
+1 2.00 832 -1376 832 -1744 2 polygon
+1 2.00 704 -1744 704 -1088 2 polygon
+1 2.00 576 -1744 576 -800 2 polygon
+1 2.00 448 -1744 448 -512 2 polygon
+0.361 0.675 0.933 scb
+1 2.00 -64 -1744 -64 -512 2 polygon
+1 2.00 64 -1744 64 -800 2 polygon
+1 2.00 192 -1744 192 -1088 2 polygon
+1 2.00 320 -1744 320 -1376 2 polygon
+0.000 0.000 1.000 scb
+(DEFAULT_SRM_DOUT_CATHODES1) {/Helvetica-Bold cf} 2 21 0 1.50 384 -1904 label
+0.933 0.604 0.000 scb
+(D7) {/Helvetica-Bold cf} 2 21 0 1.50 1840 -1952 label
+(D6) {/Helvetica-Bold cf} 2 21 0 1.50 1968 -1952 label
+(D5) {/Helvetica-Bold cf} 2 21 0 1.50 2096 -1952 label
+(D4) {/Helvetica-Bold cf} 2 21 0 1.50 2224 -1952 label
+(D3) {/Helvetica-Bold cf} 2 21 0 1.50 2352 -1952 label
+(D2) {/Helvetica-Bold cf} 2 21 0 1.50 2480 -1952 label
+(D1) {/Helvetica-Bold cf} 2 21 0 1.50 2608 -1952 label
+(D0) {/Helvetica-Bold cf} 2 21 0 1.50 2736 -1952 label
+(DEFAULT_SRM_DOUT_L2) {/Helvetica-Bold cf} 2 21 0 1.50 2288 -2032 label
+1 2.00 1840 -1888 16 0.00 360.00 xcarc
+1 2.00 1968 -1888 16 0.00 360.00 xcarc
+1 2.00 2096 -1888 16 0.00 360.00 xcarc
+1 2.00 2224 -1888 16 0.00 360.00 xcarc
+1 2.00 2352 -1888 16 0.00 360.00 xcarc
+1 2.00 2480 -1888 16 0.00 360.00 xcarc
+1 2.00 2608 -1888 16 0.00 360.00 xcarc
+1 2.00 2736 -1888 16 0.00 360.00 xcarc
+0.180 0.545 0.341 scb
+(D7) {/Helvetica-Bold cf} 2 21 0 1.50 992 -2336 label
+(D6) {/Helvetica-Bold cf} 2 21 0 1.50 1120 -2336 label
+(D5) {/Helvetica-Bold cf} 2 21 0 1.50 1248 -2336 label
+(D4) {/Helvetica-Bold cf} 2 21 0 1.50 1376 -2336 label
+(D3) {/Helvetica-Bold cf} 2 21 0 1.50 1504 -2336 label
+(D2) {/Helvetica-Bold cf} 2 21 0 1.50 1632 -2336 label
+(D1) {/Helvetica-Bold cf} 2 21 0 1.50 1760 -2336 label
+(D0) {/Helvetica-Bold cf} 2 21 0 1.50 1888 -2336 label
+(DEFAULT_SRM_DOUT_L1) {/Helvetica-Bold cf} 2 21 0 1.50 1440 -2416 label
+1 2.00 992 -2272 16 0.00 360.00 xcarc
+1 2.00 1120 -2272 16 0.00 360.00 xcarc
+1 2.00 1248 -2272 16 0.00 360.00 xcarc
+1 2.00 1376 -2272 16 0.00 360.00 xcarc
+1 2.00 1504 -2272 16 0.00 360.00 xcarc
+1 2.00 1632 -2272 16 0.00 360.00 xcarc
+1 2.00 1760 -2272 16 0.00 360.00 xcarc
+1 2.00 1888 -2272 16 0.00 360.00 xcarc
+1 2.00 1888 -2256 1888 -1824 2512 -1824 2512 -1664 4 polygon
+1 2.00 1760 -2256 1760 -1792 2320 -1792 2320 -1664 4 polygon
+1 2.00 1632 -2256 1632 -1760 2128 -1760 2128 -1664 4 polygon
+1 2.00 1504 -2256 1504 -1728 1936 -1728 1936 -1664 4 polygon
+1 2.00 1376 -2256 1376 -1696 1744 -1696 1744 -1664 4 polygon
+1 2.00 1248 -2256 1248 -1664 1552 -1664 3 polygon
+1 2.00 1120 -2256 1120 -1632 1360 -1632 3 polygon
+1 2.00 992 -2256 992 -1600 1168 -1600 3 polygon
+0.933 0.604 0.000 scb
+1 2.00 2736 -1872 2736 -1520 2352 -1520 3 polygon
+1 2.00 2608 -1872 2608 -1552 2160 -1552 3 polygon
+1 2.00 2480 -1872 2480 -1584 1968 -1584 3 polygon
+1 2.00 2352 -1872 2352 -1616 1776 -1616 3 polygon
+1 2.00 2224 -1872 2224 -1648 1584 -1648 3 polygon
+1 2.00 2096 -1872 2096 -1680 1392 -1680 3 polygon
+1 2.00 1968 -1872 1968 -1712 1200 -1712 3 polygon
+1 2.00 1840 -1872 1840 -1744 1008 -1744 3 polygon
+sce
+1.00 90 -624 -2912 no_pushbutton
+1.00 90 -496 -2912 no_pushbutton
+1.00 90 -368 -2912 no_pushbutton
+1.00 90 -240 -2912 no_pushbutton
+1.00 90 -112 -2912 no_pushbutton
+1.00 90 16 -2912 no_pushbutton
+1.00 90 272 -2912 no_pushbutton
+1.00 360 256 -3008 diode
+1.00 90 144 -2912 no_pushbutton
+1.00 360 128 -3008 diode
+1.00 360 0 -3008 diode
+1.00 360 -128 -3008 diode
+1.00 360 -256 -3008 diode
+1.00 360 -384 -3008 diode
+1.00 360 -512 -3008 diode
+1.00 360 -640 -3008 diode
+1.00 90 -624 -3200 no_pushbutton
+1.00 90 -496 -3200 no_pushbutton
+1.00 90 -368 -3200 no_pushbutton
+1.00 90 -240 -3200 no_pushbutton
+1.00 90 -112 -3200 no_pushbutton
+1.00 90 16 -3200 no_pushbutton
+1.00 90 272 -3200 no_pushbutton
+1.00 360 256 -3296 diode
+1.00 90 144 -3200 no_pushbutton
+1.00 360 128 -3296 diode
+1.00 360 0 -3296 diode
+1.00 360 -128 -3296 diode
+1.00 360 -256 -3296 diode
+1.00 360 -384 -3296 diode
+1.00 360 -512 -3296 diode
+1.00 360 -640 -3296 diode
+1.00 90 -624 -3488 no_pushbutton
+1.00 90 -496 -3488 no_pushbutton
+1.00 90 -368 -3488 no_pushbutton
+1.00 90 -240 -3488 no_pushbutton
+1.00 90 -112 -3488 no_pushbutton
+1.00 90 16 -3488 no_pushbutton
+1.00 90 272 -3488 no_pushbutton
+1.00 360 256 -3584 diode
+1.00 90 144 -3488 no_pushbutton
+1.00 360 128 -3584 diode
+1.00 360 0 -3584 diode
+1.00 360 -128 -3584 diode
+1.00 360 -256 -3584 diode
+1.00 360 -384 -3584 diode
+1.00 360 -512 -3584 diode
+1.00 360 -640 -3584 diode
+1.00 90 -624 -3776 no_pushbutton
+1.00 90 -496 -3776 no_pushbutton
+1.00 90 -368 -3776 no_pushbutton
+1.00 90 -240 -3776 no_pushbutton
+1.00 90 -112 -3776 no_pushbutton
+1.00 90 16 -3776 no_pushbutton
+1.00 90 272 -3776 no_pushbutton
+1.00 360 256 -3872 diode
+1.00 90 144 -3776 no_pushbutton
+1.00 360 128 -3872 diode
+1.00 360 0 -3872 diode
+1.00 360 -128 -3872 diode
+1.00 360 -256 -3872 diode
+1.00 360 -384 -3872 diode
+1.00 360 -512 -3872 diode
+1.00 360 -640 -3872 diode
+0.612 0.122 0.937 scb
+1 2.00 -640 -3056 -688 -3056 -688 -4080 3 polygon
+1 2.00 -640 -3344 -688 -3344 2 polygon
+1 2.00 -640 -3632 -688 -3632 2 polygon
+1 2.00 -640 -3920 -688 -3920 2 polygon
+1 2.00 -512 -3056 -560 -3056 -560 -4080 3 polygon
+1 2.00 -512 -3344 -560 -3344 2 polygon
+1 2.00 -512 -3632 -560 -3632 2 polygon
+1 2.00 -512 -3920 -560 -3920 2 polygon
+1 2.00 -384 -3056 -432 -3056 -432 -4080 3 polygon
+1 2.00 -384 -3344 -432 -3344 2 polygon
+1 2.00 -384 -3632 -432 -3632 2 polygon
+1 2.00 -384 -3920 -432 -3920 2 polygon
+1 2.00 -256 -3056 -304 -3056 -304 -4080 3 polygon
+1 2.00 -256 -3344 -304 -3344 2 polygon
+1 2.00 -256 -3632 -304 -3632 2 polygon
+1 2.00 -256 -3920 -304 -3920 2 polygon
+1 2.00 -128 -3056 -176 -3056 -176 -4080 3 polygon
+1 2.00 -128 -3344 -176 -3344 2 polygon
+1 2.00 -128 -3632 -176 -3632 2 polygon
+1 2.00 -128 -3920 -176 -3920 2 polygon
+1 2.00 0 -3056 -48 -3056 -48 -4080 3 polygon
+1 2.00 0 -3344 -48 -3344 2 polygon
+1 2.00 0 -3632 -48 -3632 2 polygon
+1 2.00 0 -3920 -48 -3920 2 polygon
+1 2.00 128 -3056 80 -3056 80 -4080 3 polygon
+1 2.00 128 -3344 80 -3344 2 polygon
+1 2.00 128 -3632 80 -3632 2 polygon
+1 2.00 128 -3920 80 -3920 2 polygon
+1 2.00 256 -3056 208 -3056 208 -4080 3 polygon
+1 2.00 256 -3344 208 -3344 2 polygon
+1 2.00 256 -3632 208 -3632 2 polygon
+1 2.00 256 -3920 208 -3920 2 polygon
+0.361 0.675 0.933 scb
+1 2.00 -640 -2848 544 -2848 2 polygon
+1 2.00 -640 -3136 672 -3136 2 polygon
+1 2.00 -640 -3424 800 -3424 2 polygon
+1 2.00 -640 -3712 928 -3712 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 1664 -2864 1664 -2848 3072 -2848 3 polygon
+1 2.00 1856 -2864 1856 -2848 2 polygon
+1 2.00 1920 -2864 1920 -2848 2 polygon
+1 2.00 2048 -2864 2048 -2848 2 polygon
+1 2.00 2112 -2864 2112 -2848 2 polygon
+1 2.00 2240 -2864 2240 -2848 2 polygon
+1 2.00 2304 -2864 2304 -2848 2 polygon
+1 2.00 1664 -3152 1664 -3136 3072 -3136 3 polygon
+1 2.00 1728 -3152 1728 -3136 2 polygon
+1 2.00 1856 -3152 1856 -3136 2 polygon
+1 2.00 1920 -3152 1920 -3136 2 polygon
+1 2.00 2048 -3152 2048 -3136 2 polygon
+1 2.00 2112 -3152 2112 -3136 2 polygon
+1 2.00 2240 -3152 2240 -3136 2 polygon
+1 2.00 2304 -3152 2304 -3136 2 polygon
+1 2.00 1664 -3440 1664 -3424 3072 -3424 3 polygon
+1 2.00 1728 -3440 1728 -3424 2 polygon
+1 2.00 1856 -3440 1856 -3424 2 polygon
+1 2.00 1920 -3440 1920 -3424 2 polygon
+1 2.00 2048 -3440 2048 -3424 2 polygon
+1 2.00 2112 -3440 2112 -3424 2 polygon
+1 2.00 2240 -3440 2240 -3424 2 polygon
+1 2.00 2304 -3440 2304 -3424 2 polygon
+1 2.00 1664 -3728 1664 -3712 3072 -3712 3 polygon
+1 2.00 1728 -3728 1728 -3712 2 polygon
+1 2.00 1856 -3728 1856 -3712 2 polygon
+1 2.00 1920 -3728 1920 -3712 2 polygon
+1 2.00 2048 -3728 2048 -3712 2 polygon
+1 2.00 2112 -3728 2112 -3712 2 polygon
+1 2.00 2240 -3728 2240 -3712 2 polygon
+1 2.00 2304 -3728 2304 -3712 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1664 -2912 diode
+1 1.00 1684 -2904 1700 -2880 1692 -2884 3 polygon
+1 1.00 1700 -2880 1700 -2888 2 polygon
+1 1.00 1684 -2920 1700 -2896 1692 -2900 3 polygon
+1 1.00 1700 -2896 1700 -2904 2 polygon
+1.00 0 1856 -2912 diode
+1 1.00 1876 -2904 1892 -2880 1884 -2884 3 polygon
+1 1.00 1892 -2880 1892 -2888 2 polygon
+1 1.00 1876 -2920 1892 -2896 1884 -2900 3 polygon
+1 1.00 1892 -2896 1892 -2904 2 polygon
+1.00 0 2048 -2912 diode
+1 1.00 2068 -2904 2084 -2880 2076 -2884 3 polygon
+1 1.00 2084 -2880 2084 -2888 2 polygon
+1 1.00 2068 -2920 2084 -2896 2076 -2900 3 polygon
+1 1.00 2084 -2896 2084 -2904 2 polygon
+1.00 0 2240 -2912 diode
+1 1.00 2260 -2904 2276 -2880 2268 -2884 3 polygon
+1 1.00 2276 -2880 2276 -2888 2 polygon
+1 1.00 2260 -2920 2276 -2896 2268 -2900 3 polygon
+1 1.00 2276 -2896 2276 -2904 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1728 -2912 diode
+1 1.00 1748 -2904 1764 -2880 1756 -2884 3 polygon
+1 1.00 1764 -2880 1764 -2888 2 polygon
+1 1.00 1748 -2920 1764 -2896 1756 -2900 3 polygon
+1 1.00 1764 -2896 1764 -2904 2 polygon
+1.00 0 1920 -2912 diode
+1 1.00 1940 -2904 1956 -2880 1948 -2884 3 polygon
+1 1.00 1956 -2880 1956 -2888 2 polygon
+1 1.00 1940 -2920 1956 -2896 1948 -2900 3 polygon
+1 1.00 1956 -2896 1956 -2904 2 polygon
+1.00 0 2112 -2912 diode
+1 1.00 2132 -2904 2148 -2880 2140 -2884 3 polygon
+1 1.00 2148 -2880 2148 -2888 2 polygon
+1 1.00 2132 -2920 2148 -2896 2140 -2900 3 polygon
+1 1.00 2148 -2896 2148 -2904 2 polygon
+1.00 0 2304 -2912 diode
+1 1.00 2324 -2904 2340 -2880 2332 -2884 3 polygon
+1 1.00 2340 -2880 2340 -2888 2 polygon
+1 1.00 2324 -2920 2340 -2896 2332 -2900 3 polygon
+1 1.00 2340 -2896 2340 -2904 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1664 -3200 diode
+1 1.00 1684 -3192 1700 -3168 1692 -3172 3 polygon
+1 1.00 1700 -3168 1700 -3176 2 polygon
+1 1.00 1684 -3208 1700 -3184 1692 -3188 3 polygon
+1 1.00 1700 -3184 1700 -3192 2 polygon
+1.00 0 1856 -3200 diode
+1 1.00 1876 -3192 1892 -3168 1884 -3172 3 polygon
+1 1.00 1892 -3168 1892 -3176 2 polygon
+1 1.00 1876 -3208 1892 -3184 1884 -3188 3 polygon
+1 1.00 1892 -3184 1892 -3192 2 polygon
+1.00 0 2048 -3200 diode
+1 1.00 2068 -3192 2084 -3168 2076 -3172 3 polygon
+1 1.00 2084 -3168 2084 -3176 2 polygon
+1 1.00 2068 -3208 2084 -3184 2076 -3188 3 polygon
+1 1.00 2084 -3184 2084 -3192 2 polygon
+1.00 0 2240 -3200 diode
+1 1.00 2260 -3192 2276 -3168 2268 -3172 3 polygon
+1 1.00 2276 -3168 2276 -3176 2 polygon
+1 1.00 2260 -3208 2276 -3184 2268 -3188 3 polygon
+1 1.00 2276 -3184 2276 -3192 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1728 -3200 diode
+1 1.00 1748 -3192 1764 -3168 1756 -3172 3 polygon
+1 1.00 1764 -3168 1764 -3176 2 polygon
+1 1.00 1748 -3208 1764 -3184 1756 -3188 3 polygon
+1 1.00 1764 -3184 1764 -3192 2 polygon
+1.00 0 1920 -3200 diode
+1 1.00 1940 -3192 1956 -3168 1948 -3172 3 polygon
+1 1.00 1956 -3168 1956 -3176 2 polygon
+1 1.00 1940 -3208 1956 -3184 1948 -3188 3 polygon
+1 1.00 1956 -3184 1956 -3192 2 polygon
+1.00 0 2112 -3200 diode
+1 1.00 2132 -3192 2148 -3168 2140 -3172 3 polygon
+1 1.00 2148 -3168 2148 -3176 2 polygon
+1 1.00 2132 -3208 2148 -3184 2140 -3188 3 polygon
+1 1.00 2148 -3184 2148 -3192 2 polygon
+1.00 0 2304 -3200 diode
+1 1.00 2324 -3192 2340 -3168 2332 -3172 3 polygon
+1 1.00 2340 -3168 2340 -3176 2 polygon
+1 1.00 2324 -3208 2340 -3184 2332 -3188 3 polygon
+1 1.00 2340 -3184 2340 -3192 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1664 -3488 diode
+1 1.00 1684 -3480 1700 -3456 1692 -3460 3 polygon
+1 1.00 1700 -3456 1700 -3464 2 polygon
+1 1.00 1684 -3496 1700 -3472 1692 -3476 3 polygon
+1 1.00 1700 -3472 1700 -3480 2 polygon
+1.00 0 1856 -3488 diode
+1 1.00 1876 -3480 1892 -3456 1884 -3460 3 polygon
+1 1.00 1892 -3456 1892 -3464 2 polygon
+1 1.00 1876 -3496 1892 -3472 1884 -3476 3 polygon
+1 1.00 1892 -3472 1892 -3480 2 polygon
+1.00 0 2048 -3488 diode
+1 1.00 2068 -3480 2084 -3456 2076 -3460 3 polygon
+1 1.00 2084 -3456 2084 -3464 2 polygon
+1 1.00 2068 -3496 2084 -3472 2076 -3476 3 polygon
+1 1.00 2084 -3472 2084 -3480 2 polygon
+1.00 0 2240 -3488 diode
+1 1.00 2260 -3480 2276 -3456 2268 -3460 3 polygon
+1 1.00 2276 -3456 2276 -3464 2 polygon
+1 1.00 2260 -3496 2276 -3472 2268 -3476 3 polygon
+1 1.00 2276 -3472 2276 -3480 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1728 -3488 diode
+1 1.00 1748 -3480 1764 -3456 1756 -3460 3 polygon
+1 1.00 1764 -3456 1764 -3464 2 polygon
+1 1.00 1748 -3496 1764 -3472 1756 -3476 3 polygon
+1 1.00 1764 -3472 1764 -3480 2 polygon
+1.00 0 1920 -3488 diode
+1 1.00 1940 -3480 1956 -3456 1948 -3460 3 polygon
+1 1.00 1956 -3456 1956 -3464 2 polygon
+1 1.00 1940 -3496 1956 -3472 1948 -3476 3 polygon
+1 1.00 1956 -3472 1956 -3480 2 polygon
+1.00 0 2112 -3488 diode
+1 1.00 2132 -3480 2148 -3456 2140 -3460 3 polygon
+1 1.00 2132 -3456 2132 -3464 2 polygon
+1 1.00 2132 -3496 2148 -3472 2140 -3476 3 polygon
+1 1.00 2132 -3472 2132 -3480 2 polygon
+1.00 0 2304 -3488 diode
+1 1.00 2324 -3480 2340 -3456 2332 -3460 3 polygon
+1 1.00 2340 -3456 2340 -3464 2 polygon
+1 1.00 2324 -3496 2340 -3472 2332 -3476 3 polygon
+1 1.00 2340 -3472 2340 -3480 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 1664 -3776 diode
+1 1.00 1684 -3768 1700 -3744 1692 -3748 3 polygon
+1 1.00 1700 -3744 1700 -3752 2 polygon
+1 1.00 1684 -3784 1700 -3760 1692 -3764 3 polygon
+1 1.00 1700 -3760 1700 -3768 2 polygon
+1.00 0 1856 -3776 diode
+1 1.00 1876 -3768 1892 -3744 1884 -3748 3 polygon
+1 1.00 1892 -3744 1892 -3752 2 polygon
+1 1.00 1876 -3784 1892 -3760 1884 -3764 3 polygon
+1 1.00 1892 -3760 1892 -3768 2 polygon
+1.00 0 2048 -3776 diode
+1 1.00 2068 -3768 2084 -3744 2076 -3748 3 polygon
+1 1.00 2084 -3744 2084 -3752 2 polygon
+1 1.00 2068 -3784 2084 -3760 2076 -3764 3 polygon
+1 1.00 2084 -3760 2084 -3768 2 polygon
+1.00 0 2240 -3776 diode
+1 1.00 2260 -3768 2276 -3744 2268 -3748 3 polygon
+1 1.00 2276 -3744 2276 -3752 2 polygon
+1 1.00 2260 -3784 2276 -3760 2268 -3764 3 polygon
+1 1.00 2276 -3760 2276 -3768 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 1728 -3776 diode
+1 1.00 1748 -3768 1764 -3744 1756 -3748 3 polygon
+1 1.00 1764 -3744 1764 -3752 2 polygon
+1 1.00 1748 -3784 1764 -3760 1756 -3764 3 polygon
+1 1.00 1764 -3760 1764 -3768 2 polygon
+1.00 0 1920 -3776 diode
+1 1.00 1940 -3768 1956 -3744 1948 -3748 3 polygon
+1 1.00 1956 -3744 1956 -3752 2 polygon
+1 1.00 1940 -3784 1956 -3760 1948 -3764 3 polygon
+1 1.00 1956 -3760 1956 -3768 2 polygon
+1.00 0 2112 -3776 diode
+1 1.00 2132 -3768 2148 -3744 2140 -3748 3 polygon
+1 1.00 2148 -3744 2148 -3752 2 polygon
+1 1.00 2132 -3784 2148 -3760 2140 -3764 3 polygon
+1 1.00 2148 -3760 2148 -3768 2 polygon
+1.00 0 2304 -3776 diode
+1 1.00 2324 -3768 2340 -3744 2332 -3748 3 polygon
+1 1.00 2340 -3744 2340 -3752 2 polygon
+1 1.00 2324 -3784 2340 -3760 2332 -3764 3 polygon
+1 1.00 2340 -3760 2340 -3768 2 polygon
+0.400 0.400 0.400 scb
+(#9) {/Helvetica cf} 2 21 0 1.50 -640 -2752 label
+(#10) {/Helvetica cf} 2 21 0 1.50 -512 -2752 label
+(#11) {/Helvetica cf} 2 21 0 1.50 -384 -2752 label
+(#12) {/Helvetica cf} 2 21 0 1.50 -256 -2752 label
+(#13) {/Helvetica cf} 2 21 0 1.50 -128 -2752 label
+(#14) {/Helvetica cf} 2 21 0 1.50 0 -2752 label
+(#15) {/Helvetica cf} 2 21 0 1.50 128 -2752 label
+(#16) {/Helvetica cf} 2 21 0 1.50 256 -2752 label
+(#9) {/Helvetica cf} 2 21 0 1.50 1696 -2752 label
+(#10) {/Helvetica cf} 2 21 0 1.50 1888 -2752 label
+(#11) {/Helvetica cf} 2 21 0 1.50 2080 -2752 label
+(#12) {/Helvetica cf} 2 21 0 1.50 2272 -2752 label
+1.000 0.000 0.000 scb
+1.00 0 2432 -2912 diode
+1 1.00 2452 -2904 2468 -2880 2460 -2884 3 polygon
+1 1.00 2468 -2880 2468 -2888 2 polygon
+1 1.00 2452 -2920 2468 -2896 2460 -2900 3 polygon
+1 1.00 2468 -2896 2468 -2904 2 polygon
+1.00 0 2624 -2912 diode
+1 1.00 2644 -2904 2660 -2880 2652 -2884 3 polygon
+1 1.00 2660 -2880 2660 -2888 2 polygon
+1 1.00 2644 -2920 2660 -2896 2652 -2900 3 polygon
+1 1.00 2660 -2896 2660 -2904 2 polygon
+1.00 0 2816 -2912 diode
+1 1.00 2836 -2904 2852 -2880 2844 -2884 3 polygon
+1 1.00 2852 -2880 2852 -2888 2 polygon
+1 1.00 2836 -2920 2852 -2896 2844 -2900 3 polygon
+1 1.00 2852 -2896 2852 -2904 2 polygon
+1.00 0 3008 -2912 diode
+1 1.00 3028 -2904 3044 -2880 3036 -2884 3 polygon
+1 1.00 3044 -2880 3044 -2888 2 polygon
+1 1.00 3028 -2920 3044 -2896 3036 -2900 3 polygon
+1 1.00 3044 -2896 3044 -2904 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 2496 -2912 diode
+1 1.00 2516 -2904 2532 -2880 2524 -2884 3 polygon
+1 1.00 2532 -2880 2532 -2888 2 polygon
+1 1.00 2516 -2920 2532 -2896 2524 -2900 3 polygon
+1 1.00 2532 -2896 2532 -2904 2 polygon
+1.00 0 2688 -2912 diode
+1 1.00 2708 -2904 2724 -2880 2716 -2884 3 polygon
+1 1.00 2724 -2880 2724 -2888 2 polygon
+1 1.00 2708 -2920 2724 -2896 2716 -2900 3 polygon
+1 1.00 2724 -2896 2724 -2904 2 polygon
+1.00 0 2880 -2912 diode
+1 1.00 2900 -2904 2916 -2880 2908 -2884 3 polygon
+1 1.00 2916 -2880 2916 -2888 2 polygon
+1 1.00 2900 -2920 2916 -2896 2908 -2900 3 polygon
+1 1.00 2916 -2896 2916 -2904 2 polygon
+1.00 0 3072 -2912 diode
+1 1.00 3092 -2904 3108 -2880 3100 -2884 3 polygon
+1 1.00 3108 -2880 3108 -2888 2 polygon
+1 1.00 3092 -2920 3108 -2896 3100 -2900 3 polygon
+1 1.00 3108 -2896 3108 -2904 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 2496 -2864 2496 -2848 2 polygon
+1 2.00 2624 -2864 2624 -2848 2 polygon
+1 2.00 2688 -2864 2688 -2848 2 polygon
+1 2.00 2816 -2864 2816 -2848 2 polygon
+1 2.00 2880 -2864 2880 -2848 2 polygon
+1 2.00 3008 -2864 3008 -2848 2 polygon
+1 2.00 3072 -2864 3072 -2848 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 2432 -3200 diode
+1 1.00 2452 -3192 2468 -3168 2460 -3172 3 polygon
+1 1.00 2468 -3168 2468 -3176 2 polygon
+1 1.00 2452 -3208 2468 -3184 2460 -3188 3 polygon
+1 1.00 2468 -3184 2468 -3192 2 polygon
+1.00 0 2624 -3200 diode
+1 1.00 2644 -3192 2660 -3168 2652 -3172 3 polygon
+1 1.00 2660 -3168 2660 -3176 2 polygon
+1 1.00 2644 -3208 2660 -3184 2652 -3188 3 polygon
+1 1.00 2660 -3184 2660 -3192 2 polygon
+1.00 0 2816 -3200 diode
+1 1.00 2836 -3192 2852 -3168 2844 -3172 3 polygon
+1 1.00 2852 -3168 2852 -3176 2 polygon
+1 1.00 2836 -3208 2852 -3184 2844 -3188 3 polygon
+1 1.00 2852 -3184 2852 -3192 2 polygon
+1.00 0 3008 -3200 diode
+1 1.00 3028 -3192 3044 -3168 3036 -3172 3 polygon
+1 1.00 3044 -3168 3044 -3176 2 polygon
+1 1.00 3028 -3208 3044 -3184 3036 -3188 3 polygon
+1 1.00 3044 -3184 3044 -3192 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 2496 -3200 diode
+1 1.00 2516 -3192 2532 -3168 2524 -3172 3 polygon
+1 1.00 2532 -3168 2532 -3176 2 polygon
+1 1.00 2516 -3208 2532 -3184 2524 -3188 3 polygon
+1 1.00 2532 -3184 2532 -3192 2 polygon
+1.00 0 2688 -3200 diode
+1 1.00 2708 -3192 2724 -3168 2716 -3172 3 polygon
+1 1.00 2724 -3168 2724 -3176 2 polygon
+1 1.00 2708 -3208 2724 -3184 2716 -3188 3 polygon
+1 1.00 2724 -3184 2724 -3192 2 polygon
+1.00 0 2880 -3200 diode
+1 1.00 2900 -3192 2916 -3168 2908 -3172 3 polygon
+1 1.00 2916 -3168 2916 -3176 2 polygon
+1 1.00 2900 -3208 2916 -3184 2908 -3188 3 polygon
+1 1.00 2916 -3184 2916 -3192 2 polygon
+1.00 0 3072 -3200 diode
+1 1.00 3092 -3192 3108 -3168 3100 -3172 3 polygon
+1 1.00 3108 -3168 3108 -3176 2 polygon
+1 1.00 3092 -3208 3108 -3184 3100 -3188 3 polygon
+1 1.00 3108 -3184 3108 -3192 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 2496 -3152 2496 -3136 2 polygon
+1 2.00 2624 -3152 2624 -3136 2 polygon
+1 2.00 2688 -3152 2688 -3136 2 polygon
+1 2.00 2816 -3152 2816 -3136 2 polygon
+1 2.00 2880 -3152 2880 -3136 2 polygon
+1 2.00 3008 -3152 3008 -3136 2 polygon
+1 2.00 3072 -3152 3072 -3136 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 2432 -3488 diode
+1 1.00 2452 -3480 2468 -3456 2460 -3460 3 polygon
+1 1.00 2468 -3456 2468 -3464 2 polygon
+1 1.00 2452 -3496 2468 -3472 2460 -3476 3 polygon
+1 1.00 2468 -3472 2468 -3480 2 polygon
+1.00 0 2624 -3488 diode
+1 1.00 2644 -3480 2660 -3456 2652 -3460 3 polygon
+1 1.00 2660 -3456 2660 -3464 2 polygon
+1 1.00 2644 -3496 2660 -3472 2652 -3476 3 polygon
+1 1.00 2660 -3472 2660 -3480 2 polygon
+1.00 0 2816 -3488 diode
+1 1.00 2836 -3480 2852 -3456 2844 -3460 3 polygon
+1 1.00 2852 -3456 2852 -3464 2 polygon
+1 1.00 2836 -3496 2852 -3472 2844 -3476 3 polygon
+1 1.00 2852 -3472 2852 -3480 2 polygon
+1.00 0 3008 -3488 diode
+1 1.00 3028 -3480 3044 -3456 3036 -3460 3 polygon
+1 1.00 3044 -3456 3044 -3464 2 polygon
+1 1.00 3028 -3496 3044 -3472 3036 -3476 3 polygon
+1 1.00 3044 -3472 3044 -3480 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 2496 -3488 diode
+1 1.00 2516 -3480 2532 -3456 2524 -3460 3 polygon
+1 1.00 2532 -3456 2532 -3464 2 polygon
+1 1.00 2516 -3496 2532 -3472 2524 -3476 3 polygon
+1 1.00 2532 -3472 2532 -3480 2 polygon
+1.00 0 2688 -3488 diode
+1 1.00 2708 -3480 2724 -3456 2716 -3460 3 polygon
+1 1.00 2724 -3456 2724 -3464 2 polygon
+1 1.00 2708 -3496 2724 -3472 2716 -3476 3 polygon
+1 1.00 2724 -3472 2724 -3480 2 polygon
+1.00 0 2880 -3488 diode
+1 1.00 2900 -3480 2916 -3456 2908 -3460 3 polygon
+1 1.00 2916 -3456 2916 -3464 2 polygon
+1 1.00 2900 -3496 2916 -3472 2908 -3476 3 polygon
+1 1.00 2916 -3472 2916 -3480 2 polygon
+1.00 0 3072 -3488 diode
+1 1.00 3092 -3480 3108 -3456 3100 -3460 3 polygon
+1 1.00 3108 -3456 3108 -3464 2 polygon
+1 1.00 3092 -3496 3108 -3472 3100 -3476 3 polygon
+1 1.00 3108 -3472 3108 -3480 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 2496 -3440 2496 -3424 2 polygon
+1 2.00 2624 -3440 2624 -3424 2 polygon
+1 2.00 2688 -3440 2688 -3424 2 polygon
+1 2.00 2816 -3440 2816 -3424 2 polygon
+1 2.00 2880 -3440 2880 -3424 2 polygon
+1 2.00 3008 -3440 3008 -3424 2 polygon
+1 2.00 3072 -3440 3072 -3424 2 polygon
+1.000 0.000 0.000 scb
+1.00 0 2432 -3776 diode
+1 1.00 2452 -3768 2468 -3744 2460 -3748 3 polygon
+1 1.00 2468 -3744 2468 -3752 2 polygon
+1 1.00 2452 -3784 2468 -3760 2460 -3764 3 polygon
+1 1.00 2468 -3760 2468 -3768 2 polygon
+1.00 0 2624 -3776 diode
+1 1.00 2644 -3768 2660 -3744 2652 -3748 3 polygon
+1 1.00 2660 -3744 2660 -3752 2 polygon
+1 1.00 2644 -3784 2660 -3760 2652 -3764 3 polygon
+1 1.00 2660 -3760 2660 -3768 2 polygon
+1.00 0 2816 -3776 diode
+1 1.00 2836 -3768 2852 -3744 2844 -3748 3 polygon
+1 1.00 2852 -3744 2852 -3752 2 polygon
+1 1.00 2836 -3784 2852 -3760 2844 -3764 3 polygon
+1 1.00 2852 -3760 2852 -3768 2 polygon
+1.00 0 3008 -3776 diode
+1 1.00 3028 -3768 3044 -3744 3036 -3748 3 polygon
+1 1.00 3044 -3744 3044 -3752 2 polygon
+1 1.00 3028 -3784 3044 -3760 3036 -3764 3 polygon
+1 1.00 3044 -3760 3044 -3768 2 polygon
+0.000 0.933 0.000 scb
+1.00 0 2496 -3776 diode
+1 1.00 2516 -3768 2532 -3744 2524 -3748 3 polygon
+1 1.00 2532 -3744 2532 -3752 2 polygon
+1 1.00 2516 -3784 2532 -3760 2524 -3764 3 polygon
+1 1.00 2532 -3760 2532 -3768 2 polygon
+1.00 0 2688 -3776 diode
+1 1.00 2708 -3768 2724 -3744 2716 -3748 3 polygon
+1 1.00 2724 -3744 2724 -3752 2 polygon
+1 1.00 2708 -3784 2724 -3760 2716 -3764 3 polygon
+1 1.00 2724 -3760 2724 -3768 2 polygon
+1.00 0 2880 -3776 diode
+1 1.00 2900 -3768 2916 -3744 2908 -3748 3 polygon
+1 1.00 2916 -3744 2916 -3752 2 polygon
+1 1.00 2900 -3784 2916 -3760 2908 -3764 3 polygon
+1 1.00 2916 -3760 2916 -3768 2 polygon
+1.00 0 3072 -3776 diode
+1 1.00 3092 -3768 3108 -3744 3100 -3748 3 polygon
+1 1.00 3108 -3744 3108 -3752 2 polygon
+1 1.00 3092 -3784 3108 -3760 3100 -3764 3 polygon
+1 1.00 3108 -3760 3108 -3768 2 polygon
+0.000 0.000 1.000 scb
+1 2.00 2496 -3728 2496 -3712 2 polygon
+1 2.00 2624 -3728 2624 -3712 2 polygon
+1 2.00 2688 -3728 2688 -3712 2 polygon
+1 2.00 2816 -3728 2816 -3712 2 polygon
+1 2.00 2880 -3728 2880 -3712 2 polygon
+1 2.00 3008 -3728 3008 -3712 2 polygon
+1 2.00 3072 -3728 3072 -3712 2 polygon
+1 2.00 2432 -3728 2432 -3712 2 polygon
+1 2.00 2432 -3440 2432 -3424 2 polygon
+1 2.00 2432 -3152 2432 -3136 2 polygon
+1 2.00 2432 -2864 2432 -2848 2 polygon
+0.400 0.400 0.400 scb
+(#13) {/Helvetica cf} 2 21 0 1.50 2464 -2752 label
+(#14) {/Helvetica cf} 2 21 0 1.50 2656 -2752 label
+(#15) {/Helvetica cf} 2 21 0 1.50 2848 -2752 label
+(#16) {/Helvetica cf} 2 21 0 1.50 3040 -2752 label
+0.933 0.604 0.000 scb
+1 2.00 1664 -2960 1616 -2960 1616 -4080 3 polygon
+1 2.00 1856 -2960 1808 -2960 1808 -4048 3 polygon
+1 2.00 2048 -2960 2000 -2960 2000 -4016 3 polygon
+1 2.00 2240 -2960 2192 -2960 2192 -3984 3 polygon
+1 2.00 2432 -2960 2384 -2960 2384 -3952 3 polygon
+1 2.00 2624 -2960 2576 -2960 2576 -3920 3 polygon
+1 2.00 2816 -2960 2768 -2960 2768 -3888 3 polygon
+1 2.00 3008 -2960 2960 -2960 2960 -3856 3 polygon
+0.180 0.545 0.341 scb
+1 2.00 1728 -2960 1776 -2960 1776 -3936 3 polygon
+1 2.00 1920 -2960 1968 -2960 1968 -3968 3 polygon
+1 2.00 2112 -2960 2160 -2960 2160 -4000 3 polygon
+1 2.00 2496 -2960 2544 -2960 2544 -4000 3 polygon
+1 2.00 2880 -2960 2928 -2960 2928 -4000 3 polygon
+1 2.00 3072 -2960 3120 -2960 3120 -4000 3 polygon
+1 2.00 2304 -2960 2352 -2960 2352 -4000 3 polygon
+1 2.00 2688 -2960 2736 -2960 2736 -4000 3 polygon
+1 2.00 1728 -3248 1776 -3248 2 polygon
+1 2.00 1920 -3248 1968 -3248 2 polygon
+1 2.00 2112 -3248 2160 -3248 2 polygon
+1 2.00 2304 -3248 2352 -3248 2 polygon
+1 2.00 2496 -3248 2544 -3248 2 polygon
+1 2.00 2688 -3248 2736 -3248 2 polygon
+1 2.00 2880 -3248 2928 -3248 2 polygon
+1 2.00 3072 -3248 3120 -3248 2 polygon
+1 2.00 3072 -3536 3120 -3536 2 polygon
+1 2.00 3072 -3824 3120 -3824 2 polygon
+1 2.00 2880 -3824 2928 -3824 2 polygon
+1 2.00 2880 -3536 2928 -3536 2 polygon
+1 2.00 2688 -3536 2736 -3536 2 polygon
+1 2.00 2688 -3824 2736 -3824 2 polygon
+1 2.00 2496 -3824 2544 -3824 2 polygon
+1 2.00 2304 -3824 2352 -3824 2 polygon
+1 2.00 2112 -3824 2160 -3824 2 polygon
+1 2.00 1920 -3824 1968 -3824 2 polygon
+1 2.00 1920 -3536 1968 -3536 2 polygon
+1 2.00 2112 -3536 2160 -3536 2 polygon
+1 2.00 2304 -3536 2352 -3536 2 polygon
+0.933 0.604 0.000 scb
+1 2.00 1664 -3248 1616 -3248 2 polygon
+1 2.00 1664 -3536 1616 -3536 2 polygon
+1 2.00 1664 -3824 1616 -3824 2 polygon
+1 2.00 1856 -3824 1808 -3824 2 polygon
+1 2.00 1856 -3536 1808 -3536 2 polygon
+1 2.00 1856 -3248 1808 -3248 2 polygon
+1 2.00 2048 -3248 2000 -3248 2 polygon
+1 2.00 2048 -3536 2000 -3536 2 polygon
+1 2.00 2048 -3824 2000 -3824 2 polygon
+1 2.00 2240 -3824 2192 -3824 2 polygon
+1 2.00 2240 -3536 2192 -3536 2 polygon
+1 2.00 2240 -3248 2192 -3248 2 polygon
+1 2.00 2432 -3248 2384 -3248 2 polygon
+1 2.00 2432 -3536 2384 -3536 2 polygon
+1 2.00 2432 -3824 2384 -3824 2 polygon
+1 2.00 2624 -3824 2576 -3824 2 polygon
+1 2.00 2624 -3536 2576 -3536 2 polygon
+1 2.00 2624 -3248 2576 -3248 2 polygon
+1 2.00 2816 -3248 2768 -3248 2 polygon
+1 2.00 2816 -3536 2768 -3536 2 polygon
+1 2.00 2816 -3824 2768 -3824 2 polygon
+1 2.00 3008 -3824 2960 -3824 2 polygon
+1 2.00 3008 -3536 2960 -3536 2 polygon
+1 2.00 3008 -3248 2960 -3248 2 polygon
+1.00 0 1616 -3248 _dot
+1.00 0 1616 -3536 _dot
+1.00 0 1616 -3824 _dot
+1.00 0 1808 -3824 _dot
+1.00 0 1808 -3536 _dot
+1.00 0 1808 -3248 _dot
+1.00 0 2000 -3248 _dot
+1.00 0 2000 -3536 _dot
+1.00 0 2000 -3824 _dot
+1.00 0 2192 -3824 _dot
+1.00 0 2192 -3536 _dot
+1.00 0 2192 -3248 _dot
+1.00 0 2384 -3248 _dot
+1.00 0 2384 -3536 _dot
+1.00 0 2384 -3824 _dot
+1.00 0 2576 -3824 _dot
+1.00 0 2576 -3536 _dot
+1.00 0 2576 -3248 _dot
+1.00 0 2768 -3248 _dot
+1.00 0 2768 -3536 _dot
+1.00 0 2768 -3824 _dot
+1.00 0 2960 -3824 _dot
+1.00 0 2960 -3536 _dot
+1.00 0 2960 -3248 _dot
+0.180 0.545 0.341 scb
+1.00 0 1776 -3248 _dot
+1.00 0 1776 -3536 _dot
+1.00 0 1776 -3824 _dot
+1.00 0 1968 -3248 _dot
+1.00 0 1968 -3536 _dot
+1.00 0 1968 -3824 _dot
+1.00 0 2160 -3824 _dot
+1.00 0 2160 -3536 _dot
+1.00 0 2160 -3248 _dot
+1.00 0 2352 -3248 _dot
+1.00 0 2352 -3536 _dot
+1.00 0 2352 -3824 _dot
+1.00 0 2544 -3824 _dot
+1.00 0 2544 -3536 _dot
+1.00 0 2544 -3248 _dot
+1.00 0 2736 -3248 _dot
+1.00 0 2736 -3536 _dot
+1.00 0 2736 -3824 _dot
+1.00 0 2928 -3824 _dot
+1.00 0 2928 -3536 _dot
+1.00 0 2928 -3248 _dot
+1.00 0 3120 -3248 _dot
+1.00 0 3120 -3536 _dot
+1.00 0 3120 -3824 _dot
+1 2.00 1728 -3536 1776 -3536 2 polygon
+1 2.00 1728 -3824 1776 -3824 2 polygon
+1 2.00 2496 -3536 2544 -3536 2 polygon
+0.627 0.125 0.941 scb
+1.00 0 -688 -3344 _dot
+1.00 0 -688 -3632 _dot
+1.00 0 -688 -3920 _dot
+1.00 0 -560 -3920 _dot
+1.00 0 -432 -3920 _dot
+1.00 0 -304 -3920 _dot
+1.00 0 -176 -3920 _dot
+1.00 0 -48 -3920 _dot
+1.00 0 80 -3920 _dot
+1.00 0 208 -3920 _dot
+1.00 0 208 -3632 _dot
+1.00 0 80 -3632 _dot
+1.00 0 -48 -3632 _dot
+1.00 0 -176 -3632 _dot
+1.00 0 -304 -3632 _dot
+1.00 0 -432 -3632 _dot
+1.00 0 -560 -3632 _dot
+1.00 0 -560 -3344 _dot
+1.00 0 -432 -3344 _dot
+1.00 0 -304 -3344 _dot
+1.00 0 -176 -3344 _dot
+1.00 0 -48 -3344 _dot
+1.00 0 80 -3344 _dot
+1.00 0 208 -3344 _dot
+0.361 0.675 0.933 scb
+1.00 0 -512 -3136 _dot
+1.00 0 -384 -3136 _dot
+1.00 0 -256 -3136 _dot
+1.00 0 -128 -3136 _dot
+1.00 0 0 -3136 _dot
+1.00 0 128 -3136 _dot
+1.00 0 256 -3136 _dot
+1.00 0 256 -3424 _dot
+1.00 0 256 -2848 _dot
+1.00 0 128 -2848 _dot
+1.00 0 0 -2848 _dot
+1.00 0 -128 -2848 _dot
+1.00 0 -256 -2848 _dot
+1.00 0 -384 -2848 _dot
+1.00 0 -512 -2848 _dot
+1.00 0 -512 -3424 _dot
+1.00 0 -384 -3424 _dot
+1.00 0 -256 -3424 _dot
+1.00 0 -128 -3424 _dot
+1.00 0 0 -3424 _dot
+1.00 0 128 -3424 _dot
+1.00 0 -512 -3712 _dot
+1.00 0 -384 -3712 _dot
+1.00 0 -256 -3712 _dot
+1.00 0 -128 -3712 _dot
+1.00 0 0 -3712 _dot
+1.00 0 128 -3712 _dot
+1.00 0 256 -3712 _dot
+0.000 0.000 1.000 scb
+1.00 0 1728 -3712 _dot
+1.00 0 1856 -3712 _dot
+1.00 0 1920 -3712 _dot
+1.00 0 2048 -3712 _dot
+1.00 0 2112 -3712 _dot
+1.00 0 2240 -3712 _dot
+1.00 0 2304 -3712 _dot
+1.00 0 2432 -3712 _dot
+1.00 0 2496 -3712 _dot
+1.00 0 2624 -3712 _dot
+1.00 0 2688 -3712 _dot
+1.00 0 2816 -3712 _dot
+1.00 0 2880 -3712 _dot
+1.00 0 3008 -3712 _dot
+1.00 0 3008 -3424 _dot
+1.00 0 2880 -3424 _dot
+1.00 0 2816 -3424 _dot
+1.00 0 2688 -3424 _dot
+1.00 0 2624 -3424 _dot
+1.00 0 2496 -3424 _dot
+1.00 0 2432 -3424 _dot
+1.00 0 2304 -3424 _dot
+1.00 0 2240 -3424 _dot
+1.00 0 2112 -3424 _dot
+1.00 0 2048 -3424 _dot
+1.00 0 1920 -3424 _dot
+1.00 0 1856 -3424 _dot
+1.00 0 1728 -3424 _dot
+1.00 0 1728 -3136 _dot
+1.00 0 1856 -3136 _dot
+1.00 0 1920 -3136 _dot
+1.00 0 2048 -3136 _dot
+1.00 0 2112 -3136 _dot
+1.00 0 2240 -3136 _dot
+1.00 0 2304 -3136 _dot
+1.00 0 2432 -3136 _dot
+1.00 0 2496 -3136 _dot
+1.00 0 2624 -3136 _dot
+1.00 0 2688 -3136 _dot
+1.00 0 2816 -3136 _dot
+1.00 0 2880 -3136 _dot
+1.00 0 3008 -3136 _dot
+1 2.00 1728 -2864 1728 -2848 2 polygon
+1.00 0 1728 -2848 _dot
+1.00 0 1856 -2848 _dot
+1.00 0 1920 -2848 _dot
+1.00 0 2048 -2848 _dot
+1.00 0 2112 -2848 _dot
+1.00 0 2240 -2848 _dot
+1.00 0 2304 -2848 _dot
+1.00 0 2432 -2848 _dot
+1.00 0 2496 -2848 _dot
+1.00 0 2624 -2848 _dot
+1.00 0 2688 -2848 _dot
+1.00 0 2816 -2848 _dot
+1.00 0 2880 -2848 _dot
+1.00 0 3008 -2848 _dot
+0.627 0.125 0.941 scb
+1 2.00 -688 -4096 16 0.00 360.00 xcarc
+1 2.00 -560 -4096 16 0.00 360.00 xcarc
+1 2.00 -432 -4096 16 0.00 360.00 xcarc
+1 2.00 -304 -4096 16 0.00 360.00 xcarc
+1 2.00 -176 -4096 16 0.00 360.00 xcarc
+1 2.00 -48 -4096 16 0.00 360.00 xcarc
+1 2.00 80 -4096 16 0.00 360.00 xcarc
+1 2.00 208 -4096 16 0.00 360.00 xcarc
+(D0) {/Helvetica-Bold cf} 2 21 0 1.50 -688 -4160 label
+(D1) {/Helvetica-Bold cf} 2 21 0 1.50 -560 -4160 label
+(D2) {/Helvetica-Bold cf} 2 21 0 1.50 -432 -4160 label
+(D3) {/Helvetica-Bold cf} 2 21 0 1.50 -304 -4160 label
+(D4) {/Helvetica-Bold cf} 2 21 0 1.50 -176 -4160 label
+(D5) {/Helvetica-Bold cf} 2 21 0 1.50 -48 -4160 label
+(D6) {/Helvetica-Bold cf} 2 21 0 1.50 80 -4160 label
+(D7) {/Helvetica-Bold cf} 2 21 0 1.50 208 -4160 label
+(DEFAULT_SRM_DIN_R) {/Helvetica-Bold cf} 2 21 0 1.50 -240 -4240 label
+0.000 0.000 1.000 scb
+1.00 0 1664 -2848 _dot
+1.00 0 1664 -3136 _dot
+1.00 0 1664 -3424 _dot
+1.00 0 1664 -3712 _dot
+1 2.00 1664 -2848 1056 -2848 2 polygon
+1 2.00 1664 -3136 1184 -3136 2 polygon
+1 2.00 1664 -3424 1312 -3424 2 polygon
+1 2.00 1664 -3712 1440 -3712 2 polygon
+0.361 0.675 0.933 scb
+1 2.00 544 -4096 16 0.00 360.00 xcarc
+(D7) {/Helvetica-Bold cf} 2 21 0 1.50 544 -4160 label
+1 2.00 672 -4096 16 0.00 360.00 xcarc
+(D6) {/Helvetica-Bold cf} 2 21 0 1.50 672 -4160 label
+1 2.00 800 -4096 16 0.00 360.00 xcarc
+(D5) {/Helvetica-Bold cf} 2 21 0 1.50 800 -4160 label
+1 2.00 928 -4096 16 0.00 360.00 xcarc
+(D4) {/Helvetica-Bold cf} 2 21 0 1.50 928 -4160 label
+0.000 0.000 1.000 scb
+1 2.00 1056 -4096 16 0.00 360.00 xcarc
+(D3) {/Helvetica-Bold cf} 2 21 0 1.50 1056 -4160 label
+1 2.00 1184 -4096 16 0.00 360.00 xcarc
+(D2) {/Helvetica-Bold cf} 2 21 0 1.50 1184 -4160 label
+1 2.00 1312 -4096 16 0.00 360.00 xcarc
+(D1) {/Helvetica-Bold cf} 2 21 0 1.50 1312 -4160 label
+1 2.00 1440 -4096 16 0.00 360.00 xcarc
+(D0) {/Helvetica-Bold cf} 2 21 0 1.50 1440 -4160 label
+1 2.00 1440 -3712 1440 -4080 2 polygon
+1 2.00 1312 -4080 1312 -3424 2 polygon
+1 2.00 1184 -4080 1184 -3136 2 polygon
+1 2.00 1056 -4080 1056 -2848 2 polygon
+0.361 0.675 0.933 scb
+1 2.00 544 -4080 544 -2848 2 polygon
+1 2.00 672 -4080 672 -3136 2 polygon
+1 2.00 800 -4080 800 -3424 2 polygon
+1 2.00 928 -4080 928 -3712 2 polygon
+0.000 0.000 1.000 scb
+(DEFAULT_SRM_DOUT_CATHODES2) {/Helvetica-Bold cf} 2 21 0 1.50 992 -4240 label
+0.933 0.604 0.000 scb
+(D7) {/Helvetica-Bold cf} 2 21 0 1.50 2448 -4288 label
+(D6) {/Helvetica-Bold cf} 2 21 0 1.50 2576 -4288 label
+(D5) {/Helvetica-Bold cf} 2 21 0 1.50 2704 -4288 label
+(D4) {/Helvetica-Bold cf} 2 21 0 1.50 2832 -4288 label
+(D3) {/Helvetica-Bold cf} 2 21 0 1.50 2960 -4288 label
+(D2) {/Helvetica-Bold cf} 2 21 0 1.50 3088 -4288 label
+(D1) {/Helvetica-Bold cf} 2 21 0 1.50 3216 -4288 label
+(D0) {/Helvetica-Bold cf} 2 21 0 1.50 3344 -4288 label
+(DEFAULT_SRM_DOUT_R2) {/Helvetica-Bold cf} 2 21 0 1.50 2896 -4368 label
+1 2.00 2448 -4224 16 0.00 360.00 xcarc
+1 2.00 2576 -4224 16 0.00 360.00 xcarc
+1 2.00 2704 -4224 16 0.00 360.00 xcarc
+1 2.00 2832 -4224 16 0.00 360.00 xcarc
+1 2.00 2960 -4224 16 0.00 360.00 xcarc
+1 2.00 3088 -4224 16 0.00 360.00 xcarc
+1 2.00 3216 -4224 16 0.00 360.00 xcarc
+1 2.00 3344 -4224 16 0.00 360.00 xcarc
+0.180 0.545 0.341 scb
+1 2.00 2496 -4592 2496 -4160 3120 -4160 3120 -4000 4 polygon
+1 2.00 2368 -4592 2368 -4128 2928 -4128 2928 -4000 4 polygon
+1 2.00 2240 -4592 2240 -4096 2736 -4096 2736 -4000 4 polygon
+1 2.00 2112 -4592 2112 -4064 2544 -4064 2544 -4000 4 polygon
+1 2.00 1984 -4592 1984 -4032 2352 -4032 2352 -4000 4 polygon
+1 2.00 1856 -4592 1856 -4000 2160 -4000 3 polygon
+1 2.00 1728 -4592 1728 -3968 1968 -3968 3 polygon
+1 2.00 1600 -4592 1600 -3936 1776 -3936 3 polygon
+0.933 0.604 0.000 scb
+1 2.00 3344 -4208 3344 -3856 2960 -3856 3 polygon
+1 2.00 3216 -4208 3216 -3888 2768 -3888 3 polygon
+1 2.00 3088 -4208 3088 -3920 2576 -3920 3 polygon
+1 2.00 2960 -4208 2960 -3952 2384 -3952 3 polygon
+1 2.00 2832 -4208 2832 -3984 2192 -3984 3 polygon
+1 2.00 2704 -4208 2704 -4016 2000 -4016 3 polygon
+1 2.00 2576 -4208 2576 -4048 1808 -4048 3 polygon
+1 2.00 2448 -4208 2448 -4080 1616 -4080 3 polygon
+0.180 0.545 0.341 scb
+(D7) {/Helvetica-Bold cf} 2 21 0 1.50 1600 -4672 label
+(D6) {/Helvetica-Bold cf} 2 21 0 1.50 1728 -4672 label
+(D5) {/Helvetica-Bold cf} 2 21 0 1.50 1856 -4672 label
+(D4) {/Helvetica-Bold cf} 2 21 0 1.50 1984 -4672 label
+(D3) {/Helvetica-Bold cf} 2 21 0 1.50 2112 -4672 label
+(D2) {/Helvetica-Bold cf} 2 21 0 1.50 2240 -4672 label
+(D1) {/Helvetica-Bold cf} 2 21 0 1.50 2368 -4672 label
+(D0) {/Helvetica-Bold cf} 2 21 0 1.50 2496 -4672 label
+(DEFAULT_SRM_DOUT_R1) {/Helvetica-Bold cf} 2 21 0 1.50 2048 -4752 label
+1 2.00 1600 -4608 16 0.00 360.00 xcarc
+1 2.00 1728 -4608 16 0.00 360.00 xcarc
+1 2.00 1856 -4608 16 0.00 360.00 xcarc
+1 2.00 1984 -4608 16 0.00 360.00 xcarc
+1 2.00 2112 -4608 16 0.00 360.00 xcarc
+1 2.00 2240 -4608 16 0.00 360.00 xcarc
+1 2.00 2368 -4608 16 0.00 360.00 xcarc
+1 2.00 2496 -4608 16 0.00 360.00 xcarc
+0.000 0.000 0.000 scb
+(The 64 Button/Duo-LED Matrix requires) {/Helvetica-Bold cf} 2 20 0 1.50 -1600 
+-2032 label
+(2 DIN Shift Registers \(74HC165\) and) {/Helvetica-Bold cf} 2 20 0 1.50 -1600 
+-2112 label
+(6 DOUT Shift Registers \(74HC595\)) {/Helvetica-Bold cf} 2 20 0 1.50 -1600 
+-2192 label
+(The Register numbers \(DEFAULT_*\) are free assignable within the application) 
+{/Helvetica-Bold cf} 2 20 0 1.50 -1600 -2320 label
+sce
+0 3.00 -1648 -1968 -1648 -2672 896 -2672 896 -1968 4 polygon
+0.000 0.000 0.000 scb
+(NOTE: the 220 Ohm Resistors on the two DEFAULT_SRM_DOUT_CATHODES* ) 
+{/Helvetica-Bold cf} 2 20 0 1.50 -1600 -2464 label
+
+(Registers should be removed. The 220 Ohm Resistors of the other DOUT registers) 
+{/Helvetica-Bold cf} 2 20 0 1.50 -1600 -2528 label
+
+(could be replaced by 150 Ohm for better brightness \(please test this with your LEDs!\)) 
+{/Helvetica-Bold cf} 2 20 0 1.50 -1600 -2592 label
+1.000 0.000 0.000 scb
+(CIRCUIT NEEDS) {/Helvetica cf} 2 16 0 2.00 -1728 -2912 label
+(TO BE IMPROVED FOR) {/Helvetica cf} 2 16 0 2.00 -1728 -3040 label
+(HIGH CURRENT LEDS!) {/Helvetica cf} 2 16 0 2.00 -1728 -3168 label
+0 3.00 -1808 -2784 -1808 -3232 -800 -3232 -800 -2784 4 polygon
+pgsave restore showpage
+
+%%Trailer
+XCIRCsave restore
+%%EOF

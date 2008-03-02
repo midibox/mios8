@@ -1,0 +1,329 @@
+%!PS-Adobe-3.0
+%%Title: mbseq_remote_functions
+%%Creator: XCircuit v3.4 rev10
+%%CreationDate: Thu Dec 13 01:48:40 2007
+%%Pages: 1
+%%BoundingBox: 0 0 612 792
+%%DocumentNeededResources: font Helvetica 
+%%EndComments
+%%BeginProlog
+%
+%  PostScript prolog for output from xcircuit
+%  Version: 3.3
+%
+%  Electrical circuit (and otherwise general) drawing program
+%
+%  Written by Tim Edwards 8/5/93--7/13/05  (tim.edwards@multigig.com)
+%  The Johns Hopkins University (1993-2004)
+%  MultiGiG, Inc. (2004-present)
+%
+%%BeginResource: procset XCIRCproc 3.3 0
+%
+% supporting definitions --- these are the primary xcircuit types.
+
+/XCIRCsave save def
+/topmat matrix currentmatrix def
+
+/fontslant { /slant exch def [1 0 slant 1 0 0] 
+    exch findfont exch makefont dup length dict /ndict exch def
+    { 1 index /FID ne { ndict 3 1 roll put } { pop pop } ifelse } forall
+    ndict definefont pop} def
+/ul { dup type /stringtype eq showflag 1 eq and { gsave 
+   currentpoint topmat setmatrix 0 0 moveto 2 index stringwidth pop (_)
+   false charpath flattenpath pathbbox grestore exch pop 1 index
+   sub setlinewidth exch pop currentpoint 3 -1 roll add moveto 0
+   rlineto stroke moveto } if } def
+/ol { dup type /stringtype eq showflag 1 eq and { gsave gsave
+   currentpoint topmat setmatrix 2 index stringwidth pop 3 index
+   true charpath flattenpath pathbbox grestore exch pop
+   exch pop topmat setmatrix (_) true charpath pathbbox grestore
+   exch pop 1 index sub setlinewidth exch pop currentpoint
+   exch 4 1 roll exch sub add moveto pop 0 rlineto stroke
+   moveto } if } def
+/stW { gsave currentpoint newpath moveto true charpath flattenpath
+	pathbbox pop exch pop sub grestore } def
+/Ts {mark Tabs aload pop counttomark 1 add array astore /Tabs exch def Tabs
+	0 currentpoint pop put} def
+/Tbn {mark Tabs aload pop counttomark dup 2 add 1 roll cleartomark 1 sub} def
+/Tb { 0 1 Tbn {Tabs exch get dup currentpoint pop lt
+	{currentpoint exch pop moveto exit} {pop} ifelse } for } def
+/Tf { Tbn -1 0 {Tabs exch get dup currentpoint pop gt
+	{currentpoint exch pop moveto exit} {pop} ifelse } for } def
+/qS { (aa) stW (a a) stW sub 4 div 0 Kn } def
+/hS { qS qS } def
+/pspc 0 def
+/cf0 { scalefont setfont } bind def
+/Kn { dup kY add /kY exch def rmoveto } bind def
+/ss { /fscale fscale 0.67 mul def currentfont 0.67 cf0 0 fscale0 fscale mul
+	0.33 mul neg Kn} def
+/Ss { /fscale fscale 0.67 mul def currentfont 0.67 cf0 0 fscale0 fscale mul
+	0.67 mul Kn } def
+/ns { 0 kY neg Kn /kY 0 def /fscale 1.0 def xfont0 1.0 cf0 } def
+/CR { ns 0 /Bline Bline fscale0 neg add def Bline moveto } def
+/cf { dup type /realtype ne {1.0} if exch findfont exch kY 0 eq
+	{ 40 mul dup /fscale0 exch def cf0 /xfont0 currentfont def}
+	{fscale0 mul fscale mul cf0} ifelse } def
+/ctmk { counttomark dup 2 add -1 roll pop } bind def
+/label { gsave translate 0 0 moveto dup scale neg /rotval exch def
+	/just exch def just 384 and 0 gt {/mshow {pop} def} {/mshow {show}
+	def} ifelse just 16 and 0 gt {gsave rotval rotate 0 1 dtransform
+	gsave pagemat setmatrix idtransform exch grestore 1 0 dtransform
+	gsave pagemat setmatrix idtransform exch grestore dup abs 1e-9 lt
+	{pop mul 0 gt} {3 1 roll pop pop 0 lt} ifelse grestore {-1 /rotval
+	rotval neg def /just just dup 3 and 1 ne {3 xor} if def} {1} ifelse
+	exch -1e-9 lt {-1 /rotval rotval neg def /just just dup 12 and
+	4 ne {12 xor} if def} {1} ifelse scale } if /showflag 0 def
+	/fspc pspc def /Bline 0 def /Tabs 0 array def /fscale 1.0 def
+	/kY 0 def gsave dup 1 add copy 0 exch 1 0 dtransform exch atan rotate
+	{exch dup type /stringtype eq {true charpath flattenpath} {dup type
+	/arraytype eq {exec} {12 string cvs true charpath flattenpath} ifelse}
+	ifelse} repeat pop pathbbox grestore 3 -1 roll pop 3 1 roll just
+	1 and 0 gt {just 2 and 0 gt {exch pop neg fspc sub} {exch sub 0.5
+	mul neg} ifelse} {pop neg fspc add} ifelse exch Bline exch just 4
+	and 0 gt {just 8 and 0 gt {exch pop neg fspc sub} {add 0.5 mul neg}
+	ifelse} {pop neg fspc add} ifelse rotval rotate Kn currentpoint
+	translate /showflag 1 def /Bline 0 def /Tabs 0 array def /fscale
+	1.0 def /kY 0 def {dup type /stringtype eq {mshow} {dup type
+	/arraytype eq {exec} {12 string cvs mshow} ifelse} ifelse} repeat
+	grestore } def
+/pinlabel { 4 index 32 and 0 ne hlevel 0 eq or { /pspc 10 def label
+	/pspc 0 def } { pop pop pop pop pop {pop} repeat } ifelse } def
+/pinglobal { pinlabel } def
+/infolabel { pinlabel } def
+/graphic { gsave 4 index cvx exec /DataSource get resetfile translate
+	0 0 moveto neg rotate dup scale cvx exec image grestore } def
+
+/scb { setrgbcolor } bind def  /sce { defColor aload pop scb } bind def
+/cRedef {/defColor currentcolor 3 array astore def} def
+/begingate {dup type /dicttype ne {1 dict} if begin	% default params
+	dup type /dicttype ne {1 dict} if begin		% instanced params
+	/hlevel hlevel 1 add def /defColor currentcolor sce 3 array
+	astore def gsave sce translate 0 0 moveto neg rotate dup abs scale
+	} bind def
+/endgate { /hlevel hlevel 1 sub def grestore defColor aload pop cRedef
+	scb end end} bind def
+
+/hlevel 0 def
+/tmpa [1 0 0 1 0 0] def
+/gar {8 8 true tmpa {<c0 c0 00 00 0c 0c 00 00>} imagemask} bind
+{8 8 true tmpa {<30 70 60 02 03 07 06 20>} imagemask} bind
+{8 8 true tmpa {<0c 1e 1e 0c c0 e1 e1 c0>} imagemask} bind
+{8 8 true tmpa {<0f 0f 0f 0f f0 f0 f0 f0>} imagemask} bind
+{8 8 true tmpa {<3f f3 e1 e1 f3 3f 1e 1e>} imagemask} bind
+{8 8 true tmpa {<df cf 8f 9f fd fc f8 f9>} imagemask} bind
+{8 8 true tmpa {<ff 3f 3f ff ff f3 f3 ff>} imagemask} bind 7 array astore def
+/ppaint { gsave clip tmpa dup setmatrix pathbbox neg exch neg 4 2 roll
+  neg 4 -1 roll 2 copy gt {exch} if 8 div ceiling 8 mul 4 2 roll neg 2 copy
+  gt {exch} if 8 div ceiling 8 mul 3 -1 roll -8 5 -1 roll
+  { 3 index exch 5 exch put dup -8 3 index { 3 index
+  exch 4 exch put 3 index exec } for } for pop pop pop pop grestore } bind def
+/setstyles {
+  currentlinewidth mul setlinewidth /style exch def
+  style 1 and 0 gt not {closepath} if
+  style 2 and 0 gt {currentlinewidth 4 mul dup 2 array astore 0 setdash} if
+  style 4 and 0 gt {0.5 currentlinewidth 4 mul 2 array astore 0 setdash} if
+  gsave style 16 and 0 gt { style 224 and -5 bitshift style 256 and 0 gt {
+  7 exch sub 8 div dup 1 exch sub currentrgbcolor 3 array astore
+  {3 copy mul add 4 1 roll pop} forall pop pop setrgbcolor eofill}
+  {dup 7 lt {gar exch get ppaint} {pop eofill} ifelse} ifelse}
+  {style 256 and 0 gt {1 setgray eofill} if} ifelse grestore style 8 and 0 gt 
+  style 512 eq or {newpath} {stroke} ifelse grestore} def     
+
+/polygon { gsave /num exch def moveto num 1 sub {lineto} repeat setstyles } def
+/xcarc   { gsave newpath arc setstyles } def
+/elb { matrix currentmatrix 7 -1 roll 7 -1 roll translate 5 1 roll 4 -1 roll
+	3 index div 1 scale } def
+/ele { 0 4 1 roll 0 4 1 roll } bind def
+/ellipse { gsave elb newpath ele arc setmatrix setstyles } def
+/pellip  { elb ele arc setmatrix } def
+/nellip  { elb ele arcn setmatrix } def
+/spline  { gsave moveto curveto setstyles } def
+/polyc   { {lineto} repeat } bind def
+/beginpath { gsave moveto } bind def
+/endpath { setstyles } bind def
+/bop	 { 1 setlinecap 0 setlinejoin 6 setmiterlimit 0 0 0 scb cRedef } def
+/psinsertion {/PSobj save def /showpage {} def /setpagedevice {pop} def bop
+	rotate translate dup scale} def
+/end_insert {PSobj restore} def
+/setpagemat {/pagemat matrix currentmatrix def} def
+/inchscale  {setpagemat 0.375 mul dup scale} def
+/cmscale    {setpagemat 0.35433071 mul dup scale} def
+
+%%EndResource
+%%EndProlog
+
+% XCircuit output starts here.
+
+%%BeginSetup
+
+
+%%EndSetup
+
+%%Page: 1 1
+%%PageOrientation: Landscape
+%%PageBoundingBox: 0 0 612 792
+/pgsave save def bop
+% 32.00 8.00 gridspace
+90 rotate -81 -529 translate
+0.5000 inchscale
+2.6000 setlinewidth 1270 796 translate
+
+0 3.00 -448 288 -448 -416 -352 -416 -352 288 4 polygon
+(GP #1) {/Helvetica cf} 2 20 270 1.00 -424 -384 label
+0 3.00 -352 288 -352 -416 -256 -416 -256 288 4 polygon
+(GP #2) {/Helvetica cf} 2 20 270 1.00 -328 -384 label
+0 3.00 -256 288 -256 -416 -160 -416 -160 288 4 polygon
+(GP #3) {/Helvetica cf} 2 20 270 1.00 -232 -384 label
+0 3.00 -160 288 -160 -416 -64 -416 -64 288 4 polygon
+(GP #4) {/Helvetica cf} 2 20 270 1.00 -136 -384 label
+0 3.00 -64 288 -64 -416 32 -416 32 288 4 polygon
+(GP #5) {/Helvetica cf} 2 20 270 1.00 -40 -384 label
+0 3.00 32 288 32 -416 128 -416 128 288 4 polygon
+(GP #6) {/Helvetica cf} 2 20 270 1.00 56 -384 label
+0 3.00 128 288 128 -416 224 -416 224 288 4 polygon
+(GP #7) {/Helvetica cf} 2 20 270 1.00 152 -384 label
+0 3.00 224 288 224 -416 320 -416 320 288 4 polygon
+(GP #8) {/Helvetica cf} 2 20 270 1.00 248 -384 label
+0 3.00 320 288 320 -416 416 -416 416 288 4 polygon
+(GP #9) {/Helvetica cf} 2 20 270 1.00 344 -384 label
+0 3.00 416 288 416 -416 512 -416 512 288 4 polygon
+(GP #10) {/Helvetica cf} 2 20 270 1.00 440 -384 label
+0 3.00 512 288 512 -416 608 -416 608 288 4 polygon
+(GP #11) {/Helvetica cf} 2 20 270 1.00 536 -384 label
+0 3.00 608 288 608 -416 704 -416 704 288 4 polygon
+(GP #12) {/Helvetica cf} 2 20 270 1.00 632 -384 label
+0 3.00 704 288 704 -416 800 -416 800 288 4 polygon
+(GP #13) {/Helvetica cf} 2 20 270 1.00 728 -384 label
+0 3.00 800 288 800 -416 896 -416 896 288 4 polygon
+(GP #14) {/Helvetica cf} 2 20 270 1.00 824 -384 label
+0 3.00 896 288 896 -416 992 -416 992 288 4 polygon
+(GP #15) {/Helvetica cf} 2 20 270 1.00 920 -384 label
+0.000 0.000 0.000 scb
+496 3.00 -384 288 -384 -160 -336 -160 -336 288 4 polygon
+496 3.00 -272 288 -272 -160 -224 -160 -224 288 4 polygon
+496 3.00 -96 288 -96 -160 -48 -160 -48 288 4 polygon
+496 3.00 112 288 112 -160 160 -160 160 288 4 polygon
+496 3.00 8 288 8 -160 56 -160 56 288 4 polygon
+sce
+0 3.00 992 288 992 -416 1088 -416 1088 288 4 polygon
+(GP #16) {/Helvetica cf} 2 20 270 1.00 1016 -384 label
+0 3.00 1088 288 1088 -416 1184 -416 1184 288 4 polygon
+0 3.00 1184 288 1184 -416 1280 -416 1280 288 4 polygon
+0 3.00 1280 288 1280 -416 1376 -416 1376 288 4 polygon
+0 3.00 1376 288 1376 -416 1472 -416 1472 288 4 polygon
+0 3.00 1472 288 1472 -416 1568 -416 1568 288 4 polygon
+0 3.00 1568 288 1568 -416 1664 -416 1664 288 4 polygon
+(Edit) {/Helvetica cf} 2 20 270 1.00 1616 -384 label
+0 3.00 1664 288 1664 -416 1760 -416 1760 288 4 polygon
+(Mute) {/Helvetica cf} 2 20 270 1.00 1712 -384 label
+0 3.00 1760 288 1760 -416 1856 -416 1856 288 4 polygon
+(Pattern) {/Helvetica cf} 2 20 270 1.00 1808 -384 label
+0 3.00 1856 288 1856 -416 1952 -416 1952 288 4 polygon
+(Song) {/Helvetica cf} 2 20 270 1.00 1904 -384 label
+0 3.00 1952 288 1952 -416 2048 -416 2048 288 4 polygon
+(Metronome) {/Helvetica cf} 2 20 270 1.00 2000 -384 label
+0 3.00 2048 288 2048 -416 2144 -416 2144 288 4 polygon
+(F3) {/Helvetica cf} 2 20 270 1.00 2096 -384 label
+0 3.00 2144 288 2144 -416 2240 -416 2240 288 4 polygon
+(Stop) {/Helvetica cf} 2 20 270 1.00 2192 -384 label
+0 3.00 2240 288 2240 -416 2336 -416 2336 288 4 polygon
+(Play) {/Helvetica cf} 2 20 270 1.00 2288 -384 label
+0 3.00 2336 288 2336 -416 2432 -416 2432 288 4 polygon
+(Rew) {/Helvetica cf} 2 20 270 1.00 2384 -384 label
+0 3.00 2432 288 2432 -416 2528 -416 2528 288 4 polygon
+(F1) {/Helvetica cf} 2 20 270 1.00 2480 -384 label
+0 3.00 2528 288 2528 -416 2624 -416 2624 288 4 polygon
+(F2) {/Helvetica cf} 2 20 270 1.00 2576 -384 label
+0 3.00 2624 288 2624 -416 2720 -416 2720 288 4 polygon
+1.000 0.000 0.000 scb
+(Menu) {/Helvetica cf} 2 20 270 1.00 2672 -384 label
+sce
+0 3.00 2720 288 2720 -416 2816 -416 2816 288 4 polygon
+(Exit) {/Helvetica cf} 2 20 270 1.00 2768 -384 label
+0 3.00 2816 288 2816 -416 2912 -416 2912 288 4 polygon
+(Right) {/Helvetica cf} 2 20 270 1.00 2864 -384 label
+0 3.00 2912 288 2912 -416 3008 -416 3008 288 4 polygon
+1.000 0.000 0.000 scb
+(MIDI Remote Key) {/Helvetica cf} 2 20 270 1.00 2960 -384 label
+0.000 0.000 0.000 scb
+496 3.00 288 288 288 -160 336 -160 336 288 4 polygon
+496 3.00 400 288 400 -160 448 -160 448 288 4 polygon
+496 3.00 784 288 784 -160 832 -160 832 288 4 polygon
+496 3.00 680 288 680 -160 728 -160 728 288 4 polygon
+496 3.00 576 288 576 -160 624 -160 624 288 4 polygon
+496 3.00 960 288 960 -160 1008 -160 1008 288 4 polygon
+496 3.00 1072 288 1072 -160 1120 -160 1120 288 4 polygon
+496 3.00 1456 288 1456 -160 1504 -160 1504 288 4 polygon
+496 3.00 1352 288 1352 -160 1400 -160 1400 288 4 polygon
+496 3.00 1248 288 1248 -160 1296 -160 1296 288 4 polygon
+496 3.00 1632 288 1632 -160 1680 -160 1680 288 4 polygon
+496 3.00 1744 288 1744 -160 1792 -160 1792 288 4 polygon
+496 3.00 2128 288 2128 -160 2176 -160 2176 288 4 polygon
+496 3.00 2024 288 2024 -160 2072 -160 2072 288 4 polygon
+496 3.00 1920 288 1920 -160 1968 -160 1968 288 4 polygon
+496 3.00 2304 288 2304 -160 2352 -160 2352 288 4 polygon
+496 3.00 2416 288 2416 -160 2464 -160 2464 288 4 polygon
+496 3.00 2800 288 2800 -160 2848 -160 2848 288 4 polygon
+496 3.00 2696 288 2696 -160 2744 -160 2744 288 4 polygon
+496 3.00 2592 288 2592 -160 2640 -160 2640 288 4 polygon
+sce
+(MIDIbox SEQ V2 MIDI Remote Functions) {/Helvetica cf} 2 17 0 2.00 1360 328 
+label
+1.000 0.000 0.000 scb
+(View) {/Helvetica cf} 2 20 270 1.00 -384 -384 label
+(Event) {/Helvetica cf} 2 20 270 1.00 -288 -384 label
+(Mode) {/Helvetica cf} 2 20 270 1.00 -192 -384 label
+(Direction) {/Helvetica cf} 2 20 270 1.00 -96 -384 label
+(Divider) {/Helvetica cf} 2 20 270 1.00 0 -384 label
+(Length) {/Helvetica cf} 2 20 270 1.00 96 -384 label
+(Transp.) {/Helvetica cf} 2 20 270 1.00 192 -384 label
+(Groove) {/Helvetica cf} 2 20 270 1.00 288 -384 label
+(Assign) {/Helvetica cf} 2 20 270 1.00 384 -384 label
+(Shift) {/Helvetica cf} 2 20 270 1.00 480 -384 label
+(Trigger) {/Helvetica cf} 2 20 270 1.00 576 -384 label
+(Morph) {/Helvetica cf} 2 20 270 1.00 672 -384 label
+(BPM) {/Helvetica cf} 2 20 270 1.00 768 -384 label
+(Save) {/Helvetica cf} 2 20 270 1.00 864 -384 label
+(MIDI) {/Helvetica cf} 2 20 270 1.00 960 -384 label
+(SysEx) {/Helvetica cf} 2 20 270 1.00 1056 -384 label
+0.906 0.890 0.906 scb
+(Track 1) {/Helvetica cf} 2 20 270 1.00 -360 -128 label
+(Track 2) {/Helvetica cf} 2 20 270 1.00 -248 -128 label
+(Track 3) {/Helvetica cf} 2 20 270 1.00 -72 -128 label
+(Track 4) {/Helvetica cf} 2 20 270 1.00 32 -128 label
+(Layer A) {/Helvetica cf} 2 20 270 1.00 136 -128 label
+(Layer B) {/Helvetica cf} 2 20 270 1.00 312 -128 label
+(Layer C) {/Helvetica cf} 2 20 270 1.00 424 -128 label
+(Track 3) {/Helvetica cf} 2 20 270 1.00 600 -128 label
+(Solo) {/Helvetica cf} 2 20 270 1.00 1656 -128 label
+(All) {/Helvetica cf} 2 20 270 1.00 1768 -128 label
+(Fast) {/Helvetica cf} 2 20 270 1.00 1944 -128 label
+(Scrub) {/Helvetica cf} 2 20 270 1.00 2048 -128 label
+(Pause) {/Helvetica cf} 2 20 270 1.00 2328 -128 label
+(Fwd) {/Helvetica cf} 2 20 270 1.00 2440 -128 label
+(Select) {/Helvetica cf} 2 20 270 1.00 2720 -128 label
+(Left) {/Helvetica cf} 2 20 270 1.00 2824 -128 label
+(F4) {/Helvetica cf} 2 20 270 1.00 2152 -128 label
+0.804 0.000 0.000 scb
+(MIDIbox SEQ is licensed for personal non-commercial use only.) {/Helvetica cf} 
+2 16 0 2.00 -448 1168 label
+(Copyright 2006 Thorsten Klose \(http://www.uCApps.de\)) {/Helvetica cf} 2 16 0 
+2.00 -448 1080 label
+
+(It is strictly forbidden to sell MIDIbox based hardware without explicit permission from my side) 
+{/Helvetica cf} 2 16 0 2.00 -448 968 label
+(The EBay user named "blue_lantern91754" never got my permission.) 
+{/Helvetica cf} 2 16 0 2.00 -456 864 label
+
+(Please don't support his illegal business, don't buy his ugly looking and overpriced clones) 
+{/Helvetica cf} 2 16 0 2.00 -448 768 label
+(to keep the original project alive!) {/Helvetica cf} 2 16 0 2.00 -448 688 
+label
+
+(Please help to stop his activities by informing EBay about his illegal auctions!) 
+{/Helvetica cf} 2 16 0 2.00 -448 600 label
+pgsave restore showpage
+
+%%Trailer
+XCIRCsave restore
+%%EOF
