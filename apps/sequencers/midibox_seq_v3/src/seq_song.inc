@@ -175,7 +175,14 @@ SEQ_SONG_FetchPosLoop
 	andlw	0x07
 	movwf	SEQ_PATTERN_BANK, BANKED
 
+	;; in phrase mode (bit #7 set): allow synched pattern change
+	BRA_IFCLR SEQ_SONG, 7, BANKED, SEQ_SONG_FetchPosLoop_Song
+SEQ_SONG_FetchPosLoop_Phrase
+	call	SEQ_CORE_ChangePatternSynched
+	rgoto	SEQ_SONG_FetchPosLoop_PhraseCont
+SEQ_SONG_FetchPosLoop_Song
  	call	SEQ_CORE_ChangePattern_Song	; change pattern
+SEQ_SONG_FetchPosLoop_PhraseCont
 
 	SET_BSR	SEQ_BASE
 	incf	SEQ_GROUP, F, BANKED
