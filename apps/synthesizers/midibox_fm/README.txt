@@ -29,7 +29,7 @@ under http://www.ucapps.de/mios_bootstrap_newbies.html
 Infos for customization:
    o some general settings can be found in the "Control surface settings" section 
      of the setup_mbfm_v1.asm file
-   o define the pins of your rotary encoders (if available) in mios_tables.inc
+   o define the pins of your rotary encoders (if available) in setup_*.asm as well
    o define the connected buttons and LEDs in (if available) cs_menu_io_tables.inc
    o change the rotary encoder assign map in cs_menu_enc_table.inc if required
 
