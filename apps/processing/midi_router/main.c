@@ -46,7 +46,7 @@ unsigned char panic_ctr;
 
 /////////////////////////////////////////////////////////////////////////////
 // Application specific encoder table
-// the default (dummy) table has been disabled via 
+// the default (dummy) table has been disabled via -DDONT_INCLUDE_MIOS_ENC_TABLE
 /////////////////////////////////////////////////////////////////////////////
 MIOS_ENC_TABLE {
              // sr pin mode
