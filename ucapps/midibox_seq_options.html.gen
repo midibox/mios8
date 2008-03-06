@@ -107,7 +107,9 @@ HEADER 3 MIDIbox SEQ V3 Hardware Options
 
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_IIC_MIDI modules </H2></DT>
-  <DD><P CLASS=DESC>Since the PIC18F4620 is affected by the EUSART bug (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mios_pic18f4620">this Wiki page</A>) at least one <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module should be used for the MIDIbox SEQ for a stable MIDI output. However, this module is a cheap one, and it's easy to connect four of them instead of only one to quadruble the external MIDI Outputs.</P>
+  <DD><P CLASS=DESC>Older PIC18F4620 were affected by the <A HREF="http://www.midibox.org/dokuwiki/eusart_bug">EUSART bug</A>, so that at least one <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module was recommented for a stable MIDI output.</P>
+
+<P CLASS=DESC>For newer chip revisions (PIC18F4620 B4 and higher), this workaround is not required anymore. But using MBHP_IIC_MIDI still has advantages!</P>
 <P CLASS=DESC>Main advantage of multiple MIDI ports is reduced latency (as MIDI events can be sent in parallel), and relaxed MIDI channel handling (for 4 synths you don't need to take care about the MIDI channel at all)</P>
   <P CLASS=DESC>For the first MBHP_IIC_MIDI module the MIDI OUT and IN port is supported. The MIDI IN is intended as <B>alternative</B> input to connect a MIDI keyboard if the core based MIDI IN is already allocated by a connection to a MIDI clock master device. Incoming data can also be routed to the MIDI OUT and AOUT ports. But: this MIDI input neither supports receiving MIDI clock, nor forwarding SysEx data (this possibility would affect the overall performance of the application).</P>
   <P CLASS=DESC>For the remaining three MBHP_IIC_MIDI modules the MIDI IN port is <B>not</B> supported, accordingly the <A HREF="mbhp/mbhp_iic_midi_out_only.pdf">"OUT only"</A> version is sufficient.</P>

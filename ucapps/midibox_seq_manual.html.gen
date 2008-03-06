@@ -366,8 +366,8 @@ A list of all implemented event modes:</P>
 <LI>The <B>MIDI Channel</B> can be selected from 1-16.</LI>
 <LI>Following <B>MIDI Ports</B> are available:<BR>
   <UL CLASS=CL>
-    <LI><B>Default:</B> the default port as defined in the MIOS ID header. For a PIC18F4620 based MIDIbox it's normaly the first MBHP_IIC_MIDI interface.</LI>
-    <LI><B>Internal:</B> the "internal" MIDI Out port of the PIC. Should not be used on a PIC18F4620 if the MIDI In port is used the same time due to the EUSART bug.</LI>
+    <LI><B>Default:</B> the default port as defined in the MIOS ID header. For a PIC18F4620 B4 (and higher) based MIDIbox it's normaly the "internal" MIDI Out port of the PIC. If you are using an older PIC18F4620 A3 or A4 (affected by the <A HREF="http://www.midibox.org/dokuwiki/eusart_bug">EUSART bug</A>), it's IIC1.</P>
+    <LI><B>Internal:</B> the "internal" MIDI Out port of the PIC</LI>
     <LI><B>IIC1..IIC4:</B> the 4 MBHP_IIC_MIDI ports</LI>
     <LI><B>Loopback:</B> the Loopback port. See description below</LI>
     <LI><B>AOUT:</B> the AOUT port. See description below</LI>
@@ -378,8 +378,7 @@ A list of all implemented event modes:</P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> IIC Ports</H2>
 
-<P CLASS=INFO>Since the PIC18F4620 is affected by the EUSART bug (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mios_pic18f4620">this Wiki page</A>) at least one <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module should be used for the MIDIbox SEQ for a stable MIDI output. However, this module is a cheap one, and it's easy to connect four of them instead of only one to quadruble the external MIDI Outputs.</P>
-<P CLASS=INFO>Main advantage of multiple MIDI ports is reduced latency (as MIDI events can be sent in parallel), and relaxed MIDI channel handling (for 4 synths you don't need to take care about the MIDI channel at all)</P>
+<P CLASS=INFO>The <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module allows you to add 4 additional, independent (!) MIDI outputs. Main advantage of multiple MIDI ports is reduced latency (as MIDI events can be sent in parallel), and relaxed MIDI channel handling (for 4 synths you don't need to take care about the MIDI channel at all)</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Loopback Port</H2>
