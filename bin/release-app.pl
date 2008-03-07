@@ -3,7 +3,7 @@
 #########################################################################################
 #
 # Release Script for MIOS applications
-# Author: Thorsten.Klose@gmx.de (2008-03-05)
+# Author: tk@midibox.org (2008-03-05)
 #
 # Called from Makefile with "make dist"
 #

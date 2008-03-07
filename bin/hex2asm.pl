@@ -2,7 +2,7 @@
 #########################################################################################
 #
 # Hex-to-ASM converter
-# Author: Thorsten.Klose@gmx.de (2006-04-03)
+# Author: tk@midibox.org (2006-04-03)
 #
 # Converts a INHX32 file to a Microchip assembly file which can be included into
 # a MIOS application

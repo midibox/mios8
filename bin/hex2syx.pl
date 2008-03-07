@@ -2,7 +2,7 @@
 #########################################################################################
 #
 # Hex-to-SysEx converter
-# Author: Thorsten.Klose@gmx.de (2003-01-30)
+# Author: tk@midibox.org (2003-01-30)
 #
 # Converts a INHX32 file to a SysEx file which can be uploaded to the MIDIbox using
 # the MIOS Bootstrap loader
