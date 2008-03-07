@@ -146,7 +146,8 @@ print OUT join("\n", @cmds) . "\n";
 close(OUT);
 
 print "###############################################################################\n";
-print "Please copy the application into a new (release) directory, and execute\n";
-print "the dist.sh script.\n";
+print "Commit all your changes before doing a release!\n";
+print "Thereafter copy the application into a new directory, and type 'sh dist.sh'\n";
+print "If the script passes successfully, you can .zip the directory and release it\n";
 print "###############################################################################\n";
 
