@@ -133,8 +133,8 @@ push @cmds, "echo \"include Makefile.orig\" >> Makefile";
 push @cmds, "make";
 push @cmds, "make clean";
 
-push @cmds, "find * -type d -print | grep \.svn | xargs rm -rf";
-push @cmds, "rm -rf .svn";
+push @cmds, "find * -type d -print | grep [\._]svn | xargs rm -rf";
+push @cmds, "rm -rf .svn _svn";
 
 push @cmds, "echo Done. You can remove dist.sh now!";
 

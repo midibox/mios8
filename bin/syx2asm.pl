@@ -2,7 +2,7 @@
 #########################################################################################
 #
 # SysEx-to-ASM converter
-# Author: Thorsten.Klose@gmx.de (2003-09-21)
+# Author: tk@midibox.org (2003-09-21)
 #
 # Converts a MIOS SysEx file to an assembler file which can be assembled with MPASM
 #
