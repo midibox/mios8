@@ -111,6 +111,5 @@ dist: clean
 #	echo $(foreach dir, $(DIST), `echo 'XXX $(dir)' | sed -e "s/$MIOS_BIN_PATH/.\/bin/"` )
 	# damned, this doesn't work under windows, and "basename" doesn't work properly as well
 	# due to <device-name>:\...
-	# we should prefer a perl script (for more flexibility)
-	# However, here are the DIST pathes:
-	echo $(DIST)
+	# call a perl script instead
+	perl $(MIOS_BIN_PATH)/release-app.pl $(DIST)
