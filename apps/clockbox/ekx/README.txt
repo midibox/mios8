@@ -1,6 +1,6 @@
 $Id$
 
-Clockbox V1.1                          (C) 2006 Thorsten Klose (tk@midibox.org)
+Clockbox EKX
 ===============================================================================
 
 This application sends a MIDI clock and outputs a 24ppqn signal at CORE::J14
@@ -57,10 +57,9 @@ MTC mode set to 0 (standard mode)
 
 A precompiled binary is already part of this package:
    o project.hex (can be loaded into MIOS Studio)
-   o project.syx (can be loaded into any SysEx upload tool)
 
 Following tools are required to recompile the code:
-   o SDCC v2.5.0
+   o SDCC v2.7.0
    o gputils
    o perl
 
@@ -89,24 +88,18 @@ Configuration steps:
    o check the "general application settings" in main.h if changes are
      required for your hardware setup (normaly not)
 
-   o check the encoder type in mios_wrapper/mios_tables.inc
+   o check the encoder type in main.c
      By default, the DETENTED2 type is selected
 
-   o the application can be rebuilt with the "make.bat" file
-     (type "make" in a DOS command shell)
+   o the application can be rebuilt by typing "make" in the command shell
 
 ===============================================================================
 
 Description about the most important files:
 
-   - mios_wrapper\mios_wrapper.asm and mios_wrapper\mios_tables.inc:
-     The MIOS wrapper code and MIOS specific configuration tables
-
-   - pic18f452.c: exports PIC18F452 specific SFRs
-
    - main.c: the main program with all MIOS hooks
-
    - mclock.c: the MIDI clock handler
+   - send_bit_macro.inc: some assembly code for bit-banging MIDI out
 
 There are additional .h files for all .c files which contain
 general definitions and the declaration of global functions/variables

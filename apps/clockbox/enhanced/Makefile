@@ -6,7 +6,7 @@ LKR_FILE  = $(MIOS_PATH)/etc/lkr/$(PROCESSOR).lkr
 PROJECT   = project
 
 # list of objects that should be created and linked
-OBJS = pic18f452.o mios_wrapper.o app_lcd.o main.o mclock.o
+OBJS = pic18f452.o mios_wrapper.o app_lcd.o main.o mclock.o mtc.o
 
 # include pathes (more will be added by .mk files)
 GPASM_INCLUDE = 
