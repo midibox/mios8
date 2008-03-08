@@ -109,12 +109,16 @@ foreach $path (keys %rel_path) {
 }
 
 foreach $path (sort keys %dirs) {
-  push @cmds, "mkdir $path";
+  $path =~ s/\\/\//g; # for DOS: convert \ to /
+  push @cmds, "mkdir ${path}";
 }
 
 
 foreach $path (sort keys %rel_path) {
-  push @cmds, "cp -rf $path $rel_path{$path}";
+  my $rel = $rel_path{$path};
+  $path =~ s/\\/\//g; # for DOS: convert \ to /
+  $rel =~ s/\\/\//g; # for DOS: convert \ to /
+  push @cmds, "cp -rf ${path} ${rel}";
 }
 
 
@@ -122,6 +126,7 @@ foreach $path (sort keys %rel_path) {
 #  push @cmds, "cp -rf $path $rel_path_work{$path}";
 #}
 
+push @cmds, "find . -regex '.*/.svn\$' -type d -exec rm -rf {} \\;";
 
 push @cmds, "rm -f Makefile.orig";
 push @cmds, "mv Makefile Makefile.orig";
@@ -132,9 +137,6 @@ push @cmds, "echo \"include Makefile.orig\" >> Makefile";
 
 push @cmds, "make";
 push @cmds, "make clean";
-
-push @cmds, "find * -type d -print | grep [\._]svn | xargs rm -rf";
-push @cmds, "rm -rf .svn _svn";
 
 push @cmds, "echo Done. You can remove dist.sh now!";
 
