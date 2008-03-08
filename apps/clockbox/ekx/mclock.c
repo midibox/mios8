@@ -15,8 +15,8 @@
 // Include files
 /////////////////////////////////////////////////////////////////////////////
 
-#include <cmios.h>
-#include <pic18fregs.h>
+#include "cmios.h"
+#include "pic18f452.h"
 
 #include "main.h"
 #include "mclock.h"
@@ -32,17 +32,51 @@ unsigned char mclock_tick_ctr; // requests MIDI clocks
 
 unsigned char bpm; // holds the current BPM setting
 
-unsigned char mclock_ctr_24;       // counts from 0..23
+unsigned char mclock_ctr_96;       // counts from 0..95
+unsigned char mclock_precount = 1;
 unsigned char mclock_ctr_beats;    // counts the quarter notes 0..3
-unsigned char mclock_ctr_measures; // counts the measures (up to 65535)
+unsigned int mclock_ctr_measures; // counts the measures (up to 65535)
 
 unsigned char multi_clk_mask;      // mask for multi clock option
 unsigned char multi_synched_start; // each output has a flag, synched start means: with the next 1/4 note
 unsigned char multi_synched_stop;  // each output has a flag, synched stop means: with the next 1/4 note
 
+unsigned char mclock_trk_ctr_24[NR_TRK];
+unsigned char bitcount[] = {0,0,0,0,0,0,0,0};
+unsigned char bytecount[] = {0,0,0,0,0,0,0,0};
+unsigned char temp_s_byte;
+
+
+// Shuffle-timings: Each byte equals 8 ticks. Each subarray 1/4 Note
+unsigned const char shuffle_set[8][12] = {{136,136,136,136,136,136,136,136,136,136,136,136},
+										  {136,136,136,8,136,138,136,136,136,8,136,138},
+										  {136,136,136,0,136,142,136,136,136,0,136,142},
+										  {0,0,0,170,170,170,0,0,0,170,170,170},
+										  {34,34,34,74,160,8,34,34,34,74,160,8},
+										  {136,136,136,136,136,136,34,34,34,34,34,34},
+										  {136,136,136,136,136,136,136,136,136,34,34,34},
+										  {170,0,0,170,0,170,0,170,0,170,0,170}};
+
 /////////////////////////////////////////////////////////////////////////////
 // Local variables
 /////////////////////////////////////////////////////////////////////////////
+/*
+const unsigned char div_to_ticks[] = {
+   192,		// 2/1
+	96,		// 1/1
+	48,		// 1/2
+	24,		// 1/4
+	12,		// 1/8
+	 6,		// 1/16
+	 3		// 1/32
+};
+*/
+const unsigned char div_to_ticks2[] = {
+	 4,		// 1:4
+	 3,		// 1:3
+	 2,     // 1:2
+	 1		// 1:1
+};
 
 /////////////////////////////////////////////////////////////////////////////
 // This function initializes the MIDI clock module
@@ -66,6 +100,7 @@ void MCLOCK_Init(void)
   // turn on the output drivers of PORTA.0/1/2/3/5 and PORTE.0/1/2
   TRISA &= ~0x2f; // (~ means: inverted value)
   TRISE &= ~0x07;
+
 #endif
   multi_clk_mask = 0xff; // by default, all 8 clock outputs enabled
 }
@@ -76,12 +111,18 @@ void MCLOCK_Init(void)
 /////////////////////////////////////////////////////////////////////////////
 void MCLOCK_Tick(void)
 {
+  unsigned char cnt = NR_TRK;
+  unsigned char send_temp_mask = 0;
+  unsigned char send_clock_mask = 0;
+  unsigned char send_sp_mask = 0;
+  unsigned int songpos;
+
   // start request? Send 0xfa and enter RUN mode
   if( mclock_state.START_REQ ) {
     mclock_state.START_REQ = 0;
     MIOS_MIDI_TxBufferPut(0xfa);
 #if MULTI_CLOCK_OPTION
-    MCLOCK_SendMultiPort(0xfa, 0xff);
+    MCLOCK_SendMultiPort(0xfa, multi_clk_mask); // Only active Ports!!!
 #endif
     mclock_state.RUN = 1;
 
@@ -94,7 +135,7 @@ void MCLOCK_Tick(void)
     mclock_state.CONT_REQ = 0;
     MIOS_MIDI_TxBufferPut(0xfb);
 #if MULTI_CLOCK_OPTION
-    MCLOCK_SendMultiPort(0xfb, 0xff);
+    MCLOCK_SendMultiPort(0xfb, multi_clk_mask); // Only active Ports!!!
 #endif
     mclock_state.PAUSE = 0;
 
@@ -107,7 +148,7 @@ void MCLOCK_Tick(void)
     mclock_state.STOP_REQ = 0;
     MIOS_MIDI_TxBufferPut(0xfc);
 #if MULTI_CLOCK_OPTION
-    MCLOCK_SendMultiPort(0xfc, 0xff);
+    MCLOCK_SendMultiPort(0xfc, multi_clk_mask); // Only active Ports
 #endif
     mclock_state.RUN = 0;
     mclock_state.PAUSE = 0;
@@ -115,6 +156,22 @@ void MCLOCK_Tick(void)
 
     // request display update
     app_flags.DISPLAY_UPDATE_REQ = 1;
+  }
+
+  // direct enabling and disabling outputs if not in RUN-Mode
+  if( mclock_state.RUN == 0 ) {
+      if( multi_synched_start ) {
+		// takeover of synched start flags
+		multi_clk_mask |= multi_synched_start;
+		// clear requests
+		multi_synched_start = 0;
+      }
+      if( multi_synched_stop ) {
+		// takeover of synched stop flags
+		multi_clk_mask &= ~multi_synched_stop;
+		// clear requests
+		multi_synched_stop = 0;
+      }
   }
 
   // send 0xf8 until counter is 0
@@ -128,55 +185,159 @@ void MCLOCK_Tick(void)
     --mclock_tick_ctr;
     INTCONbits.GIE = 1; // enable interrupts
 
-    // increment the meter counters
-    if( ++mclock_ctr_24 == 24 ) {
-      mclock_ctr_24 = 0;
+    // increment the meter counter
+    if( ++mclock_ctr_96 == 96) {
+      mclock_ctr_96 = 0;
 
 #if MULTI_CLOCK_OPTION
       // next beat:
 
       // check for synched stop
       if( multi_synched_stop ) {
-	// send stop event to slaves which should break
-	MCLOCK_SendMultiPort(0xfc, multi_synched_stop);
-	
-	// takeover of synched stop flags
-	multi_clk_mask &= ~multi_synched_stop;
-	
-	// clear requests
-	multi_synched_stop = 0;
+	    send_temp_mask = multi_synched_stop & ~out_config_bb_mask;
+
+
+	    // send stop event to slaves which should break
+	    //MCLOCK_SendMultiPort(0xfc, multi_synched_stop);
+	    MCLOCK_SendMultiPort(0xfc, send_temp_mask);
+
+	    // takeover of synched stop flags
+	    //multi_clk_mask &= ~multi_synched_stop;
+	    multi_clk_mask &= ~send_temp_mask;
+
+	    // clear requests
+	    //multi_synched_stop = 0;
+        multi_synched_stop = multi_synched_stop ^ send_temp_mask;
       }
 
       // check for synched start
       if( multi_synched_start ) {
-	// send continue event to slaves which should continue
-	MCLOCK_SendMultiPort(0xfb, multi_synched_start);
+	    send_temp_mask = multi_synched_start & ~out_config_bb_mask;
 
-	// takeover of synched start flags
-	multi_clk_mask |= multi_synched_start;
+        // send song-position to slaves which should continue
+        send_sp_mask = send_temp_mask & out_config_sp_mask;
+        (unsigned int)songpos = (mclock_ctr_beats << 2) | (mclock_ctr_measures << 4);
+        MCLOCK_SendMultiPort(0xf2, send_sp_mask);
+        MCLOCK_SendMultiPort((unsigned char)(songpos & 0x7f), send_sp_mask);
+        MCLOCK_SendMultiPort(((unsigned char)(songpos >> 7) & 0x7f), send_sp_mask);
 
-	// clear requests
-	multi_synched_start = 0;
+	    // send continue event to slaves which should continue
+	    send_clock_mask = 0;
+	    send_clock_mask = send_temp_mask & ~out_config_sc_mask;
+
+	    MCLOCK_SendMultiPort(0xfb, send_clock_mask);
+
+	    // send start event to slaves which should start
+	    send_clock_mask = 0;
+	    send_clock_mask = send_temp_mask & out_config_sc_mask;
+	    MCLOCK_SendMultiPort(0xfa, send_clock_mask);
+
+	    // takeover of synched start flags
+	    multi_clk_mask |= send_temp_mask;
+
+	    // clear requests
+	    multi_synched_start = multi_synched_start ^ send_temp_mask;
       }
 #endif
-
-      if( ++mclock_ctr_beats == 4 ) {
-	mclock_ctr_beats = 0;
-	++mclock_ctr_measures;
-      }
-
-    }
-
-    // send clocks
-    MIOS_MIDI_TxBufferPut(0xf8);
+	    // next bar
+        if( ++mclock_ctr_beats == 4 ) {
+	    mclock_ctr_beats = 0;
+	    ++mclock_ctr_measures;
 
 #if MULTI_CLOCK_OPTION
-    MCLOCK_SendMultiPort(0xf8, multi_clk_mask);
+
+        // check for synched stop
+        if( multi_synched_stop ) {
+	      send_temp_mask = multi_synched_stop & out_config_bb_mask;
+
+	      // send stop event to slaves which should break
+	      //MCLOCK_SendMultiPort(0xfc, multi_synched_stop);
+	      MCLOCK_SendMultiPort(0xfc, send_temp_mask);
+
+	      // takeover of synched stop flags
+	      //multi_clk_mask &= ~multi_synched_stop;
+	      multi_clk_mask &= ~send_temp_mask;
+
+	      // clear requests
+	      //multi_synched_stop = 0;
+          multi_synched_stop = multi_synched_stop ^ send_temp_mask;
+        }
+
+        // check for synched start
+        if( multi_synched_start ) {
+	      send_temp_mask = multi_synched_start & out_config_bb_mask;
+
+          // send song-position to slaves which should continue
+          send_sp_mask = send_temp_mask & out_config_sp_mask;
+          (unsigned int)songpos = (mclock_ctr_beats << 2) | (mclock_ctr_measures << 4);
+          MCLOCK_SendMultiPort(0xf2, send_sp_mask);
+          MCLOCK_SendMultiPort((unsigned char)(songpos & 0x7f), send_sp_mask);
+          MCLOCK_SendMultiPort(((unsigned char)(songpos >> 7) & 0x7f), send_sp_mask);
+
+	      // send continue event to slaves which should continue
+	      send_clock_mask = 0;
+	      send_clock_mask = send_temp_mask & ~out_config_sc_mask;
+	      MCLOCK_SendMultiPort(0xfb, send_clock_mask);
+
+	      // send start event to slaves which should start
+	      send_clock_mask = 0;
+	      send_clock_mask = send_temp_mask & out_config_sc_mask;
+	      MCLOCK_SendMultiPort(0xfa, send_clock_mask);
+
+	      // takeover of synched start flags
+	      multi_clk_mask |= send_temp_mask;
+
+	      // clear requests
+	      multi_synched_start = multi_synched_start ^ send_temp_mask;
+        }
+#endif
+	  }
+   }
+    // send clock
+    if ( --mclock_precount == 0 ) {
+	  mclock_precount = 4;
+	  MIOS_MIDI_TxBufferPut(0xf8);
+	}
+
+
+#if MULTI_CLOCK_OPTION
+	//reset the clock send request
+	send_temp_mask = 0;
+	cnt = 8;
+    // increment the track counters
+    while (cnt--) {
+    	if( mclock_trk_ctr_24[cnt]++ >= divisor[cnt] ) {
+    		mclock_trk_ctr_24[cnt] = 0;
+
+    		//send a timing message only when counter reaches max value and shuffle-pattern allows it
+			if ( ++bitcount[cnt] >= 8 ) {
+			  bitcount[cnt] = 0;
+			  if ( ++bytecount[cnt] >= 12 ) {
+				bytecount[cnt] = 0;
+			  }
+			}
+
+			//copy shuffle- and divisor-settings when new beat begins
+			if ( mclock_ctr_96 == 0 ) {
+			  shuffle[cnt] = t_shuffle[cnt];
+			  divisor[cnt] = t_divisor[cnt];
+			}
+
+			temp_s_byte = shuffle_set[shuffle[cnt]][bytecount[cnt]] << (bitcount[cnt]-1);
+
+			if ( temp_s_byte >= 128 ) {
+			  send_temp_mask |= MIOS_HLP_GetBitORMask(cnt);
+			}
+    	}
+    }
+
+    MCLOCK_SendMultiPort(0xf8, (multi_clk_mask & send_temp_mask));
+
 #endif
 
     // request display update
     app_flags.DISPLAY_UPDATE_REQ = 1;
-  }
+  } // end of: while( mclock_tick_ctr )
 
 #if MULTI_CLOCK_OPTION && MULTI_CLOCK_STATUS_DOUT_SR
   // forward current clock masks to DOUT, so that LEDs can display if clocks are enabled/disabled
@@ -210,7 +371,7 @@ void MCLOCK_Timer(void)
 //   -> timer cycles = ((60/BPM*24)/8) / 100E-9
 //   -> 3125000 / BPM
 //
-// the 24 Bit / 16 Bit division routine has been created by Nikolai Golovchenko, 
+// the 24 Bit / 16 Bit division routine has been created by Nikolai Golovchenko,
 // and is published at:
 // http://www.piclist.org/techref/microchip/math/div/24by16.htm
 /////////////////////////////////////////////////////////////////////////////
@@ -260,7 +421,7 @@ LOOPU2416:
                                 ;since remainder can be 17 bit long in some cases
                                 ;(e.g. 0x800000/0xFFFF). This bit will also serve
                                 ;as the next result bit.
-         
+
         MOVF _BARGB1, W         ;substract divisor from 16-bit remainder
         SUBWF _REMB1, F         ;
         MOVF _BARGB0, W         ;
@@ -270,8 +431,8 @@ LOOPU2416:
 
 ;here we also need to take into account the 17th bit of remainder, which
 ;is in AARGB2.0. If we dont have a borrow after subtracting from lower
-;16 bits of remainder, then there is no borrow regardless of 17th bit 
-;value. But, if we have the borrow, then that will depend on 17th bit 
+;16 bits of remainder, then there is no borrow regardless of 17th bit
+;value. But, if we have the borrow, then that will depend on 17th bit
 ;value. If it is 1, then no final borrow will occur. If it is 0, borrow
 ;will occur. These values match the borrow flag polarity.
 
@@ -286,7 +447,7 @@ LOOPU2416:
         BTFSC _AARGB2, 0        ;if no borrow after 17-bit subtraction
          BRA UOK46LL            ;skip remainder restoration.
 
-        ADDWF _REMB0, F         ;restore higher byte of remainder. (w 
+        ADDWF _REMB0, F         ;restore higher byte of remainder. (w
                                 ;contains the value subtracted from it
                                 ;previously)
         MOVF _BARGB1, W         ;restore lower byte of remainder
@@ -301,7 +462,7 @@ UOK46LL:
       movf  _AARGB2, W
       return
 __endasm;
- return 0; // dummy return 
+ return 0; // dummy return
 }
 
 
@@ -386,7 +547,7 @@ void MCLOCK_BPMSet(unsigned char _bpm)
 {
   // re-init timer depending on new BPM value
   bpm = _bpm;
-  MIOS_TIMER_ReInit(3, MCLOCK_GetTimerValue(bpm));
+  MIOS_TIMER_ReInit(1, MCLOCK_GetTimerValue(bpm));
 }
 
 unsigned char MCLOCK_BPMGet(void)
@@ -400,7 +561,7 @@ unsigned char MCLOCK_BPMGet(void)
 /////////////////////////////////////////////////////////////////////////////
 void MCLOCK_ResetMeter(void)
 {
-  mclock_ctr_24 = 0;
+  mclock_ctr_96 = 0;
   mclock_ctr_beats = 0;
   mclock_ctr_measures = 0;
 }
@@ -415,6 +576,13 @@ void MCLOCK_SendMeter(void)
   MIOS_MIDI_TxBufferPut(0xf2);
   MIOS_MIDI_TxBufferPut((unsigned char)(songpos & 0x7f));
   MIOS_MIDI_TxBufferPut((unsigned char)(songpos >> 7) & 0x7f);
+
+// Multiouts
+#if MULTI_CLOCK_OPTION
+    MCLOCK_SendMultiPort(0xf2, multi_clk_mask);
+    MCLOCK_SendMultiPort((unsigned char)(songpos & 0x7f), multi_clk_mask);
+    MCLOCK_SendMultiPort(((unsigned char)(songpos >> 7) & 0x7f), multi_clk_mask);
+#endif
 }
 
 
@@ -468,11 +636,36 @@ void MCLOCK_DoPlay(void)
   app_flags.DISPLAY_UPDATE_REQ = 1;
 }
 
+void MCLOCK_DoPlayPause(void)
+{
+  // if in RUN mode:
+  if( mclock_state.RUN ) {
+    // toggle pause mode
+    if( mclock_state.PAUSE ) {
+      mclock_state.CONT_REQ = 1;
+    } else {
+      mclock_state.PAUSE = 1;
+    }
+  } else {
+  // Stop mode: Request Start
+  // reset meter counters
+  MCLOCK_ResetMeter();
+  // send Song Position
+  MCLOCK_SendMeter();
+
+	// request start
+  mclock_state.START_REQ = 1;
+  }
+  // request display update
+  app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+
+
 void MCLOCK_DoRew(void)
 {
   // decrement measure and reset subcounters
   if( mclock_ctr_measures ) --mclock_ctr_measures;
-  mclock_ctr_24 = 0;
+  mclock_ctr_96 = 0;
   mclock_ctr_beats = 0;
 
   // send Song Position
@@ -486,7 +679,7 @@ void MCLOCK_DoFwd(void)
 {
   // increment measure and reset subcounters
   ++mclock_ctr_measures;
-  mclock_ctr_24 = 0;
+  mclock_ctr_96 = 0;
   mclock_ctr_beats = 0;
 
   // send Song Position
@@ -500,6 +693,9 @@ void MCLOCK_DoMultiPlay(unsigned char out)
 {
   // request synched start for given output
   multi_synched_start |= (1 << out);
+  // only previously stopped outputs should be started!
+  multi_synched_start &= ~multi_clk_mask;
+
   // ensure that stop request is cleared
   multi_synched_stop &= ~(1 << out);
 }
@@ -508,6 +704,8 @@ void MCLOCK_DoMultiStop(unsigned char out)
 {
   // request synched stop for given output
   multi_synched_stop |= (1 << out);
+  // only previously started outputs should be stopped!
+  multi_synched_stop &= multi_clk_mask;
   // ensure that start request is cleared
   multi_synched_start &= ~(1 << out);
 }

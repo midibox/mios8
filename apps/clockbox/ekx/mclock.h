@@ -67,6 +67,7 @@ void MCLOCK_SendMeter(void);
 void MCLOCK_DoStop(void);
 void MCLOCK_DoPause(void);
 void MCLOCK_DoPlay(void);
+void MCLOCK_DoPlayPause(void);
 void MCLOCK_DoRew(void);
 void MCLOCK_DoFwd(void);
 
@@ -81,9 +82,12 @@ unsigned int MCLOCK_GetTimerValue(unsigned char bpm);
 
 extern mclock_state_t mclock_state;
 extern mclock_pin_state_t mclock_pin_state;
+extern app_flags_t app_flags;
+extern unsigned char divisor[];
+extern unsigned char multi_clk_mask;
 
-extern unsigned char mclock_ctr_24;
+extern unsigned char mclock_ctr_96;
 extern unsigned char mclock_ctr_beats;
-extern unsigned char mclock_ctr_measures;
+extern unsigned int mclock_ctr_measures;
 
 #endif /* _MCLOCK_H */

@@ -1,6 +1,6 @@
 // $Id$
 /*
- * MIDI clock module definitions
+ * MTC module definitions
  *
  * ==========================================================================
  *
@@ -11,8 +11,8 @@
  * ==========================================================================
  */
 
-#ifndef _MCLOCK_H
-#define _MCLOCK_H
+#ifndef _MTC_H
+#define _MTC_H
 
 /////////////////////////////////////////////////////////////////////////////
 // Global definitions
@@ -23,7 +23,7 @@
 // Global Types
 /////////////////////////////////////////////////////////////////////////////
 
-// status of midi clock
+// status of MTC
 typedef union {
   struct {
     unsigned ALL:8;
@@ -35,55 +35,41 @@ typedef union {
     unsigned STOP_REQ:1;
     unsigned CONT_REQ:1;
   };
-} mclock_state_t;
-
-// status of clock output pin
-typedef union {
-  struct {
-    unsigned ALL:8;
-  };
-  struct {
-    unsigned CLK_REQ:1;
-  };
-} mclock_pin_state_t;
+} mtc_state_t;
 
 
 /////////////////////////////////////////////////////////////////////////////
 // Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-void MCLOCK_Init(void);
-void MCLOCK_Tick(void);
-void MCLOCK_Timer(void);
+void MTC_Init(void);
+void MTC_Tick(void);
+void MTC_Timer(void);
 
-void MCLOCK_SendMultiPort(unsigned char value, unsigned char mask);
+void MTC_FPSSet(unsigned char rate);
+unsigned char MTC_FPSGet(void);
 
-void MCLOCK_BPMSet(unsigned char bpm);
-unsigned char MCLOCK_BPMGet(void);
+void MTC_ResetMeter(void);
+void MTC_SendMeter(void);
 
-void MCLOCK_ResetMeter(void);
-void MCLOCK_SendMeter(void);
+void MTC_DoStop(void);
+void MTC_DoPause(void);
+void MTC_DoPlay(void);
+void MTC_DoPlayPause(void);
+void MTC_DoRew(void);
+void MTC_DoFwd(void);
 
-void MCLOCK_DoStop(void);
-void MCLOCK_DoPause(void);
-void MCLOCK_DoPlay(void);
-void MCLOCK_DoRew(void);
-void MCLOCK_DoFwd(void);
-
-void MCLOCK_DoMultiPlay(unsigned char out);
-void MCLOCK_DoMultiStop(unsigned char out);
-
-unsigned int MCLOCK_GetTimerValue(unsigned char bpm);
+unsigned int MTC_GetTimerValue(unsigned char rate);
 
 /////////////////////////////////////////////////////////////////////////////
 // Export global variables
 /////////////////////////////////////////////////////////////////////////////
 
-extern mclock_state_t mclock_state;
-extern mclock_pin_state_t mclock_pin_state;
+extern mtc_state_t mtc_state;
 
-extern unsigned char mclock_ctr_24;
-extern unsigned char mclock_ctr_beats;
-extern unsigned char mclock_ctr_measures;
+extern unsigned char mtc_ctr_frame_x_4;
+extern unsigned char mtc_ctr_sec;
+extern unsigned char mtc_ctr_min;
+extern unsigned char mtc_ctr_hours;
 
-#endif /* _MCLOCK_H */
+#endif /* _MTC_H */

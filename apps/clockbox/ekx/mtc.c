@@ -15,8 +15,8 @@
 // Include files
 /////////////////////////////////////////////////////////////////////////////
 
-#include <cmios.h>
-#include <pic18fregs.h>
+#include "cmios.h"
+#include "pic18f452.h"
 
 #include "main.h"
 #include "mtc.h"
@@ -98,8 +98,8 @@ void MTC_Tick(void)
       case 4: MIOS_MIDI_TxBufferPut(0x40 | ((mtc_ctr_min >> 0) & 0x0f)); break;
       case 5: MIOS_MIDI_TxBufferPut(0x50 | ((mtc_ctr_min >> 4) & 0x0f)); break;
       case 6: MIOS_MIDI_TxBufferPut(0x60 | ((mtc_ctr_hours >> 0) & 0x0f)); break;
-      case 7: 
-	MIOS_MIDI_TxBufferPut(0x70 | ((frame_type << 1) & 0x06) | ((mtc_ctr_hours >> 4) & 0x01)); 
+      case 7:
+	MIOS_MIDI_TxBufferPut(0x70 | ((frame_type << 1) & 0x06) | ((mtc_ctr_hours >> 4) & 0x01));
 	break;
     }
 
@@ -255,13 +255,38 @@ void MTC_DoPlay(void)
   app_flags.DISPLAY_UPDATE_REQ = 1;
 }
 
+void MTC_DoPlayPause(void)
+{
+  // if in RUN mode:
+  if( mtc_state.RUN ) {
+    // toggle pause mode
+    if( mtc_state.PAUSE ) {
+      mtc_state.CONT_REQ = 1;
+    } else {
+      mtc_state.PAUSE = 1;
+    }
+  } else {
+	  // reset meter counters
+	  MTC_ResetMeter();
+	  // send Song Position
+	  MTC_SendMeter();
+	  // request start
+	  mtc_state.START_REQ = 1;
+  }
+
+  // request display update
+  app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+
+
+
 void MTC_DoRew(void)
 {
   // decrement second and reset subcounters
   mtc_ctr_send = 0;
   mtc_ctr_frame_x_4 = 0;
   if( mtc_ctr_sec || mtc_ctr_min || mtc_ctr_hours ) {
-    if( mtc_ctr_sec ) 
+    if( mtc_ctr_sec )
       --mtc_ctr_sec;
     else {
       mtc_ctr_sec = 59;
