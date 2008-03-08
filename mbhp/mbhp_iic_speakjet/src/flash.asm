@@ -12,7 +12,7 @@
 
 	list	p=16f88
 	radix	dec
-#include "p16f88.inc"
+#include <p16f88.inc>
 #include "macros.inc"
 #include "globals.inc"
 
