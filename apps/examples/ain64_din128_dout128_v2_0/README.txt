@@ -1,5 +1,5 @@
 
-ain64_din128_dout128 V2.1              (C) 2005 Thorsten Klose (tk@midibox.org)
+ain64_din128_dout128 V2.1
 ===============================================================================
 
 This application demonstrates, how to configure MIOS in order to handle with
