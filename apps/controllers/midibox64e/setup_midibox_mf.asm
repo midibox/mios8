@@ -1,4 +1,5 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Setup File for TK's MIDIbox MF
 ; Explanations to the switches and levers: see setup_midibox16e.asm

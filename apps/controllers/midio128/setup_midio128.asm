@@ -1,4 +1,5 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Default Setup File for MIDIO128
 ;

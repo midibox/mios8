@@ -1,4 +1,5 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Setup File of MIDIbox CV
 ;

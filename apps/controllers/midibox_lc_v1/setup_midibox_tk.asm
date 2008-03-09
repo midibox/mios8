@@ -1,4 +1,5 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Special Setup File for TK's MIDIbox LC
 ;
