@@ -1,4 +1,4 @@
-; $Id: cs_m_song.inc 97 2008-02-17 18:32:55Z tk $
+; $Id$
 ;
 ; MBSEQ Menu "Song Save"
 ; Partly uses code from cs_m_song.inc
