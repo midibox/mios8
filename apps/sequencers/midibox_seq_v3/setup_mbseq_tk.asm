@@ -1,4 +1,5 @@
 ;$Id$
+	LIST R=DEC
 ;
 ; Individual Setup File for TK's MIDIbox SEQ V3
 ;

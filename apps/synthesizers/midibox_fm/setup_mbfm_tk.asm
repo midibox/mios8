@@ -1,4 +1,5 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Prepared Setup File for TK's MIDIbox FM setup
 ; In difference to the setup_mbfm_v1.asm configuration it uses a different 

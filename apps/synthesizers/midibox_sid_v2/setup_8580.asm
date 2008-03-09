@@ -1,9 +1,8 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Prepared Setup File for 8580 SID
 ;
-	LIST R=DEC
-
 
 	;; BankStick Chip Select Address for "ensembles"
 	;; -1: only one ensemble available, stored in internal EEPROM

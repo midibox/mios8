@@ -1,8 +1,8 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Individual Setup File for MB-6582
 ;
-	LIST R=DEC
 
 
 	;; BankStick Chip Select Address for "ensembles"

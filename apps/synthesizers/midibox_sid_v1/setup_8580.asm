@@ -1,4 +1,5 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Prepared Setup File for 8580 SID
 ;

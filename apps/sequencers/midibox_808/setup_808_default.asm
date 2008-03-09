@@ -1,4 +1,5 @@
 ;$Id$
+	LIST R=DEC
 ;
 ; Default setup File for MB808
 ;

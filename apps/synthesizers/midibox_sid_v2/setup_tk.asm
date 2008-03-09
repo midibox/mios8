@@ -1,9 +1,8 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Individual Setup File for TK's MIDIbox SID
 ;
-	LIST R=DEC
-
 
 	;; BankStick Chip Select Address for "ensembles"
 	;; -1: only one ensemble available, stored in internal EEPROM

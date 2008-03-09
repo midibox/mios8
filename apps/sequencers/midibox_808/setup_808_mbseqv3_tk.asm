@@ -1,4 +1,5 @@
 ;$Id$
+	LIST R=DEC
 ;
 ; Individual Setup File for TK's MIDIbox SEQ V3
 ;
@@ -66,7 +67,7 @@ DEFAULT_TRKINFO MACRO
 ;
 ; debounce counter (see the function description of MIOS_SRIO_DebounceSet)
 ; Use 0 for high-quality buttons, use higher values for low-quality buttons
-#define DEFAULT_SRIO_DEBOUNCE_CTR 32
+#define DEFAULT_SRIO_DEBOUNCE_CTR 0
 ;
 ; For MIDI activity monitor: define the DOUT pins for the Rx and Tx LED
 #define DEFAULT_MIDI_MONITOR_ENABLED 1  ; if 1, the Tx/Rx LEDs are enabled

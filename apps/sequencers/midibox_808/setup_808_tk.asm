@@ -1,4 +1,5 @@
 ;$Id$
+	LIST R=DEC
 ;
 ; TK's setup File for MB808
 ;

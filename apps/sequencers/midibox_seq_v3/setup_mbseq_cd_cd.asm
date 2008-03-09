@@ -1,4 +1,5 @@
 ;$Id$
+	LIST R=DEC
 ;
 ; cd_cd's setup File for MIDIbox SEQ V3
 ;

@@ -1,8 +1,8 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Prepared Setup File for 6581 SID
 ;
-	LIST R=DEC
 
 
 	;; BankStick Chip Select Address for "ensembles"

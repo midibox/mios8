@@ -1,4 +1,5 @@
 ; $Id$
+	LIST R=DEC
 ;
 ; Default setup File for MIDIbox SEQ Vintage (sequencer for MIDIbox64)
 ;
