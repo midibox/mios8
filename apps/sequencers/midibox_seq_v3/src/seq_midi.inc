@@ -417,6 +417,8 @@ SEQ_MIDI_PitchBender
 ;;     o third  MIDI event byte in MIOS_PARAMETER3
 ;; --------------------------------------------------------------------------
 SEQ_MIDI_CC
+	SET_BSR	SEQ_BASE
+
 	;; store MIDI channel in TMP1
 	movf	MIOS_PARAMETER1, W
 	andlw	0x0f
@@ -553,14 +555,29 @@ SEQ_MIDI_CC_FromLoopback_NoCC3
 ;;     o second  MIDI event byte in MIOS_PARAMETER2
 ;; --------------------------------------------------------------------------
 SEQ_MIDI_ProgramChange
+	SET_BSR	SEQ_BASE
+
+	;; store MIDI channel in TMP1
+	movf	MIOS_PARAMETER1, W
+	andlw	0x0f
+	movwf	TMP1
+
+	;; Exit the rest if MIDI channel doesn't match
+	movf	SEQ_MIDI_CHANNEL, W, BANKED
+	bz	SEQ_MIDI_ProgramChange_End
+	addlw	-1
+	cpfseq	TMP1, ACCESS
+	rgoto	SEQ_MIDI_ProgramChange_End
+
 #if DEFAULT_MIDI_SONG_CHANGE_VIA_PC
 	;; select new song
-	SET_BSR	SEQ_BASE
 	movf	SEQ_SONG, W, BANKED
 	andlw	0x80
 	iorwf	MIOS_PARAMETER2, W
 	movwf	SEQ_SONG, BANKED
 #endif
+
+SEQ_MIDI_ProgramChange_End
 	return
 
 ;; --------------------------------------------------------------------------
