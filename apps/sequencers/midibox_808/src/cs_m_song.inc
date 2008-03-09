@@ -2,10 +2,6 @@
 ;
 ; MBSEQ Menu "Song"
 ;
-; Activate this #define to measure the performance with a scope
-; (connect the probe to RC.5)
-#define SONG_MENU_MEASURE_PERFORMANCE 0
-;
 ; ==========================================================================
 ;
 ;  Copyright 1998-2006 Thorsten Klose (tk@midibox.org)
@@ -26,23 +22,46 @@
 ;;     should return the GP LED values in CS_MENU_GP_OVERLAY_DOUT_SR[01]
 ;; --------------------------------------------------------------------------
 CS_M_SONG_GP_Callback
-	;; do nothing if GP button has been depressed
+	;; ignore if no BankStick for songmode
+	btfss	MB_STAT, MB_STAT_USE_S_BANKSTICK
+	return
+
+	;; exit if button depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
 	;; store button number in cursor pos
 	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
 
-	;; if shift button pressed: change to song 17-32, else song 1-16
-	SET_BSR	SEQ_BASE
-	movf	MIOS_PARAMETER1, W
-	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
-	addlw	0x10
-	movwf	SEQ_SONG, BANKED
-	;; (this also clears the "song disabled" bit #7)
+	;; call general GP routine for pattern (and song) selection
+	clrf	CS_PATTERN_NEW_BANK	; ensure that no new bank is selected
+	call	CS_M_HLP_GPPatternSel
 
-	;; update LEDs
+	;; change song if one of the right GP buttons has been pressed
+	BRA_IFCLR MIOS_PARAMETER1, 3, ACCESS, CS_M_SONG_GP_Callback_Cont
+CS_M_SONG_GP_Callback_PChng
+
+	;; change to a new song
+	;; 7th bit cleared: CS_MENU_PARAMETER_L = song number + 1
+	;; 7th bit set:     CS_MENU_PARAMETER_L = 0
+	decf	CS_MENU_PARAMETER_L, W
+	movf	CS_MENU_PARAMETER_L, F
+	skpnz
+	movlw	0x80
+	movwf	TMP1
+
+	movff	TMP1, SEQ_SONG
+
+	;; restore song
+	call	SEQ_DUMP_RestoreSong
+
+
+CS_M_SONG_GP_Callback_Cont
+	;; DIRTY!
+	;; ensure that GP LEDs updated immediately
 	rcall	CS_M_SONG_UpdateGPLEDs
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
 
 	;; request display update and exit
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
@@ -51,36 +70,41 @@ CS_M_SONG_GP_Callback
 
 ;; --------------------------------------------------------------------------
 CS_M_SONG_UpdateGPLEDs
+	;; if no BankStick for songmode: flash all LEDs
+	BRA_IFSET MB_STAT, MB_STAT_USE_S_BANKSTICK, ACCESS, CS_M_SONG_UpdateGPLEDs_BSOk
+CS_M_SONG_UpdateGPLEDs_NoBS
+	;; flash all LEDs
+	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
+	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+	setf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	setf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	return
+
+CS_M_SONG_UpdateGPLEDs_BSOk
 	;; clear all LEDs
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
 
-	;; flash LEDs
-	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
-	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+	;; exit when menu parameter == 0
+	movf	CS_MENU_PARAMETER_L, W
+	skpnz
+	return
 
-	;; check if song within displayed range
-	SET_BSR	SEQ_BASE
-	movlw	0x00
-	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
-	movlw	0x10
-	xorwf	SEQ_SONG, W, BANKED
-	andlw	0x10
-	bnz	CS_M_SONG_UpdateGPLEDs_End
-
-	;; display song number
-	movf	SEQ_SONG, W, BANKED
+	;; first 8 leds: (CS_MENU_PARAMETER_L-1)[5..3]
+	decf	CS_MENU_PARAMETER_L, W
+	rlf	WREG, W
+	swapf	WREG, W
 	call	MIOS_HLP_GetBitORMask
-	btfss	SEQ_SONG, 3, BANKED
 	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	btfsc	SEQ_SONG, 3, BANKED
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
 
-	;; if song enabled: don't flash LEDs!
-	BRA_IFSET SEQ_SONG, 7, BANKED, CS_M_SONG_UpdateGPLEDs_End
-	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
-	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
-CS_M_SONG_UpdateGPLEDs_End
+	;; last 8 leds: (CS_MENU_PARAMETER_L-1)[2..0]
+	;; + state of GP buttons if SHIFT button not pressed (no chain mode)
+	decf	CS_MENU_PARAMETER_L, W
+	call	MIOS_HLP_GetBitORMask
+	SET_BSR	SEQ_BASE
+	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+	iorwf	CS_PATTERN_GP_STATE_R, W
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
 	return
 
 
@@ -88,38 +112,79 @@ CS_M_SONG_UpdateGPLEDs_End
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_SONG_Init
-	;; allow fast display update
-	bsf	CS_STAT2, CS_STAT2_ALLOW_FAST_DISP_UPDATE
-
 	;; install callback function for general purpose buttons, used to select an item here
 	TABLE_ADDR CS_M_SONG_GP_Callback
 	call	CS_MENU_SetMenuGPCallbackHook
 
 	;; update LEDs
-	rgoto	CS_M_SONG_UpdateGPLEDs
+	rcall	CS_M_SONG_UpdateGPLEDs
 
+	;; if no BankStick for songmode: print special message
+	BRA_IFSET MB_STAT, MB_STAT_USE_S_BANKSTICK, ACCESS, CS_M_SONG_Init_BSOk
+CS_M_SONG_Init_NoBS
+	;; print message
+	call	SEQ_LCD_Clear
+	TABLE_ADDR CS_M_SONG_STR_BNA_0
+	call	MIOS_LCD_PrintString
+	goto	MIOS_LCD_PrintString
+
+CS_M_SONG_Init_BSOk
+	;; allow fast display update
+	bsf	CS_STAT2, CS_STAT2_ALLOW_FAST_DISP_UPDATE
+
+	;; don't flash LEDs by default, only during a pattern is changed via GP buttons
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
+	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+
+	;; copy current song number into parameter
+	;; 7th bit cleared: CS_MENU_PARAMETER_L = pattern number + 1
+	;; 7th bit set:     CS_MENU_PARAMETER_L = 0
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_SONG, 7, BANKED, CS_M_SONG_Init_PMuted
+CS_M_SONG_Init_PNotMuted
+	incf	SEQ_SONG, W, BANKED
+	rgoto	CS_M_SONG_Init_P_Cont
+CS_M_SONG_Init_PMuted
+	movlw	0x00
+CS_M_SONG_Init_P_Cont
+	movwf	CS_MENU_PARAMETER_L
+
+	return
+
+CS_M_SONG_STR_BNA_0	STRING 16, 0x00, "* No BankStick *"
+CS_M_SONG_STR_BNA_1	STRING 16, 0x40, "* for song :-/ *"
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
 CS_M_SONG_Tick
+	;; update LEDs
+	rcall	CS_M_SONG_UpdateGPLEDs
+
+	;; ignore if no BankStick for songmode
+	btfss	MB_STAT, MB_STAT_USE_S_BANKSTICK
+	return
+
+	;; always update pattern LEDs (important if mutes have been changed via MIDI)
+	rcall	CS_M_SONG_UpdateGPLEDs
+
 	;; layout:
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	;; <--------------------------------------><-------------------------------------->
-	;; S:xx/xxxxx  1:A1    ________________
-	;; 00000000001111111111222222222222222233334444444444555555555566666666667777777777
-	;;   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16  
+	;; BD    SONG      A1* ________________                                              
+	;; 00000001111111111111222222223333333333334444444444555555555566666666667777777777
+	;;   A    B    C    D    E    F    G    H    1    2    3    4    5    6    7    8  
 	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
 
 	;; for 2x16 LCD:
 	;; 0000000000111111
 	;; 0123456789012345
 	;; <-------------->
-	;; S:xx/xxxxx  1:A1
-	;; 0000000000111111
+	;; BD    SONG   A1*
+	;; 0000000111111111
 	;; ________________
-	;; 2222222222222222
+	;; 2222222222333333
 
 	;; if fast display update, and counter < 0x10, set it to 0x10
 	BRA_IFCLR CS_STAT2, CS_STAT2_FAST_DISPLAY_UPDATE, ACCESS, CS_M_SONG_Tick_NotFast
@@ -149,63 +214,24 @@ CS_M_SONG_Tick_NotFast
 	rgoto	CS_M_SONG_Tick_6
 	rgoto	CS_M_SONG_Tick_7
 
-CS_M_SONG_Tick_0		; re-used from CS_M_MUTE_Init !!!
-	;; print song number and position
+CS_M_SONG_Tick_0
+	;; print chain info (6 chars)
 	movlw	0x00 + 0
 	call	MIOS_LCD_CursorSet
-
-	movlw	'S'
-	call	MIOS_LCD_PrintChar
-	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_SONG, 7, BANKED, CS_M_SONG_Tick_0_S_Dis
-CS_M_SONG_Tick_0_S_NotDis
-	movf	SEQ_SONG, W
-	andlw	0x7f
-	addlw	1
-	call	MIOS_LCD_PrintBCD2
-	rgoto	CS_M_SONG_Tick_0_S_Cont
-CS_M_SONG_Tick_0_S_Dis
-	movlw	'-'
-	call	MIOS_LCD_PrintChar
-	movlw	'-'
-	call	MIOS_LCD_PrintChar
-CS_M_SONG_Tick_0_S_Cont
-
-	movlw	'/'
-	call	MIOS_LCD_PrintChar
-
-	;; song pointer padded with zeros
-	clrf	MIOS_PARAMETER1
-	movlw	0x00
-	call	MIOS_HLP_Dec2BCD
-	movf	MIOS_PARAMETER3, W
-	call	MIOS_LCD_PrintHex1
-	movf	MIOS_PARAMETER2, W
-	call	MIOS_LCD_PrintHex2
-	movf	MIOS_PARAMETER1, W
-	call	MIOS_LCD_PrintHex2
-
+	call	CS_M_PATTERN_PrnChain
 	rgoto	CS_M_SONG_Tick_Cont
 
-
+CS_M_SONG_Tick_1_STR	STRING 7, 0x00 + 6, "SONG   "
 CS_M_SONG_Tick_1
-	;; print currently played pattern
-	movlw	0x00 + 10
-	call	MIOS_LCD_CursorSet
+	TABLE_ADDR CS_M_SONG_Tick_1_STR
+	call	MIOS_LCD_PrintString
 
-	;; 2 spaces
-	movlw	2
-	call	SEQ_LCD_PrintSpaces
+	;; pattern name (3 characters)
+	rcall	CS_M_SONG_PrnS
 
-	;; pattern name (5 characters)
-	SET_BSR	SEQ_BASE
-	incf	SEQ_NEXT_PATTERN0, W, BANKED
-	movwf	CS_MENU_PARAMETER_L
-	rcall	CS_M_PATTERN_PrnP
-
-	;; 3 additional spaces
-	movlw	3
-	call	SEQ_LCD_PrintSpaces
+	;; additional space
+	movlw	' '
+	call	MIOS_LCD_PrintChar
 
 	rgoto	CS_M_SONG_Tick_Cont
 
@@ -226,6 +252,8 @@ CS_M_SONG_Tick_3
 	movlw	0x40 + 16
 #endif
 	call	MIOS_LCD_CursorSet
+	movlw	4
+	call	SEQ_LCD_PrintSpaces
 	rgoto	CS_M_SONG_Tick_Cont
 
 CS_M_SONG_Tick_4
@@ -238,35 +266,17 @@ CS_M_SONG_Tick_7
 #endif
 	rgoto	CS_M_SONG_Tick_Cont
 
+CS_M_SONG_Tick_89ABCDEF_STR
+	db	"  A    B    C    D    E    F    G    H    1    2    3    4    5    6    7    8  "
 CS_M_SONG_Tick_89ABCDEF
 #if DEFAULT_LCD_WIDTH == 80
-	;; set cursor depending on current segment
-	call	CS_M_HLP_SetSegmentCursor
-
-	;; print two song numbers (depends on shift button)
-	SET_BSR	SEQ_BASE
+	;; determine string offset
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-8
-	rlf	WREG, W
-	andlw	0x0e
-	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
-	addlw	0x10
-	movwf	TMP1
+	andlw	0x07
 
-	movlw	1
-	call	SEQ_LCD_PrintSpaces
-	incf	TMP1, W
-	call	MIOS_LCD_PrintBCD2
-	movlw	2
-	call	SEQ_LCD_PrintSpaces
-	
-	movlw	1
-	call	SEQ_LCD_PrintSpaces
-	incf	TMP1, W
-	addlw	1
-	call	MIOS_LCD_PrintBCD2
-	movlw	2
-	call	SEQ_LCD_PrintSpaces	
+	TABLE_ADDR_MUL_W CS_M_SONG_Tick_89ABCDEF_STR, 10
+	call	CS_M_HLP_Print10Chars
+	rgoto	CS_M_SONG_Tick_Cont
 #endif
 
 
@@ -297,5 +307,42 @@ CS_M_SONG_Tick_Cont
 
 CS_M_SONG_Tick_End
 	return
-
 ;; ==========================================================================
+
+;; --------------------------------------------------------------------------
+;;  This help function prints the song number (3 characters)
+;; --------------------------------------------------------------------------
+CS_M_SONG_PrnS
+	SET_BSR	SEQ_BASE
+
+	;; write converted CS_MENU_PARAMETER_L to TMP2
+	decf	CS_MENU_PARAMETER_L, W
+	movf	CS_MENU_PARAMETER_L, F
+	skpnz
+	movlw	0x80
+	movwf	TMP2
+
+	;; if new section selection and cursor flashes: print two spaces instead of pattern number
+	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_M_SONG_PrnS_Ptn_NoFlsh
+CS_M_SONG_PrnS_Ptn_FlshChk
+	SET_BSR	SEQ_BASE
+	movf	TMP2, W
+	xorwf	SEQ_SONG, W, BANKED
+	bz	CS_M_SONG_PrnS_Ptn_NoFlsh
+CS_M_SONG_PrnS_Ptn_Flsh
+	movlw	2
+	call	SEQ_LCD_PrintSpaces
+	rgoto	CS_M_SONG_PrnS_Ptn_Cont
+CS_M_SONG_PrnS_Ptn_NoFlsh
+	;; print pattern
+	movf	TMP2, W
+	call	SEQ_LCD_PrnPattern
+CS_M_SONG_PrnS_Ptn_Cont
+
+	;; print '*' if song bankstick not available
+	movlw	' '
+	btfss	MB_STAT, MB_STAT_USE_S_BANKSTICK
+	movlw	'*'
+	goto	MIOS_LCD_PrintChar
+
+

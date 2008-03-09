@@ -265,7 +265,7 @@ SEQ_MIDI_CHANNEL	EQU	0x101	; channel which is used for transpose/arpeggiator fun
 SEQ_MIDI_SPLIT_NOTE	EQU	0x102	; split point for transpose/arpeggiator (used when SEQ_CFG0_T_A_SPLIT enabled)
 SEQ_PATTERN		EQU	0x103	; selects pattern for SEQ_BANK* functions
 SEQ_PATTERN_BANK	EQU	0x104	; selects pattern for SEQ_BANK* functions
-	;; free: 0x104..0x109
+	;; free: 0x105..0x109
 SEQ_SELECTED_TRK	EQU	0x109	; UI: selected track (0-15)
 SEQ_SELECTED_TRKS_0	EQU	0x10a	; UI: selected tracks 0-7
 SEQ_SELECTED_TRKS_1	EQU	0x10b	; UI: selected tracks 8-15
@@ -333,61 +333,59 @@ SEQ_MIDIPOS_MSB		EQU	0x13f	; used by the SEQ_MIDI_ClkPosParser
 
 SEQ_BANKSTICK_CHK_CTR	EQU	0x140	; used in "seq_bank.inc"
 SEQ_BANKSTICK_SAVE_CTR	EQU	0x141	; used in "seq_bank.inc" for non-blocking write operations
-SEQ_BANKSTICK_STATUS	EQU	0x142	; used in "seq_bank.inc" (each BankStick has an own available flag)
-SEQ_BANKSTICK_SIZE	EQU	0x143	; used in "seq_bank.inc" (each BankStick has a size flag - 0=32k, 1=64k)
-SEQ_BANKSTICK_DISABLED	EQU	0x144	; used in "seq_bank.inc" to disable Mixer-BankSticks (so that they won't be reformatted)
+SEQ_BANKSTICK_SAVE_SONG_CTR EQU	0x142	; used in "seq_sbank.inc" for non-blocking write operations
+SEQ_BANKSTICK_STATUS	EQU	0x143	; used in "seq_bank.inc" (each BankStick has an own available flag)
+SEQ_BANKSTICK_SIZE	EQU	0x144	; used in "seq_bank.inc" (each BankStick has a size flag - 0=32k, 1=64k)
+SEQ_BANKSTICK_DISABLED	EQU	0x145	; used in "seq_bank.inc" to disable Mixer-BankSticks (so that they won't be reformatted)
 
-SEQ_GP_LED_L		EQU	0x145	; status of the general purpose LEDs (left side)
-SEQ_GP_LED_R		EQU	0x146	; status of the general purpose LEDs (right side)
-SEQ_BLM_ROW_CTR	        EQU	0x147	; used by seq_leds.inc when DEFAULT_TRACK_LEDS_ENABLED set
-SEQ_BLM_COL_CTR		EQU	0x148	; used by "seq_button.inc"
+SEQ_GP_LED_L		EQU	0x146	; status of the general purpose LEDs (left side)
+SEQ_GP_LED_R		EQU	0x147	; status of the general purpose LEDs (right side)
+SEQ_BLM_ROW_CTR	        EQU	0x148	; used by seq_leds.inc when DEFAULT_TRACK_LEDS_ENABLED set
+SEQ_BLM_COL_CTR		EQU	0x149	; used by "seq_button.inc"
 
-SEQ_ENC_INC		EQU	0x149	; used by seq_enc.inc to save the incrementer
+SEQ_ENC_INC		EQU	0x14a	; used by seq_enc.inc to save the incrementer
 
-SEQ_LCD_PREVIOUS_EVNTL	EQU	0x14a	; used by SEQ_LCD_PrnPTypeVal_L for perfect length display
-SEQ_LCD_PREVIOUS_EVNTL_CTR EQU	0x14b
+SEQ_LCD_PREVIOUS_EVNTL	EQU	0x14b	; used by SEQ_LCD_PrnPTypeVal_L for perfect length display
+SEQ_LCD_PREVIOUS_EVNTL_CTR EQU	0x14c
 
-SEQ_SAVE_PATTERN	EQU	0x14c	; used by CS_M_SAVE* to store the save pattern
-SEQ_SAVE_PATTERN_BANK	EQU	0x14d	; used by CS_M_SAVE* to store the save pattern
+SEQ_SAVE_PATTERN	EQU	0x14d	; used by CS_M_PATTERN_S to store the save pattern
+SEQ_SAVE_PATTERN_BANK	EQU	0x14e	; used by CS_M_PATTERN_S to store the save pattern
+SEQ_SAVE_SONG		EQU	0x14f	; used by CS_M_SONG_S to store the save song
 
-SEQ_PORTS_MUTED		EQU	0x14e	; used by seq_core.inc
+SEQ_PORTS_MUTED		EQU	0x150	; used by seq_core.inc
 
-SEQ_REMOTE_CTR		EQU	0x14f	; used by "seq_remote.inc"
+SEQ_REMOTE_CTR		EQU	0x151	; used by "seq_remote.inc"
 
-SEQ_RECORD_MODE		EQU	0x150	; used by "cs_m_record.inc"
-SEQ_RECORD_STEP		EQU	0x151	; used by "cs_m_record.inc"
-SEQ_RECORD_LENGTH_CTR   EQU     0x152   ; used by "cs_m_record.inc" and "seq_core.inc"
+SEQ_RECORD_MODE		EQU	0x152	; used by "cs_m_record.inc"
+SEQ_RECORD_STEP		EQU	0x153	; used by "cs_m_record.inc"
+SEQ_RECORD_LENGTH_CTR   EQU     0x154   ; used by "cs_m_record.inc" and "seq_core.inc"
 
-SEQ_MORPH_CHANNEL	EQU	0x153	; used by "seq_midi.inc" and "cs_m_morph.inc"
-SEQ_MORPH_CC		EQU	0x154	; used by "seq_midi.inc" and "cs_m_morph.inc"
-SEQ_MORPH_VALUE		EQU	0x155	; used by "seq_midi.inc" and "cs_m_morph.inc"
+SEQ_MORPH_CHANNEL	EQU	0x155	; used by "seq_midi.inc" and "cs_m_morph.inc"
+SEQ_MORPH_CC		EQU	0x156	; used by "seq_midi.inc" and "cs_m_morph.inc"
+SEQ_MORPH_VALUE		EQU	0x157	; used by "seq_midi.inc" and "cs_m_morph.inc"
 
-SEQ_MORPH_EVNT1		EQU	0x156	; used by "seq_morph.inc"
-SEQ_MORPH_EVNT2		EQU	0x157	; used by "seq_morph.inc"
-SEQ_MORPH_EVNTL		EQU	0x158	; used by "seq_morph.inc"
-SEQ_MORPH_MIN_VALUE	EQU	0x159	; used by "seq_morph.inc"
-SEQ_MORPH_MAX_VALUE	EQU	0x15a	; used by "seq_morph.inc"
+SEQ_MORPH_EVNT1		EQU	0x158	; used by "seq_morph.inc"
+SEQ_MORPH_EVNT2		EQU	0x159	; used by "seq_morph.inc"
+SEQ_MORPH_EVNTL		EQU	0x15a	; used by "seq_morph.inc"
+SEQ_MORPH_MIN_VALUE	EQU	0x15b	; used by "seq_morph.inc"
+SEQ_MORPH_MAX_VALUE	EQU	0x15c	; used by "seq_morph.inc"
 
-SEQ_CORE_TRK_LASTPOS	EQU	0x15b	; used by "seq_core.inc"
+SEQ_CORE_TRK_LASTPOS	EQU	0x15d	; used by "seq_core.inc"
 
-SEQ_CORE_EXT_CLK_DIVIDER EQU	0x15c	; divider for external clock output
-SEQ_CORE_EXT_CLK_DIVIDER_PRELOAD EQU 0x15d ; preload value of divider
+SEQ_CORE_EXT_CLK_DIVIDER EQU	0x15e	; divider for external clock output
+SEQ_CORE_EXT_CLK_DIVIDER_PRELOAD EQU 0x15f ; preload value of divider
 
-SEQ_CORE_INT_CLK_DIVIDER EQU	0x15e	; divider for internal clock output
-SEQ_CORE_INT_CLK_DIVIDER_PRELOAD EQU 0x15f ; preload value of divider
+SEQ_CORE_INT_CLK_DIVIDER EQU	0x160	; divider for internal clock output
+SEQ_CORE_INT_CLK_DIVIDER_PRELOAD EQU 0x161 ; preload value of divider
 
-SEQ_SKIP_STEP_PROTECTION_CTR EQU 0x160	; used by "seq_core.inc"
+SEQ_SKIP_STEP_PROTECTION_CTR EQU 0x162	; used by "seq_core.inc"
 
-SEQ_LAYER_STORED_EVNTT	EQU	0x161	; used by "seq_layer.inc"
-SEQ_LAYER_STORED_EVNTS	EQU	0x162	; used by "seq_layer.inc"
-SEQ_LAYER_STORED_PATTERN EQU	0x163	; used by "seq_layer.inc"
-SEQ_LAYER_STORED_PATTERN_BANK EQU 0x164	; used by "seq_layer.inc"
+SEQ_LAYER_STORED_EVNTT	EQU	0x163	; used by "seq_layer.inc"
+SEQ_LAYER_STORED_EVNTS	EQU	0x164	; used by "seq_layer.inc"
+SEQ_LAYER_STORED_PATTERN EQU	0x165	; used by "seq_layer.inc"
+SEQ_LAYER_STORED_PATTERN_BANK EQU 0x166	; used by "seq_layer.inc"
 
-SEQ_T_NOTE_STACK_HOLD	EQU	0x165	; holded transpose note
-
-SEQ_GLOBAL_SCALE	EQU	0x166	; used by "seq_scale.inc"
-SEQ_GLOBAL_SCALE_CTRL	EQU	0x167	; used by "seq_scale.inc"
-SEQ_GLOBAL_SCALE_KEYB_ROOT EQU	0x168	; used by "seq_scale.inc"
+	;; free: 0x167-0x168
 
 SEQ_PATTERN_SYNC_TRANSFER_REQ EQU 0x169	; synchronized transfer request for the patterns (bit 3-0)
 

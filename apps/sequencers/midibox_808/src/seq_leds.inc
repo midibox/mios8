@@ -65,9 +65,6 @@ SEQ_LED_Update
  IF LED_MUTE < 128
 	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_MUTE, BANKED, LED_MUTE
  ENDIF
- IF LED_PATTERN < 128
-	SEQ_LED_UPDATE_DOUT SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED, LED_PATTERN
- ENDIF
 
 	;; extra: the pattern LED flashes if a pattern should be stored
  IF LED_PATTERN < 128
@@ -87,17 +84,17 @@ SEQ_LED_Update_PatternLED_NoFl
 	rcall	SEQ_LED_Update_PinSet
  ENDIF
 
-	;; extra: the song LED flashes if no song selected, and it is permanent on if song mode active
+	;; extra: the song LED flashes if chain should be stored
  IF LED_SONG < 128
 SEQ_LED_Update_SongLED
 	clrf	MIOS_PARAMETER1
 	btfsc	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
 	setf	MIOS_PARAMETER1
-	
-	btfsc	SEQ_STATE, SEQ_STATE_SONG, BANKED
-	setf	MIOS_PARAMETER1
-	
-	BRA_IFSET SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_LED_Update_SongLED_NoFl
+
+	movlw	CS_MENU_PAGE_SONG_S
+	xorwf	CS_MENU_POS, W
+	bnz	SEQ_LED_Update_SongLED_NoFl
+SEQ_LED_Update_SongLED_Fl
 	btfss	CS_STAT, CS_STAT_CURSOR_FLASH
 	clrf	MIOS_PARAMETER1
 SEQ_LED_Update_SongLED_NoFl

@@ -397,6 +397,13 @@ SEQ_BUTTON_Shift
 	btfss	MIOS_PARAMETER2, 0
 	bsf	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
 
+	;; if button released: clear "force" flags
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_Shift_NoClrForce
+SEQ_BUTTON_Shift_ClrForce
+	bcf	SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED
+	bcf	SEQ_MODE2, SEQ_MODE2_FORCE_AUX, BANKED
+SEQ_BUTTON_Shift_NoClrForce
+
 	;; request display re-initialisation
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 
@@ -466,11 +473,7 @@ SEQ_BUTTON_Rew_Pressed
 	return
 
 	;; in pattern mode: nudge track backwards
-	btfsc	SEQ_SONG, 7, BANKED
 	goto	SEQ_CORE_NudgeRew
-
-	;; in song mode: previous song position
-	goto	SEQ_SONG_Rew
 
 SEQ_BUTTON_Rew_Released
 	bcf	SEQ_MODE2, SEQ_MODE2_REW_HOLD, BANKED ; clear hold flag
@@ -496,11 +499,7 @@ SEQ_BUTTON_Fwd_Pressed
 	return
 
 	;; in pattern mode: nudge track forward
-	btfsc	SEQ_SONG, 7, BANKED
 	goto	SEQ_CORE_NudgeFwd
-
-	;; next song position
-	goto	SEQ_SONG_Fwd
 
 SEQ_BUTTON_Fwd_Released
 	bcf	SEQ_MODE2, SEQ_MODE2_FWD_HOLD, BANKED ; clear hold flag
@@ -713,29 +712,19 @@ SEQ_BUTTON_Song
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; toggle song mode if we are already in SONG menu
-	movlw	CS_MENU_PAGE_SONG
-	cpfseq	CS_MENU_POS, ACCESS
-	rgoto SEQ_BUTTON_Song_NoToggle
-SEQ_BUTTON_Song_Toggle
+	;; if ALT button pressed: branch to save menu
 	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_SONG, 7, BANKED, SEQ_BUTTON_Song_Toggle_0
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_ALT, BANKED, SEQ_BUTTON_Song_Save
 
-SEQ_BUTTON_Song_Toggle_1
-	bsf	SEQ_SONG, 7, BANKED
-	call	SEQ_SONG_ExitSongMode
-	rgoto	SEQ_BUTTON_Song_Toggle_Cont
+	;; clear state of right select buttons
+	clrf	CS_PATTERN_GP_STATE_R
 
-SEQ_BUTTON_Song_Toggle_0
-	bcf	SEQ_SONG, 7, BANKED
-	call	SEQ_SONG_EnterSongMode
-	;; 	rgoto	SEQ_BUTTON_Song_Toggle_Cont
-
-SEQ_BUTTON_Song_Toggle_Cont
-SEQ_BUTTON_Song_NoToggle
-
-	;; branch to song menu
+	;; branch to normal pattern menu
 	movlw	CS_MENU_PAGE_SONG
+	goto	CS_M_HLP_ChangePage
+
+SEQ_BUTTON_Song_Save
+	movlw	CS_MENU_PAGE_SONG_S
 	goto	CS_M_HLP_ChangePage
 
 
@@ -911,7 +900,7 @@ SEQ_BUTTON_SectionX_Toggle
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitORMask
 	xorwf	SEQ_SELECTED_ABCD, F, BANKED
- 	rgoto	SEQ_BUTTON_SectionX_End
+ 	rgoto	SEQ_BUTTON_SectionX_Cont2
 SEQ_BUTTON_SectionX_Radio
 	;; select 1 of 4
 	movlw	0xf0
@@ -920,11 +909,32 @@ SEQ_BUTTON_SectionX_Radio
 	call	MIOS_HLP_GetBitORMask
 	iorwf	SEQ_SELECTED_ABCD, F, BANKED
 
-	;; 	rgoto	SEQ_BUTTON_SectionX_End
+	;; 	rgoto	SEQ_BUTTON_SectionX_Cont2
 	
-SEQ_BUTTON_SectionX_End
+SEQ_BUTTON_SectionX_Cont2
 	;; save button state
 	rcall	SEQ_BUTTON_SectionX_Hlp_Sav
+
+	SET_BSR	SEQ_BASE
+	;; if section change should be forwarded via MIDI:
+	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_SEND_MIDI_PTN, BANKED, SEQ_BUTTON_SectionX_NoMIDI
+SEQ_BUTTON_SectionX_MIDI
+	;; send bank and pattern via preconfigured midi channel
+	movf	SEQ_MIDI_CHANNEL, W, BANKED
+	bz	SEQ_BUTTON_SectionX_NoMIDI
+	addlw	-1
+	andlw	0x0f
+
+	;; send CC#64
+	iorlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x40
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	SEQ_BASE
+	movf	SEQ_SELECTED_ABCD, W, BANKED
+	andlw	0x0f
+	call	MIOS_MIDI_TxBufferPut
+SEQ_BUTTON_SectionX_NoMIDI
 
 	;; request display reinitialization
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
@@ -952,16 +962,34 @@ SEQ_BUTTON_SectionX_Hlp_Sav
 ;;  Select Gate/Aux layer
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_LayerGate
+	;; extra: if GATE+SHIFT button pressed, force accented notes
+	SET_BSR	SEQ_BASE
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_LayerGate_NoForce
+SEQ_BUTTON_LayerGate_ForceAcc
+	btfss	MIOS_PARAMETER2, 0
+	bsf	SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED
+	btfsc	MIOS_PARAMETER2, 0
+	bcf	SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED
+SEQ_BUTTON_LayerGate_NoForce
+
 	movlw	1 << 0
 	rgoto	SEQ_BUTTON_LayerX_Cont
 SEQ_BUTTON_LayerAux
+	;; extra: if AUX+SHIFT button pressed, force aux
+	SET_BSR	SEQ_BASE
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, SEQ_BUTTON_LayerAux_NoForce
+SEQ_BUTTON_LayerAux_ForceAux
+	btfss	MIOS_PARAMETER2, 0
+	bsf	SEQ_MODE2, SEQ_MODE2_FORCE_AUX, BANKED
+	btfsc	MIOS_PARAMETER2, 0
+	bcf	SEQ_MODE2, SEQ_MODE2_FORCE_AUX, BANKED
+SEQ_BUTTON_LayerAux_NoForce
+
 	movlw	1 << 1
 	;; 	rgoto	SEQ_BUTTON_LayerX_Cont
 
 SEQ_BUTTON_LayerX_Cont
 	movwf	MIOS_PARAMETER1
-
-	SET_BSR	SEQ_BASE
 
 	;; only save button state if button has been depressed and exit
 	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_LayerX_Hlp_Sav

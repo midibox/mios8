@@ -318,33 +318,7 @@ CS_M_PATTERN_Tick_0_NoChain
 	rgoto	CS_M_PATTERN_Tick_Cont
 
 CS_M_PATTERN_Tick_0_Chain
-	;; if top >= 100, special view
-	movlw	100
-	cpfslt	SEQ_CHAIN_TOP, BANKED
-	bz	CS_M_PATTERN_Tick_0_Chain_33
-CS_M_PATTERN_Tick_0_Chain_22
-	movf	SEQ_CHAIN_PLAY_PTR, W, BANKED
-	skpnz
-	movf	SEQ_CHAIN_TOP, W, BANKED
-	call	MIOS_LCD_PrintBCD2
-	movlw	'/'
-	call	MIOS_LCD_PrintChar
-	SET_BSR	SEQ_BASE
-	movf	SEQ_CHAIN_TOP, W, BANKED
-	call	MIOS_LCD_PrintBCD2
-	movlw	' '
-	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_PATTERN_Tick_Cont
-
-CS_M_PATTERN_Tick_0_Chain_33
-	movf	SEQ_CHAIN_PLAY_PTR, W, BANKED
-	skpnz
-	movf	SEQ_CHAIN_TOP, W, BANKED
-	call	MIOS_LCD_PrintBCD3
-	;; no slash... :-/
-	SET_BSR	SEQ_BASE
-	movf	SEQ_CHAIN_TOP, W, BANKED
-	call	MIOS_LCD_PrintBCD3
+	call	CS_M_PATTERN_PrnChain
 	rgoto	CS_M_PATTERN_Tick_Cont
 
 #if DEFAULT_LCD_WIDTH == 80
@@ -574,5 +548,49 @@ CS_M_PATTERN_PrnM_NotMuted
 	movf	PLUSW1, W
 	goto	SEQ_LCD_PrnVBar
 
+
+;; --------------------------------------------------------------------------
+;;  This help function prints the chain state (6 characters)
+;; --------------------------------------------------------------------------
+CS_M_PATTERN_PrnChain
+	;; if top >= 100, special view
+	SET_BSR	SEQ_BASE
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_CHAIN_SYNCHED, BANKED, CS_M_PATTERN_PrnChain_22
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	movlw	100
+	cpfslt	SEQ_CHAIN_TOP, BANKED
+	bz	CS_M_PATTERN_PrnChain_33
+CS_M_PATTERN_PrnChain_22
+	BRA_IFSET SEQ_STATE, SEQ_STATE_CHAIN_SYNCHED, BANKED, CS_M_PATTERN_PrnChain_22_Sync
+CS_M_PATTERN_PrnChain_22_NotSync
+	;; not synched yet (pattern not playing yet): print ++
+	movlw	'+'
+	call	MIOS_LCD_PrintChar
+	movlw	'+'
+	call	MIOS_LCD_PrintChar
+	rgoto	CS_M_PATTERN_PrnChain_22_Cont
+CS_M_PATTERN_PrnChain_22_Sync
+	movf	SEQ_CHAIN_PLAY_PTR, W, BANKED
+	skpnz
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	call	MIOS_LCD_PrintBCD2
+CS_M_PATTERN_PrnChain_22_Cont
+	movlw	'/'
+	call	MIOS_LCD_PrintChar
+	SET_BSR	SEQ_BASE
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	call	MIOS_LCD_PrintBCD2
+	movlw	' '
+	goto	MIOS_LCD_PrintChar
+
+CS_M_PATTERN_PrnChain_33
+	movf	SEQ_CHAIN_PLAY_PTR, W, BANKED
+	skpnz
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	call	MIOS_LCD_PrintBCD3
+	;; no slash... :-/
+	SET_BSR	SEQ_BASE
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	goto	MIOS_LCD_PrintBCD3
 
 ;; ==========================================================================

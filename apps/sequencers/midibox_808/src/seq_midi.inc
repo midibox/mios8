@@ -300,6 +300,8 @@ SEQ_MIDI_PitchBender
 ;;     o third  MIDI event byte in MIOS_PARAMETER3
 ;; --------------------------------------------------------------------------
 SEQ_MIDI_CC
+	SET_BSR	SEQ_BASE
+
 	;; store MIDI channel in TMP1
 	movf	MIOS_PARAMETER1, W
 	andlw	0x0f
@@ -310,16 +312,78 @@ SEQ_MIDI_CC
 	bz	SEQ_MIDI_CC_End
 	addlw	-1
 	cpfseq	TMP1, ACCESS
-	rgoto SEQ_MIDI_CC_End
-
-	;; check if CC#3 has been received
-	movlw	0x03
-	cpfseq	MIOS_PARAMETER2, ACCESS
-	rgoto SEQ_MIDI_CC_NoCC3
-SEQ_MIDI_CC_CC3
-	movff	MIOS_PARAMETER3, SEQ_GLOBAL_SCALE	; CC#3 controls the global scale
 	rgoto	SEQ_MIDI_CC_End
-SEQ_MIDI_CC_NoCC3
+
+	;; check if CC#0 has been received (Bank Selection)
+	movlw	0x00
+	cpfseq	MIOS_PARAMETER2, ACCESS
+	rgoto	SEQ_MIDI_CC_NoCC0
+SEQ_MIDI_CC_CC0
+	;; ignore bank >= 8
+	movf	MIOS_PARAMETER3, W
+	andlw	0xf8
+	bnz	SEQ_MIDI_CC_End
+
+	;; pattern stays the same
+	movff	SEQ_PATTERN0, SEQ_NEXT_PATTERN0
+
+	;; new bank in MIOS_PARAMETER3
+	movff	MIOS_PARAMETER3, SEQ_NEXT_PATTERN_BANK0
+
+	;; immediate change w/o MIDI feedback
+	call	SEQ_CORE_ChangePattern_NoMIDI
+
+	rgoto	SEQ_MIDI_CC_End
+SEQ_MIDI_CC_NoCC0
+
+	;; check if CC#64 has been received (Section Selection)
+	movlw	0x40
+	cpfseq	MIOS_PARAMETER2, ACCESS
+	rgoto	SEQ_MIDI_CC_NoCC64
+SEQ_MIDI_CC_CC64
+	;; ignore section >= 16
+	movf	MIOS_PARAMETER3, W
+	andlw	0xf0
+	bnz	SEQ_MIDI_CC_End
+
+	;; section in MIOS_PARAMETER3 (0x00 is invalid -> select 0x01 instead)
+	movf	MIOS_PARAMETER3, W
+	skpnz
+	movlw	0x01
+	movwf	SEQ_SELECTED_ABCD, BANKED
+
+	rgoto	SEQ_MIDI_CC_End
+SEQ_MIDI_CC_NoCC64
+
+	;; check if CC#48..63 has been received (Mutes)
+	movf	MIOS_PARAMETER2, W
+	andlw	0xf0
+	xorlw	0x30
+	bnz	SEQ_MIDI_CC_NoCCMute
+SEQ_MIDI_CC_CCMute
+	;; determine pointer depending on CC
+	lfsr	FSR1, SEQ_TRKS_MUTED0
+	btfsc	MIOS_PARAMETER2, 3
+	movf	POSTINC1, W	; increment pointer if track > 8
+
+	;; determine mask -> PRODL
+	movf	MIOS_PARAMETER2, W
+	call	MIOS_HLP_GetBitORMask
+	movwf	PRODL
+
+	;; set mute if value >= 64, else clear mute
+	BRA_IFSET MIOS_PARAMETER3, 6, ACCESS, SEQ_MIDI_CC_CCMute_Set
+SEQ_MIDI_CC_CCMute_Clr
+	comf	PRODL, W
+	andwf	INDF1, F	
+	rgoto	SEQ_MIDI_CC_End
+
+SEQ_MIDI_CC_CCMute_Set
+	movf	PRODL, W
+	iorwf	INDF1, F
+	rgoto	SEQ_MIDI_CC_End
+
+SEQ_MIDI_CC_NoCCMute
 
 	;; check if NRPN address (LSB) has been received
 	movlw	0x62
@@ -362,14 +426,6 @@ SEQ_MIDI_CC_End
 
 	;; the CC loopback works different:
 SEQ_MIDI_CC_FromLoopback
-	;; always forward scale independent from Channel
-	movlw	0x03
-	cpfseq	MIOS_PARAMETER2, ACCESS
-	rgoto SEQ_MIDI_CC_FromLoopback_NoCC3
-SEQ_MIDI_CC_FromLoopback_CC3
-	movff	MIOS_PARAMETER3, SEQ_GLOBAL_SCALE
-	return
-SEQ_MIDI_CC_FromLoopback_NoCC3
 
 	;; extract channel
 	movf	MIOS_PARAMETER1, W
@@ -389,14 +445,29 @@ SEQ_MIDI_CC_FromLoopback_NoCC3
 ;;     o second  MIDI event byte in MIOS_PARAMETER2
 ;; --------------------------------------------------------------------------
 SEQ_MIDI_ProgramChange
+	SET_BSR	SEQ_BASE
+
+	;; store MIDI channel in TMP1
+	movf	MIOS_PARAMETER1, W
+	andlw	0x0f
+	movwf	TMP1
+
+	;; Exit the rest if MIDI channel doesn't match
+	movf	SEQ_MIDI_CHANNEL, W, BANKED
+	bz	SEQ_MIDI_ProgramChange_End
+	addlw	-1
+	cpfseq	TMP1, ACCESS
+	rgoto	SEQ_MIDI_ProgramChange_End
+
 #if DEFAULT_MIDI_PATTERN_CHANGE_PC
 	;; new pattern in MIOS_PARAMETER2
-	movff	MIOS_PARAMETER2, SEQ_PATTERN
+	movff	MIOS_PARAMETER2, SEQ_NEXT_PATTERN0
 	;; bank stays the same
-	movff	SEQ_PATTERN_BANK0, SEQ_PATTERN_BANK
-	;; request change
-	call	SEQ_CORE_ChangePatternSynched
+	movff	SEQ_PATTERN_BANK0, SEQ_NEXT_PATTERN_BANK0
+	;; immediate change w/o MIDI feedback
+	call	SEQ_CORE_ChangePattern_NoMIDI
 #endif
+SEQ_MIDI_ProgramChange_End
 	return
 
 ;; --------------------------------------------------------------------------

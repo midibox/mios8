@@ -39,10 +39,11 @@ SEQ_REQ_START_AUTO_SLAVE_REQ	EQU	7	; extension for SEQ_REQ_START: re-init BPM ge
 SEQ_STATE_RUN			EQU	0	; set if sequencer runs
 SEQ_STATE_PAUSE			EQU	1	; set if pause
 SEQ_STATE_MANUAL_TRIGGER	EQU	2	; manual trigger active
-SEQ_STATE_SONG			EQU	3	; set in song mode
+;; SEQ_STATE_SONG			EQU	3	; set in song mode (not required for MB808 - using chains)
 SEQ_STATE_REMOTE		EQU	4	; used by MIDI Remote function
 SEQ_STATE_FORCE_EEPROM		EQU	5	; if set, step event will always be read from EEPROM
 SEQ_STATE_SET_LEN		EQU	6	; help flag for OnEvent loop
+SEQ_STATE_CHAIN_SYNCHED		EQU	7	; help flag which indicates, if a chain change has been synched
 
 SEQ_TRKVARSTATE_PLAY_STEP	EQU	0	; temp. flag, if set, the step will be played
 SEQ_TRKVARSTATE_BACKWARD	EQU	1	; static flag, if set, the track will be played in backward direction
@@ -92,6 +93,8 @@ SEQ_MODE2_FWD_HOLD		EQU	0	; FWD button hold
 SEQ_MODE2_REW_HOLD		EQU	1	; REW button hold
 SEQ_MODE2_LIVE_MODE		EQU	2	; if live play mode active
 SEQ_MODE2_LIVEPLAY		EQU	2	; currently assigned to loop button (therefore same flag): liveplay mode
+SEQ_MODE2_FORCE_ACCENT		EQU	3	; force accented notes
+SEQ_MODE2_FORCE_AUX		EQU	4	; force aux layer
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by USER_Init to initialize the sequencer
@@ -144,9 +147,6 @@ SEQ_CORE_Init
 
 	;; update disable flags
 	call	SEQ_CORE_UpdateTrkDisable
-
-	;; reset song
-	call	SEQ_SONG_Reset
 
 	;; reset sequencer and exit
 	rgoto	SEQ_CORE_Reset
@@ -301,6 +301,9 @@ SEQ_CORE_Tick_End
 	xorlw	CS_MENU_PAGE_SONG ^ CS_MENU_PAGE_PATTERN_S
 	skpnz
 	bsf	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
+	xorlw	CS_MENU_PAGE_SONG_S ^ CS_MENU_PAGE_SONG
+	skpnz
+	bsf	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
 	;; NOTE: the LED handler flashes the LED when in song menu and song state not active
 
 SEQ_CORE_Tick_NotWithinMenu
@@ -338,9 +341,6 @@ SEQ_CORE_Start
 	;; if chain mode: change to first pattern
 	clrf	SEQ_CHAIN_PLAY_PTR, BANKED
 	call	SEQ_CORE_ChainNextPos
-
-	;; reset song
-	call	SEQ_SONG_Reset
 
 	SET_BSR	SEQ_BASE	; (don't start - song sequencer has requested a stop)
 	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
@@ -578,13 +578,12 @@ SEQ_CORE_Clk_StopManual
 SEQ_CORE_Clk_NoStopManual
 
 	;; ------------------------------------------------------------------
-	;; song or chain mode: request next pattern if sequencer running and last position reached
+	;; chain mode: request next pattern if sequencer running and last position reached
 	;; ------------------------------------------------------------------
 SEQ_CORE_Clk_NextPS
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_CORE_Clk_NextPS_End
 	movf	SEQ_CHAIN_TOP, W, BANKED
-	bnz	SEQ_CORE_Clk_NextPS_Chain
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_NextPS_End
+	bz	SEQ_CORE_Clk_NextPS_End
 SEQ_CORE_Clk_NextPS_Chain
 	movlw	6-2	; (this value has to be adjusted - depends on the time which is necessary to load 4 patterns)
 	cpfseq	SEQ_CLK_TICK6_CTR, BANKED
@@ -593,11 +592,6 @@ SEQ_CORE_Clk_NextPS_Chain
 	cpfseq	SEQ_CLK_STEP_CTR, BANKED
 	rgoto SEQ_CORE_Clk_NextPS_End
 SEQ_CORE_Clk_NextPS_Request
-	;; song mode has higher priority
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_NextPS_RequestChain
-	call	SEQ_SONG_NextPos
-	rgoto	SEQ_CORE_Clk_NextPS_End	
-SEQ_CORE_Clk_NextPS_RequestChain
 	call	SEQ_CORE_ChainNextPos
 SEQ_CORE_Clk_NextPS_End	
 
@@ -995,13 +989,13 @@ SEQ_CORE_Clk_Step_NotPosted
 	;; TK: let's check if it works better without mute (because of Nudge function...)
 	movf	SEQ_CHAIN_TOP, W
 	bnz	SEQ_CORE_Clk_Step_SyncMute
-#endif
 	;; 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED, SEQ_CORE_Clk_Step_SyncMute
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_Step_NoSyncMute
+	;; 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_Step_NoSyncMute
 SEQ_CORE_Clk_Step_SyncMute
 	movlw	SEQ_TRKVARSTATE2x	; (set on pattern changes in song mode)
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE, ACCESS, SEQ_CORE_Clk_Muted
 SEQ_CORE_Clk_Step_NoSyncMute
+#endif
 
 	;; ------------------------------------------------------------------
 	;; Don't send new event if sequencer not in RUN mode
@@ -1380,47 +1374,8 @@ SEQ_CORE_Calc_TRKVARx_FSR2
 ;;  USES: TMP[45]
 ;; --------------------------------------------------------------------------
 SEQ_CORE_SetPos
-	;; reset song
-	call	SEQ_SONG_Reset
-
 	;; reset pattern
 	rcall	SEQ_CORE_Reset
-
-	;; in song mode:
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_SetPos_NoSong
-SEQ_CORE_SetPos_Song
-	;; increment song position counter until selected pos reached
-	swapf	SEQ_MIDIPOS_LSB, W, BANKED
-	andlw	0x0f
-	movwf	TMP4
-	swapf	SEQ_MIDIPOS_MSB, W, BANKED
-	andlw	0xf0
-	iorwf	TMP4, F
-	swapf	SEQ_MIDIPOS_MSB, W, BANKED
-	andlw	0x0f
-	movwf	TMP5
-
-	;; if TMP4 and TMP5 zero: fetch current settings, else increment
-	movf	TMP4, W
-	iorwf	TMP5, W
-	bnz	SEQ_CORE_SetPos_SongIncLoop
-SEQ_CORE_SetPos_SongNoInc
-	call	SEQ_SONG_FetchPos
-	rgoto	SEQ_CORE_SetPos_SongEnd
-
-SEQ_CORE_SetPos_SongIncLoop
-	clrwdt			; feed the watchdog (just to ensure...)
-	call	SEQ_SONG_NextPos
-	decf	TMP4, F 
-	skpc
-	decf	TMP5, F
-
-	movf	TMP4, W
-	iorwf	TMP5, W
-	bnz	SEQ_CORE_SetPos_SongIncLoop
-	
-SEQ_CORE_SetPos_SongEnd
-SEQ_CORE_SetPos_NoSong
 
 	;; copy sequencer pos to reference counter
 	SET_BSR	SEQ_BASE
@@ -1535,6 +1490,38 @@ SEQ_CORE_ChangePattern_End
 ;;  IN: new pattern in SEQ_NEXT_PATTERNx/SEQ_NEXT_PATTERN_BANKx
 ;; --------------------------------------------------------------------------
 SEQ_CORE_ChangePattern
+	SET_BSR	SEQ_BASE
+	;; if pattern change should be forwarded via MIDI:
+	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_SEND_MIDI_PTN, BANKED, SEQ_CORE_ChangePattern_NoMIDI
+	;; ignore if next pattern is disabled
+	BRA_IFSET SEQ_NEXT_PATTERN0, 7, BANKED, SEQ_CORE_ChangePattern_NoMIDI
+
+	;; send bank and pattern via preconfigured midi channel
+	movf	SEQ_MIDI_CHANNEL, W, BANKED
+	bz	SEQ_CORE_ChangePattern_NoMIDI
+	addlw	-1
+	andlw	0x0f
+	movwf	PRODL
+
+	;; send CC#0
+	iorlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x00
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	SEQ_BASE
+	movf	SEQ_NEXT_PATTERN_BANK0, W, BANKED
+	andlw	0x7f
+	call	MIOS_MIDI_TxBufferPut
+
+	;; send program change
+	movf	PRODL, W
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movff	SEQ_NEXT_PATTERN0, WREG
+	andlw	0x7f
+	call	MIOS_MIDI_TxBufferPut
+
+SEQ_CORE_ChangePattern_NoMIDI	; (also called directly from seq_midi.inc)
 	;; clear request flag
 	SET_BSR	SEQ_BASE
 	bcf	SEQ_PATTERN_SYNC_TRANSFER_REQ, 0, BANKED
@@ -2605,6 +2592,8 @@ SEQ_CORE_ChainClrLoop
 
 	clrf	SEQ_CHAIN_PLAY_PTR, BANKED
 	clrf	SEQ_CHAIN_TOP, BANKED
+
+	bsf	SEQ_STATE, SEQ_STATE_CHAIN_SYNCHED, BANKED
 	return
 
 ;; --------------------------------------------------------------------------
@@ -2626,7 +2615,8 @@ SEQ_CORE_ChainAdd
 	addwf	FSR1L, F
 
 	;; add bank and pattern to chain
-	movff	SEQ_PATTERN_BANK, POSTINC1
+	movff	SEQ_PATTERN_BANK, INDF1
+	bsf	POSTINC1, 7	; (for song mode: set marker on bit #7, so that we are able to determine the TOP)
 	movff	SEQ_PATTERN, POSTINC1
 
 	;; increment top pointer
@@ -2643,6 +2633,9 @@ SEQ_CORE_ChainAdd_End
 SEQ_CORE_ChainNextPos
 	SET_BSR	SEQ_BASE
 
+	;; notify that change has been taken
+	bsf	SEQ_STATE, SEQ_STATE_CHAIN_SYNCHED, BANKED
+
 	movf	SEQ_CHAIN_TOP, W
 	bz	SEQ_CORE_ChainNextPos_End
 
@@ -2653,7 +2646,9 @@ SEQ_CORE_ChainNextPos
 	addwf	FSR1L, F
 
 	;; get bank and pattern from chain
-	movff	POSTINC1, SEQ_PATTERN_BANK
+	movf	POSTINC1, W
+	andlw	0x07
+	movwf	SEQ_PATTERN_BANK, BANKED
 	movff	POSTINC1, SEQ_PATTERN
 
 	;; increment play pointer and wrap on top entry

@@ -40,6 +40,34 @@ CS_M_MUTE_GP_Callback_Mute
 	call	MIOS_HLP_GetBitORMask
 	xorwf	INDF1, F
 
+	SET_BSR	SEQ_BASE
+	;; if mute change should be forwarded via MIDI:
+	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_SEND_MIDI_MUTE, BANKED, CS_M_MUTE_GP_Callback_MuteNoMIDI
+CS_M_MUTE_GP_Callback_Mute_MIDI
+	movf	SEQ_MIDI_CHANNEL, W, BANKED
+	bz	CS_M_MUTE_GP_Callback_MuteNoMIDI
+	addlw	-1
+	andlw	0x0f
+
+	;; send CC#48..63 (depends on track)
+	iorlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x30
+	addwf	MIOS_PARAMETER1, W
+	call	MIOS_MIDI_TxBufferPut
+
+	lfsr	FSR1, SEQ_TRKS_MUTED0
+	btfsc	MIOS_PARAMETER1, 3
+	movf	POSTINC1, W	; increment pointer if track > 8
+
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_HLP_GetBitORMask
+	andwf	INDF1, W
+	skpz
+	movlw	0x40
+	call	MIOS_MIDI_TxBufferPut
+CS_M_MUTE_GP_Callback_MuteNoMIDI
+
 	rgoto	CS_M_MUTE_GP_Callback_End
 
 CS_M_MUTE_GP_Callback_Sel
@@ -198,6 +226,9 @@ CS_M_MUTE_Init_Loop_NotSelected
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
 CS_M_MUTE_Tick
+	;; always update mute LEDs (important if mutes have been changed via MIDI)
+	rcall	CS_M_MUTE_UpdateGPLEDs
+
 #if DEFAULT_LCD_WIDTH == 80
 	;; init horizontal bars (if required - function breaks if charset already uploaded)
 	movlw	CS_MENU_CHARSET_HBARS

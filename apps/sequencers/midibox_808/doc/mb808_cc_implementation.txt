@@ -1,3 +1,209 @@
 $Id$
 
-TODO
+MIDI Implementation of MB808
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Note Event
+~~~~~~~~~~
+
+Triggers a drum according to the preconfigured channel and note number
+in setup_*.asm
+
+By default, drums are assigned to MIDI Channel #10, and they are mapped
+to GM conform note numbers (e.g. Bass Drum: C-2, Snare Drum: D-2, ...)
+
+
+Program Change Event
+~~~~~~~~~~~~~~~~~~~~
+
+Program Change is received and sent over DEFAULT_MIDI_CHANNEL_CFG, which is
+specified in setup_*.asm, and set to Channel #10 by default
+
+Pattern Selection:
+   0..63:   A1..H8 (upper bank)
+   64..127: a1..h8 (lower bank, requires 64k BankStick)
+
+Pattern and Bank Changes are sent via MIDI if the "Pattern Send" Option
+has been enabled in Opt menu (OPT->GP button #9)
+
+
+CC Event
+~~~~~~~~
+
+MIDI Controllers are received and sent over DEFAULT_MIDI_CHANNEL_CFG, which is
+specified in setup_*.asm, and set to Channel #10 by default
+
+
+  o CC#0 (0x00 - Bank Change)
+    Selects BankStick 0-7
+    Values >= 8 are ignored
+
+    Pattern and Bank Changes are sent via MIDI if the "Pattern Send" Option
+    has been enabled in Opt menu (OPT->GP button #9)
+
+
+  o CC#64 (0x40 - Section)
+    Selects the ABCD Sections which should be played (and looped) - Coding:
+
+    +-----+------+---------+-------------+
+    | Dec | Hex  | A B C D | Decription  |
+    +-----+------+---------+-------------+
+    |   0 | 0x00 | * o o o | Play A only |
+    |   1 | 0x01 | * o o o | Play A only |
+    |   2 | 0x02 | o * o o | Play B only |
+    |   3 | 0x03 | * * o o | Loop AB     |
+    |   4 | 0x04 | o o * o | Play C only |
+    |   5 | 0x05 | * o * o | Loop AC     |
+    |   6 | 0x06 | o * * o | Loop BC     |
+    |   7 | 0x07 | * * * o | Loop ABC    |
+    |   8 | 0x08 | o o o * | Play D only |
+    |   9 | 0x09 | * o o * | Loop AD     |
+    |  10 | 0x0a | o * o * | Loop BD     |
+    |  11 | 0x0b | * * o * | Loop ABD    |
+    |  12 | 0x0c | o o * * | Loop CD     |
+    |  13 | 0x0d | * o * * | Loop ACD    |
+    |  14 | 0x0e | o * * * | Loop BCD    |
+    |  15 | 0x0f | * * * * | Loop ABCD   |
+    +-----+------+---------+-------------+
+    Values >= 16 are ignored
+
+    Section changes are sent via MIDI if the "Pattern Send" Option 
+    has been enabled in Opt menu (OPT->GP button #9)
+
+
+  o CC#48..64 (0x3. - Mute)
+    Mutes track #1..16
+    +-----+------+-------+
+    | Dec | Hex  | Track |
+    +-----+------+-------+
+    |  48 | 0x30 |   1   |
+    |  49 | 0x31 |   2   |
+    |  50 | 0x32 |   3   |
+    |  51 | 0x33 |   4   |
+    |  52 | 0x34 |   5   |
+    |  53 | 0x35 |   6   |
+    |  54 | 0x36 |   7   |
+    |  55 | 0x37 |   8   |
+    |  56 | 0x38 |   9   |
+    |  57 | 0x39 |  10   |
+    |  58 | 0x3a |  11   |
+    |  59 | 0x3b |  12   |
+    |  60 | 0x3c |  13   |
+    |  61 | 0x3d |  14   |
+    |  62 | 0x3e |  15   |
+    |  63 | 0x3f |  16   |
+    +-----+------+-------+
+
+    Values >= 64 mute a track
+    Values < 64 "un-mute" a track
+
+
+   o CC#98 (0x62 - NRPN LSB)
+     Selects the Sequencer Parameter which should be modified via NRPN
+     See list below
+
+   o CC#99 (0x63 - NRPN MSB)
+     Selects the Track which should be modified via NRPN
+     Allowed values: 0..15 for Track 1-16
+     All others ignored
+
+   o CC#6 (0x06 - NRPN Value, LSB)
+     Sets a Sequencer Parameter depending on the preselected track and parameter number
+
+Example for changing the Octave Transpose value of Track 3 to -1 Octave:
+   B0 62 31 63 02 06 0F
+
+
+
+
+
+NRPN LSB|   Range   | Default | Description
+========+===========+=========+================================================
+0x00/  0| -         |    -    | reserved
+  ...   |           |         | 
+0x1f/ 31|           |         | 
+--------+-----------+---------+------------------------------------------------
+0x20/ 32| -         |    -    | reserved
+0x21/ 33| -         |    -    | reserved
+--------+-----------+---------+------------------------------------------------
+0x22/ 34| 0x00-0x7f |    0x00 | MIDI Note value
+--------+-----------+---------+------------------------------------------------
+0x23/ 35| -         |    -    | reserved
+--------+-----------+---------+------------------------------------------------
+0x24/ 36| 0x00-0x7f |    0x00 | Velocity
+0x25/ 37| 0x00-0x7f |    0x00 | Accented Velocity
+--------+-----------+---------+------------------------------------------------
+0x26/ 38| 0x00-0x0f |    0x00 | MIDI Channel of Track
+--------+-----------+---------+------------------------------------------------
+0x27/ 39| 0x00-0x07 |    0x00 | MIDI Port of Track
+        |           |         |    0x00: Default
+        |           |         |    0x01: Internal
+        |           |         |    0x02: IIC1
+        |           |         |    0x03: IIC2
+        |           |         |    0x04: IIC3
+        |           |         |    0x05: IIC4
+        |           |         |    0x06: Loopback
+        |           |         |    0x07: AOUT
+--------+-----------+---------+------------------------------------------------
+0x28/ 40| 0x00-0x06 |    0x00 | Track Direction
+        |           |         |    0x00: Forward 
+        |           |         |    0x01: Backward
+        |           |         |    0x02: Ping Pong
+        |           |         |    0x03: Pendulum
+        |           |         |    0x04: Random Direction
+        |           |         |    0x05: Random Step
+        |           |         |    0x06: Random Direction and Step
+--------+-----------+---------+------------------------------------------------
+0x29/ 41| 0x00-0x0f |    0x00 | Replay: (0..15 = x1..x16)
+--------+-----------+---------+------------------------------------------------
+0x2a/ 42| 0x00-0x0f |    0x00 | Forward (0..15 = 1..16 steps)
+--------+-----------+---------+------------------------------------------------
+0x2b/ 43| 0x00-0x0f |    0x00 | Jump Back (0..15 = 1..16 steps)
+--------+-----------+---------+------------------------------------------------
+0x2c/ 44| 0x00-0x3f |    0x02 | Clock Divider (in 96ppqn steps)
+--------+-----------+---------+------------------------------------------------
+0x2d/ 45| 0x00-0x3f |    0x00 | Loop Point (0..63 = step 1..64)
+--------+-----------+---------+------------------------------------------------
+0x2e/ 46| 0x00-0x3f |    0x0f | Track Length (0..63 = 1..64 steps)
+--------+-----------+---------+------------------------------------------------
+0x2f/ 47| 0x00-0x03 |    0x00 | Clock Divider Flags:
+        |           |         |   Bit 0: Synch to Measure
+        |           |         |   Bit 1: Triplets
+--------+-----------+---------+------------------------------------------------
+0x30/ 48| -         |    -    | reserved
+0x31/ 49| -         |    -    | reserved
+--------+-----------+---------+------------------------------------------------
+0x32/ 50| 0x00-0x06 |    0x00 | Groove Style
+        |           |         |    0x00: off
+        |           |         |    0x01: Shuffle
+        |           |         |    0x02: Inv. Shuffle
+        |           |         |    0x03: Shuffle2
+        |           |         |    0x04: Shuffle3
+        |           |         |    0x05: Shuffle4
+        |           |         |    0x06: Shuffle5
+--------+-----------+---------+------------------------------------------------
+0x33/ 51| 0x00-0x0f |    0x00 | Groove Intensity
+--------+-----------+---------+------------------------------------------------
+0x34/ 52| -         |    -    | reserved
+0x35/ 53| -         |    -    | reserved
+0x36/ 54| -         |    -    | reserved
+0x37/ 55| -         |    -    | reserved
+--------+-----------+---------+------------------------------------------------
+0x38/ 56| 0x00-0x06 |    0x02 | Aux Layer Assignment
+        |           |         |    0x00: Accent
+        |           |         |    0x01: Skip
+        |           |         |    0x02: Flam1
+        |           |         |    0x03: Flam2
+        |           |         |    0x04: Flam3
+        |           |         |    0x05: Flam4
+        |           |         |    0x06: Random Gate
+        |           |         |    0x07: Random Jump
+        |           |         |    0x08: Micro Delay1
+        |           |         |    0x09: Micro Delay2
+        |           |         |    0x0a: Micro Delay3
+        |           |         |    0x0b: Micro Delay4
+--------+-----------+---------+------------------------------------------------
+0x39/ 57| -         |    -    | reserved
+  ...   |           |         | 
+0x7f/127|           |         | 
+--------+-----------+---------+------------------------------------------------

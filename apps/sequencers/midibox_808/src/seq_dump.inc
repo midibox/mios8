@@ -67,11 +67,11 @@ SEQ_DUMP_RestoreTrksLoop
 SEQ_DUMP_StoreTrks
 	SET_BSR	SEQ_BASE
 
-#if 0
 	;; set pattern number and bank
 	movff	SEQ_SAVE_PATTERN, SEQ_PATTERN
 	movff	SEQ_SAVE_PATTERN_BANK, SEQ_PATTERN_BANK
 
+#if 0
 	;; store 8 pages (0x200 bytes)
 	clrf	EEADR
 	clrf	EEADRH
@@ -86,6 +86,76 @@ SEQ_DUMP_StoreTrksLoop
 #else
 	;; start non-blocking write operation
 	call	SEQ_BANK_WritePattern_NB
+#endif
+
+	return
+
+;; --------------------------------------------------------------------------
+;;  This function restores a chain from BankStick
+;;  IN: current pattern in SEQ_SONG
+;; --------------------------------------------------------------------------
+SEQ_DUMP_RestoreSong
+	SET_BSR	SEQ_BASE
+
+	;; ensure that all chain variables are cleared
+	call	SEQ_CORE_ChainClr
+
+	;; load 4 pages (0x100 bytes)
+	clrf	EEADR
+	lfsr	FSR1, SEQ_PATTERN_CHAIN
+SEQ_DUMP_RestoreSongLoop
+	call	SEQ_SBANK_ReadPage
+	movlw	0x40
+	addwf	FSR1L, F
+	movlw	0x00
+	addwfc	FSR1H, F
+	movf	EEADR, W
+	bnz	SEQ_DUMP_RestoreSongLoop
+
+	;; find SEQ_CHAIN_TOP
+	;; (all allocated entries are marked at bit #7 of bank byte
+	SET_BSR	SEQ_BASE
+	clrf	SEQ_CHAIN_TOP, BANKED
+	lfsr	FSR1, SEQ_PATTERN_CHAIN
+SEQ_DUMP_RestoreSongFindTopLoop
+	BRA_IFCLR POSTINC1, 7, ACCESS, SEQ_DUMP_RestoreSongFindTopOk
+	movf	POSTINC1, W	; (ignore pattern byte of entry)
+	incf	SEQ_CHAIN_TOP, F, BANKED	; (maximum 128 entries)
+	BRA_IFCLR SEQ_CHAIN_TOP, 7, BANKED, SEQ_DUMP_RestoreSongFindTopLoop
+SEQ_DUMP_RestoreSongFindTopOk
+
+	;; notify that change hasn't been synched yet (means: pattern not playing yet)
+	bcf	SEQ_STATE, SEQ_STATE_CHAIN_SYNCHED, BANKED
+	
+	;; new chain: request a complete display re-initialization
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+
+	return
+
+;; --------------------------------------------------------------------------
+;;  This function saves the Song settings
+;;  IN: target song in SEQ_SAVE_SONG
+;; --------------------------------------------------------------------------
+SEQ_DUMP_StoreSong
+	SET_BSR	SEQ_BASE
+
+	movff	SEQ_SAVE_SONG, SEQ_SONG
+#if 0
+	;; store 4 pages (0x100 bytes)
+	clrf	EEADR
+	clrf	EEADRH
+	lfsr	FSR1, SEQ_PATTERN_CHAIN
+SEQ_DUMP_StoreSongLoop
+	call	SEQ_SBANK_WritePage
+	movlw	0x40
+	addwf	FSR1L, F
+	movlw	0x00
+	addwfc	FSR1H, F
+	movf	EEADR, W
+	bnz	SEQ_DUMP_StoreSongLoop
+#else
+	;; start non-blocking write operation
+	call	SEQ_SBANK_WriteSong_NB
 #endif
 
 	return
@@ -145,11 +215,9 @@ SEQ_DUMP_RestoreGlobal
 	call	MIOS_EEPROM_Read
 	movff	WREG, SEQ_METRONOME_NOTE_BEAT
 
-	;; ---[ restore scale ]---
+	;; ---[ restore scale (dummy, not used in MB808 ]---
 	call	MIOS_EEPROM_Read
-	movff	WREG, SEQ_GLOBAL_SCALE
 	call	MIOS_EEPROM_Read
-	movff	WREG, SEQ_GLOBAL_SCALE_CTRL
 
 	;; ---[ restore MIDI router settings ]---
 	call	MIOS_EEPROM_Read
@@ -233,10 +301,10 @@ SEQ_DUMP_StoreGlobal
 	movff	SEQ_METRONOME_NOTE_BEAT, WREG
 	call	MIOS_EEPROM_Write
 
-	;; ---[ store global scale ]---
-	movff	SEQ_GLOBAL_SCALE, WREG
+	;; ---[ store global scale (dummy, not used in MB808) ]---
+	movlw	0x00
 	call	MIOS_EEPROM_Write
-	movff	SEQ_GLOBAL_SCALE_CTRL, WREG
+	movlw	0x00
 	call	MIOS_EEPROM_Write
 
 	;; ---[ store MIDI router settings ]---

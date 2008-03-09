@@ -28,7 +28,7 @@ SEQ_PRESET_PATTERN
 SEQ_PRESETS_GLOBALS_Offset
 SEQ_PRESETS_CFG0_AND_BPM		de	0x08, 120	; SEQ_CFG0 and BPM
 SEQ_PRESETS_INT_EXT_DIVIDER		de	0x00, 0x01	; (Internal: 1:1, 1:4)
-SEQ_PRESETS_SEQ_CHN_AND_SPLIT		de	1, 0x3c		; sequencer channel (0 to disable) and split note (C-3)
+SEQ_PRESETS_SEQ_CHN_AND_SPLIT		de	DEFAULT_MIDI_CHANNEL_CFG, 0x3c	; sequencer channel (0 to disable) and split note (C-3)
 SEQ_PRESETS_MORPH_CHN_CC		de	1, 0x01		; morph channel (0 to disable) and assigned CC
 SEQ_PRESETS_METRO_CHN			de	10, 0		; metronome channel (0 to disable)
 SEQ_PRESETS_METRO_NOTES			de	0x25, 0x25	; C#1/C#1 (0 to disable)

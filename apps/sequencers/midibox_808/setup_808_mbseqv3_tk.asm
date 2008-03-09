@@ -40,14 +40,19 @@ DEFAULT_TRKINFO MACRO
 	db	"Ext4  ",  0,  0,   1,    0	; Track 16
 	ENDM
 ;
+; define the track which is used for global accent
+; (0=disabled, 1-16: track number)
+#define DEFAULT_GLOBAL_ACCENT_TRK 0
+;
+;
 ; BankStick Mode & Allocation Map
 ; Each BankStick (CS0..CS7) has an own entry
 ; Set the value to:
 ;     0: ignore BankStick which could be (or is) connected to the CS address
 ;     1: if a 32k BankStick (24LC256) is connected and should be used as Pattern Storage (64 patterns)
 ;     2: if a 64k BankStick (24LC512) is connected and should be used as Pattern Storage (128 patterns)
-;     3: if a 32k BankStick is connected and should be used as Song Storage (16 Songs)
-;     4: if a 64k BankStick is connected and should be used as Song Storage (32 Songs)
+;     3: if a 32k BankStick is connected and should be used as Song Storage
+;     4: if a 64k BankStick is connected and should be used as Song Storage
 ; NOTE: only one BankStick can be used as Song Storage, only one for Mixer Maps
 ;       If no entry with "mode 3" or "mode 4" is defined, Song mode will be disabled.
 ; If a BankStick is not connected to the MBSEQ, the appr. entry will have no effect

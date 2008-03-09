@@ -110,6 +110,22 @@ SEQ_TRG_Hlp_GetAuxBit
 	bnz	SEQ_TRG_Hlp_GetAuxBit_0	; ...if not assigned return 0
 
 SEQ_TRG_Hlp_GetAuxBit_Ok
+	;; if "force accent" flag set: overrule accent if track is selected
+	SET_BSR	SEQ_BASE
+	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_FORCE_AUX, BANKED, SEQ_TRG_Hlp_GetAuxBit_NoForce
+SEQ_TRG_Hlp_GetAuxBit_Force
+	movf	SEQ_EVNTT, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	btfss	SEQ_EVNTT, 3, BANKED
+	andwf	SEQ_SELECTED_TRKS_0, W, BANKED	
+	btfsc	SEQ_EVNTT, 3, BANKED
+	andwf	SEQ_SELECTED_TRKS_1, W, BANKED
+	bz	SEQ_TRG_Hlp_GetAuxBit_NoForce
+	movlw	0x01
+	andlw	0xff		; (fix zero flag)
+	return
+
+SEQ_TRG_Hlp_GetAuxBit_NoForce
 	call	SEQ_FSR_TrgAux		; get pointer to aux trigger layer -> FSR1
 	rgoto	SEQ_TRG_GetStepBit	; return step bit
 
@@ -180,8 +196,25 @@ SEQ_TRG_AuxGet
 
 	;; dedicated aux layer return functions
 SEQ_TRG_AccentGet
+	;; if "force accent" flag set: overrule accent if track is selected
+	SET_BSR	SEQ_BASE
+	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED, SEQ_TRG_AccentGet_NoForce
+SEQ_TRG_AccentGet_Force
+	movf	SEQ_EVNTT, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	btfss	SEQ_EVNTT, 3, BANKED
+	andwf	SEQ_SELECTED_TRKS_0, W, BANKED	
+	btfsc	SEQ_EVNTT, 3, BANKED
+	andwf	SEQ_SELECTED_TRKS_1, W, BANKED
+	bz	SEQ_TRG_AccentGet_NoForce
+	movlw	0x01
+	andlw	0xff		; (fix zero flag)
+	return
+	
+SEQ_TRG_AccentGet_NoForce
 	movlw	SEQ_TRG_AUX_ACCENT
 	rgoto	SEQ_TRG_Hlp_GetAuxBit
+
 SEQ_TRG_SkipGet
 	movlw	SEQ_TRG_AUX_SKIP
 	rgoto	SEQ_TRG_Hlp_GetAuxBit

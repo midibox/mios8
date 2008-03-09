@@ -185,12 +185,20 @@ SEQ_BANK_WritePattern_NB
 	andlw	0x7f
 	bz	SEQ_BANK_WritePageInternal
 
+	;; determine address
+	rcall	SEQ_BANK_CalcAddress
+
+	;; wait until BankStick available (ensures, that an ongoing write operation won't be terminated)
+SEQ_BANK_WritePattern_NB_Wait
+	call	MIOS_BANKSTICK_CheckAvail
+	bz	SEQ_BANK_WritePattern_NB_Wait
+
 	;; increment store counter - first page will be programmed
 	SET_BSR	SEQ_BASE
 	incf	SEQ_BANKSTICK_SAVE_CTR, F, BANKED
 
-	rcall	SEQ_BANK_CalcAddress		; determine address
- 	call	MIOS_BANKSTICK_WritePage_NB	; start write operation
+	;; start write operation
+ 	call	MIOS_BANKSTICK_WritePage_NB
 
 	SET_BSR	SEQ_BASE			; fix BSR after a MIOS routine has been called
 	return
@@ -273,6 +281,11 @@ SEQ_BANK_ReadPage_End
 ;; --------------------------------------------------------------------------
 SEQ_BANK_CheckStick
 	SET_BSR	SEQ_BASE
+
+	;; branch if song save counter > 0
+	movf	SEQ_BANKSTICK_SAVE_SONG_CTR, W, BANKED
+	skpz
+	goto	SEQ_SBANK_StoreStick
 
 	;; branch if save counter > 0
 	movf	SEQ_BANKSTICK_SAVE_CTR, W, BANKED
