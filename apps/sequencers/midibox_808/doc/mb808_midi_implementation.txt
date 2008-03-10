@@ -7,7 +7,7 @@ Note Event
 ~~~~~~~~~~
 
 Triggers a drum according to the preconfigured channel and note number
-in setup_*.asm
+in src/seq_preset_pattern.inc
 
 By default, drums are assigned to MIDI Channel #10, and they are mapped
 to GM conform note numbers (e.g. Bass Drum: C-2, Snare Drum: D-2, ...)
@@ -110,8 +110,8 @@ specified in setup_*.asm, and set to Channel #10 by default
    o CC#6 (0x06 - NRPN Value, LSB)
      Sets a Sequencer Parameter depending on the preselected track and parameter number
 
-Example for changing the Octave Transpose value of Track 3 to -1 Octave:
-   B0 62 31 63 02 06 0F
+Example for changing the Velocity of Track 3 to 127:
+   B0 62 24 63 02 06 7F
 
 
 
@@ -142,8 +142,7 @@ NRPN LSB|   Range   | Default | Description
         |           |         |    0x03: IIC2
         |           |         |    0x04: IIC3
         |           |         |    0x05: IIC4
-        |           |         |    0x06: Loopback
-        |           |         |    0x07: AOUT
+        |           |         |    0x06: Trigger only
 --------+-----------+---------+------------------------------------------------
 0x28/ 40| 0x00-0x06 |    0x00 | Track Direction
         |           |         |    0x00: Forward 
