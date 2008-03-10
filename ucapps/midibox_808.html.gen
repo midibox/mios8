@@ -8,7 +8,7 @@ HEADER 3 MIDIbox 808
 </TD><TD></TD></TR>
 
 <TR><TD width=600>
-  <img src="midibox_808/808_front_v0_7.gif" width=575>
+  <img src="midibox_808/808_front_v0_8.gif" width=575>
 </TD><TD></TD></TR>
 
 
@@ -87,7 +87,7 @@ HEADER 3 MIDIbox 808
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Button Functions </H2>
 
-<P CLASS=DESC>When you look on the <A HREF="midibox_808/808_front_v0_7.gif">Frontpanel</A> again, you will notice a SHIFT and ALT button. They are used to select different button layers, labeled with red and green font. It would be possible to combine SHIFT+ALT to a new layer in future.</P>
+<P CLASS=DESC>When you look on the <A HREF="midibox_808/808_front_v0_8.gif">Frontpanel</A> again, you will notice a SHIFT and ALT button. They are used to select different button layers, labeled with red and green font. It would be possible to combine SHIFT+ALT to a new layer in future.</P>
 
 <P CLASS=DESC>Please note, that the frontpanel labeling is not intended "for production", but only to visualize the layers. The final frontpanel has to be discussed in the <A HREF="http://www.eight-oh-eight.org/phpbb2/index.php" TARGET="_blank">MB808 forum</A>.</P>
 
@@ -313,11 +313,17 @@ HEADER 3 MIDIbox 808
    A Bank change won't take place immediately - you have to enter a new pattern number in the PATTERN page so the bank will be changed.</LI>
   <LI><B>ALT+Pattern:</B> store pattern page: The target location has to be entered the same way as descriped above: select the section (A/B/C/D/E/F/G/H) with the left GP buttons, and the target location (1/2/3/4/5/6/7/8) with the right GP buttons. The bank can be pre-selected with "SHIFT+Pattern" if desired, otherwise the current bank will be used.<BR>
   After the store operation, the sequencer will switch back to the pattern selection page to ensure, that you don't accidently overwrite multiple patterns.</LI>
-  <LI><B>Song:</B> select song 1-16</LI>
-  <LI><B>SHIFT+Song:</B> select song 17-32 (requires 64k BankStick)</LI>
-  <LI><B>Edit:</B> normal editing mode</LI>
+  <LI><B>Song:</B> restore pattern chain A1..H8. Up to 64 chains can be stored in a seperate "Song" BankStick), same selection method as in pattern page. If no "Song" BankStick is connected, all LEDs will flash to inform you about this state (no Chain store/restore possible).<BR>
+  The CS configuration of this BankStick can be changed in the setup_*.asm file. By default it's CS=3</LI>
+  <LI><B>SHIFT+Song:</B> store current pattern chain in slot A1..H8</LI>
+  <LI><B>Edit:</B> track editing mode</LI>
   <LI><B>HOLD Edit:</B> direct selection of track(s) - see next chapter</LI>
   <LI><B>SHIFT+Edit:</B> activates/deactivates "change all" function - changes will take place on all 16 tracks when activated</LI>
+  <LI><B>Gate:</B> selects gate layer for editing</LI>
+  <LI><B>Aux:</B> selects auxiliary layer for editing</LI>
+  <LI><B>Gate+Aux:</B> selects both layers for editing</LI>
+  <LI><B>SHIFT+Gate:</B> temporary forces accent on all selected tracks (+the global accent trigger)</LI>
+  <LI><B>SHIFT+Aux:</B> temporary forces the aux trigger on all selected tracks</LI>
 </UL>
 </TD><TD></TD></TR>
 
@@ -341,6 +347,9 @@ Usage example:<BR>
       The chain will be automatically cleared in oneshot mode, after the last pattern has been selected.</LI>
 </UL>
 </P>
+
+<P CLASS=DESC><B>Note:</B> Up to 64 pattern chains can be stored in the "Save Song" page (SHIFT+Song), and restored in the Song page (Song button). This function requires an additional BankStick</P>
+
 </TD><TD></TD></TR>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
@@ -390,9 +399,9 @@ Usage example:<BR>
   <LI><B>Live:</B> enables/disables live play mode, which allows you to trigger the drums manually with the GP buttons.</LI>
   <LI><B>Record (SHIFT+Live):</B>  activates live recording function. Tracks can either be recorded by tapping the GP buttons (live play mode has to be enabled in addition), or from an external MIDI device (keyboard, drum pads, ...)</LI>
   <LI><B>Rew:</B> Pattern mode: switch back 4 steps synchronously (nudge).<BR>
-         Song mode: switch to previous pattern</LI>
+         Chain mode: switch to previous pattern</LI>
   <LI><B>Fwd:</B> Pattern mode: switch forward 4 steps synchronously (nudge).<BR>
-         Song mode: switch to next pattern</LI>
+         Chain mode: switch to next pattern</LI>
   <LI><B>Rotate &lt;&gt;: (SHIFT+Rew/Fwd)</B> rotates (scrolls) the selected track(s) to left/right direction between the given loop points (!) and within the selected step view (if step 1-16 or 17-32 selected: rotate between A loop points, if step 33-48 or 49-64 selected: rotate between B loop points). This function is especially useful after a random pattern has been generated.</LI>
   <LI><B>Stop:</B> stop sequencer</LI>
   <LI><B>Pause (SHIFT+Stop):</B> pauses sequencer</LI>
@@ -437,14 +446,13 @@ Note that alternatively one or more tracks can be selected with the GP buttons w
 
 <P CLASS=DESC>The firmware is up&running, but not all planned features have been implemented yet. However, it's already quite stable, and therefore worth for a beta release! :-) The missing functions will be available soon:</P>
 <UL CLASS=CL>
-  <LI>Song mode not implemented yet (MBSEQ V3 code needs to be overworked)</LI>
+  <LI>Chain Fwd/Rwd function not implemented yet</LI>
   <LI>Micro Delay function of Auxilary layer not implemented yet</LI>
 </UL>
 
 <P CLASS=DESC>Additional planned features:</P>
 <UL CLASS=CL>
-  <LI> find a button combination to temporary activate accent for all tracks</LI>
-  <LI> find a button combination to activate "loop mode" when a song is playing: holds current pattern so long function activated. Especially useful if a pattern should be edited in song mode (the sequencer won't switch to the next pattern so long loop function is activated)</LI>
+  <LI> find a button combination to activate "loop mode" when a chain is playing: holds current pattern so long function activated. Especially useful if a pattern should be edited while chain is playing (the sequencer won't switch to the next pattern so long loop function is activated)</LI>
   <LI> more random generator options</LI>
   <LI> alternative view on the 4x16 LED matrix to display all 64 steps of a track</LI>
   <LI> proper loop point handling if track length &gt; 16</LI>
@@ -457,7 +465,7 @@ Note that alternatively one or more tracks can be selected with the GP buttons w
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Beta Version </H2>
 
-<P CLASS=DESC>Link to current beta version: <A HREF="mios/midibox_808_v0_8b.zip">midibox_808_v0_8b.zip</A></P>
+<P CLASS=DESC>Link to current beta version: <A HREF="mios/midibox_808_v0_9.zip">midibox_808_v0_9.zip</A></P>
 
 <P CLASS=DESC>Before uploading the new firmware, please update to <A HREF="mios_download.html">MIOS V1.9f</A> first if this hasn't been done yet, otherwise the Tap Tempo function won't work.</P>
 
