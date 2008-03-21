@@ -1,7 +1,7 @@
 %!PS-Adobe-3.0
-%%Title: mbseq_dout_v3
-%%Creator: XCircuit v3.4 rev3
-%%CreationDate: Thu Mar 22 18:23:25 2007
+%%Title: mbseq_v3_dout
+%%Creator: XCircuit v3.4 rev10
+%%CreationDate: Fri Mar 21 17:22:19 2008
 %%Pages: 1
 %%BoundingBox: 0 0 612 792
 %%DocumentNeededResources: font Helvetica font Times-Roman font Courier 
@@ -197,6 +197,35 @@ begingate
 endgate
 } def
 
+/capacitor {
+begingate
+1 1.00 0 -64 0 -6 2 polygon
+1 1.00 0 64 0 6 2 polygon
+1 1.00 -32 6 32 6 2 polygon
+1 1.00 -32 -6 32 -6 2 polygon
+1.000 0.000 0.000 scb
+(c.1) {/Times-Roman cf} 2 9 0 1.00 0 64 pinlabel
+(c.2) {/Times-Roman cf} 2 13 0 1.00 0 -64 pinlabel
+0.180 0.545 0.341 scb
+(spice:C%i %pc.1 %pc.2 1.0P) {/Times-Roman cf} 2 0 0 1.00 -208 -160 infolabel
+(sim:c %pc.1 %pc.2) {/Times-Roman cf} 2 0 0 1.00 -208 -208 infolabel
+endgate
+} def
+
+/_resistor {
+begingate
+1 1.00 0 64 0 36 2 polygon
+1 1.00 0 -64 0 -36 2 polygon
+1 1.00 0 -36 14 -30 -14 -18 14 -6 -14 6 14 18 -14 30 0 36 8 polygon
+1.000 0.000 0.000 scb
+(r.1) {/Times-Roman cf} 2 9 0 1.00 0 64 pinlabel
+(r.2) {/Times-Roman cf} 2 13 0 1.00 0 -64 pinlabel
+0.180 0.545 0.341 scb
+(spice:R%i %pr.1 %pr.2 1.0K) {/Times-Roman cf} 2 0 0 1.00 -208 -160 infolabel
+(sim:r %pr.1 %pr.2) {/Times-Roman cf} 2 0 0 1.00 -208 -208 infolabel
+endgate
+} def
+
 
 %%EndSetup
 
@@ -204,9 +233,9 @@ endgate
 %%PageOrientation: Landscape
 %%PageBoundingBox: 0 0 612 792
 /pgsave save def bop
-90 rotate -115 -495 translate
-0.4000 inchscale
-2.6000 setlinewidth 3151 2467 translate
+90 rotate -127 -483 translate
+0.4006 inchscale
+2.6000 setlinewidth 3148 2383 translate
 
 0.906 0.890 0.906 scb
 240 1.00 -1376 -896 -1376 -1664 1760 -1664 1760 -896 4 polygon
@@ -786,13 +815,35 @@ sce
 sce
 (J5) {/Courier cf} 2 21 0 0.75 896 -936 label
 1.000 0.000 0.000 scb
-(Following additional LEDs) {/Courier cf} 2 23 180 0.75 1831 -1143 label
-(can be assigned to free pins) {/Courier cf} 2 23 180 0.75 1831 -1191 label
-(in setup_mbseq_v3.asm:) {/Courier cf} 2 23 180 0.75 1831 -1239 label
-(- Group Select 1/2/3/4) {/Courier cf} 2 23 180 0.75 1831 -1303 label
-(- Trigger Layer A/B/C) {/Courier cf} 2 23 180 0.75 1831 -1351 label
-(- Step View 1-16/17-32) {/Courier cf} 2 23 180 0.75 1831 -1399 label
-(- Play/Stop/Pause) {/Courier cf} 2 23 180 0.75 1831 -1447 label
+(Following additional LEDs) {/Courier cf} 2 23 180 0.75 1847 -695 label
+(can be assigned to free pins) {/Courier cf} 2 23 180 0.75 1847 -743 label
+(in setup_mbseq_v3.asm:) {/Courier cf} 2 23 180 0.75 1847 -791 label
+(- Group Select 1/2/3/4) {/Courier cf} 2 23 180 0.75 1847 -855 label
+(- Trigger Layer A/B/C) {/Courier cf} 2 23 180 0.75 1847 -903 label
+(- Step View 1-16/17-32) {/Courier cf} 2 23 180 0.75 1847 -951 label
+(- Play/Stop/Pause) {/Courier cf} 2 23 180 0.75 1847 -999 label
+0.627 0.125 0.941 scb
+0.75 0 1840 -1360 capacitor
+0.75 0 1840 -1456 _resistor
+1 3.00 1840 -1312 1680 -1312 2 polygon
+1 3.00 1840 -1504 1680 -1504 2 polygon
+(100) {/Helvetica cf} 2 16 0 1.00 1872 -1472 label
+(100 pF) {/Helvetica cf} 2 16 0 1.00 1872 -1376 label
+1 1.00 1824 -1552 1856 -1664 2496 -1664 3 polygon
+(This R+C Termination might be) {/Helvetica cf} 2 16 0 0.75 1888 -1584 label
+(required if you notice flickering LEDs) {/Helvetica cf} 2 16 0 0.75 1888 -1616 
+label
+(or randomly triggered button/encoder values) {/Helvetica cf} 2 16 0 0.75 1888 
+-1648 label
+(If you don't have a 100 pF ready, you) {/Helvetica cf} 2 16 0 0.75 1888 -1696 
+label
+(could also try a single 220..330 Ohm) {/Helvetica cf} 2 16 0 0.75 1888 -1728 
+label
+(resistor instead - mostly it already helps!) {/Helvetica cf} 2 16 0 0.75 1888 
+-1760 label
+(Both SRIO branches \(DIN and DOUT chain\)) {/Helvetica cf} 2 16 0 0.75 1888 
+-1808 label
+(should be terminated.) {/Helvetica cf} 2 16 0 0.75 1888 -1840 label
 pgsave restore showpage
 
 %%Trailer
