@@ -4,7 +4,10 @@
  *
  * ==========================================================================
  *
- *  Copyright 2006 Thorsten Klose (tk@midibox.org)
+ *  Copyright 2006-2008:
+ *  Thorsten Klose (tk@midibox.org)
+ *  Michaël Heyvaert (Mess)
+ *  Mike Wanning (Modularkomplex)
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
  *
@@ -67,6 +70,7 @@ void PatchRead(unsigned char patch);
 void DataWrite(unsigned char target, unsigned int adr, unsigned char data);
 unsigned char DataRead(unsigned char target, unsigned int adr);
 unsigned int Mul64(unsigned int c);
+void FormatBS();
 
 /////////////////////////////////////////////////////////////////////////////
 // Export global variables

@@ -4,7 +4,10 @@
  *
  * ==========================================================================
  *
- *  Copyright 2006 Thorsten Klose (tk@midibox.org)
+ *  Copyright 2006-2008:
+ *  Thorsten Klose (tk@midibox.org)
+ *  Michaël Heyvaert (Mess)
+ *  Mike Wanning (Modularkomplex)
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
  *

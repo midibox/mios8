@@ -4,7 +4,10 @@
  *
  * ==========================================================================
  *
- *  Copyright 2006 Thorsten Klose (tk@midibox.org)
+ *  Copyright 2006-2008:
+ *  Thorsten Klose (tk@midibox.org)
+ *  Michaël Heyvaert (Mess)
+ *  Mike Wanning (Modularkomplex)
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
  *
@@ -44,6 +47,7 @@ unsigned char shift = 0;
 unsigned char m_page = 0;
 unsigned char m_button = 0;
 unsigned char save_patch = 0;
+unsigned char display_message = 0;
 
 unsigned char out_config_sc_mask = 0;		// mask for output config (start/continue)
 unsigned char out_config_bb_mask = 0;		// mask for output config (start on next bar/beat)
@@ -55,15 +59,21 @@ unsigned char out_config_sp_mask = 0;		// mask for output config (send song-posi
 /////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
+// Application specific encoder table
+// the default (dummy) table has been disabled via -DDONT_INCLUDE_MIOS_ENC_TABLE
+/////////////////////////////////////////////////////////////////////////////
+MIOS_ENC_TABLE {
+             // sr pin mode
+  MIOS_ENC_ENTRY(1, 0, MIOS_ENC_MODE_DETENTED2),
+  MIOS_ENC_EOT
+};
+
+/////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS after startup to initialize the
 // application
 /////////////////////////////////////////////////////////////////////////////
 void Init(void) __wparam
 {
-  unsigned int i = 0;
-  unsigned int k = 0;
-  unsigned char error = 0;
-
   // set shift register update frequency
   MIOS_SRIO_UpdateFrqSet(1); // ms
 
@@ -83,30 +93,6 @@ void Init(void) __wparam
   MCLOCK_Init();
   MCLOCK_BPMSet(132);
 
-  // check if bankstick is available
-  if ( MIOS_BOX_STAT.BS_AVAILABLE ) {
-	if ( MIOS_BANKSTICK_Read(0x00) != 0xcb && MIOS_BANKSTICK_Read(0x01) != 0xcb) {
-	  // format bankstick
-	  MIOS_LCD_CursorSet(0x00);
-	  MIOS_LCD_PrintCString("Format Bankstick");
-	  MIOS_LCD_CursorSet(0x40);
-	  error |= MIOS_BANKSTICK_Write(0x00, 0xcb);
-	  error |= MIOS_BANKSTICK_Write(0x01, 0xcb);
-
-	  for ( i = 2; i < 32767; i++ ) {
-  		error |= MIOS_BANKSTICK_Write(i, 0x17);
-		if ( ++k >= 2048 ) {
-			k = 0;
-			MIOS_LCD_PrintChar('>');
-		}
-	  }
-	}
-   if ( error ) {
-	  MIOS_LCD_CursorSet(0x40);
-	  MIOS_LCD_PrintCString("BS-Format failed");
-      MIOS_LCD_MessageStart(255);
-   }
-  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -209,23 +195,25 @@ void DISPLAY_Tick(void) __wparam
   			MIOS_LCD_PrintCString("BBC SPC  SAV LOA");
   			break;
 		case 2:
-  			MIOS_LCD_PrintCString("TRK             ");
+  			MIOS_LCD_PrintCString("TRK BST         ");
   			break;
   	}
   }
   else {
-  	// print meter
-	MIOS_LCD_CursorSet(0x40 + 0);
-	MIOS_LCD_PrintCString("Pos ");
-  	MIOS_LCD_PrintBCD5(mclock_ctr_measures + 1);
-  	MIOS_LCD_PrintChar(':');
-  	MIOS_LCD_PrintChar(' ');
-  	MIOS_LCD_PrintBCD1(mclock_ctr_beats + 1);
-  	MIOS_LCD_PrintChar(':');
-  	MIOS_LCD_PrintBCD3(mclock_ctr_96 * 5);
+    if ( display_message != 1 ) {
+  	  // print meter
+	  MIOS_LCD_CursorSet(0x40 + 0);
+	  MIOS_LCD_PrintCString("Pos ");
+  	  MIOS_LCD_PrintBCD5(mclock_ctr_measures + 1);
+  	  MIOS_LCD_PrintChar(':');
+  	  MIOS_LCD_PrintChar(' ');
+  	  MIOS_LCD_PrintBCD1(mclock_ctr_beats + 1);
+  	  MIOS_LCD_PrintChar(':');
+  	  MIOS_LCD_PrintBCD3(mclock_ctr_96 * 5);
   }
+}
 
-// enc-modes: 0 = bpm; 1 = trk; 2 = div; 3 = sfl; 4 = ssc; 5 = bbc; 6 = spc; 7 = sav; 8 = loa
+// enc-modes: 0 = bpm; 1 = trk; 2 = div; 3 = sfl; 4 = ssc; 5 = bbc; 6 = spc; 7 = sav; 8 = loa; 9 = bst
 
 #if MENU_BUTTONS
   // check m_button
@@ -252,6 +240,9 @@ void DISPLAY_Tick(void) __wparam
 		  case 1:
 			enc_mode = 6;
 		  break;
+		  case 2:
+		  	enc_mode = 9;
+		  break;
 		}
 	break;
  	case 3:
@@ -267,12 +258,21 @@ void DISPLAY_Tick(void) __wparam
 			PatchWrite(save_patch);
 			enc_mode = 0;
 		    m_page = 1;
+		    display_message = 0;
 		    app_flags.DISPLAY_UPDATE_REQ = 1;
 		  break;
 		  case 10:
 			PatchRead(save_patch);
 			enc_mode = 0;
 		    m_page = 1;
+		    display_message = 0;
+		    app_flags.DISPLAY_UPDATE_REQ = 1;
+		  break;
+		  case 11:
+			FormatBS();
+			enc_mode = 0;
+		    m_page = 2;
+		    display_message = 0;
 		    app_flags.DISPLAY_UPDATE_REQ = 1;
 		  break;
 		}
@@ -289,14 +289,21 @@ void DISPLAY_Tick(void) __wparam
 		  case 9:
 			enc_mode = 0;
 		    m_page = 1;
+		    display_message = 0;
 		    app_flags.DISPLAY_UPDATE_REQ = 1;
 		  break;
 		  case 10:
 			enc_mode = 0;
 		    m_page = 1;
+		    display_message = 0;
 		    app_flags.DISPLAY_UPDATE_REQ = 1;
 		  break;
-		}
+		  case 11:
+			enc_mode = 0;
+		    m_page = 2;
+		    display_message = 0;
+		    app_flags.DISPLAY_UPDATE_REQ = 1;
+		  break;		}
 	break;
   }
 
@@ -307,7 +314,7 @@ void DISPLAY_Tick(void) __wparam
   switch (enc_mode) {
 	case 0: //BPM
 		MIOS_LCD_CursorSet(0x00 + 0);
-		MIOS_LCD_PrintCString("BPM");
+		MIOS_LCD_PrintCString("BPM ");
 		MIOS_LCD_CursorSet(0x00 + 4);
 		MIOS_LCD_PrintBCD3(MCLOCK_BPMGet());
 		MIOS_LCD_CursorSet(0x00 + 7);
@@ -315,7 +322,7 @@ void DISPLAY_Tick(void) __wparam
 		break;
 	case 1: //Track
 		MIOS_LCD_CursorSet(0x00 + 0);
-		MIOS_LCD_PrintCString("TRK");
+		MIOS_LCD_PrintCString("TRK ");
 		MIOS_LCD_CursorSet(0x00 + 4);
 		MIOS_LCD_PrintCString("0");
 		MIOS_LCD_PrintBCD1(current_trk+1);
@@ -324,7 +331,7 @@ void DISPLAY_Tick(void) __wparam
 		break;
 	case 2: //Divider
 		MIOS_LCD_CursorSet(0x00 + 0);
-		MIOS_LCD_PrintCString("DIV");
+		MIOS_LCD_PrintCString("DIV ");
 		MIOS_LCD_CursorSet(0x00 + 4);
 		MIOS_LCD_PrintChar('/');
 		MIOS_LCD_PrintBCD1(t_divisor[current_trk]+1);
@@ -346,7 +353,7 @@ void DISPLAY_Tick(void) __wparam
 		break;
 	case 4: //start/continue setting
 		MIOS_LCD_CursorSet(0x00 + 0);
-		MIOS_LCD_PrintCString("SCS");
+		MIOS_LCD_PrintCString("SCS ");
 		MIOS_LCD_CursorSet(0x00 + 4);
 
 		if ( BitTest(out_config_sc_mask,current_trk) == 1 ) {
@@ -363,7 +370,7 @@ void DISPLAY_Tick(void) __wparam
 		break;
 	case 5: //start on bar/beat setting
 		MIOS_LCD_CursorSet(0x00 + 0);
-		MIOS_LCD_PrintCString("BBC");
+		MIOS_LCD_PrintCString("BBC ");
 		MIOS_LCD_CursorSet(0x00 + 4);
 
 		if ( BitTest(out_config_bb_mask,current_trk) == 1 ) {
@@ -380,7 +387,7 @@ void DISPLAY_Tick(void) __wparam
 		break;
 	case 6: //song-position setting
 		MIOS_LCD_CursorSet(0x00 + 0);
-		MIOS_LCD_PrintCString("SPC");
+		MIOS_LCD_PrintCString("SPC ");
 		MIOS_LCD_CursorSet(0x00 + 4);
 
 		if ( BitTest(out_config_sp_mask,current_trk) == 1 ) {
@@ -418,6 +425,7 @@ void DISPLAY_Tick(void) __wparam
 #else
    		MIOS_LCD_PrintCString("Fwd=Yes Rew=Exit");
 #endif
+		display_message = 1;
 		break;
 	case 8: //Load
 		m_page = 10;
@@ -442,7 +450,22 @@ void DISPLAY_Tick(void) __wparam
 #else
    		MIOS_LCD_PrintCString("Fwd=Yes Rew=Exit");
 #endif
+		display_message = 1;
 		break;
+	case 9: //Format Bankstick
+		m_page = 11;
+		MIOS_LCD_CursorSet(0x00 + 0);
+		MIOS_LCD_PrintCString("Bankstick");
+
+   		MIOS_LCD_CursorSet(0x40);
+#if MENU_BUTTONS
+   		MIOS_LCD_PrintCString("Format?  Yes  No");
+#else
+   		MIOS_LCD_PrintCString("Fwd=Yes Rew=Exit");
+#endif
+		display_message = 1;
+		break;
+
 	}
 }
 
@@ -922,24 +945,17 @@ int BitTest(unsigned char val, unsigned char bit) {
 
 void PatchWrite(unsigned char patch) {
 	unsigned int base_adr = 0;
-
 	unsigned char i;
-
 	unsigned char target;
 
-
-
 	//eeprom
-
 	if ( patch < 4 ) {
 	  base_adr = Mul64(patch);
 	  target = 0;
 	}
 	//bankstick
-
 	else {
 	  base_adr = Mul64(patch-4);
-
 	  base_adr += 2;
 	  target = 1;
 	}
@@ -947,20 +963,17 @@ void PatchWrite(unsigned char patch) {
 	//write marker
 	DataWrite(target, base_adr, 0xcb);
 
-
 	//write divisor
 	for (i = 0; i < 8; i++) {
 		divisor[i] = t_divisor[i];
 		DataWrite(target, (base_adr+1+i), divisor[i]);
 	}
 
-
 	//write shuffle-settings
 	for (i = 0; i < 8; i++) {
 		shuffle[i] = t_shuffle[i];
 		DataWrite(target, (base_adr+9+i), shuffle[i]);
 	}
-
 
 	DataWrite(target, (base_adr+17), multi_clk_mask);     //Channel-Mask
 	DataWrite(target, (base_adr+18), MCLOCK_BPMGet());    //BPM
@@ -978,21 +991,17 @@ void PatchRead(unsigned char patch) {
 	unsigned char i;
 	unsigned char target;
 
-
 	//eeprom
 	if ( patch < 4 ) {
 	  base_adr = Mul64(patch);
-
 	  target = 0;
 	}
 	//bankstick
 	else {
-	  base_adr = Mul64(patch);
+	  base_adr = Mul64(patch-4);
 	  base_adr += 2;
-
 	  target = 1;
 	}
-
 
 	MIOS_LCD_CursorSet(0x40 + 0);
 
@@ -1008,7 +1017,6 @@ void PatchRead(unsigned char patch) {
 		shuffle[i] = DataRead(target, base_adr+9+i);
 	    t_shuffle[i] = shuffle[i];
 	  }
-
 
 	  multi_clk_mask = DataRead(target, base_adr+17);     //Channel-Mask
 	  MCLOCK_BPMSet(DataRead(target, base_adr+18));       //BPM
@@ -1027,12 +1035,10 @@ void PatchRead(unsigned char patch) {
 
 void DataWrite(unsigned char target, unsigned int adr, unsigned char mydata) {
 	//bankstick
-
 	if ( target == 1 ) {
 	  MIOS_BANKSTICK_Write(adr, mydata);
 	}
 	//eeprom
-
 	else {
 	  MIOS_EEPROM_Write(adr, mydata);
 	}
@@ -1058,4 +1064,63 @@ unsigned int Mul64(unsigned int c) {
   	}
 
   	return res;
+}
+
+//format bankstick
+void FormatBS() {
+  unsigned int i = 0;
+  unsigned int k = 0;
+  unsigned char t = 0;
+  unsigned char error = 0;
+
+  //check for magic numbers
+  if ( MIOS_BANKSTICK_Read(0x00) != 0xcb || MIOS_BANKSTICK_Read(0x01) != 0xcb) {
+	  if ( MIOS_BOX_STAT.BS_AVAILABLE ) {
+		MIOS_LCD_CursorSet(0x00);
+		MIOS_LCD_PrintCString("Formatting...");
+		MIOS_LCD_CursorSet(0x40);
+		MIOS_LCD_PrintCString("                ");
+		MIOS_LCD_CursorSet(0x40);
+		error |= MIOS_BANKSTICK_Write(0x00, 0xcb);
+		error |= MIOS_BANKSTICK_Write(0x01, 0xcb);
+		for ( i = 2; i < 32767; i++ ) {
+		  error |= MIOS_BANKSTICK_Write(i, 0x17);
+		  if ( ++k >= 512 ) {
+			 k = 0;
+			 //Reset WatchdogTimer to prevent the pic resetting
+			 __asm
+			 clrwdt
+			 __endasm;
+
+			 MIOS_LCD_PrintChar('>');
+		     if ( t++ > 16 ) {
+				t = 0;
+				MIOS_LCD_CursorSet(0x40);
+			    MIOS_LCD_PrintCString("                ");
+				MIOS_LCD_CursorSet(0x40);
+
+			 }
+		  }
+		}
+
+		MIOS_LCD_CursorSet(0x40);
+		if ( error ) {
+		  MIOS_LCD_PrintCString("BS-Format failed");
+		}
+		else {
+		  MIOS_LCD_PrintCString("BS formatted!   ");
+		}
+		MIOS_LCD_MessageStart(255);
+	  }
+	 else {
+		MIOS_LCD_CursorSet(0x40);
+		MIOS_LCD_PrintCString("No Bankstick!   ");
+		MIOS_LCD_MessageStart(255);
+	 }
+  }
+  else {
+	MIOS_LCD_CursorSet(0x40);
+	MIOS_LCD_PrintCString("Is formatted!   ");
+	MIOS_LCD_MessageStart(255);
+  }
 }
