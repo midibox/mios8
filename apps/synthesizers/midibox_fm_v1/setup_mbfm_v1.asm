@@ -103,6 +103,7 @@
 ;;    ENC_ENTRY  9,  6,  MIOS_ENC_MODE_NON_DETENTED    ; non-detented encoder at pin 6 and 7 of SR 9
 ;; --------------------------------------------------------------------------
 
+	org	0x3280		; never change the origin!
 
 	;; encoder entry structure
 ENC_ENTRY MACRO sr, din_0, mode
