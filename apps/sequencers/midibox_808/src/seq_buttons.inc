@@ -1094,6 +1094,23 @@ SEQ_BUTTON_Live
 
 
 ;; --------------------------------------------------------------------------
+;;  HalfSpeed button: force BPM half-speed if button pressed
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_HalfSpeed
+	SET_BSR	SEQ_BASE
+	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_HalfSpeed_Pressed
+SEQ_BUTTON_HalfSpeed_Depressed
+	movlw	0x00
+	movwf	SEQ_CORE_INT_CLK_DIVIDER_PRELOAD, BANKED
+	return
+
+SEQ_BUTTON_HalfSpeed_Pressed
+	movlw	0x01
+	movwf	SEQ_CORE_INT_CLK_DIVIDER_PRELOAD, BANKED
+	return
+
+
+;; --------------------------------------------------------------------------
 ;;  F1 button --- implement your favourite function here!
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_F1
@@ -1103,11 +1120,17 @@ SEQ_BUTTON_F1
 
 	return
 
+
 ;; --------------------------------------------------------------------------
 ;;  F2 button --- implement your favourite function here!
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_F2
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
 	return
+
+	return
+
 
 ;; --------------------------------------------------------------------------
 ;;  F3 button --- implement your favourite function here!
@@ -1118,6 +1141,7 @@ SEQ_BUTTON_F3
 	return
 
 	return
+
 
 ;; --------------------------------------------------------------------------
 ;;  F4 button --- implement your favourite function here!
