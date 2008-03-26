@@ -68,7 +68,9 @@ public class BankTable extends JPanel implements TableModelListener, ListSelecti
 		table.getColumnModel().getColumn(2).setPreferredWidth(70);
 		
 		table.setPreferredScrollableViewportSize(new Dimension(table.getPreferredSize().width, Math.round(table.getPreferredSize().height/4)));
-	    table.setFillsViewportHeight(true);
+
+		// TK: temporary commented out - not available under MacOS, we need a replacement
+		// table.setFillsViewportHeight(true);
 	    
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setPreferredSize(new Dimension(table.getPreferredSize().width, Math.round(table.getPreferredSize().height/4)));
