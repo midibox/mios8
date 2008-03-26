@@ -509,7 +509,7 @@ MB64_LCD_PrnVBar
 	BRA_IFSET INDF0, 7, ACCESS, MB64_LCD_PrnVBar_Normal
 	;; if not in snap mode, print bar
 	SET_BSR	MB64_BASE
-	BRA_IFCLR MB64_CFG0, MB64_CFG0_SNAP, ACCESS, MB64_LCD_PrnVBar_Normal
+	BRA_IFCLR MB64_CFG0, MB64_CFG0_SNAP, BANKED, MB64_LCD_PrnVBar_Normal
 	;; else print arrows depending on direction
 MB64_LCD_PrnVBar_Arrows
 	;; get current pot value (7-bit) and save it in TMP1
