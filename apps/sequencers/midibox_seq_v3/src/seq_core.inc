@@ -2524,21 +2524,23 @@ SEQ_CORE_NextStep_RS
 	xorwf	TMP1, W
 	bz	SEQ_CORE_NextStep_RS_Found
 
-SEQ_CORE_NextStep_RS_Loop
-	rcall	SEQ_CORE_GenRandomNumber	; generate a new random number
-	movf	SEQ_RANDOM_SEED_H, W, BANKED
-	andlw	0x1f
-	movwf	PRODL
+	;; range = TMP2-TMP1+1 -> TMP3
 	movf	TMP1, W
-	bz	SEQ_CORE_NextStep_RS_Loop_IgnS
-	addlw	-1
-	cpfsgt	PRODL, ACCESS
-	rgoto SEQ_CORE_NextStep_RS_Loop
-SEQ_CORE_NextStep_RS_Loop_IgnS
-	incf	TMP2, W
-	cpfslt	PRODL, ACCESS
-	rgoto SEQ_CORE_NextStep_RS_Loop
+	subwf	TMP2, W
+	addlw	1
+	movwf	TMP3
 
+	;; generate new random number, and scale over range
+	rcall	SEQ_CORE_GenRandomNumber
+	movf	SEQ_RANDOM_SEED_H, W, BANKED
+	mulwf	TMP3, ACCESS
+
+	;; new step now in PRODH, add offset (loop point)
+	movf	PRODH, W
+	addwf	TMP1, W
+	movwf	PRODL
+
+	;; store in TRKVARSTEP
 SEQ_CORE_NextStep_RS_Found
 	movlw	SEQ_TRKVARSTEPx			; step within range found
 	movff	PRODL, PLUSW2

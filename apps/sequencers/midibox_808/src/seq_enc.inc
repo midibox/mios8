@@ -92,6 +92,7 @@ SEQ_ENC_Inst
 	clrf	TMP2
 
 	;; if all tracks selected: set TMP1 to 16
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, SEQ_ENC_Inst_All
 	incf	SEQ_SELECTED_TRKS_0, W, BANKED
 	bnz	SEQ_ENC_Inst_NotAll
 	incf	SEQ_SELECTED_TRKS_1, W, BANKED

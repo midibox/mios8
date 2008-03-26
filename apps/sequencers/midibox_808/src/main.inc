@@ -217,6 +217,31 @@ USER_Timer
 ;;     o return values WREG, MIOS_PARAMETER1, MIOS_PARAMETER2, MIOS_PARAMETER3
 ;; --------------------------------------------------------------------------
 USER_MPROC_DebugTrigger
+	;; called with following SysEx command:
+	;; first BS:
+	;; F0 00 00 7E 40 00 0D 01 00 60 0C 00 00 00 00 00 00 00 00 F7
+	;; second BS:
+	;; F0 00 00 7E 40 00 0D 01 00 60 0C 00 01 00 00 00 00 00 00 F7
+	;; ...
+	;; 8th BS:
+	;; F0 00 00 7E 40 00 0D 01 00 60 0C 00 07 00 00 00 00 00 00 F7 
+	;; we use this hook to invalidate the magic bytes of a BankStick to trigger a reformat
+	;; (BS number, will be available in WREG when function called)
+	call	MIOS_BANKSTICK_CtrlSet	
+
+	;; magic bytes located at address 0x0000 and 0x0001
+	clrf	MIOS_PARAMETER1
+	clrf	MIOS_PARAMETER2
+	movlw	0x00
+	call	MIOS_BANKSTICK_Write
+	movlw	0x00
+	call	MIOS_BANKSTICK_Write
+
+	;; clear bankstick status to force a re-detection (once SEQ_BANK_CheckStick called again from USER_Tick)
+	SET_BSR	SEQ_BASE
+	clrf	SEQ_BANKSTICK_STATUS, BANKED
+	clrf	SEQ_BANKSTICK_DISABLED, BANKED
+	
 	return
 
 

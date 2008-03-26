@@ -1198,6 +1198,17 @@ SEQ_CORE_Clk_SendEvent_NoMIDI
  	movff	SEQ_EVNT2, MIOS_PARAMETER1
 	call	SEQ_TRK_ReqTrigger
 
+	;; extra: if global accent track available, and "FORCE_ACCENT" flag set: trigger it!
+	;; note that accent flags assigned to aux layer are handled seperately in seq_trg.inc
+#if DEFAULT_GLOBAL_ACCENT_TRK && DEFAULT_GLOBAL_ACCENT_TRK < 17
+	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED, SEQ_CORE_Clk_SendEvent_NoAccFrce
+	movlw	DEFAULT_GLOBAL_ACCENT_TRK - 1
+	movlw	0x7f
+	movwf	MIOS_PARAMETER1
+	call	SEQ_TRK_ReqTrigger
+SEQ_CORE_Clk_SendEvent_NoAccFrce
+#endif
+
 	;; update the meter (for mute menu)
 	rcall	SEQ_CORE_UpdateMeter
 
@@ -2168,7 +2179,7 @@ SEQ_CORE_NextStep_RD
 
 	;; ---[ Random Step ]------------------------------------------------
 SEQ_CORE_NextStep_RS
-	;; iterate until new random step within given track range (from loop to length) has been found
+	;; found random step within given track range (from loop to length)
 	movlw	SEQ_TRKLOOPx
 	movff	PLUSW0, TMP1
 	movlw	SEQ_TRKLASTx
@@ -2179,23 +2190,25 @@ SEQ_CORE_NextStep_RS
 	xorwf	TMP1, W
 	bz	SEQ_CORE_NextStep_RS_Found
 
-SEQ_CORE_NextStep_RS_Loop
-	rcall	SEQ_CORE_GenRandomNumber	; generate a new random number
-	movf	SEQ_RANDOM_SEED_H, W, BANKED
-	andlw	0x1f
-	movwf	PRODL
+	;; range = TMP2-TMP1+1 -> TMP3
 	movf	TMP1, W
-	bz	SEQ_CORE_NextStep_RS_Loop_IgnS
-	addlw	-1
-	cpfsgt	PRODL, ACCESS
-	rgoto SEQ_CORE_NextStep_RS_Loop
-SEQ_CORE_NextStep_RS_Loop_IgnS
-	incf	TMP2, W
-	cpfslt	PRODL, ACCESS
-	rgoto SEQ_CORE_NextStep_RS_Loop
+	subwf	TMP2, W
+	addlw	1
+	movwf	TMP3
 
+	;; generate new random number, and scale over range
+	rcall	SEQ_CORE_GenRandomNumber
+	movf	SEQ_RANDOM_SEED_H, W, BANKED
+	mulwf	TMP3, ACCESS
+
+	;; new step now in PRODH, add offset (loop point)
+	movf	PRODH, W
+	addwf	TMP1, W
+	movwf	PRODL
+
+	;; store in TRKVARSTEP
 SEQ_CORE_NextStep_RS_Found
-	movlw	SEQ_TRKVARSTEPx			; step within range found
+	movlw	SEQ_TRKVARSTEPx
 	movff	PRODL, PLUSW2
 
 	rgoto	SEQ_CORE_NextStep_Cont

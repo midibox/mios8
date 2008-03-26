@@ -44,17 +44,6 @@ SEQ_LAYER_GetEvnt_AltPattern	; direct entry point for SEQ_MORPH: alternative pat
 	andlw	0x0f
 	iorwf	SEQ_EVNT0, F, BANKED
 
-	;; extra: if global accent track available, and "FORCE_ACCENT" flag set: trigger it!
-	;; note that accent flags assigned to aux layer are handled seperately in seq_trg.inc
-#if DEFAULT_GLOBAL_ACCENT_TRK && DEFAULT_GLOBAL_ACCENT_TRK < 17
-	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED, SEQ_LAYER_GetEvnt_NoAccForce
-	movlw	DEFAULT_GLOBAL_ACCENT_TRK - 1
-	cpfseq	SEQ_EVNTT, BANKED
-	rgoto	SEQ_LAYER_GetEvnt_NoAccForce
-	rgoto	SEQ_LAYER_GetEvnt_Set
-SEQ_LAYER_GetEvnt_NoAccForce
-#endif
-
 	;; don't play if step is muted
 	call	SEQ_TRG_GateGet
 	skpnz

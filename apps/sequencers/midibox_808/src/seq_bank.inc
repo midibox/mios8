@@ -544,9 +544,17 @@ SEQ_BANK_FormatStickCopyLoop
 	movff	SEQ_PATTERN, WREG
 	call	SEQ_LCD_PrnPattern
 
-	;; store tracks into pattern
-	movff	SEQ_PATTERN, SEQ_SAVE_PATTERN
-	call	SEQ_DUMP_StoreTrks
+	;; store 8 pages (0x200 bytes)
+	clrf	EEADR
+	clrf	EEADRH
+	lfsr	FSR1, SEQ_PATTERN_BUFFER
+SEQ_BANK_FormatStickCopyTrkLoop
+	call	SEQ_BANK_WritePage
+	movlw	0x40
+	addwf	FSR1L, F
+	movlw	0x00
+	addwfc	FSR1H, F
+	BRA_IFCLR EEADRH, 1, ACCESS, SEQ_BANK_FormatStickCopyTrkLoop
 
 	;; increment pattern number until last is reached
 	SET_BSR	SEQ_BASE
@@ -563,14 +571,6 @@ SEQ_BANK_FormatStickCopyLoopN32k
 	BRA_IFCLR SEQ_PATTERN, 6, BANKED, SEQ_BANK_FormatStickCopyLoop
 SEQ_BANK_FormatStickCopyLoopEnd
 
-	;; write magic bytes to address 0x0000
-	clrf	MIOS_PARAMETER1
-	clrf	MIOS_PARAMETER2
-	movlw	BANKSTICK_MAGIC0
-	call	MIOS_BANKSTICK_Write
-	movlw	BANKSTICK_MAGIC1
-	call	MIOS_BANKSTICK_Write
-
 	;; clear addresses 0x0002-0x01ff of bankstick
 	;; (this area is overlayed by internal bank)
 SEQ_BANK_FormatStickEraseLoop
@@ -578,6 +578,14 @@ SEQ_BANK_FormatStickEraseLoop
 	movlw	0x00
 	call	MIOS_BANKSTICK_Write
 	BRA_IFCLR MIOS_PARAMETER2, 1, ACCESS, SEQ_BANK_FormatStickEraseLoop
+
+	;; write magic bytes to address 0x0000
+	clrf	MIOS_PARAMETER1
+	clrf	MIOS_PARAMETER2
+	movlw	BANKSTICK_MAGIC0
+	call	MIOS_BANKSTICK_Write
+	movlw	BANKSTICK_MAGIC1
+	call	MIOS_BANKSTICK_Write
 
 	;; switch to internal bank
 	SET_BSR	SEQ_BASE

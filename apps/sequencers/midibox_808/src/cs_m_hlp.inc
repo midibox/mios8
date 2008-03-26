@@ -54,7 +54,7 @@ CS_M_HLP_GetSelectedTrk
 	return
 
 ;; --------------------------------------------------------------------------
-;;  Help routine to set a single track, and to update the SELECTED_TRKS_[LR] flags
+;;  Help routine to set a single track, and to update the SELECTED_TRKS_[01] flags
 ;; --------------------------------------------------------------------------
 CS_M_HLP_SetSelectedTrk
 	SET_BSR	SEQ_BASE
@@ -280,7 +280,7 @@ CS_M_HLP_Print10Chars
 ;; --------------------------------------------------------------------------
 CS_M_HLP_PrnTrkNameOrRec
 	SET_BSR	SEQ_BASE
-	GOTO_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_TRK_PrnName
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, CS_M_HLP_PrnTrkName
 	movlw	'!'
 	call	MIOS_LCD_PrintChar
 	movlw	'R'
@@ -293,3 +293,26 @@ CS_M_HLP_PrnTrkNameOrRec
 	call	MIOS_LCD_PrintChar
 	movlw	' '
 	goto	MIOS_LCD_PrintChar
+
+CS_M_HLP_PrnTrkName
+	movwf	PRODL
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, CS_M_HLP_PrnTrkName_All
+	;; if all tracks selected: print "ALL   "
+	incf	SEQ_SELECTED_TRKS_0, W, BANKED
+	bnz	CS_M_HLP_PrnTrkName_NotAll
+	incf	SEQ_SELECTED_TRKS_1, W, BANKED
+	bnz	CS_M_HLP_PrnTrkName_NotAll
+CS_M_HLP_PrnTrkName_All
+	movlw	'A'
+	call	MIOS_LCD_PrintChar
+	movlw	'L'
+	call	MIOS_LCD_PrintChar
+	movlw	'L'
+	call	MIOS_LCD_PrintChar
+	movlw	3
+	goto	SEQ_LCD_PrintSpaces
+	
+CS_M_HLP_PrnTrkName_NotAll
+	movf	PRODL, W
+	goto	SEQ_TRK_PrnName
+	
