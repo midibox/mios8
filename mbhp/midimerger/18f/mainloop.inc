@@ -19,10 +19,13 @@
 
 ;; ==========================================================================
 
-BUFFER_HANDLER MACRO RINGBUFFERx_A, RINGBUFFERx_B, RINGBUFFERx, RINGBUFFERx_END, MIDIx_RUNSTATUS
+BUFFER_HANDLER MACRO RINGBUFFERx_A, RINGBUFFERx_B, RINGBUFFERx, RINGBUFFERx_END, MIDIx_RUNSTATUS, LED_RXx_PORT, LED_RXx_PIN, LED_CTR_RXx
 	LOCAL	Buffer_LoopReset, Buffer_Loop, Buffer_Loop_TimeOut, Buffer_Loop_NoTimeOut, Buffer_ReceiveHandler
 	LOCAL	Buffer_NoReset, Buffer_RunningData, Buffer_ForwardSysEx, Buffer_GotCommand, Buffer_GotSystemCommand, Buffer_GotCommandLTF8, Buffer_GotOneByteSyx
 	LOCAL	Buffer_SendEnd, Buffer_Loop_End
+	LOCAL	Buffer_Loop_Rx0LED, Buffer_Loop_NoRx0LED
+	LOCAL	Buffer_Loop_Rx1LED, Buffer_Loop_NoRx1LED
+	LOCAL	Buffer_Loop_TxLED, Buffer_Loop_NoTxLED
 
 	clrf	MIDI_EXPBYTES			; clear number of expected bytes
 
@@ -36,6 +39,31 @@ Buffer_LoopReset
 Buffer_Loop
 	clrwdt					; feed the watchdog
 
+	;; handle LED counters
+	movf	LED_CTR_RX0, W
+	bz	Buffer_Loop_NoRx0LED
+Buffer_Loop_Rx0LED
+	decf	LED_CTR_RX0, F
+	bnz	Buffer_Loop_NoRx0LED
+	bsf	LED_RX0_PORT, LED_RX0_PIN	; turn LED off
+Buffer_Loop_NoRx0LED
+	
+	movf	LED_CTR_RX1, W
+	bz	Buffer_Loop_NoRx1LED
+Buffer_Loop_Rx1LED
+	decf	LED_CTR_RX1, F
+	bnz	Buffer_Loop_NoRx1LED
+	bsf	LED_RX1_PORT, LED_RX1_PIN	; turn LED off
+Buffer_Loop_NoRx1LED
+	
+	movf	LED_CTR_TX, W
+	bz	Buffer_Loop_NoTxLED
+Buffer_Loop_TxLED
+	decf	LED_CTR_TX, F
+	bnz	Buffer_Loop_NoTxLED
+	bsf	LED_TX_PORT, LED_TX_PIN		; turn LED off
+Buffer_Loop_NoTxLED
+	
 	;; check for time out
 	incf	MIDI_TIMEOUT_LOW, F
 	skpnz
@@ -76,6 +104,16 @@ Buffer_NoReset
 	addwf	FSR0L, F
 	movlw	0x00
 	addwfc	FSR0H, F
+
+	;; turn on RX[01] LED and set delay counter to max value
+	bcf	LED_RXx_PORT, LED_RXx_PIN
+	movlw	0xff
+	movwf	LED_CTR_RXx
+
+	;; turn on TX LED and set delay counter to max value
+	bcf	LED_TX_PORT, LED_TX_PIN
+	movlw	0xff
+	movwf	LED_CTR_TX
 
 	;; analyse incoming byte
 	GOTO_IFSET INDF0, 7, ACCESS, Buffer_GotCommand
@@ -153,8 +191,8 @@ Buffer_Loop_End
 MainLoop
 	;; feed the watchdog
 	clrwdt
-	BUFFER_HANDLER RINGBUFFER0_A, RINGBUFFER0_B, RINGBUFFER0, RINGBUFFER0_END, MIDI0_RUNSTATUS
-	BUFFER_HANDLER RINGBUFFER1_A, RINGBUFFER1_B, RINGBUFFER1, RINGBUFFER1_END, MIDI1_RUNSTATUS
+	BUFFER_HANDLER RINGBUFFER0_A, RINGBUFFER0_B, RINGBUFFER0, RINGBUFFER0_END, MIDI0_RUNSTATUS, LED_RX0_PORT, LED_RX0_PIN, LED_CTR_RX0
+	BUFFER_HANDLER RINGBUFFER1_A, RINGBUFFER1_B, RINGBUFFER1, RINGBUFFER1_END, MIDI1_RUNSTATUS, LED_RX1_PORT, LED_RX1_PIN, LED_CTR_RX1
 
         ;; check for MIDI receive buffer overrun
 MainLoop_UART

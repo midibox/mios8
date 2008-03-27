@@ -20,18 +20,22 @@ Init
 	movlw	0x7f		; Prescaler for Watchdog, Max Prescaling, Enable PullUps on PortB, 
 	movwf	OPTION_REG	; Interrupt on falling Edge @ RA4, Timer0 Enabled
 
-#ifdef ____16F88
-	movlw	0x70		; select 8 MHz
+#ifdef __16F88
+	movlw	0x72		; select 8 MHz
 	movwf	OSCCON
 Init_WaitOscStable		; wait until oscillator runs stable
-	btfss	OSCCON, IOFS
-	goto	Init_WaitOscStable
+	GOTO_IFCLR OSCCON, IOFS, Init_WaitOscStable
 #endif
 	SWITCHBANK_1_0
 
 	call	Init_Ports
 	call	Init_USART
 	call	Init_SUART
+
+	;; init LED counters
+	clrf	LED_CTR_RX0
+	clrf	LED_CTR_RX1
+	clrf	LED_CTR_TX
 
 #if 0
 	CALL_IFCLR STATUS, NOT_TO, ACCESS, Malfunction_Message ; On WDT Reset print Malfunction Message
@@ -111,7 +115,7 @@ Init_IRQ
         bsf     RCSTA, CREN
                 
         ; enable maskable IRQs
-        movlw   (1 << GIE) | (1 << INTE) | (1 << PEIE) | (1 << T0IE)
+        movlw   (1 << GIE) | (1 << PEIE) | (1 << T0IE)
         movwf   INTCON
 
         return
@@ -135,10 +139,11 @@ Init_USART
 	movlw	(1 << SPEN) | (1 << CREN)
 	movwf	RCSTA
 
+	;; init ring buffers
 	movlw	RINGBUFFER1
 	movwf	RINGBUFFER1_A
 	movwf	RINGBUFFER1_B
-	
+
 	return
 
 	

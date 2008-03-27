@@ -24,7 +24,7 @@ IRQ
 	movwf	STATUS_TMP
 	movf	FSR, W
 	movwf	FSR_TMP
-	
+
 IRQCheck
 	; which IRQ received?
 	GOTO_IFSET INTCON, T0IF, IRQ_Timer0		; Timer0 IRQ?
@@ -50,7 +50,7 @@ IRQ_Timer0_Trigger
 	GOTO_IFSET PORT_SUART_IN, PIN_SUART_IN, IRQ_Timer0_End
 
 	;; ok, we've regognized the start bit, now disable any further external IRQ and enable internal clock
-	movlw	TMR0_RELOAD+16	; reload Timer0 (add 16 to shift the sample point more to the middle of the pulses
+	movlw	TMR0_RELOAD+TMR0_SAMPLE_OFFSET	; reload Timer0 (add offset to shift the sample point more to the middle of the pulses)
 	movwf	TMR0
 	bcf	INTCON, T0IF	; clear Timer0 Flag
 
@@ -70,7 +70,7 @@ IRQ_Timer0_Receiver
 	bcf	INTCON, T0IF	; clear Timer0 Flag	
 
 #if DEBUG_MODE
-	bsf	LED_PWR_PORT, LED_PWR_PIN
+ 	bsf	LED_PWR_PORT, LED_PWR_PIN
 #endif
 	
 	rrf	SUART_IN, F	; shift right IN buffer
@@ -116,8 +116,6 @@ IRQ_Timer0_End
 ;;  IRQ Handler for UART Receiver
 ;; ==========================================================================
 IRQ_UART_Receive
-	bcf	PIR1, RCIF
-
 	incf	RINGBUFFER1_A, F
 	movf	RINGBUFFER1_A, W
 	xorlw	RINGBUFFER1_END+1

@@ -118,8 +118,6 @@ IRQ_Timer0_End
 ;;  IRQ Handler for UART Receiver
 ;; ==========================================================================
 IRQ_UART_Receive
-	bcf	PIR1, RCIF
-
 	incf	RINGBUFFER1_A, F
 	movf	RINGBUFFER1_A, W
 	xorlw	(RINGBUFFER1_END+1) & 0xff

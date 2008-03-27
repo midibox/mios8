@@ -82,7 +82,6 @@ IRQ_Handler
 	btfss	PIR1, RCIF
 	goto	IRQ_Handler_Rx_End
 IRQ_Handler_Rx
-	bcf	PIR1, RCIF		; clear interrupt flag
 	movf	RCREG, W		; put received byte into buffer
 	call	MIDI_RxBufferPut
 IRQ_Handler_Rx_End

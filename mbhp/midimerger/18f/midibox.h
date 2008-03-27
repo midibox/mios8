@@ -22,8 +22,7 @@
 ;;  Some Flags
 ;; ==========================================================================
 
-#define PROTECTED_MODE	0
-#define DEBUG_MODE	0
+#define DEBUG_MODE	1
 #define RUNNING_STATUS_OPTIMIZATION 1
 #define SUART_WITH_38400_BAUD 0
 
@@ -67,12 +66,12 @@ PORTD_VALUE	EQU	b'00000000'	; all drivers enabled
 TRISD_VALUE	EQU	b'00000000'	; Setup Value for Tristate Drivers of PortD
 
 ;; note: LED outputs won't be set if port is specified with 0
-LED_RX0_PORT	EQU	LATC
-LED_RX0_PIN	EQU	0
+LED_RX1_PORT	EQU	LATC
+LED_RX1_PIN	EQU	0
 LED_TX_PORT	EQU	LATC
 LED_TX_PIN	EQU	1
-LED_RX1_PORT	EQU	LATC
-LED_RX1_PIN	EQU	2
+LED_RX0_PORT	EQU	LATC
+LED_RX0_PIN	EQU	2
 LED_PWR_PORT	EQU	LATC
 LED_PWR_PIN	EQU	3
 
@@ -113,6 +112,10 @@ MIDI_EXPBYTES	EQU	0x01b
 MIDI0_RUNSTATUS	EQU	0x01c
 MIDI1_RUNSTATUS	EQU	0x01d
 MIDIO_RUNSTATUS EQU     0x01e
+
+LED_CTR_RX0	EQU     0x1f
+LED_CTR_RX1	EQU     0x20
+LED_CTR_TX	EQU     0x21
 
 ;; ==========================================================================
 

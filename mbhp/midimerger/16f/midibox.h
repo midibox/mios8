@@ -42,7 +42,7 @@
 ;;  Some Flags
 ;; ==========================================================================
 
-#define DEBUG_MODE	0
+#define DEBUG_MODE	1
 #define RUNNING_STATUS_OPTIMIZATION 1
 
 ;; ==========================================================================
@@ -52,6 +52,10 @@
 
 #ifdef __16F88
 	__CONFIG    _CONFIG1, _CP_OFF & _CCP1_RB0 & _DEBUG_OFF & _WRT_PROTECT_OFF & _CPD_OFF & _LVP_OFF & _BODEN_ON & _MCLR_OFF & _PWRTE_OFF & _WDT_ON & _INTRC_IO
+
+; reload value and sample offset for Timer0, used by software UART
+TMR0_RELOAD		EQU     -64
+TMR0_SAMPLE_OFFSET	EQU	16	; shifts the sample point more to the middle
 
 ; Pins of Software UART
 PORT_SUART_IN	EQU	PORTA
@@ -68,15 +72,19 @@ TRISB_VALUE	EQU	b'11010110'	; Setup Value for Tristate Drivers of PortB
 
 ;; note: LED outputs won't be set if port is specified with 0
 LED_RX0_PORT	EQU	PORTA
-LED_RX0_PIN	EQU	0
+LED_RX0_PIN	EQU	2
 LED_TX_PORT	EQU	PORTA
 LED_TX_PIN	EQU	1
 LED_RX1_PORT	EQU	PORTA
-LED_RX1_PIN	EQU	2
+LED_RX1_PIN	EQU	0
 LED_PWR_PORT	EQU	PORTB
 LED_PWR_PIN	EQU	0
 #else
         __CONFIG _HS_OSC & _WDT_ON & _PWRTE_ON & _CP_OFF & _BODEN_ON & _LVP_OFF
+
+; reload value and sample offset for Timer0, used by software UART
+TMR0_RELOAD		EQU     -160
+TMR0_SAMPLE_OFFSET	EQU	16	; shifts the sample point more to the middle
 
 ; Pins of Software UART
 PORT_SUART_IN	EQU	PORTA
@@ -117,8 +125,6 @@ LED_PWR_PIN	EQU	3
 ;;  Status Bytes & Bits
 ;; ==========================================================================
 
-TMR0_RELOAD     EQU     -160		; reload value for Timer0
-
 SUART_CTRL_RECEIVING     EQU 0          ; Bit 0: 0=waiting for startbit, 1=receiving
 
 ;; ==========================================================================
@@ -144,8 +150,12 @@ MIDI0_RUNSTATUS	EQU	0x2c
 MIDI1_RUNSTATUS	EQU	0x2d
 MIDIO_RUNSTATUS EQU     0x2e
 
-;; 0x30-0x7b: SUART IN Ringbuffer
-RINGBUFFER0     EQU     0x30
+LED_CTR_RX0	EQU     0x2f
+LED_CTR_RX1	EQU     0x30
+LED_CTR_TX	EQU     0x31
+
+;; 0x32-0x7b: SUART IN Ringbuffer
+RINGBUFFER0     EQU     0x32
 RINGBUFFER0_END	EQU	0x7b
 
 TMP1            EQU     0x7c
