@@ -147,8 +147,8 @@ INIT
 Init_WaitOscStable		; wait until oscillator runs stable
 	btfss	OSCCON, IOFS
 	goto	Init_WaitOscStable
-	SWITCHBANK_1_0
 #endif
+	SWITCHBANK_1_0
 
 	movf	PCLATH, W	; store pointer to both condition tables
 	iorlw	0x07
