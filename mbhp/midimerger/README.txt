@@ -9,13 +9,15 @@ All other rights reserved.
 
 -----------------------------------------------------------------------------
 
-Requires:
+Hardware Requirements:
 
    * Core Module stuffed with PIC16F874, PIC16F877, PIC18F452 or similar
    * a second MIDI In on Port J4 of the Core Module 
-     (see http://www.ucapps.de/midimerger/midimerger_pic18f.pdf)
+     (see http://www.ucapps.de/midimerger/midimerger.pdf and
+          http://www.ucapps.de/midimerger/midimerger_pic18f.pdf)
 
 Optionally a minimal variant is supported, which gets use of the PIC16F88
+      see http://www.ucapps.de/midimerger/midimerger_pic16f88.pdf
 
 -----------------------------------------------------------------------------
 
