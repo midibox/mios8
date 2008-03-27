@@ -16,11 +16,48 @@ HEADER 3 MIDImerger
     <LI> MIDI In Buffers: 2 * 64 Bytes (PIC18F: 2 * 256 Bytes) </LI>
     <LI> Priorisation: First come, first serve; alternation when event is finished </LI>
     <LI> Time Out: 200 mS (avoids hangups if MIDI cable is removed during transfer)</LI>
+    <LI> Optional Power On LED indicates that PIC is running</LI>
+    <LI> Optional Rx/Tx LEDs</LI>
     <LI> Can run on every PIC16F87x at 20 MHz, or PIC18F452 at 40 MHz (10 MHz crystal)</LI>
+    <LI> Minimal Hardware solution with PIC16F88 available as well</LI>
   </UL>
 </DL>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware Variants </H2></DT>
+  <DD><P CLASS=DESC><B>PIC16F87x based:</B> the initial version of the MIDImerger project was running on a PIC16F874. This chip is still supported (all PIC16F87x devices will work with the firmware), but if you are planning to build a new merger, and don't already own a spare PIC16F87x, the cheaper PIC16F88 variant is recommented instead.</P>
+  <P CLASS=DESC><B>PIC18F452 based:</B> this is another variant for people who own a spare PIC18F452. There are two different .hex files: one which can be burned directly into the PIC, and another which can be downloaded via <A HREF="mios_bootstrap.html">MIOS Bootstrap Loader</A> the same way like you would do with MIOS (download has to be started within 2 seconds after power-on.</P>
+  <P CLASS=DESC><B>PIC16F88 based:</B> this is the latest variant, which runs on a smaller PIC. An external crystal is not required, so that this solution is not only cheaper, but also easier to build.</P>
+
+<IMG SRC="images/1x1dot.gif" height=5 ALT=""><BR>
+
+  <P CLASS=DSC>The PIC18F452 based solution allows to upload the firmware via MIDI, which is nice if you don't own a PIC programmer and purchased a preburned chip from <A HREF="http://www.mikes-elektronikseite.de" TARGET="_blank">Mike</A> or <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV</A>.</P>
+  <P CLASS=DESC>For all other variants you either need a PIC programmer like <A HREF="mbhp_burner.html">MBHP_BURNER</A>, or you can search in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> for somebody close to your location, who could burn the PIC for you.</P>
+  </DD>
+</DL>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware Options </H2></DT>
+  <DD><P CLASS=DESC>All LEDs (and the corresponding 220 Ohm resistors) are optional.</P>
+  <P CLASS=DESC>The 78(L)05 based PSU circuit is not required, if the merger should be used in an environment where a stable +5V supply is already available.</P>
+  <P CLASS=DESC>The optocoupler circuit(s) can be left out, if the MIDI Out signal is already available at TTL level, and supplied from the same power source (or at least, if the circuits are sharing the same ground connection). <A HREF="midimerger/midimerger_pic16f88_to_core.pdf">Two interconnection examples</A></P>
+  </DD>
+</DL>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Alternative Solutions </H2></DT>
+  <DD><P CLASS=DESC>The <A HREF="midi_router.html">MIDI Router</A> project allows to merge and process 5 MIDI Inputs before they are forwarded to one or up to 5 MIDI outputs. In theory, more <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> modules could be added for even more IOs, but this would require some (small, but undocumented!) changes in the firmwares (e.g. MBHP_IIC_MIDI module: only 2 jumpers for address selection, an individual firmware for the remaining modules would be required...).</P>
+  </DD>
+</DL>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
 
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
@@ -45,23 +82,23 @@ HEADER 3 MIDImerger
       <TD CLASS=TABCOLOR2>MIDImerger Circuit for PIC18F452</TD>
     </TR>
     <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp.html">MBHP</A></TD>
-      <TD CLASS=TABCOLOR2>LINK</TD>
-      <TD CLASS=TABCOLOR2>see also the MIDIbox Hardware Platform</TD>
+      <TD CLASS=TABCOLOR2><A HREF="midimerger/midimerger_pic16f88.pdf">midimerger_pic16f88.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>9k</TD>
+      <TD CLASS=TABCOLOR2>MIDImerger Circuit for PIC16F88 (best price)</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="midimerger/midimerger_pic16f88_to_core.pdf">midimerger_pic16f88_to_core.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>9k</TD>
+      <TD CLASS=TABCOLOR2>Interconnection Examples for MIDImerger to MBHP_CORE</TD>
     </TR>
 
     <TR>
       <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Firmware</STRONG></FONT></TD>
     </TR>
     <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midimerger/merger_v1_4b_16f.zip">merger_v1_4b_16f.zip</A></TD>
-      <TD CLASS=TABCOLOR2>1k</TD>
-      <TD CLASS=TABCOLOR2>MIDImerger Firmware for PIC16F87x-20</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midimerger/merger_v1_4b_18f.zip">merger_v1_4b_18f.zip</A></TD>
-      <TD CLASS=TABCOLOR2>1k</TD>
-      <TD CLASS=TABCOLOR2>MIDImerger Firmware for PIC18F452</TD>
+      <TD CLASS=TABCOLOR2><A HREF="midimerger/midimerger_v1_5.zip">midimerger_v1_5.zip</A></TD>
+      <TD CLASS=TABCOLOR2>22k</TD>
+      <TD CLASS=TABCOLOR2>MIDImerger Firmware for all hardware variants</TD>
     </TR>
 
     <TR>
@@ -70,17 +107,15 @@ HEADER 3 MIDImerger
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/users/mike/midimerger_pcb_v1.zip">midimerger_pcb_v1.zip</A></TD>
       <TD CLASS=TABCOLOR2>3.1MB</TD>
-      <TD CLASS=TABCOLOR2>Mike has created a PCB layout for the MIDImerger, which will also be available in his <A HREF="http://www.mikes-elektronikseite.de" TARGET="_blank">Shop</A> soon.<BR><A HREF="midimerger/merger1.jpg">Picture</A></TD>
+      <TD CLASS=TABCOLOR2>Mike has created a PCB layout for the old MIDImerger hardware, which is also available in his <A HREF="http://www.mikes-elektronikseite.de" TARGET="_blank">Shop</A>.<BR><A HREF="midimerger/merger1.jpg">Picture</A>.<BR>Note that it has been made for the DIP40 devices, a layout for the newer (and cheaper) PIC16F88 based circuit is not available yet.</TD>
     </TR>
 
   </TABLE></DD>
 </DL>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Some words to the PIC18F452 version </H2></DT>
-  <DD><P CLASS=INFO>This version is intended for people who have some spare PIC18F chips, and don't want to buy a PIC16F877. The main.hex file can either be programmed directly into the flash (e.g. with <A HREF="mbhp_burner.html">MBHP_BURNER</A>), or it can be uploaded via the <A HREF="mios_bootstrap.html">MIOS Bootstrap Loader</A> like you would do it with MIOS.</P>
-  <P CLASS=INFO>This especially means, that the upload must be started within 2 seconds after power-on. Even people who have built a common <A HREF="mbhp_core.html">MBHP_CORE</A> module can run the merger.</P>
-  </DD>
-</DL>
+<P CLASS=INFO>
+  <center><img src="midimerger/midimerger_pic16f88.jpg" width=550 height=442><BR>
+  <SPAN CLASS=INFO>Complete PIC16F88 variant built on a vectorboard.</SPAN></center>
+</P>
 
 FOOTER
