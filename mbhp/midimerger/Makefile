@@ -1,4 +1,4 @@
-# $Id: $
+# $Id$
 
 # default flags to GPASM here
 GPASM_FLAGS   = 

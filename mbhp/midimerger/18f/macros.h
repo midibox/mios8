@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; Macro Definitions
 ;

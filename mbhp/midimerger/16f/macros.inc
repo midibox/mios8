@@ -1,4 +1,4 @@
-; $Id: macros.inc 178 2008-03-08 12:08:54Z tk $
+; $Id$
 ;
 ; Macro Definitions
 ;

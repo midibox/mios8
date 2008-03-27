@@ -1,4 +1,4 @@
-; $Id: $
+; $Id$
 ;
 ; Source Code of MIDI Merger
 
