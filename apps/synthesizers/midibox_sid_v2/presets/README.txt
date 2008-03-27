@@ -19,15 +19,15 @@ Following preset patches are available:
 --------------------------------------------------------------------------------------------
 001 Internal Patch      033 Drum Kit 1          065 ARPSEQ One B        097 Monty Lead3
 002 Techno PWM          034 Drum Kit 2          066 ARPSEQ One C        098 Monty Lead4
-003 Techno Saw          035 WT Synth Drum 4     067 SEQ TranceBass      099 Bassline Demo1
-004 Techno 5th          036 WT Synth Drum 5     068 SEQ Vintage A       100 Bassline Demo2
-005 Cool Brass          037 WT Synth Drum 6     069 SEQ Vintage B       101 Vib Synth
-006 Simple Saw          038 WT Synth Drum 7     070 SEQ Vintage C       102 Whats That?
-007 Simple Pulse        039 WT Synth Drum 8     071 ARPSEQ Two A        103 WT pseudo S&H 1
-008 Pulse w/o Body      040 WT Synth Drum 9     072 ARPSEQ Two B        104 WT pseudo S&H 2
+003 Techno Saw          035 Drum Kit 3          067 SEQ TranceBass      099 Bassline Demo1
+004 Techno 5th          036 Drum Kit 4          068 SEQ Vintage A       100 Bassline Demo2
+005 Cool Brass          037 Some Triggs         069 SEQ Vintage B       101 Vib Synth
+006 Simple Saw          038 More Triggs         070 SEQ Vintage C       102 Whats That?
+007 Simple Pulse        039 Rampup              071 ARPSEQ Two A        103 WT pseudo S&H 1
+008 Pulse w/o Body      040 Turntable           072 ARPSEQ Two B        104 WT pseudo S&H 2
 009 Popcorn             041 WT Synth Drum 10    073 ARPSEQ Two C        105 Curve Filter D
 010 WT Flute            042 WT Synth Drum 11    074 ARPSEQ Three        106 Curve total
-011 Synth Plug          043 WT Synth Drum 12    075 ARPSEQ Four         107 WT Flip LFO
+011 Synth Plug          043 WT Synth Drum 12    075 ARPSEQ Four         107 El.Piano
 012 WT Synth            044 WT Synth Drum 13    076 SEQ Mighty Bass     108 Zak Bass
 013 WT HardcoreSynth    045 Driving a Car       077 Analog Dream1       109 Zak Bass 2
 014 Sync Sound          046 Ufo Reverse         078 Analog Dream2       110 Kik A
@@ -59,6 +59,11 @@ Patch 126-128 made by David Panseri (2004)
 
 ChangeLog:
 ~~~~~~~~~~
+
+2008-03-27:
+   o replaced Placeholders A035 and A036 by new Drum Kits
+   o replaced Placeholders A037..A044 by new trigger and modulation matrix examples
+   o Patch A107 (not working "WT Flip LFO") replaced by "El.Piano?"
 
 2007-09-29:
    o Patch A033 and A034 replaced by Drum Kits + Sequences

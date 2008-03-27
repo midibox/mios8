@@ -420,10 +420,12 @@ SID_MIDI_L_Hlp_NoteOn_WTO
 	;; sus-key activated?
 	BRA_IFCLR SID_MIDI_FLAGS, SID_I_L_FLAGS1_SUS_KEY, BANKED, SID_MIDI_L_Hlp_NoteOn_NoSusKey
 SID_MIDI_L_Hlp_NoteOn_SusKey
-	;; in suy-key mode, we activate portamento only if voice not already active
+	;; in suy-key mode, we activate portamento only if at least one key is played
 	movlw	SID_Vx_STATE
 	bcf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
-	BRA_IFCLR PLUSW1, SID_V_STATE_VOICE_ACTIVE, ACCESS, SID_MIDI_L_Hlp_NoteOn_NoSusKeyPr
+	movlw	SID_MVx_NOTE_STACK_PTR
+	decf	PLUSW0, W
+	bz	SID_MIDI_L_Hlp_NoteOn_NoSusKeyPr
 SID_MIDI_L_Hlp_NoteOn_NoSusKey
 	movlw	SID_Vx_STATE
 	bsf	PLUSW1, SID_V_STATE_PORTA_ACTIVE

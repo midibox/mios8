@@ -326,20 +326,12 @@ SID_MIDI_M_Hlp_NoteOn_WTO
 	;; sus-key activated?
 	BRA_IFCLR SID_MIDI_FLAGS, SID_I_M_V_FLAGS2_SUS_KEY, BANKED, SID_MIDI_M_Hlp_NoteOn_NoSusKey
 SID_MIDI_M_Hlp_NoteOn_SusKey
-	;; in suy-key mode, we activate portamento only if gate not already active
+	;; in suy-key mode, we activate portamento only if at least one key is played
 	movlw	SID_Vx_STATE
 	bcf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
-
-	;; (we need to check the SID_V_STATE_VOICE_ACTIVE flag if the previous voice!)
-	lfsr	FSR2, SIDL_V1_BASE
-	movlw	SID_MVx_LAST_VOICE
-	movf	PLUSW0, W
-	mullw	SID_Vx_RECORD_LEN
-	movf	PRODL, W
-	addwf	FSR2L, F
-
-	movlw	SID_Vx_STATE
-	BRA_IFCLR PLUSW2, SID_V_STATE_VOICE_ACTIVE, ACCESS, SID_MIDI_M_Hlp_NoteOn_NoSusKeyPr
+	movlw	SID_MVx_NOTE_STACK_PTR
+	decf	PLUSW0, W
+	bz	SID_MIDI_M_Hlp_NoteOn_NoSusKeyPr
 SID_MIDI_M_Hlp_NoteOn_NoSusKey
 	movlw	SID_Vx_STATE
 	bsf	PLUSW1, SID_V_STATE_PORTA_ACTIVE

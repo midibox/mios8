@@ -97,6 +97,10 @@ SID_I_ENV_MODE_LOOP_E1		EQU	5
 SID_I_ENV_MODE_LOOP_E2		EQU	6
 SID_I_ENV_MODE_CLKSYNC		EQU	7
 
+SID_I_ENV_MODE_CURVE_ATT	EQU	4	; only used by Multi/Bassline engine: curve assigned to attack
+SID_I_ENV_MODE_CURVE_DEC	EQU	5	; only used by Multi/Bassline engine: curve assigned to sustain
+SID_I_ENV_MODE_CURVE_REL	EQU	6	; only used by Multi/Bassline engine: curve assigned to release
+
 SID_SE_STATE_LFO_OVERRUN	EQU	0	; used by LFO handler to notify an overrun
 SID_SE_STATE_WT_NEW_STEP_REQ	EQU	0	; used by WT handler to request new step (shared flag with LFO)
 SID_SE_STATE_ARP_NEW_NOTE_REQ	EQU	0	; used by ARP handler to request new note (shared flag with LFO)

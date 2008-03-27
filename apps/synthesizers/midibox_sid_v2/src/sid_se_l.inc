@@ -1740,8 +1740,12 @@ SIDSE_L_MOD_OP_Cont_High		; constant high value
 
 SIDSE_L_MOD_OP_Cont_Low		; constant low value
 	clrf	MUL_A_L, BANKED
+#if 0
 	movlw	0x80
 	movwf	MUL_A_H, BANKED
+#else
+	clrf	MUL_A_H, BANKED	; TK: 0 instead of full negative value is more useful
+#endif
 	;; 	rgoto	SIDSE_L_MOD_OP_Cont
 
 SIDSE_L_MOD_OP_Cont

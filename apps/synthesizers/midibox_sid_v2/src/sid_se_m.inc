@@ -1169,8 +1169,16 @@ SIDSE_M_ENV_Attack
 	movf	PLUSW0, W
 	movwf	IRQ_TMP3
 	;; get final rate depending on curve setting
+	movlw	SID_Ix_M_Vx_ENV_MODE
+	BRA_IFCLR PLUSW0, SID_I_ENV_MODE_CURVE_ATT, ACCESS, SIDSE_M_ENV_Attack_NoCurve
+SIDSE_M_ENV_Attack_Curve
 	movlw	SID_Ix_M_Vx_ENV_CURVE
 	movf	PLUSW0, W
+	rgoto	SIDSE_M_ENV_Attack_Curve_Cont
+SIDSE_M_ENV_Attack_NoCurve
+	movlw	0x80
+	;; 	rgoto	SIDSE_M_ENV_Attack_Curve_Cont
+SIDSE_M_ENV_Attack_Curve_Cont
 	call	SIDSE_Hlp_ENV_GetBendedValue
 	;; result: low byte in MIOS_PARAMETER1, high byte in MIOS_PARAMETER2
 	;; final attack level is 0xff
@@ -1196,8 +1204,16 @@ SIDSE_M_ENV_Decay
 	movff	PLUSW0, IRQ_TMP3
 
 	;; get final rate depending on curve setting
+	movlw	SID_Ix_M_Vx_ENV_MODE
+	BRA_IFCLR PLUSW0, SID_I_ENV_MODE_CURVE_DEC, ACCESS, SIDSE_M_ENV_Decay_NoCurve
+SIDSE_M_ENV_Decay_Curve
 	movlw	SID_Ix_M_Vx_ENV_CURVE
 	movf	PLUSW0, W
+	rgoto	SIDSE_M_ENV_Decay_Curve_Cont
+SIDSE_M_ENV_Decay_NoCurve
+	movlw	0x80
+	;; 	rgoto	SIDSE_M_ENV_Decay_Curve_Cont
+SIDSE_M_ENV_Decay_Curve_Cont
 	call	SIDSE_Hlp_ENV_GetBendedValue
 	;; result: low byte in MIOS_PARAMETER1, high byte in MIOS_PARAMETER2
 	;; store final sustain in IRQ_TMP1
@@ -1228,8 +1244,16 @@ SIDSE_M_ENV_Release
 	movlw	SID_Ix_M_Vx_ENV_RELEASE
 	movff	PLUSW0, IRQ_TMP3
 	;; get release rate depending on curve setting
+	movlw	SID_Ix_M_Vx_ENV_MODE
+	BRA_IFCLR PLUSW0, SID_I_ENV_MODE_CURVE_REL, ACCESS, SIDSE_M_ENV_Release_NoCurve
+SIDSE_M_ENV_Release_Curve
 	movlw	SID_Ix_M_Vx_ENV_CURVE
 	movf	PLUSW0, W
+	rgoto	SIDSE_M_ENV_Release_Curve_Cont
+SIDSE_M_ENV_Release_NoCurve
+	movlw	0x80
+	;; 	rgoto	SIDSE_M_ENV_Release_Curve_Cont
+SIDSE_M_ENV_Release_Curve_Cont
 	call	SIDSE_Hlp_ENV_GetBendedValue
 	;; target level: 0
 	clrf	IRQ_TMP1
