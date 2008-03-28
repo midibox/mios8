@@ -32,7 +32,7 @@
 // Global Types
 /////////////////////////////////////////////////////////////////////////////
 
-// status of analog toolbox application
+// status of application
 typedef union {
   struct {
     unsigned ALL:8;
