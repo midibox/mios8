@@ -23,7 +23,7 @@
 	global	AOUT_DigitalPinsSet
 	global	AOUT_Update
 
-	global	_AOUT_Init		; (for C, declaration in iic_midi.h)
+	global	_AOUT_Init		; (for C, declaration in aout.h)
 	global	_AOUT_ReInit
 	global	_AOUT_InvertedSet
 	global	_AOUT_InvertedGet
