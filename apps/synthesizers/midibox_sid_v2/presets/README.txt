@@ -23,12 +23,12 @@ Following preset patches are available:
 004 Techno 5th          036 Drum Kit 4          068 SEQ Vintage A       100 Bassline Demo2
 005 Cool Brass          037 Some Triggs         069 SEQ Vintage B       101 Vib Synth
 006 Simple Saw          038 More Triggs         070 SEQ Vintage C       102 Whats That?
-007 Simple Pulse        039 Rampup              071 ARPSEQ Two A        103 WT pseudo S&H 1
-008 Pulse w/o Body      040 Turntable           072 ARPSEQ Two B        104 WT pseudo S&H 2
-009 Popcorn             041 WT Synth Drum 10    073 ARPSEQ Two C        105 Curve Filter D
+007 Simple Pulse        039 RingModMod          071 ARPSEQ Two A        103 Sample&Hold 1
+008 Pulse w/o Body      040 RampUp              072 ARPSEQ Two B        104 WT pseudo S&H 2
+009 Popcorn             041 Math Game           073 ARPSEQ Two C        105 Curve Filter D
 010 WT Flute            042 WT Synth Drum 11    074 ARPSEQ Three        106 Curve total
 011 Synth Plug          043 WT Synth Drum 12    075 ARPSEQ Four         107 El.Piano
-012 WT Synth            044 WT Synth Drum 13    076 SEQ Mighty Bass     108 Zak Bass
+012 WT Synth            044 Turntable           076 SEQ Mighty Bass     108 Zak Bass
 013 WT HardcoreSynth    045 Driving a Car       077 Analog Dream1       109 Zak Bass 2
 014 Sync Sound          046 Ufo Reverse         078 Analog Dream2       110 Kik A
 015 Sync Pad            047 WT Falling          079 Analog Dream3       111 Cymbal A
@@ -41,9 +41,9 @@ Following preset patches are available:
 022 Filtered B. 6581    054 RingKabinett        086 Seq Bass1           118 Lead Stacco2
 023 Filtered B. 8580    055 Random Fun          087 Seq Bass2           119 Lead Melodia
 024 Filtered Bass 2     056 Don't cry baby!     088 Seq Bass3           120 Stacco4
-025 C64 Bass            057 Tweak the LFOs      089 Miami1              121 String Ponte 1
-026 Autobahn            058 Random Sync         090 Miami2              122 String Ponte 2
-027 Bassdrum            059 A stormy Day        091 Miami3              123 Crescendo
+025 C64 Bass            057 Tweak the LFOs      089 Seq Bass4           121 String Ponte 1
+026 Autobahn            058 Random Sync         090 Seq Bass5           122 String Ponte 2
+027 Bassdrum            059 A stormy Day        091 Seq Bass6           123 Crescendo
 028 Bassdrum2           060 6 Octave Plug       092 Monty Bass1         124 Crazy Lead
 029 Cymbal              061 Poly Saw            093 Monty Bass2         125 Accomp1
 030 Klick               062 Step by Step        094 Monty Bass3         126 Casio Drums
@@ -63,6 +63,8 @@ ChangeLog:
 2008-03-27:
    o replaced Placeholders A035 and A036 by new Drum Kits
    o replaced Placeholders A037..A044 by new trigger and modulation matrix examples
+   o Patch A089-A91 (not working "Miami1"..3) replaced by "SEQ Bass 4"..6
+   o Patch A103 and A104 (not working "WT Pseudo S&H") replaced by "Sample&Hold 1" and 2
    o Patch A107 (not working "WT Flip LFO") replaced by "El.Piano?"
 
 2007-09-29:
