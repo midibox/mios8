@@ -24,7 +24,7 @@ Following preset patches are available:
 005 Cool Brass          037 Some Triggs         069 SEQ Vintage B       101 Vib Synth
 006 Simple Saw          038 More Triggs         070 SEQ Vintage C       102 Whats That?
 007 Simple Pulse        039 RingModMod          071 ARPSEQ Two A        103 Sample&Hold 1
-008 Pulse w/o Body      040 RampUp              072 ARPSEQ Two B        104 WT pseudo S&H 2
+008 Pulse w/o Body      040 RampUp              072 ARPSEQ Two B        104 Sample&Hold 2
 009 Popcorn             041 Math Game           073 ARPSEQ Two C        105 Curve Filter D
 010 WT Flute            042 WT Synth Drum 11    074 ARPSEQ Three        106 Curve total
 011 Synth Plug          043 WT Synth Drum 12    075 ARPSEQ Four         107 El.Piano
