@@ -2,7 +2,7 @@
 
 # define the processor, linker file and project name
 PROCESSOR = p18f452
-LKR_FILE  = $(MIOS_PATH)/etc/lkr/$(PROCESSOR).lkr
+LKR_FILE  = ./project.lkr
 PROJECT   = project
 
 # list of objects that should be created and linked

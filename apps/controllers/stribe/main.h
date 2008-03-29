@@ -18,6 +18,9 @@
 // Global definitions
 /////////////////////////////////////////////////////////////////////////////
 
+// MIDI channel to which we listen in single channel mode
+#define STRIBE_MIDI_CHANNEL 1
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Global Types
@@ -30,6 +33,7 @@ typedef union {
   };
   struct {
     unsigned DISPLAY_UPDATE_REQ:1;  // requests a display update
+    unsigned SINGLE_CHN_MODE:1;     // values sent/received over single channel
   };
 } app_flags_t;
 
