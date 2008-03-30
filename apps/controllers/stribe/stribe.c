@@ -51,7 +51,7 @@ void STRIBE_Init(void) __wparam
 
   stribe_flags.TRACE_MODE = 0; // by default disabled
   stribe_flags.TRACE_MASK = 3; // if enabled: trace on left and right bar
-  stribe_trace_delay = 50;     // * 5 mS
+  stribe_trace_delay = 25;     // * 10 mS
 }
 
 
@@ -124,8 +124,8 @@ void STRIBE_SetVBar(unsigned char stribe, unsigned char lr, unsigned char value)
 {
   unsigned char and_mask, or_mask, offset, i;
 
-  and_mask = ~(0x3 << ((stribe&3)<<1));
   or_mask = lr << ((stribe&3)<<1);
+  and_mask = ~or_mask;
   offset = ((stribe&4)<<4);
 
   for(i=0; i<64; ++i) {
@@ -152,8 +152,8 @@ void STRIBE_SetDot(unsigned char stribe, unsigned char lr, unsigned char value) 
 {
   unsigned char and_mask, or_mask, offset, i;
 
-  and_mask = ~(0x3 << ((stribe&3)<<1));
   or_mask = lr << ((stribe&3)<<1);
+  and_mask = ~or_mask;
   offset = ((stribe&4)<<4);
 
   if( stribe_flags.TRACE_MODE ) {
@@ -204,8 +204,8 @@ void STRIBE_SetPan(unsigned char stribe, unsigned char lr, unsigned char value) 
 {
   unsigned char and_mask, or_mask, offset, i;
 
-  and_mask = ~(0x3 << ((stribe&3)<<1));
   or_mask = lr << ((stribe&3)<<1);
+  and_mask = ~or_mask;
   offset = ((stribe&4)<<4);
 
   if( value >= 32 ) {
