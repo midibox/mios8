@@ -12,7 +12,7 @@
 ;
 ; Number of connected MAX72xx chips
 #ifndef MAX72XX_CHAINLENGTH
-#define MAX72XX_CHAINLENGTH 16
+#define MAX72XX_CHAINLENGTH 1
 #endif
 ;
 ; Pin Configuration

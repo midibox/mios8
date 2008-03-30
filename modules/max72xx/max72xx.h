@@ -20,7 +20,7 @@
 
 // Number of connected MAX72xx chips (can be overruled from Makefile, should not be done from .c file!)
 #ifndef MAX72XX_CHAINLENGTH
-#define MAX72XX_CHAINLENGTH 16
+#define MAX72XX_CHAINLENGTH 1
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
