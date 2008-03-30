@@ -26,6 +26,19 @@ Defines
 ; Number of connected MAX72xx chips
 #define MAX72XX_CHAINLENGTH 1
 
+; Pin Configuration
+#define MAX72XX_LAT_CS		LATC	; The chip select pin
+#define MAX72XX_TRIS_CS		TRISC	; is connected to Port C.0
+#define MAX72XX_PIN_CS		0	; (CANNOT be shared with other outputs!)
+
+#define MAX72XX_LAT_SCLK	LATC	; The shift clock input pin SCLK
+#define MAX72XX_TRIS_SCLK	TRISC	; is connected to Port C.1
+#define MAX72XX_PIN_SCLK	1	; (can be shared with other outputs)
+
+#define MAX72XX_LAT_DIN		LATC	; The data input pin DIN
+#define MAX72XX_TRIS_DIN	TRISC	; is connected to Port C.2
+#define MAX72XX_PIN_DIN		2	; (can be shared with other outputs)
+
 
 Integration Hints
 ~~~~~~~~~~~~~~~~~
