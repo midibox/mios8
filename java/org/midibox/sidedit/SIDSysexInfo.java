@@ -126,7 +126,7 @@ public class SIDSysexInfo {
 	public static String[] seq = new String[]{"Sequence #1","Sequence #2","Sequence #3","Sequence #4","Sequence #5","Sequence #6","Sequence #7","Sequence #8","Disable pattern"};
 	public static String[] notes = new String[]{"C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C+","C#+","D+","D#+"};
 	public static String[] rates = new String[]{"64/1","32/1","16/1","8/1","4/1","2/1","1/1","1/2","1/4","1/8","1/16"};
-	public static String[] octaves ={"-1","0","+1","+2"};
+	public static String[] octaves ={"0","+1","-1","+2"};
 	public static String[] voiceAssign = {"LR","L-","-R","01","02","03","04","05","06"};
 	public static String[] drumModel = {"BD1","BD2","BD3","SD1","SD2","SD3","HH1","HH2","TOM1","TOM2","CLAP","FX1","FX2","FX3","FX4","FX5","FX6","FX7","FX8","FX9"};	
 }

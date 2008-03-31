@@ -228,7 +228,7 @@ public class LeadSpecs {
 				}
 			}
 			else if (i < 256) {
-				wtStr[i] = "Ky" + Integer.toString(i-251);
+				wtStr[i] = "ky" + Integer.toString(i-251);
 			}
 		}
 		return wtStr;

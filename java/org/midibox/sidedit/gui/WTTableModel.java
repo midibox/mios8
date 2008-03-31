@@ -32,11 +32,10 @@ public class WTTableModel extends AbstractTableModel {
 	public WTTableModel (int wtNumber) {
 		this.wtNumber = wtNumber;
 		
-		data = new Object[wtSteps][wtNumber+2];		
+		data = new Object[wtSteps][wtNumber+2];
 		for (int c = 0; c < wtSteps; c++) {
-			data[c][0] = Integer.toString(c);
-			//data[c][1] = b.getPatchAt(c).getPatchName();
-			//data[c][2] = b.getPatchAt(c).getEngineStr();
+			data[c][0] = Integer.toString(c);			
+			data[c][wtNumber+1] = Integer.toString(0);			
 		}		
 	}
 	

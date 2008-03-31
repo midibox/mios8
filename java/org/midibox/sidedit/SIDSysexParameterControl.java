@@ -130,7 +130,7 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 		String s = valAlias[i];
 		int val = 0;
 		for(int j=0;j<spValAlias.length;j++) {
-			if (spValAlias[j]==s) {
+			if (spValAlias[j].equalsIgnoreCase(s)) {
 				val = j;
 				break;
 			}			
@@ -141,7 +141,7 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 	public int lookUpAlias(String s) {
 		int val = 0;
 		for(int j=0;j<valAlias.length;j++) {
-			if (valAlias[j]==s) {
+			if (valAlias[j].equalsIgnoreCase(s)) {
 				val = j;
 				break;
 			}			

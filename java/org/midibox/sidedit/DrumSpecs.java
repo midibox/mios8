@@ -76,12 +76,12 @@ public class DrumSpecs {
 					if (s<8) {
 						seqDataControl.add(new SIDSysexParameterControl(simplebutton,null,patch,256+offset,s,1,"Gate"+Integer.toString(s)+Integer.toString(ch)));
 					} else {
-						seqDataControl.add(new SIDSysexParameterControl(simplebutton,null,patch,257+offset,s-8,1,"Gate"+Integer.toString(s)+Integer.toString(ch)));
+						seqDataControl.add(new SIDSysexParameterControl(simplebutton,null,patch,258+offset,s-8,1,"Gate"+Integer.toString(s)+Integer.toString(ch)));
 					}					
 				}
 				for(int s=0;s<16;s++) {
 					if (s<8) {
-						seqDataControl.add(new SIDSysexParameterControl(simplebutton,null,patch,258+offset,s,1,"Accent"+Integer.toString(s)+Integer.toString(ch)));
+						seqDataControl.add(new SIDSysexParameterControl(simplebutton,null,patch,257+offset,s,1,"Accent"+Integer.toString(s)+Integer.toString(ch)));
 					} else {
 						seqDataControl.add(new SIDSysexParameterControl(simplebutton,null,patch,259+offset,s-8,1,"Accent"+Integer.toString(s)+Integer.toString(ch)));
 					}					

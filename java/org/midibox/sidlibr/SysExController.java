@@ -124,15 +124,15 @@ public class SysExController extends Observable implements Receiver, ActionListe
 	
 	private void startRequest(Object type, String message) {
 		tempSyxType = type;
-		tempCount = -1; // will be incremented with each F0
+		tempCount = 0;
 		if (tempSyxType==PATCHBANK) {
-			tempSyx = new String[128];  
+			tempSyx = new String[256];  
 		} else if (tempSyxType==PATCH) {
-			tempSyx = new String[1];
+			tempSyx = new String[2];
 		} else if (tempSyxType==ENSEMBLE) {
-			tempSyx = new String[1];
+			tempSyx = new String[0];
 		} else if (tempSyxType==ENSEMBLEBANK) {
-			tempSyx = new String[128];
+			tempSyx = new String[0];
 		}		
 		progress = new ProgressMonitor(null, "", "Receiving SysEx data...", 0, tempSyx.length);
 		timer = new Timer(timeOut, this);
@@ -171,20 +171,12 @@ public class SysExController extends Observable implements Receiver, ActionListe
 		if (progress.isCanceled()) {
 			stopRequest();
 		} else {
-		        // select next array item with each F0
-  		        if( m.substring(0, 2).equalsIgnoreCase("F0") ) {
-			    tempSyx[++tempCount] = m;
-			} else {
-			    if( m.substring(0, 2).equalsIgnoreCase("F7") ) { // for windows (1024 byte limit, F7 added at beginning of next chunk)
-				m = m.substring(2);
-			    }
-			    tempSyx[tempCount] += m;
-			}
-
+			tempSyx[tempCount] = m;		
+			tempCount++;
 			timer.restart();
 			progress.setProgress(tempCount);
 			
-                        if( (m.substring(m.length() - 2).equalsIgnoreCase("F7")) && (tempCount == tempSyx.length-1) ) {
+			if ((tempSyx.length==tempCount)) {
 				stopRequest();				
 				parseSysex();
 			}	
@@ -195,9 +187,9 @@ public class SysExController extends Observable implements Receiver, ActionListe
 		if (tempSyxType==PATCHBANK) {				
 			Bank tempBank = new Bank(receiver);
 			String s = "";
-			for (int c=0;c<tempSyx.length;c++) {
-				if (tempSyx[c] != null) { 
-					s = s + tempSyx[c];
+			for (int c=0;c<(tempSyx.length/2);c++) {
+				if ((tempSyx[c*2] != null) && (tempSyx[(c*2)+1] != null)) { 
+					s = s + tempSyx[c*2] + tempSyx[(c*2)+1].substring(2);
 				} else {break;}
 			}
 			String status = tempBank.parseBankSyx(s);
@@ -209,7 +201,7 @@ public class SysExController extends Observable implements Receiver, ActionListe
 			}
 		} else if (tempSyxType==PATCH) {	
 			Patch tempPatch = new Patch(receiver);	
-			String status = tempPatch.parsePatch(tempSyx[0]);
+			String status = tempPatch.parsePatch(tempSyx[0]+tempSyx[1].substring(2, tempSyx[1].length()));
 			if (statusCheck(status)) {
 				pickMeUp = tempPatch;
 				setChanged();
