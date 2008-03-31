@@ -51,11 +51,11 @@ public class WTGUI extends JPanel{
 		this.setOpaque(false);
 		
 		JPanel panel1 = new JPanel();
-		panel1.setLayout(new BoxLayout(panel1, BoxLayout.Y_AXIS));
+		panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
 		panel1.setOpaque(false);
 		
 		JPanel panel2 = new JPanel();
-		panel2.setLayout(new GridLayout(2,2));
+		panel2.setLayout(new GridLayout(4,1));
 		panel2.setOpaque(false);
 		
 		panel2.add(createWTE(WTGUIv,"Wavetable 1",0));
@@ -64,8 +64,8 @@ public class WTGUI extends JPanel{
 		panel2.add(createWTE(WTGUIv,"Wavetable 4",27));		
 		
 		panel1.add(panel2);
-		panel1.add(createWTC(WTGUIv,"Wavetable"));
-		panel1.add(createWTC2(WTGUIv,"Wavetable"));
+		//panel1.add(createWTC(WTGUIv,"Wavetable"));
+		panel1.add(createWTC2(WTGUIv,"Wavetable data"));
 	    this.add(panel1, BorderLayout.NORTH);
 	}
 	

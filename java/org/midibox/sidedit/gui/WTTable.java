@@ -44,7 +44,7 @@ import org.midibox.sidedit.*;
 import javax.swing.table.*;
 import java.awt.Component;
 
-public class WTTable extends JPanel implements TableModelListener, Observer {
+public class WTTable extends JPanel implements TableModelListener, Observer, MouseListener, MouseMotionListener {
 	JTable table;
 	JPopupMenu popupMenu;
 	int bankNumber;
@@ -54,22 +54,31 @@ public class WTTable extends JPanel implements TableModelListener, Observer {
 	private SIDSysexParameterControl[][] config;
 	private boolean refreshing = false;
 	public boolean useHex = false;
+	private boolean valueDragging = false;
+	private int rowDragging = 0;
+	private int dragpos = -1;
+	private float DRAG_SPEED = 1.5F;// 0.01F;
+	private float startVal = 0;
 	
 	public WTTable(int wtNumber, Vector midiParams, SIDSysexParameterControl[][] config) {
 		this.wtNumber = wtNumber;
 		this.midiParams = midiParams;
-		this.config = config;		
+		this.config = config;
 		
 		table = new JTable(new WTTableModel(wtNumber));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.getModel().addTableModelListener(this);		
+		table.getModel().addTableModelListener(this);
+		table.addMouseListener(this);
+		table.addMouseMotionListener(this);
 		
 		table.getColumnModel().getColumn(0).setPreferredWidth(30);
 		for (int c=0;c<wtNumber;c++) {
 			table.getColumnModel().getColumn(c+1).setCellRenderer(new ColorCellRenderer());
 			table.getColumnModel().getColumn(c+1).setPreferredWidth(10);
 		}
-		table.getColumnModel().getColumn(wtNumber+1).setPreferredWidth(70);
+		
+		table.getColumnModel().getColumn(wtNumber+1).setCellRenderer(new ColorCellRenderer());		
+		table.getColumnModel().getColumn(wtNumber+1).setPreferredWidth(150);
 		
 		table.setPreferredScrollableViewportSize(new Dimension(table.getPreferredSize().width, Math.round(table.getPreferredSize().height/10)));
 	    table.setFillsViewportHeight(true);
@@ -201,11 +210,45 @@ public class WTTable extends JPanel implements TableModelListener, Observer {
 		return table.getSelectedRow();
 	}
 	
+	public void mousePressed(MouseEvent e) {
+		if (table.getSelectedColumn()==wtNumber+1) {
+			valueDragging = true;
+			rowDragging = table.getSelectedRow();
+			startVal = (float)((SIDSysexParameterControl)midiParams.elementAt(rowDragging)).getMidiValue();
+			dragpos = e.getX() - e.getY();						
+		}			
+	}
+
+    public void mouseReleased(MouseEvent e) {valueDragging = false;}
+
+    public void mouseEntered(MouseEvent e) {}
+
+    public void mouseExited(MouseEvent e) {}
+
+    public void mouseClicked(MouseEvent e) {}
+
+    public void mouseMoved(MouseEvent me) {}
+
+	public void mouseDragged(MouseEvent me) {
+		if (valueDragging) {
+			float f = DRAG_SPEED * (float) ((me.getX() - me.getY()) - dragpos);
+			table.getModel().setValueAt(interpret(Math.round(startVal + f)), rowDragging, wtNumber+1);			
+		}
+	}
+	
 	public class ColorCellRenderer extends JComponent implements TableCellRenderer {
 		Color curColor;
         String curSymbol;
+        int val;
+        
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int rowIndex, int vColIndex) {
+        	
+        	if (vColIndex == wtNumber+1) {
+        		curColor = Color.RED;        		
+        		val = ((SIDSysexParameterControl)midiParams.elementAt(rowIndex)).getMidiValue();
+        		curSymbol = (String)value;
+        	}
         	
         	if ((vColIndex > 0) && (vColIndex < wtNumber+1)) {
 	        	int b = config[vColIndex-1][0].getMidiValue();
@@ -226,15 +269,20 @@ public class WTTable extends JPanel implements TableModelListener, Observer {
             return this;
         }
         
-        public void paint(Graphics g) {
-            g.setColor(curColor);
-            g.fillRect(0, 0, getWidth()-1, getHeight()-1);
-            if (curColor==Color.BLACK) {
-            	g.setColor(Color.WHITE);
+        public void paint(Graphics g) {            
+            if (curColor == Color.RED) {	// Red value indicator
+            	g.setColor(curColor);
+            	g.fillRect(0, 0, Math.round(((float)val/255)*(getWidth()-1)), getHeight()-1);
+            } else {
+            	g.setColor(curColor);		// Fill color
+            	g.fillRect(0, 0, getWidth()-1, getHeight()-1);
+            }            
+            if (curColor==Color.BLACK) {	// Swap text color to contrast with background
+            	g.setColor(Color.WHITE);            	
             } else {
             	g.setColor(Color.BLACK);
-            }
-            g.drawString(curSymbol, 2, 12);
+            }            
+            g.drawString(curSymbol, 2, 12);	// Add loop symbol (if required)
         }    
     }
 }

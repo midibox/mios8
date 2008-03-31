@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import org.midibox.sidlibr.*;
 
 public class WTTableModel extends AbstractTableModel {	
-	private String[] columnNames = {"Pos","Value"};
+	private String[] columnNames = {"Pos","Value","Control"};
 	private Object[][] data;
 	private int wtSteps = 128;
 	private int wtNumber;
@@ -35,7 +35,7 @@ public class WTTableModel extends AbstractTableModel {
 		data = new Object[wtSteps][wtNumber+2];
 		for (int c = 0; c < wtSteps; c++) {
 			data[c][0] = Integer.toString(c);			
-			data[c][wtNumber+1] = Integer.toString(0);			
+			data[c][wtNumber+1] = Integer.toString(0);
 		}		
 	}
 	
@@ -52,9 +52,11 @@ public class WTTableModel extends AbstractTableModel {
     		return columnNames[0];
     	} else if (col<=wtNumber) {
     		return Integer.toString(col);
-    	} else{
-    		return columnNames[1];
-    	}    	
+    	} else if (col > wtNumber) {
+    		return columnNames[col-wtNumber];
+    	} else {
+    		return "Unknown";
+    	}
     }
 
     public Object getValueAt(int row, int col) {
