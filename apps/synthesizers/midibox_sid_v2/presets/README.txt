@@ -26,8 +26,8 @@ Following preset patches are available:
 007 Simple Pulse        039 RingModMod          071 ARPSEQ Two A        103 Sample&Hold 1
 008 Pulse w/o Body      040 RampUp              072 ARPSEQ Two B        104 Sample&Hold 2
 009 Popcorn             041 Math Game           073 ARPSEQ Two C        105 Curve Filter D
-010 WT Flute            042 WT Synth Drum 11    074 ARPSEQ Three        106 Curve total
-011 Synth Plug          043 WT Synth Drum 12    075 ARPSEQ Four         107 El.Piano
+010 WT Flute            042 WT Runner           074 ARPSEQ Three        106 Curve total
+011 Synth Plug          043 WT Stereo Echo      075 ARPSEQ Four         107 Poly Trancegate
 012 WT Synth            044 Turntable           076 SEQ Mighty Bass     108 Zak Bass
 013 WT HardcoreSynth    045 Driving a Car       077 Analog Dream1       109 Zak Bass 2
 014 Sync Sound          046 Ufo Reverse         078 Analog Dream2       110 Kik A
@@ -65,7 +65,7 @@ ChangeLog:
    o replaced Placeholders A037..A044 by new trigger and modulation matrix examples
    o Patch A089-A91 (not working "Miami1"..3) replaced by "SEQ Bass 4"..6
    o Patch A103 and A104 (not working "WT Pseudo S&H") replaced by "Sample&Hold 1" and 2
-   o Patch A107 (not working "WT Flip LFO") replaced by "El.Piano?"
+   o Patch A107 (not working "WT Flip LFO") replaced by "Poly Trancegate"
 
 2007-09-29:
    o Patch A033 and A034 replaced by Drum Kits + Sequences

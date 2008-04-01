@@ -35,6 +35,8 @@ SID_V_STATE_PORTA_ACTIVE	EQU	5
 SID_V_STATE_ACCENT		EQU	6
 SID_V_STATE_SLIDE		EQU	7
 
+SID_V_STATE2_PORTA_INITIALIZED	EQU	0	; portamento omitted when first key played 
+
 SID_I_OPT1_FLAGS_ABW		EQU	0	; ADSR bug workaround
 
 SID_I_L_FLAGS1_LEGATO		EQU	0	; switches between mono/legato mode
@@ -339,8 +341,20 @@ SIDSE_Clk_NoF8
 	SET_BSR	SID_BASE
 SIDSE_Clk_Inc
 
-	;; increment global clock counter (for Clk/4 and Clk/16 divider)
+	;; increment global clock counter (for Clk/6 and Clk/24 divider)
 	incf	SID_SE_GLOBAL_CLK_CTR, F, BANKED
+
+	;; reset lower nibble on each 6th clock, increment high nibble
+	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
+	andlw	0x0f
+	xorlw	0x06
+	bnz	SIDSE_Clk_Inc_Not6th
+SIDSE_Clk_Inc_6th
+	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
+	addlw	0x10
+	andlw	0xf0
+	movwf	SID_SE_GLOBAL_CLK_CTR, BANKED
+SIDSE_Clk_Inc_Not6th
 
 	;; notify clock event
 	bsf	SID_SE_STATE, SID_SE_STATE_GLOBAL_CLK_EVENT, BANKED
@@ -354,24 +368,24 @@ SIDSE_Clk_Reset_Multi
 	movlw	0x80		; only step WTs (global flag bit #7 in multi mode)
 	iorwf	SID_SE_TRG_EVNT_U, F, BANKED
 	rgoto	SIDSE_Clk_Reset_Multi_Cont
-	
+
 SIDSE_Clk_Reset_Lead
 
 	;; propagate clock event to trigger matrix
 	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_Clk_BASE
 	rcall	SIDSE_Clk_Hlp_PropClkEvent
 
-	;; propagate clock/4 event to trigger matrix on each 4th clock
-	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_Cl4_BASE
+	;; propagate clock/4 event to trigger matrix on each 6th clock
+	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_Cl6_BASE
 	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
-	andlw	0x03
+	andlw	0x0f
 	skpnz
 	rcall	SIDSE_Clk_Hlp_PropClkEvent
 
-	;; propagate clock/16 event to trigger matrix on each 16th clock
-	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_C16_BASE
+	;; propagate clock/16 event to trigger matrix on each 24th clock
+	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_C24_BASE
 	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
-	andlw	0x0f
+	andlw	0x30
 	skpnz
 	rcall	SIDSE_Clk_Hlp_PropClkEvent
 
@@ -1622,6 +1636,13 @@ SIDSE_Pitch_Porta_NoUpdate
 	;; skip if glissando active
 	movlw	SID_Ix_Vx_FLAGS1
 	BRA_IFSET PLUSW0, SID_I_V_FLAGS1_PORTA_GLISSANDO, ACCESS, SIDSE_Pitch_Porta_Final
+
+	;; omit portamento if first key played after patch initialisation
+	movlw	SID_Vx_STATE2
+	BRA_IFSET PLUSW1, SID_V_STATE2_PORTA_INITIALIZED, ACCESS, SIDSE_Pitch_Porta_Initialized
+	bsf	PLUSW1, SID_V_STATE2_PORTA_INITIALIZED
+	rgoto	SIDSE_Pitch_Porta_Final
+SIDSE_Pitch_Porta_Initialized
 
 	;; get portamento multiplier from envelope table -> MUL_A
 	;; this one is used for "constant time glide" and "normal portamento"

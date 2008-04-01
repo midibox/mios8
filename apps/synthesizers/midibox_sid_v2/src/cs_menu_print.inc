@@ -2060,8 +2060,8 @@ CS_MENU_PRINT_TRGx_SRC_Tab
 	dw	"L5P "
 	dw	"L6P "
 	dw	"Clk "
-	dw	"Cl4 "
-	dw	"C16 "
+	dw	"Cl6 "
+	dw	"C24 "
 	dw	"MSt "
 
 CS_MENU_PRINT_KNB_Tab

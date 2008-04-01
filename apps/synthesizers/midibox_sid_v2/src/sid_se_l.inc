@@ -796,11 +796,14 @@ SIDSE_L_LFO_OneShotChk
 	rgoto	SIDSE_L_LFO_OneShot_Cont
 SIDSE_L_LFO_NoOneShotChk
 
-	;; if clock sync enabled: only increment on clock events
+	;; if clock sync enabled: only increment on each 6th clock event
 	movlw	SID_Ix_LFOx_MODE
 	BRA_IFCLR PLUSW0, SID_I_LFO_MODE_CLKSYNC, ACCESS, SIDSE_L_LFO_NoClkSync
 SIDSE_L_LFO_ClkSync
 	BRA_IFCLR SID_SE_STATE, SID_SE_STATE_GLOBAL_CLK_EVENT, BANKED, SIDSE_L_LFO_NoClk_Cont
+	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
+	andlw	0x0f
+	bnz	SIDSE_L_LFO_NoClk_Cont
 SIDSE_L_LFO_NoClkSync
 
 	;; increment 16bit counter by given rate
@@ -1155,7 +1158,11 @@ SIDSE_L_ENV
 	movlw	SID_Ix_L_ENVx_MODE
 	BRA_IFCLR PLUSW0, SID_I_ENV_MODE_CLKSYNC, ACCESS, SIDSE_L_ENV_NoClkSync
 SIDSE_L_ENV_ClkSync
-	BRA_IFSET SID_SE_STATE, SID_SE_STATE_GLOBAL_CLK_EVENT, BANKED, SIDSE_L_ENV_ClkSync_Cont
+	BRA_IFCLR SID_SE_STATE, SID_SE_STATE_GLOBAL_CLK_EVENT, BANKED, SIDSE_L_ENV_ClkSync_Skp
+	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
+	andlw	0x0f
+	bz	SIDSE_L_ENV_ClkSync_Cont
+SIDSE_L_ENV_ClkSync_Skp
 	;; transfer current ENV counter into MIOS_PARAMETER[12]
 	movff	POSTINC1, MIOS_PARAMETER1
 	movff	POSTDEC1, MIOS_PARAMETER2

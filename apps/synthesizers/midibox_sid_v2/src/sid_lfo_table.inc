@@ -275,14 +275,14 @@ SID_LFO_TABLE
 	;; alternative table for MIDI clock
 	;; (overrules entries 245-255 of normal LFO table if SID_I_LFO_MODE_CLKSYNC flag is set)
 SID_LFO_TABLE_MCLK
-	dw	8		; 245: 64/1
-	dw	16		; 246: 32/1
-	dw	32		; 247: 16/1
-	dw	64		; 248: 8/1
-	dw	128		; 249: 4/1
-	dw	256		; 250: 2/1
-	dw	512		; 251: 1/1
-	dw	1024		; 252: 1/2
-	dw	2048		; 253: 1/4
-	dw	4096		; 254: 1/8
-	dw	8192		; 255: 1/16
+	dw	16		; 246: 64/1
+	dw	32		; 247: 32/1
+	dw	64		; 248: 16/1
+	dw	128		; 249: 8/1
+	dw	256		; 250: 4/1
+	dw	512		; 251: 2/1
+	dw	1024		; 252: 1/1
+	dw	2048		; 253: 1/2
+	dw	4096		; 254: 1/4
+	dw	8192		; 255: 1/8
+	dw	16384		; 255: 1/16
