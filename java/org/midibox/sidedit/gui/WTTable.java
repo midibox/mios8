@@ -81,7 +81,8 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 		table.getColumnModel().getColumn(wtNumber+1).setPreferredWidth(150);
 		
 		table.setPreferredScrollableViewportSize(new Dimension(table.getPreferredSize().width, Math.round(table.getPreferredSize().height/10)));
-	    table.setFillsViewportHeight(true);
+		// TK: temporary commented out - not available under MacOS, we need a replacement
+		// table.setFillsViewportHeight(true);
 	    
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setPreferredSize(new Dimension(table.getPreferredSize().width, Math.round(table.getPreferredSize().height/4)));
