@@ -51,7 +51,7 @@ import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
 import  org.midibox.sidedit.gui.controls.*;
 import org.midibox.sidedit.gui.lead.LeadGUI;
-
+import org.midibox.sidedit.gui.*;
 public class SequencerGUI extends JPanel implements ActionListener{
 	private JPanel seqPanel,currentPanel,seq1,seq2,seq3,seq4,seq5,seq6,seq7,seq8;
 	private JComboBox combo;
@@ -123,48 +123,37 @@ public class SequencerGUI extends JPanel implements ActionListener{
 		c.anchor = GridBagConstraints.CENTER;
 		
 		// Loop over all channels
-		for(int chan=0;chan<8;chan++) {			
-			// Channel label
-			JLabel chanLabel = new JLabel("Channel "+Integer.toString(chan+1));
-			chanLabel.setVerticalAlignment(JLabel.CENTER);
-			chanLabel.setFont(new Font("serif",Font.BOLD,12));
-			chanLabel.setOpaque(false);			
-			chanLabel.setPreferredSize(new Dimension(70,10));			
-			c.gridx = 0;c.gridy = (3*chan)+1;c.gridheight=2;
-			chanPanel.add(chanLabel, c);
-		
+		for(int chan=0;chan<8;chan++) {
 			// Dummy panel to fill
-			c.gridx = 1;c.gridy = (3*chan)+3;c.gridheight=1;
+			c.gridx = 0;c.gridy = (2*chan)+2;c.gridheight=1;
 			JPanel transp = new JPanel();
 			transp.setOpaque(false);
 			chanPanel.add(transp, c);
 			
 			// Row labels
-			if(chan==0) {c.gridx = 1;c.gridy = (3*chan); chanPanel.add(createSeqLabel("Step"), c);}
-			c.gridx = 1;c.gridy = (3*chan)+1;
-			chanPanel.add(createSeqLabel("Gate"), c);
-			c.gridx = 1;c.gridy = (3*chan)+2;
-			chanPanel.add(createSeqLabel("Accent"), c);	
+			c.gridwidth=2;
+			if(chan==0) {c.gridx = 0;c.gridy = (2*chan); chanPanel.add(createSeqLabel("Step"), c);}
+			c.gridx = 0;c.gridy = (2*chan)+1;
+			chanPanel.add(createSeqLabel("Chan."+Integer.toString(chan+1)), c);
+			c.gridwidth=1;
 			
 			int offset = (32*chan) + (seqNr*256) ;	
-			for(int col=0;col<16;col++) {
-				
+			for(int col=0;col<16;col++) {				
 				// Column labels
 				if (chan==0) {
 					JLabel label = new JLabel(Integer.toString(col+1));
 					label.setHorizontalAlignment(JLabel.CENTER);
 					label.setFont(new Font("serif",Font.BOLD,10));
 					label.setOpaque(false);
-					c.gridx = col+2;c.gridy = (3*chan);
+					c.gridx = col+2;c.gridy = (2*chan);
 					chanPanel.add(label, c);
 				}
 				
-				// Gate buttons
-				c.gridx = col+2;c.gridy = 1+(3*chan);
-				chanPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(0+offset+col), c);
-				// Accent buttons
-				c.gridx = col+2;c.gridy = 2+(3*chan);
-				chanPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(0+offset+col+16), c);
+				// Buttons
+				c.gridx = col+2;c.gridy = 1+(2*chan);				
+				SIDSysexParameterControl mp1 = ((SIDSysexParameterControlGUI) vGUI.elementAt(0+offset+col)).getMidiParameter();
+				SIDSysexParameterControl mp2 = ((SIDSysexParameterControlGUI) vGUI.elementAt(0+offset+col+16)).getMidiParameter();				
+				chanPanel.add(new SequencerButton(mp1, mp2), c);				
 			}		
 		}
 		return chanPanel;	

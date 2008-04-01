@@ -31,6 +31,8 @@ import java.util.Observer;
 import java.util.EventObject;
 import org.midibox.sidlibr.SIDLibController;
 import java.awt.Color;
+
+import javax.swing.BoxLayout;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -44,7 +46,7 @@ import org.midibox.sidedit.*;
 import javax.swing.table.*;
 import java.awt.Component;
 
-public class WTTable extends JPanel implements TableModelListener, Observer, MouseListener, MouseMotionListener {
+public class WTTable extends JPanel implements TableModelListener, Observer, MouseListener, MouseMotionListener, ActionListener {
 	JTable table;
 	JPopupMenu popupMenu;
 	int bankNumber;
@@ -60,10 +62,16 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 	private float DRAG_SPEED = 1.5F;// 0.01F;
 	private float startVal = 0;
 	
+	private JRadioButton decButton;
+	private JRadioButton hexButton;
+	
 	public WTTable(int wtNumber, Vector midiParams, SIDSysexParameterControl[][] config) {
 		this.wtNumber = wtNumber;
 		this.midiParams = midiParams;
 		this.config = config;
+		
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setOpaque(false);
 		
 		table = new JTable(new WTTableModel(wtNumber));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -97,6 +105,22 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 		}	
 		refreshTable();
 		add(scrollPane);
+		
+		decButton = new JRadioButton("Decimal");
+		decButton.setOpaque(false);
+		hexButton = new JRadioButton("Hexadecimal");
+		hexButton.setOpaque(false);
+		decButton.setSelected(true);
+		decButton.addActionListener(this);
+		hexButton.addActionListener(this);
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setOpaque(false);
+		buttonPanel.add(decButton);
+		buttonPanel.add(hexButton);
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(decButton);
+		bg.add(hexButton);
+		add(buttonPanel);
 	}	
 	
 	public void refreshTable() {		
@@ -206,6 +230,13 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 	public void update(Observable observable, Object object) {
 		refreshTable();
 	}
+	
+	public void actionPerformed(ActionEvent e) { 
+        if ((e.getSource()==decButton)||(e.getSource()==hexButton)) {
+        	useHex = hexButton.isSelected();
+        	refreshTable();
+        }
+    }
 	
 	public int getSelectedRow() {
 		return table.getSelectedRow();

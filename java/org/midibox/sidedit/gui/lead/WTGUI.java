@@ -107,7 +107,6 @@ public class WTGUI extends JPanel{
 	
 	protected JPanel createWTC2(Vector vGUI, String s) {		
 		JPanel wtcPanel = new JPanel();
-		//wtcPanel.setLayout(new GridLayout(3,43));
 		wtcPanel.setBorder(BorderFactory.createEtchedBorder());
 		wtcPanel.setBorder(BorderFactory.createTitledBorder(s));
 		wtcPanel.setOpaque(false);	
