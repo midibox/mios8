@@ -62,7 +62,7 @@ public class MultiGUI extends JPanel {
 		JPanel t6 = new InstrumentGUI((Vector)GUIs.elementAt(7),(Vector)GUIs.elementAt(13));
 		JPanel t7 = new InstrumentGUI((Vector)GUIs.elementAt(8),(Vector)GUIs.elementAt(14));
 		JPanel t8 = new InstrumentGUI((Vector)GUIs.elementAt(9),(Vector)GUIs.elementAt(15));		
-		JPanel t9 = new WTGUI((Vector)GUIs.elementAt(16));
+		JPanel t9 = new WTGUI((Vector)GUIs.elementAt(16), (Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(13),(Vector)GUIs.elementAt(14),(Vector)GUIs.elementAt(15));
 		
 		tabbedPane.addTab("Global", t1);
 		tabbedPane.addTab("Filter", t2);

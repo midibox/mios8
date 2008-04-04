@@ -55,15 +55,16 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 	private Vector midiParams;
 	private SIDSysexParameterControl[][] config;
 	private boolean refreshing = false;
-	public boolean useHex = false;
+	public int decHexNote = 0;
 	private boolean valueDragging = false;
 	private int rowDragging = 0;
 	private int dragpos = -1;
 	private float DRAG_SPEED = 1.5F;// 0.01F;
 	private float startVal = 0;
-	
+	private String[] noteString;
 	private JRadioButton decButton;
 	private JRadioButton hexButton;
+	private JRadioButton noteButton;
 	
 	public WTTable(int wtNumber, Vector midiParams, SIDSysexParameterControl[][] config) {
 		this.wtNumber = wtNumber;
@@ -103,23 +104,33 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 				config[i][j].addObserver(this);
 			}
 		}	
+		createNotes();
 		refreshTable();
 		add(scrollPane);
 		
-		decButton = new JRadioButton("Decimal");
+		decButton = new JRadioButton("Dec view");
 		decButton.setOpaque(false);
-		hexButton = new JRadioButton("Hexadecimal");
+		hexButton = new JRadioButton("Hex view");
 		hexButton.setOpaque(false);
+		noteButton = new JRadioButton("Note view");
+		noteButton.setOpaque(false);
+		
 		decButton.setSelected(true);
 		decButton.addActionListener(this);
 		hexButton.addActionListener(this);
+		noteButton.addActionListener(this);
+		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setOpaque(false);
 		buttonPanel.add(decButton);
 		buttonPanel.add(hexButton);
+		buttonPanel.add(noteButton);
+		
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(decButton);
 		bg.add(hexButton);
+		bg.add(noteButton);
+		
 		add(buttonPanel);
 	}	
 	
@@ -143,13 +154,59 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 	}
 	
 	private int parseHexDec(String s) {
-		int v;
-		if (useHex) {
-			v = Integer.parseInt(s, 16);
-    	} else {
-    		v = Integer.parseInt(s);
-    	}
+		int v = 0;
+		switch (decHexNote) {
+			case 0:	// Decimal
+				v = Integer.parseInt(s);
+				break;			
+			case 1:	// Hexadecimal
+				v = Integer.parseInt(s, 16);
+				break;
+			case 2:	// Note view (only lower part)
+				v = Integer.parseInt(s);
+				break;
+			default: throw new NumberFormatException("Input not recognized!");
+		}
 		return v;
+	}
+	
+	private int findNote(String s) {
+		int v = 0;
+		for(int c=0;c<128;c++) {				
+			if (noteString[c].equalsIgnoreCase(s)) {
+				v = c;
+				break;
+			}
+			if (c==127) {
+				throw new NumberFormatException("Note string not recognized");
+			}
+		}
+		return v;
+	}
+	
+	private void createNotes() {
+		noteString = new String[256];
+		String[] notes = {"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};		
+		for (int i = 0; i < 128; i++) {
+			if (i == 0) {
+				noteString[i] = "---";
+			}
+			else if (i == 1) {
+				noteString[i] = "+++";
+			}
+			else if (i < 124) {
+				int octave = (int) Math.floor((i)/12)-2;
+				if (octave < 0) {
+					noteString[i] = notes[(i)%12] + octave;
+				}
+				else {
+					noteString[i] = notes[(i)%12] + octave;
+				}
+			}
+			else if (i < 128) {
+				noteString[i] = "Ky" + Integer.toString(i-123);
+			}
+		}
 	}
 	
 	private void parseInput(String value, int row) {
@@ -177,8 +234,13 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 				} else {
 					v = temp+64;
 				}
-			} else {												// Absolute value					
-				int temp = parseHexDec(value);	
+			} else {												// Absolute value
+				int temp;
+				if (decHexNote==2) {
+					temp = findNote(value);
+				} else {
+					temp = parseHexDec(value);
+				}					
 				if (temp < 0) {
 					v = 128;
 				} else if (temp > 127) {
@@ -194,12 +256,18 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 	}
 
 	private String interpretHexDec(int i) {
-		String s;
-		if (useHex) {
+		String s = null;
+		switch (decHexNote) {
+		case 0:	// Decimal
+			s = Integer.toString(i);
+			break;			
+		case 1:	// Hexadecimal
 			s = Integer.toHexString(i);
-    	} else {
-    		s = Integer.toString(i);
-    	}
+			break;
+		case 2: // Note view
+			s = Integer.toString(i);		
+			break;	
+		}
 		return s;
 	}
 	
@@ -210,7 +278,11 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 		} else if (i < 128) {
 			s = "+" + interpretHexDec(i-64);
 		} else {
-			s = interpretHexDec(i-128);
+			if (decHexNote==2) {
+				s = noteString[i-128];				
+			} else {
+				s = interpretHexDec(i-128);
+			}	
 		}
 		return s;
 	}
@@ -232,8 +304,14 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 	}
 	
 	public void actionPerformed(ActionEvent e) { 
-        if ((e.getSource()==decButton)||(e.getSource()==hexButton)) {
-        	useHex = hexButton.isSelected();
+        if ((e.getSource()==decButton)||(e.getSource()==hexButton)||(e.getSource()==noteButton)) {
+        	if (decButton.isSelected()) {
+        		decHexNote = 0;
+        	} else if (hexButton.isSelected()) {
+        		decHexNote = 1;
+        	} else if (noteButton.isSelected()) {
+        		decHexNote = 2;
+        	}
         	refreshTable();
         }
     }
@@ -264,7 +342,13 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 	public void mouseDragged(MouseEvent me) {
 		if (valueDragging) {
 			float f = DRAG_SPEED * (float) ((me.getX() - me.getY()) - dragpos);
-			table.getModel().setValueAt(interpret(Math.round(startVal + f)), rowDragging, wtNumber+1);			
+			int newval = Math.round(startVal + f);
+			if (newval<0) {
+				newval = 0;
+			} else if (newval>255) {
+				newval = 255;
+			}
+			table.getModel().setValueAt(interpret(newval), rowDragging, wtNumber+1);			
 		}
 	}
 	

@@ -165,7 +165,7 @@ public class LeadSpecs {
 		}		
 		// Wavetable data
 		for (int c = 0; c <128; c++) {
-			wtControl.add(new SIDSysexParameterControl(slider,createWTStr(),patch,384+c,0,8,Integer.toString(c)));
+			wtControl.add(new SIDSysexParameterControl(slider,null,patch,384+c,0,8,Integer.toString(c)));
 		}				
 		return wtControl;
 	}
@@ -200,38 +200,4 @@ public class LeadSpecs {
 		}
 		return srcStr;
 	}
-	
-	private static String[] createWTStr() {
-		String[] wtStr = new String[256];
-		String[] notes = {"c-","c#","d-","d#","e-","f-","f#","g-","g#","a-","a#","b-"};
-		
-		for (int i = 0; i < 256; i++) {
-			if (i < 64) {				
-				wtStr[i] = Integer.toString(i-64);				
-			}
-			else if (i < 128) {
-				wtStr[i] = "+" + Integer.toString(i-64);
-			}
-			else if (i == 128) {
-				wtStr[i] = "---";
-			}
-			else if (i == 129) {
-				wtStr[i] = "+++";
-			}
-			else if (i < 252) {
-				int octave = (int) Math.floor((i-128)/12)-2;
-				if (octave < 0) {
-					wtStr[i] = notes[(i-128)%12] + Math.abs(octave);
-				}
-				else {
-					wtStr[i] = notes[(i-128)%12].toUpperCase() + Math.abs(octave);
-				}
-			}
-			else if (i < 256) {
-				wtStr[i] = "ky" + Integer.toString(i-251);
-			}
-		}
-		return wtStr;
-	}
-
 }

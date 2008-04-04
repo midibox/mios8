@@ -42,9 +42,10 @@ import org.midibox.sidedit.SIDSysexParameterControl;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
+import org.midibox.sidedit.gui.WTTable;
 import  org.midibox.sidedit.gui.controls.*;
 public class WTGUI extends JPanel{
-	protected WTGUI(Vector WTGUIv) {
+	protected WTGUI(Vector WTGUIv, Vector inst1, Vector inst2, Vector inst3, Vector inst4, Vector inst5, Vector inst6) {
 		setLayout(new BorderLayout());
 		this.setOpaque(false);
 		
@@ -52,13 +53,33 @@ public class WTGUI extends JPanel{
 		panel1.setLayout(new BoxLayout(panel1, BoxLayout.Y_AXIS));
 		panel1.setOpaque(false);
 		
-		panel1.add(createWTC(WTGUIv,"Wavetable"));
+		// Setup the parameters that control begin, end and loop
+		SIDSysexParameterControl[][] config = new SIDSysexParameterControl[6][3];
+		config[0][0] = (((SIDSysexParameterControlGUI)inst1.elementAt(43)).getMidiParameter());			
+		config[0][1] = (((SIDSysexParameterControlGUI)inst1.elementAt(45)).getMidiParameter());
+		config[0][2] = (((SIDSysexParameterControlGUI)inst1.elementAt(46)).getMidiParameter());
+		config[1][0] = (((SIDSysexParameterControlGUI)inst2.elementAt(43)).getMidiParameter());			
+		config[1][1] = (((SIDSysexParameterControlGUI)inst2.elementAt(45)).getMidiParameter());
+		config[1][2] = (((SIDSysexParameterControlGUI)inst2.elementAt(46)).getMidiParameter());
+		config[2][0] = (((SIDSysexParameterControlGUI)inst3.elementAt(43)).getMidiParameter());			
+		config[2][1] = (((SIDSysexParameterControlGUI)inst3.elementAt(45)).getMidiParameter());
+		config[2][2] = (((SIDSysexParameterControlGUI)inst3.elementAt(46)).getMidiParameter());
+		config[3][0] = (((SIDSysexParameterControlGUI)inst4.elementAt(43)).getMidiParameter());			
+		config[3][1] = (((SIDSysexParameterControlGUI)inst4.elementAt(45)).getMidiParameter());
+		config[3][2] = (((SIDSysexParameterControlGUI)inst4.elementAt(46)).getMidiParameter());
+		config[4][0] = (((SIDSysexParameterControlGUI)inst5.elementAt(43)).getMidiParameter());			
+		config[4][1] = (((SIDSysexParameterControlGUI)inst5.elementAt(45)).getMidiParameter());
+		config[4][2] = (((SIDSysexParameterControlGUI)inst5.elementAt(46)).getMidiParameter());
+		config[5][0] = (((SIDSysexParameterControlGUI)inst6.elementAt(43)).getMidiParameter());			
+		config[5][1] = (((SIDSysexParameterControlGUI)inst6.elementAt(45)).getMidiParameter());
+		config[5][2] = (((SIDSysexParameterControlGUI)inst6.elementAt(46)).getMidiParameter());
+		panel1.add(createWTC2(WTGUIv,config,"Wavetable data"));
 		
 	    this.add(panel1, BorderLayout.NORTH);
 	}
 	
 	
-	protected JPanel createWTC(Vector vGUI, String s) {		
+	protected JPanel createWTC1(Vector vGUI, String s) {		
 		JPanel wtcPanel = new JPanel();
 		wtcPanel.setLayout(new GridLayout(3,43));
 		wtcPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -67,6 +88,20 @@ public class WTGUI extends JPanel{
 		for (int c = 0; c <128; c++) {		
 			wtcPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(c));		
 		}
+		return wtcPanel;
+	}
+	
+	protected JPanel createWTC2(Vector vGUI, SIDSysexParameterControl[][] config, String s) {		
+		JPanel wtcPanel = new JPanel();
+		wtcPanel.setBorder(BorderFactory.createEtchedBorder());
+		wtcPanel.setBorder(BorderFactory.createTitledBorder(s));
+		wtcPanel.setOpaque(false);	
+		
+		Vector v = new Vector();
+		for (int c = 0; c <128; c++) {		
+			v.add(((SIDSysexParameterControlGUI)vGUI.elementAt(c)).getMidiParameter());			
+		}
+		wtcPanel.add(new WTTable(6, v, config));
 		return wtcPanel;
 	}
 }
