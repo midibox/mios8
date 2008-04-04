@@ -50,9 +50,11 @@ Implemented SysEx Commands
         Request a dump of all ensembles (128 ensembles)
 
 
-  06/a) F0 00 00 7E 4B <device-number> 06 00 <AH> <AL> <value_l> <value_h> F7
+  06/a) F0 00 00 7E 4B <device-number> 06 <WOPT> <AH> <AL> <value_l> <value_h> F7
         Direct Write of parameter into patch buffer (<AH> = 0..3, <AL> = 0..7F)
         Patch address: (<AH> << 7) | <AL>
+        <WOPT>: options to speed up communication with editor, behaviour depends on engine
+        See topic "Direct Write Options" at the end of this document
 
   06/b) F0 00 00 7E 4B <device-number> 06 70 <AH> <AL> <value_l> <value_h> F7
         Direct Write of parameter into ensemble buffer (<AH> = 0..1, <AL> = 0..7F)
@@ -998,6 +1000,91 @@ Patch Structure --- Ensemble
  ...  |  >- SID4 Structure (same as for SID1: 0x00-0x3f)
 0x0ff | /
 ======+==========================================================================
+
+
+
+Direct Write Options
+~~~~~~~~~~~~~~~~~~~~
+
+In order to speed up parameter changes of multiple parameters which belong together
+(e.g. CutOff Frequency of Left/Right Channel), special write options are available,
+which copy the received value into the selected registers.
+
+Please only use these options within the specified parameter address ranges, outside
+these ranges they currently behave like <WOPT>=0, but they could get a special
+meaning in future!
+
+
+Lead Engine:
+
+  <WOPT>=00  normal behaviour, parameter will be written into the given address
+
+  <WOPT>=01  Left/Right Flag
+     Range 0x054-0x059: Filter parameters will be written into left and right channel register
+                        e.g., value of 0x054 will be copied to 0x05a
+     Range 0x060-0x06f: Voice1 Parameter will be written into Voice1 and Voice4
+                        e.g., value of 0x060 will be copied to 0x090
+     Range 0x070-0x07f: Voice2 Parameter will be written into Voice2 and Voice5
+                        e.g., value of 0x070 will be copied to 0x0a0
+     Range 0x080-0x08f: Voice3 Parameter will be written into Voice3 and Voice6
+                        e.g., value of 0x080 will be copied to 0x0b0
+     Address 0x104:     Target Assignment will be written into 0x104 and 0x105 (L/R)
+
+     All other ranges should not be accessed in this mode!
+
+  <WOPT>=02  Voice123/456 Flag
+     Range 0x060-0x06f: Voice1 Parameter will be written into Voice1, Voice2 and Voice3
+                        e.g., value of 0x060 will be copied to 0x070 and 0x080
+     Range 0x090-0x09f: Voice4 Parameter will be written into Voice4, Voice5 and Voice6
+                        e.g., value of 0x090 will be copied to 0x0a0 and 0x0b0
+     All other ranges should not be accessed in this mode!
+
+  <WOPT>=03  Combined Left/Right and Voice123/456 Flag
+     Range 0x060-0x06f: Voice1 Parameter will be written into Voice1-6
+                        e.g., value of 0x060 will be copied to 0x070, 0x080, 0x090, 0x0a0 and 0x0b0
+     All other ranges should not be accessed in this mode!
+
+
+Bassline Engine:
+
+  <WOPT>=00  normal behaviour, parameter will be written into the given address
+
+  <WOPT>=01  Left/Right Flag
+     Range 0x054-0x059: Filter parameters will be written into left and right channel register
+                        e.g., value of 0x054 will be copied to 0x05a
+     Range 0x060-0x0af: Bassline L Parameter will be written into Bassline L and R
+                        e.g., value of 0x060 will be copied to 0x0b0
+     All other ranges should not be accessed in this mode!
+
+
+Multi Engine:
+
+  <WOPT>=00  normal behaviour, parameter will be written into the given address
+
+  <WOPT>=01  Left/Right Flag
+     Range 0x054-0x059: Filter parameters will be written into left and right channel register
+                        e.g., value of 0x054 will be copied to 0x05a
+     Range 0x060-0x08f: Voice1 Parameter will be written into Voice1 and Voice4
+                        e.g., value of 0x060 will be copied to 0x0f0
+     Range 0x090-0x0bf: Voice2 Parameter will be written into Voice2 and Voice5
+                        e.g., value of 0x090 will be copied to 0x120
+     Range 0x0c0-0x0ef: Voice3 Parameter will be written into Voice3 and Voice6
+                        e.g., value of 0x080 will be copied to 0x150
+     All other ranges should not be accessed in this mode!
+
+  <WOPT>=02  Voice123/456 Flag
+     Range 0x060-0x08f: Voice1 Parameter will be written into Voice1, Voice2 and Voice3
+                        e.g., value of 0x060 will be copied to 0x090 and 0x0c0
+     Range 0x0f0-0x11f: Voice4 Parameter will be written into Voice4, Voice5 and Voice6
+                        e.g., value of 0x0f0 will be copied to 0x120 and 0x150
+     All other ranges should not be accessed in this mode!
+
+  <WOPT>=03  Combined Left/Right and Voice123/456 Flag
+     Range 0x060-0x08f: Voice1 Parameter will be written into Voice1-6
+                        e.g., value of 0x060 will be copied to 0x090, 0x0c0, 0x0f0, 0x120 and 0x150
+     All other ranges should not be accessed in this mode!
+
+
 
 
 (c) Thorsten.Klose@midibox.org
