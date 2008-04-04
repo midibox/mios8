@@ -160,11 +160,11 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer, Act
 	
 	private boolean snapExist(int i) {
 		boolean b = false;
-		for(int c=0;c<midiParameter.snapvals.length;c++) {
+		for(int c=0;c<midiParameter.snapvals.length;c++) {			
 			if (midiParameter.snapvals[c]==i) {
 				b = true;
 				break;
-			}
+			} 
 		}
 		return b;
 	}
@@ -179,15 +179,13 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer, Act
 				for (int c = 0; c < midiParameters.size(); c++) {
 					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
 					mp.snap = true;
-					mp.useAlias = true;
-					mp.setMidiValue(midiParameter.snapvals[0], true);					
+					mp.useAlias = true;										
 				}
 			} else {											// Keep current midi value, only update labels
 				for (int c = 0; c < midiParameters.size(); c++) {
 					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
 					mp.snap = true;
-					mp.useAlias = true;		
-					mp.setMidiValue(midiParameter.snapvals[midiParameter.getMidiValue()], false);		
+					mp.useAlias = true;							
 				}
 				updateGraphics();
 			}
@@ -198,8 +196,7 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer, Act
 			for (int c = 0; c < midiParameters.size(); c++) {
 				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
 				mp.snap = false;
-				mp.useAlias = false;
-				mp.setMidiValue(midiParameter.snapvals[midiParameter.getMidiValue()], false);	
+				mp.useAlias = false;					
 			}	
 			updateGraphics();
 		}

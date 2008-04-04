@@ -47,6 +47,7 @@ public class BasslineSpecs {
 		Vector lfoControl = new Vector();
 		// LFO1
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,0,1,"on/off","Enable/disable LFO"));
+		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,1,1,"Key Sync","Key synchronisation"));	
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,2,1,"MIDI Sync","Global clock synchronisation"));		
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,3,1,"1 shot","One shot mode"));
 		lfoControl.add(new SIDSysexParameterControl(lfoselect,null,patch,116+offset,4,4,"Waveform"));
@@ -58,6 +59,7 @@ public class BasslineSpecs {
 		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,122+offset,0,-8,"Cutoff depth","Filter cutoff modulation depth"));
 		// LFO2
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,123+offset,0,1,"on/off","Enable/disable LFO"));
+		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,1,1,"Key Sync","Key synchronisation"));
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,123+offset,2,1,"MIDI Sync","Global clock synchronisation"));		
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,123+offset,3,1,"1 shot","One shot mode"));
 		lfoControl.add(new SIDSysexParameterControl(lfoselect,null,patch,123+offset,4,4,"Waveform"));

@@ -58,8 +58,8 @@ public class LfoGUI extends JPanel{
 		panel1.setLayout(new GridLayout(2,2));
 		panel1.add(createLFO(lfoLGUIv,"LFO 1 (left)",0));
 		panel1.add(createLFO(lfoRGUIv,"LFO 1 (right)",0));
-		panel1.add(createLFO(lfoLGUIv,"LFO 2 (left)",10));
-		panel1.add(createLFO(lfoRGUIv,"LFO 2 (right)",10));		
+		panel1.add(createLFO(lfoLGUIv,"LFO 2 (left)",11));
+		panel1.add(createLFO(lfoRGUIv,"LFO 2 (right)",11));		
 		
 		JPanel panel2 = new JPanel();
 		panel2.setLayout(new GridLayout(1,2));
@@ -85,31 +85,33 @@ public class LfoGUI extends JPanel{
 		c.gridx = 0;c.gridy = 0;c.gridwidth=1;c.gridheight=1;
 		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(0+offset), c);
 		c.gridx = 0;c.gridy = 1;c.gridwidth=1;c.gridheight=1;
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(1+offset), c);		
+		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(2+offset), c);		
 		c.gridx = 1;c.gridy = 0;c.gridwidth=1;c.gridheight=1;
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(2+offset), c);
-			
+		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(3+offset), c);
+		c.gridx = 1;c.gridy = 1;c.gridwidth=1;c.gridheight=1;
+		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(1+offset), c);
+		
 		// Waveform selector
 		c.gridx = 2;c.gridy = 0;c.gridwidth=5;c.gridheight=2;
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(3+offset), c);
+		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(4+offset), c);
 		
 		// Knobs
 		c.gridx = 7;c.gridy = 0;c.gridwidth=1;c.gridheight=1;
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(4+offset),c);
-		c.gridx = 8;c.gridy = 0;c.gridwidth=1;c.gridheight=1;
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(8+offset),c);
-		c.gridx = 9;c.gridy = 0;c.gridwidth=1;c.gridheight=1;
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(9+offset),c);		
-		c.gridx = 7;c.gridy = 1;c.gridwidth=1;c.gridheight=1;
 		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(5+offset),c);
-		c.gridx = 8;c.gridy = 1;c.gridwidth=1;c.gridheight=1;
+		c.gridx = 8;c.gridy = 0;c.gridwidth=1;c.gridheight=1;
+		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(9+offset),c);
+		c.gridx = 9;c.gridy = 0;c.gridwidth=1;c.gridheight=1;
+		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(10+offset),c);		
+		c.gridx = 7;c.gridy = 1;c.gridwidth=1;c.gridheight=1;
 		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(6+offset),c);
-		c.gridx = 9;c.gridy = 1;c.gridwidth=1;c.gridheight=1;
+		c.gridx = 8;c.gridy = 1;c.gridwidth=1;c.gridheight=1;
 		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(7+offset),c);
+		c.gridx = 9;c.gridy = 1;c.gridwidth=1;c.gridheight=1;
+		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(8+offset),c);
 		
 		// Setup the 'rate'-knob behavior to be depending on the 'master sync' switch
-		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(5+offset)).setSnapvals(snapvals);
-		((SIDSysexParameterControlToggleButton)midiParameterGUI.elementAt(1+offset)).setSnapParameter((SIDSysexParameterControlGUI)midiParameterGUI.elementAt(5+offset));
+		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(6+offset)).setSnapvals(snapvals);
+		((SIDSysexParameterControlToggleButton)midiParameterGUI.elementAt(2+offset)).setSnapParameter((SIDSysexParameterControlGUI)midiParameterGUI.elementAt(6+offset));
 	
 		return lfoPanel;
 	}

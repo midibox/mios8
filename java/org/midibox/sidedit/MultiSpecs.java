@@ -55,6 +55,7 @@ public class MultiSpecs {
 		//LFO 1&2
 		for(int i=0;i<2;i++) {			
 			multiControl.add(new SIDSysexParameterControl(button,null,patch,116+(7*i)+offset,0,1,"on/off","Enable/disable LFO"));
+			multiControl.add(new SIDSysexParameterControl(button,null,patch,116+(7*i)+offset,1,1,"Key Sync","Key synchronisation"));
 			multiControl.add(new SIDSysexParameterControl(button,null,patch,116+(7*i)+offset,2,1,"MIDI Sync","Global clock synchronisation"));		
 			multiControl.add(new SIDSysexParameterControl(button,null,patch,116+(7*i)+offset,3,1,"1 shot","One shot mode"));
 			multiControl.add(new SIDSysexParameterControl(lfoselect,null,patch,116+(7*i)+offset,4,4,"Waveform"));

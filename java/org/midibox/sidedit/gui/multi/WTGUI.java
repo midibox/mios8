@@ -55,24 +55,24 @@ public class WTGUI extends JPanel{
 		
 		// Setup the parameters that control begin, end and loop
 		SIDSysexParameterControl[][] config = new SIDSysexParameterControl[6][3];
-		config[0][0] = (((SIDSysexParameterControlGUI)inst1.elementAt(43)).getMidiParameter());			
-		config[0][1] = (((SIDSysexParameterControlGUI)inst1.elementAt(45)).getMidiParameter());
-		config[0][2] = (((SIDSysexParameterControlGUI)inst1.elementAt(46)).getMidiParameter());
-		config[1][0] = (((SIDSysexParameterControlGUI)inst2.elementAt(43)).getMidiParameter());			
-		config[1][1] = (((SIDSysexParameterControlGUI)inst2.elementAt(45)).getMidiParameter());
-		config[1][2] = (((SIDSysexParameterControlGUI)inst2.elementAt(46)).getMidiParameter());
-		config[2][0] = (((SIDSysexParameterControlGUI)inst3.elementAt(43)).getMidiParameter());			
-		config[2][1] = (((SIDSysexParameterControlGUI)inst3.elementAt(45)).getMidiParameter());
-		config[2][2] = (((SIDSysexParameterControlGUI)inst3.elementAt(46)).getMidiParameter());
-		config[3][0] = (((SIDSysexParameterControlGUI)inst4.elementAt(43)).getMidiParameter());			
-		config[3][1] = (((SIDSysexParameterControlGUI)inst4.elementAt(45)).getMidiParameter());
-		config[3][2] = (((SIDSysexParameterControlGUI)inst4.elementAt(46)).getMidiParameter());
-		config[4][0] = (((SIDSysexParameterControlGUI)inst5.elementAt(43)).getMidiParameter());			
-		config[4][1] = (((SIDSysexParameterControlGUI)inst5.elementAt(45)).getMidiParameter());
-		config[4][2] = (((SIDSysexParameterControlGUI)inst5.elementAt(46)).getMidiParameter());
-		config[5][0] = (((SIDSysexParameterControlGUI)inst6.elementAt(43)).getMidiParameter());			
-		config[5][1] = (((SIDSysexParameterControlGUI)inst6.elementAt(45)).getMidiParameter());
-		config[5][2] = (((SIDSysexParameterControlGUI)inst6.elementAt(46)).getMidiParameter());
+		config[0][0] = (((SIDSysexParameterControlGUI)inst1.elementAt(45)).getMidiParameter());			
+		config[0][1] = (((SIDSysexParameterControlGUI)inst1.elementAt(47)).getMidiParameter());
+		config[0][2] = (((SIDSysexParameterControlGUI)inst1.elementAt(48)).getMidiParameter());
+		config[1][0] = (((SIDSysexParameterControlGUI)inst2.elementAt(45)).getMidiParameter());			
+		config[1][1] = (((SIDSysexParameterControlGUI)inst2.elementAt(47)).getMidiParameter());
+		config[1][2] = (((SIDSysexParameterControlGUI)inst2.elementAt(48)).getMidiParameter());
+		config[2][0] = (((SIDSysexParameterControlGUI)inst3.elementAt(45)).getMidiParameter());			
+		config[2][1] = (((SIDSysexParameterControlGUI)inst3.elementAt(47)).getMidiParameter());
+		config[2][2] = (((SIDSysexParameterControlGUI)inst3.elementAt(48)).getMidiParameter());
+		config[3][0] = (((SIDSysexParameterControlGUI)inst4.elementAt(45)).getMidiParameter());			
+		config[3][1] = (((SIDSysexParameterControlGUI)inst4.elementAt(47)).getMidiParameter());
+		config[3][2] = (((SIDSysexParameterControlGUI)inst4.elementAt(48)).getMidiParameter());
+		config[4][0] = (((SIDSysexParameterControlGUI)inst5.elementAt(45)).getMidiParameter());			
+		config[4][1] = (((SIDSysexParameterControlGUI)inst5.elementAt(47)).getMidiParameter());
+		config[4][2] = (((SIDSysexParameterControlGUI)inst5.elementAt(48)).getMidiParameter());
+		config[5][0] = (((SIDSysexParameterControlGUI)inst6.elementAt(45)).getMidiParameter());			
+		config[5][1] = (((SIDSysexParameterControlGUI)inst6.elementAt(47)).getMidiParameter());
+		config[5][2] = (((SIDSysexParameterControlGUI)inst6.elementAt(48)).getMidiParameter());
 		panel1.add(createWTC2(WTGUIv,config,"Wavetable data"));
 		
 	    this.add(panel1, BorderLayout.NORTH);

@@ -262,7 +262,8 @@ public class WTTable extends JPanel implements TableModelListener, Observer, Mou
 			s = Integer.toString(i);
 			break;			
 		case 1:	// Hexadecimal
-			s = Integer.toHexString(i);
+			s = "00" + Integer.toHexString(i).toUpperCase();
+			s = s.substring(s.length()-2);
 			break;
 		case 2: // Note view
 			s = Integer.toString(i);		

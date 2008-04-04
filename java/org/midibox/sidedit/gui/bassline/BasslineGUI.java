@@ -68,6 +68,7 @@ public class BasslineGUI extends JPanel {
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+		link();
 	}
 	
 	protected Vector createGUIs(SIDEditController sidEditController) {

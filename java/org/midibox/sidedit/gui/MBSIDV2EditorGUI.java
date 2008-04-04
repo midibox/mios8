@@ -109,7 +109,7 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListene
 		this.sidEditController = sidEditController;
 		sidEditController.setTooltipListener(this);
 		Patch p = sidEditController.getPatch();
-		linkButton.setSelected(false);
+		linkButton.setSelected(true);
 		setTooltip("");
 		core1Button.setSelected(p.getCore(0));
 		core2Button.setSelected(p.getCore(1));

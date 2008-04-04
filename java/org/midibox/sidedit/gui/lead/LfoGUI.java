@@ -113,32 +113,7 @@ public class LfoGUI extends JPanel{
 	
 		return lfoPanel;
 	}
-	/*
-	protected JPanel createLFO(Vector midiParameterGUI, String s, int offset) {
-		JPanel lfoPanel = new JPanel();
-		lfoPanel.setLayout(new BoxLayout(lfoPanel, BoxLayout.X_AXIS));
-		lfoPanel.setBorder(BorderFactory.createEtchedBorder());
-		lfoPanel.setBorder(BorderFactory.createTitledBorder(s));
-		lfoPanel.setOpaque(false);	
-		
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(0+offset));
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(3+offset));
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(4+offset));
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(5+offset));
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(6+offset));
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(7+offset));
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(1+offset));
-		
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(2+offset));
-		lfoPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(8+offset));
-		
-		// Setup the 'rate'-knob behavior to be depending on the 'master sync' switch
-		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(5+offset)).setSnapvals(snapvals);
-		((SIDSysexParameterControlToggleButton)midiParameterGUI.elementAt(1+offset)).setSnapParameter((SIDSysexParameterControlGUI)midiParameterGUI.elementAt(5+offset));
-		
-		return lfoPanel;
-	}
-	*/
+	
 	protected JPanel createENV(Vector midiParameterGUI, String s) {
 		JPanel envTopPanel = new JPanel();
 		envTopPanel.setLayout(new BoxLayout(envTopPanel, BoxLayout.Y_AXIS));

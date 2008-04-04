@@ -184,7 +184,7 @@ public class SysExController extends Observable implements Receiver, ActionListe
 			timer.restart();
 			progress.setProgress(tempCount);
 			
-                        if( (m.substring(m.length() - 2).equalsIgnoreCase("F7")) && (tempCount == tempSyx.length-1) ) {
+            if( (m.substring(m.length() - 2).equalsIgnoreCase("F7")) && (tempCount == tempSyx.length-1) ) {
 				stopRequest();				
 				parseSysex();
 			}	
