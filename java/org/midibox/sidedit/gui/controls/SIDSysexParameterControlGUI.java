@@ -158,28 +158,50 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer, Act
 		midiParameter.useAlias = b;
 	}
 	
-	public void setSnap(boolean b) {
-		if (b) {						// Turn on snap
-			midiParameter.useAlias = true;
-			midiParameter.snap = true;	
-			midiParameter.setMidiValue(midiParameter.snapvals[0], true);		
-			for (int c = 0; c < midiParameters.size(); c++) {
-				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
-				mp.snap = true;
-				mp.useAlias = true;
-				mp.setMidiValue(midiParameter.snapvals[0], true);
+	private boolean snapExist(int i) {
+		boolean b = false;
+		for(int c=0;c<midiParameter.snapvals.length;c++) {
+			if (midiParameter.snapvals[c]==i) {
+				b = true;
+				break;
 			}
-		} else {						// Turn off snap
+		}
+		return b;
+	}
+	
+	public void setSnap(boolean b) {
+		if (b) {		// Turn on snap
+			midiParameter.useAlias = true;
+			midiParameter.snap = true;			
+			
+			if (!snapExist(midiParameter.getMidiValue())) {		// If current midi value is not part of the snap values reset to snapvals[0];
+				midiParameter.setMidiValue(midiParameter.snapvals[0], true);		
+				for (int c = 0; c < midiParameters.size(); c++) {
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+					mp.snap = true;
+					mp.useAlias = true;
+					mp.setMidiValue(midiParameter.snapvals[0], true);					
+				}
+			} else {											// Keep current midi value, only update labels
+				for (int c = 0; c < midiParameters.size(); c++) {
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+					mp.snap = true;
+					mp.useAlias = true;		
+					mp.setMidiValue(midiParameter.snapvals[midiParameter.getMidiValue()], false);		
+				}
+				updateGraphics();
+			}
+			
+		} else {		// Turn off snap
 			midiParameter.useAlias = false;
-			midiParameter.snap = false;
-			int newval = midiParameter.getMidiMinValue();
-			midiParameter.setMidiValue(newval, true);		
+			midiParameter.snap = false;					
 			for (int c = 0; c < midiParameters.size(); c++) {
 				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
 				mp.snap = false;
 				mp.useAlias = false;
-				mp.setMidiValue(newval, true);
-			}			
+				mp.setMidiValue(midiParameter.snapvals[midiParameter.getMidiValue()], false);	
+			}	
+			updateGraphics();
 		}
 	}
 
@@ -193,8 +215,7 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer, Act
 		}
 		else {
 			newval = (midiParameter.getValAlias())[Integer.valueOf(valueBuffer.toString())];
-		}		
-		
+		}
 		valueField.setText(newval);
 	}
 	

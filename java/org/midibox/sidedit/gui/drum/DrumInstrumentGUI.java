@@ -52,21 +52,21 @@ public class DrumInstrumentGUI extends JPanel{
 		
 		if (!second) {
 			panel1.add(createVoice(V1GUIv,"Drum 1 (ch1 primary)", 0));
-			panel1.add(createVoice(V1GUIv,"Drum 2 (ch2 primary)", 11));
-			panel1.add(createVoice(V1GUIv,"Drum 3 (ch3 primary)", 22));
-			panel1.add(createVoice(V1GUIv,"Drum 4 (ch4 primary)", 33));
-			panel1.add(createVoice(V1GUIv,"Drum 5 (ch5 primary)", 44));
-			panel1.add(createVoice(V1GUIv,"Drum 6 (ch6 primary)", 55));
-			panel1.add(createVoice(V1GUIv,"Drum 7 (ch7 primary)", 66));
-			panel1.add(createVoice(V1GUIv,"Drum 8 (ch8 primary)", 77));
+			panel1.add(createVoice(V1GUIv,"Drum 2 (ch1 seconday)", 11));
+			panel1.add(createVoice(V1GUIv,"Drum 3 (ch2 primary)", 22));
+			panel1.add(createVoice(V1GUIv,"Drum 4 (ch2 seconday)", 33));
+			panel1.add(createVoice(V1GUIv,"Drum 5 (ch3 primary)", 44));
+			panel1.add(createVoice(V1GUIv,"Drum 6 (ch3 seconday)", 55));
+			panel1.add(createVoice(V1GUIv,"Drum 7 (ch4 primary)", 66));
+			panel1.add(createVoice(V1GUIv,"Drum 8 (ch4 seconday)", 77));
 		} else {
-			panel1.add(createVoice(V1GUIv,"Drum 9 (ch1 seconday)", 88));
-			panel1.add(createVoice(V1GUIv,"Drum 10 (ch2 seconday)", 99));
-			panel1.add(createVoice(V1GUIv,"Drum 11 (ch3 seconday)", 110));
-			panel1.add(createVoice(V1GUIv,"Drum 12 (ch4 seconday)", 121));
-			panel1.add(createVoice(V1GUIv,"Drum 13 (ch5 seconday)", 132));
-			panel1.add(createVoice(V1GUIv,"Drum 14 (ch6 seconday)", 143));
-			panel1.add(createVoice(V1GUIv,"Drum 15 (ch7 seconday)", 154));
+			panel1.add(createVoice(V1GUIv,"Drum 9 (ch5 primary)", 88));
+			panel1.add(createVoice(V1GUIv,"Drum 10 (ch5 seconday)", 99));
+			panel1.add(createVoice(V1GUIv,"Drum 11 (ch6 primary)", 110));
+			panel1.add(createVoice(V1GUIv,"Drum 12 (ch6 seconday)", 121));
+			panel1.add(createVoice(V1GUIv,"Drum 13 (ch7 primary)", 132));
+			panel1.add(createVoice(V1GUIv,"Drum 14 (ch7 seconday)", 143));
+			panel1.add(createVoice(V1GUIv,"Drum 15 (ch8 primary)", 154));
 			panel1.add(createVoice(V1GUIv,"Drum 16 (ch8 seconday)", 165));
 		}
 		panel.add(panel1);
