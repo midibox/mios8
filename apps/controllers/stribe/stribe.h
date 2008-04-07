@@ -30,8 +30,8 @@ typedef union {
   };
   struct {
     unsigned LED_UPDATE_REQ:1;  // requests a LED update
-    unsigned TRACE_MODE:1;      // nice looking trace mode
-    unsigned TRACE_MASK:2;      // mask for left/right bar (bit 0: left side, bit 1: right side)
+    unsigned TRAIL_MODE:1;      // nice looking trail mode
+    unsigned TRAIL_MASK:2;      // mask for left/right bar (bit 0: left side, bit 1: right side)
     unsigned TIMER_TOGGLE:1;    // toggle flag for timer routine
   };
 } stribe_flags_t;
@@ -55,6 +55,6 @@ extern void STRIBE_SetPan(unsigned char stribe, unsigned char lr, unsigned char 
 /////////////////////////////////////////////////////////////////////////////
 
 extern stribe_flags_t stribe_flags;
-extern unsigned char stribe_trace_delay;
+extern unsigned char stribe_trail_delay;
 
 #endif /* _STRIBE_H */

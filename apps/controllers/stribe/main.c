@@ -50,8 +50,8 @@ void Init(void) __wparam
 {
   // initialize LED drivers
   STRIBE_Init();
-  stribe_flags.TRACE_MODE = 1;
-  stribe_flags.TRACE_MASK = 3; // (trace only on right bar))
+  stribe_flags.TRAIL_MODE = 1;
+  stribe_flags.TRAIL_MASK = 3; // (trail on both bars))
 
   // initialize timer
   MIOS_TIMER_Init(0x00, 50000); // 5 mS period
@@ -85,7 +85,7 @@ void Timer(void) __wparam
 {
   unsigned char i;
 
-  // handle trace counters
+  // handle trail counters
   STRIBE_Timer();
 
   // handle AIN filter counters
@@ -160,16 +160,16 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
         case 0x79: // CC#121 sets filter delay
 	  ain_filter_delay = evnt2; // *5 mS
 	  break;
-        case 0x7a: // CC#122 sets trace delay
+        case 0x7a: // CC#122 sets trail delay
 	  if( evnt2 > 0 ) {
-	    stribe_flags.TRACE_MODE = 1;
-	    stribe_trace_delay = evnt2;
+	    stribe_flags.TRAIL_MODE = 1;
+	    stribe_trail_delay = evnt2;
 	  } else {
-	    stribe_flags.TRACE_MODE = 0;
+	    stribe_flags.TRAIL_MODE = 0;
 	  }
 	  break;
-        case 0x7b: // CC#123 sets trace mask
-	  stribe_flags.TRACE_MASK = evnt2 & 3;
+        case 0x7b: // CC#123 sets trail mask
+	  stribe_flags.TRAIL_MASK = evnt2 & 3;
 	  break;
       }
     }
@@ -309,7 +309,7 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
     MIOS_MIDI_EndStream();
 
     // display cursor at stribe LEDs
-    STRIBE_SetDot(pin, stribe_flags.TRACE_MODE ? stribe_flags.TRACE_MASK : 3, MIOS_AIN_Pin7bitGet(pin) >> 1);
+    STRIBE_SetDot(pin, stribe_flags.TRAIL_MODE ? stribe_flags.TRAIL_MASK : 3, MIOS_AIN_Pin7bitGet(pin) >> 1);
 
     // preload conversion counter with filter delay value (e.g. 20 results into 100 mS delay)
     last_conv_ctr[pin] = ain_filter_delay;

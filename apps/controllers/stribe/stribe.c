@@ -35,11 +35,11 @@ stribe_flags_t stribe_flags;
 // Local variables
 /////////////////////////////////////////////////////////////////////////////
 
-unsigned char stribe_trace_delay;
-unsigned char trace_ctr_l[4*64]; // traces of 4 left stribes
-unsigned char trace_ctr_r[4*64]; // traces of 4 right stribes
+unsigned char stribe_trail_delay;
+unsigned char trail_ctr_l[4*64]; // trails of 4 left stribes
+unsigned char trail_ctr_r[4*64]; // trails of 4 right stribes
 
-unsigned char previous_value[8]; // previous values (will be cleared with delay in trace mode)
+unsigned char previous_value[8]; // previous values (will be cleared with delay in trail mode)
 
 /////////////////////////////////////////////////////////////////////////////
 // Initializes the Stribe LEDs
@@ -49,9 +49,9 @@ void STRIBE_Init(void) __wparam
   // initialize LED drivers
   MAX72XX_Init();
 
-  stribe_flags.TRACE_MODE = 0; // by default disabled
-  stribe_flags.TRACE_MASK = 3; // if enabled: trace on left and right bar
-  stribe_trace_delay = 25;     // * 10 mS
+  stribe_flags.TRAIL_MODE = 0; // by default disabled
+  stribe_flags.TRAIL_MASK = 3; // if enabled: trail on left and right bar
+  stribe_trail_delay = 15;     // * 10 mS
 }
 
 
@@ -74,14 +74,14 @@ void STRIBE_Tick(void) __wparam
 
 /////////////////////////////////////////////////////////////////////////////
 // This function should be called periodically (e.g. each mS) to handle
-// the trace mode
+// the trail mode
 /////////////////////////////////////////////////////////////////////////////
 void STRIBE_Timer(void) __wparam
 {
   unsigned char i;
 
-  // exit if not in trace mode
-  if( !stribe_flags.TRACE_MODE )
+  // exit if not in trail mode
+  if( !stribe_flags.TRAIL_MODE )
     return;
 
   // decrement counters if != 0, turn LED off once counter reached 0
@@ -92,9 +92,9 @@ void STRIBE_Timer(void) __wparam
     stribe_flags.TIMER_TOGGLE = 0;
     i=0;
     do {
-      if( trace_ctr_l[i] ) {
-	if( !--trace_ctr_l[i] ) {
-	  max72xx_digits[i >> 2] &= ~(stribe_flags.TRACE_MASK << ((i&3)<<1));
+      if( trail_ctr_l[i] ) {
+	if( !--trail_ctr_l[i] ) {
+	  max72xx_digits[i >> 2] &= ~(stribe_flags.TRAIL_MASK << ((i&3)<<1));
 	  stribe_flags.LED_UPDATE_REQ = 1;
 	}
       }
@@ -103,9 +103,9 @@ void STRIBE_Timer(void) __wparam
     stribe_flags.TIMER_TOGGLE = 1;
     i=0;
     do {
-      if( trace_ctr_r[i] ) {
-	if( !--trace_ctr_r[i] ) {
-	  max72xx_digits[64 + (i >> 2)] &= ~(stribe_flags.TRACE_MASK << ((i&3)<<1));
+      if( trail_ctr_r[i] ) {
+	if( !--trail_ctr_r[i] ) {
+	  max72xx_digits[64 + (i >> 2)] &= ~(stribe_flags.TRAIL_MASK << ((i&3)<<1));
 	  stribe_flags.LED_UPDATE_REQ = 1;
 	}
       }
@@ -156,7 +156,7 @@ void STRIBE_SetDot(unsigned char stribe, unsigned char lr, unsigned char value) 
   and_mask = ~or_mask;
   offset = ((stribe&4)<<4);
 
-  if( stribe_flags.TRACE_MODE ) {
+  if( stribe_flags.TRAIL_MODE ) {
     INTCONbits.GIE = 0; // temporary disable IRQs to avoid clash with STRIBE_Timer()
 
     // set new LED
@@ -164,17 +164,17 @@ void STRIBE_SetDot(unsigned char stribe, unsigned char lr, unsigned char value) 
 
     // clear counter of current value (to ensure that LED won't be cleared by accident)
     if( stribe < 4 ) {
-      trace_ctr_l[(stribe&3) + ((63-value)<<2)] = 0;
+      trail_ctr_l[(stribe&3) + ((63-value)<<2)] = 0;
     } else {
-      trace_ctr_r[(stribe&3) + ((63-value)<<2)] = 0;
+      trail_ctr_r[(stribe&3) + ((63-value)<<2)] = 0;
     }
 
     // clear previous LED with delay
     if( value != previous_value[stribe] ) {
       if( stribe < 4 ) {
-	trace_ctr_l[(stribe&3) + ((63-previous_value[stribe])<<2)] = stribe_trace_delay;
+	trail_ctr_l[(stribe&3) + ((63-previous_value[stribe])<<2)] = stribe_trail_delay;
       } else {
-	trace_ctr_r[(stribe&3) + ((63-previous_value[stribe])<<2)] = stribe_trace_delay;
+	trail_ctr_r[(stribe&3) + ((63-previous_value[stribe])<<2)] = stribe_trail_delay;
       }
       previous_value[stribe] = value;
     }
