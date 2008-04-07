@@ -794,35 +794,108 @@ SID_SYSEX_WritePar
 
 	;; branch depending on type
 	movf	SID_SYSEX_TYPE, W, BANKED
-	andlw	0xf7		; mask out "RAM" flag
+	andlw	0xf0		; mask out "RAM" and "WOPT" flags
 	bz	SID_SYSEX_WritePar_I
 	xorlw	0x70
-	bz	SID_SYSEX_WritePar_E
+	skpnz
+	rgoto	SID_SYSEX_WritePar_E
 	rgoto	SID_SYSEX_WritePar_Fail
 
 	;; write instrument parameter (patch)
 SID_SYSEX_WritePar_I
-	;; transfer value (stored in SID_SYSEX_CHECKSUM) into patch buffer
+	;; initial patch address
 	lfsr	FSR1, SID_PATCH_BUFFER
+
+	;; no address checks if WOPT == 0(see doc/mbsidv2_sysex_implementation.txt)
+	movf	SID_SYSEX_TYPE, W, BANKED
+	andlw	0xf3
+	bz	SID_SYSEX_WritePar_I_Single	; WOPT == 0
+
+	;; for all engines and all WOPTS (note: specification only allows WOPT==1 here)
+	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	bnz	SID_SYSEX_WritePar_I_Eng
+
+	;; check for external range 0x040..0x04f
 	movf	SID_SYSEX_ADDRESS_L, W, BANKED
-	addwf	FSR1L, F	; (PLUSW1 not working here due to address >= 0x80)
+	andlw	0xf0
+	xorlw	0x40
+	skpnz
+	rgoto	SID_SYSEX_WritePar_I_Ext
+
+	;; check for filter range 0x054..0x05f
+	movlw	0x54-1
+	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
+	rgoto	SID_SYSEX_WritePar_I_NoFil
+	movlw	0x5f
+	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
+	rgoto	SID_SYSEX_WritePar_I_Fil
+SID_SYSEX_WritePar_I_NoFil
+
+	;; engine specific checks
+SID_SYSEX_WritePar_I_Eng
+	movlw	SID_Ix_ENGINE
+	movf	PLUSW1, W
+	andlw	0x03
+	bz	SID_SYSEX_WritePar_I_L
+	addlw	-1
+	bz	SID_SYSEX_WritePar_I_B
+	addlw	-1
+	bz	SID_SYSEX_WritePar_I_D
+	rgoto	SID_SYSEX_WritePar_I_M
+
+SID_SYSEX_WritePar_I_L
+	;; check for target assignment range 0x104..0x105
+	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	bz	SID_SYSEX_WritePar_I_L_NoMTarg
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	andlw	0xfe
+	xorlw	0x04
+	bnz	SID_SYSEX_WritePar_I_L_NoMTarg
+	rgoto	SID_SYSEX_WritePar_I_MTarg
+SID_SYSEX_WritePar_I_L_NoMTarg
+	;; check for voice range 0x060..0x0bf
+	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	bnz	SID_SYSEX_WritePar_I_L_NoV
+	movlw	0x60-1
+	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
+	rgoto	SID_SYSEX_WritePar_I_L_NoV
+	movlw	0xbf
+	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
+	rgoto	SID_SYSEX_WritePar_I_LVoice
+SID_SYSEX_WritePar_I_L_NoV
+	rgoto	SID_SYSEX_WritePar_I_Single
+
+
+SID_SYSEX_WritePar_I_B
+	;; check for voice range 0x060..0x0ff
+	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	bnz	SID_SYSEX_WritePar_I_B_NoV
+	movlw	0x60-1
+	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
+	rgoto	SID_SYSEX_WritePar_I_B_NoV
+	rgoto	SID_SYSEX_WritePar_I_BVoice
+SID_SYSEX_WritePar_I_B_NoV
+	rgoto	SID_SYSEX_WritePar_I_Single
+
+
+SID_SYSEX_WritePar_I_D
+	rgoto	SID_SYSEX_WritePar_I_Single
+
+
+SID_SYSEX_WritePar_I_M
+	rgoto	SID_SYSEX_WritePar_I_Single
+
+
+SID_SYSEX_WritePar_I_Single
+	;; transfer single value (stored in SID_SYSEX_CHECKSUM) into patch buffer
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	addwf	FSR1L, F
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
 	addwfc	FSR1H, F
-	movff	SID_SYSEX_DATA, INDF1
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	;; 	rgoto	SID_SYSEX_WritePar_I_End
 
-	;; transfer to shadow buffer as well
-	movlw	HIGH(SID_PATCH_BUFFER_SHADOW)-HIGH(SID_PATCH_BUFFER)
-	addwf	FSR1H, F
-	movff	SID_SYSEX_DATA, INDF1
-
-	;; transfer value to edit buffer as well if master selected
-	movf	CS_MENU_EDIT_BUFFER_SID, W
-	bnz	SID_SYSEX_End_PAR_Write_NoMS
-SID_SYSEX_End_PAR_Write_MS
-	movlw	HIGH(SID_EDIT_BUFFER)-HIGH(SID_PATCH_BUFFER_SHADOW)
-	addwf	FSR1H, F
-	movff	SID_SYSEX_DATA, INDF1
-SID_SYSEX_End_PAR_Write_NoMS
+SID_SYSEX_WritePar_I_End
 	rgoto	SID_SYSEX_WritePar_End
 
 
@@ -917,7 +990,153 @@ SID_SYSEX_WritePar_Fail
 
 
 ;; --------------------------------------------------------------------------
-;;  This function sets the patch number if SID_SYSEX_TYPE == 0 and the
+;; this help function is called to modify a single byte in patch structure
+SID_SYSEX_WritePar_I_Hlp
+	movff	SID_SYSEX_DATA, INDF1
+
+	;; transfer to shadow buffer as well
+	movlw	HIGH(SID_PATCH_BUFFER_SHADOW)-HIGH(SID_PATCH_BUFFER)
+	addwf	FSR1H, F
+	movff	SID_SYSEX_DATA, INDF1
+	movlw	HIGH(SID_PATCH_BUFFER)-HIGH(SID_PATCH_BUFFER_SHADOW)
+	addwf	FSR1H, F
+
+	;; transfer value to edit buffer as well if master selected
+	movf	CS_MENU_EDIT_BUFFER_SID, W
+	bnz	SID_SYSEX_WritePar_I_Hlp_NoMS
+SID_SYSEX_WritePar_I_Hlp_MS
+	movlw	HIGH(SID_EDIT_BUFFER)-HIGH(SID_PATCH_BUFFER)
+	addwf	FSR1H, F
+	movff	SID_SYSEX_DATA, INDF1
+	movlw	HIGH(SID_PATCH_BUFFER)-HIGH(SID_EDIT_BUFFER)
+	addwf	FSR1H, F
+SID_SYSEX_WritePar_I_Hlp_NoMS
+	return
+
+
+;; --------------------------------------------------------------------------
+;; some additional help functions for the available WOPTs
+SID_SYSEX_WritePar_I_Ext
+	;; range 0x040..0x04f, share EXT1/2, EXT3/4, EXT5/6, EXT7/8
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	andlw	0xfd
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	movlw	2
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	rgoto	SID_SYSEX_WritePar_I_End
+
+;; ---
+SID_SYSEX_WritePar_I_Fil
+	;; range 0x054..0x05f, share FIL1/2
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	addlw	-0x54
+	btfsc	WREG, 7
+	addlw	6
+	addlw	0x54
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	movlw	6
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	rgoto	SID_SYSEX_WritePar_I_End
+
+;; ---
+SID_SYSEX_WritePar_I_MTarg
+	;; range 0x104/105: copy to L/R register
+	movlw	0x04
+	addwf	FSR1L, F
+	movlw	0x01
+	addwfc	FSR1H, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	incf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	rgoto	SID_SYSEX_WritePar_I_End
+
+;; ---
+SID_SYSEX_WritePar_I_LVoice
+	;; branch depending on WOPT
+	movf	SID_SYSEX_TYPE, W, BANKED
+	andlw	0xf3
+	addlw	-1
+	bz	SID_SYSEX_WritePar_I_LVoice_1	; WOPT == 1
+	addlw	-1
+	bz	SID_SYSEX_WritePar_I_LVoice_2	; WOPT == 2
+	addlw	-1
+	bz	SID_SYSEX_WritePar_I_LVoice_3	; WOPT == 3
+	return					; invalid WOPT
+SID_SYSEX_WritePar_I_LVoice_1
+	;; range 0x060..0x0bf, share Voice1/4, Voice2/5, Voice 3/6
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	addlw	-0x60
+	btfsc	WREG, 7
+	addlw	0x30
+	addlw	0x60
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	movlw	0x30
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	rgoto	SID_SYSEX_WritePar_I_End
+
+SID_SYSEX_WritePar_I_LVoice_2
+	;; range 0x060..0x0bf, share Voice1/2/3, Voice4/5/6
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	andlw	0x0f
+	addlw	0x60
+	addwf	FSR1L, F
+	movlw	0x90-1
+	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
+	rgoto	SID_SYSEX_WritePar_I_LVoice_2_L
+SID_SYSEX_WritePar_I_LVoice_2_U
+	movlw	0x30
+	addwf	FSR1L, F
+SID_SYSEX_WritePar_I_LVoice_2_L
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	movlw	0x10
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	movlw	0x10
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	rgoto	SID_SYSEX_WritePar_I_End
+
+SID_SYSEX_WritePar_I_LVoice_3
+	;; range 0x060..0x0bf, share Voice1-6
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	andlw	0x0f
+	addlw	0x60
+	addwf	FSR1L, F
+	
+	movlw	6		; loop counter
+	movwf	PRODL
+SID_SYSEX_WritePar_I_LVoice_3_L;oop
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	movlw	0x10
+	addwf	FSR1L, F
+	decfsz	PRODL, F
+	rgoto	SID_SYSEX_WritePar_I_LVoice_3_L;oop
+	rgoto	SID_SYSEX_WritePar_I_End
+
+;; ---
+SID_SYSEX_WritePar_I_BVoice
+	;; range 0x060..0x0ff, share VoiceL/R
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	addlw	-0x60
+	btfsc	WREG, 7
+	addlw	0x50
+	addlw	0x60
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	movlw	0x50
+	addwf	FSR1L, F
+	rcall	SID_SYSEX_WritePar_I_Hlp
+	rgoto	SID_SYSEX_WritePar_I_End
+
+
+;; --------------------------------------------------------------------------
+;;  This function sets the patch number if SID_SYSEX_TYPE&0xf0 == 0 and the
 ;;  ensemble if SID_SYSEX_TYPE == 0x70
 ;;  IN: type in SID_SYSEX_TYPE
 ;;      bank in SID_BANK
@@ -942,7 +1161,7 @@ SID_SYSEX_SetPatch_Bank0
 
 	;; branch depending on type
 	movf	SID_SYSEX_TYPE, W, BANKED
-	andlw	0xf7		; mask out "RAM" flag
+	andlw	0xf0		; mask out "RAM" and "WOPT" flags
 	bz	SID_SYSEX_SetPatch_I
 	xorlw	0x70
 	bz	SID_SYSEX_SetPatch_E
@@ -986,7 +1205,7 @@ SID_SYSEX_ChangePatch
 
 	;; branch depending on patch type
 	movf	SID_SYSEX_TYPE, W, BANKED
-	andlw	0xf7		; mask out "RAM" flag
+	andlw	0xf0		; mask out "RAM" and "WOPT" flags
 	bz	SID_SYSEX_ChangePatch_I
 	xorlw	0x70
 	bz	SID_SYSEX_ChangePatch_E
@@ -1027,6 +1246,7 @@ SID_SYSEX_Check_BS_Size
 	SET_BSR	SID_BASE
 
 	movf	SID_SYSEX_TYPE, W, BANKED		; check SysEx type (only patch and non-RAM for interest)
+	andlw	0xf8
 	bnz	SID_SYSEX_Check_BS_Size_Ok
 	movf	SID_PATCH, W				; check if patch >= 64
 	andlw	0xc0
