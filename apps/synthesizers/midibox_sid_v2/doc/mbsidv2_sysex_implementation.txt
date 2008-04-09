@@ -61,8 +61,26 @@ Implemented SysEx Commands
         Ensemble address: (<AH> << 7) | <AL>
 
 
+  0C/a) F0 00 00 7E 4B <device-number> 0C 00 <sids> F7
+        This command is only available for the SID master core. A SID slave
+        core will respond with "invalid command"
+
+        Selects the SID cores with a binary mask, to which the upcoming SysEx 
+        commands should be forwarded. Examples:
+           <sids> == 0x01: SID1
+           <sids> == 0x02: SID2
+           <sids> == 0x04: SID3
+           <sids> == 0x08: SID4
+           <sids> == 0x0f: SID1+SID2+SID3+SID4
+           <sids> == 0x05: SID1+SID3
+           etc.
+        With <sids> == 0x00, SID1 will be selected (like 0x01)
+        By checking the acknowledge response message, it is possible
+        to determine which cores are connected to the master core.
+
+
   0F/a) F0 00 00 7E 4B <device number> 0F F7
-        Ping (just sends back the same SysEx string)
+        Ping (just sends back the same SysEx string + <sids>)
 
 
 
@@ -70,7 +88,20 @@ Response Messages
 ~~~~~~~~~~~~~~~~~
 
    Acknowledge:
-      F0 00 00 7E 4B <device> 0F F7
+      F0 00 00 7E 4B <device> 0F <sids> F7
+
+      Master SID (Device ID 00)
+        <sids>: contains flags for the SID cores which have processed the
+        previous SysEx string successfully.
+
+        Note that the destination SIDs can be selected with ...0C 00 <sids>...
+        If SID cores are not available, or have been disconnected during
+        runtime, the appr. flags in the acknowledge response are automatically
+        cleared to notify about this
+
+     Slave SID (Device ID 01, 02, 03)
+        <sids> is always 00
+
 
    DisAcknowledge (Error)
       F0 00 00 7E 4B <device> 0E <error-code> F7
@@ -80,6 +111,7 @@ Response Messages
          03 == wrong checksum
          0a == bankstick or patch/drumset/ensemble not available
          0b == parameter not available
+         0c == invalid command
          10 == RAM access not supported
          11 == BankStick too small (only 32k BS connected, patch number >= 64)
 

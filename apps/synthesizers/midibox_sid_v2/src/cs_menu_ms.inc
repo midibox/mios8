@@ -51,6 +51,8 @@ CS_MENU_MS_UpdateEditBuffer
 	movff	CS_MENU_SID, CS_MENU_EDIT_BUFFER_SID
 
 CS_MENU_MS_UpdateEditBufferNow
+	movff	CS_MENU_EDIT_BUFFER_SID, CS_MENU_SID
+
 	;; transfer patch into buffer
 	;; master: copy SID_PATCH_BUFFER to SID_EDIT_BUFFER
 	;; slave: request and transfer patch content via CAN

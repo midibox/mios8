@@ -123,9 +123,14 @@ USER_Init_PIC_Ok
 
 
 	;; initialize application specific variables
-	clrf	SID_SYSEX_STATE
-	clrf	SID_SYSEX_ACTION
-	setf	SID_BANKSTICK_CHK_CTR	; (we have to start with BS0 in SID_BANK_CheckStick)
+	SET_BSR	SID_BASE
+	clrf	SID_SYSEX_STATE, BANKED
+
+	movlw	0x01
+	movff	WREG, SYX_SID_SELECTION
+
+	;; we have to start with BS0 in SID_BANK_CheckStick)
+	setf	SID_BANKSTICK_CHK_CTR
 	
         ;; Initialize Clock Generator (the PWM unit is used to generate a 1MHz clock with 1:1 duty cycle)
         movlw   0x09

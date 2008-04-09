@@ -873,16 +873,27 @@ CS_MENU_MBNET_Tx_SendPatch_IntLI
 
 
 ;; --------------------------------------------------------------------------
+;;  sends the patch buffer to a given slave
+;;  IN: slave target in CS_MENU_SID
+;; --------------------------------------------------------------------------
+CS_MENU_MBNET_Tx_SendPBuffer
+	lfsr	FSR0, SID_PATCH_BUFFER		; source location
+	rgoto	CS_MENU_MBNET_Tx_SendPBufferCont
+
+
+;; --------------------------------------------------------------------------
 ;;  sends the edit buffer to a given slave
 ;;  IN: slave target in CS_MENU_SID
 ;; --------------------------------------------------------------------------
 CS_MENU_MBNET_Tx_SendEdit
+	lfsr	FSR0, SID_EDIT_BUFFER		; source location
+CS_MENU_MBNET_Tx_SendPBufferCont
+
 	;; lock receive handler
 	call	CS_MENU_MBNET_Tx_LockSlaveRx
 	bnz	CS_MENU_MBNET_Tx_SendEdit_Abort	; abort if slave not available (branch to UnlockRx to give slave a chance to recover)
 
 	;; optimized Edit buffer->CAN->Slave Patch Buffer transfer
-	lfsr	FSR0, SID_EDIT_BUFFER		; source location
 	clrf	EEADR				; used as loop counter
 	clrf	EEADRH
 CS_MENU_MBNET_Tx_SendEdit_IntLO

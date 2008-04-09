@@ -27,10 +27,13 @@ SID_SYSEX_STATE2_AL_RECEIVED	EQU	2	; used by Action PAR_[Read/Write]
 SID_SYSEX_STATE2_DL_RECEIVED	EQU	3	; used by Action PAR_[Write]
 SID_SYSEX_STATE2_DH_RECEIVED	EQU	4	; used by Action PAR_[Write]
 
+SID_SYSEX_STATE2_CMDBYTE_RECEIVED EQU	1	; used by Action CMD
+
 SID_DISACK_LESS_BYTES_THAN_EXP	EQU     0x01
 SID_DISACK_WRONG_CHECKSUM	EQU     0x03
 SID_DISACK_BS_NOT_AVAILABLE	EQU	0x0a
 SID_DISACK_PAR_NOT_AVAILABLE	EQU	0x0b
+SID_DISACK_INVALID_COMMAND	EQU	0x0c
 SID_DISACK_NO_RAM_ACCESS	EQU	0x10
 SID_DISACK_BS_TOO_SMALL		EQU	0x11
 
@@ -104,7 +107,6 @@ SID_SYSEX_ActionFinished
 	SET_BSR	SID_BASE
 	clrf	SID_SYSEX_STATE, BANKED
 	clrf	SID_SYSEX_STATE2, BANKED
-	clrf	SID_SYSEX_ACTION, BANKED
 
 	call	MIOS_MPROC_MergerEnable
 	rgoto	SID_SYSEX_SysExCheck_End
@@ -120,7 +122,9 @@ SID_SYSEX_Handler
 	BRA_IFSET SID_SYSEX_STATE, SID_SYSEX_STATE_ACTION, BANKED, SID_SYSEX_Handler_NotBegin
 SID_SYSEX_Handler_Begin
 	bsf	SID_SYSEX_STATE, SID_SYSEX_STATE_ACTION, BANKED
-	movff	SID_SYSEX_IN, SID_SYSEX_ACTION
+	movf	SID_SYSEX_IN, W, BANKED
+	andlw	0x0f
+	iorwf	SID_SYSEX_STATE, F, BANKED
 	rgoto	SID_SYSEX_SysExCheck_End
 SID_SYSEX_Handler_NotBegin
 
@@ -136,7 +140,9 @@ SID_SYSEX_Handler_End
 SID_SYSEX_Handler_NotEnd
 
 	;; branch depending on current action ID
-	decf	SID_SYSEX_ACTION, W, BANKED
+	movf	SID_SYSEX_STATE, W, BANKED
+	andlw	0x0f
+	addlw	-1
 	BRA_IFSET STATUS, Z, ACCESS, SID_SYSEX_PatchRead	; 1
 	addlw	-2+1
 	BRA_IFSET STATUS, Z, ACCESS, SID_SYSEX_PatchWrite	; 2
@@ -144,7 +150,9 @@ SID_SYSEX_Handler_NotEnd
 	BRA_IFSET STATUS, Z, ACCESS, SID_SYSEX_ReadAll	; 3
 	addlw	-6+3
 	BRA_IFSET STATUS, Z, ACCESS, SID_SYSEX_ParWrite	; 6
-	addlw	-15+6
+	addlw	-12+6
+	BRA_IFSET STATUS, Z, ACCESS, SID_SYSEX_Cmd	; 12
+	addlw	-15+12
 	BRA_IFSET STATUS, Z, ACCESS, SID_SYSEX_Ping	; 15
 	rgoto	SID_SYSEX_ActionInvalid
 	;; (note: target address to far away for "bz", therefore I'm using "IFSET STATUS, Z"
@@ -360,28 +368,51 @@ SID_SYSEX_PatchWrite_End
 	rgoto	SID_SYSEX_PATCH_Write_End
 
 SID_SYSEX_PATCH_Write_I
-	;; (only write into RAM?)
-	BRA_IFSET SID_SYSEX_TYPE, 3, BANKED, SID_SYSEX_PATCH_Write_I_RAM
-SID_SYSEX_PATCH_Write_I_EE
-	;; write buffer to EEPROM
-	lfsr	FSR1, SID_PATCH_BUFFER	; init pointer to patch buffer
-	clrf	EEADR		; use EEADR as loop counter
-	clrf	EEADRH
-SID_SYSEX_PATCH_Write_ILoop
-	clrwdt			; feed watchdog
-	call	SID_PBANK_WritePage ; write a 64 bytes page to EEPROM
-	;; increment FSR1 by 0x40
-	movlw	0x40
-	addwf	FSR1L, F
-	movlw	0
-	addwfc	FSR1H, F
-	movf	EEADR, W	; until all 512 bytes are written
-	bnz	SID_SYSEX_PATCH_Write_ILoop
-	movlw	2-1
-	cpfsgt	EEADRH, ACCESS
-	rgoto SID_SYSEX_PATCH_Write_ILoop
+	;; if master: loop through all selected SIDs
+	;; if slave: only copy to RAM
+	
+	movf	SID_MIDI_DEVICE, W
+	bz	SID_SYSEX_PATCH_Write_I_Mst
+SID_SYSEX_PATCH_Write_I_Slv
+	rcall	SID_SYSEX_CopyBuffer
+	rgoto	SID_SYSEX_PATCH_Write_I_End
 
-SID_SYSEX_PATCH_Write_I_RAM
+SID_SYSEX_PATCH_Write_I_Mst
+	clrf	CS_MENU_SID
+SID_SYSEX_PATCH_Write_I_MstLoop
+	clrwdt			; feed watchdog
+
+	movff	MBNET_NODE_AVAIL, WREG
+	iorlw	0x01		; master always available
+	andlw	0x0f		; 4 SIDs maximum
+	movwf	PRODL
+	movff	SYX_SID_SELECTION, WREG
+	andwf	PRODL, F
+	movf	CS_MENU_SID, W
+	call	MIOS_HLP_GetBitORMask
+	andwf	PRODL, W
+	bz	SID_SYSEX_PATCH_Write_I_Mst_Next
+
+	;; if SID1 selected: directly copy buffer, otherwise start CAN transfer
+	movf	CS_MENU_SID, W
+	bnz	SID_SYSEX_PATCH_Write_I_Mst_CAN
+SID_SYSEX_PATCH_Write_I_Mst_Copy
+	rcall	SID_SYSEX_CopyBuffer
+ 	rgoto	SID_SYSEX_PATCH_Write_I_Mst_Next
+
+SID_SYSEX_PATCH_Write_I_Mst_CAN
+	;; transfer patch buffer to selected slave
+	call	CS_MENU_MBNET_Tx_SendPBuffer
+	SET_BSR	SID_BASE
+	
+	;; 	rgoto	SID_SYSEX_PATCH_Write_I_Mst_Next
+
+SID_SYSEX_PATCH_Write_I_Mst_Next
+	incf	CS_MENU_SID, F			; select next SID, loop until all 4 processed
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, SID_SYSEX_PATCH_Write_I_MstLoop
+
+
+SID_SYSEX_PATCH_Write_I_End
 	;; print message if CS enabled
 	TABLE_ADDR SID_SYSEX_PATCH_Write_I_STR
 	call	MIOS_LCD_PrintMessage
@@ -401,15 +432,11 @@ SID_SYSEX_PATCH_WritePrnLoop
 	bnz	SID_SYSEX_PATCH_WritePrnLoop
 	movlw	4
 	call	SID_LCD_PrintSpaces
+	SET_BSR	SID_BASE
 
-	;; if CS: re-init patch here (will be skipped if RAM flag set)
-	rcall	SID_SYSEX_ChangePatch
-	;;  update edit buffer if required
-	call	CS_MENU_MS_UpdateEditBufferMS
-	;; ensure that patch won't be initialized again
-	bcf	SID_STAT, SID_STAT_ENGINE_DISABLE
-
+	;; send acknowledge
 	rgoto	SID_SYSEX_PATCH_Write_Ack
+
 
 SID_SYSEX_PATCH_Write_I_STR
 	STRING	20, 0x00, "Patch A  1 uploaded "
@@ -448,6 +475,10 @@ SID_SYSEX_PATCH_Write_E_RAM_Loop
 
 
 SID_SYSEX_PATCH_Write_E_EE_Cont
+	;; if no direct RAM upload: re-init ensemble here
+	SET_BSR	SID_BASE
+	CALL_IFCLR SID_SYSEX_TYPE, 3, BANKED, SID_ENS_Init
+
 	;; print message if CS enabled
 	TABLE_ADDR SID_SYSEX_PATCH_Write_E_STR
 	call	MIOS_LCD_PrintMessage
@@ -455,10 +486,7 @@ SID_SYSEX_PATCH_Write_E_EE_Cont
 	movlw	0x00 + 9
 	call	MIOS_LCD_CursorSet
 	call	SID_LCD_PrintEnsembleNumber
-
-	;; if no direct RAM upload: re-init ensemble here
 	SET_BSR	SID_BASE
-	CALL_IFCLR SID_SYSEX_TYPE, 3, BANKED, SID_ENS_Init
 
 	;; reload ensemble edit buffer with data of currently selected SID
 	call	CS_MENU_MS_UpdateEnsBuffer
@@ -649,6 +677,62 @@ SID_SYSEX_ParWrite_End
 
 	
 ;; --------------------------------------------------------------------------
+;;  MIDI Action: Cmd (Command)
+;; --------------------------------------------------------------------------
+SID_SYSEX_Cmd
+	;; end of stream?
+	BRA_IFSET SID_SYSEX_STATE, SID_SYSEX_STATE_END, BANKED, SID_SYSEX_Cmd_End
+
+	;; receive <cmd> <byte> F7
+SID_SYSEX_Cmd_Type
+	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_TYPE_RECEIVED, BANKED, SID_SYSEX_Cmd_Byte
+	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_TYPE_RECEIVED, BANKED
+	movff	SID_SYSEX_IN, SID_SYSEX_TYPE	; copy type number to SID_SYSEX_TYPE
+	rgoto	SID_SYSEX_SysExCheck_End	; wait for next byte
+
+SID_SYSEX_Cmd_Byte
+	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_CMDBYTE_RECEIVED, BANKED, SID_SYSEX_Cmd_Stl
+	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_CMDBYTE_RECEIVED, BANKED
+	movff	SID_SYSEX_IN, SID_SYSEX_DATA	; copy byte to SID_SYSEX_DATA
+	rgoto	SID_SYSEX_SysExCheck_End	; wait for next byte
+
+SID_SYSEX_Cmd_Stl
+	;; do nothing until sysex footer (F7) has been received
+	rgoto	SID_SYSEX_SysExCheck_End
+
+	;; end of sysex command
+SID_SYSEX_Cmd_End
+
+	;; action invalid if command byte hasn't been received
+	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_CMDBYTE_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
+
+	;; branch depending on command type
+	movf	SID_SYSEX_TYPE, W, BANKED
+	bz	SID_SYSEX_Cmd_00
+SID_SYSEX_Cmd_Inv
+	;; invalid command
+	rgoto	SID_SYSEX_DisAck_InvCmd
+
+SID_SYSEX_Cmd_00
+	;; invalid command if this is not a master core
+	movf	SID_MIDI_DEVICE, W
+	bnz	SID_SYSEX_Cmd_Inv
+	;; new SID selection
+	movf	SID_SYSEX_DATA, W, BANKED
+	skpnz			; if 0x00 has been received: select SID1
+	movlw	0x01
+	movff	WREG, SYX_SID_SELECTION
+	;; 	rgoto	SID_SYSEX_Cmd_Ack
+
+SID_SYSEX_Cmd_Ack
+	;; send Acknowledge
+	rcall	SID_SYSEX_Send_Acknowledge
+
+	;; finish Action
+	rgoto	SID_SYSEX_ActionFinished
+
+
+;; --------------------------------------------------------------------------
 ;;  MIDI Action: Ping
 ;; --------------------------------------------------------------------------
 SID_SYSEX_Ping
@@ -682,6 +766,11 @@ SID_SYSEX_DisAck_BS_NotAvail
 SID_SYSEX_DisAck_PAR_NotAvail
 	;; send disacknowledge "parameter not available"
 	movlw	SID_DISACK_PAR_NOT_AVAILABLE
+ 	rgoto	SID_SYSEX_DisAck_Cont
+
+SID_SYSEX_DisAck_InvCmd
+	;; send disacknowledge "invalid command"
+	movlw	SID_DISACK_INVALID_COMMAND
  	rgoto	SID_SYSEX_DisAck_Cont
 
 SID_SYSEX_DisAck_NoRAM
@@ -732,9 +821,31 @@ SID_SYSEX_DisAck_Cont
 SID_SYSEX_Send_Acknowledge
 	rcall	SID_SYSEX_Send_SysExHeader
 
-	movlw	0x0f		; (acknowledge ID)
+	;; acknowledge ID
+	movlw	0x0f
 	rcall	SID_SYSEX_TxBufferPut
 
+	;; slave SIDs: send 00 in addition
+	;; master SID: send "selected AND available" SID mask
+	movf	SID_MIDI_DEVICE, W
+	bnz	SID_SYSEX_Send_Acknowledge_S
+SID_SYSEX_Send_Acknowledge_M
+	SET_BSR	SID_BASE
+	movff	MBNET_NODE_AVAIL, WREG
+	iorlw	0x01		; master always available
+	andlw	0x0f		; 4 SIDs maximum
+	movwf	PRODL
+	movff	SYX_SID_SELECTION, WREG
+	andwf	PRODL, W
+	andlw	0x7f
+	rgoto	SID_SYSEX_Send_Acknowledge_Cont
+SID_SYSEX_Send_Acknowledge_S
+	movlw	0x00
+	;; 	rgoto	SID_SYSEX_Send_Acknowledge_Cont
+SID_SYSEX_Send_Acknowledge_Cont
+ 	rcall	SID_SYSEX_TxBufferPut
+
+	;; send 0xf7
 	movlw	0x01		; (independend from merger state)
 	rgoto	SID_SYSEX_Send_SysExFooter
 
@@ -804,7 +915,7 @@ SID_SYSEX_WritePar
 	;; write instrument parameter (patch)
 SID_SYSEX_WritePar_I
 	;; initial patch address
-	lfsr	FSR1, SID_PATCH_BUFFER
+	lfsr	FSR0, SID_PATCH_BUFFER
 
 	;; no address checks if WOPT == 0(see doc/mbsidv2_sysex_implementation.txt)
 	movf	SID_SYSEX_TYPE, W, BANKED
@@ -834,7 +945,7 @@ SID_SYSEX_WritePar_I_NoFil
 	;; engine specific checks
 SID_SYSEX_WritePar_I_Eng
 	movlw	SID_Ix_ENGINE
-	movf	PLUSW1, W
+	movf	PLUSW0, W
 	andlw	0x03
 	bz	SID_SYSEX_WritePar_I_L
 	addlw	-1
@@ -889,9 +1000,9 @@ SID_SYSEX_WritePar_I_M
 SID_SYSEX_WritePar_I_Single
 	;; transfer single value (stored in SID_SYSEX_CHECKSUM) into patch buffer
 	movf	SID_SYSEX_ADDRESS_L, W, BANKED
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
-	addwfc	FSR1H, F
+	addwfc	FSR0H, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	;; 	rgoto	SID_SYSEX_WritePar_I_End
 
@@ -991,25 +1102,73 @@ SID_SYSEX_WritePar_Fail
 
 ;; --------------------------------------------------------------------------
 ;; this help function is called to modify a single byte in patch structure
+;; expecting data in SID_SYSEX_DATA, and pointer to SID_PATCH_BUFFER in FSR0
+;; parameter is propagated to all selected SIDs if SID_SYSEX_STATE[3:0] == 6
 SID_SYSEX_WritePar_I_Hlp
-	movff	SID_SYSEX_DATA, INDF1
+	SET_BSR	SID_BASE
+
+	;; if slave or SID_SYSEX_STATE[3:0] != 6: only propagate to internal patch buffer
+	;; (SID_SYSEX_STATE[3:0] contains the SysEx command number - 6 selects direct parameter write access)
+	movf	SID_MIDI_DEVICE, W
+	bnz	SID_SYSEX_WritePar_I_Hlp_Copy
+	movf	SID_SYSEX_STATE, W, BANKED
+	andlw	0x0f
+	xorlw	0x06
+	bnz	SID_SYSEX_WritePar_I_Hlp_Copy
+
+	clrf	CS_MENU_SID
+SID_SYSEX_WritePar_I_Hlp_Loop
+	movff	MBNET_NODE_AVAIL, WREG
+	iorlw	0x01		; master always available
+	andlw	0x0f		; 4 SIDs maximum
+	movwf	TABLAT
+	movff	SYX_SID_SELECTION, WREG
+	andwf	TABLAT, F
+	movf	CS_MENU_SID, W
+	call	MIOS_HLP_GetBitORMask
+	andwf	TABLAT, W
+	bz	SID_SYSEX_WritePar_I_Hlp_Next
+
+	movf	CS_MENU_SID, W
+	bnz	SID_SYSEX_WritePar_I_Hlp_Loop_S
+SID_SYSEX_WritePar_I_Hlp_Loop_M
+	rcall	SID_SYSEX_WritePar_I_Hlp_Copy
+	rgoto	SID_SYSEX_WritePar_I_Hlp_Next
+SID_SYSEX_WritePar_I_Hlp_Loop_S
+	movff	FSR0L, MIOS_PARAMETER1	; low byte
+	movf	FSR0H, W		; high byte
+	addlw	0-HIGH(SID_PATCH_BUFFER)
+	movwf	MIOS_PARAMETER2
+	movf	SID_SYSEX_DATA, W, BANKED; value in WREG
+	call	CS_MENU_MBNET_Tx_SendPar	; send parameter to slave
+	SET_BSR	SID_BASE
+	;; 	rgoto	SID_SYSEX_WritePar_I_Hlp_Next
+
+SID_SYSEX_WritePar_I_Hlp_Next
+	incf	CS_MENU_SID, F		; loop 4 times
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, SID_SYSEX_WritePar_I_Hlp_Loop
+	return
+
+
+SID_SYSEX_WritePar_I_Hlp_Copy
+	movff	SID_SYSEX_DATA, INDF0
 
 	;; transfer to shadow buffer as well
 	movlw	HIGH(SID_PATCH_BUFFER_SHADOW)-HIGH(SID_PATCH_BUFFER)
-	addwf	FSR1H, F
-	movff	SID_SYSEX_DATA, INDF1
+	addwf	FSR0H, F
+	movff	SID_SYSEX_DATA, INDF0
 	movlw	HIGH(SID_PATCH_BUFFER)-HIGH(SID_PATCH_BUFFER_SHADOW)
-	addwf	FSR1H, F
+	addwf	FSR0H, F
 
 	;; transfer value to edit buffer as well if master selected
 	movf	CS_MENU_EDIT_BUFFER_SID, W
 	bnz	SID_SYSEX_WritePar_I_Hlp_NoMS
 SID_SYSEX_WritePar_I_Hlp_MS
 	movlw	HIGH(SID_EDIT_BUFFER)-HIGH(SID_PATCH_BUFFER)
-	addwf	FSR1H, F
-	movff	SID_SYSEX_DATA, INDF1
+	addwf	FSR0H, F
+	movff	SID_SYSEX_DATA, INDF0
 	movlw	HIGH(SID_PATCH_BUFFER)-HIGH(SID_EDIT_BUFFER)
-	addwf	FSR1H, F
+	addwf	FSR0H, F
 SID_SYSEX_WritePar_I_Hlp_NoMS
 	return
 
@@ -1020,10 +1179,10 @@ SID_SYSEX_WritePar_I_Ext
 	;; range 0x040..0x04f, share EXT1/2, EXT3/4, EXT5/6, EXT7/8
 	movf	SID_SYSEX_ADDRESS_L, W, BANKED
 	andlw	0xfd
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	movlw	2
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	rgoto	SID_SYSEX_WritePar_I_End
 
@@ -1035,10 +1194,10 @@ SID_SYSEX_WritePar_I_Fil
 	btfsc	WREG, 7
 	addlw	6
 	addlw	0x54
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	movlw	6
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	rgoto	SID_SYSEX_WritePar_I_End
 
@@ -1046,11 +1205,11 @@ SID_SYSEX_WritePar_I_Fil
 SID_SYSEX_WritePar_I_MTarg
 	;; range 0x104/105: copy to L/R register
 	movlw	0x04
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	movlw	0x01
-	addwfc	FSR1H, F
+	addwfc	FSR0H, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
-	incf	FSR1L, F
+	incf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	rgoto	SID_SYSEX_WritePar_I_End
 
@@ -1073,10 +1232,10 @@ SID_SYSEX_WritePar_I_LVoice_1
 	btfsc	WREG, 7
 	addlw	0x30
 	addlw	0x60
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	movlw	0x30
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	rgoto	SID_SYSEX_WritePar_I_End
 
@@ -1085,20 +1244,20 @@ SID_SYSEX_WritePar_I_LVoice_2
 	movf	SID_SYSEX_ADDRESS_L, W, BANKED
 	andlw	0x0f
 	addlw	0x60
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	movlw	0x90-1
 	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
 	rgoto	SID_SYSEX_WritePar_I_LVoice_2_L
 SID_SYSEX_WritePar_I_LVoice_2_U
 	movlw	0x30
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 SID_SYSEX_WritePar_I_LVoice_2_L
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	movlw	0x10
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	movlw	0x10
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	rgoto	SID_SYSEX_WritePar_I_End
 
@@ -1107,14 +1266,14 @@ SID_SYSEX_WritePar_I_LVoice_3
 	movf	SID_SYSEX_ADDRESS_L, W, BANKED
 	andlw	0x0f
 	addlw	0x60
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	
 	movlw	6		; loop counter
 	movwf	PRODL
 SID_SYSEX_WritePar_I_LVoice_3_L;oop
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	movlw	0x10
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	decfsz	PRODL, F
 	rgoto	SID_SYSEX_WritePar_I_LVoice_3_L;oop
 	rgoto	SID_SYSEX_WritePar_I_End
@@ -1127,10 +1286,10 @@ SID_SYSEX_WritePar_I_BVoice
 	btfsc	WREG, 7
 	addlw	0x50
 	addlw	0x60
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	movlw	0x50
-	addwf	FSR1L, F
+	addwf	FSR0L, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	rgoto	SID_SYSEX_WritePar_I_End
 
@@ -1317,6 +1476,40 @@ SID_SYSEX_SendDump_Edit_Cont
 	bz	SID_SYSEX_SendDump_E
 	;; 	rgoto	SID_SYSEX_SendDump_I
 SID_SYSEX_SendDump_I
+	;; if edit buffer not already selected
+	movf	FSR0H, W
+	xorlw	HIGH(SID_EDIT_BUFFER)
+	bz	SID_SYSEX_SendDump_I_Master
+
+	;; if slave SID selected: download remote patch into edit buffer
+	clrf	CS_MENU_SID	; holds SID selection, by default we take the master
+	movff	MBNET_NODE_AVAIL, WREG
+	iorlw	0x01		; master always available
+	andlw	0x0f		; 4 SIDs maximum
+	movwf	PRODL
+	movff	SYX_SID_SELECTION, WREG
+	andwf	PRODL, F
+	bz	SID_SYSEX_SendDump_I_Master	; selected SID not available -> master patch
+	;; priorize (lowest selected SID has highest priority)
+	movlw	0x03
+	btfsc	PRODL, 2
+	movlw	0x02
+	btfsc	PRODL, 1
+	movlw	0x01
+	btfsc	PRODL, 0
+	movlw	0x00
+	andlw	0x03				; (to fix ZERO flag)
+	bz	SID_SYSEX_SendDump_I_Master	; master SID selected
+	movwf	CS_MENU_SID			; slave SID selected, load into patch buffer
+SID_SYSEX_SendDump_I_Slave
+  	call	CS_MENU_MBNET_Tx_GetPatch	; load patch into edit buffer
+SID_SYSEX_SendDump_I_SlaveFetch
+	call	CS_MENU_MBNET_Tx_GetPatchChk	; loop until complete patch is fetched
+	bnz	SID_SYSEX_SendDump_I_SlaveFetch
+	SET_BSR	SID_BASE
+	lfsr	FSR0, SID_EDIT_BUFFER		; now it's in the edit buffer
+
+SID_SYSEX_SendDump_I_Master	
 	clrf	EEADR			; 2*0x200 bytes to send, use EEADR as counter
 	clrf	EEADRH
 	;; 	lfsr	FSR0, SID_PATCH_BUFFER
@@ -1362,6 +1555,12 @@ SID_SYSEX_SendDump_I_Loop_NoN
 	movlw	2-1
 	cpfsgt	EEADRH, ACCESS
 	rgoto SID_SYSEX_SendDump_I_Loop
+
+	;; if slave was selected: re-fetch previous content
+	movf	CS_MENU_SID, W
+	bz	SID_SYSEX_SendDump_I_Cont
+	call	CS_MENU_MS_UpdateEditBufferNow
+	SET_BSR	SID_BASE
 	rgoto	SID_SYSEX_SendDump_I_Cont
 
 
@@ -1442,6 +1641,42 @@ SID_SYSEX_SendDump_I_Cont
 	;; send of SysEx footer
 	movlw	0x01		; (independend from merger state)
 	rgoto	SID_SYSEX_Send_SysExFooter
+
+
+;; --------------------------------------------------------------------------
+;;  Used by SID_SYSEX_PATCH_Write to copy the SID_PATCH_BUFFER into BankStick
+;;  and/or only into RAM buffers if SID_SYSEX_TYPE[3] set
+;; --------------------------------------------------------------------------
+SID_SYSEX_CopyBuffer
+	;; (only write into RAM?)
+	BRA_IFSET SID_SYSEX_TYPE, 3, BANKED, SID_SYSEX_CopyBuffer_RAM
+SID_SYSEX_CopyBuffer_EE
+	;; write buffer to EEPROM
+	lfsr	FSR1, SID_PATCH_BUFFER	; init pointer to patch buffer
+	clrf	EEADR		; use EEADR as loop counter
+	clrf	EEADRH
+SID_SYSEX_CopyBuffer_EE_Loop
+	clrwdt			; feed watchdog
+	call	SID_PBANK_WritePage ; write a 64 bytes page to EEPROM
+	;; increment FSR1 by 0x40
+	movlw	0x40
+	addwf	FSR1L, F
+	movlw	0
+	addwfc	FSR1H, F
+	movf	EEADR, W	; until all 512 bytes are written
+	bnz	SID_SYSEX_CopyBuffer_EE_Loop
+	movlw	2-1
+	cpfsgt	EEADRH, ACCESS
+	rgoto	SID_SYSEX_CopyBuffer_EE_Loop
+
+SID_SYSEX_CopyBuffer_RAM
+	;; if CS: re-init patch here (will be skipped if RAM flag set)
+	rcall	SID_SYSEX_ChangePatch
+	;; reload patch edit buffer if required
+	call	CS_MENU_MS_UpdateEditBufferMS
+	;; ensure that patch won't be initialized again
+	bcf	SID_STAT, SID_STAT_ENGINE_DISABLE
+	return
 
 
 ;; --------------------------------------------------------------------------

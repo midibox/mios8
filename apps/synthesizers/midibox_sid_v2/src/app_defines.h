@@ -167,7 +167,9 @@ CS_MENU_LASTPAGE_ENG_3	EQU	0x06b	; last selected page of multi engine (don't cha
 
 SRM_COL_CTR		EQU	0x06c	; used by "cs_menu_matrix.inc" (button handler)
 
-	;; free: 0x6d..0x79
+SYX_SID_SELECTION	EQU	0x06d	; used by sid_sysex.inc, we have to store it outside patch range, so that it won't be erased during patch init
+
+	;; free: 0x6e..0x79
 
 
 TIMER0_RELOAD_L		EQU	0x07a	; used by sid_bpm.inc
@@ -313,7 +315,7 @@ SID_RANDOM_SEED_H	EQU	0x10d	; used in sid_rnd.inc
 ;; ==========================================================================
 SID_SYSEX_STATE		EQU	0x10e	; used by sid_sysex.inc
 SID_SYSEX_STATE2	EQU	0x10f	; used by sid_sysex.inc
-SID_SYSEX_ACTION	EQU	0x110	; used by sid_sysex.inc
+;; free: 0x110
 SID_SYSEX_IN		EQU	0x111	; used by sid_sysex.inc
 SID_SYSEX_CHECKSUM	EQU	0x112	; used by sid_sysex.inc
 SID_SYSEX_DATA		EQU	0x113	; used by sid_sysex.inc
