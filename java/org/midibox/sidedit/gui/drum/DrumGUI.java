@@ -45,9 +45,10 @@ import org.midibox.sidedit.gui.GlobalGUI;
 import org.midibox.sidedit.gui.FilterGUI;
 
 public class DrumGUI extends JPanel {
-	private boolean linked = false;
 	private Vector GUIs, EXT_L, EXT_R;
-	public DrumGUI(SIDEditController sidEditController) {		
+	private SIDEditController sidEditController;
+	public DrumGUI(SIDEditController sidEditController) {	
+		this.sidEditController = sidEditController;
 		setLayout(new BorderLayout());
 		
 		GUIs = createGUIs(sidEditController);
@@ -69,7 +70,7 @@ public class DrumGUI extends JPanel {
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		link();
+		stereoLink(true);
 	}
 	
 	protected Vector createGUIs(SIDEditController sidEditController) {
@@ -143,17 +144,17 @@ public class DrumGUI extends JPanel {
 		}
 	}
 	
-	public void link() {
-		linkPar(EXT_L,EXT_R);												// Link external outputs 2 by 2
-		linkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right			
-		linked = true;
+	public void stereoLink(boolean b) {
+		if (b) {
+			sidEditController.getPatch().setStereoLink(true);
+			linkPar(EXT_L,EXT_R);												// Link external outputs 2 by 2
+			linkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right		
+		} else {
+			sidEditController.getPatch().setStereoLink(false);
+			unlinkPar(EXT_L,EXT_R);											  	// Unlink external outputs 2 by 2
+			unlinkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right		
+		}
 	}
-	
-	public void unlink() {
-		unlinkPar(EXT_L,EXT_R);											  	// Unlink external outputs 2 by 2
-		unlinkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right			
-		linked = false;	
-	}	
 	
 	protected void linkPar(Vector left, Vector right) {
 		for (int c = 0; c < left.size(); c++) {

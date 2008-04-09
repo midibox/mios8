@@ -66,7 +66,7 @@ public class SIDSysexParameterControlToggleButton extends SIDSysexParameterContr
 				midiParameter.setMidiValue((toggleButton.isSelected())?1:0, true);
 				for (int c = 0; c < midiParameters.size(); c++) {
 					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
-					mp.setMidiValue((toggleButton.isSelected())?1:0, true);
+					mp.setMidiValue((toggleButton.isSelected())?1:0, false);
 				}
 				if (snapGUI!=null) {
 					snapGUI.setSnap(toggleButton.isSelected());

@@ -39,7 +39,7 @@ public class SIDSysexInfo {
 	public static String ensembleBankRequestSysex = "F000007E4B<device>037000F7";	// Request a dump of all ensembles (128 ensembles)
 	        
 	// Parameter write
-	public static String editPatchParameterSysex = "F000007E4B<device>0600<address><value>F7";	// Direct Write of parameter into patch buffer (<AH> = 0..3, <AL> = 0..7F). Patch address: (<AH> << 7) | <AL>
+	public static String editPatchParameterSysex = "F000007E4B<device>06<wopt><address><value>F7";	// Direct Write of parameter into patch buffer (<AH> = 0..3, <AL> = 0..7F). Patch address: (<AH> << 7) | <AL>
 	public static String editEsembleParameterSysex = "F000007E4B<device>0670<address><value>F7";// Direct Write of parameter into ensemble buffer (<AH> = 0..1, <AL> = 0..7F). Ensemble address: (<AH> << 7) | <AL>
 
 	// Ping

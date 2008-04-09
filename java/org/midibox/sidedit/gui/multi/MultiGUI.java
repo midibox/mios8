@@ -47,7 +47,13 @@ import org.midibox.sidedit.gui.FilterGUI;
 public class MultiGUI extends JPanel {
 	private boolean linked = false;
 	private Vector GUIs, EXT_L, EXT_R;
+	private boolean oscLinked = false;
+	private boolean stereoLinked = false;
+	
+	private SIDEditController sidEditController;
+	
 	public MultiGUI(SIDEditController sidEditController) {		
+		this.sidEditController = sidEditController;
 		setLayout(new BorderLayout());
 		
 		GUIs = createGUIs(sidEditController);
@@ -77,7 +83,7 @@ public class MultiGUI extends JPanel {
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		link();
+		stereoLink(true);		
 	}
 	
 	protected Vector createGUIs(SIDEditController sidEditController) {
@@ -150,18 +156,102 @@ public class MultiGUI extends JPanel {
 			EXT_R.add(((Vector)GUIs.elementAt(1)).elementAt((2*c)+1));
 		}
 	}
-	
-	public void link() {
-		linkPar(EXT_L,EXT_R);												// Link external outputs 2 by 2
-		linkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right			
-		linked = true;
+		
+	public void restLink(boolean b) {		
+		if (b) {
+			linkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(8));	// Link V1 & V5
+			linkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(14));	// Link V1 & V5 rest
+			linkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(9));	// Link V1 & V6
+			linkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(15));	// Link V1 & V6 rest
+			linkPar((Vector)GUIs.elementAt(5),(Vector)GUIs.elementAt(7));	// Link V2 & V4			
+			linkPar((Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(13));	// Link V2 & V4 rest
+			linkPar((Vector)GUIs.elementAt(5),(Vector)GUIs.elementAt(9));	// Link V2 & V6			
+			linkPar((Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(15));	// Link V2 & V6 rest
+			linkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(7));	// Link V3 & V4
+			linkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(13));	// Link V3 & V4 rest
+			linkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(8));	// Link V3 & V5			
+			linkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(14));	// Link V3 & V5 rest
+		} else {
+			unlinkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(8));		// Unlink V1 & V5
+			unlinkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(14));	// Unlink V1 & V5 rest
+			unlinkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(9));		// Unlink V1 & V6
+			unlinkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(15));	// Unlink V1 & V6 rest
+			unlinkPar((Vector)GUIs.elementAt(5),(Vector)GUIs.elementAt(7));		// Unlink V2 & V4			
+			unlinkPar((Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(13));	// Unlink V2 & V4 rest
+			unlinkPar((Vector)GUIs.elementAt(5),(Vector)GUIs.elementAt(9));		// Unlink V2 & V6			
+			unlinkPar((Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(15));	// Unlink V2 & V6 rest
+			unlinkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(7));		// Unlink V3 & V4
+			unlinkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(13));	// Unlink V3 & V4 rest
+			unlinkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(8));		// Unlink V3 & V5			
+			unlinkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(14));	// Unlink V3 & V5 rest		
+		}
 	}
 	
-	public void unlink() {
-		unlinkPar(EXT_L,EXT_R);											  	// Unlink external outputs 2 by 2
-		unlinkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right			
-		linked = false;	
-	}	
+	public void oscLink(boolean b) {
+		if (b) {
+			sidEditController.getPatch().setOscillatorLink(true);
+			linkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(5));	// Link V1 & V2
+			linkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(11));	// Link V1 & V2 rest			
+			linkPar((Vector)GUIs.elementAt(5),(Vector)GUIs.elementAt(6));	// Link V2 & V3
+			linkPar((Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(12));	// Link V2 & V3 rest
+			linkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(4));	// Link V3 & V1				
+			linkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(10));	// Link V3 & V1 rest
+			linkPar((Vector)GUIs.elementAt(7),(Vector)GUIs.elementAt(8));	// Link V4 & V5
+			linkPar((Vector)GUIs.elementAt(13),(Vector)GUIs.elementAt(14));	// Link V4 & V5 rest
+			linkPar((Vector)GUIs.elementAt(8),(Vector)GUIs.elementAt(9));	// Link V5 & V6	
+			linkPar((Vector)GUIs.elementAt(14),(Vector)GUIs.elementAt(15));	// Link V5 & V6 rest
+			linkPar((Vector)GUIs.elementAt(9),(Vector)GUIs.elementAt(7));	// Link V6 & V4			
+			linkPar((Vector)GUIs.elementAt(15),(Vector)GUIs.elementAt(13));	// Link V6 & V4 rest
+		} else {
+			sidEditController.getPatch().setOscillatorLink(false);
+			unlinkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(5));		// Unlink V1 & V2
+			unlinkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(11));	// Unlink V1 & V2 rest			
+			unlinkPar((Vector)GUIs.elementAt(5),(Vector)GUIs.elementAt(6));		// Unlink V2 & V3
+			unlinkPar((Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(12));	// Unlink V2 & V3 rest
+			unlinkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(4));		// Unlink V3 & V1				
+			unlinkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(10));	// Unlink V3 & V1 rest
+			unlinkPar((Vector)GUIs.elementAt(7),(Vector)GUIs.elementAt(8));		// Unlink V4 & V5
+			unlinkPar((Vector)GUIs.elementAt(13),(Vector)GUIs.elementAt(14));	// Unlink V4 & V5 rest
+			unlinkPar((Vector)GUIs.elementAt(8),(Vector)GUIs.elementAt(9));		// Unlink V5 & V6	
+			unlinkPar((Vector)GUIs.elementAt(14),(Vector)GUIs.elementAt(15));	// Unlink V5 & V6 rest
+			unlinkPar((Vector)GUIs.elementAt(9),(Vector)GUIs.elementAt(7));		// Unlink V6 & V4			
+			unlinkPar((Vector)GUIs.elementAt(15),(Vector)GUIs.elementAt(13));	// Unlink V6 & V4 rest				
+		}
+		if (stereoLinked) {
+			restLink(b);
+		}		
+		oscLinked = b;
+	}
+	
+	
+	public void stereoLink(boolean b) {
+		if (b) {
+			sidEditController.getPatch().setStereoLink(true);
+			linkPar(EXT_L,EXT_R);												// Link external outputs 2 by 2
+			linkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right		
+			linkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(7));		// Link V1 & V4
+			linkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(13));		// Link V1 & V4 rest
+			linkPar((Vector)GUIs.elementAt(5),(Vector)GUIs.elementAt(8));		// Link V2 & V5
+			linkPar((Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(14));		// Link V2 & V5 rest
+			linkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(9));  		// Link V3 & V6	
+			linkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(15));		// Link V3 & V6 rest
+		} else {
+			sidEditController.getPatch().setStereoLink(false);
+			unlinkPar(EXT_L,EXT_R);											  	// Unlink external outputs 2 by 2
+			unlinkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Unlink filter left & right	
+			unlinkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Unlink filter left & right		
+			unlinkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(7));		// Unlink V1 & V4
+			unlinkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(13));		// Unlink V1 & V4 rest
+			unlinkPar((Vector)GUIs.elementAt(5),(Vector)GUIs.elementAt(8));		// Unlink V2 & V5
+			unlinkPar((Vector)GUIs.elementAt(11),(Vector)GUIs.elementAt(14));		// Unlink V2 & V5 rest
+			unlinkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(9));  		// Unlink V3 & V6	
+			unlinkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(15));		// Unlink V3 & V6 rest
+		}	
+		if (oscLinked) {
+			restLink(b);
+		}
+		stereoLinked = b;		
+	}
 	
 	protected void linkPar(Vector left, Vector right) {
 		for (int c = 0; c < left.size(); c++) {

@@ -62,7 +62,7 @@ public class SIDSysexParameterControlCombo extends SIDSysexParameterControlGUI {
 				
 				for (int c = 0; c < midiParameters.size(); c++) {
 					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
-					mp.setMidiValue(newval, true);
+					mp.setMidiValue(newval, false);
 				}
 				
 				update = true;

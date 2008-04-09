@@ -43,9 +43,11 @@ import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
 
 public class BasslineGUI extends JPanel {
-	private boolean linked = false;
 	private Vector GUIs, EXT_L, EXT_R;
-	public BasslineGUI(SIDEditController sidEditController) {		
+	private SIDEditController sidEditController;
+	
+	public BasslineGUI(SIDEditController sidEditController) {	
+		this.sidEditController = sidEditController;
 		setLayout(new BorderLayout());
 		
 		GUIs = createGUIs(sidEditController);
@@ -68,7 +70,7 @@ public class BasslineGUI extends JPanel {
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		link();
+		stereoLink(true);
 	}
 	
 	protected Vector createGUIs(SIDEditController sidEditController) {
@@ -142,27 +144,27 @@ public class BasslineGUI extends JPanel {
 		}
 	}
 	
-	public void link() {
-		linkPar(EXT_L,EXT_R);												// Link external outputs 2 by 2
-		linkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right
-		linkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(5));		// Link V1 & V2
-		linkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(7));		// Link master L & R
-		linkPar((Vector)GUIs.elementAt(8),(Vector)GUIs.elementAt(9));		// Link LFO's
-		linkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(11));		// Link Envelopes
-		linkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(13)); 	// Link Sequencers	
-		linked = true;
+	public void stereoLink(boolean b) {
+		if (b) {
+			sidEditController.getPatch().setStereoLink(true);
+			linkPar(EXT_L,EXT_R);												// Link external outputs 2 by 2
+			linkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right
+			linkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(5));		// Link V1 & V2
+			linkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(7));		// Link master L & R
+			linkPar((Vector)GUIs.elementAt(8),(Vector)GUIs.elementAt(9));		// Link LFO's
+			linkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(11));		// Link Envelopes
+			linkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(13)); 	// Link Sequencers	
+		} else {
+			sidEditController.getPatch().setStereoLink(false);
+			unlinkPar(EXT_L,EXT_R);											  	// Unlink external outputs 2 by 2
+			unlinkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right
+			unlinkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(5));		// Link V1 & V2
+			unlinkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(7));		// Link master L & R
+			unlinkPar((Vector)GUIs.elementAt(8),(Vector)GUIs.elementAt(9));		// Link LFO's
+			unlinkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(11));	// Link Envelopes
+			unlinkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(13)); 	// Link Sequencers	
+		}
 	}
-	
-	public void unlink() {
-		unlinkPar(EXT_L,EXT_R);											  	// Unlink external outputs 2 by 2
-		unlinkPar((Vector)GUIs.elementAt(2),(Vector)GUIs.elementAt(3));		// Link filter left & right
-		unlinkPar((Vector)GUIs.elementAt(4),(Vector)GUIs.elementAt(5));		// Link V1 & V2
-		unlinkPar((Vector)GUIs.elementAt(6),(Vector)GUIs.elementAt(7));		// Link master L & R
-		unlinkPar((Vector)GUIs.elementAt(8),(Vector)GUIs.elementAt(9));	// Link LFO's
-		unlinkPar((Vector)GUIs.elementAt(10),(Vector)GUIs.elementAt(11));	// Link Envelopes
-		unlinkPar((Vector)GUIs.elementAt(12),(Vector)GUIs.elementAt(13)); 	// Link Sequencers	
-		linked = false;	
-	}	
 	
 	protected void linkPar(Vector left, Vector right) {
 		for (int c = 0; c < left.size(); c++) {

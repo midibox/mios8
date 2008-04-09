@@ -73,7 +73,7 @@ public class SIDSysexParameterControlLFOSelect extends SIDSysexParameterControlG
 					midiParameter.setMidiValue(newval, true);
 					for (int d = 0; d < midiParameters.size(); d++) {
 						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(d);
-						mp.setMidiValue(newval, true);
+						mp.setMidiValue(newval, false);
 					}
 					update = true;
 				}

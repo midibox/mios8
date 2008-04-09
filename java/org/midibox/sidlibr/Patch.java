@@ -32,7 +32,7 @@ public class Patch implements Receiver {
 	public static Object DRUM = new Object();
 	public static Object MULTI = new Object();	
 	protected int[] patch = new int[512];
-	
+	private int WOPT = 0;
 	protected Receiver receiver;
 	
 	public Patch(Receiver receiver) {
@@ -247,6 +247,22 @@ public class Patch implements Receiver {
 		return (nibble0 | nibble1);
 	}
 	
+	public void setStereoLink(boolean b) {
+		if (b) {
+			WOPT = WOPT | 0x01;
+		} else {
+			WOPT = WOPT & 0x02;
+		}
+	}
+	
+	public void setOscillatorLink(boolean b) {
+		if (b) {
+			WOPT = WOPT | 0x02;
+		} else {
+			WOPT = WOPT & 0x01;
+		}
+	}
+	
 	public void sysexSend(int addr, int value, int bytes) {
 		for(int c=0; c < cores.length; c++) {	
 			if (cores[c]) {
@@ -254,6 +270,7 @@ public class Patch implements Receiver {
 				try {
 					String strMessage = SIDSysexInfo.editPatchParameterSysex;
 					strMessage = strMessage.replace("<device>", "0" + Integer.toString(c));
+					strMessage = strMessage.replace("<wopt>", "0" + Integer.toHexString(WOPT));
 					strMessage = strMessage.replace("<address>", calcAddr(addr));
 					strMessage = strMessage.replace("<value>", calcValue(value,bytes));
 					

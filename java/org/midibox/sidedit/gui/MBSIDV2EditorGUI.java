@@ -83,7 +83,7 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListene
 	
 	private JLabel tooltipLabel;
 	
-	private JToggleButton linkButton, core1Button, core2Button, core3Button, core4Button;
+	private JToggleButton stereoLink, oscillatorLink, core1Button, core2Button, core3Button, core4Button;
 	
 	public MBSIDV2EditorGUI(Frame owner, boolean modal) {
 		super(owner, modal);	
@@ -109,7 +109,8 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListene
 		this.sidEditController = sidEditController;
 		sidEditController.setTooltipListener(this);
 		Patch p = sidEditController.getPatch();
-		linkButton.setSelected(true);
+		stereoLink.setSelected(true);
+		oscillatorLink.setSelected(false);
 		setTooltip("");
 		core1Button.setSelected(p.getCore(0));
 		core2Button.setSelected(p.getCore(1));
@@ -152,9 +153,13 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListene
 		statusBar.setLayout(new BorderLayout());		
 		statusBar.setBorder(BorderFactory.createRaisedBevelBorder());
 				
-		linkButton = new JToggleButton("Stereo link");
-		linkButton.setPreferredSize(new Dimension(linkButton.getPreferredSize().width,20));
-		linkButton.addActionListener(this);
+		stereoLink = new JToggleButton("Stereo link");
+		stereoLink.setPreferredSize(new Dimension(stereoLink.getPreferredSize().width,20));
+		stereoLink.addActionListener(this);
+		
+		oscillatorLink = new JToggleButton("Oscillator link");
+		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink.getPreferredSize().width,20));
+		oscillatorLink.addActionListener(this);
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));	
@@ -183,8 +188,13 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListene
 				
 		tooltipLabel = new JLabel("");		
 		tooltipLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-				
-		statusBar.add(linkButton, BorderLayout.WEST);
+		
+		JPanel linkPanel = new JPanel();
+		linkPanel.setLayout(new BoxLayout(linkPanel, BoxLayout.X_AXIS));
+		linkPanel.add(stereoLink);
+		linkPanel.add(oscillatorLink);
+		
+		statusBar.add(linkPanel, BorderLayout.WEST);		
 		statusBar.add(tooltipLabel, BorderLayout.CENTER);
 		statusBar.add(buttonPanel, BorderLayout.EAST);
 		
@@ -214,31 +224,25 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListene
    
 	public void actionPerformed(ActionEvent ae) {
 		editPanel.repaint();
-		if (ae.getSource()==linkButton) {
+		if (ae.getSource()==stereoLink) {
 			if (editPanel.getClass()==LeadGUI.class) {
-				if (linkButton.isSelected()) {
-					((LeadGUI)editPanel).link();				
-				} else {
-					((LeadGUI)editPanel).unlink();					
-				}
+				((LeadGUI)editPanel).stereoLink(stereoLink.isSelected());
 			} else if (editPanel.getClass()==BasslineGUI.class) {
-				if (linkButton.isSelected()) {
-					((BasslineGUI)editPanel).link();				
-				} else {
-					((BasslineGUI)editPanel).unlink();					
-				}				
+				((BasslineGUI)editPanel).stereoLink(stereoLink.isSelected());						
 			} else if (editPanel.getClass()==DrumGUI.class) {
-				if (linkButton.isSelected()) {
-					((DrumGUI)editPanel).link();				
-				} else {
-					((DrumGUI)editPanel).unlink();					
-				}
+				((DrumGUI)editPanel).stereoLink(stereoLink.isSelected());				
 			} else if (editPanel.getClass()==MultiGUI.class) {
-				if (linkButton.isSelected()) {
-					((MultiGUI)editPanel).link();				
-				} else {
-					((MultiGUI)editPanel).unlink();					
-				}
+				((MultiGUI)editPanel).stereoLink(stereoLink.isSelected());				
+			} 
+		} else if (ae.getSource()==oscillatorLink) {
+			if (editPanel.getClass()==LeadGUI.class) {
+				((LeadGUI)editPanel).oscLink(oscillatorLink.isSelected());				
+			} else if (editPanel.getClass()==BasslineGUI.class) {
+				// Do nothing
+			} else if (editPanel.getClass()==DrumGUI.class) {
+				// Do nothing
+			} else if (editPanel.getClass()==MultiGUI.class) {
+				((MultiGUI)editPanel).oscLink(oscillatorLink.isSelected());
 			} 
 		}
 	}
