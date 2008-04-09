@@ -26,8 +26,28 @@ Which Actions are implemented
       Returns F0 00 00 7E 46 <device-number> 0F <bank> F7
       if BankStick not available, bank remains unchanged
 
-   g) F0 00 00 7E 46 <device-number> 0D 02 00 <channel> F7
+   g) F0 00 00 7E 46 <device-number> 0D 02 00 <OSC1 channel> F7
+      F0 00 00 7E 46 <device-number> 0D 01 00 <OSC2 channel> F7
+      F0 00 00 7E 46 <device-number> 0D 00 00 <OSC3 channel> F7
       Change the MIDI channel
+      Value 00 (for Channel #1) .. 0F (for Channel #16) is expected.
+      Note that the channels of the oscillators can be changed
+      seperately. In normal cases, all channels should be set to the
+      same value.
+
+      The values are stored in EEPROM, accordingly there must be
+      a delay of at least 5 mS between each SysEx command, otherwise
+      data gets lost
+
+      The change will take place with the next Patch selection.
+      E.g., you could send a program change (e.g. C0 <patch>) after 
+      the SysEx commands.
+
+      Example for configuring MIDI channel #16 on SID1:
+      F0 00 00 7E 46 00 0D 02 00 0F F7
+      F0 00 00 7E 46 00 0D 01 00 0F F7
+      F0 00 00 7E 46 00 0D 00 00 0F F7
+      C0 00
 
    h) F0 00 00 7E 46 <old device-number> 0D 03 00 <new device-number> F7
       Change the device number
