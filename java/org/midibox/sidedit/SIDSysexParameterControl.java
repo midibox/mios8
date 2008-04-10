@@ -175,8 +175,8 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 
 	public void send(MidiMessage message, long lTimeStamp) {
 		String m = MidiUtils.getHexString(message.getMessage()).replace(" ", "");
-		
-		if (m.equals(SIDSysexInfo.acknowledgedSysex.replace("<device>", "00"))) {
+
+	        if (m.indexOf(SIDSysexInfo.acknowledgedSysex.replace("<device>", "00")) == 0) {
 			//System.out.println("MBSID: Acknowdledged!");
 		}else if (m.equals(SIDSysexInfo.error1Sysex.replace("<device>", "00"))) {
 			System.out.println("MBSID: Received less bytes then expected");

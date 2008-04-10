@@ -394,7 +394,7 @@ public class SysExController extends Observable implements Receiver, ActionListe
 	}
 	
 	protected void checkError(String m) {
-		if (m.equals(SIDSysexInfo.acknowledgedSysex.replace("<device>", "00"))) {
+	        if (m.indexOf(SIDSysexInfo.acknowledgedSysex.replace("<device>", "00")) == 0) {
 			tempResponse=ACKNOWLEDGED;						
 		}else if (m.equals(SIDSysexInfo.error1Sysex.replace("<device>", "00"))) {
 			tempResponse=ERROR1;

@@ -46,7 +46,7 @@ public class SIDSysexInfo {
 	public static String pingSysex = "F000007E4B<device>0FF7";	// Ping (just sends back the same SysEx string)
 	
 	// Feedback from core
-	public static String acknowledgedSysex = "F000007E4B<device>0FF7";	// Acknowledged
+	public static String acknowledgedSysex = "F000007E4B<device>0F";	// Acknowledged, TK: "<sids>F7" part removed for more flexibility
 	public static String error1Sysex = "F000007E4B<device>0E01F7";	// received less bytes then expected
 	public static String error2Sysex = "F000007E4B<device>0E03F7";	// wrong checksum
 	public static String error3Sysex = "F000007E4B<device>0E0AF7";	// bankstick or patch/drumset/ensemble not available
