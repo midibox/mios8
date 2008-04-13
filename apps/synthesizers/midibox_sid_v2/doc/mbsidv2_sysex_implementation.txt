@@ -78,6 +78,21 @@ Implemented SysEx Commands
         By checking the acknowledge response message, it is possible
         to determine which cores are connected to the master core.
 
+  0C/b) F0 00 00 7E 4B <device-number> 0C 01 <velocity> [<ins>] F7
+        Plays the current patch if velocity > 0
+        Performs "All Notes Off" if velocity == 0
+
+        <ins> is an optional parameter, the effect depends on the
+        selected engine:
+        - Lead Engine: no effect
+        - Bassline Engine: 0: play both basslines
+                           1: play left bassline
+                           2: play right bassline
+        - Drum Engine: if no sequence selected: <ins> selects the
+          instrument which should be played
+          If sequence selected: no effect (sequence plays all tracks)
+        - Multi Engine: <ins> == 0..5 selects the instrument which should
+          be played
 
   0F/a) F0 00 00 7E 4B <device number> 0F F7
         Ping (just sends back the same SysEx string + <sids>)
