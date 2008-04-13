@@ -114,7 +114,7 @@ CS_MENU_TABLES_B
 	CS_MENU_T_ENTRY	CS_MENU_TABLE_B_RND,  CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToRoot,   "---", 0,                     0x00, PRINT_NOP
 	CS_MENU_T_ENTRY	CS_MENU_TABLE_B_SAV,  CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToRoot,   "---", 0,                     0x00, PRINT_NOP
 
-	;; ID's for menu structures of the lead engine
+	;; ID's for menu structures of the bassline engine
 CS_MENU_B_SEQ	EQU	0x01
 CS_MENU_B_SQC	EQU	0x02
 CS_MENU_B_OSC	EQU	0x03
@@ -143,7 +143,7 @@ CS_MENU_TABLES_D
 	CS_MENU_T_ENTRY	CS_MENU_TABLE_D_RND,  CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToRoot,   "---", 0,                     0x00, PRINT_NOP
 	CS_MENU_T_ENTRY	CS_MENU_TABLE_D_SAV,  CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToRoot,   "---", 0,                     0x00, PRINT_NOP
 
-	;; ID's for menu structures of the lead engine
+	;; ID's for menu structures of the drum engine
 CS_MENU_D_SEQ	EQU	0x01
 CS_MENU_D_SQC	EQU	0x02
 CS_MENU_D_DRM	EQU	0x03
