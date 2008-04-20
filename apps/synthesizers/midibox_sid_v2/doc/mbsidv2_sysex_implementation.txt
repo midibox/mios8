@@ -78,9 +78,10 @@ Implemented SysEx Commands
         By checking the acknowledge response message, it is possible
         to determine which cores are connected to the master core.
 
-  0C/b) F0 00 00 7E 4B <device-number> 0C 01 <velocity> [<ins>] F7
-        Plays the current patch if velocity > 0
-        Performs "All Notes Off" if velocity == 0
+  0C/b) F0 00 00 7E 4B <device-number> 0C 09 [<ins>] F7
+	(not implemented yet!)
+        Plays the current patch (C-3 with max velocity is played, can be used 
+        to test the patch independent of the MIDI channel)
 
         <ins> is an optional parameter, the effect depends on the
         selected engine:
@@ -93,6 +94,10 @@ Implemented SysEx Commands
           If sequence selected: no effect (sequence plays all tracks)
         - Multi Engine: <ins> == 0..5 selects the instrument which should
           be played
+
+  0C/c) F0 00 00 7E 4B <device-number> 0C 08 F7
+	(not implemented yet!)
+        All notes/sequences off
 
   0F/a) F0 00 00 7E 4B <device number> 0F F7
         Ping (just sends back the same SysEx string + <sids>)
