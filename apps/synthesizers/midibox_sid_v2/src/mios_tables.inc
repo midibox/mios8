@@ -50,7 +50,7 @@ MIOS_MPROC_EVENT_TABLE
 
 ; ==========================================================================
 
-;; encoders are defined in setup_mbseq_*.asm !
+;; encoders are defined in setup_*.asm !
 
 ; ==========================================================================
 

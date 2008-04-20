@@ -8,7 +8,7 @@
 ;
 ; ==========================================================================
 ;
-; Hardware related setup is located in setup_mbseq_*.asm
+; Hardware related setup is located in setup_*.asm
 ; Please make your customisations there
 ;
 ; ==========================================================================

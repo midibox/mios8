@@ -13,7 +13,7 @@
 ;; --------------------------------------------------------------------------
 ;;  This handler has to be called by USER_DIN_NotifyToggle when a button
 ;;  has been pressed/depressed
-;;  It goes through the CS_MENU_DIN_TABLE in "cs_menu_io_tables.inc",
+;;  It goes through the CS_MENU_DIN_TABLE in "setup_*.asm",
 ;;  searches for a matching DIN pin and calls the appr. function
 ;; 
 ;;  Input:
