@@ -298,11 +298,11 @@ MIOS_IIC_ByteSendLoop
 ;;	                            	//    set bit #0 to notify a read!!!
 ;;	// don't continue if IIC device not available 
 ;;	if( MIOS_BOX_STAT.BS_AVAILABLE ) {
-;;	  b0 = MIOS_IIC_ByteReceive;	// read first byte
+;;	  b0 = MIOS_IIC_ByteReceive();	// read first byte
 ;;	  MIOS_IIC_AckSend();		// send acknowledge
-;;	  b1 = MIOS_IIC_ByteReceive;	// read second byte
+;;	  b1 = MIOS_IIC_ByteReceive();	// read second byte
 ;;	  MIOS_IIC_AckSend();		// send acknowledge
-;;	  b2 = MIOS_IIC_ByteReceive;	// read third byte
+;;	  b2 = MIOS_IIC_ByteReceive();	// read third byte
 ;;	}
 ;;	MIOS_IIC_NakSend();		// send disacknowledge!!!
 ;;	MIOS_IIC_Stop();		// stop IIC
