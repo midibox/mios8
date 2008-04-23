@@ -130,23 +130,3 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
 void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 {
 }
-
-void high_isr() __interrupt
-{
-
-  do {
-    if( PIR1bits.RCIF ) {
-      Tick();
-      continue;
-    }
-
-    if( PIE1bits.TXIE && PIR1bits.RCIF ) {
-      Tick();
-      continue;
-    }
-
-    return;
-
-  } while( 1 );
-
-}
