@@ -27,51 +27,36 @@ import java.util.Observer;
 import java.util.Vector;
 
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
+import javax.sound.midi.Sequencer;
+import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
+
+import org.midibox.sidlibr.SysExControllerDevice;
+
 import java.util.prefs.*;
-public class MidiDeviceRouting extends Observable implements Observer {
-
-	public static int DISCONNECTED = 0;
-
-	public static int LOGICALLY_CONNECTED = 1;
-
-	public static int PHYSICALLY_CONNECTED = 2;
-
+public class MidiDeviceRouting extends Observable {
 	private Vector midiReadDevices;
-
 	private Vector midiWriteDevices;
-
-	private Vector logicalConnections;
-
-	private MidiDeviceManager midiDeviceManager;
-
-	private MidiRouterDeviceManager midiRouterDeviceManager;
-
-	private MidiFilterDeviceManager midiFilterManager;
-
-	private MidiMapDeviceManager midiMapManager;
-
-	private boolean portsReleased;
-
-	public MidiDeviceRouting() {
-		midiReadDevices = new Vector();
-		midiWriteDevices = new Vector();
-
-		logicalConnections = new Vector();
+	
+	private MidiDevice localMidiDevice;
+	private MidiDevice inputMidiDevice;
+	private MidiDevice outputMidiDevice;
+	
+	public MidiDeviceRouting(MidiDevice localMidiDevice) {
+		this.localMidiDevice = localMidiDevice;	
 		
-		midiDeviceManager = new MidiDeviceManager();
-		midiDeviceManager.addObserver(this);
-
-		midiRouterDeviceManager = new MidiRouterDeviceManager();
-		midiRouterDeviceManager.addObserver(this);
-
-		midiFilterManager = new MidiFilterDeviceManager();
-		midiFilterManager.addObserver(this);
-
-		midiMapManager = new MidiMapDeviceManager();
-		midiMapManager.addObserver(this);		
+		midiReadDevices = new Vector();
+		midiWriteDevices = new Vector();	
+		
+		rescanDevices();
+		
+		inputMidiDevice = (MidiDevice)getMidiReadDevices().elementAt(0);
+		outputMidiDevice = (MidiDevice)getMidiWriteDevices().elementAt(0);		
+		connectDevices(inputMidiDevice, localMidiDevice);
+		connectDevices(localMidiDevice, outputMidiDevice);
 	}
 
 	public Vector getMidiReadDevices() {
@@ -80,20 +65,6 @@ public class MidiDeviceRouting extends Observable implements Observer {
 
 	public Vector getMidiWriteDevices() {
 		return midiWriteDevices;
-	}
-
-	public void addMidiReadDevice(MidiDevice midiDevice) {
-		midiReadDevices.add(midiDevice);
-		setChanged();
-		notifyObservers(midiReadDevices);
-		clearChanged();
-	}
-
-	public void addMidiWriteDevice(MidiDevice midiDevice) {
-		midiWriteDevices.add(midiDevice);
-		setChanged();
-		notifyObservers(midiReadDevices);
-		clearChanged();
 	}
 	
 	public int hashCode() {
@@ -111,148 +82,40 @@ public class MidiDeviceRouting extends Observable implements Observer {
 		return i;
 	}
 
-	public void addMidiReadDevices(Collection midiDevices) {
-		Iterator it = midiDevices.iterator();
-
-		while (it.hasNext()) {
-			MidiDevice midiDevice = (MidiDevice) it.next();
-			addMidiReadDevice(midiDevice);
-		}
-	}
-
-	public void addMidiWriteDevices(Collection midiDevices) {
-		Iterator it = midiDevices.iterator();
-
-		while (it.hasNext()) {
-			MidiDevice midiDevice = (MidiDevice) it.next();
-			addMidiWriteDevice(midiDevice);
-		}
-	}
-
-	public void removeMidiReadDevice(MidiDevice midiDevice) {
-		midiReadDevices.remove(midiDevice);
-		setChanged();
-		notifyObservers(midiReadDevices);
-		clearChanged();
-	}
-
-	public void removeMidiWriteDevice(MidiDevice midiDevice) {
-		midiWriteDevices.remove(midiDevice);
-		setChanged();
-		notifyObservers(midiWriteDevices);
-		clearChanged();
-	}
-
-	public void removeMidiReadDevices(Collection midiDevices) {
-		Iterator it = midiDevices.iterator();
-
-		while (it.hasNext()) {
-			MidiDevice midiDevice = (MidiDevice) it.next();
-			removeMidiReadDevice(midiDevice);
-		}
-	}
-
-	public void removeMidiWriteDevices(Collection midiDevices) {
-		Iterator it = midiDevices.iterator();
-
-		while (it.hasNext()) {
-			MidiDevice midiDevice = (MidiDevice) it.next();
-			removeMidiWriteDevice(midiDevice);
-		}
-	}
-
-	public void removeAllMidiReadDevices() {
-		midiReadDevices.removeAllElements();
-		setChanged();
-		notifyObservers(midiReadDevices);
-		clearChanged();
-	}
-
-	public void removeAllMidiWriteDevices() {
-		midiWriteDevices.removeAllElements();
-		setChanged();
-		notifyObservers(midiWriteDevices);
-		clearChanged();
-	}
-
-	public MidiDeviceManager getMidiDeviceManager() {
-		return midiDeviceManager;
-	}
-
-	public MidiRouterDeviceManager getMidiRouterDeviceManager() {
-		return midiRouterDeviceManager;
-	}
-
-	public MidiFilterDeviceManager getMidiFilterManager() {
-		return midiFilterManager;
-	}
-
-	public MidiMapDeviceManager getMidiMapManager() {
-		return midiMapManager;
+	public int getInputDeviceIndex() {
+		return midiReadDevices.indexOf(inputMidiDevice);
 	}
 	
-	public void setConnectionMatrix(int[][] matrix) {
-		disconnectAll();
-		for(int r=0;r<matrix.length;r++) {
-			MidiDevice transmittingDevice = (MidiDevice) midiReadDevices.elementAt(r);
-			for(int w=0;w<matrix[r].length;w++) {
-				MidiDevice receivingDevice = (MidiDevice) midiWriteDevices.elementAt(w);
-				if ((matrix[r][w] == PHYSICALLY_CONNECTED) || (matrix[r][w] == LOGICALLY_CONNECTED)) {					
-					connectDevices(transmittingDevice, receivingDevice);
-				}				
-			}
-		}		
+	public int getOutputDeviceIndex() {
+		return midiWriteDevices.indexOf(outputMidiDevice);		
 	}
-	
-	public int[][] getConnectionMatrix() {
-		int[][] matrix = new int[midiReadDevices.size()][midiWriteDevices.size()];		
-		for(int r=0;r<midiReadDevices.size();r++) {
-			MidiDevice transmittingDevice = (MidiDevice) midiReadDevices.elementAt(r);
-			for(int w=0;w<midiWriteDevices.size();w++) {
-				MidiDevice receivingDevice = (MidiDevice) midiWriteDevices.elementAt(w);
-				matrix[r][w] = devicesConnected(transmittingDevice, receivingDevice);
-			}
-		}		
-		return matrix;
-	}
-	
+
 	public void reconnectAllDevices() {		// This function is a workaround for the SysEx (string length doesn't reset) bug in the javax.sound.midi class
-		Iterator it = midiReadDevices.iterator();
-		while (it.hasNext()) {
-			MidiDevice transmittingDevice = (MidiDevice) it.next();
-			Iterator it2 = midiWriteDevices.iterator();
-			while (it2.hasNext()) {
-				MidiDevice receivingDevice = (MidiDevice) it2.next();				
-				if ((devicesConnected(transmittingDevice, receivingDevice) == PHYSICALLY_CONNECTED) || 
-					(devicesConnected(transmittingDevice, receivingDevice) == LOGICALLY_CONNECTED)) {
-					disconnectDevices(transmittingDevice, receivingDevice);
-					connectDevices(transmittingDevice, receivingDevice);
-				}				
-			}
-		}		
+		disconnectDevices(inputMidiDevice, localMidiDevice);
+		connectDevices(inputMidiDevice, localMidiDevice);
+		disconnectDevices(localMidiDevice, outputMidiDevice);
+		connectDevices(localMidiDevice, outputMidiDevice);
 	}
-
-	public void connectDevices(MidiDevice transmittingDevice,
-			MidiDevice receivingDevice) {
-
-		if (devicesConnected(transmittingDevice, receivingDevice) == PHYSICALLY_CONNECTED) {
-			return;
-		}
-
-		logicallyConnectDevices(transmittingDevice, receivingDevice);
-
-		if (!portsReleased
-				|| ((transmittingDevice instanceof VirtualMidiDevice) && (receivingDevice instanceof VirtualMidiDevice))) {
-
-			physicallyConnectDevices(transmittingDevice, receivingDevice);
-		}
-
+		
+	public void setInputDevice(int index) {		
+		disconnectDevices(inputMidiDevice, localMidiDevice);
+		inputMidiDevice = (MidiDevice)midiReadDevices.elementAt(index);		
+		connectDevices(inputMidiDevice, localMidiDevice);
 		setChanged();
 		notifyObservers();
 		clearChanged();
 	}
-
-	private void physicallyConnectDevices(MidiDevice transmittingDevice,
+	
+	public void setOutputDevice(int index) {
+		disconnectDevices(localMidiDevice, outputMidiDevice);
+		outputMidiDevice = (MidiDevice)midiWriteDevices.elementAt(index);
+		connectDevices(localMidiDevice, outputMidiDevice);
+		setChanged();
+		notifyObservers();
+		clearChanged();
+	}
+	
+	private void connectDevices(MidiDevice transmittingDevice,
 			MidiDevice receivingDevice) {
 		try {
 			if (!receivingDevice.isOpen()) {
@@ -266,40 +129,15 @@ public class MidiDeviceRouting extends Observable implements Observer {
 			}
 
 			transmittingDevice.getTransmitter().setReceiver(receiver);
-
+			
 		} catch (MidiUnavailableException e) {
-
+			
 		} catch (NullPointerException e) {
-
+			
 		}
-
 	}
-
-	private void logicallyConnectDevices(MidiDevice transmittingDevice,
-			MidiDevice receivingDevice) {
-		logicalConnections.add(new LogicalConnection(transmittingDevice,
-				receivingDevice));
-	}
-
-	public void disconnectDevices(MidiDevice transmittingDevice,
-			MidiDevice receivingDevice) {
-
-		if (devicesConnected(transmittingDevice, receivingDevice) == DISCONNECTED) {
-			return;
-		}
-
-		logicallyDisconnectDevices(transmittingDevice, receivingDevice);
-		if (!portsReleased
-				|| ((transmittingDevice instanceof VirtualMidiDevice) && (receivingDevice instanceof VirtualMidiDevice))) {
-
-			physicallyDisconnectDevices(transmittingDevice, receivingDevice);
-		}
-		setChanged();
-		notifyObservers();
-		clearChanged();
-	}
-
-	private void physicallyDisconnectDevices(MidiDevice transmittingDevice,
+	
+	private void disconnectDevices(MidiDevice transmittingDevice,
 			MidiDevice receivingDevice) {
 
 		Iterator it = transmittingDevice.getTransmitters().iterator();
@@ -329,175 +167,43 @@ public class MidiDeviceRouting extends Observable implements Observer {
 			}
 		}
 	}
+	
+	public void rescanDevices() {
+		String hashStr = "";
+		MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 
-	private void logicallyDisconnectDevices(MidiDevice transmittingDevice,
-			MidiDevice receivingDevice) {
-		logicalConnections.remove(new LogicalConnection(transmittingDevice,
-				receivingDevice));
-	}
+		for (int i = 0; i < infos.length; i++) {
+			try {
+				MidiDevice device = MidiSystem.getMidiDevice(infos[i]);
+				
+				if (!(device instanceof Sequencer)
+						&& !(device instanceof Synthesizer)) {
 
-	public void disconnectDevice(MidiDevice midiDevice) {
+					int noReceivers = device.getMaxReceivers();
+					int noTransmitters = device.getMaxTransmitters();
 
-		Vector matches = new Vector();
+					if (noReceivers != 0) {
+						if (!midiWriteDevices.contains(device)) {
+							midiWriteDevices.add(device);
+							setChanged();
+							notifyObservers(device);
+							clearChanged();
+						}
+					}
 
-		Iterator it = logicalConnections.iterator();
-
-		while (it.hasNext()) {
-			LogicalConnection logicalConnection = (LogicalConnection) it.next();
-			if (logicalConnection.getSourceDevice() == midiDevice
-					|| logicalConnection.getTargetDevice() == midiDevice) {
-				matches.add(logicalConnection);
-			}
-		}
-
-		it = matches.iterator();
-
-		while (it.hasNext()) {
-			LogicalConnection logicalConnection = (LogicalConnection) it.next();
-			disconnectDevices(logicalConnection.getSourceDevice(),
-					logicalConnection.getTargetDevice());
-		}
-	}
-
-	public void disconnectAll() {
-
-		Iterator it = midiReadDevices.iterator();
-
-		while (it.hasNext()) {
-
-			MidiDevice transmittingDevice = (MidiDevice) it.next();
-
-			Iterator it2 = midiWriteDevices.iterator();
-			while (it2.hasNext()) {
-
-				MidiDevice receivingDevice = (MidiDevice) it2.next();
-
-				disconnectDevices(transmittingDevice, receivingDevice);
-			}
-		}
-	}
-
-	public void setPortsReleased(boolean portsReleased) {
-
-		this.portsReleased = portsReleased;
-
-		if (portsReleased) {
-
-			Iterator it = logicalConnections.iterator();
-
-			while (it.hasNext()) {
-				LogicalConnection logicalConnection = (LogicalConnection) it
-						.next();
-				MidiDevice sourceDevice = logicalConnection.getSourceDevice();
-				MidiDevice targetDevice = logicalConnection.getTargetDevice();
-
-				if (!(sourceDevice instanceof VirtualMidiDevice)
-						|| !(targetDevice instanceof VirtualMidiDevice)) {
-
-					physicallyDisconnectDevices(sourceDevice, targetDevice);
-				}
-			}
-		} else {
-
-			Iterator it = logicalConnections.iterator();
-
-			while (it.hasNext()) {
-				LogicalConnection logicalConnection = (LogicalConnection) it
-						.next();
-				MidiDevice sourceDevice = logicalConnection.getSourceDevice();
-				MidiDevice targetDevice = logicalConnection.getTargetDevice();
-
-				if (!(sourceDevice instanceof VirtualMidiDevice)
-						|| !(targetDevice instanceof VirtualMidiDevice)) {
-					physicallyConnectDevices(sourceDevice, targetDevice);
-				}
-			}
-		}
-
-		setChanged();
-		notifyObservers();
-		clearChanged();
-	}
-
-	public boolean getPortsReleased() {
-		return portsReleased;
-	}
-
-	public int devicesConnected(MidiDevice transmittingDevice,
-			MidiDevice receivingDevice) {
-
-		try {
-
-			Iterator it = transmittingDevice.getTransmitters().iterator();
-
-			while (it.hasNext()) {
-				Transmitter transmitter = (Transmitter) it.next();
-
-				Iterator it2 = receivingDevice.getReceivers().iterator();
-
-				while (it2.hasNext()) {
-
-					Receiver receiver = (Receiver) it2.next();
-
-					if (transmitter.getReceiver() == receiver) {
-						return PHYSICALLY_CONNECTED;
+					if (noTransmitters != 0) {
+						if (!midiReadDevices.contains(device)) {
+							midiReadDevices.add(device);
+							setChanged();
+							notifyObservers(device);
+							clearChanged();
+						}
 					}
 				}
-			}
-		} catch (Exception e) {
-			return DISCONNECTED;
-		}
+			} catch (MidiUnavailableException e) {
 
-		if (logicalConnections.contains(new LogicalConnection(
-				transmittingDevice, receivingDevice))) {
-			return LOGICALLY_CONNECTED;
-		}
-
-		return DISCONNECTED;
-	}
-
-	public void reorder() {
-		midiReadDevices.removeAll(midiDeviceManager
-				.getSelectedMidiReadDevices());
-		midiWriteDevices.removeAll(midiDeviceManager
-				.getSelectedMidiWriteDevices());
-		midiReadDevices.removeAll(midiRouterDeviceManager
-				.getMidiRouterDevices());
-		midiWriteDevices.removeAll(midiRouterDeviceManager
-				.getMidiRouterDevices());
-		midiReadDevices.removeAll(midiFilterManager.getMidiFilterDevices());
-		midiWriteDevices.removeAll(midiFilterManager.getMidiFilterDevices());
-		midiReadDevices.removeAll(midiMapManager.getMidiMapDevices());
-		midiWriteDevices.removeAll(midiMapManager.getMidiMapDevices());
-
-		Iterator it = midiDeviceManager.getMidiReadDevices().iterator();
-		while (it.hasNext()) {
-
-			Object object = it.next();
-
-			if (midiDeviceManager.getSelectedMidiReadDevices().contains(object)) {
-				midiReadDevices.add(object);
 			}
 		}
-
-		it = midiDeviceManager.getMidiWriteDevices().iterator();
-		while (it.hasNext()) {
-
-			Object object = it.next();
-
-			if (midiDeviceManager.getSelectedMidiWriteDevices()
-					.contains(object)) {
-				midiWriteDevices.add(object);
-			}
-		}
-
-		midiReadDevices.addAll(midiRouterDeviceManager.getMidiRouterDevices());
-		midiWriteDevices.addAll(midiRouterDeviceManager.getMidiRouterDevices());
-		midiReadDevices.addAll(midiFilterManager.getMidiFilterDevices());
-		midiWriteDevices.addAll(midiFilterManager.getMidiFilterDevices());
-		midiReadDevices.addAll(midiMapManager.getMidiMapDevices());
-		midiWriteDevices.addAll(midiMapManager.getMidiMapDevices());
-
 		setChanged();
 		notifyObservers(midiReadDevices);
 		clearChanged();
@@ -505,55 +211,5 @@ public class MidiDeviceRouting extends Observable implements Observer {
 		setChanged();
 		notifyObservers(midiWriteDevices);
 		clearChanged();
-	}
-
-	public void update(Observable observable, Object object) {
-		if (observable == midiDeviceManager
-				|| observable == midiRouterDeviceManager
-				|| observable == midiFilterManager
-				|| observable == midiMapManager) {
-
-			MidiDevice midiDevice = (MidiDevice) object;
-
-			if (midiReadDevices.contains(midiDevice)
-					|| midiWriteDevices.contains(midiDevice)) {
-				disconnectDevice(midiDevice);
-				removeMidiReadDevice(midiDevice);
-				removeMidiWriteDevice(midiDevice);
-			} else {
-				reorder();
-			}
-		}
-	}
-
-	public static class LogicalConnection {
-
-		private MidiDevice sourceDevice;
-
-		private MidiDevice targetDevice;
-
-		public LogicalConnection(MidiDevice sourceDevice,
-				MidiDevice targetDevice) {
-			this.sourceDevice = sourceDevice;
-			this.targetDevice = targetDevice;
-		}
-
-		public MidiDevice getSourceDevice() {
-			return sourceDevice;
-		}
-
-		public MidiDevice getTargetDevice() {
-			return targetDevice;
-		}
-
-		public boolean equals(Object object) {
-			if (object instanceof LogicalConnection) {
-				if (((LogicalConnection) object).getSourceDevice() == sourceDevice
-						&& ((LogicalConnection) object).getTargetDevice() == targetDevice) {
-					return true;
-				}
-			}
-			return false;
-		}
-	}
+	}	
 }

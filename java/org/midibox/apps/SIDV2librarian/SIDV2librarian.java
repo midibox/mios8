@@ -39,14 +39,10 @@ public class SIDV2librarian{
 	private boolean allowPrefs = false;
 
 	public SIDV2librarian() {
-		midiDeviceRouting = new MidiDeviceRouting();		
-		midiDeviceRoutingGUI = new MidiDeviceRoutingGUI(midiDeviceRouting);	
 		sysexControllerDevice = new SysExControllerDevice("MidiBox SID V2 Editor");
+		midiDeviceRouting = new MidiDeviceRouting(sysexControllerDevice);	
+		midiDeviceRoutingGUI = new MidiDeviceRoutingGUI(midiDeviceRouting);			
 		sidLibController = new SIDLibController(sysexControllerDevice.getSysExController());
-
-		midiDeviceRouting.addMidiWriteDevice(sysexControllerDevice);
-		midiDeviceRouting.addMidiReadDevice(sysexControllerDevice);
-		midiDeviceRouting.reorder();
 		
 		if (prefs.getInt("DEVICES_HASH", 0)==midiDeviceRouting.hashCode()) {
 			recallConnections();			
@@ -72,34 +68,18 @@ public class SIDV2librarian{
 		return sidLibController;
 	}
 	
-	private void recallConnections() {	
-		String strMatrix = prefs.get("CONNECTION_MATRIX", "");
-		int s1 = prefs.getInt("READ_DEVICES", 0);
-		int s2 = prefs.getInt("WRITE_DEVICES", 0);
-		int[][] matrix = new int[s1][s2];
-		for(int r=0;r<s1;r++) {
-			for(int w=0;w<s2;w++) {
-				matrix[r][w] = Character.getNumericValue(strMatrix.charAt((r*s2)+w));				
-			}
-		}
-		midiDeviceRouting.setConnectionMatrix(matrix);		
+	private void recallConnections() {
+		int input = prefs.getInt("INPUT_DEVICE", 0);
+		int output = prefs.getInt("OUTPUT_DEVICE", 0);
+		midiDeviceRouting.setInputDevice(input);
+		midiDeviceRouting.setOutputDevice(output);		
 	}
 		
 	public void storeConnections() {
-		int[][] matrix = midiDeviceRouting.getConnectionMatrix();
-		if(matrix.length!=0) {
-			int s1 = matrix.length;
-			int s2 = matrix[0].length;
-			String strMatrix = "";
-			for(int r=0;r<s1;r++) {
-				for(int w=0;w<s2;w++) {
-					strMatrix = strMatrix + Integer.toString(matrix[r][w]);				
-				}
-			}
-			prefs.putInt("READ_DEVICES", s1);
-			prefs.putInt("WRITE_DEVICES", s2);
-			prefs.put("CONNECTION_MATRIX", strMatrix);
-			prefs.putInt("DEVICES_HASH", midiDeviceRouting.hashCode());
-		}		
+		int input = midiDeviceRouting.getInputDeviceIndex();
+		int output = midiDeviceRouting.getOutputDeviceIndex();
+		prefs.putInt("INPUT_DEVICE", input);
+		prefs.putInt("OUTPUT_DEVICE", output);
+		prefs.putInt("DEVICES_HASH", midiDeviceRouting.hashCode());
 	}
 }

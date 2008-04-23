@@ -21,6 +21,8 @@
 package org.midibox.apps.SIDV2librarian;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -35,6 +37,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
 import org.midibox.sidedit.SIDEditController;
@@ -44,6 +47,10 @@ import org.midibox.utils.gui.ImageLoader;
 import javax.swing.JDialog;
 import org.midibox.sidedit.gui.MBSIDV2EditorGUI;
 import java.awt.event.*;
+import javax.swing.JToolBar;
+import javax.swing.JButton;
+import org.midibox.utils.gui.SplitButton;
+
 public class SIDV2librarianGUI extends JFrame implements Observer, ActionListener, ItemListener{
 
 	JCheckBoxMenuItem cbMenuItem1, cbMenuItem2, cbMenuItem3, cbMenuItem4;
@@ -76,18 +83,19 @@ public class SIDV2librarianGUI extends JFrame implements Observer, ActionListene
         });
 		setResizable(false);
 		setJMenuBar(createMenu());			
-				
+		add(createToolbar(),BorderLayout.PAGE_START);	
+		
 		// Setup Librarian GUI (table view)
 		libraryGUI = new LibraryGUI(sidLibController);
 		
 		// Setup midiDevice routing GUI
 		midiDeviceRoutingGUI = sidv2librarian.getMidiDeviceRoutingGUI();		
-		midiDeviceRoutingGUI.addMidiDeviceIcon(sidv2librarian.getSysExControllerDevice(), new ImageIcon(ImageLoader.getImageIcon("sid.png").getImage()));
+		//midiDeviceRoutingGUI.addMidiDeviceIcon(sidv2librarian.getSysExControllerDevice(), new ImageIcon(ImageLoader.getImageIcon("sid.png").getImage()));
 		
-		this.add(libraryGUI, BorderLayout.NORTH);
+		this.add(libraryGUI, BorderLayout.CENTER);
 		
 		// Setup Midi Routing Dialog
-		midiRoutingDialog = new JDialog(this,"Midi Routing", false);
+		midiRoutingDialog = new JDialog(this,"Midi Routing", true);
 		midiRoutingDialog.setContentPane(midiDeviceRoutingGUI);
 		midiRoutingDialog.pack();
 		
@@ -354,6 +362,182 @@ public class SIDV2librarianGUI extends JFrame implements Observer, ActionListene
 		return menuBar;
 	}
 
+	private JToolBar createToolbar() {
+		JToolBar toolBar = new JToolBar();
+		toolBar.setFloatable(false);
+		toolBar.add(new SplitButton(makeButton("init_lead.png","Init LEAD patch","Init LEAD patch"),dropInit()));
+		toolBar.add(new SplitButton(makeButton("open.png","Load bank","Load bank"),dropLoad()));		
+		toolBar.add(new SplitButton(makeButton("save.png","Save patch","Save patch"),dropSave()));
+		toolBar.addSeparator();
+		toolBar.add(makeButton("cut.png","Cut","Cut"));
+		toolBar.add(makeButton("copy.png","Copy","Copy"));
+		toolBar.add(makeButton("paste.png","Paste","Paste"));
+		toolBar.addSeparator();
+		toolBar.add(new SplitButton(makeButton("up.png","Transmit patch to buffer","Transmit patch to buffer"),dropTransmit()));
+		toolBar.add(new SplitButton(makeButton("down.png","Receive patch from buffer","Receive patch from buffer"),dropReceive()));
+		toolBar.addSeparator();
+		
+		//toolBar.add(makeButton("init_lead.png","Init LEAD patch","Init LEAD patch"));
+		//toolBar.add(makeButton("init_bassline.png","Init BASSLINE patch","Init BASSLINE patch"));
+		//toolBar.add(makeButton("init_drum.png","Init DRUM patch","Init DRUM patch"));
+		//toolBar.add(makeButton("init_multi.png","Init MULTI patch","Init MULTI patch"));		
+	    return toolBar;
+	}
+	
+	protected JButton makeButton(String imageName,String actionCommand,String toolTipText) {
+		//Create and initialize the button.		
+		ImageIcon icon = ImageLoader.getImageIcon(imageName);
+		int s = Math.max(icon.getIconWidth(),icon.getIconHeight())+4;
+		JButton button = new JButton();
+		button.setPreferredSize(new Dimension(s, s));
+		button.setActionCommand(actionCommand);
+		button.setToolTipText(toolTipText);
+		button.addActionListener(this);			
+		button.setIcon(icon);	
+		button.setFocusPainted(false);
+		return button;
+	}
+	
+	protected JPopupMenu dropInit() {
+		JPopupMenu ToolbarMenu = new JPopupMenu(); 
+		
+        JMenuItem item1 = new JMenuItem(); 
+        item1.setText("Init LEAD");
+        item1.setIcon(ImageLoader.getImageIcon("init_lead.png"));
+        item1.setActionCommand("Init LEAD patch");
+        item1.addActionListener(this);
+        ToolbarMenu.add(item1); 
+
+        JMenuItem item2 = new JMenuItem(); 
+        item2.setText("Init BASSLINE");
+        item2.setFont(item2.getFont().deriveFont(Font.PLAIN));
+        item2.setIcon(ImageLoader.getImageIcon("init_bassline.png"));
+        item2.setActionCommand("Init BASSLINE patch");
+        item2.addActionListener(this);
+        ToolbarMenu.add(item2);
+        
+        JMenuItem item3 = new JMenuItem(); 
+        item3.setText("Init DRUM"); 
+        item3.setFont(item3.getFont().deriveFont(Font.PLAIN));
+        item3.setIcon(ImageLoader.getImageIcon("init_drum.png"));
+        item3.setActionCommand("Init DRUM patch");
+        item3.addActionListener(this);
+        ToolbarMenu.add(item3);
+        
+        JMenuItem item4 = new JMenuItem(); 
+        item4.setText("Init MULTI"); 
+        item4.setFont(item4.getFont().deriveFont(Font.PLAIN));
+        item4.setIcon(ImageLoader.getImageIcon("init_multi.png"));
+        item4.setActionCommand("Init MULTI patch");
+        item4.addActionListener(this);
+        ToolbarMenu.add(item4);
+        return ToolbarMenu;
+	}
+	
+	protected JPopupMenu dropTransmit() {
+		JPopupMenu toolbarMenu = new JPopupMenu(); 
+		
+        JMenuItem item1 = new JMenuItem(); 
+        item1.setText("Patch to buffer");
+        item1.setIcon(ImageLoader.getImageIcon("up.png"));
+        item1.setActionCommand("Transmit patch to buffer");
+        item1.addActionListener(this);
+        toolbarMenu.add(item1); 
+
+        JMenuItem item2 = new JMenuItem(); 
+        item2.setText("Patch to memory");
+        item2.setFont(item2.getFont().deriveFont(Font.PLAIN));
+        item2.setIcon(ImageLoader.getImageIcon("up.png"));
+        item2.setActionCommand("Transmit patch to memory");
+        item2.addActionListener(this);
+        toolbarMenu.add(item2);
+        
+        toolbarMenu.addSeparator();
+        
+        JMenuItem item3 = new JMenuItem(); 
+        item3.setText("Bank"); 
+        item3.setFont(item3.getFont().deriveFont(Font.PLAIN));
+        item3.setIcon(ImageLoader.getImageIcon("up.png"));
+        item3.setActionCommand("Transmit bank to memory");
+        item3.addActionListener(this);
+        toolbarMenu.add(item3);
+        
+        return toolbarMenu;
+	}
+		
+	protected JPopupMenu dropReceive() {
+		JPopupMenu toolbarMenu = new JPopupMenu(); 
+		
+        JMenuItem item1 = new JMenuItem(); 
+        item1.setText("Patch from buffer");
+        item1.setIcon(ImageLoader.getImageIcon("down.png"));
+        item1.setActionCommand("Receive patch from buffer");
+        item1.addActionListener(this);
+        toolbarMenu.add(item1); 
+
+        JMenuItem item2 = new JMenuItem(); 
+        item2.setText("Patch from memory");
+        item2.setFont(item2.getFont().deriveFont(Font.PLAIN));
+        item2.setIcon(ImageLoader.getImageIcon("down.png"));
+        item2.setActionCommand("Receive patch from memory");
+        item2.addActionListener(this);
+        toolbarMenu.add(item2);
+        
+        toolbarMenu.addSeparator();
+        
+        JMenuItem item3 = new JMenuItem(); 
+        item3.setText("Bank"); 
+        item3.setFont(item3.getFont().deriveFont(Font.PLAIN));
+        item3.setIcon(ImageLoader.getImageIcon("down.png"));
+        item3.setActionCommand("Receive bank from memory");
+        item3.addActionListener(this);
+        toolbarMenu.add(item3);
+        
+        return toolbarMenu;
+	}
+	
+	protected JPopupMenu dropLoad() {
+		JPopupMenu toolbarMenu = new JPopupMenu(); 
+		
+        JMenuItem item1 = new JMenuItem(); 
+        item1.setText("Load bank");
+        item1.setIcon(ImageLoader.getImageIcon("open.png"));
+        item1.setActionCommand("Load bank");
+        item1.addActionListener(this);
+        toolbarMenu.add(item1); 
+
+        JMenuItem item2 = new JMenuItem(); 
+        item2.setText("Load patch");
+        item2.setFont(item2.getFont().deriveFont(Font.PLAIN));
+        item2.setIcon(ImageLoader.getImageIcon("open.png"));
+        item2.setActionCommand("Load patch");
+        item2.addActionListener(this);
+        toolbarMenu.add(item2);
+        
+        return toolbarMenu;
+	}
+	
+	protected JPopupMenu dropSave() {
+		JPopupMenu toolbarMenu = new JPopupMenu(); 
+		
+        JMenuItem item1 = new JMenuItem(); 
+        item1.setText("Save bank");
+        item1.setIcon(ImageLoader.getImageIcon("save.png"));
+        item1.setActionCommand("Save bank");
+        item1.addActionListener(this);
+        toolbarMenu.add(item1); 
+
+        JMenuItem item2 = new JMenuItem(); 
+        item2.setText("Save patch");
+        item2.setFont(item2.getFont().deriveFont(Font.PLAIN));
+        item2.setIcon(ImageLoader.getImageIcon("save.png"));
+        item2.setActionCommand("Save patch");
+        item2.addActionListener(this);
+        toolbarMenu.add(item2);
+        
+        return toolbarMenu;
+	}
+	
 	public static void main(String[] args) {
 		final SIDV2librarian sidv2librarian = new SIDV2librarian();
 		SIDV2librarianGUI sidv2librarianGUI = new SIDV2librarianGUI(sidv2librarian);		
