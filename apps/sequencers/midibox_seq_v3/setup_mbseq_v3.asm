@@ -200,6 +200,7 @@
 ;; define the resolution configuration here
 ;;   0: first channel 12bit, second channel 4bit
 ;;   1: first channel 8bit, second channel 8bit
+;;   2: combines M1,M2 and/or M3/M4: first channel 12bit, second channel 12bit, third channel 8bit, fourth channel ignored!
 ;; all other values invalid!
 #define AOUT_LC_RESOLUTION_OPTION_M1 1
 #define AOUT_LC_RESOLUTION_OPTION_M2 1

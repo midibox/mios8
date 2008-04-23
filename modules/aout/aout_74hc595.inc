@@ -12,8 +12,17 @@
 ; 
 ; ==========================================================================
 ;
-; Special Option for AOUT_LC module: select either 12/4 bit (0), or 8/8 bit (1) configuration
+; Special Option for AOUT_LC module: select either 12/4 bit (0), or 8/8 bit (1),
+; or 12/12/8 (2) configuration
 ; this has to be done for each module seperately
+;
+; Note: the 12/12/8 bit selection (2) combines 4 shift registers. The first two SRs
+; are working like option 0 (first channel: 12bit, second channel: upper 4bit)
+; The third SR outputs the lower bits of second channel, and the fourth SR the
+; 8bit value of third channel. The fourth channel is ignored
+; (same for channel 4-7... channel 8 ignored)
+; For this "combined" option, it is recommented, to set both modes (M1,M2 and/or M3,M4)
+; to value 2 for future compatibilty
 #ifndef AOUT_LC_RESOLUTION_OPTION_M1
 #define AOUT_LC_RESOLUTION_OPTION_M1 0
 #endif
@@ -66,52 +75,70 @@ AOUT_Update
 	;; update all channels
 	SET_BSR	AOUT_INVERTED
 
+
 	;; 4th AOUT_LC module
+#if AOUT_LC_RESOLUTION_OPTION_M4 == 2
+	lfsr	FSR1, AOUT_VALUES + 3*4-2	; pointer to values in FSR1
+	swapf	AOUT_INVERTED, W, BANKED	; inversion flags in MIOS_PARAMETER3[1:0]
+	rrf	WREG, W
+#else
 	lfsr	FSR1, AOUT_VALUES + 3*4		; pointer to values in FSR1
 	swapf	AOUT_INVERTED, W, BANKED	; inversion flags in MIOS_PARAMETER3[1:0]
 	rrf	WREG, W
 	rrf	WREG, W
-	andlw	0x03
+#endif
 	movwf	MIOS_PARAMETER3
-#if AOUT_LC_RESOLUTION_OPTION_M4
+#if AOUT_LC_RESOLUTION_OPTION_M4 == 0
 	rcall	AOUT_Update_Hlp_12_4
-#else
+#endif
+#if AOUT_LC_RESOLUTION_OPTION_M4 == 1
 	rcall	AOUT_Update_Hlp_8_8
+#endif
+#if AOUT_LC_RESOLUTION_OPTION_M4 == 2
+	rcall	AOUT_Update_Hlp_12_12_8
 #endif
 
 	;; 3rd AOUT_LC module
 	lfsr	FSR1, AOUT_VALUES + 2*4		; pointer to values in FSR1
 	swapf	AOUT_INVERTED, W, BANKED	; inversion flags in MIOS_PARAMETER3[1:0]
-	andlw	0x03
 	movwf	MIOS_PARAMETER3
-#if AOUT_LC_RESOLUTION_OPTION_M3
-	rcall	AOUT_Update_Hlp_12_4
+#if AOUT_LC_RESOLUTION_OPTION_M3 == 1
+	rcall	AOUT_Update_Hlp_8_8		; used for 8/8 resolution
 #else
-	rcall	AOUT_Update_Hlp_8_8
+	rcall	AOUT_Update_Hlp_12_4		; used for 12/4 and 12/12/8 resolution
 #endif
 
+
 	;; 2nd AOUT_LC module
+#if AOUT_LC_RESOLUTION_OPTION_M2 == 2
+	lfsr	FSR1, AOUT_VALUES + 1*4-2	; pointer to values in FSR1
+	rrf	AOUT_INVERTED, W, BANKED	; inversion flags in MIOS_PARAMETER3[1:0]
+#else
 	lfsr	FSR1, AOUT_VALUES + 1*4		; pointer to values in FSR1
 	rrf	AOUT_INVERTED, W, BANKED	; inversion flags in MIOS_PARAMETER3[1:0]
 	rrf	WREG, W
-	andlw	0x03
+#endif
 	movwf	MIOS_PARAMETER3
-#if AOUT_LC_RESOLUTION_OPTION_M2
+#if AOUT_LC_RESOLUTION_OPTION_M2 == 0
 	rcall	AOUT_Update_Hlp_12_4
-#else
+#endif
+#if AOUT_LC_RESOLUTION_OPTION_M2 == 1
 	rcall	AOUT_Update_Hlp_8_8
+#endif
+#if AOUT_LC_RESOLUTION_OPTION_M2 == 2
+	rcall	AOUT_Update_Hlp_12_12_8
 #endif
 
 	;; 1st AOUT_LC module
 	lfsr	FSR1, AOUT_VALUES + 0*4		; pointer to values in FSR1
 	movf	AOUT_INVERTED, W, BANKED	; inversion flags in MIOS_PARAMETER3[1:0]
-	andlw	0x03
 	movwf	MIOS_PARAMETER3
-#if AOUT_LC_RESOLUTION_OPTION_M1
-	rcall	AOUT_Update_Hlp_12_4
+#if AOUT_LC_RESOLUTION_OPTION_M1 == 1
+	rcall	AOUT_Update_Hlp_8_8		; used for 8/8 resolution
 #else
-	rcall	AOUT_Update_Hlp_8_8
+	rcall	AOUT_Update_Hlp_12_4		; used for 12/4 and 12/12/8 resolution
 #endif
+
 
 	;; CS line used as RCLK by AOUT_LC module
 	bsf	AOUT_LAT_CS, AOUT_PIN_CS	; trigger RCLK to update chain
@@ -127,6 +154,7 @@ AOUT_Update_End
 
 ;; help function to update a single AOUT_LC module
 AOUT_Update_Hlp_12_4
+#if AOUT_LC_RESOLUTION_OPTION_M1 != 1 || AOUT_LC_RESOLUTION_OPTION_M2 != 1 || AOUT_LC_RESOLUTION_OPTION_M3 != 1 || AOUT_LC_RESOLUTION_OPTION_M4 != 1
 	;; map 2 * 16 bit to 12/4 bit
 	movlw	1				; first channel: 12bit
 	movf	PLUSW1, W			; high-byte -> MIOS_PARAMETER1
@@ -146,8 +174,14 @@ AOUT_Update_Hlp_12_4
 	xorlw	0x0f
 	iorwf	MIOS_PARAMETER2, F
 	rgoto	AOUT_LoadWord
+#else
+	return					; neither 12/4, nor 12/12/4 option used - save memory
+#endif
+
+
 
 AOUT_Update_Hlp_8_8
+#if AOUT_LC_RESOLUTION_OPTION_M1 == 1 || AOUT_LC_RESOLUTION_OPTION_M2 == 1 || AOUT_LC_RESOLUTION_OPTION_M3 == 1 || AOUT_LC_RESOLUTION_OPTION_M4 == 1
 	;; map 2 * 16 bit to 8/8 bit
 	movlw	1				; first channel: 8bit
 	movf	PLUSW1, W			; high-byte -> MIOS_PARAMETER1
@@ -161,7 +195,38 @@ AOUT_Update_Hlp_8_8
 	xorlw	0xff
 	movwf	MIOS_PARAMETER2
 	rgoto	AOUT_LoadWord
+#else
+	return					; 8/8 option not used - save memory
+#endif
 
+
+	
+AOUT_Update_Hlp_12_12_8
+#if AOUT_LC_RESOLUTION_OPTION_M1 == 2 || AOUT_LC_RESOLUTION_OPTION_M2 == 2 || AOUT_LC_RESOLUTION_OPTION_M3 == 2 || AOUT_LC_RESOLUTION_OPTION_M4 == 2
+	;; first channel, and upper bits of second channel already uploaded via 12_4 function
+	;; now we have to upload the lower bits of the second channel + 8 bits of the third channel
+	;; the fourth channel is ignored
+	movlw	1				; second: lower 8bit
+	swapf	PLUSW1, W			; [3:0] of high-byte -> MIOS_PARAMETER1[7:4]
+	btfsc	MIOS_PARAMETER3, 0		; inversion?
+	xorlw	0xf0
+	andlw	0xf0
+	movwf	MIOS_PARAMETER1
+	swapf	INDF1, W			; [7:4] of low-byte -> MIOS_PARAMETER1[3:0]
+	andlw	0x0f
+	btfsc	MIOS_PARAMETER3, 0		; inversion?
+	xorlw	0x0f
+	iorwf	MIOS_PARAMETER1, F
+
+	movlw	3				; third channel: 8bit
+	movf	PLUSW1, W			; high-byte -> MIOS_PARAMETER2
+	btfsc	MIOS_PARAMETER3, 1		; inversion?
+	xorlw	0xff
+	movwf	MIOS_PARAMETER2
+	rgoto	AOUT_LoadWord
+#else
+	return					; 12/12/8 option not used - save memory
+#endif
 
 
 ;; --------------------------------------------------------------------------
