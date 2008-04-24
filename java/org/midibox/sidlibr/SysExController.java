@@ -45,13 +45,18 @@ public class SysExController extends Observable implements Receiver, ActionListe
 	  
 	private ProgressMonitor progress;
 	
+	private static String IDLE = "IDLE";
+	private static String COLLECTING = "COLLECTING";
+	private static String DUMPING = "DUMPING";
+	private static String SCANNING = "SCANNING";
+	private static String FORWARDING = "FORWARDING";
+	private String STATE;
+	
 	private Object tempSyxType;
 	private String tempSyx = new String();
 	private String[] dumpStack;
 	private int dumpCount;
-	private boolean tempSyxCollect = false;
-	private boolean tempSyxDump = false;
-	private boolean scanHardware = false;
+	
 	private String tempResponse;
 	private boolean syxErrorChk = true;
 	private Receiver receiver;
@@ -65,6 +70,7 @@ public class SysExController extends Observable implements Receiver, ActionListe
 		this.receiver = receiver;
 		timer = new Timer(timeOut, this);
 		timer.setInitialDelay(timeOut);
+		STATE = IDLE;
 	}
 	
 	public Receiver getReceiver() {
@@ -72,7 +78,7 @@ public class SysExController extends Observable implements Receiver, ActionListe
 	}
 	
 	public boolean isDone() {
-		return (!(tempSyxCollect||tempSyxDump));
+		return (STATE==IDLE);
 	}
 	
 	public void close() {}
@@ -102,14 +108,14 @@ public class SysExController extends Observable implements Receiver, ActionListe
 			message = message.replace("<device>", zeroPadToHex(masterCore));
 			progress = new ProgressMonitor(null, "", "Receiving SysEx data...", 0, 1);
 			timer.start();
-			scanHardware = true;
+			STATE = SCANNING;
 			sendSyx(message);
 		}
 	}
 	
 	private void stopScan() {
 		timer.stop();
-		scanHardware = false;
+		STATE = IDLE;
 		if (progress!=null) {
 			progress.close();
 		}
@@ -130,13 +136,11 @@ public class SysExController extends Observable implements Receiver, ActionListe
 			resetForwarding();
 			requestPatch = new int[]{patch};
 			requestBank = bank;
-			
 			timer.start();
 			requestCount = 0;		
 			tempSyxType = PATCH;
 			progress = new ProgressMonitor(null, "", "Receiving SysEx data...", 0, requestPatch.length);		
-			tempSyxCollect = true;
-			
+			STATE = COLLECTING;			
 			String message = SIDSysexInfo.editPatchRequestSysex;
 			message = message.replace("<device>", zeroPadToHex(coreNumber));
 			sendSyx(message);
@@ -162,12 +166,12 @@ public class SysExController extends Observable implements Receiver, ActionListe
 		requestCount = -1;		
 		tempSyxType = type;
 		progress = new ProgressMonitor(null, "", "Receiving SysEx data...", 0, requestPatch.length);		
-		tempSyxCollect = true;
+		STATE = COLLECTING;
 		requestNext();
 	}
 		
 	private void stopRequest() {
-		tempSyxCollect = false;			
+		STATE = IDLE;			
 		timer.stop();
 		if (progress!=null) {
 			progress.close();
@@ -284,13 +288,13 @@ public class SysExController extends Observable implements Receiver, ActionListe
 		dumpCount = 0;
 		progress = new ProgressMonitor(null, "", "Transmitting SysEx data...", 0, dumpStack.length);
 		timer.start();
-		tempSyxDump = true;
+		STATE = DUMPING;
 		tempResponse="";
 		sendNext();
 	}
 	
 	private void stopDump() {
-		tempSyxDump = false;	
+		STATE = IDLE;
 		timer.stop();
 		if (progress!=null) {
 			progress.close();
@@ -303,7 +307,7 @@ public class SysExController extends Observable implements Receiver, ActionListe
 			setChanged();
 			notifyObservers("Dump completed");
 			clearChanged();
-		} else {	// send Syx and wait for next call of sendNext()			
+		} else {	// send Syx and wait for next call of ()			
 			sendSyx(dumpStack[dumpCount++]);				
 			progress.setProgress(dumpCount);
 			timer.restart();
@@ -327,29 +331,29 @@ public class SysExController extends Observable implements Receiver, ActionListe
 			checkError(m);
 		}
 		
-		if (tempSyxCollect) {
+		if (STATE == COLLECTING) {
 			collectSyx(m);
 		}		
 		
-		if (tempSyxDump) {
+		if (STATE == DUMPING) {
 			dumpSyx(m);
 		}
 		
-		if (scanHardware) {
+		if (STATE == SCANNING) {
 			scanSyx(m);
 		}
 	}
 	
 	public void actionPerformed(ActionEvent ae) {
 		if (ae.getSource() == timer) {
-			if (tempSyxCollect) {
+			if (STATE==COLLECTING) {
 				stopRequest();
 			}
-			if (tempSyxDump) {
+			if (STATE==DUMPING) {
 				stopDump();
 			}
 			
-			if (scanHardware) {
+			if (STATE==SCANNING) {
 				stopScan();
 			}
 			JOptionPane.showMessageDialog(null,"The MBSID V2 is not responding. Please check all connections!","Error",JOptionPane.ERROR_MESSAGE);
