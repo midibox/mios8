@@ -30,7 +30,6 @@ import org.midibox.sidlibr.Patch;
 public class SIDEditController extends SIDSysexParameterControlManager {
 	private Patch patch;
 	private Vector engine;
-	private Object tooltipListener;
 	
 	public SIDEditController(Patch p) {
 		super(p.getReceiver());

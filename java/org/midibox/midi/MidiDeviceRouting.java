@@ -67,21 +67,6 @@ public class MidiDeviceRouting extends Observable {
 		return midiWriteDevices;
 	}
 	
-	public int hashCode() {
-		int i = 0;
-		Iterator it1 = midiWriteDevices.iterator();
-		while (it1.hasNext()) {
-			MidiDevice midiDevice = (MidiDevice) it1.next();
-			i = i + midiDevice.getDeviceInfo().getName().hashCode();
-		}
-		Iterator it2 = midiReadDevices.iterator();
-		while (it2.hasNext()) {
-			MidiDevice midiDevice = (MidiDevice) it2.next();
-			i = i + midiDevice.getDeviceInfo().getName().hashCode();
-		}
-		return i;
-	}
-
 	public int getInputDeviceIndex() {
 		return midiReadDevices.indexOf(inputMidiDevice);
 	}
@@ -95,6 +80,36 @@ public class MidiDeviceRouting extends Observable {
 		connectDevices(inputMidiDevice, localMidiDevice);
 		disconnectDevices(localMidiDevice, outputMidiDevice);
 		connectDevices(localMidiDevice, outputMidiDevice);
+	}
+	
+	public int findInputDeviceHash(int hash) {
+		int temp = -1;
+		for(int i=0;i<midiReadDevices.size();i++) {			
+			if (((MidiDevice)midiReadDevices.elementAt(i)).hashCode()==hash) {
+				temp = i;
+				break;
+			}
+		}
+		return temp;
+	}
+	
+	public int findOuputDeviceHash(int hash) {
+		int temp = -1;
+		for(int i=0;i<midiWriteDevices.size();i++) {			
+			if (((MidiDevice)midiWriteDevices.elementAt(i)).hashCode()==hash) {
+				temp = i;
+				break;
+			}
+		}
+		return temp;
+	}
+	
+	public int getInputDeviceHash() {
+		return inputMidiDevice.hashCode();
+	}
+	
+	public int getOutputDeviceHash() {
+		return outputMidiDevice.hashCode();
 	}
 	
 	public void closeMidi() {
@@ -174,9 +189,11 @@ public class MidiDeviceRouting extends Observable {
 	}
 	
 	public void rescanDevices() {
-		String hashStr = "";
 		MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 
+		Vector tempWriteDevices = new Vector();
+		Vector tempReadDevices = new Vector();
+		
 		for (int i = 0; i < infos.length; i++) {
 			try {
 				MidiDevice device = MidiSystem.getMidiDevice(infos[i]);
@@ -188,31 +205,30 @@ public class MidiDeviceRouting extends Observable {
 					int noTransmitters = device.getMaxTransmitters();
 
 					if (noReceivers != 0) {
-						if (!midiWriteDevices.contains(device)) {
-							midiWriteDevices.add(device);
-							setChanged();
-							notifyObservers(device);
-							clearChanged();
-						}
+						tempWriteDevices.add(device);
+						setChanged();
+						notifyObservers(device);
+						clearChanged();
 					}
 
 					if (noTransmitters != 0) {
-						if (!midiReadDevices.contains(device)) {
-							midiReadDevices.add(device);
-							setChanged();
-							notifyObservers(device);
-							clearChanged();
-						}
+						tempReadDevices.add(device);
+						setChanged();
+						notifyObservers(device);
+						clearChanged();
 					}
 				}
 			} catch (MidiUnavailableException e) {
 
 			}
 		}
+		
+		midiReadDevices = tempReadDevices; 		
 		setChanged();
 		notifyObservers(midiReadDevices);
 		clearChanged();
-
+		
+		midiWriteDevices = tempWriteDevices; 
 		setChanged();
 		notifyObservers(midiWriteDevices);
 		clearChanged();

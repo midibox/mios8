@@ -41,6 +41,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -75,6 +76,8 @@ public class MidiDeviceRoutingGUI extends JPanel implements ChangeListener, List
 	private JList midiWriteDevicesList;
 
 	private JScrollPane midiWriteDevicesScroller;
+	
+	private JButton rescan;
 
 	public MidiDeviceRoutingGUI(MidiDeviceRouting midiDeviceRouting) {
 		super(new BorderLayout());
@@ -170,7 +173,10 @@ public class MidiDeviceRoutingGUI extends JPanel implements ChangeListener, List
 
 		listPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		listPane.setOpaque(false);
-		add(listPane, BorderLayout.CENTER);		
+		add(listPane, BorderLayout.CENTER);
+		rescan = new JButton("Rescan");
+		rescan.addActionListener(this);
+		add(rescan, BorderLayout.SOUTH);
 		populateTrees();
 	}
 
@@ -255,6 +261,9 @@ public class MidiDeviceRoutingGUI extends JPanel implements ChangeListener, List
 	}
 
 	public void actionPerformed(ActionEvent ae) {
+		if (ae.getSource()==rescan) {
+			midiDeviceRouting.rescanDevices();
+		}
 	}
 
 	public class MyListCellRenderer extends DefaultListCellRenderer {

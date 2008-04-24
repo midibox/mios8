@@ -101,8 +101,13 @@ public class SIDV2librarianGUI extends JFrame implements Observer, ActionListene
 		
 		mbsidV2EditorGUI = new MBSIDV2EditorGUI(this,true);
 		
+		sidLibController.scanHardware();
+		
 		pack();
 		setVisible(true);
+		if (sidv2librarian.showMIDIconfig) {
+			midiRoutingDialog.setVisible(true);	
+		}
 	}
 	
 	private void showEditGUI() {	

@@ -37,18 +37,14 @@ public class SIDV2librarian{
 	private SIDLibController sidLibController;
 	private MidiDeviceRoutingGUI midiDeviceRoutingGUI;
 	private boolean allowPrefs = false;
+	public boolean showMIDIconfig = false;
 
 	public SIDV2librarian() {
 		sysexControllerDevice = new SysExControllerDevice("MidiBox SID V2 Editor");
 		midiDeviceRouting = new MidiDeviceRouting(sysexControllerDevice);	
 		midiDeviceRoutingGUI = new MidiDeviceRoutingGUI(midiDeviceRouting);			
 		sidLibController = new SIDLibController(sysexControllerDevice.getSysExController());
-		
-		if (prefs.getInt("DEVICES_HASH", 0)==midiDeviceRouting.hashCode()) {
-			recallConnections();			
-		} else {
-			JOptionPane.showMessageDialog(null,"Your MIDI configuration has changed, please check connections!","MIDI configuration changed!",JOptionPane.OK_OPTION);			
-		}		
+		recallConnections();
 		allowPrefs = true;
 	}
 	
@@ -71,8 +67,16 @@ public class SIDV2librarian{
 	private void recallConnections() {
 		int input = prefs.getInt("INPUT_DEVICE", 0);
 		int output = prefs.getInt("OUTPUT_DEVICE", 0);
-		midiDeviceRouting.setInputDevice(input);
-		midiDeviceRouting.setOutputDevice(output);		
+		int in = midiDeviceRouting.findInputDeviceHash(input);
+		int out = midiDeviceRouting.findOuputDeviceHash(output);
+		
+		if (in!=-1 && out!=-1) {
+			midiDeviceRouting.setInputDevice(in);
+			midiDeviceRouting.setOutputDevice(out);	
+		} else {
+			showMIDIconfig = true;
+			JOptionPane.showMessageDialog(null,"Your MIDI configuration has changed, please check connections!","MIDI configuration changed!",JOptionPane.OK_OPTION);
+		}		
 	}
 	
 	public void closeMidi() {
@@ -80,10 +84,9 @@ public class SIDV2librarian{
 	}
 		
 	public void storeConnections() {
-		int input = midiDeviceRouting.getInputDeviceIndex();
-		int output = midiDeviceRouting.getOutputDeviceIndex();
+		int input = midiDeviceRouting.getInputDeviceHash();
+		int output = midiDeviceRouting.getOutputDeviceHash();
 		prefs.putInt("INPUT_DEVICE", input);
 		prefs.putInt("OUTPUT_DEVICE", output);
-		prefs.putInt("DEVICES_HASH", midiDeviceRouting.hashCode());
 	}
 }

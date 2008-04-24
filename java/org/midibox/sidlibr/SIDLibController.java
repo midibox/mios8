@@ -61,6 +61,10 @@ public class SIDLibController extends Observable implements Observer, ActionList
 		for(int i=0;i<requestBankIndices.length;i++) {requestBankIndices[i] = i;}
 	}
 	
+	public void scanHardware(){
+		sysexController.scanHardware();
+	}
+	
 	public void setCores(int i) {
 		coresSelected = i; 
 	}
