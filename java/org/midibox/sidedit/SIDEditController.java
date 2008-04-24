@@ -72,10 +72,6 @@ public class SIDEditController extends SIDSysexParameterControlManager {
 		patch.setPatchName(s);
 	}
 	
-	public void setCores(boolean[] b) {
-		patch.setCores(b);
-	}	
-	
 	public void Save() {
 		setChanged();
 		notifyObservers("Save editor patch");	

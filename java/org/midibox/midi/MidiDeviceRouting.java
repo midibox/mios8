@@ -96,6 +96,11 @@ public class MidiDeviceRouting extends Observable {
 		disconnectDevices(localMidiDevice, outputMidiDevice);
 		connectDevices(localMidiDevice, outputMidiDevice);
 	}
+	
+	public void closeMidi() {
+		disconnectDevices(inputMidiDevice, localMidiDevice);
+		disconnectDevices(localMidiDevice, outputMidiDevice);
+	}
 		
 	public void setInputDevice(int index) {		
 		disconnectDevices(inputMidiDevice, localMidiDevice);

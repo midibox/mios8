@@ -105,17 +105,17 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListene
 		pack();
 	}
 	
-	public void editThis(SIDEditController sidEditController) {		
+	public void editThis(SIDEditController sidEditController, int cores) {		
 		this.sidEditController = sidEditController;
 		sidEditController.setTooltipListener(this);
 		Patch p = sidEditController.getPatch();
 		stereoLink.setSelected(true);
 		oscillatorLink.setSelected(false);
 		setTooltip("");
-		core1Button.setSelected(p.getCore(0));
-		core2Button.setSelected(p.getCore(1));
-		core3Button.setSelected(p.getCore(2));
-		core4Button.setSelected(p.getCore(3));		
+		core1Button.setSelected(((cores&0x01)>0));
+		core2Button.setSelected(((cores&0x02)>0));
+		core3Button.setSelected(((cores&0x04)>0));
+		core4Button.setSelected(((cores&0x08)>0));		
 		this.setTitle("MidiBox SID V2 Editor - " + p.getEngineStr() + " engine: " + p.getPatchName());
 		sidEditController.addObserver(this);
 		remove(editPanel);	

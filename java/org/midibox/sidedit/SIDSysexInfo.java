@@ -42,9 +42,11 @@ public class SIDSysexInfo {
 	public static String editPatchParameterSysex = "F000007E4B<device>06<wopt><address><value>F7";	// Direct Write of parameter into patch buffer (<AH> = 0..3, <AL> = 0..7F). Patch address: (<AH> << 7) | <AL>
 	public static String editEsembleParameterSysex = "F000007E4B<device>0670<address><value>F7";// Direct Write of parameter into ensemble buffer (<AH> = 0..1, <AL> = 0..7F). Ensemble address: (<AH> << 7) | <AL>
 
-	// Ping
-	public static String pingSysex = "F000007E4B<device>0FF7";	// Ping (just sends back the same SysEx string)
-	
+	// Miscellaneous
+	public static String pingSysex = "F000007E4B<device>0FF7";				// Ping (just sends back the same SysEx string)
+	public static String panicSysex = "F000007E4B<device>0C08F7";			// All notes/sequences off
+	public static String forwardSysex = "F000007E4B<device>0C00<sids>F7";	// Sets SysEx forwarding from master to slaves
+
 	// Feedback from core
 	public static String acknowledgedSysex = "F000007E4B<device>0F";	// Acknowledged, TK: "<sids>F7" part removed for more flexibility
 	public static String error1Sysex = "F000007E4B<device>0E01F7";	// received less bytes then expected

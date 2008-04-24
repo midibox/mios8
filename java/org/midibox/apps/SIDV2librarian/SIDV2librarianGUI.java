@@ -108,9 +108,8 @@ public class SIDV2librarianGUI extends JFrame implements Observer, ActionListene
 	private void showEditGUI() {	
 		sidv2librarian.getMidiDeviceRouting().reconnectAllDevices();	// java.sound.midi SysEx bug workaround
 		sidEditController = new SIDEditController(sidLibController.getCurrentPatch());
-		sidEditController.setCores(sidLibController.getCores());		
 		sidEditController.addObserver(this);
-		mbsidV2EditorGUI.editThis(sidEditController);		
+		mbsidV2EditorGUI.editThis(sidEditController, sidLibController.getCores());		
 	}
 	
 	public void actionPerformed(ActionEvent ae) {
@@ -126,6 +125,7 @@ public class SIDV2librarianGUI extends JFrame implements Observer, ActionListene
 		int n = JOptionPane.showConfirmDialog(null,"Are you sure you want to exit?","Exit?",JOptionPane.YES_NO_OPTION);
 		if (n==JOptionPane.YES_OPTION) {
 			sidv2librarian.storeConnections();
+			sidv2librarian.closeMidi();
 			System.exit(0);
 		}
 	}
@@ -139,30 +139,13 @@ public class SIDV2librarianGUI extends JFrame implements Observer, ActionListene
 	}
 	
 	public void itemStateChanged(ItemEvent e) {
-		if (e.getItem()==cbMenuItem1) {
-			if (cbMenuItem1.isSelected()) {
-				sidLibController.setCores(0, true);
-			} else {
-				sidLibController.setCores(0, false);
-			}
-		} else if (e.getItem()==cbMenuItem2) {
-			if (cbMenuItem2.isSelected()) {
-				sidLibController.setCores(1, true);
-			} else {
-				sidLibController.setCores(1, false);
-			}
-		} else if (e.getItem()==cbMenuItem3) {
-			if (cbMenuItem3.isSelected()) {
-				sidLibController.setCores(2, true);
-			} else {
-				sidLibController.setCores(2, false);
-			}
-		} else if (e.getItem()==cbMenuItem4) {
-			if (cbMenuItem4.isSelected()) {
-				sidLibController.setCores(3, true);
-			} else {
-				sidLibController.setCores(3, false);
-			}
+		if ((e.getItem()==cbMenuItem1)||(e.getItem()==cbMenuItem2)||(e.getItem()==cbMenuItem3)||(e.getItem()==cbMenuItem4)) {
+			int tempVal = 0;
+			if (cbMenuItem1.isSelected()) {tempVal +=1;};
+			if (cbMenuItem2.isSelected()) {tempVal +=2;};
+			if (cbMenuItem3.isSelected()) {tempVal +=4;};
+			if (cbMenuItem4.isSelected()) {tempVal +=8;};
+			sidLibController.setCores(tempVal);
 		}
     } 
 	
@@ -358,6 +341,13 @@ public class SIDV2librarianGUI extends JFrame implements Observer, ActionListene
 		cbMenuItem4.setMnemonic(KeyEvent.VK_4);
 		cbMenuItem4.addItemListener(this);
 		menu.add(cbMenuItem4);
+		
+		menu.addSeparator();
+		
+		menuItem = new JMenuItem("Scan hardware",KeyEvent.VK_S);
+		menuItem.setActionCommand("Scan hardware");
+		menuItem.addActionListener(this);
+		menu.add(menuItem);
 		
 		return menuBar;
 	}

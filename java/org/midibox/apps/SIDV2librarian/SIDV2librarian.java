@@ -74,6 +74,10 @@ public class SIDV2librarian{
 		midiDeviceRouting.setInputDevice(input);
 		midiDeviceRouting.setOutputDevice(output);		
 	}
+	
+	public void closeMidi() {
+		midiDeviceRouting.closeMidi();
+	}
 		
 	public void storeConnections() {
 		int input = midiDeviceRouting.getInputDeviceIndex();

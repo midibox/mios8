@@ -26,7 +26,6 @@ import javax.sound.midi.SysexMessage;
 import org.midibox.sidedit.SIDSysexInfo;
 
 public class Patch implements Receiver {
-	private boolean[] cores = {false, false, false, false};	
 	public static Object LEAD = new Object();
 	public static Object BASSLINE = new Object();
 	public static Object DRUM = new Object();
@@ -51,7 +50,6 @@ public class Patch implements Receiver {
 		for(int i=0; i<16; i++) {
 			int value = ((int)s.charAt(i)) & 0xFF;
 			patch[i] = nibbleSwap(value);
-			sysexSend(i, value, 1);
 		}
 	}
 	
@@ -263,42 +261,30 @@ public class Patch implements Receiver {
 		}
 	}
 	
-	public void sysexSend(int addr, int value, int bytes) {
-		for(int c=0; c < cores.length; c++) {	
-			if (cores[c]) {
-				SysexMessage sysexMessage = new SysexMessage();	
-				try {
-					String strMessage = SIDSysexInfo.editPatchParameterSysex;
-					strMessage = strMessage.replace("<device>", "0" + Integer.toString(c));
-					strMessage = strMessage.replace("<wopt>", "0" + Integer.toHexString(WOPT));
-					strMessage = strMessage.replace("<address>", calcAddr(addr));
-					strMessage = strMessage.replace("<value>", calcValue(value,bytes));
-					
-					int	nLengthInBytes = strMessage.length() / 2;
-					byte[]	abMessage = new byte[nLengthInBytes];
-					for (int i = 0; i < nLengthInBytes; i++)
-					{
-						abMessage[i] = (byte) Integer.parseInt(strMessage.substring(i * 2, i * 2 + 2), 16);				
-					}
-					
-					System.out.println(strMessage);
-					sysexMessage.setMessage(abMessage, abMessage.length);	
-				} catch (Exception e) {			
-					System.out.println("exception!");
-					System.out.println(e);
-				}
-				receiver.send(sysexMessage, -1);	
-			}			
+	public void sysexSend(int addr, int value, int bytes) {	
+		SysexMessage sysexMessage = new SysexMessage();	
+		try {
+			String strMessage = SIDSysexInfo.editPatchParameterSysex;
+			strMessage = strMessage.replace("<device>", "00");
+			strMessage = strMessage.replace("<wopt>", "0" + Integer.toHexString(WOPT));
+			strMessage = strMessage.replace("<address>", calcAddr(addr));
+			strMessage = strMessage.replace("<value>", calcValue(value,bytes));
+			
+			int	nLengthInBytes = strMessage.length() / 2;
+			byte[]	abMessage = new byte[nLengthInBytes];
+			for (int i = 0; i < nLengthInBytes; i++)
+			{
+				abMessage[i] = (byte) Integer.parseInt(strMessage.substring(i * 2, i * 2 + 2), 16);				
+			}
+			
+			System.out.println(strMessage);
+			sysexMessage.setMessage(abMessage, abMessage.length);	
+		} catch (Exception e) {			
+			System.out.println("exception!");
+			System.out.println(e);
 		}
+		receiver.send(sysexMessage, -1);	
 	}
-	
-	public void setCores(boolean[] c) {
-		cores = c;
-	}	
-	
-	public Boolean getCore(int i) {
-		return cores[i];
-	}	
 	
 	protected String calcAddr(int addr) {
 		String str0 = Integer.toHexString(addr & 0x00F);
