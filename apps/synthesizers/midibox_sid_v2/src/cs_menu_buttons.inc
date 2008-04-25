@@ -125,29 +125,6 @@ CS_MENU_BUTTON_Exec_NoStartup
 	;; exit SID player mode if CS is disabled
 	GOTO_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, SIDPLAY_Disable
 
-	;; new: play note/start sequencer function if SID buttons are pressed
-#if 1
-	movf	CS_MENU_SELECTED_SID_FLAGS, W
-	andlw	0xf0
-	xorlw	0xf0
-	bz	CS_MENU_BUTTON_Exec_Normal
-CS_MENU_BUTTON_Exec_PlayNote
-	;; CS_MENU_SELECTED_SID_FLAGS[7:4] contain the current button state
-	movlw	0x00
-	CALL_IFCLR CS_MENU_SELECTED_SID_FLAGS, 4, ACCESS, CS_MENU_MS_PlayNote
-	movlw	0x01
-	CALL_IFCLR CS_MENU_SELECTED_SID_FLAGS, 5, ACCESS, CS_MENU_MS_PlayNote
-	movlw	0x02
-	CALL_IFCLR CS_MENU_SELECTED_SID_FLAGS, 6, ACCESS, CS_MENU_MS_PlayNote
-	movlw	0x03
-	CALL_IFCLR CS_MENU_SELECTED_SID_FLAGS, 7, ACCESS, CS_MENU_MS_PlayNote
-
-	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
-	return
-
-CS_MENU_BUTTON_Exec_Normal
-#endif
-
 	goto	CS_MENU_Exec
 
 	;; ------------------------------------------------------------------
@@ -208,8 +185,8 @@ CS_MENU_BUTTON_Select_Cont
 	;; exit with message if SID player mode enabled and SID1 selected
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
 
-	;; branch if in CFG mode
-	GOTO_IFSET CS_STAT3, CS_STAT3_CFG_PAGE, ACCESS, CS_MENU_CFG_Button
+	;; branch if in SHIFT page
+	GOTO_IFSET CS_STAT3, CS_STAT3_SHIFT_PAGE, ACCESS, CS_MENU_SHIFT_Button
 
 	;; set cursor to: CS_MENU_PAGE_OFFSET + number in WREG
 	addwf	CS_MENU_PAGE_OFFSET, W
@@ -364,10 +341,10 @@ CS_MENU_BUTTON_Shift
 	btfss	MIOS_PARAMETER2, 0; if button is pressed
 	bsf	CS_MENU_MODE, CS_MENU_MODE_SHIFT_PRESSED
 
-	;; change to CFG page
-	bcf	CS_STAT3, CS_STAT3_CFG_PAGE
+	;; change to SHIFT page
+	bcf	CS_STAT3, CS_STAT3_SHIFT_PAGE
 	btfss	MIOS_PARAMETER2, 0; if button is pressed
-	bsf	CS_STAT3, CS_STAT3_CFG_PAGE
+	bsf	CS_STAT3, CS_STAT3_SHIFT_PAGE
 
 	;; always request new display-initialization
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
@@ -409,8 +386,10 @@ CS_MENU_BUTTON_Play
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
+
 	;; exit with message if SID player mode enabled and SID1 selected
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
+
 	;; CS_MENU_SELECTED_SID_FLAGS[3:0] contain the current selected SIDs
 	movlw	0x00
 	CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 0, ACCESS, CS_MENU_MS_PlayNote
@@ -1078,8 +1057,8 @@ CS_MENU_BUTTON_M_ModPage
 
 
 CS_MENU_BUTTON_M_EorLPage
-	;; disable CFG menu (for combined shift/CFG button)
-	bcf	CS_STAT3, CS_STAT3_CFG_PAGE
+	;; disable SHIFT menu (for combined shift/CFG button)
+	bcf	CS_STAT3, CS_STAT3_SHIFT_PAGE
 
 	;; select new menu depending on mod button
 	movf	CS_MENU_SELECTED_MOD_SRC, W

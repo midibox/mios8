@@ -447,7 +447,20 @@ MIDIboxSID V2.0
       multiple voices with a single SysEx command
     - introduced <sids> selection which allows to access slave SIDs
       via master SID (command 0C 00 <sids>)
-    - added SysEx command to play the current patch (command 0C 01 <velocity>)
+    - added SysEx command for all notes/sequences off (command 0C 08)
+    - added SysEx command to play the current patch (command 0C 09 [<ins>])
+      Note: for proper handling of <ins>, seperate keyboard zones or MIDI channels
+      for multi instruments are currently required - this is no bug, 
+      but just an imperfection (I was too lazy to overwork SID_PATCH_NotesOn yet)
+  o parameter assignment/patch/bank selection: "big message" now displayed
+    immediately when menu item has been selected
+  o The "note off" function of the SHIFT menu now works as "Note On/Off" (called "Ply")
+    This function is intended as replacement for the optional Play button
+    Patch will be played/stopped on all selected SIDs
+  o Removed button combination "SIDx+MENU" (which was previously used for Play function)
+    This combination could get a different purpose on future
+  o LFOs and ENVs of left channel bassline working properly again
+  o AOUT_LC driver now supports 16/16/8 resolution (requires 4 combined 74HC595)
 
 
 MEMO:
@@ -502,9 +515,6 @@ MEMO:
 
   - a switch which disables the menu jumping when an encoder has been moved
     has been requested from multiple users meanwhile
-
-  - when knob parameter selection active: show parameter immediately when
-    GP button pressed
 
   - a switch which swaps the encoder speed selection: slow by default, fast
     if SHIFT button pressed

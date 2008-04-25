@@ -101,8 +101,8 @@ CS_MENU_Handler_Init
 	;; update OSC flags
 	rcall	CS_MENU_Hlp_UpdateOSCFlags
 
-	;; if not in CFG page
-	BRA_IFSET CS_STAT3, CS_STAT3_CFG_PAGE, ACCESS, CS_MENU_Handler_Init_CFGSkip
+	;; if not in SHIFT page
+	BRA_IFSET CS_STAT3, CS_STAT3_SHIFT_PAGE, ACCESS, CS_MENU_Handler_Init_CFGSkip
 CS_MENU_Handler_Init_NotCFGSkip
 	;; init menu table
 	rcall	CS_MENU_Page_Init
@@ -126,7 +126,7 @@ CS_MENU_Handler_Init_CFGSkip
 	return
 	
 	;; in main page: print static display elements
-	BRA_IFSET CS_STAT3, CS_STAT3_CFG_PAGE, ACCESS, CS_MENU_Handler_Init_NotMainPage
+	BRA_IFSET CS_STAT3, CS_STAT3_SHIFT_PAGE, ACCESS, CS_MENU_Handler_Init_NotMainPage
 	BRA_IFCLR CS_MENU, 7, ACCESS, CS_MENU_Handler_Init_NotMainPage
 CS_MENU_Handler_Init_MainPage
 #if CS_MENU_DISPLAYED_ITEMS > 5
@@ -175,8 +175,8 @@ CS_MENU_Handler_NoInit
 	call	CS_MENU_LED_Update
 
 CS_MENU_Handler_CheckMain
-	;; branch if CFG page is displayed
-	BRA_IFSET CS_STAT3, CS_STAT3_CFG_PAGE, ACCESS, CS_MENU_Page_Cfg
+	;; branch if SHIFT page is displayed
+	BRA_IFSET CS_STAT3, CS_STAT3_SHIFT_PAGE, ACCESS, CS_MENU_Page_Cfg
 
 	;; branch if menu page is displayed
 	BRA_IFCLR CS_MENU, 7, ACCESS, CS_MENU_Handler_MenuPage
@@ -410,10 +410,10 @@ CS_MENU_Page_Cfg
 	movf	CS_MENU_REFRESH_ITEM_CTR, W	
 	bnz	CS_MENU_Page_Cfg_Step1
 CS_MENU_Page_Cfg_Step0
-	call	CS_MENU_CFG_PrintUL
+	call	CS_MENU_SHIFT_PrintUL
 	rgoto	CS_MENU_Page_Cfg_End
 CS_MENU_Page_Cfg_Step1
-	call	CS_MENU_CFG_PrintLL
+	call	CS_MENU_SHIFT_PrintLL
 	;; 	rgoto	CS_MENU_Page_Cfg_End
 
 CS_MENU_Page_Cfg_End
@@ -566,6 +566,75 @@ CS_MENU_Page_Parameters_SkipLL
 	movlw	0x0e
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd
 	return
+
+
+;; --------------------------------------------------------------------------
+;;  print parameter name on whole screen
+;;  called when a parameter assignment is edited
+;; --------------------------------------------------------------------------
+				     ;;  <------------------>
+TEXT_CS_MENU_PARAMETER STRING 20, 0x00, "Parameter Assign.:  "
+				     ;;  12341234123412341234
+CS_MENU_Page_BigMsg_ParName
+	;; notify that "big" message will be print (until item is deselected)
+	bsf	CS_STAT, CS_STAT_BIG_MSG
+
+	;; print uppper line
+	TABLE_ADDR TEXT_CS_MENU_PARAMETER
+	call	MIOS_LCD_PrintString
+
+	;; print lower line
+	movlw	0x40
+	call	MIOS_LCD_CursorSet
+
+	movf	CS_MENU_PARAMETER_L, W
+	goto	SID_LCD_LongParName
+
+
+;; --------------------------------------------------------------------------
+;;  print patch and bank
+;;  called when a parameter assignment is edited
+;; --------------------------------------------------------------------------
+				     ;;  <------------------>
+TEXT_CS_MENU_PATCH     STRING  7, 0x00, "Patch: "
+TEXT_CS_MENU_BANK      STRING  7, 0x00, "Bank:  "
+				     ;;  12341234123412341234
+
+CS_MENU_Page_BigMsg_Bank
+	TABLE_ADDR TEXT_CS_MENU_BANK
+	rgoto	CS_MENU_Page_BigMsg_Bank_Cont
+
+CS_MENU_Page_BigMsg_Patch
+	TABLE_ADDR TEXT_CS_MENU_PATCH
+	rgoto	CS_MENU_Page_BigMsg_Bank_Cont
+
+CS_MENU_Page_BigMsg_Bank_Cont
+	;; notify that "big" message will be print (until item is deselected)
+	bsf	CS_STAT, CS_STAT_BIG_MSG
+
+	;; print uppper line
+	call	MIOS_LCD_PrintString
+
+	call	CS_MENU_MS_GetSIDNumber
+	call	CS_MENU_MS_GetSIDBank
+	movwf	SID_BANK
+	call	CS_MENU_MS_GetSIDPatch
+	movwf	SID_PATCH
+	call	SID_LCD_PrintPatchNumber
+
+	movlw	9
+	call	SID_LCD_PrintSpaces
+
+
+	;; print lower line
+	movlw	0x40
+	call	MIOS_LCD_CursorSet
+
+	call	SID_LCD_PrintPatchEE	; (new name not loaded into edit buffer yet!)
+
+	movlw	4
+	goto	SID_LCD_PrintSpaces
+
 
 ;; --------------------------------------------------------------------------
 ;;  name editing screen
@@ -1355,57 +1424,14 @@ CS_MENU_ParameterUpdate_Next
 	rgoto	CS_MENU_ParameterUpdateNoBigMsg
 
 CS_MENU_ParameterUpdateParName
-	;; notify that "big" message will be print (until item is deselected)
-	bsf	CS_STAT, CS_STAT_BIG_MSG
-
-	;; print uppper line
-	TABLE_ADDR TEXT_CS_MENU_PARAMETER
-	call	MIOS_LCD_PrintString
-
-	;; print lower line
-	movlw	0x40
-	call	MIOS_LCD_CursorSet
-
-	movf	CS_MENU_PARAMETER_L, W
-	call	SID_LCD_LongParName
+	rcall	CS_MENU_Page_BigMsg_ParName
 	rgoto	CS_MENU_ParameterUpdateParName_C
-
 CS_MENU_ParameterUpdatePatBank
-	TABLE_ADDR TEXT_CS_MENU_BANK
-	rgoto	CS_MENU_ParameterUpdatePatBankCn
-
-CS_MENU_ParameterUpdatePatName
-	TABLE_ADDR TEXT_CS_MENU_PATCH
-
-CS_MENU_ParameterUpdatePatBankCn
-	;; print uppper line
-	call	MIOS_LCD_PrintString
-
-	call	CS_MENU_MS_GetSIDNumber
-	call	CS_MENU_MS_GetSIDBank
-	movwf	SID_BANK
-	call	CS_MENU_MS_GetSIDPatch
-	movwf	SID_PATCH
-	call	SID_LCD_PrintPatchNumber
-
-	movlw	9
-	call	SID_LCD_PrintSpaces
-
-
-	;; print lower line
-	movlw	0x40
-	call	MIOS_LCD_CursorSet
-
-	call	SID_LCD_PrintPatchEE	; (new name not loaded into edit buffer yet!)
-
-	movlw	4
-	call	SID_LCD_PrintSpaces
-
-	;; notify that "big" message will be print (until item is deselected)
-	bsf	CS_STAT, CS_STAT_BIG_MSG
-
+	rcall	CS_MENU_Page_BigMsg_Bank
 	rgoto	CS_MENU_ParameterUpdateParName_C
-
+CS_MENU_ParameterUpdatePatName
+	rcall	CS_MENU_Page_BigMsg_Patch
+	;; 	rgoto	CS_MENU_ParameterUpdateParName_C
 CS_MENU_ParameterUpdateParName_C
 CS_MENU_ParameterUpdateNoBigMsg
 
@@ -1419,12 +1445,6 @@ CS_MENU_ParameterUpdateNoBigMsg
 	;; thats all
 	return
 
-
-				     ;;  <------------------>
-TEXT_CS_MENU_PARAMETER STRING 20, 0x00, "Parameter Assign.:  "
-TEXT_CS_MENU_PATCH     STRING  7, 0x00, "Patch: "
-TEXT_CS_MENU_BANK      STRING  7, 0x00, "Bank:  "
-				     ;;  12341234123412341234
 
 ;; --------------------------------------------------------------------------
 ;;  This help function adds WREG to CS_MENU_ENTRY_TBLPTR[LH] and copies

@@ -286,7 +286,6 @@ CS_MENU_P2R_Handler_Jmp
 
 ; --------------------------------------------------------------------------
 ; Macros used for passing parameter values to the selected SIDs
-; TODO: replace macro by function to save code space!
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_VX_SEND_MACRO MACRO
 	;; dirty trick:	this call puts the address behind the instruction into the caller stack
@@ -300,6 +299,17 @@ CS_MENU_P2R_FX_SEND_MACRO MACRO
 	;; see comments for CS_MENU_P2R_VX_SEND_MACRO
 	rcall	CS_MENU_P2R_Fx_Send
 	ENDM
+
+CS_MENU_P2R_LFOX_SEND_MACRO MACRO
+	;; see comments for CS_MENU_P2R_VX_SEND_MACRO
+	rcall	CS_MENU_P2R_LFOx_Send
+	ENDM
+
+CS_MENU_P2R_ENVX_SEND_MACRO MACRO
+	;; see comments for CS_MENU_P2R_VX_SEND_MACRO
+	rcall	CS_MENU_P2R_LFOx_Send
+	ENDM
+
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_NOP
@@ -954,7 +964,7 @@ CS_MENU_R2P_Fx_FIP
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_LFOx
-	rcall	CS_MENU_FSR0_LFO
+	CS_MENU_P2R_LFOX_SEND_MACRO
 	rgoto	CS_MENU_P2R_PAR8
 
 CS_MENU_R2P_LFOx
@@ -963,7 +973,7 @@ CS_MENU_R2P_LFOx
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_LFOx_WAV
-	rcall	CS_MENU_FSR0_LFO
+	CS_MENU_P2R_LFOX_SEND_MACRO
 	movlw	0x0e
 	andwf	INDF0, F
 
@@ -987,6 +997,7 @@ CS_MENU_R2P_LFOx_WAV
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_LFOx_SNC
+	CS_MENU_P2R_LFOX_SEND_MACRO
 	;; controlled from trigger matrix (Note On Event)
 	;; index already in CS_MENU_PARAMETER_IX, add LFO offset
 	movf	CS_MENU_SELECTED_LFO, W
@@ -1010,7 +1021,7 @@ CS_MENU_R2P_LFOx_SNC
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_LFOx_SNC_M
-	call	CS_MENU_FSR0_LFO
+	CS_MENU_P2R_LFOX_SEND_MACRO
 	movlw	SID_I_LFO_MODE_SYNC_M
 	rgoto	CS_MENU_P2R_Hlp_ParSendFlag
 
@@ -1021,7 +1032,7 @@ CS_MENU_R2P_LFOx_SNC_M
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_LFOx_ONE
-	call	CS_MENU_FSR0_LFO
+	CS_MENU_P2R_LFOX_SEND_MACRO
 	movlw	SID_I_LFO_MODE_ONESHOT
 	rgoto	CS_MENU_P2R_Hlp_ParSendFlag
 
@@ -1032,7 +1043,7 @@ CS_MENU_R2P_LFOx_ONE
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_LFOx_CSN
-	call	CS_MENU_FSR0_LFO
+	CS_MENU_P2R_LFOX_SEND_MACRO
 	movlw	SID_I_LFO_MODE_CLKSYNC
 	rgoto	CS_MENU_P2R_Hlp_ParSendFlag
 
@@ -1043,7 +1054,7 @@ CS_MENU_R2P_LFOx_CSN
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_ENVx
-	call	CS_MENU_FSR0_ENV
+	CS_MENU_P2R_ENVX_SEND_MACRO
 	rgoto	CS_MENU_P2R_PAR8
 
 CS_MENU_R2P_ENVx
@@ -1052,7 +1063,7 @@ CS_MENU_R2P_ENVx
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_ENVx_LPB
-	call	CS_MENU_FSR0_ENV
+	CS_MENU_P2R_ENVX_SEND_MACRO
 	movlw	0xf8
 	andwf	INDF0, F
 	movf	CS_MENU_PARAMETER_L, W
@@ -1069,7 +1080,7 @@ CS_MENU_R2P_ENVx_LPB
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_ENVx_LPE
 CS_MENU_P2R_ENVx_CAS
-	call	CS_MENU_FSR0_ENV
+	CS_MENU_P2R_ENVX_SEND_MACRO
 	movlw	0x8f
 	andwf	INDF0, F
 	swapf	CS_MENU_PARAMETER_L, W
@@ -1086,7 +1097,7 @@ CS_MENU_R2P_ENVx_CAS
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_ENVx_CSN
-	call	CS_MENU_FSR0_ENV
+	CS_MENU_P2R_ENVX_SEND_MACRO
 	movlw	SID_I_ENV_MODE_CLKSYNC
 	rgoto	CS_MENU_P2R_Hlp_ParSendFlag
 
@@ -1988,6 +1999,123 @@ CS_MENU_P2R_CallSub
 	movwf	TOSU
 	IRQ_ENABLE
 	return
+
+
+; ==========================================================================
+;  Function to execute P2R LFO handlers for all selected SIDs
+;  expecting pointer to handler function in TOS[LHU] (!)
+; ==========================================================================
+CS_MENU_P2R_LFOx_Send
+	;; save TOS[LHU] (the return pointer) in TBLPTR[LHU]
+	movff	TOSL, TBLPTRL
+	movff	TOSH, TBLPTRH
+	movff	TOSU, TBLPTRU
+
+	;; branch depending on engine
+	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
+	BRA_IFSET WREG, 1, ACCESS, CS_MENU_P2R_LFOx_Send_DM
+CS_MENU_P2R_LFOx_Send_LB
+	BRA_IFSET WREG, 0, ACCESS, CS_MENU_P2R_LFOx_Send_B
+
+CS_MENU_P2R_LFOx_Send_L
+	call	CS_MENU_FSR0_LFO
+	rcall	CS_MENU_P2R_CallSub
+
+	;; jump back to the previous caller!
+	pop
+	return
+
+
+CS_MENU_P2R_LFOx_Send_B		; bassline engine
+	BRA_IFCLR CS_MENU_SELECTED_SID_LR, 0, ACCESS, CS_MENU_P2R_LFOx_Send_B_SR
+CS_MENU_P2R_LFOx_Send_B_SL
+	movlw	SID_Ix_B_S1V1_BASE
+	addwf	CS_MENU_PARAMETER_IX, W
+	movwf	FSR0L
+	movf	CS_MENU_SELECTED_LFO, W
+	andlw	0x01
+	mullw	SID_Ix_B_Vx_LFO2_MODE-SID_Ix_B_Vx_LFO1_MODE
+	movf	PRODL, W
+	addwf	FSR0L, F
+	rcall	CS_MENU_P2R_CallSub
+CS_MENU_P2R_LFOx_Send_B_SR
+	BRA_IFCLR CS_MENU_SELECTED_SID_LR, 1, ACCESS, CS_MENU_P2R_LFOx_Send_B_End
+	movlw	SID_Ix_B_S2V1_BASE
+	addwf	CS_MENU_PARAMETER_IX, W
+	movwf	FSR0L
+	movf	CS_MENU_SELECTED_LFO, W
+	andlw	0x01
+	mullw	SID_Ix_B_Vx_LFO2_MODE-SID_Ix_B_Vx_LFO1_MODE
+	movf	PRODL, W
+	addwf	FSR0L, F
+	rcall	CS_MENU_P2R_CallSub
+CS_MENU_P2R_LFOx_Send_B_End
+	;; jump back to the previous caller!
+	pop
+	return
+
+
+CS_MENU_P2R_LFOx_Send_DM
+	BRA_IFSET WREG, 0, ACCESS, CS_MENU_P2R_LFOx_Send_M
+
+CS_MENU_P2R_LFOx_Send_D		; drum engine
+	;; (same as for multi engine)
+CS_MENU_P2R_LFOx_Send_M		; multi engine
+	rgoto	CS_MENU_P2R_LFOx_Send_L	; same as for lead engine
+
+
+; ==========================================================================
+;  Function to execute P2R ENV handlers for all selected SIDs
+;  expecting pointer to handler function in TOS[LHU] (!)
+; ==========================================================================
+CS_MENU_P2R_ENVx_Send
+	;; save TOS[LHU] (the return pointer) in TBLPTR[LHU]
+	movff	TOSL, TBLPTRL
+	movff	TOSH, TBLPTRH
+	movff	TOSU, TBLPTRU
+
+	;; branch depending on engine
+	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
+	BRA_IFSET WREG, 1, ACCESS, CS_MENU_P2R_ENVx_Send_DM
+CS_MENU_P2R_ENVx_Send_LB
+	BRA_IFSET WREG, 0, ACCESS, CS_MENU_P2R_ENVx_Send_B
+
+CS_MENU_P2R_ENVx_Send_L
+	call	CS_MENU_FSR0_ENV
+	rcall	CS_MENU_P2R_CallSub
+
+	;; jump back to the previous caller!
+	pop
+	return
+
+
+CS_MENU_P2R_ENVx_Send_B		; bassline engine
+	BRA_IFCLR CS_MENU_SELECTED_SID_LR, 0, ACCESS, CS_MENU_P2R_ENVx_Send_B_SR
+CS_MENU_P2R_ENVx_Send_B_SL
+	movlw	SID_Ix_B_S1V1_BASE
+	addwf	CS_MENU_PARAMETER_IX, W
+	movwf	FSR0L
+	rcall	CS_MENU_P2R_CallSub
+CS_MENU_P2R_ENVx_Send_B_SR
+	BRA_IFCLR CS_MENU_SELECTED_SID_LR, 1, ACCESS, CS_MENU_P2R_ENVx_Send_B_End
+	movlw	SID_Ix_B_S2V1_BASE
+	addwf	CS_MENU_PARAMETER_IX, W
+	movwf	FSR0L
+	rcall	CS_MENU_P2R_CallSub
+CS_MENU_P2R_ENVx_Send_B_End
+	;; jump back to the previous caller!
+	pop
+	return
+
+
+CS_MENU_P2R_ENVx_Send_DM
+	BRA_IFSET WREG, 0, ACCESS, CS_MENU_P2R_ENVx_Send_M
+
+CS_MENU_P2R_ENVx_Send_D		; drum engine
+	;; (same as for multi engine)
+CS_MENU_P2R_ENVx_Send_M		; multi engine
+	rgoto	CS_MENU_P2R_ENVx_Send_L	; same as for lead engine
+
 
 
 ; ==========================================================================

@@ -1027,23 +1027,33 @@ SIDSE_M_LFO_MOD_FIL
 	movf	PLUSW0, W
 	xorlw	0x80		; skip if depth is 0x80 (-> 0)
 	bz	SIDSE_M_LFO_MOD_FIL_End
-#if 0
-	xorlw	0x80
+
+	;; next part is different for multi engine
+	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
+	andlw	0x03
+	xorlw	0x03
+	bz	SIDSE_M_LFO_MOD_FIL_Multi
+
+SIDSE_M_LFO_MOD_FIL_Bassline
+	movlw	SID_Ix_M_Vx_LFO1_DEPTH_F-SID_Ix_M_Vx_LFO1_MODE
+	movf	PLUSW0, W
 	call	SIDSE_Hlp_ScaleDepth	; 15bit signed value in MUL_A_[LH], result in MUL_R_[123], uses IRQ_TMP1
 
 	;; branch depending on voice
 	movlw	2*3
 	cpfslt	SID_SE_ELEMENT_NUM, BANKED
-	rgoto SIDSE_M_LFO_MOD_FIL_R
+	rgoto	SIDSE_M_LFO_MOD_FIL_R
 SIDSE_M_LFO_MOD_FIL_L
 	rcall	SIDSE_M_LFO_MOD_FIL_TrgL_Sub
 	rgoto	SIDSE_M_LFO_MOD_FIL_End
 
 SIDSE_M_LFO_MOD_FIL_R
 	rcall	SIDSE_M_LFO_MOD_FIL_TrgR_Sub
-	;; 	rgoto	SIDSE_M_LFO_MOD_FIL_End
-#else
+	rgoto	SIDSE_M_LFO_MOD_FIL_End
 
+
+
+SIDSE_M_LFO_MOD_FIL_Multi
 	;; TK: intention is to ensure, that only the LFO of the last assigned voice
 	;; modulates the filter for more logical results (the results were not obvious
 	;; when all 6 LFOs modulated the filters...)
@@ -1104,7 +1114,6 @@ SIDSE_M_LFO_MOD_FIL_TrgL
 SIDSE_M_LFO_MOD_FIL_TrgR
 	rcall	SIDSE_M_LFO_MOD_FIL_TrgR_Sub
 	;; 	rgoto	SIDSE_M_LFO_MOD_FIL_End
-#endif
 SIDSE_M_LFO_MOD_FIL_End
 
 SIDSE_M_LFO_End
@@ -1121,7 +1130,6 @@ SIDSE_M_LFO_MOD_FIL_TrgL_Sub
 	movf	MUL_R_3, W, BANKED
 	addwfc	POSTINC2, F
 	return
-	rgoto	SIDSE_M_LFO_MOD_FIL_End
 
 ;; subroutine for adding modulation result to FIL1_R target
 SIDSE_M_LFO_MOD_FIL_TrgR_Sub

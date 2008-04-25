@@ -687,6 +687,9 @@ SID_SYSEX_Cmd
 SID_SYSEX_Cmd_Type
 	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_TYPE_RECEIVED, BANKED, SID_SYSEX_Cmd_Byte
 	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_TYPE_RECEIVED, BANKED
+	;; clear SYSEX_DATA (for the case that it won't be received)
+	SET_BSR	SID_BASE
+	clrf	SID_SYSEX_DATA, BANKED
 	movff	SID_SYSEX_IN, SID_SYSEX_TYPE	; copy type number to SID_SYSEX_TYPE
 	rgoto	SID_SYSEX_SysExCheck_End	; wait for next byte
 
@@ -703,25 +706,81 @@ SID_SYSEX_Cmd_Stl
 	;; end of sysex command
 SID_SYSEX_Cmd_End
 
-	;; action invalid if command byte hasn't been received
-	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_CMDBYTE_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
-
 	;; branch depending on command type
 	movf	SID_SYSEX_TYPE, W, BANKED
 	bz	SID_SYSEX_Cmd_00
+	addlw	-8
+	bz	SID_SYSEX_Cmd_08
+	addlw	-1
+	bz	SID_SYSEX_Cmd_09
 SID_SYSEX_Cmd_Inv
 	;; invalid command
 	rgoto	SID_SYSEX_DisAck_InvCmd
 
 SID_SYSEX_Cmd_00
+	;; action invalid if command byte hasn't been received
+	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_CMDBYTE_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
+
 	;; invalid command if this is not a master core
 	movf	SID_MIDI_DEVICE, W
 	bnz	SID_SYSEX_Cmd_Inv
+
 	;; new SID selection
 	movf	SID_SYSEX_DATA, W, BANKED
 	skpnz			; if 0x00 has been received: select SID1
 	movlw	0x01
 	movff	WREG, SYX_SID_SELECTION
+	rgoto	SID_SYSEX_Cmd_Ack
+
+SID_SYSEX_Cmd_08
+	;; action invalid if command type hasn't been received
+	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_TYPE_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
+
+	;; re-use CS routine
+	;; for all selected SIDs
+	clrf	CS_MENU_SID
+SID_SYSEX_Cmd_08_Loop
+	movf	CS_MENU_SID, W
+	call	MIOS_HLP_GetBitORMask
+	movff	SYX_SID_SELECTION, PRODL
+	andwf	PRODL, W
+	bz	SID_SYSEX_Cmd_08_Loop_Next
+	call	CS_MENU_MS_NotesOff
+SID_SYSEX_Cmd_08_Loop_Next
+	incf	CS_MENU_SID, F
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, SID_SYSEX_Cmd_08_Loop
+
+	rgoto	SID_SYSEX_Cmd_Ack
+
+SID_SYSEX_Cmd_09
+	;; action invalid if command type hasn't been received
+	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_TYPE_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
+
+	movff	SID_MIDI_DEVICE, CS_MENU_SID
+	movff	CS_MENU_SELECTED_INS, SID_SYSEX_TYPE	; temporary storage for selected instrument
+	movff	CS_MENU_SELECTED_SID_LR, SID_SYSEX_IN	; temporary storage for left/right selection
+	movff	SID_SYSEX_DATA, CS_MENU_SELECTED_INS	; transfer requested instrument/LR from SysEx command (0 if not sent)
+	movf	SID_SYSEX_DATA, W, BANKED		; ditto - force 0x03 if value is 0x00
+	skpnz
+	movlw	0x03
+	movwf	CS_MENU_SELECTED_SID_LR
+
+	;; re-use CS routine
+	;; for all selected SIDs
+	clrf	CS_MENU_SID
+SID_SYSEX_Cmd_09_Loop
+	movf	CS_MENU_SID, W
+	call	MIOS_HLP_GetBitORMask
+	movff	SYX_SID_SELECTION, PRODL
+	andwf	PRODL, W
+	bz	SID_SYSEX_Cmd_09_Loop_Next
+	call	CS_MENU_MS_NotesOn
+SID_SYSEX_Cmd_09_Loop_Next
+	incf	CS_MENU_SID, F
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, SID_SYSEX_Cmd_09_Loop
+
+	movff	SID_SYSEX_TYPE, CS_MENU_SELECTED_INS	; restore selected instrument
+	movff	SID_SYSEX_IN, CS_MENU_SELECTED_SID_LR	; restore left/right selection
 	;; 	rgoto	SID_SYSEX_Cmd_Ack
 
 SID_SYSEX_Cmd_Ack

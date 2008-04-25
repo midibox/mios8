@@ -1,6 +1,6 @@
 ; $Id$
 ;
-; MBSID Control Surface CFG menu
+; MBSID Control Surface SHIFT menu
 ;
 ; ==========================================================================
 ;
@@ -13,13 +13,13 @@
 ;; --------------------------------------------------------------------------
 ;;  Prints the upper line of the CFG page
 ;; --------------------------------------------------------------------------
-CS_MENU_CFG_STR_0 STRING 20, 0x00,   "SID1 E. Nte Ini Dmp "
-CS_MENU_CFG_PrintUL
+CS_MENU_SHIFT_STR_0 STRING 20, 0x00,   "SID1 E. Ply Ini Dmp "
+CS_MENU_SHIFT_PrintUL
 	;; if CLCD: disable blinking CLCD cursor
 	movlw	0x0c
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd	
 
-	TABLE_ADDR CS_MENU_CFG_STR_0
+	TABLE_ADDR CS_MENU_SHIFT_STR_0
 	call	MIOS_LCD_PrintString
 
 	movlw	0x00 + 3
@@ -33,24 +33,24 @@ CS_MENU_CFG_PrintUL
 ;; --------------------------------------------------------------------------
 ;;  Prints the lower line of the CFG page
 ;; --------------------------------------------------------------------------
-CS_MENU_CFG_STR_SYXD_0	db "Pt. "
-CS_MENU_CFG_STR_SYXD_1	db "Ens "
+CS_MENU_SHIFT_STR_SYXD_0	db "Pt. "
+CS_MENU_SHIFT_STR_SYXD_1	db "Ens "
 
-CS_MENU_CFG_PrintLL
+CS_MENU_SHIFT_PrintLL
 	movlw	0x40
 	call	MIOS_LCD_CursorSet
 
 	;; selected SID channel (Left/Right)
-	rcall	CS_MENU_CFG_PrintLL_Space
+	rcall	CS_MENU_SHIFT_PrintLL_Space
 	movlw	'L'
 	btfss	CS_MENU_SELECTED_SID_LR, 0
 	movlw '-'
-	rcall	CS_MENU_CFG_PrintLL_Chr
+	rcall	CS_MENU_SHIFT_PrintLL_Chr
 	movlw	'R'
 	btfss	CS_MENU_SELECTED_SID_LR, 1
 	movlw '-'
-	rcall	CS_MENU_CFG_PrintLL_Chr
-	rcall	CS_MENU_CFG_PrintLL_Space
+	rcall	CS_MENU_SHIFT_PrintLL_Chr
+	rcall	CS_MENU_SHIFT_PrintLL_Space
 
 	;; selected Engine
 	movlw	' '
@@ -61,26 +61,30 @@ CS_MENU_CFG_PrintLL
 	movlw	' '
 	call	MIOS_LCD_PrintChar
 
-	;; print "Off " (for Note Off function - don't know how to fill this area better)
-	movlw	'O'
-	rcall	CS_MENU_CFG_PrintLL_Chr
-	movlw	'f'
-	rcall	CS_MENU_CFG_PrintLL_Chr
-	movlw	'f'
-	rcall	CS_MENU_CFG_PrintLL_Chr
-	rcall	CS_MENU_CFG_PrintLL_Space
+	;; print play state of selected SID
+	rcall	CS_MENU_SHIFT_PrintLL_Space
+	call	CS_MENU_MS_GetSIDNumber
+	call	MIOS_HLP_GetBitORMask
+	swapf	WREG, W
+	andwf	CS_STAT2, W
+	movlw	'o'
+	skpz
+	movlw	'*'
+	rcall	CS_MENU_SHIFT_PrintLL_Chr
+	rcall	CS_MENU_SHIFT_PrintLL_Space
+	rcall	CS_MENU_SHIFT_PrintLL_Space
 
 	;; Patch/Ensemble
-	rcall	CS_MENU_CFG_GetSyxType
+	rcall	CS_MENU_SHIFT_GetSyxType
 	movwf	TMP1		; temporary store in TMP1
 	btfsc	WREG, 6; 0x70 -> 0x01
 	movlw 0x01	
-	TABLE_ADDR_MUL_W CS_MENU_CFG_STR_SYXD_0, 4
+	TABLE_ADDR_MUL_W CS_MENU_SHIFT_STR_SYXD_0, 4
 	movlw	4
 	call	MIOS_LCD_PrintPreconfString
 
-	BRA_IFSET TMP1, 6, ACCESS, CS_MENU_CFG_PrintLL_E
-CS_MENU_CFG_PrintLL_P
+	BRA_IFSET TMP1, 6, ACCESS, CS_MENU_SHIFT_PrintLL_E
+CS_MENU_SHIFT_PrintLL_P
 	;; print current bank and patch number
 	call	CS_MENU_MS_GetSIDNumber
 	call	CS_MENU_MS_GetSIDBank
@@ -88,13 +92,13 @@ CS_MENU_CFG_PrintLL_P
 	call	CS_MENU_MS_GetSIDPatch
 	movwf	SID_PATCH
 	call	SID_LCD_PrintPatchNumber
-	rgoto	CS_MENU_CFG_PrintLL_P_Cont
+	rgoto	CS_MENU_SHIFT_PrintLL_P_Cont
 
-CS_MENU_CFG_PrintLL_E
+CS_MENU_SHIFT_PrintLL_E
 	;; print current ensemble number
 	call	SID_LCD_PrintEnsembleNumber
 
-CS_MENU_CFG_PrintLL_P_Cont
+CS_MENU_SHIFT_PrintLL_P_Cont
 
 	;; fill
 	movlw	20
@@ -102,28 +106,28 @@ CS_MENU_CFG_PrintLL_P_Cont
 
 	
 	;; help functions
-CS_MENU_CFG_PrintLL_Space
+CS_MENU_SHIFT_PrintLL_Space
 	movlw	' '
-CS_MENU_CFG_PrintLL_Chr
+CS_MENU_SHIFT_PrintLL_Chr
 	goto	MIOS_LCD_PrintChar
 
-CS_MENU_CFG_PrintLL_OnOff
+CS_MENU_SHIFT_PrintLL_OnOff
 	movwf	TMP1
 
-	rcall	CS_MENU_CFG_PrintLL_Space
+	rcall	CS_MENU_SHIFT_PrintLL_Space
 	movlw	'o'
-	rcall	CS_MENU_CFG_PrintLL_Chr
+	rcall	CS_MENU_SHIFT_PrintLL_Chr
 	movlw	'f'
 	btfsc	TMP1, 0
 	movlw 'n'
-	rcall	CS_MENU_CFG_PrintLL_Chr
+	rcall	CS_MENU_SHIFT_PrintLL_Chr
 	movlw	'f'
 	btfsc	TMP1, 0
 	movlw ' '
-	rcall	CS_MENU_CFG_PrintLL_Chr
-	rgoto	CS_MENU_CFG_PrintLL_Space
+	rcall	CS_MENU_SHIFT_PrintLL_Chr
+	rgoto	CS_MENU_SHIFT_PrintLL_Space
 
-CS_MENU_CFG_Message
+CS_MENU_SHIFT_Message
 	call	MIOS_LCD_PrintString
 	movlw	0x40		; short message
 	goto	MIOS_LCD_MessageStart
@@ -132,20 +136,20 @@ CS_MENU_CFG_Message
 ;;  A soft button has been pressed
 ;;  IN: button number in WREG
 ;; --------------------------------------------------------------------------
-CS_MENU_CFG_Button
+CS_MENU_SHIFT_Button
 	;; branch depending on button
 	andlw	0x07
 	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_MENU_CFG_Button_SIDLR
-	rgoto	CS_MENU_CFG_Button_ENG
-	rgoto	CS_MENU_CFG_Button_Off
-	rgoto	CS_MENU_CFG_Button_Init
-	rgoto	CS_MENU_CFG_Button_SyxD
+	rgoto	CS_MENU_SHIFT_Button_SIDLR
+	rgoto	CS_MENU_SHIFT_Button_ENG
+	rgoto	CS_MENU_SHIFT_Button_Play
+	rgoto	CS_MENU_SHIFT_Button_Init
+	rgoto	CS_MENU_SHIFT_Button_SyxD
 	return
 	return
 	return
 
-CS_MENU_CFG_Button_SIDLR	; toggle between 1-3 (L-, -R, LR)
+CS_MENU_SHIFT_Button_SIDLR	; toggle between 1-3 (L-, -R, LR)
 	incf	CS_MENU_SELECTED_SID_LR, W
 	andlw	0x03
 	skpnz
@@ -154,7 +158,7 @@ CS_MENU_CFG_Button_SIDLR	; toggle between 1-3 (L-, -R, LR)
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
 
-CS_MENU_CFG_Button_ENG		; toggle between the 4 engines
+CS_MENU_SHIFT_Button_ENG		; toggle between the 4 engines
 	;; increment bitfield [1:0]
 	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_ENGINE
 	movf	INDF0, W
@@ -192,12 +196,12 @@ CS_MENU_CFG_Button_ENG		; toggle between the 4 engines
 	goto	CS_MENU_EXEC_GoToRoot
 
 
-CS_MENU_CFG_Button_Init_MSG_P	STRING 20, 0x40, " Patch Initialised  "
-CS_MENU_CFG_Button_Init_MSG_E	STRING 20, 0x40, "Ensemble Initialised"
-CS_MENU_CFG_Button_Init
-	rcall	CS_MENU_CFG_GetSyxType
-	BRA_IFSET WREG, 6, ACCESS, CS_MENU_CFG_Button_Init_E
-CS_MENU_CFG_Button_Init_P
+CS_MENU_SHIFT_Button_Init_MSG_P	STRING 20, 0x40, " Patch Initialised  "
+CS_MENU_SHIFT_Button_Init_MSG_E	STRING 20, 0x40, "Ensemble Initialised"
+CS_MENU_SHIFT_Button_Init
+	rcall	CS_MENU_SHIFT_GetSyxType
+	BRA_IFSET WREG, 6, ACCESS, CS_MENU_SHIFT_Button_Init_E
+CS_MENU_SHIFT_Button_Init_P
 	;; copy init patch into edit buffer
 	call	SID_PATCH_LoadPresetIntoEdit
 
@@ -205,24 +209,24 @@ CS_MENU_CFG_Button_Init_P
 	call	CS_MENU_MS_Send_EditBufferAll
 
 	;; print message and exit
-	TABLE_ADDR CS_MENU_CFG_Button_Init_MSG_P
-	rcall	CS_MENU_CFG_Message
+	TABLE_ADDR CS_MENU_SHIFT_Button_Init_MSG_P
+	rcall	CS_MENU_SHIFT_Message
 	movlw	20
 	goto	CS_MENU_Hlp_PrintSpaces
 
-CS_MENU_CFG_Button_Init_E
+CS_MENU_SHIFT_Button_Init_E
 	;; initialize ensemble
 	call	SID_ENS_LoadPreset
 
 	;; print message and exit
-	TABLE_ADDR CS_MENU_CFG_Button_Init_MSG_E
-	rcall	CS_MENU_CFG_Message
+	TABLE_ADDR CS_MENU_SHIFT_Button_Init_MSG_E
+	rcall	CS_MENU_SHIFT_Message
 	movlw	20
 	goto	CS_MENU_Hlp_PrintSpaces
 
 #if 0
-CS_MENU_CFG_Button_Rnd_MSG	STRING 20, 0x40, " --- Randomized --- "
-CS_MENU_CFG_Button_Rnd
+CS_MENU_SHIFT_Button_Rnd_MSG	STRING 20, 0x40, " --- Randomized --- "
+CS_MENU_SHIFT_Button_Rnd
 	;; randomize patch depending on engine
 	call	SID_RND_GenerateAll
 
@@ -230,40 +234,44 @@ CS_MENU_CFG_Button_Rnd
 	call	CS_MENU_MS_Send_EditBufferAll
 
 	;; print message and exit
-	TABLE_ADDR CS_MENU_CFG_Button_Rnd_MSG
-	rcall	CS_MENU_CFG_Message
+	TABLE_ADDR CS_MENU_SHIFT_Button_Rnd_MSG
+	rcall	CS_MENU_SHIFT_Message
 	movlw	20
 	goto	CS_MENU_Hlp_PrintSpaces
 #else
-CS_MENU_CFG_Button_Off_MSG	STRING 20, 0x40, "-- All Notes Off -- "
-CS_MENU_CFG_Button_Off
-	;; send "all notes off" command to all selected SIDs
-	clrf	CS_MENU_SID
-CS_MENU_CFG_Button_Off_Loop
-	movf	CS_MENU_SID, W
-	call	MIOS_HLP_GetBitORMask
-	andwf	CS_MENU_SELECTED_SID_FLAGS, W
-	bz	CS_MENU_CFG_Button_Off_Loop_Next
-	call	CS_MENU_MS_NotesOff
-CS_MENU_CFG_Button_Off_Loop_Next
-	incf	CS_MENU_SID, F
-	movlw	4-1
-	cpfsgt	CS_MENU_SID, ACCESS
-	rgoto CS_MENU_CFG_Button_Off_Loop
+CS_MENU_SHIFT_Button_Off_MSG	STRING 20, 0x40, "-- All Notes Off -- "
+CS_MENU_SHIFT_Button_On_MSG	STRING 20, 0x40, "-- Playing Patch -- "
 
-	;; print message and exit
-	TABLE_ADDR CS_MENU_CFG_Button_Off_MSG
-	rcall	CS_MENU_CFG_Message
+CS_MENU_SHIFT_Button_Play
+	;; send "all notes on" or "off" command to all selected SIDs
+	;; (we can re-use the play button function)
+	call	CS_MENU_BUTTON_Play
+
+	;; print message depending on the current SID selection
+	call	CS_MENU_MS_GetSIDNumber
+	call	MIOS_HLP_GetBitORMask
+	swapf	WREG, W
+	andwf	CS_STAT2, W
+	bz	CS_MENU_SHIFT_Button_Play_Off
+CS_MENU_SHIFT_Button_Play_On
+	TABLE_ADDR CS_MENU_SHIFT_Button_On_MSG
+	rgoto	CS_MENU_SHIFT_Button_Play_Cont
+CS_MENU_SHIFT_Button_Play_Off
+	TABLE_ADDR CS_MENU_SHIFT_Button_Off_MSG
+	;; 	rgoto	CS_MENU_SHIFT_Button_Play_Cont
+
+CS_MENU_SHIFT_Button_Play_Cont
+	rcall	CS_MENU_SHIFT_Message
 	movlw	20
 	goto	CS_MENU_Hlp_PrintSpaces
 #endif
 
 
-CS_MENU_CFG_Button_SyxD_P_MSG	STRING 20, 0x40, "-- Patch Dump sent -"
-CS_MENU_CFG_Button_SyxD_E_MSG	STRING 20, 0x40, "-- Ens. Dump sent - "
-CS_MENU_CFG_Button_SyxD
+CS_MENU_SHIFT_Button_SyxD_P_MSG	STRING 20, 0x40, "-- Patch Dump sent -"
+CS_MENU_SHIFT_Button_SyxD_E_MSG	STRING 20, 0x40, "-- Ens. Dump sent - "
+CS_MENU_SHIFT_Button_SyxD
 	;; determine sysex type
-	rcall	CS_MENU_CFG_GetSyxType
+	rcall	CS_MENU_SHIFT_GetSyxType
 	;; store in SID_SYSEX_TYPE
 	iorlw	0x08		; RAM dump (so that bankstick slot won't be overwritten on write-back)
 	movff	WREG, SID_SYSEX_TYPE
@@ -275,13 +283,13 @@ CS_MENU_CFG_Button_SyxD
 	;; temporary: SID_MIDI_DEVICE == selected SID
 	movff	CS_MENU_SID, SID_MIDI_DEVICE
 
-	BRA_IFSET WREG, 6, ACCESS, CS_MENU_CFG_Button_SyxD_E
-CS_MENU_CFG_Button_SyxD_P
+	BRA_IFSET WREG, 6, ACCESS, CS_MENU_SHIFT_Button_SyxD_E
+CS_MENU_SHIFT_Button_SyxD_P
 	;; print message and exit
-	TABLE_ADDR CS_MENU_CFG_Button_SyxD_P_MSG
+	TABLE_ADDR CS_MENU_SHIFT_Button_SyxD_P_MSG
 	
-CS_MENU_CFG_Button_SyxD_E_Cont
-	rcall	CS_MENU_CFG_Message
+CS_MENU_SHIFT_Button_SyxD_E_Cont
+	rcall	CS_MENU_SHIFT_Message
 	movlw	20
 	call	CS_MENU_Hlp_PrintSpaces
 
@@ -294,10 +302,10 @@ CS_MENU_CFG_Button_SyxD_E_Cont
 	return
 
 
-CS_MENU_CFG_Button_SyxD_E
+CS_MENU_SHIFT_Button_SyxD_E
 	;; print message and exit
-	TABLE_ADDR CS_MENU_CFG_Button_SyxD_E_MSG
-	rgoto	CS_MENU_CFG_Button_SyxD_E_Cont
+	TABLE_ADDR CS_MENU_SHIFT_Button_SyxD_E_MSG
+	rgoto	CS_MENU_SHIFT_Button_SyxD_E_Cont
 
 
 ;; --------------------------------------------------------------------------
@@ -305,7 +313,7 @@ CS_MENU_CFG_Button_SyxD_E
 ;;  OUT: WREG == 0x00: patch
 ;;       WREG == 0x70: ensemble
 ;; --------------------------------------------------------------------------
-CS_MENU_CFG_GetSyxType
+CS_MENU_SHIFT_GetSyxType
 	movlw	0x00
 	btfsc	CS_MENU, 6
 	movlw 0x70

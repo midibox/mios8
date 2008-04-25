@@ -25,11 +25,11 @@ CS_MENU_ENC_Handler
 	;; allow to use main encoder to change page as well
 	GOTO_IFSET CS_STAT, CS_STAT_PAGE_MSG, ACCESS, CS_MENU_PageUpDown_NoWrap
 
-	;; due to double function of SHIFT button (faster encoders + display CFG page):
-	;; disable CFG page if encoder is turned
-	btfsc	CS_STAT3, CS_STAT3_CFG_PAGE
+	;; due to double function of SHIFT button (faster encoders + display SHIFT page):
+	;; disable SHIFT page if encoder is turned
+	btfsc	CS_STAT3, CS_STAT3_SHIFT_PAGE
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ	; LCD has to be re-initialized
-	bcf	CS_STAT3, CS_STAT3_CFG_PAGE
+	bcf	CS_STAT3, CS_STAT3_SHIFT_PAGE
 
 	;; special measure for main page (where the encoder selects a patch/ensemble)
 	;; determine CS_MENU_PARAMETER_[LH] value depending on MENU button state
@@ -85,11 +85,11 @@ CS_MENU_ENC_CS_Handler
 	;; exit with message if SID player mode enabled and SID1 selected
 	GOTO_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, SIDPLAY_NoCSMessage
 
-	;; due to double function of SHIFT button (faster encoders + display CFG page):
-	;; disable CFG page if encoder is turned
-	btfsc	CS_STAT3, CS_STAT3_CFG_PAGE
+	;; due to double function of SHIFT button (faster encoders + display SHIFT page):
+	;; disable SHIFT page if encoder is turned
+	btfsc	CS_STAT3, CS_STAT3_SHIFT_PAGE
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ	; LCD has to be re-initialized
-	bcf	CS_STAT3, CS_STAT3_CFG_PAGE
+	bcf	CS_STAT3, CS_STAT3_SHIFT_PAGE
 
 	;; copy SID number to CS_MENU_SID
 	call	CS_MENU_MS_GetSIDNumber

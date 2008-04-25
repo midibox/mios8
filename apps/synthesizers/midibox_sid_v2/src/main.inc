@@ -727,7 +727,7 @@ AIN_NotifyChange_Loop_Next
 #include "cs_menu_p2r_r2p.inc"
 #include "cs_menu_print.inc"
 #include "cs_menu_ms.inc"
-#include "cs_menu_cfg.inc"
+#include "cs_menu_shift.inc"
 #include "cs_menu_bank.inc"
 #include "cs_menu_mbnet.inc"
 #include "cs_menu_tables.inc"

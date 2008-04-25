@@ -25,15 +25,18 @@ EXEC_MENU	EQU	0x01
 EXEC_MENU_SAVE	EQU	0x02
 EXEC_MENU_SAVE_ENS EQU	0x03
 EXEC_SELPAR	EQU	0x04
-EXEC_TOGPAR	EQU	0x05
-EXEC_RND	EQU	0x06
-EXEC_DRM_RND	EQU	0x07
-EXEC_SAVE_PATCH	EQU	0x08
-EXEC_SAVE_ENS	EQU	0x09
-EXEC_EDIT_SEQ	EQU	0x0a
-EXEC_SEQ_CPY	EQU	0x0b
-EXEC_SEQ_PST	EQU	0x0c
-EXEC_SEQ_CLR	EQU	0x0d
+EXEC_SELPAR_ASG	EQU	0x05
+EXEC_SELPAR_BANK EQU	0x06
+EXEC_SELPAR_PATCH EQU	0x07
+EXEC_TOGPAR	EQU	0x08
+EXEC_RND	EQU	0x09
+EXEC_DRM_RND	EQU	0x0a
+EXEC_SAVE_PATCH	EQU	0x0b
+EXEC_SAVE_ENS	EQU	0x0c
+EXEC_EDIT_SEQ	EQU	0x0d
+EXEC_SEQ_CPY	EQU	0x0e
+EXEC_SEQ_PST	EQU	0x0f
+EXEC_SEQ_CLR	EQU	0x10
 
 
 ; ==========================================================================
@@ -41,12 +44,15 @@ EXEC_SEQ_CLR	EQU	0x0d
 ;; IN: EXEC_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_EXEC_Handler
-	JUMPTABLE_2BYTES (0x0d+1)	; entries
+	JUMPTABLE_2BYTES (0x10+1)	; entries
 	rgoto	CS_MENU_EXEC_NOP
 	rgoto	CS_MENU_EXEC_Menu
 	rgoto	CS_MENU_EXEC_Menu_Save
 	rgoto	CS_MENU_EXEC_Menu_SaveEns
 	rgoto	CS_MENU_EXEC_SelPar
+	rgoto	CS_MENU_EXEC_SelPar_Asg
+	rgoto	CS_MENU_EXEC_SelPar_Bank
+	rgoto	CS_MENU_EXEC_SelPar_Patch
 	rgoto	CS_MENU_EXEC_TogPar
 	rgoto	CS_MENU_EXEC_Rnd
 	rgoto	CS_MENU_EXEC_DrmRnd
@@ -351,6 +357,54 @@ CS_MENU_EXEC_SEQ_CLR_Cont
 
 
 ; ==========================================================================
+;  Similar to SelPar, but prints parameter assignment as big screen message
+; ==========================================================================
+CS_MENU_EXEC_SelPar_Asg
+	;; handle parameter selection
+	rcall	CS_MENU_EXEC_SelPar
+
+	;; ignore if no menu item
+	movf	CS_MENU_ENTRIES, W
+	cpfslt	CS_MENU_CURSOR_POS, ACCESS
+	return
+
+	;; print big message
+	goto	CS_MENU_Page_BigMsg_ParName
+
+
+; ==========================================================================
+;  Similar to SelPar, but prints bank as big screen message
+; ==========================================================================
+CS_MENU_EXEC_SelPar_Bank
+	;; handle parameter selection
+	rcall	CS_MENU_EXEC_SelPar
+
+	;; ignore if no menu item
+	movf	CS_MENU_ENTRIES, W
+	cpfslt	CS_MENU_CURSOR_POS, ACCESS
+	return
+
+	;; print big message
+	goto	CS_MENU_Page_BigMsg_Bank
+
+
+; ==========================================================================
+;  Similar to SelPar, but prints patch as big screen message
+; ==========================================================================
+CS_MENU_EXEC_SelPar_Patch
+	;; handle parameter selection
+	rcall	CS_MENU_EXEC_SelPar
+
+	;; ignore if no menu item
+	movf	CS_MENU_ENTRIES, W
+	cpfslt	CS_MENU_CURSOR_POS, ACCESS
+	return
+
+	;; print big message
+	goto	CS_MENU_Page_BigMsg_Patch
+
+
+; ==========================================================================
 ;  Use this function to select/deselect a parameter
 ;  (depending on CS_STAT.CS_STAT_MODIFY_PARAMETER)
 ; ==========================================================================
@@ -408,7 +462,7 @@ CS_MENU_EXEC_TogPar
 	clrf CS_MENU_PARAMETER_L
 
 	;; transfer to register
-	rcall	CS_MENU_ParameterUpdate
+	call	CS_MENU_ParameterUpdate
 
 	;; deselect item
 	rgoto	CS_MENU_EXEC_Hlp_Deselect

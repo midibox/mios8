@@ -48,7 +48,7 @@
 
 #define CS_STAT3_MODIFY_SEQ		0	; flag 0: edit drum sequence
 #define CS_STAT3_MODIFY_SEQ_ROTATE	1	; flag 1: activate rotate function in drum editor
-#define CS_STAT3_CFG_PAGE		2	; flag 2: show CFG page
+#define CS_STAT3_SHIFT_PAGE		2	; flag 2: show SHIFT page
 
 #define CS_MENU_MODE_SHIFT_PRESSED	0	; flag 0: Shift Button pressed
 #define CS_MENU_MODE_CC			1	; flag 1: CC mode
