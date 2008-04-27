@@ -386,6 +386,8 @@ MIDIboxSID V2.0
     The option is not useful when the CutOff parameter is modulated from
     a fast LFO or envelope (on the other hand: it produces interesting
     effects in such cases ;-)
+
+RC13:
   o multi engine: improved approach for routing LFOs to filters (only
     LFO of last assigned voice will be used for more predictable results)
   o reduced intensity of LFO pitch modulation for multi and bassline engine
@@ -400,6 +402,8 @@ MIDIboxSID V2.0
   o support for dumping ensembles via SysEx
   o the SysEx structures are now completely documented under
     doc/mbsidv2_sysex_implementation.txt
+
+RC14:
   o BankStick write via SysEx now gracefully aborted if only 32k BankStick
     is addressed and patch number >= 065
     SysEx error number 0x11 ("BankStick too small") will be returned in this case
@@ -408,6 +412,8 @@ MIDIboxSID V2.0
     BankStick content won't be overwritten if such a dump is sent back.
   o menu page automatically changed to the previous selection if SID master
     or slave selected which is running with a different engine
+
+RC15:
   o improved FIP function (linear interpolation of filter cutoff) - it
     is working now the same way as implemented in MIDIbox CV
   o F2A and V2A flags moved to new storage position in ensemble - old
@@ -423,12 +429,20 @@ MIDIboxSID V2.0
     setup_*.asm file.
     Note that DEFAULT_J5_FUNCTION has to be set to 3 in order to
     enable the digital output function of CORE:J5
+
+RC16:
   o "ENV Misc" layer added for MB6582 Control Surface
   o SIDPlayer: lower line now always cleared when new LCD message
     is sent by host
   o changed encoder speed behaviour: values incremented fast by
     default now. Incrementer is slowed down by pressing the SHIFT button
     (previously it was the opposite behaviour)
+
+RC17:
+  o switched from MPASM to gpasm
+    code now under version control (SVN)
+
+RC18:
   o modulation matrix: comparison operators >, < and = now return 0 instead
     of full negative value if comparison is false
   o changed SusKey handling, so that it also works in Mono mode (previously
@@ -441,6 +455,8 @@ MIDIboxSID V2.0
     of Clk/4 and Clk/16
   o LFO and ENV MIDI sync working properly again
   o portamento omitted after patch change when first key is played
+
+RC19:
   o Enhancements for SysEx Editor
     (see also doc/mbsidv2_sysex_implementation.txt)
     - introduced <WOPT> function which allows to change parameters of
@@ -461,6 +477,9 @@ MIDIboxSID V2.0
     This combination could get a different purpose on future
   o LFOs and ENVs of right channel bassline working properly again
   o AOUT_LC driver now supports 12/12/8 resolution (requires 4 combined 74HC595)
+
+RC20:
+  o arp handler working properly again in multi mode
 
 
 MEMO:

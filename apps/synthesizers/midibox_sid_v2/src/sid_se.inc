@@ -511,7 +511,7 @@ SIDSE_Arp_Clk_FixLoop
 
 SIDSE_Arp_Clk_FixLoop_Break
 
-	;; transfer new divider value into Vx register
+	;; transfer new divider value into MVx register
 	movlw	SID_MVx_ARP_DIV_CTR
 	movff	PRODL, PLUSW2
 
@@ -527,7 +527,7 @@ SIDSE_Arp_Clk_FixLoop_Break
 	andlw	0x1f
 	addlw	1
 	cpfslt	PRODL, ACCESS
-	rgoto SIDSE_Arp_Clk_GlReset
+	rgoto	SIDSE_Arp_Clk_GlReset
 	rgoto	SIDSE_Arp_Clk_NoGlReset
 SIDSE_Arp_Clk_GlReset
 	;; reset counter

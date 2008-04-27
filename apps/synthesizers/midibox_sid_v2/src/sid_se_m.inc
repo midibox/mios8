@@ -148,14 +148,23 @@ SIDSE_M_HANDLER_WT_MACRO MACRO patch_base, wt_base
 	;; 2nd Cycle: Arp Handler
 	;; ------------------------------------------------------------------
 SIDSE_M_HANDLER_ARP_MACRO MACRO midi_voice_base
+	LOCAL	SIDSE_M_HANDLER_ARP_Skip
+
 	lfsr	FSR2, midi_voice_base
 	rcall	SIDSE_M_Hlp_GetAssignedVoicePtr
+
+	;; skip if instrument has already been handled (arps are running exclusively for each instrument)
+	rcall	SIDSE_M_Hlp_ChkExclusiveIns
+	bnz	SIDSE_M_HANDLER_ARP_Skip
+
 	rcall	SIDSE_M_Hlp_GetAssignedInsPtr
 	call	SIDSE_Arp
+SIDSE_M_HANDLER_ARP_Skip
 	incf	SID_SE_ELEMENT_NUM, F, BANKED
 	ENDM
 
 	clrf	SID_SE_ELEMENT_NUM, BANKED
+	clrf	SID_SE_INS_EXCLUSIVE, BANKED
 SIDSE_M_Handler_Arp_L
 	SIDSE_M_HANDLER_ARP_MACRO SID_MV1_BASE
 	SIDSE_M_HANDLER_ARP_MACRO SID_MV2_BASE
@@ -284,6 +293,29 @@ SIDSE_M_Hlp_GetAssignedInsPtr
 	movf	PRODH, W
 	addwfc	FSR0H, F
 	return
+
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: SIDSE_M_Hlp_ChkExclusiveIns
+;;  DESCRIPTION: checks if voice has been previously handled (used by arp)
+;;  Sets SID_SE_INS_EXCLUSIVE[midi_voice] if this isn't the case
+;;  IN: pointer to SIDx_Vx_BASE in FSR1
+;;  OUT: ZERO flag cleared if SID_SE_INS_EXCLUSIVE[midi_voice] set
+;; --------------------------------------------------------------------------
+SIDSE_M_Hlp_ChkExclusiveIns
+	movlw	SID_Vx_ASSIGNED_MV
+	movf	PLUSW1, W
+	call	MIOS_HLP_GetBitORMask
+	movwf	PRODL
+	andwf	SID_SE_INS_EXCLUSIVE, W, BANKED
+	bnz	SIDSE_M_Hlp_ChkExclusiveIns_End
+SIDSE_M_Hlp_ChkExclusiveIns_Set
+	movf	PRODL, W
+	iorwf	SID_SE_INS_EXCLUSIVE, F, BANKED
+	andlw	0x00		; (set ZERO flag)
+SIDSE_M_Hlp_ChkExclusiveIns_End
+	return
+
 
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: SIDSE_M_GetAssignedVoicePtr

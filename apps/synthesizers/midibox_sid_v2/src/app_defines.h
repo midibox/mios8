@@ -315,53 +315,53 @@ SID_RANDOM_SEED_H	EQU	0x10d	; used in sid_rnd.inc
 ;; ==========================================================================
 SID_SYSEX_STATE		EQU	0x10e	; used by sid_sysex.inc
 SID_SYSEX_STATE2	EQU	0x10f	; used by sid_sysex.inc
-;; free: 0x110
-SID_SYSEX_IN		EQU	0x111	; used by sid_sysex.inc
-SID_SYSEX_CHECKSUM	EQU	0x112	; used by sid_sysex.inc
-SID_SYSEX_DATA		EQU	0x113	; used by sid_sysex.inc
-SID_SYSEX_ADDRESS_L	EQU	0x114	; used by sid_sysex.inc
-SID_SYSEX_ADDRESS_H	EQU	0x115	; used by sid_sysex.inc
-SID_SYSEX_TYPE		EQU	0x116	; used by sid_sysex.inc
+SID_SYSEX_IN		EQU	0x110	; used by sid_sysex.inc
+SID_SYSEX_CHECKSUM	EQU	0x111	; used by sid_sysex.inc
+SID_SYSEX_DATA		EQU	0x112	; used by sid_sysex.inc
+SID_SYSEX_ADDRESS_L	EQU	0x113	; used by sid_sysex.inc
+SID_SYSEX_ADDRESS_H	EQU	0x114	; used by sid_sysex.inc
+SID_SYSEX_TYPE		EQU	0x115	; used by sid_sysex.inc
 
 ;; ==========================================================================
-MUL_A_L			EQU	0x117	; used by math_mul16_16.inc, should be located in SID_BASE bank
-MUL_A_H			EQU	0x118	; note: used by sid_se.inc (interrupt handler)
-MUL_B_L			EQU	0x119	; interrupts must be disabled if used in main task
-MUL_B_H			EQU	0x11a
-MUL_R_0			EQU	0x11b
-MUL_R_1			EQU	0x11c
-MUL_R_2			EQU	0x11d
-MUL_R_3			EQU	0x11e
+MUL_A_L			EQU	0x116	; used by math_mul16_16.inc, should be located in SID_BASE bank
+MUL_A_H			EQU	0x117	; note: used by sid_se.inc (interrupt handler)
+MUL_B_L			EQU	0x118	; interrupts must be disabled if used in main task
+MUL_B_H			EQU	0x119
+MUL_R_0			EQU	0x11a
+MUL_R_1			EQU	0x11b
+MUL_R_2			EQU	0x11c
+MUL_R_3			EQU	0x11d
 
 ;; ==========================================================================
-SID_SE_STATE		EQU	0x11f	; used in sid_se.inc
-SID_SE_ELEMENT_NUM	EQU	0x120	; used in sid_se.inc
-SID_SE_FRQ_L		EQU	0x121	; used in sid_se.inc
-SID_SE_FRQ_H		EQU	0x122	; used in sid_se.inc
-SID_SE_TARGET_FRQ_L	EQU	0x123	; used in sid_se.inc
-SID_SE_TARGET_FRQ_H	EQU	0x124	; used in sid_se.inc
-SID_SE_TRANSPOSED_NOTE	EQU	0x125	; used in sid_se.inc
-SID_SE_MOD_TRANSITION	EQU	0x126	; used in sid_se.inc
-SID_SE_MOD_SRC1_L	EQU	0x127	; used in sid_se.inc
-SID_SE_MOD_SRC1_H	EQU	0x128	; used in sid_se.inc
-SID_SE_MOD_SRC2_L	EQU	0x129	; used in sid_se.inc
-SID_SE_MOD_SRC2_H	EQU	0x12a	; used in sid_se.inc
-SID_SE_MOD_RES1_L	EQU	0x12b	; used in sid_se.inc
-SID_SE_MOD_RES1_H	EQU	0x12c	; used in sid_se.inc
-SID_SE_MOD_RES1_U	EQU	0x12d	; used in sid_se.inc
-SID_SE_MOD_RES2_L	EQU	0x12e	; used in sid_se.inc
-SID_SE_MOD_RES2_H	EQU	0x12f	; used in sid_se.inc
-SID_SE_MOD_RES2_U	EQU	0x130	; used in sid_se.inc
-SID_SE_LFO_OVERRUN	EQU	0x131	; used in sid_se.inc
-SID_SE_GLOBAL_CLK_CTR	EQU	0x132	; used in sid_se.inc
-SID_SE_TRG_EVNT_L	EQU	0x133	; used in sid_se.inc
-SID_SE_TRG_EVNT_H	EQU	0x134	; used in sid_se.inc
-SID_SE_TRG_EVNT_U	EQU	0x135	; used in sid_se.inc
+SID_SE_STATE		EQU	0x11e	; used in sid_se*.inc
+SID_SE_ELEMENT_NUM	EQU	0x11f	; used in sid_se*.inc
+SID_SE_INS_EXCLUSIVE	EQU	0x120	; used in sid_se*.inc
+SID_SE_FRQ_L		EQU	0x121	; used in sid_se*.inc
+SID_SE_FRQ_H		EQU	0x122	; used in sid_se*.inc
+SID_SE_TARGET_FRQ_L	EQU	0x123	; used in sid_se*.inc
+SID_SE_TARGET_FRQ_H	EQU	0x124	; used in sid_se*.inc
+SID_SE_TRANSPOSED_NOTE	EQU	0x125	; used in sid_se*.inc
+SID_SE_MOD_TRANSITION	EQU	0x126	; used in sid_se*.inc
+SID_SE_MOD_SRC1_L	EQU	0x127	; used in sid_se*.inc
+SID_SE_MOD_SRC1_H	EQU	0x128	; used in sid_se*.inc
+SID_SE_MOD_SRC2_L	EQU	0x129	; used in sid_se*.inc
+SID_SE_MOD_SRC2_H	EQU	0x12a	; used in sid_se*.inc
+SID_SE_MOD_RES1_L	EQU	0x12b	; used in sid_se*.inc
+SID_SE_MOD_RES1_H	EQU	0x12c	; used in sid_se*.inc
+SID_SE_MOD_RES1_U	EQU	0x12d	; used in sid_se*.inc
+SID_SE_MOD_RES2_L	EQU	0x12e	; used in sid_se*.inc
+SID_SE_MOD_RES2_H	EQU	0x12f	; used in sid_se*.inc
+SID_SE_MOD_RES2_U	EQU	0x130	; used in sid_se*.inc
+SID_SE_LFO_OVERRUN	EQU	0x131	; used in sid_se*.inc
+SID_SE_GLOBAL_CLK_CTR	EQU	0x132	; used in sid_se*.inc
+SID_SE_TRG_EVNT_L	EQU	0x133	; used in sid_se*.inc
+SID_SE_TRG_EVNT_H	EQU	0x134	; used in sid_se*.inc
+SID_SE_TRG_EVNT_U	EQU	0x135	; used in sid_se*.inc
 SID_SE_TRG_EVNT_ENVA	EQU	0x136	; used in sid_se_m.inc
 SID_SE_TRG_EVNT_ENVR	EQU	0x137	; used in sid_se_m.inc
-SID_SE_PHASE_SYNC_REQ	EQU	0x138	; used in sid_se.inc and sid_sr.inc
-SID_SE_SR_UPDATE_SYNC	EQU	0x139	; used in sid_se.inc and sid_sr.inc
-SID_SE_EXT_ALLOCATED	EQU	0x13a	; used in sid_se.inc
+SID_SE_PHASE_SYNC_REQ	EQU	0x138	; used in sid_se*.inc and sid_sr.inc
+SID_SE_SR_UPDATE_SYNC	EQU	0x139	; used in sid_se*.inc and sid_sr.inc
+SID_SE_EXT_ALLOCATED	EQU	0x13a	; used in sid_se*.inc
 
 ;; ==========================================================================
 SID_CLK_REQ_CTR		EQU	0x13b	; used by MIDI clock handler to quadruple clock 
