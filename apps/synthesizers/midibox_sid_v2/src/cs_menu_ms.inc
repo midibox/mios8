@@ -645,8 +645,6 @@ CS_MENU_MS_Send_SysExDump_TxTstN
 
 ;; --------------------------------------------------------------------------
 ;;  this routine is used when a note should be played on a given SID
-;;  It's only used by CS_MENU_BUTTON_Exec when a SIDx button is hold
-;;  and the menu button is pressed
 ;;  Note On/Off status will be toggled each time this function is executed
 ;;  IN: SID number in WREG (will be stored in CS_MENU_SID)
 ;; --------------------------------------------------------------------------
