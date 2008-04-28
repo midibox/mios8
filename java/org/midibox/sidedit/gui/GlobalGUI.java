@@ -64,7 +64,7 @@ public class GlobalGUI extends JPanel{
 		JPanel subPanel2 = new JPanel();
 		subPanel2.setLayout(new BoxLayout(subPanel2, BoxLayout.X_AXIS));
 		subPanel2.setBorder(BorderFactory.createEtchedBorder());
-		subPanel2.setBorder(BorderFactory.createTitledBorder("Hardware Requirement Flags"));
+		subPanel2.setBorder(BorderFactory.createTitledBorder("Hardware Information Flags"));
 		subPanel2.setOpaque(false);
 		
 		subPanel2.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(0));		
