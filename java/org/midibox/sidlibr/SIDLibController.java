@@ -45,7 +45,7 @@ public class SIDLibController extends Observable implements Observer, ActionList
 	private EnsBank ensBank;
 	
 	private Boolean openEditor = false;
-	private int coresHardware = 0;
+        private int coresHardware = 15; // AND mask for selected cores --- we assume, that all cores are available by default
 	private int coresSelected = 1;
 		
 	private SysExController sysexController;

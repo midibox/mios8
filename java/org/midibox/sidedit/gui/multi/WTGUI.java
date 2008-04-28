@@ -52,6 +52,23 @@ public class WTGUI extends JPanel{
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new BoxLayout(panel1, BoxLayout.Y_AXIS));
 		panel1.setOpaque(false);
+
+		JPanel panel2 = new JPanel();
+		panel2.setLayout(new GridLayout(1,2));
+		panel2.setOpaque(false);
+		
+		JPanel panel3 = new JPanel();
+		panel3.setLayout(new GridLayout(6,1));
+		panel3.setOpaque(false);
+		
+		panel3.add(createWTE(inst1,"Wavetable 1",41));
+		panel3.add(createWTE(inst2,"Wavetable 2",41));
+		panel3.add(createWTE(inst3,"Wavetable 3",41));
+		panel3.add(createWTE(inst4,"Wavetable 4",41));
+		panel3.add(createWTE(inst5,"Wavetable 5",41));
+		panel3.add(createWTE(inst6,"Wavetable 6",41));
+		
+		panel2.add(panel3);
 		
 		// Setup the parameters that control begin, end and loop
 		SIDSysexParameterControl[][] config = new SIDSysexParameterControl[6][3];
@@ -73,12 +90,39 @@ public class WTGUI extends JPanel{
 		config[5][0] = (((SIDSysexParameterControlGUI)inst6.elementAt(45)).getMidiParameter());			
 		config[5][1] = (((SIDSysexParameterControlGUI)inst6.elementAt(47)).getMidiParameter());
 		config[5][2] = (((SIDSysexParameterControlGUI)inst6.elementAt(48)).getMidiParameter());
-		panel1.add(createWTC2(WTGUIv,config,"Wavetable data"));
+
+		panel2.add(createWTC2(WTGUIv,config,"Wavetable data"));
+
+		panel1.add(panel2);
 		
 	    this.add(panel1, BorderLayout.NORTH);
 	}
 	
 	
+	protected JPanel createWTE(Vector vGUI, String s, int offset) {		
+		JPanel wtePanel = new JPanel();
+		wtePanel.setLayout(new BoxLayout(wtePanel, BoxLayout.X_AXIS));
+		wtePanel.setBorder(BorderFactory.createEtchedBorder());
+		wtePanel.setBorder(BorderFactory.createTitledBorder(s));
+		wtePanel.setOpaque(false);
+		
+		wtePanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(3+offset));
+		
+		JPanel subPanel = new JPanel(new GridLayout(1,5));
+		subPanel.setOpaque(false);
+		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(4+offset));
+		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(6+offset));
+		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(7+offset));
+		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(0+offset));
+		//		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(1+offset)); // "to Left channel" not available for multi engine!
+		//		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(2+offset)); // "to Right channel" not available for multi engine!
+		//		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(5+offset)); // "Pos Controlled by MP" not available for multi engine!
+		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(8+offset));
+		wtePanel.add(subPanel);
+		
+		return wtePanel;
+	}
+
 	protected JPanel createWTC1(Vector vGUI, String s) {		
 		JPanel wtcPanel = new JPanel();
 		wtcPanel.setLayout(new GridLayout(3,43));

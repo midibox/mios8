@@ -49,8 +49,8 @@ public class FilterGUI extends JPanel{
 			
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new GridLayout(1,5));
-		panel1.add(createFilter(filterGUIvL,"Filter left"));
-		panel1.add(createFilter(filterGUIvR,"Filter right"));
+		panel1.add(createFilter(filterGUIvL,"Filter Left"));
+		panel1.add(createFilter(filterGUIvR,"Filter Right"));
 		JPanel panel2 = new JPanel();
 		panel2.setOpaque(false);
 		JPanel panel3 = new JPanel();

@@ -36,9 +36,9 @@ public class LeadSpecs {
 	
 	public static Vector createMSTR(Patch patch) {
 		Vector leadControl = new Vector();		
-		leadControl.add(new SIDSysexParameterControl(button,null,patch,80,0,1,"Legato on/off"));
+		leadControl.add(new SIDSysexParameterControl(button,null,patch,80,0,1,"Legato"));
+		leadControl.add(new SIDSysexParameterControl(button,null,patch,80,2,1,"Fingered Portamento"));
 		leadControl.add(new SIDSysexParameterControl(button,null,patch,80,1,1,"Wavetable only"));
-		leadControl.add(new SIDSysexParameterControl(button,null,patch,80,2,1,"Fingered portamento"));
 		leadControl.add(new SIDSysexParameterControl(rotary,null,patch,81,0,8,"Detune","Detune oscillators"));
 		leadControl.add(new SIDSysexParameterControl(rotary,null,patch,83,0,8,"Phase Offset","Oscillators phase offset "));
 		return leadControl;
@@ -48,15 +48,15 @@ public class LeadSpecs {
 		Vector lfoControl = new Vector();
 		// LFO
 		for (int c = 0; c <6; c++) {
-			lfoControl.add(new SIDSysexParameterControl(button,null,patch,192+(5*c),0,1,"on/off","Enable/disable LFO"));
+			lfoControl.add(new SIDSysexParameterControl(button,null,patch,192+(5*c),0,1,"On/Off","Enable/disable LFO"));
 			lfoControl.add(new SIDSysexParameterControl(button,null,patch,192+(5*c),2,1,"MIDI Sync","Global clock synchronisation"));
-			lfoControl.add(new SIDSysexParameterControl(button,null,patch,192+(5*c),3,1,"1 shot","One shot mode"));
+			lfoControl.add(new SIDSysexParameterControl(button,null,patch,192+(5*c),3,1,"Oneshot","Oneshot mode"));
 			lfoControl.add(new SIDSysexParameterControl(lfoselect,null,patch,192+(5*c),4,4,"Waveform","Select a waveform"));
 			lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,193+(5*c),0,-8,"Depth"));
 			lfoControl.add(new SIDSysexParameterControl(rotary,createRateStr(),patch,194+(5*c),0,8,"Rate"));
 			lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,195+(5*c),0,8,"Delay"));
 			lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,196+(5*c),0,8,"Phase"));
-			lfoControl.add(new SIDSysexParameterControl(button,null,patch,321,(2+c),1,"KeySync","Reset LFO at key press"));
+			lfoControl.add(new SIDSysexParameterControl(button,null,patch,321,(2+c),1,"Key Sync","Reset LFO at key press"));
 		}		
 		return lfoControl;
 	}
@@ -64,24 +64,24 @@ public class LeadSpecs {
 	public static Vector createENV(Patch patch, int offset) {
 		Vector envControl = new Vector();	
 		// Envelope
-		envControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.loop,patch,224+offset,0,3,"Loop begin","Envelope loop begin point"));
-		envControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.loop,patch,224+offset,4,3,"Loop end","Envelope loop end point"));
+		envControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.loop,patch,224+offset,0,3,"Loop Begin","Envelope loop begin point"));
+		envControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.loop,patch,224+offset,4,3,"Loop End","Envelope loop end point"));
 		envControl.add(new SIDSysexParameterControl(button,null,patch,224+offset,7,1,"MIDI Sync","Global clock synchronisation"));
 		envControl.add(new SIDSysexParameterControl(rotary,null,patch,225+offset,0,-8,"Depth"));
 		envControl.add(new SIDSysexParameterControl(rotary,null,patch,226+offset,0,8,"Delay"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,227+offset,0,8,"Attack1","Attack1 rate"));
-		envControl.add(new SIDSysexParameterControl(slider,null,patch,228+offset,0,8,"Attack Lvl","Attack level"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,229+offset,0,8,"Attack2","Attack2 rate"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,230+offset,0,8,"Decay1","Decay1 rate"));
-		envControl.add(new SIDSysexParameterControl(slider,null,patch,231+offset,0,8,"Decay Lvl","Decay level"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,232+offset,0,8,"Decay2","Decay2 rate"));
-		envControl.add(new SIDSysexParameterControl(slider,null,patch,233+offset,0,8,"Sustain Lvl","Sustain level"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,234+offset,0,8,"Release1","Release1 rate"));
-		envControl.add(new SIDSysexParameterControl(slider,null,patch,235+offset,0,8,"Release Lvl","Release level"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,236+offset,0,8,"Release2","Release2 rate"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,237+offset,0,-8,"Att.Curve","Attack curve"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,238+offset,0,-8,"Dec.Curve","Decay curve"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,239+offset,0,-8,"Rel.Curve","Release curve"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,227+offset,0,8,"Attack1","Attack1 Rate"));
+		envControl.add(new SIDSysexParameterControl(slider,null,patch,228+offset,0,8,"Attack Lvl","Attack Level"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,229+offset,0,8,"Attack2","Attack2 Rate"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,230+offset,0,8,"Decay1","Decay1 Rate"));
+		envControl.add(new SIDSysexParameterControl(slider,null,patch,231+offset,0,8,"Decay Lvl","Decay Level"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,232+offset,0,8,"Decay2","Decay2 Rate"));
+		envControl.add(new SIDSysexParameterControl(slider,null,patch,233+offset,0,8,"Sustain Lvl","Sustain Level"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,234+offset,0,8,"Release1","Release1 Rate"));
+		envControl.add(new SIDSysexParameterControl(slider,null,patch,235+offset,0,8,"Release Lvl","Release Level"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,236+offset,0,8,"Release2","Release2 Rate"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,237+offset,0,-8,"Att.Curve","Attack Curve"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,238+offset,0,-8,"Dec.Curve","Decay Curve"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,239+offset,0,-8,"Rel.Curve","Release Curve"));
 		return envControl;
 	}
 	
@@ -97,17 +97,17 @@ public class LeadSpecs {
 			modControl.add(new SIDSysexParameterControl(rotary,null,patch,259+(8*c),0,-8,"Depth"));
 			modControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.tgtNames,patch,262+(8*c),0,8,"Target 1"));
 			modControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.tgtNames,patch,263+(8*c),0,8,"Target 2"));
-			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),0,1,"V1 pitch","Direct assignment to pitch of left OSC1"));
-			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),1,1,"V2 pitch","Direct assignment to pitch of left OSC2"));
-			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),2,1,"V3 pitch","Direct assignment to pitch of left OSC3"));
+			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),0,1,"V1 Pitch","Direct assignment to pitch of left OSC1"));
+			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),1,1,"V2 Pitch","Direct assignment to pitch of left OSC2"));
+			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),2,1,"V3 Pitch","Direct assignment to pitch of left OSC3"));
 			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),3,1,"V1 PWM","Direct assignment to pulse width of left OSC1"));
 			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),4,1,"V2 PWM","Direct assignment to pulse width of left OSC2"));
 			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),5,1,"V3 PWM","Direct assignment to pulse width of left OSC3"));
 			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),6,1,"Cutoff L","Direct assignment to filter cutoff of left SID"));
 			modControl.add(new SIDSysexParameterControl(button,null,patch,260+(8*c),7,1,"Volume L","Direct assignment to volume of left SID"));
-			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),0,1,"V4 pitch","Direct assignment to pitch of right OSC1"));
-			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),1,1,"V5 pitch","Direct assignment to pitch of right OSC2"));
-			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),2,1,"V6 pitch","Direct assignment to pitch of right OSC3"));
+			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),0,1,"V4 Pitch","Direct assignment to pitch of right OSC1"));
+			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),1,1,"V5 Pitch","Direct assignment to pitch of right OSC2"));
+			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),2,1,"V6 Pitch","Direct assignment to pitch of right OSC3"));
 			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),3,1,"V4 PW","Direct assignment to pulse width of right OSC1"));
 			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),4,1,"V5 PW","Direct assignment to pulse width of right OSC2"));
 			modControl.add(new SIDSysexParameterControl(button,null,patch,261+(8*c),5,1,"V6 PW","Direct assignment to pulse width of right OSC3"));
@@ -121,12 +121,12 @@ public class LeadSpecs {
 		Vector trigControl = new Vector();	
 		// Trigger matrix
 		for (int c = 0; c <14; c++) {
-			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),0,1,"OSC1 left ch"));
-			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),1,1,"OSC2 left ch"));
-			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),2,1,"OSC3 left ch"));
-			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),3,1,"OSC1 right ch"));
-			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),4,1,"OSC2 right ch"));
-			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),5,1,"OSC3 right ch"));
+			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),0,1,"OSC1 Left Ch"));
+			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),1,1,"OSC2 Left Ch"));
+			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),2,1,"OSC3 Left Ch"));
+			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),3,1,"OSC1 Right Ch"));
+			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),4,1,"OSC2 Right Ch"));
+			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),5,1,"OSC3 Right Ch"));
 			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),6,1,"ENV1 Attack"));
 			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,320+(3*c),7,1,"ENV2 Attack"));
 			trigControl.add(new SIDSysexParameterControl(simplebutton,null,patch,321+(3*c),0,1,"ENV1 Release"));
@@ -154,13 +154,13 @@ public class LeadSpecs {
 		// Wavetable sequencer
 		for (int c = 0; c <4; c++) {
 			wtControl.add(new SIDSysexParameterControl(rotary,null,patch,364+(5*c),0,6,"Clock Divider","Clock divider (sets tempo)"));
-			wtControl.add(new SIDSysexParameterControl(button,null,patch,364+(5*c),6,1,"To left ch","Parameter forwarded to left channel"));
-			wtControl.add(new SIDSysexParameterControl(button,null,patch,364+(5*c),7,1,"To right ch","Parameter forwarded to right channel"));
+			wtControl.add(new SIDSysexParameterControl(button,null,patch,364+(5*c),6,1,"To Left Ch","Parameter forwarded to left channel"));
+			wtControl.add(new SIDSysexParameterControl(button,null,patch,364+(5*c),7,1,"To Right Ch","Parameter forwarded to right channel"));
 			wtControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.leadParams,patch,365+(5*c),0,8,"Assign","Parameter assignment"));
-			wtControl.add(new SIDSysexParameterControl(rotary,null,patch,366+(5*c),0,7,"Start pos","Start position in wavetable"));
-			wtControl.add(new SIDSysexParameterControl(button,null,patch,366+(5*c),7,1,"Pos ctrl by MP","Position controlled by modulation path"));
-			wtControl.add(new SIDSysexParameterControl(rotary,null,patch,367+(5*c),0,7,"End pos","End position in wavetable"));
-			wtControl.add(new SIDSysexParameterControl(rotary,null,patch,368+(5*c),0,7,"Loop pos","Loop position in wavetable"));
+			wtControl.add(new SIDSysexParameterControl(rotary,null,patch,366+(5*c),0,7,"Start Pos","Start position in wavetable"));
+			wtControl.add(new SIDSysexParameterControl(button,null,patch,366+(5*c),7,1,"Pos Ctrl by MP","Position controlled by modulation path"));
+			wtControl.add(new SIDSysexParameterControl(rotary,null,patch,367+(5*c),0,7,"End Pos","End position in wavetable"));
+			wtControl.add(new SIDSysexParameterControl(rotary,null,patch,368+(5*c),0,7,"Loop Pos","Loop position in wavetable"));
 			wtControl.add(new SIDSysexParameterControl(button,null,patch,368+(5*c),7,1,"Oneshot"));
 		}		
 		// Wavetable data

@@ -56,14 +56,13 @@ public class InstrumentGUI extends JPanel{
 		JPanel panel3 = new JPanel(new GridLayout(1,2));
 		panel3.setOpaque(false);		
 		
-		panel.add(createGlob(V2GUIv,"Master settings"));	
+		panel.add(createGlob(V2GUIv,"Master Settings"));	
 		
 		panel1.add(createVoice(V1GUIv,"Voice"));
 		panel1.add(createENV(V2GUIv,"Envelope",29));	
 		panel2.add(createLFO(V2GUIv,"LFO 1",7));	
 		panel2.add(createLFO(V2GUIv,"LFO 2",18));
 		panel3.add(createArp(V1GUIv,"Arpeggiator"));
-		panel3.add(createWTE(V2GUIv,"Wavetable setup",41));
 		panel.add(panel1);
 		panel.add(panel2);
 		panel.add(panel3);
@@ -281,27 +280,4 @@ public class InstrumentGUI extends JPanel{
 		return envTopPanel;
 	}	
 	
-	protected JPanel createWTE(Vector vGUI, String s, int offset) {		
-		JPanel wtePanel = new JPanel();
-		wtePanel.setLayout(new BoxLayout(wtePanel, BoxLayout.X_AXIS));
-		wtePanel.setBorder(BorderFactory.createEtchedBorder());
-		wtePanel.setBorder(BorderFactory.createTitledBorder(s));
-		wtePanel.setOpaque(false);
-		
-		wtePanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(3+offset));
-		
-		JPanel subPanel = new JPanel(new GridLayout(2,4));
-		subPanel.setOpaque(false);
-		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(4+offset));
-		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(6+offset));
-		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(7+offset));
-		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(0+offset));
-		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(1+offset));
-		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(2+offset));
-		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(5+offset));
-		subPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(8+offset));
-		wtePanel.add(subPanel);
-		
-		return wtePanel;
-	}
 }

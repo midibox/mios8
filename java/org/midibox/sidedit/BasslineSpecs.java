@@ -36,9 +36,9 @@ public class BasslineSpecs {
 	
 	public static Vector createMSTR(Patch patch, int offset) {
 		Vector basslineControl = new Vector();		
-		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,0,1,"Mono/Legato"));
+		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,0,1,"Legato"));
+		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,2,1,"Fingered Portamento"));
 		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,1,1,"Manual/Seq","MIDI Note playing/Sequencer mode"));
-		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,2,1,"Fingered potamento"));
 		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,3,1,"Osc Phase Sync","Oscillator phase synchronisation"));
 		return basslineControl;
 	}
@@ -46,29 +46,29 @@ public class BasslineSpecs {
 	public static Vector createLFO(Patch patch, int offset) {
 		Vector lfoControl = new Vector();
 		// LFO1
-		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,0,1,"on/off","Enable/disable LFO"));
+		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,0,1,"On/Off","Enable/disable LFO"));
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,1,1,"Key Sync","Key synchronisation"));	
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,2,1,"MIDI Sync","Global clock synchronisation"));		
-		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,3,1,"1 shot","One shot mode"));
+		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,3,1,"Oneshot","Oneshot mode"));
 		lfoControl.add(new SIDSysexParameterControl(lfoselect,null,patch,116+offset,4,4,"Waveform"));
-		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,117+offset,0,-8,"Pitch depth","Pitch modulation depth"));		
+		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,117+offset,0,-8,"Pitch Depth","Pitch modulation depth"));		
 		lfoControl.add(new SIDSysexParameterControl(rotary,createRateStr(),patch,118+offset,0,8,"Rate")); 	// Let op CSn flag!
 		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,119+offset,0,8,"Delay"));
 		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,120+offset,0,8,"Phase"));
 		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,121+offset,0,-8,"PWM depth","Pulse width modulation depth"));
 		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,122+offset,0,-8,"Cutoff depth","Filter cutoff modulation depth"));
 		// LFO2
-		lfoControl.add(new SIDSysexParameterControl(button,null,patch,123+offset,0,1,"on/off","Enable/disable LFO"));
+		lfoControl.add(new SIDSysexParameterControl(button,null,patch,123+offset,0,1,"On/Off","Enable/disable LFO"));
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,116+offset,1,1,"Key Sync","Key synchronisation"));
 		lfoControl.add(new SIDSysexParameterControl(button,null,patch,123+offset,2,1,"MIDI Sync","Global clock synchronisation"));		
-		lfoControl.add(new SIDSysexParameterControl(button,null,patch,123+offset,3,1,"1 shot","One shot mode"));
+		lfoControl.add(new SIDSysexParameterControl(button,null,patch,123+offset,3,1,"Oneshot","One shot mode"));
 		lfoControl.add(new SIDSysexParameterControl(lfoselect,null,patch,123+offset,4,4,"Waveform"));
-		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,124+offset,0,-8,"Pitch depth","Pitch modulation depth"));		
+		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,124+offset,0,-8,"Pitch Depth","Pitch modulation depth"));		
 		lfoControl.add(new SIDSysexParameterControl(rotary,createRateStr(),patch,125+offset,0,8,"Rate")); 	// Let op CSn flag!
 		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,126+offset,0,8,"Delay"));
 		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,127+offset,0,8,"Phase"));
-		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,128+offset,0,-8,"PWM depth","Pulse width modulation depth"));
-		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,129+offset,0,-8,"Cutoff depth","Filter cutoff modulation depth"));
+		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,128+offset,0,-8,"PWM Depth","Pulse width modulation depth"));
+		lfoControl.add(new SIDSysexParameterControl(rotary,null,patch,129+offset,0,-8,"Cutoff Depth","Filter cutoff modulation depth"));
 		return lfoControl;
 	}
 	
@@ -79,23 +79,23 @@ public class BasslineSpecs {
 		envControl.add(new SIDSysexParameterControl(button,null,patch,130+offset,5,1,"Curve to Decay","Curve assigned to Decay rate"));
 		envControl.add(new SIDSysexParameterControl(button,null,patch,130+offset,6,1,"Curve to Sustain","Curve assigned to Sustain rate"));
 		envControl.add(new SIDSysexParameterControl(button,null,patch,130+offset,7,1,"MIDI Sync","Global clock synchronisation"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,131+offset,0,-8,"Depth pitch","Pitch modulation depth"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,131+offset,0,-8,"Depth Pitch","Pitch modulation depth"));
 		envControl.add(new SIDSysexParameterControl(rotary,null,patch,132+offset,0,-8,"Depth PWM","Pulse width modulation depth"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,133+offset,0,-8,"Depth cutoff","Filter cutoff modulation depth"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,133+offset,0,-8,"Depth Cutoff","Filter cutoff modulation depth"));
 		envControl.add(new SIDSysexParameterControl(slider,null,patch,134+offset,0,8,"Attack","Attack rate"));
 		envControl.add(new SIDSysexParameterControl(slider,null,patch,135+offset,0,8,"Decay","Decay rate"));
 		envControl.add(new SIDSysexParameterControl(slider,null,patch,136+offset,0,8,"Sustain","Sustain level"));
 		envControl.add(new SIDSysexParameterControl(slider,null,patch,137+offset,0,8,"Release","Release rate"));
 		envControl.add(new SIDSysexParameterControl(rotary,null,patch,138+offset,0,-8,"Curve"));
-		envControl.add(new SIDSysexParameterControl(rotary,null,patch,144+offset,0,8,"Accent decay","Decay rate used on accented notes"));
+		envControl.add(new SIDSysexParameterControl(rotary,null,patch,144+offset,0,8,"Accent Decay","Decay rate used on accented notes"));
 		return envControl;
 	}
 	
 	public static Vector createSEQ(Patch patch, int offset) {
 		Vector seqControl = new Vector();			
 		// Sequencer
-		seqControl.add(new SIDSysexParameterControl(rotary,null,patch,139+offset,0,6,"Clock divider","Clock divider (sets tempo)"));
-		seqControl.add(new SIDSysexParameterControl(button,null,patch,139+offset,7,1,"Pattern sync","Pattern changes synchronised to measure"));
+		seqControl.add(new SIDSysexParameterControl(rotary,null,patch,139+offset,0,6,"Clock Divider","Clock divider (sets tempo)"));
+		seqControl.add(new SIDSysexParameterControl(button,null,patch,139+offset,7,1,"Pattern Sync","Pattern changes synchronised to measure"));
 		seqControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.seq,patch,140+offset,0,4,"Sequence","Sequencer number"));
 		seqControl.add(new SIDSysexParameterControl(rotary,createSteps(),patch,141+offset,0,4,"Steps","Number of steps"));		
 		seqControl.add(new SIDSysexParameterControl(combo,SIDSysexInfo.basslineParams,patch,142+offset,0,8,"Assign"));

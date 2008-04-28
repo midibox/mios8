@@ -64,7 +64,7 @@ public class GlobalGUI extends JPanel{
 		JPanel subPanel2 = new JPanel();
 		subPanel2.setLayout(new BoxLayout(subPanel2, BoxLayout.X_AXIS));
 		subPanel2.setBorder(BorderFactory.createEtchedBorder());
-		subPanel2.setBorder(BorderFactory.createTitledBorder("Hardware flags"));
+		subPanel2.setBorder(BorderFactory.createTitledBorder("Hardware Requirement Flags"));
 		subPanel2.setOpaque(false);
 		
 		subPanel2.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(0));		
@@ -81,7 +81,7 @@ public class GlobalGUI extends JPanel{
 		JPanel subPanel4 = new JPanel();
 		subPanel4.setLayout(new BoxLayout(subPanel4, BoxLayout.Y_AXIS));
 		subPanel4.setBorder(BorderFactory.createEtchedBorder());
-		subPanel4.setBorder(BorderFactory.createTitledBorder("Master volume"));
+		subPanel4.setBorder(BorderFactory.createTitledBorder("Master Volume"));
 		subPanel4.setOpaque(false);
 		subPanel4.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(4));
 		
@@ -108,13 +108,13 @@ public class GlobalGUI extends JPanel{
 	protected JPanel createKnobs(Vector midiParameterGUI) {
 		JPanel knobsPanel = new JPanel(new GridLayout(1, 8));
 		knobsPanel.setOpaque(false);		
-		knobsPanel.add(createKnob(midiParameterGUI,0,"Modulation wheel"));
+		knobsPanel.add(createKnob(midiParameterGUI,0,"Modulation Wheel"));
 		knobsPanel.add(createKnob(midiParameterGUI,5,"CC#16"));
 		knobsPanel.add(createKnob(midiParameterGUI,10,"CC#17"));
 		knobsPanel.add(createKnob(midiParameterGUI,15,"CC#18"));
 		knobsPanel.add(createKnob(midiParameterGUI,20,"CC#19"));
 		knobsPanel.add(createKnob(midiParameterGUI,25,"Velocity"));
-		knobsPanel.add(createKnob(midiParameterGUI,30,"Pitch bender"));
+		knobsPanel.add(createKnob(midiParameterGUI,30,"Pitch Bender"));
 		knobsPanel.add(createKnob(midiParameterGUI,35,"Aftertouch"));		
 		return knobsPanel;
 	}
