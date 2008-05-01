@@ -5,6 +5,7 @@
 #   - LKR_FILE  e.g.: $(MIOS_PATH)/etc/lkr/p$(PROCESSOR).lkr
 #   - PROJECT   e.g.: project   # (.lst, .cod, .hex, .map will be added automatically)
 #   - OBJS      e.g.: pic18f452.o mios_wrapper.o main.o
+#   - LIBS      to add additional libraries (.lib files)
 #   - GPASM_INCLUDE  e.g.: -I./ui  # (more include pathes will be added by .mk files)
 #   - SDCC_INCLUDE   e.g.: -I./ui  # (more include pathes will be added by .mk files)
 #   - GPASM_DEFINES  e.g.: -DDEBUG_MODE=0
@@ -21,6 +22,9 @@
 
 # output directory
 OUTDIR = _output
+
+# add default libraries
+LIBS += $(MIOS_PATH)/lib/libsdcc.lib $(MIOS_PATH)/lib/pic$(PROCESSOR).lib
 
 # GPASM execution via wrapper
 GPASM = sh $(MIOS_BIN_PATH)/mios-gpasm -c
@@ -53,12 +57,12 @@ SDCC_DEFINES += # reserved for future "default extensions"
 SDCC_FLAGS += -mpic16 -p$(PROCESSOR) --fommit-frame-pointer --optimize-goto --optimize-cmp --disable-warning 85 --obanksel=2
 
 # add default flags for GPLINK
-GPLINK_FLAGS += -s $(LKR_FILE) $(MIOS_PATH)/lib/libsdcc.lib $(MIOS_PATH)/lib/pic$(PROCESSOR).lib
+GPLINK_FLAGS += -s $(LKR_FILE) $(LIBS)
 
 # add files for distribution
 DIST += $(MIOS_PATH)/include/makefile/common.mk $(MIOS_PATH)/include/c $(MIOS_PATH)/include/asm
 DIST += $(LKR_FILE)
-DIST += $(MIOS_PATH)/lib/libsdcc.lib $(MIOS_PATH)/lib/pic$(PROCESSOR).lib
+DIST += $(LIBS)
 DIST += $(MIOS_BIN_PATH)/mios-gpasm $(MIOS_BIN_PATH)/mios-sdcc
 
 # rule to create a .hex file
