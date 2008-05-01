@@ -1,12 +1,12 @@
 # $Id$
 
 # define the processor, linker file and project name
-PROCESSOR = p18f452
-LKR_FILE  = $(MIOS_PATH)/etc/lkr/$(PROCESSOR).lkr
+PROCESSOR = 18f452
+LKR_FILE  = $(MIOS_PATH)/etc/lkr/p$(PROCESSOR).lkr
 PROJECT   = project
 
 # list of objects that should be created and linked
-OBJS = pic18f452.o mios_wrapper.o app_lcd.o main.o
+OBJS = mios_wrapper.o app_lcd.o main.o
 
 # add the fonts
 OBJS += glcd_font_big.o glcd_font_knob_icons.o

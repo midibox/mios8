@@ -1,7 +1,7 @@
 # $Id$
 
 # define the processor here
-PROCESSOR = p18f4620
+PROCESSOR = 18f4620
 
 # default flags to GPASM here
 GPASM_FLAGS   = 
