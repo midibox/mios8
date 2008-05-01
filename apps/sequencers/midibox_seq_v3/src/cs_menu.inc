@@ -52,8 +52,8 @@ CS_MENU_Init
 	movlw	15		; all
 	movwf	CS_RANDOM_INTENSITY_TA
 
-	;; change to DISPLAY page and exit
-	movlw	0x00
+	;; change to VIEW page and exit
+	movlw	CS_MENU_PAGE_VIEW
 	rgoto	CS_MENU_ChangePage
 	
 

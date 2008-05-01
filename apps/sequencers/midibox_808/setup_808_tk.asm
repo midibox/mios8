@@ -11,7 +11,7 @@
 ;    20: for a 2x20 display (no additional information - screen will be centered, thats all)
 ;    80: for two 2x40 displays
 ;    other values not supported!
-#define DEFAULT_LCD_WIDTH 20
+#define DEFAULT_LCD_WIDTH 16
 ;
 ; Following table allows you to define
 ;   - the track names (must consist of exactly 6 characters!)
@@ -234,6 +234,10 @@ DEFAULT_TRKINFO MACRO
 #ifndef DEFAULT_SWING_POT_CONNECTED
 #define DEFAULT_SWING_POT_CONNECTED 1
 #endif
+
+;; define the page, which should be displayed after poweron, here
+;; Examples: CS_MENU_PAGE_EDIT for edit page, CS_MENU_PAGE_PATTERN for pattern page
+#define DEFAULT_STARTUP_PAGE CS_MENU_PAGE_EDIT
 
 
 	org	0x3082		; never change the origin!

@@ -46,8 +46,8 @@ CS_MENU_Init
 #endif
 #endif
 
-	;; change to DISPLAY page and exit
-	movlw	0x00
+	;; change to startup page and exit
+	movlw	DEFAULT_STARTUP_PAGE		; (defined in setup_*.asm file)
 	rgoto	CS_MENU_ChangePage
 	
 

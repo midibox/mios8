@@ -71,7 +71,10 @@ SEQ_DUMP_StoreTrks
 	movff	SEQ_SAVE_PATTERN, SEQ_PATTERN
 	movff	SEQ_SAVE_PATTERN_BANK, SEQ_PATTERN_BANK
 
-#if 0
+	;; BankStick pages can be stored in background
+	movf	SEQ_SAVE_PATTERN, W, BANKED
+	bnz	SEQ_DUMP_StoreTrks_BS
+SEQ_DUMP_StoreTrks_Internal
 	;; store 8 pages (0x200 bytes)
 	clrf	EEADR
 	clrf	EEADRH
@@ -83,12 +86,12 @@ SEQ_DUMP_StoreTrksLoop
 	movlw	0x00
 	addwfc	FSR1H, F
 	BRA_IFCLR EEADRH, 1, ACCESS, SEQ_DUMP_StoreTrksLoop
-#else
-	;; start non-blocking write operation
-	call	SEQ_BANK_WritePattern_NB
-#endif
-
 	return
+
+SEQ_DUMP_StoreTrks_BS
+	;; start non-blocking write operation
+	goto	SEQ_BANK_WritePattern_NB
+
 
 ;; --------------------------------------------------------------------------
 ;;  This function restores a chain from BankStick

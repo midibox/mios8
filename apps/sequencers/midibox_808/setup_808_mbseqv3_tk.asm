@@ -236,6 +236,10 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_SWING_POT_CONNECTED 0
 #endif
 
+;; define the page, which should be displayed after poweron, here
+;; Examples: CS_MENU_PAGE_EDIT for edit page, CS_MENU_PAGE_PATTERN for pattern page
+#define DEFAULT_STARTUP_PAGE CS_MENU_PAGE_EDIT
+
 
 	org	0x3082		; never change the origin!
 ; ==========================================================================
