@@ -13,7 +13,7 @@
  *
  */
  
-#include <pic18f4685.h>
+#include "pic18f4685.h"
 
 
 __sfr __at (0xD60) RXF6SIDH;

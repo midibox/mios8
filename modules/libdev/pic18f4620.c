@@ -25,7 +25,7 @@
  * 
  */
 
-#include <pic18f4620.h>
+#include "pic18f4620.h"
 
 __sfr __at (0xF80) PORTA;
 volatile __PORTA_t __at (0xF80) PORTAbits;
