@@ -1,8 +1,8 @@
 # $Id$
 
 # define the processor, linker file and project name
-PROCESSOR = p18f452
-LKR_FILE  = $(MIOS_PATH)/etc/lkr/$(PROCESSOR).lkr
+PROCESSOR = 18f452
+LKR_FILE  = $(MIOS_PATH)/etc/lkr/p$(PROCESSOR).lkr
 PROJECT   = libsdcc
 
 # list of objects that should be created and linked
