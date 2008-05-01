@@ -32,3 +32,16 @@ DATABANK   NAME=cansfr2    START=0xF00          END=0xF5F          PROTECTED
 ACCESSBANK NAME=accesssfr  START=0xF60          END=0xFFF          PROTECTED
 
 SECTION    NAME=CONFIG     ROM=config
+SECTION    NAME=forcebanked     RAM=gpr0
+
+// Use:
+// gpr0 is not available for indirect memory access
+// To work around this, we will try to force all banked accesses into gpr0// 
+// To do this, use the 'udata' pragma like so:
+//
+// #pragma udata forcebanked MyVar
+// unsigned char MyVar;
+//
+// Scalar variables will always use banked access, so they should be assigned to gpr0 as above
+// Aggregate types (arrays, structs) should not be stored here as they will use indirect addressing
+// 

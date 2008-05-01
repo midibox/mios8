@@ -1,208 +1,308 @@
-// $Id$
-
-/*
- * pic18f4620.c - PIC18F4620 Device Library Source
- *
+/* 
+ * pic18f4620.c - PIC18F4620 Device Library Sources
+ * 
  * This file is part of the GNU PIC Library.
+ * 
+ * September, 2006
+ * Added modifications by
+ *     Anton Strobl <a.strobl AT aws-it.at>
+ * 
+ * September, 2006
+ * Added based on existing PICs
+ *      Gary Plumbridge <gary AT phodex.net>
+ * 
+ * May, 2005
+ * The GNU PIC Library is maintained by
+ *     Raphael Neider <rneider AT web.de>
+ * 
+ * originally designed by
+ *     Vangelis Rokas <vrokas AT otenet.gr>
+ * 
+ * $Id$
  *
- * January, 2004
- * The GNU PIC Library is maintained by,
- * 	Vangelis Rokas <vrokas@otenet.gr>
+ * Modified by stryd.one@gmail for MIOS SDCC wrapper compliance: FSR0 registers swapped with FSR1
  *
- * Modified by tk@midibox.org for MIOS SDCC wrapper compliance: FSR0 registers swapped with FSR1
- *
+ * 
  */
 
-#include "pic18f4620.h"
+#include <pic18f4620.h>
 
-sfr at 0xf80 PORTA;
-volatile __PORTAbits_t at 0xf80 PORTAbits;
+__sfr __at (0xF80) PORTA;
+volatile __PORTA_t __at (0xF80) PORTAbits;
 
-sfr at 0xf81 PORTB;
-volatile __PORTBbits_t at 0xf81 PORTBbits;
+__sfr __at (0xF81) PORTB;
+volatile __PORTB_t __at (0xF81) PORTBbits;
 
-sfr at 0xf82 PORTC;
-volatile __PORTCbits_t at 0xf82 PORTCbits;
+__sfr __at (0xF82) PORTC;
+volatile __PORTC_t __at (0xF82) PORTCbits;
 
-sfr at 0xf83 PORTD;
-volatile __PORTDbits_t at 0xf83 PORTDbits;
+__sfr __at (0xF83) PORTD;
+volatile __PORTD_t __at (0xF83) PORTDbits;
 
-sfr at 0xf84 PORTE;
-volatile __PORTEbits_t at 0xf84 PORTEbits;
+__sfr __at (0xF84) PORTE;
+volatile __PORTE_t __at (0xF84) PORTEbits;
 
-sfr at 0xf89 LATA;
-volatile __LATAbits_t at 0xf89 LATAbits;
+__sfr __at (0xF89) LATA;
+volatile __LATA_t __at (0xF89) LATAbits;
 
-sfr at 0xf8a LATB;
-volatile __LATBbits_t at 0xf8a LATBbits;
+__sfr __at (0xF8A) LATB;
+volatile __LATB_t __at (0xF8A) LATBbits;
 
-sfr at 0xf8b LATC;
-volatile __LATCbits_t at 0xf8b LATCbits;
+__sfr __at (0xF8B) LATC;
+volatile __LATC_t __at (0xF8B) LATCbits;
 
-sfr at 0xf8c LATD;
-volatile __LATDbits_t at 0xf8c LATDbits;
+__sfr __at (0xF8C) LATD;
+volatile __LATD_t __at (0xF8C) LATDbits;
 
-sfr at 0xf8d LATE;
-volatile __LATEbits_t at 0xf8d LATEbits;
+__sfr __at (0xF8D) LATE;
+volatile __LATE_t __at (0xF8D) LATEbits;
 
-sfr at 0xf92 TRISA;
-volatile __TRISAbits_t at 0xf92 TRISAbits;
+__sfr __at (0xF92) TRISA;
+volatile __TRISA_t __at (0xF92) TRISAbits;
 
-sfr at 0xf93 TRISB;
-volatile __TRISBbits_t at 0xf93 TRISBbits;
+__sfr __at (0xF93) TRISB;
+volatile __TRISB_t __at (0xF93) TRISBbits;
 
-sfr at 0xf94 TRISC;
-volatile __TRISCbits_t at 0xf94 TRISCbits;
+__sfr __at (0xF94) TRISC;
+volatile __TRISC_t __at (0xF94) TRISCbits;
 
-sfr at 0xf95 TRISD;
-volatile __TRISDbits_t at 0xf95 TRISDbits;
+__sfr __at (0xF95) TRISD;
+volatile __TRISD_t __at (0xF95) TRISDbits;
 
-sfr at 0xf96 TRISE;
-volatile __TRISEbits_t at 0xf96 TRISEbits;
+__sfr __at (0xF96) TRISE;
+volatile __TRISE_t __at (0xF96) TRISEbits;
 
-sfr at 0xf9d PIE1;
-volatile __PIE1bits_t at 0xf9d PIE1bits;
+__sfr __at (0xF9B) OSCTUNE;
+volatile __OSCTUNE_t __at (0xF9B) OSCTUNEbits;
 
-sfr at 0xf9e PIR1;
-volatile __PIR1bits_t at 0xf9e PIR1bits;
+__sfr __at (0xF9D) PIE1;
+volatile __PIE1_t __at (0xF9D) PIE1bits;
 
-sfr at 0xf9f IPR1;
-volatile __IPR1bits_t at 0xf9f IPR1bits;
+__sfr __at (0xF9E) PIR1;
+volatile __PIR1_t __at (0xF9E) PIR1bits;
 
-sfr at 0xfa0 PIE2;
-volatile __PIE2bits_t at 0xfa0 PIE2bits;
+__sfr __at (0xF9F) IPR1;
+volatile __IPR1_t __at (0xF9F) IPR1bits;
 
-sfr at 0xfa1 PIR2;
-volatile __PIR2bits_t at 0xfa1 PIR2bits;
+__sfr __at (0xFA0) PIE2;
+volatile __PIE2_t __at (0xFA0) PIE2bits;
 
-sfr at 0xfa2 IPR2;
-volatile __IPR2bits_t at 0xfa2 IPR2bits;
+__sfr __at (0xFA1) PIR2;
+volatile __PIR2_t __at (0xFA1) PIR2bits;
 
-sfr at 0xfa6 EECON1;
-volatile __EECON1bits_t at 0xfa6 EECON1bits;
+__sfr __at (0xFA2) IPR2;
+volatile __IPR2_t __at (0xFA2) IPR2bits;
 
-sfr at 0xfa7 EECON2;
-sfr at 0xfa8 EEDATA;
-sfr at 0xfa9 EEADR;
-sfr at 0xfab RCSTA;
-volatile __RCSTAbits_t at 0xfab RCSTAbits;
+__sfr __at (0xFA6) EECON1;
+volatile __EECON1_t __at (0xFA6) EECON1bits;
 
-sfr at 0xfac TXSTA;
-volatile __TXSTAbits_t at 0xfac TXSTAbits;
+__sfr __at (0xFA7) EECON2;
 
-sfr at 0xfad TXREG;
-sfr at 0xfae RCREG;
-sfr at 0xfaf SPBRG;
-sfr at 0xfb1 T3CON;
-volatile __T3CONbits_t at 0xfb1 T3CONbits;
+__sfr __at (0xFA8) EEDATA;
 
-sfr at 0xfb2 TMR3L;
-sfr at 0xfb3 TMR3H;
-sfr at 0xfba CCP2CON;
-volatile __CCP2CONbits_t at 0xfba CCP2CONbits;
+__sfr __at (0xFA9) EEADR;
 
-sfr at 0xfbb CCPR2L;
-sfr at 0xfbc CCPR2H;
-sfr at 0xfbd CCP1CON;
-volatile __CCP1CONbits_t at 0xfbd CCP1CONbits;
+__sfr __at (0xFAA) EEADRH;
 
-sfr at 0xfbe CCPR1L;
-sfr at 0xfbf CCPR1H;
-sfr at 0xfc1 ADCON1;
-volatile __ADCON1bits_t at 0xfc1 ADCON1bits;
+__sfr __at (0xFAB) RCSTA;
+volatile __RCSTA_t __at (0xFAB) RCSTAbits;
 
-sfr at 0xfc2 ADCON0;
-volatile __ADCON0bits_t at 0xfc2 ADCON0bits;
+__sfr __at (0xFAC) TXSTA;
+volatile __TXSTA_t __at (0xFAC) TXSTAbits;
 
-sfr at 0xfc3 ADRESL;
-sfr at 0xfc4 ADRESH;
-sfr at 0xfc5 SSPCON2;
-volatile __SSPCON2bits_t at 0xfc5 SSPCON2bits;
+__sfr __at (0xFAD) TXREG;
 
-sfr at 0xfc6 SSPCON1;
-volatile __SSPCON1bits_t at 0xfc6 SSPCON1bits;
+__sfr __at (0xFAE) RCREG;
 
-sfr at 0xfc7 SSPSTAT;
-volatile __SSPSTATbits_t at 0xfc7 SSPSTATbits;
+__sfr __at (0xFAF) SPBRG;
 
-sfr at 0xfc8 SSPADD;
-sfr at 0xfc9 SSPBUF;
-sfr at 0xfca T2CON;
-volatile __T2CONbits_t at 0xfca T2CONbits;
+__sfr __at (0xFB0) SPBRGH;
 
-sfr at 0xfcb PR2;
-sfr at 0xfcc TMR2;
-sfr at 0xfcd T1CON;
-volatile __T1CONbits_t at 0xfcd T1CONbits;
+__sfr __at (0xFB1) T3CON;
+volatile __T3CON_t __at (0xFB1) T3CONbits;
 
-sfr at 0xfce TMR1L;
-sfr at 0xfcf TMR1H;
-sfr at 0xfd0 RCON;
-volatile __RCONbits_t at 0xfd0 RCONbits;
+__sfr __at (0xFB2) TMR3L;
 
-sfr at 0xfd1 WDTCON;
-volatile __WDTCONbits_t at 0xfd1 WDTCONbits;
+__sfr __at (0xFB3) TMR3H;
 
-sfr at 0xfd2 LVDCON;
-volatile __LVDCONbits_t at 0xfd2 LVDCONbits;
+__sfr __at (0xFB4) CMCON;
+volatile __CMCON_t __at (0xFB4) CMCONbits;
 
-sfr at 0xfd3 OSCCON;
-volatile __OSCCONbits_t at 0xfd3 OSCCONbits;
+__sfr __at (0xFB5) CVRCON;
+volatile __CVRCON_t __at (0xFB5) CVRCONbits;
 
-sfr at 0xfd5 T0CON;
-volatile __T0CONbits_t at 0xfd5 T0CONbits;
+__sfr __at (0xFB6) ECCP1AS;
+volatile __ECCP1AS_t __at (0xFB6) ECCP1ASbits;
 
-sfr at 0xfd6 TMR0L;
-sfr at 0xfd7 TMR0H;
-sfr at 0xfd8 STATUS;
-volatile __STATUSbits_t at 0xfd8 STATUSbits;
+__sfr __at (0xFB7) PWM1CON;
+volatile __PWM1CON_t __at (0xFB7) PWM1CONbits;
 
-sfr at 0xfd9 FSR2L;
-sfr at 0xfda FSR2H;
-sfr at 0xfdb PLUSW2;
-sfr at 0xfdc PREINC2;
-sfr at 0xfdd POSTDEC2;
-sfr at 0xfde POSTINC2;
-sfr at 0xfdf INDF2;
-sfr at 0xfe0 BSR;
-sfr at 0xfe9 FSR1L;         // swapped with FSR0L for MIOS wrapper compliance
-sfr at 0xfea FSR1H;         // swapped with FSR0H for MIOS wrapper compliance
-sfr at 0xfeb PLUSW1;        // swapped with PLUSW0 for MIOS wrapper compliance
-sfr at 0xfec PREINC1;       // swapped with PREINC0 for MIOS wrapper compliance
-sfr at 0xfed POSTDEC1;      // swapped with POSTDEC0 for MIOS wrapper compliance
-sfr at 0xfee POSTINC1;      // swapped with POSTINC0 for MIOS wrapper compliance
-sfr at 0xfef INDF1;         // swapped with INDF0 for MIOS wrapper compliance
-sfr at 0xfe8 WREG;
-sfr at 0xfe1 FSR0L;         // swapped with FSR1L for MIOS wrapper compliance
-sfr at 0xfe2 FSR0H;         // swapped with FSR1H for MIOS wrapper compliance
-sfr at 0xfe3 PLUSW0;        // swapped with PLUSW1 for MIOS wrapper compliance
-sfr at 0xfe4 PREINC0;       // swapped with PREINC1 for MIOS wrapper compliance
-sfr at 0xfe5 POSTDEC0;      // swapped with POSTDEC1 for MIOS wrapper compliance
-sfr at 0xfe6 POSTINC0;      // swapped with POSTINC1 for MIOS wrapper compliance
-sfr at 0xfe7 INDF0;         // swapped with INDF1 for MIOS wrapper compliance
-sfr at 0xff0 INTCON3;
-volatile __INTCON3bits_t at 0xff0 INTCON3bits;
+__sfr __at (0xFB8) BAUDCON;
+volatile __BAUDCON_t __at (0xFB8) BAUDCONbits;
 
-sfr at 0xff1 INTCON2;
-volatile __INTCON2bits_t at 0xff1 INTCON2bits;
+__sfr __at (0xFBA) CCP2CON;
+volatile __CCP2CON_t __at (0xFBA) CCP2CONbits;
 
-sfr at 0xff2 INTCON;
-volatile __INTCONbits_t at 0xff2 INTCONbits;
+__sfr __at (0xFBB) CCPR2L;
 
-sfr at 0xff3 PRODL;
-sfr at 0xff4 PRODH;
-sfr at 0xff5 TABLAT;
-sfr at 0xff6 TBLPTRL;
-sfr at 0xff7 TBLPTRH;
-sfr at 0xff8 TBLPTRU;
-sfr at 0xff9 PCL;
-sfr at 0xffa PCLATH;
-sfr at 0xffb PCLATU;
-sfr at 0xffc STKPTR;
-volatile __STKPTRbits_t at 0xffc STKPTRbits;
+__sfr __at (0xFBC) CCPR2H;
 
-sfr at 0xffd TOSL;
-sfr at 0xffe TOSH;
-sfr at 0xfff TOSU;
+__sfr __at (0xFBD) CCP1CON;
+volatile __CCP1CON_t __at (0xFBD) CCP1CONbits;
 
+__sfr __at (0xFBE) CCPR1L;
+
+__sfr __at (0xFBF) CCPR1H;
+
+__sfr __at (0xFC0) ADCON2;
+volatile __ADCON2_t __at (0xFC0) ADCON2bits;
+
+__sfr __at (0xFC1) ADCON1;
+volatile __ADCON1_t __at (0xFC1) ADCON1bits;
+
+__sfr __at (0xFC2) ADCON0;
+volatile __ADCON0_t __at (0xFC2) ADCON0bits;
+
+__sfr __at (0xFC3) ADRESL;
+
+__sfr __at (0xFC4) ADRESH;
+
+__sfr __at (0xFC5) SSPCON2;
+volatile __SSPCON2_t __at (0xFC5) SSPCON2bits;
+
+__sfr __at (0xFC6) SSPCON1;
+volatile __SSPCON1_t __at (0xFC6) SSPCON1bits;
+
+__sfr __at (0xFC7) SSPSTAT;
+volatile __SSPSTAT_t __at (0xFC7) SSPSTATbits;
+
+__sfr __at (0xFC8) SSPADD;
+
+__sfr __at (0xFC9) SSPBUF;
+
+__sfr __at (0xFCA) T2CON;
+volatile __T2CON_t __at (0xFCA) T2CONbits;
+
+__sfr __at (0xFCB) PR2;
+
+__sfr __at (0xFCC) TMR2;
+
+__sfr __at (0xFCD) T1CON;
+volatile __T1CON_t __at (0xFCD) T1CONbits;
+
+__sfr __at (0xFCE) TMR1L;
+
+__sfr __at (0xFCF) TMR1H;
+
+__sfr __at (0xFD0) RCON;
+volatile __RCON_t __at (0xFD0) RCONbits;
+
+__sfr __at (0xFD1) WDTCON;
+volatile __WDTCON_t __at (0xFD1) WDTCONbits;
+
+__sfr __at (0xFD2) HLVDCON;
+volatile __HLVDCON_t __at (0xFD2) HLVDCONbits;
+
+__sfr __at (0xFD3) OSCCON;
+volatile __OSCCON_t __at (0xFD3) OSCCONbits;
+
+__sfr __at (0xFD5) T0CON;
+volatile __T0CON_t __at (0xFD5) T0CONbits;
+
+__sfr __at (0xFD6) TMR0L;
+
+__sfr __at (0xFD7) TMR0H;
+
+__sfr __at (0xFD8) STATUS;
+volatile __STATUS_t __at (0xFD8) STATUSbits;
+
+__sfr __at (0xFD9) FSR2L;
+
+__sfr __at (0xFDA) FSR2H;
+volatile __FSR2H_t __at (0xFDA) FSR2Hbits;
+
+__sfr __at (0xFDB) PLUSW2;
+
+__sfr __at (0xFDC) PREINC2;
+
+__sfr __at (0xFDD) POSTDEC2;
+
+__sfr __at (0xFDE) POSTINC2;
+
+__sfr __at (0xFDF) INDF2;
+
+__sfr __at (0xFE0) BSR;
+volatile __BSR_t __at (0xFE0) BSRbits;
+
+__sfr __at (0xFE1) FSR0L;
+
+__sfr __at (0xFE2) FSR0H;
+volatile __FSR0H_t __at (0xFE2) FSR0Hbits;
+
+__sfr __at (0xFE3) PLUSW0;
+
+__sfr __at (0xFE4) PREINC0;
+
+__sfr __at (0xFE5) POSTDEC0;
+
+__sfr __at (0xFE6) POSTINC0;
+
+__sfr __at (0xFE7) INDF0;
+
+__sfr __at (0xFE8) WREG;
+
+__sfr __at (0xFE9) FSR1L;
+
+__sfr __at (0xFEA) FSR1H;
+volatile __FSR1H_t __at (0xFEA) FSR1Hbits;
+
+__sfr __at (0xFEB) PLUSW1;
+
+__sfr __at (0xFEC) PREINC1;
+
+__sfr __at (0xFED) POSTDEC1;
+
+__sfr __at (0xFEE) POSTINC1;
+
+__sfr __at (0xFEF) INDF1;
+
+__sfr __at (0xFF0) INTCON3;
+volatile __INTCON3_t __at (0xFF0) INTCON3bits;
+
+__sfr __at (0xFF1) INTCON2;
+volatile __INTCON2_t __at (0xFF1) INTCON2bits;
+
+__sfr __at (0xFF2) INTCON;
+volatile __INTCON_t __at (0xFF2) INTCONbits;
+
+__sfr __at (0xFF3) PRODL;
+
+__sfr __at (0xFF4) PRODH;
+
+__sfr __at (0xFF5) TABLAT;
+
+__sfr __at (0xFF6) TBLPTRL;
+
+__sfr __at (0xFF7) TBLPTRH;
+
+__sfr __at (0xFF8) TBLPTRU;
+volatile __TBLPTRU_t __at (0xFF8) TBLPTRUbits;
+
+__sfr __at (0xFF9) PCL;
+
+__sfr __at (0xFFA) PCLATH;
+volatile __PCLATH_t __at (0xFFA) PCLATHbits;
+
+__sfr __at (0xFFB) PCLATU;
+volatile __PCLATU_t __at (0xFFB) PCLATUbits;
+
+__sfr __at (0xFFC) STKPTR;
+volatile __STKPTR_t __at (0xFFC) STKPTRbits;
+
+__sfr __at (0xFFD) TOSL;
+
+__sfr __at (0xFFE) TOSH;
+
+__sfr __at (0xFFF) TOSU;
+volatile __TOSU_t __at (0xFFF) TOSUbits;
 
