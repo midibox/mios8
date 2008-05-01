@@ -809,21 +809,21 @@ extern __sfr __at (0xfdd) POSTDEC2;
 extern __sfr __at (0xfde) POSTINC2;
 extern __sfr __at (0xfdf) INDF2;
 extern __sfr __at (0xfe0) BSR;
-extern __sfr __at (0xfe1) FSR0L;
-extern __sfr __at (0xfe2) FSR0H;
-extern __sfr __at (0xfe3) PLUSW0;
-extern __sfr __at (0xfe4) PREINC0;
-extern __sfr __at (0xfe5) POSTDEC0;
-extern __sfr __at (0xfe6) POSTINC0;
-extern __sfr __at (0xfe7) INDF0;
+extern __sfr __at (0xfe1) FSR0L;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfe2) FSR0H;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfe3) PLUSW0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfe4) PREINC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfe5) POSTDEC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfe6) POSTINC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfe7) INDF0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 extern __sfr __at (0xfe8) WREG;
-extern __sfr __at (0xfe9) FSR1L;
-extern __sfr __at (0xfea) FSR1H;
-extern __sfr __at (0xfeb) PLUSW1;
-extern __sfr __at (0xfec) PREINC1;
-extern __sfr __at (0xfed) POSTDEC1;
-extern __sfr __at (0xfee) POSTINC1;
-extern __sfr __at (0xfef) INDF1;
+extern __sfr __at (0xfe9) FSR1L;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfea) FSR1H;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfeb) PLUSW1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfec) PREINC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfed) POSTDEC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfee) POSTINC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
+extern __sfr __at (0xfef) INDF1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 extern __sfr __at (0xff0) INTCON3;
 typedef union {
 	struct {

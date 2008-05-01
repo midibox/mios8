@@ -1076,35 +1076,35 @@ __sfr __at (0xFDF) INDF2;
 
 __sfr __at (0xFE0) BSR;
 
-__sfr __at (0xFE1) FSR0L;
+__sfr __at (0xFE1) FSR0L;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFE2) FSR0H;
+__sfr __at (0xFE2) FSR0H;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFE3) PLUSW0;
+__sfr __at (0xFE3) PLUSW0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFE4) PREINC0;
+__sfr __at (0xFE4) PREINC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFE5) POSTDEC0;
+__sfr __at (0xFE5) POSTDEC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFE6) POSTINC0;
+__sfr __at (0xFE6) POSTINC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFE7) INDF0;
+__sfr __at (0xFE7) INDF0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
 __sfr __at (0xFE8) WREG;
 
-__sfr __at (0xFE9) FSR1L;
+__sfr __at (0xFE9) FSR1L;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFEA) FSR1H;
+__sfr __at (0xFEA) FSR1H;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFEB) PLUSW1;
+__sfr __at (0xFEB) PLUSW1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFEC) PREINC1;
+__sfr __at (0xFEC) PREINC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFED) POSTDEC1;
+__sfr __at (0xFED) POSTDEC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFEE) POSTINC1;
+__sfr __at (0xFEE) POSTINC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-__sfr __at (0xFEF) INDF1;
+__sfr __at (0xFEF) INDF1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
 __sfr __at (0xFF0) INTCON3;
 volatile __INTCON3bits_t __at (0xFF0) INTCON3bits;

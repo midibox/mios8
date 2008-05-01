@@ -978,9 +978,9 @@ typedef union {
 } __BSR_t;
 extern volatile __BSR_t __at (0xFE0) BSRbits;
 
-extern __sfr __at (0xFE1) FSR0L;
+extern __sfr __at (0xFE1) FSR0L;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFE2) FSR0H;
+extern __sfr __at (0xFE2) FSR0H;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 typedef union {
 	struct {
 		unsigned FSR0H     	: 4;
@@ -990,23 +990,23 @@ typedef union {
 		unsigned           	: 1;
 	};
 } __FSR0H_t;
-extern volatile __FSR0H_t __at (0xFE2) FSR0Hbits;
+extern volatile __FSR0H_t __at (0xFE2) FSR0Hbits;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFE3) PLUSW0;
+extern __sfr __at (0xFE3) PLUSW0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFE4) PREINC0;
+extern __sfr __at (0xFE4) PREINC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFE5) POSTDEC0;
+extern __sfr __at (0xFE5) POSTDEC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFE6) POSTINC0;
+extern __sfr __at (0xFE6) POSTINC0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFE7) INDF0;
+extern __sfr __at (0xFE7) INDF0;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
 extern __sfr __at (0xFE8) WREG;
 
-extern __sfr __at (0xFE9) FSR1L;
+extern __sfr __at (0xFE9) FSR1L;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFEA) FSR1H;
+extern __sfr __at (0xFEA) FSR1H;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 typedef union {
 	struct {
 		unsigned FSR1H     	: 4;
@@ -1016,17 +1016,17 @@ typedef union {
 		unsigned           	: 1;
 	};
 } __FSR1H_t;
-extern volatile __FSR1H_t __at (0xFEA) FSR1Hbits;
+extern volatile __FSR1H_t __at (0xFEA) FSR1Hbits;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFEB) PLUSW1;
+extern __sfr __at (0xFEB) PLUSW1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFEC) PREINC1;
+extern __sfr __at (0xFEC) PREINC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFED) POSTDEC1;
+extern __sfr __at (0xFED) POSTDEC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFEE) POSTINC1;
+extern __sfr __at (0xFEE) POSTINC1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
-extern __sfr __at (0xFEF) INDF1;
+extern __sfr __at (0xFEF) INDF1;				// FSR0 and FSR1 swapped for MIOS SDCC Wrapper compatibility
 
 extern __sfr __at (0xFF0) INTCON3;
 typedef union {
