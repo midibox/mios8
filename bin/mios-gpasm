@@ -34,7 +34,7 @@ while (( "$#" )); do
   # add .asm and .s files to GPASM_FILES list
   # memo: see http://www.linuxtopia.org/online_books/bash_guide_for_beginners/sect_10_03.html
   # for hints about variable substitution
-  if [[ "${1:${#1}-4}" == ".asm" || "${1:${#1}-2}" == ".s" ]]; then
+  if [[ "${1:${#1}-4}" == ".asm" || "${1:${#1}-2}" == ".s" || "${1:${#1}-2}" == ".S" ]]; then
     GPASM_FILES=( "${GPASM_FILES[@]}" $1 )
   else 
     # fixasm option passed?
@@ -78,6 +78,11 @@ else
       if [[ "${FILE:${#FILE}-2}" == ".s" ]]; then
         EXT=".s"
         FILE_WITHOUT_EXT="${FILE:0:${#FILE}-2}"
+      else
+        if [[ "${FILE:${#FILE}-2}" == ".S" ]]; then
+          EXT=".S"
+          FILE_WITHOUT_EXT="${FILE:0:${#FILE}-2}"
+        fi
       fi
     fi
 

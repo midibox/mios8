@@ -1,7 +1,7 @@
 # $Id$
 #
 # following variables should be set before including this file:
-#   - PROCESSOR       e.g.: p18f452
+#   - PROCESSOR       e.g.: 18f452
 #   - GPASM_FLAGS     e.g.: -m
 #   - GPASM_INCLUDE   e.g.: -I./ui  # (more include pathes will be added by .mk files)
 #   - GPASM_DEFINES         e.g.: -DDEBUG_MODE=0
@@ -20,7 +20,7 @@ GPASM = gpasm
 GPASM_INCLUDE += -I./src -I $(MIOS_PATH)/include/asm
 
 # add default flags for GPASM
-GPASM_FLAGS += -p $(PROCESSOR)
+GPASM_FLAGS += -p p$(PROCESSOR)
 
 # add files for distribution
 DIST += $(MIOS_PATH)/include/makefile/asm_only.mk $(MIOS_PATH)/include/asm

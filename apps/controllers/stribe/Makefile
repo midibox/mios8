@@ -1,12 +1,12 @@
 # $Id$
 
 # define the processor, linker file and project name
-PROCESSOR = p18f452
+PROCESSOR = 18f452
 LKR_FILE  = ./project.lkr
 PROJECT   = project
 
 # list of objects that should be created and linked
-OBJS = pic18f452.o mios_wrapper.o app_lcd.o main.o stribe.o max72xx.o
+OBJS = mios_wrapper.o app_lcd.o main.o stribe.o max72xx.o
 
 # include pathes (more will be added by .mk files)
 GPASM_INCLUDE = 

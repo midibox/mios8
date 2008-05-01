@@ -1,8 +1,8 @@
 # $Id$
 #
 # following variables should be set before including this file:
-#   - PROCESSOR e.g.: p18f452
-#   - LKR_FILE  e.g.: $(MIOS_PATH)/etc/lkr/$(PROCESSOR).lkr
+#   - PROCESSOR e.g.: 18f452
+#   - LKR_FILE  e.g.: $(MIOS_PATH)/etc/lkr/p$(PROCESSOR).lkr
 #   - PROJECT   e.g.: project   # (.lst, .cod, .hex, .map will be added automatically)
 #   - OBJS      e.g.: pic18f452.o mios_wrapper.o main.o
 #   - GPASM_INCLUDE  e.g.: -I./ui  # (more include pathes will be added by .mk files)
@@ -28,6 +28,9 @@ GPASM = sh $(MIOS_BIN_PATH)/mios-gpasm -c
 # SDCC execution via wrapper
 SDCC = sh $(MIOS_BIN_PATH)/mios-sdcc -c
 
+# GPLIB execution (w/o wrapper yet)
+GPLIB = gplib -c
+
 # GPLINK execution (w/o wrapper yet)
 GPLINK = gplink
 
@@ -38,7 +41,7 @@ GPASM_INCLUDE = -I./src -I $(MIOS_PATH)/include/asm
 GPASM_DEFINES += # reserved for future "default extensions"
 
 # add default flags for GPASM
-GPASM_FLAGS += -p $(PROCESSOR)
+GPASM_FLAGS += -p p$(PROCESSOR)
 
 # include files used by SDCC
 SDCC_INCLUDE += -I./src -I $(MIOS_PATH)/include/c
@@ -47,14 +50,15 @@ SDCC_INCLUDE += -I./src -I $(MIOS_PATH)/include/c
 SDCC_DEFINES += # reserved for future "default extensions"
 
 # add default flags for SDCC
-SDCC_FLAGS += -mpic16 -$(PROCESSOR) --fommit-frame-pointer --optimize-goto --optimize-cmp --disable-warning 85 --obanksel=2 -pleave-reset-vector
+SDCC_FLAGS += -mpic16 -p$(PROCESSOR) --fommit-frame-pointer --optimize-goto --optimize-cmp --disable-warning 85 --obanksel=2
 
 # add default flags for GPLINK
-GPLINK_FLAGS += -s $(LKR_FILE)
+GPLINK_FLAGS += -s $(LKR_FILE) $(MIOS_PATH)/lib/libsdcc.lib $(MIOS_PATH)/lib/pic$(PROCESSOR).lib
 
 # add files for distribution
 DIST += $(MIOS_PATH)/include/makefile/common.mk $(MIOS_PATH)/include/c $(MIOS_PATH)/include/asm
 DIST += $(LKR_FILE)
+DIST += $(MIOS_PATH)/lib/libsdcc.lib $(MIOS_PATH)/lib/pic$(PROCESSOR).lib
 DIST += $(MIOS_BIN_PATH)/mios-gpasm $(MIOS_BIN_PATH)/mios-sdcc
 
 # rule to create a .hex file
@@ -81,16 +85,16 @@ $(OUTDIR)/%.o: src/%.asm
 # default rule for compiling .s programs (these are assembler programs as well)
 # for .s we expect, that they need to be converted through the wrapper
 $(OUTDIR)/%.o: %.s
-	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) $< -o $@
+	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) -fixasm $< -o $@
+$(OUTDIR)/%.o: %.S
+	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) -fixasm $< -o $@
 $(OUTDIR)/%.o: src/%.s
-	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) $< -o $@
+	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) -fixasm $< -o $@
+$(OUTDIR)/%.o: src/%.S
+	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) -fixasm $< -o $@
 
 # include mios_wrapper related rules
 include $(MIOS_PATH)/modules/mios_wrapper/mios_wrapper.mk
-
-# add make rules of supported processors here
-include $(MIOS_PATH)/modules/libdev/pic18f452.mk
-include $(MIOS_PATH)/modules/libdev/pic18f4620.mk
 
 # create directory that contains object files
 mk_outdir:
