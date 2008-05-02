@@ -8,7 +8,7 @@ HEADER 3 MIDIbox 808
 </TD><TD></TD></TR>
 
 <TR><TD width=600>
-  <img src="midibox_808/808_front_v0_8.gif" width=575>
+  <img src="midibox_808/808_front_v0_9.gif" width=575>
 </TD><TD></TD></TR>
 
 
@@ -35,7 +35,7 @@ HEADER 3 MIDIbox 808
   <LI>Minimal (=inexpensive) control surface with 33 buttons, 35 LEDs and 1 rotary encoder. Additional control elements (e.g. 4x16 Button/Duo-LED matrix, Instrument selection encoder, BPM LED digit display, 2x16 LCD or two 2x40 LCD, etc...) are supported as well, but they are not required to experience the full potential of the firmware!</LI>
   <LI>Patterns are stored in a new (incompatible!) data structure, optimized for 16 drum tracks with up to 64 steps and 2 layers (gate/auxiliary)</LI>
   <LI>A pattern is divided into 4 sections (A/B/C/D), which can be used for variations.</LI>
-  <LI>The auxiliary layer can be used to trigger one of following functions: skip step, Flam, random gate, jump to random step, Accent (for external instruments), Step Microdelay (to add manual shuffling) + placeholders for future extensions</LI>
+  <LI>The auxiliary layer can be used to trigger one of following functions: skip step, Flam, random gate, random flam, Accent (for external instruments), Step Microdelay (to add manual shuffling) + placeholders for future extensions</LI>
   <LI>One track can be optionally used as global accent (requirement for MB808 drums). Note that this accent layer has it's own time base and step progression!!!  </LI>
   <LI>Simple to use chain pattern function (alternative to song mode)</LI>
   <LI>Live recording function allows to record all 16 instruments in one run, controlled from the GP buttons, or from an external MIDI device (drum pads or MIDI keyboard). The MIDI solution has the advantage, that the auxiliary trigger layer (e.g. accent or flam) can be controlled with the velocity of MIDI Note events.</LI>
@@ -87,7 +87,7 @@ HEADER 3 MIDIbox 808
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Button Functions </H2>
 
-<P CLASS=DESC>When you look on the <A HREF="midibox_808/808_front_v0_8.gif">Frontpanel</A> again, you will notice a SHIFT and ALT button. They are used to select different button layers, labeled with red and green font. It would be possible to combine SHIFT+ALT to a new layer in future.</P>
+<P CLASS=DESC>When you look on the <A HREF="midibox_808/808_front_v0_9.gif">Frontpanel</A> again, you will notice a SHIFT and ALT button. They are used to select different button layers, labeled with red and green font. It would be possible to combine SHIFT+ALT to a new layer in future.</P>
 
 <P CLASS=DESC>Please note, that the frontpanel labeling is not intended "for production", but only to visualize the layers. The final frontpanel has to be discussed in the <A HREF="http://www.eight-oh-eight.org/phpbb2/index.php" TARGET="_blank">MB808 forum</A>.</P>
 
@@ -97,7 +97,7 @@ HEADER 3 MIDIbox 808
 </TD><TD></TD></TR>
 
 <TR><TD COLSPAN=2>
-<IMG SRC="midibox_808/808_menu.gif" WIDTH=763 HEIGHT=94></IMG>
+<IMG SRC="midibox_808/808_menu.gif" WIDTH=760 HEIGHT=94></IMG>
 <TABLE WIDTH="100%" BORDER=0 CELLSPACING=1 CELLPADDING=1>
   <TR>
     <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Page</STRONG></FONT></td>
@@ -242,7 +242,7 @@ HEADER 3 MIDIbox 808
     <TD CLASS=TABCOLOR2>Flam 3</td>
     <TD CLASS=TABCOLOR2>Flam 4</td>
     <TD CLASS=TABCOLOR2>Random Gate</td>
-    <TD CLASS=TABCOLOR2>Random Jump</td>
+    <TD CLASS=TABCOLOR2>Random Flam</td>
     <TD CLASS=TABCOLOR2>MicroDelay 1</td>
     <TD CLASS=TABCOLOR2>MicroDelay 2</td>
     <TD CLASS=TABCOLOR2>MicroDelay 3</td>
@@ -251,6 +251,11 @@ HEADER 3 MIDIbox 808
     <TD CLASS=TABCOLOR2>-</td>
     <TD CLASS=TABCOLOR2>-</td>
     <TD CLASS=TABCOLOR2>-</td>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Manual</td>
+    <TD CLASS=TABCOLOR2 COLSPAN=16>If sequencer playing: position of all tracks will be set to the selected step.<BR>
+      Sequencer not playing: triggers the step of the selected instrument</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2>Rand(om)</td>
@@ -444,19 +449,13 @@ Note that alternatively one or more tracks can be selected with the GP buttons w
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Current State </H2>
 
-<P CLASS=DESC>The firmware is up&running, but not all planned features have been implemented yet. However, it's already quite stable, and therefore worth for a beta release! :-) The missing functions will be available soon:</P>
-<UL CLASS=CL>
-  <LI>Chain Fwd/Rwd function not implemented yet</LI>
-  <LI>Micro Delay function of Auxilary layer not implemented yet</LI>
-</UL>
+<P CLASS=DESC>The firmware has reached the release candidate state. All documented functions are implemented.</P>
 
-<P CLASS=DESC>Additional planned features:</P>
+<P CLASS=DESC>Planned features for future releases:</P>
 <UL CLASS=CL>
   <LI> find a button combination to activate "loop mode" when a chain is playing: holds current pattern so long function activated. Especially useful if a pattern should be edited while chain is playing (the sequencer won't switch to the next pattern so long loop function is activated)</LI>
   <LI> more random generator options</LI>
   <LI> alternative view on the 4x16 LED matrix to display all 64 steps of a track</LI>
-  <LI> proper loop point handling if track length &gt; 16</LI>
-  <LI> background saving of patterns (currently the engine can stuck for up to 100 mS while a pattern is stored into BankStick)</LI>
 </UL>
 </TD><TD></TD></TR>
 
@@ -465,7 +464,7 @@ Note that alternatively one or more tracks can be selected with the GP buttons w
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Beta Version </H2>
 
-<P CLASS=DESC>Link to current beta version: <A HREF="mios/midibox_808_v0_9b.zip">midibox_808_v0_9b.zip</A></P>
+<P CLASS=DESC>Link to v1.0 release candidate: <A HREF="mios/midibox_808_v0_9b.zip">midibox_808_v1_0_rc1.zip</A></P>
 
 <P CLASS=DESC>Before uploading the new firmware, please update to <A HREF="mios_download.html">MIOS V1.9f</A> first if this hasn't been done yet, otherwise the Tap Tempo function won't work.</P>
 
