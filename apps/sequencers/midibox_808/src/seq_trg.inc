@@ -19,7 +19,7 @@ SEQ_TRG_AUX_FLAM2	EQU	0x03
 SEQ_TRG_AUX_FLAM3	EQU	0x04
 SEQ_TRG_AUX_FLAM4	EQU	0x05
 SEQ_TRG_AUX_RANDOM_GATE EQU	0x06
-SEQ_TRG_AUX_RANDOM_JUMP EQU	0x07
+SEQ_TRG_AUX_RANDOM_FLAM EQU	0x07
 SEQ_TRG_AUX_DELAY1	EQU	0x08
 SEQ_TRG_AUX_DELAY2	EQU	0x09
 SEQ_TRG_AUX_DELAY3	EQU	0x0a
@@ -34,7 +34,7 @@ SEQ_TRG_NAMES
 	db	"Flam3 " ; 4
 	db	"Flam4 " ; 5
 	db	"R.Gte " ; 6
-	db	"R.Jmp " ; 7
+	db	"R.Flm " ; 7
 	db	"Dly1  " ; 8
 	db	"Dly2  " ; 9
 	db	"Dly3  " ; 10
@@ -47,6 +47,10 @@ SEQ_TRG_NAMES
 	db	"Gate "  ; 16
 	db	"G/Aux"  ; 17
 
+	
+	;; note delay values added by aux triggers (only relevant for delay triggers 8-11)
+SEQ_TRG_DELAY_TABLE
+	db	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x06, 0x09, 0x0c, 0x00, 0x00, 0x00, 0x00
 
 ;; --------------------------------------------------------------------------
 ;;  This function prints the trigger assignment type assigned to the auxiliary layer
@@ -233,8 +237,8 @@ SEQ_TRG_Flam4Get
 SEQ_TRG_RandomGateGet
 	movlw	SEQ_TRG_AUX_RANDOM_GATE
 	rgoto	SEQ_TRG_Hlp_GetAuxBit
-SEQ_TRG_RandomJumpGet
-	movlw	SEQ_TRG_AUX_RANDOM_JUMP
+SEQ_TRG_RandomFlamGet
+	movlw	SEQ_TRG_AUX_RANDOM_FLAM
 	rgoto	SEQ_TRG_Hlp_GetAuxBit
 SEQ_TRG_Delay1Get
 	movlw	SEQ_TRG_AUX_DELAY1
@@ -248,6 +252,128 @@ SEQ_TRG_Delay3Get
 SEQ_TRG_Delay4Get
 	movlw	SEQ_TRG_AUX_DELAY4
 	rgoto	SEQ_TRG_Hlp_GetAuxBit
+
+
+;; --------------------------------------------------------------------------
+;;  This function is called from SEQ_LAYER_GetEvntL to modify SEQ_EVNTL
+;;  depending on aux assignment
+;;  IN: step number in SEQ_EVNTS (0-63)
+;;      track number in SEQ_EVNTT (0-15)
+;;      trigger assignments in TRKASSGN[01]x
+;;  OUT: can modify SEQ_EVNTL depending on aux assignment
+;; --------------------------------------------------------------------------
+SEQ_TRG_ModifyEVNTL
+	;; branch depending on aux assignment
+	call	SEQ_FSR_TrkAssgn	; get aux assignment
+	movf	INDF1, W		; compare with type
+	andlw	0x0f
+	JUMPTABLE_2BYTES_UNSECURE
+	rgoto	SEQ_TRG_ModifyEVNTL_0
+	rgoto	SEQ_TRG_ModifyEVNTL_1
+	rgoto	SEQ_TRG_ModifyEVNTL_2
+	rgoto	SEQ_TRG_ModifyEVNTL_3
+	rgoto	SEQ_TRG_ModifyEVNTL_4
+	rgoto	SEQ_TRG_ModifyEVNTL_5
+	rgoto	SEQ_TRG_ModifyEVNTL_6
+	rgoto	SEQ_TRG_ModifyEVNTL_7
+	rgoto	SEQ_TRG_ModifyEVNTL_8
+	rgoto	SEQ_TRG_ModifyEVNTL_9
+	rgoto	SEQ_TRG_ModifyEVNTL_A
+	rgoto	SEQ_TRG_ModifyEVNTL_B
+	rgoto	SEQ_TRG_ModifyEVNTL_C
+	rgoto	SEQ_TRG_ModifyEVNTL_D
+	rgoto	SEQ_TRG_ModifyEVNTL_E
+	rgoto	SEQ_TRG_ModifyEVNTL_F
+
+SEQ_TRG_ModifyEVNTL_0	; accent: no modification
+SEQ_TRG_ModifyEVNTL_1	; skip: no modification
+SEQ_TRG_ModifyEVNTL_6	; random gate: no modification
+SEQ_TRG_ModifyEVNTL_8	; delay1
+SEQ_TRG_ModifyEVNTL_9	; delay2
+SEQ_TRG_ModifyEVNTL_A	; delay3
+SEQ_TRG_ModifyEVNTL_B	; delay4
+SEQ_TRG_ModifyEVNTL_C	; reserved
+SEQ_TRG_ModifyEVNTL_D	; reserved
+SEQ_TRG_ModifyEVNTL_E	; reserved
+SEQ_TRG_ModifyEVNTL_F	; reserved
+
+SEQ_TRG_ModifyEVNTL_2	; flam1
+	;; force length to 0x32 (2x18) if flam1 flag is set
+	call	SEQ_TRG_Flam1Get
+	movlw	0x32
+	skpz
+	movwf	SEQ_EVNTL, BANKED
+	return
+	
+SEQ_TRG_ModifyEVNTL_3	; flam2
+	;; force length to 0x2c (2x12) if flam2 flag is set
+	call	SEQ_TRG_Flam2Get
+	movlw	0x2c
+	skpz
+	movwf	SEQ_EVNTL, BANKED
+	return
+
+SEQ_TRG_ModifyEVNTL_4	; flam3
+	;; force length to 0x46 (3x6) if flam3 flag is set
+	call	SEQ_TRG_Flam3Get
+	movlw	0x46
+	skpz
+	movwf	SEQ_EVNTL, BANKED
+	return
+
+SEQ_TRG_ModifyEVNTL_5	; flam4
+	;; force length to 0x64 (4x4) if flam4 flag is set
+	call	SEQ_TRG_Flam4Get
+	movlw	0x44
+	skpz
+	movwf	SEQ_EVNTL, BANKED
+	return
+
+SEQ_TRG_ModifyEVNTL_7	; random flam
+	;; randomly select flam 1/2/3/4
+	call	SEQ_TRG_RandomFlamGet
+	bz	SEQ_TRG_ModifyEVNTL_7_End
+
+	call	SEQ_CORE_GenRandomNumber	; generate a new random number
+	movlw	0x10	; no flam
+	btfsc	SEQ_RANDOM_SEED_L, 0, BANKED
+	movlw	0x32	; 2x18
+	btfsc	SEQ_RANDOM_SEED_L, 1, BANKED
+	movlw	0x2c	; 2x12
+	btfsc	SEQ_RANDOM_SEED_L, 2, BANKED
+	movlw	0x46	; 3x6
+	btfsc	SEQ_RANDOM_SEED_L, 3, BANKED
+	movlw	0x44	; 4x4
+	movwf	SEQ_EVNTL, BANKED
+SEQ_TRG_ModifyEVNTL_7_End
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  This function is called from SEQ_GROOVE_GetDelay to return a delay value
+;;  depending on aux assignment
+;;  IN: step number in SEQ_EVNTS (0-63)
+;;      track number in SEQ_EVNTT (0-15)
+;;      trigger assignments in TRKASSGN[01]x
+;;  OUT: 0x00 if no delay trigger assigned, 1..15 if delay1/2/3/4 assigned
+;; --------------------------------------------------------------------------
+SEQ_TRG_GetAuxDelay
+	;; branch depending on aux assignment
+	call	SEQ_FSR_TrkAssgn	; get aux assignment
+	movf	INDF1, W		; compare with type
+	andlw	0x0f
+	TABLE_ADDR_MUL_W SEQ_TRG_DELAY_TABLE, 1
+	tblrd*+
+	movf	TABLAT, W
+	bz	SEQ_TRG_GetAuxDelay_End
+
+	;; check if aux flag set
+	rcall	SEQ_TRG_Hlp_GetAuxBit_Ok
+	bz	SEQ_TRG_GetAuxDelay_End
+
+	movf	TABLAT, W
+SEQ_TRG_GetAuxDelay_End
+	return
 
 
 ;; --------------------------------------------------------------------------

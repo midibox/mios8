@@ -559,6 +559,7 @@ AIN_NotifyChange
 #include "cs_m_trkmidi.inc"
 #include "cs_m_sysex.inc"
 #include "cs_m_utils.inc"
+#include "cs_m_trg.inc"
 #include "cs_m_spare.inc"
 
 ;; ---[ MBSEQ kernel ]---
@@ -578,6 +579,7 @@ AIN_NotifyChange
 #include "seq_trg.inc"
 #include "seq_groove.inc"
 #include "seq_core.inc"
+#include "seq_chain.inc"
 #include "seq_midi.inc"
 #include "seq_router.inc"
 #include "seq_record.inc"

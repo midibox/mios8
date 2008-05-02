@@ -468,6 +468,11 @@ SEQ_BUTTON_Rew_Pressed
 	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
 	goto	CS_M_UTILS_RotateLeft
 
+	;; in chain mode: select previous pattern
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	skpz
+	goto	SEQ_CHAIN_PrevPos
+
 	;; do nothing if sequencer not running
 	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
 	return
@@ -493,6 +498,11 @@ SEQ_BUTTON_Fwd_Pressed
 	;; if shift button pressed: branch to rotate function
 	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
 	goto	CS_M_UTILS_RotateRight
+
+	;; in chain mode: select previous pattern
+	movf	SEQ_CHAIN_TOP, W, BANKED
+	skpz
+	goto	SEQ_CHAIN_NextPos
 
 	;; do nothing if sequencer not running
 	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED

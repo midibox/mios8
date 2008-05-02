@@ -140,7 +140,7 @@ SEQ_CORE_Init
 	clrf	SEQ_NEXT_PATTERN_BANK0, BANKED
 
 	;; clear pattern chain
-	call	SEQ_CORE_ChainClr
+	call	SEQ_CHAIN_Clr
 
 	;; restore dump
 	call	SEQ_DUMP_RestoreAll
@@ -340,7 +340,7 @@ SEQ_CORE_Start
 
 	;; if chain mode: change to first pattern
 	clrf	SEQ_CHAIN_PLAY_PTR, BANKED
-	call	SEQ_CORE_ChainNextPos
+	call	SEQ_CHAIN_NextPos
 
 	SET_BSR	SEQ_BASE	; (don't start - song sequencer has requested a stop)
 	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
@@ -592,7 +592,7 @@ SEQ_CORE_Clk_NextPS_Chain
 	cpfseq	SEQ_CLK_STEP_CTR, BANKED
 	rgoto SEQ_CORE_Clk_NextPS_End
 SEQ_CORE_Clk_NextPS_Request
-	call	SEQ_CORE_ChainNextPos
+	call	SEQ_CHAIN_NextPos
 SEQ_CORE_Clk_NextPS_End	
 
 	;; ------------------------------------------------------------------
@@ -1072,7 +1072,7 @@ SEQ_CORE_Clk_OnEvent_NoRandomG
 
 	bcf	SEQ_STATE, SEQ_STATE_SET_LEN, BANKED	; notifies that a new gate length has to be set
 
-	;; don't play if retrigger flag not set and retrigger counter (SEQ_TRKVARRETGx[4..0]) > 0
+	;; don't play if retrigger flag set and retrigger counter (SEQ_TRKVARRETGx[4..0]) > 0
 	movlw	SEQ_TRKVARSTATEx
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Clk_OnEvent_ReTrg
 SEQ_CORE_Clk_OnEvent_NoReTrg
@@ -2518,14 +2518,11 @@ SEQ_CORE_NudgeRew_Loop
 	call	SEQ_CORE_Calc_TRKx_FSR0		; calculate pointer to SEQ_TRKx -> FSR0
 	call	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
 
-	;; select previous step (change takes place on next clock)
-	call	SEQ_CORE_NextStep_Reverse
-#if 1
-	;; usability check
+	;; jump back 4 steps (change takes place on next clock)
 	call	SEQ_CORE_NextStep_Reverse
 	call	SEQ_CORE_NextStep_Reverse
 	call	SEQ_CORE_NextStep_Reverse
-#endif
+	call	SEQ_CORE_NextStep_Reverse
 	
 	incf	SEQ_EVNTT, F, BANKED	; increment track number
 	movlw	SEQ_NUMBER_TRACKS-1
@@ -2544,8 +2541,7 @@ SEQ_CORE_NudgeRew_Loop
 SEQ_CORE_NudgeRew_Over
 	movlw	0x3f
 	andwf	SEQ_CLK_STEP_CTR, F, BANKED
-	;; (here we could switch to previous pos)
-	;; 	call	SEQ_CORE_ChainPrevPos
+ 	call	SEQ_CHAIN_PrevPos
 SEQ_CORE_NudgeRew_NoOver
 
 	return
@@ -2583,119 +2579,9 @@ SEQ_CORE_NudgeFwd_Loop
 SEQ_CORE_NudgeFwd_Over
 	movlw	0x3f
 	andwf	SEQ_CLK_STEP_CTR, F, BANKED
-	call	SEQ_CORE_ChainNextPos
+	call	SEQ_CHAIN_NextPos
 SEQ_CORE_NudgeFwd_NoOver
 
 	
 	return
 
-
-;; --------------------------------------------------------------------------
-;;  This function clears the pattern chain
-;; --------------------------------------------------------------------------
-SEQ_CORE_ChainClr
-	SET_BSR	SEQ_BASE
-
-	clrf	PRODL
-	lfsr	FSR1, SEQ_PATTERN_CHAIN
-SEQ_CORE_ChainClrLoop
-	clrf	POSTINC1
-	incf	PRODL, F
-	bnz	SEQ_CORE_ChainClrLoop
-
-	clrf	SEQ_CHAIN_PLAY_PTR, BANKED
-	clrf	SEQ_CHAIN_TOP, BANKED
-
-	bsf	SEQ_STATE, SEQ_STATE_CHAIN_SYNCHED, BANKED
-	return
-
-;; --------------------------------------------------------------------------
-;;  This function adds a pattern/bank to the chain
-;;  IN: pattern in SEQ_PATTERN, bank in SEQ_PATTERN_BANK
-;; --------------------------------------------------------------------------
-SEQ_CORE_ChainAdd
-	SET_BSR	SEQ_BASE
-
-	;; exit if top of chain reached
-	movf	SEQ_CHAIN_TOP, W
-	xorlw	0x7f
-	bz	SEQ_CORE_ChainAdd_End
-
-	;; determine pointer to chain entry
-	lfsr	FSR1, SEQ_PATTERN_CHAIN
-	clrc
-	rlf	SEQ_CHAIN_TOP, W, BANKED
-	addwf	FSR1L, F
-
-	;; add bank and pattern to chain
-	movff	SEQ_PATTERN_BANK, INDF1
-	bsf	POSTINC1, 7	; (for song mode: set marker on bit #7, so that we are able to determine the TOP)
-	movff	SEQ_PATTERN, POSTINC1
-
-	;; increment top pointer
-	incf	SEQ_CHAIN_TOP, F, BANKED
-
-SEQ_CORE_ChainAdd_End
-	return
-
-
-;; --------------------------------------------------------------------------
-;;  This function changes SEQ_PATTERN0/SEQ_PATTERN_BANK0 to the next chain
-;;  entry.
-;; --------------------------------------------------------------------------
-SEQ_CORE_ChainNextPos
-	SET_BSR	SEQ_BASE
-
-	;; notify that change has been taken
-	bsf	SEQ_STATE, SEQ_STATE_CHAIN_SYNCHED, BANKED
-
-	movf	SEQ_CHAIN_TOP, W
-	bz	SEQ_CORE_ChainNextPos_End
-
-	;; determine pointer to chain entry
-	lfsr	FSR1, SEQ_PATTERN_CHAIN
-	clrc
-	rlf	SEQ_CHAIN_PLAY_PTR, W, BANKED
-	addwf	FSR1L, F
-
-	;; get bank and pattern from chain
-	movf	POSTINC1, W
-	andlw	0x07
-	movwf	SEQ_PATTERN_BANK, BANKED
-	movff	POSTINC1, SEQ_PATTERN
-
-	;; increment play pointer and wrap on top entry
-	incf	SEQ_CHAIN_PLAY_PTR, F, BANKED
-	movf	SEQ_CHAIN_TOP, W, BANKED
-	cpfslt	SEQ_CHAIN_PLAY_PTR, BANKED
-	clrf	SEQ_CHAIN_PLAY_PTR
-
-	;; compare with currently played pattern
-	;; don't change if identical
-	movf	SEQ_PATTERN0, W, BANKED
-	xorwf	SEQ_PATTERN, W, BANKED
-	andlw	0x7f
-	bnz	SEQ_CORE_ChainNextPos_New
-	movf	SEQ_PATTERN_BANK0, W, BANKED
-	xorwf	SEQ_PATTERN_BANK, W, BANKED
-	bnz	SEQ_CORE_ChainNextPos_New
-	rgoto	SEQ_CORE_ChainNextPos_Cont
-
-SEQ_CORE_ChainNextPos_New
-	;; change to new pattern immediately
-	movff	SEQ_PATTERN, SEQ_NEXT_PATTERN0
-	movff	SEQ_PATTERN_BANK, SEQ_NEXT_PATTERN_BANK0
-	rcall	SEQ_CORE_ChangePattern
-	;; 	rgoto	SEQ_CORE_ChainNextPos_Cont
-
-SEQ_CORE_ChainNextPos_Cont
-	;; if oneshot mode: clear chain if last position reached
-	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_CHAIN_ONESHOT, BANKED, SEQ_CORE_ChainNextPos_NoClear
-	movf	SEQ_CHAIN_PLAY_PTR, W, BANKED
-	bnz	SEQ_CORE_ChainNextPos_NoClear
-SEQ_CORE_ChainNextPos_Clear
-	rcall	SEQ_CORE_ChainClr
-SEQ_CORE_ChainNextPos_NoClear
-
-SEQ_CORE_ChainNextPos_End
-	return

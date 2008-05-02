@@ -101,7 +101,7 @@ SEQ_DUMP_RestoreSong
 	SET_BSR	SEQ_BASE
 
 	;; ensure that all chain variables are cleared
-	call	SEQ_CORE_ChainClr
+	call	SEQ_CHAIN_Clr
 
 	;; load 4 pages (0x100 bytes)
 	clrf	EEADR

@@ -362,7 +362,7 @@ LED_ALT		EQU	((( 6   -1)<<3)+    1)
 
 ;;                         SR    ignore    Pin
 LED_RECORD	EQU	((( 7   -1)<<3)+    4)
-LED_XXX		EQU	((( 7   -1)<<3)+    5)
+LED_BEAT	EQU	((( 7   -1)<<3)+    5)
 
 ;;                         SR    ignore    Pin
 LED_PLAY	EQU	((( 7   -1)<<3)+    0)
@@ -372,8 +372,6 @@ LED_FWD		EQU	((( 6   -1)<<3)+    5)
 LED_REW		EQU	((( 6   -1)<<3)+    4)
 LED_LIVE	EQU	((( 6   -1)<<3)+    3)
 
-;;                         SR    ignore    Pin
-LED_BEAT	EQU	((( 0   -1)<<3)+   0)
 
 
 ;; --------------------------------------------------------------------------

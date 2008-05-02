@@ -90,32 +90,8 @@ SEQ_LAYER_GetEvntL
 	skpnz
 	return
 
-	;; TODO: improve performance of such checks!
-	;; TODO: implement micro delay
-
-	;; force length to 0x32 (2x18) if flam1 flag is set
-	call	SEQ_TRG_Flam1Get
-	movlw	0x32
-	skpz
-	movwf	SEQ_EVNTL, BANKED
-
-	;; force length to 0x2c (2x12) if flam2 flag is set
-	call	SEQ_TRG_Flam2Get
-	movlw	0x2c
-	skpz
-	movwf	SEQ_EVNTL, BANKED
-
-	;; force length to 0x46 (3x6) if flam3 flag is set
-	call	SEQ_TRG_Flam3Get
-	movlw	0x46
-	skpz
-	movwf	SEQ_EVNTL, BANKED
-
-	;; force length to 0x64 (4x4) if flam4 flag is set
-	call	SEQ_TRG_Flam4Get
-	movlw	0x44
-	skpz
-	movwf	SEQ_EVNTL, BANKED
+	;; modifiy SEQ_EVNTL depending on aux assignment
+	call	SEQ_TRG_ModifyEVNTL
 
 	return
 

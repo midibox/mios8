@@ -1232,7 +1232,7 @@ SEQ_CORE_Clk_OnEvent_Loop
 	skpnz
 	rgoto	SEQ_CORE_Clk_NoOnEvent
 
-	;; don't play if retrigger flag not set and retrigger counter (SEQ_TRKVARRETGx[4..0]) > 0
+	;; don't play if retrigger flag set and retrigger counter (SEQ_TRKVARRETGx[4..0]) > 0
 	movlw	SEQ_TRKVARSTATEx
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Clk_OnEvent_ReTrg
 SEQ_CORE_Clk_OnEvent_NoReTrg

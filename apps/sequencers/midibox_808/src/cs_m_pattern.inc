@@ -143,14 +143,14 @@ CS_M_PATTERN_GP_Callback_PChngBC
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED, CS_M_PATTERN_GP_Callback_Chain
 CS_M_PATTERN_GP_Callback_P
 	;; else clear chain
-	call	SEQ_CORE_ChainClr
+	call	SEQ_CHAIN_Clr
 	;; and change to pattern immediately
 	call	SEQ_CORE_ChangePatternSynched
 	rgoto	CS_M_PATTERN_GP_Callback_Cont
 
 CS_M_PATTERN_GP_Callback_Chain
 	;; add pattern to chain
-	call	SEQ_CORE_ChainAdd
+	call	SEQ_CHAIN_Add
 
 #if 0
 	;; print message

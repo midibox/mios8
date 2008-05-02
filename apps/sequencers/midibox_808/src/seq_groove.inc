@@ -210,11 +210,21 @@ SEQ_GROOVE_GetName
 ;;  OUT: tick number in SEQ_TRKVARPLYTICKx
 ;; --------------------------------------------------------------------------
 SEQ_GROOVE_GetDelay
+	;; check if delay trigger is activated
+	call	SEQ_TRG_GetAuxDelay
+	bz	SEQ_GROOVE_GetDelay_NoAux
+SEQ_GROOVE_GetDelay_Aux
+	movwf	TABLAT
+	rgoto	SEQ_GROOVE_GetDelay_Aux_Cont
+
+SEQ_GROOVE_GetDelay_NoAux
 	;; calculate pointer to table (style*SEQ_GROOVE_TABLE_ENTRY_LEN + SEQ_GROOVE_TABLE_D_OFFSET + step/2)
 	movlw	SEQ_GROOVE_TABLE_OFFSET_D
 	call	SEQ_GROOVE_GetTablePtr
 
 	rcall	SEQ_GROOVE_GetEntry	; returns delay value in TABLAT
+
+SEQ_GROOVE_GetDelay_Aux_Cont
 	movlw	SEQ_TRKVARPLYTICKx
 	movff	TABLAT, PLUSW2
 
