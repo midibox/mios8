@@ -57,7 +57,7 @@ SDCC_DEFINES += # reserved for future "default extensions"
 SDCC_FLAGS += -mpic16 -p$(PROCESSOR) --fommit-frame-pointer --optimize-goto --optimize-cmp --disable-warning 85 --obanksel=2
 
 # add default flags for GPLINK
-GPLINK_FLAGS += -s $(LKR_FILE) $(LIBS)
+GPLINK_FLAGS += -s $(LKR_FILE)
 
 # add files for distribution
 DIST += $(MIOS_PATH)/include/makefile/common.mk $(MIOS_PATH)/include/c $(MIOS_PATH)/include/asm
@@ -69,7 +69,7 @@ DIST += $(MIOS_BIN_PATH)/mios-gpasm $(MIOS_BIN_PATH)/mios-sdcc
 # note: currently we always require a "cleanall", since dependencies (e.g. on .h files) are not properly declared
 # later we could try it w/o "cleanall", and propose the usage of this step to the user
 $(PROJECT).hex: cleanall mk_outdir $(addprefix $(OUTDIR)/, $(OBJS))
-	$(GPLINK) $(GPLINK_FLAGS) -m -o $(PROJECT).hex $(addprefix $(OUTDIR)/, $(OBJS))
+	$(GPLINK) $(GPLINK_FLAGS) -m -o $(PROJECT).hex  $(LIBS) $(addprefix $(OUTDIR)/, $(OBJS))
 
 # default rule for compiling .c programs
 # note that the same is required for files located in current, and src/ directory
