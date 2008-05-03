@@ -254,7 +254,7 @@ IRQ_Timer1_End
 
 
 ;; ==========================================================================
-;;  IRQ Handler for Timer3, called every 8*16*256 CPU cycles (= ca. 6.5 ms)
+;;  IRQ Handler for Timer3, called with user definable period
 ;; ==========================================================================
 IRQ_Timer3
 	;; clear IRQ flag
