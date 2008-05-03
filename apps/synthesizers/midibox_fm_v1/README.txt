@@ -33,7 +33,7 @@ Infos for customization:
    o define the connected buttons and LEDs in (if available) cs_menu_io_tables.inc
    o change the rotary encoder assign map in cs_menu_enc_table.inc if required
 
-The http://www.ucapps.de/howto_tools_gpasm.html page describes, how
-to build a new .hex file
+For details, how to build a new .hex file, see
+   http://www.midibox.org/dokuwiki/application_development
 
 ===============================================================================

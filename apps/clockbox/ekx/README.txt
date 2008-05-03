@@ -59,11 +59,11 @@ A precompiled binary is already part of this package:
    o project.hex (can be loaded into MIOS Studio)
 
 Following tools are required to recompile the code:
-   o SDCC v2.7.0
+   o SDCC
    o gputils
-   o perl
 
-The details are described under http://www.ucapps.de/mios_c.html
+The details are described under
+   http://www.midibox.org/dokuwiki/application_development
 
 ===============================================================================
 

@@ -129,4 +129,8 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 {
+  char *x;
+
+  MIOS_MIDI_TxBufferPut(pin_value / 3);
+
 }

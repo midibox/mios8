@@ -35,7 +35,7 @@ Infos for customization:
    o define the connected buttons and LEDs in (if available) setup_*.asm
    o if the assembler doesn't pass, check for error messages in the setup_*.err file
 
-The http://www.ucapps.de/howto_tools_gpasm.html page describes, how
-to build a new .hex file
+For details, how to build a new .hex file, see
+   http://www.midibox.org/dokuwiki/application_development
 
 ===============================================================================

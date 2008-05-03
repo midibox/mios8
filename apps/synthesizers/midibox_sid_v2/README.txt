@@ -41,7 +41,7 @@ Infos for customization:
      hardware
 
 
-The http://www.ucapps.de/howto_tools_gpasm.html page describes, how
-to build a new .hex file
+For details, how to build a new .hex file, see
+   http://www.midibox.org/dokuwiki/application_development
 
 ===============================================================================
