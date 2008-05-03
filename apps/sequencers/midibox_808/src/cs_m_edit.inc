@@ -100,9 +100,23 @@ CS_M_EDIT_GP_Callback_SelNot1st
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitORMask
 	btfss	MIOS_PARAMETER1, 3
+	xorwf	SEQ_SELECTED_TRKS_0, BANKED
+	btfsc	MIOS_PARAMETER1, 3
+	xorwf	SEQ_SELECTED_TRKS_1, BANKED
+
+	;; if no track selected anymore: set track which corresponds to button
+	movf	SEQ_SELECTED_TRKS_0, W, BANKED
+	bnz	CS_M_EDIT_GP_Callback_SelOk
+	movf	SEQ_SELECTED_TRKS_1, W, BANKED
+	bnz	CS_M_EDIT_GP_Callback_SelOk
+CS_M_EDIT_GP_Callback_SelFix
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_HLP_GetBitORMask
+	btfss	MIOS_PARAMETER1, 3
 	iorwf	SEQ_SELECTED_TRKS_0, BANKED
 	btfsc	MIOS_PARAMETER1, 3
 	iorwf	SEQ_SELECTED_TRKS_1, BANKED
+CS_M_EDIT_GP_Callback_SelOk
 
 	;; select display view of track
 	movff	MIOS_PARAMETER1, SEQ_SELECTED_TRK
