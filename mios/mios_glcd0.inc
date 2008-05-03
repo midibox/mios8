@@ -11,6 +11,10 @@
 ; 
 ; ==========================================================================
 
+;; driver can be optionally disabled
+#if MIOS_ENABLE_GLCD0
+
+
 ;; Pins of LC-Display
 MIOS_GLCD0_LAT_D	EQU	LATB	; Pin B.7-0
 MIOS_GLCD0_PORT_D	EQU	PORTB
@@ -465,6 +469,5 @@ MIOS_GLCD0_ClearInnerLoop
 
 ;; ==========================================================================
 
-
-;; ==========================================================================
+#endif	; MIOS_ENABLE_GLCD0
 

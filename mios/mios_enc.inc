@@ -10,6 +10,10 @@
 ; 
 ; ==========================================================================
 
+;; driver can be optionally disabled
+#if MIOS_ENABLE_ENC
+
+
 MIOS_ENC_SPEED_SLOW		EQU	0
 MIOS_ENC_SPEED_NORMAL		EQU	1
 MIOS_ENC_SPEED_FAST		EQU	2
@@ -837,3 +841,6 @@ MIOS_ENC_Handler_Loop_Next
 	rgoto	MIOS_ENC_Handler_Loop
 MIOS_ENC_Handler_Loop_End	
 	return
+
+
+#endif	; MIOS_ENABLE_ENC

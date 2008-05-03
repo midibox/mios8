@@ -497,7 +497,11 @@ MIOS_LCD_Init_1234
 	BRA_IFSET MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE1, ACCESS, MIOS_LCD_Init_34
 MIOS_LCD_Init_12
 	BRA_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_CLCD_Init	; type 0
+#if MIOS_ENABLE_GLCD0
 	rgoto	MIOS_GLCD0_Init	; type 1
+#else
+	return
+#endif
 
 MIOS_LCD_Init_34
 	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
@@ -512,7 +516,12 @@ MIOS_LCD_Init_45
 	return
 
 MIOS_LCD_Init_67
+#if MIOS_ENABLE_MLCD
 	GOTO_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_MLCD_Init
+#else
+	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
+	return
+#endif
 	;; set GLCD flag by default
 	bsf	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD
 	;; call user LCD init routine
@@ -561,7 +570,11 @@ MIOS_LCD_PrintChar_1234
 	BRA_IFSET MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE1, ACCESS, MIOS_LCD_PrintChar_34
 MIOS_LCD_PrintChar_12
 	BRA_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_CLCD_PrintChar
+#if MIOS_ENABLE_GLCD0
 	rgoto	MIOS_GLCD0_PrintChar
+#else
+	return
+#endif
 
 MIOS_LCD_PrintChar_34
 	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
@@ -576,7 +589,12 @@ MIOS_LCD_PrintChar_45
 	return
 
 MIOS_LCD_PrintChar_67
+#if MIOS_ENABLE_MLCD
 	GOTO_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_MLCD_PrintChar; type 6
+#else
+	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
+	return
+#endif
 	goto	USER_LCD_PrintChar	; type 7
 
 	
@@ -600,7 +618,11 @@ MIOS_LCD_Data_1234
 	BRA_IFSET MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE1, ACCESS, MIOS_LCD_Data_34
 MIOS_LCD_Data_12
 	BRA_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_CLCD_Data	; type 0
+#if MIOS_ENABLE_GLCD0
 	rgoto	MIOS_GLCD0_Data	; type 1
+#else
+	return
+#endif
 
 MIOS_LCD_Data_34
 	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
@@ -616,8 +638,12 @@ MIOS_LCD_Data_45
 
 MIOS_LCD_Data_67
 	GOTO_IFSET MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, USER_LCD_Data ; type 7
+#if MIOS_ENABLE_MLCD
 	call	MIOS_MLCD_PrintChar; type 6
 	goto	MIOS_MLCD_SendSyxFooter
+#else
+	return
+#endif
 	
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: MIOS_LCD_Cmd
@@ -639,7 +665,11 @@ MIOS_LCD_Cmd_1234
 	BRA_IFSET MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE1, ACCESS, MIOS_LCD_Cmd_34
 MIOS_LCD_Cmd_12
 	BRA_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_CLCD_Cmd	; type 0
+#if MIOS_ENABLE_GLCD0
 	rgoto	MIOS_GLCD0_Cmd	; type 1
+#else
+	return
+#endif
 
 MIOS_LCD_Cmd_34
 	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
@@ -690,7 +720,11 @@ MIOS_LCD_Clear_1234
 	BRA_IFSET MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE1, ACCESS, MIOS_LCD_Clear_34
 MIOS_LCD_Clear_12
 	BRA_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_CLCD_Clear
+#if MIOS_ENABLE_GLCD0
 	rgoto	MIOS_GLCD0_Clear
+#else
+	return
+#endif
 
 MIOS_LCD_Clear_34
 	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
@@ -705,7 +739,12 @@ MIOS_LCD_Clear_45
 	return
 
 MIOS_LCD_Clear_67
+#if MIOS_ENABLE_MLCD
 	GOTO_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_MLCD_Clear
+#else
+	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
+	return
+#endif
 	goto	USER_LCD_Clear	; type 7
 
 ;; --------------------------------------------------------------------------
@@ -923,7 +962,11 @@ MIOS_LCD_GCursorSet1234
 MIOS_LCD_GCursorSet12
 	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
 	return
+#if MIOS_ENABLE_GLCD0
 	rgoto	MIOS_GLCD0_GCursorSet	; type 1
+#else
+	return
+#endif
 
 MIOS_LCD_GCursorSet34
 	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
@@ -938,7 +981,12 @@ MIOS_LCD_GCursorSet45
 	return
 
 MIOS_LCD_GCursorSet67
+#if MIOS_ENABLE_MLCD
 	GOTO_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0, ACCESS, MIOS_MLCD_CursorSet
+#else
+	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_LCD_TYPE0
+	return
+#endif
 	goto	USER_LCD_CursorSet	; type 7
 
 ;; --------------------------------------------------------------------------
@@ -1469,5 +1517,7 @@ MIOS_LCD_MessageStop
 ;;  Could also be used by similar drivers
 ;; --------------------------------------------------------------------------
 MIOS_LCD_TransferFinished
+#if MIOS_ENABLE_MLCD
 	GOTO_IFSET MIOS_BOX_STAT, MIOS_BOX_STAT_MLCD_TRANSFER, ACCESS, MIOS_MLCD_SendSyxFooter
+#endif
 	return

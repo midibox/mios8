@@ -142,10 +142,14 @@ IRQ_Timer0
 
 	BRA_IFSET MIOS_BOX_STAT, MIOS_BOX_STAT_SUSPEND_ALL, ACCESS, IRQ_Timer0_End
 
+#if MIOS_ENABLE_AIN
 	call	MIOS_AIN_Tick
+#endif
 
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
 	;; SET_BSR	MIOS_AIN_CTRL	;(already set)
 	CALL_IFSET MIOS_AIN_CTRL, MIOS_AIN_CTRL_MF, BANKED, MIOS_MF_SRM_Tick
+#endif
 
 IRQ_Timer0_End
 	rgoto	IRQ_Handler
@@ -210,7 +214,9 @@ IRQ_Timer1_DoScan
 	rcall	MIOS_IRQ_StoreUserRegs
 	CALL_IFCLR MIOS_BOX_STAT, MIOS_BOX_STAT_SUSPEND_USER, ACCESS, USER_SR_Service_Prepare	; call prepare hook
 	call	MIOS_SRIO_Tick		; SRIO scan
+#if MIOS_ENABLE_ENC
 	call	MIOS_ENC_Tick		; encoder handler
+#endif
 	CALL_IFCLR MIOS_BOX_STAT, MIOS_BOX_STAT_SUSPEND_USER, ACCESS, USER_SR_Service_Finish	; call finish hook
 
 	;; So long debounce counter is != 0, clear all MIOS_SR_DIN_CHANGED_x registers to ignore the button movements at this time.

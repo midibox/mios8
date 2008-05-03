@@ -21,6 +21,7 @@ MIOS_VERSION_STR MACRO
 ;; ==========================================================================
 #include <mios.h>
 #include "mios_defines.h"
+#include "mios_config.h"
 #include <macros.h>
 
 ;; ==========================================================================

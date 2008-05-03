@@ -72,22 +72,36 @@ MIOS_SystemSuspend_Now
 
 	;; flush DOUT and SRM bits
 	bcf	MIOS_SRIO_LAT_DOUT, MIOS_SRIO_PIN_DOUT
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
  	bcf	MIOS_MF_LAT_DOUT, MIOS_MF_PIN_DOUT
+#endif
 	movlw	0x80
 	movwf	WREG
 MIOS_SystemSuspend_SRs_Loop
         bsf     MIOS_SRIO_LAT_SCLK, MIOS_SRIO_PIN_SCLK
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
         bsf     MIOS_MF_LAT_SCLK, MIOS_MF_PIN_SCLK
+#else
+	nop
+#endif
         bcf     MIOS_SRIO_LAT_SCLK, MIOS_SRIO_PIN_SCLK
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
         bcf     MIOS_MF_LAT_SCLK, MIOS_MF_PIN_SCLK
+#endif
 	decfsz	WREG, F
 	rgoto	MIOS_SystemSuspend_SRs_Loop
 
         bcf	MIOS_SRIO_LAT_RCLK, MIOS_SRIO_PIN_RCLK	; latch disable
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
         bcf	MIOS_MF_LAT_RCLK, MIOS_MF_PIN_RCLK
+#else
+	nop
+#endif
 
         bsf	MIOS_SRIO_LAT_RCLK, MIOS_SRIO_PIN_RCLK	; latch enable
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
         bsf	MIOS_MF_LAT_RCLK, MIOS_MF_PIN_RCLK
+#endif
 
 MIOS_SystemSuspend_NoFlush
 	return

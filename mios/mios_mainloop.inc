@@ -20,11 +20,15 @@ MIOS_Mainloop
 	;; --- call DIN handler
 	call	MIOS_DIN_Handler
 
+#if MIOS_ENABLE_AIN
 	;; --- call AIN handler
  	call	MIOS_AIN_Handler
+#endif
 
+#if MIOS_ENABLE_ENC
 	;; --- call ENC handler
 	call	MIOS_ENC_Handler
+#endif
 
 	;; --- call DISPLAY handler
 	call	MIOS_DISPLAY_Handler

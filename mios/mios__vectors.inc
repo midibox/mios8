@@ -35,6 +35,8 @@ _MIOS_MIDI_TxBufferUsed                 goto	MIOS_MIDI_TxBufferUsed
 _MIOS_MPROC_MergerDisable               goto	MIOS_MPROC_MergerDisable
 _MIOS_MPROC_MergerEnable                goto	MIOS_MPROC_MergerEnable
 _MIOS_MPROC_MergerGet                   goto	MIOS_MPROC_MergerGet
+
+#if MIOS_ENABLE_AIN
 _MIOS_AIN_DeadbandGet                   goto	MIOS_AIN_DeadbandGet
 _MIOS_AIN_DeadbandSet                   goto	MIOS_AIN_DeadbandSet
 _MIOS_AIN_Muxed                         goto	MIOS_AIN_Muxed
@@ -45,6 +47,20 @@ _MIOS_AIN_PinGet                        goto	MIOS_AIN_PinGet
 _MIOS_AIN_PinLSBGet                     goto	MIOS_AIN_PinLSBGet
 _MIOS_AIN_PinMSBGet                     goto	MIOS_AIN_PinMSBGet
 _MIOS_AIN_UnMuxed                       goto	MIOS_AIN_UnMuxed
+#else
+_MIOS_AIN_DeadbandGet                   goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_DeadbandSet                   goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_Muxed                         goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_NumberGet                     goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_NumberSet                     goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_Pin7bitGet                    goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_PinGet                        goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_PinLSBGet                     goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_PinMSBGet                     goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_UnMuxed                       goto	MIOS_DISABLED_FUNCTION
+#endif
+
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
 _MIOS_MF_PWM_DutyCycleDownGet           goto	MIOS_MF_PWM_DutyCycleDownGet
 _MIOS_MF_PWM_DutyCycleDownSet           goto	MIOS_MF_PWM_DutyCycleDownSet
 _MIOS_MF_PWM_DutyCycleUpGet             goto	MIOS_MF_PWM_DutyCycleUpGet
@@ -57,6 +73,21 @@ _MIOS_MF_FaderMove                      goto	MIOS_MF_FaderMove
 _MIOS_MF_SuspendDisable                 goto	MIOS_MF_SuspendDisable
 _MIOS_MF_SuspendEnable                  goto	MIOS_MF_SuspendEnable
 _MIOS_MF_SuspendGet                     goto	MIOS_MF_SuspendGet
+#else
+_MIOS_MF_PWM_DutyCycleDownGet           goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_PWM_DutyCycleDownSet           goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_PWM_DutyCycleUpGet             goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_PWM_DutyCycleUpSet             goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_DeadbandGet                    goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_DeadbandSet                    goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_Disable                        goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_Enable                         goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_FaderMove                      goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_SuspendDisable                 goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_SuspendEnable                  goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_SuspendGet                     goto	MIOS_DISABLED_FUNCTION
+#endif
+
 _MIOS_DIN_PinGet                        goto	MIOS_DIN_PinGet
 _MIOS_DIN_SRGet                         goto	MIOS_DIN_SRGet
 _MIOS_DOUT_PinGet                       goto	MIOS_DOUT_PinGet
@@ -65,12 +96,23 @@ _MIOS_DOUT_PinSet0                      goto	MIOS_DOUT_PinSet0
 _MIOS_DOUT_PinSet1                      goto	MIOS_DOUT_PinSet1
 _MIOS_DOUT_SRGet                        goto	MIOS_DOUT_SRGet
 _MIOS_DOUT_SRSet                        goto	MIOS_DOUT_SRSet
+
+#if MIOS_ENABLE_ENC
 _MIOS_ENC_Abs7bitAdd                    goto	MIOS_ENC_Abs7bitAdd
 _MIOS_ENC_Abs7bitGet                    goto	MIOS_ENC_Abs7bitGet
 _MIOS_ENC_Abs7bitSet                    goto	MIOS_ENC_Abs7bitSet
 _MIOS_ENC_NumberGet                     goto	MIOS_ENC_NumberGet
 _MIOS_ENC_SpeedGet                      goto	MIOS_ENC_SpeedGet
 _MIOS_ENC_SpeedSet                      goto	MIOS_ENC_SpeedSet
+#else
+_MIOS_ENC_Abs7bitAdd                    goto	MIOS_DISABLED_FUNCTION
+_MIOS_ENC_Abs7bitGet                    goto	MIOS_DISABLED_FUNCTION
+_MIOS_ENC_Abs7bitSet                    goto	MIOS_DISABLED_FUNCTION
+_MIOS_ENC_NumberGet                     goto	MIOS_DISABLED_FUNCTION
+_MIOS_ENC_SpeedGet                      goto	MIOS_DISABLED_FUNCTION
+_MIOS_ENC_SpeedSet                      goto	MIOS_DISABLED_FUNCTION
+#endif
+
 _MIOS_SRIO_NumberGet                    goto	MIOS_SRIO_NumberGet
 _MIOS_SRIO_NumberSet                    goto	MIOS_SRIO_NumberSet
 _MIOS_SRIO_TS_SensitivityGet            goto	MIOS_SRIO_TS_SensitivityGet
@@ -128,9 +170,17 @@ _MIOS_DIN_PinAutoRepeatDisable		goto	MIOS_DIN_PinAutoRepeatDisable
 _MIOS_DIN_PinAutoRepeatGet		goto	MIOS_DIN_PinAutoRepeatGet
 _MIOS_CLCD_SpecialCharInit		goto	MIOS_CLCD_SpecialCharInit
 _MIOS_CLCD_SpecialCharsInit		goto	MIOS_CLCD_SpecialCharsInit
+
+#if MIOS_ENABLE_AIN
 _MIOS_AIN_DynamicPrioSet		goto	MIOS_AIN_DynamicPrioSet
 _MIOS_AIN_DynamicPrioGet		goto	MIOS_AIN_DynamicPrioGet
 _MIOS_AIN_LastPinsGet			goto	MIOS_AIN_LastPinsGet
+#else
+_MIOS_AIN_DynamicPrioSet		goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_DynamicPrioGet		goto	MIOS_DISABLED_FUNCTION
+_MIOS_AIN_LastPinsGet			goto	MIOS_DISABLED_FUNCTION
+#endif
+
 _MIOS_BANKSTICK_CtrlSet			goto	MIOS_BANKSTICK_CtrlSet
 _MIOS_BANKSTICK_CtrlGet			goto	MIOS_BANKSTICK_CtrlGet
 _MIOS_BANKSTICK_WritePage		goto	MIOS_BANKSTICK_WritePage
@@ -139,8 +189,15 @@ _MIOS_LCD_PrintBCD4			goto	MIOS_LCD_PrintBCD4
 _MIOS_LCD_PrintBCD5                     goto	MIOS_LCD_PrintBCD5
 _MIOS_LCD_MessageStart			goto	MIOS_LCD_MessageStart
 _MIOS_LCD_MessageStop			goto	MIOS_LCD_MessageStop
+
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
 _MIOS_MF_PWM_PeriodGet                  goto	MIOS_MF_PWM_PeriodGet
 _MIOS_MF_PWM_PeriodSet                  goto	MIOS_MF_PWM_PeriodSet
+#else
+_MIOS_MF_PWM_PeriodGet                  goto	MIOS_DISABLED_FUNCTION
+_MIOS_MF_PWM_PeriodSet                  goto	MIOS_DISABLED_FUNCTION
+#endif
+
 _MIOS_IIC_Start				goto	MIOS_IIC_Start
 _MIOS_IIC_Stop				goto	MIOS_IIC_Stop
 _MIOS_IIC_ByteSend			goto	MIOS_IIC_ByteSend
@@ -151,7 +208,13 @@ _MIOS_IIC_CtrlSet			goto	MIOS_IIC_CtrlSet
 _MIOS_IIC_CtrlGet			goto	MIOS_IIC_CtrlGet
 _MIOS_SRIO_DebounceSet			goto	MIOS_SRIO_DebounceSet
 _MIOS_SRIO_DebounceGet			goto	MIOS_SRIO_DebounceGet
+
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
 _MIOS_MF_TouchDetectionReset		goto	MIOS_MF_TouchDetectionReset
+#else
+_MIOS_MF_TouchDetectionReset		goto	MIOS_DISABLED_FUNCTION
+#endif
+
 _MIOS_BANKSTICK_ReadPage		goto	MIOS_BANKSTICK_ReadPage
 _MIOS_EEPROM_ReadPage			goto	MIOS_EEPROM_ReadPage
 _MIOS_EEPROM_WritePage			goto	MIOS_EEPROM_WritePage
@@ -378,5 +441,5 @@ MIOS_RESERVED_253                       return
 					nop
 MIOS_RESERVED_254                       return
 					nop
-MIOS_RESERVED_255                       return
+MIOS_DISABLED_FUNCTION                  return
 					nop

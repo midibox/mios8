@@ -10,6 +10,10 @@
 ; 
 ; ==========================================================================
 
+;; driver can be optionally disabled
+#if MIOS_ENABLE_AIN && MIOS_ENABLE_MF
+
+
 ;; for debugging ONLY: the ADC values during a move are logged at 0x080-0x37f
 #define MIOS_MF_LOG_MOVES 0
 
@@ -956,3 +960,6 @@ MIOS_MF_Down
 MIOS_MF_StandBy
 	movlw	0
 	rgoto	MIOS_MF_UpDownStandby_Mod
+
+
+#endif	; MIOS_ENABLE_AIN && MIOS_ENABLE_MF

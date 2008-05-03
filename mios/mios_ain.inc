@@ -10,6 +10,11 @@
 ; 
 ; ==========================================================================
 
+;; driver can be optionally disabled
+#if MIOS_ENABLE_AIN
+
+
+
 ;; ADC MUX Pins
 MIOS_AIN_LAT_MUX_0       EQU     LATC   ; Pin C.0
 MIOS_AIN_PIN_MUX_0       EQU     0
@@ -186,6 +191,7 @@ MIOS_AIN_NumberSet
 	movwf	MIOS_AIN_NUMBER, BANKED
 MIOS_AIN_NumberSet_Cont
 
+#if MIOS_ENABLE_MF
 	;; if MF module enabled, ensure that max. 8 faders are active
 	BRA_IFCLR MIOS_AIN_CTRL, MIOS_AIN_CTRL_MF, BANKED, MIOS_AIN_NumberSet_NoMF
 MIOS_AIN_NumberSet_MF
@@ -195,6 +201,7 @@ MIOS_AIN_NumberSet_MF
 	movwf	MIOS_AIN_NUMBER, BANKED
 MIOS_AIN_NumberSet_MFOk
 MIOS_AIN_NumberSet_NoMF
+#endif
 
 	;; enable timer0 and IRQ. If number of pots is zero, timer will disable itself
 	bsf	INTCON, T0IE
@@ -437,11 +444,13 @@ MIOS_AIN_Tick_State1_NewLast0
 	movwf	MIOS_AIN_LAST_POT0, BANKED
 MIOS_AIN_Tick_State1_NoNew
 
+#if MIOS_ENABLE_MF
 	;; if motorfader mode: branch to MF tick, else use standard result handler
 	BRA_IFSET MIOS_AIN_CTRL, MIOS_AIN_CTRL_MF, BANKED, MIOS_MF_Tick
 MIOS_MF_Tick_Return
 	SET_BSR	MIOS_AIN_INPUT_CTR
 MIOS_AIN_Tick_State1_NoMF
+#endif
 
 	;; dynamic priority feature (only used in muxed mode)
 MIOS_AIN_Tick_State1_DynPrio
@@ -567,3 +576,4 @@ MIOS_AIN_Tick_Stop
 	bcf	T0CON, TMR0ON
 	return
 
+#endif	; MIOS_ENABLE_AIN

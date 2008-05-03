@@ -10,6 +10,10 @@
 ; 
 ; ==========================================================================
 
+;; driver can be optionally disabled
+#if MIOS_ENABLE_MLCD
+
+
 ;; --------------------------------------------------------------------------
 ;;  Init Routine for LC Display
 ;; --------------------------------------------------------------------------
@@ -113,3 +117,5 @@ MIOS_MLCD_SendSyxFooter
 	bcf	MIOS_BOX_STAT, MIOS_BOX_STAT_MLCD_TRANSFER
 	movlw	0xf7
 	goto	MIOS_MIDI_TxBufferPut
+
+#endif	; MIOS_ENABLE_MLCD
