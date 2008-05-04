@@ -20,7 +20,7 @@ CS_MENU_Reset
 	movwf	CS_MENU
 
 	;; set reinit counter - CS configuration will be restored after one second
-	movlw	10
+	movlw	0x18
 	movwf	CS_MENU_REINIT_CFG_CTR
 
 	;; start with master SID, SID button 1-4 depressed
