@@ -11,6 +11,8 @@ $(OUTDIR)/glcd_font_big.o: $(MIOS_PATH)/modules/glcd_font/glcd_font_big.asm
 	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) $(GPASM_DEFINES) $(GLCD_FONT_DEFINES) $< -o $@
 $(OUTDIR)/glcd_font_small.o: $(MIOS_PATH)/modules/glcd_font/glcd_font_small.asm
 	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) $(GPASM_DEFINES) $(GLCD_FONT_DEFINES) $< -o $@
+$(OUTDIR)/glcd_font_normal.o: $(MIOS_PATH)/modules/glcd_font/glcd_font_normal.asm
+	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) $(GPASM_DEFINES) $(GLCD_FONT_DEFINES) $< -o $@
 $(OUTDIR)/glcd_font_knob_icons.o: $(MIOS_PATH)/modules/glcd_font/glcd_font_knob_icons.asm
 	$(GPASM) $(GPASM_FLAGS) $(GPASM_INCLUDE) $(GPASM_DEFINES) $(GLCD_FONT_DEFINES) $< -o $@
 $(OUTDIR)/glcd_font_meter_icons_h.o: $(MIOS_PATH)/modules/glcd_font/glcd_font_meter_icons_h.asm

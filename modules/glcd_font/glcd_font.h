@@ -21,6 +21,7 @@
 
 extern code char GLCD_FONT_BIG[4];
 extern code char GLCD_FONT_SMALL[4];
+extern code char GLCD_FONT_NORMAL[4];
 extern code char GLCD_FONT_KNOB_ICONS[4];
 extern code char GLCD_FONT_METER_ICONS_H[4];
 extern code char GLCD_FONT_METER_ICONS_V[4];
