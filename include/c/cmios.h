@@ -51,12 +51,18 @@
 #define MIOS_ENC_ENTRY(sr, din, mode)   ((mode) << 8) | ((din) + 8*((sr)-1))
 #define MIOS_ENC_EOT                    0xffff
 
+// export table for external access to array
+extern const unsigned int __at(0x3280) mios_enc_pin_table[64];
+
 /*** macro for creating midi processing table *********************************/
 #define MIOS_MT_TABLE \
         const unsigned int __at(0x3080) mios_mproc_event_table[256] =
 
 #define MIOS_MT_ENTRY(evnt0, evnt1)     ((evnt1) << 8) | (evnt0)
 #define MIOS_MT_EOT                     0xffff
+
+// export table for external access to array
+extern const unsigned int __at(0x3080) mios_mproc_event_table[256];
 
 /*** structures of the CFG and STAT bytes ************************************/
 typedef union {

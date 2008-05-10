@@ -1,0 +1,44 @@
+// $Id$
+/*
+ * Scan Matrix Driver - Simple Solution
+ *
+ * ==========================================================================
+ *
+ *  Copyright 2006 Thorsten Klose (tk@midibox.org)
+ *  Licensed for personal non-commercial use only.
+ *  All other rights reserved.
+ *
+ * ==========================================================================
+ */
+
+#ifndef _SM_SIMPLE_H
+#define _SM_SIMPLE_H
+
+/////////////////////////////////////////////////////////////////////////////
+// Global definitions
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+// Global Types
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+// Prototypes
+/////////////////////////////////////////////////////////////////////////////
+extern void SM_Init(void) __wparam;
+extern void SM_PrepareCol(void) __wparam;
+extern void SM_GetRow(void) __wparam;
+extern void SM_ButtonHandler(void) __wparam;
+
+// moved to main.h
+//extern void SM_NotifyToggle(unsigned char pin, unsigned char value) __wparam;
+
+/////////////////////////////////////////////////////////////////////////////
+// Export global variables
+/////////////////////////////////////////////////////////////////////////////
+
+extern unsigned char sm_button_column;
+extern unsigned char sm_button_row;
+extern unsigned char sm_button_value;
+
+#endif /* _SM_SIMPLE_H */

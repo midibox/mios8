@@ -1,0 +1,69 @@
+$Id$
+
+MIDIbox MM V2.0
+~~~~~~~~~~~~~~~
+
+   o the complete application has been ported to C
+     More infos about how to compile the code can be found under
+        http://www.ucapps.de/mios_c.html
+
+
+
+MIDIbox MM V1.0
+~~~~~~~~~~~~~~~
+
+Initial version which emulates the Motormix nearly completely:
+
+   o eight motorfaders send and receive position data with 10 bit resolution
+   o eight touch sensors can be connected
+   o eight virtual pots (rotary encoders) send relative events
+   o one additional rotary encoder ("jog wheel") sends relative events
+   o all 67 button functions are available
+   o all 72 LED functions are available
+   o two status digits (7 segment digits)
+   o messages are displayed on a 2x40 LCD (only!)
+
+Additionally this application provides following functions:
+   o a dirty hack makes it possible to add eight LEDrings to the V-Pots.
+     However, the host application must send the absolute V-Pot position 
+     to the display - currently it only works with Sonar, Cubase doesn't
+     get use of the so called "rotary pointer" (see Motormix specification)
+   o a layer function which allows to map Motormix button functions and LEDs
+     to a smaller number of buttons (additional "Shift Key")
+   o 128 general purpose controllers can be send with the V-Pots in
+     GPC mode
+   o optional "dont-send-if-touchsensor-not-pressed" function (disabled by
+     default to avoid confusion, but heavily recommented if touchsensors
+     available)
+
+Following function of the original Motormix is not implemented:
+   o different graphical forms of the "rotary pointers" at the lower
+     LCD line, since the graphics are not documented.
+     Instead, always a vertical bar + the decimal value will be displayed
+
+
+Additional Notes:
+   o Meters are not supported by the Motormix protocol
+   o MTC digits are not supported by the Motormix protocol
+   o LEDrings normaly not supported by the Motormix protocol. The
+     LEDring hack works only with Sonar, and not with Cubase
+   o the two 7 segment digits have to be connected directly to the
+     shift registers --- no multiplexing required
+   o only one 2x40 LCD is supported by the Motormix protocol
+   o tested with the MIDIbox NG hardware, buttons and LEDs are
+     assigned according to the existing design. The mapping can be
+     changed in mm_io_tables.inc
+   o *IMPORTANT* since I'm a Logic user (and therefore prefer the
+     Logic Control emulation), this application has only be tested
+     with following demo programs:
+        o Sonar 3 Producer Demo Edition
+        o Cubase SX Demo V1.02
+     No guarantee that it also works with other versions
+   o Note for Cubase users: most buttons are not assigned to a
+     function by default - you have to do this by hand in
+     the device configuration! It seems that these functions don't
+     have a LED feedback, but this could be different in newer
+     Cubase versions. Please read also the "Remote Control Devices"
+     Documentation which can be found at the Steinberg Website
+
+ 
