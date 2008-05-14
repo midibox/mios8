@@ -437,7 +437,7 @@ MIOS_ENC_PIN_TABLE
 	ENC_ENTRY  3,  2,  MIOS_ENC_MODE_DETENTED2	; Osc attack/finetune/assign #2
 	ENC_ENTRY  3,  4,  MIOS_ENC_MODE_DETENTED2	; Osc decay/portamento/assign #3
 	ENC_ENTRY  3,  6,  MIOS_ENC_MODE_DETENTED2	; Osc sustain/release/assign #4
-	ENC_ENTRY  3,  8,  MIOS_ENC_MODE_DETENTED2	; Osc release/pulsewidth/assign #5
+	ENC_ENTRY  4,  0,  MIOS_ENC_MODE_DETENTED2	; Osc release/pulsewidth/assign #5
 
 	ENC_ENTRY  4,  6,  MIOS_ENC_MODE_DETENTED2	; LFO rate
 	ENC_ENTRY  5,  0,  MIOS_ENC_MODE_DETENTED2	; LFO depth
