@@ -70,6 +70,10 @@ SID_SR_Refresh_Loop
 	rgoto	SID_SR_Refresh_Loop
 
 	;; set test flags for proper oscillator synchronisation
+	;; can be disabled with the DOR flag
+	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
+	BRA_IFSET WREG, SID_ENS_CTRL1_DOR, ACCESS, SID_SR_Refresh_NoOSCReset
+SID_SR_Refresh_OSCReset
 	SET_BSR	SIDL_BASE
 	bsf	SIDL_BASE + SIDx_V1_CTRL, 3, BANKED
 	bsf	SIDL_BASE + SIDx_V2_CTRL, 3, BANKED
@@ -77,6 +81,7 @@ SID_SR_Refresh_Loop
 	bsf	SIDR_BASE + SIDx_V1_CTRL, 3, BANKED
 	bsf	SIDR_BASE + SIDx_V2_CTRL, 3, BANKED
 	bsf	SIDR_BASE + SIDx_V3_CTRL, 3, BANKED
+SID_SR_Refresh_NoOSCReset
 
 	;; call transfer routine
 	rcall	_SID_SR_Handler

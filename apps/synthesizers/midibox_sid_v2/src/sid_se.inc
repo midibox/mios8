@@ -124,7 +124,9 @@ SID_ENV_STATE_RELEASE2		EQU	6
 
 SID_ENS_CTRL1_CLK_SLAVE		EQU	0	; switch between MIDI clock master/slave
 SID_ENS_CTRL1_CLK_AUTO		EQU	1	; automatic switching between master/slave
+SID_ENS_CTRL1_FIL_LOG		EQU	4	; Select logarithmic scale for filter
 SID_ENS_CTRL1_MONO		EQU	6	; SIDs are played mono
+SID_ENS_CTRL1_DOR		EQU	7	; Disable automatic Oscillator Reset during patch change (could also be called DAORDPC flag ;)
 
 SID_ENS_CTRL2_F2A		EQU	0	; forward Filter CutOff/Resonance to AOUTs
 SID_ENS_CTRL2_V2A		EQU	1	; forward Volume to AOUTs
@@ -2092,9 +2094,10 @@ SIDSE_Filter_Mod_SatNeg_Sat
 SIDSE_Filter_Mod_Sat_Cont
 SIDSE_Filter_Mod_Sat_NoSat
 
-	;; in bassline mode: add keytracking * NOTE value
+	;; bassline and lead engine: add keytracking * NOTE value
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
 	andlw	0x03
+	bz	SIDSE_Filter_KTr
 	xorlw	0x01
 	bnz	SIDSE_Filter_KTr_Skip
 SIDSE_Filter_KTr
@@ -2103,24 +2106,65 @@ SIDSE_Filter_KTr
 	bz	SIDSE_Filter_KTr_Skip
 	movwf	PRODL
 
+	;; note value -> PRODH
 	movff	SIDL_V1_BASE + SID_Vx_OLD_TRANSP_NOTE, WREG
 	btfsc	SID_SE_ELEMENT_NUM, 0, BANKED
 	movff	SIDR_V1_BASE + SID_Vx_OLD_TRANSP_NOTE, WREG
-	andlw	0x7f
+	rlf	WREG, W
+	andlw	0xfe
+	movwf	PRODH
+
+	;; if keytracking == 0xff: no multiplication required -> 100%
+	incf	PRODL, W
+	bnz	SIDSE_Filter_KTr_No100P
+SIDSE_Filter_KTr_100P
+	clrf	PRODL		; 100%, key value already in PRODH
+	rgoto	SIDSE_Filter_KTr_100P_Cont
+
+SIDSE_Filter_KTr_No100P
+	incf	PRODL, F	; <100%
+	incf	PRODH, W
 	mulwf	PRODL, ACCESS
 
-	;; add to filter and saturate if required (value always positive)
+SIDSE_Filter_KTr_100P_Cont
+
+	;; bias at C-3 (0x3c)
+	movlw	-(0x3c << 1)
+	addwf	PRODH, F
+
+	;; add to filter and saturate if required
 	movf	PRODL, W
 	addwf	IRQ_TMP1, F
 	movf	PRODH, W
 	addwfc	IRQ_TMP2, F
-	bnc	SIDSE_Filter_KTr_NoSat	
-SIDSE_Filter_KTr_Sat
+	BRA_IFSET PRODH, 7, ACCESS, SIDSE_Filter_KTr_SatNeg
+SIDSE_Filter_KTr_SatPos
+	bnc	SIDSE_Filter_KTr_Sat_End
 	setf	IRQ_TMP1
 	setf	IRQ_TMP2
-SIDSE_Filter_KTr_NoSat
+	rgoto	SIDSE_Filter_KTr_Sat_End
+
+SIDSE_Filter_KTr_SatNeg
+	bc	SIDSE_Filter_KTr_Sat_End
+	clrf	IRQ_TMP1
+	clrf	IRQ_TMP2
+	;; 	rgoto	SIDSE_Filter_KTr_Sat_End
+SIDSE_Filter_KTr_Sat_End
 SIDSE_Filter_KTr_Skip
 
+
+	;; transform to log scale if enabled
+	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
+	BRA_IFCLR WREG, SID_ENS_CTRL1_FIL_LOG, ACCESS, SIDSE_Filter_NoLog
+SIDSE_Filter_Log
+	rrf	IRQ_TMP2, W			; take only upper 7bit 
+	andlw	0x7f
+	TABLE_ADDR_MUL_W SID_FRQ_TABLE, 2	; re-use frequency table
+	tblrd*+
+	movff	TABLAT, IRQ_TMP1
+	tblrd*+
+	movff	TABLAT, IRQ_TMP2
+SIDSE_Filter_NoLog
 
 	;; copy SID_Gx_CALI_FIL[12]_[MIN|MAX]_[LH] into IRQ_TMP[34]/PROD[LH] depending on selected filter
 	BRA_IFSET SID_SE_ELEMENT_NUM, 0, BANKED, SIDSE_Filter_MinMax2

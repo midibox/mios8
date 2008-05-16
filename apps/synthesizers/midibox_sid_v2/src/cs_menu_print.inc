@@ -157,8 +157,10 @@ PRINT_ENSxIx_PMDEC7	EQU	0x72
 PRINT_ENSx_X2A		EQU	0x73
 PRINT_ENSx_RESERVED	EQU	0x74
 PRINT_ENSx_MONO		EQU	0x75
-PRINT_ENSx_SPV		EQU	0x76
-PRINT_ENSx_EXTINV	EQU	0x77
+PRINT_ENSx_FILLOG	EQU	0x76
+PRINT_ENSx_DOR		EQU	0x77
+PRINT_ENSx_SPV		EQU	0x78
+PRINT_ENSx_EXTINV	EQU	0x79
 
 
 ; ==========================================================================
@@ -166,7 +168,7 @@ PRINT_ENSx_EXTINV	EQU	0x77
 ;; IN: PRINT_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_PRINT_Handler
-	JUMPTABLE_2BYTES (0x77+1) ; entries
+	JUMPTABLE_2BYTES (0x79+1) ; entries
 	rgoto	CS_MENU_PRINT_NOP
 
 	rgoto	CS_MENU_PRINT_DEC8
@@ -305,6 +307,8 @@ CS_MENU_PRINT_Handler
 	rgoto	CS_MENU_PRINT_ENSx_X2A
 	rgoto	CS_MENU_PRINT_ENSx_RESERVED
 	rgoto	CS_MENU_PRINT_ENSx_MONO
+	rgoto	CS_MENU_PRINT_ENSx_FILLOG
+	rgoto	CS_MENU_PRINT_ENSx_DOR
 	rgoto	CS_MENU_PRINT_ENSx_SPV
 	rgoto	CS_MENU_PRINT_ENSx_EXTINV
 
@@ -570,17 +574,6 @@ CS_MENU_PRINT_Vx_WAV
 	movlw 0x00
 	rgoto	CS_MENU_PRINT_StringFromTable
 
-CS_MENU_PRINT_Vx_WAV_Tab
-	dw	"off "
-	dw	"Tri "
-	dw	"Saw "
-	dw	"T+S "
-	dw	"Pul "
-	dw	"P+T "
-	dw	"P+S "
-	dw	"PST "
-	dw	"Noi "
-
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Vx_S_R
 	rcall	CS_MENU_PRINT_GetVx
@@ -592,11 +585,6 @@ CS_MENU_PRINT_Vx_S_R
 	swapf	WREG, W
 	andlw	0x03
 	rgoto	CS_MENU_PRINT_StringFromTable
-CS_MENU_PRINT_Vx_S_R_Tab
-	dw	"--- "
-	dw	"Syn "
-	dw	"Rin "
-	dw	"R&S "
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Vx_ARP_ON
@@ -723,15 +711,6 @@ CS_MENU_PRINT_Fx_CHN
 	movf	INDF0, W
 	andlw	0x07
 	rgoto	CS_MENU_PRINT_StringFromTable
-CS_MENU_PRINT_Fx_CHN_Tab
-	dw	"--- "
-	dw	"1-- "
-	dw	"-2- "
-	dw	"12- "
-	dw	"--3 "
-	dw	"1-3 "
-	dw	"-23 "
-	dw	"123 "
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Fx_CUTOFF
@@ -761,15 +740,6 @@ CS_MENU_PRINT_Fx_MOD
 	swapf	INDF0, W
 	andlw	0x07
 	rgoto	CS_MENU_PRINT_StringFromTable
-CS_MENU_PRINT_Fx_MOD_Tab
-	dw	"--- "
-	dw	"L-- "
-	dw	"-B- "
-	dw	"LB- "
-	dw	"--H "
-	dw	"L-H "
-	dw	"-BH "
-	dw	"LBH "
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Fx_EXT
@@ -1576,6 +1546,18 @@ CS_MENU_PRINT_ENSx_MONO
 	rgoto	CS_MENU_PRINT_OnOff_INDF0
 
 ; --------------------------------------------------------------------------
+CS_MENU_PRINT_ENSx_FILLOG
+	call	CS_MENU_FSR0_ENS
+	movlw	SID_ENS_CTRL1_FIL_LOG
+	rgoto	CS_MENU_PRINT_OnOff_INDF0
+
+; --------------------------------------------------------------------------
+CS_MENU_PRINT_ENSx_DOR
+	call	CS_MENU_FSR0_ENS
+	movlw	SID_ENS_CTRL1_DOR
+	rgoto	CS_MENU_PRINT_OnOff_INDF0
+
+; --------------------------------------------------------------------------
 CS_MENU_PRINT_ENSx_SPV
 	call	CS_MENU_FSR0_ENS
 	movf	INDF0, W
@@ -1888,6 +1870,43 @@ CS_MENU_PRINT_PMWTVal
 ;  Large String tables (located here to ensure that CS_MENU_PRINT_Handler can
 ;  work with 2byte "rgoto"'s
 ; --------------------------------------------------------------------------
+CS_MENU_PRINT_Fx_MOD_Tab
+	dw	"--- "
+	dw	"L-- "
+	dw	"-B- "
+	dw	"LB- "
+	dw	"--H "
+	dw	"L-H "
+	dw	"-BH "
+	dw	"LBH "
+
+CS_MENU_PRINT_Fx_CHN_Tab
+	dw	"--- "
+	dw	"1-- "
+	dw	"-2- "
+	dw	"12- "
+	dw	"--3 "
+	dw	"1-3 "
+	dw	"-23 "
+	dw	"123 "
+	
+CS_MENU_PRINT_Vx_WAV_Tab
+	dw	"off "
+	dw	"Tri "
+	dw	"Saw "
+	dw	"T+S "
+	dw	"Pul "
+	dw	"P+T "
+	dw	"P+S "
+	dw	"PST "
+	dw	"Noi "
+
+CS_MENU_PRINT_Vx_S_R_Tab
+	dw	"--- "
+	dw	"Syn "
+	dw	"Rin "
+	dw	"R&S "
+
 CS_MENU_PRINT_Vx_VAS_Tab
 	dw	" LR "
 	dw	" L- "
