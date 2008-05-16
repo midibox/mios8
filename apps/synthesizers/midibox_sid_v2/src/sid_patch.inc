@@ -171,22 +171,22 @@ SID_PATCH_Init_PlayNoteAgainLoop
 SID_PATCH_Init_NoNote
 
 	;; LFOs should start with random offset (for best freerunning results - especially in multi mode)
-	;; can be disabled with the DOR flag
+	;; can be *enabled* with the DOR flag
 	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
-	BRA_IFSET WREG, SID_ENS_CTRL1_DOR, ACCESS, SID_PATCH_Init_NoLFOReset
-SID_PATCH_Init_LFOReset
+	BRA_IFCLR WREG, SID_ENS_CTRL1_DOR, ACCESS, SID_PATCH_Init_NoLFORnd
+SID_PATCH_Init_LFORnd
 	lfsr	FSR1, SID_LFO1_BASE
 	movlw	SID_LFOx_NUM
 	movwf	TABLAT		; using TABLAT as counter
-SID_PATCH_Init_LFO_Loop
+SID_PATCH_Init_LFORnd_Loop
 	call	SID_RND_GenRandomNumber
 	movff	SID_RANDOM_SEED_L, POSTINC1
 	movff	SID_RANDOM_SEED_H, POSTDEC1
 	movlw	SID_LFOx_RECORD_LEN
 	addwf	FSR1L, F
 	decfsz	TABLAT, F
-	rgoto	SID_PATCH_Init_LFO_Loop
-SID_PATCH_Init_NoLFOReset
+	rgoto	SID_PATCH_Init_LFORnd_Loop
+SID_PATCH_Init_NoLFORnd
 
 	
 	;; enable SID engine again
