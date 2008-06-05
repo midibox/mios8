@@ -35,6 +35,9 @@ include $(MIOS_PATH)/modules/app_lcd/clcd_multi/app_lcd.mk
   3) main.c: add MIOS_LCD_TypeSet(0x07, 0x00, 0x00); to select Custom Drivers
      The second and third value are not used by the driver
 
+  4) CLCDs can be selected with USER_LCD_Select(<number>);  // number 0..7
+     see also the example application under $MIOS_PATH/apps/examples/lcd7/clcd_multi
+
 
 "Assembler-Only" Applications
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,6 +60,9 @@ include $(MIOS_PATH)/modules/app_lcd/clcd_multi/app_lcd.mk
 	movlw	0x07
 	call	MIOS_LCD_TypeSet
 ---
+
+  4) CLCDs can be selected by calling USER_LCD_Select (expecting number 0..7 in WREG)
+     see also the example application under $MIOS_PATH/apps/examples/lcd7/clcd_multi
 
 
 Integration Examples
