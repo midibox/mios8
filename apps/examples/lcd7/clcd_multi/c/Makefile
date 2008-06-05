@@ -1,4 +1,4 @@
-# $Id: Makefile 311 2008-05-01 17:56:23Z tk $
+# $Id$
 
 # define the processor, linker file and project name
 PROCESSOR = 18f452

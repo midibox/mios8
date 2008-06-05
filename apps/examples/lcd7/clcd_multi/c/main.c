@@ -1,4 +1,4 @@
-// $Id: main.c 67 2008-02-01 00:09:23Z tk $
+// $Id$
 /*
  * MIOS Custom LCD Driver Example for multiple character LCDs
  * 
