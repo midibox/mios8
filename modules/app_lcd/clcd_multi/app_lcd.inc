@@ -1,4 +1,4 @@
-; $Id: app_lcd.inc 69 2008-02-01 00:20:18Z tk $
+; $Id$
 ;
 ; MIOS Custom LCD Driver Example for multiple (more than two) character LCDs
 ;

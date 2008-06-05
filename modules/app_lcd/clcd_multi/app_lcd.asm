@@ -1,4 +1,4 @@
-; $Id: app_lcd.asm 69 2008-02-01 00:20:18Z tk $
+; $Id$
 ;
 ; Wrapper for app_lcd.inc
 ; To be used for relocatable programs

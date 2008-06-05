@@ -1,4 +1,4 @@
-$Id: README.txt 69 2008-02-01 00:20:18Z tk $
+$Id$
 
 Custom Driver for multiple CLCD displays (selected with LCD type #7)
 

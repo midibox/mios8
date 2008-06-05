@@ -1,4 +1,4 @@
-# $Id: app_lcd.mk 69 2008-02-01 00:20:18Z tk $
+# $Id$
 # defines the rule for creating the app_lcd.o object, or assembling the app_lcd.inc file directly
 
 # add this directory to include path
