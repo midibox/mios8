@@ -257,6 +257,13 @@ MIDI_EVNT_Send_AOUT
 	andlw	0xf0
 	xorlw	0xb0
 	bz	MIDI_EVNT_Send_AOUT_CC
+	xorlw	0x80 ^ 0xb0
+	bz	MIDI_EVNT_Send_AOUT_NoteOff
+	xorlw	0x90 ^ 0x80
+	bz	MIDI_EVNT_Send_AOUT_Note
+	rgoto	MIDI_EVNT_Send_AOUT_End
+MIDI_EVNT_Send_AOUT_NoteOff
+	clrf	MIDI_EVNT_VALUE	; ensure that velocity zero
 MIDI_EVNT_Send_AOUT_Note
 	;; if channel 1..8: set only note value on CV OUT #1..8, triggers Gate #1..8
 	;; if channel 9..12: set note/velocity on each pin pair (CV OUT #1/2, #3/4, #5/6, #7/8), triggers Gate #1+2, #3+4, #5+6, #7+8
