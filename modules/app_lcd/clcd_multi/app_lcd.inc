@@ -96,9 +96,8 @@ USER_LCD_Init
 
 	; (Initialization of Ports: done in Init_Ports)
 	SET_BSR	USER_LCD_STATUS
-	movlw	0x0f
+	movlw	0x0f		; change to 0xff if 8 CLCD should be connected
 	movwf	USER_LCD_STATUS, BANKED
-	clrf	USER_LCD_SELECT, BANKED
 
 	movlw	100			; 100 ms delay
 	call	MIOS_Delay
@@ -107,13 +106,13 @@ USER_LCD_Init
         bcf     USER_LCD_LAT_RS, USER_LCD_PIN_RS	; USER_LCD_PIN_RS_0
 
 	;; initialize LCD
+	clrf	USER_LCD_SELECT, BANKED
+USER_LCD_Init_Loop
 	rcall	USER_LCD_Init_Cmds
 	incf	USER_LCD_SELECT, F, BANKED
-	rcall	USER_LCD_Init_Cmds
-	incf	USER_LCD_SELECT, F, BANKED
-	rcall	USER_LCD_Init_Cmds
-	incf	USER_LCD_SELECT, F, BANKED
-	rcall	USER_LCD_Init_Cmds
+	BRA_IFCLR USER_LCD_SELECT, 2, BANKED, USER_LCD_Init_Loop	; currently 4 LCDs supported 
+
+	;; switch back to first LCD
 	clrf	USER_LCD_SELECT, BANKED
 	return
 
@@ -248,7 +247,6 @@ USER_LCD_Cmd
 ;; --------------------------------------------------------------------------
 USER_LCD_WaitUnbusy
 	;; exit if current LCD not available due to timeout
-	;; exit if current LCD not available due to timeout
 	SET_BSR	USER_LCD_SELECT
 	movf	USER_LCD_SELECT, W, BANKED
 	call	MIOS_HLP_GetBitORMask
@@ -309,6 +307,8 @@ USER_LCD_WaitUnbusy_Disable
 ;;  Out: -
 ;; --------------------------------------------------------------------------
 USER_LCD_Strobe_Set
+	;; code for variable E output removed
+	;; 4 additional enable outputs could be added here 
 	movf	USER_LCD_SELECT, W, BANKED
 	andlw	0x03
 	JUMPTABLE_2BYTES_UNSECURE
@@ -318,28 +318,22 @@ USER_LCD_Strobe_Set
 	rgoto	USER_LCD_Strobe_Set3
 
 USER_LCD_Strobe_Set0
-	;; (code for variable E output removed)
 	bsf	USER_LCD_LAT_E0, USER_LCD_PIN_E0
 	rgoto	USER_LCD_Strobe_Set_End
 
 USER_LCD_Strobe_Set1
-	;; (code for variable E output removed)
 	bsf	USER_LCD_LAT_E1, USER_LCD_PIN_E1
 	rgoto	USER_LCD_Strobe_Set_End
 
 USER_LCD_Strobe_Set2
-	;; (code for variable E output removed)
 	bsf	USER_LCD_LAT_E2, USER_LCD_PIN_E2
 	rgoto	USER_LCD_Strobe_Set_End
 
 USER_LCD_Strobe_Set3
-	;; (code for variable E output removed)
 	bsf	USER_LCD_LAT_E3, USER_LCD_PIN_E3
 	rgoto	USER_LCD_Strobe_Set_End
 
 USER_LCD_Strobe_Set_End
-	nop
-	nop
 	return
 
 ;; --------------------------------------------------------------------------
@@ -349,6 +343,8 @@ USER_LCD_Strobe_Set_End
 ;;  Out: -
 ;; --------------------------------------------------------------------------
 USER_LCD_Strobe_Clr
+	;; code for variable E output removed
+	;; 4 additional enable outputs could be added here 
 	movf	USER_LCD_SELECT, W, BANKED
 	andlw	0x03
 	JUMPTABLE_2BYTES_UNSECURE
@@ -358,28 +354,22 @@ USER_LCD_Strobe_Clr
 	rgoto	USER_LCD_Strobe_Clr3
 
 USER_LCD_Strobe_Clr0
-	;; (code for variable E output removed)
 	bcf	USER_LCD_LAT_E0, USER_LCD_PIN_E0
 	rgoto	USER_LCD_Strobe_Clr_End
 
 USER_LCD_Strobe_Clr1
-	;; (code for variable E output removed)
 	bcf	USER_LCD_LAT_E1, USER_LCD_PIN_E1
 	rgoto	USER_LCD_Strobe_Clr_End
 
 USER_LCD_Strobe_Clr2
-	;; (code for variable E output removed)
 	bcf	USER_LCD_LAT_E2, USER_LCD_PIN_E2
 	rgoto	USER_LCD_Strobe_Clr_End
 
 USER_LCD_Strobe_Clr3
-	;; (code for variable E output removed)
 	bcf	USER_LCD_LAT_E3, USER_LCD_PIN_E3
 	rgoto	USER_LCD_Strobe_Clr_End
 
 USER_LCD_Strobe_Clr_End
-	nop
-	nop
 	return
 
 
