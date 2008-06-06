@@ -52,15 +52,15 @@ void Timer(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Init(void) __wparam
 {
-  MIOS_LCD_Clear();
-  MIOS_LCD_CursorSet(0x00);
-  MIOS_LCD_PrintCString("Hello World 1");
-  USER_LCD_Select(1);
-  MIOS_LCD_PrintCString("Hello World 2");
-  USER_LCD_Select(2);
-  MIOS_LCD_PrintCString("Hello World 3");
-  USER_LCD_Select(3);
-  MIOS_LCD_PrintCString("Hello World 4");
+  unsigned char lcd;
+
+  for(lcd=0; lcd<4; ++lcd) {
+    USER_LCD_Select(lcd);
+    MIOS_LCD_Clear();
+    MIOS_LCD_CursorSet(0x00);
+    MIOS_LCD_PrintCString("Hello World ");
+    MIOS_LCD_PrintBCD1(lcd);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
