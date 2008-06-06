@@ -97,8 +97,7 @@ USER_Init
 	;; use LC_STAT.LC_STAT_GLCD as indicator if graphical LCD
 	;; or character LCD is connected
 	bcf	LC_STAT, LC_STAT_GLCD
-	call	MIOS_LCD_TypeGet
-	skpz
+	btfsc	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD
 	bsf	LC_STAT, LC_STAT_GLCD
 
 	;; initialize the AIN driver
