@@ -58,27 +58,77 @@
 ;; Pins of LC-Display
 USER_LCD_LAT_D		EQU	LATB	; Pin B.7-0
 USER_LCD_PORT_D	EQU     PORTB
-USER_LCD_TRIS_D	EQU     TRISB
 
 USER_LCD_LAT_RW	EQU     LATD
 USER_LCD_PIN_RW	EQU     6               ; Pin D.6
 USER_LCD_LAT_RS	EQU     LATD
 USER_LCD_PIN_RS	EQU     5               ; Pin D.5
 
+#ifndef USER_LCD_NUM_ENABLE_LINES
+#define USER_LCD_NUM_ENABLE_LINES	8
+#endif
+
+#ifndef USER_LCD_LAT_E0
 USER_LCD_LAT_E0	EQU     LATD		; Pin D.7
+#endif
+#ifndef USER_LCD_PIN_E0
 USER_LCD_PIN_E0	EQU     7
+#endif
+
+#ifndef USER_LCD_LAT_E1
 USER_LCD_LAT_E1	EQU     LATC		; Pin C.5
+#endif
+#ifndef USER_LCD_PIN_E1
 USER_LCD_PIN_E1	EQU     5
+#endif
+
+#ifndef USER_LCD_LAT_E2
 USER_LCD_LAT_E2	EQU     LATC		; Pin C.4
+#endif
+#ifndef USER_LCD_PIN_E2
 USER_LCD_PIN_E2	EQU     4
+#endif
+
+#ifndef USER_LCD_LAT_E3
 USER_LCD_LAT_E3	EQU     LATC		; Pin C.3
-USER_LCD_TRIS_E3 EQU    TRISC		; Pin C.3
+#endif
+#ifndef USER_LCD_PIN_E3
 USER_LCD_PIN_E3	EQU     3
+#endif
+
+#ifndef USER_LCD_LAT_E4
+USER_LCD_LAT_E4	EQU     LATB		; Pin B.0
+#endif
+#ifndef USER_LCD_PIN_E4
+USER_LCD_PIN_E4	EQU     0
+#endif
+
+#ifndef USER_LCD_LAT_E5
+USER_LCD_LAT_E5	EQU     LATB		; Pin B.1
+#endif
+#ifndef USER_LCD_PIN_E5
+USER_LCD_PIN_E5	EQU     1
+#endif
+
+#ifndef USER_LCD_LAT_E6
+USER_LCD_LAT_E6	EQU     LATB		; Pin B.2
+#endif
+#ifndef USER_LCD_PIN_E6
+USER_LCD_PIN_E6	EQU     2
+#endif
+
+#ifndef USER_LCD_LAT_E7
+USER_LCD_LAT_E7	EQU     LATB		; Pin B.3
+#endif
+#ifndef USER_LCD_PIN_E7
+USER_LCD_PIN_E7	EQU     3
+#endif
 
 ;; new names for CLCD registers
 USER_LCD_STATUS		EQU	MIOS_GLCD_TMP1
 USER_LCD_SELECT		EQU	MIOS_GLCD_TMP2
 USER_LCD_SC_CTR		EQU	MIOS_GLCD_TMP3
+USER_LCD_BUFFER		EQU	MIOS_GLCD_TMP4
 
 
 ;; --------------------------------------------------------------------------
@@ -88,8 +138,31 @@ USER_LCD_SC_CTR		EQU	MIOS_GLCD_TMP3
 ;;  Out: -
 ;; --------------------------------------------------------------------------
 USER_LCD_Init
-	bcf	USER_LCD_TRIS_E3, USER_LCD_PIN_E3
-	bcf	USER_LCD_LAT_E3, USER_LCD_PIN_E3
+	;; enable output drivers of all enable pins
+#if USER_LCD_NUM_ENABLE_LINES >= 1
+	bcf	USER_LCD_LAT_E0 + (TRISA-LATA), USER_LCD_PIN_E0
+#endif
+#if USER_LCD_NUM_ENABLE_LINES >= 2
+	bcf	USER_LCD_LAT_E1 + (TRISA-LATA), USER_LCD_PIN_E1
+#endif
+#if USER_LCD_NUM_ENABLE_LINES >= 3
+	bcf	USER_LCD_LAT_E2 + (TRISA-LATA), USER_LCD_PIN_E2
+#endif
+#if USER_LCD_NUM_ENABLE_LINES >= 4
+	bcf	USER_LCD_LAT_E3 + (TRISA-LATA), USER_LCD_PIN_E3
+#endif
+#if USER_LCD_NUM_ENABLE_LINES >= 5
+	bcf	USER_LCD_LAT_E4 + (TRISA-LATA), USER_LCD_PIN_E4
+#endif
+#if USER_LCD_NUM_ENABLE_LINES >= 6
+	bcf	USER_LCD_LAT_E5 + (TRISA-LATA), USER_LCD_PIN_E5
+#endif
+#if USER_LCD_NUM_ENABLE_LINES >= 7
+	bcf	USER_LCD_LAT_E6 + (TRISA-LATA), USER_LCD_PIN_E6
+#endif
+#if USER_LCD_NUM_ENABLE_LINES >= 8
+	bcf	USER_LCD_LAT_E7 + (TRISA-LATA), USER_LCD_PIN_E7
+#endif
 
 	;; notify that no graphical LCD is connected
 	bcf	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD
@@ -105,12 +178,15 @@ USER_LCD_Init
         bcf     USER_LCD_LAT_RW, USER_LCD_PIN_RW	; LCD_WRITE
         bcf     USER_LCD_LAT_RS, USER_LCD_PIN_RS	; USER_LCD_PIN_RS_0
 
-	;; initialize LCD
+	;; initialize LCDs
 	clrf	USER_LCD_SELECT, BANKED
 USER_LCD_Init_Loop
+	clrwdt			; feed watchdog
 	rcall	USER_LCD_Init_Cmds
 	incf	USER_LCD_SELECT, F, BANKED
-	BRA_IFCLR USER_LCD_SELECT, 2, BANKED, USER_LCD_Init_Loop	; currently 4 LCDs supported 
+	movf	USER_LCD_SELECT, W, BANKED
+	xorlw	USER_LCD_NUM_ENABLE_LINES
+	bnz	USER_LCD_Init_Loop
 
 	;; switch back to first LCD
 	clrf	USER_LCD_SELECT, BANKED
@@ -174,14 +250,21 @@ USER_LCD_Init_Cmds
 ;;  OUT: -
 ;; --------------------------------------------------------------------------
 USER_LCD_Data
-	;; store byte in data latch
-	movwf	USER_LCD_LAT_D
+	;; store data value in buffer
+	SET_BSR	USER_LCD_BUFFER
+	movwf	USER_LCD_BUFFER, BANKED
+
+	;; forward upper nibble to data port [7:4]
+	movlw	0x0f
+	andwf	USER_LCD_LAT_D, F
+	movf	USER_LCD_BUFFER, W, BANKED
+	andlw	0xf0
+	iorwf	USER_LCD_LAT_D, F
 
 	;; wait until display unbusy
 	rcall	USER_LCD_WaitUnbusy
 
 	;; exit if current LCD not available due to timeout
-	SET_BSR	USER_LCD_SELECT
 	movf	USER_LCD_SELECT, W, BANKED
 	call	MIOS_HLP_GetBitORMask
 	andwf	USER_LCD_STATUS, W, BANKED
@@ -198,7 +281,11 @@ USER_LCD_Data
 	rcall	USER_LCD_Strobe_Toggle
 
 	;; transfer lower 4 bit and exit
-	swapf	USER_LCD_LAT_D, F
+	movlw	0x0f
+	andwf	USER_LCD_LAT_D, F
+	swapf	USER_LCD_BUFFER, W, BANKED
+	andlw	0xf0
+	iorwf	USER_LCD_LAT_D, F
 	rgoto	USER_LCD_Strobe_Toggle
 
 
@@ -211,14 +298,21 @@ USER_LCD_Data
 ;;  OUT: -
 ;; --------------------------------------------------------------------------
 USER_LCD_Cmd
-	;; store byte in data latch
-	movwf	USER_LCD_LAT_D
+	;; store data value in buffer
+	SET_BSR	USER_LCD_BUFFER
+	movwf	USER_LCD_BUFFER, BANKED
+
+	;; forward upper nibble to data port [7:4]
+	movlw	0x0f
+	andwf	USER_LCD_LAT_D, F
+	movf	USER_LCD_BUFFER, W, BANKED
+	andlw	0xf0
+	iorwf	USER_LCD_LAT_D, F
 
 	;; wait until display unbusy
 	rcall	USER_LCD_WaitUnbusy
 
 	;; exit if current LCD not available due to timeout
-	SET_BSR	USER_LCD_SELECT
 	movf	USER_LCD_SELECT, W, BANKED
 	call	MIOS_HLP_GetBitORMask
 	andwf	USER_LCD_STATUS, W, BANKED
@@ -235,7 +329,11 @@ USER_LCD_Cmd
 	rcall	USER_LCD_Strobe_Toggle
 
 	;; transfer lower 4 bit and exit
-	swapf	USER_LCD_LAT_D, F
+	movlw	0x0f
+	andwf	USER_LCD_LAT_D, F
+	swapf	USER_LCD_BUFFER, W, BANKED
+	andlw	0xf0
+	iorwf	USER_LCD_LAT_D, F
 	rgoto	USER_LCD_Strobe_Toggle
 
 
@@ -256,7 +354,7 @@ USER_LCD_WaitUnbusy
 
 	;; turn off output drivers (upper 4 bits)
 	movlw	0xf0
-	iorwf	USER_LCD_TRIS_D, F
+	iorwf	USER_LCD_LAT_D + (TRISA-LATA), F
 
 	;; select command register
         bcf     USER_LCD_LAT_RS, USER_LCD_PIN_RS
@@ -289,7 +387,7 @@ USER_LCD_WaitUnbusy_UnBusy
 USER_LCD_WaitUnbusy_End
 	;; turn on output drivers again (upper 4 bits)
 	movlw	0x0f
-	andwf	USER_LCD_TRIS_D, F
+	andwf	USER_LCD_LAT_D + (TRISA-LATA), F
 	return
 
 USER_LCD_WaitUnbusy_Disable
@@ -308,29 +406,64 @@ USER_LCD_WaitUnbusy_Disable
 ;; --------------------------------------------------------------------------
 USER_LCD_Strobe_Set
 	;; code for variable E output removed
-	;; 4 additional enable outputs could be added here 
 	movf	USER_LCD_SELECT, W, BANKED
-	andlw	0x03
+	andlw	0x07
 	JUMPTABLE_2BYTES_UNSECURE
 	rgoto	USER_LCD_Strobe_Set0
 	rgoto	USER_LCD_Strobe_Set1
 	rgoto	USER_LCD_Strobe_Set2
 	rgoto	USER_LCD_Strobe_Set3
+	rgoto	USER_LCD_Strobe_Set4
+	rgoto	USER_LCD_Strobe_Set5
+	rgoto	USER_LCD_Strobe_Set6
+	rgoto	USER_LCD_Strobe_Set7
 
 USER_LCD_Strobe_Set0
+#if USER_LCD_NUM_ENABLE_LINES >= 1
 	bsf	USER_LCD_LAT_E0, USER_LCD_PIN_E0
+#endif
 	rgoto	USER_LCD_Strobe_Set_End
 
 USER_LCD_Strobe_Set1
+#if USER_LCD_NUM_ENABLE_LINES >= 2
 	bsf	USER_LCD_LAT_E1, USER_LCD_PIN_E1
+#endif
 	rgoto	USER_LCD_Strobe_Set_End
 
 USER_LCD_Strobe_Set2
+#if USER_LCD_NUM_ENABLE_LINES >= 3
 	bsf	USER_LCD_LAT_E2, USER_LCD_PIN_E2
+#endif
 	rgoto	USER_LCD_Strobe_Set_End
 
 USER_LCD_Strobe_Set3
+#if USER_LCD_NUM_ENABLE_LINES >= 4
 	bsf	USER_LCD_LAT_E3, USER_LCD_PIN_E3
+#endif
+	rgoto	USER_LCD_Strobe_Set_End
+
+USER_LCD_Strobe_Set4
+#if USER_LCD_NUM_ENABLE_LINES >= 5
+	bsf	USER_LCD_LAT_E4, USER_LCD_PIN_E4
+#endif
+	rgoto	USER_LCD_Strobe_Set_End
+
+USER_LCD_Strobe_Set5
+#if USER_LCD_NUM_ENABLE_LINES >= 6
+	bsf	USER_LCD_LAT_E5, USER_LCD_PIN_E5
+#endif
+	rgoto	USER_LCD_Strobe_Set_End
+
+USER_LCD_Strobe_Set6
+#if USER_LCD_NUM_ENABLE_LINES >= 7
+	bsf	USER_LCD_LAT_E6, USER_LCD_PIN_E6
+#endif
+	rgoto	USER_LCD_Strobe_Set_End
+
+USER_LCD_Strobe_Set7
+#if USER_LCD_NUM_ENABLE_LINES >= 8
+	bsf	USER_LCD_LAT_E7, USER_LCD_PIN_E7
+#endif
 	rgoto	USER_LCD_Strobe_Set_End
 
 USER_LCD_Strobe_Set_End
@@ -346,27 +479,63 @@ USER_LCD_Strobe_Clr
 	;; code for variable E output removed
 	;; 4 additional enable outputs could be added here 
 	movf	USER_LCD_SELECT, W, BANKED
-	andlw	0x03
+	andlw	0x07
 	JUMPTABLE_2BYTES_UNSECURE
 	rgoto	USER_LCD_Strobe_Clr0
 	rgoto	USER_LCD_Strobe_Clr1
 	rgoto	USER_LCD_Strobe_Clr2
 	rgoto	USER_LCD_Strobe_Clr3
+	rgoto	USER_LCD_Strobe_Clr4
+	rgoto	USER_LCD_Strobe_Clr5
+	rgoto	USER_LCD_Strobe_Clr6
+	rgoto	USER_LCD_Strobe_Clr7
 
 USER_LCD_Strobe_Clr0
+#if USER_LCD_NUM_ENABLE_LINES >= 1
 	bcf	USER_LCD_LAT_E0, USER_LCD_PIN_E0
+#endif
 	rgoto	USER_LCD_Strobe_Clr_End
 
 USER_LCD_Strobe_Clr1
+#if USER_LCD_NUM_ENABLE_LINES >= 2
 	bcf	USER_LCD_LAT_E1, USER_LCD_PIN_E1
+#endif
 	rgoto	USER_LCD_Strobe_Clr_End
 
 USER_LCD_Strobe_Clr2
+#if USER_LCD_NUM_ENABLE_LINES >= 3
 	bcf	USER_LCD_LAT_E2, USER_LCD_PIN_E2
+#endif
 	rgoto	USER_LCD_Strobe_Clr_End
 
 USER_LCD_Strobe_Clr3
+#if USER_LCD_NUM_ENABLE_LINES >= 4
 	bcf	USER_LCD_LAT_E3, USER_LCD_PIN_E3
+#endif
+	rgoto	USER_LCD_Strobe_Clr_End
+
+USER_LCD_Strobe_Clr4
+#if USER_LCD_NUM_ENABLE_LINES >= 5
+	bcf	USER_LCD_LAT_E4, USER_LCD_PIN_E4
+#endif
+	rgoto	USER_LCD_Strobe_Clr_End
+
+USER_LCD_Strobe_Clr5
+#if USER_LCD_NUM_ENABLE_LINES >= 6
+	bcf	USER_LCD_LAT_E5, USER_LCD_PIN_E5
+#endif
+	rgoto	USER_LCD_Strobe_Clr_End
+
+USER_LCD_Strobe_Clr6
+#if USER_LCD_NUM_ENABLE_LINES >= 7
+	bcf	USER_LCD_LAT_E6, USER_LCD_PIN_E6
+#endif
+	rgoto	USER_LCD_Strobe_Clr_End
+
+USER_LCD_Strobe_Clr7
+#if USER_LCD_NUM_ENABLE_LINES >= 8
+	bcf	USER_LCD_LAT_E7, USER_LCD_PIN_E7
+#endif
 	rgoto	USER_LCD_Strobe_Clr_End
 
 USER_LCD_Strobe_Clr_End
