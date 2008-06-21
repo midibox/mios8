@@ -362,7 +362,7 @@ MBFM_PAR_TABLE
 	db	CMD_PAR_7BIT,			MBFM_Ix_LFO1_DEPTH_A	; LFO1 AOUT depth
 	db	CMD_PAR_NOP,			0			; reserved
 	db	CMD_PAR_NOP,			0			; reserved
-	db	CMD_PAR_VELOCITY,               MBFM_Ix_VELOCITY_ASSIGN	; velocity parameter
+	db	CMD_PAR_7BIT,                   MBFM_Ix_VELOCITY_ASSIGN	; velocity parameter
 	db	CMD_PAR_VELOCITY,		MBFM_Ix_VELOCITY_INIT	; initial value
 	db	CMD_PAR_VELOCITY,		MBFM_Ix_VELOCITY_DEPTH	; depth
 	db	CMD_PAR_NOP,			0			; reserved
@@ -380,7 +380,7 @@ MBFM_PAR_TABLE
 	db	CMD_PAR_7BIT,			MBFM_Ix_LFO2_DEPTH_A	; LFO2 AOUT depth
 	db	CMD_PAR_NOP,			0			; reserved
 	db	CMD_PAR_NOP,			0			; reserved
-	db	CMD_PAR_AFTERTOUCH,             MBFM_Ix_AFTERTOUCH_ASSIGN ; aftertouch parameter
+	db	CMD_PAR_7BIT,                   MBFM_Ix_AFTERTOUCH_ASSIGN ; aftertouch parameter
 	db	CMD_PAR_AFTERTOUCH,		MBFM_Ix_AFTERTOUCH_INIT	; initial value
 	db	CMD_PAR_AFTERTOUCH,		MBFM_Ix_AFTERTOUCH_DEPTH ; depth
 	db	CMD_PAR_NOP,			0			; reserved
@@ -416,7 +416,7 @@ MBFM_PAR_TABLE
 	db	CMD_PAR_7BIT,			MBFM_Ix_WT_PAR2		; wt parameter #2
 	db	CMD_PAR_7BIT,			MBFM_Ix_WT_PAR3		; wt parameter #3
 	db	CMD_PAR_NOP,			0			; reserved
-	db	CMD_PAR_MODWHEEL,               MBFM_Ix_MODWHEEL_ASSIGN ; modwheel parameter
+	db	CMD_PAR_7BIT,                   MBFM_Ix_MODWHEEL_ASSIGN ; modwheel parameter
 	db	CMD_PAR_MODWHEEL,		MBFM_Ix_MODWHEEL_INIT	; initial value
 	db	CMD_PAR_MODWHEEL,		MBFM_Ix_MODWHEEL_DEPTH	; depth
 	db	CMD_PAR_NOP,			0			; reserved

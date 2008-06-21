@@ -194,6 +194,10 @@ void ROUTER_Rx_IIC3(unsigned char ptype, unsigned char evnt0, unsigned char evnt
   // lock/release this routing path on SysEx streams
   ROUTER_LockPathOnSysEx(PORT_IIC3, ptype);
 
+  // filter clock
+  if( evnt0 == 0xf8 )
+    return;
+
   if( ptype >= 0x08 && ptype <= 0x0e ) {
 
     // check if channel should be forced to specific value
@@ -226,7 +230,7 @@ void ROUTER_Rx_IIC3(unsigned char ptype, unsigned char evnt0, unsigned char evnt
 
   // forward data (also) to the Core MIDI OUT
 #if 1
-  // of no FE
+  // if no FE
   if( evnt0 != 0xfe )
 #endif
     if( !router_flags.IIC3_FWD_MBSID && !router_flags.IIC3_FWD_MBFM && !router_flags.IIC3_FWD_MBSEQ )

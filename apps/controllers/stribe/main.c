@@ -48,6 +48,8 @@ unsigned char last_conv_ctr[8];
 /////////////////////////////////////////////////////////////////////////////
 void Init(void) __wparam
 {
+  unsigned char stribe;
+
   // initialize LED drivers
   STRIBE_Init();
   stribe_flags.TRAIL_MODE = 1;
@@ -66,6 +68,11 @@ void Init(void) __wparam
 
   // initial filter delay
   ain_filter_delay = 20; // *5 mS
+
+  // set dots at lowest position
+  for(stribe=0; stribe<8; ++stribe) {
+    STRIBE_SetDot(stribe, stribe_flags.TRAIL_MODE ? stribe_flags.TRAIL_MASK : 3, 0);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
