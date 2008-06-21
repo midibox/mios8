@@ -49,9 +49,12 @@ CS_MENU_ENC_Handler
 	;; now [FSR1] = INDF1 = CS_MENU_PARAMETER_[LH] contains the result
 	;; MIOS_PARAMETER1[0] is set when value has been changed
 
+#if 0
 	;; do nothing if value has not been changed
 	btfss	MIOS_PARAMETER1, 0
 	return
+	;; TK: disabled - always update value for consistent LCD messages (e.g. value is max, knob has been turned clockwise: this should output the new parameter value)
+#endif
 
 	;; if main page (CS_MENU[7] set): update patch/ensemble and init sound
 	BRA_IFCLR CS_MENU, 7, ACCESS, CS_MENU_ENC_Handler_NotMainPage2

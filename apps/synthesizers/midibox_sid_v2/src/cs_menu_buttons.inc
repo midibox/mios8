@@ -792,17 +792,17 @@ CS_MENU_BUTTON_Fil_ExtIn
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
 	;; else increment Filter setting
 	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
-	andlw	0x03		; different cursor pos in bassline mode
-	xorlw	0x01
+	andlw	0x02		; different cursor pos in drum and multi mode (bit #1 of engine mode set)
+	xorlw	0x02
 
-	movlw	0x04		; cursor pos != bassline
-	skpnz
-	movlw	0x05		; cursor pos bassline mode
+	movlw	0x04		; cursor pos drum and multi
+	skpz
+	movlw	0x05		; cursor pos lead/bassline mode
 	movwf	MIOS_PARAMETER1
 
-	movlw	0x00		; page offset != bassline
-	skpnz
-	movlw	0x01		; page offset bassline mode
+	movlw	0x00		; page offset drum and multi
+	skpz
+	movlw	0x01		; page offset lead/bassline mode
 	movwf	MIOS_PARAMETER2
 	call	CS_MENU_GetMenuID_FIL	; menu page
 	goto	CS_MENU_ButtonInc

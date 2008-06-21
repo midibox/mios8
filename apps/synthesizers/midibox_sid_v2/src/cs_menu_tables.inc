@@ -199,7 +199,7 @@ CS_MENU_MAIN	EQU	0x80
 ;  The main menu
 ; ==========================================================================
 CS_MENU_TABLE_E_ROOT
-	db	(CS_MENU_TABLE_E_ROOT_End-CS_MENU_TABLE_E_ROOT)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_E_ROOT_End-CS_MENU_TABLE_E_ROOT)/CS_MENU_ENTRY_LEN, 0x00	; (no label used to avoid, that "ensemble" is print twice on screen, which looks ugly)
 
 	;;              Register (00=dummy)        |<->|   max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_E_SID,             "SID",  0x000, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP
@@ -212,7 +212,7 @@ CS_MENU_TABLE_E_ROOT_End
 
 
 CS_MENU_TABLE_L_ROOT
-	db	(CS_MENU_TABLE_L_ROOT_End-CS_MENU_TABLE_L_ROOT)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_ROOT_End-CS_MENU_TABLE_L_ROOT)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_LEAD
 
 	;;              Register (00=dummy)        |<->|   max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_L_OSC,             "OSC",  0x000, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP
@@ -233,7 +233,7 @@ CS_MENU_TABLE_L_ROOT_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_B_ROOT
-	db	(CS_MENU_TABLE_B_ROOT_End-CS_MENU_TABLE_B_ROOT)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_ROOT_End-CS_MENU_TABLE_B_ROOT)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_BASSLINE
 
 	;;              Register (00=dummy)        |<->|   max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_B_SEQ,             "SEQ",  0x000, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP
@@ -252,7 +252,7 @@ CS_MENU_TABLE_B_ROOT_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_D_ROOT
-	db	(CS_MENU_TABLE_D_ROOT_End-CS_MENU_TABLE_D_ROOT)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_D_ROOT_End-CS_MENU_TABLE_D_ROOT)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_DRUM
 
 	;;              Register (00=dummy)        |<->|   max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_D_SEQ,             "SEQ",  0x000, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP
@@ -268,7 +268,7 @@ CS_MENU_TABLE_D_ROOT_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_M_ROOT
-	db	(CS_MENU_TABLE_M_ROOT_End-CS_MENU_TABLE_M_ROOT)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_ROOT_End-CS_MENU_TABLE_M_ROOT)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_MULTI
 
 	;;              Register (00=dummy)        |<->|   max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_M_OSC,             "OSC",  0x000, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP
@@ -290,7 +290,7 @@ CS_MENU_TABLE_M_ROOT_End
 ;  Special Ensemble Menu Pages
 ; ==========================================================================
 CS_MENU_TABLE_E_SID
-	db	(CS_MENU_TABLE_E_SID_End-CS_MENU_TABLE_E_SID)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_E_SID_End-CS_MENU_TABLE_E_SID)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENS_SID
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_FLAGS, "SID", 0x003, PRINT_VAR_SID1234,EXEC_SELPAR,     R2PP2R_VAR_SID
@@ -303,7 +303,7 @@ CS_MENU_TABLE_E_SID_End
 
 
 CS_MENU_TABLE_E_CLK
-	db	(CS_MENU_TABLE_E_CLK_End-CS_MENU_TABLE_E_CLK)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_E_CLK_End-CS_MENU_TABLE_E_CLK)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENS_CLK
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_FLAGS, "SID", 0x003, PRINT_VAR_SID1234,EXEC_SELPAR,     R2PP2R_VAR_SID
@@ -313,7 +313,7 @@ CS_MENU_TABLE_E_CLK_End
 
 
 CS_MENU_TABLE_E_FIL
-	db	(CS_MENU_TABLE_E_FIL_End-CS_MENU_TABLE_E_FIL)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_E_FIL_End-CS_MENU_TABLE_E_FIL)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENS_FIL
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_FLAGS, "SID", 0x003, PRINT_VAR_SID1234,EXEC_SELPAR,     R2PP2R_VAR_SID
@@ -325,7 +325,7 @@ CS_MENU_TABLE_E_FIL_End
 
 
 CS_MENU_TABLE_E_INS
-	db	(CS_MENU_TABLE_E_INS_End-CS_MENU_TABLE_E_INS)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_E_INS_End-CS_MENU_TABLE_E_INS)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENS_INS
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_FLAGS, "SID", 0x003, PRINT_VAR_SID1234,EXEC_SELPAR,     R2PP2R_VAR_SID
@@ -337,7 +337,7 @@ CS_MENU_TABLE_E_INS
 CS_MENU_TABLE_E_INS_End
 
 CS_MENU_TABLE_E_EXT
-	db	(CS_MENU_TABLE_E_EXT_End-CS_MENU_TABLE_E_EXT)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_E_EXT_End-CS_MENU_TABLE_E_EXT)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENS_EXT
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_FLAGS, "SID", 0x003, PRINT_VAR_SID1234,EXEC_SELPAR,     R2PP2R_VAR_SID
@@ -358,7 +358,7 @@ CS_MENU_TABLE_E_EXT_End
 
 
 CS_MENU_TABLE_E_SAV
-	db	(CS_MENU_TABLE_E_SAV_End-CS_MENU_TABLE_E_SAV)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_E_SAV_End-CS_MENU_TABLE_E_SAV)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_SAVE
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SAVE_ENS,           "E# ", 0x07f, PRINT_SAVE_ENS,   EXEC_SELPAR,     R2PP2R_VAR
@@ -370,7 +370,7 @@ CS_MENU_TABLE_E_SAV_End
 ;  The oscillator menu
 ; ==========================================================================
 CS_MENU_TABLE_L_OSC
-	db	(CS_MENU_TABLE_L_OSC_End-CS_MENU_TABLE_L_OSC)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_OSC_End-CS_MENU_TABLE_L_OSC)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_OSC
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_OSC_FLAGS, "OSC", 0x006, PRINT_VAR_123,    EXEC_SELPAR,     R2PP2R_VAR_OSC
@@ -398,7 +398,7 @@ CS_MENU_TABLE_L_OSC_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_M_OSC
-	db	(CS_MENU_TABLE_M_OSC_End-CS_MENU_TABLE_M_OSC)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_OSC_End-CS_MENU_TABLE_M_OSC)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_OSC
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_INS,       "Ins", 0x005, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -425,7 +425,7 @@ CS_MENU_TABLE_M_OSC_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_B_OSC
-	db	(CS_MENU_TABLE_B_OSC_End-CS_MENU_TABLE_B_OSC)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_OSC_End-CS_MENU_TABLE_B_OSC)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_OSC
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_LR,    "ACh", 0x002, PRINT_VAR_LR,     EXEC_TOGPAR,     R2PP2R_VAR_SIDLR
@@ -451,7 +451,7 @@ CS_MENU_TABLE_B_OSC_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_D_DRM
-	db	(CS_MENU_TABLE_D_DRM_End-CS_MENU_TABLE_D_DRM)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_D_DRM_End-CS_MENU_TABLE_D_DRM)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_INS
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_INS,       "Ins", 0x00f, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -473,7 +473,7 @@ CS_MENU_TABLE_D_DRM_End
 ;  The filter menu
 ; ==========================================================================
 CS_MENU_TABLE_L_FIL
-	db	(CS_MENU_TABLE_L_FIL_End-CS_MENU_TABLE_L_FIL)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_FIL_End-CS_MENU_TABLE_L_FIL)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_FIL
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	SID_Ix_L_Fx_CHN_MODE,       "Chn", 0x007, PRINT_Fx_CHN,     EXEC_SELPAR,     R2PP2R_Fx_CHN
@@ -489,7 +489,7 @@ CS_MENU_TABLE_L_FIL_End
 
 CS_MENU_TABLE_M_FIL
 CS_MENU_TABLE_D_FIL
-	db	(CS_MENU_TABLE_M_FIL_End-CS_MENU_TABLE_M_FIL)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_FIL_End-CS_MENU_TABLE_M_FIL)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_FIL
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	SID_Ix_L_Fx_CHN_MODE,       "Chn", 0x007, PRINT_Fx_CHN,     EXEC_SELPAR,     R2PP2R_Fx_CHN
@@ -503,7 +503,7 @@ CS_MENU_TABLE_M_FIL_End
 
 
 CS_MENU_TABLE_B_FIL
-	db	(CS_MENU_TABLE_B_FIL_End-CS_MENU_TABLE_B_FIL)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_FIL_End-CS_MENU_TABLE_B_FIL)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_FIL
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	SID_Ix_L_Fx_CHN_MODE,       "Chn", 0x007, PRINT_Fx_CHN,     EXEC_SELPAR,     R2PP2R_Fx_CHN
@@ -521,7 +521,7 @@ CS_MENU_TABLE_B_FIL_End
 ;  The LFO menu
 ; ==========================================================================
 CS_MENU_TABLE_L_LFO
-	db	(CS_MENU_TABLE_L_LFO_End-CS_MENU_TABLE_L_LFO)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_LFO_End-CS_MENU_TABLE_L_LFO)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_LFO
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_LFO,       "LFO", 0x005, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -537,7 +537,7 @@ CS_MENU_TABLE_L_LFO_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_M_LFO
-	db	(CS_MENU_TABLE_M_LFO_End-CS_MENU_TABLE_M_LFO)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_LFO_End-CS_MENU_TABLE_M_LFO)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_LFO
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_INS,       "Ins", 0x005, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -557,7 +557,7 @@ CS_MENU_TABLE_M_LFO_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_B_LFO
-	db	(CS_MENU_TABLE_B_LFO_End-CS_MENU_TABLE_B_LFO)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_LFO_End-CS_MENU_TABLE_B_LFO)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_LFO
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_LR,    "ACh", 0x002, PRINT_VAR_LR,     EXEC_TOGPAR,     R2PP2R_VAR_SIDLR
@@ -580,7 +580,7 @@ CS_MENU_TABLE_B_LFO_End
 ;  The envelope menu
 ; ==========================================================================
 CS_MENU_TABLE_L_ENV
-	db	(CS_MENU_TABLE_L_ENV_End-CS_MENU_TABLE_L_ENV)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_ENV_End-CS_MENU_TABLE_L_ENV)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENV
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_ENV,       "ENV", 0x001, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -606,7 +606,7 @@ CS_MENU_TABLE_L_ENV_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_M_ENV
-	db	(CS_MENU_TABLE_M_ENV_End-CS_MENU_TABLE_M_ENV)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_ENV_End-CS_MENU_TABLE_M_ENV)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENV
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_INS,       "Ins", 0x005, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -624,7 +624,7 @@ CS_MENU_TABLE_M_ENV_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_B_ENV
-	db	(CS_MENU_TABLE_B_ENV_End-CS_MENU_TABLE_B_ENV)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_ENV_End-CS_MENU_TABLE_B_ENV)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENV
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_LR,    "ACh", 0x002, PRINT_VAR_LR,     EXEC_TOGPAR,     R2PP2R_VAR_SIDLR
@@ -646,7 +646,7 @@ CS_MENU_TABLE_B_ENV_End
 ;  The modulation matrix menu
 ; ==========================================================================
 CS_MENU_TABLE_L_MOD
-	db	(CS_MENU_TABLE_L_MOD_End-CS_MENU_TABLE_L_MOD)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_MOD_End-CS_MENU_TABLE_L_MOD)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_MOD
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_MOD,       "MOD", 0x007, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -672,7 +672,7 @@ CS_MENU_TABLE_L_MOD_End
 ;  The trigger matrix menu
 ; ==========================================================================
 CS_MENU_TABLE_L_TRG
-	db	(CS_MENU_TABLE_L_TRG_End-CS_MENU_TABLE_L_TRG)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_TRG_End-CS_MENU_TABLE_L_TRG)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_TRG
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_TRG,       "TRG", 0x00d, PRINT_TRGx_SRC,   EXEC_SELPAR,     R2PP2R_VAR
@@ -707,7 +707,7 @@ CS_MENU_TABLE_L_TRG_End
 ;  The configuration menu
 ; ==========================================================================
 CS_MENU_TABLE_L_CFG
-	db	(CS_MENU_TABLE_L_CFG_End-CS_MENU_TABLE_L_CFG)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_CFG_End-CS_MENU_TABLE_L_CFG)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_CFG
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	SID_Ix_L_VOLUME,            "Vol", 0x07f, PRINT_DEC8,       EXEC_SELPAR,     R2PP2R_PAR8
@@ -719,7 +719,7 @@ CS_MENU_TABLE_L_CFG_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_M_CFG
-	db	(CS_MENU_TABLE_M_CFG_End-CS_MENU_TABLE_M_CFG)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_CFG_End-CS_MENU_TABLE_M_CFG)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_CFG
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_INS,       "Ins", 0x005, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -737,7 +737,7 @@ CS_MENU_TABLE_M_CFG_End
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_B_CFG
 CS_MENU_TABLE_D_CFG
-	db	(CS_MENU_TABLE_B_CFG_End-CS_MENU_TABLE_B_CFG)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_CFG_End-CS_MENU_TABLE_B_CFG)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_CFG
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_LR,    "ACh", 0x002, PRINT_VAR_LR,     EXEC_TOGPAR,     R2PP2R_VAR_SIDLR
@@ -751,7 +751,7 @@ CS_MENU_TABLE_B_CFG_End
 ;  The arpeggiator menu
 ; ==========================================================================
 CS_MENU_TABLE_L_ARP
-	db	(CS_MENU_TABLE_L_ARP_End-CS_MENU_TABLE_L_ARP)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_ARP_End-CS_MENU_TABLE_L_ARP)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ARP
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_OSC_FLAGS, "OSC", 0x006, PRINT_VAR_123,    EXEC_SELPAR,     R2PP2R_VAR_OSC
@@ -769,7 +769,7 @@ CS_MENU_TABLE_L_ARP_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_M_ARP
-	db	(CS_MENU_TABLE_M_ARP_End-CS_MENU_TABLE_M_ARP)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_ARP_End-CS_MENU_TABLE_M_ARP)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ARP
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_INS,       "Ins", 0x005, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -788,7 +788,7 @@ CS_MENU_TABLE_M_ARP_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_B_ARP
-	db	(CS_MENU_TABLE_B_ARP_End-CS_MENU_TABLE_B_ARP)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_ARP_End-CS_MENU_TABLE_B_ARP)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ARP
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_LR,    "ACh", 0x002, PRINT_VAR_LR,     EXEC_TOGPAR,     R2PP2R_VAR_SIDLR
@@ -811,7 +811,7 @@ CS_MENU_TABLE_B_ARP_End
 CS_MENU_TABLE_L_KNB
 CS_MENU_TABLE_M_KNB
 CS_MENU_TABLE_D_KNB
-	db	(CS_MENU_TABLE_L_KNB_End-CS_MENU_TABLE_L_KNB)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_KNB_End-CS_MENU_TABLE_L_KNB)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_KNB
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	SID_KNOB_1,                 "K#1", 0x0ff, PRINT_KNB_VALUE,  EXEC_SELPAR,     R2PP2R_KNB_VALUE
@@ -831,7 +831,7 @@ CS_MENU_TABLE_L_KNB_End
 
 
 CS_MENU_TABLE_B_KNB
-	db	(CS_MENU_TABLE_B_KNB_End-CS_MENU_TABLE_B_KNB)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_KNB_End-CS_MENU_TABLE_B_KNB)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_KNB
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	SID_KNOB_1,                 "Cut", 0x0ff, PRINT_KNB_VALUE,  EXEC_SELPAR,     R2PP2R_KNB_VALUE
@@ -857,7 +857,7 @@ CS_MENU_TABLE_L_EXT
 CS_MENU_TABLE_M_EXT
 CS_MENU_TABLE_B_EXT
 CS_MENU_TABLE_D_EXT
-	db	(CS_MENU_TABLE_L_EXT_End-CS_MENU_TABLE_L_EXT)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_EXT_End-CS_MENU_TABLE_L_EXT)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_EXT
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	SID_Ix_EXT_PAR1_L,          "A#1", 0xfff, PRINT_EXT_VALUE, EXEC_SELPAR,     R2PP2R_EXT_VALUE
@@ -883,7 +883,7 @@ CS_MENU_TABLE_L_EXT_End
 ;  The wavetable configuration menu
 ; ==========================================================================
 CS_MENU_TABLE_L_WTC
-	db	(CS_MENU_TABLE_L_WTC_End-CS_MENU_TABLE_L_WTC)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_WTC_End-CS_MENU_TABLE_L_WTC)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_WTC
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_WT,        " WT", 0x003, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -900,7 +900,7 @@ CS_MENU_TABLE_L_WTC_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_M_WTC
-	db	(CS_MENU_TABLE_M_WTC_End-CS_MENU_TABLE_M_WTC)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_WTC_End-CS_MENU_TABLE_M_WTC)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_WTC
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_INS,       "Ins", 0x005, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
@@ -915,7 +915,7 @@ CS_MENU_TABLE_M_WTC_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_B_SQC
-	db	(CS_MENU_TABLE_B_SQC_End-CS_MENU_TABLE_B_SQC)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_SQC_End-CS_MENU_TABLE_B_SQC)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_SQC
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_SID_LR,    "ACh", 0x002, PRINT_VAR_LR,     EXEC_TOGPAR,     R2PP2R_VAR_SIDLR
@@ -930,7 +930,7 @@ CS_MENU_TABLE_B_SQC_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_D_SQC
-	db	(CS_MENU_TABLE_D_SQC_End-CS_MENU_TABLE_D_SQC)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_D_SQC_End-CS_MENU_TABLE_D_SQC)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_SQC
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	SID_Ix_D_SEQ_SPEED,         "On ", 0x001, PRINT_D_SEQ_ON,   EXEC_TOGPAR,     R2PP2R_WTx_B6
@@ -946,7 +946,7 @@ CS_MENU_TABLE_D_SQC_End
 ;  The wavetable editor
 ; ==========================================================================
 CS_MENU_TABLE_L_WTE
-	db	(CS_MENU_TABLE_L_WTE_End-CS_MENU_TABLE_L_WTE)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_WTE_End-CS_MENU_TABLE_L_WTE)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_WTE
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_WT_POS,             "Pos", 0x080, PRINT_WTE_POS,   EXEC_SELPAR,     R2PP2R_VAR
@@ -960,7 +960,7 @@ CS_MENU_TABLE_L_WTE_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_M_WTE
-	db	(CS_MENU_TABLE_M_WTE_End-CS_MENU_TABLE_M_WTE)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_WTE_End-CS_MENU_TABLE_M_WTE)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_WTE
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_WT_POS,             "Pos", 0x080, PRINT_WTE_POS,   EXEC_SELPAR,     R2PP2R_VAR
@@ -976,7 +976,7 @@ CS_MENU_TABLE_M_WTE_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_B_SEQ
-	db	(CS_MENU_TABLE_B_SEQ_End-CS_MENU_TABLE_B_SEQ)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_SEQ_End-CS_MENU_TABLE_B_SEQ)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_SEQ
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_WT_SEQ,             "Seq", 0x007, PRINT_VAR_DECP1, EXEC_SELPAR,     R2PP2R_VAR
@@ -994,7 +994,7 @@ CS_MENU_TABLE_B_SEQ_End
 
 ; --------------------------------------------------------------------------
 CS_MENU_TABLE_D_SEQ
-	db	(CS_MENU_TABLE_D_SEQ_End-CS_MENU_TABLE_D_SEQ)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_D_SEQ_End-CS_MENU_TABLE_D_SEQ)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_SEQ
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_WT_SEQ,             "Seq", 0x007, PRINT_VAR_DECP1, EXEC_SELPAR,     R2PP2R_VAR
@@ -1011,7 +1011,7 @@ CS_MENU_TABLE_D_SEQ_End
 ;  The random generator menu
 ; ==========================================================================
 CS_MENU_TABLE_L_RND
-	db	(CS_MENU_TABLE_L_RND_End-CS_MENU_TABLE_L_RND)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_RND_End-CS_MENU_TABLE_L_RND)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_RND
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	0x00,                       "All", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
@@ -1028,7 +1028,7 @@ CS_MENU_TABLE_L_RND
 CS_MENU_TABLE_L_RND_End
 
 CS_MENU_TABLE_M_RND
-	db	(CS_MENU_TABLE_M_RND_End-CS_MENU_TABLE_M_RND)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_M_RND_End-CS_MENU_TABLE_M_RND)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_RND
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	0x00,                       "All", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
@@ -1044,7 +1044,7 @@ CS_MENU_TABLE_M_RND_End
 
 
 CS_MENU_TABLE_B_RND
-	db	(CS_MENU_TABLE_B_RND_End-CS_MENU_TABLE_B_RND)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_B_RND_End-CS_MENU_TABLE_B_RND)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_RND
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	0x00,                       "All", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
@@ -1063,7 +1063,7 @@ CS_MENU_TABLE_B_RND_End
 
 
 CS_MENU_TABLE_D_RND
-	db	(CS_MENU_TABLE_D_RND_End-CS_MENU_TABLE_D_RND)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_D_RND_End-CS_MENU_TABLE_D_RND)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_RND
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	0x00,                       "All", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
@@ -1082,7 +1082,7 @@ CS_MENU_TABLE_L_SAV
 CS_MENU_TABLE_B_SAV
 CS_MENU_TABLE_D_SAV
 CS_MENU_TABLE_M_SAV
-	db	(CS_MENU_TABLE_L_SAV_End-CS_MENU_TABLE_L_SAV)/CS_MENU_ENTRY_LEN, 0x00
+	db	(CS_MENU_TABLE_L_SAV_End-CS_MENU_TABLE_L_SAV)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_SAVE
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SAVE_BANK,          "B# ", 0x007, PRINT_SAVE_BNK,   EXEC_SELPAR,     R2PP2R_VAR

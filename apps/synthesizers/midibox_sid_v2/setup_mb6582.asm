@@ -25,7 +25,20 @@
 	;;      10 for 2x40 displays
 #define CS_MENU_DISPLAYED_ITEMS 5
 	;; NOTE: if CS_MENU_DISPLAYED_ITEMS > 5, you have to adapt the DIN settings
-	;; in cs_menu_io_tables.inc
+	;; in CS_MENU_DIN_TABLE below
+
+	;; number of LCD lines (supported: 2 for 2x* LCDs and 4 for 4x* LCDs)
+#define DEFAULT_LCD_LINES 4
+
+	;; LCD line -> cursor offsets
+#define DEFAULT_LCD_LINE_Y0	0x40
+#define DEFAULT_LCD_LINE_Y1	0x14
+#define DEFAULT_LCD_LINE_Y2	0x00
+#define DEFAULT_LCD_LINE_Y3	0x54
+
+	;; 1: LCD cursor will be set to current parameter position (clashes with meter bar which is enabled with DEFAULT_LCD_LINES >= 4)
+	;; 0: disable this feature
+#define DEFAULT_LCD_PRINT_CURSOR 0
 
 	;; Inc/Dec buttons or rotary encoder of data entry?
 	;; use:  0 if rotary encoder should be used 

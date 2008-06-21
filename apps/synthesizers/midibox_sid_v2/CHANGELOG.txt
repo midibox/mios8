@@ -486,10 +486,23 @@ RC20:
 RC21:
   o added "Log" flag to ENS->FIL menu: cutoff frequency converted through log function
     to achieve better linearisation of 8580 filter
-  o Filter Keytrack parameter now also available for Lead Engine
+  o Filter Keytrack parameter now also available for Lead Engine, the scaling has been slightly
+    changed, so that the maximum value 255 leads to 1:1 tracking (e.g. if 8580 Log function activated,
+    or an external filter is connected)
   o added "DOR" flag to the ENS->SID menu: Disable automatic Oscillator Reset during patch change
     could also be called DAORDPC flag ;-)
-
+  o support for 4x20 LCD has used for MB-6582: DEFAULT_LCD_LINES and DEFAULT_LCD_LINE_Y* can
+    be configured in the setup_*.asm file
+  o MB-6582 screen now centered at 2nd and 3rd line
+  o if DEFAULT_LCD_LINES >= 3, the name of the menu will be print at the upper line
+    TODO: add more informative messages, e.g. selected oscillators, audio channel, LFO, etc...
+  o if DEFAULT_LCD_LINES >= 4: the value of the currently edited parameter will be displayed
+    as horizontal meter at the lower LCD line
+    TODO: display bidirectional parameters like "depth" with a left/right splitted meter
+    TODO: update when a new OSC/Channel/SID is selected
+  o the "blinking LCD cursor" which was set to the selected parameter position is
+    disabled by default now (DEFAULT_LCD_PRINT_CURSOR set to 0), since it clashes with
+    the horizontal meter output routine
 
 MEMO:
   - in Bassline mode, CCs could control individual knob parameters for

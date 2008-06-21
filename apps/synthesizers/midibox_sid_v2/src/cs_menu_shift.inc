@@ -15,9 +15,11 @@
 ;; --------------------------------------------------------------------------
 CS_MENU_SHIFT_STR_0 STRING 20, 0x00,   "SID1 E. Ply Ini Dmp "
 CS_MENU_SHIFT_PrintUL
+#if DEFAULT_LCD_PRINT_CURSOR
 	;; if CLCD: disable blinking CLCD cursor
 	movlw	0x0c
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd	
+#endif
 
 	TABLE_ADDR CS_MENU_SHIFT_STR_0
 	call	MIOS_LCD_PrintString
@@ -100,9 +102,12 @@ CS_MENU_SHIFT_PrintLL_E
 
 CS_MENU_SHIFT_PrintLL_P_Cont
 
+#if DEFAULT_LCD_LINES <= 2
 	;; fill
 	movlw	20
-	goto	CS_MENU_Hlp_PrintSpaces
+	call	CS_MENU_Hlp_PrintSpaces
+#endif
+	return
 
 	
 	;; help functions
@@ -211,8 +216,11 @@ CS_MENU_SHIFT_Button_Init_P
 	;; print message and exit
 	TABLE_ADDR CS_MENU_SHIFT_Button_Init_MSG_P
 	rcall	CS_MENU_SHIFT_Message
+#if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	goto	CS_MENU_Hlp_PrintSpaces
+	call	CS_MENU_Hlp_PrintSpaces
+#endif
+	return
 
 CS_MENU_SHIFT_Button_Init_E
 	;; initialize ensemble
@@ -221,8 +229,11 @@ CS_MENU_SHIFT_Button_Init_E
 	;; print message and exit
 	TABLE_ADDR CS_MENU_SHIFT_Button_Init_MSG_E
 	rcall	CS_MENU_SHIFT_Message
+#if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	goto	CS_MENU_Hlp_PrintSpaces
+	call	CS_MENU_Hlp_PrintSpaces
+#endif
+	return
 
 #if 0
 CS_MENU_SHIFT_Button_Rnd_MSG	STRING 20, 0x40, " --- Randomized --- "
@@ -236,8 +247,11 @@ CS_MENU_SHIFT_Button_Rnd
 	;; print message and exit
 	TABLE_ADDR CS_MENU_SHIFT_Button_Rnd_MSG
 	rcall	CS_MENU_SHIFT_Message
+#if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	goto	CS_MENU_Hlp_PrintSpaces
+	call	CS_MENU_Hlp_PrintSpaces
+#endif
+	return
 #else
 CS_MENU_SHIFT_Button_Off_MSG	STRING 20, 0x40, "-- All Notes Off -- "
 CS_MENU_SHIFT_Button_On_MSG	STRING 20, 0x40, "-- Playing Patch -- "
@@ -262,8 +276,11 @@ CS_MENU_SHIFT_Button_Play_Off
 
 CS_MENU_SHIFT_Button_Play_Cont
 	rcall	CS_MENU_SHIFT_Message
+#if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	goto	CS_MENU_Hlp_PrintSpaces
+	call	CS_MENU_Hlp_PrintSpaces
+#endif
+	return
 #endif
 
 
@@ -290,8 +307,10 @@ CS_MENU_SHIFT_Button_SyxD_P
 	
 CS_MENU_SHIFT_Button_SyxD_E_Cont
 	rcall	CS_MENU_SHIFT_Message
+#if DEFAULT_LCD_LINES <= 2
 	movlw	20
 	call	CS_MENU_Hlp_PrintSpaces
+#endif
 
 	call	SID_SYSEX_SendDump_Edit
 

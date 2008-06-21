@@ -106,53 +106,47 @@ CS_MENU_SAVE_BANK	EQU	0x030	; contains the bank number for save function
 CS_MENU_REINIT_CFG_CTR	EQU	0x031	; reinit configuration if counter == 1
 CS_MENU_NAME_POS	EQU	0x032	; for the "edit name" mode
 CS_MENU_SID		EQU	0x033	; number of SID which is currently handled
-CS_MENU_SID_M_PATCH	EQU	0x034	; patch number of master	;(don't change the order of these 4 registers)
-CS_MENU_SID_S1_PATCH	EQU	0x035	; patch number of first slave
-CS_MENU_SID_S2_PATCH	EQU	0x036	; patch number of second slave
-CS_MENU_SID_S3_PATCH	EQU	0x037	; patch number of third slave
-CS_MENU_SID_M_BANK	EQU	0x038	; bank number of master	        ;(don't change the order of these 4 registers)
-CS_MENU_SID_S1_BANK	EQU	0x039	; bank number of first slave
-CS_MENU_SID_S2_BANK	EQU	0x03a	; bank number of second slave
-CS_MENU_SID_S3_BANK	EQU	0x03b	; bank number of third slave
-CS_MENU_SID_M_CHN	EQU	0x03c	; MIDI channel of master	;(don't change the order of these 4 registers)
-CS_MENU_SID_S1_CHN	EQU	0x03d	; MIDI channel of first slave
-CS_MENU_SID_S2_CHN	EQU	0x03e	; MIDI channel of second slave
-CS_MENU_SID_S3_CHN	EQU	0x03f	; MIDI channel of third slave
-CS_MENU_TX_M_CTR	EQU	0x040	; transmit counter master, if > 0, patch tx will be delayed
-CS_MENU_TX_S1_CTR	EQU	0x041	; transmit counter master, if > 0, patch tx will be delayed
-CS_MENU_TX_S2_CTR	EQU	0x042	; transmit counter master, if > 0, patch tx will be delayed
-CS_MENU_TX_S3_CTR	EQU	0x043	; transmit counter master, if > 0, patch tx will be delayed
-CS_MENU_SELECTED_SID_FLAGS EQU  0x044	; every flag stays for one SID
-CS_MENU_SELECTED_SID_LR	EQU	0x045	; selected SID L/R
-CS_MENU_SELECTED_INS	EQU	0x046	; the selected ensemble
-CS_MENU_SELECTED_OSC	EQU	0x047	; the selected oscillator
-CS_MENU_SELECTED_OSC_FLAGS EQU	0x048	; every flag stays for one oscillator
-CS_MENU_SELECTED_OSC_CTRL EQU	0x049	; selects Env/Misc and Assign
-CS_MENU_SELECTED_LFO	EQU	0x04a	; the selected LFO
-CS_MENU_SELECTED_ENV	EQU	0x04b	; the selected envelope
-CS_MENU_SELECTED_ENV_CTRL EQU	0x04c	; selects Env/Assign
-CS_MENU_SELECTED_MOD	EQU	0x04d	; the selected mod entry
-CS_MENU_SELECTED_MOD_SRC EQU	0x04e	; the selected mod source entry
-CS_MENU_SELECTED_MOD_TARG EQU	0x04f	; the selected mod target entry
-CS_MENU_SELECTED_TRG	EQU	0x050	; the selected trigger entry
+CS_MENU_PARAMETER_IX	EQU	0x034	; the parameter index (offset within Ix record) which is modified
+CS_MENU_USED_ENCODER	EQU	0x035	; used by cs_menu_enc.inc for FAST function
+CS_MENU_ENC_INCREMENTER EQU     0x036   ; allows to determine the incrementer value of the encoder which modified the item
+CS_MENU_GET_PATCH_ADDR_L EQU	0x037	; used by cs_menu_mbnet.inc to fetch a patch stepwise
+CS_MENU_GET_PATCH_ADDR_H EQU	0x038	; used by cs_menu_mbnet.inc to fetch a patch stepwise
+CS_MENU_MATRIX_CTR	EQU	0x039	; counter used by CS_MENU_MATRIX_Handler
+CS_MENU_MATRIX_FLASH_CTR EQU	0x03a	; counter used by CS_MENU_MATRIX_Handler
+CS_MENU_MATRIX_SELECTED_ROW EQU	0x03b	; selected matrix row (every button has one flag)
+CS_MENU_MATRIX_SELECTED_COL EQU	0x03c	; selected matrix column (every button has one flag)
+CS_MENU_EDIT_BUFFER_SID EQU	0x03d	; reference to SID patch which is stored in edit buffer
+CS_MENU_SELECTED_SID_FLAGS EQU  0x03e	; every flag stays for one SID
+CS_MENU_SELECTED_SID_LR	EQU	0x03f	; selected SID L/R
+CS_MENU_SELECTED_INS	EQU	0x040	; the selected ensemble
+CS_MENU_SELECTED_OSC	EQU	0x041	; the selected oscillator
+CS_MENU_SELECTED_OSC_FLAGS EQU	0x042	; every flag stays for one oscillator
+CS_MENU_SELECTED_OSC_CTRL EQU	0x043	; selects Env/Misc and Assign
+CS_MENU_SELECTED_LFO	EQU	0x044	; the selected LFO
+CS_MENU_SELECTED_ENV	EQU	0x045	; the selected envelope
+CS_MENU_SELECTED_ENV_CTRL EQU	0x046	; selects Env/Assign
+CS_MENU_SELECTED_MOD	EQU	0x047	; the selected mod entry
+CS_MENU_SELECTED_MOD_SRC EQU	0x048	; the selected mod source entry
+CS_MENU_SELECTED_MOD_TARG EQU	0x049	; the selected mod target entry
+CS_MENU_SELECTED_TRG	EQU	0x04a	; the selected trigger entry
 CS_MENU_SELECTED_TRK	EQU	CS_MENU_SELECTED_TRG	; only for drum engine: selected sequencer track
-CS_MENU_SELECTED_KNOB	EQU	0x051	; the selected knob entry
-CS_MENU_SELECTED_WT	EQU	0x052	; the selected wavetable
-SAVED_CS_MENU		EQU	0x053	; used by cs_menu.inc::CS_MENU_ButtonInc
+CS_MENU_SELECTED_KNOB	EQU	0x04b	; the selected knob entry
+CS_MENU_SELECTED_WT	EQU	0x04c	; the selected wavetable
+SAVED_CS_MENU		EQU	0x04d	; used by cs_menu.inc::CS_MENU_ButtonInc
 SAVED_CS_ENGINE		EQU	SAVED_CS_MENU ;  used by cs_menu_buttons.inc::CS_MENU_SID, can be overlayed 
-SAVED_CS_MENU_PAGE_OFFSET EQU	0x054	; used by cs_menu.inc::CS_MENU_ButtonInc
-SAVED_CS_MENU_CURSOR_POS EQU	0x055	; used by cs_menu.inc::CS_MENU_ButtonInc
-CS_MENU_PARAMETER_IX	EQU	0x056	; the parameter index (offset within Ix record) which is modified
-CS_MENU_USED_ENCODER	EQU	0x057	; used by cs_menu_enc.inc for FAST function
-CS_MENU_ENC_INCREMENTER EQU     0x058   ; allows to determine the incrementer value of the encoder which modified the item
-CS_MENU_GET_PATCH_ADDR_L EQU	0x059	; used by cs_menu_mbnet.inc to fetch a patch stepwise
-CS_MENU_GET_PATCH_ADDR_H EQU	0x05a	; used by cs_menu_mbnet.inc to fetch a patch stepwise
-CS_MENU_MATRIX_CTR	EQU	0x05b	; counter used by CS_MENU_MATRIX_Handler
-CS_MENU_MATRIX_FLASH_CTR EQU	0x05c	; counter used by CS_MENU_MATRIX_Handler
-CS_MENU_MATRIX_SELECTED_ROW EQU	0x05d	; selected matrix row (every button has one flag)
-CS_MENU_MATRIX_SELECTED_COL EQU	0x05e	; selected matrix column (every button has one flag)
-CS_MENU_EDIT_BUFFER_SID EQU	0x05f	; reference to SID patch which is stored in edit buffer
+SAVED_CS_MENU_PAGE_OFFSET EQU	0x04e	; used by cs_menu.inc::CS_MENU_ButtonInc
+SAVED_CS_MENU_CURSOR_POS EQU	0x04f	; used by cs_menu.inc::CS_MENU_ButtonInc
+CS_MENU_LASTPAGE_ENG_0	EQU	0x050	; last selected page of lead engine (used in cs_menu_buttons.inc, see comments there)
+CS_MENU_LASTPAGE_ENG_1	EQU	0x051	; last selected page of bassline engine (don't change offset to _0 entry)
+CS_MENU_LASTPAGE_ENG_2	EQU	0x052	; last selected page of drum engine (don't change offset to _0 entry)
+CS_MENU_LASTPAGE_ENG_3	EQU	0x053	; last selected page of multi engine (don't change offset to _0 entry)
+CS_MENU_METER_BAR_CTR	EQU	0x054	; cs_menu.inc: used for meter bar at lower LCD line
+CS_MENU_METER_BAR_VALUE EQU	0x055	; cs_menu.inc: value of this meter
+CS_MENU_DELAYED_UPDATE_CTR EQU  0x056   ; cs_menu.inc: used to delay LCD update by some mS
+CS_MENU_LABEL		EQU	0x057	; label ID of current menu page
+CS_MENU_LABEL_CTR	EQU	0x058	; counter for printing label piecewise
 
+	;; free: 0x59-0x5f
 
 ;; ==========================================================================
 ;; NOTE for PIC18F4685: 0x60-0x7f NOT directly accessible via ACCESS bank!
@@ -160,16 +154,26 @@ CS_MENU_EDIT_BUFFER_SID EQU	0x05f	; reference to SID patch which is stored in ed
 CS_MENU_MATRIX_BEGIN	EQU	0x060	; content of modulation matrix (8 entries)
 CS_MENU_MATRIX_END	EQU	0x067
 
-CS_MENU_LASTPAGE_ENG_0	EQU	0x068	; last selected page of lead engine (used in cs_menu_buttons.inc, see comments there)
-CS_MENU_LASTPAGE_ENG_1	EQU	0x069	; last selected page of bassline engine (don't change offset to _0 entry)
-CS_MENU_LASTPAGE_ENG_2	EQU	0x06a	; last selected page of drum engine (don't change offset to _0 entry)
-CS_MENU_LASTPAGE_ENG_3	EQU	0x06b	; last selected page of multi engine (don't change offset to _0 entry)
+CS_MENU_SID_M_PATCH	EQU	0x068	; patch number of master	;(don't change the order of these 4 registers)
+CS_MENU_SID_S1_PATCH	EQU	0x069	; patch number of first slave
+CS_MENU_SID_S2_PATCH	EQU	0x06a	; patch number of second slave
+CS_MENU_SID_S3_PATCH	EQU	0x06b	; patch number of third slave
+CS_MENU_SID_M_BANK	EQU	0x06c	; bank number of master	        ;(don't change the order of these 4 registers)
+CS_MENU_SID_S1_BANK	EQU	0x06d	; bank number of first slave
+CS_MENU_SID_S2_BANK	EQU	0x06e	; bank number of second slave
+CS_MENU_SID_S3_BANK	EQU	0x06f	; bank number of third slave
+CS_MENU_SID_M_CHN	EQU	0x070	; MIDI channel of master	;(don't change the order of these 4 registers)
+CS_MENU_SID_S1_CHN	EQU	0x071	; MIDI channel of first slave
+CS_MENU_SID_S2_CHN	EQU	0x072	; MIDI channel of second slave
+CS_MENU_SID_S3_CHN	EQU	0x073	; MIDI channel of third slave
+CS_MENU_TX_M_CTR	EQU	0x074	; transmit counter master, if > 0, patch tx will be delayed
+CS_MENU_TX_S1_CTR	EQU	0x075	; transmit counter master, if > 0, patch tx will be delayed
+CS_MENU_TX_S2_CTR	EQU	0x076	; transmit counter master, if > 0, patch tx will be delayed
+CS_MENU_TX_S3_CTR	EQU	0x077	; transmit counter master, if > 0, patch tx will be delayed
 
-SRM_COL_CTR		EQU	0x06c	; used by "cs_menu_matrix.inc" (button handler)
+SRM_COL_CTR		EQU	0x078	; used by "cs_menu_matrix.inc" (button handler)
 
-SYX_SID_SELECTION	EQU	0x06d	; used by sid_sysex.inc, we have to store it outside patch range, so that it won't be erased during patch init
-
-	;; free: 0x6e..0x79
+SYX_SID_SELECTION	EQU	0x079	; used by sid_sysex.inc, we have to store it outside patch range, so that it won't be erased during patch init
 
 
 TIMER0_RELOAD_L		EQU	0x07a	; used by sid_bpm.inc

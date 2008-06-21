@@ -41,6 +41,12 @@ CS_MENU_Reset
 	;; initialize button matrix handler
 	call	CS_MENU_MATRIX_Init
 
+#if DEFAULT_LCD_LINES >= 4
+	;; meter bar: print spaces after power-on
+	movlw	0xff
+	call	CS_MENU_UpdateMeterBar
+#endif
+
 	return
 
 ;; --------------------------------------------------------------------------
@@ -99,7 +105,7 @@ CS_MENU_Handler_Init
 	bcf	CS_STAT, CS_STAT_PAGE_MSG
 	bcf	CS_STAT, CS_STAT_BIG_MSG
 	;; update OSC flags
-	rcall	CS_MENU_Hlp_UpdateOSCFlags
+	call	CS_MENU_Hlp_UpdateOSCFlags
 
 	;; if not in SHIFT page
 	BRA_IFSET CS_STAT3, CS_STAT3_SHIFT_PAGE, ACCESS, CS_MENU_Handler_Init_CFGSkip
@@ -115,16 +121,18 @@ CS_MENU_Handler_Init_NotCFGSkip
 	rcall	CS_MENU_EncParameterSet
 	;; set max position of cursor (or patch)
 	rcall	CS_MENU_EncMaxSet
+
+CS_MENU_Handler_Init_CFGSkip
+
 	;; clear item counter - used for optimized refresh handling
 	clrf	CS_MENU_REFRESH_ITEM_CTR
 
-CS_MENU_Handler_Init_CFGSkip
 	;; SID are not available if no connection to MBNET node
 	bsf	CS_STAT, CS_STAT_SID_AVAILABLE
 	call	CS_MENU_MBNET_Check
 	btfss	CS_STAT, CS_STAT_SID_AVAILABLE
 	return
-	
+
 	;; in main page: print static display elements
 	BRA_IFSET CS_STAT3, CS_STAT3_SHIFT_PAGE, ACCESS, CS_MENU_Handler_Init_NotMainPage
 	BRA_IFCLR CS_MENU, 7, ACCESS, CS_MENU_Handler_Init_NotMainPage
@@ -160,16 +168,42 @@ CS_MENU_Handler_NoInit
 	skpz
 	return
 
+	;; should menu label be print?
+	movf	CS_MENU_LABEL_CTR, W
+	skpz
+	rgoto	CS_MENU_Handler_MenuLabel
+
 	;; for the optimized display handling: refresh items step by step
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	bnz	CS_MENU_Handler_CheckMain
 
-	;; check if a display update has been requested (CS_STAT.CS_STAT_DISPLAY_UPDATE_REQ set)
-	;; do nothing if flag is zero
+	;; for meter bar (will be printed piecewise as well)
+	;; it has low priority: skip if counter == 20 (new value) and delayed update *not* active (best "realtime" feeling: menu items will be printed first)
+	movf	CS_MENU_METER_BAR_CTR, W
+	bz	CS_MENU_Handler_NoMeterBar
+	xorlw	20
+	bnz	CS_MENU_Handler_MeterBar
+	movf	CS_MENU_DELAYED_UPDATE_CTR, W
+	bz	CS_MENU_Handler_NoMeterBar
+CS_MENU_Handler_MeterBar
+	rgoto	CS_MENU_Handler_ParamBar
+CS_MENU_Handler_NoMeterBar
+
+	;; skip update check if DELAYED_UPDATE_CTR != 0
+	movf	CS_MENU_DELAYED_UPDATE_CTR, W
+	skpz
+	return
+
+	;; check if update has been requested
 	btfss	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
+
 	;; clear request flag
 	bcf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
+
+	;; set new update counter (-> we update each 50 mS)
+	movlw	50
+	movwf	CS_MENU_DELAYED_UPDATE_CTR
 
 	;; update LEDs
 	call	CS_MENU_LED_Update
@@ -352,9 +386,11 @@ CS_MENU_Handler_MainPage_End
 	;; ------------------------------------------------------------------
 	;; handle menu page
 CS_MENU_Handler_MenuPage
+#if DEFAULT_LCD_PRINT_CURSOR
 	;; if CLCD: disable blinking CLCD cursor
 	movlw	0x0c
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd	
+#endif
 
 	;; feed the watchdog
 	clrwdt
@@ -366,10 +402,145 @@ CS_MENU_Handler_MenuPage
 	call	CS_MENU_GetMenuTablesPtr
 	goto	MIOS_HLP_IndirectJump
 
+
+	;; ------------------------------------------------------------------
+	;; handle meter bar at lower line
+CS_MENU_Handler_ParamBar
+	;; select next character
+	decf	CS_MENU_METER_BAR_CTR, F
+
+	;; set cursor
+	movf	CS_MENU_METER_BAR_CTR, W
+	iorlw	0xc0		; (line 4)
+	call	MIOS_LCD_CursorSet
+
+	;; print spaces if value is 0xff (used inside menu pages)
+	incf	CS_MENU_METER_BAR_VALUE, W
+	bz	CS_MENU_Handler_ParamBar_Spc
+
+	;; print character:
+	;; " [#############>  ] "
+	;; "0123456789ABCDEF0123"
+	movf	CS_MENU_METER_BAR_CTR, W
+	bz	CS_MENU_Handler_ParamBar_0
+	addlw	-1
+	bz	CS_MENU_Handler_ParamBar_1
+	addlw	-1-16
+	bz	CS_MENU_Handler_ParamBar_18
+	addlw	-1
+	bz	CS_MENU_Handler_ParamBar_19
+
+CS_MENU_Handler_ParamBar_Meter
+	movf	CS_MENU_METER_BAR_VALUE, W
+	xorlw	0x20
+	bz	CS_MENU_Handler_ParamBar_Max
+
+	movf	CS_MENU_METER_BAR_CTR, W
+	addlw	-2		; meter position: 0..15
+	movwf	PRODL
+	rrf	CS_MENU_METER_BAR_VALUE, W	; compare with meter value
+	andlw	0x0f
+	subwf	PRODL, W
+	bz	CS_MENU_Handler_ParamBar_Last	; if rightmost character: differ between '=' and '-'
+	bnc	CS_MENU_Handler_ParamBar_Full
+	rgoto	CS_MENU_Handler_ParamBar_Spc
+
+CS_MENU_Handler_ParamBar_Last
+	BRA_IFSET CS_MENU_METER_BAR_VALUE, 0, ACCESS, CS_MENU_Handler_ParamBar_Full
+
+CS_MENU_Handler_ParamBar_Half
+	movlw	'-'
+	rgoto	CS_MENU_Handler_ParamBar_End
+CS_MENU_Handler_ParamBar_Full
+CS_MENU_Handler_ParamBar_Max
+	movlw	'='
+	rgoto	CS_MENU_Handler_ParamBar_End
+
+CS_MENU_Handler_ParamBar_0
+CS_MENU_Handler_ParamBar_19
+CS_MENU_Handler_ParamBar_Spc
+	movlw	' '
+	rgoto	CS_MENU_Handler_ParamBar_End
+
+CS_MENU_Handler_ParamBar_1
+	movlw	'['
+	rgoto	CS_MENU_Handler_ParamBar_End
+
+CS_MENU_Handler_ParamBar_18
+	movlw	']'
+	rgoto	CS_MENU_Handler_ParamBar_End
+
+CS_MENU_Handler_ParamBar_End
+	goto	MIOS_LCD_PrintChar
+
+
+	;; ------------------------------------------------------------------
+	;; handle meter bar at upper line
+CS_MENU_Handler_MenuLabel
+	;; decrement counter
+	decf	CS_MENU_LABEL_CTR, F
+
+	;; cursor pos = 4 * (4-LABEL_CTR)
+	movf	CS_MENU_LABEL_CTR, W
+	sublw	4
+	mullw	4
+	movf	PRODL, W
+	iorlw	0x80		; select upper line
+	call	MIOS_LCD_CursorSet
+
+	;; branch depending on display piece
+	movf	CS_MENU_LABEL_CTR, W
+	bz	CS_MENU_Handler_MenuLabel_4
+	addlw	-1
+	bz	CS_MENU_Handler_MenuLabel_3
+CS_MENU_Handler_MenuLabel_012
+	;; get pointer to label
+	movf	CS_MENU_LABEL, W
+	TABLE_ADDR_MUL_W CS_MENU_LABEL_TABLE, CS_MENU_LABEL_TABLE_ENTRY_SIZE
+	;; add offset
+	movf	CS_MENU_LABEL_CTR, W
+	sublw	4
+	mullw	4
+	movf	PRODL, W
+	TABLE_ADD_W
+
+	;; print 4 characters and exit
+	movlw	4
+	goto	MIOS_LCD_PrintPreconfString
+
+
+CS_MENU_Handler_MenuLabel_3
+	;; print 4 spaces if EMPTY message selected
+	movf	CS_MENU_LABEL, W
+	bz	CS_MENU_Handler_MenuLabel_Empty
+	rgoto	CS_MENU_Handler_MenuLabel_Empty
+
+	;; TODO: add element value
+
+CS_MENU_Handler_MenuLabel_4	
+	;; print 4 spaces if EMPTY message selected
+	movf	CS_MENU_LABEL, W
+	bz	CS_MENU_Handler_MenuLabel_Empty
+	;; TODO: add element value
+	rgoto	CS_MENU_Handler_MenuLabel_Empty
+	return
+
+	
+CS_MENU_Handler_MenuLabel_Empty
+	movlw	4		; empty piece
+	goto	SID_LCD_PrintSpaces
+
 ;; --------------------------------------------------------------------------
 ;;  initialize the page
 ;; --------------------------------------------------------------------------
 CS_MENU_Page_Init
+#if DEFAULT_LCD_LINES >= 3
+	;; select empty label by default (for menu page)
+	clrf	CS_MENU_LABEL
+	;; request printing label
+	call	CS_MENU_UpdateLabel
+#endif
+
 	;; exit if in main page
 	btfsc	CS_MENU, 7
 	return
@@ -385,7 +556,10 @@ CS_MENU_Page_Init
 	;; read number of menu entries and save it in CS_MENU_ENTRIES
 	tblrd*+
 	movff	TABLAT, CS_MENU_ENTRIES
-	tblrd*+			; read dummy byte
+
+	;; read label ID and save it in CS_MENU_LABEL
+	tblrd*+
+	movff	TABLAT, CS_MENU_LABEL
 
 	;; store pointer in CS_MENU_TABLE_0_[LH], so that other functions can reference
 	;; to the entries
@@ -562,9 +736,11 @@ CS_MENU_Page_Parameters_SkipLL
 	addlw	0x40 + 2
 	call	MIOS_LCD_CursorSet
 
+#if DEFAULT_LCD_PRINT_CURSOR
 	;; enable blinking CLCD cursor and exit
 	movlw	0x0e
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd
+#endif
 	return
 
 
@@ -680,9 +856,11 @@ CS_MENU_Page_EditName_NoSpc
 	movf	CS_MENU_NAME_POS, W
 	call	MIOS_LCD_CursorSet
 
+#if DEFAULT_LCD_PRINT_CURSOR
 	;; enable blinking CLCD cursor and exit
 	movlw	0x0e
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd
+#endif
 	return
 
 				  	     ;;  <------------------>
@@ -769,9 +947,11 @@ CS_MENU_Page_EditSeq_NoSpc
 	movf	CS_MENU_NAME_POS, W
 	call	MIOS_LCD_CursorSet
 
+#if DEFAULT_LCD_PRINT_CURSOR
 	;; enable blinking CLCD cursor and exit
 	movlw	0x0e
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd
+#endif
 	return
 
 
@@ -1246,6 +1426,12 @@ CS_MENU_Exec
 	;; clear refresh item counter --- ensures that the whole display will be refreshed
 	clrf	CS_MENU_REFRESH_ITEM_CTR
 
+#if DEFAULT_LCD_LINES >= 4
+	;; clear meter bar
+	movlw	0xff
+	call	CS_MENU_UpdateMeterBar
+#endif
+
 	;; exit if we are in main menu
 	btfsc	CS_MENU, 7
 	return
@@ -1435,6 +1621,13 @@ CS_MENU_ParameterUpdatePatName
 CS_MENU_ParameterUpdateParName_C
 CS_MENU_ParameterUpdateNoBigMsg
 
+
+#if DEFAULT_LCD_LINES >= 4
+	;; for meter bar at lower line: get scaled value and preload display counter
+	call	CS_MENU_GetScaledParam
+	call	CS_MENU_UpdateMeterBar
+#endif
+
 	;; now request a display update so that we see the new parameter on screen
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ	; (see tc_display.inc)
 	;; set counter to 5*2 so that the cs_menu_timer.inc function prints the value
@@ -1442,6 +1635,7 @@ CS_MENU_ParameterUpdateNoBigMsg
 	movwf	CS_CURSOR_CTR
 	;; set the "CS_STAT_CURSOR_FLASH" bit (see cs_menu.inc for the handling)
 	bsf	CS_STAT, CS_STAT_CURSOR_FLASH
+
 	;; thats all
 	return
 
@@ -1998,6 +2192,10 @@ CS_MENU_PageUpDown_Ens
 	rgoto	CS_MENU_PageUpDown_End_NoMsg
 CS_MENU_PageUpDown_NoPatchOrEns
 
+	;; printing the new element value is not required on displays with >= 3 lines, since it is print at the upper line anyhow
+;#if DEFAULT_LCD_LINES <= 2
+; TODO: will be disabled once CS_MENU_Handler_MenuLabel has been enhanced
+#if 1
 	;; set cursor
 	movlw	0x00
 	call	MIOS_LCD_CursorSet
@@ -2043,11 +2241,18 @@ CS_MENU_PageUpDown_DecP1_Cont
 	movlw	' '
 	call	MIOS_LCD_PrintChar
 
+#if DEFAULT_LCD_PRINT_CURSOR
 	;; if CLCD: disable blinking CLCD cursor
 	movlw	0x0c
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd	
-
+#endif
 	rgoto	CS_MENU_PageUpDown_End
+#else
+	;; update the label at upper line
+	rcall	CS_MENU_UpdateLabel
+	rgoto	CS_MENU_PageUpDown_End_NoMsg
+#endif
+
 
 
 CS_MENU_PageUpDown_Inv_STR STRING 12, 0x00, "[Not here!] "
@@ -2411,4 +2616,128 @@ CS_MENU_Select_SeqFunc_Hlp_Send
 	movwf	INDF0
 	call	CS_MENU_MS_SendParameter
 	movf	POSTINC0, W
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  get parameter value scaled from 0..32 for meter bar display
+;;  IN: CS_MENU_PARAMETER_[LH] and CS_MENU_PARAMETER_MAX_[LH]
+;;  OUT: scaled value (0..32) in WREG
+;;  USES: PROD[LH] and TABLAT
+;; --------------------------------------------------------------------------
+CS_MENU_GetScaledParam
+	;; return 0x20 if max value has been reached
+	movf	CS_MENU_PARAMETER_L, W
+	xorwf	CS_MENU_PARAMETER_MAX_L, W
+	bnz	CS_MENU_GetScaledParam_NotMax
+	movf	CS_MENU_PARAMETER_H, W
+	xorwf	CS_MENU_PARAMETER_MAX_H, W
+	bnz	CS_MENU_GetScaledParam_NotMax
+CS_MENU_GetScaledParam_Max
+	retlw	0x20
+
+CS_MENU_GetScaledParam_NotMax
+	movf	CS_MENU_PARAMETER_MAX_H, W
+	bnz	CS_MENU_GetScaledParam_Upper
+CS_MENU_GetScaledParam_Lower
+	movff	CS_MENU_PARAMETER_MAX_L, TABLAT
+	clrf	PRODL
+	movff	CS_MENU_PARAMETER_L, PRODH
+	rgoto	CS_MENU_GetScaledParam_Cont
+CS_MENU_GetScaledParam_Upper
+	movff	CS_MENU_PARAMETER_MAX_H, TABLAT
+	movff	CS_MENU_PARAMETER_L, PRODL
+	movff	CS_MENU_PARAMETER_H, PRODH
+	;; 	rgoto	CS_MENU_GetScaledParam_Cont
+CS_MENU_GetScaledParam_Cont
+
+	movf	TABLAT, W	; (CS_MENU_PARAMETER_MAX_x)
+	andlw	0xf0
+	bnz	CS_MENU_GetScaledParam_U
+CS_MENU_GetScaledParam_L
+	BRA_IFSET TABLAT, 3, ACCESS, CS_MENU_GetScaledParam_3
+	BRA_IFSET TABLAT, 2, ACCESS, CS_MENU_GetScaledParam_2
+	BRA_IFSET TABLAT, 1, ACCESS, CS_MENU_GetScaledParam_1
+	rgoto	CS_MENU_GetScaledParam_0
+CS_MENU_GetScaledParam_U
+	BRA_IFSET TABLAT, 7, ACCESS, CS_MENU_GetScaledParam_7
+	BRA_IFSET TABLAT, 6, ACCESS, CS_MENU_GetScaledParam_6
+	BRA_IFSET TABLAT, 5, ACCESS, CS_MENU_GetScaledParam_5
+	rgoto	CS_MENU_GetScaledParam_4
+
+CS_MENU_GetScaledParam_0
+	swapf	PRODH, F
+	swapf	PRODL, W
+	andlw	0x0f
+	iorwf	PRODH, W
+	rgoto	CS_MENU_GetScaledParam_End
+
+CS_MENU_GetScaledParam_1
+	rlf	PRODL, F
+	rlf	PRODH, F
+	rlf	PRODL, F
+	rlf	PRODH, F
+	rlf	PRODL, F
+	rlf	PRODH, W
+	rgoto	CS_MENU_GetScaledParam_End
+
+CS_MENU_GetScaledParam_2
+	rlf	PRODL, F
+	rlf	PRODH, F
+	rlf	PRODL, F
+	rlf	PRODH, W
+	rgoto	CS_MENU_GetScaledParam_End
+
+CS_MENU_GetScaledParam_3
+	rlf	PRODL, F
+	rlf	PRODH, W
+	rgoto	CS_MENU_GetScaledParam_End
+
+CS_MENU_GetScaledParam_4
+	movf	PRODH, W	; CS_MENU_PARAMETER_x
+	rgoto	CS_MENU_GetScaledParam_End
+
+CS_MENU_GetScaledParam_5
+	rrf	PRODH, W	; CS_MENU_PARAMETER_x
+	rgoto	CS_MENU_GetScaledParam_End
+
+CS_MENU_GetScaledParam_6
+	rrf	PRODH, W	; CS_MENU_PARAMETER_x
+	rrf	WREG, W
+	rgoto	CS_MENU_GetScaledParam_End
+
+CS_MENU_GetScaledParam_7
+	rrf	PRODH, W	; CS_MENU_PARAMETER_x
+	rrf	WREG, W
+	rrf	WREG, W
+	;; 	rgoto	CS_MENU_GetScaledParam_End
+
+CS_MENU_GetScaledParam_End
+	andlw	0x1f
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Updates the meter bar display
+;;  IN: scaled value (0..31) in WREG
+;;      if 0xff: spaces will be print (used inside menu pages)
+;; --------------------------------------------------------------------------
+CS_MENU_UpdateMeterBar
+	;; skip if value hasn't changed
+	xorwf	CS_MENU_METER_BAR_VALUE, W
+	bz	CS_MENU_UpdateMeterBar_End
+	xorwf	CS_MENU_METER_BAR_VALUE, W ; (get back original WREG value by a second XOR operation)
+	movwf	CS_MENU_METER_BAR_VALUE
+	movlw	20		; 20 characters should be displayed
+	movwf	CS_MENU_METER_BAR_CTR
+CS_MENU_UpdateMeterBar_End
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Updates the menu label at upper line
+;; --------------------------------------------------------------------------
+CS_MENU_UpdateLabel
+	movlw	5		; 5 pieces
+	movwf	CS_MENU_LABEL_CTR
 	return

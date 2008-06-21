@@ -17,10 +17,15 @@
 ;;  and IRQ_TMPx instead of TMPx -- and make the routine as fast as possible!
 ;; --------------------------------------------------------------------------
 CS_MENU_TIMER
-	decfsz	CS_MENU_TIMER_CTR, F; since this routine is called every 819 uS, but the cursor
+	;; display updates can be delayed by some mS to save performance
+	movf	CS_MENU_DELAYED_UPDATE_CTR, W
+	skpz
+	decf	CS_MENU_DELAYED_UPDATE_CTR, F
+
+	decfsz	CS_MENU_TIMER_CTR, F; since this routine is called each mS, but the cursor
 	return			; should be flashed with a much lower frequency, we are using
-				; a 8-bit pre-counter (continue every 122 times = ca. 100 ms)
-	movlw	122
+				; a 8-bit pre-counter (continue every 100 times = ca. 100 ms)
+	movlw	100
 	movwf	CS_MENU_TIMER_CTR
 
 	;; decrement CS_SELECT_CTR if content > 0
@@ -34,26 +39,27 @@ CS_MENU_TIMER
 	incf	CS_CURSOR_CTR, F			; increment postscaler
 
 	;; CS_MENU_M_TX counter is used to notify that a patch can be changed
-	movf	CS_MENU_TX_M_CTR, W
+	SET_BSR	CS_MENU_TX_M_CTR
+	movf	CS_MENU_TX_M_CTR, W, BANKED
 	andlw	0x7f		; bit 7 indicates that a new patch should be sent - it has to be masked out here
 	skpz
-	decf	CS_MENU_TX_M_CTR, F
+	decf	CS_MENU_TX_M_CTR, F, BANKED
 
 	;; same for the slaves
-	movf	CS_MENU_TX_S1_CTR, W
+	movf	CS_MENU_TX_S1_CTR, W, BANKED
 	andlw	0x7f
 	skpz
-	decf	CS_MENU_TX_S1_CTR, F
+	decf	CS_MENU_TX_S1_CTR, F, BANKED
 
-	movf	CS_MENU_TX_S2_CTR, W
+	movf	CS_MENU_TX_S2_CTR, W, BANKED
 	andlw	0x7f
 	skpz
-	decf	CS_MENU_TX_S2_CTR, F
+	decf	CS_MENU_TX_S2_CTR, F, BANKED
 
-	movf	CS_MENU_TX_S3_CTR, W
+	movf	CS_MENU_TX_S3_CTR, W, BANKED
 	andlw	0x7f
 	skpz
-	decf	CS_MENU_TX_S3_CTR, F
+	decf	CS_MENU_TX_S3_CTR, F, BANKED
 
 	;; reinit counter used to restore the configuration
 	movf	CS_MENU_REINIT_CFG_CTR, W

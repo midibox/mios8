@@ -567,13 +567,14 @@ CS_MENU_MS_Send_SysExDump_M
 	movwf	INDF1
 
 	;; skip if 'sent' flag set
-	BRA_IFSET CS_MENU_SID_M_PATCH, 7, ACCESS, CS_MENU_MS_Send_SysExDump_End
+	SET_BSR	CS_MENU_SID_M_PATCH
+	BRA_IFSET CS_MENU_SID_M_PATCH, 7, BANKED, CS_MENU_MS_Send_SysExDump_End
 
 	;; store patch/bank number of master in SID_PATCH/SID_BANK
 	movff	CS_MENU_SID_M_PATCH, SID_PATCH
 	movff	CS_MENU_SID_M_BANK, SID_BANK
 
-	bsf	CS_MENU_SID_M_PATCH, 7	; set 'sent' flag
+	bsf	CS_MENU_SID_M_PATCH, 7, BANKED	; set 'sent' flag
 
 	;; transfer EEPROM content into SID patch buffer and init patch
 	call	SID_PATCH_LoadPatchBuffer

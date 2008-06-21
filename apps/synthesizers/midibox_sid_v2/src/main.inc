@@ -220,6 +220,16 @@ USER_Init_NoCS
 	movlw	0x00			; prescaler 1:1
 	call	MIOS_TIMER_Init
 
+	;; set cursor offsets
+	movlw	DEFAULT_LCD_LINE_Y0
+	movwf	MIOS_PARAMETER1
+	movlw	DEFAULT_LCD_LINE_Y1
+	movwf	MIOS_PARAMETER2
+	movlw	DEFAULT_LCD_LINE_Y2
+	movwf	MIOS_PARAMETER3
+	movlw	DEFAULT_LCD_LINE_Y3
+	call	MIOS_LCD_YAddressSet
+
 	;; reset the control surface
 	call	CS_MENU_Reset
 
@@ -730,6 +740,7 @@ AIN_NotifyChange_Loop_Next
 #include "cs_menu_shift.inc"
 #include "cs_menu_bank.inc"
 #include "cs_menu_mbnet.inc"
+#include "cs_menu_labels.inc"
 #include "cs_menu_tables.inc"
 
 ;; ---[ SID kernel ]---

@@ -35,6 +35,9 @@ SID_EXT_Update_Gates
 
 	;; forward digital pins to AOUT driver (only relevant for MAX525 based MBHP_AOUT module)
 	movf	GATES, W, BANKED
+#if 0
+	xorlw	0x03		; optional inversion of digital pins
+#endif
 	call	AOUT_DigitalPinsSet
 
 	;; optionally forward to DOUT
@@ -48,6 +51,9 @@ SID_EXT_Update_Gates
 #if DEFAULT_J5_FUNCTION == 3
 	SET_BSR	GATES
 	movf	GATES, W, BANKED
+#if 0
+	xorlw	0x03		; optional inversion of digital pins
+#endif
 	call	J5_IO_Set
 #endif
 
