@@ -209,9 +209,9 @@ SID_SR_Handler_Loop
 	movf	SID_SE_PHASE_SYNC_REQ, W, BANKED
 	bz	SID_SR_Handler_NoPhaseSync
 SID_SR_Handler_PhaseSync
-	;; if lead engine: variable phase, otherwise individual sync
+	;; if lead or bassline engine: variable phase, otherwise individual sync
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
-	andlw	0x03
+	andlw	0x02		; mask selects lead and bassline engine
 	bnz	SID_SR_Handler_PhaseSync_M
 SID_SR_Handler_PhaseSync_L
 	rcall	SID_SR_VarPhase

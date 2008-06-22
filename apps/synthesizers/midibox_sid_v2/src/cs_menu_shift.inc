@@ -15,11 +15,9 @@
 ;; --------------------------------------------------------------------------
 CS_MENU_SHIFT_STR_0 STRING 20, 0x00,   "SID1 E. Ply Ini Dmp "
 CS_MENU_SHIFT_PrintUL
-#if DEFAULT_LCD_PRINT_CURSOR
 	;; if CLCD: disable blinking CLCD cursor
 	movlw	0x0c
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd	
-#endif
 
 	TABLE_ADDR CS_MENU_SHIFT_STR_0
 	call	MIOS_LCD_PrintString

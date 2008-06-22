@@ -150,8 +150,15 @@ SID_LCD_PrintPatchNoBS_Cont
 
 
 TEXT_EMPTY_PATCH_1 da "<No BankStick>  "
+TEXT_EMPTY_PATCH_E da "<Ens. BankStick>"
 SID_LCD_PrintPatchNoBS
+	movf	SID_BANK, W
+	xorlw	DEFAULT_ENS_BS_CS
+	bz	SID_LCD_PrintPatchNoBSEns
 	TABLE_ADDR TEXT_EMPTY_PATCH_1
+	rgoto	SID_LCD_PrintPatchNoBS_Cont
+SID_LCD_PrintPatchNoBSEns
+	TABLE_ADDR TEXT_EMPTY_PATCH_E
 	rgoto	SID_LCD_PrintPatchNoBS_Cont
 
 TEXT_EMPTY_PATCH_2 da "<only 32k BS>   "

@@ -1087,22 +1087,25 @@ SIDSE_Gate_SetReq_NoABW
 	;; a special handler in sid_sr.inc will take care about the rest
 
 	;; different handling depending on selected engine:	
-	;; lead engine: global sync for all voices with phase shift
+	;; lead and bassline engine: global sync for all voices with phase shift
 	;; multi engine has individual flag for each instrument
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
 	BRA_IFSET WREG, 1, ACCESS, SIDSE_Gate_SetReq_Sync_DM
 SIDSE_Gate_SetReq_Sync_LB
 	BRA_IFSET WREG, 0, ACCESS, SIDSE_Gate_SetReq_Sync_B
 SIDSE_Gate_SetReq_Sync_L
+SIDSE_Gate_SetReq_Sync_B
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_OSC_PHASE, WREG
 	andlw	0xff
 	bz	SIDSE_Gate_SetReq_NoSync
 	rgoto	SIDSE_Gate_SetReq_Sync_Cont
 
+#if 0
 SIDSE_Gate_SetReq_Sync_B
 	movlw	SID_Ix_B_Vx_FLAGS2
 	BRA_IFCLR PLUSW0, SID_I_M_V_FLAGS2_PHASE, ACCESS, SIDSE_Gate_SetReq_NoSync
 	rgoto	SIDSE_Gate_SetReq_NoSync
+#endif
 
 SIDSE_Gate_SetReq_Sync_DM
 	BRA_IFSET WREG, 0, ACCESS, SIDSE_Gate_SetReq_Sync_M
@@ -1181,6 +1184,10 @@ SIDSE_Pitch_Transp_Cont
 	movf	PRODL, W
 	addwf	FSR2L, F
 
+	;; copy transpose value to IRQ_TMP2 (will be modified by bassline engine depending on voice)
+	movlw	SID_Ix_Vx_TRANSPOSE
+	movff	PLUSW0, IRQ_TMP2
+
 	;; add voice based transpose to MIDI voice based transpose and saturate
 	;; if lead engine: transpose value taken from first MIDI voice!
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
@@ -1188,6 +1195,77 @@ SIDSE_Pitch_Transp_Cont
 	xorlw	0x01
 	bnz	SIDSE_Pitch_Transp_NoBassline
 SIDSE_Pitch_Transp_Bassline
+	;; get transpose value depending on voice number
+	movf	SID_SE_ELEMENT_NUM, W, BANKED
+	bz	SIDSE_Pitch_Transp_Bassline_V1L
+	addlw	-1
+	bz	SIDSE_Pitch_Transp_Bassline_V2L
+	addlw	-1
+	bz	SIDSE_Pitch_Transp_Bassline_V3L
+	addlw	-1
+	bz	SIDSE_Pitch_Transp_Bassline_V1R
+	addlw	-1
+	bz	SIDSE_Pitch_Transp_Bassline_V2R
+	;; 	rgoto	SIDSE_Pitch_Transp_Bassline_V3R
+
+SIDSE_Pitch_Transp_Bassline_V3L	; octave transpose based on SID_Ix_B_V3_OCT_TRANSPOSE
+SIDSE_Pitch_Transp_Bassline_V3R
+	;; change transposed note to static note?
+	movlw	SID_Ix_B_V3_STATIC_NOTE
+	movf	PLUSW0, W
+	bz	SIDSE_Pitch_Transp_Bassline_V3RT
+	movwf	SID_SE_TRANSPOSED_NOTE, BANKED
+SIDSE_Pitch_Transp_Bassline_V3RT
+	movlw	SID_Ix_B_V3_OCT_TRANSPOSE
+	rgoto	SIDSE_Pitch_Transp_Bassline_V23C
+
+SIDSE_Pitch_Transp_Bassline_V2L	; octave transpose based on SID_Ix_B_V2_OCT_TRANSPOSE
+SIDSE_Pitch_Transp_Bassline_V2R
+	;; change transposed note to static note?
+	movlw	SID_Ix_B_V2_STATIC_NOTE
+	movf	PLUSW0, W
+	bz	SIDSE_Pitch_Transp_Bassline_V2RT
+	movwf	SID_SE_TRANSPOSED_NOTE, BANKED
+SIDSE_Pitch_Transp_Bassline_V2RT
+	movlw	SID_Ix_B_V2_OCT_TRANSPOSE
+SIDSE_Pitch_Transp_Bassline_V23C
+	movf	PLUSW0, W	; zero: no transpose
+	bz	SIDSE_Pitch_Transp_Bassline_Cont
+	movwf	IRQ_TMP3	; (to store sign in bit [2])
+	andlw	0x03		; transpose
+	BRA_IFCLR IRQ_TMP3, 2, ACCESS, SIDSE_Pitch_Transp_Bassline_NNeg	; revert if negative
+SIDSE_Pitch_Transp_Bassline_Neg
+	xorlw	0x03
+	addlw	1
+SIDSE_Pitch_Transp_Bassline_NNeg
+	mullw	12		; *12 notes
+	;; add/subtract based on sign
+	BRA_IFSET IRQ_TMP3, 2, ACCESS, SIDSE_Pitch_Transp_Bassline_N
+SIDSE_Pitch_Transp_Bassline_P
+	movf	PRODL, W
+	addwf	IRQ_TMP2, F
+	;; octavewise saturation
+SIDSE_Pitch_Transp_Bassline_PLop
+	BRA_IFCLR IRQ_TMP2, 7, ACCESS, SIDSE_Pitch_Transp_Bassline_Cont
+	movlw	-12
+	addwf	IRQ_TMP2, F
+	rgoto	SIDSE_Pitch_Transp_Bassline_PLop
+
+SIDSE_Pitch_Transp_Bassline_N
+	comf	PRODL, W
+	addlw	1
+	addwf	IRQ_TMP2, F
+	;; octavewise saturation
+SIDSE_Pitch_Transp_Bassline_NLop
+	BRA_IFCLR IRQ_TMP2, 7, ACCESS, SIDSE_Pitch_Transp_Bassline_Cont
+	movlw	12
+	addwf	IRQ_TMP2, F
+	rgoto	SIDSE_Pitch_Transp_Bassline_NLop
+
+SIDSE_Pitch_Transp_Bassline_V1L	; SID_Ix_Vx_TRANSPOSE already in IRQ_TMP2
+SIDSE_Pitch_Transp_Bassline_V1R
+SIDSE_Pitch_Transp_Bassline_Cont
+
 	;; if WTO enabled, note is not transposed via MIDI voice (instead the sequence number will be transposed)
 	movlw	SID_Ix_B_Vx_FLAGS2
 	BRA_IFCLR PLUSW0, SID_I_B_V_FLAGS2_WT_ONLY, ACCESS, SIDSE_Pitch_Transp_NoLead
@@ -1203,8 +1281,7 @@ SIDSE_Pitch_Transp_NoLead
 	movlw	SID_MVx_TRANSPOSE
 	movff	PLUSW2, IRQ_TMP1
 SIDSE_Pitch_Transp_Bassline_Seq
-	movlw	SID_Ix_Vx_TRANSPOSE
-	movf	PLUSW0, W
+	movf	IRQ_TMP2, W	; SID_Ix_Vx_TRANSPOSE
 	addwf	IRQ_TMP1, W
 	sublw	0x80
 	xorlw	0xff
@@ -1401,7 +1478,6 @@ SIDSE_Pitch_NoPitchBender
 
 	movlw	SID_Ix_Vx_FINETUNE
 	movf	PLUSW0, W
-	movwf	IRQ_TMP1
 	xorlw	0x80
 	bz	SIDSE_Pitch_NoFinetune
 SIDSE_Pitch_Finetune
@@ -1415,7 +1491,7 @@ SIDSE_Pitch_Finetune
 SIDSE_Pitch_NoFinetune
 
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
-	andlw	0x03
+	andlw	0x02	; mask is valid for lead and bassline engine
 	bnz	SIDSE_Pitch_NoDetune
 	SET_BSR	SID_PATCH_BUFFER_SHADOW
 	movf	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_OSC_DETUNE, W, BANKED
@@ -1424,8 +1500,8 @@ SIDSE_Pitch_NoFinetune
 SIDSE_Pitch_Detune
 	movwf	IRQ_TMP1
 	;; additional detuning depending on SID channel and oscillator
-	;; Left OSC1: +detune/4
-	;; Right OSC1: -detune/4
+	;; Left OSC1: +detune/4   (lead only, 0 in bassline mode)
+	;; Right OSC1: -detune/4  (lead only, 0 in bassline mode)
 	;; Left OSC2: +detune
 	;; Right OSC2: -detune
 	;; Left OSC3: -detune
@@ -1437,9 +1513,14 @@ SIDSE_Pitch_Detune_0123
 SIDSE_Pitch_Detune_01
 	BRA_IFSET SID_SE_ELEMENT_NUM, 0, BANKED, SIDSE_Pitch_Detune_1
 SIDSE_Pitch_Detune_0	; SIDL, OSC1
-	;; in mono mode: don't detune OSC1, so that at least one oscillator runs at the target frequency!
-	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
+	;; in mono or bassline mode: don't detune OSC1, so that at least one oscillator runs at the target frequency!
+	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG				; check for mono 
 	BRA_IFSET WREG, SID_ENS_CTRL1_MONO, ACCESS, SIDSE_Pitch_NoDetune
+	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG			; check for bassline
+	andlw	0x03
+	xorlw	0x01
+	bz	SIDSE_Pitch_NoDetune
+
 	clrc
 	rrf	IRQ_TMP1, F
 	clrc
@@ -1453,6 +1534,11 @@ SIDSE_Pitch_Detune_23
 SIDSE_Pitch_Detune_2	; SIDL, OSC3
 	rgoto	SIDSE_Pitch_Detune_Sub
 SIDSE_Pitch_Detune_3	; SIDR, OSC1
+	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG			; check for bassline
+	andlw	0x03
+	xorlw	0x01
+	bz	SIDSE_Pitch_NoDetune
+
 	clrc
 	rrf	IRQ_TMP1, F
 	clrc
@@ -1919,10 +2005,46 @@ SIDSE_PW
 	;; part of the patch (drum engine has to call SIDSE_PW_Drums with
 	;; 16bit pulsewidth in IRQ_TMP[12]
 
+	;; bassline engine: select OSC2/3 pulsewidth depending on voice
+	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
+	andlw	0x03
+	xorlw	0x01
+	bnz	SIDSE_PW_NoBassline
+SIDSE_PW_Bassline
+	movf	SID_SE_ELEMENT_NUM, W, BANKED
+	bz	SIDSE_PW_Bassline_V1L
+	addlw	-1
+	bz	SIDSE_PW_Bassline_V2L
+	addlw	-1
+	bz	SIDSE_PW_Bassline_V3L
+	addlw	-1
+	bz	SIDSE_PW_Bassline_V1R
+	addlw	-1
+	bz	SIDSE_PW_Bassline_V2R
+	;; 	rgoto	SIDSE_PW_Bassline_V3R
+
+SIDSE_PW_Bassline_V3L	; store SID_Ix_V_V3_PULSEWIDTH_[LH] in IRQ_TMP[12]
+SIDSE_PW_Bassline_V3R
+	movlw	SID_Ix_B_V3_PULSEWIDTH_L
+	movff	PLUSW0, IRQ_TMP1
+	movlw	SID_Ix_B_V3_PULSEWIDTH_H
+	rgoto	SIDSE_PW_Bassline_Cont
+
+SIDSE_PW_Bassline_V2L	; store SID_Ix_V_V2_PULSEWIDTH_[LH] in IRQ_TMP[12]
+SIDSE_PW_Bassline_V2R
 	;; store 12bit pulsewidth in IRQ_TMP[12]
+	movlw	SID_Ix_B_V2_PULSEWIDTH_L
+	movff	PLUSW0, IRQ_TMP1
+	movlw	SID_Ix_B_V2_PULSEWIDTH_H
+	rgoto	SIDSE_PW_Bassline_Cont
+
+SIDSE_PW_Bassline_V1L	; store SID_Ix_Vx_PULSEWIDTH_[LH] in IRQ_TMP[12]
+SIDSE_PW_Bassline_V1R
+SIDSE_PW_NoBassline
 	movlw	SID_Ix_Vx_PULSEWIDTH_L
 	movff	PLUSW0, IRQ_TMP1
 	movlw	SID_Ix_Vx_PULSEWIDTH_H
+SIDSE_PW_Bassline_Cont
 	movf	PLUSW0, W
 	andlw	0x0f
 	movwf	IRQ_TMP2

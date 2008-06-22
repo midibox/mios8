@@ -386,11 +386,9 @@ CS_MENU_Handler_MainPage_End
 	;; ------------------------------------------------------------------
 	;; handle menu page
 CS_MENU_Handler_MenuPage
-#if DEFAULT_LCD_PRINT_CURSOR
 	;; if CLCD: disable blinking CLCD cursor
 	movlw	0x0c
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd	
-#endif
 
 	;; feed the watchdog
 	clrwdt
@@ -630,7 +628,11 @@ CS_MENU_Page_Root_Refresh_UL_E
 	call	MIOS_LCD_PrintChar
 
 	;; fill rest with spaces
+#if CS_MENU_DISPLAYED_ITEMS > 5
+	movlw	20+5
+#else
 	movlw	5
+#endif
 	call	SID_LCD_PrintSpaces
 
 	rgoto	CS_MENU_Page_Root_Refresh_UL_C
@@ -646,12 +648,24 @@ CS_MENU_Page_Root_Refresh_UL_P
 	;; print patch name
 	call	SID_LCD_PrintPatch
 
+#if CS_MENU_DISPLAYED_ITEMS > 5
+	;; on a 2x40 LCD, we've enough room to add a space here :)
+	movlw	1
+	call	SID_LCD_PrintSpaces
+#endif
+
 	;; print bank number and patch
 	call	CS_MENU_MS_GetSIDBank
 	movwf	SID_BANK
 	call	CS_MENU_MS_GetSIDPatch
 	movwf	SID_PATCH
 	call	SID_LCD_PrintPatchNumber
+
+#if CS_MENU_DISPLAYED_ITEMS > 5
+	;; only relevant for 2x40 LCD: clear left half
+	movlw	20-1		; (one space already printed above)
+	call	SID_LCD_PrintSpaces
+#endif
 
 CS_MENU_Page_Root_Refresh_UL_C
 CS_MENU_Page_Root_Refresh_NoUL
@@ -855,12 +869,13 @@ CS_MENU_Page_EditName_NoSpc
 	;; set cursor to: 0x00 + CS_MENU_NAME_POS
 	movf	CS_MENU_NAME_POS, W
 	call	MIOS_LCD_CursorSet
-
-#if DEFAULT_LCD_PRINT_CURSOR
+;; 
+;;#if DEFAULT_LCD_PRINT_CURSOR
+	;; (always enabled)
 	;; enable blinking CLCD cursor and exit
 	movlw	0x0e
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd
-#endif
+;;#endif
 	return
 
 				  	     ;;  <------------------>
@@ -947,11 +962,12 @@ CS_MENU_Page_EditSeq_NoSpc
 	movf	CS_MENU_NAME_POS, W
 	call	MIOS_LCD_CursorSet
 
-#if DEFAULT_LCD_PRINT_CURSOR
+;;#if DEFAULT_LCD_PRINT_CURSOR
+	;; (always enabled)
 	;; enable blinking CLCD cursor and exit
 	movlw	0x0e
 	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd
-#endif
+;;#endif
 	return
 
 
@@ -1625,6 +1641,10 @@ CS_MENU_ParameterUpdateNoBigMsg
 #if DEFAULT_LCD_LINES >= 4
 	;; for meter bar at lower line: get scaled value and preload display counter
 	call	CS_MENU_GetScaledParam
+	btfsc	CS_STAT, CS_STAT_MODIFY_NAME	; disabled if name is edited
+	movlw	0xff		; (empty line)
+	btfsc	CS_STAT3, CS_STAT3_MODIFY_SEQ	; disabled if drum sequence is edited 
+	movlw	0xff		; (empty line)
 	call	CS_MENU_UpdateMeterBar
 #endif
 
@@ -1858,6 +1878,13 @@ CS_MENU_SavePatch_Loop
 	lfsr	FSR0, SID_ENS_BUFFER + SID_ENSx_BANK
 	movff	SID_BANK, INDF0
 	call	CS_MENU_MS_SendEnsParameter
+
+	;; if slave: send back new name to slave
+	movf	CS_MENU_SID, W
+	bz	CS_MENU_SavePatch_NoSendBackName
+CS_MENU_SavePatch_SendBackName
+	call	CS_MENU_MBNET_Tx_SendName
+CS_MENU_SavePatch_NoSendBackName
 
 CS_MENU_SavePatch_End
 	return
@@ -2241,11 +2268,10 @@ CS_MENU_PageUpDown_DecP1_Cont
 	movlw	' '
 	call	MIOS_LCD_PrintChar
 
-#if DEFAULT_LCD_PRINT_CURSOR
 	;; if CLCD: disable blinking CLCD cursor
 	movlw	0x0c
-	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd	
-#endif
+	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd
+
 	rgoto	CS_MENU_PageUpDown_End
 #else
 	;; update the label at upper line

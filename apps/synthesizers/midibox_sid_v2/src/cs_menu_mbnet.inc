@@ -938,6 +938,57 @@ CS_MENU_MBNET_Tx_SendEdit_End
 
 
 ;; --------------------------------------------------------------------------
+;;  sends only the name from edit buffer to a given slave
+;;  IN: slave target in CS_MENU_SID
+;; --------------------------------------------------------------------------
+CS_MENU_MBNET_Tx_SendName
+	lfsr	FSR0, SID_EDIT_BUFFER		; source location
+
+	;; lock receive handler
+	call	CS_MENU_MBNET_Tx_LockSlaveRx
+	bnz	CS_MENU_MBNET_Tx_SendName_Abort	; abort if slave not available (branch to UnlockRx to give slave a chance to recover)
+
+	;; optimized Edit buffer->CAN->Slave Patch Buffer transfer
+	clrf	EEADR				; used as loop counter
+	clrf	EEADRH
+CS_MENU_MBNET_Tx_SendName_IntLO
+	movff	EEADR, MBNET_EID_L		; EIDL contains low-byte of address
+	movff	EEADRH, MBNET_EID_H		; EIDH contains high-byte of address
+	movlw	MBNET_TOS_RAM_WRITE		; TOS for writing into RAM
+	call	MBNET_Tx_Prepare		; returns pointer to DLC of Tx buffer in FSR1
+	bnz	CS_MENU_MBNET_Tx_SendName_End	; skip if slave not available
+
+	movlw	8				; DLC always 8
+	movwf	POSTINC1
+
+	;; read 8 bytes from RAM buffer and write them into data buffer
+CS_MENU_MBNET_Tx_SendName_IntLI
+	;; read byte and copy into transmit buffer
+	movff	POSTINC0, POSTINC1
+	incf	EEADR, F
+	skpnz
+	incf	EEADRH, F
+
+	movf	EEADR, W
+	andlw	0x07
+	bnz	CS_MENU_MBNET_Tx_SendName_IntLI
+
+	call	MBNET_Tx_Perform		; performs the transfer and waits for an acknowledge from slave
+	skpz					; re-init display if transfer failed
+	rgoto	CS_MENU_MBNET_Error
+
+	;; loop two times
+	movf	EEADR, W
+	xorlw	0x10
+	bnz	CS_MENU_MBNET_Tx_SendName_IntLO
+
+CS_MENU_MBNET_Tx_SendName_Abort
+	call	CS_MENU_MBNET_Tx_UnlockSlaveRx	; unlock receive handler
+CS_MENU_MBNET_Tx_SendName_End
+	return
+
+
+;; --------------------------------------------------------------------------
 ;;  sends the ensemble buffer to a given slave
 ;;  IN: slave target in CS_MENU_SID
 ;; --------------------------------------------------------------------------

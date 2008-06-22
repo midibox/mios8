@@ -601,6 +601,7 @@ SID_Vx_SET_DELAY_CTR_L	EQU	0x11
 SID_Vx_SET_DELAY_CTR_H	EQU	0x12
 SID_Vx_CLR_DELAY_CTR_L	EQU	0x13
 SID_Vx_CLR_DELAY_CTR_H	EQU	0x14
+
 	;; free offsets: 0x15-0x17 (take care: 0x14 temporary allocated by SID_Vx_D_MODEL_PAR3)
 
 	;; drum engine uses some of these registers on a different way
@@ -1058,9 +1059,9 @@ SID_Ix_M_Vx_WT_LOOP	EQU	0x2f	; same as SID_Ix_WTx_LOOP
 
 ;; general flags
 SID_Ix_B_FLAGS1		EQU	0x050	; not used - FLAGS1 is available for each instrument seperately (SID_Ix_B_Vx_FLAGS1)
-	;; free: 0x51
+SID_Ix_B_OSC_DETUNE	EQU	0x051	; detune slave oscillators
 SID_Ix_B_VOLUME		EQU	0x052	; 7 bit value, only 4 bit used
-	;; free: 0x53
+SID_Ix_B_OSC_PHASE	EQU	0x053   ; oscillator phase offset
 
 SID_Ix_B_S1F_BASE	EQU	0x054;..0x059
 SID_Ix_B_S2F_BASE	EQU	0x05a;..0x05f
@@ -1069,11 +1070,6 @@ SID_Ix_B_S1V1_BASE	EQU	0x060;..0x0af    SID1 Voice1
 SID_Ix_B_S2V1_BASE	EQU	0x0b0;..0x0ff    SID2 Voice1
 
 ;; enhancement of SID_Ix_Vx_* structure (re-used from lead engine)
-SID_Ix_B_Vx_RESERVED1	EQU	0x2c
-SID_Ix_B_Vx_RESERVED2	EQU	0x2d
-SID_Ix_B_Vx_RESERVED3	EQU	0x2e
-SID_Ix_B_Vx_RESERVED4	EQU	0x2f
-
 SID_Ix_B_Vx_FLAGS2	EQU	0x10	; mono/legato [0], WTO [1], SusKey [2], OSC Phase Sync [3]
 ;; 0x11..0x13 not used (dedicated voice/PB/vel assignments)
 
@@ -1110,7 +1106,21 @@ SID_Ix_B_Vx_SEQ_RESERVED2 EQU	0x2f
 
 SID_Ix_B_Vx_ENV_DECAY_A	EQU	0x030	; ENV decay used on accented notes
 
-	;; free offsets: 0x31..0x4f
+	;; free offsets: 0x31..0x3f
+
+SID_Ix_B_V2_WAVEFORM	EQU	0x40	; [3:0] waveform, [4] voice off
+SID_Ix_B_V2_PULSEWIDTH_L EQU	0x41	; [7:0] low byte
+SID_Ix_B_V2_PULSEWIDTH_H EQU	0x42    ; [3:0] high nibble, [7:4] reserved
+SID_Ix_B_V2_OCT_TRANSPOSE EQU	0x43	; [2:0] 0: no transpose, 1..3: transpose +1..+3, 4..7: transpose -1..-4
+SID_Ix_B_V2_STATIC_NOTE EQU	0x44	; [6:0] if >0, play static note instead of transposed note
+	;; free offsets: 0x45..0x47
+
+SID_Ix_B_V3_WAVEFORM	EQU	0x48	; [3:0] waveform, [4] voice off
+SID_Ix_B_V3_PULSEWIDTH_L EQU	0x49	; [7:0] low byte
+SID_Ix_B_V3_PULSEWIDTH_H EQU	0x4a    ; [3:0] high nibble, [7:4] reserved
+SID_Ix_B_V3_OCT_TRANSPOSE EQU	0x4b	; [2:0] 0: no transpose, 1..3: transpose +1..+3, 4..7: transpose -1..-4
+SID_Ix_B_V3_STATIC_NOTE EQU	0x4c	; [6:0] if >0, play static note instead of transposed note
+	;; free offsets: 0x4d..0x4f
 
 SID_Ix_B_SEQUENCES	EQU	0x100;..0x1ff
 	;; structure: 2 bytes for each step (selected with address bit #7)

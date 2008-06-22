@@ -180,14 +180,42 @@ SIDSE_B_HANDLER_NOTE_MACRO MACRO patch_base, voice_base
 
 	clrf	SID_SE_ELEMENT_NUM, BANKED
 SIDSE_B_Handler_Note_L
+	;; transfer note values and state flags from OSC1 (master) to OSC2 (slave)
+	movff	SIDL_V1_BASE + SID_Vx_STATE,       SIDL_V2_BASE + SID_Vx_STATE
+	movff	SIDL_V1_BASE + SID_Vx_ASSIGNED_MV, SIDL_V2_BASE + SID_Vx_ASSIGNED_MV
+	movff	SIDL_V1_BASE + SID_Vx_NOTE,        SIDL_V2_BASE + SID_Vx_NOTE
+	movff	SIDL_V1_BASE + SID_Vx_PLAYED_NOTE, SIDL_V2_BASE + SID_Vx_PLAYED_NOTE
+
+	;; transfer note values and state flags from OSC1 (master) to OSC3 (slave)
+	movff	SIDL_V1_BASE + SID_Vx_STATE,       SIDL_V3_BASE + SID_Vx_STATE
+	movff	SIDL_V1_BASE + SID_Vx_ASSIGNED_MV, SIDL_V3_BASE + SID_Vx_ASSIGNED_MV
+	movff	SIDL_V1_BASE + SID_Vx_NOTE,        SIDL_V3_BASE + SID_Vx_NOTE
+	movff	SIDL_V1_BASE + SID_Vx_PLAYED_NOTE, SIDL_V3_BASE + SID_Vx_PLAYED_NOTE
+
 	SIDSE_B_HANDLER_NOTE_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_B_S1V1_BASE, SIDL_V1_BASE
+	SIDSE_B_HANDLER_NOTE_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_B_S1V1_BASE, SIDL_V2_BASE
+	SIDSE_B_HANDLER_NOTE_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_B_S1V1_BASE, SIDL_V3_BASE
 
 	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
 	BRA_IFSET WREG, SID_ENS_CTRL1_MONO, ACCESS, SIDSE_B_Handler_Note_NotR
 	movlw	3
 	movwf	SID_SE_ELEMENT_NUM, BANKED
 SIDSE_B_Handler_Note_R
+	;; transfer note values and state flags from OSC1 (master) to OSC2 (slave)
+	movff	SIDR_V1_BASE + SID_Vx_STATE,       SIDR_V2_BASE + SID_Vx_STATE
+	movff	SIDR_V1_BASE + SID_Vx_ASSIGNED_MV, SIDR_V2_BASE + SID_Vx_ASSIGNED_MV
+	movff	SIDR_V1_BASE + SID_Vx_NOTE,        SIDR_V2_BASE + SID_Vx_NOTE
+	movff	SIDR_V1_BASE + SID_Vx_PLAYED_NOTE, SIDR_V2_BASE + SID_Vx_PLAYED_NOTE
+
+	;; transfer note values and state flags from OSC1 (master) to OSC3 (slave)
+	movff	SIDR_V1_BASE + SID_Vx_STATE,       SIDR_V3_BASE + SID_Vx_STATE
+	movff	SIDR_V1_BASE + SID_Vx_ASSIGNED_MV, SIDR_V3_BASE + SID_Vx_ASSIGNED_MV
+	movff	SIDR_V1_BASE + SID_Vx_NOTE,        SIDR_V3_BASE + SID_Vx_NOTE
+	movff	SIDR_V1_BASE + SID_Vx_PLAYED_NOTE, SIDR_V3_BASE + SID_Vx_PLAYED_NOTE
+
 	SIDSE_B_HANDLER_NOTE_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_B_S2V1_BASE, SIDR_V1_BASE
+	SIDSE_B_HANDLER_NOTE_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_B_S2V1_BASE, SIDR_V2_BASE
+	SIDSE_B_HANDLER_NOTE_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_B_S2V1_BASE, SIDR_V3_BASE
 SIDSE_B_Handler_Note_NotR
 
 	;; ------------------------------------------------------------------
@@ -264,32 +292,82 @@ SIDSE_B_UpdateStatRegs
 SIDSE_B_UPDATESTAT_MACRO	MACRO patch_base, voice_base, sid_base, swinsid_mode, swinsid_phase
 	LOCAL	SIDSE_B_UpdateStatRegs_NoADSR
 	LOCAL	SIDSE_B_UpdateStatRegs_NoAcc
+	LOCAL	SIDSE_B_UpdateStatRegs_V2Enabled
+	LOCAL	SIDSE_B_UpdateStatRegs_V2Cont
+	LOCAL	SIDSE_B_UpdateStatRegs_V3Enabled
+	LOCAL	SIDSE_B_UpdateStatRegs_V3Cont
 
 	lfsr	FSR0, patch_base
 	lfsr	FSR1, voice_base
 
+	;; voice 1 oscillator
 	movlw	0x09
 	andwf	sid_base + SIDx_V1_CTRL, F, BANKED
 	movlw	SID_Ix_Vx_WAVEFORM
 	swapf	PLUSW0, W
 	andlw	0xf6
 	btfsc	WREG, 7; ensure that noise will not "lock on" like described in 6581 spec
-	andlw 0x8f 
+	andlw	0x8f 
 	iorwf	sid_base + SIDx_V1_CTRL, F, BANKED
 
+	;; voice 2 oscillator has own waveform and voice enable flag, sync and ring are taken over from voice1
+	;; no gate/sync if waveform disabled
+	movlw	SID_Ix_B_V2_WAVEFORM
+	movf	PLUSW0, W
+	andlw	0x0f
+	bnz	SIDSE_B_UpdateStatRegs_V2Enabled
+	movlw	0x10		; (select triangle waveform to keep the oscillator silent)
+	movwf	sid_base + SIDx_V2_CTRL, BANKED
+	rgoto	SIDSE_B_UpdateStatRegs_V2Cont
+SIDSE_B_UpdateStatRegs_V2Enabled
+	movlw	0x09
+	andwf	sid_base + SIDx_V2_CTRL, F, BANKED
+	movlw	SID_Ix_B_V2_WAVEFORM
+	swapf	PLUSW0, W
+	andlw	0xf6
+	btfsc	WREG, 7; ensure that noise will not "lock on" like described in 6581 spec
+	andlw	0x8f 
+	iorwf	sid_base + SIDx_V2_CTRL, F, BANKED
+SIDSE_B_UpdateStatRegs_V2Cont
+
+	;; voice 3 oscillator has own waveform and voice enable flag, sync and ring are taken over from voice1
+	movlw	SID_Ix_B_V3_WAVEFORM
+	movf	PLUSW0, W
+	andlw	0x0f
+	bnz	SIDSE_B_UpdateStatRegs_V3Enabled
+	movlw	0x10		; (select triangle waveform to keep the oscillator silent)
+	movwf	sid_base + SIDx_V3_CTRL, BANKED
+	rgoto	SIDSE_B_UpdateStatRegs_V3Cont
+SIDSE_B_UpdateStatRegs_V3Enabled
+	movlw	0x09
+	andwf	sid_base + SIDx_V3_CTRL, F, BANKED
+	movlw	SID_Ix_B_V3_WAVEFORM
+	swapf	PLUSW0, W
+	andlw	0xf6
+	btfsc	WREG, 7; ensure that noise will not "lock on" like described in 6581 spec
+	andlw	0x8f 
+	iorwf	sid_base + SIDx_V3_CTRL, F, BANKED
+SIDSE_B_UpdateStatRegs_V3Cont
+	
 	;; if ABW (ADSR bug workaround) function active, update ADSR register only when the gate is set
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_OPT1_FLAGS, WREG
 	BRA_IFSET WREG, SID_I_OPT1_FLAGS_ABW, ACCESS, SIDSE_B_UpdateStatRegs_NoADSR
 	movlw	SID_Ix_Vx_AD
 	movff	PLUSW0, sid_base + SIDx_V1_ENV_AD	
+	movff	PLUSW0, sid_base + SIDx_V2_ENV_AD
+	movff	PLUSW0, sid_base + SIDx_V3_ENV_AD
 	movlw	SID_Ix_Vx_SR
 	movff	PLUSW0, sid_base + SIDx_V1_ENV_SR
+	movff	PLUSW0, sid_base + SIDx_V2_ENV_SR
+	movff	PLUSW0, sid_base + SIDx_V3_ENV_SR
 
 	;; accent handling: force sustain to maximum if accent active
 	movlw	SID_Vx_STATE
 	BRA_IFCLR PLUSW1, SID_V_STATE_ACCENT, ACCESS, SIDSE_B_UpdateStatRegs_NoAcc
 	movlw	0xf0
 	iorwf	sid_base + SIDx_V1_ENV_SR, F, BANKED
+	iorwf	sid_base + SIDx_V2_ENV_SR, F, BANKED
+	iorwf	sid_base + SIDx_V3_ENV_SR, F, BANKED
 SIDSE_B_UpdateStatRegs_NoAcc
 SIDSE_B_UpdateStatRegs_NoADSR
 #if ENABLE_SWINSID

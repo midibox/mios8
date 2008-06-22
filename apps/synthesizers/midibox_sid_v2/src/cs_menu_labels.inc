@@ -23,21 +23,22 @@
 #define CS_MENU_LABEL_ENS_EXT	0x09
 #define CS_MENU_LABEL_SAVE	0x0a
 #define CS_MENU_LABEL_OSC	0x0b
-#define CS_MENU_LABEL_INS	0x0c
-#define CS_MENU_LABEL_FIL	0x0d
-#define CS_MENU_LABEL_LFO	0x0e
-#define CS_MENU_LABEL_ENV	0x0f
-#define CS_MENU_LABEL_MOD	0x10
-#define CS_MENU_LABEL_TRG	0x11
-#define CS_MENU_LABEL_CFG	0x12
-#define CS_MENU_LABEL_ARP	0x13
-#define CS_MENU_LABEL_KNB	0x14
-#define CS_MENU_LABEL_EXT	0x15
-#define CS_MENU_LABEL_WTC	0x16
-#define CS_MENU_LABEL_WTE	0x17
-#define CS_MENU_LABEL_SQC	0x18
-#define CS_MENU_LABEL_SEQ	0x19
-#define CS_MENU_LABEL_RND	0x1a
+#define CS_MENU_LABEL_O23	0x0c
+#define CS_MENU_LABEL_INS	0x0d
+#define CS_MENU_LABEL_FIL	0x0e
+#define CS_MENU_LABEL_LFO	0x0f
+#define CS_MENU_LABEL_ENV	0x10
+#define CS_MENU_LABEL_MOD	0x11
+#define CS_MENU_LABEL_TRG	0x12
+#define CS_MENU_LABEL_CFG	0x13
+#define CS_MENU_LABEL_ARP	0x14
+#define CS_MENU_LABEL_KNB	0x15
+#define CS_MENU_LABEL_EXT	0x16
+#define CS_MENU_LABEL_WTC	0x17
+#define CS_MENU_LABEL_WTE	0x18
+#define CS_MENU_LABEL_SQC	0x19
+#define CS_MENU_LABEL_SEQ	0x1a
+#define CS_MENU_LABEL_RND	0x1b
 
 	;; order of entries has to be aligned with definitions above!
 CS_MENU_LABEL_TABLE_ENTRY_SIZE EQU 12 ; characters
@@ -54,18 +55,19 @@ CS_MENU_LABEL_TABLE
 	db	"Ens. Extern "	; 0x09
 	db	"Save        "	; 0x0a
 	db	"Oscillator  "	; 0x0b
-	db	"Instrument  "	; 0x0c
-	db	"Filter      "	; 0x0d
-	db	"Low Frq. Osc"	; 0x0e
-	db	"Envelope    "	; 0x0f
-	db	"Modulation  "	; 0x10
-	db	"Triggers    "	; 0x11
-	db	"Config.     "	; 0x12
-	db	"Arpeggiator "	; 0x13
-	db	"Knobs       "	; 0x14
-	db	"Externals   "	; 0x15
-	db	"WT Config.  "	; 0x16
-	db	"WT Editor   "	; 0x17
-	db	"Seq. Config."	; 0x18
-	db	"Sequencer   "	; 0x19
-	db	"Randomizer  "	; 0x1a
+	db	"Oscillator23"	; 0x0c
+	db	"Instrument  "	; 0x0d
+	db	"Filter      "	; 0x0e
+	db	"Low Frq. Osc"	; 0x0f
+	db	"Envelope    "	; 0x10
+	db	"Modulation  "	; 0x11
+	db	"Triggers    "	; 0x12
+	db	"Config.     "	; 0x13
+	db	"Arpeggiator "	; 0x14
+	db	"Knobs       "	; 0x15
+	db	"Externals   "	; 0x16
+	db	"WT Config.  "	; 0x17
+	db	"WT Editor   "	; 0x18
+	db	"Seq. Config."	; 0x19
+	db	"Sequencer   "	; 0x1a
+	db	"Randomizer  "	; 0x1b
