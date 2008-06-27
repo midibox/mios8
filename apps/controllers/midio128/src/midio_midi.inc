@@ -29,6 +29,24 @@ MIDIO_MIDI_NotifyReceivedEvent
 	;; request display update
  	bsf	MB_STAT, MB_STAT_DISPLAY_UPDATE_REQ
 
+	;; if All Notes Off CC active: check it here
+	SET_BSR	MIDIO_BASE
+	movf	MIDIO_ALL_NOTES_OFF_CHANNEL, W, BANKED
+	bz	MIDIO_MIDI_NotifyReceivedEventNC	; ignore if channel value == 0 
+	addlw	-1					; MIDI channel = channel value - 1
+	andlw	0x0f
+	iorlw	0xb0					; check for CC | <channel>
+	xorwf	MIDIO_LAST_RECEIVED_EVNT0, W, BANKED
+	bnz	MIDIO_MIDI_NotifyReceivedEventNC
+	movf	MIDIO_LAST_RECEIVED_EVNT1, W, BANKED	; check for CC#123
+	xorlw	123
+	bnz	MIDIO_MIDI_NotifyReceivedEventNC
+	movf	MIDIO_LAST_RECEIVED_EVNT2, W, BANKED	; check for value > 0
+	bz	MIDIO_MIDI_NotifyReceivedEventNC
+MIDIO_MIDI_NotifyReceivedEventNO
+	goto	MIDIO_DOUT_ClearAll			; set all DOUTs to passive state
+MIDIO_MIDI_NotifyReceivedEventNC
+	
 	;; branch to MIDI event scanner
 	rgoto	MIDIO_MIDI_Scan
 

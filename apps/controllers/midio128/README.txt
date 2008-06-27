@@ -32,3 +32,15 @@ For details, how to build a new .hex file, see
    http://www.midibox.org/dokuwiki/application_development
 
 ===============================================================================
+
+Changing Configuration w/o recompiling source code:
+
+MIDIO128 allows to change most of the parameters (e.g. In/Out Events,
+pin polarities, Forwarding mode, Merger mode, etc...) via SysEx, so that
+you don't need to create & upload a new .hex file - just only a .syx
+file with your favourite SysEx loader
+
+The perl script which creates a .syx file from a .ini file (ASCII text)
+is located under $(MIOS_PATH)/tools/mk_midio128_syx 
+
+===============================================================================

@@ -62,6 +62,31 @@ MIDIO_DOUT_InvertLoop
 
 
 ;; --------------------------------------------------------------------------
+;;  This function sets all DOUT registers to passive state (used on Note Off CCs)
+;; --------------------------------------------------------------------------
+MIDIO_DOUT_ClearAll
+	;; get pointer to first SR entry
+	movlw	0x00
+	call	MIOS_DOUT_SRGet
+
+	;; determine clear mask
+	clrf	TMP2
+	SET_BSR	MIDIO_BASE
+	btfsc	MIDIO_CFG0, MIDIO_CFG0_INVERSE_DOUT, BANKED	; inversion?
+	comf	TMP2, F
+
+	;; pointer now in FSR1
+	;; loop 16 times
+	clrf	TMP1
+MIDIO_DOUT_ClearAllLoop
+	movff	TMP2, POSTINC1
+	incf	TMP1, F
+	BRA_IFCLR TMP1, 4, ACCESS, MIDIO_DOUT_ClearAllLoop
+	
+	return
+
+
+;; --------------------------------------------------------------------------
 ;;  This function fetches the DIN pins and copies the values into the DOUT
 ;;  registers if FORWARD_IO function is active.
 ;; 
@@ -109,3 +134,4 @@ MIDIO_DOUT_FetchDINLoopNext
 	incf	IRQ_TMP1, F
 	BRA_IFCLR IRQ_TMP1, 4, ACCESS, MIDIO_DOUT_FetchDINLoop
 	return
+

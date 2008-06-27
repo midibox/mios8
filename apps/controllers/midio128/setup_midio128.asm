@@ -23,6 +23,11 @@
 ;       to logic 1
 #define DEFAULT_ALT_PROGCHNG	0
 ;
+; If 0: Note Off CC#123 will be ignored
+; If 1..16: if CC#123 is received over the given channel (1..16), all 
+; digital outputs will be set to passive state
+#define DEFAULT_ALL_NOTES_OFF_CHANNEL	0
+;
 ; Forward Input to Output
 ; If 0: if an inputs gets an raising or falling edge, the appr. output
 ;       pin will be set to the same new logic level. The output pin
