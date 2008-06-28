@@ -14,6 +14,7 @@ HEADER 3 MIDIbox SID V2 User Manual --- Bassline Engine
     <LI><B>Direct MIDI Control:</B> active when sequencer mode within the SQC menu not enabled. The bassline can be directly played from a MIDI keyboard. Accent is activated with velocity >= 64, slide is activated when more than one key is played the same time (Sus-Key, sometimes also called "fingered" mode).</LI>
     <LI><B>Sequencer Mode:</B> can be activated within the SQC menu. One of 8 sequences can be selected by playing a note on a MIDI keyboard. Note C selects sequence 1, Note C# selects sequence 2, ... Note G Sequence 8. With Note G#, A, A# and B the current sequence is deselected (not played). The octave doesn't matter (no transpose).<BR>
     Bassline L and R (left and right channel) share the same sequence memory. Different sequences can be selected for these basslines by assigning the instruments to different MIDI channels and/or keyboard zones within the <A HREF="midibox_sid_manual_e.html">Ensemble</A><BR>
+    While bassline sequences are selected over the defined MIDI channel and keyboard zone of ensemble instrument #1 and #2, they can be transposed with the settings of instrument #3 and #4. This strict seperation allows several usecases (e.g. no, same or seperate transpose for L/R bassline, or transposing from a different MIDI channel which is also used for other MIDI devices, e.g. <A HREF="midibox_seq.html">MIDIbox SEQ</A>)<BR>
     In order to ensure, that both basslines are in sync, they are always started together. It is possible to start with a single bassline by disabling the second one in the preselection (Seq=-- in SQC menu)<BR>
     The sequencer continues to play when the MIDI key has been released (hold function). This allows you to tweak sound parameters with both hands - whenever you want to select a new sequence, play a new note. Whenever you want to stop the sequence, play G#/A/A# or B.<BR>
     Optionally the sequence can be preselected before the next measure (16 steps) is reached (S16 flag in SQC menu). Personally I prefer not to use this feature, as switching between different sequences in between a measure results into great variations (prefered configuration for jam sessions! :)</LI>
@@ -218,6 +219,10 @@ If you built your MIDIbox SID based on the old <A HREF="midibox_sid_manual_fp.ht
 <CENTER><IMG SRC="midibox_sid/cs2/b_ens_ins1.gif" width=290 height=38 ALT="Ensemble"></IMG></CENTER><BR>
 <P CLASS=DESC>Ensemble->Ins Configuration for Bassline R:<BR>
 <CENTER><IMG SRC="midibox_sid/cs2/b_ens_ins2.gif" width=290 height=38 ALT="Ensemble"></IMG></CENTER></P>
+<P CLASS=DESC>Ensemble->Ins Configuration for Transposer of Bassline L. "Trn +12" is required in this setup to compensate the octave range of the transposer (base note C-3 is outside the selected keyboard zone c-2..B-2):<BR>
+<CENTER><IMG SRC="midibox_sid/cs2/b_ens_ins3.gif" width=290 height=38 ALT="Ensemble"></IMG></CENTER></P>
+<P CLASS=DESC>Ensemble->Ins Configuration for Transposer of Bassline R (here: controlled from same keyboard zone as L bassline):<BR>
+<CENTER><IMG SRC="midibox_sid/cs2/b_ens_ins4.gif" width=290 height=38 ALT="Ensemble"></IMG></CENTER></P>
 
 <P CLASS=DESC>If more than two basslines should be controlled from the same keyboard (played on the slave SIDs), the ranges need to be reduced to dedicated octaves.</P>
 
