@@ -496,7 +496,6 @@ RC21:
     be configured in the setup_*.asm file
   o MB-6582 screen now centered at 2nd and 3rd line
   o if DEFAULT_LCD_LINES >= 3, the name of the menu will be print at the upper line
-    TODO: add more informative messages, e.g. selected oscillators, audio channel, LFO, etc...
   o if DEFAULT_LCD_LINES >= 4: the value of the currently edited parameter will be displayed
     as horizontal meter bar at the lower LCD line
     TODO: display bidirectional parameters like "depth" with a left/right splitted meter
@@ -514,6 +513,21 @@ RC21:
     - phase offset
     - detune
     - TODO: Knob assignments and maybe more functions
+
+RC22:
+  o "menu labels" (activated if DEFAULT_LCD_LINES >= 3) now completely implemented
+  o added keyboard transpose function for bassline sequencer. MIDI channels and
+    keyboard zones have to be configured for L/R bassline seperately with
+    ensemble instrument 3 and 4. The transposer uses C-3 as base note.
+    Example configuration:
+    Ins1 Chn 1 SpL C-3 SpU B-3 Trn 0     L Bassline sequence selected with key C-3..B-3
+    Ins2 Chn 1 SpL C-4 SpU G-8 Trn 0     R Bassline sequence selected with key C-4..
+    Ins3 Chn 1 SpL c-2 SpU B-2 Trn +12   L Bassline sequence transposed with lower keys until B-2
+    Ins3 Chn 1 SpL c-2 SpU B-2 Trn +12   R same as for L
+    "Trn +12" is required in this setup to compensate the octave range of the transposer
+    (base note C-3 is outside the selected keyboard zone c-2..B-2)
+  o bassline and drum sequences not stopped anymore on patch changes
+  o random generator for bassline O23 settings
 
 
 MEMO:

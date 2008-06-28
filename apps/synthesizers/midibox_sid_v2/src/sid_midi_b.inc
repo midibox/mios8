@@ -21,7 +21,9 @@
 ;;     o velocity in SID_MIDI_PARAMETER2
 ;; --------------------------------------------------------------------------
 SID_MIDI_B_NoteOn
-	;; go through the two midi voices
+	;; go through four midi voices
+	;; 1 and 2 used to play the bassline/select the sequence
+	;; 3 and 4 used to transpose a sequence
 	clrf	SID_CURRENT_MIDIVOICE, BANKED	; loop counter
 	lfsr	FSR0, SID_MV1_BASE
 SID_MIDI_B_NoteOn_Loop
@@ -30,6 +32,26 @@ SID_MIDI_B_NoteOn_Loop
 	call	SID_MIDI_Hlp_ChkChnAndSplit
 	bnz	SID_MIDI_B_NoteOn_Loop_Next
 
+	;; branch depending on voice
+	BRA_IFCLR SID_CURRENT_MIDIVOICE, 1, BANKED, SID_MIDI_B_NoteOn_Loop_Voice
+SID_MIDI_B_NoteOn_Loop_Trans
+	;; determine pointer to note stack -> FSR2
+	call	SID_MIDI_Hlp_GetNoteStackFSR2
+	;; check the active note
+	call	SID_MIDI_Hlp_CheckActiveNote
+	bz	SID_MIDI_B_NoteOn_Loop_TransNClr
+SID_MIDI_B_NoteOn_Loop_TransClr
+	call	SID_MIDI_Hlp_ClrStack	; clear note stack (for the case that some notes are marked with bit #7 (key released)
+SID_MIDI_B_NoteOn_Loop_TransNClr
+	;; push note into stack
+#if 0
+	call	SID_MIDI_Hlp_PushArpHold ; push at the end of stack
+#else
+	call	SID_MIDI_Hlp_PushNote ; push at the beginning of stack
+#endif
+	rgoto	SID_MIDI_B_NoteOn_Loop_Next
+
+SID_MIDI_B_NoteOn_Loop_Voice
 	;; set velocity value
 	;; L/R selection depending on MIDI voice number
 	movff	CS_MENU_SELECTED_SID_LR, TMP1		; taken from CS_MENU_SELECTED_SID_LR... dirty :-/
@@ -62,6 +84,7 @@ SID_MIDI_B_NoteOn_Loop
 	BRA_IFSET TMP1, SID_I_V_ARP_MODE_ENABLE, ACCESS, SID_MIDI_B_NoteOn_Loop_Arp
 SID_MIDI_B_NoteOn_Loop_Norm
 	;; push note into WT stack
+	call	SID_MIDI_Hlp_GetNoteStackFSR2
 	lfsr	FSR2, SID_MV1_BASE + SID_MVx_WT_STACK_0
 	movf	SID_CURRENT_MIDIVOICE, W, BANKED
 	mullw	SID_MVx_RECORD_LEN
@@ -91,11 +114,7 @@ SID_MIDI_B_NoteOn_Loop_Arp
 	movlw	SID_Vx_ASSIGNED_MV
 	movff	SID_CURRENT_MIDIVOICE, PLUSW1
 	;; determine pointer to note stack -> FSR2
-	lfsr	FSR2, SID_MV1_BASE + SID_MVx_NOTE_STACK_0
-	movf	SID_CURRENT_MIDIVOICE, W, BANKED
-	mullw	SID_MVx_RECORD_LEN
-	movf	PRODL, W
-	addwf	FSR2L, F
+	call	SID_MIDI_Hlp_GetNoteStackFSR2
 	;; call Arp handler
 	call	SID_MIDI_Hlp_ArpNoteOn
 	rgoto	SID_MIDI_B_NoteOn_Loop_Next
@@ -116,6 +135,10 @@ SID_MIDI_B_NoteOn_Loop_Seq
 
 	;; push note into stack
 	rcall	SID_MIDI_Hlp_PushNote
+
+	;; save midivoice (instrument) number in voice record
+	movlw	SID_Vx_ASSIGNED_MV
+	movff	SID_CURRENT_MIDIVOICE, PLUSW1
 
 	;; reset sequencer if voice was not active before
 	;; do this with both voices for proper synchronisation!
@@ -159,7 +182,7 @@ SID_MIDI_B_NoteOn_Loop_Next
 	movlw	SID_MVx_RECORD_LEN
 	addwf	FSR0L, F
 	incf	SID_CURRENT_MIDIVOICE, F, BANKED
-	movlw	2 - 1
+	movlw	4 - 1
 	cpfsgt	SID_CURRENT_MIDIVOICE, BANKED
 	rgoto SID_MIDI_B_NoteOn_Loop
 
@@ -177,7 +200,9 @@ SID_MIDI_B_NoteOn_End
 SID_MIDI_B_NoteOff
 	SET_BSR	SID_BASE
 
-	;; go through the two midi voices
+	;; go through four midi voices
+	;; 1 and 2 used to play the bassline/select the sequence
+	;; 3 and 4 used to transpose a sequence
 	clrf	SID_CURRENT_MIDIVOICE, BANKED		; loop counter
 	clrf	SID_CURRENT_VOICE, BANKED	; corresponding voice number (0 or 3)
 	lfsr	FSR0, SID_MV1_BASE
@@ -187,6 +212,21 @@ SID_MIDI_B_NoteOff_Loop
 	call	SID_MIDI_Hlp_ChkChnAndSplit
 	bnz	SID_MIDI_B_NoteOff_Loop_Next
 
+	;; branch depending on voice
+	BRA_IFCLR SID_CURRENT_MIDIVOICE, 1, BANKED, SID_MIDI_B_NoteOff_Loop_Voice
+SID_MIDI_B_NoteOff_Loop_Trans
+	;; determine pointer to note stack -> FSR2
+	call	SID_MIDI_Hlp_GetNoteStackFSR2
+	;; pop note from stack
+	call	SID_MIDI_Hlp_PopArpHold
+	;; TODO: add new algorithm which shifts the de-activated note to the end of the stack
+	;; this would allow following handling (example):
+	;; Press C-3: plays sequence with base note
+	;; Press E-3 in addition: transposes sequence by +4
+	;; Depress E-3: currently holds the transpose - desired behaviour: play C-3 (base note) again, since the key is still pressed
+	rgoto	SID_MIDI_B_NoteOff_Loop_Next
+
+SID_MIDI_B_NoteOff_Loop_Voice
 	;; SID_Ix_Vx_ARP_MODE of instrument -> TMP1
 	rcall	SID_MIDI_B_Hlp_FSR2_Ins
 	movlw	SID_Ix_Vx_ARP_MODE
@@ -290,7 +330,7 @@ SID_MIDI_B_NoteOff_Loop_Next
 	movlw	SID_MVx_RECORD_LEN
 	addwf	FSR0L, F
 	incf	SID_CURRENT_MIDIVOICE, F, BANKED
-	movlw	2 - 1
+	movlw	4 - 1
 	cpfsgt	SID_CURRENT_MIDIVOICE, BANKED
 	rgoto SID_MIDI_B_NoteOff_Loop
 

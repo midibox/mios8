@@ -417,8 +417,15 @@ CS_MENU_BUTTON_SID_LR
 	skpnz
 	addlw	1
 	movwf	CS_MENU_SELECTED_SID_LR
-	
+
+#if DEFAULT_LCD_LINES >= 3
+	;; update menu label
+	call	CS_MENU_UpdateLabel
+#endif
+
+	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
+
 	return
 
 	;; ------------------------------------------------------------------
@@ -1115,6 +1122,9 @@ CS_MENU_BUTTON_Hlp_MenuChange
 	;; don't change if already in menu (only update screen)
 	cpfseq	CS_MENU, ACCESS
 	rgoto CS_MENU_BUTTON_Hlp_MenuChangeOk
+#if DEFAULT_LCD_LINES >= 3
+	call	CS_MENU_UpdateLabel		; update menu label
+#endif
 	rgoto	CS_MENU_BUTTON_DisplayUpdateReq
 
 CS_MENU_BUTTON_Hlp_MenuChangeOk

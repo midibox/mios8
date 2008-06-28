@@ -903,3 +903,18 @@ SID_MIDI_Hlp_ChkChnAndSplit_Ok
 SID_MIDI_Hlp_ChkChnAndSplit_Fail
 	iorlw	0xff		; ZERO flag cleared: note not within range
 	return
+
+;; --------------------------------------------------------------------------
+;; Check MIDI Channel and Split Points
+;; IN: current channel IN SID_CURRENT_CHANNEL
+;;     current note in SID_MIDI_PARAMETER1
+;;     SID_MVx_BASE in FSR0
+;; OUT: zero flag set if channel and split zone matches
+;; --------------------------------------------------------------------------
+SID_MIDI_Hlp_GetNoteStackFSR2
+	lfsr	FSR2, SID_MV1_BASE + SID_MVx_NOTE_STACK_0
+	movf	SID_CURRENT_MIDIVOICE, W, BANKED
+	mullw	SID_MVx_RECORD_LEN
+	movf	PRODL, W
+	addwf	FSR2L, F
+	return

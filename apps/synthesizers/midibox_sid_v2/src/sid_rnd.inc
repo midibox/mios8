@@ -210,6 +210,7 @@ SID_RND_GeneratePart
 	rgoto	SID_RND_GenerateSld	; only for bassline
 	rgoto	SID_RND_GenerateAcc	; only for bassline
 	rgoto	SID_RND_GeneratePar	; only for bassline
+	rgoto	SID_RND_GenerateO23	; only for bassline
 	rgoto	SID_RND_GenerateDSeq	; only for drums
 
 ;; ------------------------------------------------------------------
@@ -287,6 +288,30 @@ SID_RND_GenerateOsc_B_Loop
 	movf	PRODH, W
 	addwf	FSR1H, F
 	rcall	SID_RND_GenerateOsc_Gen
+
+	;; transpose by -2 octaves
+	movlw	SID_Ix_Vx_TRANSPOSE
+	movf	PLUSW1, W
+	addlw	-24
+	movwf	PRODL
+	movlw	SID_Ix_Vx_TRANSPOSE
+	movff	PRODL, PLUSW1
+
+	;; increase portamento
+	movlw	SID_Ix_Vx_PORTAMENTO
+	movf	PLUSW1, W
+	addlw	30
+	movwf	PRODL
+	movlw	SID_Ix_Vx_PORTAMENTO
+	movff	PRODL, PLUSW1
+
+	;; clean ADSR parameters for bassline typical sounds
+	movlw	SID_Ix_Vx_AD
+	clrf	PLUSW1
+	movlw	0xc0
+	movwf	PRODL
+	movlw	SID_Ix_Vx_SR
+	movff	PRODL, PLUSW1
 
 	incf	TMP1, F
 	movlw	2-1
@@ -1057,6 +1082,82 @@ SID_RND_GeneratePar_End
 	return
 
 ;; ------------------------------------------------------------------
+;; Bassline: Oscillator 2+3 settings
+;; ------------------------------------------------------------------
+SID_RND_GenerateO23
+	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
+	andlw	0x03
+	xorlw	0x01
+	bnz	SID_RND_GenerateO23_End
+
+	;; loop through 2 voices
+	SET_BSR	SID_BASE
+	clrf	TMP1
+SID_RND_GenerateO23_Loop
+	;; O23 is range 0x40..0x4f
+	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_B_S1V1_BASE + SID_Ix_B_V2_WAVEFORM
+	movf	TMP1, W
+	mullw	SID_Ix_B_S2V1_BASE-SID_Ix_B_S1V1_BASE
+	movf	PRODL, W
+	addwf	FSR1L, F
+
+	movlw	0x10
+	addwf	FSR1L, W
+	movwf	FSR0L
+	movlw	0x00
+	addwfc	FSR1H, W
+	movwf	FSR0H
+  	rcall	SID_RND_GenerateRange
+
+	;; get offset again
+	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_B_S1V1_BASE
+	movf	TMP1, W
+	mullw	SID_Ix_B_S2V1_BASE-SID_Ix_B_S1V1_BASE
+	movf	PRODL, W
+	addwf	FSR1L, F
+
+	rcall	SID_RND_GetIxVxWaveform	; special treatment for waveform
+	movwf	PRODL
+	movlw	SID_Ix_B_V2_WAVEFORM
+	movff	PRODL, PLUSW1
+
+	rcall	SID_RND_GetIxVxWaveform	; special treatment for waveform
+	movwf	PRODL
+	movlw	SID_Ix_B_V3_WAVEFORM
+	movff	PRODL, PLUSW1
+
+	clrf	MIOS_PARAMETER1		; transpose by +/- 1 octave only
+	movlw	1
+	movwf	MIOS_PARAMETER2
+	rcall	SID_RND_GetScaled
+	skpnz
+	movlw	0x07
+	movwf	PRODL
+	movlw	SID_Ix_B_V2_OCT_TRANSPOSE
+	movff	PRODL, PLUSW1
+
+	rcall	SID_RND_GetScaled
+	skpnz
+	movlw	0x07
+	movwf	PRODL
+	movlw	SID_Ix_B_V3_OCT_TRANSPOSE
+	movff	PRODL, PLUSW1
+
+	;; no static notes
+	movlw	SID_Ix_B_V2_STATIC_NOTE
+	clrf	PLUSW1
+	movlw	SID_Ix_B_V3_STATIC_NOTE
+	clrf	PLUSW1
+
+	incf	TMP1, F
+	movlw	2-1
+	cpfsgt	TMP1, ACCESS
+	rgoto SID_RND_GenerateO23_Loop
+
+SID_RND_GenerateO23_End
+	return
+
+;; ------------------------------------------------------------------
 ;; Drums: Sequencer Tracks
 ;; ------------------------------------------------------------------
 SID_RND_GenerateDSeq
@@ -1090,13 +1191,14 @@ SID_RND_GenerateAll
 	rcall	SID_RND_GenerateWTE
 	rcall	SID_RND_GenerateKnb
 	rcall	SID_RND_GenerateExt
-	rgoto	SID_RND_GenerateNte
-	rgoto	SID_RND_GenerateGte
-	rgoto	SID_RND_GenerateSld
-	rgoto	SID_RND_GenerateAcc
-	rgoto	SID_RND_GeneratePar
-	rgoto	SID_RND_GenerateDSeq
-
+	rcall	SID_RND_GenerateNte
+	rcall	SID_RND_GenerateGte
+	rcall	SID_RND_GenerateSld
+	rcall	SID_RND_GenerateAcc
+	rcall	SID_RND_GeneratePar
+	rcall	SID_RND_GenerateO23
+	rcall	SID_RND_GenerateDSeq
+	
 	;; give it a name
 	lfsr	FSR1, SID_EDIT_BUFFER
 	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG

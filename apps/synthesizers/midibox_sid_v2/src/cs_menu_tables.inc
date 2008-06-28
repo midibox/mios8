@@ -1079,6 +1079,7 @@ CS_MENU_TABLE_B_RND
 	CS_MENU_ENTRY	0x0e,                       "Acc", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
 	CS_MENU_ENTRY	0x0f,                       "Par", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
 	CS_MENU_ENTRY	0x01,                       "Osc", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
+	CS_MENU_ENTRY	0x10,                       "O23", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
 	CS_MENU_ENTRY	0x02,                       "Fil", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
 	CS_MENU_ENTRY	0x03,                       "LFO", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
 	CS_MENU_ENTRY	0x04,                       "ENV", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
@@ -1092,7 +1093,7 @@ CS_MENU_TABLE_D_RND
 
 	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	0x00,                       "All", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
-	CS_MENU_ENTRY	0x10,                       "Seq", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
+	CS_MENU_ENTRY	0x11,                       "Seq", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
 	CS_MENU_ENTRY	0x01,                       "Drm", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
 	CS_MENU_ENTRY	0x02,                       "Fil", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
 	CS_MENU_ENTRY	0x09,                       "Knb", 0x000, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP

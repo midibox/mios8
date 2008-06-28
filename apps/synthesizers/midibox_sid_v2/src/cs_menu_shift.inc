@@ -103,7 +103,7 @@ CS_MENU_SHIFT_PrintLL_P_Cont
 #if DEFAULT_LCD_LINES <= 2
 	;; fill
 	movlw	20
-	call	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 #endif
 	return
 
@@ -216,7 +216,7 @@ CS_MENU_SHIFT_Button_Init_P
 	rcall	CS_MENU_SHIFT_Message
 #if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	call	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 #endif
 	return
 
@@ -229,7 +229,7 @@ CS_MENU_SHIFT_Button_Init_E
 	rcall	CS_MENU_SHIFT_Message
 #if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	call	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 #endif
 	return
 
@@ -247,7 +247,7 @@ CS_MENU_SHIFT_Button_Rnd
 	rcall	CS_MENU_SHIFT_Message
 #if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	call	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 #endif
 	return
 #else
@@ -276,7 +276,7 @@ CS_MENU_SHIFT_Button_Play_Cont
 	rcall	CS_MENU_SHIFT_Message
 #if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	call	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 #endif
 	return
 #endif
@@ -307,7 +307,7 @@ CS_MENU_SHIFT_Button_SyxD_E_Cont
 	rcall	CS_MENU_SHIFT_Message
 #if DEFAULT_LCD_LINES <= 2
 	movlw	20
-	call	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 #endif
 
 	call	SID_SYSEX_SendDump_Edit

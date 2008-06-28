@@ -478,55 +478,9 @@ CS_MENU_Handler_MenuLabel
 	;; decrement counter
 	decf	CS_MENU_LABEL_CTR, F
 
-	;; cursor pos = 4 * (4-LABEL_CTR)
-	movf	CS_MENU_LABEL_CTR, W
-	sublw	4
-	mullw	4
-	movf	PRODL, W
-	iorlw	0x80		; select upper line
-	call	MIOS_LCD_CursorSet
+	;; branch to label handler
+	goto	CS_MENU_LABEL_Handler
 
-	;; branch depending on display piece
-	movf	CS_MENU_LABEL_CTR, W
-	bz	CS_MENU_Handler_MenuLabel_4
-	addlw	-1
-	bz	CS_MENU_Handler_MenuLabel_3
-CS_MENU_Handler_MenuLabel_012
-	;; get pointer to label
-	movf	CS_MENU_LABEL, W
-	TABLE_ADDR_MUL_W CS_MENU_LABEL_TABLE, CS_MENU_LABEL_TABLE_ENTRY_SIZE
-	;; add offset
-	movf	CS_MENU_LABEL_CTR, W
-	sublw	4
-	mullw	4
-	movf	PRODL, W
-	TABLE_ADD_W
-
-	;; print 4 characters and exit
-	movlw	4
-	goto	MIOS_LCD_PrintPreconfString
-
-
-CS_MENU_Handler_MenuLabel_3
-	;; print 4 spaces if EMPTY message selected
-	movf	CS_MENU_LABEL, W
-	bz	CS_MENU_Handler_MenuLabel_Empty
-	rgoto	CS_MENU_Handler_MenuLabel_Empty
-
-	;; TODO: add element value
-
-CS_MENU_Handler_MenuLabel_4	
-	;; print 4 spaces if EMPTY message selected
-	movf	CS_MENU_LABEL, W
-	bz	CS_MENU_Handler_MenuLabel_Empty
-	;; TODO: add element value
-	rgoto	CS_MENU_Handler_MenuLabel_Empty
-	return
-
-	
-CS_MENU_Handler_MenuLabel_Empty
-	movlw	4		; empty piece
-	goto	SID_LCD_PrintSpaces
 
 ;; --------------------------------------------------------------------------
 ;;  initialize the page
@@ -842,7 +796,7 @@ CS_MENU_Page_EditName_UL
 
 	;; fill rest with spaces
 	movlw	40-16
-	rcall	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 
 CS_MENU_Page_EditName_SkipUL
 	;; flashing cursor: set space
@@ -859,7 +813,7 @@ CS_MENU_Page_EditName_NoSpc
 	;; print 20 spaces (for 2x40 displays)
 #if CS_MENU_DISPLAYED_ITEMS > 5
 	movlw	20
-	rcall	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 #endif
 
 	;; if not GLCD, set cursor
@@ -926,7 +880,7 @@ CS_MENU_Page_EditSeq_UL_Rot
 CS_MENU_Page_EditSeq_UL_Cont
 	;; fill rest with spaces
 	movlw	40-20
-	rcall	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 
 CS_MENU_Page_EditSeq_SkipUL
 	;; not if rotate function active
@@ -947,7 +901,7 @@ CS_MENU_Page_EditSeq_NoSpc
 	;; print 20 spaces (for 2x40 displays)
 #if CS_MENU_DISPLAYED_ITEMS > 5
 	movlw	20
-	rcall	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 #endif
 
 	;; if not GLCD, set cursor
@@ -1011,7 +965,7 @@ CS_MENU_PrintILine
 	rgoto CS_MENU_PrintILine_Ok
 	;; print 4 spaces
 	movlw	4
-	rcall	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 	rgoto	CS_MENU_PrintILine_End
 CS_MENU_PrintILine_Ok
 	;; if CS_MENU_CURSOR_POS == CS_MENU_PAGE_OFFSET + CS_MENU_LOOP_CTR,
@@ -1122,7 +1076,7 @@ CS_MENU_PrintPLine
 	bz	CS_MENU_PrintPLine_End
 	;; print 4 spaces
 	movlw	4
-	rcall	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 	rgoto	CS_MENU_PrintPLine_End
 CS_MENU_PrintPLine_Ok
 	;; if CS_MENU_CURSOR_POS == CS_MENU_PAGE_OFFSET + CS_MENU_LOOP_CTR
@@ -1137,7 +1091,7 @@ CS_MENU_PrintPLine_Ok
 	BRA_IFCLR CS_STAT, CS_STAT_MODIFY_PARAMETER, ACCESS, CS_MENU_PrintPLine_COn
 	;; print 4 spaces
 	movlw	4
-	rcall	CS_MENU_Hlp_PrintSpaces
+	call	SID_LCD_PrintSpaces
 	rgoto	CS_MENU_PrintPLine_End
 CS_MENU_PrintPLine_COn
 	rcall	CS_MENU_PrintPEntry
@@ -1637,6 +1591,10 @@ CS_MENU_ParameterUpdatePatName
 CS_MENU_ParameterUpdateParName_C
 CS_MENU_ParameterUpdateNoBigMsg
 
+#if DEFAULT_LCD_LINES >= 3
+	;; request printing label
+	call	CS_MENU_UpdateLabel
+#endif
 
 #if DEFAULT_LCD_LINES >= 4
 	;; for meter bar at lower line: get scaled value and preload display counter
@@ -1751,20 +1709,6 @@ CS_MENU_Hlp_GetCursorPosEntry
 	addwfc	CS_MENU_ENTRY_TBLPTRH, F
 	return
 
-;; --------------------------------------------------------------------------
-;;  This help function prints n spaces
-;;  IN: number of spaces in WREG
-;; --------------------------------------------------------------------------
-CS_MENU_Hlp_PrintSpaces
-	movwf	TMP1		; using TMP1 as loop counter
-CS_MENU_Hlp_PrintSpaces_Loop
-	movlw	' '
-	call	MIOS_LCD_PrintChar
-	decfsz	TMP1, F		; decrement TMP1, skip if zero
-	rgoto	CS_MENU_Hlp_PrintSpaces_Loop
-
-	return
-	
 ;; --------------------------------------------------------------------------
 ;;  This help function updates the OSC select flags
 ;; --------------------------------------------------------------------------
@@ -2220,9 +2164,7 @@ CS_MENU_PageUpDown_Ens
 CS_MENU_PageUpDown_NoPatchOrEns
 
 	;; printing the new element value is not required on displays with >= 3 lines, since it is print at the upper line anyhow
-;#if DEFAULT_LCD_LINES <= 2
-; TODO: will be disabled once CS_MENU_Handler_MenuLabel has been enhanced
-#if 1
+#if DEFAULT_LCD_LINES <= 2
 	;; set cursor
 	movlw	0x00
 	call	MIOS_LCD_CursorSet

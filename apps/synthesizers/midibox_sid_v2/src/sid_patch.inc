@@ -19,6 +19,21 @@ SID_PATCH_Init
 	bsf	SID_STAT, SID_STAT_ENGINE_DISABLE
 
 	;; clear the whole SID SFR memory space
+	;; skip this if old and new engine are drum or bassline
+	SET_BSR	SID_PATCH_BUFFER + SID_Ix_ENGINE
+	movf	SID_PATCH_BUFFER + SID_Ix_ENGINE, W, BANKED
+	SET_BSR	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE
+	xorwf	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, W, BANKED
+	andlw	0x03
+	bnz	SID_PATCH_Init_Clear
+	movf	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, W, BANKED
+	andlw	0x03
+	bz	SID_PATCH_Init_Clear ; lead engine
+	xorlw	0x03
+	bz	SID_PATCH_Init_Clear ; multi engine
+	rgoto	SID_PATCH_Init_ClearSkip
+
+SID_PATCH_Init_Clear
 	movlw	SIDSE_CLEAR_128B_BLOCKS
 	movwf	TABLAT
 	lfsr	FSR0, SIDSE_CLEAR_BEGIN
@@ -89,6 +104,8 @@ SID_PATCH_Init_ClearMVLoop_Next
 	rgoto SID_PATCH_Init_ClearMVLoop
 	SET_BSR	SID_BASE
 
+
+SID_PATCH_Init_ClearSkip
 
 	;; transfer patch buffer to shadow buffer
 	lfsr	FSR0, SID_PATCH_BUFFER

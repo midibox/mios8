@@ -1176,7 +1176,7 @@ SIDSE_Pitch_Transp_NoArp
 SIDSE_Pitch_Transp_Cont
 	movff	PLUSW1, SID_SE_TRANSPOSED_NOTE
 
-	;; pointer to MIDI note -> FSR2
+	;; pointer to MIDI voice -> FSR2
 	lfsr	FSR2, SID_MV1_BASE
 	movlw	SID_Vx_ASSIGNED_MV
 	movf	PLUSW1, W
@@ -1266,17 +1266,53 @@ SIDSE_Pitch_Transp_Bassline_V1L	; SID_Ix_Vx_TRANSPOSE already in IRQ_TMP2
 SIDSE_Pitch_Transp_Bassline_V1R
 SIDSE_Pitch_Transp_Bassline_Cont
 
-	;; if WTO enabled, note is not transposed via MIDI voice (instead the sequence number will be transposed)
+	;; if WTO enabled, note is transposed via MIDI voice 3/4
 	movlw	SID_Ix_B_Vx_FLAGS2
-	BRA_IFCLR PLUSW0, SID_I_B_V_FLAGS2_WT_ONLY, ACCESS, SIDSE_Pitch_Transp_NoLead
-	movlw	0x40
+	BRA_IFCLR PLUSW0, SID_I_B_V_FLAGS2_WT_ONLY, ACCESS, SIDSE_Pitch_Transp_NoBasslineSeq
+	;; no transpose if channel disabled (to ensure compatibility with older ensemble settings)
+	movlw	2*SID_MVx_RECORD_LEN + SID_MVx_MIDI_CHANNEL
+	movf	PLUSW2, W
+	andlw	0xf0
+	bnz	SIDSE_Pitch_Transp_NoIns34Trans
+SIDSE_Pitch_Transp_Ins34Trans
+	;; copy transpose value of midi voice into IRQ_TMP1
+	movlw	2*SID_MVx_RECORD_LEN + SID_MVx_TRANSPOSE
+	movff	PLUSW2, IRQ_TMP1
+	;; and if note has been played: use it for transpose as well
+	movlw	2*SID_MVx_RECORD_LEN + SID_MVx_NOTE_STACK_0
+	movf	PLUSW2, W
+	andlw	0x7f
+	bz	SIDSE_Pitch_Transp_Ins34TransNoN
+	addlw	-0x3c		; (decrement base note C-3)
+	addwf	IRQ_TMP1, F
+	BRA_IFCLR IRQ_TMP1, 7, ACCESS, SIDSE_Pitch_Transp_Ins34TransNoO ; saturation?
+	BRA_IFSET WREG, 7, ACCESS, SIDSE_Pitch_Transp_Ins34TransOvN ; saturate depending on sign
+SIDSE_Pitch_Transp_Ins34TransOvP
+	movlw	-12
+	addwf	IRQ_TMP1, F
+	BRA_IFSET IRQ_TMP1, 7, ACCESS, SIDSE_Pitch_Transp_Ins34TransOvP
+	rgoto	SIDSE_Pitch_Transp_Ins34TransOvC
+SIDSE_Pitch_Transp_Ins34TransOvN
+	movlw	12
+	addwf	IRQ_TMP1, F
+	BRA_IFSET IRQ_TMP1, 7, ACCESS, SIDSE_Pitch_Transp_Ins34TransOvN
+	;; 	rgoto	SIDSE_Pitch_Transp_Ins34TransOvC
+SIDSE_Pitch_Transp_Ins34TransOvC
+SIDSE_Pitch_Transp_Ins34TransNoO
+SIDSE_Pitch_Transp_Ins34TransNoN
+	rgoto	SIDSE_Pitch_Transp_Bassline_Seq
+
+SIDSE_Pitch_Transp_NoIns34Trans
+	movlw	0x40		; no transpose for bassline sequencer
 	movwf	IRQ_TMP1
 	rgoto	SIDSE_Pitch_Transp_Bassline_Seq
+
 SIDSE_Pitch_Transp_NoBassline
-	xorlw	0x01
-	bnz	SIDSE_Pitch_Transp_NoLead
+	xorlw	0x01				; (reverse engine setting)
+	bnz	SIDSE_Pitch_Transp_NoLead	; (if engine != 0)
 SIDSE_Pitch_Transp_Lead
 	lfsr	FSR2, SID_MV1_BASE
+SIDSE_Pitch_Transp_NoBasslineSeq
 SIDSE_Pitch_Transp_NoLead
 	movlw	SID_MVx_TRANSPOSE
 	movff	PLUSW2, IRQ_TMP1
@@ -1291,11 +1327,18 @@ SIDSE_Pitch_Transp_Bassline_Seq
 	addwf	SID_SE_TRANSPOSED_NOTE, W, BANKED
 	addlw	1
 	BRA_IFCLR WREG, 7, ACCESS, SIDSE_Pitch_Transp_NoOverflow
-SIDSE_Pitch_Transp_Overflow
-	btfss	IRQ_TMP1, 7; pos saturation
-	movlw 0x7f	
-	btfsc	IRQ_TMP1, 7; neg saturation
-	movlw 0x00	
+	BRA_IFSET IRQ_TMP1, 7, ACCESS, SIDSE_Pitch_Transp_Overflow_N
+SIDSE_Pitch_Transp_Overflow_P
+	addlw	-12		; octavewise saturation
+	BRA_IFSET WREG, 7, ACCESS, SIDSE_Pitch_Transp_Overflow_P
+	rgoto	SIDSE_Pitch_Transp_Overflow_Cont
+
+SIDSE_Pitch_Transp_Overflow_N
+	addlw	12		; octavewise saturation
+	BRA_IFSET WREG, 7, ACCESS, SIDSE_Pitch_Transp_Overflow_N
+	;; 	rgoto	SIDSE_Pitch_Transp_Overflow_Cont
+
+SIDSE_Pitch_Transp_Overflow_Cont
 SIDSE_Pitch_Transp_NoOverflow
 	movwf	SID_SE_TRANSPOSED_NOTE, BANKED
 

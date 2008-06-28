@@ -102,11 +102,7 @@ SID_MIDI_M_NoteOn_Loop_Arp
 	movlw	SID_Vx_ASSIGNED_MV
 	movff	SID_CURRENT_MIDIVOICE, PLUSW1
 	;; determine pointer to note stack -> FSR2
-	lfsr	FSR2, SID_MV1_BASE + SID_MVx_NOTE_STACK_0
-	movf	SID_CURRENT_MIDIVOICE, W, BANKED
-	mullw	SID_MVx_RECORD_LEN
-	movf	PRODL, W
-	addwf	FSR2L, F
+	call	SID_MIDI_Hlp_GetNoteStackFSR2
 	;; call Arp handler
 	call	SID_MIDI_Hlp_ArpNoteOn
 	;; 	rgoto	SID_MIDI_M_NoteOn_Loop_Next
