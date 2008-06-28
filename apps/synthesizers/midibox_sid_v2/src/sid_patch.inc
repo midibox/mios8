@@ -102,10 +102,10 @@ SID_PATCH_Init_ClearMVLoop_Next
 	movlw	SID_MVx_NUM-1
 	cpfsgt	TABLAT, ACCESS
 	rgoto SID_PATCH_Init_ClearMVLoop
-	SET_BSR	SID_BASE
 
 
 SID_PATCH_Init_ClearSkip
+	SET_BSR	SID_BASE
 
 	;; transfer patch buffer to shadow buffer
 	lfsr	FSR0, SID_PATCH_BUFFER
