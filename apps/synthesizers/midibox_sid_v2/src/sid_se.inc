@@ -1521,6 +1521,7 @@ SIDSE_Pitch_NoPitchBender
 
 	movlw	SID_Ix_Vx_FINETUNE
 	movf	PLUSW0, W
+	movwf	IRQ_TMP1
 	xorlw	0x80
 	bz	SIDSE_Pitch_NoFinetune
 SIDSE_Pitch_Finetune
