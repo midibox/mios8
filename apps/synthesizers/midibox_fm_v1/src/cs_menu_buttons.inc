@@ -57,7 +57,7 @@ CS_MENU_BUTTON_Handler_Loop
 
 CS_MENU_BUTTON_Handler_End
 
-	;; the selection matrix buttons are handled seperately
+	;; the selection matrix buttons are handled separately
 	goto	CS_MENU_MATRIX_BHandler
 
 

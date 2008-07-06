@@ -14,7 +14,7 @@
 ;
 ; Special Option for AOUT_LC module: select either 12/4 bit (0), or 8/8 bit (1),
 ; or 12/12/8 (2) configuration
-; this has to be done for each module seperately
+; this has to be done for each module separately
 ;
 ; Note: the 12/12/8 bit selection (2) combines 4 shift registers. The first two SRs
 ; are working like option 0 (first channel: 12bit, second channel: upper 4bit)

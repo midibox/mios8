@@ -13,7 +13,7 @@
 
 ;; --------------------------------------------------------------------------
 ;;  Init Routine for patch parameters
-;;  Note that the MIDI events are initialized seperately, this routine will
+;;  Note that the MIDI events are initialized separately, this routine will
 ;;  be called on power-on and after a new MIDI dump has been loaded
 ;; --------------------------------------------------------------------------
 SID_PATCH_Init

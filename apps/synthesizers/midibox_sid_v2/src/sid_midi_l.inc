@@ -507,7 +507,7 @@ SID_MIDI_L_Hlp_NoteOff_GOff
 
 	;; ENV/LFO/... synchronisation via trigger matrix
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOf_BASE + 0, WREG
-	andlw	0xc0		; (Gates handled seperately in SID_MIDI_L_Hlp_GateOff)
+	andlw	0xc0		; (Gates handled separately in SID_MIDI_L_Hlp_GateOff)
 	iorwf	SID_SE_TRG_EVNT_L, F, BANKED
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOf_BASE + 1, WREG
 	iorwf	SID_SE_TRG_EVNT_H, F, BANKED

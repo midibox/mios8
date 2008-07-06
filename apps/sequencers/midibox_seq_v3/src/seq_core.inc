@@ -851,7 +851,7 @@ SEQ_CORE_Clk_NoMetro
 #endif
 
 	;; ------------------------------------------------------------------
-	;; starting the big clock loop which handles every single track seperately
+	;; starting the big clock loop which handles every single track separately
 	;; ------------------------------------------------------------------
 	movff	SEQ_CHAINHNDSHK_G0, SEQ_CHAINHNDSHK_NEXT_G0	; prepare temporary handshake registers
 	movff	SEQ_CHAINHNDSHK_G1, SEQ_CHAINHNDSHK_NEXT_G1	; the *CHAINHNDSHK_NEXT* registers will be copied

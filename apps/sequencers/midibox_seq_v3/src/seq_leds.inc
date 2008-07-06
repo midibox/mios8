@@ -308,7 +308,7 @@ SEQ_LED_UpdateIRQ_GPLED_NoMarker
 	;; ---[ update LED matrix ]---
 SEQ_LED_UpdateIRQ_LM
 	;; transfer current LED pattern to IRQ_TMP[12]
-	;; Track LED Row 1-4 - values stored in seperate array
+	;; Track LED Row 1-4 - values stored in separate array
 	lfsr	FSR1, SEQ_LEDM_TRK0_A_L
 	rlf	SEQ_BLM_ROW_CTR, W, BANKED
 	andlw	0xfe

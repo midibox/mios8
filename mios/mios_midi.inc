@@ -902,7 +902,7 @@ MIOS_MIDI_TxBufferFlush_Sync
 
 ;; --------------------------------------------------------------------------
 ;; internal function to send a byte via MBHP_IIC_MIDI
-;; note that this module comes with a seperate package for optimized transfers
+;; note that this module comes with a separate package for optimized transfers
 ;; --------------------------------------------------------------------------
 ;; --------------------------------------------------------------------------
 ;;  IIC MIDI Send function

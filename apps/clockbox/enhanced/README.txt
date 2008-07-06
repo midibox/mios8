@@ -23,7 +23,7 @@ http://www.ucapps.de/mios/clockbox.pdf
 Update V1.1:
 A "multi clock out" option has been added which supports 8 additional
 MIDI Outs. The clocks which are sent can be enabled/disabled with 
-8 seperate play and stop buttons. Changes will be synchronized to
+8 separate play and stop buttons. Changes will be synchronized to
 the beat (1/4 note)
 
 This option is based on an idea of Braintu, his full concept can be

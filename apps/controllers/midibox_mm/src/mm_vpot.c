@@ -35,7 +35,7 @@ unsigned char ledring_update_req; // 8 update request flags
 
 // this table defines the ledring patterns for 32 steps
 // note that the 12th LED (the center LED below the encoder) is set by
-// MM_VPOT_LEDRing_CheckUpdates seperately if the V-Pot pointer hasn't been received from host
+// MM_VPOT_LEDRing_CheckUpdates separately if the V-Pot pointer hasn't been received from host
 const unsigned int preset_patterns[32] = {
   0x0001, //   b'0000000000000001'
   0x0001, //   b'0000000000000001'

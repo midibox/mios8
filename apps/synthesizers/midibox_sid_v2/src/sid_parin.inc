@@ -660,7 +660,7 @@ SID_PARIN_Set_NOTE_Off_Trg_LB
 	BRA_IFSET WREG, 0, ACCESS, SID_PARIN_Set_NOTE_Off_Trg_B
 SID_PARIN_Set_NOTE_Off_Trg_L
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOf_BASE + 0, WREG
-	andlw	0xc0		; (Gates handled seperately)
+	andlw	0xc0		; (Gates handled separately)
 	iorwf	SID_SE_TRG_EVNT_L, F, BANKED
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOf_BASE + 1, WREG
 	iorwf	SID_SE_TRG_EVNT_H, F, BANKED
@@ -709,7 +709,7 @@ SID_PARIN_Set_NOTE_On_Trg_LB
 	BRA_IFSET WREG, 0, ACCESS, SID_PARIN_Set_NOTE_On_Trg_B
 SID_PARIN_Set_NOTE_On_Trg_L
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOn_BASE + 0, WREG
-	andlw	0xc0		; (Gates handled seperately)
+	andlw	0xc0		; (Gates handled separately)
 	iorwf	SID_SE_TRG_EVNT_L, F, BANKED
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOn_BASE + 1, WREG
 	iorwf	SID_SE_TRG_EVNT_H, F, BANKED

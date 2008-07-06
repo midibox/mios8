@@ -159,7 +159,7 @@ MBNET_ReInit
 	movwf	RXB1CON, BANKED	; all valid messages, use acceptance filter 0
 
 	;; all additional message buffers are configured for receive mode
-	;; note: FIFO functionality (mode 2) not enabled, since we need a seperate receive buffer for acknoweldge messages
+	;; note: FIFO functionality (mode 2) not enabled, since we need a separate receive buffer for acknoweldge messages
 	SET_BSR	BSEL0
 	movlw	b'00000000'
 	movwf	BSEL0, BANKED

@@ -144,7 +144,7 @@ LC_LEDRING_Handler_Loop_Next
 ;;  In this table the LED ring patterns are defined
 ;;  the patterns are defined in the Logic Control MIDI implementation, chapter 13
 ;;  note that the 12th LED (the center LED below the encoder) is set by
-;;  LC_LEDRING_PatternSet seperately
+;;  LC_LEDRING_PatternSet separately
 ;; --------------------------------------------------------------------------
 LEDRING_PATTERNS_LC
 	;; 16 entries for LED pattern #1

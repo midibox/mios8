@@ -30,7 +30,7 @@ LC_LEDDIGITS_Update
 	andlw	0x07
 	movwf	LC_LEDDIGITS_CTR, BANKED
 
-	;; in fact we are serving two seperate leddigit networks with 2 DOUT registers each
+	;; in fact we are serving two separate leddigit networks with 2 DOUT registers each
 	;; in order to reduce the coding effort, we are defining a generic macro
 	;; which is used two times with different parameters
 LC_LEDDIGITS_MACRO MACRO LEDDIGITS_SR_SELECT_x, LEDDIGITS_SR_SEGMENTS_x, LC_LEDDIGITS_first

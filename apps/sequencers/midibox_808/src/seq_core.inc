@@ -725,7 +725,7 @@ SEQ_CORE_Clk_NoMetro
 #endif
 
 	;; ------------------------------------------------------------------
-	;; starting the big clock loop which handles every single track seperately
+	;; starting the big clock loop which handles every single track separately
 	;; ------------------------------------------------------------------
 	clrf	MIDI_EVNT_PORT0_RS		; clear running status of port 0 (so that it is ensured that we start with status event)
 	clrf	SEQ_EVNTT, BANKED		; using SEQ_EVNTT as loop counter
@@ -1199,7 +1199,7 @@ SEQ_CORE_Clk_SendEvent_NoMIDI
 	call	SEQ_TRK_ReqTrigger
 
 	;; extra: if global accent track available, and "FORCE_ACCENT" flag set: trigger it!
-	;; note that accent flags assigned to aux layer are handled seperately in seq_trg.inc
+	;; note that accent flags assigned to aux layer are handled separately in seq_trg.inc
 #if DEFAULT_GLOBAL_ACCENT_TRK && DEFAULT_GLOBAL_ACCENT_TRK < 17
 	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED, SEQ_CORE_Clk_SendEvent_NoAccFrce
 	movlw	DEFAULT_GLOBAL_ACCENT_TRK - 1

@@ -137,7 +137,7 @@ MIOS_STARTUP_ClearRAMLoop
         bsf     RCSTA, CREN
 
 	;; enable maskable IRQs
-	;; T0IE now enabled seperately by AIN driver - so long not enabled, Timer0 is free as additional resource
+	;; T0IE now enabled separately by AIN driver - so long not enabled, Timer0 is free as additional resource
         movlw   (1 << GIE) | (1 << PEIE)
 	;;         movlw   (1 << GIE) | (1 << PEIE) | (1 << T0IE)
         movwf   INTCON

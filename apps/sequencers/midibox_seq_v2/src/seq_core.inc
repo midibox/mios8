@@ -655,7 +655,7 @@ SEQ_CORE_Clk_NoMetro
 	
 
 	;; ------------------------------------------------------------------
-	;; starting the big clock loop which handles every single track seperately
+	;; starting the big clock loop which handles every single track separately
 	;; ------------------------------------------------------------------
 	lfsr	FSR0, SEQ_TRK0
 	clrf	SEQ_EVNTT, BANKED	; using SEQ_EVNTT as loop counter

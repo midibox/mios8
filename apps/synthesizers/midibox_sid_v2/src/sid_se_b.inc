@@ -52,7 +52,7 @@ SIDSE_B_HANDLER_LFO_MACRO MACRO patch_base, lfo_base, voice_assignment
 	incf	SID_SE_ELEMENT_NUM, F, BANKED
 	ENDM
 
-	;; TODO note: LFO could also use the accent flag? Maybe a seperate option?
+	;; TODO note: LFO could also use the accent flag? Maybe a separate option?
 
 	clrf	SID_SE_ELEMENT_NUM, BANKED
 SIDSE_B_Handler_LFO_L

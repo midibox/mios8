@@ -55,7 +55,7 @@
 ; Definitions can be optionally overruled from MAKEFILE.SPEC (therefore the #ifndef statements)
 ;
 ; define the shift registers to which the anodes of these LEDs are connected
-; Note: they can be equal to DEFAULT_GP_DOUT_SR_[LH], this saves two shift registers, but doesn't allow a seperate view of UI selections
+; Note: they can be equal to DEFAULT_GP_DOUT_SR_[LH], this saves two shift registers, but doesn't allow a separate view of UI selections
 #ifndef BLM_DOUT_L1
 #define BLM_DOUT_L1	2
 #endif

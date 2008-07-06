@@ -386,7 +386,7 @@ LC_GLCD_Print_STATUS_Digit
 LC_GLCD_Print_Meters
 	;; just request an update
 	;; the handler in lc_meters.inc will call LC_DISPLAY_Print_Meter
-	;; for every seperate meter
+	;; for every separate meter
 	movlw	0xff
 	movwf	LC_METER_UPDATE_REQ
 	return
@@ -434,7 +434,7 @@ LC_GLCD_Print_Meter
 LC_GLCD_Print_Knobs
 	;; just request an update
 	;; the handler in lc_ledrings.inc will call LC_DISPLAY_Print_Knob
-	;; for every seperate meter
+	;; for every separate meter
 	movlw	0xff
 	movwf	LC_LEDRING_UPDATE_REQ
 	return

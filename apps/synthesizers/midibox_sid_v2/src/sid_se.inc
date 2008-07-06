@@ -596,7 +596,7 @@ SIDSE_Arp_NotActive_ClrLoop_M
 	rgoto	SIDSE_Arp_NotActive_ClrLoop_C
 SIDSE_Arp_NotActive_ClrLoop_L
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOf_BASE + 0, WREG
-	andlw	0xc0		; (Gates handled seperately by Arp)
+	andlw	0xc0		; (Gates handled separately by Arp)
 	iorwf	SID_SE_TRG_EVNT_L, F, BANKED
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOf_BASE + 1, WREG
 	iorwf	SID_SE_TRG_EVNT_H, F, BANKED
@@ -648,7 +648,7 @@ SIDSE_Arp_GateClr_Multi
 	rgoto	SIDSE_Arp_GateClr_Multi_Cont
 SIDSE_Arp_GateClr_Lead	
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOf_BASE + 0, WREG
-	andlw	0xc0		; (Gates handled seperately by Arp)
+	andlw	0xc0		; (Gates handled separately by Arp)
 	iorwf	SID_SE_TRG_EVNT_L, F, BANKED
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOf_BASE + 1, WREG
 	iorwf	SID_SE_TRG_EVNT_H, F, BANKED
@@ -897,7 +897,7 @@ SIDSE_Arp_NewNote_Multi
 
 SIDSE_Arp_NewNote_Lead
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOn_BASE + 0, WREG
-	andlw	0xc0		; (gates handled seperately)
+	andlw	0xc0		; (gates handled separately)
 	iorwf	SID_SE_TRG_EVNT_L, F, BANKED
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_NOn_BASE + 1, WREG
 	iorwf	SID_SE_TRG_EVNT_H, F, BANKED

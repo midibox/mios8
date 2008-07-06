@@ -35,7 +35,7 @@
 ;;  General Settings
 ;; ==========================================================================
 
-#ifndef SEPERATE_SETUP_FILE
+#ifndef separate_SETUP_FILE
 #endif
 
 ;; ---[ variables used by application ]---

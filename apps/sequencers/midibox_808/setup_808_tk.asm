@@ -100,7 +100,7 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_SRM_ENABLED     0
 ;
 ; define the shift registers to which the anodes of these LEDs are connected
-; Note: they can be equal to DEFAULT_GP_DOUT_SR_[LH], this saves two shift registers, but doesn't allow a seperate view of UI selections
+; Note: they can be equal to DEFAULT_GP_DOUT_SR_[LH], this saves two shift registers, but doesn't allow a separate view of UI selections
 #define DEFAULT_SRM_DOUT_L1	6
 #define DEFAULT_SRM_DOUT_R1	9
 ;

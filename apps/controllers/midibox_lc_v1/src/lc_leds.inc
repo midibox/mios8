@@ -111,7 +111,7 @@ LC_LED_Refresh_Loop_Next
 ;; user timer will be called every 20 ms (see USER_Init)
 ;; 
 ;; handles the meter counters. For the best show effect we don't decrement
-;; all meter levels at once every 300 ms, but seperately
+;; all meter levels at once every 300 ms, but separately
 ;; 	
 ;; every single counter will be reloaded by lc_mproc.inc::LC_MPROC_Received_D0
 ;; to 15 (== 300 ms / 20 ms), the levels will be decremented when this

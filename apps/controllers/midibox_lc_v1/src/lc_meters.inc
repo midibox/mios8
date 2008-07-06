@@ -101,7 +101,7 @@ LC_METERS_Handler_Loop_Next
 ;;  In this table the LED ring patterns are defined
 ;;  the patterns are defined in the Logic Control MIDI implementation, chapter 13
 ;;  note that the 12th LED (the center LED below the encoder) is set by
-;;  LC_LEDRING_PatternSet seperately
+;;  LC_LEDRING_PatternSet separately
 ;; --------------------------------------------------------------------------
 LC_METER_PATTERNS
 	;; 16 entries for meter pattern (can be changed if more LEDs connected)

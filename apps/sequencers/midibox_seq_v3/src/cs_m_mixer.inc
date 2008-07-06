@@ -1160,5 +1160,5 @@ CS_M_MIXER_PARAMETER_TABLE				; all entries are listed here
 	db	"Prog.Change       "
 	db	"Volume            "
 	db	"Panorama          "
-	;; 5 and 6: CC#<number> will be displayed seperately
-	;; 7 and 8: CC# Assignment will be displayed seperately
+	;; 5 and 6: CC#<number> will be displayed separately
+	;; 7 and 8: CC# Assignment will be displayed separately

@@ -566,7 +566,7 @@ LC_CLCD_Print_STATUS_Digit
 LC_CLCD_Print_Meters
 	;; just request an update
 	;; the handler in lc_meters.inc will call LC_DISPLAY_Print_Meter
-	;; for every seperate meter
+	;; for every separate meter
 	movlw	0xff
 	movwf	LC_METER_UPDATE_REQ
 	return

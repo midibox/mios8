@@ -51,7 +51,7 @@ CS_MENU_TABLES_E	; the environment table (works independent from the synth menu)
 	CS_MENU_T_ENTRY CS_MENU_TABLE_E_EXT,  CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToEnsRoot,"---", 0,                     0x00, PRINT_NOP
 	CS_MENU_T_ENTRY CS_MENU_TABLE_E_SAV,  CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToEnsRoot,"---", 0,                     0x00, PRINT_NOP
 
-	;; ID's for seperate menu structure of ensemble menu
+	;; ID's for separate menu structure of ensemble menu
 CS_MENU_E_ROOT	EQU	0x40
 CS_MENU_E_SID	EQU	0x41
 CS_MENU_E_CLK	EQU	0x42

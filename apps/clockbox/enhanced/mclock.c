@@ -323,7 +323,7 @@ void MCLOCK_SendMultiPort(unsigned char value, unsigned char mask)
 
 __asm
 	;; include the "SEND_BIT" macro
-	;; this macro is stored in a seperate file, since with SDCC it
+	;; this macro is stored in a separate file, since with SDCC it
 	;; is not possible to declare macros within inline assembly blocks
 	include "send_bit_macro.inc"
 

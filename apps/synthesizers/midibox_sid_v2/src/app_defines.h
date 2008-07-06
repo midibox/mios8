@@ -953,7 +953,7 @@ SID_Ix_Vx_PITCHRANGE	EQU	0x0a	; 7bit
 SID_Ix_Vx_PORTAMENTO	EQU	0x0b	; 8bit
 SID_Ix_Vx_ARP_MODE	EQU	0x0c	; [0] enable, [2:1] dir up/down/U&D/D&U, [3] random, [4] sorted, [5] hold, [6] sync, [7] CAC
 SID_Ix_Vx_ARP_SPEED_DIV EQU	0x0d	; [7] oneshot, [6] reserved, [5:0] own speed or derived from global clock (dividable)
-SID_Ix_Vx_ARP_GL_RNG	EQU	0x0e	; [4:0] gatelength [7:5] arp octave range (seperate for each voice)
+SID_Ix_Vx_ARP_GL_RNG	EQU	0x0e	; [4:0] gatelength [7:5] arp octave range (separate for each voice)
 SID_Ix_Vx_SWINSID_MODE	EQU	0x0f	; [3:0] waveform of second OSC, [4] enable 2nd OSC, [5] x2 pitch, [6] reverse waveform
 
 SID_Ix_LFOx_MODE	EQU	0x00	; [0] enable, [2] clksync, [3] oneshot, [7:4] waveform
@@ -1001,7 +1001,7 @@ SID_Ix_WAVETABLE	EQU	0x180;..0x1ff
 ;; --- Multi ---
 
 ;; general flags
-SID_Ix_M_FLAGS1		EQU	0x050	; not used - FLAGS1 is available for each instrument seperately (SID_Ix_M_Vx_FLAGS1)
+SID_Ix_M_FLAGS1		EQU	0x050	; not used - FLAGS1 is available for each instrument separately (SID_Ix_M_Vx_FLAGS1)
 	;; free: 0x51
 SID_Ix_M_VOLUME		EQU	0x052	; 7 bit value, only 4 bit used
 	;; free: 0x53
@@ -1058,7 +1058,7 @@ SID_Ix_M_Vx_WT_LOOP	EQU	0x2f	; same as SID_Ix_WTx_LOOP
 ;; --- Bassline ---
 
 ;; general flags
-SID_Ix_B_FLAGS1		EQU	0x050	; not used - FLAGS1 is available for each instrument seperately (SID_Ix_B_Vx_FLAGS1)
+SID_Ix_B_FLAGS1		EQU	0x050	; not used - FLAGS1 is available for each instrument separately (SID_Ix_B_Vx_FLAGS1)
 SID_Ix_B_OSC_DETUNE	EQU	0x051	; detune slave oscillators
 SID_Ix_B_VOLUME		EQU	0x052	; 7 bit value, only 4 bit used
 SID_Ix_B_OSC_PHASE	EQU	0x053   ; oscillator phase offset

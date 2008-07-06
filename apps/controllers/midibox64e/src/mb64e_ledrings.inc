@@ -55,7 +55,7 @@ MB64E_LEDRINGS_Handler
 	rcall	MB64E_LEDRINGS_CathodeGet_H
 	movwf	IRQ_TMP2			; high-pattern saved in IRQ_TMP2
 
-	;; in fact we are serving up to 4 seperate LEDring units with 4 DOUT registers each
+	;; in fact we are serving up to 4 separate LEDring units with 4 DOUT registers each
 	;; in order to reduce the coding effort, we are defining a generic macro
 	;; which is used 4 times with different parameters
 LEDRINGS_HANDLER_MACRO MACRO enc_offset, LEDRINGS_SR_ENCx_CATHODES_1, LEDRINGS_SR_ENCx_CATHODES_2, LEDRINGS_SR_ENCx_ANODES_1, LEDRINGS_SR_ENCx_ANODES_2

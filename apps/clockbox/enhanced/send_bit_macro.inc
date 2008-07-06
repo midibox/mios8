@@ -1,6 +1,6 @@
 ;; $Id$
 	;; included from mclock.c
-	;; this macro is stored in a seperate file, since with SDCC it
+	;; this macro is stored in a separate file, since with SDCC it
 	;; is not possible to declare macros within inline assembly blocks
 
 
