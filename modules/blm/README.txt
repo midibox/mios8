@@ -63,7 +63,7 @@ Defines
 ~~~~~~~
 
   C programs (relocatable code): can be overruled with -D<define>=<value> from command line 
-  Assembly programs: has to be defined within program before "#include <iic_midi.inc>"
+  Assembly programs: has to be defined within program before "#include <blm.inc>"
 
   -> see also descriptions in blm.inc
 
