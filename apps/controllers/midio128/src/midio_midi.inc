@@ -41,8 +41,11 @@ MIDIO_MIDI_NotifyReceivedEvent
 	movf	MIDIO_LAST_RECEIVED_EVNT1, W, BANKED	; check for CC#123
 	xorlw	123
 	bnz	MIDIO_MIDI_NotifyReceivedEventNC
+#if 0
+	;; disabled: all values interpreted as All Notes Off" command
 	movf	MIDIO_LAST_RECEIVED_EVNT2, W, BANKED	; check for value > 0
 	bz	MIDIO_MIDI_NotifyReceivedEventNC
+#endif
 MIDIO_MIDI_NotifyReceivedEventNO
 	goto	MIDIO_DOUT_ClearAll			; set all DOUTs to passive state
 MIDIO_MIDI_NotifyReceivedEventNC
