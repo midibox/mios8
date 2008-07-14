@@ -17,7 +17,7 @@ OUTDIR = _output
 GPASM = gpasm
 
 # include files used by GPASM
-GPASM_INCLUDE += -I./src -I $(MIOS_PATH)/include/asm
+GPASM_INCLUDE += -I./src -I $(MIOS_PATH)/include/asm -I $(MIOS_PATH)/include/share
 
 # add default flags for GPASM
 GPASM_FLAGS += -p p$(PROCESSOR)

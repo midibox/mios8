@@ -10,79 +10,44 @@
 ; 
 ; ==========================================================================
 
+
+;; ==========================================================================
+;;  Include basic defines which characterize the derivative to
+;;  simplify dependencies within MIOS source code
+;; ==========================================================================
+#include <hw_flags.h>
  
 ;; ==========================================================================
 ;;  Assembler directives & device specific include file
 ;;
 ;;  Natively supported devices are listed here.
-;;  Some basic defines are added which characterize the derivative to
-;;  simplify dependencies within MIOS source code
 ;; ==========================================================================
 
 #ifdef __18F452
 	LIST R=DEC
 #include <p18f452.inc>
-#define PIC_DERIVATIVE_CODE_SIZE	0x08000
-#define PIC_DERIVATIVE_RAM_SIZE		0x600
-#define PIC_DERIVATIVE_EEPROM_SIZE	0x100
-#define PIC_DERIVATIVE_IRQ_WORKAROUND	0
-#define PIC_DERIVATIVE_NEW_ADC		0
-#define PIC_DERIVATIVE_CMCON_INIT	0
-#define PIC_DERIVATIVE_T08BIT_INVERTED	0
-#define PIC_DERIVATIVE_SET_LCD_4BIT	0
 #endif
 
 #ifdef __18F4620
 	LIST R=DEC
 #include <p18f4620.inc>
-#define PIC_DERIVATIVE_CODE_SIZE	0x10000
-#define PIC_DERIVATIVE_RAM_SIZE		0xf80
-#define PIC_DERIVATIVE_EEPROM_SIZE	0x400
-#define PIC_DERIVATIVE_IRQ_WORKAROUND	1
-#define PIC_DERIVATIVE_NEW_ADC		1
-#define PIC_DERIVATIVE_CMCON_INIT	1
-#define PIC_DERIVATIVE_T08BIT_INVERTED	1
-#define PIC_DERIVATIVE_SET_LCD_4BIT	0
 #endif
 	
 #ifdef __18F4520
 	LIST R=DEC
 #include <p18f4520.inc>
-#define PIC_DERIVATIVE_CODE_SIZE	0x08000
-#define PIC_DERIVATIVE_RAM_SIZE		0x600
-#define PIC_DERIVATIVE_EEPROM_SIZE	0x100
-#define PIC_DERIVATIVE_IRQ_WORKAROUND	1
-#define PIC_DERIVATIVE_NEW_ADC		1
-#define PIC_DERIVATIVE_CMCON_INIT	1
-#define PIC_DERIVATIVE_T08BIT_INVERTED	0
-#define PIC_DERIVATIVE_SET_LCD_4BIT	0
 #endif
 
 #ifdef __18F4682
 	LIST R=DEC
 #include <p18f4682.inc>
-#define PIC_DERIVATIVE_CODE_SIZE	0x14000
-#define PIC_DERIVATIVE_RAM_SIZE		0xd00
-#define PIC_DERIVATIVE_EEPROM_SIZE	0x400
-#define PIC_DERIVATIVE_IRQ_WORKAROUND	0
-#define PIC_DERIVATIVE_NEW_ADC		1
-#define PIC_DERIVATIVE_CMCON_INIT	1
-#define PIC_DERIVATIVE_T08BIT_INVERTED	0
-#define PIC_DERIVATIVE_SET_LCD_4BIT	1
 #endif
 
 #ifdef __18F4685
 	LIST R=DEC
 #include <p18f4685.inc>
-#define PIC_DERIVATIVE_CODE_SIZE	0x18000
-#define PIC_DERIVATIVE_RAM_SIZE		0xd00
-#define PIC_DERIVATIVE_EEPROM_SIZE	0x400
-#define PIC_DERIVATIVE_IRQ_WORKAROUND	0
-#define PIC_DERIVATIVE_NEW_ADC		1
-#define PIC_DERIVATIVE_CMCON_INIT	1
-#define PIC_DERIVATIVE_T08BIT_INVERTED	0
-#define PIC_DERIVATIVE_SET_LCD_4BIT	1
 #endif
+
 
 ;; ==========================================================================
 ;;  General constants

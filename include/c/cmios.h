@@ -14,6 +14,9 @@
 #ifndef _CMIOS_H
 #define _CMIOS_H
 
+/*** hardware flags **********************************************************/
+#include <hw_flags.h>
+
 /*** general MIOS definitions ************************************************/
 #define MIOS_MIDI_INTERFACE_COMMON	0x00
 #define MIOS_MIDI_INTERFACE_TO_HOST	0x01

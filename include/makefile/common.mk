@@ -39,7 +39,7 @@ GPLIB = gplib -c
 GPLINK = gplink
 
 # include files used by GPASM
-GPASM_INCLUDE = -I./src -I $(MIOS_PATH)/include/asm
+GPASM_INCLUDE = -I./src -I $(MIOS_PATH)/include/asm -I $(MIOS_PATH)/include/share
 
 # additional defines used by SDCC
 GPASM_DEFINES += # reserved for future "default extensions"
@@ -48,7 +48,7 @@ GPASM_DEFINES += # reserved for future "default extensions"
 GPASM_FLAGS += -p p$(PROCESSOR)
 
 # include files used by SDCC
-SDCC_INCLUDE += -I./src -I $(MIOS_PATH)/include/c
+SDCC_INCLUDE += -I./src -I $(MIOS_PATH)/include/c -I $(MIOS_PATH)/include/share
 
 # additional defines used by SDCC
 SDCC_DEFINES += # reserved for future "default extensions"
@@ -60,7 +60,7 @@ SDCC_FLAGS += -mpic16 -p$(PROCESSOR) --fommit-frame-pointer --optimize-goto --op
 GPLINK_FLAGS += -s $(LKR_FILE)
 
 # add files for distribution
-DIST += $(MIOS_PATH)/include/makefile/common.mk $(MIOS_PATH)/include/c $(MIOS_PATH)/include/asm
+DIST += $(MIOS_PATH)/include/makefile/common.mk $(MIOS_PATH)/include/c $(MIOS_PATH)/include/share $(MIOS_PATH)/include/asm
 DIST += $(LKR_FILE)
 DIST += $(LIBS)
 DIST += $(MIOS_BIN_PATH)/mios-gpasm $(MIOS_BIN_PATH)/mios-sdcc
