@@ -35,7 +35,7 @@
 #define DEFAULT_LCD_LINE_Y2	0x14
 #define DEFAULT_LCD_LINE_Y3	0x54
 
-	;; 1: LCD cursor will be set to current parameter position (clashes with meter bar which is enabled with DEFAULT_LCD_LINES >= 4)
+	;; 1: LCD cursor will be set to current parameter position (clashes with bar graph which is enabled with DEFAULT_LCD_LINES >= 4)
 	;; 0: disable this feature
 #define DEFAULT_LCD_PRINT_CURSOR 0
 

@@ -42,7 +42,7 @@ CS_MENU_Reset
 	call	CS_MENU_MATRIX_Init
 
 #if DEFAULT_LCD_LINES >= 4
-	;; meter bar: print spaces after power-on
+	;; bar graph: print spaces after power-on
 	movlw	0xff
 	call	CS_MENU_UpdateMeterBar
 #endif
@@ -177,7 +177,7 @@ CS_MENU_Handler_NoInit
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	bnz	CS_MENU_Handler_CheckMain
 
-	;; for meter bar (will be printed piecewise as well)
+	;; for bar graph (will be printed piecewise as well)
 	;; it has low priority: skip if counter == 20 (new value) and delayed update *not* active (best "realtime" feeling: menu items will be printed first)
 	movf	CS_MENU_METER_BAR_CTR, W
 	bz	CS_MENU_Handler_NoMeterBar
@@ -402,7 +402,7 @@ CS_MENU_Handler_MenuPage
 
 
 	;; ------------------------------------------------------------------
-	;; handle meter bar at lower line
+	;; handle bar graph at lower line
 CS_MENU_Handler_ParamBar
 	;; select next character
 	decf	CS_MENU_METER_BAR_CTR, F
@@ -473,7 +473,7 @@ CS_MENU_Handler_ParamBar_End
 
 
 	;; ------------------------------------------------------------------
-	;; handle meter bar at upper line
+	;; handle bar graph at upper line
 CS_MENU_Handler_MenuLabel
 	;; decrement counter
 	decf	CS_MENU_LABEL_CTR, F
@@ -1397,7 +1397,7 @@ CS_MENU_Exec
 	clrf	CS_MENU_REFRESH_ITEM_CTR
 
 #if DEFAULT_LCD_LINES >= 4
-	;; clear meter bar
+	;; clear bar graph
 	movlw	0xff
 	call	CS_MENU_UpdateMeterBar
 #endif
@@ -1597,7 +1597,7 @@ CS_MENU_ParameterUpdateNoBigMsg
 #endif
 
 #if DEFAULT_LCD_LINES >= 4
-	;; for meter bar at lower line: get scaled value and preload display counter
+	;; for bar graph at lower line: get scaled value and preload display counter
 	call	CS_MENU_GetScaledParam
 	btfsc	CS_STAT, CS_STAT_MODIFY_NAME	; disabled if name is edited
 	movlw	0xff		; (empty line)
@@ -2588,7 +2588,7 @@ CS_MENU_Select_SeqFunc_Hlp_Send
 
 
 ;; --------------------------------------------------------------------------
-;;  get parameter value scaled from 0..32 for meter bar display
+;;  get parameter value scaled from 0..32 for bar graph display
 ;;  IN: CS_MENU_PARAMETER_[LH] and CS_MENU_PARAMETER_MAX_[LH]
 ;;  OUT: scaled value (0..32) in WREG
 ;;  USES: PROD[LH] and TABLAT
@@ -2686,7 +2686,7 @@ CS_MENU_GetScaledParam_End
 
 
 ;; --------------------------------------------------------------------------
-;;  Updates the meter bar display
+;;  Updates the bar graph display
 ;;  IN: scaled value (0..31) in WREG
 ;;      if 0xff: spaces will be print (used inside menu pages)
 ;; --------------------------------------------------------------------------

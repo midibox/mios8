@@ -442,7 +442,7 @@ CS_MENU_EXEC_SelPar
 	call	CS_MENU_EncParameterSet
 
 #if DEFAULT_LCD_LINES >= 4
-	;; for meter bar at lower line: get scaled value and preload display counter
+	;; for bar graph at lower line: get scaled value and preload display counter
 	call	CS_MENU_GetScaledParam
 	goto	CS_MENU_UpdateMeterBar
 #else

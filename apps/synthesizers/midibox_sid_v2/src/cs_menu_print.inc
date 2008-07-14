@@ -970,11 +970,11 @@ CS_MENU_PRINT_MODx_PMDEC8
 CS_MENU_PRINT_TRGx_SRC
 	TABLE_ADDR CS_MENU_PRINT_TRGx_SRC_Tab
 #if 0
-	movf	CS_MENU_SELECTED_TRG, W
+	movf	INDF0, W
 	rgoto	CS_MENU_PRINT_StringFromTable
 #else
 	;; special variation required for Page Up/Down print function (only 3 characters print)
-	rlf	CS_MENU_SELECTED_TRG, W
+	rlf	INDF0, W
 	rlf	WREG, W
 	andlw	0xfc
 	TABLE_ADD_W
