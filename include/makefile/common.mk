@@ -60,7 +60,7 @@ SDCC_FLAGS += -mpic16 -p$(PROCESSOR) --fommit-frame-pointer --optimize-goto --op
 GPLINK_FLAGS += -s $(LKR_FILE)
 
 # add files for distribution
-DIST += $(MIOS_PATH)/include/makefile/common.mk $(MIOS_PATH)/include/c $(MIOS_PATH)/include/share $(MIOS_PATH)/include/asm
+DIST += $(MIOS_PATH)/include/makefile/common.mk $(MIOS_PATH)/include/c $(MIOS_PATH)/include/share $(MIOS_PATH)/include/asm $(MIOS_PATH)/include/share
 DIST += $(LKR_FILE)
 DIST += $(LIBS)
 DIST += $(MIOS_BIN_PATH)/mios-gpasm $(MIOS_BIN_PATH)/mios-sdcc

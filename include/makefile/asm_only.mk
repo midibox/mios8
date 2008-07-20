@@ -23,7 +23,7 @@ GPASM_INCLUDE += -I./src -I $(MIOS_PATH)/include/asm -I $(MIOS_PATH)/include/sha
 GPASM_FLAGS += -p p$(PROCESSOR)
 
 # add files for distribution
-DIST += $(MIOS_PATH)/include/makefile/asm_only.mk $(MIOS_PATH)/include/asm
+DIST += $(MIOS_PATH)/include/makefile/asm_only.mk $(MIOS_PATH)/include/asm $(MIOS_PATH)/include/share
 
 
 # rule for all .asm file(s)
