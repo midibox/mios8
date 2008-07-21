@@ -53,13 +53,13 @@
 
 	;; Inc/Dec buttons or rotary encoder of data entry?
 	;; use:  0 if rotary encoder should be used 
-	;;         (pins of encoder are defined in mios_tables.inc)
+	;;         (pins of encoder are defined in MIOS_ENC_PIN_TABLE this file)
 	;;       1 if buttons should be used instead
 #define CS_MENU_USE_INCDEC_BUTTONS 0
 
 	;; 0: J5 has no function at all (analog inputs don't need to be connected to ground)
 	;; 1: J5 used for analog inputs - A0..A4 control Knob#1..#5, A5..A7 are not used at all
-	;; 2: J5 used as digital output (pins can be added in cs_menu_io_tables.inc as "shift register #0")
+	;; 2: J5 used as digital output (pins can be added in CS_MENU_DOUT_TABLE as "shift register #0")
 	;; 3: J5 used as digital output for external switches (replacement for DEFAULT_EXT_SWITCH_DOUT, AOUT_INTERFACE_TYPE must be != 0)
 #define DEFAULT_J5_FUNCTION	3
 
