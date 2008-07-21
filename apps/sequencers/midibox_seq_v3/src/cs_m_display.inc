@@ -1,6 +1,6 @@
 ; $Id$
 ;
-; MBSEQ Menu "Display"
+; MBSEQ Menu "Edit"
 ;
 ; ==========================================================================
 ;
@@ -13,14 +13,14 @@
 ;; --------------------------------------------------------------------------
 ;;  Menu Exit routine is called when the exit button is pressed
 ;; --------------------------------------------------------------------------
-CS_M_DISPLAY_Exit
+CS_M_EDIT_Exit
 	;; init default LCD offsets for a menu page
 	goto	SEQ_LCD_SetMenuOffsets
 
 ;; --------------------------------------------------------------------------
 ;;  Select routine is called when the select button has been pressed
 ;; --------------------------------------------------------------------------
-CS_M_DISPLAY_Select
+CS_M_EDIT_Select
 	;; exit if button depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
@@ -43,7 +43,7 @@ CS_M_DISPLAY_Select
 ;; --------------------------------------------------------------------------
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
-CS_M_DISPLAY_Init
+CS_M_EDIT_Init
 	;; init Msg offsets
 	call	SEQ_LCD_SetMsgOffsets
 	;; force complete refresh of message
@@ -57,7 +57,7 @@ CS_M_DISPLAY_Init
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
-CS_M_DISPLAY_Tick
+CS_M_EDIT_Tick
 	;; branch to message handler until refresh counter is zero again
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	skpz

@@ -11,6 +11,28 @@
 ; 
 ; ==========================================================================
 
+	;; help macro to make LED assignments easier
+SEQ_LED_UPDATE_DOUT MACRO register, flag, bank, dout
+	clrf	MIOS_PARAMETER1
+	btfsc	register, flag, bank
+	setf	MIOS_PARAMETER1
+	movlw	dout
+	rcall	SEQ_LED_Update_PinSet
+	ENDM
+
+SEQ_LED_UPDATE_DOUT_INV MACRO register, flag, bank, dout
+	setf	MIOS_PARAMETER1
+	btfsc	register, flag, bank
+	clrf	MIOS_PARAMETER1
+	movlw	dout
+	rcall	SEQ_LED_Update_PinSet
+	ENDM
+
+SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 MACRO dout		; note: this method consumes 4 bytes per LED assignment 
+	movlw	dout					; thats the same amount like consumed by the previous table based approach
+	rcall	SEQ_LED_Update_PinSet_ShiftTMP1
+	ENDM
+
 ;; --------------------------------------------------------------------------
 ;;  this function is called by cs_menu.inc on every "display" update
 ;; --------------------------------------------------------------------------
@@ -20,42 +42,7 @@ SEQ_LED_Update
 
 	SET_BSR	SEQ_BASE
 
-	;; use temporary registers which hold some LED flags which are not saved anywhere else
-	;; (see also SEQ_IO_TABLE_DOUT)
-	;; this quick & dirty method saves some memory...
-
-	;; TMP4[3..0] == Selected Group 1-4
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	movwf	TMP4
-
-	;; TMP4[4..6] == Selected Trigger Layer A-C
-	swapf	SEQ_SELECTED_TRG_LAYERS, W, BANKED
-	andlw	0x70
-	iorwf	TMP4, F
-
-	movlw	0x00
-	;; TMP5[0]: Sequencer Running (Play LED)
-	btfsc	SEQ_STATE, SEQ_STATE_RUN, BANKED
-	iorlw 0x01
-	;; TMP5[1]: Sequencer not running (Stop LED)
-	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
-	iorlw 0x02
-	;; TMP5[2]: Sequencer paused (Pause LED)
-	btfsc	SEQ_STATE, SEQ_STATE_PAUSE, BANKED
-	iorlw 0x04
-	;; TMP5[3]: Step 1-16 displayed
-	btfss	SEQ_SELECTED_STEPS, 0, BANKED
-	iorlw 0x08
-	;; TMP5[4]: Step 17-32 displayed
-	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
-	iorlw 0x10
-	movwf	TMP5
-
 	;; TMP1[6..0] == 1/2/3/4/A/B/C LEDs
-	clrf	TMP1
-
 	;; branch depending on mode
 	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_LED_Update_NoEdit
 SEQ_LED_Update_Edit
@@ -87,11 +74,11 @@ SEQ_LED_Update_NoMute
 	;; in pattern/song mode: show cursor position
 	movf	CS_MENU_CURSOR_POS, W
 	btfsc	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
-	addlw -3
+	addlw	-3
 	call	MIOS_HLP_GetBitORMask
 	andlw	0x0f
 	btfsc	CS_STAT, CS_STAT_CURSOR_FLASH	; (flash LED - makes the different LED/button assignment more induitive)
-	iorwf	TMP1, F
+	movwf	TMP1
 
 	;; in Song Mode: also overlay layer LEDs
 	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_SONG, BANKED, SEQ_LED_Update_Edit_Cont
@@ -103,50 +90,96 @@ SEQ_LED_Update_NoMute
 	iorwf	TMP1, F
 SEQ_LED_Update_Edit_Cont
 
-	;; TMP2 holds the SEQ_MODE0
-	movff	SEQ_MODE0, TMP2
-	;; TMP3 holds the SEQ_MODE1
-	movff	SEQ_MODE1, TMP3
+	;; stream Tracks/Layers in TMP1[6:0]
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRACK1
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRACK2
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRACK3
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRACK4
+
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_LAYER_A
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_LAYER_B
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_LAYER_C
+
+
+	;; display flags of MODE0 register
+	movff	SEQ_MODE0, TMP1
 
 	;; extra: the song LED flashes if no song selected, and it is permanent on if song mode active
-SEQ_LED_Update_SongLED
 	btfsc	SEQ_STATE, SEQ_STATE_SONG, BANKED
-	bsf	TMP2, SEQ_MODE0_SONG
+	bsf	TMP1, SEQ_MODE0_SONG
 	BRA_IFSET SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_LED_Update_SongLED_NoFl
 	btfss	CS_STAT, CS_STAT_CURSOR_FLASH
-	bcf	TMP2, SEQ_MODE0_SONG
+	bcf	TMP1, SEQ_MODE0_SONG
 SEQ_LED_Update_SongLED_NoFl
 
-	;; ----
 
-	;; go through the DOUT map
-	TABLE_ADDR SEQ_IO_TABLE_DOUT
-SEQ_LED_Update_Loop
-	tblrd*+				; get low-byte of register address
-	movf	TABLAT, W		; load it in WREG
-	movwf	FSR0L			; and store it in FSR0L
-	tblrd*+				; get high byte
-	movff	TABLAT, FSR0H		; store it in FSR0H without touching WREG
-	iorwf	TABLAT, W		; or the byte with WREG --- if both bytes are zero, the result will be zero
-	bz	SEQ_LED_Update_Loop_End	; in this case jump to the end
+	;; stream MODE0 flags in TMP1[7:0]
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_EDIT
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_MUTE
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_PATTERN
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_SONG
+	rrf	TMP1, F		; (no LED for menu button... yet)
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_FAST
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_ALL
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_SOLO
+	
 
-	tblrd*+				; get flag-number
-	movf	TABLAT, W
-	call	MIOS_HLP_GetBitORMask	; get appr. OR mask (1 of 8)
-	andwf	INDF0, W		; AND this with the register specified in the table
-	skpz				; LED value: 0 if result zero, 1 if result != zero
-	movlw	0x01
-	movwf	MIOS_PARAMETER1		; store result in MIOS_PARAMETER1
-	tblrd*+				; read pin number from table
-	movf	TABLAT, W		; get pin number
-	CALL_IFCLR TABLAT, 7, ACCESS, MIOS_DOUT_PinSet	; and finally set the pin of SR if bit #7 cleared
-	;; 	IFSET	TABLAT, 7, call J5_DOUT_PinSet		; or pin of J5 if bit #7 set (SR #0 in cs_menu_io_tables.inc)
-	rgoto	SEQ_LED_Update_Loop	; next entry
+	;; stream selected group 1-4 and trigger layer in TMP1[6:0]
+	movf	SEQ_SELECTED_GROUP, W, BANKED
+	andlw	0x03
+	call	MIOS_HLP_GetBitORMask
+	movwf	TMP1
+	swapf	SEQ_SELECTED_TRG_LAYERS, W, BANKED
+	andlw	0x70
+	iorwf	TMP1, F
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_GROUP1
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_GROUP2
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_GROUP3
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_GROUP4
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRG_LAYER_A
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRG_LAYER_B
+	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRG_LAYER_C
 
-SEQ_LED_Update_Loop_End
+
+	;; additional LED functions, which are not streamed via TMP1
+ IF LED_PLAY < 128
+	SEQ_LED_UPDATE_DOUT SEQ_STATE, SEQ_STATE_RUN, BANKED, LED_PLAY
+ ENDIF
+ IF LED_STOP < 128
+	SEQ_LED_UPDATE_DOUT_INV SEQ_STATE, SEQ_STATE_RUN, BANKED, LED_STOP
+ ENDIF
+ IF LED_PAUSE < 128
+	SEQ_LED_UPDATE_DOUT SEQ_STATE, SEQ_STATE_PAUSE, BANKED, LED_PAUSE
+ ENDIF
+
+ IF LED_STEP_1_16 < 128
+	SEQ_LED_UPDATE_DOUT_INV SEQ_SELECTED_STEPS, 0, BANKED, LED_STEP_1_16
+ ENDIF
+ IF LED_STEP_17_32 < 128
+	SEQ_LED_UPDATE_DOUT SEQ_SELECTED_STEPS, 0, BANKED, LED_STEP_17_32
+ ENDIF
+
 	return
 
 
+	;; help function (rgoto only requires 2 bytes instead of 4 bytes)
+	;; ignore shift register assignments with WREG==128
+SEQ_LED_Update_PinSet
+	;; ignore if WREG >= 128
+	btfsc	WREG, 7
+	return
+
+	goto	MIOS_DOUT_PinSet
+
+
+	;; special variant which displays TMP1,0 and right-shifts TMP1 thereafter
+SEQ_LED_Update_PinSet_ShiftTMP1
+	clrf	MIOS_PARAMETER1
+	btfsc	TMP1, 0
+	setf	MIOS_PARAMETER1
+	rrf	TMP1, F		; (right-shift for next execution of SEQ_LED_Update_PinSet_ShiftTMP1)
+	rgoto	SEQ_LED_Update_PinSet
+	
 
 ;; --------------------------------------------------------------------------
 ;;  this function is called by USER_SR_ServicePrepare before the DOUT chains
@@ -168,8 +201,7 @@ SEQ_LED_UpdateIRQ
 SEQ_LED_UpdateIRQ_Beat
 	setf	MIOS_PARAMETER1
 SEQ_LED_UpdateIRQ_NoBeat
-	;; w/o PWM dimmed LED
-	movlw	DEFAULT_BEAT_INDICATOR_LED
+	movlw	LED_BEAT
 	call	MIOS_DOUT_PinSet
 
 	;; ---[ increment the BLM row counter (used when DEFAULT_SRM_ENABLED or DEFAULT_BPM_DIGITS_ENABLED set ]---

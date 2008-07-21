@@ -17,11 +17,11 @@
 ;; --------------------------------------------------------------------------
 SEQ_LCD_Clear
 	movlw	0x80
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 	call	MIOS_LCD_Clear
 
 	movlw	0x00
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 	goto	MIOS_LCD_Clear
 
 ;; --------------------------------------------------------------------------
@@ -55,6 +55,18 @@ SEQ_LCD_SetMsgOffsets
 	movlw	0xc0
 	goto	MIOS_LCD_YAddressSet
 
+
+;; --------------------------------------------------------------------------
+;;  Shortcut to MIOS_LCD_PrintChar (allows "rcall" instead of "call" inside this file)
+;; --------------------------------------------------------------------------
+SEQ_LCD_PrintChar
+	goto	MIOS_LCD_PrintChar
+
+;; --------------------------------------------------------------------------
+;;  Shortcut to MIOS_LCD_CursorSet (allows "rcall" instead of "call" inside this file)
+;; --------------------------------------------------------------------------
+SEQ_LCD_CursorSet
+	goto	MIOS_LCD_CursorSet
 
 ;; ==========================================================================
 ;; starts a message which notifies, that no pattern is selected
@@ -111,28 +123,28 @@ SEQ_LCD_PrnSelectedTrks_Cont
 	movlw '*'	
 	btfsc	TMP2, 0; (muted track)
 	movlw '-'	
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 
 	movlw	'2'
 	btfsc	TMP1, 1; (selected track)
 	movlw '*'	
 	btfsc	TMP2, 1; (muted track)
 	movlw '-'	
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	
 	movlw	'3'
 	btfsc	TMP1, 2; (selected track)
 	movlw '*'	
 	btfsc	TMP2, 2; (muted track)
 	movlw '-'	
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	
 	movlw	'4'
 	btfsc	TMP1, 3; (selected track)
 	movlw '*'	
 	btfsc	TMP2, 3; (muted track)
 	movlw '-'	
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 ;; ==========================================================================
 ;; print selected layers
@@ -144,17 +156,17 @@ SEQ_LCD_PrnSelectedLayers
 	movlw	'A'			; selected layers
 	btfsc	SEQ_SELECTED_LAYERS, 0, BANKED
 	movlw '*'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	SET_BSR	SEQ_BASE
 	movlw	'B'
 	btfsc	SEQ_SELECTED_LAYERS, 1, BANKED
 	movlw '*'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	SET_BSR	SEQ_BASE
 	movlw	'C'
 	btfsc	SEQ_SELECTED_LAYERS, 2, BANKED
 	movlw '*'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 ;; ==========================================================================
 ;;  print vertical bar
@@ -166,7 +178,7 @@ SEQ_LCD_PrnVBar
 	swapf	WREG, W
 	andlw	0x07
 	;; finally print character and exit
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 ;; --------------------------------------------------------------------------
 ;;  This functions prints a horizontal meter
@@ -221,9 +233,9 @@ SEQ_LCD_PrnChn_NotDis
 	goto	MIOS_LCD_PrintBCD2
 SEQ_LCD_PrnChn_Dis
 	movlw	'-'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'-'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 ;; ==========================================================================
 ;; print pattern name
@@ -238,18 +250,18 @@ SEQ_LCD_PrnPattern
 	addlw 'A'
 	btfsc	PRODL, 6
 	addlw 'a'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movf	PRODL, W
 	andlw	0x07
 	addlw	'1'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnPattern_Dis
 SEQ_LCD_PrnSongPos_Dis		; re-used
 	movlw	'-'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'-'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 ;; ==========================================================================
 ;; prints group/track (4 characters)
@@ -258,14 +270,14 @@ SEQ_LCD_PrnGxTy
 	movwf	PRODL
 
 	movlw	'G'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	rrf	PRODL, W
 	rrf	WREG, W
 	andlw	0x03
 	addlw	1
 	call	MIOS_LCD_PrintBCD1
 	movlw	'T'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movf	PRODL, W
 	andlw	0x03
 	addlw	1
@@ -281,11 +293,11 @@ SEQ_LCD_PrnSongPos
 	swapf	WREG, W
 	andlw	0x0f
 	addlw	'A'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movf	PRODL, W
 	andlw	0x07
 	addlw	'1'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 
 ;; ==========================================================================
@@ -298,11 +310,11 @@ SEQ_LCD_PrnNote
 	andlw	0x7f
 	bnz	SEQ_LCD_PrnNote_NotDis
 	movlw	'-'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'-'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'-'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnNote_NotDis
 	;; determine octave (PRODH) and note number within octave (PRODL)
@@ -353,12 +365,12 @@ SEQ_LCD_PrnNote_Cont
 	
 	;; print first char
 	movf	TABLAT, W
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 
 	;; print second char
 	tblrd*+
 	movf	TABLAT, W
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 
 	;; print octave
 	movf	PRODH, W
@@ -398,7 +410,7 @@ SEQ_LCD_PrnLen_Multi
 	movf	PRODH, W
 	call	MIOS_LCD_PrintBCD1
 	movlw	'x'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movf	TABLAT, W
 	andlw	0x1f
 	goto	MIOS_LCD_PrintBCD2
@@ -466,7 +478,7 @@ SEQ_LCD_PrnArpNote_Multi_Cont
 
 SEQ_LCD_PrnArpNote_Multi
 	movlw	'*'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	rrf	MIOS_PARAMETER1, W
 	rrf	WREG, W
 	rgoto	SEQ_LCD_PrnArpNote_Multi_Cont
@@ -480,7 +492,7 @@ SEQ_LCD_Prn_PMDec2
 	movlw	'+'		; '+' or '-'?
 	btfsc	MIOS_PARAMETER1, 7;
 	movlw '-'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 
 	movf	MIOS_PARAMETER1, W
 	btfsc	WREG, 7			; negate value if negative to get absolute value
@@ -496,7 +508,7 @@ SEQ_LCD_Prn_PMDec1
 	movlw	'+'		; '+' or '-'?
 	btfsc	MIOS_PARAMETER1, 3;
 	movlw '-'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 
 	movf	MIOS_PARAMETER1, W
 	btfsc	WREG, 3			; negate value if negative to get absolute value
@@ -512,19 +524,19 @@ SEQ_LCD_Prn_PMDec1
 SEQ_LCD_PrnOnOff
 	movwf	PRODL
 	movlw	'o'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	
 	movf	PRODL, W
 	movlw	'n'
 	skpnz
 	movlw	'f'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	
 	movf	PRODL, W
 	movlw	' '
 	skpnz
 	movlw	'f'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 	
 	
 ;; --------------------------------------------------------------------------
@@ -574,14 +586,14 @@ SEQ_LCD_PrnMarker_Copy
 	rgoto SEQ_LCD_PrnMarker_Copy_NoM1
 SEQ_LCD_PrnMarker_Copy_M1
 	movlw	'>'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnMarker_Copy_NoM1
 	movf	SEQ_EVNTS, W, BANKED
 	cpfseq	CS_COPYPASTE_END, ACCESS
 	rgoto SEQ_LCD_PrnMarker_Copy_NoM2
 	movlw	'<'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 SEQ_LCD_PrnMarker_Copy_NoM2
 	rgoto	SEQ_LCD_PrnMarker_Space
 
@@ -592,7 +604,7 @@ SEQ_LCD_PrnMarker_Paste
 	rgoto SEQ_LCD_PrnMarker_Paste_NoM1
 SEQ_LCD_PrnMarker_Paste_M1
 	movlw	'>'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnMarker_Paste_NoM1
 	movf	CS_COPYPASTE_BEGIN, W	; determine range
@@ -604,7 +616,7 @@ SEQ_LCD_PrnMarker_Paste_NoM1
 	cpfseq	PRODL, ACCESS
 	rgoto SEQ_LCD_PrnMarker_Paste_NoM2
 	movlw	'<'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 SEQ_LCD_PrnMarker_Paste_NoM2
 	rgoto	SEQ_LCD_PrnMarker_Space
 
@@ -615,7 +627,7 @@ SEQ_LCD_PrnMarker_Scroll
 	rgoto SEQ_LCD_PrnMarker_Scroll_NoM1
 SEQ_LCD_PrnMarker_Scroll_M1
 	movlw	'>'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnMarker_Scroll_NoM1
 	call	SEQ_FSR_TrkLen
@@ -623,7 +635,7 @@ SEQ_LCD_PrnMarker_Scroll_NoM1
 	cpfseq	INDF1, ACCESS
 	rgoto SEQ_LCD_PrnMarker_Scroll_NoM2
 	movlw	'<'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 SEQ_LCD_PrnMarker_Scroll_NoM2
 	rgoto	SEQ_LCD_PrnMarker_Space
 
@@ -635,14 +647,14 @@ SEQ_LCD_PrnMarker_Normal
 	rgoto SEQ_LCD_PrnMarker_NoM1
 SEQ_LCD_PrnMarker_M1
 	movlw	'>'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnMarker_NoM1
 	movf	SEQ_EVNTS, W, BANKED
 	cpfseq	SEQ_CURRENT_STEP, BANKED
 	rgoto SEQ_LCD_PrnMarker_NoM2
 	movlw	'<'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnMarker_NoM2
 SEQ_LCD_PrnMarker_Space
@@ -660,7 +672,7 @@ SEQ_LCD_PrintChars
 	movwf	PRODH
 SEQ_LCD_PrintCharsLoop
 	movf	PRODL, W
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	decfsz	PRODH, F
 	rgoto	SEQ_LCD_PrintCharsLoop
 	return
@@ -917,7 +929,7 @@ SEQ_LCD_PrnPTypeVal_L_Multi_Val
 
 	;; print delay between events
 	movlw	'x'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movff	SEQ_EVNTL, WREG
 	andlw	0x1f
 	call	MIOS_LCD_PrintBCD2
@@ -968,7 +980,7 @@ SEQ_LCD_PrnPTypeVal_Crd1
 	rgoto	PrnPTypeVal_Muted
 
 	movlw	'S'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movff	SEQ_EVNT_CHORD_INDEX, WREG
 	andlw	0x1f
 	addlw	1
@@ -979,7 +991,7 @@ SEQ_LCD_PrnPTypeVal_Crd1
 
 SEQ_LCD_PrnPTypeVal_Crd1_Dis
 	movlw	'-'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	rgoto	SEQ_LCD_PrnPTypeVal_End
 
 
@@ -995,7 +1007,7 @@ SEQ_LCD_PrnPTypeVal_Crd2
 	call	MIOS_LCD_PrintHex1
 
 	movlw	'/'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 
 	SET_BSR	SEQ_BASE
 	swapf	SEQ_EVNT_CHORD_INDEX, W, BANKED
@@ -1062,7 +1074,7 @@ SEQ_LCD_PrnMsgItemU
 
 SEQ_LCD_PrnMsgItemU_0	
 	movlw	0x00 + 0	; track number
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 
 	;; special message if we are in utility menu!
 	movf	CS_MENU_POS, W
@@ -1082,25 +1094,49 @@ SEQ_LCD_PrnMsgItemU_1
 	return
 
 	movlw	0x00 + 6		; parameter type
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 	call	CS_M_HLP_GetSelectedLayer
 	addlw	'A'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	':'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	rcall	SEQ_LCD_PrnPTypeName	; (6 characters)
 	movlw	1
 	rgoto	SEQ_LCD_PrintSpaces
 
 SEQ_LCD_PrnMsgItemU_2
-	movlw	0x00 + 15		; channel
-	call	MIOS_LCD_CursorSet
+	movlw	0x00 + 15		; channel or muted
+	rcall	SEQ_LCD_CursorSet
+
+	;; extra: if visible track is muted, print "MUTED" instead of channel number
+	call	CS_M_HLP_GetSelectedTrk
+	movwf	PRODL
+	call	MIOS_HLP_GetBitORMask
+	SET_BSR	SEQ_BASE
+	btfss	PRODL, 3
+	andwf	SEQ_TRKS_MUTED0, W, BANKED
+	btfsc	PRODL, 3
+	andwf	SEQ_TRKS_MUTED1, W, BANKED
+	bz	SEQ_LCD_PrnMsgItemU_2_NotMuted
+SEQ_LCD_PrnMsgItemU_2_Muted
+	movlw	'M'
+	rcall	SEQ_LCD_PrintChar
+	movlw	'U'
+	rcall	SEQ_LCD_PrintChar
+	movlw	'T'
+	rcall	SEQ_LCD_PrintChar
+	movlw	'E'
+	rcall	SEQ_LCD_PrintChar
+	movlw	'D'
+	rgoto	SEQ_LCD_PrintChar
+
+SEQ_LCD_PrnMsgItemU_2_NotMuted
 	movlw	'C'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'h'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'n'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	call	SEQ_FSR_TrkChn
 	movf	INDF1, W
 	andlw	0x0f
@@ -1109,9 +1145,9 @@ SEQ_LCD_PrnMsgItemU_2
 
 SEQ_LCD_PrnMsgItemU_3
 	movlw	0x00 + 20		; port
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 	movlw	'/'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	call	SEQ_FSR_TrkChn
 	swapf	INDF1, W
 	andlw	0x07
@@ -1121,12 +1157,12 @@ SEQ_LCD_PrnMsgItemU_3
 
 SEQ_LCD_PrnMsgItemU_4
 	movlw	0x00 + 26		; button function
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 	call	CS_M_HLP_GetSelectedTrgLayer
 	addlw	'A'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	':'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	call	CS_M_HLP_GetSelectedTrgLayer
 	call	SEQ_TRG_PrnAssignedType	; 5 characters
 	movlw	1
@@ -1150,21 +1186,21 @@ SEQ_LCD_PrnMsgItemU_6
 
 SEQ_LCD_PrnMsgItemU_7
 	movlw	0x80 + 5
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 	SET_BSR	SEQ_BASE
 	incf	SEQ_CURRENT_STEP, W, BANKED
 	call	MIOS_LCD_PrintBCD2
 	movlw	'/'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	call	SEQ_FSR_TrkLen
 	incf	INDF1, W
 	call	MIOS_LCD_PrintBCD2
 	movlw	':'
-	goto	MIOS_LCD_PrintChar
+	rgoto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnMsgItemU_8
 	movlw	0x80 + 11
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 
 	;; fetch SEQ_EVNT[012L]
 	movff	SEQ_CURRENT_STEP, SEQ_EVNTS
@@ -1209,7 +1245,7 @@ SEQ_LCD_PrnMsgItemU_8_CC_NVBars
 
 SEQ_LCD_PrnMsgItemU_9
 	movlw	0x80 + 16
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 
 	;; fetch SEQ_EVNT[012L]
 	movff	SEQ_CURRENT_STEP, SEQ_EVNTS
@@ -1230,13 +1266,13 @@ SEQ_LCD_PrnMsgItemU_9
 
 SEQ_LCD_PrnMsgItemU_9_Note
 	movlw	'V'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'e'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'l'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	':'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	SET_BSR	SEQ_BASE
 	movf	SEQ_EVNT2, W, BANKED
 	call	MIOS_LCD_PrintBCD3
@@ -1245,7 +1281,7 @@ SEQ_LCD_PrnMsgItemU_9_Note
 
 SEQ_LCD_PrnMsgItemU_9_Crd2
 	movlw	0x80 + 19	; (new cursor pos required, we already print 8 characters)
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 	movlw	1			; one space
 	rcall	SEQ_LCD_PrintSpaces
 	SET_BSR	SEQ_BASE
@@ -1262,20 +1298,20 @@ SEQ_LCD_PrnMsgItemU_9_CC
 	
 SEQ_LCD_PrnMsgItemU_A
 	movlw	0x80 + 24
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 
 	;; fetch SEQ_EVNT[012L]
 	movff	SEQ_CURRENT_STEP, SEQ_EVNTS
 	call	CS_M_HLP_GetEvent
 
 	movlw	'L'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'e'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	'n'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	movlw	':'
-	call	MIOS_LCD_PrintChar
+	rcall	SEQ_LCD_PrintChar
 	SET_BSR	SEQ_BASE
 	movf	SEQ_EVNTL, W, BANKED
 	rcall	SEQ_LCD_PrnLen
@@ -1284,7 +1320,7 @@ SEQ_LCD_PrnMsgItemU_A
 
 SEQ_LCD_PrnMsgItemU_B
 	movlw	0x80 + 33
-	call	MIOS_LCD_CursorSet
+	rcall	SEQ_LCD_CursorSet
 
 	;; gate
 	movlw	'G'
@@ -1369,16 +1405,16 @@ SEQ_LCD_PrnMsgItemU_B_Hlp
 	bz	SEQ_LCD_PrnMsgItemU_B_Hlp_L0
 SEQ_LCD_PrnMsgItemU_B_Hlp_L1
 	movf	TMP1, W		; step is triggered
-	goto	MIOS_LCD_PrintChar
+	goto	SEQ_LCD_PrintChar
 	
 SEQ_LCD_PrnMsgItemU_B_Hlp_L0
 	movf	TMP1, W		; step is not triggered
 	addlw	'a'-'A'
-	goto	MIOS_LCD_PrintChar
+	goto	SEQ_LCD_PrintChar
 
 SEQ_LCD_PrnMsgItemU_B_Hlp_0	; not assigned
 	movlw	'-'
-	goto	MIOS_LCD_PrintChar
+	goto	SEQ_LCD_PrintChar
 	
 
 	;; dummies
@@ -1399,7 +1435,7 @@ SEQ_LCD_PrnMsgItemL
 	;; set cursor depending on SEQ_EVNTS
 	rcall	SEQ_LCD_PrnMsgItem_Hlp
 	addlw	0x40
-	call	MIOS_LCD_CursorSet
+	call	SEQ_LCD_CursorSet
 
 	;; ignore if flash flag set
 	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, SEQ_LCD_PrnMsgItemL_Normal

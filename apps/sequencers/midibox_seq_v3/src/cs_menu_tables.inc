@@ -21,7 +21,7 @@ CS_MENU_TABLE_ROOT
 CS_MENU_TABLE_ROOT_Header
 	CS_MENU_HEADER	(CS_MENU_TABLE_ROOT_End-CS_MENU_TABLE_ROOT_Begin)/CS_MENU_ENTRY_LEN, SEQ_LCD_PrintHeader, CS_M_NOP, SEQ_LED_Update, SEQ_MSG_Handler
 CS_MENU_TABLE_ROOT_Begin
-	CS_MENU_ENTRY	"Edit          ", CS_M_DISPLAY_Init, CS_M_DISPLAY_Tick, CS_M_DISPLAY_Exit, CS_M_DISPLAY_Select
+	CS_MENU_ENTRY	"Edit          ", CS_M_EDIT_Init,    CS_M_EDIT_Tick,    CS_M_EDIT_Exit,    CS_M_EDIT_Select
 	CS_MENU_ENTRY	"Mute Tracks   ", CS_M_MUTE_Init,    CS_M_MUTE_Tick,    CS_M_NOP,          CS_M_NOP
 	CS_MENU_ENTRY	"Patterns      ", CS_M_PATTERN_Init, CS_M_PATTERN_Tick, CS_M_NOP,          CS_M_PATTERN_Select
 	CS_MENU_ENTRY	"Song          ", CS_M_SONG_Init,    CS_M_SONG_Tick,    CS_M_NOP,          CS_M_SONG_Select

@@ -87,6 +87,7 @@ SEQ_RECORD_MODE_REC_LAYER_B	EQU	5	; if 1: record layer B
 SEQ_RECORD_MODE_REC_LAYER_C	EQU	6	; if 1: record layer C
 SEQ_RECORD_MODE_REC_CC		EQU	7	; if 1: CC should be recorded, otherwise a note
 
+	;; (order of flags has to be aligned with LED output routine in seq_leds.inc!)
 SEQ_MODE0_STEP_EDIT		EQU	0	; we are in step edit mode
 SEQ_MODE0_MUTE			EQU	1	; change mute status with GP buttons
 SEQ_MODE0_PATTERN		EQU	2	; change pattern with GP buttons
