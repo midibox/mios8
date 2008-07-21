@@ -74,12 +74,6 @@ DEFAULT_TRKINFO MACRO
 ; Use 0 for high-quality buttons, use higher values for low-quality buttons
 #define DEFAULT_SRIO_DEBOUNCE_CTR 0
 ;
-; For MIDI activity monitor: define the DOUT pins for the Rx and Tx LED
-#define DEFAULT_MIDI_MONITOR_ENABLED 1  ; if 1, the Tx/Rx LEDs are enabled
-;                                    SR            Pin#
-#define DEFAULT_MIDI_RX_LED        (((2 - 1)<<3)+7- 0)	; DOUT SR#2, pin D0
-#define DEFAULT_MIDI_TX_LED        0xff			; not used
-;
 ; Some menus are provide the possibility to use 16 "general purpose" buttons
 ; Define the two shift registers which are assigned to this function here:
 ; (valid numbers: 1-16)
@@ -375,6 +369,10 @@ LED_REW		EQU	((( 0   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
 LED_BEAT	EQU	((( 1   -1)<<3)+    7)
+
+;;                         SR    ignore    Pin
+LED_MIDI_RX	EQU	(((2    -1)<<3)+    7) ; OPTIONAL! see CHANGELOG.txt
+LED_MIDI_TX	EQU	(((0    -1)<<3)+    0) ; SR=0 -> disabled by default
 
 
 ;; --------------------------------------------------------------------------

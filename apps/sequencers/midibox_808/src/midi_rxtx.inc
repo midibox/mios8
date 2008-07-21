@@ -60,41 +60,47 @@ MIDI_RXTX_NotifyTx
 ;;  counter values
 ;; --------------------------------------------------------------------------
 MIDI_RXTX_Handler
-#if DEFAULT_MIDI_MONITOR_ENABLED
+ IF LED_MIDI_RX < 128
 	;; Decrement Rx counter if != 0
 	SET_BSR	MIDI_RXTX_RX_CTR
 	movf	MIDI_RXTX_RX_CTR, W, BANKED
 	skpz
 	decf	MIDI_RXTX_RX_CTR, F, BANKED
+ ENDIF
 
+ IF LED_MIDI_TX < 128
 	;; Decrement Tx counter if != 0
 	SET_BSR	MIDI_RXTX_TX_CTR
 	movf	MIDI_RXTX_TX_CTR, W, BANKED
 	skpz
 	decf	MIDI_RXTX_TX_CTR, F, BANKED
-
+ ENDIF
 
 	;; 
 	;; remove the code below if you don't want to use LEDs to
 	;; indicate the counter state
 	;; 
 
+ IF LED_MIDI_RX < 128
 	;; set the Rx LED depending on counter state
 	SET_BSR	MIDI_RXTX_RX_CTR
 	movf	MIDI_RXTX_RX_CTR, W, BANKED
 	skpz
 	movlw	0x01
 	movwf	MIOS_PARAMETER1
-	movlw	MIDI_RXTX_RX_LED
+	movlw	LED_MIDI_RX
 	call	MIOS_DOUT_PinSet
+ ENDIF
 
+ IF LED_MIDI_TX < 128
 	;; set the Tx LED depending on counter state
 	SET_BSR	MIDI_RXTX_TX_CTR
 	movf	MIDI_RXTX_TX_CTR, W, BANKED
 	skpz
 	movlw	0x01
 	movwf	MIOS_PARAMETER1
-	movlw	MIDI_RXTX_TX_LED
+	movlw	LED_MIDI_TX
 	call	MIOS_DOUT_PinSet
-#endif
+ ENDIF
+
 	return
