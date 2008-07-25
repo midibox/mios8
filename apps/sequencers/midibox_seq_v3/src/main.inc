@@ -507,7 +507,7 @@ USER_AIN_NotifyChange
 
 ;; ---[ Menu pages handlers ]---
 #include "cs_m_hlp.inc"
-#include "cs_m_display.inc"
+#include "cs_m_edit.inc"
 #include "cs_m_mixer.inc"
 #include "cs_m_pattern.inc"
 #include "cs_m_mute.inc"
