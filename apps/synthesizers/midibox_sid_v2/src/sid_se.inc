@@ -37,6 +37,7 @@ SID_V_STATE_ACCENT		EQU	6
 SID_V_STATE_SLIDE		EQU	7
 
 SID_V_STATE2_PORTA_INITIALIZED	EQU	0	; portamento omitted when first key played 
+SID_V_STATE2_FORCE_FRQ_RECALC	EQU	1	; forces SID frequency re-calculation (used by multi-engine to takeover portamento)
 
 SID_I_OPT1_FLAGS_ABW		EQU	0	; ADSR bug workaround
 
@@ -1727,13 +1728,6 @@ SIDSE_Pitch_Porta_NoUpdate
 	movlw	SID_Ix_Vx_FLAGS1
 	BRA_IFSET PLUSW0, SID_I_V_FLAGS1_PORTA_GLISSANDO, ACCESS, SIDSE_Pitch_Porta_Final
 
-	;; omit portamento if first key played after patch initialisation
-	movlw	SID_Vx_STATE2
-	BRA_IFSET PLUSW1, SID_V_STATE2_PORTA_INITIALIZED, ACCESS, SIDSE_Pitch_Porta_Initialized
-	bsf	PLUSW1, SID_V_STATE2_PORTA_INITIALIZED
-	rgoto	SIDSE_Pitch_Porta_Final
-SIDSE_Pitch_Porta_Initialized
-
 	;; get portamento multiplier from envelope table -> MUL_A
 	;; this one is used for "constant time glide" and "normal portamento"
 	movlw	SID_Ix_Vx_PORTAMENTO
@@ -1907,6 +1901,9 @@ SIDSE_Pitch_Porta_End
 	;; Linear Frequency -> SID Frequency conversion
 	;; ------------------------------------------------------------------
 SIDSE_Pitch_FrqConvert
+	movlw	SID_Vx_STATE2	; (for multi-engine to takeover portamento)
+	BRA_IFSET PLUSW1, SID_V_STATE2_FORCE_FRQ_RECALC, ACCESS, SIDSE_Pitch_FrqConvert_Changed
+
 	;; check if linear frequency has been changed
 	movlw	SID_Vx_LINEAR_FRQ_L
 	movf	PLUSW1, W
@@ -1917,6 +1914,8 @@ SIDSE_Pitch_FrqConvert
 	xorwf	SID_SE_LINEAR_FRQ_H, W, BANKED
 	bz	SIDSE_Pitch_FrqConvert_End
 SIDSE_Pitch_FrqConvert_Changed
+	movlw	SID_Vx_STATE2
+	bcf	PLUSW1, SID_V_STATE2_FORCE_FRQ_RECALC
 
 	;; store new linear frequency value into SID_Vx_LINEAR_FRQ_[LH]
 	movlw	SID_Vx_LINEAR_FRQ_L

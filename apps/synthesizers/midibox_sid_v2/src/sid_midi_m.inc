@@ -300,6 +300,7 @@ SID_MIDI_M_CC_Loop_Next
 ;; Note On help function
 ;; IN: Pointer to SID_MVx_BASE in FSR0
 ;;     MIDI voice number in SID_CURRENT_MIDIVOICE
+;;     velocity in SID_MIDI_PARAMETER2
 ;; ALSO USED BY SID_PATCH_Init !
 ;; --------------------------------------------------------------------------
 SID_MIDI_M_Hlp_NoteOn
@@ -323,15 +324,20 @@ SID_MIDI_M_Hlp_NoteOn_WTO
 	BRA_IFCLR SID_MIDI_FLAGS, SID_I_M_V_FLAGS2_SUS_KEY, BANKED, SID_MIDI_M_Hlp_NoteOn_NoSusKey
 SID_MIDI_M_Hlp_NoteOn_SusKey
 	;; in suy-key mode, we activate portamento only if at least one key is played
-	movlw	SID_Vx_STATE
-	bcf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
 	movlw	SID_MVx_NOTE_STACK_PTR
 	decf	PLUSW0, W
 	bz	SID_MIDI_M_Hlp_NoteOn_NoSusKeyPr
 SID_MIDI_M_Hlp_NoteOn_NoSusKey
+	;; omit portamento if first key played after patch initialisation
+	movlw	SID_Vx_STATE2
+	BRA_IFCLR PLUSW1, SID_V_STATE2_PORTA_INITIALIZED, ACCESS, SID_MIDI_M_Hlp_NoteOn_NoSusKeyPr
 	movlw	SID_Vx_STATE
 	bsf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
 SID_MIDI_M_Hlp_NoteOn_NoSusKeyPr
+
+	;; next key will allow portamento
+	movlw	SID_Vx_STATE2
+	bsf	PLUSW1, SID_V_STATE2_PORTA_INITIALIZED
 
 	;; skip the rest if legato and voice already active
 	BRA_IFCLR SID_MIDI_FLAGS, SID_I_M_V_FLAGS2_LEGATO, BANKED, SID_MIDI_M_Hlp_NoteOn_NoLegato
@@ -512,10 +518,10 @@ SID_MIDI_M_Hlp_GetVoice
 	movff	PLUSW1, TMP2
 	movlw	SID_Vx_OLD_TRANSP_NOTE
 	movff	PLUSW1, TMP3
-
-	call	SIDSE_Hlp_GetSIDFrqPtr	; (SID_SE_ELEMENT_NUM initialized above)
-	movff	POSTINC2, TMP4
-	movff	POSTDEC2, TMP5
+	movlw	SID_Vx_LINEAR_FRQ_L
+	movff	PLUSW1, TMP4
+	movlw	SID_Vx_LINEAR_FRQ_H
+	movff	PLUSW1, TMP5
 
 	;; get voice assignment mode for SID_VOICE_Get(Last) function
 	rcall	SID_MIDI_M_Hlp_FSR2_Ins
@@ -561,11 +567,13 @@ SID_MIDI_M_Hlp_NoteOn_Cont
 	movff	TMP2, PLUSW1
 	movlw	SID_Vx_OLD_TRANSP_NOTE
 	movff	TMP3, PLUSW1
-	movff	SID_CURRENT_VOICE, SID_SE_ELEMENT_NUM
-	call	SIDSE_Hlp_GetSIDFrqPtr
-	movff	TMP4, POSTINC2
-	movff	TMP5, POSTDEC2
-
+	movlw	SID_Vx_LINEAR_FRQ_L
+	movff	TMP4, PLUSW1
+	movlw	SID_Vx_LINEAR_FRQ_H
+	movff	TMP5, PLUSW1
+	movlw	SID_Vx_STATE2
+	bsf	PLUSW1, SID_V_STATE2_FORCE_FRQ_RECALC
+	
 	return
 
 

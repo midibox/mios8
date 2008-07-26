@@ -455,15 +455,20 @@ SID_MIDI_B_Hlp_NoteOn
 	BRA_IFCLR SID_MIDI_FLAGS, SID_I_B_V_FLAGS2_SUS_KEY, BANKED, SID_MIDI_B_Hlp_NoteOn_NoSusKey
 SID_MIDI_B_Hlp_NoteOn_SusKey
 	;; in suy-key mode, we activate portamento only if at least one key is played
-	movlw	SID_Vx_STATE
-	bcf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
 	movlw	SID_MVx_NOTE_STACK_PTR
 	decf	PLUSW0, W
 	bz	SID_MIDI_B_Hlp_NoteOn_NoSusKeyPr
 SID_MIDI_B_Hlp_NoteOn_NoSusKey
+	;; omit portamento if first key played after patch initialisation
+	movlw	SID_Vx_STATE2
+	BRA_IFCLR PLUSW1, SID_V_STATE2_PORTA_INITIALIZED, ACCESS, SID_MIDI_B_Hlp_NoteOn_NoSusKeyPr
 	movlw	SID_Vx_STATE
 	bsf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
 SID_MIDI_B_Hlp_NoteOn_NoSusKeyPr
+
+	;; next key will allow portamento
+	movlw	SID_Vx_STATE2
+	bsf	PLUSW1, SID_V_STATE2_PORTA_INITIALIZED
 
 	;; skip the rest if legato and voice already active
 	BRA_IFCLR SID_MIDI_FLAGS, SID_I_B_V_FLAGS2_LEGATO, BANKED, SID_MIDI_B_Hlp_NoteOn_NoLegato
@@ -508,6 +513,10 @@ SID_MIDI_B_Hlp_NoteOn_NoNOnTrg
 SID_MIDI_B_Hlp_NoteOff
 	;; last note number of #0 (before pop) in WREG!
 	movwf	TABLAT
+
+	;; activate portamento (will be ignored by Pitch handler if no portamento active - important for SusKey function to have it here!)
+	movlw	SID_Vx_STATE
+	bsf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
 
 	;; if not in legato mode and current note-off number equal to last entry #0: gate off
 	movf	TABLAT, W

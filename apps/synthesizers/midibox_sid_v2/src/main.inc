@@ -22,7 +22,7 @@
 ; ==========================================================================
 ;
 ; Version:                <-------------------->
-#define MBSID_VERSION_STR "MIDIboxSID V2.0RC24 "
+#define MBSID_VERSION_STR "MIDIboxSID V2.0RC25 "
 ; (fixed string length - 20 characters!)
 
 ;; MBNET specific definitions (ping reply information - don't touch this!)
