@@ -518,6 +518,7 @@ SID_MIDI_M_Hlp_GetVoice
 	movff	POSTDEC2, TMP5
 
 	;; get voice assignment mode for SID_VOICE_Get(Last) function
+	rcall	SID_MIDI_M_Hlp_FSR2_Ins
 	movlw	SID_Ix_M_Vx_VOICE_ASSGN
 	movf	PLUSW2, W
 	andlw	0x0f
@@ -533,7 +534,6 @@ SID_MIDI_M_Hlp_GetVoice
 
 	;; branch depending on Poly/Mono mode
 	;; if ARP is active, always use mono mode approach for voice allocation
-	rcall	SID_MIDI_M_Hlp_FSR2_Ins
 	movlw	SID_Ix_Vx_ARP_MODE
 	BRA_IFSET PLUSW2, SID_I_V_ARP_MODE_ENABLE, ACCESS, SID_MIDI_M_Hlp_NoteOn_Mono
 

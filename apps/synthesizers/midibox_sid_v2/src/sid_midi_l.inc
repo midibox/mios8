@@ -73,16 +73,7 @@ SID_MIDI_L_NoteOn_SuperPoly
 SID_MIDI_L_NoteOn_NoSuperPoly
 #endif
 
-	;; copy note number and velocity into mod matrix source
-	;; convert key number to 15bit signed value, centered at 60 (middle-C)
-	movf	SID_MIDI_PARAMETER1, W
-	addlw	-60
-	movwf	SID_MOD_SRC_L_KEY_H, BANKED
-	movlw	0x00
-	btfsc	SID_MOD_SRC_L_KEY_H, 7, BANKED
-	movlw 0xff
-	movwf	SID_MOD_SRC_L_KEY_L, BANKED
-
+	;; copy velocity into mod matrix source
 	clrc
 	rlf	SID_MIDI_PARAMETER2, W, BANKED
 	movwf	MIOS_PARAMETER1

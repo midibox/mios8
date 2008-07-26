@@ -76,6 +76,31 @@ SIDSE_L_Handler_ModClearLoop
 	decfsz	IRQ_TMP1, F
 	rgoto	SIDSE_L_Handler_ModClearLoop
 
+	;; since this isn't done anywhere else:
+#if 0
+	;; convert key number of voice1 to 15bit signed value, centered at 60 (middle-C)
+	movff	SIDL_V1_BASE + SID_Vx_TRANSP_NOTE, WREG
+	addlw	-60
+	movwf	SID_MOD_SRC_L_KEY_H, BANKED
+	movlw	0x00
+	btfsc	SID_MOD_SRC_L_KEY_H, 7, BANKED
+	movlw 0xff
+	movwf	SID_MOD_SRC_L_KEY_L, BANKED
+#else
+	;; modulation only in positive direction
+	clrf	SID_MOD_SRC_L_KEY_L, BANKED
+	movff	SIDL_V1_BASE + SID_Vx_TRANSP_NOTE, SID_MOD_SRC_L_KEY_H
+#endif
+
+	;; copy knob1 to MDW source
+	;; in distance to Knob1, this one goes only into positive direction
+	clrf	SID_MOD_SRC_L_MDW_L, BANKED
+	movf	SID_MOD_SRC_L_KNOB1_H, W, BANKED
+	addlw	0x80
+	rrf	WREG, W
+	andlw	0x7f
+	movwf	SID_MOD_SRC_L_MDW_H, BANKED
+
 
 SIDSE_L_HANDLER_MOD_MACRO MACRO patch_base
 	lfsr	FSR0, patch_base

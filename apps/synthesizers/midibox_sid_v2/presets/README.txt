@@ -60,6 +60,9 @@ Patch 126-128 made by David Panseri (2004)
 ChangeLog:
 ~~~~~~~~~~
 
+2008-07-26:
+   o overworked patches for v2.0RC24 engine
+
 2008-03-27:
    o replaced Placeholders A035 and A036 by new Drum Kits
    o replaced Placeholders A037..A044 by new trigger and modulation matrix examples

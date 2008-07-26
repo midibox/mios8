@@ -17,9 +17,6 @@
 ; ==========================================================================
 
 
-;; linear oscillator frequency handling as proposed by Razmo
-#define LIN_FRQ_EXPERIMENT 0
-
 ;; ==========================================================================
 ;;  SID Flags
 ;; ==========================================================================
@@ -1457,29 +1454,10 @@ SIDSE_Pitch_Gliss_End
 	;; Determine Target frequency depending on transposed note
 	;; ------------------------------------------------------------------
 SIDSE_Pitch_InitTargetFrq
-	;; use linear value if O2A activated
-#if LIN_FRQ_EXPERIMENT == 0
-	movff	SID_LOCAL_ENS + SID_ENSx_CTRL2, WREG
-	BRA_IFCLR WREG, SID_ENS_CTRL2_O2A, ACCESS, SIDSE_Pitch_InitTargetFrq_NoO2A
-#endif
-SIDSE_Pitch_InitTargetFrq_O2A
 	clrf	SID_SE_TARGET_FRQ_L, BANKED
 	clrc
 	rlf	SID_SE_TRANSPOSED_NOTE, W, BANKED
 	movwf	SID_SE_TARGET_FRQ_H, BANKED
-	rgoto	SIDSE_Pitch_InitTargetFrq_O2A_C
-
-SIDSE_Pitch_InitTargetFrq_NoO2A
-	movf	SID_SE_TRANSPOSED_NOTE, W, BANKED
-	addlw	21			; due to the new frequency table we have to transpose
-	btfsc	WREG, 7; the note value
-	movlw 0x7f	
-	TABLE_ADDR_MUL_W SID_FRQ_TABLE, 2	; determine table address
-	tblrd*+				; transfer table entry to SID_SE_TARGET_FRQ_[LH]
-	movff	TABLAT, SID_SE_TARGET_FRQ_L
-	tblrd*+
-	movff	TABLAT, SID_SE_TARGET_FRQ_H
-SIDSE_Pitch_InitTargetFrq_O2A_C
 
 	;; ------------------------------------------------------------------
 	;; Increase/Decrease target frequency by pitchrange depending on
@@ -1645,28 +1623,11 @@ SIDSE_Pitch_Frq_Dec
 	movlw 0x00
 SIDSE_Pitch_Frq_Inc_Cont
 
-	;; use linear value if O2A activated
-#if LIN_FRQ_EXPERIMENT == 0
-	movff	SID_LOCAL_ENS + SID_ENSx_CTRL2, PRODL
-	BRA_IFCLR PRODL, SID_ENS_CTRL2_O2A, ACCESS, SIDSE_Pitch_Frq_TuneFrq_NoO2A
-#endif
-SIDSE_Pitch_Frq_TuneFrq_O2A
+SIDSE_Pitch_Frq_TuneFrq
 	clrf	MIOS_PARAMETER1
 	clrc
 	rlf	WREG, W
 	movwf	MIOS_PARAMETER2
-	rgoto	SIDSE_Pitch_Frq_TuneFrq_O2A_C
-
-SIDSE_Pitch_Frq_TuneFrq_NoO2A
-	addlw	21			; due to the new frequency table we have to transpose
-	btfsc	WREG, 7; the note value
-	movlw 0x7f	
-	TABLE_ADDR_MUL_W SID_FRQ_TABLE, 2	; determine table address
-	tblrd*+				; transfer table entry to MIOS_PARAMETER[12]
-	movff	TABLAT, MIOS_PARAMETER1
-	tblrd*+
-	movff	TABLAT, MIOS_PARAMETER2
-SIDSE_Pitch_Frq_TuneFrq_O2A_C
 
 	;; add and multiply to target frequency
 SIDSE_Pitch_Frq_AddMul
@@ -1708,12 +1669,6 @@ SIDSE_Pitch_Frq_AddMul_Cont
 	addwfc	SID_SE_TARGET_FRQ_H, F, BANKED
 
 SIDSE_Pitch_NoOffset
-	;; store target frequency in Vx
-	movlw	SID_Vx_TARGET_FRQ_L
-	movff	SID_SE_TARGET_FRQ_L, PLUSW1
-	movlw	SID_Vx_TARGET_FRQ_H
-	movff	SID_SE_TARGET_FRQ_H, PLUSW1
-
 
 	;; ------------------------------------------------------------------
 	;; pitch modulation
@@ -1724,19 +1679,22 @@ SIDSE_Pitch_NoOffset
 	;; Portamento Handling
 	;; ------------------------------------------------------------------
 
-	;; transfer pointer to SIDx_Vx_FRQ_L register -> FSR2
-	call	SIDSE_Hlp_GetSIDFrqPtr
+	;; transfer current linear frequency (stored in voice array) to SID_SE_LINEAR_FRQ_[LH]
+	movlw	SID_Vx_LINEAR_FRQ_L
+	movff	PLUSW1, SID_SE_LINEAR_FRQ_L
+	movlw	SID_Vx_LINEAR_FRQ_H
+	movff	PLUSW1, SID_SE_LINEAR_FRQ_H
 
 SIDSE_Pitch_Porta
 	;; whenever target frequency has been changed, update portamento frequency
 	movlw	SID_Vx_OLD_TARGET_FRQ_L
 	movf	PLUSW1, W
 	cpfseq	SID_SE_TARGET_FRQ_L, BANKED
-	rgoto SIDSE_Pitch_Porta_Update
+	rgoto	SIDSE_Pitch_Porta_Update
 	movlw	SID_Vx_OLD_TARGET_FRQ_H
 	movf	PLUSW1, W
 	cpfseq	SID_SE_TARGET_FRQ_H, BANKED
-	rgoto SIDSE_Pitch_Porta_Update
+	rgoto	SIDSE_Pitch_Porta_Update
 	rgoto	SIDSE_Pitch_Porta_NoUpdate
 SIDSE_Pitch_Porta_Update
 	;; memorize new target frequency
@@ -1745,23 +1703,16 @@ SIDSE_Pitch_Porta_Update
 	movlw	SID_Vx_OLD_TARGET_FRQ_H
 	movff	SID_SE_TARGET_FRQ_H, PLUSW1
 
-	;; skip portamento effect if current frequency is 0 (after patch change)
-	movf	POSTINC2, W
-	iorwf	POSTDEC2, W
-	skpnz
-	rgoto	SIDSE_Pitch_Porta_Final
-	
-	;; store current frequency (SIDx_FRQ_[LH]) in SID_Vx_PORTA_FRQ_[LH]
+	;; store current linear frequency (SID_SE_LINEAR_FRQ_[LH]) into SID_Vx_PORTA_FRQ_[LH]
 	movlw	SID_Vx_PORTA_FRQ_L
-	movff	POSTINC2, PLUSW1
+	movff	SID_SE_LINEAR_FRQ_L, PLUSW1
 	movlw	SID_Vx_PORTA_FRQ_H
-	movff	POSTDEC2, PLUSW1
+	movff	SID_SE_LINEAR_FRQ_H, PLUSW1
 
+	;; reset portamento counter
 	;; skip if glissando active
 	movlw	SID_Ix_Vx_FLAGS1
 	BRA_IFSET PLUSW0, SID_I_V_FLAGS1_PORTA_GLISSANDO, ACCESS, SIDSE_Pitch_Porta_NoUpdate
-
-	;; reset portamento counter
 	movlw	SID_Vx_PORTA_CTR_L
 	clrf	PLUSW1
 	movlw	SID_Vx_PORTA_CTR_H
@@ -1856,12 +1807,11 @@ SIDSE_Pitch_Porta_Const_Up
 	movlw	SID_Vx_PORTA_FRQ_L
 	movf	PLUSW1, W
 	addwf	MUL_R_2, W, BANKED
-	movwf	POSTINC2
-
+	movwf	SID_SE_LINEAR_FRQ_L, BANKED
 	movlw	SID_Vx_PORTA_FRQ_H
 	movf	PLUSW1, W
 	addwfc	MUL_R_3, W, BANKED
-	movwf	POSTDEC2
+	movwf	SID_SE_LINEAR_FRQ_H, BANKED
 
 	;; continue at normal portamento routine
 	rgoto	SIDSE_Pitch_Porta_Const_Up_Cont
@@ -1869,14 +1819,16 @@ SIDSE_Pitch_Porta_Const_Up
 SIDSE_Pitch_Porta_Const_Down
 	;; subtract scaled value from starting frequency
 	movlw	SID_Vx_PORTA_FRQ_L
-	movff	PLUSW1, POSTINC2
+	movff	PLUSW1, PRODL
 	movlw	SID_Vx_PORTA_FRQ_H
-	movff	PLUSW1, POSTDEC2
+	movff	PLUSW1, PRODH
 
 	movf	MUL_R_2, W, BANKED
-	subwf	POSTINC2, F
+	subwf	PRODL, W
+	movwf	SID_SE_LINEAR_FRQ_L, BANKED
 	movf	MUL_R_3, W, BANKED
-	subwfb	POSTDEC2, F
+	subwfb	PRODH, W
+	movwf	SID_SE_LINEAR_FRQ_H, BANKED
 
 	;; continue at normal portamento routine
 	rgoto	SIDSE_Pitch_Porta_Const_Down_C
@@ -1886,8 +1838,8 @@ SIDSE_Pitch_Porta_Const_Down
 	;; "normal" portamento mode (non-constant glide time)
 SIDSE_Pitch_Porta_Norm
 	;; get current frequency -> MUL_B
-	movff	POSTINC2, MUL_B_L
-	movff	POSTDEC2, MUL_B_H
+	movff	SID_SE_LINEAR_FRQ_L, MUL_B_L
+	movff	SID_SE_LINEAR_FRQ_H, MUL_B_H
 
 	;; multiply MUL_A * MUL_B
 	call	MATH_MUL16_16
@@ -1898,54 +1850,89 @@ SIDSE_Pitch_Porta_Norm
 	skpnz
 	incf	MUL_R_2, F, BANKED
 
-	;; SID_Vx_FRQ += result (depending on Portamento Direction)
+	;; SID_Vx_LINEAR_FRQ += result (depending on Portamento Direction)
 
 	;; branch depending on portamento direction
 	;; check if value > current value
 	movf	SID_SE_TARGET_FRQ_L, W, BANKED
-	subwf	POSTINC2, W
+	subwf	SID_SE_LINEAR_FRQ_L, W, BANKED
 	movf	SID_SE_TARGET_FRQ_H, W, BANKED
-	subwfb	POSTDEC2, W
+	subwfb	SID_SE_LINEAR_FRQ_H, W, BANKED
 	bc	SIDSE_Pitch_Porta_Norm_Down
 
 SIDSE_Pitch_Porta_Norm_Up
-	movf	MUL_R_2, W
-	addwf	POSTINC2, F
+	movf	MUL_R_2, W, BANKED
+	addwf	SID_SE_LINEAR_FRQ_L, F, BANKED
 	movf	MUL_R_3, W, BANKED
-	addwfc	POSTDEC2, F
+	addwfc	SID_SE_LINEAR_FRQ_H, F, BANKED
 
 SIDSE_Pitch_Porta_Const_Up_Cont		; re-used by "constant glide" option
 	;; check if value > MAX_VALUE
-	movf	POSTINC2, W
+	movf	SID_SE_LINEAR_FRQ_L, W, BANKED
 	subwf	SID_SE_TARGET_FRQ_L, W, BANKED
-	movf	POSTDEC2, W
+	movf	SID_SE_LINEAR_FRQ_H, W, BANKED
 	subwfb	SID_SE_TARGET_FRQ_H, W, BANKED
 	bc	SIDSE_Pitch_Porta_End	; branch to end if MAX_VALUE not reached
 	rgoto	SIDSE_Pitch_Porta_Final	; final value reached
 
 SIDSE_Pitch_Porta_Norm_Down
 	movf	MUL_R_2, W
-	subwf	POSTINC2, F
+	subwf	SID_SE_LINEAR_FRQ_L, F, BANKED
 	movf	MUL_R_3, W, BANKED
-	subwfb	POSTDEC2, F
+	subwfb	SID_SE_LINEAR_FRQ_H, F, BANKED
 
 SIDSE_Pitch_Porta_Const_Down_C	; re-used by "constant glide" option
 	;; check if value < MIN_VALUE
 	movf	SID_SE_TARGET_FRQ_L, W, BANKED
-	subwf	POSTINC2, W
+	subwf	SID_SE_LINEAR_FRQ_L, W, BANKED
 	movf	SID_SE_TARGET_FRQ_H, W, BANKED
-	subwfb	POSTDEC2, W
-	bc	SIDSE_Pitch_Porta_End	; branch to end if MIN_VALUE not reached
+	subwfb	SID_SE_LINEAR_FRQ_H, W, BANKED
+	bc	SIDSE_Pitch_Porta_End	; branch if MIN_VALUE not reached
 	;; final value reached
 
 SIDSE_Pitch_Porta_Final
-#if LIN_FRQ_EXPERIMENT
+	;; copy target frequency to SID_SE_LINEAR_FRQ_[LH] and finish portamento
+	movff	SID_SE_TARGET_FRQ_L, SID_SE_LINEAR_FRQ_L
+	movff	SID_SE_TARGET_FRQ_H, SID_SE_LINEAR_FRQ_H
+
+	;; deactivate porta active gate if glissando not active
+	movlw	SID_Ix_Vx_FLAGS1
+	BRA_IFSET PLUSW0, SID_I_V_FLAGS1_PORTA_GLISSANDO, ACCESS, SIDSE_Pitch_Porta_End
+	movlw	SID_Vx_STATE
+ 	bcf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
+SIDSE_Pitch_Porta_End
+
+
+	;; ------------------------------------------------------------------
+	;; Linear Frequency -> SID Frequency conversion
+	;; ------------------------------------------------------------------
+SIDSE_Pitch_FrqConvert
+	;; check if linear frequency has been changed
+	movlw	SID_Vx_LINEAR_FRQ_L
+	movf	PLUSW1, W
+	xorwf	SID_SE_LINEAR_FRQ_L, W, BANKED
+	bnz	SIDSE_Pitch_FrqConvert_Changed
+	movlw	SID_Vx_LINEAR_FRQ_H
+	movf	PLUSW1, W
+	xorwf	SID_SE_LINEAR_FRQ_H, W, BANKED
+	bz	SIDSE_Pitch_FrqConvert_End
+SIDSE_Pitch_FrqConvert_Changed
+
+	;; store new linear frequency value into SID_Vx_LINEAR_FRQ_[LH]
+	movlw	SID_Vx_LINEAR_FRQ_L
+	movff	SID_SE_LINEAR_FRQ_L, PLUSW1
+	movlw	SID_Vx_LINEAR_FRQ_H
+	movff	SID_SE_LINEAR_FRQ_H, PLUSW1
+	
+	;; transfer pointer to SIDx_Vx_FRQ_L register -> FSR2
+	call	SIDSE_Hlp_GetSIDFrqPtr
+
 	;; convert upper 7 bit of 16bit linear frequency to SID frequency value
-	rrf	SID_SE_TARGET_FRQ_H, W, BANKED
+	rrf	SID_SE_LINEAR_FRQ_H, W, BANKED
 	andlw	0x7f
 	addlw	21
 	btfsc	WREG, 7; the note value
-	movlw 0x7f	
+	movlw	0x7f	
 	TABLE_ADDR_MUL_W SID_FRQ_TABLE, 2	; determine table address
 	tblrd*+				; transfer table entry to SID_FRQ_[LH]
 	movff	TABLAT, POSTINC2
@@ -1967,49 +1954,20 @@ SIDSE_Pitch_Porta_Final
 	subwfb	MUL_B_H, W, BANKED
 	movwf	MUL_A_H, BANKED
 
-#if 1
-	;; for scaling: use left-aligned 8:0 bitfield of 16bit linear frequency
-	rrf	SID_SE_TARGET_FRQ_H, W, BANKED
-	rrf	SID_SE_TARGET_FRQ_L, W, BANKED
-	movwf	MUL_B_H, BANKED
-	movlw	0x00
-	skpnc
-	movlw	0x80
+	;; use bit 8:1 of 16bit linear frequency for linear scaling between two semitones
+	rrf	SID_SE_LINEAR_FRQ_H, W, BANKED
+	rrf	SID_SE_LINEAR_FRQ_L, W, BANKED
 	movwf	MUL_B_L, BANKED
-#else
-	;; for scaling: convert bit 8:2 of 16bit linear frequency to SID frequency value
-	rrf	SID_SE_TARGET_FRQ_H, W, BANKED
-	rrf	SID_SE_TARGET_FRQ_L, W, BANKED
-	rrf	WREG, W
-	andlw	0x7f
-	TABLE_ADDR_MUL_W SID_FRQ_TABLE, 2	; determine table address
-	tblrd*+				; transfer table entry to MUL_B_[LH]
-	movff	TABLAT, MUL_B_L
-	tblrd*+
-	movff	TABLAT, MUL_B_H
-#endif
 
-	;; 16*16 multiplication
-	call	MATH_MUL16_16
+	;; 16*8 multiplication
+	call	MATH_MUL16_8
 
 	;; add result to SID frequency registers
-	movf	MUL_R_2, W, BANKED
+	movf	MUL_R_1, W, BANKED
 	addwf	POSTINC2, F
-	movf	MUL_R_3, W, BANKED
+	movf	MUL_R_2, W, BANKED
 	addwfc	POSTDEC2, F
-	
-#else
-	;; copy target frequency to SIDx_FRQ_[LH] and finish portamento
-	movff	SID_SE_TARGET_FRQ_L, POSTINC2
-	movff	SID_SE_TARGET_FRQ_H, POSTDEC2
-#endif
-
-	;; deactivate porta active gate if glissando not active
-	movlw	SID_Ix_Vx_FLAGS1
-	BRA_IFSET PLUSW0, SID_I_V_FLAGS1_PORTA_GLISSANDO, ACCESS, SIDSE_Pitch_Porta_End
-	movlw	SID_Vx_STATE
- 	bcf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
-SIDSE_Pitch_Porta_End
+SIDSE_Pitch_FrqConvert_End
 
 
 	;; ------------------------------------------------------------------
@@ -2055,7 +2013,7 @@ SIDSE_Pitch_Key_NoAOUT
 	;; O2A Function
 	;; ------------------------------------------------------------------
 
-	;; forward key value to AOUT if enabled
+	;; forward linear frequency value to AOUT if enabled
 	movff	SID_LOCAL_ENS + SID_ENSx_CTRL2, WREG
 	BRA_IFCLR WREG, SID_ENS_CTRL2_O2A, ACCESS, SIDSE_Pitch_Osc_NoAOUT
 SIDSE_Pitch_Osc_AOUT
@@ -2074,8 +2032,8 @@ SIDSE_Pitch_Osc_AOUT
 	bz	SIDSE_Pitch_Osc_NoAOUT	; channel assignment disabled
 
 	;; copy oscillator frequency to MIOS_PARAMETER[12]
-	movff	POSTINC2, MIOS_PARAMETER1
-	movff	POSTDEC2, MIOS_PARAMETER2
+	movff	SID_SE_LINEAR_FRQ_L, MIOS_PARAMETER1
+	movff	SID_SE_LINEAR_FRQ_H, MIOS_PARAMETER2
 
 	;; forward MIOS_PARAMETER[12] to channel #TABLAT-1
 	decf	TABLAT, W
@@ -2328,7 +2286,7 @@ SIDSE_Filter_Mod_SatNeg_Sat
 SIDSE_Filter_Mod_Sat_Cont
 SIDSE_Filter_Mod_Sat_NoSat
 
-	;; bassline and lead engine: add keytracking * NOTE value
+	;; bassline and lead engine: add keytracking * linear frequency value
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
 	andlw	0x03
 	bz	SIDSE_Filter_KTr
@@ -2340,13 +2298,10 @@ SIDSE_Filter_KTr
 	bz	SIDSE_Filter_KTr_Skip
 	movwf	PRODL
 
-	;; note value -> PRODH
-	movff	SIDL_V1_BASE + SID_Vx_OLD_TRANSP_NOTE, WREG
+	;; linear frequency value -> PRODH
+	movff	SIDL_V1_BASE + SID_Vx_LINEAR_FRQ_H, PRODH
 	btfsc	SID_SE_ELEMENT_NUM, 0, BANKED
-	movff	SIDR_V1_BASE + SID_Vx_OLD_TRANSP_NOTE, WREG
-	rlf	WREG, W
-	andlw	0xfe
-	movwf	PRODH
+	movff	SIDR_V1_BASE + SID_Vx_LINEAR_FRQ_H, PRODH
 
 	;; if keytracking == 0xff: no multiplication required -> 100%
 	incf	PRODL, W
@@ -3047,7 +3002,7 @@ SIDSE_Hlp_Pitch_Mod
 	movff	POSTINC2, PRODH
 	movff	POSTINC2, TABLAT
 
-#if LIN_FRQ_EXPERIMENT == 0
+#if 0
 	;; value is divided by four for better usage of the depth range
 	clrc
 	btfsc	TABLAT, 7

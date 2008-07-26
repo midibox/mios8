@@ -22,7 +22,7 @@
 ; ==========================================================================
 ;
 ; Version:                <-------------------->
-#define MBSID_VERSION_STR "MIDIboxSID V2.0RC23 "
+#define MBSID_VERSION_STR "MIDIboxSID V2.0RC24 "
 ; (fixed string length - 20 characters!)
 
 ;; MBNET specific definitions (ping reply information - don't touch this!)
@@ -720,6 +720,7 @@ AIN_NotifyChange_Loop_Next
 
 ;; ---[ reusable functions ]---
 #include "math_mul16_16.inc"
+#include "math_mul16_8.inc"
 #include "math_div24_16.inc"
 #include "ain.inc"
 #include "mbnet.inc"

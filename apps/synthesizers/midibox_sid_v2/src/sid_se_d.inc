@@ -469,15 +469,6 @@ SIDSE_D_Pitch_Frq_AddMul_Cont
 SIDSE_D_Pitch_NoOffset
 
 	;; ------------------------------------------------------------------
-	;; store target frequency in Vx
-	;; ------------------------------------------------------------------
-	movlw	SID_Vx_TARGET_FRQ_L
-	movff	SID_SE_TARGET_FRQ_L, PLUSW1
-	movlw	SID_Vx_TARGET_FRQ_H
-	movff	SID_SE_TARGET_FRQ_H, PLUSW1
-
-
-	;; ------------------------------------------------------------------
 	;; pitch modulation
 	;; ------------------------------------------------------------------
 	call	SIDSE_Hlp_Pitch_Mod

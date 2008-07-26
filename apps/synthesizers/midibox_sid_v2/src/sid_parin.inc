@@ -634,7 +634,8 @@ SID_PARIN_Set_NOTE
 SID_PARIN_Set_NOTE_Sub
 	;; do nothing if 0x01 (hold note) is played
 	decf	MIOS_PARAMETER1, W
-	bz	SID_PARIN_Set_NOTE_End
+	skpnz
+	rgoto	SID_PARIN_Set_NOTE_End
 
 	;; clear gate bit if note value is 0
 	movf	MIOS_PARAMETER1, W
@@ -744,6 +745,26 @@ SID_PARIN_Set_NOTE_On_Arp
 	movff	FSR1H, PRODH
 	lfsr	FSR1, SID_MV1_BASE + SID_MVx_WT_STACK_0		; (sorted stack)
 								;; TODO: alternatively take HOLD stack (global option?)
+	;; multi engine: select base pointer  depending on instrument number
+	;; (note: PROD[LH] already allocated, therefore we cannot multiply here)
+	swapf	MIOS_PARAMETER3, W
+	andlw	0x07
+	bz	SID_PARIN_Set_NOTE_On_Arp_MV_Ok
+	lfsr	FSR1, SID_MV2_BASE + SID_MVx_WT_STACK_0
+	addlw	-1
+	bz	SID_PARIN_Set_NOTE_On_Arp_MV_Ok
+	lfsr	FSR1, SID_MV3_BASE + SID_MVx_WT_STACK_0
+	addlw	-1
+	bz	SID_PARIN_Set_NOTE_On_Arp_MV_Ok
+	lfsr	FSR1, SID_MV4_BASE + SID_MVx_WT_STACK_0
+	addlw	-1
+	bz	SID_PARIN_Set_NOTE_On_Arp_MV_Ok
+	lfsr	FSR1, SID_MV5_BASE + SID_MVx_WT_STACK_0
+	addlw	-1
+	bz	SID_PARIN_Set_NOTE_On_Arp_MV_Ok
+	lfsr	FSR1, SID_MV6_BASE + SID_MVx_WT_STACK_0
+SID_PARIN_Set_NOTE_On_Arp_MV_Ok
+	
 	movf	TABLAT, W
 	addlw	-0x7c
 	movf	PLUSW1, W	; (note 1-4)
