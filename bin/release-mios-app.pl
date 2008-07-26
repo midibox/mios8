@@ -56,22 +56,22 @@ if( -e "${release_dir}.zip" ) {
 do_exec("cp -r ${app_dir} ${release_dir}");
 
 # "make dist" to create dist.sh file
-do_exec("cd ${release_dir}; make dist");
+do_exec("cd ${release_dir} && make dist");
 
 # execute dist.sh file
-do_exec("cd ${release_dir}; source dist.sh");
+do_exec("cd ${release_dir} && sh dist.sh");
 
 # remove dist.sh file
-do_exec("cd ${release_dir}; rm dist.sh");
+do_exec("cd ${release_dir} && rm dist.sh");
 
-# set timestamp
-do_exec("find ${release_dir} -exec touch {} \\;");
+# set timestamp (using "sh -c" for DOS compatibility)
+do_exec("sh -c 'find ${release_dir} -exec touch {} \\;'");
 
-# create .zip file of release
+# create .zip file of release (DOS: requires zip)
 do_exec("zip -r ${release_dir}.zip ${release_dir}");
 
 # remove directory
-do_exec("/bin/rm -rf ${release_dir}");
+do_exec("rm -rf ${release_dir}");
 
 # thats all!
 exit;
