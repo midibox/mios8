@@ -120,4 +120,4 @@ dist: clean
 	# damned, this doesn't work under windows, and "basename" doesn't work properly as well
 	# due to <device-name>:\...
 	# call a perl script instead
-	perl $(MIOS_BIN_PATH)/release-app.pl $(DIST)
+	perl $(MIOS_BIN_PATH)/mk-dist.pl $(DIST)

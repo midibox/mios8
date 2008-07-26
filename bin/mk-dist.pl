@@ -2,12 +2,12 @@
 # $Id$
 #########################################################################################
 #
-# Release Script for MIOS applications
+# Creates dist.sh file for a proper MIOS application release
 # Author: tk@midibox.org (2008-03-05)
 #
 # Called from Makefile with "make dist"
-#
-# Work in Progress!
+# Don't use this sript directly!
+# To release an application, use "release-miosapp.pl" instead
 #
 #########################################################################################
 
@@ -38,7 +38,7 @@ GetOptions(
   );
 
 if( !scalar(@ARGV) ) {
-  die "SYNTAX: release-app.pl <files> [<-debug>]\n";
+  die "SYNTAX: mk-dist.pl <files> [<-debug>]\n";
 }
 
 
