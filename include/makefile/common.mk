@@ -65,10 +65,13 @@ DIST += $(LKR_FILE)
 DIST += $(LIBS)
 DIST += $(MIOS_BIN_PATH)/mios-gpasm $(MIOS_BIN_PATH)/mios-sdcc
 
-# rule to create a .hex file
+# default rule
 # note: currently we always require a "cleanall", since dependencies (e.g. on .h files) are not properly declared
 # later we could try it w/o "cleanall", and propose the usage of this step to the user
-$(PROJECT).hex: cleanall mk_outdir $(addprefix $(OUTDIR)/, $(OBJS))
+all: cleanall $(PROJECT).hex
+
+# rule to create a .hex file
+$(PROJECT).hex: mk_outdir $(addprefix $(OUTDIR)/, $(OBJS))
 	$(GPLINK) $(GPLINK_FLAGS) -m -o $(PROJECT).hex  $(LIBS) $(addprefix $(OUTDIR)/, $(OBJS))
 
 # default rule for compiling .c programs

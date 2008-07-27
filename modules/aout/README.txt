@@ -84,6 +84,7 @@ AOUT_INTERFACE_TYPE == 3
    CV: one TLV5630 (MBHP_AOUT_NG module) with 8 channels at 12bit resolution
    Digital: none
 
+
 C usage examples
 ~~~~~~~~~~~~~~~~
 
