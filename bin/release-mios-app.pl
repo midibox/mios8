@@ -5,8 +5,11 @@
 # Release Script for MIOS applications
 # Author: tk@midibox.org (2008-07-26)
 #
-# SYNTAX: release-mios-app.pl <app-dir> <release-dir>
+# SYNTAX: release-mios-app.pl <app-dir> <release-dir> [-asm_and_c]
 # EXAMPLE: release-mios-app.pl $MIOS_PATH/apps/synthesizers/midibox_sid_v2 ~/release/midibox_sid_v2_0_rc99
+#
+# The "-asm_and_c" option is currently only used by $MIOS_PATH/examples/lcd7 applications
+# to release the assembly and C version in a single package (expecting asm/ and c/ subdirectory)
 #
 #########################################################################################
 
@@ -18,6 +21,7 @@ use Getopt::Long;
 #########################################################################################
 
 $debug = 0;
+$asm_and_c = 0;
 
 #########################################################################################
 # Get arguments
@@ -25,10 +29,11 @@ $debug = 0;
 
 GetOptions(
   "debug" => \$debug,
+  "asm_and_c" => \$asm_and_c,
   );
 
 if( scalar(@ARGV) != 2 ) {
-   die "SYNTAX: release-mios-app.pl <app-dir> <release-dir>\n" .
+   die "SYNTAX: release-mios-app.pl <app-dir> <release-dir> [-asm_and_c]\n" .
        "EXAMPLE: release-mios-app.pl \$MIOS_PATH/apps/synthesizers/midibox_sid_v2 ~/release/midibox_sid_v2_0_rc99\n"
 }
 
@@ -55,14 +60,18 @@ if( -e "${release_dir}.zip" ) {
 # transfer files into release directory
 do_exec("cp -r ${app_dir} ${release_dir}");
 
-# "make dist" to create dist.sh file
-do_exec("cd ${release_dir} && make dist");
+if( !$asm_and_c ) {
+  # "make dist" to create dist.sh file, execute it and remove dist.sh
+  do_exec("cd ${release_dir} && make dist && sh dist.sh && rm dist.sh");
+} else {
+  # "make dist" to create dist.sh file, execute it and remove dist.sh
 
-# execute dist.sh file
-do_exec("cd ${release_dir} && sh dist.sh");
+  # asm directory
+  do_exec("cd ${release_dir}/asm && make dist && sh dist.sh && rm dist.sh");
 
-# remove dist.sh file
-do_exec("cd ${release_dir} && rm dist.sh");
+  # C directory
+  do_exec("cd ${release_dir}/c && make dist && sh dist.sh && rm dist.sh");
+}
 
 # set timestamp (using "sh -c" for DOS compatibility)
 do_exec("sh -c 'find ${release_dir} -exec touch {} \\;'");
