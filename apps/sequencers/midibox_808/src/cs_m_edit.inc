@@ -121,7 +121,7 @@ CS_M_EDIT_GP_Callback_SelOk
 	;; select display view of track
 	movff	MIOS_PARAMETER1, SEQ_SELECTED_TRK
 
-	;; request display re-initisation to update the marker
+	;; request display re-initialisation
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	;; 	rgoto	CS_M_EDIT_GP_Callback_End
 	
@@ -224,7 +224,7 @@ CS_M_EDIT_UpdateGPLEDs_Sel_NotAll
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_EDIT_Init
-	;; install callback function for general purpose buttons, used to mute/unmute the tracks here
+	;; install callback function for general purpose buttons
 	TABLE_ADDR CS_M_EDIT_GP_Callback
 	call	CS_MENU_SetMenuGPCallbackHook
 
