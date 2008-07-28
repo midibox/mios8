@@ -421,7 +421,11 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 
 	;; duplicate for button matrix
 	swapf	WREG, W
-	iorwf	MIOS_PARAMETER1, F
+	iorwf	MIOS_PARAMETER1, W
+
+        ;; finally apply inversion mask (required when sink drivers are connected to cathode lines)
+        xorlw   DEFAULT_SRM_CATHODES_INV_MASK
+        movwf   MIOS_PARAMETER1
 
 #if DEFAULT_SRM_DOUT_CATHODES1
 	movlw	DEFAULT_SRM_DOUT_CATHODES1 - 1

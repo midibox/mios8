@@ -271,23 +271,8 @@ SEQ_BUTTON_SRM_Notify_Pin_Cont
 	btfsc	SEQ_BLM_COL_CTR, 0, BANKED
 	bsf	MIOS_PARAMETER1, 3
 
-	;; select track depending on row
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	addwf	FSR1L, F
-	rrf	SEQ_BLM_COL_CTR, W, BANKED
-	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	iorlw	0xf0
-	movwf	INDF1
-
-#if DEFAULT_SRM_BUTTONS_NO_UI
-	;; always branch to Mode0 button handler, which activates/deactivates the triggers
-	call	SEQ_GP_Mode0_Button
-#else
-	;; call "normal" GP button handler
-	call	SEQ_GP_Button
-#endif
+	;; call SRM button handler
+	call	SEQ_GP_SRM_Button
 
 	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ

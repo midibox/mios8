@@ -67,6 +67,13 @@
 #define DEFAULT_SRM_DOUT_CATHODES1	5
 #define DEFAULT_SRM_DOUT_CATHODES2	8
 ;
+; set an inversion mask for the DOUT shift registers if sink drivers (transistors)
+; have been added to the cathode lines
+; Settings: 0x00 - no sink drivers
+;           0xf0 - sink drivers connected to D0..D3
+;           0x0f - sink drivers connected to D7..D4
+#define DEFAULT_SRM_CATHODES_INV_MASK   0x00
+;
 ; set this to 1, if DUO colour LEDs are connected to the LED matrix
 #define DEFAULT_SRM_DOUT_DUOCOLOUR	1
 ;

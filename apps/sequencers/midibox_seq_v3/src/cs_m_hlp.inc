@@ -70,12 +70,17 @@ CS_M_HLP_GetLayerVType
 	goto	SEQ_LAYER_GetVType
 
 ;; --------------------------------------------------------------------------
-;;  Help routine which sets the ZERO flag if the track is in "drum mode" (static note value, different gate trigger behaviour)
+;;  Help routine which sets the ZERO flag if the selected layer is assigned to a drum trigger
 ;; --------------------------------------------------------------------------
-CS_M_HLP_CheckDrumMode
+CS_M_HLP_CheckDrumLayer
 	call	SEQ_FSR_TrkEvnt
 	movff	INDF1, MIOS_PARAMETER1
-	goto	SEQ_LAYER_CheckDrumMode
+	call	SEQ_LAYER_CheckDrumMode
+	bnz	CS_M_HLP_CheckDrumLayer_End
+	call	CS_M_HLP_GetSelectedTrgLayer
+	call	SEQ_TRG_GetTAssigned
+CS_M_HLP_CheckDrumLayer_End
+	return
 
 ;; --------------------------------------------------------------------------
 ;;  Help routine to return a MIDI event in SEQ_EVNT[012L] depending on selected layer

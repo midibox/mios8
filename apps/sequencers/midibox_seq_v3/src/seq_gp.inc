@@ -23,9 +23,9 @@ SEQ_GP_Button
 	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 
-	;; the menu select function overlays everything
+	;; the MENU select function overlays everything
 	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_GP_Mode4_Button
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_GP_MenuSel_Button
 
 	;; following code is normaly located in cs_menu_buttons.inc
 	;; check for GP buttons if hook has been installed
@@ -41,13 +41,13 @@ SEQ_GP_Button_CS
 	goto	CS_MENU_ExecMenuGPCallbackHook
 SEQ_GP_Button_NoCS
 
-	;; lower status: SEQ_STEP_EDIT mode
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_GP_Mode0_Button
+#if DEFAULT_SRM_BUTTONS_ENABLED == 1 && DEFAULT_SRM_BUTTONS_NO_UI == 0
+	;; branch back if no overlay function
+	rgoto	SEQ_GP_SRM_Button_NoOverlay
+#endif
 
-	;; (song mode flag can be set together with another flag, therefore it has
-	;;  the lowest priority)
-	rgoto	SEQ_GP_Mode3_Button
-
+	;; nothing to do...
+	return
 
 
 ;; --------------------------------------------------------------------------
@@ -61,8 +61,8 @@ SEQ_GP_LED_Update
 	clrf	SEQ_GP_LED_L, BANKED
 	clrf	SEQ_GP_LED_R, BANKED
 
-	;; menu select LED overlays everything
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_GP_Mode4_LED
+	;; MENU select LED overlays everything
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_GP_MenuSel_LED
 
 	;; skip GP_LED hook if edit screen is temporary displayed
 	movf	CS_MENU_MESSAGE_CTR, W
@@ -94,9 +94,10 @@ SEQ_GP_LED_Update_NoF1R
 
 #if DEFAULT_SRM_ENABLED
 #if DEFAULT_GP_DOUT_SR_L == DEFAULT_SRM_DOUT_L1
-	rcall	SEQ_GP_SRM_OverlayCopy
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_GP_SRM_NormalCopy
+	rgoto	SEQ_GP_SRM_OverlayCopy
 #else
-	rcall	SEQ_GP_SRM_NormalCopy
+	rgoto	SEQ_GP_SRM_NormalCopy
 #endif
 #endif
 	return
@@ -104,21 +105,8 @@ SEQ_GP_LED_Update_NoF1R
 	;; ------------------------------------------------------------------
 SEQ_GP_LED_Update_NoHook
 
-	;; lower status: SEQ_STEP_EDIT mode
-	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_GP_LED_Update_NotMode0
-SEQ_GP_LED_Update_Mode0
-	rcall	SEQ_GP_Mode0_LED
-	rgoto	SEQ_GP_LED_Update_LEDM
-SEQ_GP_LED_Update_NotMode0
-
-	;; (song mode flag can be set together with another flag, therefore it has
-	;;  the lowest priority)
-	rcall	SEQ_GP_Mode3_LED
-	;; 	rgoto	SEQ_GP_LED_Update_LEDM
-
-SEQ_GP_LED_Update_LEDM
-
 #if DEFAULT_SRM_ENABLED
+	;; update the 4x16 LED matrix
 	rcall	SEQ_GP_SRM_NormalCopy
 #endif
 
@@ -130,192 +118,11 @@ SEQ_GP_LED_Update_LEDM
 ; ==========================================================================
 ; ==========================================================================
 
-;; --------------------------------------------------------------------------
-;;  LED/Button functions for Mode 0: SEQ_MODE0_STEP_EDIT
-;; --------------------------------------------------------------------------
-SEQ_GP_Mode0_Button
-	SET_BSR	SEQ_BASE
-
-	;; branch if button has been depressed
-	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_GP_Mode0_Button_Depr
-
-	;; determine step number depending on SEQ_SELECTED_STEPS[0],
-	;; add offset to button number and store in SEQ_CURRENT_STEP and SEQ_EVNTS
-	movf	MIOS_PARAMETER1, W
-	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
-	addlw	0x10
-	movwf	SEQ_CURRENT_STEP, BANKED
-	movwf	SEQ_EVNTS, BANKED
-
-	;; determine store mask used for XOR operation in TMP1
-	movf	MIOS_PARAMETER1, W
-	call	MIOS_HLP_GetBitORMask
-	movwf	TMP1
-
-	;; using CS_STAT2_TRK_CHANGED flag to determine, if any track is selected (and not disabled)
-	bcf	CS_STAT2, CS_STAT2_TRK_CHANGED
-
-	clrf	SEQ_EVNTT, BANKED
-SEQ_GP_Mode0_Button_Loop
-	;; check if track selected
-	call	CS_M_HLP_ChkTrkSelected
-	bnz	SEQ_GP_Mode0_Button_Next
-
-	;; do nothing if track is disabled
-	call	CS_M_HLP_ChkTrkDisabled
-	bz	SEQ_GP_Mode0_Button_Next
-
-	;; if in drum mode and no trigger layer assigned: toggle velocity instead of trigger
-	rcall	SEQ_GP_Hlp_CheckDrum
-	bnz	SEQ_GP_Mode0_Button_Loop_NoDrum
-SEQ_GP_Mode0_Button_Loop_Drum
-	;; toggle velocity of layer and step
-	call	CS_M_HLP_GetSelectedLayer; save layer in TMP2
-	movwf	TMP2
-	call	CS_M_HLP_GetLayerVType	; if not velocity layer: switch to layer 0 (always ok)
-	xorlw	SEQ_LAYER_V_VEL
-	bz	SEQ_GP_Mode0_Button_Loop_DrumSwL
-SEQ_GP_Mode0_Button_Loop_DrumSw0
-	clrf	TMP2		; switch to layer A
-SEQ_GP_Mode0_Button_Loop_DrumSwL
-	;; select SEQ_PATTERN and SEQ_PATTERN_BANK depending on track
-	call	CS_M_HLP_SetPatternAndBank
-	;; SEQ_EVNTT and SEQ_EVNTS already preloaded
-	;; get value and toggle it
-	movf	TMP2, W		; selected layer
-	call	SEQ_LAYER_GetVValue
-	bz	SEQ_GP_Mode0_Button_Loop_Drum_1
-SEQ_GP_Mode0_Button_Loop_Drum_0
-	movlw	0x00
-	rgoto	SEQ_GP_Mode0_Button_Loop_Drum_C
-SEQ_GP_Mode0_Button_Loop_Drum_1
-	movlw	0x64
-	;; 	rgoto	SEQ_GP_Mode0_Button_Loop_Drum_C
-SEQ_GP_Mode0_Button_Loop_Drum_C
-	;; set new value
-	movwf	MIOS_PARAMETER1	; value
-	movf	TMP2, W		; selected layer
-	call	SEQ_LAYER_SetVValue
-	;; notify that trigger has been toggled (or here: value has been modified)
-	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED	
-	rgoto	SEQ_GP_Mode0_Button_Next
-
-SEQ_GP_Mode0_Button_Loop_NoDrum
-	;; get pointer to button trigger register depending on selected trigger layer
-	call	SEQ_FSR_TrkTrgA_0
-	call	CS_M_HLP_GetSelectedTrgLayer
-	rlf	WREG, W
-	rlf	WREG, W
-	andlw	0x0c
-	btfsc	SEQ_EVNTS, 3, BANKED
-	addlw	0x01
-	btfsc	SEQ_EVNTS, 4, BANKED
-	addlw	0x02
-	addwf	FSR1L, F
-
-	;; XOR
-	movf	TMP1, W
-	xorwf	INDF1, F
-
-	;; notify that trigger has been toggled
-	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED
-
-SEQ_GP_Mode0_Button_Next
-	incf	SEQ_EVNTT, F, BANKED
-	BRA_IFCLR SEQ_EVNTT, 4, BANKED, SEQ_GP_Mode0_Button_Loop
-
-
-	;; print "track(s) disabled" message when no trigger has been toggled
-	GOTO_IFCLR CS_STAT2, CS_STAT2_TRK_CHANGED, ACCESS, SEQ_LCD_MsgTrkDisabled
-	
-	;; trigger pot display page and hold it
-	goto	SEQ_MSG_Hold
-
-SEQ_GP_Mode0_Button_Depr
-	;; trigger pot display page
-	goto	SEQ_MSG_Start
-
-
-	;; ------------------------------------------------------------------
-SEQ_GP_Mode0_LED
-	;; transfer step trigger status (16 steps) to SEQ_GP_LED_[LR]
-	call	CS_M_HLP_GetSelectedTrk
-	SET_BSR	SEQ_BASE
-	movwf	SEQ_EVNTT, BANKED
-
-	;; special LED behaviour if a drum layer is displayed
-	;; (velocity == 0: LED off, otherwise LED on)
-	rcall	SEQ_GP_Hlp_CheckDrum
-	bnz	SEQ_GP_Mode0_LED_NoDrum
-SEQ_GP_Mode0_LED_Drum
-
-	;; if uppper steps are set SEQ_EVNTS offset (step 1-16 or 17-32)
-	movlw	0x00
-	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
-	addlw	0x10
-	movwf	SEQ_EVNTS, BANKED
-
-	;; determine pointer to layer
-	;; we assume, that the cache is filled - it has been preloaded by SEQ_PRFTCH
-	call	CS_M_HLP_GetSelectedLayer; save layer in TMP2
-	call	SEQ_LAYER_Hlp_LayerFSR
-
-	;; get the velocity values of 16 steps and copy the status into SEQ_GP_LED_[LR]
-	lfsr	FSR0, SEQ_GP_LED_L
-	rcall	SEQ_GP_Hlp_CopyDrum
-	rgoto	SEQ_GP_Mode0_LED_End
-
-
-SEQ_GP_Mode0_LED_NoDrum
-	;; get pointer to button trigger register depending on selected trigger layer
-	call	SEQ_FSR_TrkTrgA_0
-	call	CS_M_HLP_GetSelectedTrgLayer
-	rlf	WREG, W
-	rlf	WREG, W
-	andlw	0x0c
-	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
-	movlw	0x02
-	addwf	FSR1L, F
-
-	movff	POSTINC1, SEQ_GP_LED_L
-	movff	POSTINC1, SEQ_GP_LED_R
-
-SEQ_GP_Mode0_LED_End
-	return
-	
 
 ;; --------------------------------------------------------------------------
-;;  LED/Button functions for Mode 2: SEQ_MODE0_PATTERN
+;;  LED/Button functions for SEQ_MODE0_MENU
 ;; --------------------------------------------------------------------------
-	;; no special functions, handler jumps to PATTERN menu
-
-;; --------------------------------------------------------------------------
-;;  LED/Button functions for Mode 3: SEQ_MODE0_SONG
-;; --------------------------------------------------------------------------
-SEQ_GP_Mode3_Button
-	return
-
-	;; ------------------------------------------------------------------
-SEQ_GP_Mode3_LED
-	;; transfer song number to SEQ_GP_LED_[LR]
-	movlw	0x01
-	movwf	SEQ_GP_LED_L, BANKED
-	clrf	SEQ_GP_LED_R, BANKED
-
-#if DEFAULT_SRM_ENABLED
-#if DEFAULT_GP_DOUT_SR_L == DEFAULT_SRM_DOUT_L1
-	rcall	SEQ_GP_SRM_OverlayCopy
-#else
-	rcall	SEQ_GP_SRM_NormalCopy
-#endif
-#endif
-
-	return
-
-;; --------------------------------------------------------------------------
-;;  LED/Button functions for Mode 4: SEQ_MODE0_MENU
-;; --------------------------------------------------------------------------
-SEQ_GP_Mode4_Button
+SEQ_GP_MenuSel_Button
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
@@ -327,7 +134,7 @@ SEQ_GP_Mode4_Button
 	goto	CS_MENU_ChangePage
 
 	;; ------------------------------------------------------------------
-SEQ_GP_Mode4_LED
+SEQ_GP_MenuSel_LED
 	;; transfer menu pos to SEQ_GP_LED_[LR]
 	call	CS_MENU_TABLE_GPMapGetLED
 	movff	MIOS_PARAMETER1, SEQ_GP_LED_L
@@ -344,48 +151,86 @@ SEQ_GP_Mode4_LED
 	return
 
 
-;; ---------------------------------------------------------------------------
-;;  Help Function which sets the ZERO flag when buttons should control a drum layer
-;;  and LEDs should show a drum layer
-SEQ_GP_Hlp_CheckDrum
-	call	CS_M_HLP_CheckDrumMode
-	bnz	SEQ_GP_Hlp_CheckDrum_End
-	call	CS_M_HLP_GetSelectedTrgLayer
-	call	SEQ_TRG_GetTAssigned
-SEQ_GP_Hlp_CheckDrum_End
-	return
+
+;; --------------------------------------------------------------------------
+;;  LED/Button functions for Button/DuoLED matrix
+;;    o GP Button number (0-15) in MIOS_PARAMETER1
+;;    o Button value (0/1) in MIOS_PARAMETER2
+;;    o SR row (0-7) in SEQ_BLM_COL_CTR
+;; --------------------------------------------------------------------------
+SEQ_GP_SRM_Button
+	SET_BSR	SEQ_BASE
+
+	;; select track depending on BLM row
+#if DEFAULT_SRM_BUTTONS_NO_UI == 0
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_GP_SRM_Button_NoTrkSel	; if BLM also used for UI: only track selection in edit page
+#endif
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED, SEQ_GP_SRM_Button_NoTrkSel	; no track selection in pattern page 
+SEQ_GP_SRM_Button_TrkSel	
+	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
+	movf	SEQ_SELECTED_GROUP, W, BANKED
+	addwf	FSR1L, F
+	rrf	SEQ_BLM_COL_CTR, W, BANKED
+	andlw	0x03
+	call	MIOS_HLP_GetBitORMask
+	iorlw	0xf0
+	movwf	INDF1
+SEQ_GP_SRM_Button_NoTrkSel
 
 
-;; ---------------------------------------------------------------------------
-;;  This help function copies the selected drum pattern (16 steps) into INDF1 (16bit)
-;;  IN: pointer to layer in FSR1, pointer to target location in FSR0
-;;  increments FSR1 by 16 and FSR0 by 2
-SEQ_GP_Hlp_CopyDrum
+#if DEFAULT_SRM_BUTTONS_NO_UI == 0
+	;; branch to "normal" GP button handler
+	goto	SEQ_GP_Button
+	;; back-branch if no overlay function
+SEQ_GP_SRM_Button_NoOverlay
+#endif
 
-	;; clear target location (16 bit)
-	clrf	POSTINC0
-	clrf	POSTDEC0
+	SET_BSR	SEQ_BASE
 
-	;; run loop which sets 1 on each step/bit which has velocity > 0
-	clrf	PRODL		; loop counter (2 loops)
-SEQ_GP_Hlp_CopyDrumLoopO
-	movlw	1		; (OR mask)
-	movwf	PRODH
-SEQ_GP_Hlp_CopyDrumLoop
-	movf	POSTINC1, W
-	andlw	0x7f		; mask out "not cached" flag
-	bz	SEQ_GP_Hlp_CopyDrumLoop_Next
-	movf	PRODH, W
-	iorwf	INDF0, F
-SEQ_GP_Hlp_CopyDrumLoop_Next
-	clrc			; shift OR mask
-	rlf	PRODH, F
-	bnz	SEQ_GP_Hlp_CopyDrumLoop
-	movf	POSTINC0, W	; increment target pointer
-	incf	PRODL, F	; 2 loops
-	BRA_IFCLR PRODL, 1, ACCESS, SEQ_GP_Hlp_CopyDrumLoopO
+	;; in pattern page, select new pattern
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED, SEQ_GP_SRM_Button_NoPtn
+SEQ_GP_SRM_Button_Ptn
+	;; group number -> SEQ_GROUP and SEQ_SELECTED_GROUP
+	rrf	SEQ_BLM_COL_CTR, W, BANKED
+	andlw	0x03
+	movwf	SEQ_GROUP, BANKED
+	movwf	SEQ_SELECTED_GROUP, BANKED
 
-	return
+	;; current pattern -> SEQ_PATTERN
+	lfsr	FSR1, SEQ_NEXT_PATTERN0
+	movff	PLUSW1, SEQ_PATTERN
+
+	;; current bank -> SEQ_PATTERN_BANK
+	lfsr	FSR1, SEQ_NEXT_PATTERN_BANK0
+	movff	PLUSW1, SEQ_PATTERN_BANK
+
+	;; modify bitfield depending on button number
+	BRA_IFCLR MIOS_PARAMETER1, 3, ACCESS, SEQ_GP_SRM_Button_Ptn_U
+SEQ_GP_SRM_Button_Ptn_L
+	movlw	0x78
+	andwf	SEQ_PATTERN, F, BANKED
+	movf	MIOS_PARAMETER1, W
+	andlw	0x07
+	iorwf	SEQ_PATTERN, F, BANKED
+	rgoto	SEQ_GP_SRM_Button_Ptn_Cont
+
+SEQ_GP_SRM_Button_Ptn_U
+	movlw	0x47
+	andwf	SEQ_PATTERN, F, BANKED
+	swapf	MIOS_PARAMETER1, W
+	rrf	WREG, W
+	andlw	0x38
+	iorwf	SEQ_PATTERN, F, BANKED
+	;; 	rgoto	SEQ_GP_SRM_Button_Ptn_Cont
+
+SEQ_GP_SRM_Button_Ptn_Cont
+	;; change pattern and exit
+	goto	SEQ_CORE_ChangePatternSynched
+
+
+SEQ_GP_SRM_Button_NoPtn
+	;; branch to button handler of the EDIT page, which activates/deactivates the triggers
+	goto	CS_M_EDIT_GP_Callback
 
 
 ;; ---------------------------------------------------------------------------
@@ -415,6 +260,57 @@ SEQ_GP_SRM_NormalCopy
 	;; Matrix LEDs (prepared for 4x16 LEDs)
 	SET_BSR	SEQ_BASE
 
+	;; in pattern page, display pattern selection of all groups instead
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED, SEQ_GP_SRM_NormalCopy_NoPtn
+SEQ_GP_SRM_NormalCopy_Ptn
+	;; prepare pointer to A/B colour and pattern array
+	lfsr	FSR0, SEQ_LEDM_TRK0_A_L
+	lfsr	FSR2, SEQ_LEDM_TRK0_B_L
+	lfsr	FSR1, SEQ_NEXT_PATTERN0
+
+	;; using TMP1 as loop counter
+	clrf	TMP1
+SEQ_GP_SRM_NormalCopy_PtnLoop
+	clrf	POSTINC2	; red LEDs off
+	clrf	POSTINC2
+
+#if 0
+	;; copy track selection - if it matches with selected group, print overlay registers instead
+	movf	TMP1, W
+	xorwf	SEQ_SELECTED_GROUP, W, BANKED
+	bz	SEQ_GP_SRM_NormalCopy_PtnLoop_Ov
+#endif
+	;; (disabled - maybe better to show the pattern which is currently played)
+
+	movf	TMP1, W
+	BRA_IFSET PLUSW1, 7, ACCESS, SEQ_GP_SRM_NormalCopy_PtnLoop_Mu
+	rlf	PLUSW1, W	; A/B/...H selection
+	swapf	WREG, W
+	call	MIOS_HLP_GetBitORMask
+	movwf	POSTINC0
+	movf	TMP1, W		; 1..8 selection
+	movf	PLUSW1, W
+	call	MIOS_HLP_GetBitORMask
+	movwf	POSTINC0
+	rgoto	SEQ_GP_SRM_NormalCopy_PtnLoopNxt
+
+SEQ_GP_SRM_NormalCopy_PtnLoop_Mu
+	clrf	POSTINC0	; pattern muted - green LEDs off
+	clrf	POSTINC0
+	rgoto	SEQ_GP_SRM_NormalCopy_PtnLoopNxt
+
+SEQ_GP_SRM_NormalCopy_PtnLoop_Ov
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, POSTINC0
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, POSTINC0
+	;; 	rgoto	SEQ_GP_SRM_NormalCopy_PtnLoopNxt
+	
+SEQ_GP_SRM_NormalCopy_PtnLoopNxt
+	incf	TMP1, F
+	BRA_IFCLR TMP1, 2, ACCESS, SEQ_GP_SRM_NormalCopy_PtnLoop
+	return
+	
+
+SEQ_GP_SRM_NormalCopy_NoPtn
 	;; get track offset
 	call	CS_M_HLP_GetSelectedGroupOffset
 	movwf	SEQ_EVNTT, BANKED
@@ -452,7 +348,7 @@ SEQ_GP_SRM_NormalCopy
 
 SEQ_GP_SRM_NormalCopy_Loop
 	;; special behaviour in drum mode: use velocity flags
-	rcall	SEQ_GP_Hlp_CheckDrum	; note: this function uses FSR1!
+	call	CS_M_HLP_CheckDrumLayer ; note: this function uses FSR1!
 	bnz	SEQ_GP_SRM_NormalCopy_Loop_NoDrm
 SEQ_GP_SRM_NormalCopy_Loop_Drm
 	;; determine pointer to layer
@@ -494,3 +390,35 @@ SEQ_GP_SRM_NormalCopy_Loop_Next
 	rgoto	SEQ_GP_SRM_NormalCopy_Loop
 
 	return
+
+;; ---------------------------------------------------------------------------
+;;  This help function copies the selected drum pattern (16 steps) into INDF1 (16bit)
+;;  IN: pointer to layer in FSR1, pointer to target location in FSR0
+;;  increments FSR1 by 16 and FSR0 by 2
+;; --------------------------------------------------------------------------
+SEQ_GP_Hlp_CopyDrum
+	;; clear target location (16 bit)
+	clrf	POSTINC0
+	clrf	POSTDEC0
+
+	;; run loop which sets 1 on each step/bit which has velocity > 0
+	clrf	PRODL		; loop counter (2 loops)
+SEQ_GP_Hlp_CopyDrum_Loop0
+	movlw	1		; (OR mask)
+	movwf	PRODH
+SEQ_GP_Hlp_CopyDrum_Loop
+	movf	POSTINC1, W
+	andlw	0x7f		; mask out "not cached" flag
+	bz	SEQ_GP_Hlp_CopyDrum_Loop_Next
+	movf	PRODH, W
+	iorwf	INDF0, F
+SEQ_GP_Hlp_CopyDrum_Loop_Next
+	clrc			; shift OR mask
+	rlf	PRODH, F
+	bnz	SEQ_GP_Hlp_CopyDrum_Loop
+	movf	POSTINC0, W	; increment target pointer
+	incf	PRODL, F	; 2 loops
+	BRA_IFCLR PRODL, 1, ACCESS, SEQ_GP_Hlp_CopyDrum_Loop0
+
+	return
+
