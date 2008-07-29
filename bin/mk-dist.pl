@@ -132,6 +132,8 @@ push @cmds, "rm -f Makefile.orig";
 push @cmds, "mv Makefile Makefile.orig";
 push @cmds, "echo \"MIOS_PATH = .\" > Makefile";
 push @cmds, "echo \"MIOS_BIN_PATH = ./bin\" >> Makefile";
+push @cmds, "echo \"export MIOS_PATH\" >> Makefile";
+push @cmds, "echo \"export MIOS_BIN_PATH\" >> Makefile";
 push @cmds, "echo \"include Makefile.orig\" >> Makefile";
 
 
