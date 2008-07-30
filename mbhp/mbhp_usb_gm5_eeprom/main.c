@@ -142,12 +142,3 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 {
 }
 
-
-
-/////////////////////////////////////////////////////////////////////////////
-// EEPROM programming routine
-// Return Status documented in README.txt
-/////////////////////////////////////////////////////////////////////////////
-unsigned char program_eeprom(void) __wparam
-{
-}
