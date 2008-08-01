@@ -11,40 +11,6 @@
 ; 
 ; ==========================================================================
 
-;; --------------------------------------------------------------------------
-;;  reacts on a CC dump request
-;; --------------------------------------------------------------------------
-SEQ_CCOUT_Handler
-	SET_BSR	SEQ_BASE
-	;; do nothing if dump has not been requested
-	btfss	SEQ_REQ, SEQ_REQ_CC_DUMP, BANKED
-	return
-
-	;; clear request
-	bcf	SEQ_REQ, SEQ_REQ_CC_DUMP, BANKED
-
-	clrf	TMP1			; TMP1 used as loop counter
-SEQ_CCOUT_Handler_Loop
-	movf	TMP1, W
-	call	SEQ_CCOUT_Get		; get CC parameter value
-	movwf	TMP2			; store value in TMP2
-	BRA_IFSET TMP2, 7, ACCESS, SEQ_CCOUT_Handler_Next ; (returns WREG[7] if non-CC value)
-
-	movlw	0xb0 | DEFAULT_MIDI_CHANNEL_CFG
-	call	MIOS_MIDI_TxBufferPut
-	movf	TMP1, W
-	call	MIOS_MIDI_TxBufferPut
-	movf	TMP2, W
-	call	MIOS_MIDI_TxBufferPut
-
-	movlw	8			; add a short delay of 8 mS for slow sequencers
-	call	MIOS_Delay
-
-SEQ_CCOUT_Handler_Next
-	incf	TMP1, F			; loop until 128 (bit 8 set)
-	BRA_IFCLR TMP1, 7, ACCESS, SEQ_CCOUT_Handler_Loop
-	
-	return
 
 ;; --------------------------------------------------------------------------
 ;;  IN: index of CC parameter in WREG, track in MIOS_PARAMETER2

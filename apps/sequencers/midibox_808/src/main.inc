@@ -175,9 +175,6 @@ USER_Tick
 	IRQ_ENABLE
 	call	SEQ_TRK_SetTriggers
 
-	;; ---[ send out CFG CC's if requested ]---
-	call	SEQ_CCOUT_Handler
-
 	;; ---[ for performance measuring ]---
 	call	SEQ_LOAD_IncLoadCtr
 
