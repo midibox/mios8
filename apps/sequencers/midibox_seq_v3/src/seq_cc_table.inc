@@ -48,6 +48,8 @@ SEQ_CC_OFFSET_ASG_ROLL  	EQU	0x3c
 SEQ_CC_OFFSET_ASG_RANDOM_GATE	EQU	0x3d
 SEQ_CC_OFFSET_ASG_RANDOM_VALUE	EQU	0x3e
 
+SEQ_CC_OFFSET_CHANGE_STEP	EQU	0x40
+
 ; ==========================================================================
 
 SET_CC_NOP		EQU	0x00
@@ -61,6 +63,7 @@ SET_CC_B32		EQU	0x07
 SET_CC_B54		EQU	0x08
 SET_CC_B76		EQU	0x09
 SET_CC_TRKMODE_FLAGS	EQU	0x0a
+SET_CC_CHANGE_STEP	EQU	0x8b	; bit 7 set: put SEQ_TRKVAR into FSR1 instead of SEQ_TRKx
 
 ;; --------------------------------------------------------------------------
 ;;  IN: index of CC parameter in WREG, track number in MIOS_PARAMETER2
@@ -69,7 +72,7 @@ SET_CC_TRKMODE_FLAGS	EQU	0x0a
 SEQ_CC_TABLE_Get
 	SET_BSR	SEQ_BASE		; prepare BSR for SEQ register access
 
-	clrc
+	clrc				; calc pointer to table
 	rlf	WREG, W
 	addlw	SEQ_CC_TABLE & 0xff
 	movwf	TBLPTRL
@@ -77,16 +80,24 @@ SEQ_CC_TABLE_Get
 	movlw	SEQ_CC_TABLE >> 8
 	addwfc	TBLPTRH, F
 
+	tblrd*+				; read command
+
+	;; if bit7 cleared: select SEQ_TRKx register, otherwise select SEQ_TRKVARx register
 	lfsr	FSR1, SEQ_TRK0		; prepare FSR1
+	btfsc	TABLAT, 7
+	lfsr	FSR1, SEQ_TRKVAR0	; prepare FSR1	
 	movf	MIOS_PARAMETER2, W	; add track offset
+	btfss	TABLAT, 7
 	mullw	SEQ_TRKRECORD_LENGTH
+	btfsc	TABLAT, 7
+	mullw	SEQ_TRKVARRECORD_LENGTH
 	movf	PRODL, W
 	addwf	FSR1L, F
 	movf	PRODH, W
 	addwfc	FSR1H, F
 
-	tblrd*+
 	movff	TABLAT, MIOS_PARAMETER2	; -> command
+
 	tblrd*+
 	movf	TABLAT, W		; -> parameter
 	addwf	FSR1L, F
@@ -171,7 +182,7 @@ SEQ_CC_TABLE
 	db	SET_CC_B76,		SEQ_TRKASSGN1x
 	
 	;; 0x40-0x4f
-	db	SET_CC_NOP,		0		; spare
+	db	SET_CC_CHANGE_STEP,	0		; change step directly
 	db	SET_CC_NOP,		0		; spare
 	db	SET_CC_NOP,		0		; spare
 	db	SET_CC_NOP,		0		; spare

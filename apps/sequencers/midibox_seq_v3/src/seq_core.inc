@@ -31,7 +31,7 @@ SEQ_REQ_START			EQU	0	; start request (send 0xfa)
 SEQ_REQ_CONT			EQU	1	; continue request (send 0xfb)
 SEQ_REQ_STOP			EQU	2	; stop request (send 0xfc)
 SEQ_REQ_SONG_POS		EQU	3	; update of song position pointer (0xf2)
-SEQ_REQ_CC_DUMP			EQU	4	; request CC dump
+	;; free: 4
 SEQ_REQ_NOECHO			EQU	5	; don't echo 0xfa 0xfb 0xfc to MIDI out
 SEQ_REQ_SYNCHED_PATTERN_CHANGE	EQU	6	; pattern change should be synched to beat
 SEQ_REQ_START_AUTO_SLAVE_REQ	EQU	7	; extension for SEQ_REQ_START: re-init BPM generator

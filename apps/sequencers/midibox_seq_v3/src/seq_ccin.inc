@@ -27,7 +27,8 @@ SEQ_CCIN_Set
 SEQ_CCIN_Set_Cmd
 	;; branch depending on command
 	movf	MIOS_PARAMETER2, W
-	JUMPTABLE_2BYTES 11 ; entries
+	andlw	0x7f		; mask out SEQ_TRKx/SEQ_TRKVARx selection flag
+	JUMPTABLE_2BYTES 12 ; entries
 	rgoto	SEQ_CCIN_Cmd_NOP
 	rgoto	SEQ_CCIN_Cmd_7
 	rgoto	SEQ_CCIN_Cmd_6L
@@ -39,6 +40,7 @@ SEQ_CCIN_Set_Cmd
 	rgoto	SEQ_CCIN_Cmd_B54
 	rgoto	SEQ_CCIN_Cmd_B76
 	rgoto	SEQ_CCIN_Cmd_TRKMODE_FLAGS
+	rgoto	SEQ_CCIN_Cmd_CHANGE_STEP
 
 ; ==========================================================================
 
@@ -143,6 +145,38 @@ SEQ_CCIN_Cmd_TRKMODE_FLAGS
 	bsf	INDF1, SEQ_TRKMODE_FLAG_UNSORTED
 
 	rgoto	SEQ_CCIN_Cmd_End
+
+;; --------------------------------------------------------------------------
+SEQ_CCIN_Cmd_CHANGE_STEP
+	;; ignore if value == 0
+	movf	MIOS_PARAMETER1, W
+	bz	SEQ_CCIN_Cmd_End
+
+	;; special case: first clock (no increment from sequencer)
+	movlw	SEQ_TRKVARSTATEx
+	BRA_IFCLR PLUSW1, SEQ_TRKVARSTATE_FIRST_CLK, ACCESS, SEQ_CCIN_Cmd_CHANGE_STEP_Not1st
+SEQ_CCIN_Cmd_CHANGE_STEP_1st
+	decf	MIOS_PARAMETER1, W
+	rgoto	SEQ_CCIN_Cmd_CHANGE_STEP_Cont
+
+SEQ_CCIN_Cmd_CHANGE_STEP_Not1st
+	;; branch depending on current direction
+	movlw	SEQ_TRKVARSTATEx
+	BRA_IFSET PLUSW1, SEQ_TRKVARSTATE_BACKWARD, ACCESS, SEQ_CCIN_Cmd_CHANGE_STEP_Bwd
+SEQ_CCIN_Cmd_CHANGE_STEP_Fwd
+	movf	MIOS_PARAMETER1, W
+	addlw	-2
+	rgoto	SEQ_CCIN_Cmd_CHANGE_STEP_Cont
+SEQ_CCIN_Cmd_CHANGE_STEP_Bwd
+	movf	MIOS_PARAMETER1, W
+	;; 	rgoto	SEQ_CCIN_Cmd_CHANGE_STEP_Cont
+SEQ_CCIN_Cmd_CHANGE_STEP_Cont
+	andlw	0x1f		; supports up to 32 steps
+	movwf	PRODL
+	movlw	SEQ_TRKVARSTEPx
+	movff	PRODL, PLUSW1
+
+	;;  	rgoto	SEQ_CCIN_Cmd_End
 
 ;; --------------------------------------------------------------------------
 SEQ_CCIN_Cmd_End

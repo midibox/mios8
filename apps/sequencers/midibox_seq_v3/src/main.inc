@@ -178,9 +178,6 @@ USER_Tick
 	;; ---[ update AOUTs channels and gates ]---
 	call	SEQ_EXT_Update
 
-	;; ---[ send out CFG CC's if requested ]---
-	call	SEQ_CCOUT_Handler
-
 	;; ---[ for performance measuring ]---
 	call	SEQ_LOAD_IncLoadCtr
 
