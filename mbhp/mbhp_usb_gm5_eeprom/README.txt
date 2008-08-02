@@ -20,6 +20,8 @@ The details are described under
 
 Required hardware:
    o one MBHP_CORE module
+   o 8 pin socket connected to J4 (same pinning as BankStick with CS#0 -
+     pin 1/2/3 of IIC EEPROM connected to ground)
 
 Optional hardware:
    o LCD to output status message
@@ -48,5 +50,16 @@ A status code will be displayed if a LCD is connected:
 
 The status code will also be sent as Program Change message via MIDI 
 (useful if no LCD connected)
+
+===============================================================================
+
+Important note: due to an imperfection in the current GM5 firmware, only the
+lower 256 byte bank of the 2kbyte EEPROM can be accessed. If more than 
+3 MIDI interfaces are defined, the descriptors will exceed the 256 byte
+boundary and the device won't enumerate correctly.
+
+This means in other words: currently, all 5 IOs can only be used with the
+original descriptors which are stored in GM5 (-> remove EEPROM, set J1..J3
+jumpers accordingly)
 
 ===============================================================================

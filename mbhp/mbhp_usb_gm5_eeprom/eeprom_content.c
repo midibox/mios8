@@ -475,7 +475,9 @@ const unsigned char __at(0x7052) USBDSC_CFG[] = {
 
 
 // prevent that more than 256 bytes are allocated
-const unsigned char __at(0x7200) OVERRUN_BLOCKER[] = { 0x00 }; 
+// see also README.txt (current GM5 firmware can only read out the lower 256 byte
+// bank - for later firmwares, we could locate the blocker at 0x7200)
+const unsigned char __at(0x7100) OVERRUN_BLOCKER[] = { 0x00 }; 
 
 
 // ==========================================================================
