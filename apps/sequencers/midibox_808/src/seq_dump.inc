@@ -251,6 +251,10 @@ SEQ_DUMP_RestoreGlobalRLoop2
 	decfsz	TMP1, F
 	rgoto	SEQ_DUMP_RestoreGlobalRLoop2
 
+	;; ---[ restore steps per measure value ]---
+	call	MIOS_EEPROM_Read
+	movff	WREG, SEQ_STEPS_PER_MEASURE
+
 	SET_BSR	SEQ_BASE
 	return
 	
@@ -341,6 +345,10 @@ SEQ_DUMP_StoreGlobalRLoop2
 	call	MIOS_EEPROM_Write
 	decfsz	TMP1, F
 	rgoto	SEQ_DUMP_StoreGlobalRLoop2
+
+	;; ---[ store steps per measure value ]---
+	movff	SEQ_STEPS_PER_MEASURE, WREG
+	call	MIOS_EEPROM_Write
 
 	SET_BSR	SEQ_BASE
 	return

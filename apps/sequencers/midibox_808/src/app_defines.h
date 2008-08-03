@@ -282,28 +282,30 @@ SEQ_SONG_LOOP_MAX	EQU	0x114	; number of loops
 
 SEQ_REQ			EQU	0x115	; see seq_core.inc
 SEQ_STATE		EQU	0x116	; see seq_core.inc
-SEQ_CLK_STEP_CTR	EQU	0x117	; step reference counter (0-15)
-SEQ_CLK_TICK6_CTR	EQU	0x118	; clock reference counter (0-24)
-SEQ_CLK_TICK4_CTR	EQU	0x119	; clock reference counter (0-24)
+SEQ_CLK_STEP_CTR	EQU	0x117	; step reference counter (0-255)
+SEQ_CLK_SUBSTEP_CTR	EQU	0x118	; step reference counter for subticks (0-3)
+SEQ_CLK_TICK6_CTR	EQU	0x119	; clock reference counter (0-24)
+SEQ_CLK_TICK4_CTR	EQU	0x11a	; clock reference counter (0-24)
 
-SEQ_MODE0		EQU	0x11a	; used by seq_core.inc
-SEQ_MODE1		EQU	0x11b	; used by seq_core.inc
-SEQ_MODE2		EQU	0x11c	; used by seq_core.inc
+SEQ_STEPS_PER_MEASURE   EQU     0x11b   ; used by seq_core.inc (global setting to define number of steps per measure)
 
-SEQ_RANDOM_SEED_L	EQU	0x11d	; current random value used by seq_core.inc
-SEQ_RANDOM_SEED_H	EQU	0x11e	; current random value used by seq_core.inc
+SEQ_MODE0		EQU	0x11c	; used by seq_core.inc
+SEQ_MODE1		EQU	0x11d	; used by seq_core.inc
+SEQ_MODE2		EQU	0x11e	; used by seq_core.inc
 
-SEQ_TRKS_MUTED0		EQU	0x11f	; muted tracks (low-byte)
-SEQ_TRKS_MUTED1		EQU	0x120	; muted tracks (high-byte)
+SEQ_RANDOM_SEED_L	EQU	0x11f	; current random value used by seq_core.inc
+SEQ_RANDOM_SEED_H	EQU	0x120	; current random value used by seq_core.inc
 
-SEQ_BPM			EQU	0x121	; see seq_bpm.inc
-SEQ_CLK_REQ_CTR		EQU	0x122	; see seq_bpm.inc
-SEQ_INCOMING_CLK_DELAY	EQU	0x123	; see seq_bpm.inc
-SEQ_INCOMING_CLK_CTR	EQU	0x124	; see seq_bpm.inc
-SEQ_SENT_CLK_DELAY	EQU	0x125	; see seq_bpm.inc
-SEQ_SENT_CLK_CTR	EQU	0x126	; see seq_bpm.inc
+SEQ_TRKS_MUTED0		EQU	0x121	; muted tracks (low-byte)
+SEQ_TRKS_MUTED1		EQU	0x122	; muted tracks (high-byte)
 
-;; free: 0x127-0x128
+SEQ_BPM			EQU	0x123	; see seq_bpm.inc
+SEQ_CLK_REQ_CTR		EQU	0x124	; see seq_bpm.inc
+SEQ_INCOMING_CLK_DELAY	EQU	0x125	; see seq_bpm.inc
+SEQ_INCOMING_CLK_CTR	EQU	0x126	; see seq_bpm.inc
+SEQ_SENT_CLK_DELAY	EQU	0x127	; see seq_bpm.inc
+SEQ_SENT_CLK_CTR	EQU	0x128	; see seq_bpm.inc
+
 SEQ_EVNT0		EQU	0x129	; used by seq_layer.inc
 SEQ_EVNT1		EQU	0x12a	; used by seq_layer.inc
 SEQ_EVNT2		EQU	0x12b	; used by seq_layer.inc
