@@ -358,80 +358,81 @@ SEQ_RECORD_MODE		EQU	0x14f	; used by "cs_m_record.inc"
 SEQ_RECORD_STEP		EQU	0x150	; used by "cs_m_record.inc"
 SEQ_RECORD_CURRENT_EVNT1 EQU	0x151	; used by "cs_m_record.inc"
 SEQ_RECORD_LENGTH_CTR   EQU     0x152   ; used by "cs_m_record.inc" and "seq_core.inc"
+SEQ_RECORD_POLY_CTR     EQU     0x153   ; used by "cs_m_record.inc" and "seq_core.inc"
 
-SEQ_MORPH_CHANNEL	EQU	0x153	; used by "seq_midi.inc" and "cs_m_morph.inc"
-SEQ_MORPH_CC		EQU	0x154	; used by "seq_midi.inc" and "cs_m_morph.inc"
-SEQ_MORPH_VALUE		EQU	0x155	; used by "seq_midi.inc" and "cs_m_morph.inc"
+SEQ_MORPH_CHANNEL	EQU	0x154	; used by "seq_midi.inc" and "cs_m_morph.inc"
+SEQ_MORPH_CC		EQU	0x155	; used by "seq_midi.inc" and "cs_m_morph.inc"
+SEQ_MORPH_VALUE		EQU	0x156	; used by "seq_midi.inc" and "cs_m_morph.inc"
 
-SEQ_MORPH_EVNT1		EQU	0x156	; used by "seq_morph.inc"
-SEQ_MORPH_EVNT2		EQU	0x157	; used by "seq_morph.inc"
-SEQ_MORPH_EVNTL		EQU	0x158	; used by "seq_morph.inc"
-SEQ_MORPH_MIN_VALUE	EQU	0x159	; used by "seq_morph.inc"
-SEQ_MORPH_MAX_VALUE	EQU	0x15a	; used by "seq_morph.inc"
+SEQ_MORPH_EVNT1		EQU	0x157	; used by "seq_morph.inc"
+SEQ_MORPH_EVNT2		EQU	0x158	; used by "seq_morph.inc"
+SEQ_MORPH_EVNTL		EQU	0x159	; used by "seq_morph.inc"
+SEQ_MORPH_MIN_VALUE	EQU	0x15a	; used by "seq_morph.inc"
+SEQ_MORPH_MAX_VALUE	EQU	0x15b	; used by "seq_morph.inc"
 
-SEQ_CORE_TRK_LASTPOS	EQU	0x15b	; used by "seq_core.inc"
+SEQ_CORE_TRK_LASTPOS	EQU	0x15c	; used by "seq_core.inc"
 
-SEQ_CORE_EXT_CLK_DIVIDER EQU	0x15c	; divider for external clock output
-SEQ_CORE_EXT_CLK_DIVIDER_PRELOAD EQU 0x15d ; preload value of divider
+SEQ_CORE_EXT_CLK_DIVIDER EQU	0x15d	; divider for external clock output
+SEQ_CORE_EXT_CLK_DIVIDER_PRELOAD EQU 0x15e ; preload value of divider
 
-SEQ_CORE_INT_CLK_DIVIDER EQU	0x15e	; divider for internal clock output
-SEQ_CORE_INT_CLK_DIVIDER_PRELOAD EQU 0x15f ; preload value of divider
+SEQ_CORE_INT_CLK_DIVIDER EQU	0x15f	; divider for internal clock output
+SEQ_CORE_INT_CLK_DIVIDER_PRELOAD EQU 0x160 ; preload value of divider
 
-SEQ_SKIP_STEP_PROTECTION_CTR EQU 0x160	; used by "seq_core.inc"
+SEQ_SKIP_STEP_PROTECTION_CTR EQU 0x161	; used by "seq_core.inc"
 
-SEQ_LAYER_STORED_EVNTT	EQU	0x161	; used by "seq_layer.inc"
-SEQ_LAYER_STORED_EVNTS	EQU	0x162	; used by "seq_layer.inc"
-SEQ_LAYER_STORED_PATTERN EQU	0x163	; used by "seq_layer.inc"
-SEQ_LAYER_STORED_PATTERN_BANK EQU 0x164	; used by "seq_layer.inc"
+SEQ_LAYER_STORED_EVNTT	EQU	0x162	; used by "seq_layer.inc"
+SEQ_LAYER_STORED_EVNTS	EQU	0x163	; used by "seq_layer.inc"
+SEQ_LAYER_STORED_PATTERN EQU	0x164	; used by "seq_layer.inc"
+SEQ_LAYER_STORED_PATTERN_BANK EQU 0x165	; used by "seq_layer.inc"
 
-SEQ_T_NOTE_STACK_HOLD	EQU	0x165	; holded transpose note
+SEQ_T_NOTE_STACK_HOLD	EQU	0x166	; holded transpose note
 
-SEQ_GLOBAL_SCALE	EQU	0x166	; used by "seq_scale.inc"
-SEQ_GLOBAL_SCALE_CTRL	EQU	0x167	; used by "seq_scale.inc"
-SEQ_GLOBAL_SCALE_KEYB_ROOT EQU	0x168	; used by "seq_scale.inc"
+SEQ_GLOBAL_SCALE	EQU	0x167	; used by "seq_scale.inc"
+SEQ_GLOBAL_SCALE_CTRL	EQU	0x168	; used by "seq_scale.inc"
+SEQ_GLOBAL_SCALE_KEYB_ROOT EQU	0x169	; used by "seq_scale.inc"
 
-SEQ_PATTERN_SYNC_TRANSFER_REQ EQU 0x169	; synchronized transfer request for the patterns (bit 3-0)
+SEQ_PATTERN_SYNC_TRANSFER_REQ EQU 0x16a	; synchronized transfer request for the patterns (bit 3-0)
 
-SEQ_ROUTER_PORT		EQU	0x16a	; used in "seq_router.inc"
-SEQ_ROUTER_MCLK_ENABLED	EQU	0x16b	; used in "seq_router.inc"
+SEQ_ROUTER_PORT		EQU	0x16b	; used in "seq_router.inc"
+SEQ_ROUTER_MCLK_ENABLED	EQU	0x16c	; used in "seq_router.inc"
 
-SEQ_NRPN_ADDRESS_LSB	EQU	0x16c	; used in "seq_midi.inc"
-SEQ_NRPN_ADDRESS_MSB	EQU	0x16d	; used in "seq_midi.inc"
+SEQ_NRPN_ADDRESS_LSB	EQU	0x16d	; used in "seq_midi.inc"
+SEQ_NRPN_ADDRESS_MSB	EQU	0x16e	; used in "seq_midi.inc"
 
-SEQ_MIXER_MAP		EQU	0x16e	; used in "seq_mbank.inc"
+SEQ_MIXER_MAP		EQU	0x16f	; used in "seq_mbank.inc"
 
-SEQ_PRFTCH_EVNTT	EQU	0x16f	; used in "seq_prftch.inc"
-SEQ_PRFTCH_EVNTS	EQU	0x170	; used in "seq_prftch.inc"
-SEQ_PRFTCH_LAYER	EQU	0x171	; used in "seq_prftch.inc"
+SEQ_PRFTCH_EVNTT	EQU	0x170	; used in "seq_prftch.inc"
+SEQ_PRFTCH_EVNTS	EQU	0x171	; used in "seq_prftch.inc"
+SEQ_PRFTCH_LAYER	EQU	0x172	; used in "seq_prftch.inc"
 
 ;; ==================================================================================
 
-SEQ_SONG		EQU	0x172	; used by CS_M_SONG* only, don't change the order!
-SEQ_EDIT_SONG_POS	EQU	0x173
-SEQ_EDIT_SONG_ACTN	EQU	0x174
-SEQ_EDIT_SONG_G0	EQU	0x175   ; used by "cs_m_song.inc"
-SEQ_EDIT_SONG_G1	EQU	0x176
-SEQ_EDIT_SONG_G2	EQU	0x177
-SEQ_EDIT_SONG_G3	EQU	0x178
-SEQ_EDIT_SONG_BANK_G0	EQU	0x179   ; used by "cs_m_song.inc"
-SEQ_EDIT_SONG_BANK_G1	EQU	0x17a
-SEQ_EDIT_SONG_BANK_G2	EQU	0x17b
-SEQ_EDIT_SONG_BANK_G3	EQU	0x17c
-SEQ_SONG_RECURSION_CTR	EQU	0x17d	; used in "seq_song.inc", SEQ_SONG_FetchPosDirect to avoid a live lock
+SEQ_SONG		EQU	0x173	; used by CS_M_SONG* only, don't change the order!
+SEQ_EDIT_SONG_POS	EQU	0x174
+SEQ_EDIT_SONG_ACTN	EQU	0x175
+SEQ_EDIT_SONG_G0	EQU	0x176   ; used by "cs_m_song.inc"
+SEQ_EDIT_SONG_G1	EQU	0x177
+SEQ_EDIT_SONG_G2	EQU	0x178
+SEQ_EDIT_SONG_G3	EQU	0x179
+SEQ_EDIT_SONG_BANK_G0	EQU	0x17a   ; used by "cs_m_song.inc"
+SEQ_EDIT_SONG_BANK_G1	EQU	0x17b
+SEQ_EDIT_SONG_BANK_G2	EQU	0x17c
+SEQ_EDIT_SONG_BANK_G3	EQU	0x17d
+SEQ_SONG_RECURSION_CTR	EQU	0x17e	; used in "seq_song.inc", SEQ_SONG_FetchPosDirect to avoid a live lock
 
-SEQ_TAPTEMPO_BEAT_CTR	EQU	0x17e	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_MEAN_L	EQU	0x17f	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_MEAN_H	EQU	0x180	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_AVERAGE0_L	EQU	0x181	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_AVERAGE0_H	EQU	0x182	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_AVERAGE1_L	EQU	0x183	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_AVERAGE1_H	EQU	0x184	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_AVERAGE2_L	EQU	0x185	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_AVERAGE2_H	EQU	0x186	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_AVERAGE3_L	EQU	0x187	; used in "seq_core.inc" for tap tempo function
-SEQ_TAPTEMPO_AVERAGE3_H	EQU	0x188	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_BEAT_CTR	EQU	0x17f	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_MEAN_L	EQU	0x180	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_MEAN_H	EQU	0x181	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE0_L	EQU	0x182	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE0_H	EQU	0x183	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE1_L	EQU	0x184	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE1_H	EQU	0x185	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE2_L	EQU	0x186	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE2_H	EQU	0x187	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE3_L	EQU	0x188	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE3_H	EQU	0x189	; used in "seq_core.inc" for tap tempo function
 
-	;; free: 0x189-0x19d
+	;; free: 0x18a-0x19d
 
 ;; ==================================================================================
 

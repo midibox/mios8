@@ -180,11 +180,11 @@ SEQ_ROUTER_In
 
 	movff	WREG, SEQ_DATA_BUFFER+3			; store MIDI Input number in SEQ_DATA_BUFFER+3
 
-	;; in record mode: forward event to CS_M_RECORD
+	;; in record mode: forward event to SEQ_RECORD
 	SET_BSR	SEQ_BASE
 	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_ROUTER_In_NoRec
 SEQ_ROUTER_In_Rec
-	call	CS_M_RECORD_NotifyEvent			; call record hook
+	call	SEQ_RECORD_NotifyEvent			; call record hook
 	movff	SEQ_DATA_BUFFER+0, MIOS_PARAMETER1	; restore MIOS_PARAMETER[123]
 	movff	SEQ_DATA_BUFFER+1, MIOS_PARAMETER2
 	movff	SEQ_DATA_BUFFER+2, MIOS_PARAMETER3

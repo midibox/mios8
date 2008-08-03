@@ -556,6 +556,7 @@ USER_AIN_NotifyChange
 #include "seq_song.inc"
 #include "seq_midi.inc"
 #include "seq_router.inc"
+#include "seq_record.inc"
 #include "seq_sysex.inc"
 #include "seq_bpm.inc"
 #include "seq_ext.inc"

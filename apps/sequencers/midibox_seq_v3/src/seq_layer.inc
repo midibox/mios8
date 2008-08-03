@@ -450,13 +450,18 @@ SEQ_LAYER_GetVValue_Cached
 	return
 
 ;; --------------------------------------------------------------------------
-;;  This is the only function which should be used to store a variable layer value
+;;  ClrVValue and SetVValue arethe only functions which should be used to store a variable layer value
 ;;  IN: WREG: Layer (0-2)
-;;      MIOS_PARAMETER1: value
+;;      MIOS_PARAMETER1: value (only relevant for SetVValue)
 ;;      SEQ_EVNTT: track number (0-3)
 ;;      SEQ_EVNTS: step number (0-31)
 ;;  USES: FSR1, PROD[LH]
 ;; --------------------------------------------------------------------------
+SEQ_LAYER_ClrVValue
+	rcall	SEQ_LAYER_Hlp_LayerFSR
+	clrf	INDF1
+	return
+
 SEQ_LAYER_SetVValue
 	rcall	SEQ_LAYER_Hlp_LayerFSR
 	movf	MIOS_PARAMETER1, W	; ensure that bit 7 not set!
@@ -1184,21 +1189,81 @@ SEQ_LAYER_SaveEvnt_4		; Layer: Note/Note/Note, Constants: Vel/Len/-
 	;; skip if CC event
 	BRA_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_CC, BANKED, SEQ_LAYER_SaveEvnt_End
 
-	;; always set gate
+	;; set gate if velocity > 0
+	movf	SEQ_EVNT2, W, BANKED
 	movlw	0x01
+	skpnz
+	movlw	0x00
 	call	SEQ_TRG_GateSet
 
+	;; if bit #7 of poly counter not set: clear all steps (first time we record this step)
+	BRA_IFSET SEQ_RECORD_POLY_CTR, 7, BANKED, SEQ_LAYER_SaveEvnt_4_Next
+SEQ_LAYER_SaveEvnt_4_First
+	;; set "steps cleared" notifier
+	bsf	SEQ_RECORD_POLY_CTR, 7, BANKED
+	movlw	0		; Layer A
+	rcall	SEQ_LAYER_ClrVValue
+	movlw	1		; Layer B
+	rcall	SEQ_LAYER_ClrVValue
+	movlw	2		; Layer C
+	rcall	SEQ_LAYER_ClrVValue
+SEQ_LAYER_SaveEvnt_4_Next
+
+	;; skip if note is already stored in layer A, B or C
+	clrf	TABLAT		; used as loop counter
+SEQ_LAYER_SaveEvnt_4_ChkLoop
+	movf	TABLAT, W
+	rcall	SEQ_LAYER_GetVValue
+	xorwf	SEQ_EVNT1, W, BANKED
+	skpnz
+	rgoto	SEQ_LAYER_SaveEvnt_End
+	incf	TABLAT, F
+	movlw	3-1
+	cpfsgt	TABLAT, ACCESS
+	rgoto	SEQ_LAYER_SaveEvnt_4_ChkLoop
+
+	;; branch depending on poly counter
+	movf	SEQ_RECORD_POLY_CTR, W, BANKED
+	andlw	0x7f
+	bz	SEQ_LAYER_SaveEvnt_4_A
+	addlw	-1
+	bz	SEQ_LAYER_SaveEvnt_4_B
+	rgoto	SEQ_LAYER_SaveEvnt_4_C
+
+SEQ_LAYER_SaveEvnt_4_A
+	;; skip if layer not selected for recording
+	BRA_IFCLR SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_A, BANKED, SEQ_LAYER_SaveEvnt_4_B
 	movff	SEQ_EVNT1, MIOS_PARAMETER1	; Note Value stored in Layer A
 	movlw	0
-	RCALL_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_A, BANKED, SEQ_LAYER_SetVValue
+	rcall	SEQ_LAYER_SetVValue
+	movlw	0x01		; next poly counter (select layer B)
+	rgoto	SEQ_LAYER_SaveEvnt_4_Cont
 
+SEQ_LAYER_SaveEvnt_4_B
+	;; skip if layer not selected for recording
+	BRA_IFCLR SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_B, BANKED, SEQ_LAYER_SaveEvnt_4_C
 	movff	SEQ_EVNT1, MIOS_PARAMETER1	; Note Value stored in Layer B
 	movlw	1
-	RCALL_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_B, BANKED, SEQ_LAYER_SetVValue
+	rcall	SEQ_LAYER_SetVValue
+	movlw	0x02		; next poly counter (select layer C)
+	rgoto	SEQ_LAYER_SaveEvnt_4_Cont
 
+SEQ_LAYER_SaveEvnt_4_C
+	;; skip if layer not selected for recording
+	BRA_IFCLR SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_C, BANKED, SEQ_LAYER_SaveEvnt_4_None
 	movff	SEQ_EVNT1, MIOS_PARAMETER1	; Note Value stored in Layer C
 	movlw	2
-	RCALL_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_C, BANKED, SEQ_LAYER_SetVValue
+	rcall	SEQ_LAYER_SetVValue
+SEQ_LAYER_SaveEvnt_4_None
+	movlw	0x00		; start at Layer A again with next step
+	;; 	rgoto	SEQ_LAYER_SaveEvnt_4_Cont
+
+SEQ_LAYER_SaveEvnt_4_Cont
+	movwf	PRODL
+	movf	SEQ_RECORD_POLY_CTR, W, BANKED
+	andlw	0x80		; mask out "steps cleared" step
+	iorwf	PRODL, W
+	movwf	SEQ_RECORD_POLY_CTR, BANKED
 
 	rgoto	SEQ_LAYER_SaveEvntL_4		; branch to save length routine
 

@@ -829,10 +829,9 @@ SEQ_BUTTON_Layerx_MPS
 	
 
 SEQ_BUTTON_Layerx_Edit
-	;; exit if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
+	;; if button has been depressed: release message
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Layerx_Edit_Released
+SEQ_BUTTON_Layerx_Edit_Pressed
 	;; decode button number
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitORMask
@@ -845,8 +844,14 @@ SEQ_BUTTON_Layerx_Edit
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 
 	;; set/clear encoder fast function if required
-	goto	SEQ_ENC_AutoFast
+	call	SEQ_ENC_AutoFast
 
+	;; hold message and exit
+	goto	SEQ_MSG_Hold
+
+SEQ_BUTTON_Layerx_Edit_Released
+	;; start message (releases hold)
+	goto	SEQ_MSG_Start
 
 
 ;; --------------------------------------------------------------------------
