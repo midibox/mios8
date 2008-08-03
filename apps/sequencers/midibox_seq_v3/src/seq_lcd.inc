@@ -689,6 +689,8 @@ SEQ_LCD_PrintSpaces
 	movwf	PRODL
 	rgoto	SEQ_LCD_PrintCharsLoop
 
+
+
 ;; ==========================================================================
 ;; this function prints the menu header
 ;; it contains the application name and the song position
@@ -1529,3 +1531,56 @@ SEQ_LCD_PrnMsgItem_Hlp_Cont
 
 	movf	PRODL, W
 	return
+
+
+;; --------------------------------------------------------------------------
+;;  This functions prints the tap tempo message
+;;  OUT: 2x20 chars at display offset 0x00 + 0 / 0x40 + 0
+;;  USES: PROD[LH]
+;; --------------------------------------------------------------------------
+SEQ_LCD_PrnTapTempo_STR
+	STRING	15, 0x00 + 22, "  * Tap Tempo: "
+SEQ_LCD_PrnTapTempo
+	TABLE_ADDR SEQ_LCD_PrnTapTempo_STR
+	call	MIOS_LCD_PrintMessage
+
+	call	SEQ_BPM_Get
+	call	MIOS_LCD_PrintBCD3
+
+	movlw	4
+	rcall	SEQ_LCD_PrintSpaces
+
+	movlw	4
+	rcall	SEQ_LCD_PrintSpaces
+
+	;; print <beat> * ">>>>"
+	movlw	0x40 + 22
+	call	MIOS_LCD_CursorSet
+
+	movlw	2
+	rcall	SEQ_LCD_PrintSpaces
+
+	clrf	TABLAT
+SEQ_LCD_PrnTapTempoLoop
+	SET_BSR	SEQ_BASE
+	movf	SEQ_TAPTEMPO_BEAT_CTR, W, BANKED
+	andlw	0x03
+	addlw	1
+	cpfslt	TABLAT
+	rgoto	SEQ_LCD_PrnTapTempoLoop_GET
+SEQ_LCD_PrnTapTempoLoop_LT
+	movlw	'>'
+	rgoto	SEQ_LCD_PrnTapTempoLoop_Cont
+SEQ_LCD_PrnTapTempoLoop_GET
+	movlw	' '
+	;;	rgoto	SEQ_LCD_PrnTapTempoLoop_Cont
+SEQ_LCD_PrnTapTempoLoop_Cont
+	movwf	PRODL
+	movlw	4
+	rcall	SEQ_LCD_PrintChars
+
+	incf	TABLAT, F
+	BRA_IFCLR TABLAT, 2, ACCESS, SEQ_LCD_PrnTapTempoLoop
+
+	return
+

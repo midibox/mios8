@@ -277,3 +277,154 @@ SEQ_BPM_Digit_TABLE
 	db	b'01110111', b'00011111' ; A, B
 	db	b'01001110', b'00111101' ; C, D
 	db	b'01001111', b'01000111' ; E, F
+
+
+;; --------------------------------------------------------------------------
+;;  This function is called when a tempo is "tapped" with a button
+;; --------------------------------------------------------------------------
+SEQ_BPM_TapTempo
+	SET_BSR	SEQ_BASE
+
+	;; determine new tempo if timer hasn't been enabled yet, or on overrun
+	BRA_IFCLR T0CON, TMR0ON, ACCESS, SEQ_BPM_TapTempo_New
+	BRA_IFSET INTCON, TMR0IF, ACCESS, SEQ_BPM_TapTempo_New
+
+SEQ_BPM_TapTempo_Beat
+	;; stop timer
+	bcf	T0CON, TMR0ON
+
+	;; transfer new timer value to PROD[LH]
+	;; (required, as TMR0H latch cannot be used as calculation target - it's indirectly updated on access to TMR0L)
+	movff	TMR0L, PRODL
+	movff	TMR0H, PRODH
+
+	;; if measured delay is < 0x2000: BPM > 256 (ca. 286) --- cannot be processed anyhow
+	;; such taps will be ignored, because it can be assumed that they happened because
+	;; of a bouncing button
+	movf	PRODH, W
+	andlw	0xe0
+	bz	SEQ_BPM_TapTempo_Beat_Ignore
+
+SEQ_BPM_TapTempo_Beat_GoodOne
+	;; increment beat counter
+	incf	SEQ_TAPTEMPO_BEAT_CTR, F, BANKED
+
+	;; ensure that beat counter won't overrun to zero (so that average calculation restarts)
+	;; however, in reality the user would never tap more than 256 times without a break ;)
+	movlw	0x83
+	btfsc	SEQ_TAPTEMPO_BEAT_CTR, 7, BANKED
+	andwf	SEQ_TAPTEMPO_BEAT_CTR, F, BANKED
+
+	
+	;; add measured time to average array
+	lfsr	FSR1, SEQ_TAPTEMPO_AVERAGE0_L
+	rlf	SEQ_TAPTEMPO_BEAT_CTR, W, BANKED
+	andlw	0x06
+	addwf	FSR1L, F
+
+	;; add new timer value (divided by 4) to array
+	clrc
+	rrf	PRODH, F
+	rrf	PRODL, F
+	clrc
+	rrf	PRODH, F
+	rrf	PRODL, F
+
+	movff	PRODL, POSTINC1
+	movff	PRODH, POSTDEC1
+
+	;; calculate new mean value
+	clrf	SEQ_TAPTEMPO_MEAN_L, BANKED
+	clrf	SEQ_TAPTEMPO_MEAN_H, BANKED
+	clrf	PRODL
+	lfsr	FSR1, SEQ_TAPTEMPO_AVERAGE0_L
+SEQ_BPM_TapTempo_Beat_AvgLoop
+	movf	POSTINC1, W
+	addwf	SEQ_TAPTEMPO_MEAN_L, F, BANKED
+	movf	POSTINC1, W
+	addwfc	SEQ_TAPTEMPO_MEAN_H, F, BANKED
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 2, ACCESS, SEQ_BPM_TapTempo_Beat_AvgLoop
+
+	;; once counter reached value >= 4, calculate BPM
+	movf	SEQ_TAPTEMPO_BEAT_CTR, W, BANKED
+	andlw	0xfc
+	bz	SEQ_BPM_TapTempo_Beat_NoBPM
+SEQ_BPM_TapTempo_Beat_BPM
+	;; timer is clocked each 25.600 uS
+	;; accordingly the BPM is: 60 / (SEQ_TAPTEMPO_MEAN * 25.600 uS)
+	;;                     or: (60/25.6 uS) / SEQ_TAPTEMPO_MEAN
+	;;         -> fixed point: 2343750 / SEQ_TAPTEMPO_MEAN
+	;; we can use the already included MATH_DIV24_16 routine to calculate this! :-)
+
+	movlw	(2343750 >> 16) & 0xff
+	movwf	MATH_AARGB0
+	movlw	(2343750 >> 8) & 0xff
+	movwf	MATH_AARGB1
+	movlw	(2343750) & 0xff
+	movwf	MATH_AARGB2
+
+	movff	SEQ_TAPTEMPO_MEAN_L, MATH_BARGB1
+	movff	SEQ_TAPTEMPO_MEAN_H, MATH_BARGB0
+
+	call	MATH_DIV24_16
+
+	;; result in MATH_AARGB1:MATH_AARGB2
+	;; saturate if high byte != 0
+	movf	MATH_AARGB1, W
+	skpz
+	setf	MATH_AARGB2
+
+	;; if BPM value < 48, force it to 48 (requirement of SEQ_BPM_Set routine)
+	movlw	48
+	cpfsgt	MATH_AARGB2
+	movwf	MATH_AARGB2
+
+	;; before setting BPM: ensure that sequencer not running in slave mode
+	SET_BSR	SEQ_BASE
+	bcf	SEQ_CFG0, SEQ_CFG0_BPM_CLK_SLAVE, BANKED
+
+	;; MATH_AARGB2 contains the BPM
+	movf	MATH_AARGB2, W
+	rcall	SEQ_BPM_Set
+	
+SEQ_BPM_TapTempo_Beat_NoBPM
+
+SEQ_BPM_TapTempo_Beat_Ignore
+	;; clear 16bit timer register
+	clrf	TMR0H
+	clrf	TMR0L
+
+	;; ensure that TMR0IF is cleared
+	bcf	INTCON, TMR0IF
+
+	;; start timer: clocked by internal source, 16bit, prescaler 1:2
+	movlw	(1 << TMR0ON) | (7 << 0)
+	movwf	T0CON	
+
+	return
+
+
+SEQ_BPM_TapTempo_New
+	;; clear beat counter
+	clrf	SEQ_TAPTEMPO_BEAT_CTR, BANKED
+
+	;; stop timer
+	bcf	T0CON, TMR0ON
+
+	;; ensure that timer0 interrupt not enabled (-> normaly used by MIOS_AIN driver)
+	bcf	INTCON, T0IE
+
+	;; clear 16bit timer register
+	clrf	TMR0H
+	clrf	TMR0L
+
+	;; clear TMR0IF (overrun flag)
+	bcf	INTCON, TMR0IF
+
+	;; start timer: clocked by internal source, 16bit, prescaler 1:2
+	movlw	(1 << TMR0ON) | (7 << 0)
+	movwf	T0CON	
+	
+	return
+	

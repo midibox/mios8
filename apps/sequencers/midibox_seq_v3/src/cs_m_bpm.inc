@@ -66,7 +66,6 @@ CS_M_BPM_GP_Callback
 CS_M_BPM_GP_Callback_1
 CS_M_BPM_GP_Callback_2
 CS_M_BPM_GP_Callback_3
-CS_M_BPM_GP_Callback_4
 	clrf	CS_MENU_CURSOR_POS	; select Master/Slave (Item #0)
 	clrf	CS_MENU_ENC_INCREMENTER	; (toggle)
 	movlw	1
@@ -78,16 +77,20 @@ CS_M_BPM_GP_Callback_4
 	rcall	CS_M_BPM_ModeChanged
 	rgoto	CS_M_BPM_GP_Callback_Cont
 
+CS_M_BPM_GP_Callback_4
 CS_M_BPM_GP_Callback_5
 CS_M_BPM_GP_Callback_6
 CS_M_BPM_GP_Callback_7
-CS_M_BPM_GP_Callback_8
 	movlw	1	; select BPM (item #1)
 	movwf	CS_MENU_CURSOR_POS
 	call	SEQ_BPM_Get
 	addlw	-48
 	movwf	CS_MENU_PARAMETER_L
 	rgoto	CS_M_BPM_GP_Callback_Cont
+
+CS_M_BPM_GP_Callback_8
+	;; -> tap tempo function
+	goto	SEQ_BUTTON_TapTempo
 
 CS_M_BPM_GP_Callback_9
 CS_M_BPM_GP_Callback_10
@@ -131,7 +134,7 @@ CS_M_BPM_UpdateGPLEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
-	;; left side: first 4 LEDs active if BPM clock mode selected (cursor pos 0)
+	;; left side: first 3 LEDs active if BPM clock mode selected (cursor pos 0)
 	;;            second 4 LEDs active if BPM selected (cursor pos 1)
 	movf	CS_MENU_CURSOR_POS, W
 	bz	CS_M_BPM_UpdateGPLEDs_0
@@ -140,12 +143,12 @@ CS_M_BPM_UpdateGPLEDs
 	rgoto	CS_M_BPM_UpdateGPLEDs_23
 
 CS_M_BPM_UpdateGPLEDs_0
-	movlw	0x0f
+	movlw	0x07
 	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
  	rgoto	CS_M_BPM_UpdateGPLEDs_Cont
 
 CS_M_BPM_UpdateGPLEDs_1
-	movlw	0xf0
+	movlw	0x78
 	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
  	rgoto	CS_M_BPM_UpdateGPLEDs_Cont
 
@@ -230,62 +233,50 @@ CS_M_BPM_Tick
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	;; <--------------------------------------><-------------------------------------->
-	;;     BPM Clock Mode    Beats per Minute     Global Clock Dividers (Int./Ext.)
-	;; ----00000000000000----1111111111111111-----222222222222222222222-33333333333----
-	;;         Master              140           1    2    4    8    2    4    8   16
-	;; --------444444--------------555---------8888899999AAAAABBBBBCCCCCDDDDDEEEEEFFFFF
+	;; BPM Clock Mode   Beats per Minute   Tap    Global Clock Dividers (Int./Ext.)    
+	;; 00000000001111111122222222222233333333334444444444555555555566666666667777777777
+	;;     Master             140         Tempo  >1<   2    4    8    2   >4<   8   16 
+	;; ----888888-------------999---------AAAAACCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
 
 	;; print segments 0-15
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_BPM_Tick_Upper
+	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 2, ACCESS, CS_M_BPM_Tick_LowerR
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x0f
+	andlw	0x03
 	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_BPM_Tick_0
-	rgoto	CS_M_BPM_Tick_1
-	rgoto	CS_M_BPM_Tick_2
-	rgoto	CS_M_BPM_Tick_3
-	rgoto	CS_M_BPM_Tick_4
-	rgoto	CS_M_BPM_Tick_5
-	rgoto	CS_M_BPM_Tick_6
-	rgoto	CS_M_BPM_Tick_7
 	rgoto	CS_M_BPM_Tick_8
 	rgoto	CS_M_BPM_Tick_9
 	rgoto	CS_M_BPM_Tick_A
 	rgoto	CS_M_BPM_Tick_B
-	rgoto	CS_M_BPM_Tick_C
-	rgoto	CS_M_BPM_Tick_D
-	rgoto	CS_M_BPM_Tick_E
-	rgoto	CS_M_BPM_Tick_F
 
-CS_M_BPM_Tick_0_STR	STRING 14, 0x00 + 4, "BPM Clock Mode"
-CS_M_BPM_Tick_0
-	TABLE_ADDR CS_M_BPM_Tick_0_STR
-	call	MIOS_LCD_PrintString
+CS_M_BPM_Tick_Upper_STR
+	db	"BPM Clock Mode   Beats per Minute   Tap    Global Clock Dividers (Int./Ext.)    "
+CS_M_BPM_Tick_Upper
+	;; determine cursor pos
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	andlw	0x03
+	mullw	10
+	movf	PRODL, W
+	btfsc	CS_MENU_REFRESH_ITEM_CTR, 2
+	iorlw	0x80
+	call	MIOS_LCD_CursorSet
+
+	;; determine string offset
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	TABLE_ADDR_MUL_W CS_M_BPM_Tick_Upper_STR, 10
+
+	;; print string part (10 characters)
+	movlw	10
+	call	MIOS_LCD_PrintPreconfString
+
 	rgoto	CS_M_BPM_Tick_Cont
 
-CS_M_BPM_Tick_1_STR	STRING 16, 0x00 + 22, "Beats per Minute"
-CS_M_BPM_Tick_1
-	TABLE_ADDR CS_M_BPM_Tick_1_STR
-	call	MIOS_LCD_PrintString
-	rgoto	CS_M_BPM_Tick_Cont
 
-CS_M_BPM_Tick_2_STR	STRING 21, 0x80 + 3, "Global Clock Dividers"
-CS_M_BPM_Tick_2
-	TABLE_ADDR CS_M_BPM_Tick_2_STR
-	call	MIOS_LCD_PrintString
-	rgoto	CS_M_BPM_Tick_Cont
-
-CS_M_BPM_Tick_3_STR	STRING 11, 0x80 + 25, "(Int./Ext.)"
-CS_M_BPM_Tick_3
-	TABLE_ADDR CS_M_BPM_Tick_3_STR
-	call	MIOS_LCD_PrintString
-	rgoto	CS_M_BPM_Tick_Cont
-
-CS_M_BPM_Tick_4_TXT0	db	"Master"
-CS_M_BPM_Tick_4_TXT1	db	"Slave "
-CS_M_BPM_Tick_4_TXT2	db	"Auto  "
-
-CS_M_BPM_Tick_4
-	movlw	0x40 + 8
+CS_M_BPM_Tick_8_TXT0	db	"Master"
+CS_M_BPM_Tick_8_TXT1	db	"Slave "
+CS_M_BPM_Tick_8_TXT2	db	"Auto  "
+CS_M_BPM_Tick_8
+	movlw	0x40 + 4
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_MENU_CursorHandler2
@@ -295,21 +286,21 @@ CS_M_BPM_Tick_4
 	SET_BSR	SEQ_BASE
 	movlw	0x00
 	btfsc	SEQ_CFG0, SEQ_CFG0_BPM_CLK_SLAVE, BANKED
-	movlw 1*0x06
+	movlw	1*0x06
 	btfsc	SEQ_CFG0, SEQ_CFG0_BPM_CLK_AUTO, BANKED
-	movlw 2*0x06
-	addlw	LOW(CS_M_BPM_Tick_4_TXT0)
+	movlw	2*0x06
+	addlw	LOW(CS_M_BPM_Tick_8_TXT0)
 	movwf	TBLPTRL
 	clrf	TBLPTRH
-	movlw	HIGH(CS_M_BPM_Tick_4_TXT0)
+	movlw	HIGH(CS_M_BPM_Tick_8_TXT0)
 	addwfc	TBLPTRH, F
 
 	movlw	6	; characters
 	call	MIOS_LCD_PrintPreconfString
 	rgoto	CS_M_BPM_Tick_Cont
 
-CS_M_BPM_Tick_5
-	movlw	0x40 + 28
+CS_M_BPM_Tick_9
+	movlw	0x40 + 23
 	call	MIOS_LCD_CursorSet
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
@@ -317,120 +308,43 @@ CS_M_BPM_Tick_5
 	rgoto	CS_M_BPM_Tick_Cont
 
 	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_CFG0, SEQ_CFG0_BPM_CLK_AUTO, BANKED, CS_M_BPM_Tick_5_Master
-	BRA_IFSET SEQ_CFG0, SEQ_CFG0_BPM_CLK_SLAVE, BANKED, CS_M_BPM_Tick_5_Slave
-CS_M_BPM_Tick_5_Master
+	BRA_IFSET SEQ_CFG0, SEQ_CFG0_BPM_CLK_AUTO, BANKED, CS_M_BPM_Tick_9_Master
+	BRA_IFSET SEQ_CFG0, SEQ_CFG0_BPM_CLK_SLAVE, BANKED, CS_M_BPM_Tick_9_Slave
+CS_M_BPM_Tick_9_Master
 	call	SEQ_BPM_Get
 	call	MIOS_LCD_PrintBCD3
 	rgoto	CS_M_BPM_Tick_Cont
 
-CS_M_BPM_Tick_5_Slave
+CS_M_BPM_Tick_9_Slave
 	movlw	'-'
 	movwf	PRODL
 	movlw	3
 	call	SEQ_LCD_PrintChars
 	rgoto	CS_M_BPM_Tick_Cont
 
-CS_M_BPM_Tick_6
-CS_M_BPM_Tick_7
+CS_M_BPM_Tick_A_STR	STRING	5, 0x40+35, "Tempo"
+CS_M_BPM_Tick_A
+	TABLE_ADDR CS_M_BPM_Tick_A_STR
+	call	MIOS_LCD_PrintString
 	rgoto	CS_M_BPM_Tick_Cont
 
-CS_M_BPM_Tick_8
-CS_M_BPM_Tick_9
-CS_M_BPM_Tick_A
 CS_M_BPM_Tick_B
-	;; current value -> TMP1
-	movff	SEQ_CORE_INT_CLK_DIVIDER_PRELOAD, TMP1
+	rgoto	CS_M_BPM_Tick_Cont
 
-	;; menu cursor pos -> TMP2
-	movlw	2
-	movwf	TMP2
+CS_M_BPM_Tick_LowerR
+	;; determine pos of first item
+	rlf	CS_MENU_REFRESH_ITEM_CTR, W
+	andlw	0x06
+	rcall	CS_M_BPM_PrnDiv
 
-	;; determine cursor pos
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
-	mullw	5
-	movf	PRODL, W
-	addlw	0xc0 + 1
-	rgoto	CS_M_BPM_Tick_Div_Print
-
-CS_M_BPM_Tick_C
-CS_M_BPM_Tick_D
-CS_M_BPM_Tick_E
-CS_M_BPM_Tick_F
-	;; current value -> TMP1
-	movff	SEQ_CORE_EXT_CLK_DIVIDER_PRELOAD, TMP1
-
-	;; menu cursor pos -> TMP2
-	movlw	3
-	movwf	TMP2
-
-	;; determine cursor pos
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
-	mullw	5
-	movf	PRODL, W
-	addlw	0xc0 + 20 + 1
-	;; 	rgoto	CS_M_BPM_Tick_Div_Print
-
-CS_M_BPM_Tick_Div_Print
-	call	MIOS_LCD_CursorSet
-
-	;; item selected -> TMP3.0
-	setf	TMP3
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
-	cpfseq	TMP1, ACCESS
-	clrf TMP3
-
-	;; print left marker
-	movlw	'>'
-	btfss	TMP3, 0
-	movlw ' '
-	call	MIOS_LCD_PrintChar
-
-	;; check if item should be flashed
-	movf	CS_MENU_CURSOR_POS, W
-	cpfseq	TMP2, ACCESS
-	rgoto CS_M_BPM_Tick_Div_NoF
-	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_M_BPM_Tick_Div_NoF
-	BRA_IFSET TMP3, 0, ACCESS, CS_M_BPM_Tick_Div_Spaces
-
-CS_M_BPM_Tick_Div_NoF
-	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 2, ACCESS, CS_M_BPM_Tick_Div_NoF_Ext
-CS_M_BPM_Tick_Div_NoF_Int
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
-	call	MIOS_HLP_GetBitORMask
-	call	MIOS_LCD_PrintBCD1
-	rgoto	CS_M_BPM_Tick_Div_Cont
-
-CS_M_BPM_Tick_Div_NoF_Ext
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
+	;; determine pos of second item
+	rlf	CS_MENU_REFRESH_ITEM_CTR, W
+	andlw	0x06
 	addlw	1
-	call	MIOS_HLP_GetBitORMask
-	BRA_IFSET WREG, 4, ACCESS, CS_M_BPM_Tick_Div_NoF_Ext_BCD2
+	rcall	CS_M_BPM_PrnDiv
 
-CS_M_BPM_Tick_Div_NoF_Ext_BCD1
-	call	MIOS_LCD_PrintBCD1
-	rgoto	CS_M_BPM_Tick_Div_Cont
+	rgoto	CS_M_BPM_Tick_Cont
 
-CS_M_BPM_Tick_Div_NoF_Ext_BCD2
-	call	MIOS_LCD_PrintBCD2
-	rgoto	CS_M_BPM_Tick_Div_Cont
-
-CS_M_BPM_Tick_Div_Spaces
-	movlw	1
-	call	SEQ_LCD_PrintSpaces
-	;; 	rgoto	CS_M_BPM_Tick_Div_Cont
-
-CS_M_BPM_Tick_Div_Cont
-	;; print right marker
-	movlw	'<'
-	btfss	TMP3, 0
-	movlw ' '
-	call	MIOS_LCD_PrintChar
 
 CS_M_BPM_Tick_Cont
 	;; Tick function will be called 16 times
@@ -469,3 +383,81 @@ CS_M_BPM_ExtDivChanged
 
 
 ;; ==========================================================================
+;; Help function to print int/ext clock divider value
+;; expecting item number (0..7) in WREG
+;; ==========================================================================
+CS_M_BPM_PrnDiv
+	;; item position -> TMP5
+	movwf	TMP5
+
+	;; set cursor
+	mullw	5
+	movf	PRODL, W
+	addlw	0xc0 + 1
+	call	MIOS_LCD_CursorSet
+
+	;; current value -> TMP1
+	movff	SEQ_CORE_INT_CLK_DIVIDER_PRELOAD, TMP1
+	btfsc	TMP5, 2
+	movff	SEQ_CORE_EXT_CLK_DIVIDER_PRELOAD, TMP1
+
+	;; menu cursor pos -> TMP2
+	movlw	2
+	btfsc	TMP5, 2
+	movlw	3
+	movwf	TMP2
+
+	;; item selected -> TMP3.0
+	setf	TMP3
+	movf	TMP5, W
+	andlw	0x03
+	cpfseq	TMP1, ACCESS
+	clrf	TMP3
+
+	;; print left marker
+	movlw	'>'
+	btfss	TMP3, 0
+	movlw	' '
+	call	MIOS_LCD_PrintChar
+
+	;; check if item should be flashed
+	movf	CS_MENU_CURSOR_POS, W
+	cpfseq	TMP2, ACCESS
+	rgoto	CS_M_BPM_PrnDiv_NoF
+	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_M_BPM_PrnDiv_NoF
+	BRA_IFSET TMP3, 0, ACCESS, CS_M_BPM_PrnDiv_Spaces
+
+CS_M_BPM_PrnDiv_NoF
+	movf	TMP5, W
+	andlw	0x03
+	BRA_IFSET TMP5, 2, ACCESS, CS_M_BPM_PrnDiv_NoF_Ext
+CS_M_BPM_PrnDiv_NoF_Int
+	call	MIOS_HLP_GetBitORMask
+	call	MIOS_LCD_PrintBCD1
+	rgoto	CS_M_BPM_PrnDiv_Cont
+
+CS_M_BPM_PrnDiv_NoF_Ext
+	addlw	1
+	call	MIOS_HLP_GetBitORMask
+	BRA_IFSET WREG, 4, ACCESS, CS_M_BPM_PrnDiv_NoF_Ext_BCD2
+
+CS_M_BPM_PrnDiv_NoF_Ext_BCD1
+	call	MIOS_LCD_PrintBCD1
+	rgoto	CS_M_BPM_PrnDiv_Cont
+
+CS_M_BPM_PrnDiv_NoF_Ext_BCD2
+	call	MIOS_LCD_PrintBCD2
+	rgoto	CS_M_BPM_PrnDiv_Cont
+
+CS_M_BPM_PrnDiv_Spaces
+	movlw	1
+	call	SEQ_LCD_PrintSpaces
+	;; 	rgoto	CS_M_BPM_PrnDiv_Cont
+
+CS_M_BPM_PrnDiv_Cont
+	;; print right marker
+	movlw	'<'
+	btfss	TMP3, 0
+	movlw	' '
+	goto	MIOS_LCD_PrintChar
+

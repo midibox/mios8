@@ -460,6 +460,10 @@ SEQ_BUTTON_Play
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
+	;; if MENU button is pressed: use Tap Tempo function
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_BUTTON_TapTempo
+	
 	;; restart sequencer
 	SET_BSR	SEQ_BASE
 	movlw	(1 << SEQ_REQ_START)
@@ -504,6 +508,39 @@ SEQ_BUTTON_Continue
 	movlw	(1 << SEQ_REQ_CONT)
 	movwf	SEQ_REQ, BANKED
 	return
+
+
+;; --------------------------------------------------------------------------
+;;  Tap Tempo Button
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_TapTempo
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; call TAP function
+	call	SEQ_BPM_TapTempo
+
+	;; print tap message
+	call	SEQ_LCD_PrnTapTempo
+
+	movlw	0x80		; short display time
+	call	MIOS_LCD_MessageStart
+
+	;; if tap button has been pressed >= 5 times, start sequencer automatically if not already running
+	SET_BSR	SEQ_BASE
+	movf	SEQ_TAPTEMPO_BEAT_CTR, W, BANKED
+	andlw	0xfc
+	bz	SEQ_BUTTON_TapTempo_NoAutoStart
+SEQ_BUTTON_TapTempo_AutoStart
+	movlw	(1 << SEQ_REQ_START)
+	btfss	SEQ_STATE, SEQ_STATE_RUN, BANKED
+	movwf	SEQ_REQ, BANKED
+SEQ_BUTTON_TapTempo_NoAutoStart
+
+	;; and exit
+	return
+
 
 ;; --------------------------------------------------------------------------
 ;;  enter edit mode

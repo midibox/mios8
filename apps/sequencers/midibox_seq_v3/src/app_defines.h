@@ -419,7 +419,19 @@ SEQ_EDIT_SONG_BANK_G2	EQU	0x17b
 SEQ_EDIT_SONG_BANK_G3	EQU	0x17c
 SEQ_SONG_RECURSION_CTR	EQU	0x17d	; used in "seq_song.inc", SEQ_SONG_FetchPosDirect to avoid a live lock
 
-	;; free: 0x17e-0x19d
+SEQ_TAPTEMPO_BEAT_CTR	EQU	0x17e	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_MEAN_L	EQU	0x17f	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_MEAN_H	EQU	0x180	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE0_L	EQU	0x181	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE0_H	EQU	0x182	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE1_L	EQU	0x183	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE1_H	EQU	0x184	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE2_L	EQU	0x185	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE2_H	EQU	0x186	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE3_L	EQU	0x187	; used in "seq_core.inc" for tap tempo function
+SEQ_TAPTEMPO_AVERAGE3_H	EQU	0x188	; used in "seq_core.inc" for tap tempo function
+
+	;; free: 0x189-0x19d
 
 ;; ==================================================================================
 
