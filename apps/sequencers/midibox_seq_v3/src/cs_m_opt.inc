@@ -15,12 +15,13 @@
 ;; --------------------------------------------------------------------------
 CS_M_OPT_PARAMETERS
  ;;			 CC/value				max	cursor/len	MenuParameterHook
- CS_MENU_PARAMETER_ENTRY -1,					0x01,	0x40 +  1, 3,	CS_M_OPT_ValueChanged_0
- CS_MENU_PARAMETER_ENTRY -1,					0x01,	0x40 + 18, 3,	CS_M_OPT_ValueChanged_1
- CS_MENU_PARAMETER_ENTRY -1,					0x01,	0x40 + 28,11,	CS_M_OPT_ValueChanged_2
- CS_MENU_PARAMETER_ENTRY -1,			                0x04,   0xc0 +  1, 8,   CS_M_OPT_ValueChanged_3
- CS_MENU_PARAMETER_ENTRY -1,			                0x0c,   0xc0 + 10, 8,   CS_M_OPT_ValueChanged_4
- CS_MENU_PARAMETER_ENTRY -1,			SEQ_SCALE_NUMBER-1,     0xc0 + 16,20,   CS_M_OPT_ValueChanged_5
+ CS_MENU_PARAMETER_ENTRY -1,					0x01,	0x40 +  2, 3,	CS_M_OPT_ValueChanged_0
+ CS_MENU_PARAMETER_ENTRY -1,					0xff,	0x40 +  8, 3,	CS_M_OPT_ValueChanged_1
+ CS_MENU_PARAMETER_ENTRY -1,					0x01,	0x40 + 18, 3,	CS_M_OPT_ValueChanged_2
+ CS_MENU_PARAMETER_ENTRY -1,					0x01,	0x40 + 28,11,	CS_M_OPT_ValueChanged_3
+ CS_MENU_PARAMETER_ENTRY -1,			                0x04,   0xc0 +  1, 8,   CS_M_OPT_ValueChanged_4
+ CS_MENU_PARAMETER_ENTRY -1,			                0x0c,   0xc0 + 10, 8,   CS_M_OPT_ValueChanged_5
+ CS_MENU_PARAMETER_ENTRY -1,			SEQ_SCALE_NUMBER-1,     0xc0 + 16,20,   CS_M_OPT_ValueChanged_6
 
 
 ;; --------------------------------------------------------------------------
@@ -67,17 +68,20 @@ CS_M_OPT_GP_Callback
 	rgoto	CS_M_OPT_GP_Callback_16
 
 CS_M_OPT_GP_Callback_1
-CS_M_OPT_GP_Callback_2
-CS_M_OPT_GP_Callback_3
 	;; toggle flag
 	btg	SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED
 	movlw	0		; Item #0
 	rgoto	CS_M_OPT_GP_Callback_Cont
 
+CS_M_OPT_GP_Callback_2
+CS_M_OPT_GP_Callback_3
+	movlw	1		; Item #1
+	rgoto	CS_M_OPT_GP_Callback_Cont
+
 CS_M_OPT_GP_Callback_4
 CS_M_OPT_GP_Callback_5
 	btg	SEQ_CFG0, SEQ_CFG0_FOLLOW_SONG, BANKED
-	movlw	1		; Item #1
+	movlw	2		; Item #2
 	rgoto	CS_M_OPT_GP_Callback_Cont
 
 
@@ -85,16 +89,16 @@ CS_M_OPT_GP_Callback_6
 CS_M_OPT_GP_Callback_7
 CS_M_OPT_GP_Callback_8
 	btg	SEQ_CFG0, SEQ_CFG0_PASTE_CLR_ALL, BANKED
-	movlw	2		; Item #2
+	movlw	3		; Item #3
 	rgoto	CS_M_OPT_GP_Callback_Cont
 
 CS_M_OPT_GP_Callback_9
 CS_M_OPT_GP_Callback_10
-	movlw	3		; Item #3
+	movlw	4		; Item #4
 	rgoto	CS_M_OPT_GP_Callback_Cont
 
 CS_M_OPT_GP_Callback_11
-	movlw	4		; Item #4
+	movlw	5		; Item #5
 	rgoto	CS_M_OPT_GP_Callback_Cont
 
 CS_M_OPT_GP_Callback_12
@@ -102,7 +106,7 @@ CS_M_OPT_GP_Callback_13
 CS_M_OPT_GP_Callback_14
 CS_M_OPT_GP_Callback_15
 CS_M_OPT_GP_Callback_16
-	movlw	5		; Item #5
+	movlw	6		; Item #6
 	rgoto	CS_M_OPT_GP_Callback_Cont
 
 
@@ -131,7 +135,7 @@ CS_M_OPT_UpdateGPLEDs
 	movf	CS_MENU_CURSOR_POS, W
 	TABLE_ADDR_MUL_W CS_M_OPT_UpdateGPLEDs_TAB, 1
 	tblrd*+
-	movlw	3
+	movlw	4
 	cpfslt	CS_MENU_CURSOR_POS, ACCESS
 	rgoto CS_M_OPT_UpdateGPLEDs_R
 CS_M_OPT_UpdateGPLEDs_L
@@ -142,7 +146,7 @@ CS_M_OPT_UpdateGPLEDs_R
 	return
 
 CS_M_OPT_UpdateGPLEDs_TAB
-	db	b'00000111', b'00011000', b'11100000', b'00000011', b'00000100', b'11111000'
+	db	b'00000001', b'00000110', b'00011000', b'11100000', b'00000011', b'00000100', b'11111000'
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Init routine is called when menu page should be initialized
@@ -153,7 +157,7 @@ CS_M_OPT_Init
 
 	;; install parameter table
 	TABLE_ADDR CS_M_OPT_PARAMETERS	; pointer to table
-	movlw	6			; number of parameters
+	movlw	7			; number of parameters
 	call	CS_MENU_SetMenuParameterTable
 
 	;; install callback function for general purpose buttons
@@ -177,8 +181,8 @@ CS_M_OPT_Tick
 	;; <--------------------------------------><-------------------------------------->
 	;; SyncPatChange  FollowSong  Paste/Clr Beh Control  Root      Selected Scale      
 	;; 00000000001111111111222222222233333333334444444444555555555566666666667777777777
-	;;      off          off       Steps only   Global   Keyb   50:Hungarian Gypsy     
-	;; -----888----------999-------AAAAAAAAAA--BBBBBBBBBBCCCCCDDDDDEEEEEEEEEEEEEEEEEEEE
+	;;   off    16        off       Steps only   Global   Keyb   50:Hungarian Gypsy     
+	;; --888888888--------999-------AAAAAAAAAA--BBBBBBBBBBCCCCCDDDDDEEEEEEEEEEEEEEEEEEE
 
 	;; print segments 0-15
 
@@ -223,24 +227,36 @@ CS_M_OPT_Tick_Upper
 
 
 CS_M_OPT_Tick_8
-	movlw	0x40 + 5
+	movlw	0x40 + 2
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
+	call	CS_MENU_CursorHandler2
+	skpnz
+	rgoto	CS_M_OPT_Tick_8_Cont
+
+	SET_BSR	SEQ_BASE
+	movlw	0x00
+	btfsc	SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED
+	movlw	0x01
+	call	SEQ_LCD_PrnOnOff
+
+CS_M_OPT_Tick_8_Cont
+	movlw	0x40 + 8
+	call	MIOS_LCD_CursorSet
+	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
 	rgoto	CS_M_OPT_Tick_Cont
 
 	SET_BSR	SEQ_BASE
-	movlw	0x00
-	btfsc	SEQ_CFG0, SEQ_CFG0_PATTERN_SYNCH, BANKED
-	movlw 0x01
-	call	SEQ_LCD_PrnOnOff
+	movf	SEQ_STEPS_PER_MEASURE, W, BANKED
+	call	SEQ_LCD_PrnDecP1
 	rgoto	CS_M_OPT_Tick_Cont
 
 CS_M_OPT_Tick_9
 	movlw	0x40 + 18
 	call	MIOS_LCD_CursorSet
-	movlw	1		; item number
+	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
 	rgoto	CS_M_OPT_Tick_Cont
@@ -259,7 +275,7 @@ CS_M_OPT_Tick_A_TABLE
 CS_M_OPT_Tick_A
 	movlw	0x40 + 28
 	call	MIOS_LCD_CursorSet
-	movlw	2		; item number
+	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
 	rgoto	CS_M_OPT_Tick_Cont
@@ -284,7 +300,7 @@ CS_M_OPT_Tick_B_TABLE
 CS_M_OPT_Tick_B
 	movlw	0xc0 + 1
 	call	MIOS_LCD_CursorSet
-	movlw	3		; item number
+	movlw	4		; item number
 	call	CS_MENU_CursorHandler2
 	bz	CS_M_OPT_Tick_Cont
 
@@ -302,7 +318,7 @@ CS_M_OPT_Tick_C_TABLE
 CS_M_OPT_Tick_C
 	movlw	0xc0 + 10
 	call	MIOS_LCD_CursorSet
-	movlw	4		; item number
+	movlw	5		; item number
 	call	CS_MENU_CursorHandler2
 	bz	CS_M_OPT_Tick_Cont
 
@@ -316,7 +332,7 @@ CS_M_OPT_Tick_C
 CS_M_OPT_Tick_D
 	movlw	0xc0 + 16
 	call	MIOS_LCD_CursorSet
-	movlw	5		; item number
+	movlw	6		; item number
 	call	CS_MENU_CursorHandler2
 	bz	CS_M_OPT_Tick_Cont
 
@@ -330,7 +346,7 @@ CS_M_OPT_Tick_D
 CS_M_OPT_Tick_E
 	movlw	0xc0 + 20
 	call	MIOS_LCD_CursorSet
-	movlw	5		; item number
+	movlw	6		; item number
 	call	CS_MENU_CursorHandler2
 	bz	CS_M_OPT_Tick_Cont
 
@@ -365,20 +381,24 @@ CS_M_OPT_ValueChanged_0
 	return
 
 CS_M_OPT_ValueChanged_1
+	movff	CS_MENU_PARAMETER_L, SEQ_STEPS_PER_MEASURE
+	return
+
+CS_M_OPT_ValueChanged_2
 	SET_BSR	SEQ_BASE
 	bcf	SEQ_CFG0, SEQ_CFG0_FOLLOW_SONG, BANKED
 	btfsc	CS_MENU_PARAMETER_L, 0
 	bsf	SEQ_CFG0, SEQ_CFG0_FOLLOW_SONG, BANKED
 	return
 
-CS_M_OPT_ValueChanged_2
+CS_M_OPT_ValueChanged_3
 	SET_BSR	SEQ_BASE
 	bcf	SEQ_CFG0, SEQ_CFG0_PASTE_CLR_ALL, BANKED
 	btfsc	CS_MENU_PARAMETER_L, 0
 	bsf	SEQ_CFG0, SEQ_CFG0_PASTE_CLR_ALL, BANKED
 	return
 
-CS_M_OPT_ValueChanged_3
+CS_M_OPT_ValueChanged_4
 	SET_BSR	SEQ_BASE
 	movlw	0xf0
 	andwf	SEQ_GLOBAL_SCALE_CTRL, F, BANKED
@@ -387,7 +407,7 @@ CS_M_OPT_ValueChanged_3
 	iorwf	SEQ_GLOBAL_SCALE_CTRL, F, BANKED
 	return
 
-CS_M_OPT_ValueChanged_4
+CS_M_OPT_ValueChanged_5
 	call	SEQ_SCALE_GetRootPtr
 	movlw	0x0f
 	andwf	INDF1, F
@@ -396,7 +416,7 @@ CS_M_OPT_ValueChanged_4
 	iorwf	INDF1, F
 	return
 
-CS_M_OPT_ValueChanged_5
+CS_M_OPT_ValueChanged_6
 	call	SEQ_SCALE_GetScalePtr
 	movff	CS_MENU_PARAMETER_L, INDF1
 	return
@@ -421,6 +441,8 @@ CS_M_OPT_CopyOpt
 	bz	CS_M_OPT_CopyOpt_4
 	addlw	-1
 	bz	CS_M_OPT_CopyOpt_5
+	addlw	-1
+	bz	CS_M_OPT_CopyOpt_6
 	return
 
 CS_M_OPT_CopyOpt_0
@@ -429,28 +451,32 @@ CS_M_OPT_CopyOpt_0
 	return
 
 CS_M_OPT_CopyOpt_1
+	movff	SEQ_STEPS_PER_MEASURE, CS_MENU_PARAMETER_L
+	return
+
+CS_M_OPT_CopyOpt_2
 	btfsc	SEQ_CFG0, SEQ_CFG0_FOLLOW_SONG, BANKED
 	bsf	CS_MENU_PARAMETER_L, 0
 	return
 
-CS_M_OPT_CopyOpt_2
+CS_M_OPT_CopyOpt_3
 	btfsc	SEQ_CFG0, SEQ_CFG0_PASTE_CLR_ALL, BANKED
 	bsf	CS_MENU_PARAMETER_L, 0
 	return
 
-CS_M_OPT_CopyOpt_3
+CS_M_OPT_CopyOpt_4
 	SET_BSR	SEQ_BASE
 	movf	SEQ_GLOBAL_SCALE_CTRL, W, BANKED
 	andlw	0x0f
 	movwf	CS_MENU_PARAMETER_L
 	return
 
-CS_M_OPT_CopyOpt_4
+CS_M_OPT_CopyOpt_5
 	call	SEQ_SCALE_GetRoot
 	movwf	CS_MENU_PARAMETER_L
 	return
 
-CS_M_OPT_CopyOpt_5
+CS_M_OPT_CopyOpt_6
 	call	SEQ_SCALE_GetScale
 	movwf	CS_MENU_PARAMETER_L
 	return

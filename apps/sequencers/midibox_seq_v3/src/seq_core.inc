@@ -278,6 +278,7 @@ SEQ_CORE_Reset
 	SET_BSR SEQ_BASE
 	setf	SEQ_CLK_TICK6_CTR, BANKED
 	setf	SEQ_CLK_TICK4_CTR, BANKED
+	setf	SEQ_CLK_SUBSTEP_CTR, BANKED
 	setf	SEQ_CLK_STEP_CTR, BANKED
 
 	BRA_IFSET SEQ_CFG0, SEQ_CFG0_BPM_CLK_SLAVE, BANKED, SEQ_CORE_Reset_NotMaster
@@ -598,6 +599,7 @@ SEQ_CORE_ManualTriggerLoop
 	;; init the reference counters
 	setf	SEQ_CLK_TICK6_CTR, BANKED
 	setf	SEQ_CLK_TICK4_CTR, BANKED
+	setf	SEQ_CLK_SUBSTEP_CTR, BANKED
 	setf	SEQ_CLK_STEP_CTR, BANKED
 
 	;; exit if sequencer is already running
@@ -668,13 +670,20 @@ SEQ_CORE_Clk_Reference_ResetT
 	;; clear tick counter
 	clrf	SEQ_CLK_TICK6_CTR, BANKED
 
-	;; increment step counter
-	incf	SEQ_CLK_STEP_CTR, F, BANKED
-	movlw	64-1
-	cpfsgt	SEQ_CLK_STEP_CTR, BANKED
-	rgoto SEQ_CORE_Clk_Reference_NoOv
+	;; increment substep counter (0-3)
+	incf	SEQ_CLK_SUBSTEP_CTR, F, BANKED
+	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
+	andlw	0x03
+	bnz	SEQ_CORE_Clk_Reference_NoOv
 SEQ_CORE_Clk_Reference_ResetS
-	;; clear step counter
+	;; clear substep counter and increment step counter (0-255)
+	clrf	SEQ_CLK_SUBSTEP_CTR, BANKED
+	incf	SEQ_CLK_STEP_CTR, F, BANKED
+
+	;; reset clock step counter once we reached max. steps per measure value
+	movf	SEQ_STEPS_PER_MEASURE, W, BANKED
+	cpfsgt	SEQ_CLK_STEP_CTR, BANKED
+	rgoto	SEQ_CORE_Clk_Reference_NoOv
 	clrf	SEQ_CLK_STEP_CTR, BANKED
 SEQ_CORE_Clk_Reference_NoOv
 
@@ -683,7 +692,7 @@ SEQ_CORE_Clk_Reference_NoOv
 	;; ------------------------------------------------------------------
 SEQ_CORE_Clk_StopManual
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_MANUAL_TRIGGER, BANKED, SEQ_CORE_Clk_NoStopManual
-	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
 	andlw	0x03
 	mullw	6
 	movf	PRODL, W
@@ -704,15 +713,17 @@ SEQ_CORE_Clk_NextPS
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_CORE_Clk_NextPS_End
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_NextPS_End
 
+	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	bnz	SEQ_CORE_Clk_NextPS_End
 	movlw	6-2	; (this value has to be adjusted - depends on the time which is necessary to load 4 patterns)
 	cpfseq	SEQ_CLK_TICK6_CTR, BANKED
 	rgoto SEQ_CORE_Clk_NextPS_End
-	movlw	64-2
-	cpfseq	SEQ_CLK_STEP_CTR, BANKED
+	movlw	2
+	cpfseq	SEQ_CLK_SUBSTEP_CTR, BANKED
 	rgoto SEQ_CORE_Clk_NextPS_End
 SEQ_CORE_Clk_NextPS_Request
 	call	SEQ_SONG_NextPos
-SEQ_CORE_Clk_NextPS_End	
+SEQ_CORE_Clk_NextPS_End
 
 	;; ------------------------------------------------------------------
 	;; change to new pattern if requested
@@ -724,17 +735,24 @@ SEQ_CORE_Clk_NextP
 	rgoto SEQ_CORE_Clk_NextP_End
 	BRA_IFCLR SEQ_REQ, SEQ_REQ_SYNCHED_PATTERN_CHANGE, BANKED, SEQ_CORE_Clk_NextP_NoSynch
 SEQ_CORE_Clk_NextP_Synch
+#if 0
 	;; in song mode: wait until loop counter has been reseted
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_NextP_Synch_NoSong
 SEQ_CORE_Clk_NextP_Synch_Song
 	movf	SEQ_SONG_LOOP, W, BANKED
 	xorwf	SEQ_SONG_LOOP_MAX, W, BANKED
-	bnz	SEQ_CORE_Clk_NextP_End	
+	bnz	SEQ_CORE_Clk_NextP_End
 SEQ_CORE_Clk_NextP_Synch_NoSong
+#else
+	;; TK: disabled - this improper change was introduced at a time the "max steps per measure" parameter
+	;; was not available. There are better ways now to control pattern change after x steps!
+#endif
 	;; pattern change at last tick before next measure is reached
-	movlw	64-2
-	cpfseq	SEQ_CLK_STEP_CTR, BANKED
-	rgoto SEQ_CORE_Clk_NextP_End
+	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
+	xorlw	2
+	bnz	SEQ_CORE_Clk_NextP_End
+	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	bnz	SEQ_CORE_Clk_NextP_End
 SEQ_CORE_Clk_NextP_NoSynch
 	rcall	SEQ_CORE_ChangePatternCheck
 SEQ_CORE_Clk_NextP_End	
@@ -743,7 +761,7 @@ SEQ_CORE_Clk_NextP_End
 	;; send F8 on every 4th internal tick (96ppqn resolution) if echo allowed and not in slave mode
 	;; ------------------------------------------------------------------
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_CORE_Clk_NoF8
-	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
 	mullw	6
 	movf	PRODL, W
 	addwf	SEQ_CLK_TICK6_CTR, W, BANKED
@@ -788,13 +806,15 @@ SEQ_CORE_ExtClk_Cont
 SEQ_CORE_Clk_Metro
 	movf	SEQ_CLK_TICK6_CTR, W, BANKED
 	bnz	SEQ_CORE_Clk_NoMetro
+	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
+	bnz	SEQ_CORE_Clk_NoMetro
 
-	;; play ON event on every 16th step (4th step with normal resolution)
+	;; play ON event on every 4th step
 	movf	SEQ_CLK_STEP_CTR, W, BANKED
-	andlw	0x0f
+	andlw	0x03
 	bz	SEQ_CORE_Clk_Metro_On
 
-	;; play OFF event on every 16th+4 step (4th+1 with normal resolution)
+	;; play OFF event on every 4th+4 step (4th+1 with normal resolution)
 	xorlw	0x03
 	bnz	SEQ_CORE_Clk_NoMetro
 SEQ_CORE_Clk_Metro_Off
@@ -819,7 +839,7 @@ SEQ_CORE_Clk_Metro_On
 	iorlw	0x90
 	movwf	MIDI_EVNT0	
 
-	;; play special note on every 16th step
+	;; play special note on every measure start
 	movf	SEQ_CLK_STEP_CTR, W, BANKED
 	bnz	SEQ_CORE_Clk_Metro_N16
 SEQ_CORE_Clk_Metro_16
@@ -1798,12 +1818,10 @@ SEQ_CORE_SetPos_NoSong
 	;; copy sequencer pos to reference counter
 	SET_BSR	SEQ_BASE
 	movf	SEQ_MIDIPOS_LSB, W, BANKED
-	clrc
-	rlf	WREG, W
-	rlf	WREG, W
-	andlw	0x3c
+	andlw	0x0f		; problem: how to handle max. steps per measure here???
 	movwf	SEQ_CLK_STEP_CTR, BANKED
 	decf	SEQ_CLK_STEP_CTR, F, BANKED
+	setf	SEQ_CLK_SUBSTEP_CTR, BANKED
 	setf	SEQ_CLK_TICK6_CTR, BANKED
 	setf	SEQ_CLK_TICK4_CTR, BANKED
 

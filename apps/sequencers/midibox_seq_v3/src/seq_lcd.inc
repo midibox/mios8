@@ -169,6 +169,24 @@ SEQ_LCD_PrnSelectedLayers
 	rgoto	SEQ_LCD_PrintChar
 
 ;; ==========================================================================
+;;  print decimal value +1 (1..256)
+;;  IN:  8-bit value in WREG
+;;  OUT: 3 characters
+;;  USES: BSR
+;; ==========================================================================
+SEQ_LCD_PrnDecP1
+	addlw	1
+	bz	SEQ_LCD_PrnDecP1_256
+	goto	MIOS_LCD_PrintBCD3
+SEQ_LCD_PrnDecP1_256
+	movlw	'2'
+	rcall	SEQ_LCD_PrintChar
+	movlw	'5'
+	rcall	SEQ_LCD_PrintChar
+	movlw	'6'
+	rgoto	SEQ_LCD_PrintChar
+
+;; ==========================================================================
 ;;  print vertical bar
 ;;  IN:  7-bit value in WREG
 ;;  OUT: 1 character

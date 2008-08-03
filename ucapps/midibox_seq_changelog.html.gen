@@ -1,12 +1,71 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V3 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: V3.2d @ 2008-07-08</H3></CENTER>
+<CENTER><H3>Last Release: V3.3 @ 2008-08-03</H3></CENTER>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
 
+<LI><I>V3.3</I>
+  <UL>
+  <LI>edit page now shows "MUTED" instead of channel number of the currently 
+     selected track is muted</LI>
+
+  <LI>changed definition format for LED assignments in setup_*.asm</LI>
+
+  <LI> it's now possible to invert the polarity of BLM LED cathode lines for the
+    case that transistor based sink drivers should be added<BR>
+    (-&gt; DEFAULT_SRM_CATHODES_INV_MASK)</LI>
+
+  <LI> Button/LED Matrix, special behaviour in PATTERN page: shows selected
+    pattern, allows to select new pattern (direct and very intuitive access
+    to sequences of all 4 pattern groups :)</LI>
+
+  <LI> a new NRPN/Loopback CC parameter has been added which allows to set the
+    step of a track which should be played from another track via Loopback (CC#64)<BR>
+    CC value 1-32 are used to set the next step, Value 0 will be ignored.<BR>
+    Example configuration:
+    <UL CLASS=CL>
+      <LI>Track 1: Loopback, Channel #2, CC/CC/CC Mode, CC#A set to 64, Length 4<BR>
+        Layer A Step 1: 2, Step 2: 0, Step 3: 7, Step 4: 15</LI>
+      <LI>Track 2: common configuration, set some notes or CC to be played by your synthesizer. </LI>
+    </UL>
+    Press PLAY: Track 2 will play step 2, 3, 7, 15, 2, 3, 7, 15, ... - controlled from Track 1<BR>
+    Variations: e.g. use different clock divider values/directions/lengths on both tracks</LI>
+
+  <LI> Tap Tempo function has been added.<BR>
+    There are three possibilities to access this function:
+    <UL CLASS=CL>
+      <LI>BPM page (new menu item), tap tempo on GP button #8</LI>
+      <LI>press&hold MENU button, tap tempo with the PLAY button</LI>
+      <LI>optional dedicated button (has to be assigned in setup_*.asm)</LI>
+    </UL>
+    Tap the button at least four times to define the BPM tempo.<BR>
+    If the sequencer is currently stopped, it will start automatically with the 5th tap<BR>
+    <B>Note that MIOS V1.9f (or higher) is required for this function!</B></LI>
+
+  <LI> Experimental support for polyphonic live recording in Event Mode 4 (Note/Note/Note)<BR>
+    Please test and give feedback!</LI>
+
+  <LI> it's now possible to define the length of a measure (-&gt; OPTions page)<BR>
+    The length is 16 16th note steps by default, it can be set from 1..256 steps<BR>
+    This setting affects:
+    <UL CLASS=CL>
+      <LI>the synch-to-measure function for pattern changes (pattern change after x steps)</LI>
+      <LI>the synch-to-measure function for clock divider reset</LI>
+      <LI>the loop incrementer in song mode</LI>
+      <LI>the metronome ("Meas.Note" played after x steps)</LI>
+      <LI>the song position displayed at song page (shows reference step position)</LI>
+    </UL>
+    Note: for max. steps != track length it makes sense to activate the synch-to-measure 
+    function for each track (-&gt; divider page), so that the tracks are always in synch 
+    with the reference step position. It can be left deactivated if it is your intention 
+    to clock tracks asynchronously to the reference position.</LI>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V3.2d</I>
   <UL>
     <LI>64k BankSticks now selected by default, user is recommented to adapt setup_*.asm if only 32k BankSticks are connected</LI>

@@ -366,7 +366,7 @@ CS_M_SONG_Tick
 	;;   1    A1  Stop 1:A1 1:C1 1:E1 1:G1 Pat  1:A1 ____ 1:C1 ____ 1:E1 ____ 1:G1 ____
 	;; -888---99-AAAAA-BBBB-CCCC-DDDD-EEEEEEEEE22222AAAA-33333BBBB-44444CCCC-55555DDDD-
 
-	;; Song Phrase      G1   G2   G3   G4  Sel.Phrase Mode  S#xx  Pos xx.xx
+	;; Song Phrase      G1   G2   G3   G4  Sel.Phrase Mode  S#xx  Pos xx.xxx
 	;; 00000000001111111111222222222233333333334444444444455555555556666666666777777777
 
 	;; if fast display update, and counter < 0x18, set it to 0x18
@@ -830,13 +830,12 @@ CS_M_SONG_Tick_18
 	SET_BSR	SEQ_BASE
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, CS_M_SONG_Tick_18_SongNR
 CS_M_SONG_Tick_18_SongR
-	rrf	SEQ_CLK_STEP_CTR, W, BANKED
-	rrf	WREG, W
-	andlw	0x3f
-	addlw	1
-	call	MIOS_LCD_PrintBCD2
+	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	call	SEQ_LCD_PrnDecP1
 	rgoto	CS_M_SONG_Tick_18_SongC
 CS_M_SONG_Tick_18_SongNR
+	movlw	'-'
+	call	MIOS_LCD_PrintChar
 	movlw	'-'
 	call	MIOS_LCD_PrintChar
 	movlw	'-'

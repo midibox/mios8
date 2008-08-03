@@ -14,7 +14,7 @@
 ;
 MBSEQ_VERSION_STR MACRO
 ; Version:                 <-------------->
-	STRING	16, 0x00, "MBSEQ V3.2d     "
+	STRING	16, 0x00, "MBSEQ V3.3      "
 	ENDM
 ; (fixed string length - 16 characters!)
 ;
