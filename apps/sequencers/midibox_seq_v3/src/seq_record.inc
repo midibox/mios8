@@ -258,6 +258,9 @@ SEQ_RECORD_NotifyEvent_End
 SEQ_RECORD_StepInc
 	SET_BSR	SEQ_BASE
 
+	;; clear poly counter
+	clrf	SEQ_RECORD_POLY_CTR, BANKED
+
 	;; increment step number
 	incf	SEQ_RECORD_STEP, F, BANKED
 	;; wrap on overrun

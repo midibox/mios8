@@ -1202,11 +1202,11 @@ SEQ_LAYER_SaveEvnt_4_First
 	;; set "steps cleared" notifier
 	bsf	SEQ_RECORD_POLY_CTR, 7, BANKED
 	movlw	0		; Layer A
-	rcall	SEQ_LAYER_ClrVValue
+	RCALL_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_A, BANKED, SEQ_LAYER_ClrVValue
 	movlw	1		; Layer B
-	rcall	SEQ_LAYER_ClrVValue
+	RCALL_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_B, BANKED, SEQ_LAYER_ClrVValue
 	movlw	2		; Layer C
-	rcall	SEQ_LAYER_ClrVValue
+	RCALL_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_REC_LAYER_C, BANKED, SEQ_LAYER_ClrVValue
 SEQ_LAYER_SaveEvnt_4_Next
 
 	;; skip if note is already stored in layer A, B or C

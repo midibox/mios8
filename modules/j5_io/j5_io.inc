@@ -53,6 +53,9 @@
 ;; --------------------------------------------------------------------------
 _J5_IO_Init			; (for C)
 J5_IO_Init
+	;; temporary store values in MIOS_PARAMETER1
+	movwf	MIOS_PARAMETER1
+
 	;; disable the ADC which allocates the analog pins
 #if PIC_DERIVATIVE_NEW_ADC == 0 ; PIC18F452
 	movlw	0x07
@@ -60,9 +63,6 @@ J5_IO_Init
 	movlw	0x0f		; all newer PIC18F derivatives (like PIC18F4685)
 #endif
 	movwf	ADCON1
-
-	;; temporary store values in MIOS_PARAMETER1
-	movwf	MIOS_PARAMETER1
 
 	;; copy TRIS flags into SFRs
 
@@ -72,7 +72,7 @@ J5_IO_Init
 	andwf	TRISA, F
 	movf	MIOS_PARAMETER1, W
 	andlw	0x0f
-	iorwf	TRISA, W
+	iorwf	TRISA, F
 	btfsc	MIOS_PARAMETER1, 4
 	bsf	TRISA, 5
 

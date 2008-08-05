@@ -25,7 +25,7 @@ SEQ_EXT_Update
 
 	;; check if gates have to be updated
 	SET_BSR	GATES
-	movf	GATES, W
+	movf	GATES, W, BANKED
 	xorwf	GATES_LAST, W, BANKED
 	bz	SEQ_EXT_Update_Gates_Skip
 SEQ_EXT_Update_Gates
@@ -33,7 +33,7 @@ SEQ_EXT_Update_Gates
 
 #if DEFAULT_ENABLE_J5_GATES
 	movf	GATES, W, BANKED
-	call	J5_IO_PinSet
+	call	J5_IO_Set
 #endif
 
 	SET_BSR	GATES
