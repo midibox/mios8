@@ -26,6 +26,8 @@ For reference: 2x40 with 4-bit interface, nearly no difference!
    o 2x40 KS0076B/KS0063 (HD44780 compatible): 3108 * 8 * 100 nS = 2.48 mS
 
 Various displays:
-   o Matrix Orbital via IIC:           4612 * 8 * 100 nS =  3.69 mS
-   o T6963C in vertical mode:	        10647 * 8 * 100 nS =  8.51 mS
-   o T6963C in horizontal mode:       37420 * 8 * 100 nS = 29.93 mS (!!!)
+   o Matrix Orbital via IIC:             4612  * 8 * 100 nS =  3.69 mS
+   o T6963C in vertical mode:	         10647 * 8 * 100 nS =  8.51 mS
+   o T6963C in horizontal mode:          37420 * 8 * 100 nS = 29.93 mS (!!!)
+   o DOG character LCDs:                  2016 * 8 * 100 nS =  1.61 mS :-)
+
