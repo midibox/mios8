@@ -752,6 +752,7 @@ SEQ_CORE_Clk_NextP_Synch_NoSong
 	xorlw	2
 	bnz	SEQ_CORE_Clk_NextP_End
 	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	xorwf	SEQ_STEPS_PER_MEASURE, W, BANKED
 	bnz	SEQ_CORE_Clk_NextP_End
 SEQ_CORE_Clk_NextP_NoSynch
 	rcall	SEQ_CORE_ChangePatternCheck
