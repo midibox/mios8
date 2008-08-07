@@ -497,9 +497,12 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 	clrf	IRQ_TMP1	; temporary used to indicate on/off state of beat
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_LED_UpdateIRQ_NoBeat
 	movf	SEQ_CLK_STEP_CTR, W, BANKED
-	andlw	0x0f
-	addlw	-4		; lit for 4/16 of a quarter note
-	bc	SEQ_LED_UpdateIRQ_NoBeat
+	andlw	0x03
+	bnz	SEQ_LED_UpdateIRQ_NoBeat
+	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
+	andlw	0x03		; lit for 3/4 of each quarter note
+	xorlw	0x03
+	bz	SEQ_LED_UpdateIRQ_NoBeat
 SEQ_LED_UpdateIRQ_Beat
 	setf	IRQ_TMP1
 SEQ_LED_UpdateIRQ_NoBeat
