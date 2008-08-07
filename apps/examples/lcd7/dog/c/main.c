@@ -59,14 +59,14 @@ void DISPLAY_Init(void) __wparam
   MIOS_LCD_Cmd(0x3c);
   MIOS_LCD_Clear();
   MIOS_LCD_CursorSet(0x00);
-  MIOS_LCD_PrintCString(" EA DOCM163x-A  ");
+  MIOS_LCD_PrintCString(" EA DOGM163x-A  ");
   MIOS_LCD_CursorSet(0x40);
   MIOS_LCD_PrintCString("Powered by MIOS!");
 #else
   // 3 lines
   MIOS_LCD_Clear();
   MIOS_LCD_CursorSet(0x00);
-  MIOS_LCD_PrintCString(" EA DOCM163x-A  ");
+  MIOS_LCD_PrintCString(" EA DOGM163x-A  ");
   MIOS_LCD_CursorSet(0x40);
   MIOS_LCD_PrintCString("Powered by MIOS!");
   MIOS_LCD_CursorSet(0x50);
