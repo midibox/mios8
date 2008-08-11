@@ -455,8 +455,8 @@ __endasm;
     write_offset = 0;
     while( write_offset < 256 && offset < filesize ) {
       c = sdcard_buffer_p0[(unsigned char)write_offset];
-      ++c;
       if( c != 0xf0 && c != 0xf7 ) {
+	++c;
 	sdcard_buffer_p0[(unsigned char)write_offset] = c;
       }
       ++write_offset;
@@ -469,8 +469,8 @@ __endasm;
 
     while( write_offset < 512 && offset < filesize ) {
       c = sdcard_buffer_p1[(unsigned char)write_offset];
-      ++c;
       if( c != 0xf0 && c != 0xf7 ) {
+	++c;
 	sdcard_buffer_p1[(unsigned char)write_offset] = c;
       }
       ++write_offset;
