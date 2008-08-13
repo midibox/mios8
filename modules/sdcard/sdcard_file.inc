@@ -174,8 +174,8 @@ SDCARD_FILE_Init_ClusSizeOk
 	movf	_sdcard_file_sector_root+0, W, BANKED
 	addwf	_sdcard_file_root_sectors+0, W, BANKED
 	movwf	_sdcard_file_sector_cl2+0, BANKED
-	movf	_sdcard_file_sector_root+1, W, BANKED
-	addwfc	_sdcard_file_root_sectors+1, W, BANKED
+	movlw	0x00
+	addwfc	_sdcard_file_sector_root+1, W, BANKED
 	movwf	_sdcard_file_sector_cl2+1, BANKED
 
 	;; no error
@@ -713,7 +713,9 @@ SDCARD_FILE_GetSectorSeekCont
 	movf	PRODH, W
 	clrf	_sdcard_file_sector+2, BANKED
 	addwfc	_sdcard_file_sector+2, F, BANKED
+	movlw	0x00
 	clrf	_sdcard_file_sector+3, BANKED
+	addwfc	_sdcard_file_sector+3, F, BANKED
 
 	;; add cluster2 offset
 	movf	_sdcard_file_sector_cl2+0, W
