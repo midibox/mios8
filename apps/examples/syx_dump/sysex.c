@@ -92,11 +92,20 @@ void SYSEX_Send(unsigned char bank, unsigned char patch)
   MIOS_MIDI_TxBufferPut(patch);
 
   // send patch content
-  for(checksum=0, i=0; i<256; ++i) {
+  for(checksum=0, i=0; i<SYSEX_PATCH_SIZE; ++i) {
     c = PATCH_ReadByte((unsigned char)i);
 
+#if   SYSEX_FORMAT == 0    // 7bit format - 8th bit discarded
     MIOS_MIDI_TxBufferPut(c & 0x7f);
     checksum += c;
+#elif SYSEX_FORMAT == 1    // two nibble format - low-nibble first
+    MIOS_MIDI_TxBufferPut(c & 0x0f);
+    checksum += c & 0x0f;
+    MIOS_MIDI_TxBufferPut(c >> 4);
+    checksum += c >> 4;
+#else
+   XXX unsupported SYSEX_FORMAT XXX
+#endif
   }
 
 #if SYSEX_CHECKSUM_PROTECTION
@@ -290,13 +299,30 @@ void SYSEX_Cmd_WritePatch(unsigned char cmd_state, unsigned char midi_in)
 	sysex_patch = midi_in; // store patch number
 	sysex_state.PATCH_RECEIVED = 1;
       } else {
-	if( sysex_receive_ctr < 0x100 ) {
+	if( sysex_receive_ctr < SYSEX_PATCH_DUMP_SIZE ) {
+
 	  // new byte has been received - put it into patch structure
+
+#if   SYSEX_FORMAT == 0    // 7bit format - 8th bit discarded
 	  PATCH_WriteByte((unsigned char)sysex_receive_ctr, midi_in);
+#elif SYSEX_FORMAT == 1    // two nibble format - low-nibble first
+	  if( (sysex_receive_ctr&1) == 0 ) {
+	    // low-nibble has been received
+	    PATCH_WriteByte((unsigned char)(sysex_receive_ctr>>1), midi_in & 0x0f);
+	  } else {
+	    // high-nibble has been received, merge it with previously received low-nibble
+	    PATCH_WriteByte((unsigned char)(sysex_receive_ctr>>1), 
+			    PATCH_ReadByte((unsigned char)(sysex_receive_ctr>>1)) & 0x0f | ((midi_in&0x0f) << 4));
+	  }
+#else
+   XXX unsupported SYSEX_FORMAT XXX
+#endif
+
 	  // add to checksum
 	  sysex_checksum += midi_in;
+
 #if SYSEX_CHECKSUM_PROTECTION
-	} else if( sysex_receive_ctr == 0x100 ) {
+	} else if( sysex_receive_ctr == SYSEX_PATCH_DUMP_SIZE ) {
 	  // store received checksum
 	  sysex_received_checksum = midi_in;
 #endif
@@ -312,18 +338,10 @@ void SYSEX_Cmd_WritePatch(unsigned char cmd_state, unsigned char midi_in)
     default: // SYSEX_CMD_STATE_END
       SYSEX_SendFooter(0);
 
-#if SYSEX_CHECKSUM_PROTECTION
-      if( sysex_receive_ctr < 0x101 ) {
-#else
-      if( sysex_receive_ctr < 0x100 ) {
-#endif
+      if( sysex_receive_ctr < SYSEX_PATCH_DUMP_SIZE ) {
 	// not enough bytes received
 	SYSEX_SendAck(SYSEX_DISACK, SYSEX_DISACK_LESS_BYTES_THAN_EXP);
-#if SYSEX_CHECKSUM_PROTECTION
-      } else if( sysex_receive_ctr > 0x101 ) {
-#else
-      } else if( sysex_receive_ctr > 0x100 ) {
-#endif
+      } else if( sysex_receive_ctr > SYSEX_PATCH_DUMP_SIZE ) {
 	// too many bytes received
 	SYSEX_SendAck(SYSEX_DISACK, SYSEX_DISACK_MORE_BYTES_THAN_EXP);
 #if SYSEX_CHECKSUM_PROTECTION

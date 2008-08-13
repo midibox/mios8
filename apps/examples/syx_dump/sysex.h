@@ -27,6 +27,32 @@
 #define SYSEX_CHECKSUM_PROTECTION 0
 
 
+// 0: EEPROM content sent/received as 7bit values (8th bit discarded)
+// 1: EEPROM content sent/received as 2 x 4bit values (doubles the dump size)
+#define SYSEX_FORMAT  0
+
+
+// the patch size (must be in-synch with Load/Store functions in patch.c)
+#define SYSEX_PATCH_SIZE    0x100  // 256 bytes
+
+// help constant - don't change!
+#if SYSEX_FORMAT == 0
+# if SYSEX_CHECKSUM_PROTECTION
+#  define SYSEX_PATCH_DUMP_SIZE  ((SYSEX_PATCH_SIZE) + 1)
+# else
+#  define SYSEX_PATCH_DUMP_SIZE  ((SYSEX_PATCH_SIZE) + 0)
+# endif
+#elif SYSEX_FORMAT == 1
+# if SYSEX_CHECKSUM_PROTECTION
+#  define SYSEX_PATCH_DUMP_SIZE  (2*(SYSEX_PATCH_SIZE) + 1)
+# else
+#  define SYSEX_PATCH_DUMP_SIZE  (2*(SYSEX_PATCH_SIZE) + 0)
+# endif
+#else
+   XXX unsupported SYSEX_FORMAT XXX
+#endif
+
+
 // command states
 #define SYSEX_CMD_STATE_BEGIN 0
 #define SYSEX_CMD_STATE_CONT  1
