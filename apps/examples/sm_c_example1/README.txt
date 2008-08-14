@@ -42,11 +42,6 @@ is called when a button has been pressed or released.
 
 Description about the most important files:
 
-   - mios_wrapper\mios_wrapper.asm and mios_wrapper\mios_tables.inc:
-     The MIOS wrapper code and MIOS specific configuration tables
-
-   - pic18f452.c: exports PIC18F452 specific SFRs
-
    - main.c: the main program with all MIOS hooks
 
    - sm_simple.asm: the assembly optimized matrix scan code
