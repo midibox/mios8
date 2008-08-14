@@ -140,7 +140,8 @@ push @cmds, "echo \"include Makefile.orig\" >> Makefile";
 push @cmds, "make";
 push @cmds, "make clean";
 
-push @cmds, "echo Done. You can remove dist.sh now!";
+push @cmds, "echo Done. dist.sh will be removed now!";
+push @cmds, "rm -f dist.sh";
 
 
 

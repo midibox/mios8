@@ -10,6 +10,11 @@
 # Application specific source file (.asm) has to be located in ./ or ./src
 #
 
+# if MIOS_SHELL environment variable hasn't been set by the user, set it here
+# Ubuntu users should set it to /bin/bash from external (-> "export MIOS_SHELL /bin/bash")
+MIOS_SHELL ?= sh
+export MIOS_SHELL
+
 # output directory
 OUTDIR = _output
 

@@ -20,6 +20,11 @@
 # [GPASM|SDCC]_INCLUDE, and define additional rules for <dir>/%.c and/or <dir>/%.asm and/or <dir>/%.s
 #
 
+# if MIOS_SHELL environment variable hasn't been set by the user, set it here
+# Ubuntu users should set it to /bin/bash from external (-> "export MIOS_SHELL /bin/bash")
+MIOS_SHELL ?= sh
+export MIOS_SHELL
+
 # output directory
 OUTDIR = _output
 
@@ -27,10 +32,10 @@ OUTDIR = _output
 LIBS += $(MIOS_PATH)/lib/libsdcc.lib $(MIOS_PATH)/lib/pic$(PROCESSOR).lib
 
 # GPASM execution via wrapper
-GPASM = sh $(MIOS_BIN_PATH)/mios-gpasm -c
+GPASM = $(MIOS_SHELL) $(MIOS_BIN_PATH)/mios-gpasm -c
 
 # SDCC execution via wrapper
-SDCC = sh $(MIOS_BIN_PATH)/mios-sdcc -c
+SDCC = $(MIOS_SHELL) $(MIOS_BIN_PATH)/mios-sdcc -c
 
 # GPLIB execution (w/o wrapper yet)
 GPLIB = gplib -c

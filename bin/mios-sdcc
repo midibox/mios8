@@ -1,4 +1,6 @@
-#!/bin/sh
+#!MIOS_SHELL
+# (using own shell variable to allow Ubuntu users to switch from dash to bash)
+#
 # $Id$
 #
 # MIOS specific wrapper for sdcc
@@ -16,4 +18,4 @@ if [ -z "${MIOS_BIN_PATH:-}" ]; then
   exit 1
 fi
 
-sdcc --asm="sh ${MIOS_BIN_PATH}/mios-gpasm -fixasm" $@
+sdcc --asm="${MIOS_SHELL} ${MIOS_BIN_PATH}/mios-gpasm -fixasm" $@
