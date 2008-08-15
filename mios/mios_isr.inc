@@ -397,15 +397,21 @@ IRQ_UART_Rx_Hlp_GetCMax_EF
 	retlw	0x02
 
 	;; Fx:
-	movf	IRQ_TMP2, W
-	andlw	0xfe		; 0xf0 and 0xf1: expected bytes = 1
-	xorlw	0xf0
-	skpnz
-	retlw	0x01
+	btfsc	IRQ_TMP2, 3	; F8..FF (realtime messages): no additional byte
+	retlw	0x00
 
-	movf	IRQ_TMP2, W	; 0xf2:	expected bytes = 2
-	xorlw	0xf2
-	skpnz
-	retlw	0x02
+	btfsc	IRQ_TMP2, 2	; F4..F7: no additional byte
+	retlw	0x00
 
-	retlw	0x00		; others: expected bytes = 0
+	btfsc	IRQ_TMP2, 1
+	rgoto	IRQ_UART_Rx_Hlp_GetCMax_F_23
+IRQ_UART_Rx_Hlp_GetCMax_F_01
+	retlw	0x01		; F0: at least 1 byte (stays 1 until F7 has been received)
+				; F1: 1 byte
+IRQ_UART_Rx_Hlp_GetCMax_F_23
+	btfsc	IRQ_TMP2, 0
+	bra	IRQ_UART_Rx_Hlp_GetCMax_F_3
+IRQ_UART_Rx_Hlp_GetCMax_F_2
+	retlw	0x02		; F2: two bytes expected
+IRQ_UART_Rx_Hlp_GetCMax_F_3
+	retlw	0x01		; F3: one byte expected
