@@ -1,0 +1,122 @@
+$Id$
+
+MIOS Pin List
+=============
+
+This list gives you an oversight over the pin usage of MIOS. 
+See also the schematic of the MBHP_CORE module as reference: 
+   http://www.ucapps.de/mbhp/mbhp_core.pdf
+
+
+The pins are divided into following classes:
+
+   o Class A: analog inputs, which can be optionally used as digital inputs
+     or outputs like demonstrated in the j5_dout and j5_din example if the
+     MIOS_AIN and MIOS_MF driver are not used
+
+   o Class B: digital pin which is free for applications if neither the MIOS_AIN
+     multiplex driver, nor the MIOS_MF driver is active
+     Also free if MIOS_AIN doesn't run in mux mode
+
+   o Class C: digital pin which is free for applications if the 
+     MIOS_AIN multiplex driver isn't active
+
+   o Class D: digital pin which is free for applications if the
+     MIOS_MF driver isn't active
+
+   o Class E: digital pin which is free for an application if the MIOS_SRIO
+     driver isn't active. Can also be shared with other devices if the
+     application accesses the pin from an interrupt service routine or
+     if it disables all interrupts for a short time (< 300 uS!)
+
+   o Class F: digital pin which is free for an application if the MIOS_SRIO
+     driver isn't active.
+
+   o Class G: free pin which can be used by the application without
+     any restrictions
+
+   o Class H: digital pin which can be shared with other modules (LCD/IIC/...)
+     Shouldn't be used from an interrupt service routine
+
+   o Class I: digital pin, exclusive for LCD
+
+   o Class J: digital IO pin, can be shared with the LCD data lines as IO
+     pins so long J15:E is low (means: MIOS doesn't execute a MIOS_LCD function)
+     Shouldn't be used from an interrupt service routine
+
+   o Class K: see description
+
+
+
+
+ Name | Class | Core Port | Dir | additional informations
+------+-------+-----------+-----+---------------------------------------------
+  RA0 |   A   |    J5:A0  |  I  | analog pin
+  RA1 |   A   |    J5:A1  |  I  | analog pin
+  RA2 |   A   |    J5:A2  |  I  | analog pin
+  RA3 |   A   |    J5:A3  |  I  | analog pin
+  RA5 |   A   |    J5:A4  |  I  | analog pin
+  RE0 |   A   |    J5:A5  |  I  | analog pin
+  RE1 |   A   |    J5:A6  |  I  | analog pin
+  RE2 |   A   |    J5:A7  |  I  | analog pin
+      |       |           |     |
+  RA4 |   K   |    J4:SD  | IO  | IIC data pin SD, external 1k pull-up, can be
+      |       |           |     | used by an application for other purposes so
+      |       |           |     | long MIOS_IIC_* won't be called
+      |       |           |     |
+  RC0 |   B   | J6/J7:RC  |  O  | used to address the AIN multiplexers or the
+      |       |           |     | MF module. In both cases driven by an
+      |       |           |     | interrupt service routine. 
+      |       |           |     |
+  RC1 |   B   | J6/J7:SC  |  O  | used to address the AIN multiplexers or the
+      |       |           |     | MF module. In both cases driven by an
+      |       |           |     | interrupt service routine. 
+      |       |           |     |
+  RC2 |   D   |    J7:SO  |  O  | used as serial output to the MF module, driven
+      |       |           |     | by an interrupt service routine. 
+      |       |           |     |
+  RC3 |   C   |    J6:SI  |  O  | used to address the AIN multiplexers, driven
+      |       |   J10:PWM |     | by an interrupt service routine.
+      |       |           |     | Can also be used as PWM output (see MBSID App.)
+      |       |           |     | This pin is stuffed with an external 10k 
+      |       |           |     | pull-up which could be useful for an 
+      |       |           |     | application which uses this pin as input
+      |       |           |     |
+  RD0 |   E   |    J8:SO  |  O  | serial output to the DOUT chain, driven by an
+      |       |           |     | interrupt service routine if MIOS_SRIO active
+      |       |           |     |
+  RD1 |   E   |    J9:SI  |  I  | serial input to the DIN chain, used by an
+      |       |           |     | interrupt service routine if MIOS_SRIO active
+      |       |           |     |
+  RD2 |   F   | J8/J9:RC  |  O  | serial latch output, used by an interrupt 
+      |       |           |     | service routine if MIOS_SRIO active
+      |       |           |     |
+  RD3 |   F   | J8/J9:SC  |  O  | serial clock output, used by an interrupt 
+      |       |           |     | service routine if MIOS_SRIO active
+      |       |           |     |
+  RC4 |   G   |   J10:RC  |  O  | free for applications without restrictions
+      |       |           |     | if second CLCD not used
+      |       |           |     |
+  RC5 |   G   |   J10:SO  |  O  | free for applications without restrictions
+      |       |           |     |
+  RD4 |   E   |   J10:SO  |  O  | touch sensor strobe signal, used by an
+      |       |           |     | interrupt service routine if MIOS_SRIO
+      |       |           |     | active and TS_Sensitivity > 0
+      |       |           |     |
+  RD5 |   H   |   J10:MD  |  O  | address signal to LCD, clock output to
+      |       |   J15:RS  |     | BankStick
+      |       |           |     |
+  RD6 |   H   |   J10:MD  |  O  | RW signal to LCD
+      |       |   J15:RW  |     |
+      |       |           |     |
+  RD7 |   I   |   J15:E   |  O  | enable signal to LCD (exclusive!)
+      |       |           |     |
+  RB0 |   J   |   J15:D0  | IO  | LCD data line #0
+  RB1 |   J   |   J15:D1  | IO  | LCD data line #1
+  RB2 |   J   |   J15:D2  | IO  | LCD data line #2
+  RB3 |   J   |   J15:D3  | IO  | LCD data line #3
+  RB4 |   J   |   J15:D4  | IO  | LCD data line #4
+  RB5 |   J   |   J15:D5  | IO  | LCD data line #5
+  RB6 |   J   |   J15:D6  | IO  | LCD data line #6
+  RB7 |   J   |   J15:D7  | IO  | LCD data line #7
+      |       |           |     |
