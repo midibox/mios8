@@ -110,6 +110,12 @@ SDCARD_FILE_Seek(unsigned long offset)
   After the execution, the corresponding sector which belongs to the
   offset is located in sdcard_file_sector
 
+  WARNING: this function overwrites the 512 byte buffer sdcard_buffer_p0/1 
+  once the FAT has to be read out to locate the sector.
+  When using the seek function in conjunction with SDCARD_SectorWrite(), it
+  is required to fill the buffer for the write operation *after* 
+  SDCARD_FILE_Seek() has located the sector!
+
 
 Error Codes
 ~~~~~~~~~~~
