@@ -61,16 +61,16 @@ if( -e "${release_dir}.zip" ) {
 do_exec("cp -r ${app_dir} ${release_dir}");
 
 if( !$asm_and_c ) {
-  # "make dist" to create dist.sh file, execute it and remove dist.sh
-  do_exec("cd ${release_dir} && make dist && sh dist.sh && rm dist.sh");
+  # "make dist" to create dist.sh file and execute it (file removes itself after execution)
+  do_exec("cd ${release_dir} && make dist && sh dist.sh");
 } else {
-  # "make dist" to create dist.sh file, execute it and remove dist.sh
+  # "make dist" to create dist.sh file and execute it (file removes itself after execution)
 
   # asm directory
-  do_exec("cd ${release_dir}/asm && make dist && sh dist.sh && rm dist.sh");
+  do_exec("cd ${release_dir}/asm && make dist && sh dist.sh");
 
   # C directory
-  do_exec("cd ${release_dir}/c && make dist && sh dist.sh && rm dist.sh");
+  do_exec("cd ${release_dir}/c && make dist && sh dist.sh");
 }
 
 # set timestamp (using "sh -c" for DOS compatibility)
