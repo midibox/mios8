@@ -170,9 +170,9 @@ SEQ_REMOTE_Handler_Sub
 	rgoto	SEQ_BUTTON_Group3	; F#4 (0x42)
 	rgoto	SEQ_REMOTE_Ignore	; G-4 (0x43)
 	rgoto	SEQ_BUTTON_Group4	; G#4 (0x44)
-	rgoto	SEQ_REMOTE_Ignore	; A-4 (0x45)
-	rgoto	SEQ_REMOTE_Ignore	; A#4 (0x46)
-	rgoto	SEQ_REMOTE_Ignore	; B-4 (0x47)
+	rgoto	SEQ_BUTTON_StepDec	; A-4 (0x45)
+	rgoto	SEQ_BUTTON_ToggleGate	; A#4 (0x46)
+	rgoto	SEQ_BUTTON_StepInc	; B-4 (0x47)
 
 	rgoto	SEQ_BUTTON_Edit		; C-5 (0x48)
 	rgoto	SEQ_BUTTON_Solo		; C#5 (0x49)

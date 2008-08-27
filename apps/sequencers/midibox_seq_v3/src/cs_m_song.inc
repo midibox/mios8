@@ -89,6 +89,7 @@ CS_M_SONG_GP_Callback_Enc_Ok
 	
 	;; check if current value has to be saved in BankStick before incrementing cursor
 	rcall	CS_M_SONG_WriteValueChk
+
 	clrf	CS_MENU_ENC_INCREMENTER	; ignore first turn (CS_MENU_PARAMETER_L and max value not up-to-date yet)
 	;; set new cursor position and exit
 	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
@@ -242,9 +243,6 @@ CS_M_SONG_Init
 #if SONG_MENU_MEASURE_PERFORMANCE
 	bsf	LATC, 5
 #endif
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; print static string if no bankstick for songmode
 	BRA_IFSET MB_STAT, MB_STAT_USE_S_BANKSTICK, ACCESS, CS_M_SONG_Init_BA
 CS_M_SONG_Init_BNA
@@ -1133,15 +1131,20 @@ CS_M_SONG_WriteValueChk
 	;; don't save if cursor pos <= 1
 	movlw	0x01
 	cpfsgt	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_SONG_WriteValueChk_End
+	rgoto	CS_M_SONG_WriteValueChk_End
+
+	;; don't save if cursor pos >= 7
+	movlw	0x06
+	cpfslt	CS_MENU_CURSOR_POS, ACCESS
+	rgoto	CS_M_SONG_WriteValueChk_End
 
 	;; parameter index in TMP3
 	movff	CS_MENU_CURSOR_POS, TMP3
 
-	;; determine position (different if if loop action not selected: always change G0 parameter!)
+	;; determine position (different if loop action not selected: always change G0 parameter!)
 	movlw	0x03-1
 	cpfsgt	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_SONG_WriteValueChk_NotP
+	rgoto	CS_M_SONG_WriteValueChk_NotP
 CS_M_SONG_WriteValueChk_P
 	SET_BSR	SEQ_BASE
 	movf	SEQ_EDIT_SONG_ACTN, W, BANKED
@@ -1237,8 +1240,12 @@ CS_M_SONG_WriteValueChk_Cont
 CS_M_SONG_WriteValueChk_Store
 	;; value not equal: save it in BankStick
 #if 0
-	;; (debugging: output a MIDI start event whenever the value will be saved in BankStick
-	movlw	0xfa
+	;; (debugging: output a CC#0 event with cursor position whenever the value will be saved in BankStick
+	movlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x00
+	call	MIOS_MIDI_TxBufferPut
+	movf	TMP3, W
 	call	MIOS_MIDI_TxBufferPut
 #endif
 

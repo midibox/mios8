@@ -144,7 +144,9 @@ SEQ_RECORD_NotifyEvent_SaveLoop
 	cpfsgt	SEQ_EVNT_NUMBER, BANKED
 	rgoto SEQ_RECORD_NotifyEvent_SaveLoop
 
-	;; step mode: increment step number
+	;; step mode and no poly track: increment step number
+	call	CS_M_HLP_CheckPolyLayer
+	bz	SEQ_RECORD_NotifyEvent_NotStep
 	BRA_IFCLR SEQ_RECORD_MODE, SEQ_RECORD_MODE_STEP, BANKED, SEQ_RECORD_NotifyEvent_NotStep
 SEQ_RECORD_NotifyEvent_IncStep
 	rcall	SEQ_RECORD_StepInc

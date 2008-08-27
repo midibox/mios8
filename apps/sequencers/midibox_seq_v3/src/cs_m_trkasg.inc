@@ -78,9 +78,6 @@ CS_M_TRKASG_UpdateGPLEDs
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_TRKASG_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_TRKASG_PARAMETERS	; pointer to table
 	movlw	8				; number of parameters

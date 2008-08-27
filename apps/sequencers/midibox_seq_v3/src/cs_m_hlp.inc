@@ -83,6 +83,15 @@ CS_M_HLP_CheckDrumLayer_End
 	return
 
 ;; --------------------------------------------------------------------------
+;;  Help routine which sets the ZERO flag if the selected layer allows polyphonic recording
+;; --------------------------------------------------------------------------
+CS_M_HLP_CheckPolyLayer
+	call	SEQ_FSR_TrkEvnt
+	movff	INDF1, MIOS_PARAMETER1
+	call	SEQ_LAYER_CheckPolyMode
+	return
+
+;; --------------------------------------------------------------------------
 ;;  Help routine to return a MIDI event in SEQ_EVNT[012L] depending on selected layer
 ;; --------------------------------------------------------------------------
 CS_M_HLP_GetEvent

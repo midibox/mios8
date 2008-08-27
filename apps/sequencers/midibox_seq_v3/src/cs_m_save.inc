@@ -288,9 +288,6 @@ CS_M_SAVE_FINISHED_STR_1 STRING 16, 0x40, "***  saved   ***"
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_SAVE_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_SAVE_PARAMETERS		; pointer to table
 	movlw	3				; number of parameters

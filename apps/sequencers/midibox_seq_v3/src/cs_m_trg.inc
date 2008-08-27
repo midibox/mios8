@@ -61,9 +61,6 @@ CS_M_TRG_GP_Callback
 CS_M_TRG_Init
 	;; no parameter table!
 
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install callback function for general purpose buttons, used to trigger the steps here
 	TABLE_ADDR CS_M_TRG_GP_Callback
 	call	CS_MENU_SetMenuGPCallbackHook

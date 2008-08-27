@@ -91,29 +91,9 @@ CS_M_RECORD_GP_Callback_6
 
 CS_M_RECORD_GP_Callback_7
 CS_M_RECORD_GP_Callback_8
-	;; if encoder has been turned: modify layer value
-	;; otherwise toggle gate
-	movf	CS_MENU_ENC_INCREMENTER, W
-	bz	CS_M_RECORD_GP_Callback_78_Tgl
-
-CS_M_RECORD_GP_Callback_78_Enc
-#if 0
-	movf	MIOS_PARAMETER1, W
-	movff	CS_MENU_ENC_INCREMENTER, MIOS_PARAMETER2
-	call	SEQ_ENC_Handler_EditPage
-	goto	SEQ_MSG_Start
-#endif
-
-CS_M_RECORD_GP_Callback_78_Tgl
 	;; "toggle gate" of current step: set/clear function
-	call	CS_M_HLP_GetSelectedTrk
-	movwf	SEQ_EVNTT, BANKED
-	movff	SEQ_CURRENT_STEP, SEQ_EVNTS
-	call	SEQ_TRG_GateGet
-	xorlw	1
-	call	SEQ_TRG_GateSet
-	;; print sequence on screen
-	call	SEQ_MSG_Start
+	;; (also available as remote key)
+	call	SEQ_BUTTON_ToggleGate
 	rgoto	CS_M_RECORD_GP_Callback_NoEnc
 
 CS_M_RECORD_GP_Callback_9
@@ -204,9 +184,6 @@ CS_M_RECORD_UpdateGPLEDs
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_RECORD_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_RECORD_PARAMETERS	; pointer to table
 	movlw	7				; number of parameters

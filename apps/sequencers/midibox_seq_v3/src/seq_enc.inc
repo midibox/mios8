@@ -79,7 +79,10 @@ SEQ_ENC_Handler
 	movf	CS_MENU_POS, W
 	bz	SEQ_ENC_Handler_EditPage
 SEQ_ENC_Handler_MenuPage
-
+#if 0
+	;; stop current message
+	call	SEQ_MSG_Stop
+#endif
 	;; set cursor via GP button function (savest solution)
 	call	CS_MENU_CheckMenuGPCallbackHook
 	bz	SEQ_ENC_Handler_MenuPageNoCS

@@ -42,43 +42,36 @@ SEQ_LED_Update
 
 	SET_BSR	SEQ_BASE
 
-	;; TMP1[6..0] == 1/2/3/4/A/B/C LEDs
+	;; TMP[6:4] == A/B/C layers
+	swapf	SEQ_SELECTED_LAYERS, W, BANKED
+	andlw	0x70
+	movwf	TMP1
+
+	;; TMP1[3..0] == 1/2/3/4 LEDs
 	;; branch depending on mode
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MUTE, BANKED, SEQ_LED_Update_Mute
 	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_LED_Update_NoEdit
+SEQ_LED_Update_Mute
 SEQ_LED_Update_Edit
 	;; 1/2/3/4 showing selected tracks
 	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
 	movf	SEQ_SELECTED_GROUP, W, BANKED
 	movf	PLUSW1, W
 	andlw	0x0f
-	movwf	TMP1
-	;; A/B/C showing selected layers
-	swapf	SEQ_SELECTED_LAYERS, W, BANKED
-	andlw	0x70
 	iorwf	TMP1, F
 	rgoto	SEQ_LED_Update_Edit_Cont
 
 SEQ_LED_Update_NoEdit
-	;; mute mode: only display tracks
-	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_MUTE, BANKED, SEQ_LED_Update_NoMute
-SEQ_LED_Update_Mute
-	;; 1/2/3/4 showing selected tracks
-	lfsr	FSR1, SEQ_SELECTED_TRKS_G0
-	movf	SEQ_SELECTED_GROUP, W, BANKED
-	movf	PLUSW1, W
-	andlw	0x0f
-	movwf	TMP1
-	rgoto	SEQ_LED_Update_Edit_Cont
-SEQ_LED_Update_NoMute
-
+SEQ_LED_Update_PatternSong
 	;; in pattern/song mode: show cursor position
 	movf	CS_MENU_CURSOR_POS, W
 	btfsc	SEQ_MODE0, SEQ_MODE0_SONG, BANKED
 	addlw	-3
 	call	MIOS_HLP_GetBitORMask
 	andlw	0x0f
-	btfsc	CS_STAT, CS_STAT_CURSOR_FLASH	; (flash LED - makes the different LED/button assignment more induitive)
-	movwf	TMP1
+	btfss	CS_STAT, CS_STAT_CURSOR_FLASH	; (flash LED - makes the different LED/button assignment more induitive)
+	movlw	0x00
+	iorwf	TMP1, F
 
 	;; in Song Mode: also overlay layer LEDs
 	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_SONG, BANKED, SEQ_LED_Update_Edit_Cont

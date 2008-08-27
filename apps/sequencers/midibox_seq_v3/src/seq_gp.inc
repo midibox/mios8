@@ -32,6 +32,9 @@ SEQ_GP_Button
 	call	CS_MENU_CheckMenuGPCallbackHook
 	bz	SEQ_GP_Button_NoCS
 SEQ_GP_Button_CS
+	;; stop current message
+	call	SEQ_MSG_Stop
+
 	;; call the GP hook. 
 	;; Parameter:
 	;;    GP button number in MIOS_PARAMETER1: 0x00-0x0f
@@ -104,6 +107,11 @@ SEQ_GP_LED_Update_NoF1R
 
 	;; ------------------------------------------------------------------
 SEQ_GP_LED_Update_NoHook
+
+	;; copy trigger layer into GP LED registers
+	call	CS_M_EDIT_UpdateGPLEDs
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
 
 #if DEFAULT_SRM_ENABLED
 	;; update the 4x16 LED matrix

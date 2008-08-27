@@ -125,9 +125,6 @@ CS_M_MUTE_UpdateGPLEDs_Sel
 CS_M_MUTE_Init
 	;; no parameter table!
 
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; allow fast display update
 	bsf	CS_STAT2, CS_STAT2_ALLOW_FAST_DISP_UPDATE
 

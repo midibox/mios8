@@ -168,9 +168,6 @@ CS_M_TRKDIR_UpdateGPLEDs_NoRpl
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_TRKDIR_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_TRKDIR_PARAMETERS	; pointer to table
 	movlw	5				; number of parameters

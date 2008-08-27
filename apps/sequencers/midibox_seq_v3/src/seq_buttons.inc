@@ -805,14 +805,9 @@ SEQ_BUTTON_Layerx
 
 	SET_BSR	SEQ_BASE
 
-	;; alternative function if not in edit mode
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_STEP_EDIT, BANKED, SEQ_BUTTON_Layerx_Edit
-SEQ_BUTTON_Layerx_MPS
-	;; do nothing in mute and pattern mode
-	btfsc	SEQ_MODE0, SEQ_MODE0_MUTE, BANKED
-	return
-	btfsc	SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED
-	return
+	;; alternative function if in song mode
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_SONG, BANKED, SEQ_BUTTON_Layerx_NoSong
+SEQ_BUTTON_Layerx_Song
 	;; do nothing when button has been released
 	btfsc	MIOS_PARAMETER2, 0
 	return
@@ -828,10 +823,10 @@ SEQ_BUTTON_Layerx_MPS
 	goto	CS_MENU_NewCursorPos
 	
 
-SEQ_BUTTON_Layerx_Edit
+SEQ_BUTTON_Layerx_NoSong
 	;; if button has been depressed: release message
-	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Layerx_Edit_Released
-SEQ_BUTTON_Layerx_Edit_Pressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Layerx_NoSong_Released
+SEQ_BUTTON_Layerx_NoSong_Pressed
 	;; decode button number
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitORMask
@@ -849,9 +844,9 @@ SEQ_BUTTON_Layerx_Edit_Pressed
 	;; hold message and exit
 	goto	SEQ_MSG_Hold
 
-SEQ_BUTTON_Layerx_Edit_Released
-	;; start message (releases hold)
-	goto	SEQ_MSG_Start
+SEQ_BUTTON_Layerx_NoSong_Released
+	;; stop message (releases hold)
+	goto	SEQ_MSG_Stop
 
 
 ;; --------------------------------------------------------------------------
@@ -1087,6 +1082,76 @@ SEQ_BUTTON_ToggleStepView
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 
 	return
+
+;; --------------------------------------------------------------------------
+;;  toggles the gate of the current step
+;;  This is especially a nice remote keyboard function
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_ToggleGate
+	;; do nothing if GP button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; get pointer to gate flag
+	call	CS_M_HLP_GetSelectedTrk
+	movwf	SEQ_EVNTT, BANKED
+	movff	SEQ_CURRENT_STEP, SEQ_EVNTS
+
+	;; toggle gate flag
+	call	SEQ_TRG_GateGet
+	xorlw	1
+	call	SEQ_TRG_GateSet
+
+	;; print sequence on screen
+	goto	SEQ_MSG_Start
+
+
+;; --------------------------------------------------------------------------
+;;  decrements the edited/recorded step
+;;  This is especially a nice remote keyboard function
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_StepDec
+	;; exit if button depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; decrement current step number, wrap at 32
+	SET_BSR	SEQ_BASE
+	decf	SEQ_CURRENT_STEP, W, BANKED
+	skpc
+	movlw	0x1f
+	movwf	SEQ_CURRENT_STEP, BANKED
+
+	rgoto	SEQ_BUTTON_StepDec_Cont
+
+
+;; --------------------------------------------------------------------------
+;;  increments the edited/recorded step
+;;  This is especially a nice remote keyboard function
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_StepInc
+	;; exit if button depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; increment current step number, wrap at 32
+	SET_BSR	SEQ_BASE
+	incf	SEQ_CURRENT_STEP, F, BANKED
+	bcf	SEQ_CURRENT_STEP, 5, BANKED
+
+SEQ_BUTTON_StepDec_Cont
+	;; set also as record step and clear poly counter
+	movff	SEQ_CURRENT_STEP, SEQ_RECORD_STEP
+	clrf	SEQ_RECORD_POLY_CTR, BANKED
+	
+
+	;; fix "SEQ_SELECTED_STEPS" flag (show step 1-16 or 17-32)
+	bcf	SEQ_SELECTED_STEPS, 0, BANKED
+	btfsc	SEQ_CURRENT_STEP, 4, BANKED
+	bsf	SEQ_SELECTED_STEPS, 0, BANKED
+
+	;; print sequence on screen
+	goto	SEQ_MSG_Start
 
 
 ;; --------------------------------------------------------------------------

@@ -1066,8 +1066,8 @@ SEQ_LCD_PrnMsgItemU
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	;; <--------------------------------------><-------------------------------------->
-	;; P1T1  A:Note   Chn 1/Def. B:Gate  S 1-16Step xx/xx:C-3  Vel:xxx Len:xxx% GSAGRGV
-	;; P1T1  A:CC# 16 Chn 1/Def. B:Gate  S 1-16Step xx/xx:xxx          Len:xxx% GSAGRGV 
+	;; G1T1  A:Note   Chn 1/Def. B:Gate  S 1-16Step xx/xx:C-3  Vel:xxx Len:xxx% GSAGRGV
+	;; G1T1  A:CC# 16 Chn 1/Def. B:Gate  S 1-16Step xx/xx:xxx          Len:xxx% GSAGRGV 
 	;; 0000001111111112222233333344444445555555666667777778888899999999AAAAAAAAABBBBBBB
 
 	;; thanks to the huge memory of PIC18F4620, we can program this on an easy readable way :)
@@ -1104,7 +1104,9 @@ SEQ_LCD_PrnMsgItemU_0_Util
 	call	CS_M_UTILS_PrnEditMsg
 	
 SEQ_LCD_PrnMsgItemU_0_NoUtil
-	goto	CS_M_HLP_PrnGxTy_NoCursor
+	call	CS_M_HLP_PrnGxTy_NoCursor
+	movlw	2
+	rgoto	SEQ_LCD_PrintSpaces
 
 SEQ_LCD_PrnMsgItemU_1
 	;; (don't print something here if we are in utility menu)

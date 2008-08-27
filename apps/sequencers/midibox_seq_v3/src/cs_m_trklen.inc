@@ -166,9 +166,6 @@ CS_M_TRKLEN_UpdateGPLEDs_NoQuick
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_TRKLEN_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_TRKLEN_PARAMETERS	; pointer to table
 	movlw	4				; number of parameters

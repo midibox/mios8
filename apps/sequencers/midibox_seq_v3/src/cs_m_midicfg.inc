@@ -165,9 +165,6 @@ CS_M_MIDICFG_UpdateGPLEDs_TABLE
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_MIDICFG_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_MIDICFG_PARAMETERS	; pointer to table
 	movlw	9				; number of parameters

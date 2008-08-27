@@ -94,6 +94,10 @@ SEQ_LAYER_TABLE_END
 SEQ_LAYER_DRUM_MODE_EM1	EQU	5-1
 SEQ_LAYER_DRUM_MODE_EM2	EQU	9-1
 
+	;; define which event modes provide polyphonic recording
+	;; Note: if more than 1 mode is used, SEQ_LAYER_CheckPolyMode has to be extented as well
+SEQ_LAYER_POLY_MODE_EM1	EQU	4-1
+
 	;; this constant contains the number of available event modes
 	;; it's derived from the number of entries of SEQ_LAYER_TABLE
 SEQ_LAYER_NUMBER_EVNT_MODES	EQU (SEQ_LAYER_TABLE_END-SEQ_LAYER_TABLE)/6
@@ -216,6 +220,20 @@ SEQ_LAYER_CheckDrumMode
 	return
 	xorlw	SEQ_LAYER_DRUM_MODE_EM1
 	xorlw	SEQ_LAYER_DRUM_MODE_EM2
+	return
+
+;; --------------------------------------------------------------------------
+;;  This function returns 0 (ZERO flag set) if the track allows polyphonic recording
+;;  (used by step record function of seq_record.inc)
+;;  IN: MIOS_PARAMETER1: event mode
+;;  OUT: 0 if poly track (ZERO flag set)
+;;  USES: -
+;; --------------------------------------------------------------------------
+SEQ_LAYER_CheckPolyMode
+	movf	MIOS_PARAMETER1, W
+	andlw	0x0f
+
+	xorlw	SEQ_LAYER_POLY_MODE_EM1
 	return
 
 

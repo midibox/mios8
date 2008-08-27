@@ -176,9 +176,6 @@ CS_M_FORMAT_FAILED_STR_1 STRING 17, 0x40, "* not available *"
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_FORMAT_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_FORMAT_PARAMETERS	; pointer to table
 	movlw	8			; number of parameters

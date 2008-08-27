@@ -223,9 +223,6 @@ CS_M_MORPH_UpdateGPLEDs_Ptn
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_MORPH_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; allow fast display update
 	bsf	CS_STAT2, CS_STAT2_ALLOW_FAST_DISP_UPDATE
 

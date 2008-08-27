@@ -459,9 +459,6 @@ CS_M_UTILS_UpdateGPLEDs
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_UTILS_PARAMETERS	; pointer to table
 	movlw	1				; number of parameters

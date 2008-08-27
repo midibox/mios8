@@ -201,9 +201,6 @@ CS_M_TRKGRV_UpdateGPLEDs_NoInt
 ;;  Menu Init routine is called when menu page should be initialized
 ;; --------------------------------------------------------------------------
 CS_M_TRKGRV_Init
-	;; switch to full screen view
-	call	SEQ_LCD_SetMsgOffsets
-
 	;; install parameter table
 	TABLE_ADDR CS_M_TRKGRV_PARAMETERS	; pointer to table
 	movlw	7				; number of parameters

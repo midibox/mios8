@@ -83,16 +83,14 @@ CS_MENU_Handler_NoCtrReset
 	BRA_IFCLR CS_STAT, CS_STAT_DISPLAY_INIT_REQ, ACCESS, CS_MENU_Handler_NoInit
 
 CS_MENU_Handler_Init
+	;; stop message
+	call	CS_MENU_StopMessage
+	;; NOTE: this function can set the DISPLAY_INIT_REQ flag again! *DIRTY* (but I don't see a better solution yet)
+
 	;; clear request flag
 	bcf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	;; force an display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
-	;; clear message flags and counter
-	bcf	CS_STAT, CS_STAT_MESSAGE_HOLD
-	bcf	CS_STAT, CS_STAT_MESSAGE_REQ
-	clrf	CS_MENU_MESSAGE_CTR
-	;; set menu offsets
-	call	SEQ_LCD_SetMenuOffsets
 
 	;; clear don't flash flags (MBSEQ variation)
 #ifdef MB_STAT_DONT_FLASH_L_GP_DOUT
@@ -113,6 +111,8 @@ CS_MENU_Handler_Init
 	;; branch depending on CS_STAT_WITHIN_PAGE flag
 	BRA_IFCLR CS_STAT, CS_STAT_WITHIN_PAGE, ACCESS, CS_MENU_Handler_Init_Menu
 CS_MENU_Handler_Init_Page
+	;; switch to full screen view
+	call	SEQ_LCD_SetMsgOffsets
 	;; clear parameter entry hook
 	clrf	CS_MENU_PARAMETER_HOOK_L
 	clrf	CS_MENU_PARAMETER_HOOK_H
@@ -129,6 +129,9 @@ CS_MENU_Handler_Init_Page
 	rgoto	CS_MENU_Handler_Init_End
 
 CS_MENU_Handler_Init_Menu
+	;; set menu offsets
+	call	SEQ_LCD_SetMenuOffsets
+
 	;; upload charset for menu
 	movlw	CS_MENU_CHARSET_ARROWS
 	call	CS_SPECIAL_CHARS_Init
@@ -424,7 +427,7 @@ CS_MENU_SetMenuParameterTable
 	movwf	CS_MENU_CURSOR_POS_MAX
 
 	cpfslt	CS_MENU_CURSOR_POS, ACCESS
-	movwf CS_MENU_CURSOR_POS
+	movwf	CS_MENU_CURSOR_POS
 
 	;; multiply TBLPTR[LH] with CURSOR_POS * 6 (table width)
 	movf	CS_MENU_CURSOR_POS, W
@@ -612,12 +615,8 @@ CS_MENU_AddMenuParameter
 	btfss	MIOS_PARAMETER1, 0
 	return
 
-#if 0
-	;; clears LCD screen! Only required if a modified menu parameter has nothing to do with the EDIT screen content
-
 	;; stop current message
 	rcall	CS_MENU_StopMessage
-#endif
 
 	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
@@ -645,18 +644,18 @@ CS_MENU_IncCursorPos
 	;; 	rgoto	CS_MENU_NewCursorPos
 
 ;; --------------------------------------------------------------------------
-;;  This function sets the cursor to a new position
-;;  IN:  button status in MIOS_PARAMETER2
-;;  OUT: result in CS_MENU_CURSOR_POS
+;;  This function should be called whenever the cursor position has been changed
+;;  IN:  cursor position in CS_MENU_CURSOR_POS
+;;  OUT: fixed cursor in CS_MENU_CURSOR_POS
 ;;       requests screen re-initialization
 ;; --------------------------------------------------------------------------
 CS_MENU_NewCursorPos
 	movf	CS_MENU_CURSOR_POS_MAX, W
 	cpfsgt	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_MENU_IncCursorPos_NoReset
+	rgoto	CS_MENU_NewCursorPos_NoReset
 	clrf	CS_MENU_CURSOR_POS
-CS_MENU_IncCursorPos_NoReset
-	;; force an display re-initialization
+CS_MENU_NewCursorPos_NoReset
+	;; force a display re-initialization
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	;; and exit
 	return
@@ -695,7 +694,7 @@ CS_MENU_PrintArrows_RCont
 	goto	MIOS_LCD_PrintChar
 
 ;; --------------------------------------------------------------------------
-;;  This help function jumps to the functiion refered by a menu header
+;;  This help function jumps to the function refered by a menu header
 ;;  table entry in WREG.
 ;; --------------------------------------------------------------------------
 CS_MENU_Hlp_IndirectMenuHdrCall
@@ -853,11 +852,14 @@ CS_MENU_ChangePage_Ok
 ;;  This function holds a message
 ;; --------------------------------------------------------------------------
 CS_MENU_HoldMessage
-	;; this is a hack which ensures that values within a menu will be saved
-	;; by the CS_M_*Exit function, before the CS_M_*Init function will be
-	;; called
-	movf	CS_MENU_POS, W
-	rcall	CS_MENU_ChangePage
+	;; if in menu page: ensure that CS_M_*Exit function will be called
+	;; before CS_M_*Init overwrites values, which should be stored by the exit function
+	BRA_IFCLR CS_STAT, CS_STAT_WITHIN_PAGE, ACCESS, CS_MENU_HoldMessage_NotInPage
+CS_MENU_HoldMessage_InPage
+	movlw	CS_MENU_ENTRY_EXIT_FUNC_OFFSET
+	rcall	CS_MENU_Hlp_IndirectMenuPageCall
+CS_MENU_HoldMessage_NotInPage
+
 	;; hold message
 	bsf	CS_STAT, CS_STAT_MESSAGE_HOLD
 	rgoto	CS_MENU_StartMessage_Cont
@@ -893,8 +895,9 @@ CS_MENU_StopMessage
 
 	;; clear screen(s)
  	call	SEQ_LCD_Clear
-	;; clear request
+	;; clear request and hold flag
 	bcf	CS_STAT, CS_STAT_MESSAGE_REQ
+	bcf	CS_STAT, CS_STAT_MESSAGE_HOLD
 	;; clear message counter
 	clrf	CS_MENU_MESSAGE_CTR
 	;; request initialization of screen

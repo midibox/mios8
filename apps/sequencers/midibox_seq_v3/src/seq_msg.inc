@@ -63,8 +63,6 @@ SEQ_MSG_Hold_Ok
 ;;  IN: -
 ;; --------------------------------------------------------------------------
 SEQ_MSG_Stop
-	;; init menu offsets
-	call	SEQ_LCD_SetMenuOffsets
 	;; stop a CS_MENU message
 	goto	CS_MENU_StopMessage
 
