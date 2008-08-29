@@ -213,34 +213,29 @@ CS_M_TRKLEN_Tick
 	rgoto	CS_M_TRKLEN_Tick_6
 	rgoto	CS_M_TRKLEN_Tick_7
 
-CS_M_TRKLEN_Tick_0_STR	STRING 4, 0x00 + 0, "Trk."
 CS_M_TRKLEN_Tick_0
-	TABLE_ADDR CS_M_TRKLEN_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	4, 0x00 + 0, "Trk."
 	rgoto	CS_M_TRKLEN_Tick_Cont
 
-CS_M_TRKLEN_Tick_1_STR	STRING 6, 0x00 + 7, "Length"
 CS_M_TRKLEN_Tick_1
-	TABLE_ADDR CS_M_TRKLEN_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	6, 0x00 + 7, "Length"
 	rgoto	CS_M_TRKLEN_Tick_Cont
 
-CS_M_TRKLEN_Tick_2_STR	STRING 11, 0x00 + 15, "Loop  Chain"
 CS_M_TRKLEN_Tick_2
-	TABLE_ADDR CS_M_TRKLEN_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	11, 0x00 + 15, "Loop  Chain"
 	rgoto	CS_M_TRKLEN_Tick_Cont
 
-CS_M_TRKLEN_Tick_3_STR	STRING 16, 0x80 + 8, "Quick Selection:"
 CS_M_TRKLEN_Tick_3
-	TABLE_ADDR CS_M_TRKLEN_Tick_3_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x80 + 8, "Quick Selection:"
 	rgoto	CS_M_TRKLEN_Tick_Cont
 
-CS_M_TRKLEN_Tick_4_STR	STRING 6, 0x80 + 25, "Length"
 CS_M_TRKLEN_Tick_4
-	TABLE_ADDR CS_M_TRKLEN_Tick_4_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	6, 0x80 + 25, "Length"
 	rgoto	CS_M_TRKLEN_Tick_Cont
 
 CS_M_TRKLEN_Tick_5

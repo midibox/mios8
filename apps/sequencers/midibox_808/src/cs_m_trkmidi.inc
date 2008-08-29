@@ -188,25 +188,23 @@ CS_M_TRKMIDI_Tick_0
 
 	rgoto	CS_M_TRKMIDI_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKMIDI_Tick_1_STR	STRING 14, 0x00 + 6, "MIDI CONFIG   "
-#else
-CS_M_TRKMIDI_Tick_1_STR	STRING 14, 0x00 + 6, "MIDI CONF.    "
-#endif
 CS_M_TRKMIDI_Tick_1
-	TABLE_ADDR CS_M_TRKMIDI_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	14, 0x00 + 6, "MIDI CONFIG   "
+#else
+	STRING	14, 0x00 + 6, "MIDI CONF.    "
+#endif
 	rgoto	CS_M_TRKMIDI_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKMIDI_Tick_2_STR	STRING 6, 0x00 + 20, "Note: "
-#else
-CS_M_TRKMIDI_Tick_2_STR	STRING 6, 0x40 + 0, "Note: "
-#endif
 CS_M_TRKMIDI_Tick_2
 	;; print note
-	TABLE_ADDR CS_M_TRKMIDI_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	6, 0x00 + 20, "Note: "
+#else
+	STRING	6, 0x40 + 0, "Note: "
+#endif
 	movlw	SEQ_CC_OFFSET_MIDI_NOTE
 	call	CS_M_HLP_TrkCC_Get
 	call	SEQ_LCD_PrnNote
@@ -214,15 +212,14 @@ CS_M_TRKMIDI_Tick_2
 	call	MIOS_LCD_PrintChar
 	rgoto	CS_M_TRKMIDI_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKMIDI_Tick_3_STR	STRING 6, 0x00 + 30, " Chn #"
-#else
-CS_M_TRKMIDI_Tick_3_STR	STRING 4, 0x40 + 10, "Chn."
-#endif
 CS_M_TRKMIDI_Tick_3
 	;; print MIDI channel
-	TABLE_ADDR CS_M_TRKMIDI_Tick_3_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	6, 0x00 + 30, " Chn #"
+#else
+	STRING	4, 0x40 + 10, "Chn."
+#endif
 	movlw	SEQ_CC_OFFSET_MIDI_CHANNEL
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1

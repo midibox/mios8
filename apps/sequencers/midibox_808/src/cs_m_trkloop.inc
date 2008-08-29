@@ -183,20 +183,18 @@ CS_M_TRKLOOP_Tick_0
 
 	rgoto	CS_M_TRKLOOP_Tick_Cont
 
-CS_M_TRKLOOP_Tick_1_STR	STRING 14, 0x00 + 6, "LOOPPOINTS    "
 CS_M_TRKLOOP_Tick_1
-	TABLE_ADDR CS_M_TRKLOOP_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x00 + 6, "LOOPPOINTS    "
 	rgoto	CS_M_TRKLOOP_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKLOOP_Tick_2_STR	STRING 5, 0x00 + 20, "Loop:"
-#else
-CS_M_TRKLOOP_Tick_2_STR	STRING 5, 0x40 + 00, "Loop:"
-#endif
 CS_M_TRKLOOP_Tick_2
-	TABLE_ADDR CS_M_TRKLOOP_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	5, 0x00 + 20, "Loop:"
+#else
+	STRING	5, 0x40 + 00, "Loop:"
+#endif
 
 	movlw	SEQ_CC_OFFSET_LOOP
 	call	CS_M_HLP_TrkCC_Get
@@ -208,14 +206,13 @@ CS_M_TRKLOOP_Tick_2
 	rgoto	CS_M_TRKLOOP_Tick_Cont
 
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKLOOP_Tick_3_STR	STRING 4, 0x00 + 30, "End:"
-#else
-CS_M_TRKLOOP_Tick_3_STR	STRING 4, 0x40 + 10, "End:"
-#endif
 CS_M_TRKLOOP_Tick_3
-	TABLE_ADDR CS_M_TRKLOOP_Tick_3_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	4, 0x00 + 30, "End:"
+#else
+	STRING	4, 0x40 + 10, "End:"
+#endif
 
 	movlw	SEQ_CC_OFFSET_LAST
 	call	CS_M_HLP_TrkCC_Get

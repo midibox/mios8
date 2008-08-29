@@ -328,28 +328,24 @@ CS_M_MORPH_Tick_00
 	call	CS_SPECIAL_CHARS_Init
 	rgoto	CS_M_MORPH_Tick_Cont
 
-CS_M_MORPH_Tick_01_STR	STRING 16, 0x00 + 0, "Grp. Target Val."
 CS_M_MORPH_Tick_01
-	TABLE_ADDR CS_M_MORPH_Tick_01_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x00 + 0, "Grp. Target Val."
 	rgoto	CS_M_MORPH_Tick_Cont
 
-CS_M_MORPH_Tick_02_STR	STRING 19, 0x00 + 17, "Trk1 Trk2 Trk3 Trk4"
 CS_M_MORPH_Tick_02
-	TABLE_ADDR CS_M_MORPH_Tick_02_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	19, 0x00 + 17, "Trk1 Trk2 Trk3 Trk4"
 	rgoto	CS_M_MORPH_Tick_Cont
 
-CS_M_MORPH_Tick_03_STR	STRING 8, 0x80 + 2, "Morphing"
 CS_M_MORPH_Tick_03
-	TABLE_ADDR CS_M_MORPH_Tick_03_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	8, 0x80 + 2, "Morphing"
 	rgoto	CS_M_MORPH_Tick_Cont
 
-CS_M_MORPH_Tick_04_STR	STRING 17, 0x80 + 11, "controlled by CC#"
 CS_M_MORPH_Tick_04
-	TABLE_ADDR CS_M_MORPH_Tick_04_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	17, 0x80 + 11, "controlled by CC#"
 	rgoto	CS_M_MORPH_Tick_Cont
 
 CS_M_MORPH_Tick_05

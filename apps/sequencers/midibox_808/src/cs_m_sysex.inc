@@ -132,21 +132,20 @@ CS_M_SYSEX_Tick_0
 
 	rgoto	CS_M_SYSEX_Tick_Cont
 
-CS_M_SYSEX_Tick_1_STR	STRING 14, 0x00 + 6, "SYSEX         "
 CS_M_SYSEX_Tick_1
-	TABLE_ADDR CS_M_SYSEX_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x00 + 6, "SYSEX         "
 	rgoto	CS_M_SYSEX_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_SYSEX_Tick_2_STR	STRING 11, 0x00 + 20, "Device ID: "
-#else
-CS_M_SYSEX_Tick_2_STR	STRING 11, 0x40 + 00, "Device ID: "
-#endif
 CS_M_SYSEX_Tick_2
 	;; print device ID in hex-format
-	TABLE_ADDR CS_M_SYSEX_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	11, 0x00 + 20, "Device ID: "
+#else
+	STRING	11, 0x40 + 00, "Device ID: "
+#endif
+
 	movf	MIDI_DEVICE_ID, W
 	call	MIOS_LCD_PrintHex2
 	rgoto	CS_M_SYSEX_Tick_Cont

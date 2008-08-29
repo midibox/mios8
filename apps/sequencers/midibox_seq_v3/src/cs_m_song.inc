@@ -247,9 +247,12 @@ CS_M_SONG_Init
 	BRA_IFSET MB_STAT, MB_STAT_USE_S_BANKSTICK, ACCESS, CS_M_SONG_Init_BA
 CS_M_SONG_Init_BNA
 	call	SEQ_LCD_Clear
-	TABLE_ADDR CS_M_SONG_STR_BNA_0
-	call	MIOS_LCD_PrintString
-	goto	MIOS_LCD_PrintString
+
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 16, 0x00, "* No BankStick *"
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 16, 0x40, "* for song :-/ *"
+	return
 CS_M_SONG_Init_BA
 
 
@@ -339,9 +342,6 @@ CS_M_SONG_Init_P_Cont
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
 	return
-
-CS_M_SONG_STR_BNA_0	STRING 16, 0x00, "* No BankStick *"
-CS_M_SONG_STR_BNA_1	STRING 16, 0x40, "* for song :-/ *"
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle

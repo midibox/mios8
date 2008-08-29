@@ -82,14 +82,17 @@ CS_M_PATTERN_S_GP_Callback_NSveC
 	call	CS_M_HLP_ChangePage
 
 	;; print message
-	TABLE_ADDR CS_M_PATTERN_S_GP_Callback_SaveM0
-	call	MIOS_LCD_PrintMessage
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	11, 0x00 + 0, "** Pattern "
 	call	CS_M_PATTERN_PrnP	; (5 characters)
 	movlw	4
 	call	SEQ_LCD_PrintSpaces
 
-	TABLE_ADDR CS_M_PATTERN_S_GP_Callback_SaveM1
-	call	MIOS_LCD_PrintMessage
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	20, 0x40 + 0, "** stored           "	
+
+	movlw	0x80
+	call	MIOS_LCD_MessageStart
 
 	;; DIRTY!
 	;; ensure that GP LEDs updated immediately
@@ -115,11 +118,6 @@ CS_M_PATTERN_S_GP_Callback_NoSave
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
 
-
-CS_M_PATTERN_S_GP_Callback_SaveM0
-	STRING 11, 0x00 + 0, "** Pattern "
-CS_M_PATTERN_S_GP_Callback_SaveM1
-	STRING 20, 0x40 + 0, "** stored           "	
 
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_S_UpdateGPLEDs
@@ -239,14 +237,13 @@ CS_M_PATTERN_S_Tick_0		; re-used from CS_M_MUTE_Init !!!
 
 	rgoto	CS_M_PATTERN_S_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_PATTERN_S_Tick_1_STR	STRING 8, 0x00 + 6, "SAVE P. "
-#else
-CS_M_PATTERN_S_Tick_1_STR	STRING 5, 0x00 + 6, "SAVE "
-#endif
 CS_M_PATTERN_S_Tick_1
-	TABLE_ADDR CS_M_PATTERN_S_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	8, 0x00 + 6, "SAVE P. "
+#else
+	STRING	5, 0x00 + 6, "SAVE "
+#endif
 
 	;; pattern name (5 characters)
 	call	CS_M_PATTERN_PrnP

@@ -57,6 +57,28 @@ SEQ_LCD_SetMsgOffsets
 
 
 ;; --------------------------------------------------------------------------
+;;  Optimized "PrintString" function: prints the string behind the "call"
+;;  instruction. Jumps back to location after call
+;;  NOTE: we could make a new MIOS function out of this useful approach
+;; --------------------------------------------------------------------------
+SEQ_LCD_PrintStringAfterCall
+        movff   TOSL, TBLPTRL
+        movff   TOSH, TBLPTRH
+        movff   TOSU, TBLPTRU
+        call    MIOS_LCD_PrintString
+
+	;; return pointer now in TBLPTR[LH]
+        IRQ_DISABLE
+        movf	TBLPTRL, W
+        movwf   TOSL
+        movf	TBLPTRH, W
+        movwf   TOSH
+        movf	TBLPTRU, W
+        movwf   TOSU
+        IRQ_ENABLE
+        return
+
+;; --------------------------------------------------------------------------
 ;;  Shortcut to MIOS_LCD_PrintChar (allows "rcall" instead of "call" inside this file)
 ;; --------------------------------------------------------------------------
 SEQ_LCD_PrintChar
@@ -71,12 +93,13 @@ SEQ_LCD_CursorSet
 ;; ==========================================================================
 ;; starts a message which notifies, that no pattern is selected
 ;; ==========================================================================
-SEQ_LCD_MSG_TRK_DISABLED STRING 30, 0x00, "*** No pattern selected on ***"
-			 STRING 30, 0x40, "***    current Track(s)    ***"
 SEQ_LCD_MsgTrkDisabled
-	TABLE_ADDR SEQ_LCD_MSG_TRK_DISABLED
-	call	MIOS_LCD_PrintMessage
-	goto	MIOS_LCD_PrintMessage
+	rcall	SEQ_LCD_PrintStringAfterCall
+	STRING 30, 0x00, "*** No pattern selected on ***"
+	rcall	SEQ_LCD_PrintStringAfterCall
+	STRING 30, 0x40, "***    current Track(s)    ***"
+	movlw	0x80
+	goto	MIOS_LCD_MessageStart
 	
 
 ;; ==========================================================================
@@ -713,10 +736,10 @@ SEQ_LCD_PrintSpaces
 ;; this function prints the menu header
 ;; it contains the application name and the song position
 ;; ==========================================================================
-SEQ_LCD_VERSION_STR_0 MBSEQ_VERSION_STR	; (defined in main.asm)
 SEQ_LCD_PrintHeader
-	TABLE_ADDR SEQ_LCD_VERSION_STR_0
-	goto	MIOS_LCD_PrintString
+	rcall	SEQ_LCD_PrintStringAfterCall
+	MBSEQ_VERSION_STR	; (defined in main.asm)
+	return
 
 ;; --------------------------------------------------------------------------
 ;;  this function clears the "previous length" and prepares the H/V bars
@@ -1190,21 +1213,22 @@ SEQ_LCD_PrnMsgItemU_4
 	movlw	1
 	rgoto	SEQ_LCD_PrintSpaces
 
-SEQ_LCD_PrnMsgItemU_5_STR_0 STRING 6, 0x00 + 34, "S 1-16"
-SEQ_LCD_PrnMsgItemU_5_STR_1 STRING 6, 0x00 + 34, "S17-32"
 SEQ_LCD_PrnMsgItemU_5
-	TABLE_ADDR SEQ_LCD_PrnMsgItemU_5_STR_0
 	SET_BSR	SEQ_BASE
-	BRA_IFCLR SEQ_SELECTED_STEPS, 0, BANKED, SEQ_LCD_PrnMsgItemU_5_Stp0
-SEQ_LCD_PrnMsgItemU_5_Stp1
-	TABLE_ADDR SEQ_LCD_PrnMsgItemU_5_STR_1
+	BRA_IFSET SEQ_SELECTED_STEPS, 0, BANKED, SEQ_LCD_PrnMsgItemU_5_Stp1
 SEQ_LCD_PrnMsgItemU_5_Stp0
-	goto	MIOS_LCD_PrintString
+	rcall	SEQ_LCD_PrintStringAfterCall
+	STRING	6, 0x00 + 34, "S 1-16"
+	return
+SEQ_LCD_PrnMsgItemU_5_Stp1
+	rcall	SEQ_LCD_PrintStringAfterCall
+	STRING	6, 0x00 + 34, "S17-32"
+	return
 
-SEQ_LCD_PrnMsgItemU_6_STR STRING 5, 0x80 + 0, "Step "
 SEQ_LCD_PrnMsgItemU_6
-	TABLE_ADDR SEQ_LCD_PrnMsgItemU_6_STR
-	goto	MIOS_LCD_PrintString
+	rcall	SEQ_LCD_PrintStringAfterCall
+	STRING	5, 0x80 + 0, "Step "
+	return
 
 SEQ_LCD_PrnMsgItemU_7
 	movlw	0x80 + 5
@@ -1558,11 +1582,9 @@ SEQ_LCD_PrnMsgItem_Hlp_Cont
 ;;  OUT: 2x20 chars at display offset 0x00 + 0 / 0x40 + 0
 ;;  USES: PROD[LH]
 ;; --------------------------------------------------------------------------
-SEQ_LCD_PrnTapTempo_STR
-	STRING	15, 0x00 + 22, "  * Tap Tempo: "
 SEQ_LCD_PrnTapTempo
-	TABLE_ADDR SEQ_LCD_PrnTapTempo_STR
-	call	MIOS_LCD_PrintMessage
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	15, 0x00 + 22, "  * Tap Tempo: "
 
 	call	SEQ_BPM_Get
 	call	MIOS_LCD_PrintBCD3

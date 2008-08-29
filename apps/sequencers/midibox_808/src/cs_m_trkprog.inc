@@ -132,21 +132,19 @@ CS_M_TRKPROG_Tick_0
 
 	rgoto	CS_M_TRKPROG_Tick_Cont
 
-CS_M_TRKPROG_Tick_1_STR	STRING 14, 0x00 + 6, "PROGRESSION   "
 CS_M_TRKPROG_Tick_1
-	TABLE_ADDR CS_M_TRKPROG_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x00 + 6, "PROGRESSION   "
 	rgoto	CS_M_TRKPROG_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKPROG_Tick_2_STR	STRING 5, 0x00 + 20, "Fwd: "
-#else
-CS_M_TRKPROG_Tick_2_STR	STRING 5, 0x40 + 0, "Fwd: "
-#endif
 CS_M_TRKPROG_Tick_2
 	;; print "forward" value
-	TABLE_ADDR CS_M_TRKPROG_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	5, 0x00 + 20, "Fwd: "
+#else
+	STRING	5, 0x40 + 0, "Fwd: "
+#endif
 	movlw	SEQ_CC_OFFSET_DIRPAR_FORWARD
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1
@@ -155,15 +153,14 @@ CS_M_TRKPROG_Tick_2
 	call	SEQ_LCD_PrintSpaces
 	rgoto	CS_M_TRKPROG_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKPROG_Tick_3_STR	STRING 6, 0x00 + 28, "JBck: "
-#else
-CS_M_TRKPROG_Tick_3_STR	STRING 6, 0x40 + 8, "JBck: "
-#endif
 CS_M_TRKPROG_Tick_3
 	;; print "jump back" value
-	TABLE_ADDR CS_M_TRKPROG_Tick_3_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	6, 0x00 + 28, "JBck: "
+#else
+	STRING	6, 0x40 + 8, "JBck: "
+#endif
 	movlw	SEQ_CC_OFFSET_DIRPAR_JMPBCK
 	call	CS_M_HLP_TrkCC_Get
 	call	MIOS_LCD_PrintBCD1

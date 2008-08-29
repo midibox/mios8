@@ -164,16 +164,14 @@ CS_M_TRKTRAN_Tick_Upper
 	bz	CS_M_TRKTRAN_Tick_2
 	rgoto	CS_M_TRKTRAN_Tick_3
 
-CS_M_TRKTRAN_Tick_0_STR	STRING 4, 0x00 + 0, "Trk."
 CS_M_TRKTRAN_Tick_0
-	TABLE_ADDR CS_M_TRKTRAN_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	4, 0x00 + 0, "Trk."
 	rgoto	CS_M_TRKTRAN_Tick_Cont
 
-CS_M_TRKTRAN_Tick_1_STR	STRING 10, 0x00 + 6, "Transpose:"
 CS_M_TRKTRAN_Tick_1
-	TABLE_ADDR CS_M_TRKTRAN_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	10, 0x00 + 6, "Transpose:"
 	rgoto	CS_M_TRKTRAN_Tick_Cont
 
 CS_M_TRKTRAN_Tick_2

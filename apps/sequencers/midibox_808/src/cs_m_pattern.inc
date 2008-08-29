@@ -154,18 +154,23 @@ CS_M_PATTERN_GP_Callback_Chain
 
 #if 0
 	;; print message
-	TABLE_ADDR CS_M_PATTERN_GP_Callback_ChainM0
-	call	MIOS_LCD_PrintMessage
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	10, 0x00 + 0, "** Chain #"
+
 	movff	SEQ_CHAIN_TOP, WREG
 	call	MIOS_LCD_PrintBCD3
 	movlw	7
 	call	SEQ_LCD_PrintSpaces
 
-	TABLE_ADDR CS_M_PATTERN_GP_Callback_ChainM1
-	call	MIOS_LCD_PrintMessage
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	11, 0x40 + 0, "** Pattern "
+
 	call	CS_M_PATTERN_PrnP	; (5 characters)
 	movlw	4
 	call	SEQ_LCD_PrintSpaces
+
+	movlw	0x80
+	call	MIOS_LCD_MessageStart
 #endif
 
 	;; DIRTY!
@@ -183,11 +188,6 @@ CS_M_PATTERN_GP_Callback_Cont
 	;; request display update and exit
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
-
-CS_M_PATTERN_GP_Callback_ChainM0
-	STRING 10, 0x00 + 0, "** Chain #"
-CS_M_PATTERN_GP_Callback_ChainM1
-	STRING 11, 0x40 + 0, "** Pattern "
 
 
 ;; --------------------------------------------------------------------------
@@ -321,14 +321,13 @@ CS_M_PATTERN_Tick_0_Chain
 	call	CS_M_PATTERN_PrnChain
 	rgoto	CS_M_PATTERN_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_PATTERN_Tick_1_STR	STRING 8, 0x00 + 6, "PATTERN "
-#else
-CS_M_PATTERN_Tick_1_STR	STRING 5, 0x00 + 6, "PTN  "
-#endif
 CS_M_PATTERN_Tick_1
-	TABLE_ADDR CS_M_PATTERN_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	8, 0x00 + 6, "PATTERN "
+#else
+	STRING	5, 0x00 + 6, "PTN  "
+#endif
 
 	;; pattern name (5 characters)
 	rcall	CS_M_PATTERN_PrnP

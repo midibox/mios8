@@ -131,9 +131,12 @@ CS_M_SONG_S_Init
 CS_M_SONG_S_Init_NoBS
 	;; print message
 	call	SEQ_LCD_Clear
-	TABLE_ADDR CS_M_SONG_S_STR_BNA_0
-	call	MIOS_LCD_PrintString
-	goto	MIOS_LCD_PrintString
+
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x00, "* No BankStick *"
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x40, "* for song :-/ *"
+	return
 
 CS_M_SONG_S_Init_BSOk
 	;; allow fast display update
@@ -157,9 +160,6 @@ CS_M_SONG_S_Init_P_Cont
 	movwf	CS_MENU_PARAMETER_L
 
 	return
-
-CS_M_SONG_S_STR_BNA_0	STRING 16, 0x00, "* No BankStick *"
-CS_M_SONG_S_STR_BNA_1	STRING 16, 0x40, "* for song :-/ *"
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
@@ -228,14 +228,13 @@ CS_M_SONG_S_Tick_0
 	call	CS_M_PATTERN_PrnChain
 	rgoto	CS_M_SONG_S_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_SONG_S_Tick_1_STR	STRING 10, 0x00 + 6, "SAVE SONG "
-#else
-CS_M_SONG_S_Tick_1_STR	STRING  7, 0x00 + 6, "SAVE S."
-#endif
 CS_M_SONG_S_Tick_1
-	TABLE_ADDR CS_M_SONG_S_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	10, 0x00 + 6, "SAVE SONG "
+#else
+	STRING	7, 0x00 + 6, "SAVE S."
+#endif
 
 	;; pattern name (3 characters)
 	call	CS_M_SONG_PrnS

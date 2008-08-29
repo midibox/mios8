@@ -148,24 +148,22 @@ CS_M_TRKRND_Tick_0
 
 	rgoto	CS_M_TRKRND_Tick_Cont
 
-CS_M_TRKRND_Tick_1_STR	STRING 14, 0x00 + 6, "RANDOM        "
 CS_M_TRKRND_Tick_1
-	TABLE_ADDR CS_M_TRKRND_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x00 + 6, "RANDOM        "
 	rgoto	CS_M_TRKRND_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKRND_Tick_2_STR	STRING 10, 0x00 + 20, "Randomize "
-#else
-CS_M_TRKRND_Tick_2_STR	STRING 10, 0x40 + 0, "Randomize "
-#endif
 CS_M_TRKRND_Tick_2
 	;; only print so long cursor pos valid (== button pressed)
 	incf	CS_MENU_CURSOR_POS, W
 	bz	CS_M_TRKRND_Tick_2_NoBtn
 CS_M_TRKRND_Tick_2_Btn
-	TABLE_ADDR CS_M_TRKRND_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	10, 0x00 + 20, "Randomize "
+#else
+	STRING	10, 0x40 + 0, "Randomize "
+#endif
 	rgoto	CS_M_TRKRND_Tick_Cont
 
 CS_M_TRKRND_Tick_2_NoBtn

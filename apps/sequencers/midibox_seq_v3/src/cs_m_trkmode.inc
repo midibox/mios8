@@ -251,10 +251,9 @@ CS_M_TRKMODE_Tick_3
 	rcall	CS_M_TRKMODE_PrnItem		; print item
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
-CS_M_TRKMODE_Tick_4_STR	STRING 4, 0x00 + 0, "Trk."
 CS_M_TRKMODE_Tick_4
-	TABLE_ADDR CS_M_TRKMODE_Tick_4_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	4, 0x00 + 0, "Trk."
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
 CS_M_TRKMODE_Tick_5
@@ -268,10 +267,9 @@ CS_M_TRKMODE_Tick_6				; ignore
 CS_M_TRKMODE_Tick_7
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
-CS_M_TRKMODE_Tick_8_STR	STRING 9, 0x80 + 0, "Hold Sort"
 CS_M_TRKMODE_Tick_8
-	TABLE_ADDR CS_M_TRKMODE_Tick_8_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	9, 0x80 + 0, "Hold Sort"
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
 CS_M_TRKMODE_Tick_9
@@ -300,10 +298,9 @@ CS_M_TRKMODE_Tick_9_Cont
 	call	SEQ_LCD_PrnOnOff
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
-CS_M_TRKMODE_Tick_A_STR	STRING 7, 0x80 + 11, "Restart"
 CS_M_TRKMODE_Tick_A
-	TABLE_ADDR CS_M_TRKMODE_Tick_A_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	7, 0x80 + 11, "Restart"
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
 CS_M_TRKMODE_Tick_B
@@ -319,10 +316,9 @@ CS_M_TRKMODE_Tick_B
 	call	SEQ_LCD_PrnOnOff
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
-CS_M_TRKMODE_Tick_C_STR	STRING 10, 0x80 + 20, "ForceScale"
 CS_M_TRKMODE_Tick_C
-	TABLE_ADDR CS_M_TRKMODE_Tick_C_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	10, 0x80 + 20, "ForceScale"
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
 CS_M_TRKMODE_Tick_D
@@ -338,10 +334,9 @@ CS_M_TRKMODE_Tick_D
 	call	SEQ_LCD_PrnOnOff
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
-CS_M_TRKMODE_Tick_E_STR	STRING 7, 0x80 + 32, "Sustain"
 CS_M_TRKMODE_Tick_E
-	TABLE_ADDR CS_M_TRKMODE_Tick_E_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	7, 0x80 + 32, "Sustain"
 	rgoto	CS_M_TRKMODE_Tick_Cont
 
 CS_M_TRKMODE_Tick_F

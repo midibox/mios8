@@ -76,30 +76,31 @@ CS_M_TRKEVNT_GP_LED_MAP
 
 
 	;; ---
-CS_M_TRKEVNT_CopyPreset_MSGOK
-	STRING 16, 0x80 + 24, " *** Preset *** "
-	STRING 16, 0xc0 + 24, " *** copied *** "
-
-CS_M_TRKEVNT_CopyPreset_MSGENC
-	STRING 27, 0x80 + 13, "      Encoder disabled     "
-	STRING 27, 0xc0 + 13, "  Press GP button 15 or 16!"
-
 	;; idea: we could demand that button 15 AND 16 are presset at the same time
 	;; but since the GP button assignments and states are not saved anywhere (yet), the
 	;; appr. check would be difficult to realize
 CS_M_TRKEVNT_CopyPreset
 	;; print message if encoder has been turned (should not trigger the preset mechanism!)
-	TABLE_ADDR CS_M_TRKEVNT_CopyPreset_MSGENC
 	movf	CS_MENU_ENC_INCREMENTER, W
-	bnz	CS_M_TRKEVNT_CopyPreset_End
+	bnz	CS_M_TRKEVNT_CopyPreset_Failed
 
 	;; this function initialises all selected tracks
 	call	SEQ_LAYER_Init
 
-	TABLE_ADDR CS_M_TRKEVNT_CopyPreset_MSGOK
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x80 + 24, " *** Preset *** "
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0xc0 + 24, " *** copied *** "
+ 	rgoto	CS_M_TRKEVNT_CopyPreset_End
+
+CS_M_TRKEVNT_CopyPreset_Failed
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 27, 0x80 + 13, "      Encoder disabled     "
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 27, 0xc0 + 13, "  Press GP button 15 or 16!"
+	;; 	rgoto	CS_M_TRKEVNT_CopyPreset_End
+
 CS_M_TRKEVNT_CopyPreset_End
-	call	MIOS_LCD_PrintString
-	call	MIOS_LCD_PrintString
 	movlw	0x40
 	goto	MIOS_LCD_MessageStart
 
@@ -172,16 +173,14 @@ CS_M_TRKEVNT_Tick
 	rgoto	CS_M_TRKEVNT_Tick_E
 	rgoto	CS_M_TRKEVNT_Tick_F
 
-CS_M_TRKEVNT_Tick_0_STR	STRING 4, 0x00 + 0, "Trk."
 CS_M_TRKEVNT_Tick_0
-	TABLE_ADDR CS_M_TRKEVNT_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	4, 0x00 + 0, "Trk."
 	rgoto	CS_M_TRKEVNT_Tick_Cont
 
-CS_M_TRKEVNT_Tick_1_STR	STRING 18, 0x00 + 5, "Layer Assignments:"
 CS_M_TRKEVNT_Tick_1
-	TABLE_ADDR CS_M_TRKEVNT_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	18, 0x00 + 5, "Layer Assignments:"
 
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
@@ -338,10 +337,9 @@ CS_M_TRKEVNT_Tick_9
 	call	SEQ_LAYER_PrnCVal
 	rgoto	CS_M_TRKEVNT_Tick_Cont
 
-CS_M_TRKEVNT_Tick_A_STR	STRING 9, 0x80 + 0, "Chn. Port"
 CS_M_TRKEVNT_Tick_A
-	TABLE_ADDR CS_M_TRKEVNT_Tick_A_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	9, 0x80 + 0, "Chn. Port"
 	rgoto	CS_M_TRKEVNT_Tick_Cont
 
 CS_M_TRKEVNT_Tick_B
@@ -393,16 +391,14 @@ CS_M_TRKEVNT_Tick_D
 	call	MIOS_LCD_PrintPreconfString
  	rgoto	CS_M_TRKEVNT_Tick_Cont
 
-CS_M_TRKEVNT_Tick_E_STR	STRING 10, 0x80 + 30, ">> COPY <<"
 CS_M_TRKEVNT_Tick_E
-	TABLE_ADDR CS_M_TRKEVNT_Tick_E_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	10, 0x80 + 30, ">> COPY <<"
 	rgoto	CS_M_TRKEVNT_Tick_Cont
 
-CS_M_TRKEVNT_Tick_F_STR	STRING 10, 0xc0 + 30, "> PRESET <"
 CS_M_TRKEVNT_Tick_F
-	TABLE_ADDR CS_M_TRKEVNT_Tick_F_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	10, 0xc0 + 30, "> PRESET <"
 	;; 	rgoto	CS_M_TRKEVNT_Tick_Cont
 
 CS_M_TRKEVNT_Tick_Cont

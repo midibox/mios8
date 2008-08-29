@@ -221,10 +221,9 @@ CS_M_UTILS_Tick_0
 
 	rgoto	CS_M_UTILS_Tick_Cont
 
-CS_M_UTILS_Tick_1_STR	STRING 14, 0x00 + 6, "UTILS         "
 CS_M_UTILS_Tick_1
-	TABLE_ADDR CS_M_UTILS_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x00 + 6, "UTILS         "
 	rgoto	CS_M_UTILS_Tick_Cont
 
 CS_M_UTILS_Tick_2_TABLE

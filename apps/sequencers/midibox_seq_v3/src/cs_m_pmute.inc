@@ -168,16 +168,14 @@ CS_M_PMUTE_Tick_Lower
 
   	rgoto	CS_M_PMUTE_Tick_Cont
 
-CS_M_PMUTE_TICK_16_STR STRING 15, 0x80+0, "<-- Muted Ports"
 CS_M_PMUTE_Tick_16
-	TABLE_ADDR CS_M_PMUTE_TICK_16_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	15, 0x80+0, "<-- Muted Ports"
   	rgoto	CS_M_PMUTE_Tick_Cont
 
-CS_M_PMUTE_TICK_17_STR STRING 22, 0xc0+0, "<-- *=muted, o=unmuted"
 CS_M_PMUTE_Tick_17
-	TABLE_ADDR CS_M_PMUTE_TICK_17_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	22, 0xc0+0, "<-- *=muted, o=unmuted"
 	;;   	rgoto	CS_M_PMUTE_Tick_Cont
 
 CS_M_PMUTE_Tick_Cont

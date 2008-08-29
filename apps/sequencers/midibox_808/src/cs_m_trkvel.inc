@@ -139,21 +139,19 @@ CS_M_TRKVEL_Tick_0
 
 	rgoto	CS_M_TRKVEL_Tick_Cont
 
-CS_M_TRKVEL_Tick_1_STR	STRING 14, 0x00 + 6, "VELOCITY      "
 CS_M_TRKVEL_Tick_1
-	TABLE_ADDR CS_M_TRKVEL_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x00 + 6, "VELOCITY      "
 	rgoto	CS_M_TRKVEL_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKVEL_Tick_2_STR	STRING 4, 0x00 + 20, "Vel:"
-#else
-CS_M_TRKVEL_Tick_2_STR	STRING 4, 0x40 + 0, "Vel:"
-#endif
 CS_M_TRKVEL_Tick_2
 	;; print unaccented velocity
-	TABLE_ADDR CS_M_TRKVEL_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	4, 0x00 + 20, "Vel:"
+#else
+	STRING	4, 0x40 + 0, "Vel:"
+#endif
 	movlw	SEQ_CC_OFFSET_MIDI_VEL
 	call	CS_M_HLP_TrkCC_Get
 	call	MIOS_LCD_PrintBCD3
@@ -165,15 +163,14 @@ CS_M_TRKVEL_Tick_2
 	call	SEQ_LCD_PrintSpaces
 	rgoto	CS_M_TRKVEL_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKVEL_Tick_3_STR	STRING 5, 0x00 + 30, "VelA:"
-#else
-CS_M_TRKVEL_Tick_3_STR	STRING 5, 0x40 + 8, "VelA:"
-#endif
 CS_M_TRKVEL_Tick_3
 	;; print accented velocity
-	TABLE_ADDR CS_M_TRKVEL_Tick_3_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	5, 0x00 + 30, "VelA:"
+#else
+	STRING	5, 0x40 + 8, "VelA:"
+#endif
 	movlw	SEQ_CC_OFFSET_MIDI_VELA
 	call	CS_M_HLP_TrkCC_Get
 	call	MIOS_LCD_PrintBCD3

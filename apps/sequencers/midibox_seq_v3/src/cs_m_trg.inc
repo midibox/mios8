@@ -104,16 +104,14 @@ CS_M_TRG_Tick_Upper
 	rgoto	CS_M_TRG_Tick_6
 	rgoto	CS_M_TRG_Tick_7
 
-CS_M_TRG_Tick_0_STR	STRING 19, 0x00 + 0, "Manual Step Trigger"
 CS_M_TRG_Tick_0
-	TABLE_ADDR CS_M_TRG_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	19, 0x00 + 0, "Manual Step Trigger"
 	rgoto	CS_M_TRG_Tick_Cont
 
-CS_M_TRG_Tick_1_STR	STRING 16, 0x80 + 0, "Selected Tracks:"
 CS_M_TRG_Tick_1
-	TABLE_ADDR CS_M_TRG_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x80 + 0, "Selected Tracks:"
 	rgoto	CS_M_TRG_Tick_Cont
 
 CS_M_TRG_Tick_2

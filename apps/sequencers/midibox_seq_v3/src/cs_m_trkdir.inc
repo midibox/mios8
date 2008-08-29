@@ -231,16 +231,15 @@ CS_M_TRKDIR_Tick_7
 	rcall	CS_M_TRKDIR_PrnItem		; print item
 	rgoto	CS_M_TRKDIR_Tick_Cont
 
-CS_M_TRKDIR_Tick_8_STR	STRING 12, 0x80 + 1, "Experimental"
 CS_M_TRKDIR_Tick_8
-	TABLE_ADDR CS_M_TRKDIR_Tick_8_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	12, 0x80 + 1, "Experimental"
 	rgoto	CS_M_TRKDIR_Tick_Cont
 
-CS_M_TRKDIR_Tick_9_STR	STRING 11, 0xc0 + 0, "Steps Fwd: "
 CS_M_TRKDIR_Tick_9
-	TABLE_ADDR CS_M_TRKDIR_Tick_9_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	11, 0xc0 + 0, "Steps Fwd: "
+
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
 	bz	CS_M_TRKDIR_Tick_Cont
@@ -250,16 +249,15 @@ CS_M_TRKDIR_Tick_9
 	call	MIOS_LCD_PrintBCD1
 	rgoto	CS_M_TRKDIR_Tick_Cont
 
-CS_M_TRKDIR_Tick_A_STR	STRING 13, 0x80 + 14, "\"Progression\""
 CS_M_TRKDIR_Tick_A
-	TABLE_ADDR CS_M_TRKDIR_Tick_A_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	13, 0x80 + 14, "\"Progression\""
 	rgoto	CS_M_TRKDIR_Tick_Cont
 
-CS_M_TRKDIR_Tick_B_STR	STRING 11, 0xc0 + 14, "Jump Back: "
 CS_M_TRKDIR_Tick_B
-	TABLE_ADDR CS_M_TRKDIR_Tick_B_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	11, 0xc0 + 14, "Jump Back: "
+
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
 	bz	CS_M_TRKDIR_Tick_Cont
@@ -268,16 +266,15 @@ CS_M_TRKDIR_Tick_B
 	call	MIOS_LCD_PrintBCD1
 	rgoto	CS_M_TRKDIR_Tick_Cont
 
-CS_M_TRKDIR_Tick_C_STR	STRING 10, 0x80 + 28, "Parameters"
 CS_M_TRKDIR_Tick_C
-	TABLE_ADDR CS_M_TRKDIR_Tick_C_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	10, 0x80 + 28, "Parameters"
 	rgoto	CS_M_TRKDIR_Tick_Cont
 
-CS_M_TRKDIR_Tick_D_STR	STRING 10, 0xc0 + 28, "Replay: x "
 CS_M_TRKDIR_Tick_D
-	TABLE_ADDR CS_M_TRKDIR_Tick_D_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	10, 0xc0 + 28, "Replay: x "
+
 	movlw	4		; item number
 	call	CS_MENU_CursorHandler2
 	bz	CS_M_TRKDIR_Tick_Cont

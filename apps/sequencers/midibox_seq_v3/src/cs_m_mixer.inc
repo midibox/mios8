@@ -461,14 +461,13 @@ CS_M_MIXER_Tick_Normal
 
 
 ;; ---
-CS_M_MIXER_Tick_Upper0_STR STRING 11, 0x00 + 0, "Mixer Map #"
 CS_M_MIXER_Tick_Upper0
 	;; init vertical bars (if required - function breaks if charset already uploaded)
 	movlw	CS_MENU_CHARSET_VBARS
 	call	CS_SPECIAL_CHARS_Init
 
-	TABLE_ADDR CS_M_MIXER_Tick_Upper0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	11, 0x00 + 0, "Mixer Map #"
 
 	incf	CS_MIXER_MAP, W
 	call	MIOS_LCD_PrintBCD3
@@ -483,10 +482,9 @@ CS_M_MIXER_Tick_Upper1
 	call	SEQ_LCD_PrintSpaces
 	rgoto	CS_M_MIXER_Tick_Cont
 
-CS_M_MIXER_Tick_Upper2_STR STRING 6, 0x80 + 0, "Page ["
 CS_M_MIXER_Tick_Upper2
-	TABLE_ADDR CS_M_MIXER_Tick_Upper2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	6, 0x80 + 0, "Page ["
 
 	incf	CS_MIXER_PAGE, W
 	call	MIOS_LCD_PrintBCD2
@@ -558,10 +556,9 @@ CS_M_MIXER_Tick_Upper3
 	call	SEQ_LCD_PrnPort
 	rgoto	CS_M_MIXER_Tick_Cont
 
-CS_M_MIXER_Tick_Upper4_STR STRING 4, 0x80 + 34, "Chn#"
 CS_M_MIXER_Tick_Upper4
-	TABLE_ADDR CS_M_MIXER_Tick_Upper4_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	4, 0x80 + 34, "Chn#"
 
 	lfsr	FSR1, SEQ_MIXER_MAP_MIDI
 	movf	CS_MIXER_SELECTED_TRK, W

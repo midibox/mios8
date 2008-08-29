@@ -123,10 +123,9 @@ CS_M_TRKASG_Tick
 	rgoto	CS_M_TRKASG_Tick_E
 	rgoto	CS_M_TRKASG_Tick_F
 
-CS_M_TRKASG_Tick_0_STR	STRING 4, 0x00 + 0, "Trk."
 CS_M_TRKASG_Tick_0
-	TABLE_ADDR CS_M_TRKASG_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	4, 0x00 + 0, "Trk."
 	rgoto	CS_M_TRKASG_Tick_Cont
 
 CS_M_TRKASG_Tick_1

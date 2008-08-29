@@ -97,11 +97,12 @@ CS_M_FORMAT_Select_Pressed
 	;; clear screen(s)
 	call	SEQ_LCD_Clear
 	;; print message
-	TABLE_ADDR CS_M_FORMAT_HOLD_STR_0
-	call	MIOS_LCD_PrintMessage
-	goto	MIOS_LCD_PrintMessage
-CS_M_FORMAT_HOLD_STR_0	STRING 25, 0x00, "**    Hold 2 seconds   **"
-CS_M_FORMAT_HOLD_STR_1	STRING 25, 0x40, "** to format BankStick **"
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 25, 0x00, "**    Hold 2 seconds   **"
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 25, 0x40, "** to format BankStick **"
+	movlw	0x80
+	goto	MIOS_LCD_MessageStart
 
 CS_M_FORMAT_Select_Depressed
 	;; deinstall hook and stop message
@@ -161,16 +162,16 @@ CS_M_FORMAT_Select_DoIt_M
 
 CS_M_FORMAT_Select_DoIt_Failed
 	;; print message	
-	TABLE_ADDR CS_M_FORMAT_FAILED_STR_0
-	call	MIOS_LCD_PrintMessage
-	call	MIOS_LCD_PrintMessage
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 17, 0x00, "* BankStick #1  *"
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 17, 0x40, "* not available *"
 	movlw	0x00 + 13
 	call	MIOS_LCD_CursorSet
 	incf	CS_MENU_CURSOR_POS, W
-	goto	MIOS_LCD_PrintBCD1
-CS_M_FORMAT_FAILED_STR_0 STRING 17, 0x00, "* BankStick #1  *"
-CS_M_FORMAT_FAILED_STR_1 STRING 17, 0x40, "* not available *"
-
+	call	MIOS_LCD_PrintBCD1
+	movlw	0x80
+	goto	MIOS_LCD_MessageStart
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Init routine is called when menu page should be initialized

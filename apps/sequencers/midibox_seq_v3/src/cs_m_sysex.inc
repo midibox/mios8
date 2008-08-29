@@ -222,22 +222,19 @@ CS_M_SYSEX_Tick
 	rgoto	CS_M_SYSEX_Tick_6
 	rgoto	CS_M_SYSEX_Tick_7
 
-CS_M_SYSEX_Tick_0_STR	STRING 7, 0x00 + 1, "Pattern"
 CS_M_SYSEX_Tick_0
-	TABLE_ADDR CS_M_SYSEX_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	7, 0x00 + 1, "Pattern"
 	rgoto	CS_M_SYSEX_Tick_Cont
 
-CS_M_SYSEX_Tick_1_STR	STRING 6, 0x00 + 12, "Target"
 CS_M_SYSEX_Tick_1
-	TABLE_ADDR CS_M_SYSEX_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	6, 0x00 + 12, "Target"
 	rgoto	CS_M_SYSEX_Tick_Cont
 
-CS_M_SYSEX_Tick_2_STR	STRING 9, 0x00 + 21, "Device ID"
 CS_M_SYSEX_Tick_2
-	TABLE_ADDR CS_M_SYSEX_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	9, 0x00 + 21, "Device ID"
 	rgoto	CS_M_SYSEX_Tick_Cont
 
 CS_M_SYSEX_Tick_3
@@ -302,10 +299,9 @@ CS_M_SYSEX_Tick_6
 	call	MIOS_LCD_PrintHex2
 	rgoto	CS_M_SYSEX_Tick_Cont
 
-CS_M_SYSEX_Tick_7_STR	STRING 8, 0x40 + 31, ">>SEND<<"
 CS_M_SYSEX_Tick_7
-	TABLE_ADDR CS_M_SYSEX_Tick_7_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	8, 0x40 + 31, ">>SEND<<"
 	;; 	rgoto	CS_M_SYSEX_Tick_Cont
 
 CS_M_SYSEX_Tick_Cont

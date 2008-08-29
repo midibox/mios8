@@ -287,19 +287,17 @@ CS_M_EDIT_Tick_0
 
 	rgoto	CS_M_EDIT_Tick_Cont
 
-CS_M_EDIT_Tick_1_STR	STRING 14, 0x00 + 6, "EDIT          "
 CS_M_EDIT_Tick_1
 #if DEFAULT_LCD_WIDTH == 80
-	TABLE_ADDR CS_M_EDIT_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x00 + 6, "EDIT          "
 #endif
 	rgoto	CS_M_EDIT_Tick_Cont
 
-CS_M_EDIT_Tick_2_STR	STRING 5, 0x00 + 20, "Step "
 CS_M_EDIT_Tick_2
 #if DEFAULT_LCD_WIDTH == 80
-	TABLE_ADDR CS_M_EDIT_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	5, 0x00 + 20, "Step "
 #else
 	movlw	0x00 + 6
 	call	MIOS_LCD_CursorSet
@@ -329,11 +327,10 @@ CS_M_EDIT_Tick_3
 	rgoto	CS_M_EDIT_Tick_Cont
 
 
-CS_M_EDIT_Tick_4_STR	STRING 14, 0x80 + 0, "Trigger View: "
 CS_M_EDIT_Tick_4
 #if DEFAULT_LCD_WIDTH == 80
-	TABLE_ADDR CS_M_EDIT_Tick_4_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x80 + 0, "Trigger View: "
 #endif
 	rgoto	CS_M_EDIT_Tick_Cont
 

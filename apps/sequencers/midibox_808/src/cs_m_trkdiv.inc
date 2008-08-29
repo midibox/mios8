@@ -187,32 +187,32 @@ CS_M_TRKDIV_Tick_0
 
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-CS_M_TRKDIV_Tick_1_STR	STRING 14, 0x00 + 6, "TIMEBASE      "
 CS_M_TRKDIV_Tick_1
-	TABLE_ADDR CS_M_TRKDIV_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x00 + 6, "TIMEBASE      "
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-#if DEFAULT_LCD_WIDTH == 80
-CS_M_TRKDIV_Tick_2_TB_STR  STRING 10, 0x00 + 20, "Selection:"
-CS_M_TRKDIV_Tick_2_STB_STR STRING 13, 0x00 + 20, "Sync to Bar: "
-#else
-CS_M_TRKDIV_Tick_2_TB_STR  STRING 10, 0x40 + 0, "Selection:"
-CS_M_TRKDIV_Tick_2_STB_STR STRING 13, 0x40 + 0, "Sync to Bar: "
-#endif
 CS_M_TRKDIV_Tick_2
 	;; if last button has been pressed: print "Sync to Bar: " instead
 	movf	CS_MENU_CURSOR_POS, W
 	xorlw	0x0f
 	bz	CS_M_TRKDIV_Tick_2_STB
 CS_M_TRKDIV_Tick_2_TB
-	TABLE_ADDR CS_M_TRKDIV_Tick_2_TB_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	10, 0x00 + 20, "Selection:"
+#else
+	STRING	10, 0x40 + 0, "Selection:"
+#endif
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
 CS_M_TRKDIV_Tick_2_STB
-	TABLE_ADDR CS_M_TRKDIV_Tick_2_STB_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+#if DEFAULT_LCD_WIDTH == 80
+	STRING	13, 0x00 + 20, "Sync to Bar: "
+#else
+	STRING	13, 0x40 + 0, "Sync to Bar: "
+#endif
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
 CS_M_TRKDIV_Tick_3

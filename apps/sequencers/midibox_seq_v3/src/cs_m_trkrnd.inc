@@ -365,7 +365,6 @@ CS_M_TRKRND_Tick_Upper_End
 	rgoto	CS_M_TRKRND_Tick_Cont
 
 
-CS_M_TRKRND_Tick_8_STR	STRING 8, 0x40 + 6, "Generate"
 CS_M_TRKRND_Tick_8
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
@@ -373,14 +372,14 @@ CS_M_TRKRND_Tick_8
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
 
-	TABLE_ADDR CS_M_TRKRND_Tick_8_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	8, 0x40 + 6, "Generate"
+
 	rgoto	CS_M_TRKRND_Tick_Cont
 
-CS_M_TRKRND_Tick_9_STR	STRING 14, 0x40 + 25, "Clr. Util Undo"
 CS_M_TRKRND_Tick_9
-	TABLE_ADDR CS_M_TRKRND_Tick_9_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	14, 0x40 + 25, "Clr. Util Undo"
 	rgoto	CS_M_TRKRND_Tick_Cont
 
 CS_M_TRKRND_Tick_ABC

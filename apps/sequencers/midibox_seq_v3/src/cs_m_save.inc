@@ -227,11 +227,12 @@ CS_M_SAVE_Select_Pressed
 	;; clear screen(s)
 	call	SEQ_LCD_Clear
 	;; print message
-	TABLE_ADDR CS_M_SAVE_HOLD_STR_0
-	call	MIOS_LCD_PrintMessage
-	goto	MIOS_LCD_PrintMessage
-CS_M_SAVE_HOLD_STR_0	STRING 16, 0x00, " Hold 2 seconds "
-CS_M_SAVE_HOLD_STR_1	STRING 16, 0x40, "to save pattern "
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 16, 0x00, " Hold 2 seconds "
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 16, 0x40, "to save pattern "
+	movlw	0x80
+	goto	MIOS_LCD_MessageStart
 
 CS_M_SAVE_Select_Depressed
 	;; deinstall hook and stop message
@@ -277,12 +278,13 @@ CS_M_SAVE_Select_Copy
 	movff	SEQ_SAVE_PATTERN, PLUSW1
 #endif
 
-	;; print message	
-	TABLE_ADDR CS_M_SAVE_FINISHED_STR_0
-	call	MIOS_LCD_PrintMessage
-	goto	MIOS_LCD_PrintMessage
-CS_M_SAVE_FINISHED_STR_0 STRING 16, 0x00, "*** Pattern  ***"
-CS_M_SAVE_FINISHED_STR_1 STRING 16, 0x40, "***  saved   ***"
+	;; print message
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 16, 0x00, "*** Pattern  ***"
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING 16, 0x40, "***  saved   ***"
+	movlw	0x80
+	goto	MIOS_LCD_MessageStart
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Init routine is called when menu page should be initialized
@@ -359,16 +361,14 @@ CS_M_SAVE_Tick
 	rgoto	CS_M_SAVE_Tick_E
 	rgoto	CS_M_SAVE_Tick_F
 
-CS_M_SAVE_Tick_0_STR	STRING 17, 0x00 + 0, "Grp. Save Pattern"
 CS_M_SAVE_Tick_0
-	TABLE_ADDR CS_M_SAVE_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	17, 0x00 + 0, "Grp. Save Pattern"
 	rgoto	CS_M_SAVE_Tick_Cont
 
-CS_M_SAVE_Tick_1_STR	STRING 9, 0x00 + 21, "to Target"
 CS_M_SAVE_Tick_1
-	TABLE_ADDR CS_M_SAVE_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	9, 0x00 + 21, "to Target"
 	rgoto	CS_M_SAVE_Tick_Cont
 
 CS_M_SAVE_Tick_2
@@ -377,22 +377,19 @@ CS_M_SAVE_Tick_2
 CS_M_SAVE_Tick_3
 	rgoto	CS_M_SAVE_Tick_Cont
 
-CS_M_SAVE_Tick_4_STR	STRING 11, 0x80 + 4, "Hold Select"
 CS_M_SAVE_Tick_4
-	TABLE_ADDR CS_M_SAVE_Tick_4_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	11, 0x80 + 4, "Hold Select"
 	rgoto	CS_M_SAVE_Tick_Cont
 
-CS_M_SAVE_Tick_5_STR	STRING 10, 0x80 + 16, "Button for"
 CS_M_SAVE_Tick_5
-	TABLE_ADDR CS_M_SAVE_Tick_5_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	10, 0x80 + 16, "Button for"
 	rgoto	CS_M_SAVE_Tick_Cont
 
-CS_M_SAVE_Tick_6_STR	STRING 9, 0x80 + 27, "2 seconds"
 CS_M_SAVE_Tick_6
-	TABLE_ADDR CS_M_SAVE_Tick_6_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	9, 0x80 + 27, "2 seconds"
 	rgoto	CS_M_SAVE_Tick_Cont
 
 CS_M_SAVE_Tick_7
@@ -489,10 +486,9 @@ CS_M_SAVE_Tick_B_Cont
 CS_M_SAVE_Tick_C
 	rgoto	CS_M_SAVE_Tick_Cont
 
-CS_M_SAVE_Tick_D_STR	STRING 15, 0xc0 + 12, "to save pattern"
 CS_M_SAVE_Tick_D
-	TABLE_ADDR CS_M_SAVE_Tick_D_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	15, 0xc0 + 12, "to save pattern"
 	rgoto	CS_M_SAVE_Tick_Cont
 
 CS_M_SAVE_Tick_E

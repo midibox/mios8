@@ -319,10 +319,9 @@ CS_M_BPM_Tick_9_Slave
 	call	SEQ_LCD_PrintChars
 	rgoto	CS_M_BPM_Tick_Cont
 
-CS_M_BPM_Tick_A_STR	STRING	5, 0x40+35, "Tempo"
 CS_M_BPM_Tick_A
-	TABLE_ADDR CS_M_BPM_Tick_A_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	5, 0x40+35, "Tempo"
 	rgoto	CS_M_BPM_Tick_Cont
 
 CS_M_BPM_Tick_B

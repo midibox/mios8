@@ -268,28 +268,24 @@ CS_M_TRKDIV_Tick
 	rgoto	CS_M_TRKDIV_Tick_6
 	rgoto	CS_M_TRKDIV_Tick_7
 
-CS_M_TRKDIV_Tick_0_STR	STRING 19, 0x00 + 0, "Trk.  Clock Divider"
 CS_M_TRKDIV_Tick_0
-	TABLE_ADDR CS_M_TRKDIV_Tick_0_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	19, 0x00 + 0, "Trk.  Clock Divider"
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-CS_M_TRKDIV_Tick_1_STR	STRING 16, 0x00 + 21, "Synch to Measure"
 CS_M_TRKDIV_Tick_1
-	TABLE_ADDR CS_M_TRKDIV_Tick_1_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x00 + 21, "Synch to Measure"
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-CS_M_TRKDIV_Tick_2_STR	STRING 16, 0x80 + 7, "Quick Selection:"
 CS_M_TRKDIV_Tick_2
-	TABLE_ADDR CS_M_TRKDIV_Tick_2_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x80 + 7, "Quick Selection:"
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
-CS_M_TRKDIV_Tick_3_STR	STRING 8, 0x80 + 24, "Timebase"
 CS_M_TRKDIV_Tick_3
-	TABLE_ADDR CS_M_TRKDIV_Tick_3_STR
-	call	MIOS_LCD_PrintString
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	8, 0x80 + 24, "Timebase"
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
 CS_M_TRKDIV_Tick_4
