@@ -84,57 +84,47 @@ CS_M_TRG_Tick
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
 	;; <--------------------------------------><-------------------------------------->
 	;; Manual Step Trigger                     Selected Tracks: 1234 1234 1234 1234
-	;; 00000000000000--------------------------1111111111111111-2222-3333-4444-5555---
-	;; lower line: print GxTy and -7...0...7 (0x08..0x17)
+	;; 4444444444444444444---------------------5555555555555555-0000-1111-2222-3333----
+	;; lower line: print track 1..16
 
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0xf8
-	bnz	CS_M_TRG_Tick_Lower
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRG_Tick_x)
 
-CS_M_TRG_Tick_Upper
+        ;; ------------------------------------------------------------------
+CS_M_TRG_Tick_0123
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRG_Tick_0
-	rgoto	CS_M_TRG_Tick_1
-	rgoto	CS_M_TRG_Tick_2
-	rgoto	CS_M_TRG_Tick_3
-	rgoto	CS_M_TRG_Tick_4
-	rgoto	CS_M_TRG_Tick_5
-	rgoto	CS_M_TRG_Tick_6
-	rgoto	CS_M_TRG_Tick_7
-
-CS_M_TRG_Tick_0
-	call	SEQ_LCD_PrintStringAfterCall
-	STRING	19, 0x00 + 0, "Manual Step Trigger"
-	rgoto	CS_M_TRG_Tick_Cont
-
-CS_M_TRG_Tick_1
-	call	SEQ_LCD_PrintStringAfterCall
-	STRING	16, 0x80 + 0, "Selected Tracks:"
-	rgoto	CS_M_TRG_Tick_Cont
-
-CS_M_TRG_Tick_2
-CS_M_TRG_Tick_3
-CS_M_TRG_Tick_4
-CS_M_TRG_Tick_5
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-2
-	movwf	TMP1		; (group)
 	mullw	5
 	movlw	0x80 + 17
 	addwf	PRODL, W
 	call	MIOS_LCD_CursorSet
 	
-	movf	TMP1, W		; print selected tracks of group
+	movf	CS_MENU_REFRESH_ITEM_CTR, W	; print selected tracks of group
 	call	SEQ_LCD_PrnSelectedTrks
-	rgoto	CS_M_TRG_Tick_Cont
+	rcall	CS_M_TRG_Tick_Yield		; repeat 4 times
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 2, ACCESS, CS_M_TRG_Tick_0123
 
+        ;; ------------------------------------------------------------------
+CS_M_TRG_Tick_4
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	19, 0x00 + 0, "Manual Step Trigger"
+	rcall	CS_M_TRG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
+CS_M_TRG_Tick_5
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	16, 0x80 + 0, "Selected Tracks:"
+	rcall	CS_M_TRG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRG_Tick_6
-CS_M_TRG_Tick_7
-	;; unused
-	rgoto	CS_M_TRG_Tick_Cont
+	rcall	CS_M_TRG_Tick_Yield
 
+        ;; ------------------------------------------------------------------
+CS_M_TRG_Tick_7
+	rcall	CS_M_TRG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRG_Tick_Lower
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	addlw	-8
@@ -143,7 +133,7 @@ CS_M_TRG_Tick_Lower
 	mullw	5
 	movlw	0x40
 	btfsc	TMP1, 3
-	movlw 0xc0
+	movlw	0xc0
 	addwf	PRODL, W
 	addlw	1
 	call	MIOS_LCD_CursorSet
@@ -151,21 +141,21 @@ CS_M_TRG_Tick_Lower
 	SET_BSR	SEQ_BASE
 	incf	TMP1, W
 	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
-	addlw 16
+	addlw	16
 	call	MIOS_LCD_PrintBCD2
-	;; 	rgoto	CS_M_TRG_Tick_Cont		
 
-CS_M_TRG_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	movlw	24-1
-	cpfsgt	CS_MENU_REFRESH_ITEM_CTR, ACCESS
-	rgoto CS_M_TRG_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_MUTE_Tick_End
+        movlw   24-1
+	cpfslt  CS_MENU_REFRESH_ITEM_CTR, ACCESS
+	goto	CS_M_HLP_LCD_Tick_End
+	rcall	CS_M_TRG_Tick_Yield
+	rgoto	CS_M_TRG_Tick_Lower
 
+        ;; ------------------------------------------------------------------
 CS_M_TRG_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_TRG_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 

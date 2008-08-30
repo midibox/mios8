@@ -340,74 +340,70 @@ CS_M_SAVE_Tick
 	;; G1 (Track 11-11)/1:A1 -> 1:A1                       to save pattern              
 	;; 88-99999999999999AAAAAA--BBBB-----------------------DDDDDDDDDDDDDDD-------------
 
-	;; print segments 0-15
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_SAVE_Tick_0
-	rgoto	CS_M_SAVE_Tick_1
-	rgoto	CS_M_SAVE_Tick_2
-	rgoto	CS_M_SAVE_Tick_3
-	rgoto	CS_M_SAVE_Tick_4
-	rgoto	CS_M_SAVE_Tick_5
-	rgoto	CS_M_SAVE_Tick_6
-	rgoto	CS_M_SAVE_Tick_7
-	rgoto	CS_M_SAVE_Tick_8
-	rgoto	CS_M_SAVE_Tick_9
-	rgoto	CS_M_SAVE_Tick_A
-	rgoto	CS_M_SAVE_Tick_B
-	rgoto	CS_M_SAVE_Tick_C
-	rgoto	CS_M_SAVE_Tick_D
-	rgoto	CS_M_SAVE_Tick_E
-	rgoto	CS_M_SAVE_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_SAVE_Tick_x)
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_0
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	17, 0x00 + 0, "Grp. Save Pattern"
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_1
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	9, 0x00 + 21, "to Target"
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_2
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_3
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_4
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	11, 0x80 + 4, "Hold Select"
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_5
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	10, 0x80 + 16, "Button for"
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_6
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	9, 0x80 + 27, "2 seconds"
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_7
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_8
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_SAVE_Tick_Cont
+	rgoto	CS_M_SAVE_Tick_8_End
 
 	movlw	'G'
 	call	MIOS_LCD_PrintChar
 	call	CS_M_HLP_PrnG
-	rgoto	CS_M_SAVE_Tick_Cont
 
+CS_M_SAVE_Tick_8_End
+	rcall	CS_M_SAVE_Tick_Yield
+	rgoto	CS_M_SAVE_Tick_9
+
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_9_TAB	db	"(Track  1- 4)/"
 			db	"(Track  5- 8)/"
 			db	"(Track  9-12)/"
@@ -426,8 +422,9 @@ CS_M_SAVE_Tick_9
 	movwf	TBLPTRH
 	movlw	14
 	call	MIOS_LCD_PrintPreconfString
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_A
 	movlw	0x40 + 22
 	call	MIOS_LCD_CursorSet
@@ -440,7 +437,7 @@ CS_M_SAVE_Tick_A
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_SAVE_Tick_Cont
+	bz	CS_M_SAVE_Tick_A_End
 
 	lfsr	FSR1, SEQ_PATTERN_BANK0
 	SET_BSR	SEQ_BASE
@@ -457,8 +454,10 @@ CS_M_SAVE_Tick_A
 	movf	PLUSW1, W
 	call	SEQ_LCD_PrnPattern
 
-	rgoto	CS_M_SAVE_Tick_Cont
+CS_M_SAVE_Tick_A_End
+	rcall	CS_M_SAVE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_B
 	movlw	0x40 + 25
 	call	MIOS_LCD_CursorSet
@@ -477,33 +476,30 @@ CS_M_SAVE_Tick_B_Cont
 	
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_SAVE_Tick_Cont
+	bz	CS_M_SAVE_Tick_B_End
 	SET_BSR	SEQ_BASE
 	movf	SEQ_SAVE_PATTERN, W, BANKED
 	call	SEQ_LCD_PrnPattern
-	rgoto	CS_M_SAVE_Tick_Cont
-	
-CS_M_SAVE_Tick_C
-	rgoto	CS_M_SAVE_Tick_Cont
 
+CS_M_SAVE_Tick_B_End
+	rcall	CS_M_SAVE_Tick_Yield
+
+        ;; ------------------------------------------------------------------
+CS_M_SAVE_Tick_C
+	rcall	CS_M_SAVE_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_D
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	15, 0xc0 + 12, "to save pattern"
-	rgoto	CS_M_SAVE_Tick_Cont
+	rcall	CS_M_SAVE_Tick_Yield
 
-CS_M_SAVE_Tick_E
-CS_M_SAVE_Tick_F
-	;; 	rgoto	CS_M_SAVE_Tick_Cont
-
-CS_M_SAVE_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_SAVE_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_SAVE_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_SAVE_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 

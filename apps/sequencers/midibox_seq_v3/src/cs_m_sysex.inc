@@ -209,43 +209,39 @@ CS_M_SYSEX_Tick
 	;;  G1 RAM      1:A1       00     >>SEND<<
 	;; -444444------5555-------66-----77777777-----------------------------------------
 
-	;; print segments 0-7
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_SYSEX_Tick_0
-	rgoto	CS_M_SYSEX_Tick_1
-	rgoto	CS_M_SYSEX_Tick_2
-	rgoto	CS_M_SYSEX_Tick_3
-	rgoto	CS_M_SYSEX_Tick_4
-	rgoto	CS_M_SYSEX_Tick_5
-	rgoto	CS_M_SYSEX_Tick_6
-	rgoto	CS_M_SYSEX_Tick_7
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_SYSEX_Tick_x)
 
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_0
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	7, 0x00 + 1, "Pattern"
-	rgoto	CS_M_SYSEX_Tick_Cont
+	rcall	CS_M_SYSEX_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_1
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	6, 0x00 + 12, "Target"
-	rgoto	CS_M_SYSEX_Tick_Cont
+	rcall	CS_M_SYSEX_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_2
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	9, 0x00 + 21, "Device ID"
-	rgoto	CS_M_SYSEX_Tick_Cont
+	rcall	CS_M_SYSEX_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_3
-	rgoto	CS_M_SYSEX_Tick_Cont
+	rcall	CS_M_SYSEX_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_4
 	movlw	0x40 + 1
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_SYSEX_Tick_Cont
+	bz	CS_M_SYSEX_Tick_4_End
 
 	movlw	'G'
 	call	MIOS_LCD_PrintChar
@@ -260,8 +256,11 @@ CS_M_SYSEX_Tick_4
 	call	MIOS_LCD_PrintChar
 	movlw	'M'
 	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_SYSEX_Tick_Cont
 
+CS_M_SYSEX_Tick_4_End
+	rcall	CS_M_SYSEX_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_5
 	movlw	0x40 + 13
 	call	MIOS_LCD_CursorSet
@@ -281,38 +280,41 @@ CS_M_SYSEX_Tick_5_Cont
 
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_SYSEX_Tick_5_Cont
+	bz	CS_M_SYSEX_Tick_5_End
 	
 	SET_BSR	SEQ_BASE
 	movf	SEQ_SYSEX_TARGET_PATTERN, W, BANKED
 	call	SEQ_LCD_PrnPattern
-	rgoto	CS_M_SYSEX_Tick_Cont
 
+CS_M_SYSEX_Tick_5_End
+	rcall	CS_M_SYSEX_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_6
 	movlw	0x40 + 24
 	call	MIOS_LCD_CursorSet
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_SYSEX_Tick_5_Cont
+	bz	CS_M_SYSEX_Tick_6_End
 	
 	movf	MIDI_DEVICE_ID, W
 	call	MIOS_LCD_PrintHex2
-	rgoto	CS_M_SYSEX_Tick_Cont
 
+CS_M_SYSEX_Tick_6_End
+	rcall	CS_M_SYSEX_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_7
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	8, 0x40 + 31, ">>SEND<<"
-	;; 	rgoto	CS_M_SYSEX_Tick_Cont
 
-CS_M_SYSEX_Tick_Cont
-	;; Tick function will be called 8 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_SYSEX_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_SYSEX_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_SYSEX_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
+
 
 ;; ==========================================================================
 

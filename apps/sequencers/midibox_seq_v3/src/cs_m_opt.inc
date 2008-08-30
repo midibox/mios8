@@ -171,6 +171,8 @@ CS_M_OPT_Init
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
+CS_M_OPT_Tick_Upper_STR
+	db	"SyncPatChange  FollowSong  Paste/Clr Beh Control  Root      Selected Scale      "
 CS_M_OPT_Tick
 	;; layout:
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
@@ -181,27 +183,10 @@ CS_M_OPT_Tick
 	;;   off    16        off       Steps only   Global   Keyb   50:Hungarian Gypsy     
 	;; --888888888--------999-------AAAAAAAAAA--BBBBBBBBBBCCCCCDDDDDEEEEEEEEEEEEEEEEEEE
 
-	;; print segments 0-15
-
-	;; upper line
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_OPT_Tick_Upper
-
-	;; lower line
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_OPT_Tick_8
-	rgoto	CS_M_OPT_Tick_9
-	rgoto	CS_M_OPT_Tick_A
-	rgoto	CS_M_OPT_Tick_B
-	rgoto	CS_M_OPT_Tick_C
-	rgoto	CS_M_OPT_Tick_D
-	rgoto	CS_M_OPT_Tick_E
-	rgoto	CS_M_OPT_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_OPT_Tick_x)
 
-
-CS_M_OPT_Tick_Upper_STR
-	db	"SyncPatChange  FollowSong  Paste/Clr Beh Control  Root      Selected Scale      "
 CS_M_OPT_Tick_Upper
 	;; determine cursor pos
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
@@ -220,9 +205,11 @@ CS_M_OPT_Tick_Upper
 	movlw	10
 	call	MIOS_LCD_PrintPreconfString
 
-	rgoto	CS_M_OPT_Tick_Cont
+	;; repeat 8 times
+	rcall	CS_M_OPT_Tick_Yield
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_OPT_Tick_Upper
 
-
+        ;; ------------------------------------------------------------------
 CS_M_OPT_Tick_8
 	movlw	0x40 + 2
 	call	MIOS_LCD_CursorSet
@@ -243,50 +230,52 @@ CS_M_OPT_Tick_8_Cont
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_OPT_Tick_Cont
+	rgoto	CS_M_OPT_Tick_8_End
 
 	SET_BSR	SEQ_BASE
 	movf	SEQ_STEPS_PER_MEASURE, W, BANKED
 	call	SEQ_LCD_PrnDecP1
-	rgoto	CS_M_OPT_Tick_Cont
 
+CS_M_OPT_Tick_8_End
+	rcall	CS_M_OPT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_OPT_Tick_9
 	movlw	0x40 + 18
 	call	MIOS_LCD_CursorSet
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_OPT_Tick_Cont
+	rgoto	CS_M_OPT_Tick_9_End
 
 	SET_BSR	SEQ_BASE
 	movlw	0x00
 	btfsc	SEQ_CFG0, SEQ_CFG0_FOLLOW_SONG, BANKED
 	movlw 0x01
 	call	SEQ_LCD_PrnOnOff
-	rgoto	CS_M_OPT_Tick_Cont
 
-CS_M_OPT_Tick_A_TABLE
-	db	"Steps only  "
-	db	"Whole Track "
+CS_M_OPT_Tick_9_End
+	rcall	CS_M_OPT_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_OPT_Tick_A
-	movlw	0x40 + 28
-	call	MIOS_LCD_CursorSet
-	movlw	3		; item number
-	call	CS_MENU_CursorHandler2
-	skpnz
-	rgoto	CS_M_OPT_Tick_Cont
-
 	SET_BSR	SEQ_BASE
-	movlw	0x00
-	btfsc	SEQ_CFG0, SEQ_CFG0_PASTE_CLR_ALL, BANKED
-	movlw 0x01
-	TABLE_ADDR_MUL_W CS_M_OPT_Tick_A_TABLE, 12
-	movlw	12
-	call	MIOS_LCD_PrintPreconfString
-	rgoto	CS_M_OPT_Tick_Cont
+	BRA_IFSET SEQ_CFG0, SEQ_CFG0_PASTE_CLR_ALL, BANKED, CS_M_OPT_Tick_A_WholeTrack
+CS_M_OPT_Tick_A_StepsOnly
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	12, 0x40 + 28, "Steps only  "
+	rgoto	CS_M_OPT_Tick_A_End
 
+CS_M_OPT_Tick_A_WholeTrack
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	12, 0x40 + 28, "Whole Track "
+	;; 	rgoto	CS_M_OPT_Tick_9_End
 
+CS_M_OPT_Tick_A_End
+	rcall	CS_M_OPT_Tick_Yield
+	rgoto	CS_M_OPT_Tick_B
+
+        ;; ------------------------------------------------------------------
 CS_M_OPT_Tick_B_TABLE
 	db	"Global  "
 	db	"Group G1"
@@ -299,7 +288,7 @@ CS_M_OPT_Tick_B
 	call	MIOS_LCD_CursorSet
 	movlw	4		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_OPT_Tick_Cont
+	bz	CS_M_OPT_Tick_B_End
 
 	SET_BSR	SEQ_BASE
 	movf	SEQ_GLOBAL_SCALE_CTRL, W, BANKED
@@ -307,9 +296,12 @@ CS_M_OPT_Tick_B
 	TABLE_ADDR_MUL_W CS_M_OPT_Tick_B_TABLE, 8
 	movlw	8
 	call	MIOS_LCD_PrintPreconfString
-	rgoto	CS_M_OPT_Tick_Cont
 
+CS_M_OPT_Tick_B_End
+	rcall	CS_M_OPT_Tick_Yield
+	rgoto	CS_M_OPT_Tick_C
 
+        ;; ------------------------------------------------------------------
 CS_M_OPT_Tick_C_TABLE
 	db	"Keyb", " C  ", " C# ", " D  ", " D# ", " E  ", " F  ", " F# ", " G  ", " G# ", " A  ", " A# ", " B  "
 CS_M_OPT_Tick_C
@@ -317,52 +309,52 @@ CS_M_OPT_Tick_C
 	call	MIOS_LCD_CursorSet
 	movlw	5		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_OPT_Tick_Cont
+	bz	CS_M_OPT_Tick_C_End
 
 	call	SEQ_SCALE_GetRoot
 	TABLE_ADDR_MUL_W CS_M_OPT_Tick_C_TABLE, 4
 	movlw	4
 	call	MIOS_LCD_PrintPreconfString
-	rgoto	CS_M_OPT_Tick_Cont
 
+CS_M_OPT_Tick_C_End
+	rcall	CS_M_OPT_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_OPT_Tick_D
 	movlw	0xc0 + 16
 	call	MIOS_LCD_CursorSet
 	movlw	6		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_OPT_Tick_Cont
+	bz	CS_M_OPT_Tick_D_End
 
 	SET_BSR	SEQ_BASE
 	call	SEQ_SCALE_GetScale
 	call	MIOS_LCD_PrintBCD3
 	movlw	':'
 	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_OPT_Tick_Cont
 
+CS_M_OPT_Tick_D_End
+	rcall	CS_M_OPT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_OPT_Tick_E
 	movlw	0xc0 + 20
 	call	MIOS_LCD_CursorSet
 	movlw	6		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_OPT_Tick_Cont
+	bz	CS_M_OPT_Tick_E_End
 
 	call	SEQ_SCALE_GetScale
 	call	SEQ_SCALE_Prn	; (20 characters)
-	rgoto	CS_M_OPT_Tick_Cont
 
-CS_M_OPT_Tick_F
-	;;  	rgoto	CS_M_OPT_Tick_Cont
+CS_M_OPT_Tick_E_End
 
-CS_M_OPT_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_OPT_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_OPT_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_OPT_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 
 ;; ==========================================================================

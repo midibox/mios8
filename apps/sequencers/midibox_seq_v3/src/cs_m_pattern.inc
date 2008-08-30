@@ -244,27 +244,11 @@ CS_M_PATTERN_Init_P_Cont
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_Tick
-	;; print segments 0-15
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_PATTERN_Tick_0
-	rgoto	CS_M_PATTERN_Tick_1
-	rgoto	CS_M_PATTERN_Tick_2
-	rgoto	CS_M_PATTERN_Tick_3
-	rgoto	CS_M_PATTERN_Tick_4
-	rgoto	CS_M_PATTERN_Tick_5
-	rgoto	CS_M_PATTERN_Tick_6
-	rgoto	CS_M_PATTERN_Tick_7
-	rgoto	CS_M_PATTERN_Tick_8
-	rgoto	CS_M_PATTERN_Tick_9
-	rgoto	CS_M_PATTERN_Tick_A
-	rgoto	CS_M_PATTERN_Tick_B
-	rgoto	CS_M_PATTERN_Tick_C
-	rgoto	CS_M_PATTERN_Tick_D
-	rgoto	CS_M_PATTERN_Tick_E
-	rgoto	CS_M_PATTERN_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_PATTERN_Tick_x)
 
+        ;; ------------------------------------------------------------------
 ;; --- G1 ---
 CS_M_PATTERN_Tick_0
 	;; init vertical bars (if required - function breaks if charset already uploaded)
@@ -273,103 +257,100 @@ CS_M_PATTERN_Tick_0
 
 	movlw	0
 	rcall	CS_M_PATTERN_PrnP
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_1
 	movlw	0
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_2
 	movlw	1
 	rcall	CS_M_PATTERN_PrnM
 	movlw	2
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_3
 	movlw	3
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 ;; --- G2 ---
 CS_M_PATTERN_Tick_4
 	movlw	1
 	rcall	CS_M_PATTERN_PrnP
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_5
 	movlw	4
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_6
 	movlw	5
 	rcall	CS_M_PATTERN_PrnM
 	movlw	6
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_7
 	movlw	7
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 ;; --- G3 ---
 CS_M_PATTERN_Tick_8
 	movlw	2
 	rcall	CS_M_PATTERN_PrnP
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_9
 	movlw	8
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_A
 	movlw	9
 	rcall	CS_M_PATTERN_PrnM
 	movlw	10
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_B
 	movlw	11
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 	
 ;; --- G4 ---
 CS_M_PATTERN_Tick_C
 	movlw	3
 	rcall	CS_M_PATTERN_PrnP
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_D
 	movlw	12
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_E
 	movlw	13
 	rcall	CS_M_PATTERN_PrnM
 	movlw	14
 	rcall	CS_M_PATTERN_PrnM
-	rgoto	CS_M_PATTERN_Tick_Cont
+	rcall	CS_M_PATTERN_Tick_Yield
 
 CS_M_PATTERN_Tick_F
 	movlw	15
 	rcall	CS_M_PATTERN_PrnM
-	;; 	rgoto	CS_M_PATTERN_Tick_Cont
 
-CS_M_PATTERN_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_PATTERN_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_PATTERN_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_PATTERN_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
+
 
 ;; ==========================================================================
 

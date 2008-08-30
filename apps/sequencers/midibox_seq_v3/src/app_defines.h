@@ -97,6 +97,12 @@ MIDI_EVNT_VALUE		EQU	0x016
 MIDI_RXTX_RX_CTR	EQU	0x017
 MIDI_RXTX_TX_CTR	EQU	0x018
 
+
+CS_MENU_LCD_CALLBACK_L  EQU     0x019
+CS_MENU_LCD_CALLBACK_H  EQU     0x01a
+CS_MENU_LCD_CTR         EQU     0x01b
+
+
 ;; ==========================================================================
 ;;  Variables used by the control surface
 ;; ==========================================================================

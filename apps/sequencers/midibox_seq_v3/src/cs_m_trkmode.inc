@@ -222,56 +222,43 @@ CS_M_TRKMODE_Tick
 	;; G1T1   >Normal<  Arpeggiator             on   on     on        on         on     
 	;; 5555---11111111-3333333333333-----------9999999999BBBBBBBBBBDDDDDDDDDDFFFFFFFFFF
 
-	;; print segments 0-15
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRKMODE_Tick_0
-	rgoto	CS_M_TRKMODE_Tick_1
-	rgoto	CS_M_TRKMODE_Tick_2
-	rgoto	CS_M_TRKMODE_Tick_3
-	rgoto	CS_M_TRKMODE_Tick_4
-	rgoto	CS_M_TRKMODE_Tick_5
-	rgoto	CS_M_TRKMODE_Tick_6
-	rgoto	CS_M_TRKMODE_Tick_7
-	rgoto	CS_M_TRKMODE_Tick_8
-	rgoto	CS_M_TRKMODE_Tick_9
-	rgoto	CS_M_TRKMODE_Tick_A
-	rgoto	CS_M_TRKMODE_Tick_B
-	rgoto	CS_M_TRKMODE_Tick_C
-	rgoto	CS_M_TRKMODE_Tick_D
-	rgoto	CS_M_TRKMODE_Tick_E
-	rgoto	CS_M_TRKMODE_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKMODE_Tick_x)
 
-CS_M_TRKMODE_Tick_0
-CS_M_TRKMODE_Tick_1
-CS_M_TRKMODE_Tick_2
-CS_M_TRKMODE_Tick_3
+CS_M_TRKMODE_Tick_0123
 	movf	CS_MENU_REFRESH_ITEM_CTR, W	; derive track mode item number
 	rcall	CS_M_TRKMODE_PrnItem		; print item
-	rgoto	CS_M_TRKMODE_Tick_Cont
+	rcall	CS_M_TRKMODE_Tick_Yield		; repeat 4 times
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 2, ACCESS, CS_M_TRKMODE_Tick_0123
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_4
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	4, 0x00 + 0, "Trk."
-	rgoto	CS_M_TRKMODE_Tick_Cont
+	rcall	CS_M_TRKMODE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_5
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_TRKMODE_Tick_Cont
+	rcall	CS_M_TRKMODE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_6				; ignore
-CS_M_TRKMODE_Tick_7
-	rgoto	CS_M_TRKMODE_Tick_Cont
+	rcall	CS_M_TRKMODE_Tick_Yield
+CS_M_TRKMODE_Tick_7				; ignore
+	rcall	CS_M_TRKMODE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_8
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	9, 0x80 + 0, "Hold Sort"
-	rgoto	CS_M_TRKMODE_Tick_Cont
+	rcall	CS_M_TRKMODE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_9
 	movlw	0xc0 + 1
 	call	MIOS_LCD_CursorSet
@@ -289,78 +276,87 @@ CS_M_TRKMODE_Tick_9_Cont
 	call	MIOS_LCD_CursorSet
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKMODE_Tick_Cont
+	bz	CS_M_TRKMODE_Tick_9_End
 
 	movlw	SEQ_CC_OFFSET_MODE_FLAGS
 	call	CS_M_HLP_TrkCC_Get
 	andlw	(1 << 4)		; CC value position of UNSORTED flag
 	xorlw	(1 << 4)		; (invert flag: unsorted -> sorted)
 	call	SEQ_LCD_PrnOnOff
-	rgoto	CS_M_TRKMODE_Tick_Cont
 
+CS_M_TRKMODE_Tick_9_End
+	rcall	CS_M_TRKMODE_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_A
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	7, 0x80 + 11, "Restart"
-	rgoto	CS_M_TRKMODE_Tick_Cont
+	rcall	CS_M_TRKMODE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_B
 	movlw	0xc0 + 13
 	call	MIOS_LCD_CursorSet
 	movlw	4		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKMODE_Tick_Cont
+	bz	CS_M_TRKMODE_Tick_B_End
 
 	movlw	SEQ_CC_OFFSET_MODE_FLAGS
 	call	CS_M_HLP_TrkCC_Get
 	andlw	(1 << 1)		; CC value position of RESTART flag
 	call	SEQ_LCD_PrnOnOff
-	rgoto	CS_M_TRKMODE_Tick_Cont
 
+CS_M_TRKMODE_Tick_B_End
+	rcall	CS_M_TRKMODE_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_C
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	10, 0x80 + 20, "ForceScale"
-	rgoto	CS_M_TRKMODE_Tick_Cont
+	rcall	CS_M_TRKMODE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_D
 	movlw	0xc0 + 23
 	call	MIOS_LCD_CursorSet
 	movlw	5		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKMODE_Tick_Cont
+	bz	CS_M_TRKMODE_Tick_D_End
 
 	movlw	SEQ_CC_OFFSET_MODE_FLAGS
 	call	CS_M_HLP_TrkCC_Get
 	andlw	(1 << 2)		; CC value position of FORCE_SCALE flag
 	call	SEQ_LCD_PrnOnOff
-	rgoto	CS_M_TRKMODE_Tick_Cont
 
+CS_M_TRKMODE_Tick_D_End
+	rcall	CS_M_TRKMODE_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_E
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	7, 0x80 + 32, "Sustain"
-	rgoto	CS_M_TRKMODE_Tick_Cont
+	rcall	CS_M_TRKMODE_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_F
 	movlw	0xc0 + 34
 	call	MIOS_LCD_CursorSet
 	movlw	6		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKMODE_Tick_Cont
+	bz	CS_M_TRKMODE_Tick_F_End
 
 	movlw	SEQ_CC_OFFSET_MODE_FLAGS
 	call	CS_M_HLP_TrkCC_Get
 	andlw	(1 << 3)		; CC value position of SUSTAIN flag
 	call	SEQ_LCD_PrnOnOff
-	;; 	rgoto	CS_M_TRKMODE_Tick_Cont
+CS_M_TRKMODE_Tick_F_End
 
-CS_M_TRKMODE_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKMODE_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_TRKMODE_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_TRKMODE_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 

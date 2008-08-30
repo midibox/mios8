@@ -152,32 +152,17 @@ CS_M_TRKEVNT_Tick
 
 	;; Strings for LayerA/B/C and Val1/2/3 -> see seq_layer.inc
 
-	;; print segments 0-15
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRKEVNT_Tick_0
-	rgoto	CS_M_TRKEVNT_Tick_1
-	rgoto	CS_M_TRKEVNT_Tick_2
-	rgoto	CS_M_TRKEVNT_Tick_3
-	rgoto	CS_M_TRKEVNT_Tick_4
-	rgoto	CS_M_TRKEVNT_Tick_5
-	rgoto	CS_M_TRKEVNT_Tick_6
-	rgoto	CS_M_TRKEVNT_Tick_7
-	rgoto	CS_M_TRKEVNT_Tick_8
-	rgoto	CS_M_TRKEVNT_Tick_9
-	rgoto	CS_M_TRKEVNT_Tick_A
-	rgoto	CS_M_TRKEVNT_Tick_B
-	rgoto	CS_M_TRKEVNT_Tick_C
-	rgoto	CS_M_TRKEVNT_Tick_D
-	rgoto	CS_M_TRKEVNT_Tick_E
-	rgoto	CS_M_TRKEVNT_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKEVNT_Tick_x)
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_0
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	4, 0x00 + 0, "Trk."
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rcall	CS_M_TRKEVNT_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_1
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	18, 0x00 + 5, "Layer Assignments:"
@@ -185,29 +170,32 @@ CS_M_TRKEVNT_Tick_1
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rgoto	CS_M_TRKEVNT_Tick_1_End
 
 	movlw	SEQ_CC_OFFSET_MIDI_EVNT0
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1
 	call	MIOS_LCD_PrintBCD2
 
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+CS_M_TRKEVNT_Tick_1_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_2
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rcall	CS_M_TRKEVNT_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_3
 	movlw	0x40 + 5
 	call	MIOS_LCD_CursorSet
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rgoto	CS_M_TRKEVNT_Tick_3_End
 
 	movlw	'A'
 	call	MIOS_LCD_PrintChar
@@ -219,15 +207,18 @@ CS_M_TRKEVNT_Tick_3
 	movwf	MIOS_PARAMETER1
 	movlw	0		; print assignment of layer A (4 characters)
 	call	SEQ_LAYER_PrnVType
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+CS_M_TRKEVNT_Tick_3_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_4
 	movlw	0x40 + 12
 	call	MIOS_LCD_CursorSet
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rgoto	CS_M_TRKEVNT_Tick_4_End
 
 	movlw	'B'
 	call	MIOS_LCD_PrintChar
@@ -239,15 +230,18 @@ CS_M_TRKEVNT_Tick_4
 	movwf	MIOS_PARAMETER1
 	movlw	1		; print assignment of layer B (4 characters)
 	call	SEQ_LAYER_PrnVType
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+CS_M_TRKEVNT_Tick_4_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_5
 	movlw	0x40 + 19
 	call	MIOS_LCD_CursorSet
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rgoto	CS_M_TRKEVNT_Tick_5_End
 
 	movlw	'C'
 	call	MIOS_LCD_PrintChar
@@ -259,8 +253,11 @@ CS_M_TRKEVNT_Tick_5
 	movwf	MIOS_PARAMETER1
 	movlw	2		; print assignment of layer C (4 characters)
 	call	SEQ_LAYER_PrnVType
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+CS_M_TRKEVNT_Tick_5_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_6
 	movlw	0x00 + 26
 	call	MIOS_LCD_CursorSet
@@ -279,15 +276,17 @@ CS_M_TRKEVNT_Tick_6
 	call	MIOS_LCD_PrintChar
 	movlw	2		; print name of constant #3 (4 characters)
 	call	SEQ_LAYER_PrnCType
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_7
 	movlw	0x40 + 26
 	call	MIOS_LCD_CursorSet
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rgoto	CS_M_TRKEVNT_Tick_7_End
 
 	movlw	SEQ_CC_OFFSET_MIDI_EVNT0 ; store event mode in MIOS_PARAMETER1
 	call	CS_M_HLP_TrkCC_Get
@@ -298,15 +297,18 @@ CS_M_TRKEVNT_Tick_7
 
 	movlw	0		; print constant value #1
 	call	SEQ_LAYER_PrnCVal
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+CS_M_TRKEVNT_Tick_7_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_8
 	movlw	0x40 + 31
 	call	MIOS_LCD_CursorSet
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rgoto	CS_M_TRKEVNT_Tick_8_End
 
 	movlw	SEQ_CC_OFFSET_MIDI_EVNT0 ; store event mode in MIOS_PARAMETER1
 	call	CS_M_HLP_TrkCC_Get
@@ -317,14 +319,17 @@ CS_M_TRKEVNT_Tick_8
 
 	movlw	1		; print constant value #2
 	call	SEQ_LAYER_PrnCVal
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+CS_M_TRKEVNT_Tick_8_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_9
 	movlw	0x40 + 36
 	call	MIOS_LCD_CursorSet
 	movlw	4		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKEVNT_Tick_Cont
+	bz	CS_M_TRKEVNT_Tick_9_End
 
 	movlw	SEQ_CC_OFFSET_MIDI_EVNT0 ; store event mode in MIOS_PARAMETER1
 	call	CS_M_HLP_TrkCC_Get
@@ -335,39 +340,49 @@ CS_M_TRKEVNT_Tick_9
 
 	movlw	2		; print constant value #3
 	call	SEQ_LAYER_PrnCVal
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+CS_M_TRKEVNT_Tick_9_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_A
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	9, 0x80 + 0, "Chn. Port"
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rcall	CS_M_TRKEVNT_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_B
 	movlw	0xc0 + 2
 	call	MIOS_LCD_CursorSet
 	movlw	5		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKEVNT_Tick_Cont
+	bz	CS_M_TRKEVNT_Tick_B_End
 
 	movlw	SEQ_CC_OFFSET_MIDI_CHANNEL
 	call	CS_M_HLP_TrkCC_Get
 	andlw	0x0f
 	addlw	1
 	call	MIOS_LCD_PrintBCD2
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+CS_M_TRKEVNT_Tick_B_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_C
 	movlw	0xc0 + 5
 	call	MIOS_LCD_CursorSet
 	movlw	6		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKEVNT_Tick_Cont
+	bz	CS_M_TRKEVNT_Tick_C_End
 
 	movlw	SEQ_CC_OFFSET_MIDI_PORT
 	call	CS_M_HLP_TrkCC_Get
 	call	SEQ_LCD_PrnPort
-	rgoto	CS_M_TRKEVNT_Tick_Cont
 
+CS_M_TRKEVNT_Tick_C_End
+	rcall	CS_M_TRKEVNT_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_D_STR_TAB	db "(not available) "	; 16 characters expected!
 				db "(available)     "	; 16 characters expected!
 				db "(enabled)       "	; 16 characters expected!
@@ -389,27 +404,25 @@ CS_M_TRKEVNT_Tick_D
 
 	movlw	16
 	call	MIOS_LCD_PrintPreconfString
- 	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rcall	CS_M_TRKEVNT_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_E
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	10, 0x80 + 30, ">> COPY <<"
-	rgoto	CS_M_TRKEVNT_Tick_Cont
+	rcall	CS_M_TRKEVNT_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_F
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	10, 0xc0 + 30, "> PRESET <"
-	;; 	rgoto	CS_M_TRKEVNT_Tick_Cont
 
-CS_M_TRKEVNT_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKEVNT_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_TRKEVNT_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_TRKEVNT_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 

@@ -12,7 +12,7 @@
 
 ;; used "In-Menu" messages
 CS_M_TRKRND_MSG_DEFAULT	EQU	0x00
-CS_M_TRKRND_MSG_RANDOM   EQU	0x81
+CS_M_TRKRND_MSG_RANDOM	EQU	0x81
 CS_M_TRKRND_MSG_CLEAR	EQU	0x82
 CS_M_TRKRND_MSG_UNDO	EQU	0x83
 
@@ -267,6 +267,9 @@ CS_M_TRKRND_Init_Cont
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
+CS_M_TRKRND_Tick_Upper_STR
+	db	"Trk.          Random Generator          LayA LayB LayC TrgA TrgB TrgC           "
+
 CS_M_TRKRND_Tick
 	;; check for random generator request
 	movf	CS_RANDOM_GEN_REQ, W
@@ -300,23 +303,10 @@ CS_M_TRKRND_Tick_NoGenReq
 	;; G1T1  Generate           Clr. Util Undo  64   --   --   All  --   --            
 	;; 88888888888888-----------999999999999999AAAAABBBBBCCCCCDDDDDEEEEEFFFFF----------
 
-	;; print segments 0-15
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKRND_Tick_Upper
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	bz	CS_M_TRKRND_Tick_8
-	addlw	-1
-	bz	CS_M_TRKRND_Tick_9
-	addlw	-1
-	bz	CS_M_TRKRND_Tick_ABC
-	addlw	-1
-	bz	CS_M_TRKRND_Tick_ABC
-	addlw	-1
-	bz	CS_M_TRKRND_Tick_ABC
-	rgoto	CS_M_TRKRND_Tick_DEF
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKRND_Tick_x)
 
-CS_M_TRKRND_Tick_Upper_STR
-	db	"Trk.          Random Generator          LayA LayB LayC TrgA TrgB TrgC           "
 CS_M_TRKRND_Tick_Upper
 	;; determine cursor pos
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
@@ -324,7 +314,7 @@ CS_M_TRKRND_Tick_Upper
 	mullw	10
 	movf	PRODL, W
 	btfsc	CS_MENU_REFRESH_ITEM_CTR, 2
-	iorlw 0x80
+	iorlw	0x80
 	call	MIOS_LCD_CursorSet
 
 	;; determine string offset
@@ -362,9 +352,12 @@ CS_M_TRKRND_Tick_Upper_Msg
 	movlw	CS_M_TRKRND_MSG_DEFAULT
 	movwf	CS_IN_MENU_MSG
 CS_M_TRKRND_Tick_Upper_End
-	rgoto	CS_M_TRKRND_Tick_Cont
 
+	;; repeat 8 times
+	rcall	CS_M_TRKRND_Tick_Yield
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKRND_Tick_Upper
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKRND_Tick_8
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
@@ -375,77 +368,125 @@ CS_M_TRKRND_Tick_8
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	8, 0x40 + 6, "Generate"
 
-	rgoto	CS_M_TRKRND_Tick_Cont
+	rcall	CS_M_TRKRND_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKRND_Tick_9
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	14, 0x40 + 25, "Clr. Util Undo"
-	rgoto	CS_M_TRKRND_Tick_Cont
+	rcall	CS_M_TRKRND_Tick_Yield
 
-CS_M_TRKRND_Tick_ABC
-	;; determine cursor pos
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-0x0a
-	mullw	5
-	movlw	0xc0 + 1
-	addwf	PRODL, W
+        ;; ------------------------------------------------------------------
+CS_M_TRKRND_Tick_A
+	;; initial cursor pos at right lower half
+	movlw	0xc0
 	call	MIOS_LCD_CursorSet
 
-	lfsr	FSR1, CS_RANDOM_INTENSITY_LA
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-0x0a
+	movlw	0		; first parameter layer
+	rcall	CS_M_TRKRND_Tick_PrnPLay
+	rcall	CS_M_TRKRND_Tick_Yield
+
+        ;; ------------------------------------------------------------------
+CS_M_TRKRND_Tick_B
+	movlw	1		; second parameter layer
+	rcall	CS_M_TRKRND_Tick_PrnPLay
+	rcall	CS_M_TRKRND_Tick_Yield
+
+        ;; ------------------------------------------------------------------
+CS_M_TRKRND_Tick_C
+	movlw	2		; third parameter layer
+	rcall	CS_M_TRKRND_Tick_PrnPLay
+	rcall	CS_M_TRKRND_Tick_Yield
+
+        ;; ------------------------------------------------------------------
+CS_M_TRKRND_Tick_D
+	movlw	0		; first trigger layer
+	rcall	CS_M_TRKRND_Tick_PrnTLay
+	rcall	CS_M_TRKRND_Tick_Yield
+
+        ;; ------------------------------------------------------------------
+CS_M_TRKRND_Tick_E
+	movlw	1		; second trigger layer
+	rcall	CS_M_TRKRND_Tick_PrnTLay
+	rcall	CS_M_TRKRND_Tick_Yield
+
+        ;; ------------------------------------------------------------------
+CS_M_TRKRND_Tick_F
+	movlw	2		; third trigger layer
+	rcall	CS_M_TRKRND_Tick_PrnTLay
+
+        ;; ------------------------------------------------------------------
+CS_M_TRKRND_Tick_End
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_TRKRND_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
+
+;; ==========================================================================
+
+;; --------------------------------------------------------------------------
+;;  Print Parameter Layer Probability Value
+;; --------------------------------------------------------------------------
+CS_M_TRKRND_Tick_PrnPLay
+	movwf	TMP1		; store layer number
+	
+	movlw	1		; print 1 space
+	call	SEQ_LCD_PrintSpaces
+
+	lfsr	FSR1, CS_RANDOM_INTENSITY_LA ; print probability
+	movf	TMP1, W
 	movf	PLUSW1, W
-	bz	CS_M_TRKRND_Tick_ABCDEF_Dis
-	call	MIOS_LCD_PrintBCD2
- 	rgoto	CS_M_TRKRND_Tick_Cont
+	bz	CS_M_TRKRND_Tick_PrnxLay_Dis
+	
+	call	MIOS_LCD_PrintBCD2 ; print 2 digits
+	movlw	2		; print 2 spaces
+	goto	SEQ_LCD_PrintSpaces
 
-CS_M_TRKRND_Tick_DEF
-	;; determine cursor pos
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-0x0d
-	mullw	5
-	movlw	0xc0 + 16
-	addwf	PRODL, W
-	call	MIOS_LCD_CursorSet
+;; --------------------------------------------------------------------------
+;;  Print Triger Layer Probability Value
+;; --------------------------------------------------------------------------
+CS_M_TRKRND_Tick_PrnTLay
+	movwf	TMP1		; store layer number
+	
+	movlw	1		; print 1 space
+	call	SEQ_LCD_PrintSpaces
 
-	lfsr	FSR1, CS_RANDOM_INTENSITY_TA
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-0x0d
+	lfsr	FSR1, CS_RANDOM_INTENSITY_TA ; print probability
+	movf	TMP1, W
 	movf	PLUSW1, W
-	bz	CS_M_TRKRND_Tick_ABCDEF_Dis
+	bz	CS_M_TRKRND_Tick_PrnxLay_Dis
 	xorlw	0x0f
-	bz	CS_M_TRKRND_Tick_DEF_All
-	xorlw	0x0f
-	call	MIOS_LCD_PrintBCD2
-	movlw	' '
-	call	MIOS_LCD_PrintChar
- 	rgoto	CS_M_TRKRND_Tick_Cont
+	bz	CS_M_TRKRND_Tick_PrnxLay_All
 
-CS_M_TRKRND_Tick_DEF_All
+	xorlw	0x0f		; print 2 digits
+	call	MIOS_LCD_PrintBCD2
+	movlw	2		; print 2 spaces
+	goto	SEQ_LCD_PrintSpaces
+
+
+;; --------------------------------------------------------------------------
+;;  Print "All "
+;; --------------------------------------------------------------------------
+CS_M_TRKRND_Tick_PrnxLay_All
 	movlw	'A'
 	call	MIOS_LCD_PrintChar
 	movlw	'l'
 	call	MIOS_LCD_PrintChar
 	movlw	'l'
 	call	MIOS_LCD_PrintChar
- 	rgoto	CS_M_TRKRND_Tick_Cont
+	movlw	1
+	goto	SEQ_LCD_PrintSpaces
 
-CS_M_TRKRND_Tick_ABCDEF_Dis
+;; --------------------------------------------------------------------------
+;;  Print "--  "
+;; --------------------------------------------------------------------------
+CS_M_TRKRND_Tick_PrnxLay_Dis
 	movlw	'-'
 	call	MIOS_LCD_PrintChar
 	movlw	'-'
 	call	MIOS_LCD_PrintChar
-	;; 	rgoto	CS_M_TRKRND_Tick_Cont
-
-CS_M_TRKRND_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKRND_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
-CS_M_TRKRND_Tick_End
-	return
+	movlw	2
+	goto	SEQ_LCD_PrintSpaces
 
 ;; ==========================================================================
 
@@ -633,5 +674,6 @@ CS_M_TRKRND_Gen_T_Loop_Set
 
 CS_M_TRKRND_Gen_T_End
 	return
+
 
 

@@ -142,7 +142,7 @@ CS_M_HLP_PrnTrk
 	movwf	TBLPTRL
 	clrf	TBLPTRH
 	movlw	HIGH(CS_M_HLP_PrnTrk_Tab)
-	addwf	TBLPTRH, F
+	addwfc	TBLPTRH, F
 	tblrd*+
 	movf	TABLAT, W
 	goto	MIOS_LCD_PrintChar
@@ -381,3 +381,47 @@ CS_M_HLP_GPPatternSel_R
 CS_M_HLP_GPPatternSel_Cont
 	return
 
+
+;; --------------------------------------------------------------------------
+;;  Help routine to jump indirectly to CS_MENU_LCD_CALLBACK_[LH]
+;; --------------------------------------------------------------------------
+CS_M_HLP_LCD_Tick_Resume
+        ;; copy CS_MENU_LCD_CALLBACK_[LH] to TOS[LH] and return
+        IRQ_DISABLE
+        push
+        movf    CS_MENU_LCD_CALLBACK_L, W
+        movwf   TOSL
+        movf    CS_MENU_LCD_CALLBACK_H, W
+        movwf   TOSH
+        IRQ_ENABLE
+        return
+
+;; --------------------------------------------------------------------------
+;;  Help routine to store return pointer in CS_MENU_LCD_CALLBACK_[LH]
+;; --------------------------------------------------------------------------
+CS_M_HLP_LCD_Tick_Yield
+	;; increment refresh item counter (so that _Tick routine will be started again)
+	incf	CS_MENU_REFRESH_ITEM_CTR, F
+
+        ;; save TOS[LH] (the return pointer) in CS_MENU_LCD_CALLBACK_[LH]
+        movff   TOSL, CS_MENU_LCD_CALLBACK_L
+        movff   TOSH, CS_MENU_LCD_CALLBACK_H
+
+#if 0
+	;; for debugging
+	movlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	call	MIOS_MIDI_TxBufferPut
+#endif
+
+        return
+
+;; --------------------------------------------------------------------------
+;;  Help routine to clear CS_MENU_LCD_CALLBACK_[LH] and refresh counter
+;; --------------------------------------------------------------------------
+CS_M_HLP_LCD_Tick_End
+	clrf	CS_MENU_LCD_CALLBACK_L
+	clrf	CS_MENU_LCD_CALLBACK_H
+	clrf	CS_MENU_REFRESH_ITEM_CTR
+	return

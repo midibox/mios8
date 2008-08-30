@@ -192,110 +192,94 @@ CS_M_TRKDIR_Tick
 	;; G1T1   Backward  Pendulum  Rand.Step    Steps Fwd: 1  Jump Back: 0  Replay: x 1
 	;; 0000--2222222222444444444466666666666---999999999999--BBBBBBBBBBBB--DDDDDDDDDDD-
 
-	;; print segments 0-15
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRKDIR_Tick_0
-	rgoto	CS_M_TRKDIR_Tick_1
-	rgoto	CS_M_TRKDIR_Tick_2
-	rgoto	CS_M_TRKDIR_Tick_3
-	rgoto	CS_M_TRKDIR_Tick_4
-	rgoto	CS_M_TRKDIR_Tick_5
-	rgoto	CS_M_TRKDIR_Tick_6
-	rgoto	CS_M_TRKDIR_Tick_7
-	rgoto	CS_M_TRKDIR_Tick_8
-	rgoto	CS_M_TRKDIR_Tick_9
-	rgoto	CS_M_TRKDIR_Tick_A
-	rgoto	CS_M_TRKDIR_Tick_B
-	rgoto	CS_M_TRKDIR_Tick_C
-	rgoto	CS_M_TRKDIR_Tick_D
-	rgoto	CS_M_TRKDIR_Tick_E
-	rgoto	CS_M_TRKDIR_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKDIR_Tick_x)
 
 CS_M_TRKDIR_Tick_0
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_TRKDIR_Tick_Cont
+	rcall	CS_M_TRKDIR_Tick_Yield
 
-CS_M_TRKDIR_Tick_1
-CS_M_TRKDIR_Tick_2
-CS_M_TRKDIR_Tick_3
-CS_M_TRKDIR_Tick_4
-CS_M_TRKDIR_Tick_5
-CS_M_TRKDIR_Tick_6
-CS_M_TRKDIR_Tick_7
+        ;; ------------------------------------------------------------------
+CS_M_TRKDIR_Tick_1234567
 	decf	CS_MENU_REFRESH_ITEM_CTR, W	; derive direction mode item number
 	rcall	CS_M_TRKDIR_PrnItem		; print item
-	rgoto	CS_M_TRKDIR_Tick_Cont
+	rcall	CS_M_TRKDIR_Tick_Yield		; repeat 7 times
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKDIR_Tick_1234567
 
 CS_M_TRKDIR_Tick_8
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	12, 0x80 + 1, "Experimental"
-	rgoto	CS_M_TRKDIR_Tick_Cont
+	rcall	CS_M_TRKDIR_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIR_Tick_9
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	11, 0xc0 + 0, "Steps Fwd: "
 
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIR_Tick_Cont
+	bz	CS_M_TRKDIR_Tick_9_End
 	movlw	SEQ_CC_OFFSET_DIRPAR_FORWARD
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1
 	call	MIOS_LCD_PrintBCD1
-	rgoto	CS_M_TRKDIR_Tick_Cont
 
+CS_M_TRKDIR_Tick_9_End
+	rcall	CS_M_TRKDIR_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIR_Tick_A
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	13, 0x80 + 14, "\"Progression\""
-	rgoto	CS_M_TRKDIR_Tick_Cont
+	rcall	CS_M_TRKDIR_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIR_Tick_B
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	11, 0xc0 + 14, "Jump Back: "
 
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIR_Tick_Cont
+	bz	CS_M_TRKDIR_Tick_B_End
 	movlw	SEQ_CC_OFFSET_DIRPAR_JMPBCK
 	call	CS_M_HLP_TrkCC_Get
 	call	MIOS_LCD_PrintBCD1
-	rgoto	CS_M_TRKDIR_Tick_Cont
 
+CS_M_TRKDIR_Tick_B_End
+	rcall	CS_M_TRKDIR_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIR_Tick_C
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	10, 0x80 + 28, "Parameters"
-	rgoto	CS_M_TRKDIR_Tick_Cont
+	rcall	CS_M_TRKDIR_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIR_Tick_D
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	10, 0xc0 + 28, "Replay: x "
 
 	movlw	4		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIR_Tick_Cont
+	bz	CS_M_TRKDIR_Tick_D_End
 	movlw	SEQ_CC_OFFSET_DIRPAR_REPLAY
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1
 	call	MIOS_LCD_PrintBCD1
-	rgoto	CS_M_TRKDIR_Tick_Cont
 
-CS_M_TRKDIR_Tick_E
-CS_M_TRKDIR_Tick_F
+CS_M_TRKDIR_Tick_D_End
 
-CS_M_TRKDIR_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKDIR_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIR_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_TRKDIR_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
+
 
 ;; ==========================================================================
 

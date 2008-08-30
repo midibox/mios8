@@ -251,6 +251,8 @@ CS_M_MIDICFG_Init_Cont
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
+CS_M_MIDICFG_Tick_Upper_STR
+	db	"Keyb.Chn. T/A Split Midd.Note   Merger  IN   OUT   Src.Chn.->Dst.Chn. MIDI Clock"
 CS_M_MIDICFG_Tick
 	;; layout:
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
@@ -261,22 +263,10 @@ CS_M_MIDICFG_Tick
 	;;    #16       off       C-3       off    Int. IIC1    All       All       On
 	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
 
-	;; print segments 0-15
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_MIDICFG_Tick_Upper
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_MIDICFG_Tick_8
-	rgoto	CS_M_MIDICFG_Tick_9
-	rgoto	CS_M_MIDICFG_Tick_A
-	rgoto	CS_M_MIDICFG_Tick_B
-	rgoto	CS_M_MIDICFG_Tick_C
-	rgoto	CS_M_MIDICFG_Tick_D
-	rgoto	CS_M_MIDICFG_Tick_E
-	rgoto	CS_M_MIDICFG_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_MIDICFG_Tick_x)
 
-CS_M_MIDICFG_Tick_Upper_STR
-	db	"Keyb.Chn. T/A Split Midd.Note   Merger  IN   OUT   Src.Chn.->Dst.Chn. MIDI Clock"
 CS_M_MIDICFG_Tick_Upper
 	;; determine cursor pos
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
@@ -300,8 +290,12 @@ CS_M_MIDICFG_Tick_Upper
 	;; print string part (10 characters)
 	movlw	10
 	call	MIOS_LCD_PrintPreconfString
-	rgoto	CS_M_MIDICFG_Tick_Cont
 
+	;; repeat 8 times
+	rcall	CS_M_MIDICFG_Tick_Yield
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_MIDICFG_Tick_Upper
+
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_8
 	movlw	0x40 + 3
 	call	MIOS_LCD_CursorSet
@@ -310,55 +304,66 @@ CS_M_MIDICFG_Tick_8
 
 	movlw	0		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_MIDICFG_Tick_Cont
+	bz	CS_M_MIDICFG_Tick_8_End
 
 	movff	SEQ_MIDI_CHANNEL, WREG
 	call	SEQ_LCD_PrnChn
-	rgoto	CS_M_MIDICFG_Tick_Cont
 
+CS_M_MIDICFG_Tick_8_End
+	rcall	CS_M_MIDICFG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_9
 	movlw	0x40 + 13
 	call	MIOS_LCD_CursorSet
 
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_MIDICFG_Tick_Cont
+	bz	CS_M_MIDICFG_Tick_9_End
 
 	SET_BSR SEQ_BASE
 	movlw	0
 	btfsc	SEQ_CFG0, SEQ_CFG0_T_A_SPLIT, BANKED
 	movlw 1
 	call	SEQ_LCD_PrnOnOff
-	rgoto	CS_M_MIDICFG_Tick_Cont
 
+CS_M_MIDICFG_Tick_9_End
+	rcall	CS_M_MIDICFG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_A
 	movlw	0x40 + 23
 	call	MIOS_LCD_CursorSet
 
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_MIDICFG_Tick_Cont
+	bz	CS_M_MIDICFG_Tick_A_End
 
 	movff	SEQ_MIDI_SPLIT_NOTE, WREG
 	call	SEQ_LCD_PrnNote
-	rgoto	CS_M_MIDICFG_Tick_Cont
 
+CS_M_MIDICFG_Tick_A_End
+	rcall	CS_M_MIDICFG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_B
 	movlw	0x40 + 33
 	call	MIOS_LCD_CursorSet
 
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_MIDICFG_Tick_Cont
+	bz	CS_M_MIDICFG_Tick_B_End
 
 	SET_BSR SEQ_BASE
 	movlw	0
 	btfsc	SEQ_CFG0, SEQ_CFG0_MERGER, BANKED
 	movlw 1
 	call	SEQ_LCD_PrnOnOff
-	rgoto	CS_M_MIDICFG_Tick_Cont
 
+CS_M_MIDICFG_Tick_B_End
+	rcall	CS_M_MIDICFG_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_C
 CS_M_MIDICFG_Tick_C_S
 	movlw	0xc0 + 0
@@ -376,45 +381,54 @@ CS_M_MIDICFG_Tick_C_T
 	call	MIOS_LCD_CursorSet
 	movlw	5		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_MIDICFG_Tick_Cont
+	bz	CS_M_MIDICFG_Tick_C_End
 
 	;; print target name
 	movf	CS_ROUTER_TARGET, W
 	call	SEQ_ROUTER_PrnOut
-	rgoto	CS_M_MIDICFG_Tick_Cont
 
+CS_M_MIDICFG_Tick_C_End
+	rcall	CS_M_MIDICFG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_D
 	movlw	0xc0 + 13
 	call	MIOS_LCD_CursorSet
 	movlw	6		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_MIDICFG_Tick_Cont
+	bz	CS_M_MIDICFG_Tick_D_End
 
 	;; print source channel
 	swapf	CS_ROUTER_SOURCE, W
 	iorwf	CS_ROUTER_TARGET, W
 	call	SEQ_ROUTER_PrnSrcChn
-	rgoto	CS_M_MIDICFG_Tick_Cont
 
+CS_M_MIDICFG_Tick_D_End
+	rcall	CS_M_MIDICFG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_E
 	movlw	0xc0 + 23
 	call	MIOS_LCD_CursorSet
 	movlw	7		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_MIDICFG_Tick_Cont
+	bz	CS_M_MIDICFG_Tick_E_End
 
 	;; print destination channel
 	swapf	CS_ROUTER_SOURCE, W
 	iorwf	CS_ROUTER_TARGET, W
 	call	SEQ_ROUTER_PrnDstChn
-	rgoto	CS_M_MIDICFG_Tick_Cont
 
+CS_M_MIDICFG_Tick_E_End
+	rcall	CS_M_MIDICFG_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_F
 	movlw	0xc0 + 33
 	call	MIOS_LCD_CursorSet
 	movlw	8		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_MIDICFG_Tick_Cont
+	bz	CS_M_MIDICFG_Tick_F_End
 
 	;; print midi clock forwarding on/off flag
 	movf	CS_ROUTER_TARGET, W
@@ -425,17 +439,16 @@ CS_M_MIDICFG_Tick_F
 	skpz
 	movlw	1
 	call	SEQ_LCD_PrnOnOff
-	;; 	rgoto	CS_M_MIDICFG_Tick_Cont
 
-CS_M_MIDICFG_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_MIDICFG_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
+CS_M_MIDICFG_Tick_F_End
 
+        ;; ------------------------------------------------------------------
 CS_M_MIDICFG_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_MIDICFG_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
+
 
 ;; ==========================================================================
 

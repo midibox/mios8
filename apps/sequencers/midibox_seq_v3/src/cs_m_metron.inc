@@ -176,6 +176,8 @@ CS_M_METRON_Init_Cont
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
+CS_M_METRON_Tick_Upper_STR
+	db	"Metronome   Chn.    Meas.Note  BeatNote                                         "
 CS_M_METRON_Tick
 	;; layout:
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
@@ -186,22 +188,10 @@ CS_M_METRON_Tick
 	;;    off       #10       C#1       C#1            
 	;; 88888888889999999999AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDEEEEEEEEEEFFFFFFFFFF
 
-	;; print segments 0-15
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_METRON_Tick_Upper
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_METRON_Tick_8
-	rgoto	CS_M_METRON_Tick_9
-	rgoto	CS_M_METRON_Tick_A
-	rgoto	CS_M_METRON_Tick_B
-	rgoto	CS_M_METRON_Tick_C
-	rgoto	CS_M_METRON_Tick_D
-	rgoto	CS_M_METRON_Tick_E
-	rgoto	CS_M_METRON_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_METRON_Tick_x)
 
-CS_M_METRON_Tick_Upper_STR
-	db	"Metronome   Chn.    Meas.Note  BeatNote                                         "
 CS_M_METRON_Tick_Upper
 	;; determine cursor pos
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
@@ -225,23 +215,29 @@ CS_M_METRON_Tick_Upper
 	;; print string part (10 characters)
 	movlw	10
 	call	MIOS_LCD_PrintPreconfString
-	rgoto	CS_M_METRON_Tick_Cont
+	;; repeat 8 times
+	rcall	CS_M_METRON_Tick_Yield
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_METRON_Tick_Upper
 
+        ;; ------------------------------------------------------------------
 CS_M_METRON_Tick_8
 	movlw	0x40 + 3
 	call	MIOS_LCD_CursorSet
 
 	movlw	0		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_METRON_Tick_Cont
+	bz	CS_M_METRON_Tick_8_End
 
 	SET_BSR SEQ_BASE
 	movlw	0
 	btfsc	SEQ_MODE1, SEQ_MODE1_METRONOME, BANKED
 	movlw 1
 	call	SEQ_LCD_PrnOnOff
-	rgoto	CS_M_METRON_Tick_Cont
 
+CS_M_METRON_Tick_8_End
+	rcall	CS_M_METRON_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_METRON_Tick_9
 	movlw	0x40 + 13
 	call	MIOS_LCD_CursorSet
@@ -250,50 +246,50 @@ CS_M_METRON_Tick_9
 
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_METRON_Tick_Cont
+	bz	CS_M_METRON_Tick_9_End
 
 	movff	SEQ_METRONOME_CHANNEL, WREG
 	call	SEQ_LCD_PrnChn
-	rgoto	CS_M_METRON_Tick_Cont
 
+CS_M_METRON_Tick_9_End
+	rcall	CS_M_METRON_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_METRON_Tick_A
 	movlw	0x40 + 23
 	call	MIOS_LCD_CursorSet
 
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_METRON_Tick_Cont
+	bz	CS_M_METRON_Tick_A_End
 
 	movff	SEQ_METRONOME_NOTE_MEASURE, WREG
 	call	SEQ_LCD_PrnNote
-	rgoto	CS_M_METRON_Tick_Cont
 
+CS_M_METRON_Tick_A_End
+	rcall	CS_M_METRON_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_METRON_Tick_B
 	movlw	0x40 + 33
 	call	MIOS_LCD_CursorSet
 
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_METRON_Tick_Cont
+	bz	CS_M_METRON_Tick_B_End
 
 	movff	SEQ_METRONOME_NOTE_BEAT, WREG
+
+CS_M_METRON_Tick_B_End
 	call	SEQ_LCD_PrnNote
-	rgoto	CS_M_METRON_Tick_Cont
 
-CS_M_METRON_Tick_C
-CS_M_METRON_Tick_D
-CS_M_METRON_Tick_E
-CS_M_METRON_Tick_F
-
-CS_M_METRON_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_METRON_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_METRON_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_METRON_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
+
 
 ;; ==========================================================================
 

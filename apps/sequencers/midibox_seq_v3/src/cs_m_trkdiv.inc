@@ -253,70 +253,68 @@ CS_M_TRKDIV_Tick
 	;; G1T1    4 (normal)         yes           1/4  3/4  1/8 3/32 1/16 3/64 1/32 1/64
 	;; 4444---55-666666666--------777----------8888899999AAAAABBBBBCCCCCDDDDDEEEEEFFFFF
 
-	;; print segments 0-15
-	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKDIV_Tick_RLower
-
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRKDIV_Tick_0
-	rgoto	CS_M_TRKDIV_Tick_1
-	rgoto	CS_M_TRKDIV_Tick_2
-	rgoto	CS_M_TRKDIV_Tick_3
-	rgoto	CS_M_TRKDIV_Tick_4
-	rgoto	CS_M_TRKDIV_Tick_5
-	rgoto	CS_M_TRKDIV_Tick_6
-	rgoto	CS_M_TRKDIV_Tick_7
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKDIV_Tick_x)
 
 CS_M_TRKDIV_Tick_0
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	19, 0x00 + 0, "Trk.  Clock Divider"
-	rgoto	CS_M_TRKDIV_Tick_Cont
+	rcall	CS_M_TRKDIV_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_1
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	16, 0x00 + 21, "Synch to Measure"
-	rgoto	CS_M_TRKDIV_Tick_Cont
+	rcall	CS_M_TRKDIV_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_2
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	16, 0x80 + 7, "Quick Selection:"
-	rgoto	CS_M_TRKDIV_Tick_Cont
+	rcall	CS_M_TRKDIV_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_3
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	8, 0x80 + 24, "Timebase"
-	rgoto	CS_M_TRKDIV_Tick_Cont
+	rcall	CS_M_TRKDIV_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_4
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_TRKDIV_Tick_Cont
+	rcall	CS_M_TRKDIV_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_5
 	movlw	0x40 + 7
 	call	MIOS_LCD_CursorSet
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIV_Tick_Cont
+	bz	CS_M_TRKDIV_Tick_5_End
+
 	movlw	SEQ_CC_OFFSET_CLK_DIVIDER
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1
 	call	MIOS_LCD_PrintBCD2
-	rgoto	CS_M_TRKDIV_Tick_Cont
 
+CS_M_TRKDIV_Tick_5_End
+	rcall	CS_M_TRKDIV_Tick_Yield
+	rgoto	CS_M_TRKDIV_Tick_6
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_6_TAB
 	db	"(normal)  "
 	db	"(triplet) "
-
 CS_M_TRKDIV_Tick_6
 	movlw	0x40 + 10
 	call	MIOS_LCD_CursorSet
 	movlw	2		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIV_Tick_Cont
+	bz	CS_M_TRKDIV_Tick_6_End
 
 	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS	; select bit 1
 	call	CS_M_HLP_TrkCC_Get
@@ -326,15 +324,17 @@ CS_M_TRKDIV_Tick_6
 	TABLE_ADDR_MUL_W CS_M_TRKDIV_Tick_6_TAB, 10
 	movlw	10
 	call	MIOS_LCD_PrintPreconfString
-	rgoto	CS_M_TRKDIV_Tick_Cont
 
+CS_M_TRKDIV_Tick_6_End
+	rcall	CS_M_TRKDIV_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_7
 	movlw	0x40 + 27
 	call	MIOS_LCD_CursorSet
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKDIV_Tick_Cont
+	bz	CS_M_TRKDIV_Tick_7_End
 
 	movlw	SEQ_CC_OFFSET_CLKDIV_FLAGS	; select bit 0
 	call	CS_M_HLP_TrkCC_Get
@@ -347,7 +347,7 @@ CS_M_TRKDIV_Tick_7_0
 	call	MIOS_LCD_PrintChar
 	movlw	' '
 	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_TRKDIV_Tick_Cont
+	rgoto	CS_M_TRKDIV_Tick_7_End
 
 CS_M_TRKDIV_Tick_7_1
 	movlw	'y'
@@ -356,9 +356,12 @@ CS_M_TRKDIV_Tick_7_1
 	call	MIOS_LCD_PrintChar
 	movlw	's'
 	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_TRKDIV_Tick_Cont
+	;; 	rgoto	CS_M_TRKDIV_Tick_7_End
 
-;; ---
+CS_M_TRKDIV_Tick_7_End
+	rcall	CS_M_TRKDIV_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_RLower
 	;; get current value -> TMP1
 	movlw	SEQ_CC_OFFSET_CLK_DIVIDER
@@ -406,18 +409,18 @@ CS_M_TRKDIV_Tick_RLower_Spaces
 	;; 	rgoto	CS_M_TRKDIV_Tick_RLower_Cont
 
 CS_M_TRKDIV_Tick_RLower_Cont
-	;; 	rgoto	CS_M_TRKDIV_Tick_Cont
+        ;; ------------------------------------------------------------------
+        ;; repeat 8 times
+	rcall	CS_M_TRKDIV_Tick_Yield
+	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKDIV_Tick_End
+	rgoto	CS_M_TRKDIV_Tick_RLower
 
-
-CS_M_TRKDIV_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKDIV_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_TRKDIV_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_TRKDIV_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_TRKDIV_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 

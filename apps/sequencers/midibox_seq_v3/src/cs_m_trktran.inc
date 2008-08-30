@@ -148,55 +148,44 @@ CS_M_TRKTRAN_Tick
 	;; 0000--1111111111-2222222222--33333333------------------------------------------
 	;; lower line: print GxTy and -7...0...7 (0x04..0x13)
 
-	;; print segments 0-3
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0xfc
-	bnz	CS_M_TRKTRAN_Tick_Lower
 
-;; ---
-CS_M_TRKTRAN_Tick_Upper
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x03
-	bz	CS_M_TRKTRAN_Tick_0
-	addlw	-1
-	bz	CS_M_TRKTRAN_Tick_1
-	addlw	-1
-	bz	CS_M_TRKTRAN_Tick_2
-	rgoto	CS_M_TRKTRAN_Tick_3
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKTRAN_Tick_x)
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKTRAN_Tick_0
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	4, 0x00 + 0, "Trk."
-	rgoto	CS_M_TRKTRAN_Tick_Cont
+	rcall	CS_M_TRKTRAN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKTRAN_Tick_1
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	10, 0x00 + 6, "Transpose:"
-	rgoto	CS_M_TRKTRAN_Tick_Cont
+	rcall	CS_M_TRKTRAN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKTRAN_Tick_2
 	movlw	1				; cursor pos #1
 	rcall	CS_M_TRKTRAN_PrnItem		; print item
-	rgoto	CS_M_TRKTRAN_Tick_Cont
+	rcall	CS_M_TRKTRAN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKTRAN_Tick_3
 	movlw	2				; cursor pos #2
 	rcall	CS_M_TRKTRAN_PrnItem		; print item
-	rgoto	CS_M_TRKTRAN_Tick_Cont
+	rcall	CS_M_TRKTRAN_Tick_Yield
 
-;; ---
-CS_M_TRKTRAN_Tick_Lower
-	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	addlw	-4
-	bnz	CS_M_TRKTRAN_Tick_Lower_Trn
-
+        ;; ------------------------------------------------------------------
 CS_M_TRKTRAN_Tick_4
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_TRKTRAN_Tick_Cont
+	rcall	CS_M_TRKTRAN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKTRAN_Tick_Lower_Trn
 	;; current value -> TMP1
 	movlw	SEQ_CC_OFFSET_TRANSPOSE_OCT
@@ -241,7 +230,7 @@ CS_M_TRKTRAN_Tick_Lower_L_NoF
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	sublw	8+4
 	call	MIOS_LCD_PrintBCD1
-	rgoto	CS_M_TRKTRAN_Tick_Lower_Cont
+	rgoto	CS_M_TRKTRAN_Tick_Lower_Trn_End
 
 CS_M_TRKTRAN_Tick_Lower_R	; right side (positive values)
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
@@ -267,32 +256,31 @@ CS_M_TRKTRAN_Tick_Lower_R_NoF
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	addlw	-4-8
 	call	MIOS_LCD_PrintBCD1
-	rgoto	CS_M_TRKTRAN_Tick_Lower_Cont
+	rgoto	CS_M_TRKTRAN_Tick_Lower_Trn_End
 
 CS_M_TRKTRAN_Tick_Lower_Spaces
 	movlw	2
 	call	SEQ_LCD_PrintSpaces
-	;; 	rgoto	CS_M_TRKTRAN_Tick_Lower_Cont
+	;; 	rgoto	CS_M_TRKTRAN_Tick_Lower_Trn_End
 
-CS_M_TRKTRAN_Tick_Lower_Cont
-	;; print right marker
+CS_M_TRKTRAN_Tick_Lower_Trn_End
+	;; print right marker?
 	movlw	'<'
 	btfss	TMP3, 0
-	movlw ' '
+	movlw	' '
 	call	MIOS_LCD_PrintChar
 
+        ;; ------------------------------------------------------------------
+        ;; Tick function will be called 20 times
+        movlw   20-1
+	cpfslt  CS_MENU_REFRESH_ITEM_CTR, ACCESS
+	goto	CS_M_HLP_LCD_Tick_End
+	rcall	CS_M_TRKTRAN_Tick_Yield
+	rgoto	CS_M_TRKTRAN_Tick_Lower_Trn
 
-CS_M_TRKTRAN_Tick_Cont
-	;; Tick function will be called 20 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	movlw	20-1
-	cpfsgt	CS_MENU_REFRESH_ITEM_CTR, ACCESS
-	rgoto CS_M_TRKTRAN_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_TRKTRAN_Tick_End
-
-CS_M_TRKTRAN_Tick_End
-	return
+        ;; ------------------------------------------------------------------
+CS_M_TRKTRAN_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 

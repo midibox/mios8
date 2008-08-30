@@ -198,59 +198,57 @@ CS_M_TRKLEN_Tick
 	;; G1T1    16/32    1    1->2                 2    4    6    8   12   16   24   32
 	;; 5555----66666--77777777777----------------88---99---AA---BB---CC---DD---EE---FF-
 
-	;; print segments 0-15
-	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKLEN_Tick_RLower
 
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRKLEN_Tick_0
-	rgoto	CS_M_TRKLEN_Tick_1
-	rgoto	CS_M_TRKLEN_Tick_2
-	rgoto	CS_M_TRKLEN_Tick_3
-	rgoto	CS_M_TRKLEN_Tick_4
-	rgoto	CS_M_TRKLEN_Tick_5
-	rgoto	CS_M_TRKLEN_Tick_6
-	rgoto	CS_M_TRKLEN_Tick_7
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKLEN_Tick_x)
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_0
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	4, 0x00 + 0, "Trk."
-	rgoto	CS_M_TRKLEN_Tick_Cont
+	rcall	CS_M_TRKLEN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_1
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	6, 0x00 + 7, "Length"
-	rgoto	CS_M_TRKLEN_Tick_Cont
+	rcall	CS_M_TRKLEN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_2
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	11, 0x00 + 15, "Loop  Chain"
-	rgoto	CS_M_TRKLEN_Tick_Cont
+	rcall	CS_M_TRKLEN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_3
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	16, 0x80 + 8, "Quick Selection:"
-	rgoto	CS_M_TRKLEN_Tick_Cont
+	rcall	CS_M_TRKLEN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_4
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	6, 0x80 + 25, "Length"
-	rgoto	CS_M_TRKLEN_Tick_Cont
+	rcall	CS_M_TRKLEN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_5
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_TRKLEN_Tick_Cont
+	rcall	CS_M_TRKLEN_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_6
 	movlw	0x40 + 8
 	call	MIOS_LCD_CursorSet
 	movlw	1		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKLEN_Tick_Cont
+	bz	CS_M_TRKLEN_Tick_6_End
+
 	movlw	SEQ_CC_OFFSET_LENGTH
 	call	CS_M_HLP_TrkCC_Get
 	addlw	1
@@ -261,8 +259,11 @@ CS_M_TRKLEN_Tick_6
 	call	MIOS_LCD_PrintChar
 	movlw	'2'
 	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_TRKLEN_Tick_Cont
 
+CS_M_TRKLEN_Tick_6_End
+	rcall	CS_M_TRKLEN_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_7
 	movlw	0x40 + 16
 	call	MIOS_LCD_CursorSet
@@ -285,7 +286,7 @@ CS_M_TRKLEN_Tick_7_Chain
 
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKLEN_Tick_Cont
+	bz	CS_M_TRKLEN_Tick_7_End
 
 	rcall	CS_M_TRKLEN_GetChainValue
 	movwf	TMP1		; temporary store this in TMP1
@@ -301,7 +302,7 @@ CS_M_TRKLEN_Tick_7_0
 	movwf	PRODL
 	movlw	4
 	call	SEQ_LCD_PrintChars
-	rgoto	CS_M_TRKLEN_Tick_Cont
+	rgoto	CS_M_TRKLEN_Tick_7_End
 
 CS_M_TRKLEN_Tick_7_2
 	movlw	'1'
@@ -316,7 +317,7 @@ CS_M_TRKLEN_Tick_7_2
 	btfsc	TMP2, 1
 	movlw '4'
 	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_TRKLEN_Tick_Cont
+	rgoto	CS_M_TRKLEN_Tick_7_End
 
 CS_M_TRKLEN_Tick_7_4
 	movlw	'1'
@@ -327,8 +328,11 @@ CS_M_TRKLEN_Tick_7_4
 	call	MIOS_LCD_PrintChar
 	movlw	'4'
 	call	MIOS_LCD_PrintChar
-	rgoto	CS_M_TRKLEN_Tick_Cont
 
+CS_M_TRKLEN_Tick_7_End
+	rcall	CS_M_TRKLEN_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_RLower
 	;; get current value -> TMP1
 	movlw	SEQ_CC_OFFSET_LENGTH
@@ -385,18 +389,18 @@ CS_M_TRKLEN_Tick_RLower_Cont
 	movlw ' '
 	call	MIOS_LCD_PrintChar
 
-	;; 	rgoto	CS_M_TRKLEN_Tick_Cont
+        ;; ------------------------------------------------------------------
+        ;; repeat 8 times
+	rcall	CS_M_TRKLEN_Tick_Yield
+	BRA_IFSET CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKLEN_Tick_End
+	rgoto	CS_M_TRKLEN_Tick_RLower
 
-
-CS_M_TRKLEN_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKLEN_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_TRKLEN_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_TRKLEN_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 

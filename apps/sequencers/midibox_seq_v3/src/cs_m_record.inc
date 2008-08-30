@@ -250,6 +250,8 @@ CS_M_RECORD_Init_Trk		; (track already copied into CS_MENU_PARAMETER_L by cursor
 ;; --------------------------------------------------------------------------
 ;;  Menu Tick routine is called on every refresh cycle
 ;; --------------------------------------------------------------------------
+CS_M_RECORD_Tick_Upper_STR
+	db	"Trk. Record Mode  AStart  Step  TglGate Recorded Layers (Assignm. -> Event Menu)"
 CS_M_RECORD_Tick
 	;; layout:
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
@@ -260,22 +262,10 @@ CS_M_RECORD_Tick
 	;; G1T1 Realtime      on      16               R A:Chrd    R B:Vel.   R C:Len.
 	;; 8888-99999999999---AAA-----AA---------------CCCCCCCC----DDDDDDDD---EEEEEEEE-----
 
-	;; print segments 0-15
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_RECORD_Tick_Upper
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x07
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_RECORD_Tick_8
-	rgoto	CS_M_RECORD_Tick_9
-	rgoto	CS_M_RECORD_Tick_A
-	rgoto	CS_M_RECORD_Tick_B
-	rgoto	CS_M_RECORD_Tick_C
-	rgoto	CS_M_RECORD_Tick_D
-	rgoto	CS_M_RECORD_Tick_E
-	rgoto	CS_M_RECORD_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_RECORD_Tick_x)
 
-CS_M_RECORD_Tick_Upper_STR
-	db	"Trk. Record Mode  AStart  Step  TglGate Recorded Layers (Assignm. -> Event Menu)"
 CS_M_RECORD_Tick_Upper
 	;; determine cursor pos
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
@@ -293,45 +283,38 @@ CS_M_RECORD_Tick_Upper
 	;; print string part (10 characters)
 	movlw	10
 	call	MIOS_LCD_PrintPreconfString
-CS_M_RECORD_Tick_Upper_End
-	rgoto	CS_M_RECORD_Tick_Cont
 
+	;; repeat 8 times
+	rcall	CS_M_RECORD_Tick_Yield
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_RECORD_Tick_Upper
 
+        ;; ------------------------------------------------------------------
 CS_M_RECORD_Tick_8
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_RECORD_Tick_Cont
 
-CS_M_RECORD_Tick_9_TAB_LEN EQU 8
-CS_M_RECORD_Tick_9_TAB
-	db	"Realtime"
-	db	"Step    "
+	rcall	CS_M_RECORD_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_RECORD_Tick_9
-	movlw	0x40 + 5
-	call	MIOS_LCD_CursorSet
-	movlw	1		; item number
-	call	CS_MENU_CursorHandler2
-	skpnz
-	rgoto	CS_M_RECORD_Tick_Cont
-
 	SET_BSR	SEQ_BASE
-	movlw	0
-	btfsc	SEQ_RECORD_MODE, SEQ_RECORD_MODE_STEP, BANKED
-	movlw 1
-	mullw	CS_M_RECORD_Tick_9_TAB_LEN
-	movlw	LOW(CS_M_RECORD_Tick_9_TAB)
-	addwf	PRODL, W
-	movwf	TBLPTRL
-	movlw	HIGH(CS_M_RECORD_Tick_9_TAB)
-	addwfc	PRODH, W
-	movwf	TBLPTRH
-	movlw	CS_M_RECORD_Tick_9_TAB_LEN
-	call	MIOS_LCD_PrintPreconfString
-	
-	rgoto	CS_M_RECORD_Tick_Cont
+	BRA_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_STEP, BANKED, CS_M_RECORD_Tick_9_Step
+CS_M_RECORD_Tick_9_Real
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	8, 0x40 + 5, "Realtime"
+	rgoto	CS_M_RECORD_Tick_9_End
 
+CS_M_RECORD_Tick_9_Step
+	call	SEQ_LCD_PrintStringAfterCall
+	STRING	8, 0x40 + 5, "Step    "
+	;; 	rgoto	CS_M_RECORD_Tick_9_End
+
+CS_M_RECORD_Tick_9_End
+	rcall	CS_M_RECORD_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_RECORD_Tick_A
 	movlw	0x40 + 19
 	call	MIOS_LCD_CursorSet
@@ -352,24 +335,27 @@ CS_M_RECORD_Tick_A_Cont
 	movlw	3		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_RECORD_Tick_Cont
+	rgoto	CS_M_RECORD_Tick_A_End
 
 	movff	SEQ_RECORD_STEP, WREG
 	addlw	1
 	call	MIOS_LCD_PrintBCD2
 
-	rgoto	CS_M_RECORD_Tick_Cont
+CS_M_RECORD_Tick_A_End
+	rcall	CS_M_RECORD_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_RECORD_Tick_B
-	rgoto	CS_M_RECORD_Tick_Cont
+	rcall	CS_M_RECORD_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_RECORD_Tick_C
 	movlw	0xc0 + 4
 	call	MIOS_LCD_CursorSet
 	movlw	4		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_RECORD_Tick_Cont
+	rgoto	CS_M_RECORD_Tick_C_End
 
 	SET_BSR	SEQ_BASE
 	movlw	'-'
@@ -389,16 +375,18 @@ CS_M_RECORD_Tick_C
 	movwf	MIOS_PARAMETER1
 	movlw	0		; print assignment of layer A (4 characters)
 	call	SEQ_LAYER_PrnVType
-	
-	rgoto	CS_M_RECORD_Tick_Cont
 
+CS_M_RECORD_Tick_C_End	
+	rcall	CS_M_RECORD_Tick_Yield
+
+        ;; ------------------------------------------------------------------
 CS_M_RECORD_Tick_D
 	movlw	0xc0 + 16
 	call	MIOS_LCD_CursorSet
 	movlw	5		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_RECORD_Tick_Cont
+	rgoto	CS_M_RECORD_Tick_D_End
 
 	SET_BSR	SEQ_BASE
 	movlw	'-'
@@ -419,15 +407,17 @@ CS_M_RECORD_Tick_D
 	movlw	1		; print assignment of layer B (4 characters)
 	call	SEQ_LAYER_PrnVType
 
-	rgoto	CS_M_RECORD_Tick_Cont
+CS_M_RECORD_Tick_D_End
+	rcall	CS_M_RECORD_Tick_Yield
 
+        ;; ------------------------------------------------------------------
 CS_M_RECORD_Tick_E
 	movlw	0xc0 + 27
 	call	MIOS_LCD_CursorSet
 	movlw	6		; item number
 	call	CS_MENU_CursorHandler2
 	skpnz
-	rgoto	CS_M_RECORD_Tick_Cont
+	rgoto	CS_M_RECORD_Tick_E_End
 
 	SET_BSR	SEQ_BASE
 	movlw	'-'
@@ -447,22 +437,15 @@ CS_M_RECORD_Tick_E
 	movwf	MIOS_PARAMETER1
 	movlw	2		; print assignment of layer C (4 characters)
 	call	SEQ_LAYER_PrnVType
-	
-	rgoto	CS_M_RECORD_Tick_Cont
 
-CS_M_RECORD_Tick_F
-	;; 	rgoto	CS_M_RECORD_Tick_Cont
+CS_M_RECORD_Tick_E_End	
 
-CS_M_RECORD_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_RECORD_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
-
+        ;; ------------------------------------------------------------------
 CS_M_RECORD_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
 
+CS_M_RECORD_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 

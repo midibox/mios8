@@ -102,39 +102,18 @@ CS_M_TRKASG_Tick
 	;; G1T1   A    -    B    -     C   -    -                                             
 	;; 8888899999AAAAABBBBBCCCCCDDDDDEEEEEFFFFF----------------------------------------
 
-	;; print segments 0-15
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	CS_M_TRKASG_Tick_0
-	rgoto	CS_M_TRKASG_Tick_1
-	rgoto	CS_M_TRKASG_Tick_2
-	rgoto	CS_M_TRKASG_Tick_3
-	rgoto	CS_M_TRKASG_Tick_4
-	rgoto	CS_M_TRKASG_Tick_5
-	rgoto	CS_M_TRKASG_Tick_6
-	rgoto	CS_M_TRKASG_Tick_7
-	rgoto	CS_M_TRKASG_Tick_8
-	rgoto	CS_M_TRKASG_Tick_9
-	rgoto	CS_M_TRKASG_Tick_A
-	rgoto	CS_M_TRKASG_Tick_B
-	rgoto	CS_M_TRKASG_Tick_C
-	rgoto	CS_M_TRKASG_Tick_D
-	rgoto	CS_M_TRKASG_Tick_E
-	rgoto	CS_M_TRKASG_Tick_F
+	skpz
+	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKASG_Tick_x)
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKASG_Tick_0
 	call	SEQ_LCD_PrintStringAfterCall
 	STRING	4, 0x00 + 0, "Trk."
-	rgoto	CS_M_TRKASG_Tick_Cont
+	rcall	CS_M_TRKASG_Tick_Yield
 
-CS_M_TRKASG_Tick_1
-CS_M_TRKASG_Tick_2
-CS_M_TRKASG_Tick_3
-CS_M_TRKASG_Tick_4
-CS_M_TRKASG_Tick_5
-CS_M_TRKASG_Tick_6
-CS_M_TRKASG_Tick_7
+        ;; ------------------------------------------------------------------
+CS_M_TRKASG_Tick_1234567
 	;; set cursor depending on refresh counter value
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	mullw	5
@@ -145,22 +124,19 @@ CS_M_TRKASG_Tick_7
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	addlw	-1
 	call	SEQ_TRG_PrnType
-	rgoto	CS_M_TRKASG_Tick_Cont
+	rcall	CS_M_TRKASG_Tick_Yield		; repeat 7 times
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 3, ACCESS, CS_M_TRKASG_Tick_1234567
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKASG_Tick_8
 	movlw	0x40 + 0
 	call	MIOS_LCD_CursorSet
 	movlw	0		; item number
 	call	CS_M_HLP_PrnGxTy
-	rgoto	CS_M_TRKASG_Tick_Cont
+	rcall	CS_M_TRKASG_Tick_Yield
 
-CS_M_TRKASG_Tick_9
-CS_M_TRKASG_Tick_A
-CS_M_TRKASG_Tick_B
-CS_M_TRKASG_Tick_C
-CS_M_TRKASG_Tick_D
-CS_M_TRKASG_Tick_E
-CS_M_TRKASG_Tick_F
+        ;; ------------------------------------------------------------------
+CS_M_TRKASG_Tick_9ABCDEF
 	;; determine CC offset (Skip=0...) -> TMP1
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	addlw	-9
@@ -175,7 +151,7 @@ CS_M_TRKASG_Tick_F
 	movf	TMP1, W		; item number
 	addlw	1
 	call	CS_MENU_CursorHandler2
-	bz	CS_M_TRKASG_Tick_Cont
+	bz	CS_M_TRKASG_Tick_9ABCDEF_End
 
 	;; get CC depending on offset and print layer assignment
 	movf	TMP1, W
@@ -192,17 +168,16 @@ CS_M_TRKASG_Tick_9_Cont
 	call	MIOS_LCD_PrintChar
 	;; 	rgoto	CS_M_TRKASG_Tick_Cont
 
-CS_M_TRKASG_Tick_Cont
-	;; Tick function will be called 16 times
-	incf	CS_MENU_REFRESH_ITEM_CTR, F
-	movlw	0x10-1
-	cpfsgt	CS_MENU_REFRESH_ITEM_CTR, ACCESS
-	rgoto CS_M_TRKASG_Tick_End
-	clrf	CS_MENU_REFRESH_ITEM_CTR
-	;; 	rgoto	CS_M_PATTERN_Tick_End
+CS_M_TRKASG_Tick_9ABCDEF_End
+	rcall	CS_M_TRKASG_Tick_Yield		; repeat 7 times
+	BRA_IFCLR CS_MENU_REFRESH_ITEM_CTR, 4, ACCESS, CS_M_TRKASG_Tick_9ABCDEF
 
+        ;; ------------------------------------------------------------------
 CS_M_TRKASG_Tick_End
-	return
+	goto	CS_M_HLP_LCD_Tick_End
+
+CS_M_TRKASG_Tick_Yield
+	goto	CS_M_HLP_LCD_Tick_Yield
 
 ;; ==========================================================================
 
