@@ -1,0 +1,119 @@
+HEADER 3 Short GPASM Guide
+            <h1>GPASM : Prise en Main</h1>
+
+
+            <p class="INFO">GPASM fait partie de la suite d'utilitaires <a href="http://gputils.sourceforge.net" target="_blank">GPUTILS</a>&nbsp;. A la diff&eacute;rence de l'utilitaire propri&eacute;taire de Windows <a href="howto_tools_mpasm.html">MPASM</a>,
+il est disponible pour les principales plate-formes telles que Windows,
+Linux et MacOS. Du coup, une migration de toutes&nbsp;les applications
+MIOS a &eacute;t&eacute; r&eacute;alis&eacute;e pour fonctionner avec
+ce freeware.</p>
+
+
+            <p class="INFO">A chaque fois que des modifications sont
+effectu&eacute;es dans les codes-source d'une application MIOS,
+celle-ci doit &ecirc;tre re-compil&eacute;e et convertie en fichier
+.hex&nbsp; - voici un petit guide pas-&agrave;-pas:</p>
+            <p>
+
+            <table align="center" cellpadding="0" cellspacing="20">
+
+
+  <tbody>
+                <tr>
+
+    <td><a href="http://gputils.sourceforge.net" target="_blank"><img src="howto_tools/gputils.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">T&eacute;l&eacute;chargez et installez <a href="https://sourceforge.net/project/showfiles.php?group_id=41924" target="_blank">le contenu de l'archive GPUTILS disponible sur sourceforge.net</a>; l'archive contient le compilateur GPASM.</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/mpasm2.gif"><img src="howto_tools/mpasm2.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Ouvrez votre &eacute;diteur de texte habituel, ici vous pouvez voir une capture d'&eacute;cran d'</span><span class="NORM">Emacs, mon</span><span class="NORM"> &eacute;diteur
+pr&eacute;f&eacute;r&eacute; sous Windows et Unix. Si tous ne le
+trouvent pas forc&eacute;ment ergonomique - il reste l'un des
+&eacute;diteurs les plus performants (avec notament des languages de
+programmation int&eacute;gr&eacute;s et un grand nombre d'extensions :
+explorateur HTML , mail, "newsreader", jeux... ;-) , mais il
+requiert
+une longue pratique pour &ecirc;tre utilis&eacute; efficacement. La
+version pour Windows peut &ecirc;tre t&eacute;l&eacute;charg&eacute;e
+ici :</span><span class="NORM">&nbsp;<a href="http://www.gnu.org/software/emacs/windows/ntemacs.html" target="_blank">emacs@Win</a>.<br>
+                  </span><span class="NORM">Sous Windows, vous pouvez utiliser</span><span class="NORM"> <a href="http://www.ultraedit.com/" target="_blank">Ultraedit</a> , <a href="http://www.textpad.com/news/index.html" target="_blank">TextPad</a> ou <a href="http://notepad-plus.sourceforge.net" target="_blank">Notepad++</a>&nbsp;</span><span class="NORM"></span><span class="NORM"></span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/gpasm4.gif"><img src="howto_tools/gpasm4.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM"><b>Utilisateurs Windows&nbsp;:</b> une
+fois les changements effectu&eacute;s dans le code-source, vous devez
+lancer le script "make.bat" disponible dans l'archive de l'application.
+Ce script peut &ecirc;tre lanc&eacute; soit, dans l'explorer, en
+double-cliquant sur le fichier, ou lanc&eacute; depuis l'invite de
+commande comme illustr&eacute; sur la capture d'&eacute;cran. Le
+fichier make.bat contient les commandes "gpasm" avec les
+param&egrave;tres sp&eacute;cifiques &agrave; l'application.</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="howto_tools/gpasm4_unix.gif"><img src="howto_tools/gpasm4_unix.gif" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM"><b>Utilisateurs Linux/MacOS/etc..:</b>
+ouvrez une invite de commande, d&eacute;placez&nbsp;vous dans le
+dossier de l'application et entrez la commande "make" - ceci lancera
+l'execution du Makefile. Avec "make clean", tous les fichiers
+temporaires &agrave; l'exception des fichiers de dump .hex seront
+supprim&eacute;s, avec "make cleanall" tous les fichiers
+g&eacute;n&eacute;r&eacute;s seront supprim&eacute;s.</span></td>
+
+  </tr>
+
+
+  <tr>
+
+    <td><a href="mios/mios_studio8.gif"><img src="mios/mios_studio8_small.gif" alt="" height="128" width="160"></a></td>
+
+    <td><img src="images/1x1dot.gif" alt="" width="10"></td>
+
+    <td><span class="NORM">Si le compilateur ne notifie aucune erreur
+(*), le nouveau fichier .hex peut &ecirc;tre upload&eacute; &agrave;
+l'aide de MIOS Studio (voir aussi <a href="mios_bootstrap_newbies.html">cette page</a>).</span></td>
+
+  </tr>
+
+
+              </tbody>
+            </table>
+
+
+            </p>
+            <p class="INFO">(*)Si GPASM signale des erreurs ou des
+avertissements, le fichier .hex file NE SERA PAS mis &agrave; jour!
+Dans ce cas, jetez un oeil dans le fichier .err&nbsp; (par ex.
+main.err) qui contient tous les messages et r&eacute;f&eacute;rences
+aux parties incorrectes du code. Vopus pouvez aussi v&eacute;rifier le
+fichier .lst&nbsp; (par ex. main.lst) qui contient le listing complet -
+plus les&nbsp;erreurs ou des avertissements. Si vous avez
+compil&eacute; le fichier "main.asm", le nom du fichier d'erreurs sera
+"main.err". Ou si vous avez compil&eacute; "setup_8580.asm", le nom du
+fichier sera "setup_8580.err", etc...</p>
+
+
+FOOTER
