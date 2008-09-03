@@ -103,6 +103,11 @@ SID_PATCH_Init_ClearMVLoop_Next
 	cpfsgt	TABLAT, ACCESS
 	rgoto SID_PATCH_Init_ClearMVLoop
 
+	;; ensure that WT pointer will be reset to avoid,
+	;; that a random WT position will be played after patch change
+	SET_BSR	SID_BASE
+	movlw	0x0f
+	movwf	SID_SE_TRG_EVNT_U, BANKED
 
 SID_PATCH_Init_ClearSkip
 	SET_BSR	SID_BASE

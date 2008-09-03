@@ -342,7 +342,7 @@ SID_SYSEX_PatchWrite_End
 	;; action invalid if patch/bank not available
 	BRA_IFSET SID_SYSEX_STATE, SID_SYSEX_STATE_ERROR, BANKED, SID_SYSEX_DisAck_BS_NotAvail
 
-	;; action invalid if patch >= 64 should be read from a too small bankstick
+	;; action invalid if patch >= 64 should be written into a too small bankstick
 	rcall	SID_SYSEX_Check_BS_Size
 	skpz
 	rgoto	SID_SYSEX_DisAck_BSTooSmall

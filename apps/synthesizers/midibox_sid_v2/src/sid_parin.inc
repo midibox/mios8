@@ -1176,28 +1176,22 @@ SID_PARIN_SetWT_Rel
 	addwf	MIOS_PARAMETER1, F
 	movf	MUL_R_3, W, BANKED
 	addwfc	MIOS_PARAMETER2, F
-	BRA_IFSET MUL_R_3, 7, BANKED, SID_PARIN_SetWT_SatNeg
-SID_PARIN_SetWT_SatPos
-	bnc	SID_PARIN_SetWT_NoSat
+	BRA_IFSET MUL_R_3, 7, BANKED, SID_PARIN_SetWT_Rel_SatNeg
+SID_PARIN_SetWT_Rel_SatPos
+	bnc	SID_PARIN_SetWT_Rel_NoSat
 	setf	MIOS_PARAMETER1
 	setf	MIOS_PARAMETER2
-	rgoto	SID_PARIN_SetWT_Sat_Cont
-SID_PARIN_SetWT_SatNeg
-	bc	SID_PARIN_SetWT_NoSat
+	rgoto	SID_PARIN_SetWT_Rel_Sat_Cont
+SID_PARIN_SetWT_Rel_SatNeg
+	bc	SID_PARIN_SetWT_Rel_NoSat
 	clrf	MIOS_PARAMETER1
 	clrf	MIOS_PARAMETER2
-	;; 	rgoto	SID_PARIN_SetWT_Sat_Cont
-SID_PARIN_SetWT_Sat_Cont
-SID_PARIN_SetWT_NoSat
+	;; 	rgoto	SID_PARIN_SetWT_Rel_Sat_Cont
+SID_PARIN_SetWT_Rel_Sat_Cont
+SID_PARIN_SetWT_Rel_NoSat
 
-	;; scale 16bit value in MIOS_PARAMETER[12] to target range
-	movf	SID_PAR_IX, W, BANKED
-	bcf	MIOS_PARAMETER3, 3	; scale down
-	rcall	SID_PARIN_Scale
-
-	;; store new value
-	movf	SID_PAR_IX, W, BANKED
-	goto	SID_PARIN_Set
+	;; continue with write routine
+	rgoto	SID_PARIN_SetWT_Rel_Cont
 
 
 SID_PARIN_SetWT_Abs
@@ -1207,6 +1201,7 @@ SID_PARIN_SetWT_Abs
 	movwf	MIOS_PARAMETER2
 	clrf	MIOS_PARAMETER1
 
+SID_PARIN_SetWT_Rel_Cont
 	;; set new value
 	movf	SID_PAR_IX, W, BANKED
 	rcall	SID_PARIN_Set16_FromIRQ
