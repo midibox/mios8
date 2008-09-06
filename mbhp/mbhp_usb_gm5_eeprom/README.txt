@@ -37,7 +37,7 @@ interfaces, changing device name, changing PID/VID, etc...)
 The EEPROM structure has been provided by Ploytec, the USB descriptors
 are taken from the MBHP_USB_PIC project
 
-Note that only IIC EEPROMs with 8bit addressing can be used (e.g. 27C04)
+Note that only IIC EEPROMs with 8bit addressing can be used (e.g. 24C04)
 
 Programming will be performed ca. 5 seconds after startup.
 
