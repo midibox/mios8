@@ -1,0 +1,125 @@
+HEADER 3 MIDIbox SID V2 User Manual --- Installation
+
+            <p class="INFO"><b><a href="midibox_sid_manual.html">Back to main page...</a></b></p>
+
+
+            <h1>MIDIbox SID V2</h1>
+
+            <h1>Manuel --- Installation</h1>
+
+
+            <h2> <img src="images/bullet.gif" alt=""> Initial Installation of the Master Core </h2>
+
+
+            <ul class="CL">
+
+              <li><b>1)</b> Chargez le <a href="mios_bootstrap.html">bootloader MIOS</a> dans le microcontr&ocirc;leur avec votre programmateur de PIC (par exemple le <a href="mbhp_burner.html">MBHP_BURNER</a>). Le fichier .hex est disponible dans le r&eacute;pertoire pic18f4685/burner de <a href="mios_download.html">l'archive MIOS update</a>.<br>
+Si vous avez achet&eacute; votre PIC chez <a href="http://mbhp.coinoptech.com" target="_blank">SmashTV</a> ou chez <a href="http://forum.midibox.org" target="_blank">Doc</a>,
+le PIC est d&eacute;j&agrave; "pr&eacute;-programm&eacute;", dans ce
+cas, vous n'avez plus qu'&agrave; uploader le code restant via MIDI
+(pas de programmateur de PIC requis)</li>
+              <li><b>2)</b> Installez la derni&egrave;re version du <a href="mios.html">MIOS</a> &agrave; l'aide de <a href="http://miosstudio.midibox.org">MIOS Studio</a>.&nbsp;Le fichier .hex est disponible dans le r&eacute;pertoire <a href="mios_download.html">MIOS update package</a>&nbsp; (dossier pic18f4685/midi)</li>
+
+
+              <li><b>3)</b>&nbsp;Installez la derni&egrave;re version de la <a href="mios_download.html">midibox_sid_v2</a> avec <a href="http://miosstudio.midibox.org">MIOS Studio</a>.</li>
+
+
+              <li><b>4)</b> Si des <a href="mbhp_bankstick.html">BankSticks</a>
+vierges sont connect&eacute;s au module Core ma&icirc;tre, le firmware
+lancera automatiquement le formatage de ces derniers.
+L'op&eacute;ration prends quelques se&ccedil;ondes. Apr&eacute;s le
+formatage, vous pouvez charger la banque de presets avec votre
+&eacute;diteur SysEx favori (par ex. MIDI-Ox), cette banque est
+disponible dans le r&eacute;pertoire presets/ de l'archive
+midibox_sid_v2&nbsp;.</li>
+
+
+            </ul>
+
+
+
+            <h2> <img src="images/bullet.gif" alt="">&nbsp;Installation initiale des Cores Esclaves </h2>
+
+
+            <ul class="CL">
+
+              <li><b>1)</b> Chargez le <a href="mios_bootstrap.html">MIOS Bootloader</a>
+dans le microcontr&ocirc;leur si ce n'est d&eacute;j&agrave; fait. Si
+le logiciel de votre programmateur vous le permet, changez le PIC ID
+header, utilisez:
+                <ul class="CL">
+
+    <li><i>0000000000000001</i> pour le premier module Slave</li>
+
+    <li><i>0000000000000002</i>&nbsp;pour le second module Slave</li>
+
+    <li><i>0000000000000003</i>&nbsp;pour le troisi&egrave;me module Slave</li>
+
+  
+                </ul>
+
+                <span class="LI">Pas de panique si vous ne trouvez pas
+cette option dans votre logiciel, vous pourrez changez l'ID plus tard,
+une fois le MIOS install&eacute;.</span>
+              </li>
+              <li><b>2)</b>&nbsp;Installez la derni&egrave;re version du <a href="mios.html">MIOS</a> avec <a href="http://miosstudio.midibox.org">MIOS Studio</a></li>
+
+              <li><b>3)</b> si l'ID mat&eacute;rielle MIOS n'a pas
+&eacute;t&eacute; adapt&eacute;e &agrave; l'installation du Bootloader,
+vous devez le faire maintenant. T&eacute;l&eacute;chargez l'application
+"change_id" disponible sur la page <a href="mios_download.html">MIOS Download</a>, et uploadez les fichiers .hex suivant avec <a href="http://miosstudio.midibox.org">MIOS Studio</a>:
+  
+                <ul class="CL">
+
+    <li><i>device_id_01.hex</i>&nbsp;pour le premier module Slave</li>
+
+    <li><i>device_id_02.hex</i>&nbsp;pour le second module Slave</li>
+
+    <li><i>device_id_03.hex</i>&nbsp;pour le troisi&egrave;me module Slave</li>
+
+  
+                </ul>
+
+              </li>
+
+              <li><b>4)</b>&nbsp;Installez la derni&egrave;re version de la <a href="mios_download.html">midibox_sid_v2</a> avec <a href="http://miosstudio.midibox.org">MIOS Studio</a>.</li>
+
+            </ul>
+
+
+            <p class="INFO"><b>IMPORTANT:</b> une connection MIDI
+bi-directionnelle est requise pour uploader le code vers les modules
+Slaves. Normalement le port MIDI Out de votre MIDIbox SID V2 est
+uniquement connect&eacute; au module Core Master. Il y a deux moyens de
+relier vos modules Slaves &agrave; votre interface MIDI :
+</p>
+            <ul class="CL">
+
+              <li><b>a)</b> installez temporairement le PIC dans le
+socle du module Master. C'est la solution la plus simple, notament car
+vous r&eacute;alisez ainsi l'installation sur un module
+d&eacute;j&agrave; test&eacute; (si vous avez d&eacute;j&agrave;
+uploader avec succ&eacute;s le code pour le PIC Master).</li>
+
+              <li><b>b)</b> modifiez le c&acirc;blage MIDI &agrave;
+l'interieur de votre MIDIbox. Tout d&eacute;pend de votre
+impl&eacute;mentation mat&eacute;rielle. Par exemple, sur le <a href="http://www.midibox.org/dokuwiki/wilba_mb_6582" target="_blank">circuit MB-6582</a> vous disposez de jumper vous permettant de modifier le routing des ports MIDI Out.</li>
+
+            </ul>
+
+            <p></p>
+
+
+
+            <h2> <img src="images/bullet.gif" alt=""> Mettre le Firmware &agrave; Jour avec une Nouvelle Version </h2>
+
+
+            <p class="DESC">C'est simple: uploadez simplement le dernier firmware <a href="mios_download.html">midibox_sid_v2</a> dans le module Master avec&nbsp; <a href="http://miosstudio.midibox.org">MIOS Studio</a>.</p>
+
+
+            <p class="DESC">Une fois que le Firmware est charg&eacute;,
+et que s'affiche le num&eacute;ro de version, appuyez et maintenez
+enfonc&eacute; le bouton MENU de votre <a href="midibox_sid_manual_hw.html">Surface de Contr&ocirc;le</a> pour "cl&ocirc;ner" le nouveau firmware via l'interface CAN.</p>
+
+
+FOOTER
