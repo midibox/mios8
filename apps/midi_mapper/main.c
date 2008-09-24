@@ -149,7 +149,7 @@ void Timer(void) __wparam{
 	if(++timer_ticks_count >= init_request_ticks){
 		if(timer_ticks_count == init_request_ticks){
 			preset_init();//inits the current preset
-			if(!current_preset_num){//page is preset.. 
+			if(!current_screen_num){//page is preset.. 
 				for(i=0;i<16;i++)//inits all presets on bankstick(store reset preset)
 					store_preset(i);
 				}	
@@ -232,7 +232,7 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam{
 				break;			
 			case 1://bus screen
 				current_bus_num = value;
-				MIOS_EEPROM_Write(0x03,current_preset_num);
+				MIOS_EEPROM_Write(0x02,current_bus_num);
 				break;			
 			case 2://input screen
 				if (MIOS_DIN_PinGet(0x02)){//set/unset input chanel
