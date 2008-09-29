@@ -65,12 +65,12 @@ unsigned char timer_ticks_count=0;
 //------------------------------------------
 
 void store_preset(unsigned char num) __wparam{
-	MIOS_BANKSTICK_WritePage(num*64, @current_preset);
+	MIOS_BANKSTICK_WritePage(num*64, &current_preset);
 	}
 	
 void load_preset(unsigned char num) __wparam{
 	unsigned char bus,chn_in,chn_out,i;	
-	MIOS_BANKSTICK_ReadPage(num*64, @current_preset);	
+	MIOS_BANKSTICK_ReadPage(num*64, &current_preset);	
 	//extraxt midi_inout_map
 	for(bus=0;bus<16;bus++){
 		for(chn_in=0;chn_in<16;chn_in++){
