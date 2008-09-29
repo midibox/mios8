@@ -38,6 +38,7 @@ struct midi_bus{
 //time that all the 16 value-leds will flash after a init
 #define init_ledflash_ticks 7
 
+
 const unsigned int int_bit_ormask[16] = {
 	0x0001,0x0002,0x0004,0x0008,	
 	0x0010,0x0020,0x0040,0x0080,	
@@ -45,6 +46,8 @@ const unsigned int int_bit_ormask[16] = {
 	0x1000,0x2000,0x4000,0x8000	
 	};
 	
+
+
 //--current state--
 unsigned char current_screen_num=0;//0:prs;1:bus;2:in;3:out;stored at 0x00 in EEPROM
 unsigned char current_preset_num=0;//stored at 0x01 of EEPROM
@@ -52,6 +55,7 @@ unsigned char current_bus_num=0;//stored at 0x02 of EEPROM
 
 struct midi_bus current_preset[16];//stored in Bank Stick after change
 signed char midi_inout_map[16][16];//map the input-> output relations for faster msg forwarding
+
 
 //--timer--
 unsigned char timer_ticks_count=0;
