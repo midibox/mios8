@@ -135,20 +135,20 @@ SEQ_LED_Update_SongLED_NoFl
 
 
 	;; additional LED functions, which are not streamed via TMP1
- IF LED_PLAY < 128
+ IF LED_PLAY < 192
 	SEQ_LED_UPDATE_DOUT SEQ_STATE, SEQ_STATE_RUN, BANKED, LED_PLAY
  ENDIF
- IF LED_STOP < 128
+ IF LED_STOP < 192
 	SEQ_LED_UPDATE_DOUT_INV SEQ_STATE, SEQ_STATE_RUN, BANKED, LED_STOP
  ENDIF
- IF LED_PAUSE < 128
+ IF LED_PAUSE < 192
 	SEQ_LED_UPDATE_DOUT SEQ_STATE, SEQ_STATE_PAUSE, BANKED, LED_PAUSE
  ENDIF
 
- IF LED_STEP_1_16 < 128
+ IF LED_STEP_1_16 < 192
 	SEQ_LED_UPDATE_DOUT_INV SEQ_SELECTED_STEPS, 0, BANKED, LED_STEP_1_16
  ENDIF
- IF LED_STEP_17_32 < 128
+ IF LED_STEP_17_32 < 192
 	SEQ_LED_UPDATE_DOUT SEQ_SELECTED_STEPS, 0, BANKED, LED_STEP_17_32
  ENDIF
 
@@ -158,10 +158,18 @@ SEQ_LED_Update_SongLED_NoFl
 	;; help function (rgoto only requires 2 bytes instead of 4 bytes)
 	;; ignore shift register assignments with WREG==128
 SEQ_LED_Update_PinSet
-	;; ignore if WREG >= 128
-	btfsc	WREG, 7
+	;; ignore if WREG >= 192
+	movwf	MIOS_PARAMETER2	; temporary store value in MIOS_PARAMETER2
+	andlw	0xc0		; check for LED number >= 0xc0
+	xorlw	0xc0		; ignore these numbers
+	skpnz
 	return
 
+	;; if WREG >= 128, call BLM LED function
+	movf	MIOS_PARAMETER2, W
+	BRA_IFSET WREG, 7, ACCESS, SEQ_LED_BLM_PinSet
+
+	;; otherwise call MIOS function
 	goto	MIOS_DOUT_PinSet
 
 
@@ -172,7 +180,43 @@ SEQ_LED_Update_PinSet_ShiftTMP1
 	setf	MIOS_PARAMETER1
 	rrf	TMP1, F		; (right-shift for next execution of SEQ_LED_Update_PinSet_ShiftTMP1)
 	rgoto	SEQ_LED_Update_PinSet
-	
+
+
+;; --------------------------------------------------------------------------
+;;  LED Matrix for misc. buttons: 
+;;  set a pin - parameter interface like for MIOS_DOUT_PinSet
+;;     - WREG contains the LED number (0-63, 64-127 will be mirrored!)
+;;     - MIOS_PARAMETER1 contains the LED value (0 or 1)
+;; --------------------------------------------------------------------------
+SEQ_LED_BLM_PinSet
+        ;; branch depending on LED value
+        lfsr    FSR1, SEQ_LEDM_MISC0
+        BRA_IFCLR MIOS_PARAMETER1, 0, ACCESS, SEQ_LED_BLM_PinSet0
+
+SEQ_LED_BLM_PinSet1
+        movwf   MIOS_PARAMETER1         ; temporary store value in MIOS_PARAMETER1
+        rlf     WREG, F
+        swapf   WREG, W
+        andlw   0x07                    ; 8 SRs maximum, >=8 will be mirrored
+        addwf   FSR1L, F
+
+        movf    MIOS_PARAMETER1, W
+        call    MIOS_HLP_GetBitORMask
+        iorwf   INDF1, F
+        return
+
+SEQ_LED_BLM_PinSet0
+        movwf   MIOS_PARAMETER1         ; temporary store value in MIOS_PARAMETER1
+        rlf     WREG, F
+        swapf   WREG, W
+        andlw   0x07                    ; 8 SRs maximum, >=8 will be mirrored
+        addwf   FSR1L, F
+
+        movf    MIOS_PARAMETER1, W
+        call    MIOS_HLP_GetBitANDMask
+        andwf   INDF1, F
+        return
+
 
 ;; --------------------------------------------------------------------------
 ;;  this function is called by USER_SR_ServicePrepare before the DOUT chains
@@ -202,7 +246,7 @@ SEQ_LED_UpdateIRQ_NoBeat
 
 	;; ---[ increment the BLM row counter (used when DEFAULT_SRM_ENABLED or DEFAULT_BPM_DIGITS_ENABLED set ]---
 	incf	SEQ_BLM_ROW_CTR, F, BANKED
-	bcf	SEQ_BLM_ROW_CTR, 2, BANKED	; wrap at 4
+	bcf	SEQ_BLM_ROW_CTR, 3, BANKED	; wrap at 8
 
 	;; ---[ update the GP LEDs ]---
 
@@ -260,9 +304,12 @@ SEQ_LED_UpdateIRQ_SeqOn_GPLED_NM
 SEQ_LED_UpdateIRQ_SeqOn_LM
 	;; get matrix seq pos, store it in IRQ_TMP4
 	lfsr	FSR1, SEQ_TRKVAR0
+	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	andlw	0x03
+	movwf	PRODL
 	movf	IRQ_TMP5, W	; (selected track group = IRQ_TMP5[3:2])
 	andlw	0x0c
-	addwf	SEQ_BLM_ROW_CTR, W, BANKED
+	addwf	PRODL, W
 	mullw	SEQ_TRKVARRECORD_LENGTH
 	movf	PRODL, W
 	addwf	FSR1L, F
@@ -339,7 +386,7 @@ SEQ_LED_UpdateIRQ_LM
 	;; Track LED Row 1-4 - values stored in separate array
 	lfsr	FSR1, SEQ_LEDM_TRK0_A_L
 	rlf	SEQ_BLM_ROW_CTR, W, BANKED
-	andlw	0xfe
+	andlw	0x06
 	movff	PLUSW1, IRQ_TMP1
 	addlw	1
 	movff	PLUSW1, IRQ_TMP2
@@ -372,11 +419,22 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 	call	MIOS_DOUT_SRSet
 #endif
 
+
+#if DEFAULT_SRM_DOUT_M
+	;; misc. LED functions
+	lfsr	FSR1, SEQ_LEDM_MISC0
+	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	movff	PLUSW1, MIOS_PARAMETER1
+	movlw	DEFAULT_SRM_DOUT_M - 1
+	call	MIOS_DOUT_SRSet
+#endif
+
+
 #if DEFAULT_SRM_DOUT_DUOCOLOUR
 	;; drive the second colour LEDs
 	lfsr	FSR1, SEQ_LEDM_TRK0_B_L
 	rlf	SEQ_BLM_ROW_CTR, W, BANKED
-	andlw	0xfe
+	andlw	0x06
 	movff	PLUSW1, IRQ_TMP1
 	addlw	1
 	movff	PLUSW1, IRQ_TMP2
@@ -406,11 +464,13 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 #endif
 #endif
 
-	;; set cathode line of current track
+	;; set cathode line for GP Button/LED matrix
 	;; if track active: cathode signal must be 0
 	;; if track not active: cathode signal must be 1
+	;; this can be optionally inverted if sink drivers are used
 	SET_BSR	SEQ_BASE
 	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	andlw	0x03
 	call	MIOS_HLP_GetBitANDMask
 	andlw	0x0f
 	movwf	MIOS_PARAMETER1
@@ -432,6 +492,20 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 	call	MIOS_DOUT_SRSet
 #endif
 
+
+#if DEFAULT_SRM_DOUT_CATHODESM
+	;; set cathode line for misc. button/LED functions
+	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	call	MIOS_HLP_GetBitANDMask
+
+        ;; apply inversion mask (required when sink drivers are connected to cathode lines)
+        xorlw   DEFAULT_SRM_CATHODES_INV_MASK_M
+        movwf   MIOS_PARAMETER1
+
+	movlw	DEFAULT_SRM_DOUT_CATHODESM - 1
+	call	MIOS_DOUT_SRSet
+#endif
+
 #endif
 
 
@@ -440,7 +514,8 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 	;; select common pin
 	SET_BSR	SEQ_BASE
 	movf	SEQ_BLM_ROW_CTR, W, BANKED
-	xorlw	3			; (reverse digit select lines)
+	andlw	0x03
+	xorlw	0x03			; (reverse digit select lines)
 #if DEFAULT_BPM_DIGITS_ENABLED == 1
 	call	MIOS_HLP_GetBitANDMask	; common cathode
 #else
@@ -461,6 +536,7 @@ SEQ_LED_UpdateIRQ_LM_NoMarker
 	;; set digit
 	lfsr	FSR1, BPM_DIGIT_0
 	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	andlw	0x03
 	movff	PLUSW1, MIOS_PARAMETER1
 #if DEFAULT_BPM_DIGITS_ENABLED == 2
 	comf	MIOS_PARAMETER1, F	; invert for common anode

@@ -18,13 +18,35 @@
 ;;  It goes through the SEQ_IO_TABLE_DIN in "mios_tables.inc",
 ;;  searches for a matching DIN pin and calls the appr. function
 ;; 
+;;  This function is also called from SEQ_BUTTON_SRM_Handler if a button
+;;  of the misc. button matrix has been toggled.
+;; 
 ;;  Input:
 ;;     o Button number in MIOS_PARAMETER1
+;;       0-127: common "DIN" button
+;;       128-191: button of "misc" button matrix
 ;;     o Button value MIOS_PARAMETER2:
 ;;       - 1 if button has been released (=5V)
 ;;       - 0 if button has been pressed (=0V)
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Handler
+#if 0
+	;; only for debugging: send MIDI event
+	movlw	0x90		; button 1-127: channel #1
+	btfsc	MIOS_PARAMETER1, 7
+	addlw	0x01		; button 128-255: channel #2
+	call	MIOS_MIDI_TxBufferPut
+	
+	movf	MIOS_PARAMETER1, W ; button number
+	andlw	0x7f
+	call	MIOS_MIDI_TxBufferPut
+
+	movlw	0x00		; velocity 0 if button depressed
+	btfss	MIOS_PARAMETER2, 0
+	movlw	0x7f		; velocity 127 if button pressed
+	call	MIOS_MIDI_TxBufferPut
+#endif
+
 	;; if button has been pressed...
 	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Handler_NoDCChk
 SEQ_BUTTON_Handler_DCChk
@@ -36,31 +58,6 @@ SEQ_BUTTON_Handler_DCChk
 
 	movff	MIOS_PARAMETER1, CS_MENU_DOUBLECLICK_LAST_DIN
 SEQ_BUTTON_Handler_NoDCChk
-
-	;; check for general purpose button
-SEQ_BUTTON_Handler_ChkGP1
-	movf	MIOS_PARAMETER1, W
-	andlw	0xf8
-	xorlw	(DEFAULT_GP_DIN_SR_L - 1) << 3
-	bnz	SEQ_BUTTON_Handler_ChkGP2
-	movlw	0x07
-	andwf	MIOS_PARAMETER1, F
-	call	SEQ_GP_Button
-	rgoto	SEQ_BUTTON_Handler_End
-
-SEQ_BUTTON_Handler_ChkGP2
-	movf	MIOS_PARAMETER1, W
-	andlw	0xf8
-	xorlw	(DEFAULT_GP_DIN_SR_R - 1) << 3
-	bnz	CS_MENU_BUTTON_Handler_NoGP
-	movlw	0x07
-	andwf	MIOS_PARAMETER1, F
-	bsf	MIOS_PARAMETER1, 3
-	call	SEQ_GP_Button
-	rgoto	SEQ_BUTTON_Handler_End
-
-CS_MENU_BUTTON_Handler_NoGP
-
 
 	;; go through the DIN map
 	TABLE_ADDR SEQ_IO_TABLE_DIN
@@ -109,6 +106,22 @@ SEQ_BUTTON_Handler_End
 
 
 ;; --------------------------------------------------------------------------
+;;  Initialises the Button matrix handler (called from USER_Init hook
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_SRM_Init
+        lfsr    FSR0, SEQ_BUTTONM_ROW0L_VALUES   ; will be set to 0xff
+        lfsr    FSR1, SEQ_BUTTONM_ROW0L_CHANGED  ; will be set to 0x00
+        clrf    PRODL                   ; init loop counter
+SEQ_BUTTON_SRM_Init_Loop
+        setf    POSTINC0
+        clrf    POSTINC1
+        incf    PRODL, F
+        BRA_IFCLR PRODL, 4, ACCESS, SEQ_BUTTON_SRM_Init_Loop  ; loop 16 times
+        
+        return
+
+
+;; --------------------------------------------------------------------------
 ;;  Button Matrix: this function gets the DIN values of the selected column
 ;;  It should be called from USER_SR_Service_Finish
 ;; --------------------------------------------------------------------------
@@ -125,13 +138,28 @@ SEQ_BUTTON_GetRowIRQ
 	movwf	IRQ_TMP1
 
 	;; check the left half
+#if DEFAULT_SRM_DIN_L
 	movlw	DEFAULT_SRM_DIN_L - 1
 	rcall	SEQ_BUTTON_GetRowIRQ_Sub
+#endif
 
+#if DEFAULT_SRM_DIN_R
 	;; check the right half
 	incf	IRQ_TMP1, F	; row*2+1
 	movlw	DEFAULT_SRM_DIN_R - 1
-	;; 	rgoto	SEQ_BUTTON_GetRowIRQ_Sub
+	rcall	SEQ_BUTTON_GetRowIRQ_Sub
+#endif
+
+#if DEFAULT_SRM_DIN_M
+	;; check the misc. button SR
+	decf	SEQ_BLM_ROW_CTR, W, BANKED
+	andlw	0x07
+	addlw	LOW(SEQ_BUTTONM_MISC0_VALUES-SEQ_BUTTONM_ROW0L_VALUES)
+	movwf	IRQ_TMP1
+	movlw	DEFAULT_SRM_DIN_M - 1
+	rcall	SEQ_BUTTON_GetRowIRQ_Sub
+#endif
+	return
 
 
 	;; expecting: DIN SR number in WREG
@@ -151,6 +179,7 @@ SEQ_BUTTON_GetRowIRQ_Sub
 
 	;; backup old values in IRQ_TMP2
 	;; store new values in SEQ_BUTTONM_ROW0L_VALUES + IRQ_TMP1
+	;; for second button matrix: SEQ_BUTTONM_MISCx_VALUES (offset selected via IRQ_TMP1)
 	lfsr	FSR1, SEQ_BUTTONM_ROW0L_VALUES
 	movf	IRQ_TMP1, W
 	movff	PLUSW1, IRQ_TMP2
@@ -159,6 +188,7 @@ SEQ_BUTTON_GetRowIRQ_Sub
 	;; old value in IRQ_TMP2
 	;; new value in MIOS_PARAMETER1
 	;; select ROWx_CHANGED register
+	;; for second button matrix: SEQ_BUTTONM_MISCx_CHANGED (offset selected via IRQ_TMP1)
 	lfsr	FSR1, SEQ_BUTTONM_ROW0L_CHANGED
 	movf	IRQ_TMP1, W
 	addwf	FSR1L, F
@@ -213,7 +243,7 @@ SEQ_BUTTON_SRM_Handler_Loop
 SEQ_BUTTON_SRM_Handler_Loop_Next
 	;; increment until last column has been reached
 	incf	SEQ_BLM_COL_CTR, F, BANKED
-	movlw	0x08-1		; (8 columns)
+	movlw	0x0f-1		; (16 columns, 8 for GP button matrix, 8 for misc. button matrix)
 	cpfsgt	SEQ_BLM_COL_CTR, BANKED
 	rgoto SEQ_BUTTON_SRM_Handler_Loop
 	return
@@ -267,12 +297,29 @@ SEQ_BUTTON_SRM_Notify_Pin_Cont
 	movlw	0x01
 	movwf	MIOS_PARAMETER2
 
+	;; branch depending on GP button matrix (calls SEQ_GP_SRM_Button) and misc. button matrix (calls SEQ_BUTTON_Handler)
+	BRA_IFSET SEQ_BLM_COL_CTR, 3, BANKED, SEQ_BUTTON_SRM_Notify_Pin_Misc
+SEQ_BUTTON_SRM_Notify_Pin_GP
 	;; switch to 8-15 in MIOS_PARAMETER1 if right half of 4x16 matrix
 	btfsc	SEQ_BLM_COL_CTR, 0, BANKED
 	bsf	MIOS_PARAMETER1, 3
 
 	;; call SRM button handler
 	call	SEQ_GP_SRM_Button
+	rgoto	SEQ_BUTTON_SRM_Notify_Pin_Next
+
+SEQ_BUTTON_SRM_Notify_Pin_Misc
+	;; select pin number (128-191)
+	swapf	SEQ_BLM_COL_CTR, W, BANKED
+	rrf	WREG, W
+	andlw	0x38
+	iorlw	0x80
+	iorwf	MIOS_PARAMETER1, F
+
+	;; call normal button handler
+	call	SEQ_BUTTON_Handler
+
+SEQ_BUTTON_SRM_Notify_Pin_Next
 
 	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
@@ -293,7 +340,6 @@ SEQ_BUTTON_SRM_Notify_Pin_Cont
 ;;       - 1 if button has been released (=5V)
 ;;       - 0 if button has been pressed (=0V)
 ;; --------------------------------------------------------------------------
-	;; used by seq_remote.inc
 SEQ_BUTTON_GP1
 	movlw	0x00
 	rgoto	SEQ_BUTTON_GP_Cont

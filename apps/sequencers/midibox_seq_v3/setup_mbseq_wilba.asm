@@ -1,7 +1,7 @@
 ;$Id$
 	LIST R=DEC
 ;
-; Default setup File for MIDIbox SEQ V3
+; Default setup File for Wilba's MIDIbox SEQ
 ;
 ; Detailed infos for customization can be found at http://www.ucapps.de/midibox_seq_options.html
 ;
@@ -30,7 +30,7 @@
 ;
 ;
 ; Max. length of the DIN/DOUT shift register chain (1-16)
-#define DEFAULT_NUMBER_SR	13
+#define DEFAULT_NUMBER_SR	8
 ;
 ; debounce counter (see the function description of MIOS_SRIO_DebounceSet)
 ; Use 0 for high-quality buttons, use higher values for low-quality buttons
@@ -41,8 +41,8 @@
 ; but also the current sequencer position, the selected pattern, the menu, etc.
 ; Define the two shift registers which are assigned to this function here:	
 ; (valid numbers: 1-16)
-#define DEFAULT_GP_DOUT_SR_L	3	; first GP DOUT shift register assigned to SR#3
-#define DEFAULT_GP_DOUT_SR_R	4	; second GP DOUT shift register assigned to SR#4
+#define DEFAULT_GP_DOUT_SR_L	0	; first GP DOUT shift register assigned to SR#3
+#define DEFAULT_GP_DOUT_SR_R	0	; second GP DOUT shift register assigned to SR#4
 ;
 ;
 ; === Shift Register Matrix ===
@@ -53,20 +53,20 @@
 ;
 ; define the shift registers to which the anodes of these LEDs are connected
 ; Note: they can be equal to DEFAULT_GP_DOUT_SR_[LH], this saves two shift registers, but doesn't allow a separate view of UI selections
-#define DEFAULT_SRM_DOUT_L1	6
-#define DEFAULT_SRM_DOUT_R1	9
+#define DEFAULT_SRM_DOUT_L1	0
+#define DEFAULT_SRM_DOUT_R1	0
 ;
 ; for misc. LED functions
-#define DEFAULT_SRM_DOUT_M	0
+#define DEFAULT_SRM_DOUT_M	8
 ;
 ; define the shift register to which the cathodes of these LEDs are connected
 ; Note that the whole shift register (8 pins) will be allocated! The 4 select lines are duplicated (4 for LED matrix, 4 for button matrix)
 ; The second DOUT_CATHODES2 selection is optional if LEDs with high power consumption are used - set this to 0 if not used
-#define DEFAULT_SRM_DOUT_CATHODES1	5
-#define DEFAULT_SRM_DOUT_CATHODES2	8
+#define DEFAULT_SRM_DOUT_CATHODES1	0
+#define DEFAULT_SRM_DOUT_CATHODES2	0
 ;
 ; another select line for misc. button/led functions - all 8 select pins are used for a 8x8 button/led matrix
-#define DEFAULT_SRM_DOUT_CATHODESM	0
+#define DEFAULT_SRM_DOUT_CATHODESM	7
 ;
 ; set an inversion mask for the DOUT shift registers if sink drivers (transistors)
 ; have been added to the cathode lines
@@ -79,22 +79,22 @@
 #define DEFAULT_SRM_CATHODES_INV_MASK_M 0x00
 ;
 ; set this to 1, if DUO colour LEDs are connected to the LED matrix
-#define DEFAULT_SRM_DOUT_DUOCOLOUR	1
+#define DEFAULT_SRM_DOUT_DUOCOLOUR	0
 ;
 ; define the shift registers to which the anodes of the "second colour" (red) LEDs are connected
-#define DEFAULT_SRM_DOUT_L2	7
-#define DEFAULT_SRM_DOUT_R2	10
+#define DEFAULT_SRM_DOUT_L2	0
+#define DEFAULT_SRM_DOUT_R2	0
 ;
 ; set this to 1 if a button matrix is connected
 #define DEFAULT_SRM_BUTTONS_ENABLED 0
 ; set this to 1 if these buttons should only control the "step triggers" (gate, and other assigned triggers) - and no UI functions
 #define DEFAULT_SRM_BUTTONS_NO_UI   1
 ; define the DIN shift registers to which the button matrix is connected
-#define DEFAULT_SRM_DIN_L	11
-#define DEFAULT_SRM_DIN_R	12
+#define DEFAULT_SRM_DIN_L	0
+#define DEFAULT_SRM_DIN_R	0
 ;
 ; 8x8 matrix for misc. button functions
-#define DEFAULT_SRM_DIN_M	0
+#define DEFAULT_SRM_DIN_M	2
 ;
 ;
 ; === BPM digits ===
@@ -197,7 +197,7 @@
 ;;   2: up to 4 (chained) MBHP_AOUT_LC modules
 ;;   3: one MBHP_AOUT_NG module
 ;; all other values invalid!
-#define AOUT_INTERFACE_TYPE 1
+#define AOUT_INTERFACE_TYPE 3
 
 ;; only relevant if one or more AOUT_LC modules are used:
 ;; define the resolution configuration here
@@ -449,25 +449,25 @@ ENC_EOT	MACRO
 MIOS_ENC_PIN_TABLE
 	;;        SR  Pin  Mode
 #if DEFAULT_ENC_DATAWHEEL >= 0
-	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; Data Wheel
+	ENC_ENTRY  6,  2,  MIOS_ENC_MODE_DETENTED2	; Data Wheel
 #endif
 
-	ENC_ENTRY  5,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 1
-	ENC_ENTRY  5,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 2
-	ENC_ENTRY  5,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 3
-	ENC_ENTRY  5,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 4
-	ENC_ENTRY  6,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 5
-	ENC_ENTRY  6,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 6
-	ENC_ENTRY  6,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 7
-	ENC_ENTRY  6,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 8
-	ENC_ENTRY  8,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 9
-	ENC_ENTRY  8,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 10
-	ENC_ENTRY  8,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 11
-	ENC_ENTRY  8,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 12
-	ENC_ENTRY  9,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 13
-	ENC_ENTRY  9,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 14
-	ENC_ENTRY  9,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 15
-	ENC_ENTRY  9,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 16
+	ENC_ENTRY  1,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 1
+	ENC_ENTRY  1,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 2
+	ENC_ENTRY  1,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 3
+	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 4
+	ENC_ENTRY  3,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 5
+	ENC_ENTRY  3,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 6
+	ENC_ENTRY  3,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 7
+	ENC_ENTRY  3,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 8
+	ENC_ENTRY  4,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 9
+	ENC_ENTRY  4,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 10
+	ENC_ENTRY  4,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 11
+	ENC_ENTRY  4,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 12
+	ENC_ENTRY  5,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 13
+	ENC_ENTRY  5,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 14
+	ENC_ENTRY  5,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 15
+	ENC_ENTRY  5,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 16
 
 	;; don't remove this "end-of-table" entry!
 	ENC_EOT			

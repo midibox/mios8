@@ -37,12 +37,6 @@
 #define DEFAULT_SRIO_DEBOUNCE_CTR 32
 ;
 ;
-; Some menus are provide the possibility to use 16 "general purpose" buttons
-; Define the two shift registers which are assigned to this function here:
-; (valid numbers: 1-16)
-#define DEFAULT_GP_DIN_SR_L	7	; first GP DIN shift register assigned to SR#7
-#define DEFAULT_GP_DIN_SR_R	10	; second GP DIN shift register assigned to SR#10
-;
 ; above these buttons LEDs should be mounted to visualize the played MIDI events,
 ; but also the current sequencer position, the selected pattern, the menu, etc.
 ; Define the two shift registers which are assigned to this function here:	
@@ -54,6 +48,7 @@
 ; === Shift Register Matrix ===
 ;
 ; set this value to 1 if each track has its own set of 16 LEDs to display unmuted steps and current sequencer position
+; or if you are using a button/led matrix for misc. button/LED functions
 #define DEFAULT_SRM_ENABLED     1
 ;
 ; define the shift registers to which the anodes of these LEDs are connected
@@ -61,11 +56,17 @@
 #define DEFAULT_SRM_DOUT_L1	6
 #define DEFAULT_SRM_DOUT_R1	9
 ;
+; for misc. LED functions
+#define DEFAULT_SRM_DOUT_M	0
+;
 ; define the shift register to which the cathodes of these LEDs are connected
 ; Note that the whole shift register (8 pins) will be allocated! The 4 select lines are duplicated (4 for LED matrix, 4 for button matrix)
 ; The second DOUT_CATHODES2 selection is optional if LEDs with high power consumption are used - set this to 0 if not used
 #define DEFAULT_SRM_DOUT_CATHODES1	5
 #define DEFAULT_SRM_DOUT_CATHODES2	8
+;
+; another select line for misc. button/led functions - all 8 select pins are used for a 8x8 button/led matrix
+#define DEFAULT_SRM_DOUT_CATHODESM	0
 ;
 ; set an inversion mask for the DOUT shift registers if sink drivers (transistors)
 ; have been added to the cathode lines
@@ -73,6 +74,9 @@
 ;           0xf0 - sink drivers connected to D0..D3
 ;           0x0f - sink drivers connected to D7..D4
 #define DEFAULT_SRM_CATHODES_INV_MASK   0x00
+;
+; same for misc. button/led functions
+#define DEFAULT_SRM_CATHODES_INV_MASK_M 0x00
 ;
 ; set this to 1, if DUO colour LEDs are connected to the LED matrix
 #define DEFAULT_SRM_DOUT_DUOCOLOUR	1
@@ -83,11 +87,15 @@
 ;
 ; set this to 1 if a button matrix is connected
 #define DEFAULT_SRM_BUTTONS_ENABLED 1
+; 4x16 matrix:
 ; set this to 1 if these buttons should only control the "step triggers" (gate, and other assigned triggers) - and no UI functions
 #define DEFAULT_SRM_BUTTONS_NO_UI   1
 ; define the DIN shift registers to which the button matrix is connected
 #define DEFAULT_SRM_DIN_L	11
 #define DEFAULT_SRM_DIN_R	12
+;
+; 8x8 matrix for misc. button functions
+#define DEFAULT_SRM_DIN_M	0
 ;
 ;
 ; === BPM digits ===
@@ -240,6 +248,10 @@
 ;     SR =  2 for the second DIN shift register
 ;     ...
 ;     SR = 16 for the last DIN shift register
+;     ...
+;     SR = 17 for the first DIN shift register of optional "misc. button matrix"
+;     ...
+;     SR = 24 for the last DIN shift register of optional "misc. button matrix"
 ;
 ;     Pin = 0 for the D0 input pin of the shift register
 ;     Pin = 1 for the D1 input pin of the shift register
@@ -261,7 +273,6 @@ DIN_ENTRY_EOT MACRO
 	
 SEQ_IO_TABLE_DIN
 	;;		Function name		SR#	Pin#
-	;; NOTE: the pins of the 16 general purpose buttons are assigned above, search for DEFAULT_GP_DIN_SR_L (and _R)
 #if DEFAULT_ENC_DATAWHEEL < 0
 	DIN_ENTRY	CS_MENU_BUTTON_Left,	 1,	 0
 	DIN_ENTRY	CS_MENU_BUTTON_Right,	 1,	 1
@@ -302,6 +313,23 @@ SEQ_IO_TABLE_DIN
 	DIN_ENTRY	SEQ_BUTTON_Fast,	 4,	 5
 	DIN_ENTRY	SEQ_BUTTON_All,		 4,	 6
 
+	DIN_ENTRY	SEQ_BUTTON_GP1,		 7,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP2,		 7,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP3,		 7,	 2
+	DIN_ENTRY	SEQ_BUTTON_GP4,		 7,	 3
+	DIN_ENTRY	SEQ_BUTTON_GP5,		 7,	 4
+	DIN_ENTRY	SEQ_BUTTON_GP6,		 7,	 5
+	DIN_ENTRY	SEQ_BUTTON_GP7,		 7,	 6
+	DIN_ENTRY	SEQ_BUTTON_GP8,		 7,	 7
+	DIN_ENTRY	SEQ_BUTTON_GP9,		10,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP10,	10,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP11,	10,	 2
+	DIN_ENTRY	SEQ_BUTTON_GP12,	10,	 3
+	DIN_ENTRY	SEQ_BUTTON_GP13,	10,	 4
+	DIN_ENTRY	SEQ_BUTTON_GP14,	10,	 5
+	DIN_ENTRY	SEQ_BUTTON_GP15,	10,	 6
+	DIN_ENTRY	SEQ_BUTTON_GP16,	10,	 7
+
 	;; OPTIONAL! see CHANGELOG.txt
 	DIN_ENTRY	SEQ_BUTTON_Group1,	13,	 0
 	DIN_ENTRY	SEQ_BUTTON_Group2,	13,	 1
@@ -328,6 +356,8 @@ SEQ_IO_TABLE_DIN
 ;  To enable a LED function, specify the shift register number SR (1-16),
 ;  and the pin number (0-7).
 ;  Note that Pin 0 is D7 of the DOUT register, Pin 1 is D6, ... Pin 7 is D0
+;
+;  LED assignments for optional "misc. LED matrix": use SR 17-24
 ;
 ;  With SR value = 0, the LED function will be disabled
 ; ==========================================================================

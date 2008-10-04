@@ -19,6 +19,8 @@ Please read also CHANGELOG.txt for the last changes.
 Some precompiled setups are part of this package:
    o setup_mbseq_v3.hex        (default setup for rotary encoders)
    o setup_mbseq_tk.hex        (TK's setup)
+   o setup_mbseq_cd_cd.hex     (CD CD's setup)
+   o setup_mbseq_wilba.hex     (Wilba's setup)
 
 The required application upload procedure is described
 under http://www.ucapps.de/mios_bootstrap_newbies.html

@@ -111,7 +111,13 @@ USER_Init_PIC_Ok
 	;; initialize application specific variables
 	clrf	MB_STAT
 
+	;; init sequencer core functions
 	call	SEQ_CORE_Init
+
+#if DEFAULT_SRM_BUTTONS_ENABLED
+	;; init button/LED matrix
+	call	SEQ_BUTTON_SRM_Init
+#endif
 
 	;; init control surface
 	call	CS_MENU_Init

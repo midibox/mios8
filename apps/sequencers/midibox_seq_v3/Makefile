@@ -14,7 +14,7 @@ GPASM_DEFINES =
 
 # default rule that defines the .hex files which should be created
 # note: always require a "cleanall", since dependencies (e.g. on .h and .inc files) are not properly declared
-all: cleanall setup_mbseq_v3.hex setup_mbseq_cd_cd.hex setup_mbseq_tk.hex
+all: cleanall setup_mbseq_v3.hex setup_mbseq_cd_cd.hex setup_mbseq_wilba.hex setup_mbseq_tk.hex
 
 
 # include the asm_only.mk file
