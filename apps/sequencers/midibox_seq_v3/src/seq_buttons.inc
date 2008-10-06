@@ -1199,7 +1199,15 @@ SEQ_BUTTON_StepDec_Cont
 	;; print sequence on screen
 	goto	SEQ_MSG_Start
 
+SEQ_BUTTON_Utility
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
 
+	;; branch to utility menu
+	movlw	CS_MENU_PAGE_UTILS
+	goto	CS_M_HLP_ChangePage
+	
 ;; --------------------------------------------------------------------------
 ;;  F1 button --- implement your favourite function here!
 ;; --------------------------------------------------------------------------
