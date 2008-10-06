@@ -49,7 +49,7 @@
 ;
 ; set this value to 1 if each track has its own set of 16 LEDs to display unmuted steps and current sequencer position
 ; or if you are using a button/led matrix for misc. button/LED functions
-#define DEFAULT_SRM_ENABLED     0
+#define DEFAULT_SRM_ENABLED     1
 ;
 ; define the shift registers to which the anodes of these LEDs are connected
 ; Note: they can be equal to DEFAULT_GP_DOUT_SR_[LH], this saves two shift registers, but doesn't allow a separate view of UI selections
@@ -57,7 +57,7 @@
 #define DEFAULT_SRM_DOUT_R1	0
 ;
 ; for misc. LED functions
-#define DEFAULT_SRM_DOUT_M	8
+#define DEFAULT_SRM_DOUT_M	2
 ;
 ; define the shift register to which the cathodes of these LEDs are connected
 ; Note that the whole shift register (8 pins) will be allocated! The 4 select lines are duplicated (4 for LED matrix, 4 for button matrix)
@@ -66,7 +66,7 @@
 #define DEFAULT_SRM_DOUT_CATHODES2	0
 ;
 ; another select line for misc. button/led functions - all 8 select pins are used for a 8x8 button/led matrix
-#define DEFAULT_SRM_DOUT_CATHODESM	7
+#define DEFAULT_SRM_DOUT_CATHODESM	1
 ;
 ; set an inversion mask for the DOUT shift registers if sink drivers (transistors)
 ; have been added to the cathode lines
@@ -271,78 +271,83 @@ DIN_ENTRY_EOT MACRO
 SEQ_IO_TABLE_DIN
 	;;		Function name		SR#	Pin#
 #if DEFAULT_ENC_DATAWHEEL < 0
-	DIN_ENTRY	CS_MENU_BUTTON_Left,	 1,	 0
-	DIN_ENTRY	CS_MENU_BUTTON_Right,	 1,	 1
+	DIN_ENTRY	CS_MENU_BUTTON_Left,	 0,	 0
+	DIN_ENTRY	CS_MENU_BUTTON_Right,	 0,	 0
 #endif
-	DIN_ENTRY	SEQ_BUTTON_Scrub,	 1,	 2
-	DIN_ENTRY	SEQ_BUTTON_Metronome,	 1,	 3
 
-	DIN_ENTRY	SEQ_BUTTON_Stop,	 1,	 4
-	DIN_ENTRY	SEQ_BUTTON_Pause,	 1,	 5
-	DIN_ENTRY	SEQ_BUTTON_Play,	 1,	 6
-	DIN_ENTRY	SEQ_BUTTON_Rew,		 1,	 7
-	DIN_ENTRY	SEQ_BUTTON_Fwd,		 2,	 0
+	DIN_ENTRY	SEQ_BUTTON_Scrub,	 21,	 4
+	DIN_ENTRY	SEQ_BUTTON_Metronome,	 21,	 5
 
-	DIN_ENTRY	SEQ_BUTTON_F1,		 2,	 1
-	DIN_ENTRY	SEQ_BUTTON_F2,		 2,	 2
-	DIN_ENTRY	SEQ_BUTTON_F3,		 2,	 3
-	DIN_ENTRY	SEQ_BUTTON_F4,		 2,	 4
+	DIN_ENTRY	SEQ_BUTTON_Stop,	 22,	 5
+	DIN_ENTRY	SEQ_BUTTON_Pause,	 23,	 4
+	DIN_ENTRY	SEQ_BUTTON_Play,	 23,	 5
+	DIN_ENTRY	SEQ_BUTTON_Rew,		 22,	 4
+	DIN_ENTRY	SEQ_BUTTON_Fwd,		 24,	 5
 
-	DIN_ENTRY	SEQ_BUTTON_Menu,	 2,	 5
-	DIN_ENTRY	SEQ_BUTTON_Select,	 2,	 6
-	DIN_ENTRY	SEQ_BUTTON_Exit,	 2,	 7
+	DIN_ENTRY	SEQ_BUTTON_Utility,	 22,	 2
+	DIN_ENTRY	SEQ_BUTTON_F1,		 22,	 3
+	DIN_ENTRY	SEQ_BUTTON_F2,		 23,	 2
+	DIN_ENTRY	SEQ_BUTTON_F3,		 23,	 3
+	DIN_ENTRY	SEQ_BUTTON_F4,		 24,	 2
 
-	DIN_ENTRY	SEQ_BUTTON_Track1,	 3,	 0
-	DIN_ENTRY	SEQ_BUTTON_Track2,	 3,	 1
-	DIN_ENTRY	SEQ_BUTTON_Track3,	 3,	 2
-	DIN_ENTRY	SEQ_BUTTON_Track4,	 3,	 3
+	DIN_ENTRY	SEQ_BUTTON_Menu,	 18,	 5
+	DIN_ENTRY	SEQ_BUTTON_Select,	 17,	 4
+	DIN_ENTRY	SEQ_BUTTON_Exit,	 17,	 5
 
-	DIN_ENTRY	SEQ_BUTTON_LayerA,	 3,	 4
-	DIN_ENTRY	SEQ_BUTTON_LayerB,	 3,	 5
-	DIN_ENTRY	SEQ_BUTTON_LayerC,	 3,	 6
+	DIN_ENTRY	SEQ_BUTTON_Track1,	 18,	 6
+	DIN_ENTRY	SEQ_BUTTON_Track2,	 18,	 7
+	DIN_ENTRY	SEQ_BUTTON_Track3,	 20,	 6
+	DIN_ENTRY	SEQ_BUTTON_Track4,	 20,	 7
 
-	DIN_ENTRY	SEQ_BUTTON_Edit,	 4,	 0
-	DIN_ENTRY	SEQ_BUTTON_Mute,	 4,	 1
-	DIN_ENTRY	SEQ_BUTTON_Pattern,	 4,	 2
-	DIN_ENTRY	SEQ_BUTTON_Song,	 4,	 3
+	DIN_ENTRY	SEQ_BUTTON_LayerA,	 21,	 6
+	DIN_ENTRY	SEQ_BUTTON_LayerB,	 21,	 7
+	DIN_ENTRY	SEQ_BUTTON_LayerC,	 22,	 6
 
-	DIN_ENTRY	SEQ_BUTTON_Solo,	 4,	 4
-	DIN_ENTRY	SEQ_BUTTON_Fast,	 4,	 5
-	DIN_ENTRY	SEQ_BUTTON_All,		 4,	 6
+	DIN_ENTRY	SEQ_BUTTON_Edit,	 20,	 3
+	DIN_ENTRY	SEQ_BUTTON_Mute,	 19,	 2
+	DIN_ENTRY	SEQ_BUTTON_Pattern,	 19,	 3
+	DIN_ENTRY	SEQ_BUTTON_Song,	 18,	 2
 
-	DIN_ENTRY	SEQ_BUTTON_GP1,		 7,	 0
-	DIN_ENTRY	SEQ_BUTTON_GP2,		 7,	 1
-	DIN_ENTRY	SEQ_BUTTON_GP3,		 7,	 2
-	DIN_ENTRY	SEQ_BUTTON_GP4,		 7,	 3
-	DIN_ENTRY	SEQ_BUTTON_GP5,		 7,	 4
-	DIN_ENTRY	SEQ_BUTTON_GP6,		 7,	 5
-	DIN_ENTRY	SEQ_BUTTON_GP7,		 7,	 6
-	DIN_ENTRY	SEQ_BUTTON_GP8,		 7,	 7
-	DIN_ENTRY	SEQ_BUTTON_GP9,		10,	 0
-	DIN_ENTRY	SEQ_BUTTON_GP10,	10,	 1
-	DIN_ENTRY	SEQ_BUTTON_GP11,	10,	 2
-	DIN_ENTRY	SEQ_BUTTON_GP12,	10,	 3
-	DIN_ENTRY	SEQ_BUTTON_GP13,	10,	 4
-	DIN_ENTRY	SEQ_BUTTON_GP14,	10,	 5
-	DIN_ENTRY	SEQ_BUTTON_GP15,	10,	 6
-	DIN_ENTRY	SEQ_BUTTON_GP16,	10,	 7
+	DIN_ENTRY	SEQ_BUTTON_Solo,	 19,	 4
+	DIN_ENTRY	SEQ_BUTTON_Fast,	 19,	 5
+	DIN_ENTRY	SEQ_BUTTON_All,		 18,	 4
 
-	;; OPTIONAL! see CHANGELOG.txt
-	DIN_ENTRY	SEQ_BUTTON_Group1,	13,	 0
-	DIN_ENTRY	SEQ_BUTTON_Group2,	13,	 1
-	DIN_ENTRY	SEQ_BUTTON_Group3,	13,	 2
-	DIN_ENTRY	SEQ_BUTTON_Group4,	13,	 3
+	DIN_ENTRY	SEQ_BUTTON_GP1,		 20,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP2,		 20,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP3,		 19,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP4,		 19,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP5,		 18,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP6,		 18,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP7,		 17,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP8,		 17,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP9,		21,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP10,	21,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP11,	22,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP12,	22,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP13,	23,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP14,	23,	 1
+	DIN_ENTRY	SEQ_BUTTON_GP15,	24,	 0
+	DIN_ENTRY	SEQ_BUTTON_GP16,	24,	 1
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DIN_ENTRY	SEQ_BUTTON_TrgLayerA,	13,	 4
-	DIN_ENTRY	SEQ_BUTTON_TrgLayerB,	13,	 5
-	DIN_ENTRY	SEQ_BUTTON_TrgLayerC,	13,	 6
+	DIN_ENTRY	SEQ_BUTTON_Group1,	17,	 6
+	DIN_ENTRY	SEQ_BUTTON_Group2,	17,	 7
+	DIN_ENTRY	SEQ_BUTTON_Group3,	19,	 6
+	DIN_ENTRY	SEQ_BUTTON_Group4,	19,	 7
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DIN_ENTRY	SEQ_BUTTON_ToggleStepView, 13,	 7
+	DIN_ENTRY	SEQ_BUTTON_TrgLayerA,	23,	 6
+	DIN_ENTRY	SEQ_BUTTON_TrgLayerB,	23,	 7
+	DIN_ENTRY	SEQ_BUTTON_TrgLayerC,	24,	 6
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DIN_ENTRY	SEQ_BUTTON_TapTempo,	14,	 0
+	DIN_ENTRY	SEQ_BUTTON_ToggleStepView, 20,	 5
+
+	;; OPTIONAL! see CHANGELOG.txt
+	DIN_ENTRY	SEQ_BUTTON_TapTempo,	1,	 0
+
+	DIN_ENTRY	CS_MENU_BUTTON_Left,	 21,	 2	; "Dec" button. Can replace with CS_MENU_BUTTON_LeftRemote
+	DIN_ENTRY	CS_MENU_BUTTON_Right,	 21,	 3	; "Inc" button. Can replace with CS_MENU_BUTTON_RightRemote
 
 	DIN_ENTRY_EOT
 
@@ -360,53 +365,55 @@ SEQ_IO_TABLE_DIN
 ; ==========================================================================
 
 ;;                         SR    ignore    Pin
-LED_TRACK1	EQU	((( 1   -1)<<3)+    0)
-LED_TRACK2	EQU	((( 1   -1)<<3)+    1)
-LED_TRACK3	EQU	((( 1   -1)<<3)+    2)
-LED_TRACK4	EQU	((( 1   -1)<<3)+    3)
+LED_TRACK1	EQU	(((18   -1)<<3)+    2)
+LED_TRACK2	EQU	(((18   -1)<<3)+    1)
+LED_TRACK3	EQU	(((20   -1)<<3)+    2)
+LED_TRACK4	EQU	(((20   -1)<<3)+    1)
 
 ;;                         SR    ignore    Pin
-LED_LAYER_A	EQU	((( 1   -1)<<3)+    4)
-LED_LAYER_B	EQU	((( 1   -1)<<3)+    5)
-LED_LAYER_C	EQU	((( 1   -1)<<3)+    6)
+LED_LAYER_A	EQU	(((21   -1)<<3)+    2)
+LED_LAYER_B	EQU	(((21   -1)<<3)+    1)
+LED_LAYER_C	EQU	(((21   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
-LED_BEAT	EQU	((( 1   -1)<<3)+    7)
+LED_BEAT	EQU	(((24   -1)<<3)+    1)
 
 ;;                         SR    ignore    Pin
-LED_EDIT	EQU	((( 2   -1)<<3)+    0)
-LED_MUTE	EQU	((( 2   -1)<<3)+    1)
-LED_PATTERN	EQU	((( 2   -1)<<3)+    2)
-LED_SONG	EQU	((( 2   -1)<<3)+    3)
+LED_EDIT	EQU	(((20   -1)<<3)+    3)
+LED_MUTE	EQU	(((19   -1)<<3)+    3)
+LED_PATTERN	EQU	(((19   -1)<<3)+    2)
+LED_SONG	EQU	(((18   -1)<<3)+    3)
 
 ;;                         SR    ignore    Pin
-LED_SOLO	EQU	((( 2   -1)<<3)+    4)
-LED_FAST	EQU	((( 2   -1)<<3)+    5)
-LED_ALL		EQU	((( 2   -1)<<3)+    6)
+LED_SOLO	EQU	(((19   -1)<<3)+    1)
+LED_FAST	EQU	(((19   -1)<<3)+    0)
+LED_ALL		EQU	(((18   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
-LED_GROUP1	EQU	(((11   -1)<<3)+    0) ; OPTIONAL! see CHANGELOG.txt
-LED_GROUP2	EQU	(((11   -1)<<3)+    2) ; assigned to pin 2 due to DUO LED
-LED_GROUP3	EQU	(((11   -1)<<3)+    4) ; assigned to pin 4 due to DUO LED
-LED_GROUP4	EQU	(((11   -1)<<3)+    6) ; assigned to pin 6 due to DUO LED
+LED_GROUP1	EQU	(((17   -1)<<3)+    3)
+LED_GROUP2	EQU	(((17   -1)<<3)+    2)
+LED_GROUP3	EQU	(((17   -1)<<3)+    1)
+LED_GROUP4	EQU	(((17   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
-LED_TRG_LAYER_A	EQU	(((12   -1)<<3)+    0) ; OPTIONAL! see CHANGELOG.txt
-LED_TRG_LAYER_B	EQU	(((12   -1)<<3)+    1)
-LED_TRG_LAYER_C	EQU	(((12   -1)<<3)+    2)
+LED_TRG_LAYER_A	EQU	(((23   -1)<<3)+    2)
+LED_TRG_LAYER_B	EQU	(((23   -1)<<3)+    1)
+LED_TRG_LAYER_C	EQU	(((23   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
-LED_PLAY	EQU	(((12   -1)<<3)+    3) ; OPTIONAL! see CHANGELOG.txt
-LED_STOP	EQU	(((12   -1)<<3)+    4)
-LED_PAUSE	EQU	(((12   -1)<<3)+    5)
+LED_PLAY	EQU	(((24   -1)<<3)+    3)
+LED_STOP	EQU	(((22   -1)<<3)+    3)
+LED_PAUSE	EQU	(((23   -1)<<3)+    3)
+LED_REW		EQU	(((22   -1)<<3)+    2)	; new
+LED_FWD		EQU	(((24   -1)<<3)+    2)	; new
 
 ;;                         SR    ignore    Pin
-LED_STEP_1_16	EQU	(((12   -1)<<3)+    6) ; OPTIONAL! see CHANGELOG.txt
-LED_STEP_17_32	EQU	(((12   -1)<<3)+    7)
+LED_STEP_1_16	EQU	(((22   -1)<<3)+    0)	; optional
+LED_STEP_17_32	EQU	(((22   -1)<<3)+    1)
 
 ;;                         SR    ignore    Pin
-LED_MIDI_RX	EQU	(((2    -1)<<3)+    7) ; OPTIONAL! see CHANGELOG.txt
-LED_MIDI_TX	EQU	(((0    -1)<<3)+    0) ; SR=0 -> disabled by default
+LED_MIDI_RX	EQU	(((0    -1)<<3)+    0)
+LED_MIDI_TX	EQU	(((0    -1)<<3)+    0)
 
 
 	;; NOTE: the pins of the 16 general purpose LEDs are assigned above, search for DEFAULT_GP_DOUT_SR_L and _R
