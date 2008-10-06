@@ -86,7 +86,7 @@
 #define DEFAULT_SRM_DOUT_R2	0
 ;
 ; set this to 1 if a button matrix is connected
-#define DEFAULT_SRM_BUTTONS_ENABLED 0
+#define DEFAULT_SRM_BUTTONS_ENABLED 1
 ; set this to 1 if these buttons should only control the "step triggers" (gate, and other assigned triggers) - and no UI functions
 #define DEFAULT_SRM_BUTTONS_NO_UI   1
 ; define the DIN shift registers to which the button matrix is connected
