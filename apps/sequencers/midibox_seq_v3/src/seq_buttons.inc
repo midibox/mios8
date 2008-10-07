@@ -243,7 +243,7 @@ SEQ_BUTTON_SRM_Handler_Loop
 SEQ_BUTTON_SRM_Handler_Loop_Next
 	;; increment until last column has been reached
 	incf	SEQ_BLM_COL_CTR, F, BANKED
-	movlw	0x0f-1		; (16 columns, 8 for GP button matrix, 8 for misc. button matrix)
+	movlw	0x10-1		; (16 columns, 8 for GP button matrix, 8 for misc. button matrix)
 	cpfsgt	SEQ_BLM_COL_CTR, BANKED
 	rgoto SEQ_BUTTON_SRM_Handler_Loop
 	return
