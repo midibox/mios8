@@ -242,7 +242,7 @@ SEQ_LED_UpdateIRQ_Beat
 	setf	MIOS_PARAMETER1
 SEQ_LED_UpdateIRQ_NoBeat
 	movlw	LED_BEAT
-	call	MIOS_DOUT_PinSet
+	rcall	SEQ_LED_Update_PinSet	
 
 	;; ---[ increment the BLM row counter (used when DEFAULT_SRM_ENABLED or DEFAULT_BPM_DIGITS_ENABLED set ]---
 	incf	SEQ_BLM_ROW_CTR, F, BANKED
