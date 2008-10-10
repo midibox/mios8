@@ -68,6 +68,10 @@
 ; another select line for misc. button/led functions - all 8 select pins are used for a 8x8 button/led matrix
 #define DEFAULT_SRM_DOUT_CATHODESM	0
 ;
+; 0: no mapping of Misc LEDs
+; 1: enable GP LED -> DOUT_M mapping for Wilba's MB-SEQ PCB
+#define DEFAULT_SRM_DOUT_M_MAPPING      1
+;
 ; set an inversion mask for the DOUT shift registers if sink drivers (transistors)
 ; have been added to the cathode lines
 ; Settings: 0x00 - no sink drivers

@@ -133,7 +133,6 @@ SEQ_LED_Update_SongLED_NoFl
 	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRG_LAYER_B
 	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRG_LAYER_C
 
-
 	;; additional LED functions, which are not streamed via TMP1
  IF LED_PLAY < 192
 	SEQ_LED_UPDATE_DOUT SEQ_STATE, SEQ_STATE_RUN, BANKED, LED_PLAY
@@ -342,7 +341,7 @@ SEQ_LED_UpdateIRQ_SeqIgnore
 SEQ_LED_UpdateIRQ_SeqOff
 
 
-#if DEFAULT_GP_DOUT_SR_L != DEFAULT_SRM_DOUT_L1
+#if DEFAULT_GP_DOUT_SR_L != DEFAULT_SRM_DOUT_L1 || DEFAULT_SRM_DOUT_M_MAPPING == 1
 	;; ---[ update primary GP LEDs of the control surface ]---
 	;; only used when Shift Registers of the primary GP LEDs are not equal to the multiplexed LED SRs
 SEQ_LED_UpdateIRQ_GPLED
@@ -375,9 +374,77 @@ SEQ_LED_UpdateIRQ_GPLED_NoMarker
 	movlw	DEFAULT_GP_DOUT_SR_R - 1
 	call	MIOS_DOUT_SRSet
 #endif
+
+#if  DEFAULT_SRM_DOUT_M_MAPPING == 1
+SEQ_LED_UpdateIRQ_GPLED_Hack
+	;; one cathode row sinks a pair of GP duo LEDs.
+
+	;; SEQ_BLM_ROW_CTR -> GP LEDs
+	;; 0 = 15,16
+	;; 1 = 13,14
+	;; 2 = 11,12
+	;; 3 = 9,10
+	;; 4 = 1,2
+	;; 5 = 3,4
+	;; 6 = 5,6
+	;; 7 = 7,8
+
+	;; write into SEQ_LEDM_MISC0+SEQ_BLM_ROW_CTR
+	;; bit 7: first green (i.e. GP1-G)
+	;; bit 6: first red (i.e. GP1-R)
+	;; bit 5: second green (i.e. GP2-G)
+	;; bit 4: second red (i.e. GP2-R)
+	
+	BRA_IFCLR SEQ_BLM_ROW_CTR, 2, BANKED, SEQ_LED_UpdateIRQ_GPLED_Hack_Right
+SEQ_LED_UpdateIRQ_GPLED_Hack_Left
+	;; transfer current LED pattern to IRQ_TMP1
+	;;movff	IRQ_TMP1, IRQ_TMP1
+	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	andlw	0x03
+	rgoto	SEQ_LED_UpdateIRQ_GPLED_Hack_Cont
+	
+SEQ_LED_UpdateIRQ_GPLED_Hack_Right
+	;; transfer current LED pattern to IRQ_TMP1
+	movff	IRQ_TMP2, IRQ_TMP1
+	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	sublw	0x03
+	;;rgoto	SEQ_LED_UpdateIRQ_GPLED_Hack_Cont
+	
+SEQ_LED_UpdateIRQ_GPLED_Hack_Cont
+	;; now we have a number 0,1,2,3 in W
+	clrf	IRQ_TMP2
+	;; convert to 0,2,4,6
+	rlf	WREG, W
+	andlw	0x06
+	call	MIOS_HLP_GetBitORMask
+	movwf	MIOS_PARAMETER1	
+	andwf	IRQ_TMP1, W
+	bz	SEQ_LED_UpdateIRQ_GPLED_Hack_FirstOff
+SEQ_LED_UpdateIRQ_GPLED_Hack_FirstOn
+	movlw	0x80
+	iorwf	IRQ_TMP2, F
+SEQ_LED_UpdateIRQ_GPLED_Hack_FirstOff
+	rlf	MIOS_PARAMETER1, W
+	andlw	0xfe
+	andwf	IRQ_TMP1, W
+	bz	SEQ_LED_UpdateIRQ_GPLED_Hack_SecondOff
+SEQ_LED_UpdateIRQ_GPLED_Hack_SecondOn
+	movlw	0x20
+	iorwf	IRQ_TMP2, F
+SEQ_LED_UpdateIRQ_GPLED_Hack_SecondOff
+
+	lfsr	FSR1, SEQ_LEDM_MISC0
+	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	movff	PLUSW1, MIOS_PARAMETER1
+	movlw	0x0F
+	andwf	MIOS_PARAMETER1, W
+	iorwf	IRQ_TMP2, F
+	lfsr	FSR1, SEQ_LEDM_MISC0
+	movf	SEQ_BLM_ROW_CTR, W, BANKED
+	movff	IRQ_TMP2, PLUSW1	
 #endif
 
-
+#endif
 
 #if DEFAULT_SRM_ENABLED
 	;; ---[ update LED matrix ]---
