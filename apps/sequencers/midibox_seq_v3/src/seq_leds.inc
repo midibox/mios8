@@ -133,6 +133,7 @@ SEQ_LED_Update_SongLED_NoFl
 	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRG_LAYER_B
 	SEQ_LED_UPDATE_DOUT_SHIFT_TMP1 LED_TRG_LAYER_C
 
+
 	;; additional LED functions, which are not streamed via TMP1
  IF LED_PLAY < 192
 	SEQ_LED_UPDATE_DOUT SEQ_STATE, SEQ_STATE_RUN, BANKED, LED_PLAY
@@ -341,7 +342,7 @@ SEQ_LED_UpdateIRQ_SeqIgnore
 SEQ_LED_UpdateIRQ_SeqOff
 
 
-#if DEFAULT_GP_DOUT_SR_L != DEFAULT_SRM_DOUT_L1 || DEFAULT_SRM_DOUT_M_MAPPING == 1
+#if DEFAULT_GP_DOUT_SR_L != DEFAULT_SRM_DOUT_L1
 	;; ---[ update primary GP LEDs of the control surface ]---
 	;; only used when Shift Registers of the primary GP LEDs are not equal to the multiplexed LED SRs
 SEQ_LED_UpdateIRQ_GPLED
@@ -374,20 +375,19 @@ SEQ_LED_UpdateIRQ_GPLED_NoMarker
 	movlw	DEFAULT_GP_DOUT_SR_R - 1
 	call	MIOS_DOUT_SRSet
 #endif
+#endif
+
 
 #if  DEFAULT_SRM_DOUT_M_MAPPING == 1
-SEQ_LED_UpdateIRQ_GPLED_Hack
-	;; one cathode row sinks a pair of GP duo LEDs.
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M
+	;; Since one cathode row sinks a pair of GP duo LEDs,
+	;; we can set the pattern for that pair when that column is being
+	;; processed, and write the pattern into the relevant byte of SEQ_LEDM_MISCx
+	;; array just before it is set on the DOUT pins.
 
 	;; SEQ_BLM_ROW_CTR -> GP LEDs
-	;; 0 = 15,16
-	;; 1 = 13,14
-	;; 2 = 11,12
-	;; 3 = 9,10
-	;; 4 = 1,2
-	;; 5 = 3,4
-	;; 6 = 5,6
-	;; 7 = 7,8
+	;; 0 = 15,16	1 = 13,14	2 = 11,12	3 = 9,10
+	;; 4 = 1,2	5 = 3,4		6 = 5,6		7 = 7,8
 
 	;; write into SEQ_LEDM_MISC0+SEQ_BLM_ROW_CTR
 	;; bit 7: first green (i.e. GP1-G)
@@ -395,55 +395,100 @@ SEQ_LED_UpdateIRQ_GPLED_Hack
 	;; bit 5: second green (i.e. GP2-G)
 	;; bit 4: second red (i.e. GP2-R)
 	
-	BRA_IFCLR SEQ_BLM_ROW_CTR, 2, BANKED, SEQ_LED_UpdateIRQ_GPLED_Hack_Right
-SEQ_LED_UpdateIRQ_GPLED_Hack_Left
+	;; This is quite a long bit of code but since it's mostly branching,
+	;; only half of it is executed every time.
+	
+	BRA_IFCLR SEQ_BLM_ROW_CTR, 2, BANKED, SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Right
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Left
 	;; transfer current LED pattern to IRQ_TMP1
-	;;movff	IRQ_TMP1, IRQ_TMP1
+	movff	SEQ_GP_LED_L, IRQ_TMP1
+	clrf	IRQ_TMP2
+	;; check if a position marker should be XORed
+	BRA_IFCLR IRQ_TMP5, 4, ACCESS, SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Left_NoMarker
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Left_Marker
+	;; get xor mask and operate with IRQ_TMP[12] (pos[3] selects the register)
+	movf	IRQ_TMP3, W
+	call	MIOS_HLP_GetBitORMask
+	btfss	IRQ_TMP3, 3
+	movwf	IRQ_TMP2
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Left_NoMarker
 	movf	SEQ_BLM_ROW_CTR, W, BANKED
 	andlw	0x03
-	rgoto	SEQ_LED_UpdateIRQ_GPLED_Hack_Cont
+	rgoto	SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Cont
 	
-SEQ_LED_UpdateIRQ_GPLED_Hack_Right
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Right
 	;; transfer current LED pattern to IRQ_TMP1
-	movff	IRQ_TMP2, IRQ_TMP1
+	movff	SEQ_GP_LED_R, IRQ_TMP1
+	clrf	IRQ_TMP2
+	;; check if a position marker should be XORed
+	BRA_IFCLR IRQ_TMP5, 4, ACCESS, SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Right_NoMarker
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Right_Marker
+	;; get xor mask and operate with IRQ_TMP[12] (pos[3] selects the register)
+	movf	IRQ_TMP3, W
+	call	MIOS_HLP_GetBitORMask
+	btfsc	IRQ_TMP3, 3
+	movwf	IRQ_TMP2
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Right_NoMarker
 	movf	SEQ_BLM_ROW_CTR, W, BANKED
 	sublw	0x03
-	;;rgoto	SEQ_LED_UpdateIRQ_GPLED_Hack_Cont
+	;;rgoto	SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Cont
 	
-SEQ_LED_UpdateIRQ_GPLED_Hack_Cont
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Cont
 	;; now we have a number 0,1,2,3 in W
-	clrf	IRQ_TMP2
+	;; the GP LEDs in IRQ_TMP1 and the position marker in IRQ_TMP2
+	;; prepare the bits in MIOS_PARAMETER2 to go into SEQ_LEDM_MISCx  
+	clrf	MIOS_PARAMETER2
 	;; convert to 0,2,4,6
 	rlf	WREG, W
 	andlw	0x06
+	;; get a bitmask to test an odd numbered GP LED (GP1, GP3, ... GP15)
 	call	MIOS_HLP_GetBitORMask
 	movwf	MIOS_PARAMETER1	
 	andwf	IRQ_TMP1, W
-	bz	SEQ_LED_UpdateIRQ_GPLED_Hack_FirstOff
-SEQ_LED_UpdateIRQ_GPLED_Hack_FirstOn
+	bz	SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoStep1
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Step1
 	movlw	0x80
-	iorwf	IRQ_TMP2, F
-SEQ_LED_UpdateIRQ_GPLED_Hack_FirstOff
-	rlf	MIOS_PARAMETER1, W
+	iorwf	MIOS_PARAMETER2, F
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoStep1
+	;; now test an odd numbered position marker
+	movf	MIOS_PARAMETER1, W
+	andwf	IRQ_TMP2, W
+	bz	SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoPos1
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Pos1
+	movlw	0x40
+	iorwf	MIOS_PARAMETER2, F
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoPos1
+
+	;; shift the bitmask to test an even numbered GP LED (GP2, GP4, ... GP16)
+	rlf	MIOS_PARAMETER1, F
+	movf	MIOS_PARAMETER1, W
 	andlw	0xfe
 	andwf	IRQ_TMP1, W
-	bz	SEQ_LED_UpdateIRQ_GPLED_Hack_SecondOff
-SEQ_LED_UpdateIRQ_GPLED_Hack_SecondOn
+	bz	SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoStep2
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Step2
 	movlw	0x20
-	iorwf	IRQ_TMP2, F
-SEQ_LED_UpdateIRQ_GPLED_Hack_SecondOff
+	iorwf	MIOS_PARAMETER2, F
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoStep2
+	;; now test an even numbered position marker
+	movf	MIOS_PARAMETER1, W
+	andwf	IRQ_TMP2, W
+	bz	SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoPos2
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Pos2
+	movlw	0x10
+	iorwf	MIOS_PARAMETER2, F
+SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoPos2
 
+	;; the bits are now in high nibble of MIOS_PARAMETER2
 	lfsr	FSR1, SEQ_LEDM_MISC0
 	movf	SEQ_BLM_ROW_CTR, W, BANKED
 	movff	PLUSW1, MIOS_PARAMETER1
+	;; clear out bits from last time
 	movlw	0x0F
 	andwf	MIOS_PARAMETER1, W
-	iorwf	IRQ_TMP2, F
+	iorwf	MIOS_PARAMETER2, F
 	lfsr	FSR1, SEQ_LEDM_MISC0
 	movf	SEQ_BLM_ROW_CTR, W, BANKED
-	movff	IRQ_TMP2, PLUSW1	
-#endif
-
+	movff	MIOS_PARAMETER2, PLUSW1	
 #endif
 
 #if DEFAULT_SRM_ENABLED
