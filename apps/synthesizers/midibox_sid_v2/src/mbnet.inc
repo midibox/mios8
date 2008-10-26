@@ -781,7 +781,7 @@ MBNET_SetID
 ;; SID[9:3] (MIOS Device ID of Master) in MBNET_MASTER_ID
 ;; SID[2:0] will always be set to 0
 ;; EID[15:8] will always be set to 0
-;; EID[7:0] (MIOS Device ID of Slave) in MBNET_SLAVE_ID
+;; EID[7:0] (MIOS Device ID of responding slave) in MBNET_MY_ID
 MBNET_SetAckID
 	movff	MBNET_MASTER_ID, INDF1	; MBNET_MASTER_ID -> SID[9:3]
 	bsf	POSTINC1, 7		; SID[10] = 1 (Ack)
@@ -793,8 +793,8 @@ MBNET_SetAckID
 	;; EIDH always 0
 	clrf	POSTINC1
 
-	;; EIDL contains slave ID (for comparison at master side)
-	movff	MBNET_SLAVE_ID, POSTINC1
+	;; EIDL contains responding slave ID (for comparison at master side)
+	movff	MBNET_MY_ID, POSTINC1
 
 	return
 
