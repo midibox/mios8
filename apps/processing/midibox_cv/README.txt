@@ -18,6 +18,7 @@ Please read also CHANGELOG.txt for the last changes.
 
 A precompiled setup is part of this package:
    o setup_default.hex       (see setup_default.asm for configuration)
+   o setup_j5_enabled.hex    (similar setup_default, but MBHP_CORE::J5 enabled for 8 gate outputs)
 
 The required application upload procedure is described
 under http://www.ucapps.de/mios_bootstrap_newbies.html

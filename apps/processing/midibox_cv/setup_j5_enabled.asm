@@ -2,7 +2,7 @@
 	LIST R=DEC
 ;
 ; Setup File of MIDIbox CV
-; In this setup, J5 (-> 8 gates at MBHP_CORE::J5) is disabled
+; In this setup, J5 (-> 8 gates at MBHP_CORE::J5) is enabled
 ;
 ;
 ; Datawheel for menu navigation/data entry connected or not?
@@ -37,7 +37,7 @@
 #define DEFAULT_GP_DOUT_SR1	3	; second GP DOUT shift register assigned to SR#2
 ;
 ; use PORTA and PORTE (J5 of the core module) for 8 additional gate outputs
-#define ENABLE_J5 0
+#define ENABLE_J5 1
 ;
 ;
 ; define the AOUT interface which is used here:
