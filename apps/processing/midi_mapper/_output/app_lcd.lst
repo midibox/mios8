@@ -1,0 +1,1943 @@
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00001 ; $Id: app_lcd.asm 69 2008-02-01 00:20:18Z tk $
+               00002 ;
+               00003 ; Wrapper for app_lcd.inc
+               00004 ; To be used for relocatable programs
+               00005 ;
+               00006 ; ==========================================================================
+               00007 
+               00008         radix   dec
+               00009 
+               00010 #include <mios.h>
+               00001 ; $Id: mios.h 387 2008-07-14 20:59:15Z tk $
+               00002 ;
+               00003 ; MIOS Definitions file
+               00004 ;
+               00005 ; ==========================================================================
+               00006 ;
+               00007 ;  Copyright 1998-2008 Thorsten Klose (tk@midibox.org)
+               00008 ;  Licensed for personal non-commercial use only.
+               00009 ;  All other rights reserved.
+               00010 ; 
+               00011 ; ==========================================================================
+               00012 
+               00013 
+               00014 ;; ==========================================================================
+               00015 ;;  Include basic defines which characterize the derivative to
+               00016 ;;  simplify dependencies within MIOS source code
+               00017 ;; ==========================================================================
+               00018 #include <hw_flags.h>
+               00001 
+               00002 #ifndef _HW_FLAGS_H
+               00003 #define _HW_FLAGS_H
+               00004 
+               00005 #ifdef __18F452
+               00006 #define PIC_DERIVATIVE_CODE_SIZE        0x08000
+               00007 #define PIC_DERIVATIVE_RAM_SIZE         0x600
+               00008 #define PIC_DERIVATIVE_EEPROM_SIZE      0x100
+               00009 #define PIC_DERIVATIVE_IRQ_WORKAROUND   0
+               00010 #define PIC_DERIVATIVE_NEW_ADC          0
+               00011 #define PIC_DERIVATIVE_CMCON_INIT       0
+               00012 #define PIC_DERIVATIVE_T08BIT_INVERTED  0
+               00013 #define PIC_DERIVATIVE_SET_LCD_4BIT     0
+               00014 #endif
+               00015 
+               00016 #ifdef __18F4620
+               00017 #define PIC_DERIVATIVE_CODE_SIZE        0x10000
+               00018 #define PIC_DERIVATIVE_RAM_SIZE         0xf80
+               00019 #define PIC_DERIVATIVE_EEPROM_SIZE      0x400
+               00020 #define PIC_DERIVATIVE_IRQ_WORKAROUND   1
+               00021 #define PIC_DERIVATIVE_NEW_ADC          1
+               00022 #define PIC_DERIVATIVE_CMCON_INIT       1
+               00023 #define PIC_DERIVATIVE_T08BIT_INVERTED  1
+               00024 #define PIC_DERIVATIVE_SET_LCD_4BIT     0
+               00025 #endif
+               00026         
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00027 #ifdef __18F4520
+               00028 #define PIC_DERIVATIVE_CODE_SIZE        0x08000
+               00029 #define PIC_DERIVATIVE_RAM_SIZE         0x600
+               00030 #define PIC_DERIVATIVE_EEPROM_SIZE      0x100
+               00031 #define PIC_DERIVATIVE_IRQ_WORKAROUND   1
+               00032 #define PIC_DERIVATIVE_NEW_ADC          1
+               00033 #define PIC_DERIVATIVE_CMCON_INIT       1
+               00034 #define PIC_DERIVATIVE_T08BIT_INVERTED  0
+               00035 #define PIC_DERIVATIVE_SET_LCD_4BIT     0
+               00036 #endif
+               00037 
+               00038 #ifdef __18F4682
+               00039 #define PIC_DERIVATIVE_CODE_SIZE        0x14000
+               00040 #define PIC_DERIVATIVE_RAM_SIZE         0xd00
+               00041 #define PIC_DERIVATIVE_EEPROM_SIZE      0x400
+               00042 #define PIC_DERIVATIVE_IRQ_WORKAROUND   0
+               00043 #define PIC_DERIVATIVE_NEW_ADC          1
+               00044 #define PIC_DERIVATIVE_CMCON_INIT       1
+               00045 #define PIC_DERIVATIVE_T08BIT_INVERTED  0
+               00046 #define PIC_DERIVATIVE_SET_LCD_4BIT     1
+               00047 #endif
+               00048 
+               00049 #ifdef __18F4685
+               00050 #define PIC_DERIVATIVE_CODE_SIZE        0x18000
+               00051 #define PIC_DERIVATIVE_RAM_SIZE         0xd00
+               00052 #define PIC_DERIVATIVE_EEPROM_SIZE      0x400
+               00053 #define PIC_DERIVATIVE_IRQ_WORKAROUND   0
+               00054 #define PIC_DERIVATIVE_NEW_ADC          1
+               00055 #define PIC_DERIVATIVE_CMCON_INIT       1
+               00056 #define PIC_DERIVATIVE_T08BIT_INVERTED  0
+               00057 #define PIC_DERIVATIVE_SET_LCD_4BIT     1
+               00058 #endif
+               00059 
+               00060 #endif
+               00019  
+               00020 ;; ==========================================================================
+               00021 ;;  Assembler directives & device specific include file
+               00022 ;;
+               00023 ;;  Natively supported devices are listed here.
+               00024 ;; ==========================================================================
+               00025 
+               00026 #ifdef __18F452
+               00027         LIST R=DEC
+               00028 #include <p18f452.inc>
+               00001         LIST
+               00002 ; P18F452.INC  Standard Header File, Version 1.4   Microchip Technology, Inc.
+               00983         LIST
+               00029 #endif
+               00030 
+               00031 #ifdef __18F4620
+               00032         LIST R=DEC
+               00033 #include <p18f4620.inc>
+               00034 #endif
+               00035         
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00036 #ifdef __18F4520
+               00037         LIST R=DEC
+               00038 #include <p18f4520.inc>
+               00039 #endif
+               00040 
+               00041 #ifdef __18F4682
+               00042         LIST R=DEC
+               00043 #include <p18f4682.inc>
+               00044 #endif
+               00045 
+               00046 #ifdef __18F4685
+               00047         LIST R=DEC
+               00048 #include <p18f4685.inc>
+               00049 #endif
+               00050 
+               00051 
+               00052 ;; ==========================================================================
+               00053 ;;  General constants
+               00054 ;; ==========================================================================
+               00055 
+               00056 ;; used by MIOS_MIDI_Interface*
+  00000000     00057 MIOS_MIDI_INTERFACE_COMMON      EQU     0x00
+  00000001     00058 MIOS_MIDI_INTERFACE_TO_HOST     EQU     0x01
+               00059 
+               00060 ;; used by MIOS_MIDI_Merger*
+  00000000     00061 MIOS_MIDI_MERGER_DISABLED       EQU     0x00
+  00000001     00062 MIOS_MIDI_MERGER_ENABLED        EQU     0x01
+  00000002     00063 MIOS_MIDI_MERGER_MBLINK_EP      EQU     0x02
+  00000003     00064 MIOS_MIDI_MERGER_MBLINK_FP      EQU     0x03
+               00065 
+               00066 ;; used by MIOS_ENC_PIN_TABLE
+  00000000     00067 MIOS_ENC_MODE_NON_DETENTED      EQU     0x00
+  00000080     00068 MIOS_ENC_MODE_DETENTED          EQU     0x80
+  00000080     00069 MIOS_ENC_MODE_DETENTED1         EQU     0x80
+  00000081     00070 MIOS_ENC_MODE_DETENTED2         EQU     0x81
+  00000082     00071 MIOS_ENC_MODE_DETENTED3         EQU     0x82
+               00072 
+               00073 ;; used by MIOS_ENC_Speed*
+  00000000     00074 MIOS_ENC_SPEED_SLOW             EQU     0
+  00000001     00075 MIOS_ENC_SPEED_NORMAL           EQU     1
+  00000002     00076 MIOS_ENC_SPEED_FAST             EQU     2
+               00077 
+               00078 ;; used by MIOS_LCD_Type*
+  00000000     00079 MIOS_LCD_TYPE_CLCD              EQU     0x00
+  00000001     00080 MIOS_LCD_TYPE_GLCD0             EQU     0x01
+  00000002     00081 MIOS_LCD_TYPE_GLCD1             EQU     0x02
+  00000003     00082 MIOS_LCD_TYPE_GLCD2             EQU     0x03
+  00000004     00083 MIOS_LCD_TYPE_GLCD3             EQU     0x04
+  00000005     00084 MIOS_LCD_TYPE_GLCD4             EQU     0x05
+  00000006     00085 MIOS_LCD_TYPE_MLCD              EQU     0x06
+  00000007     00086 MIOS_LCD_TYPE_GLCD_CUSTOM       EQU     0x07
+               00087 
+               00088 ;; location of default 5x8 font for graphical displays
+  00007CFC     00089 MIOS_GLCD_FONT                  EQU     0x7cfc
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00090 
+               00091 ;; general config flags (never overwrite this flags directly!!!)
+  00000000     00092 MIOS_BOX_CFG0_LCD_TYPE0         EQU 0   ; selects LCD type, bit 0
+  00000001     00093 MIOS_BOX_CFG0_LCD_TYPE1         EQU 1   ; selects LCD type, bit 1
+  00000002     00094 MIOS_BOX_CFG0_LCD_TYPE2         EQU 2   ; selects LCD type, bit 2
+  00000003     00095 MIOS_BOX_CFG0_USE_GLCD          EQU 3   ; if 1, graphical LCD is connected
+  00000004     00096 MIOS_BOX_CFG0_MERGER            EQU 4   ; if 1, MIDI merger is enabled
+  00000005     00097 MIOS_BOX_CFG0_MBLINK            EQU 5   ; if 1, MIDIbox Link is enabled
+  00000006     00098 MIOS_BOX_CFG0_TO_HOST           EQU 6   ; if 1, MIDI interface will run with 38400 baud instead of 31250
+  00000007     00099 MIOS_BOX_CFG0_20MHz             EQU 7   ; if 1, it is assumed that box is running with 20 MHz, else with 40 MHz
+               00100 
+  00000000     00101 MIOS_BOX_CFG1_BS_A0             EQU 0   ; A0 of BankStick (never change the bit position)
+  00000001     00102 MIOS_BOX_CFG1_BS_A1             EQU 1   ; A1 of BankStick (never change the bit position)
+  00000002     00103 MIOS_BOX_CFG1_BS_A2             EQU 2   ; A2 of BankStick (never change the bit position)
+  00000003     00104 MIOS_BOX_CFG1_BS_DIS_VERIFY     EQU 3   ; if 1, writes to the BankStick will not be verified
+  00000004     00105 MIOS_BOX_CFG1_IIC_STRETCH_CLK   EQU 4   ; if 1, IIC clock stretching enabled
+               00106 
+               00107 ;; general status flags (never overwrite this flags directly!!!)
+  00000000     00108 MIOS_BOX_STAT_BS_AVAILABLE      EQU 0   ; if 1, BankStick is available
+  00000001     00109 MIOS_BOX_STAT_MBLINK_TUNNEL_PASS EQU 1  ; if 1, a MBLinked event will be tunnled
+  00000002     00110 MIOS_BOX_STAT_SUSPEND_ALL       EQU 2   ; if 1, all system and user tasks are suspended
+  00000003     00111 MIOS_BOX_STAT_SUSPEND_USER      EQU 3   ; if 1, all user tasks are suspended
+  00000004     00112 MIOS_BOX_STAT_AUTOREPEAT        EQU 4   ; if 1, start the auto-repeat handler
+  00000005     00113 MIOS_BOX_STAT_MLCD_TRANSFER     EQU 5   ; if 1, a transfer to the MLCD has been started
+  00000006     00114 MIOS_BOX_STAT_FERR              EQU 6   ; if 1, a frame error happened during MIDI receive
+               00115 
+               00116 ;; ==========================================================================
+               00117 ;;  MIOS Special Function Registers
+               00118 ;; ==========================================================================
+               00119 
+  00000000     00120 MIOS_BOX_CFG0   EQU     0x000
+  00000001     00121 MIOS_BOX_CFG1   EQU     0x001
+  00000002     00122 MIOS_BOX_STAT   EQU     0x002
+  00000003     00123 MIOS_PARAMETER1 EQU     0x003
+  00000004     00124 MIOS_PARAMETER2 EQU     0x004
+  00000005     00125 MIOS_PARAMETER3 EQU     0x005
+               00126 
+               00127 ;; ==========================================================================
+               00128 ;;  temporary registers for main programs
+               00129 ;; ==========================================================================
+  00000006     00130 TMP1            EQU     0x006
+  00000007     00131 TMP2            EQU     0x007
+  00000008     00132 TMP3            EQU     0x008
+  00000009     00133 TMP4            EQU     0x009
+  0000000A     00134 TMP5            EQU     0x00a
+               00135 
+               00136 ;; ==========================================================================
+               00137 ;;  temporary registers for IRQs
+               00138 ;; ==========================================================================
+  0000000B     00139 IRQ_TMP1        EQU     0x00b
+  0000000C     00140 IRQ_TMP2        EQU     0x00c
+  0000000D     00141 IRQ_TMP3        EQU     0x00d
+  0000000E     00142 IRQ_TMP4        EQU     0x00e
+  0000000F     00143 IRQ_TMP5        EQU     0x00f
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00144 
+               00145 ;; ==========================================================================
+               00146 ;;  free memory space for user application:
+               00147 ;; ==========================================================================
+               00148         ;; 0x010-0x37f
+               00149 
+               00150 ;; ==========================================================================
+               00151 ;;  MIOS System Registers -- not defined here -- 
+               00152 ;;  never use these memory locations!
+               00153 ;; ==========================================================================
+               00154         ;; 0x380-0x6ff
+               00155 
+               00156 ;; ==========================================================================
+               00157 ;;  MIOS System Registers for custom LCD driver
+               00158 ;; ==========================================================================
+  00000570     00159 MIOS_GLCD_BUFFER        EQU     0x570   ; note: the buffer must be located at ...0-...7
+  00000578     00160 MIOS_LCD_OPTION1        EQU     0x578   ; contains the first LCD option given by MIOS_LCD_TypeSet
+  00000579     00161 MIOS_LCD_OPTION2        EQU     0x579   ; contains the second LCD option given by MIOS_LCD_TypeSet
+  0000057A     00162 MIOS_LCD_CURSOR_POS     EQU     0x57a   ; the current cursor pos of characters (GLCD: multiplied by width)
+  0000057B     00163 MIOS_GLCD_GCURSOR_X     EQU     0x57b   ; for GLCDs: the current X position of graphical cursor
+  0000057C     00164 MIOS_GLCD_GCURSOR_Y     EQU     0x57c   ; for GLCDs: the current Y position of graphical cursor
+  0000057D     00165 MIOS_GLCD_FONT_WIDTH    EQU     0x57d   ; for GLCDs: the fontwidth given by MIOS_GLCD_FontInit
+  0000057E     00166 MIOS_GLCD_FONT_HEIGHT   EQU     0x57e   ; for GLCDs: the fontheight given by MIOS_GLCD_FontInit
+  0000057F     00167 MIOS_GLCD_FONT_X0       EQU     0x57f   ; for GLCDs: the first byte within a char entry
+  00000580     00168 MIOS_GLCD_FONT_OFFSET   EQU     0x580   ; for GLCDs: the byte offset between the characters
+  00000581     00169 MIOS_GLCD_FONT_PTRL     EQU     0x581   ; for GLCDs: pointer to the character table, low-byte
+  00000582     00170 MIOS_GLCD_FONT_PTRH     EQU     0x582   ; for GLCDs: pointer to the character table, high-byte
+  00000583     00171 MIOS_LCD_TIMEOUT0       EQU     0x583   ; can be used for timeout loops
+  00000584     00172 MIOS_LCD_TIMEOUT1       EQU     0x584   ; can be used for timeout loops
+  00000585     00173 MIOS_GLCD_TMP1          EQU     0x585   ; can be used as temporary buffer
+  00000586     00174 MIOS_GLCD_TMP2          EQU     0x586   ; can be used as temporary buffer
+  00000587     00175 MIOS_GLCD_TMP3          EQU     0x587   ; can be used as temporary buffer
+  00000588     00176 MIOS_GLCD_TMP4          EQU     0x588   ; can be used as temporary buffer
+  00000589     00177 MIOS_LCD_Y0_OFFSET      EQU     0x589   ; Y0 offset of LCD
+  0000058A     00178 MIOS_LCD_Y1_OFFSET      EQU     0x58a   ; Y1 offset of LCD
+  0000058B     00179 MIOS_LCD_Y2_OFFSET      EQU     0x58b   ; Y2 offset of LCD
+  0000058C     00180 MIOS_LCD_Y3_OFFSET      EQU     0x58c   ; Y3 offset of LCD
+  0000058D     00181 MIOS_LCD_CURSOR_POS_REAL EQU    0x58d   ; unmapped cursor position which has been set with MIOS_LCD_CursorSet
+  0000058E     00182 MIOS_GLCD_FONT_PTRU     EQU     0x58e   ; for GLCDs: pointer to the character table, upper-byte (>64k flash derivatives only)
+               00011 #include <mios_vectors.inc>
+               00001 ; $Id: mios_vectors.inc 49 2008-01-30 21:47:31Z tk $
+               00002 
+  00002C00     00003 MIOS_MIDI_BeginStream                   EQU     0x2c00
+  00002C04     00004 MIOS_MIDI_DeviceIDAutoSet               EQU     0x2c04
+  00002C08     00005 MIOS_MIDI_DeviceIDGet                   EQU     0x2c08
+  00002C0C     00006 MIOS_MIDI_DeviceIDSet                   EQU     0x2c0c
+  00002C10     00007 MIOS_MIDI_EndStream                     EQU     0x2c10
+  00002C14     00008 MIOS_MIDI_Init                          EQU     0x2c14
+  00002C18     00009 MIOS_MIDI_InterfaceAutoSet              EQU     0x2c18
+  00002C1C     00010 MIOS_MIDI_InterfaceGet                  EQU     0x2c1c
+  00002C20     00011 MIOS_MIDI_InterfaceSet                  EQU     0x2c20
+  00002C24     00012 MIOS_MIDI_MergerGet                     EQU     0x2c24
+  00002C28     00013 MIOS_MIDI_MergerSet                     EQU     0x2c28
+  00002C2C     00014 MIOS_MIDI_RxBufferFree                  EQU     0x2c2c
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00002C30     00015 MIOS_MIDI_RxBufferGet                   EQU     0x2c30
+  00002C34     00016 MIOS_MIDI_RxBufferPut                   EQU     0x2c34
+  00002C38     00017 MIOS_MIDI_RxBufferUsed                  EQU     0x2c38
+  00002C3C     00018 MIOS_MIDI_TxBufferFlush                 EQU     0x2c3c
+  00002C40     00019 MIOS_MIDI_TxBufferFree                  EQU     0x2c40
+  00002C44     00020 MIOS_MIDI_TxBufferGet                   EQU     0x2c44
+  00002C48     00021 MIOS_MIDI_TxBufferPut                   EQU     0x2c48
+  00002C4C     00022 MIOS_MIDI_TxBufferUsed                  EQU     0x2c4c
+  00002C50     00023 MIOS_MPROC_MergerDisable                EQU     0x2c50
+  00002C54     00024 MIOS_MPROC_MergerEnable                 EQU     0x2c54
+  00002C58     00025 MIOS_MPROC_MergerGet                    EQU     0x2c58
+  00002C5C     00026 MIOS_AIN_DeadbandGet                    EQU     0x2c5c
+  00002C60     00027 MIOS_AIN_DeadbandSet                    EQU     0x2c60
+  00002C64     00028 MIOS_AIN_Muxed                          EQU     0x2c64
+  00002C68     00029 MIOS_AIN_NumberGet                      EQU     0x2c68
+  00002C6C     00030 MIOS_AIN_NumberSet                      EQU     0x2c6c
+  00002C70     00031 MIOS_AIN_Pin7bitGet                     EQU     0x2c70
+  00002C74     00032 MIOS_AIN_PinGet                         EQU     0x2c74
+  00002C78     00033 MIOS_AIN_PinLSBGet                      EQU     0x2c78
+  00002C7C     00034 MIOS_AIN_PinMSBGet                      EQU     0x2c7c
+  00002C80     00035 MIOS_AIN_UnMuxed                        EQU     0x2c80
+  00002C84     00036 MIOS_MF_PWM_DutyCycleDownGet            EQU     0x2c84
+  00002C88     00037 MIOS_MF_PWM_DutyCycleDownSet            EQU     0x2c88
+  00002C8C     00038 MIOS_MF_PWM_DutyCycleUpGet              EQU     0x2c8c
+  00002C90     00039 MIOS_MF_PWM_DutyCycleUpSet              EQU     0x2c90
+  00002C94     00040 MIOS_MF_DeadbandGet                     EQU     0x2c94
+  00002C98     00041 MIOS_MF_DeadbandSet                     EQU     0x2c98
+  00002C9C     00042 MIOS_MF_Disable                         EQU     0x2c9c
+  00002CA0     00043 MIOS_MF_Enable                          EQU     0x2ca0
+  00002CA4     00044 MIOS_MF_FaderMove                       EQU     0x2ca4
+  00002CA8     00045 MIOS_MF_SuspendDisable                  EQU     0x2ca8
+  00002CAC     00046 MIOS_MF_SuspendEnable                   EQU     0x2cac
+  00002CB0     00047 MIOS_MF_SuspendGet                      EQU     0x2cb0
+  00002CB4     00048 MIOS_DIN_PinGet                         EQU     0x2cb4
+  00002CB8     00049 MIOS_DIN_SRGet                          EQU     0x2cb8
+  00002CBC     00050 MIOS_DOUT_PinGet                        EQU     0x2cbc
+  00002CC0     00051 MIOS_DOUT_PinSet                        EQU     0x2cc0
+  00002CC4     00052 MIOS_DOUT_PinSet0                       EQU     0x2cc4
+  00002CC8     00053 MIOS_DOUT_PinSet1                       EQU     0x2cc8
+  00002CCC     00054 MIOS_DOUT_SRGet                         EQU     0x2ccc
+  00002CD0     00055 MIOS_DOUT_SRSet                         EQU     0x2cd0
+  00002CD4     00056 MIOS_ENC_Abs7bitAdd                     EQU     0x2cd4
+  00002CD8     00057 MIOS_ENC_Abs7bitGet                     EQU     0x2cd8
+  00002CDC     00058 MIOS_ENC_Abs7bitSet                     EQU     0x2cdc
+  00002CE0     00059 MIOS_ENC_NumberGet                      EQU     0x2ce0
+  00002CE4     00060 MIOS_ENC_SpeedGet                       EQU     0x2ce4
+  00002CE8     00061 MIOS_ENC_SpeedSet                       EQU     0x2ce8
+  00002CEC     00062 MIOS_SRIO_NumberGet                     EQU     0x2cec
+  00002CF0     00063 MIOS_SRIO_NumberSet                     EQU     0x2cf0
+  00002CF4     00064 MIOS_SRIO_TS_SensitivityGet             EQU     0x2cf4
+  00002CF8     00065 MIOS_SRIO_TS_SensitivitySet             EQU     0x2cf8
+  00002CFC     00066 MIOS_SRIO_UpdateFrqGet                  EQU     0x2cfc
+  00002D00     00067 MIOS_SRIO_UpdateFrqSet                  EQU     0x2d00
+  00002D04     00068 MIOS_LCD_Clear                          EQU     0x2d04
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00002D08     00069 MIOS_LCD_Cmd                            EQU     0x2d08
+  00002D0C     00070 MIOS_LCD_CursorGet                      EQU     0x2d0c
+  00002D10     00071 MIOS_LCD_CursorSet                      EQU     0x2d10
+  00002D14     00072 MIOS_LCD_Data                           EQU     0x2d14
+  00002D18     00073 MIOS_LCD_Init                           EQU     0x2d18
+  00002D1C     00074 MIOS_LCD_PrintBCD1                      EQU     0x2d1c
+  00002D20     00075 MIOS_LCD_PrintBCD2                      EQU     0x2d20
+  00002D24     00076 MIOS_LCD_PrintBCD3                      EQU     0x2d24
+  00002D28     00077 MIOS_LCD_PrintChar                      EQU     0x2d28
+  00002D2C     00078 MIOS_LCD_PrintHex1                      EQU     0x2d2c
+  00002D30     00079 MIOS_LCD_PrintHex2                      EQU     0x2d30
+  00002D34     00080 MIOS_LCD_PrintMessage                   EQU     0x2d34
+  00002D38     00081 MIOS_LCD_PrintPreconfString             EQU     0x2d38
+  00002D3C     00082 MIOS_LCD_PrintString                    EQU     0x2d3c
+  00002D40     00083 MIOS_LCD_TypeAutoSet                    EQU     0x2d40
+  00002D44     00084 MIOS_LCD_TypeGet                        EQU     0x2d44
+  00002D48     00085 MIOS_LCD_TypeSet                        EQU     0x2d48
+  00002D4C     00086 MIOS_LCD_YAddressGet                    EQU     0x2d4c
+  00002D50     00087 MIOS_LCD_YAddressSet                    EQU     0x2d50
+  00002D54     00088 MIOS_GLCD_FontInit                      EQU     0x2d54
+  00002D58     00089 MIOS_GLCD_GCursorGet                    EQU     0x2d58
+  00002D5C     00090 MIOS_GLCD_GCursorSet                    EQU     0x2d5c
+  00002D60     00091 MIOS_EEPROM_Read                        EQU     0x2d60
+  00002D64     00092 MIOS_EEPROM_Write                       EQU     0x2d64
+  00002D68     00093 MIOS_FLASH_Read                         EQU     0x2d68
+  00002D6C     00094 MIOS_FLASH_Write                        EQU     0x2d6c
+  00002D70     00095 MIOS_BANKSTICK_Read                     EQU     0x2d70
+  00002D74     00096 MIOS_BANKSTICK_Write                    EQU     0x2d74
+  00002D78     00097 MIOS_TIMER_Init                         EQU     0x2d78
+  00002D7C     00098 MIOS_TIMER_Start                        EQU     0x2d7c
+  00002D80     00099 MIOS_TIMER_Stop                         EQU     0x2d80
+  00002D84     00100 MIOS_HLP_AddressFromTable               EQU     0x2d84
+  00002D88     00101 MIOS_HLP_GetBitANDMask                  EQU     0x2d88
+  00002D8C     00102 MIOS_HLP_GetBitORMask                   EQU     0x2d8c
+  00002D90     00103 MIOS_HLP_GetIndex_2bytes                EQU     0x2d90
+  00002D94     00104 MIOS_HLP_GetIndex_4bytes                EQU     0x2d94
+  00002D98     00105 MIOS_HLP_IndirectJump                   EQU     0x2d98
+  00002D9C     00106 MIOS_Delay                              EQU     0x2d9c
+  00002DA0     00107 MIOS_GPCounterGet                       EQU     0x2da0
+  00002DA4     00108 MIOS_Reset                              EQU     0x2da4
+  00002DA8     00109 MIOS_SystemResume                       EQU     0x2da8
+  00002DAC     00110 MIOS_SystemSuspend                      EQU     0x2dac
+  00002DB0     00111 MIOS_UserResume                         EQU     0x2db0
+  00002DB4     00112 MIOS_UserSuspend                        EQU     0x2db4
+  00002DB8     00113 MIOS_HLP_16bitAddSaturate               EQU     0x2db8
+  00002DBC     00114 MIOS_DIN_PinAutoRepeatEnable            EQU     0x2dbc
+  00002DC0     00115 MIOS_DIN_PinAutoRepeatDisable           EQU     0x2dc0
+  00002DC4     00116 MIOS_DIN_PinAutoRepeatGet               EQU     0x2dc4
+  00002DC8     00117 MIOS_CLCD_SpecialCharInit               EQU     0x2dc8
+  00002DCC     00118 MIOS_CLCD_SpecialCharsInit              EQU     0x2dcc
+  00002DD0     00119 MIOS_AIN_DynamicPrioSet                 EQU     0x2dd0
+  00002DD4     00120 MIOS_AIN_DynamicPrioGet                 EQU     0x2dd4
+  00002DD8     00121 MIOS_AIN_LastPinsGet                    EQU     0x2dd8
+  00002DDC     00122 MIOS_BANKSTICK_CtrlSet                  EQU     0x2ddc
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00002DE0     00123 MIOS_BANKSTICK_CtrlGet                  EQU     0x2de0
+  00002DE4     00124 MIOS_BANKSTICK_WritePage                EQU     0x2de4
+  00002DE8     00125 MIOS_HLP_Dec2BCD                        EQU     0x2de8
+  00002DEC     00126 MIOS_LCD_PrintBCD4                      EQU     0x2dec
+  00002DF0     00127 MIOS_LCD_PrintBCD5                      EQU     0x2df0
+  00002DF4     00128 MIOS_LCD_MessageStart                   EQU     0x2df4
+  00002DF8     00129 MIOS_LCD_MessageStop                    EQU     0x2df8
+  00002DFC     00130 MIOS_MF_PWM_PeriodGet                   EQU     0x2dfc
+  00002E00     00131 MIOS_MF_PWM_PeriodSet                   EQU     0x2e00
+  00002E04     00132 MIOS_IIC_Start                          EQU     0x2e04
+  00002E08     00133 MIOS_IIC_Stop                           EQU     0x2e08
+  00002E0C     00134 MIOS_IIC_ByteSend                       EQU     0x2e0c
+  00002E10     00135 MIOS_IIC_ByteReceive                    EQU     0x2e10
+  00002E14     00136 MIOS_IIC_AckSend                        EQU     0x2e14
+  00002E18     00137 MIOS_IIC_NakSend                        EQU     0x2e18
+  00002E1C     00138 MIOS_IIC_CtrlSet                        EQU     0x2e1c
+  00002E20     00139 MIOS_IIC_CtrlGet                        EQU     0x2e20
+  00002E24     00140 MIOS_SRIO_DebounceSet                   EQU     0x2e24
+  00002E28     00141 MIOS_SRIO_DebounceGet                   EQU     0x2e28
+  00002E2C     00142 MIOS_MF_TouchDetectionReset             EQU     0x2e2c
+  00002E30     00143 MIOS_BANKSTICK_ReadPage                 EQU     0x2e30
+  00002E34     00144 MIOS_EEPROM_ReadPage                    EQU     0x2e34
+  00002E38     00145 MIOS_EEPROM_WritePage                   EQU     0x2e38
+  00002E3C     00146 MIOS_TIMER_ReInit                       EQU     0x2e3c
+  00002E40     00147 MIOS_RESERVED_144                       EQU     0x2e40
+  00002E44     00148 MIOS_RESERVED_145                       EQU     0x2e44
+  00002E48     00149 MIOS_RESERVED_146                       EQU     0x2e48
+  00002E4C     00150 MIOS_RESERVED_147                       EQU     0x2e4c
+  00002E50     00151 MIOS_RESERVED_148                       EQU     0x2e50
+  00002E54     00152 MIOS_RESERVED_149                       EQU     0x2e54
+  00002E58     00153 MIOS_RESERVED_150                       EQU     0x2e58
+  00002E5C     00154 MIOS_RESERVED_151                       EQU     0x2e5c
+  00002E60     00155 MIOS_RESERVED_152                       EQU     0x2e60
+  00002E64     00156 MIOS_RESERVED_153                       EQU     0x2e64
+  00002E68     00157 MIOS_RESERVED_154                       EQU     0x2e68
+  00002E6C     00158 MIOS_RESERVED_155                       EQU     0x2e6c
+  00002E70     00159 MIOS_RESERVED_156                       EQU     0x2e70
+  00002E74     00160 MIOS_RESERVED_157                       EQU     0x2e74
+  00002E78     00161 MIOS_RESERVED_158                       EQU     0x2e78
+  00002E7C     00162 MIOS_RESERVED_159                       EQU     0x2e7c
+  00002E80     00163 MIOS_RESERVED_160                       EQU     0x2e80
+  00002E84     00164 MIOS_RESERVED_161                       EQU     0x2e84
+  00002E88     00165 MIOS_RESERVED_162                       EQU     0x2e88
+  00002E8C     00166 MIOS_RESERVED_163                       EQU     0x2e8c
+  00002E90     00167 MIOS_RESERVED_164                       EQU     0x2e90
+  00002E94     00168 MIOS_RESERVED_165                       EQU     0x2e94
+  00002E98     00169 MIOS_RESERVED_166                       EQU     0x2e98
+  00002E9C     00170 MIOS_RESERVED_167                       EQU     0x2e9c
+  00002EA0     00171 MIOS_RESERVED_168                       EQU     0x2ea0
+  00002EA4     00172 MIOS_RESERVED_169                       EQU     0x2ea4
+  00002EA8     00173 MIOS_RESERVED_170                       EQU     0x2ea8
+  00002EAC     00174 MIOS_RESERVED_171                       EQU     0x2eac
+  00002EB0     00175 MIOS_RESERVED_172                       EQU     0x2eb0
+  00002EB4     00176 MIOS_RESERVED_173                       EQU     0x2eb4
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00002EB8     00177 MIOS_RESERVED_174                       EQU     0x2eb8
+  00002EBC     00178 MIOS_RESERVED_175                       EQU     0x2ebc
+  00002EC0     00179 MIOS_RESERVED_176                       EQU     0x2ec0
+  00002EC4     00180 MIOS_RESERVED_177                       EQU     0x2ec4
+  00002EC8     00181 MIOS_RESERVED_178                       EQU     0x2ec8
+  00002ECC     00182 MIOS_RESERVED_179                       EQU     0x2ecc
+  00002ED0     00183 MIOS_RESERVED_180                       EQU     0x2ed0
+  00002ED4     00184 MIOS_RESERVED_181                       EQU     0x2ed4
+  00002ED8     00185 MIOS_RESERVED_182                       EQU     0x2ed8
+  00002EDC     00186 MIOS_RESERVED_183                       EQU     0x2edc
+  00002EE0     00187 MIOS_RESERVED_184                       EQU     0x2ee0
+  00002EE4     00188 MIOS_RESERVED_185                       EQU     0x2ee4
+  00002EE8     00189 MIOS_RESERVED_186                       EQU     0x2ee8
+  00002EEC     00190 MIOS_RESERVED_187                       EQU     0x2eec
+  00002EF0     00191 MIOS_RESERVED_188                       EQU     0x2ef0
+  00002EF4     00192 MIOS_RESERVED_189                       EQU     0x2ef4
+  00002EF8     00193 MIOS_RESERVED_190                       EQU     0x2ef8
+  00002EFC     00194 MIOS_RESERVED_191                       EQU     0x2efc
+  00002F00     00195 MIOS_RESERVED_192                       EQU     0x2f00
+  00002F04     00196 MIOS_RESERVED_193                       EQU     0x2f04
+  00002F08     00197 MIOS_RESERVED_194                       EQU     0x2f08
+  00002F0C     00198 MIOS_RESERVED_195                       EQU     0x2f0c
+  00002F10     00199 MIOS_RESERVED_196                       EQU     0x2f10
+  00002F14     00200 MIOS_RESERVED_197                       EQU     0x2f14
+  00002F18     00201 MIOS_RESERVED_198                       EQU     0x2f18
+  00002F1C     00202 MIOS_RESERVED_199                       EQU     0x2f1c
+  00002F20     00203 MIOS_RESERVED_200                       EQU     0x2f20
+  00002F24     00204 MIOS_RESERVED_201                       EQU     0x2f24
+  00002F28     00205 MIOS_RESERVED_202                       EQU     0x2f28
+  00002F2C     00206 MIOS_RESERVED_203                       EQU     0x2f2c
+  00002F30     00207 MIOS_RESERVED_204                       EQU     0x2f30
+  00002F34     00208 MIOS_RESERVED_205                       EQU     0x2f34
+  00002F38     00209 MIOS_RESERVED_206                       EQU     0x2f38
+  00002F3C     00210 MIOS_RESERVED_207                       EQU     0x2f3c
+  00002F40     00211 MIOS_RESERVED_208                       EQU     0x2f40
+  00002F44     00212 MIOS_RESERVED_209                       EQU     0x2f44
+  00002F48     00213 MIOS_RESERVED_210                       EQU     0x2f48
+  00002F4C     00214 MIOS_RESERVED_211                       EQU     0x2f4c
+  00002F50     00215 MIOS_RESERVED_212                       EQU     0x2f50
+  00002F54     00216 MIOS_RESERVED_213                       EQU     0x2f54
+  00002F58     00217 MIOS_RESERVED_214                       EQU     0x2f58
+  00002F5C     00218 MIOS_RESERVED_215                       EQU     0x2f5c
+  00002F60     00219 MIOS_RESERVED_216                       EQU     0x2f60
+  00002F64     00220 MIOS_RESERVED_217                       EQU     0x2f64
+  00002F68     00221 MIOS_RESERVED_218                       EQU     0x2f68
+  00002F6C     00222 MIOS_RESERVED_219                       EQU     0x2f6c
+  00002F70     00223 MIOS_RESERVED_220                       EQU     0x2f70
+  00002F74     00224 MIOS_RESERVED_221                       EQU     0x2f74
+  00002F78     00225 MIOS_RESERVED_222                       EQU     0x2f78
+  00002F7C     00226 MIOS_RESERVED_223                       EQU     0x2f7c
+  00002F80     00227 MIOS_RESERVED_224                       EQU     0x2f80
+  00002F84     00228 MIOS_RESERVED_225                       EQU     0x2f84
+  00002F88     00229 MIOS_RESERVED_226                       EQU     0x2f88
+  00002F8C     00230 MIOS_RESERVED_227                       EQU     0x2f8c
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+  00002F90     00231 MIOS_RESERVED_228                       EQU     0x2f90
+  00002F94     00232 MIOS_RESERVED_229                       EQU     0x2f94
+  00002F98     00233 MIOS_RESERVED_230                       EQU     0x2f98
+  00002F9C     00234 MIOS_RESERVED_231                       EQU     0x2f9c
+  00002FA0     00235 MIOS_RESERVED_232                       EQU     0x2fa0
+  00002FA4     00236 MIOS_RESERVED_233                       EQU     0x2fa4
+  00002FA8     00237 MIOS_RESERVED_234                       EQU     0x2fa8
+  00002FAC     00238 MIOS_RESERVED_235                       EQU     0x2fac
+  00002FB0     00239 MIOS_RESERVED_236                       EQU     0x2fb0
+  00002FB4     00240 MIOS_RESERVED_237                       EQU     0x2fb4
+  00002FB8     00241 MIOS_RESERVED_238                       EQU     0x2fb8
+  00002FBC     00242 MIOS_RESERVED_239                       EQU     0x2fbc
+  00002FC0     00243 MIOS_RESERVED_240                       EQU     0x2fc0
+  00002FC4     00244 MIOS_RESERVED_241                       EQU     0x2fc4
+  00002FC8     00245 MIOS_RESERVED_242                       EQU     0x2fc8
+  00002FCC     00246 MIOS_RESERVED_243                       EQU     0x2fcc
+  00002FD0     00247 MIOS_RESERVED_244                       EQU     0x2fd0
+  00002FD4     00248 MIOS_RESERVED_245                       EQU     0x2fd4
+  00002FD8     00249 MIOS_RESERVED_246                       EQU     0x2fd8
+  00002FDC     00250 MIOS_RESERVED_247                       EQU     0x2fdc
+  00002FE0     00251 MIOS_RESERVED_248                       EQU     0x2fe0
+  00002FE4     00252 MIOS_RESERVED_249                       EQU     0x2fe4
+  00002FE8     00253 MIOS_RESERVED_250                       EQU     0x2fe8
+  00002FEC     00254 MIOS_RESERVED_251                       EQU     0x2fec
+  00002FF0     00255 MIOS_RESERVED_252                       EQU     0x2ff0
+  00002FF4     00256 MIOS_RESERVED_253                       EQU     0x2ff4
+  00002FF8     00257 MIOS_RESERVED_254                       EQU     0x2ff8
+  00002FFC     00258 MIOS_RESERVED_255                       EQU     0x2ffc
+               00012 #include <macros.h>
+               00001 ; $Id: macros.h 49 2008-01-30 21:47:31Z tk $
+               00002 ;
+               00003 ; Macro Definitions
+               00004 ;
+               00005 ; ==========================================================================
+               00006 ;
+               00007 ;  Copyright 1998-2006 Thorsten Klose (tk@midibox.org)
+               00008 ;  Licensed for personal non-commercial use only.
+               00009 ;  All other rights reserved.
+               00010 ; 
+               00011 ; ==========================================================================
+               00012 
+               00013 BRA_IFSET       MACRO   reg, bit, reg_a, label
+               00014         btfsc   reg, bit, reg_a
+               00015         bra     label
+               00016         ENDM
+               00017 
+               00018 
+               00019 BRA_IFCLR       MACRO   reg, bit, reg_a, label
+               00020         btfss   reg, bit, reg_a
+               00021         bra     label
+               00022         ENDM
+               00023 
+               00024 GOTO_IFSET      MACRO   reg, bit, reg_a, label
+               00025         btfsc   reg, bit, reg_a
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00026         goto    label
+               00027         ENDM
+               00028 
+               00029 
+               00030 GOTO_IFCLR      MACRO   reg, bit, reg_a, label
+               00031         btfss   reg, bit, reg_a
+               00032         goto    label
+               00033         ENDM
+               00034 
+               00035 CALL_IFSET      MACRO   reg, bit, reg_a, label
+               00036         btfsc   reg, bit, reg_a
+               00037         call    label
+               00038         ENDM
+               00039 
+               00040 
+               00041 CALL_IFCLR      MACRO   reg, bit, reg_a, label
+               00042         btfss   reg, bit, reg_a
+               00043         call    label
+               00044         ENDM
+               00045 
+               00046 RCALL_IFSET     MACRO   reg, bit, reg_a, label
+               00047         btfsc   reg, bit, reg_a
+               00048         rcall   label
+               00049         ENDM
+               00050 
+               00051 
+               00052 RCALL_IFCLR     MACRO   reg, bit, reg_a, label
+               00053         btfss   reg, bit, reg_a
+               00054         rcall   label
+               00055         ENDM
+               00056 
+               00057 ;; ==========================================================================
+               00058 
+               00059 IRQ_DISABLE MACRO
+               00060         bcf     INTCON, GIE
+               00061         ENDM
+               00062 
+               00063 IRQ_ENABLE MACRO
+               00064         bsf     INTCON, GIE
+               00065         ENDM
+               00066 
+               00067 ;; ==========================================================================
+               00068 
+               00069 TABLE_ADDR_FULL MACRO addr
+               00070         movlw   LOW(addr)               ; store Lo Byte
+               00071         movwf   TBLPTRL
+               00072         movlw   HIGH(addr)              ; store Hi Byte
+               00073         movwf   TBLPTRH
+               00074         movlw   UPPER(addr)             ; store upper Byte
+               00075         movwf   TBLPTRU
+               00076         ENDM
+               00077         
+               00078 TABLE_ADDR MACRO addr
+               00079         movlw   LOW(addr)               ; store Lo Byte
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00080         movwf   TBLPTRL
+               00081         movlw   HIGH(addr)              ; store Hi Byte
+               00082         movwf   TBLPTRH
+               00083 #if PIC_DERIVATIVE_CODE_SIZE > 0x10000
+               00084         movlw   UPPER(addr)             ; store Upper Byte
+               00085         movwf   TBLPTRU
+               00086 #endif
+               00087         ENDM
+               00088         
+               00089 TABLE_H MACRO   addr
+               00090         movlw   HIGH(addr)              ; store Hi Byte
+               00091         movwf   TBLPTRH
+               00092         ENDM
+               00093 
+               00094 TABLE_L MACRO   addr
+               00095         movlw   LOW(addr)               ; store Lo Byte
+               00096         movwf   TBLPTRL
+               00097         ENDM
+               00098 
+               00099 TABLE_ADD_W MACRO
+               00100         addwf   TBLPTRL, F
+               00101         movlw   0x00
+               00102         addwfc  TBLPTRH, F
+               00103 #if PIC_DERIVATIVE_CODE_SIZE > 0x10000
+               00104         movlw   0x00
+               00105         addwfc  TBLPTRU, F
+               00106 #endif
+               00107         ENDM
+               00108 
+               00109 TABLE_ADDR_MUL_W MACRO addr, multiplicator
+               00110         mullw   multiplicator
+               00111         movlw   LOW(addr)
+               00112         addwf   PRODL, W
+               00113         movwf   TBLPTRL
+               00114         movlw   HIGH(addr)
+               00115         addwfc  PRODH, W
+               00116         movwf   TBLPTRH
+               00117 #if PIC_DERIVATIVE_CODE_SIZE > 0x10000
+               00118         clrf    TBLPTRU
+               00119         movlw   UPPER(addr)
+               00120         addwfc  TBLPTRU, F
+               00121 #endif
+               00122         ENDM
+               00123 
+               00124 ;; ==========================================================================
+               00125 
+               00126 JUMPTABLE_2BYTES MACRO max_value
+               00127         addlw   -(max_value)    ; ensure that jump index is not greater than (max_value-1)
+               00128         skpnc
+               00129         movlw   -(max_value)
+               00130         addlw   max_value
+               00131         call    MIOS_HLP_GetIndex_2bytes
+               00132         ENDM
+               00133 
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00134 JUMPTABLE_2BYTES_UNSECURE MACRO
+               00135         call    MIOS_HLP_GetIndex_2bytes
+               00136         ENDM
+               00137 
+               00138 JUMPTABLE_4BYTES MACRO max_value
+               00139         addlw   -(max_value)    ; ensure that jump index is not greater than (max_value-1)
+               00140         skpnc
+               00141         return
+               00142         addlw   (max_value)
+               00143         call    MIOS_HLP_GetIndex_4bytes
+               00144         ENDM
+               00145 
+               00146 JUMPTABLE_4BYTES_UNSECURE MACRO
+               00147         call    MIOS_HLP_GetIndex_4bytes
+               00148         ENDM
+               00149 
+               00150 ;; ==========================================================================
+               00151 
+               00152 TWOBYTE_ENTRY MACRO low_byte, high_byte
+               00153         dw      (high_byte << 8) | (low_byte)
+               00154         ENDM
+               00155 
+               00156 ;; ==========================================================================
+               00157 
+               00158 #define skpnz   btfsc   STATUS, Z 
+               00159 #define skpz    btfss   STATUS, Z 
+               00160 #define skpndc  btfsc   STATUS, DC 
+               00161 #define skpdc   btfss   STATUS, DC
+               00162 #define skpnc   btfsc   STATUS, C
+               00163 #define skpc    btfss   STATUS, C
+               00164 #define clrc    bcf     STATUS, C
+               00165 #define setc    bsf     STATUS, C
+               00166 #define clrz    bcf     STATUS, Z
+               00167 #define setz    bsf     STATUS, Z
+               00168 #define rrf     rrcf    
+               00169 #define rlf     rlcf
+               00170 
+               00171 rgoto   MACRO   label
+               00172         bra     label
+               00173         ENDM
+               00174 
+               00175 SET_BSR MACRO   reg
+               00176         movlb   HIGH(reg)
+               00177         ENDM
+               00178 
+               00179 ;; ==========================================================================
+               00180 
+               00181 FONT_ENTRY MACRO width, height, x0, char_offset
+               00182         dw      ((height) << 8) | (width), ((char_offset) << 8) | (x0)
+               00183         ENDM
+               00184 
+               00185 ;; ==========================================================================
+               00186 
+               00187 STRING MACRO length, pos, str
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00188         da      ((length) << 8) | (pos), str
+               00189         ENDM
+               00190 
+               00191 ;; ==========================================================================
+               00013 
+               00014 ; ==========================================================================
+               00015 ; Import/Export Labels
+               00016 ; ==========================================================================
+               00017         global  USER_LCD_Init
+               00018         global  USER_LCD_Data
+               00019         global  USER_LCD_Cmd
+               00020         global  USER_LCD_Clear
+               00021         global  USER_LCD_CursorSet
+               00022         global  USER_LCD_PrintChar
+               00023         global  USER_LCD_SpecialCharInit
+               00024 
+               00025 ; ==========================================================================
+               00026 ; Start code section and include driver code
+               00027 ; ==========================================================================
+               00028 APP_LCD CODE
+               00029 #include "app_lcd.inc"
+               00001 ; $Id: app_lcd.inc 69 2008-02-01 00:20:18Z tk $
+               00002 ;
+               00003 ; MIOS Custom LCD Driver Skeleton
+               00004 ;
+               00005 ; ==========================================================================
+               00006 ;
+               00007 ;  Copyright 1998-2006 Thorsten Klose (tk@midibox.org)
+               00008 ;  Licensed for personal non-commercial use only.
+               00009 ;  All other rights reserved.
+               00010 ; 
+               00011 ; ==========================================================================
+               00012 
+               00013 ;; --------------------------------------------------------------------------
+               00014 ;;  Following system variables are given by MIOS and can be directly 
+               00015 ;;  accessed by the driver. The addresses are defined in mios.h and
+               00016 ;;  should not be changed
+               00017 ;; 
+               00018 ;;  MIOS_GLCD_BUFFER         a 8 byte buffer for data transfers
+               00019 ;;  MIOS_LCD_OPTION1         contains the first LCD option given by MIOS_LCD_TypeSet
+               00020 ;;  MIOS_LCD_OPTION2         contains the second LCD option given by MIOS_LCD_TypeSet
+               00021 ;;  MIOS_LCD_CURSOR_POS      the current cursor pos of characters (GLCD: multiplied by width)
+               00022 ;;  MIOS_GLCD_GCURSOR_X      for GLCDs: the current X position of graphical cursor
+               00023 ;;  MIOS_GLCD_GCURSOR_Y      for GLCDs: the current Y position of graphical cursor
+               00024 ;;  MIOS_GLCD_FONT_WIDTH     for GLCDs: the fontwidth given by MIOS_GLCD_FontInit
+               00025 ;;  MIOS_GLCD_FONT_HEIGHT    for GLCDs: the fontheight given by MIOS_GLCD_FontInit
+               00026 ;;  MIOS_GLCD_FONT_X0        for GLCDs: the first byte within a char entry
+               00027 ;;  MIOS_GLCD_FONT_OFFSET    for GLCDs: the byte offset between the characters
+               00028 ;;  MIOS_GLCD_FONT_PTRL      for GLCDs: pointer to the character table, low-byte
+               00029 ;;  MIOS_GLCD_FONT_PTRH      for GLCDs: pointer to the character table, high-byte
+               00030 ;;  MIOS_LCD_TIMEOUT0        can be used for timeout loops
+               00031 ;;  MIOS_LCD_TIMEOUT1        can be used for timeout loops
+               00032 ;;  MIOS_GLCD_TMP1           can be used as temporary buffer
+               00033 ;;  MIOS_GLCD_TMP2           can be used as temporary buffer
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00034 ;;  MIOS_GLCD_TMP3           can be used as temporary buffer
+               00035 ;;  MIOS_GLCD_TMP4           can be used as temporary buffer
+               00036 ;;  MIOS_LCD_Y0_OFFSET       Y0 offset of LCD
+               00037 ;;  MIOS_LCD_Y1_OFFSET       Y1 offset of LCD
+               00038 ;;  MIOS_LCD_Y2_OFFSET       Y2 offset of LCD
+               00039 ;;  MIOS_LCD_Y3_OFFSET       Y3 offset of LCD
+               00040 ;;  MIOS_LCD_CURSOR_POS_REAL unmapped cursor position which has been set with MIOS_LCD_CursorSet
+               00041 ;; 
+               00042 ;;  Note: the addresses are located in an upper bank and therefore have to
+               00043 ;;        be accessed with the BANKED flag. Also the BSR has to be justified
+               00044 ;;        before using the registers
+               00045 ;;  Example:
+               00046 ;;      SET_BSR MIOS_LCD_OPTION1        ; sets BSR to the bank where MIOS_LCD_*
+               00047 ;;                                      ; has been located. You don't need to
+               00048 ;;                                      ; change the BSR for the other LCD registers
+               00049 ;;      movf    MIOS_LCD_OPTION1, W, BANKED     ; get LCD option #1
+               00050 ;; 
+               00051 ;;  Important: to allow a proper interaction with MIOS applications, you are
+               00052 ;;  only allowed to modify MIOS_PARAMETER[123], the mutliplication registers
+               00053 ;;  and FSR1. You are not allowed to change TMP[1-5] or FSR0
+               00054 ;;  if you need some temporary registers, use the given addresses above or
+               00055 ;;  locate them to addresses which are not used by the application
+               00056 ;; --------------------------------------------------------------------------
+               00057         
+               00058 ;; --------------------------------------------------------------------------
+               00059 ;;  This function is called by MIOS when the custom LCD should be initialized
+               00060 ;;  In:  MIOS_LCD_OPTION1 - contains the first LCD option given by MIOS_LCD_TypeSet
+               00061 ;;       MIOS_LCD_OPTION2 - contains the second LCD option given by MIOS_LCD_TypeSet
+               00062 ;;  Out: -
+               00063 ;; --------------------------------------------------------------------------
+0000           00064 USER_LCD_Init
+0000 0012      00065         return
+               00066 
+               00067 ;; --------------------------------------------------------------------------
+               00068 ;;  This function is called by MIOS when the custom LCD should be cleared
+               00069 ;;  In:  MIOS_LCD_OPTION1 - contains the first LCD option given by MIOS_LCD_TypeSet
+               00070 ;;       MIOS_LCD_OPTION2 - contains the second LCD option given by MIOS_LCD_TypeSet
+               00071 ;;  Out: -
+               00072 ;; --------------------------------------------------------------------------
+0002           00073 USER_LCD_Clear
+0002 0012      00074         return
+               00075 
+               00076 ;; --------------------------------------------------------------------------
+               00077 ;;  This function is called by MIOS when the cursor should be changed
+               00078 ;;  In:  MIOS_LCD_OPTION1 - contains the first LCD option given by MIOS_LCD_TypeSet
+               00079 ;;       MIOS_LCD_OPTION2 - contains the second LCD option given by MIOS_LCD_TypeSet
+               00080 ;;       MIOS_GLCD_CURSOR_X - horizontal cursor position (for GLCDs)
+               00081 ;;       MIOS_GLCD_CURSOR_X - vertical cursor position   (for GLCDs)
+               00082 ;;       MIOS_LCD_CURSOR    - character cursor position  (for CLCDs)
+               00083 ;;  Out: -
+               00084 ;; --------------------------------------------------------------------------
+0004           00085 USER_LCD_CursorSet
+0004 0012      00086         return
+               00087 
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 16
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+               00088 ;; --------------------------------------------------------------------------
+               00089 ;;  This function is called by MIOS when a character should be print
+               00090 ;;  In:  WREG - character
+               00091 ;;       all other MIOS_*LCD_* registers
+               00092 ;;  Out: GLCDs should justify the X/Y cursor position
+               00093 ;; --------------------------------------------------------------------------
+0006           00094 USER_LCD_PrintChar
+0006 0012      00095         return
+               00096 
+               00097 ;; --------------------------------------------------------------------------
+               00098 ;;  FUNCTION: USER_LCD_Data
+               00099 ;;  DESCRIPTION: sends a data value to the LCD display.<BR>
+               00100 ;;  On CLCDs: branch directly to USER_LCD_PrintChar<BR>
+               00101 ;;  On GLCDs: ignore this function!
+               00102 ;;  IN:  data which should be sent
+               00103 ;;  OUT: -
+               00104 ;;  NOTE: see the custom_lcd_example for further details
+               00105 ;; --------------------------------------------------------------------------
+0008           00106 USER_LCD_Data
+0008 0012      00107         return
+               00108 
+               00109 ;; --------------------------------------------------------------------------
+               00110 ;;  FUNCTION: USER_LCD_Cmd
+               00111 ;;  DESCRIPTION: sends a command to the LCD display.<BR>
+               00112 ;;  On CLCDs: use this function to decode the HD44780 commands if required<BR>
+               00113 ;;  On GLCDs: ignore this function!
+               00114 ;;  IN:  command which should be sent
+               00115 ;;  OUT: -
+               00116 ;;  NOTE: see the custom_lcd_example for further details
+               00117 ;; --------------------------------------------------------------------------
+000A           00118 USER_LCD_Cmd
+000A 0012      00119         return
+               00120 
+               00121 ;; --------------------------------------------------------------------------
+               00122 ;;  FUNCTION: USER_LCD_SpecialCharInit
+               00123 ;;  DESCRIPTION: see MIOS_CLCD_SpecialCharInit
+               00124 ;;  IN:  number of special character (0-7) in WREG
+               00125 ;;       pointer to special char pattern in TBLPTR (consists of 8
+               00126 ;;          entries for every character-line)
+               00127 ;;  OUT: TBLPTR has to be set to next table entry (TBLPTR+=8)
+               00128 ;;  NOTE: see the custom_lcd_example for further details
+               00129 ;; --------------------------------------------------------------------------
+000C           00130 USER_LCD_SpecialCharInit
+000C 0012      00131         return
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ACCESS                            00000000
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCS0                             00000006
+ADCS1                             00000007
+ADCS2                             00000006
+ADDEN                             00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AN0                               00000000
+AN1                               00000001
+AN2                               00000002
+AN3                               00000003
+AN4                               00000005
+AN5                               00000000
+AN6                               00000001
+AN7                               00000002
+BANKED                            00000001
+BCLIE                             00000003
+BCLIF                             00000003
+BCLIP                             00000003
+BF                                00000000
+BOR                               00000000
+BRGH                              00000002
+BSR                               00000FE0
+C                                 00000000
+CCP1                              00000002
+CCP1CON                           00000FBD
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCP2                              00000001
+CCP2A                             00000003
+CCP2CON                           00000FBA
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2IP                            00000000
+CCP2M0                            00000000
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 18
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2X                             00000005
+CCP2Y                             00000004
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CCPR2H                            00000FBC
+CCPR2L                            00000FBB
+CFGS                              00000006
+CHS0                              00000003
+CHS1                              00000004
+CHS2                              00000005
+CK                                00000006
+CKE                               00000006
+CKP                               00000004
+CLKO                              00000006
+CREN                              00000004
+CS                                00000002
+CSRC                              00000007
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC2B0                             00000004
+DC2B1                             00000005
+DONE                              00000002
+D_A                               00000005
+EEADR                             00000FA9
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+FAST                              00000001
+FERR                              00000002
+FREE                              00000004
+FSR0                              00000000
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GO                                00000002
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 19
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+GO_DONE                           00000002
+I2C_DAT                           00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IBF                               00000007
+IBOV                              00000005
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+INT1                              00000001
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+INT2                              00000002
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INTCON                            00000FF2
+INTCON1                           00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+INTEDG1                           00000005
+INTEDG2                           00000004
+IPEN                              00000007
+IPR1                              00000F9F
+IPR2                              00000FA2
+IRQ_TMP1                          0000000B
+IRQ_TMP2                          0000000C
+IRQ_TMP3                          0000000D
+IRQ_TMP4                          0000000E
+IRQ_TMP5                          0000000F
+IRVST                             00000005
+LATA                              00000F89
+LATB                              00000F8A
+LATC                              00000F8B
+LATD                              00000F8C
+LATE                              00000F8D
+LVDCON                            00000FD2
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+LVDL0                             00000000
+LVDL1                             00000001
+LVDL2                             00000002
+LVDL3                             00000003
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 20
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+MIOS_AIN_DeadbandGet              00002C5C
+MIOS_AIN_DeadbandSet              00002C60
+MIOS_AIN_DynamicPrioGet           00002DD4
+MIOS_AIN_DynamicPrioSet           00002DD0
+MIOS_AIN_LastPinsGet              00002DD8
+MIOS_AIN_Muxed                    00002C64
+MIOS_AIN_NumberGet                00002C68
+MIOS_AIN_NumberSet                00002C6C
+MIOS_AIN_Pin7bitGet               00002C70
+MIOS_AIN_PinGet                   00002C74
+MIOS_AIN_PinLSBGet                00002C78
+MIOS_AIN_PinMSBGet                00002C7C
+MIOS_AIN_UnMuxed                  00002C80
+MIOS_BANKSTICK_CtrlGet            00002DE0
+MIOS_BANKSTICK_CtrlSet            00002DDC
+MIOS_BANKSTICK_Read               00002D70
+MIOS_BANKSTICK_ReadPage           00002E30
+MIOS_BANKSTICK_Write              00002D74
+MIOS_BANKSTICK_WritePage          00002DE4
+MIOS_BOX_CFG0                     00000000
+MIOS_BOX_CFG0_20MHz               00000007
+MIOS_BOX_CFG0_LCD_TYPE0           00000000
+MIOS_BOX_CFG0_LCD_TYPE1           00000001
+MIOS_BOX_CFG0_LCD_TYPE2           00000002
+MIOS_BOX_CFG0_MBLINK              00000005
+MIOS_BOX_CFG0_MERGER              00000004
+MIOS_BOX_CFG0_TO_HOST             00000006
+MIOS_BOX_CFG0_USE_GLCD            00000003
+MIOS_BOX_CFG1                     00000001
+MIOS_BOX_CFG1_BS_A0               00000000
+MIOS_BOX_CFG1_BS_A1               00000001
+MIOS_BOX_CFG1_BS_A2               00000002
+MIOS_BOX_CFG1_BS_DIS_VERIFY       00000003
+MIOS_BOX_CFG1_IIC_STRETCH_CLK     00000004
+MIOS_BOX_STAT                     00000002
+MIOS_BOX_STAT_AUTOREPEAT          00000004
+MIOS_BOX_STAT_BS_AVAILABLE        00000000
+MIOS_BOX_STAT_FERR                00000006
+MIOS_BOX_STAT_MBLINK_TUNNEL_PASS  00000001
+MIOS_BOX_STAT_MLCD_TRANSFER       00000005
+MIOS_BOX_STAT_SUSPEND_ALL         00000002
+MIOS_BOX_STAT_SUSPEND_USER        00000003
+MIOS_CLCD_SpecialCharInit         00002DC8
+MIOS_CLCD_SpecialCharsInit        00002DCC
+MIOS_DIN_PinAutoRepeatDisable     00002DC0
+MIOS_DIN_PinAutoRepeatEnable      00002DBC
+MIOS_DIN_PinAutoRepeatGet         00002DC4
+MIOS_DIN_PinGet                   00002CB4
+MIOS_DIN_SRGet                    00002CB8
+MIOS_DOUT_PinGet                  00002CBC
+MIOS_DOUT_PinSet                  00002CC0
+MIOS_DOUT_PinSet0                 00002CC4
+MIOS_DOUT_PinSet1                 00002CC8
+MIOS_DOUT_SRGet                   00002CCC
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 21
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+MIOS_DOUT_SRSet                   00002CD0
+MIOS_Delay                        00002D9C
+MIOS_EEPROM_Read                  00002D60
+MIOS_EEPROM_ReadPage              00002E34
+MIOS_EEPROM_Write                 00002D64
+MIOS_EEPROM_WritePage             00002E38
+MIOS_ENC_Abs7bitAdd               00002CD4
+MIOS_ENC_Abs7bitGet               00002CD8
+MIOS_ENC_Abs7bitSet               00002CDC
+MIOS_ENC_MODE_DETENTED            00000080
+MIOS_ENC_MODE_DETENTED1           00000080
+MIOS_ENC_MODE_DETENTED2           00000081
+MIOS_ENC_MODE_DETENTED3           00000082
+MIOS_ENC_MODE_NON_DETENTED        00000000
+MIOS_ENC_NumberGet                00002CE0
+MIOS_ENC_SPEED_FAST               00000002
+MIOS_ENC_SPEED_NORMAL             00000001
+MIOS_ENC_SPEED_SLOW               00000000
+MIOS_ENC_SpeedGet                 00002CE4
+MIOS_ENC_SpeedSet                 00002CE8
+MIOS_FLASH_Read                   00002D68
+MIOS_FLASH_Write                  00002D6C
+MIOS_GLCD_BUFFER                  00000570
+MIOS_GLCD_FONT                    00007CFC
+MIOS_GLCD_FONT_HEIGHT             0000057E
+MIOS_GLCD_FONT_OFFSET             00000580
+MIOS_GLCD_FONT_PTRH               00000582
+MIOS_GLCD_FONT_PTRL               00000581
+MIOS_GLCD_FONT_PTRU               0000058E
+MIOS_GLCD_FONT_WIDTH              0000057D
+MIOS_GLCD_FONT_X0                 0000057F
+MIOS_GLCD_FontInit                00002D54
+MIOS_GLCD_GCURSOR_X               0000057B
+MIOS_GLCD_GCURSOR_Y               0000057C
+MIOS_GLCD_GCursorGet              00002D58
+MIOS_GLCD_GCursorSet              00002D5C
+MIOS_GLCD_TMP1                    00000585
+MIOS_GLCD_TMP2                    00000586
+MIOS_GLCD_TMP3                    00000587
+MIOS_GLCD_TMP4                    00000588
+MIOS_GPCounterGet                 00002DA0
+MIOS_HLP_16bitAddSaturate         00002DB8
+MIOS_HLP_AddressFromTable         00002D84
+MIOS_HLP_Dec2BCD                  00002DE8
+MIOS_HLP_GetBitANDMask            00002D88
+MIOS_HLP_GetBitORMask             00002D8C
+MIOS_HLP_GetIndex_2bytes          00002D90
+MIOS_HLP_GetIndex_4bytes          00002D94
+MIOS_HLP_IndirectJump             00002D98
+MIOS_IIC_AckSend                  00002E14
+MIOS_IIC_ByteReceive              00002E10
+MIOS_IIC_ByteSend                 00002E0C
+MIOS_IIC_CtrlGet                  00002E20
+MIOS_IIC_CtrlSet                  00002E1C
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 22
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+MIOS_IIC_NakSend                  00002E18
+MIOS_IIC_Start                    00002E04
+MIOS_IIC_Stop                     00002E08
+MIOS_LCD_CURSOR_POS               0000057A
+MIOS_LCD_CURSOR_POS_REAL          0000058D
+MIOS_LCD_Clear                    00002D04
+MIOS_LCD_Cmd                      00002D08
+MIOS_LCD_CursorGet                00002D0C
+MIOS_LCD_CursorSet                00002D10
+MIOS_LCD_Data                     00002D14
+MIOS_LCD_Init                     00002D18
+MIOS_LCD_MessageStart             00002DF4
+MIOS_LCD_MessageStop              00002DF8
+MIOS_LCD_OPTION1                  00000578
+MIOS_LCD_OPTION2                  00000579
+MIOS_LCD_PrintBCD1                00002D1C
+MIOS_LCD_PrintBCD2                00002D20
+MIOS_LCD_PrintBCD3                00002D24
+MIOS_LCD_PrintBCD4                00002DEC
+MIOS_LCD_PrintBCD5                00002DF0
+MIOS_LCD_PrintChar                00002D28
+MIOS_LCD_PrintHex1                00002D2C
+MIOS_LCD_PrintHex2                00002D30
+MIOS_LCD_PrintMessage             00002D34
+MIOS_LCD_PrintPreconfString       00002D38
+MIOS_LCD_PrintString              00002D3C
+MIOS_LCD_TIMEOUT0                 00000583
+MIOS_LCD_TIMEOUT1                 00000584
+MIOS_LCD_TYPE_CLCD                00000000
+MIOS_LCD_TYPE_GLCD0               00000001
+MIOS_LCD_TYPE_GLCD1               00000002
+MIOS_LCD_TYPE_GLCD2               00000003
+MIOS_LCD_TYPE_GLCD3               00000004
+MIOS_LCD_TYPE_GLCD4               00000005
+MIOS_LCD_TYPE_GLCD_CUSTOM         00000007
+MIOS_LCD_TYPE_MLCD                00000006
+MIOS_LCD_TypeAutoSet              00002D40
+MIOS_LCD_TypeGet                  00002D44
+MIOS_LCD_TypeSet                  00002D48
+MIOS_LCD_Y0_OFFSET                00000589
+MIOS_LCD_Y1_OFFSET                0000058A
+MIOS_LCD_Y2_OFFSET                0000058B
+MIOS_LCD_Y3_OFFSET                0000058C
+MIOS_LCD_YAddressGet              00002D4C
+MIOS_LCD_YAddressSet              00002D50
+MIOS_MF_DeadbandGet               00002C94
+MIOS_MF_DeadbandSet               00002C98
+MIOS_MF_Disable                   00002C9C
+MIOS_MF_Enable                    00002CA0
+MIOS_MF_FaderMove                 00002CA4
+MIOS_MF_PWM_DutyCycleDownGet      00002C84
+MIOS_MF_PWM_DutyCycleDownSet      00002C88
+MIOS_MF_PWM_DutyCycleUpGet        00002C8C
+MIOS_MF_PWM_DutyCycleUpSet        00002C90
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 23
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+MIOS_MF_PWM_PeriodGet             00002DFC
+MIOS_MF_PWM_PeriodSet             00002E00
+MIOS_MF_SuspendDisable            00002CA8
+MIOS_MF_SuspendEnable             00002CAC
+MIOS_MF_SuspendGet                00002CB0
+MIOS_MF_TouchDetectionReset       00002E2C
+MIOS_MIDI_BeginStream             00002C00
+MIOS_MIDI_DeviceIDAutoSet         00002C04
+MIOS_MIDI_DeviceIDGet             00002C08
+MIOS_MIDI_DeviceIDSet             00002C0C
+MIOS_MIDI_EndStream               00002C10
+MIOS_MIDI_INTERFACE_COMMON        00000000
+MIOS_MIDI_INTERFACE_TO_HOST       00000001
+MIOS_MIDI_Init                    00002C14
+MIOS_MIDI_InterfaceAutoSet        00002C18
+MIOS_MIDI_InterfaceGet            00002C1C
+MIOS_MIDI_InterfaceSet            00002C20
+MIOS_MIDI_MERGER_DISABLED         00000000
+MIOS_MIDI_MERGER_ENABLED          00000001
+MIOS_MIDI_MERGER_MBLINK_EP        00000002
+MIOS_MIDI_MERGER_MBLINK_FP        00000003
+MIOS_MIDI_MergerGet               00002C24
+MIOS_MIDI_MergerSet               00002C28
+MIOS_MIDI_RxBufferFree            00002C2C
+MIOS_MIDI_RxBufferGet             00002C30
+MIOS_MIDI_RxBufferPut             00002C34
+MIOS_MIDI_RxBufferUsed            00002C38
+MIOS_MIDI_TxBufferFlush           00002C3C
+MIOS_MIDI_TxBufferFree            00002C40
+MIOS_MIDI_TxBufferGet             00002C44
+MIOS_MIDI_TxBufferPut             00002C48
+MIOS_MIDI_TxBufferUsed            00002C4C
+MIOS_MPROC_MergerDisable          00002C50
+MIOS_MPROC_MergerEnable           00002C54
+MIOS_MPROC_MergerGet              00002C58
+MIOS_PARAMETER1                   00000003
+MIOS_PARAMETER2                   00000004
+MIOS_PARAMETER3                   00000005
+MIOS_RESERVED_144                 00002E40
+MIOS_RESERVED_145                 00002E44
+MIOS_RESERVED_146                 00002E48
+MIOS_RESERVED_147                 00002E4C
+MIOS_RESERVED_148                 00002E50
+MIOS_RESERVED_149                 00002E54
+MIOS_RESERVED_150                 00002E58
+MIOS_RESERVED_151                 00002E5C
+MIOS_RESERVED_152                 00002E60
+MIOS_RESERVED_153                 00002E64
+MIOS_RESERVED_154                 00002E68
+MIOS_RESERVED_155                 00002E6C
+MIOS_RESERVED_156                 00002E70
+MIOS_RESERVED_157                 00002E74
+MIOS_RESERVED_158                 00002E78
+MIOS_RESERVED_159                 00002E7C
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 24
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+MIOS_RESERVED_160                 00002E80
+MIOS_RESERVED_161                 00002E84
+MIOS_RESERVED_162                 00002E88
+MIOS_RESERVED_163                 00002E8C
+MIOS_RESERVED_164                 00002E90
+MIOS_RESERVED_165                 00002E94
+MIOS_RESERVED_166                 00002E98
+MIOS_RESERVED_167                 00002E9C
+MIOS_RESERVED_168                 00002EA0
+MIOS_RESERVED_169                 00002EA4
+MIOS_RESERVED_170                 00002EA8
+MIOS_RESERVED_171                 00002EAC
+MIOS_RESERVED_172                 00002EB0
+MIOS_RESERVED_173                 00002EB4
+MIOS_RESERVED_174                 00002EB8
+MIOS_RESERVED_175                 00002EBC
+MIOS_RESERVED_176                 00002EC0
+MIOS_RESERVED_177                 00002EC4
+MIOS_RESERVED_178                 00002EC8
+MIOS_RESERVED_179                 00002ECC
+MIOS_RESERVED_180                 00002ED0
+MIOS_RESERVED_181                 00002ED4
+MIOS_RESERVED_182                 00002ED8
+MIOS_RESERVED_183                 00002EDC
+MIOS_RESERVED_184                 00002EE0
+MIOS_RESERVED_185                 00002EE4
+MIOS_RESERVED_186                 00002EE8
+MIOS_RESERVED_187                 00002EEC
+MIOS_RESERVED_188                 00002EF0
+MIOS_RESERVED_189                 00002EF4
+MIOS_RESERVED_190                 00002EF8
+MIOS_RESERVED_191                 00002EFC
+MIOS_RESERVED_192                 00002F00
+MIOS_RESERVED_193                 00002F04
+MIOS_RESERVED_194                 00002F08
+MIOS_RESERVED_195                 00002F0C
+MIOS_RESERVED_196                 00002F10
+MIOS_RESERVED_197                 00002F14
+MIOS_RESERVED_198                 00002F18
+MIOS_RESERVED_199                 00002F1C
+MIOS_RESERVED_200                 00002F20
+MIOS_RESERVED_201                 00002F24
+MIOS_RESERVED_202                 00002F28
+MIOS_RESERVED_203                 00002F2C
+MIOS_RESERVED_204                 00002F30
+MIOS_RESERVED_205                 00002F34
+MIOS_RESERVED_206                 00002F38
+MIOS_RESERVED_207                 00002F3C
+MIOS_RESERVED_208                 00002F40
+MIOS_RESERVED_209                 00002F44
+MIOS_RESERVED_210                 00002F48
+MIOS_RESERVED_211                 00002F4C
+MIOS_RESERVED_212                 00002F50
+MIOS_RESERVED_213                 00002F54
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 25
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+MIOS_RESERVED_214                 00002F58
+MIOS_RESERVED_215                 00002F5C
+MIOS_RESERVED_216                 00002F60
+MIOS_RESERVED_217                 00002F64
+MIOS_RESERVED_218                 00002F68
+MIOS_RESERVED_219                 00002F6C
+MIOS_RESERVED_220                 00002F70
+MIOS_RESERVED_221                 00002F74
+MIOS_RESERVED_222                 00002F78
+MIOS_RESERVED_223                 00002F7C
+MIOS_RESERVED_224                 00002F80
+MIOS_RESERVED_225                 00002F84
+MIOS_RESERVED_226                 00002F88
+MIOS_RESERVED_227                 00002F8C
+MIOS_RESERVED_228                 00002F90
+MIOS_RESERVED_229                 00002F94
+MIOS_RESERVED_230                 00002F98
+MIOS_RESERVED_231                 00002F9C
+MIOS_RESERVED_232                 00002FA0
+MIOS_RESERVED_233                 00002FA4
+MIOS_RESERVED_234                 00002FA8
+MIOS_RESERVED_235                 00002FAC
+MIOS_RESERVED_236                 00002FB0
+MIOS_RESERVED_237                 00002FB4
+MIOS_RESERVED_238                 00002FB8
+MIOS_RESERVED_239                 00002FBC
+MIOS_RESERVED_240                 00002FC0
+MIOS_RESERVED_241                 00002FC4
+MIOS_RESERVED_242                 00002FC8
+MIOS_RESERVED_243                 00002FCC
+MIOS_RESERVED_244                 00002FD0
+MIOS_RESERVED_245                 00002FD4
+MIOS_RESERVED_246                 00002FD8
+MIOS_RESERVED_247                 00002FDC
+MIOS_RESERVED_248                 00002FE0
+MIOS_RESERVED_249                 00002FE4
+MIOS_RESERVED_250                 00002FE8
+MIOS_RESERVED_251                 00002FEC
+MIOS_RESERVED_252                 00002FF0
+MIOS_RESERVED_253                 00002FF4
+MIOS_RESERVED_254                 00002FF8
+MIOS_RESERVED_255                 00002FFC
+MIOS_Reset                        00002DA4
+MIOS_SRIO_DebounceGet             00002E28
+MIOS_SRIO_DebounceSet             00002E24
+MIOS_SRIO_NumberGet               00002CEC
+MIOS_SRIO_NumberSet               00002CF0
+MIOS_SRIO_TS_SensitivityGet       00002CF4
+MIOS_SRIO_TS_SensitivitySet       00002CF8
+MIOS_SRIO_UpdateFrqGet            00002CFC
+MIOS_SRIO_UpdateFrqSet            00002D00
+MIOS_SystemResume                 00002DA8
+MIOS_SystemSuspend                00002DAC
+MIOS_TIMER_Init                   00002D78
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 26
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+MIOS_TIMER_ReInit                 00002E3C
+MIOS_TIMER_Start                  00002D7C
+MIOS_TIMER_Stop                   00002D80
+MIOS_UserResume                   00002DB0
+MIOS_UserSuspend                  00002DB4
+N                                 00000004
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_DONE                          00000002
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RC8                           00000006
+NOT_RI                            00000004
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_TO                            00000003
+NOT_TX8                           00000006
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OBF                               00000006
+OERR                              00000001
+OSC2                              00000006
+OSCCON                            00000FD3
+OV                                00000003
+P                                 00000004
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PD                                00000002
+PEIE                              00000006
+PEN                               00000002
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIR1                              00000F9E
+PIR2                              00000FA1
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTD                             00000F83
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 27
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PR2                               00000FCB
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PRODH                             00000FF4
+PRODL                             00000FF3
+PSA                               00000003
+PSP0                              00000000
+PSP1                              00000001
+PSP2                              00000002
+PSP3                              00000003
+PSP4                              00000004
+PSP5                              00000005
+PSP6                              00000006
+PSP7                              00000007
+PSPIE                             00000007
+PSPIF                             00000007
+PSPIP                             00000007
+PSPMODE                           00000004
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC2                               00000002
+RC3                               00000003
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RC8_9                             00000006
+RC9                               00000006
+RCD8                              00000000
+RCEN                              00000003
+RCIE                              00000005
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 28
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+RCIF                              00000005
+RCIP                              00000005
+RCON                              00000FD0
+RCREG                             00000FAE
+RCSTA                             00000FAB
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD16                              00000007
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RE0                               00000000
+RE1                               00000001
+RE2                               00000002
+READ_WRITE                        00000002
+RI                                00000004
+RSEN                              00000001
+RX                                00000007
+RX9                               00000006
+RX9D                              00000000
+R_W                               00000002
+S                                 00000003
+SCK                               00000003
+SCL                               00000003
+SCS                               00000000
+SDA                               00000004
+SDI                               00000004
+SDO                               00000005
+SEN                               00000000
+SMP                               00000007
+SPBRG                             00000FAF
+SPEN                              00000007
+SREN                              00000005
+SS                                00000005
+SSPADD                            00000FC8
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+STATUS                            00000FD8
+STKFUL                            00000007
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 29
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+STKPTR                            00000FFC
+STKUNF                            00000006
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0IP                              00000002
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+T0SE                              00000004
+T1CKI                             00000000
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1INSYNC                          00000002
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FCA
+T3CCP1                            00000003
+T3CCP2                            00000006
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+T3INSYNC                          00000002
+T3SYNC                            00000002
+TABLAT                            00000FF5
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TMP1                              00000006
+TMP2                              00000007
+TMP3                              00000008
+TMP4                              00000009
+TMP5                              0000000A
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0IP                            00000002
+TMR0L                             00000FD6
+TMR0ON                            00000007
+TMR1CS                            00000001
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 30
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+TMR1IP                            00000000
+TMR1L                             00000FCE
+TMR1ON                            00000000
+TMR2                              00000FCC
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2ON                            00000002
+TMR3CS                            00000001
+TMR3H                             00000FB3
+TMR3IE                            00000001
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3ON                            00000000
+TO                                00000003
+TOSH                              00000FFE
+TOSL                              00000FFD
+TOSU                              00000FFF
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000F92
+TRISB                             00000F93
+TRISC                             00000F94
+TRISD                             00000F95
+TRISE                             00000F96
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TX                                00000006
+TX8_9                             00000006
+TX9                               00000006
+TX9D                              00000000
+TXD8                              00000000
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXREG                             00000FAD
+TXSTA                             00000FAC
+UA                                00000001
+USER_LCD_Clear                    00000002
+USER_LCD_Cmd                      0000000A
+USER_LCD_CursorSet                00000004
+USER_LCD_Data                     00000008
+USER_LCD_Init                     00000000
+USER_LCD_PrintChar                00000006
+USER_LCD_SpecialCharInit          0000000C
+VREFM                             00000002
+VREFP                             00000003
+W                                 00000000
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 31
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+WCOL                              00000007
+WDTCON                            00000FD1
+WR                                00000001
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_BORV_20_2L                       000000FF
+_BORV_27_2L                       000000FB
+_BORV_42_2L                       000000F7
+_BORV_45_2L                       000000F3
+_BOR_OFF_2L                       000000FD
+_BOR_ON_2L                        000000FF
+_CCP2MX_OFF_3H                    000000FE
+_CCP2MX_ON_3H                     000000FF
+_CONFIG1H                         00300001
+_CONFIG1L                         00300000
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG3L                         00300004
+_CONFIG4H                         00300007
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CP3_OFF_5L                       000000FF
+_CP3_ON_5L                        000000F7
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTR3_OFF_7L                     000000FF
+_EBTR3_ON_7L                      000000F7
+_EBTRB_OFF_7H                     000000FF
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 32
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+_EBTRB_ON_7H                      000000BF
+_ECIO_OSC_1H                      000000FD
+_EC_OSC_1H                        000000FC
+_HSPLL_OSC_1H                     000000FE
+_HS_OSC_1H                        000000FA
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_LP_OSC_1H                        000000F8
+_LVP_OFF_4L                       000000FB
+_LVP_ON_4L                        000000FF
+_OSCS_OFF_1H                      000000FF
+_OSCS_ON_1H                       000000DF
+_PWRT_OFF_2L                      000000FF
+_PWRT_ON_2L                       000000FE
+_RCIO_OSC_1H                      000000FF
+_RC_OSC_1H                        000000FB
+_STVR_OFF_4L                      000000FE
+_STVR_ON_4L                       000000FF
+_WDTPS_128_2H                     000000FF
+_WDTPS_16_2H                      000000F9
+_WDTPS_1_2H                       000000F1
+_WDTPS_2_2H                       000000F3
+_WDTPS_32_2H                      000000FB
+_WDTPS_4_2H                       000000F5
+_WDTPS_64_2H                      000000FD
+_WDTPS_8_2H                       000000F7
+_WDT_OFF_2H                       000000FE
+_WDT_ON_2H                        000000FF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRT3_OFF_6L                      000000FF
+_WRT3_ON_6L                       000000F7
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XT_OSC_1H                        000000F9
+__18F452                          00000001
+DDRA                              TRISA          
+DDRB                              TRISB          
+DDRC                              TRISC          
+DDRD                              TRISD          
+gpasm-0.13.4 beta               /home/this/mios/trunk/modules/app_lcd/dummy/app_lcd.asm10-29-2008  12:45:28         PAGE 33
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+ 
+DDRE                              TRISE          
+PIC_DERIVATIVE_CMCON_INIT         0
+PIC_DERIVATIVE_CODE_SIZE          0x08000
+PIC_DERIVATIVE_EEPROM_SIZE        0x100
+PIC_DERIVATIVE_IRQ_WORKAROUND     0
+PIC_DERIVATIVE_NEW_ADC            0
+PIC_DERIVATIVE_RAM_SIZE           0x600
+PIC_DERIVATIVE_SET_LCD_4BIT       0
+PIC_DERIVATIVE_T08BIT_INVERTED    0
+_HW_FLAGS_H                       
+clrc                              bcf	STATUS, C
+clrz                              bcf	STATUS, Z
+rlf                               rlcf
+rrf                               rrcf	
+setc                              bsf	STATUS, C
+setz                              bsf	STATUS, Z
+skpc                              btfss	STATUS, C
+skpdc                             btfss	STATUS, DC
+skpnc                             btfsc	STATUS, C
+skpndc                            btfsc	STATUS, DC 
+skpnz                             btfsc	STATUS, Z 
+skpz                              btfss	STATUS, Z 
+
+
+Errors   :       0
+Warnings :       0 reported,       0 suppressed
+Messages :       0 reported,       0 suppressed
+
