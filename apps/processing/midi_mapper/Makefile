@@ -27,5 +27,6 @@ DIST = ./
 # include the common.mk file
 include $(MIOS_PATH)/include/makefile/common.mk
 
+
 # include application specific driver (select app_lcd/dummy if MIOS internal driver used)
 include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
