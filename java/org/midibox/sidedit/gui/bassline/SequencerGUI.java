@@ -36,6 +36,7 @@ import java.util.Vector;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -51,10 +52,11 @@ import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
 import  org.midibox.sidedit.gui.controls.*;
 import org.midibox.sidedit.gui.lead.LeadGUI;
+import javax.swing.JRadioButton;
 
 public class SequencerGUI extends JPanel implements ActionListener{
 	private JPanel seqPanel,currentPanel,seq1,seq2,seq3,seq4,seq5,seq6,seq7,seq8;
-	private JComboBox combo;
+	private JRadioButton radioButtons[];
 	private int[] snapvals = {0,1,2,3,4,5,6,7,8,9,10,11,12};
 	
 	protected SequencerGUI(Vector V1GUIv, Vector V2GUIv, Vector V3GUIv) {
@@ -71,14 +73,21 @@ public class SequencerGUI extends JPanel implements ActionListener{
 		seqPanel.setBorder(BorderFactory.createTitledBorder("Sequencer data"));
 		seqPanel.setOpaque(false);
 		
-		JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		comboPanel.setOpaque(false);
+		
+		JPanel comboPanel = new JPanel();
+		comboPanel.setLayout(new BoxLayout(comboPanel, BoxLayout.Y_AXIS));
+		comboPanel.setOpaque(false);		
 		String[] s = {"Sequence #1","Sequence #2","Sequence #3","Sequence #4","Sequence #5","Sequence #6","Sequence #7","Sequence #8"};
-		combo = new JComboBox(s);
-		combo.setPreferredSize(new Dimension(110,20));
-		combo.setFont(new Font("sansserif", Font.BOLD, 11));
-		combo.addActionListener(this);
-		comboPanel.add(combo);
+		ButtonGroup bg = new ButtonGroup();
+		radioButtons = new JRadioButton[s.length];
+		for (int i=0;i<s.length;i++) {			
+			radioButtons[i] = new JRadioButton(s[i], true);
+			radioButtons[i].setOpaque(false);
+			radioButtons[i].addActionListener(this);
+			bg.add(radioButtons[i]);
+			comboPanel.add(radioButtons[i]);
+		}	
+		
 		seqPanel.add(comboPanel);
 		
 				
@@ -162,9 +171,10 @@ public class SequencerGUI extends JPanel implements ActionListener{
 	}	
 	
 	public void actionPerformed(ActionEvent ae) {
-		if (ae.getSource()==combo) {
-			seqPanel.remove(currentPanel);
-			switch (combo.getSelectedIndex()) {
+		for (int i=1;i<radioButtons.length;i++) {
+			if ((ae.getSource()==radioButtons[i]) && (radioButtons[i].isSelected())) {
+				seqPanel.remove(currentPanel);
+				switch (i) {
 				case 0:					
 					currentPanel = seq1;
 					break;
@@ -188,10 +198,12 @@ public class SequencerGUI extends JPanel implements ActionListener{
 					break;
 				case 7:
 					currentPanel = seq8;					
-					break;
+					break;					
+				}	
+				seqPanel.add(currentPanel);
+				this.repaint();
+				break;
 			}
-			seqPanel.add(currentPanel);
-			this.repaint();
 		}
 	}
 }

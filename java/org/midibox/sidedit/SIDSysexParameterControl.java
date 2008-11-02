@@ -135,6 +135,8 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 	public int lookUpAlias(String s) {
 		int val = 0;
 		for(int j=0;j<valAlias.length;j++) {
+			System.out.println(s);
+			System.out.println(valAlias[j]);
 			if (valAlias[j].equals(s)) {
 				val = j;
 				break;

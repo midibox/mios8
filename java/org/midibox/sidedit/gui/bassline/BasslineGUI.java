@@ -128,6 +128,10 @@ public class BasslineGUI extends JPanel {
 					Knob knob1 = new Knob(ImageLoader.getImageIcon("plasticknob_strip.png"));		
 					midiParameterGUIs.add(new SIDSysexParameterControlKnob(midiParameter, knob1, false, BorderLayout.SOUTH, true, true));
 					break;
+				case 8:
+					// Radio button list
+					midiParameterGUIs.add(new SIDSysexParameterControlRadio(midiParameter, false, BorderLayout.SOUTH, true, true));
+					break;
 				default: midiParameterGUIs.add(midiParameter);System.out.println("Unknown controller type!");
 			}	
 		}

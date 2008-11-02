@@ -48,12 +48,16 @@ public class OscillatorGUI extends JPanel{
 		panel2.setOpaque(false);
 		
 		panel2.add(createVoice(V1GUIv,"Voice 1 (left)"));
+		panel2.add(createSlaveVoice(masterLeftGUIv,0,"Voice 2 (left)"));
+		panel2.add(createSlaveVoice(masterLeftGUIv,4,"Voice 3 (left)"));
 		
 		JPanel panel3 = new JPanel();
 		panel3.setLayout(new BoxLayout(panel3, BoxLayout.Y_AXIS));
 		panel3.setOpaque(false);
 		
-		panel3.add(createVoice(V2GUIv,"Voice 2 (right)"));
+		panel3.add(createVoice(V2GUIv,"Voice 4 (right)"));
+		panel3.add(createSlaveVoice(masterRightGUIv,0,"Voice 5 (right)"));
+		panel3.add(createSlaveVoice(masterRightGUIv,4,"Voice 6 (right)"));
 		
 		panel1.add(panel2);
 		panel1.add(panel3);
@@ -148,6 +152,39 @@ public class OscillatorGUI extends JPanel{
 		envPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(5));
 		envPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(6));
 		subPanel1.add(envPanel);
+				
+		voicePanel.add(subPanel1);
+		voicePanel.add(subPanel2);
+		return voicePanel;
+	}	
+	
+protected JPanel createSlaveVoice(Vector vGUI, int offset, String s) {
+		
+		JPanel voicePanel = new JPanel();
+		voicePanel.setLayout(new BoxLayout(voicePanel, BoxLayout.X_AXIS));
+		voicePanel.setBorder(BorderFactory.createEtchedBorder());
+		voicePanel.setBorder(BorderFactory.createTitledBorder(s));
+		voicePanel.setOpaque(false);
+		
+		JPanel subPanel1 = new JPanel();
+		subPanel1.setLayout(new BoxLayout(subPanel1, BoxLayout.Y_AXIS));
+		subPanel1.setOpaque(false);
+		
+		JPanel subPanel2 = new JPanel();
+		subPanel2.setLayout(new BoxLayout(subPanel2, BoxLayout.Y_AXIS));
+		subPanel2.setOpaque(false);
+		
+		// Waveform selection
+		subPanel1.add((SIDSysexParameterControlGUI) vGUI.elementAt(4+offset));
+		
+		// Tuning Panel
+		JPanel tunePanel = new JPanel();
+		tunePanel.setLayout(new GridLayout(1,3));
+		tunePanel.setOpaque(false);
+		tunePanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(5+offset));
+		tunePanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(6+offset));
+		tunePanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(7+offset));
+		subPanel2.add(tunePanel);
 				
 		voicePanel.add(subPanel1);
 		voicePanel.add(subPanel2);

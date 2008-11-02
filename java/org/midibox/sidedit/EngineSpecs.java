@@ -73,7 +73,7 @@ public class EngineSpecs {
 			engine.add(BasslineSpecs.createLFO(patch,0));				// 8: Left LFO's
 			engine.add(BasslineSpecs.createLFO(patch,80));				// 9: Right LFO's
 			engine.add(BasslineSpecs.createENV(patch,0));				//10: Left Envelope
-			engine.add(BasslineSpecs.createENV(patch,80));				//11 Right Envelope
+			engine.add(BasslineSpecs.createENV(patch,80));				//11: Right Envelope
 			engine.add(BasslineSpecs.createSEQ(patch,0));				//12: Left Sequencer
 			engine.add(BasslineSpecs.createSEQ(patch,80));				//13: Right Sequencer
 			engine.add(BasslineSpecs.createSEQData(patch));				//14: Sequencer data

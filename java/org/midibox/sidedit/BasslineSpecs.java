@@ -33,6 +33,7 @@ public class BasslineSpecs {
 	private static int lfoselect = 5;
 	private static int combo = 6;
 	private static int simplerotary = 7;
+	private static int radio = 8;
 	
 	public static Vector createMSTR(Patch patch, int offset) {
 		Vector basslineControl = new Vector();		
@@ -40,6 +41,17 @@ public class BasslineSpecs {
 		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,2,1,"Fingered Portamento"));
 		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,1,1,"Manual/Seq","MIDI Note playing/Sequencer mode"));
 		basslineControl.add(new SIDSysexParameterControl(button,null,patch,112+offset,3,1,"Osc Phase Sync","Oscillator phase synchronisation"));
+		// OSC2
+		basslineControl.add(new SIDSysexParameterControl(waveselect,null,patch,96+offset,0,8,"Waveform","Select a waveform"));
+		basslineControl.add(new SIDSysexParameterControl(rotary,null,patch,97+offset,0,12,"Pulse Width","Pulse Width"));
+		basslineControl.add(new SIDSysexParameterControl(rotary,null,patch,99+offset,0,-3,"Octave"));
+		basslineControl.add(new SIDSysexParameterControl(rotary,null,patch,100+offset,0,7,"Static note"));
+		//OSC3
+		basslineControl.add(new SIDSysexParameterControl(waveselect,null,patch,104+offset,0,8,"Waveform","Select a waveform"));
+		basslineControl.add(new SIDSysexParameterControl(rotary,null,patch,105+offset,0,12,"Pulse Width","Pulse Width"));
+		basslineControl.add(new SIDSysexParameterControl(rotary,null,patch,107+offset,0,-3,"Octave"));
+		basslineControl.add(new SIDSysexParameterControl(rotary,null,patch,108+offset,0,7,"Static note"));
+		
 		return basslineControl;
 	}
 	
