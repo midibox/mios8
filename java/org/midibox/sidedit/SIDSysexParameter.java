@@ -52,11 +52,11 @@ public class SIDSysexParameter extends Observable implements Receiver {
 	public SIDSysexParameter(Patch p, int address, int start_b, int reso, String name) {
 		setReceiver(p.getReceiver());
 		setMidiMaxMinValues(reso);
-		setMidiValue(p.getParameter(address, start_b, reso), false);
 		this.address = address;
 		this.start_bit = start_b;
 		this.patch = p;
 		this.name = name;
+		setMidiValue(p.getParameter(address, start_b, reso), false);
 	}
 	
 	public Receiver getReceiver() {
@@ -73,9 +73,7 @@ public class SIDSysexParameter extends Observable implements Receiver {
 	public void setMidiValue(int value, boolean forward) {
 		this.value = limitMidiValue(value);
 
-		if (forward) {
-			createMessage();
-		}
+		patch.setParameter(address, this.value, start_bit, resolution, forward);
 		
 		setChanged();
 		notifyObservers(VALUE);
@@ -104,10 +102,6 @@ public class SIDSysexParameter extends Observable implements Receiver {
 	
 	public String getMidiName() {
 		return name;
-	}
-
-	public void createMessage() {
-		patch.setParameter(address, value, start_bit, resolution);
 	}
 
 	public void send(MidiMessage message, long lTimeStamp) {

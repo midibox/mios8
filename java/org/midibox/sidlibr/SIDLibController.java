@@ -45,7 +45,7 @@ public class SIDLibController extends Observable implements Observer, ActionList
 	private EnsBank ensBank;
 	
 	private Boolean openEditor = false;
-        private int coresHardware = 15; // AND mask for selected cores --- we assume, that all cores are available by default
+    private int coresHardware = 15; // AND mask for selected cores --- we assume, that all cores are available by default
 	private int coresSelected = 1;
 		
 	private SysExController sysexController;
@@ -184,6 +184,7 @@ public class SIDLibController extends Observable implements Observer, ActionList
 	public void update(Observable observable, Object object) {
 		if (object=="Hardware scan") {
 			coresHardware = (Integer)sysexController.pickMeUp;
+			System.out.println(coresHardware);
 		} else if (object=="Patch ready") {
 			patchBanks[sysexController.requestBank].setPatchAt(sysexController.requestPatch[sysexController.requestCount], (Patch)sysexController.pickMeUp);
 			setChanged();

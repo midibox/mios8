@@ -33,6 +33,7 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
+import javax.swing.JOptionPane;
 
 import org.midibox.sidlibr.SysExControllerDevice;
 
@@ -52,11 +53,14 @@ public class MidiDeviceRouting extends Observable {
 		midiWriteDevices = new Vector();	
 		
 		rescanDevices();
-		
-		inputMidiDevice = (MidiDevice)getMidiReadDevices().elementAt(0);
-		outputMidiDevice = (MidiDevice)getMidiWriteDevices().elementAt(0);		
-		connectDevices(inputMidiDevice, localMidiDevice);
-		connectDevices(localMidiDevice, outputMidiDevice);
+		if (getMidiReadDevices().size() < 1) {
+			JOptionPane.showMessageDialog(null,"Your system does not appear to have any MIDI-devices connected (please close program)!.","Error",JOptionPane.OK_OPTION);
+		} else {
+			inputMidiDevice = (MidiDevice)getMidiReadDevices().elementAt(0);
+			outputMidiDevice = (MidiDevice)getMidiWriteDevices().elementAt(0);		
+			connectDevices(inputMidiDevice, localMidiDevice);
+			connectDevices(localMidiDevice, outputMidiDevice);	
+		}
 	}
 
 	public Vector getMidiReadDevices() {

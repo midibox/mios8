@@ -108,12 +108,6 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 		super.setMidiValue(value, forward);
 	}
 
-	public void createMessage() {
-		if (send) {
-			super.createMessage();
-		}
-	}
-	
 	public int getType() {
 		return type;
 	}

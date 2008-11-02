@@ -362,13 +362,13 @@ public class Patch implements Receiver {
 	
 	public void setEngine(Object object) {
 		if (object==LEAD) {
-			setParameter(16, 0, 0, 2);
+			setParameter(16, 0, 0, 2, true);
 		} else if (object==BASSLINE) {
-			setParameter(16, 1, 0, 2);
+			setParameter(16, 1, 0, 2, true);
 		} else if (object==DRUM) {
-			setParameter(16, 2, 0, 2);
+			setParameter(16, 2, 0, 2, true);
 		} else if (object==MULTI) {
-			setParameter(16, 3, 0, 2);
+			setParameter(16, 3, 0, 2, true);
 		}
 
 		// TK: patch has to be re-initialized after engine change
@@ -417,7 +417,7 @@ public class Patch implements Receiver {
 	}
 		
 	
-	public void setParameter(int address, int value, int start_bit, int resolution) {
+	public void setParameter(int address, int value, int start_bit, int resolution, boolean forward) {
 		int absres = Math.abs(resolution);
 		
 		// Shift all bipolar values up to make them fit into a positive integer
@@ -443,13 +443,17 @@ public class Patch implements Receiver {
 				}			
 			}				
 			patch[address] = nibbleSwap(temp);						// Put back new data
-			sysexSend(address, temp, 1);
+			if (forward) {
+				sysexSend(address, temp, 1);
+			}
 		}
 		
 		// 8 bit values
 		if (absres == 8) {
 			patch[address] = nibbleSwap(value & 0xFF);
-			sysexSend(address, (value & 0xFF), 1);
+			if (forward) {
+				sysexSend(address, (value & 0xFF), 1);
+			}
 		}
 		
 		// 12 bit values
@@ -458,14 +462,18 @@ public class Patch implements Receiver {
 			temp = (temp & 0xFF00);
 			patch[address] = nibbleSwap(value & 0xFF);
 			patch[address+1] = nibbleSwap(temp + ((value & 0xF00) >> 8));
-			sysexSend(address, ((temp << 4)+(value & 0xFFF)), 2);
+			if (forward) {
+				sysexSend(address, ((temp << 4)+(value & 0xFFF)), 2);
+			}
 		}
 		
 		// 16 bit values
 		if (absres == 16) {
 			patch[address] = nibbleSwap(value & 0xFF);
 			patch[address+1] = nibbleSwap((value & 0xFF00) >> 8);
-			sysexSend(address, (value & 0xFFFF), 2);
+			if (forward) {
+				sysexSend(address, (value & 0xFFFF), 2);
+			}
 		}
 	}
 	
