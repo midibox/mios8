@@ -8,3 +8,6 @@ with lowest latency
 The Matrix driver can be found in sm_fast.inc, read about further 
 informations there
  
+2008-11-08 jimhenry
+
+Added additional comments
