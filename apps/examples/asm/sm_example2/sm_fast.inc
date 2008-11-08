@@ -19,13 +19,13 @@
 ;
 ;
 ; pins of SRIO shift registers
-SM_SRIO_LAT_SCLK	EQU	LATD	; Pin D.3
+SM_SRIO_LAT_SCLK	EQU	LATD	; Pin D.3 OUT DIN/DOUT shift clock
 SM_SRIO_PIN_SCLK	EQU	3
-SM_SRIO_LAT_RCLK	EQU	LATD	; Pin D.2
+SM_SRIO_LAT_RCLK	EQU	LATD	; Pin D.2 OUT DIN/DOUT  load
 SM_SRIO_PIN_RCLK	EQU	2
-SM_SRIO_PORT_DIN	EQU	PORTD	; Pin D.1
+SM_SRIO_PORT_DIN	EQU	PORTD	; Pin D.1  IN DIN Serial Input
 SM_SRIO_PIN_DIN	EQU	1
-SM_SRIO_LAT_DOUT	EQU	LATD	; Pin D.0
+SM_SRIO_LAT_DOUT	EQU	LATD	; Pin D.0 OUT DOUT Serial Output
 SM_SRIO_PIN_DOUT	EQU	0
 ;
 ; set this constant to 1 if the colums/rows are swapped (means: the cathodes and
@@ -49,13 +49,13 @@ SM_SRIO_PIN_DOUT	EQU	0
 ;;  USES: BSR
 ;; --------------------------------------------------------------------------
 SM_Init
-	;; set button value to initial value (1) of all 64 buttons
-	lfsr	FSR0, SM_ROW0_VALUE
-	movlw	0x08
+	;; set button value to initial value (1) for all 64 buttons in data buffer
+	lfsr	FSR0, SM_ROW0_VALUE		; FSR0 <- first row address
+	movlw	0x08					; set Reg F as row loop counter
 	movwf	TMP1
 SM_Init_Loop1
-	setf	POSTINC0
-	decfsz	TMP1, F
+	setf	POSTINC0				; set all bits for row and increment row address
+	decfsz	TMP1, F					; dec loop counter
 	rgoto	SM_Init_Loop1
 
 	;; init values of all 64 buttons
@@ -67,14 +67,14 @@ SM_Init_Loop2
 	decfsz	TMP1, F
 	rgoto	SM_Init_Loop2
 
-	;; deselect all columns
-        bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
-	bsf	SM_SRIO_LAT_DOUT, SM_SRIO_PIN_DOUT
+	;; deselect all columns by setting the DOUT data bit and shifting through all registers
+        bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK	; clear the DIO shift clock
+	bsf	SM_SRIO_LAT_DOUT, SM_SRIO_PIN_DOUT			; set DOUT data bit
 	movlw	16		; 16*8 shifts for up to 16 shift registers
-	movwf	TMP1
-SM_Init_Loop3
-        bsf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
-        bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
+	movwf	TMP1	; Reg F is the register loop counter
+SM_Init_Loop3		; set and clear the DIO Shift Clock 8 times to shift through one pair of registers
+        bsf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK	; set DIO shift clock to shift in 1 bit to DOUT
+        bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK	; clear the DIO shift clock
         bsf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
         bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
         bsf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
@@ -90,14 +90,15 @@ SM_Init_Loop3
         bsf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
         bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
 	decfsz	TMP1, F
-	rgoto	SM_Init_Loop3
+	rgoto	SM_Init_Loop3	; loop though 16 pairs of DIO registers
 
-	;; latch DOUT values
+	;; latch DOUT values (Serial -> Parallel) that were shifted in by 
+	;;    clearing and setting the DIO Register Store Pin, DIO registers Latch on rising clock
         bcf	SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK
 	nop
 	nop
 	nop
-        bsf     SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK
+        bsf     SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK	; latch DOUT (also DIN, but don't care)
 	
 	return
 
@@ -198,17 +199,19 @@ SM_BUTTON_HANDLER_SHIFT MACRO bit_number
 	;; toggle shift clock to 0
         bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
 
-	;; branch depending on current DIN value
+	;; branch if current DIN value is 1
 	BRA_IFSET SM_SRIO_PORT_DIN, SM_SRIO_PIN_DIN, ACCESS, SM_BUTTON_HANDLER_SHIFT_1
-SM_BUTTON_HANDLER_SHIFT_0
+	
+SM_BUTTON_HANDLER_SHIFT_0					;; current DIN value is 0
 	;; do nothing if DIN pin already 0
 	BRA_IFCLR INDF0, bit_number, ACCESS, SM_BUTTON_HANDLER_SHIFT_Cont
+	
 	;; do nothing if debounce counter is not zero
-	lfsr	FSR1, SM_DEBOUNCE_CTR0_01
-	rlf	SM_BUTTON_COLUMN, W, BANKED
-	rlf	WREG, W
-	andlw	0xfc
-	addwf	FSR1L, F
+	lfsr	FSR1, SM_DEBOUNCE_CTR0_01		;; load FSR with base addr for debounce counters
+	rlf	SM_BUTTON_COLUMN, W, BANKED			;; rlcf rotate column left 1 bit
+	rlf	WREG, W								;; rlcf rotate Wreg left 1 bit
+	andlw	0xfc							;; Wreg AND 0xfc
+	addwf	FSR1L, F						;; Wreg + FSR1L -> F
 	movlw	bit_number >> 1
 	addwf	FSR1L, F
    if bit_number & 1
@@ -232,11 +235,13 @@ SM_BUTTON_HANDLER_SHIFT_0
 	movlw	bit_number
 	rcall	SM_ButtonHandler_PinToggled
 	rgoto	SM_BUTTON_HANDLER_SHIFT_Cont
-SM_BUTTON_HANDLER_SHIFT_1
+	
+SM_BUTTON_HANDLER_SHIFT_1					;; current DIN value is 1
 	;; do nothing if DIN pin already 1
 	BRA_IFSET INDF0, bit_number, ACCESS, SM_BUTTON_HANDLER_SHIFT_Cont
+	
 	;; do nothing if debounce counter is not zero
-	lfsr	FSR1, SM_DEBOUNCE_CTR0_01
+	lfsr	FSR1, SM_DEBOUNCE_CTR0_01		;; load FSR with base addr for debounce counters
 	rlf	SM_BUTTON_COLUMN, W, BANKED
 	rlf	WREG, W
 	andlw	0xfc
@@ -273,28 +278,29 @@ SM_BUTTON_HANDLER_SHIFT_Cont
 ;; the button handler
 SM_ButtonHandler
 	;; clear column counter
-	SET_BSR	SM_BUTTON_COLUMN
-	clrf	SM_BUTTON_COLUMN, BANKED
+	SET_BSR	SM_BUTTON_COLUMN			; set Bank Select Register for SM registers
+	clrf	SM_BUTTON_COLUMN, BANKED	; clear column (DOUT) counter
 
 SM_ButtonHandler_InnerLoop
-	;; latch DIN values
+	;; clear DIO Store clock 
         bcf	SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK
 
 	;; get pointer to last captured ROW values, it will be updated by the shift macro
-	lfsr	FSR0, SM_ROW0_VALUE
-	movf	SM_BUTTON_COLUMN, W, BANKED
-	addwf	FSR0L, F
+	lfsr	FSR0, SM_ROW0_VALUE				; set FSR to first byte of last captured button inputs
+	movf	SM_BUTTON_COLUMN, W, BANKED		; W = the current column (DOUT select)
+	addwf	FSR0L, F						; set FSR to current column of last captured button inputs
 
-	;; release latch
-        bsf     SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK
+	;; set DIO Store clock to latch (Parallel <-> Serial) DIO registers
+        bsf     SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK	; latch settled DIN pins
 
 	;; determine DOUT value for *next* iteration step
-	;; this value gets active with the next latch pulse
-	incf	SM_BUTTON_COLUMN, W, BANKED
+	;; this value is shifted to DOUT and DIN bits are shifted in and 
+	;; gets active with the next latch pulse on the DIO Store Clock
+	incf	SM_BUTTON_COLUMN, W, BANKED		; W = SM_BUTTON_COLUMN + 1
 	call	MIOS_HLP_GetBitANDMask	; (inverted 1 of 8 code)
 	movwf	SM_DOUT_VALUE, BANKED
 
-	;; shift 8 times
+	;; shift 8 times to read 8 latched DIN bits and to write 8 DOUT bits for next latching
 	SM_BUTTON_HANDLER_SHIFT	7
 	SM_BUTTON_HANDLER_SHIFT	6
 	SM_BUTTON_HANDLER_SHIFT	5
@@ -305,21 +311,20 @@ SM_ButtonHandler_InnerLoop
 	SM_BUTTON_HANDLER_SHIFT	0
 
 	;; latch DOUT values
-        bcf     SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK
-
+        bcf     SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK	; clear DIO Read/Store clock
 	;; toggle shift clock to 0
         bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
 	;; set DOUT pin to a defined value (1)
 	bsf	SM_SRIO_LAT_DOUT, SM_SRIO_PIN_DOUT
-
 	;; release latch
-        bsf     SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK
-
+        bsf     SM_SRIO_LAT_RCLK, SM_SRIO_PIN_RCLK	; set DIO Read/Store clock to latch bits
+	;; This latches a new DOUT bit for column select and changing DIN values
+	;; A second clock will be sent on RCLK to read the settled DIN bits when the loop restarts
 
 	;; loop 8 times
-	incf	SM_BUTTON_COLUMN, F, BANKED
-	movlw	8-1
-	cpfsgt	SM_BUTTON_COLUMN, BANKED
+	incf	SM_BUTTON_COLUMN, F, BANKED		; increment column count from 0 to 7
+	movlw	8-1								; W = 8 - 1
+	cpfsgt	SM_BUTTON_COLUMN, BANKED		; loop if new column <= 7
 	rgoto SM_ButtonHandler_InnerLoop
 
 	return
