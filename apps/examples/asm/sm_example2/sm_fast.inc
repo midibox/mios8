@@ -192,9 +192,9 @@ SM_BUTTON_HANDLER_SHIFT MACRO bit_number
 	LOCAL	SM_BUTTON_HANDLER_SHIFT_Cont
 
 	;; set DOUT value
-	bsf	SM_SRIO_LAT_DOUT, SM_SRIO_PIN_DOUT
-	btfss	SM_DOUT_VALUE, 7-bit_number
-	bcf	SM_SRIO_LAT_DOUT, SM_SRIO_PIN_DOUT
+	bsf	SM_SRIO_LAT_DOUT, SM_SRIO_PIN_DOUT	;; set pin D.0 of the DOUT
+	btfss	SM_DOUT_VALUE, bit_number		;; skip if bit bit number of SM_DOUT_VALUE is set
+	bcf	SM_SRIO_LAT_DOUT, SM_SRIO_PIN_DOUT	;; clear pin D.0 of the DOUT if SM_DOUT_VALUE bit is not set
 
 	;; toggle shift clock to 0
         bcf     SM_SRIO_LAT_SCLK, SM_SRIO_PIN_SCLK
@@ -350,7 +350,8 @@ SM_ButtonHandler_PinToggled
 	;; save button value in MIOS_PARAMETER2
 	movwf	MIOS_PARAMETER2
 	;; save button number (0x00-0xff) in MIOS_PARAMETER1
-	;; if more than 256 buttons are connected, use SM_BUTTON_COLUMN and SM_BUTTON_ROW to determine the number
+	;; if more than 256 buttons are connected, use SM_BUTTON_COLUMN and 
+	;;    SM_BUTTON_ROW to determine the number
 #if SM_SWAP_CR
 	movf	SM_BUTTON_ROW, W, BANKED
 	mullw	0x08
@@ -379,6 +380,7 @@ SM_ButtonHandler_PinToggled
 ;;  DESCRIPTION: This function is NOT called by MIOS, but by the scan matrix
 ;;  handler when a pin of the scan matrix has been toggled
 ;;  IN: Button number in WREG and MIOS_PARAMETER1
+;;										0 to 255, truncated value for large matrix
 ;;      Column in SM_BUTTON_COLUMN
 ;;      Row in SM_BUTTON_ROW
 ;;      Button value MIOS_PARAMETER2:
@@ -393,6 +395,10 @@ SM_NotifyToggle
 	;; ->
 	;;	goto	USER_DIN_NotifyToggle
 
+	movf	SM_BUTTON_COLUMN, W		 ;  SM_BUTTON_COLUMN -> SM_LAST_COLUMN for LCD display
+	movwf	SM_LAST_COLUMN
+	
+#if 0
 	;; but in this example we just send a note on/off event depending on button status
 	movlw	0x90
 	movwf	MIDI_EVNT0
@@ -405,7 +411,25 @@ SM_NotifyToggle
 	movlw 0x7f
 	movwf	MIDI_EVNT_VALUE
 	call	MIDI_EVNT_Send
-
-	;; only for debugging: request display update to show SM_BUTTON_COLUMN/ROW/VALUE on LCD
-	bsf	DISPLAY_UPDATE_REQ, 0
+#else
+	;; Panasonic keyboard
+	movlw	0x90					; MIDI Note On Chan 1
+	movwf	MIDI_EVNT0
+	
+	movf	SM_BUTTON_COLUMN, W, BANKED	; W = DOUT pin number
+	mullw	6
+	movf	PRODL, W
+	addwf	SM_BUTTON_ROW, W, BANKED	; W = (DOUT * 5) + DIN
+	addlw	0x1f						; MIDI notes 36-67, C1 to G3 with C3 as middle C
+	movwf	MIDI_EVNT1
+	
+	movlw	0x00					; set MIDI Note Velocity to 0 off or 7f on
+	btfss	MIOS_PARAMETER2, 0
+	movlw 	0x7f
+	movwf	MIDI_EVNT_VALUE
+	call	MIDI_EVNT_Send			; send 3 byte MIDI message
+									;   MIDI_EVNT0, MIDI_EVNT1, MIDI_EVNT_VALUE
+#endif
+	;; request display update to show SM_BUTTON_COLUMN/ROW/VALUE on LCD
+	bsf	MB_STAT, MB_STAT_DISPLAY_UPDATE_REQ
 	return
