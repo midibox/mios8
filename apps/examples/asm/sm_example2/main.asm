@@ -99,7 +99,13 @@ USER_Tick
 USER_Timer
 	;; call the debounce function
 	call	SM_DebounceTimer
-
+	
+	;; increment the display timer so we don't update display 
+	;; more than once every 256 mSec
+	incfsz	SM_DISPLAY_TIMER, F
+	return
+	
+	bsf	MB_STAT, MB_STAT_DISPLAY_UPDATE_TIME	;; allow update to occur	
 	return
 
 
@@ -130,15 +136,77 @@ USER_DISPLAY_Init
 
 	return
 
-TEXT_WELCOME_0	STRING 16, 0x00, "SM Driver ready."
-TEXT_WELCOME_1	STRING 16, 0x40, "No further msgs."
+TEXT_WELCOME_0	STRING 16, 0x00, "sm_example2_v2.1"
+TEXT_WELCOME_1	STRING 16, 0x40, " 8 OUT x 8 IN   "
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called in the mainloop when no temporary message is shown
 ;;  on screen. Print the realtime messages here
 ;; --------------------------------------------------------------------------
 USER_DISPLAY_Tick
+
+	;; update display no more than every 256 mSec to minimize the CPU load
+	btfss	MB_STAT, MB_STAT_DISPLAY_UPDATE_TIME 
 	return
+	;; update display only when requested to minimize the CPU load
+	btfss	MB_STAT, MB_STAT_DISPLAY_UPDATE_REQ 
+	return
+	
+	;; update display
+	;; clear request and display timer
+	bcf		MB_STAT, MB_STAT_DISPLAY_UPDATE_REQ
+	bcf		MB_STAT, MB_STAT_DISPLAY_UPDATE_TIME
+	clrf	SM_DISPLAY_TIMER
+
+	;; and print message on screen depending on button status
+	BRA_IFCLR	SM_BUTTON_VALUE, 0, ACCESS, USER_DISPLAY_BtnPressed
+	
+USER_DISPLAY_BtnDepressed
+	TABLE_ADDR STR_BUTTON_DEPRESSED
+	rgoto	USER_DISPLAY_Cont
+	
+USER_DISPLAY_BtnPressed
+	TABLE_ADDR STR_BUTTON_PRESSED
+	;; 	rgoto	USER_DISPLAY_Cont
+	
+USER_DISPLAY_Cont
+	call	MIOS_LCD_PrintString
+
+	movlw	0x03
+	call	MIOS_LCD_CursorSet
+	movf	SM_LAST_COLUMN, W
+	call	MIOS_LCD_PrintHex2
+			
+	movlw	0x09
+	call	MIOS_LCD_CursorSet
+	movf	SM_BUTTON_ROW, W
+	call	MIOS_LCD_PrintHex2
+	
+	;; second line: print related MIDI event
+	movlw	0x40
+	call	MIOS_LCD_CursorSet
+
+	;; W: MIDI Event
+	movf	MIDI_EVNT0, W
+	bz	MIDISM_DISPLAY_Handler_NoInEvnt		; branch if no MIDI event
+	
+MIDISM_DISPLAY_Handler_InEvnt				; display MIDI event on LCD line 2
+	call	MIDI_EVNT_Print
+	rgoto	MIDISM_DISPLAY_Handler_InEvntCont
+	
+MIDISM_DISPLAY_Handler_NoInEvnt				; clear LCD line 2 if no MIDI event
+	TABLE_ADDR STR_NO_MIDI_EVENT
+	call	MIOS_LCD_PrintString
+	;; rgoto	MIDISM_DISPLAY_Handler_InEvntCont
+	
+MIDISM_DISPLAY_Handler_InEvntCont
+
+	return
+
+STR_BUTTON_DEPRESSED STRING 16, 0x00, "T:x   N:x   Off "
+STR_BUTTON_PRESSED   STRING 16, 0x00, "T:x   N:x   On  "
+STR_NO_MIDI_EVENT	 STRING 16, 0x40, "                "
+
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by MIOS when a complete MIDI event has been received
@@ -206,7 +274,7 @@ USER_MIDI_NotifyRx
 	return
 
 ;; --------------------------------------------------------------------------
-;;  This function is called by MIOS when an button has been toggled
+;;  This function is called by MIOS when a button has been toggled
 ;;  Input:
 ;;     o Button number in WREG and MIOS_PARAMETER1
 ;;     o Button value MIOS_PARAMETER2:
