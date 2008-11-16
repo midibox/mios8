@@ -364,7 +364,7 @@ CS_MENU_TABLE_E_SAV
 	db	(CS_MENU_TABLE_E_SAV_End-CS_MENU_TABLE_E_SAV)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_SAVE
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
-	CS_MENU_ENTRY	CS_MENU_SAVE_ENS,           "E# ", 0x07f, PRINT_SAVE_ENS,   EXEC_SELPAR,     R2PP2R_VAR
+	CS_MENU_ENTRY	CS_MENU_SAVE_ENS,           " E#", 0x07f, PRINT_SAVE_ENS,   EXEC_SELPAR,     R2PP2R_VAR
 	CS_MENU_ENTRY	0x00,                       "do!", 0x000, PRINT_NOP,        EXEC_SAVE_ENS,   R2PP2R_NOP
 CS_MENU_TABLE_E_SAV_End
 
@@ -1111,7 +1111,7 @@ CS_MENU_TABLE_M_SAV
 	db	(CS_MENU_TABLE_L_SAV_End-CS_MENU_TABLE_L_SAV)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_SAVE
 
 	;;              Register (00=dummy)         |<->|  max    print ix          exec ix          parameter transfer
-	CS_MENU_ENTRY	CS_MENU_SAVE_BANK,          "B# ", 0x007, PRINT_SAVE_BNK,   EXEC_SELPAR,     R2PP2R_VAR
+	CS_MENU_ENTRY	CS_MENU_SAVE_BANK,          " B#", 0x007, PRINT_SAVE_BNK,   EXEC_SELPAR,     R2PP2R_VAR
 	CS_MENU_ENTRY	CS_MENU_SAVE_PATCH,         "P# ", 0x07f, PRINT_SAVE_PAT,   EXEC_SELPAR,     R2PP2R_VAR
 	CS_MENU_ENTRY	SID_Ix_NAME_x,              "do!", 0x07f, PRINT_SAVE_NAME,  EXEC_SAVE_PATCH, R2PP2R_SAVE_NAME
 CS_MENU_TABLE_L_SAV_End

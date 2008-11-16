@@ -320,7 +320,7 @@ CS_MENU_PRINT_Handler
 ; ==========================================================================
 
 CS_MENU_PRINT_NOP
-	movlw	3
+	movlw	4
 	goto	SID_LCD_PrintSpaces
 
 ; --------------------------------------------------------------------------
@@ -345,11 +345,7 @@ CS_MENU_PRINT_PMDEC8
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_HEX12
-	movf	PREINC0, W
-	call	MIOS_LCD_PrintHex1
-	movf	POSTDEC0, W
-	movf	INDF0, W
-	goto	MIOS_LCD_PrintHex2
+	goto	CS_MENU_PRINT_Hex12
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_CHN
@@ -378,6 +374,8 @@ CS_MENU_PRINT_BNK
 	movlw	' '
 	skpz
 	movlw	'*'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 	
 ; --------------------------------------------------------------------------
@@ -415,27 +413,27 @@ CS_MENU_PRINT_VAR_SID1234
 
 	movlw	'-'
 	btfsc	TMP1, 0
-	movlw '1'
+	movlw	'1'
 	btfss	TMP2, 0
-	movlw '*'
+	movlw	'*'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
 	btfsc	TMP1, 1
-	movlw '2'
+	movlw	'2'
 	btfss	TMP2, 1
-	movlw '*'
+	movlw	'*'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
 	btfsc	TMP1, 2
-	movlw '3'
+	movlw	'3'
 	btfss	TMP2, 2
-	movlw '*'
+	movlw	'*'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
 	btfsc	TMP1, 3
-	movlw '4'
+	movlw	'4'
 	btfss	TMP2, 3
-	movlw '*'
+	movlw	'*'
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -460,11 +458,13 @@ CS_MENU_PRINT_VAR_LR
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
 	btfsc	INDF0, 0
-	movlw 'L'
+	movlw	'L'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
 	btfsc	INDF0, 1
-	movlw 'R'
+	movlw	'R'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -485,7 +485,9 @@ CS_MENU_PRINT_VAR_CALI
 	swapf	INDF0, W
 	andlw	0x0f
 	iorwf	PRODL, W
-	goto	MIOS_LCD_PrintHex2
+	call	MIOS_LCD_PrintHex2
+	movlw	' '
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Vx_DEC
@@ -534,9 +536,9 @@ CS_MENU_PRINT_Vx_PMD
 	TABLE_ADDR CS_MENU_PRINT_PMD_Tab
 	movlw	0
 	btfsc	INDF0, SID_I_V_FLAGS1_PORTA_CTG
-	movlw 1
+	movlw	1
 	btfsc	INDF0, SID_I_V_FLAGS1_PORTA_GLISSANDO
-	movlw 2
+	movlw	2
 	rgoto	CS_MENU_PRINT_StringFromTable
 CS_MENU_PRINT_PMD_Tab
 	dw	"Nor "
@@ -558,11 +560,7 @@ CS_MENU_PRINT_Vx_HEX8
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Vx_HEX12
 	rcall	CS_MENU_PRINT_GetVx
-	movf	PREINC0, W
-	call	MIOS_LCD_PrintHex1
-	movf	POSTDEC0, W
-	movf	INDF0, W
-	goto	MIOS_LCD_PrintHex2
+	rgoto	CS_MENU_PRINT_Hex12
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Vx_PMDEC7
@@ -584,9 +582,9 @@ CS_MENU_PRINT_Vx_WAV
 	movf	INDF0, W
 	andlw	0x07
 	btfsc	INDF0, 3
-	movlw 0x08
+	movlw	0x08
 	btfsc	INDF0, 4
-	movlw 0x00
+	movlw	0x00
 	rgoto	CS_MENU_PRINT_StringFromTable
 
 ; --------------------------------------------------------------------------
@@ -605,8 +603,10 @@ CS_MENU_PRINT_Vx_S_R
 CS_MENU_PRINT_Vx_NOTE
 	rcall	CS_MENU_PRINT_GetVx
 	skpnz
-	rgoto	CS_MENU_PRINT_MMM ; prints "---"
-	goto	SID_NOTE_Print
+	rgoto	CS_MENU_PRINT_MMM ; prints "--- "
+	call	SID_NOTE_Print
+	movlw	' '
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Vx_ARP_ON
@@ -737,11 +737,7 @@ CS_MENU_PRINT_Fx_CHN
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Fx_CUTOFF
 	call	CS_MENU_FSR0_Filter
-	movf	PREINC0, W
-	call	MIOS_LCD_PrintHex1
-	movf	POSTDEC0, W
-	movf	INDF0, W
-	goto	MIOS_LCD_PrintHex2
+	rgoto	CS_MENU_PRINT_Hex12
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Fx_RESON
@@ -959,6 +955,9 @@ CS_MENU_PRINT_MODx_Nx
 	movlw	'R'
 	skpnz
 	movlw	'-'
+	rcall	CS_MENU_PRINT_Char
+
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -978,7 +977,7 @@ CS_MENU_PRINT_TRGx_SRC
 	rlf	WREG, W
 	andlw	0xfc
 	TABLE_ADD_W
-	movlw	3
+	movlw	4
 	goto	MIOS_LCD_PrintPreconfString
 #endif
 
@@ -1008,9 +1007,9 @@ CS_MENU_PRINT_CLK_SLAVE
 	call	CS_MENU_FSR0_ENS
 	movlw	0
 	btfsc	INDF0, SID_ENS_CTRL1_CLK_SLAVE
-	movlw 1
+	movlw	1
 	btfsc	INDF0, SID_ENS_CTRL1_CLK_AUTO
-	movlw 2
+	movlw	2
 	rgoto	CS_MENU_PRINT_StringFromTable
 CS_MENU_PRINT_CLK_SLAVE_Tab
 	dw	"Mst."
@@ -1052,15 +1051,13 @@ CS_MENU_PRINT_EXT_VALUE
 	movff	POSTDEC0, PRODH
 
 	swapf	PRODH, W
-	andlw	0x0f
 	call	MIOS_LCD_PrintHex1
-	swapf	PRODH, W
-	andlw	0xf0
-	movwf	PRODH
+	movf	PRODH, W
+	call	MIOS_LCD_PrintHex1
 	swapf	PRODL, W
-	andlw	0x0f
-	iorwf	PRODH, W
-	goto	MIOS_LCD_PrintHex2
+	call	MIOS_LCD_PrintHex1
+	movlw	' '
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_EXT_SWITCH
@@ -1089,7 +1086,7 @@ CS_MENU_PRINT_WTx_SID
 	;; print L/R depending on activated flags
 	movlw	'-'
 	btfsc	INDF0, 6
-	movlw 'L'
+	movlw	'L'
 	rcall	CS_MENU_PRINT_Char
 
 	movlw	'/'
@@ -1097,7 +1094,10 @@ CS_MENU_PRINT_WTx_SID
 
 	movlw	'-'
 	btfsc	INDF0, 7
-	movlw 'R'
+	movlw	'R'
+	rcall	CS_MENU_PRINT_Char
+
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -1118,7 +1118,9 @@ CS_MENU_PRINT_WTx_POS
 	call	CS_MENU_FSR0_WT
 	movf	INDF0, W
 	andlw	0x7f
-	rgoto	CS_MENU_PRINT_WTVal
+	rcall	CS_MENU_PRINT_WTVal
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_WTx_LOP
@@ -1126,9 +1128,11 @@ CS_MENU_PRINT_WTx_LOP
 	BRA_IFSET INDF0, 7, ACCESS, CS_MENU_PRINT_WTx_LOP_One
 	movf	INDF0, W
 	andlw	0x7f
-	rgoto	CS_MENU_PRINT_WTVal
+	rcall	CS_MENU_PRINT_WTVal
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 CS_MENU_PRINT_WTx_LOP_One
-	rgoto	CS_MENU_PRINT_MMM ; prints "---"
+	rgoto	CS_MENU_PRINT_MMM ; prints "--- "
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_WTE_POS
@@ -1144,11 +1148,15 @@ CS_MENU_PRINT_WTE_POS_All
 	movlw	'l'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'l'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 CS_MENU_PRINT_WTE_POS_Val
 	movf	INDF0, W
-	rgoto	CS_MENU_PRINT_WTVal
+	rcall	CS_MENU_PRINT_WTVal
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_WTE_PAR
@@ -1305,7 +1313,8 @@ CS_MENU_PRINT_WTE_PAR_LC_FOk
 	addlw	0-LOW(SID_Ix_WAVETABLE)
 	xorwf	PRODL, W
 	movlw	'<'
-	skpnz
+	skpz
+	movlw	' '
 	rcall	CS_MENU_PRINT_Char
 	return
 
@@ -1314,13 +1323,15 @@ CS_MENU_PRINT_WTE_PAR_LC_FOk
 CS_MENU_PRINT_WT_VAL
 	movlw	'H'
 	btfsc	CS_STAT2, CS_STAT2_WT_DEC_VIEW
-	movlw 'D'
+	movlw	'D'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'e'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'x'
 	btfsc	CS_STAT2, CS_STAT2_WT_DEC_VIEW
-	movlw 'c'
+	movlw	'c'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -1330,6 +1341,8 @@ CS_MENU_PRINT_WT_GO
 	movlw	'o'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'!'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -1362,6 +1375,8 @@ CS_MENU_PRINT_SEQ_NUM_Dis
 	movlw	' '
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -1400,12 +1415,14 @@ CS_MENU_PRINT_B_SEQ_VAL_Note
 	andlw	0x0f
 	TABLE_ADDR_MUL_W CS_MENU_PRINT_SEQ_NOTE_Tab, 2
 	movlw	2
-	goto	MIOS_LCD_PrintPreconfString
+	call	MIOS_LCD_PrintPreconfString
+	movlw	' '
+	rgoto	CS_MENU_PRINT_Char
 	
 CS_MENU_PRINT_B_SEQ_VAL_Oct
 	TABLE_ADDR CS_MENU_PRINT_B_SEQ_VAL_Oct_Tab
 	swapf	INDF0, W
-	andlw	0x03
+	andlw	0x04
 	rgoto	CS_MENU_PRINT_StringFromTable
 CS_MENU_PRINT_B_SEQ_VAL_Oct_Tab
 	dw	" -  "	; mapped to 0
@@ -1424,7 +1441,9 @@ CS_MENU_PRINT_B_SEQ_VAL_S_G
 
 	movlw	'-'
 	btfsc	INDF0, 7
-	movlw '*'
+	movlw	'*'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 CS_MENU_PRINT_B_SEQ_VAL_Acc
@@ -1453,6 +1472,8 @@ CS_MENU_PRINT_RND_GEN
 	movlw	'e'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'n'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -1468,17 +1489,21 @@ CS_MENU_PRINT_SAVE_BNK_Inv
 	movf	CS_MENU_SAVE_BANK, W
 	addlw	'A'
 	rcall	CS_MENU_PRINT_Char
+	movlw	'-'
+	rcall	CS_MENU_PRINT_Char
+	movlw	'-'
+	rcall	CS_MENU_PRINT_Char
+	movlw	'-'
+	rcall	CS_MENU_PRINT_Char
 	movlw	' '
-	rcall	CS_MENU_PRINT_Char
-	movlw	'-'
-	rcall	CS_MENU_PRINT_Char
-	movlw	'-'
 	rgoto	CS_MENU_PRINT_Char
 
 CS_MENU_PRINT_SAVE_BAK_Ok
 	movff	CS_MENU_SAVE_BANK, PRODL
 	movff	CS_MENU_SAVE_PATCH, PRODH
-	goto	SID_LCD_PrintPatchNumber
+	call	SID_LCD_PrintPatchNumber
+	movlw	' '
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_SAVE_PAT
@@ -1529,12 +1554,16 @@ CS_MENU_PRINT_ENSxIx_CHN_Dis
 	movlw	'-'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_ENSxIx_NOTE
 	rcall	CS_MENU_PRINT_GetEnsIx
-	goto	SID_NOTE_Print
+	call	SID_NOTE_Print
+	movlw	' '
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_ENSxIx_PMDEC7
@@ -1577,6 +1606,8 @@ CS_MENU_PRINT_ENSx_SPV
 	bz	CS_MENU_PRINT_ENSx_SPV_Zero
 	call	MIOS_LCD_PrintBCD2
 	movlw	' '
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 CS_MENU_PRINT_ENSx_SPV_Zero
@@ -1585,6 +1616,8 @@ CS_MENU_PRINT_ENSx_SPV_Zero
 	movlw	'f'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'f'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -1658,7 +1691,9 @@ CS_MENU_PRINT_Hex
 	movlw	' '		; fill with space
 	rcall	CS_MENU_PRINT_Char
 	movf	TMP1, W
-	goto	MIOS_LCD_PrintHex2
+	call	MIOS_LCD_PrintHex2
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 ;; print hex value -0x40..0x3f
@@ -1674,7 +1709,21 @@ CS_MENU_PRINT_PMHex
 	sublw	0x40
 	btfsc	WREG, 7			; negate value if negative to get absolute value
 	negf	WREG, ACCESS
-	goto	MIOS_LCD_PrintHex2	; and print it
+	call	MIOS_LCD_PrintHex2	; and print it
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
+
+; --------------------------------------------------------------------------
+;; print 12bit hex value 0x000..0xfff
+;; expecting pointer to value in FSR0
+CS_MENU_PRINT_Hex12
+	movf	PREINC0, W
+	call	MIOS_LCD_PrintHex1
+	movf	POSTDEC0, W
+	movf	INDF0, W
+	call	MIOS_LCD_PrintHex2
+	movlw	' '
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 ;; print dec value 1..128
@@ -1682,7 +1731,9 @@ CS_MENU_PRINT_DecPlus1
 	addlw	1
 CS_MENU_PRINT_Dec
 ;; print dec value 0..127
-	goto	MIOS_LCD_PrintBCD3
+	call	MIOS_LCD_PrintBCD3
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 ;; print dec value patted with 0
@@ -1692,7 +1743,9 @@ CS_MENU_PRINT_Dec000
 	movf	MIOS_PARAMETER2, W
 	call	MIOS_LCD_PrintHex1
 	movf	MIOS_PARAMETER1, W
-	goto	MIOS_LCD_PrintHex2
+	call	MIOS_LCD_PrintHex2
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 ;; print dec value -64..63
@@ -1708,7 +1761,9 @@ CS_MENU_PRINT_PMDec7_WO_Sign
 	sublw	0x40
 	btfsc	WREG, 7			; negate value if negative to get absolute value
 	negf	WREG, ACCESS
-	goto	MIOS_LCD_PrintBCD2	; and print it
+	call	MIOS_LCD_PrintBCD2	; and print it
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
 ;; print dec value -128..127
@@ -1717,7 +1772,9 @@ CS_MENU_PRINT_PMDec8
 CS_MENU_PRINT_PMDec8_Pos
 	;; positive value: always 3 characters
 	andlw	0x7f
-	goto	MIOS_LCD_PrintBCD3
+	call	MIOS_LCD_PrintBCD3
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 
 CS_MENU_PRINT_PMDec8_Neg
 	;; negative value: if <= -100, use special character for "-1"
@@ -1729,19 +1786,24 @@ CS_MENU_PRINT_PMDec8_Neg_2
 	movlw	'-'
 	rcall	CS_MENU_PRINT_Char
 	movf	TMP1, W
-	goto	MIOS_LCD_PrintBCD2
+	call	MIOS_LCD_PrintBCD2
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
+
 CS_MENU_PRINT_PMDec8_Neg_3
 	movlw	0x06		; "-1" in one character
 	rcall	CS_MENU_PRINT_Char
 	movf	TMP1, W
 	addlw	-100
 #if 0
-	goto	MIOS_LCD_PrintBCD2
+	call	MIOS_LCD_PrintBCD2
 #else
 	clrf	MIOS_PARAMETER1
 	call	MIOS_HLP_Dec2BCD
-	goto	MIOS_LCD_PrintHex2
+	call	MIOS_LCD_PrintHex2
 #endif
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
 
 
 ; --------------------------------------------------------------------------
@@ -1756,13 +1818,15 @@ CS_MENU_PRINT_OnOff0
 	movlw	' '
 	rcall	CS_MENU_PRINT_Char
 	movlw	'o'
-	rcall	CS_MENU_PRINT_Char
-	movlw	' '
-	rgoto	CS_MENU_PRINT_Char
+	rgoto	CS_MENU_PRINT_OnOff_Cont
 CS_MENU_PRINT_OnOff1
 	movlw	' '
 	rcall	CS_MENU_PRINT_Char
 	movlw	'*'
+
+CS_MENU_PRINT_OnOff_Cont
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '
 	rcall	CS_MENU_PRINT_Char
 	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
@@ -1786,6 +1850,8 @@ CS_MENU_PRINT_MMM
 	movlw	'-'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '		; fill with space
 	rgoto	CS_MENU_PRINT_Char
 
 
@@ -1795,15 +1861,17 @@ CS_MENU_PRINT_123
 	movwf	TMP1
 	movlw	'-'
 	btfsc	TMP1, 0
-	movlw '1'
+	movlw	'1'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
 	btfsc	TMP1, 1
-	movlw '2'
+	movlw	'2'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
 	btfsc	TMP1, 2
-	movlw '3'
+	movlw	'3'
+	rcall	CS_MENU_PRINT_Char
+	movlw	' '		; fill with space
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -1872,22 +1940,51 @@ CS_MENU_PRINT_SeqSteps_Loop_Cont
 
 ; --------------------------------------------------------------------------
 ;; print 7bit hex/dec number depending on WT_DEC_VIEW flag
+;; another difference: this function only prints 3 characters instead of 4,
+;; so that the caller can add a custom char behind the item if required
 ;; value in WREG
 CS_MENU_PRINT_WTVal
-	BRA_IFCLR CS_STAT2, CS_STAT2_WT_DEC_VIEW, ACCESS, CS_MENU_PRINT_Hex
-	rgoto	CS_MENU_PRINT_Dec
+	BRA_IFCLR CS_STAT2, CS_STAT2_WT_DEC_VIEW, ACCESS, CS_MENU_PRINT_WTVal_Hex
+	goto	MIOS_LCD_PrintBCD3
+CS_MENU_PRINT_WTVal_Hex
+	movwf	TMP1
+	movlw	' '		; fill with space
+	rcall	CS_MENU_PRINT_Char
+	movf	TMP1, W
+	goto	MIOS_LCD_PrintHex2
 
 CS_MENU_PRINT_PMWTVal
-	BRA_IFCLR CS_STAT2, CS_STAT2_WT_DEC_VIEW, ACCESS, CS_MENU_PRINT_PMHex
-
+	BRA_IFSET CS_STAT2, CS_STAT2_WT_DEC_VIEW, ACCESS, CS_MENU_PRINT_PMWTVal_Dec
 	movwf	TMP1
 	movlw	'+'		; "+" or "-"?
 	btfss	TMP1, 6; (if value <= 0x3f (6th bit cleared), print "-"
 	movlw '-'
 	rcall	CS_MENU_PRINT_Char
-	rgoto	CS_MENU_PRINT_PMDec7_WO_Sign
 
+	movf	TMP1, W		; calc: 0x40-value
+	andlw	0x7f
+	sublw	0x40
+	btfsc	WREG, 7			; negate value if negative to get absolute value
+	negf	WREG, ACCESS
+	goto	MIOS_LCD_PrintHex2	; and print it
 
+CS_MENU_PRINT_PMWTVal_Dec
+	movwf	TMP1
+	movlw	'+'		; "+" or "-"?
+	btfss	TMP1, 6; (if value <= 0x3f (6th bit cleared), print "-"
+	movlw	'-'
+	rcall	CS_MENU_PRINT_Char
+	movf	TMP1, W		; calc: 0x40-value
+	sublw	0x40
+	btfsc	WREG, 7			; negate value if negative to get absolute value
+	negf	WREG, ACCESS
+	call	MIOS_LCD_PrintBCD2	; and print it
+#if 0
+	movlw	' '		; fill with space
+	rgoto	CS_MENU_PRINT_Char
+#else
+	return			; mostly need only 3 chars
+#endif
 
 ; --------------------------------------------------------------------------
 ;  Large String tables (located here to ensure that CS_MENU_PRINT_Handler can

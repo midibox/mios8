@@ -1093,10 +1093,9 @@ CS_MENU_PrintPLine_Ok
 	movlw	4
 	call	SID_LCD_PrintSpaces
 	rgoto	CS_MENU_PrintPLine_End
+
 CS_MENU_PrintPLine_COn
 	rcall	CS_MENU_PrintPEntry
-	movlw	' '
-	call	MIOS_LCD_PrintChar
 
 CS_MENU_PrintPLine_End
 
