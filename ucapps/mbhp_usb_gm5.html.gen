@@ -104,4 +104,50 @@ This port can also be used to power a breakout board for 4 additional MIDI IOs +
   </DD>
 </DL>
 
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Windows Driver </H2></DT>
+  <DD>
+<P CLASS=DESC>All major platforms (Windows/Linux/MacOS) natively support the USB MIDI protocol, so that the 5 MIDI IO ports of GM5 will be available without additional driver installation. However, the Microsoft driver has some flaws (e.g. no multi client capability, corrupted SysEx transfers when large blocks are transfered, 1 mS latency between each event when they are sent over multiple ports) which can only be solved with a dedicated driver.</P>
+
+<P CLASS=DESC><A HREF="http://www.ploytec.de" TARGET="_blank">Ploytec</A> (the makers of the GM5 chip) provide a Windows driver, which overcomes all these limitations. The performance is great, and the best: for GM5 buyers it's free!<BR>
+<B>Download:</B> <A HREF="gm5/midibox.org_gm5_WIN32_1.0.6.zip">midibox.org_gm5_WIN32_1.0.6.zip from 2008-11-22</A></P>
+
+<P CLASS=DESC><B>Hint:</B> it's possible to give each MIDI port it's own name by editing the [Strings] section in the midibox.org_gm5.inf file.<BR>
+Example:
+<TT><PRE>
+WDM.MIDI_1.szPname="MIDIbox SID (1)"
+WDM.MIDI_2.szPname="MIDIbox FM (2)"
+WDM.MIDI_3.szPname="MIDIbox SEQ (3)"
+WDM.MIDI_4.szPname="MIDIbox Stribe (4)"
+WDM.MIDI_5.szPname="Keyboard (5)"
+</PRE></TT></P>
+
+<P CLASS=INFO>This helps you to organize your MIDI ports, so that they are easier to find:
+<CENTER><IMG SRC="gm5/gm5_multi_port.gif" width=658 height=168></CENTER></P>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> FAQ </H2></DT>
+  <DD>
+    <UL CLASS=CL>
+       <LI><B>Q:</B> I cannot find GM5 in my country, where can I buy this chip?<BR>
+           <B>A:</B> Just add your name to <A HREF="http://www.midibox.org/dokuwiki/tk_gm5_bulkorder" TARGET="_blank">this list</A>. Whenever the quantity of pre-orders reaches 250 or 500, I will order the next batch directly from Ploytec.</LI>
+       <LI><B>Q:</B> Can PCBs be ordered as well?<BR>
+           <B>A:</B> Yes, add your name <A HREF="http://www.midibox.org/dokuwiki/tk_gm5_bulkorder" TARGET="_blank">here for small PCBs with 2 MIDI sockets</A>, or <A HREF="http://www.midibox.org/dokuwiki/gm5x5x5_pcb_bulk_order" TARGET="_blank">here for large PCBs with 10 MIDI sockets</A>.</LI>
+       <LI><B>Q:</B> the EEPROM is marked as optional in the schematic, what does this mean?<BR>
+           <B>A:</B> it means, that you don't need to mount an EEPROM to get the module working. It's only a minor feature which helps to separate the modules in the device list if more than 2 devices are connected to a PC, so that they don't appear under the same name. Instead of midibox.org or ploytec.com you could give it the name of your wife/girlfriend or whoever.<BR>
+              The EEPROM can only be programmed with a special <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios&path=%2Ftrunk%2Fmbhp%2Fmbhp_usb_gm5_eeprom%2F">application</A> running on a <A HREF="mbhp_core.html">MBHP_CORE</A> module.<BR>
+              My proposal if you are unsure about this option: don't buy an EEPROM, you don't really need it, even when multiple GM5 modules are connected to your PC!</LI>
+       <LI><B>Q:</B> I want to use two GM5 modules for getting 10 MIDI IO ports, how can I give them individual names?<BR>
+           <B>A:</B> Break the bridge at J8 of the PCB with a small screwdriver, so that IC2:IO4 is not connected to ground anymore. This selects the ploytec.com VID, so that your operating system can differ between two devices (midibox.org and ploytec.com) and installs an individual .inf file.<BR>
+           If more ports with individual names are required, you could use different IO number configurations (J1..J3), since this results into different PIDs. Alternativeley you can use an EEPROM to define your own IO port configuration and PID - so long VID is assigned to Ploytec range, the Windows driver will find it.<BR>
+           Note that without individual names, your OS will numerate the ports so that you are still able to differ between them.</LI>
+       <LI><B>Q:</B> Is a dedicated driver planned for MacOS or Linux?<BR>
+           <B>A:</B> This isn't required, as the legacy drivers are already working great!</LI>
+    </UL>
+  </DD>
+</DL>
+
 FOOTER
