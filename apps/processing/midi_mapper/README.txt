@@ -19,18 +19,17 @@ The details are described under
 ===============================================================================
 
 Required hardware:
-   - one MBHP_CORE module
-	- one MBHP_DIN module
-	- one MBHP_DOUT module
-	- 20 buttons(NOT switches!) with LED's, or separate LED's
-	- 1 32K or 64K Bankstick
-	- AC or DC power supply, 7-10V, 800mA. If the device reboots when much
+   o one MBHP_CORE module
+	o one MBHP_DIN module
+	o one MBHP_DOUT module
+	o 20 buttons(NOT switches!) with LED's, or separate LED's
+	o 1 32K or 64K Bankstick
+	o AC or DC power supply, 7-10V, 800mA. If the device reboots when much
 	  LED's are switched on, then you need a more powerfull supply.
-	- Switch to turn the device on / off.
+	o Switch to turn the device on / off.
 
-Optional hardware:
-   o 
-
+===============================================================================
+===================== Description of the device ===============================
 ===============================================================================
 
 The device maps MIDI-input-chanels to MIDI-output-channels.
@@ -40,21 +39,77 @@ by one input channel, or serveral input channels can go to
 one or more output channels. Redundancy over the buses will
 be solved, a input->output map will be built to forward the
 messages.
-A setup can be stored in one of the 16 presets. There are 
-four "screen"-buttons and 16 "value"-buttons:
 
-- preset screen: DIN PIN 0, DOUT PIN 0(LED)
-- bus screen: DIN PIN 1, DOUT PIN 1
-- input screen: DIN PIN 2, DOUT PIN 2
-- output screen: DIN PIN 3, DOUT PIN 3
+A setup can be stored in one of the 16 presets. 
 
-- value-buttons (1-16), DIN 8-23, DOUT 8-23(LEDS)
+There are four "screen"-buttons and 16 "value"-buttons and one LED each button:
+
+o preset screen: DIN PIN 0, DOUT PIN 0(LED)
+o bus screen: DIN PIN 1, DOUT PIN 1
+o input screen: DIN PIN 2, DOUT PIN 2
+o output screen: DIN PIN 3, DOUT PIN 3
+
+o value-buttons (1-16), DIN 8-23, DOUT 8-23(LEDS)
 
 all functionality can be configured by these 20 buttons,
 the LED's indicate the current state/setup, therefore no
 LCD-display is needed.
 
-
+if you push a screen-button, this screen will be displayed
+by the value LED's, the LED for the screen-button is on, (LED's for the other
+three screen-buttons off), and you work on this screen.
 
 
 ===============================================================================
+==================== Baisc user-interface functionality =======================
+===============================================================================
+
+preset screen:
+---------------
+if selected, LED for preset-screen will be on,
+the value-LED's show the current preset. push
+on value button loads preset.
+save preset: hold preset-screen-button and push
+value button to save the current setup in 
+preset "value".
+to clear all presets (first preset will go in1 -> out1, in2 -> out2 etc,
+all other presets will be set empty): hold preset-screen-button for 
+min 3 sec. LED's will flash to indicate reset.
+
+bus screen:
+-----------
+if selected, LED for bus-screen will be on,
+the value-LED's show the current bus (this
+is the bus wich you can edit now on the
+inputo and output-screens. all buses forward
+midi-messages, not only the selected one!).
+push a value button to select a bus to edit.
+reset the current preset: hold bus-screen-button for
+min. 3 sec.
+
+input screen:
+-------------
+if selected, LED for input-screen will be on,
+the value LED's show the input-channels assigned
+to the currently selectd bus (->bus screen).
+push a value button to switch the channel(only one
+assigend),
+hold the input-screen button and push a value
+to add / remove this channel (to assign multiple channels).
+
+output screen:
+-------------
+if selected, LED for output-screen will be on,
+the value LED's show the output-channels assigned
+to the currently selectd bus (->bus screen).
+push a value button to switch the channel (only one
+assigend),
+hold the input-screen button and push a value
+to add / remove this channel (to assign multiple channels).
+
+
+===============================================================================
+=========== Advanced user-interface functionality (info screens) ==============
+===============================================================================
+
+
