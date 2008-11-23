@@ -178,11 +178,11 @@ void info_screen_print(unsigned char info_screen) __wparam{
 					values_set |= current_preset[bus].inputs;
 			break;
 		case 4://outputs assigned to buses?
-			if(temp_value==0xff){//inputs of all buses
+			if(temp_value==0xff){//outputs of all buses
 				for(bus=0;bus<16;bus++)
 					values_set |= current_preset[bus].outputs;
 				}
-			else//only inputs of bus [temp_value]
+			else//only outputs of bus [temp_value]
 				values_set = current_preset[temp_value].outputs;
 			break;
 		case 5://outputs assigned to inputs?
