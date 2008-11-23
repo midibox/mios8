@@ -48,13 +48,11 @@ void Timer(void) __wparam
 // initialized. Thats the case during startup and after a temporary message
 // has been printed on the screen
 /////////////////////////////////////////////////////////////////////////////
-
-void print_enc_values(void) __wparam
-{
-}
-
 void DISPLAY_Init(void) __wparam
 {
+  MIOS_LCD_Clear();
+  MIOS_LCD_CursorSet(0x00);
+  MIOS_LCD_PrintCString("Hello World!");
 }
 
 /////////////////////////////////////////////////////////////////////////////
