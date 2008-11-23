@@ -1,7 +1,7 @@
 
 SDCC rotary encoder tester
 ===============================================================================
-Copyright (C) 2008  Matthias Mächler (maechler@mm-computing.ch / thismaechler@gmx.ch)
+Copyright (C) <year> <name> (<email>)
 Licensed for personal non-commercial use only.
 All other rights reserved.
 ===============================================================================
@@ -20,17 +20,12 @@ The details are described under
 
 Required hardware:
    o one MBHP_CORE module
-   o one DIN module
-   o one Character LCD display
-   o encoders (4 encoders will be read and values 0-127 displayed on LCD)
 
 Optional hardware:
    o 
 
 ===============================================================================
 
-reads encoder changes for four encoders (SR 1, pins 0 - 7),
-increments/decrements values 0-127 and shows the values on
-character LCD
+<description>
 
 ===============================================================================
