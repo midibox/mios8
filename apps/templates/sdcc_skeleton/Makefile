@@ -17,7 +17,7 @@ GPASM_DEFINES = -DDEBUG_MODE=0
 SDCC_DEFINES  = -DDEBUG_MODE=0
 
 # pass parameters to MIOS wrapper
-MIOS_WRAPPER_DEFINES = -DSTACK_HEAD=0x37f -DSTACK_IRQ_HEAD=0x33f -DDONT_INCLUDE_MIOS_ENC_TABLE
+MIOS_WRAPPER_DEFINES = -DSTACK_HEAD=0x37f -DSTACK_IRQ_HEAD=0x33f
 
 # directories and files that should be part of the distribution (release) package
 # more will be added by *.mk files
