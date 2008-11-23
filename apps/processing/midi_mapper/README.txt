@@ -38,7 +38,8 @@ any of the 16 buses. So serveral output channels can be fed
 by one input channel, or serveral input channels can go to
 one or more output channels. Redundancy over the buses will
 be solved, a input->output map will be built to forward the
-messages.
+messages. So if a for ex. an input is routed to an output on more than one
+bus, each message from this input will be routed to the output just once.
 
 A setup can be stored in one of the 16 presets. 
 
@@ -111,5 +112,40 @@ to add / remove this channel (to assign multiple channels).
 ===============================================================================
 =========== Advanced user-interface functionality (info screens) ==============
 ===============================================================================
+
+If you want to get information about the configuration of a preset, there
+are so-called "info-screens", which you can access by holding two
+screen-buttons, and opionally pushing a value button to get more detailed info.
+
+for ex. :
+"which <input channels> go to <output channels> [<x>]"
+
+so press input-screen-button + output-screen-button. all the input channels
+that go to (any) output channel will be shown by value-LED. If you additionally 
+push a value button, x will be this value, all the input channels that are routed
+to output-channel x will be indicated be value-LED's.
+once a value button is pushed, you don't have to hold it, just push it once.
+the screen will be shown then until you release one of the hold screen-buttons.
+
+following screen-button can be used in any combination in this way:
+input,output,bus.
+
+examples:
+--
+question: "which buses have output channels" -> <bus-screen-button>+<output-screen-button>
+question: "which buses have output channel <x>" -> <bus-screen-button>+<output-screen-button>+<value button x>
+question: "which buses have input channels" -> <bus-screen-button>+<input-screen-button>
+question: "which buses have input channel <x>" -> <bus-screen-button>+<input-screen-button>+<value button x>
+
+question: "which inputs go to outputs" -> <input-screen-button>+<output-screen-button>
+question: "which inputs go to output <x>" -> <input-screen-button>+<output-screen-button>+<value button x>
+question: "which inputs are assigned to buses" -> <input-screen-button>+<bus-screen-button>
+question: "which inputs are assigend to bus <x>" -> <input-screen-button>+<bus-screen-button>+<value button x>
+
+question: "which outputs get data from inputs" -> <output-screen-button>+<input-screen-button>
+question: "which outputs get data from input <x>" -> <output-screen-button>+<input-screen-button>+<value button x>
+question: "which outputs are assigned to buses" -> <output-screen-button>+<bus-screen-button>
+question: "which outputs are assigend to bus <x>" -> <output-screen-button>+<bus-screen-button>+<value button x>
+
 
 
