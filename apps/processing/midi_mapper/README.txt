@@ -147,5 +147,7 @@ question: "which outputs get data from input <x>" -> <output-screen-button>+<inp
 question: "which outputs are assigned to buses" -> <output-screen-button>+<bus-screen-button>
 question: "which outputs are assigend to bus <x>" -> <output-screen-button>+<bus-screen-button>+<value button x>
 
+you just have to press the buttons in the order they appear in the question sentence.
+
 
 
