@@ -288,7 +288,6 @@ SEQ_IO_TABLE_DIN
 	DIN_ENTRY	SEQ_BUTTON_Rew,		 19,	 4
 	DIN_ENTRY	SEQ_BUTTON_Fwd,		 17,	 5
 
-	DIN_ENTRY	SEQ_BUTTON_Utility,	 19,	 2
 	DIN_ENTRY	SEQ_BUTTON_F1,		 19,	 3
 	DIN_ENTRY	SEQ_BUTTON_F2,		 18,	 2
 	DIN_ENTRY	SEQ_BUTTON_F3,		 18,	 3
@@ -350,9 +349,14 @@ SEQ_IO_TABLE_DIN
 	;; OPTIONAL! see CHANGELOG.txt
 	DIN_ENTRY	SEQ_BUTTON_TapTempo,	0,	 0
 
-	DIN_ENTRY	CS_MENU_BUTTON_Left,	 20,	 2	; "Dec" button. Can replace with CS_MENU_BUTTON_LeftRemote
-	DIN_ENTRY	CS_MENU_BUTTON_Right,	 20,	 3	; "Inc" button. Can replace with CS_MENU_BUTTON_RightRemote
-
+	;; OPTIONAL! see CHANGELOG.txt
+	DIN_ENTRY	SEQ_BUTTON_LeftRemote,	 20,	 2	; "\/" button.
+	DIN_ENTRY	SEQ_BUTTON_RightRemote,	 20,	 3	; "/\" button.
+	DIN_ENTRY	SEQ_BUTTON_Utility,	 19,	 2
+	DIN_ENTRY	SEQ_BUTTON_Copy,	 23,	 3
+	DIN_ENTRY	SEQ_BUTTON_Paste,	 24,	 2
+	DIN_ENTRY	SEQ_BUTTON_Clear,	 24,	 3
+	
 	DIN_ENTRY_EOT
 
 

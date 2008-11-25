@@ -701,6 +701,8 @@ SEQ_BUTTON_Song_NoToggle
 	movlw	CS_MENU_PAGE_SONG
 	goto	CS_M_HLP_ChangePage
 
+
+	
 ;; --------------------------------------------------------------------------
 ;;  set menu mode with button
 ;; --------------------------------------------------------------------------
@@ -1199,6 +1201,9 @@ SEQ_BUTTON_StepDec_Cont
 	;; print sequence on screen
 	goto	SEQ_MSG_Start
 
+;; --------------------------------------------------------------------------
+;;  Shortcut button to the Utility menu
+;; --------------------------------------------------------------------------
 SEQ_BUTTON_Utility
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
@@ -1207,18 +1212,38 @@ SEQ_BUTTON_Utility
 	;; branch to utility menu
 	movlw	CS_MENU_PAGE_UTILS
 	goto	CS_M_HLP_ChangePage
+
+;; --------------------------------------------------------------------------
+;;  Copy/Paste/Clear buttons
+;; --------------------------------------------------------------------------
+;;
+;; These don't work perfectly yet - you can't turn step encoders
+;; to control the copy range or paste offset, and it doesn't do
+;; a display update afterwards. Ideally it should work exactly like when
+;; the GP button is pressed when Utility menu is displayed and then
+;; return to Edit mode.
+;;
+SEQ_BUTTON_Copy
+	movlw	0x01
+	movwf	MIOS_PARAMETER1
+	goto	CS_M_UTILS_GP_Callback
+
+SEQ_BUTTON_Paste
+	movlw	0x02
+	movwf	MIOS_PARAMETER1
+	goto	CS_M_UTILS_GP_Callback
+
+SEQ_BUTTON_Clear
+	movlw	0x03
+	movwf	MIOS_PARAMETER1
+	goto	CS_M_UTILS_GP_Callback
+
 	
 ;; --------------------------------------------------------------------------
 ;;  F1 button --- implement your favourite function here!
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_F1
-	;; do nothing if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-
-	;; branch to utility menu
-	movlw	CS_MENU_PAGE_UTILS
-	goto	CS_M_HLP_ChangePage
+	goto	SEQ_BUTTON_Utility
 
 ;; --------------------------------------------------------------------------
 ;;  F2 button --- implement your favourite function here!
