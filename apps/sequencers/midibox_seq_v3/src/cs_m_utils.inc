@@ -257,10 +257,8 @@ CS_M_UTILS_GP_Callback_4_0
 	return
 
 CS_M_UTILS_GP_Callback_4_1
-	;; update undo buffer
-	rcall	CS_M_UTILS_UndoUpdate
-	;; clear track
-	rcall	CS_M_UTILS_Clear
+	;; call clear button handler
+	call	CS_M_UTILS_ClearViaButton
 	;; print in-menu message
 	movlw	CS_M_UTILS_MSG_CLEAR
 	movwf	CS_IN_MENU_MSG
@@ -1340,3 +1338,101 @@ CS_M_UTILS_Hlp_CopyCfgLoopNext
 	rgoto CS_M_UTILS_Hlp_CopyCfgLoop
 
 	return
+
+
+;; --------------------------------------------------------------------------
+;;  Clear button function
+;;  Used by CLR function of this page, and by the dedicated button function 
+;;  in seq_button.inc
+;; --------------------------------------------------------------------------
+CS_M_UTILS_ClearViaButton
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; request display re-initialisation
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+
+	call	CS_M_HLP_GetSelectedTrk
+	SET_BSR	SEQ_BASE
+	movwf	SEQ_EVNTT, BANKED
+	
+	;; update undo buffer
+	rcall	CS_M_UTILS_UndoUpdate
+
+	;; clear track
+	rgoto	CS_M_UTILS_Clear
+
+
+;; --------------------------------------------------------------------------
+;;  Copy/Paste button function
+;;  Only used by dedicated button function in seq_button.inc
+;; --------------------------------------------------------------------------
+CS_M_UTILS_CopyViaButton
+	;; branch depending on button status
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_CopyViaButton_Depr
+CS_M_UTILS_CopyViaButton_Pressed
+	;; prepare CopyPaste button operation
+	rcall	CS_M_UTILS_CopyPasteViaButtonPrep
+
+CS_M_UTILS_CopyViaButton_DeprSub
+	;; (a bit dirty - requires adaptions if menu handling is changed)
+	;; execute button function #0x01 (2nd menu item of UTILITY page)
+	clrf	CS_MENU_ENC_INCREMENTER
+	movlw	0x01
+	movwf	MIOS_PARAMETER1
+	rgoto	CS_M_UTILS_GP_Callback
+
+CS_M_UTILS_CopyViaButton_Depr
+	;; execute copy button handler of UTILITY page
+	rcall	CS_M_UTILS_CopyViaButton_DeprSub
+
+	;; change back to original page
+	rgoto	CS_M_UTILS_CopyPasteViaButtonDepr
+
+
+;; --------------------------------------------------------------------------
+CS_M_UTILS_PasteViaButton
+	;; branch depending on button status
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, CS_M_UTILS_PasteViaButton_Depr
+CS_M_UTILS_PasteViaButton_Pressed
+	;; prepare CopyPaste button operation
+	rcall	CS_M_UTILS_CopyPasteViaButtonPrep
+
+CS_M_UTILS_PasteViaButton_DeprSub
+	;; (a bit dirty - requires adaptions if menu handling is changed)
+	;; execute button function #0x02 (3rd menu item of UTILITY page)
+	clrf	CS_MENU_ENC_INCREMENTER
+	movlw	0x02
+	movwf	MIOS_PARAMETER1
+	rgoto	CS_M_UTILS_GP_Callback
+
+CS_M_UTILS_PasteViaButton_Depr
+	;; execute paste button handler of UTILITY page
+	rcall	CS_M_UTILS_PasteViaButton_DeprSub
+
+	;; change back to original page
+	rgoto	CS_M_UTILS_CopyPasteViaButtonDepr
+
+
+;; --------------------------------------------------------------------------
+;;  Help Function
+;;  Prepares Copy/Paste via dedicated button
+;; --------------------------------------------------------------------------
+CS_M_UTILS_CopyPasteViaButtonPrep
+	;; remember current page
+	movff	CS_MENU_POS, CS_MENU_COPYPASTE_MEMO_PAGE
+
+	;; enter and initialize utility page
+	movlw	CS_MENU_PAGE_UTILS
+	call	CS_M_HLP_ChangePage
+	goto	CS_M_UTILS_Init
+
+;; --------------------------------------------------------------------------
+;;  Help Function
+;;  Called when dedicated Copy/Paste button has been depressed to switch to the
+;;  original page (used by SEQ_BUTTON_Copy and SEQ_BUTTON_Paste in seq_button.inc)
+;; --------------------------------------------------------------------------
+CS_M_UTILS_CopyPasteViaButtonDepr
+	movf	CS_MENU_COPYPASTE_MEMO_PAGE, W
+	goto	CS_M_HLP_ChangePage

@@ -1214,29 +1214,27 @@ SEQ_BUTTON_Utility
 	goto	CS_M_HLP_ChangePage
 
 ;; --------------------------------------------------------------------------
-;;  Copy/Paste/Clear buttons
+;;  Copy button
 ;; --------------------------------------------------------------------------
-;;
-;; These don't work perfectly yet - you can't turn step encoders
-;; to control the copy range or paste offset, and it doesn't do
-;; a display update afterwards. Ideally it should work exactly like when
-;; the GP button is pressed when Utility menu is displayed and then
-;; return to Edit mode.
-;;
 SEQ_BUTTON_Copy
-	movlw	0x01
-	movwf	MIOS_PARAMETER1
-	goto	CS_M_UTILS_GP_Callback
+	;; branch to copy function of UTIL page
+	goto	CS_M_UTILS_CopyViaButton
 
+
+;; --------------------------------------------------------------------------
+;;  Paste button
+;; --------------------------------------------------------------------------
 SEQ_BUTTON_Paste
-	movlw	0x02
-	movwf	MIOS_PARAMETER1
-	goto	CS_M_UTILS_GP_Callback
+	;; branch to paste function of UTIL page
+	goto	CS_M_UTILS_PasteViaButton
 
+
+;; --------------------------------------------------------------------------
+;;  Clear button
+;; --------------------------------------------------------------------------
 SEQ_BUTTON_Clear
-	movlw	0x03
-	movwf	MIOS_PARAMETER1
-	goto	CS_M_UTILS_GP_Callback
+	;; branch to clear function of UTIL page
+	goto	CS_M_UTILS_ClearViaButton
 
 	
 ;; --------------------------------------------------------------------------
