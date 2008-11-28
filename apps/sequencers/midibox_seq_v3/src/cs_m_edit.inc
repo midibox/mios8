@@ -91,6 +91,7 @@ CS_M_EDIT_GP_Callback_Loop_Dr_C
 	rgoto	CS_M_EDIT_GP_Callback_Loop_Next
 
 CS_M_EDIT_GP_Callback_Loop_NoDr
+
 	;; get pointer to button trigger register depending on selected trigger layer
 	call	SEQ_FSR_TrkTrgA_0
 	call	CS_M_HLP_GetSelectedTrgLayer
@@ -103,10 +104,51 @@ CS_M_EDIT_GP_Callback_Loop_NoDr
 	addlw	0x02
 	addwf	FSR1L, F
 
+	;; now we've three cases:
+	;; a) ALL function active, but ALL button not pressed: invert complete trigger layer
+	;; b) ALL function active and ALL button pressed: toggle step, set remaining steps to same new value
+	;; c) ALL function not active: toggle step
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, CS_M_EDIT_GP_Callback_Loop_NoDrC
+	BRA_IFSET CS_STAT2, CS_STAT2_ALL_SAME_VALUE, ACCESS, CS_M_EDIT_GP_Callback_Loop_NoDrB
+CS_M_EDIT_GP_Callback_Loop_NoDrA ; case a)
+	movlw	0xfc		; remove register offset again (less branches when we undo the last "add offset" step)
+	andwf	FSR1L, F
+	comf	POSTINC1, F	; invert step 1-8
+	comf	POSTINC1, F	; invert step 9-16
+	comf	POSTINC1, F	; invert step 17-24
+	comf	POSTINC1, F	; invert step 25-32
+	rgoto	CS_M_EDIT_GP_Callback_Loop_NoDrN
+
+CS_M_EDIT_GP_Callback_Loop_NoDrB ; case b)
+	;; check if current step is set or cleared
+	movf	TMP1, W
+	andwf	INDF1, W
+	bz	CS_M_EDIT_GP_Callback_Loop_NoDB1
+CS_M_EDIT_GP_Callback_Loop_NoDB0
+	movlw	0xfc		; remove register offset
+	andwf	FSR1L, F
+	clrf	POSTINC1	; clear step 1-8
+	clrf	POSTINC1	; clear step 9-16
+	clrf	POSTINC1	; clear step 17-24
+	clrf	POSTINC1	; clear step 25-32
+	rgoto	CS_M_EDIT_GP_Callback_Loop_NoDrN
+
+CS_M_EDIT_GP_Callback_Loop_NoDB1
+	movlw	0xfc		; remove register offset
+	andwf	FSR1L, F
+	setf	POSTINC1	; set step 1-8
+	setf	POSTINC1	; set step 9-16
+	setf	POSTINC1	; set step 17-24
+	setf	POSTINC1	; set step 25-32
+	rgoto	CS_M_EDIT_GP_Callback_Loop_NoDrN
+
+CS_M_EDIT_GP_Callback_Loop_NoDrC ; case c)
 	;; XOR
 	movf	TMP1, W
 	xorwf	INDF1, F
+	;; 	rgoto	CS_M_EDIT_GP_Callback_Loop_NoDrN
 
+CS_M_EDIT_GP_Callback_Loop_NoDrN
 	;; notify that trigger has been toggled
 	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED
 

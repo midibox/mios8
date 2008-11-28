@@ -799,6 +799,11 @@ SEQ_BUTTON_All
 	;; else toggle status
 	btg	SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED
 #else
+	;; holding the button switches the "CHANGE_ALL_STEPS" flag
+	bcf	CS_STAT2, CS_STAT2_ALL_SAME_VALUE
+	btfss	MIOS_PARAMETER2, 0
+	bsf	CS_STAT2, CS_STAT2_ALL_SAME_VALUE
+
 	;; On/Off Mode:
 	;; button status controls mode directly
 	bcf	SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED
