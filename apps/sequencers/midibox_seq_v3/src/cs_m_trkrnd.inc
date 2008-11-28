@@ -98,6 +98,7 @@ CS_M_TRKRND_GP_Callback_2_1
 	;; request update of all values
 	movlw	0x3f
 	movwf	CS_RANDOM_GEN_REQ
+	rcall	CS_M_TRKRND_Generate
 
 	;; print in-menu message
 	movlw	CS_M_TRKRND_MSG_RANDOM
@@ -160,31 +161,37 @@ CS_M_TRKRND_GP_Callback_8_1
 
 
 CS_M_TRKRND_GP_Callback_9
+	btfss	MIOS_PARAMETER2, 0		; request random generation if GP button has been pressed
 	bsf	CS_RANDOM_GEN_REQ, 0		; request randomise of LayA
 	movlw	1		; cursor pos
 	rgoto	CS_M_TRKRND_GP_Callback_Cont
 
 CS_M_TRKRND_GP_Callback_10
+	btfss	MIOS_PARAMETER2, 0		; request random generation if GP button has been pressed
 	bsf	CS_RANDOM_GEN_REQ, 1		; request randomise of LayB
 	movlw	2		; cursor pos
 	rgoto	CS_M_TRKRND_GP_Callback_Cont
 
 CS_M_TRKRND_GP_Callback_11
+	btfss	MIOS_PARAMETER2, 0		; request random generation if GP button has been pressed
 	bsf	CS_RANDOM_GEN_REQ, 2		; request randomise of LayC
 	movlw	3		; cursor pos
 	rgoto	CS_M_TRKRND_GP_Callback_Cont
 
 CS_M_TRKRND_GP_Callback_12
+	btfss	MIOS_PARAMETER2, 0		; request random generation if GP button has been pressed
 	bsf	CS_RANDOM_GEN_REQ, 3		; request randomise of TrgA
 	movlw	4		; cursor pos
 	rgoto	CS_M_TRKRND_GP_Callback_Cont
 
 CS_M_TRKRND_GP_Callback_13
+	btfss	MIOS_PARAMETER2, 0		; request random generation if GP button has been pressed
 	bsf	CS_RANDOM_GEN_REQ, 4		; request randomise of TrgB
 	movlw	5		; cursor pos
 	rgoto	CS_M_TRKRND_GP_Callback_Cont
 
 CS_M_TRKRND_GP_Callback_14
+	btfss	MIOS_PARAMETER2, 0		; request random generation if GP button has been pressed
 	bsf	CS_RANDOM_GEN_REQ, 5		; request randomise of TrgC
 	movlw	6		; cursor pos
 	rgoto	CS_M_TRKRND_GP_Callback_Cont
@@ -271,29 +278,6 @@ CS_M_TRKRND_Tick_Upper_STR
 	db	"Trk.          Random Generator          LayA LayB LayC TrgA TrgB TrgC           "
 
 CS_M_TRKRND_Tick
-	;; check for random generator request
-	movf	CS_RANDOM_GEN_REQ, W
-	bz	CS_M_TRKRND_Tick_NoGenReq
-CS_M_TRKRND_Tick_GenReq
-	;; select track
-	call	CS_M_HLP_GetSelectedTrk
-	movff	WREG, SEQ_EVNTT
-
-	;; update undo buffer
-	call	CS_M_UTILS_UndoUpdate
-
-	;; generate new values
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 0, ACCESS, CS_M_TRKRND_Gen_LA
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 1, ACCESS, CS_M_TRKRND_Gen_LB
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 2, ACCESS, CS_M_TRKRND_Gen_LC
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 3, ACCESS, CS_M_TRKRND_Gen_TA
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 4, ACCESS, CS_M_TRKRND_Gen_TB
-	RCALL_IFSET CS_RANDOM_GEN_REQ, 5, ACCESS, CS_M_TRKRND_Gen_TC
-
-	;; clear all requests
-	clrf	CS_RANDOM_GEN_REQ
-CS_M_TRKRND_Tick_NoGenReq
-
 	;; layout:
 	;; 00000000001111111111222222222233333333330000000000111111111122222222223333333333
 	;; 01234567890123456789012345678901234567890123456789012345678901234567890123456789
@@ -303,6 +287,10 @@ CS_M_TRKRND_Tick_NoGenReq
 	;; G1T1  Generate           Clr. Util Undo  64   --   --   All  --   --            
 	;; 88888888888888-----------999999999999999AAAAABBBBBCCCCCDDDDDEEEEEFFFFF----------
 
+	;; handle random generator requests
+	rcall	CS_M_TRKRND_Generate
+
+	;; branch depending on selected LCD segment
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
 	skpz
 	call	CS_M_HLP_LCD_Tick_Resume ; (will branch to next CS_M_TRKRND_Tick_x)
@@ -522,6 +510,32 @@ CS_M_TRKRND_TrgCChanged
 	rgoto	CS_M_TRKRND_UpdateGPLEDs
 
 ;; ==========================================================================
+
+CS_M_TRKRND_Generate
+	;; check for random generator request
+	movf	CS_RANDOM_GEN_REQ, W
+	bz	CS_M_TRKRND_Tick_NoGenReq
+CS_M_TRKRND_Tick_GenReq
+	;; select track
+	call	CS_M_HLP_GetSelectedTrk
+	movff	WREG, SEQ_EVNTT
+
+	;; update undo buffer
+	call	CS_M_UTILS_UndoUpdate
+
+	;; generate new values
+	RCALL_IFSET CS_RANDOM_GEN_REQ, 0, ACCESS, CS_M_TRKRND_Gen_LA
+	RCALL_IFSET CS_RANDOM_GEN_REQ, 1, ACCESS, CS_M_TRKRND_Gen_LB
+	RCALL_IFSET CS_RANDOM_GEN_REQ, 2, ACCESS, CS_M_TRKRND_Gen_LC
+	RCALL_IFSET CS_RANDOM_GEN_REQ, 3, ACCESS, CS_M_TRKRND_Gen_TA
+	RCALL_IFSET CS_RANDOM_GEN_REQ, 4, ACCESS, CS_M_TRKRND_Gen_TB
+	RCALL_IFSET CS_RANDOM_GEN_REQ, 5, ACCESS, CS_M_TRKRND_Gen_TC
+
+	;; clear all requests
+	clrf	CS_RANDOM_GEN_REQ
+CS_M_TRKRND_Tick_NoGenReq
+	return
+
 
 	;; returns random number depending on CS_RANDOM_INTENSITY
 	;; mean value in MIOS_PARAMETER1

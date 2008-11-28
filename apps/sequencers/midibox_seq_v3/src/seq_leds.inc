@@ -457,6 +457,11 @@ SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoStep1
 SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Pos1
 	movlw	0x40
 	iorwf	MIOS_PARAMETER2, F
+#if 1
+	;; TK: experimental - disable green LED to improve visualisation of red marker
+	movlw	~0x80
+	andwf	MIOS_PARAMETER2, F
+#endif
 SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoPos1
 
 	;; shift the bitmask to test an even numbered GP LED (GP2, GP4, ... GP16)
@@ -476,6 +481,11 @@ SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoStep2
 SEQ_LED_UpdateIRQ_GPLED_DOUT_M_Pos2
 	movlw	0x10
 	iorwf	MIOS_PARAMETER2, F
+#if 1
+	;; TK: experimental - disable green LED to improve visualisation of red marker
+	movlw	~0x20
+	andwf	MIOS_PARAMETER2, F
+#endif
 SEQ_LED_UpdateIRQ_GPLED_DOUT_M_NoPos2
 
 	;; the bits are now in high nibble of MIOS_PARAMETER2
