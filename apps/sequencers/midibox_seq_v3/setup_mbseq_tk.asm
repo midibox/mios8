@@ -406,6 +406,8 @@ LED_TRG_LAYER_C	EQU	(((12   -1)<<3)+    2)
 LED_PLAY	EQU	(((12   -1)<<3)+    3) ; OPTIONAL! see CHANGELOG.txt
 LED_STOP	EQU	(((12   -1)<<3)+    4)
 LED_PAUSE	EQU	(((12   -1)<<3)+    5)
+LED_REW		EQU	((( 0   -1)<<3)+    0)	; SR=0 -> disabled by default
+LED_FWD		EQU	((( 0   -1)<<3)+    0)	; SR=0 -> disabled by default
 
 ;;                         SR    ignore    Pin
 LED_STEP_1_16	EQU	(((12   -1)<<3)+    6) ; OPTIONAL! see CHANGELOG.txt
