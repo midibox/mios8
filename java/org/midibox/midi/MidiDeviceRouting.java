@@ -81,9 +81,19 @@ public class MidiDeviceRouting extends Observable {
 
 	public void reconnectAllDevices() {		// This function is a workaround for the SysEx (string length doesn't reset) bug in the javax.sound.midi class
 		disconnectDevices(inputMidiDevice, localMidiDevice);
-		connectDevices(inputMidiDevice, localMidiDevice);
 		disconnectDevices(localMidiDevice, outputMidiDevice);
+		try {
+			Thread.currentThread().sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		connectDevices(inputMidiDevice, localMidiDevice);
 		connectDevices(localMidiDevice, outputMidiDevice);
+		try {
+			Thread.currentThread().sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public int findInputDeviceHash(int hash) {
@@ -91,8 +101,6 @@ public class MidiDeviceRouting extends Observable {
 		for(int i=0;i<midiReadDevices.size();i++) {		
 			if (((MidiDevice)midiReadDevices.elementAt(i)).getDeviceInfo().toString().hashCode()==hash) {
 				temp = i;
-				System.out.println(hash);
-				System.out.println(temp);
 				break;
 			}
 		}
@@ -104,8 +112,6 @@ public class MidiDeviceRouting extends Observable {
 		for(int i=0;i<midiWriteDevices.size();i++) {			
 			if (((MidiDevice)midiWriteDevices.elementAt(i)).getDeviceInfo().toString().hashCode()==hash) {
 				temp = i;
-				System.out.println(hash);
-				System.out.println(temp);
 				break;
 			}
 		}

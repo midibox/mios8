@@ -286,6 +286,7 @@ public class SysExController extends Observable implements Receiver, ActionListe
 	private void startDump(String[] s) {
 		dumpStack = s;
 		dumpCount = 0;
+		System.out.println("Transmitting SysEx data...");
 		progress = new ProgressMonitor(null, "", "Transmitting SysEx data...", 0, dumpStack.length);
 		timer.start();
 		STATE = DUMPING;

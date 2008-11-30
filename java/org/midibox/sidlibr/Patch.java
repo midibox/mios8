@@ -30,7 +30,7 @@ public class Patch implements Receiver {
 	public static Object BASSLINE = new Object();
 	public static Object DRUM = new Object();
 	public static Object MULTI = new Object();
-	private static int delay = 10; 				//Delay between Sysex Strings
+	private static int delay = 10; 				//Delay in ms between Sysex Strings
 	protected int[] patch = new int[512];
 	private int WOPT = 0;	
 	protected Receiver receiver;
@@ -523,13 +523,13 @@ public class Patch implements Receiver {
 			System.out.println(e);
 		}
 		receiver.send(sysexMessage, -1);
-		/*
+		
 		try {
 			Thread.currentThread().sleep(delay);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		*/
+		
 	}
 	
 	protected String calcAddr(int addr) {
