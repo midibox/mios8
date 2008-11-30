@@ -255,7 +255,7 @@ public class MidiDeviceRoutingGUI extends JPanel implements ChangeListener, List
 			}
 			midiReadDevicesList.setSelectedIndex(midiDeviceRouting.getInputDeviceIndex());
 			midiWriteDevicesList.setSelectedIndex(midiDeviceRouting.getOutputDeviceIndex());
-			redrawAll();			
+			redrawAll();
 		}
 		
 	}

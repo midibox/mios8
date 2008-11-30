@@ -80,20 +80,16 @@ public class MidiDeviceRouting extends Observable {
 	}
 
 	public void reconnectAllDevices() {		// This function is a workaround for the SysEx (string length doesn't reset) bug in the javax.sound.midi class
+		System.out.println("Now reconnecting!");
 		disconnectDevices(inputMidiDevice, localMidiDevice);
+		System.out.println("Disconnection of " + inputMidiDevice.getDeviceInfo() + " succesfull");
 		disconnectDevices(localMidiDevice, outputMidiDevice);
-		try {
-			Thread.currentThread().sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		System.out.println("Disconnection of " + outputMidiDevice.getDeviceInfo() + " succesfull");
+
 		connectDevices(inputMidiDevice, localMidiDevice);
+		System.out.println("Reconnection of " + inputMidiDevice.getDeviceInfo() + " succesfull");
 		connectDevices(localMidiDevice, outputMidiDevice);
-		try {
-			Thread.currentThread().sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		System.out.println("Reconnection of " + outputMidiDevice.getDeviceInfo() + " succesfull");		
 	}
 	
 	public int findInputDeviceHash(int hash) {
@@ -132,21 +128,27 @@ public class MidiDeviceRouting extends Observable {
 	}
 		
 	public void setInputDevice(int index) {		
-		disconnectDevices(inputMidiDevice, localMidiDevice);
-		inputMidiDevice = (MidiDevice)midiReadDevices.elementAt(index);		
-		connectDevices(inputMidiDevice, localMidiDevice);
-		setChanged();
-		notifyObservers();
-		clearChanged();
+		if (index != getInputDeviceIndex()) {
+			disconnectDevices(inputMidiDevice, localMidiDevice);
+			inputMidiDevice = (MidiDevice)midiReadDevices.elementAt(index);	
+			connectDevices(inputMidiDevice, localMidiDevice);
+			System.out.println("Connection of " + inputMidiDevice.getDeviceInfo() + " succesfull");
+			setChanged();
+			notifyObservers();
+			clearChanged();		
+		}
 	}
 	
 	public void setOutputDevice(int index) {
-		disconnectDevices(localMidiDevice, outputMidiDevice);
-		outputMidiDevice = (MidiDevice)midiWriteDevices.elementAt(index);
-		connectDevices(localMidiDevice, outputMidiDevice);
-		setChanged();
-		notifyObservers();
-		clearChanged();
+		if (index != getOutputDeviceIndex()) {
+			disconnectDevices(localMidiDevice, outputMidiDevice);
+			outputMidiDevice = (MidiDevice)midiWriteDevices.elementAt(index);
+			connectDevices(localMidiDevice, outputMidiDevice);
+			System.out.println("Connection of " + outputMidiDevice.getDeviceInfo() + " succesfull");
+			setChanged();
+			notifyObservers();
+			clearChanged();
+		}
 	}
 	
 	private void connectDevices(MidiDevice transmittingDevice,
