@@ -917,12 +917,18 @@ MBNET_Tx_Perform_Finish
 
 	;; wait until something has been received
 	;; timeout after 8192 loops (ca. 10 mS when interrupts are running in background)
+	;; UPDATE: increased timeout value since SysEx transfers via editor caused dropouts!
 MBNET_Tx_PerformLoop
 	SET_BSR	MBNET_BASE
 	incf	MBNET_TIMEOUT_CTR_L, F, BANKED
 	skpnz
 	incf	MBNET_TIMEOUT_CTR_H, F, BANKED
+#if 0
 	BRA_IFSET MBNET_TIMEOUT_CTR_H, 5, BANKED, MBNET_Tx_Perform_Failed
+#else
+	;; to avoid dropout during SysEx transfers... :-/
+	BRA_IFSET MBNET_TIMEOUT_CTR_H, 7, BANKED, MBNET_Tx_Perform_Failed
+#endif
 	SET_BSR	B5CON
 	BRA_IFCLR B5CON, RXFUL, BANKED, MBNET_Tx_PerformLoop
 
