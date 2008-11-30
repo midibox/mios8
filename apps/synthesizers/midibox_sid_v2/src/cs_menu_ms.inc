@@ -316,7 +316,7 @@ CS_MENU_MS_UpdateShadow_Slave
 ;; --------------------------------------------------------------------------
 CS_MENU_MS_UpdateAllParameters
 	;; send dump
-	rcall	CS_MENU_MS_Send_SysExDump
+	rcall	CS_MENU_MS_SendPatch
 
 	;; force a display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
@@ -542,7 +542,7 @@ CS_MENU_MS_Send_EditBufferAllLpN
 ;;  this function sends the whole patch to the SID which is
 ;;  selected by CS_MENU_SID
 ;; --------------------------------------------------------------------------
-CS_MENU_MS_Send_SysExDump
+CS_MENU_MS_SendPatch
 	;; TODO: needs to be overworked
 	;; should use CS_MENU_MS_Send_EditBuffer!!!
 
@@ -555,20 +555,20 @@ CS_MENU_MS_Send_SysExDump
 	;; if counter != 0, request delayed TX of dump and exit
 	movf	INDF1, W
 	skpz
-	rgoto	CS_MENU_MS_Send_SysExDump_TxReq
+	rgoto	CS_MENU_MS_SendPatch_TxReq
 
 	;; branch depending on master/slave SID
 	movf	CS_MENU_SID, W
-	bnz	CS_MENU_MS_Send_SysExDump_S
+	bnz	CS_MENU_MS_SendPatch_S
 
-CS_MENU_MS_Send_SysExDump_M
+CS_MENU_MS_SendPatch_M
 	;; reload TX counter
 	movlw	0x01
 	movwf	INDF1
 
 	;; skip if 'sent' flag set
 	SET_BSR	CS_MENU_SID_M_PATCH
-	BRA_IFSET CS_MENU_SID_M_PATCH, 7, BANKED, CS_MENU_MS_Send_SysExDump_End
+	BRA_IFSET CS_MENU_SID_M_PATCH, 7, BANKED, CS_MENU_MS_SendPatch_End
 
 	;; store patch/bank number of master in SID_PATCH/SID_BANK
 	movff	CS_MENU_SID_M_PATCH, SID_PATCH
@@ -580,9 +580,9 @@ CS_MENU_MS_Send_SysExDump_M
 	call	SID_PATCH_LoadPatchBuffer
 
 	;; restore CS_MENU_SID
-	rgoto	CS_MENU_MS_Send_SysExDump_End
+	rgoto	CS_MENU_MS_SendPatch_End
 
-CS_MENU_MS_Send_SysExDump_S
+CS_MENU_MS_SendPatch_S
 	;; else send dump of current patch to slave SID
 
 	;; reload TX counter
@@ -592,7 +592,7 @@ CS_MENU_MS_Send_SysExDump_S
 	;; skip send patch if 'sent' flag set
 	lfsr	FSR1, CS_MENU_SID_M_PATCH
 	movf	CS_MENU_SID, W
-	BRA_IFSET PLUSW1, 7, ACCESS, CS_MENU_MS_Send_SysExDump_End
+	BRA_IFSET PLUSW1, 7, ACCESS, CS_MENU_MS_SendPatch_End
 	bsf	PLUSW1, 7	; set 'sent' flag
 
 	;; disable SID engine of slave
@@ -602,13 +602,13 @@ CS_MENU_MS_Send_SysExDump_S
 	call	CS_MENU_MS_SetSIDPatch_C	; prepares SID_PATCH and SID_BANK
 	call	CS_MENU_MBNET_Tx_SendPatch	; sends the patch
 	
-CS_MENU_MS_Send_SysExDump_End
+CS_MENU_MS_SendPatch_End
 	return
 
 
 ;; --------------------------------------------------------------------------
 	;; request delayed TX of dump and exit
-CS_MENU_MS_Send_SysExDump_TxReq
+CS_MENU_MS_SendPatch_TxReq
 	lfsr	FSR1, CS_MENU_TX_M_CTR
 	movf	CS_MENU_SID, W
 	addwf	FSR1L, F	; no delay
@@ -617,20 +617,20 @@ CS_MENU_MS_Send_SysExDump_TxReq
 	return
 
 	;; check if transfer can be granted
-CS_MENU_MS_Send_SysExDump_TxTst
+CS_MENU_MS_SendPatch_TxTst
 	clrf	CS_MENU_SID		; handle all 4 SIDs
-CS_MENU_MS_Send_SysExDump_TxTstL
+CS_MENU_MS_SendPatch_TxTstL
 	lfsr	FSR1, CS_MENU_TX_M_CTR
 	movf	CS_MENU_SID, W
 	addwf	FSR1L, F
 
 	;; skip if CTR[7] not set (no sync requested)
-	BRA_IFCLR INDF1, 7, ACCESS, CS_MENU_MS_Send_SysExDump_TxTstN
+	BRA_IFCLR INDF1, 7, ACCESS, CS_MENU_MS_SendPatch_TxTstN
 
 	;; skip if CTR[6..0] is != 0
 	movf	INDF1, W
 	andlw	0x7f
-	bnz	CS_MENU_MS_Send_SysExDump_TxTstN
+	bnz	CS_MENU_MS_SendPatch_TxTstN
 
 	;; else clear request
 	bcf	INDF1, 7
@@ -638,9 +638,9 @@ CS_MENU_MS_Send_SysExDump_TxTstL
 	;; and update parameters
 	rcall	CS_MENU_MS_UpdateAllParameters
 
-CS_MENU_MS_Send_SysExDump_TxTstN
+CS_MENU_MS_SendPatch_TxTstN
 	incf	CS_MENU_SID, F		; loop 4 times
-	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_Send_SysExDump_TxTstL
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL
 
 	return
 

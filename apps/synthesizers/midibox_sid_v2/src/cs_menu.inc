@@ -77,7 +77,7 @@ CS_MENU_Handler_EditUpdate
 CS_MENU_Handler_NoEditUpdate
 
 	;; check if tx transfer to slave has been requested and can be granted
- 	call	CS_MENU_MS_Send_SysExDump_TxTst
+ 	call	CS_MENU_MS_SendPatch_TxTst
 
 	;; check if meters should be displayed (will also be checked in cs_menu_matrix.inc)
 	IRQ_DISABLE
@@ -1453,7 +1453,7 @@ CS_MENU_PatchUpdate_Loop
 	call	CS_MENU_MS_GetSIDBank; set FSR1 to bank register
 	movff	SID_BANK, INDF1
 	;; request update of CS parameters
-	call	CS_MENU_MS_Send_SysExDump_TxReq
+	call	CS_MENU_MS_SendPatch_TxReq
 	;; store new patch and bank number in ensemble
 	lfsr	FSR0, SID_ENS_BUFFER + SID_ENSx_PATCH
 	movff	SID_PATCH, INDF0
@@ -1485,7 +1485,7 @@ CS_MENU_PatchUpdateSingle
 	andlw	0x7f
 	movwf	INDF1
 	;; request update of CS parameters and exit
-	goto	CS_MENU_MS_Send_SysExDump_TxReq
+	goto	CS_MENU_MS_SendPatch_TxReq
 
 
 ;; --------------------------------------------------------------------------

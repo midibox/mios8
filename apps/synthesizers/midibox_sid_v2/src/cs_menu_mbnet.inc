@@ -129,7 +129,7 @@ CS_MENU_MBNET_FoundNode
 	andlw	0x03
 	lfsr	FSR1, CS_MENU_SID_M_PATCH
 	bcf	PLUSW1, 7
-	call	CS_MENU_MS_Send_SysExDump_TxReq
+	call	CS_MENU_MS_SendPatch_TxReq
 
 	;; send ensemble settings
 	movf	CS_MENU_SID, W
