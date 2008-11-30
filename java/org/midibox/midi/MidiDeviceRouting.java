@@ -189,12 +189,21 @@ public class MidiDeviceRouting extends Observable {
 				if (transmitter.getReceiver() == receiver) {
 
 					transmitter.close();
+					
+					System.out.println("Disconnecting transmitter: " + transmittingDevice.getDeviceInfo());
+					System.out.println("Number of transmitters: " + transmittingDevice.getTransmitters().size());
+					System.out.println("Number of receivers: " + transmittingDevice.getReceivers().size());
 					if (transmittingDevice.getTransmitters().size() == 0
 							&& transmittingDevice.getReceivers().size() == 0) {
 						transmittingDevice.close();
 					}
 
 					receiver.close();
+					
+					System.out.println("Disconnecting receiver: " + transmittingDevice.getDeviceInfo());
+					System.out.println("Number of transmitters: " + transmittingDevice.getTransmitters().size());
+					System.out.println("Number of receivers: " + transmittingDevice.getReceivers().size());
+					
 					if (receivingDevice.getTransmitters().size() == 0
 							&& receivingDevice.getReceivers().size() == 0) {
 						receivingDevice.close();
