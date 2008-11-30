@@ -523,12 +523,13 @@ public class Patch implements Receiver {
 			System.out.println(e);
 		}
 		receiver.send(sysexMessage, -1);
-		
+		/*
 		try {
 			Thread.currentThread().sleep(delay);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 	
 	protected String calcAddr(int addr) {
