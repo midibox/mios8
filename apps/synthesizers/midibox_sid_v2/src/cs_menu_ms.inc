@@ -607,7 +607,7 @@ CS_MENU_MS_SendPatch_End
 
 
 ;; --------------------------------------------------------------------------
-	;; request delayed TX of dump and exit
+;; request delayed TX of dump and exit
 CS_MENU_MS_SendPatch_TxReq
 	lfsr	FSR1, CS_MENU_TX_M_CTR
 	movf	CS_MENU_SID, W
@@ -616,33 +616,114 @@ CS_MENU_MS_SendPatch_TxReq
 	movwf	INDF1
 	return
 
-	;; check if transfer can be granted
+;; --------------------------------------------------------------------------
+;; check if transfer can be granted
 CS_MENU_MS_SendPatch_TxTst
+
 	clrf	CS_MENU_SID		; handle all 4 SIDs
 CS_MENU_MS_SendPatch_TxTstL
-	lfsr	FSR1, CS_MENU_TX_M_CTR
-	movf	CS_MENU_SID, W
-	addwf	FSR1L, F
-
-	;; skip if CTR[7] not set (no sync requested)
-	BRA_IFCLR INDF1, 7, ACCESS, CS_MENU_MS_SendPatch_TxTstN
-
-	;; skip if CTR[6..0] is != 0
-	movf	INDF1, W
-	andlw	0x7f
+	rcall	CS_MENU_MS_SendPatch_ChkRequest
 	bnz	CS_MENU_MS_SendPatch_TxTstN
 
-	;; else clear request
+	;; clear request
 	bcf	INDF1, 7
 
 	;; and update parameters
 	rcall	CS_MENU_MS_UpdateAllParameters
 
+#if 1
+	;; set request flags again if slave and in superpoly mode
+	;; see also code after this loop
+	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
+	andlw	0x07
+	bz	CS_MENU_MS_SendPatch_TxTstN
+	;; this is really dirty now, but required: ensure that all slaves will be updated at once
+	;; counter could be different for the slaves, as it's decremented in CS_MENU_Timer interrupt routine
+	movlw	0x80
+	movwf	CS_MENU_TX_S1_CTR
+	movwf	CS_MENU_TX_S2_CTR
+	movwf	CS_MENU_TX_S3_CTR
+#endif
+
 CS_MENU_MS_SendPatch_TxTstN
 	incf	CS_MENU_SID, F		; loop 4 times
 	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL
 
+#if 1
+	;; workaround for super poly mode, where all SIDs must be in sync:
+	;; a) lock all slaves which got new patches
+	;; b) request voice queue re-initialisation
+	;; c) unlock all slaves
+
+	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
+	andlw	0x07
+	bz	CS_MENU_MS_SendPatch_TxTst_End ; master not in superpoly mode - no synch required
+
+	;; a) lock all slaves which got new patches
+	movlw	1
+	movwf	CS_MENU_SID
+CS_MENU_MS_SendPatch_TxTstL2
+	rcall	CS_MENU_MS_SendPatch_ChkRequest
+	bnz	CS_MENU_MS_SendPatch_TxTstN2
+	call	CS_MENU_MBNET_Tx_LockSlaveRx	; lock slave
+CS_MENU_MS_SendPatch_TxTstN2
+	incf	CS_MENU_SID, F
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL2
+
+	;; b) request voice queue re-initialisation
+	movlw	1
+	movwf	CS_MENU_SID
+CS_MENU_MS_SendPatch_TxTstL3
+	rcall	CS_MENU_MS_SendPatch_ChkRequest
+	bnz	CS_MENU_MS_SendPatch_TxTstN3
+	call	CS_MENU_MBNET_Tx_SP_ReInit
+CS_MENU_MS_SendPatch_TxTstN3
+	incf	CS_MENU_SID, F
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL3
+
+	;; c) unlock all slaves
+	movlw	1
+	movwf	CS_MENU_SID
+CS_MENU_MS_SendPatch_TxTstL4
+	rcall	CS_MENU_MS_SendPatch_ChkRequest
+	bnz	CS_MENU_MS_SendPatch_TxTstN4
+	bcf	INDF1, 7	; finally remove request!
+	call	CS_MENU_MBNET_Tx_UnlockSlaveRx ; unlock slave
+CS_MENU_MS_SendPatch_TxTstN4
+	incf	CS_MENU_SID, F
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL4
+
+#endif
+
+CS_MENU_MS_SendPatch_TxTst_End
 	return
+
+
+
+
+;; help routine which checks, if a patch should be updated
+;; ZERO flag set if request flag set and counter reached 0
+;; outputs pointer to CS_MENU_TX_x_CTR register in INDF1
+CS_MENU_MS_SendPatch_ChkRequest
+	lfsr	FSR1, CS_MENU_TX_M_CTR
+	movf	CS_MENU_SID, W
+	addwf	FSR1L, F
+
+	;; skip if CTR[7] not set (no sync requested)
+	BRA_IFCLR INDF1, 7, ACCESS, CS_MENU_MS_SendPatch_ChkRequestN
+
+	;; skip if CTR[6..0] is != 0
+	movf	INDF1, W
+	andlw	0x7f
+	bnz	CS_MENU_MS_SendPatch_ChkRequestN
+
+	;; request valid - ZERO flag set
+	return
+
+CS_MENU_MS_SendPatch_ChkRequestN
+	iorlw	0xff		; no valid request - ZERO flag cleared
+	return
+
 
 ;; --------------------------------------------------------------------------
 ;;  this routine is used when a note should be played on a given SID

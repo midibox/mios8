@@ -53,7 +53,7 @@ SID_VOICE_InitQueueLoop2
 	;; init exclusive voice allocation flags
 	rcall	SID_VOICE_ReInit
 
-	;; init superpoly note table (4 tables)
+	;; init superpoly note table (4 entries)
 	lfsr	FSR1, SID_SUPERPOLY_VOICE_NOTE_TAB
 	clrf	POSTINC1
 	clrf	POSTINC1
