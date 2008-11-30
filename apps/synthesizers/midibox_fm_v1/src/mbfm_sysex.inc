@@ -148,7 +148,9 @@ MBFM_SYSEX_Handler_NotEnd
 	BRA_IFSET STATUS, Z, ACCESS, MBFM_SYSEX_PatchWrite	; 2
 	addlw	-6+2
 	BRA_IFSET STATUS, Z, ACCESS, MBFM_SYSEX_ParWrite	; 6
-	addlw	-15+6
+	addlw	-10+6
+	BRA_IFSET STATUS, Z, ACCESS, MBFM_SYSEX_PatchStore	; 10
+	addlw	-15+10
 	BRA_IFSET STATUS, Z, ACCESS, MBFM_SYSEX_Ping	; 15
 	rgoto	MBFM_SYSEX_ActionInvalid
 	;; (note: target address to far away for "bz", therefore I'm using "IFSET STATUS, Z"
@@ -299,9 +301,11 @@ MBFM_SYSEX_PatchWrite_End
 	cpfsgt	MBFM_SYSEX_TYPE, BANKED
 	rgoto MBFM_SYSEX_PATCH_Write_I
 	movf	MBFM_SYSEX_TYPE, W, BANKED
+	andlw	0xf7		; allow 0x10/0x18
 	xorlw	0x10
 	bz	MBFM_SYSEX_PATCH_Write_D
 	movf	MBFM_SYSEX_TYPE, W, BANKED
+	andlw	0xf7		; allow 0x70/0x78
 	xorlw	0x70
 	bz	MBFM_SYSEX_PATCH_Write_E
 	rgoto	MBFM_SYSEX_PATCH_Write_End
@@ -343,7 +347,7 @@ MBFM_SYSEX_PATCH_Write_D_RAM
 	rgoto	MBFM_SYSEX_PATCH_Write_Ack
 
 MBFM_SYSEX_PATCH_Write_E
-	;; store drumset
+	;; store ensemble
 	SET_BSR	MBFM_BASE
 	BRA_IFSET MBFM_SYSEX_TYPE, 3, BANKED, MBFM_SYSEX_PATCH_Write_E_RAM
 MBFM_SYSEX_PATCH_Write_E_EE
@@ -424,7 +428,78 @@ MBFM_SYSEX_ParWrite_End
 	;; finish Action
 	rgoto	MBFM_SYSEX_ActionFinished
 
+
+;; --------------------------------------------------------------------------
+;;  MIDI Action: Patch Store
+;; --------------------------------------------------------------------------
+MBFM_SYSEX_PatchStore
+	;; end of stream?
+	BRA_IFSET MBFM_SYSEX_STATE, MBFM_SYSEX_STATE_END, BANKED, MBFM_SYSEX_PatchStore_End
+
+	;; receive <type> F7
+MBFM_SYSEX_PatchStore_Type
+	BRA_IFSET MBFM_SYSEX_STATE2, MBFM_SYSEX_STATE2_TYPE_RECEIVED, BANKED, MBFM_SYSEX_PatchStore_Stl
+	bsf	MBFM_SYSEX_STATE2, MBFM_SYSEX_STATE2_TYPE_RECEIVED, BANKED
+	movff	MBFM_SYSEX_IN, MBFM_SYSEX_TYPE	; copy type number to MBFM_SYSEX_TYPE
+	rgoto	MBFM_SYSEX_SysExCheck_End	; wait for next byte
 	
+MBFM_SYSEX_PatchStore_Stl
+	;; do nothing until sysex footer (F7) has been received
+	rgoto	MBFM_SYSEX_SysExCheck_End
+
+
+	;; end of sysex command
+MBFM_SYSEX_PatchStore_End
+
+	;; action invalid if type has not been received
+	BRA_IFCLR MBFM_SYSEX_STATE2, MBFM_SYSEX_STATE2_TYPE_RECEIVED, BANKED, MBFM_SYSEX_DisAck_NotComplete
+
+	;; branch depending on type
+	movlw	0x10-1
+	cpfsgt	MBFM_SYSEX_TYPE, BANKED
+	rgoto MBFM_SYSEX_PATCH_Store_I
+	movf	MBFM_SYSEX_TYPE, W, BANKED
+	xorlw	0x10
+	bz	MBFM_SYSEX_PATCH_Store_D
+	movf	MBFM_SYSEX_TYPE, W, BANKED
+	xorlw	0x70
+	bz	MBFM_SYSEX_PATCH_Store_E
+	rgoto	MBFM_SYSEX_PATCH_Store_End
+
+MBFM_SYSEX_PATCH_Store_I
+	SET_BSR	MBFM_BASE
+	movf	MBFM_SYSEX_TYPE, W, BANKED
+	andlw	0x03
+	movwf	MBFM_CURRENT_INSTRUMENT, BANKED
+	call	MBFM_INSTR_GetBasePatchAndBank
+	;; store patch
+	call	MBFM_BANK_StoreP
+#if 0
+	;; (don't store wavetable)
+	lfsr	FSR1, MBFM_EE_BUFFER
+  	call	MBFM_BANK_StoreW
+#endif
+	rgoto	MBFM_SYSEX_PATCH_Store_Ack
+
+MBFM_SYSEX_PATCH_Store_D
+	;; store drumset
+	call MBFM_BANK_StoreD	
+	rgoto	MBFM_SYSEX_PATCH_Store_Ack
+
+MBFM_SYSEX_PATCH_Store_E
+	;; store ensemble
+	call	MBFM_BANK_StoreE
+	;; 	rgoto	MBFM_SYSEX_PATCH_Store_Ack
+
+MBFM_SYSEX_PATCH_Store_Ack
+	;; send acknowledge
+	rcall	MBFM_SYSEX_Send_Acknowledge
+
+MBFM_SYSEX_PATCH_Store_End
+	;; finish Action
+	rgoto	MBFM_SYSEX_ActionFinished
+
+
 ;; --------------------------------------------------------------------------
 ;;  MIDI Action: Ping
 ;; --------------------------------------------------------------------------

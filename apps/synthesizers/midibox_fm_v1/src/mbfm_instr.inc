@@ -33,6 +33,27 @@ MBFM_INSTR_GetBase
 
 
 ;; --------------------------------------------------------------------------
+;;  This function returns the base address of an instrument, the bank and
+;;  the patch number
+;;  Input:
+;;     o instrument number in MBFM_CURRENT_INSTRUMENT
+;;  Output:
+;;     o base address in FSR1
+;;     o patch number in MBFM_PATCH
+;;     o bank number in MBFM_BANK
+;; --------------------------------------------------------------------------
+MBFM_INSTR_GetBasePatchAndBank
+	;; get base, patch and bank number
+	rcall	MBFM_INSTR_GetBase
+
+	movlw	MBFM_Ix_PATCH
+	movff	PLUSW1, MBFM_PATCH
+	movlw	MBFM_Ix_BANK
+	movff	PLUSW1, MBFM_BANK
+	return
+
+
+;; --------------------------------------------------------------------------
 ;;  This function sends an instrument parameter to OPL3 and saves it into RAM
 ;;  Input:
 ;;     o parameter value in WREG
@@ -197,23 +218,14 @@ MBFM_INSTR_SendAudioChn
 ;;     o bank number in MBFM_Ix_BANK
 ;; --------------------------------------------------------------------------
 MBFM_INSTR_Init_RAM
-	;; get patch and bank number
-	rcall	MBFM_INSTR_GetBase
+	;; get base, patch and bank number
+	rcall	MBFM_INSTR_GetBasePatchAndBank
 
-	movlw	MBFM_Ix_PATCH
-	movff	PLUSW1, MBFM_PATCH
-	movlw	MBFM_Ix_BANK
-	movff	PLUSW1, MBFM_BANK
 	rgoto	MBFM_INSTR_Init_Cont
 	
 MBFM_INSTR_Init
-	;; get patch and bank number
-	rcall	MBFM_INSTR_GetBase
-
-	movlw	MBFM_Ix_PATCH
-	movff	PLUSW1, MBFM_PATCH
-	movlw	MBFM_Ix_BANK
-	movff	PLUSW1, MBFM_BANK
+	;; get base, patch and bank number
+	rcall	MBFM_INSTR_GetBasePatchAndBank
 
 	;; load patch from EEPROM/BankStick
  	call	MBFM_BANK_LoadP
