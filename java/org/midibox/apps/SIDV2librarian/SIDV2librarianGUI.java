@@ -101,7 +101,7 @@ public class SIDV2librarianGUI extends JFrame implements Observer, ActionListene
 		
 		mbsidV2EditorGUI = new MBSIDV2EditorGUI(this,true);
 		
-		sidLibController.scanHardware();
+		//sidLibController.scanHardware();
 		
 		pack();
 		setVisible(true);

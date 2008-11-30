@@ -88,9 +88,11 @@ public class MidiDeviceRouting extends Observable {
 	
 	public int findInputDeviceHash(int hash) {
 		int temp = -1;
-		for(int i=0;i<midiReadDevices.size();i++) {			
-			if (((MidiDevice)midiReadDevices.elementAt(i)).hashCode()==hash) {
+		for(int i=0;i<midiReadDevices.size();i++) {		
+			if (((MidiDevice)midiReadDevices.elementAt(i)).getDeviceInfo().toString().hashCode()==hash) {
 				temp = i;
+				System.out.println(hash);
+				System.out.println(temp);
 				break;
 			}
 		}
@@ -100,8 +102,10 @@ public class MidiDeviceRouting extends Observable {
 	public int findOuputDeviceHash(int hash) {
 		int temp = -1;
 		for(int i=0;i<midiWriteDevices.size();i++) {			
-			if (((MidiDevice)midiWriteDevices.elementAt(i)).hashCode()==hash) {
+			if (((MidiDevice)midiWriteDevices.elementAt(i)).getDeviceInfo().toString().hashCode()==hash) {
 				temp = i;
+				System.out.println(hash);
+				System.out.println(temp);
 				break;
 			}
 		}
@@ -109,11 +113,11 @@ public class MidiDeviceRouting extends Observable {
 	}
 	
 	public int getInputDeviceHash() {
-		return inputMidiDevice.hashCode();
+		return inputMidiDevice.getDeviceInfo().toString().hashCode();
 	}
 	
 	public int getOutputDeviceHash() {
-		return outputMidiDevice.hashCode();
+		return outputMidiDevice.getDeviceInfo().toString().hashCode();
 	}
 	
 	public void closeMidi() {
