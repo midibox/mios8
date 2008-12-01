@@ -31,7 +31,7 @@ SEQ_REQ_START			EQU	0	; start request (send 0xfa)
 SEQ_REQ_CONT			EQU	1	; continue request (send 0xfb)
 SEQ_REQ_STOP			EQU	2	; stop request (send 0xfc)
 SEQ_REQ_SONG_POS		EQU	3	; update of song position pointer (0xf2)
-	;; free: 4
+SEQ_REQ_EXT_MIDISTART		EQU	4	; requests to send a MIDI start event on the next bar (or step defined in SEQ_EXT_MIDISTART_STEP)
 SEQ_REQ_NOECHO			EQU	5	; don't echo 0xfa 0xfb 0xfc to MIDI out
 SEQ_REQ_SYNCHED_PATTERN_CHANGE	EQU	6	; pattern change should be synched to beat
 SEQ_REQ_START_AUTO_SLAVE_REQ	EQU	7	; extension for SEQ_REQ_START: re-init BPM generator
@@ -102,6 +102,7 @@ SEQ_MODE1_SCRUB			EQU	1	; enable scrub mode
 SEQ_MODE1_RECORD		EQU	2	; we are in step record menu
 SEQ_MODE1_MUTE_HOLD		EQU	3	; if mute button is held
 SEQ_MODE1_MUTE_HOLD_MULTISEL	EQU	4	; used within the MUTE menu to select multiple tracks so long the mute button is held
+SEQ_MODE1_MIDISTART_HOLD	EQU	5	; set when "external MIDI start" button is pressed
 
 SEQ_TRKCHAIN_12			EQU	0	; track 1/2 chained
 SEQ_TRKCHAIN_34			EQU	1	; track 3/4 chained
@@ -757,6 +758,21 @@ SEQ_CORE_Clk_NextP_Synch_NoSong
 SEQ_CORE_Clk_NextP_NoSynch
 	rcall	SEQ_CORE_ChangePatternCheck
 SEQ_CORE_Clk_NextP_End	
+
+
+	;; ------------------------------------------------------------------
+	;; send FA (MIDI start) if requested manually via button
+	;; ------------------------------------------------------------------
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_CORE_Clk_NoManualFA
+	BRA_IFCLR SEQ_REQ, SEQ_REQ_EXT_MIDISTART, BANKED, SEQ_CORE_Clk_NoManualFA
+	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	xorwf	SEQ_EXT_MIDISTART_STEP, W, BANKED
+	bnz	SEQ_CORE_Clk_NoManualFA
+SEQ_CORE_Clk_ManualFA
+	bcf	SEQ_REQ, SEQ_REQ_EXT_MIDISTART, BANKED	; clear request
+	movlw	0xfa					; send MIDI start event
+	call	SEQ_ROUTER_SendSync
+SEQ_CORE_Clk_NoManualFA
 
 	;; ------------------------------------------------------------------
 	;; send F8 on every 4th internal tick (96ppqn resolution) if echo allowed and not in slave mode

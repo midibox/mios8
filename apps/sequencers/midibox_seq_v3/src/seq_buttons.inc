@@ -589,6 +589,31 @@ SEQ_BUTTON_TapTempo_NoAutoStart
 
 
 ;; --------------------------------------------------------------------------
+;;  "External MIDI Start" Button
+;; --------------------------------------------------------------------------
+SEQ_BUTTON_ExtMIDIStart
+	SET_BSR	SEQ_BASE
+
+	;; clear MIDIstart hold flag if if button has been depressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_ExtMIDIStart_Released
+SEQ_BUTTON_ExtMIDIStart_Pressed
+	bsf	SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED
+
+	;; start with first step - can be changed via GP button so long button is held
+	clrf	SEQ_EXT_MIDISTART_STEP, BANKED
+
+	;; request to send external MIDI start event once this step is reached
+	bsf	SEQ_REQ, SEQ_REQ_EXT_MIDISTART, BANKED
+
+	return
+
+	
+SEQ_BUTTON_ExtMIDIStart_Released
+	bcf	SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED
+	return
+
+
+;; --------------------------------------------------------------------------
 ;;  enter edit mode
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Edit
@@ -721,6 +746,13 @@ SEQ_BUTTON_Menu
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Metronome
 	SET_BSR	SEQ_BASE
+
+	;; if MENU button is pressed: use External MIDI Start function
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_BUTTON_ExtMIDIStart
+	;; ensure that hold flag will be cleared - regardless if button is pressed/release
+	bcf	SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED
+
 #if DEFAULT_BEHAVIOUR_BUTTON_METRON
 	;; Toggle Mode (default):
 	;; exit if button depressed

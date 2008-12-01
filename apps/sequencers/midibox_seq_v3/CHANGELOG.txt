@@ -22,6 +22,44 @@ MIDIboxSEQ V3.4
     the new selected trigger layer state for that step (i.e. allow quick
     turning on of all gates).
 
+  o it's now possible to send MIDI start events to external sequencers while
+    MBSEQ is running. This allows you to re-synchronize them with MBSEQ if
+    they have been stopped (e.g. to select a new pattern on these devices), 
+    or if they are playing at a different tempo.
+
+    The "SEQ_BUTTON_ExtMIDIStart" function can be assigned to a dedicated
+    button (e.g. you could replace the Metronome function if not used), 
+    but it's also accessible by pressing MENU + METRONOME button.
+
+    By default, the MIDI start event will be sent at the first step.
+    It's possible to select a different step by pressing MENU + METRONOME +
+    one of the GP buttons (step will be displayed by GP LEDs).
+    Pressing MENU is not required if the function is assigned to a dedicated button.
+
+    To evaluate this function, try following steps:
+      - connect a MIDI sequencer (or synth. with sequencer function) to your
+        MBSEQ and configure it for MIDI slave mode.
+      - go into BPM menu and ensure, that MIDI clock is enabled for all OUT
+        ports which should send the MIDI start event (+ a MIDI clock)
+      - press PLAY button of MBSEQ - the external sequencer should start to
+        play as well.
+      - now stop the external sequencer
+      - (change a patch, sound, or whatever...)
+      - press MENU + METRONOME: the external sequencer should start once MBSEQ
+        reaches the first step.
+
+    Another try:
+      - both sequencers are playing in synch.
+      - press MENU + METRONOME; Hold METRONOME
+      - press a GP button to select the step at which the external sequencer
+        should restart
+
+  o now the MIDI remote function can also be activated via CC, e.g. with a
+    footswitch controller.
+    The desired CC number has to be configured in setup_*.asm (search for
+    DEFAULT_MIDI_REMOTE_CC)
+    This function is disabled by default to avoid evtl. clashes with your
+    existing MIDI setup.
 
 
 MIDIboxSEQ V3.3
@@ -1046,9 +1084,6 @@ Wishlist for future features
 
   o add remote keys for Step Recording function: left/right/clear/repeat
     See also http://www.midibox.org/forum/index.php/topic,11938.msg97685.html#msg97685
-
-  o add "external sync button" which sends MIDI Start Event on next bar
-    see also  http://www.midibox.org/forum/index.php/topic,12328.msg102265.html
 
   o add possibility to tap tempo with incoming MIDI note
     Free configuration page: maybe metronome?

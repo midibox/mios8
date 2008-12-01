@@ -23,7 +23,11 @@ SEQ_GP_Button
 	;; request display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 
-	;; the MENU select function overlays everything
+	;; the ExtSync hold function overlays GPs to select the step at which a MIDI start event should be sent
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED, SEQ_GP_ExtMIDIStart_Button
+
+	;; next priority: the MENU select function overlays GPs as well
 	SET_BSR	SEQ_BASE
 	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_GP_MenuSel_Button
 
@@ -64,7 +68,11 @@ SEQ_GP_LED_Update
 	clrf	SEQ_GP_LED_L, BANKED
 	clrf	SEQ_GP_LED_R, BANKED
 
-	;; MENU select LED overlays everything
+	;; the ExtSync hold function overlays GPs to select the step at which a MIDI start event should be sent
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED, SEQ_GP_ExtMIDIStart_LED
+
+	;; next priority: the MENU select function overlays GPs as well
 	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_GP_MenuSel_LED
 
 	;; skip GP_LED hook if edit screen is temporary displayed
@@ -156,6 +164,41 @@ SEQ_GP_MenuSel_LED
 #endif
 #endif
 
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  LED/Button functions for External MIDIStart button
+;; --------------------------------------------------------------------------
+SEQ_GP_ExtMIDIStart_Button
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; set new MIDI step (Step view doesn't matter - currently we only allow 16 steps...)
+	movff	MIOS_PARAMETER1, SEQ_EXT_MIDISTART_STEP
+
+	;; request (again) if cleared meanwhile
+	bsf	SEQ_REQ, SEQ_REQ_EXT_MIDISTART, BANKED
+	return
+
+	;; ------------------------------------------------------------------
+SEQ_GP_ExtMIDIStart_LED
+	;; transfer step to SEQ_GP_LED_[LR]
+	SET_BSR	SEQ_BASE
+
+	;; don't display if external MIDI start not requested (anymore)
+	BRA_IFCLR SEQ_REQ, SEQ_REQ_EXT_MIDISTART, BANKED, SEQ_GP_ExtMIDIStart_LED_End
+
+	;; transfer step to SEQ_GP_LED_[LR]
+	movf	SEQ_EXT_MIDISTART_STEP, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	btfss	SEQ_EXT_MIDISTART_STEP, 3, BANKED
+	movwf	SEQ_GP_LED_L, BANKED
+	btfsc	SEQ_EXT_MIDISTART_STEP, 3, BANKED
+	movwf	SEQ_GP_LED_R, BANKED
+
+SEQ_GP_ExtMIDIStart_LED_End
 	return
 
 

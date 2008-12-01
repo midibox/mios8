@@ -442,7 +442,9 @@ SEQ_TAPTEMPO_AVERAGE2_H	EQU	0x189	; used in "seq_core.inc" for tap tempo functio
 SEQ_TAPTEMPO_AVERAGE3_L	EQU	0x18a	; used in "seq_core.inc" for tap tempo function
 SEQ_TAPTEMPO_AVERAGE3_H	EQU	0x18b	; used in "seq_core.inc" for tap tempo function
 
-	;; free: 0x18c-0x19d
+SEQ_EXT_MIDISTART_STEP  EQU     0x18c   ; used in "seq_core.inc" to send MIDI start event on the given step
+
+	;; free: 0x18d-0x19d
 
 ;; ==================================================================================
 
