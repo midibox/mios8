@@ -13,13 +13,12 @@
 
 
 ;; --------------------------------------------------------------------------
-;;  This handler is called from SEQ_MIDI_NoteOn when the MIDI remote key
-;;  is pressed and another note has been played at the same time
+;;  This handler is called from USER_MPROC_NotifyReceivedEvent
 ;; 
 ;;  Input:
-;;     o Event type and MIDI channel in MIOS_PARAMETER1
-;;     o Note number in MIOS_PARAMETER2
-;;     o MIOS_PARAMETER3 == 0x00 when key has been released, != 0x00 when key has been pressed
+;;     o first  MIDI event byte in MIOS_PARAMETER1
+;;     o second MIDI event byte in MIOS_PARAMETER2
+;;     o third  MIDI event byte in MIOS_PARAMETER3
 ;;
 ;;  Output: ZERO flag cleared if in remote mode (following MIDI parsers should ignore MIDI event)
 ;; --------------------------------------------------------------------------
@@ -36,6 +35,32 @@ SEQ_REMOTE_Handler
 	xorwf	MIOS_PARAMETER1, W
 	andlw	0x0f
 	bnz	SEQ_REMOTE_Handler_Failed
+
+#if DEFAULT_MIDI_REMOTE_CC
+	;; check for Remote CC
+	movf	MIOS_PARAMETER1, W
+	andlw	0xf0
+	xorlw	0xb0
+	bnz	SEQ_REMOTE_Handler_NoCC
+SEQ_REMOTE_Handler_CC
+	movf	MIOS_PARAMETER2, W
+	xorlw	DEFAULT_MIDI_REMOTE_CC
+	bnz	SEQ_REMOTE_Handler_NoCC
+	;; values >= 64 activates, values < 64 deactivate remote function
+	BRA_IFSET MIOS_PARAMETER3, 6, ACCESS, SEQ_REMOTE_Handler_CC_On
+SEQ_REMOTE_Handler_CC_Off
+	;; deactivate MIDI remote function
+	bcf	SEQ_STATE, SEQ_STATE_REMOTE, BANKED
+	;; send depress event to all buttons
+	rcall	SEQ_REMOTE_AllOff
+	rgoto	SEQ_REMOTE_End
+SEQ_REMOTE_Handler_CC_On
+	;; activate MIDI remote function and exit
+	bsf	SEQ_STATE, SEQ_STATE_REMOTE, BANKED
+	rgoto	SEQ_REMOTE_End
+
+SEQ_REMOTE_Handler_NoCC
+#endif
 
 	;; check for Note On/Off
 	movf	MIOS_PARAMETER1, W

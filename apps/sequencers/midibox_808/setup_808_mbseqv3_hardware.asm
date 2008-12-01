@@ -165,6 +165,11 @@ DEFAULT_TRKINFO MACRO
 ; The Note number which activates the remote function (examples: 0x24 == C-2, 0x60 == C-7)
 #define DEFAULT_MIDI_REMOTE_KEY		0x60	; C-7
 ;
+; The CC number which activates the remote function (e.g. to conrol it with a footswitch)
+; allowed numbers: 1-127 for CC#1..CC#127
+; 0 disables this function (default)
+#define DEFAULT_MIDI_REMOTE_CC		0
+;
 ; Optional channels for configuration via CC (1-16, select 0 to disable)
 #define DEFAULT_MIDI_CHANNEL_CFG	10
 
