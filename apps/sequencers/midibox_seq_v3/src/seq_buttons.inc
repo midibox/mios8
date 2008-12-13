@@ -1117,7 +1117,8 @@ SEQ_BUTTON_Groupx_Cont
 	;; request display re-initialisation
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 
-	return
+	;; set/clear encoder fast function if required and exit
+	goto	SEQ_ENC_AutoFast
 
 
 ;; --------------------------------------------------------------------------

@@ -272,6 +272,7 @@ SEQ_ENC_ConfigSpeed_Loop
 ;; --------------------------------------------------------------------------
 ;;  Auto Fast function - should be called whenever
 ;;     - the edit screen is entered
+;;     - the group is changed
 ;;     - a track is changed
 ;;     - a layer is changed
 ;;  ignored when DEFAULT_AUTO_FAST_BUTTON is set to 0
