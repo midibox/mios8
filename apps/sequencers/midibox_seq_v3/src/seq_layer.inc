@@ -114,15 +114,15 @@ SEQ_LAYER_EVNTNUM MACRO ma, mb, mc, oa, ob, oc, od
 	;;            map A  B  C  prio 1st 2nd 3rd 4th
 	SEQ_LAYER_EVNTNUM 0, 0, 0,       0, 15, 15, 15	; 1 - only one Note Event
 	SEQ_LAYER_EVNTNUM 0, 0, 0,       0,  1,  2,  3	; 2 - Chord Event with 4 notes maximum
-	SEQ_LAYER_EVNTNUM 0, 0, 0,       0,  1,  2,  3	; 2 - Chord Event with 4 notes maximum
-	SEQ_LAYER_EVNTNUM 0, 1, 2,       0,  1,  2, 15	; 3 - three Note Events
+	SEQ_LAYER_EVNTNUM 0, 0, 0,       0,  1,  2,  3	; 3 - Chord Event with 4 notes maximum
 	SEQ_LAYER_EVNTNUM 0, 1, 2,       0,  1,  2, 15	; 4 - three Note Events
-	SEQ_LAYER_EVNTNUM 0, 0, 2,       2,  0, 15, 15	; 5 - one Note, one CC event
-	SEQ_LAYER_EVNTNUM 0, 1, 0,       1,  0, 15, 15	; 6 - one Note, one CC event
-	SEQ_LAYER_EVNTNUM 0, 1, 2,       1,  2,  0, 15	; 7 - one Note, two CC events
+	SEQ_LAYER_EVNTNUM 0, 1, 2,       0,  1,  2, 15	; 5 - three Note Events
+	SEQ_LAYER_EVNTNUM 0, 0, 2,       2,  0, 15, 15	; 6 - one Note, one CC event
+	SEQ_LAYER_EVNTNUM 0, 1, 0,       1,  0, 15, 15	; 7 - one Note, one CC event
 	SEQ_LAYER_EVNTNUM 0, 1, 2,       1,  2,  0, 15	; 8 - one Note, two CC events
-	SEQ_LAYER_EVNTNUM 0, 1, 0,       0,  1, 15, 15	; 9 - two CC events
-	SEQ_LAYER_EVNTNUM 0, 1, 2,       0,  1,  2, 15	; 10 - three CC events
+	SEQ_LAYER_EVNTNUM 0, 1, 2,       1,  2,  0, 15	; 9 - one Note, two CC events
+	SEQ_LAYER_EVNTNUM 0, 1, 0,       0,  1, 15, 15	; 10 - two CC events
+	SEQ_LAYER_EVNTNUM 0, 1, 2,       0,  1,  2, 15	; 11 - three CC events
 
 
 	;; preset table - each entry contains the initial track configuration and the step settings
