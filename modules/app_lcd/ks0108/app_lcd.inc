@@ -268,7 +268,7 @@ USER_LCD_WaitUnbusy_Disable
 ;; --------------------------------------------------------------------------
 USER_LCD_DetermineCS
 	SET_BSR	MIOS_LCD_OPTION1
-	BRA_IFSET MIOS_LCD_OPTION1, 0, ACCESS, USER_LCD_DetermineCSInv
+	BRA_IFSET MIOS_LCD_OPTION1, 0, BANKED, USER_LCD_DetermineCSInv
 
 USER_LCD_DetermineCSNonInv
 	BRA_IFSET USER_LCD_LAT_RS, USER_LCD_PIN_RS, ACCESS, USER_LCD_DetermineCS_Data

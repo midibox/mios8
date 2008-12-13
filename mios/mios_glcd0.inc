@@ -210,7 +210,7 @@ MIOS_GLCD0_WaitUnbusy_Disable
 ;; --------------------------------------------------------------------------
 MIOS_GLCD0_DetermineCS
 	SET_BSR	MIOS_LCD_OPTION1
-	BRA_IFSET MIOS_LCD_OPTION1, 0, ACCESS, MIOS_GLCD0_DetermineCSInv
+	BRA_IFSET MIOS_LCD_OPTION1, 0, BANKED, MIOS_GLCD0_DetermineCSInv
 
 MIOS_GLCD0_DetermineCSNonInv
 	BRA_IFSET MIOS_GLCD0_LAT_RS, MIOS_GLCD0_PIN_RS, ACCESS, MIOS_GLCD0_DetermineCS_Data
