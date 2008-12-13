@@ -54,12 +54,12 @@ HEADER 3 MIDIbox CV
 
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware Configuration </H2></DT>
-  <DD><P CLASS=DESC>Since MIDIbox CV supports so many different hardware options, it is evtl. required to customize the firmware. The basic setup which will propably never be altered cannot be edited from the menu interface, instead it has to be changed in the main.asm file of the application.</P>
+  <DD><P CLASS=DESC>Since MIDIbox CV supports so many different hardware options, it is evtl. required to customize the firmware. The basic setup which will propably never be altered cannot be edited from the menu interface, instead it has to be changed in the setup_*.asm file of the application.</P>
 
   <UL CLASS=CL>
     <LI>Buttons and optional datawheel
       <UL CLASS=CL>
-        <LI>4 Buttons: thats the default setup which doesn't need to be changed if you are planning to use it. Following defines in main.asm select the pin numbers of the "DINX1" module:
+        <LI>4 Buttons: thats the default setup which doesn't need to be changed if you are planning to use it. Following defines in setup_*.asm select the pin numbers of the "DINX1" module:
 <TT><PRE>
 #define DEFAULT_DIN_MENU_EXEC         7
 #define DEFAULT_DIN_MENU_RIGHT        6
@@ -67,14 +67,14 @@ HEADER 3 MIDIbox CV
 #define DEFAULT_DIN_MENU_SELECT       4
 </PRE></TT>
         </LI>
-        <LI>2 Buttons and one datawheel: DEFAULT_ENC_DATAWHEEL must be set to 0 in order to select the first encoder. The encoder connections are specified in mios_tables.inc, the Exec and Select pin number in main.asm
+        <LI>2 Buttons and one datawheel: DEFAULT_ENC_DATAWHEEL must be set to 0 in order to select the first encoder. The encoder connections are specified in mios_tables.inc, the Exec and Select pin number in setup_*.asm
 <TT><PRE>
 ;; mios_tables.inc:
 ;;        SR  Pin  Mode
 ENC_ENTRY  1,  4,  MIOS_ENC_MODE_DETENTED       ; Data Wheel
 ;;       (and  5)
 
-;; main.asm:
+;; setup_*.asm:
 #define DEFAULT_DIN_MENU_EXEC         7
 #define DEFAULT_DIN_MENU_SELECT       6
 </PRE></TT>
@@ -83,7 +83,7 @@ ENC_ENTRY  1,  4,  MIOS_ENC_MODE_DETENTED       ; Data Wheel
     </LI>
     <LI>Gate Outputs: if a MBHP_AOUT module is used, two gate outputs are provided by the module itself, they are assigned to CV1 and CV2. The remaining outputs are available directly at the J5 socket of the core module. This is the only option for the MBHP_AOUT_LC and MBHP_AOUT_NG module (there is no disadvantage!). <BR>
         Note that the gate outputs at J5 are <B>not enabled by default</B>. This is to reduce the risk that somebody doesn't read the documentation and uploads the firmware on a MIDIbox64 (or similar), where J5 is used as pot input. A short circuit would happen which could destroy the port drivers.<BR>
-        Therefore J5 has to be enabled explicitely in main.asm:
+        Therefore J5 has to be enabled explicitely in setup_*.asm:
 <TT><PRE>
 ; use PORTA and PORTE (J5 of the core module) for 8 additional gate outputs
 #define ENABLE_J5 0
