@@ -123,7 +123,7 @@ SDCARD_Init_StartupLoop1
 	movwf	TMP1
 SDCARD_Init_StartupLoop2
 	clrwdt
-	;; send CMD0 to reset the media
+	;; send CMD1 to reset the media - this must be repeated until SD Card is fully initialized
 	SET_BSR	_sdcard_address
 	clrf	_sdcard_address+0, BANKED
 	clrf	_sdcard_address+1, BANKED
