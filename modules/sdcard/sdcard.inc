@@ -389,9 +389,9 @@ SDCARD_ReadByte_Slow_HLP MACRO bit
 	nop
 	nop
 	nop
-	rcall	SDCARD_1mS_Delay
+	rcall	SDCARD_1uS_Delay
 	bcf	SDCARD_LAT_SCLK, SDCARD_PIN_SCLK	; falling clock edge
-	rcall	SDCARD_1mS_Delay
+	rcall	SDCARD_1uS_Delay
 	bcf	WREG, bit				; load value from DO
 	btfsc	SDCARD_PORT_DO, SDCARD_PIN_DO
 	bsf	WREG, bit
@@ -455,9 +455,9 @@ SDCARD_WriteByte_Slow_HLP MACRO bit
 	bcf	SDCARD_LAT_DI, SDCARD_PIN_DI		; set DI depending on current MSB
 	btfsc	WREG, bit
 	bsf	SDCARD_LAT_DI, SDCARD_PIN_DI
-	rcall	SDCARD_1mS_Delay
+	rcall	SDCARD_1uS_Delay
 	bcf	SDCARD_LAT_SCLK, SDCARD_PIN_SCLK	; falling clock edge
-	rcall	SDCARD_1mS_Delay
+	rcall	SDCARD_1uS_Delay
 	ENDM
 
 	SDCARD_WriteByte_Slow_HLP 7
@@ -497,7 +497,7 @@ SDCARD_WriteByte_Fast_HLP MACRO bit
 	return
 
 
-SDCARD_1mS_Delay
+SDCARD_1uS_Delay
 	bra	$+2
 	bra	$+2
 	bra	$+2
