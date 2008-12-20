@@ -27,6 +27,9 @@ SEQ_GP_Button
 	SET_BSR	SEQ_BASE
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED, SEQ_GP_ExtMIDIStart_Button
 
+	;; Menu button still selected? Branch to shortcut handler
+	GOTO_IFSET SEQ_MODE0, SEQ_MODE0_MENU_PRESSED, BANKED, CS_M_SHORTCUT_GP_Callback
+
 	;; following code is normaly located in cs_menu_buttons.inc
 	;; check for GP buttons if hook has been installed
 	call	CS_MENU_CheckMenuGPCallbackHook
@@ -67,6 +70,9 @@ SEQ_GP_LED_Update
 	;; the ExtSync hold function overlays GPs to select the step at which a MIDI start event should be sent
 	SET_BSR	SEQ_BASE
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED, SEQ_GP_ExtMIDIStart_LED
+
+	;; Menu button still selected? Branch to shortcut handler
+	GOTO_IFSET SEQ_MODE0, SEQ_MODE0_MENU_PRESSED, BANKED, CS_M_SHORTCUT_UpdateGPLEDs
 
 	;; skip GP_LED hook if edit screen is temporary displayed
 	movf	CS_MENU_MESSAGE_CTR, W

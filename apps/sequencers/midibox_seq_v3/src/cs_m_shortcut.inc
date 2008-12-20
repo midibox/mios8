@@ -51,12 +51,19 @@ CS_M_SHORTCUT_UpdateGPLEDs
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
 	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
 
+	;; previous/selected page in PRODH
+	incf	CS_MENU_MEMO_PAGE, W	; invalidated (0xff)?
+	skpnz
+	incf	CS_MENU_POS, W		; yes - take current menu pos. GP IO overruled in seq_gp.inc
+	addlw	-1
+	movwf	PRODH
+
 	clrf	PRODL
 	TABLE_ADDR CS_MENU_TABLE_GPMAP
 CS_M_SHORTCUT_UpdateGPLEDs_Loop
 	tblrd*+
 	movf	TABLAT, W
-	cpfseq	CS_MENU_MEMO_PAGE, ACCESS
+	cpfseq	PRODH, ACCESS
 	rgoto	CS_M_SHORTCUT_UpdateGPLEDs_LoopN
 	movf	PRODL, W
 	call	MIOS_HLP_GetBitORMask
@@ -67,6 +74,12 @@ CS_M_SHORTCUT_UpdateGPLEDs_Loop
 CS_M_SHORTCUT_UpdateGPLEDs_LoopN
 	incf	PRODL, F
 	BRA_IFCLR PRODL, 4, ACCESS, CS_M_SHORTCUT_UpdateGPLEDs_Loop
+
+	;; due to dirty overruling in seq_gp.inc (will be much more elegant in MBSEQ V4)
+	BRA_IFSET CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_M_SHORTCUT_UpdateGPLEDs_End
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
+CS_M_SHORTCUT_UpdateGPLEDs_End
 	return
 
 

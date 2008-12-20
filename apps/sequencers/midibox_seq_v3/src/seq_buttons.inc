@@ -752,6 +752,9 @@ SEQ_BUTTON_Menu_Released
 	;; remember status of menu button
 	bcf	SEQ_MODE0, SEQ_MODE0_MENU_PRESSED, BANKED
 
+	;; re-init screen
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+	
 	;; jump back to previous page if != 0xff (0xff means: we selected a new page)
 	incf	CS_MENU_MEMO_PAGE, W
 	skpnz
