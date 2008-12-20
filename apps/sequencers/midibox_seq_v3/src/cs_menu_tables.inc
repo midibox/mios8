@@ -45,6 +45,7 @@ CS_MENU_TABLE_ROOT_Begin
 	CS_MENU_ENTRY	"MBSEQ Options ", CS_M_OPT_Init,     CS_M_OPT_Tick,     SEQ_DUMP_StoreGlobal, CS_MENU_IncCursorPos
 	CS_MENU_ENTRY	"MIDI Config.  ", CS_M_MIDICFG_Init, CS_M_MIDICFG_Tick, SEQ_DUMP_StoreGlobal, CS_MENU_IncCursorPos
 	CS_MENU_ENTRY	"Port Mutes    ", CS_M_PMUTE_Init,   CS_M_PMUTE_Tick,   CS_M_NOP,          CS_MENU_IncCursorPos
+	CS_MENU_ENTRY	"Shortcuts     ", CS_M_SHORTCUT_Init, CS_M_SHORTCUT_Tick, CS_M_NOP,        CS_M_NOP
 	CS_MENU_ENTRY	"Send SysEx    ", CS_M_SYSEX_Init,   CS_M_SYSEX_Tick,   SEQ_DUMP_StoreGlobal, CS_MENU_IncCursorPos
 	CS_MENU_ENTRY	"Mixer         ", CS_M_MIXER_Init,   CS_M_MIXER_Tick,   CS_M_NOP,          CS_M_MIXER_Select
 CS_MENU_TABLE_ROOT_End
@@ -75,8 +76,9 @@ CS_MENU_PAGE_FORMAT	EQU	0x14
 CS_MENU_PAGE_OPT	EQU	0x15
 CS_MENU_PAGE_MIDI	EQU	0x16
 CS_MENU_PAGE_PMUTE	EQU	0x17
-CS_MENU_PAGE_SYSEX	EQU	0x18
-CS_MENU_PAGE_MIXER	EQU	0x19
+CS_MENU_PAGE_SHORTCUT	EQU	0x18
+CS_MENU_PAGE_SYSEX	EQU	0x19
+CS_MENU_PAGE_MIXER	EQU	0x1a
 
 
 ; ==========================================================================
@@ -93,49 +95,12 @@ CS_MENU_TABLE_GPMAP
 	db	CS_MENU_PAGE_MIDI, CS_MENU_PAGE_SYSEX
 
 ; ==========================================================================
-;  this function maps the 16 GP buttons to 16 most wanted menu entries (shortcuts)
-;  IN: number of GP button
-;  OUT: appr. menu position
-;  USES: TBLPTR[LH]
+;  items print on menu screen (must match with assignments above)
 ; ==========================================================================
-CS_MENU_TABLE_GPMapGetPos
-	addlw	CS_MENU_TABLE_GPMAP & 0xff
-	movwf	TBLPTRL
-	clrf	TBLPTRH
-	movlw	CS_MENU_TABLE_GPMAP >> 8
-	addwfc	TBLPTRH, F
-	tblrd*+
-	movf	TABLAT, W
-	return
-
-; ==========================================================================
-;  this function returns a LED pattern which should matches with the 
-;  selected menu
-;  IN: CS_MENU_POS
-;  OUT: LED pattern in MIOS_PARAMETER[12]
-;  USES: TBLPTR[LH], MIOS_PARAMETER3
-; ==========================================================================
-CS_MENU_TABLE_GPMapGetLED
-	clrf	MIOS_PARAMETER1
-	clrf	MIOS_PARAMETER2
-	clrf	MIOS_PARAMETER3
-	TABLE_ADDR CS_MENU_TABLE_GPMAP
-CS_MENU_TABLE_GPMapGetLEDLoop
-	tblrd*+
-	movf	TABLAT, W
-	cpfseq	CS_MENU_POS, ACCESS
-	rgoto CS_MENU_TABLE_GPMapGetLEDLoopN
-	movf	MIOS_PARAMETER3, W
-	call	MIOS_HLP_GetBitORMask
-	btfss	MIOS_PARAMETER3, 3
-	movwf MIOS_PARAMETER1
-	btfsc	MIOS_PARAMETER3, 3
-	movwf MIOS_PARAMETER2
-CS_MENU_TABLE_GPMapGetLEDLoopN
-	incf	MIOS_PARAMETER3, F
-	BRA_IFCLR MIOS_PARAMETER3, 4, ACCESS, CS_MENU_TABLE_GPMapGetLEDLoop
-	return
-
+CS_MENU_TABLE_GPMAP_STR
+	;;	<--------------------------------------><-------------------------------------->
+	;;	01234567890123456789012345678901234567890123456789012345678901234567890123456789
+	db	"Mix  Evnt Mode Dir. Div. Len. Trn. Grv. Trg. Util Man. Mrp. BPM  Save MIDI SysEx"
 
 
 ; ==========================================================================

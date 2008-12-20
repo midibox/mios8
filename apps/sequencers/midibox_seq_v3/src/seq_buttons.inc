@@ -508,7 +508,7 @@ SEQ_BUTTON_Play
 
 	;; if MENU button is pressed: use Tap Tempo function
 	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_BUTTON_TapTempo
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU_PRESSED, BANKED, SEQ_BUTTON_TapTempo
 	
 	;; restart sequencer
 	SET_BSR	SEQ_BASE
@@ -732,13 +732,33 @@ SEQ_BUTTON_Song_NoToggle
 ;;  set menu mode with button
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Menu
-	;; enter menu mode
 	SET_BSR	SEQ_BASE
-	bcf	SEQ_MODE0, SEQ_MODE0_MENU, BANKED
-	btfss	MIOS_PARAMETER2, 0
-	bsf	SEQ_MODE0, SEQ_MODE0_MENU, BANKED
 
+	;; deselect menu if button has been depressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_Menu_Released
+
+SEQ_BUTTON_Menu_Pressed
+	;; remember status of menu button
+	bsf	SEQ_MODE0, SEQ_MODE0_MENU_PRESSED, BANKED
+
+	;; store current page
+	movff	CS_MENU_POS, CS_MENU_MEMO_PAGE
+
+	;; branch to shortcut page
+	movlw	CS_MENU_PAGE_SHORTCUT
+	goto	CS_M_HLP_ChangePage
+
+SEQ_BUTTON_Menu_Released
+	;; remember status of menu button
+	bcf	SEQ_MODE0, SEQ_MODE0_MENU_PRESSED, BANKED
+
+	;; jump back to previous page if != 0xff (0xff means: we selected a new page)
+	incf	CS_MENU_MEMO_PAGE, W
+	skpnz
 	return
+
+	movf	CS_MENU_MEMO_PAGE, W
+	goto	CS_M_HLP_ChangePage
 
 
 ;; --------------------------------------------------------------------------
@@ -749,7 +769,7 @@ SEQ_BUTTON_Metronome
 
 	;; if MENU button is pressed: use External MIDI Start function
 	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_BUTTON_ExtMIDIStart
+	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU_PRESSED, BANKED, SEQ_BUTTON_ExtMIDIStart
 	;; ensure that hold flag will be cleared - regardless if button is pressed/release
 	bcf	SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED
 
@@ -1293,18 +1313,17 @@ SEQ_BUTTON_F2
 ;;  F3 button --- implement your favourite function here!
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_F3
+#if 0
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-#if 1
-#if 1
 	call	CS_M_HLP_GetSelectedTrgLayer
 	addlw	1
 	andlw	0x03
 	call	MIOS_HLP_GetBitORMask
 	btfsc	WREG, 3
-	movlw 0x01
+	movlw	0x01
 	SET_BSR	SEQ_BASE
 	movwf	SEQ_SELECTED_TRG_LAYERS, BANKED
 
@@ -1313,51 +1332,57 @@ SEQ_BUTTON_F3
 
 	return
 #else
-	;; unmute all tracks
+	;; show special trigger assignments page which allows to select and reconfigure trigger layers
 	SET_BSR	SEQ_BASE
-	clrf	SEQ_TRKS_MUTED0, BANKED
-	clrf	SEQ_TRKS_MUTED1, BANKED
 
-	;; and branch to mute menu
-	rgoto	SEQ_BUTTON_Mute
+	;; clear mute hold flag if if button has been depressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_F3_Released
+
+SEQ_BUTTON_F3_Pressed
+	;; remember current page
+	movff	CS_MENU_POS, CS_MENU_TRGSEL_MEMO_PAGE
+	;; branch to trigger assignments menu
+	movlw	CS_MENU_PAGE_ASSIGN
+	goto	CS_M_HLP_ChangePage
+
+SEQ_BUTTON_F3_Released
+	;; switch back to previous page
+	movf	CS_MENU_TRGSEL_MEMO_PAGE, W
+	goto	CS_M_HLP_ChangePage
 #endif
-#else
-	;; invert all gates
-	SET_BSR	SEQ_BASE
-	call	CS_M_HLP_GetSelectedTrk
-	movwf	SEQ_EVNTT, BANKED
-	clrf	SEQ_EVNTS, BANKED
-SEQ_BUTTON_F3_Loop
-	call	SEQ_TRG_GateGet
-	xorlw	1
-	call	SEQ_TRG_GateSet
-	incf	SEQ_EVNTS, F, BANKED
-	BRA_IFCLR SEQ_EVNTS, 5, BANKED, SEQ_BUTTON_F3_Loop
-	;; request display re-initialisation
-	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
-	return
-#endif
+
 
 ;; --------------------------------------------------------------------------
 ;;  F4 button --- implement your favourite function here!
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_F4
+#if 0
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-#if 0
-	;; mute all tracks
-	SET_BSR	SEQ_BASE
-	setf	SEQ_TRKS_MUTED0, BANKED
-	setf	SEQ_TRKS_MUTED1, BANKED
-
-	;; and branch to mute menu
-	rgoto	SEQ_BUTTON_Mute
-#else
 	;; increment track group and branch to Groupx_Cont function
 	SET_BSR	SEQ_BASE
 	incf	SEQ_SELECTED_GROUP, W, BANKED
 	andlw	0x03	
 	rgoto	SEQ_BUTTON_Groupx_Cont
+#else
+	;; show special MUTE page which allows to select multiple tracks
+	SET_BSR	SEQ_BASE
+
+	;; clear mute hold flag if if button has been depressed
+	BRA_IFSET MIOS_PARAMETER2, 0, ACCESS, SEQ_BUTTON_F4_Released
+
+SEQ_BUTTON_F4_Pressed
+	;; remember current page
+	movff	CS_MENU_POS, CS_MENU_TRKSEL_MEMO_PAGE
+	;; branch to Mute function
+	rgoto	SEQ_BUTTON_Mute_Pressed
+
+SEQ_BUTTON_F4_Released
+	;; call the Mute function
+	rcall	SEQ_BUTTON_Mute_Released
+	;; switch back to previous page
+	movf	CS_MENU_TRKSEL_MEMO_PAGE, W
+	goto	CS_M_HLP_ChangePage
 #endif

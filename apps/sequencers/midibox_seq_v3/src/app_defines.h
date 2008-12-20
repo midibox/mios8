@@ -163,19 +163,19 @@ CS_RANDOM_INTENSITY_LC	EQU	0x063	; used in "cs_m_trkrnd.inc"
 CS_RANDOM_INTENSITY_TA	EQU	0x064	; used in "cs_m_trkrnd.inc"
 CS_RANDOM_INTENSITY_TB	EQU	0x065	; used in "cs_m_trkrnd.inc"
 CS_RANDOM_INTENSITY_TC	EQU	0x066	; used in "cs_m_trkrnd.inc"
-CS_MENU_COPYPASTE_MEMO_PAGE EQU 0x067   ; used in "seq_button.inc"
+
+CS_MENU_MEMO_PAGE	EQU	0x067   ; used in "seq_button.inc"
+CS_MENU_COPYPASTE_MEMO_PAGE EQU 0x068   ; used in "seq_button.inc"
+CS_MENU_TRKSEL_MEMO_PAGE EQU    0x069   ; used in "seq_button.inc"
+CS_MENU_TRGSEL_MEMO_PAGE EQU    0x06a   ; used in "seq_button.inc"
 
 ;; ==========================================================================
 
-PERFORMANCE_LOAD_CTR_L	EQU	0x068	; for seq_load.inc
-PERFORMANCE_LOAD_CTR_H	EQU	0x069
-PERFORMANCE_LOAD_REG_L	EQU	0x06a
-PERFORMANCE_LOAD_REG_H	EQU	0x06b
-PERFORMANCE_REF_CTR	EQU	0x06c
-
-;; ==========================================================================
-
-	;; free: 0x6d-0x6f
+PERFORMANCE_LOAD_CTR_L	EQU	0x06b	; for seq_load.inc
+PERFORMANCE_LOAD_CTR_H	EQU	0x06c
+PERFORMANCE_LOAD_REG_L	EQU	0x06d
+PERFORMANCE_LOAD_REG_H	EQU	0x06e
+PERFORMANCE_REF_CTR	EQU	0x06f
 
 ;; ==========================================================================
 
@@ -191,6 +191,7 @@ _iic_midi_tx_package	EQU	0x079; ..0x7c
 ;; ==========================================================================
 MIDI_EVNT_PREV_INTERFACE EQU    0x07d
 
+	;; free: 0x7e-0x7f
 
 ;; ==========================================================================
 

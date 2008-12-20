@@ -27,10 +27,6 @@ SEQ_GP_Button
 	SET_BSR	SEQ_BASE
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED, SEQ_GP_ExtMIDIStart_Button
 
-	;; next priority: the MENU select function overlays GPs as well
-	SET_BSR	SEQ_BASE
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_GP_MenuSel_Button
-
 	;; following code is normaly located in cs_menu_buttons.inc
 	;; check for GP buttons if hook has been installed
 	call	CS_MENU_CheckMenuGPCallbackHook
@@ -71,9 +67,6 @@ SEQ_GP_LED_Update
 	;; the ExtSync hold function overlays GPs to select the step at which a MIDI start event should be sent
 	SET_BSR	SEQ_BASE
 	BRA_IFSET SEQ_MODE1, SEQ_MODE1_MIDISTART_HOLD, BANKED, SEQ_GP_ExtMIDIStart_LED
-
-	;; next priority: the MENU select function overlays GPs as well
-	BRA_IFSET SEQ_MODE0, SEQ_MODE0_MENU, BANKED, SEQ_GP_MenuSel_LED
 
 	;; skip GP_LED hook if edit screen is temporary displayed
 	movf	CS_MENU_MESSAGE_CTR, W
@@ -133,39 +126,6 @@ SEQ_GP_LED_Update_NoHook
 ; ==========================================================================
 ; ==========================================================================
 ; ==========================================================================
-
-
-;; --------------------------------------------------------------------------
-;;  LED/Button functions for SEQ_MODE0_MENU
-;; --------------------------------------------------------------------------
-SEQ_GP_MenuSel_Button
-	;; do nothing if button has been depressed
-	btfsc	MIOS_PARAMETER2, 0
-	return
-	;; clear screen(s)
-	call	SEQ_LCD_Clear
-	;; branch to the change menu function of the control surface
-	movf	MIOS_PARAMETER1, W
-	call	CS_MENU_TABLE_GPMapGetPos
-	goto	CS_MENU_ChangePage
-
-	;; ------------------------------------------------------------------
-SEQ_GP_MenuSel_LED
-	;; transfer menu pos to SEQ_GP_LED_[LR]
-	call	CS_MENU_TABLE_GPMapGetLED
-	movff	MIOS_PARAMETER1, SEQ_GP_LED_L
-	movff	MIOS_PARAMETER2, SEQ_GP_LED_R
-
-#if DEFAULT_SRM_ENABLED
-#if DEFAULT_GP_DOUT_SR_L == DEFAULT_SRM_DOUT_L1
-	rcall	SEQ_GP_SRM_OverlayCopy
-#else
-	rcall	SEQ_GP_SRM_NormalCopy
-#endif
-#endif
-
-	return
-
 
 ;; --------------------------------------------------------------------------
 ;;  LED/Button functions for External MIDIStart button

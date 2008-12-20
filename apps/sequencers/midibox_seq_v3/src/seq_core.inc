@@ -92,7 +92,7 @@ SEQ_MODE0_STEP_EDIT		EQU	0	; we are in step edit mode
 SEQ_MODE0_MUTE			EQU	1	; change mute status with GP buttons
 SEQ_MODE0_PATTERN		EQU	2	; change pattern with GP buttons
 SEQ_MODE0_SONG			EQU	3	; we are in song mode
-SEQ_MODE0_MENU			EQU	4	; change menu with GP buttons
+SEQ_MODE0_MENU_PRESSED		EQU	4	; menu button is pressed
 SEQ_MODE0_FAST_ENCODERS		EQU	5	; encoders in fast speed mode
 SEQ_MODE0_CHANGE_ALL_STEPS	EQU	6	; change all steps
 SEQ_MODE0_SOLO			EQU	7	; play current track solo
@@ -103,6 +103,7 @@ SEQ_MODE1_RECORD		EQU	2	; we are in step record menu
 SEQ_MODE1_MUTE_HOLD		EQU	3	; if mute button is held
 SEQ_MODE1_MUTE_HOLD_MULTISEL	EQU	4	; used within the MUTE menu to select multiple tracks so long the mute button is held
 SEQ_MODE1_MIDISTART_HOLD	EQU	5	; set when "external MIDI start" button is pressed
+SEQ_MODE1_MENU_PAGE_DISPLAYED	EQU	6	; menu page displayed on screen (overrules all other outputs)
 
 SEQ_TRKCHAIN_12			EQU	0	; track 1/2 chained
 SEQ_TRKCHAIN_34			EQU	1	; track 3/4 chained
@@ -1488,7 +1489,7 @@ SEQ_CORE_Clk_SendEvent_Arp_C
 	xorlw	0x90
 	bnz	SEQ_CORE_Clk_SendEvent_NM_Ply
 
-	;; get the key from the played chor which should be sent to the arpeggiator
+	;; get the key from the played chord which should be sent to the arpeggiator
 	rcall	SEQ_CORE_Hlp_GetArpKey
 	bnz	SEQ_CORE_Clk_NM45_C
 	;; no arp key hold: play off event (if it exists)

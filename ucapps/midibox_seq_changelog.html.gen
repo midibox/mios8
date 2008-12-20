@@ -1,12 +1,91 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V3 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: V3.3 @ 2008-08-03</H3></CENTER>
+<CENTER><H3>Last Release: V3.3 @ 2008-12-20</H3></CENTER>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
 
+<LI><I>V3.4</I>
+  <UL>
+  <LI>support for additional 8x8 button/LED matrix as used in Wilba's frontpanel layout</LI>
+
+  <LI>support for dedicated Copy/Paste/Clear button</LI>
+
+  <LI>Enhancement of ALL button function:<BR>
+    When in ALL mode (LED on) and editing a track, pressing a GP button
+    toggles selected trigger layer on all steps (i.e. inverts all
+    gates, or accents, etc.)<BR>
+    Holding ALL button and pressing a GP button toggles them all to
+    the new selected trigger layer state for that step (i.e. allow quick
+    turning on of all gates).</LI>
+
+  <LI>F4 doesn't cylce the group anymore, instead it allows you to quickly
+    display and select one or more tracks with GP buttons so long F4 button 
+    is pressed.<BR>
+    The CS jumps back to the previous page when F4 is depressed.<BR>
+    Once F4 is depressed, the previous page will be visible again.<BR>
+    Note that this feature isn't new, it's the same like pressing & holding
+    the Mute button. Only (very useful) difference is the prev. page restore
+    function.</LI>
+
+  <LI>F3 doesn't cylce the trigger layer anymore, instead it allows you to quickly
+    display, select and reconfigure the trigger layers with GP buttons and
+    encoders so long F3 button is pressed.<BR>
+    The CS jumps back to the previous page when F3 is depressed.<BR>
+    This function re-uses the existing Trigger Assignment page. Only (very useful)
+    difference is the prev. page restore function</LI>
+
+  <LI>menu button now shows shortcut page names on LCDs</LI>
+
+  <LI> it's now possible to send MIDI start events to external sequencers while
+    MBSEQ is running. This allows you to re-synchronize them with MBSEQ if
+    they have been stopped (e.g. to select a new pattern on these devices), 
+    or if they are playing at a different tempo.<BR>
+
+    The "SEQ_BUTTON_ExtMIDIStart" function can be assigned to a dedicated
+    button (e.g. you could replace the Metronome function if not used), 
+    but it's also accessible by pressing MENU + METRONOME button.<BR>
+
+    By default, the MIDI start event will be sent at the first step.
+    It's possible to select a different step by pressing MENU + METRONOME +
+    one of the GP buttons (step will be displayed by GP LEDs).<BR>
+    Pressing MENU is not required if the function is assigned to a dedicated button.<BR>
+
+    To evaluate this function, try following steps:
+    <UL CLASS=CL>
+      <LI> connect a MIDI sequencer (or synth. with sequencer function) to your
+        MBSEQ and configure it for MIDI slave mode.
+      <LI> go into MIDI menu and ensure, that MIDI clock is enabled for all OUT
+        ports which should send the MIDI start event (+ a MIDI clock)
+      <LI> press PLAY button of MBSEQ - the external sequencer should start to
+        play as well.
+      <LI> now stop the external sequencer
+      <LI> (change a patch, sound, or whatever...)
+      <LI> press MENU + METRONOME: the external sequencer should start once MBSEQ
+        reaches the first step.
+    </UL>
+
+    Another try:
+    <UL CLASS=CL>
+      <LI> both sequencers are playing in synch.
+      <LI> press MENU + METRONOME; Hold METRONOME
+      <LI> press a GP button to select the step at which the external sequencer
+        should restart
+    </UL>
+
+  <LI> now the MIDI remote function can also be activated via CC, e.g. with a
+    footswitch controller.<BR>
+    The desired CC number has to be configured in setup_*.asm (search for
+    DEFAULT_MIDI_REMOTE_CC)<BR>
+    This function is disabled by default to avoid evtl. clashes with your
+    existing MIDI setup.</LI>
+  </UL>
+</LI>
+
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V3.3</I>
   <UL>
   <LI>edit page now shows "MUTED" instead of channel number of the currently 

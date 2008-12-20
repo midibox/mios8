@@ -534,6 +534,7 @@ USER_AIN_NotifyChange
 #include "cs_m_midicfg.inc"
 #include "cs_m_sysex.inc"
 #include "cs_m_format.inc"
+#include "cs_m_shortcut.inc"
 #include "cs_m_utils.inc"
 #include "cs_m_pmute.inc"
 

@@ -267,7 +267,7 @@ SEQ_MIDI_NoteOn_Transpose_Loop
 
 	;; ------------------------------------------------------------------
 SEQ_MIDI_NoteOn_Arp
-	;; if no note in note stack anymore, reset position of all tracks where the RESET mode flag is set
+	;; if no note in note stack anymore, reset position of all tracks whith RESTART flag set
 	movf	SEQ_A_NOTE_STACK_0, W, BANKED
 	skpnz
 	rcall	SEQ_MIDI_Hlp_ChkPosReset
@@ -276,8 +276,8 @@ SEQ_MIDI_NoteOn_Arp
 	lfsr	FSR1, SEQ_A_NOTE_STACK_0
 	rcall	SEQ_MIDI_Hlp_PushNote
 
-	;; call arpeggiator handler which sorts the notes
-	rcall	SEQ_MIDI_Arp_Handler
+	;; call arpeggiator sorter
+	rcall	SEQ_MIDI_Arp_Sorter
 
 	;; "hold" arpeggiator notes
 	;; clear hold registers if only one note active
@@ -393,8 +393,8 @@ SEQ_MIDI_NoteOff_Arp
 	;; skip if note has not been found
 	BRA_IFSET WREG, 0, ACCESS, SEQ_MIDI_NoteOff_Arp_End
 
-	;; goto arpeggiator handler which sorts the notes
-	rcall	SEQ_MIDI_Arp_Handler
+	;; call arpeggiator sorter
+	rcall	SEQ_MIDI_Arp_Sorter
 
 SEQ_MIDI_NoteOff_Arp_End
 	return
@@ -715,42 +715,42 @@ SEQ_MIDI_Hlp_ChkPosResetLoopNext
 	return
 
 	;; ------------------------------------------------------------------
-	;; arpeggiator handler
-SEQ_MIDI_Arp_Handler
+	;; arpeggiator sorter
+SEQ_MIDI_Arp_Sorter
 	;; unsorted notes: get from end of stack
 	lfsr	FSR0, SEQ_ARP_NOTE_0_UNSORTED
 	lfsr	FSR1, SEQ_A_NOTE_STACK_0
 	movlw	SEQ_NOTE_STACK_LEN-1	; stack offset where to start the search
 	movwf	PRODL
-SEQ_MIDI_Arp_Handler_UnSrtLoop1
+SEQ_MIDI_Arp_Sorter_UnSrtLoop1
 	movf	PRODL, W
 	movf	PLUSW1, W
-	bnz	SEQ_MIDI_Arp_Handler_UnSrt_C	; note found
+	bnz	SEQ_MIDI_Arp_Sorter_UnSrt_C	; note found
 	movf	PRODL, W
-	bz	SEQ_MIDI_Arp_Handler_UnSrt_C	; stack empty
+	bz	SEQ_MIDI_Arp_Sorter_UnSrt_C	; stack empty
 	decf	PRODL, F
-	rgoto	SEQ_MIDI_Arp_Handler_UnSrtLoop1
+	rgoto	SEQ_MIDI_Arp_Sorter_UnSrtLoop1
 
-SEQ_MIDI_Arp_Handler_UnSrt_C
+SEQ_MIDI_Arp_Sorter_UnSrt_C
 	;; now copy last four entries of stack to unsorted note stack
 	movlw	4			; increment 4 times
 	movwf	PRODH
-SEQ_MIDI_Arp_Handler_UnSrtLoop2
+SEQ_MIDI_Arp_Sorter_UnSrtLoop2
 	;; if stack offset negative: clear note
-	BRA_IFCLR PRODL, 7, ACCESS, SEQ_MIDI_Arp_Handler_UnSrtLoop2B
-SEQ_MIDI_Arp_Handler_UnSrtLoop2A
+	BRA_IFCLR PRODL, 7, ACCESS, SEQ_MIDI_Arp_Sorter_UnSrtLoop2B
+SEQ_MIDI_Arp_Sorter_UnSrtLoop2A
 	clrf	POSTINC0
-	rgoto	SEQ_MIDI_Arp_Handler_UnSrtLoop2N
-SEQ_MIDI_Arp_Handler_UnSrtLoop2B
+	rgoto	SEQ_MIDI_Arp_Sorter_UnSrtLoop2N
+SEQ_MIDI_Arp_Sorter_UnSrtLoop2B
 	movf	PRODL, W		; arp stack offset
 	movff	PLUSW1, POSTINC0	; copy arp stack -> ARP_NOTE_x_UNSORTED
-SEQ_MIDI_Arp_Handler_UnSrtLoop2N	
+SEQ_MIDI_Arp_Sorter_UnSrtLoop2N	
 	decf	PRODL, F		; next note
 	decfsz	PRODH, F
-	rgoto	SEQ_MIDI_Arp_Handler_UnSrtLoop2
+	rgoto	SEQ_MIDI_Arp_Sorter_UnSrtLoop2
 
 
-	;; normal arpeggiator notes
+	;; sorted arpeggiator notes
 	lfsr	FSR0, SEQ_ARP_NOTE_0_SORTED
 	lfsr	FSR1, SEQ_A_NOTE_STACK_0
 
@@ -763,7 +763,7 @@ SEQ_MIDI_Arp_Handler_UnSrtLoop2N
 	addwf	FSR0L, F	; restore pointer to ARP_NOTE_0
 
 	movf	INDF1, W	; (SEQ_NOTE_STACK_0)
-	bz	SEQ_MIDI_ARP_HANDLER_End
+	bz	SEQ_MIDI_ARP_SORTER_End
 
 	movf	POSTINC1, W	; (SEQ_NOTE_STACK_0)
 	rcall	SEQ_MIDI_ARP_SingleHandler_Add
@@ -774,7 +774,7 @@ SEQ_MIDI_Arp_Handler_UnSrtLoop2N
 	movf	POSTINC1, W	; (SEQ_NOTE_STACK_3)
 	rcall	SEQ_MIDI_ARP_SingleHandler_Add
 
-SEQ_MIDI_ARP_HANDLER_End
+SEQ_MIDI_ARP_SORTER_End
 	return
 
 ;; ---

@@ -43,10 +43,10 @@ CS_M_TRKASG_GP_Callback
 	btfsc	MIOS_PARAMETER2, 0
 	return
 
-	;; ignore if button/encoder number <= 7
+	;; ignore if button/encoder number >= 8
 	movlw	7
 	cpfsgt	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_M_TRKASG_GP_Callback_Ok
+	rgoto	CS_M_TRKASG_GP_Callback_Ok
 CS_M_TRKASG_GP_Callback_Ignore
 	clrf	CS_MENU_ENC_INCREMENTER
 	return
@@ -54,6 +54,20 @@ CS_M_TRKASG_GP_Callback_Ignore
 CS_M_TRKASG_GP_Callback_Ok
 	;; set cursor depending on button number
 	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
+	
+	;; skip if encoder movement (value will be changed after this function, therefore
+	;; we unfortunatelly cannot set the trigger layer here... :-(
+	;; it's done in CS_M_TRGASG_XXXChanged
+	movf	CS_MENU_ENC_INCREMENTER, W
+	bnz	CS_M_TRKASG_GP_Callback_NoAsgSet
+
+	;; select trigger layer if != 0
+	;; skip if first GP is pressed (selects GxTy)
+	movf	MIOS_PARAMETER1, W
+	bz	CS_M_TRKASG_GP_Callback_NoAsgSet
+	addlw	SEQ_CC_OFFSET_ASG_GATE - 1
+	rcall	CS_M_TRKASG_SelTrgLayer
+CS_M_TRKASG_GP_Callback_NoAsgSet
 	goto	CS_MENU_NewCursorPos	; notify new cursor position and exit
 
 
@@ -190,28 +204,56 @@ CS_M_TRKASG_GxTyChanged
 
 CS_M_TRKASG_GateChanged
 	movlw	SEQ_CC_OFFSET_ASG_GATE
-	goto	CS_M_HLP_TrkCC_Set
+	rgoto	CS_M_TRKASG_XXXChanged
 
 CS_M_TRKASG_SkipChanged
 	movlw	SEQ_CC_OFFSET_ASG_SKIP
-	goto	CS_M_HLP_TrkCC_Set
+	rgoto	CS_M_TRKASG_XXXChanged
 
 CS_M_TRKASG_AccentChanged
 	movlw	SEQ_CC_OFFSET_ASG_ACCENT
-	goto	CS_M_HLP_TrkCC_Set
+	rgoto	CS_M_TRKASG_XXXChanged
 
 CS_M_TRKASG_GlideChanged
 	movlw	SEQ_CC_OFFSET_ASG_GLIDE
-	goto	CS_M_HLP_TrkCC_Set
+	rgoto	CS_M_TRKASG_XXXChanged
 
 CS_M_TRKASG_RollChanged
 	movlw	SEQ_CC_OFFSET_ASG_ROLL
-	goto	CS_M_HLP_TrkCC_Set
+	rgoto	CS_M_TRKASG_XXXChanged
 
 CS_M_TRKASG_RGateChanged
 	movlw	SEQ_CC_OFFSET_ASG_RANDOM_GATE
-	goto	CS_M_HLP_TrkCC_Set
+	rgoto	CS_M_TRKASG_XXXChanged
 
 CS_M_TRKASG_RValueChanged
 	movlw	SEQ_CC_OFFSET_ASG_RANDOM_VALUE
-	goto	CS_M_HLP_TrkCC_Set
+	;; 	rgoto	CS_M_TRKASG_XXXChanged
+
+CS_M_TRKASG_XXXChanged
+	;; temporary store CC number in TMP1
+	movwf	TMP1
+
+	;; call TrkCC function
+	call	CS_M_HLP_TrkCC_Set
+
+	;; restore CC number and select trigger layer depending on new assignment
+	movf	TMP1, W
+	rgoto	CS_M_TRKASG_SelTrgLayer
+
+
+;; --------------------------------------------------------------------------
+;;  Use on encoder and button changes: select trigger layer depending
+;;  on assignment
+;;  expects trigger layer CC SEQ_CC_OFFSET_ASG_xxx in WREG
+;; --------------------------------------------------------------------------
+CS_M_TRKASG_SelTrgLayer
+	call	CS_M_HLP_TrkCC_Get
+	bz	CS_M_TRKASG_SelTrgLayer_End	; no assignment
+CS_M_TRKASG_SelTrgLayer_Set
+	addlw	-1
+	call	MIOS_HLP_GetBitORMask
+	SET_BSR	SEQ_BASE
+	movwf	SEQ_SELECTED_TRG_LAYERS, BANKED
+CS_M_TRKASG_SelTrgLayer_End
+	return

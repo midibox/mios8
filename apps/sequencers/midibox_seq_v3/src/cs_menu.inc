@@ -87,6 +87,10 @@ CS_MENU_Handler_Init
 	call	CS_MENU_StopMessage
 	;; NOTE: this function can set the DISPLAY_INIT_REQ flag again! *DIRTY* (but I don't see a better solution yet)
 
+	;; deselect menu screen if it was active before
+	SET_BSR	SEQ_BASE
+	bcf	SEQ_MODE1, SEQ_MODE1_MENU_PAGE_DISPLAYED, BANKED
+
 	;; clear request flag
 	bcf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	;; force an display update
@@ -822,6 +826,10 @@ CS_MENU_LED_OverlayHandler_End
 ;;  IN:	 page number in WREG
 ;; --------------------------------------------------------------------------
 CS_MENU_ChangePage
+	;; don't display menu page anymore (only first time when menu button has been pressed)
+	SET_BSR	SEQ_BASE
+	bcf	SEQ_MODE1, SEQ_MODE1_MENU_PAGE_DISPLAYED, BANKED
+
 	;; save new page number
 	movwf	CS_MENU_NEW_POS
 	;; saturate to avoid invalid jumps
