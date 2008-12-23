@@ -23,7 +23,7 @@ Required hardware:
    o SD card module connected to J6/J7 (Port C)
 
 Optional hardware:
-   o 
+   o DIN module (1x SR)
 
 ===============================================================================
 
@@ -64,6 +64,8 @@ When the check is done, the lowest/highest writeable sector and failed sectors
 will be shown:
 "0x00 BAD 0x00"
 "0x077BFF"
+
+If a DIN module is connected, you can re-trigger the check by switching pin 0.
 
 Internals: after each failed read/write operation, the applications inits the
 card. Not doing this, causes the communication to fail sometimes, if the app
