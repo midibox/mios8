@@ -1,7 +1,7 @@
 
 DIO Test
 ===============================================================================
-Copyright (C) 2008 Matthias Mächeler (maechler@mm-computing.ch/thismaechler@gmx.ch)
+Copyright (C) 2008 Matthias Mächler (maechler@mm-computing.ch/thismaechler@gmx.ch)
 Licensed for personal non-commercial use only.
 All other rights reserved.
 ===============================================================================
@@ -19,11 +19,11 @@ The details are described under
 ===============================================================================
 
 Required hardware:
-   - one MBHP_CORE module
-	- any number of DIN's / DOUT's
+   o one MBHP_CORE module
+	o any number of DIN's / DOUT's
 
 Optional hardware:
-   o 
+   o Character LCD
 
 ===============================================================================
 
@@ -35,7 +35,7 @@ to change the interval between the single steps (in 10ms)
 When "#define testrun_srset 1" is set to 1, a secod testrun
 will be done with DOUT_SRSet (always one DOUT).
 
-After the testruns, you can bush buttons connected to DIN's, and
+After the testruns, you can push buttons connected to DIN's, and
 the PIN-number will be displayed on the LCD. If "#define din_to_dout 1" is
 set to 1, on DIN PIN = 0 (button down), the DOUT with PIN=DIN-PIN will
 be switched. 
