@@ -29,8 +29,10 @@ Optional hardware:
 
 ===============================================================================
 
-reads encoder changes for four encoders (SR 1, pins 0 - 7),
-increments/decrements values 0-127 and shows the values on
-character LCD
+reads encoder changes for four encoders,
+increments/decrements values 0-enc_value_max and shows the values on
+character LCD.
+modify defines for your needs in main.c. By default, the four encoders are
+assumed to be connected to one SR (enc_sr_number).
 
 ===============================================================================

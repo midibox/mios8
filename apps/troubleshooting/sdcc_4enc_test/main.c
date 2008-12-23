@@ -20,20 +20,41 @@
 #include <pic18fregs.h>
 
 
-unsigned char enc[4];
-unsigned char enc_changed = 0;
+////////////////////////////////////////////////////////////////////////////
+// Parameters For SRIO / Encoder. enc_value_max: 0-255
+///////////////////////////////////////////////////////////////////////////
+
+#define srio_number 16
+#define srio_debounce 20
+
+#define enc_speed_mode MIOS_ENC_SPEED_FAST
+#define enc_speed_parameter 3
+#define enc_mode MIOS_ENC_MODE_DETENTED2
+
+#define enc_value_max 127
+#define enc_sr_number  1
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Application specific encoder table
 // the default (dummy) table has been disabled via -DDONT_INCLUDE_MIOS_ENC_TABLE
 /////////////////////////////////////////////////////////////////////////////
+
 MIOS_ENC_TABLE {
-  MIOS_ENC_ENTRY(1, 0, MIOS_ENC_MODE_DETENTED2),
-  MIOS_ENC_ENTRY(1, 2, MIOS_ENC_MODE_DETENTED2),
-  MIOS_ENC_ENTRY(1, 4, MIOS_ENC_MODE_DETENTED2),
-  MIOS_ENC_ENTRY(1, 6, MIOS_ENC_MODE_DETENTED2),
+  MIOS_ENC_ENTRY(enc_sr_number, 0, enc_mode),
+  MIOS_ENC_ENTRY(enc_sr_number, 2, enc_mode),
+  MIOS_ENC_ENTRY(enc_sr_number, 4, enc_mode),
+  MIOS_ENC_ENTRY(enc_sr_number, 6, enc_mode),
   MIOS_ENC_EOT
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// application variables
+/////////////////////////////////////////////////////////////////////////////
+
+unsigned char enc[4];
+unsigned char enc_changed = 0;
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -43,14 +64,12 @@ MIOS_ENC_TABLE {
 void Init(void) __wparam{
 	unsigned char i;
  	MIOS_SRIO_UpdateFrqSet(1); // ms
-  	MIOS_SRIO_NumberSet(1);
-  	MIOS_SRIO_DebounceSet(20);
+  	MIOS_SRIO_NumberSet(srio_number);
+  	MIOS_SRIO_DebounceSet(srio_debounce);
   	for(i=0;i<4;i++){
   		enc[i] = 0;
-  		MIOS_ENC_SpeedSet(i, MIOS_ENC_SPEED_FAST, 4);
+  		MIOS_ENC_SpeedSet(i,enc_speed_mode , enc_speed_parameter);
   		}
-  	TRISCbits.TRISC5 = 0;
-  	PORTCbits.RC5 = 1;
   	}
 
 /////////////////////////////////////////////////////////////////////////////
@@ -157,7 +176,7 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam{
 	if(incrementer > 0)
-		enc[encoder] = (127 - enc[encoder] > incrementer) ? enc[encoder] + incrementer : 127;
+		enc[encoder] = (enc_value_max - enc[encoder] > incrementer) ? enc[encoder] + incrementer : enc_value_max;
 	else
 		enc[encoder] = ((-enc[encoder]) < incrementer) ? enc[encoder] + incrementer : 0;
 	enc_changed = 1;
