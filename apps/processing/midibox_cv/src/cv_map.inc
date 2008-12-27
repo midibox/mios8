@@ -32,8 +32,9 @@ CV_MAP_RequestUpdateAll_Loop
 	rgoto CV_MAP_RequestUpdateAll_Loop
 
 	;; ensure that gates will be updated
-	comf	GATES, W
-	movwf	GATES_LAST
+	SET_BSR GATES
+	comf	GATES, W, BANKED
+	movwf	GATES_LAST, BANKED
 
 	return
 
@@ -56,7 +57,9 @@ CV_MAP_Update_Loop_GateClr
 
 	movf	CV_CURRENT_CHANNEL, W, BANKED
 	call	MIOS_HLP_GetBitANDMask
-	andwf	GATES, F
+	SET_BSR	GATES
+	andwf	GATES, F, BANKED
+	SET_BSR	CV_BASE
 	rgoto	CV_MAP_Update_Loop_Gate_End
 CV_MAP_Update_Loop_NoGateClr
 
@@ -66,7 +69,9 @@ CV_MAP_Update_Loop_GateSet
 
 	movf	CV_CURRENT_CHANNEL, W, BANKED
 	call	MIOS_HLP_GetBitORMask
-	iorwf	GATES, F
+	SET_BSR	GATES
+	iorwf	GATES, F, BANKED
+	SET_BSR	CV_BASE
 	;;	rgoto	CV_MAP_Update_Loop_Gate_End
 CV_MAP_Update_Loop_NoGateSet
 CV_MAP_Update_Loop_Gate_End
@@ -610,10 +615,11 @@ CV_MAP_Hlp_ConvCurve_Cont
 ;;  USES: TMP[12345] and MIOS_PARAMETER[12]
 ;; --------------------------------------------------------------------------
 CV_MAP_Refresh
-	SET_BSR	CV_BASE
-
 	;; clear gates
-	clrf	GATES
+	SET_BSR	GATES
+	clrf	GATES, BANKED
+
+	SET_BSR	CV_BASE
 
 	;; restore note/velocity/CC/NRPN/PitchWheel values from patch
 	clrf	CV_CURRENT_CHANNEL, BANKED
