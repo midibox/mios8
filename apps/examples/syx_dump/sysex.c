@@ -110,7 +110,7 @@ void SYSEX_Send(unsigned char bank, unsigned char patch)
 
 #if SYSEX_CHECKSUM_PROTECTION
   // send checksum
-  MIOS_MIDI_TxBufferPut((checksum ^ 0xff) & 0x7f);
+  MIOS_MIDI_TxBufferPut(-checksum & 0x7f);
 #endif
 
   // send footer
@@ -345,7 +345,7 @@ void SYSEX_Cmd_WritePatch(unsigned char cmd_state, unsigned char midi_in)
 	// too many bytes received
 	SYSEX_SendAck(SYSEX_DISACK, SYSEX_DISACK_MORE_BYTES_THAN_EXP);
 #if SYSEX_CHECKSUM_PROTECTION
-      } else if( sysex_received_checksum != ((sysex_checksum ^ 0xff) & 0x7f) ) {
+      } else if( sysex_received_checksum != (-sysex_checksum & 0x7f) ) {
 	// notify that wrong checksum has been received
 	SYSEX_SendAck(SYSEX_DISACK, SYSEX_DISACK_WRONG_CHECKSUM);
 #endif
