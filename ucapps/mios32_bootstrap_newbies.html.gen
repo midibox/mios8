@@ -1,0 +1,111 @@
+HEADER 3 MIOS32 Bootloader for Newbies
+
+<H1>MIOS32 Bootloader for Newbies</H1>
+
+<P CLASS=INFO>The MIOS32 Bootloader allows you to upload a MIOS32 application into the internal flash memory of STM32 via USB or UART based MIDI interface.</P>
+
+<P CLASS=DESC>The big advantage of the so called bootstrap method is, that you don't need a programming device like JTAG or a COM port to install or update the software on your MIDIbox. Instead you can buy a preprogrammed STM32F103RE from <A HREF="http://mbhp.avishowtech.com/buy.html" TARGET="_blank">SmashTV</A> (already presoldered on a <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32 PCB</A>) for a reasonable price, or you can ask a friend or a member of the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> who already owns the equipment for flashing the firmware into the STM32. Details are explained in the <A HREF="mios32_bootstrap_experts.html">Experts Section</A>.</P>
+
+<P CLASS=DESC>The bootloader brings benefit even for people who own this equipment, because the usage is faster and more comfortable; it's possible to upload new code on-the-fly without opening the MIDIbox case or plugging cables within a few number of seconds! Speaking about upload performance: an upload via USB MIDI is usually faster than via JTAG (ca. 13..17 kb/s)!</P>
+
+<P CLASS=DESC>In distance to MIOS8, the bootloader, MIOS32 and the application itself are provided as a single binary. This means: once any application has been flashed into the STM32 chip, the bootloader will be available for future code uploads via MIDI as well.</P>
+
+<H2>Starting the Bootloader</H2>
+
+<P CLASS=DESC>The bootloader is started on each STM32 power-on reset, or during runtime if a special SysEx command is received. It sends an upload request, waits 2 seconds for a response, and thereafter starts the actual application. The temporary activation after power-on is provided as a fallback solution; it allows you to replace a faulty application which hangs up or blocks the MIDI interface.</P>
+
+<P CLASS=DESC>For MBHP_CORE_STM32, upload via common MIDI cables (UART based MIDI interface) plugged into MIDI IN1/OUT1 sockets (UART0 pins A9/A10) is always possible.</P>
+
+<P CLASS=DESC>Upload via USB (the fastest method) requires some special measures, as the USB MIDI device won't be enumerated fast enough by the host operating system (e.g. Windows) after power-on:
+<UL CLASS=CL>
+  <LI>upload via USB interface can be started during runtime if the application configured it for MIDI (this is mostly the case) and doesn't crash on incoming MIDI streams (should be mostly the case for released applications)
+  <LI>if the application uses the USB interface for other purposes (e.g. Virtual COM), or the upload doesn't work for any reason (e.g. due to a bug during program development), jumper J27 (Boot1) can be stuffed on the MBHP_CORE_STM32 module to select Bootloader Hold mode (J23 aka. Boot0 should *not* be stuffed!).<BR>
+  Thereafter power-cycle the core.<BR>
+  Once in hold mode, a special USB MIDI device will be available (called "MIOS32 Bootloader") to upload code. The application will be started once the jumper has been removed again.
+  <LI>If the bootloader is running on a STM32 Primer, the Hold mode can be activated by soldering a small cable between the boot1 signal on R48 and Ground as shown <A HREF="">in this picture</A>. However, the Primer contains an integrated debug interface which makes it easy to recover the MIOS32 installation w/o this measure.</UL>
+</P>
+
+<H2>Code Upload</H2>
+
+<TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0>
+
+  <TR>
+    <TD><A HREF="http://miosstudio.midibox.org" TARGET="_blank"><IMG SRC="images/midibox_logo.gif" WIDTH=160 ALT="Link to MIOS Studio"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> <A HREF="http://miosstudio.midibox.org" TARGET="_blank">Download MIOS Studio</A> - this is a Java based environment with MIOS specific tools which runs on PCs and Macs.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="http://java.sun.com" TARGET="_blank"><IMG SRC="mios/mios_download_java.gif" WIDTH=163 HEIGHT=84 ALT="Link to java.sun.com"></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM> Download the <A HREF="http://java.sun.com" TARGET="_blank">Java Runtime Environment</A> for your computer if it isn't installed yet.<BR>
+     MacOS users need to install a com.apple.audio.midi replacement like mmj, Plumstone or Mandolane as described in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mios_studio" TARGET="_blank">Wiki</A></SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD>&nbsp;</TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Crossconnected the MIDI ports of the core module with the MIDI ports of your computer:
+<UL CLASS=CL>
+  <LI>MIDI In Core -> MIDI Out PC/Mac</LI>
+  <LI>MIDI Out Core -> MIDI In PC/Mac</LI>
+</UL>
+     ...or connect the USB cable of the core module.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/mios_studio_32_1.png"><IMG SRC="mios/mios_studio_32_1.png" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Open the MIDI Device Routing window of MIOS Studio, Right-click on the MIDI In Port of your MIDI device, and route it to "MIOS Studio In Port"</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/mios_studio_32_2.png"><IMG SRC="mios/mios_studio_32_2.png" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Right-click on the MIDI Out Port of the MIDI device, and route it to "MIOS Studio Out port". Now the tools of MIOS Studio can communicate with the core.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/mios_studio_32_3.png"><IMG SRC="mios/mios_studio_32_3.png" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Open the "Hex Upload" window, ensure that the MIOS32 switch is enabled, and press the Query Button - this requests some interesting parameters from the connected core - it especially shows you, which application is currently running.<BR>If the query function is not working, something is wrong with your MIDI connection, and code upload won't work as well.</SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD><A HREF="mios/mios_studio_32_4.png"><IMG SRC="mios/mios_studio_32_4.png" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
+    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
+    <TD><SPAN CLASS=NORM>Now load a .hex file of a MIOS32 application into MIOS Studio and press the Start button to upload the application.</SPAN></TD>
+  </TR>
+
+</TABLE>
+
+<P CLASS=DESC>If no error has been reported by the upload tool (to ensure this, scroll up the log window and check all status messages), it can be assumed that the application has been installed successfully. Note that it is not possible to run multiple applications in parallel - a new application will always overwrite the old one.</P>
+
+<P CLASS=DESC>Note: if you are using the USB interface under Windows, it is required to restart MIOS Studio whenever the core has been power-cycled, resp. the USB MIDI Device has been enumerated again. You probably know this issue from your other USB MIDI interfaces as well. This measure isn't required when you are using MacOS or Linux.<BR>
+Another typical Windows issue: instead of "MIOS32", the USB device is probably called "Audio Device" or in german "Audioger&auml;t".</P>
+
+
+<H2>Changing the Device ID</H2>
+
+<P CLASS=DESC>If multiple cores are connected to a single UART based MIDI port in parallel or in a chain, each core should get it's unique device ID, so that MIOS Studio can address the code to the right receiver. In distance to MIOS8, the Device ID is stored in internal flash and doesn't require a special application to change it. Instead, the bootloader provides a special SysEx request:
+<UL CLASS=CL>
+  <LI><TT>F0 00 00 7E 32 &lt;current ID&gt; 0C &lt;new ID&gt; F7</TT>
+</UL>
+Once received, the core will response with two acknowledge messages - one with the previous, the other with the new ID:
+<UL CLASS=CL>
+  <LI><TT>F0 00 00 7E 32 &lt;previous ID&gt; 0F &lt;new ID&gt; F7</TT>
+  <LI><TT>F0 00 00 7E 32 &lt;new ID&gt; 0F &lt;new ID&gt; F7</TT>
+</UL>
+If MIOS32 returns an acknowledge reply with error code 0E (=invalid command):
+<UL CLASS=CL>
+  <LI><TT>F0 00 00 7E 32 &lt;current ID&gt; 0E 0E F7</TT>
+</UL>
+it means, that the bootloader isn't actively running. Retry to send the SysEx request after power-cycling the core.
+</P>
+
+<P>Please note that the device ID selected in the MIOS Studio upload window must match with the device ID of the core which should response to the transfer. This means in other words: after the MIOS device ID has been modified, the ID in the upload window has to be changed as well, so that it matches with the new ID value.</P>
+
+<P CLASS=DESC>So long you are using an USB interface, or only a single MIDIbox is connected to a UART based MIDI port, it's save to use device ID 00.</P>
+
+
+FOOTER

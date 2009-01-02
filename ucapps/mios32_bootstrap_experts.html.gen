@@ -1,0 +1,162 @@
+HEADER 3 MIOS32 Bootloader Installation
+
+<H1>MIOS32 Bootloader Installation</H1>
+
+<P CLASS=DESC>This page describes how to install the MIOS32 bootloader on a STM32 microcontroller, so that applications can be uploaded via MIDI without opening the MIDIbox case.</P>
+
+<P CLASS=DESC>Following informations are not for interest if you got a preburned STM32F103RE -&gt; please continue at <A HREF="mios32_bootstrap_newbies.html">this page</A>.</P>
+
+<H2>COM or JTAG?</H2>
+
+<P CLASS=DESC>Unfortunately STM missed to integrate an USB based bootloader into the ROM memory, so that additional hardware is required to program a "virgin" internal flash memory. Using the ROM based UART Bootloader is probably the cheapest method, as it only requires a RS232 level shifter (e.g. available on the <A HREF="mbhp_ltc.html">MBHP_LTC module</A>) and a COM port on your PC (virtual USB based COM devices are working as well).</P>
+
+<P CLASS=DESC>The prefered method for experts is the usage of a JTAG wiggler, as it gives access to debugging features of the ARM Cortex M3, like halting the CPU, setting breakpoints, reading/writing memories during the application is running.</P>
+
+Here an oversight about the advantages/disadvantages in conjunction with code upload via MIOS32 bootloader:
+<UL CLASS=CL>
+  <LI><B>MIOS32 MIDI/USB Bootloader</B>
+    <UL CLASS=CL>
+      <LI>- has to be programmed into a virgin flash via JTAG or UART - or has to be provided in "preprogrammed chips"
+      <LI>- can be destroyed by the application on gross program errors (e.g. erasing the wrong flash sector), therefore JTAG or UART BSL has to be used as fallback solution
+      <LI>- no access to debug features of STM32
+      <LI>- UART based MIDI is much slower than JTAG or UART BSL (ca. 2.5 kb/s)
+      <LI>+ however, USB MIDI (13..17 kb/s) is even faster than JTAG (12 kb/s)
+      <LI>+ USB interface won't be reset after code upload (means: no need to re-open a running MIDI program on your Windows PC)
+      <LI>+ a solution to program STM32 Primer under Linux/MacOS
+      <LI>+ proven concept for end-users
+      <LI>+ doesn't require to open the MIDIbox case when updating an application
+    </UL>
+  <LI><B>JTAG</B>
+    <UL CLASS=CL>
+      <LI>- requires JTAG wiggler (USB based: ca. 30-40 EUR, DIY Parallel Port based: ca. 5 EUR)
+      <LI>- Parallel Port based: no precompiled openocd r717 version for Windows available
+      <LI>- Parallel Port based: requires "true LPT" port, USB Printer adapters won't work. Therefore especially no solution for modern Laptops
+      <LI>+ FT2232 based USB JTAG wiggler is expensive, but works fast & flawless under Windows/Linux/MacOS
+      <LI>+ allows to debug application during runtime (e.g. display and modify memory locations, halt the CPU, setting breakpoints)
+      <LI>- MIDIbox case has to be opened to connect the JTAG wiggler
+    </UL>
+  <LI><B>UART BSL</B>
+    <UL CLASS=CL>
+      <LI>+ requires COM port (USB based COM adapters will work as well) + a RS232 level shifter like available on the <A HREF="mbhp_ltc.html">MBHP_LTC module</A>
+      <LI>+ code upload slower than JTAG, but acceptible for less frequent updates
+      <LI>+ COM/LTC combination not only useful for flash programming, but also for debugging (-> printf to a console)
+      <LI>- case has to be opened
+      <LI>- before using the BSL, jumpers have to be stuffed on the core module
+      <LI>- no access to ARM debugging functions
+      <LI>+ anyhow, perfect fallback solution for end-users, if the MIOS32 BSL has been destroyed, and useful for textual output as well
+</UL>
+</P>
+
+<H2>Accessing the core via JTAG</H2>
+
+<P CLASS=DESC>JTAG is a standardized serial interface (IEEE 1149.1) made especially for debugging and testing purposes, and supported by many hardware devices today, especially by microcontrollers.</P>
+
+<P CLASS=DESC>A premade wiggler typically costs around 30..40 EUR, such as <A HREF="http://shop.embedded-projects.net/product_info.php?info=p75_OpenOCD-USB-Adapter.html" TARGET="_blank">the OpenOCD USB Adapter</A> (40 EUR) or the <A HREF="http://www.amontec.com/jtagkey-tiny.shtml" TARGET="_blank">JTAGkey-Tiny</A> (30 EUR). I for myself own the OpenOCD USB Adapter and really like the additional COM port, which allows me to send printf based debug messages to a COM terminal on my Mac by connecting it to a UART output (typically MBHP_CORE_STM32::J11:MO2, configured at 115200 baud). It also works flawless under Windows and Linux, however this can be expected for all FT2232 based JTAG interfaces, such as JTAGkey-Tiny.</P>
+
+<P CLASS=DESC>There are also cheaper, LPT (parallel port) based JTAG interfaces on the market (especially on EBay), but LPT ports are normaly not available on modern computers anymore, and USB Printer adapters won't allow you to access the wiggler.</P>
+
+<P CLASS=DESC>The 20 pin JTAG cable has to be connected to J3 of the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module. This can even be done while an application is running (hot-attach).</P>
+
+<P CLASS=DESC>With <A HREF="http://openocd.berlios.de/web/" TARGET="_blank">OpenOCD</A> a platform independent open source tool is available to access the STM32. The scripts in the MIOS32 programming platform are prepared for r717 and not compatible to newer versions. This could change in future, once precompiled Windows binaries are available for newer versions.</P>
+
+<P CLASS=DESC><B>Installation:</B>
+<UL CLASS=CL>
+  <LI><B>Windows:</B> you can download an installation package of OpenOCD r717 <A HREF="http://www.yagarto.de/howto/openocd/index.html#install" TARGET="_blank">here</A>
+  <LI><B>MacOS/Linux:</B> download r171 from the SVN repository with:<BR>
+      <TT>svn -r 717 co svn://svn.berlios.de/openocd/trunk</TT><BR>
+      and follow the installation instructions given in the INSTALL file.<BR>
+      You might need to install <A HREF="http://sourceforge.net/project/showfiles.php?group_id=1674&package_id=1632&release_id=398442" TARGET="_blank">usblib</A> before, which gives OpenOCD access to the USB interface.
+</UL>
+</P>
+
+<P CLASS=DESC><B>Quickstart:</B> While starting OpenOCD, you need to specify two configuration scripts - one which specifies the JTAG interface, another which specifies the STM32 target. Prepared scripts are located in the MIOS32 repository under <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fetc%2Fopenocd%2F" TARGET="_blank">$MIOS32_PATH/etc/openocd</A>.
+
+<UL CLASS=CL>
+  <LI><B>Quickstart DOS:</B> 
+    We assume, that the MIOS32 repository is available under D:\mios32, and that MIOS32_PATH has been set accordingly:
+    <UL CLASS=CL>
+      <LI><TT>set MIOS32_PATH=D:\mios32\trunk</TT></LI>
+    </UL>
+    Open a new DOS shell, <B>go into the directory where you built the code</B>, and start the OpenOCD server with:
+    <UL CLASS=CL>
+      <LI><TT>openocd-ftd2xx -f %MIOS32_PATH%\etc\openocd\interface\in-circuit-openocd-dos.cfg -f %MIOS32_PATH%\etc\openocd\target\STM32F10x.cfg</TT>      
+    </UL>
+   Note that you probably need to adapt the interface setup file!<BR>
+   You can left this DOS window open while rebuilding your application - it can run permanently to talk with your STM32<BR>
+   If you are using a different JTAG interface, create a new .cfg file for it and
+   adapt the USB search string (thereafter commit your new file to the repository,
+   so that others can use it as well!)<BR>
+   Open another DOS shell, and type: <TT>telnet localhost 4444</TT><BR>
+   This will connect you with the server<BR>
+   "help" gives you a list of available commands.<BR>
+   My favourites:
+<PRE>
+script &lt;filename&gt;      # to execute a batch file
+reset run              # to reset the chip
+halt                   # to stop CPU execution
+resume                 # to continue CPU execution
+reg                    # to get CPU registers, e.g. the program counter (only works in halt mode)
+mdw                    # to display memory regions, e.g. flash, SRAM and peripheral registers
+</PRE>
+   Inside the telnet session, type:
+   <UL CLASS=CL>
+     <LI><TT>script D:\mios32\trunk\etc\openocd\scripts\STM32F10x_upload.script</TT>
+   </UL>
+   to download and execute the project.bin file of the directory location from
+   where you started the OpenOCD server (and not the telnet session!)<BR>
+   Note that "telnet" also allows to connect you to a remote computer. Means: you are able to debug a MBHP_CORE_STM32 module via intra- or internet!<BR>
+
+
+  <LI><B>Quickstart MacOS/Linux:</B> 
+    We assume, that the MIOS32 repository is available under /Users/TK/svn/mios32, and that MIOS32_PATH has been set accordingly:
+    <UL CLASS=CL>
+      <LI><TT>export MIOS32_PATH = /Users/TK/svn/mios32/trunk</TT></LI>
+    </UL>
+    Open a new shell, <B>go into the directory where you built the code</B>, and start the OpenOCD server with:
+    <UL CLASS=CL>
+      <LI><TT>openocd -f $MIOS32_PATH/etc/openocd/interface/in-circuit-openocd.cfg -f $MIOS32_PATH/etc/openocd/target/STM32F10x.cfg</TT>
+    </UL>
+   Note that you probably need to adapt the interface setup file!<BR>
+   You can left this shell window open while rebuilding your application - it can run permanently to talk with your STM32<BR>
+   If you are using a different JTAG interface, create a new .cfg file for it and
+   adapt the USB search string (thereafter commit your new file to the repository,
+   so that others can use it as well!)<BR>
+   Open another shell, and type: <TT>telnet localhost 4444</TT><BR>
+   This will connect you with the server<BR>
+   "help" gives you a list of available commands.<BR>
+   My favourites:
+<PRE>
+script &lt;filename&gt;      # to execute a batch file
+reset run              # to reset the chip
+halt                   # to stop CPU execution
+resume                 # to continue CPU execution
+reg                    # to get CPU registers, e.g. the program counter (only works in halt mode)
+mdw                    # to display memory regions, e.g. flash, SRAM and peripheral registers
+</PRE>
+   Inside the telnet session, type:
+   <UL CLASS=CL>
+     <LI><TT>script /Users/TK/svn/mios32/trunk/etc/openocd/scripts/STM32F10x_upload.script</TT>
+   </UL>
+   to download and execute the project.bin file of the directory location from
+   where you started the OpenOCD server (and not the telnet session!)<BR>
+   Note that "telnet" also allows to connect you to a remote computer. Means: you are able to debug a MBHP_CORE_STM32 module via intra- or internet!<BR>
+</UL>
+</P>
+
+<P CLASS=DESC>Not part of this quickstart guide: OpenOCD has a gdb interface which allows you to debug code from a IDE like Eclipse, Code Blocks (all operating systems) and XCode (MacOS)</P>
+
+<P CLASS=DESC>Personally I prefer to edit source code with xemacs, run "make" in the shell to build a new binary, and debugging my code with printf messages or by sending MIDI events. Under special circumstances, I'm using <A HREF="http://sourceware.org/insight" TARGET="_blank">Insight</A> to debug the application for interactive debugging via gdb. A short installation guide can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fdoc%2FMEMO" TARGET="_blank">MIOS32 MEMO</A>.</P>
+
+
+<H2>Uploading code via ROM based UART Bootloader</H2>
+
+<P CLASS=DESC>This is probably the cheapest solution to download code into a "virgin" device. STM provides a comfortable windows application which connects to the bootloader and allows to upload a .bin file.<BR>
+References: <A HREF="http://www.st.com/stonline/products/support/micro/files/um0462.zip" TARGET="_blank">Flash Loader</A>, <A HREF="http://www.st.com/stonline/products/literature/um/13916.pdf" TARGET="_blank">Documentation</A>.</P>
+
+<P CLASS=DESC>The transfer protocol is documented as well (<A HREF="http://www.st.com/stonline/products/literature/an/13801.pdf" TARGET="_blank">here</A>), so creating a similar program for Linux and MacOS is feasible.</P>
+
+<P CLASS=DESC>Here an <A HREF="http://www.ucapps.de/mbhp/mbhp_ltc_stm32_bsl.pdf">interconnection diagram for the LTC module</A>, here a <A HREF="http://www.ucapps.de/mbhp/mbhp_core_stm32_uart_bsl.jpg">picture of my test setup</A>.</P>
+
+<P CLASS=DESC>Note that you need to remove the bootmode jumpers on J27 and J23, and power-cycle the core after code upload.</P>
+
+FOOTER
