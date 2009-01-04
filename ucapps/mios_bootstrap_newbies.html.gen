@@ -14,7 +14,7 @@ HEADER 3 MIOS Bootstrap Loader for Newbies
 
 <P CLASS=DESC>In fact two bootstrap loaders do exist, one with a very basic functionality, which gets active for ca. 2 seconds after a power-on, and a secondary loader, which is part of MIOS itself. The communication protocol of both loaders is identical, accordingly the same tools can be used.</P>
 
-<P CLASS=DESC>It's important to know, that MIOS itself can only be uploaded with the primary loader. Applications can always be uploaded - if not, there is an error in the application which prevents this, but in this case you could just use the primary loader in order to refresh the code under save conditions (just power-off/power-on the core or trigger the external reset by tipping ground to pin #1 of the PIC).</P>
+<P CLASS=DESC>It's important to know, that MIOS itself can only be uploaded with the primary loader. Applications can always be uploaded - if not, there is an error in the application which prevents this, but in this case you could just use the primary loader in order to refresh the code under safe conditions (just power-off/power-on the core or trigger the external reset by tipping ground to pin #1 of the PIC).</P>
 
 <H2>Uploading MIOS</H2>
 
@@ -104,7 +104,7 @@ Please refer to <A HREF="mbhp/auaimbctg.pdf">this wiring diagram</A> for a bette
   <LI>if multiple cores are connected to a single MIDI port in parallel or in a chain, each core should get it's unique device ID, so that the upload tool can address the code to the right receiver. The device ID is part of the ID header, which can only be modified during the flash programming of the bootstrap loader, or with the <A HREF="mios_download.html">change_id</A> application.<BR>
 The device ID selected in the upload window must match with the device ID of the core which should response to the transfer.<BR>
 This means in other words: after the MIOS device ID has been modified by the change_id application, the ID in the MIOS Studio Upload Window has to be changed as well, so that it matches with the new ID value.<BR>
-So long only one MIDIbox is connected to the MIDI port, it's save to use device ID 00. A project where different device IDs are required is the MIDIbox SID (the master gets the ID 00, the slaves the IDs 01, 02 and 03)</LI>
+So long only one MIDIbox is connected to the MIDI port, it's safe to use device ID 00. A project where different device IDs are required is the MIDIbox SID (the master gets the ID 00, the slaves the IDs 01, 02 and 03)</LI>
   <LI>Especially MIDIbox SID users will notice the problem, that the MIDI Outs of the slaves are not connected to the PC (only the MIDI Out of the master core). Accordingly, the upload tool of MIOS studio won't continue after the first code block has been transfered, since it doesn't get a response.<BR>
 There are two adequate solutions to overcome this:
   <UL CLASS=CL>

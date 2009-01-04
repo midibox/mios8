@@ -75,7 +75,7 @@ CS_M_UTILS_GP_Callback_Move
 	;; call move handler
 	rcall	CS_M_UTILS_Move
 	;; clear incrementer (no additional encoder action)
-	clrf	CS_MENU_ENC_INCREMENTER, W
+	clrf	CS_MENU_ENC_INCREMENTER
 	return
 
 
@@ -118,7 +118,7 @@ CS_M_UTILS_GP_Callback_CopyCont
 	;; update display depending on selected step position
 	rcall	CS_M_UTILS_StepUpdate
 	;; clear incrementer (no additional encoder action)
-	clrf	CS_MENU_ENC_INCREMENTER, W
+	clrf	CS_MENU_ENC_INCREMENTER
 	return
 
 
@@ -126,7 +126,7 @@ CS_M_UTILS_GP_Callback_Paste
 	;; change paste offset
 	rcall	CS_M_UTILS_StepIncDec
 	;; clear incrementer (no additional encoder action)
-	clrf	CS_MENU_ENC_INCREMENTER, W
+	clrf	CS_MENU_ENC_INCREMENTER
 	return
 
 
@@ -141,7 +141,7 @@ CS_M_UTILS_GP_Callback_Scroll
 	;; call scroll handler
 	rcall	CS_M_UTILS_Scroll
 	;; clear incrementer (no additional encoder action)
-	clrf	CS_MENU_ENC_INCREMENTER, W
+	clrf	CS_MENU_ENC_INCREMENTER
 	return
 
 

@@ -86,6 +86,9 @@ CS_M_TRKRND_GP_Callback_1
 
 CS_M_TRKRND_GP_Callback_2
 CS_M_TRKRND_GP_Callback_3
+	movf	CS_MENU_ENC_INCREMENTER, W ; ignore encoder
+	bnz	CS_M_TRKRND_GP_Callback_EncIgn
+
 	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and store moved value
 	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_TRKRND_GP_Callback_2_1
 CS_M_TRKRND_GP_Callback_2_0
@@ -115,6 +118,9 @@ CS_M_TRKRND_GP_Callback_5
 	rgoto	CS_M_TRKRND_GP_Callback_EncIgn
 
 CS_M_TRKRND_GP_Callback_6
+	movf	CS_MENU_ENC_INCREMENTER, W ; ignore encoder
+	bnz	CS_M_TRKRND_GP_Callback_EncIgn
+
 	;; Clr
 	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and exit
 	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_TRKRND_GP_Callback_6_1
@@ -134,6 +140,9 @@ CS_M_TRKRND_GP_Callback_6_1
 
 
 CS_M_TRKRND_GP_Callback_7
+	movf	CS_MENU_ENC_INCREMENTER, W ; ignore encoder
+	bnz	CS_M_TRKRND_GP_Callback_EncIgn
+
 	;; do nothing if GP button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
@@ -144,6 +153,9 @@ CS_M_TRKRND_GP_Callback_7
 
 
 CS_M_TRKRND_GP_Callback_8
+	movf	CS_MENU_ENC_INCREMENTER, W ; ignore encoder
+	bnz	CS_M_TRKRND_GP_Callback_EncIgn
+
 	;; Undo
 	;; once button has been depressed: clear CS_IN_MENU_MSG[7] and exit
 	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, CS_M_TRKRND_GP_Callback_8_1

@@ -180,7 +180,7 @@ CS_M_OPT_Tick
 	;; <--------------------------------------><-------------------------------------->
 	;; SyncPatChange  FollowSong  Paste/Clr Beh Control  Root      Selected Scale      
 	;; 00000000001111111111222222222233333333334444444444555555555566666666667777777777
-	;;   off    16        off       Steps only   Global   Keyb   50:Hungarian Gypsy     
+	;;   off    16        off       Steps only  Global   Keyb   50:Hungarian Gypsy     
 	;; --888888888--------999-------AAAAAAAAAA--BBBBBBBBBBCCCCCDDDDDEEEEEEEEEEEEEEEEEEE
 
 	movf	CS_MENU_REFRESH_ITEM_CTR, W
