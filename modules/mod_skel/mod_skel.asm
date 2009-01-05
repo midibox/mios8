@@ -66,7 +66,7 @@ mod_skel CODE
 ; _mod_skel_function	; example shows 
 ; 						; (one byte argument, function declared with  __wparam keyword)
 ;						; EG: void mod_skel_function(unsigned char myvar);
-; 	movwf	_mod_skel_var
+; 	movff	WREG,	_mod_skel_var
 ; 	rgoto	mod_skel_function
 
 
@@ -74,7 +74,7 @@ mod_skel CODE
 ; 						; a char (1 byte, stared in W thanks to __wparam), 
 ; 						; an int (2 bytes)
 ;						; EG: void mod_skel_function(unsigned char myvar, signed int myint);
-; 	movwf	_mod_skel_var		; get first byte of arguments from W
+; 	movff	WREG,	_mod_skel_var		; get first byte of arguments from W
 ; 
 ; 	movff	FSR0L, FSR2L		; get other arguments from stack
 ; 	movff	PREINC2, _yourint+0
