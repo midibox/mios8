@@ -1,0 +1,151 @@
+// $Id: main.c 539 2008-11-23 23:29:22Z stryd_one $
+/*
+ * AOUT Test
+ *
+ * ==========================================================================
+ *
+ *  Copyright (C) 2009  
+ *  Matthias Mächler (maechler@mm-computing.ch / thismaechler@gmx.ch)
+ *  Licensed for personal non-commercial use only.
+ *  All other rights reserved.
+ * 
+ * ==========================================================================
+ */
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Include files
+/////////////////////////////////////////////////////////////////////////////
+
+#include <cmios.h>
+#include <pic18fregs.h>
+#include <aout.h>
+
+unsigned int counter = 0;
+unsigned char phase = 0;
+unsigned int value = 0;
+
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after startup to initialize the 
+// application
+/////////////////////////////////////////////////////////////////////////////
+void Init(void) __wparam{
+	AOUT_Init();
+	MIOS_TIMER_Init(0x01,50000);//10ms
+	}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS in the mainloop when nothing else is to do
+/////////////////////////////////////////////////////////////////////////////
+void Tick(void) __wparam{
+	unsigned char i;
+	if (counter >= 500){
+		counter = 0;
+		value = phase*0x7FFF;
+		phase = (phase == 2) ? 0 : phase + 1;
+		for(i=0;i<8;i++)
+			AOUT_Pin16bitSet(i, value);
+		AOUT_Update();
+		MIOS_LCD_Clear();
+		MIOS_LCD_CursorSet(0x00);
+		MIOS_LCD_PrintCString("8x AOut set to:");
+		MIOS_LCD_CursorSet(0x40);
+		MIOS_LCD_PrintBCD5(value);		
+		}
+	}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is periodically called by MIOS. The frequency has to be
+// initialized with MIOS_Timer_Set
+/////////////////////////////////////////////////////////////////////////////
+void Timer(void) __wparam{
+	counter++;
+	}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when the display content should be 
+// initialized. Thats the case during startup and after a temporary message
+// has been printed on the screen
+/////////////////////////////////////////////////////////////////////////////
+void DISPLAY_Init(void) __wparam{
+	MIOS_LCD_Clear();
+	MIOS_LCD_CursorSet(0x00);
+	MIOS_LCD_PrintCString("Start AOut Test..");
+	}
+
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called in the mainloop when no temporary message is shown
+//  on screen. Print the realtime messages here
+/////////////////////////////////////////////////////////////////////////////
+void DISPLAY_Tick(void) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//  This function is called by MIOS when a complete MIDI event has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a MIDI event has been received
+// which has been specified in the MIOS_MPROC_EVENT_TABLE
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyFoundEvent(unsigned entry, unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a MIDI event has not been completly
+// received within 2 seconds
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyTimeout(void) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a MIDI byte has been received
+/////////////////////////////////////////////////////////////////////////////
+void MPROC_NotifyReceivedByte(unsigned char byte) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS before the shift register are loaded
+/////////////////////////////////////////////////////////////////////////////
+void SR_Service_Prepare(void) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS after the shift register have been loaded
+/////////////////////////////////////////////////////////////////////////////
+void SR_Service_Finish(void) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when an button has been toggled
+// pin_value is 1 when button released, and 0 when button pressed
+/////////////////////////////////////////////////////////////////////////////
+void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when an encoder has been moved
+// incrementer is positive when encoder has been turned clockwise, else
+// it is negative
+/////////////////////////////////////////////////////////////////////////////
+void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is called by MIOS when a pot has been moved
+/////////////////////////////////////////////////////////////////////////////
+void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
+{
+}
