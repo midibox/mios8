@@ -14,9 +14,9 @@
 ; mod_skel  .... Your code starts here!!
 
 ; mod_skel defines
-#ifndef _mod_skel_def	; if it's not already defined in the makefile (see readme.txt)
-#define _mod_skel_def 1	; default to 1
-#endif					; (see also mod_skel.asm for GPASM fix!)
+#ifndef mod_skel_def	; if it's not already defined in the makefile (see readme.txt)
+#define mod_skel_def 1	; default to 1
+#endif
 
 
 ;; --------------------------------------------------------------------------
@@ -30,7 +30,7 @@
 
 _mod_skel_function ; (for C)
 mod_skel_function
-#if _mod_skel_def==1	; note this is using the define from the fix in the asm file!
+#if mod_skel_def==1	; note this is using the define from the fix in the asm file!
 	incf _mod_skel_var, F, BANKED
 #endif
 	call _mod_skel_extfunc

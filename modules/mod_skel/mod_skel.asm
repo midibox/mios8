@@ -12,19 +12,6 @@
 #include <macros.h>
 
 ; ==========================================================================
-; Fix defines
-; ==========================================================================
-;; grrrr! "#if defined(mod_skel_def) && mod_skel_def == 0" not supported by GPASM
-;; therefore we create a helper #define
-;; this 'copies' the define to the module
-;; thanks to TK for figuring this out!
-#ifdef mod_skel_def
-#define _mod_skel_def mod_skel_def
-#else
-#define _mod_skel_def 1
-#endif
-
-; ==========================================================================
 ; Import/Export Labels
 ; ==========================================================================
 
