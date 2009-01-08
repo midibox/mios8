@@ -18,8 +18,9 @@
 ; Import/Export Labels
 ; ==========================================================================
 
-;	global	_mod_skel_function		; (for C, declaration in mod_skel.h)
-;	global	_mod_skel_var
+	; (for C, declaration in fram.h)
+	; global	_mod_skel_function
+	; global	_mod_skel_var
 
 ; ==========================================================================
 ;  Declare variables 
@@ -30,6 +31,9 @@
 FRAM_IIC_VARS UDATA
 FRAM_IIC_BUF RES 1
 #endif
+
+FRAM_VARS UDATA
+FRAM_REG RES 1
 
 
 ; ==========================================================================

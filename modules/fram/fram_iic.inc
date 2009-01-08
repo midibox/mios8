@@ -37,6 +37,10 @@ FRAM_IIC_SavemodeDelay MACRO
 	FILL (nop), FRAM_IIC_SAVEMODE ; inserts as many nop's as savemode is set to!
 	ENDM 
 
+;; --------------------------------------------------------------------------
+;;  FUNCTION: FRAM_IIC_Start 
+;;  DESCRIPTION: performs IIC start condition
+;; --------------------------------------------------------------------------
 FRAM_IIC_Start
 	bcf FRAM_IIC_TRIS_SCL,FRAM_IIC_PIN_SCL ;SCL -> Output
 	bcf FRAM_IIC_TRIS_SDA,FRAM_IIC_PIN_SDA ;SDA -> Output
@@ -54,6 +58,10 @@ FRAM_IIC_Start
 	;clock must stay low for at least 0.6uS now.
 	return
 	
+;; --------------------------------------------------------------------------
+;;  FUNCTION: FRAM_IIC_Stop 
+;;  DESCRIPTION: performs IIC stop condition
+;; --------------------------------------------------------------------------
 FRAM_IIC_Stop
 	bcf FRAM_IIC_PORT_SDA,FRAM_IIC_PIN_SDA ;SDA -> 0
 	FRAM_IIC_SavemodeDelay
@@ -65,16 +73,26 @@ FRAM_IIC_Stop
 	;bus free before next transmission > 0.5uS
 	return
 	
-FRAM_IIC_NakSend
-	bsf FRAM_IIC_PORT_SDA,FRAM_IIC_PIN_SDA ;SDA -> 1, NAK
-	FRAM_IIC_SavemodeDelay
-	bsf FRAM_IIC_PORT_SCL,FRAM_IIC_PIN_SCL ;SCL -> 1
-	BRA FRAM_IIC_NackEnd
+;; --------------------------------------------------------------------------
+;;  FUNCTION: FRAM_IIC_AckSend 
+;;  DESCRIPTION: sends a ACK to the IIC slave
+;; --------------------------------------------------------------------------
 FRAM_IIC_AckSend
 	bcf FRAM_IIC_PORT_SDA,FRAM_IIC_PIN_SDA ;SDA -> 0, ACK
 	FRAM_IIC_SavemodeDelay
 	bsf FRAM_IIC_PORT_SCL,FRAM_IIC_PIN_SCL ;SCL -> 1
 	BRA FRAM_IIC_NackEnd
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: FRAM_IIC_NakSend 
+;;  DESCRIPTION: sends a NAK to the IIC slave
+;; --------------------------------------------------------------------------
+FRAM_IIC_NakSend
+	bsf FRAM_IIC_PORT_SDA,FRAM_IIC_PIN_SDA ;SDA -> 1, NAK
+	FRAM_IIC_SavemodeDelay
+	bsf FRAM_IIC_PORT_SCL,FRAM_IIC_PIN_SCL ;SCL -> 1
+	BRA FRAM_IIC_NackEnd
+	
 FRAM_IIC_NackEnd
 	nop;clock high min 04uS
 	FRAM_IIC_SavemodeDelay
@@ -82,6 +100,14 @@ FRAM_IIC_NackEnd
 	;clock must stay low now for min. 0.6uS
 	return
 	
+;; --------------------------------------------------------------------------
+;;  FUNCTION: FRAM_IIC_ByteReceive 
+;;  DESCRIPTION: reads 1 byte from IIC port
+;; 
+;;  IN:   -
+;;  OUT:  received byte in WREG
+;;  USES: - FRAM_IIC_BUF
+;; --------------------------------------------------------------------------
 FRAM_IIC_ByteReceive
 	SET_BSR	FRAM_IIC_BUF
 	clrf FRAM_IIC_BUF, BANKED;init buffer with 0x00
@@ -104,6 +130,14 @@ FRAM_IIC_ReadBit
 	movf FRAM_IIC_BUF,W,BANKED ; copy received byte to WREG and return
 	return
 	
+;; --------------------------------------------------------------------------
+;;  FUNCTION: FRAM_IIC_ByteReceive 
+;;  DESCRIPTION: reads 1 byte from IIC port
+;; 
+;;  IN:  Byte to send in WREG
+;;  OUT: 0x00 on NAK received, 0xFF on ACK received
+;;  USES: - FRAM_IIC_BUF
+;; --------------------------------------------------------------------------
 FRAM_IIC_ByteSend
 	SET_BSR FRAM_IIC_BUF
 	movwf FRAM_IIC_BUF,BANKED;move WREG to buffer

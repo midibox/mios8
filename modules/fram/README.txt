@@ -6,7 +6,7 @@ it's memory space is splitted into two sectors. Therefore the 512 has
 just two device address pins, while FM24C256/FM24C64 have three.
 
 So the chip select address is 3 bits for all device type, the address range
-is 0x00 - 0x8000 for FM24C512 and FM24C256, 0x00 - 0x2000 for the FM24C64.
+is 0x0000 - 0x7FFF for FM24C512 and FM24C256, 0x0000 - 0x1FFF for the FM24C64.
 
 The smaller types are not compatible to this driver.
 
