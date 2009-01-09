@@ -189,8 +189,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			}
 		}; // JDesktop pane with paint method overridden to display watermark
 
-		// Make dragging a little faster but perhaps uglier.
-		desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 		desktop.setBackground(Color.WHITE);
 
 		// Help Window
@@ -1111,6 +1109,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		private JDesktopPane desktop;
 
+		private JMenuItem cascadeMenuItem;
+
 		public WindowMenu(MIOSStudioGUI miosStudio) {
 			this.miosStudio = miosStudio;
 			this.desktop = miosStudio.desktop;
@@ -1118,23 +1118,48 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			addMenuListener(MIOSStudioGUI.this);
 		}
 
+		private JInternalFrame[] getFrames() {
+			return desktop.getAllFrames();
+		}
+
 		private void buildChildMenus() {
 			int i;
-			ChildMenuItem menu;
-			JInternalFrame[] array = desktop.getAllFrames();
+			ChildMenuItem menuItem;
+			JInternalFrame[] frames = getFrames();
 
-			for (i = 0; i < array.length; i++) {
-				menu = new ChildMenuItem(array[i]);
-				menu.setState(i == 0);
-				menu.addActionListener(new ActionListener() {
+			cascadeMenuItem = new JMenuItem("Cascade Windows");
+
+			cascadeMenuItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent ae) {
+
+					JInternalFrame[] frames = getFrames();
+
+					for (int x = 0; x < frames.length; x++) {
+						frames[frames.length - 1 - x].setLocation(x * 20,
+								x * 20);
+					}
+				}
+			});
+
+			cascadeMenuItem.setEnabled(frames.length > 0);
+
+			add(cascadeMenuItem);
+
+			addSeparator();
+
+			for (i = 0; i < frames.length; i++) {
+				menuItem = new ChildMenuItem(frames[i]);
+				menuItem.setState(i == 0);
+				menuItem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
 						JInternalFrame frame = ((ChildMenuItem) ae.getSource())
 								.getFrame();
 						miosStudio.showFrame(frame);
 					}
 				});
-				menu.setIcon(array[i].getFrameIcon());
-				add(menu);
+				menuItem.setIcon(frames[i].getFrameIcon());
+				add(menuItem);
 			}
 		}
 
