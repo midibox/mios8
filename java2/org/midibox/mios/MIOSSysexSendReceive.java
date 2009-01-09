@@ -43,7 +43,7 @@ public class MIOSSysexSendReceive extends Observable implements Receiver {
 
 	protected int deviceID;
 
-        public static boolean MIOS32_Mode; // stored in preferences, therefore public
+    protected boolean MIOS32_Mode;
 
 	protected LinkedList messages;
 

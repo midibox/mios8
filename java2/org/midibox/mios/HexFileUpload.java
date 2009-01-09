@@ -55,6 +55,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 	private int delayTime;
 
 	private long fileLastModified;
+	
 	private boolean fileLastMIOS32_Mode;
 
 	private HexFile hexFile;
@@ -65,8 +66,9 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 	private boolean expectUploadRequest = false;
 
-        private boolean expectQueryReply = false;
-        private byte expectQueryReplyNumber = 0;
+	private boolean expectQueryReply = false;
+
+	private byte expectQueryReplyNumber = 0;
 
 	private boolean expectDummyError = false;
 
@@ -261,8 +263,8 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 			while (expectUploadRequest && !cancelled) {
 				if (forceRebootReq) { // TK: ensure that expectUploadRequest
-										// is set before message will be sent
-										// (race condition)
+					// is set before message will be sent
+					// (race condition)
 					forceRebootReq = false;
 					forceReboot();
 				}
@@ -304,8 +306,8 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 							+ transferRateKb + " kb/s)");
 
 					// reboot BSL in MIOS32 mode
-					if( getMIOS32_Mode() ) {
-					    forceReboot();
+					if (getMIOS32_Mode()) {
+						forceReboot();
 					}
 					break;
 				}
@@ -382,15 +384,15 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 								axAddress.length); // insert address
 				System.arraycopy(axDumpData, 0, axSysExData,
 						7 + axAddress.length, axDumpData.length); // insert
-																	// data
+				// data
 
 				axSysExData[axSysExData.length - 2] = (byte) currentChecksum; // Checksum
-																				// is
-																				// second-last
+				// is
+				// second-last
 				axSysExData[axSysExData.length - 1] = (byte) 0xF7; // SysEx
-																	// status
-																	// byte is
-																	// last
+				// status
+				// byte is
+				// last
 
 				String s = "Sending block #"
 						+ (currentBlock + 1)
@@ -419,7 +421,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 				try {
 					if (uploadMode == 0) {
-					        wait();
+						wait();
 						// TK: ensure that block won't be incremented if we
 						// haven't got an acknowledge
 						if (gotGoodAck)
@@ -438,12 +440,11 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 		}
 	}
 
-
 	public void createQuery() {
 
 		if (!getMIOS32_Mode()) {
-		    addMessage("Query is only supported for MIOS32");
-		    return;
+			addMessage("Query is only supported for MIOS32");
+			return;
 		}
 
 		expectQueryReply = false;
@@ -456,53 +457,52 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 		synchronized (this) {
 
-		        expectQueryReplyNumber = 0x01;
+			expectQueryReplyNumber = 0x01;
 
 			while (!cancelled && !done) {
 
-			    // build query request
-			    byte[] queryCode = new byte[9];
-			    queryCode[0] = (byte) 0xF0;
-			    queryCode[1] = (byte) 0x00;
-			    queryCode[2] = (byte) 0x00;
-			    queryCode[3] = (byte) 0x7E;
-			    queryCode[4] = getMIOS_SysExId();
-			    queryCode[5] = (byte) (deviceID & 0x7F); // device-id
-			    queryCode[6] = (byte) 0x00; // query command
-			    queryCode[7] = (byte) expectQueryReplyNumber;
-			    queryCode[8] = (byte) 0xF7;
+				// build query request
+				byte[] queryCode = new byte[9];
+				queryCode[0] = (byte) 0xF0;
+				queryCode[1] = (byte) 0x00;
+				queryCode[2] = (byte) 0x00;
+				queryCode[3] = (byte) 0x7E;
+				queryCode[4] = getMIOS_SysExId();
+				queryCode[5] = (byte) (deviceID & 0x7F); // device-id
+				queryCode[6] = (byte) 0x00; // query command
+				queryCode[7] = (byte) expectQueryReplyNumber;
+				queryCode[8] = (byte) 0xF7;
 
-			    try {
-				SysexMessage sysExMessage = new SysexMessage();
-				sysExMessage.setMessage(queryCode, queryCode.length);
-				receiver.send(sysExMessage, -1);
-			    } catch (InvalidMidiDataException ex) {
-				cancelled = true;
-				addMessage("Error: " + ex.getMessage());
-				break;
-			    }
-			    
-			    expectQueryReply = true;
-			    while( !cancelled && expectQueryReply ) {
 				try {
-				    wait();
-				} catch (Exception e) {
-				    addMessage("Error: Cannot wait for query reply");
+					SysexMessage sysExMessage = new SysexMessage();
+					sysExMessage.setMessage(queryCode, queryCode.length);
+					receiver.send(sysExMessage, -1);
+				} catch (InvalidMidiDataException ex) {
+					cancelled = true;
+					addMessage("Error: " + ex.getMessage());
+					break;
 				}
-			    }
-			    
-			    if( !cancelled ) {
-				if( expectQueryReplyNumber < 0x09 ) {
-				    ++expectQueryReplyNumber;
-				} else {
-				    done = true;
-				    addMessage("All queries done.");
+
+				expectQueryReply = true;
+				while (!cancelled && expectQueryReply) {
+					try {
+						wait();
+					} catch (Exception e) {
+						addMessage("Error: Cannot wait for query reply");
+					}
 				}
-			    }
+
+				if (!cancelled) {
+					if (expectQueryReplyNumber < 0x09) {
+						++expectQueryReplyNumber;
+					} else {
+						done = true;
+						addMessage("All queries done.");
+					}
+				}
 			}
 		}
 	}
-
 
 	public void forceReboot() {
 
@@ -574,9 +574,10 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 				addMessage("Skipping this code block due to invalid address range!");
 				notify();
 			} else if (expectQueryReply && errorCode == 13) {
-			    expectQueryReply = false; // query not supported - skip it
-			    addMessage("Query Request #" + expectQueryReplyNumber + " not supported by core!");
-			    notify();
+				expectQueryReply = false; // query not supported - skip it
+				addMessage("Query Request #" + expectQueryReplyNumber
+						+ " not supported by core!");
+				notify();
 			} else if (uploadMode == 0) {
 				retryBlock();
 				notify();
@@ -589,42 +590,43 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 			StringBuffer buffer = new StringBuffer();
 
 			if (expectQueryReply) {
-			    int i;
-			    String str = "";
-			    for(i=6; i<data.length-1; ++i) {
-				str += (char)data[i];
-			    }
+				int i;
+				String str = "";
+				for (i = 6; i < data.length - 1; ++i) {
+					str += (char) data[i];
+				}
 
-			    switch( expectQueryReplyNumber ) {
-			        case 0x01:
-				    buffer.append("Operating System: " + str);
-				    break;
-			        case 0x02:
-				    buffer.append("Board: " + str);
-				    break;
-			        case 0x03:
-				    buffer.append("Core Family: " + str);
-				    break;
-			        case 0x04:
-				    buffer.append("Chip ID: 0x" + str);
-				    break;
-			        case 0x05:
-				    buffer.append("Serial Number: #" + str);
-				    break;
-			        case 0x06:
-				    buffer.append("Flash Memory Size: " + str + " bytes");
-				    break;
-			        case 0x07:
-				    buffer.append("RAM Size: " + str + " bytes");
-				    break;
-			        case 0x08: // Application First Line
-			        case 0x09: // Application Second Line
-				    buffer.append(str);
-				    break;
-			        default:
-				    buffer.append("Query #" + expectQueryReplyNumber + ": " + str);
-			    }
-			    expectQueryReply = false;
+				switch (expectQueryReplyNumber) {
+				case 0x01:
+					buffer.append("Operating System: " + str);
+					break;
+				case 0x02:
+					buffer.append("Board: " + str);
+					break;
+				case 0x03:
+					buffer.append("Core Family: " + str);
+					break;
+				case 0x04:
+					buffer.append("Chip ID: 0x" + str);
+					break;
+				case 0x05:
+					buffer.append("Serial Number: #" + str);
+					break;
+				case 0x06:
+					buffer.append("Flash Memory Size: " + str + " bytes");
+					break;
+				case 0x07:
+					buffer.append("RAM Size: " + str + " bytes");
+					break;
+				case 0x08: // Application First Line
+				case 0x09: // Application Second Line
+					buffer.append(str);
+					break;
+				default:
+					buffer.append("Query #" + expectQueryReplyNumber + ": "
+							+ str);
+				}
+				expectQueryReply = false;
 
 			} else if (uploadMode == 0) {
 
@@ -666,7 +668,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 			}
 			currentBlock = 0; // in any case: re-starting with first block
 			notify(); // TK: notify *after* expectUploadRequest has been
-						// changed!
+			// changed!
 		}
 	}
 }

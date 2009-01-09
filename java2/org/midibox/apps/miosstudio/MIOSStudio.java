@@ -85,7 +85,7 @@ public class MIOSStudio implements Observer {
 	private boolean routeIndividualDevices;
 
 	private boolean midiThru;
-
+	
 	public MIOSStudio() {
 
 		midiDeviceRouting = new MidiDeviceRouting();
@@ -133,7 +133,7 @@ public class MIOSStudio implements Observer {
 		debugFunctionDevice = new DebugFunctionDevice("MIOS Debug Function");
 
 		midiThru = false;
-
+		
 		setRouteIndividualDevices(false);
 
 		connectDevices();
@@ -218,7 +218,7 @@ public class MIOSStudio implements Observer {
 	public MidiFilterDevice getMidiThruFilterDevice() {
 		return midiThruFilterDevice;
 	}
-
+	
 	/*
 	 * public MidiMapDevice getMidiThruMapDevice() { return midiThruMapDevice; }
 	 */

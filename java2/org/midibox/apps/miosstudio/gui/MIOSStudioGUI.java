@@ -541,6 +541,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		return menuBar;
 	}
 
+	
+	
 	protected JToolBar createToolBar() {
 
 		toolBar = new JToolBar("Tool Bar", JToolBar.HORIZONTAL);

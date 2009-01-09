@@ -65,9 +65,9 @@ import org.midibox.utils.gui.SimpleFileChooserFilter;
 
 public class HexFileUploadGUI extends JPanel implements ActionListener,
 		ChangeListener, Observer {
-        public static String currentDirectory = "";
-        public static boolean currentMIOS32_Mode = false;
-
+	
+	private static String currentDirectory = "";
+	
 	private static JFileChooser fc = null;
 
 	private HexFileUpload hexFileUpload;
@@ -98,7 +98,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 	private JCheckBox waitForUploadRequestCheck;
 
-        private JCheckBox MIOS32Check; // changed during loading preferences
+	private JCheckBox MIOS32Check; // changed during loading preferences
 
 	private JLabel delayTimeLabel;
 
@@ -230,7 +230,6 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		gbc.insets = new Insets(2, 15, 2, 2);
 
-		hexFileUpload.MIOS32_Mode = currentMIOS32_Mode;
 		MIOS32Check = new JCheckBox("MIOS32", hexFileUpload.getMIOS32_Mode());
 		MIOS32Check.addActionListener(this);
 		protocolPanel.add(MIOS32Check, gbc);
@@ -290,6 +289,14 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 		updateUploadControls();
 	}
 
+	public static String getCurrentDirectory() {
+		return currentDirectory;
+	}
+
+	public static void setCurrentDirectory(String currentDirectory) {
+		HexFileUploadGUI.currentDirectory = currentDirectory;
+	}
+
 	public HexFileUpload getHexFileUpload() {
 		return hexFileUpload;
 	}
@@ -320,7 +327,8 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 	public void updateUploadControls() {
 
-		boolean bUploading = (!hexFileUpload.isCancelled() && !hexFileUpload.isDone());
+		boolean bUploading = (!hexFileUpload.isCancelled() && !hexFileUpload
+				.isDone());
 
 		deviceIDLabel.setEnabled(!bUploading);
 		deviceIDSpinner.setEnabled(!bUploading);
@@ -402,7 +410,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 			Thread t = new Thread() {
 				public void run() {
-				    hexFileUpload.createQuery();
+					hexFileUpload.createQuery();
 				}
 			};
 
@@ -421,7 +429,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		} else if (source == MIOS32Check) {
 			hexFileUpload.setMIOS32_Mode(MIOS32Check.isSelected());
-			currentMIOS32_Mode = MIOS32Check.isSelected();
+			
 		} else if (source == waitForUploadRequestCheck) {
 			hexFileUpload.setWaitForUploadRequest(waitForUploadRequestCheck
 					.isSelected());

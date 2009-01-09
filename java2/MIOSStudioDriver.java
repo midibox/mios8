@@ -40,6 +40,7 @@ import org.midibox.apps.miosstudio.MIOSStudio;
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI.ExternalCommandButton;
 import org.midibox.midi.gui.SysexSendReceiveGUI;
+import org.midibox.mios.HexFileUpload;
 import org.midibox.mios.gui.HexFileUploadGUI;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SplashScreen;
@@ -66,14 +67,6 @@ public class MIOSStudioDriver extends JApplet {
 			System.out.println(e.toString());
 		}
 
-
-		// TK: dirty workaround - variable has to be set before HexFileUploadGUI is cloned
-		String MIOS32_Mode_Str = "false";
-		MIOS32_Mode_Str = preferences.get("uploadMIOS32_Mode", MIOS32_Mode_Str);
-		boolean currentMIOS32_Mode = MIOS32_Mode_Str.equalsIgnoreCase("true");
-		HexFileUploadGUI.currentMIOS32_Mode = currentMIOS32_Mode;
-
-
 		JDialog.setDefaultLookAndFeelDecorated(preferences.getBoolean(
 				"defaultDecoratedFrames", false));
 
@@ -91,13 +84,10 @@ public class MIOSStudioDriver extends JApplet {
 		SysexSendReceiveGUI.currentDirectory = preferences.get(
 				"sysexCurrentDirectory", SysexSendReceiveGUI.currentDirectory);
 
-		HexFileUploadGUI.currentDirectory = preferences.get(
-				"uploadCurrentDirectory", HexFileUploadGUI.currentDirectory);
+		HexFileUploadGUI.setCurrentDirectory(preferences.get(
+				"uploadCurrentDirectory", HexFileUploadGUI.getCurrentDirectory()));
 
-		String MIOS32_Mode_Str = "false";
-		MIOS32_Mode_Str = preferences.get("uploadMIOS32_Mode", MIOS32_Mode_Str);
-		boolean currentMIOS32_Mode = MIOS32_Mode_Str.equalsIgnoreCase("true");
-		HexFileUploadGUI.currentMIOS32_Mode = currentMIOS32_Mode;
+		miosStudio.getHexFileUploadDeviceManager().setMIOS32_Mode(preferences.getBoolean("uploadMIOS32_Mode", false));
 
 		String[] frames = preferences.get("visibleFrames", "").split(",");
 		String[] ec = preferences.get("externalCommands", "").split("\n");
@@ -183,10 +173,10 @@ public class MIOSStudioDriver extends JApplet {
 				SysexSendReceiveGUI.currentDirectory);
 
 		preferences.put("uploadCurrentDirectory",
-				HexFileUploadGUI.currentDirectory);
+				HexFileUploadGUI.getCurrentDirectory());
 
-		preferences.put("uploadMIOS32_Mode",
-				HexFileUploadGUI.currentMIOS32_Mode ? "true" : "false");
+		preferences.putBoolean("uploadMIOS32_Mode",
+				miosStudio.getHexFileUploadDeviceManager().isMIOS32_Mode());
 
 		JInternalFrame[] frames = miosStudioGUI.getDesktop().getAllFrames();
 		String visibleFrames = "";
