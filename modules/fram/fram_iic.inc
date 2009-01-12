@@ -7,7 +7,12 @@
 ;  All other rights reserved.
 ; 
 ; ==========================================================================
-
+;
+; Note that all sustain/hold values are calculated in respect to a 10MIPS
+; CPU operation speed. If the communicaion is unstable, increase
+; FRAM_IIC_SAVEMODE's defined value. This increases CPU cycle count with nop's
+; at every time critical position in the communication protocol.
+;
 ; Serial Clock Port/Pin
 #ifndef FRAM_IIC_PORT_SCL
 #define FRAM_IIC_PORT_SCL PORTC
@@ -40,6 +45,10 @@ FRAM_IIC_SavemodeDelay MACRO
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: FRAM_IIC_Start 
 ;;  DESCRIPTION: performs IIC start condition
+;; 
+;;  IN:   -
+;;  OUT:  -
+;;  USES: -
 ;; --------------------------------------------------------------------------
 FRAM_IIC_Start
 	bcf FRAM_IIC_TRIS_SCL,FRAM_IIC_PIN_SCL ;SCL -> Output
@@ -61,6 +70,10 @@ FRAM_IIC_Start
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: FRAM_IIC_Stop 
 ;;  DESCRIPTION: performs IIC stop condition
+;; 
+;;  IN:   -
+;;  OUT:  -
+;;  USES: -
 ;; --------------------------------------------------------------------------
 FRAM_IIC_Stop
 	bcf FRAM_IIC_PORT_SDA,FRAM_IIC_PIN_SDA ;SDA -> 0
@@ -76,6 +89,10 @@ FRAM_IIC_Stop
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: FRAM_IIC_AckSend 
 ;;  DESCRIPTION: sends a ACK to the IIC slave
+;; 
+;;  IN:   -
+;;  OUT:  -
+;;  USES: -
 ;; --------------------------------------------------------------------------
 FRAM_IIC_AckSend
 	bcf FRAM_IIC_PORT_SDA,FRAM_IIC_PIN_SDA ;SDA -> 0, ACK
@@ -86,6 +103,10 @@ FRAM_IIC_AckSend
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: FRAM_IIC_NakSend 
 ;;  DESCRIPTION: sends a NAK to the IIC slave
+;; 
+;;  IN:   -
+;;  OUT:  -
+;;  USES: -
 ;; --------------------------------------------------------------------------
 FRAM_IIC_NakSend
 	bsf FRAM_IIC_PORT_SDA,FRAM_IIC_PIN_SDA ;SDA -> 1, NAK

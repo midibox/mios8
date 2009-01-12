@@ -56,8 +56,16 @@
 #define IIC_ByteSend MIOS_IIC_ByteSend
 #endif
 
+;sends byte and returns on NAK received
+IIC_ByteSend_ReturnOnFail MACRO
+	call IIC_ByteSend; sets WREG to 0x00 on NAK received, otherwise 0xFF
+	btfss WREG,0; return on NAK
+	return	
+	ENDM
+
 
 #define slave_id 0xA0 ;high nibble is the slave ID (b1010)
+#define slave_id_write 0xA1;high nibble is the slave ID (b1010), LSB is 0
 
 ;; --------------------------------------------------------------------------
 ;; -- Always start a transaction with FRAM_Start and end it with FRAM_Stop. 
@@ -90,7 +98,36 @@ FRAM_Begin
 	SET_BSR FRAM_REG
 	movwf FRAM_REG,BANKED ;move addr/mode to FRAM_REG
 	bcf FRAM_REG,7,BANKED ;clear first-byte-read flag
-	
+	; set multiplexer address if enabled
+	#if FRAM_MULTIPLEX_ENABLE!=0
+	bcf FRAM_MULTIPLEX_TRIS_MSB,FRAM_MULTIPLEX_PIN_MSB; Multiplex MSB -> output
+	bcf FRAM_MULTIPLEX_TRIS_LSB,FRAM_MULTIPLEX_PIN_LSB; Multiplex LSB -> output
+	bcf FRAM_MULTIPLEX_PORT_MSB,FRAM_MULTIPLEX_PIN_MSB; Multiplex MSB -> 0
+	bcf FRAM_MULTIPLEX_PORT_LSB,FRAM_MULTIPLEX_PIN_LSB; Multiplex LSB -> 0
+	btfsc WREG,5; Multiplex MSB -> 1 if set
+	bsf FRAM_MULTIPLEX_PORT_MSB,FRAM_MULTIPLEX_PIN_MSB
+	btfsc WREG,4; If LSB set, Multiplex LSB -> 1  if set
+	bsf FRAM_MULTIPLEX_PORT_LSB,FRAM_MULTIPLEX_PIN_LSB
+	#endif
+	; set WREG high nibble to slave_id, mode to write (always required to set address latch)
+	andlw 0x0F
+	iorlw slave_id_write
+	; start condition and write slave address
+	call IIC_Start
+	IIC_ByteSend_ReturnOnFail
+	; send memory address MSB and LSB
+	movf MIOS_PARAMETER_2,W
+	IIC_ByteSend_ReturnOnFail
+	movf MIOS_PARAMETER_1,W
+	IIC_ByteSend_ReturnOnFail
+	; if read operation is indicated, continue, else return
+	btfss FRAM_REG,0,BANKED
+	return
+	; address latch is set, indicated read operation now
+	movf FRAM_REG,W,BANKED
+	andlw 0x0F
+	iorlw slave_id
+	IIC_ByteSend
 	return
 	
 ;; --------------------------------------------------------------------------
@@ -103,6 +140,15 @@ FRAM_Begin
 ;; --------------------------------------------------------------------------
 _FRAM_End
 FRAM_End
+	SET_BSR FRAM_REG
+	;if continous write operation, or no byte was read since begin, just send IIC_Stop
+	btfsc FRAM_REG,0,BANKED
+	btfss FRAM_REG,7,BANKED
+	BRA FRAM_End_End
+	;to stop continous read operation, a NAK has to be sent before stop
+	IIC_NakSend
+FRAM_End_End
+	IIC_Stop
 	return
 
 ;; --------------------------------------------------------------------------
