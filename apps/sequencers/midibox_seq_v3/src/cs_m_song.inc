@@ -1134,7 +1134,7 @@ CS_M_SONG_WriteValueChk
 	rgoto	CS_M_SONG_WriteValueChk_End
 
 	;; don't save if cursor pos >= 7
-	movlw	0x06
+	movlw	0x07
 	cpfslt	CS_MENU_CURSOR_POS, ACCESS
 	rgoto	CS_M_SONG_WriteValueChk_End
 
@@ -1175,42 +1175,42 @@ CS_M_SONG_WriteValueChk_PBnk
 	movwf	EEADR
 	call	SEQ_SBANK_Read
 	decf	EEADR, F	; (fix address for upcoming write)
-	movwf	TMP5		; save value in TMP5
+	movwf	TMP5		; save EEPROM value in TMP5 (G01 and G23 combined)
 
 	;; copy evantually new bank into TMP4
 	lfsr	FSR0, SEQ_SONG
-	movf	TMP3, W		; (holds CS_MENU_CURSOR_POS)
-	addlw	4		; (banks)
+	movf	TMP3, W		; (holds CS_MENU_CURSOR_POS): 3/4/5/6 for Bank G0/1/2/3
+	addlw	(SEQ_EDIT_SONG_BANK_G0-SEQ_SONG-3) ; (add offset to banks)
 	movf	PLUSW0, W
 	andlw	0x07
-	movwf	TMP4
+	movwf	TMP4		; RAM bank value in TMP4
 
 	;; combine eventually new bank w/ TMP5[7:4] or TMP5[3:0] depending on cursor pos
-	movf	TMP3, W
+	movf	TMP3, W		; (holds CS_MENU_CURSOR_POS): 3/4/5/6 for Bank G0/1/2/3
 	addlw	-3
 	BRA_IFSET WREG, 0, ACCESS, CS_M_SONG_WriteValueChk_PBnkU
 CS_M_SONG_WriteValueChk_PBnkL
-	movf	TMP5, W
+	movf	TMP5, W		; extract [7:4] of EEPROM value
 	andlw	0xf0
-	iorwf	TMP4, F
+	iorwf	TMP4, F		; insert into RAM value at [7:4]
 	rgoto	CS_M_SONG_WriteValueChk_PBnkCont
 
 CS_M_SONG_WriteValueChk_PBnkU
-	swapf	TMP5, W
-	andlw	0xf0
-	iorwf	TMP4, F
-	swapf	TMP4, F
-	;; 	rgoto	CS_M_SONG_WriteValueChk_PBnkCont
+	swapf   TMP5, W		; swap EEPROM value
+	andlw   0xf0		; mask out [7:4] (originally [3:0]
+	iorwf   TMP4, F		; insert RAM value at [3:0]
+	swapf   TMP4, F		; swap enhanced RAM value (bank now in [7:4], [3:0] untouched)
+	;; 	rgoto   CS_M_SONG_WriteValueChk_PBnkCont
 
 CS_M_SONG_WriteValueChk_PBnkCont
-
 	;; check with current edit value
-	movf	TMP4, W
-	xorwf	TMP5, W
-	bz	CS_M_SONG_WriteValueChk_End
+	movf	TMP4, W		; compare enhanced RAM...
+	xorwf	TMP5, W		; ...with EEPROM value
+	bz	CS_M_SONG_WriteValueChk_End ; no change if equal
 
-	;; store new value
+	;; store new value in TMP4
 	rgoto	CS_M_SONG_WriteValueChk_Store
+
 
 CS_M_SONG_WriteValueChk_NotP
 CS_M_SONG_WriteValueChk_Cont
@@ -1240,10 +1240,10 @@ CS_M_SONG_WriteValueChk_Cont
 CS_M_SONG_WriteValueChk_Store
 	;; value not equal: save it in BankStick
 #if 0
-	;; (debugging: output a CC#0 event with cursor position whenever the value will be saved in BankStick
+	;; (debugging: output a CC# event with cursor position whenever the value will be saved in BankStick
 	movlw	0xb0
 	call	MIOS_MIDI_TxBufferPut
-	movlw	0x00
+	movff	SEQ_SBANK_SECTOR, WREG
 	call	MIOS_MIDI_TxBufferPut
 	movf	TMP3, W
 	call	MIOS_MIDI_TxBufferPut

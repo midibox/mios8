@@ -43,7 +43,7 @@ SEQ_CHORD_TABLE
 ;;  IN: MIOS_PARAMETER1: key number 0-3
 ;;      WREG[3:0]: chord number
 ;;      WREG[6:4]: octave transpose -4..+3
-;;  OUT: key number in WREG, if bit 7 set, no key
+;;  OUT: note number in WREG, if bit 7 set, no key
 ;;  USES: BSR, TBLPTR[LH], TABLAT, PROD[LH]
 ;; --------------------------------------------------------------------------
 SEQ_CHORD_Get
