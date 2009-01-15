@@ -64,8 +64,8 @@ mod_skel CODE
 ; 	movff	WREG,	_mod_skel_var		; get first byte of arguments from W
 ; 
 ; 	movff	FSR0L, FSR2L		; get other arguments from stack
-; 	movff	PREINC2, _yourint+0
-; 	movff	PREINC2, _yourint+1
+; 	movff	PREINC2, _yourint+0 ; move the least significant byte of the int-param
+; 	movff	PREINC2, _yourint+1 ; move the most significant byte of the int-param
 ; 	rgoto	mod_skel_function
 
 
