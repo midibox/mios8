@@ -60,12 +60,11 @@
 IIC_ByteSend_ReturnOnFail MACRO
 	call IIC_ByteSend; sets WREG to 0x00 on NAK received, otherwise 0xFF
 	btfss WREG,0; return on NAK
-	return	
+	return
 	ENDM
 
 
-#define slave_id 0xA0 ;high nibble is the slave ID (b1010)
-#define slave_id_write 0xA1;high nibble is the slave ID (b1010), LSB is 0
+#define slave_id_mask 0xA0 ;high nibble is the slave ID (b1010)
 
 ;; --------------------------------------------------------------------------
 ;; -- Always start a transaction with FRAM_Start and end it with FRAM_Stop. 
@@ -82,22 +81,22 @@ IIC_ByteSend_ReturnOnFail MACRO
 ;;  before you call some other IIC related function!
 ;;
 ;;  IN:  chip select address and r/w mode in WREG 
-;;       (<5:4>multiplex <3:1>chip select <0:0>mode, 1 for read, 0 for write
+;;       (<5:4>multiplex <3:1>chip select <0:0>mode, 1 for read, 0 for write)
 ;;       Chip select LSB selects one of two sectors for FM24C512, so you can
 ;;       look at a FM24C512 like it were two FM24C256 (see also readme).
 ;;
-;;       memory address in MIOS_PARAMETER1 (LSB) and MIOS_PARAMETER2 (MSB)
+;;       memory address in MIOS_PARAMETER1 (MSB) and MIOS_PARAMETER2 (LSB)
 ;;       0x0000 - 0x7FFF or 0x0000 - 0x1FFF, see README
 ;;
 ;;  OUT: WREG  0x00 on error (NAK received), else 0xFF
 ;;
 ;;  USES: FRAM_REG, FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0) 
 ;; --------------------------------------------------------------------------
-_FRAM_Begin
 FRAM_Begin
 	SET_BSR FRAM_REG
 	movwf FRAM_REG,BANKED ;move addr/mode to FRAM_REG
 	bcf FRAM_REG,7,BANKED ;clear first-byte-read flag
+	bsf FRAM_REG,6,BANKED ;set session flag
 	; set multiplexer address if enabled
 	#if FRAM_MULTIPLEX_ENABLE!=0
 	bcf FRAM_MULTIPLEX_TRIS_MSB,FRAM_MULTIPLEX_PIN_MSB; Multiplex MSB -> output
@@ -110,24 +109,26 @@ FRAM_Begin
 	bsf FRAM_MULTIPLEX_PORT_LSB,FRAM_MULTIPLEX_PIN_LSB
 	#endif
 	; set WREG high nibble to slave_id, mode to write (always required to set address latch)
-	andlw 0x0F
-	iorlw slave_id_write
+	andlw 0x0E ; clear high nibble and LSB (write mode)
+	iorlw slave_id_mask ; set high nibble to slave id
 	; start condition and write slave address
 	call IIC_Start
 	IIC_ByteSend_ReturnOnFail
 	; send memory address MSB and LSB
-	movf MIOS_PARAMETER_2,W
+	movf MIOS_PARAMETER1,W ;MSB
 	IIC_ByteSend_ReturnOnFail
-	movf MIOS_PARAMETER_1,W
+	movf MIOS_PARAMETER2,W ;LSB
 	IIC_ByteSend_ReturnOnFail
 	; if read operation is indicated, continue, else return
+	SET_BSR FRAM_REG
 	btfss FRAM_REG,0,BANKED
 	return
 	; address latch is set, indicated read operation now
 	movf FRAM_REG,W,BANKED
-	andlw 0x0F
-	iorlw slave_id
-	IIC_ByteSend
+	andlw 0x0F ; clear device address high nibble
+	iorlw slave_id_mask ; set slave id to high nibble of device address
+	call IIC_Start ;start condition
+	call IIC_ByteSend ;device address for read operation
 	return
 	
 ;; --------------------------------------------------------------------------
@@ -144,11 +145,12 @@ FRAM_End
 	;if continous write operation, or no byte was read since begin, just send IIC_Stop
 	btfsc FRAM_REG,0,BANKED
 	btfss FRAM_REG,7,BANKED
-	BRA FRAM_End_End
+	bra FRAM_End_Stop
 	;to stop continous read operation, a NAK has to be sent before stop
-	IIC_NakSend
-FRAM_End_End
-	IIC_Stop
+	call IIC_NakSend
+FRAM_End_Stop
+	call IIC_Stop
+	clrf FRAM_REG,BANKED
 	return
 
 ;; --------------------------------------------------------------------------
@@ -162,6 +164,12 @@ FRAM_End_End
 ;; --------------------------------------------------------------------------
 _FRAM_ReadByte
 FRAM_ReadByte
+	SET_BSR FRAM_REG
+	;if this is the first byte read since begin, skip ACK send
+	btfsc FRAM_REG,7,BANKED
+	call IIC_AckSend
+	bsf FRAM_REG,7,BANKED ; set first byte read flag
+	call IIC_ByteReceive
 	return 
 	
 ;; --------------------------------------------------------------------------
@@ -175,6 +183,7 @@ FRAM_ReadByte
 ;; --------------------------------------------------------------------------
 _FRAM_WriteByte
 FRAM_WriteByte
+	call IIC_ByteSend
 	return 
 	
 ;; --------------------------------------------------------------------------
@@ -182,23 +191,41 @@ FRAM_WriteByte
 ;;  DESCRIPTION: Reads size bytes from FRAM. The internal address latch of 
 ;;  the FRAM will be increased by size.
 ;; 
-;;  IN:  buffer size in WREG, pointer to buffer in FSR1
+;;  IN:  buffer size in WREG (0x00 for 256 bytes), pointer to buffer in FSR1
 ;;  OUT:  -
-;;  USES: FRAM_REG, FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0)
+;;  USES: PRODL,FRAM_REG, FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0)
 ;; --------------------------------------------------------------------------
-_FRAM_ReadBuf
 FRAM_ReadBuf
+	SET_BSR FRAM_REG
+	;if this is the first byte read since begin, skip ACK send
+	btfsc FRAM_REG,7,BANKED
+	call IIC_AckSend
+	bsf FRAM_REG,7,BANKED ; set first byte read flag
+	movwf PRODL; byte count to PRODL
+FRAM_ReadBuf_Loop
+	call IIC_ByteReceive
+	movwf	POSTINC1 ; move byte to buffer
+	dcfsnz PRODL,F ; decrement PRODL, if zero return, else send ACK and read next byte
 	return 
+	call IIC_AckSend
+	bra FRAM_ReadBuf_Loop
 	
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: FRAM_WriteBuf 
 ;;  DESCRIPTION: Writes size bytes to FRAM. The internal address latch of 
 ;;  the FRAM will be increased by size.
 ;; 
-;;  IN:  buffer size in WREG, pointer to buffer in FSR1
+;;  IN:  buffer size in WREG (0x00 for 256 bytes), pointer to buffer in FSR1
 ;;  OUT:  0x00 on error, else 0xff
-;;  USES: FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0)
+;;  USES: PRODL,FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0)
 ;; --------------------------------------------------------------------------
-_FRAM_WriteBuf
 FRAM_WriteBuf
+	movwf PRODL; byte count to PRODL
+FRAM_WriteBuf_Loop
+	movf POSTINC1,W; move byte from buffer to WREG
+	IIC_ByteSend_ReturnOnFail
+	decfsz PRODL,F ; decrement PRODL, write next byte if not zero
+	bra FRAM_WriteBuf_Loop	
 	return
+	
+	

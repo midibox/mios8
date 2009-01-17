@@ -17,10 +17,34 @@
 ; ==========================================================================
 ; Import/Export Labels
 ; ==========================================================================
-
+	
+	; export label for ASM applications
+	global FRAM_Begin
+	global FRAM_End
+	global FRAM_ReadByte
+	global FRAM_WriteByte
+	global FRAM_ReadBuf
+	global FRAM_WriteBuf
+	
+	;FRAM_REG is set by FRAM_Begin:
+	;<7:7>first byte read flag, zero before first byte is read
+	;<6:6>Session Flag, set to 1 in FRAM_Begin -> FRAM_REG != 0 during a session.
+	;<5:4>multiplex addr, 5 MSB, 4 LSB
+	;<3:1>chip select (for FM24C512 LSB selects one of two memory blocks)
+	;<0:0>mode, 1 for read, 0 for write
+	;FRAM_End sets FRAM_REG to zero. You can use it to check if there's a 
+	;pending session, in this case you have to init FRAM_REG by yourself.
+	;Never change it during a session (FRAM_Begin -> FRAM_End)!!
+	global FRAM_REG
+	
 	; (for C, declaration in fram.h)
-	; global	_mod_skel_function
-	; global	_mod_skel_var
+	global _FRAM_Begin
+	global _FRAM_End
+	global _FRAM_ReadByte
+	global _FRAM_WriteByte
+	global _FRAM_ReadBuf
+	global _FRAM_WriteBuf
+	global _FRAM_REG
 
 ; ==========================================================================
 ;  Declare variables 
@@ -33,46 +57,35 @@ FRAM_IIC_BUF RES 1
 #endif
 
 FRAM_VARS UDATA
+_FRAM_REG
 FRAM_REG RES 1
 
 
-; ==========================================================================
-; Start code section and include driver code
-; ==========================================================================
 FRAM CODE
 
 #include "fram.inc"
 
-; ==========================================================================
+; ==========================C function wrappers===============================
 
-	;; C function wrappers
-	;; These move the arguments of your C functions into the appropriate variables
+_FRAM_Begin
+	movff FSR0L, FSR2L
+	rlncf WREG,W ; rotate left device_addr
+	movff PREINC2, MIOS_PARAMETER2 ; move memory address LSB
+	movff PREINC2, MIOS_PARAMETER1 ; move memory address MSB
+	iorwf PREINC2,W ; set r/w mode to LSB
+	bra FRAM_Begin
+
+_FRAM_ReadBuf
+	movff FSR0L, FSR2L
+	movff PREINC2, FSR1L ; move least significant byte of buffer pointer to FSR1L
+	movff PREINC2, FSR1H	; move least most byte of buffer pointer to FSR1H
+	bra FRAM_ReadBuf
 	
-	;; YOU ONLY NEED ONE OF THESE FOR EACH FUNCTION IN YOUR MODULE
-	;; There are three examples here, but this skeleton only uses the first
+_FRAM_WriteBuf
+	movff FSR0L, FSR2L
+	movff PREINC2, FSR1L ; move least significant byte of buffer pointer to FSR1L
+	movff PREINC2, FSR1H	; move least most byte of buffer pointer to FSR1H
+	bra FRAM_WriteBuf
 	
-
-;_mod_skel_function		; (no arguments, or direct passing of variables)
-
-
-; _mod_skel_function	; example shows 
-; 						; (one byte argument, function declared with  __wparam keyword)
-;						; EG: void mod_skel_function(unsigned char myvar);
-; 	movff	WREG,	_mod_skel_var
-; 	rgoto	mod_skel_function
-
-
-; _mod_skel_function	; example shows 
-; 						; a char (1 byte, stared in W thanks to __wparam), 
-; 						; an int (2 bytes)
-;						; EG: void mod_skel_function(unsigned char myvar, signed int myint);
-; 	movff	WREG,	_mod_skel_var		; get first byte of arguments from W
-; 
-; 	movff	FSR0L, FSR2L		; get other arguments from stack
-; 	movff	PREINC2, _yourint+0
-; 	movff	PREINC2, _yourint+1
-; 	rgoto	mod_skel_function
-
-
 ; ==========================================================================
 	END
