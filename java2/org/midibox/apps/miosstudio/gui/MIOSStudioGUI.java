@@ -80,6 +80,7 @@ import org.midibox.mios.LCDMessageDevice;
 import org.midibox.mios.gui.DebugFunctionGUI;
 import org.midibox.mios.gui.HexFileUploadDeviceManagerGUI;
 import org.midibox.mios.gui.LCDMessageGUI;
+import org.midibox.mios.gui.MIOSTerminalFilteredGUI;
 import org.midibox.utils.ResourceLoader;
 import org.midibox.utils.gui.FontLoader;
 import org.midibox.utils.gui.HelpPane;
@@ -107,6 +108,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	private MidiMonitorFilteredGUI midiInPortMonitorGUI;
 
 	private MIOSStudioInternalFrame midiInPortMonitorWindow;
+
+	private MIOSTerminalFilteredGUI miosTerminalGUI;
+
+	private MIOSStudioInternalFrame miosTerminalWindow;
 
 	private MidiKeyboardControllerGUI midiKeyboardControllerGUI;
 
@@ -256,11 +261,32 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
 				.getMidiInPortMonitorDevice(), icon);
 
+		// MIOS Terminal
+		miosTerminalGUI = new MIOSTerminalFilteredGUI(miosStudio
+				.getMIOSTerminalDevice().getMIOSTerminalFiltered());
+
+		icon = ImageLoader.getImageIcon("midiIn.png"); // TODO: create special icon for terminal
+
+		miosTerminalWindow = new MIOSStudioInternalFrame(
+				"MIOS Terminal", true, true, true, true, icon,
+				miosTerminalGUI);
+
+		miosTerminalWindow.pack();
+
+		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
+				.getMIOSTerminalDevice(), icon);
+
+
+
+		// start In/Out/Terminal thread
 		miosStudio.getMidiInPortMonitorDevice().getMidiFilteredPortMonitor()
 				.getMidiPortMonitor().deleteObserver(midiInPortMonitorGUI);
 
 		miosStudio.getMidiOutPortMonitorDevice().getMidiFilteredPortMonitor()
 				.getMidiPortMonitor().deleteObserver(midiOutPortMonitorGUI);
+
+		miosStudio.getMIOSTerminalDevice().getMIOSTerminalFiltered()
+				.getMIOSTerminal().deleteObserver(miosTerminalGUI);
 
 		Thread t = new Thread() {
 
@@ -270,6 +296,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 					midiInPortMonitorGUI.check();
 					midiOutPortMonitorGUI.check();
+					miosTerminalGUI.check();
 
 					try {
 						Thread.sleep(50);
@@ -476,6 +503,14 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
+		menuItem = new JMenuItem("MIOS Terminal");
+		menuItem.setMnemonic(KeyEvent.VK_T);
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,
+				ActionEvent.CTRL_MASK));
+		menuItem.setActionCommand("mios_terminal");
+		menuItem.addActionListener(this);
+		menu.add(menuItem);
+
 		menu = new JMenu("Options");
 		menu.setMnemonic(KeyEvent.VK_P);
 		menuBar.add(menu);
@@ -569,6 +604,13 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		button = new JButton(ImageLoader.getImageIcon("midiIn.png"));
 		button.setToolTipText("MIDI Monitor: IN");
 		button.setActionCommand("midi_in_port_monitor");
+		button.addActionListener(this);
+		button.setMargin(insets);
+		toolBar.add(button);
+
+		button = new JButton(ImageLoader.getImageIcon("midiIn.png"));
+		button.setToolTipText("MIDI Terminal");
+		button.setActionCommand("mios_terminal");
 		button.addActionListener(this);
 		button.setMargin(insets);
 		toolBar.add(button);
@@ -816,6 +858,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		return midiInPortMonitorWindow;
 	}
 
+	public MIOSStudioInternalFrame getMIOSTerminalWindow() {
+		return miosTerminalWindow;
+	}
+
 	public MIOSStudioInternalFrame getMidiKeyboardControllerWindow() {
 		return midiKeyboardControllerWindow;
 	}
@@ -912,6 +958,9 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		} else if (ae.getActionCommand().equals("midi_out_port_monitor")) {
 			showFrame(midiOutPortMonitorWindow);
+
+		} else if (ae.getActionCommand().equals("mios_terminal")) {
+			showFrame(miosTerminalWindow);
 
 		} else if (ae.getActionCommand().equals("piano_controller")) {
 			showFrame(midiKeyboardControllerWindow);

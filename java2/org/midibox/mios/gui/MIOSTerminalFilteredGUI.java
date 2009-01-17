@@ -1,7 +1,7 @@
 /*
- * @(#)MidiMonitorFilteredGUI.java	beta8	2006/04/23
+ * @(#)MIOSTerminalFilteredGUI.java
  *
- * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
+ * Copyright (C) 2008    Thorsten Klose (tk@midibox.org)
  *
  * This application is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-package org.midibox.midi.gui;
+package org.midibox.mios.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -49,12 +49,13 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import org.midibox.midi.MidiMessageReceived;
-import org.midibox.midi.MidiMonitorFiltered;
+import org.midibox.midi.gui.MidiFilterGUI;
+import org.midibox.mios.MIOSTerminalFiltered;
 import org.midibox.utils.gui.ImageLoader;
 
-public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
+public class MIOSTerminalFilteredGUI extends JPanel implements ActionListener,
 		Observer {
-	private MidiMonitorFiltered midiMonitorFiltered;
+	private MIOSTerminalFiltered miosTerminalFiltered;
 
 	private JTextPane textArea;
 
@@ -66,11 +67,11 @@ public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
 
 	int maxLength = 50000;
 
-	public MidiMonitorFilteredGUI(MidiMonitorFiltered midiFilteredPortMonitor) {
+	public MIOSTerminalFilteredGUI(MIOSTerminalFiltered miosTerminalFiltered) {
 
 		super(new BorderLayout());
-		this.midiMonitorFiltered = midiFilteredPortMonitor;
-		midiFilteredPortMonitor.getMidiPortMonitor().addObserver(this);
+		this.miosTerminalFiltered = miosTerminalFiltered;
+		miosTerminalFiltered.getMIOSTerminal().addObserver(this);
 
 		// Create a text area.
 		textArea = new JTextPane();
@@ -147,7 +148,7 @@ public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
 
 	public void check() {
 
-		LinkedList messages = midiMonitorFiltered.getMidiPortMonitor()
+		LinkedList messages = miosTerminalFiltered.getMIOSTerminal()
 				.getReceivedMessages();
 
 		if (!messages.isEmpty()) {
@@ -157,7 +158,7 @@ public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
 				MidiMessageReceived message = (MidiMessageReceived) messages
 						.removeFirst();
 
-				String string = midiMonitorFiltered.getMidiPortMonitor()
+				String string = miosTerminalFiltered.getMIOSTerminal()
 						.decodeMessage(message.midiMessage, message.timeStamp);
 
 				// return value is null if message should be filtered (required for SysEx messages)
@@ -188,7 +189,7 @@ public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
 	private void showFilterDialog() {
 		if (filterDialog == null) {
 			final MidiFilterGUI midiFilterGUI = new MidiFilterGUI(
-					midiMonitorFiltered.getMidiFilter());
+					miosTerminalFiltered.getMidiFilter());
 
 			filterDialog = new JDialog();
 			filterDialog.setContentPane(midiFilterGUI);

@@ -33,6 +33,7 @@ import org.midibox.mios.DebugFunctionDevice;
 import org.midibox.mios.HexFileUploadDevice;
 import org.midibox.mios.HexFileUploadDeviceManager;
 import org.midibox.mios.LCDMessageDevice;
+import org.midibox.mios.MIOSTerminalFilteredDevice;
 
 public class MIOSStudio implements Observer {
 
@@ -53,6 +54,8 @@ public class MIOSStudio implements Observer {
 	private MidiMonitorFilteredDevice midiInPortMonitorDevice;
 
 	private MidiMonitorFilteredDevice midiOutPortMonitorDevice;
+
+	private MIOSTerminalFilteredDevice miosTerminalDevice;
 
 	// Debuging for command line
 
@@ -105,6 +108,10 @@ public class MIOSStudio implements Observer {
 
 		midiOutPortMonitorDevice = new MidiMonitorFilteredDevice(
 				"MIDI Monitor: OUT");
+
+		miosTerminalDevice = new MIOSTerminalFilteredDevice(
+				"MIOS Terminal");
+
 		/*
 		 * inDumpReceiverDevice = new DumpReceiverDevice("Dump Receiver: IN");
 		 * 
@@ -161,6 +168,10 @@ public class MIOSStudio implements Observer {
 
 	public MidiMonitorFilteredDevice getMidiOutPortMonitorDevice() {
 		return midiOutPortMonitorDevice;
+	}
+
+	public MIOSTerminalFilteredDevice getMIOSTerminalDevice() {
+		return miosTerminalDevice;
 	}
 
 	/*
@@ -255,6 +266,8 @@ public class MIOSStudio implements Observer {
 
 			midiDeviceRouting.addMidiWriteDevice(midiInPortMonitorDevice);
 
+			midiDeviceRouting.addMidiWriteDevice(miosTerminalDevice);
+
 			/*
 			 * midiDeviceRouting.addMidiWriteDevice(inDumpReceiverDevice);
 			 * 
@@ -301,6 +314,9 @@ public class MIOSStudio implements Observer {
 
 		midiDeviceRouting.connectDevices(miosStudioOutPort,
 				midiOutPortMonitorDevice);
+
+		midiDeviceRouting.connectDevices(miosStudioInPort,
+				miosTerminalDevice);
 
 		/*
 		 * midiDeviceRouting.connectDevices(inVirtualMidiPortDevice,

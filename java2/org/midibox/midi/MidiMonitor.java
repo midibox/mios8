@@ -127,7 +127,8 @@ public class MidiMonitor extends Observable implements Receiver {
 			}
 		}
 
-		return strTimeStamp + strMessage;
+		// return null if message is empty (required for filtered SysEx messages)
+		return (strMessage == null) ? null : strTimeStamp + strMessage;
 	}
 
 	public String decodeMessage(ShortMessage message) {
@@ -217,9 +218,9 @@ public class MidiMonitor extends Observable implements Receiver {
 		String strMessage = null;
 		// System.out.println("sysex status: " + message.getStatus());
 		if (message.getStatus() == SysexMessage.SYSTEM_EXCLUSIVE) {
-			strMessage = "Sysex message: F0 " + MidiUtils.getHexString(abData);
+		    strMessage = "SysEx: F0 " + MidiUtils.getHexString(abData);
 		} else if (message.getStatus() == SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE) {
-			strMessage = "Continued Sysex message: F7 "
+			strMessage = "Continued SysEx: F7 "
 					+ MidiUtils.getHexString(abData);
 			seByteCount--; // do not count the F7
 		}

@@ -98,6 +98,8 @@ public class MIOSStudioDriver extends JApplet {
 				.getMidiInPortMonitorWindow());
 		windows.put("midiOutPortMonitorWindow", miosStudioGUI
 				.getMidiOutPortMonitorWindow());
+		windows.put("miosTerminalWindow", miosStudioGUI
+				.getMIOSTerminalWindow());
 		windows.put("virtualKeyboardWindow", miosStudioGUI
 				.getMidiKeyboardControllerWindow());
 		/*
