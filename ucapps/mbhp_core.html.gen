@@ -1,11 +1,16 @@
-HEADER 3 MBHP Core Module
+HEADER 3 MBHP PIC based Core Module
 
-<H1>MIDIbox Hardware Platform, Core Module</H1>
+<H1>MIDIbox Hardware Platform, PIC based Core Module</H1>
 
 <P><CENTER><IMG SRC="mbhp/mbhp_core_v3.jpg" width=550 height=400></CENTER></P>
 
-<P CLASS=INFO>The core module is the brain of every project which is based on the MIDIbox hardware platform. Main part of this module is the PIC18F452, a microcontroller manufactured by <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>. It is clocked at 40 MHz (externaly with a 10 MHz crystal) and offers enough performance to handle with all the analog and digital modules with latencies below 1ms. The PIC is a "system on chip" (SoC), this means, it contains not only a CPU, but also an integrated 32k flash program memory, 1536 bytes data memory, 256 bytes data EEPROM, and a lot of usefull peripherals like AD-converter and UART (for MIDI). I decided to use PIC controllers for my MIDI applications many years ago, and I stayed by this product family because of the low prices and worldwide availability for hobbyists. In distance to other (more modern) microcontrollers, the PIC is easy to program, requires no external memories, is almost non-destroyable and comes in a handy DIP package, so that also electronic beginners can work with this chip without the danger of damaging small SMD pins within some seconds with their soldering iron.</P>
-<P CLASS=INFO>A nice outlook for the future is, that Microchip still considers pin compatible devices. The MBHP started with a PIC16F877, in the meantime PIC18F452 is used, and for memory intensive projects like <A HREF="midibox_seq.html">MIDIbox SEQ V3</A> or <A HREF="midibox_sid.html">MIDIbox SID V2</A> the PIC18F4620/PIC18F4685. So long this upgrade path is given, a switch to another microcontroller family (like <A HREF="http://www.atmel.com" TARGET="_blank">Atmel</A> devices) with all it's advantages, but also disadvantages, is not required, and hard/software compatible applications can still be expected in the next years.</P>
+<P CLASS=INFO>The core module is the brain of most projects which are based on the MIDIbox hardware platform. Upcoming applications (which are currently under development) will use the <A HREF="mbhp_core_stm32.html">32bit version</A>.</P>
+
+<P CLASS=INFO>Main part of this module is the PIC18F452, a microcontroller manufactured by <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>. It is clocked at 40 MHz (externaly with a 10 MHz crystal) and offers enough performance to handle analog and digital modules with latencies below 1ms. The PIC is a "system on chip" (SoC), this means, it contains not only a CPU, but also an integrated 32k flash program memory, 1536 bytes data memory, 256 bytes data EEPROM, and a lot of usefull peripherals like AD-converter and UART (for MIDI). I decided to use PIC controllers for my MIDI applications many years ago, and I stayed by this product family because of the low prices and worldwide availability for hobbyists. In distance to other (more modern) microcontrollers, the PIC is easy to program, requires no external memories, is almost non-destroyable and comes in a handy DIP package, so that also electronic beginners can work with this chip without the danger of damaging small SMD pins within some seconds with their soldering iron.</P>
+
+<P CLASS=INFO>Please note that the memory intensive projects <A HREF="midibox_seq.html">MIDIbox SEQ V3</A>/<A HREF="midibox_808.html">MIDIbox 808</A> require a PIC18F4620, and <A HREF="midibox_sid.html">MIDIbox SID V2</A> a PIC18F4685 instead of PIC18F452. These are pin compatible devices.</P>
+
+<P CLASS=INFO>If you are planning to program your own application, it's recommented to use a PIC18F452 for highest compatibility with existing MIDIboxes, a <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mios_pic18f4620" TARGET="_blank">PIC18F4620</A> for RAM intensive projects (64k flash, 1k EEPROM, 3968 bytes RAM), or a <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mios_pic18f4685" TARGET="_blank">PIC18F4685</A> for code intensive projects (96k flash, 1k EEPROM, but only 3328 bytes RAM - provides CAN interface), or to go for the brand new <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module, which gets use of a STM32F103RE microcontroller (512k flash, 64k RAM - provides integrated USB interface and much more!).</P>
 
 <DL>
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_CORE_V3 </H2></DT>
@@ -67,7 +72,7 @@ HEADER 3 MBHP Core Module
     <TR>
       <TD CLASS=TABCOLOR2>J1</TD>
       <TD CLASS=TABCOLOR2>2</TD>
-      <TD CLASS=TABCOLOR2>Connection to the powersupply. Either the output of a 7V-10V transformer, or a wall adapter can be used. 500 mA is recommented, especially if a backlit display is used, but MIDIfilter and MIDImerger work also with ca. 100 mA. AC or DC doesn't matter, since the rectifier behind J1 converts to DC anyhow. Also the polarity has not to be taken into account. </TD>
+      <TD CLASS=TABCOLOR2>Connection to a powersupply unit (PSU). A 7V-10VAC transformer, or a wall adapter could be used. At least 500 mA is recommented, especially if a backlit display is connected, but MIDIfilter and MIDImerger work also with ca. 100 mA. AC or DC doesn't matter, since the rectifier behind J1 converts to DC anyhow. Also the polarity has not to be taken into account. </TD>
     </TR>
 
     <TR>
@@ -93,7 +98,7 @@ Examples for J2 wiring can be found in the <A HREF="mbhp/mbhp_4xsid_c64_psu_opti
     <TR>
       <TD CLASS=TABCOLOR2>J5</TD>
       <TD CLASS=TABCOLOR2>10</TD>
-      <TD CLASS=TABCOLOR2>Interface to the <A HREF="mbhp_ain.html">AIN module</A> for MIDIbox64 and MIDIbox64E. There are also some application which use this pin as digital in- or output.</TD>
+      <TD CLASS=TABCOLOR2>Analog sources (like pots) can be connected to this port (8 pots maximum). If multiplexed via <A HREF="mbhp_ain.html">AIN module</A>, up to 64 pots can be scanned. There are also some application which use this pin as digital in- or output (mostly described in REAMDE.txt or setup_*.asm file)</TD>
     </TR>
 
     <TR>
@@ -129,7 +134,7 @@ Examples for J2 wiring can be found in the <A HREF="mbhp/mbhp_4xsid_c64_psu_opti
     <TR>
       <TD CLASS=TABCOLOR2>J11</TD>
       <TD CLASS=TABCOLOR2>4</TD>
-      <TD CLASS=TABCOLOR2>MIDI digital IO port, interface to the <A HREF="mbhp_ltc.html">LED/Thru/COM module</A>. Can also be used to cascade multiple core modules in a long MIDI chain (see <A HREF="midibox_link.html">MIDIbox Link</A>). <B>Note:</B> Don't plug the optocoupler (IC2, 6N138) into the socket when using the J11:MI (MIDI-IN) pin as an input, otherwise the Rx input will get the data from two different sources, which is not provided by the MIDI protocol (point-to-point). A <A HREF="midimerger.html">MIDImerger</A> is necessary to combine multiple MIDI IN sources.<BR>In other words: when using the <A HREF="mbhp_ltc.html">COM module</A> or when connecting the J11:MO of one core module to J11:MI of another core module, or when connecting the core module directly with the <A HREF="mbhp/mbhp_midi_gameport.gif">Gameport</A>, the optocoupler of the other module should not be plugged into the socket to avoid a corrupted MIDI data stream.</TD>
+      <TD CLASS=TABCOLOR2>Provides the MIDI IO at TTL level, interface to the <A HREF="mbhp_ltc.html">LED/Thru/COM module</A>. Can also be used to cascade multiple core modules in a MIDI chain (see <A HREF="midibox_link.html">MIDIbox Link</A>). <B>Note:</B> It's possible to distribute the Tx (MIDI Out) signal to multiple cores, but it isn't allowed to connect more than one Tx output to a Rx input. Instead, a <A HREF="midimerger.html">MIDImerger</A> is necessary to combine multiple MIDI IN sources.</TD>
     </TR>
 
     <TR>

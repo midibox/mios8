@@ -2,6 +2,312 @@ HEADER 3 MBHP_CORE_STM32 Module
 
 <H1>MIDIbox Hardware Platform, CORE_STM32 Module</H1>
 
-<P>Placeholder</P>
+<P><B>This page is under development!</B></P>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_CORE_STM32_V2</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_stm32_v2.pdf">mbhp_core_stm32_v2.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>will be released soon</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_stm32_v2.gif">mbhp_core_stm32_v2.gif</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_stm32_orderlist.txt">mbhp_core_stm32_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the core module:
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>J1</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>Connection to a powersupply unit (PSU). A 7V-10V transformer, or a wall adapter could be used. At least 500 mA is recommented, especially if a backlit display is connected. AC or DC doesn't matter, since the rectifier behind J1 converts to DC anyhow. Also the polarity has not to be taken into account. </TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J22</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>Alternatively the core module can be supplied via USB.<BR>
+In addition, this port gives you a "MIDI USB" and/or "Virtual COM" interface. Also protocols like "Mass Storage Device" to access a SD Card directly from a computer are possible, but unfortunately Windows XP and Vista doesn't allow to use the appr. drivers in parallel, Windows could even crash when the USB cable is connected, therefore only one protocol is activated by default.<BR>However, parallel usage of multiple protocols works fine under MacOS and Linux when explicitely enabled in the MIOS32 configuration.<BR>
+Applications can be updated via USB port, it's the <A HREF="mios32_bootstrap_newbies.html">fastest option</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J17</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>This jumper enables power supply via USB. Before closing the jumper, ensure that any other supply sources (e.g. at J1 or J2) are removed to avoid shorts or backcurrents to your PC!</TD>
+    </TR>
+
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2><B>When used as +5V output:</B> to supply modules which are not connected to a Jxx port which already provides a 5V output. Note that the 7805 gets very hot when it delivers currents above 500 mA. Maximum current drain is 1A!<BR>
+      <B>When used as +5V input: </B> for supplying the core from an external stabilized Power Supply Unit (PSU). The voltage regulator (IC3) doesn't need to be connected, also the rest of the voltage stabilization circuit between J1 and J2 (X1, C8, C9) can be left out. If the core module (and all connected modules to this branch) drains more than 100 mA, it's recommented to mount C8 directly to J2 (a small cable between the outer soldering pads of the left-out 7805 will do this).</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J3</TD>
+      <TD CLASS=TABCOLOR2>20</TD>
+      <TD CLASS=TABCOLOR2>Standard 20 pin interface to JTAG Wiggler, see <A HREF="mios32_bootstrap_experts.html">this page</A> for details.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J4</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>IIC port. Interface to <A HREF="mbhp_bankstick.html">BankSticks</A> or to MBHP_IIC_* modules like <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J5a/b/c</TD>
+      <TD CLASS=TABCOLOR2>3*10</TD>
+      <TD CLASS=TABCOLOR2>Analog sources (like pots) can be connected to this port (12 pots maximum). If multiplexed via <A HREF="mbhp_ain.html">AIN module</A>, up to 96 pots can be scanned. There are also some application which use this pin as digital in- or output (mostly described in README.txt file).</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J8/J9</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>SPI port <B>TODO</B>. J8 is the interface to the <A HREF="mbhp_dout.html">DOUT module</A> chain, whereas J9 is the interface to the <A HREF="mbhp_din.html">DIN module</A> chain.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J11</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>This port provides two MIDI IOs at TTL level, interface to the <A HREF="mbhp_ltc.html">LED/Thru/COM module</A>. Can also be used to cascade multiple core modules in a MIDI chain (see <A HREF="midibox_link.html">MIDIbox Link</A>). <B>Note:</B> It's possible to distribute the Tx (MIDI Out) signal to multiple cores, but it isn't allowed to connect more than one Tx output to a Rx input. Instead, a <A HREF="midimerger.html">MIDImerger</A> is necessary to combine multiple MIDI IN sources.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J12/J20</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>MIDI OUT port 1 and 2. See the schematic, how to connect a MIDI socket to this port.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J13/J21</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>MIDI IN port 1 and 2. See the schematic, how to connect a MIDI socket to this port.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J15a/b</TD>
+      <TD CLASS=TABCOLOR2>16</TD>
+      <TD CLASS=TABCOLOR2>Interface to one or two <A HREF="mbhp_lcd.html">LC display module(s)</A>.<BR>
+Please note that the pinout is different compared to the <A HREF="mbhp_core.html">MBHP_CORE</A> module!
+<B>TODO</B></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J16</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>SPI Interface to SD Card and SPI based Ethernet Interface like EN28J60. <B>TODO</B>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J18</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>CAN interface at TTL level as used by <A HREF="midibox_network.html">MBNet</A>.<BR>
+Please note, that STM32 doesn't allow to use CAN and USB at the same time, since these peripherals share the same memory.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J19</TD>
+      <TD CLASS=TABCOLOR2>8</TD>
+      <TD CLASS=TABCOLOR2>Interface to application specific module extensions like the <A HREF="mbhp_sid.html">SID module</A> and/or <A HREF="mbhp_aout.html">AOUT module</A>. Prepared for serial interfaces (although not driven by an integrated SPI), two chip select lines are available, additional select lines can be taken from free pins.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J23/J27</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>Boot mode jumpers. See schematic for the 4 available options.<BR>
+The application is started when these jumpers are <B>NOT</B> connected!</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J24/J25/J26</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>5V/3.3V supply options for serial ports <B>TODO</B></TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_2.jpg" WIDTH=280 HEIGHT=246 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>This is the minimum number of components to get a sign of life from a preburned STM32 chip which already contains the <A HREF="mios32_bootstrap_newbies.html">MIOS32 bootloader</A>:
+<UL CLASS=CL>
+<LI>the USB socket (to supply 5V from a USB port)
+<LI>Jumper J17 to connect USB power lines to the 5V rail
+<LI>3.3V voltage regulator IC2
+<LI>100nF/100uF bypass caps C12 and C13
+<LI>10k Resistor Array R2a-d
+<LI>Status LED and 470 ohm resistor R15
+</UL>
+Note that J3 socket is only required if you burn the bootloader via JTAG by yourself.
+      </TD>
+    </TR>
+    <TR>
+      <TD  CLASS=TABCOLOR2 COLSPAN=2>Once you plug the USB cable into the socket, the LED will flash two times with a slow PWM modulation. This is because the chip is clocked by the internal HSI oscillator at 8 MHz only.<BR>
+USB transfers are not possible at this low frequency!
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_3.jpg" WIDTH=280 HEIGHT=206 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Disconnect the USB cable, and add the 12 MHz crystal and the two 33 nF caps C1/C2.<BR>
+Once the chip is powered again, the LED will flash much faster with a period of 1 second.<BR>
+It will only flash two times, thereafter the (default test) application is started. It's up to the application how the on-board LED is used thereafter.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_4.jpg" WIDTH=280 HEIGHT=237 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Disconnect the USB cable, and add 
+<UL CLASS=CL>
+<LI>the two 27 Ohm resistors R9 and R10
+<LI>the 1k pull-up resistor R14
+</UL>
+Connect the USB cable again.<BR>
+After two seconds (LED stopped flashing) your OS should report a new MIDI port.
+      </TD>
+    </TR>
+    <TR>
+      <TD  CLASS=TABCOLOR2 COLSPAN=2>Open MIOS Studio, enable the MIOS32 option, push the Query button as described in the <A HREF="mios32_bootstrap_newbies.html">Bootloader page</A> - you should get some informations about the chip and the running application.<BR>
+Disconnect the USB cable, and add the 12 MHz crystal and the two 33 nF caps C1/C2.<BR>
+Once the chip is powered again, the LED will flash much faster with a period of 1 second.<BR>
+It will only flash two times, thereafter the (default test) application is started. It's up to the application how the LED is used thereafter.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_5.jpg" WIDTH=280 HEIGHT=200 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Disconnect the USB cable, and add
+<UL CLASS=CL>
+<LI>the 100 nF bypass caps C3, C4, C5, C6, C7, C16
+<LI>the 10 uF cap C17
+<LI>the 100k resistor R1
+<LI>10k resistor R3
+<LI>Jumper J27
+</UL>
+      </TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2 COLSPAN=2>Close Jumper J27 to test the Bootloader Hold function. The application won't be started, instead the USB port will be available immediately so that you can upload code for the case that the application crashed and doesn't enable USB anymore.<BR>
+The LED will flicker 5 times in this mode, and thereafter stays off. Whenever SysEx data is received, the LED will flash 5 times again.<BR>
+Remove the jumper to start the application.
+      </TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2 COLSPAN=2><I>To be continued...</I>
+      </TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Special Soldering Guide: SMD</H2></DT>
+  <DD>
+  <P CLASS=INFO>This part is directed to people who want to solder the STM32 chip by themself.<BR>
+You shouldn't try this if you haven't soldered SMD parts before. I recommented to start with a smaller project like <A HREF="mbhp_usb_gm5.html">MBHP_USB_GM5</A> to gain your soldering experiences! Especially to ensure that you won't burn 10..20 EUR just because you thought that you could master this job immediately to save money.<BR>
+In fact, the required equipment is more expensive than buying a board with preasoldered STM32.</P>
+<P CLASS=DESC>Presoldered and preburned chips will be available in <A HREF="http://www.avishowtech.com/mbhp" TARGET="_blank">SmashTV's shop</A> soon!</P>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_1_1.jpg" WIDTH=280 HEIGHT=243 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>TODO</B>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_1_2.jpg" WIDTH=280 HEIGHT=233 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>TODO</B>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_1_3.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>TODO</B>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_1_4.jpg" WIDTH=280 HEIGHT=201 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>TODO</B>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_1_5.jpg" WIDTH=280 HEIGHT=229 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>TODO</B>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_1_6.jpg" WIDTH=280 HEIGHT=242 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>TODO</B>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_1_7.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>TODO</B>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_1_8.jpg" WIDTH=280 HEIGHT=213 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>TODO</B>
+      </TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Credits </H2></DT>
+  <DD><P CLASS=DESC>A big thank-you goes to NILs for creating the layout, Bugfight and especially StrydOne for MIOS32 beta testing, Seppoman for providing the first STM32 presoldered prototype boards to programmers, SmashTV for providing STM32 presoldered PCBs to users, and to everybody else who gave me helpful proposals and mental support.<P>
+  </DD>
+</DL>
 
 FOOTER
