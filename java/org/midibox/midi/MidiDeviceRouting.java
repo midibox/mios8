@@ -22,6 +22,8 @@ package org.midibox.midi;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -176,6 +178,12 @@ public class MidiDeviceRouting extends Observable {
 	private void disconnectDevices(MidiDevice transmittingDevice,
 			MidiDevice receivingDevice) {
 
+		// TK: to avoid a "java.util.ConcurrentModificationException" under MacOS (using mmj)
+		// when a transmitter or receiver is closed, we put them into a list and execute close()
+		// after iteration
+		List closeTransmitters = new ArrayList();
+		List closeReceivers = new ArrayList();
+
 		Iterator it = transmittingDevice.getTransmitters().iterator();
 		while (it.hasNext()) {
 
@@ -188,29 +196,49 @@ public class MidiDeviceRouting extends Observable {
 
 				if (transmitter.getReceiver() == receiver) {
 
-					transmitter.close();
+					// transmitter.close();
+					closeTransmitters.add(transmitter);
 					
 					System.out.println("Disconnecting transmitter: " + transmittingDevice.getDeviceInfo());
-					System.out.println("Number of transmitters: " + transmittingDevice.getTransmitters().size());
-					System.out.println("Number of receivers: " + transmittingDevice.getReceivers().size());
-					if (transmittingDevice.getTransmitters().size() == 0
-							&& transmittingDevice.getReceivers().size() == 0) {
+
+					// TK: for mmj under MacOS it is required to check, if getTransmitters()/getReceivers() are != null
+					int num_transmitters = (transmittingDevice.getTransmitters() != null) ? transmittingDevice.getTransmitters().size() : 0;
+					int num_receivers = (transmittingDevice.getReceivers() != null) ? transmittingDevice.getReceivers().size() : 0;
+					System.out.println("Number of transmitters: " + num_transmitters);
+					System.out.println("Number of receivers: " + num_receivers);
+					if (num_transmitters == 0 && num_receivers == 0) {
 						transmittingDevice.close();
 					}
 
-					receiver.close();
+					// receiver.close();
+					closeReceivers.add(receiver);
 					
 					System.out.println("Disconnecting receiver: " + receivingDevice.getDeviceInfo());
-					System.out.println("Number of transmitters: " + receivingDevice.getTransmitters().size());
-					System.out.println("Number of receivers: " + receivingDevice.getReceivers().size());
+
+					// TK: for mmj under MacOS it is required to check, if getTransmitters()/getReceivers() are != null
+					num_transmitters = (receivingDevice.getTransmitters() != null) ? receivingDevice.getTransmitters().size() : 0;
+					num_receivers = (receivingDevice.getReceivers() != null) ? receivingDevice.getReceivers().size() : 0;
+					System.out.println("Number of transmitters: " + num_transmitters);
+					System.out.println("Number of receivers: " + num_receivers);
 					
-					if (receivingDevice.getTransmitters().size() == 0
-							&& receivingDevice.getReceivers().size() == 0) {
+					if (num_transmitters == 0 && num_receivers == 0) {
 						receivingDevice.close();
 					}
 				}
 			}
 		}
+
+		int i;
+		for(i=0; i<closeTransmitters.size(); ++i) {
+		    Transmitter transmitter = (Transmitter)closeTransmitters.get(i);
+		    transmitter.close();
+		}
+
+		for(i=0; i<closeReceivers.size(); ++i) {
+		    Receiver receiver = (Receiver)closeReceivers.get(i);
+		    receiver.close();
+		}
+
 	}
 	
 	public void rescanDevices() {

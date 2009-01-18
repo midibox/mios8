@@ -22,6 +22,8 @@ package org.midibox.midi;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -250,6 +252,12 @@ public class MidiDeviceRouting extends Observable implements Observer {
 	private void physicallyDisconnectDevices(MidiDevice transmittingDevice,
 			MidiDevice receivingDevice) {
 
+		// TK: to avoid a "java.util.ConcurrentModificationException" under MacOS (using mmj)
+		// when a transmitter or receiver is closed, we put them into a list and execute close()
+		// after iteration
+		List closeTransmitters = new ArrayList();
+		List closeReceivers = new ArrayList();
+
 		Iterator it = transmittingDevice.getTransmitters().iterator();
 		while (it.hasNext()) {
 
@@ -262,19 +270,33 @@ public class MidiDeviceRouting extends Observable implements Observer {
 
 				if (transmitter.getReceiver() == receiver) {
 
-					transmitter.close();
+					// transmitter.close();
+					closeTransmitters.add(transmitter);
 					if (transmittingDevice.getTransmitters().size() == 0
 							&& transmittingDevice.getReceivers().size() == 0) {
 						transmittingDevice.close();
 					}
 
-					receiver.close();
+					// receiver.close();
+					closeReceivers.add(receiver);
+
 					if (receivingDevice.getTransmitters().size() == 0
 							&& receivingDevice.getReceivers().size() == 0) {
 						receivingDevice.close();
 					}
 				}
 			}
+		}
+
+		int i;
+		for(i=0; i<closeTransmitters.size(); ++i) {
+		    Transmitter transmitter = (Transmitter)closeTransmitters.get(i);
+		    transmitter.close();
+		}
+
+		for(i=0; i<closeReceivers.size(); ++i) {
+		    Receiver receiver = (Receiver)closeReceivers.get(i);
+		    receiver.close();
 		}
 	}
 
