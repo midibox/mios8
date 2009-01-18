@@ -62,7 +62,8 @@ The pins are divided into following classes:
       |       |           |     |
   RA4 |   K   |    J4:SD  | IO  | IIC data pin SD, external 1k pull-up, can be
       |       |           |     | used by an application for other purposes so
-      |       |           |     | long MIOS_IIC_* won't be called
+      |       |           |     | long MIOS_IIC_* (or functions which get use
+      |       |           |     | of the IIC port) won't be called
       |       |           |     |
   RC0 |   B   | J6/J7:RC  |  O  | used to address the AIN multiplexers or the
       |       |           |     | MF module. In both cases driven by an
@@ -99,12 +100,12 @@ The pins are divided into following classes:
       |       |           |     |
   RC5 |   G   |   J10:SO  |  O  | free for applications without restrictions
       |       |           |     |
-  RD4 |   E   |   J10:SO  |  O  | touch sensor strobe signal, used by an
+  RD4 |   E   |   J14     |  O  | touch sensor strobe signal, used by an
       |       |           |     | interrupt service routine if MIOS_SRIO
       |       |           |     | active and TS_Sensitivity > 0
       |       |           |     |
   RD5 |   H   |   J10:MD  |  O  | address signal to LCD, clock output to
-      |       |   J15:RS  |     | BankStick
+      |       |   J15:RS  |     | IIC devices (-> J4)
       |       |           |     |
   RD6 |   H   |   J10:MD  |  O  | RW signal to LCD
       |       |   J15:RW  |     |

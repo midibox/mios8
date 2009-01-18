@@ -1,0 +1,169 @@
+$Id$
+
+This document contains some informations about the RAM handling of MIOS
+=======================================================================
+
+  o the PIC18F offers two different addressing modes: ACCESS and BANKED
+
+  ---------------------------------------------------------------------
+
+  o ACCESS is the default mode, so you don't have to specify it 
+    explicitely on every instruction. It's independent from the 
+    BSR and allows you to access addresses between 0x00-0x7f and 
+    0xf80-0xfff (SFR range) directly without initializing the BSR
+
+    EXAMPLE: TMP1 is a default register which is located to 0x06
+    This address is <0x80, therefore it can be accessed directly:
+       movf    TMP1, W		; move TMP1 to WREG
+       movwf   TMP1		; move WREG to TMP1
+       addwf   TMP1, F		; add WREG to TMP1, store result in TMP1
+
+       ;; just for your interest: this would do the same:
+       movf    TMP1, W, ACCESS	; move TMP1 to WREG
+       movwf   TMP1, ACCESS	; move WREG to TMP1
+       addwf   TMP1, F, ACCESS	; add WREG to TMP1, store result in TMP1
+
+  ---------------------------------------------------------------------
+
+  o for BANKED accesses you have to ensure that the BSR is set 
+    correctly. So, if you are doing a lot of BANKED operations to 
+    addresses between 0x80 and 0x37f (other addresses are reserved 
+    for MIOS), you should initialize the BSR before.  
+
+    EXAMPLE: if a variable is located to 0x100, BANKED accesses
+    have to be used:
+
+    MY_REGISTER   EQU 0x100 ; (defined in app_defines.h)
+       SET_BSR MY_REGISTER		; set bank to 0x1xx offset
+       movf    MY_REGISTER, W, BANKED	; move MY_REGISTER to WREG
+       movwf   MY_REGISTER, BANKED	; move WREG to MY_REGISTER
+       addwf   MY_REGISTER, F, BANKED	; add WREG to MY_REGISTER, store
+					; result in MY_REGISTER
+
+  ---------------------------------------------------------------------
+
+  o so long as the BANKED addresses are in between a page of 
+    256 bytes, you don't have to reinitialize the BSR before 
+    every access. This influences the "coding style": addresses which 
+    belong together should be located in between a 256 bytes range 
+    in order to reduce code (the need to change the BSR)
+
+    EXAMPLE:
+
+    MY_REGISTER1   EQU 0x100 ; (defined in app_defines.h)
+    MY_REGISTER2   EQU 0x101 ; (defined in app_defines.h)
+    MY_REGISTER3   EQU 0x102 ; (defined in app_defines.h)
+
+       SET_BSR MY_REGISTER1
+       movf    MY_REGISTER1, W, BANKED	; move MY_REGISTER1 to WREG
+       addwf   MY_REGISTER2, W, BANKED	; add MY_REGISTER2 to WREG
+       movwf   MY_REGISTER3, BANKED	; store WREG in MY_REGISTER3
+
+  ---------------------------------------------------------------------
+
+  o it's always possible to copy a register value to another 
+    register by using the "movff" instruction independent from the 
+    source/target address without initializing the BSR. So, the 
+    easiest way to copy any register to the working register is: 
+    "movff ANY_REGISTER, WREG" --- but note that the "movff" 
+    instruction allocates 4 bytes, a common instruction (also 
+    SET_BSR) is only 2 bytes long, so this method should only 
+    be used if just only one register has to be copied. As soon 
+    as you plan to access more than 2 register of the same 0x100 
+    page, it makes sense to change the BSR or:
+
+    EXAMPLE:
+       movff   MY_REGISTER1, TMP1		; move source to
+       movff   MY_REGISTER2, MIOS_PARAMETER1	; target register
+       movff   MY_REGISTER3, WREG		; bank doesn't matter
+
+  ---------------------------------------------------------------------
+
+  o it sometimes makes sense to address the register indirectly 
+    by using FSR0 (main program) or FSR2 (interrupt service routine). 
+    The FSR has to be initialized with "lfsr FSRx, ANY_REGISTER", 
+    thereafter you can access it via "INDF0", "POSTINC0", "POSTDEC0", 
+    "PLUSW0", etc...
+
+    EXAMPLE:
+       lfsr   FSR0, MY_REGISTER1	; FSR0 pointer = address of MY_REGISTER1
+       movf   POSTINC0, W		; move content of MY_REGISTER1
+					; to WREG, increment pointer
+       addwf  POSTINC0, W		; add content of MY_REGISTER2
+					; to WREG, increment pointer
+       subwf  INDF0, W			; subtract content of MY_REGISTER3
+					; to WREG, don't increment pointer
+       movwf  MIOS_PARAMETER1		; store WREG in MIOS_PARAMETER1
+
+  ---------------------------------------------------------------------
+
+  o note that most MIOS function are changing the BSR and FSR1 and 
+    don't restore it to the old value (to save execution time). 
+    This means: if a change of BSR is notified in the MIOS function 
+    description, and if you are using BANKED accesses, you have to 
+    restore BSR after every MIOS call. So, if you have a lot of 
+    interaction between MIOS and your main program, the use of 
+    indirect addressing (FSR0/FSR2) or the use of "movff" should 
+    be prefered in order to save code space
+
+    EXAMPLE:
+       ;; bad, but working
+       SET_BSR MY_REGISTER1		; (2 byte instruction)
+       movf    MY_REGISTER1, W, BANKED	; (2 byte instruction)
+       call    MIOS_MIDI_TxBufferPut
+       SET_BSR MY_REGISTER2		; (2 byte instruction)
+       movf    MY_REGISTER2, W, BANKED	; (2 byte instruction)
+       call    MIOS_MIDI_TxBufferPut
+       SET_BSR MY_REGISTER3		; (2 byte instruction)
+       movf    MY_REGISTER3, W, BANKED	; (2 byte instruction)
+       call    MIOS_MIDI_TxBufferPut
+
+       ;; better (because nicer for reading):
+       movff   MY_REGISTER1, WREG    ; (4 byte instruction)
+       call    MIOS_MIDI_TxBufferPut
+       movff   MY_REGISTER2, WREG    ; (4 byte instruction)
+       call    MIOS_MIDI_TxBufferPut
+       movff   MY_REGISTER3, WREG    ; (4 byte instruction)
+       call    MIOS_MIDI_TxBufferPut
+
+       ;; or evenbetter, because it saves code space
+       lfsr    FSR0, MY_REGISTER1, W ; (2 byte instruction)
+       movf    POSTINC0, W           ; (2 byte instruction)
+       call    MIOS_LCD_PrintHex2
+       movf    POSTINC0, W           ; (2 byte instruction)
+       call    MIOS_LCD_PrintHex2
+       movf    POSTINC0, W           ; (2 byte instruction)
+       call    MIOS_LCD_PrintHex2
+
+  ---------------------------------------------------------------------
+
+  o Hint: registers which have to be accessed very often should 
+    just be located below 0x80 so that you don't have to take care 
+    for the page pointer. For example, MIOS_PARAMETER[123], TMP[12345] 
+    and IRQ_TMP[12345] are located between 0x00-0x0f which makes the 
+    use of this most frequently used addresses very easy
+
+  ---------------------------------------------------------------------
+
+
+Addendum
+~~~~~~~~
+
+Question from Duggle:
+> Does FSR2 get saved and restored in the ISRs?
+> (if not then it can't be used in user routines without disabling interrupts)?
+> MIOS routines use FSR1 so if I use FSR1 completely in-between MIOS calls it 
+> should be ok? (MIOS may destroy FSR1's content)
+> Are there any dangers of using FSR0? (It gets used by main, are there 
+> any user hooks that should restore its content  for use by main?
+
+Answer:
+
+All FSRs (FSR0, FSR1 and FSR2) as well as TBLPTR[LH], TABLAT and 
+MIOS_PARAMETER[123] are stored by the interrupt handler.
+ 
+Yes, you can use FSR1 in between MIOS calles in your main program and in 
+interrupt service routines w/o problems. The reason why I suggest FSR0 is 
+not to confuse newbies too much...
+ 
+Thorsten.Klose@midibox.org

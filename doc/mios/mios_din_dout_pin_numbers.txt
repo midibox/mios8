@@ -1,0 +1,193 @@
+$Id$
+
+MIOS DIN/DOUT Pin Numbers
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes the pin numbers of special DINs or DOUTs can be specified in the
+main.asm or setup_*.asm file of a MIOS application. 
+
+Examples:
+
+#define DEFAULT_MIDI_RX_LED 0x40        ; DOUT SR#9, pin D0
+#define DEFAULT_MIDI_TX_LED 0x41        ; DOUT SR#9, pin D1
+
+or
+
+#define DEFAULT_DIN_MENU_EXEC         7       ; menu exec button assigned to DIN pin #7
+#define DEFAULT_DIN_MENU_SNAPSHOT     6       ; menu snapshot button assigned to DIN pin #4
+#define DEFAULT_DIN_MENU_RIGHT        5       ; NOT USED - overlayed by datawheel
+#define DEFAULT_DIN_MENU_LEFT         4       ; NOT USED - overlayed by datawheel
+
+or
+
+        ;;        SR  Pin  Mode
+        ENC_ENTRY  5,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 1
+        ENC_ENTRY  5,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 2
+        ENC_ENTRY  5,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 3
+        ENC_ENTRY  5,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 4
+
+
+
+The following table should give you a quick overview over the numbers. Please
+bear in mind that we are sometimes counting from 0, and sometimes from 1.
+
+Means: sometimes the first pin or shiftregister has number 0, sometimes
+it has number 1 - thats always an issue, because programmer mostly prefer
+to count from 0, users want to count from 1 - it's a bit of a mess!
+Forgive me! ;-)
+
+In the meantime I've tried to make the setup more consistent. Shiftregisters
+are always counted from 1, and pins are always counted from 0
+
+
+Ok, here the table:
+
++----------------+-----------+----------+------------+------------+
+| Shift Register | SR number | Pin Name | Pin Number | Hex number |
++================+===========+==========+============+============+
+| first          |       1   |     D0   |        0   |     0x00   |
+| first          |       1   |     D1   |        1   |     0x01   |
+| first          |       1   |     D2   |        2   |     0x02   |
+| first          |       1   |     D3   |        3   |     0x03   |
+| first          |       1   |     D4   |        4   |     0x04   |
+| first          |       1   |     D5   |        5   |     0x05   |
+| first          |       1   |     D6   |        6   |     0x06   |
+| first          |       1   |     D7   |        7   |     0x07   |
++----------------+-----------+----------+------------+------------+
+| second         |       2   |     D0   |        8   |     0x08   |
+| second         |       2   |     D1   |        9   |     0x09   |
+| second         |       2   |     D2   |       10   |     0x0a   |
+| second         |       2   |     D3   |       11   |     0x0b   |
+| second         |       2   |     D4   |       12   |     0x0c   |
+| second         |       2   |     D5   |       13   |     0x0d   |
+| second         |       2   |     D6   |       14   |     0x0e   |
+| second         |       2   |     D7   |       15   |     0x0f   |
++----------------+-----------+----------+------------+------------+
+| third          |       3   |     D0   |       16   |     0x10   |
+| third          |       3   |     D1   |       17   |     0x11   |
+| third          |       3   |     D2   |       18   |     0x12   |
+| third          |       3   |     D3   |       19   |     0x13   |
+| third          |       3   |     D4   |       20   |     0x14   |
+| third          |       3   |     D5   |       21   |     0x15   |
+| third          |       3   |     D6   |       22   |     0x16   |
+| third          |       3   |     D7   |       23   |     0x17   |
++----------------+-----------+----------+------------+------------+
+| fourth         |       4   |     D0   |       24   |     0x18   |
+| fourth         |       4   |     D1   |       25   |     0x19   |
+| fourth         |       4   |     D2   |       26   |     0x1a   |
+| fourth         |       4   |     D3   |       27   |     0x1b   |
+| fourth         |       4   |     D4   |       28   |     0x1c   |
+| fourth         |       4   |     D5   |       29   |     0x1d   |
+| fourth         |       4   |     D6   |       30   |     0x1e   |
+| fourth         |       4   |     D7   |       31   |     0x1f   |
++----------------+-----------+----------+------------+------------+
+| fifth          |       5   |     D0   |       32   |     0x20   |
+| fifth          |       5   |     D1   |       33   |     0x21   |
+| fifth          |       5   |     D2   |       34   |     0x22   |
+| fifth          |       5   |     D3   |       35   |     0x23   |
+| fifth          |       5   |     D4   |       36   |     0x24   |
+| fifth          |       5   |     D5   |       37   |     0x25   |
+| fifth          |       5   |     D6   |       38   |     0x26   |
+| fifth          |       5   |     D7   |       39   |     0x27   |
++----------------+-----------+----------+------------+------------+
+| sixth          |       6   |     D0   |       40   |     0x28   |
+| sixth          |       6   |     D1   |       41   |     0x29   |
+| sixth          |       6   |     D2   |       42   |     0x2a   |
+| sixth          |       6   |     D3   |       43   |     0x2b   |
+| sixth          |       6   |     D4   |       44   |     0x2c   |
+| sixth          |       6   |     D5   |       45   |     0x2d   |
+| sixth          |       6   |     D6   |       46   |     0x2e   |
+| sixth          |       6   |     D7   |       47   |     0x2f   |
++----------------+-----------+----------+------------+------------+
+| seventh        |       7   |     D0   |       48   |     0x30   |
+| seventh        |       7   |     D1   |       49   |     0x31   |
+| seventh        |       7   |     D2   |       50   |     0x32   |
+| seventh        |       7   |     D3   |       51   |     0x33   |
+| seventh        |       7   |     D4   |       52   |     0x34   |
+| seventh        |       7   |     D5   |       53   |     0x35   |
+| seventh        |       7   |     D6   |       54   |     0x36   |
+| seventh        |       7   |     D7   |       55   |     0x37   |
++----------------+-----------+----------+------------+------------+
+| eighth         |       8   |     D0   |       56   |     0x38   |
+| eighth         |       8   |     D1   |       57   |     0x39   |
+| eighth         |       8   |     D2   |       58   |     0x3a   |
+| eighth         |       8   |     D3   |       59   |     0x3b   |
+| eighth         |       8   |     D4   |       60   |     0x3c   |
+| eighth         |       8   |     D5   |       61   |     0x3d   |
+| eighth         |       8   |     D6   |       62   |     0x3e   |
+| eighth         |       8   |     D7   |       63   |     0x3f   |
++----------------+-----------+----------+------------+------------+
+| nineth         |       9   |     D0   |       64   |     0x40   |
+| nineth         |       9   |     D1   |       65   |     0x41   |
+| nineth         |       9   |     D2   |       66   |     0x42   |
+| nineth         |       9   |     D3   |       67   |     0x43   |
+| nineth         |       9   |     D4   |       68   |     0x44   |
+| nineth         |       9   |     D5   |       69   |     0x45   |
+| nineth         |       9   |     D6   |       70   |     0x46   |
+| nineth         |       9   |     D7   |       71   |     0x47   |
++----------------+-----------+----------+------------+------------+
+| tenth          |      10   |     D0   |       72   |     0x48   |
+| tenth          |      10   |     D1   |       73   |     0x49   |
+| tenth          |      10   |     D2   |       74   |     0x4a   |
+| tenth          |      10   |     D3   |       75   |     0x4b   |
+| tenth          |      10   |     D4   |       76   |     0x4c   |
+| tenth          |      10   |     D5   |       77   |     0x4d   |
+| tenth          |      10   |     D6   |       78   |     0x4e   |
+| tenth          |      10   |     D7   |       79   |     0x4f   |
++----------------+-----------+----------+------------+------------+
+| eleventh       |      11   |     D0   |       80   |     0x50   |
+| eleventh       |      11   |     D1   |       81   |     0x51   |
+| eleventh       |      11   |     D2   |       82   |     0x52   |
+| eleventh       |      11   |     D3   |       83   |     0x53   |
+| eleventh       |      11   |     D4   |       84   |     0x54   |
+| eleventh       |      11   |     D5   |       85   |     0x55   |
+| eleventh       |      11   |     D6   |       86   |     0x56   |
+| eleventh       |      11   |     D7   |       87   |     0x57   |
++----------------+-----------+----------+------------+------------+
+| twelfth        |      12   |     D0   |       88   |     0x58   |
+| twelfth        |      12   |     D1   |       89   |     0x59   |
+| twelfth        |      12   |     D2   |       90   |     0x5a   |
+| twelfth        |      12   |     D3   |       91   |     0x5b   |
+| twelfth        |      12   |     D4   |       92   |     0x5c   |
+| twelfth        |      12   |     D5   |       93   |     0x5d   |
+| twelfth        |      12   |     D6   |       94   |     0x5e   |
+| twelfth        |      12   |     D7   |       95   |     0x5f   |
++----------------+-----------+----------+------------+------------+
+| thirteenth     |      13   |     D0   |       96   |     0x60   |
+| thirteenth     |      13   |     D1   |       97   |     0x61   |
+| thirteenth     |      13   |     D2   |       98   |     0x62   |
+| thirteenth     |      13   |     D3   |       99   |     0x63   |
+| thirteenth     |      13   |     D4   |      100   |     0x64   |
+| thirteenth     |      13   |     D5   |      101   |     0x65   |
+| thirteenth     |      13   |     D6   |      102   |     0x66   |
+| thirteenth     |      13   |     D7   |      103   |     0x67   |
++----------------+-----------+----------+------------+------------+
+| fourteenth     |      14   |     D0   |      104   |     0x68   |
+| fourteenth     |      14   |     D1   |      105   |     0x69   |
+| fourteenth     |      14   |     D2   |      106   |     0x6a   |
+| fourteenth     |      14   |     D3   |      107   |     0x6b   |
+| fourteenth     |      14   |     D4   |      108   |     0x6c   |
+| fourteenth     |      14   |     D5   |      109   |     0x6d   |
+| fourteenth     |      14   |     D6   |      110   |     0x6e   |
+| fourteenth     |      14   |     D7   |      111   |     0x6f   |
++----------------+-----------+----------+------------+------------+
+| fifteenth      |      15   |     D0   |      112   |     0x70   |
+| fifteenth      |      15   |     D1   |      113   |     0x71   |
+| fifteenth      |      15   |     D2   |      114   |     0x72   |
+| fifteenth      |      15   |     D3   |      115   |     0x73   |
+| fifteenth      |      15   |     D4   |      116   |     0x74   |
+| fifteenth      |      15   |     D5   |      117   |     0x75   |
+| fifteenth      |      15   |     D6   |      118   |     0x76   |
+| fifteenth      |      15   |     D7   |      119   |     0x77   |
++----------------+-----------+----------+------------+------------+
+| sixteenth      |      16   |     D0   |      120   |     0x78   |
+| sixteenth      |      16   |     D1   |      121   |     0x79   |
+| sixteenth      |      16   |     D2   |      122   |     0x7a   |
+| sixteenth      |      16   |     D3   |      123   |     0x7b   |
+| sixteenth      |      16   |     D4   |      124   |     0x7c   |
+| sixteenth      |      16   |     D5   |      125   |     0x7d   |
+| sixteenth      |      16   |     D6   |      126   |     0x7e   |
+| sixteenth      |      16   |     D7   |      127   |     0x7f   |
++----------------+-----------+----------+------------+------------+
+
+Thorsten.Klose@midibox.org
