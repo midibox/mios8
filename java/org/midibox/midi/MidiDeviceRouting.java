@@ -233,10 +233,23 @@ public class MidiDeviceRouting extends Observable {
 		    receiver.close();
 		}
 		
-		if (transmittingDevice.getTransmitters().size() == 0
-				&& transmittingDevice.getReceivers().size() == 0) {
+		int num_transmitters = (transmittingDevice.getTransmitters() != null) ? transmittingDevice
+				.getTransmitters().size()
+				: 0;
+		int num_receivers = (transmittingDevice.getReceivers() != null) ? transmittingDevice
+				.getReceivers().size()
+				: 0;
+
+		if (num_transmitters == 0 && num_receivers == 0) {
 			transmittingDevice.close();
 		}
+
+		num_transmitters = (receivingDevice.getTransmitters() != null) ? receivingDevice
+				.getTransmitters().size()
+				: 0;
+		num_receivers = (receivingDevice.getReceivers() != null) ? receivingDevice
+				.getReceivers().size()
+				: 0;
 
 		if (receivingDevice.getTransmitters().size() == 0
 				&& receivingDevice.getReceivers().size() == 0) {
