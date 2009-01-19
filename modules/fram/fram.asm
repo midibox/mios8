@@ -82,13 +82,13 @@ _FRAM_ReadBuf
 	movff FSR0L, FSR2L
 	movff PREINC2, FSR1L ; move least significant byte of buffer pointer to FSR1L
 	movff PREINC2, FSR1H	; move least most byte of buffer pointer to FSR1H
-	bra FRAM_ReadBuf_Cont
+	bra FRAM_ReadBuf
 
 _FRAM_WriteBuf
 	movff FSR0L, FSR2L
 	movff PREINC2, FSR1L ; move least significant byte of buffer pointer to FSR1L
 	movff PREINC2, FSR1H	; move least most byte of buffer pointer to FSR1H
-	bra FRAM_WriteBuf_Cont
+	bra FRAM_WriteBuf
 	
 ; ==========================================================================
 	END
