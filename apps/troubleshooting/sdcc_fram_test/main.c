@@ -27,25 +27,6 @@
 //abort test after count errors.
 #define error_count_abort 0x01
 
-const unsigned char test_values[0x100] = {
-	0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,
-	0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,
-	0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0x78,0x78,0x78,0xfa,0xfa,0x55,0x83,
-	0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0x78,0x78,0xfa,
-	0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,
-	0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,
-	0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0x78,0x78,0x78,0xfa,0xfa,0x55,0x83,
-	0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0x78,0x78,0xfa,
-	0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x7ac,0x78,0x78,
-	0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0x78,0x78,0xfa,
-	0x78,0x78,0x78,0xfa,0x55,0x83,0x73,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,
-	0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0x78,0x78,0x78,0xfa,0xfa,0x55,0x83,
-	0x89,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,
-	0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,
-	0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0x78,0x78,0x78,0xfa,0xfa,0x55,0x70,
-	0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0xfa,0x55,0x83,0x78,0x78,0x78,0x78,0x78,0xfa
-	};
-	
 //0: start check; 1 show start message; 
 //2: test buffer write/read; 3: test single byte write/read; 
 //4: check subsequent buffer write; 5: check subsequent buffer read; 
@@ -59,6 +40,7 @@ unsigned char last_error_op; //1: begin write; 2: write; 3 begin read; 4: read/c
 unsigned char last_error_phase;
 unsigned char fram_buffer[0x100]; //data buffer
 
+unsigned char test_value[0x08] = {0x00,0x00,0xC1,0xAB,0x92,0x92,0x88,0x88};
 
 /////////////////////////////////////////////////////////////////////////////
 // Application Prototypes
@@ -66,7 +48,6 @@ unsigned char fram_buffer[0x100]; //data buffer
 
 void fram_init_buffer(void) __wparam;
 unsigned char fram_check_buffer(void) __wparam;
-void fram_clear_buffer(void) __wparam;
 void print_hex4(unsigned int) __wparam;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -76,21 +57,15 @@ void print_hex4(unsigned int) __wparam;
 void fram_init_buffer(void) __wparam{
 	unsigned int i;
 	for(i=0;i<0x100;i++)
-		fram_buffer[i] = test_values[i];
+		fram_buffer[i] = (test_value[phase] ^ (unsigned char)(address + i));
 	}
 
 unsigned char fram_check_buffer(void) __wparam{
 	unsigned int i;
-	for(i=0;i<0x100;i++)
-		if(fram_buffer[i] != test_values[i])
+	for(i=1;i<0x100;i++)
+		if(fram_buffer[i] != (test_value[phase] ^ (unsigned char)(address + i)))
 			return 0x00;
 	return 0x01;
-	}
-
-void fram_clear_buffer(void) __wparam{
-	unsigned int i;
-	for(i=0;i<0x100;i++)
-		fram_buffer[i] = 0x00;
 	}
 
 void print_hex4(unsigned int value) __wparam{
@@ -107,7 +82,6 @@ void print_hex4(unsigned int value) __wparam{
 /////////////////////////////////////////////////////////////////////////////
 void Init(void) __wparam{
 	phase = 0x00;
-	FRAM_REG = 0x00; //indicates that FRAM_Begin has not been called yet
 	MIOS_SRIO_NumberSet(1);
 	MIOS_SRIO_UpdateFrqSet(10);
 	}
@@ -117,34 +91,35 @@ void Init(void) __wparam{
 /////////////////////////////////////////////////////////////////////////////
 void Tick(void) __wparam{
 	unsigned char mode,err=0;
+	unsigned int i;
 	if (phase < 0x02 || phase > 0x07)
 		return;
-	//If this is the first FRAM_Begin, or a FRAM_End was called last, do FRAM_Begin
-	if(!FRAM_REG){
-		mode = (phase & 0x01 && phase > 0x03) ? FRAM_Mode_Read : FRAM_Mode_Write;
-		if(!FRAM_Begin(device_addr,address,mode))
-			err = (mode==FRAM_Mode_Read) ? 0x03 : 0x01;
-		}
-	if(!err)
+	//FRAM_Begin with read/write mode
+	mode = (phase > 0x03 && phase & 0x01) ? FRAM_Mode_Read : FRAM_Mode_Write;
+	if(!FRAM_Begin(device_addr,address,mode))
+		err = (mode==FRAM_Mode_Read) ? 0x03 : 0x01;
+	else
 		switch(phase){
 			case 0x02://Test Buffer W/R
 				fram_init_buffer();
-				if(!FRAM_WriteBuf(0x00,&fram_buffer[0])){
+				if(!FRAM_WriteBuf(0x00,fram_buffer)){
 					err = 0x02;
 					break;
 					}
 				FRAM_End();
-				fram_clear_buffer();
+				fram_init_buffer();
 				if(!FRAM_Begin(device_addr,address,FRAM_Mode_Read)){
 					err = 0x03;
 					break;					
 					}
-				FRAM_ReadBuf(0x00,&fram_buffer[0]);
+				FRAM_ReadBuf(0x00,fram_buffer);
 				if(!fram_check_buffer())
 					err = 0x04;
+				else
+					address += 0x100;
 				break;
 			case 0x03://Test Byte W/R
-				if(!FRAM_WriteByte(test_values[(unsigned char)address])){
+				if(!FRAM_WriteByte(test_value[phase] ^ (unsigned char)address)){
 					err = 0x02;
 					break;
 					}
@@ -153,60 +128,70 @@ void Tick(void) __wparam{
 					err = 0x03;
 					break;
 					}
-				if(FRAM_ReadByte()!=test_values[(unsigned char)address])
+				if(FRAM_ReadByte() != (test_value[phase] ^ (unsigned char)address))
 					err = 0x04;
+				else
+					address++;
 				break;
 			case 0x04://Test subsequent Buffer write
-				if(!FRAM_WriteBuf(0x00,&fram_buffer[0]))
-					err = 0x02;
+				for(i=0;i<0x04;i++){//write 4 buffers
+					fram_init_buffer();
+					if(!FRAM_WriteBuf(0x00,fram_buffer)){
+						err = 0x02;
+						break;
+						}
+					}
+				if(!err) address += 0x400;
 				break;
 			case 0x05://Test subsequent Buffer read
-				fram_clear_buffer();
-				FRAM_ReadBuf(0x00,&fram_buffer[0]);
-				if(!fram_check_buffer())
-					err = 0x04;
+				for(i=0;i<0x04;i++){//read/compare 4 buffers
+					FRAM_ReadBuf(0x00,fram_buffer);
+					if(!fram_check_buffer()){
+						err = 0x04;
+						break;
+						}
+					}
+				if(!err) address += 0x400;
 				break;
 			case 0x06://Test subsequent Byte write
-				if(!FRAM_WriteByte(test_values[(unsigned char)address]))
-					err = 0x02;
+				for(i=0;i < 0x400;i++)//write 1024 bytes
+					if(!FRAM_WriteByte(test_value[phase] ^ (unsigned char)(address + i))){
+						err = 0x02;
+						break;
+						}
+				if(!err)
+					address += 0x400;
 				break;
 			case 0x07://Test subsequent Byte read
-				if(FRAM_ReadByte()!=test_values[(unsigned char)address])
-					err = 0x04;
+				for(i=0;i < 0x400;i++)//read/compare 1024 bytes
+					if(FRAM_ReadByte() != (test_value[phase] ^ (unsigned char)(address + i))){
+						err = 0x04;
+						break;
+						}
+				if(!err)
+					address += 0x400;
 				break;
 			}
-	//on error, set error status vars and End the R/W session. 
-	//Abort if error_count_abort is reached
+	FRAM_End();
+	//on error, set error status vars. Abort if error_count_abort is reached
 	if(err){
 		last_error_op = err;
 		last_error_phase = phase;
-		error_count++;
-		FRAM_End();
 		//error_count_abort is reached, switch to abort-on-error phase
-		if(error_count == error_count_abort)
+		if(++error_count == error_count_abort)
 			phase = 0x09;
 		}
-	//on success, End the session for W/R phases, increment address / device_addr
-	//and switch phase accordingly
+	//on success, check if address range is reached and switch device_addr / phase accordingly
 	else{
-		//step to next address
-		address += (phase == 0x03 || phase > 0x05) ? 0x01 : 0x100;
 		//address range reached, next device
 		if(address > address_range){
-			FRAM_End();
 			address = 0x0000;
 			//all devices tested, next test phase
-			if(device_addr == num_devices-1){
+			if(++device_addr == num_devices){
 				phase++;
 				device_addr = 0x00;
-				if(phase == 0x04)
-					fram_init_buffer();
 				}
-			else
-				device_addr++;//switch to next device
 			}
-		else if(phase == 0x02 || phase == 0x03)
-			FRAM_End();
 		}
 	}
 
@@ -223,7 +208,6 @@ void Timer(void) __wparam{
 // has been printed on the screen
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Init(void) __wparam{
-	MIOS_LCD_Clear();	
 	}
 
 /////////////////////////////////////////////////////////////////////////////
