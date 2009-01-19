@@ -37,6 +37,7 @@
 	;Never change it during a session (FRAM_Begin -> FRAM_End)!!
 	global FRAM_REG
 	
+
 	; (for C, declaration in fram.h)
 	global _FRAM_Begin
 	global _FRAM_End
@@ -44,13 +45,15 @@
 	global _FRAM_WriteByte
 	global _FRAM_ReadBuf
 	global _FRAM_WriteBuf
+	
 	global _FRAM_REG
 
 ; ==========================================================================
 ;  Declare variables 
 ; ==========================================================================
 
-;this buffer is only needed when fram_iic.inc is used instead of mios_iic
+; this buffer is only needed when fram_iic.inc is used instead of mios_iic
+; (FRAM_MIOS_IIC = 0)
 #if FRAM_MIOS_IIC==0
 FRAM_IIC_VARS UDATA
 FRAM_IIC_BUF RES 1
@@ -69,23 +72,23 @@ FRAM CODE
 
 _FRAM_Begin
 	movff FSR0L, FSR2L
-	rlncf WREG,W ; rotate left device_addr
-	movff PREINC2, MIOS_PARAMETER2 ; move memory address LSB
-	movff PREINC2, MIOS_PARAMETER1 ; move memory address MSB
-	iorwf PREINC2,W ; set r/w mode to LSB
+	movff PREINC2,MIOS_PARAMETER2 ;MOVE address LSB
+	movff PREINC2,MIOS_PARAMETER1 ;MOVE address MSB
+	rlncf WREG,W ; shift left device-address
+	iorwf PREINC2,W ; set r/w bit
 	bra FRAM_Begin
 
 _FRAM_ReadBuf
 	movff FSR0L, FSR2L
 	movff PREINC2, FSR1L ; move least significant byte of buffer pointer to FSR1L
 	movff PREINC2, FSR1H	; move least most byte of buffer pointer to FSR1H
-	bra FRAM_ReadBuf
-	
+	bra FRAM_ReadBuf_Cont
+
 _FRAM_WriteBuf
 	movff FSR0L, FSR2L
 	movff PREINC2, FSR1L ; move least significant byte of buffer pointer to FSR1L
 	movff PREINC2, FSR1H	; move least most byte of buffer pointer to FSR1H
-	bra FRAM_WriteBuf
+	bra FRAM_WriteBuf_Cont
 	
 ; ==========================================================================
 	END

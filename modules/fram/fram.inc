@@ -64,12 +64,13 @@ IIC_ByteSend_ReturnOnFail MACRO
 	ENDM
 
 
-#define slave_id_mask 0xA0 ;high nibble is the slave ID (b1010)
+#define FRAM_SlaveID_Mask 0xA0 ;high nibble is the slave ID (b1010)
 
 ;; --------------------------------------------------------------------------
 ;; -- Always start a transaction with FRAM_Start and end it with FRAM_Stop. 
 ;; -- If you share a port with other IIC - devices (FRAM_MIOS_IIC==1), be sure
 ;; -- to always call FRAM_Stop before using other IIC related functions!
+;; -- Refer the README.txt for more information.
 ;; --------------------------------------------------------------------------
 
 ;; --------------------------------------------------------------------------
@@ -78,7 +79,7 @@ IIC_ByteSend_ReturnOnFail MACRO
 ;;  start address. After this call, subsequent reads/writes according to the
 ;;  selected mode (r/w) can be performed.
 ;;  If you share the IIC port (FRAM_MIOS_IIC==1), you have to call FRAM_End
-;;  before you call some other IIC related function!
+;;  before you call some other IIC related function! (see also README.txt)
 ;;
 ;;  IN:  chip select address and r/w mode in WREG 
 ;;       (<5:4>multiplex <3:1>chip select <0:0>mode, 1 for read, 0 for write)
@@ -106,11 +107,11 @@ FRAM_Begin
 	btfsc WREG,5; Multiplex MSB -> 1 if set
 	bsf FRAM_MULTIPLEX_PORT_MSB,FRAM_MULTIPLEX_PIN_MSB
 	btfsc WREG,4; If LSB set, Multiplex LSB -> 1  if set
-	bsf FRAM_MULTIPLEX_PORT_LSB,FRAM_MULTIPLEX_PIN_LSB
+	bsf FRAM_MULTIPLEX_PORT_LSB,FRAM_MULTIPLEX_PIN_LSB	
 	#endif
 	; set WREG high nibble to slave_id, mode to write (always required to set address latch)
 	andlw 0x0E ; clear high nibble and LSB (write mode)
-	iorlw slave_id_mask ; set high nibble to slave id
+	iorlw FRAM_SlaveID_Mask ; set high nibble to slave id
 	; start condition and write slave address
 	call IIC_Start
 	IIC_ByteSend_ReturnOnFail
@@ -126,11 +127,11 @@ FRAM_Begin
 	; address latch is set, indicated read operation now
 	movf FRAM_REG,W,BANKED
 	andlw 0x0F ; clear device address high nibble
-	iorlw slave_id_mask ; set slave id to high nibble of device address
+	iorlw FRAM_SlaveID_Mask ; set slave id to high nibble of device address
 	call IIC_Start ;start condition
 	call IIC_ByteSend ;device address for read operation
 	return
-	
+
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: FRAM_End 
 ;;  DESCRIPTION: Ends a read or write transaction. Releases the IIC port (stop).
@@ -154,7 +155,7 @@ FRAM_End_Stop
 	return
 
 ;; --------------------------------------------------------------------------
-;;  FUNCTION: FRAM_ReadByte 
+;;  FUNCTION: FRAM_ReadByte
 ;;  DESCRIPTION: Reads a byte from FRAM. The internal address latch of the FRAM
 ;;  will be increased by one.
 ;; 
@@ -173,12 +174,12 @@ FRAM_ReadByte
 	return 
 	
 ;; --------------------------------------------------------------------------
-;;  FUNCTION: FRAM_WriteByte 
+;;  FUNCTION: FRAM_WriteByte
 ;;  DESCRIPTION: Writes one byte to the FRAM. The internal address latch of the
 ;;  FRAM will be increased by one.
 ;; 
 ;;  IN:  Byte to write in WREG
-;;  OUT:  WREG 0x00 on error, else 0xFF
+;;  OUT:  WREG 0x00 on error (NAK received), else 0xFF
 ;;  USES:  FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0)
 ;; --------------------------------------------------------------------------
 _FRAM_WriteByte
@@ -187,7 +188,7 @@ FRAM_WriteByte
 	return 
 	
 ;; --------------------------------------------------------------------------
-;;  FUNCTION: FRAM_ReadBuf 
+;;  FUNCTION: FRAM_ReadBuf
 ;;  DESCRIPTION: Reads size bytes from FRAM. The internal address latch of 
 ;;  the FRAM will be increased by size.
 ;; 
@@ -211,12 +212,12 @@ FRAM_ReadBuf_Loop
 	bra FRAM_ReadBuf_Loop
 	
 ;; --------------------------------------------------------------------------
-;;  FUNCTION: FRAM_WriteBuf 
+;;  FUNCTION: FRAM_WriteBuf
 ;;  DESCRIPTION: Writes size bytes to FRAM. The internal address latch of 
 ;;  the FRAM will be increased by size.
 ;; 
 ;;  IN:  buffer size in WREG (0x00 for 256 bytes), pointer to buffer in FSR1
-;;  OUT:  0x00 on error, else 0xff
+;;  OUT:  0x00 on error (NAK received), else 0xff
 ;;  USES: PRODL,FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0)
 ;; --------------------------------------------------------------------------
 FRAM_WriteBuf
@@ -225,7 +226,7 @@ FRAM_WriteBuf_Loop
 	movf POSTINC1,W; move byte from buffer to WREG
 	IIC_ByteSend_ReturnOnFail
 	decfsz PRODL,F ; decrement PRODL, write next byte if not zero
-	bra FRAM_WriteBuf_Loop	
+	bra FRAM_WriteBuf_Loop
 	return
 	
 	

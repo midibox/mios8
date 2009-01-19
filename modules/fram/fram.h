@@ -28,12 +28,13 @@
 // Prototypes
 /////////////////////////////////////////////////////////////////////////////
 
-extern unsigned char FRAM_Begin(unsigned char device_addr, unsigned int memory_addr, unsigned char mode) __wparam;
+extern unsigned char FRAM_Begin(unsigned char device_addr,unsigned int address,unsigned char mode) __wparam;
+extern void FRAM_End(void) __wparam;
+
 extern void FRAM_ReadBuf(unsigned char buffer_size, unsigned char * buffer) __wparam;
 extern unsigned char FRAM_WriteBuf(unsigned char buffer_size, unsigned char * buffer) __wparam;
 extern unsigned char FRAM_ReadByte(void) __wparam;
 extern unsigned char FRAM_WriteByte(unsigned char byte) __wparam;
-extern void FRAM_End(void) __wparam;
 
 /////////////////////////////////////////////////////////////////////////////
 // Export global variables
