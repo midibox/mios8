@@ -206,9 +206,6 @@ public class MidiDeviceRouting extends Observable {
 					int num_receivers = (transmittingDevice.getReceivers() != null) ? transmittingDevice.getReceivers().size() : 0;
 					System.out.println("Number of transmitters: " + num_transmitters);
 					System.out.println("Number of receivers: " + num_receivers);
-					if (num_transmitters == 0 && num_receivers == 0) {
-						transmittingDevice.close();
-					}
 
 					// receiver.close();
 					closeReceivers.add(receiver);
@@ -221,9 +218,6 @@ public class MidiDeviceRouting extends Observable {
 					System.out.println("Number of transmitters: " + num_transmitters);
 					System.out.println("Number of receivers: " + num_receivers);
 					
-					if (num_transmitters == 0 && num_receivers == 0) {
-						receivingDevice.close();
-					}
 				}
 			}
 		}
@@ -238,7 +232,16 @@ public class MidiDeviceRouting extends Observable {
 		    Receiver receiver = (Receiver)closeReceivers.get(i);
 		    receiver.close();
 		}
+		
+		if (transmittingDevice.getTransmitters().size() == 0
+				&& transmittingDevice.getReceivers().size() == 0) {
+			transmittingDevice.close();
+		}
 
+		if (receivingDevice.getTransmitters().size() == 0
+				&& receivingDevice.getReceivers().size() == 0) {
+			receivingDevice.close();
+		}
 	}
 	
 	public void rescanDevices() {
