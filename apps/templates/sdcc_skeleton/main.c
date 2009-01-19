@@ -18,6 +18,7 @@
 
 #include <cmios.h>
 #include <pic18fregs.h>
+#include <debug_msg.h>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +27,19 @@
 /////////////////////////////////////////////////////////////////////////////
 void Init(void) __wparam
 {
+  // set shift register update frequency
+  MIOS_SRIO_UpdateFrqSet(1); // ms
+
+  // maximum number of DIN/DOUT shift registers (1..16)
+  MIOS_SRIO_NumberSet(16); // for 128 pins
+
+  // send SysEx message to MIOS Terminal (part of MIOS Studio)
+  // this is a very useful debugging help - it can be removed (or optionally
+  // disabled) if the SysEx messages are disturbing you
+  // see $MIOS_PATH/modules/debug_msg/README.txt for available functions
+  DEBUG_MSG_SendHeader();
+  DEBUG_MSG_SendCString("Application ready.");
+  DEBUG_MSG_SendFooter();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -113,6 +127,15 @@ void SR_Service_Finish(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 {
+#if 1
+  // only for debugging - remove this (or change "#if 1" to "#if 0") in a common application!
+  DEBUG_MSG_SendHeader();
+  DEBUG_MSG_SendCString("Button: ");
+  DEBUG_MSG_SendBCD3(pin);
+  DEBUG_MSG_SendChar(' ');
+  DEBUG_MSG_SendCString(pin_value ? "depressed" : "pressed");
+  DEBUG_MSG_SendFooter();
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////

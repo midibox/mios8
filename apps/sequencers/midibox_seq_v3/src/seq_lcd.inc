@@ -68,6 +68,18 @@ SEQ_LCD_PrintStringAfterCall
         call    MIOS_LCD_PrintString
 
 	;; return pointer now in TBLPTR[LH]
+
+	;; ensure that it is aligned to next instruction
+	movf	TBLPTRL, W
+	andlw	0x01
+	bz	SEQ_LCD_PrintStringAfterCall_IAl
+	incf	TBLPTRL, F
+	skpnz
+	incf	TBLPTRH, F
+	skpnz
+	incf	TBLPTRU, F
+SEQ_LCD_PrintStringAfterCall_IAl
+
         IRQ_DISABLE
         movf	TBLPTRL, W
         movwf   TOSL

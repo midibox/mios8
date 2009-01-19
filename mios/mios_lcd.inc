@@ -1063,7 +1063,7 @@ MIOS_LCD_PrintHex1
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: MIOS_LCD_PrintBCD1
 ;;  C_DECLARATION: void MIOS_LCD_PrintBCD1(unsigned char v)
-;;  DESCRIPTION: prints a 8-bit as BCD (decimal value) -- one digit only
+;;  DESCRIPTION: prints a 8-bit value as BCD (decimal value) -- one digit only
 ;;  IN:   Value in WREG
 ;;  OUT:  one digit on LCD
 ;;  USES: BSR
@@ -1093,7 +1093,7 @@ MIOS_LCD_PrintBCD1_Internal
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: MIOS_LCD_PrintBCD2
 ;;  C_DECLARATION: void MIOS_LCD_PrintBCD2(unsigned char v)
-;;  DESCRIPTION: prints a 8-bit as BCD (decimal value) -- two digits only
+;;  DESCRIPTION: prints a 8-bit value as BCD (decimal value) -- two digits only
 ;;  IN:   Value in WREG
 ;;  C_IN: Value in <v>
 ;;  OUT:  two digits on LCD
@@ -1117,7 +1117,7 @@ MIOS_LCD_PrintBCD2
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: MIOS_LCD_PrintBCD3
 ;;  C_DECLARATION: void MIOS_LCD_PrintBCD3(unsigned char v)
-;;  DESCRIPTION: prints a 8-bit as BCD (decimal value) -- all three digits
+;;  DESCRIPTION: prints a 8-bit value as BCD (decimal value) -- all three digits
 ;;  IN:   Value in WREG
 ;;  C_IN: Value in <v>
 ;;  OUT:  three digits on LCD
@@ -1241,7 +1241,7 @@ MIOS_LCD_PrintBCD_D1
 
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: MIOS_LCD_PrintCString
-;;  C_DECLARATION: void MIOS_LCD_PrintCString(code char *str)
+;;  C_DECLARATION: void MIOS_LCD_PrintCString(char *str)
 ;;  DESCRIPTION: prints a 0-terminated string --- only provided by the MIOS C Wrapper!
 ;;  IN:   not available in assembler
 ;;  C_IN: Pointer to 0-terminated String in <str>
