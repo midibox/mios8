@@ -272,18 +272,9 @@ public class MidiDeviceRouting extends Observable implements Observer {
 
 					// transmitter.close();
 					closeTransmitters.add(transmitter);
-					if (transmittingDevice.getTransmitters().size() == 0
-							&& transmittingDevice.getReceivers().size() == 0) {
-						transmittingDevice.close();
-					}
 
 					// receiver.close();
 					closeReceivers.add(receiver);
-
-					if (receivingDevice.getTransmitters().size() == 0
-							&& receivingDevice.getReceivers().size() == 0) {
-						receivingDevice.close();
-					}
 				}
 			}
 		}
@@ -297,6 +288,16 @@ public class MidiDeviceRouting extends Observable implements Observer {
 		for(i=0; i<closeReceivers.size(); ++i) {
 		    Receiver receiver = (Receiver)closeReceivers.get(i);
 		    receiver.close();
+		}
+		
+		if (transmittingDevice.getTransmitters().size() == 0
+				&& transmittingDevice.getReceivers().size() == 0) {
+			transmittingDevice.close();
+		}
+
+		if (receivingDevice.getTransmitters().size() == 0
+				&& receivingDevice.getReceivers().size() == 0) {
+			receivingDevice.close();
 		}
 	}
 
