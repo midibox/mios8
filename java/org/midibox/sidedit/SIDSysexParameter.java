@@ -21,13 +21,11 @@
 package org.midibox.sidedit;
 
 import java.util.Observable;
-import java.lang.Math;
+
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
-import javax.sound.midi.SysexMessage;
 
 import org.midibox.sidlibr.Patch;
-
 
 public class SIDSysexParameter extends Observable implements Receiver {
 
@@ -38,18 +36,19 @@ public class SIDSysexParameter extends Observable implements Receiver {
 	protected int value;
 
 	protected int address;
-	
+
 	protected int start_bit;
 
 	protected int midimax, midimin;
 
 	protected int resolution;
-	
+
 	protected String name;
-	
+
 	protected Patch patch;
-		
-	public SIDSysexParameter(Patch p, int address, int start_b, int reso, String name) {
+
+	public SIDSysexParameter(Patch p, int address, int start_b, int reso,
+			String name) {
 		setReceiver(p.getReceiver());
 		setMidiMaxMinValues(reso);
 		this.address = address;
@@ -58,10 +57,11 @@ public class SIDSysexParameter extends Observable implements Receiver {
 		this.name = name;
 		setMidiValue(p.getParameter(address, start_b, reso), false);
 	}
-	
+
 	public Receiver getReceiver() {
 		return receiver;
 	}
+
 	protected void setReceiver(Receiver receiver) {
 		this.receiver = receiver;
 	}
@@ -74,46 +74,49 @@ public class SIDSysexParameter extends Observable implements Receiver {
 		this.value = limitMidiValue(value);
 
 		patch.setParameter(address, this.value, start_bit, resolution, forward);
-		
+
 		setChanged();
 		notifyObservers(VALUE);
 		clearChanged();
 	}
-	
+
 	public void setMidiMaxMinValues(int reso) {
 		if (reso < 0) {
-			midimax = (int) Math.floor((Math.pow(2,Math.abs(reso))-1)/2);
-			midimin = -((int) Math.ceil((Math.pow(2,Math.abs(reso))-1)/2));
-		}
-		else {
-			midimax = (int) Math.pow(2,reso)-1;
+			midimax = (int) Math.floor((Math.pow(2, Math.abs(reso)) - 1) / 2);
+			midimin = -((int) Math.ceil((Math.pow(2, Math.abs(reso)) - 1) / 2));
+		} else {
+			midimax = (int) Math.pow(2, reso) - 1;
 			midimin = 0;
 		}
 		resolution = reso;
 	}
 
-	public int getMidiMaxValue() {		
+	public int getMidiMaxValue() {
 		return midimax;
 	}
-	
-	public int getMidiMinValue() {		
+
+	public int getMidiMinValue() {
 		return midimin;
 	}
-	
+
 	public String getMidiName() {
 		return name;
 	}
 
 	public void send(MidiMessage message, long lTimeStamp) {
-		
+
 	}
 
 	public void close() {
 	}
-	
+
 	protected int limitMidiValue(int i) {
-		if (i > midimax) {i=midimax;}
-		if (i < midimin) {i=midimin;}
+		if (i > midimax) {
+			i = midimax;
+		}
+		if (i < midimin) {
+			i = midimin;
+		}
 		return i;
 	}
 }

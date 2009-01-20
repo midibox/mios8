@@ -21,118 +21,116 @@
 package org.midibox.sidedit.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Observable;
 import java.util.Observer;
-import javax.sound.midi.Receiver;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
-
 import javax.swing.JToggleButton;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.MouseInputAdapter;
-
-import org.midibox.sidlibr.Patch;
-import org.midibox.sidedit.gui.lead.*;
-import org.midibox.sidedit.gui.bassline.*;
-import org.midibox.sidedit.gui.drum.*;
-import org.midibox.sidedit.gui.multi.*;
-import org.midibox.midi.*;
-import org.midibox.sidedit.*;
-import org.midibox.utils.gui.FontLoader;
-import org.midibox.utils.gui.ImageLoader;
-import org.midibox.utils.gui.Knob;
-import org.midibox.utils.gui.MyButtonUI;
-import java.util.Vector;
-import javax.swing.event.*;
-import java.io.*;
-import java.awt.event.*;
-import javax.swing.JInternalFrame;
-import javax.swing.JDialog;
-import java.awt.Frame;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.EtchedBorder;
-public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListener {
+
+import org.midibox.sidedit.SIDEditController;
+import org.midibox.sidedit.gui.bassline.BasslineGUI;
+import org.midibox.sidedit.gui.drum.DrumGUI;
+import org.midibox.sidedit.gui.lead.LeadGUI;
+import org.midibox.sidedit.gui.multi.MultiGUI;
+import org.midibox.sidlibr.Patch;
+import org.midibox.utils.gui.ImageLoader;
+import org.midibox.utils.gui.MyButtonUI;
+
+public class MBSIDV2EditorGUI extends JDialog implements Observer,
+		ActionListener {
 
 	private SIDEditController sidEditController;
 
 	private JPanel editPanel;
-	
+
 	private JLabel tooltipLabel;
-	
-	private JToggleButton stereoLink, oscillatorLink, core1Button, core2Button, core3Button, core4Button;
-	
+
+	private JToggleButton stereoLink, oscillatorLink, core1Button, core2Button,
+			core3Button, core4Button;
+
 	public MBSIDV2EditorGUI(Frame owner, boolean modal) {
-		super(owner, modal);	
-		
-		setTitle("MidiBox SID V2 Editor - no patch selected");		
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);	
+		super(owner, modal);
+
+		setTitle("MidiBox SID V2 Editor - no patch selected");
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setResizable(false);
 		setLayout(new BorderLayout());
-		
+
 		addWindowListener(new WindowAdapter() {
-		    public void windowClosing(WindowEvent we) {
-		    	saveAndClose();        
-		    }
+			public void windowClosing(WindowEvent we) {
+				saveAndClose();
+			}
 		});
-		
+
 		add(createStatusBar(), BorderLayout.SOUTH);
 		editPanel = new JPanel();
 		add(editPanel, BorderLayout.NORTH);
 		pack();
 	}
-	
-	public void editThis(SIDEditController sidEditController, int cores) {		
+
+	public void editThis(SIDEditController sidEditController, int cores) {
+		if (isVisible()) {
+
+			int result = JOptionPane
+					.showConfirmDialog(
+							null,
+							"The current patch has been changed. Would you like to save?",
+							"Save patch?", JOptionPane.YES_NO_CANCEL_OPTION,
+							JOptionPane.QUESTION_MESSAGE);
+			switch (result) {
+			case JOptionPane.YES_OPTION:
+				sidEditController.Save();
+				break;
+			case JOptionPane.NO_OPTION:
+				break;
+			case JOptionPane.CANCEL_OPTION:
+				return;
+			default:
+				break;
+			}
+
+		}
+
 		this.sidEditController = sidEditController;
 		sidEditController.setTooltipListener(this);
 		Patch p = sidEditController.getPatch();
 		stereoLink.setSelected(true);
 		oscillatorLink.setSelected(false);
 		setTooltip("");
-		core1Button.setSelected(((cores&0x01)>0));
-		core2Button.setSelected(((cores&0x02)>0));
-		core3Button.setSelected(((cores&0x04)>0));
-		core4Button.setSelected(((cores&0x08)>0));		
-		this.setTitle("MidiBox SID V2 Editor - " + p.getEngineStr() + " engine: " + p.getPatchName());
+		core1Button.setSelected(((cores & 0x01) > 0));
+		core2Button.setSelected(((cores & 0x02) > 0));
+		core3Button.setSelected(((cores & 0x04) > 0));
+		core4Button.setSelected(((cores & 0x08) > 0));
+		this.setTitle("MidiBox SID V2 Editor - " + p.getEngineStr()
+				+ " engine: " + p.getPatchName());
 		sidEditController.addObserver(this);
-		remove(editPanel);	
-		
-		if (p.getEngine()==p.LEAD) {
+		remove(editPanel);
+
+		if (p.getEngine() == p.LEAD) {
 			editPanel = new LeadGUI(sidEditController);
-		} else if (p.getEngine()==p.BASSLINE) {
-			editPanel = new BasslineGUI(sidEditController);				
-		} else if (p.getEngine()==p.DRUM) {
-			editPanel = new DrumGUI(sidEditController);				
-		} else if (p.getEngine()==p.MULTI) {			
+		} else if (p.getEngine() == p.BASSLINE) {
+			editPanel = new BasslineGUI(sidEditController);
+		} else if (p.getEngine() == p.DRUM) {
+			editPanel = new DrumGUI(sidEditController);
+		} else if (p.getEngine() == p.MULTI) {
 			editPanel = new MultiGUI(sidEditController);
-		}	
-		
+		}
+
 		add(editPanel);
 		pack();
-		repaint();	
+		repaint();
 		setVisible(true);
 	}
 
@@ -145,105 +143,117 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer, ActionListene
 	}
 
 	public void update(Observable observable, Object object) {
-		
+
 	}
-	
+
 	public JPanel createStatusBar() {
 		JPanel statusBar = new JPanel();
-		statusBar.setLayout(new BorderLayout());		
+		statusBar.setLayout(new BorderLayout());
 		statusBar.setBorder(BorderFactory.createRaisedBevelBorder());
-				
+
 		stereoLink = new JToggleButton("Stereo link");
-		stereoLink.setPreferredSize(new Dimension(stereoLink.getPreferredSize().width,20));
+		stereoLink.setPreferredSize(new Dimension(
+				stereoLink.getPreferredSize().width, 20));
 		stereoLink.addActionListener(this);
-		
+
 		oscillatorLink = new JToggleButton("Oscillator link");
-		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink.getPreferredSize().width,20));
+		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink
+				.getPreferredSize().width, 20));
 		oscillatorLink.addActionListener(this);
-		
+
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));	
-		buttonPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		buttonPanel.setBorder(BorderFactory
+				.createBevelBorder(BevelBorder.LOWERED));
 		JLabel coreLabel = new JLabel("Cores: ");
-		core1Button = new JToggleButton();		
-		core1Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"), ImageLoader.getImageIcon("txOff.png")));		
+		core1Button = new JToggleButton();
+		core1Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),
+				ImageLoader.getImageIcon("txOff.png")));
 		core1Button.setEnabled(false);
-		core2Button = new JToggleButton();		
-		core2Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"), ImageLoader.getImageIcon("txOff.png")));		
+		core2Button = new JToggleButton();
+		core2Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),
+				ImageLoader.getImageIcon("txOff.png")));
 		core2Button.setEnabled(false);
-		core3Button = new JToggleButton();		
-		core3Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"), ImageLoader.getImageIcon("txOff.png")));		
+		core3Button = new JToggleButton();
+		core3Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),
+				ImageLoader.getImageIcon("txOff.png")));
 		core3Button.setEnabled(false);
-		core4Button = new JToggleButton();		
-		core4Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"), ImageLoader.getImageIcon("txOff.png")));		
+		core4Button = new JToggleButton();
+		core4Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),
+				ImageLoader.getImageIcon("txOff.png")));
 		core4Button.setEnabled(false);
 		buttonPanel.add(coreLabel);
 		buttonPanel.add(core1Button);
 		buttonPanel.add(core2Button);
 		buttonPanel.add(core3Button);
 		buttonPanel.add(core4Button);
-		
-		JLabel empty1Label = new JLabel();		
-		empty1Label.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-				
-		tooltipLabel = new JLabel("");		
-		tooltipLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		
+
+		JLabel empty1Label = new JLabel();
+		empty1Label.setBorder(BorderFactory
+				.createBevelBorder(BevelBorder.LOWERED));
+
+		tooltipLabel = new JLabel("");
+		tooltipLabel.setBorder(BorderFactory
+				.createBevelBorder(BevelBorder.LOWERED));
+
 		JPanel linkPanel = new JPanel();
 		linkPanel.setLayout(new BoxLayout(linkPanel, BoxLayout.X_AXIS));
 		linkPanel.add(stereoLink);
 		linkPanel.add(oscillatorLink);
-		
-		statusBar.add(linkPanel, BorderLayout.WEST);		
+
+		statusBar.add(linkPanel, BorderLayout.WEST);
 		statusBar.add(tooltipLabel, BorderLayout.CENTER);
 		statusBar.add(buttonPanel, BorderLayout.EAST);
-		
+
 		return statusBar;
 	}
-	    
-    private void saveAndClose() {
-    	int result = JOptionPane.showConfirmDialog(null, "The current patch has been changed. Would you like to save?", "Save patch?", JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE );
-		switch(result) {
-			case JOptionPane.YES_OPTION:
-				sidEditController.Save();
-				this.setVisible(false);				
-				break;
-			case JOptionPane.NO_OPTION:
-				this.setVisible(false);				
-				break;
-			case JOptionPane.CANCEL_OPTION:
-				break;
-			default:
-				break;
-		}
-    }
-    
-    public void setTooltip(String s) {
-    	tooltipLabel.setText(s);
-    }
-   
-	public void actionPerformed(ActionEvent ae) {
-		editPanel.repaint();
-		if (ae.getSource()==stereoLink) {
-			if (editPanel.getClass()==LeadGUI.class) {
-				((LeadGUI)editPanel).stereoLink(stereoLink.isSelected());
-			} else if (editPanel.getClass()==BasslineGUI.class) {
-				((BasslineGUI)editPanel).stereoLink(stereoLink.isSelected());						
-			} else if (editPanel.getClass()==DrumGUI.class) {
-				((DrumGUI)editPanel).stereoLink(stereoLink.isSelected());				
-			} else if (editPanel.getClass()==MultiGUI.class) {
-				((MultiGUI)editPanel).stereoLink(stereoLink.isSelected());				
-			} 
-		} else if (ae.getSource()==oscillatorLink) {
-			if (editPanel.getClass()==LeadGUI.class) {
-				((LeadGUI)editPanel).oscLink(oscillatorLink.isSelected());				
-			} else if (editPanel.getClass()==BasslineGUI.class) {
-				// Do nothing
-			} else if (editPanel.getClass()==DrumGUI.class) {
-				// Do nothing
-			} else if (editPanel.getClass()==MultiGUI.class) {
-				((MultiGUI)editPanel).oscLink(oscillatorLink.isSelected());
-			} 
+
+	private void saveAndClose() {
+		int result = JOptionPane.showConfirmDialog(null,
+				"The current patch has been changed. Would you like to save?",
+				"Save patch?", JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
+		switch (result) {
+		case JOptionPane.YES_OPTION:
+			sidEditController.Save();
+			this.setVisible(false);
+			break;
+		case JOptionPane.NO_OPTION:
+			this.setVisible(false);
+			break;
+		case JOptionPane.CANCEL_OPTION:
+			break;
+		default:
+			break;
 		}
 	}
-}	
+
+	public void setTooltip(String s) {
+		tooltipLabel.setText(s);
+	}
+
+	public void actionPerformed(ActionEvent ae) {
+		editPanel.repaint();
+		if (ae.getSource() == stereoLink) {
+			if (editPanel.getClass() == LeadGUI.class) {
+				((LeadGUI) editPanel).stereoLink(stereoLink.isSelected());
+			} else if (editPanel.getClass() == BasslineGUI.class) {
+				((BasslineGUI) editPanel).stereoLink(stereoLink.isSelected());
+			} else if (editPanel.getClass() == DrumGUI.class) {
+				((DrumGUI) editPanel).stereoLink(stereoLink.isSelected());
+			} else if (editPanel.getClass() == MultiGUI.class) {
+				((MultiGUI) editPanel).stereoLink(stereoLink.isSelected());
+			}
+		} else if (ae.getSource() == oscillatorLink) {
+			if (editPanel.getClass() == LeadGUI.class) {
+				((LeadGUI) editPanel).oscLink(oscillatorLink.isSelected());
+			} else if (editPanel.getClass() == BasslineGUI.class) {
+				// Do nothing
+			} else if (editPanel.getClass() == DrumGUI.class) {
+				// Do nothing
+			} else if (editPanel.getClass() == MultiGUI.class) {
+				((MultiGUI) editPanel).oscLink(oscillatorLink.isSelected());
+			}
+		}
+	}
+}

@@ -1,7 +1,7 @@
 /*
- * @(#)ImageLoader.java	beta7	2006/04/23
+ * @(#)ImageLoader.java	beta8	2006/04/23
  *
- * Copyright (C) 2006    Adam King (adamjking@optusnet.com.au)
+ * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
  *
  * This application is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import java.net.URL;
 import java.util.Hashtable;
 
 import javax.swing.ImageIcon;
-import java.io.File;
+
 public class ImageLoader {
 
 	private static Hashtable images = new Hashtable();
@@ -36,9 +36,9 @@ public class ImageLoader {
 		if (images.containsKey(imageName)) {
 			imageIcon = (ImageIcon) images.get(imageName);
 		} else {
-			//ClassLoader cl = ImageLoader.class.getClassLoader();
-			//URL url = cl.getResource("images/" + imageName);
-			URL url = ImageLoader.class.getResource("/images/" + imageName);
+
+			ClassLoader cl = ImageLoader.class.getClassLoader();
+			URL url = cl.getResource("images/" + imageName);
 			imageIcon = new ImageIcon(url);
 			images.put(imageName, imageIcon);
 		}

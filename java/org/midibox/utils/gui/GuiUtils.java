@@ -1,7 +1,7 @@
 /*
- * @(#)GuiUtils.java	beta7	2006/04/23
+ * @(#)GuiUtils.java	beta8	2006/04/23
  *
- * Copyright (C) 2006    Adam King (adamjking@optusnet.com.au)
+ * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
  *
  * This application is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

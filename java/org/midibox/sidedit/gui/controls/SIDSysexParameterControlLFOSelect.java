@@ -28,32 +28,39 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import org.midibox.sidedit.*;
+import org.midibox.sidedit.SIDSysexParameterControl;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.MyButtonUI;
 
-public class SIDSysexParameterControlLFOSelect extends SIDSysexParameterControlGUI {
-	private static String[] onFig = {"sin_on.png","tri_on.png","saw_on.png","pulse_on.png","random_on.png","sin_pos_on.png","tri_pos_on.png","saw_pos_on.png","pulse_pos_on.png"};
-	private static String[] offFig = {"sin.png","tri.png","saw.png","pulse.png","random.png","sin_pos.png","tri_pos.png","saw_pos.png","pulse_pos.png"};
+public class SIDSysexParameterControlLFOSelect extends
+		SIDSysexParameterControlGUI {
+	private static String[] onFig = { "sin_on.png", "tri_on.png", "saw_on.png",
+			"pulse_on.png", "random_on.png", "sin_pos_on.png",
+			"tri_pos_on.png", "saw_pos_on.png", "pulse_pos_on.png" };
+	private static String[] offFig = { "sin.png", "tri.png", "saw.png",
+			"pulse.png", "random.png", "sin_pos.png", "tri_pos.png",
+			"saw_pos.png", "pulse_pos.png" };
 	private Vector buttonVec = new Vector();
-	
-		public SIDSysexParameterControlLFOSelect(SIDSysexParameterControl midiParameter, boolean showLabel,
+
+	public SIDSysexParameterControlLFOSelect(
+			SIDSysexParameterControl midiParameter, boolean showLabel,
 			String labelLocation, boolean valueBelow, boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
-		
+
 		JPanel panel = new JPanel();
-		panel.setLayout(new GridLayout(2,5));
+		panel.setLayout(new GridLayout(2, 5));
 		panel.setOpaque(false);
-		
+
 		ButtonGroup group = new ButtonGroup();
 		for (int c = 0; c < 9; c++) {
 			JToggleButton toggle = new JToggleButton();
-			toggle.setUI(new MyButtonUI(ImageLoader.getImageIcon(onFig[c]), ImageLoader.getImageIcon(offFig[c])));
+			toggle.setUI(new MyButtonUI(ImageLoader.getImageIcon(onFig[c]),
+					ImageLoader.getImageIcon(offFig[c])));
 			toggle.addMouseListener(this);
 			panel.add(toggle);
 			group.add(toggle);
 			buttonVec.add(toggle);
-			toggle.addActionListener(this);			
+			toggle.addActionListener(this);
 		}
 		add(panel);
 		updateGraphics();
@@ -62,7 +69,7 @@ public class SIDSysexParameterControlLFOSelect extends SIDSysexParameterControlG
 	public void actionPerformed(ActionEvent ae) {
 		super.actionPerformed(ae);
 		for (int c = 0; c < buttonVec.size(); c++) {
-			JToggleButton toggle = (JToggleButton)buttonVec.elementAt(c);
+			JToggleButton toggle = (JToggleButton) buttonVec.elementAt(c);
 			if (ae.getSource() == toggle) {
 				if (update) {
 					update = false;
@@ -72,20 +79,22 @@ public class SIDSysexParameterControlLFOSelect extends SIDSysexParameterControlG
 					}
 					midiParameter.setMidiValue(newval, true);
 					for (int d = 0; d < midiParameters.size(); d++) {
-						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(d);
+						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+								.elementAt(d);
 						mp.setMidiValue(newval, false);
 					}
 					update = true;
 				}
 			}
 		}
-	}	
-	
+	}
+
 	public void updateGraphics() {
 		super.updateGraphics();
 		if (update) {
 			update = false;
-			((JToggleButton)buttonVec.elementAt(midiParameter.getMidiValue())).setSelected(true);
+			((JToggleButton) buttonVec.elementAt(midiParameter.getMidiValue()))
+					.setSelected(true);
 			update = true;
 		}
 	}

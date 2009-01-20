@@ -22,35 +22,26 @@ package org.midibox.sidedit.gui;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.util.Vector;
+
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.AbstractButton;
-import  org.midibox.sidedit.gui.controls.*;
-import org.midibox.sidedit.SIDEditController;
-import org.midibox.sidedit.SIDSysexParameterControl;
+
+import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
+import org.midibox.sidedit.gui.controls.SIDSysexParameterControlToggleButton;
 import org.midibox.utils.gui.ImageLoader;
-import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
 
-public class FilterGUI extends JPanel{
-	
-	public FilterGUI(Vector filterGUIvL, Vector filterGUIvR) {		
+public class FilterGUI extends JPanel {
+
+	public FilterGUI(Vector filterGUIvL, Vector filterGUIvR) {
 		setLayout(new BorderLayout());
 		this.setOpaque(false);
-			
+
 		JPanel panel1 = new JPanel();
-		panel1.setLayout(new GridLayout(1,5));
-		panel1.add(createFilter(filterGUIvL,"Filter Left"));
-		panel1.add(createFilter(filterGUIvR,"Filter Right"));
+		panel1.setLayout(new GridLayout(1, 5));
+		panel1.add(createFilter(filterGUIvL, "Filter Left"));
+		panel1.add(createFilter(filterGUIvR, "Filter Right"));
 		JPanel panel2 = new JPanel();
 		panel2.setOpaque(false);
 		JPanel panel3 = new JPanel();
@@ -61,39 +52,57 @@ public class FilterGUI extends JPanel{
 		panel1.add(panel3);
 		panel1.add(panel4);
 		panel1.setOpaque(false);
-	    this.add(panel1, BorderLayout.NORTH);
+		this.add(panel1, BorderLayout.NORTH);
 	}
-	
+
 	protected JPanel createFilter(Vector midiParameterGUI, String s) {
 		JPanel filterPanel = new JPanel();
-		filterPanel.setLayout(new GridLayout(4,3));
+		filterPanel.setLayout(new GridLayout(4, 3));
 		filterPanel.setBorder(BorderFactory.createEtchedBorder());
 		filterPanel.setBorder(BorderFactory.createTitledBorder(s));
-		filterPanel.setOpaque(false);	
-		
-		JToggleButton b1 = ((JToggleButton)((SIDSysexParameterControlToggleButton)midiParameterGUI.elementAt(7)).getToggleButton());
-		JToggleButton b2 = ((JToggleButton)((SIDSysexParameterControlToggleButton)midiParameterGUI.elementAt(8)).getToggleButton());
-		JToggleButton b3 = ((JToggleButton)((SIDSysexParameterControlToggleButton)midiParameterGUI.elementAt(9)).getToggleButton());
-		b1.setUI(new MyButtonUI(ImageLoader.getImageIcon("lpf_on.png"), ImageLoader.getImageIcon("lpf.png")));
-		b2.setUI(new MyButtonUI(ImageLoader.getImageIcon("bpf_on.png"), ImageLoader.getImageIcon("bpf.png")));
-		b3.setUI(new MyButtonUI(ImageLoader.getImageIcon("hpf_on.png"), ImageLoader.getImageIcon("hpf.png")));
-		
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(7));
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(8));
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(9));	
-		
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(0));
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(1));
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(2));
-		
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(3));
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(4));
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(5));
-		
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(6));	
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(10));
-		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(11));
-		
+		filterPanel.setOpaque(false);
+
+		JToggleButton b1 = ((JToggleButton) ((SIDSysexParameterControlToggleButton) midiParameterGUI
+				.elementAt(7)).getToggleButton());
+		JToggleButton b2 = ((JToggleButton) ((SIDSysexParameterControlToggleButton) midiParameterGUI
+				.elementAt(8)).getToggleButton());
+		JToggleButton b3 = ((JToggleButton) ((SIDSysexParameterControlToggleButton) midiParameterGUI
+				.elementAt(9)).getToggleButton());
+		b1.setUI(new MyButtonUI(ImageLoader.getImageIcon("lpf_on.png"),
+				ImageLoader.getImageIcon("lpf.png")));
+		b2.setUI(new MyButtonUI(ImageLoader.getImageIcon("bpf_on.png"),
+				ImageLoader.getImageIcon("bpf.png")));
+		b3.setUI(new MyButtonUI(ImageLoader.getImageIcon("hpf_on.png"),
+				ImageLoader.getImageIcon("hpf.png")));
+
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(7));
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(8));
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(9));
+
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(0));
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(1));
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(2));
+
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(3));
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(4));
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(5));
+
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(6));
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(10));
+		filterPanel.add((SIDSysexParameterControlGUI) midiParameterGUI
+				.elementAt(11));
+
 		return filterPanel;
 	}
 }

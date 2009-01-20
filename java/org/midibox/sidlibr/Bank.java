@@ -22,39 +22,40 @@ package org.midibox.sidlibr;
 
 import javax.sound.midi.Receiver;
 
-public class Bank  {
+public class Bank {
 	private Patch[] bank;
 	public static int patchSize = 2072; // Number of SysEx string characters
 	public static int bankSize = 128;
 	private Receiver receiver;
-	
+
 	public Bank(Receiver receiver) {
 		this.receiver = receiver;
 		initBank();
 	}
-	
+
 	public void initBank() {
 		bank = new Patch[bankSize];
-		for (int c=0;c<bankSize;c++) {
+		for (int c = 0; c < bankSize; c++) {
 			bank[c] = new Patch(receiver);
 		}
 	}
-	
+
 	public void setPatchAt(int i, Patch p) {
 		bank[i] = p;
 	}
-	
+
 	public Patch getPatchAt(int i) {
 		return bank[i];
 	}
-	
-	public String parseBankSyx(String syx){		
+
+	public String parseBankSyx(String syx) {
 		String status = "succesful";
-		try {	
+		try {
 			initBank();
-			for (int i=0;i<syx.length()/patchSize;i++) {
+			for (int i = 0; i < syx.length() / patchSize; i++) {
 				bank[i] = new Patch(receiver);
-				String stat = bank[i].parsePatch(syx.substring(i*patchSize,(i+1)*patchSize));
+				String stat = bank[i].parsePatch(syx.substring(i * patchSize,
+						(i + 1) * patchSize));
 				if (status == "checksum error") {
 					status = stat;
 					break;

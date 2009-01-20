@@ -20,26 +20,28 @@
 
 package org.midibox.sidedit.gui.controls;
 
-
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import org.midibox.sidedit.*;
+import org.midibox.sidedit.SIDSysexParameterControl;
 
-public class SIDSysexParameterControlToggleButton extends SIDSysexParameterControlGUI {
+public class SIDSysexParameterControlToggleButton extends
+		SIDSysexParameterControlGUI {
 
 	private JToggleButton toggleButton;
 
 	private boolean momentary = false;
-	
+
 	private SIDSysexParameterControlGUI snapGUI = null;
 
-	public SIDSysexParameterControlToggleButton(SIDSysexParameterControl midiParameter,
-			JToggleButton toggleButton, boolean momentary, boolean showLabel,
-			String labelLocation, boolean valueBelow, boolean showValue) {
+	public SIDSysexParameterControlToggleButton(
+			SIDSysexParameterControl midiParameter, JToggleButton toggleButton,
+			boolean momentary, boolean showLabel, String labelLocation,
+			boolean valueBelow, boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.toggleButton = toggleButton;
 		this.momentary = momentary;
@@ -51,7 +53,7 @@ public class SIDSysexParameterControlToggleButton extends SIDSysexParameterContr
 		toggleButton.addMouseListener(this);
 		updateGraphics();
 	}
-	
+
 	public JToggleButton getToggleButton() {
 		return toggleButton;
 	}
@@ -63,12 +65,14 @@ public class SIDSysexParameterControlToggleButton extends SIDSysexParameterContr
 		if (ae.getSource() == toggleButton) {
 			if (update) {
 				update = false;
-				midiParameter.setMidiValue((toggleButton.isSelected())?1:0, true);
+				midiParameter.setMidiValue((toggleButton.isSelected()) ? 1 : 0,
+						true);
 				for (int c = 0; c < midiParameters.size(); c++) {
-					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
-					mp.setMidiValue((toggleButton.isSelected())?1:0, false);
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+							.elementAt(c);
+					mp.setMidiValue((toggleButton.isSelected()) ? 1 : 0, false);
 				}
-				if (snapGUI!=null) {
+				if (snapGUI != null) {
 					snapGUI.setSnap(toggleButton.isSelected());
 				}
 				update = true;
@@ -77,18 +81,18 @@ public class SIDSysexParameterControlToggleButton extends SIDSysexParameterContr
 				toggleButton.doClick();
 			}
 		}
-	}	
-	
+	}
+
 	public void setSnapParameter(SIDSysexParameterControlGUI snapGUI) {
 		this.snapGUI = snapGUI;
 	}
-	
+
 	public void updateGraphics() {
 		super.updateGraphics();
 		if (update) {
 			update = false;
 			toggleButton.setSelected((midiParameter.getMidiValue() != 0));
-			if (snapGUI!=null) {
+			if (snapGUI != null) {
 				snapGUI.setSnap(toggleButton.isSelected());
 			}
 			update = true;

@@ -22,39 +22,43 @@ package org.midibox.sidlibr.gui;
 
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import org.midibox.sidlibr.SIDLibController;
-import javax.swing.event.*;
+import javax.swing.event.ChangeListener;
 
-public class LibraryGUI extends JPanel implements ChangeListener, Observer{
+import org.midibox.sidlibr.SIDLibController;
+
+public class LibraryGUI extends JPanel implements ChangeListener, Observer {
 	private SIDLibController sidLibController;
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private BankTable[] bankTables = new BankTable[7];
-	//private EnsBankTable ensBankTable;
-	private static String[] bankNames = {"A","B","C","D","E","F","G"};
-	public LibraryGUI(SIDLibController sidLibController) {	
+	// private EnsBankTable ensBankTable;
+	private static String[] bankNames = { "A", "B", "C", "D", "E", "F", "G" };
+
+	public LibraryGUI(SIDLibController sidLibController) {
 		this.sidLibController = sidLibController;
-		//ensBankTable = new EnsBankTable(sidLibController);
-		//tabbedPane.addTab("ENS", ensBankTable);	
+		// ensBankTable = new EnsBankTable(sidLibController);
+		// tabbedPane.addTab("ENS", ensBankTable);
 		for (int c = 0; c < 7; c++) {
-			bankTables[c] = new BankTable(sidLibController,c);
+			bankTables[c] = new BankTable(sidLibController, c);
 			tabbedPane.addTab(bankNames[c], bankTables[c]);
 		}
 		add(tabbedPane);
 		tabbedPane.addChangeListener(this);
 	}
-	
+
 	public void stateChanged(javax.swing.event.ChangeEvent e) {
-		sidLibController.setCurrentBankNumber(tabbedPane.getSelectedIndex());		
-		int patchNumber = bankTables[tabbedPane.getSelectedIndex()].getSelectedRow();
+		sidLibController.setCurrentBankNumber(tabbedPane.getSelectedIndex());
+		int patchNumber = bankTables[tabbedPane.getSelectedIndex()]
+				.getSelectedRow();
 		if (patchNumber < 0) {
 			patchNumber = 0;
 		}
 		sidLibController.setCurrentPatchNumber(patchNumber);
 	}
-	
+
 	public void update(Observable observable, Object object) {
-		
+
 	}
 }

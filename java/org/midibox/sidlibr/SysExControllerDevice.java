@@ -20,11 +20,11 @@
 
 package org.midibox.sidlibr;
 
-import org.midibox.midi.VirtualMidiDevice;
-
 import javax.sound.midi.MidiMessage;
 
-public class SysExControllerDevice extends VirtualMidiDevice{
+import org.midibox.midi.VirtualMidiDevice;
+
+public class SysExControllerDevice extends VirtualMidiDevice {
 
 	protected SysExController sysexController;
 
@@ -39,5 +39,5 @@ public class SysExControllerDevice extends VirtualMidiDevice{
 
 	protected void receiveFromReceivers(MidiMessage message, long timestamp) {
 		sysexController.send(message, timestamp);
-	}	
+	}
 }

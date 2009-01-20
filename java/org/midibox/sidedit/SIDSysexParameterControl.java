@@ -20,8 +20,7 @@
 package org.midibox.sidedit;
 
 import javax.sound.midi.MidiMessage;
-import javax.sound.midi.Receiver;
-import javax.sound.midi.ShortMessage;
+
 import org.midibox.midi.MidiUtils;
 import org.midibox.sidlibr.Patch;
 
@@ -34,21 +33,22 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 	protected boolean receive;
 
 	protected boolean send;
-	
+
 	protected int type;
-	
+
 	protected String[] valAlias;
 	protected String[] spValAlias;
-	
-	public int[] snapvals = {0}; 
-	public boolean useAlias = true;	// Only for rate knob
+
+	public int[] snapvals = { 0 };
+	public boolean useAlias = true; // Only for rate knob
 	public boolean snap = false;
-	
+
 	protected String tooltip;
-	
+
 	protected Object tooltipListener;
-	
-	public SIDSysexParameterControl(int type, String[] valAlias ,Patch patch, int addres, int start_bit, int reso, String name, String tooltip) {
+
+	public SIDSysexParameterControl(int type, String[] valAlias, Patch patch,
+			int addres, int start_bit, int reso, String name, String tooltip) {
 		super(patch, addres, start_bit, reso, name);
 		setReceive(true);
 		setSend(true);
@@ -57,17 +57,18 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 		this.valAlias = valAlias;
 		this.spValAlias = sparseValAlias(valAlias);
 	}
-	
-	public SIDSysexParameterControl(int type, String[] valAlias ,Patch patch, int addres, int start_bit, int reso, String name) {
+
+	public SIDSysexParameterControl(int type, String[] valAlias, Patch patch,
+			int addres, int start_bit, int reso, String name) {
 		super(patch, addres, start_bit, reso, name);
 		setReceive(true);
 		setSend(true);
 		this.tooltip = name;
 		this.type = type;
-		this.valAlias = valAlias;	
+		this.valAlias = valAlias;
 		this.spValAlias = sparseValAlias(valAlias);
 	}
-	
+
 	public boolean isReceive() {
 		return receive;
 	}
@@ -75,15 +76,15 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 	public void setTooltipListener(Object object) {
 		tooltipListener = object;
 	}
-	
+
 	public Object getTooltipListener() {
 		return tooltipListener;
 	}
-	
+
 	public String getTooltip() {
 		return tooltip;
 	}
-	
+
 	public void setReceive(boolean respond) {
 		this.receive = respond;
 
@@ -98,7 +99,7 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 
 	public void setSend(boolean send) {
 		this.send = send;
-		
+
 		setChanged();
 		notifyObservers(SEND);
 		clearChanged();
@@ -111,87 +112,89 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 	public int getType() {
 		return type;
 	}
-	
+
 	public String[] getValAlias() {
 		return valAlias;
 	}
-	
+
 	public String[] getSparseValAlias() {
 		return spValAlias;
 	}
-	
+
 	public int lookUpValue(int i) {
 		String s = valAlias[i];
 		int val = 0;
-		for(int j=0;j<spValAlias.length;j++) {
+		for (int j = 0; j < spValAlias.length; j++) {
 			if (spValAlias[j].equals(s)) {
 				val = j;
 				break;
-			}			
+			}
 		}
 		return val;
-	}	
-	
+	}
+
 	public int lookUpAlias(String s) {
 		int val = 0;
-		for(int j=0;j<valAlias.length;j++) {
+		for (int j = 0; j < valAlias.length; j++) {
 			System.out.println(s);
 			System.out.println(valAlias[j]);
 			if (valAlias[j].equals(s)) {
 				val = j;
 				break;
-			}			
+			}
 		}
 		return val;
 	}
-	
+
 	public String[] sparseValAlias(String[] in) {
-		if (valAlias!=null) {
+		if (valAlias != null) {
 			int temp = 0;
-			for(int i=0;i<in.length;i++) {
-				if (in[i]!="") {
-					temp = temp + 1;				
+			for (int i = 0; i < in.length; i++) {
+				if (in[i] != "") {
+					temp = temp + 1;
 				}
-			}		
-		
-			String [] out = new String[temp];
+			}
+
+			String[] out = new String[temp];
 			temp = 0;
-			for(int i=0;i<in.length;i++) {
-				if (in[i]!="") {
+			for (int i = 0; i < in.length; i++) {
+				if (in[i] != "") {
 					out[temp] = in[i];
 					temp = temp + 1;
 				}
 			}
-			return out; 
+			return out;
 		} else {
-			String [] out = {""};
+			String[] out = { "" };
 			return out;
 		}
 	}
 
 	public void send(MidiMessage message, long lTimeStamp) {
-		String m = MidiUtils.getHexString(message.getMessage()).replace(" ", "");		
-		if (m.indexOf(SIDSysexInfo.acknowledgedSysex.replace("<device>", "00"))== 0) {
-			//System.out.println("MBSID: Acknowdledged!");
-		}else if (m.equals(SIDSysexInfo.error1Sysex.replace("<device>", "00"))) {
+		String m = MidiUtils.getHexString(message.getMessage())
+				.replace(" ", "");
+		if (m.indexOf(SIDSysexInfo.acknowledgedSysex.replace("<device>", "00")) == 0) {
+			// System.out.println("MBSID: Acknowdledged!");
+		} else if (m.equals(SIDSysexInfo.error1Sysex.replace("<device>", "00"))) {
 			System.out.println("MBSID: Received less bytes then expected");
-		}else if (m.equals(SIDSysexInfo.error2Sysex.replace("<device>", "00"))) {
+		} else if (m.equals(SIDSysexInfo.error2Sysex.replace("<device>", "00"))) {
 			System.out.println("MBSID: Wrong checksum");
-		}else if (m.equals(SIDSysexInfo.error3Sysex.replace("<device>", "00"))) {
-			System.out.println("MBSID: Bankstick or patch/drumset/ensemble not available");
-		}else if (m.equals(SIDSysexInfo.error4Sysex.replace("<device>", "00"))) {
+		} else if (m.equals(SIDSysexInfo.error3Sysex.replace("<device>", "00"))) {
+			System.out
+					.println("MBSID: Bankstick or patch/drumset/ensemble not available");
+		} else if (m.equals(SIDSysexInfo.error4Sysex.replace("<device>", "00"))) {
 			System.out.println("MBSID: Parameter not available");
-		}else if (m.equals(SIDSysexInfo.error5Sysex.replace("<device>", "00"))) {
+		} else if (m.equals(SIDSysexInfo.error5Sysex.replace("<device>", "00"))) {
 			System.out.println("MBSID: RAM access not supported");
-		}else if (m.equals(SIDSysexInfo.error6Sysex.replace("<device>", "00"))) {
+		} else if (m.equals(SIDSysexInfo.error6Sysex.replace("<device>", "00"))) {
 			System.out.println("MBSID: BankStick too small");
-		}else {
-			System.out.println("MBSID: Unknown Sysex string: " + m);			
+		} else {
+			System.out.println("MBSID: Unknown Sysex string: " + m);
 		}
-		
+
 		if (receive) {
 			super.send(message, lTimeStamp);
 		}
 	}
-		
+
 }

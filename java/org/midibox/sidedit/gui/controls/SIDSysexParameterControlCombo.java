@@ -21,25 +21,28 @@
 package org.midibox.sidedit.gui.controls;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
 import java.awt.Dimension;
-import javax.swing.*;
-
-import org.midibox.sidedit.*;
-
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+
+import org.midibox.sidedit.SIDSysexParameterControl;
 
 public class SIDSysexParameterControlCombo extends SIDSysexParameterControlGUI {
 
 	public static float mouseWheelResolution = 10.0f;
 	private JComboBox combo;
 
-	public SIDSysexParameterControlCombo(SIDSysexParameterControl midiParameter, JComboBox combo,
-			boolean showLabel, String labelLocation, boolean valueBelow, boolean showValue) {
+	public SIDSysexParameterControlCombo(
+			SIDSysexParameterControl midiParameter, JComboBox combo,
+			boolean showLabel, String labelLocation, boolean valueBelow,
+			boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.combo = combo;
-		combo.setPreferredSize(new Dimension(110,20));
+		combo.setPreferredSize(new Dimension(110, 20));
 		combo.setFont(new Font("sansserif", Font.BOLD, 11));
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		panel.setOpaque(false);
@@ -47,9 +50,9 @@ public class SIDSysexParameterControlCombo extends SIDSysexParameterControlGUI {
 		add(panel, BorderLayout.CENTER);
 		combo.addActionListener(this);
 		combo.addMouseListener(this);
-		updateGraphics();		
+		updateGraphics();
 	}
-	
+
 	public void actionPerformed(ActionEvent ae) {
 
 		super.actionPerformed(ae);
@@ -57,24 +60,27 @@ public class SIDSysexParameterControlCombo extends SIDSysexParameterControlGUI {
 		if (ae.getSource() == combo) {
 			if (update) {
 				update = false;
-				int newval = midiParameter.lookUpAlias((String)combo.getSelectedItem());
+				int newval = midiParameter.lookUpAlias((String) combo
+						.getSelectedItem());
 				midiParameter.setMidiValue(newval, true);
-				
+
 				for (int c = 0; c < midiParameters.size(); c++) {
-					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+							.elementAt(c);
 					mp.setMidiValue(newval, false);
 				}
-				
+
 				update = true;
 			}
 		}
 	}
-	
+
 	public void updateGraphics() {
 		super.updateGraphics();
 		if (update) {
 			update = false;
-			combo.setSelectedIndex(midiParameter.lookUpValue(midiParameter.getMidiValue()));
+			combo.setSelectedIndex(midiParameter.lookUpValue(midiParameter
+					.getMidiValue()));
 			update = true;
 		}
 	}

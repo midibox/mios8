@@ -21,44 +21,43 @@
 package org.midibox.sidedit;
 
 import java.util.Vector;
-import javax.sound.midi.Receiver;
-import org.midibox.sidedit.SIDSysexParameter;
-import org.midibox.sidedit.SIDSysexParameterControl;
-import org.midibox.sidedit.SIDSysexParameterControlManager;
+
 import org.midibox.sidlibr.Patch;
 
 public class SIDEditController extends SIDSysexParameterControlManager {
 	private Patch patch;
 	private Vector engine;
-	
+
 	public SIDEditController(Patch p) {
 		super(p.getReceiver());
 		this.patch = p.clone();
 		engine = EngineSpecs.getEngine(patch);
-		
+
 		for (int b = 0; b < engine.size(); b++) {
 			Vector v = (Vector) engine.elementAt(b);
 			for (int c = 0; c < v.size(); c++) {
-				SIDSysexParameterControl midiParameter = (SIDSysexParameterControl) v.elementAt(c);
+				SIDSysexParameterControl midiParameter = (SIDSysexParameterControl) v
+						.elementAt(c);
 				addSIDSysexParameter(midiParameter);
 			}
 		}
 	}
-	
+
 	public Vector getEngine() {
 		return engine;
 	}
-	
+
 	public void setTooltipListener(Object object) {
 		for (int b = 0; b < engine.size(); b++) {
 			Vector v = (Vector) engine.elementAt(b);
 			for (int c = 0; c < v.size(); c++) {
-				SIDSysexParameterControl midiParameter = (SIDSysexParameterControl) v.elementAt(c);
+				SIDSysexParameterControl midiParameter = (SIDSysexParameterControl) v
+						.elementAt(c);
 				midiParameter.setTooltipListener(object);
 			}
 		}
 	}
-	
+
 	public Patch getPatch() {
 		return patch;
 	}
@@ -66,13 +65,13 @@ public class SIDEditController extends SIDSysexParameterControlManager {
 	public String getPatchName() {
 		return patch.getPatchName();
 	}
-	
+
 	public void setPatchName(String s) {
 		patch.setPatchName(s);
 	}
-	
+
 	public void Save() {
 		setChanged();
-		notifyObservers("Save editor patch");	
+		notifyObservers("Save editor patch");
 	}
 }

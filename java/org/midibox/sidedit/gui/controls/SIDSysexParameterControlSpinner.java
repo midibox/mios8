@@ -30,16 +30,17 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.midibox.sidedit.SIDSysexParameterControl;
 import org.midibox.utils.gui.FontLoader;
-import org.midibox.sidedit.*;
 
-public class SIDSysexParameterControlSpinner extends SIDSysexParameterControlGUI
-		implements ChangeListener {
+public class SIDSysexParameterControlSpinner extends
+		SIDSysexParameterControlGUI implements ChangeListener {
 
 	private JSpinner spinner;
 
-	public SIDSysexParameterControlSpinner(SIDSysexParameterControl midiParameter,
-			JSpinner spinner, String name) {
+	public SIDSysexParameterControlSpinner(
+			SIDSysexParameterControl midiParameter, JSpinner spinner,
+			String name) {
 		super(midiParameter, true, BorderLayout.NORTH, false, false);
 		this.spinner = spinner;
 		midiParameterLabel.setText(name);

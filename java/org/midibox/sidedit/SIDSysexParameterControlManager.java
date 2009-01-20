@@ -31,12 +31,12 @@ import javax.sound.midi.Receiver;
 public class SIDSysexParameterControlManager extends Observable implements
 		Observer, Receiver {
 
-	protected LinkedList sysexParameters;	
+	protected LinkedList sysexParameters;
 
 	protected Receiver receiver;
 
 	public SIDSysexParameterControlManager(Receiver receiver) {
-		
+
 		this.receiver = receiver;
 		sysexParameters = new LinkedList();
 	}
@@ -54,7 +54,7 @@ public class SIDSysexParameterControlManager extends Observable implements
 			SIDSysexParameterControl sysexParameter = (SIDSysexParameterControl) it
 					.next();
 			sysexParameter.setReceiver(receiver);
-			
+
 		}
 	}
 
@@ -83,12 +83,13 @@ public class SIDSysexParameterControlManager extends Observable implements
 
 		for (int p = 0; p < parametersArray.length; p++) {
 			if (parametersArray[p] != null) {
-				((SIDSysexParameter) parametersArray[p]).send(message, timestamp);
+				((SIDSysexParameter) parametersArray[p]).send(message,
+						timestamp);
 			}
 		}
 	}
 
 	public void update(Observable observable, Object object) {
-		
+
 	}
 }

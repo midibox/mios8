@@ -1,7 +1,7 @@
 /*
- * @(#)Knob.java	beta7	2006/04/23
+ * @(#)Knob.java	beta8	2006/04/23
  *
- * Copyright (C) 2006    Adam King (adamjking@optusnet.com.au)
+ * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
  *
  * This application is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ public class Knob extends JComponent implements MouseListener,
 		PREF_SIZE = new Dimension(icon.getIconHeight() + 8, icon
 				.getIconHeight() + 8);
 		DRAG_SPEED = 0.0075F;// 0.01F;
-		CLICK_SPEED = 0.004F;
+		CLICK_SPEED = 0.01F;
 
 		hitArc.setAngleStart(235); // Degrees ??? Radians???
 		hitArc.setFrame(4, 4, icon.getIconHeight(), icon.getIconHeight());

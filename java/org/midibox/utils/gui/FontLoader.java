@@ -1,7 +1,7 @@
 /*
- * @(#)FontLoader.java	beta7	2006/04/23
+ * @(#)FontLoader.java	beta8	2006/04/23
  *
- * Copyright (C) 2006    Adam King (adamjking@optusnet.com.au)
+ * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
  *
  * This application is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 package org.midibox.utils.gui;
 
 import java.awt.Font;
-import java.net.URL;
 import java.util.Hashtable;
 
 public class FontLoader {
@@ -35,17 +34,12 @@ public class FontLoader {
 		if (fonts.containsKey(fontName + fontSize)) {
 			font = (Font) fonts.get(fontName + fontSize);
 		} else {
-			//ClassLoader cl = ImageLoader.class.getClassLoader();
-			try {	
-				/*
+			ClassLoader cl = ImageLoader.class.getClassLoader();
+
+			try {
 				font = Font.createFont(Font.TRUETYPE_FONT,
 						cl.getResourceAsStream("fonts/" + fontName))
 						.deriveFont(fontSize);
-				*/
-				font = Font.createFont(Font.TRUETYPE_FONT,
-						FontLoader.class.getResourceAsStream("/fonts/" + fontName))
-						.deriveFont(fontSize);
-				
 				fonts.put(fontName + fontSize, font);
 			} catch (Exception e) {
 				font = null;

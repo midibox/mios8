@@ -1,8 +1,8 @@
 /*
- * @(#)MidiDeviceRouting.java	beta7	2006/04/23
+ * @(#)MidiDeviceRouting.java	beta8	2006/04/23
  *
- * Copyright (C) 2006    Adam King (adamjking@optusnet.com.au)
- *						
+ * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
+ *
  * This application is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -20,49 +20,64 @@
 
 package org.midibox.midi;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
 import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
-import javax.sound.midi.Sequencer;
-import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
-import javax.swing.JOptionPane;
 
-import org.midibox.sidlibr.SysExControllerDevice;
+public class MidiDeviceRouting extends Observable implements Observer {
 
-import java.util.prefs.*;
-public class MidiDeviceRouting extends Observable {
+	public static int DISCONNECTED = 0;
+
+	public static int LOGICALLY_CONNECTED = 1;
+
+	public static int PHYSICALLY_CONNECTED = 2;
+
 	private Vector midiReadDevices;
+
 	private Vector midiWriteDevices;
-	
-	private MidiDevice localMidiDevice;
-	private MidiDevice inputMidiDevice;
-	private MidiDevice outputMidiDevice;
-	
-	public MidiDeviceRouting(MidiDevice localMidiDevice) {
-		this.localMidiDevice = localMidiDevice;	
-		
+
+	private Vector logicalConnections;
+
+	private MidiDeviceManager midiDeviceManager;
+
+	private MidiRouterDeviceManager midiRouterDeviceManager;
+
+	private MidiFilterDeviceManager midiFilterManager;
+
+	/*
+	 * private MidiMapDeviceManager midiMapManager;
+	 */
+
+	private boolean portsReleased;
+
+	public MidiDeviceRouting() {
 		midiReadDevices = new Vector();
-		midiWriteDevices = new Vector();	
-		
-		rescanDevices();
-		if (getMidiReadDevices().size() < 1) {
-			JOptionPane.showMessageDialog(null,"Your system does not appear to have any MIDI-devices connected (please close program)!.","Error",JOptionPane.OK_OPTION);
-		} else {
-			inputMidiDevice = (MidiDevice)getMidiReadDevices().elementAt(0);
-			outputMidiDevice = (MidiDevice)getMidiWriteDevices().elementAt(0);		
-			connectDevices(inputMidiDevice, localMidiDevice);
-			connectDevices(localMidiDevice, outputMidiDevice);	
-		}
+		midiWriteDevices = new Vector();
+
+		logicalConnections = new Vector();
+
+		midiDeviceManager = new MidiDeviceManager();
+		midiDeviceManager.addObserver(this);
+
+		midiRouterDeviceManager = new MidiRouterDeviceManager();
+		midiRouterDeviceManager.addObserver(this);
+
+		midiFilterManager = new MidiFilterDeviceManager();
+		midiFilterManager.addObserver(this);
+
+		/*
+		 * midiMapManager = new MidiMapDeviceManager();
+		 * midiMapManager.addObserver(this);
+		 */
 	}
 
 	public Vector getMidiReadDevices() {
@@ -72,88 +87,123 @@ public class MidiDeviceRouting extends Observable {
 	public Vector getMidiWriteDevices() {
 		return midiWriteDevices;
 	}
-	
-	public int getInputDeviceIndex() {
-		return midiReadDevices.indexOf(inputMidiDevice);
-	}
-	
-	public int getOutputDeviceIndex() {
-		return midiWriteDevices.indexOf(outputMidiDevice);		
+
+	public void addMidiReadDevice(MidiDevice midiDevice) {
+		midiReadDevices.add(midiDevice);
+		setChanged();
+		notifyObservers(midiReadDevices);
+		clearChanged();
 	}
 
-	public void reconnectAllDevices() {		// This function is a workaround for the SysEx (string length doesn't reset) bug in the javax.sound.midi class
-		System.out.println("Now reconnecting!");
-		disconnectDevices(inputMidiDevice, localMidiDevice);
-		System.out.println("Disconnection of " + inputMidiDevice.getDeviceInfo() + " succesfull");
-		disconnectDevices(localMidiDevice, outputMidiDevice);
-		System.out.println("Disconnection of " + outputMidiDevice.getDeviceInfo() + " succesfull");
+	public void addMidiWriteDevice(MidiDevice midiDevice) {
+		midiWriteDevices.add(midiDevice);
+		setChanged();
+		notifyObservers(midiReadDevices);
+		clearChanged();
+	}
 
-		connectDevices(inputMidiDevice, localMidiDevice);
-		System.out.println("Reconnection of " + inputMidiDevice.getDeviceInfo() + " succesfull");
-		connectDevices(localMidiDevice, outputMidiDevice);
-		System.out.println("Reconnection of " + outputMidiDevice.getDeviceInfo() + " succesfull");		
-	}
-	
-	public int findInputDeviceHash(int hash) {
-		int temp = -1;
-		for(int i=0;i<midiReadDevices.size();i++) {		
-			if (((MidiDevice)midiReadDevices.elementAt(i)).getDeviceInfo().toString().hashCode()==hash) {
-				temp = i;
-				break;
-			}
-		}
-		return temp;
-	}
-	
-	public int findOuputDeviceHash(int hash) {
-		int temp = -1;
-		for(int i=0;i<midiWriteDevices.size();i++) {			
-			if (((MidiDevice)midiWriteDevices.elementAt(i)).getDeviceInfo().toString().hashCode()==hash) {
-				temp = i;
-				break;
-			}
-		}
-		return temp;
-	}
-	
-	public int getInputDeviceHash() {
-		return inputMidiDevice.getDeviceInfo().toString().hashCode();
-	}
-	
-	public int getOutputDeviceHash() {
-		return outputMidiDevice.getDeviceInfo().toString().hashCode();
-	}
-	
-	public void closeMidi() {
-		disconnectDevices(inputMidiDevice, localMidiDevice);
-		disconnectDevices(localMidiDevice, outputMidiDevice);
-	}
-		
-	public void setInputDevice(int index) {		
-		if (index != getInputDeviceIndex()) {
-			disconnectDevices(inputMidiDevice, localMidiDevice);
-			inputMidiDevice = (MidiDevice)midiReadDevices.elementAt(index);	
-			connectDevices(inputMidiDevice, localMidiDevice);
-			System.out.println("Connection of " + inputMidiDevice.getDeviceInfo() + " succesfull");
-			setChanged();
-			notifyObservers();
-			clearChanged();		
+	public void addMidiReadDevices(Collection midiDevices) {
+		Iterator it = midiDevices.iterator();
+
+		while (it.hasNext()) {
+			MidiDevice midiDevice = (MidiDevice) it.next();
+			addMidiReadDevice(midiDevice);
 		}
 	}
-	
-	public void setOutputDevice(int index) {
-		if (index != getOutputDeviceIndex()) {
-			disconnectDevices(localMidiDevice, outputMidiDevice);
-			outputMidiDevice = (MidiDevice)midiWriteDevices.elementAt(index);
-			connectDevices(localMidiDevice, outputMidiDevice);
-			System.out.println("Connection of " + outputMidiDevice.getDeviceInfo() + " succesfull");
-			setChanged();
-			notifyObservers();
-			clearChanged();
+
+	public void addMidiWriteDevices(Collection midiDevices) {
+		Iterator it = midiDevices.iterator();
+
+		while (it.hasNext()) {
+			MidiDevice midiDevice = (MidiDevice) it.next();
+			addMidiWriteDevice(midiDevice);
 		}
 	}
-	
-	private void connectDevices(MidiDevice transmittingDevice,
+
+	public void removeMidiReadDevice(MidiDevice midiDevice) {
+		midiReadDevices.remove(midiDevice);
+		setChanged();
+		notifyObservers(midiReadDevices);
+		clearChanged();
+	}
+
+	public void removeMidiWriteDevice(MidiDevice midiDevice) {
+		midiWriteDevices.remove(midiDevice);
+		setChanged();
+		notifyObservers(midiWriteDevices);
+		clearChanged();
+	}
+
+	public void removeMidiReadDevices(Collection midiDevices) {
+		Iterator it = midiDevices.iterator();
+
+		while (it.hasNext()) {
+			MidiDevice midiDevice = (MidiDevice) it.next();
+			removeMidiReadDevice(midiDevice);
+		}
+	}
+
+	public void removeMidiWriteDevices(Collection midiDevices) {
+		Iterator it = midiDevices.iterator();
+
+		while (it.hasNext()) {
+			MidiDevice midiDevice = (MidiDevice) it.next();
+			removeMidiWriteDevice(midiDevice);
+		}
+	}
+
+	public void removeAllMidiReadDevices() {
+		midiReadDevices.removeAllElements();
+		setChanged();
+		notifyObservers(midiReadDevices);
+		clearChanged();
+	}
+
+	public void removeAllMidiWriteDevices() {
+		midiWriteDevices.removeAllElements();
+		setChanged();
+		notifyObservers(midiWriteDevices);
+		clearChanged();
+	}
+
+	public MidiDeviceManager getMidiDeviceManager() {
+		return midiDeviceManager;
+	}
+
+	public MidiRouterDeviceManager getMidiRouterDeviceManager() {
+		return midiRouterDeviceManager;
+	}
+
+	public MidiFilterDeviceManager getMidiFilterManager() {
+		return midiFilterManager;
+	}
+
+	/*
+	 * public MidiMapDeviceManager getMidiMapManager() { return midiMapManager;
+	 * }
+	 */
+
+	public void connectDevices(MidiDevice transmittingDevice,
+			MidiDevice receivingDevice) {
+
+		if (devicesConnected(transmittingDevice, receivingDevice) == PHYSICALLY_CONNECTED) {
+			return;
+		}
+
+		logicallyConnectDevices(transmittingDevice, receivingDevice);
+
+		if (!portsReleased
+				|| ((transmittingDevice instanceof VirtualMidiDevice) && (receivingDevice instanceof VirtualMidiDevice))) {
+
+			physicallyConnectDevices(transmittingDevice, receivingDevice);
+		}
+
+		setChanged();
+		notifyObservers();
+		clearChanged();
+	}
+
+	private void physicallyConnectDevices(MidiDevice transmittingDevice,
 			MidiDevice receivingDevice) {
 		try {
 			if (!receivingDevice.isOpen()) {
@@ -167,19 +217,46 @@ public class MidiDeviceRouting extends Observable {
 			}
 
 			transmittingDevice.getTransmitter().setReceiver(receiver);
-			
+
 		} catch (MidiUnavailableException e) {
-			
+
 		} catch (NullPointerException e) {
-			
+
 		}
+
 	}
-	
-	private void disconnectDevices(MidiDevice transmittingDevice,
+
+	private void logicallyConnectDevices(MidiDevice transmittingDevice,
+			MidiDevice receivingDevice) {
+		logicalConnections.add(new LogicalConnection(transmittingDevice,
+				receivingDevice));
+	}
+
+	public void disconnectDevices(MidiDevice transmittingDevice,
 			MidiDevice receivingDevice) {
 
-		// TK: to avoid a "java.util.ConcurrentModificationException" under MacOS (using mmj)
-		// when a transmitter or receiver is closed, we put them into a list and execute close()
+		if (devicesConnected(transmittingDevice, receivingDevice) == DISCONNECTED) {
+			return;
+		}
+
+		logicallyDisconnectDevices(transmittingDevice, receivingDevice);
+		if (!portsReleased
+				|| ((transmittingDevice instanceof VirtualMidiDevice) && (receivingDevice instanceof VirtualMidiDevice))) {
+
+			physicallyDisconnectDevices(transmittingDevice, receivingDevice);
+		}
+		setChanged();
+		notifyObservers();
+		clearChanged();
+	}
+
+	private void physicallyDisconnectDevices(MidiDevice transmittingDevice,
+			MidiDevice receivingDevice) {
+
+		// TK: to avoid a "java.util.ConcurrentModificationException" under
+		// MacOS (using mmj)
+		// when a transmitter or receiver is closed, we put them into a list and
+		// execute close()
 		// after iteration
 		List closeTransmitters = new ArrayList();
 		List closeReceivers = new ArrayList();
@@ -198,41 +275,24 @@ public class MidiDeviceRouting extends Observable {
 
 					// transmitter.close();
 					closeTransmitters.add(transmitter);
-					
-					System.out.println("Disconnecting transmitter: " + transmittingDevice.getDeviceInfo());
-
-					// TK: for mmj under MacOS it is required to check, if getTransmitters()/getReceivers() are != null
-					int num_transmitters = (transmittingDevice.getTransmitters() != null) ? transmittingDevice.getTransmitters().size() : 0;
-					int num_receivers = (transmittingDevice.getReceivers() != null) ? transmittingDevice.getReceivers().size() : 0;
-					System.out.println("Number of transmitters: " + num_transmitters);
-					System.out.println("Number of receivers: " + num_receivers);
 
 					// receiver.close();
 					closeReceivers.add(receiver);
-					
-					System.out.println("Disconnecting receiver: " + receivingDevice.getDeviceInfo());
-
-					// TK: for mmj under MacOS it is required to check, if getTransmitters()/getReceivers() are != null
-					num_transmitters = (receivingDevice.getTransmitters() != null) ? receivingDevice.getTransmitters().size() : 0;
-					num_receivers = (receivingDevice.getReceivers() != null) ? receivingDevice.getReceivers().size() : 0;
-					System.out.println("Number of transmitters: " + num_transmitters);
-					System.out.println("Number of receivers: " + num_receivers);
-					
 				}
 			}
 		}
 
 		int i;
-		for(i=0; i<closeTransmitters.size(); ++i) {
-		    Transmitter transmitter = (Transmitter)closeTransmitters.get(i);
-		    transmitter.close();
+		for (i = 0; i < closeTransmitters.size(); ++i) {
+			Transmitter transmitter = (Transmitter) closeTransmitters.get(i);
+			transmitter.close();
 		}
 
-		for(i=0; i<closeReceivers.size(); ++i) {
-		    Receiver receiver = (Receiver)closeReceivers.get(i);
-		    receiver.close();
+		for (i = 0; i < closeReceivers.size(); ++i) {
+			Receiver receiver = (Receiver) closeReceivers.get(i);
+			receiver.close();
 		}
-		
+
 		int num_transmitters = (transmittingDevice.getTransmitters() != null) ? transmittingDevice
 				.getTransmitters().size()
 				: 0;
@@ -251,55 +311,241 @@ public class MidiDeviceRouting extends Observable {
 				.getReceivers().size()
 				: 0;
 
-		if (receivingDevice.getTransmitters().size() == 0
-				&& receivingDevice.getReceivers().size() == 0) {
+		if (num_transmitters == 0 && num_receivers == 0) {
 			receivingDevice.close();
 		}
 	}
-	
-	public void rescanDevices() {
-		MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 
-		Vector tempWriteDevices = new Vector();
-		Vector tempReadDevices = new Vector();
-		
-		for (int i = 0; i < infos.length; i++) {
-			try {
-				MidiDevice device = MidiSystem.getMidiDevice(infos[i]);
-				
-				if (!(device instanceof Sequencer)
-						&& !(device instanceof Synthesizer)) {
+	private void logicallyDisconnectDevices(MidiDevice transmittingDevice,
+			MidiDevice receivingDevice) {
+		logicalConnections.remove(new LogicalConnection(transmittingDevice,
+				receivingDevice));
+	}
 
-					int noReceivers = device.getMaxReceivers();
-					int noTransmitters = device.getMaxTransmitters();
+	public void disconnectDevice(MidiDevice midiDevice) {
 
-					if (noReceivers != 0) {
-						tempWriteDevices.add(device);
-						setChanged();
-						notifyObservers(device);
-						clearChanged();
-					}
+		Vector matches = new Vector();
 
-					if (noTransmitters != 0) {
-						tempReadDevices.add(device);
-						setChanged();
-						notifyObservers(device);
-						clearChanged();
-					}
-				}
-			} catch (MidiUnavailableException e) {
+		Iterator it = logicalConnections.iterator();
 
+		while (it.hasNext()) {
+			LogicalConnection logicalConnection = (LogicalConnection) it.next();
+			if (logicalConnection.getSourceDevice() == midiDevice
+					|| logicalConnection.getTargetDevice() == midiDevice) {
+				matches.add(logicalConnection);
 			}
 		}
-		
-		midiReadDevices = tempReadDevices; 		
+
+		it = matches.iterator();
+
+		while (it.hasNext()) {
+			LogicalConnection logicalConnection = (LogicalConnection) it.next();
+			disconnectDevices(logicalConnection.getSourceDevice(),
+					logicalConnection.getTargetDevice());
+		}
+	}
+
+	public void disconnectAll() {
+
+		Iterator it = midiReadDevices.iterator();
+
+		while (it.hasNext()) {
+
+			MidiDevice transmittingDevice = (MidiDevice) it.next();
+
+			Iterator it2 = midiWriteDevices.iterator();
+			while (it2.hasNext()) {
+
+				MidiDevice receivingDevice = (MidiDevice) it2.next();
+
+				disconnectDevices(transmittingDevice, receivingDevice);
+			}
+		}
+	}
+
+	public void setPortsReleased(boolean portsReleased) {
+
+		this.portsReleased = portsReleased;
+
+		if (portsReleased) {
+
+			Iterator it = logicalConnections.iterator();
+
+			while (it.hasNext()) {
+				LogicalConnection logicalConnection = (LogicalConnection) it
+						.next();
+				MidiDevice sourceDevice = logicalConnection.getSourceDevice();
+				MidiDevice targetDevice = logicalConnection.getTargetDevice();
+
+				if (!(sourceDevice instanceof VirtualMidiDevice)
+						|| !(targetDevice instanceof VirtualMidiDevice)) {
+
+					physicallyDisconnectDevices(sourceDevice, targetDevice);
+				}
+			}
+		} else {
+
+			Iterator it = logicalConnections.iterator();
+
+			while (it.hasNext()) {
+				LogicalConnection logicalConnection = (LogicalConnection) it
+						.next();
+				MidiDevice sourceDevice = logicalConnection.getSourceDevice();
+				MidiDevice targetDevice = logicalConnection.getTargetDevice();
+
+				if (!(sourceDevice instanceof VirtualMidiDevice)
+						|| !(targetDevice instanceof VirtualMidiDevice)) {
+					physicallyConnectDevices(sourceDevice, targetDevice);
+				}
+			}
+		}
+
+		setChanged();
+		notifyObservers();
+		clearChanged();
+	}
+
+	public boolean getPortsReleased() {
+		return portsReleased;
+	}
+
+	public int devicesConnected(MidiDevice transmittingDevice,
+			MidiDevice receivingDevice) {
+
+		try {
+
+			Iterator it = transmittingDevice.getTransmitters().iterator();
+
+			while (it.hasNext()) {
+				Transmitter transmitter = (Transmitter) it.next();
+
+				Iterator it2 = receivingDevice.getReceivers().iterator();
+
+				while (it2.hasNext()) {
+
+					Receiver receiver = (Receiver) it2.next();
+
+					if (transmitter.getReceiver() == receiver) {
+						return PHYSICALLY_CONNECTED;
+					}
+				}
+			}
+		} catch (Exception e) {
+			return DISCONNECTED;
+		}
+
+		if (logicalConnections.contains(new LogicalConnection(
+				transmittingDevice, receivingDevice))) {
+			return LOGICALLY_CONNECTED;
+		}
+
+		return DISCONNECTED;
+	}
+
+	public void reorder() {
+		midiReadDevices.removeAll(midiDeviceManager
+				.getSelectedMidiReadDevices());
+		midiWriteDevices.removeAll(midiDeviceManager
+				.getSelectedMidiWriteDevices());
+		midiReadDevices.removeAll(midiRouterDeviceManager
+				.getMidiRouterDevices());
+		midiWriteDevices.removeAll(midiRouterDeviceManager
+				.getMidiRouterDevices());
+		midiReadDevices.removeAll(midiFilterManager.getMidiFilterDevices());
+		midiWriteDevices.removeAll(midiFilterManager.getMidiFilterDevices());
+
+		/*
+		 * midiReadDevices.removeAll(midiMapManager.getMidiMapDevices());
+		 * midiWriteDevices.removeAll(midiMapManager.getMidiMapDevices());
+		 */
+
+		Iterator it = midiDeviceManager.getMidiReadDevices().iterator();
+		while (it.hasNext()) {
+
+			Object object = it.next();
+
+			if (midiDeviceManager.getSelectedMidiReadDevices().contains(object)) {
+				midiReadDevices.add(object);
+			}
+		}
+
+		it = midiDeviceManager.getMidiWriteDevices().iterator();
+		while (it.hasNext()) {
+
+			Object object = it.next();
+
+			if (midiDeviceManager.getSelectedMidiWriteDevices()
+					.contains(object)) {
+				midiWriteDevices.add(object);
+			}
+		}
+
+		midiReadDevices.addAll(midiRouterDeviceManager.getMidiRouterDevices());
+		midiWriteDevices.addAll(midiRouterDeviceManager.getMidiRouterDevices());
+		midiReadDevices.addAll(midiFilterManager.getMidiFilterDevices());
+		midiWriteDevices.addAll(midiFilterManager.getMidiFilterDevices());
+
+		/*
+		 * midiReadDevices.addAll(midiMapManager.getMidiMapDevices());
+		 * midiWriteDevices.addAll(midiMapManager.getMidiMapDevices());
+		 */
+
 		setChanged();
 		notifyObservers(midiReadDevices);
 		clearChanged();
-		
-		midiWriteDevices = tempWriteDevices; 
+
 		setChanged();
 		notifyObservers(midiWriteDevices);
 		clearChanged();
-	}	
+	}
+
+	public void update(Observable observable, Object object) {
+		if (observable == midiDeviceManager
+				|| observable == midiRouterDeviceManager
+				|| observable == midiFilterManager
+		/* || observable == midiMapManager */) {
+
+			MidiDevice midiDevice = (MidiDevice) object;
+
+			if (midiReadDevices.contains(midiDevice)
+					|| midiWriteDevices.contains(midiDevice)) {
+				disconnectDevice(midiDevice);
+				removeMidiReadDevice(midiDevice);
+				removeMidiWriteDevice(midiDevice);
+			} else {
+				reorder();
+			}
+		}
+	}
+
+	public static class LogicalConnection {
+
+		private MidiDevice sourceDevice;
+
+		private MidiDevice targetDevice;
+
+		public LogicalConnection(MidiDevice sourceDevice,
+				MidiDevice targetDevice) {
+			this.sourceDevice = sourceDevice;
+			this.targetDevice = targetDevice;
+		}
+
+		public MidiDevice getSourceDevice() {
+			return sourceDevice;
+		}
+
+		public MidiDevice getTargetDevice() {
+			return targetDevice;
+		}
+
+		public boolean equals(Object object) {
+			if (object instanceof LogicalConnection) {
+				if (((LogicalConnection) object).getSourceDevice() == sourceDevice
+						&& ((LogicalConnection) object).getTargetDevice() == targetDevice) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 }

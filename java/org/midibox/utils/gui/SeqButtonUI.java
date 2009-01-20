@@ -57,13 +57,25 @@ public class SeqButtonUI extends BasicButtonUI {
 		ButtonModel model = b.getModel();
 		c.setBorder(null);
 		c.setOpaque(false);
-		
-		switch(realValue) {	
-			case 0:icon0.paintIcon(c, g, (c.getWidth() - icon0.getIconWidth()) / 2, (c.getHeight() - icon0.getIconHeight()) / 2);break;
-			case 1:icon1.paintIcon(c, g, (c.getWidth() - icon1.getIconWidth()) / 2, (c.getHeight() - icon1.getIconHeight()) / 2);break;
-			case 2:icon2.paintIcon(c, g, (c.getWidth() - icon2.getIconWidth()) / 2, (c.getHeight() - icon2.getIconHeight()) / 2);break;
-			case 3:icon3.paintIcon(c, g, (c.getWidth() - icon3.getIconWidth()) / 2, (c.getHeight() - icon3.getIconHeight()) / 2);break;
-		}	
+
+		switch (realValue) {
+		case 0:
+			icon0.paintIcon(c, g, (c.getWidth() - icon0.getIconWidth()) / 2, (c
+					.getHeight() - icon0.getIconHeight()) / 2);
+			break;
+		case 1:
+			icon1.paintIcon(c, g, (c.getWidth() - icon1.getIconWidth()) / 2, (c
+					.getHeight() - icon1.getIconHeight()) / 2);
+			break;
+		case 2:
+			icon2.paintIcon(c, g, (c.getWidth() - icon2.getIconWidth()) / 2, (c
+					.getHeight() - icon2.getIconHeight()) / 2);
+			break;
+		case 3:
+			icon3.paintIcon(c, g, (c.getWidth() - icon3.getIconWidth()) / 2, (c
+					.getHeight() - icon3.getIconHeight()) / 2);
+			break;
+		}
 
 		if (b.hasFocus()) {
 			paintFocus(g, b);
@@ -72,7 +84,7 @@ public class SeqButtonUI extends BasicButtonUI {
 	}
 
 	public void setValue(int i) {
-		realValue = i;		
+		realValue = i;
 	}
 
 	protected void paintFocus(Graphics g, AbstractButton c) {

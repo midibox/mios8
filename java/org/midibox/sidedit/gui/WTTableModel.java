@@ -21,58 +21,57 @@
 package org.midibox.sidedit.gui;
 
 import javax.swing.table.AbstractTableModel;
-import org.midibox.sidlibr.*;
 
-public class WTTableModel extends AbstractTableModel {	
-	private String[] columnNames = {"Pos","Value","Control"};
+public class WTTableModel extends AbstractTableModel {
+	private String[] columnNames = { "Pos", "Value", "Control" };
 	private Object[][] data;
 	private int wtSteps = 128;
 	private int wtNumber;
-	
-	public WTTableModel (int wtNumber) {
+
+	public WTTableModel(int wtNumber) {
 		this.wtNumber = wtNumber;
-		
-		data = new Object[wtSteps][wtNumber+2];
+
+		data = new Object[wtSteps][wtNumber + 2];
 		for (int c = 0; c < wtSteps; c++) {
-			data[c][0] = Integer.toString(c);			
-			data[c][wtNumber+1] = Integer.toString(0);
-		}		
+			data[c][0] = Integer.toString(c);
+			data[c][wtNumber + 1] = Integer.toString(0);
+		}
 	}
-	
-    public int getColumnCount() {
-        return wtNumber+2;
-    }
 
-    public int getRowCount() {
-        return data.length;
-    }
+	public int getColumnCount() {
+		return wtNumber + 2;
+	}
 
-    public String getColumnName(int col) {
-    	if (col==0) {
-    		return columnNames[0];
-    	} else if (col<=wtNumber) {
-    		return Integer.toString(col);
-    	} else if (col > wtNumber) {
-    		return columnNames[col-wtNumber];
-    	} else {
-    		return "Unknown";
-    	}
-    }
+	public int getRowCount() {
+		return data.length;
+	}
 
-    public Object getValueAt(int row, int col) {
-        return data[row][col];
-    }
+	public String getColumnName(int col) {
+		if (col == 0) {
+			return columnNames[0];
+		} else if (col <= wtNumber) {
+			return Integer.toString(col);
+		} else if (col > wtNumber) {
+			return columnNames[col - wtNumber];
+		} else {
+			return "Unknown";
+		}
+	}
 
-    public boolean isCellEditable(int row, int col) {
-        if (col == wtNumber+1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-   
-    public void setValueAt(Object value, int row, int col) {
-        data[row][col] = value;
-        fireTableCellUpdated(row, col);
-    }
+	public Object getValueAt(int row, int col) {
+		return data[row][col];
+	}
+
+	public boolean isCellEditable(int row, int col) {
+		if (col == wtNumber + 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public void setValueAt(Object value, int row, int col) {
+		data[row][col] = value;
+		fireTableCellUpdated(row, col);
+	}
 }

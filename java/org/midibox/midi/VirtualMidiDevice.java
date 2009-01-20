@@ -1,7 +1,7 @@
 /*
- * @(#)VitualMidiDevice.java	beta7	2006/04/23
+ * @(#)VitualMidiDevice.java	beta8	2006/04/23
  *
- * Copyright (C) 2006    Adam King (adamjking@optusnet.com.au)
+ * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
  *
  * This application is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ package org.midibox.midi;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiMessage;
@@ -30,9 +31,7 @@ import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
 
-import org.midibox.utils.ObservableMessage;
-
-public class VirtualMidiDevice extends ObservableMessage implements MidiDevice {
+public class VirtualMidiDevice extends Observable implements MidiDevice {
 
 	protected VirtualMidiDevice.Info info;
 
@@ -45,6 +44,8 @@ public class VirtualMidiDevice extends ObservableMessage implements MidiDevice {
 	protected LinkedList receivers;
 
 	protected MidiOutPort midiOutPort;
+
+	protected long timeStart = System.currentTimeMillis();
 
 	public VirtualMidiDevice(String name, int maxNoTransmitters,
 			int maxNoReceivers) {
@@ -70,7 +71,7 @@ public class VirtualMidiDevice extends ObservableMessage implements MidiDevice {
 	}
 
 	public long getMicrosecondPosition() {
-		return -1;
+		return (System.currentTimeMillis() - timeStart) * 1000;
 	}
 
 	public Receiver getReceiver() throws MidiUnavailableException {

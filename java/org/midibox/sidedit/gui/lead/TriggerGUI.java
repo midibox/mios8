@@ -21,72 +21,69 @@
 package org.midibox.sidedit.gui.lead;
 
 import java.awt.BorderLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.util.Vector;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JToggleButton;
 import java.awt.Dimension;
 import java.awt.Font;
-import  org.midibox.sidedit.gui.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.util.Vector;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.midibox.sidedit.SIDSysexInfo;
-import org.midibox.sidedit.SIDEditController;
-import org.midibox.sidedit.SIDSysexParameterControl;
-import org.midibox.utils.gui.ImageLoader;
+import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.utils.gui.JVertLabel;
-import org.midibox.utils.gui.MyButtonUI;
-import  org.midibox.sidedit.gui.controls.*;
+
 public class TriggerGUI extends JPanel {
 	protected TriggerGUI(Vector trigGUIv) {
 		setLayout(new BorderLayout());
 		this.setOpaque(false);
-		
+
 		JPanel topanel = new JPanel();
 		topanel.setLayout(new BorderLayout());
 		topanel.setOpaque(false);
-		
+
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(new GridBagLayout());
 		panel1.setOpaque(false);
-		GridBagConstraints c = new GridBagConstraints();		
+		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		
-		for (int row = 0; row <25; row++) {
-			for (int col = 0; col <15; col++) {
-				if ((col==0) &&( row==0)) {
+
+		for (int row = 0; row < 25; row++) {
+			for (int col = 0; col < 15; col++) {
+				if ((col == 0) && (row == 0)) {
 					JLabel label = new JLabel();
 					label.setOpaque(false);
 					c.gridx = col;
 					c.gridy = row;
 					panel1.add(label, c);
-				}
-				else if (row==0) {
-					JLabel label = new JVertLabel(SIDSysexInfo.trigColumnNames[col-1]);
-					label.setFont(new Font("serif",Font.BOLD,10));
+				} else if (row == 0) {
+					JLabel label = new JVertLabel(
+							SIDSysexInfo.trigColumnNames[col - 1]);
+					label.setFont(new Font("serif", Font.BOLD, 10));
 					label.setOpaque(false);
 					c.gridx = col;
 					c.gridy = row;
 					panel1.add(label, c);
-				} 
-				else if (col==0) {
-					JLabel label = new JLabel(SIDSysexInfo.trigRowNames[row-1]);
-					label.setFont(new Font("serif",Font.BOLD,10));
+				} else if (col == 0) {
+					JLabel label = new JLabel(
+							SIDSysexInfo.trigRowNames[row - 1]);
+					label.setFont(new Font("serif", Font.BOLD, 10));
 					label.setOpaque(false);
-					label.setPreferredSize(new Dimension(70,10));
+					label.setPreferredSize(new Dimension(70, 10));
 					c.gridx = col;
 					c.gridy = row;
 					panel1.add(label, c);
-				} 
-				else {
+				} else {
 					c.gridx = col;
-					c.gridy = row;					
-					panel1.add((SIDSysexParameterControlGUI) trigGUIv.elementAt((row-1)+((col-1)*24)), c);					
+					c.gridy = row;
+					panel1.add((SIDSysexParameterControlGUI) trigGUIv
+							.elementAt((row - 1) + ((col - 1) * 24)), c);
 				}
 			}
 		}
-		
+
 		topanel.add(panel1, BorderLayout.WEST);
-	    this.add(topanel, BorderLayout.NORTH);
+		this.add(topanel, BorderLayout.NORTH);
 	}
 }

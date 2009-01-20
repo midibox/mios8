@@ -21,56 +21,61 @@
 package org.midibox.sidlibr.gui;
 
 import javax.swing.table.AbstractTableModel;
-import org.midibox.sidlibr.*;
 
-public class BankTableModel extends AbstractTableModel {	
-	private String[] columnNames = {"#","Patch Name","Engine"};
+import org.midibox.sidlibr.Bank;
+
+public class BankTableModel extends AbstractTableModel {
+	private String[] columnNames = { "#", "Patch Name", "Engine" };
 	private Object[][] data;
-	
-	public BankTableModel (Bank b) {
+
+	public BankTableModel(Bank b) {
 		data = new Object[b.bankSize][3];
 		for (int c = 0; c < b.bankSize; c++) {
-			data[c][0] = intToStr3(c+1);
+			data[c][0] = intToStr3(c + 1);
 			data[c][1] = b.getPatchAt(c).getPatchName();
 			data[c][2] = b.getPatchAt(c).getEngineStr();
-		}		
+		}
 	}
-	
-    public int getColumnCount() {
-        return columnNames.length;
-    }
 
-    public int getRowCount() {
-        return data.length;
-    }
+	public int getColumnCount() {
+		return columnNames.length;
+	}
 
-    public String getColumnName(int col) {
-        return columnNames[col];
-    }
+	public int getRowCount() {
+		return data.length;
+	}
 
-    public Object getValueAt(int row, int col) {
-        return data[row][col];
-    }
+	public String getColumnName(int col) {
+		return columnNames[col];
+	}
 
-    public boolean isCellEditable(int row, int col) {
-        if (col == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-   
-    public void setValueAt(Object value, int row, int col) {
-        data[row][col] = value;
-        fireTableCellUpdated(row, col);
-    }
-    
-    private String intToStr3(int i) {
-    	String s = Integer.toString(i);
-    	switch (s.length()) {
-    		case 1: s = "00" + s; break;
-    		case 2: s = "0" + s;  break;
-    	}
-    	return s;
-    }
+	public Object getValueAt(int row, int col) {
+		return data[row][col];
+	}
+
+	public boolean isCellEditable(int row, int col) {
+		if (col == 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public void setValueAt(Object value, int row, int col) {
+		data[row][col] = value;
+		fireTableCellUpdated(row, col);
+	}
+
+	private String intToStr3(int i) {
+		String s = Integer.toString(i);
+		switch (s.length()) {
+		case 1:
+			s = "00" + s;
+			break;
+		case 2:
+			s = "0" + s;
+			break;
+		}
+		return s;
+	}
 }

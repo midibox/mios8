@@ -22,39 +22,40 @@ package org.midibox.sidlibr;
 
 import javax.sound.midi.Receiver;
 
-public class EnsBank  {
+public class EnsBank {
 	private Ensemble[] bank;
-	public static int ensSize = 1048;  // Number of SysEx string characters
+	public static int ensSize = 1048; // Number of SysEx string characters
 	public static int bankSize = 128;
 	private Receiver receiver;
-	
+
 	public EnsBank(Receiver receiver) {
 		this.receiver = receiver;
 		initBank();
 	}
-	
+
 	public void initBank() {
 		bank = new Ensemble[bankSize];
-		for (int c=0;c<bankSize;c++) {
+		for (int c = 0; c < bankSize; c++) {
 			bank[c] = new Ensemble(receiver);
 		}
 	}
-	
+
 	public void setEnsembleAt(int i, Ensemble p) {
 		bank[i] = p;
 	}
-	
+
 	public Ensemble getEnsembleAt(int i) {
 		return bank[i];
 	}
-	
-	public String parseBankSyx(String syx){		
+
+	public String parseBankSyx(String syx) {
 		String status = "succesful";
-		try {	
+		try {
 			initBank();
-			for (int i=0;i<syx.length()/ensSize;i++) {
+			for (int i = 0; i < syx.length() / ensSize; i++) {
 				bank[i] = new Ensemble(receiver);
-				String stat = bank[i].parseEnsemble(syx.substring(i*ensSize,(i+1)*ensSize));
+				String stat = bank[i].parseEnsemble(syx.substring(i * ensSize,
+						(i + 1) * ensSize));
 				if (status == "checksum error") {
 					status = stat;
 					break;

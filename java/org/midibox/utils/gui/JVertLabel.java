@@ -20,25 +20,26 @@
 
 package org.midibox.utils.gui;
 
-import javax.swing.*;
-import java.awt.*; 
-import java.awt.geom.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+import javax.swing.JLabel;
 
 public class JVertLabel extends JLabel {
 	private String s;
-    public JVertLabel( String str ) 
-    {
-       super( str );
-       this.s = str;
-       setPreferredSize( new Dimension( 40, 110 ) );
-       setMinimumSize( new Dimension( 40, 110 ) );
-    }
 
-    public void paintComponent(Graphics g) {
-       Graphics2D g2d = (Graphics2D)g;
-       g2d.translate(10.0, 50.0);
-       g2d.rotate( 300 );
-       g2d.drawString(s, -50, 10);
-    }
+	public JVertLabel(String str) {
+		super(str);
+		this.s = str;
+		setPreferredSize(new Dimension(40, 110));
+		setMinimumSize(new Dimension(40, 110));
+	}
+
+	public void paintComponent(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.translate(10.0, 50.0);
+		g2d.rotate(300);
+		g2d.drawString(s, -50, 10);
+	}
 }
