@@ -2,7 +2,10 @@ HEADER 3 MBHP_CORE_STM32 Module
 
 <H1>MIDIbox Hardware Platform, CORE_STM32 Module</H1>
 
-<P><B>This page is under development!</B></P>
+<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32_v2.jpg" width=550 height=413></CENTER></P>
+
+
+<P><B>This page is under construction!</B></P>
 
 
 <P CLASS=INFO>After 10 years of using the <A HREF="mbhp_core.html">PIC</A> as microcontroller for the MIDIbox Hardware Platform, and living with all the limitations, I decided to switch to a modern 32bit controller in order to develop more powerful applications, and to give other programmers the possibility to realize their own ideas without the need for learning assembly language once performance or memory utilisation does matter.</P>
@@ -54,7 +57,7 @@ HEADER 3 MBHP_CORE_STM32 Module
     <TR>
       <TD CLASS=TABCOLOR2><I>MBHP_CORE_STM32_V2</I></TD>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_stm32_v2.pdf">mbhp_core_stm32_v2.pdf</A></TD>
-      <TD CLASS=TABCOLOR2>will be released soon</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_stm32_v2a.brd">mbhp_core_stm32_v2a.brd</A></TD>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_stm32_v2.gif">mbhp_core_stm32_v2.gif</A></TD>
     </TR>
   </TABLE></DD>
@@ -212,7 +215,7 @@ The application is started when these jumpers are <B>NOT</B> connected!</TD>
 <UL CLASS=CL>
 <LI>the USB socket (to supply 5V from a USB port)
 <LI>Jumper J17 to connect USB power lines to the 5V rail
-<LI>3.3V voltage regulator IC2
+<LI>3.3V voltage regulator IC7
 <LI>100nF/100uF bypass caps C12 and C13
 <LI>10k Resistor Array R2a-d
 <LI>Status LED and 470 ohm resistor R15
@@ -248,7 +251,7 @@ After two seconds (LED stopped flashing) your OS should report a new MIDI port.
       </TD>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_core_stm32_5.jpg" WIDTH=280 HEIGHT=200 BORDER=0 ALT=""></TD>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_5.jpg" WIDTH=280 HEIGHT=189 BORDER=0 ALT=""></TD>
       <TD CLASS=TABCOLOR2>Disconnect the USB cable, and add
 <UL CLASS=CL>
 <LI>the 100 nF bypass caps C3, C4, C5, C6, C7, C16
@@ -266,10 +269,92 @@ Remove the jumper to start the application.
       </TD>
     </TR>
     <TR>
-      <TD CLASS=TABCOLOR2 COLSPAN=2><I>To be continued...</I>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_6.jpg" WIDTH=280 HEIGHT=193 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Add 
+<UL CLASS=CL>
+  <LI>Jumper J23 (Boot0)
+  <LI>and MIDI Link port J11 to the board.
+</UL>
+<B>You will never need to close J23 so long you don't use the ROM based RS232 bootloader.</B><BR>
+Accordingly, following advice is only relevant for the case that you neither own a preprogrammed STM32, nor a JTAG programmer: you are not able to test the MIOS32 bootloader so long it hasn't been flashed into the chip. Now you have the minimal infrastructure to do this as described on the <A HREF="mios32_bootstrap_experts.html">Experts page</A>.
       </TD>
     </TR>
-
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_7.jpg" WIDTH=280 HEIGHT=189 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Let's stuff the MIDI interface circuit:
+<UL CLASS=CL>
+  <LI> 220 Ohm Resistors R20, R21, R22, R25, R26, R27
+  <LI> 1k Resistors R18, R23
+  <LI> 4k7 Resistors R19, R24
+  <LI> 1N4148 Diodes D2, D3
+  <LI> two 8 pin IC sockets and 6N138 Optocouplers IC4, IC5
+  <LI> four PCB MIDI sockets, or optionally J12/J13/J20/J21 headers to external MIDI sockets (mounted on the rear side of your MIDIbox)
+</UL>
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_io_test_query.gif" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Check each MIDI In/Out port by connecting it via a common MIDI interface to your computer, opening MIOS Studio, selecting the correct MIDI interface, and using the "Query" button. If the core responds with some informative messages, the bidirectional communication is working.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_8.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>The LCD interface:
+<UL CLASS=CL>
+  <LI> 16 pin socket and 74HC595 (IC2)
+  <LI> BC337 Transistor T1
+  <LI> 100 nF cap C14
+  <LI> two 10k Trimmpots P1, P2
+  <LI> 10k Resistor R12 and 1k Resistor R13
+  <LI> two 2x8 DIL headers
+</UL>
+Note that the second LCD (connected to J15B) is only supported by a small number of applications - like MIDIbox SEQ V4. It won't be initialized by default!
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_9.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Serial ports consist of:
+<UL CLASS=CL>
+  <LI> 2x5 DIL headers J8/9, J16 and J19
+  <LI> Pull-Up resistors arrays R30, R31, R32 - note that they only have to be stuffed in special cases (see below)
+  <LI> 3.3V/5V selection jumpers J24, J25, J26
+</UL>
+Pull-Up resistors are only required if a 5V supplied module is connected to a serial port. This is mostly the case for J8/J9, where the SRIO chain is connected by default. It's not required for a SD Card, which is supplied at 3.3V and usually connected to J16.<BR>
+TODO: provide table with all the options
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_10.jpg" WIDTH=280 HEIGHT=222 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>If you are planning to use the core module for different applications, you can use SIP socket strips for the 3 resistor arrays, so that you are able to remove/replace them whenever required. The 5 pins of the arrays can be extended with cutted resistor legs (yeah - here we need them again)
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_11.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Add the components for the remaining ports:
+<UL CLASS=CL>
+  <LI>2x5 DIL headers for J5A/B/C
+  <LI>2 pin header J18, 1k resistor R11, 1N4148 diode for CAN
+  <LI>4 pin header J4 and two 2k2 resistors for IIC
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_12.jpg" WIDTH=280 HEIGHT=228 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Finally add the 7805 based voltage regulation unit if the core shouldn't be supplied via USB, but by an external PSU or transformer:
+<UL CLASS=CL>
+  <LI>2200 uF cap C8, 330 nF cap C9
+  <LI>47 uF cap C10, 100 nF cap C11
+  <LI>7805 voltage regulator IC6
+  <LI>AC or DC input J1
+  <LI>5V input or output J2
+</UL>
+Note that USB Power Jumper J17 <B>has to be removed</B> when the core is supplied externally!
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32_v2.jpg" WIDTH=280 HEIGHT=210 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>DONE! :-)</B>
+      </TD>
+    </TR>
   </TABLE></DD>
   </DD>
 </DL>
