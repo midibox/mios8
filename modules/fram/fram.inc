@@ -40,20 +40,25 @@
 
 ;includes 1MHZ IIC driver if needed. maps functions either from mios_iic or fram_iic
 #if FRAM_MIOS_IIC==0
+
 #include "fram_iic.inc"
+
 #define IIC_Start FRAM_IIC_Start
 #define IIC_Stop FRAM_IIC_Stop
 #define IIC_AckSend FRAM_IIC_AckSend
 #define IIC_NakSend FRAM_IIC_NakSend
 #define IIC_ByteReceive FRAM_IIC_ByteReceive
 #define IIC_ByteSend FRAM_IIC_ByteSend
+
 #else
+
 #define IIC_Start MIOS_IIC_Start
 #define IIC_Stop MIOS_IIC_Stop
 #define IIC_AckSend MIOS_IIC_AckSend
 #define IIC_NakSend MIOS_IIC_NakSend
 #define IIC_ByteReceive MIOS_IIC_ByteReceive
 #define IIC_ByteSend MIOS_IIC_ByteSend
+
 #endif
 
 ;sends byte and returns error status (WREG = 0, ERR_CODE) on NAK received
