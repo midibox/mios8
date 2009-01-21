@@ -27,6 +27,7 @@
 //abort test after count errors.
 #define error_count_abort 0x01
 
+
 //0: start check; 1 show start message; 
 //2: test buffer write/read; 3: test single byte write/read; 
 //4: check subsequent buffer write; 5: check subsequent buffer read; 
@@ -40,7 +41,9 @@ unsigned char last_error_op; //1: begin write; 2: write; 3 begin read; 4: read/c
 unsigned char last_error_phase;
 unsigned char fram_buffer[0x100]; //data buffer
 
-unsigned char test_value[0x08] = {0x00,0x00,0xC1,0xAB,0x92,0x92,0x88,0x88};
+unsigned char test_value[0x08] = {0x00,0x00,0x99,0x1C,0x91,0x91,0x87,0x87};
+
+#define first_test_phase 0x02
 
 /////////////////////////////////////////////////////////////////////////////
 // Application Prototypes
@@ -90,45 +93,44 @@ void Init(void) __wparam{
 // This function is called by MIOS in the mainloop when nothing else is to do
 /////////////////////////////////////////////////////////////////////////////
 void Tick(void) __wparam{
-	unsigned char mode,err=0;
+	unsigned char b,mode,err;
 	unsigned int i;
 	if (phase < 0x02 || phase > 0x07)
 		return;
+	err = 0;
 	//FRAM_Begin with read/write mode
-	mode = (phase > 0x03 && phase & 0x01) ? FRAM_Mode_Read : FRAM_Mode_Write;
-	if(!FRAM_Begin(device_addr,address,mode))
-		err = (mode==FRAM_Mode_Read) ? 0x03 : 0x01;
-	else
+	if(phase > 0x03){//for continous read/write test
+		mode = (phase & 0x01) ? FRAM_Mode_Read : FRAM_Mode_Write;
+		if(!FRAM_Begin(device_addr,address,mode))
+			err = (mode==FRAM_Mode_Read) ? 0x03 : 0x01;
+		}
+	if(!err)
 		switch(phase){
 			case 0x02://Test Buffer W/R
 				fram_init_buffer();
-				if(!FRAM_WriteBuf(0x00,fram_buffer)){
-					err = 0x02;
+				if(!FRAM_WriteBuf(device_addr,address,0x00,fram_buffer)){
+					err = (FRAM_ERROR == 0x10) ? 0x02 : 0x01;
 					break;
 					}
-				FRAM_End();
 				fram_init_buffer();
-				if(!FRAM_Begin(device_addr,address,FRAM_Mode_Read)){
+				if(!FRAM_ReadBuf(device_addr,address,0x00,fram_buffer)){
 					err = 0x03;
-					break;					
+					break;
 					}
-				FRAM_ReadBuf(0x00,fram_buffer);
 				if(!fram_check_buffer())
 					err = 0x04;
 				else
 					address += 0x100;
 				break;
 			case 0x03://Test Byte W/R
-				if(!FRAM_WriteByte(test_value[phase] ^ (unsigned char)address)){
-					err = 0x02;
+				if(!FRAM_WriteByte(device_addr,address,test_value[phase] ^ (unsigned char)address)){
+					err = (FRAM_ERROR == 0x10) ? 0x02 : 0x01;
 					break;
 					}
-				FRAM_End();
-				if(!FRAM_Begin(device_addr,address,FRAM_Mode_Read)){
+				b = FRAM_ReadByte(device_addr,address); 
+				if(FRAM_ERROR)
 					err = 0x03;
-					break;
-					}
-				if(FRAM_ReadByte() != (test_value[phase] ^ (unsigned char)address))
+				else if(b != (test_value[phase] ^ (unsigned char)address))
 					err = 0x04;
 				else
 					address++;
@@ -136,7 +138,7 @@ void Tick(void) __wparam{
 			case 0x04://Test subsequent Buffer write
 				for(i=0;i<0x04;i++){//write 4 buffers
 					fram_init_buffer();
-					if(!FRAM_WriteBuf(0x00,fram_buffer)){
+					if(!FRAM_WriteBuf_Cont(0x00,fram_buffer)){
 						err = 0x02;
 						break;
 						}
@@ -145,7 +147,7 @@ void Tick(void) __wparam{
 				break;
 			case 0x05://Test subsequent Buffer read
 				for(i=0;i<0x04;i++){//read/compare 4 buffers
-					FRAM_ReadBuf(0x00,fram_buffer);
+					FRAM_ReadBuf_Cont(0x00,fram_buffer);
 					if(!fram_check_buffer()){
 						err = 0x04;
 						break;
@@ -155,7 +157,7 @@ void Tick(void) __wparam{
 				break;
 			case 0x06://Test subsequent Byte write
 				for(i=0;i < 0x400;i++)//write 1024 bytes
-					if(!FRAM_WriteByte(test_value[phase] ^ (unsigned char)(address + i))){
+					if(!FRAM_WriteByte_Cont(test_value[phase] ^ (unsigned char)(address + i))){
 						err = 0x02;
 						break;
 						}
@@ -164,7 +166,7 @@ void Tick(void) __wparam{
 				break;
 			case 0x07://Test subsequent Byte read
 				for(i=0;i < 0x400;i++)//read/compare 1024 bytes
-					if(FRAM_ReadByte() != (test_value[phase] ^ (unsigned char)(address + i))){
+					if(FRAM_ReadByte_Cont() != (test_value[phase] ^ (unsigned char)(address + i))){
 						err = 0x04;
 						break;
 						}
@@ -172,7 +174,8 @@ void Tick(void) __wparam{
 					address += 0x400;
 				break;
 			}
-	FRAM_End();
+	if(phase > 0x03)
+		FRAM_End(); //for continous read/write test
 	//on error, set error status vars. Abort if error_count_abort is reached
 	if(err){
 		last_error_op = err;
@@ -232,7 +235,7 @@ void DISPLAY_Tick(void) __wparam{
 			address = 0; //address counter
 			device_addr = 0; //device address counter
 			error_count = 0; //error counter
-			phase = 0x02;
+			phase = first_test_phase;
 			break;
 		case 0x02:
 		case 0x03:
@@ -297,6 +300,15 @@ void DISPLAY_Tick(void) __wparam{
 			MIOS_LCD_CursorSet(0x40);
 			MIOS_LCD_PrintCString("Address: ");
 			print_hex4(address);
+			phase = 0x0B;
+			MIOS_LCD_MessageStart(0xFF);
+			break;
+		case 0x0B:
+			MIOS_LCD_PrintCString("FRAM_ERROR: 0x");
+			MIOS_LCD_PrintHex2(FRAM_ERROR);
+			MIOS_LCD_CursorSet(0x40);
+			MIOS_LCD_PrintCString("FRAM_REG: 0x");
+			MIOS_LCD_PrintHex2(FRAM_REG);
 			phase = 0x09;
 			MIOS_LCD_MessageStart(0xFF);
 			break;
