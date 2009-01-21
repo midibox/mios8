@@ -27,6 +27,9 @@
 //abort test after count errors.
 #define error_count_abort 0x01
 
+//how much data is written / read in subsequent test (*256)
+//this value should not exceed the address_range!
+#define subseq_rw_chunks 0x40
 
 //0: start check; 1 show start message; 
 //2: test buffer write/read; 3: test single byte write/read; 
@@ -40,6 +43,7 @@ unsigned char error_count; //error counter
 unsigned char last_error_op; //1: begin write; 2: write; 3 begin read; 4: read/compare
 unsigned char last_error_phase;
 unsigned char fram_buffer[0x100]; //data buffer
+unsigned int timecount,timecount_bw,timecount_br;//timecount in mS
 
 unsigned char test_value[0x08] = {0x00,0x00,0x99,0x1C,0x91,0x91,0x87,0x87};
 
@@ -53,9 +57,22 @@ void fram_init_buffer(void) __wparam;
 unsigned char fram_check_buffer(void) __wparam;
 void print_hex4(unsigned int) __wparam;
 
+void fram_timecount_start(void) __wparam;
+unsigned int fram_timecount_stop(void) __wparam;
+
 /////////////////////////////////////////////////////////////////////////////
 // Application Functions
 /////////////////////////////////////////////////////////////////////////////
+
+void fram_timecount_start(void) __wparam{
+	timecount = 0;
+	MIOS_TIMER_Init(0x01,50000);//10 mS
+	}
+	
+unsigned int fram_timecount_stop(void) __wparam{
+	MIOS_TIMER_Stop();
+	return timecount;
+	}
 
 void fram_init_buffer(void) __wparam{
 	unsigned int i;
@@ -123,55 +140,57 @@ void Tick(void) __wparam{
 					address += 0x100;
 				break;
 			case 0x03://Test Byte W/R
-				if(!FRAM_WriteByte(device_addr,address,test_value[phase] ^ (unsigned char)address)){
-					err = (FRAM_ERROR == 0x10) ? 0x02 : 0x01;
-					break;
+				for(i=0;i<0x100;i++){
+					if(!FRAM_WriteByte(device_addr,address,test_value[phase] ^ (unsigned char)address)){
+						err = (FRAM_ERROR == 0x10) ? 0x02 : 0x01;
+						break;
+						}
+					b = FRAM_ReadByte(device_addr,address); 
+					if(FRAM_ERROR)
+						err = 0x03;
+					else if(b != (test_value[phase] ^ (unsigned char)address))
+						err = 0x04;
+					else
+						address++;
 					}
-				b = FRAM_ReadByte(device_addr,address); 
-				if(FRAM_ERROR)
-					err = 0x03;
-				else if(b != (test_value[phase] ^ (unsigned char)address))
-					err = 0x04;
-				else
-					address++;
 				break;
 			case 0x04://Test subsequent Buffer write
-				for(i=0;i<0x04;i++){//write 4 buffers
+				for(i=0;i < subseq_rw_chunks;i++){//write 4 buffers
 					fram_init_buffer();
 					if(!FRAM_WriteBuf_Cont(0x00,fram_buffer)){
 						err = 0x02;
 						break;
 						}
 					}
-				if(!err) address += 0x400;
+				if(!err) address += (subseq_rw_chunks*0x100);
 				break;
 			case 0x05://Test subsequent Buffer read
-				for(i=0;i<0x04;i++){//read/compare 4 buffers
+				for(i=0;i < subseq_rw_chunks;i++){//read/compare 4 buffers
 					FRAM_ReadBuf_Cont(0x00,fram_buffer);
 					if(!fram_check_buffer()){
 						err = 0x04;
 						break;
 						}
 					}
-				if(!err) address += 0x400;
+				if(!err) address += (subseq_rw_chunks*0x100);
 				break;
 			case 0x06://Test subsequent Byte write
-				for(i=0;i < 0x400;i++)//write 1024 bytes
+				for(i=0;i < (subseq_rw_chunks*0x100);i++)//write 1024 bytes
 					if(!FRAM_WriteByte_Cont(test_value[phase] ^ (unsigned char)(address + i))){
 						err = 0x02;
 						break;
 						}
 				if(!err)
-					address += 0x400;
+					address += (subseq_rw_chunks*0x100);
 				break;
 			case 0x07://Test subsequent Byte read
-				for(i=0;i < 0x400;i++)//read/compare 1024 bytes
+				for(i=0;i < (subseq_rw_chunks*0x100);i++)//read/compare 1024 bytes
 					if(FRAM_ReadByte_Cont() != (test_value[phase] ^ (unsigned char)(address + i))){
 						err = 0x04;
 						break;
 						}
 				if(!err)
-					address += 0x400;
+					address += (subseq_rw_chunks*0x100);
 				break;
 			}
 	if(phase > 0x03)
@@ -193,6 +212,19 @@ void Tick(void) __wparam{
 			if(++device_addr == num_devices){
 				phase++;
 				device_addr = 0x00;
+				//timecount start/stop&fetch on phase switch
+				switch(phase){
+					case 0x04:
+						fram_timecount_start();//start time-count for subsequent buffer write
+						break;
+					case 0x05:
+						timecount_bw = fram_timecount_stop();
+						fram_timecount_start();//start time-count for subsequent buffer read/compare
+						break;
+					case 0x06:
+						timecount_br = fram_timecount_stop();
+						break;
+					}				
 				}
 			}
 		}
@@ -203,6 +235,7 @@ void Tick(void) __wparam{
 // initialized with MIOS_Timer_Set
 /////////////////////////////////////////////////////////////////////////////
 void Timer(void) __wparam{
+	timecount += 10;
 	}
 
 /////////////////////////////////////////////////////////////////////////////
@@ -237,20 +270,19 @@ void DISPLAY_Tick(void) __wparam{
 			error_count = 0; //error counter
 			phase = first_test_phase;
 			break;
-		case 0x02:
-		case 0x03:
-		case 0x04:
-		case 0x05:
-		case 0x06:
-		case 0x07:
-			MIOS_LCD_PrintCString("Test ");
+		case 0x02://buffer w/rc
+		case 0x03://single byte w/rc
+		case 0x04://subsequent buffer w
+		case 0x05://subsequent buffer rc
+		case 0x06://subsequent byte w
+		case 0x07://subsequent byte rc
 			switch(phase){
-				case 0x02:MIOS_LCD_PrintCString("Buffer W/R");break;
-				case 0x03:MIOS_LCD_PrintCString("Byte W/R");break;
-				case 0x04:MIOS_LCD_PrintCString("Subseq Buffer W");break;
-				case 0x05:MIOS_LCD_PrintCString("Subseq Buffer R");break;
-				case 0x06:MIOS_LCD_PrintCString("Subseq Byte W");break;
-				case 0x07:MIOS_LCD_PrintCString("Subseq Byte R");break;
+				case 0x02:MIOS_LCD_PrintCString("Buffer Wr/Rd/Cp");break;
+				case 0x03:MIOS_LCD_PrintCString("Byte Wr/Rd/Cp");break;
+				case 0x04:MIOS_LCD_PrintCString("Subseq Buffer Wr");break;
+				case 0x05:MIOS_LCD_PrintCString("Subseq Buffer Rd/Cp");break;
+				case 0x06:MIOS_LCD_PrintCString("Subseq Byte Wr");break;
+				case 0x07:MIOS_LCD_PrintCString("Subseq Byte Rd/Cp");break;
 				}
 			MIOS_LCD_CursorSet(0x40);
 			MIOS_LCD_PrintCString("0x");
@@ -261,13 +293,14 @@ void DISPLAY_Tick(void) __wparam{
 			MIOS_LCD_PrintHex2(error_count);
 			MIOS_LCD_MessageStart(16);
 			break;
-		case 0x08:
+		case 0x08://test successfully finished
 			MIOS_LCD_PrintCString("FRAM Test finished");
 			MIOS_LCD_CursorSet(0x40);
 			MIOS_LCD_PrintCString("successfully!");
-			MIOS_LCD_MessageStart(0xFF);		
+			MIOS_LCD_MessageStart(0xFF);
+			phase = 0x0C;
 			break;
-		case 0x09:	
+		case 0x09://abort on error
 			MIOS_LCD_PrintCString("Abort");
 			#if error_count_abort > 0x01
 			MIOS_LCD_PrintCString(", 0x");
@@ -294,7 +327,7 @@ void DISPLAY_Tick(void) __wparam{
 			phase = 0x0A;
 			MIOS_LCD_MessageStart(0xFF);
 			break;
-		case 0x0A:
+		case 0x0A://abort on error, screen 2
 			MIOS_LCD_PrintCString("Device: 0x");
 			MIOS_LCD_PrintHex2(device_addr);
 			MIOS_LCD_CursorSet(0x40);
@@ -303,13 +336,33 @@ void DISPLAY_Tick(void) __wparam{
 			phase = 0x0B;
 			MIOS_LCD_MessageStart(0xFF);
 			break;
-		case 0x0B:
+		case 0x0B://abort on error, screen 3
 			MIOS_LCD_PrintCString("FRAM_ERROR: 0x");
 			MIOS_LCD_PrintHex2(FRAM_ERROR);
 			MIOS_LCD_CursorSet(0x40);
 			MIOS_LCD_PrintCString("FRAM_REG: 0x");
 			MIOS_LCD_PrintHex2(FRAM_REG);
 			phase = 0x09;
+			MIOS_LCD_MessageStart(0xFF);
+			break;
+		case 0x0C://test successfully finished, screen 2
+			MIOS_LCD_PrintCString("Device count: 0x");
+			MIOS_LCD_PrintHex2(num_devices);
+			MIOS_LCD_CursorSet(0x40);
+			MIOS_LCD_PrintCString("Addr. Range: ");
+			print_hex4(address_range);
+			phase = 0x0D;
+			MIOS_LCD_MessageStart(0xFF);
+			break;
+		case 0x0D://test successfully finished, screen 3
+			MIOS_LCD_PrintCString("SBW: ");
+			MIOS_LCD_PrintBCD5(timecount_bw);
+			MIOS_LCD_PrintCString(" mSec");
+			MIOS_LCD_CursorSet(0x40);
+			MIOS_LCD_PrintCString("SBR: ");
+			MIOS_LCD_PrintBCD5(timecount_br);
+			MIOS_LCD_PrintCString(" mSec");
+			phase = 0x08;
 			MIOS_LCD_MessageStart(0xFF);
 			break;
 		}
