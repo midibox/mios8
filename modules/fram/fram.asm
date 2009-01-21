@@ -15,6 +15,7 @@
 #define FRAM_MIOS_IIC 0
 #endif
 
+
 ; ==========================================================================
 ; Import/Export Labels
 ; ==========================================================================
@@ -34,19 +35,19 @@
 	global FRAM_ReadBuf_Cont
 	global FRAM_WriteBuf_Cont
 	
-	;FRAM_REG is set by FRAM_Begin:
+	;_FRAM_REG is set by FRAM_Begin:
 	;<7:7>first byte read flag, zero before first byte is read
-	;<6:6>Session Flag, set to 1 in FRAM_Begin -> FRAM_REG != 0 during a session.
+	;<6:6>Session Flag, set to 1 in FRAM_Begin -> _FRAM_REG != 0 during a session.
 	;<5:4>multiplex addr, 5 MSB, 4 LSB
 	;<3:1>chip select (for FM24C512 LSB selects one of two memory blocks)
 	;<0:0>mode, 1 for read, 0 for write
-	;FRAM_End sets FRAM_REG to zero. You can use it to check if there's a 
-	;pending session, in this case you have to init FRAM_REG by yourself.
+	;FRAM_End sets _FRAM_REG to zero. You can use it to check if there's a 
+	;pending session, in this case you have to init _FRAM_REG by yourself.
 	;Never change it during a session (FRAM_Begin -> FRAM_End)!!
 	global FRAM_REG
 	
-	;FRAM_ERROR will contain the code of the last error since FRAM_Begin. 
-	;Note that some functions return zero on error. FRAM_ERROR will contain
+	;_FRAM_ERROR will contain the code of the last error since FRAM_Begin. 
+	;Note that some functions return zero on error. _FRAM_ERROR will contain
 	;one of the following error codes:
 	;--------------------------
 	;0x00 no error
@@ -61,7 +62,7 @@
 	global FRAM_ERROR
 	
 
-	; (for C, declaration in fram.h)
+	;-------export labels for C, declaration in fram.h-------------
 	global _FRAM_ReadByte
 	global _FRAM_WriteByte
 	global _FRAM_ReadBuf
@@ -89,11 +90,10 @@ FRAM_IIC_BUF RES 1
 #endif
 
 FRAM_VARS UDATA
-_FRAM_REG
+_FRAM_REG RES 0
 FRAM_REG RES 1
-_FRAM_ERROR
+_FRAM_ERROR RES 0
 FRAM_ERROR RES 1
-
 
 FRAM CODE
 
