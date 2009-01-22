@@ -20,13 +20,13 @@ import org.midibox.utils.gui.SplashScreen;
 
 public class MIOSStudioSID extends MIOSStudio {
 
-	protected static String frameTitle = "MIOS Studio +SID";
+	protected static String frameTitle = "MIOS Studio + SIDV2 Librarian";
 
-	protected static String splashTitle = "MIOS Studio beta8.2 + SIDV2 Librarian";
+	protected static String splashTitle = "MIOS Studio beta8.3 + SIDV2 Librarian";
 
 	protected static String splashImage = "splash.jpg";
 
-	protected static String frameComment = "MIOS Studio +SID beta8.2";
+	protected static String frameComment = "MIOS Studio beta8.3 + SIDV2 Librarian";
 
 	public MIOSStudioSID() {
 

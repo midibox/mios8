@@ -112,25 +112,9 @@ public class MidiDeviceRoutingGUI extends JPanel implements MouseListener,
 
 	private JButton disconnectallButton;
 
-	private JButton midiDeviceManagerButton;
-
-	private JButton midiRouterButton;
-
-	private JButton filterButton;
-
-	/*
-	 * private JButton mapButton;
-	 */
-
 	private JToggleButton releaseButton;
 
 	private JPanel wirePanel;
-
-	private JDialog midiDeviceManagerDialog;
-
-	private JDialog midiRouterManagerGUI;
-
-	private JDialog midiFilterManagerDialog;
 
 	/*
 	 * private JDialog midiMapManagerDialog;
@@ -337,68 +321,25 @@ public class MidiDeviceRoutingGUI extends JPanel implements MouseListener,
 		gbc.gridwidth = 1;
 		gbc.fill = GridBagConstraints.BOTH;
 
-		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.insets = new Insets(5, 5, 10, 5);
 
 		connectButton = new JButton("Connect");
 		connectButton.setToolTipText("Connect Selected Devices");
 		connectButton.addActionListener(this);
 		buttonPane.add(connectButton, gbc);
-		gbc.gridy++;
-
-		gbc.insets = new Insets(5, 5, 10, 5);
-
-		midiDeviceManagerButton = new JButton("Select Devices");
-		midiDeviceManagerButton.setToolTipText("Select Hardware Devices");
-		midiDeviceManagerButton.addActionListener(this);
-		buttonPane.add(midiDeviceManagerButton, gbc);
 		gbc.gridx++;
-		gbc.gridy--;
 
-		gbc.insets = new Insets(5, 5, 5, 5);
-
-		gbc.gridwidth = 2;
 		disconnectButton = new JButton("Disconnect");
 		disconnectButton.setToolTipText("Disconnect Selected Devices");
 		disconnectButton.addActionListener(this);
 		buttonPane.add(disconnectButton, gbc);
-		gbc.gridy++;
-
-		gbc.insets = new Insets(5, 5, 10, 5);
-
-		gbc.gridwidth = 1;
-		midiRouterButton = new JButton(ImageLoader
-				.getImageIcon("virtualMidiDevice.png"));
-		midiRouterButton.setToolTipText("Add/Remove Virtual Ports");
-		midiRouterButton.addActionListener(this);
-		buttonPane.add(midiRouterButton, gbc);
 		gbc.gridx++;
-
-		filterButton = new JButton(ImageLoader.getImageIcon("filter.png"));
-		filterButton.setToolTipText("Add/Remove Filters");
-		filterButton.addActionListener(this);
-		buttonPane.add(filterButton, gbc);
-		gbc.gridx++;
-
-		/*
-		 * gbc.insets = new Insets(5, 4, 10, 5);
-		 * 
-		 * mapButton = new JButton(ImageLoader.getImageIcon("map.png"));
-		 * mapButton.setToolTipText("Add/Remove Maps");
-		 * mapButton.addActionListener(this); mapButton.setMargin(new Insets(2,
-		 * 8, 2, 8)); buttonPane.add(mapButton, gbc); gbc.gridx++;
-		 */
-
-		gbc.gridy--;
-
-		gbc.insets = new Insets(5, 5, 5, 5);
 
 		disconnectallButton = new JButton("Disconnect All");
 		disconnectallButton.setToolTipText("Disconnect All Devices");
 		disconnectallButton.addActionListener(this);
 		buttonPane.add(disconnectallButton, gbc);
-		gbc.gridy++;
-
-		gbc.insets = new Insets(5, 5, 10, 5);
+		gbc.gridx++;
 
 		releaseButton = new JToggleButton("Release Ports", midiDeviceRouting
 				.getPortsReleased());
@@ -530,95 +471,6 @@ public class MidiDeviceRoutingGUI extends JPanel implements MouseListener,
 		}
 		((JDialog) midiDevicePropertiesDialogs.get(midiDevice)).requestFocus();
 	}
-
-	private void showMidiDeviceManagerDialog() {
-		if (midiDeviceManagerDialog == null) {
-			final MidiDeviceManagerGUI midiDeviceManagerGUI = new MidiDeviceManagerGUI(
-					midiDeviceRouting.getMidiDeviceManager());
-
-			midiDeviceManagerDialog = new JDialog(DialogOwner.getFrame(),
-					"MIDI Devices", false);
-			midiDeviceManagerDialog.setContentPane(midiDeviceManagerGUI);
-			midiDeviceManagerDialog.pack();
-			midiDeviceManagerDialog.setLocationRelativeTo(this);
-			midiDeviceManagerDialog.setVisible(true);
-
-			midiDeviceManagerDialog.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent we) {
-					midiDeviceRouting.getMidiDeviceManager().deleteObserver(
-							midiDeviceManagerGUI);
-					midiDeviceManagerDialog = null;
-				}
-			});
-		}
-		midiDeviceManagerDialog.requestFocus();
-	}
-
-	private void showMidiRouterManagerDialog() {
-		if (midiRouterManagerGUI == null) {
-			final MidiRouterDeviceManagerGUI midiRouterDeviceManagerGUI = new MidiRouterDeviceManagerGUI(
-					midiDeviceRouting.getMidiRouterDeviceManager());
-
-			midiRouterManagerGUI = new JDialog(DialogOwner.getFrame(),
-					"Virtual Ports", false);
-			midiRouterManagerGUI.setContentPane(midiRouterDeviceManagerGUI);
-			midiRouterManagerGUI.pack();
-			midiRouterManagerGUI.setLocationRelativeTo(this);
-			midiRouterManagerGUI.setVisible(true);
-
-			midiRouterManagerGUI.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent we) {
-					midiDeviceRouting.getMidiRouterDeviceManager()
-							.deleteObserver(midiRouterDeviceManagerGUI);
-					midiRouterManagerGUI = null;
-				}
-			});
-		}
-		midiRouterManagerGUI.requestFocus();
-	}
-
-	private void showFilterManagerDialog() {
-		if (midiFilterManagerDialog == null) {
-			final MidiFilterDeviceManagerGUI midiFilterManagerGUI = new MidiFilterDeviceManagerGUI(
-					midiDeviceRouting.getMidiFilterManager());
-
-			midiFilterManagerDialog = new JDialog(DialogOwner.getFrame(),
-					"Filters", false);
-			midiFilterManagerDialog.setContentPane(midiFilterManagerGUI);
-			midiFilterManagerDialog.pack();
-			midiFilterManagerDialog.setLocationRelativeTo(this);
-			midiFilterManagerDialog.setVisible(true);
-
-			midiFilterManagerDialog.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent we) {
-					midiDeviceRouting.getMidiFilterManager().deleteObserver(
-							midiFilterManagerGUI);
-					midiFilterManagerDialog = null;
-				}
-			});
-		}
-		midiFilterManagerDialog.requestFocus();
-	}
-
-	/*
-	 * private void showMapManagerDialog() { if (midiMapManagerDialog == null) {
-	 * final MidiMapDeviceManagerGUI midiMapManagerGUI = new
-	 * MidiMapDeviceManagerGUI( midiDeviceRouting.getMidiMapManager());
-	 * 
-	 * midiMapManagerDialog = new JDialog();
-	 * midiMapManagerDialog.setModal(false);
-	 * midiMapManagerDialog.setTitle("Maps");
-	 * midiMapManagerDialog.setContentPane(midiMapManagerGUI);
-	 * midiMapManagerDialog.pack();
-	 * midiMapManagerDialog.setLocationRelativeTo(this);
-	 * midiMapManagerDialog.setVisible(true);
-	 * 
-	 * midiMapManagerDialog.addWindowListener(new WindowAdapter() { public void
-	 * windowClosing(WindowEvent we) {
-	 * midiDeviceRouting.getMidiMapManager().deleteObserver( midiMapManagerGUI);
-	 * midiMapManagerDialog = null; } }); } midiMapManagerDialog.requestFocus();
-	 * }
-	 */
 
 	private void populateTrees() {
 
@@ -781,16 +633,7 @@ public class MidiDeviceRoutingGUI extends JPanel implements MouseListener,
 			}
 		} else if (source == disconnectallButton) {
 			midiDeviceRouting.disconnectAll();
-		} else if (source == midiDeviceManagerButton) {
-			showMidiDeviceManagerDialog();
-		} else if (source == midiRouterButton) {
-			showMidiRouterManagerDialog();
-		} else if (source == filterButton) {
-			showFilterManagerDialog();
-		} /*
-		 * else if (source == mapButton) { showMapManagerDialog(); }
-		 */
-		else if (source == releaseButton) {
+		} else if (source == releaseButton) {
 			midiDeviceRouting.setPortsReleased(releaseButton.isSelected());
 		}
 	}

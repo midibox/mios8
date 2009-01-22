@@ -69,7 +69,9 @@ import javax.swing.event.MenuListener;
 import org.midibox.apps.miosstudio.MIOSStudio;
 import org.midibox.midi.MidiKeyboardControllerDevice;
 import org.midibox.midi.SysexSendReceiveDevice;
+import org.midibox.midi.gui.MidiDeviceManagerGUI;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
+import org.midibox.midi.gui.MidiFilterDeviceManagerGUI;
 import org.midibox.midi.gui.MidiFilterGUI;
 import org.midibox.midi.gui.MidiKeyboardControllerGUI;
 import org.midibox.midi.gui.MidiMonitorFilteredGUI;
@@ -94,6 +96,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private MIOSStudioInternalFrame helpWindow;
 
+	private JDialog midiDeviceManagerDialog;
+	 
+	private JDialog midiFilterManagerDialog;
+	
 	protected MidiDeviceRoutingGUI midiDeviceRoutingGUI;
 
 	private MIOSStudioInternalFrame midiDeviceRoutingWindow;
@@ -447,12 +453,22 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	protected void createMIDIMenu() {
 		midiMenu = new JMenu("MIDI");
 		midiMenu.setMnemonic(KeyEvent.VK_M);
+		
+		JMenuItem menuItem = new JMenuItem("MIDI Devices");
+		menuItem.setActionCommand("midi_devices");
+		menuItem.addActionListener(this);
+		midiMenu.add(menuItem);
+		
+		menuItem = new JMenuItem("MIDI Filters");
+		menuItem.setActionCommand("midi_filters");
+		menuItem.addActionListener(this);
+		midiMenu.add(menuItem);
 
-		JMenuItem menuItem = new JMenuItem("MIDI Device Routing");
+		menuItem = new JMenuItem("MIDI Device Routing");
 		menuItem.setMnemonic(KeyEvent.VK_R);
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
 				ActionEvent.CTRL_MASK));
-		menuItem.setActionCommand("midi_devices");
+		menuItem.setActionCommand("midi_routing");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
 
@@ -657,8 +673,26 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		JButton button = new JButton(ImageLoader
 				.getImageIcon("midiDevices.png"));
-		button.setToolTipText("MIDI Device Routing");
+		button.setToolTipText("MIDI Devices");
 		button.setActionCommand("midi_devices");
+		button.addActionListener(this);
+		button.setMargin(insets);
+		toolBar.add(button);
+		
+		button = new JButton(ImageLoader
+				.getImageIcon("filter.png"));
+		button.setToolTipText("MIDI Filters");
+		button.setActionCommand("midi_filters");
+		button.addActionListener(this);
+		button.setMargin(insets);
+		toolBar.add(button);
+		
+		toolBar.addSeparator();
+		
+		button = new JButton(ImageLoader
+				.getImageIcon("midiRouting.png"));
+		button.setToolTipText("MIDI Device Routing");
+		button.setActionCommand("midi_routing");
 		button.addActionListener(this);
 		button.setMargin(insets);
 		toolBar.add(button);
@@ -859,6 +893,73 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		}
 	}
 
+ 	private void showMidiDeviceManagerDialog() {
+ 		if (midiDeviceManagerDialog == null) {
+ 			final MidiDeviceManagerGUI midiDeviceManagerGUI = new MidiDeviceManagerGUI(
+ 					miosStudio.getMidiDeviceManager());
+ 
+ 			midiDeviceManagerDialog = new JDialog(DialogOwner.getFrame(),
+ 					"MIDI Devices", false);
+ 			midiDeviceManagerDialog.setContentPane(midiDeviceManagerGUI);
+ 			midiDeviceManagerDialog.pack();
+ 			midiDeviceManagerDialog.setLocationRelativeTo(this);
+ 			midiDeviceManagerDialog.setVisible(true);
+ 
+ 			midiDeviceManagerDialog.addWindowListener(new WindowAdapter() {
+ 				public void windowClosing(WindowEvent we) {
+ 					miosStudio.getMidiDeviceManager().deleteObserver(
+ 							midiDeviceManagerGUI);
+ 					midiDeviceManagerDialog = null;
+ 				}
+ 			});
+ 		}
+ 		midiDeviceManagerDialog.requestFocus();
+ 	}
+ 
+ 	private void showMidiFilterManagerDialog() {
+ 		if (midiFilterManagerDialog == null) {
+ 			final MidiFilterDeviceManagerGUI midiFilterManagerGUI = new MidiFilterDeviceManagerGUI(
+ 					miosStudio.getMidiFilterManager());
+ 
+ 			midiFilterManagerDialog = new JDialog(DialogOwner.getFrame(),
+ 					"Filters", false);
+ 			midiFilterManagerDialog.setContentPane(midiFilterManagerGUI);
+ 			midiFilterManagerDialog.pack();
+ 			midiFilterManagerDialog.setLocationRelativeTo(this);
+ 			midiFilterManagerDialog.setVisible(true);
+ 
+ 			midiFilterManagerDialog.addWindowListener(new WindowAdapter() {
+ 				public void windowClosing(WindowEvent we) {
+ 					miosStudio.getMidiFilterManager().deleteObserver(
+ 							midiFilterManagerGUI);
+ 					midiFilterManagerDialog = null;
+ 				}
+ 			});
+ 		}
+ 		midiFilterManagerDialog.requestFocus();
+ 	}
+ 	
+ 	/*
+ 	 * private void showMapManagerDialog() { if (midiMapManagerDialog == null) {
+ 	 * final MidiMapDeviceManagerGUI midiMapManagerGUI = new
+ 	 * MidiMapDeviceManagerGUI( midiDeviceRouting.getMidiMapManager());
+ 	 * 
+ 	 * midiMapManagerDialog = new JDialog();
+ 	 * midiMapManagerDialog.setModal(false);
+ 	 * midiMapManagerDialog.setTitle("Maps");
+ 	 * midiMapManagerDialog.setContentPane(midiMapManagerGUI);
+ 	 * midiMapManagerDialog.pack();
+ 	 * midiMapManagerDialog.setLocationRelativeTo(this);
+ 	 * midiMapManagerDialog.setVisible(true);
+ 	 * 
+ 	 * midiMapManagerDialog.addWindowListener(new WindowAdapter() { public void
+ 	 * windowClosing(WindowEvent we) {
+ 	 * midiDeviceRouting.getMidiMapManager().deleteObserver( midiMapManagerGUI);
+ 	 * midiMapManagerDialog = null; } }); } midiMapManagerDialog.requestFocus();
+ 	 * }
+ 	 */
+
+	
 	private void buildLookAndFeel() {
 
 		JCheckBoxMenuItem item;
@@ -1023,6 +1124,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	public void actionPerformed(ActionEvent ae) {
 
 		if (ae.getActionCommand().equals("midi_devices")) {
+			showMidiDeviceManagerDialog();
+			
+		} else if (ae.getActionCommand().equals("midi_filters")) {
+			showMidiFilterManagerDialog();
+			
+		}else if (ae.getActionCommand().equals("midi_routing")) {
 			showFrame(midiDeviceRoutingWindow);
 
 		} else if (ae.getActionCommand().equals("midi_out_port_monitor")) {

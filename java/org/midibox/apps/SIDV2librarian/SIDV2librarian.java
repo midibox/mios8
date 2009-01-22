@@ -22,6 +22,7 @@ package org.midibox.apps.SIDV2librarian;
 
 import javax.sound.midi.MidiDevice;
 
+import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;
 import org.midibox.sidlibr.SIDLibController;
 import org.midibox.sidlibr.SysExControllerDevice;
@@ -35,14 +36,18 @@ public class SIDV2librarian {
 	private MidiDevice localMidiDevice;
 	private MidiDevice inputMidiDevice;
 	private MidiDevice outputMidiDevice;
+	
+	private MidiDeviceManager midiDeviceManager;
 
 	public SIDV2librarian() {
 
-		this(new MidiDeviceRouting());
+		this(new MidiDeviceManager(), new MidiDeviceRouting());
 	}
 
-	public SIDV2librarian(MidiDeviceRouting midiDeviceRouting) {
+	public SIDV2librarian(MidiDeviceManager midiDeviceManager, MidiDeviceRouting midiDeviceRouting) {
 
+		this.midiDeviceManager = midiDeviceManager;
+		
 		this.midiDeviceRouting = midiDeviceRouting;
 
 		sysexControllerDevice = new SysExControllerDevice(
@@ -54,10 +59,14 @@ public class SIDV2librarian {
 				.getSysExController());
 
 		if (midiDeviceRouting != null) {
-			midiDeviceRouting.getMidiDeviceManager().rescanDevices();
-
-			midiDeviceRouting.reorder();
+			midiDeviceManager.rescanDevices();
+			midiDeviceRouting.addMidiReadDevices(midiDeviceManager.getSelectedMidiReadDevices());
+			midiDeviceRouting.addMidiWriteDevices(midiDeviceManager.getSelectedMidiWriteDevices());
 		}
+	}
+
+	public MidiDeviceManager getMidiDeviceManager() {
+		return midiDeviceManager;
 	}
 
 	public MidiDeviceRouting getMidiDeviceRouting() {

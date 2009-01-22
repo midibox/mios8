@@ -88,13 +88,13 @@ public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
 		toolbar.setRollover(true);
 		toolbar.setFloatable(false);
 
-		filterButton = new JButton(ImageLoader.getImageIcon("filterView.png"));
+		filterButton = new JButton(ImageLoader.getImageIcon("filter.png"));
 		filterButton.addActionListener(this);
 		filterButton.setMargin(new Insets(2, 2, 2, 2));
 		filterButton.setToolTipText("Filter Messages");
 		toolbar.add(filterButton);
 
-		clearButton = new JButton(ImageLoader.getImageIcon("clearScreen.png"));
+		clearButton = new JButton(ImageLoader.getImageIcon("delete.png"));
 		clearButton.addActionListener(this);
 		clearButton.setMargin(new Insets(2, 2, 2, 2));
 		clearButton.setToolTipText("Clear Screen");

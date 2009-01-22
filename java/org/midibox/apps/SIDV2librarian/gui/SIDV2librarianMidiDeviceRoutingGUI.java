@@ -277,7 +277,7 @@ public class SIDV2librarianMidiDeviceRoutingGUI extends JPanel implements
 
 	public void actionPerformed(ActionEvent ae) {
 		if (ae.getSource() == rescan) {
-			sidv2librarian.getMidiDeviceRouting().getMidiDeviceManager()
+			sidv2librarian.getMidiDeviceManager()
 					.rescanDevices();
 		}
 	}

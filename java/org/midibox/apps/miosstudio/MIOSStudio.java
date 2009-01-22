@@ -24,8 +24,12 @@ import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.sound.midi.MidiDevice;
+
+import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;
 import org.midibox.midi.MidiFilterDevice;
+import org.midibox.midi.MidiFilterDeviceManager;
 import org.midibox.midi.MidiKeyboardControllerDevice;
 import org.midibox.midi.MidiMonitorFiltered;
 import org.midibox.midi.MidiMonitorFilteredDevice;
@@ -41,8 +45,6 @@ public class MIOSStudio implements Observer {
 	protected MidiDeviceRouting midiDeviceRouting;
 
 	protected MidiRouterDevice miosStudioInPort;
-	
-	protected MidiRouterDevice miosStudioThruPort;
 
 	protected MidiFilterDevice midiThruFilterDevice;
 
@@ -52,7 +54,17 @@ public class MIOSStudio implements Observer {
 	 * private MidiMapDevice midiThruMapDevice;
 	 */
 
+	protected MidiRouterDevice miosStudioThruPort;
+
 	protected MidiRouterDevice miosStudioOutPort;
+
+	private MidiDeviceManager midiDeviceManager;
+
+	private MidiFilterDeviceManager midiFilterManager;
+
+	/*
+	 * private MidiMapDeviceManager midiMapManager;
+	 */
 
 	private MidiMonitorFilteredDevice midiInPortMonitorDevice;
 
@@ -107,14 +119,25 @@ public class MIOSStudio implements Observer {
 
 		miosStudioInPort = new MidiRouterDevice("MIOS Studio In Port");
 
-		miosStudioOutPort = new MidiRouterDevice("MIOS Studio Out Port");
-
-		miosStudioThruPort = new MidiRouterDevice("MIOS Studio Thru Port");
-
 		midiThruFilterDevice = new MidiFilterDevice("MIOS Studio Thru Filter");
 
 		/*
 		 * midiThruMapDevice = new MidiMapDevice("MIOS Studio Thru Map");
+		 */
+
+		miosStudioThruPort = new MidiRouterDevice("MIOS Studio Thru Port");
+
+		miosStudioOutPort = new MidiRouterDevice("MIOS Studio Out Port");
+
+		midiDeviceManager = new MidiDeviceManager();
+		midiDeviceManager.addObserver(this);
+
+		midiFilterManager = new MidiFilterDeviceManager();
+		midiFilterManager.addObserver(this);
+
+		/*
+		 * midiMapManager = new MidiMapDeviceManager();
+		 * midiMapManager.addObserver(this);
 		 */
 
 		midiInPortMonitorDevice = new MidiMonitorFilteredDevice(
@@ -182,6 +205,19 @@ public class MIOSStudio implements Observer {
 		miosTerminalFiltered.getMidiFilter().tuneRequest = false;
 	}
 
+	public MidiDeviceManager getMidiDeviceManager() {
+		return midiDeviceManager;
+	}
+
+	public MidiFilterDeviceManager getMidiFilterManager() {
+		return midiFilterManager;
+	}
+
+	/*
+	 * public MidiMapDeviceManager getMidiMapManager() { return midiMapManager;
+	 * }
+	 */
+
 	public MidiDeviceRouting getMidiDeviceRouting() {
 		return midiDeviceRouting;
 	}
@@ -231,9 +267,9 @@ public class MIOSStudio implements Observer {
 	public void setMidiThruOutPort(boolean midiThru) {
 		this.midiThruOutPort = midiThru;
 
-		midiDeviceRouting.connectDevices(miosStudioInPort,
-				midiThruFilterDevice);
-		
+		midiDeviceRouting
+				.connectDevices(miosStudioInPort, midiThruFilterDevice);
+
 		if (midiThru) {
 
 			/*
@@ -242,26 +278,26 @@ public class MIOSStudio implements Observer {
 			 */
 
 			midiDeviceRouting.disconnectDevice(miosStudioThruPort);
-			
+
 			midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
-					miosStudioThruPort);		
+					miosStudioThruPort);
 
 			midiDeviceRouting.connectDevices(midiThruFilterDevice,
 					miosStudioOutPort);
 		} else {
-			
+
 			/*
 			 * midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
 			 * midiThruMapDevice);
 			 */
-			
+
 			midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
-					miosStudioOutPort);			
-			
+					miosStudioOutPort);
+
 			midiDeviceRouting.connectDevices(midiThruFilterDevice,
 					miosStudioThruPort);
 		}
-		
+
 		setRouteIndividualDevices(routeIndividualDevices);
 	}
 
@@ -300,14 +336,63 @@ public class MIOSStudio implements Observer {
 		} else {
 			midiDeviceRouting.addMidiWriteDevice(miosStudioInPort);
 			midiDeviceRouting.addMidiReadDevice(miosStudioOutPort);
-			
+
 			if (!midiThruOutPort) {
 				midiDeviceRouting.addMidiReadDevice(miosStudioThruPort);
 			}
 		}
 
-		// get midiDeviceRouting to add physical, virtual, filters and maps
-		midiDeviceRouting.reorder();
+		reorder();
+	}
+
+	public void reorder() {
+
+		midiDeviceRouting.getMidiReadDevices().removeAll(
+				midiFilterManager.getMidiFilterDevices());
+		midiDeviceRouting.getMidiWriteDevices().removeAll(
+				midiFilterManager.getMidiFilterDevices());
+
+		midiDeviceRouting.getMidiReadDevices().removeAll(
+				midiDeviceManager.getSelectedMidiReadDevices());
+		midiDeviceRouting.getMidiWriteDevices().removeAll(
+				midiDeviceManager.getSelectedMidiWriteDevices());
+
+		/*
+		 * midiReadDevices.removeAll(midiMapManager.getMidiMapDevices());
+		 * midiWriteDevices.removeAll(midiMapManager.getMidiMapDevices());
+		 */
+
+		midiDeviceRouting.addMidiReadDevices(midiFilterManager
+				.getMidiFilterDevices());
+		midiDeviceRouting.addMidiWriteDevices(midiFilterManager
+				.getMidiFilterDevices());
+
+		Iterator it = midiDeviceManager.getMidiReadDevices().iterator();
+
+		while (it.hasNext()) {
+
+			Object object = it.next();
+
+			if (midiDeviceManager.getSelectedMidiReadDevices().contains(object)) {
+				midiDeviceRouting.addMidiReadDevice((MidiDevice) object);
+			}
+		}
+
+		it = midiDeviceManager.getMidiWriteDevices().iterator();
+		while (it.hasNext()) {
+
+			Object object = it.next();
+
+			if (midiDeviceManager.getSelectedMidiWriteDevices()
+					.contains(object)) {
+				midiDeviceRouting.addMidiWriteDevice((MidiDevice) object);
+			}
+		}
+
+		/*
+		 * midiReadDevices.addAll(midiMapManager.getMidiMapDevices());
+		 * midiWriteDevices.addAll(midiMapManager.getMidiMapDevices());
+		 */
 	}
 
 	protected void routeIndividualDevices() {
@@ -322,9 +407,9 @@ public class MIOSStudio implements Observer {
 		 * midiDeviceRouting.addMidiWriteDevice(midiThruMapDevice);
 		 * midiDeviceRouting.addMidiReadDevice(midiThruMapDevice);
 		 */
-		
+
 		if (!midiThruOutPort) {
-			
+
 			midiDeviceRouting.addMidiWriteDevice(miosStudioThruPort);
 			midiDeviceRouting.addMidiReadDevice(miosStudioThruPort);
 		}
@@ -370,7 +455,7 @@ public class MIOSStudio implements Observer {
 	public void connectDevices() {
 
 		setMidiThruOutPort(midiThruOutPort);
-		
+
 		midiDeviceRouting.connectDevices(miosStudioInPort,
 				midiInPortMonitorDevice);
 
@@ -383,7 +468,7 @@ public class MIOSStudio implements Observer {
 		 * midiDeviceRouting.connectDevices(outVirtualMidiPortDevice,
 		 * outDumpReceiverDevice);
 		 */
-		
+
 		midiDeviceRouting.connectDevices(miosStudioInPort,
 				midiKeyboardControllerDevice);
 		midiDeviceRouting.connectDevices(midiKeyboardControllerDevice,
@@ -418,27 +503,6 @@ public class MIOSStudio implements Observer {
 	}
 
 	public void update(Observable observable, Object object) {
-		/*
-		 * if (observable == sysexSendReceiveDeviceManager) {
-		 * 
-		 * SysexSendReceiveDevice ssrt = (SysexSendReceiveDevice) object;
-		 * 
-		 * if (sysexSendReceiveDeviceManager.getSysexSendReceiveDevices()
-		 * .contains(ssrt)) {
-		 * 
-		 * midiDeviceRouting.connectDevices(miosStudioInPort, ssrt);
-		 * midiDeviceRouting.connectDevices(ssrt, miosStudioOutPort);
-		 * 
-		 * if (routeIndividualDevices) {
-		 * midiDeviceRouting.addMidiReadDevice(ssrt);
-		 * midiDeviceRouting.addMidiWriteDevice(ssrt);
-		 * setRouteIndividualDevices(true); } } else {
-		 * midiDeviceRouting.disconnectDevice(ssrt);
-		 * 
-		 * if (routeIndividualDevices) {
-		 * midiDeviceRouting.removeMidiReadDevice(ssrt);
-		 * midiDeviceRouting.removeMidiWriteDevice(ssrt); } } }
-		 */
 
 		if (observable == hexFileUploadDeviceManager) {
 
@@ -450,30 +514,35 @@ public class MIOSStudio implements Observer {
 				midiDeviceRouting.connectDevices(miosStudioInPort, hutd);
 				midiDeviceRouting.connectDevices(hutd, miosStudioOutPort);
 
-				if (routeIndividualDevices) {
-					midiDeviceRouting.addMidiReadDevice(hutd);
-					midiDeviceRouting.addMidiWriteDevice(hutd);
-					setRouteIndividualDevices(true);
-				}
-
 			} else {
 				midiDeviceRouting.disconnectDevice(hutd);
-
-				if (routeIndividualDevices) {
-					midiDeviceRouting.removeMidiReadDevice(hutd);
-					midiDeviceRouting.removeMidiWriteDevice(hutd);
-				}
 			}
+
+			setRouteIndividualDevices(routeIndividualDevices);
 		}
 
-		if (object == "Edit") {
+		if (observable == midiDeviceManager) {
 
-			boolean portsReleased = midiDeviceRouting.getPortsReleased();
+			MidiDevice midiDevice = (MidiDevice) object;
 
-			if (!portsReleased) {
-				midiDeviceRouting.setPortsReleased(true);
-				midiDeviceRouting.setPortsReleased(false);
+			if (!midiDeviceManager.getSelectedMidiReadDevices().contains(midiDevice)
+					&& !midiDeviceManager.getSelectedMidiWriteDevices().contains(
+							midiDevice)) {
+				midiDeviceRouting.disconnectDevice(midiDevice);
 			}
+
+			setRouteIndividualDevices(routeIndividualDevices);
+		}
+
+		if (observable == midiFilterManager) {
+
+			MidiDevice midiFilter = (MidiDevice) object;
+
+			if (!midiFilterManager.getMidiFilterDevices().contains(midiFilter)) {
+				midiDeviceRouting.disconnectDevice(midiFilter);
+			}
+
+			setRouteIndividualDevices(routeIndividualDevices);
 		}
 	}
 }

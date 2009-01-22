@@ -20,10 +20,13 @@
 
 package org.midibox.apps.virtualkeyboard;
 
+import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;
 import org.midibox.midi.MidiKeyboardControllerDevice;
 
 public class VirtualKeyboard {
+	
+	private MidiDeviceManager midiDeviceManager;
 
 	private MidiDeviceRouting midiDeviceRouting;
 
@@ -38,7 +41,13 @@ public class VirtualKeyboard {
 
 		midiDeviceRouting.addMidiWriteDevice(midiKeyboardControllerDevice);
 		midiDeviceRouting.addMidiReadDevice(midiKeyboardControllerDevice);
-		midiDeviceRouting.reorder();
+		
+		midiDeviceManager = new MidiDeviceManager();
+		
+		midiDeviceManager.rescanDevices();
+		
+		midiDeviceRouting.addMidiReadDevices(midiDeviceManager.getSelectedMidiReadDevices());
+		midiDeviceRouting.addMidiWriteDevices(midiDeviceManager.getSelectedMidiWriteDevices());
 	}
 
 	public MidiDeviceRouting getMidiDeviceRouting() {
