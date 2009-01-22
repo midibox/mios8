@@ -97,9 +97,9 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	private MIOSStudioInternalFrame helpWindow;
 
 	private JDialog midiDeviceManagerDialog;
-	 
+
 	private JDialog midiFilterManagerDialog;
-	
+
 	protected MidiDeviceRoutingGUI midiDeviceRoutingGUI;
 
 	private MIOSStudioInternalFrame midiDeviceRoutingWindow;
@@ -453,12 +453,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	protected void createMIDIMenu() {
 		midiMenu = new JMenu("MIDI");
 		midiMenu.setMnemonic(KeyEvent.VK_M);
-		
+
 		JMenuItem menuItem = new JMenuItem("MIDI Devices");
 		menuItem.setActionCommand("midi_devices");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
-		
+
 		menuItem = new JMenuItem("MIDI Filters");
 		menuItem.setActionCommand("midi_filters");
 		menuItem.addActionListener(this);
@@ -678,19 +678,17 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		button.addActionListener(this);
 		button.setMargin(insets);
 		toolBar.add(button);
-		
-		button = new JButton(ImageLoader
-				.getImageIcon("filter.png"));
+
+		button = new JButton(ImageLoader.getImageIcon("filter.png"));
 		button.setToolTipText("MIDI Filters");
 		button.setActionCommand("midi_filters");
 		button.addActionListener(this);
 		button.setMargin(insets);
 		toolBar.add(button);
-		
+
 		toolBar.addSeparator();
-		
-		button = new JButton(ImageLoader
-				.getImageIcon("midiRouting.png"));
+
+		button = new JButton(ImageLoader.getImageIcon("midiRouting.png"));
 		button.setToolTipText("MIDI Device Routing");
 		button.setActionCommand("midi_routing");
 		button.addActionListener(this);
@@ -820,7 +818,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			final MidiFilterGUI midiFilterGUI = new MidiFilterGUI(miosStudio
 					.getMidiThruFilterDevice().getMidiFilter());
 
-			thruFilterProperties = new JDialog(DialogOwner.getFrame(), "MIDI Thru Filter", false);
+			thruFilterProperties = new JDialog(DialogOwner.getFrame(),
+					"MIDI Thru Filter", false);
 			thruFilterProperties.setContentPane(midiFilterGUI);
 			thruFilterProperties.pack();
 			thruFilterProperties.setLocationRelativeTo(this);
@@ -893,73 +892,72 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		}
 	}
 
- 	private void showMidiDeviceManagerDialog() {
- 		if (midiDeviceManagerDialog == null) {
- 			final MidiDeviceManagerGUI midiDeviceManagerGUI = new MidiDeviceManagerGUI(
- 					miosStudio.getMidiDeviceManager());
- 
- 			midiDeviceManagerDialog = new JDialog(DialogOwner.getFrame(),
- 					"MIDI Devices", false);
- 			midiDeviceManagerDialog.setContentPane(midiDeviceManagerGUI);
- 			midiDeviceManagerDialog.pack();
- 			midiDeviceManagerDialog.setLocationRelativeTo(this);
- 			midiDeviceManagerDialog.setVisible(true);
- 
- 			midiDeviceManagerDialog.addWindowListener(new WindowAdapter() {
- 				public void windowClosing(WindowEvent we) {
- 					miosStudio.getMidiDeviceManager().deleteObserver(
- 							midiDeviceManagerGUI);
- 					midiDeviceManagerDialog = null;
- 				}
- 			});
- 		}
- 		midiDeviceManagerDialog.requestFocus();
- 	}
- 
- 	private void showMidiFilterManagerDialog() {
- 		if (midiFilterManagerDialog == null) {
- 			final MidiFilterDeviceManagerGUI midiFilterManagerGUI = new MidiFilterDeviceManagerGUI(
- 					miosStudio.getMidiFilterManager());
- 
- 			midiFilterManagerDialog = new JDialog(DialogOwner.getFrame(),
- 					"Filters", false);
- 			midiFilterManagerDialog.setContentPane(midiFilterManagerGUI);
- 			midiFilterManagerDialog.pack();
- 			midiFilterManagerDialog.setLocationRelativeTo(this);
- 			midiFilterManagerDialog.setVisible(true);
- 
- 			midiFilterManagerDialog.addWindowListener(new WindowAdapter() {
- 				public void windowClosing(WindowEvent we) {
- 					miosStudio.getMidiFilterManager().deleteObserver(
- 							midiFilterManagerGUI);
- 					midiFilterManagerDialog = null;
- 				}
- 			});
- 		}
- 		midiFilterManagerDialog.requestFocus();
- 	}
- 	
- 	/*
- 	 * private void showMapManagerDialog() { if (midiMapManagerDialog == null) {
- 	 * final MidiMapDeviceManagerGUI midiMapManagerGUI = new
- 	 * MidiMapDeviceManagerGUI( midiDeviceRouting.getMidiMapManager());
- 	 * 
- 	 * midiMapManagerDialog = new JDialog();
- 	 * midiMapManagerDialog.setModal(false);
- 	 * midiMapManagerDialog.setTitle("Maps");
- 	 * midiMapManagerDialog.setContentPane(midiMapManagerGUI);
- 	 * midiMapManagerDialog.pack();
- 	 * midiMapManagerDialog.setLocationRelativeTo(this);
- 	 * midiMapManagerDialog.setVisible(true);
- 	 * 
- 	 * midiMapManagerDialog.addWindowListener(new WindowAdapter() { public void
- 	 * windowClosing(WindowEvent we) {
- 	 * midiDeviceRouting.getMidiMapManager().deleteObserver( midiMapManagerGUI);
- 	 * midiMapManagerDialog = null; } }); } midiMapManagerDialog.requestFocus();
- 	 * }
- 	 */
+	private void showMidiDeviceManagerDialog() {
+		if (midiDeviceManagerDialog == null) {
+			final MidiDeviceManagerGUI midiDeviceManagerGUI = new MidiDeviceManagerGUI(
+					miosStudio.getMidiDeviceManager());
 
-	
+			midiDeviceManagerDialog = new JDialog(DialogOwner.getFrame(),
+					"MIDI Devices", false);
+			midiDeviceManagerDialog.setContentPane(midiDeviceManagerGUI);
+			midiDeviceManagerDialog.pack();
+			midiDeviceManagerDialog.setLocationRelativeTo(this);
+			midiDeviceManagerDialog.setVisible(true);
+
+			midiDeviceManagerDialog.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent we) {
+					miosStudio.getMidiDeviceManager().deleteObserver(
+							midiDeviceManagerGUI);
+					midiDeviceManagerDialog = null;
+				}
+			});
+		}
+		midiDeviceManagerDialog.requestFocus();
+	}
+
+	private void showMidiFilterManagerDialog() {
+		if (midiFilterManagerDialog == null) {
+			final MidiFilterDeviceManagerGUI midiFilterManagerGUI = new MidiFilterDeviceManagerGUI(
+					miosStudio.getMidiFilterManager());
+
+			midiFilterManagerDialog = new JDialog(DialogOwner.getFrame(),
+					"Filters", false);
+			midiFilterManagerDialog.setContentPane(midiFilterManagerGUI);
+			midiFilterManagerDialog.pack();
+			midiFilterManagerDialog.setLocationRelativeTo(this);
+			midiFilterManagerDialog.setVisible(true);
+
+			midiFilterManagerDialog.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent we) {
+					miosStudio.getMidiFilterManager().deleteObserver(
+							midiFilterManagerGUI);
+					midiFilterManagerDialog = null;
+				}
+			});
+		}
+		midiFilterManagerDialog.requestFocus();
+	}
+
+	/*
+	 * private void showMapManagerDialog() { if (midiMapManagerDialog == null) {
+	 * final MidiMapDeviceManagerGUI midiMapManagerGUI = new
+	 * MidiMapDeviceManagerGUI( midiDeviceRouting.getMidiMapManager());
+	 * 
+	 * midiMapManagerDialog = new JDialog();
+	 * midiMapManagerDialog.setModal(false);
+	 * midiMapManagerDialog.setTitle("Maps");
+	 * midiMapManagerDialog.setContentPane(midiMapManagerGUI);
+	 * midiMapManagerDialog.pack();
+	 * midiMapManagerDialog.setLocationRelativeTo(this);
+	 * midiMapManagerDialog.setVisible(true);
+	 * 
+	 * midiMapManagerDialog.addWindowListener(new WindowAdapter() { public void
+	 * windowClosing(WindowEvent we) {
+	 * midiDeviceRouting.getMidiMapManager().deleteObserver( midiMapManagerGUI);
+	 * midiMapManagerDialog = null; } }); } midiMapManagerDialog.requestFocus();
+	 * }
+	 */
+
 	private void buildLookAndFeel() {
 
 		JCheckBoxMenuItem item;
@@ -1125,11 +1123,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		if (ae.getActionCommand().equals("midi_devices")) {
 			showMidiDeviceManagerDialog();
-			
+
 		} else if (ae.getActionCommand().equals("midi_filters")) {
 			showMidiFilterManagerDialog();
-			
-		}else if (ae.getActionCommand().equals("midi_routing")) {
+
+		} else if (ae.getActionCommand().equals("midi_routing")) {
 			showFrame(midiDeviceRoutingWindow);
 
 		} else if (ae.getActionCommand().equals("midi_out_port_monitor")) {
@@ -1280,10 +1278,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		public ExternalButtonProperties(
 				ExternalCommandButton externalCommandButton) {
-			
+
 			super(DialogOwner.getFrame(), "External Command Button "
-					+ (externalCommands.indexOf(externalCommandButton) + 1), false);
-			
+					+ (externalCommands.indexOf(externalCommandButton) + 1),
+					false);
+
 			this.externalCommandButton = externalCommandButton;
 
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

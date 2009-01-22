@@ -45,9 +45,10 @@ import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SplashScreen;
 
 /**
- * Driver class for launching MIOS Studio application. MIOS Studio can be launched as an application or embedded in a a web page as an applet.
- * When launched as an application, the app shows a splash screen and is launched within its own frame.
- * Preferences are saved and restored from this class.
+ * Driver class for launching MIOS Studio application. MIOS Studio can be
+ * launched as an application or embedded in a a web page as an applet. When
+ * launched as an application, the app shows a splash screen and is launched
+ * within its own frame. Preferences are saved and restored from this class.
  * 
  * @author Adam King (adamjking@optusnet.com.au)
  */

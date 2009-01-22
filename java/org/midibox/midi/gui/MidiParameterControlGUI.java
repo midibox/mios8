@@ -174,7 +174,8 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 			final MidiParameterControlProperties midiParameterProperties = new MidiParameterControlProperties(
 					getMidiParameterControl());
 
-			midiParameterPropertiesDialog = new JDialog(DialogOwner.getFrame(), "MIDI Properties", false);
+			midiParameterPropertiesDialog = new JDialog(DialogOwner.getFrame(),
+					"MIDI Properties", false);
 			midiParameterPropertiesDialog
 					.setContentPane(midiParameterProperties);
 			midiParameterPropertiesDialog.pack();

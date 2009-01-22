@@ -193,7 +193,8 @@ public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
 			final MidiFilterGUI midiFilterGUI = new MidiFilterGUI(
 					midiMonitorFiltered.getMidiFilter());
 
-			filterDialog = new JDialog(DialogOwner.getFrame(), "MIDI Filter Properties", false);
+			filterDialog = new JDialog(DialogOwner.getFrame(),
+					"MIDI Filter Properties", false);
 			filterDialog.setContentPane(midiFilterGUI);
 			filterDialog.pack();
 			filterDialog.setLocationRelativeTo(this);

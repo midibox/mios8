@@ -41,11 +41,11 @@ public class MIOSStudioSID extends org.midibox.apps.miosstudio.MIOSStudio {
 		midiDeviceRouting.connectDevices(sidv2librarian
 				.getSysExControllerDevice(), miosStudioOutPort);
 	}
-	
+
 	public void update(Observable observable, Object object) {
-		
+
 		super.update(observable, object);
-		
+
 		if (object == "Edit") {
 
 			boolean portsReleased = midiDeviceRouting.getPortsReleased();

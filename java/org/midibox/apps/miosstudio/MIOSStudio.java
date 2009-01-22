@@ -525,9 +525,10 @@ public class MIOSStudio implements Observer {
 
 			MidiDevice midiDevice = (MidiDevice) object;
 
-			if (!midiDeviceManager.getSelectedMidiReadDevices().contains(midiDevice)
-					&& !midiDeviceManager.getSelectedMidiWriteDevices().contains(
-							midiDevice)) {
+			if (!midiDeviceManager.getSelectedMidiReadDevices().contains(
+					midiDevice)
+					&& !midiDeviceManager.getSelectedMidiWriteDevices()
+							.contains(midiDevice)) {
 				midiDeviceRouting.disconnectDevice(midiDevice);
 			}
 

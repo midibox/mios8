@@ -36,7 +36,7 @@ public class SIDV2librarian {
 	private MidiDevice localMidiDevice;
 	private MidiDevice inputMidiDevice;
 	private MidiDevice outputMidiDevice;
-	
+
 	private MidiDeviceManager midiDeviceManager;
 
 	public SIDV2librarian() {
@@ -44,10 +44,11 @@ public class SIDV2librarian {
 		this(new MidiDeviceManager(), new MidiDeviceRouting());
 	}
 
-	public SIDV2librarian(MidiDeviceManager midiDeviceManager, MidiDeviceRouting midiDeviceRouting) {
+	public SIDV2librarian(MidiDeviceManager midiDeviceManager,
+			MidiDeviceRouting midiDeviceRouting) {
 
 		this.midiDeviceManager = midiDeviceManager;
-		
+
 		this.midiDeviceRouting = midiDeviceRouting;
 
 		sysexControllerDevice = new SysExControllerDevice(
@@ -60,8 +61,10 @@ public class SIDV2librarian {
 
 		if (midiDeviceRouting != null) {
 			midiDeviceManager.rescanDevices();
-			midiDeviceRouting.addMidiReadDevices(midiDeviceManager.getSelectedMidiReadDevices());
-			midiDeviceRouting.addMidiWriteDevices(midiDeviceManager.getSelectedMidiWriteDevices());
+			midiDeviceRouting.addMidiReadDevices(midiDeviceManager
+					.getSelectedMidiReadDevices());
+			midiDeviceRouting.addMidiWriteDevices(midiDeviceManager
+					.getSelectedMidiWriteDevices());
 		}
 	}
 

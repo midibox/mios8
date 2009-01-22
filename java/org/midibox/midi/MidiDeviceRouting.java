@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
-import java.util.Observer;
 import java.util.Vector;
 
 import javax.sound.midi.MidiDevice;
@@ -400,7 +399,6 @@ public class MidiDeviceRouting extends Observable {
 
 		return DISCONNECTED;
 	}
-
 
 	public static class LogicalConnection {
 
