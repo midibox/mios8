@@ -786,10 +786,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			final MidiFilterGUI midiFilterGUI = new MidiFilterGUI(miosStudio
 					.getMidiThruFilterDevice().getMidiFilter());
 
-			thruFilterProperties = new JDialog();
+			thruFilterProperties = new JDialog(DialogOwner.getFrame(), "MIDI Thru Filter", false);
 			thruFilterProperties.setContentPane(midiFilterGUI);
-			thruFilterProperties.setModal(false);
-			thruFilterProperties.setTitle("MIDI Thru Filter");
 			thruFilterProperties.pack();
 			thruFilterProperties.setLocationRelativeTo(this);
 			thruFilterProperties.setVisible(true);

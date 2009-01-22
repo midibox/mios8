@@ -50,6 +50,7 @@ import javax.swing.text.StyledDocument;
 
 import org.midibox.midi.MidiMessageReceived;
 import org.midibox.midi.MidiMonitorFiltered;
+import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 
 public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
@@ -192,10 +193,8 @@ public class MidiMonitorFilteredGUI extends JPanel implements ActionListener,
 			final MidiFilterGUI midiFilterGUI = new MidiFilterGUI(
 					midiMonitorFiltered.getMidiFilter());
 
-			filterDialog = new JDialog();
+			filterDialog = new JDialog(DialogOwner.getFrame(), "MIDI Filter Properties", false);
 			filterDialog.setContentPane(midiFilterGUI);
-			filterDialog.setModal(false);
-			filterDialog.setTitle("MIDI Filter Properties");
 			filterDialog.pack();
 			filterDialog.setLocationRelativeTo(this);
 			filterDialog.setVisible(true);
