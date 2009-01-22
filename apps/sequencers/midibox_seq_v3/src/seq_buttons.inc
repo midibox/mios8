@@ -1278,6 +1278,17 @@ SEQ_BUTTON_Utility
 ;;  Copy button
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Copy
+	;; if in mixer page:
+	movf	CS_MENU_POS, W
+	xorlw	CS_MENU_PAGE_MIXER
+	bnz	SEQ_BUTTON_Copy_Normal
+SEQ_BUTTON_Copy_Mixer
+	;; branch to copy function of MIXER page if button pressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+	goto	CS_M_MIXER_CopyMap
+
+SEQ_BUTTON_Copy_Normal
 	;; branch to copy function of UTIL page
 	goto	CS_M_UTILS_CopyViaButton
 
@@ -1286,6 +1297,17 @@ SEQ_BUTTON_Copy
 ;;  Paste button
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Paste
+	;; if in mixer page:
+	movf	CS_MENU_POS, W
+	xorlw	CS_MENU_PAGE_MIXER
+	bnz	SEQ_BUTTON_Paste_Normal
+SEQ_BUTTON_Paste_Mixer
+	;; branch to paste function of MIXER page if button pressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+	goto	CS_M_MIXER_PasteMap
+
+SEQ_BUTTON_Paste_Normal
 	;; branch to paste function of UTIL page
 	goto	CS_M_UTILS_PasteViaButton
 
@@ -1294,6 +1316,17 @@ SEQ_BUTTON_Paste
 ;;  Clear button
 ;; --------------------------------------------------------------------------
 SEQ_BUTTON_Clear
+	;; if in mixer page:
+	movf	CS_MENU_POS, W
+	xorlw	CS_MENU_PAGE_MIXER
+	bnz	SEQ_BUTTON_Clear_Normal
+SEQ_BUTTON_Clear_Mixer
+	;; branch to paste function of MIXER page if button pressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+	goto	CS_M_MIXER_ClearMap
+
+SEQ_BUTTON_Clear_Normal
 	;; branch to clear function of UTIL page
 	goto	CS_M_UTILS_ClearViaButton
 
