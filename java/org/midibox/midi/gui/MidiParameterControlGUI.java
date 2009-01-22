@@ -42,6 +42,7 @@ import javax.swing.SwingConstants;
 
 import org.midibox.midi.MidiParameter;
 import org.midibox.midi.MidiParameterControl;
+import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.FontLoader;
 
 public class MidiParameterControlGUI extends JPanel implements Observer,
@@ -173,11 +174,9 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 			final MidiParameterControlProperties midiParameterProperties = new MidiParameterControlProperties(
 					getMidiParameterControl());
 
-			midiParameterPropertiesDialog = new JDialog();
+			midiParameterPropertiesDialog = new JDialog(DialogOwner.getFrame(), "MIDI Properties", false);
 			midiParameterPropertiesDialog
 					.setContentPane(midiParameterProperties);
-			midiParameterPropertiesDialog.setModal(false);
-			midiParameterPropertiesDialog.setTitle("MIDI Properties");
 			midiParameterPropertiesDialog.pack();
 			midiParameterPropertiesDialog.setLocationRelativeTo(this);
 			midiParameterPropertiesDialog.setVisible(true);

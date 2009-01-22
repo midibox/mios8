@@ -78,6 +78,7 @@ import org.midibox.mios.gui.DebugFunctionGUI;
 import org.midibox.mios.gui.HexFileUploadDeviceManagerGUI;
 import org.midibox.mios.gui.LCDMessageGUI;
 import org.midibox.utils.ResourceLoader;
+import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.FontLoader;
 import org.midibox.utils.gui.HelpPane;
 import org.midibox.utils.gui.ImageLoader;
@@ -546,7 +547,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		optionsMenu.addSeparator();
 		JMenu thruMenu = new JMenu("MIDI Thru");
 
-		midiThruMenuItem = new JCheckBoxMenuItem("Enable MIDI Thru");
+		midiThruMenuItem = new JCheckBoxMenuItem("Send MIDI Thru via Out Port");
 		midiThruMenuItem.setActionCommand("midi_thru");
 		midiThruMenuItem.addActionListener(this);
 		thruMenu.add(midiThruMenuItem);
@@ -1048,6 +1049,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			showFrame(miosTerminalWindow);
 
 		} else if (ae.getActionCommand().equals("route_internal")) {
+			showFrame(midiDeviceRoutingWindow);
 			miosStudio.setRouteIndividualDevices(showInternalMenuItem
 					.isSelected());
 
@@ -1058,7 +1060,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			showMidiThruFilter();
 
 		} else if (ae.getActionCommand().equals("midi_thru")) {
-			miosStudio.setMidiThru(midiThruMenuItem.isSelected());
+			miosStudio.setMidiThruOutPort(midiThruMenuItem.isSelected());
 
 		} else if (ae.getActionCommand().equals("help_window")) {
 			showFrame(helpWindow);
@@ -1173,11 +1175,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		public ExternalButtonProperties(
 				ExternalCommandButton externalCommandButton) {
-			super();
+			
+			super(DialogOwner.getFrame(), "External Command Button "
+					+ (externalCommands.indexOf(externalCommandButton) + 1), false);
+			
 			this.externalCommandButton = externalCommandButton;
-
-			setTitle("External Command Button "
-					+ (externalCommands.indexOf(externalCommandButton) + 1));
 
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 

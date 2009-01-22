@@ -61,9 +61,8 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer,
 			core3Button, core4Button;
 
 	public MBSIDV2EditorGUI(Frame owner, boolean modal) {
-		super(owner, modal);
+		super(owner, "MidiBox SID V2 Editor - no patch selected", modal);
 
-		setTitle("MidiBox SID V2 Editor - no patch selected");
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setResizable(false);
 		setLayout(new BorderLayout());

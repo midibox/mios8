@@ -41,6 +41,8 @@ public class MIOSStudio implements Observer {
 	protected MidiDeviceRouting midiDeviceRouting;
 
 	protected MidiRouterDevice miosStudioInPort;
+	
+	protected MidiRouterDevice miosStudioThruPort;
 
 	protected MidiFilterDevice midiThruFilterDevice;
 
@@ -88,13 +90,11 @@ public class MIOSStudio implements Observer {
 
 	private boolean routeIndividualDevices;
 
-	private boolean midiThru;
+	private boolean midiThruOutPort = false;
 
 	public MIOSStudio() {
 
 		createDevices();
-
-		midiThru = false;
 
 		setRouteIndividualDevices(false);
 
@@ -108,6 +108,8 @@ public class MIOSStudio implements Observer {
 		miosStudioInPort = new MidiRouterDevice("MIOS Studio In Port");
 
 		miosStudioOutPort = new MidiRouterDevice("MIOS Studio Out Port");
+
+		miosStudioThruPort = new MidiRouterDevice("MIOS Studio Thru Port");
 
 		midiThruFilterDevice = new MidiFilterDevice("MIOS Studio Thru Filter");
 
@@ -222,34 +224,45 @@ public class MIOSStudio implements Observer {
 		return miosTerminalDevice;
 	}
 
-	public boolean isMidiThru() {
-		return midiThru;
+	public boolean isMidiThruOutPort() {
+		return midiThruOutPort;
 	}
 
-	public void setMidiThru(boolean midiThru) {
-		this.midiThru = midiThru;
+	public void setMidiThruOutPort(boolean midiThru) {
+		this.midiThruOutPort = midiThru;
 
+		midiDeviceRouting.connectDevices(miosStudioInPort,
+				midiThruFilterDevice);
+		
 		if (midiThru) {
-			midiDeviceRouting.connectDevices(miosStudioInPort,
-					midiThruFilterDevice);
+
 			/*
 			 * midiDeviceRouting.connectDevices(midiThruFilterDevice,
 			 * midiThruMapDevice);
 			 */
 
+			midiDeviceRouting.disconnectDevice(miosStudioThruPort);
+			
+			midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
+					miosStudioThruPort);		
+
 			midiDeviceRouting.connectDevices(midiThruFilterDevice,
 					miosStudioOutPort);
 		} else {
-			midiDeviceRouting.disconnectDevices(miosStudioInPort,
-					midiThruFilterDevice);
+			
 			/*
 			 * midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
 			 * midiThruMapDevice);
 			 */
-
+			
 			midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
-					miosStudioOutPort);
+					miosStudioOutPort);			
+			
+			midiDeviceRouting.connectDevices(midiThruFilterDevice,
+					miosStudioThruPort);
 		}
+		
+		setRouteIndividualDevices(routeIndividualDevices);
 	}
 
 	public MidiRouterDevice getMiosStudioInPort() {
@@ -287,6 +300,10 @@ public class MIOSStudio implements Observer {
 		} else {
 			midiDeviceRouting.addMidiWriteDevice(miosStudioInPort);
 			midiDeviceRouting.addMidiReadDevice(miosStudioOutPort);
+			
+			if (!midiThruOutPort) {
+				midiDeviceRouting.addMidiReadDevice(miosStudioThruPort);
+			}
 		}
 
 		// get midiDeviceRouting to add physical, virtual, filters and maps
@@ -305,7 +322,12 @@ public class MIOSStudio implements Observer {
 		 * midiDeviceRouting.addMidiWriteDevice(midiThruMapDevice);
 		 * midiDeviceRouting.addMidiReadDevice(midiThruMapDevice);
 		 */
-
+		
+		if (!midiThruOutPort) {
+			
+			midiDeviceRouting.addMidiWriteDevice(miosStudioThruPort);
+			midiDeviceRouting.addMidiReadDevice(miosStudioThruPort);
+		}
 		midiDeviceRouting.addMidiWriteDevice(miosStudioOutPort);
 		midiDeviceRouting.addMidiReadDevice(miosStudioOutPort);
 
@@ -347,6 +369,8 @@ public class MIOSStudio implements Observer {
 
 	public void connectDevices() {
 
+		setMidiThruOutPort(midiThruOutPort);
+		
 		midiDeviceRouting.connectDevices(miosStudioInPort,
 				midiInPortMonitorDevice);
 
@@ -359,9 +383,7 @@ public class MIOSStudio implements Observer {
 		 * midiDeviceRouting.connectDevices(outVirtualMidiPortDevice,
 		 * outDumpReceiverDevice);
 		 */
-
-		setMidiThru(midiThru);
-
+		
 		midiDeviceRouting.connectDevices(miosStudioInPort,
 				midiKeyboardControllerDevice);
 		midiDeviceRouting.connectDevices(midiKeyboardControllerDevice,
