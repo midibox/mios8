@@ -388,6 +388,26 @@ CS_MENU_Exec_Menu
 	;; set CS_STAT_WITHIN_PAGE flag
 	bsf	CS_STAT, CS_STAT_WITHIN_PAGE
 
+
+	;; clear cursor pos
+	clrf	CS_MENU_CURSOR_POS
+	;; clear in-menu message
+	clrf	CS_IN_MENU_MSG
+
+
+	;; BEGIN DIRTY DIRTY DIRTY CODE
+	;; I don't really like this, but it's easier than doing a lot of changes in CS_M_SONG_*
+	;; set initial cursor position to 1 if in song page
+	;; please find a much more flexible and elegant menu handling in MBSEQ V4!
+	movf	CS_MENU_POS, W
+	xorlw	CS_MENU_PAGE_SONG
+	bnz	CS_MENU_Exec_NotSong
+CS_MENU_Exec_Song
+	movlw	1
+	movwf	CS_MENU_CURSOR_POS
+CS_MENU_Exec_NotSong
+	;; END DIRTY DIRTY DIRTY CODE
+
 CS_MENU_Exec_End
 	return
 
@@ -846,14 +866,11 @@ CS_MENU_ChangePage_Ok
 	;; init CS_STAT: within page, request re-init)
 	movlw	(1 << CS_STAT_DISPLAY_INIT_REQ) | (1 << CS_STAT_WITHIN_PAGE)
 	movwf	CS_STAT
-	;; clear cursor pos
-	clrf	CS_MENU_CURSOR_POS
 	;; init CS_MENU_POS
 	movff	CS_MENU_NEW_POS, CS_MENU_POS
-	;; clear in-menu message
-	clrf	CS_IN_MENU_MSG
-	;; thats all
-	return
+
+	;; continue here:
+	rgoto	CS_MENU_Exec_Menu
 
 
 ;; --------------------------------------------------------------------------

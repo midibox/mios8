@@ -75,6 +75,8 @@ SEQ_LED_Update_PatternSong
 
 	;; in Song Mode: also overlay layer LEDs
 	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_SONG, BANKED, SEQ_LED_Update_Edit_Cont
+	movlw	0x0f		; (don't display layer selection)
+	andwf	TMP1, F
 	movf	CS_MENU_CURSOR_POS, W
 	call	MIOS_HLP_GetBitORMask
 	swapf	WREG, W

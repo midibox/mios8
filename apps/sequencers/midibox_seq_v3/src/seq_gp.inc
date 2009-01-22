@@ -74,6 +74,9 @@ SEQ_GP_LED_Update
 	;; Menu button still selected? Branch to shortcut handler
 	GOTO_IFSET SEQ_MODE0, SEQ_MODE0_MENU_PRESSED, BANKED, CS_M_SHORTCUT_UpdateGPLEDs
 
+	;; skip if outside page
+	BRA_IFCLR CS_STAT, CS_STAT_WITHIN_PAGE, ACCESS, SEQ_GP_LED_Update_End
+
 	;; skip GP_LED hook if edit screen is temporary displayed
 	movf	CS_MENU_MESSAGE_CTR, W
 	bnz	SEQ_GP_LED_Update_NoHook
@@ -119,6 +122,8 @@ SEQ_GP_LED_Update_NoHook
 	call	CS_M_EDIT_UpdateGPLEDs
 	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
 	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
+
+SEQ_GP_LED_Update_End
 
 #if DEFAULT_SRM_ENABLED
 	;; update the 4x16 LED matrix
