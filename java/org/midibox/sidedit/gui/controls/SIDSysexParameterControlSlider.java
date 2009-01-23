@@ -49,10 +49,15 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.slider = slider;
 
-		// plastic looking fader, matches knobs
+		// plastic looking slider, matches knobs
 		slider.setUI(new FaderUI(ImageLoader
-				.getImageIcon("metalFader_horiz.png"), ImageLoader
-				.getImageIcon("plasticFader_vert.png"), false));
+				.getImageIcon("plasticSlider_horiz.png"), ImageLoader
+				.getImageIcon("plasticSlider_vert.png"), false));
+
+		// plastic looking fader, matches knobs
+		// slider.setUI(new FaderUI(ImageLoader
+		// .getImageIcon("plasticFader_horiz.png"), ImageLoader
+		// .getImageIcon("plasticFader_vert.png"), false));
 
 		// metal looking fader
 		// slider.setUI(new
