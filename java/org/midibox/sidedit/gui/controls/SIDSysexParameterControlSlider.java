@@ -32,6 +32,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.midibox.sidedit.SIDSysexParameterControl;
+import org.midibox.utils.gui.FaderUI;
+import org.midibox.utils.gui.ImageLoader;
 
 public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 		implements ChangeListener, MouseWheelListener {
@@ -46,6 +48,22 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 			boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.slider = slider;
+
+		// plastic looking fader, matches knobs
+		slider.setUI(new FaderUI(ImageLoader
+				.getImageIcon("metalFader_horiz.png"), ImageLoader
+				.getImageIcon("plasticFader_vert.png"), false));
+
+		// metal looking fader
+		// slider.setUI(new
+		// FaderUI(ImageLoader.getImageIcon("metalFader_horiz.png"),
+		// ImageLoader.getImageIcon("metalFader_vert.png"), false));
+
+		// metal looking fader, sunken
+		// slider.setUI(new
+		// FaderUI(ImageLoader.getImageIcon("metalFader_horiz.png"),
+		// ImageLoader.getImageIcon("metalFader_vert.png"), true));
+
 		slider.setMaximum(midiParameter.getMidiMaxValue()
 				- midiParameter.getMidiMinValue());
 		slider.setOpaque(false);
