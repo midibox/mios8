@@ -149,6 +149,7 @@ CS_MENU_MS_SendParameter_Slave
 ;; --------------------------------------------------------------------------
 ;;  An ensemble parameter should be sent
 ;;  IN: value in INDF0
+;;      SID in CS_MENU_SID
 ;;      pointer to edit parameter (SID_ENS_BUFFER + SID_ENSx_*) in FSR0
 ;; --------------------------------------------------------------------------
 CS_MENU_MS_SendEnsParameter
@@ -167,6 +168,31 @@ CS_MENU_MS_SendEnsParameter_S
 	movwf	MIOS_PARAMETER1		; address
 	movf	INDF0, W		; value in WREG
 	goto	CS_MENU_MBNET_Tx_SendEPar ; send parameter to slave
+
+
+;; --------------------------------------------------------------------------
+;;  An ensemble parameter should be sent to all SIDs
+;;  IN: value in INDF0
+;;      CS_MENU_SID *must* be 0 (master selected)
+;;      pointer to edit parameter (SID_ENS_BUFFER + SID_ENSx_*) in FSR0
+;; --------------------------------------------------------------------------
+CS_MENU_MS_SendEnsParameterToAll
+	;; only allowed for master (reason: we change this register, and have to restore it at the end)
+	movf	CS_MENU_SID, W
+	skpz
+	return
+
+	call	SID_ENS_Init_Local		; SID1
+	incf	CS_MENU_SID, F
+	rcall	CS_MENU_MS_SendEnsParameter_S	; SID2
+	incf	CS_MENU_SID, F
+	rcall	CS_MENU_MS_SendEnsParameter_S	; SID3
+	incf	CS_MENU_SID, F
+	rcall	CS_MENU_MS_SendEnsParameter_S	; SID4
+
+	;; restore CS_MENU_SID
+	clrf	CS_MENU_SID
+	return
 
 
 ;; --------------------------------------------------------------------------
@@ -649,52 +675,6 @@ CS_MENU_MS_SendPatch_TxTstN
 	incf	CS_MENU_SID, F		; loop 4 times
 	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL
 
-#if 1
-	;; workaround for super poly mode, where all SIDs must be in sync:
-	;; a) lock all slaves which got new patches
-	;; b) request voice queue re-initialisation
-	;; c) unlock all slaves
-
-	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
-	andlw	0x07
-	bz	CS_MENU_MS_SendPatch_TxTst_End ; master not in superpoly mode - no synch required
-
-	;; a) lock all slaves which got new patches
-	movlw	1
-	movwf	CS_MENU_SID
-CS_MENU_MS_SendPatch_TxTstL2
-	rcall	CS_MENU_MS_SendPatch_ChkRequest
-	bnz	CS_MENU_MS_SendPatch_TxTstN2
-	call	CS_MENU_MBNET_Tx_LockSlaveRx	; lock slave
-CS_MENU_MS_SendPatch_TxTstN2
-	incf	CS_MENU_SID, F
-	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL2
-
-	;; b) request voice queue re-initialisation
-	movlw	1
-	movwf	CS_MENU_SID
-CS_MENU_MS_SendPatch_TxTstL3
-	rcall	CS_MENU_MS_SendPatch_ChkRequest
-	bnz	CS_MENU_MS_SendPatch_TxTstN3
-	call	CS_MENU_MBNET_Tx_SP_ReInit
-CS_MENU_MS_SendPatch_TxTstN3
-	incf	CS_MENU_SID, F
-	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL3
-
-	;; c) unlock all slaves
-	movlw	1
-	movwf	CS_MENU_SID
-CS_MENU_MS_SendPatch_TxTstL4
-	rcall	CS_MENU_MS_SendPatch_ChkRequest
-	bnz	CS_MENU_MS_SendPatch_TxTstN4
-	bcf	INDF1, 7	; finally remove request!
-	call	CS_MENU_MBNET_Tx_UnlockSlaveRx ; unlock slave
-CS_MENU_MS_SendPatch_TxTstN4
-	incf	CS_MENU_SID, F
-	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_MS_SendPatch_TxTstL4
-
-#endif
-
 CS_MENU_MS_SendPatch_TxTst_End
 	return
 
@@ -733,7 +713,27 @@ CS_MENU_MS_SendPatch_ChkRequestN
 CS_MENU_MS_PlayNote
 	movwf	CS_MENU_SID
 
+	;; if master is running in superpoly mode: play chord on all SIDs
+	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
+	andlw	0x07
+	bz	CS_MENU_MS_PlayNote_NoSuperPoly
+CS_MENU_MS_PlayNote_SuperPoly
+	;; toggle play state of all SIDs
+	BRA_IFSET CS_STAT2, CS_STAT2_PLAY_SID1, ACCESS, CS_MENU_MS_PlayNote_SuperPoly1
+CS_MENU_MS_PlayNote_SuperPoly0
+	movlw	0xf0
+	iorwf	CS_STAT2, F
+	goto	SID_PATCH_NotesOn ; will handle all SIDs
+
+CS_MENU_MS_PlayNote_SuperPoly1
+	movlw	0x0f
+	andwf	CS_STAT2, F
+	goto	SID_PATCH_NotesOff ; will handle all SIDs
+
+	
+CS_MENU_MS_PlayNote_NoSuperPoly
 	;; toggle play state which is stored in CS_STAT2
+	movf	CS_MENU_SID, W
 	call	MIOS_HLP_GetBitORMask
 	swapf	WREG, W
 	andlw	0xf0
@@ -806,19 +806,3 @@ CS_MENU_MS_VoiceReInit_Master
 CS_MENU_MS_VoiceReInit_Slave
 	;; request notes off via CAN
 	goto	CS_MENU_MBNET_Tx_VoiceReInit
-
-;; --------------------------------------------------------------------------
-;;  Superpoly Reinit command
-;; --------------------------------------------------------------------------
-CS_MENU_MS_SP_ReInit
-	;; branch depending on selected SID
-	movf	CS_MENU_SID, W
-	bnz	CS_MENU_MS_SP_ReInit_Slave
-
-CS_MENU_MS_SP_ReInit_Master
-	;; use local routine
-	goto	SID_VOICE_SP_ReInit
-
-CS_MENU_MS_SP_ReInit_Slave
-	;; request notes off via CAN
-	goto	CS_MENU_MBNET_Tx_SP_ReInit

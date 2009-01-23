@@ -45,7 +45,7 @@ SID_MBNET_RxSpecial
 	addlw	-1
 	bz	SID_MBNET_RxSpecial_VINI	; ETOS=26 -> Voice ReInit
 	addlw	-1
-	bz	SID_MBNET_RxSpecial_SPINI	; ETOS=27 -> Superpoly ReInit
+	bz	SID_MBNET_RxSpecial_SPNOTE	; ETOS=27 -> Superpoly Note
 	addlw	-1
 	bz	SID_MBNET_RxSpecial_TMPBNK0	; ETOS=28 -> Write Bank 0 (temporary!)
 	retlw	MBNET_ACK_TOS_ERROR		; all others: error
@@ -151,10 +151,10 @@ SID_MBNET_RxSpecial_IE
 	retlw	MBNET_ACK_TOS_OK
 
 SID_MBNET_RxSpecial_NON
-	;; error if != 4 byte received
+	;; error if != 2 byte received
 	movlw	2
 	cpfseq	MBNET_LOOP_CTR, BANKED
-	retlw MBNET_ACK_TOS_ERROR
+	retlw	MBNET_ACK_TOS_ERROR
 	;; received instrument and selected SID number
 	movlw	RXB0D0 & 0xf
 	movff	PLUSW1, CS_MENU_SELECTED_INS
@@ -172,8 +172,32 @@ SID_MBNET_RxSpecial_VINI
 	call	SID_VOICE_ReInit
 	retlw	MBNET_ACK_TOS_OK
 
-SID_MBNET_RxSpecial_SPINI
-	call	SID_VOICE_SP_ReInit
+SID_MBNET_RxSpecial_SPNOTE
+	;; error if != 2 byte received
+	movlw	2
+	cpfseq	MBNET_LOOP_CTR, BANKED
+	retlw	MBNET_ACK_TOS_ERROR
+	;; received note and velocity
+	movlw	RXB0D0 & 0xf
+	movff	PLUSW1, SID_MIDI_PARAMETER1
+	movlw	RXB0D1 & 0xf
+	movff	PLUSW1, SID_MIDI_PARAMETER2
+	;; exit if lead engine not selected
+	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
+	andlw	0x03
+	bnz	SID_MBNET_RxSpecial_SPNOTE_End
+	;; branch depending on velocity
+	IRQ_DISABLE		; required to stall SID engine
+	SET_BSR	SID_BASE
+	movf	SID_MIDI_PARAMETER2, W, BANKED
+	bz	SID_MBNET_RxSpecial_SPNOTEOff
+SID_MBNET_RxSpecial_SPNOTEOn
+	call	SID_MIDI_L_NoteOn_Direct
+	rgoto	SID_MBNET_RxSpecial_SPNOTE_End
+SID_MBNET_RxSpecial_SPNOTEOff
+	call	SID_MIDI_L_NoteOff_Direct
+SID_MBNET_RxSpecial_SPNOTE_End
+	IRQ_ENABLE
 	retlw	MBNET_ACK_TOS_OK
 
 SID_MBNET_RxSpecial_TMPBNK0

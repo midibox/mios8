@@ -226,6 +226,12 @@ SID_PATCH_Init_NoLFORnd
 ;;      variables have to be set from there!
 ;; --------------------------------------------------------------------------
 SID_PATCH_NotesOn
+#if 0
+	;; turn off all notes
+	rcall	SID_PATCH_NotesOff
+	;; leads to unwanted effects depending on ADSR settings
+#endif
+
 	;; branch depending on engine
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
 	BRA_IFSET WREG, 1, ACCESS, SID_PATCH_NotesOn_DM
@@ -344,8 +350,34 @@ SID_PATCH_NotesOn_Hlp_Cont
 	;; forward MIDI event
 	call	SID_MIDI_NotifyReceivedEvent
 
+	;; if master and super poly mode selected: send note on with incrementing note to all slaves
+	movf	SID_MIDI_DEVICE, W
+	bnz	SID_PATCH_NotesOn_NoMaster
+SID_PATCH_NotesOn_Master
+	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
+	andlw	0x07
+	bz	SID_PATCH_NotesOn_NoSP
+	movlw	0x40		; E-4
+	rcall	SID_PATCH_NotesOn_Master_SP_Hlp
+	movlw	0x43		; G-4
+	rcall	SID_PATCH_NotesOn_Master_SP_Hlp
+	movlw	0x48		; C-5
+	rcall	SID_PATCH_NotesOn_Master_SP_Hlp
+SID_PATCH_NotesOn_NoSP
+SID_PATCH_NotesOn_NoMaster
+
 SID_PATCH_NotesOn_Hlp_End
 	return
+
+
+SID_PATCH_NotesOn_Master_SP_Hlp
+	movwf	MIOS_PARAMETER2	; store note number
+	movff	SID_CURRENT_CHANNEL, WREG
+	iorlw	0x90
+	movwf	MIOS_PARAMETER1	; note event at given channel
+	movlw	0x40
+	movwf	MIOS_PARAMETER3	; mid velocity
+	goto	SID_MIDI_NotifyReceivedEvent
 
 
 ;; --------------------------------------------------------------------------
@@ -416,7 +448,27 @@ SID_PATCH_NotesOff_ClearMVLoopI
 	bcf	SID_SEQ2_BASE + SID_SEQx_MISC, SID_SEQ_MISC_SEQ_RUNNING, BANKED
 	SET_BSR	SID_BASE
 
+	;; clear voice queue
+	call	SID_VOICE_Init
+	
 	IRQ_ENABLE
+
+	;; if master and super poly mode selected: send note off to all slaves
+	movf	SID_MIDI_DEVICE, W
+	bnz	SID_PATCH_NotesOff_NoMaster
+SID_PATCH_NotesOff_Master
+	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
+	andlw	0x07
+	bz	SID_PATCH_NotesOff_NoSP
+	movlw	0x01
+	movwf	CS_MENU_SID
+	call	CS_MENU_MS_NotesOff ; SID1
+	incf	CS_MENU_SID, F
+	call	CS_MENU_MS_NotesOff ; SID2
+	incf	CS_MENU_SID, F
+	call	CS_MENU_MS_NotesOff ; SID3
+SID_PATCH_NotesOff_NoSP
+SID_PATCH_NotesOff_NoMaster
 
 	return
 

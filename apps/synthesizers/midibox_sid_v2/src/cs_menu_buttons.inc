@@ -390,6 +390,16 @@ CS_MENU_BUTTON_Play
 	;; exit with message if SID player mode enabled and SID1 selected
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
 
+	;; if master is running in superpoly mode: chord will be played on all SIDs
+	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
+	andlw	0x07
+	bz	CS_MENU_BUTTON_Play_NoSuperPoly
+CS_MENU_BUTTON_Play_SuperPoly
+	movlw	0x00		; master will send all 4 notes to the SIDs in SP mode
+	call	CS_MENU_MS_PlayNote
+	rgoto	CS_MENU_BUTTON_Play_SuperPoly_Cn
+
+CS_MENU_BUTTON_Play_NoSuperPoly
 	;; CS_MENU_SELECTED_SID_FLAGS[3:0] contain the current selected SIDs
 	movlw	0x00
 	CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 0, ACCESS, CS_MENU_MS_PlayNote
@@ -400,6 +410,7 @@ CS_MENU_BUTTON_Play
 	movlw	0x03
 	CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 3, ACCESS, CS_MENU_MS_PlayNote
 
+CS_MENU_BUTTON_Play_SuperPoly_Cn
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
 
@@ -1159,14 +1170,23 @@ CS_MENU_BUTTON_ToggleMODFlag
 	lfsr	FSR0, SID_EDIT_BUFFER
 	call	CS_MENU_R2P_MODx_Nx
 
-	;; toggle depending on selected SID
+	;; toggle depending on L/R SID
 	movf	CS_MENU_SELECTED_SID_LR, W
 	xorwf	CS_MENU_PARAMETER_L, F
 
-	;; write back and exit
+	;; transfer too all selected SIDs
+	clrf	CS_MENU_SID
+CS_MENU_BUTTON_ToggleMODFlagLoop
+	movf	CS_MENU_SID, W
+	call	MIOS_HLP_GetBitORMask
+	andwf	CS_MENU_SELECTED_SID_FLAGS, W
+	bz	CS_MENU_BUTTON_ToggleMODFlagNext
 	lfsr	FSR0, SID_EDIT_BUFFER
-	goto	CS_MENU_P2R_MODx_Nx
-
+	call	CS_MENU_P2R_MODx_Nx
+CS_MENU_BUTTON_ToggleMODFlagNext
+	incf	CS_MENU_SID, F
+	BRA_IFCLR CS_MENU_SID, 2, ACCESS, CS_MENU_BUTTON_ToggleMODFlagLoop
+	return
 
 ;; ------------------------------------------------------------------
 CS_MENU_BUTTON_SP_IgnoreMsg

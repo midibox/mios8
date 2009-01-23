@@ -1662,15 +1662,20 @@ CS_MENU_R2P_ENSx_DOR
 
 ; --------------------------------------------------------------------------
 CS_MENU_P2R_ENSx_SPV
+	;; don't touch value if master SID not selected
+	movf	CS_MENU_SID, W
+	bnz	CS_MENU_P2R_ENSx_SPV_NotM
+CS_MENU_P2R_ENSx_SPV_M
 	call	CS_MENU_FSR0_ENS
 	movlw	0xf8
 	andwf	INDF0, F
 	movf	CS_MENU_PARAMETER_L, W
 	iorwf	INDF0, F
-	;; forward to master/slave
-	call	CS_MENU_MS_SendEnsParameter
-	;; re-initialize voice queue
-	goto	CS_MENU_MS_SP_ReInit
+	;; forward to all master and slaves (will only take effect if CS_MENU_SID == 0)
+	call	CS_MENU_MS_SendEnsParameterToAll
+CS_MENU_P2R_ENSx_SPV_NotM
+	;; re-init voice assignments
+	goto	CS_MENU_MS_VoiceReInit
 
 CS_MENU_R2P_ENSx_SPV
 	call	CS_MENU_FSR0_ENS

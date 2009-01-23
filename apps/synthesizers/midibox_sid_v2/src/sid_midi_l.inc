@@ -40,9 +40,27 @@ SID_MIDI_L_NoteOn
 	andlw	0x07
 	bz	SID_MIDI_L_NoteOn_NoSuperPoly
 	cpfslt	SID_MIDI_DEVICE, ACCESS
-	rgoto SID_MIDI_L_NoteOn_NoSuperPoly
+	rgoto	SID_MIDI_L_NoteOn_NoSuperPoly
 SID_MIDI_L_NoteOn_SuperPoly
+	;; NEW:	exit if slave -> it's directly controlled from master via MBNET!
+	movf	SID_MIDI_DEVICE, W
+	bnz	SID_MIDI_L_NoteOn_End
+
+	;; check if MIDI note already played
+	lfsr	FSR1, SID_SUPERPOLY_VOICE_NOTE_TAB
+	clrf	SID_CURRENT_VOICE, BANKED
+SID_MIDI_L_NoteOn_SuperPolyLoop
+	movf	INDF1, W
+	xorwf	SID_MIDI_PARAMETER1, W, BANKED
+	bz	SID_MIDI_L_NoteOn_SP_NoteFound
+	movf	POSTINC1, W			; switch to next table entry
+	incf	SID_CURRENT_VOICE, F, BANKED	; switch to next voice
+	BRA_IFCLR SID_CURRENT_VOICE, 2, BANKED, SID_MIDI_L_NoteOn_SuperPolyLoop
+
+	;; not already played:
 	;; get the next free voice
+	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
+	andlw	0x07
 	swapf	WREG, W				; use default voice assignment mode, number of voices given by SUPERPOLY_CTRL[2:0], copied to VOICE_ASSG[6:4]
 	movwf	SID_CURRENT_VOICE_ASSG, BANKED	
 	call	SID_VOICE_Get			; call voice allocation handler, new voice in SID_CURRENT_VOICE
@@ -50,10 +68,22 @@ SID_MIDI_L_NoteOn_SuperPoly
 	lfsr	FSR1, SID_SUPERPOLY_VOICE_NOTE_TAB
 	movf	SID_CURRENT_VOICE, W, BANKED
 	movff	SID_MIDI_PARAMETER1, PLUSW1
-	;; exit if voice doesn't match with device number
+
+SID_MIDI_L_NoteOn_SP_NoteFound
+	;; NEW: if not master voice: forward to slave via MBNET
 	movf	SID_CURRENT_VOICE, W, BANKED
-	cpfseq	SID_MIDI_DEVICE, ACCESS
-	rgoto SID_MIDI_L_NoteOn_End
+	bz	SID_MIDI_L_NoteOn_SuperPoly_M
+SID_MIDI_L_NoteOn_SuperPoly_S
+	movwf	CS_MENU_SID
+	IRQ_ENABLE		; we can already IRQs enable again to avoid MIDI buffer overrun
+				; which are notified with "F0 00 00 7E 40 00 0E 0B 00 F7"
+	call	CS_MENU_MBNET_Tx_SP_Note
+	rgoto	SID_MIDI_L_NoteOn_End
+
+	;; directly called from SID_MBNET_RxSpecial_SPNOTE for SuperPoly slave control
+SID_MIDI_L_NoteOn_SuperPoly_M
+SID_MIDI_L_NoteOn_Direct
+	
 	;; note stack has to be emptied to avoid "hanging notes" - the final superpoly
 	;; implementation has to stack *all* incoming notes, not only the ones played by the SID voice
 	SET_BSR	SID_MV1_BASE
@@ -167,8 +197,12 @@ SID_MIDI_L_NoteOff
 	andlw	0x07
 	bz	SID_MIDI_L_NoteOff_NoSuperPoly
 	cpfslt	SID_MIDI_DEVICE, ACCESS
-	rgoto SID_MIDI_L_NoteOff_NoSuperPoly
+	rgoto	SID_MIDI_L_NoteOff_NoSuperPoly
 SID_MIDI_L_NoteOff_SuperPoly
+	;; exit if slave -> it's directly controlled from master via MBNET!
+	movf	SID_MIDI_DEVICE, W
+	bnz	SID_MIDI_L_NoteOff_End
+
 	;; check MIDI note -> voice assignment
 	lfsr	FSR1, SID_SUPERPOLY_VOICE_NOTE_TAB
 	clrf	SID_CURRENT_VOICE, BANKED
@@ -179,6 +213,7 @@ SID_MIDI_L_NoteOff_SuperPolyLoop
 	movf	POSTINC1, W			; switch to next table entry
 	incf	SID_CURRENT_VOICE, F, BANKED	; switch to next voice
 	BRA_IFCLR SID_CURRENT_VOICE, 2, BANKED, SID_MIDI_L_NoteOff_SuperPolyLoop
+
 	rgoto	SID_MIDI_L_NoteOff_End		; note not played
 
 SID_MIDI_L_NoteOff_SP_NoteFound
@@ -187,12 +222,22 @@ SID_MIDI_L_NoteOff_SP_NoteFound
 	;; release voice
 	call	SID_VOICE_Release	; expects voice number in SID_CURRENT_VOICE
 
-	;; exit if note is not played by "my" voice
+	;; NEW: if not master voice: forward to slave via MBNET
 	movf	SID_CURRENT_VOICE, W, BANKED
-	cpfseq	SID_MIDI_DEVICE, ACCESS
-	rgoto SID_MIDI_L_NoteOff_End
+	bz	SID_MIDI_L_NoteOff_SuperPoly_M
+SID_MIDI_L_NoteOff_SuperPoly_S
+	clrf	SID_MIDI_PARAMETER2, BANKED ; ensure that velocity is zero, so that Note Off will be played
+	movwf	CS_MENU_SID
+	IRQ_ENABLE		; we can already IRQs enable again to avoid MIDI buffer overrun
+				; which are notified with "F0 00 00 7E 40 00 0E 0B 00 F7"
+	call	CS_MENU_MBNET_Tx_SP_Note
+	rgoto	SID_MIDI_L_NoteOff_End
+SID_MIDI_L_NoteOff_SuperPoly_M
+	;; directly called from SID_MBNET_RxSpecial_SPNOTE for SuperPoly slave control
+SID_MIDI_L_NoteOff_Direct
 SID_MIDI_L_NoteOff_NoSuperPoly
 #endif
+
 
 	;; copy patch flags to temporary register SID_MIDI_FLAGS
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_FLAGS1, SID_MIDI_FLAGS

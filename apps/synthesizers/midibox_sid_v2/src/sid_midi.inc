@@ -84,8 +84,7 @@ SID_MIDI_NotifyReceivedEventJmp
 SID_MIDI_NoteOn
 	SET_BSR	SID_BASE
 	movf	SID_MIDI_PARAMETER2, W, BANKED	; branch to NoteOff if velocity is zero
-	skpnz
-	rgoto	SID_MIDI_NoteOff
+	bz	SID_MIDI_NoteOff
 
 	;; branch depending on engine
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG

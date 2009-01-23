@@ -325,50 +325,69 @@ CS_MENU_Handler_MainPage_4
 	call	MIOS_LCD_CursorSet
 	movff	MBNET_NODE_AVAIL, PRODL
 
+	;; print "Poly" if note is played in SuperPoly mode
+	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
+	andlw	0x07
+	bz	CS_MENU_Handler_MainPage_NoSP
+	BRA_IFCLR CS_STAT2, CS_STAT2_PLAY_SID1, ACCESS, CS_MENU_Handler_MainPage_NoSP
+CS_MENU_Handler_MainPage_SP
+	movlw	'P'
+	call	MIOS_LCD_PrintChar
+	movlw	'o'
+	call	MIOS_LCD_PrintChar
+	movlw	'l'
+	call	MIOS_LCD_PrintChar
+	movlw	'y'
+	call	MIOS_LCD_PrintChar
+	rgoto	CS_MENU_Handler_MainPage_SID_Cnt
+
+CS_MENU_Handler_MainPage_NoSP
 	movlw	'-'
 	btfsc	CS_STAT2, CS_STAT2_PLAY_SID1
-	movlw 'P'
+	movlw	'P'
 	BRA_IFCLR CS_MENU_SELECTED_SID_FLAGS, 0, ACCESS, CS_MENU_Handler_MainPage_SID1
 	movlw	'1'
 	btfsc	CS_STAT2, CS_STAT2_PLAY_SID1; inverted 1
-	movlw 0x02 
+	movlw	0x02 
 CS_MENU_Handler_MainPage_SID1
 	btfss	PRODL, 0
 	movlw '*'
 	call	MIOS_LCD_PrintChar
 	movlw	'-'
 	btfsc	CS_STAT2, CS_STAT2_PLAY_SID2
-	movlw 'P'
+	movlw	'P'
 	BRA_IFCLR CS_MENU_SELECTED_SID_FLAGS, 1, ACCESS, CS_MENU_Handler_MainPage_SID2
 	movlw	'2'
 	btfsc	CS_STAT2, CS_STAT2_PLAY_SID2; inverted 2
-	movlw 0x03 
+	movlw	0x03 
 CS_MENU_Handler_MainPage_SID2
 	btfss	PRODL, 1
-	movlw '*'
+	movlw	'*'
 	call	MIOS_LCD_PrintChar
 	movlw	'-'
 	btfsc	CS_STAT2, CS_STAT2_PLAY_SID3
-	movlw 'P'
+	movlw	'P'
 	BRA_IFCLR CS_MENU_SELECTED_SID_FLAGS, 2, ACCESS, CS_MENU_Handler_MainPage_SID3
 	movlw	'3'
 	btfsc	CS_STAT2, CS_STAT2_PLAY_SID3; inverted 3
-	movlw 0x04 
+	movlw	0x04 
 CS_MENU_Handler_MainPage_SID3
 	btfss	PRODL, 2
-	movlw '*'
+	movlw	'*'
 	call	MIOS_LCD_PrintChar
 	movlw	'-'
 	btfsc	CS_STAT2, CS_STAT2_PLAY_SID4
-	movlw 'P'
+	movlw	'P'
 	BRA_IFCLR CS_MENU_SELECTED_SID_FLAGS, 3, ACCESS, CS_MENU_Handler_MainPage_SID4
 	movlw	'4'
 	btfsc	CS_STAT2, CS_STAT2_PLAY_SID4; inverted 4
-	movlw 0x05 
+	movlw	0x05 
 CS_MENU_Handler_MainPage_SID4
 	btfss	PRODL, 3
-	movlw '*'
+	movlw	'*'
 	call	MIOS_LCD_PrintChar
+
+CS_MENU_Handler_MainPage_SID_Cnt
 
 	;; print divider
 	movlw	'|'

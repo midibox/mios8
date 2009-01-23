@@ -157,17 +157,10 @@ CS_MENU_LED_Update_LFO_Cont
 
 
 	;; TMP5[6]: SID play state
-	movf	TMP5, W
-	andlw	0x3f
-	btfsc	CS_STAT2, CS_STAT2_PLAY_SID1
-	iorlw 0x40
-	btfsc	CS_STAT2, CS_STAT2_PLAY_SID2
-	iorlw 0x40
-	btfsc	CS_STAT2, CS_STAT2_PLAY_SID3
-	iorlw 0x40
-	btfsc	CS_STAT2, CS_STAT2_PLAY_SID4
-	iorlw 0x40
-	movwf	TMP5
+	movf	CS_STAT2, W	; (SID1/2/3/4 flags located at CS_STAT2[7:4]
+	andlw	0xf0
+	skpz
+	bsf	TMP5, 6
 
 	;; TMP5[7]: Env Misc LED
 	btfsc	CS_MENU_SELECTED_ENV_CTRL, 1

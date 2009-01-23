@@ -684,12 +684,32 @@ CS_MENU_MBNET_Tx_VoiceReInit
 	rgoto	CS_MENU_MBNET_Tx_SpecialCmd
 
 ;; --------------------------------------------------------------------------
-;;  ETOS=27: Superpoly ReInit command
+;;  ETOS=27: Play Superpoly Note
 ;;  IN: slave target in CS_MENU_SID
+;;      note number in SID_MIDI_PARAMETER1
+;;      velocity in SID_MIDI_PARAMETER2
 ;; --------------------------------------------------------------------------
-CS_MENU_MBNET_Tx_SP_ReInit
-	movlw	27
-	rgoto	CS_MENU_MBNET_Tx_SpecialCmd
+CS_MENU_MBNET_Tx_SP_Note
+	movff	CS_MENU_SID, MBNET_SLAVE_ID	; prepare transmission
+	SET_BSR	MBNET_BASE			; EID[LH] always 0
+	movlw	27				; ETOS=27
+	movwf	MBNET_EID_L, BANKED
+	clrf	MBNET_EID_H, BANKED
+	movlw	0				; TOS
+	call	MBNET_Tx_Prepare		; returns pointer to DLC of Tx buffer in FSR1
+	bnz	CS_MENU_MBNET_Tx_SP_Note_End	; skip if slave not available
+
+	movlw	2				; 2 bytes to send
+	movwf	POSTINC1			; DLC
+	movff	SID_MIDI_PARAMETER1, POSTINC1	; D0
+	movff	SID_MIDI_PARAMETER2, POSTINC1	; D1
+
+	call	MBNET_Tx_Perform		; performs the transfer and waits for an acknowledge from slave
+	skpz					; re-init display if transfer failed
+	rgoto	CS_MENU_MBNET_Error
+
+CS_MENU_MBNET_Tx_SP_Note_End
+	return
 
 ;; --------------------------------------------------------------------------
 ;;  sends a patch to a given slave

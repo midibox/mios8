@@ -1604,8 +1604,20 @@ CS_MENU_PRINT_ENSx_SPV
 	movf	INDF0, W
 	andlw	0x07
 	bz	CS_MENU_PRINT_ENSx_SPV_Zero
-	call	MIOS_LCD_PrintBCD2
+	;; don't touch value if master SID not selected
+	movf	CS_MENU_SID, W
 	movlw	' '
+	skpz
+	movlw	'('		; (to notify, that value not selectable from slave)
+	rcall	CS_MENU_PRINT_Char
+
+	movf	INDF0, W
+	andlw	0x07
+	call	MIOS_LCD_PrintBCD1
+	movf	CS_MENU_SID, W
+	movlw	' '
+	skpz
+	movlw	')'		; (to notify, that value not selectable from slave)
 	rcall	CS_MENU_PRINT_Char
 	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
