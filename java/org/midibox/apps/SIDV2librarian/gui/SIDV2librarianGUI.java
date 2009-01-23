@@ -28,6 +28,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -38,6 +40,7 @@ import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
@@ -46,6 +49,7 @@ import javax.swing.KeyStroke;
 import org.midibox.apps.SIDV2librarian.SIDV2librarian;
 import org.midibox.sidedit.SIDEditController;
 import org.midibox.sidedit.gui.MBSIDV2EditorGUI;
+import org.midibox.sidlibr.Patch;
 import org.midibox.sidlibr.SIDLibController;
 import org.midibox.sidlibr.gui.LibraryGUI;
 import org.midibox.utils.gui.DialogOwner;
@@ -63,8 +67,9 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 	private LibraryGUI libraryGUI;
 	private JDialog midiRoutingDialog;
 	private MBSIDV2EditorGUI mbsidV2EditorGUI;
+	private JDialog mbsidV2EditorGUIDialog;
 
-	private SIDEditController sidEditController;
+	// private SIDEditController sidEditController;
 
 	private SIDV2librarianMidiDeviceRoutingGUI midiDeviceRoutingGUI;
 
@@ -90,7 +95,42 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 
 		this.add(libraryGUI, BorderLayout.CENTER);
 
-		mbsidV2EditorGUI = new MBSIDV2EditorGUI(DialogOwner.getFrame(), false);
+		mbsidV2EditorGUI = new MBSIDV2EditorGUI();
+
+		mbsidV2EditorGUIDialog = new JDialog(DialogOwner.getFrame(),
+				"MidiBox SID V2 Editor - no patch selected", true);
+
+		mbsidV2EditorGUIDialog
+				.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		mbsidV2EditorGUIDialog.setResizable(false);
+
+		mbsidV2EditorGUIDialog.addWindowListener(new WindowAdapter() {
+
+			public void windowClosing(WindowEvent we) {
+				int result = JOptionPane
+						.showConfirmDialog(
+								null,
+								"The current patch has been changed. Would you like to save?",
+								"Save patch?",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE);
+				switch (result) {
+				case JOptionPane.YES_OPTION:
+					mbsidV2EditorGUI.getSIDEditController().Save();
+					mbsidV2EditorGUIDialog.setVisible(false);
+					break;
+				case JOptionPane.NO_OPTION:
+					mbsidV2EditorGUIDialog.setVisible(false);
+					break;
+				case JOptionPane.CANCEL_OPTION:
+					break;
+				default:
+					break;
+				}
+			}
+		});
+
+		mbsidV2EditorGUIDialog.setContentPane(mbsidV2EditorGUI);
 
 		if (sidv2librarian.getMidiDeviceRouting() != null) {
 
@@ -110,13 +150,35 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 	}
 
 	private void showEditGUI() {
+
+		SIDEditController sidEditController = mbsidV2EditorGUI
+				.getSIDEditController();
+
+		if (sidEditController != null) {
+
+			sidEditController.deleteObserver(this);
+		}
+
 		sidv2librarian.reconnectAllDevices(); // java.sound.midi SysEx bug
 		// workaround
+
 		sidEditController = new SIDEditController(sidLibController
 				.getCurrentPatch());
 		sidEditController.addObserver(this);
+
 		mbsidV2EditorGUI.editThis(sidEditController, sidLibController
 				.getCores());
+
+		Patch p = mbsidV2EditorGUI.getSIDEditController().getPatch();
+
+		mbsidV2EditorGUIDialog.setTitle("MidiBox SID V2 Editor - "
+				+ p.getEngineStr() + " engine: " + p.getPatchName());
+
+		mbsidV2EditorGUIDialog.pack();
+
+		mbsidV2EditorGUIDialog.setLocationRelativeTo(this);
+
+		mbsidV2EditorGUIDialog.setVisible(true);
 	}
 
 	public void actionPerformed(ActionEvent ae) {
@@ -128,9 +190,9 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 		if (object == "Edit") {
 			showEditGUI();
 		} else if (object == "Save editor patch") {
-			sidLibController.setPatchAt(sidEditController.getPatch(),
-					sidLibController.getCurrentPatchNumber(), sidLibController
-							.getCurrentBankNumber());
+			sidLibController.setPatchAt(mbsidV2EditorGUI.getSIDEditController()
+					.getPatch(), sidLibController.getCurrentPatchNumber(),
+					sidLibController.getCurrentBankNumber());
 		}
 	}
 

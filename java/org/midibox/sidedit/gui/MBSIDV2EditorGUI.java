@@ -22,19 +22,14 @@ package org.midibox.sidedit.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.BevelBorder;
@@ -48,7 +43,7 @@ import org.midibox.sidlibr.Patch;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.MyButtonUI;
 
-public class MBSIDV2EditorGUI extends JDialog implements Observer,
+public class MBSIDV2EditorGUI extends JPanel implements Observer,
 		ActionListener {
 
 	private SIDEditController sidEditController;
@@ -60,47 +55,16 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer,
 	private JToggleButton stereoLink, oscillatorLink, core1Button, core2Button,
 			core3Button, core4Button;
 
-	public MBSIDV2EditorGUI(Frame owner, boolean modal) {
-		super(owner, "MidiBox SID V2 Editor - no patch selected", modal);
+	public MBSIDV2EditorGUI() {
 
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setResizable(false);
 		setLayout(new BorderLayout());
-
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) {
-				saveAndClose();
-			}
-		});
 
 		add(createStatusBar(), BorderLayout.SOUTH);
 		editPanel = new JPanel();
 		add(editPanel, BorderLayout.NORTH);
-		pack();
 	}
 
 	public void editThis(SIDEditController sidEditController, int cores) {
-		if (isVisible()) {
-
-			int result = JOptionPane
-					.showConfirmDialog(
-							null,
-							"The current patch has been changed. Would you like to save?",
-							"Save patch?", JOptionPane.YES_NO_CANCEL_OPTION,
-							JOptionPane.QUESTION_MESSAGE);
-			switch (result) {
-			case JOptionPane.YES_OPTION:
-				sidEditController.Save();
-				break;
-			case JOptionPane.NO_OPTION:
-				break;
-			case JOptionPane.CANCEL_OPTION:
-				return;
-			default:
-				break;
-			}
-
-		}
 
 		this.sidEditController = sidEditController;
 		sidEditController.setTooltipListener(this);
@@ -112,8 +76,7 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer,
 		core2Button.setSelected(((cores & 0x02) > 0));
 		core3Button.setSelected(((cores & 0x04) > 0));
 		core4Button.setSelected(((cores & 0x08) > 0));
-		this.setTitle("MidiBox SID V2 Editor - " + p.getEngineStr()
-				+ " engine: " + p.getPatchName());
+
 		sidEditController.addObserver(this);
 		remove(editPanel);
 
@@ -128,7 +91,7 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer,
 		}
 
 		add(editPanel);
-		pack();
+
 		repaint();
 		setVisible(true);
 	}
@@ -205,26 +168,6 @@ public class MBSIDV2EditorGUI extends JDialog implements Observer,
 		statusBar.add(buttonPanel, BorderLayout.EAST);
 
 		return statusBar;
-	}
-
-	private void saveAndClose() {
-		int result = JOptionPane.showConfirmDialog(null,
-				"The current patch has been changed. Would you like to save?",
-				"Save patch?", JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE);
-		switch (result) {
-		case JOptionPane.YES_OPTION:
-			sidEditController.Save();
-			this.setVisible(false);
-			break;
-		case JOptionPane.NO_OPTION:
-			this.setVisible(false);
-			break;
-		case JOptionPane.CANCEL_OPTION:
-			break;
-		default:
-			break;
-		}
 	}
 
 	public void setTooltip(String s) {

@@ -26,7 +26,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -40,7 +39,6 @@ import javax.swing.event.MenuListener;
 import org.midibox.apps.virtualkeyboard.VirtualKeyboard;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
 import org.midibox.midi.gui.MidiKeyboardControllerGUI;
-import org.midibox.utils.gui.ImageLoader;
 
 public class VirtualKeyboardGUI extends JPanel {
 
@@ -78,10 +76,6 @@ public class VirtualKeyboardGUI extends JPanel {
 
 		midiDeviceRoutingGUI = new MidiDeviceRoutingGUI(virtualKeyboard
 				.getMidiDeviceRouting());
-
-		midiDeviceRoutingGUI.addMidiDeviceIcon(virtualKeyboard
-				.getMidiKeyboardControllerDevice(), new ImageIcon(ImageLoader
-				.getImageIcon("piano.png").getImage()));
 
 		midiDeviceRoutingGUI.setBorder(BorderFactory.createEtchedBorder());
 
