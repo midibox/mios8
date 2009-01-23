@@ -23,6 +23,7 @@
 //address range: 0x7FFF for FM24C512 and FM24C256, 0x1FFF for the FM24C64
 #define address_range 0x7FFF 
 //device address count. each FM24C512 uses two addresses (two memory blocks)
+//16 x FM24C512 (multiplexed) equals 0x20 devices
 #define num_devices 0x08
 //abort test after count errors.
 #define error_count_abort 0x01
@@ -47,6 +48,8 @@ unsigned char last_error_phase;
 unsigned char fram_buffer[0x100]; //data buffer
 unsigned int timecount,timecount_bw,timecount_br;//timecount in mS
 
+//note: test values [0] and [1] are never used. [4] and [5] has to be equal,
+//also [6] and [7] (else subsequent r/w test(s) will fail on read/compare! 
 unsigned char test_value[0x08] = {0x00,0x00,0x99,0x1C,0x91,0x91,0x87,0x87};
 
 unsigned char first_test_phase;
@@ -218,7 +221,7 @@ void Tick(void) __wparam{
 		last_error_phase = phase;
 		//error_count_abort is reached, switch to abort-on-error phase
 		if(++error_count == error_count_abort)
-			phase = 0x09;
+			phase = 0x0B;
 		}
 	//on success, check if address range is reached and switch device_addr / phase accordingly
 	else{
