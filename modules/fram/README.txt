@@ -5,13 +5,14 @@ This module enables you to drive the Ramtron Ferroelectrical RAM modules
 it's memory space is splitted into two sectors. Therefore the 512 has
 just two device address pins, while FM24C256/FM24C64 have three.
 
-So the chip select address is 3 bits for all device type, the address range
+So the chip select address is 3 bits for all device types, the address range
 is 0x0000 - 0x7FFF for FM24C512 and FM24C256, 0x0000 - 0x1FFF for the FM24C64.
 
 The smaller types are not compatible to this driver.
 
 The chips can be driven with IIC@1MHZ. You can choose this option, but this
-disables the sharing of a port with other IIC compatible devices (400kHZ).
+disables the sharing of a port with other IIC compatible devices which just
+support 400kHZ.
 
 Files
 ~~~~~

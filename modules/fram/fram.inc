@@ -8,13 +8,15 @@
 ; 
 ; ==========================================================================
 
-; If set to 1, mios_iic functions will be used (@400kHZ)
+; If set to 1, mios_iic functions will be used (@400kHZ). If set to 0,
+; fram_iic functions will be used. In this mode, you can override
+; SCL / SDA pin default definitions (RC4/RC5).
 #ifndef FRAM_MIOS_IIC
 #define FRAM_MIOS_IIC 0
 #endif
 
-; If set to 1, multiplexing will be enabled, bits 4 and 5 of the device address
-; will be used to multiplex (bit 5 MSB, bit 4 LSB)
+; If set to 1, multiplexing will be enabled, bits 4 and 5 (bit 0 is r/w mode 
+; select) of the device address will be used to multiplex (bit 5 MSB, bit 4 LSB)
 #ifndef FRAM_MULTIPLEX_ENABLE
 #define FRAM_MULTIPLEX_ENABLE 0
 #endif
@@ -23,16 +25,16 @@
 
 ; Multiplexer MSB Port/Pin
 #ifndef FRAM_MULTIPLEX_PORT_MSB
-#define FRAM_MULTIPLEX_PORT_MSB PORTC
-#define FRAM_MULTIPLEX_TRIS_MSB TRISC
+#define FRAM_MULTIPLEX_PORT_MSB PORTD
+#define FRAM_MULTIPLEX_TRIS_MSB TRISD
 #define FRAM_MULTIPLEX_PIN_MSB 5
 #endif
 
 ; Multiplexer LSB Port/Pin
 #ifndef FRAM_MULTIPLEX_PORT_LSB
-#define FRAM_MULTIPLEX_PORT_LSB PORTC
-#define FRAM_MULTIPLEX_TRIS_LSB TRISC
-#define FRAM_MULTIPLEX_PIN_LSB 4
+#define FRAM_MULTIPLEX_PORT_LSB PORTD
+#define FRAM_MULTIPLEX_TRIS_LSB TRISD
+#define FRAM_MULTIPLEX_PIN_LSB 6
 #endif
 
 #endif
@@ -118,7 +120,8 @@ FRAM_ReadByte
 ;;
 ;;			Byte value in MIOS_PARAMETER3
 ;;
-;;  OUT: WREG == 0x00 on error, else not 0x00. Error code in FRAM_ERROR
+;;  OUT: WREG == 0x00 on error, else not 0x00 (+Zero flag clear). 
+;;  Error code in FRAM_ERROR
 ;;
 ;;  USES: FRAM_REG, FRAM_ERROR, FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0) 
 ;; --------------------------------------------------------------------------
@@ -147,7 +150,8 @@ FRAM_WriteByte
 ;;
 ;;			Buffer start address in FSR1
 ;;
-;;  OUT: WREG == 0x00 on error, else not 0x00. Error code in FRAM_ERROR
+;;  OUT: WREG == 0x00 on error, else not 0x00 (+Zero flag clear). 
+;;  Error code in FRAM_ERROR
 ;;
 ;;  USES: FRAM_REG, FRAM_ERROR, FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0) 
 ;; --------------------------------------------------------------------------
@@ -157,6 +161,7 @@ FRAM_ReadBuf
 	bz FRAM_End_Stop ;FRAM_Begin failed, stop and return
 	rcall FRAM_ReadBuf_Loop
 	call IIC_NakSend
+	iorlw 0xFF
 	bra FRAM_End_Stop
 	
 	
@@ -176,7 +181,8 @@ FRAM_ReadBuf
 ;;
 ;;			Buffer start address in FSR1
 ;;
-;;  OUT: WREG == 0x00 on error, else not 0x00. Error code in FRAM_ERROR
+;;  OUT: WREG == 0x00 on error, else not 0x00 (+Zero flag clear). 
+;;  Error code in FRAM_ERROR
 ;;
 ;;  USES: FRAM_REG, FRAM_ERROR, FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0) 
 ;; --------------------------------------------------------------------------
@@ -216,8 +222,8 @@ FRAM_WriteBuf
 ;;       memory address in MIOS_PARAMETER1 (MSB) and MIOS_PARAMETER2 (LSB)
 ;;       0x0000 - 0x7FFF or 0x0000 - 0x1FFF, see README
 ;;
-;;  OUT: WREG  0x00 on error (NAK received), else not 0x00. 
-;;			Error code in FRAM_ERROR
+;;  OUT: WREG == 0x00 on error, else not 0x00 (+Zero flag clear). 
+;;  Error code in FRAM_ERROR
 ;;
 ;;  USES: FRAM_REG, FRAM_ERROR, FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0) 
 ;; --------------------------------------------------------------------------
@@ -311,8 +317,10 @@ FRAM_ReadByte_Cont
 ;;  FRAM will be increased by one.
 ;; 
 ;;  IN:  Byte to write in WREG
-;;  OUT: WREG 0x00 on error (NAK received), else not 0x00
-;;			Error code in FRAM_ERROR
+;;
+;;  OUT: WREG == 0x00 on error, else not 0x00 (+Zero flag clear). 
+;;  Error code in FRAM_ERROR
+;;
 ;;  USES: FRAM_ERROR,FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0)
 ;; --------------------------------------------------------------------------
 _FRAM_WriteByte_Cont
@@ -350,8 +358,10 @@ FRAM_ReadBuf_Loop
 ;;  the FRAM will be increased by size.
 ;; 
 ;;  IN:  Byte count in WREG (0x00 for 256 bytes), pointer to buffer in FSR1
-;;  OUT: 0x00 on error (NAK received), else not 0x00
-;;			Error code in FRAM_ERROR
+;;
+;;  OUT: WREG == 0x00 on error, else not 0x00 (+Zero flag clear). 
+;;  Error code in FRAM_ERROR
+;;
 ;;  USES: FRAM_ERROR,FRAM_IIC_BUF (only if FRAM_MIOS_IIC==0)
 ;; --------------------------------------------------------------------------
 FRAM_WriteBuf_Cont

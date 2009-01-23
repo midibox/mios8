@@ -17,14 +17,14 @@
 #ifndef FRAM_IIC_PORT_SCL
 #define FRAM_IIC_PORT_SCL PORTC
 #define FRAM_IIC_TRIS_SCL TRISC
-#define FRAM_IIC_PIN_SCL 0
+#define FRAM_IIC_PIN_SCL 4
 #endif
 
 ; Serial Data/Address Port/Pin
 #ifndef FRAM_IIC_PORT_SDA
 #define FRAM_IIC_PORT_SDA PORTC
 #define FRAM_IIC_TRIS_SDA TRISC
-#define FRAM_IIC_PIN_SDA 1
+#define FRAM_IIC_PIN_SDA 5
 #endif
 
 ; Save mode inserts more nop's, this will slow down the communication, but
