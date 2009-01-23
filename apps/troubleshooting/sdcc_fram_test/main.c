@@ -24,7 +24,7 @@
 #define address_range 0x7FFF 
 //device address count. each FM24C512 uses two addresses (two memory blocks)
 //16 x FM24C512 (multiplexed) equals 0x20 devices
-#define num_devices 0x08
+#define num_devices 0x20
 //abort test after count errors.
 #define error_count_abort 0x01
 
@@ -82,13 +82,13 @@ unsigned int fram_timecount_stop(void) __wparam{
 void fram_init_buffer(void) __wparam{
 	unsigned int i;
 	for(i=0;i<0x100;i++)
-		fram_buffer[i] = (test_value[phase] ^ (unsigned char)(address + i));
+		fram_buffer[i] = ((test_value[phase]^device_addr) ^ (unsigned char)(address + i));
 	}
 
 unsigned char fram_check_buffer(void) __wparam{
 	unsigned int i;
 	for(i=1;i<0x100;i++)
-		if(fram_buffer[i] != (test_value[phase] ^ (unsigned char)(address + i)))
+		if(fram_buffer[i] != ((test_value[phase]^device_addr) ^ (unsigned char)(address + i)))
 			return 0x00;
 	return 0x01;
 	}
@@ -147,14 +147,14 @@ void Tick(void) __wparam{
 				break;
 			case 0x03://Test Byte W/R
 				for(i=0;i<0x100;i++){
-					if(!FRAM_WriteByte(device_addr,address,test_value[phase] ^ (unsigned char)address)){
+					if(!FRAM_WriteByte(device_addr,address,(test_value[phase]^device_addr) ^ (unsigned char)address)){
 						err = (FRAM_ERROR == 0x10) ? 0x02 : 0x01;
 						break;
 						}
 					b = FRAM_ReadByte(device_addr,address); 
 					if(FRAM_ERROR)
 						err = 0x03;
-					else if(b != (test_value[phase] ^ (unsigned char)address))
+					else if(b != ((test_value[phase]^device_addr) ^ (unsigned char)address))
 						err = 0x04;
 					else
 						address++;
@@ -182,7 +182,7 @@ void Tick(void) __wparam{
 				break;
 			case 0x06://Test subsequent Byte write
 				for(i=0;i < (subseq_rw_chunks*0x100);i++)
-					if(!FRAM_WriteByte_Cont(test_value[phase] ^ (unsigned char)(address + i))){
+					if(!FRAM_WriteByte_Cont((test_value[phase]^device_addr) ^ (unsigned char)(address + i))){
 						err = 0x02;
 						break;
 						}
@@ -191,7 +191,7 @@ void Tick(void) __wparam{
 				break;
 			case 0x07://Test subsequent Byte read
 				for(i=0;i < (subseq_rw_chunks*0x100);i++)
-					if(FRAM_ReadByte_Cont() != (test_value[phase] ^ (unsigned char)(address + i))){
+					if(FRAM_ReadByte_Cont() != ((test_value[phase]^device_addr) ^ (unsigned char)(address + i))){
 						err = 0x04;
 						break;
 						}
