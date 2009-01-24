@@ -21,7 +21,11 @@
 #define FRAM_MULTIPLEX_ENABLE 0
 #endif
 
+
+
 #if FRAM_MULTIPLEX_ENABLE==1
+
+#if FRAM_MIOS_IIC==0
 
 ; Multiplexer MSB Port/Pin
 #ifndef FRAM_MULTIPLEX_PORT_MSB
@@ -29,12 +33,28 @@
 #define FRAM_MULTIPLEX_TRIS_MSB TRISD
 #define FRAM_MULTIPLEX_PIN_MSB 5
 #endif
-
 ; Multiplexer LSB Port/Pin
 #ifndef FRAM_MULTIPLEX_PORT_LSB
 #define FRAM_MULTIPLEX_PORT_LSB PORTD
 #define FRAM_MULTIPLEX_TRIS_LSB TRISD
 #define FRAM_MULTIPLEX_PIN_LSB 6
+#endif
+
+#else
+
+; Multiplexer MSB Port/Pin
+#ifndef FRAM_MULTIPLEX_PORT_MSB
+#define FRAM_MULTIPLEX_PORT_MSB PORTC
+#define FRAM_MULTIPLEX_TRIS_MSB TRISC
+#define FRAM_MULTIPLEX_PIN_MSB 4
+#endif
+; Multiplexer LSB Port/Pin
+#ifndef FRAM_MULTIPLEX_PORT_LSB
+#define FRAM_MULTIPLEX_PORT_LSB PORTC
+#define FRAM_MULTIPLEX_TRIS_LSB TRISC
+#define FRAM_MULTIPLEX_PIN_LSB 5
+#endif
+
 #endif
 
 #endif
