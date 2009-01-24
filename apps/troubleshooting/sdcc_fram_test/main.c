@@ -1,4 +1,3 @@
-// $Id: main.c 539 2008-11-23 23:29:22Z stryd_one $
 /*
  * FRAM Module Test application
  *
@@ -30,8 +29,9 @@
 #define address_range 0x7FFF 
 
 //device address count. each FM24C512 uses two addresses (two memory blocks)
-//16 x FM24C512 (multiplexed) equals 0x20 devices
-#define num_devices 0x20
+//16 x FM24C512 (multiplexed) equals 0x20 devices, 4 FM24C512 (not multiplexed)
+//equal 0x08 devices.
+#define num_devices 0x08
 
 //set this to 1 to have always the device-address written to each byte of
 //a device. on rd/cp errors you can see wrong multiplexing. you will only
