@@ -54,10 +54,6 @@ public class Knob extends JComponent implements MouseListener,
 
 	public final static int ROUND = 1;
 
-	public static int mouseDragType = LINEAR;
-
-	private Icon icon;
-
 	private final static float START = 225;
 
 	private final static float LENGTH = 270;
@@ -73,11 +69,15 @@ public class Knob extends JComponent implements MouseListener,
 
 	private final static Color FOCUS_COLOR = UIManager.getColor("Slider.focus");
 
-	private float DRAG_SPEED;
+	private int mouseDragType = LINEAR;
 
-	private float CLICK_SPEED;
+	private Icon icon;
 
-	private static Dimension PREF_SIZE;
+	private float dragSpeed;
+
+	private int clickSpeed;
+
+	private static Dimension preferredSize;
 
 	private int middle;
 
@@ -89,15 +89,15 @@ public class Knob extends JComponent implements MouseListener,
 
 	private float ang = START_ANG;
 
-	private float minValue = 0f;
+	private int minValue = 0;
 
-	private float maxValue = 1.0f;
+	private int maxValue = 100;
 
-	private float value;
+	private int value;
 
 	private int dragpos = -1;
 
-	private float startVal;
+	private int startVal;
 
 	private double lastAng;
 
@@ -107,10 +107,10 @@ public class Knob extends JComponent implements MouseListener,
 
 		this.icon = icon;
 
-		PREF_SIZE = new Dimension(icon.getIconHeight() + 8, icon
+		preferredSize = new Dimension(icon.getIconHeight() + 8, icon
 				.getIconHeight() + 8);
-		DRAG_SPEED = 0.0075F;// 0.01F;
-		CLICK_SPEED = 0.01F;
+		dragSpeed = 0.0075F;// 0.01F;
+		clickSpeed = 1;
 
 		hitArc.setAngleStart(235); // Degrees ??? Radians???
 		hitArc.setFrame(4, 4, icon.getIconHeight(), icon.getIconHeight());
@@ -127,43 +127,46 @@ public class Knob extends JComponent implements MouseListener,
 	}
 
 	private void incValue() {
-		setValue(value + CLICK_SPEED);
+
+		setValue(value + clickSpeed);
 	}
 
 	private void decValue() {
-		setValue(value - CLICK_SPEED);
+		setValue(value - clickSpeed);
 	}
 
 	public float getMaxValue() {
 		return maxValue;
 	}
 
-	public void setMaxValue(float maxValue) {
+	public void setMaxValue(int maxValue) {
 		this.maxValue = maxValue;
 	}
 
-	public float getMinValue() {
+	public int getMinValue() {
 		return minValue;
 	}
 
-	public void setMinValue(float minValue) {
+	public void setMinValue(int minValue) {
 		this.minValue = minValue;
 	}
 
-	public float getValue() {
+	public int getValue() {
 		return value;
 	}
 
-	public void setValue(float val) {
-		if (val < 0)
-			val = 0;
-		if (val > 1)
-			val = 1;
-		float oldVal = this.value;
-		this.value = val;
-		ang = START_ANG - LENGTH_ANG * val;
-		repaint();
-		if (oldVal != this.value) {
+	public void setValue(int value) {
+
+		value = Math.min(value, maxValue);
+		value = Math.max(value, minValue);
+
+		if (value != this.value) {
+
+			this.value = value;
+
+			ang = START_ANG - LENGTH_ANG * this.value;
+			repaint();
+
 			fireChangeEvent();
 		}
 	}
@@ -177,11 +180,11 @@ public class Knob extends JComponent implements MouseListener,
 	}
 
 	public Dimension getMinimumSize() {
-		return PREF_SIZE;
+		return preferredSize;
 	}
 
 	public Dimension getPreferredSize() {
-		return PREF_SIZE;
+		return preferredSize;
 	}
 
 	public void setTickColor(Color tickColor) {
@@ -258,7 +261,8 @@ public class Knob extends JComponent implements MouseListener,
 
 			g2d.clipRect(offsetX, offsetY, icon.getIconHeight(), icon
 					.getIconHeight());
-			offsetX -= icon.getIconHeight() * ((int) (value * noImages));
+			offsetX -= icon.getIconHeight()
+					* ((int) ((float) value / (float) maxValue * noImages));
 			icon.paintIcon(this, g2d, offsetX, offsetY);
 			g2d.dispose();
 		}
@@ -301,8 +305,9 @@ public class Knob extends JComponent implements MouseListener,
 
 	public void mouseDragged(MouseEvent me) {
 		if (mouseDragType == LINEAR) {
-			float f = DRAG_SPEED * (float) ((me.getX() - me.getY()) - dragpos);
-			setValue(startVal + f);
+			float f = (dragSpeed * maxValue)
+					* (float) ((me.getX() - me.getY()) - dragpos);
+			setValue((int) (startVal + f));
 		}
 
 		else if (mouseDragType == ROUND) {
@@ -311,10 +316,11 @@ public class Knob extends JComponent implements MouseListener,
 			double ang = Math.atan2(xpos, ypos);
 			double diff = lastAng - ang;
 
-			setValue((float) (value + (diff / LENGTH_ANG)));
+			setValue((int) ((((value) / 100f) + (diff / LENGTH_ANG)) * 100f));
 
 			lastAng = ang;
 		}
+
 	}
 
 	public void keyPressed(KeyEvent e) {

@@ -149,6 +149,10 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 		}
 	}
 
+	public SIDV2librarian getSidv2librarian() {
+		return sidv2librarian;
+	}
+
 	private void showEditGUI() {
 
 		SIDEditController sidEditController = mbsidV2EditorGUI

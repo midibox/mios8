@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Observable;
 
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -44,13 +45,19 @@ public class MidiParameterControlSlider extends MidiParameterControlGUI
 			boolean valueBelow, boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.slider = slider;
+
+		slider.setMinimum(midiParameter.getMidiMinValue());
+		slider.setMaximum(midiParameter.getMidiMaxValue());
+
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		panel.setOpaque(false);
 		panel.add(slider);
+
 		add(panel, BorderLayout.CENTER);
 		slider.addChangeListener(this);
 		slider.addMouseWheelListener(this);
 		slider.addMouseListener(this);
+
 		updateGraphics();
 	}
 
@@ -79,6 +86,16 @@ public class MidiParameterControlSlider extends MidiParameterControlGUI
 							.getMaximum())
 							* (float) midiParameter.getMidiMaxValue()), true);
 			update = true;
+		}
+	}
+
+	public void update(Observable observable, Object object) {
+		super.update(observable, object);
+
+		if (object == midiParameter.HIGH_RESOLUTION) {
+
+			slider.setMinimum(midiParameter.getMidiMinValue());
+			slider.setMaximum(midiParameter.getMidiMaxValue());
 		}
 	}
 }

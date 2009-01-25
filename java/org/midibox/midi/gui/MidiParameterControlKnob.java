@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Observable;
 
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -47,6 +48,10 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		panel.setOpaque(false);
 		panel.add(knob);
+
+		knob.setMinValue(midiParameter.getMidiMinValue());
+		knob.setMaxValue(midiParameter.getMidiMaxValue());
+
 		add(panel, BorderLayout.CENTER);
 		knob.addChangeListener(this);
 		knob.addMouseListener(this);
@@ -56,16 +61,19 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 
 	public void mouseWheelMoved(MouseWheelEvent mwe) {
 		knob
-				.setValue(knob.getValue()
-						- (mwe.getWheelRotation() * ((mouseWheelResolution / 100) * (knob
-								.getMaxValue() - knob.getMinValue()))));
+				.setValue((int) (knob.getValue() - (mwe.getWheelRotation() * ((mouseWheelResolution / 100) * (knob
+						.getMaxValue() - knob.getMinValue())))));
 	}
 
 	public void stateChanged(ChangeEvent ce) {
 		if (update) {
 			update = false;
-			midiParameter.setMidiValue((int) ((knob.getValue() / knob
-					.getMaxValue()) * midiParameter.getMidiMaxValue()), true);
+
+			int newval = (int) ((knob.getValue() / knob.getMaxValue()) * (midiParameter
+					.getMidiMaxValue() - midiParameter.getMidiMinValue()))
+					+ midiParameter.getMidiMinValue();
+
+			midiParameter.setMidiValue(newval, true);
 			update = true;
 		}
 	}
@@ -74,9 +82,26 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 		super.updateGraphics();
 		if (update) {
 			update = false;
-			knob.setValue((float) midiParameter.getMidiValue()
-					/ (float) midiParameter.getMidiMaxValue());
+
+			float val = (((float) midiParameter.getMidiValue() - (float) midiParameter
+					.getMidiMinValue()) / ((float) midiParameter
+					.getMidiMaxValue() - (float) midiParameter
+					.getMidiMinValue()));
+
+			knob
+					.setValue((int) (val * (knob.getMaxValue() - knob
+							.getMinValue())));
+
 			update = true;
+		}
+	}
+
+	public void update(Observable observable, Object object) {
+		super.update(observable, object);
+		if (object == midiParameter.HIGH_RESOLUTION) {
+
+			knob.setMinValue(midiParameter.getMidiMinValue());
+			knob.setMaxValue(midiParameter.getMidiMaxValue());
 		}
 	}
 }

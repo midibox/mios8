@@ -43,11 +43,16 @@ public class FaderUI extends BasicSliderUI {
 
 	private Color highlight = Color.WHITE;
 
+	private int trackWidth;
+
 	public FaderUI(ImageIcon horizThumbIcon2, ImageIcon vertThumbIcon2,
 			boolean drawGroove) {
 		super(null);
 		this.horizThumbIcon2 = horizThumbIcon2;
 		this.vertThumbIcon2 = vertThumbIcon2;
+
+		this.trackWidth = 5;
+
 		this.drawGroove = drawGroove;
 	}
 
@@ -226,9 +231,12 @@ public class FaderUI extends BasicSliderUI {
 		}
 	}
 
-	protected int getTrackWidth() {
-		final double kIdealTrackWidth = 5.0;
-		return (int) kIdealTrackWidth;
+	public void setTrackWidth(int trackWidth) {
+		this.trackWidth = trackWidth;
+	}
+
+	public int getTrackWidth() {
+		return trackWidth;
 	}
 
 	/**

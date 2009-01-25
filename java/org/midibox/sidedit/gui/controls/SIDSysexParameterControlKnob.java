@@ -44,6 +44,7 @@ public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 			boolean valueBelow, boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.knob = knob;
+
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		panel.setOpaque(false);
 		panel.add(knob);
@@ -56,9 +57,8 @@ public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 
 	public void mouseWheelMoved(MouseWheelEvent mwe) {
 		knob
-				.setValue(knob.getValue()
-						- (mwe.getWheelRotation() * ((mouseWheelResolution / 100) * (knob
-								.getMaxValue() - knob.getMinValue()))));
+				.setValue((int) (knob.getValue() - (mwe.getWheelRotation() * ((mouseWheelResolution / 100) * (knob
+						.getMaxValue() - knob.getMinValue())))));
 	}
 
 	public void stateChanged(ChangeEvent ce) {
@@ -121,7 +121,8 @@ public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 						/ ((float) midiParameter.getMidiMaxValue() - (float) midiParameter
 								.getMidiMinValue());
 			}
-			knob.setValue(newval);
+			knob.setValue((int) (newval * (knob.getMaxValue() - knob
+					.getMinValue())));
 			update = true;
 		}
 	}

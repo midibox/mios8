@@ -49,25 +49,13 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.slider = slider;
 
-		// plastic looking slider, matches knobs
-		slider.setUI(new FaderUI(ImageLoader
+		FaderUI faderUI = new FaderUI(ImageLoader
 				.getImageIcon("plasticSlider_horiz.png"), ImageLoader
-				.getImageIcon("plasticSlider_vert.png"), false));
+				.getImageIcon("plasticSlider_vert.png"), false);
 
-		// plastic looking fader, matches knobs
-		// slider.setUI(new FaderUI(ImageLoader
-		// .getImageIcon("plasticFader_horiz.png"), ImageLoader
-		// .getImageIcon("plasticFader_vert.png"), false));
+		faderUI.setTrackWidth(3);
 
-		// metal looking fader
-		// slider.setUI(new
-		// FaderUI(ImageLoader.getImageIcon("metalFader_horiz.png"),
-		// ImageLoader.getImageIcon("metalFader_vert.png"), false));
-
-		// metal looking fader, sunken
-		// slider.setUI(new
-		// FaderUI(ImageLoader.getImageIcon("metalFader_horiz.png"),
-		// ImageLoader.getImageIcon("metalFader_vert.png"), true));
+		slider.setUI(faderUI);
 
 		slider.setMaximum(midiParameter.getMidiMaxValue()
 				- midiParameter.getMidiMinValue());

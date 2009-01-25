@@ -286,6 +286,13 @@ public class MIOSStudio extends JApplet {
 		Preferences preferences = Preferences.userRoot().node(
 				"org/midibox/miostudio/gui");
 
+		try {
+			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
+					.getCrossPlatformLookAndFeelClassName()));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+
 		JFrame.setDefaultLookAndFeelDecorated(preferences.getBoolean(
 				"defaultDecoratedFrames", false));
 

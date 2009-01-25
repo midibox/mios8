@@ -79,6 +79,13 @@ public class MIOSStudioSID extends MIOSStudio {
 		Preferences preferences = Preferences.userRoot().node(
 				"org/midibox/miostudiosid/gui");
 
+		try {
+			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
+					.getCrossPlatformLookAndFeelClassName()));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+
 		JFrame.setDefaultLookAndFeelDecorated(preferences.getBoolean(
 				"defaultDecoratedFrames", false));
 

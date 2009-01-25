@@ -148,6 +148,11 @@ public class MidiParameter extends Observable implements Receiver {
 		}
 	}
 
+	public int getMidiMinValue() {
+
+		return 0;
+	}
+
 	public String getMidiName() {
 
 		if (status == NOTE_ON || status == NOTE_OFF) {

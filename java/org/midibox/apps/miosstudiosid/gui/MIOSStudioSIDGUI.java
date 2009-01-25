@@ -2,6 +2,8 @@ package org.midibox.apps.miosstudiosid.gui;
 
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -12,7 +14,7 @@ import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudiosid.MIOSStudioSID;
 import org.midibox.utils.gui.ImageLoader;
 
-public class MIOSStudioSIDGUI extends MIOSStudioGUI {
+public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 
 	protected SIDV2librarianGUI sidv2librariangui;
 
@@ -20,6 +22,9 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI {
 
 	public MIOSStudioSIDGUI(MIOSStudioSID miosStudioSID) {
 		super(miosStudioSID);
+
+		sidv2librariangui.getSidv2librarian().getSIDLibController()
+				.addObserver(this);
 	}
 
 	public MIOSStudioInternalFrame getSidv2librarianWindow() {
@@ -80,6 +85,28 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI {
 		if (ae.getActionCommand().equals("sidv2_librarian")) {
 			showFrame(sidv2librarianWindow);
 
+		}
+	}
+
+	public void update(Observable observable, Object object) {
+
+		if (object == "Edit") {
+
+			boolean portsReleased = miosStudio.getMidiDeviceRouting()
+					.getPortsReleased();
+
+			if (!portsReleased) {
+
+				System.out.println("Now releasing ports!");
+
+				miosStudio.getMidiDeviceRouting().setPortsReleased(true);
+
+				System.out.println("Ports released successfully");
+
+				miosStudio.getMidiDeviceRouting().setPortsReleased(false);
+
+				System.out.println("Ports recaimed successfully");
+			}
 		}
 	}
 }
