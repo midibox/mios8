@@ -2,12 +2,14 @@ package org.midibox.apps.miosstudiosid.gui;
 
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 import org.midibox.apps.SIDV2librarian.gui.SIDV2librarianGUI;
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
@@ -42,7 +44,7 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 
 		Icon icon = ImageLoader.getImageIcon("sid.png");
 
-		sidv2librarianWindow = new MIOSStudioInternalFrame("SIDV2 Librarian",
+		sidv2librarianWindow = new MIOSStudioInternalFrame("SID V2 Editor",
 				false, true, false, true, icon, sidv2librariangui);
 
 		sidv2librarianWindow.setJMenuBar(sidv2librariangui.createMenu());
@@ -58,7 +60,10 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 
 		super.createMIOSMenu();
 
-		JMenuItem menuItem = new JMenuItem("SIDV2 Librarian");
+		JMenuItem menuItem = new JMenuItem("SID V2 Editor");
+		menuItem.setMnemonic(KeyEvent.VK_E);
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,
+				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("sidv2_librarian");
 		menuItem.addActionListener(this);
 		miosMenu.add(menuItem);
@@ -71,7 +76,7 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 		Insets insets = new Insets(2, 2, 2, 2);
 
 		JButton button = new JButton(ImageLoader.getImageIcon("sid.png"));
-		button.setToolTipText("SIDV2 Librarian");
+		button.setToolTipText("SID V2 Editor");
 		button.setActionCommand("sidv2_librarian");
 		button.addActionListener(this);
 		button.setMargin(insets);

@@ -455,11 +455,17 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		midiMenu.setMnemonic(KeyEvent.VK_M);
 
 		JMenuItem menuItem = new JMenuItem("MIDI Devices");
+		menuItem.setMnemonic(KeyEvent.VK_M);
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,
+				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("midi_devices");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIDI Filters");
+		menuItem.setMnemonic(KeyEvent.VK_F);
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F,
+				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("midi_filters");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
@@ -489,8 +495,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		midiMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIDI Keyboard Controller");
-		menuItem.setMnemonic(KeyEvent.VK_P);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,
+		menuItem.setMnemonic(KeyEvent.VK_K);
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,
 				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("piano_controller");
 		menuItem.addActionListener(this);
