@@ -21,6 +21,7 @@
 package org.midibox.sidedit.gui.lead;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -34,6 +35,7 @@ import org.midibox.sidedit.SIDEditController;
 import org.midibox.sidedit.SIDSysexParameterControl;
 import org.midibox.sidedit.gui.FilterGUI;
 import org.midibox.sidedit.gui.GlobalGUI;
+import org.midibox.sidedit.gui.MBSIDV2EditorTabbedPaneUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlCombo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
@@ -90,6 +92,9 @@ public class LeadGUI extends JPanel {
 		tabbedPane.addTab("Arpeggiator", t8);
 		tabbedPane.addTab("Wavetable", t9);
 		tabbedPane.addTab("SwinSID", t11);
+
+		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(
+				new Color(245, 245, 245), new Color(200, 200, 200)));
 
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);

@@ -310,9 +310,9 @@ public class DebugFunction extends MIOSSysexSendReceive {
 
 			messageParameters.add(writeParameter);
 		}
-		
+
 		noReturnValues = 0;
-		
+
 		sendMessage(returnHex, messageParameters);
 	}
 

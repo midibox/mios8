@@ -325,10 +325,18 @@ public class Knob extends JComponent implements MouseListener,
 
 	public void keyPressed(KeyEvent e) {
 		int k = e.getKeyCode();
-		if (k == KeyEvent.VK_RIGHT)
+		if (k == KeyEvent.VK_RIGHT || k == KeyEvent.VK_UP)
 			incValue();
-		else if (k == KeyEvent.VK_LEFT)
+		else if (k == KeyEvent.VK_LEFT || k == KeyEvent.VK_DOWN)
 			decValue();
+		else if (k == KeyEvent.VK_PAGE_UP)
+			setValue(value + ((maxValue - minValue) / 10));
+		else if (k == KeyEvent.VK_PAGE_DOWN)
+			setValue(value - ((maxValue - minValue) / 10));
+		else if (k == KeyEvent.VK_END)
+			setValue(maxValue);
+		else if (k == KeyEvent.VK_HOME)
+			setValue(minValue);
 	}
 
 	public void keyReleased(KeyEvent e) {

@@ -21,6 +21,7 @@
 package org.midibox.sidedit.gui.multi;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -34,6 +35,7 @@ import org.midibox.sidedit.SIDEditController;
 import org.midibox.sidedit.SIDSysexParameterControl;
 import org.midibox.sidedit.gui.FilterGUI;
 import org.midibox.sidedit.gui.GlobalGUI;
+import org.midibox.sidedit.gui.MBSIDV2EditorTabbedPaneUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlCombo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
@@ -91,6 +93,9 @@ public class MultiGUI extends JPanel {
 		tabbedPane.addTab("Instr.5", t7);
 		tabbedPane.addTab("Instr.6", t8);
 		tabbedPane.addTab("Wavetable", t9);
+
+		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(
+				new Color(245, 245, 245), new Color(200, 200, 200)));
 
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
