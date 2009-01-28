@@ -58,7 +58,7 @@ public class Knob extends JComponent implements MouseListener,
 
 	private final static float LENGTH = 270;
 
-	private final static float START_ANG = (START / 360) * (float) Math.PI * 2;
+	private final static float startAng = (START / 360) * (float) Math.PI * 2;
 
 	private final static float LENGTH_ANG = (LENGTH / 360) * (float) Math.PI
 			* 2;
@@ -87,7 +87,7 @@ public class Knob extends JComponent implements MouseListener,
 
 	private Arc2D hitArc = new Arc2D.Float(Arc2D.PIE);
 
-	private float ang = START_ANG;
+	private float ang = startAng;
 
 	private int minValue = 0;
 
@@ -164,7 +164,7 @@ public class Knob extends JComponent implements MouseListener,
 
 			this.value = value;
 
-			ang = START_ANG - LENGTH_ANG * this.value;
+			ang = startAng - LENGTH_ANG * this.value;
 			repaint();
 
 			fireChangeEvent();
@@ -239,7 +239,7 @@ public class Knob extends JComponent implements MouseListener,
 		int offsetX = ((getWidth()) - icon.getIconHeight()) / 2;
 		int offsetY = ((getHeight()) - icon.getIconHeight()) / 2;
 
-		for (float a2 = START_ANG; a2 >= START_ANG - LENGTH_ANG; a2 = a2
+		for (float a2 = startAng; a2 >= startAng - LENGTH_ANG; a2 = a2
 				- LENGTH_ANG_DIV10) {
 			int x = offsetX + (icon.getIconHeight() / 2)
 					+ (int) ((2 + (icon.getIconHeight() / 2)) * Math.cos(a2));
@@ -286,7 +286,7 @@ public class Knob extends JComponent implements MouseListener,
 	public void mouseClicked(MouseEvent me) {
 		hitArc.setAngleExtent(-(LENGTH + 20));
 		if (hitArc.contains(me.getX(), me.getY())) {
-			hitArc.setAngleExtent(MULTIP * (ang - START_ANG) - 10);
+			hitArc.setAngleExtent(MULTIP * (ang - startAng) - 10);
 			if (hitArc.contains(me.getX(), me.getY())) {
 				decValue();
 			} else
