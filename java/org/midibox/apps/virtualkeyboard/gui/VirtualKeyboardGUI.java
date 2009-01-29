@@ -37,8 +37,10 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import org.midibox.apps.virtualkeyboard.VirtualKeyboard;
+import org.midibox.midi.MidiRouterDevice;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
 import org.midibox.midi.gui.MidiKeyboardControllerGUI;
+import org.midibox.utils.gui.ImageLoader;
 
 public class VirtualKeyboardGUI extends JPanel {
 
@@ -78,6 +80,9 @@ public class VirtualKeyboardGUI extends JPanel {
 				.getMidiDeviceRouting());
 
 		midiDeviceRoutingGUI.setBorder(BorderFactory.createEtchedBorder());
+
+		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiRouterDevice.class,
+				ImageLoader.getImageIcon("virtualMidiDevice.png"));
 
 		add(midiDeviceRoutingGUI, gbc);
 

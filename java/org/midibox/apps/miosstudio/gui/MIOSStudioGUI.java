@@ -67,7 +67,9 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import org.midibox.apps.miosstudio.MIOSStudio;
+import org.midibox.midi.MidiFilterDevice;
 import org.midibox.midi.MidiKeyboardControllerDevice;
+import org.midibox.midi.MidiRouterDevice;
 import org.midibox.midi.SysexSendReceiveDevice;
 import org.midibox.midi.gui.MidiDeviceManagerGUI;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
@@ -212,6 +214,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		desktop.setBackground(Color.WHITE);
 
 		createInternalFrames();
+		
+		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiRouterDevice.class,
+				ImageLoader.getImageIcon("virtualMidiDevice.png"));
+
+		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiFilterDevice.class,
+				ImageLoader.getImageIcon("filter.png"));
 
 		// start In/Out/Terminal thread
 		miosStudio.getMidiInPortMonitorDevice().getMidiMonitorFiltered()

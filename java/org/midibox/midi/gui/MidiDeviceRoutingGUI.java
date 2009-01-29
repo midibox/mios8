@@ -72,9 +72,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.midibox.midi.MidiDeviceRouting;
-import org.midibox.midi.MidiFilterDevice;
-import org.midibox.midi.MidiMapDevice;
-import org.midibox.midi.MidiRouterDevice;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.GuiUtils;
 import org.midibox.utils.gui.ImageLoader;
@@ -131,13 +128,6 @@ public class MidiDeviceRoutingGUI extends JPanel implements MouseListener,
 		midiDevicePropertiesDialogs = new Hashtable();
 
 		addMouseListener(this);
-
-		addMidiDeviceIcon(MidiRouterDevice.class, ImageLoader
-				.getImageIcon("virtualMidiDevice.png"));
-		addMidiDeviceIcon(MidiFilterDevice.class, ImageLoader
-				.getImageIcon("filter.png"));
-		addMidiDeviceIcon(MidiMapDevice.class, ImageLoader
-				.getImageIcon("map.png"));
 
 		midiReadDevicesListModel = new DefaultListModel();
 		midiWriteDevicesListModel = new DefaultListModel();
