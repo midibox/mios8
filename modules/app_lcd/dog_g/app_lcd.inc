@@ -166,25 +166,6 @@ USER_LCD_Init
 ;;  IN:  data which should be sent
 ;;  OUT: -
 ;; --------------------------------------------------------------------------
-USER_LCD_Data_New
-
-	;; data byte
-	bsf	USER_LCD_LAT_DC, USER_LCD_PIN_DC
-
-	;; deselect all CS
-	setf	USER_LCD_LAT_CS
-
-	;; SELECT ALL CS **FIXME** 
-	bcf	USER_LCD_LAT_CS, USER_LCD_PIN_D0
-
-	rcall	USER_LCD_ShiftByte
-	SET_BSR	MIOS_GLCD_GCURSOR_X	; (BSR already set by USER_LCD_ShiftByte)
-	incf	MIOS_GLCD_GCURSOR_X, F, BANKED
-	;; deselect displays
-	setf	USER_LCD_LAT_CS
-
-	return
-	
 USER_LCD_Data
 	;; store byte in buffer
 	SET_BSR	MIOS_GLCD_BUFFER
