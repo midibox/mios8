@@ -166,23 +166,31 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 		sidv2librarian.reconnectAllDevices(); // java.sound.midi SysEx bug
 		// workaround
 
-		sidEditController = new SIDEditController(sidLibController
-				.getCurrentPatch());
+		sidEditController = new SIDEditController(sidLibController.getCurrentPatch());	
 		sidEditController.addObserver(this);
-
-		mbsidV2EditorGUI.editThis(sidEditController, sidLibController
-				.getCores());
-
+		mbsidV2EditorGUI.editThis(sidEditController, sidLibController.getCores());
 		Patch p = mbsidV2EditorGUI.getSIDEditController().getPatch();
-
-		mbsidV2EditorGUIDialog.setTitle("MidiBox SID V2 Editor - "
-				+ p.getEngineStr() + " engine: " + p.getPatchName());
-
+		if (p.isEnsemble()) {
+			mbsidV2EditorGUIDialog.setTitle("MidiBox SID V2 Editor - " + "Ensemble " + intToStr3(sidLibController.getCurrentPatchNumber()+1));
+		} else {
+			mbsidV2EditorGUIDialog.setTitle("MidiBox SID V2 Editor - " + p.getEngineStr() + " engine: " + p.getPatchName());
+		}
 		mbsidV2EditorGUIDialog.pack();
-
 		mbsidV2EditorGUIDialog.setLocationRelativeTo(this);
-
 		mbsidV2EditorGUIDialog.setVisible(true);
+	}
+	
+	private String intToStr3(int i) {
+		String s = Integer.toString(i);
+		switch (s.length()) {
+		case 1:
+			s = "00" + s;
+			break;
+		case 2:
+			s = "0" + s;
+			break;
+		}
+		return s;
 	}
 
 	public void actionPerformed(ActionEvent ae) {
@@ -194,9 +202,7 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 		if (object == "Edit") {
 			showEditGUI();
 		} else if (object == "Save editor patch") {
-			sidLibController.setPatchAt(mbsidV2EditorGUI.getSIDEditController()
-					.getPatch(), sidLibController.getCurrentPatchNumber(),
-					sidLibController.getCurrentBankNumber());
+			sidLibController.setPatchAt(mbsidV2EditorGUI.getSIDEditController().getPatch(), sidLibController.getCurrentPatchNumber(),sidLibController.getCurrentBankNumber());
 		}
 	}
 

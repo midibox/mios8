@@ -108,25 +108,11 @@ public class SIDV2librarian {
 	public void reconnectAllDevices() { // This function is a workaround for the
 		// SysEx (string length doesn't reset)
 		// bug in the javax.sound.midi class
-
 		if (midiDeviceRouting != null) {
-
-			System.out.println("Now reconnecting!");
-			midiDeviceRouting.disconnectDevices(inputMidiDevice,
-					localMidiDevice);
-			System.out.println("Disconnection of "
-					+ inputMidiDevice.getDeviceInfo() + " succesfull");
-			midiDeviceRouting.disconnectDevices(localMidiDevice,
-					outputMidiDevice);
-			System.out.println("Disconnection of "
-					+ outputMidiDevice.getDeviceInfo() + " succesfull");
-
+			midiDeviceRouting.disconnectDevices(inputMidiDevice, localMidiDevice);
+			midiDeviceRouting.disconnectDevices(localMidiDevice, outputMidiDevice);
 			midiDeviceRouting.connectDevices(inputMidiDevice, localMidiDevice);
-			System.out.println("Reconnection of "
-					+ inputMidiDevice.getDeviceInfo() + " succesfull");
 			midiDeviceRouting.connectDevices(localMidiDevice, outputMidiDevice);
-			System.out.println("Reconnection of "
-					+ outputMidiDevice.getDeviceInfo() + " succesfull");
 		}
 
 	}
@@ -175,8 +161,6 @@ public class SIDV2librarian {
 			inputMidiDevice = (MidiDevice) midiDeviceRouting
 					.getMidiReadDevices().elementAt(index);
 			midiDeviceRouting.connectDevices(inputMidiDevice, localMidiDevice);
-			System.out.println("Connection of "
-					+ inputMidiDevice.getDeviceInfo() + " succesfull");
 		}
 	}
 
@@ -187,8 +171,6 @@ public class SIDV2librarian {
 			outputMidiDevice = (MidiDevice) midiDeviceRouting
 					.getMidiWriteDevices().elementAt(index);
 			midiDeviceRouting.connectDevices(localMidiDevice, outputMidiDevice);
-			System.out.println("Connection of "
-					+ outputMidiDevice.getDeviceInfo() + " succesfull");
 		}
 	}
 }
