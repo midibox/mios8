@@ -245,12 +245,13 @@ public class Patch implements Receiver {
 		} else {
 			isEnsemble = false;
 		}
+		patch = new int[patchSize];
 		initPatch();
 	}
 
-	private void initPatch() {
-		patch = new int[patchSize];
+	private void initPatch() {		
 		if (isEnsemble) {
+			patch = new int[patchSize];
 			for (int c = 0; c < patchSize; c++) {
 				patch[c] = 0;
 			}
@@ -399,17 +400,17 @@ public class Patch implements Receiver {
 	
 	public void setEngine(Object object) {
 		if (object == LEAD) {
-			setParameter(16, 0, 0, 2, true);
+			setParameter(16, 0, 0, 2, false);
 		} else if (object == BASSLINE) {
-			setParameter(16, 1, 0, 2, true);
+			setParameter(16, 1, 0, 2, false);
 		} else if (object == DRUM) {
-			setParameter(16, 2, 0, 2, true);
+			setParameter(16, 2, 0, 2, false);
 		} else if (object == MULTI) {
-			setParameter(16, 3, 0, 2, true);
+			setParameter(16, 3, 0, 2, false);
 		}
 		
 		// TK: patch has to be re-initialized after engine change
-		initPatch();
+		initPatch();		
 	}
 
 	public int getParameter(int address, int start_bit, int resolution) {
