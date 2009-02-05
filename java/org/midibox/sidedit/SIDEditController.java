@@ -30,8 +30,8 @@ public class SIDEditController extends SIDSysexParameterControlManager {
 
 	public SIDEditController(Patch p) {
 		super(p.getReceiver());
-		this.patch = p.clone();
-		engine = EngineSpecs.getEngine(patch);
+		this.patch = (Patch)p.clone();
+		engine = EngineSpecs.getEngine((Patch)patch);
 
 		for (int b = 0; b < engine.size(); b++) {
 			Vector v = (Vector) engine.elementAt(b);
@@ -41,7 +41,7 @@ public class SIDEditController extends SIDSysexParameterControlManager {
 				addSIDSysexParameter(midiParameter);
 			}
 		}
-	}
+	}	
 
 	public Vector getEngine() {
 		return engine;
@@ -61,15 +61,7 @@ public class SIDEditController extends SIDSysexParameterControlManager {
 	public Patch getPatch() {
 		return patch;
 	}
-
-	public String getPatchName() {
-		return patch.getPatchName();
-	}
-
-	public void setPatchName(String s) {
-		patch.setPatchName(s);
-	}
-
+	
 	public void Save() {
 		setChanged();
 		notifyObservers("Save editor patch");

@@ -18,12 +18,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-package org.midibox.sidedit.gui.bassline;
+package org.midibox.sidedit.gui.ensemble;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.util.Vector;
-import org.midibox.sidlibr.Patch;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -35,60 +33,44 @@ import javax.swing.JToggleButton;
 import org.midibox.sidedit.SIDEditController;
 import org.midibox.sidedit.SIDSysexParameterControl;
 import org.midibox.sidedit.gui.FilterGUI;
-import org.midibox.sidedit.gui.GlobalGUI;
-import org.midibox.sidedit.gui.MBSIDV2EditorTabbedPaneUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlCombo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlLFOSelect;
-import org.midibox.sidedit.gui.controls.SIDSysexParameterControlRadio;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlSlider;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlToggleButton;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlWaveSelect;
+import org.midibox.sidlibr.Patch;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
 
-public class BasslineGUI extends JPanel {
-	private Vector GUIs, EXT_L, EXT_R;
+public class EnsembleGUI extends JPanel {
+	private Vector GUIs, EXT_L, EXT_R, MP_L, MP_R;
 	private SIDEditController sidEditController;
+	private boolean stereoLinked = true;
+	private boolean oscLinked = false;
 
-	public BasslineGUI(SIDEditController sidEditController) {
+	public EnsembleGUI(SIDEditController sidEditController) {
 		this.sidEditController = sidEditController;
 		setLayout(new BorderLayout());
-
+		
 		GUIs = createGUIs(sidEditController);
-		createLinkGroups();
+		
 		JTabbedPane tabbedPane = new JTabbedPane();
-		JPanel t1 = new GlobalGUI((Vector) GUIs.elementAt(0), (Vector) GUIs
-				.elementAt(1));
-		JPanel t2 = new OscillatorGUI((Vector) GUIs.elementAt(4), (Vector) GUIs
-				.elementAt(5), (Vector) GUIs.elementAt(6), (Vector) GUIs
-				.elementAt(7));
-		JPanel t3 = new FilterGUI((Vector) GUIs.elementAt(2), (Vector) GUIs
-				.elementAt(3));
-		JPanel t4 = new LfoGUI((Vector) GUIs.elementAt(8), (Vector) GUIs
-				.elementAt(9), (Vector) GUIs.elementAt(10), (Vector) GUIs
-				.elementAt(11));
-		JPanel t6 = new SequencerGUI((Vector) GUIs.elementAt(14), (Vector) GUIs
-				.elementAt(12), (Vector) GUIs.elementAt(13));
-		JPanel t7 = new ArpGUI((Vector) GUIs.elementAt(4), (Vector) GUIs
-				.elementAt(5));
-
-		tabbedPane.addTab("Global", t1);
-		tabbedPane.addTab("Oscillator", t2);
-		tabbedPane.addTab("Filter", t3);
-		tabbedPane.addTab("LFO/ENV", t4);
-		tabbedPane.addTab("Sequencer", t6);
-		tabbedPane.addTab("Arpeggiator", t7);
-
-		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(
-				new Color(245, 245, 245), new Color(200, 200, 200)));
-
+		JPanel t1 = new SIDGUI((Vector) GUIs.elementAt(0));
+		JPanel t2 = new SIDGUI((Vector) GUIs.elementAt(1));
+		JPanel t3 = new SIDGUI((Vector) GUIs.elementAt(2));
+		JPanel t4 = new SIDGUI((Vector) GUIs.elementAt(3));
+		
+		tabbedPane.addTab("SID1", t1);
+		tabbedPane.addTab("SID2", t2);
+		tabbedPane.addTab("SID3", t3);
+		tabbedPane.addTab("SID4", t4);
+		
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		stereoLink(true);
 	}
 
 	protected Vector createGUIs(SIDEditController sidEditController) {
@@ -133,7 +115,7 @@ public class BasslineGUI extends JPanel {
 						.getImageIcon("button.png")));
 				midiParameterGUIs.add(new SIDSysexParameterControlToggleButton(
 						midiParameter, simpleButton, false, false,
-						BorderLayout.SOUTH, true, false));
+						BorderLayout.SOUTH, false, false));
 				break;
 			case 3:
 				// Create slider
@@ -168,99 +150,11 @@ public class BasslineGUI extends JPanel {
 						midiParameter, knob1, false, BorderLayout.SOUTH, true,
 						true));
 				break;
-			case 8:
-				// Radio button list
-				midiParameterGUIs.add(new SIDSysexParameterControlRadio(
-						midiParameter, false, BorderLayout.SOUTH, true, true));
-				break;
 			default:
 				midiParameterGUIs.add(midiParameter);
 				System.out.println("Unknown controller type!");
 			}
 		}
 		return midiParameterGUIs;
-	}
-
-	public void createLinkGroups() {
-		// Create vector of pointers to left and right parameters (for linking
-		// only)
-		EXT_L = new Vector();
-		EXT_R = new Vector();
-		for (int c = 0; c < 8; c++) {
-			EXT_L.add(((Vector) GUIs.elementAt(1)).elementAt(2 * c));
-			EXT_R.add(((Vector) GUIs.elementAt(1)).elementAt((2 * c) + 1));
-		}
-	}
-
-	public void stereoLink(boolean b) {
-		if (b) {
-			((Patch)sidEditController.getPatch()).setStereoLink(true);
-			linkPar(EXT_L, EXT_R); // Link external outputs 2 by 2
-			linkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
-			// filter
-			// left
-			// &
-			// right
-			linkPar((Vector) GUIs.elementAt(4), (Vector) GUIs.elementAt(5)); // Link
-			// V1
-			// &
-			// V2
-			linkPar((Vector) GUIs.elementAt(6), (Vector) GUIs.elementAt(7)); // Link
-			// master
-			// L
-			// &
-			// R
-			linkPar((Vector) GUIs.elementAt(8), (Vector) GUIs.elementAt(9)); // Link
-			// LFO's
-			linkPar((Vector) GUIs.elementAt(10), (Vector) GUIs.elementAt(11)); // Link
-			// Envelopes
-			linkPar((Vector) GUIs.elementAt(12), (Vector) GUIs.elementAt(13)); // Link
-			// Sequencers
-		} else {
-			((Patch)sidEditController.getPatch()).setStereoLink(false);
-			unlinkPar(EXT_L, EXT_R); // Unlink external outputs 2 by 2
-			unlinkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
-			// filter
-			// left
-			// &
-			// right
-			unlinkPar((Vector) GUIs.elementAt(4), (Vector) GUIs.elementAt(5)); // Link
-			// V1
-			// &
-			// V2
-			unlinkPar((Vector) GUIs.elementAt(6), (Vector) GUIs.elementAt(7)); // Link
-			// master
-			// L
-			// &
-			// R
-			unlinkPar((Vector) GUIs.elementAt(8), (Vector) GUIs.elementAt(9)); // Link
-			// LFO's
-			unlinkPar((Vector) GUIs.elementAt(10), (Vector) GUIs.elementAt(11)); // Link
-			// Envelopes
-			unlinkPar((Vector) GUIs.elementAt(12), (Vector) GUIs.elementAt(13)); // Link
-			// Sequencers
-		}
-	}
-
-	protected void linkPar(Vector left, Vector right) {
-		for (int c = 0; c < left.size(); c++) {
-			SIDSysexParameterControlGUI g1 = (SIDSysexParameterControlGUI) left
-					.elementAt(c);
-			SIDSysexParameterControlGUI g2 = (SIDSysexParameterControlGUI) right
-					.elementAt(c);
-			g1.addMidiParameter(g2.getMidiParameter());
-			g2.addMidiParameter(g1.getMidiParameter());
-		}
-	}
-
-	protected void unlinkPar(Vector left, Vector right) {
-		for (int c = 0; c < left.size(); c++) {
-			SIDSysexParameterControlGUI g1 = (SIDSysexParameterControlGUI) left
-					.elementAt(c);
-			SIDSysexParameterControlGUI g2 = (SIDSysexParameterControlGUI) right
-					.elementAt(c);
-			g1.removeMidiParameter(g2.getMidiParameter());
-			g2.removeMidiParameter(g1.getMidiParameter());
-		}
-	}
+	}	
 }

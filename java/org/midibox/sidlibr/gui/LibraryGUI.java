@@ -32,15 +32,12 @@ import org.midibox.sidlibr.SIDLibController;
 public class LibraryGUI extends JPanel implements ChangeListener, Observer {
 	private SIDLibController sidLibController;
 	private JTabbedPane tabbedPane = new JTabbedPane();
-	private BankTable[] bankTables = new BankTable[7];
-	// private EnsBankTable ensBankTable;
-	private static String[] bankNames = { "A", "B", "C", "D", "E", "F", "G" };
+	private BankTable[] bankTables = new BankTable[8];
+	private static String[] bankNames = {"ENS", "A", "B", "C", "D", "E", "F", "G" };
 
 	public LibraryGUI(SIDLibController sidLibController) {
 		this.sidLibController = sidLibController;
-		// ensBankTable = new EnsBankTable(sidLibController);
-		// tabbedPane.addTab("ENS", ensBankTable);
-		for (int c = 0; c < 7; c++) {
+		for (int c = 0; c < bankTables.length; c++) {
 			bankTables[c] = new BankTable(sidLibController, c);
 			tabbedPane.addTab(bankNames[c], bankTables[c]);
 		}
@@ -50,15 +47,15 @@ public class LibraryGUI extends JPanel implements ChangeListener, Observer {
 
 	public void stateChanged(javax.swing.event.ChangeEvent e) {
 		sidLibController.setCurrentBankNumber(tabbedPane.getSelectedIndex());
-		int patchNumber = bankTables[tabbedPane.getSelectedIndex()]
-				.getSelectedRow();
-		if (patchNumber < 0) {
-			patchNumber = 0;
+		int[] patchNumber = bankTables[tabbedPane.getSelectedIndex()].getSelectedRows();
+		if (patchNumber.length==0) {
+			 bankTables[tabbedPane.getSelectedIndex()].resetSelection();
+			patchNumber = new int[]{0};
 		}
 		sidLibController.setCurrentPatchNumber(patchNumber);
 	}
 
 	public void update(Observable observable, Object object) {
-
+		this.repaint();
 	}
 }

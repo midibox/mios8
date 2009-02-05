@@ -25,18 +25,25 @@ import javax.sound.midi.Receiver;
 public class Bank {
 	private Patch[] bank;
 	public static int patchSize = 2072; // Number of SysEx string characters
+	public static int ensembleSize = 1048; // Number of SysEx string characters
 	public static int bankSize = 128;
+	private boolean isEnsembleBank;
 	private Receiver receiver;
 
-	public Bank(Receiver receiver) {
+	public Bank(Receiver receiver, boolean isEnsembleBank) {
 		this.receiver = receiver;
+		this.isEnsembleBank = isEnsembleBank;
 		initBank();
 	}
 
 	public void initBank() {
 		bank = new Patch[bankSize];
 		for (int c = 0; c < bankSize; c++) {
-			bank[c] = new Patch(receiver);
+			if (isEnsembleBank) {
+				bank[c] = new Patch(receiver,256);
+			} else {
+				bank[c] = new Patch(receiver,512);
+			}
 		}
 	}
 
@@ -47,15 +54,32 @@ public class Bank {
 	public Patch getPatchAt(int i) {
 		return bank[i];
 	}
+	
+	public Patch[] getPatchesAt(int[] iarray) {
+		Patch[] patchset = new Patch[iarray.length];
+		for (int i=0;i< iarray.length;i++) {
+			patchset[i] = bank[iarray[i]];
+		}
+		return patchset;
+	}
+	
+	public boolean isEnsembleBank() {
+		return isEnsembleBank;
+	}
 
 	public String parseBankSyx(String syx) {
 		String status = "succesful";
 		try {
 			initBank();
-			for (int i = 0; i < syx.length() / patchSize; i++) {
-				bank[i] = new Patch(receiver);
-				String stat = bank[i].parsePatch(syx.substring(i * patchSize,
-						(i + 1) * patchSize));
+			int parsesize;
+			if (isEnsembleBank) {
+				parsesize = ensembleSize;
+			} else {
+				parsesize = patchSize;
+			}
+			for (int i = 0; i < syx.length() / parsesize; i++) {
+				bank[i] = new Patch(receiver,512);
+				String stat = bank[i].parsePatch(syx.substring(i * parsesize, (i + 1) * parsesize));
 				if (status == "checksum error") {
 					status = stat;
 					break;

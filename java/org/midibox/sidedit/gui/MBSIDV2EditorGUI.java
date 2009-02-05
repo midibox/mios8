@@ -39,6 +39,7 @@ import org.midibox.sidedit.gui.bassline.BasslineGUI;
 import org.midibox.sidedit.gui.drum.DrumGUI;
 import org.midibox.sidedit.gui.lead.LeadGUI;
 import org.midibox.sidedit.gui.multi.MultiGUI;
+import org.midibox.sidedit.gui.ensemble.EnsembleGUI;
 import org.midibox.sidlibr.Patch;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.MyButtonUI;
@@ -68,7 +69,6 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 
 		this.sidEditController = sidEditController;
 		sidEditController.setTooltipListener(this);
-		Patch p = sidEditController.getPatch();
 		stereoLink.setSelected(true);
 		oscillatorLink.setSelected(false);
 		setTooltip("");
@@ -79,19 +79,22 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 
 		sidEditController.addObserver(this);
 		remove(editPanel);
-
-		if (p.getEngine() == p.LEAD) {
-			editPanel = new LeadGUI(sidEditController);
-		} else if (p.getEngine() == p.BASSLINE) {
-			editPanel = new BasslineGUI(sidEditController);
-		} else if (p.getEngine() == p.DRUM) {
-			editPanel = new DrumGUI(sidEditController);
-		} else if (p.getEngine() == p.MULTI) {
-			editPanel = new MultiGUI(sidEditController);
+		
+		if (sidEditController.getPatch().isEnsemble()) {
+			editPanel = new EnsembleGUI(sidEditController);	
+		} else {
+			Patch p = (Patch)sidEditController.getPatch();
+			if (p.getEngine() == p.LEAD) {
+				editPanel = new LeadGUI(sidEditController);
+			} else if (p.getEngine() == p.BASSLINE) {
+				editPanel = new BasslineGUI(sidEditController);
+			} else if (p.getEngine() == p.DRUM) {
+				editPanel = new DrumGUI(sidEditController);
+			} else if (p.getEngine() == p.MULTI) {
+				editPanel = new MultiGUI(sidEditController);
+			}
 		}
-
 		add(editPanel);
-
 		repaint();
 		setVisible(true);
 	}

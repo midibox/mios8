@@ -27,19 +27,15 @@ import java.util.Observer;
 
 public class SIDLibController extends Observable implements Observer,
 		ActionListener {
-	private Object copyPasteBuffer;
+	private Patch[] copyPasteBuffer;
 	private FileHandler fileHandler = new FileHandler();
-
-	private int currentPatchNumber = 0;
+	
+	private int[] currentPatchNumber = new int[]{0};
 	private int currentBankNumber = 0;
 	private int[] requestBankIndices;
-	private Bank[] patchBanks = new Bank[7];
-	private EnsBank ensBank;
-
+	private Bank[] patchBanks = new Bank[8];	
 	private Boolean openEditor = false;
-	private int coresHardware = 15; // AND mask for selected cores --- we
-	// assume, that all cores are available by
-	// default
+	private int coresHardware = 15; // AND mask for selected cores --- we assume, that all cores are available by default
 	private int coresSelected = 1;
 
 	private SysExController sysexController;
@@ -47,10 +43,12 @@ public class SIDLibController extends Observable implements Observer,
 	public SIDLibController(SysExController sysexController) {
 		this.sysexController = sysexController;
 		sysexController.addObserver(this);
-		// ensBank = new EnsBank(sysexController.getReceiver());
-		for (int i = 0; i < patchBanks.length; i++) {
-			patchBanks[i] = new Bank(sysexController.getReceiver());
+		
+		patchBanks[0] = new Bank(sysexController.getReceiver(),true);
+		for (int i = 1; i < patchBanks.length; i++) {
+			patchBanks[i] = new Bank(sysexController.getReceiver(),false);			
 		}
+		
 		requestBankIndices = new int[128];
 		for (int i = 0; i < requestBankIndices.length; i++) {
 			requestBankIndices[i] = i;
@@ -79,24 +77,19 @@ public class SIDLibController extends Observable implements Observer,
 			if (sysexController.isDone()) {
 				// Sends notification to SIDV2librarianGUI when done...
 				openEditor = true;
-				sysexController.dumpPatchToBuffer(patchBanks[currentBankNumber]
-						.getPatchAt(currentPatchNumber), getCores());
+				sysexController.dumpPatchToBuffer(patchBanks[currentBankNumber].getPatchAt(currentPatchNumber[0]), getCores());
 			}
 		}
 	}
 
 	public Patch getCurrentPatch() {
-		return patchBanks[currentBankNumber].getPatchAt(currentPatchNumber);
+		return patchBanks[currentBankNumber].getPatchAt(currentPatchNumber[0]);		
 	}
-
+		
 	public Bank getBank(int bankNumber) {
 		return patchBanks[bankNumber];
 	}
-
-	public EnsBank getEnsBank() {
-		return ensBank;
-	}
-
+	
 	public void setCurrentBankNumber(int i) {
 		currentBankNumber = i;
 	}
@@ -105,37 +98,44 @@ public class SIDLibController extends Observable implements Observer,
 		return currentBankNumber;
 	}
 
-	public void setCurrentPatchNumber(int i) {
-		currentPatchNumber = i;
+	public void setCurrentPatchNumber(int[] iarray) {
+		currentPatchNumber = iarray;
 	}
 
 	public int getCurrentPatchNumber() {
-		return currentPatchNumber;
+		return currentPatchNumber[0];
 	}
 
 	public void setPatchAt(Patch p, int patchNumber, int bankNumber) {
 		patchBanks[bankNumber].setPatchAt(patchNumber, p);
 	}
+	
+	public boolean isEnsembleBank() {
+		return currentBankNumber==0;
+	}
 
 	// ****************** Edit functions ***********************
 	public void editCopy() {
-		copyPasteBuffer = patchBanks[currentBankNumber]
-				.getPatchAt(currentPatchNumber);
+		copyPasteBuffer = patchBanks[currentBankNumber].getPatchesAt(currentPatchNumber);
 	}
 
 	public void editPaste() {
-		if ((copyPasteBuffer.getClass() == Patch.class)
-				&& (patchBanks[currentBankNumber]
-						.getPatchAt(currentPatchNumber).getClass() == Patch.class)) {
-			patchBanks[currentBankNumber].setPatchAt(currentPatchNumber,
-					((Patch) copyPasteBuffer).clone());
+		if ((copyPasteBuffer!=null) && patchBanks[currentBankNumber].isEnsembleBank() == copyPasteBuffer[0].isEnsemble()){
+			for (int i=0;i<copyPasteBuffer.length;i++) {
+				if (currentPatchNumber[0]+i > patchBanks[currentBankNumber].bankSize-1) {
+					break;
+				} else {
+					patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[0]+i,copyPasteBuffer[i].clone());
+				}
+			}
+			setChanged();
+			notifyObservers("Data changed");
+			clearChanged();
 		}
-		setChanged();
-		notifyObservers("Data changed");
-		clearChanged();
 	}
 
 	public void editSwap(int a, int b) {
+		/*
 		Patch temp_a = patchBanks[currentBankNumber].getPatchAt(a);
 		Patch temp_b = patchBanks[currentBankNumber].getPatchAt(b);
 		patchBanks[currentBankNumber].setPatchAt(a, temp_b);
@@ -143,21 +143,24 @@ public class SIDLibController extends Observable implements Observer,
 		setChanged();
 		notifyObservers("Data changed");
 		clearChanged();
+		*/
 	}
 
 	public void editCut() {
-		copyPasteBuffer = patchBanks[currentBankNumber]
-				.getPatchAt(currentPatchNumber);
-		patchBanks[currentBankNumber].setPatchAt(currentPatchNumber, new Patch(
-				sysexController.getReceiver()));
-		setChanged();
-		notifyObservers("Data changed");
-		clearChanged();
+		copyPasteBuffer = patchBanks[currentBankNumber].getPatchesAt(currentPatchNumber);
+		editClear();
 	}
 
 	public void editClear() {
-		patchBanks[currentBankNumber].setPatchAt(currentPatchNumber, new Patch(
-				sysexController.getReceiver()));
+		int s;
+		if (patchBanks[currentBankNumber].isEnsembleBank()) {
+			s = 256;
+		} else {
+			s = 512;
+		}
+		for (int i=0;i < currentPatchNumber.length;i++) {
+			patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),s));
+		}
 		setChanged();
 		notifyObservers("Data changed");
 		clearChanged();
@@ -170,17 +173,27 @@ public class SIDLibController extends Observable implements Observer,
 	}
 
 	public void initCurrentBank() {
-		patchBanks[currentBankNumber] = new Bank(sysexController.getReceiver());
+		if (currentBankNumber==0) {
+			patchBanks[currentBankNumber] = new Bank(sysexController.getReceiver(),true);
+		} else {
+			patchBanks[currentBankNumber] = new Bank(sysexController.getReceiver(),false);
+		}		
 		setChanged();
 		notifyObservers("Data changed");
 		clearChanged();
 	}
 
 	public void initCurrentPatch(Object object) {
-		patchBanks[currentBankNumber].setPatchAt(currentPatchNumber, new Patch(
-				sysexController.getReceiver()));
-		patchBanks[currentBankNumber].getPatchAt(currentPatchNumber).setEngine(
-				object);
+		if (patchBanks[currentBankNumber].isEnsembleBank()) {
+			for(int i=0;i<currentPatchNumber.length;i++) {
+				patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),256));
+			}
+		} else {
+			for(int i=0;i<currentPatchNumber.length;i++) {
+				patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),512));
+				patchBanks[currentBankNumber].getPatchAt(currentPatchNumber[i]).setEngine(object);
+			}
+		}
 		setChanged();
 		notifyObservers("Data changed");
 		clearChanged();
@@ -192,15 +205,7 @@ public class SIDLibController extends Observable implements Observer,
 			coresHardware = (Integer) sysexController.pickMeUp;
 			System.out.println(coresHardware);
 		} else if (object == "Patch ready") {
-			patchBanks[sysexController.requestBank].setPatchAt(
-					sysexController.requestPatch[sysexController.requestCount],
-					(Patch) sysexController.pickMeUp);
-			setChanged();
-			notifyObservers("Data changed");
-			clearChanged();
-		} else if (object == "Ensemble ready") {
-			// ensBanks[currentBankNumber].setEnsAt(currentPatchNumber,
-			// (Ensemble)sysexController.pickMeUp);
+			patchBanks[sysexController.requestBank+1].setPatchAt(sysexController.requestPatch[sysexController.requestCount],(Patch) sysexController.pickMeUp);
 			setChanged();
 			notifyObservers("Data changed");
 			clearChanged();
@@ -214,8 +219,7 @@ public class SIDLibController extends Observable implements Observer,
 
 	public void actionPerformed(ActionEvent ae) {
 		if (ae.getActionCommand().equals("Load bank")) {
-			Bank tempBank = fileHandler.loadPatchBank(sysexController
-					.getReceiver());
+			Bank tempBank = fileHandler.loadPatchBank(sysexController.getReceiver(),patchBanks[currentBankNumber].isEnsembleBank());
 			if (tempBank != null) {
 				patchBanks[currentBankNumber] = tempBank;
 				setChanged();
@@ -223,22 +227,17 @@ public class SIDLibController extends Observable implements Observer,
 				clearChanged();
 			}
 		} else if (ae.getActionCommand().equals("Save bank")) {
-			fileHandler.savePatchBank(patchBanks[currentBankNumber],
-					currentBankNumber);
+			fileHandler.savePatchBank(patchBanks[currentBankNumber],currentBankNumber-1);
 		} else if (ae.getActionCommand().equals("Load patch")) {
-			Patch tempPatch = fileHandler.loadPatch(sysexController
-					.getReceiver());
+			Patch tempPatch = fileHandler.loadPatch(sysexController.getReceiver(),patchBanks[currentBankNumber].isEnsembleBank());
 			if (tempPatch != null) {
-				patchBanks[currentBankNumber].setPatchAt(currentPatchNumber,
-						tempPatch);
+				patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[0],tempPatch);
 				setChanged();
 				notifyObservers("Data changed");
 				clearChanged();
 			}
 		} else if (ae.getActionCommand().equals("Save patch")) {
-			fileHandler.savePatch(patchBanks[currentBankNumber]
-					.getPatchAt(currentPatchNumber), currentBankNumber,
-					currentPatchNumber);
+			fileHandler.savePatch(patchBanks[currentBankNumber].getPatchAt(currentPatchNumber[0]), currentBankNumber-1,currentPatchNumber[0]);
 		} else if (ae.getActionCommand().equals("Edit")) {
 			editCurrentPatch();
 		} else if (ae.getActionCommand().equals("Rename")) {
@@ -264,24 +263,21 @@ public class SIDLibController extends Observable implements Observer,
 		} else if (ae.getActionCommand().equals("Scan hardware")) {
 			sysexController.scanHardware();
 		} else if (ae.getActionCommand().equals("Transmit patch to buffer")) {
-			sysexController.dumpPatchToBuffer(patchBanks[currentBankNumber]
-					.getPatchAt(currentPatchNumber), getCores());
+			sysexController.dumpPatchToBuffer(patchBanks[currentBankNumber].getPatchAt(currentPatchNumber[0]), getCores());			
 		} else if (ae.getActionCommand().equals("Transmit patch to memory")) {
-			sysexController.dumpPatch(
-					new Patch[] { patchBanks[currentBankNumber]
-							.getPatchAt(currentPatchNumber) },
-					new int[] { currentPatchNumber }, currentBankNumber);
+			Patch[] p = new Patch[currentPatchNumber.length];
+			for(int i=0;i<currentPatchNumber.length;i++) {
+				p[i] = patchBanks[currentBankNumber].getPatchAt(currentPatchNumber[i]);
+			}
+			sysexController.dumpPatch(p,currentPatchNumber, currentBankNumber-1);
 		} else if (ae.getActionCommand().equals("Transmit bank to memory")) {
-			sysexController.dumpPatchBank(patchBanks[currentBankNumber],
-					currentBankNumber);
+			sysexController.dumpPatchBank(patchBanks[currentBankNumber],currentBankNumber-1);
 		} else if (ae.getActionCommand().equals("Receive patch from buffer")) {
-			sysexController.requestPatchBuffer(0, currentPatchNumber,
-					currentBankNumber);
+			sysexController.requestPatchBuffer(0, currentPatchNumber[0],currentBankNumber-1);
 		} else if (ae.getActionCommand().equals("Receive patch from memory")) {
-			sysexController.requestPatch(new int[] { currentPatchNumber },
-					currentBankNumber);
+			sysexController.requestPatch(currentPatchNumber, currentBankNumber-1);
 		} else if (ae.getActionCommand().equals("Receive bank from memory")) {
-			sysexController.requestPatch(requestBankIndices, currentBankNumber);
+			sysexController.requestPatch(requestBankIndices, currentBankNumber-1);
 		}
 	}
 }

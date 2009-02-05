@@ -36,93 +36,100 @@ public class EngineSpecs {
 
 	public static Vector getEngine(Patch patch) {
 		Vector engine = new Vector();
-		if (patch.getEngine() == patch.LEAD) {
-			// Lead engine
-			engine.add(createGlobal(patch, SIDSysexInfo.leadParams)); // 0:
-			// Global
-			// parameters
-			engine.add(createExt(patch)); // 1: External parameters
-			engine.add(createFilter(patch, 0)); // 2: Filter Left
-			engine.add(createFilter(patch, 6)); // 3: Filter right
-			engine.add(LeadSpecs.createMSTR(patch)); // 4: Master settings
-			engine.add(createVoice(patch, 0)); // 5: Voice 1 Left
-			engine.add(createVoice(patch, 16)); // 6: Voice 2 Left
-			engine.add(createVoice(patch, 32)); // 7: Voice 3 Left
-			engine.add(createVoice(patch, 48)); // 8: Voice 4 Right
-			engine.add(createVoice(patch, 64)); // 9: Voice 5 Right
-			engine.add(createVoice(patch, 80)); // 10: Voice 6 Right
-			engine.add(LeadSpecs.createLFO(patch)); // 11: LFO's
-			engine.add(LeadSpecs.createENV(patch, 0)); // 12: Envelope 1
-			engine.add(LeadSpecs.createENV(patch, 2)); // 13: Envelope 2
-			engine.add(LeadSpecs.createMOD(patch)); // 14: Modulation paths
-			engine.add(LeadSpecs.createTRIG(patch)); // 15: Trigger matrix
-			engine.add(LeadSpecs.createWT(patch)); // 16: Wavetable sequencer
-		} else if (patch.getEngine() == patch.BASSLINE) {
-			// Bassline
-			engine.add(createGlobal(patch, SIDSysexInfo.basslineParams));// 0:
-			// Global
-			// parameters
-			engine.add(createExt(patch)); // 1: External parameters
-			engine.add(createFilter(patch, 0)); // 2: Filter Left
-			engine.add(createFilter(patch, 6)); // 3: Filter right
-			engine.add(createVoice(patch, 0)); // 4: Left Oscillator
-			engine.add(createVoice(patch, 80)); // 5: Right Oscillator
-			engine.add(BasslineSpecs.createMSTR(patch, 0)); // 6: Left master
-			// set
-			engine.add(BasslineSpecs.createMSTR(patch, 80)); // 7: Right master
-			// set
-			engine.add(BasslineSpecs.createLFO(patch, 0)); // 8: Left LFO's
-			engine.add(BasslineSpecs.createLFO(patch, 80)); // 9: Right LFO's
-			engine.add(BasslineSpecs.createENV(patch, 0)); // 10: Left Envelope
-			engine.add(BasslineSpecs.createENV(patch, 80)); // 11: Right
-			// Envelope
-			engine.add(BasslineSpecs.createSEQ(patch, 0)); // 12: Left Sequencer
-			engine.add(BasslineSpecs.createSEQ(patch, 80)); // 13: Right
-			// Sequencer
-			engine.add(BasslineSpecs.createSEQData(patch)); // 14: Sequencer
-			// data
-		} else if (patch.getEngine() == patch.DRUM) {
-			// Drum
-			engine.add(createGlobal(patch, SIDSysexInfo.drumParams)); // 0:
-			// Global
-			// parameters
-			engine.add(createExt(patch)); // 1: External parameters
-			engine.add(createFilter(patch, 0)); // 2: Filter Left
-			engine.add(createFilter(patch, 6)); // 3: Filter right
-			engine.add(DrumSpecs.createDrumInstr(patch)); // 4: Drum Instruments
-			engine.add(DrumSpecs.createSEQ(patch)); // 5: Sequencer
-			engine.add(DrumSpecs.createSEQData(patch)); // 6: Sequencer data
-		} else if (patch.getEngine() == patch.MULTI) {
-			// Multi
-			engine.add(createGlobal(patch, SIDSysexInfo.multiParams)); // 0:
-			// Global
-			// parameters
-			engine.add(createExt(patch)); // 1: External parameters
-			engine.add(createFilter(patch, 0)); // 2: Filter Left
-			engine.add(createFilter(patch, 6)); // 3: Filter right
-			engine.add(createVoice(patch, 0)); // 4: Inst.1 Voice
-			engine.add(createVoice(patch, 48)); // 5: Inst.2 Voice
-			engine.add(createVoice(patch, 96)); // 6: Inst.3 Voice
-			engine.add(createVoice(patch, 144)); // 7: Inst.4 Voice
-			engine.add(createVoice(patch, 192)); // 8: Inst.5 Voice
-			engine.add(createVoice(patch, 240)); // 9: Inst.6 Voice
-			engine.add(MultiSpecs.createInstrument(patch, 0)); // 10: Inst.1
-			// Rest
-			engine.add(MultiSpecs.createInstrument(patch, 48)); // 11: Inst.2
-			// Rest
-			engine.add(MultiSpecs.createInstrument(patch, 96)); // 12: Inst.3
-			// Rest
-			engine.add(MultiSpecs.createInstrument(patch, 144)); // 13: Inst.4
-			// Rest
-			engine.add(MultiSpecs.createInstrument(patch, 192)); // 14: Inst.5
-			// Rest
-			engine.add(MultiSpecs.createInstrument(patch, 240)); // 15: Inst.6
-			// Rest
-			engine.add(MultiSpecs.createWTdata(patch)); // 16: Wavetable data
+		if (patch.isEnsemble()) {
+			engine.add(EnsembleSpecs.createENSSID(patch, 0)); 		// 1: Ensemble settings for SID1
+			engine.add(EnsembleSpecs.createENSSID(patch, 64));		// 2: Ensemble settings for SID2
+			engine.add(EnsembleSpecs.createENSSID(patch, 128));		// 3: Ensemble settings for SID3
+			engine.add(EnsembleSpecs.createENSSID(patch, 192)); 	// 4: Ensemble settings for SID4			
+		} else {
+			if (patch.getEngine() == patch.LEAD) {
+				// Lead engine
+				engine.add(createGlobal(patch, SIDSysexInfo.leadParams)); // 0:
+				// Global
+				// parameters
+				engine.add(createExt(patch)); // 1: External parameters
+				engine.add(createFilter(patch, 0)); // 2: Filter Left
+				engine.add(createFilter(patch, 6)); // 3: Filter right
+				engine.add(LeadSpecs.createMSTR(patch)); // 4: Master settings
+				engine.add(createVoice(patch, 0)); // 5: Voice 1 Left
+				engine.add(createVoice(patch, 16)); // 6: Voice 2 Left
+				engine.add(createVoice(patch, 32)); // 7: Voice 3 Left
+				engine.add(createVoice(patch, 48)); // 8: Voice 4 Right
+				engine.add(createVoice(patch, 64)); // 9: Voice 5 Right
+				engine.add(createVoice(patch, 80)); // 10: Voice 6 Right
+				engine.add(LeadSpecs.createLFO(patch)); // 11: LFO's
+				engine.add(LeadSpecs.createENV(patch, 0)); // 12: Envelope 1
+				engine.add(LeadSpecs.createENV(patch, 2)); // 13: Envelope 2
+				engine.add(LeadSpecs.createMOD(patch)); // 14: Modulation paths
+				engine.add(LeadSpecs.createTRIG(patch)); // 15: Trigger matrix
+				engine.add(LeadSpecs.createWT(patch)); // 16: Wavetable sequencer
+			} else if (patch.getEngine() == patch.BASSLINE) {
+				// Bassline
+				engine.add(createGlobal(patch, SIDSysexInfo.basslineParams));// 0:
+				// Global
+				// parameters
+				engine.add(createExt(patch)); // 1: External parameters
+				engine.add(createFilter(patch, 0)); // 2: Filter Left
+				engine.add(createFilter(patch, 6)); // 3: Filter right
+				engine.add(createVoice(patch, 0)); // 4: Left Oscillator
+				engine.add(createVoice(patch, 80)); // 5: Right Oscillator
+				engine.add(BasslineSpecs.createMSTR(patch, 0)); // 6: Left master
+				// set
+				engine.add(BasslineSpecs.createMSTR(patch, 80)); // 7: Right master
+				// set
+				engine.add(BasslineSpecs.createLFO(patch, 0)); // 8: Left LFO's
+				engine.add(BasslineSpecs.createLFO(patch, 80)); // 9: Right LFO's
+				engine.add(BasslineSpecs.createENV(patch, 0)); // 10: Left Envelope
+				engine.add(BasslineSpecs.createENV(patch, 80)); // 11: Right
+				// Envelope
+				engine.add(BasslineSpecs.createSEQ(patch, 0)); // 12: Left Sequencer
+				engine.add(BasslineSpecs.createSEQ(patch, 80)); // 13: Right
+				// Sequencer
+				engine.add(BasslineSpecs.createSEQData(patch)); // 14: Sequencer
+				// data
+			} else if (patch.getEngine() == patch.DRUM) {
+				// Drum
+				engine.add(createGlobal(patch, SIDSysexInfo.drumParams)); // 0:
+				// Global
+				// parameters
+				engine.add(createExt(patch)); // 1: External parameters
+				engine.add(createFilter(patch, 0)); // 2: Filter Left
+				engine.add(createFilter(patch, 6)); // 3: Filter right
+				engine.add(DrumSpecs.createDrumInstr(patch)); // 4: Drum Instruments
+				engine.add(DrumSpecs.createSEQ(patch)); // 5: Sequencer
+				engine.add(DrumSpecs.createSEQData(patch)); // 6: Sequencer data
+			} else if (patch.getEngine() == patch.MULTI) {
+				// Multi
+				engine.add(createGlobal(patch, SIDSysexInfo.multiParams)); // 0:
+				// Global
+				// parameters
+				engine.add(createExt(patch)); // 1: External parameters
+				engine.add(createFilter(patch, 0)); // 2: Filter Left
+				engine.add(createFilter(patch, 6)); // 3: Filter right
+				engine.add(createVoice(patch, 0)); // 4: Inst.1 Voice
+				engine.add(createVoice(patch, 48)); // 5: Inst.2 Voice
+				engine.add(createVoice(patch, 96)); // 6: Inst.3 Voice
+				engine.add(createVoice(patch, 144)); // 7: Inst.4 Voice
+				engine.add(createVoice(patch, 192)); // 8: Inst.5 Voice
+				engine.add(createVoice(patch, 240)); // 9: Inst.6 Voice
+				engine.add(MultiSpecs.createInstrument(patch, 0)); // 10: Inst.1
+				// Rest
+				engine.add(MultiSpecs.createInstrument(patch, 48)); // 11: Inst.2
+				// Rest
+				engine.add(MultiSpecs.createInstrument(patch, 96)); // 12: Inst.3
+				// Rest
+				engine.add(MultiSpecs.createInstrument(patch, 144)); // 13: Inst.4
+				// Rest
+				engine.add(MultiSpecs.createInstrument(patch, 192)); // 14: Inst.5
+				// Rest
+				engine.add(MultiSpecs.createInstrument(patch, 240)); // 15: Inst.6
+				// Rest
+				engine.add(MultiSpecs.createWTdata(patch)); // 16: Wavetable data
+			}
 		}
 		return engine;
 	}
-
+	
 	private static Vector createGlobal(Patch patch, String[] engineParams) {
 		Vector globalControl = new Vector();
 

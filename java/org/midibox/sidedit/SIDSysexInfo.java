@@ -44,7 +44,7 @@ public class SIDSysexInfo {
 	// dump
 	// of
 	// <ensemble>
-	public static String editEnsembleRequestSysex = "F000007E4B<device>017800<ensemble>F7"; // Request
+	public static String editEnsembleRequestSysex = "F000007E4B<device>01780000F7"; // Request
 	// the
 	// current
 	// ensemble
@@ -134,7 +134,7 @@ public class SIDSysexInfo {
 	// write
 	// into
 	// RAM)
-	public static String hardEsembleDumpSysex = "F000007E4B<device>027000<ensemble><data><checksum>F7"; // Write
+	public static String hardEnsembleDumpSysex = "F000007E4B<device>027000<ensemble><data><checksum>F7"; // Write
 	// a
 	// dump
 	// to
@@ -177,7 +177,7 @@ public class SIDSysexInfo {
 	// to
 	// be
 	// sent
-	public static String editEsembleDumpSysex = "F000007E4B<device>02780000<data><checksum>F7"; // Write
+	public static String editEnsembleDumpSysex = "F000007E4B<device>02780000<data><checksum>F7"; // Write
 	// an
 	// ensemble
 	// dump
@@ -241,7 +241,7 @@ public class SIDSysexInfo {
 	// 7)
 	// |
 	// <AL>
-	public static String editEsembleParameterSysex = "F000007E4B<device>0670<address><value>F7";// Direct
+	public static String editEnsembleParameterSysex = "F000007E4B<device>0670<address><value>F7";// Direct
 	// Write
 	// of
 	// parameter

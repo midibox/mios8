@@ -129,37 +129,53 @@ public class SysExController extends Observable implements Receiver,
 		if (isDone()) {
 			resetForwarding();
 			requestPatch = patchNumber;
-			requestBank = bankNumber;
-			startRequest(PATCH);
+			if (bankNumber==-1) {
+				requestBank = bankNumber;
+				startRequest(ENSEMBLE);
+			} else {
+				requestBank = bankNumber;
+				startRequest(PATCH);
+			}
 		}
 	}
-
+	
 	public void requestPatchBuffer(int coreNumber, int patch, int bank) {
 		if (isDone()) {
 			resetForwarding();
-			requestPatch = new int[] { patch };
-			requestBank = bank;
-			timer.start();
-			requestCount = 0;
-			tempSyxType = PATCH;
-			progress = new ProgressMonitor(null, "", "Receiving SysEx data...",
-					0, requestPatch.length);
+			requestPatch = new int[]{patch};
+			progress = new ProgressMonitor(null, "", "Receiving SysEx data...", 0, requestPatch.length);		
 			STATE = COLLECTING;
-			String message = SIDSysexInfo.editPatchRequestSysex;
+			timer.start();
+			requestCount = 0;	
+			String message;
+			if (bank==-1) {
+				requestBank = bank;
+				tempSyxType = ENSEMBLE;
+				message = SIDSysexInfo.editEnsembleRequestSysex;
+			} else {
+				requestBank = bank;
+				tempSyxType = PATCH;
+				message = SIDSysexInfo.editPatchRequestSysex;
+			}		
 			message = message.replace("<device>", zeroPadToHex(coreNumber));
 			sendSyx(message);
 		}
 	}
-
+	
 	private void requestNext() {
 		requestCount++;
 		if (requestCount < requestPatch.length) {
 			timer.restart();
-			String message = SIDSysexInfo.hardPatchRequestSysex;
+			String message = "";
+			if (tempSyxType==ENSEMBLE) {
+				message = SIDSysexInfo.hardEnsembleRequestSysex;				
+				message = message.replace("<ensemble>", zeroPadToHex(requestPatch[requestCount]));
+			} else if (tempSyxType==PATCH){
+				message = SIDSysexInfo.hardPatchRequestSysex;
+				message = message.replace("<bank>", zeroPadToHex(requestBank));
+				message = message.replace("<patch>", zeroPadToHex(requestPatch[requestCount]));						
+			}	
 			message = message.replace("<device>", "00");
-			message = message.replace("<bank>", zeroPadToHex(requestBank));
-			message = message.replace("<patch>",
-					zeroPadToHex(requestPatch[requestCount]));
 			sendSyx(message);
 		} else {
 			stopRequest();
@@ -185,8 +201,7 @@ public class SysExController extends Observable implements Receiver,
 	}
 
 	private void scanSyx(String m) {
-		if (progress.isCanceled()
-				|| (tempResponse.substring(0, 5).equals("ERROR"))) {
+		if (progress.isCanceled() || (tempResponse.substring(0, 5).equals("ERROR"))) {
 			stopScan();
 		} else if (tempResponse.substring(0, 12).equals("ACKNOWLEDGED")) {
 			stopScan();
@@ -203,20 +218,10 @@ public class SysExController extends Observable implements Receiver,
 		} else {
 			if (!(m.indexOf(SIDSysexInfo.acknowledgedSysex.replace("<device>",
 					"00")) == 0)) {
-				if (m.substring(0, 2).equalsIgnoreCase("F0")) { // select next
-					// array item
-					// with each F0
+				if (m.substring(0, 2).equalsIgnoreCase("F0")) { // select next array item with each F0
 					tempSyx = m;
 				} else {
-					if (m.substring(0, 2).equalsIgnoreCase("F7")) { // for
-						// windows
-						// (1024
-						// byte
-						// limit, F7
-						// added at
-						// beginning
-						// of next
-						// chunk)
+					if (m.substring(0, 2).equalsIgnoreCase("F7")) { // for windows (1024 byte limit, F7 added at beginning of next chunk)
 						m = m.substring(2);
 					}
 					tempSyx += m;
@@ -232,7 +237,7 @@ public class SysExController extends Observable implements Receiver,
 
 	private void parseSysex() {
 		if (tempSyxType == PATCH) {
-			Patch tempPatch = new Patch(receiver);
+			Patch tempPatch = new Patch(receiver,512);
 			String status = tempPatch.parsePatch(tempSyx);
 			if (statusCheck(status)) {
 				pickMeUp = tempPatch;
@@ -244,9 +249,17 @@ public class SysExController extends Observable implements Receiver,
 				stopRequest();
 			}
 		} else if (tempSyxType == ENSEMBLE) {
-			setChanged();
-			notifyObservers("Ensemble ready");
-			clearChanged();
+			Patch tempEnsemble = new Patch(receiver,256);
+			String status = tempEnsemble.parsePatch(tempSyx);
+			if (statusCheck(status)) {
+				pickMeUp = tempEnsemble;
+				setChanged();
+				notifyObservers("Patch ready");
+				clearChanged();
+				requestNext();
+			} else {
+				stopRequest();
+			}
 		}
 	}
 
@@ -272,31 +285,37 @@ public class SysExController extends Observable implements Receiver,
 			s[0] = getForwardSyx(0);
 			for (int i = 0; i < p.length; i++) {
 				String dataStr = p[i].getSysexString();
-				String strMessage = SIDSysexInfo.hardPatchDumpSysex;
-				strMessage = strMessage.replace("<device>",
-						zeroPadToHex(masterCore));
-				strMessage = strMessage.replace("<bank>",
-						zeroPadToHex(bankNumber));
-				strMessage = strMessage.replace("<patch>",
-						zeroPadToHex(patchNumber[i]));
+				String strMessage;
+				if (p[1].isEnsemble()) {
+					strMessage = SIDSysexInfo.hardEnsembleDumpSysex;
+					strMessage = strMessage.replace("<ensemble>", zeroPadToHex(patchNumber[i]));					
+				} else {
+					strMessage = SIDSysexInfo.hardPatchDumpSysex;
+					strMessage = strMessage.replace("<bank>", zeroPadToHex(bankNumber));
+					strMessage = strMessage.replace("<patch>", zeroPadToHex(patchNumber[i]));					
+				}				
+				strMessage = strMessage.replace("<device>",	zeroPadToHex(masterCore));
 				strMessage = strMessage.replace("<data><checksum>", dataStr);
 				s[i + 1] = strMessage;
 			}
 			startDump(s);
 		}
 	}
-
+	
 	public void dumpPatchToBuffer(Patch p, int cores) {
 		if (isDone() && cores != 0) {
-			String strMessage = SIDSysexInfo.editPatchDumpSysex;
-			strMessage = strMessage.replace("<device>",
-					zeroPadToHex(masterCore));
-			strMessage = strMessage.replace("<data><checksum>", p
-					.getSysexString());
+			String strMessage;
+			if (p.isEnsemble()) {
+				strMessage = SIDSysexInfo.editEnsembleDumpSysex;
+			} else {
+				strMessage = SIDSysexInfo.editPatchDumpSysex;
+			}
+			strMessage = strMessage.replace("<device>",	zeroPadToHex(masterCore));
+			strMessage = strMessage.replace("<data><checksum>", p.getSysexString());
 			startDump(new String[] { getForwardSyx(cores), strMessage });
 		}
 	}
-
+	
 	public void dumpPatchBank(Bank b, int bankNumber) {
 		if (isDone()) {
 			Patch[] p = new Patch[b.bankSize - 1];
@@ -308,7 +327,7 @@ public class SysExController extends Observable implements Receiver,
 			dumpPatch(p, pNr, bankNumber);
 		}
 	}
-
+	
 	private void startDump(String[] s) {
 		dumpStack = s;
 		dumpCount = 0;
@@ -360,7 +379,7 @@ public class SysExController extends Observable implements Receiver,
 		if (syxErrorChk) {
 			checkError(m);
 		}
-
+		
 		if (STATE == COLLECTING) {
 			collectSyx(m);
 		}

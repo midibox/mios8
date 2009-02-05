@@ -43,6 +43,7 @@ import org.midibox.sidedit.gui.controls.SIDSysexParameterControlLFOSelect;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlSlider;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlToggleButton;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlWaveSelect;
+import org.midibox.sidlibr.Patch;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
@@ -181,7 +182,7 @@ public class DrumGUI extends JPanel {
 
 	public void stereoLink(boolean b) {
 		if (b) {
-			sidEditController.getPatch().setStereoLink(true);
+			((Patch)sidEditController.getPatch()).setStereoLink(true);
 			linkPar(EXT_L, EXT_R); // Link external outputs 2 by 2
 			linkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
 			// filter
@@ -189,7 +190,7 @@ public class DrumGUI extends JPanel {
 			// &
 			// right
 		} else {
-			sidEditController.getPatch().setStereoLink(false);
+			((Patch)sidEditController.getPatch()).setStereoLink(false);
 			unlinkPar(EXT_L, EXT_R); // Unlink external outputs 2 by 2
 			unlinkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
 			// filter

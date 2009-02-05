@@ -65,26 +65,24 @@ public class BankTable extends JPanel implements TableModelListener,
 
 		createPopupMenu();
 
-		table = new JTable(new BankTableModel(sidLibController
-				.getBank(bankNumber)));
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table = new JTable(new BankTableModel(sidLibController.getBank(bankNumber)));
+		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		table.getModel().addTableModelListener(this);
 		table.addMouseListener(this);
 		table.addKeyListener(this);
 		table.getSelectionModel().addListSelectionListener(this);
-
-		table.getColumnModel().getColumn(1)
-				.setCellEditor(new PatchNameEditor());
-		table.getColumnModel().getColumn(0).setPreferredWidth(30);
-		table.getColumnModel().getColumn(1).setPreferredWidth(170);
-		table.getColumnModel().getColumn(2).setPreferredWidth(70);
+		table.getColumnModel().getColumn(1).setCellEditor(new PatchNameEditor());
+		table.getColumnModel().getColumn(0).setPreferredWidth(30);		
+		if (table.getColumnModel().getColumnCount() == 3) {
+			table.getColumnModel().getColumn(1).setPreferredWidth(170);
+			table.getColumnModel().getColumn(2).setPreferredWidth(70);
+		} else {
+			table.getColumnModel().getColumn(1).setPreferredWidth(240);
+		}
 
 		table.setPreferredScrollableViewportSize(new Dimension(table
 				.getPreferredSize().width, Math
 				.round(table.getPreferredSize().height / 4)));
-		// TK: temporary commented out - not available under MacOS, we need a
-		// replacement
-		// table.setFillsViewportHeight(true);
 
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setPreferredSize(new Dimension(
@@ -92,6 +90,11 @@ public class BankTable extends JPanel implements TableModelListener,
 						.getPreferredSize().height / 4)));
 
 		add(scrollPane);
+		resetSelection();
+	}
+	
+	public void resetSelection() {
+		table.getSelectionModel().setSelectionInterval(0, 0);
 	}
 
 	public void tableChanged(TableModelEvent e) {
@@ -99,11 +102,8 @@ public class BankTable extends JPanel implements TableModelListener,
 		int column = e.getColumn();
 		TableModel model = (TableModel) e.getSource();
 		Object data = model.getValueAt(row, column);
-		if ((column == 1)
-				&& !(sidLibController.getBank(bankNumber).getPatchAt(row)
-						.getPatchName().equals((String) data))) {
-			sidLibController.getBank(bankNumber).getPatchAt(row).setPatchName(
-					(String) data);
+		if ((column == 1) && !(sidLibController.getBank(bankNumber).getPatchAt(row).getPatchName().equals((String) data))) {
+			sidLibController.getBank(bankNumber).getPatchAt(row).setPatchName( (String) data);
 		}
 	}
 
@@ -111,9 +111,11 @@ public class BankTable extends JPanel implements TableModelListener,
 		if (object == "Data changed") {
 			Bank b = sidLibController.getBank(bankNumber);
 			TableModel m = table.getModel();
-			for (int c = 0; c < b.bankSize; c++) {
-				m.setValueAt(b.getPatchAt(c).getPatchName(), c, 1);
-				m.setValueAt(b.getPatchAt(c).getEngineStr(), c, 2);
+			if (!b.isEnsembleBank()) {
+				for (int c = 0; c < b.bankSize; c++) {
+					m.setValueAt(b.getPatchAt(c).getPatchName(), c, 1);				
+					m.setValueAt(b.getPatchAt(c).getEngineStr(), c, 2);
+				}
 			}
 		}
 		if (object == "Rename") {
@@ -121,8 +123,8 @@ public class BankTable extends JPanel implements TableModelListener,
 		}
 	}
 
-	public int getSelectedRow() {
-		return table.getSelectedRow();
+	public int[] getSelectedRows() {
+		return table.getSelectedRows();
 	}
 
 	private void maybeShowPopup(MouseEvent e) {
@@ -132,17 +134,16 @@ public class BankTable extends JPanel implements TableModelListener,
 	}
 
 	public void mousePressed(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1) {
-			selectedBeforeDrag = table.getSelectedRow();
+		if (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()) {
+			//selectedBeforeDrag = table.getSelectedRow();
 		}
 		maybeShowPopup(e);
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON1) {
+		if (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()) {
 			if (table.getSelectedRow() != selectedBeforeDrag) {
-				sidLibController.editSwap(selectedBeforeDrag, table
-						.getSelectedRow());
+				//sidLibController.editSwap(selectedBeforeDrag, table.getSelectedRow());
 			}
 		}
 		maybeShowPopup(e);
@@ -309,13 +310,14 @@ public class BankTable extends JPanel implements TableModelListener,
 	}
 
 	public void valueChanged(ListSelectionEvent event) {
-		int patchNumber = table.getSelectedRow();
-		if (patchNumber < 0) {
-			patchNumber = 0;
+		int[] patchNumber = table.getSelectedRows();
+		if (patchNumber.length==0) {
+			resetSelection();
+			patchNumber = new int[]{0};
 		}
-		sidLibController.setCurrentPatchNumber(patchNumber);
+		sidLibController.setCurrentPatchNumber(patchNumber);		
 	}
-
+	
 	public void keyPressed(KeyEvent e) {
 		if ((e.getKeyCode() == KeyEvent.VK_E)
 				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {

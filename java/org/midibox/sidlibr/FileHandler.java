@@ -44,14 +44,8 @@ public class FileHandler {
 		try {
 			saveData(toByteArray(getBankDumpSysex(b, bankNumber)));
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null,
-					"An error has occurred while writing the file!", "Error",
-					JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null,"An error has occurred while writing the file!", "Error",JOptionPane.ERROR_MESSAGE);
 		}
-	}
-
-	public void saveEnsembleBank() {
-
 	}
 
 	public void savePatch(Patch p, int bankNumber, int patchNumber) {
@@ -68,24 +62,23 @@ public class FileHandler {
 
 	}
 
-	public Bank loadPatchBank(Receiver receiver) {
+	public Bank loadPatchBank(Receiver receiver, boolean isEnsemble) {
 		Bank b = null;
 		try {
 			byte[] data = loadData();
 			if (data != null) {
 				String s = MidiUtils.getHexString(data).replace(" ", "");
-				if ((s.length() != 128 * Bank.patchSize)
-						&& (s.length() != 64 * Bank.patchSize)) {
-					JOptionPane
-							.showMessageDialog(
-									null,
-									"This file does not contain a bank with 64 or 128 valid patches!",
-									"Error", JOptionPane.ERROR_MESSAGE);
-				} else {
-					Bank tempBank = new Bank(receiver);
+				if ((isEnsemble && (s.length() == 128 * Bank.ensembleSize || s.length() == 64 * Bank.ensembleSize)) || (!isEnsemble && (s.length() == 128 * Bank.patchSize || s.length() == 64 * Bank.patchSize))) {
+					Bank tempBank = new Bank(receiver,isEnsemble);
 					String status = tempBank.parseBankSyx(s);
 					if (statusCheck(status)) {
 						b = tempBank;
+					}
+				} else {
+					if (isEnsemble) {
+						JOptionPane.showMessageDialog(null,	"This file does not contain a bank with 64 or 128 valid ensembles!","Error", JOptionPane.ERROR_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(null,	"This file does not contain a bank with 64 or 128 valid patches!","Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -97,19 +90,23 @@ public class FileHandler {
 		return b;
 	}
 
-	public Patch loadPatch(Receiver receiver) {
+	public Patch loadPatch(Receiver receiver, boolean isEnsemble) {
 		Patch p = null;
 		try {
 			byte[] data = loadData();
 			if (data != null) {
-				String s = MidiUtils.getHexString(data).replace(" ", "");
-				;
-				if (s.length() != Bank.patchSize) {
-					JOptionPane.showMessageDialog(null,
-							"This file does not contain a valid patch!",
-							"Error", JOptionPane.ERROR_MESSAGE);
+				String s = MidiUtils.getHexString(data).replace(" ", "");				
+				if (isEnsemble && (s.length() != Bank.ensembleSize)) {
+					JOptionPane.showMessageDialog(null,"This file does not contain a valid ensemble!",	"Error", JOptionPane.ERROR_MESSAGE);
+				} else if (!isEnsemble && (s.length() != Bank.patchSize)) {
+					JOptionPane.showMessageDialog(null,"This file does not contain a valid patch!",	"Error", JOptionPane.ERROR_MESSAGE);
 				} else {
-					Patch tempPatch = new Patch(receiver);
+					Patch tempPatch;
+					if (isEnsemble) {
+						tempPatch = new Patch(receiver,256);
+					} else {
+						tempPatch = new Patch(receiver,512);
+					}
 					String status = tempPatch.parsePatch(s);
 					if (statusCheck(status)) {
 						p = tempPatch;
@@ -204,11 +201,16 @@ public class FileHandler {
 		if (patchStr.length() == 1) {
 			patchStr = "0" + patchStr;
 		}
-		String strMessage = SIDSysexInfo.hardPatchDumpSysex;
-		strMessage = strMessage.replace("<device>", "00");
-		strMessage = strMessage.replace("<bank>", "0"
-				+ Integer.toHexString(bankNumber));
-		strMessage = strMessage.replace("<patch>", patchStr);
+		String strMessage;
+		if (bankNumber==-1) {
+			strMessage = SIDSysexInfo.hardEnsembleDumpSysex;
+			strMessage = strMessage.replace("<ensemble>", patchStr);			
+		} else {
+			strMessage = SIDSysexInfo.hardPatchDumpSysex;
+			strMessage = strMessage.replace("<bank>", "0" + Integer.toHexString(bankNumber));
+			strMessage = strMessage.replace("<patch>", patchStr);
+		}		
+		strMessage = strMessage.replace("<device>", "00");				
 		strMessage = strMessage.replace("<data><checksum>", dataStr);
 		return strMessage;
 	}

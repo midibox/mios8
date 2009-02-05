@@ -25,20 +25,32 @@ import javax.swing.table.AbstractTableModel;
 import org.midibox.sidlibr.Bank;
 
 public class BankTableModel extends AbstractTableModel {
-	private String[] columnNames = { "#", "Patch Name", "Engine" };
+	private String[] patchColumnNames = { "#", "Patch Name", "Engine" };
+	private String[] ensembleColumnNames = { "#", "Ensemble Name"};
 	private Object[][] data;
+	private boolean isEnsembleBank;
 
 	public BankTableModel(Bank b) {
-		data = new Object[b.bankSize][3];
-		for (int c = 0; c < b.bankSize; c++) {
-			data[c][0] = intToStr3(c + 1);
-			data[c][1] = b.getPatchAt(c).getPatchName();
-			data[c][2] = b.getPatchAt(c).getEngineStr();
+		if (b.isEnsembleBank()) {
+			isEnsembleBank = true;
+			data = new Object[b.bankSize][2];
+			for (int c = 0; c < b.bankSize; c++) {
+				data[c][0] = intToStr3(c + 1);
+				data[c][1] = "Ensemble " + intToStr3(c + 1);
+			}
+		} else {
+			isEnsembleBank = false;
+			data = new Object[b.bankSize][3];
+			for (int c = 0; c < b.bankSize; c++) {
+				data[c][0] = intToStr3(c + 1);
+				data[c][1] = b.getPatchAt(c).getPatchName();
+				data[c][2] = b.getPatchAt(c).getEngineStr();
+			}
 		}
 	}
 
 	public int getColumnCount() {
-		return columnNames.length;
+		return data[0].length;
 	}
 
 	public int getRowCount() {
@@ -46,7 +58,11 @@ public class BankTableModel extends AbstractTableModel {
 	}
 
 	public String getColumnName(int col) {
-		return columnNames[col];
+		if (isEnsembleBank) {
+			return ensembleColumnNames[col];
+		} else {
+			return patchColumnNames[col];
+		}
 	}
 
 	public Object getValueAt(int row, int col) {
@@ -54,7 +70,7 @@ public class BankTableModel extends AbstractTableModel {
 	}
 
 	public boolean isCellEditable(int row, int col) {
-		if (col == 1) {
+		if (col == 1 & !isEnsembleBank) {
 			return true;
 		} else {
 			return false;

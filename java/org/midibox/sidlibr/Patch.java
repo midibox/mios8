@@ -32,8 +32,11 @@ public class Patch implements Receiver {
 	public static Object DRUM = new Object();
 	public static Object MULTI = new Object();
 	private static int delay = 10; // Delay in ms between Sysex Strings
-	protected int[] patch = new int[512];
+	private int patchSize;
+	private boolean isEnsemble;
+	protected int[] patch;
 	private int WOPT = 0;
+	private int maxSysExLength = 0;
 	protected Receiver receiver;
 
 	// TK: for quick & dirty initialisation
@@ -234,49 +237,59 @@ public class Patch implements Receiver {
 			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
 			0x40, };
 
-	public Patch(Receiver receiver) {
+	public Patch(Receiver receiver, int patchSize) {
 		this.receiver = receiver;
+		this.patchSize = patchSize;
+		if (patchSize==256) {
+			isEnsemble = true;
+		} else {
+			isEnsemble = false;
+		}
 		initPatch();
 	}
 
 	private void initPatch() {
-		// TK: initialize patch depending on engine
-		int e = getParameter(16, 0, 2);
-		int i;
-
-		// (quick & dirty initialisation - presets are based on
-		// $MIOS_PATH/apps/synthesizers/midibox_sid_v2/src/sid_preset_*.inc)
-		// Btw.: I've no idea, why the two nibbles of defaultLeadPatch[] bytes
-		// are swapped - please enlight me ;)
-		switch (e) {
-		case 0:
-			for (i = 0; i < 512; ++i) {
-				patch[i] = ((defaultLeadPatch[i] & 0x0f) << 4)
-						| ((defaultLeadPatch[i] & 0xf0) >> 4);
+		patch = new int[patchSize];
+		if (isEnsemble) {
+			for (int c = 0; c < patchSize; c++) {
+				patch[c] = 0;
 			}
-			setPatchName("Lead Patch      ");
-			break;
-		case 1:
-			for (i = 0; i < 512; ++i) {
-				patch[i] = ((defaultBasslinePatch[i] & 0x0f) << 4)
-						| ((defaultBasslinePatch[i] & 0xf0) >> 4);
+		} else {
+			// TK: initialize patch depending on engine
+			// (quick & dirty initialisation - presets are based on
+			// $MIOS_PATH/apps/synthesizers/midibox_sid_v2/src/sid_preset_*.inc)
+			// Btw.: I've no idea, why the two nibbles of defaultLeadPatch[] bytes
+			// are swapped - please enlight me ;)
+			switch (getParameter(16, 0, 2)) {
+			case 0:
+				for (int i = 0; i < patchSize; ++i) {
+					patch[i] = ((defaultLeadPatch[i] & 0x0f) << 4)
+							| ((defaultLeadPatch[i] & 0xf0) >> 4);
+				}
+				setPatchName("Lead Patch      ");
+				break;
+			case 1:
+				for (int i = 0; i < patchSize; ++i) {
+					patch[i] = ((defaultBasslinePatch[i] & 0x0f) << 4)
+							| ((defaultBasslinePatch[i] & 0xf0) >> 4);
+				}
+				setPatchName("Bassline Patch  ");
+				break;
+			case 2:
+				for (int i = 0; i < patchSize; ++i) {
+					patch[i] = ((defaultDrumPatch[i] & 0x0f) << 4)
+							| ((defaultDrumPatch[i] & 0xf0) >> 4);
+				}
+				setPatchName("Drum Kit        ");
+				break;
+			case 3:
+				for (int i = 0; i < patchSize; ++i) {
+					patch[i] = ((defaultMultiPatch[i] & 0x0f) << 4)
+							| ((defaultMultiPatch[i] & 0xf0) >> 4);
+				}
+				setPatchName("Multi Patch     ");
+				break;
 			}
-			setPatchName("Bassline Patch  ");
-			break;
-		case 2:
-			for (i = 0; i < 512; ++i) {
-				patch[i] = ((defaultDrumPatch[i] & 0x0f) << 4)
-						| ((defaultDrumPatch[i] & 0xf0) >> 4);
-			}
-			setPatchName("Drum Kit        ");
-			break;
-		case 3:
-			for (i = 0; i < 512; ++i) {
-				patch[i] = ((defaultMultiPatch[i] & 0x0f) << 4)
-						| ((defaultMultiPatch[i] & 0xf0) >> 4);
-			}
-			setPatchName("Multi Patch     ");
-			break;
 		}
 	}
 
@@ -296,9 +309,8 @@ public class Patch implements Receiver {
 	}
 
 	public Object getEngine() {
-		int e = getParameter(16, 0, 2);
 		Object engine = new Object();
-		switch (e) {
+		switch (getParameter(16, 0, 2)) {
 		case 0:
 			engine = LEAD;
 			break;
@@ -319,9 +331,8 @@ public class Patch implements Receiver {
 	}
 
 	public String getEngineStr() {
-		int e = getParameter(16, 0, 2);
 		String engine = "";
-		switch (e) {
+		switch (getParameter(16, 0, 2)) {
 		case 0:
 			engine = "LEAD";
 			break;
@@ -356,12 +367,12 @@ public class Patch implements Receiver {
 		}
 		return (s + checksum);
 	}
-
+		
 	public String parsePatch(String d) {
 		String status;
 		int dsi = 20; // Index where real patch data starts
 		int checksum = 0;
-		for (int i = 0; i < 512; i++) {
+		for (int i = 0; i < patchSize; i++) {
 			String s1 = d.substring((4 * i) + dsi + 1, (4 * i) + dsi + 2);
 			String s2 = d.substring((4 * i) + dsi + 3, (4 * i) + dsi + 4);
 			checksum = checksum + Integer.parseInt(s1, 16);
@@ -369,8 +380,7 @@ public class Patch implements Receiver {
 			int temp = Integer.parseInt(s1 + s2, 16);
 			patch[i] = temp;
 		}
-		int chk = Integer.parseInt(d.substring((4 * 512) + dsi, (4 * 512) + dsi
-				+ 2), 16);
+		int chk = Integer.parseInt(d.substring((4 * patchSize) + dsi, (4 * patchSize) + dsi	+ 2), 16);
 		if (chk != (-checksum & 0x7F)) {
 			status = "checksum error";
 		} else {
@@ -386,7 +396,7 @@ public class Patch implements Receiver {
 	public int[] getPatch() {
 		return patch;
 	}
-
+	
 	public void setEngine(Object object) {
 		if (object == LEAD) {
 			setParameter(16, 0, 0, 2, true);
@@ -397,7 +407,7 @@ public class Patch implements Receiver {
 		} else if (object == MULTI) {
 			setParameter(16, 3, 0, 2, true);
 		}
-
+		
 		// TK: patch has to be re-initialized after engine change
 		initPatch();
 	}
@@ -532,25 +542,41 @@ public class Patch implements Receiver {
 			WOPT = WOPT & 0x01;
 		}
 	}
+	
+	public boolean isEnsemble() {
+		return isEnsemble;
+	}
 
 	public void sysexSend(int addr, int value, int bytes) {
 		SysexMessage sysexMessage = new SysexMessage();
+		String strMessage;
+		if (isEnsemble) {
+			strMessage = SIDSysexInfo.editEnsembleParameterSysex;			
+		} else {
+			strMessage = SIDSysexInfo.editPatchParameterSysex;
+			strMessage = strMessage.replace("<wopt>", "0" + Integer.toHexString(WOPT));			
+		}		
+		strMessage = strMessage.replace("<device>", "00");
+		strMessage = strMessage.replace("<address>", calcAddr(addr));
+		strMessage = strMessage.replace("<value>", calcValue(value, bytes));
+		
+		// When the length of the Sysex String is shorter than any previous strings, pad the end with F7 bytes to make it identical in size
+		// This is yet another workaround for the freakin' Java Sysex bug!
+		if (strMessage.length() > maxSysExLength) {
+			maxSysExLength = strMessage.length();
+		} else {
+			while (strMessage.length() < maxSysExLength) {
+				strMessage = strMessage + "F7";
+			}				
+		}
+		
+		int nLengthInBytes = strMessage.length() / 2;
+		byte[] abMessage = new byte[nLengthInBytes];
+		for (int i = 0; i < nLengthInBytes; i++) {
+			abMessage[i] = (byte) Integer.parseInt(strMessage.substring(i * 2, i * 2 + 2), 16);
+		}
+		//System.out.println(strMessage);
 		try {
-			String strMessage = SIDSysexInfo.editPatchParameterSysex;
-			strMessage = strMessage.replace("<device>", "00");
-			strMessage = strMessage.replace("<wopt>", "0"
-					+ Integer.toHexString(WOPT));
-			strMessage = strMessage.replace("<address>", calcAddr(addr));
-			strMessage = strMessage.replace("<value>", calcValue(value, bytes));
-
-			int nLengthInBytes = strMessage.length() / 2;
-			byte[] abMessage = new byte[nLengthInBytes];
-			for (int i = 0; i < nLengthInBytes; i++) {
-				abMessage[i] = (byte) Integer.parseInt(strMessage.substring(
-						i * 2, i * 2 + 2), 16);
-			}
-
-			System.out.println(strMessage);
 			sysexMessage.setMessage(abMessage, abMessage.length);
 		} catch (Exception e) {
 			System.out.println("exception!");
@@ -603,7 +629,7 @@ public class Patch implements Receiver {
 	}
 
 	public Patch clone() {
-		Patch p = new Patch(receiver);
+		Patch p = new Patch(receiver, patchSize);
 		p.setPatch(patch.clone());
 		return p;
 	}
