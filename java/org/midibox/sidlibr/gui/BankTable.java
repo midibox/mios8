@@ -32,6 +32,7 @@ import java.util.EventObject;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -65,14 +66,16 @@ public class BankTable extends JPanel implements TableModelListener,
 
 		createPopupMenu();
 
-		table = new JTable(new BankTableModel(sidLibController.getBank(bankNumber)));
+		table = new JTable(new BankTableModel(sidLibController
+				.getBank(bankNumber)));
 		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		table.getModel().addTableModelListener(this);
 		table.addMouseListener(this);
 		table.addKeyListener(this);
 		table.getSelectionModel().addListSelectionListener(this);
-		table.getColumnModel().getColumn(1).setCellEditor(new PatchNameEditor());
-		table.getColumnModel().getColumn(0).setPreferredWidth(30);		
+		table.getColumnModel().getColumn(1)
+				.setCellEditor(new PatchNameEditor());
+		table.getColumnModel().getColumn(0).setPreferredWidth(30);
 		if (table.getColumnModel().getColumnCount() == 3) {
 			table.getColumnModel().getColumn(1).setPreferredWidth(170);
 			table.getColumnModel().getColumn(2).setPreferredWidth(70);
@@ -92,7 +95,7 @@ public class BankTable extends JPanel implements TableModelListener,
 		add(scrollPane);
 		resetSelection();
 	}
-	
+
 	public void resetSelection() {
 		table.getSelectionModel().setSelectionInterval(0, 0);
 	}
@@ -102,8 +105,11 @@ public class BankTable extends JPanel implements TableModelListener,
 		int column = e.getColumn();
 		TableModel model = (TableModel) e.getSource();
 		Object data = model.getValueAt(row, column);
-		if ((column == 1) && !(sidLibController.getBank(bankNumber).getPatchAt(row).getPatchName().equals((String) data))) {
-			sidLibController.getBank(bankNumber).getPatchAt(row).setPatchName( (String) data);
+		if ((column == 1)
+				&& !(sidLibController.getBank(bankNumber).getPatchAt(row)
+						.getPatchName().equals((String) data))) {
+			sidLibController.getBank(bankNumber).getPatchAt(row).setPatchName(
+					(String) data);
 		}
 	}
 
@@ -113,7 +119,7 @@ public class BankTable extends JPanel implements TableModelListener,
 			TableModel m = table.getModel();
 			if (!b.isEnsembleBank()) {
 				for (int c = 0; c < b.bankSize; c++) {
-					m.setValueAt(b.getPatchAt(c).getPatchName(), c, 1);				
+					m.setValueAt(b.getPatchAt(c).getPatchName(), c, 1);
 					m.setValueAt(b.getPatchAt(c).getEngineStr(), c, 2);
 				}
 			}
@@ -128,6 +134,30 @@ public class BankTable extends JPanel implements TableModelListener,
 	}
 
 	private void maybeShowPopup(MouseEvent e) {
+		
+		
+		if (e.getButton() == MouseEvent.BUTTON3) {
+			
+			JTable source = (JTable) e.getSource();
+			
+			int index = source.rowAtPoint(e.getPoint());
+			
+			int [] selectedRows = source.getSelectedRows();
+			
+			boolean rowSelected = false;
+			
+			for (int r = 0; r < selectedRows.length; r++) {
+				if (selectedRows[r] == index) {
+					rowSelected = true;
+					break;
+				}
+			}
+			
+			if (!rowSelected) {
+				source.setRowSelectionInterval(index, index);
+			}
+		}
+		
 		if (e.isPopupTrigger()) {
 			popupMenu.show(e.getComponent(), e.getX(), e.getY());
 		}
@@ -135,15 +165,17 @@ public class BankTable extends JPanel implements TableModelListener,
 
 	public void mousePressed(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()) {
-			//selectedBeforeDrag = table.getSelectedRow();
+			// selectedBeforeDrag = table.getSelectedRow();
 		}
+		
 		maybeShowPopup(e);
 	}
 
 	public void mouseReleased(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()) {
 			if (table.getSelectedRow() != selectedBeforeDrag) {
-				//sidLibController.editSwap(selectedBeforeDrag, table.getSelectedRow());
+				// sidLibController.editSwap(selectedBeforeDrag,
+				// table.getSelectedRow());
 			}
 		}
 		maybeShowPopup(e);
@@ -311,13 +343,13 @@ public class BankTable extends JPanel implements TableModelListener,
 
 	public void valueChanged(ListSelectionEvent event) {
 		int[] patchNumber = table.getSelectedRows();
-		if (patchNumber.length==0) {
+		if (patchNumber.length == 0) {
 			resetSelection();
-			patchNumber = new int[]{0};
+			patchNumber = new int[] { 0 };
 		}
-		sidLibController.setCurrentPatchNumber(patchNumber);		
+		sidLibController.setCurrentPatchNumber(patchNumber);
 	}
-	
+
 	public void keyPressed(KeyEvent e) {
 		if ((e.getKeyCode() == KeyEvent.VK_E)
 				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
