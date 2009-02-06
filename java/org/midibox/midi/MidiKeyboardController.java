@@ -136,7 +136,7 @@ public class MidiKeyboardController extends MidiParameterControlManager {
 		addMidiParameter(modWheel);
 
 		pitchWheel = new MidiParameterControl(MidiParameterControl.RANGE,
-				receiver, MidiParameter.PITCH_BEND, globalChannel, 0, 8192,
+				receiver, MidiParameter.PITCH_BEND, globalChannel, 0, 8191,
 				8192);
 		pitchWheel.addObserver(this);
 		addMidiParameter(pitchWheel);
