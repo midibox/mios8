@@ -129,7 +129,7 @@ do_exec("cd ${release_dir}; jar cvfm ${release_dir}.jar ${manifest} .");
 do_exec("zip -r ${release_dir}.zip ${release_dir}.jar");
 
 # remove directory
-#do_exec("/bin/rm -rf ${release_dir}");
+do_exec("/bin/rm -rf ${release_dir}");
 
 # thats all!
 exit;
