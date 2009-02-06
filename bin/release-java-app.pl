@@ -126,7 +126,9 @@ do_exec("echo \"Main-Class: ${main_class}\" >> ${release_dir}/${manifest}\n");
 do_exec("cd ${release_dir}; jar cvfm ${release_dir}.jar ${manifest} .");
 
 # create .zip file of release
-do_exec("zip -r ${release_dir}.zip ${release_dir}.jar");
+my @release_path = split("/", $release_dir);
+my $release_name = $release_path[scalar(@release_path)-1];
+do_exec("cd " . join("/", splice(@release_path, 0, -1)) . "; zip ${release_name}.zip ${release_name}.jar");
 
 # remove directory
 do_exec("/bin/rm -rf ${release_dir}");
