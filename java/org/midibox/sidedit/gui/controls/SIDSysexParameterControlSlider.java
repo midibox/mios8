@@ -49,6 +49,9 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.slider = slider;
 
+		slider.setMinimum(midiParameter.getMidiMinValue());
+		slider.setMaximum(midiParameter.getMidiMaxValue());
+
 		FaderUI faderUI = new FaderUI(ImageLoader
 				.getImageIcon("plasticSlider_horiz.png"), ImageLoader
 				.getImageIcon("plasticSlider_vert.png"), false);
@@ -83,12 +86,13 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 	}
 
 	public void stateChanged(ChangeEvent ce) {
+
 		if (update) {
+
 			update = false;
-			int newval = (int) ((((float) slider.getValue() / (float) slider
-					.getMaximum()) * ((float) midiParameter.getMidiMaxValue() - (float) midiParameter
-					.getMidiMinValue())) + (float) midiParameter
-					.getMidiMinValue());
+
+			int newval = slider.getValue();
+
 			midiParameter.setMidiValue(newval, true);
 
 			for (int c = 0; c < midiParameters.size(); c++) {
@@ -102,14 +106,15 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 	}
 
 	public void updateGraphics() {
+
 		super.updateGraphics();
+
 		if (update) {
+
 			update = false;
-			int newval = (int) ((((float) midiParameter.getMidiValue() - (float) midiParameter
-					.getMidiMinValue()) / ((float) midiParameter
-					.getMidiMaxValue() - (float) midiParameter
-					.getMidiMinValue())) * (float) slider.getMaximum());
-			slider.setValue(newval);
+
+			slider.setValue(midiParameter.getMidiValue());
+
 			update = true;
 		}
 	}

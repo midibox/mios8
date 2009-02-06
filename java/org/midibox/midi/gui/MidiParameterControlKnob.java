@@ -49,8 +49,8 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 		panel.setOpaque(false);
 		panel.add(knob);
 
-		knob.setMinValue(midiParameter.getMidiMinValue());
-		knob.setMaxValue(midiParameter.getMidiMaxValue());
+		knob.setMinimum(midiParameter.getMidiMinValue());
+		knob.setMaximum(midiParameter.getMidiMaxValue());
 
 		add(panel, BorderLayout.CENTER);
 		knob.addChangeListener(this);
@@ -62,35 +62,30 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 	public void mouseWheelMoved(MouseWheelEvent mwe) {
 		knob
 				.setValue((int) (knob.getValue() - (mwe.getWheelRotation() * ((mouseWheelResolution / 100) * (knob
-						.getMaxValue() - knob.getMinValue())))));
+						.getMaximum() - knob.getMinimum())))));
 	}
 
 	public void stateChanged(ChangeEvent ce) {
+
 		if (update) {
+
 			update = false;
 
-			int newval = (int) ((knob.getValue() / knob.getMaxValue()) * (midiParameter
-					.getMidiMaxValue() - midiParameter.getMidiMinValue()))
-					+ midiParameter.getMidiMinValue();
+			midiParameter.setMidiValue(knob.getValue(), true);
 
-			midiParameter.setMidiValue(newval, true);
 			update = true;
 		}
 	}
 
 	public void updateGraphics() {
+
 		super.updateGraphics();
+
 		if (update) {
+
 			update = false;
 
-			float val = (((float) midiParameter.getMidiValue() - (float) midiParameter
-					.getMidiMinValue()) / ((float) midiParameter
-					.getMidiMaxValue() - (float) midiParameter
-					.getMidiMinValue()));
-
-			knob
-					.setValue((int) (val * (knob.getMaxValue() - knob
-							.getMinValue())));
+			knob.setValue(midiParameter.getMidiValue());
 
 			update = true;
 		}
@@ -100,8 +95,8 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 		super.update(observable, object);
 		if (object == midiParameter.HIGH_RESOLUTION) {
 
-			knob.setMinValue(midiParameter.getMidiMinValue());
-			knob.setMaxValue(midiParameter.getMidiMaxValue());
+			knob.setMinimum(midiParameter.getMidiMinValue());
+			knob.setMaximum(midiParameter.getMidiMaxValue());
 		}
 	}
 }

@@ -89,9 +89,9 @@ public class Knob extends JComponent implements MouseListener,
 
 	private float ang = startAng;
 
-	private int minValue = 0;
+	private int minimum = 0;
 
-	private int maxValue = 100;
+	private int maximum = 100;
 
 	private int value;
 
@@ -135,20 +135,20 @@ public class Knob extends JComponent implements MouseListener,
 		setValue(value - clickSpeed);
 	}
 
-	public float getMaxValue() {
-		return maxValue;
+	public int getMaximum() {
+		return maximum;
 	}
 
-	public void setMaxValue(int maxValue) {
-		this.maxValue = maxValue;
+	public void setMaximum(int maxValue) {
+		this.maximum = maxValue;
 	}
 
-	public int getMinValue() {
-		return minValue;
+	public int getMinimum() {
+		return minimum;
 	}
 
-	public void setMinValue(int minValue) {
-		this.minValue = minValue;
+	public void setMinimum(int minValue) {
+		this.minimum = minValue;
 	}
 
 	public int getValue() {
@@ -157,8 +157,8 @@ public class Knob extends JComponent implements MouseListener,
 
 	public void setValue(int value) {
 
-		value = Math.min(value, maxValue);
-		value = Math.max(value, minValue);
+		value = Math.min(value, maximum);
+		value = Math.max(value, minimum);
 
 		if (value != this.value) {
 
@@ -259,10 +259,15 @@ public class Knob extends JComponent implements MouseListener,
 
 		if (icon != null) {
 
+			int range = maximum - minimum;
+
+			int val = value - minimum;
+
+			float percentage = (float) val / (float) range;
+
 			g2d.clipRect(offsetX, offsetY, icon.getIconHeight(), icon
 					.getIconHeight());
-			offsetX -= icon.getIconHeight()
-					* ((int) ((float) value / (float) maxValue * noImages));
+			offsetX -= icon.getIconHeight() * ((int) (percentage * noImages));
 			icon.paintIcon(this, g2d, offsetX, offsetY);
 			g2d.dispose();
 		}
@@ -305,7 +310,7 @@ public class Knob extends JComponent implements MouseListener,
 
 	public void mouseDragged(MouseEvent me) {
 		if (mouseDragType == LINEAR) {
-			float f = (dragSpeed * maxValue)
+			float f = (dragSpeed * maximum)
 					* (float) ((me.getX() - me.getY()) - dragpos);
 			setValue((int) (startVal + f));
 		}
@@ -330,13 +335,13 @@ public class Knob extends JComponent implements MouseListener,
 		else if (k == KeyEvent.VK_LEFT || k == KeyEvent.VK_DOWN)
 			decValue();
 		else if (k == KeyEvent.VK_PAGE_UP)
-			setValue(value + ((maxValue - minValue) / 10));
+			setValue(value + ((maximum - minimum) / 10));
 		else if (k == KeyEvent.VK_PAGE_DOWN)
-			setValue(value - ((maxValue - minValue) / 10));
+			setValue(value - ((maximum - minimum) / 10));
 		else if (k == KeyEvent.VK_END)
-			setValue(maxValue);
+			setValue(maximum);
 		else if (k == KeyEvent.VK_HOME)
-			setValue(minValue);
+			setValue(minimum);
 	}
 
 	public void keyReleased(KeyEvent e) {

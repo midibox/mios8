@@ -67,24 +67,28 @@ public class MidiParameterControlSlider extends MidiParameterControlGUI
 						.getMaximum() - slider.getMinimum()))))));
 	}
 
-	public void updateGraphics() {
-		super.updateGraphics();
+	public void stateChanged(ChangeEvent ce) {
+
 		if (update) {
+
 			update = false;
-			slider
-					.setValue((int) ((((float) midiParameter.getMidiValue() / (float) midiParameter
-							.getMidiMaxValue())) * (float) (slider.getMaximum())));
+
+			midiParameter.setMidiValue(slider.getValue(), true);
+
 			update = true;
 		}
 	}
 
-	public void stateChanged(ChangeEvent ce) {
+	public void updateGraphics() {
+
+		super.updateGraphics();
+
 		if (update) {
+
 			update = false;
-			midiParameter.setMidiValue(Math
-					.round(((float) slider.getValue() / (float) slider
-							.getMaximum())
-							* (float) midiParameter.getMidiMaxValue()), true);
+
+			slider.setValue(midiParameter.getMidiValue());
+
 			update = true;
 		}
 	}
