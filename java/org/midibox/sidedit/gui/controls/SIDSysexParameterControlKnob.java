@@ -35,7 +35,7 @@ import org.midibox.utils.gui.Knob;
 public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 		implements ChangeListener, MouseWheelListener {
 
-	public static float mouseWheelResolution = 10.0f;
+	public static float mouseWheelResolution = 0.1f;
 
 	private Knob knob;
 
@@ -60,9 +60,9 @@ public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent mwe) {
-		knob
-				.setValue((int) (knob.getValue() - (mwe.getWheelRotation() * ((mouseWheelResolution / 100) * (knob
-						.getMaximum() - knob.getMinimum())))));
+		knob.setValue((int) (knob.getValue() - ((mwe.getWheelRotation() * Math
+				.max(mouseWheelResolution
+						* (knob.getMaximum() - knob.getMinimum()), 1)))));
 	}
 
 	public void stateChanged(ChangeEvent ce) {

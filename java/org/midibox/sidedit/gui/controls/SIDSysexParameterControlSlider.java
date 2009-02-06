@@ -38,7 +38,7 @@ import org.midibox.utils.gui.ImageLoader;
 public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 		implements ChangeListener, MouseWheelListener {
 
-	public static float mouseWheelResolution = 10.0f;
+	public static float mouseWheelResolution = 0.1f;
 
 	private JSlider slider;
 
@@ -81,8 +81,10 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 
 	public void mouseWheelMoved(MouseWheelEvent mwe) {
 		slider
-				.setValue((int) (slider.getValue() - (mwe.getWheelRotation() * ((mouseWheelResolution / 100f) * (float) ((slider
-						.getMaximum() - slider.getMinimum()))))));
+				.setValue((int) (slider.getValue() - ((mwe.getWheelRotation() * Math
+						.max(mouseWheelResolution
+								* (slider.getMaximum() - slider.getMinimum()),
+								1)))));
 	}
 
 	public void stateChanged(ChangeEvent ce) {

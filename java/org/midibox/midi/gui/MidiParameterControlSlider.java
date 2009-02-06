@@ -36,7 +36,7 @@ import org.midibox.midi.MidiParameterControl;
 public class MidiParameterControlSlider extends MidiParameterControlGUI
 		implements ChangeListener, MouseWheelListener {
 
-	public static float mouseWheelResolution = 10.0f;
+	public static float mouseWheelResolution = 0.1f;
 
 	private JSlider slider;
 
@@ -63,8 +63,10 @@ public class MidiParameterControlSlider extends MidiParameterControlGUI
 
 	public void mouseWheelMoved(MouseWheelEvent mwe) {
 		slider
-				.setValue((int) (slider.getValue() - (mwe.getWheelRotation() * ((mouseWheelResolution / 100f) * (float) ((slider
-						.getMaximum() - slider.getMinimum()))))));
+				.setValue((int) (slider.getValue() - ((mwe.getWheelRotation() * Math
+						.max(mouseWheelResolution
+								* (slider.getMaximum() - slider.getMinimum()),
+								1)))));
 	}
 
 	public void stateChanged(ChangeEvent ce) {
