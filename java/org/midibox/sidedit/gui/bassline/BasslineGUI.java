@@ -82,8 +82,7 @@ public class BasslineGUI extends JPanel {
 		tabbedPane.addTab("Sequencer", t6);
 		tabbedPane.addTab("Arpeggiator", t7);
 
-		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(
-				new Color(245, 245, 245), new Color(200, 200, 200)));
+		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(new Color(245, 245, 245), new Color(200, 200, 200)));
 
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);

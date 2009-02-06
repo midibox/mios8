@@ -21,6 +21,7 @@
 package org.midibox.sidedit.gui.ensemble;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -33,6 +34,7 @@ import javax.swing.JToggleButton;
 import org.midibox.sidedit.SIDEditController;
 import org.midibox.sidedit.SIDSysexParameterControl;
 import org.midibox.sidedit.gui.FilterGUI;
+import org.midibox.sidedit.gui.MBSIDV2EditorTabbedPaneUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlCombo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
@@ -67,6 +69,8 @@ public class EnsembleGUI extends JPanel {
 		tabbedPane.addTab("SID2", t2);
 		tabbedPane.addTab("SID3", t3);
 		tabbedPane.addTab("SID4", t4);
+		
+		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(new Color(245, 245, 245), new Color(200, 200, 200)));
 		
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
