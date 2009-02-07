@@ -53,8 +53,8 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 		slider.setMaximum(midiParameter.getMidiMaxValue());
 
 		FaderUI faderUI = new FaderUI(ImageLoader
-				.getImageIcon("plasticSlider_horiz.png"), ImageLoader
-				.getImageIcon("plasticSlider_vert.png"), false);
+				.getImageIcon("plasticslider_horiz.png"), ImageLoader
+				.getImageIcon("plasticslider_vert.png"), false);
 
 		faderUI.setTrackWidth(3);
 
