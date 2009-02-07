@@ -688,14 +688,14 @@ SID_MIDI_Hlp_ClrStack_Loop
 ;;     pointer to voice in FSR1
 ;;     pointer to note stack in FSR2
 ;;     new note in SID_MIDI_PARAMETER1
-;;     ARP_MODE flags in TABLAT
+;;     ARP_MODE flags in TMP1
 ;; --------------------------------------------------------------------------
 SID_MIDI_Hlp_ArpNoteOn
 #if EXP_ARP_BEHAVIOUR == 0
 	;; if no note is played anymore, clear stack again (so that new notes can be filled in HOLD mode)
 	rcall	SID_MIDI_Hlp_CheckActiveNote
 #else
-	BRA_IFSET TABLAT, SID_I_V_ARP_MODE_HOLD, ACCESS, SID_MIDI_Hlp_ArpNoteOn_Hold
+	BRA_IFSET TMP1, SID_I_V_ARP_MODE_HOLD, ACCESS, SID_MIDI_Hlp_ArpNoteOn_Hold
 	rcall	SID_MIDI_Hlp_ClrNonActive
 	rgoto	SID_MIDI_Hlp_ArpNoteOn_Cont
 SID_MIDI_Hlp_ArpNoteOn_Hold
@@ -710,7 +710,7 @@ SID_MIDI_Hlp_ArpNoteOn_Clr
 SID_MIDI_Hlp_ArpNoteOn_NoClr
 
 	;; push note into stack - select handler depending on sort mode
-	BRA_IFSET TABLAT, SID_I_V_ARP_MODE_SORTED, ACCESS, SID_MIDI_Hlp_ArpNoteOn_Sort
+	BRA_IFSET TMP1, SID_I_V_ARP_MODE_SORTED, ACCESS, SID_MIDI_Hlp_ArpNoteOn_Sort
 	rcall	SID_MIDI_Hlp_PushArp
 	rgoto	SID_MIDI_Hlp_ArpNoteOn_NoSort
 SID_MIDI_Hlp_ArpNoteOn_Sort

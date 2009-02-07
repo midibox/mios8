@@ -603,7 +603,7 @@ SID_Vx_SET_DELAY_CTR_H	EQU	0x12
 SID_Vx_CLR_DELAY_CTR_L	EQU	0x13
 SID_Vx_CLR_DELAY_CTR_H	EQU	0x14
 
-	;; free offsets: 0x15-0x17 (take care: 0x14 temporary allocated by SID_Vx_D_MODEL_PAR3)
+	;; free offsets: 0x15-0x17 (take care: 0x17 temporary allocated by SID_Vx_D_MODEL_PAR3)
 
 	;; drum engine uses some of these registers on a different way
 SID_Vx_DRUM		EQU	SID_Vx_NOTE		; drum number
@@ -617,7 +617,7 @@ SID_Vx_D_MODEL_PULSEWIDTH EQU	SID_Vx_OLD_TARGET_FRQ_H
 SID_Vx_D_MODEL_WT_SPEED EQU	SID_Vx_ARP_NOTE
 SID_Vx_D_MODEL_WT_END	EQU	SID_Vx_TRANSP_NOTE
 SID_Vx_D_MODEL_WT_LOOP	EQU	SID_Vx_OLD_TRANSP_NOTE
-SID_Vx_D_MODEL_PAR3	EQU	0x14; temporary in voice array
+SID_Vx_D_MODEL_PAR3	EQU	0x17; temporary in voice array
 
 
 SIDL_V1_BASE		EQU	0x200;..0x217

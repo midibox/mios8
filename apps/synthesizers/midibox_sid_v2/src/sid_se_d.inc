@@ -467,7 +467,7 @@ SIDSE_D_Pitch_Frq_AddMul_Cont
 	addwfc	SID_SE_TARGET_FRQ_H, F, BANKED
 
 SIDSE_D_Pitch_NoOffset
-
+	
 	;; ------------------------------------------------------------------
 	;; pitch modulation
 	;; ------------------------------------------------------------------
@@ -809,6 +809,7 @@ SIDSE_D_WT_PlayStep_NSat_Cont
 	movwf	TABLAT
 
 SIDSE_D_WT_PlayStep_NoPar3
+
 	movlw	SID_Vx_D_MODEL_BASENOTE
 	movff	TABLAT, PLUSW1
 
