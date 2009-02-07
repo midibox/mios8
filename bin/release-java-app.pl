@@ -51,11 +51,11 @@ if( -e $release_dir ) {
 }
 
 if( -e "${release_dir}.jar" ) {
-  die "ERROR: .jar file '${release_dir}'.jar does already exist!\n";
+  die "ERROR: .jar file '${release_dir}.jar' does already exist!\n";
 }
 
 if( -e "${release_dir}.zip" ) {
-  die "ERROR: release file '${release_dir}'.zip does already exist!\n";
+  die "ERROR: release file '${release_dir}.zip' does already exist!\n";
 }
 
 
@@ -108,13 +108,16 @@ foreach $java_file (@java_files) {
 system("find ${release_dir} -regex '.*/.svn\$' -exec rm -rf {} \\;");
 
 # remove .class files
-system("find ${release_dir} -regex 'class$' -exec rm -rf {} \\;");
+system("find ${release_dir} -regex '.*class\$' -exec rm -rf {} \\;");
 
 # set timestamp
 do_exec("find ${release_dir} -exec touch {} \\;");
 
 # compile java code
-do_exec("cd ${release_dir}; javac org/midibox/*/*.java org/midibox/*/*/*.java org/midibox/*/*/*/*.java *.java");
+do_exec("cd ${release_dir}; javac -target \"1.5\"  org/midibox/*/*.java org/midibox/*/*/*.java org/midibox/*/*/*/*.java *.java");
+
+# remove .java code for binary release
+system("find ${release_dir} -regex '.*java\$' -exec rm -rf {} \\;");
 
 # create manifest
 my $manifest = "META-INF/MANIFEST.MF";
