@@ -126,6 +126,10 @@ SID_MIDI_L_NoteOn_Loop
 	addwf	FSR2L, F
 	movff	INDF2, TMP1
 
+	;; SID_Ix_Vx_ARP_SPEED_DIV of instrument -> TMP2
+	movlw	SID_Ix_Vx_ARP_SPEED_DIV-SID_Ix_Vx_ARP_MODE
+	movff	PLUSW2, TMP2
+
 	;; push note into WT stack
 	lfsr	FSR2, SID_MV1_BASE + SID_MVx_WT_STACK_0
 	movf	SID_CURRENT_VOICE, W, BANKED
@@ -255,6 +259,10 @@ SID_MIDI_L_NoteOff_Loop
 	addwf	FSR2L, F
 	movff	INDF2, TMP1
 
+	;; SID_Ix_Vx_ARP_SPEED_DIV of instrument -> TMP2
+	movlw	SID_Ix_Vx_ARP_SPEED_DIV-SID_Ix_Vx_ARP_MODE
+	movff	PLUSW2, TMP2
+
 	;; pop note from WT stack if sustain function not active
 	lfsr	FSR2, SID_MV1_BASE + SID_MVx_WT_STACK_0
 	movf	SID_CURRENT_VOICE, W, BANKED
@@ -350,12 +358,12 @@ SID_MIDI_L_CC
 	;; exit if MIDI channel doesn't match (only check for first MIDI voice)
 	movff	SID_MV1_BASE + SID_MVx_MIDI_CHANNEL, WREG
 	cpfseq	SID_CURRENT_CHANNEL, BANKED
-	rgoto SID_MIDI_L_End
+	rgoto	SID_MIDI_L_End
 
 	;; if CC#06 (NRPN data LSB) received, forward to parameter handler
 	movlw	0x06
 	cpfseq	SID_MIDI_PARAMETER1, BANKED
-	rgoto SID_MIDI_L_CC_NoNRPNDataH
+	rgoto	SID_MIDI_L_CC_NoNRPNDataH
 SID_MIDI_L_CC_NRPNDataH
 	;; prepare MIOS_PARAMETER3 (selection options)
 	clrf	MIOS_PARAMETER3		; (L/R selection done in NRPN function)
@@ -366,7 +374,7 @@ SID_MIDI_L_CC_NoNRPNDataH
 	;; if CC#64 (Sustain) received, set/clear sustain flags and release notes if required
 	movlw	0x40
 	cpfseq	SID_MIDI_PARAMETER1, BANKED
-	rgoto SID_MIDI_L_CC_Not64
+	rgoto	SID_MIDI_L_CC_Not64
 SID_MIDI_L_CC_64
 	;; sustain enabled if CC value >= 0x40
 	BRA_IFSET SID_MIDI_PARAMETER2, 6, BANKED, SID_MIDI_L_CC_64_1
@@ -413,7 +421,7 @@ SID_MIDI_L_CC_64_0_Loop_Next
 	incf	SID_CURRENT_VOICE, F, BANKED
 	movlw	SID_Vx_NUM - 1
 	cpfsgt	SID_CURRENT_VOICE, BANKED
-	rgoto SID_MIDI_L_CC_64_0_Loop
+	rgoto	SID_MIDI_L_CC_64_0_Loop
 
 	rgoto	SID_MIDI_L_CC_64_End
 SID_MIDI_L_CC_64_1
@@ -423,8 +431,13 @@ SID_MIDI_L_CC_64_1
 	;; 	rgoto	SID_MIDI_L_CC_64_End
 
 SID_MIDI_L_CC_64_End
+	rgoto	SID_MIDI_L_End
+
 SID_MIDI_L_CC_Not64
 
+	;; handle remaining CCs
+	call	SID_CC_TABLE_Set
+	
 SID_MIDI_L_End
 	return
 

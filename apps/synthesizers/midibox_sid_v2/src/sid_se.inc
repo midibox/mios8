@@ -73,6 +73,7 @@ SID_I_V_ARP_MODE_HOLD		EQU	5	; select hold stack
 SID_I_V_ARP_MODE_DIV_SYNC	EQU	6	; disables divider reset on new notes
 SID_I_V_ARP_MODE_CAC		EQU	7	; constant arp cycle
 
+SID_I_V_ARP_SPEED_DIV_EASY_CHORD EQU	6	; easy chord mode
 SID_I_V_ARP_SPEED_DIV_ONESHOT	EQU	7	; oneshot mode
 
 SID_I_V_SEQ_ON			EQU	6	; drum engine only: sequencer on/off flag

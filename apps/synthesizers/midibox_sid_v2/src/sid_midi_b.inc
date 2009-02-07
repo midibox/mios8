@@ -72,6 +72,10 @@ SID_MIDI_B_NoteOn_Loop_Voice
 	movlw	SID_Ix_Vx_ARP_MODE
 	movff	PLUSW2, TMP1
 
+	;; SID_Ix_Vx_ARP_SPEED_DIV of instrument -> TMP2
+	movlw	SID_Ix_Vx_ARP_SPEED_DIV
+	movff	PLUSW2, TMP2
+
 	;; copy SID_Ix_B_Vx_FLAGS2 to temporary register SID_MIDI_FLAGS
 	movlw	SID_Ix_B_Vx_FLAGS2
 	movff	PLUSW2, SID_MIDI_FLAGS
@@ -231,6 +235,10 @@ SID_MIDI_B_NoteOff_Loop_Voice
 	rcall	SID_MIDI_B_Hlp_FSR2_Ins
 	movlw	SID_Ix_Vx_ARP_MODE
 	movff	PLUSW2, TMP1
+
+	;; SID_Ix_Vx_ARP_SPEED_DIV of instrument -> TMP2
+	movlw	SID_Ix_Vx_ARP_SPEED_DIV
+	movff	PLUSW2, TMP2
 
 	;; copy SID_Ix_B_Vx_FLAGS2 to temporary register SID_MIDI_FLAGS
 	movlw	SID_Ix_B_Vx_FLAGS2

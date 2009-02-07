@@ -16,11 +16,6 @@
 ; ==========================================================================
 
 
-;; experimental arp behaviour for improved playing:
-;; even when HOLD mode not active, a note off doesn't remove notes in stack
-;; the notes of released keys will be removed from stack once a *new* note is played
-#define EXP_ARP_BEHAVIOUR 1
-	
 ;; --------------------------------------------------------------------------
 ;;  This function is called by SID_MPROC when a complete MIDI event has been
 ;;  received
@@ -689,20 +684,29 @@ SID_MIDI_Hlp_ClrStack_Loop
 ;;     pointer to note stack in FSR2
 ;;     new note in SID_MIDI_PARAMETER1
 ;;     ARP_MODE flags in TMP1
+;;     ARP_SPEED_DIV flags in TMP2
 ;; --------------------------------------------------------------------------
 SID_MIDI_Hlp_ArpNoteOn
-#if EXP_ARP_BEHAVIOUR == 0
+	BRA_IFSET TMP2, SID_I_V_ARP_SPEED_DIV_EASY_CHORD, ACCESS, SID_MIDI_Hlp_ArpNoteOnEasy
+
+	;; normal chord entry:	
 	;; if no note is played anymore, clear stack again (so that new notes can be filled in HOLD mode)
 	rcall	SID_MIDI_Hlp_CheckActiveNote
-#else
+	bz	SID_MIDI_Hlp_ArpNoteOn_NoClr
+	rgoto	SID_MIDI_Hlp_ArpNoteOn_Clr
+
+SID_MIDI_Hlp_ArpNoteOnEasy
+	;; easy chord entry:
+	;; even when HOLD mode not active, a note off doesn't remove notes in stack
+	;; the notes of released keys will be removed from stack once a *new* note is played
 	BRA_IFSET TMP1, SID_I_V_ARP_MODE_HOLD, ACCESS, SID_MIDI_Hlp_ArpNoteOn_Hold
 	rcall	SID_MIDI_Hlp_ClrNonActive
 	rgoto	SID_MIDI_Hlp_ArpNoteOn_Cont
 SID_MIDI_Hlp_ArpNoteOn_Hold
 	rcall	SID_MIDI_Hlp_CheckActiveNote
 SID_MIDI_Hlp_ArpNoteOn_Cont
-#endif
 	bz	SID_MIDI_Hlp_ArpNoteOn_NoClr
+
 SID_MIDI_Hlp_ArpNoteOn_Clr
 	movlw	SID_MVx_ARP_STATE	; set SYNC_ARP flag
 	bsf	PLUSW0, SID_MV_ARP_STATE_SYNC_ARP
@@ -736,7 +740,8 @@ SID_MIDI_Hlp_ArpNoteOn_NoSort
 ;;     ARP_MODE flags in TMP1
 ;; --------------------------------------------------------------------------
 SID_MIDI_Hlp_ArpNoteOff
-#if EXP_ARP_BEHAVIOUR == 0
+	BRA_IFSET TMP2, SID_I_V_ARP_SPEED_DIV_EASY_CHORD, ACCESS, SID_MIDI_Hlp_ArpNoteOffEasy
+
 	BRA_IFSET TMP1, SID_I_V_ARP_MODE_HOLD, ACCESS, SID_MIDI_Hlp_ArpNoteOff_Hold
 	;; pop note from stack (pointer to stack in FSR2)
 	rcall	SID_MIDI_Hlp_PopNote
@@ -744,21 +749,22 @@ SID_MIDI_Hlp_ArpNoteOff
 SID_MIDI_Hlp_ArpNoteOff_Hold
 	rcall	SID_MIDI_Hlp_PopArpHold
 SID_MIDI_Hlp_ArpNoteOff_Cont
-
-#else
-	rcall	SID_MIDI_Hlp_PopArpHold
-#endif
-
 	;; release voice if no note in queue anymore
 	BRA_IFSET TMP1, SID_I_V_ARP_MODE_HOLD, ACCESS, SID_MIDI_Hlp_ArpNoteOff_NoClr
-#if EXP_ARP_BEHAVIOUR == 0
 	movlw	SID_MVx_NOTE_STACK_PTR
 	movf	PLUSW0, W
 	bnz	SID_MIDI_Hlp_ArpNoteOff_NoClr
-#else
+	rgoto	SID_MIDI_Hlp_ArpNoteOff_Clr
+
+
+SID_MIDI_Hlp_ArpNoteOffEasy
+	rcall	SID_MIDI_Hlp_PopArpHold
+	;; release voice if no note in queue anymore
+	BRA_IFSET TMP1, SID_I_V_ARP_MODE_HOLD, ACCESS, SID_MIDI_Hlp_ArpNoteOff_NoClr
 	rcall	SID_MIDI_Hlp_CheckActiveNote
 	bz	SID_MIDI_Hlp_ArpNoteOff_NoClr
-#endif
+	;; 	rgoto	SID_MIDI_Hlp_ArpNoteOff_Clr
+
 SID_MIDI_Hlp_ArpNoteOff_Clr
 	movlw	SID_Vx_STATE
 	bcf	PLUSW1, SID_V_STATE_VOICE_ACTIVE

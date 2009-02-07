@@ -47,7 +47,7 @@ SID_PARIN_Set_FromIRQ				; direct entry for SID_PARIN_Mod and SID_PARIN_SetWT
 
 	;; jump depending on mod ID
 	movf	PRODL, W
-	JUMPTABLE_2BYTES 0x39+1 ; entries
+	JUMPTABLE_2BYTES 0x3c+1 ; entries
 	rgoto	SID_PARIN_Set_NOP
 	rgoto	SID_PARIN_Set_7
 	rgoto	SID_PARIN_Set_8
@@ -66,6 +66,7 @@ SID_PARIN_Set_FromIRQ				; direct entry for SID_PARIN_Mod and SID_PARIN_SetWT
 	rgoto	SID_PARIN_Set_OSC123_8
 	rgoto	SID_PARIN_Set_OSC123_12
 	rgoto	SID_PARIN_Set_OSC123_4L
+	rgoto	SID_PARIN_Set_OSC123_5L
 	rgoto	SID_PARIN_Set_OSC123_6L
 	rgoto	SID_PARIN_Set_OSC123_4U
 	rgoto	SID_PARIN_Set_OSC123_PB
@@ -86,6 +87,7 @@ SID_PARIN_Set_FromIRQ				; direct entry for SID_PARIN_Mod and SID_PARIN_SetWT
 	rgoto	SID_PARIN_Set_OSC_INS_8
 	rgoto	SID_PARIN_Set_OSC_INS_12
 	rgoto	SID_PARIN_Set_OSC_INS_4L
+	rgoto	SID_PARIN_Set_OSC_INS_5L
 	rgoto	SID_PARIN_Set_OSC_INS_6L
 	rgoto	SID_PARIN_Set_OSC_INS_4U
 	rgoto	SID_PARIN_Set_OSC_INS_PB
@@ -96,6 +98,7 @@ SID_PARIN_Set_FromIRQ				; direct entry for SID_PARIN_Mod and SID_PARIN_SetWT
 	rgoto	SID_PARIN_Set_OSC_BL_8
 	rgoto	SID_PARIN_Set_OSC_BL_12
 	rgoto	SID_PARIN_Set_OSC_BL_4L
+	rgoto	SID_PARIN_Set_OSC_BL_5L
 	rgoto	SID_PARIN_Set_OSC_BL_6L
 	rgoto	SID_PARIN_Set_OSC_BL_4U
 	rgoto	SID_PARIN_Set_OSC_BL_PB
@@ -315,6 +318,15 @@ SID_PARIN_Set_4L
 	iorwf	INDF1, F
 	return
 
+SID_PARIN_Set_OSC123_5L
+	SID_PARIN_SID_OSC_MACRO		; select SIDL/SIDR OSC1/2/3
+	movlw	0xe0
+	andwf	INDF1, F
+	movf	MIOS_PARAMETER1, W
+	andlw	0x1f
+	iorwf	INDF1, F
+	return
+
 SID_PARIN_Set_OSC123_6L
 	SID_PARIN_SID_OSC_MACRO		; select SIDL/SIDR OSC1/2/3
 	movlw	0xc0
@@ -438,11 +450,21 @@ SID_PARIN_Set_OSC_INS_4L
 	iorwf	INDF1, F
 	return
 
+SID_PARIN_Set_OSC_INS_5L
+	SID_PARIN_SID_OSC_INS_MACRO	; select instrument
+	movlw	0xe0
+	andwf	INDF1, F
+	movf	MIOS_PARAMETER1, W
+	andlw	0x1f
+	iorwf	INDF1, F
+	return
+
 SID_PARIN_Set_OSC_INS_6L
 	SID_PARIN_SID_OSC_INS_MACRO	; select instrument
 	movlw	0xc0
 	andwf	INDF1, F
-	movf	MIOS_PARAMETER1, W
+	rrf	MIOS_PARAMETER1, W
+	rrf	WREG, W
 	andlw	0x3f
 	iorwf	INDF1, F
 	return
@@ -524,6 +546,15 @@ SID_PARIN_Set_OSC_BL_4L
 	andwf	INDF1, F
 	movf	MIOS_PARAMETER1, W
 	andlw	0x0f
+	iorwf	INDF1, F
+	return
+
+SID_PARIN_Set_OSC_BL_5L
+	SID_PARIN_SID_OSC_BL_MACRO	; select BL
+	movlw	0xe0
+	andwf	INDF1, F
+	movf	MIOS_PARAMETER1, W
+	andlw	0x1f
 	iorwf	INDF1, F
 	return
 
@@ -814,7 +845,7 @@ SID_PARIN_Scale
 
 	;; store MAX value in SID_PAR_MAX_[LH]
 	movf	TABLAT, W	; (mod ID)
-	JUMPTABLE_2BYTES 0x39+1 ; entries
+	JUMPTABLE_2BYTES 0x3c+1 ; entries
 	rgoto	SID_PARIN_Scale_0	;NOP
 	rgoto	SID_PARIN_Scale_7	;7
 	rgoto	SID_PARIN_Scale_8	;8
@@ -833,6 +864,7 @@ SID_PARIN_Scale
 	rgoto	SID_PARIN_Scale_8	;OSC123_8
 	rgoto	SID_PARIN_Scale_12	;OSC123_12
 	rgoto	SID_PARIN_Scale_4	;OSC123_4L
+	rgoto	SID_PARIN_Scale_5	;OSC123_5L
 	rgoto	SID_PARIN_Scale_6	;OSC123_6L
 	rgoto	SID_PARIN_Scale_4	;OSC123_4U
 	rgoto	SID_PARIN_Scale_8	;OSC123_PB
@@ -853,6 +885,7 @@ SID_PARIN_Scale
 	rgoto	SID_PARIN_Scale_8	;OSC_INS_8
 	rgoto	SID_PARIN_Scale_12	;OSC_INS_12
 	rgoto	SID_PARIN_Scale_4	;OSC_INS_4L
+	rgoto	SID_PARIN_Scale_5	;OSC_INS_5L
 	rgoto	SID_PARIN_Scale_6	;OSC_INS_6L
 	rgoto	SID_PARIN_Scale_4	;OSC_INS_4U
 	rgoto	SID_PARIN_Scale_8	;OSC_INS_PB
@@ -863,6 +896,7 @@ SID_PARIN_Scale
 	rgoto	SID_PARIN_Scale_8	;OSC_BL_8
 	rgoto	SID_PARIN_Scale_12	;OSC_BL_12
 	rgoto	SID_PARIN_Scale_4	;OSC_BL_4L
+	rgoto	SID_PARIN_Scale_5	;OSC_BL_5L
 	rgoto	SID_PARIN_Scale_6	;OSC_BL_6L
 	rgoto	SID_PARIN_Scale_4	;OSC_BL_4U
 	rgoto	SID_PARIN_Scale_8	;OSC_BL_PB
@@ -928,6 +962,26 @@ SID_PARIN_Scale_4_Down
 SID_PARIN_Scale_4_Up
 	swapf	MIOS_PARAMETER1, W
 	andlw	0xf0
+	movwf	MIOS_PARAMETER2
+	clrf	MIOS_PARAMETER1
+	return
+
+;; ---
+SID_PARIN_Scale_5
+	BRA_IFSET MIOS_PARAMETER3, 3, ACCESS, SID_PARIN_Scale_5_Up
+SID_PARIN_Scale_5_Down
+	rrf	MIOS_PARAMETER2, W
+	rrf	WREG, W
+	rrf	WREG, W
+	andlw	0x1f
+	movwf	MIOS_PARAMETER1
+	clrf	MIOS_PARAMETER2
+	return
+SID_PARIN_Scale_5_Up
+	rlf	MIOS_PARAMETER1, W
+	rlf	WREG, W
+	rlf	WREG, W
+	andlw	0xf8
 	movwf	MIOS_PARAMETER2
 	clrf	MIOS_PARAMETER1
 	return
@@ -1036,7 +1090,7 @@ SID_PARIN_Set16_FromIRQ				; direct entry for SID_PARIN_SetWT
 
 	;; set new value
 	movf	SID_PAR_IX, W, BANKED
-	rcall	SID_PARIN_Set_FromIRQ	; (IRQ already disabled)
+	call	SID_PARIN_Set_FromIRQ	; (IRQ already disabled)
 
 SID_PARIN_Set16_End
 	return

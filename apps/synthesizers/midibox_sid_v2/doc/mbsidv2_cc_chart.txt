@@ -1,0 +1,189 @@
+$Id$
+
+CC Implementation
+~~~~~~~~~~~~~~~~~
+
+Up to 256 parameters are accessible via NRPNs as listed in mbsidv2_parameter_chart.txt
+All parameters are accessible via SysEx as listed in mbsidv2_sysex_implementation.txt
+
+The CC implementation covers the most important parameters at 7bit resolution,
+so that they can be easily accessed from a DAW or a common MIDI controller.
+
+CC changes are non-destructive and won't affect the edit buffer.
+This isn't a bug, but a feature!
+Means: your edits on the Control Surface won't be overwritten by
+incoming CCs, but as an effect they won't be displayed on the LCD,
+and you won't be able to store changes made via CC as a new patch.
+
+Each Engine has an own set of parameters!
+
+
+
+CC Chart of MIDIbox SID V2 --- Lead Engine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+CC # | Hex | Description                                  | Range       |
+=====+=====+==============================================+=============+
+   0 | 00h | Bank change                                  |  0-7: bank  |
+-----+-----+----------------------------------------------+-------------+
+   1 | 01h | Knob #1 (Assignable Parameters)              |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+   2 | 02h | Oscillator Phase Offset                      |  0-127: val |
+   3 | 03h | Oscillator Detune                            |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+   4 | 04h | Filter CutOff Frequency                      |  0-127: val |
+   5 | 05h | Filter Resonance                             |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+   6 | 06h | NRPN MSB Value                               |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+   7 | 07h | Volume (00h-7Fh)                             |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+   8 | 08h | Filter Channels                              |             |
+     |     |   Bit 0: Filter for Voice 1 on/off           |             |
+     |     |   Bit 1: Filter for Voice 2 on/off           |             |
+     |     |   Bit 2: Filter for Voice 3 on/off           |             |
+     |     |   Bit 3: Filter for Audio In on/off          |             |
+   9 | 09h | Filter Mode                                  |             |
+     |     |   Bit 0: LowPass on/off                      |             |
+     |     |   Bit 1: BandPass on/off                     |             |
+     |     |   Bit 2: HighPass on/off                     |             |
+     |     |   Bit 3: Voice 3 off                         |             |
+-----+-----+----------------------------------------------+-------------+
+  16 | 10h | Knob #2 (Assignable Parameters)              |  0-127: val |
+  17 | 11h | Knob #3 (Assignable Parameters)              |  0-127: val |
+  18 | 12h | Knob #4 (Assignable Parameters)              |  0-127: val |
+  19 | 13h | Knob #5 (Assignable Parameters)              |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+  20 | 14h | Voice 1/2/3 Waveform                         |   0-15: val |
+     |     |   Bit 0: Triangle                            |             |
+     |     |   Bit 1: Saw                                 |             |
+     |     |   Bit 2: Pulse                               |             |
+     |     |   Bit 3: Noise (disables all other waveforms)|             |
+     |     |   Bit 4: Disable Voice                       |             |
+     |     |   Bit 5: Sync                                |             |
+     |     |   Bit 6: Ringmodulator                       |             |
+     |     | Example: 02h = 2 = Saw                       |             |
+     |     | Example: 05h = 5 = Triangle & Pulse          |             |
+     |     | Example: 21h = 33 = Triangle & Sync          |             |
+  21 | 15h | Voice 1 Waveform                             |             |
+  22 | 16h | Voice 2 Waveform                             |             |
+  23 | 17h | Voice 3 Waveform                             |             |
+-----+-----+----------------------------------------------+-------------+
+  24 | 18h | Voice 1/2/3 Transpose                        |  0- 63: neg |
+     |     |                                              |     64: off |
+     |     |                                              | 64-127: pos |
+  25 | 19h | Voice 1 Single Transpose                     | see above   |
+  26 | 1Ah | Voice 2 Single Transpose                     | see above   |
+  27 | 1Bh | Voice 3 Single Transpose                     | see above   |
+-----+-----+----------------------------------------------+-------------+
+  28 | 1Ch | Voice 1/2/3 Finetune                         |  0- 64: neg |
+     |     |                                              |     64: off |
+     |     |                                              | 64-127: pos |
+  29 | 1Dh | Voice 1 Single Finetune                      | see above   |
+  30 | 1Eh | Voice 2 Single Finetune                      | see above   |
+  31 | 1Fh | Voice 3 Single Finetune                      | see above   |
+-----+-----+----------------------------------------------+-------------+
+  32 | 20h | Voice 1/2/3 Portamento Rate                  |     0: off  |
+     |     |                                              | 1-127: val  |
+  33 | 21h | Voice 1 Portamento Rate                      | see above   |
+  34 | 22h | Voice 2 Portamento Rate                      | see above   |
+  35 | 23h | Voice 3 Portamento Rate                      | see above   |
+-----+-----+----------------------------------------------+-------------+
+  36 | 24h | Voice 1/2/3 Arp Speed                        |  0- 63: val |
+  37 | 25h | Voice 1/2/3 Arp Gatelength                   |  0- 31: val |
+-----+-----+----------------------------------------------+-------------+
+  38 | 26h | NRPN LSB Value                               |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+  42 | 2Ah | Envelope 1 Depth                             |  0-127: val |
+  43 | 2Bh | Envelope 1 Attack 1                          |  0-127: val |
+  44 | 2Ch | Envelope 1 Decay 1                           |  0-127: val |
+  45 | 2Dh | Envelope 1 Sustain                           |  0-127: val |
+  46 | 2Eh | Envelope 1 Release 1                         |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+  47 | 2Fh | Envelope 2 Depth                             |  0-127: val |
+  48 | 30h | Envelope 2 Attack 1                          |  0-127: val |
+  49 | 31h | Envelope 2 Decay 1                           |  0-127: val |
+  50 | 32h | Envelope 2 Sustain                           |  0-127: val |
+  51 | 33h | Envelope 2 Release 1                         |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+  52 | 34h | LFO1 Depth                                   |  0- 63: neg |
+     |     | negative depth (0-63) inverts the waveform   |     64: off |
+     |     |                                              | 65-127: pos |
+  53 | 35h | LFO2 Depth                                   | see above   |
+  54 | 36h | LFO3 Depth                                   | see above   |
+  55 | 37h | LFO4 Depth                                   | see above   |
+  56 | 38h | LFO5 Depth                                   | see above   |
+  57 | 39h | LFO6 Depth                                   | see above   |
+-----+-----+----------------------------------------------+-------------+
+  58 | 3Ah | LFO1 Rate                                    |      0: off |
+     |     |                                              |  1-127: val |
+  59 | 3Bh | LFO2 Rate                                    | see above   |
+  60 | 3Ch | LFO3 Rate                                    | see above   |
+  61 | 3Dh | LFO4 Rate                                    | see above   |
+  62 | 3Eh | LFO5 Rate                                    | see above   |
+  63 | 3Fh | LFO6 Rate                                    | see above   |
+-----+-----+----------------------------------------------+-------------+
+  64 | 40h | Sustain On/Off                               |  0- 63: off |
+     |     |                                              | 64-127: on  |
+-----+-----+----------------------------------------------+-------------+
+  68 | 44h | Voice 1/2/3 Pulsewidth                       |  0- 63: neg |
+     |     |                                              |     64: mid |
+     |     |                                              | 64-127: pos |
+  69 | 45h | Voice 1 Pulsewidth                           | see above   |
+  70 | 46h | Voice 2 Pulsewidth                           | see above   |
+  71 | 47h | Voice 3 Pulsewidth                           | see above   |
+-----+-----+----------------------------------------------+-------------+
+  72 | 48h | Voice 1/2/3 VCA Attack                       |  0- 15: val |
+  73 | 49h | Voice 1 Single VCA Attack                    |  0- 15: val |
+  74 | 4Ah | Voice 2 Single VCA Attack                    |  0- 15: val |
+  75 | 4Bh | Voice 3 Single VCA Attack                    |  0- 15: val |
+-----+-----+----------------------------------------------+-------------+
+  76 | 4Ch | Voice 1/2/3 VCA Decay                        |  0- 15: val |
+  77 | 4Dh | Voice 1 Single VCA Decay                     |  0- 15: val |
+  78 | 4Eh | Voice 2 Single VCA Decay                     |  0- 15: val |
+  79 | 4Fh | Voice 3 Single VCA Decay                     |  0- 15: val |
+-----+-----+----------------------------------------------+-------------+
+  80 | 50h | Voice 1/2/3 VCA Sustain                      |  0- 15: val |
+  81 | 51h | Voice 1 Single VCA Sustain                   |  0- 15: val |
+  82 | 52h | Voice 2 Single VCA Sustain                   |  0- 15: val |
+  83 | 53h | Voice 3 Single VCA Sustain                   |  0- 15: val |
+-----+-----+----------------------------------------------+-------------+
+  84 | 54h | Voice 1/2/3 VCA Release                      |  0- 15: val |
+  85 | 55h | Voice 1 VCA Release                          |  0- 15: val |
+  86 | 56h | Voice 2 VCA Release                          |  0- 15: val |
+  87 | 57h | Voice 3 VCA Release                          |  0- 15: val |
+-----+-----+----------------------------------------------+-------------+
+  90 | 5Ah | MOD1 Depth                                   |  0- 63: neg |
+     |     | negative depth (0-127) inverts the waveform  |     64: off |
+     |     |                                              | 65-127: pos |
+  91 | 5Bh | MOD2 Depth                                   | see above   |
+  92 | 5Ch | MOD3 Depth                                   | see above   |
+  93 | 5Dh | MOD4 Depth                                   | see above   |
+  94 | 5Eh | MOD5 Depth                                   | see above   |
+  95 | 5Fh | MOD6 Depth                                   | see above   |
+  96 | 60h | MOD7 Depth                                   | see above   |
+  97 | 61h | MOD8 Depth                                   | see above   |
+-----+-----+----------------------------------------------+-------------+
+  98 | 62h | NRPN LSB                                     |  0-127: val |
+  99 | 63h | NRPN MSB                                     |  0-127: val |
+-----+-----+----------------------------------------------+-------------+
+
+
+CC Chart of MIDIbox SID V2 --- Bassline Engine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+additional CCs not implemented yet
+
+
+CC Chart of MIDIbox SID V2 --- Drum Engine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+additional CCs not implemented yet
+
+
+CC Chart of MIDIbox SID V2 --- Multi Engine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+additional CCs not implemented yet
+
+

@@ -44,7 +44,7 @@ SID_PAROUT_Get
 
 	;; jump depending on mod ID
 	movf	PRODL, W
-	JUMPTABLE_2BYTES 0x39+1 ; entries
+	JUMPTABLE_2BYTES 0x3c+1 ; entries
 	rgoto	SID_PAROUT_Get_NOP
 	rgoto	SID_PAROUT_Get_7
 	rgoto	SID_PAROUT_Get_8
@@ -63,6 +63,7 @@ SID_PAROUT_Get
 	rgoto	SID_PAROUT_Get_OSC123_8
 	rgoto	SID_PAROUT_Get_OSC123_12
 	rgoto	SID_PAROUT_Get_OSC123_4L
+	rgoto	SID_PAROUT_Get_OSC123_5L
 	rgoto	SID_PAROUT_Get_OSC123_6L
 	rgoto	SID_PAROUT_Get_OSC123_4U
 	rgoto	SID_PAROUT_Get_OSC123_PB
@@ -83,6 +84,7 @@ SID_PAROUT_Get
 	rgoto	SID_PAROUT_Get_OSC_INS_8
 	rgoto	SID_PAROUT_Get_OSC_INS_12
 	rgoto	SID_PAROUT_Get_OSC_INS_4L
+	rgoto	SID_PAROUT_Get_OSC_INS_5L
 	rgoto	SID_PAROUT_Get_OSC_INS_6L
 	rgoto	SID_PAROUT_Get_OSC_INS_4U
 	rgoto	SID_PAROUT_Get_OSC_INS_PB
@@ -93,6 +95,7 @@ SID_PAROUT_Get
 	rgoto	SID_PAROUT_Get_OSC_BL_8
 	rgoto	SID_PAROUT_Get_OSC_BL_12
 	rgoto	SID_PAROUT_Get_OSC_BL_4L
+	rgoto	SID_PAROUT_Get_OSC_BL_5L
 	rgoto	SID_PAROUT_Get_OSC_BL_6L
 	rgoto	SID_PAROUT_Get_OSC_BL_4U
 	rgoto	SID_PAROUT_Get_OSC_BL_PB
@@ -291,6 +294,12 @@ SID_PAROUT_Get_4L
 	andlw	0x0f
 	rgoto	SID_PAROUT_Get_End
 
+SID_PAROUT_Get_OSC123_5L
+	SID_PAROUT_SID_OSC_MACRO	; select SIDL/SIDR oscillator
+	movf	INDF1, W
+	andlw	0x1f
+	rgoto	SID_PAROUT_Get_End
+
 SID_PAROUT_Get_OSC123_6L
 	SID_PAROUT_SID_OSC_MACRO	; select SIDL/SIDR oscillator
 	movf	INDF1, W
@@ -390,6 +399,12 @@ SID_PAROUT_Get_OSC_INS_4L
 	andlw	0x0f
 	rgoto	SID_PAROUT_Get_End
 
+SID_PAROUT_Get_OSC_INS_5L
+	SID_PAROUT_SID_OSC_INS_MACRO	; select instrument
+	movf	INDF1, W
+	andlw	0x1f
+	rgoto	SID_PAROUT_Get_End
+
 SID_PAROUT_Get_OSC_INS_6L
 	SID_PAROUT_SID_OSC_INS_MACRO	; select instrument
 	movf	INDF1, W
@@ -441,6 +456,12 @@ SID_PAROUT_Get_OSC_BL_4L
 	SID_PAROUT_SID_OSC_BL_MACRO	; select bassline
 	movf	INDF1, W
 	andlw	0x0f
+	rgoto	SID_PAROUT_Get_End
+
+SID_PAROUT_Get_OSC_BL_5L
+	SID_PAROUT_SID_OSC_BL_MACRO	; select bassline
+	movf	INDF1, W
+	andlw	0x1f
 	rgoto	SID_PAROUT_Get_End
 
 SID_PAROUT_Get_OSC_BL_6L

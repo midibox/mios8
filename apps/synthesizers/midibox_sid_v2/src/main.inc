@@ -772,6 +772,7 @@ AIN_NotifyChange_Loop_Next
 #include "sid_parin.inc"
 #include "sid_parout.inc"
 #include "sid_par_table.inc"
+#include "sid_cc_table.inc"
 #include "sid_env_table.inc"
 #include "sid_lfo_table.inc"
 #include "sid_note_table.inc"

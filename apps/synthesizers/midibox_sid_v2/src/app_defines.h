@@ -953,7 +953,7 @@ SID_Ix_Vx_FINETUNE	EQU	0x09	; 8bit
 SID_Ix_Vx_PITCHRANGE	EQU	0x0a	; 7bit
 SID_Ix_Vx_PORTAMENTO	EQU	0x0b	; 8bit
 SID_Ix_Vx_ARP_MODE	EQU	0x0c	; [0] enable, [2:1] dir up/down/U&D/D&U, [3] random, [4] sorted, [5] hold, [6] sync, [7] CAC
-SID_Ix_Vx_ARP_SPEED_DIV EQU	0x0d	; [7] oneshot, [6] reserved, [5:0] own speed or derived from global clock (dividable)
+SID_Ix_Vx_ARP_SPEED_DIV EQU	0x0d	; [7] oneshot, [6] easy chord, [5:0] own speed or derived from global clock (dividable)
 SID_Ix_Vx_ARP_GL_RNG	EQU	0x0e	; [4:0] gatelength [7:5] arp octave range (separate for each voice)
 SID_Ix_Vx_SWINSID_MODE	EQU	0x0f	; [3:0] waveform of second OSC, [4] enable 2nd OSC, [5] x2 pitch, [6] reverse waveform
 

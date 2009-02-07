@@ -59,7 +59,7 @@ PRINT_Vx_ARP_ON		EQU	0x21
 PRINT_Vx_ARP_DIR	EQU	0x22
 PRINT_Vx_ARP_SOR	EQU	0x23
 PRINT_Vx_ARP_HLD	EQU	0x24
-PRINT_Vx_ARP_SNC	EQU	0x25
+PRINT_Vx_ARP_SNC_ESY	EQU	0x25
 PRINT_Vx_ARP_CAC	EQU	0x26
 PRINT_Vx_ARP_GLN	EQU	0x27
 PRINT_Vx_ARP_RNG	EQU	0x28
@@ -210,7 +210,7 @@ CS_MENU_PRINT_Handler
 	rgoto	CS_MENU_PRINT_Vx_ARP_DIR
 	rgoto	CS_MENU_PRINT_Vx_ARP_SOR
 	rgoto	CS_MENU_PRINT_Vx_ARP_HLD
-	rgoto	CS_MENU_PRINT_Vx_ARP_SNC
+	rgoto	CS_MENU_PRINT_Vx_ARP_SNC_ESY
 	rgoto	CS_MENU_PRINT_Vx_ARP_CAC
 	rgoto	CS_MENU_PRINT_Vx_ARP_GLN
 	rgoto	CS_MENU_PRINT_Vx_ARP_RNG
@@ -635,9 +635,9 @@ CS_MENU_PRINT_Vx_ARP_HLD
 	rgoto	CS_MENU_PRINT_OnOff_INDF0
 
 ; --------------------------------------------------------------------------
-CS_MENU_PRINT_Vx_ARP_SNC
+CS_MENU_PRINT_Vx_ARP_SNC_ESY
 	rcall	CS_MENU_PRINT_GetVx
-	movlw	SID_I_V_ARP_MODE_DIV_SYNC
+	movlw	SID_I_V_ARP_MODE_DIV_SYNC ; same as SID_I_V_ARP_SPEED_DIV_EASY_CHORD
 	rgoto	CS_MENU_PRINT_OnOff_INDF0
 
 ; --------------------------------------------------------------------------
