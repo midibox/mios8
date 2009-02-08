@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
@@ -31,10 +32,12 @@ import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -42,6 +45,7 @@ import javax.swing.table.TableModel;
 
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiUtils;
+import org.midibox.utils.gui.ImageLoader;
 
 public class MidiFilterGUI extends JPanel implements ActionListener,
 		TableModelListener, Observer {
@@ -321,7 +325,40 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 
 		mainPanel.add(ccScroll, gbc);
 
-		add(mainPanel);
+		add(mainPanel, BorderLayout.CENTER);
+
+		add(createToolBar(), BorderLayout.NORTH);
+	}
+
+	private JToolBar createToolBar() {
+
+		JToolBar toolBar = new JToolBar();
+
+		toolBar.setRollover(true);
+
+		toolBar.setFloatable(false);
+
+		JButton button = new JButton(ImageLoader.getImageIcon("open.png"));
+
+		button.addActionListener(this);
+
+		button.setMargin(new Insets(2, 2, 2, 2));
+
+		button.setToolTipText("Load MIDI filter definition");
+
+		toolBar.add(button);
+
+		button = new JButton(ImageLoader.getImageIcon("save.png"));
+
+		button.setToolTipText("Save MIDI filter definition");
+
+		button.addActionListener(this);
+
+		button.setMargin(new Insets(2, 2, 2, 2));
+
+		toolBar.add(button);
+
+		return toolBar;
 	}
 
 	public void actionPerformed(ActionEvent ae) {

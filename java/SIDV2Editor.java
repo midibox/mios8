@@ -15,7 +15,7 @@ import org.midibox.apps.SIDV2librarian.gui.SIDV2librarianGUI;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 
-public class SIDV2librarian extends JApplet implements ActionListener {
+public class SIDV2Editor extends JApplet implements ActionListener {
 
 	private org.midibox.apps.SIDV2librarian.SIDV2librarian sidv2librarian;
 
@@ -24,7 +24,7 @@ public class SIDV2librarian extends JApplet implements ActionListener {
 	private Preferences prefs = Preferences.userRoot().node(
 			"org/midibox/apps/SIDV2librarian");
 
-	public SIDV2librarian() {
+	public SIDV2Editor() {
 
 		sidv2librarian = new org.midibox.apps.SIDV2librarian.SIDV2librarian();
 
@@ -88,15 +88,15 @@ public class SIDV2librarian extends JApplet implements ActionListener {
 
 		DialogOwner.setFrame(frame);
 
-		final SIDV2librarian sidv2librarian = new SIDV2librarian();
+		final SIDV2Editor sidV2Editor = new SIDV2Editor();
 
-		frame.setContentPane(sidv2librarian);
+		frame.setContentPane(sidV2Editor);
 
 		frame.setIconImage(ImageLoader.getImageIcon("sid.png").getImage());
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent ev) {
-				sidv2librarian.tryExit();
+				sidV2Editor.tryExit();
 			}
 		});
 
@@ -106,7 +106,7 @@ public class SIDV2librarian extends JApplet implements ActionListener {
 
 		frame.setVisible(true);
 
-		sidv2librarian.init();
+		sidV2Editor.init();
 	}
 
 	private void tryExit() {
