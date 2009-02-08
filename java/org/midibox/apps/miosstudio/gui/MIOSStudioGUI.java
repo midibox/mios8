@@ -271,7 +271,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		// MIDI Device Routing
 
-		Icon icon = ImageLoader.getImageIcon("midiDevices.png");
+		Icon icon = ImageLoader.getImageIcon("midiRouting.png");
 		midiDeviceRoutingGUI = new MidiDeviceRoutingGUI(miosStudio
 				.getMidiDeviceRouting());
 
