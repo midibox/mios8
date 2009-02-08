@@ -11,14 +11,14 @@ import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import org.midibox.apps.SIDV2librarian.gui.SIDV2librarianGUI;
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudiosid.MIOSStudioSID;
+import org.midibox.apps.sidv2editor.gui.SIDV2EditorGUI;
 import org.midibox.utils.gui.ImageLoader;
 
 public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 
-	protected SIDV2librarianGUI sidv2librariangui;
+	protected SIDV2EditorGUI sidv2librariangui;
 
 	protected MIOSStudioInternalFrame sidv2librarianWindow;
 
@@ -38,7 +38,7 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 
 		// SIDV2 Librarian
 
-		sidv2librariangui = new SIDV2librarianGUI(
+		sidv2librariangui = new SIDV2EditorGUI(
 				((org.midibox.apps.miosstudiosid.MIOSStudioSID) miosStudio)
 						.getSidv2librarian());
 

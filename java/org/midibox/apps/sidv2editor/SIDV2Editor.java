@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-package org.midibox.apps.SIDV2librarian;
+package org.midibox.apps.sidv2editor;
 
 import javax.sound.midi.MidiDevice;
 
@@ -27,7 +27,7 @@ import org.midibox.midi.MidiDeviceRouting;
 import org.midibox.sidlibr.SIDLibController;
 import org.midibox.sidlibr.SysExControllerDevice;
 
-public class SIDV2librarian {
+public class SIDV2Editor {
 
 	private MidiDeviceRouting midiDeviceRouting;
 	private SysExControllerDevice sysexControllerDevice;
@@ -39,12 +39,12 @@ public class SIDV2librarian {
 
 	private MidiDeviceManager midiDeviceManager;
 
-	public SIDV2librarian() {
+	public SIDV2Editor() {
 
 		this(new MidiDeviceManager(), new MidiDeviceRouting());
 	}
 
-	public SIDV2librarian(MidiDeviceManager midiDeviceManager,
+	public SIDV2Editor(MidiDeviceManager midiDeviceManager,
 			MidiDeviceRouting midiDeviceRouting) {
 
 		this.midiDeviceManager = midiDeviceManager;

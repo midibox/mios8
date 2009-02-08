@@ -11,24 +11,24 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import org.midibox.apps.SIDV2librarian.gui.SIDV2librarianGUI;
+import org.midibox.apps.sidv2editor.gui.SIDV2EditorGUI;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 
 public class SIDV2Editor extends JApplet implements ActionListener {
 
-	private org.midibox.apps.SIDV2librarian.SIDV2librarian sidv2librarian;
+	private org.midibox.apps.sidv2editor.SIDV2Editor sidv2librarian;
 
-	private SIDV2librarianGUI sidv2librarianGUI;
+	private SIDV2EditorGUI sidv2librarianGUI;
 
 	private Preferences prefs = Preferences.userRoot().node(
 			"org/midibox/apps/SIDV2librarian");
 
 	public SIDV2Editor() {
 
-		sidv2librarian = new org.midibox.apps.SIDV2librarian.SIDV2librarian();
+		sidv2librarian = new org.midibox.apps.sidv2editor.SIDV2Editor();
 
-		sidv2librarianGUI = new SIDV2librarianGUI(sidv2librarian);
+		sidv2librarianGUI = new SIDV2EditorGUI(sidv2librarian);
 
 		setContentPane(sidv2librarianGUI);
 

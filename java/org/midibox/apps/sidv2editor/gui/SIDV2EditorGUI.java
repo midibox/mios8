@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-package org.midibox.apps.SIDV2librarian.gui;
+package org.midibox.apps.sidv2editor.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -46,7 +46,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
-import org.midibox.apps.SIDV2librarian.SIDV2librarian;
+import org.midibox.apps.sidv2editor.SIDV2Editor;
 import org.midibox.sidedit.SIDEditController;
 import org.midibox.sidedit.gui.MBSIDV2EditorGUI;
 import org.midibox.sidlibr.Patch;
@@ -56,12 +56,12 @@ import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SplitButton;
 
-public class SIDV2librarianGUI extends JPanel implements Observer,
+public class SIDV2EditorGUI extends JPanel implements Observer,
 		ActionListener, ItemListener {
 
 	JCheckBoxMenuItem cbMenuItem1, cbMenuItem2, cbMenuItem3, cbMenuItem4;
 
-	private SIDV2librarian sidv2librarian;
+	private SIDV2Editor sidv2librarian;
 	private SIDLibController sidLibController;
 
 	private LibraryGUI libraryGUI;
@@ -71,13 +71,13 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 
 	// private SIDEditController sidEditController;
 
-	private SIDV2librarianMidiDeviceRoutingGUI midiDeviceRoutingGUI;
+	private SIDV2EditorMidiDeviceRoutingGUI midiDeviceRoutingGUI;
 
 	private JMenu fileMenu;
 
 	private JMenu editMenu;
 
-	public SIDV2librarianGUI(SIDV2librarian sidv2librarian) {
+	public SIDV2EditorGUI(SIDV2Editor sidv2librarian) {
 
 		this.sidv2librarian = sidv2librarian;
 
@@ -135,7 +135,7 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 		if (sidv2librarian.getMidiDeviceRouting() != null) {
 
 			// Setup midiDevice routing GUI
-			midiDeviceRoutingGUI = new SIDV2librarianMidiDeviceRoutingGUI(
+			midiDeviceRoutingGUI = new SIDV2EditorMidiDeviceRoutingGUI(
 					sidv2librarian);
 			// midiDeviceRoutingGUI.addMidiDeviceIcon(sidv2librarian.getSysExControllerDevice(),
 			// new ImageIcon(ImageLoader.getImageIcon("sid.png").getImage()));
@@ -149,7 +149,7 @@ public class SIDV2librarianGUI extends JPanel implements Observer,
 		}
 	}
 
-	public SIDV2librarian getSidv2librarian() {
+	public SIDV2Editor getSidv2librarian() {
 		return sidv2librarian;
 	}
 

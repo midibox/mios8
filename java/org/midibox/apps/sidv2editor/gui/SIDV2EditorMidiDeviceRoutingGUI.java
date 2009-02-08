@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-package org.midibox.apps.SIDV2librarian.gui;
+package org.midibox.apps.sidv2editor.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -51,15 +51,15 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.midibox.apps.SIDV2librarian.SIDV2librarian;
+import org.midibox.apps.sidv2editor.SIDV2Editor;
 import org.midibox.midi.MidiDeviceRouting;
 import org.midibox.utils.gui.GuiUtils;
 import org.midibox.utils.gui.ImageLoader;
 
-public class SIDV2librarianMidiDeviceRoutingGUI extends JPanel implements
+public class SIDV2EditorMidiDeviceRoutingGUI extends JPanel implements
 		ChangeListener, ListSelectionListener, ActionListener, Observer {
 
-	private SIDV2librarian sidv2librarian;
+	private SIDV2Editor sidv2librarian;
 
 	private static Icon openIcon = ImageLoader.getImageIcon("midiPortOpen.png");
 
@@ -82,7 +82,7 @@ public class SIDV2librarianMidiDeviceRoutingGUI extends JPanel implements
 
 	private JButton rescan;
 
-	public SIDV2librarianMidiDeviceRoutingGUI(SIDV2librarian sidv2librarian) {
+	public SIDV2EditorMidiDeviceRoutingGUI(SIDV2Editor sidv2librarian) {
 		super(new BorderLayout());
 
 		this.sidv2librarian = sidv2librarian;

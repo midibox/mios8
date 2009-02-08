@@ -1,12 +1,12 @@
 package org.midibox.apps.miosstudiosid;
 
-import org.midibox.apps.SIDV2librarian.SIDV2librarian;
+import org.midibox.apps.sidv2editor.SIDV2Editor;
 
 public class MIOSStudioSID extends org.midibox.apps.miosstudio.MIOSStudio {
 
-	private SIDV2librarian sidv2librarian;
+	private SIDV2Editor sidv2librarian;
 
-	public SIDV2librarian getSidv2librarian() {
+	public SIDV2Editor getSidv2librarian() {
 
 		return sidv2librarian;
 	}
@@ -15,7 +15,7 @@ public class MIOSStudioSID extends org.midibox.apps.miosstudio.MIOSStudio {
 
 		super.createDevices();
 
-		sidv2librarian = new SIDV2librarian(null, null);
+		sidv2librarian = new SIDV2Editor(null, null);
 	}
 
 	protected void routeIndividualDevices() {
