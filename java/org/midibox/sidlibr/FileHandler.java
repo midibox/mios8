@@ -35,9 +35,10 @@ import org.midibox.sidedit.SIDSysexInfo;
 
 public class FileHandler {
 	final JFileChooser fc = new JFileChooser();
-
-	public FileHandler() {
+	private InitPatches initPatches;
+	public FileHandler(InitPatches initPatches) {
 		fc.addChoosableFileFilter(new SysExFilter());
+		this.initPatches = initPatches;
 	}
 
 	public void savePatchBank(Bank b, int bankNumber) {
@@ -58,10 +59,6 @@ public class FileHandler {
 		}
 	}
 
-	public void saveEnsemble() {
-
-	}
-
 	public Bank loadPatchBank(Receiver receiver, boolean isEnsemble) {
 		Bank b = null;
 		try {
@@ -69,7 +66,7 @@ public class FileHandler {
 			if (data != null) {
 				String s = MidiUtils.getHexString(data).replace(" ", "");
 				if ((isEnsemble && (s.length() == 128 * Bank.ensembleSize || s.length() == 64 * Bank.ensembleSize)) || (!isEnsemble && (s.length() == 128 * Bank.patchSize || s.length() == 64 * Bank.patchSize))) {
-					Bank tempBank = new Bank(receiver,isEnsemble);
+					Bank tempBank = new Bank(receiver,isEnsemble, initPatches);
 					String status = tempBank.parseBankSyx(s);
 					if (statusCheck(status)) {
 						b = tempBank;
@@ -103,9 +100,9 @@ public class FileHandler {
 				} else {
 					Patch tempPatch;
 					if (isEnsemble) {
-						tempPatch = new Patch(receiver,256);
+						tempPatch = new Patch(receiver,256, initPatches);
 					} else {
-						tempPatch = new Patch(receiver,512);
+						tempPatch = new Patch(receiver,512, initPatches);
 					}
 					String status = tempPatch.parsePatch(s);
 					if (statusCheck(status)) {
@@ -119,14 +116,6 @@ public class FileHandler {
 					JOptionPane.ERROR_MESSAGE);
 		}
 		return p;
-	}
-
-	public void loadEnsemble() {
-
-	}
-
-	public void loadEnsembleBank() {
-
 	}
 
 	private void saveData(byte[] b) throws IOException {

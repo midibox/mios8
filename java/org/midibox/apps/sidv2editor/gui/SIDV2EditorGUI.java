@@ -337,6 +337,11 @@ public class SIDV2EditorGUI extends JPanel implements Observer,
 		menuItem.setActionCommand("Init MULTI patch");
 		menuItem.addActionListener(this);
 		submenu.add(menuItem);
+		
+		menuItem = new JMenuItem("ENSEMBLE", KeyEvent.VK_P);
+		menuItem.setActionCommand("Init ensemble");
+		menuItem.addActionListener(this);
+		submenu.add(menuItem);
 
 		menuItem = new JMenuItem("Init current bank", KeyEvent.VK_N);
 		menuItem.setActionCommand("Init current bank");
@@ -513,6 +518,7 @@ public class SIDV2EditorGUI extends JPanel implements Observer,
 		item4.setActionCommand("Init MULTI patch");
 		item4.addActionListener(this);
 		ToolbarMenu.add(item4);
+				
 		return ToolbarMenu;
 	}
 

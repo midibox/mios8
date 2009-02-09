@@ -43,6 +43,7 @@ public class LibraryGUI extends JPanel implements ChangeListener, Observer {
 		}
 		add(tabbedPane);
 		tabbedPane.addChangeListener(this);
+		tabbedPane.setSelectedIndex(1);
 	}
 
 	public void stateChanged(javax.swing.event.ChangeEvent e) {

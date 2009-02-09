@@ -56,9 +56,10 @@ public class BankTable extends JPanel implements TableModelListener,
 	private SIDLibController sidLibController;
 	JTable table;
 	JPopupMenu popupMenu;
+	JMenuItem m1, m2, m3, m4, m5;
 	int bankNumber;
 	int selectedBeforeDrag = 0;
-
+	
 	public BankTable(SIDLibController sidLibController, int bankNumber) {
 		this.sidLibController = sidLibController;
 		this.bankNumber = bankNumber;
@@ -159,6 +160,19 @@ public class BankTable extends JPanel implements TableModelListener,
 		}
 		
 		if (e.isPopupTrigger()) {
+			if (sidLibController.getBank(bankNumber).isEnsembleBank()) {
+				m1.setEnabled(false);
+				m2.setEnabled(false);
+				m3.setEnabled(false);
+				m4.setEnabled(false);
+				m5.setEnabled(true);
+			} else {
+				m1.setEnabled(true);
+				m2.setEnabled(true);
+				m3.setEnabled(true);
+				m4.setEnabled(true);
+				m5.setEnabled(false);
+			}
 			popupMenu.show(e.getComponent(), e.getX(), e.getY());
 		}
 	}
@@ -253,30 +267,36 @@ public class BankTable extends JPanel implements TableModelListener,
 		submenu.setMnemonic(KeyEvent.VK_I);
 		popupMenu.add(submenu);
 
-		menuItem = new JMenuItem("LEAD engine", KeyEvent.VK_P);
-		menuItem.setFont(menuItem.getFont().deriveFont(Font.PLAIN));
-		menuItem.setActionCommand("Init LEAD patch");
-		menuItem.addActionListener(this);
-		submenu.add(menuItem);
+		m1 = new JMenuItem("LEAD engine", KeyEvent.VK_P);
+		m1.setFont(m1.getFont().deriveFont(Font.PLAIN));
+		m1.setActionCommand("Init LEAD patch");
+		m1.addActionListener(this);
+		submenu.add(m1);
 
-		menuItem = new JMenuItem("BASSLINE engine", KeyEvent.VK_P);
-		menuItem.setFont(menuItem.getFont().deriveFont(Font.PLAIN));
-		menuItem.setActionCommand("Init BASSLINE patch");
-		menuItem.addActionListener(this);
-		submenu.add(menuItem);
+		m2 = new JMenuItem("BASSLINE engine", KeyEvent.VK_P);
+		m2.setFont(m2.getFont().deriveFont(Font.PLAIN));
+		m2.setActionCommand("Init BASSLINE patch");
+		m2.addActionListener(this);
+		submenu.add(m2);
 
-		menuItem = new JMenuItem("DRUM engine", KeyEvent.VK_P);
-		menuItem.setFont(menuItem.getFont().deriveFont(Font.PLAIN));
-		menuItem.setActionCommand("Init DRUM patch");
-		menuItem.addActionListener(this);
-		submenu.add(menuItem);
+		m3 = new JMenuItem("DRUM engine", KeyEvent.VK_P);
+		m3.setFont(m3.getFont().deriveFont(Font.PLAIN));
+		m3.setActionCommand("Init DRUM patch");
+		m3.addActionListener(this);
+		submenu.add(m3);
 
-		menuItem = new JMenuItem("MULTI engine", KeyEvent.VK_P);
-		menuItem.setFont(menuItem.getFont().deriveFont(Font.PLAIN));
-		menuItem.setActionCommand("Init MULTI patch");
-		menuItem.addActionListener(this);
-		submenu.add(menuItem);
-
+		m4 = new JMenuItem("MULTI engine", KeyEvent.VK_P);
+		m4.setFont(m4.getFont().deriveFont(Font.PLAIN));
+		m4.setActionCommand("Init MULTI patch");
+		m4.addActionListener(this);
+		submenu.add(m4);
+		
+		m5 = new JMenuItem("ENSEMBLE", KeyEvent.VK_S);
+		m5.setFont(m5.getFont().deriveFont(Font.PLAIN));
+		m5.setActionCommand("Init ensemble");
+		m5.addActionListener(this);
+		submenu.add(m5);
+		
 		menuItem = new JMenuItem("Init current bank", KeyEvent.VK_N);
 		menuItem.setFont(menuItem.getFont().deriveFont(Font.PLAIN));
 		menuItem.setActionCommand("Init current bank");

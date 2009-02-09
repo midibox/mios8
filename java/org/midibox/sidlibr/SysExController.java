@@ -38,9 +38,10 @@ public class SysExController extends Observable implements Receiver,
 		ActionListener {
 	public static Object PATCH = new Object();
 	public static Object ENSEMBLE = new Object();
-
 	public Object pickMeUp;
 
+	private InitPatches initPatches;
+	
 	private Timer timer;
 	private int timeOut = 2000;
 
@@ -73,7 +74,11 @@ public class SysExController extends Observable implements Receiver,
 		timer.setInitialDelay(timeOut);
 		STATE = IDLE;
 	}
-
+	
+	public void setInitPatches(InitPatches initPatches) {
+		this.initPatches = initPatches;
+	}
+	
 	public Receiver getReceiver() {
 		return receiver;
 	}
@@ -237,7 +242,7 @@ public class SysExController extends Observable implements Receiver,
 
 	private void parseSysex() {
 		if (tempSyxType == PATCH) {
-			Patch tempPatch = new Patch(receiver,512);
+			Patch tempPatch = new Patch(receiver,512,initPatches);
 			String status = tempPatch.parsePatch(tempSyx);
 			if (statusCheck(status)) {
 				pickMeUp = tempPatch;
@@ -249,7 +254,7 @@ public class SysExController extends Observable implements Receiver,
 				stopRequest();
 			}
 		} else if (tempSyxType == ENSEMBLE) {
-			Patch tempEnsemble = new Patch(receiver,256);
+			Patch tempEnsemble = new Patch(receiver,256,initPatches);
 			String status = tempEnsemble.parsePatch(tempSyx);
 			if (statusCheck(status)) {
 				pickMeUp = tempEnsemble;

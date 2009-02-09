@@ -22,14 +22,23 @@ package org.midibox.sidlibr;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.JOptionPane;
+
+import org.midibox.midi.MidiUtils;
+
 public class SIDLibController extends Observable implements Observer,
 		ActionListener {
-	private Patch[] copyPasteBuffer;
-	private FileHandler fileHandler = new FileHandler();
-	
+	private Patch[] copyPasteBuffer;	
+	private InitPatches initPatches = new InitPatches();
+	private FileHandler fileHandler = new FileHandler(initPatches);
 	private int[] currentPatchNumber = new int[]{0};
 	private int currentBankNumber = 0;
 	private int[] requestBankIndices;
@@ -40,13 +49,14 @@ public class SIDLibController extends Observable implements Observer,
 
 	private SysExController sysexController;
 
-	public SIDLibController(SysExController sysexController) {
+	public SIDLibController(SysExController sysexController) {		
 		this.sysexController = sysexController;
 		sysexController.addObserver(this);
+		sysexController.setInitPatches(initPatches);
 		
-		patchBanks[0] = new Bank(sysexController.getReceiver(),true);
+		patchBanks[0] = new Bank(sysexController.getReceiver(),true, initPatches);
 		for (int i = 1; i < patchBanks.length; i++) {
-			patchBanks[i] = new Bank(sysexController.getReceiver(),false);			
+			patchBanks[i] = new Bank(sysexController.getReceiver(),false, initPatches);			
 		}
 		
 		requestBankIndices = new int[128];
@@ -159,7 +169,7 @@ public class SIDLibController extends Observable implements Observer,
 			s = 512;
 		}
 		for (int i=0;i < currentPatchNumber.length;i++) {
-			patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),s));
+			patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),s, initPatches));
 		}
 		setChanged();
 		notifyObservers("Data changed");
@@ -174,9 +184,9 @@ public class SIDLibController extends Observable implements Observer,
 
 	public void initCurrentBank() {
 		if (currentBankNumber==0) {
-			patchBanks[currentBankNumber] = new Bank(sysexController.getReceiver(),true);
+			patchBanks[currentBankNumber] = new Bank(sysexController.getReceiver(),true, initPatches);
 		} else {
-			patchBanks[currentBankNumber] = new Bank(sysexController.getReceiver(),false);
+			patchBanks[currentBankNumber] = new Bank(sysexController.getReceiver(),false, initPatches);
 		}		
 		setChanged();
 		notifyObservers("Data changed");
@@ -186,11 +196,11 @@ public class SIDLibController extends Observable implements Observer,
 	public void initCurrentPatch(Object object) {
 		if (patchBanks[currentBankNumber].isEnsembleBank()) {
 			for(int i=0;i<currentPatchNumber.length;i++) {
-				patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),256));
+				patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),256, initPatches));
 			}
-		} else {
+		} else if (object!=null) {			
 			for(int i=0;i<currentPatchNumber.length;i++) {
-				patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),512));
+				patchBanks[currentBankNumber].setPatchAt(currentPatchNumber[i], new Patch(sysexController.getReceiver(),512, initPatches));
 				patchBanks[currentBankNumber].getPatchAt(currentPatchNumber[i]).setEngine(object);
 			}
 		}
@@ -258,6 +268,8 @@ public class SIDLibController extends Observable implements Observer,
 			initCurrentPatch(Patch.DRUM);
 		} else if (ae.getActionCommand().equals("Init MULTI patch")) {
 			initCurrentPatch(Patch.MULTI);
+		} else if (ae.getActionCommand().equals("Init ensemble")) {
+			initCurrentPatch(null);
 		} else if (ae.getActionCommand().equals("Init current bank")) {
 			initCurrentBank();
 		} else if (ae.getActionCommand().equals("Scan hardware")) {

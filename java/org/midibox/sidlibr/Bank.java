@@ -28,9 +28,11 @@ public class Bank {
 	public static int ensembleSize = 1048; // Number of SysEx string characters
 	public static int bankSize = 128;
 	private boolean isEnsembleBank;
+	private InitPatches initPatches;
 	private Receiver receiver;
 
-	public Bank(Receiver receiver, boolean isEnsembleBank) {
+	public Bank(Receiver receiver, boolean isEnsembleBank, InitPatches initPatches) {
+		this.initPatches = initPatches;
 		this.receiver = receiver;
 		this.isEnsembleBank = isEnsembleBank;
 		initBank();
@@ -40,9 +42,9 @@ public class Bank {
 		bank = new Patch[bankSize];
 		for (int c = 0; c < bankSize; c++) {
 			if (isEnsembleBank) {
-				bank[c] = new Patch(receiver,256);
+				bank[c] = new Patch(receiver,256,initPatches);
 			} else {
-				bank[c] = new Patch(receiver,512);
+				bank[c] = new Patch(receiver,512,initPatches);
 			}
 		}
 	}
@@ -78,7 +80,7 @@ public class Bank {
 				parsesize = patchSize;
 			}
 			for (int i = 0; i < syx.length() / parsesize; i++) {
-				bank[i] = new Patch(receiver,512);
+				bank[i] = new Patch(receiver,512, initPatches);
 				String stat = bank[i].parsePatch(syx.substring(i * parsesize, (i + 1) * parsesize));
 				if (status == "checksum error") {
 					status = stat;
