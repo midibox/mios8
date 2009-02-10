@@ -57,13 +57,13 @@ public class EnsembleSpecs {
 		ensControl.add(new SIDSysexParameterControl(button, null, patch, 7+offset, 5, 1, "AOUT6"));
 		ensControl.add(new SIDSysexParameterControl(button, null, patch, 7+offset, 6, 1, "AOUT7"));
 		ensControl.add(new SIDSysexParameterControl(button, null, patch, 7+offset, 7, 1, "AOUT8"));		
-		ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 8+offset, 0, 12, "Filter Lmin"));
-		ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 10+offset, 0, 12, "Filter Lmax"));
-		ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 12+offset, 0, 12, "Filter Rmin"));
-		ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 14+offset, 0, 12, "Filter Rmax"));		
+		ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 8+offset, 0, 16, "Filter Lmin"));
+		ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 10+offset, 0, 16, "Filter Lmax"));
+		ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 12+offset, 0, 16, "Filter Rmin"));
+		ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 14+offset, 0, 16, "Filter Rmax"));		
 		for(int i=0;i<6;i++) {
 			ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 16+offset+(i*8), 0, 4, "MIDI chan"));
-			ensControl.add(new SIDSysexParameterControl(button, null, patch, 16+offset+(i*8), 4, 1, "Enable/Disable"));
+			ensControl.add(new SIDSysexParameterControl(button, null, patch, 16+offset+(i*8), 4, 1, "Disable"));
 			ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 17+offset+(i*8), 0, 7, "LowerSplit"));
 			ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 18+offset+(i*8), 0, 7, "UpperSplit"));
 			ensControl.add(new SIDSysexParameterControl(rotary, null, patch, 19+offset+(i*8), 0, 7, "Transpose"));			
