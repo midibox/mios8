@@ -28,7 +28,7 @@ public class ResourceLoader {
 	public static URL getResource(String resourceName) {
 
 		ClassLoader cl = ResourceLoader.class.getClassLoader();
-		URL url = cl.getResource(resourceName);
+		URL url = cl.getResource("res/" + resourceName);
 
 		return url;
 	}
@@ -36,7 +36,7 @@ public class ResourceLoader {
 	public static InputStream getResourceAsStream(String resourceName) {
 
 		ClassLoader cl = ResourceLoader.class.getClassLoader();
-		InputStream inputStream = cl.getResourceAsStream(resourceName);
+		InputStream inputStream = cl.getResourceAsStream("res/" + resourceName);
 
 		return inputStream;
 	}

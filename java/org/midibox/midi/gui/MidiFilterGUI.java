@@ -327,7 +327,7 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 
 		add(mainPanel, BorderLayout.CENTER);
 
-		add(createToolBar(), BorderLayout.NORTH);
+		//add(createToolBar(), BorderLayout.NORTH);
 	}
 
 	private JToolBar createToolBar() {

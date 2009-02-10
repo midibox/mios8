@@ -38,7 +38,7 @@ public class ImageLoader {
 		} else {
 
 			ClassLoader cl = ImageLoader.class.getClassLoader();
-			URL url = cl.getResource("images/" + imageName);
+			URL url = cl.getResource("res/images/" + imageName);
 			imageIcon = new ImageIcon(url);
 			images.put(imageName, imageIcon);
 		}

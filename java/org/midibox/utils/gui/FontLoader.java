@@ -38,7 +38,7 @@ public class FontLoader {
 
 			try {
 				font = Font.createFont(Font.TRUETYPE_FONT,
-						cl.getResourceAsStream("fonts/" + fontName))
+						cl.getResourceAsStream("res/fonts/" + fontName))
 						.deriveFont(fontSize);
 				fonts.put(fontName + fontSize, font);
 			} catch (Exception e) {

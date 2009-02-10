@@ -3,6 +3,7 @@ package org.midibox.sidlibr;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -10,6 +11,7 @@ import javax.sound.midi.Receiver;
 import javax.swing.JOptionPane;
 
 import org.midibox.midi.MidiUtils;
+import org.midibox.utils.ResourceLoader;
 
 public class InitPatches {
 	private int[] lead;
@@ -69,12 +71,12 @@ public class InitPatches {
 	private byte[] loadData(String s) throws IOException {
 		byte[] b = null;
 		try {
-			URL url = this.getClass().getResource("/patches/" + s);		
+			URL url = ResourceLoader.getResource("/patches/" + s);		
 			File file = new File(url.toURI());
-			FileInputStream in = null;
+			InputStream in = null;
 			b = new byte[(int) file.length()];
 			try {
-				in = new FileInputStream(file);
+				in = ResourceLoader.getResourceAsStream("/patches/" + s);
 				for (int i = 0; i < file.length(); i++) {
 					b[i] = (byte) in.read();
 				}
