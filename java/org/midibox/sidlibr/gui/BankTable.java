@@ -253,13 +253,6 @@ public class BankTable extends JPanel implements TableModelListener,
 		menuItem.addActionListener(this);
 		popupMenu.add(menuItem);
 
-		menuItem = new JMenuItem("Clear", KeyEvent.VK_L);
-		menuItem.setFont(menuItem.getFont().deriveFont(Font.PLAIN));
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-		menuItem.setActionCommand("Clear");
-		menuItem.addActionListener(this);
-		popupMenu.add(menuItem);
-
 		popupMenu.addSeparator();
 
 		submenu = new JMenu("Init current patch");
@@ -371,23 +364,16 @@ public class BankTable extends JPanel implements TableModelListener,
 	}
 
 	public void keyPressed(KeyEvent e) {
-		if ((e.getKeyCode() == KeyEvent.VK_E)
-				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		if ((e.getKeyCode() == KeyEvent.VK_E) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editCurrentPatch();
-		} else if ((e.getKeyCode() == KeyEvent.VK_R)
-				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		} else if ((e.getKeyCode() == KeyEvent.VK_R) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editRename();
-		} else if ((e.getKeyCode() == KeyEvent.VK_X)
-				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		} else if ((e.getKeyCode() == KeyEvent.VK_X) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editCut();
-		} else if ((e.getKeyCode() == KeyEvent.VK_C)
-				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		} else if ((e.getKeyCode() == KeyEvent.VK_C) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editCopy();
-		} else if ((e.getKeyCode() == KeyEvent.VK_V)
-				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		} else if ((e.getKeyCode() == KeyEvent.VK_V) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editPaste();
-		} else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-			sidLibController.editClear();
 		}
 	}
 

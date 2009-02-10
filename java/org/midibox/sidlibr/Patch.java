@@ -338,8 +338,7 @@ public class Patch implements Receiver {
 		return isEnsemble;
 	}
 
-	public void sysexSend(int addr, int value, int bytes) {
-		SysexMessage sysexMessage = new SysexMessage();
+	public void sysexSend(int addr, int value, int bytes) {		
 		String strMessage;
 		if (isEnsemble) {
 			strMessage = SIDSysexInfo.editEnsembleParameterSysex;			
@@ -351,6 +350,22 @@ public class Patch implements Receiver {
 		strMessage = strMessage.replace("<address>", calcAddr(addr));
 		strMessage = strMessage.replace("<value>", calcValue(value, bytes));
 		
+		sendString(strMessage);
+	}
+	
+	public void sendPlay() {
+		String strMessage = SIDSysexInfo.playSysex;
+		strMessage = strMessage.replace("<device>", "00");
+		sendString(strMessage);
+	}
+	
+	public void sendPanic() {
+		String strMessage = SIDSysexInfo.panicSysex;
+		strMessage = strMessage.replace("<device>", "00");
+		sendString(strMessage);
+	}
+	
+	private void sendString(String strMessage) {
 		// When the length of the Sysex String is shorter than any previous strings, pad the end with F7 bytes to make it identical in size
 		// This is yet another workaround for the freakin' Java Sysex bug!
 		if (strMessage.length() > maxSysExLength) {
@@ -367,6 +382,7 @@ public class Patch implements Receiver {
 			abMessage[i] = (byte) Integer.parseInt(strMessage.substring(i * 2, i * 2 + 2), 16);
 		}
 		//System.out.println(strMessage);
+		SysexMessage sysexMessage = new SysexMessage();
 		try {
 			sysexMessage.setMessage(abMessage, abMessage.length);
 		} catch (Exception e) {
@@ -380,7 +396,6 @@ public class Patch implements Receiver {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	protected String calcAddr(int addr) {

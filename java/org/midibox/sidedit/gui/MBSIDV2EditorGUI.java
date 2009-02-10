@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.JButton;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -53,8 +54,8 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 
 	private JLabel tooltipLabel;
 
-	private JToggleButton stereoLink, oscillatorLink, core1Button, core2Button,
-			core3Button, core4Button;
+	private JToggleButton stereoLink, oscillatorLink, core1Button, core2Button,	core3Button, core4Button;
+	private JButton playButton, panicButton;
 
 	public MBSIDV2EditorGUI() {
 
@@ -117,14 +118,24 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 		statusBar.setBorder(BorderFactory.createRaisedBevelBorder());
 
 		stereoLink = new JToggleButton("Stereo link");
-		stereoLink.setPreferredSize(new Dimension(
-				stereoLink.getPreferredSize().width, 20));
+		stereoLink.setPreferredSize(new Dimension(stereoLink.getPreferredSize().width, 20));
 		stereoLink.addActionListener(this);
 
 		oscillatorLink = new JToggleButton("Oscillator link");
-		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink
-				.getPreferredSize().width, 20));
+		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink.getPreferredSize().width, 20));
 		oscillatorLink.addActionListener(this);
+		
+		oscillatorLink = new JToggleButton("Oscillator link");
+		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink.getPreferredSize().width, 20));
+		oscillatorLink.addActionListener(this);
+		
+		playButton = new JButton("Play");
+		playButton.setPreferredSize(new Dimension(playButton.getPreferredSize().width, 14));
+		playButton.addActionListener(this);
+		
+		panicButton = new JButton("Panic");
+		panicButton.setPreferredSize(new Dimension(panicButton.getPreferredSize().width, 14));
+		panicButton.addActionListener(this);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
@@ -154,17 +165,17 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 		buttonPanel.add(core4Button);
 
 		JLabel empty1Label = new JLabel();
-		empty1Label.setBorder(BorderFactory
-				.createBevelBorder(BevelBorder.LOWERED));
+		empty1Label.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
 		tooltipLabel = new JLabel("");
-		tooltipLabel.setBorder(BorderFactory
-				.createBevelBorder(BevelBorder.LOWERED));
+		tooltipLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
 		JPanel linkPanel = new JPanel();
 		linkPanel.setLayout(new BoxLayout(linkPanel, BoxLayout.X_AXIS));
 		linkPanel.add(stereoLink);
 		linkPanel.add(oscillatorLink);
+		linkPanel.add(playButton);
+		linkPanel.add(panicButton);
 
 		statusBar.add(linkPanel, BorderLayout.WEST);
 		statusBar.add(tooltipLabel, BorderLayout.CENTER);
@@ -199,6 +210,10 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 			} else if (editPanel.getClass() == MultiGUI.class) {
 				((MultiGUI) editPanel).oscLink(oscillatorLink.isSelected());
 			}
+		} else if (ae.getSource() == playButton) {
+			sidEditController.getPatch().sendPlay();
+		} else if (ae.getSource() == panicButton) {
+			sidEditController.getPatch().sendPanic();
 		}
 	}
 }

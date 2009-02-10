@@ -306,12 +306,6 @@ public class SIDV2EditorGUI extends JPanel implements Observer,
 		menuItem.addActionListener(this);
 		editMenu.add(menuItem);
 
-		menuItem = new JMenuItem("Clear", KeyEvent.VK_L);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-		menuItem.setActionCommand("Clear");
-		menuItem.addActionListener(this);
-		editMenu.add(menuItem);
-
 		editMenu.addSeparator();
 
 		submenu = new JMenu("Init current patch");
@@ -432,23 +426,16 @@ public class SIDV2EditorGUI extends JPanel implements Observer,
 	private JToolBar createToolbar() {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
-		toolBar.add(new SplitButton(makeButton("init_lead.png",
-				"Init LEAD patch", "Init LEAD patch"), dropInit()));
-		toolBar.add(new SplitButton(makeButton("open.png", "Load bank",
-				"Load bank"), dropLoad()));
-		toolBar.add(new SplitButton(makeButton("save.png", "Save patch",
-				"Save patch"), dropSave()));
+		toolBar.add(new SplitButton(makeButton("init_lead.png","Init LEAD patch", "Init LEAD patch"), dropInit()));
+		toolBar.add(new SplitButton(makeButton("open.png", "Load bank","Load bank"), dropLoad()));
+		toolBar.add(new SplitButton(makeButton("save.png", "Save patch","Save patch"), dropSave()));
 		toolBar.addSeparator();
 		toolBar.add(makeButton("cut.png", "Cut", "Cut"));
 		toolBar.add(makeButton("copy.png", "Copy", "Copy"));
 		toolBar.add(makeButton("paste.png", "Paste", "Paste"));
 		toolBar.addSeparator();
-		toolBar.add(new SplitButton(makeButton("transmit.png",
-				"Transmit patch to buffer", "Transmit patch to buffer"),
-				dropTransmit()));
-		toolBar.add(new SplitButton(makeButton("receive.png",
-				"Receive patch from buffer", "Receive patch from buffer"),
-				dropReceive()));
+		toolBar.add(new SplitButton(makeButton("transmit.png","Transmit patch to buffer", "Transmit patch to buffer"), dropTransmit()));
+		toolBar.add(new SplitButton(makeButton("receive.png","Receive patch from buffer", "Receive patch from buffer"),	dropReceive()));
 		toolBar.addSeparator();
 
 		// toolBar.add(makeButton("init_lead.png","Init LEAD patch","Init LEAD patch"));

@@ -22,291 +22,38 @@ package org.midibox.sidedit;
 public class SIDSysexInfo {
 
 	// Patch/Ensemble Request commands
-	public static String hardPatchRequestSysex = "F000007E4B<device>0100<bank><patch>F7"; // Request
-	// a
-	// dump
-	// of
-	// <patch>
-	// in
-	// <bank>
-	public static String editPatchRequestSysex = "F000007E4B<device>01080000F7"; // Request
-	// the
-	// current
-	// patch
-	// edit
-	// buffer
-	// (direct
-	// read
-	// from
-	// RAM)
-	public static String hardEnsembleRequestSysex = "F000007E4B<device>017000<ensemble>F7"; // Request
-	// a
-	// dump
-	// of
-	// <ensemble>
-	public static String editEnsembleRequestSysex = "F000007E4B<device>01780000F7"; // Request
-	// the
-	// current
-	// ensemble
-	// edit
-	// buffer
-	// (direct
-	// read
-	// from
-	// RAM)
-	// The
-	// locations
-	// of
-	// unavailable
-	// SID
-	// slaves
-	// will
-	// be
-	// read
-	// from
-	// EEPROM/BankStick,
-	// therefore
-	// the
-	// "default"
-	// <ensemble>
-	// number
-	// has
-	// to
-	// be
-	// specified
-	// as
-	// well.
-
+	public static String hardPatchRequestSysex = "F000007E4B<device>0100<bank><patch>F7"; // Request a dump of <patch> in <bank>
+	public static String editPatchRequestSysex = "F000007E4B<device>01080000F7"; // Request the current patch edit buffer (direct read from RAM)
+	public static String hardEnsembleRequestSysex = "F000007E4B<device>017000<ensemble>F7"; // Request a dump of <ensemble>
+	public static String editEnsembleRequestSysex = "F000007E4B<device>01780000F7"; // Request the current ensemble edit buffer (direct read from RAM) The locations of unavailable SID slaves will be read from EEPROM/BankStick, therefore the "default" <ensemble> number has to be specified as well.
 	// Patch/Ensemble Dump commands
-	public static String hardPatchDumpSysex = "F000007E4B<device>0200<bank><patch><data><checksum>F7"; // Write
-	// a
-	// dump
-	// to
-	// <patch>
-	// in
-	// <bank>.
-	// Checksum
-	// is
-	// 2s
-	// complement
-	// over
-	// the
-	// 1024
-	// bytes
-	// dump.
-	// The
-	// actual
-	// patch
-	// size
-	// is
-	// only
-	// 512
-	// bytes
-	// -
-	// the
-	// 8bit
-	// values
-	// are
-	// divided
-	// into
-	// low-
-	// and
-	// high-nibble
-	// (low-nibble
-	// is
-	// sent
-	// first),
-	// therefore
-	// 1024
-	// bytes
-	// have
-	// to
-	// be
-	// sent
-	public static String editPatchDumpSysex = "F000007E4B<device>02080000<data><checksum>F7"; // Write
-	// a
-	// patch
-	// dump
-	// into
-	// edit
-	// buffer
-	// (direct
-	// write
-	// into
-	// RAM)
-	public static String hardEnsembleDumpSysex = "F000007E4B<device>027000<ensemble><data><checksum>F7"; // Write
-	// a
-	// dump
-	// to
-	// <ensemble>.
-	// Checksum
-	// is
-	// 2s
-	// complement
-	// over
-	// the
-	// 512
-	// bytes
-	// dump.
-	// The
-	// actual
-	// ensemble
-	// size
-	// is
-	// only
-	// 256
-	// bytes
-	// -
-	// the
-	// 8bit
-	// values
-	// are
-	// divided
-	// into
-	// low-
-	// and
-	// high-nibble
-	// (low-nibble
-	// is
-	// sent
-	// first),
-	// therefore
-	// 512
-	// bytes
-	// have
-	// to
-	// be
-	// sent
-	public static String editEnsembleDumpSysex = "F000007E4B<device>02780000<data><checksum>F7"; // Write
-	// an
-	// ensemble
-	// dump
-	// into
-	// edit
-	// buffer
-	// (direct
-	// write
-	// into
-	// RAM)
+	public static String hardPatchDumpSysex = "F000007E4B<device>0200<bank><patch><data><checksum>F7"; // Write a dump to <patch> in <bank>. Checksum is 2s complement over the 1024 bytes dump. The actual patch size is only 512 bytes - the 8bit values are divided into low- and high-nibble (low-nibble is sent first), therefore 1024 bytes have to be sent
+	public static String editPatchDumpSysex = "F000007E4B<device>02080000<data><checksum>F7"; // Write a patch dump into edit buffer (direct write into RAM)
+	public static String hardEnsembleDumpSysex = "F000007E4B<device>027000<ensemble><data><checksum>F7"; // Write a dump to <ensemble>. Checksum is 2s/ complement over the 512 bytes dump. The actual ensemble size is only 256 bytes - the 8bit values are divided into low- and high-nibble (low-nibble is sent first), therefore 512 bytes have to be sent
+	public static String editEnsembleDumpSysex = "F000007E4B<device>02780000<data><checksum>F7"; // Write an ensemble dump into edit buffer (direct write into RAM)
 
 	// Bank Request commands
-	public static String bankRequestSysex = "F000007E4B<device>0300<bank>F7"; // Request
-	// a
-	// dump
-	// of
-	// the
-	// whole
-	// patch
-	// <bank>
-	// (128
-	// patches).
-	// Only
-	// 64
-	// patches
-	// are
-	// sent
-	// when
-	// a
-	// 32k
-	// BankStick
-	// is
-	// accessed
-	public static String ensembleBankRequestSysex = "F000007E4B<device>037000F7"; // Request
-	// a
-	// dump
-	// of
-	// all
-	// ensembles
-	// (128
-	// ensembles)
+	public static String bankRequestSysex = "F000007E4B<device>0300<bank>F7"; // Request a dump of the whole patch <bank> (128 patches).Only 64 patches are sent when a 32k BankStick is accessed
+	public static String ensembleBankRequestSysex = "F000007E4B<device>037000F7"; // Request a dump of all ensembles (128 ensembles)
 
 	// Parameter write
-	public static String editPatchParameterSysex = "F000007E4B<device>06<wopt><address><value>F7"; // Direct
-	// Write
-	// of
-	// parameter
-	// into
-	// patch
-	// buffer
-	// (<AH>
-	// =
-	// 0..3,
-	// <AL>
-	// =
-	// 0..7F).
-	// Patch
-	// address:
-	// (<AH>
-	// <<
-	// 7)
-	// |
-	// <AL>
-	public static String editEnsembleParameterSysex = "F000007E4B<device>0670<address><value>F7";// Direct
-	// Write
-	// of
-	// parameter
-	// into
-	// ensemble
-	// buffer
-	// (<AH>
-	// =
-	// 0..1,
-	// <AL>
-	// =
-	// 0..7F).
-	// Ensemble
-	// address:
-	// (<AH>
-	// <<
-	// 7)
-	// |
-	// <AL>
-
-	// Miscellaneous
-	public static String pingSysex = "F000007E4B<device>0FF7"; // Ping (just
-	// sends back
-	// the same
-	// SysEx string)
-	public static String panicSysex = "F000007E4B<device>0C08F7"; // All
-	// notes/sequences
-	// off
-	public static String forwardSysex = "F000007E4B<device>0C00<sids>F7"; // Sets
-	// SysEx
-	// forwarding
-	// from
-	// master
-	// to
-	// slaves
-
+	public static String editPatchParameterSysex = "F000007E4B<device>06<wopt><address><value>F7"; // Direct Write of parameter into patch buffer (<AH> = 0..3, <AL> = 0..7F). Patch address: (<AH> << 7) | <AL>
+	public static String editEnsembleParameterSysex = "F000007E4B<device>0670<address><value>F7";// Direct Write of parameter into ensemble buffer (<AH> = 0..1, <AL> = 0..7F). Ensemble address: (<AH> << 7) | <AL>
+	
+	//Miscellaneous
+	public static String pingSysex = "F000007E4B<device>0FF7"; // Ping (just sends back the same SysEx string)
+	public static String panicSysex = "F000007E4B<device>0C08F7"; // All notes/sequences off
+	public static String forwardSysex = "F000007E4B<device>0C00<sids>F7"; // Sets SysEx forwarding from master to slaves
+	public static String playSysex = "F000007E4B<device>0C0900F7"; //Plays the current patch
+		
 	// Feedback from core
-	public static String acknowledgedSysex = "F000007E4B<device>0F"; // Acknowledged,
-	// TK:
-	// "<sids>F7"
-	// part
-	// removed
-	// for
-	// more
-	// flexibility
-	public static String error1Sysex = "F000007E4B<device>0E01F7"; // received
-	// less
-	// bytes
-	// then
-	// expected
-	public static String error2Sysex = "F000007E4B<device>0E03F7"; // wrong
-	// checksum
-	public static String error3Sysex = "F000007E4B<device>0E0AF7"; // bankstick
-	// or
-	// patch/drumset/ensemble
-	// not
-	// available
-	public static String error4Sysex = "F000007E4B<device>0E0BF7"; // parameter
-	// not
-	// available
-	public static String error5Sysex = "F000007E4B<device>0E10F7"; // RAM access
-	// not
-	// supported
-	public static String error6Sysex = "F000007E4B<device>0E11F7"; // BankStick
-	// too small
+	public static String acknowledgedSysex = "F000007E4B<device>0F"; // Acknowledged, TK: "<sids>F7" part removed for more flexibility
+	public static String error1Sysex = "F000007E4B<device>0E01F7"; // received less	bytes then expected
+	public static String error2Sysex = "F000007E4B<device>0E03F7"; // wrong checksum
+	public static String error3Sysex = "F000007E4B<device>0E0AF7"; // bankstick or patch/drumset/ensemble not available
+	public static String error4Sysex = "F000007E4B<device>0E0BF7"; // parameter not available
+	public static String error5Sysex = "F000007E4B<device>0E10F7"; // RAM access not supported
+	public static String error6Sysex = "F000007E4B<device>0E11F7"; // BankStick too small
 
 	public static String[] leadParams = { "===None===", "Volume", "Osc Phase",
 			"Osc Detune", "Filter Cutoff", "Filter Res.", "Filter Chan.",
