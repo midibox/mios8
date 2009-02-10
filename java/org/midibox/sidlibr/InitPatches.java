@@ -70,24 +70,19 @@ public class InitPatches {
 	
 	private byte[] loadData(String s) throws IOException {
 		byte[] b = null;
+		b = new byte[65536];
+		int numBytes = 0;
+		InputStream in = null;
 		try {
-			URL url = ResourceLoader.getResource("/patches/" + s);		
-			File file = new File(url.toURI());
-			InputStream in = null;
-			b = new byte[(int) file.length()];
-			try {
-				in = ResourceLoader.getResourceAsStream("/patches/" + s);
-				for (int i = 0; i < file.length(); i++) {
-					b[i] = (byte) in.read();
-				}
-			} finally {
-				if (in != null) {
-					in.close();
-				}
-			}
-		} catch (URISyntaxException e) {
-			JOptionPane.showMessageDialog(null,	"An error has occurred while reading built-in init patch!", "Error", JOptionPane.ERROR_MESSAGE);
+		    in = ResourceLoader.getResourceAsStream("patches/" + s);
+		    numBytes = in.read(b, 0, 65536);
+		} finally {
+		    if (in != null) {
+			in.close();
+		    }
 		}
+		// TODO: we return an array with 65536 members...
+		// it would be better to extract [0:numBytes], but I don't know how to do this w/o creating a new array...
 		return b;
 	}
 }
