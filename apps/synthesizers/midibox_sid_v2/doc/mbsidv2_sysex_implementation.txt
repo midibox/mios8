@@ -653,14 +653,14 @@ Patch Structure --- Bassline Engine
       | [3] Oneshot
       | [7:4] Waveform: 0=Sine, 1=Triangle, 2=Saw, 3=Pulse, 4=Random,
       |                 5=Pos.Sine, 6=Pos.Triangle, 7=Pos.Saw, 8=Pos.Pulse
-0x075 | [7:0] LFO Depth Pitch (-127..128)
+0x075 | [7:0] LFO Depth Pitch (-128..127)
 0x076 | [7:0] LFO Rate (0..255)
       |       if CSn flag enabled: 245=64/1, 246=32/1, 247=16/1, 248=8/1, 
       |       249=4/1, 250=2/1, 251=1/1, 252=1/2, 253=1/4, 254=1/8, 255=1/16
 0x077 | [7:0] LFO Delay (0..255)
 0x078 | [7:0] LFO Phase (0..255)
-0x079 | [7:0] LFO Depth Pulsewidth (-127..128)
-0x07a | [7:0] LFO Depth Filter CutOff (-127..128)
+0x079 | [7:0] LFO Depth Pulsewidth (-128..127)
+0x07a | [7:0] LFO Depth Filter CutOff (-128..127)
 ------+--------------------------------------------------------------------------
 0x07b |
  ...  | LFO2 Parameters (same structure as for LFO1)
@@ -698,7 +698,7 @@ Patch Structure --- Bassline Engine
  ...  | reserved for future extensions
 0x09f |
 ------+--------------------------------------------------------------------------
-0x060 | OSC2 
+0x0a0 | OSC2 
       | [0] Triangle Waveform
       | [1] Saw Waveform
       | [2] Pulse Waveform
@@ -707,18 +707,18 @@ Patch Structure --- Bassline Engine
       | [5] Sync
       | [6] Ringmodulation
       | [7] reserved
-0x061 | [7:0] Pulsewidth Low byte
-0x062 | [3:0] Pulsewidth High nibble
-0x063 | [2:0] Octave Transpose: 0=off, 1..3=+1..+3 octaves, 4..7: -4..-1 octaves
+0x0a1 | [7:0] Pulsewidth Low byte
+0x0a2 | [3:0] Pulsewidth High nibble
+0x0a3 | [2:0] Octave Transpose: 0=off, 1..3=+1..+3 octaves, 4..7: -4..-1 octaves
       | [7:3] reserved
-0x064 | [6:0] static note (0=off, track with master oscillator OSC1)
+0x0a4 | [6:0] static note (0=off, track with master oscillator OSC1)
       | [7] reserved
 ------+--------------------------------------------------------------------------
-0x065 |
+0x0a5 |
  ...  | reserved for future extensions
-0x067 |
+0x0a7 |
 ------+--------------------------------------------------------------------------
-0x068 | OSC3
+0x0a8 | OSC3
       | [0] Triangle Waveform
       | [1] Saw Waveform
       | [2] Pulse Waveform
@@ -727,11 +727,11 @@ Patch Structure --- Bassline Engine
       | [5] Sync
       | [6] Ringmodulation
       | [7] reserved
-0x069 | [7:0] Pulsewidth Low byte
-0x06a | [3:0] Pulsewidth High nibble
-0x06b | [2:0] Octave Transpose: 0=off, 1..3=+1..+3 octaves, 4..7: -4..-1 octaves
+0x0a9 | [7:0] Pulsewidth Low byte
+0x0aa | [3:0] Pulsewidth High nibble
+0x0ab | [2:0] Octave Transpose: 0=off, 1..3=+1..+3 octaves, 4..7: -4..-1 octaves
       | [7:3] reserved
-0x06c | [6:0] static note (0=off, track with master oscillator OSC1)
+0x0ac | [6:0] static note (0=off, track with master oscillator OSC1)
       | [7] reserved
 ------+--------------------------------------------------------------------------
 0x06d |
@@ -941,14 +941,14 @@ Patch Structure --- Multi Engine
       | [3] Oneshot
       | [7:4] Waveform: 0=Sine, 1=Triangle, 2=Saw, 3=Pulse, 4=Random,
       |                 5=Pos.Sine, 6=Pos.Triangle, 7=Pos.Saw, 8=Pos.Pulse
-0x075 | [7:0] LFO Depth Pitch (-127..128)
+0x075 | [7:0] LFO Depth Pitch (-128..127)
 0x076 | [7:0] LFO Rate (0..255)
       |       if CSn flag enabled: 245=64/1, 246=32/1, 247=16/1, 248=8/1, 
       |       249=4/1, 250=2/1, 251=1/1, 252=1/2, 253=1/4, 254=1/8, 255=1/16
 0x077 | [7:0] LFO Delay (0..255)
 0x078 | [7:0] LFO Phase (0..255)
-0x079 | [7:0] LFO Depth Pulsewidth (-127..128)
-0x07a | [7:0] LFO Depth Filter CutOff (-127..128)
+0x079 | [7:0] LFO Depth Pulsewidth (-128..127)
+0x07a | [7:0] LFO Depth Filter CutOff (-128..127)
 ------+--------------------------------------------------------------------------
 0x07b |
  ...  | LFO2 Parameters (same structure as for LFO1)
@@ -1038,18 +1038,14 @@ Patch Structure --- Ensemble
       | [7:3] reserved
  0x07 | Inversion Flags for AOUT Channel 1..8 ([0]: Channel #1 ... [7]: Channel #8)
 ------+--------------------------------------------------------------------------
- 0x08 | [7:0] Left Channel Filter Calibration Value, Min, 12bit, Low Byte
- 0x09 | [3:0] Left Channel Filter Calibration Value, Min, 12bit, High Nibble
-      | [7:4] reserved
- 0x0a | [7:0] Left Channel Filter Calibration Value, Max, 12bit, Low Byte
- 0x0b | [3:0] Left Channel Filter Calibration Value, Max, 12bit, High Nibble
-      | [7:4] reserved
- 0x0c | [7:0] Right Channel Filter Calibration Value, Min, 12bit, Low Byte
- 0x0d | [3:0] Right Channel Filter Calibration Value, Min, 12bit, High Nibble
-      | [7:4] reserved
- 0x0e | [7:0] Right Channel Filter Calibration Value, Max, 12bit, Low Byte
- 0x0f | [3:0] Right Channel Filter Calibration Value, Max, 12bit, High Nibble
-      | [7:4] reserved
+ 0x08 | [7:0] Left Channel Filter Calibration Value, Min, 16bit, Low Byte
+ 0x09 | [7:0] Left Channel Filter Calibration Value, Min, 16bit, High Nibble
+ 0x0a | [7:0] Left Channel Filter Calibration Value, Max, 16bit, Low Byte
+ 0x0b | [7:0] Left Channel Filter Calibration Value, Max, 16bit, High Nibble
+ 0x0c | [7:0] Right Channel Filter Calibration Value, Min, 16bit, Low Byte
+ 0x0d | [7:0] Right Channel Filter Calibration Value, Min, 16bit, High Nibble
+ 0x0e | [7:0] Right Channel Filter Calibration Value, Max, 16bit, Low Byte
+ 0x0f | [7:0] Right Channel Filter Calibration Value, Max, 16bit, High Nibble
 ------+--------------------------------------------------------------------------
       | Instrument #1 Settings
  0x10 | [3:0] MIDI Channel
@@ -1059,7 +1055,7 @@ Patch Structure --- Ensemble
       | [7] reserved
  0x12 | [6:0] MIDI Note Number of Upper Split Point (0..127)
       | [7] reserved
- 0x13 | [6:0] Transpose (-63..64)
+ 0x13 | [6:0] Transpose (-64..63)
       | [7] reserved
  0x14 | reserved for future extensions
  0x15 | reserved for future extensions
