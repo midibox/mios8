@@ -39,6 +39,8 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 	public final static Object WAIT_FOR_UPLOAD = new Object();
 
 	public final static Object DELAY_TIME = new Object();
+	
+	public final static String REBOOT = "REBOOT";
 
 	public final static int SMART_MODE = 0;
 
@@ -180,7 +182,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 		clearChanged();
 
 		nUploadCase = 0;
-
+		
 		synchronized (this) {
 
 			addMessage("Starting upload of " + file.getName());
@@ -300,7 +302,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 					long timeUploadEnd = System.currentTimeMillis();
 					float timeUpload = (float) (timeUploadEnd - timeUploadBegin) / 1000;
 					float transferRateKb = ((totalBlocks * 256) / timeUpload) / 1024;
-
+					
 					addMessage("Upload of " + (totalBlocks * 256)
 							+ " bytes completed after " + timeUpload + "s ("
 							+ transferRateKb + " kb/s)");
@@ -308,7 +310,13 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 					// reboot BSL in MIOS32 mode
 					if (getMIOS32_Mode()) {
 						forceReboot();
-					}
+					} else {
+						
+						setChanged();
+						notifyObservers(REBOOT);
+						clearChanged();		
+					}					
+					
 					break;
 				}
 
@@ -546,6 +554,11 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 			SysexMessage sysExMessage = new SysexMessage();
 			sysExMessage.setMessage(forceRebootCode, forceRebootCode.length);
 			receiver.send(sysExMessage, -1);
+			
+			setChanged();
+			notifyObservers(REBOOT);
+			clearChanged();	
+			
 		} catch (InvalidMidiDataException ex) {
 			cancelled = true;
 			addMessage("Error: " + ex.getMessage());

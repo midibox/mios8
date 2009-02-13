@@ -106,17 +106,10 @@ public class MIOSSysexSendReceive extends Observable implements Receiver {
 		return receiver;
 	}
 
-	protected void createWorker() {
-
-		setChanged();
-		notifyObservers(WORKER);
-		clearChanged();
-	}
-
 	public void addMessage(String message) {
 
 		messages.addLast(message);
-
+				
 		setChanged();
 		notifyObservers(MESSAGES);
 		clearChanged();

@@ -35,6 +35,7 @@ import org.midibox.midi.MidiMonitorFiltered;
 import org.midibox.midi.MidiMonitorFilteredDevice;
 import org.midibox.midi.MidiRouterDevice;
 import org.midibox.mios.DebugFunctionDevice;
+import org.midibox.mios.HexFileUpload;
 import org.midibox.mios.HexFileUploadDevice;
 import org.midibox.mios.HexFileUploadDeviceManager;
 import org.midibox.mios.LCDMessageDevice;
@@ -162,9 +163,11 @@ public class MIOSStudio implements Observer {
 		 */
 
 		hexFileUploadDeviceManager = new HexFileUploadDeviceManager();
-		hexFileUploadDeviceManager.newHexFileUploadDevice();
+
 		hexFileUploadDeviceManager.addObserver(this);
 
+		hexFileUploadDeviceManager.newHexFileUploadDevice();
+		
 		/*
 		 * memoryReadWriteDevice = new MemoryReadWriteDevice( "MIOS Memory
 		 * Read/Write");
@@ -503,19 +506,25 @@ public class MIOSStudio implements Observer {
 	}
 
 	public void update(Observable observable, Object object) {
-
+		
 		if (observable == hexFileUploadDeviceManager) {
 
-			HexFileUploadDevice hutd = (HexFileUploadDevice) object;
+			HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) object;
 
 			if (hexFileUploadDeviceManager.getHexFileUploadDevices().contains(
-					hutd)) {
+					hexFileUploadDevice)) {
 
-				midiDeviceRouting.connectDevices(miosStudioInPort, hutd);
-				midiDeviceRouting.connectDevices(hutd, miosStudioOutPort);
+				midiDeviceRouting.connectDevices(miosStudioInPort,
+						hexFileUploadDevice);
+				midiDeviceRouting.connectDevices(hexFileUploadDevice,
+						miosStudioOutPort);
+
+				hexFileUploadDevice.getHexFileUpload().addObserver(this);
 
 			} else {
-				midiDeviceRouting.disconnectDevice(hutd);
+				midiDeviceRouting.disconnectDevice(hexFileUploadDevice);
+
+				hexFileUploadDevice.getHexFileUpload().deleteObserver(this);
 			}
 
 			setRouteIndividualDevices(routeIndividualDevices);
@@ -544,6 +553,33 @@ public class MIOSStudio implements Observer {
 			}
 
 			setRouteIndividualDevices(routeIndividualDevices);
+		}
+
+		if (object == HexFileUpload.REBOOT) {
+			
+			boolean portsReleased = midiDeviceRouting.getPortsReleased();
+			
+			if (!portsReleased) {
+
+				Thread t = new Thread() {
+
+					public void run() {
+
+						midiDeviceRouting.setPortsReleased(true);
+						
+						try {
+							Thread.sleep(2000);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						
+						midiDeviceRouting.setPortsReleased(false);
+
+					}
+				};
+				
+				t.start();
+			}
 		}
 	}
 }
