@@ -37,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import org.midibox.sidedit.SIDSysexInfo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
 
@@ -44,7 +45,6 @@ public class SequencerGUI extends JPanel implements ActionListener {
 	private JPanel seqPanel, currentPanel, seq1, seq2, seq3, seq4, seq5, seq6,
 			seq7, seq8;
 	private JRadioButton radioButtons[];
-	private int[] snapvals = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
 	protected SequencerGUI(Vector V1GUIv, Vector V2GUIv, Vector V3GUIv) {
 		setLayout(new BorderLayout());
@@ -63,15 +63,14 @@ public class SequencerGUI extends JPanel implements ActionListener {
 		JPanel comboPanel = new JPanel();
 		comboPanel.setLayout(new BoxLayout(comboPanel, BoxLayout.Y_AXIS));
 		comboPanel.setOpaque(false);
-		String[] s = { "Sequence #1", "Sequence #2", "Sequence #3",
-				"Sequence #4", "Sequence #5", "Sequence #6", "Sequence #7",
-				"Sequence #8" };
+		String[] s = { "Sequence #1", "Sequence #2", "Sequence #3",	"Sequence #4", "Sequence #5", "Sequence #6", "Sequence #7",	"Sequence #8" };
 		ButtonGroup bg = new ButtonGroup();
 		radioButtons = new JRadioButton[s.length];
 		for (int i = 0; i < s.length; i++) {
 			radioButtons[i] = new JRadioButton(s[i], true);
 			radioButtons[i].setOpaque(false);
 			radioButtons[i].addActionListener(this);
+			radioButtons[i].setFont(new Font("sansserif", Font.BOLD, 10));
 			bg.add(radioButtons[i]);
 			comboPanel.add(radioButtons[i]);
 		}
@@ -103,15 +102,30 @@ public class SequencerGUI extends JPanel implements ActionListener {
 
 	protected JPanel createConfig(Vector vGUI, String s) {
 		JPanel configPanel = new JPanel();
-		configPanel.setLayout(new GridLayout(2, 4));
+		configPanel.setLayout(new GridBagLayout());
 		configPanel.setBorder(BorderFactory.createEtchedBorder());
 		configPanel.setBorder(BorderFactory.createTitledBorder(s));
 		configPanel.setOpaque(false);
-		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(0));
-		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(4));
-		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(1));
-		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(3));
-		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(2));
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;		
+		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(0), c);	
+		c.gridx = 1;
+		c.gridy = 0;
+		c.gridwidth = 2;
+		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(4), c);
+		c.gridx = 3;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(1), c);
+		c.gridx = 0;
+		c.gridy = 1;		
+		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(3), c);
+		c.gridx = 1;
+		c.gridy = 1;
+		c.gridwidth = 2;
+		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(2), c);
 		return configPanel;
 	}
 
@@ -151,10 +165,8 @@ public class SequencerGUI extends JPanel implements ActionListener {
 				seqPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(row
 						+ (6 * col) + offset), c);
 				if (row == 0) {
-					((SIDSysexParameterControlKnob) vGUI.elementAt(row
-							+ (6 * col) + offset)).setSnapvals(snapvals);
-					((SIDSysexParameterControlKnob) vGUI.elementAt(row
-							+ (6 * col) + offset)).setSnap(true);
+					((SIDSysexParameterControlKnob) vGUI.elementAt(row	+ (6 * col) + offset)).setSnapVals(new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12},new String[]{"C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C+"});
+					((SIDSysexParameterControlKnob) vGUI.elementAt(row	+ (6 * col) + offset)).setSnap(true);
 				}
 			}
 		}

@@ -291,7 +291,7 @@ public class SysExController extends Observable implements Receiver,
 			for (int i = 0; i < p.length; i++) {
 				String dataStr = p[i].getSysexString();
 				String strMessage;
-				if (p[1].isEnsemble()) {
+				if (p[0].isEnsemble()) {
 					strMessage = SIDSysexInfo.hardEnsembleDumpSysex;
 					strMessage = strMessage.replace("<ensemble>", zeroPadToHex(patchNumber[i]));					
 				} else {

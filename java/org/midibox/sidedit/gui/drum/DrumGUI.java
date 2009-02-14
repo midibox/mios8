@@ -40,6 +40,7 @@ import org.midibox.sidedit.gui.controls.SIDSysexParameterControlCombo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlLFOSelect;
+import org.midibox.sidedit.gui.controls.SIDSysexParameterControlRadio;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlSlider;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlToggleButton;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlWaveSelect;
@@ -147,10 +148,8 @@ public class DrumGUI extends JPanel {
 				break;
 			case 6:
 				// Normal combo
-				JComboBox combo = new JComboBox(midiParameter
-						.getSparseValAlias());
-				midiParameterGUIs.add(new SIDSysexParameterControlCombo(
-						midiParameter, combo, true, BorderLayout.NORTH, false,
+				JComboBox combo = new JComboBox(midiParameter.getSparseValAlias());
+				midiParameterGUIs.add(new SIDSysexParameterControlCombo(midiParameter, combo, true, BorderLayout.NORTH, false,
 						false));
 				break;
 			case 7:
@@ -160,6 +159,10 @@ public class DrumGUI extends JPanel {
 				midiParameterGUIs.add(new SIDSysexParameterControlKnob(
 						midiParameter, knob1, false, BorderLayout.SOUTH, true,
 						true));
+				break;
+			case 8:
+				// Radio button list
+				midiParameterGUIs.add(new SIDSysexParameterControlRadio(midiParameter, true, BorderLayout.NORTH, true, false));
 				break;
 			default:
 				midiParameterGUIs.add(midiParameter);

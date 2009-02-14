@@ -30,14 +30,13 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.midibox.sidedit.SIDSysexInfo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlSlider;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlToggleButton;
 
 public class LfoGUI extends JPanel {
-	private int[] snapvals = { 245, 246, 247, 248, 249, 250, 251, 252, 253,
-			254, 255 };
 
 	protected LfoGUI(Vector lfoGUIv, Vector env1GUIv, Vector env2GUIv) {
 		setLayout(new BorderLayout());
@@ -139,12 +138,8 @@ public class LfoGUI extends JPanel {
 
 		// Setup the 'rate'-knob behavior to be depending on the 'master sync'
 		// switch
-		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(5 + offset))
-				.setSnapvals(snapvals);
-		((SIDSysexParameterControlToggleButton) midiParameterGUI
-				.elementAt(1 + offset))
-				.setSnapParameter((SIDSysexParameterControlGUI) midiParameterGUI
-						.elementAt(5 + offset));
+		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(5 + offset)).setSnapVals(new int[]{245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255},SIDSysexInfo.rates);
+		((SIDSysexParameterControlToggleButton) midiParameterGUI.elementAt(1 + offset)).setSnapParameter((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(5 + offset));
 
 		return lfoPanel;
 	}

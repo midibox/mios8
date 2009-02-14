@@ -70,11 +70,11 @@ public class SwinGUI extends JPanel {
 		swinPanel.setBorder(BorderFactory.createTitledBorder(s));
 		swinPanel.setOpaque(false);
 
-		swinPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(24));
-		swinPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(28));
 		swinPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(25));
-		swinPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(27));
+		swinPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(29));
 		swinPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(26));
+		swinPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(28));
+		swinPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(27));
 
 		return swinPanel;
 	}

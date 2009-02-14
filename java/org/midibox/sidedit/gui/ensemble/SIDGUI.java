@@ -44,10 +44,10 @@ public class SIDGUI extends JPanel {
 		for(int i=50;i<256;i++) {
 			snapvals[i-50] = i;
 		}
-		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(11)).setSnapvals(snapvals);
+		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(11)).setSnapVals(snapvals,null);
 		((SIDSysexParameterControlGUI)midiParameterGUI.elementAt(11)).setSnap(true);
 		mainPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(11));
-		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(12)).setSnapvals(new int[]{0, 1, 2, 3, 4});
+		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(12)).setSnapVals(new int[]{0, 1, 2, 3, 4},new String[]{"OFF","1","2","3","4"});
 		((SIDSysexParameterControlGUI)midiParameterGUI.elementAt(12)).setSnap(true);
 		mainPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(12));
 		mainPanel.add((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(2));

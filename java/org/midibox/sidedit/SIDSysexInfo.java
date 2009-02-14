@@ -361,4 +361,5 @@ public class SIDSysexInfo {
 	public static String[] drumModel = { "BD1", "BD2", "BD3", "SD1", "SD2",
 			"SD3", "HH1", "HH2", "TOM1", "TOM2", "CLAP", "FX1", "FX2", "FX3",
 			"FX4", "FX5", "FX6", "FX7", "FX8", "FX9" };
+	public static String[] bassOctaves = {"OFF","+1","+2","+3","-4","-3","-2","-1"};
 }

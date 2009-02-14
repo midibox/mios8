@@ -30,14 +30,11 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.midibox.sidedit.SIDSysexInfo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
 
 public class DrumInstrumentGUI extends JPanel {
-	private int[] snapvals1 = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-	private int[] snapvals2 = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-			14, 15, 16, 17, 18, 19 };
-
 	protected DrumInstrumentGUI(Vector V1GUIv, boolean second) {
 		setLayout(new BorderLayout());
 		this.setOpaque(false);
@@ -93,7 +90,7 @@ public class DrumInstrumentGUI extends JPanel {
 		voicePanel.add(
 				(SIDSysexParameterControlGUI) vGUI.elementAt(0 + offset), c);
 		((SIDSysexParameterControlKnob) vGUI.elementAt(0 + offset))
-				.setSnapvals(snapvals1);
+				.setSnapVals(new int[]{0,1,2,3,4,5,6,7,8}, SIDSysexInfo.voiceAssign);
 		((SIDSysexParameterControlKnob) vGUI.elementAt(0 + offset))
 				.setSnap(true);
 		c.gridx = 1;
@@ -103,7 +100,7 @@ public class DrumInstrumentGUI extends JPanel {
 		voicePanel.add(
 				(SIDSysexParameterControlGUI) vGUI.elementAt(1 + offset), c);
 		((SIDSysexParameterControlKnob) vGUI.elementAt(1 + offset))
-				.setSnapvals(snapvals2);
+				.setSnapVals(new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19},SIDSysexInfo.drumModel);
 		((SIDSysexParameterControlKnob) vGUI.elementAt(1 + offset))
 				.setSnap(true);
 		c.gridx = 2;

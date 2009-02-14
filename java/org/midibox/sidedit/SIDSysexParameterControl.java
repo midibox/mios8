@@ -23,6 +23,8 @@ import javax.sound.midi.MidiMessage;
 
 import org.midibox.midi.MidiUtils;
 import org.midibox.sidlibr.Patch;
+import java.util.Arrays;
+import java.util.Vector;
 
 public class SIDSysexParameterControl extends SIDSysexParameter {
 
@@ -36,37 +38,42 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 
 	protected int type;
 
-	protected String[] valAlias;
-	protected String[] spValAlias;
-
-	public int[] snapvals = { 0 };
-	public boolean useAlias = true; // Only for rate knob
+	private String[] valAlias;
+	private int[] sparseMatrix;
+	private int valueOffset;
+ 
+	public int[] snapVals;
+	public String[] snapAlias;
 	public boolean snap = false;
 
 	protected String tooltip;
-
+	
 	protected Object tooltipListener;
 
-	public SIDSysexParameterControl(int type, String[] valAlias, Patch patch,
-			int addres, int start_bit, int reso, String name, String tooltip) {
+	public SIDSysexParameterControl(int type, String[] valAlias, int offset, Patch patch, int addres, int start_bit, int reso, String name, String tooltip) {
 		super(patch, addres, start_bit, reso, name);
 		setReceive(true);
 		setSend(true);
 		this.tooltip = tooltip;
 		this.type = type;
-		this.valAlias = valAlias;
-		this.spValAlias = sparseValAlias(valAlias);
+		this.valueOffset = offset;
+		if (valAlias!=null) {
+			this.valAlias = valAlias;
+			sparseMatrix = generateSparseMatrix(valAlias);
+		}				
 	}
 
-	public SIDSysexParameterControl(int type, String[] valAlias, Patch patch,
-			int addres, int start_bit, int reso, String name) {
+	public SIDSysexParameterControl(int type, String[] valAlias, int offset, Patch patch, int addres, int start_bit, int reso, String name) {
 		super(patch, addres, start_bit, reso, name);
 		setReceive(true);
 		setSend(true);
 		this.tooltip = name;
 		this.type = type;
-		this.valAlias = valAlias;
-		this.spValAlias = sparseValAlias(valAlias);
+		this.valueOffset = offset;
+		if (valAlias!=null) {
+			this.valAlias = valAlias;
+			sparseMatrix = generateSparseMatrix(valAlias);
+		}		
 	}
 
 	public boolean isReceive() {
@@ -87,7 +94,6 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 
 	public void setReceive(boolean respond) {
 		this.receive = respond;
-
 		setChanged();
 		notifyObservers(RECEIVE);
 		clearChanged();
@@ -99,7 +105,6 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 
 	public void setSend(boolean send) {
 		this.send = send;
-
 		setChanged();
 		notifyObservers(SEND);
 		clearChanged();
@@ -116,63 +121,102 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 	public String[] getValAlias() {
 		return valAlias;
 	}
-
-	public String[] getSparseValAlias() {
-		return spValAlias;
-	}
-
-	public int lookUpValue(int i) {
-		String s = valAlias[i];
-		int val = 0;
-		for (int j = 0; j < spValAlias.length; j++) {
-			if (spValAlias[j].equals(s)) {
-				val = j;
-				break;
+	
+	public String getMidiValueWithAlias() {
+		if (snap) {
+			if (snapAlias==null) {				
+				return Integer.toString(snapVals[getMidiValSnapIndex()]+valueOffset);				
+			} else {
+				return snapAlias[getMidiValSnapIndex()];
 			}
-		}
-		return val;
-	}
-
-	public int lookUpAlias(String s) {
-		int val = 0;
-		for (int j = 0; j < valAlias.length; j++) {
-			System.out.println(s);
-			System.out.println(valAlias[j]);
-			if (valAlias[j].equals(s)) {
-				val = j;
-				break;
-			}
-		}
-		return val;
-	}
-
-	public String[] sparseValAlias(String[] in) {
-		if (valAlias != null) {
-			int temp = 0;
-			for (int i = 0; i < in.length; i++) {
-				if (in[i] != "") {
-					temp = temp + 1;
-				}
-			}
-
-			String[] out = new String[temp];
-			temp = 0;
-			for (int i = 0; i < in.length; i++) {
-				if (in[i] != "") {
-					out[temp] = in[i];
-					temp = temp + 1;
-				}
-			}
-			return out;
 		} else {
-			String[] out = { "" };
-			return out;
+			if (valAlias==null) {
+				return Integer.toString(getMidiValue()+valueOffset);
+			} else {
+				return valAlias[getMidiValue()];
+			}			
 		}
 	}
+		
+	public void SetMidiValueWithAlias(String s) {
+		int val = getMidiValue();
+		if (snap) {
+			if ((snapAlias==null) && (Arrays.binarySearch(snapVals,Integer.valueOf(s)-valueOffset)!=-1)) {				
+				val =  Integer.valueOf(s)-valueOffset;
+			} else {
+				val = snapVals[searchStringArray(snapAlias,s,val)];
+			}
+		} else {
+			if (valAlias==null) {
+				val =  Integer.valueOf(s)-valueOffset;				
+			} else {
+				val = searchStringArray(valAlias,s,val);
+			}	
+		}
+		setMidiValue(val,true);
+	}
+	
+	public int getMidiValSnapIndex() {
+		int i = Arrays.binarySearch(snapVals,getMidiValue());
+	    if (i==-1) {i = 0;}
+	    return i;
+	}
+	
+	private int searchStringArray(String[] sarray, String s, int def) {
+		int val = def;
+		for (int j = 0; j < sarray.length; j++) {
+			if (sarray[j].equals(s)) {
+				val = j;
+				break;
+			}
+		}
+		return val;
+	}
+	
+	public String[] getSparseValAlias() {
+		String[] s = new String[sparseMatrix.length];
+		for(int i=0;i<sparseMatrix.length;i++) {
+			s[i] = valAlias[sparseMatrix[i]];
+		}
+		return s;
+	}
+	
+	private String[] generateAlias () {
+		String[] s = new String[midimax-midimin+1];
+		for (int i=midimin;i<=midimax;i++) {
+			s[i-midimin] = Integer.toString(i+valueOffset);
+		}
+		return s;
+	}
 
+	public int getMidiValueWithSparse() {
+		return Arrays.binarySearch(sparseMatrix,getMidiValue());
+	}	
+	
+	public void setMidiValueWithSparse(int i) {
+		setMidiValue(sparseMatrix[i],true);
+	}
+
+	public int[] generateSparseMatrix(String[] in) {
+		int temp = 0;
+		for (int i = 0; i < in.length; i++) {
+			if (in[i] != "") {
+				temp = temp + 1;
+			}
+		}
+		
+		int[] sparseMat = new int[temp];
+		temp = 0;
+		for (int i = 0; i < in.length; i++) {
+			if (in[i] != "") {
+				sparseMat[temp++] = i;
+			}
+		}
+		return sparseMat;
+	}
+	
 	public void send(MidiMessage message, long lTimeStamp) {
-		String m = MidiUtils.getHexString(message.getMessage())
-				.replace(" ", "");
+		String m = MidiUtils.getHexString(message.getMessage()).replace(" ", "");
 		if (m.indexOf(SIDSysexInfo.acknowledgedSysex.replace("<device>", "00")) == 0) {
 			// System.out.println("MBSID: Acknowdledged!");
 		} else if (m.equals(SIDSysexInfo.error1Sysex.replace("<device>", "00"))) {
@@ -180,8 +224,7 @@ public class SIDSysexParameterControl extends SIDSysexParameter {
 		} else if (m.equals(SIDSysexInfo.error2Sysex.replace("<device>", "00"))) {
 			System.out.println("MBSID: Wrong checksum");
 		} else if (m.equals(SIDSysexInfo.error3Sysex.replace("<device>", "00"))) {
-			System.out
-					.println("MBSID: Bankstick or patch/drumset/ensemble not available");
+			System.out.println("MBSID: Bankstick or patch/drumset/ensemble not available");
 		} else if (m.equals(SIDSysexInfo.error4Sysex.replace("<device>", "00"))) {
 			System.out.println("MBSID: Parameter not available");
 		} else if (m.equals(SIDSysexInfo.error5Sysex.replace("<device>", "00"))) {

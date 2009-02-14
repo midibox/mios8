@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Arrays;
 
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -66,80 +67,37 @@ public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 	}
 
 	public void stateChanged(ChangeEvent ce) {
-
 		if (update) {
-
 			update = false;
-
 			int newval;
-
-			if (midiParameter.snap) {
-
-				int index = (int) (((float) knob.getValue() / (float) knob
-						.getMaximum()) * (midiParameter.snapvals.length - 1));
-				newval = midiParameter.snapvals[index];
-
+			if (midiParameter.snap) {int index = (int) (((float) knob.getValue() / (float) knob.getMaximum()) * (midiParameter.snapVals.length - 1));
+				newval = midiParameter.snapVals[index];
 			} else {
-
 				newval = knob.getValue();
 			}
 
 			midiParameter.setMidiValue(newval, true);
 
 			for (int c = 0; c < midiParameters.size(); c++) {
-				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
-						.elementAt(c);
+				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
 				mp.setMidiValue(newval, false);
 			}
-
 			update = true;
-		}
-
-	}
-
-	private int findSnap(int val) {
-		int outval = 0;
-		for (int i = 0; i < midiParameter.snapvals.length; i++) {
-			if (midiParameter.snapvals[i] == val) {
-				outval = i;
-				break;
-			}
-		}
-		return outval;
-	}
-
-	public void setSnapvals(int[] vals) {
-		midiParameter.useAlias = false;
-		midiParameter.snapvals = vals;
-		for (int c = 0; c < midiParameters.size(); c++) {
-			SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
-					.elementAt(c);
-			mp.snapvals = vals;
 		}
 	}
 
 	public void updateGraphics() {
-
 		super.updateGraphics();
-
 		if (update) {
-
 			update = false;
-
 			int newval;
-
 			if (midiParameter.snap) {
-
-				int index = findSnap(midiParameter.getMidiValue());
-				newval = index / (midiParameter.snapvals.length - 1);
-
+				float ratio = (float) midiParameter.getMidiValSnapIndex() / (float) (midiParameter.snapVals.length - 1);
+				newval = (int)((float)(knob.getMaximum()-knob.getMinimum())* ratio);
 			} else {
-
 				newval = midiParameter.getMidiValue();
 			}
-
 			knob.setValue(newval);
-
 			update = true;
 		}
 	}

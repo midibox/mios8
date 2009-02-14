@@ -22,13 +22,14 @@ package org.midibox.sidedit.gui.controls;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-
+import javax.swing.JLabel;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.midibox.sidedit.SIDSysexParameterControl;
+import org.midibox.utils.gui.FontLoader;
 
 public class SIDSysexParameterControlRadio extends SIDSysexParameterControlGUI {
 
@@ -36,45 +37,47 @@ public class SIDSysexParameterControlRadio extends SIDSysexParameterControlGUI {
 	private JRadioButton[] radioButtons;
 
 	public SIDSysexParameterControlRadio(
-			SIDSysexParameterControl midiParameter, boolean showLabel,
-			String labelLocation, boolean valueBelow, boolean showValue) {
+			SIDSysexParameterControl midiParameter, boolean showLabel, String labelLocation, boolean valueBelow, boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 
 		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setOpaque(false);
 		ButtonGroup bg = new ButtonGroup();
 		String[] str = midiParameter.getSparseValAlias();
 		radioButtons = new JRadioButton[str.length];
 		for (int i = 0; i < str.length; i++) {
-			radioButtons[i] = new JRadioButton(str[i], false);
+			JPanel temp = new JPanel();
+			temp.setLayout(new BorderLayout());
+			temp.setOpaque(false);
+			JLabel lab = new JLabel(str[i]);			
+			lab.setFont(FontLoader.getFont("uni05_53.ttf", 8f));
+			temp.add(lab,BorderLayout.NORTH);
+			radioButtons[i] = new JRadioButton("", false);
 			radioButtons[i].addActionListener(this);
-			radioButtons[i].setOpaque(false);
+			radioButtons[i].setOpaque(false);			
 			bg.add(radioButtons[i]);
-			panel.add(radioButtons[i]);
+			temp.add(radioButtons[i]);
+			panel.add(temp);
 		}
 		updateGraphics();
 		add(panel, BorderLayout.CENTER);
 		updateGraphics();
 	}
-
+	
 	public void actionPerformed(ActionEvent ae) {
 		super.actionPerformed(ae);
 		for (int i = 0; i < radioButtons.length; i++) {
-			if ((ae.getSource() == radioButtons[i])
-					&& (radioButtons[i].isSelected())) {
+			if ((ae.getSource() == radioButtons[i]) && (radioButtons[i].isSelected())) {
 				if (update) {
 					update = false;
-					int newval = midiParameter
-							.lookUpAlias((String) radioButtons[i].getText());
-					midiParameter.setMidiValue(newval, true);
+					midiParameter.setMidiValueWithSparse(i);
+					
 					for (int c = 0; c < midiParameters.size(); c++) {
-						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
-								.elementAt(c);
-						mp.setMidiValue(newval, false);
+						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+						mp.setMidiValue(midiParameter.getMidiValue(), false);
 					}
 					update = true;
-					break;
 				}
 			}
 		}
@@ -85,8 +88,7 @@ public class SIDSysexParameterControlRadio extends SIDSysexParameterControlGUI {
 		if (update) {
 			update = false;
 			for (int i = 0; i < radioButtons.length; i++) {
-				if (i == midiParameter
-						.lookUpValue(midiParameter.getMidiValue())) {
+				if (i == midiParameter.getMidiValueWithSparse()) {
 					radioButtons[i].setSelected(true);
 				} else {
 					radioButtons[i].setSelected(false);

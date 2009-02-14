@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -105,9 +106,9 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 					.toUpperCase(),
 					(showValue) ? ((valueBelow ? SwingConstants.CENTER
 							: SwingConstants.RIGHT)) : SwingConstants.CENTER);
+			midiParameterLabel.setForeground(labelFieldColor);
 			midiParameterLabel.setOpaque(false);
 			midiParameterLabel.setFont(FontLoader.getFont("uni05_53.ttf", 8f));
-			midiParameterLabel.setForeground(labelFieldColor);
 			labelPanel.add(midiParameterLabel);
 		}
 
@@ -159,107 +160,55 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 			updateValueField();
 		}
 	}
-
-	public void useAlias(boolean b) {
-		midiParameter.useAlias = b;
-	}
-
-	private boolean snapExist(int i) {
-		boolean b = false;
-		for (int c = 0; c < midiParameter.snapvals.length; c++) {
-			if (midiParameter.snapvals[c] == i) {
-				b = true;
-				break;
-			}
+	
+	public void setSnapVals(int[] vals, String[] alias) {
+		midiParameter.snapVals = vals;
+		midiParameter.snapAlias = alias;
+		for (int c = 0; c < midiParameters.size(); c++) {
+			SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+			mp.snapVals = vals;
+			mp.snapAlias = alias;
 		}
-		return b;
 	}
-
+	
 	public void setSnap(boolean b) {
 		if (b) { // Turn on snap
-			midiParameter.useAlias = true;
-			midiParameter.snap = true;
-
-			if (!snapExist(midiParameter.getMidiValue())) { // If current midi
-				// value is not part
-				// of the snap
-				// values reset to
-				// snapvals[0];
-				midiParameter.setMidiValue(midiParameter.snapvals[0], true);
+			midiParameter.snap = true;			
+			if (Arrays.binarySearch(midiParameter.snapVals,midiParameter.getMidiValue()) == -1) { // If current midi value is not part of the snap values reset to snapvals[0];
+				midiParameter.setMidiValue(midiParameter.snapVals[0], true);
 				for (int c = 0; c < midiParameters.size(); c++) {
-					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
-							.elementAt(c);
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
 					mp.snap = true;
-					mp.useAlias = true;
 				}
 			} else { // Keep current midi value, only update labels
 				for (int c = 0; c < midiParameters.size(); c++) {
-					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
-							.elementAt(c);
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
 					mp.snap = true;
-					mp.useAlias = true;
 				}
 				updateGraphics();
 			}
 
 		} else { // Turn off snap
-			midiParameter.useAlias = false;
 			midiParameter.snap = false;
 			for (int c = 0; c < midiParameters.size(); c++) {
-				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
-						.elementAt(c);
+				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
 				mp.snap = false;
-				mp.useAlias = false;
 			}
 			updateGraphics();
 		}
 	}
 
 	public void updateValueField() {
-		String newval = new String();
-		valueBuffer.delete(0, valueBuffer.length());
-		valueBuffer.insert(0, midiParameter.getMidiValue());
-
-		if ((midiParameter.getValAlias() == null) || !midiParameter.useAlias) {
-			newval = valueBuffer.toString();
-		} else {
-			newval = (midiParameter.getValAlias())[Integer.valueOf(valueBuffer
-					.toString())];
-		}
-		valueField.setText(newval);
-	}
-
-	public int findAliasMatch(String s) {
-		String[] alias = midiParameter.getValAlias();
-		int i = 0;
-		while ((i < alias.length) && (!alias[i].equals(s))) {
-			i++;
-		}
-		return i;
+		valueField.setText(midiParameter.getMidiValueWithAlias());
 	}
 
 	public void actionPerformed(ActionEvent ae) {
 		Object source = ae.getSource();
 		if (source == valueField) {
-			try {
-				int newval = 0;
-				if ((midiParameter.getValAlias() == null)
-						|| !midiParameter.useAlias) {
-					newval = Integer.parseInt(valueField.getText());
-				} else {
-					newval = findAliasMatch(valueField.getText());
-				}
-
-				midiParameter.setMidiValue(newval, true);
-
-				for (int c = 0; c < midiParameters.size(); c++) {
-					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
-							.elementAt(c);
-					mp.setMidiValue(newval, false);
-				}
-
-			} catch (Exception e) {
-				midiParameter.setMidiValue(midiParameter.getMidiValue(), true);
+			midiParameter.SetMidiValueWithAlias(valueField.getText());			
+			for (int c = 0; c < midiParameters.size(); c++) {
+				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+				mp.setMidiValue(midiParameter.getMidiValue(), false);
 			}
 		}
 	}
@@ -268,8 +217,7 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 		if (observable == midiParameter) {
 			if (object != SIDSysexParameter.VALUE) {
 				if (showLabel) {
-					midiParameterLabel.setText(midiParameter.getMidiName()
-							.toUpperCase());
+					midiParameterLabel.setText(midiParameter.getMidiName().toUpperCase());
 				}
 			}
 			updateGraphics();
@@ -298,5 +246,4 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 
 	public void mouseClicked(MouseEvent e) {
 	}
-
 }

@@ -123,7 +123,7 @@ public class FileHandler {
 		while (!write) {
 			int returnVal = fc.showSaveDialog(null);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				if (fc.getSelectedFile().exists()) {
+				if (fixExtension(fc.getSelectedFile()).exists()) {
 					int response = JOptionPane.showConfirmDialog(null,
 							"File already exists! Do you want to overwrite?",
 							"Overwrite?", JOptionPane.YES_NO_OPTION,
@@ -140,7 +140,7 @@ public class FileHandler {
 			}
 		}
 		if (write) {
-			File file = fc.getSelectedFile();
+			File file = fixExtension(fc.getSelectedFile());
 			FileOutputStream out = null;
 			try {
 				out = new FileOutputStream(file);
@@ -154,6 +154,13 @@ public class FileHandler {
 			}
 		}
 	}
+	
+	private File fixExtension(File f) {
+        if (f.getName().lastIndexOf(".syx")==-1) {
+        	f = new File(f.getPath() + ".syx");
+        }
+        return f;
+    }
 
 	private byte[] loadData() throws IOException {
 		byte[] b = null;

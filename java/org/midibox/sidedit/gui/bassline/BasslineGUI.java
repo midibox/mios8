@@ -169,8 +169,7 @@ public class BasslineGUI extends JPanel {
 				break;
 			case 8:
 				// Radio button list
-				midiParameterGUIs.add(new SIDSysexParameterControlRadio(
-						midiParameter, false, BorderLayout.SOUTH, true, true));
+				midiParameterGUIs.add(new SIDSysexParameterControlRadio(midiParameter, true, BorderLayout.NORTH, true, false));
 				break;
 			default:
 				midiParameterGUIs.add(midiParameter);
