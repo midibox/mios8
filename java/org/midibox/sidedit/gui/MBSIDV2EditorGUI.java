@@ -147,8 +147,7 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 				ImageLoader.getImageIcon("txOff.png")));
 		core1Button.setEnabled(false);
 		core2Button = new JToggleButton();
-		core2Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),
-				ImageLoader.getImageIcon("txOff.png")));
+		core2Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),ImageLoader.getImageIcon("txOff.png")));
 		core2Button.setEnabled(false);
 		core3Button = new JToggleButton();
 		core3Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),

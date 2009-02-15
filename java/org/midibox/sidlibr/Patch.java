@@ -158,7 +158,27 @@ public class Patch implements Receiver {
 		}
 		return (s + checksum);
 	}
+	
+	public byte[] getSysex(String pre, String post) {
+		byte[] preByte = toByteArray(pre);
+		byte[] postByte = toByteArray(post);
+		int pr = preByte.length;
+		int po = postByte.length;
 		
+		byte[] data = new byte[(2*patch.length)+1+pr+po];
+		System.arraycopy(preByte, 0, data, 0, pr);   
+		System.arraycopy(postByte, 0, data, data.length-po, po);
+		
+		int sum = 0;
+		for (int i = 0; i < patch.length; i++) {
+			data[(2*i)+pr] = (byte)((patch[i] & 0xF0) >> 4);			
+			data[(2*i)+pr+1] = (byte)(patch[i] & 0x0F);
+			sum = sum + (patch[i] & 0x0F) + ((patch[i] & 0xF0) >> 4);
+		}
+		data[2*patch.length+pr] = (byte)(-sum & 0x7F); // Checksum		
+		return data;
+	}
+	
 	public String parsePatch(String d) {
 		String status;
 		int dsi = 20; // Index where real patch data starts
@@ -176,7 +196,7 @@ public class Patch implements Receiver {
 			status = "checksum error";
 		} else {
 			status = "succesful";
-		}
+		}		
 		return status;
 	}
 
@@ -198,69 +218,53 @@ public class Patch implements Receiver {
 		} else if (object == MULTI) {
 			setParameter(16, 3, 0, 2, false);
 		}
-		
-		// TK: patch has to be re-initialized after engine change
 		initPatch();		
 	}
 
 	public int getParameter(int address, int start_bit, int resolution) {
 		int value = 0;
-		int absres = Math.abs(resolution);
-
+		
 		// resolution < 8 bit: gets value of bit length 'resolution' starting on
 		// the start_bit
-		if (absres < 8) {
+		if (resolution < 8) {
 			int bitmask = 0;
-			for (int j = 0; j < absres; j++) { // Iterate over all bits
+			for (int j = 0; j < resolution; j++) { // Iterate over all bits
 				bitmask = bitmask | (int) Math.pow(2, (start_bit + j));
 			}
 			value = (bitmask & nibbleSwap(patch[address])) >> start_bit;
 		}
 
 		// 8 bit values
-		if (absres == 8) {
+		if (resolution == 8) {
 			value = nibbleSwap(patch[address]);
 		}
 
 		// 12 bit values
-		if (absres == 12) {
+		if (resolution == 12) {
 			int temp1 = nibbleSwap(patch[address]);
 			int temp2 = nibbleSwap(patch[address + 1] & 0xF0);
 			value = (temp2 << 8) + temp1;
 		}
 
 		// 16 bit values
-		if (absres == 16) {
+		if (resolution == 16) {
 			int temp1 = nibbleSwap(patch[address]);
 			int temp2 = nibbleSwap(patch[address + 1]);
 			value = (temp2 << 8) + temp1;
 		}
 
-		// Shift positive integers down to make them bipolar (if required)
-		if (resolution < 0) {
-			int midimin = -((int) Math.ceil((Math.pow(2, absres) - 1) / 2));
-			value = value + midimin;
-		}
-
 		return value;
 	}
-
+	
 	public void setParameter(int address, int value, int start_bit,
 			int resolution, boolean forward) {
-		int absres = Math.abs(resolution);
-
-		// Shift all bipolar values up to make them fit into a positive integer
-		if (resolution < 0) {
-			int midimin = -((int) Math.ceil((Math.pow(2, absres) - 1) / 2));
-			value = value - midimin;
-		}
-
+		
 		// resolution < 8 bit: sets value of bit length 'resolution' starting on
 		// the start_bit
-		if (absres < 8) {
+		if (resolution < 8) {
 			int temp = nibbleSwap(patch[address]); // Retrieve data
 
-			for (int j = 0; j < absres; j++) { // Iterate over all bits
+			for (int j = 0; j < resolution; j++) { // Iterate over all bits
 				int this_bit = start_bit + j;
 				int bitmask0 = (int) Math.pow(2, j); // Bitmask for checking if
 				// current bit needs to
@@ -284,7 +288,7 @@ public class Patch implements Receiver {
 		}
 
 		// 8 bit values
-		if (absres == 8) {
+		if (resolution == 8) {
 			patch[address] = nibbleSwap(value & 0xFF);
 			if (forward) {
 				sysexSend(address, (value & 0xFF), 1);
@@ -292,7 +296,7 @@ public class Patch implements Receiver {
 		}
 
 		// 12 bit values
-		if (absres == 12) {
+		if (resolution == 12) {
 			int temp = nibbleSwap(patch[address + 1]); // Retrieve data
 			temp = (temp & 0xFF00);
 			patch[address] = nibbleSwap(value & 0xFF);
@@ -303,7 +307,7 @@ public class Patch implements Receiver {
 		}
 
 		// 16 bit values
-		if (absres == 16) {
+		if (resolution == 16) {
 			patch[address] = nibbleSwap(value & 0xFF);
 			patch[address + 1] = nibbleSwap((value & 0xFF00) >> 8);
 			if (forward) {
@@ -365,6 +369,15 @@ public class Patch implements Receiver {
 		sendString(strMessage);
 	}
 	
+	private byte[] toByteArray(String s) {
+		int nLengthInBytes = s.length() / 2;
+		byte[] abMessage = new byte[nLengthInBytes];
+		for (int i = 0; i < nLengthInBytes; i++) {
+			abMessage[i] = (byte) Integer.parseInt(s.substring(i * 2, i * 2 + 2), 16);
+		}
+		return abMessage;
+	}
+	
 	private void sendString(String strMessage) {
 		// When the length of the Sysex String is shorter than any previous strings, pad the end with F7 bytes to make it identical in size
 		// This is yet another workaround for the freakin' Java Sysex bug!
@@ -374,16 +387,11 @@ public class Patch implements Receiver {
 			while (strMessage.length() < maxSysExLength) {
 				strMessage = strMessage + "F7";
 			}				
-		}
-		
-		int nLengthInBytes = strMessage.length() / 2;
-		byte[] abMessage = new byte[nLengthInBytes];
-		for (int i = 0; i < nLengthInBytes; i++) {
-			abMessage[i] = (byte) Integer.parseInt(strMessage.substring(i * 2, i * 2 + 2), 16);
-		}
+		}		
 		//System.out.println(strMessage);
 		SysexMessage sysexMessage = new SysexMessage();
 		try {
+			byte[] abMessage = toByteArray(strMessage);
 			sysexMessage.setMessage(abMessage, abMessage.length);
 		} catch (Exception e) {
 			System.out.println("exception!");

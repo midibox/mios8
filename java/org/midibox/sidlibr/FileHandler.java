@@ -43,7 +43,7 @@ public class FileHandler {
 
 	public void savePatchBank(Bank b, int bankNumber) {
 		try {
-			saveData(toByteArray(getBankDumpSysex(b, bankNumber)));
+			saveData(getBankDumpSysex(b, bankNumber));
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null,"An error has occurred while writing the file!", "Error",JOptionPane.ERROR_MESSAGE);
 		}
@@ -51,7 +51,7 @@ public class FileHandler {
 
 	public void savePatch(Patch p, int bankNumber, int patchNumber) {
 		try {
-			saveData(toByteArray(getPatchDumpSysex(p, bankNumber, patchNumber)));
+			saveData(getPatchDumpSysex(p, bankNumber, patchNumber));
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null,
 					"An error has occurred while writing the file!", "Error",
@@ -166,7 +166,7 @@ public class FileHandler {
 		byte[] b = null;
 		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
+			File file = fixExtension(fc.getSelectedFile());
 			FileInputStream in = null;
 			b = new byte[(int) file.length()];
 			try {
@@ -183,16 +183,22 @@ public class FileHandler {
 		return b;
 	}
 
-	private String getBankDumpSysex(Bank b, int bankNumber) {
-		String s = "";
-		for (int i = 0; i < b.bankSize; i++) {
-			s = s + getPatchDumpSysex(b.getPatchAt(i), bankNumber, i);
+	private byte[] getBankDumpSysex(Bank b, int bankNumber) {
+		int s;
+		if (b.isEnsembleBank()) {
+			s = Bank.ensembleSize/2;
+		} else {
+			s = Bank.patchSize/2;
 		}
-		return s;
+		byte[] bankData = new byte[b.bankSize*s];
+		for (int i = 0; i < b.bankSize; i++) {
+			byte[] d = getPatchDumpSysex(b.getPatchAt(i), bankNumber, i);
+			System.arraycopy(d, 0, bankData, i*s, d.length);
+		}
+		return bankData;
 	}
 
-	private String getPatchDumpSysex(Patch p, int bankNumber, int patchNumber) {
-		String dataStr = p.getSysexString();
+	private byte[] getPatchDumpSysex(Patch p, int bankNumber, int patchNumber) {
 		String patchStr = Integer.toHexString(patchNumber);
 		if (patchStr.length() == 1) {
 			patchStr = "0" + patchStr;
@@ -206,21 +212,11 @@ public class FileHandler {
 			strMessage = strMessage.replace("<bank>", "0" + Integer.toHexString(bankNumber));
 			strMessage = strMessage.replace("<patch>", patchStr);
 		}		
-		strMessage = strMessage.replace("<device>", "00");				
-		strMessage = strMessage.replace("<data><checksum>", dataStr);
-		return strMessage;
+		strMessage = strMessage.replace("<device>", "00");		
+		String s = "<data><checksum>";
+		return p.getSysex(strMessage.substring(0, strMessage.indexOf(s)),strMessage.substring(strMessage.lastIndexOf(s)+s.length()));
 	}
-
-	private byte[] toByteArray(String s) {
-		int nLengthInBytes = s.length() / 2;
-		byte[] abMessage = new byte[nLengthInBytes];
-		for (int i = 0; i < nLengthInBytes; i++) {
-			abMessage[i] = (byte) Integer.parseInt(s
-					.substring(i * 2, i * 2 + 2), 16);
-		}
-		return abMessage;
-	}
-
+	
 	private boolean statusCheck(String status) {
 		boolean b = false;
 		if (status == "succesful") {

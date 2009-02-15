@@ -40,7 +40,7 @@ public class SIDLibController extends Observable implements Observer,
 	private InitPatches initPatches = new InitPatches();
 	private FileHandler fileHandler = new FileHandler(initPatches);
 	private int[] currentPatchNumber = new int[]{0};
-	private int currentBankNumber = 0;
+	private int currentBankNumber = 1;
 	private int[] requestBankIndices;
 	private Bank[] patchBanks = new Bank[8];	
 	private Boolean openEditor = false;
@@ -71,10 +71,17 @@ public class SIDLibController extends Observable implements Observer,
 
 	public void setCores(int i) {
 		coresSelected = i;
+		setChanged();
+		notifyObservers("Cores changed");
+		clearChanged();
 	}
 
 	public int getCores() {
 		return coresSelected & coresHardware;
+	}
+	
+	public int getCoresHardware() {
+		return coresHardware;
 	}
 
 	public void editCurrentPatch() {
@@ -101,7 +108,10 @@ public class SIDLibController extends Observable implements Observer,
 	}
 	
 	public void setCurrentBankNumber(int i) {
-		currentBankNumber = i;
+		currentBankNumber = i;		
+		setChanged();
+		notifyObservers("Bank changed");
+		clearChanged();
 	}
 
 	public int getCurrentBankNumber() {
@@ -142,18 +152,6 @@ public class SIDLibController extends Observable implements Observer,
 			notifyObservers("Data changed");
 			clearChanged();
 		}
-	}
-
-	public void editSwap(int a, int b) {
-		/*
-		Patch temp_a = patchBanks[currentBankNumber].getPatchAt(a);
-		Patch temp_b = patchBanks[currentBankNumber].getPatchAt(b);
-		patchBanks[currentBankNumber].setPatchAt(a, temp_b);
-		patchBanks[currentBankNumber].setPatchAt(b, temp_a);
-		setChanged();
-		notifyObservers("Data changed");
-		clearChanged();
-		*/
 	}
 
 	public void editCut() {
@@ -213,7 +211,9 @@ public class SIDLibController extends Observable implements Observer,
 	public void update(Observable observable, Object object) {
 		if (object == "Hardware scan") {
 			coresHardware = (Integer) sysexController.pickMeUp;
-			System.out.println(coresHardware);
+			setChanged();
+			notifyObservers("Cores changed");
+			clearChanged();			
 		} else if (object == "Patch ready") {
 			patchBanks[sysexController.requestBank+1].setPatchAt(sysexController.requestPatch[sysexController.requestCount],(Patch) sysexController.pickMeUp);
 			setChanged();
