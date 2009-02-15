@@ -518,13 +518,8 @@ public class MIOSStudio implements Observer {
 						hexFileUploadDevice);
 				midiDeviceRouting.connectDevices(hexFileUploadDevice,
 						miosStudioOutPort);
-
-				hexFileUploadDevice.getHexFileUpload().addObserver(this);
-
 			} else {
 				midiDeviceRouting.disconnectDevice(hexFileUploadDevice);
-
-				hexFileUploadDevice.getHexFileUpload().deleteObserver(this);
 			}
 
 			setRouteIndividualDevices(routeIndividualDevices);
@@ -553,33 +548,6 @@ public class MIOSStudio implements Observer {
 			}
 
 			setRouteIndividualDevices(routeIndividualDevices);
-		}
-
-		if (object == HexFileUpload.REBOOT) {
-			
-			boolean portsReleased = midiDeviceRouting.getPortsReleased();
-			
-			if (!portsReleased) {
-
-				Thread t = new Thread() {
-
-					public void run() {
-
-						midiDeviceRouting.setPortsReleased(true);
-						
-						try {
-							Thread.sleep(2000);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-						
-						midiDeviceRouting.setPortsReleased(false);
-
-					}
-				};
-				
-				t.start();
-			}
 		}
 	}
 }
