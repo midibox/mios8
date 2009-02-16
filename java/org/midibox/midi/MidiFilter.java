@@ -20,16 +20,18 @@
 
 package org.midibox.midi;
 
+import java.util.Observable;
+
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.SysexMessage;
 
-public class MidiFilter implements Receiver {
+public class MidiFilter extends Observable implements Receiver {
 
 	protected Receiver receiver;
-
+	
 	// voice messages
 	public boolean noteOff = true;
 

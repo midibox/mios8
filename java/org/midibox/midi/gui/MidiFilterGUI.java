@@ -27,6 +27,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -34,6 +35,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -45,10 +47,12 @@ import javax.swing.table.TableModel;
 
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiUtils;
+import org.midibox.midi.xml.MidiFilterXMLFactory;
 import org.midibox.utils.gui.ImageLoader;
+import org.midibox.utils.gui.SimpleFileChooserFilter;
 
-public class MidiFilterGUI extends JPanel implements ActionListener,
-		TableModelListener, Observer {
+public class MidiFilterGUI extends JPanel implements Observer, ActionListener,
+		TableModelListener {
 
 	private MidiFilter midiFilter;
 
@@ -100,6 +104,10 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 	private JTable channels;
 
 	private DefaultTableModel channelsModel;
+	
+	private static String currentDirectory = "";
+
+	private static JFileChooser fc = null;
 
 	public MidiFilterGUI(MidiFilter midiFilter) {
 		super(new BorderLayout(5, 5));
@@ -327,7 +335,7 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 
 		add(mainPanel, BorderLayout.CENTER);
 
-		//add(createToolBar(), BorderLayout.NORTH);
+		add(createToolBar(), BorderLayout.NORTH);
 	}
 
 	private JToolBar createToolBar() {
@@ -345,12 +353,16 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 		button.setMargin(new Insets(2, 2, 2, 2));
 
 		button.setToolTipText("Load MIDI filter definition");
+		
+		button.setActionCommand("load");
 
 		toolBar.add(button);
 
 		button = new JButton(ImageLoader.getImageIcon("save.png"));
 
 		button.setToolTipText("Save MIDI filter definition");
+		
+		button.setActionCommand("save");
 
 		button.addActionListener(this);
 
@@ -359,6 +371,42 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 		toolBar.add(button);
 
 		return toolBar;
+	}
+	
+	protected void loadFilterDefinition() {
+		
+		if (fc == null) {
+			fc = new JFileChooser(currentDirectory);
+			SimpleFileChooserFilter fileFilter = new SimpleFileChooserFilter(
+					"XML files", "xml", "XML Filter Definition");
+			fc.addChoosableFileFilter(fileFilter);
+			fc.setAcceptAllFileFilterUsed(false);
+		}
+
+		File noFile = new File("");
+		File noFiles[] = { noFile };
+		fc.setSelectedFile(noFile);
+		fc.setSelectedFiles(noFiles);
+
+		int nRetVal = fc.showOpenDialog(this);
+
+		if (nRetVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			
+			MidiFilterXMLFactory.loadMidiFilter(midiFilter, file);
+			
+			setButtonStates();
+			
+			currentDirectory = fc.getCurrentDirectory().toString();
+		}
+	}
+	
+	protected void saveFilterDefinition() {
+		
+	}
+	
+	public void update(Observable observable, Object object) {
+		
 	}
 
 	public void actionPerformed(ActionEvent ae) {
@@ -421,6 +469,12 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 
 		if (source == tuneRequest)
 			midiFilter.tuneRequest = tuneRequest.isSelected();
+		
+		if (ae.getActionCommand() == "load")
+			loadFilterDefinition();
+		
+		if (ae.getActionCommand() == "save") 
+			saveFilterDefinition();
 	}
 
 	public void tableChanged(TableModelEvent e) {
@@ -436,8 +490,11 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 		}
 	}
 
-	public void update(Observable observable, Object object) {
-
+	protected void setButtonStates() {
+		
+		ccModel.fireTableDataChanged();
+				
+		channelsModel.fireTableDataChanged();
 	}
 
 	class MyTableModel extends DefaultTableModel {
@@ -445,9 +502,25 @@ public class MidiFilterGUI extends JPanel implements ActionListener,
 		public MyTableModel(Object[] a, int b) {
 			super(a, b);
 		}
-
+	
 		public Class getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
+		}
+
+		public Object getValueAt(int row, int column) {
+			
+			if (column == 0) {
+			
+			if (getRowCount() == 128) {
+			
+				return new Boolean(midiFilter.cc[row]); 
+			} else {
+				
+				return new Boolean(midiFilter.channel[row]);
+			}
+			} else {
+				return super.getValueAt(row, column);
+			}			
 		}
 
 		public boolean isCellEditable(int row, int col) {
