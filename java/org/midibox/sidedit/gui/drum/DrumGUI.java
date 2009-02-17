@@ -82,7 +82,7 @@ public class DrumGUI extends JPanel {
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		stereoLink(true);
+		stereoLink(false);
 	}
 
 	protected Vector createGUIs(SIDEditController sidEditController) {

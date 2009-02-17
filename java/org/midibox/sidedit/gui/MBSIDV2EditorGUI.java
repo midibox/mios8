@@ -70,7 +70,7 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 
 		this.sidEditController = sidEditController;
 		sidEditController.setTooltipListener(this);
-		stereoLink.setSelected(true);
+		stereoLink.setSelected(false);
 		oscillatorLink.setSelected(false);
 		setTooltip("");
 		core1Button.setSelected(((cores & 0x01) > 0));
@@ -117,23 +117,23 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 		statusBar.setLayout(new BorderLayout());
 		statusBar.setBorder(BorderFactory.createRaisedBevelBorder());
 
-		stereoLink = new JToggleButton("Stereo link");
+		stereoLink = new JToggleButton();
+		stereoLink.setIcon(ImageLoader.getImageIcon("stereo.png"));
 		stereoLink.setPreferredSize(new Dimension(stereoLink.getPreferredSize().width, 20));
 		stereoLink.addActionListener(this);
 
-		oscillatorLink = new JToggleButton("Oscillator link");
+		oscillatorLink = new JToggleButton();
+		oscillatorLink.setIcon(ImageLoader.getImageIcon("link.png"));
 		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink.getPreferredSize().width, 20));
 		oscillatorLink.addActionListener(this);
 		
-		oscillatorLink = new JToggleButton("Oscillator link");
-		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink.getPreferredSize().width, 20));
-		oscillatorLink.addActionListener(this);
-		
-		playButton = new JButton("Play");
+		playButton = new JButton();
+		playButton.setIcon(ImageLoader.getImageIcon("play.png"));
 		playButton.setPreferredSize(new Dimension(playButton.getPreferredSize().width, 14));
 		playButton.addActionListener(this);
 		
-		panicButton = new JButton("Panic");
+		panicButton = new JButton();
+		panicButton.setIcon(ImageLoader.getImageIcon("panic.png"));
 		panicButton.setPreferredSize(new Dimension(panicButton.getPreferredSize().width, 14));
 		panicButton.addActionListener(this);
 
