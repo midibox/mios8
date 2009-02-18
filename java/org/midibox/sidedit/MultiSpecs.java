@@ -82,7 +82,7 @@ public class MultiSpecs {
 		multiControl.add(new SIDSysexParameterControl(rotary, null, -128, patch, 138 + offset, 0, 8, "Curve"));
 
 		// Wavetable
-		multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 139 + offset, 0, 6, "Clock Divider", "Clock divider (sets tempo)"));
+		multiControl.add(new SIDSysexParameterControl(rotary, createDividers(), 0, patch, 139 + offset, 0, 6, "Clock Divider", "Clock divider (sets tempo)"));
 		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 139 + offset, 6, 1, "reserved", "Reserved"));
 		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 139 + offset, 7, 1, "reserved", "Reserved"));
 		multiControl.add(new SIDSysexParameterControl(combo, SIDSysexInfo.multiParams, 0, patch, 140 + offset, 0, 8, "Assign", "Parameter assignment"));
@@ -131,5 +131,13 @@ public class MultiSpecs {
 			}
 		}
 		return wtStr;
+	}
+
+	public static String[] createDividers() {
+		String[] s = new String[64];
+		for (int i = 0; i < s.length; i++) {
+			s[i] = Integer.toString(i + 1);
+		}
+		return s;
 	}
 }

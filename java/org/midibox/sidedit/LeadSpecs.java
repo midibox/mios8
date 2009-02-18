@@ -153,7 +153,7 @@ public class LeadSpecs {
 		Vector wtControl = new Vector();
 		// Wavetable sequencer
 		for (int c = 0; c < 4; c++) {
-			wtControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 364 + (5 * c), 0, 6, "Clock Divider", "Clock divider (sets tempo)"));
+			wtControl.add(new SIDSysexParameterControl(rotary, createDividers(), 0, patch, 364 + (5 * c), 0, 6, "Clock Divider", "Clock divider (sets tempo)"));
 			wtControl.add(new SIDSysexParameterControl(button, null, 0, patch,	364 + (5 * c), 6, 1, "To Left Ch", "Parameter forwarded to left channel"));
 			wtControl.add(new SIDSysexParameterControl(button, null, 0, patch,	364 + (5 * c), 7, 1, "To Right Ch",	"Parameter forwarded to right channel"));
 			wtControl.add(new SIDSysexParameterControl(combo, SIDSysexInfo.leadParams, 0, patch, 365 + (5 * c), 0, 8, "Assign", "Parameter assignment"));
@@ -184,4 +184,13 @@ public class LeadSpecs {
 		}
 		return srcStr;
 	}
+
+	public static String[] createDividers() {
+		String[] s = new String[64];
+		for (int i = 0; i < s.length; i++) {
+			s[i] = Integer.toString(i + 1);
+		}
+		return s;
+	}
+
 }

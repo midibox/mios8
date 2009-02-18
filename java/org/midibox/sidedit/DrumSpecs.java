@@ -58,7 +58,7 @@ public class DrumSpecs {
 	public static Vector createSEQ(Patch patch) {
 		Vector seqControl = new Vector();
 		// Sequencer
-		seqControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 80, 0,	6, "Clock Divider", "Clock divider (sets tempo)"));
+		seqControl.add(new SIDSysexParameterControl(rotary, createDividers(), 0, patch, 80, 0,	6, "Clock Divider", "Clock divider (sets tempo)"));
 		seqControl.add(new SIDSysexParameterControl(button, null, 0, patch, 80, 6,	1, "Manual/Seq", "MIDI Note playing/Sequencer mode"));
 		seqControl.add(new SIDSysexParameterControl(button, null, 0, patch, 80, 7,	1, "Pattern Sync", "Pattern changes synchronised to measure"));
 		seqControl.add(new SIDSysexParameterControl(radio, new String[]{"#1","#2","#3","#4","#5","#6","#7","#8","OFF"}, 0, patch, 81, 0, 4, "Sequence", "Sequencer number"));
@@ -93,4 +93,13 @@ public class DrumSpecs {
 		}
 		return seqDataControl;
 	}	
+
+
+	public static String[] createDividers() {
+		String[] s = new String[64];
+		for (int i = 0; i < s.length; i++) {
+			s[i] = Integer.toString(i + 1);
+		}
+		return s;
+	}
 }

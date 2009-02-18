@@ -170,10 +170,10 @@ public class EngineSpecs {
 		voiceControl.add(new SIDSysexParameterControl(button, null, 0, patch, 108 + offset, 5, 1, "Hold", "Hold the last arpeggio"));
 		voiceControl.add(new SIDSysexParameterControl(button, null, 0, patch, 108 + offset, 6, 1, "Key Sync", "Synchronize with key presses"));
 		voiceControl.add(new SIDSysexParameterControl(button, null, 0, patch, 108 + offset, 7, 1, "Constant Cycle", "Constant arpeggiator cycle"));
-		voiceControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 109 + offset, 0, 6, "Speed Divider", "Speed divider (sets the tempo)"));
+		voiceControl.add(new SIDSysexParameterControl(rotary, createDividers(), 0, patch, 109 + offset, 0, 6, "Speed Divider", "Speed divider (sets the tempo)"));
 		voiceControl.add(new SIDSysexParameterControl(button, null, 0, patch, 109 + offset, 6, 1, "Easy Chord")); // 21
 		voiceControl.add(new SIDSysexParameterControl(button, null, 0, patch, 109 + offset, 7, 1, "Oneshot")); // 22
-		voiceControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 110 + offset, 0, 5, "Gatelength")); // 23
+		voiceControl.add(new SIDSysexParameterControl(rotary, createGatelength(), 0, patch, 110 + offset, 0, 5, "Gatelength")); // 23
 		voiceControl.add(new SIDSysexParameterControl(rotary, null, 1, patch, 110 + offset, 5, 3, "Octave Range")); // 24
 		// SwinSID
 		voiceControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 111 + offset, 0, 4, "Waveform OSC2", "Waveform of second oscillator"));
@@ -222,6 +222,22 @@ public class EngineSpecs {
 		extControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 76, 0,	16, "Ext.CV 7", "External Parameter CV 7"));
 		extControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 78, 0,	16, "Ext.CV 8", "External Parameter CV 8"));
 		return extControl;
+	}
+
+	public static String[] createDividers() {
+		String[] s = new String[64];
+		for (int i = 0; i < s.length; i++) {
+			s[i] = Integer.toString(i + 1);
+		}
+		return s;
+	}
+
+	public static String[] createGatelength() {
+		String[] s = new String[32];
+		for (int i = 0; i < s.length; i++) {
+			s[i] = Integer.toString(i + 1);
+		}
+		return s;
 	}
 
 }
