@@ -100,7 +100,7 @@ public class LeadGUI extends JPanel {
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		stereoLink(false);
+		stereoLink(true);
 	}
 
 	protected Vector createGUIs(SIDEditController sidEditController) {

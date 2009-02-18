@@ -39,9 +39,9 @@ public class BasslineSpecs {
 	public static Vector createMSTR(Patch patch, int offset) {
 		Vector basslineControl = new Vector();
 		basslineControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 0, 1, "Legato"));
-		basslineControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 2, 1, "Fingered Portamento"));
+		basslineControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 2, 1, "Fing.Porta","Fingered Portamento"));
 		basslineControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 1, 1, "Manual/Seq", "MIDI Note playing/Sequencer mode"));
-		basslineControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 3, 1, "Osc Phase Sync", "Oscillator phase synchronisation"));
+		basslineControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 3, 1, "Phase Sync", "Oscillator phase synchronisation"));
 		// OSC2
 		basslineControl.add(new SIDSysexParameterControl(waveselect, null, 0, patch, 160 + offset, 0, 8, "Waveform", "Select a waveform"));
 		basslineControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 161 + offset, 0, 12, "Pulse Width", "Pulse Width"));
@@ -52,8 +52,15 @@ public class BasslineSpecs {
 		basslineControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 169 + offset, 0, 12, "Pulse Width", "Pulse Width"));
 		basslineControl.add(new SIDSysexParameterControl(rotary, SIDSysexInfo.bassOctaves, 0, patch, 171 + offset, 0, 3, "Octave"));
 		basslineControl.add(new SIDSysexParameterControl(rotary, createStatic(), 0, patch, 172 + offset, 0, 7, "Static note"));
-
+	
 		return basslineControl;
+	}
+	
+	public static Vector createMSTRBOTH(Patch patch) {
+		Vector masterBoth = new Vector();
+		masterBoth.add(new SIDSysexParameterControl(rotary, null, 0, patch, 81, 0, 8, "Detune","Oscillators Detune"));
+		masterBoth.add(new SIDSysexParameterControl(rotary, null, 0, patch, 83, 0, 8, "Phase Offset", "Oscillators Phase Offset"));
+		return masterBoth;
 	}
 
 	public static Vector createLFO(Patch patch, int offset) {

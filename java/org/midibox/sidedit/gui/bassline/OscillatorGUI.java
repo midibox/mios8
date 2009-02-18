@@ -32,7 +32,7 @@ import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 
 public class OscillatorGUI extends JPanel {
 	protected OscillatorGUI(Vector V1GUIv, Vector V2GUIv,
-			Vector masterLeftGUIv, Vector masterRightGUIv) {
+			Vector masterLeftGUIv, Vector masterRightGUIv, Vector masterBothGUIv) {
 		setLayout(new BorderLayout());
 		this.setOpaque(false);
 
@@ -60,6 +60,10 @@ public class OscillatorGUI extends JPanel {
 		panel3.add(createSlaveVoice(masterRightGUIv, 0, "Voice 5 (right)"));
 		panel3.add(createSlaveVoice(masterRightGUIv, 4, "Voice 6 (right)"));
 
+		JPanel panel4 = new JPanel();
+		panel4.setLayout(new BoxLayout(panel3, BoxLayout.Y_AXIS));
+		panel4.setOpaque(false);
+		
 		panel1.add(panel2);
 		panel1.add(panel3);
 
@@ -67,14 +71,14 @@ public class OscillatorGUI extends JPanel {
 		globPanel.setLayout(new BoxLayout(globPanel, BoxLayout.Y_AXIS));
 		globPanel.setOpaque(false);
 
-		panel.add(createGlob(masterLeftGUIv, masterRightGUIv));
+		panel.add(createGlob(masterLeftGUIv, masterRightGUIv, masterBothGUIv));
 		panel.add(panel1);
 		this.add(panel, BorderLayout.NORTH);
 	}
 
-	protected JPanel createGlob(Vector vGUIL, Vector vGUIR) {
+	protected JPanel createGlob(Vector vGUIL, Vector vGUIR, Vector vGUIC) {
 		JPanel globPanel = new JPanel();
-		globPanel.setLayout(new GridLayout(1, 2));
+		globPanel.setLayout(new BoxLayout(globPanel, BoxLayout.X_AXIS));
 		globPanel.setOpaque(false);
 
 		JPanel subPanelL = new JPanel();
@@ -87,6 +91,15 @@ public class OscillatorGUI extends JPanel {
 		subPanelL.add((SIDSysexParameterControlGUI) vGUIL.elementAt(2));
 		subPanelL.add((SIDSysexParameterControlGUI) vGUIL.elementAt(3));
 		globPanel.add(subPanelL);
+		
+		JPanel subPanelC = new JPanel();
+		subPanelC.setLayout(new GridLayout(1, 2));
+		subPanelC.setOpaque(false);
+		subPanelC.setBorder(BorderFactory.createEtchedBorder());
+		subPanelC.setBorder(BorderFactory.createTitledBorder("Master Both"));
+		subPanelC.add((SIDSysexParameterControlGUI) vGUIC.elementAt(0));
+		subPanelC.add((SIDSysexParameterControlGUI) vGUIC.elementAt(1));
+		globPanel.add(subPanelC);
 
 		JPanel subPanelR = new JPanel();
 		subPanelR.setLayout(new GridLayout(1, 4));

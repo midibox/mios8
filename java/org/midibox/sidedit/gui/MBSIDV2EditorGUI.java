@@ -70,7 +70,6 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 
 		this.sidEditController = sidEditController;
 		sidEditController.setTooltipListener(this);
-		stereoLink.setSelected(false);
 		oscillatorLink.setSelected(false);
 		setTooltip("");
 		core1Button.setSelected(((cores & 0x01) > 0));
@@ -87,14 +86,18 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 			Patch p = (Patch)sidEditController.getPatch();
 			if (p.getEngine() == p.LEAD) {
 				editPanel = new LeadGUI(sidEditController);
+				stereoLink.setSelected(true);
 			} else if (p.getEngine() == p.BASSLINE) {
 				editPanel = new BasslineGUI(sidEditController);
+				stereoLink.setSelected(false);
 			} else if (p.getEngine() == p.DRUM) {
 				editPanel = new DrumGUI(sidEditController);
+				stereoLink.setSelected(false);
 			} else if (p.getEngine() == p.MULTI) {
 				editPanel = new MultiGUI(sidEditController);
+				stereoLink.setSelected(false);
 			}
-		}
+		}		
 		add(editPanel);
 		repaint();
 		setVisible(true);

@@ -60,20 +60,12 @@ public class BasslineGUI extends JPanel {
 		GUIs = createGUIs(sidEditController);
 		createLinkGroups();
 		JTabbedPane tabbedPane = new JTabbedPane();
-		JPanel t1 = new GlobalGUI((Vector) GUIs.elementAt(0), (Vector) GUIs
-				.elementAt(1));
-		JPanel t2 = new OscillatorGUI((Vector) GUIs.elementAt(4), (Vector) GUIs
-				.elementAt(5), (Vector) GUIs.elementAt(6), (Vector) GUIs
-				.elementAt(7));
-		JPanel t3 = new FilterGUI((Vector) GUIs.elementAt(2), (Vector) GUIs
-				.elementAt(3));
-		JPanel t4 = new LfoGUI((Vector) GUIs.elementAt(8), (Vector) GUIs
-				.elementAt(9), (Vector) GUIs.elementAt(10), (Vector) GUIs
-				.elementAt(11));
-		JPanel t6 = new SequencerGUI((Vector) GUIs.elementAt(14), (Vector) GUIs
-				.elementAt(12), (Vector) GUIs.elementAt(13));
-		JPanel t7 = new ArpGUI((Vector) GUIs.elementAt(4), (Vector) GUIs
-				.elementAt(5));
+		JPanel t1 = new GlobalGUI((Vector) GUIs.elementAt(0), (Vector) GUIs.elementAt(1));
+		JPanel t2 = new OscillatorGUI((Vector) GUIs.elementAt(4), (Vector) GUIs.elementAt(5), (Vector) GUIs.elementAt(7), (Vector) GUIs.elementAt(8),(Vector) GUIs.elementAt(6));
+		JPanel t3 = new FilterGUI((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3));
+		JPanel t4 = new LfoGUI((Vector) GUIs.elementAt(9), (Vector) GUIs.elementAt(10), (Vector) GUIs.elementAt(11), (Vector) GUIs.elementAt(12));
+		JPanel t6 = new SequencerGUI((Vector) GUIs.elementAt(15), (Vector) GUIs.elementAt(13), (Vector) GUIs.elementAt(14));
+		JPanel t7 = new ArpGUI((Vector) GUIs.elementAt(4), (Vector) GUIs.elementAt(5));
 
 		tabbedPane.addTab("Global", t1);
 		tabbedPane.addTab("Oscillator", t2);
@@ -203,16 +195,16 @@ public class BasslineGUI extends JPanel {
 			// V1
 			// &
 			// V2
-			linkPar((Vector) GUIs.elementAt(6), (Vector) GUIs.elementAt(7)); // Link
+			linkPar((Vector) GUIs.elementAt(7), (Vector) GUIs.elementAt(8)); // Link
 			// master
 			// L
 			// &
 			// R
-			linkPar((Vector) GUIs.elementAt(8), (Vector) GUIs.elementAt(9)); // Link
+			linkPar((Vector) GUIs.elementAt(9), (Vector) GUIs.elementAt(10)); // Link
 			// LFO's
-			linkPar((Vector) GUIs.elementAt(10), (Vector) GUIs.elementAt(11)); // Link
+			linkPar((Vector) GUIs.elementAt(11), (Vector) GUIs.elementAt(12)); // Link
 			// Envelopes
-			linkPar((Vector) GUIs.elementAt(12), (Vector) GUIs.elementAt(13)); // Link
+			linkPar((Vector) GUIs.elementAt(13), (Vector) GUIs.elementAt(14)); // Link
 			// Sequencers
 		} else {
 			((Patch)sidEditController.getPatch()).setStereoLink(false);
@@ -226,16 +218,16 @@ public class BasslineGUI extends JPanel {
 			// V1
 			// &
 			// V2
-			unlinkPar((Vector) GUIs.elementAt(6), (Vector) GUIs.elementAt(7)); // Link
+			unlinkPar((Vector) GUIs.elementAt(7), (Vector) GUIs.elementAt(8)); // Link
 			// master
 			// L
 			// &
 			// R
-			unlinkPar((Vector) GUIs.elementAt(8), (Vector) GUIs.elementAt(9)); // Link
+			unlinkPar((Vector) GUIs.elementAt(9), (Vector) GUIs.elementAt(10)); // Link
 			// LFO's
-			unlinkPar((Vector) GUIs.elementAt(10), (Vector) GUIs.elementAt(11)); // Link
+			unlinkPar((Vector) GUIs.elementAt(11), (Vector) GUIs.elementAt(12)); // Link
 			// Envelopes
-			unlinkPar((Vector) GUIs.elementAt(12), (Vector) GUIs.elementAt(13)); // Link
+			unlinkPar((Vector) GUIs.elementAt(13), (Vector) GUIs.elementAt(14)); // Link
 			// Sequencers
 		}
 	}

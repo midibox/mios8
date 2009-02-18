@@ -65,25 +65,22 @@ public class EngineSpecs {
 				engine.add(LeadSpecs.createWT(patch)); 		// 16: Wavetable sequencer
 			} else if (patch.getEngine() == patch.BASSLINE) {
 				// Bassline
-				engine.add(createGlobal(patch, SIDSysexInfo.basslineParams));// 0:
-				// Global
-				// parameters
-				engine.add(createExt(patch)); // 1: External parameters
-				engine.add(createFilter(patch, 0)); // 2: Filter Left
-				engine.add(createFilter(patch, 6)); // 3: Filter right
-				engine.add(createVoice(patch, 0)); // 4: Left Oscillator
-				engine.add(createVoice(patch, 80)); // 5: Right Oscillator
-				engine.add(BasslineSpecs.createMSTR(patch, 0)); // 6: Left master set
-				engine.add(BasslineSpecs.createMSTR(patch, 80)); // 7: Right master set
-				engine.add(BasslineSpecs.createLFO(patch, 0)); // 8: Left LFO's
-				engine.add(BasslineSpecs.createLFO(patch, 80)); // 9: Right LFO's
-				engine.add(BasslineSpecs.createENV(patch, 0));  // 10: Left Envelope
-				engine.add(BasslineSpecs.createENV(patch, 80)); // 11: Right
-				// Envelope
-				engine.add(BasslineSpecs.createSEQ(patch, 0)); // 12: Left Sequencer
-				engine.add(BasslineSpecs.createSEQ(patch, 80)); // 13: Right
-				// Sequencer
-				engine.add(BasslineSpecs.createSEQData(patch)); // 14: Sequencer
+				engine.add(createGlobal(patch, SIDSysexInfo.basslineParams));// 0: Global parameters
+				engine.add(createExt(patch)); 					// 1: External parameters
+				engine.add(createFilter(patch, 0)); 			// 2: Filter Left
+				engine.add(createFilter(patch, 6)); 			// 3: Filter right
+				engine.add(createVoice(patch, 0)); 				// 4: Left Oscillator
+				engine.add(createVoice(patch, 80)); 			// 5: Right Oscillator
+				engine.add(BasslineSpecs.createMSTRBOTH(patch));// 6: Right Oscillator
+				engine.add(BasslineSpecs.createMSTR(patch, 0)); // 7: Left master set
+				engine.add(BasslineSpecs.createMSTR(patch, 80));// 8: Right master set
+				engine.add(BasslineSpecs.createLFO(patch, 0)); 	// 9: Left LFO's
+				engine.add(BasslineSpecs.createLFO(patch, 80)); // 10: Right LFO's
+				engine.add(BasslineSpecs.createENV(patch, 0));  // 11: Left Envelope
+				engine.add(BasslineSpecs.createENV(patch, 80)); // 12: Right Envelope
+				engine.add(BasslineSpecs.createSEQ(patch, 0));  // 13: Left Sequencer
+				engine.add(BasslineSpecs.createSEQ(patch, 80)); // 14: Right Sequencer
+				engine.add(BasslineSpecs.createSEQData(patch)); // 15: Sequencer
 				// data
 			} else if (patch.getEngine() == patch.DRUM) {
 				// Drum
