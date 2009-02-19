@@ -314,37 +314,39 @@ public class MidiFilter extends Observable implements Receiver {
 
 		if (message instanceof ShortMessage) {
 
-			int status = (int)(message.getStatus() & 0xFF);
+			int statusNo = (int)(message.getStatus() & 0xFF);
 			
-			if (status >= 0x80 && status <= 0xEF) {
-
-				status = ((ShortMessage) message).getCommand();
+			if (statusNo >= 0x80 && statusNo <= 0xEF) {
+			
+				int channelNo = statusNo & 0x0F;
 				
-				if (!getVoiceMessage(status) || !voiceMessages) {
+				statusNo = statusNo & 0xF0;
+				
+				if (!getVoiceMessage(statusNo) || !voiceMessages) {
 					return;
 				}
 
 				// control change
-				if (status == ShortMessage.CONTROL_CHANGE
+				if (statusNo == ShortMessage.CONTROL_CHANGE
 						&& !controlChangeMessage[((ShortMessage) message)
 								.getData1()]) {
 					return;
 				}
 
 				// channels
-				if (!channel[((ShortMessage) message).getChannel()]) {
+				if (!channel[channelNo]) {
 					return;
 				}
 			}
 
-			if (status >= 0xF0 && status <= 0xF7) {
-				if (!getSystemCommonMessage(status) || !systemCommonMessages) {
+			if (statusNo >= 0xF0 && statusNo <= 0xF7) {
+				if (!getSystemCommonMessage(statusNo) || !systemCommonMessages) {
 					return;
 				}
 			}
 
-			if (status >= 0xF8 && status <= 0xFF) {
-				if (!getSystemRealtimeMessage(status)
+			if (statusNo >= 0xF8 && statusNo <= 0xFF) {
+				if (!getSystemRealtimeMessage(statusNo)
 						|| !systemRealtimeMessages) {
 					return;
 				}
