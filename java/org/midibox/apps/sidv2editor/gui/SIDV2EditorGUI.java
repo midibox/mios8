@@ -21,6 +21,7 @@
 package org.midibox.apps.sidv2editor.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -56,6 +57,7 @@ import org.midibox.sidlibr.gui.LibraryGUI;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.MyButtonUI;
+import org.midibox.utils.gui.MyColoredButtonUI;
 import org.midibox.utils.gui.SplitButton;
 
 public class SIDV2EditorGUI extends JPanel implements Observer,
@@ -467,10 +469,26 @@ public class SIDV2EditorGUI extends JPanel implements Observer,
 		b3 = new JToggleButton();
 		b4 = new JToggleButton();
 		
-		b1.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),ImageLoader.getImageIcon("txOff.png")));
-		b2.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),ImageLoader.getImageIcon("txOff.png")));
-		b3.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),ImageLoader.getImageIcon("txOff.png")));
-		b4.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),ImageLoader.getImageIcon("txOff.png")));
+		b1.setUI(new MyColoredButtonUI(ImageLoader
+				.getImageIcon("pushButton_on.png"), ImageLoader
+				.getImageIcon("pushButton_off.png"),
+				MyColoredButtonUI.RECTANGLE, Color.GREEN));
+
+		b2.setUI(new MyColoredButtonUI(ImageLoader
+				.getImageIcon("pushButton_on.png"), ImageLoader
+				.getImageIcon("pushButton_off.png"),
+				MyColoredButtonUI.RECTANGLE, Color.GREEN));
+
+		b3.setUI(new MyColoredButtonUI(ImageLoader
+				.getImageIcon("pushButton_on.png"), ImageLoader
+				.getImageIcon("pushButton_off.png"),
+				MyColoredButtonUI.RECTANGLE, Color.GREEN));
+
+		b4.setUI(new MyColoredButtonUI(ImageLoader
+				.getImageIcon("pushButton_on.png"), ImageLoader
+				.getImageIcon("pushButton_off.png"),
+				MyColoredButtonUI.RECTANGLE, Color.GREEN));
+
 		
 		b1.setToolTipText("Enable core 1");
 		b2.setToolTipText("Enable core 2");
