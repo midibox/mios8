@@ -145,10 +145,6 @@ public class MidiFilter extends Observable implements Receiver {
 
 		if (statusNumber >= 0xF0 && statusNumber <= 0xF7) {
 			systemCommonMessage[(statusNumber & 0xF)] = enabled;
-
-			if (statusNumber == ShortMessage.MIDI_TIME_CODE) {
-				setStatus(0xF0, enabled);
-			}
 		}
 
 		if (statusNumber >= 0xF8 && statusNumber <= 0xFF) {
@@ -318,10 +314,12 @@ public class MidiFilter extends Observable implements Receiver {
 
 		if (message instanceof ShortMessage) {
 
-			int status = ((ShortMessage) message).getCommand();
-
+			int status = (int)(message.getStatus() & 0xFF);
+			
 			if (status >= 0x80 && status <= 0xEF) {
 
+				status = ((ShortMessage) message).getCommand();
+				
 				if (!getVoiceMessage(status) || !voiceMessages) {
 					return;
 				}
