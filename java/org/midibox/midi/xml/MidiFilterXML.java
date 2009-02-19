@@ -74,7 +74,7 @@ public class MidiFilterXML {
 
 				boolean e = Boolean.parseBoolean(enable.getTextContent());
 
-				midiFilter.channel[n - 1] = e;
+				midiFilter.setChannel(n, e);
 			}
 
 		} else if (name == "voiceMessages") {
@@ -107,7 +107,7 @@ public class MidiFilterXML {
 
 				boolean e = Boolean.parseBoolean(enable.getTextContent());
 
-				midiFilter.cc[n] = e;
+				midiFilter.setControlChange(n, e);
 			}
 		}
 	}
@@ -160,7 +160,7 @@ public class MidiFilterXML {
 
 		midiFilterElement.appendChild(channelsElement);
 
-		for (int c = 0; c < midiFilter.channel.length; c++) {
+		for (int c = 0; c < midiFilter.getChannel().length; c++) {
 
 			Element channel = document.createElement("channel");
 
@@ -168,7 +168,7 @@ public class MidiFilterXML {
 
 			channel.setAttribute("number", "" + (c + 1));
 
-			channel.setAttribute("enable", (midiFilter.channel[c]) ? "true"
+			channel.setAttribute("enable", (midiFilter.getChannel()[c]) ? "true"
 					: "false");
 		}
 
@@ -177,7 +177,7 @@ public class MidiFilterXML {
 
 		midiFilterElement.appendChild(controlChangeMessagesElement);
 
-		for (int cc = 0; cc < midiFilter.cc.length; cc++) {
+		for (int cc = 0; cc < midiFilter.getControlChangeMessages().length; cc++) {
 
 			Element controlChangeMessage = document
 					.createElement("controlChangeMessage");
@@ -187,7 +187,7 @@ public class MidiFilterXML {
 			controlChangeMessage.setAttribute("number", "" + (cc));
 
 			controlChangeMessage.setAttribute("enable",
-					(midiFilter.cc[cc]) ? "true" : "false");
+					(midiFilter.getControlChangeMessages()[cc]) ? "true" : "false");
 		}
 	}
 }

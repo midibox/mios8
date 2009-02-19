@@ -24,7 +24,11 @@ import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiMessage;
+import javax.sound.midi.ShortMessage;
+import javax.sound.midi.SysexMessage;
 
 import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;
@@ -186,26 +190,30 @@ public class MIOSStudio implements Observer {
 		// special for MIOS Terminal:
 		// disable all messages by default, only allow pass SysEx
 		// user can enable other MIDI events again if required
-		miosTerminalFiltered.getMidiFilter().sysexMessage = true;
+		
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.NOTE_OFF, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.NOTE_ON, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.POLY_PRESSURE, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.CONTROL_CHANGE, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.PROGRAM_CHANGE, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.CHANNEL_PRESSURE, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.PITCH_BEND, false);
 
-		miosTerminalFiltered.getMidiFilter().metaMessage = false;
-		miosTerminalFiltered.getMidiFilter().activeSensing = false;
-		miosTerminalFiltered.getMidiFilter().channelPressure = false;
-		miosTerminalFiltered.getMidiFilter().continueMessage = false;
-		miosTerminalFiltered.getMidiFilter().controlChange = false;
-		miosTerminalFiltered.getMidiFilter().midiTimeCode = false;
-		miosTerminalFiltered.getMidiFilter().noteOff = false;
-		miosTerminalFiltered.getMidiFilter().noteOn = false;
-		miosTerminalFiltered.getMidiFilter().pitchBend = false;
-		miosTerminalFiltered.getMidiFilter().pollyPressure = false;
-		miosTerminalFiltered.getMidiFilter().programChange = false;
-		miosTerminalFiltered.getMidiFilter().songPositionPointer = false;
-		miosTerminalFiltered.getMidiFilter().songSelect = false;
-		miosTerminalFiltered.getMidiFilter().start = false;
-		miosTerminalFiltered.getMidiFilter().stop = false;
-		miosTerminalFiltered.getMidiFilter().systemReset = false;
-		miosTerminalFiltered.getMidiFilter().timingClock = false;
-		miosTerminalFiltered.getMidiFilter().tuneRequest = false;
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(ShortMessage.MIDI_TIME_CODE, false);
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(ShortMessage.SONG_POSITION_POINTER, false);
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(ShortMessage.SONG_SELECT, false);
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(ShortMessage.TUNE_REQUEST, false);
+		
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.TIMING_CLOCK, false);	
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.START, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.CONTINUE, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.STOP, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.ACTIVE_SENSING, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.SYSTEM_RESET, false);
+		
+		miosTerminalFiltered.getMidiFilter().setSysexMessages(true);
+		
+		miosTerminalFiltered.getMidiFilter().setMetaMessages(false);
 	}
 
 	public MidiDeviceManager getMidiDeviceManager() {

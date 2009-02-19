@@ -31,6 +31,9 @@ import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.sound.midi.MetaMessage;
+import javax.sound.midi.ShortMessage;
+import javax.sound.midi.SysexMessage;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -40,10 +43,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiUtils;
@@ -78,7 +78,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 	private JCheckBox pitchBend;
 
-	private JCheckBox pollyPressure;
+	private JCheckBox polyPressure;
 
 	private JCheckBox programChange;
 
@@ -112,6 +112,8 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		super(new BorderLayout(5, 5));
 		this.midiFilter = midiFilter;
 
+		midiFilter.addObserver(this);
+		
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		// voice messages
@@ -125,40 +127,40 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		voicePanel
 				.setBorder(BorderFactory.createTitledBorder("Voice Messages"));
 
-		noteOff = new JCheckBox("Note Off", midiFilter.noteOff);
+		noteOff = new JCheckBox("Note Off", midiFilter.getVoiceMessage(ShortMessage.NOTE_OFF));
 		noteOff.addActionListener(this);
 		voicePanel.add(noteOff, gbc);
 		gbc.gridy++;
 
-		noteOn = new JCheckBox("Note On", midiFilter.noteOn);
+		noteOn = new JCheckBox("Note On", midiFilter.getVoiceMessage(ShortMessage.NOTE_ON));
 		noteOn.addActionListener(this);
 		voicePanel.add(noteOn, gbc);
 		gbc.gridy++;
 
-		pollyPressure = new JCheckBox("Aftertouch", midiFilter.pollyPressure);
-		pollyPressure.addActionListener(this);
-		voicePanel.add(pollyPressure, gbc);
+		polyPressure = new JCheckBox("Aftertouch", midiFilter.getVoiceMessage(ShortMessage.POLY_PRESSURE));
+		polyPressure.addActionListener(this);
+		voicePanel.add(polyPressure, gbc);
 		gbc.gridy++;
 
 		controlChange = new JCheckBox("Control Change",
-				midiFilter.controlChange);
+				midiFilter.getVoiceMessage(ShortMessage.CONTROL_CHANGE));
 		controlChange.addActionListener(this);
 		voicePanel.add(controlChange, gbc);
 		gbc.gridy++;
 
 		programChange = new JCheckBox("Program Change",
-				midiFilter.programChange);
+				midiFilter.getVoiceMessage(ShortMessage.PROGRAM_CHANGE));
 		programChange.addActionListener(this);
 		voicePanel.add(programChange, gbc);
 		gbc.gridy++;
 
 		channelPressure = new JCheckBox("Channel Pressure",
-				midiFilter.channelPressure);
+				midiFilter.getVoiceMessage(ShortMessage.CHANNEL_PRESSURE));
 		channelPressure.addActionListener(this);
 		voicePanel.add(channelPressure, gbc);
 		gbc.gridy++;
 
-		pitchBend = new JCheckBox("Pitch Bend", midiFilter.pitchBend);
+		pitchBend = new JCheckBox("Pitch Bend", midiFilter.getVoiceMessage(ShortMessage.PITCH_BEND));
 		pitchBend.addActionListener(this);
 		voicePanel.add(pitchBend, gbc);
 		gbc.gridy++;
@@ -173,7 +175,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		sysexPanel
 				.setBorder(BorderFactory.createTitledBorder("Sysex Messages"));
 
-		sysexMessage = new JCheckBox("Sysex Message", midiFilter.sysexMessage);
+		sysexMessage = new JCheckBox("Sysex Message", midiFilter.isSysexMessages());
 		sysexMessage.addActionListener(this);
 		sysexPanel.add(sysexMessage, gbc);
 		gbc.gridy++;
@@ -187,23 +189,23 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		gbc.weighty = 0.0;
 		sysCommon.setBorder(BorderFactory.createTitledBorder("System Common"));
 
-		midiTimeCode = new JCheckBox("MIDI Time Code", midiFilter.midiTimeCode);
+		midiTimeCode = new JCheckBox("MIDI Time Code", midiFilter.getSystemCommonMessage(ShortMessage.MIDI_TIME_CODE));
 		midiTimeCode.addActionListener(this);
 		sysCommon.add(midiTimeCode, gbc);
 		gbc.gridy++;
 
 		songPositionPointer = new JCheckBox("Song Position Pointer",
-				midiFilter.songPositionPointer);
+				midiFilter.getSystemCommonMessage(ShortMessage.SONG_POSITION_POINTER));
 		songPositionPointer.addActionListener(this);
 		sysCommon.add(songPositionPointer, gbc);
 		gbc.gridy++;
 
-		songSelect = new JCheckBox("Song Select", midiFilter.songSelect);
+		songSelect = new JCheckBox("Song Select", midiFilter.getSystemCommonMessage(ShortMessage.SONG_SELECT));
 		songSelect.addActionListener(this);
 		sysCommon.add(songSelect, gbc);
 		gbc.gridy++;
 
-		tuneRequest = new JCheckBox("Tune Request", midiFilter.tuneRequest);
+		tuneRequest = new JCheckBox("Tune Request", midiFilter.getSystemCommonMessage(ShortMessage.TUNE_REQUEST));
 		tuneRequest.addActionListener(this);
 		sysCommon.add(tuneRequest, gbc);
 		gbc.gridy++;
@@ -217,33 +219,33 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		gbc.weighty = 0.0;
 		sysReal.setBorder(BorderFactory.createTitledBorder("System Realtime"));
 
-		timingClock = new JCheckBox("Timing Clock", midiFilter.timingClock);
+		timingClock = new JCheckBox("Timing Clock", midiFilter.getSystemRealtimeMessage(ShortMessage.TIMING_CLOCK));
 		timingClock.addActionListener(this);
 		sysReal.add(timingClock, gbc);
 		gbc.gridy++;
 
-		start = new JCheckBox("Start", midiFilter.start);
+		start = new JCheckBox("Start", midiFilter.getSystemRealtimeMessage(ShortMessage.START));
 		start.addActionListener(this);
 		sysReal.add(start, gbc);
 		gbc.gridy++;
 
-		continueMessage = new JCheckBox("Continue", midiFilter.continueMessage);
+		continueMessage = new JCheckBox("Continue", midiFilter.getSystemRealtimeMessage(ShortMessage.CONTINUE));
 		continueMessage.addActionListener(this);
 		sysReal.add(continueMessage, gbc);
 		gbc.gridy++;
 
-		stop = new JCheckBox("Stop", midiFilter.stop);
+		stop = new JCheckBox("Stop", midiFilter.getSystemRealtimeMessage(ShortMessage.STOP));
 		stop.addActionListener(this);
 		sysReal.add(stop, gbc);
 		gbc.gridy++;
 
 		activeSensing = new JCheckBox("Active Sensing",
-				midiFilter.activeSensing);
+				midiFilter.getSystemRealtimeMessage(ShortMessage.ACTIVE_SENSING));
 		activeSensing.addActionListener(this);
 		sysReal.add(activeSensing, gbc);
 		gbc.gridy++;
 
-		systemReset = new JCheckBox("System Reset", midiFilter.systemReset);
+		systemReset = new JCheckBox("System Reset", midiFilter.getSystemRealtimeMessage(ShortMessage.SYSTEM_RESET));
 		systemReset.addActionListener(this);
 		sysReal.add(systemReset, gbc);
 		gbc.gridy++;
@@ -257,7 +259,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		gbc.weighty = 0.0;
 		metaPanel.setBorder(BorderFactory.createTitledBorder("Meta Messages"));
 
-		metaMessage = new JCheckBox("Meta Message", midiFilter.metaMessage);
+		metaMessage = new JCheckBox("Meta Message", midiFilter.isMetaMessages());
 		metaMessage.addActionListener(this);
 		metaPanel.add(metaMessage, gbc);
 		gbc.gridy++;
@@ -269,9 +271,9 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 				new String[] { "Selected", "Channel" }, 0);
 		channels = new JTable(channelsModel);
 
-		for (int i = 0; i < 16; i++) {
+		for (int i = 1; i <= 16; i++) {
 			channelsModel.addRow(new Object[] {
-					new Boolean(midiFilter.channel[i]), "Channel " + (i + 1) });
+					new Boolean(midiFilter.getChannel(i)), "Channel " + i });
 		}
 
 		JScrollPane channelsScroll = new JScrollPane(channels);
@@ -286,7 +288,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		cc = new JTable(ccModel);
 
 		for (int i = 0; i < 128; i++) {
-			ccModel.addRow(new Object[] { new Boolean(midiFilter.cc[i]),
+			ccModel.addRow(new Object[] { new Boolean(midiFilter.getControlChange(i)),
 					i + ": " + MidiUtils.ccNames[i] });
 		}
 
@@ -426,68 +428,76 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 	public void update(Observable observable, Object object) {
 
+		setButtonStates();
 	}
 
 	public void actionPerformed(ActionEvent ae) {
 
 		Object source = ae.getSource();
-
-		if (source == sysexMessage)
-			midiFilter.sysexMessage = sysexMessage.isSelected();
-
-		if (source == metaMessage)
-			midiFilter.metaMessage = metaMessage.isSelected();
-
-		if (source == activeSensing)
-			midiFilter.activeSensing = activeSensing.isSelected();
-
-		if (source == channelPressure)
-			midiFilter.channelPressure = channelPressure.isSelected();
-
-		if (source == continueMessage)
-			midiFilter.continueMessage = continueMessage.isSelected();
-
-		if (source == controlChange)
-			midiFilter.controlChange = controlChange.isSelected();
-
-		if (source == midiTimeCode)
-			midiFilter.midiTimeCode = midiTimeCode.isSelected();
-
+		
 		if (source == noteOff)
-			midiFilter.noteOff = noteOff.isSelected();
+			midiFilter.setVoiceMessage(ShortMessage.NOTE_OFF, noteOff.isSelected());
 
 		if (source == noteOn)
-			midiFilter.noteOn = noteOn.isSelected();
+			midiFilter.setVoiceMessage(ShortMessage.NOTE_ON, noteOn.isSelected());
+		
+		if (source == polyPressure)
+			midiFilter.setVoiceMessage(ShortMessage.POLY_PRESSURE, polyPressure.isSelected());
 
-		if (source == pitchBend)
-			midiFilter.pitchBend = pitchBend.isSelected();
-
-		if (source == pollyPressure)
-			midiFilter.pollyPressure = pollyPressure.isSelected();
-
+		if (source == controlChange)
+			midiFilter.setVoiceMessage(ShortMessage.CONTROL_CHANGE, controlChange.isSelected());
+		
 		if (source == programChange)
-			midiFilter.programChange = programChange.isSelected();
-
+			midiFilter.setVoiceMessage(ShortMessage.PROGRAM_CHANGE, programChange.isSelected());
+		
+		if (source == channelPressure)
+			midiFilter.setVoiceMessage(ShortMessage.CHANNEL_PRESSURE, channelPressure.isSelected());
+		
+		if (source == pitchBend)
+			midiFilter.setVoiceMessage(ShortMessage.PITCH_BEND, pitchBend.isSelected());
+		
+		
+		
+		if (source == midiTimeCode)
+			midiFilter.setSystemCommonMessage(ShortMessage.MIDI_TIME_CODE, midiTimeCode.isSelected());
+		
 		if (source == songPositionPointer)
-			midiFilter.songPositionPointer = songPositionPointer.isSelected();
+			midiFilter.setSystemCommonMessage(ShortMessage.SONG_POSITION_POINTER, songPositionPointer.isSelected());
 
 		if (source == songSelect)
-			midiFilter.songSelect = songSelect.isSelected();
-
+			midiFilter.setSystemCommonMessage(ShortMessage.SONG_SELECT, songSelect.isSelected());
+		
+		if (source == tuneRequest)
+			midiFilter.setSystemCommonMessage(ShortMessage.TUNE_REQUEST, tuneRequest.isSelected());
+		
+		
+		
+		if (source == timingClock)
+			midiFilter.setSystemRealtimeMessage(ShortMessage.TIMING_CLOCK, timingClock.isSelected());
+		
 		if (source == start)
-			midiFilter.start = start.isSelected();
+			midiFilter.setSystemRealtimeMessage(ShortMessage.START, start.isSelected());		
+
+		if (source == continueMessage)
+			midiFilter.setSystemRealtimeMessage(ShortMessage.CONTINUE, continueMessage.isSelected());
 
 		if (source == stop)
-			midiFilter.stop = stop.isSelected();
+			midiFilter.setSystemRealtimeMessage(ShortMessage.STOP, stop.isSelected());
+				
+		if (source == activeSensing)
+			midiFilter.setSystemRealtimeMessage(ShortMessage.ACTIVE_SENSING, activeSensing.isSelected());
 
 		if (source == systemReset)
-			midiFilter.systemReset = systemReset.isSelected();
+			midiFilter.setSystemRealtimeMessage(ShortMessage.SYSTEM_RESET, systemReset.isSelected());
 
-		if (source == timingClock)
-			midiFilter.timingClock = timingClock.isSelected();
 
-		if (source == tuneRequest)
-			midiFilter.tuneRequest = tuneRequest.isSelected();
+		
+		if (source == sysexMessage)
+			midiFilter.setSysexMessages(sysexMessage.isSelected());
+
+		if (source == metaMessage)
+			midiFilter.setMetaMessages(metaMessage.isSelected());
+		
 
 		if (ae.getActionCommand() == "load")
 			loadFilterDefinition();
@@ -501,6 +511,8 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		ccModel.fireTableDataChanged();
 
 		channelsModel.fireTableDataChanged();
+		
+		cc.setEnabled(midiFilter.getVoiceMessage(ShortMessage.CONTROL_CHANGE));
 	}
 
 	class MyTableModel extends DefaultTableModel {
@@ -519,10 +531,10 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 				if (getRowCount() == 128) {
 
-					return new Boolean(midiFilter.cc[row]);
+					return new Boolean(midiFilter.getControlChange(row));
 				} else {
 
-					return new Boolean(midiFilter.channel[row]);
+					return new Boolean(midiFilter.getChannel(row+1));
 				}
 			}
 
@@ -535,10 +547,10 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 				if (getRowCount() == 128) {
 
-					midiFilter.cc[row] = ((Boolean) value).booleanValue();
+					midiFilter.setControlChange(row, ((Boolean) value).booleanValue());
 				} else {
 
-					midiFilter.channel[row] = ((Boolean) value).booleanValue();
+					midiFilter.setChannel(row+1, ((Boolean) value).booleanValue());
 				}
 			} else {
 				
