@@ -233,34 +233,17 @@ public class MidiFilter extends Observable implements Receiver {
 
 	public boolean getVoiceMessage(int statusNumber) {
 
-		return getStatus(statusNumber);
+		return voiceMessage[(statusNumber >> 4) & 0x7];
 	}
 
 	public boolean getSystemCommonMessage(int statusNumber) {
 
-		return getStatus(statusNumber);
+		return systemCommonMessage[(statusNumber & 0xF)];
 	}
 
 	public boolean getSystemRealtimeMessage(int statusNumber) {
 
-		return getStatus(statusNumber);
-	}
-
-	protected boolean getStatus(int statusNumber) {
-
-		if (statusNumber >= 0x80 && statusNumber <= 0xEF) {
-			return voiceMessage[(statusNumber >> 4) & 0x7];
-		}
-
-		if (statusNumber >= 0xF0 && statusNumber <= 0xF7) {
-			return systemCommonMessage[(statusNumber & 0xF)];
-		}
-
-		if (statusNumber >= 0xF8 && statusNumber <= 0xFF) {
-			return systemRealtimeMessage[(statusNumber & 0xF) - 8];
-		}
-
-		return true;
+		return systemRealtimeMessage[(statusNumber & 0xF) - 8];
 	}
 
 	public boolean getChannel(int channelNumber) {
@@ -337,20 +320,36 @@ public class MidiFilter extends Observable implements Receiver {
 
 			int status = ((ShortMessage) message).getCommand();
 
-			if (!getStatus(status)) {
-				return;
+			if (status >= 0x80 && status <= 0xEF) {
+
+				if (!getVoiceMessage(status) || !voiceMessages) {
+					return;
+				}
+
+				// control change
+				if (status == ShortMessage.CONTROL_CHANGE
+						&& !controlChangeMessage[((ShortMessage) message)
+								.getData1()]) {
+					return;
+				}
+
+				// channels
+				if (!channel[((ShortMessage) message).getChannel()]) {
+					return;
+				}
 			}
 
-			// control change
-			if (status == ShortMessage.CONTROL_CHANGE
-					&& !controlChangeMessage[((ShortMessage) message)
-							.getData1()]) {
-				return;
+			if (status >= 0xF0 && status <= 0xF7) {
+				if (!getSystemCommonMessage(status) || !systemCommonMessages) {
+					return;
+				}
 			}
 
-			// channels
-			if (!channel[((ShortMessage) message).getChannel()]) {
-				return;
+			if (status >= 0xF8 && status <= 0xFF) {
+				if (!getSystemRealtimeMessage(status)
+						|| !systemRealtimeMessages) {
+					return;
+				}
 			}
 
 		}

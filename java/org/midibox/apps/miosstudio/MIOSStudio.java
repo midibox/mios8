@@ -191,6 +191,7 @@ public class MIOSStudio implements Observer {
 		// disable all messages by default, only allow pass SysEx
 		// user can enable other MIDI events again if required
 		
+		
 		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.NOTE_OFF, false);
 		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.NOTE_ON, false);
 		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.POLY_PRESSURE, false);
@@ -210,6 +211,14 @@ public class MIOSStudio implements Observer {
 		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.STOP, false);
 		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.ACTIVE_SENSING, false);
 		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.SYSTEM_RESET, false);
+		
+		/*
+		miosTerminalFiltered.getMidiFilter().setVoiceMessages(false);
+
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessages(false);
+		
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessages(false);
+		*/
 		
 		miosTerminalFiltered.getMidiFilter().setSysexMessages(true);
 		
