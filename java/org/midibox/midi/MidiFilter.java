@@ -281,7 +281,7 @@ public class MidiFilter extends Observable implements Receiver {
 		return controlChangeMessage.clone();
 	}
 
-	public boolean[] getChannel() {
+	public boolean[] getChannels() {
 		return channel.clone();
 	}
 

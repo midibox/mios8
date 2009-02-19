@@ -78,21 +78,105 @@ public class MidiFilterXML {
 			}
 
 		} else if (name == "voiceMessages") {
+			
+			Node enable = attributes.getNamedItem("enable");
+			
+			if (enable != null) {
+
+				boolean e = Boolean.parseBoolean(enable.getTextContent());
+
+				midiFilter.setVoiceMessages(e);
+			}
 
 		} else if (name == "voiceMessage") {
+			
+			Node number = attributes.getNamedItem("number");
+
+			Node enable = attributes.getNamedItem("enable");
+
+			if (number != null && enable != null) {
+
+				int n = Integer.parseInt(number.getTextContent());
+
+				boolean e = Boolean.parseBoolean(enable.getTextContent());
+
+				midiFilter.setVoiceMessage(n, e);
+			}
 
 		} else if (name == "systemCommonMessages") {
+			
+			Node enable = attributes.getNamedItem("enable");
+			
+			if (enable != null) {
+
+				boolean e = Boolean.parseBoolean(enable.getTextContent());
+
+				midiFilter.setSystemCommonMessages(e);
+			}
 
 		} else if (name == "systemCommonMessage") {
+			
+			Node number = attributes.getNamedItem("number");
+
+			Node enable = attributes.getNamedItem("enable");
+
+			if (number != null && enable != null) {
+
+				int n = Integer.parseInt(number.getTextContent());
+
+				boolean e = Boolean.parseBoolean(enable.getTextContent());
+
+				midiFilter.setSystemCommonMessage(n, e);
+			}
 
 		} else if (name == "systemRealtimeMessages") {
 
+			Node enable = attributes.getNamedItem("enable");
+			
+			if (enable != null) {
+
+				boolean e = Boolean.parseBoolean(enable.getTextContent());
+
+				midiFilter.setSystemRealtimeMessages(e);
+			}
+			
 		} else if (name == "systemRealtimeMessage") {
+			
+			Node number = attributes.getNamedItem("number");
+
+			Node enable = attributes.getNamedItem("enable");
+
+			if (number != null && enable != null) {
+
+				int n = Integer.parseInt(number.getTextContent());
+
+				boolean e = Boolean.parseBoolean(enable.getTextContent());
+
+				midiFilter.setSystemRealtimeMessage(n, e);
+			}
 
 		} else if (name == "sysexMessages") {
+			
+			Node enable = attributes.getNamedItem("enable");
+
+			if (enable != null) {
+
+				boolean e = Boolean.parseBoolean(enable.getTextContent());
+
+				midiFilter.setSysexMessages(e);
+			}
 
 		} else if (name == "metaMessages") {
 
+			Node enable = attributes.getNamedItem("enable");
+			
+			if (enable != null) {
+
+				boolean e = Boolean.parseBoolean(enable.getTextContent());
+
+				midiFilter.setMetaMessages(e);
+			}
+			
 		} else if (name == "controlChangeMessages") {
 
 		} else if (name == "controlChangeMessage") {
@@ -155,12 +239,34 @@ public class MidiFilterXML {
 		Node midiFilterElement = document.createElement("midiFilter");
 
 		node.appendChild(midiFilterElement);
+		
+		
+		
+		Element voiceMessagesElement = document.createElement("voiceMessages");
 
+		midiFilterElement.appendChild(voiceMessagesElement);
+		
+		voiceMessagesElement.setAttribute("enable", midiFilter.isVoiceMessages() ? "true" : "false");
+
+		for (int c = 0; c < midiFilter.getVoiceMessages().length; c++) {
+
+			Element voiceMessage = document.createElement("voiceMessage");
+
+			voiceMessagesElement.appendChild(voiceMessage);
+
+			voiceMessage.setAttribute("number", "" + ((c | 8) << 4) );
+
+			voiceMessage.setAttribute("enable", (midiFilter.getVoiceMessages()[c]) ? "true"
+					: "false");
+		}
+
+		
+		
 		Node channelsElement = document.createElement("channels");
 
 		midiFilterElement.appendChild(channelsElement);
 
-		for (int c = 0; c < midiFilter.getChannel().length; c++) {
+		for (int c = 0; c < midiFilter.getChannels().length; c++) {
 
 			Element channel = document.createElement("channel");
 
@@ -168,10 +274,12 @@ public class MidiFilterXML {
 
 			channel.setAttribute("number", "" + (c + 1));
 
-			channel.setAttribute("enable", (midiFilter.getChannel()[c]) ? "true"
+			channel.setAttribute("enable", (midiFilter.getChannels()[c]) ? "true"
 					: "false");
 		}
 
+		
+		
 		Node controlChangeMessagesElement = document
 				.createElement("controlChangeMessages");
 
@@ -189,5 +297,61 @@ public class MidiFilterXML {
 			controlChangeMessage.setAttribute("enable",
 					(midiFilter.getControlChangeMessages()[cc]) ? "true" : "false");
 		}
+		
+		
+		
+		Element systemCommonMessagesElement = document.createElement("systemCommonMessages");
+
+		midiFilterElement.appendChild(systemCommonMessagesElement);
+		
+		systemCommonMessagesElement.setAttribute("enable", midiFilter.isSystemCommonMessages() ? "true" : "false");
+
+		for (int c = 0; c < midiFilter.getSystemCommonMessages().length; c++) {
+
+			Element systemCommonMessage = document.createElement("systemCommonMessage");
+
+			systemCommonMessagesElement.appendChild(systemCommonMessage);
+
+			systemCommonMessage.setAttribute("number", "" + (c | 0xF0));
+
+			systemCommonMessage.setAttribute("enable", (midiFilter.getSystemCommonMessages()[c]) ? "true"
+					: "false");
+		}
+		
+		
+		
+		Element systemRealtimeMessagesElement = document.createElement("systemRealtimeMessages");
+
+		midiFilterElement.appendChild(systemRealtimeMessagesElement);		
+
+		systemRealtimeMessagesElement.setAttribute("enable", midiFilter.isSystemRealtimeMessages() ? "true" : "false");
+
+		for (int c = 0; c < midiFilter.getSystemRealtimeMessages().length; c++) {
+
+			Element systemRealtimeMessage = document.createElement("systemRealtimeMessage");
+
+			systemRealtimeMessagesElement.appendChild(systemRealtimeMessage);
+
+			systemRealtimeMessage.setAttribute("number", "" + ((c + 8 | 0xF0)));
+
+			systemRealtimeMessage.setAttribute("enable", (midiFilter.getSystemRealtimeMessages()[c]) ? "true"
+					: "false");
+		}
+		
+		
+		
+		Element sysexMessagesElement = document.createElement("sysexMessages");
+
+		midiFilterElement.appendChild(sysexMessagesElement);		
+
+		sysexMessagesElement.setAttribute("enable", midiFilter.isSysexMessages() ? "true" : "false");
+		
+		
+		
+		Element metaMessagesElement = document.createElement("metaMessages");
+
+		midiFilterElement.appendChild(metaMessagesElement);		
+
+		metaMessagesElement.setAttribute("enable", midiFilter.isMetaMessages() ? "true" : "false");
 	}
 }
