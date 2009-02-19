@@ -194,7 +194,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		gbc.weighty = 0.0;
 		sysCommon.setBorder(BorderFactory.createTitledBorder("System Common"));
 
-		midiTimeCode = new JCheckBox("MIDI Time Code", midiFilter
+		midiTimeCode = new JCheckBox("MTC Quarter Frame", midiFilter
 				.getSystemCommonMessage(ShortMessage.MIDI_TIME_CODE));
 		midiTimeCode.addActionListener(this);
 		sysCommon.add(midiTimeCode, gbc);
