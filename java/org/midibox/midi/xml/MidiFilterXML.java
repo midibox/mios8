@@ -260,11 +260,28 @@ public class MidiFilterXML {
 					: "false");
 		}
 
+		Node controlChangeMessagesElement = document
+		.createElement("controlChangeMessages");
+
+		voiceMessagesElement.appendChild(controlChangeMessagesElement);
+		
+		for (int cc = 0; cc < midiFilter.getControlChangeMessages().length; cc++) {
+		
+			Element controlChangeMessage = document
+					.createElement("controlChangeMessage");
+		
+			controlChangeMessagesElement.appendChild(controlChangeMessage);
+		
+			controlChangeMessage.setAttribute("number", "" + (cc));
+		
+			controlChangeMessage.setAttribute("enable",
+					(midiFilter.getControlChangeMessages()[cc]) ? "true" : "false");
+		}
 		
 		
 		Node channelsElement = document.createElement("channels");
 
-		midiFilterElement.appendChild(channelsElement);
+		voiceMessagesElement.appendChild(channelsElement);
 
 		for (int c = 0; c < midiFilter.getChannels().length; c++) {
 
@@ -276,29 +293,7 @@ public class MidiFilterXML {
 
 			channel.setAttribute("enable", (midiFilter.getChannels()[c]) ? "true"
 					: "false");
-		}
-
-		
-		
-		Node controlChangeMessagesElement = document
-				.createElement("controlChangeMessages");
-
-		midiFilterElement.appendChild(controlChangeMessagesElement);
-
-		for (int cc = 0; cc < midiFilter.getControlChangeMessages().length; cc++) {
-
-			Element controlChangeMessage = document
-					.createElement("controlChangeMessage");
-
-			controlChangeMessagesElement.appendChild(controlChangeMessage);
-
-			controlChangeMessage.setAttribute("number", "" + (cc));
-
-			controlChangeMessage.setAttribute("enable",
-					(midiFilter.getControlChangeMessages()[cc]) ? "true" : "false");
-		}
-		
-		
+		}		
 		
 		Element systemCommonMessagesElement = document.createElement("systemCommonMessages");
 
