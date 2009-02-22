@@ -24,11 +24,8 @@ import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.ShortMessage;
-import javax.sound.midi.SysexMessage;
 
 import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;
@@ -39,14 +36,17 @@ import org.midibox.midi.MidiMonitorFiltered;
 import org.midibox.midi.MidiMonitorFilteredDevice;
 import org.midibox.midi.MidiRouterDevice;
 import org.midibox.mios.DebugFunctionDevice;
-import org.midibox.mios.HexFileUpload;
 import org.midibox.mios.HexFileUploadDevice;
 import org.midibox.mios.HexFileUploadDeviceManager;
 import org.midibox.mios.LCDMessageDevice;
 import org.midibox.mios.MIOSTerminal;
 
-public class MIOSStudio implements Observer {
+public class MIOSStudio extends Observable implements Observer {
 
+	public static Object MIDI_THRU_OUT_PORT = new Object();
+	
+	public static Object ROUTE_INDIVIDUAL_DEVICES = new Object();
+	
 	protected MidiDeviceRouting midiDeviceRouting;
 
 	protected MidiRouterDevice miosStudioInPort;
@@ -169,8 +169,6 @@ public class MIOSStudio implements Observer {
 		hexFileUploadDeviceManager = new HexFileUploadDeviceManager();
 
 		hexFileUploadDeviceManager.addObserver(this);
-
-		hexFileUploadDeviceManager.newHexFileUploadDevice();
 		
 		/*
 		 * memoryReadWriteDevice = new MemoryReadWriteDevice( "MIOS Memory
@@ -319,6 +317,12 @@ public class MIOSStudio implements Observer {
 		}
 
 		setRouteIndividualDevices(routeIndividualDevices);
+		
+		setChanged();
+		
+		notifyObservers(MIDI_THRU_OUT_PORT);
+		
+		clearChanged();
 	}
 
 	public MidiRouterDevice getMiosStudioInPort() {
@@ -363,6 +367,12 @@ public class MIOSStudio implements Observer {
 		}
 
 		reorder();
+		
+		setChanged();
+		
+		notifyObservers(ROUTE_INDIVIDUAL_DEVICES);
+		
+		clearChanged();
 	}
 
 	public void reorder() {

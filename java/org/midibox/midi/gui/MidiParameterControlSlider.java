@@ -75,7 +75,7 @@ public class MidiParameterControlSlider extends MidiParameterControlGUI
 
 			update = false;
 
-			midiParameter.setMidiValue(slider.getValue(), true);
+			midiParameterControl.setMidiValue(slider.getValue(), true);
 
 			update = true;
 		}
@@ -89,7 +89,7 @@ public class MidiParameterControlSlider extends MidiParameterControlGUI
 
 			update = false;
 
-			slider.setValue(midiParameter.getMidiValue());
+			slider.setValue(midiParameterControl.getMidiValue());
 
 			update = true;
 		}
@@ -98,10 +98,10 @@ public class MidiParameterControlSlider extends MidiParameterControlGUI
 	public void update(Observable observable, Object object) {
 		super.update(observable, object);
 
-		if (object == midiParameter.HIGH_RESOLUTION) {
+		if (object == midiParameterControl.HIGH_RESOLUTION) {
 
-			slider.setMinimum(midiParameter.getMidiMinValue());
-			slider.setMaximum(midiParameter.getMidiMaxValue());
+			slider.setMinimum(midiParameterControl.getMidiMinValue());
+			slider.setMaximum(midiParameterControl.getMidiMaxValue());
 		}
 	}
 }

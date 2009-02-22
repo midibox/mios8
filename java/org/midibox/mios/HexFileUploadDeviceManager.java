@@ -20,53 +20,39 @@
 
 package org.midibox.mios;
 
-import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
+
+import org.midibox.midi.MidiFilterDevice;
 
 public class HexFileUploadDeviceManager extends Observable implements Observer {
 
 	private Vector hexFileUploadDevices;
 
-	private int hexFileUploadDeviceNo;
-
-	private boolean MIOS32_Mode;
+	private boolean mios32Mode;
 
 	public HexFileUploadDeviceManager() {
 		hexFileUploadDevices = new Vector();
 
-		MIOS32_Mode = false;
+		mios32Mode = false;
 	}
 
-	public int getHexFileUploadDeviceNo() {
-		return hexFileUploadDeviceNo;
+	public boolean isMIOS32Mode() {
+		return mios32Mode;
 	}
 
-	public boolean isMIOS32_Mode() {
-		return MIOS32_Mode;
-	}
+	public void setMIOS32Mode(boolean mode) {
 
-	public void setMIOS32_Mode(boolean mode) {
-
-		MIOS32_Mode = mode;
-
-		Iterator it = hexFileUploadDevices.iterator();
-
-		while (it.hasNext()) {
-			HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) it
-					.next();
-
-			hexFileUploadDevice.getHexFileUpload().setMIOS32_Mode(MIOS32_Mode);
-		}
+		mios32Mode = mode;
 	}
 
 	public HexFileUploadDevice newHexFileUploadDevice() {
 
 		HexFileUploadDevice hexFileUploadDevice = new HexFileUploadDevice(
-				"MIOS Hex File Upload " + ++hexFileUploadDeviceNo);
+				"MIOS Hex File Upload " + (hexFileUploadDevices.size() + 1));
 
-		hexFileUploadDevice.getHexFileUpload().setMIOS32_Mode(MIOS32_Mode);
+		hexFileUploadDevice.getHexFileUpload().setMIOS32Mode(mios32Mode);
 		hexFileUploadDevice.getHexFileUpload().addObserver(this);
 
 		hexFileUploadDevices.add(hexFileUploadDevice);
@@ -82,6 +68,15 @@ public class HexFileUploadDeviceManager extends Observable implements Observer {
 			HexFileUploadDevice hexFileUploadDevice) {
 		hexFileUploadDevices.remove(hexFileUploadDevice);
 		hexFileUploadDevice.getHexFileUpload().deleteObserver(this);
+		
+		hexFileUploadDevices.remove(hexFileUploadDevice);
+
+		for (int i = 0; i < hexFileUploadDevices.size(); i++) {
+
+			HexFileUploadDevice currentHexFileUploadDevice = (HexFileUploadDevice) hexFileUploadDevices.elementAt(i);
+
+			currentHexFileUploadDevice.setName("MIOS Hex File Upload " + (i + 1));
+		}
 
 		setChanged();
 		notifyObservers(hexFileUploadDevice);
@@ -94,7 +89,7 @@ public class HexFileUploadDeviceManager extends Observable implements Observer {
 
 	public void update(Observable observable, Object object) {
 		if (object == HexFileUpload.MIOS32_MODE) {
-			MIOS32_Mode = ((HexFileUpload) observable).getMIOS32_Mode();
+			mios32Mode = ((HexFileUpload) observable).isMIOS32Mode();
 		}
 	}
 }

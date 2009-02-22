@@ -103,6 +103,8 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 	private JTable channels;
 
 	private DefaultTableModel channelsModel;
+	
+	private String definitionTag = "midiFilter";
 
 	private static String currentDirectory = "";
 
@@ -406,7 +408,9 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MidiFilterXML.loadMidiFilter(midiFilter, file);
+			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter, definitionTag);
+			
+			midiFilterXML.loadXML(file);
 
 			setButtonStates();
 
@@ -434,7 +438,9 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MidiFilterXML.saveMidiFilter(midiFilter, file);
+			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter, definitionTag);
+			
+			midiFilterXML.saveXML(file);
 
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}

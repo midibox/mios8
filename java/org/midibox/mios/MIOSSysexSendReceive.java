@@ -43,7 +43,7 @@ public class MIOSSysexSendReceive extends Observable implements Receiver {
 
 	protected int deviceID;
 
-	protected boolean MIOS32_Mode;
+	protected boolean mios32Mode;
 
 	protected LinkedList messages;
 
@@ -86,12 +86,12 @@ public class MIOSSysexSendReceive extends Observable implements Receiver {
 		clearChanged();
 	}
 
-	public boolean getMIOS32_Mode() {
-		return this.MIOS32_Mode;
+	public boolean isMIOS32Mode() {
+		return this.mios32Mode;
 	}
 
-	public void setMIOS32_Mode(boolean enabled) {
-		this.MIOS32_Mode = enabled;
+	public void setMIOS32Mode(boolean enabled) {
+		this.mios32Mode = enabled;
 
 		setChanged();
 		notifyObservers(MIOS32_MODE);
@@ -99,7 +99,7 @@ public class MIOSSysexSendReceive extends Observable implements Receiver {
 	}
 
 	public byte getMIOS_SysExId() {
-		return (byte) (MIOS32_Mode ? 0x32 : 0x40); // MIOS32/MIOS8
+		return (byte) (mios32Mode ? 0x32 : 0x40); // MIOS32/MIOS8
 	}
 
 	public Receiver getReceiver() {

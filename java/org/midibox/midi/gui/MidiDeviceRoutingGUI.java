@@ -332,7 +332,7 @@ public class MidiDeviceRoutingGUI extends JPanel implements MouseListener,
 		gbc.gridx++;
 
 		releaseButton = new JToggleButton("Release Ports", midiDeviceRouting
-				.getPortsReleased());
+				.isPortsReleased());
 		releaseButton.setToolTipText("Release MIDI Ports");
 		releaseButton.addActionListener(this);
 		buttonPane.add(releaseButton, gbc);
@@ -496,7 +496,7 @@ public class MidiDeviceRoutingGUI extends JPanel implements MouseListener,
 
 		connectButton.setEnabled(false);
 		disconnectButton.setEnabled(false);
-		releaseButton.setSelected(midiDeviceRouting.getPortsReleased());
+		releaseButton.setSelected(midiDeviceRouting.isPortsReleased());
 
 		if (selectedReadIndices.length > 0 && selectedWriteIndices.length > 0) {
 

@@ -27,15 +27,13 @@ public class MidiFilterDeviceManager extends Observable {
 
 	private Vector midiFilterDevices;
 
-	private int midiFilterDeviceNo;
-
 	public MidiFilterDeviceManager() {
 		midiFilterDevices = new Vector();
 	}
 
 	public MidiFilterDevice addMidiFilterDevice() {
-		MidiFilterDevice midiFilterDevice = new MidiFilterDevice("Filter "
-				+ ++midiFilterDeviceNo);
+		MidiFilterDevice midiFilterDevice = new MidiFilterDevice("MIDI Filter "
+				+ (midiFilterDevices.size() + 1));
 		midiFilterDevices.add(midiFilterDevice);
 
 		setChanged();
@@ -46,7 +44,15 @@ public class MidiFilterDeviceManager extends Observable {
 	}
 
 	public void removeMidiFilterDevice(MidiFilterDevice midiFilterDevice) {
+
 		midiFilterDevices.remove(midiFilterDevice);
+
+		for (int i = 0; i < midiFilterDevices.size(); i++) {
+
+			MidiFilterDevice currentMidiFilterDevice = (MidiFilterDevice) midiFilterDevices.elementAt(i);
+
+			currentMidiFilterDevice.setName("MIDI Filter " + (i + 1));
+		}
 
 		setChanged();
 		notifyObservers(midiFilterDevice);

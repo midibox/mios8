@@ -104,9 +104,6 @@ public class MIOSStudio extends JApplet {
 				"uploadCurrentDirectory", HexFileUploadGUI
 						.getCurrentDirectory()));
 
-		miosStudio.getHexFileUploadDeviceManager().setMIOS32_Mode(
-				preferences.getBoolean("uploadMIOS32_Mode", false));
-
 		String[] frames = preferences.get("visibleFrames", "").split(",");
 		String[] ec = preferences.get("externalCommands", "").split("\n");
 
@@ -164,6 +161,9 @@ public class MIOSStudio extends JApplet {
 				miosStudioGUI.addExternalCommandButton(temp[0], temp[1]);
 			}
 		}
+		
+		// TODO
+		
 	}
 
 	public void destroy() {
@@ -181,7 +181,7 @@ public class MIOSStudio extends JApplet {
 				.getCurrentDirectory());
 
 		preferences.putBoolean("uploadMIOS32_Mode", miosStudio
-				.getHexFileUploadDeviceManager().isMIOS32_Mode());
+				.getHexFileUploadDeviceManager().isMIOS32Mode());
 
 		JInternalFrame[] frames = miosStudioGUI.getDesktop().getAllFrames();
 		String visibleFrames = "";
@@ -229,6 +229,8 @@ public class MIOSStudio extends JApplet {
 					+ ecb.externalCommand + "\n";
 		}
 		preferences.put("externalCommands", externalCommandsString);
+		
+		// TODO
 	}
 
 	public void exit(JFrame frame) {
@@ -239,6 +241,7 @@ public class MIOSStudio extends JApplet {
 		preferences.putInt("mainWindowY", frame.getY());
 		preferences.putInt("mainWindowWidth", frame.getWidth());
 		preferences.putInt("mainWindowHeight", frame.getHeight());
+		
 		System.exit(0);
 	}
 

@@ -36,7 +36,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 
-import org.midibox.mios.HexFileUpload;
 import org.midibox.mios.HexFileUploadDevice;
 import org.midibox.mios.HexFileUploadDeviceManager;
 import org.midibox.utils.gui.ImageLoader;
@@ -102,27 +101,34 @@ public class HexFileUploadDeviceManagerGUI extends JPanel implements
 				.iterator();
 
 		while (it.hasNext()) {
-			HexFileUploadDevice ssrd = (HexFileUploadDevice) it.next();
+			HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) it
+					.next();
 
 			boolean hasGUI = false;
 
 			Iterator it2 = hexFileUploadGUIs.iterator();
 
 			while (it2.hasNext()) {
-				HexFileUploadGUI ssrg = (HexFileUploadGUI) it2.next();
 
-				if (ssrg.getHexFileUpload() == ssrd.getHexFileUpload()) {
+				HexFileUploadGUI hexFileUploadGUI = (HexFileUploadGUI) it2
+						.next();
+
+				if (hexFileUploadGUI.getHexFileUpload() == hexFileUploadDevice
+						.getHexFileUpload()) {
 					hasGUI = true;
 				}
 			}
 
 			if (!hasGUI) {
-				HexFileUploadGUI ssrg = new HexFileUploadGUI(ssrd
-						.getHexFileUpload());
-				hexFileUploadGUIs.add(ssrg);
-				tabbedPane.addTab(ssrd.getDeviceInfo().getName(), ImageLoader
-						.getImageIcon("hex.png"), ssrg);
-				ssrd.getHexFileUpload().addObserver(this);
+
+				HexFileUploadGUI hexFileUploadGUI = new HexFileUploadGUI(
+						hexFileUploadDevice.getHexFileUpload());
+
+				hexFileUploadGUIs.add(hexFileUploadGUI);
+
+				tabbedPane.addTab(
+						hexFileUploadDevice.getDeviceInfo().getName(),
+						ImageLoader.getImageIcon("hex.png"), hexFileUploadGUI);
 			}
 		}
 
@@ -130,7 +136,7 @@ public class HexFileUploadDeviceManagerGUI extends JPanel implements
 
 		while (it.hasNext()) {
 
-			HexFileUploadGUI ssrg = (HexFileUploadGUI) it.next();
+			HexFileUploadGUI hexFileUploadGUI = (HexFileUploadGUI) it.next();
 
 			boolean hasDevice = false;
 
@@ -138,17 +144,32 @@ public class HexFileUploadDeviceManagerGUI extends JPanel implements
 					.iterator();
 
 			while (it2.hasNext()) {
-				HexFileUploadDevice ssrd = (HexFileUploadDevice) it2.next();
-				if (ssrg.getHexFileUpload() == ssrd.getHexFileUpload()) {
+
+				HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) it2
+						.next();
+
+				if (hexFileUploadGUI.getHexFileUpload() == hexFileUploadDevice
+						.getHexFileUpload()) {
 					hasDevice = true;
 				}
 			}
 
 			if (!hasDevice) {
-				hexFileUploadGUIs.remove(ssrg);
-				tabbedPane.remove(ssrg);
-				ssrg.getHexFileUpload().deleteObserver(this);
+
+				hexFileUploadGUIs.remove(hexFileUploadGUI);
+
+				tabbedPane.remove(hexFileUploadGUI);
 			}
+		}
+
+		for (int i = 0; i < hexFileUploadDeviceManager
+				.getHexFileUploadDevices().size(); i++) {
+
+			HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) hexFileUploadDeviceManager
+					.getHexFileUploadDevices().elementAt(i);
+
+			tabbedPane.setTitleAt(i, hexFileUploadDevice.getDeviceInfo()
+					.getName());
 		}
 	}
 
@@ -167,31 +188,10 @@ public class HexFileUploadDeviceManagerGUI extends JPanel implements
 	}
 
 	public void update(Observable observable, Object object) {
+
 		if (observable == hexFileUploadDeviceManager) {
+
 			createGUIs();
-		} else if (observable instanceof HexFileUpload) {
-			if (object == HexFileUpload.FILE) {
-
-				Iterator it = hexFileUploadGUIs.iterator();
-				int index = 0;
-
-				while (it.hasNext()) {
-					HexFileUploadGUI hfug = (HexFileUploadGUI) it.next();
-					if (hfug.getHexFileUpload() == observable) {
-						tabbedPane
-								.setTitleAt(
-										index,
-										((HexFileUploadDevice) hexFileUploadDeviceManager
-												.getHexFileUploadDevices()
-												.elementAt(index))
-												.getDeviceInfo().getName()
-												+ ": "
-												+ ((HexFileUpload) observable)
-														.getFile().getName());
-					}
-					index++;
-				}
-			}
 		}
 	}
 

@@ -108,7 +108,7 @@ public class MidiParameterControlManager extends Observable implements
 
 		for (int p = 0; p < parametersArray.length; p++) {
 			if (parametersArray[p] != null) {
-				((MidiParameter) parametersArray[p]).send(message, timestamp);
+				((MidiParameterControl) parametersArray[p]).send(message, timestamp);
 			}
 		}
 	}

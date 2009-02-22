@@ -32,8 +32,6 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 	public final static Object FILE = new Object();
 
-	public final static Object BANKSTICK_NO = new Object();
-
 	public final static Object UPLOAD_MODE = new Object();
 
 	public final static Object WAIT_FOR_UPLOAD = new Object();
@@ -48,7 +46,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 	private File file;
 
-	private int bankstickNo;
+	//private int bankstickNo;
 
 	private int uploadMode;
 
@@ -85,10 +83,6 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 	public HexFileUpload(Receiver receiver) {
 		super(receiver);
 
-		this.bankstickNo = 0;
-
-		this.deviceID = 0;
-
 		this.waitForUploadRequest = false;
 
 		this.uploadMode = 0;
@@ -117,23 +111,12 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 	public void readHexFile() {
 		hexFile = new HexFile();
-		fileLastMIOS32_Mode = getMIOS32_Mode();
+		fileLastMIOS32_Mode = isMIOS32Mode();
 		if (!hexFile.read(file.getPath(), fileLastMIOS32_Mode)) {
 			// TODO
 		}
 	}
 
-	public int getBankstickNo() {
-		return bankstickNo;
-	}
-
-	public void setBankstickNo(int bankstickNo) {
-		this.bankstickNo = bankstickNo;
-
-		setChanged();
-		notifyObservers(BANKSTICK_NO);
-		clearChanged();
-	}
 
 	public int getDelayTime() {
 		return delayTime;
@@ -187,7 +170,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 			addMessage("Starting upload of " + file.getName());
 
-			if (fileLastMIOS32_Mode != getMIOS32_Mode()) {
+			if (fileLastMIOS32_Mode != isMIOS32Mode()) {
 				addMessage("MIOS version has been changed - reloading file");
 				readHexFile();
 			}
@@ -217,7 +200,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 			expectDummyError = false;
 			boolean forceRebootReq = false;
 
-			if (!getMIOS32_Mode()) {
+			if (!isMIOS32Mode()) {
 				for (int i = 0; i < hexFile.getBlockCount(); ++i) {
 					Block block = hexFile.getBlock(i);
 					long lAddressMapped = block.lAddressMapped;
@@ -308,7 +291,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 							+ transferRateKb + " kb/s)");
 
 					// reboot BSL in MIOS32 mode
-					if (getMIOS32_Mode()) {
+					if (isMIOS32Mode()) {
 						forceReboot();
 					} else {
 						
@@ -329,7 +312,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 				long lAddressExtension = 0x00;
 				byte[] axAddress;
 
-				if (!getMIOS32_Mode()) {
+				if (!isMIOS32Mode()) {
 					// build address/len field of MIOS SysEx message
 
 					if (lAddress >= HexFile.HEX_FILE_FLASH_ADDRESS_START
@@ -450,7 +433,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 	public void createQuery() {
 
-		if (!getMIOS32_Mode()) {
+		if (!isMIOS32Mode()) {
 			addMessage("Query is only supported for MIOS32");
 			return;
 		}
@@ -516,7 +499,7 @@ public class HexFileUpload extends MIOSSysexSendReceive {
 
 		byte[] forceRebootCode;
 
-		if (getMIOS32_Mode()) {
+		if (isMIOS32Mode()) {
 			forceRebootCode = new byte[9];
 			forceRebootCode[0] = (byte) 0xF0;
 			forceRebootCode[1] = (byte) 0x00;

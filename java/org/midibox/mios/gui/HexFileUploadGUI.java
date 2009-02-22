@@ -98,7 +98,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 	private JCheckBox waitForUploadRequestCheck;
 
-	private JCheckBox MIOS32Check; // changed during loading preferences
+	private JCheckBox MIOS32Check;
 
 	private JLabel delayTimeLabel;
 
@@ -230,7 +230,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		gbc.insets = new Insets(2, 15, 2, 2);
 
-		MIOS32Check = new JCheckBox("MIOS32", hexFileUpload.getMIOS32_Mode());
+		MIOS32Check = new JCheckBox("MIOS32", hexFileUpload.isMIOS32Mode());
 		MIOS32Check.addActionListener(this);
 		protocolPanel.add(MIOS32Check, gbc);
 
@@ -335,7 +335,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		MIOS32Check.setEnabled(!bUploading);
 
-		if (hexFileUpload.getMIOS32_Mode()) {
+		if (hexFileUpload.isMIOS32Mode()) {
 			smartModeButton.setEnabled(false);
 			dumbModeButton.setEnabled(false);
 			waitForUploadRequestCheck.setEnabled(false);
@@ -358,7 +358,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		startButton.setEnabled(!bUploading && hexFileUpload.getFile() != null);
 		stopButton.setEnabled(bUploading);
-		queryButton.setEnabled(!bUploading && hexFileUpload.getMIOS32_Mode());
+		queryButton.setEnabled(!bUploading && hexFileUpload.isMIOS32Mode());
 	}
 
 	public void stateChanged(ChangeEvent e) {
@@ -428,7 +428,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 							: HexFileUpload.DUMB_MODE);
 
 		} else if (source == MIOS32Check) {
-			hexFileUpload.setMIOS32_Mode(MIOS32Check.isSelected());
+			hexFileUpload.setMIOS32Mode(MIOS32Check.isSelected());
 
 		} else if (source == waitForUploadRequestCheck) {
 			hexFileUpload.setWaitForUploadRequest(waitForUploadRequestCheck
@@ -484,7 +484,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 						.setSelected(hexFileUpload.getUploadMode() == HexFileUpload.DUMB_MODE);
 
 			} else if (object == HexFileUpload.MIOS32_MODE) {
-				MIOS32Check.setSelected(hexFileUpload.getMIOS32_Mode());
+				MIOS32Check.setSelected(hexFileUpload.isMIOS32Mode());
 			} else if (object == HexFileUpload.WAIT_FOR_UPLOAD) {
 				waitForUploadRequestCheck.setSelected(hexFileUpload
 						.isWaitForUploadRequest());

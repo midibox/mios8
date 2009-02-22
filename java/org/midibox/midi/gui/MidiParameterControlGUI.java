@@ -48,7 +48,7 @@ import org.midibox.utils.gui.FontLoader;
 public class MidiParameterControlGUI extends JPanel implements Observer,
 		ActionListener, MouseListener {
 
-	protected MidiParameterControl midiParameter;
+	protected MidiParameterControl midiParameterControl;
 
 	protected boolean showLabel;
 
@@ -72,19 +72,19 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 
 	protected JDialog midiParameterPropertiesDialog;
 
-	public MidiParameterControlGUI(MidiParameterControl midiParameter,
+	public MidiParameterControlGUI(MidiParameterControl midiParameterControl,
 			boolean showLabel, String labelLocation, boolean valueBelow,
 			boolean showValue) {
 
 		super(new BorderLayout());
 
-		this.midiParameter = midiParameter;
+		this.midiParameterControl = midiParameterControl;
 		this.showLabel = showLabel;
 		this.labelLocation = labelLocation;
 		this.valueBelow = valueBelow;
 		this.showValue = showValue;
 
-		midiParameter.addObserver(this);
+		midiParameterControl.addObserver(this);
 
 		valueBuffer = new StringBuffer();
 
@@ -98,7 +98,7 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 	}
 
 	protected JPopupMenu createPopMenu() {
-		JPopupMenu popupMenu = new JPopupMenu(midiParameter.getMidiName());
+		JPopupMenu popupMenu = new JPopupMenu(midiParameterControl.getMidiName());
 
 		JMenuItem menuItem = new JMenuItem("MIDI Properties");
 		menuItem.setActionCommand("midiproperties");
@@ -115,7 +115,7 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 				1));
 		labelPanel.setOpaque(false);
 
-		midiParameterLabel = new JLabel(midiParameter.getMidiName()
+		midiParameterLabel = new JLabel(midiParameterControl.getMidiName()
 				.toUpperCase(),
 				(showValue) ? ((valueBelow ? SwingConstants.CENTER
 						: SwingConstants.RIGHT)) : SwingConstants.CENTER);
@@ -154,7 +154,7 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 	}
 
 	public MidiParameterControl getMidiParameterControl() {
-		return midiParameter;
+		return midiParameterControl;
 	}
 
 	public void updateGraphics() {
@@ -165,7 +165,7 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 
 	public void updateValueField() {
 		valueBuffer.delete(0, valueBuffer.length());
-		valueBuffer.insert(0, midiParameter.getMidiValue());
+		valueBuffer.insert(0, midiParameterControl.getMidiValue());
 		valueField.setText(valueBuffer.toString());
 	}
 
@@ -185,7 +185,7 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 			midiParameterPropertiesDialog
 					.addWindowListener(new WindowAdapter() {
 						public void windowClosing(WindowEvent we) {
-							midiParameter
+							midiParameterControl
 									.deleteObserver(midiParameterProperties);
 							midiParameterPropertiesDialog = null;
 						}
@@ -220,10 +220,10 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 		Object source = ae.getSource();
 		if (source == valueField) {
 			try {
-				midiParameter.setMidiValue(Integer.parseInt(valueField
+				midiParameterControl.setMidiValue(Integer.parseInt(valueField
 						.getText()), true);
 			} catch (Exception e) {
-				midiParameter.setMidiValue(midiParameter.getMidiValue(), true);
+				midiParameterControl.setMidiValue(midiParameterControl.getMidiValue(), true);
 			}
 		} else if (ae.getActionCommand().equals("midilearn")) {
 
@@ -233,10 +233,10 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 	}
 
 	public void update(Observable observable, Object object) {
-		if (observable == midiParameter) {
+		if (observable == midiParameterControl) {
 			if (object != MidiParameter.VALUE) {
 				if (showLabel) {
-					midiParameterLabel.setText(midiParameter.getMidiName()
+					midiParameterLabel.setText(midiParameterControl.getMidiName()
 							.toUpperCase());
 				}
 			}

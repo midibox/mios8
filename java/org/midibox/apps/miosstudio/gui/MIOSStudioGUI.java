@@ -38,7 +38,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.net.URL;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Vector;
 
 import javax.swing.Box;
@@ -49,6 +52,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -67,6 +71,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import org.midibox.apps.miosstudio.MIOSStudio;
+import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
 import org.midibox.midi.MidiFilterDevice;
 import org.midibox.midi.MidiKeyboardControllerDevice;
 import org.midibox.midi.MidiRouterDevice;
@@ -86,9 +91,10 @@ import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.FontLoader;
 import org.midibox.utils.gui.HelpPane;
 import org.midibox.utils.gui.ImageLoader;
+import org.midibox.utils.gui.SimpleFileChooserFilter;
 
 public class MIOSStudioGUI extends JPanel implements ActionListener,
-		MouseListener, PropertyChangeListener, MenuListener {
+		MouseListener, PropertyChangeListener, MenuListener, Observer {
 
 	protected MIOSStudio miosStudio;
 
@@ -172,7 +178,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private JMenuItem midiThruMenuItem;
 
-	private JMenuItem showInternalMenuItem;
+	private JCheckBoxMenuItem showInternalMenuItem;
 
 	private JMenu lookAndFeelMenu;
 
@@ -181,12 +187,20 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	private boolean defaultDecoratedFrames;
 
 	private JLabel commentLabel;
+	
+	private String workspaceTag = "miosStudio";
+	
+	private static String currentDirectory = "";
+
+	private static JFileChooser fc = null;
 
 	public MIOSStudioGUI(MIOSStudio miosStudio) {
 
 		super(new BorderLayout());
 
 		this.miosStudio = miosStudio;
+		
+		miosStudio.addObserver(this);
 
 		lookAndFeel = UIManager.getLookAndFeel().getClass().getName();
 		defaultDecoratedFrames = JFrame.isDefaultLookAndFeelDecorated();
@@ -456,6 +470,16 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		fileMenu = new JMenu("File");
 		fileMenu.setMnemonic(KeyEvent.VK_F);
+		
+		JMenuItem menuItem = new JMenuItem("Open Workspace");
+		menuItem.setActionCommand("open_workspace");
+		menuItem.addActionListener(this);
+		fileMenu.add(menuItem);
+		
+		menuItem = new JMenuItem("Save Workspace");
+		menuItem.setActionCommand("save_workspace");
+		menuItem.addActionListener(this);
+		fileMenu.add(menuItem);
 	}
 
 	protected void createMIDIMenu() {
@@ -475,14 +499,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F,
 				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("midi_filters");
-		menuItem.addActionListener(this);
-		midiMenu.add(menuItem);
-
-		menuItem = new JMenuItem("MIDI Device Routing");
-		menuItem.setMnemonic(KeyEvent.VK_R);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
-				ActionEvent.CTRL_MASK));
-		menuItem.setActionCommand("midi_routing");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
 
@@ -562,6 +578,15 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		optionsMenu = new JMenu("Options");
 		optionsMenu.setMnemonic(KeyEvent.VK_P);
+		
+
+		JMenuItem menuItem = new JMenuItem("MIDI Device Routing");
+		menuItem.setMnemonic(KeyEvent.VK_R);
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
+				ActionEvent.CTRL_MASK));
+		menuItem.setActionCommand("midi_routing");
+		menuItem.addActionListener(this);
+		optionsMenu.add(menuItem);
 
 		showInternalMenuItem = new JCheckBoxMenuItem("Show Internal Routing",
 				miosStudio.isRouteIndividualDevices());
@@ -569,7 +594,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		showInternalMenuItem.addActionListener(this);
 		optionsMenu.add(showInternalMenuItem);
 
-		JMenuItem menuItem = new JMenuItem("Restore Default Internal Routing");
+		menuItem = new JMenuItem("Restore Default Internal Routing");
 		menuItem.setActionCommand("restore_default");
 		menuItem.addActionListener(this);
 		optionsMenu.add(menuItem);
@@ -582,7 +607,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		midiThruMenuItem.addActionListener(this);
 		thruMenu.add(midiThruMenuItem);
 
-		menuItem = new JMenuItem("Show MIDI Thru Filter");
+		menuItem = new JMenuItem("MIDI Thru Filter");
 		menuItem.setActionCommand("midi_thru_filter");
 		menuItem.addActionListener(this);
 		thruMenu.add(menuItem);
@@ -666,9 +691,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		toolBar.addSeparator();
 
-		createHelpButtons();
+		createOptionsButtons();
 
 		toolBar.addSeparator();
+
+		createHelpButtons();		
 
 		toolBarMenu = new JPopupMenu();
 		JMenuItem addButton = new JMenuItem("Add External Command Button");
@@ -696,15 +723,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		button = new JButton(ImageLoader.getImageIcon("filter.png"));
 		button.setToolTipText("MIDI Filters");
 		button.setActionCommand("midi_filters");
-		button.addActionListener(this);
-		button.setMargin(insets);
-		toolBar.add(button);
-
-		toolBar.addSeparator();
-
-		button = new JButton(ImageLoader.getImageIcon("midiRouting.png"));
-		button.setToolTipText("MIDI Device Routing");
-		button.setActionCommand("midi_routing");
 		button.addActionListener(this);
 		button.setMargin(insets);
 		toolBar.add(button);
@@ -767,6 +785,18 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		button = new JButton(ImageLoader.getImageIcon("miosTerminal.png"));
 		button.setToolTipText("MIOS Terminal");
 		button.setActionCommand("mios_terminal");
+		button.addActionListener(this);
+		button.setMargin(insets);
+		toolBar.add(button);
+	}
+	
+	protected void createOptionsButtons() {
+		
+		Insets insets = new Insets(2, 2, 2, 2);
+
+		JButton	button = new JButton(ImageLoader.getImageIcon("midiRouting.png"));
+		button.setToolTipText("MIDI Device Routing");
+		button.setActionCommand("midi_routing");
 		button.addActionListener(this);
 		button.setMargin(insets);
 		toolBar.add(button);
@@ -1070,6 +1100,62 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	public MIOSStudioInternalFrame getHelpWindow() {
 		return helpWindow;
 	}
+	
+	protected void openWorkspace() {
+		
+		if (fc == null) {
+			fc = new JFileChooser(currentDirectory);
+			SimpleFileChooserFilter fileFilter = new SimpleFileChooserFilter(
+					"XML files", "xml", "XML Workspace Definition");
+			fc.addChoosableFileFilter(fileFilter);
+			fc.setAcceptAllFileFilterUsed(false);
+		}
+
+		File noFile = new File("");
+		File noFiles[] = { noFile };
+		fc.setSelectedFile(noFile);
+		fc.setSelectedFiles(noFiles);
+
+		int nRetVal = fc.showOpenDialog(this);
+
+		if (nRetVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, workspaceTag);
+			
+			miosStudioXML.loadXML(file);
+
+			currentDirectory = fc.getCurrentDirectory().toString();
+		}
+	}
+	
+	protected void saveWorkspace() {
+		
+		if (fc == null) {
+			fc = new JFileChooser(currentDirectory);
+			SimpleFileChooserFilter fileFilter = new SimpleFileChooserFilter(
+					"XML files", "xml", "XML Workspace Definition");
+			fc.addChoosableFileFilter(fileFilter);
+			fc.setAcceptAllFileFilterUsed(false);
+		}
+
+		File noFile = new File("");
+		File noFiles[] = { noFile };
+		fc.setSelectedFile(noFile);
+		fc.setSelectedFiles(noFiles);
+
+		int nRetVal = fc.showSaveDialog(this);
+
+		if (nRetVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, workspaceTag);
+			
+			miosStudioXML.saveXML(file);
+
+			currentDirectory = fc.getCurrentDirectory().toString();
+		}
+	}
 
 	/*
 	 * public MIOSStudioInternalFrame getSysexSendReceiveDeviceManagerWindow() {
@@ -1130,6 +1216,18 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			windowMenu.buildChildMenus();
 		} else if (source == lookAndFeelMenu) {
 			buildLookAndFeel();
+		}
+	}
+
+	public void update(Observable observable, Object object) {
+		
+		if (object == MIOSStudio.ROUTE_INDIVIDUAL_DEVICES) {
+			
+			showInternalMenuItem.setSelected(miosStudio.isRouteIndividualDevices());
+			
+		} else if (object == MIOSStudio.MIDI_THRU_OUT_PORT) {
+			
+			midiThruMenuItem.setSelected(miosStudio.isMidiThruOutPort());
 		}
 	}
 
@@ -1197,6 +1295,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		} else if (ae.getActionCommand().equals("dialogs")) {
 			defaultDecoratedFrames = ((JCheckBoxMenuItem) ae.getSource())
 					.isSelected();
+			
+		} else if (ae.getActionCommand().equals("open_workspace")) {
+			openWorkspace();
+			
+		}  else if (ae.getActionCommand().equals("save_workspace")) {
+			saveWorkspace();
 		}
 	}
 

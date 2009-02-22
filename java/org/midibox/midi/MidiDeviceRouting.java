@@ -363,7 +363,7 @@ public class MidiDeviceRouting extends Observable {
 		clearChanged();
 	}
 
-	public boolean getPortsReleased() {
+	public boolean isPortsReleased() {
 		return portsReleased;
 	}
 
@@ -399,8 +399,12 @@ public class MidiDeviceRouting extends Observable {
 
 		return DISCONNECTED;
 	}
+	
+	public Vector getLogicalConnections() {
+		return logicalConnections;
+	}
 
-	public static class LogicalConnection {
+	public class LogicalConnection {
 
 		private MidiDevice sourceDevice;
 

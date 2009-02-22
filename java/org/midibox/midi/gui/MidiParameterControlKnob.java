@@ -71,7 +71,7 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 
 			update = false;
 
-			midiParameter.setMidiValue(knob.getValue(), true);
+			midiParameterControl.setMidiValue(knob.getValue(), true);
 
 			update = true;
 		}
@@ -85,7 +85,7 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 
 			update = false;
 
-			knob.setValue(midiParameter.getMidiValue());
+			knob.setValue(midiParameterControl.getMidiValue());
 
 			update = true;
 		}
@@ -93,10 +93,10 @@ public class MidiParameterControlKnob extends MidiParameterControlGUI implements
 
 	public void update(Observable observable, Object object) {
 		super.update(observable, object);
-		if (object == midiParameter.HIGH_RESOLUTION) {
+		if (object == midiParameterControl.HIGH_RESOLUTION) {
 
-			knob.setMinimum(midiParameter.getMidiMinValue());
-			knob.setMaximum(midiParameter.getMidiMaxValue());
+			knob.setMinimum(midiParameterControl.getMidiMinValue());
+			knob.setMaximum(midiParameterControl.getMidiMaxValue());
 		}
 	}
 }

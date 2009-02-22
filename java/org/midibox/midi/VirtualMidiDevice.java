@@ -33,6 +33,8 @@ import javax.sound.midi.Transmitter;
 
 public class VirtualMidiDevice extends Observable implements MidiDevice {
 
+	public static Object NAME = new Object();
+	
 	protected VirtualMidiDevice.Info info;
 
 	protected int maxNoTransmitters;
@@ -49,15 +51,27 @@ public class VirtualMidiDevice extends Observable implements MidiDevice {
 
 	public VirtualMidiDevice(String name, int maxNoTransmitters,
 			int maxNoReceivers) {
-		this.info = new VirtualMidiDevice.MyInfo(name, "midibox.org",
-				"Virtual MIDI Device", "v1.0");
+		
+		setName(name);
+		
 		this.maxNoTransmitters = maxNoTransmitters;
 		this.maxNoReceivers = maxNoReceivers;
 		this.transmitters = new LinkedList();
 		this.receivers = new LinkedList();
 		this.midiOutPort = new MidiOutPort();
 	}
-
+	
+	public void setName(String name) {
+		this.info = new VirtualMidiDevice.MyInfo(name, "midibox.org",
+				"Virtual MIDI Device", "v1.0");
+		
+		setChanged();
+		
+		notifyObservers(NAME);
+		
+		clearChanged();
+	}
+	
 	public void close() {
 
 	}
@@ -162,12 +176,13 @@ public class VirtualMidiDevice extends Observable implements MidiDevice {
 	}
 
 	public class MyInfo extends MidiDevice.Info {
+		
 		protected MyInfo(String name, String vendor, String description,
 				String version) {
 			super(name, vendor, description, version);
 		}
 	}
-
+	
 	public class MidiOutPort implements Receiver {
 		public void close() {
 

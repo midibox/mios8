@@ -80,23 +80,23 @@ public class MidiParameterControlProperties extends MidiParameterProperties {
 		if (sendCheckBox != null && receiveCheckBox != null
 				&& globalCheckBox != null) {
 
-			sendCheckBox.setSelected(((MidiParameterControl) midiParameter)
+			sendCheckBox.setSelected(((MidiParameterControl) midiParameterControl)
 					.isSend());
-			sendCheckBox.setEnabled(!((MidiParameterControl) midiParameter)
+			sendCheckBox.setEnabled(!((MidiParameterControl) midiParameterControl)
 					.isLearn());
-			receiveCheckBox.setSelected(((MidiParameterControl) midiParameter)
+			receiveCheckBox.setSelected(((MidiParameterControl) midiParameterControl)
 					.isReceive());
-			receiveCheckBox.setEnabled(!((MidiParameterControl) midiParameter)
+			receiveCheckBox.setEnabled(!((MidiParameterControl) midiParameterControl)
 					.isLearn());
 
-			globalCheckBox.setSelected(((MidiParameterControl) midiParameter)
+			globalCheckBox.setSelected(((MidiParameterControl) midiParameterControl)
 					.isGlobal());
-			globalCheckBox.setEnabled(!((MidiParameterControl) midiParameter)
+			globalCheckBox.setEnabled(!((MidiParameterControl) midiParameterControl)
 					.isLearn());
 
-			channelSpinner.setEnabled(!((MidiParameterControl) midiParameter)
+			channelSpinner.setEnabled(!((MidiParameterControl) midiParameterControl)
 					.isGlobal()
-					&& !((MidiParameterControl) midiParameter).isLearn());
+					&& !((MidiParameterControl) midiParameterControl).isLearn());
 		}
 	}
 
@@ -110,13 +110,13 @@ public class MidiParameterControlProperties extends MidiParameterProperties {
 			Object source = ae.getSource();
 
 			if (source == receiveCheckBox) {
-				((MidiParameterControl) midiParameter)
+				((MidiParameterControl) midiParameterControl)
 						.setReceive(receiveCheckBox.isSelected());
 			} else if (source == sendCheckBox) {
-				((MidiParameterControl) midiParameter).setSend(sendCheckBox
+				((MidiParameterControl) midiParameterControl).setSend(sendCheckBox
 						.isSelected());
 			} else if (source == globalCheckBox) {
-				((MidiParameterControl) midiParameter).setGlobal(globalCheckBox
+				((MidiParameterControl) midiParameterControl).setGlobal(globalCheckBox
 						.isSelected());
 			}
 			update = true;

@@ -60,11 +60,11 @@ public class MidiParameterControlSpinner extends MidiParameterControlGUI
 	public void stateChanged(ChangeEvent ce) {
 		if (update) {
 			update = false;
-			midiParameter
+			midiParameterControl
 					.setMidiValue(
 							(int) (((float) ((Integer) spinner.getModel()
 									.getValue()).intValue() / (float) ((Integer) ((SpinnerNumberModel) spinner
-									.getModel()).getMaximum()).intValue()) * (float) midiParameter
+									.getModel()).getMaximum()).intValue()) * (float) midiParameterControl
 									.getMidiMaxValue()), true);
 			update = true;
 		}
@@ -74,10 +74,10 @@ public class MidiParameterControlSpinner extends MidiParameterControlGUI
 		JPopupMenu popup = new JPopupMenu();
 
 		final JCheckBoxMenuItem channelMenuItem = new JCheckBoxMenuItem(
-				"Global Channel", (midiParameter.isGlobal()));
+				"Global Channel", (midiParameterControl.isGlobal()));
 		channelMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				midiParameter.setGlobal(channelMenuItem.isSelected());
+				midiParameterControl.setGlobal(channelMenuItem.isSelected());
 			}
 		});
 
@@ -85,15 +85,15 @@ public class MidiParameterControlSpinner extends MidiParameterControlGUI
 
 		for (int i = 0; i < 16; i++) {
 			JCheckBoxMenuItem channelItem = new JCheckBoxMenuItem("Channel "
-					+ (i + 1), (midiParameter.getMidiChannel() == i));
-			channelItem.setEnabled(!midiParameter.isGlobal());
+					+ (i + 1), (midiParameterControl.getMidiChannel() == i));
+			channelItem.setEnabled(!midiParameterControl.isGlobal());
 			popup.add(channelItem);
 
 			final int channelNo = i;
 
 			channelItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ae) {
-					midiParameter.setMidiChannel(channelNo);
+					midiParameterControl.setMidiChannel(channelNo);
 				}
 			});
 		}
@@ -106,7 +106,7 @@ public class MidiParameterControlSpinner extends MidiParameterControlGUI
 			update = false;
 			spinner
 					.setValue(new Integer(
-							(int) ((((float) midiParameter.getMidiValue() / (float) midiParameter
+							(int) ((((float) midiParameterControl.getMidiValue() / (float) midiParameterControl
 									.getMidiMaxValue())) * (float) (((Integer) ((SpinnerNumberModel) spinner
 									.getModel()).getMaximum()).intValue()))));
 			update = true;
