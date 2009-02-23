@@ -7,11 +7,13 @@ public class HexFileUploadXML extends MIOSSysexSendReceiveXML {
 
 	protected HexFileUpload hexFileUpload;
 
-	protected String waitForUploadRequestAttr = "waitForUploadRequest";
+	public final static String TAG_ROOT_ELEMENT = "hexFileUpload";
 
-	protected String uploadModeAttr = "uploadMode";
+	public final static String ATTR_WAIT_FOR_UPLOAD_REQUEST = "waitForUploadRequest";
 
-	protected String delayTimeAttr = "delayTime";
+	public final static String ATTR_UPLOAD_MODE = "uploadMode";
+
+	public final static String ATTR_DELAY_TIME = "delayTime";
 
 	public HexFileUploadXML(HexFileUpload hexFileUpload, String rootElementTag) {
 
@@ -24,13 +26,13 @@ public class HexFileUploadXML extends MIOSSysexSendReceiveXML {
 
 		super.saveXML(node);
 
-		rootElement.setAttribute(waitForUploadRequestAttr, hexFileUpload
-				.isWaitForUploadRequest() ? "true" : "false");
+		rootElement.setAttribute(ATTR_WAIT_FOR_UPLOAD_REQUEST,
+				booleanToString(hexFileUpload.isWaitForUploadRequest()));
 
-		rootElement.setAttribute(uploadModeAttr, ""
-				+ hexFileUpload.getUploadMode());
+		rootElement.setAttribute(ATTR_UPLOAD_MODE, intToString(hexFileUpload
+				.getUploadMode()));
 
-		rootElement.setAttribute(delayTimeAttr, ""
-				+ hexFileUpload.getDelayTime());
+		rootElement.setAttribute(ATTR_DELAY_TIME, intToString(hexFileUpload
+				.getDelayTime()));
 	}
 }

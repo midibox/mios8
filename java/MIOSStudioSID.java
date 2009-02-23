@@ -57,6 +57,11 @@ public class MIOSStudioSID extends MIOSStudio {
 
 		return Preferences.userRoot().node("org/midibox/miostudiosid/gui");
 	}
+	
+	protected String getConfigFileName() {
+		
+		return ".miosstudiosid";
+	}
 
 	protected void createWindowsHashtable() {
 		super.createWindowsHashtable();

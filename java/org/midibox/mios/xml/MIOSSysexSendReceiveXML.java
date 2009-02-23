@@ -6,6 +6,12 @@ import org.w3c.dom.Node;
 
 public class MIOSSysexSendReceiveXML extends XMLUtils {
 
+	public final static String TAG_ROOT_ELEMENT = "miosSysexSendReceive";
+
+	public final static String ATTR_DEVICE_ID = "deviceID";
+
+	public final static String ATTR_MIOS32_MODE = "mios32Mode";
+
 	protected MIOSSysexSendReceive miosSysexSendReceive;
 
 	public MIOSSysexSendReceiveXML(MIOSSysexSendReceive miosSysexSendReceive,
@@ -16,18 +22,14 @@ public class MIOSSysexSendReceiveXML extends XMLUtils {
 		this.miosSysexSendReceive = miosSysexSendReceive;
 	}
 
-	protected String deviceIDTag = "deviceID";
-
-	protected String mios32ModeTag = "mios32Mode";
-
 	public void saveXML(Node node) {
 
 		super.saveXML(node);
 
-		rootElement.setAttribute(deviceIDTag, ""
-				+ miosSysexSendReceive.getDeviceID());
+		rootElement.setAttribute(ATTR_DEVICE_ID,
+				intToString(miosSysexSendReceive.getDeviceID()));
 
-		rootElement.setAttribute(mios32ModeTag, miosSysexSendReceive
-				.isMIOS32Mode() ? "true" : "false");
+		rootElement.setAttribute(ATTR_MIOS32_MODE,
+				booleanToString(miosSysexSendReceive.isMIOS32Mode()));
 	}
 }

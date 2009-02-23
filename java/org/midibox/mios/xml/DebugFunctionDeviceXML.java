@@ -6,9 +6,9 @@ import org.w3c.dom.Node;
 
 public class DebugFunctionDeviceXML extends VirtualMidiDeviceXML {
 
-	protected DebugFunctionDevice debugFunctionDevice;
+	public final static String TAG_ROOT_ELEMENT = "debugFunctionDevice";
 
-	protected String debugFunctionTag = "debugFunction";
+	protected DebugFunctionDevice debugFunctionDevice;
 
 	public DebugFunctionDeviceXML(DebugFunctionDevice debugFunctionDevice,
 			String rootElementTag) {
@@ -23,7 +23,8 @@ public class DebugFunctionDeviceXML extends VirtualMidiDeviceXML {
 		super.saveXML(node);
 
 		DebugFunctionXML debugFunctionXML = new DebugFunctionXML(
-				debugFunctionDevice.getDebugFunction(), debugFunctionTag);
+				debugFunctionDevice.getDebugFunction(),
+				DebugFunctionXML.TAG_ROOT_ELEMENT);
 
 		debugFunctionXML.saveXML(rootElement);
 	}

@@ -6,6 +6,18 @@ import org.w3c.dom.Node;
 
 public class DebugFunctionParametersXML extends XMLUtils {
 
+	protected final static String TAG_ROOT_ELEMENT = "debugFunctionParameters";
+
+	protected final static String ATTR_ADDRESS = "address";
+
+	protected final static String ATTR_WREG = "wreg";
+
+	protected final static String ATTR_PARAM_1 = "param1";
+
+	protected final static String ATTR_PARAM_2 = "param2";
+
+	protected final static String ATTR_PARAM_3 = "param3";
+
 	protected DebugFunctionParameters debugFunctionParameters;
 
 	public DebugFunctionParametersXML(
@@ -17,33 +29,23 @@ public class DebugFunctionParametersXML extends XMLUtils {
 		this.debugFunctionParameters = debugFunctionParameters;
 	}
 
-	String addressAttr = "address";
-
-	String wregAttr = "wreg";
-
-	String param1Attr = "param1";
-
-	String param2Attr = "param2";
-
-	String param3Attr = "param3";
-
 	public void saveXML(Node node) {
 
 		super.saveXML(node);
 
-		rootElement.setAttribute(addressAttr, ""
-				+ debugFunctionParameters.getAddress());
+		rootElement.setAttribute(ATTR_ADDRESS,
+				intToString(debugFunctionParameters.getAddress()));
 
-		rootElement.setAttribute(wregAttr, ""
-				+ debugFunctionParameters.getWreg());
+		rootElement.setAttribute(ATTR_WREG, intToString(debugFunctionParameters
+				.getWreg()));
 
-		rootElement.setAttribute(param1Attr, ""
-				+ debugFunctionParameters.getParam1());
+		rootElement.setAttribute(ATTR_PARAM_1,
+				intToString(debugFunctionParameters.getParam1()));
 
-		rootElement.setAttribute(param2Attr, ""
-				+ debugFunctionParameters.getParam2());
+		rootElement.setAttribute(ATTR_PARAM_2,
+				intToString(debugFunctionParameters.getParam2()));
 
-		rootElement.setAttribute(param3Attr, ""
-				+ debugFunctionParameters.getParam3());
+		rootElement.setAttribute(ATTR_PARAM_3,
+				intToString(debugFunctionParameters.getParam3()));
 	}
 }

@@ -31,9 +31,7 @@ import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.sound.midi.MetaMessage;
 import javax.sound.midi.ShortMessage;
-import javax.sound.midi.SysexMessage;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -45,6 +43,7 @@ import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
 
+import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiUtils;
 import org.midibox.midi.xml.MidiFilterXML;
@@ -103,8 +102,6 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 	private JTable channels;
 
 	private DefaultTableModel channelsModel;
-	
-	private String definitionTag = "midiFilter";
 
 	private static String currentDirectory = "";
 
@@ -408,8 +405,9 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter, definitionTag);
-			
+			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter,
+					MidiFilterXML.TAG_ROOT_ELEMENT);
+
 			midiFilterXML.loadXML(file);
 
 			setButtonStates();
@@ -438,12 +436,22 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter, definitionTag);
-			
+			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter,
+					MidiFilterXML.TAG_ROOT_ELEMENT);
+
 			midiFilterXML.saveXML(file);
 
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
+	}
+		
+
+	public static String getCurrentDirectory() {
+		return currentDirectory;
+	}
+
+	public static void setCurrentDirectory(String currentDirectory) {
+		MidiFilterGUI.currentDirectory = currentDirectory;
 	}
 
 	public void update(Observable observable, Object object) {

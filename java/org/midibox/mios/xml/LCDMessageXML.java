@@ -8,19 +8,21 @@ public class LCDMessageXML extends MIOSSysexSendReceiveXML {
 
 	protected LCDMessage lcdMessage;
 
-	protected String lcdWidthAttr = "lcdWidth";
+	public static final String TAG_ROOT_ELEMENT = "lcdMessage";
 
-	protected String lcdHeightAttr = "lcdHeight";
+	public static final String TAG_MESSAGE_TEXT = "messageText";
 
-	protected String modeAttr = "mode";
+	public static final String ATTR_LCD_WIDTH = "lcdWidth";
 
-	protected String posXAttr = "posX";
+	public static final String ATTR_LCD_HEIGHT = "lcdHeight";
 
-	protected String posYAttr = "posY";
+	public static final String ATTR_MODE = "mode";
 
-	protected String loopAttr = "loop";
+	public static final String ATTR_POS_X = "posX";
 
-	protected String messageTextTag = "messageText";
+	public static final String ATTR_POS_Y = "posY";
+
+	public static final String ATTR_LOOP = "loop";
 
 	public LCDMessageXML(LCDMessage lcdMessage, String rootElementTag) {
 
@@ -33,20 +35,22 @@ public class LCDMessageXML extends MIOSSysexSendReceiveXML {
 
 		super.saveXML(node);
 
-		rootElement.setAttribute(lcdWidthAttr, "" + lcdMessage.getLcdWidth());
+		rootElement.setAttribute(ATTR_LCD_WIDTH, intToString(lcdMessage
+				.getLcdWidth()));
 
-		rootElement.setAttribute(lcdHeightAttr, "" + lcdMessage.getLcdHeight());
+		rootElement.setAttribute(ATTR_LCD_HEIGHT, intToString(lcdMessage
+				.getLcdHeight()));
 
-		rootElement.setAttribute(modeAttr, "" + lcdMessage.getMode());
+		rootElement.setAttribute(ATTR_MODE, intToString(lcdMessage.getMode()));
 
-		rootElement.setAttribute(posXAttr, "" + lcdMessage.getPosX());
+		rootElement.setAttribute(ATTR_POS_X, intToString(lcdMessage.getPosX()));
 
-		rootElement.setAttribute(posYAttr, "" + lcdMessage.getPosY());
+		rootElement.setAttribute(ATTR_POS_Y, intToString(lcdMessage.getPosY()));
 
-		rootElement.setAttribute(loopAttr, lcdMessage.isLoop() ? "true"
-				: "false");
+		rootElement.setAttribute(ATTR_LOOP,
+				booleanToString(lcdMessage.isLoop()));
 
-		Element messageTextElement = document.createElement(messageTextTag);
+		Element messageTextElement = document.createElement(TAG_MESSAGE_TEXT);
 
 		rootElement.appendChild(messageTextElement);
 

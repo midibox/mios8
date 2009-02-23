@@ -7,10 +7,12 @@ import org.w3c.dom.Node;
 
 public class MidiDeviceXML extends XMLUtils {
 
-	protected String nameAttr = "name";
+	public final static String TAG_ROOT_ELEMENT = "midiDevice";
 
-	protected String hashCodeAttr = "hashCode";
-	
+	public final static String ATTR_NAME = "name";
+
+	public final static String ATTR_HASH_CODE = "hashCode";
+
 	protected MidiDevice midiDevice;
 
 	public MidiDeviceXML(MidiDevice midiDevice, String rootElementTag) {
@@ -24,10 +26,10 @@ public class MidiDeviceXML extends XMLUtils {
 
 		super.saveXML(node);
 
-		rootElement
-				.setAttribute(nameAttr, midiDevice.getDeviceInfo().getName());
+		rootElement.setAttribute(ATTR_NAME, midiDevice.getDeviceInfo()
+				.getName());
 
-		rootElement.setAttribute(hashCodeAttr, ""
+		rootElement.setAttribute(ATTR_HASH_CODE, ""
 				+ midiDevice.getDeviceInfo().toString().hashCode());
 	}
 }

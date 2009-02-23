@@ -18,6 +18,8 @@ import org.w3c.dom.NodeList;
 
 public class XMLUtils {
 
+	public final static String TAG_ROOT_ELEMENT = "";
+	
 	protected Document document;
 
 	protected Vector tags;
@@ -123,5 +125,25 @@ public class XMLUtils {
 		rootElement = document.createElement(rootElementTag);
 		
 		node.appendChild(rootElement);
+	}
+	
+	protected String intToString (int i) {
+		
+		return "" + i;
+	}
+	
+	protected String booleanToString (boolean b) {
+		
+		return b ? "true" : "false";
+	}
+	
+	protected int stringToInt(String string) {
+		
+		return Integer.parseInt(string); 
+	}
+	
+	protected boolean stringToBoolean(String string) {
+		
+		return Boolean.parseBoolean(string);
 	}
 }

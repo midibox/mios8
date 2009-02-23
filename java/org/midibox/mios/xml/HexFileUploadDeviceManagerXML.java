@@ -10,11 +10,11 @@ import org.w3c.dom.Node;
 
 public class HexFileUploadDeviceManagerXML extends XMLUtils {
 
+	public final static String TAG_ROOT_ELEMENT = "hexFileUploadDeviceManager";
+
+	public final static String TAG_HEX_FILE_UPLOAD_DEVICES = "hexFileUploadDevices";
+
 	protected HexFileUploadDeviceManager hexFileUploadDeviceManager;
-
-	protected String hexFileUploadDevicesTag = "hexFileUploadDevices";
-
-	protected String hexFileUploadDeviceTag = "hexFileUploadDevice";
 
 	public HexFileUploadDeviceManagerXML(
 			HexFileUploadDeviceManager hexFileUploadDeviceManager,
@@ -30,7 +30,7 @@ public class HexFileUploadDeviceManagerXML extends XMLUtils {
 		super.saveXML(node);
 
 		Element hexFileUploadDevicesElement = document
-				.createElement(hexFileUploadDevicesTag);
+				.createElement(TAG_HEX_FILE_UPLOAD_DEVICES);
 
 		rootElement.appendChild(hexFileUploadDevicesElement);
 
@@ -43,7 +43,8 @@ public class HexFileUploadDeviceManagerXML extends XMLUtils {
 					.next();
 
 			HexFileUploadDeviceXML hexFileUploadDeviceXML = new HexFileUploadDeviceXML(
-					hexFileUploadDevice, hexFileUploadDeviceTag);
+					hexFileUploadDevice,
+					HexFileUploadDeviceXML.TAG_ROOT_ELEMENT);
 
 			hexFileUploadDeviceXML.saveXML(hexFileUploadDevicesElement);
 		}

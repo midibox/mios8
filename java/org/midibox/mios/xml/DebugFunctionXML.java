@@ -11,21 +11,21 @@ public class DebugFunctionXML extends MIOSSysexSendReceiveXML {
 
 	protected DebugFunction debugFunction;
 
-	protected String modeAttr = "mode";
+	public final static String TAG_ROOT_ELEMENT = "debugFunction";
 
-	protected String delayTimeAttr = "delayTime";
+	public static final String TAG_DEBUG_FUNCTION_PARAMETERS_LIST = "debugFunctionParametersList";
 
-	protected String sramReadAddressAttr = "sramReadAddress";
+	public static final String ATTR_MODE = "mode";
 
-	protected String sramReadCounterAttr = "sramReadCounter";
+	public static final String ATTR_DELAY_TIME = "delayTime";
 
-	protected String sramWriteAddressAttr = "sramWriteAddress";
+	public static final String ATTR_SRAM_READ_ADDRESS = "sramReadAddress";
 
-	protected String sramWriteDataAttr = "sramWriteData";
+	public static final String ATTR_SRAM_READ_COUNTER = "sramReadCounter";
 
-	protected String debugFunctionParametersTag = "debugFunctionParameters";
+	public static final String ATTR_SRAM_WRITE_ADDRESS = "sramWriteAddress";
 
-	protected String debugFunctionParameterTag = "debugFunctionParameter";
+	public static final String ATTR_SRAM_WRITE_DATA = "sramWriteData";
 
 	public DebugFunctionXML(DebugFunction debugFunction, String rootElementTag) {
 
@@ -38,27 +38,28 @@ public class DebugFunctionXML extends MIOSSysexSendReceiveXML {
 
 		super.saveXML(node);
 
-		rootElement.setAttribute(modeAttr, "" + debugFunction.getMode());
+		rootElement.setAttribute(ATTR_MODE,
+				intToString(debugFunction.getMode()));
 
-		rootElement.setAttribute(delayTimeAttr, ""
-				+ debugFunction.getDelayTime());
+		rootElement.setAttribute(ATTR_DELAY_TIME, intToString(debugFunction
+				.getDelayTime()));
 
-		rootElement.setAttribute(sramReadAddressAttr, ""
-				+ debugFunction.getSramReadAddress());
+		rootElement.setAttribute(ATTR_SRAM_READ_ADDRESS,
+				intToString(debugFunction.getSramReadAddress()));
 
-		rootElement.setAttribute(sramReadCounterAttr, ""
-				+ debugFunction.getSramReadCounter());
+		rootElement.setAttribute(ATTR_SRAM_READ_COUNTER,
+				intToString(debugFunction.getSramReadCounter()));
 
-		rootElement.setAttribute(sramWriteAddressAttr, ""
-				+ debugFunction.getSramWriteAddress());
+		rootElement.setAttribute(ATTR_SRAM_WRITE_ADDRESS,
+				intToString(debugFunction.getSramWriteAddress()));
 
-		rootElement.setAttribute(sramWriteDataAttr, ""
-				+ debugFunction.getSramWriteData());
+		rootElement.setAttribute(ATTR_SRAM_WRITE_DATA,
+				intToString(debugFunction.getSramWriteData()));
 
-		Element debugFunctionParametersElement = document
-				.createElement(debugFunctionParametersTag);
+		Element debugFunctionParametersListElement = document
+				.createElement(TAG_DEBUG_FUNCTION_PARAMETERS_LIST);
 
-		rootElement.appendChild(debugFunctionParametersElement);
+		rootElement.appendChild(debugFunctionParametersListElement);
 
 		Iterator it = debugFunction.getDebugFunctionParameters().iterator();
 
@@ -68,9 +69,11 @@ public class DebugFunctionXML extends MIOSSysexSendReceiveXML {
 					.next();
 
 			DebugFunctionParametersXML debugFunctionParametersXML = new DebugFunctionParametersXML(
-					debugFunctionParameters, debugFunctionParametersTag);
+					debugFunctionParameters,
+					DebugFunctionParametersXML.TAG_ROOT_ELEMENT);
 
-			debugFunctionParametersXML.saveXML(debugFunctionParametersElement);
+			debugFunctionParametersXML
+					.saveXML(debugFunctionParametersListElement);
 		}
 	}
 }

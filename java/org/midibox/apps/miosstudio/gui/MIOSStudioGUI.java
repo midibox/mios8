@@ -187,9 +187,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	private boolean defaultDecoratedFrames;
 
 	private JLabel commentLabel;
-	
-	private String workspaceTag = "miosStudio";
-	
+		
 	private static String currentDirectory = "";
 
 	private static JFileChooser fc = null;
@@ -661,6 +659,16 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		toolBar.setVisible(false);
 		toolBar.setVisible(true);
 	}
+	
+	
+
+	public static String getCurrentDirectory() {
+		return currentDirectory;
+	}
+
+	public static void setCurrentDirectory(String currentDirectory) {
+		MIOSStudioGUI.currentDirectory = currentDirectory;
+	}
 
 	protected void removeExternalCommandButton(ExternalCommandButton button) {
 		externalCommands.remove(button);
@@ -1121,7 +1129,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, workspaceTag);
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, MIOSStudioXML.TAG_ROOT_ELEMENT);
 			
 			miosStudioXML.loadXML(file);
 
@@ -1149,7 +1157,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, workspaceTag);
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, MIOSStudioXML.TAG_ROOT_ELEMENT);
 			
 			miosStudioXML.saveXML(file);
 

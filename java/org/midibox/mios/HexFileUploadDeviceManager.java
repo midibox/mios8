@@ -24,8 +24,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
-import org.midibox.midi.MidiFilterDevice;
-
 public class HexFileUploadDeviceManager extends Observable implements Observer {
 
 	private Vector hexFileUploadDevices;
@@ -51,8 +49,17 @@ public class HexFileUploadDeviceManager extends Observable implements Observer {
 
 		HexFileUploadDevice hexFileUploadDevice = new HexFileUploadDevice(
 				"MIOS Hex File Upload " + (hexFileUploadDevices.size() + 1));
-
+		
 		hexFileUploadDevice.getHexFileUpload().setMIOS32Mode(mios32Mode);
+
+		addHexFileUploadDevice(hexFileUploadDevice);
+
+		return hexFileUploadDevice;
+	}
+	
+	public void addHexFileUploadDevice(
+			HexFileUploadDevice hexFileUploadDevice)  {
+
 		hexFileUploadDevice.getHexFileUpload().addObserver(this);
 
 		hexFileUploadDevices.add(hexFileUploadDevice);
@@ -60,8 +67,6 @@ public class HexFileUploadDeviceManager extends Observable implements Observer {
 		setChanged();
 		notifyObservers(hexFileUploadDevice);
 		clearChanged();
-
-		return hexFileUploadDevice;
 	}
 
 	public void removeHexFileUploadDevice(

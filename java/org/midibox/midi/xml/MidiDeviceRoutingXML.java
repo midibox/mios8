@@ -12,17 +12,19 @@ import org.w3c.dom.Node;
 
 public class MidiDeviceRoutingXML extends XMLUtils {
 
+	public static final String TAG_ROOT_ELEMENT = "midiDeviceRouting";
+
+	public static final String TAG_LOGICAL_CONNECTIONS = "logicalConnections";
+
+	public static final String TAG_LOGICAL_CONNECTION = "logicalConnection";
+
+	public static final String TAG_SOURCE_MIDI_DEVICE = "sourceMidiDevice";
+
+	public static final String TAG_TARGET_MIDI_DEVICE = "targetMidiDevice";
+
+	public static final String ATTR_PORTS_RELEASED = "portsReleased";
+
 	protected MidiDeviceRouting midiDeviceRouting;
-
-	protected String logicalConnectionsTag = "logicalConnections";
-
-	protected String logicalConnectionTag = "logicalConnection";
-
-	protected String sourceMidiDeviceTag = "sourceMidiDevice";
-
-	protected String targetMidiDeviceTag = "targetMidiDevice";
-
-	protected String portsReleasedAttr = "portsReleased";
 
 	public MidiDeviceRoutingXML(MidiDeviceRouting midiDeviceRouting,
 			String rootElementTag) {
@@ -31,8 +33,8 @@ public class MidiDeviceRoutingXML extends XMLUtils {
 
 		this.midiDeviceRouting = midiDeviceRouting;
 
-		tags.add(logicalConnectionsTag);
-		tags.add(logicalConnectionTag);
+		tags.add(TAG_LOGICAL_CONNECTIONS);
+		tags.add(TAG_LOGICAL_CONNECTION);
 	}
 
 	protected void parseElement(Element element) {
@@ -42,10 +44,13 @@ public class MidiDeviceRoutingXML extends XMLUtils {
 		String name = element.getNodeName();
 
 		if (name == rootElementTag) {
-			
+
 			midiDeviceRouting.disconnectAll();
 
-		} else if (name == logicalConnectionTag) {
+			midiDeviceRouting.setPortsReleased(stringToBoolean(element
+					.getAttribute(ATTR_PORTS_RELEASED)));
+
+		} else if (name == TAG_LOGICAL_CONNECTION) {
 
 			Element transmittingDeviceElement = (Element) element
 					.getFirstChild();
@@ -53,19 +58,20 @@ public class MidiDeviceRoutingXML extends XMLUtils {
 			MidiDevice transmittingDevice = findDeviceHash(midiDeviceRouting
 					.getMidiReadDevices(), Integer
 					.parseInt(transmittingDeviceElement
-							.getAttribute("hashCode")));
+							.getAttribute(MidiDeviceXML.ATTR_HASH_CODE)));
 
 			Element receivingDeviceElement = (Element) element.getLastChild();
 
 			MidiDevice receivingDevice = findDeviceHash(midiDeviceRouting
 					.getMidiWriteDevices(), Integer
-					.parseInt(receivingDeviceElement.getAttribute("hashCode")));
+					.parseInt(receivingDeviceElement
+							.getAttribute(MidiDeviceXML.ATTR_HASH_CODE)));
 			;
-			
+
 			if (transmittingDevice != null && receivingDevice != null) {
 
 				midiDeviceRouting.connectDevices(transmittingDevice,
-					receivingDevice);
+						receivingDevice);
 			}
 		}
 	}
@@ -74,11 +80,11 @@ public class MidiDeviceRoutingXML extends XMLUtils {
 
 		super.saveXML(node);
 
-		rootElement.setAttribute(portsReleasedAttr, midiDeviceRouting
-				.isPortsReleased() ? "true" : "false");
+		rootElement.setAttribute(ATTR_PORTS_RELEASED,
+				booleanToString(midiDeviceRouting.isPortsReleased()));
 
 		Element logicalConnectionsElement = document
-				.createElement(logicalConnectionsTag);
+				.createElement(TAG_LOGICAL_CONNECTIONS);
 
 		rootElement.appendChild(logicalConnectionsElement);
 
@@ -90,19 +96,17 @@ public class MidiDeviceRoutingXML extends XMLUtils {
 					.next();
 
 			Element logicalConnectionElement = document
-					.createElement(logicalConnectionTag);
+					.createElement(TAG_LOGICAL_CONNECTION);
 
 			logicalConnectionsElement.appendChild(logicalConnectionElement);
 
-
 			MidiDeviceXML sourceMidiDeviceXML = new MidiDeviceXML(
-					logicalConnection.getSourceDevice(), sourceMidiDeviceTag);
+					logicalConnection.getSourceDevice(), TAG_SOURCE_MIDI_DEVICE);
 
 			sourceMidiDeviceXML.saveXML(logicalConnectionElement);
 
-		
 			MidiDeviceXML targetMidiDeviceXML = new MidiDeviceXML(
-					logicalConnection.getTargetDevice(), targetMidiDeviceTag);
+					logicalConnection.getTargetDevice(), TAG_TARGET_MIDI_DEVICE);
 
 			targetMidiDeviceXML.saveXML(logicalConnectionElement);
 		}

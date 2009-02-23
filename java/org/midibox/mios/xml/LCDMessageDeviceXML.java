@@ -8,7 +8,7 @@ public class LCDMessageDeviceXML extends VirtualMidiDeviceXML {
 
 	protected LCDMessageDevice lcdMessageDevice;
 
-	protected String lcdMessageTag = "lcdMessage";
+	public static final String TAG_ROOT_ELEMENT = "lcdMessageDevice";
 
 	public LCDMessageDeviceXML(LCDMessageDevice lcdMessageDevice,
 			String rootElementTag) {
@@ -23,7 +23,7 @@ public class LCDMessageDeviceXML extends VirtualMidiDeviceXML {
 		super.saveXML(node);
 
 		LCDMessageXML lcdMessageXML = new LCDMessageXML(lcdMessageDevice
-				.getLCDMessage(), lcdMessageTag);
+				.getLCDMessage(), LCDMessageXML.TAG_ROOT_ELEMENT);
 
 		lcdMessageXML.saveXML(rootElement);
 	}

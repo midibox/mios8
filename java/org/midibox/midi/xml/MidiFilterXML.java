@@ -7,65 +7,67 @@ import org.w3c.dom.Node;
 
 public class MidiFilterXML extends XMLUtils {
 
+	public final static String TAG_ROOT_ELEMENT = "midiFilter";
+
+	public final static String TAG_VOICE_MESSAGES = "voiceMessages";
+
+	public final static String TAG_VOICE_MESSAGE = "voiceMessage";
+
+	public final static String TAG_CHANNELS = "channels";
+
+	public final static String TAG_CHANNEL = "channel";
+
+	public final static String TAG_CONTROL_CHANGE_MESSAGES = "controlChangeMessages";
+
+	public final static String TAG_CONTROL_CHANGE_MESSAGE = "controlChangeMessage";
+
+	public final static String TAG_SYSTEM_COMMON_MESSAGES = "systemCommonMessages";
+
+	public final static String TAG_SYSTEM_COMMON_MESSAGE = "systemCommonMessage";
+
+	public final static String TAG_SYSTEM_REALTIME_MESSAGES = "systemRealtimeMessages";
+
+	public final static String TAG_SYSTEM_REALTIME_MESSAGE = "systemRealtimeMessage";
+
+	public final static String TAG_SYSEX_MESSAGES = "sysexMessages";
+
+	public final static String TAG_META_MESSAGES = "metaMessage";
+
+	public final static String ATTR_NUMBER = "number";
+
+	public final static String ATTR_ENABLE = "enable";
+
 	protected MidiFilter midiFilter;
-	
-	protected String voiceMessagesTag = "voiceMessages";
-
-	protected String voiceMessageTag = "voiceMessage";
-
-	protected String channelsTag = "channels";
-
-	protected String channelTag = "channel";
-
-	protected String controlChangeMessagesTag = "controlChangeMessages";
-
-	protected String controlChangeMessageTag = "controlChangeMessage";
-
-	protected String systemCommonMessagesTag = "systemCommonMessages";
-
-	protected String systemCommonMessageTag = "systemCommonMessage";
-
-	protected String systemRealtimeMessagesTag = "systemRealtimeMessages";
-
-	protected String systemRealtimeMessageTag = "systemRealtimeMessage";
-
-	protected String sysexMessagesTag = "sysexMessages";
-
-	protected String metaMessagesTag = "metaMessage";
-
-	protected String numberAttr = "number";
-
-	protected String enableAttr = "enable";
 
 	public MidiFilterXML(MidiFilter midiFilter, String rootElementTag) {
 
 		super(rootElementTag);
 
 		this.midiFilter = midiFilter;
-		
-		tags.add(voiceMessagesTag);
-		tags.add(voiceMessageTag);
-		tags.add(channelsTag);
-		tags.add(channelTag);
-		tags.add(controlChangeMessagesTag);
-		tags.add(controlChangeMessageTag);
-		tags.add(systemCommonMessagesTag);
-		tags.add(systemCommonMessageTag);
-		tags.add(systemRealtimeMessagesTag);
-		tags.add(systemRealtimeMessageTag);
-		tags.add(sysexMessagesTag);
-		tags.add(metaMessagesTag);
+
+		tags.add(TAG_VOICE_MESSAGES);
+		tags.add(TAG_VOICE_MESSAGE);
+		tags.add(TAG_CHANNELS);
+		tags.add(TAG_CHANNEL);
+		tags.add(TAG_CONTROL_CHANGE_MESSAGES);
+		tags.add(TAG_CONTROL_CHANGE_MESSAGE);
+		tags.add(TAG_SYSTEM_COMMON_MESSAGES);
+		tags.add(TAG_SYSTEM_COMMON_MESSAGE);
+		tags.add(TAG_SYSTEM_REALTIME_MESSAGES);
+		tags.add(TAG_SYSTEM_REALTIME_MESSAGE);
+		tags.add(TAG_SYSEX_MESSAGES);
+		tags.add(TAG_META_MESSAGES);
 	}
 
 	protected void parseElement(Element element) {
-		
+
 		super.parseElement(element);
 
 		String name = element.getNodeName();
 
-		String numberString = element.getAttribute(numberAttr);
+		String numberString = element.getAttribute(ATTR_NUMBER);
 
-		String enableString = element.getAttribute(enableAttr);
+		String enableString = element.getAttribute(ATTR_ENABLE);
 
 		int n = 0;
 
@@ -73,55 +75,55 @@ public class MidiFilterXML extends XMLUtils {
 
 		if (numberString != "") {
 
-			n = Integer.parseInt(numberString);
+			n = stringToInt(numberString);
 		}
 
 		if (enableString != "") {
 
-			e = Boolean.parseBoolean(enableString);
+			e = stringToBoolean(enableString);
 		}
 
-		if (name == channelsTag) {
+		if (name == TAG_CHANNELS) {
 
-		} else if (name == channelTag) {
+		} else if (name == TAG_CHANNEL) {
 
 			midiFilter.setChannel(n, e);
 
-		} else if (name == voiceMessagesTag) {
+		} else if (name == TAG_VOICE_MESSAGES) {
 
 			midiFilter.setVoiceMessages(e);
 
-		} else if (name == voiceMessageTag) {
+		} else if (name == TAG_VOICE_MESSAGE) {
 
 			midiFilter.setVoiceMessage(n, e);
 
-		} else if (name == systemCommonMessagesTag) {
+		} else if (name == TAG_SYSTEM_COMMON_MESSAGES) {
 
 			midiFilter.setSystemCommonMessages(e);
 
-		} else if (name == systemCommonMessageTag) {
+		} else if (name == TAG_SYSTEM_COMMON_MESSAGE) {
 
 			midiFilter.setSystemCommonMessage(n, e);
 
-		} else if (name == systemRealtimeMessagesTag) {
+		} else if (name == TAG_SYSTEM_REALTIME_MESSAGES) {
 
 			midiFilter.setSystemRealtimeMessages(e);
 
-		} else if (name == systemRealtimeMessageTag) {
+		} else if (name == TAG_SYSTEM_REALTIME_MESSAGE) {
 
 			midiFilter.setSystemRealtimeMessage(n, e);
 
-		} else if (name == sysexMessagesTag) {
+		} else if (name == TAG_SYSEX_MESSAGES) {
 
 			midiFilter.setSysexMessages(e);
 
-		} else if (name == metaMessagesTag) {
+		} else if (name == TAG_META_MESSAGES) {
 
 			midiFilter.setMetaMessages(e);
 
-		} else if (name == controlChangeMessagesTag) {
+		} else if (name == TAG_CONTROL_CHANGE_MESSAGES) {
 
-		} else if (name == controlChangeMessageTag) {
+		} else if (name == TAG_CONTROL_CHANGE_MESSAGE) {
 
 			midiFilter.setControlChange(n, e);
 		}
@@ -131,114 +133,117 @@ public class MidiFilterXML extends XMLUtils {
 
 		super.saveXML(node);
 
-		Element voiceMessagesElement = document.createElement(voiceMessagesTag);
+		Element voiceMessagesElement = document
+				.createElement(TAG_VOICE_MESSAGES);
 
 		rootElement.appendChild(voiceMessagesElement);
 
-		voiceMessagesElement.setAttribute(enableAttr, midiFilter
-				.isVoiceMessages() ? "true" : "false");
+		voiceMessagesElement.setAttribute(ATTR_ENABLE,
+				booleanToString(midiFilter.isVoiceMessages()));
 
 		for (int c = 0; c < midiFilter.getVoiceMessages().length; c++) {
 
-			Element voiceMessage = document.createElement(voiceMessageTag);
+			Element voiceMessage = document.createElement(TAG_VOICE_MESSAGE);
 
 			voiceMessagesElement.appendChild(voiceMessage);
 
-			voiceMessage.setAttribute(numberAttr, "" + ((c | 8) << 4));
+			voiceMessage.setAttribute(ATTR_NUMBER, intToString((c | 8) << 4));
 
-			voiceMessage.setAttribute(enableAttr, (midiFilter
-					.getVoiceMessages()[c]) ? "true" : "false");
+			voiceMessage.setAttribute(ATTR_ENABLE, booleanToString(midiFilter
+					.getVoiceMessages()[c]));
 		}
 
 		Element controlChangeMessagesElement = document
-				.createElement(controlChangeMessagesTag);
+				.createElement(TAG_CONTROL_CHANGE_MESSAGES);
 
 		voiceMessagesElement.appendChild(controlChangeMessagesElement);
 
 		for (int cc = 0; cc < midiFilter.getControlChangeMessages().length; cc++) {
 
 			Element controlChangeMessage = document
-					.createElement(controlChangeMessageTag);
+					.createElement(TAG_CONTROL_CHANGE_MESSAGE);
 
 			controlChangeMessagesElement.appendChild(controlChangeMessage);
 
-			controlChangeMessage.setAttribute(numberAttr, "" + (cc));
+			controlChangeMessage.setAttribute(ATTR_NUMBER, intToString(cc));
 
-			controlChangeMessage.setAttribute(enableAttr, (midiFilter
-					.getControlChangeMessages()[cc]) ? "true" : "false");
+			controlChangeMessage.setAttribute(ATTR_ENABLE,
+					booleanToString(midiFilter.getControlChangeMessages()[cc]));
 		}
 
-		Element channelsElement = document.createElement(channelsTag);
+		Element channelsElement = document.createElement(TAG_CHANNELS);
 
 		voiceMessagesElement.appendChild(channelsElement);
 
 		for (int c = 0; c < midiFilter.getChannels().length; c++) {
 
-			Element channel = document.createElement(channelTag);
+			Element channel = document.createElement(TAG_CHANNEL);
 
 			channelsElement.appendChild(channel);
 
-			channel.setAttribute(numberAttr, "" + (c + 1));
+			channel.setAttribute(ATTR_NUMBER, intToString(c + 1));
 
-			channel.setAttribute(enableAttr,
-					(midiFilter.getChannels()[c]) ? "true" : "false");
+			channel.setAttribute(ATTR_ENABLE, booleanToString(midiFilter
+					.getChannels()[c]));
 		}
 
 		Element systemCommonMessagesElement = document
-				.createElement(systemCommonMessagesTag);
+				.createElement(TAG_SYSTEM_COMMON_MESSAGES);
 
 		rootElement.appendChild(systemCommonMessagesElement);
 
-		systemCommonMessagesElement.setAttribute(enableAttr, midiFilter
-				.isSystemCommonMessages() ? "true" : "false");
+		systemCommonMessagesElement.setAttribute(ATTR_ENABLE,
+				booleanToString(midiFilter.isSystemCommonMessages()));
 
 		for (int c = 0; c < midiFilter.getSystemCommonMessages().length; c++) {
 
 			Element systemCommonMessage = document
-					.createElement(systemCommonMessageTag);
+					.createElement(TAG_SYSTEM_COMMON_MESSAGE);
 
 			systemCommonMessagesElement.appendChild(systemCommonMessage);
 
-			systemCommonMessage.setAttribute(numberAttr, "" + (c | 0xF0));
+			systemCommonMessage
+					.setAttribute(ATTR_NUMBER, intToString(c | 0xF0));
 
-			systemCommonMessage.setAttribute(enableAttr, (midiFilter
-					.getSystemCommonMessages()[c]) ? "true" : "false");
+			systemCommonMessage.setAttribute(ATTR_ENABLE,
+					booleanToString(midiFilter.getSystemCommonMessages()[c]));
 		}
 
 		Element systemRealtimeMessagesElement = document
-				.createElement(systemRealtimeMessagesTag);
+				.createElement(TAG_SYSTEM_REALTIME_MESSAGES);
 
 		rootElement.appendChild(systemRealtimeMessagesElement);
 
-		systemRealtimeMessagesElement.setAttribute(enableAttr, midiFilter
-				.isSystemRealtimeMessages() ? "true" : "false");
+		systemRealtimeMessagesElement.setAttribute(ATTR_ENABLE,
+				booleanToString(midiFilter.isSystemRealtimeMessages()));
 
 		for (int c = 0; c < midiFilter.getSystemRealtimeMessages().length; c++) {
 
 			Element systemRealtimeMessage = document
-					.createElement(systemRealtimeMessageTag);
+					.createElement(TAG_SYSTEM_REALTIME_MESSAGE);
 
 			systemRealtimeMessagesElement.appendChild(systemRealtimeMessage);
 
-			systemRealtimeMessage.setAttribute(numberAttr, ""
+			systemRealtimeMessage.setAttribute(ATTR_NUMBER, ""
 					+ ((c + 8 | 0xF0)));
 
-			systemRealtimeMessage.setAttribute(enableAttr, (midiFilter
-					.getSystemRealtimeMessages()[c]) ? "true" : "false");
+			systemRealtimeMessage.setAttribute(ATTR_ENABLE,
+					booleanToString(midiFilter.getSystemRealtimeMessages()[c]));
 		}
 
-		Element sysexMessagesElement = document.createElement(sysexMessagesTag);
+		Element sysexMessagesElement = document
+				.createElement(TAG_SYSEX_MESSAGES);
 
 		rootElement.appendChild(sysexMessagesElement);
 
-		sysexMessagesElement.setAttribute(enableAttr, midiFilter
-				.isSysexMessages() ? "true" : "false");
+		sysexMessagesElement.setAttribute(ATTR_ENABLE,
+				booleanToString(midiFilter.isSysexMessages()));
 
-		Element metaMessagesElement = document.createElement(metaMessagesTag);
+		Element metaMessagesElement = document.createElement(TAG_META_MESSAGES);
 
 		rootElement.appendChild(metaMessagesElement);
 
-		metaMessagesElement.setAttribute(enableAttr, midiFilter
-				.isMetaMessages() ? "true" : "false");
+		metaMessagesElement.setAttribute(ATTR_ENABLE,
+				booleanToString(midiFilter.isMetaMessages()));
 	}
 }

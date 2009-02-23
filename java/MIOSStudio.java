@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.prefs.Preferences;
@@ -38,6 +39,8 @@ import javax.swing.UIManager;
 
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI.ExternalCommandButton;
+import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
+import org.midibox.midi.gui.MidiFilterGUI;
 import org.midibox.midi.gui.SysexSendReceiveGUI;
 import org.midibox.mios.gui.HexFileUploadGUI;
 import org.midibox.utils.gui.DialogOwner;
@@ -62,9 +65,9 @@ public class MIOSStudio extends JApplet {
 	protected static String splashImage = "splash.jpg";
 
 	protected static String frameComment = "MIOS Studio beta8.3";
-
+	
 	protected org.midibox.apps.miosstudio.MIOSStudio miosStudio;
-
+	
 	protected MIOSStudioGUI miosStudioGUI;
 
 	protected Hashtable windows;
@@ -97,11 +100,16 @@ public class MIOSStudio extends JApplet {
 
 		Preferences preferences = getPreferences();
 
-		SysexSendReceiveGUI.currentDirectory = preferences.get(
-				"sysexCurrentDirectory", SysexSendReceiveGUI.currentDirectory);
-
 		HexFileUploadGUI.setCurrentDirectory(preferences.get(
 				"uploadCurrentDirectory", HexFileUploadGUI
+						.getCurrentDirectory()));
+		
+		MIOSStudioGUI.setCurrentDirectory(preferences.get(
+				"workspaceCurrentDirectory", MIOSStudioGUI
+						.getCurrentDirectory()));
+		
+		MidiFilterGUI.setCurrentDirectory(preferences.get(
+				"filterCurrentDirectory", MidiFilterGUI
 						.getCurrentDirectory()));
 
 		String[] frames = preferences.get("visibleFrames", "").split(",");
@@ -162,8 +170,7 @@ public class MIOSStudio extends JApplet {
 			}
 		}
 		
-		// TODO
-		
+		loadConfigFile();
 	}
 
 	public void destroy() {
@@ -174,14 +181,14 @@ public class MIOSStudio extends JApplet {
 		preferences.putBoolean("defaultDecoratedFrames", miosStudioGUI
 				.isDefaultDecoratedFrames());
 
-		preferences.put("sysexCurrentDirectory",
-				SysexSendReceiveGUI.currentDirectory);
-
 		preferences.put("uploadCurrentDirectory", HexFileUploadGUI
 				.getCurrentDirectory());
-
-		preferences.putBoolean("uploadMIOS32_Mode", miosStudio
-				.getHexFileUploadDeviceManager().isMIOS32Mode());
+		
+		preferences.put("workspaceCurrentDirectory", MIOSStudioGUI
+				.getCurrentDirectory());
+		
+		preferences.put("filterCurrentDirectory", MidiFilterGUI
+				.getCurrentDirectory());
 
 		JInternalFrame[] frames = miosStudioGUI.getDesktop().getAllFrames();
 		String visibleFrames = "";
@@ -230,7 +237,7 @@ public class MIOSStudio extends JApplet {
 		}
 		preferences.put("externalCommands", externalCommandsString);
 		
-		// TODO
+		saveConfigFile();
 	}
 
 	public void exit(JFrame frame) {
@@ -246,9 +253,52 @@ public class MIOSStudio extends JApplet {
 	}
 
 	protected Preferences getPreferences() {
+		
 		return Preferences.userRoot().node("org/midibox/miostudio/gui");
 	}
 
+	protected String getConfigFileName() {
+		
+		return ".miosstudio";
+	}
+	
+	protected void saveConfigFile() {
+		
+		File configFile = new File (System.getProperty("user.home"), getConfigFileName());
+		
+		if(!configFile.exists()) {
+			try {
+				configFile.createNewFile();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(configFile.exists()) {
+			
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, MIOSStudioXML.TAG_ROOT_ELEMENT);
+			
+			miosStudioXML.saveXML(configFile);
+		}
+	}
+	
+	protected void loadConfigFile() {
+
+		File configFile = new File (System.getProperty("user.home"), getConfigFileName());
+		
+		if(configFile.exists()) {
+			
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, MIOSStudioXML.TAG_ROOT_ELEMENT);
+			
+			miosStudioXML.loadXML(configFile);
+			
+		} else {
+			
+			miosStudio.getHexFileUploadDeviceManager().newHexFileUploadDevice();
+		}
+	}
+	
 	protected void createWindowsHashtable() {
 
 		windows.put("midiDevicesWindow", miosStudioGUI

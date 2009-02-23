@@ -7,11 +7,9 @@ import org.w3c.dom.Node;
 
 public class MidiMonitorFilteredXML extends XMLUtils {
 
+	public final static String TAG_ROOT_ELEMENT = "midiMonitorFiltered";
+
 	protected MidiMonitorFiltered midiMonitorFiltered;
-
-	protected String midiMonitorFilteredTag = "midiMonitorFiltered";
-
-	protected String midiFilterTag = "midiFilter";
 
 	public MidiMonitorFilteredXML(MidiMonitorFiltered midiMonitorFiltered,
 			String rootElementTag) {
@@ -20,30 +18,30 @@ public class MidiMonitorFilteredXML extends XMLUtils {
 
 		this.midiMonitorFiltered = midiMonitorFiltered;
 
-		tags.add(midiFilterTag);
+		tags.add(MidiFilterXML.TAG_ROOT_ELEMENT);
 	}
-
 
 	protected void parseElement(Element element) {
 
 		super.parseElement(element);
-		
+
 		String name = element.getNodeName();
-		
-		if (name == midiFilterTag) {
-			
-			MidiFilterXML midiFilterXML = new MidiFilterXML(midiMonitorFiltered.getMidiFilter(), midiFilterTag);
-			
+
+		if (name == MidiFilterXML.TAG_ROOT_ELEMENT) {
+
+			MidiFilterXML midiFilterXML = new MidiFilterXML(midiMonitorFiltered
+					.getMidiFilter(), MidiFilterXML.TAG_ROOT_ELEMENT);
+
 			midiFilterXML.loadXML(element);
 		}
 	}
-	
+
 	public void saveXML(Node node) {
 
 		super.saveXML(node);
 
 		MidiFilterXML midiFilterXML = new MidiFilterXML(midiMonitorFiltered
-				.getMidiFilter(), midiFilterTag);
+				.getMidiFilter(), MidiFilterXML.TAG_ROOT_ELEMENT);
 
 		midiFilterXML.saveXML(rootElement);
 	}

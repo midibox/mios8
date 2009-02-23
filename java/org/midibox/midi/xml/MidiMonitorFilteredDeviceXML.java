@@ -8,7 +8,7 @@ public class MidiMonitorFilteredDeviceXML extends VirtualMidiDeviceXML {
 
 	protected MidiMonitorFilteredDevice midiMonitorFilteredDevice;
 
-	protected String midiMonitorFilteredTag = "midiMonitorFiltered";
+	public final static String TAG_ROOT_ELEMENT = "midiMonitorFilteredDevice";
 
 	public MidiMonitorFilteredDeviceXML(
 			MidiMonitorFilteredDevice midiMonitorFilteredDevice,
@@ -18,7 +18,7 @@ public class MidiMonitorFilteredDeviceXML extends VirtualMidiDeviceXML {
 
 		this.midiMonitorFilteredDevice = midiMonitorFilteredDevice;
 
-		tags.add(midiMonitorFilteredTag);
+		tags.add(MidiMonitorFilteredXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {
@@ -27,11 +27,11 @@ public class MidiMonitorFilteredDeviceXML extends VirtualMidiDeviceXML {
 
 		String name = element.getNodeName();
 
-		if (name == midiMonitorFilteredTag) {
+		if (name == MidiMonitorFilteredXML.TAG_ROOT_ELEMENT) {
 
 			MidiMonitorFilteredXML midiMonitorFilteredXML = new MidiMonitorFilteredXML(
 					midiMonitorFilteredDevice.getMidiMonitorFiltered(),
-					midiMonitorFilteredTag);
+					MidiMonitorFilteredXML.TAG_ROOT_ELEMENT);
 
 			midiMonitorFilteredXML.loadXML(element);
 		}
@@ -43,7 +43,7 @@ public class MidiMonitorFilteredDeviceXML extends VirtualMidiDeviceXML {
 
 		MidiMonitorFilteredXML midiMonitorFilteredXML = new MidiMonitorFilteredXML(
 				midiMonitorFilteredDevice.getMidiMonitorFiltered(),
-				midiMonitorFilteredTag);
+				MidiMonitorFilteredXML.TAG_ROOT_ELEMENT);
 
 		midiMonitorFilteredXML.saveXML(rootElement);
 	}

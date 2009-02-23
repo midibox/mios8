@@ -5,34 +5,32 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MidiFilterDeviceXML extends VirtualMidiDeviceXML {
-	
-	MidiFilterDevice midiFilterDevice;
 
-	protected String midiFilterDeviceAttrName = "name";
+	public final static String TAG_ROOT_ELEMENT = "midiFilterDevice";
 
-	protected String midiFilterDeviceAttrHashCode = "hashCode";
+	protected MidiFilterDevice midiFilterDevice;
 
-	protected String midiFilterTag = "midiFilter";
-
-	public MidiFilterDeviceXML(MidiFilterDevice midiFilterDevice, String rootElementTag) {
+	public MidiFilterDeviceXML(MidiFilterDevice midiFilterDevice,
+			String rootElementTag) {
 
 		super(midiFilterDevice, rootElementTag);
-		
+
 		this.midiFilterDevice = midiFilterDevice;
-		
-		tags.add(midiFilterTag);
+
+		tags.add(MidiFilterXML.TAG_ROOT_ELEMENT);
 	}
-	
+
 	protected void parseElement(Element element) {
-		
+
 		super.parseElement(element);
-		
+
 		String name = element.getNodeName();
-		
-		if (name == midiFilterTag) {
-		
-			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilterDevice.getMidiFilter(), midiFilterTag);
-			
+
+		if (name == MidiFilterXML.TAG_ROOT_ELEMENT) {
+
+			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilterDevice
+					.getMidiFilter(), MidiFilterXML.TAG_ROOT_ELEMENT);
+
 			midiFilterXML.loadXML(element);
 		}
 	}
@@ -41,7 +39,8 @@ public class MidiFilterDeviceXML extends VirtualMidiDeviceXML {
 
 		super.saveXML(node);
 
-		MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilterDevice.getMidiFilter(), midiFilterTag);
+		MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilterDevice
+				.getMidiFilter(), MidiFilterXML.TAG_ROOT_ELEMENT);
 
 		midiFilterXML.saveXML(rootElement);
 	}

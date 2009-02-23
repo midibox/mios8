@@ -5,41 +5,50 @@ import org.w3c.dom.Node;
 
 public class MidiParameterControlXML extends MidiParameterXML {
 
+	public final static String TAG_ROOT_ELEMENT = "midiParameterControl";
+
+	public final static String ATTR_RECEIVE = "receive";
+
+	public final static String ATTR_SEND = "send";
+
+	public final static String ATTR_GLOBAL = "global";
+
+	public final static String ATTR_LEARN = "learn";
+
+	public final static String ATTR_TYPE = "type";
+
+	public final static String ATTR_DEFAULT_VALUE = "defaultValue";
+
 	protected MidiParameterControl midiParameterControl;
-	
-	protected String receiveAttr = "receive"; 
-	
-	protected String sendAttr = "send";
-	
-	protected String globalAttr = "global";
-	
-	protected String learnAttr = "learn";
-	
-	protected String typeAttr = "type";
-	
-	protected String defaultValueAttr = "defaultValue";
-	
-	public MidiParameterControlXML(MidiParameterControl midiParameterControl, String rootElementTag) {
-		
+
+	public MidiParameterControlXML(MidiParameterControl midiParameterControl,
+			String rootElementTag) {
+
 		super(midiParameterControl, rootElementTag);
-		
+
 		this.midiParameterControl = midiParameterControl;
 	}
-	
+
 	public void saveXML(Node node) {
 
 		super.saveXML(node);
-		
-		rootElement.setAttribute(typeAttr, "" + midiParameterControl.getType());
-		
-		rootElement.setAttribute(defaultValueAttr, "" + midiParameterControl.getMidiDefaultValue());
-		
-		rootElement.setAttribute(sendAttr, midiParameterControl.isSend() ? "true" : "false");
-		
-		rootElement.setAttribute(receiveAttr, midiParameterControl.isReceive() ? "true" : "false");
-		
-		rootElement.setAttribute(globalAttr, midiParameterControl.isGlobal() ? "true" : "false");
-		
-		rootElement.setAttribute(learnAttr, midiParameterControl.isLearn() ? "true" : "false");		
+
+		rootElement.setAttribute(ATTR_TYPE, intToString(midiParameterControl
+				.getType()));
+
+		rootElement.setAttribute(ATTR_DEFAULT_VALUE,
+				intToString(midiParameterControl.getMidiDefaultValue()));
+
+		rootElement.setAttribute(ATTR_SEND,
+				booleanToString(midiParameterControl.isSend()));
+
+		rootElement.setAttribute(ATTR_RECEIVE,
+				booleanToString(midiParameterControl.isReceive()));
+
+		rootElement.setAttribute(ATTR_GLOBAL,
+				booleanToString(midiParameterControl.isGlobal()));
+
+		rootElement.setAttribute(ATTR_LEARN,
+				booleanToString(midiParameterControl.isLearn()));
 	}
 }

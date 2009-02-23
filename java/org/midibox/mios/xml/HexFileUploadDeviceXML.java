@@ -8,7 +8,7 @@ public class HexFileUploadDeviceXML extends VirtualMidiDeviceXML {
 
 	protected HexFileUploadDevice hexFileUploadDevice;
 
-	protected String hexFileUploadTag = "hexFileUpload";
+	public static final String TAG_ROOT_ELEMENT = "hexFileUploadDevice";
 
 	public HexFileUploadDeviceXML(HexFileUploadDevice hexFileUploadDevice,
 			String rootElementTag) {
@@ -23,7 +23,8 @@ public class HexFileUploadDeviceXML extends VirtualMidiDeviceXML {
 		super.saveXML(node);
 
 		HexFileUploadXML hexFileUploadXML = new HexFileUploadXML(
-				hexFileUploadDevice.getHexFileUpload(), hexFileUploadTag);
+				hexFileUploadDevice.getHexFileUpload(),
+				HexFileUploadXML.TAG_ROOT_ELEMENT);
 
 		hexFileUploadXML.saveXML(rootElement);
 	}

@@ -174,9 +174,13 @@ public class MidiFilterDeviceManagerGUI extends JPanel implements Observer,
 		String actionCommand = ae.getActionCommand();
 
 		if (actionCommand.equals("add")) {
-			midiFilterDeviceManager.addMidiFilterDevice();
+			
+			midiFilterDeviceManager.newMidiFilterDevice();
+			
 		} else if (actionCommand.equals("properties")) {
+			
 			showFilterProperties();
+			
 		} else if (actionCommand.equals("remove")) {
 
 			int[] selectedRows = midiFiltersTable.getSelectedRows();
