@@ -1,6 +1,7 @@
 package org.midibox.midi.xml;
 
 import org.midibox.midi.MidiParameterControl;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MidiParameterControlXML extends MidiParameterXML {
@@ -27,6 +28,34 @@ public class MidiParameterControlXML extends MidiParameterXML {
 		super(midiParameterControl, rootElementTag);
 
 		this.midiParameterControl = midiParameterControl;
+	}
+
+	protected void parseElement(Element element) {
+
+		super.parseElement(element);
+
+		String name = element.getNodeName();
+
+		if (name == rootElementTag) {
+
+			midiParameterControl.setReceive(stringToBoolean(element
+					.getAttribute(ATTR_RECEIVE)));
+
+			midiParameterControl.setSend(stringToBoolean(element
+					.getAttribute(ATTR_SEND)));
+
+			midiParameterControl.setGlobal(stringToBoolean(element
+					.getAttribute(ATTR_GLOBAL)));
+
+			midiParameterControl.setLearn(stringToBoolean(element
+					.getAttribute(ATTR_LEARN)));
+
+			midiParameterControl.setType(stringToInt(element
+					.getAttribute(ATTR_TYPE)));
+
+			midiParameterControl.setMidiDefaultValue(stringToInt(element
+					.getAttribute(ATTR_DEFAULT_VALUE)));
+		}
 	}
 
 	public void saveXML(Node node) {

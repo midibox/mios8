@@ -98,7 +98,8 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 	}
 
 	protected JPopupMenu createPopMenu() {
-		JPopupMenu popupMenu = new JPopupMenu(midiParameterControl.getMidiName());
+		JPopupMenu popupMenu = new JPopupMenu(midiParameterControl
+				.getMidiName());
 
 		JMenuItem menuItem = new JMenuItem("MIDI Properties");
 		menuItem.setActionCommand("midiproperties");
@@ -223,7 +224,8 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 				midiParameterControl.setMidiValue(Integer.parseInt(valueField
 						.getText()), true);
 			} catch (Exception e) {
-				midiParameterControl.setMidiValue(midiParameterControl.getMidiValue(), true);
+				midiParameterControl.setMidiValue(midiParameterControl
+						.getMidiValue(), true);
 			}
 		} else if (ae.getActionCommand().equals("midilearn")) {
 
@@ -236,8 +238,8 @@ public class MidiParameterControlGUI extends JPanel implements Observer,
 		if (observable == midiParameterControl) {
 			if (object != MidiParameter.VALUE) {
 				if (showLabel) {
-					midiParameterLabel.setText(midiParameterControl.getMidiName()
-							.toUpperCase());
+					midiParameterLabel.setText(midiParameterControl
+							.getMidiName().toUpperCase());
 				}
 			}
 			updateGraphics();

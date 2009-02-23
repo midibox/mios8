@@ -269,15 +269,18 @@ public class MidiParameterProperties extends JPanel implements Observer,
 		channelSpinner.setEnabled(!isLearn);
 
 		((SpinnerNumberModel) defaultValueSpinner.getModel())
-				.setValue(new Integer(midiParameterControl.getMidiDefaultValue()));
+				.setValue(new Integer(midiParameterControl
+						.getMidiDefaultValue()));
 		((SpinnerNumberModel) defaultValueSpinner.getModel())
 				.setMaximum(new Integer(midiParameterControl.getMidiMaxValue()));
 		defaultValueSpinner.setEnabled(!isLearn);
 
-		highResolution.setSelected(((MidiParameterControl) midiParameterControl)
-				.isHighResolution());
 		highResolution
-				.setEnabled(!((MidiParameterControl) midiParameterControl).isLearn()
+				.setSelected(((MidiParameterControl) midiParameterControl)
+						.isHighResolution());
+		highResolution
+				.setEnabled(!((MidiParameterControl) midiParameterControl)
+						.isLearn()
 						&& ((MidiParameterControl) midiParameterControl)
 								.getMidiStatus() == MidiParameterControl.CONTROL_CHANGE);
 	}
@@ -325,12 +328,13 @@ public class MidiParameterProperties extends JPanel implements Observer,
 			Object source = ae.getSource();
 
 			if (source == statusComboBox) {
-				midiParameterControl
-						.setMidiStatus((statusComboBox.getSelectedIndex() + 9) << 4);
+				midiParameterControl.setMidiStatus((statusComboBox
+						.getSelectedIndex() + 9) << 4);
 			} else if (source == midiLearn) {
 				midiParameterControl.setLearn(midiLearn.isSelected());
 			} else if (source == highResolution) {
-				midiParameterControl.setHighResolution(highResolution.isSelected());
+				midiParameterControl.setHighResolution(highResolution
+						.isSelected());
 			}
 			update = true;
 		}

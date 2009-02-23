@@ -159,12 +159,20 @@ public class MidiKeyboardController extends MidiParameterControlManager {
 	}
 
 	public void setVelocityVal(int velocityVal) {
+
 		this.velocityVal = velocityVal;
+
 		for (int k = 0; k < keys.size(); k++) {
 			MidiParameterControl midiParameter = (MidiParameterControl) keys
 					.elementAt(k);
 			midiParameter.setMidiDefaultValue(velocityVal);
 		}
+
+		setChanged();
+
+		notifyObservers();
+
+		clearChanged();
 	}
 
 	public MidiParameterControl getBankSelect() {

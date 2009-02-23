@@ -41,7 +41,6 @@ import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI.ExternalCommandButton;
 import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
 import org.midibox.midi.gui.MidiFilterGUI;
-import org.midibox.midi.gui.SysexSendReceiveGUI;
 import org.midibox.mios.gui.HexFileUploadGUI;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
@@ -60,14 +59,14 @@ public class MIOSStudio extends JApplet {
 
 	protected static String frameTitle = "MIOS Studio";
 
-	protected static String splashTitle = "MIOS Studio beta8.3";
+	protected static String splashTitle = "MIOS Studio beta 9";
 
 	protected static String splashImage = "splash.jpg";
 
-	protected static String frameComment = "MIOS Studio beta8.3";
-	
+	protected static String frameComment = "MIOS Studio beta 9";
+
 	protected org.midibox.apps.miosstudio.MIOSStudio miosStudio;
-	
+
 	protected MIOSStudioGUI miosStudioGUI;
 
 	protected Hashtable windows;
@@ -103,14 +102,13 @@ public class MIOSStudio extends JApplet {
 		HexFileUploadGUI.setCurrentDirectory(preferences.get(
 				"uploadCurrentDirectory", HexFileUploadGUI
 						.getCurrentDirectory()));
-		
+
 		MIOSStudioGUI.setCurrentDirectory(preferences.get(
 				"workspaceCurrentDirectory", MIOSStudioGUI
 						.getCurrentDirectory()));
-		
+
 		MidiFilterGUI.setCurrentDirectory(preferences.get(
-				"filterCurrentDirectory", MidiFilterGUI
-						.getCurrentDirectory()));
+				"filterCurrentDirectory", MidiFilterGUI.getCurrentDirectory()));
 
 		String[] frames = preferences.get("visibleFrames", "").split(",");
 		String[] ec = preferences.get("externalCommands", "").split("\n");
@@ -169,7 +167,7 @@ public class MIOSStudio extends JApplet {
 				miosStudioGUI.addExternalCommandButton(temp[0], temp[1]);
 			}
 		}
-		
+
 		loadConfigFile();
 	}
 
@@ -183,10 +181,10 @@ public class MIOSStudio extends JApplet {
 
 		preferences.put("uploadCurrentDirectory", HexFileUploadGUI
 				.getCurrentDirectory());
-		
+
 		preferences.put("workspaceCurrentDirectory", MIOSStudioGUI
 				.getCurrentDirectory());
-		
+
 		preferences.put("filterCurrentDirectory", MidiFilterGUI
 				.getCurrentDirectory());
 
@@ -236,7 +234,7 @@ public class MIOSStudio extends JApplet {
 					+ ecb.externalCommand + "\n";
 		}
 		preferences.put("externalCommands", externalCommandsString);
-		
+
 		saveConfigFile();
 	}
 
@@ -248,57 +246,60 @@ public class MIOSStudio extends JApplet {
 		preferences.putInt("mainWindowY", frame.getY());
 		preferences.putInt("mainWindowWidth", frame.getWidth());
 		preferences.putInt("mainWindowHeight", frame.getHeight());
-		
+
 		System.exit(0);
 	}
 
 	protected Preferences getPreferences() {
-		
+
 		return Preferences.userRoot().node("org/midibox/miostudio/gui");
 	}
 
 	protected String getConfigFileName() {
-		
+
 		return ".miosstudio";
 	}
-	
+
 	protected void saveConfigFile() {
-		
-		File configFile = new File (System.getProperty("user.home"), getConfigFileName());
-		
-		if(!configFile.exists()) {
+
+		File configFile = new File(System.getProperty("user.home"),
+				getConfigFileName());
+
+		if (!configFile.exists()) {
 			try {
 				configFile.createNewFile();
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		
-		if(configFile.exists()) {
-			
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, MIOSStudioXML.TAG_ROOT_ELEMENT);
-			
+
+		if (configFile.exists()) {
+
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
+					MIOSStudioXML.TAG_ROOT_ELEMENT);
+
 			miosStudioXML.saveXML(configFile);
 		}
 	}
-	
+
 	protected void loadConfigFile() {
 
-		File configFile = new File (System.getProperty("user.home"), getConfigFileName());
-		
-		if(configFile.exists()) {
-			
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, MIOSStudioXML.TAG_ROOT_ELEMENT);
-			
+		File configFile = new File(System.getProperty("user.home"),
+				getConfigFileName());
+
+		if (configFile.exists()) {
+
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
+					MIOSStudioXML.TAG_ROOT_ELEMENT);
+
 			miosStudioXML.loadXML(configFile);
-			
+
 		} else {
-			
+
 			miosStudio.getHexFileUploadDeviceManager().newHexFileUploadDevice();
 		}
 	}
-	
+
 	protected void createWindowsHashtable() {
 
 		windows.put("midiDevicesWindow", miosStudioGUI

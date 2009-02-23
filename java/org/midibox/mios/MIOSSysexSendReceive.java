@@ -109,7 +109,7 @@ public class MIOSSysexSendReceive extends Observable implements Receiver {
 	public void addMessage(String message) {
 
 		messages.addLast(message);
-				
+
 		setChanged();
 		notifyObservers(MESSAGES);
 		clearChanged();

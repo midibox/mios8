@@ -15,7 +15,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MIOSStudioXML extends XMLUtils {
-	
+
 	public static final String TAG_ROOT_ELEMENT = "miosStudio";
 
 	public static final String TAG_MIDI_THRU_FILTER_DEVICE = "thruMidiFilterDevice";
@@ -41,9 +41,9 @@ public class MIOSStudioXML extends XMLUtils {
 	public static final String TAG_MIDI_DEVICE_ROUTING = "midiDeviceRouting";
 
 	public static final String ATTR_MIDI_THRU_OUT_PORT = "midiThruOutPort";
-	
+
 	public static final String ATTR_ROUTE_INDIVIDUAL_DEVICES = "routeIndividualDevices";
-	
+
 	protected MIOSStudio miosStudio;
 
 	public MIOSStudioXML(MIOSStudio miosStudio, String rootElementTag) {
@@ -99,55 +99,78 @@ public class MIOSStudioXML extends XMLUtils {
 			MidiFilterDeviceManagerXML midiFilterDeviceManagerXML = new MidiFilterDeviceManagerXML(
 					miosStudio.getMidiFilterManager(),
 					TAG_MIDI_FILTER_DEVICE_MANAGER);
-			
+
 			midiFilterDeviceManagerXML.loadXML(element);
-			
-		} else if (name == TAG_OUT_PORT_MIDI_MONITOR_FILTERED_DEVICE) { 
-			
-			MidiMonitorFilteredDeviceXML midiMonitorFilteredDeviceXML = new MidiMonitorFilteredDeviceXML(miosStudio.getMidiOutPortMonitorDevice(), TAG_OUT_PORT_MIDI_MONITOR_FILTERED_DEVICE);
-			
+
+		} else if (name == TAG_OUT_PORT_MIDI_MONITOR_FILTERED_DEVICE) {
+
+			MidiMonitorFilteredDeviceXML midiMonitorFilteredDeviceXML = new MidiMonitorFilteredDeviceXML(
+					miosStudio.getMidiOutPortMonitorDevice(),
+					TAG_OUT_PORT_MIDI_MONITOR_FILTERED_DEVICE);
+
 			midiMonitorFilteredDeviceXML.loadXML(element);
-			
-		} else if (name == TAG_IN_PORT_MIDI_MONITOR_FILTERED_DEVICE) { 
-			
-			MidiMonitorFilteredDeviceXML midiMonitorFilteredDeviceXML = new MidiMonitorFilteredDeviceXML(miosStudio.getMidiInPortMonitorDevice(), TAG_IN_PORT_MIDI_MONITOR_FILTERED_DEVICE);
-			
+
+		} else if (name == TAG_IN_PORT_MIDI_MONITOR_FILTERED_DEVICE) {
+
+			MidiMonitorFilteredDeviceXML midiMonitorFilteredDeviceXML = new MidiMonitorFilteredDeviceXML(
+					miosStudio.getMidiInPortMonitorDevice(),
+					TAG_IN_PORT_MIDI_MONITOR_FILTERED_DEVICE);
+
 			midiMonitorFilteredDeviceXML.loadXML(element);
-			
+
 		} else if (name == TAG_MIDI_KEYBOARD_CONTROLLER_DEVICE) {
-			
-			// TODO
-			
-		} else if (name == TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER) { 
-			
-			// TODO
-			
+
+			MidiKeyboardControllerDeviceXML midiKeyboardControllerDeviceXML = new MidiKeyboardControllerDeviceXML(
+					miosStudio.getMidiKeyboardControllerDevice(),
+					TAG_MIDI_KEYBOARD_CONTROLLER_DEVICE);
+
+			midiKeyboardControllerDeviceXML.loadXML(element);
+
+		} else if (name == TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER) {
+
+			HexFileUploadDeviceManagerXML hexFileUploadDeviceManagerXML = new HexFileUploadDeviceManagerXML(
+					miosStudio.getHexFileUploadDeviceManager(),
+					TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER);
+
+			hexFileUploadDeviceManagerXML.loadXML(element);
+
 		} else if (name == TAG_LCD_MESSAGE_DEVICE) {
-			
-			// TODO
-			
-		} else if (name == TAG_DEBUG_FUNCTION_DEVICE) { 
-			
-			// TODO
-			
-		} else if (name == TAG_MIOS_TERMINAL_MIDI_MONITOR_FILTERED_DEVICE) { 
-			
-			MidiMonitorFilteredDeviceXML midiMonitorFilteredDeviceXML = new MidiMonitorFilteredDeviceXML(miosStudio.getMIOSTerminalDevice(), TAG_MIOS_TERMINAL_MIDI_MONITOR_FILTERED_DEVICE);
-			
+
+			LCDMessageDeviceXML lcdMessageDeviceXML = new LCDMessageDeviceXML(
+					miosStudio.getLcdMessageDevice(), TAG_LCD_MESSAGE_DEVICE);
+
+			lcdMessageDeviceXML.loadXML(element);
+
+		} else if (name == TAG_DEBUG_FUNCTION_DEVICE) {
+
+			DebugFunctionDeviceXML debugFunctionDeviceXML = new DebugFunctionDeviceXML(
+					miosStudio.getDebugFunctionDevice(),
+					TAG_DEBUG_FUNCTION_DEVICE);
+
+			debugFunctionDeviceXML.loadXML(element);
+
+		} else if (name == TAG_MIOS_TERMINAL_MIDI_MONITOR_FILTERED_DEVICE) {
+
+			MidiMonitorFilteredDeviceXML midiMonitorFilteredDeviceXML = new MidiMonitorFilteredDeviceXML(
+					miosStudio.getMIOSTerminalDevice(),
+					TAG_MIOS_TERMINAL_MIDI_MONITOR_FILTERED_DEVICE);
+
 			midiMonitorFilteredDeviceXML.loadXML(element);
-			
-		} else if (name == TAG_MIDI_DEVICE_ROUTING) { 
-		
-			boolean routeIndividualDevices = miosStudio.isRouteIndividualDevices();			
+
+		} else if (name == TAG_MIDI_DEVICE_ROUTING) {
+
+			boolean routeIndividualDevices = miosStudio
+					.isRouteIndividualDevices();
 
 			miosStudio.setRouteIndividualDevices(true);
-			
-			MidiDeviceRoutingXML midiDeviceRoutingXML = new MidiDeviceRoutingXML(miosStudio.getMidiDeviceRouting(), TAG_MIDI_DEVICE_ROUTING);
-			
+
+			MidiDeviceRoutingXML midiDeviceRoutingXML = new MidiDeviceRoutingXML(
+					miosStudio.getMidiDeviceRouting(), TAG_MIDI_DEVICE_ROUTING);
+
 			midiDeviceRoutingXML.loadXML(element);
-			
+
 			miosStudio.setRouteIndividualDevices(routeIndividualDevices);
-		}		
+		}
 	}
 
 	public void saveXML(Node node) {
@@ -161,7 +184,8 @@ public class MIOSStudioXML extends XMLUtils {
 				.isMidiThruOutPort() ? "true" : "false");
 
 		MidiFilterDeviceXML midiFilterDeviceXML = new MidiFilterDeviceXML(
-				miosStudio.getMidiThruFilterDevice(), TAG_MIDI_THRU_FILTER_DEVICE);
+				miosStudio.getMidiThruFilterDevice(),
+				TAG_MIDI_THRU_FILTER_DEVICE);
 
 		midiFilterDeviceXML.saveXML(rootElement);
 
@@ -183,7 +207,8 @@ public class MIOSStudioXML extends XMLUtils {
 		midiDeviceManagerXML.saveXML(rootElement);
 
 		MidiFilterDeviceManagerXML midiFilterDeviceManagerXML = new MidiFilterDeviceManagerXML(
-				miosStudio.getMidiFilterManager(), TAG_MIDI_FILTER_DEVICE_MANAGER);
+				miosStudio.getMidiFilterManager(),
+				TAG_MIDI_FILTER_DEVICE_MANAGER);
 
 		midiFilterDeviceManagerXML.saveXML(rootElement);
 
@@ -225,7 +250,8 @@ public class MIOSStudioXML extends XMLUtils {
 		debugFunctionDeviceXML.saveXML(rootElement);
 
 		MidiMonitorFilteredDeviceXML midiMonitorFilteredDeviceXML = new MidiMonitorFilteredDeviceXML(
-				miosStudio.getMIOSTerminalDevice(), TAG_MIOS_TERMINAL_MIDI_MONITOR_FILTERED_DEVICE);
+				miosStudio.getMIOSTerminalDevice(),
+				TAG_MIOS_TERMINAL_MIDI_MONITOR_FILTERED_DEVICE);
 
 		midiMonitorFilteredDeviceXML.saveXML(rootElement);
 	}

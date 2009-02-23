@@ -22,11 +22,11 @@ public class MIOSStudioSID extends MIOSStudio {
 
 	protected static String frameTitle = "MIOS Studio + SID V2 Editor";
 
-	protected static String splashTitle = "MIOS Studio beta8.3 + SID V2 Editor";
+	protected static String splashTitle = "MIOS Studio beta 9 + SID V2 Editor";
 
 	protected static String splashImage = "splash.jpg";
 
-	protected static String frameComment = "MIOS Studio beta8.3 + SID V2 Editor";
+	protected static String frameComment = "MIOS Studio beta 9 + SID V2 Editor";
 
 	public MIOSStudioSID() {
 
@@ -57,9 +57,9 @@ public class MIOSStudioSID extends MIOSStudio {
 
 		return Preferences.userRoot().node("org/midibox/miostudiosid/gui");
 	}
-	
+
 	protected String getConfigFileName() {
-		
+
 		return ".miosstudiosid";
 	}
 

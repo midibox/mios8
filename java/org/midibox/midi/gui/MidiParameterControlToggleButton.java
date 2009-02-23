@@ -57,7 +57,8 @@ public class MidiParameterControlToggleButton extends MidiParameterControlGUI {
 		if (ae.getSource() == toggleButton) {
 			if (update) {
 				update = false;
-				midiParameterControl.setMidiValueOn(toggleButton.isSelected(), true);
+				midiParameterControl.setMidiValueOn(toggleButton.isSelected(),
+						true);
 				update = true;
 			}
 			if (momentary && toggleButton.isSelected()) {

@@ -359,10 +359,12 @@ public class MidiKeyboardControllerGUI extends JPanel implements Observer,
 	}
 
 	public void update(Observable observable, Object object) {
+
 		((JSpinner.DefaultEditor) channelNo.getEditor()).getTextField()
 				.setBackground(
 						channelColours[midiKeyboardController
 								.getGlobalChannel()]);
+
 		if (midiKeyboardController.getGlobalChannel() < 7) {
 			((JSpinner.DefaultEditor) channelNo.getEditor()).getTextField()
 					.setForeground(Color.BLACK);
@@ -370,6 +372,11 @@ public class MidiKeyboardControllerGUI extends JPanel implements Observer,
 			((JSpinner.DefaultEditor) channelNo.getEditor()).getTextField()
 					.setForeground(Color.WHITE);
 		}
+
+		channelNo.setValue(midiKeyboardController.getGlobalChannel() + 1);
+
+		velocity.setValue(midiKeyboardController.getVelocityVal());
+
 		piano.repaint();
 	}
 

@@ -21,9 +21,9 @@
 package org.midibox.midi;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
@@ -31,7 +31,7 @@ import javax.sound.midi.Receiver;
 public class MidiParameterControlManager extends Observable implements
 		Observer, Receiver {
 
-	protected LinkedList midiParameters;
+	protected Vector midiParametersControls;
 
 	protected int globalChannel = 0;
 
@@ -40,7 +40,7 @@ public class MidiParameterControlManager extends Observable implements
 	public MidiParameterControlManager(Receiver receiver, int globalChannel) {
 		this.globalChannel = globalChannel;
 		this.receiver = receiver;
-		midiParameters = new LinkedList();
+		midiParametersControls = new Vector();
 	}
 
 	public Receiver getReceiver() {
@@ -50,7 +50,7 @@ public class MidiParameterControlManager extends Observable implements
 	public void setReceiver(Receiver receiver) {
 		this.receiver = receiver;
 
-		Iterator it = midiParameters.iterator();
+		Iterator it = midiParametersControls.iterator();
 
 		while (it.hasNext()) {
 			MidiParameterControl midiParameter = (MidiParameterControl) it
@@ -61,13 +61,13 @@ public class MidiParameterControlManager extends Observable implements
 		}
 	}
 
-	public LinkedList getMidiParameters() {
-		return midiParameters;
+	public Vector getMidiParametersControls() {
+		return midiParametersControls;
 	}
 
 	public void addMidiParameter(MidiParameter midiParameter) {
-		midiParameters.remove(midiParameter);
-		midiParameters.add(midiParameter);
+		midiParametersControls.remove(midiParameter);
+		midiParametersControls.add(midiParameter);
 		midiParameter.deleteObserver(this);
 		midiParameter.addObserver(this);
 	}
@@ -84,7 +84,7 @@ public class MidiParameterControlManager extends Observable implements
 	public void setGlobalChannel(int globalChannel) {
 		this.globalChannel = globalChannel;
 
-		Iterator it = midiParameters.iterator();
+		Iterator it = midiParametersControls.iterator();
 
 		while (it.hasNext()) {
 			MidiParameterControl midiParameter = (MidiParameterControl) it
@@ -104,11 +104,12 @@ public class MidiParameterControlManager extends Observable implements
 	}
 
 	public void send(MidiMessage message, long timestamp) {
-		Object[] parametersArray = midiParameters.toArray();
+		Object[] parametersArray = midiParametersControls.toArray();
 
 		for (int p = 0; p < parametersArray.length; p++) {
 			if (parametersArray[p] != null) {
-				((MidiParameterControl) parametersArray[p]).send(message, timestamp);
+				((MidiParameterControl) parametersArray[p]).send(message,
+						timestamp);
 			}
 		}
 	}

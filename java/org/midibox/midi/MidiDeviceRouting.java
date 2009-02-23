@@ -399,7 +399,7 @@ public class MidiDeviceRouting extends Observable {
 
 		return DISCONNECTED;
 	}
-	
+
 	public Vector getLogicalConnections() {
 		return logicalConnections;
 	}

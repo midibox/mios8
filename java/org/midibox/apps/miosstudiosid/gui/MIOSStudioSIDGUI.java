@@ -95,6 +95,8 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 
 	public void update(Observable observable, Object object) {
 
+		super.update(observable, object);
+
 		if (object == "Edit") {
 
 			boolean portsReleased = miosStudio.getMidiDeviceRouting()

@@ -80,23 +80,31 @@ public class MidiParameterControlProperties extends MidiParameterProperties {
 		if (sendCheckBox != null && receiveCheckBox != null
 				&& globalCheckBox != null) {
 
-			sendCheckBox.setSelected(((MidiParameterControl) midiParameterControl)
-					.isSend());
-			sendCheckBox.setEnabled(!((MidiParameterControl) midiParameterControl)
-					.isLearn());
-			receiveCheckBox.setSelected(((MidiParameterControl) midiParameterControl)
-					.isReceive());
-			receiveCheckBox.setEnabled(!((MidiParameterControl) midiParameterControl)
-					.isLearn());
+			sendCheckBox
+					.setSelected(((MidiParameterControl) midiParameterControl)
+							.isSend());
+			sendCheckBox
+					.setEnabled(!((MidiParameterControl) midiParameterControl)
+							.isLearn());
+			receiveCheckBox
+					.setSelected(((MidiParameterControl) midiParameterControl)
+							.isReceive());
+			receiveCheckBox
+					.setEnabled(!((MidiParameterControl) midiParameterControl)
+							.isLearn());
 
-			globalCheckBox.setSelected(((MidiParameterControl) midiParameterControl)
-					.isGlobal());
-			globalCheckBox.setEnabled(!((MidiParameterControl) midiParameterControl)
-					.isLearn());
+			globalCheckBox
+					.setSelected(((MidiParameterControl) midiParameterControl)
+							.isGlobal());
+			globalCheckBox
+					.setEnabled(!((MidiParameterControl) midiParameterControl)
+							.isLearn());
 
-			channelSpinner.setEnabled(!((MidiParameterControl) midiParameterControl)
-					.isGlobal()
-					&& !((MidiParameterControl) midiParameterControl).isLearn());
+			channelSpinner
+					.setEnabled(!((MidiParameterControl) midiParameterControl)
+							.isGlobal()
+							&& !((MidiParameterControl) midiParameterControl)
+									.isLearn());
 		}
 	}
 
@@ -113,11 +121,11 @@ public class MidiParameterControlProperties extends MidiParameterProperties {
 				((MidiParameterControl) midiParameterControl)
 						.setReceive(receiveCheckBox.isSelected());
 			} else if (source == sendCheckBox) {
-				((MidiParameterControl) midiParameterControl).setSend(sendCheckBox
-						.isSelected());
+				((MidiParameterControl) midiParameterControl)
+						.setSend(sendCheckBox.isSelected());
 			} else if (source == globalCheckBox) {
-				((MidiParameterControl) midiParameterControl).setGlobal(globalCheckBox
-						.isSelected());
+				((MidiParameterControl) midiParameterControl)
+						.setGlobal(globalCheckBox.isSelected());
 			}
 			update = true;
 		}

@@ -44,9 +44,9 @@ import org.midibox.mios.MIOSTerminal;
 public class MIOSStudio extends Observable implements Observer {
 
 	public static Object MIDI_THRU_OUT_PORT = new Object();
-	
+
 	public static Object ROUTE_INDIVIDUAL_DEVICES = new Object();
-	
+
 	protected MidiDeviceRouting midiDeviceRouting;
 
 	protected MidiRouterDevice miosStudioInPort;
@@ -169,7 +169,7 @@ public class MIOSStudio extends Observable implements Observer {
 		hexFileUploadDeviceManager = new HexFileUploadDeviceManager();
 
 		hexFileUploadDeviceManager.addObserver(this);
-		
+
 		/*
 		 * memoryReadWriteDevice = new MemoryReadWriteDevice( "MIOS Memory
 		 * Read/Write");
@@ -188,38 +188,55 @@ public class MIOSStudio extends Observable implements Observer {
 		// special for MIOS Terminal:
 		// disable all messages by default, only allow pass SysEx
 		// user can enable other MIDI events again if required
-		
-		
-		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.NOTE_OFF, false);
-		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.NOTE_ON, false);
-		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.POLY_PRESSURE, false);
-		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.CONTROL_CHANGE, false);
-		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.PROGRAM_CHANGE, false);
-		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.CHANNEL_PRESSURE, false);
-		miosTerminalFiltered.getMidiFilter().setVoiceMessage(ShortMessage.PITCH_BEND, false);
 
-		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(ShortMessage.MIDI_TIME_CODE, false);
-		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(ShortMessage.SONG_POSITION_POINTER, false);
-		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(ShortMessage.SONG_SELECT, false);
-		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(ShortMessage.TUNE_REQUEST, false);
-		
-		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.TIMING_CLOCK, false);	
-		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.START, false);
-		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.CONTINUE, false);
-		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.STOP, false);
-		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.ACTIVE_SENSING, false);
-		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(ShortMessage.SYSTEM_RESET, false);
-		
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(
+				ShortMessage.NOTE_OFF, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(
+				ShortMessage.NOTE_ON, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(
+				ShortMessage.POLY_PRESSURE, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(
+				ShortMessage.CONTROL_CHANGE, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(
+				ShortMessage.PROGRAM_CHANGE, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(
+				ShortMessage.CHANNEL_PRESSURE, false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessage(
+				ShortMessage.PITCH_BEND, false);
+
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(
+				ShortMessage.MIDI_TIME_CODE, false);
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(
+				ShortMessage.SONG_POSITION_POINTER, false);
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(
+				ShortMessage.SONG_SELECT, false);
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessage(
+				ShortMessage.TUNE_REQUEST, false);
+
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(
+				ShortMessage.TIMING_CLOCK, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(
+				ShortMessage.START, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(
+				ShortMessage.CONTINUE, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(
+				ShortMessage.STOP, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(
+				ShortMessage.ACTIVE_SENSING, false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessage(
+				ShortMessage.SYSTEM_RESET, false);
+
 		/*
-		miosTerminalFiltered.getMidiFilter().setVoiceMessages(false);
+		 * miosTerminalFiltered.getMidiFilter().setVoiceMessages(false);
+		 * 
+		 * miosTerminalFiltered.getMidiFilter().setSystemCommonMessages(false);
+		 * 
+		 * 
+		 * miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessages(false);
+		 */
 
-		miosTerminalFiltered.getMidiFilter().setSystemCommonMessages(false);
-		
-		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessages(false);
-		*/
-		
 		miosTerminalFiltered.getMidiFilter().setSysexMessages(true);
-		
+
 		miosTerminalFiltered.getMidiFilter().setMetaMessages(false);
 	}
 
@@ -317,11 +334,11 @@ public class MIOSStudio extends Observable implements Observer {
 		}
 
 		setRouteIndividualDevices(routeIndividualDevices);
-		
+
 		setChanged();
-		
+
 		notifyObservers(MIDI_THRU_OUT_PORT);
-		
+
 		clearChanged();
 	}
 
@@ -367,11 +384,11 @@ public class MIOSStudio extends Observable implements Observer {
 		}
 
 		reorder();
-		
+
 		setChanged();
-		
+
 		notifyObservers(ROUTE_INDIVIDUAL_DEVICES);
-		
+
 		clearChanged();
 	}
 
@@ -533,7 +550,7 @@ public class MIOSStudio extends Observable implements Observer {
 	}
 
 	public void update(Observable observable, Object object) {
-		
+
 		if (observable == hexFileUploadDeviceManager) {
 
 			HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) object;

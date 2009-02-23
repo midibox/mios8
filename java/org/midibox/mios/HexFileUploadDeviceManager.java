@@ -49,16 +49,15 @@ public class HexFileUploadDeviceManager extends Observable implements Observer {
 
 		HexFileUploadDevice hexFileUploadDevice = new HexFileUploadDevice(
 				"MIOS Hex File Upload " + (hexFileUploadDevices.size() + 1));
-		
+
 		hexFileUploadDevice.getHexFileUpload().setMIOS32Mode(mios32Mode);
 
 		addHexFileUploadDevice(hexFileUploadDevice);
 
 		return hexFileUploadDevice;
 	}
-	
-	public void addHexFileUploadDevice(
-			HexFileUploadDevice hexFileUploadDevice)  {
+
+	public void addHexFileUploadDevice(HexFileUploadDevice hexFileUploadDevice) {
 
 		hexFileUploadDevice.getHexFileUpload().addObserver(this);
 
@@ -73,14 +72,16 @@ public class HexFileUploadDeviceManager extends Observable implements Observer {
 			HexFileUploadDevice hexFileUploadDevice) {
 		hexFileUploadDevices.remove(hexFileUploadDevice);
 		hexFileUploadDevice.getHexFileUpload().deleteObserver(this);
-		
+
 		hexFileUploadDevices.remove(hexFileUploadDevice);
 
 		for (int i = 0; i < hexFileUploadDevices.size(); i++) {
 
-			HexFileUploadDevice currentHexFileUploadDevice = (HexFileUploadDevice) hexFileUploadDevices.elementAt(i);
+			HexFileUploadDevice currentHexFileUploadDevice = (HexFileUploadDevice) hexFileUploadDevices
+					.elementAt(i);
 
-			currentHexFileUploadDevice.setName("MIOS Hex File Upload " + (i + 1));
+			currentHexFileUploadDevice.setName("MIOS Hex File Upload "
+					+ (i + 1));
 		}
 
 		setChanged();

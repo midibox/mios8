@@ -32,16 +32,17 @@ public class MidiFilterDeviceManager extends Observable {
 	}
 
 	public MidiFilterDevice newMidiFilterDevice() {
-		
+
 		MidiFilterDevice midiFilterDevice = new MidiFilterDevice("MIDI Filter "
 				+ (midiFilterDevices.size() + 1));
 
 		addMidiFilterDevice(midiFilterDevice);
-		
+
 		return midiFilterDevice;
 	}
-	
-	public MidiFilterDevice addMidiFilterDevice(MidiFilterDevice midiFilterDevice) {
+
+	public MidiFilterDevice addMidiFilterDevice(
+			MidiFilterDevice midiFilterDevice) {
 
 		midiFilterDevices.add(midiFilterDevice);
 
@@ -51,7 +52,6 @@ public class MidiFilterDeviceManager extends Observable {
 
 		return midiFilterDevice;
 	}
-	
 
 	public void removeMidiFilterDevice(MidiFilterDevice midiFilterDevice) {
 
@@ -59,7 +59,8 @@ public class MidiFilterDeviceManager extends Observable {
 
 		for (int i = 0; i < midiFilterDevices.size(); i++) {
 
-			MidiFilterDevice currentMidiFilterDevice = (MidiFilterDevice) midiFilterDevices.elementAt(i);
+			MidiFilterDevice currentMidiFilterDevice = (MidiFilterDevice) midiFilterDevices
+					.elementAt(i);
 
 			currentMidiFilterDevice.setName("MIDI Filter " + (i + 1));
 		}

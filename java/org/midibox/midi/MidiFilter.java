@@ -314,14 +314,14 @@ public class MidiFilter extends Observable implements Receiver {
 
 		if (message instanceof ShortMessage) {
 
-			int statusNo = (int)(message.getStatus() & 0xFF);
-			
+			int statusNo = (int) (message.getStatus() & 0xFF);
+
 			if (statusNo >= 0x80 && statusNo <= 0xEF) {
-			
+
 				int channelNo = statusNo & 0x0F;
-				
+
 				statusNo = statusNo & 0xF0;
-				
+
 				if (!getVoiceMessage(statusNo) || !voiceMessages) {
 					return;
 				}

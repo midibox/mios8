@@ -187,7 +187,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	private boolean defaultDecoratedFrames;
 
 	private JLabel commentLabel;
-		
+
 	private static String currentDirectory = "";
 
 	private static JFileChooser fc = null;
@@ -197,7 +197,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		super(new BorderLayout());
 
 		this.miosStudio = miosStudio;
-		
+
 		miosStudio.addObserver(this);
 
 		lookAndFeel = UIManager.getLookAndFeel().getClass().getName();
@@ -226,7 +226,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		desktop.setBackground(Color.WHITE);
 
 		createInternalFrames();
-		
+
 		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiRouterDevice.class,
 				ImageLoader.getImageIcon("virtualMidiDevice.png"));
 
@@ -468,12 +468,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		fileMenu = new JMenu("File");
 		fileMenu.setMnemonic(KeyEvent.VK_F);
-		
+
 		JMenuItem menuItem = new JMenuItem("Open Workspace");
 		menuItem.setActionCommand("open_workspace");
 		menuItem.addActionListener(this);
 		fileMenu.add(menuItem);
-		
+
 		menuItem = new JMenuItem("Save Workspace");
 		menuItem.setActionCommand("save_workspace");
 		menuItem.addActionListener(this);
@@ -576,7 +576,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		optionsMenu = new JMenu("Options");
 		optionsMenu.setMnemonic(KeyEvent.VK_P);
-		
 
 		JMenuItem menuItem = new JMenuItem("MIDI Device Routing");
 		menuItem.setMnemonic(KeyEvent.VK_R);
@@ -600,7 +599,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		optionsMenu.addSeparator();
 		JMenu thruMenu = new JMenu("MIDI Thru");
 
-		midiThruMenuItem = new JCheckBoxMenuItem("Send MIDI Thru via Out Port");
+		midiThruMenuItem = new JCheckBoxMenuItem("Send MIDI Thru via Out Port",
+				miosStudio.isMidiThruOutPort());
 		midiThruMenuItem.setActionCommand("midi_thru");
 		midiThruMenuItem.addActionListener(this);
 		thruMenu.add(midiThruMenuItem);
@@ -659,8 +659,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		toolBar.setVisible(false);
 		toolBar.setVisible(true);
 	}
-	
-	
 
 	public static String getCurrentDirectory() {
 		return currentDirectory;
@@ -703,7 +701,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		toolBar.addSeparator();
 
-		createHelpButtons();		
+		createHelpButtons();
 
 		toolBarMenu = new JPopupMenu();
 		JMenuItem addButton = new JMenuItem("Add External Command Button");
@@ -797,12 +795,13 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		button.setMargin(insets);
 		toolBar.add(button);
 	}
-	
+
 	protected void createOptionsButtons() {
-		
+
 		Insets insets = new Insets(2, 2, 2, 2);
 
-		JButton	button = new JButton(ImageLoader.getImageIcon("midiRouting.png"));
+		JButton button = new JButton(ImageLoader
+				.getImageIcon("midiRouting.png"));
 		button.setToolTipText("MIDI Device Routing");
 		button.setActionCommand("midi_routing");
 		button.addActionListener(this);
@@ -1108,9 +1107,9 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	public MIOSStudioInternalFrame getHelpWindow() {
 		return helpWindow;
 	}
-	
+
 	protected void openWorkspace() {
-		
+
 		if (fc == null) {
 			fc = new JFileChooser(currentDirectory);
 			SimpleFileChooserFilter fileFilter = new SimpleFileChooserFilter(
@@ -1129,16 +1128,17 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, MIOSStudioXML.TAG_ROOT_ELEMENT);
-			
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
+					MIOSStudioXML.TAG_ROOT_ELEMENT);
+
 			miosStudioXML.loadXML(file);
 
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
 	}
-	
+
 	protected void saveWorkspace() {
-		
+
 		if (fc == null) {
 			fc = new JFileChooser(currentDirectory);
 			SimpleFileChooserFilter fileFilter = new SimpleFileChooserFilter(
@@ -1157,8 +1157,9 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio, MIOSStudioXML.TAG_ROOT_ELEMENT);
-			
+			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
+					MIOSStudioXML.TAG_ROOT_ELEMENT);
+
 			miosStudioXML.saveXML(file);
 
 			currentDirectory = fc.getCurrentDirectory().toString();
@@ -1228,13 +1229,14 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	}
 
 	public void update(Observable observable, Object object) {
-		
+
 		if (object == MIOSStudio.ROUTE_INDIVIDUAL_DEVICES) {
-			
-			showInternalMenuItem.setSelected(miosStudio.isRouteIndividualDevices());
-			
+
+			showInternalMenuItem.setSelected(miosStudio
+					.isRouteIndividualDevices());
+
 		} else if (object == MIOSStudio.MIDI_THRU_OUT_PORT) {
-			
+
 			midiThruMenuItem.setSelected(miosStudio.isMidiThruOutPort());
 		}
 	}
@@ -1303,11 +1305,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		} else if (ae.getActionCommand().equals("dialogs")) {
 			defaultDecoratedFrames = ((JCheckBoxMenuItem) ae.getSource())
 					.isSelected();
-			
+
 		} else if (ae.getActionCommand().equals("open_workspace")) {
 			openWorkspace();
-			
-		}  else if (ae.getActionCommand().equals("save_workspace")) {
+
+		} else if (ae.getActionCommand().equals("save_workspace")) {
 			saveWorkspace();
 		}
 	}

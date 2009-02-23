@@ -19,21 +19,21 @@ import org.w3c.dom.NodeList;
 public class XMLUtils {
 
 	public final static String TAG_ROOT_ELEMENT = "";
-	
+
 	protected Document document;
 
 	protected Vector tags;
 
 	protected String rootElementTag;
-	
+
 	protected Element rootElement;
-	
+
 	public XMLUtils(String rootElementTag) {
 
 		this.rootElementTag = rootElementTag;
-		
+
 		tags = new Vector();
-		
+
 		tags.add(rootElementTag);
 	}
 
@@ -64,9 +64,9 @@ public class XMLUtils {
 
 			if (tags.contains(node.getNodeName())) {
 				parseElement((Element) node);
-			} 
+			}
 		}
-		
+
 		NodeList children = node.getChildNodes();
 
 		for (int n = 0; n < children.getLength(); n++) {
@@ -76,7 +76,7 @@ public class XMLUtils {
 	}
 
 	protected void parseElement(Element element) {
-		
+
 	}
 
 	public void saveXML(File file) {
@@ -121,29 +121,29 @@ public class XMLUtils {
 
 			document = node.getOwnerDocument();
 		}
-		
+
 		rootElement = document.createElement(rootElementTag);
-		
+
 		node.appendChild(rootElement);
 	}
-	
-	protected String intToString (int i) {
-		
+
+	protected String intToString(int i) {
+
 		return "" + i;
 	}
-	
-	protected String booleanToString (boolean b) {
-		
+
+	protected String booleanToString(boolean b) {
+
 		return b ? "true" : "false";
 	}
-	
+
 	protected int stringToInt(String string) {
-		
-		return Integer.parseInt(string); 
+
+		return Integer.parseInt(string);
 	}
-	
+
 	protected boolean stringToBoolean(String string) {
-		
+
 		return Boolean.parseBoolean(string);
 	}
 }

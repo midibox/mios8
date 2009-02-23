@@ -2,6 +2,7 @@ package org.midibox.midi.xml;
 
 import org.midibox.midi.MidiParameter;
 import org.midibox.utils.xml.XMLUtils;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class MidiParameterXML extends XMLUtils {
@@ -26,6 +27,31 @@ public class MidiParameterXML extends XMLUtils {
 		super(rootElementTag);
 
 		this.midiParameter = midiParameter;
+	}
+
+	protected void parseElement(Element element) {
+
+		super.parseElement(element);
+
+		String name = element.getNodeName();
+
+		if (name == rootElementTag) {
+
+			midiParameter.setMidiChannel(stringToInt(element
+					.getAttribute(ATTR_CHANNEL)));
+
+			midiParameter.setMidiStatus(stringToInt(element
+					.getAttribute(ATTR_STATUS)));
+
+			midiParameter.setMidiValue(stringToInt(element
+					.getAttribute(ATTR_VALUE)));
+
+			midiParameter.setMidiNumber(stringToInt(element
+					.getAttribute(ATTR_NUMBER)));
+
+			midiParameter.setHighResolution(stringToBoolean(element
+					.getAttribute(ATTR_HIGH_RESOLUTION)));
+		}
 	}
 
 	public void saveXML(Node node) {

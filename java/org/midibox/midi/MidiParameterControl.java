@@ -24,12 +24,12 @@ import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 
-public class MidiParameterControl extends MidiParameter  implements Receiver {
+public class MidiParameterControl extends MidiParameter implements Receiver {
 
 	public final static Object DEFAULT_VALUE = new Object();
 
 	public final static Object LEARN = new Object();
-	
+
 	public final static Object RECEIVE = new Object();
 
 	public final static Object SEND = new Object();
@@ -45,9 +45,9 @@ public class MidiParameterControl extends MidiParameter  implements Receiver {
 	protected boolean send;
 
 	protected boolean global;
-		
+
 	protected Receiver receiver;
-	
+
 	protected int defaultValue;
 
 	protected int type;
@@ -101,7 +101,7 @@ public class MidiParameterControl extends MidiParameter  implements Receiver {
 		notifyObservers(GLOBAL);
 		clearChanged();
 	}
-	
+
 	public int getType() {
 		return type;
 	}
@@ -117,7 +117,7 @@ public class MidiParameterControl extends MidiParameter  implements Receiver {
 		}
 
 		super.setMidiValue(value);
-		
+
 		if (forward) {
 			createMessage();
 		}
@@ -138,7 +138,7 @@ public class MidiParameterControl extends MidiParameter  implements Receiver {
 	protected void setReceiver(Receiver receiver) {
 		this.receiver = receiver;
 	}
-	
+
 	public boolean isLearn() {
 		return learn;
 	}
@@ -152,91 +152,89 @@ public class MidiParameterControl extends MidiParameter  implements Receiver {
 	}
 
 	public void createMessage() {
-			
+
 		if (send) {
-		
-		ShortMessage message = new ShortMessage();
-		if (receiver != null) {
-			try {
 
-				int data1 = 0;
-				int data2 = 0;
+			ShortMessage message = new ShortMessage();
+			if (receiver != null) {
+				try {
 
-				if (status == NOTE_ON || status == NOTE_OFF) {
-					data1 = number & 0x7F;
-					data2 = value & 0x7F;
-				} else if (status == AFTERTOUCH) {
-					data1 = number & 0x7F;
-					data2 = value & 0x7F;
-				} else if (status == CONTROL_CHANGE) {
+					int data1 = 0;
+					int data2 = 0;
 
-					if (highResolution
-							&& ((number < 64) || (number < 102 && number > 97))) {
-
-						int msbNumber;
-						int lsbNumber;
-
-						if (number < 64) {
-							if (number < 32) {
-								msbNumber = number;
-								lsbNumber = number + 32;
-							} else {
-								msbNumber = number - 32;
-								lsbNumber = number;
-							}
-						} else {
-							if (number % 2 == 0) {
-								msbNumber = number + 1;
-								lsbNumber = number;
-							} else {
-								msbNumber = number;
-								lsbNumber = number - 1;
-							}
-						}
-
-						int lsbValue = (value) & 0x7F;
-						int msbValue = (value >> 7) & 0x7F;
-
-						message
-								.setMessage(status, channel, msbNumber,
-										msbValue);
-						receiver.send(message, -1);
-
-						message = new ShortMessage();
-
-						message
-								.setMessage(status, channel, lsbNumber,
-										lsbValue);
-						receiver.send(message, -1);
-
-						return;
-					} else {
+					if (status == NOTE_ON || status == NOTE_OFF) {
 						data1 = number & 0x7F;
 						data2 = value & 0x7F;
-					}
-				} else if (status == PROGRAM_CHANGE) {
-					data1 = value & 0x7F;
-					data2 = 0;
-				} else if (status == CHANNEL_PRESSURE) {
-					data1 = value & 0x7F;
-					data2 = 0;
-				} else if (status == PITCH_BEND) {
-					data1 = (value) & 0x7F;
-					data2 = (value >> 7) & 0x7F;
-				}
+					} else if (status == AFTERTOUCH) {
+						data1 = number & 0x7F;
+						data2 = value & 0x7F;
+					} else if (status == CONTROL_CHANGE) {
 
-				message.setMessage(status, channel, data1, data2);
-				receiver.send(message, -1);
-			} catch (Exception ex) {
-				ex.printStackTrace();
+						if (highResolution
+								&& ((number < 64) || (number < 102 && number > 97))) {
+
+							int msbNumber;
+							int lsbNumber;
+
+							if (number < 64) {
+								if (number < 32) {
+									msbNumber = number;
+									lsbNumber = number + 32;
+								} else {
+									msbNumber = number - 32;
+									lsbNumber = number;
+								}
+							} else {
+								if (number % 2 == 0) {
+									msbNumber = number + 1;
+									lsbNumber = number;
+								} else {
+									msbNumber = number;
+									lsbNumber = number - 1;
+								}
+							}
+
+							int lsbValue = (value) & 0x7F;
+							int msbValue = (value >> 7) & 0x7F;
+
+							message.setMessage(status, channel, msbNumber,
+									msbValue);
+							receiver.send(message, -1);
+
+							message = new ShortMessage();
+
+							message.setMessage(status, channel, lsbNumber,
+									lsbValue);
+							receiver.send(message, -1);
+
+							return;
+						} else {
+							data1 = number & 0x7F;
+							data2 = value & 0x7F;
+						}
+					} else if (status == PROGRAM_CHANGE) {
+						data1 = value & 0x7F;
+						data2 = 0;
+					} else if (status == CHANNEL_PRESSURE) {
+						data1 = value & 0x7F;
+						data2 = 0;
+					} else if (status == PITCH_BEND) {
+						data1 = (value) & 0x7F;
+						data2 = (value >> 7) & 0x7F;
+					}
+
+					message.setMessage(status, channel, data1, data2);
+					receiver.send(message, -1);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
 			}
-		}
 		}
 	}
 
 	protected void midiLearn(MidiMessage message) {
 		if (message instanceof ShortMessage) {
-			
+
 			setGlobal(false);
 
 			setMidiChannel(((ShortMessage) message).getChannel());

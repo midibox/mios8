@@ -106,7 +106,8 @@ public class MidiParameterControlSpinner extends MidiParameterControlGUI
 			update = false;
 			spinner
 					.setValue(new Integer(
-							(int) ((((float) midiParameterControl.getMidiValue() / (float) midiParameterControl
+							(int) ((((float) midiParameterControl
+									.getMidiValue() / (float) midiParameterControl
 									.getMidiMaxValue())) * (float) (((Integer) ((SpinnerNumberModel) spinner
 									.getModel()).getMaximum()).intValue()))));
 			update = true;

@@ -22,8 +22,6 @@ package org.midibox.midi;
 
 import java.util.Observable;
 
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 
 public class MidiParameter extends Observable {
@@ -49,7 +47,7 @@ public class MidiParameter extends Observable {
 	public final static Object NUMBER = new Object();
 
 	public final static Object VALUE = new Object();
-	
+
 	public final static Object HIGH_RESOLUTION = new Object();
 
 	protected int channel;
@@ -58,12 +56,11 @@ public class MidiParameter extends Observable {
 
 	protected int value;
 
-	protected int number;	
+	protected int number;
 
 	protected boolean highResolution;
 
-	public MidiParameter(int status, int channel,
-			int number, int value) {
+	public MidiParameter(int status, int channel, int number, int value) {
 		setMidiStatus(status);
 		setMidiChannel(channel);
 		setMidiNumber(number);
@@ -71,7 +68,6 @@ public class MidiParameter extends Observable {
 		setHighResolution(false);
 	}
 
-	
 	public int getMidiStatus() {
 		return status;
 	}

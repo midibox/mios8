@@ -43,7 +43,6 @@ import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
 
-import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiUtils;
 import org.midibox.midi.xml.MidiFilterXML;
@@ -444,7 +443,6 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
 	}
-		
 
 	public static String getCurrentDirectory() {
 		return currentDirectory;
