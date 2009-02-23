@@ -181,7 +181,7 @@ public class MidiFilterXML extends XMLUtils {
 
 			channelsElement.appendChild(channel);
 
-			channel.setAttribute(ATTR_NUMBER, intToString(c + 1));
+			channel.setAttribute(ATTR_NUMBER, intToString(c));
 
 			channel.setAttribute(ATTR_ENABLE, booleanToString(midiFilter
 					.getChannels()[c]));

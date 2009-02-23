@@ -154,7 +154,7 @@ public class MidiFilter extends Observable implements Receiver {
 
 	public void setChannel(int channelNumber, boolean enabled) {
 
-		channel[channelNumber - 1] = enabled;
+		channel[channelNumber] = enabled;
 
 		setChanged();
 
@@ -244,7 +244,7 @@ public class MidiFilter extends Observable implements Receiver {
 
 	public boolean getChannel(int channelNumber) {
 
-		return channel[channelNumber - 1];
+		return channel[channelNumber];
 	}
 
 	public boolean getControlChange(int controlChangeNumber) {
