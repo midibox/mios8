@@ -1,11 +1,13 @@
 package org.midibox.mios.xml;
 
 import java.util.Iterator;
+import java.util.Vector;
 
 import org.midibox.mios.DebugFunction;
 import org.midibox.mios.DebugFunctionParameters;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class DebugFunctionXML extends MIOSSysexSendReceiveXML {
 
@@ -32,6 +34,64 @@ public class DebugFunctionXML extends MIOSSysexSendReceiveXML {
 		super(debugFunction, rootElementTag);
 
 		this.debugFunction = debugFunction;
+
+		tags.add(TAG_DEBUG_FUNCTION_PARAMETERS_LIST);
+	}
+
+	protected void parseElement(Element element) {
+
+		super.parseElement(element);
+
+		String name = element.getNodeName();
+
+		if (name == rootElementTag) {
+
+			debugFunction.setDeviceID(stringToInt(element
+					.getAttribute(ATTR_DEVICE_ID)));
+
+			debugFunction.setMIOS32Mode(stringToBoolean(element
+					.getAttribute(ATTR_MIOS32_MODE)));
+
+			debugFunction.setMode(stringToInt(element.getAttribute(ATTR_MODE)));
+
+			debugFunction.setDelayTime(stringToInt(element
+					.getAttribute(ATTR_DELAY_TIME)));
+
+			debugFunction.setSramReadAddress(stringToInt(element
+					.getAttribute(ATTR_SRAM_READ_ADDRESS)));
+
+			debugFunction.setSramReadCounter(stringToInt(element
+					.getAttribute(ATTR_SRAM_READ_COUNTER)));
+
+			debugFunction.setSramWriteAddress(stringToInt(element
+					.getAttribute(ATTR_SRAM_WRITE_ADDRESS)));
+
+			debugFunction.setSramWriteData(stringToInt(element
+					.getAttribute(ATTR_SRAM_WRITE_DATA)));
+
+		} else if (name == TAG_DEBUG_FUNCTION_PARAMETERS_LIST) {
+
+			debugFunction.getDebugFunctionParameters().removeAllElements();
+			
+			NodeList children = element.getChildNodes();
+			
+			DebugFunctionParameters[] params = new DebugFunctionParameters[children.getLength()];
+			
+			for (int p = 0; p < children.getLength(); p++) {
+			
+				DebugFunctionParameters debugFunctionParameters = new DebugFunctionParameters();
+				
+				DebugFunctionParametersXML debugFunctionParametersXML = new DebugFunctionParametersXML(
+						debugFunctionParameters,
+						DebugFunctionParametersXML.TAG_ROOT_ELEMENT);
+				
+				debugFunctionParametersXML.loadXML(children.item(p));
+				
+				params[p] = debugFunctionParameters;
+			}
+			
+			debugFunction.insertDebugFunctionParameters(params, 0);
+		}
 	}
 
 	public void saveXML(Node node) {

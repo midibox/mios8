@@ -169,7 +169,7 @@ public class DebugFunction extends MIOSSysexSendReceive {
 		return sramReadAddress;
 	}
 
-	public void setReadAddress(int readAddress) {
+	public void setSramReadAddress(int readAddress) {
 		this.sramReadAddress = readAddress;
 
 		setChanged();
@@ -181,7 +181,7 @@ public class DebugFunction extends MIOSSysexSendReceive {
 		return sramReadCounter;
 	}
 
-	public void setReadCounter(int readCounter) {
+	public void setSramReadCounter(int readCounter) {
 		this.sramReadCounter = readCounter;
 
 		setChanged();
@@ -193,7 +193,7 @@ public class DebugFunction extends MIOSSysexSendReceive {
 		return sramWriteAddress;
 	}
 
-	public void setWriteAddress(int writeAddress) {
+	public void setSramWriteAddress(int writeAddress) {
 		this.sramWriteAddress = writeAddress;
 
 		setChanged();
@@ -205,8 +205,8 @@ public class DebugFunction extends MIOSSysexSendReceive {
 		return sramWriteData;
 	}
 
-	public void setWriteValue(int writeValue) {
-		this.sramWriteData = writeValue;
+	public void setSramWriteData(int writeData) {
+		this.sramWriteData = writeData;
 
 		setChanged();
 		notifyObservers(SRAM_WRITE_DATA);

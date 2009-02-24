@@ -104,7 +104,7 @@ public class MidiDeviceManager extends Observable {
 		for (int i = 0; i < infos.length; i++) {
 			try {
 				MidiDevice device = MidiSystem.getMidiDevice(infos[i]);
-
+				
 				if (!(device instanceof Sequencer)
 						&& !(device instanceof Synthesizer)) {
 

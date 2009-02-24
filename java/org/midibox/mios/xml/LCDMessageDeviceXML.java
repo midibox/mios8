@@ -2,6 +2,7 @@ package org.midibox.mios.xml;
 
 import org.midibox.midi.xml.VirtualMidiDeviceXML;
 import org.midibox.mios.LCDMessageDevice;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class LCDMessageDeviceXML extends VirtualMidiDeviceXML {
@@ -16,6 +17,25 @@ public class LCDMessageDeviceXML extends VirtualMidiDeviceXML {
 		super(lcdMessageDevice, rootElementTag);
 
 		this.lcdMessageDevice = lcdMessageDevice;
+
+		tags.add(LCDMessageXML.TAG_ROOT_ELEMENT);
+	}
+
+	protected void parseElement(Element element) {
+
+		super.parseElement(element);
+
+		String name = element.getNodeName();
+
+		if (name == rootElementTag) {
+
+		} else if (name == LCDMessageXML.TAG_ROOT_ELEMENT) {
+
+			LCDMessageXML lcdMessageXML = new LCDMessageXML(lcdMessageDevice
+					.getLCDMessage(), LCDMessageXML.TAG_ROOT_ELEMENT);
+
+			lcdMessageXML.loadXML(element);
+		}
 	}
 
 	public void saveXML(Node node) {

@@ -1,7 +1,9 @@
 package org.midibox.mios.xml;
 
 import java.util.Iterator;
+import java.util.Vector;
 
+import org.midibox.midi.MidiFilterDevice;
 import org.midibox.mios.HexFileUploadDevice;
 import org.midibox.mios.HexFileUploadDeviceManager;
 import org.midibox.utils.xml.XMLUtils;
@@ -14,6 +16,8 @@ public class HexFileUploadDeviceManagerXML extends XMLUtils {
 
 	public final static String TAG_HEX_FILE_UPLOAD_DEVICES = "hexFileUploadDevices";
 
+	public final static String ATTR_MIOS_32_MODE = "mios32Mode";
+
 	protected HexFileUploadDeviceManager hexFileUploadDeviceManager;
 
 	public HexFileUploadDeviceManagerXML(
@@ -23,6 +27,49 @@ public class HexFileUploadDeviceManagerXML extends XMLUtils {
 		super(rootElementTag);
 
 		this.hexFileUploadDeviceManager = hexFileUploadDeviceManager;
+		
+		tags.add(TAG_HEX_FILE_UPLOAD_DEVICES);
+		tags.add(HexFileUploadDeviceXML.TAG_ROOT_ELEMENT);
+	}
+
+	protected void parseElement(Element element) {
+
+		super.parseElement(element);
+
+		String name = element.getNodeName();
+
+		if (name == rootElementTag) {
+
+			hexFileUploadDeviceManager.setMIOS32Mode(stringToBoolean(element
+					.getAttribute(ATTR_MIOS_32_MODE)));
+
+		} else if (name == TAG_HEX_FILE_UPLOAD_DEVICES) {
+
+			Iterator it = ((Vector) hexFileUploadDeviceManager
+					.getHexFileUploadDevices().clone()).iterator();
+
+			while (it.hasNext()) {
+
+				HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) it
+						.next();
+
+				hexFileUploadDeviceManager
+						.removeHexFileUploadDevice(hexFileUploadDevice);
+			}
+
+		} else if (name == HexFileUploadDeviceXML.TAG_ROOT_ELEMENT) {
+
+			HexFileUploadDevice hexFileUploadDevice = new HexFileUploadDevice(
+					element.getAttribute(HexFileUploadDeviceXML.ATTR_NAME));
+
+			HexFileUploadDeviceXML hexFileUploadDeviceXML = new HexFileUploadDeviceXML(
+					hexFileUploadDevice,
+					HexFileUploadDeviceXML.TAG_ROOT_ELEMENT);
+			
+			hexFileUploadDeviceManager.addHexFileUploadDevice(hexFileUploadDevice);
+			
+			hexFileUploadDeviceXML.loadXML(element);
+		}
 	}
 
 	public void saveXML(Node node) {
@@ -31,6 +78,9 @@ public class HexFileUploadDeviceManagerXML extends XMLUtils {
 
 		Element hexFileUploadDevicesElement = document
 				.createElement(TAG_HEX_FILE_UPLOAD_DEVICES);
+
+		rootElement.setAttribute(ATTR_MIOS_32_MODE,
+				booleanToString(hexFileUploadDeviceManager.isMIOS32Mode()));
 
 		rootElement.appendChild(hexFileUploadDevicesElement);
 

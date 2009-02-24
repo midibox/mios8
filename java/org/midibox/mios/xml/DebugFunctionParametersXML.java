@@ -2,6 +2,7 @@ package org.midibox.mios.xml;
 
 import org.midibox.mios.DebugFunctionParameters;
 import org.midibox.utils.xml.XMLUtils;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DebugFunctionParametersXML extends XMLUtils {
@@ -27,6 +28,31 @@ public class DebugFunctionParametersXML extends XMLUtils {
 		super(rootElementTag);
 
 		this.debugFunctionParameters = debugFunctionParameters;
+	}
+
+	protected void parseElement(Element element) {
+
+		super.parseElement(element);
+
+		String name = element.getNodeName();
+
+		if (name == rootElementTag) {
+
+			debugFunctionParameters.setAddress(stringToInt(element
+					.getAttribute(ATTR_ADDRESS)));
+
+			debugFunctionParameters.setWreg(stringToInt(element
+					.getAttribute(ATTR_WREG)));
+
+			debugFunctionParameters.setParam1(stringToInt(element
+					.getAttribute(ATTR_PARAM_1)));
+
+			debugFunctionParameters.setParam2(stringToInt(element
+					.getAttribute(ATTR_PARAM_2)));
+
+			debugFunctionParameters.setParam3(stringToInt(element
+					.getAttribute(ATTR_PARAM_3)));
+		}
 	}
 
 	public void saveXML(Node node) {

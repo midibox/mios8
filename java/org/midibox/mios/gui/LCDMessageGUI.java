@@ -453,6 +453,7 @@ public class LCDMessageGUI extends JPanel implements ActionListener,
 			lcdTextArea.setText(text);
 			lcdPanel.setVisible(false);
 			lcdPanel.setVisible(true);
+			lcdWidthSpinner.setValue(lcdMessage.getLcdWidth());
 
 		} else if (object == LCDMessage.LCD_HEIGHT) {
 			String text = lcdTextArea.getText();
@@ -461,6 +462,7 @@ public class LCDMessageGUI extends JPanel implements ActionListener,
 			lcdTextArea.setText(text);
 			lcdPanel.setVisible(false);
 			lcdPanel.setVisible(true);
+			lcdHeightSpinner.setValue(lcdMessage.getLcdHeight());
 
 		} else if (object == LCDMessage.MESSAGE_TEXT) {
 			lcdTextArea.setText(lcdMessage.getMessageText());
