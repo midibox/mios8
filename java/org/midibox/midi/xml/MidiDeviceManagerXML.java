@@ -14,13 +14,13 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 	public static final String TAG_ROOT_ELEMENT = "midiDeviceManager";
 
-	public static final String TAG_SELECTED_MIDI_READ_DEVICES = "selectedMidiReadDevices";
+	public static final String TAG_DESELECTED_MIDI_READ_DEVICES = "deselectedMidiReadDevices";
 
-	public static final String TAG_SELECTED_MIDI_WRITE_DEVICES = "selectedMidiWriteDevices";
+	public static final String TAG_DESELECTED_MIDI_WRITE_DEVICES = "deselectedMidiWriteDevices";
 
-	public static final String TAG_SELECTED_MIDI_READ_DEVICE = "selectedMidiReadDevice";
+	public static final String TAG_DESELECTED_MIDI_READ_DEVICE = "deselectedMidiReadDevice";
 
-	public static final String TAG_SELECTED_MIDI_WRITE_DEVICE = "selectedMidiWriteDevice";
+	public static final String TAG_DESELECTED_MIDI_WRITE_DEVICE = "deselectedMidiWriteDevice";
 
 	protected MidiDeviceManager midiDeviceManager;
 
@@ -31,10 +31,10 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 		this.midiDeviceManager = midiDeviceManager;
 
-		tags.add(TAG_SELECTED_MIDI_READ_DEVICES);
-		tags.add(TAG_SELECTED_MIDI_WRITE_DEVICES);
-		tags.add(TAG_SELECTED_MIDI_READ_DEVICE);
-		tags.add(TAG_SELECTED_MIDI_WRITE_DEVICE);
+		tags.add(TAG_DESELECTED_MIDI_READ_DEVICES);
+		tags.add(TAG_DESELECTED_MIDI_WRITE_DEVICES);
+		tags.add(TAG_DESELECTED_MIDI_READ_DEVICE);
+		tags.add(TAG_DESELECTED_MIDI_WRITE_DEVICE);
 	}
 
 	protected void parseElement(Element element) {
@@ -47,19 +47,10 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 			midiDeviceManager.rescanDevices();
 
-		} else if (name == TAG_SELECTED_MIDI_READ_DEVICES) {
+		} else if (name == TAG_DESELECTED_MIDI_READ_DEVICES) {
 
-			Iterator it = ((Vector) midiDeviceManager
-					.getSelectedMidiReadDevices().clone()).iterator();
 
-			while (it.hasNext()) {
-
-				MidiDevice midiDevice = (MidiDevice) it.next();
-
-				midiDeviceManager.deselectMidiReadDevice(midiDevice);
-			}
-
-		} else if (name == TAG_SELECTED_MIDI_READ_DEVICE) {
+		} else if (name == TAG_DESELECTED_MIDI_READ_DEVICE) {
 
 			int hash = Integer.parseInt(element
 					.getAttribute(MidiDeviceXML.ATTR_HASH_CODE));
@@ -69,22 +60,12 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 			if (midiDevice != null) {
 
-				midiDeviceManager.selectMidiReadDevice(midiDevice);
+				midiDeviceManager.deselectMidiReadDevice(midiDevice);
 			}
 
-		} else if (name == TAG_SELECTED_MIDI_WRITE_DEVICES) {
+		} else if (name == TAG_DESELECTED_MIDI_WRITE_DEVICES) {
 
-			Iterator it = ((Vector) midiDeviceManager
-					.getSelectedMidiWriteDevices().clone()).iterator();
-
-			while (it.hasNext()) {
-
-				MidiDevice midiDevice = (MidiDevice) it.next();
-
-				midiDeviceManager.deselectMidiWriteDevice(midiDevice);
-			}
-
-		} else if (name == TAG_SELECTED_MIDI_WRITE_DEVICE) {
+		} else if (name == TAG_DESELECTED_MIDI_WRITE_DEVICE) {
 
 			int hash = Integer.parseInt(element
 					.getAttribute(MidiDeviceXML.ATTR_HASH_CODE));
@@ -94,7 +75,7 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 			if (midiDevice != null) {
 
-				midiDeviceManager.selectMidiWriteDevice(midiDevice);
+				midiDeviceManager.deselectMidiWriteDevice(midiDevice);
 			}
 		}
 	}
@@ -103,38 +84,46 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 		super.saveXML(node);
 
-		Element selectedMidiReadDevicesElement = document
-				.createElement(TAG_SELECTED_MIDI_READ_DEVICES);
+		Element deselectedMidiReadDevicesElement = document
+				.createElement(TAG_DESELECTED_MIDI_READ_DEVICES);
 
-		rootElement.appendChild(selectedMidiReadDevicesElement);
+		rootElement.appendChild(deselectedMidiReadDevicesElement);
 
-		Iterator it = midiDeviceManager.getSelectedMidiReadDevices().iterator();
+		Iterator it = midiDeviceManager.getMidiReadDevices().iterator();
 
 		while (it.hasNext()) {
 
 			MidiDevice midiDevice = (MidiDevice) it.next();
 
-			MidiDeviceXML midiDeviceXML = new MidiDeviceXML(midiDevice,
-					TAG_SELECTED_MIDI_READ_DEVICE);
+			if (!midiDeviceManager.getSelectedMidiReadDevices().contains(
+					midiDevice)) {
 
-			midiDeviceXML.saveXML(selectedMidiReadDevicesElement);
+				MidiDeviceXML midiDeviceXML = new MidiDeviceXML(midiDevice,
+						TAG_DESELECTED_MIDI_READ_DEVICE);
+
+				midiDeviceXML.saveXML(deselectedMidiReadDevicesElement);
+			}
 		}
 
-		Element selectedMidiWriteDevicesElement = document
-				.createElement(TAG_SELECTED_MIDI_WRITE_DEVICES);
+		Element deselectedMidiWriteDevicesElement = document
+				.createElement(TAG_DESELECTED_MIDI_WRITE_DEVICES);
 
-		rootElement.appendChild(selectedMidiWriteDevicesElement);
+		rootElement.appendChild(deselectedMidiWriteDevicesElement);
 
-		it = midiDeviceManager.getSelectedMidiWriteDevices().iterator();
+		it = midiDeviceManager.getMidiWriteDevices().iterator();
 
 		while (it.hasNext()) {
 
 			MidiDevice midiDevice = (MidiDevice) it.next();
 
-			MidiDeviceXML midiDeviceXML = new MidiDeviceXML(midiDevice,
-					TAG_SELECTED_MIDI_WRITE_DEVICE);
+			if (!midiDeviceManager.getSelectedMidiWriteDevices().contains(
+					midiDevice)) {
 
-			midiDeviceXML.saveXML(selectedMidiWriteDevicesElement);
+				MidiDeviceXML midiDeviceXML = new MidiDeviceXML(midiDevice,
+						TAG_DESELECTED_MIDI_WRITE_DEVICE);
+
+				midiDeviceXML.saveXML(deselectedMidiWriteDevicesElement);
+			}
 		}
 	}
 

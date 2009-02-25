@@ -101,32 +101,53 @@ public class MidiDeviceManager extends Observable {
 
 		MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 
+		MidiDevice.Info mInfo;
+
 		for (int i = 0; i < infos.length; i++) {
-			try {
-				MidiDevice device = MidiSystem.getMidiDevice(infos[i]);
-				
-				if (!(device instanceof Sequencer)
-						&& !(device instanceof Synthesizer)) {
 
-					int noReceivers = device.getMaxReceivers();
-					int noTransmitters = device.getMaxTransmitters();
+			mInfo = infos[i];
 
-					if (noReceivers != 0) {
-						if (!midiWriteDevices.contains(device)) {
-							midiWriteDevices.add(device);
-							selectMidiWriteDevice(device);
+			boolean different;
+
+			if (i == 0) {
+
+				different = true;
+
+			} else {
+
+				different = mInfo.toString().hashCode() != infos[i - 1]
+						.toString().hashCode();
+			}
+
+			if (different) {
+
+				try {
+
+					MidiDevice device = MidiSystem.getMidiDevice(mInfo);
+
+					if (!(device instanceof Sequencer)
+							&& !(device instanceof Synthesizer)) {
+
+						int noReceivers = device.getMaxReceivers();
+						int noTransmitters = device.getMaxTransmitters();
+
+						if (noReceivers != 0) {
+							if (!midiWriteDevices.contains(device)) {
+								midiWriteDevices.add(device);
+								selectMidiWriteDevice(device);
+							}
+						}
+
+						if (noTransmitters != 0) {
+							if (!midiReadDevices.contains(device)) {
+								midiReadDevices.add(device);
+								selectMidiReadDevice(device);
+							}
 						}
 					}
+				} catch (MidiUnavailableException e) {
 
-					if (noTransmitters != 0) {
-						if (!midiReadDevices.contains(device)) {
-							midiReadDevices.add(device);
-							selectMidiReadDevice(device);
-						}
-					}
 				}
-			} catch (MidiUnavailableException e) {
-
 			}
 		}
 	}

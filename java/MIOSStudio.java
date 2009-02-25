@@ -35,6 +35,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
@@ -74,6 +75,8 @@ public class MIOSStudio extends JApplet {
 	public MIOSStudio() {
 
 		this.miosStudio = new org.midibox.apps.miosstudio.MIOSStudio();
+		
+		loadConfigFile();
 
 		Preferences preferences = getPreferences();
 
@@ -167,11 +170,11 @@ public class MIOSStudio extends JApplet {
 				miosStudioGUI.addExternalCommandButton(temp[0], temp[1]);
 			}
 		}
-
-		loadConfigFile();
 	}
 
 	public void destroy() {
+
+		saveConfigFile();
 
 		Preferences preferences = getPreferences();
 
@@ -234,8 +237,6 @@ public class MIOSStudio extends JApplet {
 					+ ecb.externalCommand + "\n";
 		}
 		preferences.put("externalCommands", externalCommandsString);
-
-		saveConfigFile();
 	}
 
 	public void exit(JFrame frame) {
@@ -351,6 +352,8 @@ public class MIOSStudio extends JApplet {
 				"defaultDecoratedFrames", false));
 
 		final JFrame frame = new JFrame(frameTitle);
+		
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		DialogOwner.setFrame(frame);
 

@@ -333,7 +333,7 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 		toolBar.add(delayTimeLabel, gbc);
 		gbc.gridx++;
 
-		delayTimeSpinner = new JSpinner(new SpinnerNumberModel(300, 0, 2000, 1));
+		delayTimeSpinner = new JSpinner(new SpinnerNumberModel(debugFunction.getDelayTime(), 0, 2000, 1));
 		delayTimeSpinner.addChangeListener(this);
 		toolBar.add(delayTimeSpinner, gbc);
 

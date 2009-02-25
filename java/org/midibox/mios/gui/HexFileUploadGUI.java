@@ -117,6 +117,14 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		fileName = new JTextField();
 		fileName.setEditable(false);
+		
+		
+		File file = hexFileUpload.getFile();
+		
+		if (file != null) {
+			
+			fileName.setText(file.getPath());
+		}
 
 		startButton = new JButton("Start");
 		startButton.setActionCommand("start");

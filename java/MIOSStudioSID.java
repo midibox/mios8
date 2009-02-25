@@ -32,6 +32,8 @@ public class MIOSStudioSID extends MIOSStudio {
 
 		this.miosStudio = new org.midibox.apps.miosstudiosid.MIOSStudioSID();
 
+		loadConfigFile();
+		
 		Preferences preferences = getPreferences();
 
 		try {
