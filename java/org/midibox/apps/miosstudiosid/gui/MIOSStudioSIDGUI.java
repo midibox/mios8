@@ -47,7 +47,8 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 		sidv2librarianWindow = new MIOSStudioInternalFrame("SID V2 Editor",
 				false, true, false, true, icon, sidv2librariangui);
 
-		sidv2librarianWindow.setJMenuBar(sidv2librariangui.createMenu());
+		// Don't display menu bar when integrated in MIOS Studio
+		sidv2librariangui.createMenu();
 
 		sidv2librarianWindow.pack();
 
