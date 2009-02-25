@@ -32,8 +32,8 @@ extern void J5_IO_Init(unsigned char tris) __wparam;
 extern void J5_IO_Set(unsigned char value) __wparam;
 extern void J5_IO_PinSet(unsigned char pin, unsigned char value) __wparam;
 
-extern void J5_IO_Get(void) __wparam;
-extern void J5_IO_PinGet(unsigned char pin) __wparam;
+extern unsigned char J5_IO_Get(void) __wparam;
+extern unsigned char J5_IO_PinGet(unsigned char pin) __wparam;
 
 /////////////////////////////////////////////////////////////////////////////
 // Export global variables
