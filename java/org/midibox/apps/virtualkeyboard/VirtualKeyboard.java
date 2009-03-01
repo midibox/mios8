@@ -72,10 +72,10 @@ public class VirtualKeyboard {
 		midiDeviceRouting.addMidiWriteDevice(virtualKeyboardInPort);
 
 		midiDeviceRouting.addMidiReadDevices(midiDeviceManager
-				.getSelectedMidiReadDevices());
+				.getSelectedMidiReadDevices().values());
 
 		midiDeviceRouting.addMidiWriteDevices(midiDeviceManager
-				.getSelectedMidiWriteDevices());
+				.getSelectedMidiWriteDevices().values());
 	}
 
 	public MidiDeviceRouting getMidiDeviceRouting() {

@@ -20,8 +20,8 @@
 
 package org.midibox.midi;
 
+import java.util.LinkedHashMap;
 import java.util.Observable;
-import java.util.Vector;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
@@ -31,41 +31,42 @@ import javax.sound.midi.Synthesizer;
 
 public class MidiDeviceManager extends Observable {
 
-	private Vector midiReadDevices;
+	private LinkedHashMap midiReadDevices;
 
-	private Vector midiWriteDevices;
+	private LinkedHashMap midiWriteDevices;
 
-	private Vector selectedMidiReadDevices;
+	private LinkedHashMap selectedMidiReadDevices;
 
-	private Vector selectedMidiWriteDevices;
+	private LinkedHashMap selectedMidiWriteDevices;
 
 	public MidiDeviceManager() {
-		midiReadDevices = new Vector();
-		midiWriteDevices = new Vector();
-		selectedMidiReadDevices = new Vector();
-		selectedMidiWriteDevices = new Vector();
+		midiReadDevices = new LinkedHashMap();
+		midiWriteDevices = new LinkedHashMap();
+		selectedMidiReadDevices = new LinkedHashMap();
+		selectedMidiWriteDevices = new LinkedHashMap();
 		rescanDevices();
 	}
 
-	public Vector getMidiReadDevices() {
+	public LinkedHashMap getMidiReadDevices() {
 		return midiReadDevices;
 	}
 
-	public Vector getMidiWriteDevices() {
+	public LinkedHashMap getMidiWriteDevices() {
 		return midiWriteDevices;
 	}
 
-	public Vector getSelectedMidiReadDevices() {
+	public LinkedHashMap getSelectedMidiReadDevices() {
 		return selectedMidiReadDevices;
 	}
 
-	public Vector getSelectedMidiWriteDevices() {
+	public LinkedHashMap getSelectedMidiWriteDevices() {
 		return selectedMidiWriteDevices;
 	}
 
 	public void selectMidiReadDevice(MidiDevice midiDevice) {
 		selectedMidiReadDevices.remove(midiDevice);
-		selectedMidiReadDevices.add(midiDevice);
+		selectedMidiReadDevices.put(""
+				+ midiDevice.getDeviceInfo().toString().hashCode(), midiDevice);
 
 		setChanged();
 		notifyObservers(midiDevice);
@@ -74,7 +75,8 @@ public class MidiDeviceManager extends Observable {
 
 	public void selectMidiWriteDevice(MidiDevice midiDevice) {
 		selectedMidiWriteDevices.remove(midiDevice);
-		selectedMidiWriteDevices.add(midiDevice);
+		selectedMidiWriteDevices.put(""
+				+ midiDevice.getDeviceInfo().toString().hashCode(), midiDevice);
 
 		setChanged();
 		notifyObservers(midiDevice);
@@ -82,7 +84,8 @@ public class MidiDeviceManager extends Observable {
 	}
 
 	public void deselectMidiReadDevice(MidiDevice midiDevice) {
-		selectedMidiReadDevices.remove(midiDevice);
+		selectedMidiReadDevices.remove(""
+				+ midiDevice.getDeviceInfo().toString().hashCode());
 
 		setChanged();
 		notifyObservers(midiDevice);
@@ -90,7 +93,8 @@ public class MidiDeviceManager extends Observable {
 	}
 
 	public void deselectMidiWriteDevice(MidiDevice midiDevice) {
-		selectedMidiWriteDevices.remove(midiDevice);
+		selectedMidiWriteDevices.remove(""
+				+ midiDevice.getDeviceInfo().toString().hashCode());
 
 		setChanged();
 		notifyObservers(midiDevice);
@@ -105,50 +109,40 @@ public class MidiDeviceManager extends Observable {
 
 		for (int i = 0; i < infos.length; i++) {
 
-			mInfo = infos[i];
+			try {
 
-			boolean different;
+				MidiDevice device = MidiSystem.getMidiDevice(infos[i]);
 
-			if (i == 0) {
+				if (!(device instanceof Sequencer)
+						&& !(device instanceof Synthesizer)) {
 
-				different = true;
+					int noReceivers = device.getMaxReceivers();
+					int noTransmitters = device.getMaxTransmitters();
 
-			} else {
-
-				different = mInfo.toString().hashCode() != infos[i - 1]
-						.toString().hashCode();
-			}
-
-			if (different) {
-
-				try {
-
-					MidiDevice device = MidiSystem.getMidiDevice(mInfo);
-
-					if (!(device instanceof Sequencer)
-							&& !(device instanceof Synthesizer)) {
-
-						int noReceivers = device.getMaxReceivers();
-						int noTransmitters = device.getMaxTransmitters();
-
-						if (noReceivers != 0) {
-							if (!midiWriteDevices.contains(device)) {
-								midiWriteDevices.add(device);
-								selectMidiWriteDevice(device);
-							}
-						}
-
-						if (noTransmitters != 0) {
-							if (!midiReadDevices.contains(device)) {
-								midiReadDevices.add(device);
-								selectMidiReadDevice(device);
-							}
+					if (noReceivers != 0) {
+						if (!midiWriteDevices.containsKey(""
+								+ device.getDeviceInfo().toString().hashCode())) {
+							midiWriteDevices.put(""
+									+ device.getDeviceInfo().toString()
+											.hashCode(), device);
+							selectMidiWriteDevice(device);
 						}
 					}
-				} catch (MidiUnavailableException e) {
 
+					if (noTransmitters != 0) {
+						if (!midiReadDevices.containsKey(""
+								+ device.getDeviceInfo().toString().hashCode())) {
+							midiReadDevices.put(""
+									+ device.getDeviceInfo().toString()
+											.hashCode(), device);
+							selectMidiReadDevice(device);
+						}
+					}
 				}
+			} catch (MidiUnavailableException e) {
+
 			}
+
 		}
 	}
 }

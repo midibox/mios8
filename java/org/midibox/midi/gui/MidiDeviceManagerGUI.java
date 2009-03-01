@@ -26,9 +26,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Vector;
 
 import javax.sound.midi.MidiDevice;
 import javax.swing.JButton;
@@ -133,12 +133,12 @@ public class MidiDeviceManagerGUI extends JPanel implements Observer,
 	class MidiDeviceTableModel extends DefaultTableModel {
 		private String[] headers = { "Selected", "MIDI Device Name" };
 
-		private Vector midiDevices;
+		private LinkedHashMap midiDevices;
 
-		private Vector selectedMidiDevices;
+		private LinkedHashMap selectedMidiDevices;
 
-		public MidiDeviceTableModel(Vector midiDevices,
-				Vector selectedMidiDevices) {
+		public MidiDeviceTableModel(LinkedHashMap midiDevices,
+				LinkedHashMap selectedMidiDevices) {
 			this.midiDevices = midiDevices;
 			this.selectedMidiDevices = selectedMidiDevices;
 		}
@@ -160,11 +160,11 @@ public class MidiDeviceManagerGUI extends JPanel implements Observer,
 
 		public Object getValueAt(int row, int col) {
 
-			MidiDevice midiDevice = (MidiDevice) midiDevices.elementAt(row);
+			MidiDevice midiDevice = (MidiDevice) midiDevices.values().toArray()[row];
 
 			if (col == 0) {
-				return new Boolean(selectedMidiDevices.contains(midiDevices
-						.elementAt(row)));
+				return new Boolean(selectedMidiDevices
+						.containsValue(midiDevices.values().toArray()[row]));
 			} else if (col == 1) {
 				return midiDevice.getDeviceInfo().getName();
 			}
@@ -178,21 +178,22 @@ public class MidiDeviceManagerGUI extends JPanel implements Observer,
 					if (midiDevices == midiDeviceManager.getMidiReadDevices()) {
 						midiDeviceManager
 								.selectMidiReadDevice((MidiDevice) midiDevices
-										.elementAt(row));
+										.values().toArray()[row]);
+
 					} else {
 						midiDeviceManager
 								.selectMidiWriteDevice((MidiDevice) midiDevices
-										.elementAt(row));
+										.values().toArray()[row]);
 					}
 				} else {
 					if (midiDevices == midiDeviceManager.getMidiReadDevices()) {
 						midiDeviceManager
 								.deselectMidiReadDevice((MidiDevice) midiDevices
-										.elementAt(row));
+										.values().toArray()[row]);
 					} else {
 						midiDeviceManager
 								.deselectMidiWriteDevice((MidiDevice) midiDevices
-										.elementAt(row));
+										.values().toArray()[row]);
 					}
 				}
 			}

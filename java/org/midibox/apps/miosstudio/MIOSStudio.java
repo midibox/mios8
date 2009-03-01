@@ -233,6 +233,7 @@ public class MIOSStudio extends Observable implements Observer {
 		 * 
 		 * 
 		 * 
+		 * 
 		 * miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessages(false);
 		 */
 
@@ -401,9 +402,9 @@ public class MIOSStudio extends Observable implements Observer {
 				midiFilterManager.getMidiFilterDevices());
 
 		midiDeviceRouting.getMidiReadDevices().removeAll(
-				midiDeviceManager.getSelectedMidiReadDevices());
+				midiDeviceManager.getSelectedMidiReadDevices().values());
 		midiDeviceRouting.getMidiWriteDevices().removeAll(
-				midiDeviceManager.getSelectedMidiWriteDevices());
+				midiDeviceManager.getSelectedMidiWriteDevices().values());
 
 		/*
 		 * midiReadDevices.removeAll(midiMapManager.getMidiMapDevices());
@@ -415,23 +416,25 @@ public class MIOSStudio extends Observable implements Observer {
 		midiDeviceRouting.addMidiWriteDevices(midiFilterManager
 				.getMidiFilterDevices());
 
-		Iterator it = midiDeviceManager.getMidiReadDevices().iterator();
+		Iterator it = midiDeviceManager.getMidiReadDevices().values()
+				.iterator();
 
 		while (it.hasNext()) {
 
 			Object object = it.next();
 
-			if (midiDeviceManager.getSelectedMidiReadDevices().contains(object)) {
+			if (midiDeviceManager.getSelectedMidiReadDevices().values()
+					.contains(object)) {
 				midiDeviceRouting.addMidiReadDevice((MidiDevice) object);
 			}
 		}
 
-		it = midiDeviceManager.getMidiWriteDevices().iterator();
+		it = midiDeviceManager.getMidiWriteDevices().values().iterator();
 		while (it.hasNext()) {
 
 			Object object = it.next();
 
-			if (midiDeviceManager.getSelectedMidiWriteDevices()
+			if (midiDeviceManager.getSelectedMidiWriteDevices().values()
 					.contains(object)) {
 				midiDeviceRouting.addMidiWriteDevice((MidiDevice) object);
 			}
@@ -574,10 +577,10 @@ public class MIOSStudio extends Observable implements Observer {
 
 			MidiDevice midiDevice = (MidiDevice) object;
 
-			if (!midiDeviceManager.getSelectedMidiReadDevices().contains(
-					midiDevice)
+			if (!midiDeviceManager.getSelectedMidiReadDevices().values()
+					.contains(midiDevice)
 					&& !midiDeviceManager.getSelectedMidiWriteDevices()
-							.contains(midiDevice)) {
+							.values().contains(midiDevice)) {
 				midiDeviceRouting.disconnectDevice(midiDevice);
 			}
 

@@ -1,7 +1,7 @@
 package org.midibox.midi.xml;
 
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
 
 import javax.sound.midi.MidiDevice;
 
@@ -88,14 +88,15 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 		rootElement.appendChild(deselectedMidiReadDevicesElement);
 
-		Iterator it = midiDeviceManager.getMidiReadDevices().iterator();
+		Iterator it = midiDeviceManager.getMidiReadDevices().values()
+				.iterator();
 
 		while (it.hasNext()) {
 
 			MidiDevice midiDevice = (MidiDevice) it.next();
 
-			if (!midiDeviceManager.getSelectedMidiReadDevices().contains(
-					midiDevice)) {
+			if (!midiDeviceManager.getSelectedMidiReadDevices().values()
+					.contains(midiDevice)) {
 
 				MidiDeviceXML midiDeviceXML = new MidiDeviceXML(midiDevice,
 						TAG_DESELECTED_MIDI_READ_DEVICE);
@@ -109,14 +110,14 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 		rootElement.appendChild(deselectedMidiWriteDevicesElement);
 
-		it = midiDeviceManager.getMidiWriteDevices().iterator();
+		it = midiDeviceManager.getMidiWriteDevices().values().iterator();
 
 		while (it.hasNext()) {
 
 			MidiDevice midiDevice = (MidiDevice) it.next();
 
-			if (!midiDeviceManager.getSelectedMidiWriteDevices().contains(
-					midiDevice)) {
+			if (!midiDeviceManager.getSelectedMidiWriteDevices().values()
+					.contains(midiDevice)) {
 
 				MidiDeviceXML midiDeviceXML = new MidiDeviceXML(midiDevice,
 						TAG_DESELECTED_MIDI_WRITE_DEVICE);
@@ -126,20 +127,8 @@ public class MidiDeviceManagerXML extends XMLUtils {
 		}
 	}
 
-	protected MidiDevice findDeviceHash(Vector midiDevices, int hash) {
+	protected MidiDevice findDeviceHash(HashMap midiDevices, int hash) {
 
-		Iterator it = midiDevices.iterator();
-
-		while (it.hasNext()) {
-
-			MidiDevice midiDevice = (MidiDevice) it.next();
-
-			if (midiDevice.getDeviceInfo().toString().hashCode() == hash) {
-
-				return midiDevice;
-			}
-		}
-
-		return null;
+		return (MidiDevice) midiDevices.get("" + hash);
 	}
 }

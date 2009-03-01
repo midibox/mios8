@@ -62,9 +62,9 @@ public class SIDV2Editor {
 		if (midiDeviceRouting != null) {
 			midiDeviceManager.rescanDevices();
 			midiDeviceRouting.addMidiReadDevices(midiDeviceManager
-					.getSelectedMidiReadDevices());
+					.getSelectedMidiReadDevices().values());
 			midiDeviceRouting.addMidiWriteDevices(midiDeviceManager
-					.getSelectedMidiWriteDevices());
+					.getSelectedMidiWriteDevices().values());
 		}
 	}
 
