@@ -32,7 +32,6 @@ import java.util.EventObject;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -59,7 +58,7 @@ public class BankTable extends JPanel implements TableModelListener,
 	JMenuItem m1, m2, m3, m4, m5;
 	int bankNumber;
 	int selectedBeforeDrag = 0;
-	
+
 	public BankTable(SIDLibController sidLibController, int bankNumber) {
 		this.sidLibController = sidLibController;
 		this.bankNumber = bankNumber;
@@ -135,30 +134,29 @@ public class BankTable extends JPanel implements TableModelListener,
 	}
 
 	private void maybeShowPopup(MouseEvent e) {
-		
-		
+
 		if (e.getButton() == MouseEvent.BUTTON3) {
-			
+
 			JTable source = (JTable) e.getSource();
-			
+
 			int index = source.rowAtPoint(e.getPoint());
-			
-			int [] selectedRows = source.getSelectedRows();
-			
+
+			int[] selectedRows = source.getSelectedRows();
+
 			boolean rowSelected = false;
-			
+
 			for (int r = 0; r < selectedRows.length; r++) {
 				if (selectedRows[r] == index) {
 					rowSelected = true;
 					break;
 				}
 			}
-			
+
 			if (!rowSelected) {
 				source.setRowSelectionInterval(index, index);
 			}
 		}
-		
+
 		if (e.isPopupTrigger()) {
 			if (sidLibController.getBank(bankNumber).isEnsembleBank()) {
 				m1.setEnabled(false);
@@ -181,7 +179,7 @@ public class BankTable extends JPanel implements TableModelListener,
 		if (e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()) {
 			// selectedBeforeDrag = table.getSelectedRow();
 		}
-		
+
 		maybeShowPopup(e);
 	}
 
@@ -283,13 +281,13 @@ public class BankTable extends JPanel implements TableModelListener,
 		m4.setActionCommand("Init MULTI patch");
 		m4.addActionListener(this);
 		submenu.add(m4);
-		
+
 		m5 = new JMenuItem("ENSEMBLE", KeyEvent.VK_S);
 		m5.setFont(m5.getFont().deriveFont(Font.PLAIN));
 		m5.setActionCommand("Init ensemble");
 		m5.addActionListener(this);
 		submenu.add(m5);
-		
+
 		menuItem = new JMenuItem("Init current bank", KeyEvent.VK_N);
 		menuItem.setFont(menuItem.getFont().deriveFont(Font.PLAIN));
 		menuItem.setActionCommand("Init current bank");
@@ -364,15 +362,20 @@ public class BankTable extends JPanel implements TableModelListener,
 	}
 
 	public void keyPressed(KeyEvent e) {
-		if ((e.getKeyCode() == KeyEvent.VK_E) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		if ((e.getKeyCode() == KeyEvent.VK_E)
+				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editCurrentPatch();
-		} else if ((e.getKeyCode() == KeyEvent.VK_R) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		} else if ((e.getKeyCode() == KeyEvent.VK_R)
+				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editRename();
-		} else if ((e.getKeyCode() == KeyEvent.VK_X) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		} else if ((e.getKeyCode() == KeyEvent.VK_X)
+				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editCut();
-		} else if ((e.getKeyCode() == KeyEvent.VK_C) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		} else if ((e.getKeyCode() == KeyEvent.VK_C)
+				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editCopy();
-		} else if ((e.getKeyCode() == KeyEvent.VK_V) && (e.getModifiers() == ActionEvent.CTRL_MASK)) {
+		} else if ((e.getKeyCode() == KeyEvent.VK_V)
+				&& (e.getModifiers() == ActionEvent.CTRL_MASK)) {
 			sidLibController.editPaste();
 		}
 	}

@@ -24,7 +24,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.Arrays;
 
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -70,7 +69,9 @@ public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 		if (update) {
 			update = false;
 			int newval;
-			if (midiParameter.snap) {int index = (int) (((float) knob.getValue() / (float) knob.getMaximum()) * (midiParameter.snapVals.length - 1));
+			if (midiParameter.snap) {
+				int index = (int) (((float) knob.getValue() / (float) knob
+						.getMaximum()) * (midiParameter.snapVals.length - 1));
 				newval = midiParameter.snapVals[index];
 			} else {
 				newval = knob.getValue();
@@ -79,7 +80,8 @@ public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 			midiParameter.setMidiValue(newval, true);
 
 			for (int c = 0; c < midiParameters.size(); c++) {
-				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+						.elementAt(c);
 				mp.setMidiValue(newval, false);
 			}
 			update = true;
@@ -92,8 +94,9 @@ public class SIDSysexParameterControlKnob extends SIDSysexParameterControlGUI
 			update = false;
 			int newval;
 			if (midiParameter.snap) {
-				float ratio = (float) midiParameter.getMidiValSnapIndex() / (float) (midiParameter.snapVals.length - 1);
-				newval = (int)((float)(knob.getMaximum()-knob.getMinimum())* ratio);
+				float ratio = (float) midiParameter.getMidiValSnapIndex()
+						/ (float) (midiParameter.snapVals.length - 1);
+				newval = (int) ((float) (knob.getMaximum() - knob.getMinimum()) * ratio);
 			} else {
 				newval = midiParameter.getMidiValue();
 			}

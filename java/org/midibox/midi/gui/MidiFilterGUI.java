@@ -283,8 +283,10 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		channels = new JTable(channelsModel);
 
 		for (int i = 0; i < 16; i++) {
-			channelsModel.addRow(new Object[] {
-					new Boolean(midiFilter.getChannel(i)), "Channel " + (i + 1) });
+			channelsModel
+					.addRow(new Object[] {
+							new Boolean(midiFilter.getChannel(i)),
+							"Channel " + (i + 1) });
 		}
 
 		JScrollPane channelsScroll = new JScrollPane(channels);
@@ -642,8 +644,8 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 							.booleanValue());
 				} else {
 
-					midiFilter.setChannel(row, ((Boolean) value)
-							.booleanValue());
+					midiFilter
+							.setChannel(row, ((Boolean) value).booleanValue());
 				}
 			} else {
 

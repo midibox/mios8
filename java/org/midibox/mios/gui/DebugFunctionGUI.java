@@ -199,7 +199,8 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 		deviceIDPanel.add(deviceIDLabel, gbc);
 		gbc.gridx++;
 
-		deviceIDSpinner = new JSpinner(new SpinnerNumberModel(debugFunction.getDeviceID(), 0, 127, 1));
+		deviceIDSpinner = new JSpinner(new SpinnerNumberModel(debugFunction
+				.getDeviceID(), 0, 127, 1));
 		deviceIDSpinner.addChangeListener(this);
 		JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) deviceIDSpinner
 				.getEditor();
@@ -333,7 +334,8 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 		toolBar.add(delayTimeLabel, gbc);
 		gbc.gridx++;
 
-		delayTimeSpinner = new JSpinner(new SpinnerNumberModel(debugFunction.getDelayTime(), 0, 2000, 1));
+		delayTimeSpinner = new JSpinner(new SpinnerNumberModel(debugFunction
+				.getDelayTime(), 0, 2000, 1));
 		delayTimeSpinner.addChangeListener(this);
 		toolBar.add(delayTimeSpinner, gbc);
 
@@ -1021,20 +1023,20 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 			showHelp();
 
 		} else if (source == sramReadAddress) {
-			debugFunction.setSramReadAddress(decodeString(
-					sramReadAddress.getText(), displayHexButton.isSelected()));
+			debugFunction.setSramReadAddress(decodeString(sramReadAddress
+					.getText(), displayHexButton.isSelected()));
 
 		} else if (source == sramReadCounter) {
-			debugFunction.setSramReadCounter(decodeString(
-					sramReadCounter.getText(), displayHexButton.isSelected()));
+			debugFunction.setSramReadCounter(decodeString(sramReadCounter
+					.getText(), displayHexButton.isSelected()));
 
 		} else if (source == sramWriteAddress) {
 			debugFunction.setSramWriteAddress(decodeString(sramWriteAddress
 					.getText(), displayHexButton.isSelected()));
 
 		} else if (source == sramWriteData) {
-			debugFunction.setSramWriteData(decodeString(sramWriteData.getText(),
-					displayHexButton.isSelected()));
+			debugFunction.setSramWriteData(decodeString(
+					sramWriteData.getText(), displayHexButton.isSelected()));
 		}
 	}
 
@@ -1047,20 +1049,20 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 		Object source = fe.getSource();
 
 		if (source == sramReadAddress) {
-			debugFunction.setSramReadAddress(decodeString(
-					sramReadAddress.getText(), displayHexButton.isSelected()));
+			debugFunction.setSramReadAddress(decodeString(sramReadAddress
+					.getText(), displayHexButton.isSelected()));
 
 		} else if (source == sramReadCounter) {
-			debugFunction.setSramReadCounter(decodeString(
-					sramReadCounter.getText(), displayHexButton.isSelected()));
+			debugFunction.setSramReadCounter(decodeString(sramReadCounter
+					.getText(), displayHexButton.isSelected()));
 
 		} else if (source == sramWriteAddress) {
 			debugFunction.setSramWriteAddress(decodeString(sramWriteAddress
 					.getText(), displayHexButton.isSelected()));
 
 		} else if (source == sramWriteData) {
-			debugFunction.setSramWriteData(decodeString(sramWriteData.getText(),
-					displayHexButton.isSelected()));
+			debugFunction.setSramWriteData(decodeString(
+					sramWriteData.getText(), displayHexButton.isSelected()));
 		}
 	}
 
@@ -1077,7 +1079,7 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 			updateDebugControls();
 
 		} else if (object == DebugFunction.DEVICE_ID) {
-			
+
 			deviceIDSpinner.setValue(new Integer(debugFunction.getDeviceID()));
 
 		} else if (object == DebugFunction.DELAY_TIME) {
@@ -1111,7 +1113,7 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 		} else if (object == DebugFunction.SRAM_WRITE_DATA) {
 			sramWriteData.setText(changeBase(debugFunction.getSramWriteData(),
 					showHex));
-			
+
 		} else if (object == DebugFunction.DEBUG_FUNCTION_PARAMETERS) {
 			debugFunctionsDataModel.fireTableDataChanged();
 			checkRows();

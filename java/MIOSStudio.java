@@ -35,7 +35,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
@@ -58,6 +57,11 @@ import org.midibox.utils.gui.SplashScreen;
 
 public class MIOSStudio extends JApplet {
 
+	protected static Preferences preferences = Preferences.userRoot().node(
+			"org/midibox/miostudio/gui");
+
+	protected static String configFileName = ".miosstudio";
+
 	protected static String frameTitle = "MIOS Studio";
 
 	protected static String splashTitle = "MIOS Studio beta 9";
@@ -75,10 +79,8 @@ public class MIOSStudio extends JApplet {
 	public MIOSStudio() {
 
 		this.miosStudio = new org.midibox.apps.miosstudio.MIOSStudio();
-		
-		loadConfigFile();
 
-		Preferences preferences = getPreferences();
+		loadConfigFile();
 
 		try {
 			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
@@ -99,8 +101,6 @@ public class MIOSStudio extends JApplet {
 	}
 
 	public void init() {
-
-		Preferences preferences = getPreferences();
 
 		HexFileUploadGUI.setCurrentDirectory(preferences.get(
 				"uploadCurrentDirectory", HexFileUploadGUI
@@ -176,8 +176,6 @@ public class MIOSStudio extends JApplet {
 
 		saveConfigFile();
 
-		Preferences preferences = getPreferences();
-
 		preferences.put("lookAndFeel", miosStudioGUI.getLookAndFeel());
 		preferences.putBoolean("defaultDecoratedFrames", miosStudioGUI
 				.isDefaultDecoratedFrames());
@@ -236,12 +234,11 @@ public class MIOSStudio extends JApplet {
 			externalCommandsString += ecb.commandName + "\t"
 					+ ecb.externalCommand + "\n";
 		}
+
 		preferences.put("externalCommands", externalCommandsString);
 	}
 
 	public void exit(JFrame frame) {
-
-		Preferences preferences = getPreferences();
 
 		preferences.putInt("mainWindowX", frame.getX());
 		preferences.putInt("mainWindowY", frame.getY());
@@ -251,20 +248,10 @@ public class MIOSStudio extends JApplet {
 		System.exit(0);
 	}
 
-	protected Preferences getPreferences() {
-
-		return Preferences.userRoot().node("org/midibox/miostudio/gui");
-	}
-
-	protected String getConfigFileName() {
-
-		return ".miosstudio";
-	}
-
 	protected void saveConfigFile() {
 
 		File configFile = new File(System.getProperty("user.home"),
-				getConfigFileName());
+				configFileName);
 
 		if (!configFile.exists()) {
 			try {
@@ -286,7 +273,7 @@ public class MIOSStudio extends JApplet {
 	protected void loadConfigFile() {
 
 		File configFile = new File(System.getProperty("user.home"),
-				getConfigFileName());
+				configFileName);
 
 		if (configFile.exists()) {
 
@@ -328,6 +315,7 @@ public class MIOSStudio extends JApplet {
 	}
 
 	public static void main(String[] args) {
+
 		SplashScreen splashScreen = new SplashScreen(splashImage, splashTitle);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -337,9 +325,6 @@ public class MIOSStudio extends JApplet {
 				(screenSize.height - splashScreen.getHeight()) / 2);
 
 		splashScreen.setVisible(true);
-
-		Preferences preferences = Preferences.userRoot().node(
-				"org/midibox/miostudio/gui");
 
 		try {
 			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
@@ -352,7 +337,7 @@ public class MIOSStudio extends JApplet {
 				"defaultDecoratedFrames", false));
 
 		final JFrame frame = new JFrame(frameTitle);
-		
+
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		DialogOwner.setFrame(frame);

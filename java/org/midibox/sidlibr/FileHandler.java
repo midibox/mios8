@@ -36,6 +36,7 @@ import org.midibox.sidedit.SIDSysexInfo;
 public class FileHandler {
 	final JFileChooser fc = new JFileChooser();
 	private InitPatches initPatches;
+
 	public FileHandler(InitPatches initPatches) {
 		fc.addChoosableFileFilter(new SysExFilter());
 		this.initPatches = initPatches;
@@ -45,7 +46,9 @@ public class FileHandler {
 		try {
 			saveData(getBankDumpSysex(b, bankNumber));
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null,"An error has occurred while writing the file!", "Error",JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null,
+					"An error has occurred while writing the file!", "Error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -65,17 +68,28 @@ public class FileHandler {
 			byte[] data = loadData();
 			if (data != null) {
 				String s = MidiUtils.getHexString(data).replace(" ", "");
-				if ((isEnsemble && (s.length() == 128 * Bank.ensembleSize || s.length() == 64 * Bank.ensembleSize)) || (!isEnsemble && (s.length() == 128 * Bank.patchSize || s.length() == 64 * Bank.patchSize))) {
-					Bank tempBank = new Bank(receiver,isEnsemble, initPatches);
+				if ((isEnsemble && (s.length() == 128 * Bank.ensembleSize || s
+						.length() == 64 * Bank.ensembleSize))
+						|| (!isEnsemble && (s.length() == 128 * Bank.patchSize || s
+								.length() == 64 * Bank.patchSize))) {
+					Bank tempBank = new Bank(receiver, isEnsemble, initPatches);
 					String status = tempBank.parseBankSyx(s);
 					if (statusCheck(status)) {
 						b = tempBank;
 					}
 				} else {
 					if (isEnsemble) {
-						JOptionPane.showMessageDialog(null,	"This file does not contain a bank with 64 or 128 valid ensembles!","Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"This file does not contain a bank with 64 or 128 valid ensembles!",
+										"Error", JOptionPane.ERROR_MESSAGE);
 					} else {
-						JOptionPane.showMessageDialog(null,	"This file does not contain a bank with 64 or 128 valid patches!","Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane
+								.showMessageDialog(
+										null,
+										"This file does not contain a bank with 64 or 128 valid patches!",
+										"Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
@@ -92,17 +106,21 @@ public class FileHandler {
 		try {
 			byte[] data = loadData();
 			if (data != null) {
-				String s = MidiUtils.getHexString(data).replace(" ", "");				
+				String s = MidiUtils.getHexString(data).replace(" ", "");
 				if (isEnsemble && (s.length() != Bank.ensembleSize)) {
-					JOptionPane.showMessageDialog(null,"This file does not contain a valid ensemble!",	"Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null,
+							"This file does not contain a valid ensemble!",
+							"Error", JOptionPane.ERROR_MESSAGE);
 				} else if (!isEnsemble && (s.length() != Bank.patchSize)) {
-					JOptionPane.showMessageDialog(null,"This file does not contain a valid patch!",	"Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null,
+							"This file does not contain a valid patch!",
+							"Error", JOptionPane.ERROR_MESSAGE);
 				} else {
 					Patch tempPatch;
 					if (isEnsemble) {
-						tempPatch = new Patch(receiver,256, initPatches);
+						tempPatch = new Patch(receiver, 256, initPatches);
 					} else {
-						tempPatch = new Patch(receiver,512, initPatches);
+						tempPatch = new Patch(receiver, 512, initPatches);
 					}
 					String status = tempPatch.parsePatch(s);
 					if (statusCheck(status)) {
@@ -154,13 +172,13 @@ public class FileHandler {
 			}
 		}
 	}
-	
+
 	private File fixExtension(File f) {
-        if (f.getName().lastIndexOf(".syx")==-1) {
-        	f = new File(f.getPath() + ".syx");
-        }
-        return f;
-    }
+		if (f.getName().lastIndexOf(".syx") == -1) {
+			f = new File(f.getPath() + ".syx");
+		}
+		return f;
+	}
 
 	private byte[] loadData() throws IOException {
 		byte[] b = null;
@@ -186,14 +204,14 @@ public class FileHandler {
 	private byte[] getBankDumpSysex(Bank b, int bankNumber) {
 		int s;
 		if (b.isEnsembleBank()) {
-			s = Bank.ensembleSize/2;
+			s = Bank.ensembleSize / 2;
 		} else {
-			s = Bank.patchSize/2;
+			s = Bank.patchSize / 2;
 		}
-		byte[] bankData = new byte[b.bankSize*s];
+		byte[] bankData = new byte[b.bankSize * s];
 		for (int i = 0; i < b.bankSize; i++) {
 			byte[] d = getPatchDumpSysex(b.getPatchAt(i), bankNumber, i);
-			System.arraycopy(d, 0, bankData, i*s, d.length);
+			System.arraycopy(d, 0, bankData, i * s, d.length);
 		}
 		return bankData;
 	}
@@ -204,19 +222,21 @@ public class FileHandler {
 			patchStr = "0" + patchStr;
 		}
 		String strMessage;
-		if (bankNumber==-1) {
+		if (bankNumber == -1) {
 			strMessage = SIDSysexInfo.hardEnsembleDumpSysex;
-			strMessage = strMessage.replace("<ensemble>", patchStr);			
+			strMessage = strMessage.replace("<ensemble>", patchStr);
 		} else {
 			strMessage = SIDSysexInfo.hardPatchDumpSysex;
-			strMessage = strMessage.replace("<bank>", "0" + Integer.toHexString(bankNumber));
+			strMessage = strMessage.replace("<bank>", "0"
+					+ Integer.toHexString(bankNumber));
 			strMessage = strMessage.replace("<patch>", patchStr);
-		}		
-		strMessage = strMessage.replace("<device>", "00");		
+		}
+		strMessage = strMessage.replace("<device>", "00");
 		String s = "<data><checksum>";
-		return p.getSysex(strMessage.substring(0, strMessage.indexOf(s)),strMessage.substring(strMessage.lastIndexOf(s)+s.length()));
+		return p.getSysex(strMessage.substring(0, strMessage.indexOf(s)),
+				strMessage.substring(strMessage.lastIndexOf(s) + s.length()));
 	}
-	
+
 	private boolean statusCheck(String status) {
 		boolean b = false;
 		if (status == "succesful") {

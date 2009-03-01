@@ -68,7 +68,7 @@ public class InstrumentGUI extends JPanel {
 		panel.add(panel3);
 		this.add(panel, BorderLayout.NORTH);
 	}
-	
+
 	protected JPanel createDummy() {
 		JPanel globPanel = new JPanel();
 		globPanel.setOpaque(false);
@@ -87,8 +87,9 @@ public class InstrumentGUI extends JPanel {
 		globPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(2));
 		globPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(3));
 		globPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(4));
-		((SIDSysexParameterControlKnob) vGUI.elementAt(4))
-				.setSnapVals(new int[]{0,1,2,3,4,5,6,7,8},SIDSysexInfo.voiceAssign);
+		((SIDSysexParameterControlKnob) vGUI.elementAt(4)).setSnapVals(
+				new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 },
+				SIDSysexInfo.voiceAssign);
 		((SIDSysexParameterControlKnob) vGUI.elementAt(4)).setSnap(true);
 		globPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(5));
 		globPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(6));
@@ -236,7 +237,8 @@ public class InstrumentGUI extends JPanel {
 		// Setup the 'rate'-knob behavior to be depending on the 'master sync'
 		// switch
 		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(6 + offset))
-				.setSnapVals(new int[]{245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255},SIDSysexInfo.rates);
+				.setSnapVals(new int[] { 245, 246, 247, 248, 249, 250, 251,
+						252, 253, 254, 255 }, SIDSysexInfo.rates);
 		((SIDSysexParameterControlToggleButton) midiParameterGUI
 				.elementAt(2 + offset))
 				.setSnapParameter((SIDSysexParameterControlGUI) midiParameterGUI

@@ -80,14 +80,20 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent mwe) {
-		slider.setValue((int) (slider.getValue() - ((mwe.getWheelRotation() * Math.max(mouseWheelResolution	* (slider.getMaximum() - slider.getMinimum()),1)))));
+		slider
+				.setValue((int) (slider.getValue() - ((mwe.getWheelRotation() * Math
+						.max(mouseWheelResolution
+								* (slider.getMaximum() - slider.getMinimum()),
+								1)))));
 	}
 
 	public void stateChanged(ChangeEvent ce) {
 		if (update) {
 			update = false;
 			int newval;
-			if (midiParameter.snap) {int index = (int) (((float) slider.getValue() / (float) slider.getMaximum()) * (midiParameter.snapVals.length - 1));
+			if (midiParameter.snap) {
+				int index = (int) (((float) slider.getValue() / (float) slider
+						.getMaximum()) * (midiParameter.snapVals.length - 1));
 				newval = midiParameter.snapVals[index];
 			} else {
 				newval = slider.getValue();
@@ -96,7 +102,8 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 			midiParameter.setMidiValue(newval, true);
 
 			for (int c = 0; c < midiParameters.size(); c++) {
-				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+						.elementAt(c);
 				mp.setMidiValue(newval, false);
 			}
 			update = true;
@@ -105,13 +112,15 @@ public class SIDSysexParameterControlSlider extends SIDSysexParameterControlGUI
 
 	public void updateGraphics() {
 		super.updateGraphics();
-		
+
 		if (update) {
 			update = false;
 			int newval;
 			if (midiParameter.snap) {
-				float ratio = (float) midiParameter.getMidiValSnapIndex() / (float) (midiParameter.snapVals.length - 1);
-				newval = (int)((float)(slider.getMaximum()-slider.getMinimum())* ratio);
+				float ratio = (float) midiParameter.getMidiValSnapIndex()
+						/ (float) (midiParameter.snapVals.length - 1);
+				newval = (int) ((float) (slider.getMaximum() - slider
+						.getMinimum()) * ratio);
 			} else {
 				newval = midiParameter.getMidiValue();
 			}

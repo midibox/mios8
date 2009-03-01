@@ -17,7 +17,7 @@ public class HexFileUploadDeviceXML extends VirtualMidiDeviceXML {
 		super(hexFileUploadDevice, rootElementTag);
 
 		this.hexFileUploadDevice = hexFileUploadDevice;
-		
+
 		tags.add(HexFileUploadXML.TAG_ROOT_ELEMENT);
 	}
 
@@ -32,7 +32,7 @@ public class HexFileUploadDeviceXML extends VirtualMidiDeviceXML {
 			HexFileUploadXML hexFileUploadXML = new HexFileUploadXML(
 					hexFileUploadDevice.getHexFileUpload(),
 					HexFileUploadXML.TAG_ROOT_ELEMENT);
-			
+
 			hexFileUploadXML.loadXML(element);
 		}
 	}

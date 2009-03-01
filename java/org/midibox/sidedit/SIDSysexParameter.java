@@ -82,10 +82,10 @@ public class SIDSysexParameter extends Observable implements Receiver {
 
 	public void setMidiMaxMinValues(int reso) {
 		/*
-		if (reso < 0) {
-			midimax = (int) Math.floor((Math.pow(2, Math.abs(reso)) - 1) / 2);
-			midimin = -((int) Math.ceil((Math.pow(2, Math.abs(reso)) - 1) / 2));
-			*/
+		 * if (reso < 0) { midimax = (int) Math.floor((Math.pow(2,
+		 * Math.abs(reso)) - 1) / 2); midimin = -((int) Math.ceil((Math.pow(2,
+		 * Math.abs(reso)) - 1) / 2));
+		 */
 		midimax = (int) Math.pow(2, reso) - 1;
 		midimin = 0;
 		resolution = reso;

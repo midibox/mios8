@@ -34,7 +34,7 @@ public class DebugFunctionDeviceXML extends VirtualMidiDeviceXML {
 			DebugFunctionXML debugFunctionXML = new DebugFunctionXML(
 					debugFunctionDevice.getDebugFunction(),
 					DebugFunctionXML.TAG_ROOT_ELEMENT);
-			
+
 			debugFunctionXML.loadXML(element);
 		}
 	}

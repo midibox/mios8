@@ -160,29 +160,35 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 			updateValueField();
 		}
 	}
-	
+
 	public void setSnapVals(int[] vals, String[] alias) {
 		midiParameter.snapVals = vals;
 		midiParameter.snapAlias = alias;
 		for (int c = 0; c < midiParameters.size(); c++) {
-			SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+			SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+					.elementAt(c);
 			mp.snapVals = vals;
 			mp.snapAlias = alias;
 		}
 	}
-	
+
 	public void setSnap(boolean b) {
 		if (b) { // Turn on snap
-			midiParameter.snap = true;			
-			if (Arrays.binarySearch(midiParameter.snapVals,midiParameter.getMidiValue()) == -1) { // If current midi value is not part of the snap values reset to snapvals[0];
+			midiParameter.snap = true;
+			if (Arrays.binarySearch(midiParameter.snapVals, midiParameter
+					.getMidiValue()) == -1) { // If current midi value is not
+												// part of the snap values reset
+												// to snapvals[0];
 				midiParameter.setMidiValue(midiParameter.snapVals[0], true);
 				for (int c = 0; c < midiParameters.size(); c++) {
-					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+							.elementAt(c);
 					mp.snap = true;
 				}
 			} else { // Keep current midi value, only update labels
 				for (int c = 0; c < midiParameters.size(); c++) {
-					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+							.elementAt(c);
 					mp.snap = true;
 				}
 				updateGraphics();
@@ -191,7 +197,8 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 		} else { // Turn off snap
 			midiParameter.snap = false;
 			for (int c = 0; c < midiParameters.size(); c++) {
-				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+						.elementAt(c);
 				mp.snap = false;
 			}
 			updateGraphics();
@@ -205,9 +212,10 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 	public void actionPerformed(ActionEvent ae) {
 		Object source = ae.getSource();
 		if (source == valueField) {
-			midiParameter.SetMidiValueWithAlias(valueField.getText());			
+			midiParameter.SetMidiValueWithAlias(valueField.getText());
 			for (int c = 0; c < midiParameters.size(); c++) {
-				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+				SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+						.elementAt(c);
 				mp.setMidiValue(midiParameter.getMidiValue(), false);
 			}
 		}
@@ -217,7 +225,8 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 		if (observable == midiParameter) {
 			if (object != SIDSysexParameter.VALUE) {
 				if (showLabel) {
-					midiParameterLabel.setText(midiParameter.getMidiName().toUpperCase());
+					midiParameterLabel.setText(midiParameter.getMidiName()
+							.toUpperCase());
 				}
 			}
 			updateGraphics();

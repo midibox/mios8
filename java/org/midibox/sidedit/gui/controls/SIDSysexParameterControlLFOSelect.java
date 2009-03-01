@@ -79,7 +79,8 @@ public class SIDSysexParameterControlLFOSelect extends
 					}
 					midiParameter.setMidiValue(newval, true);
 					for (int d = 0; d < midiParameters.size(); d++) {
-						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(d);
+						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+								.elementAt(d);
 						mp.setMidiValue(newval, false);
 					}
 					update = true;
@@ -92,7 +93,8 @@ public class SIDSysexParameterControlLFOSelect extends
 		super.updateGraphics();
 		if (update) {
 			update = false;
-			((JToggleButton) buttonVec.elementAt(midiParameter.getMidiValue())).setSelected(true);
+			((JToggleButton) buttonVec.elementAt(midiParameter.getMidiValue()))
+					.setSelected(true);
 			update = true;
 		}
 	}

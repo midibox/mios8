@@ -47,8 +47,8 @@ import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SplashScreen;
 
 /**
- * Driver class for launching MIOS Studio + SID V2 application. MIOS Studio can be
- * launched as an application or embedded in a a web page as an applet. When
+ * Driver class for launching MIOS Studio + SID V2 application. MIOS Studio can
+ * be launched as an application or embedded in a a web page as an applet. When
  * launched as an application, the app shows a splash screen and is launched
  * within its own frame. Preferences are saved and restored from this class.
  * 
@@ -57,8 +57,13 @@ import org.midibox.utils.gui.SplashScreen;
 
 public class MIOSStudioSID extends JApplet {
 
+	protected static Preferences preferences = Preferences.userRoot().node(
+			"org/midibox/miostudiosid/gui");
+
+	protected static String configFileName = ".miosstudiosid";
+
 	protected static String frameTitle = "MIOS Studio + SID V2 Editor";
-	
+
 	protected static String splashTitle = "MIOS Studio beta 9 + SID V2 Editor";
 
 	protected static String splashImage = "splash.jpg";
@@ -72,12 +77,10 @@ public class MIOSStudioSID extends JApplet {
 	protected Hashtable windows;
 
 	public MIOSStudioSID() {
-		
-		this.miosStudioSID = new org.midibox.apps.miosstudiosid.MIOSStudioSID();
-		
-		loadConfigFile();
 
-		Preferences preferences = getPreferences();
+		this.miosStudioSID = new org.midibox.apps.miosstudiosid.MIOSStudioSID();
+
+		loadConfigFile();
 
 		try {
 			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
@@ -98,8 +101,6 @@ public class MIOSStudioSID extends JApplet {
 	}
 
 	public void init() {
-
-		Preferences preferences = getPreferences();
 
 		HexFileUploadGUI.setCurrentDirectory(preferences.get(
 				"uploadCurrentDirectory", HexFileUploadGUI
@@ -175,8 +176,6 @@ public class MIOSStudioSID extends JApplet {
 
 		saveConfigFile();
 
-		Preferences preferences = getPreferences();
-
 		preferences.put("lookAndFeel", miosStudioSIDGUI.getLookAndFeel());
 		preferences.putBoolean("defaultDecoratedFrames", miosStudioSIDGUI
 				.isDefaultDecoratedFrames());
@@ -240,8 +239,6 @@ public class MIOSStudioSID extends JApplet {
 
 	public void exit(JFrame frame) {
 
-		Preferences preferences = getPreferences();
-
 		preferences.putInt("mainWindowX", frame.getX());
 		preferences.putInt("mainWindowY", frame.getY());
 		preferences.putInt("mainWindowWidth", frame.getWidth());
@@ -250,20 +247,10 @@ public class MIOSStudioSID extends JApplet {
 		System.exit(0);
 	}
 
-	protected Preferences getPreferences() {
-
-		return Preferences.userRoot().node("org/midibox/miostudiosid/gui");
-	}
-
-	protected String getConfigFileName() {
-
-		return ".miosstudiosid";
-	}
-
 	protected void saveConfigFile() {
 
 		File configFile = new File(System.getProperty("user.home"),
-				getConfigFileName());
+				configFileName);
 
 		if (!configFile.exists()) {
 			try {
@@ -283,9 +270,9 @@ public class MIOSStudioSID extends JApplet {
 	}
 
 	protected void loadConfigFile() {
-		
+
 		File configFile = new File(System.getProperty("user.home"),
-				getConfigFileName());
+				configFileName);
 
 		if (configFile.exists()) {
 
@@ -296,7 +283,8 @@ public class MIOSStudioSID extends JApplet {
 
 		} else {
 
-			miosStudioSID.getHexFileUploadDeviceManager().newHexFileUploadDevice();
+			miosStudioSID.getHexFileUploadDeviceManager()
+					.newHexFileUploadDevice();
 		}
 	}
 
@@ -319,18 +307,19 @@ public class MIOSStudioSID extends JApplet {
 				.getHexFileUploadDeviceManagerWindow());
 		windows.put("lcdWindow", miosStudioSIDGUI.getLcdMessageWindow());
 		windows.put("debugWindow", miosStudioSIDGUI.getDebugFunctionWindow());
+		windows.put("miosTerminalWindow", miosStudioSIDGUI
+				.getMIOSTerminalWindow());
 		windows
-				.put("miosTerminalWindow", miosStudioSIDGUI
-						.getMIOSTerminalWindow());
-		windows.put("sidv2librarianWindow", ((MIOSStudioSIDGUI) miosStudioSIDGUI)
-				.getSidv2librarianWindow());
-		
+				.put("sidv2librarianWindow",
+						((MIOSStudioSIDGUI) miosStudioSIDGUI)
+								.getSidv2librarianWindow());
+
 		windows.put("helpWindow", miosStudioSIDGUI.getHelpWindow());
 
 	}
 
 	public static void main(String[] args) {
-		
+
 		SplashScreen splashScreen = new SplashScreen(splashImage, splashTitle);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -340,9 +329,6 @@ public class MIOSStudioSID extends JApplet {
 				(screenSize.height - splashScreen.getHeight()) / 2);
 
 		splashScreen.setVisible(true);
-
-		Preferences preferences = Preferences.userRoot().node(
-				"org/midibox/miostudiosid/gui");
 
 		try {
 			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
@@ -355,11 +341,11 @@ public class MIOSStudioSID extends JApplet {
 				"defaultDecoratedFrames", false));
 
 		final JFrame frame = new JFrame(frameTitle);
-		
+
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		DialogOwner.setFrame(frame);
-		
+
 		final MIOSStudioSID miosStudioSID = new MIOSStudioSID();
 		miosStudioSID.init();
 

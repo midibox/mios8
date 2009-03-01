@@ -33,7 +33,8 @@ public class LibraryGUI extends JPanel implements ChangeListener, Observer {
 	private SIDLibController sidLibController;
 	private JTabbedPane tabbedPane = new JTabbedPane();
 	private BankTable[] bankTables = new BankTable[8];
-	private static String[] bankNames = {"ENS", "A", "B", "C", "D", "E", "F", "G" };
+	private static String[] bankNames = { "ENS", "A", "B", "C", "D", "E", "F",
+			"G" };
 
 	public LibraryGUI(SIDLibController sidLibController) {
 		this.sidLibController = sidLibController;
@@ -48,10 +49,11 @@ public class LibraryGUI extends JPanel implements ChangeListener, Observer {
 
 	public void stateChanged(javax.swing.event.ChangeEvent e) {
 		sidLibController.setCurrentBankNumber(tabbedPane.getSelectedIndex());
-		int[] patchNumber = bankTables[tabbedPane.getSelectedIndex()].getSelectedRows();
-		if (patchNumber.length==0) {
-			 bankTables[tabbedPane.getSelectedIndex()].resetSelection();
-			patchNumber = new int[]{0};
+		int[] patchNumber = bankTables[tabbedPane.getSelectedIndex()]
+				.getSelectedRows();
+		if (patchNumber.length == 0) {
+			bankTables[tabbedPane.getSelectedIndex()].resetSelection();
+			patchNumber = new int[] { 0 };
 		}
 		sidLibController.setCurrentPatchNumber(patchNumber);
 	}

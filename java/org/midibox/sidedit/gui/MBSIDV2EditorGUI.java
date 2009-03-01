@@ -26,10 +26,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
-import javax.swing.JButton;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -38,9 +38,9 @@ import javax.swing.border.BevelBorder;
 import org.midibox.sidedit.SIDEditController;
 import org.midibox.sidedit.gui.bassline.BasslineGUI;
 import org.midibox.sidedit.gui.drum.DrumGUI;
+import org.midibox.sidedit.gui.ensemble.EnsembleGUI;
 import org.midibox.sidedit.gui.lead.LeadGUI;
 import org.midibox.sidedit.gui.multi.MultiGUI;
-import org.midibox.sidedit.gui.ensemble.EnsembleGUI;
 import org.midibox.sidlibr.Patch;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.MyButtonUI;
@@ -54,7 +54,8 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 
 	private JLabel tooltipLabel;
 
-	private JToggleButton stereoLink, oscillatorLink, core1Button, core2Button,	core3Button, core4Button;
+	private JToggleButton stereoLink, oscillatorLink, core1Button, core2Button,
+			core3Button, core4Button;
 	private JButton playButton, panicButton;
 
 	public MBSIDV2EditorGUI() {
@@ -79,11 +80,11 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 
 		sidEditController.addObserver(this);
 		remove(editPanel);
-		
+
 		if (sidEditController.getPatch().isEnsemble()) {
-			editPanel = new EnsembleGUI(sidEditController);	
+			editPanel = new EnsembleGUI(sidEditController);
 		} else {
-			Patch p = (Patch)sidEditController.getPatch();
+			Patch p = (Patch) sidEditController.getPatch();
 			if (p.getEngine() == p.LEAD) {
 				editPanel = new LeadGUI(sidEditController);
 				stereoLink.setSelected(true);
@@ -97,7 +98,7 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 				editPanel = new MultiGUI(sidEditController);
 				stereoLink.setSelected(false);
 			}
-		}		
+		}
 		add(editPanel);
 		repaint();
 		setVisible(true);
@@ -122,22 +123,26 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 
 		stereoLink = new JToggleButton();
 		stereoLink.setIcon(ImageLoader.getImageIcon("stereo.png"));
-		stereoLink.setPreferredSize(new Dimension(stereoLink.getPreferredSize().width, 20));
+		stereoLink.setPreferredSize(new Dimension(
+				stereoLink.getPreferredSize().width, 20));
 		stereoLink.addActionListener(this);
 
 		oscillatorLink = new JToggleButton();
 		oscillatorLink.setIcon(ImageLoader.getImageIcon("link.png"));
-		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink.getPreferredSize().width, 20));
+		oscillatorLink.setPreferredSize(new Dimension(oscillatorLink
+				.getPreferredSize().width, 20));
 		oscillatorLink.addActionListener(this);
-		
+
 		playButton = new JButton();
 		playButton.setIcon(ImageLoader.getImageIcon("play.png"));
-		playButton.setPreferredSize(new Dimension(playButton.getPreferredSize().width, 14));
+		playButton.setPreferredSize(new Dimension(
+				playButton.getPreferredSize().width, 14));
 		playButton.addActionListener(this);
-		
+
 		panicButton = new JButton();
 		panicButton.setIcon(ImageLoader.getImageIcon("panic.png"));
-		panicButton.setPreferredSize(new Dimension(panicButton.getPreferredSize().width, 14));
+		panicButton.setPreferredSize(new Dimension(panicButton
+				.getPreferredSize().width, 14));
 		panicButton.addActionListener(this);
 
 		JPanel buttonPanel = new JPanel();
@@ -150,7 +155,8 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 				ImageLoader.getImageIcon("txOff.png")));
 		core1Button.setEnabled(false);
 		core2Button = new JToggleButton();
-		core2Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),ImageLoader.getImageIcon("txOff.png")));
+		core2Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),
+				ImageLoader.getImageIcon("txOff.png")));
 		core2Button.setEnabled(false);
 		core3Button = new JToggleButton();
 		core3Button.setUI(new MyButtonUI(ImageLoader.getImageIcon("txOn.png"),
@@ -167,10 +173,12 @@ public class MBSIDV2EditorGUI extends JPanel implements Observer,
 		buttonPanel.add(core4Button);
 
 		JLabel empty1Label = new JLabel();
-		empty1Label.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		empty1Label.setBorder(BorderFactory
+				.createBevelBorder(BevelBorder.LOWERED));
 
 		tooltipLabel = new JLabel("");
-		tooltipLabel.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		tooltipLabel.setBorder(BorderFactory
+				.createBevelBorder(BevelBorder.LOWERED));
 
 		JPanel linkPanel = new JPanel();
 		linkPanel.setLayout(new BoxLayout(linkPanel, BoxLayout.X_AXIS));

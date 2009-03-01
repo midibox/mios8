@@ -148,8 +148,10 @@ public class DrumGUI extends JPanel {
 				break;
 			case 6:
 				// Normal combo
-				JComboBox combo = new JComboBox(midiParameter.getSparseValAlias());
-				midiParameterGUIs.add(new SIDSysexParameterControlCombo(midiParameter, combo, true, BorderLayout.NORTH, false,
+				JComboBox combo = new JComboBox(midiParameter
+						.getSparseValAlias());
+				midiParameterGUIs.add(new SIDSysexParameterControlCombo(
+						midiParameter, combo, true, BorderLayout.NORTH, false,
 						false));
 				break;
 			case 7:
@@ -162,7 +164,8 @@ public class DrumGUI extends JPanel {
 				break;
 			case 8:
 				// Radio button list
-				midiParameterGUIs.add(new SIDSysexParameterControlRadio(midiParameter, true, BorderLayout.NORTH, true, false));
+				midiParameterGUIs.add(new SIDSysexParameterControlRadio(
+						midiParameter, true, BorderLayout.NORTH, true, false));
 				break;
 			default:
 				midiParameterGUIs.add(midiParameter);
@@ -185,7 +188,7 @@ public class DrumGUI extends JPanel {
 
 	public void stereoLink(boolean b) {
 		if (b) {
-			((Patch)sidEditController.getPatch()).setStereoLink(true);
+			((Patch) sidEditController.getPatch()).setStereoLink(true);
 			linkPar(EXT_L, EXT_R); // Link external outputs 2 by 2
 			linkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
 			// filter
@@ -193,7 +196,7 @@ public class DrumGUI extends JPanel {
 			// &
 			// right
 		} else {
-			((Patch)sidEditController.getPatch()).setStereoLink(false);
+			((Patch) sidEditController.getPatch()).setStereoLink(false);
 			unlinkPar(EXT_L, EXT_R); // Unlink external outputs 2 by 2
 			unlinkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
 			// filter

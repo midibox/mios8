@@ -279,7 +279,7 @@ public class LeadGUI extends JPanel {
 
 	public void oscLink(boolean b) {
 		if (b) {
-			((Patch)sidEditController.getPatch()).setOscillatorLink(true);
+			((Patch) sidEditController.getPatch()).setOscillatorLink(true);
 			linkPar((Vector) GUIs.elementAt(5), (Vector) GUIs.elementAt(6)); // Link
 			// V1
 			// &
@@ -305,7 +305,7 @@ public class LeadGUI extends JPanel {
 			// &
 			// V4
 		} else {
-			((Patch)sidEditController.getPatch()).setOscillatorLink(false);
+			((Patch) sidEditController.getPatch()).setOscillatorLink(false);
 			unlinkPar((Vector) GUIs.elementAt(5), (Vector) GUIs.elementAt(6)); // Unlink
 			// V1
 			// &
@@ -339,7 +339,7 @@ public class LeadGUI extends JPanel {
 
 	public void stereoLink(boolean b) {
 		if (b) {
-			((Patch)sidEditController.getPatch()).setStereoLink(true);
+			((Patch) sidEditController.getPatch()).setStereoLink(true);
 			linkPar(EXT_L, EXT_R); // Link external outputs 2 by 2
 			linkPar(MP_L, MP_R); // Link MP direct assign left & right
 			linkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
@@ -360,7 +360,7 @@ public class LeadGUI extends JPanel {
 			// &
 			// V6
 		} else {
-			((Patch)sidEditController.getPatch()).setStereoLink(false);
+			((Patch) sidEditController.getPatch()).setStereoLink(false);
 			unlinkPar(EXT_L, EXT_R); // Unlink external outputs 2 by 2
 			unlinkPar(MP_L, MP_R); // Unlink MP direct assign left & right
 			unlinkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Unlink

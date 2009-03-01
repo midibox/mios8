@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
@@ -37,7 +36,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import org.midibox.sidedit.SIDSysexInfo;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
 
@@ -63,7 +61,9 @@ public class SequencerGUI extends JPanel implements ActionListener {
 		JPanel comboPanel = new JPanel();
 		comboPanel.setLayout(new BoxLayout(comboPanel, BoxLayout.Y_AXIS));
 		comboPanel.setOpaque(false);
-		String[] s = { "Sequence #1", "Sequence #2", "Sequence #3",	"Sequence #4", "Sequence #5", "Sequence #6", "Sequence #7",	"Sequence #8" };
+		String[] s = { "Sequence #1", "Sequence #2", "Sequence #3",
+				"Sequence #4", "Sequence #5", "Sequence #6", "Sequence #7",
+				"Sequence #8" };
 		ButtonGroup bg = new ButtonGroup();
 		radioButtons = new JRadioButton[s.length];
 		for (int i = 0; i < s.length; i++) {
@@ -109,8 +109,8 @@ public class SequencerGUI extends JPanel implements ActionListener {
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
-		c.gridy = 0;		
-		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(0), c);	
+		c.gridy = 0;
+		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(0), c);
 		c.gridx = 1;
 		c.gridy = 0;
 		c.gridwidth = 2;
@@ -120,7 +120,7 @@ public class SequencerGUI extends JPanel implements ActionListener {
 		c.gridwidth = 1;
 		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(1), c);
 		c.gridx = 0;
-		c.gridy = 1;		
+		c.gridy = 1;
 		configPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(3), c);
 		c.gridx = 1;
 		c.gridy = 1;
@@ -165,8 +165,13 @@ public class SequencerGUI extends JPanel implements ActionListener {
 				seqPanel.add((SIDSysexParameterControlGUI) vGUI.elementAt(row
 						+ (6 * col) + offset), c);
 				if (row == 0) {
-					((SIDSysexParameterControlKnob) vGUI.elementAt(row	+ (6 * col) + offset)).setSnapVals(new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12},new String[]{"C","C#","D","D#","E","F","F#","G","G#","A","A#","B","C+"});
-					((SIDSysexParameterControlKnob) vGUI.elementAt(row	+ (6 * col) + offset)).setSnap(true);
+					((SIDSysexParameterControlKnob) vGUI.elementAt(row
+							+ (6 * col) + offset)).setSnapVals(new int[] { 0,
+							1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 },
+							new String[] { "C", "C#", "D", "D#", "E", "F",
+									"F#", "G", "G#", "A", "A#", "B", "C+" });
+					((SIDSysexParameterControlKnob) vGUI.elementAt(row
+							+ (6 * col) + offset)).setSnap(true);
 				}
 			}
 		}

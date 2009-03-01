@@ -27,6 +27,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.prefs.Preferences;
 
 import javax.swing.JApplet;
@@ -36,6 +37,7 @@ import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 
 import org.midibox.apps.virtualkeyboard.gui.VirtualKeyboardGUI;
+import org.midibox.apps.virtualkeyboard.xml.VirtualKeyboardXML;
 import org.midibox.utils.gui.ImageLoader;
 
 public class VirtualKeyboard extends JApplet {
@@ -43,12 +45,17 @@ public class VirtualKeyboard extends JApplet {
 	final static Preferences preferences = Preferences.userRoot().node(
 			"org/midibox/virtualkeyboard/gui");
 
+	final static String configFileName = ".virtualkeyboard";
+
 	private org.midibox.apps.virtualkeyboard.VirtualKeyboard virtualKeyboard;
 
 	private VirtualKeyboardGUI virtualKeyboardGUI;
 
 	public VirtualKeyboard() {
+
 		virtualKeyboard = new org.midibox.apps.virtualkeyboard.VirtualKeyboard();
+
+		loadConfigFile();
 
 		try {
 			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
@@ -71,11 +78,29 @@ public class VirtualKeyboard extends JApplet {
 	}
 
 	public void init() {
+
 		virtualKeyboardGUI.setShowConnections(preferences.getBoolean(
 				"showConnections", true));
 	}
 
+	protected void loadConfigFile() {
+
+		File configFile = new File(System.getProperty("user.home"),
+				configFileName);
+
+		if (configFile.exists()) {
+
+			VirtualKeyboardXML virtualKeyboardXML = new VirtualKeyboardXML(
+					virtualKeyboard, VirtualKeyboardXML.TAG_ROOT_ELEMENT);
+
+			virtualKeyboardXML.loadXML(configFile);
+		}
+	}
+
 	public void destroy() {
+
+		saveConfigFile();
+
 		preferences.put("lookAndFeel", virtualKeyboardGUI.getLookAndFeel());
 
 		preferences.putBoolean("defaultDecoratedFrames", virtualKeyboardGUI
@@ -85,18 +110,46 @@ public class VirtualKeyboard extends JApplet {
 				.isShowConnections());
 	}
 
+	protected void saveConfigFile() {
+
+		File configFile = new File(System.getProperty("user.home"),
+				configFileName);
+
+		if (!configFile.exists()) {
+			try {
+				configFile.createNewFile();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (configFile.exists()) {
+
+			VirtualKeyboardXML virtualKeyboardXML = new VirtualKeyboardXML(
+					virtualKeyboard, VirtualKeyboardXML.TAG_ROOT_ELEMENT);
+
+			virtualKeyboardXML.saveXML(configFile);
+		}
+	}
+
 	public static void exit(JFrame frame) {
+
 		preferences.putInt("mainWindowX", frame.getX());
 		preferences.putInt("mainWindowY", frame.getY());
+
 		System.exit(0);
 	}
 
 	public static void main(String[] args) {
 
 		final VirtualKeyboard virtualKeyboardGUIDriver = new VirtualKeyboard();
+
 		virtualKeyboardGUIDriver.init();
 
 		final JFrame frame = new JFrame("Virtual Keyboard");
+
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
 		frame.setContentPane(virtualKeyboardGUIDriver);
 
 		frame.setIconImage(ImageLoader.getImageIcon("piano.png").getImage());

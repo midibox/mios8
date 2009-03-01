@@ -87,7 +87,7 @@ public class LCDMessage extends MIOSSysexSendReceive {
 
 	public void setLcdHeight(int lcdHeight) {
 		this.lcdHeight = lcdHeight;
-		
+
 		setChanged();
 		notifyObservers(LCD_HEIGHT);
 		clearChanged();

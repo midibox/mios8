@@ -37,60 +37,121 @@ public class MultiSpecs {
 
 	public static Vector createMSTR(Patch patch) {
 		Vector drumControl = new Vector();
-		drumControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 82, 0, 7, "Volume"));
+		drumControl.add(new SIDSysexParameterControl(rotary, null, 0, patch,
+				82, 0, 7, "Volume"));
 		return drumControl;
 	}
 
 	public static Vector createInstrument(Patch patch, int offset) {
 		Vector multiControl = new Vector();
 		// Master
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 3, 1, "Poly", "Switches between Poly/Mono mode"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 0, 1, "Legato"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 2, 1, "Fingered Portamento"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 112 + offset, 1, 1, "Wavetable only"));
-		multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 113 + offset, 0, 4, "Voice Assign", "Voice assignment"));
-		multiControl.add(new SIDSysexParameterControl(combo, SIDSysexInfo.multiParams, 0, patch, 114 + offset, 0, 8, "Velocity Assign", "Velocity parameter assignment"));
-		multiControl.add(new SIDSysexParameterControl(combo, SIDSysexInfo.multiParams, 0, patch, 115 + offset, 0, 8, "PitchB. Assign", "Pitch Bender assignment"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				112 + offset, 3, 1, "Poly", "Switches between Poly/Mono mode"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				112 + offset, 0, 1, "Legato"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				112 + offset, 2, 1, "Fingered Portamento"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				112 + offset, 1, 1, "Wavetable only"));
+		multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch,
+				113 + offset, 0, 4, "Voice Assign", "Voice assignment"));
+		multiControl.add(new SIDSysexParameterControl(combo,
+				SIDSysexInfo.multiParams, 0, patch, 114 + offset, 0, 8,
+				"Velocity Assign", "Velocity parameter assignment"));
+		multiControl.add(new SIDSysexParameterControl(combo,
+				SIDSysexInfo.multiParams, 0, patch, 115 + offset, 0, 8,
+				"PitchB. Assign", "Pitch Bender assignment"));
 
 		// LFO 1&2
 		for (int i = 0; i < 2; i++) {
-			multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 116 + (7 * i) + offset, 0, 1, "On/Off", "Enable/disable LFO"));
-			multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 116 + (7 * i) + offset, 1, 1, "Key Sync", "Key synchronisation"));
-			multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 116 + (7 * i) + offset, 2, 1, "MIDI Sync", "Global clock synchronisation"));
-			multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 116 + (7 * i) + offset, 3, 1, "Oneshot", "Oneshot mode"));
-			multiControl.add(new SIDSysexParameterControl(lfoselect, null, 0, patch, 116 + (7 * i) + offset, 4, 4, "Waveform"));
-			multiControl.add(new SIDSysexParameterControl(rotary, null, -128, patch, 117 + (7 * i) + offset, 0, 8, "Pitch Depth", "Pitch modulation depth"));
-			multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 118 + (7 * i) + offset, 0, 8, "Rate"));
-			multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 119 + (7 * i) + offset, 0, 8, "Delay"));
-			multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 120 + (7 * i) + offset, 0, 8, "Phase"));
-			multiControl.add(new SIDSysexParameterControl(rotary, null, -128, patch, 121 + (7 * i) + offset, 0, 8, "PWM Depth", "Pulse width modulation depth"));
-			multiControl.add(new SIDSysexParameterControl(rotary, null, -128, patch, 122 + (7 * i) + offset, 0, 8, "Cutoff Depth", "Filter cutoff modulation depth"));
+			multiControl.add(new SIDSysexParameterControl(button, null, 0,
+					patch, 116 + (7 * i) + offset, 0, 1, "On/Off",
+					"Enable/disable LFO"));
+			multiControl.add(new SIDSysexParameterControl(button, null, 0,
+					patch, 116 + (7 * i) + offset, 1, 1, "Key Sync",
+					"Key synchronisation"));
+			multiControl.add(new SIDSysexParameterControl(button, null, 0,
+					patch, 116 + (7 * i) + offset, 2, 1, "MIDI Sync",
+					"Global clock synchronisation"));
+			multiControl.add(new SIDSysexParameterControl(button, null, 0,
+					patch, 116 + (7 * i) + offset, 3, 1, "Oneshot",
+					"Oneshot mode"));
+			multiControl.add(new SIDSysexParameterControl(lfoselect, null, 0,
+					patch, 116 + (7 * i) + offset, 4, 4, "Waveform"));
+			multiControl.add(new SIDSysexParameterControl(rotary, null, -128,
+					patch, 117 + (7 * i) + offset, 0, 8, "Pitch Depth",
+					"Pitch modulation depth"));
+			multiControl.add(new SIDSysexParameterControl(rotary, null, 0,
+					patch, 118 + (7 * i) + offset, 0, 8, "Rate"));
+			multiControl.add(new SIDSysexParameterControl(rotary, null, 0,
+					patch, 119 + (7 * i) + offset, 0, 8, "Delay"));
+			multiControl.add(new SIDSysexParameterControl(rotary, null, 0,
+					patch, 120 + (7 * i) + offset, 0, 8, "Phase"));
+			multiControl.add(new SIDSysexParameterControl(rotary, null, -128,
+					patch, 121 + (7 * i) + offset, 0, 8, "PWM Depth",
+					"Pulse width modulation depth"));
+			multiControl.add(new SIDSysexParameterControl(rotary, null, -128,
+					patch, 122 + (7 * i) + offset, 0, 8, "Cutoff Depth",
+					"Filter cutoff modulation depth"));
 		}
 
 		// Envelope
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 130 + offset, 4, 1, "Curve to Attack", "Curve assigned to Attack rate"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 130 + offset, 5, 1, "Curve to Decay", "Curve assigned to Decay rate"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 130 + offset, 6, 1, "Curve to Sustain", "Curve assigned to Sustain rate"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 130 + offset, 7, 1, "MIDI Sync", "Global clock synchronisation"));
-		multiControl.add(new SIDSysexParameterControl(rotary, null, -128, patch, 131 + offset, 0, 8, "Depth Pitch", "Pitch modulation depth"));
-		multiControl.add(new SIDSysexParameterControl(rotary, null, -128, patch, 132 + offset, 0, 8, "Depth PWM", "Pulse width modulation depth"));
-		multiControl.add(new SIDSysexParameterControl(rotary, null, -128, patch, 133 + offset, 0, 8, "Depth Cutoff", "Filter cutoff modulation depth"));
-		multiControl.add(new SIDSysexParameterControl(slider, null, 0, patch, 134 + offset, 0, 8, "Attack", "Attack rate"));
-		multiControl.add(new SIDSysexParameterControl(slider, null, 0, patch, 135 + offset, 0, 8, "Decay", "Decay rate"));
-		multiControl.add(new SIDSysexParameterControl(slider, null, 0, patch, 136 + offset, 0, 8, "Sustain", "Sustain level"));
-		multiControl.add(new SIDSysexParameterControl(slider, null, 0, patch, 137 + offset, 0, 8, "Release", "Release rate"));
-		multiControl.add(new SIDSysexParameterControl(rotary, null, -128, patch, 138 + offset, 0, 8, "Curve"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				130 + offset, 4, 1, "Curve to Attack",
+				"Curve assigned to Attack rate"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				130 + offset, 5, 1, "Curve to Decay",
+				"Curve assigned to Decay rate"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				130 + offset, 6, 1, "Curve to Sustain",
+				"Curve assigned to Sustain rate"));
+		multiControl
+				.add(new SIDSysexParameterControl(button, null, 0, patch,
+						130 + offset, 7, 1, "MIDI Sync",
+						"Global clock synchronisation"));
+		multiControl.add(new SIDSysexParameterControl(rotary, null, -128,
+				patch, 131 + offset, 0, 8, "Depth Pitch",
+				"Pitch modulation depth"));
+		multiControl.add(new SIDSysexParameterControl(rotary, null, -128,
+				patch, 132 + offset, 0, 8, "Depth PWM",
+				"Pulse width modulation depth"));
+		multiControl.add(new SIDSysexParameterControl(rotary, null, -128,
+				patch, 133 + offset, 0, 8, "Depth Cutoff",
+				"Filter cutoff modulation depth"));
+		multiControl.add(new SIDSysexParameterControl(slider, null, 0, patch,
+				134 + offset, 0, 8, "Attack", "Attack rate"));
+		multiControl.add(new SIDSysexParameterControl(slider, null, 0, patch,
+				135 + offset, 0, 8, "Decay", "Decay rate"));
+		multiControl.add(new SIDSysexParameterControl(slider, null, 0, patch,
+				136 + offset, 0, 8, "Sustain", "Sustain level"));
+		multiControl.add(new SIDSysexParameterControl(slider, null, 0, patch,
+				137 + offset, 0, 8, "Release", "Release rate"));
+		multiControl.add(new SIDSysexParameterControl(rotary, null, -128,
+				patch, 138 + offset, 0, 8, "Curve"));
 
 		// Wavetable
-		multiControl.add(new SIDSysexParameterControl(rotary, createDividers(), 0, patch, 139 + offset, 0, 6, "Clock Divider", "Clock divider (sets tempo)"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 139 + offset, 6, 1, "reserved", "Reserved"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 139 + offset, 7, 1, "reserved", "Reserved"));
-		multiControl.add(new SIDSysexParameterControl(combo, SIDSysexInfo.multiParams, 0, patch, 140 + offset, 0, 8, "Assign", "Parameter assignment"));
-		multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 141 + offset, 0, 7, "Start Pos", "Start position in wavetable"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 141 + offset, 7, 1, "reserved", "reserved flag"));
-		multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 142 + offset, 0, 7, "End Pos", "End position in wavetable"));
-		multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 143 + offset, 0, 7, "Loop Pos", "Loop position in wavetable"));
-		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch, 143 + offset, 7, 1, "Oneshot"));
+		multiControl.add(new SIDSysexParameterControl(rotary, createDividers(),
+				0, patch, 139 + offset, 0, 6, "Clock Divider",
+				"Clock divider (sets tempo)"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				139 + offset, 6, 1, "reserved", "Reserved"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				139 + offset, 7, 1, "reserved", "Reserved"));
+		multiControl.add(new SIDSysexParameterControl(combo,
+				SIDSysexInfo.multiParams, 0, patch, 140 + offset, 0, 8,
+				"Assign", "Parameter assignment"));
+		multiControl
+				.add(new SIDSysexParameterControl(rotary, null, 0, patch,
+						141 + offset, 0, 7, "Start Pos",
+						"Start position in wavetable"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				141 + offset, 7, 1, "reserved", "reserved flag"));
+		multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch,
+				142 + offset, 0, 7, "End Pos", "End position in wavetable"));
+		multiControl.add(new SIDSysexParameterControl(rotary, null, 0, patch,
+				143 + offset, 0, 7, "Loop Pos", "Loop position in wavetable"));
+		multiControl.add(new SIDSysexParameterControl(button, null, 0, patch,
+				143 + offset, 7, 1, "Oneshot"));
 
 		return multiControl;
 	}
@@ -99,7 +160,8 @@ public class MultiSpecs {
 		Vector wtControl = new Vector();
 		// Wavetable data
 		for (int c = 0; c < 128; c++) {
-			wtControl.add(new SIDSysexParameterControl(slider, createWTStr(), 0, patch, 384 + c, 0, 8, Integer.toString(c)));
+			wtControl.add(new SIDSysexParameterControl(slider, createWTStr(),
+					0, patch, 384 + c, 0, 8, Integer.toString(c)));
 		}
 		return wtControl;
 	}

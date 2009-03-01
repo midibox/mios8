@@ -3,7 +3,6 @@ package org.midibox.mios.xml;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.midibox.midi.MidiFilterDevice;
 import org.midibox.mios.HexFileUploadDevice;
 import org.midibox.mios.HexFileUploadDeviceManager;
 import org.midibox.utils.xml.XMLUtils;
@@ -27,7 +26,7 @@ public class HexFileUploadDeviceManagerXML extends XMLUtils {
 		super(rootElementTag);
 
 		this.hexFileUploadDeviceManager = hexFileUploadDeviceManager;
-		
+
 		tags.add(TAG_HEX_FILE_UPLOAD_DEVICES);
 		tags.add(HexFileUploadDeviceXML.TAG_ROOT_ELEMENT);
 	}
@@ -65,9 +64,10 @@ public class HexFileUploadDeviceManagerXML extends XMLUtils {
 			HexFileUploadDeviceXML hexFileUploadDeviceXML = new HexFileUploadDeviceXML(
 					hexFileUploadDevice,
 					HexFileUploadDeviceXML.TAG_ROOT_ELEMENT);
-			
-			hexFileUploadDeviceManager.addHexFileUploadDevice(hexFileUploadDevice);
-			
+
+			hexFileUploadDeviceManager
+					.addHexFileUploadDevice(hexFileUploadDevice);
+
 			hexFileUploadDeviceXML.loadXML(element);
 		}
 	}

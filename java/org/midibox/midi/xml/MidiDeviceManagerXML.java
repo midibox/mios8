@@ -49,7 +49,6 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 		} else if (name == TAG_DESELECTED_MIDI_READ_DEVICES) {
 
-
 		} else if (name == TAG_DESELECTED_MIDI_READ_DEVICE) {
 
 			int hash = Integer.parseInt(element

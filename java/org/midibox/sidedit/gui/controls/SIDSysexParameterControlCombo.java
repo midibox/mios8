@@ -36,7 +36,10 @@ public class SIDSysexParameterControlCombo extends SIDSysexParameterControlGUI {
 	public static float mouseWheelResolution = 10.0f;
 	private JComboBox combo;
 
-	public SIDSysexParameterControlCombo(SIDSysexParameterControl midiParameter, JComboBox combo, boolean showLabel, String labelLocation, boolean valueBelow, boolean showValue) {
+	public SIDSysexParameterControlCombo(
+			SIDSysexParameterControl midiParameter, JComboBox combo,
+			boolean showLabel, String labelLocation, boolean valueBelow,
+			boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 		this.combo = combo;
 		combo.setPreferredSize(new Dimension(110, 20));
@@ -55,9 +58,10 @@ public class SIDSysexParameterControlCombo extends SIDSysexParameterControlGUI {
 		if (ae.getSource() == combo) {
 			if (update) {
 				update = false;
-				midiParameter.setMidiValueWithSparse(combo.getSelectedIndex());				
+				midiParameter.setMidiValueWithSparse(combo.getSelectedIndex());
 				for (int c = 0; c < midiParameters.size(); c++) {
-					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+							.elementAt(c);
 					mp.setMidiValue(midiParameter.getMidiValue(), false);
 				}
 				update = true;

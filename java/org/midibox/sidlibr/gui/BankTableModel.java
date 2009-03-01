@@ -26,7 +26,7 @@ import org.midibox.sidlibr.Bank;
 
 public class BankTableModel extends AbstractTableModel {
 	private String[] patchColumnNames = { "#", "Patch Name", "Engine" };
-	private String[] ensembleColumnNames = { "#", "Ensemble Name"};
+	private String[] ensembleColumnNames = { "#", "Ensemble Name" };
 	private Object[][] data;
 	private boolean isEnsembleBank;
 

@@ -1,7 +1,6 @@
 package org.midibox.mios.xml;
 
 import java.util.Iterator;
-import java.util.Vector;
 
 import org.midibox.mios.DebugFunction;
 import org.midibox.mios.DebugFunctionParameters;
@@ -72,24 +71,25 @@ public class DebugFunctionXML extends MIOSSysexSendReceiveXML {
 		} else if (name == TAG_DEBUG_FUNCTION_PARAMETERS_LIST) {
 
 			debugFunction.getDebugFunctionParameters().removeAllElements();
-			
+
 			NodeList children = element.getChildNodes();
-			
-			DebugFunctionParameters[] params = new DebugFunctionParameters[children.getLength()];
-			
+
+			DebugFunctionParameters[] params = new DebugFunctionParameters[children
+					.getLength()];
+
 			for (int p = 0; p < children.getLength(); p++) {
-			
+
 				DebugFunctionParameters debugFunctionParameters = new DebugFunctionParameters();
-				
+
 				DebugFunctionParametersXML debugFunctionParametersXML = new DebugFunctionParametersXML(
 						debugFunctionParameters,
 						DebugFunctionParametersXML.TAG_ROOT_ELEMENT);
-				
+
 				debugFunctionParametersXML.loadXML(children.item(p));
-				
+
 				params[p] = debugFunctionParameters;
 			}
-			
+
 			debugFunction.insertDebugFunctionParameters(params, 0);
 		}
 	}

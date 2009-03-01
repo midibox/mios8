@@ -22,7 +22,6 @@ package org.midibox.sidedit.gui.drum;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -33,7 +32,6 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -46,7 +44,7 @@ public class SequencerGUI extends JPanel implements ActionListener {
 	private JPanel seqPanel, currentPanel, seq1, seq2, seq3, seq4, seq5, seq6,
 			seq7, seq8;
 	private JRadioButton radioButtons[];
-	
+
 	protected SequencerGUI(Vector V1GUIv, Vector V2GUIv) {
 		setLayout(new BorderLayout());
 		this.setOpaque(false);
@@ -64,7 +62,9 @@ public class SequencerGUI extends JPanel implements ActionListener {
 		JPanel comboPanel = new JPanel();
 		comboPanel.setLayout(new BoxLayout(comboPanel, BoxLayout.Y_AXIS));
 		comboPanel.setOpaque(false);
-		String[] s = { "Sequence #1", "Sequence #2", "Sequence #3",	"Sequence #4", "Sequence #5", "Sequence #6", "Sequence #7",	"Sequence #8" };
+		String[] s = { "Sequence #1", "Sequence #2", "Sequence #3",
+				"Sequence #4", "Sequence #5", "Sequence #6", "Sequence #7",
+				"Sequence #8" };
 		ButtonGroup bg = new ButtonGroup();
 		radioButtons = new JRadioButton[s.length];
 		for (int i = 0; i < s.length; i++) {
@@ -75,7 +75,7 @@ public class SequencerGUI extends JPanel implements ActionListener {
 			bg.add(radioButtons[i]);
 			comboPanel.add(radioButtons[i]);
 		}
-		
+
 		seqPanel.add(comboPanel);
 
 		seq1 = createSeqData(V2GUIv, 0);

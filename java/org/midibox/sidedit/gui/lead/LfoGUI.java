@@ -138,8 +138,13 @@ public class LfoGUI extends JPanel {
 
 		// Setup the 'rate'-knob behavior to be depending on the 'master sync'
 		// switch
-		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(5 + offset)).setSnapVals(new int[]{245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255},SIDSysexInfo.rates);
-		((SIDSysexParameterControlToggleButton) midiParameterGUI.elementAt(1 + offset)).setSnapParameter((SIDSysexParameterControlGUI) midiParameterGUI.elementAt(5 + offset));
+		((SIDSysexParameterControlKnob) midiParameterGUI.elementAt(5 + offset))
+				.setSnapVals(new int[] { 245, 246, 247, 248, 249, 250, 251,
+						252, 253, 254, 255 }, SIDSysexInfo.rates);
+		((SIDSysexParameterControlToggleButton) midiParameterGUI
+				.elementAt(1 + offset))
+				.setSnapParameter((SIDSysexParameterControlGUI) midiParameterGUI
+						.elementAt(5 + offset));
 
 		return lfoPanel;
 	}

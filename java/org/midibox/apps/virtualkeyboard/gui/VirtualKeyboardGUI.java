@@ -108,20 +108,21 @@ public class VirtualKeyboardGUI extends JPanel {
 
 		menuBar.add(fileMenu);
 
-		fileMenu.removeAll();
+		JMenu optionsMenu = new JMenu("Options");
 
 		showConnectionsItem = new JCheckBoxMenuItem("Show Connections",
 				isShowConnections());
-		fileMenu.add(showConnectionsItem);
+
 		showConnectionsItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				setShowConnections(showConnectionsItem.isSelected());
 			}
 		});
 
-		JMenu optionsMenu = new JMenu("Options");
+		optionsMenu.add(showConnectionsItem);
 
 		lookAndFeelMenu = new JMenu("Look & Feel");
+
 		lookAndFeelMenu.addMenuListener(new MenuListener() {
 
 			public void menuCanceled(MenuEvent arg0) {

@@ -124,14 +124,14 @@ public class LCDMessageGUI extends JPanel implements ActionListener,
 
 		lcdTextArea = new JTextArea(lcdMessage.getLcdHeight(), lcdMessage
 				.getLcdWidth());
-		
+
 		lcdTextArea.setBackground(Color.GREEN);
 		lcdTextArea.setForeground(Color.BLACK);
 		lcdTextArea.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		lcdTextArea.setFont(new Font("Monospaced", Font.BOLD, 20));
 		lcdTextArea.setLineWrap(false);
 		lcdTextArea.setWrapStyleWord(false);
-		
+
 		lcdTextArea.addFocusListener(new FocusAdapter() {
 			public void focusLost(FocusEvent fe) {
 				lcdMessage.setMessageText(lcdTextArea.getText());
@@ -192,13 +192,11 @@ public class LCDMessageGUI extends JPanel implements ActionListener,
 				lcdTextArea.setCaretPosition(offs);
 			}
 		});
-		
 
-		
 		String message = lcdMessage.getMessageText();
-		
+
 		if (message != null) {
-			
+
 			lcdTextArea.setText(message);
 		}
 

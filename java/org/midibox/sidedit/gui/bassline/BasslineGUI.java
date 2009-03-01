@@ -23,7 +23,6 @@ package org.midibox.sidedit.gui.bassline;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.Vector;
-import org.midibox.sidlibr.Patch;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -45,6 +44,7 @@ import org.midibox.sidedit.gui.controls.SIDSysexParameterControlRadio;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlSlider;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlToggleButton;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlWaveSelect;
+import org.midibox.sidlibr.Patch;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
@@ -60,12 +60,20 @@ public class BasslineGUI extends JPanel {
 		GUIs = createGUIs(sidEditController);
 		createLinkGroups();
 		JTabbedPane tabbedPane = new JTabbedPane();
-		JPanel t1 = new GlobalGUI((Vector) GUIs.elementAt(0), (Vector) GUIs.elementAt(1));
-		JPanel t2 = new OscillatorGUI((Vector) GUIs.elementAt(4), (Vector) GUIs.elementAt(5), (Vector) GUIs.elementAt(7), (Vector) GUIs.elementAt(8),(Vector) GUIs.elementAt(6));
-		JPanel t3 = new FilterGUI((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3));
-		JPanel t4 = new LfoGUI((Vector) GUIs.elementAt(9), (Vector) GUIs.elementAt(10), (Vector) GUIs.elementAt(11), (Vector) GUIs.elementAt(12));
-		JPanel t6 = new SequencerGUI((Vector) GUIs.elementAt(15), (Vector) GUIs.elementAt(13), (Vector) GUIs.elementAt(14));
-		JPanel t7 = new ArpGUI((Vector) GUIs.elementAt(4), (Vector) GUIs.elementAt(5));
+		JPanel t1 = new GlobalGUI((Vector) GUIs.elementAt(0), (Vector) GUIs
+				.elementAt(1));
+		JPanel t2 = new OscillatorGUI((Vector) GUIs.elementAt(4), (Vector) GUIs
+				.elementAt(5), (Vector) GUIs.elementAt(7), (Vector) GUIs
+				.elementAt(8), (Vector) GUIs.elementAt(6));
+		JPanel t3 = new FilterGUI((Vector) GUIs.elementAt(2), (Vector) GUIs
+				.elementAt(3));
+		JPanel t4 = new LfoGUI((Vector) GUIs.elementAt(9), (Vector) GUIs
+				.elementAt(10), (Vector) GUIs.elementAt(11), (Vector) GUIs
+				.elementAt(12));
+		JPanel t6 = new SequencerGUI((Vector) GUIs.elementAt(15), (Vector) GUIs
+				.elementAt(13), (Vector) GUIs.elementAt(14));
+		JPanel t7 = new ArpGUI((Vector) GUIs.elementAt(4), (Vector) GUIs
+				.elementAt(5));
 
 		tabbedPane.addTab("Global", t1);
 		tabbedPane.addTab("Oscillator", t2);
@@ -74,7 +82,8 @@ public class BasslineGUI extends JPanel {
 		tabbedPane.addTab("Sequencer", t6);
 		tabbedPane.addTab("Arpeggiator", t7);
 
-		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(new Color(245, 245, 245), new Color(200, 200, 200)));
+		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(
+				new Color(245, 245, 245), new Color(200, 200, 200)));
 
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
@@ -161,7 +170,8 @@ public class BasslineGUI extends JPanel {
 				break;
 			case 8:
 				// Radio button list
-				midiParameterGUIs.add(new SIDSysexParameterControlRadio(midiParameter, true, BorderLayout.NORTH, true, false));
+				midiParameterGUIs.add(new SIDSysexParameterControlRadio(
+						midiParameter, true, BorderLayout.NORTH, true, false));
 				break;
 			default:
 				midiParameterGUIs.add(midiParameter);
@@ -184,7 +194,7 @@ public class BasslineGUI extends JPanel {
 
 	public void stereoLink(boolean b) {
 		if (b) {
-			((Patch)sidEditController.getPatch()).setStereoLink(true);
+			((Patch) sidEditController.getPatch()).setStereoLink(true);
 			linkPar(EXT_L, EXT_R); // Link external outputs 2 by 2
 			linkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
 			// filter
@@ -207,7 +217,7 @@ public class BasslineGUI extends JPanel {
 			linkPar((Vector) GUIs.elementAt(13), (Vector) GUIs.elementAt(14)); // Link
 			// Sequencers
 		} else {
-			((Patch)sidEditController.getPatch()).setStereoLink(false);
+			((Patch) sidEditController.getPatch()).setStereoLink(false);
 			unlinkPar(EXT_L, EXT_R); // Unlink external outputs 2 by 2
 			unlinkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
 			// filter

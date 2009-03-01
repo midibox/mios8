@@ -316,7 +316,7 @@ public class MultiGUI extends JPanel {
 
 	public void oscLink(boolean b) {
 		if (b) {
-			((Patch)sidEditController.getPatch()).setOscillatorLink(true);
+			((Patch) sidEditController.getPatch()).setOscillatorLink(true);
 			linkPar((Vector) GUIs.elementAt(4), (Vector) GUIs.elementAt(5)); // Link
 			// V1
 			// &
@@ -372,7 +372,7 @@ public class MultiGUI extends JPanel {
 			// V4
 			// rest
 		} else {
-			((Patch)sidEditController.getPatch()).setOscillatorLink(false);
+			((Patch) sidEditController.getPatch()).setOscillatorLink(false);
 			unlinkPar((Vector) GUIs.elementAt(4), (Vector) GUIs.elementAt(5)); // Unlink
 			// V1
 			// &
@@ -436,7 +436,7 @@ public class MultiGUI extends JPanel {
 
 	public void stereoLink(boolean b) {
 		if (b) {
-			((Patch)sidEditController.getPatch()).setStereoLink(true);
+			((Patch) sidEditController.getPatch()).setStereoLink(true);
 			linkPar(EXT_L, EXT_R); // Link external outputs 2 by 2
 			linkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Link
 			// filter
@@ -471,7 +471,7 @@ public class MultiGUI extends JPanel {
 			// V6
 			// rest
 		} else {
-			((Patch)sidEditController.getPatch()).setStereoLink(false);
+			((Patch) sidEditController.getPatch()).setStereoLink(false);
 			unlinkPar(EXT_L, EXT_R); // Unlink external outputs 2 by 2
 			unlinkPar((Vector) GUIs.elementAt(2), (Vector) GUIs.elementAt(3)); // Unlink
 			// filter

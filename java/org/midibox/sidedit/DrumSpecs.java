@@ -40,17 +40,34 @@ public class DrumSpecs {
 		Vector drumInstrControl = new Vector();
 
 		for (int i = 0; i < 16; i++) {
-			drumInstrControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 96 + (10 * i), 4, 4,	"Voice Assign", "Voice assignment"));
-			drumInstrControl.add(new SIDSysexParameterControl(rotary, null, 0, patch, 97 + (10 * i), 0, 8, "Drum Model"));
-			drumInstrControl.add(new SIDSysexParameterControl(slider, null, 0, patch, 98 + (10 * i), 4, 4, "Attack", "DCA Attack Rate"));
-			drumInstrControl.add(new SIDSysexParameterControl(slider, null,	0, patch, 98 + (10 * i), 0, 4, "Decay", "DCA Decay Rate"));
-			drumInstrControl.add(new SIDSysexParameterControl(slider, null, 0, patch, 99 + (10 * i), 4, 4, "Sustain", "DCA Sustain Level"));
-			drumInstrControl.add(new SIDSysexParameterControl(slider, null,	0, patch, 99 + (10 * i), 0, 4, "Release", "DCA Release Rate"));
-			drumInstrControl.add(new SIDSysexParameterControl(rotary, null,	-128, patch, 100 + (10 * i), 0, 8, "Tune"));
-			drumInstrControl.add(new SIDSysexParameterControl(rotary, null,	-128, patch, 101 + (10 * i), 0, 8, "Gatelength", "Parameter #1: Gatelength"));
-			drumInstrControl.add(new SIDSysexParameterControl(rotary, null,	-128, patch, 102 + (10 * i), 0, 8, "Speed", "Parameter #2: Speed"));
-			drumInstrControl.add(new SIDSysexParameterControl(rotary, null,	-128, patch, 103 + (10 * i), 0, 8, "Param #3", "Parameter #3: depends on Drum Model"));
-			drumInstrControl.add(new SIDSysexParameterControl(combo, SIDSysexInfo.drumParams, 0, patch, 104 + (10 * i), 0, 8, "Velocity Assign", "Velocity parameter assignment"));
+			drumInstrControl.add(new SIDSysexParameterControl(rotary, null, 0,
+					patch, 96 + (10 * i), 4, 4, "Voice Assign",
+					"Voice assignment"));
+			drumInstrControl.add(new SIDSysexParameterControl(rotary, null, 0,
+					patch, 97 + (10 * i), 0, 8, "Drum Model"));
+			drumInstrControl.add(new SIDSysexParameterControl(slider, null, 0,
+					patch, 98 + (10 * i), 4, 4, "Attack", "DCA Attack Rate"));
+			drumInstrControl.add(new SIDSysexParameterControl(slider, null, 0,
+					patch, 98 + (10 * i), 0, 4, "Decay", "DCA Decay Rate"));
+			drumInstrControl
+					.add(new SIDSysexParameterControl(slider, null, 0, patch,
+							99 + (10 * i), 4, 4, "Sustain", "DCA Sustain Level"));
+			drumInstrControl.add(new SIDSysexParameterControl(slider, null, 0,
+					patch, 99 + (10 * i), 0, 4, "Release", "DCA Release Rate"));
+			drumInstrControl.add(new SIDSysexParameterControl(rotary, null,
+					-128, patch, 100 + (10 * i), 0, 8, "Tune"));
+			drumInstrControl.add(new SIDSysexParameterControl(rotary, null,
+					-128, patch, 101 + (10 * i), 0, 8, "Gatelength",
+					"Parameter #1: Gatelength"));
+			drumInstrControl.add(new SIDSysexParameterControl(rotary, null,
+					-128, patch, 102 + (10 * i), 0, 8, "Speed",
+					"Parameter #2: Speed"));
+			drumInstrControl.add(new SIDSysexParameterControl(rotary, null,
+					-128, patch, 103 + (10 * i), 0, 8, "Param #3",
+					"Parameter #3: depends on Drum Model"));
+			drumInstrControl.add(new SIDSysexParameterControl(combo,
+					SIDSysexInfo.drumParams, 0, patch, 104 + (10 * i), 0, 8,
+					"Velocity Assign", "Velocity parameter assignment"));
 		}
 		return drumInstrControl;
 	}
@@ -58,11 +75,20 @@ public class DrumSpecs {
 	public static Vector createSEQ(Patch patch) {
 		Vector seqControl = new Vector();
 		// Sequencer
-		seqControl.add(new SIDSysexParameterControl(rotary, createDividers(), 0, patch, 80, 0,	6, "Clock Divider", "Clock divider (sets tempo)"));
-		seqControl.add(new SIDSysexParameterControl(button, null, 0, patch, 80, 6,	1, "Manual/Seq", "MIDI Note playing/Sequencer mode"));
-		seqControl.add(new SIDSysexParameterControl(button, null, 0, patch, 80, 7,	1, "Pattern Sync", "Pattern changes synchronised to measure"));
-		seqControl.add(new SIDSysexParameterControl(radio, new String[]{"#1","#2","#3","#4","#5","#6","#7","#8","OFF"}, 0, patch, 81, 0, 4, "Sequence", "Sequencer number"));
-		seqControl.add(new SIDSysexParameterControl(rotary, null, 1, patch, 83, 0, 4, "Steps", "Number of steps"));
+		seqControl.add(new SIDSysexParameterControl(rotary, createDividers(),
+				0, patch, 80, 0, 6, "Clock Divider",
+				"Clock divider (sets tempo)"));
+		seqControl.add(new SIDSysexParameterControl(button, null, 0, patch, 80,
+				6, 1, "Manual/Seq", "MIDI Note playing/Sequencer mode"));
+		seqControl
+				.add(new SIDSysexParameterControl(button, null, 0, patch, 80,
+						7, 1, "Pattern Sync",
+						"Pattern changes synchronised to measure"));
+		seqControl.add(new SIDSysexParameterControl(radio, new String[] { "#1",
+				"#2", "#3", "#4", "#5", "#6", "#7", "#8", "OFF" }, 0, patch,
+				81, 0, 4, "Sequence", "Sequencer number"));
+		seqControl.add(new SIDSysexParameterControl(rotary, null, 1, patch, 83,
+				0, 4, "Steps", "Number of steps"));
 		return seqControl;
 	}
 
@@ -76,24 +102,35 @@ public class DrumSpecs {
 				// Steps: 1-16
 				for (int s = 0; s < 16; s++) {
 					if (s < 8) {
-						seqDataControl.add(new SIDSysexParameterControl(simplebutton, null, 0, patch, 256 + offset, s, 1, "Gate" + Integer.toString(s) + Integer.toString(ch)));
+						seqDataControl.add(new SIDSysexParameterControl(
+								simplebutton, null, 0, patch, 256 + offset, s,
+								1, "Gate" + Integer.toString(s)
+										+ Integer.toString(ch)));
 					} else {
-						seqDataControl.add(new SIDSysexParameterControl(simplebutton, null, 0, patch, 258 + offset, s - 8,	1, "Gate" + Integer.toString(s)	+ Integer.toString(ch)));
+						seqDataControl.add(new SIDSysexParameterControl(
+								simplebutton, null, 0, patch, 258 + offset,
+								s - 8, 1, "Gate" + Integer.toString(s)
+										+ Integer.toString(ch)));
 					}
 				}
 				for (int s = 0; s < 16; s++) {
 					if (s < 8) {
-						seqDataControl.add(new SIDSysexParameterControl(simplebutton, null, 0, patch, 257 + offset, s, 1, "Accent" + Integer.toString(s)+ Integer.toString(ch)));
+						seqDataControl.add(new SIDSysexParameterControl(
+								simplebutton, null, 0, patch, 257 + offset, s,
+								1, "Accent" + Integer.toString(s)
+										+ Integer.toString(ch)));
 					} else {
-						seqDataControl.add(new SIDSysexParameterControl(simplebutton, null, 0, patch, 259 + offset, s - 8,	1, "Accent" + Integer.toString(s) + Integer.toString(ch)));
+						seqDataControl.add(new SIDSysexParameterControl(
+								simplebutton, null, 0, patch, 259 + offset,
+								s - 8, 1, "Accent" + Integer.toString(s)
+										+ Integer.toString(ch)));
 					}
 				}
 
 			}
 		}
 		return seqDataControl;
-	}	
-
+	}
 
 	public static String[] createDividers() {
 		String[] s = new String[64];

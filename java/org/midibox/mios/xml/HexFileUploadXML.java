@@ -11,9 +11,9 @@ public class HexFileUploadXML extends MIOSSysexSendReceiveXML {
 	protected HexFileUpload hexFileUpload;
 
 	public final static String TAG_ROOT_ELEMENT = "hexFileUpload";
-	
+
 	public final static String TAG_FILE = "hexFile";
-		
+
 	public final static String ATTR_WAIT_FOR_UPLOAD_REQUEST = "waitForUploadRequest";
 
 	public final static String ATTR_UPLOAD_MODE = "uploadMode";
@@ -25,34 +25,40 @@ public class HexFileUploadXML extends MIOSSysexSendReceiveXML {
 		super(hexFileUpload, rootElementTag);
 
 		this.hexFileUpload = hexFileUpload;
-		
+
 		tags.add(TAG_FILE);
 	}
-	
+
 	protected void parseElement(Element element) {
 
 		super.parseElement(element);
-		
+
 		String name = element.getNodeName();
-		
+
 		if (name == rootElementTag) {
-			
-			hexFileUpload.setMIOS32Mode(stringToBoolean(element.getAttribute(ATTR_MIOS32_MODE)));
-			
-			hexFileUpload.setDeviceID(stringToInt(element.getAttribute(ATTR_DEVICE_ID)));
-			
-			hexFileUpload.setDelayTime(stringToInt(element.getAttribute(ATTR_DELAY_TIME)));
-			
-			hexFileUpload.setUploadMode(stringToInt(element.getAttribute(ATTR_UPLOAD_MODE)));
-			
-			hexFileUpload.setWaitForUploadRequest(stringToBoolean(element.getAttribute(ATTR_WAIT_FOR_UPLOAD_REQUEST)));
-		
-		} if (name == TAG_FILE) {
-			
+
+			hexFileUpload.setMIOS32Mode(stringToBoolean(element
+					.getAttribute(ATTR_MIOS32_MODE)));
+
+			hexFileUpload.setDeviceID(stringToInt(element
+					.getAttribute(ATTR_DEVICE_ID)));
+
+			hexFileUpload.setDelayTime(stringToInt(element
+					.getAttribute(ATTR_DELAY_TIME)));
+
+			hexFileUpload.setUploadMode(stringToInt(element
+					.getAttribute(ATTR_UPLOAD_MODE)));
+
+			hexFileUpload.setWaitForUploadRequest(stringToBoolean(element
+					.getAttribute(ATTR_WAIT_FOR_UPLOAD_REQUEST)));
+
+		}
+		if (name == TAG_FILE) {
+
 			File file = new File(element.getTextContent());
-			
+
 			if (file.exists()) {
-			
+
 				hexFileUpload.setFile(file);
 			}
 		}
@@ -61,7 +67,7 @@ public class HexFileUploadXML extends MIOSSysexSendReceiveXML {
 	public void saveXML(Node node) {
 
 		super.saveXML(node);
-		
+
 		rootElement.setAttribute(ATTR_WAIT_FOR_UPLOAD_REQUEST,
 				booleanToString(hexFileUpload.isWaitForUploadRequest()));
 
@@ -72,14 +78,14 @@ public class HexFileUploadXML extends MIOSSysexSendReceiveXML {
 				.getDelayTime()));
 
 		File file = hexFileUpload.getFile();
-		
+
 		if (file != null) {
-		
+
 			Element fileElement = document.createElement(TAG_FILE);
-			
+
 			rootElement.appendChild(fileElement);
-			
-			fileElement.setTextContent(file.getAbsolutePath());		
+
+			fileElement.setTextContent(file.getAbsolutePath());
 		}
 	}
 }

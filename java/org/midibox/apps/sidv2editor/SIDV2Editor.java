@@ -109,8 +109,10 @@ public class SIDV2Editor {
 		// SysEx (string length doesn't reset)
 		// bug in the javax.sound.midi class
 		if (midiDeviceRouting != null) {
-			midiDeviceRouting.disconnectDevices(inputMidiDevice, localMidiDevice);
-			midiDeviceRouting.disconnectDevices(localMidiDevice, outputMidiDevice);
+			midiDeviceRouting.disconnectDevices(inputMidiDevice,
+					localMidiDevice);
+			midiDeviceRouting.disconnectDevices(localMidiDevice,
+					outputMidiDevice);
 			midiDeviceRouting.connectDevices(inputMidiDevice, localMidiDevice);
 			midiDeviceRouting.connectDevices(localMidiDevice, outputMidiDevice);
 		}

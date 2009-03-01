@@ -63,7 +63,7 @@ public class OscillatorGUI extends JPanel {
 		JPanel panel4 = new JPanel();
 		panel4.setLayout(new BoxLayout(panel3, BoxLayout.Y_AXIS));
 		panel4.setOpaque(false);
-		
+
 		panel1.add(panel2);
 		panel1.add(panel3);
 
@@ -91,7 +91,7 @@ public class OscillatorGUI extends JPanel {
 		subPanelL.add((SIDSysexParameterControlGUI) vGUIL.elementAt(2));
 		subPanelL.add((SIDSysexParameterControlGUI) vGUIL.elementAt(3));
 		globPanel.add(subPanelL);
-		
+
 		JPanel subPanelC = new JPanel();
 		subPanelC.setLayout(new GridLayout(1, 2));
 		subPanelC.setOpaque(false);

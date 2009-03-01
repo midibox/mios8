@@ -31,7 +31,8 @@ public class Bank {
 	private InitPatches initPatches;
 	private Receiver receiver;
 
-	public Bank(Receiver receiver, boolean isEnsembleBank, InitPatches initPatches) {
+	public Bank(Receiver receiver, boolean isEnsembleBank,
+			InitPatches initPatches) {
 		this.initPatches = initPatches;
 		this.receiver = receiver;
 		this.isEnsembleBank = isEnsembleBank;
@@ -42,9 +43,9 @@ public class Bank {
 		bank = new Patch[bankSize];
 		for (int c = 0; c < bankSize; c++) {
 			if (isEnsembleBank) {
-				bank[c] = new Patch(receiver,256,initPatches);
+				bank[c] = new Patch(receiver, 256, initPatches);
 			} else {
-				bank[c] = new Patch(receiver,512,initPatches);
+				bank[c] = new Patch(receiver, 512, initPatches);
 			}
 		}
 	}
@@ -56,15 +57,15 @@ public class Bank {
 	public Patch getPatchAt(int i) {
 		return bank[i];
 	}
-	
+
 	public Patch[] getPatchesAt(int[] iarray) {
 		Patch[] patchset = new Patch[iarray.length];
-		for (int i=0;i< iarray.length;i++) {
+		for (int i = 0; i < iarray.length; i++) {
 			patchset[i] = bank[iarray[i]];
 		}
 		return patchset;
 	}
-	
+
 	public boolean isEnsembleBank() {
 		return isEnsembleBank;
 	}
@@ -80,8 +81,9 @@ public class Bank {
 				parsesize = patchSize;
 			}
 			for (int i = 0; i < syx.length() / parsesize; i++) {
-				bank[i] = new Patch(receiver,512, initPatches);
-				String stat = bank[i].parsePatch(syx.substring(i * parsesize, (i + 1) * parsesize));
+				bank[i] = new Patch(receiver, 512, initPatches);
+				String stat = bank[i].parsePatch(syx.substring(i * parsesize,
+						(i + 1) * parsesize));
 				if (status == "checksum error") {
 					status = stat;
 					break;

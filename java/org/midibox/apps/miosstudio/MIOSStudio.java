@@ -232,6 +232,7 @@ public class MIOSStudio extends Observable implements Observer {
 		 * miosTerminalFiltered.getMidiFilter().setSystemCommonMessages(false);
 		 * 
 		 * 
+		 * 
 		 * miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessages(false);
 		 */
 

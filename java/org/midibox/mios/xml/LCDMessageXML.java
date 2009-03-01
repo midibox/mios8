@@ -29,36 +29,41 @@ public class LCDMessageXML extends MIOSSysexSendReceiveXML {
 		super(lcdMessage, rootElementTag);
 
 		this.lcdMessage = lcdMessage;
-		
+
 		tags.add(TAG_MESSAGE_TEXT);
 	}
-	
+
 	protected void parseElement(Element element) {
 
 		super.parseElement(element);
-		
+
 		String name = element.getNodeName();
-		
+
 		if (name == rootElementTag) {
-			
-			lcdMessage.setDeviceID(stringToInt(element.getAttribute(ATTR_DEVICE_ID)));
-			
-			lcdMessage.setMIOS32Mode(stringToBoolean(element.getAttribute(ATTR_MIOS32_MODE)));
-			
-			lcdMessage.setLcdWidth(stringToInt(element.getAttribute(ATTR_LCD_WIDTH)));
-			
-			lcdMessage.setLcdHeight(stringToInt(element.getAttribute(ATTR_LCD_HEIGHT)));
-			
+
+			lcdMessage.setDeviceID(stringToInt(element
+					.getAttribute(ATTR_DEVICE_ID)));
+
+			lcdMessage.setMIOS32Mode(stringToBoolean(element
+					.getAttribute(ATTR_MIOS32_MODE)));
+
+			lcdMessage.setLcdWidth(stringToInt(element
+					.getAttribute(ATTR_LCD_WIDTH)));
+
+			lcdMessage.setLcdHeight(stringToInt(element
+					.getAttribute(ATTR_LCD_HEIGHT)));
+
 			lcdMessage.setMode(stringToInt(element.getAttribute(ATTR_MODE)));
-			
+
 			lcdMessage.setPosX(stringToInt(element.getAttribute(ATTR_POS_X)));
-			
+
 			lcdMessage.setPosY(stringToInt(element.getAttribute(ATTR_POS_Y)));
-			
-			lcdMessage.setLoop(stringToBoolean(element.getAttribute(ATTR_LOOP)));
-			
+
+			lcdMessage
+					.setLoop(stringToBoolean(element.getAttribute(ATTR_LOOP)));
+
 		} else if (name == TAG_MESSAGE_TEXT) {
-			
+
 			lcdMessage.setMessageText(element.getTextContent());
 		}
 	}

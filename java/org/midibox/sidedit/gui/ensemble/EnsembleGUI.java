@@ -33,16 +33,13 @@ import javax.swing.JToggleButton;
 
 import org.midibox.sidedit.SIDEditController;
 import org.midibox.sidedit.SIDSysexParameterControl;
-import org.midibox.sidedit.gui.FilterGUI;
 import org.midibox.sidedit.gui.MBSIDV2EditorTabbedPaneUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlCombo;
-import org.midibox.sidedit.gui.controls.SIDSysexParameterControlGUI;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlKnob;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlLFOSelect;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlSlider;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlToggleButton;
 import org.midibox.sidedit.gui.controls.SIDSysexParameterControlWaveSelect;
-import org.midibox.sidlibr.Patch;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.Knob;
 import org.midibox.utils.gui.MyButtonUI;
@@ -56,22 +53,23 @@ public class EnsembleGUI extends JPanel {
 	public EnsembleGUI(SIDEditController sidEditController) {
 		this.sidEditController = sidEditController;
 		setLayout(new BorderLayout());
-		
+
 		GUIs = createGUIs(sidEditController);
-		
+
 		JTabbedPane tabbedPane = new JTabbedPane();
 		JPanel t1 = new SIDGUI((Vector) GUIs.elementAt(0));
 		JPanel t2 = new SIDGUI((Vector) GUIs.elementAt(1));
 		JPanel t3 = new SIDGUI((Vector) GUIs.elementAt(2));
 		JPanel t4 = new SIDGUI((Vector) GUIs.elementAt(3));
-		
+
 		tabbedPane.addTab("SID1", t1);
 		tabbedPane.addTab("SID2", t2);
 		tabbedPane.addTab("SID3", t3);
 		tabbedPane.addTab("SID4", t4);
-		
-		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(new Color(245, 245, 245), new Color(200, 200, 200)));
-		
+
+		tabbedPane.setUI(new MBSIDV2EditorTabbedPaneUI(
+				new Color(245, 245, 245), new Color(200, 200, 200)));
+
 		add(tabbedPane, BorderLayout.NORTH);
 		setOpaque(false);
 		setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -160,5 +158,5 @@ public class EnsembleGUI extends JPanel {
 			}
 		}
 		return midiParameterGUIs;
-	}	
+	}
 }

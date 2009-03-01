@@ -22,9 +22,10 @@ package org.midibox.sidedit.gui.controls;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import javax.swing.JLabel;
+
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -37,7 +38,8 @@ public class SIDSysexParameterControlRadio extends SIDSysexParameterControlGUI {
 	private JRadioButton[] radioButtons;
 
 	public SIDSysexParameterControlRadio(
-			SIDSysexParameterControl midiParameter, boolean showLabel, String labelLocation, boolean valueBelow, boolean showValue) {
+			SIDSysexParameterControl midiParameter, boolean showLabel,
+			String labelLocation, boolean valueBelow, boolean showValue) {
 		super(midiParameter, showLabel, labelLocation, valueBelow, showValue);
 
 		JPanel panel = new JPanel();
@@ -50,12 +52,12 @@ public class SIDSysexParameterControlRadio extends SIDSysexParameterControlGUI {
 			JPanel temp = new JPanel();
 			temp.setLayout(new BorderLayout());
 			temp.setOpaque(false);
-			JLabel lab = new JLabel(str[i]);			
+			JLabel lab = new JLabel(str[i]);
 			lab.setFont(FontLoader.getFont("uni05_53.ttf", 8f));
-			temp.add(lab,BorderLayout.NORTH);
+			temp.add(lab, BorderLayout.NORTH);
 			radioButtons[i] = new JRadioButton("", false);
 			radioButtons[i].addActionListener(this);
-			radioButtons[i].setOpaque(false);			
+			radioButtons[i].setOpaque(false);
 			bg.add(radioButtons[i]);
 			temp.add(radioButtons[i]);
 			panel.add(temp);
@@ -64,17 +66,19 @@ public class SIDSysexParameterControlRadio extends SIDSysexParameterControlGUI {
 		add(panel, BorderLayout.CENTER);
 		updateGraphics();
 	}
-	
+
 	public void actionPerformed(ActionEvent ae) {
 		super.actionPerformed(ae);
 		for (int i = 0; i < radioButtons.length; i++) {
-			if ((ae.getSource() == radioButtons[i]) && (radioButtons[i].isSelected())) {
+			if ((ae.getSource() == radioButtons[i])
+					&& (radioButtons[i].isSelected())) {
 				if (update) {
 					update = false;
 					midiParameter.setMidiValueWithSparse(i);
-					
+
 					for (int c = 0; c < midiParameters.size(); c++) {
-						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters.elementAt(c);
+						SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters
+								.elementAt(c);
 						mp.setMidiValue(midiParameter.getMidiValue(), false);
 					}
 					update = true;

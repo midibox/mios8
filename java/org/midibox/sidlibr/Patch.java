@@ -20,21 +20,11 @@
 
 package org.midibox.sidlibr;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URISyntaxException;
-
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.SysexMessage;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
-import org.midibox.midi.MidiUtils;
 import org.midibox.sidedit.SIDSysexInfo;
-import org.midibox.utils.gui.ImageLoader;
 
 public class Patch implements Receiver {
 	public static Object LEAD = new Object();
@@ -54,7 +44,7 @@ public class Patch implements Receiver {
 		this.receiver = receiver;
 		this.patchSize = patchSize;
 		this.initPatches = initPatches;
-		if (patchSize==256) {
+		if (patchSize == 256) {
 			isEnsemble = true;
 		} else {
 			isEnsemble = false;
@@ -63,7 +53,7 @@ public class Patch implements Receiver {
 		initPatch();
 	}
 
-	private void initPatch() {		
+	private void initPatch() {
 		if (isEnsemble) {
 			patch = initPatches.getInitEnsemble();
 		} else {
@@ -158,27 +148,27 @@ public class Patch implements Receiver {
 		}
 		return (s + checksum);
 	}
-	
+
 	public byte[] getSysex(String pre, String post) {
 		byte[] preByte = toByteArray(pre);
 		byte[] postByte = toByteArray(post);
 		int pr = preByte.length;
 		int po = postByte.length;
-		
-		byte[] data = new byte[(2*patch.length)+1+pr+po];
-		System.arraycopy(preByte, 0, data, 0, pr);   
-		System.arraycopy(postByte, 0, data, data.length-po, po);
-		
+
+		byte[] data = new byte[(2 * patch.length) + 1 + pr + po];
+		System.arraycopy(preByte, 0, data, 0, pr);
+		System.arraycopy(postByte, 0, data, data.length - po, po);
+
 		int sum = 0;
 		for (int i = 0; i < patch.length; i++) {
-			data[(2*i)+pr] = (byte)((patch[i] & 0xF0) >> 4);			
-			data[(2*i)+pr+1] = (byte)(patch[i] & 0x0F);
+			data[(2 * i) + pr] = (byte) ((patch[i] & 0xF0) >> 4);
+			data[(2 * i) + pr + 1] = (byte) (patch[i] & 0x0F);
 			sum = sum + (patch[i] & 0x0F) + ((patch[i] & 0xF0) >> 4);
 		}
-		data[2*patch.length+pr] = (byte)(-sum & 0x7F); // Checksum		
+		data[2 * patch.length + pr] = (byte) (-sum & 0x7F); // Checksum
 		return data;
 	}
-	
+
 	public String parsePatch(String d) {
 		String status;
 		int dsi = 20; // Index where real patch data starts
@@ -191,12 +181,13 @@ public class Patch implements Receiver {
 			int temp = Integer.parseInt(s1 + s2, 16);
 			patch[i] = temp;
 		}
-		int chk = Integer.parseInt(d.substring((4 * patchSize) + dsi, (4 * patchSize) + dsi	+ 2), 16);
+		int chk = Integer.parseInt(d.substring((4 * patchSize) + dsi,
+				(4 * patchSize) + dsi + 2), 16);
 		if (chk != (-checksum & 0x7F)) {
 			status = "checksum error";
 		} else {
 			status = "succesful";
-		}		
+		}
 		return status;
 	}
 
@@ -207,7 +198,7 @@ public class Patch implements Receiver {
 	public int[] getPatch() {
 		return patch;
 	}
-	
+
 	public void setEngine(Object object) {
 		if (object == LEAD) {
 			setParameter(16, 0, 0, 2, false);
@@ -218,12 +209,12 @@ public class Patch implements Receiver {
 		} else if (object == MULTI) {
 			setParameter(16, 3, 0, 2, false);
 		}
-		initPatch();		
+		initPatch();
 	}
 
 	public int getParameter(int address, int start_bit, int resolution) {
 		int value = 0;
-		
+
 		// resolution < 8 bit: gets value of bit length 'resolution' starting on
 		// the start_bit
 		if (resolution < 8) {
@@ -255,10 +246,10 @@ public class Patch implements Receiver {
 
 		return value;
 	}
-	
+
 	public void setParameter(int address, int value, int start_bit,
 			int resolution, boolean forward) {
-		
+
 		// resolution < 8 bit: sets value of bit length 'resolution' starting on
 		// the start_bit
 		if (resolution < 8) {
@@ -337,58 +328,61 @@ public class Patch implements Receiver {
 			WOPT = WOPT & 0x01;
 		}
 	}
-	
+
 	public boolean isEnsemble() {
 		return isEnsemble;
 	}
 
-	public void sysexSend(int addr, int value, int bytes) {		
+	public void sysexSend(int addr, int value, int bytes) {
 		String strMessage;
 		if (isEnsemble) {
-			strMessage = SIDSysexInfo.editEnsembleParameterSysex;			
+			strMessage = SIDSysexInfo.editEnsembleParameterSysex;
 		} else {
 			strMessage = SIDSysexInfo.editPatchParameterSysex;
-			strMessage = strMessage.replace("<wopt>", "0" + Integer.toHexString(WOPT));			
-		}		
+			strMessage = strMessage.replace("<wopt>", "0"
+					+ Integer.toHexString(WOPT));
+		}
 		strMessage = strMessage.replace("<device>", "00");
 		strMessage = strMessage.replace("<address>", calcAddr(addr));
 		strMessage = strMessage.replace("<value>", calcValue(value, bytes));
-		
+
 		sendString(strMessage);
 	}
-	
+
 	public void sendPlay() {
 		String strMessage = SIDSysexInfo.playSysex;
 		strMessage = strMessage.replace("<device>", "00");
 		sendString(strMessage);
 	}
-	
+
 	public void sendPanic() {
 		String strMessage = SIDSysexInfo.panicSysex;
 		strMessage = strMessage.replace("<device>", "00");
 		sendString(strMessage);
 	}
-	
+
 	private byte[] toByteArray(String s) {
 		int nLengthInBytes = s.length() / 2;
 		byte[] abMessage = new byte[nLengthInBytes];
 		for (int i = 0; i < nLengthInBytes; i++) {
-			abMessage[i] = (byte) Integer.parseInt(s.substring(i * 2, i * 2 + 2), 16);
+			abMessage[i] = (byte) Integer.parseInt(s
+					.substring(i * 2, i * 2 + 2), 16);
 		}
 		return abMessage;
 	}
-	
+
 	private void sendString(String strMessage) {
-		// When the length of the Sysex String is shorter than any previous strings, pad the end with F7 bytes to make it identical in size
+		// When the length of the Sysex String is shorter than any previous
+		// strings, pad the end with F7 bytes to make it identical in size
 		// This is yet another workaround for the freakin' Java Sysex bug!
 		if (strMessage.length() > maxSysExLength) {
 			maxSysExLength = strMessage.length();
 		} else {
 			while (strMessage.length() < maxSysExLength) {
 				strMessage = strMessage + "F7";
-			}				
-		}		
-		//System.out.println(strMessage);
+			}
+		}
+		// System.out.println(strMessage);
 		SysexMessage sysexMessage = new SysexMessage();
 		try {
 			byte[] abMessage = toByteArray(strMessage);
@@ -447,5 +441,5 @@ public class Patch implements Receiver {
 		p.setPatch(patch.clone());
 		return p;
 	}
-		
+
 }
