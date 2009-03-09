@@ -114,7 +114,7 @@ system("find ${release_dir} -regex '.*class\$' -exec rm -rf {} \\;");
 do_exec("find ${release_dir} -exec touch {} \\;");
 
 # compile java code
-do_exec("cd ${release_dir}; javac -target \"1.5\" -cp \"${JAVA_DIR}\" org/midibox/*/*.java org/midibox/*/*/*.java org/midibox/*/*/*/*.java *.java");
+do_exec("cd ${release_dir}; javac -target \"1.5\" -cp \"${JAVA_DIR}\" org/midibox/*/*.java org/midibox/*/*/*.java org/midibox/*/*/*/*.java org/midibox/*/*/*/*/*.java *.java");
 
 # remove .java code for binary release
 system("find ${release_dir} -regex '.*java\$' -exec rm -rf {} \\;");
