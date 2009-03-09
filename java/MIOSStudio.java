@@ -1,5 +1,5 @@
 /*
- * @(#)MIOSStudioDriver.java	beta8	2006/04/23
+ * @(#)MIOSStudio.java	beta8	2006/04/23
  *
  * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
  *
@@ -38,8 +38,8 @@ import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
-import org.midibox.apps.miosstudio.gui.MIOSStudioGUI.ExternalCommandButton;
-import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
+import org.midibox.apps.miosstudio.gui.xml.MIOSStudioGUIXML;
+import org.midibox.apps.miosstudiosid.gui.MIOSStudioSIDGUI;
 import org.midibox.midi.gui.MidiFilterGUI;
 import org.midibox.mios.gui.HexFileUploadGUI;
 import org.midibox.utils.gui.DialogOwner;
@@ -57,261 +57,79 @@ import org.midibox.utils.gui.SplashScreen;
 
 public class MIOSStudio extends JApplet {
 
-	protected static Preferences preferences = Preferences.userRoot().node(
-			"org/midibox/miostudio/gui");
-
 	protected static String configFileName = ".miosstudio";
 
 	protected static String frameTitle = "MIOS Studio";
 
-	protected static String splashTitle = "MIOS Studio beta 9";
+	protected static String splashTitle = "MIOS Studio beta 9.1";
 
 	protected static String splashImage = "splash.jpg";
 
-	protected static String frameComment = "MIOS Studio beta 9";
+	protected static String frameComment = "MIOS Studio beta 9.1";
 
 	protected org.midibox.apps.miosstudio.MIOSStudio miosStudio;
 
 	protected MIOSStudioGUI miosStudioGUI;
 
-	protected Hashtable windows;
-
 	public MIOSStudio() {
 
 		this.miosStudio = new org.midibox.apps.miosstudio.MIOSStudio();
+		
+		File configFile = new File(System.getProperty("user.home"),
+				configFileName);
 
-		loadConfigFile();
+		if (configFile.exists()) {
 
-		try {
-			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
-					.getCrossPlatformLookAndFeelClassName()));
-		} catch (Exception e) {
-			System.out.println(e.toString());
+			MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
+					miosStudio, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true, true);
+
+			miosStudioGUIXML.loadXML(configFile);
+
+			this.miosStudioGUI = miosStudioGUIXML.getMiosStudioGUI();
+			
 		}
 
-		JDialog.setDefaultLookAndFeelDecorated(preferences.getBoolean(
-				"defaultDecoratedFrames", false));
+		if (miosStudioGUI == null) {
 
-		this.miosStudioGUI = new MIOSStudioGUI(miosStudio);
-		miosStudioGUI.setCommentLabel(frameComment);
+			this.miosStudioGUI = new MIOSStudioGUI(miosStudio);
+		}
 
-		this.windows = new Hashtable();
 		setContentPane(miosStudioGUI);
+
 		setJMenuBar(miosStudioGUI.createMenuBar());
+				
+		miosStudioGUI.setCommentLabel(frameComment);
 	}
 
 	public void init() {
-
-		HexFileUploadGUI.setCurrentDirectory(preferences.get(
-				"uploadCurrentDirectory", HexFileUploadGUI
-						.getCurrentDirectory()));
-
-		MIOSStudioGUI.setCurrentDirectory(preferences.get(
-				"workspaceCurrentDirectory", MIOSStudioGUI
-						.getCurrentDirectory()));
-
-		MidiFilterGUI.setCurrentDirectory(preferences.get(
-				"filterCurrentDirectory", MidiFilterGUI.getCurrentDirectory()));
-
-		String[] frames = preferences.get("visibleFrames", "").split(",");
-		String[] ec = preferences.get("externalCommands", "").split("\n");
-
-		createWindowsHashtable();
-
-		Enumeration keys = windows.keys();
-
-		int windowNo = 0;
-
-		while (keys.hasMoreElements()) {
-			String keyName = (String) keys.nextElement();
-
-			JInternalFrame window = (JInternalFrame) windows.get(keyName);
-
-			int x = preferences.getInt(keyName + "X", 20 * windowNo);
-			int y = preferences.getInt(keyName + "Y", 20 * windowNo);
-			int width = preferences.getInt(keyName + "Width", window
-					.getPreferredSize().width);
-			int height = preferences.getInt(keyName + "Height", window
-					.getPreferredSize().height);
-
-			Dimension d = window.getPreferredSize();
-
-			if (window.isResizable()) {
-				window.setBounds(x, y, Math.max(width, d.width), Math.max(
-						height, d.height));
-			} else {
-				window.setBounds(x, y, d.width, d.height);
-			}
-
-			if (preferences.getBoolean(keyName + "Visible", false)) {
-				miosStudioGUI.showFrame(window);
-				try {
-					window.setMaximum(preferences.getBoolean(keyName
-							+ "Maximized", false));
-					window.setIcon(preferences.getBoolean(
-							keyName + "Iconified", false));
-				} catch (Exception e) {
-					System.out.println(e.toString());
-				}
-			}
-
-			windowNo++;
-		}
-
-		for (int i = frames.length - 1; i >= 0; i--) {
-			if (windows.containsKey(frames[i])) {
-				((JInternalFrame) windows.get(frames[i])).toFront();
-			}
-		}
-
-		for (int i = 0; i < ec.length; i++) {
-			String[] temp = ec[i].split("\t");
-			if (temp.length == 2) {
-				miosStudioGUI.addExternalCommandButton(temp[0], temp[1]);
-			}
-		}
+		
 	}
 
 	public void destroy() {
-
-		saveConfigFile();
-
-		preferences.put("lookAndFeel", miosStudioGUI.getLookAndFeel());
-		preferences.putBoolean("defaultDecoratedFrames", miosStudioGUI
-				.isDefaultDecoratedFrames());
-
-		preferences.put("uploadCurrentDirectory", HexFileUploadGUI
-				.getCurrentDirectory());
-
-		preferences.put("workspaceCurrentDirectory", MIOSStudioGUI
-				.getCurrentDirectory());
-
-		preferences.put("filterCurrentDirectory", MidiFilterGUI
-				.getCurrentDirectory());
-
-		JInternalFrame[] frames = miosStudioGUI.getDesktop().getAllFrames();
-		String visibleFrames = "";
-
-		for (int i = 0; i < frames.length; i++) {
-			Enumeration keys = windows.keys();
-			while (keys.hasMoreElements()) {
-				String key = (String) keys.nextElement();
-				if (windows.get(key) == frames[i]) {
-					visibleFrames += (key + ",");
-				}
-			}
-		}
-
-		preferences.put("visibleFrames", visibleFrames);
-
-		Enumeration keys = windows.keys();
-		while (keys.hasMoreElements()) {
-			String keyName = (String) keys.nextElement();
-			JInternalFrame window = (JInternalFrame) windows.get(keyName);
-
-			boolean visible = window.isVisible();
-			try {
-				preferences.putBoolean(keyName + "Iconified", window.isIcon());
-				preferences.putBoolean(keyName + "Maximized", window
-						.isMaximum());
-				window.setIcon(false);
-				window.setMaximum(false);
-			} catch (Exception e) {
-				System.out.println(e);
-			}
-			preferences.putInt(keyName + "X", window.getX());
-			preferences.putInt(keyName + "Y", window.getY());
-			preferences.putInt(keyName + "Width", window.getWidth());
-			preferences.putInt(keyName + "Height", window.getHeight());
-			preferences.putBoolean(keyName + "Visible", visible);
-		}
-
-		String externalCommandsString = "";
-
-		for (int i = 0; i < miosStudioGUI.getExternalCommands().size(); i++) {
-			ExternalCommandButton ecb = (ExternalCommandButton) miosStudioGUI
-					.getExternalCommands().elementAt(i);
-			externalCommandsString += ecb.commandName + "\t"
-					+ ecb.externalCommand + "\n";
-		}
-
-		preferences.put("externalCommands", externalCommandsString);
-	}
-
-	public void exit(JFrame frame) {
-
-		preferences.putInt("mainWindowX", frame.getX());
-		preferences.putInt("mainWindowY", frame.getY());
-		preferences.putInt("mainWindowWidth", frame.getWidth());
-		preferences.putInt("mainWindowHeight", frame.getHeight());
-
-		System.exit(0);
-	}
-
-	protected void saveConfigFile() {
 
 		File configFile = new File(System.getProperty("user.home"),
 				configFileName);
 
 		if (!configFile.exists()) {
+
 			try {
+
 				configFile.createNewFile();
+
 			} catch (Exception e) {
+
 				e.printStackTrace();
 			}
 		}
 
 		if (configFile.exists()) {
 
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
-					MIOSStudioXML.TAG_ROOT_ELEMENT);
+			MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
+					miosStudioGUI, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true,
+					true);
 
-			miosStudioXML.saveXML(configFile);
+			miosStudioGUIXML.saveXML(configFile);
 		}
-	}
-
-	protected void loadConfigFile() {
-
-		File configFile = new File(System.getProperty("user.home"),
-				configFileName);
-
-		if (configFile.exists()) {
-
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
-					MIOSStudioXML.TAG_ROOT_ELEMENT);
-
-			miosStudioXML.loadXML(configFile);
-
-		} else {
-
-			miosStudio.getHexFileUploadDeviceManager().newHexFileUploadDevice();
-		}
-	}
-
-	protected void createWindowsHashtable() {
-
-		windows.put("midiDevicesWindow", miosStudioGUI
-				.getMidiDeviceRoutingWindow());
-		windows.put("midiOutPortMonitorWindow", miosStudioGUI
-				.getMidiOutPortMonitorWindow());
-		windows.put("midiInPortMonitorWindow", miosStudioGUI
-				.getMidiInPortMonitorWindow());
-		windows.put("virtualKeyboardWindow", miosStudioGUI
-				.getMidiKeyboardControllerWindow());
-		/*
-		 * windows.put("sysexWindow", miosStudioGUI
-		 * .getSysexSendReceiveDeviceManagerWindow());
-		 */
-
-		windows.put("uploadWindow", miosStudioGUI
-				.getHexFileUploadDeviceManagerWindow());
-		windows.put("lcdWindow", miosStudioGUI.getLcdMessageWindow());
-		windows.put("debugWindow", miosStudioGUI.getDebugFunctionWindow());
-		windows
-				.put("miosTerminalWindow", miosStudioGUI
-						.getMIOSTerminalWindow());
-		windows.put("helpWindow", miosStudioGUI.getHelpWindow());
-
 	}
 
 	public static void main(String[] args) {
@@ -326,32 +144,21 @@ public class MIOSStudio extends JApplet {
 
 		splashScreen.setVisible(true);
 
-		try {
-			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
-					.getCrossPlatformLookAndFeelClassName()));
-		} catch (Exception e) {
-			System.out.println(e.toString());
-		}
-
-		JFrame.setDefaultLookAndFeelDecorated(preferences.getBoolean(
-				"defaultDecoratedFrames", false));
-
 		final JFrame frame = new JFrame(frameTitle);
 
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		DialogOwner.setFrame(frame);
 
+		frame.setIconImage(ImageLoader.getImageIcon("ucIcon.png").getImage());
+
+		frame.setBounds(50, 50, (screenSize.width - 100), (screenSize.height - 100));
+		
 		final MIOSStudio miosStudio = new MIOSStudio();
+
 		miosStudio.init();
 
 		frame.setContentPane(miosStudio);
-		frame.setIconImage(ImageLoader.getImageIcon("ucIcon.png").getImage());
-
-		frame.setBounds(preferences.getInt("mainWindowX", 50), preferences
-				.getInt("mainWindowY", 50), preferences.getInt(
-				"mainWindowWidth", (screenSize.width - 100)), preferences
-				.getInt("mainWindowHeight", (screenSize.height - 100)));
 
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
 		exitMenuItem.setMnemonic(KeyEvent.VK_X);
@@ -359,8 +166,10 @@ public class MIOSStudio extends JApplet {
 
 		exitMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
+				
 				miosStudio.destroy();
-				miosStudio.exit(frame);
+
+				System.exit(0);
 			}
 		});
 
@@ -368,8 +177,10 @@ public class MIOSStudio extends JApplet {
 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
+				
 				miosStudio.destroy();
-				miosStudio.exit(frame);
+
+				System.exit(0);
 			}
 		});
 

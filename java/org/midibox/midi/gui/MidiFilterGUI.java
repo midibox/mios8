@@ -21,6 +21,7 @@
 package org.midibox.midi.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,6 +33,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.sound.midi.ShortMessage;
+import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -41,7 +43,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiUtils;
@@ -53,13 +57,16 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 	private MidiFilter midiFilter;
 
-	// sysex messages
-	private JCheckBox sysexMessage;
+	private JCheckBox voiceMessages;
 
-	// meta messages
-	private JCheckBox metaMessage;
+	private JCheckBox systemCommonMessages;
 
-	// short messages
+	private JCheckBox systemRealtimeMessages;
+
+	private JCheckBox sysexMessages;
+
+	private JCheckBox metaMessages;
+
 	private JCheckBox activeSensing;
 
 	private JCheckBox channelPressure;
@@ -94,11 +101,11 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 	private JCheckBox tuneRequest;
 
-	private JTable cc;
+	private JTable controlChangeTable;
 
-	private DefaultTableModel ccModel;
+	private DefaultTableModel controlChangeModel;
 
-	private JTable channels;
+	private JTable channelsTable;
 
 	private DefaultTableModel channelsModel;
 
@@ -115,15 +122,57 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		// voice messages
-		JPanel voicePanel = new JPanel(new GridBagLayout());
+		JPanel masterPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.anchor = GridBagConstraints.NORTHWEST;
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.weightx = 1.0;
+		gbc.insets = new Insets(0, 2, 0, 2);
 
-		voicePanel
-				.setBorder(BorderFactory.createTitledBorder("Voice Messages"));
+		masterPanel.setBorder(BorderFactory.createTitledBorder("Message Type"));
+
+		voiceMessages = new JCheckBox("Voice", midiFilter.isVoiceMessages());
+		voiceMessages.addActionListener(this);
+
+		masterPanel.add(voiceMessages, gbc);
+		gbc.gridy++;
+
+		systemCommonMessages = new JCheckBox("System Common", midiFilter
+				.isSystemCommonMessages());
+		systemCommonMessages.addActionListener(this);
+
+		masterPanel.add(systemCommonMessages, gbc);
+		gbc.gridy++;
+
+		systemRealtimeMessages = new JCheckBox("System Realtime", midiFilter
+				.isSystemRealtimeMessages());
+		systemRealtimeMessages.addActionListener(this);
+
+		masterPanel.add(systemRealtimeMessages, gbc);
+		gbc.gridy++;
+
+		sysexMessages = new JCheckBox("SysEx", midiFilter.isSysexMessages());
+		sysexMessages.addActionListener(this);
+
+		masterPanel.add(sysexMessages, gbc);
+		gbc.gridy++;
+
+		metaMessages = new JCheckBox("Meta", midiFilter.isMetaMessages());
+		metaMessages.addActionListener(this);
+
+		masterPanel.add(metaMessages, gbc);
+		gbc.gridy++;
+
+		gbc.weighty = 1.0;
+		masterPanel.add(Box.createVerticalGlue(), gbc);
+
+		JPanel voicePanel = new JPanel(new GridBagLayout());
+		gbc.gridy = 0;
+		gbc.weighty = 0.0;
+
+		voicePanel.setBorder(BorderFactory.createTitledBorder("Voice"));
 
 		noteOff = new JCheckBox("Note Off", midiFilter
 				.getVoiceMessage(ShortMessage.NOTE_OFF));
@@ -170,185 +219,148 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		gbc.weighty = 1.0;
 		voicePanel.add(Box.createVerticalGlue(), gbc);
 
-		// sysex messages
-		JPanel sysexPanel = new JPanel(new GridBagLayout());
-		gbc.gridy = 0;
+		gbc.gridheight = 8;
 		gbc.weighty = 0.0;
-		sysexPanel
-				.setBorder(BorderFactory.createTitledBorder("Sysex Messages"));
+		gbc.gridy = 0;
 
-		sysexMessage = new JCheckBox("Sysex Message", midiFilter
-				.isSysexMessages());
-		sysexMessage.addActionListener(this);
-		sysexPanel.add(sysexMessage, gbc);
-		gbc.gridy++;
+		gbc.gridx++;
 
-		gbc.weighty = 1.0;
-		sysexPanel.add(Box.createVerticalGlue(), gbc);
+		controlChangeModel = new MidiFilterTableModel(
+				new String[] { "Controller" }, 128);
+		controlChangeTable = new JTable(controlChangeModel);
+
+		JScrollPane ccScroll = new JScrollPane(controlChangeTable);
+		ccScroll
+				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		ccScroll.setPreferredSize(new Dimension(200, 200));
+		controlChangeTable.setRowSelectionAllowed(false);
+		controlChangeTable.setShowGrid(false);
+		controlChangeTable.setDefaultRenderer(Boolean.class,
+				new MidiFilterTableCellRenderer());
+		controlChangeTable.setDefaultEditor(Boolean.class,
+				new MidiFilterTableCellEditor());
+
+		voicePanel.add(ccScroll, gbc);
+
+		gbc.gridx++;
+
+		channelsModel = new MidiFilterTableModel(new String[] { "Channel" }, 16);
+		channelsTable = new JTable(channelsModel);
+
+		JScrollPane channelsScroll = new JScrollPane(channelsTable);
+		channelsScroll
+				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		channelsScroll.setPreferredSize(new Dimension(150, 200));
+		channelsTable.setCellSelectionEnabled(false);
+		channelsTable.setShowGrid(false);
+		channelsTable.setDefaultRenderer(Boolean.class,
+				new MidiFilterTableCellRenderer());
+		channelsTable.setDefaultEditor(Boolean.class,
+				new MidiFilterTableCellEditor());
+
+		voicePanel.add(channelsScroll, gbc);
 
 		// system common
-		JPanel sysCommon = new JPanel(new GridBagLayout());
+		JPanel systemCommonPanel = new JPanel(new GridBagLayout());
 		gbc.gridy = 0;
 		gbc.weighty = 0.0;
-		sysCommon.setBorder(BorderFactory.createTitledBorder("System Common"));
+		gbc.gridheight = 1;
+		systemCommonPanel.setBorder(BorderFactory
+				.createTitledBorder("System Common"));
 
 		midiTimeCode = new JCheckBox("MTC Quarter Frame", midiFilter
 				.getSystemCommonMessage(ShortMessage.MIDI_TIME_CODE));
 		midiTimeCode.addActionListener(this);
-		sysCommon.add(midiTimeCode, gbc);
+		systemCommonPanel.add(midiTimeCode, gbc);
 		gbc.gridy++;
 
 		songPositionPointer = new JCheckBox("Song Position Pointer", midiFilter
 				.getSystemCommonMessage(ShortMessage.SONG_POSITION_POINTER));
 		songPositionPointer.addActionListener(this);
-		sysCommon.add(songPositionPointer, gbc);
+		systemCommonPanel.add(songPositionPointer, gbc);
 		gbc.gridy++;
 
 		songSelect = new JCheckBox("Song Select", midiFilter
 				.getSystemCommonMessage(ShortMessage.SONG_SELECT));
 		songSelect.addActionListener(this);
-		sysCommon.add(songSelect, gbc);
+		systemCommonPanel.add(songSelect, gbc);
 		gbc.gridy++;
 
 		tuneRequest = new JCheckBox("Tune Request", midiFilter
 				.getSystemCommonMessage(ShortMessage.TUNE_REQUEST));
 		tuneRequest.addActionListener(this);
-		sysCommon.add(tuneRequest, gbc);
+		systemCommonPanel.add(tuneRequest, gbc);
 		gbc.gridy++;
 
 		gbc.weighty = 1.0;
-		sysCommon.add(Box.createVerticalGlue(), gbc);
+		systemCommonPanel.add(Box.createVerticalGlue(), gbc);
 
 		// system realtime
-		JPanel sysReal = new JPanel(new GridBagLayout());
+		JPanel systemRealtimePanel = new JPanel(new GridBagLayout());
 		gbc.gridy = 0;
 		gbc.weighty = 0.0;
-		sysReal.setBorder(BorderFactory.createTitledBorder("System Realtime"));
+		systemRealtimePanel.setBorder(BorderFactory
+				.createTitledBorder("System Realtime"));
 
 		timingClock = new JCheckBox("Timing Clock", midiFilter
 				.getSystemRealtimeMessage(ShortMessage.TIMING_CLOCK));
 		timingClock.addActionListener(this);
-		sysReal.add(timingClock, gbc);
+		systemRealtimePanel.add(timingClock, gbc);
 		gbc.gridy++;
 
 		start = new JCheckBox("Start", midiFilter
 				.getSystemRealtimeMessage(ShortMessage.START));
 		start.addActionListener(this);
-		sysReal.add(start, gbc);
+		systemRealtimePanel.add(start, gbc);
 		gbc.gridy++;
 
 		continueMessage = new JCheckBox("Continue", midiFilter
 				.getSystemRealtimeMessage(ShortMessage.CONTINUE));
 		continueMessage.addActionListener(this);
-		sysReal.add(continueMessage, gbc);
+		systemRealtimePanel.add(continueMessage, gbc);
 		gbc.gridy++;
 
 		stop = new JCheckBox("Stop", midiFilter
 				.getSystemRealtimeMessage(ShortMessage.STOP));
 		stop.addActionListener(this);
-		sysReal.add(stop, gbc);
+		systemRealtimePanel.add(stop, gbc);
 		gbc.gridy++;
 
 		activeSensing = new JCheckBox("Active Sensing", midiFilter
 				.getSystemRealtimeMessage(ShortMessage.ACTIVE_SENSING));
 		activeSensing.addActionListener(this);
-		sysReal.add(activeSensing, gbc);
+		systemRealtimePanel.add(activeSensing, gbc);
 		gbc.gridy++;
 
 		systemReset = new JCheckBox("System Reset", midiFilter
 				.getSystemRealtimeMessage(ShortMessage.SYSTEM_RESET));
 		systemReset.addActionListener(this);
-		sysReal.add(systemReset, gbc);
+		systemRealtimePanel.add(systemReset, gbc);
 		gbc.gridy++;
 
 		gbc.weighty = 1.0;
-		sysReal.add(Box.createVerticalGlue(), gbc);
-
-		// meta messages
-		JPanel metaPanel = new JPanel(new GridBagLayout());
-		gbc.gridy = 0;
-		gbc.weighty = 0.0;
-		metaPanel.setBorder(BorderFactory.createTitledBorder("Meta Messages"));
-
-		metaMessage = new JCheckBox("Meta Message", midiFilter.isMetaMessages());
-		metaMessage.addActionListener(this);
-		metaPanel.add(metaMessage, gbc);
-		gbc.gridy++;
-
-		gbc.weighty = 1.0;
-		metaPanel.add(Box.createVerticalGlue(), gbc);
-
-		channelsModel = new MyTableModel(
-				new String[] { "Selected", "Channel" }, 0);
-		channels = new JTable(channelsModel);
-
-		for (int i = 0; i < 16; i++) {
-			channelsModel
-					.addRow(new Object[] {
-							new Boolean(midiFilter.getChannel(i)),
-							"Channel " + (i + 1) });
-		}
-
-		JScrollPane channelsScroll = new JScrollPane(channels);
-		channelsScroll
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		channelsScroll.setPreferredSize(new Dimension(150, 200));
-		channelsScroll.setBorder(BorderFactory.createTitledBorder("Channels"));
-		channels.setCellSelectionEnabled(false);
-		channels.setShowGrid(false);
-
-		ccModel = new MyTableModel(new String[] { "Selected", "Controller" }, 0);
-		cc = new JTable(ccModel);
-
-		for (int i = 0; i < 128; i++) {
-			ccModel.addRow(new Object[] {
-					new Boolean(midiFilter.getControlChange(i)),
-					i + ": " + MidiUtils.ccNames[i] });
-		}
-
-		JScrollPane ccScroll = new JScrollPane(cc);
-		ccScroll
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		ccScroll.setPreferredSize(new Dimension(200, 200));
-		ccScroll.setBorder(BorderFactory.createTitledBorder("Control Change"));
-		cc.setRowSelectionAllowed(false);
-		cc.setShowGrid(false);
+		systemRealtimePanel.add(Box.createVerticalGlue(), gbc);
 
 		JPanel mainPanel = new JPanel(new GridBagLayout());
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbc.gridheight = 2;
+
+		mainPanel.add(masterPanel, gbc);
+		gbc.gridx++;
 
 		mainPanel.add(voicePanel, gbc);
 		gbc.gridx++;
 
-		gbc.gridheight = 1;
-
-		mainPanel.add(sysCommon, gbc);
-		gbc.gridy++;
-
-		mainPanel.add(sysexPanel, gbc);
-		gbc.gridx++;
-		gbc.gridy = 0;
-
-		mainPanel.add(sysReal, gbc);
-		gbc.gridy++;
-
-		mainPanel.add(metaPanel, gbc);
-
-		gbc.gridx++;
-		gbc.gridy = 0;
-
-		gbc.gridheight = 2;
-
-		mainPanel.add(channelsScroll, gbc);
+		mainPanel.add(systemCommonPanel, gbc);
 		gbc.gridx++;
 
-		mainPanel.add(ccScroll, gbc);
+		mainPanel.add(systemRealtimePanel, gbc);
 
 		add(mainPanel, BorderLayout.CENTER);
 
 		add(createToolBar(), BorderLayout.NORTH);
+
+		setButtonStates();
 	}
 
 	private JToolBar createToolBar() {
@@ -463,6 +475,23 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 		Object source = ae.getSource();
 
+		if (source == voiceMessages)
+			midiFilter.setVoiceMessages(voiceMessages.isSelected());
+
+		if (source == systemCommonMessages)
+			midiFilter.setSystemCommonMessages(systemCommonMessages
+					.isSelected());
+
+		if (source == systemRealtimeMessages)
+			midiFilter.setSystemRealtimeMessages(systemRealtimeMessages
+					.isSelected());
+
+		if (source == sysexMessages)
+			midiFilter.setSysexMessages(sysexMessages.isSelected());
+
+		if (source == metaMessages)
+			midiFilter.setMetaMessages(metaMessages.isSelected());
+
 		if (source == noteOff)
 			midiFilter.setVoiceMessage(ShortMessage.NOTE_OFF, noteOff
 					.isSelected());
@@ -532,12 +561,6 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 			midiFilter.setSystemRealtimeMessage(ShortMessage.SYSTEM_RESET,
 					systemReset.isSelected());
 
-		if (source == sysexMessage)
-			midiFilter.setSysexMessages(sysexMessage.isSelected());
-
-		if (source == metaMessage)
-			midiFilter.setMetaMessages(metaMessage.isSelected());
-
 		if (ae.getActionCommand() == "load")
 			loadFilterDefinition();
 
@@ -547,70 +570,163 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 	protected void setButtonStates() {
 
+		voiceMessages.setSelected(midiFilter.isVoiceMessages());
+
+		systemCommonMessages.setSelected(midiFilter.isSystemCommonMessages());
+
+		systemRealtimeMessages.setSelected(midiFilter
+				.isSystemRealtimeMessages());
+
+		sysexMessages.setSelected(midiFilter.isSysexMessages());
+
+		metaMessages.setSelected(midiFilter.isMetaMessages());
+
 		noteOff.setSelected(midiFilter.getVoiceMessage(ShortMessage.NOTE_OFF));
+		noteOff.setEnabled(midiFilter.isVoiceMessages());
 
 		noteOn.setSelected(midiFilter.getVoiceMessage(ShortMessage.NOTE_ON));
+		noteOn.setEnabled(midiFilter.isVoiceMessages());
 
 		polyPressure.setSelected(midiFilter
 				.getVoiceMessage(ShortMessage.POLY_PRESSURE));
+		polyPressure.setEnabled(midiFilter.isVoiceMessages());
 
 		controlChange.setSelected(midiFilter
 				.getVoiceMessage(ShortMessage.CONTROL_CHANGE));
+		controlChange.setEnabled(midiFilter.isVoiceMessages());
 
 		programChange.setSelected(midiFilter
 				.getVoiceMessage(ShortMessage.PROGRAM_CHANGE));
+		programChange.setEnabled(midiFilter.isVoiceMessages());
 
 		channelPressure.setSelected(midiFilter
 				.getVoiceMessage(ShortMessage.CHANNEL_PRESSURE));
+		channelPressure.setEnabled(midiFilter.isVoiceMessages());
 
 		pitchBend.setSelected(midiFilter
 				.getVoiceMessage(ShortMessage.PITCH_BEND));
+		pitchBend.setEnabled(midiFilter.isVoiceMessages());
+
+		controlChangeModel.fireTableDataChanged();
+
+		channelsModel.fireTableDataChanged();
 
 		midiTimeCode.setSelected(midiFilter
 				.getSystemCommonMessage(ShortMessage.MIDI_TIME_CODE));
+		midiTimeCode.setEnabled(midiFilter.isSystemCommonMessages());
 
 		songPositionPointer.setSelected(midiFilter
 				.getSystemCommonMessage(ShortMessage.SONG_POSITION_POINTER));
+		songPositionPointer.setEnabled(midiFilter.isSystemCommonMessages());
 
 		songSelect.setSelected(midiFilter
 				.getSystemCommonMessage(ShortMessage.SONG_SELECT));
+		songSelect.setEnabled(midiFilter.isSystemCommonMessages());
 
 		tuneRequest.setSelected(midiFilter
 				.getSystemCommonMessage(ShortMessage.TUNE_REQUEST));
+		tuneRequest.setEnabled(midiFilter.isSystemCommonMessages());
 
 		timingClock.setSelected(midiFilter
 				.getSystemRealtimeMessage(ShortMessage.TIMING_CLOCK));
+		timingClock.setEnabled(midiFilter.isSystemRealtimeMessages());
 
 		start.setSelected(midiFilter
 				.getSystemRealtimeMessage(ShortMessage.START));
+		start.setEnabled(midiFilter.isSystemRealtimeMessages());
 
 		continueMessage.setSelected(midiFilter
 				.getSystemRealtimeMessage(ShortMessage.CONTINUE));
+		continueMessage.setEnabled(midiFilter.isSystemRealtimeMessages());
 
 		stop
 				.setSelected(midiFilter
 						.getSystemRealtimeMessage(ShortMessage.STOP));
+		stop.setEnabled(midiFilter.isSystemRealtimeMessages());
 
 		activeSensing.setSelected(midiFilter
 				.getSystemRealtimeMessage(ShortMessage.ACTIVE_SENSING));
+		activeSensing.setEnabled(midiFilter.isSystemRealtimeMessages());
 
 		systemReset.setSelected(midiFilter
 				.getSystemRealtimeMessage(ShortMessage.SYSTEM_RESET));
-
-		sysexMessage.setSelected(midiFilter.isSysexMessages());
-
-		metaMessage.setSelected(midiFilter.isMetaMessages());
-
-		ccModel.fireTableDataChanged();
-
-		channelsModel.fireTableDataChanged();
-
-		cc.setEnabled(midiFilter.getVoiceMessage(ShortMessage.CONTROL_CHANGE));
+		systemReset.setEnabled(midiFilter.isSystemRealtimeMessages());
 	}
 
-	class MyTableModel extends DefaultTableModel {
+	class MidiFilterTableCellEditor extends AbstractCellEditor implements
+			TableCellEditor {
 
-		public MyTableModel(Object[] a, int b) {
+		private JCheckBox checkBox;
+
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+
+			if (table.getRowCount() == 128) {
+
+				checkBox = new JCheckBox(row + ": " + MidiUtils.ccNames[row],
+						midiFilter.getControlChange(row));
+
+				checkBox.setEnabled(midiFilter.isVoiceMessages()
+						&& midiFilter
+								.getVoiceMessage(ShortMessage.CONTROL_CHANGE));
+
+			} else {
+
+				checkBox = new JCheckBox("Channel " + (row + 1), midiFilter
+						.getChannel(row));
+			}
+
+			checkBox.setOpaque(false);
+
+			checkBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent ae) {
+					fireEditingStopped();
+				}
+			});
+
+			return checkBox;
+		}
+
+		public Object getCellEditorValue() {
+
+			return new Boolean(checkBox.isSelected());
+		}
+	}
+
+	class MidiFilterTableCellRenderer extends DefaultTableCellRenderer {
+
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+
+			JCheckBox checkBox;
+
+			if (table.getRowCount() == 128) {
+
+				checkBox = new JCheckBox(row + ": " + MidiUtils.ccNames[row],
+						midiFilter.getControlChange(row));
+
+				checkBox.setEnabled(midiFilter.isVoiceMessages()
+						&& midiFilter
+								.getVoiceMessage(ShortMessage.CONTROL_CHANGE));
+
+			} else {
+
+				checkBox = new JCheckBox("Channel " + (row + 1), midiFilter
+						.getChannel(row));
+
+				checkBox.setEnabled(midiFilter.isVoiceMessages());
+			}
+
+			checkBox.setOpaque(false);
+
+			return checkBox;
+		}
+	}
+
+	class MidiFilterTableModel extends DefaultTableModel {
+
+		public MidiFilterTableModel(Object[] a, int b) {
 			super(a, b);
 		}
 

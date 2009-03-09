@@ -51,7 +51,7 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 		} else if (name == TAG_DESELECTED_MIDI_READ_DEVICE) {
 
-			int hash = Integer.parseInt(element
+			int hash = stringToInt(element
 					.getAttribute(MidiDeviceXML.ATTR_HASH_CODE));
 
 			MidiDevice midiDevice = findDeviceHash(midiDeviceManager
@@ -66,7 +66,7 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 		} else if (name == TAG_DESELECTED_MIDI_WRITE_DEVICE) {
 
-			int hash = Integer.parseInt(element
+			int hash = stringToInt(element
 					.getAttribute(MidiDeviceXML.ATTR_HASH_CODE));
 
 			MidiDevice midiDevice = findDeviceHash(midiDeviceManager
@@ -129,6 +129,6 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 	protected MidiDevice findDeviceHash(HashMap midiDevices, int hash) {
 
-		return (MidiDevice) midiDevices.get("" + hash);
+		return (MidiDevice) midiDevices.get(intToString(hash));
 	}
 }

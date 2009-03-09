@@ -51,6 +51,8 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 		sidv2librariangui.createMenu();
 
 		sidv2librarianWindow.pack();
+		
+		internalFrames.add(sidv2librarianWindow);
 
 		midiDeviceRoutingGUI.addMidiDeviceIcon(
 				((org.midibox.apps.miosstudiosid.MIOSStudioSID) miosStudio)

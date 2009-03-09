@@ -36,6 +36,7 @@ import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
+import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.virtualkeyboard.VirtualKeyboard;
 import org.midibox.midi.MidiRouterDevice;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
@@ -57,15 +58,16 @@ public class VirtualKeyboardGUI extends JPanel {
 	private JMenu lookAndFeelMenu;
 
 	private String lookAndFeel;
-
-	private boolean defaultDecoratedFrames;
+	
+	protected VirtualKeyboard virtualKeyboard;
 
 	public VirtualKeyboardGUI(VirtualKeyboard virtualKeyboard) {
 
 		super(new GridBagLayout());
 
+		this.virtualKeyboard = virtualKeyboard;
+		
 		lookAndFeel = UIManager.getLookAndFeel().getClass().getName();
-		defaultDecoratedFrames = JFrame.isDefaultLookAndFeelDecorated();
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
@@ -160,32 +162,34 @@ public class VirtualKeyboardGUI extends JPanel {
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ae) {
 					try {
-						lookAndFeel = UIManager.getInstalledLookAndFeels()[l]
-								.getClassName();
-						JOptionPane
-								.showMessageDialog(
-										VirtualKeyboardGUI.this,
-										"The selected Look & Feel will be applied the next time you restart Virtual Keyboard",
-										"ALERT", JOptionPane.ERROR_MESSAGE);
+						
+						setLookAndFeel(UIManager.getInstalledLookAndFeels()[l]
+								.getClassName());
+						
 					} catch (Exception e) {
 						System.out.println(e.toString());
 					}
 				}
 			});
 		}
+	}
 
-		item = new JCheckBoxMenuItem("Include Frames/Dialogs",
-				defaultDecoratedFrames);
-		item.setActionCommand("dialogs");
-		item.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				defaultDecoratedFrames = ((JCheckBoxMenuItem) ae.getSource())
-						.isSelected();
-			}
-		});
-
-		lookAndFeelMenu.addSeparator();
-		lookAndFeelMenu.add(item);
+	public void setLookAndFeel(String lookAndFeel) {
+	      
+		this.lookAndFeel = lookAndFeel;
+		
+		if (!lookAndFeel.equals(UIManager.getLookAndFeel().getClass().getName())) {
+			
+			JOptionPane
+	        .showMessageDialog(
+	                        VirtualKeyboardGUI.this,
+	                        "The selected Look & Feel will be applied the next time you restart Virtual Keyboard",
+	                        "ALERT", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	public VirtualKeyboard getVirtualKeyboard() {
+		return virtualKeyboard;
 	}
 
 	public boolean isShowConnections() {
@@ -194,7 +198,6 @@ public class VirtualKeyboardGUI extends JPanel {
 
 	public void setShowConnections(boolean showConnections) {
 		this.showConnections = showConnections;
-		showConnectionsItem.setSelected(showConnections);
 		midiDeviceRoutingGUI.setVisible(showConnections);
 		revalidate();
 	}
@@ -207,12 +210,7 @@ public class VirtualKeyboardGUI extends JPanel {
 		return fileMenu;
 	}
 
-	public boolean isDefaultDecoratedFrames() {
-		return defaultDecoratedFrames;
-	}
-
 	public String getLookAndFeel() {
 		return lookAndFeel;
 	}
-
 }

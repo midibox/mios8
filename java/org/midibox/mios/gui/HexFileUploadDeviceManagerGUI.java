@@ -63,6 +63,10 @@ public class HexFileUploadDeviceManagerGUI extends JPanel implements
 
 		createGUIs();
 	}
+	
+	public JTabbedPane getTabbedPane() {
+		return tabbedPane;
+	}
 
 	private JPanel createButtonPanel() {
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 4));

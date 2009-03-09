@@ -20,6 +20,7 @@
 
 package org.midibox.midi.gui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -31,12 +32,16 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.sound.midi.MidiDevice;
+import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 
 import org.midibox.midi.MidiDeviceManager;
 
@@ -81,6 +86,14 @@ public class MidiDeviceManagerGUI extends JPanel implements Observer,
 				200));
 		midiReadDevices.setCellSelectionEnabled(false);
 		midiReadDevices.setShowGrid(false);
+		midiReadDevices.setDefaultRenderer(Boolean.class,
+				new MidiDeviceTableCellRenderer(midiDeviceManager
+						.getMidiReadDevices(), midiDeviceManager
+						.getSelectedMidiReadDevices()));
+		midiReadDevices.setDefaultEditor(Boolean.class,
+				new MidiDeviceTableCellEditor(midiDeviceManager
+						.getMidiReadDevices(), midiDeviceManager
+						.getSelectedMidiReadDevices()));
 
 		JScrollPane scrollPane = new JScrollPane(midiReadDevices);
 		scrollPane
@@ -95,6 +108,14 @@ public class MidiDeviceManagerGUI extends JPanel implements Observer,
 				200));
 		midiWriteDevices.setCellSelectionEnabled(false);
 		midiWriteDevices.setShowGrid(false);
+		midiWriteDevices.setDefaultRenderer(Boolean.class,
+				new MidiDeviceTableCellRenderer(midiDeviceManager
+						.getMidiWriteDevices(), midiDeviceManager
+						.getSelectedMidiWriteDevices()));
+		midiWriteDevices.setDefaultEditor(Boolean.class,
+				new MidiDeviceTableCellEditor(midiDeviceManager
+						.getMidiWriteDevices(), midiDeviceManager
+						.getSelectedMidiWriteDevices()));
 
 		scrollPane = new JScrollPane(midiWriteDevices);
 		scrollPane
@@ -130,8 +151,76 @@ public class MidiDeviceManagerGUI extends JPanel implements Observer,
 		}
 	}
 
+	class MidiDeviceTableCellEditor extends AbstractCellEditor implements
+			TableCellEditor {
+
+		private LinkedHashMap midiDevices;
+
+		private LinkedHashMap selectedMidiDevices;
+
+		private JCheckBox checkBox;
+
+		public MidiDeviceTableCellEditor(LinkedHashMap midiDevices,
+				LinkedHashMap selectedMidiDevices) {
+			this.midiDevices = midiDevices;
+			this.selectedMidiDevices = selectedMidiDevices;
+		}
+
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+
+			MidiDevice midiDevice = (MidiDevice) midiDevices.values().toArray()[row];
+
+			checkBox = new JCheckBox(midiDevice.getDeviceInfo().getName(),
+					((Boolean) value).booleanValue());
+
+			checkBox.setOpaque(false);
+			
+			checkBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent ae) {
+					fireEditingStopped();
+				}
+			});
+
+			return checkBox;
+		}
+
+		public Object getCellEditorValue() {
+
+			return new Boolean(checkBox.isSelected());
+		}
+	}
+
+	class MidiDeviceTableCellRenderer extends DefaultTableCellRenderer {
+
+		private LinkedHashMap midiDevices;
+
+		private LinkedHashMap selectedMidiDevices;
+
+		public MidiDeviceTableCellRenderer(LinkedHashMap midiDevices,
+				LinkedHashMap selectedMidiDevices) {
+			this.midiDevices = midiDevices;
+			this.selectedMidiDevices = selectedMidiDevices;
+		}
+
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+
+			MidiDevice midiDevice = (MidiDevice) midiDevices.values().toArray()[row];
+
+			JCheckBox checkBox = new JCheckBox(midiDevice.getDeviceInfo()
+					.getName(), ((Boolean) value).booleanValue());
+
+			checkBox.setOpaque(false);
+
+			return checkBox;
+		}
+	}
+
 	class MidiDeviceTableModel extends DefaultTableModel {
-		private String[] headers = { "Selected", "MIDI Device Name" };
+
+		private String[] headers = { "MIDI Device" };
 
 		private LinkedHashMap midiDevices;
 
@@ -165,8 +254,6 @@ public class MidiDeviceManagerGUI extends JPanel implements Observer,
 			if (col == 0) {
 				return new Boolean(selectedMidiDevices
 						.containsValue(midiDevices.values().toArray()[row]));
-			} else if (col == 1) {
-				return midiDevice.getDeviceInfo().getName();
 			}
 			return null;
 		}

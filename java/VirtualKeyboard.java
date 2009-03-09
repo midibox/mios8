@@ -1,5 +1,5 @@
 /*
- * @(#)VirtualKeyboardDriver.java	beta8	2006/04/23
+ * @(#)VirtualKeyboard.java	beta8	2006/04/23
  *
  * Copyright (C) 2008    Adam King (adamjking@optusnet.com.au)
  *
@@ -37,13 +37,12 @@ import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 
 import org.midibox.apps.virtualkeyboard.gui.VirtualKeyboardGUI;
+import org.midibox.apps.virtualkeyboard.gui.xml.VirtualKeyboardGUIXML;
 import org.midibox.apps.virtualkeyboard.xml.VirtualKeyboardXML;
+import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 
 public class VirtualKeyboard extends JApplet {
-
-	final static Preferences preferences = Preferences.userRoot().node(
-			"org/midibox/virtualkeyboard/gui");
 
 	final static String configFileName = ".virtualkeyboard";
 
@@ -55,23 +54,24 @@ public class VirtualKeyboard extends JApplet {
 
 		virtualKeyboard = new org.midibox.apps.virtualkeyboard.VirtualKeyboard();
 
-		loadConfigFile();
+		File configFile = new File(System.getProperty("user.home"),
+				configFileName);
 
-		try {
-			UIManager.setLookAndFeel(preferences.get("lookAndFeel", UIManager
-					.getCrossPlatformLookAndFeelClassName()));
-		} catch (Exception e) {
-			System.out.println(e.toString());
+		if (configFile.exists()) {
+
+			VirtualKeyboardGUIXML virtualKeyboardGUIXML = new VirtualKeyboardGUIXML(
+					virtualKeyboard, VirtualKeyboardGUIXML.TAG_ROOT_ELEMENT);
+
+			virtualKeyboardGUIXML.loadXML(configFile);
+		
+			virtualKeyboardGUI = virtualKeyboardGUIXML.getVirtualKeyboardGUI();
+			
 		}
-
-		JDialog.setDefaultLookAndFeelDecorated(preferences.getBoolean(
-				"defaultDecoratedFrames", false));
-
-		JFrame.setDefaultLookAndFeelDecorated(preferences.getBoolean(
-				"defaultDecoratedFrames", false));
-
-		virtualKeyboardGUI = new VirtualKeyboardGUI(virtualKeyboard);
-
+		
+		if (virtualKeyboardGUI == null) { 
+			virtualKeyboardGUI = new VirtualKeyboardGUI(virtualKeyboard);
+		}
+		
 		getContentPane().add(virtualKeyboardGUI);
 
 		setJMenuBar(virtualKeyboardGUI.createMenuBar());
@@ -79,39 +79,10 @@ public class VirtualKeyboard extends JApplet {
 
 	public void init() {
 
-		virtualKeyboardGUI.setShowConnections(preferences.getBoolean(
-				"showConnections", true));
-	}
-
-	protected void loadConfigFile() {
-
-		File configFile = new File(System.getProperty("user.home"),
-				configFileName);
-
-		if (configFile.exists()) {
-
-			VirtualKeyboardXML virtualKeyboardXML = new VirtualKeyboardXML(
-					virtualKeyboard, VirtualKeyboardXML.TAG_ROOT_ELEMENT);
-
-			virtualKeyboardXML.loadXML(configFile);
-		}
 	}
 
 	public void destroy() {
-
-		saveConfigFile();
-
-		preferences.put("lookAndFeel", virtualKeyboardGUI.getLookAndFeel());
-
-		preferences.putBoolean("defaultDecoratedFrames", virtualKeyboardGUI
-				.isDefaultDecoratedFrames());
-
-		preferences.putBoolean("showConnections", virtualKeyboardGUI
-				.isShowConnections());
-	}
-
-	protected void saveConfigFile() {
-
+		
 		File configFile = new File(System.getProperty("user.home"),
 				configFileName);
 
@@ -125,32 +96,27 @@ public class VirtualKeyboard extends JApplet {
 
 		if (configFile.exists()) {
 
-			VirtualKeyboardXML virtualKeyboardXML = new VirtualKeyboardXML(
-					virtualKeyboard, VirtualKeyboardXML.TAG_ROOT_ELEMENT);
+			VirtualKeyboardGUIXML virtualKeyboardGUIXML = new VirtualKeyboardGUIXML(
+					virtualKeyboardGUI, VirtualKeyboardGUIXML.TAG_ROOT_ELEMENT);
 
-			virtualKeyboardXML.saveXML(configFile);
+			virtualKeyboardGUIXML.saveXML(configFile);
 		}
-	}
 
-	public static void exit(JFrame frame) {
-
-		preferences.putInt("mainWindowX", frame.getX());
-		preferences.putInt("mainWindowY", frame.getY());
-
-		System.exit(0);
 	}
 
 	public static void main(String[] args) {
 
-		final VirtualKeyboard virtualKeyboardGUIDriver = new VirtualKeyboard();
-
-		virtualKeyboardGUIDriver.init();
-
 		final JFrame frame = new JFrame("Virtual Keyboard");
+		
+		DialogOwner.setFrame(frame);
 
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		
+		final VirtualKeyboard virtualKeyboardGUI = new VirtualKeyboard();
 
-		frame.setContentPane(virtualKeyboardGUIDriver);
+		virtualKeyboardGUI.init();
+
+		frame.setContentPane(virtualKeyboardGUI);
 
 		frame.setIconImage(ImageLoader.getImageIcon("piano.png").getImage());
 		frame.pack();
@@ -159,27 +125,23 @@ public class VirtualKeyboard extends JApplet {
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-		frame.setLocation(preferences.getInt("mainWindowX", 50), preferences
-				.getInt("mainWindowY", 50));
-
-		frame.setLocation(preferences.getInt("windowX", 50), preferences
-				.getInt("windowY", 50));
-
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
 		exitMenuItem.setMnemonic(KeyEvent.VK_X);
 		exitMenuItem.setActionCommand("exit");
 
 		exitMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				virtualKeyboardGUIDriver.destroy();
-				exit(frame);
+				
+				virtualKeyboardGUI.destroy();
+
+				System.exit(0);
 			}
 		});
 
-		virtualKeyboardGUIDriver.virtualKeyboardGUI.getFileMenu().add(
+		virtualKeyboardGUI.virtualKeyboardGUI.getFileMenu().add(
 				exitMenuItem);
 
-		virtualKeyboardGUIDriver.virtualKeyboardGUI.getMidiDeviceRoutingGUI()
+		virtualKeyboardGUI.virtualKeyboardGUI.getMidiDeviceRoutingGUI()
 				.addComponentListener(new ComponentAdapter() {
 					public void componentShown(ComponentEvent arg0) {
 						frame.pack();
@@ -192,8 +154,10 @@ public class VirtualKeyboard extends JApplet {
 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				virtualKeyboardGUIDriver.destroy();
-				exit(frame);
+				
+				virtualKeyboardGUI.destroy();
+
+				System.exit(0);
 			}
 		});
 

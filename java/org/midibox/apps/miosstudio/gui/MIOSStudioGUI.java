@@ -45,6 +45,7 @@ import java.util.Observer;
 import java.util.Vector;
 
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -53,7 +54,6 @@ import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -62,6 +62,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -71,7 +72,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import org.midibox.apps.miosstudio.MIOSStudio;
-import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
+import org.midibox.apps.miosstudio.gui.xml.MIOSStudioGUIXML;
 import org.midibox.midi.MidiFilterDevice;
 import org.midibox.midi.MidiKeyboardControllerDevice;
 import org.midibox.midi.MidiRouterDevice;
@@ -101,6 +102,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	private JDesktopPane desktop;
 
 	private HelpPane helpPane;
+
+	protected Vector internalFrames;
 
 	private MIOSStudioInternalFrame helpWindow;
 
@@ -184,8 +187,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private String lookAndFeel;
 
-	private boolean defaultDecoratedFrames;
-
 	private JLabel commentLabel;
 
 	private static String currentDirectory = "";
@@ -201,7 +202,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		miosStudio.addObserver(this);
 
 		lookAndFeel = UIManager.getLookAndFeel().getClass().getName();
-		defaultDecoratedFrames = JFrame.isDefaultLookAndFeelDecorated();
 
 		add(createToolBar(), BorderLayout.NORTH);
 		add(createMainPanel(), BorderLayout.CENTER);
@@ -270,6 +270,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	protected void createInternalFrames() {
 
+		internalFrames = new Vector();
+
 		// Help Window
 
 		helpPane = HelpPane.createSingleton(ResourceLoader
@@ -280,6 +282,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 				true, true, true, ImageLoader.getImageIcon("help.png"),
 				helpPane);
 		helpWindow.pack();
+
+		internalFrames.add(helpWindow);
 
 		// MIDI Device Routing
 
@@ -294,6 +298,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 				true, icon, midiDeviceRoutingGUI);
 
 		midiDeviceRoutingWindow.pack();
+
+		internalFrames.add(midiDeviceRoutingWindow);
 
 		icon = ImageLoader.getImageIcon("ucIcon.png");
 
@@ -317,6 +323,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		midiOutPortMonitorWindow.pack();
 
+		internalFrames.add(midiOutPortMonitorWindow);
+
 		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
 				.getMidiOutPortMonitorDevice(), icon);
 
@@ -331,6 +339,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 				midiInPortMonitorGUI);
 
 		midiInPortMonitorWindow.pack();
+
+		internalFrames.add(midiInPortMonitorWindow);
 
 		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
 				.getMidiInPortMonitorDevice(), icon);
@@ -349,6 +359,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 				true, icon, midiKeyboardControllerGUI);
 
 		midiKeyboardControllerWindow.pack();
+
+		internalFrames.add(midiKeyboardControllerWindow);
 
 		midiDeviceRoutingGUI.addMidiDeviceIcon(
 				MidiKeyboardControllerDevice.class, icon);
@@ -384,6 +396,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		hexFileUploadDeviceManagerWindow.pack();
 
+		internalFrames.add(hexFileUploadDeviceManagerWindow);
+
 		midiDeviceRoutingGUI.addMidiDeviceIcon(HexFileUploadDevice.class, icon);
 
 		// Read/Write
@@ -410,6 +424,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		lcdMessageWindow.pack();
 
+		internalFrames.add(lcdMessageWindow);
+
 		midiDeviceRoutingGUI.addMidiDeviceIcon(
 				miosStudio.getLcdMessageDevice(), icon);
 
@@ -426,6 +442,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		debugFunctionWindow.pack();
 
+		internalFrames.add(debugFunctionWindow);
+
 		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
 				.getDebugFunctionDevice(), icon);
 
@@ -439,6 +457,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 				true, true, true, icon, miosTerminalGUI);
 
 		miosTerminalWindow.pack();
+
+		internalFrames.add(miosTerminalWindow);
 
 		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
 				.getMIOSTerminalDevice(), icon);
@@ -660,15 +680,39 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		toolBar.setVisible(true);
 	}
 
+	public HexFileUploadDeviceManagerGUI getHexFileUploadDeviceManagerGUI() {
+		return hexFileUploadDeviceManagerGUI;
+	}
+
+	public Vector getInternalFrames() {
+		return internalFrames;
+	}
+
 	public static String getCurrentDirectory() {
 		return currentDirectory;
 	}
 
 	public static void setCurrentDirectory(String currentDirectory) {
+
 		MIOSStudioGUI.currentDirectory = currentDirectory;
 	}
 
-	protected void removeExternalCommandButton(ExternalCommandButton button) {
+	public void setLookAndFeel(String lookAndFeel) {
+
+		this.lookAndFeel = lookAndFeel;
+
+		if (!lookAndFeel
+				.equals(UIManager.getLookAndFeel().getClass().getName())) {
+
+			JOptionPane
+					.showMessageDialog(
+							MIOSStudioGUI.this,
+							"The selected Look & Feel will be applied the next time you restart MIOS Studio",
+							"ALERT", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	public void removeExternalCommandButton(ExternalCommandButton button) {
 		externalCommands.remove(button);
 		toolBar.remove(button);
 		assignExternalButtonMnemonics();
@@ -702,6 +746,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		toolBar.addSeparator();
 
 		createHelpButtons();
+
+		toolBar.addSeparator();
 
 		toolBarMenu = new JPopupMenu();
 		JMenuItem addButton = new JMenuItem("Add External Command Button");
@@ -1025,35 +1071,20 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ae) {
 					try {
-						lookAndFeel = UIManager.getInstalledLookAndFeels()[l]
-								.getClassName();
-						JOptionPane
-								.showMessageDialog(
-										MIOSStudioGUI.this,
-										"The selected Look & Feel will be applied the next time you restart MIOS Studio",
-										"ALERT", JOptionPane.ERROR_MESSAGE);
+
+						setLookAndFeel(UIManager.getInstalledLookAndFeels()[l]
+								.getClassName());
+
 					} catch (Exception e) {
 						System.out.println(e.toString());
 					}
 				}
 			});
 		}
-
-		item = new JCheckBoxMenuItem("Include Frames/Dialogs",
-				defaultDecoratedFrames);
-		item.setActionCommand("dialogs");
-		item.addActionListener(this);
-
-		lookAndFeelMenu.addSeparator();
-		lookAndFeelMenu.add(item);
 	}
 
 	public JMenu getFileMenu() {
 		return fileMenu;
-	}
-
-	public boolean isDefaultDecoratedFrames() {
-		return defaultDecoratedFrames;
 	}
 
 	public MIOSStudio getMiosStudio() {
@@ -1126,14 +1157,57 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		int nRetVal = fc.showOpenDialog(this);
 
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
 
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
-					MIOSStudioXML.TAG_ROOT_ELEMENT);
+			final File file = fc.getSelectedFile();
 
-			miosStudioXML.loadXML(file);
+			final WorkspaceOptionDialog workspaceOptionDialog = new WorkspaceOptionDialog();
 
-			currentDirectory = fc.getCurrentDirectory().toString();
+			workspaceOptionDialog.pack();
+
+			workspaceOptionDialog.okButton
+					.addActionListener(new ActionListener() {
+
+						public void actionPerformed(ActionEvent ae) {
+
+							workspaceOptionDialog.setVisible(false);
+
+							boolean gui;
+
+							boolean model;
+
+							if (workspaceOptionDialog.guiRadioButton
+									.isSelected()) {
+
+								gui = true;
+								model = false;
+
+							} else if (workspaceOptionDialog.modelRadioButton
+									.isSelected()) {
+
+								gui = false;
+								model = true;
+
+							} else {
+
+								gui = true;
+								model = true;
+							}
+
+							MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
+									MIOSStudioGUI.this,
+									MIOSStudioGUIXML.TAG_ROOT_ELEMENT, model,
+									gui);
+
+							miosStudioGUIXML.loadXML(file);
+
+							currentDirectory = fc.getCurrentDirectory()
+									.toString();
+						}
+					});
+
+			workspaceOptionDialog.setLocationRelativeTo(this);
+
+			workspaceOptionDialog.setVisible(true);
 		}
 	}
 
@@ -1155,14 +1229,57 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		int nRetVal = fc.showSaveDialog(this);
 
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
 
-			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
-					MIOSStudioXML.TAG_ROOT_ELEMENT);
+			final File file = fc.getSelectedFile();
 
-			miosStudioXML.saveXML(file);
+			final WorkspaceOptionDialog workspaceOptionDialog = new WorkspaceOptionDialog();
 
-			currentDirectory = fc.getCurrentDirectory().toString();
+			workspaceOptionDialog.pack();
+
+			workspaceOptionDialog.okButton
+					.addActionListener(new ActionListener() {
+
+						public void actionPerformed(ActionEvent ae) {
+
+							workspaceOptionDialog.setVisible(false);
+
+							boolean gui;
+
+							boolean model;
+
+							if (workspaceOptionDialog.guiRadioButton
+									.isSelected()) {
+
+								gui = true;
+								model = false;
+
+							} else if (workspaceOptionDialog.modelRadioButton
+									.isSelected()) {
+
+								gui = false;
+								model = true;
+
+							} else {
+
+								gui = true;
+								model = true;
+							}
+
+							MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
+									MIOSStudioGUI.this,
+									MIOSStudioGUIXML.TAG_ROOT_ELEMENT, model,
+									gui);
+
+							miosStudioGUIXML.saveXML(file);
+
+							currentDirectory = fc.getCurrentDirectory()
+									.toString();
+						}
+					});
+
+			workspaceOptionDialog.setLocationRelativeTo(this);
+
+			workspaceOptionDialog.setVisible(true);
 		}
 	}
 
@@ -1301,10 +1418,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		} else if (ae.getActionCommand().equals("add_command_button")) {
 			addExternalCommandButton("[empty]", "");
-
-		} else if (ae.getActionCommand().equals("dialogs")) {
-			defaultDecoratedFrames = ((JCheckBoxMenuItem) ae.getSource())
-					.isSelected();
 
 		} else if (ae.getActionCommand().equals("open_workspace")) {
 			openWorkspace();
@@ -1533,6 +1646,62 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			public JInternalFrame getFrame() {
 				return frame;
 			}
+		}
+	}
+
+	class WorkspaceOptionDialog extends JDialog {
+
+		ButtonGroup buttonGroup;
+
+		JRadioButton modelRadioButton;
+
+		JRadioButton guiRadioButton;
+
+		JButton okButton;
+
+		public WorkspaceOptionDialog() {
+
+			super(DialogOwner.getFrame(), "Workspace Options", true);
+
+			JPanel panel = new JPanel(new GridBagLayout());
+
+			GridBagConstraints gbc = new GridBagConstraints();
+
+			gbc.gridx = 0;
+			gbc.gridy = 0;
+			gbc.gridwidth = 1;
+			gbc.gridheight = 1;
+			gbc.anchor = (GridBagConstraints.WEST);
+			gbc.insets = new Insets(5, 5, 5, 5);
+
+			JLabel label = new JLabel("Load/save workspace: ");
+			panel.add(label, gbc);
+			gbc.gridy++;
+
+			buttonGroup = new ButtonGroup();
+
+			JRadioButton radioButton = new JRadioButton(
+					"Graphical layout and MIOS Studio setup", true);
+			panel.add(radioButton, gbc);
+			buttonGroup.add(radioButton);
+			gbc.gridy++;
+
+			guiRadioButton = new JRadioButton("Graphical layout only", false);
+			panel.add(guiRadioButton, gbc);
+			buttonGroup.add(guiRadioButton);
+			gbc.gridy++;
+
+			modelRadioButton = new JRadioButton("MIOS Studio setup only", false);
+			panel.add(modelRadioButton, gbc);
+			buttonGroup.add(modelRadioButton);
+			gbc.gridy++;
+
+			gbc.anchor = (GridBagConstraints.CENTER);
+
+			okButton = new JButton("OK");
+			panel.add(okButton, gbc);
+
+			setContentPane(panel);
 		}
 	}
 }
