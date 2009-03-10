@@ -1,5 +1,6 @@
 package org.midibox.apps.miosstudio.gui.xml;
 
+import java.awt.Dimension;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -199,11 +200,34 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 					if (internalFrame != null) {
 
-						internalFrame.setBounds(stringToInt(element
-								.getAttribute(ATTR_POS_X)), stringToInt(element
-								.getAttribute(ATTR_POS_Y)), stringToInt(element
-								.getAttribute(ATTR_WIDTH)), stringToInt(element
-								.getAttribute(ATTR_HEIGHT)));
+						Dimension d = internalFrame.getPreferredSize();
+
+						if (internalFrame.isResizable()) {
+
+							internalFrame.setBounds(stringToInt(element
+									.getAttribute(ATTR_POS_X)),
+									stringToInt(element
+											.getAttribute(ATTR_POS_Y)), Math
+											.max(stringToInt(element
+													.getAttribute(ATTR_WIDTH)),
+													d.width),
+									Math.max(stringToInt(element
+											.getAttribute(ATTR_HEIGHT)),
+											d.height));
+
+						} else {
+
+							internalFrame.setBounds(stringToInt(element
+									.getAttribute(ATTR_POS_X)),
+									stringToInt(element
+											.getAttribute(ATTR_POS_Y)),
+									d.width, d.height);
+						}
+
+						if (stringToBoolean(element.getAttribute(ATTR_VISIBLE))) {
+
+							miosStudioGUI.showFrame(internalFrame);
+						}
 
 						try {
 
@@ -216,11 +240,6 @@ public class MIOSStudioGUIXML extends XMLUtils {
 						} catch (Exception e) {
 
 							e.printStackTrace();
-						}
-
-						if (stringToBoolean(element.getAttribute(ATTR_VISIBLE))) {
-
-							miosStudioGUI.showFrame(internalFrame);
 						}
 					}
 
