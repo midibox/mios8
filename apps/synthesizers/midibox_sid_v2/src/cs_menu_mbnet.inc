@@ -798,6 +798,18 @@ CS_MENU_MBNET_Tx_SendPatchLoopIN
 	andlw	0x07
 	bnz	CS_MENU_MBNET_Tx_SendPatchLoopI
 
+	;; if engine code in buffer: store it in local variable
+	movf	EEADR, W
+	xorlw	SID_Ix_ENGINE + 8 ; only works with (SID_Ix_ENGINE & 0x7) == 0
+	bnz	CS_MENU_MBNET_Tx_SendPatch_ExtNE
+	movf	EEADRH, W
+	bnz	CS_MENU_MBNET_Tx_SendPatch_ExtNE
+CS_MENU_MBNET_Tx_SendPatch_ExtE
+	movlw	-8
+	movf	PLUSW1, W
+	call	CS_MENU_MS_StoreEngineCode
+CS_MENU_MBNET_Tx_SendPatch_ExtNE
+
 	;; optimized "interlaced" transfer - send package while fetching next part from BankStick
 	movf	EEADRH, W
 	bnz	CS_MENU_MBNET_Tx_SendPatchLoopI1
@@ -875,6 +887,18 @@ CS_MENU_MBNET_Tx_SendPatch_IntLI
 	andlw	0x07
 	bnz	CS_MENU_MBNET_Tx_SendPatch_IntLI
 
+	;; if engine code in buffer: store it in local variable
+	movf	EEADR, W
+	xorlw	SID_Ix_ENGINE + 8 ; only works with (SID_Ix_ENGINE & 0x7) == 0
+	bnz	CS_MENU_MBNET_Tx_SendPatch_IntNE
+	movf	EEADRH, W
+	bnz	CS_MENU_MBNET_Tx_SendPatch_IntNE
+CS_MENU_MBNET_Tx_SendPatch_IntE
+	movlw	-8
+	movf	PLUSW1, W
+	call	CS_MENU_MS_StoreEngineCode
+CS_MENU_MBNET_Tx_SendPatch_IntNE
+
 	call	MBNET_Tx_Perform		; performs the transfer and waits for an acknowledge from slave
 	skpz					; re-init display if transfer failed
 	rgoto	CS_MENU_MBNET_Error
@@ -885,8 +909,6 @@ CS_MENU_MBNET_Tx_SendPatch_IntLI
 	movf	EEADRH, W
 	andlw	0xfe
 	bz	CS_MENU_MBNET_Tx_SendPatch_IntLO
-
-	call	CS_MENU_MBNET_Tx_InitPatch	; init patch
 
 	;; continue above
 	rgoto	CS_MENU_MBNET_Tx_SendPatch_Int_C

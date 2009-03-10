@@ -518,6 +518,10 @@ CS_MENU_MS_NotifyBankChangeLN
 ;;  this function sends the edit buffer to the SID selected by CS_MENU_SID
 ;; --------------------------------------------------------------------------
 CS_MENU_MS_Send_EditBuffer
+	;; store selected engine code
+	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
+	call	CS_MENU_MS_StoreEngineCode
+
 	;; branch depending on master/slave SID
 	movf	CS_MENU_SID, W
 	bnz	CS_MENU_MS_Send_EditBuffer_S
@@ -542,7 +546,8 @@ CS_MENU_MS_Send_EditBuffer_MLoop
 
 
 CS_MENU_MS_Send_EditBuffer_S
-	goto	CS_MENU_MBNET_Tx_SendEdit	; sends the edit buffer
+	;; send edit buffer to slave
+	goto	CS_MENU_MBNET_Tx_SendEdit
 
 
 ;; --------------------------------------------------------------------------
@@ -567,11 +572,9 @@ CS_MENU_MS_Send_EditBufferAllLpN
 ;; --------------------------------------------------------------------------
 ;;  this function sends the whole patch to the SID which is
 ;;  selected by CS_MENU_SID
+;;  Doesn't overwrite the edit buffer
 ;; --------------------------------------------------------------------------
 CS_MENU_MS_SendPatch
-	;; TODO: needs to be overworked
-	;; should use CS_MENU_MS_Send_EditBuffer!!!
-
 	;; check TX counter, if > 6, delay the sending
 	;; this register is decremented by cs_menu_timer.inc every 100 ms
 	lfsr	FSR1, CS_MENU_TX_M_CTR
@@ -605,6 +608,10 @@ CS_MENU_MS_SendPatch_M
 	;; transfer EEPROM content into SID patch buffer and init patch
 	call	SID_PATCH_LoadPatchBuffer
 
+	;; store selected engine code
+	movff	SID_PATCH_BUFFER + SID_Ix_ENGINE, WREG
+	call	CS_MENU_MS_StoreEngineCode
+
 	;; restore CS_MENU_SID
 	rgoto	CS_MENU_MS_SendPatch_End
 
@@ -629,6 +636,12 @@ CS_MENU_MS_SendPatch_S
 	call	CS_MENU_MBNET_Tx_SendPatch	; sends the patch
 	
 CS_MENU_MS_SendPatch_End
+
+#if DEFAULT_LCD_LINES >= 3
+	;; request label update (important for ENS main page)
+	call	CS_MENU_UpdateLabel
+#endif
+
 	return
 
 
@@ -806,3 +819,61 @@ CS_MENU_MS_VoiceReInit_Master
 CS_MENU_MS_VoiceReInit_Slave
 	;; request notes off via CAN
 	goto	CS_MENU_MBNET_Tx_VoiceReInit
+
+
+;; --------------------------------------------------------------------------
+;;  Store Engine code of the selected SID
+;;  IN: engine code (2bit) in WREG
+;;      selected SID in CS_MENU_SID
+;;  USES: PROD[LH]
+;; --------------------------------------------------------------------------
+CS_MENU_MS_StoreEngineCode
+	;; using a single variable to store engine codes - this saves RAM, but costs a bit more flash memory...
+
+	;; store engine code at the correct position in PRODL, and mask in PRODH
+	andlw	0x03
+	movwf	PRODL
+	movlw	0x03
+	movwf	PRODH
+
+	btfsc	CS_MENU_SID, 1
+	swapf	PRODL, F
+	btfsc	CS_MENU_SID, 1
+	swapf	PRODH, F
+
+	BRA_IFCLR CS_MENU_SID, 0, ACCESS, CS_MENU_MS_StoreEngineCode_NoShf
+CS_MENU_MS_StoreEngineCode_Shift
+	clrc
+	rlf	PRODL, F
+	rlf	PRODL, F
+	rlf	PRODH, F
+	rlf	PRODH, F
+CS_MENU_MS_StoreEngineCode_NoShf
+
+	comf	PRODH, W
+	andwf	CS_MENU_ENGINES, F
+	movf	PRODL, W
+	iorwf	CS_MENU_ENGINES, F
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  Returns the engine code of the selected SID
+;;  IN: selected SID in CS_MENU_SID
+;;  OUT: engine code (2bit) in WREG
+;;  USES: PROD[LH]
+;; --------------------------------------------------------------------------
+CS_MENU_MS_GetEngineCode
+	movf	CS_MENU_ENGINES, W
+	btfsc	CS_MENU_SID, 1
+	swapf	WREG, W
+
+	BRA_IFCLR CS_MENU_SID, 0, ACCESS, CS_MENU_MS_GetEngineCode_NoShf
+CS_MENU_MS_GetEngineCode_Shift
+	clrc
+	rrf	WREG, W
+	clrc
+	rrf	WREG, W
+CS_MENU_MS_GetEngineCode_NoShf
+	andlw	0x03
+	return

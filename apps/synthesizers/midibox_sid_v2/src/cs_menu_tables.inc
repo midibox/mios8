@@ -201,7 +201,7 @@ CS_MENU_MAIN	EQU	0x80
 ;  The main menu
 ; ==========================================================================
 CS_MENU_TABLE_E_ROOT
-	db	(CS_MENU_TABLE_E_ROOT_End-CS_MENU_TABLE_E_ROOT)/CS_MENU_ENTRY_LEN, 0x00	; (no label used to avoid, that "ensemble" is print twice on screen, which looks ugly)
+	db	(CS_MENU_TABLE_E_ROOT_End-CS_MENU_TABLE_E_ROOT)/CS_MENU_ENTRY_LEN, CS_MENU_LABEL_ENS
 
 	;;              Register (00=dummy)        |<->|   max    print ix          exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_E_SID,             "SID",  0x000, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP

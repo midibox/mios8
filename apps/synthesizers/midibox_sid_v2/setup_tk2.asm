@@ -270,7 +270,7 @@ CS_MENU_DIN_TABLE
 
 	DIN_ENTRY	CS_MENU_BUTTON_Fil_Sel,	 16+8,	 5
 	DIN_ENTRY	CS_MENU_BUTTON_Fil_Mod,  16+8,	 6
-	DIN_ENTRY	CS_MENU_BUTTON_Fil_ExtIn,16+3,	 7 ; **new** Filter Ext In button
+ 	DIN_ENTRY	CS_MENU_BUTTON_Fil_ExtIn,16+3,	 7 ; **new** Filter Ext In button
 
  	DIN_ENTRY	CS_MENU_BUTTON_LFO_Sel,	 16+3,	 5
 	DIN_ENTRY	CS_MENU_BUTTON_LFO_Wav,	 16+4,	 6

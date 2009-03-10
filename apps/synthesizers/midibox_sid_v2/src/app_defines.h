@@ -145,8 +145,9 @@ CS_MENU_METER_BAR_VALUE EQU	0x055	; cs_menu.inc: value of this meter
 CS_MENU_DELAYED_UPDATE_CTR EQU  0x056   ; cs_menu.inc: used to delay LCD update by some mS
 CS_MENU_LABEL		EQU	0x057	; label ID of current menu page
 CS_MENU_LABEL_CTR	EQU	0x058	; counter for printing label piecewise
+CS_MENU_ENGINES         EQU     0x059   ; stored engine codes (2 bit for each SID)
 
-	;; free: 0x59-0x5f
+	;; free: 0x5a-0x5f
 
 ;; ==========================================================================
 ;; NOTE for PIC18F4685: 0x60-0x7f NOT directly accessible via ACCESS bank!

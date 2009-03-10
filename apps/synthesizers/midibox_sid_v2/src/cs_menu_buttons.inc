@@ -465,23 +465,30 @@ CS_MENU_BUTTON_Osc_Sel_LB
 	BRA_IFSET WREG, 0, ACCESS, CS_MENU_BUTTON_Osc_Sel_B
 
 CS_MENU_BUTTON_Osc_Sel_L
-	;; select one OSC
-	movlw	0x01
-	btfsc	CS_MENU_SELECTED_OSC_FLAGS, 0
-	movlw 0x02
-	btfsc	CS_MENU_SELECTED_OSC_FLAGS, 1
-	movlw 0x04
+	;; select one or all OSC (4 states)
+	movf	CS_MENU_SELECTED_OSC_FLAGS, W
+	andlw	0x07
+	TABLE_ADDR_MUL_W CS_MENU_BUTTON_Osc_Sel_Next_Tab, 1
+	tblrd*+
+	movf	TABLAT, W
 	movwf	CS_MENU_SELECTED_OSC_FLAGS
-	
+
 	movlw	0x00
 	btfsc	CS_MENU_SELECTED_OSC_FLAGS, 1
-	movlw 0x01
+	movlw	0x01
 	btfsc	CS_MENU_SELECTED_OSC_FLAGS, 2
-	movlw 0x02
+	movlw	0x02
 	movwf	CS_MENU_SELECTED_OSC
+
 	;; change to OSC page
 	call	CS_MENU_GetMenuID_OSC
 	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
+
+
+	;; maps current OSC selection flags to next OSC selection flags
+CS_MENU_BUTTON_Osc_Sel_Next_Tab
+	;; from 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07
+	db	0x01, 0x02, 0x04, 0x07, 0x07, 0x07, 0x07, 0x01
 
 CS_MENU_BUTTON_Osc_Sel_B
 	;; toggle L/R, oscillator always 1
@@ -824,6 +831,88 @@ CS_MENU_BUTTON_Fil_ExtIn
 	movwf	MIOS_PARAMETER2
 	call	CS_MENU_GetMenuID_FIL	; menu page
 	goto	CS_MENU_ButtonInc
+
+
+	;; ------------------------------------------------------------------
+CS_MENU_BUTTON_Arp
+	;; Arp button enables/disables the arpeggiator of *all* oscillators
+
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+
+	;; branch depending on engine
+	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
+	BRA_IFSET WREG, 1, ACCESS, CS_MENU_BUTTON_Arp_DM
+CS_MENU_BUTTON_Arp_LB
+	BRA_IFSET WREG, 1, ACCESS, CS_MENU_BUTTON_Arp_B
+CS_MENU_BUTTON_Arp_L
+	;; reference flag in V1
+	movff	SID_EDIT_BUFFER + SID_Ix_L_S1V1_BASE + SID_Ix_Vx_ARP_MODE, TMP1
+	btg	TMP1, SID_I_V_ARP_MODE_ENABLE	; toggle ARP enable flag
+
+	;; 2*3 oscillators
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_L_S1V1_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_L_S1V2_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_L_S1V3_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_L_S2V1_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_L_S2V2_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_L_S2V3_BASE + SID_Ix_Vx_ARP_MODE
+	rgoto	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+
+
+CS_MENU_BUTTON_Arp_B
+	;; reference flag in V1
+	movff	SID_EDIT_BUFFER + SID_Ix_B_S1V1_BASE + SID_Ix_Vx_ARP_MODE, TMP1
+	btg	TMP1, SID_I_V_ARP_MODE_ENABLE	; toggle ARP enable flag
+
+	;; 2 oscillators
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_B_S1V1_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_B_S2V1_BASE + SID_Ix_Vx_ARP_MODE
+	rgoto	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+
+
+CS_MENU_BUTTON_Arp_DM
+	BRA_IFSET WREG, 1, ACCESS, CS_MENU_BUTTON_Arp_M
+CS_MENU_BUTTON_Arp_D
+	;; no function in drum mode
+	return
+
+CS_MENU_BUTTON_Arp_M
+	;; reference flag in I1
+	movff	SID_EDIT_BUFFER + SID_Ix_M_I1_BASE + SID_Ix_Vx_ARP_MODE, TMP1
+	btg	TMP1, SID_I_V_ARP_MODE_ENABLE	; toggle ARP enable flag
+
+	;; 6 oscillators
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_M_I1_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_M_I2_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_M_I3_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_M_I4_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_M_I5_BASE + SID_Ix_Vx_ARP_MODE
+	rcall	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_M_I6_BASE + SID_Ix_Vx_ARP_MODE
+	rgoto	CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+
+
+CS_MENU_BUTTON_Arp_Hlp_ToggleArp
+	;; copy arp mode flag into parameter
+	bcf	INDF0, SID_I_V_ARP_MODE_ENABLE
+	btfsc	TMP1, SID_I_V_ARP_MODE_ENABLE
+	bsf	INDF0, SID_I_V_ARP_MODE_ENABLE
+
+	;; send parameter
+	goto	CS_MENU_MS_SendParameter
+
 
 	;; ------------------------------------------------------------------
 CS_MENU_BUTTON_PageUp

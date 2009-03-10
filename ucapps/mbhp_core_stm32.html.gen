@@ -18,7 +18,7 @@ HEADER 3 MBHP_CORE_STM32 Module
 <LI> ARM Cortex-M3 CPU is widely supported by the GNU toolchain, accordingly source code can be compiled under Windows/Linux/MacOS w/o spending money for an expensive ARM compiler
 <LI> Much better performance - compared to PIC or ATMega, the STM32 really plays in a different league because of the higher frequency (72 MHz), higher data width (32bit), hardware multiplier and division unit, etc.
 <LI> Very useful integrated peripherals for MIDI and Synthesizer applications, such as UART, SPI, I2C, USB, CAN, Timers, ADC, DAC
-<LI> It's easy to interface external components like SD Card, I2S Audio DACs, Ethernet Controller, etc.
+<LI> It's easy to interface external components like <A HREF="mbhp_sdcard.html">SD Card</A>, I2S Audio DACs, <A HREF="mbhp_eth.html">Ethernet Controller</A>, etc.
 <LI> STM32 is supplied by 3.3V, but 5V tolerant inputs allow to access all existing MBHP modules without additional hardware. Even for output functions no level shifters are required when pins are used in Open Drain mode with external Pull-Up to 5V
 <LI> Performance boost by using the DMA for background operations, such as scanning DIN/DOUT modules, analog inputs but also I2S transfers (Audio Output) w/o loading the CPU
 <LI> Very helpful peripheral driver library provided by STM
@@ -35,6 +35,7 @@ HEADER 3 MBHP_CORE_STM32 Module
 <LI> USB and CAN interface cannot be used in parallel, since they share the same memory
 <LI> no ROM based USB Bootloader, so that the MIOS32 Bootloader can only be flashed via JTAG or RS232
 <LI> Pin mapping suboptimal in some cases. E.g., the two DAC outputs overlay SPI1 pins, which are used to access a SD card. SRIO chain has to use SPI1 instead of SPI2 if I2S based DAC should be connected, or JTAG pins have to be used for I2S, which limits the debugging capabilities
+<LI> ADCs cannot be supplied at 5V, 3.3V is the limit. This increases the signal/noise ratio
 <LI> DMA doesn't support decrement address function, so that SRIO (serial shift register input and output) streams have to be reversed by software.
 <LI> I2C peripheral has conceptional flaws which requires the usage of high priority interrupts to prevent corrupted transfers
 </UL>
@@ -172,7 +173,8 @@ Please note that the pinout is different compared to the <A HREF="mbhp_core.html
     <TR>
       <TD CLASS=TABCOLOR2>J16</TD>
       <TD CLASS=TABCOLOR2>10</TD>
-      <TD CLASS=TABCOLOR2>SPI Interface to SD Card and SPI based Ethernet Interface like EN28J60. <B>TODO</B>.</TD>
+      <TD CLASS=TABCOLOR2>SPI Interface to <A HREF="mbhp_sdcard.html">SD Card</A> and SPI based Ethernet Interface like <A HREF="mbhp_eth.html">MBHP_ETC</A>.<BR>
+Such modules can be easily connected with a single 10-wire ribbon cable and 3 IDC connectors as shown in <A HREF="mbhp/mbhp_eth_sdcard_combined.jpg">this picture</A>.</TD>
     </TR>
 
     <TR>
