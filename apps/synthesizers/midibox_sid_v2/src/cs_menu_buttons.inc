@@ -471,24 +471,20 @@ CS_MENU_BUTTON_Osc_Sel_L
 	TABLE_ADDR_MUL_W CS_MENU_BUTTON_Osc_Sel_Next_Tab, 1
 	tblrd*+
 	movf	TABLAT, W
-	movwf	CS_MENU_SELECTED_OSC_FLAGS
-
-	movlw	0x00
-	btfsc	CS_MENU_SELECTED_OSC_FLAGS, 1
-	movlw	0x01
-	btfsc	CS_MENU_SELECTED_OSC_FLAGS, 2
-	movlw	0x02
 	movwf	CS_MENU_SELECTED_OSC
+
+	;; update OSC flags
+	call	CS_MENU_Hlp_UpdateOSCFlags
 
 	;; change to OSC page
 	call	CS_MENU_GetMenuID_OSC
 	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
 
 
-	;; maps current OSC selection flags to next OSC selection flags
+	;; maps current OSC selection flags to next CS_MENU_SELECTED_OSC (and not flags!)
 CS_MENU_BUTTON_Osc_Sel_Next_Tab
-	;; from 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07
-	db	0x01, 0x02, 0x04, 0x07, 0x07, 0x07, 0x07, 0x01
+	;; from 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07   ; FLAGS
+	db	0x00, 0x01, 0x02, 0x03, 0x06, 0x06, 0x06, 0x00   ; next OSC selection (see CS_MENU_Hlp_UpdateOSCFlags)
 
 CS_MENU_BUTTON_Osc_Sel_B
 	;; toggle L/R, oscillator always 1
@@ -840,6 +836,11 @@ CS_MENU_BUTTON_Arp
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
+
+	;; get SID number -> CS_MENU_SID
+	;; note: multi-SID selection not supported, as ARP_MODE is not always in edit buffer
+	;; (a special MBNet Command would be required...)
+	call	CS_MENU_MS_GetSIDNumber
 
 	;; branch depending on engine
 	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
