@@ -21,6 +21,16 @@
 ;;  SID Flags
 ;; ==========================================================================
 
+;; general SID status flags
+SID_STAT_ENGINE_DISABLE		EQU	0 ; if set, SID tick and SID interrupt will not be processed
+SID_STAT_ENGINE_DISABLE_LEVEL0	EQU	1 ; same as flag 0, but used during startup to overcome a wdt timeout issue when no LCD is connected
+SID_STAT_MBNET_ACCESS		EQU	2 ; exclusive access for MBNet
+SID_STAT_SIDPLAYER		EQU	3 ; exclusive access for SID player
+SID_STAT_SIDPLAYER_CS_DISABLE	EQU	4 ; set if CS buttons/encoders should be ignored
+SID_STAT_CLK_SLAVE		EQU	5 ; if set, clock generator in slave mode (flag should be outside erasable SID_BASE structure)
+SID_STAT_SE_CYCLE		EQU	6 ; switches between first and second engine cycle
+
+
 ;; MIDI Voice Control Flags
 SID_MV_ARP_STATE_ARP_ACTIVE	EQU	0 ; set if at least one arp is active
 SID_MV_ARP_STATE_ARP_UP		EQU	1 ; arp order is incremented
@@ -172,12 +182,10 @@ SID_TRG_TARGET_U_W4S		EQU	7	; WT4 step
 SIDSE_Handler
 	SET_BSR	SID_BASE		; prepare BSR for SID register access
 
-	;; return immediately if engine has been disabled
-	btfsc	SID_STAT, SID_STAT_ENGINE_DISABLE
-	return
-
-	;; second possibility (see comment in main.inc)
-	btfsc	SID_STAT, SID_STAT_ENGINE_DISABLE_LEVEL0
+	;; return immediately if engine has been disabled or direct MBNet access
+	movf	SID_STAT, W
+	andlw	(1 << SID_STAT_ENGINE_DISABLE) | (1 << SID_STAT_ENGINE_DISABLE_LEVEL0) | (1 << SID_STAT_MBNET_ACCESS)
+	skpz
 	return
 
 #ifdef SID_SE_MEASURE_PERFORMANCE_PORT
@@ -1162,7 +1170,6 @@ SIDSE_Gate_End_NoPitch
 ;;     Voice number in SID_SE_ELEMENT_NUM
 ;; --------------------------------------------------------------------------
 SIDSE_Pitch
-
 	;; ------------------------------------------------------------------
 	;; Transpose MIDI Note
 	;; ------------------------------------------------------------------

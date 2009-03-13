@@ -18,6 +18,10 @@ SID_PATCH_Init
 	;; disable SID engine
 	bsf	SID_STAT, SID_STAT_ENGINE_DISABLE
 
+	;; disable direct access to SID registers via MBNet
+	;; will be set again once a SID access message is received
+	bcf	SID_STAT, SID_STAT_MBNET_ACCESS
+
 	;; clear the whole SID SFR memory space
 	;; skip this if old and new engine are drum or bassline
 	SET_BSR	SID_PATCH_BUFFER + SID_Ix_ENGINE

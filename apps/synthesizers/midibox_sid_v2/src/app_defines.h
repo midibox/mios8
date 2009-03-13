@@ -9,15 +9,6 @@
 ; 
 ; ==========================================================================
 
-#define SID_STAT_ENGINE_DISABLE		0 ; if set, SID tick and SID interrupt will not be processed
-#define SID_STAT_ENGINE_DISABLE_LEVEL0	1 ; same as flag 0, but used during startup to overcome a wdt timeout issue when no LCD is connected
-#define SID_STAT_SIDPLAYER		2 ; exclusive access for SID player
-#define SID_STAT_SIDPLAYER_CS_DISABLE	3 ; set if CS buttons/encoders should be ignored
-#define SID_STAT_CLK_SLAVE		4 ; if set, clock generator in slave mode (flag should be outside erasable SID_BASE structure)
-#define SID_STAT_SE_CYCLE		5 ; switches between first and second engine cycle
-
-;; ==========================================================================
-
 	;; patch
 #define BANKSTICK_MAGIC0	0xf3 ; magic numbers - if they don't exists in bankstick at BANK_MAGIC_ADDRESS, 
 #define BANKSTICK_MAGIC1	0x8b ; the stick will be ignored until it has been formatted
@@ -340,7 +331,6 @@ MUL_R_3			EQU	0x11d
 ;; ==========================================================================
 SID_SE_STATE		EQU	0x11e	; used in sid_se*.inc
 SID_SE_ELEMENT_NUM	EQU	0x11f	; used in sid_se*.inc
-	;; free: 0x120
 SID_SE_INS_EXCLUSIVE	EQU	0x120	; used in sid_se*.inc
 SID_SE_LINEAR_FRQ_L	EQU	0x121	; used in sid_se*.inc
 SID_SE_LINEAR_FRQ_H	EQU	0x122	; used in sid_se*.inc

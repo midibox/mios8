@@ -238,6 +238,10 @@ SID_MBNET_RAM_Read
 	xorlw	0xff
 	bz	SID_MBNET_RAM_Read_Ens
 
+	;; address HIGH byte = 0xfe selects direct access to SID registers
+	xorlw	0xfe ^ 0xff
+	bz	SID_MBNET_RAM_Read_SID
+
 SID_MBNET_RAM_Read_Patch
 	;; determine address -> FSR0
 	movlw	RXB0EIDL & 0xf
@@ -255,8 +259,20 @@ SID_MBNET_RAM_Read_Ens
 	movf	PLUSW1, W
 	andlw	0x3f
 	addwf	FSR0L, F
+ 	rgoto	SID_MBNET_RAM_Read_Cont
 
-	;; 	rgoto	SID_MBNET_RAM_Read_Cont
+SID_MBNET_RAM_Read_SID
+	;; determine address -> FSR0
+	;; SIDL mapped to 0xfe00..0xfe1f
+	;; SIDR mapped to 0xfe20..0xfe3f
+	movlw	RXB0EIDL & 0xf
+	movf	PLUSW1, W
+	lfsr	FSR0, SIDL_BASE
+	btfsc	WREG, 5
+	lfsr	FSR0, SIDR_BASE
+	andlw	0x1f
+	addwf	FSR0L, F
+	;; 	rgoto	SID_MBNET_RAM_Read_SID_Cont
 
 SID_MBNET_RAM_Read_Cont
 	;; 8 byte
@@ -294,6 +310,10 @@ SID_MBNET_RAM_Write
 	xorlw	0xff
 	bz	SID_MBNET_RAM_Write_Ens
 
+	;; address HIGH byte = 0xfe selects direct access to SID registers
+	xorlw	0xfe ^ 0xff
+	bz	SID_MBNET_RAM_Write_SID
+
 SID_MBNET_RAM_Write_Patch
 	;; FSR0 contains patch buffer address, which is extracted from the EID
 	;; FSR2 points to the shadow buffer
@@ -307,7 +327,81 @@ SID_MBNET_RAM_Write_Patch
 	movwf	FSR0H
 	addlw	HIGH(SID_PATCH_BUFFER_SHADOW-SID_PATCH_BUFFER)
 	movwf	FSR2H
+	rgoto	SID_MBNET_RAM_Write_Cont
 
+
+SID_MBNET_RAM_Write_Ens
+	;; determine address -> FSR0
+	lfsr	FSR0, SID_ENS_BUFFER
+	movlw	RXB0EIDL & 0xf
+	movf	PLUSW1, W
+	andlw	0x3f
+	addwf	FSR0L, F
+	rgoto	SID_MBNET_RAM_Write_Cont
+
+
+SID_MBNET_RAM_Write_SID
+	;; enable direct access to SID registers
+	;; cleared on each patch change
+	bsf	SID_STAT, SID_STAT_MBNET_ACCESS
+
+	;; determine address -> FSR0
+	;; SIDL mapped to 0xfe00..0xfe1f
+	;; SIDR mapped to 0xfe20..0xfe3f
+	;; in addition, all gates (6 bits, located in [2:0] and [6:4]) are mapped to 0xfe80
+	;; TODO: provide more special address ranges to access certain registers in a single package
+	;;       e.g. L/R filters and all 6 waveform registers
+	movlw	RXB0EIDL & 0xf
+	movf	PLUSW1, W
+	xorlw	0x80
+	bnz	SID_MBNET_RAM_Write_SID_Normal
+
+SID_MBNET_RAM_Write_SID_Gates
+	;; FSR1 contains pointer to RXB0 data buffer
+	movlw	RXB0D0 & 0xf
+	addwf	FSR1L, F
+
+	SET_BSR	SIDL_BASE
+	bcf	SIDL_BASE + SIDx_V1_CTRL, 0, BANKED
+	btfsc	INDF1, 0
+	bsf	SIDL_BASE + SIDx_V1_CTRL, 0, BANKED
+
+	bcf	SIDL_BASE + SIDx_V2_CTRL, 0, BANKED
+	btfsc	INDF1, 1
+	bsf	SIDL_BASE + SIDx_V2_CTRL, 0, BANKED
+
+	bcf	SIDL_BASE + SIDx_V3_CTRL, 0, BANKED
+	btfsc	INDF1, 2
+	bsf	SIDL_BASE + SIDx_V3_CTRL, 0, BANKED
+
+	bcf	SIDR_BASE + SIDx_V1_CTRL, 0, BANKED
+	btfsc	INDF1, 4
+	bsf	SIDR_BASE + SIDx_V1_CTRL, 0, BANKED
+
+	bcf	SIDR_BASE + SIDx_V2_CTRL, 0, BANKED
+	btfsc	INDF1, 5
+	bsf	SIDR_BASE + SIDx_V2_CTRL, 0, BANKED
+
+	bcf	SIDR_BASE + SIDx_V3_CTRL, 0, BANKED
+	btfsc	INDF1, 6
+	bsf	SIDR_BASE + SIDx_V3_CTRL, 0, BANKED
+
+	;; exit with Ok status
+	retlw	MBNET_ACK_TOS_OK
+
+
+SID_MBNET_RAM_Write_SID_Normal
+	movlw	RXB0EIDL & 0xf
+	movf	PLUSW1, W
+	lfsr	FSR0, SIDL_BASE
+	btfsc	WREG, 5
+	lfsr	FSR0, SIDR_BASE
+	andlw	0x1f
+	addwf	FSR0L, F
+	;; 	rgoto	SID_MBNET_RAM_Write_Cont
+
+
+SID_MBNET_RAM_Write_Cont
 	;; FSR1 contains pointer to RXB0 data buffer
 	movlw	RXB0D0 & 0xf
 	addwf	FSR1L, F
@@ -322,26 +416,3 @@ SID_MBNET_RAM_Write_CopyLoop
 	retlw	MBNET_ACK_TOS_OK
 
 
-SID_MBNET_RAM_Write_Ens
-	;; determine address -> FSR0
-	lfsr	FSR0, SID_ENS_BUFFER
-	movlw	RXB0EIDL & 0xf
-	movf	PLUSW1, W
-	andlw	0x3f
-	addwf	FSR0L, F
-
-	;; FSR1 contains pointer to RXB0 data buffer
-	movlw	RXB0D0 & 0xf
-	addwf	FSR1L, F
-
-	movff	POSTINC1, POSTINC0	; D0
-	movff	POSTINC1, POSTINC0	; D1
-	movff	POSTINC1, POSTINC0	; D2
-	movff	POSTINC1, POSTINC0	; D3
-	movff	POSTINC1, POSTINC0	; D4
-	movff	POSTINC1, POSTINC0	; D5
-	movff	POSTINC1, POSTINC0	; D6
-	movff	POSTINC1, POSTINC0	; D7
-
-	;; exit with Ok status
-	retlw	MBNET_ACK_TOS_OK
