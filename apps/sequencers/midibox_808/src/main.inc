@@ -14,7 +14,7 @@
 ;
 MBSEQ_VERSION_STR MACRO
 ; Version:                 <-------------->
-	STRING	16, 0x00, "MIDIbox 808 V0.1"
+	STRING	16, 0x00, "MIDIbox 808 V1.1"
 	ENDM
 ; (fixed string length - 16 characters!)
 ;
@@ -552,6 +552,7 @@ AIN_NotifyChange
 #include "cs_m_trkrnd.inc"
 #include "cs_m_bpm.inc"
 #include "cs_m_opt.inc"
+#include "cs_m_steps.inc"
 #include "cs_m_trkvel.inc"
 #include "cs_m_trkmidi.inc"
 #include "cs_m_sysex.inc"

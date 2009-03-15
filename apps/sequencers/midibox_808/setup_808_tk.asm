@@ -236,7 +236,7 @@ DEFAULT_TRKINFO MACRO
 
 ;; define the page, which should be displayed after poweron, here
 ;; Examples: CS_MENU_PAGE_EDIT for edit page, CS_MENU_PAGE_PATTERN for pattern page
-#define DEFAULT_STARTUP_PAGE CS_MENU_PAGE_EDIT
+#define DEFAULT_STARTUP_PAGE CS_MENU_PAGE_PATTERN
 
 
 	org	0x3082		; never change the origin!

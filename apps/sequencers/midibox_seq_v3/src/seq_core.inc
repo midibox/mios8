@@ -77,7 +77,7 @@ SEQ_TRKDIR_RANDOM_DIR		EQU	0x04
 SEQ_TRKDIR_RANDOM_STEP		EQU	0x05
 SEQ_TRKDIR_RANDOM_D_S		EQU	0x06
 
-SEQ_TRKDIV_SYNCH_TO_MEASURE	EQU	6	; synch to 4/4 measure
+SEQ_TRKDIV_SYNCH_TO_MEASURE	EQU	6	; synch to measure (1..256 steps)
 SEQ_TRKDIV_TRIPLETS		EQU	7	; play triplets
 
 SEQ_RECORD_MODE_STEP		EQU	0	; if 0: live record, if 1: step record
@@ -716,6 +716,7 @@ SEQ_CORE_Clk_NextPS
 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_NextPS_End
 
 	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	xorwf	SEQ_STEPS_PER_MEASURE, W, BANKED
 	bnz	SEQ_CORE_Clk_NextPS_End
 	movlw	6-2	; (this value has to be adjusted - depends on the time which is necessary to load 4 patterns)
 	cpfseq	SEQ_CLK_TICK6_CTR, BANKED
