@@ -2,14 +2,14 @@
 
 # define the processor, linker file and project name
 PROCESSOR = 18f4685
-LKR_FILE  = $(MIOS_PATH)/etc/lkr/p$(PROCESSOR).lkr
+LKR_FILE  = p$(PROCESSOR).lkr
 PROJECT   = project
 
 # list of objects that should be created and linked
 OBJS = mios_wrapper.o app_lcd.o main.o space_font_splash.o space_font.o 
 
 # add the fonts
-OBJS += 
+OBJS += debug_msg.o
 
 # include pathes (more will be added by .mk files)
 GPASM_INCLUDE = 
@@ -35,3 +35,6 @@ include $(MIOS_PATH)/modules/app_lcd/dog_g/app_lcd.mk
 
 # include make rules for GLCD fonts
 #include $(MIOS_PATH)/modules/glcd_font/glcd_font.mk
+
+# include make rules for Debug Messages
+include $(MIOS_PATH)/modules/debug_msg/debug_msg.mk

@@ -15,6 +15,12 @@
  * ==========================================================================
  */
 
+#undef DEBUG
+ 
+#ifdef DEBUG
+#include <debug_msg.h> 
+#endif
+
 #include "cmios.h"
 #include "pic18fregs.h"
 
@@ -35,6 +41,8 @@ unsigned char invader_xpos[18];  //Array to hold the space invader's X position
 unsigned char invader_ypos[18]; //Array to hold the space invader's Y position
 unsigned char invader_enabled[18]; //Array to hold the space invader' config. i.e. hit or active
         
+#pragma udata lcdmem lcd_buffer		
+unsigned char lcd_buffer[1024];
 unsigned char button_pressed=0;
 unsigned char ship_xpos;	// X position of BASE ship
 unsigned char missile_ypos;	//Y position of Ship's MISSILE
@@ -87,6 +95,12 @@ void Init(void) __wparam
   game.CURRENT_SCREEN=SPLASH_SCREEN; // Select the splash screen initially.
   //game.CURRENT_SCREEN=SCORE_PAGE; // Select the splash screen initially.
   INVADER_New_Game(); // setup new game defaults.
+#ifdef DEBUG
+  // only for debugging - remove this (or change "#if 1" to "#if 0") in a common application!
+  DEBUG_MSG_SendHeader();
+  DEBUG_MSG_SendCString("Starting MIOS Invader");
+  DEBUG_MSG_SendFooter();
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1534,12 +1548,28 @@ void INVADER_Draw_Invader_Missile2(void)
 
 void INVADER_LCD_Plot(unsigned char y, unsigned char x)
 {
+
 	unsigned char line=y/8;
 	unsigned char digit=y%8;
 	unsigned char addpixel=MIOS_HLP_GetBitORMask(digit);
 	MIOS_GLCD_GCursorSet(x,line);
-	missile_char = missile_char & addpixel;
+	missile_char = addpixel;
 	MIOS_LCD_Data(missile_char);
+#ifdef DEBUG
+  // only for debugging - remove this (or change "#if 1" to "#if 0") in a common application!
+  DEBUG_MSG_SendHeader();
+  DEBUG_MSG_SendCString("Missile Plot: X=");
+  DEBUG_MSG_SendBCD3(x);
+  DEBUG_MSG_SendCString(" Y=");
+  DEBUG_MSG_SendBCD3(line);
+  DEBUG_MSG_SendCString(" Pixel: ");
+  DEBUG_MSG_SendBCD3(missile_char);
+  DEBUG_MSG_SendCString(" digit: ");
+  DEBUG_MSG_SendBCD3(digit);
+  //DEBUG_MSG_SendChar(' ');
+  //DEBUG_MSG_SendCString(pin_value ? "depressed" : "pressed");
+  DEBUG_MSG_SendFooter();
+#endif
 }
 
 
@@ -1548,9 +1578,24 @@ void INVADER_LCD_UnPlot(unsigned char y, unsigned char x)
 	unsigned char line=y/8;
 	unsigned char digit=y%8;
 	unsigned char delpixel=MIOS_HLP_GetBitORMask(digit);
-	//MIOS_GLCD_GCursorSet(x,line);
-	missile_char = missile_char ^ !delpixel;
-	//MIOS_LCD_Data(missile_char);	
+	MIOS_GLCD_GCursorSet(x,line);
+	missile_char = !delpixel;
+	MIOS_LCD_Data(missile_char);	
+#ifdef DEBUG
+  // only for debugging - remove this (or change "#if 1" to "#if 0") in a common application!
+  DEBUG_MSG_SendHeader();
+  DEBUG_MSG_SendCString("Missile UnPlot: X=");
+  DEBUG_MSG_SendBCD3(x);
+  DEBUG_MSG_SendCString(" Y=");
+  DEBUG_MSG_SendBCD3(line);
+  DEBUG_MSG_SendCString(" Pixel: ");
+  DEBUG_MSG_SendBCD3(missile_char);
+  DEBUG_MSG_SendCString(" digit: ");
+  DEBUG_MSG_SendBCD3(digit);
+  //DEBUG_MSG_SendChar(' ');
+  //DEBUG_MSG_SendCString(pin_value ? "depressed" : "pressed");
+  DEBUG_MSG_SendFooter();
+#endif
 }
 
 
