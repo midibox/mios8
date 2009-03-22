@@ -61,11 +61,11 @@ public class MIOSStudio extends JApplet {
 
 	protected static String frameTitle = "MIOS Studio";
 
-	protected static String splashTitle = "MIOS Studio beta 9.1";
+	protected static String splashTitle = "MIOS Studio beta 9.2";
 
 	protected static String splashImage = "splash.jpg";
 
-	protected static String frameComment = "MIOS Studio beta 9.1";
+	protected static String frameComment = "MIOS Studio beta 9.2";
 
 	protected org.midibox.apps.miosstudio.MIOSStudio miosStudio;
 
@@ -81,7 +81,7 @@ public class MIOSStudio extends JApplet {
 		if (configFile.exists()) {
 
 			MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
-					miosStudio, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true, true);
+					miosStudio, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true, true, true);
 
 			miosStudioGUIXML.loadXML(configFile);
 
@@ -126,7 +126,7 @@ public class MIOSStudio extends JApplet {
 
 			MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
 					miosStudioGUI, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true,
-					true);
+					true, true);
 
 			miosStudioGUIXML.saveXML(configFile);
 		}

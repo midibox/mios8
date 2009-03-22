@@ -33,8 +33,8 @@ public class MidiDeviceRoutingXML extends XMLUtils {
 
 		this.midiDeviceRouting = midiDeviceRouting;
 
-		tags.add(TAG_LOGICAL_CONNECTIONS);
-		tags.add(TAG_LOGICAL_CONNECTION);
+		addTag(TAG_LOGICAL_CONNECTIONS);
+		addTag(TAG_LOGICAL_CONNECTION);
 	}
 
 	protected void parseElement(Element element) {

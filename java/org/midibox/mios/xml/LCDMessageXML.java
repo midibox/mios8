@@ -30,7 +30,7 @@ public class LCDMessageXML extends MIOSSysexSendReceiveXML {
 
 		this.lcdMessage = lcdMessage;
 
-		tags.add(TAG_MESSAGE_TEXT);
+		addTag(TAG_MESSAGE_TEXT);
 	}
 
 	protected void parseElement(Element element) {

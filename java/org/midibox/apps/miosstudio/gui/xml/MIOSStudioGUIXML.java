@@ -43,7 +43,19 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 	public final static String TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI = "hexFileUploadDeviceManagerGUI";
 
-	public final static String TAG_HEX_FILE_GUI_CURRENT_DIRECTORY = "hexFileGUICurrentDirectory";
+	public final static String TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY = "hexFileUploadGUICurrentDirectory";
+	
+	public final static String TAG_WORKSPACE_MRU_LIST = "workspaceMRUList";
+	
+	public final static String TAG_WORKSPACE_MRU = "workspaceMRU";
+	
+	public final static String TAG_MIDI_FILTER_GUI_MRU_LIST = "midiFilterGUIMRUList";
+	
+	public final static String TAG_MIDI_FILTER_GUI_MRU = "midiFilterGUIMRU";
+	
+	public final static String TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST = "hexFileUploadGUIMRUList";
+	
+	public final static String TAG_HEX_FILE_UPLOAD_GUI_MRU = "hexFileUploadGUIMRU";
 
 	public final static String ATTR_TITLE = "title";
 
@@ -74,22 +86,24 @@ public class MIOSStudioGUIXML extends XMLUtils {
 	protected boolean includeModel;
 
 	protected boolean includeGUI;
+	
+	protected boolean includeMRU;
 
 	public MIOSStudioGUIXML(MIOSStudio miosStudio, String rootElementTag,
-			boolean includeModel, boolean includeGUI) {
+			boolean includeModel, boolean includeGUI, boolean includeMRU) {
 
-		this(null, miosStudio, rootElementTag, includeModel, includeGUI);
+		this(null, miosStudio, rootElementTag, includeModel, includeGUI, includeMRU);
 	}
 
 	public MIOSStudioGUIXML(MIOSStudioGUI miosStudioGUI, String rootElementTag,
-			boolean includeModel, boolean includeGUI) {
+			boolean includeModel, boolean includeGUI, boolean includeMRU) {
 
 		this(miosStudioGUI, miosStudioGUI.getMiosStudio(), rootElementTag,
-				includeModel, includeGUI);
+				includeModel, includeGUI, includeMRU);
 	}
 
 	public MIOSStudioGUIXML(MIOSStudioGUI miosStudioGUI, MIOSStudio miosStudio,
-			String rootElementTag, boolean includeModel, boolean includeGUI) {
+			String rootElementTag, boolean includeModel, boolean includeGUI, boolean includeMRU) {
 
 		super(rootElementTag);
 
@@ -100,24 +114,36 @@ public class MIOSStudioGUIXML extends XMLUtils {
 		this.includeModel = includeModel;
 
 		this.includeGUI = includeGUI;
+		
+		this.includeMRU = includeMRU;
 
 		if (includeModel) {
 
-			tags.add(MIOSStudioXML.TAG_ROOT_ELEMENT);
+			addTag(MIOSStudioXML.TAG_ROOT_ELEMENT);
 		}
 
 		if (includeGUI) {
 
-			tags.add(TAG_LOOK_AND_FEEL);
-			tags.add(TAG_MAIN_WINDOW);
-			tags.add(TAG_INTERNAL_FRAMES);
-			tags.add(TAG_EXTERNAL_COMMANDS);
-			tags.add(TAG_EXTERNAL_COMMAND);
-			tags.add(TAG_WORKSPACE_CURRENT_DIRECTORY);
-			tags.add(TAG_MIDI_FILTER_DEVICE_MANAGER_GUI);
-			tags.add(TAG_MIDI_FILTER_GUI_CURRENT_DIRECTORY);
-			tags.add(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
-			tags.add(TAG_HEX_FILE_GUI_CURRENT_DIRECTORY);
+			addTag(TAG_LOOK_AND_FEEL);
+			addTag(TAG_MAIN_WINDOW);
+			addTag(TAG_INTERNAL_FRAMES);
+			addTag(TAG_EXTERNAL_COMMANDS);
+			addTag(TAG_EXTERNAL_COMMAND);
+			addTag(TAG_WORKSPACE_CURRENT_DIRECTORY);
+			addTag(TAG_MIDI_FILTER_DEVICE_MANAGER_GUI);
+			addTag(TAG_MIDI_FILTER_GUI_CURRENT_DIRECTORY);
+			addTag(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
+			addTag(TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY);
+		}
+		
+		if (includeMRU) {
+			
+			addTag(TAG_WORKSPACE_MRU_LIST);
+			addTag(TAG_WORKSPACE_MRU);
+			addTag(TAG_MIDI_FILTER_GUI_MRU_LIST);
+			addTag(TAG_MIDI_FILTER_GUI_MRU);
+			addTag(TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST);
+			addTag(TAG_HEX_FILE_UPLOAD_GUI_MRU);
 		}
 	}
 
@@ -289,9 +315,33 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			}
 
-		} else if (name == TAG_HEX_FILE_GUI_CURRENT_DIRECTORY) {
+		} else if (name == TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY) {
 
 			HexFileUploadGUI.setCurrentDirectory(element.getTextContent());
+			
+		} else if (name == TAG_WORKSPACE_MRU_LIST) {
+			
+			miosStudioGUI.getMRU().removeAllElements();
+			
+		} else if (name == TAG_WORKSPACE_MRU) {
+			
+			miosStudioGUI.saveMRU(element.getTextContent());
+			
+		} else if (name == TAG_MIDI_FILTER_GUI_MRU_LIST) {
+			
+			MidiFilterGUI.getMRU().removeAllElements();
+			
+		} else if (name == TAG_MIDI_FILTER_GUI_MRU) {
+			
+			MidiFilterGUI.saveMRU(element.getTextContent());
+			
+		} else if (name == TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST) {
+			
+			HexFileUploadGUI.getMRU().removeAllElements();
+			
+		} else if (name == TAG_HEX_FILE_UPLOAD_GUI_MRU) {
+			
+			HexFileUploadGUI.saveMRU(element.getTextContent());
 		}
 	}
 
@@ -408,6 +458,24 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			workSpaceCurrentDirectory.setTextContent(MIOSStudioGUI
 					.getCurrentDirectory());
+			
+			if (includeMRU) {
+				
+				Element mruListElement = document.createElement(TAG_WORKSPACE_MRU_LIST);
+				
+				rootElement.appendChild(mruListElement);
+				
+				it = miosStudioGUI.getMRU().iterator();
+				
+				while (it.hasNext()) {
+					
+					Element mru = document.createElement(TAG_WORKSPACE_MRU);
+					
+					mruListElement.appendChild(mru);
+					
+					mru.setTextContent((String) it.next()); 
+				}
+			}
 
 			Element midiFilterDeviceManagerGUIelement = document
 					.createElement(TAG_MIDI_FILTER_DEVICE_MANAGER_GUI);
@@ -422,6 +490,24 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			midiFilterCurrentDirectory.setTextContent(MidiFilterGUI
 					.getCurrentDirectory());
+			
+			if (includeMRU) {
+				
+				Element mruListElement = document.createElement(TAG_MIDI_FILTER_GUI_MRU_LIST);
+				
+				midiFilterDeviceManagerGUIelement.appendChild(mruListElement);
+				
+				it = MidiFilterGUI.getMRU().iterator();
+				
+				while (it.hasNext()) {
+					
+					Element mru = document.createElement(TAG_MIDI_FILTER_GUI_MRU);
+					
+					mruListElement.appendChild(mru);
+					
+					mru.setTextContent((String) it.next()); 
+				}
+			}
 
 			Element hexFileUploadDeviceManagerGUIelement = document
 					.createElement(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
@@ -434,13 +520,31 @@ public class MIOSStudioGUIXML extends XMLUtils {
 							.getSelectedIndex()));
 
 			Element hexFileCurrentDirectoryElement = document
-					.createElement(TAG_HEX_FILE_GUI_CURRENT_DIRECTORY);
+					.createElement(TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY);
 
 			hexFileUploadDeviceManagerGUIelement
 					.appendChild(hexFileCurrentDirectoryElement);
 
 			hexFileCurrentDirectoryElement.setTextContent(HexFileUploadGUI
 					.getCurrentDirectory());
+			
+			if (includeMRU) {
+				
+				Element mruListElement = document.createElement(TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST);
+				
+				hexFileUploadDeviceManagerGUIelement.appendChild(mruListElement);
+				
+				it = HexFileUploadGUI.getMRU().iterator();
+				
+				while (it.hasNext()) {
+					
+					Element mru = document.createElement(TAG_HEX_FILE_UPLOAD_GUI_MRU);
+					
+					mruListElement.appendChild(mru);
+					
+					mru.setTextContent((String) it.next()); 
+				}
+			}
 		}
 	}
 

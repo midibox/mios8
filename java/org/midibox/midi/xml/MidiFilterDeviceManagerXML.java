@@ -25,8 +25,8 @@ public class MidiFilterDeviceManagerXML extends XMLUtils {
 
 		this.midiFilterDeviceManager = midiFilterDeviceManager;
 
-		tags.add(TAG_MIDI_FILTER_DEVICES);
-		tags.add(MidiFilterDeviceXML.TAG_ROOT_ELEMENT);
+		addTag(TAG_MIDI_FILTER_DEVICES);
+		addTag(MidiFilterDeviceXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {

@@ -31,10 +31,10 @@ public class MidiDeviceManagerXML extends XMLUtils {
 
 		this.midiDeviceManager = midiDeviceManager;
 
-		tags.add(TAG_DESELECTED_MIDI_READ_DEVICES);
-		tags.add(TAG_DESELECTED_MIDI_WRITE_DEVICES);
-		tags.add(TAG_DESELECTED_MIDI_READ_DEVICE);
-		tags.add(TAG_DESELECTED_MIDI_WRITE_DEVICE);
+		addTag(TAG_DESELECTED_MIDI_READ_DEVICES);
+		addTag(TAG_DESELECTED_MIDI_WRITE_DEVICES);
+		addTag(TAG_DESELECTED_MIDI_READ_DEVICE);
+		addTag(TAG_DESELECTED_MIDI_WRITE_DEVICE);
 	}
 
 	protected void parseElement(Element element) {

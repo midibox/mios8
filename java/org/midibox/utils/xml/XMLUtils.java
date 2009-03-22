@@ -34,7 +34,7 @@ public class XMLUtils {
 
 		tags = new Vector();
 
-		tags.add(rootElementTag);
+		addTag(rootElementTag);
 	}
 
 	public void loadXML(File file) {
@@ -145,5 +145,10 @@ public class XMLUtils {
 	protected boolean stringToBoolean(String string) {
 
 		return Boolean.parseBoolean(string);
+	}
+	
+	protected void addTag(String tag) {
+		
+		tags.add(tag);
 	}
 }

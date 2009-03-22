@@ -16,7 +16,7 @@ public class MidiKeyboardControllerDeviceXML extends VirtualMidiDeviceXML {
 
 		super(midiKeyboardControllerDevice, rootElementTag);
 
-		tags.add(MidiKeyboardControllerXML.TAG_ROOT_ELEMENT);
+		addTag(MidiKeyboardControllerXML.TAG_ROOT_ELEMENT);
 
 		this.midiKeyboardControllerDevice = midiKeyboardControllerDevice;
 	}

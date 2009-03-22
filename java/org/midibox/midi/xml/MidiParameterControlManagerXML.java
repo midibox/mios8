@@ -26,7 +26,7 @@ public class MidiParameterControlManagerXML extends XMLUtils {
 
 		super(rootElementTag);
 
-		tags.add(TAG_MIDI_PARAMETER_CONTROLS);
+		addTag(TAG_MIDI_PARAMETER_CONTROLS);
 
 		this.midiParameterControlManager = midiParameterControlManager;
 	}

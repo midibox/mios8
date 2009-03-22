@@ -40,6 +40,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -70,6 +71,8 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import org.midibox.apps.miosstudio.MIOSStudio;
 import org.midibox.apps.miosstudio.gui.xml.MIOSStudioGUIXML;
@@ -93,6 +96,7 @@ import org.midibox.utils.gui.FontLoader;
 import org.midibox.utils.gui.HelpPane;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SimpleFileChooserFilter;
+import org.midibox.utils.gui.SplitButton;
 
 public class MIOSStudioGUI extends JPanel implements ActionListener,
 		MouseListener, PropertyChangeListener, MenuListener, Observer {
@@ -189,7 +193,17 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private JLabel commentLabel;
 
+	private JMenu MRUMenu;
+
+	private JPopupMenu MRUPopupMenu;
+	
+	private SplitButton openMRUButton;
+
+	private static int maxMRU = 10;
+
 	private static String currentDirectory = "";
+
+	private static Vector MRU = new Vector();
 
 	private static JFileChooser fc = null;
 
@@ -494,6 +508,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		menuItem.addActionListener(this);
 		fileMenu.add(menuItem);
 
+		MRUMenu = new JMenu("Open Recent Workspace");
+		MRUMenu.addMenuListener(this);
+		fileMenu.add(MRUMenu);
+
 		menuItem = new JMenuItem("Save Workspace");
 		menuItem.setActionCommand("save_workspace");
 		menuItem.addActionListener(this);
@@ -712,6 +730,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		}
 	}
 
+	public static Vector getMRU() {
+		return MRU;
+	}
+
 	public void removeExternalCommandButton(ExternalCommandButton button) {
 		externalCommands.remove(button);
 		toolBar.remove(button);
@@ -730,8 +752,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	protected JToolBar createToolBar() {
 
 		toolBar = new JToolBar("Tool Bar", JToolBar.HORIZONTAL);
-		toolBar.setFloatable(true);
+		toolBar.setFloatable(false);
 		toolBar.setRollover(true);
+
+		createWorkspaceButtons();
+
+		toolBar.addSeparator();
 
 		createMIDIButtons();
 
@@ -760,6 +786,48 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		return toolBar;
 	}
 
+	protected void createWorkspaceButtons() {
+
+		Insets insets = new Insets(2, 2, 2, 2);
+
+		JButton button = new JButton(ImageLoader.getImageIcon("open.png"));
+		button.setToolTipText("Open Workspace");
+		button.setActionCommand("open_workspace");
+		button.addActionListener(this);
+		button.setMargin(insets);
+
+		MRUPopupMenu = new JPopupMenu();
+		MRUPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+
+			public void popupMenuCanceled(PopupMenuEvent e) {
+
+			}
+
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+			}
+
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+
+				MIOSStudioGUI.this.buildMRUMenu(MRUPopupMenu);
+
+			}
+		});
+
+		openMRUButton = new SplitButton(button, MRUPopupMenu);
+		openMRUButton.setRollover(true);
+		
+		toolBar.add(openMRUButton);
+
+		button = new JButton(ImageLoader.getImageIcon("save.png"));
+		button.setToolTipText("Save Workspace");
+		button.setActionCommand("save_workspace");
+		button.addActionListener(this);
+		button.setMargin(insets);
+		toolBar.add(button);
+
+	}
+
 	protected void createMIDIButtons() {
 
 		Insets insets = new Insets(2, 2, 2, 2);
@@ -778,6 +846,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		button.addActionListener(this);
 		button.setMargin(insets);
 		toolBar.add(button);
+
+		toolBar.addSeparator();
 
 		button = new JButton(ImageLoader.getImageIcon("midiOut.png"));
 		button.setToolTipText("MIDI Monitor: OUT");
@@ -1051,9 +1121,32 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	 * midiMapManagerDialog.addWindowListener(new WindowAdapter() { public void
 	 * windowClosing(WindowEvent we) {
 	 * midiDeviceRouting.getMidiMapManager().deleteObserver( midiMapManagerGUI);
-	 * midiMapManagerDialog = null; } }); } midiMapManagerDialog.requestFocus();
-	 * }
+	 * midiMapManagerDialog = null; } }); } midiMapManagerDialog.requestFocus(); }
 	 */
+
+	private void buildMRUMenu(JComponent menu) {
+
+		menu.removeAll();
+
+		Iterator it = MRU.iterator();
+
+		while (it.hasNext()) {
+
+			final JMenuItem menuItem = new JMenuItem((String) it.next());
+
+			menuItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent ae) {
+
+					File file = new File(menuItem.getText());
+
+					openWorkspace(file);
+				}
+			});
+
+			menu.add(menuItem, 0);
+		}
+	}
 
 	private void buildLookAndFeel() {
 
@@ -1160,6 +1253,19 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 			final File file = fc.getSelectedFile();
 
+			openWorkspace(file);
+			
+			currentDirectory = fc.getCurrentDirectory()
+			.toString();
+		}
+	}
+
+	protected void openWorkspace(File workspaceFile) {
+
+		final File file = workspaceFile;
+
+		if (file.exists()) {
+
 			final WorkspaceOptionDialog workspaceOptionDialog = new WorkspaceOptionDialog();
 
 			workspaceOptionDialog.pack();
@@ -1196,18 +1302,36 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 							MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
 									MIOSStudioGUI.this,
 									MIOSStudioGUIXML.TAG_ROOT_ELEMENT, model,
-									gui);
+									gui, false);
 
 							miosStudioGUIXML.loadXML(file);
-
-							currentDirectory = fc.getCurrentDirectory()
-									.toString();
+							
 						}
 					});
 
 			workspaceOptionDialog.setLocationRelativeTo(this);
 
 			workspaceOptionDialog.setVisible(true);
+
+			saveMRU(file.getPath());
+
+		} else {
+
+			JOptionPane.showMessageDialog(this,
+					"Workspace configuration file no longer exists",
+					"File does not exist", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	public void saveMRU(String file) {
+
+		MRU.remove(file);
+
+		MRU.add(file);
+
+		for (int i = MRU.size() - maxMRU; i > 0; i--) {
+
+			MRU.removeElementAt(i - 1);
 		}
 	}
 
@@ -1268,7 +1392,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 							MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
 									MIOSStudioGUI.this,
 									MIOSStudioGUIXML.TAG_ROOT_ELEMENT, model,
-									gui);
+									gui, false);
 
 							miosStudioGUIXML.saveXML(file);
 
@@ -1280,6 +1404,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			workspaceOptionDialog.setLocationRelativeTo(this);
 
 			workspaceOptionDialog.setVisible(true);
+
+			saveMRU(file.getPath());
 		}
 	}
 
@@ -1342,6 +1468,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			windowMenu.buildChildMenus();
 		} else if (source == lookAndFeelMenu) {
 			buildLookAndFeel();
+		} else if (source == MRUMenu) {
+			buildMRUMenu(MRUMenu);
 		}
 	}
 

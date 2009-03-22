@@ -18,7 +18,7 @@ public class HexFileUploadDeviceXML extends VirtualMidiDeviceXML {
 
 		this.hexFileUploadDevice = hexFileUploadDevice;
 
-		tags.add(HexFileUploadXML.TAG_ROOT_ELEMENT);
+		addTag(HexFileUploadXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {

@@ -20,8 +20,8 @@ public class VirtualKeyboardXML extends XMLUtils {
 
 		this.virtualKeyboard = virtualKeyboard;
 
-		tags.add(MidiDeviceRoutingXML.TAG_ROOT_ELEMENT);
-		tags.add(MidiKeyboardControllerDeviceXML.TAG_ROOT_ELEMENT);
+		addTag(MidiDeviceRoutingXML.TAG_ROOT_ELEMENT);
+		addTag(MidiKeyboardControllerDeviceXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {

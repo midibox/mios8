@@ -45,18 +45,18 @@ public class MidiFilterXML extends XMLUtils {
 
 		this.midiFilter = midiFilter;
 
-		tags.add(TAG_VOICE_MESSAGES);
-		tags.add(TAG_VOICE_MESSAGE);
-		tags.add(TAG_CHANNELS);
-		tags.add(TAG_CHANNEL);
-		tags.add(TAG_CONTROL_CHANGE_MESSAGES);
-		tags.add(TAG_CONTROL_CHANGE_MESSAGE);
-		tags.add(TAG_SYSTEM_COMMON_MESSAGES);
-		tags.add(TAG_SYSTEM_COMMON_MESSAGE);
-		tags.add(TAG_SYSTEM_REALTIME_MESSAGES);
-		tags.add(TAG_SYSTEM_REALTIME_MESSAGE);
-		tags.add(TAG_SYSEX_MESSAGES);
-		tags.add(TAG_META_MESSAGES);
+		addTag(TAG_VOICE_MESSAGES);
+		addTag(TAG_VOICE_MESSAGE);
+		addTag(TAG_CHANNELS);
+		addTag(TAG_CHANNEL);
+		addTag(TAG_CONTROL_CHANGE_MESSAGES);
+		addTag(TAG_CONTROL_CHANGE_MESSAGE);
+		addTag(TAG_SYSTEM_COMMON_MESSAGES);
+		addTag(TAG_SYSTEM_COMMON_MESSAGE);
+		addTag(TAG_SYSTEM_REALTIME_MESSAGES);
+		addTag(TAG_SYSTEM_REALTIME_MESSAGE);
+		addTag(TAG_SYSEX_MESSAGES);
+		addTag(TAG_META_MESSAGES);
 	}
 
 	protected void parseElement(Element element) {

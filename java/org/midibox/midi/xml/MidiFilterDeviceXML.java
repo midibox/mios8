@@ -17,7 +17,7 @@ public class MidiFilterDeviceXML extends VirtualMidiDeviceXML {
 
 		this.midiFilterDevice = midiFilterDevice;
 
-		tags.add(MidiFilterXML.TAG_ROOT_ELEMENT);
+		addTag(MidiFilterXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {

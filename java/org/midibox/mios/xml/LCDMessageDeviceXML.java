@@ -18,7 +18,7 @@ public class LCDMessageDeviceXML extends VirtualMidiDeviceXML {
 
 		this.lcdMessageDevice = lcdMessageDevice;
 
-		tags.add(LCDMessageXML.TAG_ROOT_ELEMENT);
+		addTag(LCDMessageXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {

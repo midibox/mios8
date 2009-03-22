@@ -34,7 +34,7 @@ public class DebugFunctionXML extends MIOSSysexSendReceiveXML {
 
 		this.debugFunction = debugFunction;
 
-		tags.add(TAG_DEBUG_FUNCTION_PARAMETERS_LIST);
+		addTag(TAG_DEBUG_FUNCTION_PARAMETERS_LIST);
 	}
 
 	protected void parseElement(Element element) {

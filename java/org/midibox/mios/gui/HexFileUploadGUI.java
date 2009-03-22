@@ -31,8 +31,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -40,11 +42,14 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -53,20 +58,32 @@ import javax.swing.JTextPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.mios.HexFileUpload;
 import org.midibox.utils.gui.HexFormatterFactory;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SimpleFileChooserFilter;
+import org.midibox.utils.gui.SplitButton;
 
 public class HexFileUploadGUI extends JPanel implements ActionListener,
 		ChangeListener, Observer {
 
+	private JPopupMenu MRUPopupMenu;
+	
+	private SplitButton openMRUButton;
+
+	private static int maxMRU = 10;
+	
 	private static String currentDirectory = "";
+	
+	private static Vector MRU = new Vector();
 
 	private static JFileChooser fc = null;
 
@@ -110,10 +127,15 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 		this.hexFileUpload = hexUploadTask;
 		hexUploadTask.addObserver(this);
 
+		Insets insets = new Insets(2, 2, 2, 2);
+		
 		browseButton = new JButton("Hex File", ImageLoader
 				.getImageIcon("open.png"));
 		browseButton.setActionCommand("browse");
 		browseButton.addActionListener(this);
+		browseButton.setMargin(insets);
+		browseButton.setToolTipText("Open Hex File");
+		
 
 		fileName = new JTextField();
 		fileName.setEditable(false);
@@ -144,7 +166,29 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 		queryButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		JPanel fileButtonsPanel = new JPanel(new BorderLayout(2, 0));
-		fileButtonsPanel.add(browseButton, BorderLayout.WEST);
+		
+		MRUPopupMenu = new JPopupMenu();
+		MRUPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+
+			public void popupMenuCanceled(PopupMenuEvent e) {
+
+			}
+
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+			}
+
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+
+				HexFileUploadGUI.this.buildMRUMenu(MRUPopupMenu);
+
+			}
+		});
+
+		openMRUButton = new SplitButton(browseButton, MRUPopupMenu);
+		openMRUButton.setRollover(true);
+		
+		fileButtonsPanel.add(openMRUButton, BorderLayout.WEST);
 		fileButtonsPanel.add(fileName, BorderLayout.CENTER);
 		fileButtonsPanel.setBorder(BorderFactory.createEmptyBorder(7, 7, 5, 7));
 
@@ -295,6 +339,42 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		updateUploadControls();
 	}
+	
+	private void buildMRUMenu(JComponent menu) {
+
+		menu.removeAll();
+
+		Iterator it = MRU.iterator();
+
+		while (it.hasNext()) {
+
+			final JMenuItem menuItem = new JMenuItem((String) it.next());
+
+			menuItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent ae) {
+
+					File file = new File(menuItem.getText());
+
+					openHexFile(file);
+				}
+			});
+
+			menu.add(menuItem, 0);
+		}
+	}
+	
+	public static void saveMRU(String file) {
+
+		MRU.remove(file);
+
+		MRU.add(file);
+
+		for (int i = MRU.size() - maxMRU; i > 0; i--) {
+
+			MRU.removeElementAt(i - 1);
+		}
+	}
 
 	public static String getCurrentDirectory() {
 		return currentDirectory;
@@ -308,7 +388,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 		return hexFileUpload;
 	}
 
-	protected void onOpenHexFile() {
+	protected void openHexFile() {
 
 		if (fc == null) {
 			fc = new JFileChooser(currentDirectory);
@@ -327,9 +407,30 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			hexFileUpload.setFile(file);
+			
+			openHexFile(file);
+			
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
+	}
+	
+	protected void openHexFile(File file) {
+		
+		if (file.exists()) {
+		
+			hexFileUpload.setFile(file);
+			
+			saveMRU(file.getPath());
+			
+		} else {
+			JOptionPane.showMessageDialog(this,
+					"Hex file no longer exists",
+					"File does not exist", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	public static Vector getMRU() {
+		return MRU;
 	}
 
 	public void updateUploadControls() {
@@ -427,7 +528,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 			hexFileUpload.cancel();
 
 		} else if (command.equals("browse")) {
-			onOpenHexFile();
+			openHexFile();
 
 		} else if (source == smartModeButton || source == dumbModeButton) {
 			hexFileUpload

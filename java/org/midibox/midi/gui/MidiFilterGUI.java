@@ -29,8 +29,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
 import javax.sound.midi.ShortMessage;
 import javax.swing.AbstractCellEditor;
@@ -38,11 +40,17 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -50,8 +58,10 @@ import javax.swing.table.TableCellEditor;
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiUtils;
 import org.midibox.midi.xml.MidiFilterXML;
+import org.midibox.mios.gui.HexFileUploadGUI;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SimpleFileChooserFilter;
+import org.midibox.utils.gui.SplitButton;
 
 public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
@@ -108,8 +118,16 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 	private JTable channelsTable;
 
 	private DefaultTableModel channelsModel;
+	
+	private JPopupMenu MRUPopupMenu;
+	
+	private SplitButton openMRUButton;
+
+	private static int maxMRU = 10;	
 
 	private static String currentDirectory = "";
+	
+	private static Vector MRU = new Vector();
 
 	private static JFileChooser fc = null;
 
@@ -381,7 +399,28 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 		button.setActionCommand("load");
 
-		toolBar.add(button);
+		MRUPopupMenu = new JPopupMenu();
+		MRUPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+
+			public void popupMenuCanceled(PopupMenuEvent e) {
+
+			}
+
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+
+			}
+
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+
+				MidiFilterGUI.this.buildMRUMenu(MRUPopupMenu);
+
+			}
+		});
+
+		openMRUButton = new SplitButton(button, MRUPopupMenu);
+		openMRUButton.setRollover(true);
+		
+		toolBar.add(openMRUButton);
 
 		button = new JButton(ImageLoader.getImageIcon("save.png"));
 
@@ -418,15 +457,70 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter,
-					MidiFilterXML.TAG_ROOT_ELEMENT);
-
-			midiFilterXML.loadXML(file);
+			loadFilterDefinition(file);
 
 			setButtonStates();
 
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
+	}
+	
+	protected void loadFilterDefinition(File file) {
+		
+		if (file.exists()) {
+			
+			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter,
+					MidiFilterXML.TAG_ROOT_ELEMENT);
+
+			midiFilterXML.loadXML(file);
+			
+			saveMRU(file.getPath());
+			
+		} else {
+			JOptionPane.showMessageDialog(this,
+					"MIDI filter definition no longer exists",
+					"File does not exist", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	private void buildMRUMenu(JComponent menu) {
+
+		menu.removeAll();
+
+		Iterator it = MRU.iterator();
+
+		while (it.hasNext()) {
+
+			final JMenuItem menuItem = new JMenuItem((String) it.next());
+
+			menuItem.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent ae) {
+
+					File file = new File(menuItem.getText());
+
+					loadFilterDefinition(file);
+				}
+			});
+
+			menu.add(menuItem, 0);
+		}
+	}
+	
+	public static void saveMRU(String file) {
+
+		MRU.remove(file);
+
+		MRU.add(file);
+
+		for (int i = MRU.size() - maxMRU; i > 0; i--) {
+
+			MRU.removeElementAt(i - 1);
+		}
+	}
+	
+	public static Vector getMRU() {
+		return MRU;
 	}
 
 	protected void saveFilterDefinition() {
@@ -454,6 +548,8 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 			midiFilterXML.saveXML(file);
 
+			saveMRU(file.getPath());
+				
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
 	}

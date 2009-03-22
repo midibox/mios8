@@ -18,7 +18,7 @@ public class DebugFunctionDeviceXML extends VirtualMidiDeviceXML {
 
 		this.debugFunctionDevice = debugFunctionDevice;
 
-		tags.add(DebugFunctionXML.TAG_ROOT_ELEMENT);
+		addTag(DebugFunctionXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {

@@ -61,10 +61,10 @@ public class VirtualKeyboardGUIXML extends XMLUtils {
 
 		this.virtualKeyboardGUI = virtualKeyboardGUI;
 
-		tags.add(VirtualKeyboardXML.TAG_ROOT_ELEMENT);
-		tags.add(TAG_LOOK_AND_FEEL);
-		tags.add(TAG_MAIN_WINDOW);
-		tags.add(TAG_CONNECTIONS_VISIBLE);
+		addTag(VirtualKeyboardXML.TAG_ROOT_ELEMENT);
+		addTag(TAG_LOOK_AND_FEEL);
+		addTag(TAG_MAIN_WINDOW);
+		addTag(TAG_CONNECTIONS_VISIBLE);
 	}
 
 	protected void parseElement(Element element) {

@@ -25,10 +25,8 @@ public class SplitButton extends JToolBar implements ActionListener {
 		splitButton.setIcon(icon);
 		splitButton.addActionListener(this);
 		splitButton.setFocusPainted(false);
-		splitButton.setPreferredSize(new Dimension(icon.getIconWidth(),
-				splitButton.getPreferredSize().height));
 		splitButton.setMargin(new Insets(2, 0, 2, 0));
-		setMargin(new Insets(-1, -2, -3, -2));
+		setOpaque(false);
 		add(button);
 		add(splitButton);
 	}

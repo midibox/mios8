@@ -26,7 +26,7 @@ public class HexFileUploadXML extends MIOSSysexSendReceiveXML {
 
 		this.hexFileUpload = hexFileUpload;
 
-		tags.add(TAG_FILE);
+		addTag(TAG_FILE);
 	}
 
 	protected void parseElement(Element element) {

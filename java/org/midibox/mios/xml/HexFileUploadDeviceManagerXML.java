@@ -27,8 +27,8 @@ public class HexFileUploadDeviceManagerXML extends XMLUtils {
 
 		this.hexFileUploadDeviceManager = hexFileUploadDeviceManager;
 
-		tags.add(TAG_HEX_FILE_UPLOAD_DEVICES);
-		tags.add(HexFileUploadDeviceXML.TAG_ROOT_ELEMENT);
+		addTag(TAG_HEX_FILE_UPLOAD_DEVICES);
+		addTag(HexFileUploadDeviceXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {

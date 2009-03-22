@@ -18,7 +18,7 @@ public class MidiMonitorFilteredXML extends XMLUtils {
 
 		this.midiMonitorFiltered = midiMonitorFiltered;
 
-		tags.add(MidiFilterXML.TAG_ROOT_ELEMENT);
+		addTag(MidiFilterXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {
