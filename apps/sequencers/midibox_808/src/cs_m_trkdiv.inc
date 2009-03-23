@@ -200,9 +200,9 @@ CS_M_TRKDIV_Tick_2
 CS_M_TRKDIV_Tick_2_TB
 	call	SEQ_LCD_PrintStringAfterCall
 #if DEFAULT_LCD_WIDTH == 80
-	STRING	10, 0x00 + 20, "Selection:"
+	STRING	11, 0x00 + 20, "Selection: "
 #else
-	STRING	10, 0x40 + 0, "Selection:"
+	STRING	11, 0x40 + 0, "Selection: "
 #endif
 	rgoto	CS_M_TRKDIV_Tick_Cont
 
