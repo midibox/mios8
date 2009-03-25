@@ -81,7 +81,7 @@ public class MIOSStudio extends JApplet {
 		if (configFile.exists()) {
 
 			MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
-					miosStudio, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true, true, true);
+					miosStudio, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true, true, true, true, true);
 
 			miosStudioGUIXML.loadXML(configFile);
 
@@ -126,7 +126,7 @@ public class MIOSStudio extends JApplet {
 
 			MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
 					miosStudioGUI, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true,
-					true, true);
+					true, true, true, true);
 
 			miosStudioGUIXML.saveXML(configFile);
 		}

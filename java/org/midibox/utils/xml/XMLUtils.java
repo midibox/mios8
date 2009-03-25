@@ -127,6 +127,44 @@ public class XMLUtils {
 		node.appendChild(rootElement);
 	}
 
+	public static boolean containsTag(File file, String tag) {
+
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
+				.newInstance();
+
+		try {
+
+			DocumentBuilder documentBuilder = documentBuilderFactory
+					.newDocumentBuilder();
+
+			Document document = documentBuilder.parse(file);
+
+			return containsTag(document, tag);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public static boolean containsTag(Node node, String tag) {
+
+		if (node.getNodeName().equals(tag)) {
+			return true;
+		}
+
+		NodeList children = node.getChildNodes();
+
+		for (int n = 0; n < children.getLength(); n++) {
+
+			if (containsTag(children.item(n), tag)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	protected String intToString(int i) {
 
 		return "" + i;
@@ -146,9 +184,9 @@ public class XMLUtils {
 
 		return Boolean.parseBoolean(string);
 	}
-	
+
 	protected void addTag(String tag) {
-		
+
 		tags.add(tag);
 	}
 }

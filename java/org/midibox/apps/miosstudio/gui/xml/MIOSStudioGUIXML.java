@@ -87,25 +87,35 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 	protected boolean includeGUI;
 
+	protected boolean includeExternalCommands;
+
+	protected boolean includeLookAndFeel;
+
 	protected boolean includeMRU;
 
 	public MIOSStudioGUIXML(MIOSStudio miosStudio, String rootElementTag,
-			boolean includeModel, boolean includeGUI, boolean includeMRU) {
+			boolean includeModel, boolean includeGUI,
+			boolean includeExternalCommands, boolean includeLookAndFeel,
+			boolean includeMRU) {
 
 		this(null, miosStudio, rootElementTag, includeModel, includeGUI,
-				includeMRU);
+				includeExternalCommands, includeLookAndFeel, includeMRU);
 	}
 
 	public MIOSStudioGUIXML(MIOSStudioGUI miosStudioGUI, String rootElementTag,
-			boolean includeModel, boolean includeGUI, boolean includeMRU) {
+			boolean includeModel, boolean includeGUI,
+			boolean includeExternalCommands, boolean includeLookAndFeel,
+			boolean includeMRU) {
 
 		this(miosStudioGUI, miosStudioGUI.getMiosStudio(), rootElementTag,
-				includeModel, includeGUI, includeMRU);
+				includeModel, includeGUI, includeExternalCommands,
+				includeLookAndFeel, includeMRU);
 	}
 
-	public MIOSStudioGUIXML(MIOSStudioGUI miosStudioGUI, MIOSStudio miosStudio,
-			String rootElementTag, boolean includeModel, boolean includeGUI,
-			boolean includeMRU) {
+	protected MIOSStudioGUIXML(MIOSStudioGUI miosStudioGUI,
+			MIOSStudio miosStudio, String rootElementTag, boolean includeModel,
+			boolean includeGUI, boolean includeExternalCommands,
+			boolean includeLookAndFeel, boolean includeMRU) {
 
 		super(rootElementTag);
 
@@ -117,6 +127,10 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 		this.includeGUI = includeGUI;
 
+		this.includeExternalCommands = includeExternalCommands;
+
+		this.includeLookAndFeel = includeLookAndFeel;
+
 		this.includeMRU = includeMRU;
 
 		if (includeModel) {
@@ -126,12 +140,20 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 		if (includeGUI) {
 
-			addTag(TAG_LOOK_AND_FEEL);
 			addTag(TAG_MAIN_WINDOW);
 			addTag(TAG_INTERNAL_FRAMES);
+			addTag(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
+		}
+
+		if (includeExternalCommands) {
+
 			addTag(TAG_EXTERNAL_COMMANDS);
 			addTag(TAG_EXTERNAL_COMMAND);
-			addTag(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
+		}
+
+		if (includeLookAndFeel) {
+
+			addTag(TAG_LOOK_AND_FEEL);
 		}
 
 		if (includeMRU) {
@@ -351,12 +373,24 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 		super.saveXML(node);
 
+		Element hexFileUploadDeviceManagerGUIelement = null;
+
 		if (includeModel) {
 
 			MIOSStudioXML miosStudioXML = new MIOSStudioXML(miosStudio,
 					MIOSStudioXML.TAG_ROOT_ELEMENT);
 
 			miosStudioXML.saveXML(rootElement);
+		}
+
+		if (includeLookAndFeel) {
+
+			Element lookAndFeelElement = document
+					.createElement(TAG_LOOK_AND_FEEL);
+
+			rootElement.appendChild(lookAndFeelElement);
+
+			lookAndFeelElement.setTextContent(miosStudioGUI.getLookAndFeel());
 		}
 
 		if (includeGUI) {
@@ -382,13 +416,6 @@ public class MIOSStudioGUIXML extends XMLUtils {
 				mainWindowElement.setAttribute(ATTR_HEIGHT,
 						intToString(mainWindow.getHeight()));
 			}
-
-			Element lookAndFeelElement = document
-					.createElement(TAG_LOOK_AND_FEEL);
-
-			rootElement.appendChild(lookAndFeelElement);
-
-			lookAndFeelElement.setTextContent(miosStudioGUI.getLookAndFeel());
 
 			Element internalFramesElement = document
 					.createElement(TAG_INTERNAL_FRAMES);
@@ -429,12 +456,26 @@ public class MIOSStudioGUIXML extends XMLUtils {
 				saveInternalFrame(internalFrame, internalFrameElement);
 			}
 
+			hexFileUploadDeviceManagerGUIelement = document
+					.createElement(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
+
+			rootElement.appendChild(hexFileUploadDeviceManagerGUIelement);
+
+			hexFileUploadDeviceManagerGUIelement.setAttribute(
+					ATTR_SELECTED_TAB, intToString(miosStudioGUI
+							.getHexFileUploadDeviceManagerGUI().getTabbedPane()
+							.getSelectedIndex()));
+
+		}
+
+		if (includeExternalCommands) {
+
 			Element externalCommandsElement = document
 					.createElement(TAG_EXTERNAL_COMMANDS);
 
 			rootElement.appendChild(externalCommandsElement);
 
-			it = miosStudioGUI.getExternalCommands().iterator();
+			Iterator it = miosStudioGUI.getExternalCommands().iterator();
 
 			while (it.hasNext()) {
 
@@ -452,104 +493,94 @@ public class MIOSStudioGUIXML extends XMLUtils {
 				externalCommandElement.setAttribute(ATTR_EXTERNAL_COMMAND,
 						externalCommandButton.externalCommand);
 			}
+		}
 
-			if (includeMRU) {
+		if (includeMRU) {
 
-				Element workSpaceCurrentDirectory = document
-						.createElement(TAG_WORKSPACE_CURRENT_DIRECTORY);
+			Element hexFileCurrentDirectoryElement = document
+					.createElement(TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY);
 
-				rootElement.appendChild(workSpaceCurrentDirectory);
+			if (hexFileUploadDeviceManagerGUIelement == null) {
+				hexFileUploadDeviceManagerGUIelement = document
+						.createElement(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
 
-				workSpaceCurrentDirectory.setTextContent(MIOSStudioGUI
-						.getCurrentDirectory());
-
-				Element mruListElement = document
-						.createElement(TAG_WORKSPACE_MRU_LIST);
-
-				rootElement.appendChild(mruListElement);
-
-				it = miosStudioGUI.getMRU().iterator();
-
-				while (it.hasNext()) {
-
-					Element mru = document.createElement(TAG_WORKSPACE_MRU);
-
-					mruListElement.appendChild(mru);
-
-					mru.setTextContent((String) it.next());
-				}
-
-				Element midiFilterDeviceManagerGUIelement = document
-						.createElement(TAG_MIDI_FILTER_DEVICE_MANAGER_GUI);
-
-				rootElement.appendChild(midiFilterDeviceManagerGUIelement);
-
-				Element midiFilterCurrentDirectory = document
-						.createElement(TAG_MIDI_FILTER_GUI_CURRENT_DIRECTORY);
-
-				midiFilterDeviceManagerGUIelement
-						.appendChild(midiFilterCurrentDirectory);
-
-				midiFilterCurrentDirectory.setTextContent(MidiFilterGUI
-						.getCurrentDirectory());
-				
-				mruListElement = document
-						.createElement(TAG_MIDI_FILTER_GUI_MRU_LIST);
-
-				midiFilterDeviceManagerGUIelement.appendChild(mruListElement);
-
-				it = MidiFilterGUI.getMRU().iterator();
-
-				while (it.hasNext()) {
-
-					Element mru = document
-							.createElement(TAG_MIDI_FILTER_GUI_MRU);
-
-					mruListElement.appendChild(mru);
-
-					mru.setTextContent((String) it.next());
-				}
+				rootElement.appendChild(hexFileUploadDeviceManagerGUIelement);
 			}
 
-			Element hexFileUploadDeviceManagerGUIelement = document
-					.createElement(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
+			hexFileUploadDeviceManagerGUIelement
+					.appendChild(hexFileCurrentDirectoryElement);
 
-			rootElement.appendChild(hexFileUploadDeviceManagerGUIelement);
+			hexFileCurrentDirectoryElement.setTextContent(HexFileUploadGUI
+					.getCurrentDirectory());
 
-			hexFileUploadDeviceManagerGUIelement.setAttribute(
-					ATTR_SELECTED_TAB, intToString(miosStudioGUI
-							.getHexFileUploadDeviceManagerGUI().getTabbedPane()
-							.getSelectedIndex()));
+			Element mruListElement = document
+					.createElement(TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST);
 
-			if (includeMRU) {
+			hexFileUploadDeviceManagerGUIelement.appendChild(mruListElement);
 
+			Iterator it = HexFileUploadGUI.getMRU().iterator();
 
-				Element hexFileCurrentDirectoryElement = document
-						.createElement(TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY);
+			while (it.hasNext()) {
 
-				hexFileUploadDeviceManagerGUIelement
-						.appendChild(hexFileCurrentDirectoryElement);
+				Element mru = document
+						.createElement(TAG_HEX_FILE_UPLOAD_GUI_MRU);
 
-				hexFileCurrentDirectoryElement.setTextContent(HexFileUploadGUI
-						.getCurrentDirectory());
-				
-				Element mruListElement = document
-						.createElement(TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST);
+				mruListElement.appendChild(mru);
 
-				hexFileUploadDeviceManagerGUIelement
-						.appendChild(mruListElement);
+				mru.setTextContent((String) it.next());
+			}
 
-				it = HexFileUploadGUI.getMRU().iterator();
+			Element workSpaceCurrentDirectory = document
+					.createElement(TAG_WORKSPACE_CURRENT_DIRECTORY);
 
-				while (it.hasNext()) {
+			rootElement.appendChild(workSpaceCurrentDirectory);
 
-					Element mru = document
-							.createElement(TAG_HEX_FILE_UPLOAD_GUI_MRU);
+			workSpaceCurrentDirectory.setTextContent(MIOSStudioGUI
+					.getCurrentDirectory());
 
-					mruListElement.appendChild(mru);
+			mruListElement = document.createElement(TAG_WORKSPACE_MRU_LIST);
 
-					mru.setTextContent((String) it.next());
-				}
+			rootElement.appendChild(mruListElement);
+
+			it = miosStudioGUI.getMRU().iterator();
+
+			while (it.hasNext()) {
+
+				Element mru = document.createElement(TAG_WORKSPACE_MRU);
+
+				mruListElement.appendChild(mru);
+
+				mru.setTextContent((String) it.next());
+			}
+
+			Element midiFilterDeviceManagerGUIelement = document
+					.createElement(TAG_MIDI_FILTER_DEVICE_MANAGER_GUI);
+
+			rootElement.appendChild(midiFilterDeviceManagerGUIelement);
+
+			Element midiFilterCurrentDirectory = document
+					.createElement(TAG_MIDI_FILTER_GUI_CURRENT_DIRECTORY);
+
+			midiFilterDeviceManagerGUIelement
+					.appendChild(midiFilterCurrentDirectory);
+
+			midiFilterCurrentDirectory.setTextContent(MidiFilterGUI
+					.getCurrentDirectory());
+
+			mruListElement = document
+					.createElement(TAG_MIDI_FILTER_GUI_MRU_LIST);
+
+			midiFilterDeviceManagerGUIelement.appendChild(mruListElement);
+
+			it = MidiFilterGUI.getMRU().iterator();
+
+			while (it.hasNext()) {
+
+				Element mru = document.createElement(TAG_MIDI_FILTER_GUI_MRU);
+
+				mruListElement.appendChild(mru);
+
+				mru.setTextContent((String) it.next());
 			}
 		}
 	}

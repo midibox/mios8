@@ -50,6 +50,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -76,6 +77,7 @@ import javax.swing.event.PopupMenuListener;
 
 import org.midibox.apps.miosstudio.MIOSStudio;
 import org.midibox.apps.miosstudio.gui.xml.MIOSStudioGUIXML;
+import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
 import org.midibox.midi.MidiFilterDevice;
 import org.midibox.midi.MidiKeyboardControllerDevice;
 import org.midibox.midi.MidiRouterDevice;
@@ -196,7 +198,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	private JMenu MRUMenu;
 
 	private JPopupMenu MRUPopupMenu;
-	
+
 	private SplitButton openMRUButton;
 
 	private static int maxMRU = 10;
@@ -816,7 +818,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		openMRUButton = new SplitButton(button, MRUPopupMenu);
 		openMRUButton.setRollover(true);
-		
+
 		toolBar.add(openMRUButton);
 
 		button = new JButton(ImageLoader.getImageIcon("save.png"));
@@ -1121,7 +1123,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	 * midiMapManagerDialog.addWindowListener(new WindowAdapter() { public void
 	 * windowClosing(WindowEvent we) {
 	 * midiDeviceRouting.getMidiMapManager().deleteObserver( midiMapManagerGUI);
-	 * midiMapManagerDialog = null; } }); } midiMapManagerDialog.requestFocus(); }
+	 * midiMapManagerDialog = null; } }); } midiMapManagerDialog.requestFocus();
+	 * }
 	 */
 
 	private void buildMRUMenu(JComponent menu) {
@@ -1254,9 +1257,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			final File file = fc.getSelectedFile();
 
 			openWorkspace(file);
-			
-			currentDirectory = fc.getCurrentDirectory()
-			.toString();
+
+			currentDirectory = fc.getCurrentDirectory().toString();
 		}
 	}
 
@@ -1268,6 +1270,26 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 			final WorkspaceOptionDialog workspaceOptionDialog = new WorkspaceOptionDialog();
 
+			Boolean bool = MIOSStudioGUIXML.containsTag(file,
+					MIOSStudioXML.TAG_ROOT_ELEMENT);
+			workspaceOptionDialog.modelCheckBox.setEnabled(bool);
+			workspaceOptionDialog.modelCheckBox.setSelected(bool);
+
+			bool = MIOSStudioGUIXML.containsTag(file,
+					MIOSStudioGUIXML.TAG_INTERNAL_FRAMES);
+			workspaceOptionDialog.guiCheckBox.setEnabled(bool);
+			workspaceOptionDialog.guiCheckBox.setSelected(bool);
+
+			bool = MIOSStudioGUIXML.containsTag(file,
+					MIOSStudioGUIXML.TAG_EXTERNAL_COMMANDS);
+			workspaceOptionDialog.externalCommandsCheckBox.setEnabled(bool);
+			workspaceOptionDialog.externalCommandsCheckBox.setSelected(bool);
+
+			bool = MIOSStudioGUIXML.containsTag(file,
+					MIOSStudioGUIXML.TAG_LOOK_AND_FEEL);
+			workspaceOptionDialog.lookAndFeelCheckBox.setEnabled(bool);
+			workspaceOptionDialog.lookAndFeelCheckBox.setSelected(bool);
+
 			workspaceOptionDialog.pack();
 
 			workspaceOptionDialog.okButton
@@ -1277,35 +1299,20 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 							workspaceOptionDialog.setVisible(false);
 
-							boolean gui;
-
-							boolean model;
-
-							if (workspaceOptionDialog.guiRadioButton
-									.isSelected()) {
-
-								gui = true;
-								model = false;
-
-							} else if (workspaceOptionDialog.modelRadioButton
-									.isSelected()) {
-
-								gui = false;
-								model = true;
-
-							} else {
-
-								gui = true;
-								model = true;
-							}
-
 							MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
 									MIOSStudioGUI.this,
-									MIOSStudioGUIXML.TAG_ROOT_ELEMENT, model,
-									gui, false);
+									MIOSStudioGUIXML.TAG_ROOT_ELEMENT,
+									workspaceOptionDialog.modelCheckBox
+											.isSelected(),
+									workspaceOptionDialog.guiCheckBox
+											.isSelected(),
+									workspaceOptionDialog.externalCommandsCheckBox
+											.isSelected(),
+									workspaceOptionDialog.lookAndFeelCheckBox
+											.isSelected(), false);
 
 							miosStudioGUIXML.loadXML(file);
-							
+
 						}
 					});
 
@@ -1367,32 +1374,17 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 							workspaceOptionDialog.setVisible(false);
 
-							boolean gui;
-
-							boolean model;
-
-							if (workspaceOptionDialog.guiRadioButton
-									.isSelected()) {
-
-								gui = true;
-								model = false;
-
-							} else if (workspaceOptionDialog.modelRadioButton
-									.isSelected()) {
-
-								gui = false;
-								model = true;
-
-							} else {
-
-								gui = true;
-								model = true;
-							}
-
 							MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
 									MIOSStudioGUI.this,
-									MIOSStudioGUIXML.TAG_ROOT_ELEMENT, model,
-									gui, false);
+									MIOSStudioGUIXML.TAG_ROOT_ELEMENT,
+									workspaceOptionDialog.modelCheckBox
+											.isSelected(),
+									workspaceOptionDialog.guiCheckBox
+											.isSelected(),
+									workspaceOptionDialog.externalCommandsCheckBox
+											.isSelected(),
+									workspaceOptionDialog.lookAndFeelCheckBox
+											.isSelected(), false);
 
 							miosStudioGUIXML.saveXML(file);
 
@@ -1779,11 +1771,15 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	class WorkspaceOptionDialog extends JDialog {
 
-		ButtonGroup buttonGroup;
+		File file;
 
-		JRadioButton modelRadioButton;
+		JCheckBox modelCheckBox;
 
-		JRadioButton guiRadioButton;
+		JCheckBox guiCheckBox;
+
+		JCheckBox externalCommandsCheckBox;
+
+		JCheckBox lookAndFeelCheckBox;
 
 		JButton okButton;
 
@@ -1806,22 +1802,21 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			panel.add(label, gbc);
 			gbc.gridy++;
 
-			buttonGroup = new ButtonGroup();
-
-			JRadioButton radioButton = new JRadioButton(
-					"Graphical layout and MIOS Studio setup", true);
-			panel.add(radioButton, gbc);
-			buttonGroup.add(radioButton);
+			modelCheckBox = new JCheckBox("MIOS Studio setup", true);
+			panel.add(modelCheckBox, gbc);
 			gbc.gridy++;
 
-			guiRadioButton = new JRadioButton("Graphical layout only", false);
-			panel.add(guiRadioButton, gbc);
-			buttonGroup.add(guiRadioButton);
+			guiCheckBox = new JCheckBox("Graphical layout", true);
+			panel.add(guiCheckBox, gbc);
 			gbc.gridy++;
 
-			modelRadioButton = new JRadioButton("MIOS Studio setup only", false);
-			panel.add(modelRadioButton, gbc);
-			buttonGroup.add(modelRadioButton);
+			externalCommandsCheckBox = new JCheckBox(
+					"External Command buttons", true);
+			panel.add(externalCommandsCheckBox, gbc);
+			gbc.gridy++;
+
+			lookAndFeelCheckBox = new JCheckBox("Look & Feel", true);
+			panel.add(lookAndFeelCheckBox, gbc);
 			gbc.gridy++;
 
 			gbc.anchor = (GridBagConstraints.CENTER);

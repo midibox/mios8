@@ -66,21 +66,23 @@ public class MIOSStudioSID extends JApplet {
 	public MIOSStudioSID() {
 
 		this.miosStudioSID = new org.midibox.apps.miosstudiosid.MIOSStudioSID();
-		
+
 		File configFile = new File(System.getProperty("user.home"),
 				configFileName);
 
 		if (configFile.exists()) {
 
 			MIOSStudioSIDGUIXML miosStudioSIDGUIXML = new MIOSStudioSIDGUIXML(
-					miosStudioSID, MIOSStudioSIDGUIXML.TAG_ROOT_ELEMENT, true, true, true);
+					miosStudioSID, MIOSStudioSIDGUIXML.TAG_ROOT_ELEMENT, true,
+					true, true, true, true);
 
 			miosStudioSIDGUIXML.loadXML(configFile);
 
-			this.miosStudioSIDGUI = (MIOSStudioSIDGUI) miosStudioSIDGUIXML.getMiosStudioGUI();
-			
-		} 
-		
+			this.miosStudioSIDGUI = (MIOSStudioSIDGUI) miosStudioSIDGUIXML
+					.getMiosStudioGUI();
+
+		}
+
 		if (miosStudioSIDGUI == null) {
 
 			this.miosStudioSIDGUI = new MIOSStudioSIDGUI(miosStudioSID);
@@ -89,12 +91,12 @@ public class MIOSStudioSID extends JApplet {
 		setContentPane(miosStudioSIDGUI);
 
 		setJMenuBar(miosStudioSIDGUI.createMenuBar());
-				
+
 		miosStudioSIDGUI.setCommentLabel(frameComment);
 	}
 
 	public void init() {
-		
+
 	}
 
 	public void destroy() {
@@ -117,8 +119,8 @@ public class MIOSStudioSID extends JApplet {
 		if (configFile.exists()) {
 
 			MIOSStudioSIDGUIXML miosStudioSIDGUIXML = new MIOSStudioSIDGUIXML(
-					miosStudioSIDGUI, MIOSStudioSIDGUIXML.TAG_ROOT_ELEMENT, true,
-					true, true);
+					miosStudioSIDGUI, MIOSStudioSIDGUIXML.TAG_ROOT_ELEMENT,
+					true, true, true, true, true);
 
 			miosStudioSIDGUIXML.saveXML(configFile);
 		}
@@ -144,8 +146,9 @@ public class MIOSStudioSID extends JApplet {
 
 		frame.setIconImage(ImageLoader.getImageIcon("ucIcon.png").getImage());
 
-		frame.setBounds(50, 50, (screenSize.width - 100), (screenSize.height - 100));
-		
+		frame.setBounds(50, 50, (screenSize.width - 100),
+				(screenSize.height - 100));
+
 		final MIOSStudioSID miosStudioSID = new MIOSStudioSID();
 
 		miosStudioSID.init();
@@ -158,7 +161,7 @@ public class MIOSStudioSID extends JApplet {
 
 		exitMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				
+
 				miosStudioSID.destroy();
 
 				System.exit(0);
@@ -169,7 +172,7 @@ public class MIOSStudioSID extends JApplet {
 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				
+
 				miosStudioSID.destroy();
 
 				System.exit(0);
