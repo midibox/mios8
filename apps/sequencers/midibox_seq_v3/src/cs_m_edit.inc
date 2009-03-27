@@ -210,7 +210,7 @@ CS_M_EDIT_UpdateGPLEDs_NoDrum
 	rlf	WREG, W
 	andlw	0x0c
 	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
-	movlw	0x02
+	addlw	0x02
 	addwf	FSR1L, F
 
 	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR0
