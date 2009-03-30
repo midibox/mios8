@@ -31,7 +31,6 @@ import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 
-import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudiosid.gui.MIOSStudioSIDGUI;
 import org.midibox.apps.miosstudiosid.gui.xml.MIOSStudioSIDGUIXML;
 import org.midibox.utils.gui.DialogOwner;
@@ -49,7 +48,11 @@ import org.midibox.utils.gui.SplashScreen;
 
 public class MIOSStudioSID extends JApplet {
 
-	protected static String configFileName = ".miosstudiosid";
+	protected static String oldConfigFileName = ".miosstudiosid";
+
+	protected static String configDirectoryName = ".midibox";
+
+	protected static String configFileName = "miosstudiosid.xml";
 
 	protected static String frameTitle = "MIOS Studio + SID V2 Editor";
 
@@ -67,8 +70,10 @@ public class MIOSStudioSID extends JApplet {
 
 		this.miosStudioSID = new org.midibox.apps.miosstudiosid.MIOSStudioSID();
 
-		File configFile = new File(System.getProperty("user.home"),
-				configFileName);
+		File configDirectory = new File(System.getProperty("user.home"),
+				configDirectoryName);
+
+		File configFile = new File(configDirectory, configFileName);
 
 		if (configFile.exists()) {
 
@@ -81,6 +86,26 @@ public class MIOSStudioSID extends JApplet {
 			this.miosStudioSIDGUI = (MIOSStudioSIDGUI) miosStudioSIDGUIXML
 					.getMiosStudioGUI();
 
+		} else {
+
+			// check for old config file
+
+			configFile = new File(System.getProperty("user.home"),
+					oldConfigFileName);
+
+			if (configFile.exists()) {
+
+				MIOSStudioSIDGUIXML miosStudioSIDGUIXML = new MIOSStudioSIDGUIXML(
+						miosStudioSID, MIOSStudioSIDGUIXML.TAG_ROOT_ELEMENT,
+						true, true, true, true, true);
+
+				miosStudioSIDGUIXML.loadXML(configFile);
+
+				this.miosStudioSIDGUI = (MIOSStudioSIDGUI) miosStudioSIDGUIXML
+						.getMiosStudioGUI();
+
+				configFile.delete();
+			}
 		}
 
 		if (miosStudioSIDGUI == null) {
@@ -101,8 +126,22 @@ public class MIOSStudioSID extends JApplet {
 
 	public void destroy() {
 
-		File configFile = new File(System.getProperty("user.home"),
-				configFileName);
+		File configDirectory = new File(System.getProperty("user.home"),
+				configDirectoryName);
+
+		File configFile = new File(configDirectory, configFileName);
+
+		if (!configDirectory.exists()) {
+
+			try {
+
+				configDirectory.mkdir();
+
+			} catch (Exception e) {
+
+				e.printStackTrace();
+			}
+		}
 
 		if (!configFile.exists()) {
 

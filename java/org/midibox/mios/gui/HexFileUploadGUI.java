@@ -65,7 +65,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.mios.HexFileUpload;
 import org.midibox.utils.gui.HexFormatterFactory;
 import org.midibox.utils.gui.ImageLoader;

@@ -28,23 +28,23 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.prefs.Preferences;
 
 import javax.swing.JApplet;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
-import javax.swing.UIManager;
 
 import org.midibox.apps.virtualkeyboard.gui.VirtualKeyboardGUI;
 import org.midibox.apps.virtualkeyboard.gui.xml.VirtualKeyboardGUIXML;
-import org.midibox.apps.virtualkeyboard.xml.VirtualKeyboardXML;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 
 public class VirtualKeyboard extends JApplet {
 
-	final static String configFileName = ".virtualkeyboard";
+	final static String oldConfigFileName = ".virtualkeyboard";
+
+	final static String configDirectoryName = ".midibox";
+
+	final static String configFileName = "virtualkeyboard.xml";
 
 	private org.midibox.apps.virtualkeyboard.VirtualKeyboard virtualKeyboard;
 
@@ -54,8 +54,10 @@ public class VirtualKeyboard extends JApplet {
 
 		virtualKeyboard = new org.midibox.apps.virtualkeyboard.VirtualKeyboard();
 
-		File configFile = new File(System.getProperty("user.home"),
-				configFileName);
+		File configDirectory = new File(System.getProperty("user.home"),
+				configDirectoryName);
+
+		File configFile = new File(configDirectory, configFileName);
 
 		if (configFile.exists()) {
 
@@ -63,15 +65,34 @@ public class VirtualKeyboard extends JApplet {
 					virtualKeyboard, VirtualKeyboardGUIXML.TAG_ROOT_ELEMENT);
 
 			virtualKeyboardGUIXML.loadXML(configFile);
-		
+
 			virtualKeyboardGUI = virtualKeyboardGUIXML.getVirtualKeyboardGUI();
-			
+
+		} else {
+
+			// check for old config file
+
+			configFile = new File(System.getProperty("user.home"),
+					oldConfigFileName);
+
+			if (configFile.exists()) {
+
+				VirtualKeyboardGUIXML virtualKeyboardGUIXML = new VirtualKeyboardGUIXML(
+						virtualKeyboard, VirtualKeyboardGUIXML.TAG_ROOT_ELEMENT);
+
+				virtualKeyboardGUIXML.loadXML(configFile);
+
+				virtualKeyboardGUI = virtualKeyboardGUIXML
+						.getVirtualKeyboardGUI();
+
+				configFile.delete();
+			}
 		}
-		
-		if (virtualKeyboardGUI == null) { 
+
+		if (virtualKeyboardGUI == null) {
 			virtualKeyboardGUI = new VirtualKeyboardGUI(virtualKeyboard);
 		}
-		
+
 		getContentPane().add(virtualKeyboardGUI);
 
 		setJMenuBar(virtualKeyboardGUI.createMenuBar());
@@ -82,14 +103,32 @@ public class VirtualKeyboard extends JApplet {
 	}
 
 	public void destroy() {
-		
-		File configFile = new File(System.getProperty("user.home"),
-				configFileName);
+
+		File configDirectory = new File(System.getProperty("user.home"),
+				configDirectoryName);
+
+		File configFile = new File(configDirectory, configFileName);
+
+		if (!configDirectory.exists()) {
+
+			try {
+
+				configDirectory.mkdir();
+
+			} catch (Exception e) {
+
+				e.printStackTrace();
+			}
+		}
 
 		if (!configFile.exists()) {
+
 			try {
+
 				configFile.createNewFile();
+
 			} catch (Exception e) {
+
 				e.printStackTrace();
 			}
 		}
@@ -107,11 +146,11 @@ public class VirtualKeyboard extends JApplet {
 	public static void main(String[] args) {
 
 		final JFrame frame = new JFrame("Virtual Keyboard");
-		
+
 		DialogOwner.setFrame(frame);
 
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		
+
 		final VirtualKeyboard virtualKeyboardGUI = new VirtualKeyboard();
 
 		virtualKeyboardGUI.init();
@@ -131,15 +170,14 @@ public class VirtualKeyboard extends JApplet {
 
 		exitMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				
+
 				virtualKeyboardGUI.destroy();
 
 				System.exit(0);
 			}
 		});
 
-		virtualKeyboardGUI.virtualKeyboardGUI.getFileMenu().add(
-				exitMenuItem);
+		virtualKeyboardGUI.virtualKeyboardGUI.getFileMenu().add(exitMenuItem);
 
 		virtualKeyboardGUI.virtualKeyboardGUI.getMidiDeviceRoutingGUI()
 				.addComponentListener(new ComponentAdapter() {
@@ -154,7 +192,7 @@ public class VirtualKeyboard extends JApplet {
 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				
+
 				virtualKeyboardGUI.destroy();
 
 				System.exit(0);

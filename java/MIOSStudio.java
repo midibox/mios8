@@ -26,22 +26,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.prefs.Preferences;
 
 import javax.swing.JApplet;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
-import javax.swing.UIManager;
 
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudio.gui.xml.MIOSStudioGUIXML;
-import org.midibox.apps.miosstudiosid.gui.MIOSStudioSIDGUI;
-import org.midibox.midi.gui.MidiFilterGUI;
-import org.midibox.mios.gui.HexFileUploadGUI;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SplashScreen;
@@ -57,7 +48,11 @@ import org.midibox.utils.gui.SplashScreen;
 
 public class MIOSStudio extends JApplet {
 
-	protected static String configFileName = ".miosstudio";
+	protected static String oldConfigFileName = ".miosstudio";
+
+	protected static String configDirectoryName = ".midibox";
+
+	protected static String configFileName = "miosstudio.xml";
 
 	protected static String frameTitle = "MIOS Studio";
 
@@ -74,19 +69,41 @@ public class MIOSStudio extends JApplet {
 	public MIOSStudio() {
 
 		this.miosStudio = new org.midibox.apps.miosstudio.MIOSStudio();
-		
-		File configFile = new File(System.getProperty("user.home"),
-				configFileName);
+
+		File configDirectory = new File(System.getProperty("user.home"),
+				configDirectoryName);
+
+		File configFile = new File(configDirectory, configFileName);
 
 		if (configFile.exists()) {
 
 			MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
-					miosStudio, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true, true, true, true, true);
+					miosStudio, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true, true,
+					true, true, true);
 
 			miosStudioGUIXML.loadXML(configFile);
 
 			this.miosStudioGUI = miosStudioGUIXML.getMiosStudioGUI();
-			
+
+		} else {
+
+			// check for old config file
+
+			configFile = new File(System.getProperty("user.home"),
+					oldConfigFileName);
+
+			if (configFile.exists()) {
+
+				MIOSStudioGUIXML miosStudioGUIXML = new MIOSStudioGUIXML(
+						miosStudio, MIOSStudioGUIXML.TAG_ROOT_ELEMENT, true,
+						true, true, true, true);
+
+				miosStudioGUIXML.loadXML(configFile);
+
+				this.miosStudioGUI = miosStudioGUIXML.getMiosStudioGUI();
+
+				configFile.delete();
+			}
 		}
 
 		if (miosStudioGUI == null) {
@@ -97,18 +114,32 @@ public class MIOSStudio extends JApplet {
 		setContentPane(miosStudioGUI);
 
 		setJMenuBar(miosStudioGUI.createMenuBar());
-				
+
 		miosStudioGUI.setCommentLabel(frameComment);
 	}
 
 	public void init() {
-		
+
 	}
 
 	public void destroy() {
 
-		File configFile = new File(System.getProperty("user.home"),
-				configFileName);
+		File configDirectory = new File(System.getProperty("user.home"),
+				configDirectoryName);
+
+		File configFile = new File(configDirectory, configFileName);
+
+		if (!configDirectory.exists()) {
+
+			try {
+
+				configDirectory.mkdir();
+
+			} catch (Exception e) {
+
+				e.printStackTrace();
+			}
+		}
 
 		if (!configFile.exists()) {
 
@@ -152,8 +183,9 @@ public class MIOSStudio extends JApplet {
 
 		frame.setIconImage(ImageLoader.getImageIcon("ucIcon.png").getImage());
 
-		frame.setBounds(50, 50, (screenSize.width - 100), (screenSize.height - 100));
-		
+		frame.setBounds(50, 50, (screenSize.width - 100),
+				(screenSize.height - 100));
+
 		final MIOSStudio miosStudio = new MIOSStudio();
 
 		miosStudio.init();
@@ -166,7 +198,7 @@ public class MIOSStudio extends JApplet {
 
 		exitMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				
+
 				miosStudio.destroy();
 
 				System.exit(0);
@@ -177,7 +209,7 @@ public class MIOSStudio extends JApplet {
 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				
+
 				miosStudio.destroy();
 
 				System.exit(0);

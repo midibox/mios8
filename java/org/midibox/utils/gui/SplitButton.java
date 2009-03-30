@@ -1,7 +1,6 @@
 package org.midibox.utils.gui;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

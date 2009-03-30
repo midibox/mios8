@@ -25,7 +25,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.sound.midi.MidiDevice;
-import javax.sound.midi.ShortMessage;
 
 import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;

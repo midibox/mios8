@@ -1,12 +1,10 @@
 package org.midibox.apps.virtualkeyboard.gui.xml;
 
-import java.awt.Dimension;
 import java.awt.Point;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
 import org.midibox.apps.virtualkeyboard.VirtualKeyboard;
 import org.midibox.apps.virtualkeyboard.gui.VirtualKeyboardGUI;
 import org.midibox.apps.virtualkeyboard.xml.VirtualKeyboardXML;

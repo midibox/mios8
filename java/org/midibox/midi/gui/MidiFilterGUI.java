@@ -58,7 +58,6 @@ import javax.swing.table.TableCellEditor;
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiUtils;
 import org.midibox.midi.xml.MidiFilterXML;
-import org.midibox.mios.gui.HexFileUploadGUI;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SimpleFileChooserFilter;
 import org.midibox.utils.gui.SplitButton;

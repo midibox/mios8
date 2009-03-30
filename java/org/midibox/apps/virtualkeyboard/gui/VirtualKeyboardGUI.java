@@ -27,7 +27,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
@@ -36,7 +35,6 @@ import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
-import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.virtualkeyboard.VirtualKeyboard;
 import org.midibox.midi.MidiRouterDevice;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
