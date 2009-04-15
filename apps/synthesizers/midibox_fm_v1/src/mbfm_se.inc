@@ -629,6 +629,24 @@ MBFM_SE_Pitch_EG5
 MBFM_SE_Pitch_NoEG5
 
 	;; add to frequency and copy final result to MIOS_PARAMETER[12]
+#if 1
+	;; new in MBFM V1.1d: decrease intensity of pitch depth because of multiple user complaints
+	;; note: more than 2 bit doesn't lead to better effects due to reduced frq resolution
+	clrc
+	btfsc	MBFM_SE_MOD_RESULT_U, 7, BANKED
+	setc
+	rrf	MBFM_SE_MOD_RESULT_U, F, BANKED
+	rrf	MBFM_SE_MOD_RESULT_H, F, BANKED
+	rrf	MBFM_SE_MOD_RESULT_L, F, BANKED
+
+	clrc
+	btfsc	MBFM_SE_MOD_RESULT_U, 7, BANKED
+	setc
+	rrf	MBFM_SE_MOD_RESULT_U, F, BANKED
+	rrf	MBFM_SE_MOD_RESULT_H, F, BANKED
+	rrf	MBFM_SE_MOD_RESULT_L, F, BANKED
+#endif
+
 	movf	MBFM_SE_FRQ_L, W, BANKED
 	addwf	MBFM_SE_MOD_RESULT_L, W, BANKED
 	movwf	MIOS_PARAMETER1

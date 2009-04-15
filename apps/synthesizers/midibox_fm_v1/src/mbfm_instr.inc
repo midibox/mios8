@@ -115,18 +115,20 @@ MBFM_INSTR_SendParLoop_SFR_0	;; MBFM_Ix_FLAGS_MULT
 	rgoto	MBFM_INSTR_SendParLoop_SFR_Cont
 
 MBFM_INSTR_SendParLoop_SFR_1	;; MBFM_Ix_OPx_KSL_TL
-	;; save current table pointer in TMP[12]
+	;; save current table pointer and MIOS_PARAMETER1 in TMP[123]
 	movff	TBLPTRL, TMP1
 	movff	TBLPTRH, TMP2
+	movff	MIOS_PARAMETER1, TMP3
 	;; update registers
 	movlw	MBFM_Vx_STAT
 	bsf	PLUSW1, MBFM_STAT_VOICE_REFRESH
 	;; transfer volume to voice registers
 	call	MBFM_MIDI_Hlp_Vol
-	;; restore table pointer
+	;; restore table pointer and MIOS_PARAMETER1
 	movff	TMP1, TBLPTRL
 	movff	TMP2, TBLPTRH
-	rgoto	MBFM_INSTR_SendParLoop_NoSFR
+	movff	TMP3, MIOS_PARAMETER1
+	rgoto	MBFM_INSTR_SendParLoop_SFR_Cont
 
 MBFM_INSTR_SendParLoop_SFR_2	;; MBFM_Ix_OPx_AR_DR
 	movlw	MBFM_Vx_UPDATE0

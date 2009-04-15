@@ -758,7 +758,7 @@ MBFM_MIDI_Hlp_GateOff_Loop_Next
 ;; Volume help function - updates the MBFM_Vx_VOL registers
 ;; IN: pointer to instrument in FSR0
 ;;     pointer to voice in FSR1
-;; USES: PROD[LH] and TABLAT as temporary registers
+;; USES: PROD[LH], TABLAT and MIOS_PARAMETER1 as temporary registers
 ;; ------------------------------------------------------------------
 MBFM_MIDI_Hlp_Vol
 	;; get volume addend derived from (velocity * volume) / 128
