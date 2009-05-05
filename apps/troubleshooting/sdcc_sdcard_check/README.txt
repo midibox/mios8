@@ -19,7 +19,7 @@ The details are described under
 
 Required hardware:
    o one MBHP_CORE module
-   o one Character LCD display
+   o one Character LCD
    o SD card module connected to J6/J7 (Port C)
 
 Optional hardware:
