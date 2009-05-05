@@ -98,56 +98,6 @@ void Init(void) __wparam{
 // This function is called by MIOS in the mainloop when nothing else is to do
 /////////////////////////////////////////////////////////////////////////////
 
-void clear_sdcard_buffer(void) __wparam{
-	unsigned int i;
-	for(i=0;i<0x100;i++){
-		sdcard_buffer_p0[i] = 0x00;
-		sdcard_buffer_p1[i] = 0x00;
-		}	
-	}
-
-void init_sdcard_buffer(void) __wparam{
-	unsigned int i;
-	for(i=0;i<0x100;i++){
-		sdcard_buffer_p0[i] = test_p0[i];
-		sdcard_buffer_p1[i] = test_p1[i];
-		}
-	}
-	
-unsigned char check_sdcard_buffer(void) __wparam{
-	unsigned int i;
-	for(i=0;i<0x100;i++){
-		if( (sdcard_buffer_p0[i] != test_p0[i]) || (sdcard_buffer_p1[i] != test_p1[i]) )
-			return 0x00;
-		}
-	return 0x01;
-	}
-	
-unsigned char check_sector_rw(void) __wparam{
-	unsigned char resp;
-	init_sdcard_buffer();
-	if(resp = SDCARD_SectorWrite(sector)){
-		last_error_op = 'w';
-		last_error_code = resp;
-		SDCARD_Init();
-		return 0;
-		}
-	clear_sdcard_buffer();
-	if(resp = SDCARD_SectorRead(sector)){
-		last_error_op = 'r';
-		last_error_code = resp;
-		SDCARD_Init();
-		return 0;
-		}
-	if(!check_sdcard_buffer()){
-		last_error_op = 'r';
-		last_error_code = 0x00;
-		return 0;
-		}	
-	return 1;
-	}
-	
-
 void Tick(void) __wparam{
 	unsigned char resp;
 	switch(phase){
@@ -222,6 +172,55 @@ void Tick(void) __wparam{
 				}
 			break;
 		}
+	}
+
+void clear_sdcard_buffer(void) __wparam{
+	unsigned int i;
+	for(i=0;i<0x100;i++){
+		sdcard_buffer_p0[i] = 0x00;
+		sdcard_buffer_p1[i] = 0x00;
+		}	
+	}
+
+void init_sdcard_buffer(void) __wparam{
+	unsigned int i;
+	for(i=0;i<0x100;i++){
+		sdcard_buffer_p0[i] = test_p0[i];
+		sdcard_buffer_p1[i] = test_p1[i];
+		}
+	}
+	
+unsigned char check_sdcard_buffer(void) __wparam{
+	unsigned int i;
+	for(i=0;i<0x100;i++){
+		if( (sdcard_buffer_p0[i] != test_p0[i]) || (sdcard_buffer_p1[i] != test_p1[i]) )
+			return 0x00;
+		}
+	return 0x01;
+	}
+	
+unsigned char check_sector_rw(void) __wparam{
+	unsigned char resp;
+	init_sdcard_buffer();
+	if(resp = SDCARD_SectorWrite(sector)){
+		last_error_op = 'w';
+		last_error_code = resp;
+		SDCARD_Init();
+		return 0;
+		}
+	clear_sdcard_buffer();
+	if(resp = SDCARD_SectorRead(sector)){
+		last_error_op = 'r';
+		last_error_code = resp;
+		SDCARD_Init();
+		return 0;
+		}
+	if(!check_sdcard_buffer()){
+		last_error_op = 'r';
+		last_error_code = 0x00;
+		return 0;
+		}	
+	return 1;
 	}
 
 /////////////////////////////////////////////////////////////////////////////
