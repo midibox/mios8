@@ -22,10 +22,10 @@
 
 #include <sdcard.h>
 
-#define max_first_sector 0xFF
-#define max_subseq_check_errors  0x10
-#define check_step 0xF2
-#define initial_sector_inc 0x1000
+#define MAX_FIRST_SECTOR 0xFF
+#define MAX_SUBSEQ_CHECK_ERRORS  0x10
+#define CHECK_STEP 0xF2
+#define INITIAL_SECTOR_INC 0x1000
 
 unsigned char phase = 0;//0x00 init;0x01 determine first rw sector;0x02 determine last rw sector;0x03 deep check;0xff check done;
 unsigned long sector;
@@ -102,7 +102,7 @@ void Tick(void) __wparam{
 	unsigned char resp;
 	switch(phase){
 		case 0x02:
-			sector_inc = initial_sector_inc;//current sector increment
+			sector_inc = INITIAL_SECTOR_INC;//current sector increment
 			first_sector_rw = 0xffffffff;
 			last_sector_rw = 0xffffffff;
 			sector = 0;
@@ -121,7 +121,7 @@ void Tick(void) __wparam{
 			break;		
 		case 0x03://determine first rw sector
 			if(!check_sector_rw()){
-				if(sector < max_first_sector)
+				if(sector < MAX_FIRST_SECTOR)
 					sector++;
 				else
 					phase = 0xff;
@@ -162,13 +162,13 @@ void Tick(void) __wparam{
 				if(!check_sector_rw()){
 					bad_sector_count++;
 					subseq_check_errors++;
-					if(subseq_check_errors > max_subseq_check_errors){
+					if(subseq_check_errors > MAX_SUBSEQ_CHECK_ERRORS){
 						phase = 0xff;
 						}
 					}
 				else
 					subseq_check_errors=0;
-				sector += check_step;
+				sector += CHECK_STEP;
 				}
 			break;
 		}
