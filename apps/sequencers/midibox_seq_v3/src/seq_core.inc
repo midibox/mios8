@@ -1102,7 +1102,7 @@ SEQ_CORE_Clk_Step_RecLCtr
 	cpfslt	SEQ_RECORD_LENGTH_CTR, BANKED
 	rgoto SEQ_CORE_Clk_Step_NoRecLCtr
 	movlw	4
-	addwf	SEQ_RECORD_LENGTH_CTR, BANKED
+	addwf	SEQ_RECORD_LENGTH_CTR, F, BANKED
 SEQ_CORE_Clk_Step_NoRecLCtr
 
 	rgoto	SEQ_CORE_Clk_Step_NoIncDec
