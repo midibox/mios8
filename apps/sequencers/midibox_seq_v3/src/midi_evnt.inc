@@ -276,11 +276,15 @@ MIDI_EVNT_Send_AOUT_Note
 
 	BRA_IFSET MIDI_EVNT0, 3, ACCESS, MIDI_EVNT_Send_AOUT_Note_NV
 MIDI_EVNT_Send_AOUT_Note_N
-	;; Note only
+	;; set Note CV if velocity > 0
+	movf	MIDI_EVNT_VALUE, W
+	bz	MIDI_EVNT_Send_AOUT_Note_NOff
+MIDI_EVNT_Send_AOUT_Note_NOn
 	movff	MIDI_EVNT1, MIOS_PARAMETER1
 	movf	MIDI_EVNT0, W
 	andlw	0x07
 	call	AOUT_Pin7bitSet
+MIDI_EVNT_Send_AOUT_Note_NOff
 
 	;; set gate if velocity > 0
 	movf	MIDI_EVNT_VALUE, W
@@ -295,15 +299,17 @@ MIDI_EVNT_Send_AOUT_Note_N
 MIDI_EVNT_Send_AOUT_Note_NV
 	BRA_IFSET MIDI_EVNT0, 2, ACCESS, MIDI_EVNT_Send_AOUT_Note_VN
 
+	;; don't update Note and Velocity if Velocity is 0
+	movf	MIDI_EVNT_VALUE, W
+	bz	MIDI_EVNT_Send_AOUT_Note_NV_V0
+MIDI_EVNT_Send_AOUT_Note_NV_V1
 	;; Note
 	movff	MIDI_EVNT1, MIOS_PARAMETER1
 	rlf	MIDI_EVNT0, W
 	andlw	0x06
 	call	AOUT_Pin7bitSet
 
-	;; Velocity (don't update if value is 0)
-	movf	MIDI_EVNT_VALUE, W
-	bz	MIDI_EVNT_Send_AOUT_Note_NV_V0
+	;; Velocity
 	movwf	MIOS_PARAMETER1
 	rlf	MIDI_EVNT0, W
 	andlw	0x06
@@ -330,14 +336,15 @@ MIDI_EVNT_Send_AOUT_Note_VN_Gate
 	rgoto	MIDI_EVNT_Send_AOUT_End
 
 MIDI_EVNT_Send_AOUT_Note_VN
-	;; Velocity (don't update if value is 0)
+	;; don't update Note and Velocity if Velocity is 0
 	movf	MIDI_EVNT_VALUE, W
 	bz	MIDI_EVNT_Send_AOUT_Note_VN_V0
+MIDI_EVNT_Send_AOUT_Note_VN_V1
+	;; Velocity
 	movwf	MIOS_PARAMETER1
 	rlf	MIDI_EVNT0, W
 	andlw	0x06
 	call	AOUT_Pin7bitSet
-MIDI_EVNT_Send_AOUT_Note_VN_V0
 
 	;; Note
 	movff	MIDI_EVNT1, MIOS_PARAMETER1
@@ -346,11 +353,13 @@ MIDI_EVNT_Send_AOUT_Note_VN_V0
 	addlw	1
 	call	AOUT_Pin7bitSet
 
+MIDI_EVNT_Send_AOUT_Note_VN_V0
 	;; set/clear gates
 	rgoto	MIDI_EVNT_Send_AOUT_Note_VN_Gate
 
 	;; if channel 1..8: sets CV Out #1..8 depending on CC number (16 = #1, 17 = #2, ...) - channel has no effect
-	;; if channel 9..16: sets CV Out #1..8 depending on channel, always sets Gate #1..8
+	;; if channel 9..16: sets CV Out #1..8 depending on channel
+	;; gate is always set
 MIDI_EVNT_Send_AOUT_CC
 	BRA_IFCLR MIDI_EVNT0, 3, ACCESS, MIDI_EVNT_Send_AOUT_CC_N
 MIDI_EVNT_Send_AOUT_CC_C

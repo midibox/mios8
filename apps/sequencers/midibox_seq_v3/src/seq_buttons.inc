@@ -518,10 +518,10 @@ SEQ_BUTTON_Play
 	;; in Auto Slave Mode: check if we are already in master mode, if not, request it now!
 	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_BPM_CLK_AUTO, BANKED, SEQ_BUTTON_Play_NoAuto
 	BRA_IFCLR SEQ_CFG0, SEQ_CFG0_BPM_CLK_SLAVE, BANKED, SEQ_BUTTON_Play_NoAuto
-SEQ_BUTTON_Play_NoAuto
+SEQ_BUTTON_Play_Auto
 	bcf	SEQ_CFG0, SEQ_CFG0_BPM_CLK_SLAVE, BANKED
 	bsf	SEQ_REQ, SEQ_REQ_START_AUTO_SLAVE_REQ, BANKED
-SEQ_BUTTON_Play_Auto
+SEQ_BUTTON_Play_NoAuto
 	return
 
 ;; --------------------------------------------------------------------------
