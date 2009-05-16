@@ -1056,6 +1056,8 @@ SEQ_CORE_Clk_Step_CtrResetForced
 	bnz	SEQ_CORE_Clk_Step_NoCtrReset
 	movf	SEQ_CLK_TICK6_CTR, W, BANKED
 	bnz	SEQ_CORE_Clk_Step_NoCtrReset
+	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
+	bnz	SEQ_CORE_Clk_Step_NoCtrReset
 SEQ_CORE_Clk_Step_CtrReset
 	rcall	SEQ_CORE_ResetTrkPos
 
