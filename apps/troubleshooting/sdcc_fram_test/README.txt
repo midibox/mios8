@@ -47,15 +47,15 @@ If you use multiplexed devices, enable the define in the Makefile. All possible
 FRAM_DEFINES that you can change are prepared but commented out.
 
 If you use multiplexing:
-	FRAM_DEFINES += -DFRAM_MULTIPLEX_ENABLE=1
+  FRAM_DEFINES += -DFRAM_MULTIPLEX_ENABLE=1
 
 If you want to connect your FRAM devices to the standard MIOS IIC port J4:
-	FRAM_DEFINES += -DFRAM_MIOS_IIC=1
-	
+  FRAM_DEFINES += -DFRAM_MIOS_IIC=1
+  
 If you notice unstable communication to the device (very long connection cable,
 bad slew rates etc.), increase this value step by step and check if the problem
 disappears:
-	FRAM_DEFINES += -DFRAM_IIC_SLOWDOWN=1
+  FRAM_DEFINES += -DFRAM_IIC_SLOWDOWN=1
 
 For further information about the pin assignments, default values and defines,
 refer the README.txt of the FRAM-module.
@@ -73,72 +73,72 @@ phase to another. These are the phases:
 
 1. Test buffer write/read/compare:
 ----
-	Buffers of 256 bytes will be written and immediately read after writing. This
-	test run uses FRAM high level functions. The read data will be compared to 
-	the test values written before.
-	
+  Buffers of 256 bytes will be written and immediately read after writing. This
+  test run uses FRAM high level functions. The read data will be compared to 
+  the test values written before.
+  
 2. Test single byte write/read/compare:
 ----
-	Single bytes will be written and immediately read after writing. The read
-	byte will be compared to the one that was written before. FRAM high level 
-	functions will be used for this test run.
-	
+  Single bytes will be written and immediately read after writing. The read
+  byte will be compared to the one that was written before. FRAM high level 
+  functions will be used for this test run.
+  
 3. Test subsequent buffer write:
 ----
-	Performs subsequent buffer write using FRAM low-level functions. In each 
-	session, 32 x 256byte buffers will be written, the whole device- and 
-	address range will be covered.
-	
+  Performs subsequent buffer write using FRAM low-level functions. In each 
+  session, 32 x 256byte buffers will be written, the whole device- and 
+  address range will be covered.
+  
 4. Test subsequent buffer read/compare:
 ----
-	Performs subsequent buffer read using FRAM low-level functions. In each 
-	session, 32 x 256byte buffers will be read, the whole device- and 
-	address range will be covered. The values read should be the ones that were written
-	in the last phase. They will be compared to the originally written values.
-	In this test run, problems with the multiplexer or the device addressing 
-	show up. This will *not* happen in test-run 2, because the data is read 
-	immediately after writing. The compare will not fail because the same wrong
-	device is selected as with the write. In subsequent write, the whole device-
-	and address range will be written in one run, and each 256bytes sector has 
-	its own test value start offset. Wrong device selection will cause overwriting
-	of data that will show up as error in this test run.
-	If you want to analyze the problem in deep, set the test_value_deviceaddr_only
-	define to 1. This will cause the program to write the device address to each
-	byte of the given device. On error abort, you see the value that was read
-	and the value it should equal to, this allows to analyze on which stage  
-	the chip selection fails (chip address selectors / multiplexer).
-	
+  Performs subsequent buffer read using FRAM low-level functions. In each 
+  session, 32 x 256byte buffers will be read, the whole device- and 
+  address range will be covered. The values read should be the ones that were written
+  in the last phase. They will be compared to the originally written values.
+  In this test run, problems with the multiplexer or the device addressing 
+  show up. This will *not* happen in test-run 2, because the data is read 
+  immediately after writing. The compare will not fail because the same wrong
+  device is selected as with the write. In subsequent write, the whole device-
+  and address range will be written in one run, and each 256bytes sector has 
+  its own test value start offset. Wrong device selection will cause overwriting
+  of data that will show up as error in this test run.
+  If you want to analyze the problem in deep, set the test_value_deviceaddr_only
+  define to 1. This will cause the program to write the device address to each
+  byte of the given device. On error abort, you see the value that was read
+  and the value it should equal to, this allows to analyze on which stage  
+  the chip selection fails (chip address selectors / multiplexer).
+  
 5. Test subsequent single byte write:
 ----
-	Performs subsequent byte write using FRAM low-level functions. In each 
-	session, 32 x 256bytes will be written, the whole device- and address range 
-	will be covered.
-	
+  Performs subsequent byte write using FRAM low-level functions. In each 
+  session, 32 x 256bytes will be written, the whole device- and address range 
+  will be covered.
+  
 6. Test subsequent byte read/compare:
 ----
-	Performs subsequent byte read using FRAM low-level functions. In each 
-	session, 32 x 256bytes will be read, the whole device- and address range 
-	will be covered. The values read should be the ones that were written
-	in the last phase. They will be compared to the originally written values.
-	
+  Performs subsequent byte read using FRAM low-level functions. In each 
+  session, 32 x 256bytes will be read, the whole device- and address range 
+  will be covered. The values read should be the ones that were written
+  in the last phase. They will be compared to the originally written values.
+  
 7. Speed test subsequent buffer write:
 ----
-	Performs subsequent buffer write using FRAM low-level functions. In each 
-	session, 32 x 256byte buffers will be written, the whole device- and 
-	address range will be covered. The buffer will not be initialized with
-	values, it doesn't matter what data will be written, instead the time needed
-	for the whole run will be measured and shows up at the end in case of
-	success.
-	
+  Performs subsequent buffer write using FRAM low-level functions. In each 
+  session, 32 x 256byte buffers will be written, the whole device- and 
+  address range will be covered. The buffer will not be initialized with
+  values, it doesn't matter what data will be written, instead the time needed
+  for the whole run will be measured and shows up at the end in case of
+  success.
+  
 8. Speed test subsequent buffer read:
 ----
-	Performs subsequent buffer read using FRAM low-level functions. In each 
-	session, 32 x 256byte buffers will be read, the whole device- and 
-	address range will be covered. No data compare will take place, instead
-	the time needed for the whole run will be measured and shows up at the 
-	test summary screen after finishing.
-	
-	
+  Performs subsequent buffer read using FRAM low-level functions. In each 
+  session, 32 x 256byte buffers will be read, the whole device- and 
+  address range will be covered. No data compare will take place, instead
+  the time needed for the whole run will be measured and shows up at the 
+  test summary screen after finishing.
+  
+  
 If all the test runs finished successfully, you will see a (alternating) summary 
 screen that shows you following information
 * Success message
