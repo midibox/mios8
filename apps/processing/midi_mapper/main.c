@@ -1,4 +1,3 @@
-// $Id: main.c 333 2008-05-10 20:49:56Z tk $
 /*
  * MIDI-Box Channel-Mapper
  *
