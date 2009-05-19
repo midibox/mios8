@@ -20,13 +20,13 @@ The details are described under
 
 Required hardware:
    o one MBHP_CORE module
-	o one MBHP_DIN module
-	o one MBHP_DOUT module
-	o 20 buttons(NOT switches!) with LED's, or separate LED's
-	o 1 32K or 64K Bankstick
-	o AC or DC power supply, 7-10V, 800mA. If the device reboots when much
-	  LED's are switched on, then you need a more powerfull supply.
-	o Switch to turn the device on / off.
+   o one MBHP_DIN module
+   o one MBHP_DOUT module
+   o 20 buttons(NOT switches!) with LED's, or separate LED's
+   o 1 32K or 64K Bankstick
+   o AC or DC power supply, 7-10V, 800mA. If the device reboots when much
+     LED's are switched on, then you need a more powerfull supply.
+   o Switch to turn the device on / off.
 
 ===============================================================================
 ===================== Description of the device ===============================
@@ -45,12 +45,12 @@ A setup can be stored in one of the 16 presets.
 
 There are four "screen"-buttons and 16 "value"-buttons and one LED each button:
 
-o preset screen: DIN PIN 0, DOUT PIN 0(LED)
-o bus screen: DIN PIN 1, DOUT PIN 1
-o input screen: DIN PIN 2, DOUT PIN 2
-o output screen: DIN PIN 3, DOUT PIN 3
+   o preset screen: DIN PIN 0, DOUT PIN 0(LED)
+   o bus screen: DIN PIN 1, DOUT PIN 1
+   o input screen: DIN PIN 2, DOUT PIN 2
+   o output screen: DIN PIN 3, DOUT PIN 3
 
-o value-buttons (1-16), DIN 8-23, DOUT 8-23(LEDS)
+   o value-buttons (1-16), DIN 8-23, DOUT 8-23(LEDS)
 
 all functionality can be configured by these 20 buttons,
 the LED's indicate the current state/setup, therefore no
