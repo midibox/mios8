@@ -20,7 +20,7 @@ The details are described under
 
 Required hardware:
    o one MBHP_CORE module
-	o any number of DIN's / DOUT's
+   o any number of DIN's / DOUT's
 
 Optional hardware:
    o Character LCD

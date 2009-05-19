@@ -39,13 +39,13 @@ unsigned int count,run,led;
 // application
 /////////////////////////////////////////////////////////////////////////////
 void Init(void) __wparam{
-  	MIOS_SRIO_UpdateFrqSet(3); // ms
-  	MIOS_SRIO_NumberSet(8);
-  	MIOS_SRIO_DebounceSet(20);
-  	led = 0;
-  	count = 0;
-  	run=0;
-}
+  MIOS_SRIO_UpdateFrqSet(3); // ms
+  MIOS_SRIO_NumberSet(8);
+  MIOS_SRIO_DebounceSet(20);
+  led = 0;
+  count = 0;
+  run=0;
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS in the mainloop when nothing else is to do
@@ -58,50 +58,49 @@ void Tick(void) __wparam
 // This function is periodically called by MIOS. The frequency has to be
 // initialized with MIOS_Timer_Set
 /////////////////////////////////////////////////////////////////////////////
-void Timer(void) __wparam
-{
-//show start message for 2 sec
-if(run==0){
-	if(count++>100){
-		run = 1;
-		count = 0;
-		MIOS_LCD_Clear();	
-		MIOS_LCD_CursorSet(0x00);
-		MIOS_LCD_PrintCString("DOUT PinSet ");
-		}
-	return;
-	}
-//--walk DOUT's
-if(count++>interval){
-	count=0;
-	if(run==2){
-		if (led)
-			MIOS_DOUT_SRSet((led-1) >> 3 & 0x0F, 0x00);
-		else
-			MIOS_DOUT_PinSet(num_douts-1,0);
-		MIOS_DOUT_SRSet(led >> 3 & 0x0F, MIOS_HLP_GetBitORMask(led & 0x07));
-		}
-	else{
-		if (led)
-			MIOS_DOUT_PinSet(led-1,0);
-		MIOS_DOUT_PinSet(led,1);
-		}
-	MIOS_LCD_CursorSet(0x40);
-	MIOS_LCD_PrintCString("Pin ");
-	MIOS_LCD_PrintBCD2(led++);
-	if((led == num_douts)&&(!testrun_srset || (run==2))){
-		MIOS_TIMER_Stop();
-		run=0;
-		}
-	else if(led == num_douts){
-		run=2;
-		led=0;
-		MIOS_LCD_Clear();	
-		MIOS_LCD_CursorSet(0x00);
-		MIOS_LCD_PrintCString("DOUT SRSet BitOrMask");
-		}
-	}
-}
+void Timer(void) __wparam{
+  //show start message for 2 sec
+  if(run==0){
+    if(count++>100){
+      run = 1;
+      count = 0;
+      MIOS_LCD_Clear();  
+      MIOS_LCD_CursorSet(0x00);
+      MIOS_LCD_PrintCString("DOUT PinSet ");
+      }
+    return;
+    }
+  //--walk DOUT's
+  if(count++>interval){
+    count=0;
+    if(run==2){
+      if (led)
+	MIOS_DOUT_SRSet((led-1) >> 3 & 0x0F, 0x00);
+      else
+	MIOS_DOUT_PinSet(num_douts-1,0);
+      MIOS_DOUT_SRSet(led >> 3 & 0x0F, MIOS_HLP_GetBitORMask(led & 0x07));
+      }
+    else{
+      if (led)
+	MIOS_DOUT_PinSet(led-1,0);
+      MIOS_DOUT_PinSet(led,1);
+      }
+    MIOS_LCD_CursorSet(0x40);
+    MIOS_LCD_PrintCString("Pin ");
+    MIOS_LCD_PrintBCD2(led++);
+    if((led == num_douts)&&(!testrun_srset || (run==2))){
+      MIOS_TIMER_Stop();
+      run=0;
+      }
+    else if(led == num_douts){
+      run=2;
+      led=0;
+      MIOS_LCD_Clear();  
+      MIOS_LCD_CursorSet(0x00);
+      MIOS_LCD_PrintCString("DOUT SRSet BitOrMask");
+      }
+    }
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS when the display content should be 
@@ -109,11 +108,11 @@ if(count++>interval){
 // has been printed on the screen
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Init(void) __wparam{
- 	MIOS_LCD_Clear();	
-	MIOS_LCD_CursorSet(0x00);
-	MIOS_LCD_PrintCString("Start DOUT Test..");
-  	MIOS_TIMER_Init(0x02,50000);//10ms
-	}
+   MIOS_LCD_Clear();  
+  MIOS_LCD_CursorSet(0x00);
+  MIOS_LCD_PrintCString("Start DOUT Test..");
+    MIOS_TIMER_Init(0x02,50000);//10ms
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 //  This function is called in the mainloop when no temporary message is shown
@@ -172,15 +171,15 @@ void SR_Service_Finish(void) __wparam
 // pin_value is 1 when button released, and 0 when button pressed
 /////////////////////////////////////////////////////////////////////////////
 void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam{
-	if(pin_value || run) 
-		return; 
-	if (din_to_dout && pin < num_douts)
-		MIOS_DOUT_PinSet(pin,!MIOS_DOUT_PinGet(pin));
-	MIOS_LCD_Clear();
-	MIOS_LCD_CursorSet(0x00);
-	MIOS_LCD_PrintCString("Pin ");
-	MIOS_LCD_PrintBCD2(pin);
-	}
+  if(pin_value || run) 
+    return; 
+  if (din_to_dout && pin < num_douts)
+    MIOS_DOUT_PinSet(pin,!MIOS_DOUT_PinGet(pin));
+  MIOS_LCD_Clear();
+  MIOS_LCD_CursorSet(0x00);
+  MIOS_LCD_PrintCString("Pin ");
+  MIOS_LCD_PrintBCD2(pin);
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS when an encoder has been moved
