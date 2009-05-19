@@ -62,15 +62,15 @@ unsigned char enc_changed = 0;
 // application
 /////////////////////////////////////////////////////////////////////////////
 void Init(void) __wparam{
-	unsigned char i;
- 	MIOS_SRIO_UpdateFrqSet(1); // ms
-  	MIOS_SRIO_NumberSet(srio_number);
-  	MIOS_SRIO_DebounceSet(srio_debounce);
-  	for(i=0;i<4;i++){
-  		enc[i] = 0;
-  		MIOS_ENC_SpeedSet(i,enc_speed_mode , enc_speed_parameter);
-  		}
-  	}
+  unsigned char i;
+  MIOS_SRIO_UpdateFrqSet(1); // ms
+  MIOS_SRIO_NumberSet(srio_number);
+  MIOS_SRIO_DebounceSet(srio_debounce);
+  for(i=0;i<4;i++){
+    enc[i] = 0;
+    MIOS_ENC_SpeedSet(i,enc_speed_mode , enc_speed_parameter);
+    }
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS in the mainloop when nothing else is to do
@@ -94,28 +94,28 @@ void Timer(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 
 void print_enc_values(void) __wparam{
-	unsigned char i;
-	MIOS_LCD_CursorSet(0x00);
-	for(i=0;i<4;i++){
-		MIOS_LCD_PrintBCD3(enc[i]);
-		MIOS_LCD_PrintChar(' ');
-		}
-	enc_changed = 0;
-	}
+  unsigned char i;
+  MIOS_LCD_CursorSet(0x00);
+  for(i=0;i<4;i++){
+    MIOS_LCD_PrintBCD3(enc[i]);
+    MIOS_LCD_PrintChar(' ');
+    }
+  enc_changed = 0;
+  }
 
 void DISPLAY_Init(void) __wparam{
-	MIOS_LCD_Clear();	
-	print_enc_values();
-	}
+  MIOS_LCD_Clear();  
+  print_enc_values();
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 //  This function is called in the mainloop when no temporary message is shown
 //  on screen. Print the realtime messages here
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Tick(void) __wparam{
-	if(enc_changed)
-		print_enc_values();
-	}
+  if(enc_changed)
+    print_enc_values();
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 //  This function is called by MIOS when a complete MIDI event has been received
@@ -175,12 +175,12 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 // it is negative
 /////////////////////////////////////////////////////////////////////////////
 void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam{
-	if(incrementer > 0)
-		enc[encoder] = (enc_value_max - enc[encoder] > incrementer) ? enc[encoder] + incrementer : enc_value_max;
-	else
-		enc[encoder] = ((-enc[encoder]) < incrementer) ? enc[encoder] + incrementer : 0;
-	enc_changed = 1;
-	}
+  if(incrementer > 0)
+    enc[encoder] = (enc_value_max - enc[encoder] > incrementer) ? enc[encoder] + incrementer : enc_value_max;
+  else
+    enc[encoder] = ((-enc[encoder]) < incrementer) ? enc[encoder] + incrementer : 0;
+  enc_changed = 1;
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS when a pot has been moved
