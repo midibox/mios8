@@ -31,37 +31,37 @@ unsigned int value = 0;
 // application
 /////////////////////////////////////////////////////////////////////////////
 void Init(void) __wparam{
-	AOUT_Init();
-	MIOS_TIMER_Init(0x01,50000);//10ms
-	}
+  AOUT_Init();
+  MIOS_TIMER_Init(0x01,50000);//10ms
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS in the mainloop when nothing else is to do
 /////////////////////////////////////////////////////////////////////////////
 void Tick(void) __wparam{
-	unsigned char i;
-	if (counter >= 500){
-		counter = 0;
-		value = phase*0x7FFF;
-		phase = (phase == 2) ? 0 : phase + 1;
-		for(i=0;i<8;i++)
-			AOUT_Pin16bitSet(i, value);
-		AOUT_Update();
-		MIOS_LCD_Clear();
-		MIOS_LCD_CursorSet(0x00);
-		MIOS_LCD_PrintCString("8x AOut set to:");
-		MIOS_LCD_CursorSet(0x40);
-		MIOS_LCD_PrintBCD5(value);		
-		}
-	}
+  unsigned char i;
+  if (counter >= 500){
+    counter = 0;
+    value = phase*0x7FFF;
+    phase = (phase == 2) ? 0 : phase + 1;
+    for(i=0;i<8;i++)
+      AOUT_Pin16bitSet(i, value);
+    AOUT_Update();
+    MIOS_LCD_Clear();
+    MIOS_LCD_CursorSet(0x00);
+    MIOS_LCD_PrintCString("8x AOut set to:");
+    MIOS_LCD_CursorSet(0x40);
+    MIOS_LCD_PrintBCD5(value);    
+    }
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is periodically called by MIOS. The frequency has to be
 // initialized with MIOS_Timer_Set
 /////////////////////////////////////////////////////////////////////////////
 void Timer(void) __wparam{
-	counter++;
-	}
+  counter++;
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS when the display content should be 
@@ -69,10 +69,10 @@ void Timer(void) __wparam{
 // has been printed on the screen
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Init(void) __wparam{
-	MIOS_LCD_Clear();
-	MIOS_LCD_CursorSet(0x00);
-	MIOS_LCD_PrintCString("Start AOut Test..");
-	}
+  MIOS_LCD_Clear();
+  MIOS_LCD_CursorSet(0x00);
+  MIOS_LCD_PrintCString("Start AOut Test..");
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 //  This function is called in the mainloop when no temporary message is shown

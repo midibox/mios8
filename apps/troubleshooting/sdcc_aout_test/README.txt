@@ -21,8 +21,8 @@ The details are described under
 
 Required hardware:
    o one MBHP_CORE module
-	o one Character LCD Module
-	o AOUT Module (AOUT / AOUT_LC / AOUT_NG)
+   o one Character LCD Module
+   o AOUT Module (AOUT / AOUT_LC / AOUT_NG)
 
 Optional hardware:
    o 
