@@ -47,6 +47,10 @@ SID_PBANK_CheckPatchValid
  	bz	SID_PBANK_CheckPatchValid_Inv
 #endif
 
+	;; patch 0 (internal EEPROM) is always valid
+	movf	SID_PATCH, W
+	bz	SID_PBANK_CheckPatchValid_Ok
+
 	;; check if BankStick available
 	movf	SID_BANK, W
 	call	MIOS_HLP_GetBitORMask

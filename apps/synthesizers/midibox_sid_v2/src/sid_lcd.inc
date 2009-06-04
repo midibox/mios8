@@ -56,6 +56,10 @@ SID_LCD_PrintEnsembleNumberPRODL	; label for cs_menu_print.inc to store CS_MENU_
 	movlw	'E'
 	call	SID_LCD_PrintChar
 
+	;; Internal EEPROM selected?
+	movf	PRODL, W
+	bz	SID_LCD_PrintEnsembleNumber_Int
+
 	;; print ensemble number, padded with 0
 	incf	PRODL, W
 	clrf	MIOS_PARAMETER1
@@ -65,6 +69,7 @@ SID_LCD_PrintEnsembleNumberPRODL	; label for cs_menu_print.inc to store CS_MENU_
 	movf	MIOS_PARAMETER1, W
 	goto	MIOS_LCD_PrintHex2
 
+
 ;; --------------------------------------------------------------------------
 ;;  help function to print a patch number
 ;;  + '*' if patch or BankStick not accessible
@@ -72,6 +77,10 @@ SID_LCD_PrintEnsembleNumberPRODL	; label for cs_menu_print.inc to store CS_MENU_
 ;;  OUT: 4 characters
 ;; --------------------------------------------------------------------------
 SID_LCD_PrintPatchNumber
+	;; Internal EEPROM selected?
+	movf	SID_PATCH, W
+	bz	SID_LCD_PrintPatchNumber_Int
+
 	;; print bank character
 	movf	SID_BANK, W
 	addlw	'A'
@@ -85,6 +94,18 @@ SID_LCD_PrintPatchNumber
 	call	MIOS_LCD_PrintHex1
 	movf	MIOS_PARAMETER1, W
 	goto	MIOS_LCD_PrintHex2
+
+SID_LCD_PrintPatchNumber_Int
+	movlw	'P'
+	rcall	SID_LCD_PrintChar
+
+SID_LCD_PrintEnsembleNumber_Int
+	movlw	'I'
+	rcall	SID_LCD_PrintChar
+	movlw	'n'
+	rcall	SID_LCD_PrintChar
+	movlw	't'
+	rgoto	SID_LCD_PrintChar
 
 
 ;; --------------------------------------------------------------------------

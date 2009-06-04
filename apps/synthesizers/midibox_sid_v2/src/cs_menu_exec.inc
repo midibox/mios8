@@ -574,7 +574,7 @@ CS_MENU_EXEC_SaveEns
 	;; ensemble 0 always alowed
 	movf	CS_MENU_SAVE_ENS, W
 	bz	CS_MENU_EXEC_SaveEns_Ok
-	
+
 	call	SID_EBANK_CheckValid
 	bz	CS_MENU_EXEC_SaveEns_Ok
 	rgoto	CS_MENU_EXEC_SaveEns_Inv	; (ok - reuse!)

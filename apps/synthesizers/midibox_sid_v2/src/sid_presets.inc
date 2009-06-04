@@ -36,4 +36,10 @@ EEPROM_ENSEMBLE
 	org	0xf00300
 EEPROM_MISC
 EEPROM_DEFAULT_ENS
+#if 0
 	db	0x01, 0x00	; default ensemble (use 1 instead of 0, so that a BankStick based ensemble is used)
+#else
+	db	0x01, 0x00	; this was too confusing...
+	;; new:	select 0 after app. upload, and once an Ensemble BankStick has been detected, switch to 1 if ensemble was 0 before
+	;; this is done in CS_MENU_BANK_RestoreCfg_Tst
+#endif

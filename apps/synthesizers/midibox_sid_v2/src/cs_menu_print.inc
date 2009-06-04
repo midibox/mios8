@@ -1521,9 +1521,9 @@ CS_MENU_PRINT_SAVE_NAME
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_SAVE_ENS
-	call	SID_EBANK_CheckValid
-	bz	CS_MENU_PRINT_SAVE_ENS_Ok
 	movf	CS_MENU_SAVE_ENS, W	; always allow to store in bank #0
+	bz	CS_MENU_PRINT_SAVE_ENS_Ok
+	call	SID_EBANK_CheckValid
 	bz	CS_MENU_PRINT_SAVE_ENS_Ok
 	
 CS_MENU_PRINT_SAVE_ENS_Inv

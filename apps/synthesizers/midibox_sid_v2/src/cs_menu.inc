@@ -594,6 +594,8 @@ CS_MENU_Page_Root_Refresh_UL_E
 	call	SID_LCD_PrintEnsembleNumber
 
 	;; print '*' if ensemble not valid (no BankStick)
+	movf	SID_ENSEMBLE, W	; ensemble 0 always valid (stored in internal EEPROM)
+	skpz
 	call	SID_EBANK_CheckValid
 	movlw	' '
 	skpz
@@ -1751,9 +1753,15 @@ CS_MENU_Hlp_UpdateOSCFlags_Val
 ;;  (target ensemble in CS_MENU_SAVE_ENS
 ;; --------------------------------------------------------------------------
 CS_MENU_SaveEns
+	;; check if saving allowed
+	;; ensemble 0 always alowed
+	movf	CS_MENU_SAVE_ENS, W
+	bz	CS_MENU_SaveEns_Ok
+
 	call	SID_EBANK_CheckValid
 	bnz	CS_MENU_SaveEns_End
 
+CS_MENU_SaveEns_Ok
 	;; switch to new ensemble
 	movff	CS_MENU_SAVE_ENS, SID_ENSEMBLE
 

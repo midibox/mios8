@@ -1014,11 +1014,11 @@ SID_SYSEX_WritePar_I_Eng
 	rgoto	SID_SYSEX_WritePar_I_M
 
 SID_SYSEX_WritePar_I_L
-	;; check for target assignment range 0x104..0x105
+	;; check for target assignment range 0x104..0x105, 0x10c..0x10d, 0x114..0x115, ..., 0x13c..013d
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
 	bz	SID_SYSEX_WritePar_I_L_NoMTarg
 	movf	SID_SYSEX_ADDRESS_L, W, BANKED
-	andlw	0xfe
+	andlw	0xc6		; binary mask: 0b11000110 - should match with the addresses listed above
 	xorlw	0x04
 	bnz	SID_SYSEX_WritePar_I_L_NoMTarg
 	rgoto	SID_SYSEX_WritePar_I_MTarg
@@ -1262,8 +1262,9 @@ SID_SYSEX_WritePar_I_Fil
 
 ;; ---
 SID_SYSEX_WritePar_I_MTarg
-	;; range 0x104/105: copy to L/R register
-	movlw	0x04
+	;; range 0x104..0x105, 0x10c..0x10d, 0x114..0x115, ..., 0x13c..013d: copy to L/R register
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	andlw	0xfe
 	addwf	FSR0L, F
 	movlw	0x01
 	addwfc	FSR0H, F
