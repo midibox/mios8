@@ -724,6 +724,10 @@ void LCD_SDL_Run(void) {
          IupLoopStep();
 
          Tick();
+		 // poll Timer()
+		 if(debug_user_timer.TIMER_ENABLED) {
+			Timer();
+		 }
          DISPLAY_Tick();
          LCD_SDL_DrawScreen(LCD_SDL_screen,LCD_SDL_h++);
          if (entry_mode==0) {
