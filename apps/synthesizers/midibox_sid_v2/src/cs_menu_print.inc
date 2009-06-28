@@ -1422,7 +1422,7 @@ CS_MENU_PRINT_B_SEQ_VAL_Note
 CS_MENU_PRINT_B_SEQ_VAL_Oct
 	TABLE_ADDR CS_MENU_PRINT_B_SEQ_VAL_Oct_Tab
 	swapf	INDF0, W
-	andlw	0x04
+	andlw	0x03
 	rgoto	CS_MENU_PRINT_StringFromTable
 CS_MENU_PRINT_B_SEQ_VAL_Oct_Tab
 	dw	" -  "	; mapped to 0
