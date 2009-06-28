@@ -131,7 +131,7 @@ SEQ_SYSEX_Handler_NotEnd
 	addlw	-6+5
 	BRA_IFSET STATUS, Z, ACCESS, SEQ_SYSEX_Action_PAR_Write	; 6
 	addlw	-15+6
-	BRA_IFSET STATUS, Z, ACCESS, SEQ_SYSEX_Action_Ping		; 15
+	BRA_IFSET STATUS, Z, ACCESS, SEQ_SYSEX_Action_Ping	; 15
 	rgoto	SEQ_SYSEX_ActionInvalid
 	;; (note: target address to far away for "bz", therefore I'm using "IFSET STATUS, Z"
 	

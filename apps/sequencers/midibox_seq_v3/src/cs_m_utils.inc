@@ -83,7 +83,10 @@ CS_M_UTILS_GP_Callback_Copy
 	;; change copy offset and copy marker to begin/end range depending on encoder which has been moved
 	movf	MIOS_PARAMETER1, W
 	bz	CS_M_UTILS_GP_Callback_CopyB
-	btfsc	SEQ_SELECTED_STEPS, BANKED, 0
+	xorlw	15		; check for rightmost encoder (counted from zero): always modifies end position
+	bz	CS_M_UTILS_GP_Callback_CopyE
+	movf	MIOS_PARAMETER1, W ; back to original variable
+	btfsc	SEQ_SELECTED_STEPS, 0, BANKED
 	addlw 16
 	movwf	MIOS_PARAMETER1
 	movf	CS_COPYPASTE_END, W
