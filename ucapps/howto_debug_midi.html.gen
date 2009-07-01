@@ -14,7 +14,8 @@ It's some kind of "sign of life" from your PIC. So long as MIOS isn't available,
 
 <P CLASS=DESC>If this request message doesn't appear, you should first ensure that the most important parts of your core module are soldered properly:
 <UL CLASS=CL>
-   <LI><B>TEST PROG1:</B> If you are not sure that the bootstrap loader has been burned successfully, use the verify function of IC-Prog/P18</LI>
+   <LI><B>TEST PROG1:</B> If you are not sure that the bootstrap loader has been burned successfully, use the verify function of IC-Prog/P18.<BR>
+People who purchased a preburned PIC from SmashTV can be sure that Smash already did this check, and that he also uploaded MIOS via MIDI to ensure that the PIC is booting and that the bootloader is working correctly.</LI>
    <LI><B>TEST CORE1:</B> ensure that you've stuffed a 10 MHz crystal (parallel cut) to your PIC18F core module</LI>
    <LI><B>TEST CORE2:</B> only relevant for MBHP_CORE_V1 and MBHP_CORE_V2 PCB: are <A HREF="mbhp/mbhp_core_5.jpg">all 5 jumpers</A> connected to the programming port?</LI>
    <LI><B>TEST CORE3:</B> Check it visually for bad solderings or missed junctions</LI>
@@ -47,7 +48,9 @@ If you are using the optimized PSU for MIDIbox SID, bypass the outer pins of the
 
 <P CLASS=INFO>If nothing happens, your MIDI-In is possibly not working:<BR>
 <UL CLASS=CL>
-   <LI><B>TEST IN1:</B> Check the resistor values at the MIDI In Port: R11=220 Ohm (resistor code: red-red-brown), R6=1.2kOhm (brown-red-red), R5=5.6kOhm (Green-Blue-Red).</LI>
+   <LI><B>TEST IN1A:</B> Check the resistor values at the MIDI In Port: R11=220 Ohm (resistor code: red-red-brown), R6=1.2kOhm (brown-red-red), R5=5.6kOhm (Green-Blue-Red).</LI>
+   <LI><B>TEST IN1B:</B> Check that the 6N138 optocoupler is put with the correct pin orientation into the socket! Pin #1 (marked with a notch) shows into the direction of J11!<BR>
+Note that the optocoupler could be damaged if you are trying the wrong pin orientation!</LI>
    <LI><B>TEST IN2:</B> Check the polarity of your MIDI plugs again: <A HREF="howtodebug/mbhp_core_extract_midi_plugs.gif">mbhp_core_extract_midi_plugs.gif</A> - maybe the two pins of the MIDI In port are swapped?</LI>
    <LI><B>TEST IN3:</B> solder two cables to the bottom side of the core module like shown in <A HREF="mbhp/mbhp_core_midiin_debug.gif">mbhp_core_midiin_debug.gif</A>. The LED should be lit (take the polarity of the LED into account, the short leg is the cathode and has to be connected via a resistor to Vss). So long as single MIDI events are received, you won't notice a difference, but with a continuous SysEx stream the LED should begin to flicker.<BR>
 <B>Note:</B>so long as the LED is connected directly to the Rx pin, the PIC will *not* receive the MIDI data due to the power consumption of the LED. This method is only usefull to test if the MIDI signal is available at the Rx pin.</LI>
