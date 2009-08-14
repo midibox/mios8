@@ -13,6 +13,7 @@ import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI.ExternalCommandButton;
 import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
 import org.midibox.midi.gui.MidiFilterGUI;
+import org.midibox.midi.gui.SysexSendReceiveGUI;
 import org.midibox.mios.gui.HexFileUploadGUI;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.xml.XMLUtils;
@@ -45,6 +46,10 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 	public final static String TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY = "hexFileUploadGUICurrentDirectory";
 
+	public final static String TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI = "sysexSendReceiveDeviceManagerGUI";
+
+	public final static String TAG_SYSEX_SEND_RECEIVE_GUI_CURRENT_DIRECTORY = "sysexSendReceiveGUICurrentDirectory";
+
 	public final static String TAG_WORKSPACE_MRU_LIST = "workspaceMRUList";
 
 	public final static String TAG_WORKSPACE_MRU = "workspaceMRU";
@@ -52,6 +57,10 @@ public class MIOSStudioGUIXML extends XMLUtils {
 	public final static String TAG_MIDI_FILTER_GUI_MRU_LIST = "midiFilterGUIMRUList";
 
 	public final static String TAG_MIDI_FILTER_GUI_MRU = "midiFilterGUIMRU";
+
+	public final static String TAG_SYSEX_SEND_RECEIVE_GUI_MRU_LIST = "sysexSendReceiveGUIMRUList";
+
+	public final static String TAG_SYSEX_SEND_RECEIVE_GUI_MRU = "sysexSendReceiveGUIMRU";
 
 	public final static String TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST = "hexFileUploadGUIMRUList";
 
@@ -142,6 +151,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			addTag(TAG_MAIN_WINDOW);
 			addTag(TAG_INTERNAL_FRAMES);
+			addTag(TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI);
 			addTag(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
 		}
 
@@ -165,6 +175,9 @@ public class MIOSStudioGUIXML extends XMLUtils {
 			addTag(TAG_MIDI_FILTER_GUI_CURRENT_DIRECTORY);
 			addTag(TAG_MIDI_FILTER_GUI_MRU_LIST);
 			addTag(TAG_MIDI_FILTER_GUI_MRU);
+			addTag(TAG_SYSEX_SEND_RECEIVE_GUI_CURRENT_DIRECTORY);
+			addTag(TAG_SYSEX_SEND_RECEIVE_GUI_MRU_LIST);
+			addTag(TAG_SYSEX_SEND_RECEIVE_GUI_MRU);
 			addTag(TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY);
 			addTag(TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST);
 			addTag(TAG_HEX_FILE_UPLOAD_GUI_MRU);
@@ -327,6 +340,22 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			MidiFilterGUI.setCurrentDirectory(element.getTextContent());
 
+		} else if (name == TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI) {
+			
+			int tabIndex = stringToInt(element.getAttribute(ATTR_SELECTED_TAB));
+
+			if (tabIndex < miosStudioGUI.getSysexSendReceiveDeviceManagerGUI()
+					.getTabbedPane().getTabCount()) {
+
+				miosStudioGUI.getSysexSendReceiveDeviceManagerGUI()
+						.getTabbedPane().setSelectedIndex(tabIndex);
+
+			}
+
+		} else if (name == TAG_SYSEX_SEND_RECEIVE_GUI_CURRENT_DIRECTORY) {
+
+			SysexSendReceiveGUI.setCurrentDirectory(element.getTextContent());
+
 		} else if (name == TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI) {
 
 			int tabIndex = stringToInt(element.getAttribute(ATTR_SELECTED_TAB));
@@ -372,6 +401,8 @@ public class MIOSStudioGUIXML extends XMLUtils {
 	public void saveXML(Node node) {
 
 		super.saveXML(node);
+
+		Element sysexSendReceiveDeviceManagerGUIelement = null;
 
 		Element hexFileUploadDeviceManagerGUIelement = null;
 
@@ -456,6 +487,16 @@ public class MIOSStudioGUIXML extends XMLUtils {
 				saveInternalFrame(internalFrame, internalFrameElement);
 			}
 
+			sysexSendReceiveDeviceManagerGUIelement = document
+					.createElement(TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI);
+
+			rootElement.appendChild(sysexSendReceiveDeviceManagerGUIelement);
+
+			sysexSendReceiveDeviceManagerGUIelement.setAttribute(
+					ATTR_SELECTED_TAB, intToString(miosStudioGUI
+							.getSysexSendReceiveDeviceManagerGUI()
+							.getTabbedPane().getSelectedIndex()));
+
 			hexFileUploadDeviceManagerGUIelement = document
 					.createElement(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
 
@@ -496,6 +537,23 @@ public class MIOSStudioGUIXML extends XMLUtils {
 		}
 
 		if (includeMRU) {
+
+			Element sysexSendReceiveCurrentDirectoryElement = document
+					.createElement(TAG_SYSEX_SEND_RECEIVE_GUI_CURRENT_DIRECTORY);
+
+			if (sysexSendReceiveDeviceManagerGUIelement == null) {
+				sysexSendReceiveDeviceManagerGUIelement = document
+						.createElement(TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI);
+
+				rootElement
+						.appendChild(sysexSendReceiveDeviceManagerGUIelement);
+			}
+
+			sysexSendReceiveDeviceManagerGUIelement
+					.appendChild(sysexSendReceiveCurrentDirectoryElement);
+
+			sysexSendReceiveCurrentDirectoryElement
+					.setTextContent(SysexSendReceiveGUI.getCurrentDirectory());
 
 			Element hexFileCurrentDirectoryElement = document
 					.createElement(TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY);

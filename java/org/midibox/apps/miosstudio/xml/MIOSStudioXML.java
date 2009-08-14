@@ -7,6 +7,7 @@ import org.midibox.midi.xml.MidiFilterDeviceManagerXML;
 import org.midibox.midi.xml.MidiFilterDeviceXML;
 import org.midibox.midi.xml.MidiKeyboardControllerDeviceXML;
 import org.midibox.midi.xml.MidiMonitorFilteredDeviceXML;
+import org.midibox.midi.xml.SysexSendReceiveDeviceManagerXML;
 import org.midibox.mios.xml.DebugFunctionDeviceXML;
 import org.midibox.mios.xml.HexFileUploadDeviceManagerXML;
 import org.midibox.mios.xml.LCDMessageDeviceXML;
@@ -29,6 +30,8 @@ public class MIOSStudioXML extends XMLUtils {
 	public static final String TAG_OUT_PORT_MIDI_MONITOR_FILTERED_DEVICE = "outPortMidiMonitorFilteredDevice";
 
 	public static final String TAG_MIDI_KEYBOARD_CONTROLLER_DEVICE = "midiKeyboardControllerDevice";
+	
+	public static final String TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER = "sysexSendReciveDeviceManager";
 
 	public static final String TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER = "hexFileUploadDeviceManager";
 
@@ -58,6 +61,7 @@ public class MIOSStudioXML extends XMLUtils {
 		addTag(TAG_OUT_PORT_MIDI_MONITOR_FILTERED_DEVICE);
 		addTag(TAG_IN_PORT_MIDI_MONITOR_FILTERED_DEVICE);
 		addTag(TAG_MIDI_KEYBOARD_CONTROLLER_DEVICE);
+		addTag(TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER);
 		addTag(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER);
 		addTag(TAG_LCD_MESSAGE_DEVICE);
 		addTag(TAG_DEBUG_FUNCTION_DEVICE);
@@ -125,6 +129,14 @@ public class MIOSStudioXML extends XMLUtils {
 					TAG_MIDI_KEYBOARD_CONTROLLER_DEVICE);
 
 			midiKeyboardControllerDeviceXML.loadXML(element);
+
+		} else if (name == TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER) {
+
+			SysexSendReceiveDeviceManagerXML sysexSendReceiveDeviceManagerXML = new SysexSendReceiveDeviceManagerXML(
+					miosStudio.getSysexSendReceiveDeviceManager(),
+					TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER);
+
+			sysexSendReceiveDeviceManagerXML.loadXML(element);
 
 		} else if (name == TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER) {
 
@@ -229,6 +241,12 @@ public class MIOSStudioXML extends XMLUtils {
 				TAG_MIDI_KEYBOARD_CONTROLLER_DEVICE);
 
 		midiControllerDeviceXML.saveXML(rootElement);
+		
+		SysexSendReceiveDeviceManagerXML sysexSendReceiveDeviceManagerXML = new SysexSendReceiveDeviceManagerXML(
+				miosStudio.getSysexSendReceiveDeviceManager(),
+				TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER);
+
+		sysexSendReceiveDeviceManagerXML.saveXML(rootElement);
 	}
 
 	protected void saveMIOSXML(MIOSStudio miosStudio) {

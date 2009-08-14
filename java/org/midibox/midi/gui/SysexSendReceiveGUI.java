@@ -60,7 +60,7 @@ import org.midibox.utils.gui.SimpleFileChooserFilter;
 public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 		ItemListener, ChangeListener, Observer {
 
-	public static String currentDirectory = "";
+	private static String currentDirectory = "";
 
 	private static JFileChooser fc = null;
 
@@ -89,7 +89,7 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 		sysexSendReceive.addObserver(this);
 
 		browseButton = new JButton("SysEx File", ImageLoader
-				.getImageIcon("browse.png"));
+				.getImageIcon("open.png"));
 		fileName = new JTextField();
 		fileName.setEditable(false);
 		browseButton.setActionCommand("browse");
@@ -216,10 +216,8 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 		gbc.gridy++;
 		mainPanel.add(receivePanel, gbc);
 
-		// add(controlButtonsPanel, BorderLayout.NORTH);
-		// add(mainPanel, BorderLayout.CENTER);
-
-		add(new JLabel("*** TODO ***", JLabel.CENTER), BorderLayout.CENTER);
+		add(controlButtonsPanel, BorderLayout.NORTH);
+		add(mainPanel, BorderLayout.CENTER);
 
 		UIUpdate();
 	}
@@ -292,4 +290,14 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 	public SysexSendReceive getSysexSendReceive() {
 		return sysexSendReceive;
 	}
+
+	public static String getCurrentDirectory() {
+		return currentDirectory;
+	}
+
+	public static void setCurrentDirectory(String currentDirectory) {
+		SysexSendReceiveGUI.currentDirectory = currentDirectory;
+	}
+	
+	
 }

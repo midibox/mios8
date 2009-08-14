@@ -165,6 +165,12 @@ public class SysexSendReceiveDeviceManagerGUI extends JPanel implements
 							.elementAt(selectedTab));
 		}
 	}
+	
+	
+
+	public JTabbedPane getTabbedPane() {
+		return tabbedPane;
+	}
 
 	public void update(Observable observable, Object object) {
 		if (observable == sysexSendReceiveDeviceManager) {

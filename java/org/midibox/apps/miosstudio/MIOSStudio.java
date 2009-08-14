@@ -34,6 +34,8 @@ import org.midibox.midi.MidiKeyboardControllerDevice;
 import org.midibox.midi.MidiMonitorFiltered;
 import org.midibox.midi.MidiMonitorFilteredDevice;
 import org.midibox.midi.MidiRouterDevice;
+import org.midibox.midi.SysexSendReceiveDevice;
+import org.midibox.midi.SysexSendReceiveDeviceManager;
 import org.midibox.mios.DebugFunctionDevice;
 import org.midibox.mios.HexFileUploadDevice;
 import org.midibox.mios.HexFileUploadDeviceManager;
@@ -86,9 +88,7 @@ public class MIOSStudio extends Observable implements Observer {
 
 	// TODO: implement a manager for sysex sending and receing tasks
 
-	/*
-	 * private SysexSendReceiveDeviceManager sysexSendReceiveDeviceManager;
-	 */
+	private SysexSendReceiveDeviceManager sysexSendReceiveDeviceManager;
 
 	private HexFileUploadDeviceManager hexFileUploadDeviceManager;
 
@@ -159,11 +159,9 @@ public class MIOSStudio extends Observable implements Observer {
 		midiKeyboardControllerDevice = new MidiKeyboardControllerDevice(
 				"MIDI Keyboard Controller", 0);
 
-		/*
-		 * sysexSendReceiveDeviceManager = new SysexSendReceiveDeviceManager();
-		 * sysexSendReceiveDeviceManager.newSysexSendReceive();
-		 * sysexSendReceiveDeviceManager.addObserver(this);
-		 */
+		sysexSendReceiveDeviceManager = new SysexSendReceiveDeviceManager();
+
+		sysexSendReceiveDeviceManager.addObserver(this);
 
 		hexFileUploadDeviceManager = new HexFileUploadDeviceManager();
 
@@ -188,15 +186,15 @@ public class MIOSStudio extends Observable implements Observer {
 		// disable all messages by default, only allow pass SysEx
 		// user can enable other MIDI events again if required
 
-		 miosTerminalFiltered.getMidiFilter().setVoiceMessages(false);
-		 
-		 miosTerminalFiltered.getMidiFilter().setSystemCommonMessages(false);
+		miosTerminalFiltered.getMidiFilter().setVoiceMessages(false);
 
-		 miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessages(false);
-		
-		 miosTerminalFiltered.getMidiFilter().setSysexMessages(true);
+		miosTerminalFiltered.getMidiFilter().setSystemCommonMessages(false);
 
-		 miosTerminalFiltered.getMidiFilter().setMetaMessages(false);
+		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessages(false);
+
+		miosTerminalFiltered.getMidiFilter().setSysexMessages(true);
+
+		miosTerminalFiltered.getMidiFilter().setMetaMessages(false);
 	}
 
 	public MidiDeviceManager getMidiDeviceManager() {
@@ -228,10 +226,9 @@ public class MIOSStudio extends Observable implements Observer {
 		return midiKeyboardControllerDevice;
 	}
 
-	/*
-	 * public SysexSendReceiveDeviceManager getSysexSendReceiveDeviceManager() {
-	 * return sysexSendReceiveDeviceManager; }
-	 */
+	public SysexSendReceiveDeviceManager getSysexSendReceiveDeviceManager() {
+		return sysexSendReceiveDeviceManager;
+	}
 
 	public HexFileUploadDeviceManager getHexFileUploadDeviceManager() {
 		return hexFileUploadDeviceManager;
@@ -437,11 +434,11 @@ public class MIOSStudio extends Observable implements Observer {
 		midiDeviceRouting.addMidiWriteDevice(midiKeyboardControllerDevice);
 		midiDeviceRouting.addMidiReadDevice(midiKeyboardControllerDevice);
 
-		/*
-		 * midiDeviceRouting.addMidiReadDevices(sysexSendReceiveDeviceManager
-		 * .getSysexSendReceiveDevices()); midiDeviceRouting.addMidiWriteDevices
-		 * (sysexSendReceiveDeviceManager .getSysexSendReceiveDevices());
-		 */
+		midiDeviceRouting.addMidiReadDevices(sysexSendReceiveDeviceManager
+				.getSysexSendReceiveDevices());
+
+		midiDeviceRouting.addMidiWriteDevices(sysexSendReceiveDeviceManager
+				.getSysexSendReceiveDevices());
 
 		midiDeviceRouting.addMidiReadDevices(hexFileUploadDeviceManager
 				.getHexFileUploadDevices());
@@ -481,20 +478,30 @@ public class MIOSStudio extends Observable implements Observer {
 				midiKeyboardControllerDevice);
 		midiDeviceRouting.connectDevices(midiKeyboardControllerDevice,
 				miosStudioOutPort);
-		/*
-		 * Iterator it = sysexSendReceiveDeviceManager
-		 * .getSysexSendReceiveDevices().iterator(); while (it.hasNext()) {
-		 * SysexSendReceiveDevice ssrt = (SysexSendReceiveDevice) it.next();
-		 * midiDeviceRouting.connectDevices(miosStudioInPort, ssrt);
-		 * midiDeviceRouting.connectDevices(ssrt, miosStudioOutPort); }
-		 */
-		Iterator it = hexFileUploadDeviceManager.getHexFileUploadDevices()
-				.iterator();
+
+		Iterator it = sysexSendReceiveDeviceManager
+				.getSysexSendReceiveDevices().iterator();
+
 		while (it.hasNext()) {
-			HexFileUploadDevice hutd = (HexFileUploadDevice) it.next();
-			midiDeviceRouting.connectDevices(miosStudioInPort, hutd);
-			midiDeviceRouting.connectDevices(hutd, miosStudioOutPort);
+			SysexSendReceiveDevice sysexSendReceiveDevice = (SysexSendReceiveDevice) it
+					.next();
+			midiDeviceRouting.connectDevices(miosStudioInPort,
+					sysexSendReceiveDevice);
+			midiDeviceRouting.connectDevices(sysexSendReceiveDevice,
+					miosStudioOutPort);
 		}
+
+		it = hexFileUploadDeviceManager.getHexFileUploadDevices().iterator();
+
+		while (it.hasNext()) {
+			HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) it
+					.next();
+			midiDeviceRouting.connectDevices(miosStudioInPort,
+					hexFileUploadDevice);
+			midiDeviceRouting.connectDevices(hexFileUploadDevice,
+					miosStudioOutPort);
+		}
+
 		/*
 		 * midiDeviceRouting.connectDevices(miosStudioInPort,
 		 * memoryReadWriteDevice);
@@ -525,6 +532,24 @@ public class MIOSStudio extends Observable implements Observer {
 						miosStudioOutPort);
 			} else {
 				midiDeviceRouting.disconnectDevice(hexFileUploadDevice);
+			}
+
+			setRouteIndividualDevices(routeIndividualDevices);
+		}
+		
+		if (observable == sysexSendReceiveDeviceManager) {
+
+			SysexSendReceiveDevice sysexSendReceiveDevice = (SysexSendReceiveDevice) object;
+
+			if (sysexSendReceiveDeviceManager.getSysexSendReceiveDevices().contains(
+					sysexSendReceiveDevice)) {
+
+				midiDeviceRouting.connectDevices(miosStudioInPort,
+						sysexSendReceiveDevice);
+				midiDeviceRouting.connectDevices(sysexSendReceiveDevice,
+						miosStudioOutPort);
+			} else {
+				midiDeviceRouting.disconnectDevice(sysexSendReceiveDevice);
 			}
 
 			setRouteIndividualDevices(routeIndividualDevices);

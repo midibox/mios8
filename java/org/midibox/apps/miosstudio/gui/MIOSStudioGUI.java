@@ -66,7 +66,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
@@ -86,6 +85,7 @@ import org.midibox.midi.gui.MidiFilterDeviceManagerGUI;
 import org.midibox.midi.gui.MidiFilterGUI;
 import org.midibox.midi.gui.MidiKeyboardControllerGUI;
 import org.midibox.midi.gui.MidiMonitorFilteredGUI;
+import org.midibox.midi.gui.SysexSendReceiveDeviceManagerGUI;
 import org.midibox.mios.HexFileUploadDevice;
 import org.midibox.mios.gui.DebugFunctionGUI;
 import org.midibox.mios.gui.HexFileUploadDeviceManagerGUI;
@@ -131,12 +131,9 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private MIOSStudioInternalFrame midiKeyboardControllerWindow;
 
-	/*
-	 * private SysexSendReceiveDeviceManagerGUI
-	 * sysexSendReceiveDeviceManagerGUI;
-	 * 
-	 * private MIOSStudioInternalFrame sysexSendReceiveDeviceManagerWindow;
-	 */
+	private SysexSendReceiveDeviceManagerGUI sysexSendReceiveDeviceManagerGUI;
+
+	private MIOSStudioInternalFrame sysexSendReceiveDeviceManagerWindow;
 
 	private HexFileUploadDeviceManagerGUI hexFileUploadDeviceManagerGUI;
 
@@ -380,19 +377,19 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 				MidiKeyboardControllerDevice.class, icon);
 
 		// Sysex Send/Receive
-		/*
-		 * sysexSendReceiveDeviceManagerGUI = new
-		 * SysexSendReceiveDeviceManagerGUI(
-		 * miosStudio.getSysexSendReceiveDeviceManager());
-		 * 
-		 * icon = ImageLoader.getImageIcon("sysex.png");
-		 * 
-		 * sysexSendReceiveDeviceManagerWindow = new MIOSStudioInternalFrame(
-		 * "Sysex Send/Receive", true, true, true, true, icon,
-		 * sysexSendReceiveDeviceManagerGUI);
-		 * 
-		 * sysexSendReceiveDeviceManagerWindow.pack();
-		 */
+
+		sysexSendReceiveDeviceManagerGUI = new SysexSendReceiveDeviceManagerGUI(
+				miosStudio.getSysexSendReceiveDeviceManager());
+
+		icon = ImageLoader.getImageIcon("sysex.png");
+
+		sysexSendReceiveDeviceManagerWindow = new MIOSStudioInternalFrame(
+				"Sysex Send/Receive", true, true, true, true, icon,
+				sysexSendReceiveDeviceManagerGUI);
+
+		sysexSendReceiveDeviceManagerWindow.pack();
+
+		internalFrames.add(sysexSendReceiveDeviceManagerWindow);
 
 		midiDeviceRoutingGUI.addMidiDeviceIcon(SysexSendReceiveDevice.class,
 				icon);
@@ -501,7 +498,6 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	protected void createFileMenu() {
 
 		fileMenu = new JMenu("File");
-		fileMenu.setMnemonic(KeyEvent.VK_F);
 
 		JMenuItem menuItem = new JMenuItem("Open Workspace");
 		menuItem.setActionCommand("open_workspace");
@@ -520,91 +516,58 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	protected void createMIDIMenu() {
 		midiMenu = new JMenu("MIDI");
-		midiMenu.setMnemonic(KeyEvent.VK_M);
 
 		JMenuItem menuItem = new JMenuItem("MIDI Devices");
-		menuItem.setMnemonic(KeyEvent.VK_M);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("midi_devices");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIDI Filters");
-		menuItem.setMnemonic(KeyEvent.VK_F);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("midi_filters");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIDI Monitor: OUT");
-		menuItem.setMnemonic(KeyEvent.VK_O);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("midi_out_port_monitor");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIDI Monitor: IN");
-		menuItem.setMnemonic(KeyEvent.VK_I);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("midi_in_port_monitor");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIDI Keyboard Controller");
-		menuItem.setMnemonic(KeyEvent.VK_K);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("piano_controller");
 		menuItem.addActionListener(this);
 		midiMenu.add(menuItem);
 
-		/*
-		 * menuItem = new JMenuItem("Sysex Send/Recieve");
-		 * menuItem.setMnemonic(KeyEvent.VK_S);
-		 * menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-		 * ActionEvent.CTRL_MASK)); menuItem.setActionCommand("sysex");
-		 * menuItem.addActionListener(this); menu.add(menuItem);
-		 */
-
+		menuItem = new JMenuItem("Sysex Send/Recieve");
+		menuItem.setActionCommand("sysex");
+		menuItem.addActionListener(this);
+		midiMenu.add(menuItem);
 	}
 
 	protected void createMIOSMenu() {
 
 		miosMenu = new JMenu("MIOS");
-		miosMenu.setMnemonic(KeyEvent.VK_O);
 
 		JMenuItem menuItem = new JMenuItem("MIOS Hex File Upload");
-		menuItem.setMnemonic(KeyEvent.VK_U);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("open_hex_file");
 		menuItem.addActionListener(this);
 		miosMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIOS LCD Message");
-		menuItem.setMnemonic(KeyEvent.VK_L);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("lcd_message");
 		menuItem.addActionListener(this);
 		miosMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIOS Debug Functions");
-		menuItem.setMnemonic(KeyEvent.VK_D);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("debug_functions");
 		menuItem.addActionListener(this);
 		miosMenu.add(menuItem);
 
 		menuItem = new JMenuItem("MIOS Terminal");
-		menuItem.setMnemonic(KeyEvent.VK_T);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("mios_terminal");
 		menuItem.addActionListener(this);
 		miosMenu.add(menuItem);
@@ -613,12 +576,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	protected void createOptionsMenu() {
 
 		optionsMenu = new JMenu("Options");
-		optionsMenu.setMnemonic(KeyEvent.VK_P);
 
 		JMenuItem menuItem = new JMenuItem("MIDI Device Routing");
-		menuItem.setMnemonic(KeyEvent.VK_R);
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
-				ActionEvent.CTRL_MASK));
 		menuItem.setActionCommand("midi_routing");
 		menuItem.addActionListener(this);
 		optionsMenu.add(menuItem);
@@ -696,6 +655,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		assignExternalButtonMnemonics();
 		toolBar.setVisible(false);
 		toolBar.setVisible(true);
+	}
+
+	public SysexSendReceiveDeviceManagerGUI getSysexSendReceiveDeviceManagerGUI() {
+		return sysexSendReceiveDeviceManagerGUI;
 	}
 
 	public HexFileUploadDeviceManagerGUI getHexFileUploadDeviceManagerGUI() {
@@ -870,13 +833,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		button.setMargin(insets);
 		toolBar.add(button);
 
-		/*
-		 * button = new JButton(ImageLoader.getImageIcon("sysex.png"));
-		 * button.setToolTipText("Sysex Send/Receive");
-		 * button.setActionCommand("sysex"); button.addActionListener(this);
-		 * button.setMargin(insets); toolBar.add(button);
-		 */
-
+		button = new JButton(ImageLoader.getImageIcon("sysex.png"));
+		button.setToolTipText("Sysex Send/Receive");
+		button.setActionCommand("sysex");
+		button.addActionListener(this);
+		button.setMargin(insets);
+		toolBar.add(button);
 	}
 
 	protected void createMIOSButtons() {
@@ -1495,6 +1457,9 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		} else if (ae.getActionCommand().equals("piano_controller")) {
 			showFrame(midiKeyboardControllerWindow);
+
+		} else if (ae.getActionCommand().equals("sysex")) {
+			showFrame(sysexSendReceiveDeviceManagerWindow);
 
 		} else if (ae.getActionCommand().equals("open_hex_file")) {
 			showFrame(hexFileUploadDeviceManagerWindow);
