@@ -4,42 +4,235 @@ HEADER 3 The MIDIbox Operating System
 
 <P><CENTER><IMG SRC="mios/mios_intro.jpg" alt="" width=550 height=400></CENTER></P>
 
-<P CLASS=INFO>The <B>MI</B>DIbox <B>O</B>perating <B>S</B>ystem (<B>MIOS</B>) has been developed to the requirements of flexible MIDI controller applications. In difference to dedicated solutions, like today's commercial products or PIC16F based MIDIboxes, MIOS follows the concept of an open computing system as fundament for idea exchange and personal adaptations. The <A HREF="midibox_gallery.html">MIDIbox Gallery</A> already points out different oppinions in terms of panel design, control elements and prefered workflow. Most of these MIDI controllers are based on <A HREF="midibox64.html">MIDIbox64</A>, <A HREF="midibox16e.html">MIDIbox16E</A> or <A HREF="midio128.html">MIDIO128</A> and therefore limited to the provided features of the firmware. With MIOS, such controllers can be enhanced to multipurpose devices with exchangeable program code, totally customized to the appr. host application, synthesizer or similar "MIDI devices". By releasing the application source codes, everybody will be free to use them as template for modifications and improvements. In this manner MIOS breaks down the skill barrier to getting started with PIC microcontrollers and allows - even people new to electronics - to realize projects far away from the main stream.</P>
+<P CLASS=INFO>The <B>MI</B>DIbox <B>O</B>perating <B>S</B>ystem (<B>MIOS</B>) has been developed for the requirements of flexible MIDI applications like MIDI controllers, processors, synthesizers, sequencers. In difference to commercial ready made and closed source solutions, MIOS follows the concept of an open computing system as fundament for idea exchange and personal adaptations.</P>
+
+<P CLASS=INFO>The <A HREF="midibox_gallery.html">MIDIbox Gallery</A> already points out different oppinions in terms of panel design, control elements and prefered workflow. Most of these MIDI controllers are based on <A HREF="midibox64.html">MIDIbox64</A>, <A HREF="midibox16e.html">MIDIbox16E</A> or <A HREF="midio128.html">MIDIO128</A> and therefore limited to the provided features of the firmware. With MIOS, such controllers can be enhanced to multipurpose devices with exchangeable program code, totally customized to the appr. host application, synthesizer or similar "MIDI devices". By releasing the application source codes, everybody will be free to use them as template for modifications and improvements. In this manner MIOS breaks down the skill barrier to getting started with microcontrollers and allows - even people new to electronics - to realize projects far away from the main stream.</P>
+
+<P CLASS=INFO>Between 1999 and 2008, MIDIbox applications have been developed for <A HREF="mbhp_core.html">PIC microcontrollers</A>, since 2002 with MIOS8 as operating system. Most of them are implemented in assembly language to get the maximum out of the PIC, with the drawback that the code was difficult to understand and to enhance - not only for newbies. Later a <A HREF="mios8_c.html">C interface</A> has been developed to allow the implementation of small gadgets on a more elegant way, but experienced programmers quickly reached the limitations of the PIC where only assembly optimized code or the usage of multiple PICs could help.</P>
+
+<P CLASS=INFO>Between 2008/2009, MIOS32 has been developed for the <A HREF="mbhp_core_stm32.html">STM32</A> microcontroller. No stone has been left unturned! As you can see in some <A HREF="mios32_c.html">tutorial applications</A>, execution performance doesn't need to be focused anymore, the usage of assembly language isn't required to realize even complex projects like an algorithmic MIDI sequencer or an audio synthesizer. Interfaces like USB (e.g. for native USB MIDI support) and Ethernet (e.g. for native OSC support) speed up the communication with external devices dramatically, the usage of a <A HREF="mbhp_sdcard.html">SD Card</A> instead of <A HREF="mbhp_bankstick.html">BankStick</A> simplifies data exchange, premade <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fmodules%2F">software modules (libraries)</A> reduce the time to develop new applications.</A>.
 
 <H2>Specs</H2>
 
-<P CLASS=DESC>The operating system consist of some kind of kernel that provides user hooks to hard- and software events, and which offers functions for a simple interaction with modules of the <A HREF="mbhp.html">MIDIbox Hardware Platform</A>. One core module, stuffed with a PIC18F452, can handle with:</P>
-  <UL CLASS=CL>
-    <LI> up to 128 digital inputs</LI>
-    <LI> up to 128 digital outputs</LI>
-    <LI> up to 64 analog inputs</LI>
-    <LI> character and graphical dotmatrix LCDs</LI>
-    <LI> BankSticks (IIC EEPROMs)</LI>
-    <LI> one MIDI In, one MIDI Out, optionally as <A HREF="midibox_to_com.html">to-COM interface</A></LI>
-  </UL>
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%">&nbsp;</td>
+    <TD CLASS=TABCOLOR1 width="40%"><FONT SIZE=2><STRONG>MIOS8</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1 width="40%"><FONT SIZE=2><STRONG>MIOS32</STRONG></FONT></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Hardware</STRONG></FONT></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Core Module:</B></TD>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp_core.html">MBHP_CORE</A> module</TD>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Microcontroller:</B></TD>
+    <TD CLASS=TABCOLOR2>PIC18F452<BR>PIC18F4620<BR>PIC18F4685</TD>
+    <TD CLASS=TABCOLOR2>STM32F103RE<BR>Environment prepared for different microcontroller families!</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>CPU:</B></TD>
+    <TD CLASS=TABCOLOR2>PIC18 MCU (8-bit)</TD>
+    <TD CLASS=TABCOLOR2>ARM Cortex M3 (32-bit)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Speed:</B></TD>
+    <TD CLASS=TABCOLOR2>10 MIPS @ 40 MHz</TD>
+    <TD CLASS=TABCOLOR2>90 DMIPS @ 72 MHz</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Embedded memory:</B></TD>
+    <TD CLASS=TABCOLOR2>32k..96k Flash<BR>1.5k..3.9k RAM</TD>
+    <TD CLASS=TABCOLOR2>512k Flash<BR>64k RAM</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>IO voltage:</B></TD>
+    <TD CLASS=TABCOLOR2>5V</TD>
+    <TD CLASS=TABCOLOR2>3.3V, but most input pins are 5V tolerant</TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Software Architecture</STRONG></FONT></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Kernel:</B></TD>
+    <TD CLASS=TABCOLOR2>Monolothic kernel programmed in assembly language. Two priorities (interrupt and main task), hooks to hard- and software events which optionally execute C routines.</TD>
+    <TD CLASS=TABCOLOR2>Modular kernel programmed in C language, combined with (but not strictly tied to) <A HREF="http://www.freertos.org" TARGET="_blank">FreeRTOS</A> as realtime operating system.<BR>While FreeRTOS provides preemptive multitasking, multiple tasks priorities and synchronisation mechanisms, MIOS32 acts as an abstraction layer between hardware and software components.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Bootloader:</B></TD>
+    <TD CLASS=TABCOLOR2>yes, via MIDI (requires reliable MIDI interface)</TD>
+    <TD CLASS=TABCOLOR2>yes, via MIDI and USB MIDI (no additional MIDI interface required)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Applications:</B></TD>
+    <TD CLASS=TABCOLOR2>PIC Assembly or C based.<BR>Compiled as a separate binary.</TD>
+    <TD CLASS=TABCOLOR2>C (optionally C++) based.<BR>Compiled together with FreeRTOS, MIOS32 and software modules to a single binary.</TD>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Toolchain:</B></TD>
+    <TD CLASS=TABCOLOR2>GPASM and SDCC based.</TD>
+    <TD CLASS=TABCOLOR2>GCC based</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>SVN Repository:</B></TD>
+    <TD CLASS=TABCOLOR2><A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios&path=%2Ftrunk%2F" TARGET="_blank">LINK</A></TD>
+    <TD CLASS=TABCOLOR2><A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2F" TARGET="_blank">LINK</A></TD>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Documentation:</B></TD>
+    <TD CLASS=TABCOLOR2><A HREF="http://www.ucapps.de/cmios_fun.html">LINK</A> and <A HREF="http://www.ucapps.de/mios8_c.html">LINK</A></TD>
+    <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/mios32/manual" TARGET="_blank">LINK</A> and <A HREF="http://www.ucapps.de/mios32_c.html">LINK</A></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Download Area:</B></TD>
+    <TD CLASS=TABCOLOR2><A HREF="mios_download.html">LINK</A></TD>
+    <TD CLASS=TABCOLOR2><A HREF="mios32_download.html">LINK</A></TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Natively supported Peripherals</STRONG></FONT></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>MIDI Interface:</B></TD>
+    <TD CLASS=TABCOLOR2>1 MIDI IN, 1 MIDI OUT</TD>
+    <TD CLASS=TABCOLOR2>2 MIDI IN, 2 MIDI OUT</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>USB Interface:</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>yes</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>CAN Interface:</B></TD>
+    <TD CLASS=TABCOLOR2>only PIC18F4685</TD>
+    <TD CLASS=TABCOLOR2>yes</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>JTAG Interface:</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>yes (for code debugging, e.g. to set set breakpoints, display runtime variables, etc.)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>LCD Interface:</B></TD>
+    <TD CLASS=TABCOLOR2>yes (J15, multiple LCDs can be connected by sacrificing IO pins)</TD>
+    <TD CLASS=TABCOLOR2>yes (J15A/B to connect two LCDs, more LCDs can be connected by sacrificing IO pins)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Direct digital IO:</B></TD>
+    <TD CLASS=TABCOLOR2>8 free programmable IO pins (Port J5)</TD>
+    <TD CLASS=TABCOLOR2>12 free programmable IO pins (Port J5A/B/C)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Serial digital IO:</B></TD>
+    <TD COLSPAN=2 CLASS=TABCOLOR2>Up to 128 inputs via <A HREF="mbhp_din.html">DIN module</A>, up to 128 outputs via <A HREF="mbhp_dout.html">DOUT module</A>.<BR>IO pins can be multiplexed to extend the number of controlable buttons/LEDs.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Direct analog IO:</B></TD>
+    <TD CLASS=TABCOLOR2>8 analog inputs (Port J5) at 10 bit resultion and 5V range</TD>
+    <TD CLASS=TABCOLOR2>16 analog inputs (Port J5A/B/C, J16) at 12 bit resolution and 3.3V range</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Multiplexed analog IO:</B></TD>
+    <TD CLASS=TABCOLOR2>up to 64 analog inputs, multiplexed via <A HREF="mbhp_ain.html">MBHP_AIN</A> module(s)</TD>
+    <TD CLASS=TABCOLOR2>up to 128 analog inputs, multiplexed via <A HREF="mbhp_ain.html">MBHP_AIN</A> module(s)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Serial/Parallel Interface (SPI):</B></TD>
+    <TD CLASS=TABCOLOR2>Software emulated, e.g. to scan <A HREF="mbhp_din.html">DIN</A>/<A HREF="mbhp_dout.html">DOUT</A> modules.</TD>
+    <TD CLASS=TABCOLOR2>2 hardware based interfaces (J8/9 and J16), 1 software emulated (J19)</TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Software Layers</STRONG></FONT></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>MIDI:</B></TD>
+    <TD CLASS=TABCOLOR2>yes (single port, stream oriented access)</TD>
+    <TD CLASS=TABCOLOR2>yes (multiple ports and interfaces, packet oriented access)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>COM/RS232:</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>yes (multiple ports and interfaces)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Ethernet:</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>yes (via <A HREF="mbhp_eth.html">ENC28J60</A>)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>OSC:</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>yes (via Ethernet or alternative transport device)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>BOARD:</B></TD>
+    <TD CLASS=TABCOLOR2>as library component</TD>
+    <TD CLASS=TABCOLOR2>part of MIOS32</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>TIMER:</B></TD>
+    <TD CLASS=TABCOLOR2>1 at uS accuracy</TD>
+    <TD CLASS=TABCOLOR2>3 at uS accuracy, more at mS accuracy can be defined as FreeRTOS tasks.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Realtime Clock</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>yes</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>SRIO:</B></TD>
+    <TD CLASS=TABCOLOR2>128 DIN, 128 DOUT pins (2 * 16 shift registers)</TD>
+    <TD CLASS=TABCOLOR2>128 DIN, 128 DOUT pins (2 * 16 shift registers)<BR>Number of SRs extendible with hardware enhancements, e.g. usage of buffers for SCLK/RCLK line.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>ENC (Encoders):</B></TD>
+    <TD CLASS=TABCOLOR2>up to 64 detented or non-detented rotary encoders</TD>
+    <TD CLASS=TABCOLOR2>like MIOS8, but number free definable</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>MF (Motorfaders):</B></TD>
+    <TD CLASS=TABCOLOR2>up to 8</TD>
+    <TD CLASS=TABCOLOR2>up to 16</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>IIC:</B></TD>
+    <TD CLASS=TABCOLOR2>yes (single port)</TD>
+    <TD CLASS=TABCOLOR2>yes (two ports)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>IIC_MIDI:</B></TD>
+    <TD CLASS=TABCOLOR2>as library component</TD>
+    <TD CLASS=TABCOLOR2>part of MIOS32 MIDI API</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>BANKSTICK:</B></TD>
+    <TD COLSPAN=2 CLASS=TABCOLOR2>yes (up to 8 32k and 64k)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>SD Card:</B></TD>
+    <TD CLASS=TABCOLOR2>as library component, but limited FAT support</TD>
+    <TD CLASS=TABCOLOR2>yes. DOSFS module supports FAT12/FAT16/FAT32</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>(Internal) EEPROM:</B></TD>
+    <TD CLASS=TABCOLOR2>accessing 256..1024 byte depending on PIC</TD>
+    <TD CLASS=TABCOLOR2>accessing up to 2047 byte via EEPROM emulation</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>LCD:</B></TD>
+    <TD COLSPAN=2 CLASS=TABCOLOR2>Various CLCDs and GLCDs as library component/software modules</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>I2S Audio:</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>yes (16bit Stereo)</TD>
+  </TR>
+</TABLE>
 
-<P CLASS=DESC>Several drivers have been included which manage following control tasks in background:</P>
-  <UL CLASS=CL>
-    <LI> MIDI IO processing</LI>
-    <LI> <A HREF="mios_bootstrap.html">Bootstrap loader</A></LI>
-    <LI> analog conversion of up to 64 pots, faders or other analog sources with a 10-bit resolution</LI>
-    <LI> motor handling for up to 8 motorfaders with a 10-bit resolution</LI>
-    <LI> handling of up to 64 detented/non-detented rotary encoders</LI>
-    <LI> handling of up to 128 buttons, touchsensors or similar digital input devices</LI>
-    <LI> handling of up to 128 LEDs, relays, Digital-Analog-Converters or similar output devices. In multiplex mode a nearly unlimited number of LEDs, LED rings and LED digits can be driven</LI>
-    <LI> Read/Write from/to EEPROM, Flash, BankStick</LI>
-    <LI> PIC18F cores linkable via <A HREF="midibox_link.html">MIDIbox Link</A></LI>
-  </UL>
 
-<P CLASS=DESC>The whole operating system has been written in assembly language and have been optimized for speed. MIOS currently allocates 8k of program memory (additional 4k are reserved for future extensions) and 640 bytes of RAM. The system architecture is quite stable, additional functions which load the CPU are not planned. The SRIO handler requires just only 75 uS to fetch the data from 128 digital input pins and to write out data to 128 digital output pins. 16 rotary encoders are handled within 100 uS. Analog inputs are scanned in background, every 200 uS a conversion result is available, on changes outside a definable deathband a user hook will be triggered. Up to 256 MIDI events can trigger dedicated functions, the processing of the event list requires about 300 uS. MIDI events can also be processed by a user routine for sysex parsing or similar jobs. A user timer allows to realize time triggered code, best example is the <A HREF="midibox_sid.html">MIDIbox SID</A> adaptation which runs 1:1 cycle accurate to the PIC16F version (but one cycle is processed 3 times faster than on the PIC16F). Several measures have been taken to allow a unified interaction with MIOS: all MIOS runtime variables have been located to the BANKED RAM area and don't allocate the ACCESS page. Input and output parameters of functions and hooks are transferred over WREG, three additional registers (MIOS_PARAMETER[123]) and the FSR1 pointer. TBLPTR[LH], TABLAT, PROD[LH], FSR0 and FSR2 are saved and restored if a MIOS function temporary gets use of these SFRs.</P>
+<H2>MIOS Applications</H2>
 
-<P CLASS=DESC>Due to this consequential application interface (API), support for the C and other high-level languages is possible - see the <A HREF="mios_c.html">MIOS C introduction</A>.</P>
-
-
-
-<H2>MIOS applications</H2>
-
-<P CLASS=DESC>Now some words to the most interesting part: which applications can be realized with MIOS. In respect to the limitations of the sweet little PIC it should be clear that it isn't possible to implement a workstation with a splendidly constructed graphical user interface, support for audio samples, video processing, voice recognition or similar memory eating programs. The strengths of a PIC microcontroller are microsecond accurate IO interactions and realtime processing. Here a few examples, some of them have already been implemented (see the <A HREF="mios_download.html">MIOS Download page</A>:</P>
+<P CLASS=DESC>Now some words to the most interesting part: which applications can be realized with <B>MIOS8</B>. In respect to the limitations of the sweet little PIC it should be clear that it isn't possible to implement a workstation with a splendidly constructed graphical user interface, support for audio samples, video processing, voice recognition or similar memory eating programs. The strengths of a PIC microcontroller are microsecond accurate IO interactions and realtime processing. Here a few examples, some of them have already been implemented (see the <A HREF="mios_download.html">MIOS Download page</A>:</P>
   <UL CLASS=CL>
     <LI> generic MIDI control device with pots/faders/buttons/motorfaders/encoders/leds/led-rings</LI>
     <LI> MIDI IO processing device</LI>
@@ -59,16 +252,24 @@ HEADER 3 The MIDIbox Operating System
     <LI> ...add your whishes here...</LI>
   </UL>
 
-<H2>MIOS hardware</H2>
 
-<P CLASS=DESC>MIOS is a dedicated operating system for the PIC18F452, PIC18F4620 and PIC18F4685 microcontroller, manufactured by <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>. These chips are pin compatible, therefore they can be plugged into the same <A HREF="mbhp_core.html">MBHP Core module</A>.</P>
+<P CLASS=DESC>Enhanced list for <B>MIOS32</B> based designs:</P>
+  <UL CLASS=CL>
+    <LI> as above, but easier implementation for resource hungry and complex applications
+    <LI> MIDI IO processing device with generic support for USB (more than 100 times faster)</LI>
+    <LI> access to Ethernet, usage of OSC protocol for direct communication between devices (no PC based proxy required)</LI>
+    <LI> I2S based audio synthesizer/sampler</LI>
+    <LI> handling touch panels and graphical LCDs w/o memory limitations</LI>
+    <LI> ...add your whishes here...</LI>
+  </UL>
 
-<H2>Questions & Answers addendum</H2>
 
-<P CLASS=DESC>This addendum is now part of the <A HREF="http://wiki.midibox.org" TARGET="_blank">MIDIbox Wiki</A>. Search for MIOSFAQ</P>
+<H2>Questions & Answers Addendum</H2>
+
+<P CLASS=DESC>This Addendum is now part of the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mios_faq" TARGET="_blank">MIDIbox Wiki</A> (it doesn't consider MIOS32 yet)</P>
 
 <H2>Wikipedia Entry</H2>
 
-<P CLASS=DESC><A HREF="http://en.wikipedia.org/wiki/Midibox" TARGET="_blank">MIDIbox</A></P>
+<P CLASS=DESC><A HREF="http://en.wikipedia.org/wiki/Midibox" TARGET="_blank">MIDIbox</A> (it doesn't consider MIOS32 yet)</P>
 
 FOOTER
