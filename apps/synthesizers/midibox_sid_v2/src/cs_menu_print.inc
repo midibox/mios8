@@ -578,11 +578,8 @@ CS_MENU_PRINT_Vx_WAV
 	TABLE_ADDR CS_MENU_PRINT_Vx_WAV_Tab
 	;; if INDF0[4], then oscillator has been switched off
 	;; -> index 0
-	;; else index = INDF0[2..0] (if INDF0[3] then noise, index=8)
 	movf	INDF0, W
-	andlw	0x07
-	btfsc	INDF0, 3
-	movlw	0x08
+	andlw	0x0f
 	btfsc	INDF0, 4
 	movlw	0x00
 	rgoto	CS_MENU_PRINT_StringFromTable
@@ -2032,6 +2029,13 @@ CS_MENU_PRINT_Vx_WAV_Tab
 	dw	"P+S "
 	dw	"PST "
 	dw	"Noi "
+	dw	"Ns1 "	; mixed noise waveform
+	dw	"Ns2 "	; mixed noise waveform
+	dw	"Ns3 "	; mixed noise waveform
+	dw	"Ns4 "	; mixed noise waveform
+	dw	"Ns5 "	; mixed noise waveform
+	dw	"Ns6 "	; mixed noise waveform
+	dw	"Ns7 "	; mixed noise waveform
 
 CS_MENU_PRINT_Vx_S_R_Tab
 	dw	"--- "

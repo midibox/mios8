@@ -231,8 +231,10 @@ SIDSE_D_UPDATESTAT_MACRO	MACRO voice_base, sid_base
 	movlw	SID_Vx_D_MODEL_WAVEFORM
 	swapf	PLUSW1, W
 	andlw	0xf6
+#if DEFAULT_ENABLE_UPPER_WAVEFORMS == 0
 	btfsc	WREG, 7; ensure that noise will not "lock on" like described in 6581 spec
-	andlw 0x8f 
+	andlw	0x8f
+#endif
 	iorwf	sid_base + SIDx_V1_CTRL, F, BANKED
 SIDSE_D_UpdateStatRegs_NoWave
 
@@ -271,7 +273,7 @@ SIDSE_D_UpdateStatRegs_Mono
 	;; mono mode: copy over *all* SID registers of SIDL to SIDR
 	lfsr	FSR1, SIDL_BASE
 	lfsr	FSR2, SIDR_BASE
-#if ENABLE_SWINSID
+#if DEFAULT_ENABLE_SWINSID
 	movlw	0x20
 #else
 	movlw	SIDx_MODE_VOL+1

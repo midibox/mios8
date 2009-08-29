@@ -306,8 +306,10 @@ SIDSE_B_UPDATESTAT_MACRO	MACRO patch_base, voice_base, sid_base, swinsid_mode, s
 	movlw	SID_Ix_Vx_WAVEFORM
 	swapf	PLUSW0, W
 	andlw	0xf6
+#if DEFAULT_ENABLE_UPPER_WAVEFORMS == 0
 	btfsc	WREG, 7; ensure that noise will not "lock on" like described in 6581 spec
-	andlw	0x8f 
+	andlw	0x8f
+#endif
 	iorwf	sid_base + SIDx_V1_CTRL, F, BANKED
 
 	;; voice 2 oscillator has own waveform and voice enable flag, sync and ring are taken over from voice1
@@ -370,7 +372,7 @@ SIDSE_B_UpdateStatRegs_V3Cont
 	iorwf	sid_base + SIDx_V3_ENV_SR, F, BANKED
 SIDSE_B_UpdateStatRegs_NoAcc
 SIDSE_B_UpdateStatRegs_NoADSR
-#if ENABLE_SWINSID
+#if DEFAULT_ENABLE_SWINSID
 	movlw	SID_Ix_Vx_SWINSID_MODE
 	movff	PLUSW0, swinsid_mode
 	movlw	SID_Ix_Vx_SWINSID_PHASE
@@ -395,7 +397,7 @@ SIDSE_B_UpdateStatRegs_Mono
 	;; mono mode: copy over *all* SID registers of SIDL to SIDR
 	lfsr	FSR1, SIDL_BASE
 	lfsr	FSR2, SIDR_BASE
-#if ENABLE_SWINSID
+#if DEFAULT_ENABLE_SWINSID
 	movlw	0x20
 #else
 	movlw	SIDx_MODE_VOL+1

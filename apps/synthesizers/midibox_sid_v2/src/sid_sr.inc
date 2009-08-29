@@ -47,7 +47,7 @@ SID_SR_Refresh
 	IRQ_DISABLE				; disable interrupts to avoid inconsistencies
 
 	;; just modify the shadow registers, so that the content is not equal to the main register set
-#if ENABLE_SWINSID
+#if DEFAULT_ENABLE_SWINSID
 	movlw	0x20				; number of registers: 0x20
 #else
 	movlw	SIDx_MODE_VOL+1			; number of registers (0x19)
@@ -173,7 +173,7 @@ SID_SR_Handler_Loop
 	SID_SR_HANDLER_MACRO SIDx_V3_ENV_AD
 	SID_SR_HANDLER_MACRO SIDx_V3_ENV_SR
 
-#if ENABLE_SWINSID
+#if DEFAULT_ENABLE_SWINSID
 	movlw	0xe0 | SIDx_SWINSID_V1_PHASE	; start address
 	movwf	MIOS_PARAMETER1
 	SID_SR_HANDLER_MACRO SIDx_SWINSID_V1_PHASE
@@ -249,10 +249,17 @@ SID_SR_TransferL
 	;; synchronize with rising edge of SID clock to avoid setup or hold violation
 	;; note: due to pipeline effects, the "bcf" will be executed 3 instruction cycles after
 	;; the polling loop. Therefore we are waiting for the falling edge
+#if 1
 	btfss	PORTC, 2; wait for falling clock edge
-	bra $-2		
+	bra	$-2		
 	btfsc	PORTC, 2
-	bra $-2
+	bra	$-2
+#else
+	;; try:	synchronize to timer overrun - takes longer, therefore disabled
+	bcf	PIR1, TMR2IF
+	btfss	PIR1, TMR2IF
+	bra	$-2
+#endif
 	bcf	SID_SR_LAT_WR, SID_SR_PIN_WR	; enable write (MBHP_SID: chip select)
 	bra	$+2				; to ensure compatibility with on-board oscillator,
 	bra	$+2				; wait for 1.2 uS (> one SID clock cycle)
@@ -275,10 +282,17 @@ SID_SR_TransferR
 	;; synchronize with rising edge of SID clock to avoid setup or hold violation
 	;; note: due to pipeline effects, the "bcf" will be executed 3 instruction cycles after
 	;; the polling loop. Therefore we are waiting for the falling edge
+#if 1
 	btfss	PORTC, 2; wait for falling clock edge
-	bra $-2		
+	bra	$-2		
 	btfsc	PORTC, 2
-	bra $-2
+	bra	$-2
+#else
+	;; try:	synchronize to timer overrun - takes longer, therefore disabled
+	bcf	PIR1, TMR2IF
+	btfss	PIR1, TMR2IF
+	bra	$-2
+#endif
 	bcf	SID_SR_LAT_WR2, SID_SR_PIN_WR2	; enable write (MBHP_SID: chip select)
 	bra	$+2				; to ensure compatibility with on-board oscillator,
 	bra	$+2				; wait for 1.2 uS (> one SID clock cycle)
@@ -302,10 +316,17 @@ SID_SR_TransferB
 	;; synchronize with rising edge of SID clock to avoid setup or hold violation
 	;; note: due to pipeline effects, the "bcf" will be executed 3 instruction cycles after
 	;; the polling loop. Therefore we are waiting for the falling edge
+#if 1
 	btfss	PORTC, 2; wait for falling clock edge
-	bra $-2		
+	bra	$-2		
 	btfsc	PORTC, 2
-	bra $-2
+	bra	$-2
+#else
+	;; try:	synchronize to timer overrun - takes longer, therefore disabled
+	bcf	PIR1, TMR2IF
+	btfss	PIR1, TMR2IF
+	bra	$-2
+#endif
 	bcf	SID_SR_LAT_WR, SID_SR_PIN_WR	; enable write (MBHP_SID: chip select)
 	bcf	SID_SR_LAT_WR2, SID_SR_PIN_WR2	; enable write (MBHP_SID: chip select)
 	bra	$+2				; to ensure compatibility with on-board oscillator,
@@ -367,7 +388,7 @@ SID_SR_WRITE_BIT MACRO reg, bit
 
 
 ;; --------------------------------------------------------------------------
-;;  Variable Oscillator Phase Offset for Lead Engine
+;;  Variable Oscillator Phase Offset for Lead and Bassline Engine
 ;; --------------------------------------------------------------------------
 SID_SR_VarPhase
 	SET_BSR	SIDL_BASE
@@ -404,12 +425,12 @@ SID_SR_VarPhase
 	rcall	SID_SR_TransferB
 
 	;; change test flag -> gate
-	bcf	SIDL_BASE + SIDx_V1_CTRL, 3, BANKED	; clear test flag
-	bcf	SIDL_BASE + SIDx_V2_CTRL, 3, BANKED	; clear test flag
-	bcf	SIDL_BASE + SIDx_V3_CTRL, 3, BANKED	; clear test flag
-	bcf	SIDR_BASE + SIDx_V1_CTRL, 3, BANKED	; clear test flag
-	bcf	SIDR_BASE + SIDx_V2_CTRL, 3, BANKED	; clear test flag
-	bcf	SIDR_BASE + SIDx_V3_CTRL, 3, BANKED	; clear test flag
+	bcf	SIDL_BASE + SIDx_V1_CTRL, 3, BANKED	; clear testbit
+	bcf	SIDL_BASE + SIDx_V2_CTRL, 3, BANKED	; clear testbit
+	bcf	SIDL_BASE + SIDx_V3_CTRL, 3, BANKED	; clear testbit
+	bcf	SIDR_BASE + SIDx_V1_CTRL, 3, BANKED	; clear testbit
+	bcf	SIDR_BASE + SIDx_V2_CTRL, 3, BANKED	; clear testbit
+	bcf	SIDR_BASE + SIDx_V3_CTRL, 3, BANKED	; clear testbit
 
 	;; set gate if sync was requested (accordingly test flag was set before)
 	movff	SID_SE_PHASE_SYNC_REQ, WREG
@@ -482,7 +503,7 @@ SID_SR_VarPhase_Loop2
 
 
 ;; --------------------------------------------------------------------------
-;;  Individual Oscillator Phase Reset for Multi, Bassline and Drum Engine
+;;  Individual Oscillator Phase Reset for Multi and Drum Engine
 ;; --------------------------------------------------------------------------
 SID_SR_SyncPhase
 	SET_BSR	SIDL_BASE

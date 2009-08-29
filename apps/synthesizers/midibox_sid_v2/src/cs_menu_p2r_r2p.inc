@@ -603,12 +603,17 @@ CS_MENU_P2R_Vx_WAV
 
 CS_MENU_R2P_Vx_WAV
 	rcall	CS_MENU_FSR0_Voice
+#if DEFAULT_ENABLE_UPPER_WAVEFORMS == 0
 	movf	INDF0, W
 	andlw	0x07
 	btfsc	INDF0, 3
-	movlw 0x08
+	movlw	0x08
+#else
+	movf	INDF0, W
+	andlw	0x0f
+#endif
 	btfsc	INDF0, 4
-	movlw 0x00
+	movlw	0x00
 	rgoto	CS_MENU_R2P_SetPar
 
 ; --------------------------------------------------------------------------

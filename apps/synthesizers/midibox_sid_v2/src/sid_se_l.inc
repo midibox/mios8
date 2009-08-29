@@ -288,8 +288,25 @@ SIDSE_UPDATESTAT_MACRO	MACRO p_base, sid_base, swinsid_mode, swinsid_phase
 	movlw	SID_Ix_Vx_WAVEFORM
 	swapf	PLUSW0, W
 	andlw	0xf6
+#if DEFAULT_ENABLE_UPPER_WAVEFORMS == 0
+	;; disable to allow nice effects in conjunction with testbit
 	btfsc	WREG, 7; ensure that noise will not "lock on" like described in 6581 spec
-	andlw 0x8f 
+	andlw	0x8f
+#else
+#if 0
+	;; optional WT hack - see http://www.midibox.org/forum/index.php/topic,13898.0.html
+	;; and http://www.dekadence64.org/sidwav.txt
+	;; In order to test this, use following WT sequence assigned to Waveform of OSC1 (or OSC1/2/3)
+	;; 00: 0F
+	;; 01: 00
+	;; 02: 08
+	;; Begin: 00, End: 08, Loop: 00, Speed: 1..4
+	skpz
+	bcf	sid_base + SIDx_V1_CTRL, 3 ; ensure that testflag not set
+	skpnz
+	iorlw	0x08		; set testflag if all waveforms disabled
+#endif
+#endif
 	iorwf	sid_base + SIDx_V1_CTRL, F, BANKED
 
 	;; if ABW (ADSR bug workaround) function active, update ADSR register only when the gate is set
@@ -300,7 +317,7 @@ SIDSE_UPDATESTAT_MACRO	MACRO p_base, sid_base, swinsid_mode, swinsid_phase
 	movlw	SID_Ix_Vx_SR
 	movff	PLUSW0, sid_base + SIDx_V1_ENV_SR
 SIDSE_L_UpdateStatRegs_NoADSR
-#if ENABLE_SWINSID
+#if DEFAULT_ENABLE_SWINSID
 	movlw	SID_Ix_Vx_SWINSID_MODE
 	movff	PLUSW0, swinsid_mode
 	movlw	SID_Ix_Vx_SWINSID_PHASE
@@ -329,7 +346,7 @@ SIDSE_L_UpdateStatRegs_Mono
 	;; mono mode: copy over *all* SID registers of SIDL to SIDR
 	lfsr	FSR1, SIDL_BASE
 	lfsr	FSR2, SIDR_BASE
-#if ENABLE_SWINSID
+#if DEFAULT_ENABLE_SWINSID
 	movlw	0x20
 #else
 	movlw	SIDx_MODE_VOL+1

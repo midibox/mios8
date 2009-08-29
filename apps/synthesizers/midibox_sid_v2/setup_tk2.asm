@@ -92,7 +92,7 @@
 	;;   2: up to 4 (chained) MBHP_AOUT_LC modules
 	;;   3: one MBHP_AOUT_NG module
 	;; all other values invalid!
-#define AOUT_INTERFACE_TYPE 3
+#define AOUT_INTERFACE_TYPE 2
 
 	;; only relevant if one or more AOUT_LC modules are used:
 	;; define the resolution configuration here
@@ -113,7 +113,11 @@
 
 	;; 0: SwinSID extensions disabled
 	;; 1: SwinSID extensions enabled
-#define ENABLE_SWINSID 0
+#define DEFAULT_ENABLE_SWINSID 0
+
+	;; 0: only waveform 0-8 selectable
+	;; 1: waveform 0-15 selectable (e.g. for selecting additional SwinSID Waveforms)
+#define DEFAULT_ENABLE_UPPER_WAVEFORMS 0
 
 	;; assign the AOUT channels for the F2A (Filter to AOUT function) here
 	;; we have 4 assignments for CutOff Left/Right and Resonance Left/Right
