@@ -396,23 +396,80 @@ CS_MENU_BUTTON_Play
 	bz	CS_MENU_BUTTON_Play_NoSuperPoly
 CS_MENU_BUTTON_Play_SuperPoly
 	movlw	0x00		; master will send all 4 notes to the SIDs in SP mode
-	call	CS_MENU_MS_PlayNote
-	rgoto	CS_MENU_BUTTON_Play_SuperPoly_Cn
+	call	CS_MENU_MS_PlayNote_SuperPoly
+	rgoto	CS_MENU_BUTTON_Play_End
 
 CS_MENU_BUTTON_Play_NoSuperPoly
-	;; CS_MENU_SELECTED_SID_FLAGS[3:0] contain the current selected SIDs
-	movlw	0x00
-	CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 0, ACCESS, CS_MENU_MS_PlayNote
-	movlw	0x01
-	CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 1, ACCESS, CS_MENU_MS_PlayNote
-	movlw	0x02
-	CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 2, ACCESS, CS_MENU_MS_PlayNote
-	movlw	0x03
-	CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 3, ACCESS, CS_MENU_MS_PlayNote
 
-CS_MENU_BUTTON_Play_SuperPoly_Cn
+	;; new (for more comfortable usage)
+	;; play Note On/Off on all SIDs regardless of selection
+	;; for more intuitive usage (especially in live situations, e.g. when a single SID sound
+	;; is edited, this has advantages)
+
+	;; dedicated SIDs can be played by pressing & holding the appr. SID buttons before pressing PLAY
+	movf	CS_MENU_SELECTED_SID_FLAGS, W
+	andlw	0xf0
+	xorlw	0xf0
+	bnz	CS_MENU_BUTTON_Play_Toggle
+
+CS_MENU_BUTTON_Play_NoToggle
+	movf	CS_STAT2, W
+	andlw	0xf0		; CS_STAT2_PLAY_SID1..4
+	bnz	CS_MENU_BUTTON_Play_Off
+
+CS_MENU_BUTTON_Play_On
+	IRQ_DISABLE		; CS_STAT2 also changed by interrupts - operation must be atomic
+	movlw	0xf0
+	iorwf	CS_STAT2, F
+	IRQ_ENABLE
+
+	clrf	CS_MENU_SID
+	call	CS_MENU_MS_NotesOn
+	incf	CS_MENU_SID, F
+	call	CS_MENU_MS_NotesOn
+	incf	CS_MENU_SID, F
+	call	CS_MENU_MS_NotesOn
+	incf	CS_MENU_SID, F
+	call	CS_MENU_MS_NotesOn
+
+	rgoto	CS_MENU_BUTTON_Play_End
+
+CS_MENU_BUTTON_Play_Off
+	IRQ_DISABLE		; CS_STAT2 also changed by interrupts - operation must be atomic
+	movlw	0x0f
+	andwf	CS_STAT2, F
+	IRQ_ENABLE
+
+	clrf	CS_MENU_SID
+	call	CS_MENU_MS_NotesOff
+	incf	CS_MENU_SID, F
+	call	CS_MENU_MS_NotesOff
+	incf	CS_MENU_SID, F
+	call	CS_MENU_MS_NotesOff
+	incf	CS_MENU_SID, F
+	call	CS_MENU_MS_NotesOff
+
+	rgoto	CS_MENU_BUTTON_Play_End
+
+
+CS_MENU_BUTTON_Play_Toggle
+        ;; CS_MENU_SELECTED_SID_FLAGS[3:0] contain the current selected SIDs
+        movlw   0x00
+        CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 0, ACCESS, CS_MENU_MS_PlayNote
+        movlw   0x01
+        CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 1, ACCESS, CS_MENU_MS_PlayNote
+        movlw   0x02
+        CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 2, ACCESS, CS_MENU_MS_PlayNote
+        movlw   0x03
+        CALL_IFSET CS_MENU_SELECTED_SID_FLAGS, 3, ACCESS, CS_MENU_MS_PlayNote
+
+	;; 	rgoto	CS_MENU_BUTTON_Play_End
+	
+CS_MENU_BUTTON_Play_End
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
+
+
 
 	;; ------------------------------------------------------------------
 CS_MENU_BUTTON_SID_LR

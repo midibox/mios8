@@ -719,17 +719,10 @@ CS_MENU_MS_SendPatch_ChkRequestN
 
 
 ;; --------------------------------------------------------------------------
-;;  this routine is used when a note should be played on a given SID
+;;  this routine is used when a superpoly note should be played on a given SID
 ;;  Note On/Off status will be toggled each time this function is executed
 ;;  IN: SID number in WREG (will be stored in CS_MENU_SID)
 ;; --------------------------------------------------------------------------
-CS_MENU_MS_PlayNote
-	movwf	CS_MENU_SID
-
-	;; if master is running in superpoly mode: play chord on all SIDs
-	movff	SID_LOCAL_ENS + SID_ENSx_SUPERPOLY_CTRL, WREG
-	andlw	0x07
-	bz	CS_MENU_MS_PlayNote_NoSuperPoly
 CS_MENU_MS_PlayNote_SuperPoly
 	;; toggle play state of all SIDs
 	BRA_IFSET CS_STAT2, CS_STAT2_PLAY_SID1, ACCESS, CS_MENU_MS_PlayNote_SuperPoly1
@@ -743,8 +736,15 @@ CS_MENU_MS_PlayNote_SuperPoly1
 	andwf	CS_STAT2, F
 	goto	SID_PATCH_NotesOff ; will handle all SIDs
 
-	
-CS_MENU_MS_PlayNote_NoSuperPoly
+
+;; --------------------------------------------------------------------------
+;;  this routine is used when note on/off should be toggled on a given SID
+;;  Note On/Off status will be toggled each time this function is executed
+;;  IN: SID number in WREG (will be stored in CS_MENU_SID)
+;; --------------------------------------------------------------------------
+CS_MENU_MS_PlayNote
+	movwf	CS_MENU_SID
+
 	;; toggle play state which is stored in CS_STAT2
 	movf	CS_MENU_SID, W
 	call	MIOS_HLP_GetBitORMask

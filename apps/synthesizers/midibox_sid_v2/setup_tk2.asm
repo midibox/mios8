@@ -206,6 +206,11 @@
 	;; if != 0, special variations for MB6582 hardware will be selected
 #define DEFAULT_MB6582_CS	1
 
+	;; if != 0, EDIT button won't store patch
+	;; actually this doesn't really make sense - but this function could be useful if you
+	;; want to demonstrate your MBSID to friends and ensure, that they won't unintentionally
+	;; overwrite your patches
+#define DEFAULT_DISABLE_EDIT_STORE_FUNCTION 1
 
 
 	org	0x3082		; never change the origin!

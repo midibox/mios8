@@ -419,11 +419,42 @@ CS_MENU_MATRIX_MeterSet_Cont
 	movff	TABLAT, INDF1
 	return
 
+;; --------------------------------------------------------------------------
+;;  Special variation to display a linear value (used in bassline mode)
+;;  IN: meter number (0-7) in WREG
+;;      high-byte of linear frequency (SID_Vx_LINEAR_FRQ_H) in MIOS_PARAMETER1
+;; --------------------------------------------------------------------------
+CS_MENU_MATRIX_MeterLinearSet
+	;; calc pointer to meter
+	lfsr	FSR1, METER_VALUES0
+	addwf	FSR1L, F	; (index in WREG)
+	swapf	MIOS_PARAMETER1, W
+	rrf	WREG, W
+	andlw	0x07
+	addlw	LOW(CS_MENU_MATRIX_LIN_PATTERN_TABLE)
+	movwf	TBLPTRL
+	clrf	TBLPTRH
+	movlw	HIGH(CS_MENU_MATRIX_LIN_PATTERN_TABLE)
+	addwfc	TBLPTRH, F
+	clrf	TBLPTRU
+	movlw	UPPER(CS_MENU_MATRIX_LIN_PATTERN_TABLE)
+	addwfc	TBLPTRU, F
+	tblrd*+
+	movff	TABLAT, INDF1
+	return
+
+
 CS_MENU_MATRIX_PATTERN_TABLE	; (used to display meter values)
 	db	b'01111000', b'00111000'
 	db	b'00011000', b'00001000'
 	db	b'00001000', b'00001100'
 	db	b'00001110', b'00001111'
+
+CS_MENU_MATRIX_LIN_PATTERN_TABLE ; (used to display meter values)
+	db	b'10000000', b'01000000'
+	db	b'00100000', b'00010000'
+	db	b'00001000', b'00000100'
+	db	b'00000010', b'00000001'
 
 CS_MENU_MATRIX_LEVEL_METER_TABLE ; (used in meter level mode)
 	db	b'10000000', b'11000000'

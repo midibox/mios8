@@ -1521,6 +1521,14 @@ CS_MENU_PatchUpdate_SaveOld
 	return
 	;; clear edit notifier
 	bcf	CS_MENU_MODE, CS_MENU_MODE_EDIT_NOTIFIER
+
+#if DEFAULT_DISABLE_EDIT_STORE_FUNCTION
+	;; actually this doesn't really make sense - but this function could be useful if you
+	;; want to demonstrate your MBSID to friends and ensure, that they won't unintentionally
+	;; overwrite your patches	
+	return
+#endif
+
 	;; save patch to CS_MENU_SAVE_PATCH
 	call	CS_MENU_MS_GetSIDNumber
 	call	CS_MENU_MS_GetSIDPatch; sets FSR1 to patch register
