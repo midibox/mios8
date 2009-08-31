@@ -36,8 +36,8 @@ public class SIDLibController extends Observable implements Observer,
 	private Bank[] patchBanks = new Bank[8];
 	private Boolean openEditor = false;
 	private int coresHardware = 15; // AND mask for selected cores --- we
-									// assume, that all cores are available by
-									// default
+	// assume, that all cores are available by
+	// default
 	private int coresSelected = 1;
 
 	private SysExController sysexController;

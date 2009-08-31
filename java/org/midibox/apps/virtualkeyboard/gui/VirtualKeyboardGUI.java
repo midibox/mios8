@@ -36,7 +36,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import org.midibox.apps.virtualkeyboard.VirtualKeyboard;
-import org.midibox.midi.MidiRouterDevice;
+import org.midibox.midi.VirtualMidiDevice;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
 import org.midibox.midi.gui.MidiKeyboardControllerGUI;
 import org.midibox.utils.gui.ImageLoader;
@@ -56,7 +56,7 @@ public class VirtualKeyboardGUI extends JPanel {
 	private JMenu lookAndFeelMenu;
 
 	private String lookAndFeel;
-	
+
 	protected VirtualKeyboard virtualKeyboard;
 
 	public VirtualKeyboardGUI(VirtualKeyboard virtualKeyboard) {
@@ -64,7 +64,7 @@ public class VirtualKeyboardGUI extends JPanel {
 		super(new GridBagLayout());
 
 		this.virtualKeyboard = virtualKeyboard;
-		
+
 		lookAndFeel = UIManager.getLookAndFeel().getClass().getName();
 
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -81,7 +81,7 @@ public class VirtualKeyboardGUI extends JPanel {
 
 		midiDeviceRoutingGUI.setBorder(BorderFactory.createEtchedBorder());
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiRouterDevice.class,
+		midiDeviceRoutingGUI.addMidiDeviceIcon(VirtualMidiDevice.class,
 				ImageLoader.getImageIcon("virtualMidiDevice.png"));
 
 		add(midiDeviceRoutingGUI, gbc);
@@ -93,8 +93,7 @@ public class VirtualKeyboardGUI extends JPanel {
 		gbc.weighty = 0;
 
 		midiKeyboardControllerGUI = new MidiKeyboardControllerGUI(
-				virtualKeyboard.getMidiKeyboardControllerDevice()
-						.getMidiKeyboardController());
+				virtualKeyboard.getMidiKeyboardController());
 
 		midiKeyboardControllerGUI.setBorder(BorderFactory.createEtchedBorder());
 
@@ -160,10 +159,10 @@ public class VirtualKeyboardGUI extends JPanel {
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ae) {
 					try {
-						
+
 						setLookAndFeel(UIManager.getInstalledLookAndFeels()[l]
 								.getClassName());
-						
+
 					} catch (Exception e) {
 						System.out.println(e.toString());
 					}
@@ -173,19 +172,20 @@ public class VirtualKeyboardGUI extends JPanel {
 	}
 
 	public void setLookAndFeel(String lookAndFeel) {
-	      
+
 		this.lookAndFeel = lookAndFeel;
-		
-		if (!lookAndFeel.equals(UIManager.getLookAndFeel().getClass().getName())) {
-			
+
+		if (!lookAndFeel
+				.equals(UIManager.getLookAndFeel().getClass().getName())) {
+
 			JOptionPane
-	        .showMessageDialog(
-	                        VirtualKeyboardGUI.this,
-	                        "The selected Look & Feel will be applied the next time you restart Virtual Keyboard",
-	                        "ALERT", JOptionPane.ERROR_MESSAGE);
+					.showMessageDialog(
+							VirtualKeyboardGUI.this,
+							"The selected Look & Feel will be applied the next time you restart Virtual Keyboard",
+							"ALERT", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	public VirtualKeyboard getVirtualKeyboard() {
 		return virtualKeyboard;
 	}

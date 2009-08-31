@@ -175,7 +175,7 @@ public class MidiDeviceManagerGUI extends JPanel implements Observer,
 					((Boolean) value).booleanValue());
 
 			checkBox.setOpaque(false);
-			
+
 			checkBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ae) {
 					fireEditingStopped();

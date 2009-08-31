@@ -38,17 +38,17 @@ public class EngineSpecs {
 		Vector engine = new Vector();
 		if (patch.isEnsemble()) {
 			engine.add(EnsembleSpecs.createENSSID(patch, 0)); // 1: Ensemble
-																// settings for
-																// SID1
+			// settings for
+			// SID1
 			engine.add(EnsembleSpecs.createENSSID(patch, 64)); // 2: Ensemble
-																// settings for
-																// SID2
+			// settings for
+			// SID2
 			engine.add(EnsembleSpecs.createENSSID(patch, 128)); // 3: Ensemble
-																// settings for
-																// SID3
+			// settings for
+			// SID3
 			engine.add(EnsembleSpecs.createENSSID(patch, 192)); // 4: Ensemble
-																// settings for
-																// SID4
+			// settings for
+			// SID4
 		} else {
 			if (patch.getEngine() == patch.LEAD) {
 				// Lead engine
@@ -71,34 +71,34 @@ public class EngineSpecs {
 				engine.add(LeadSpecs.createMOD(patch)); // 14: Modulation paths
 				engine.add(LeadSpecs.createTRIG(patch)); // 15: Trigger matrix
 				engine.add(LeadSpecs.createWT(patch)); // 16: Wavetable
-														// sequencer
+				// sequencer
 			} else if (patch.getEngine() == patch.BASSLINE) {
 				// Bassline
 				engine.add(createGlobal(patch, SIDSysexInfo.basslineParams));// 0:
-																				// Global
-																				// parameters
+				// Global
+				// parameters
 				engine.add(createExt(patch)); // 1: External parameters
 				engine.add(createFilter(patch, 0)); // 2: Filter Left
 				engine.add(createFilter(patch, 6)); // 3: Filter right
 				engine.add(createVoice(patch, 0)); // 4: Left Oscillator
 				engine.add(createVoice(patch, 80)); // 5: Right Oscillator
 				engine.add(BasslineSpecs.createMSTRBOTH(patch));// 6: Right
-																// Oscillator
+				// Oscillator
 				engine.add(BasslineSpecs.createMSTR(patch, 0)); // 7: Left
-																// master set
+				// master set
 				engine.add(BasslineSpecs.createMSTR(patch, 80));// 8: Right
-																// master set
+				// master set
 				engine.add(BasslineSpecs.createLFO(patch, 0)); // 9: Left LFO's
 				engine.add(BasslineSpecs.createLFO(patch, 80)); // 10: Right
-																// LFO's
+				// LFO's
 				engine.add(BasslineSpecs.createENV(patch, 0)); // 11: Left
-																// Envelope
+				// Envelope
 				engine.add(BasslineSpecs.createENV(patch, 80)); // 12: Right
-																// Envelope
+				// Envelope
 				engine.add(BasslineSpecs.createSEQ(patch, 0)); // 13: Left
-																// Sequencer
+				// Sequencer
 				engine.add(BasslineSpecs.createSEQ(patch, 80)); // 14: Right
-																// Sequencer
+				// Sequencer
 				engine.add(BasslineSpecs.createSEQData(patch)); // 15: Sequencer
 				// data
 			} else if (patch.getEngine() == patch.DRUM) {
@@ -110,7 +110,7 @@ public class EngineSpecs {
 				engine.add(createFilter(patch, 0)); // 2: Filter Left
 				engine.add(createFilter(patch, 6)); // 3: Filter right
 				engine.add(DrumSpecs.createDrumInstr(patch)); // 4: Drum
-																// Instruments
+				// Instruments
 				engine.add(DrumSpecs.createSEQ(patch)); // 5: Sequencer
 				engine.add(DrumSpecs.createSEQData(patch)); // 6: Sequencer data
 			} else if (patch.getEngine() == patch.MULTI) {
@@ -130,22 +130,22 @@ public class EngineSpecs {
 				engine.add(MultiSpecs.createInstrument(patch, 0)); // 10: Inst.1
 				// Rest
 				engine.add(MultiSpecs.createInstrument(patch, 48)); // 11:
-																	// Inst.2
+				// Inst.2
 				// Rest
 				engine.add(MultiSpecs.createInstrument(patch, 96)); // 12:
-																	// Inst.3
+				// Inst.3
 				// Rest
 				engine.add(MultiSpecs.createInstrument(patch, 144)); // 13:
-																		// Inst.4
+				// Inst.4
 				// Rest
 				engine.add(MultiSpecs.createInstrument(patch, 192)); // 14:
-																		// Inst.5
+				// Inst.5
 				// Rest
 				engine.add(MultiSpecs.createInstrument(patch, 240)); // 15:
-																		// Inst.6
+				// Inst.6
 				// Rest
 				engine.add(MultiSpecs.createWTdata(patch)); // 16: Wavetable
-															// data
+				// data
 			}
 		}
 		return engine;

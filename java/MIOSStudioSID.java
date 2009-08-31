@@ -56,11 +56,11 @@ public class MIOSStudioSID extends JApplet {
 
 	protected static String frameTitle = "MIOS Studio + SID V2 Editor";
 
-	protected static String splashTitle = "MIOS Studio beta 9.2 + SID V2 Editor";
+	protected static String splashTitle = "MIOS Studio beta 9.3 + SID V2 Editor";
 
 	protected static String splashImage = "splash.jpg";
 
-	protected static String frameComment = "MIOS Studio beta 9.2";
+	protected static String frameComment = "MIOS Studio beta 9.3";
 
 	protected org.midibox.apps.miosstudiosid.MIOSStudioSID miosStudioSID;
 

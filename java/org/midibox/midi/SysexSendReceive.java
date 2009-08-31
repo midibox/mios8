@@ -107,6 +107,10 @@ public class SysexSendReceive extends Observable implements Receiver {
 
 	}
 
+	public void setReceiver(Receiver receiver) {
+		this.receiver = receiver;
+	}
+
 	public class SysexSendReceiveWorkerTask extends Thread {
 
 		public void run() {

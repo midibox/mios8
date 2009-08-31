@@ -45,7 +45,9 @@ public class VirtualMidiDevice extends Observable implements MidiDevice {
 
 	protected LinkedList receivers;
 
-	protected MidiOutPort midiOutPort;
+	protected Receiver midiInReceiver;
+
+	protected Receiver midiOutReceiver;
 
 	protected long timeStart = System.currentTimeMillis();
 
@@ -58,10 +60,11 @@ public class VirtualMidiDevice extends Observable implements MidiDevice {
 		this.maxNoReceivers = maxNoReceivers;
 		this.transmitters = new LinkedList();
 		this.receivers = new LinkedList();
-		this.midiOutPort = new MidiOutPort();
+		this.midiOutReceiver = new MidiOutReceiver();
 	}
 
 	public void setName(String name) {
+
 		this.info = new VirtualMidiDevice.MyInfo(name, "midibox.org",
 				"Virtual MIDI Device", "v1.0");
 
@@ -110,8 +113,16 @@ public class VirtualMidiDevice extends Observable implements MidiDevice {
 		return (LinkedList) receivers.clone();
 	}
 
-	public MidiOutPort getMidiOutPort() {
-		return midiOutPort;
+	public Receiver getMidiOutReceiver() {
+		return midiOutReceiver;
+	}
+
+	public Receiver getMidiInReceiver() {
+		return midiInReceiver;
+	}
+
+	public void setMidiInReceiver(Receiver midiInReceiver) {
+		this.midiInReceiver = midiInReceiver;
 	}
 
 	public Transmitter getTransmitter() {
@@ -124,25 +135,6 @@ public class VirtualMidiDevice extends Observable implements MidiDevice {
 		return info;
 	}
 
-	protected void receiveFromReceivers(MidiMessage message, long timestamp) {
-
-	}
-
-	protected void sendToTransmitters(MidiMessage message, long timeStamp) {
-		synchronized (transmitters) {
-			Iterator it = transmitters.iterator();
-			while (it.hasNext()) {
-				Transmitter transmitter = (Transmitter) it.next();
-				if (transmitter != null) {
-					Receiver receiver = transmitter.getReceiver();
-					if (receiver != null) {
-						receiver.send(message, timeStamp);
-					}
-				}
-			}
-		}
-	}
-
 	public class MyReceiver implements Receiver {
 
 		public void close() {
@@ -152,7 +144,11 @@ public class VirtualMidiDevice extends Observable implements MidiDevice {
 		}
 
 		public void send(MidiMessage message, long timeStamp) {
-			receiveFromReceivers(message, timeStamp);
+
+			if (midiInReceiver != null) {
+
+				midiInReceiver.send(message, timeStamp);
+			}
 		}
 	}
 
@@ -183,13 +179,25 @@ public class VirtualMidiDevice extends Observable implements MidiDevice {
 		}
 	}
 
-	public class MidiOutPort implements Receiver {
+	public class MidiOutReceiver implements Receiver {
+
 		public void close() {
 
 		}
 
-		public void send(MidiMessage message, long timestamp) {
-			sendToTransmitters(message, timestamp);
+		public void send(MidiMessage message, long timeStamp) {
+			synchronized (transmitters) {
+				Iterator it = transmitters.iterator();
+				while (it.hasNext()) {
+					Transmitter transmitter = (Transmitter) it.next();
+					if (transmitter != null) {
+						Receiver receiver = transmitter.getReceiver();
+						if (receiver != null) {
+							receiver.send(message, timeStamp);
+						}
+					}
+				}
+			}
 		}
 	}
 }

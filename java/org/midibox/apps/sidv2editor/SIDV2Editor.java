@@ -24,13 +24,15 @@ import javax.sound.midi.MidiDevice;
 
 import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;
+import org.midibox.midi.VirtualMidiDevice;
 import org.midibox.sidlibr.SIDLibController;
-import org.midibox.sidlibr.SysExControllerDevice;
+import org.midibox.sidlibr.SysExController;
 
 public class SIDV2Editor {
 
 	private MidiDeviceRouting midiDeviceRouting;
-	private SysExControllerDevice sysexControllerDevice;
+	private SysExController sysexController;
+	private VirtualMidiDevice sysexControllerDevice;
 	private SIDLibController sidLibController;
 
 	private MidiDevice localMidiDevice;
@@ -51,13 +53,15 @@ public class SIDV2Editor {
 
 		this.midiDeviceRouting = midiDeviceRouting;
 
-		sysexControllerDevice = new SysExControllerDevice(
-				"MidiBox SID V2 Editor");
+		sysexControllerDevice = new VirtualMidiDevice("MidiBox SID V2 Editor",
+				-1, -1);
+		sysexController = new SysExController(sysexControllerDevice
+				.getMidiOutReceiver());
+		sysexControllerDevice.setMidiInReceiver(sysexController);
 
 		this.localMidiDevice = sysexControllerDevice;
 
-		sidLibController = new SIDLibController(sysexControllerDevice
-				.getSysExController());
+		sidLibController = new SIDLibController(sysexController);
 
 		if (midiDeviceRouting != null) {
 			midiDeviceManager.rescanDevices();
@@ -76,7 +80,11 @@ public class SIDV2Editor {
 		return midiDeviceRouting;
 	}
 
-	public SysExControllerDevice getSysExControllerDevice() {
+	public SysExController getSysExController() {
+		return sysexController;
+	}
+
+	public VirtualMidiDevice getSysexControllerDevice() {
 		return sysexControllerDevice;
 	}
 

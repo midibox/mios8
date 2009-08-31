@@ -20,7 +20,9 @@
 
 package org.midibox.apps.miosstudio;
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -28,18 +30,17 @@ import javax.sound.midi.MidiDevice;
 
 import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;
-import org.midibox.midi.MidiFilterDevice;
-import org.midibox.midi.MidiFilterDeviceManager;
-import org.midibox.midi.MidiKeyboardControllerDevice;
+import org.midibox.midi.MidiFilter;
+import org.midibox.midi.MidiFilterManager;
+import org.midibox.midi.MidiKeyboardController;
 import org.midibox.midi.MidiMonitorFiltered;
-import org.midibox.midi.MidiMonitorFilteredDevice;
-import org.midibox.midi.MidiRouterDevice;
-import org.midibox.midi.SysexSendReceiveDevice;
-import org.midibox.midi.SysexSendReceiveDeviceManager;
-import org.midibox.mios.DebugFunctionDevice;
-import org.midibox.mios.HexFileUploadDevice;
-import org.midibox.mios.HexFileUploadDeviceManager;
-import org.midibox.mios.LCDMessageDevice;
+import org.midibox.midi.SysexSendReceive;
+import org.midibox.midi.SysexSendReceiveManager;
+import org.midibox.midi.VirtualMidiDevice;
+import org.midibox.mios.DebugFunction;
+import org.midibox.mios.HexFileUpload;
+import org.midibox.mios.HexFileUploadManager;
+import org.midibox.mios.LCDMessage;
 import org.midibox.mios.MIOSTerminal;
 
 public class MIOSStudio extends Observable implements Observer {
@@ -50,63 +51,57 @@ public class MIOSStudio extends Observable implements Observer {
 
 	protected MidiDeviceRouting midiDeviceRouting;
 
-	protected MidiRouterDevice miosStudioInPort;
+	protected VirtualMidiDevice miosStudioInPort;
 
-	protected MidiFilterDevice midiThruFilterDevice;
+	protected MidiFilter midiThruFilter;
 
-	// TODO: implement a map for MIDI thru
+	protected VirtualMidiDevice midiThruFilterDevice;
 
-	/*
-	 * private MidiMapDevice midiThruMapDevice;
-	 */
+	protected VirtualMidiDevice miosStudioThruPort;
 
-	protected MidiRouterDevice miosStudioThruPort;
-
-	protected MidiRouterDevice miosStudioOutPort;
+	protected VirtualMidiDevice miosStudioOutPort;
 
 	private MidiDeviceManager midiDeviceManager;
 
-	private MidiFilterDeviceManager midiFilterManager;
+	private MidiFilterManager midiFilterManager;
 
-	/*
-	 * private MidiMapDeviceManager midiMapManager;
-	 */
+	private MidiMonitorFiltered midiInPortMonitor;
 
-	private MidiMonitorFilteredDevice midiInPortMonitorDevice;
+	private VirtualMidiDevice midiInPortMonitorDevice;
 
-	private MidiMonitorFilteredDevice midiOutPortMonitorDevice;
+	private MidiMonitorFiltered midiOutPortMonitor;
 
-	// Debuging for command line
+	private VirtualMidiDevice midiOutPortMonitorDevice;
 
-	/*
-	 * private DumpReceiverDevice inDumpReceiverDevice;
-	 * 
-	 * private DumpReceiverDevice outDumpReceiverDevice;
-	 */
+	private MidiKeyboardController midiKeyboardController;
 
-	private MidiKeyboardControllerDevice midiKeyboardControllerDevice;
+	private VirtualMidiDevice midiKeyboardControllerDevice;
 
-	// TODO: implement a manager for sysex sending and receing tasks
+	private SysexSendReceiveManager sysexSendReceiveManager;
 
-	private SysexSendReceiveDeviceManager sysexSendReceiveDeviceManager;
+	private HexFileUploadManager hexFileUploadManager;
 
-	private HexFileUploadDeviceManager hexFileUploadDeviceManager;
+	private LCDMessage lcdMessage;
 
-	// TODO: implement a device for reading and writing to MIOS
+	private VirtualMidiDevice lcdMessageDevice;
 
-	/*
-	 * private MemoryReadWriteDevice memoryReadWriteDevice;
-	 */
+	private DebugFunction debugFunction;
 
-	private LCDMessageDevice lcdMessageDevice;
+	private VirtualMidiDevice debugFunctionDevice;
 
-	private DebugFunctionDevice debugFunctionDevice;
+	private MidiMonitorFiltered miosTerminal;
 
-	private MidiMonitorFilteredDevice miosTerminalDevice;
+	private VirtualMidiDevice miosTerminalDevice;
 
 	private boolean routeIndividualDevices;
 
 	private boolean midiThruOutPort = false;
+
+	private LinkedHashMap midiFilterDevices;
+
+	private LinkedHashMap sysexSendReceiveDevices;
+
+	private LinkedHashMap hexFileUploadDevices;
 
 	public MIOSStudio() {
 
@@ -121,134 +116,133 @@ public class MIOSStudio extends Observable implements Observer {
 
 		midiDeviceRouting = new MidiDeviceRouting();
 
-		miosStudioInPort = new MidiRouterDevice("MIOS Studio In Port");
+		miosStudioInPort = new VirtualMidiDevice("MIOS Studio In Port", -1, -1);
+		miosStudioInPort.setMidiInReceiver(miosStudioInPort
+				.getMidiOutReceiver());
 
-		midiThruFilterDevice = new MidiFilterDevice("MIOS Studio Thru Filter");
+		midiThruFilterDevice = new VirtualMidiDevice("MIOS Studio Thru Filter",
+				-1, -1);
+		midiThruFilter = new MidiFilter(midiThruFilterDevice
+				.getMidiOutReceiver());
+		midiThruFilterDevice.setMidiInReceiver(midiThruFilter);
 
-		/*
-		 * midiThruMapDevice = new MidiMapDevice("MIOS Studio Thru Map");
-		 */
+		miosStudioThruPort = new VirtualMidiDevice("MIOS Studio Thru Port", -1,
+				-1);
+		miosStudioThruPort.setMidiInReceiver(miosStudioThruPort
+				.getMidiOutReceiver());
 
-		miosStudioThruPort = new MidiRouterDevice("MIOS Studio Thru Port");
-
-		miosStudioOutPort = new MidiRouterDevice("MIOS Studio Out Port");
+		miosStudioOutPort = new VirtualMidiDevice("MIOS Studio Out Port", -1,
+				-1);
+		miosStudioOutPort.setMidiInReceiver(miosStudioOutPort
+				.getMidiOutReceiver());
 
 		midiDeviceManager = new MidiDeviceManager();
 		midiDeviceManager.addObserver(this);
 
-		midiFilterManager = new MidiFilterDeviceManager();
+		midiFilterManager = new MidiFilterManager();
 		midiFilterManager.addObserver(this);
 
-		/*
-		 * midiMapManager = new MidiMapDeviceManager();
-		 * midiMapManager.addObserver(this);
-		 */
+		midiFilterDevices = new LinkedHashMap();
 
-		midiInPortMonitorDevice = new MidiMonitorFilteredDevice(
-				"MIDI Monitor: IN");
+		midiInPortMonitorDevice = new VirtualMidiDevice("MIDI Monitor: IN", 0,
+				-1);
+		midiInPortMonitor = new MidiMonitorFiltered();
+		midiInPortMonitorDevice.setMidiInReceiver(midiInPortMonitor);
 
-		midiOutPortMonitorDevice = new MidiMonitorFilteredDevice(
-				"MIDI Monitor: OUT");
+		midiOutPortMonitorDevice = new VirtualMidiDevice("MIDI Monitor: OUT",
+				0, -1);
+		midiOutPortMonitor = new MidiMonitorFiltered();
+		midiOutPortMonitorDevice.setMidiInReceiver(midiOutPortMonitor);
 
-		/*
-		 * inDumpReceiverDevice = new DumpReceiverDevice("Dump Receiver: IN");
-		 * 
-		 * outDumpReceiverDevice = new DumpReceiverDevice("Dump Receiver: OUT");
-		 */
+		midiKeyboardControllerDevice = new VirtualMidiDevice(
+				"MIDI Keyboard Controller", -1, -1);
+		midiKeyboardController = new MidiKeyboardController(
+				midiKeyboardControllerDevice.getMidiOutReceiver(), 0);
+		midiKeyboardControllerDevice.setMidiInReceiver(midiKeyboardController);
 
-		midiKeyboardControllerDevice = new MidiKeyboardControllerDevice(
-				"MIDI Keyboard Controller", 0);
+		sysexSendReceiveManager = new SysexSendReceiveManager();
 
-		sysexSendReceiveDeviceManager = new SysexSendReceiveDeviceManager();
+		sysexSendReceiveManager.addObserver(this);
 
-		sysexSendReceiveDeviceManager.addObserver(this);
+		sysexSendReceiveDevices = new LinkedHashMap();
 
-		hexFileUploadDeviceManager = new HexFileUploadDeviceManager();
+		hexFileUploadManager = new HexFileUploadManager();
 
-		hexFileUploadDeviceManager.addObserver(this);
+		hexFileUploadManager.addObserver(this);
 
-		/*
-		 * memoryReadWriteDevice = new MemoryReadWriteDevice( "MIOS Memory
-		 * Read/Write");
-		 */
+		hexFileUploadDevices = new LinkedHashMap();
 
-		lcdMessageDevice = new LCDMessageDevice("MIOS LCD Message");
+		lcdMessageDevice = new VirtualMidiDevice("MIOS LCD Message", -1, -1);
+		lcdMessage = new LCDMessage(lcdMessageDevice.getMidiOutReceiver());
+		lcdMessageDevice.setMidiInReceiver(lcdMessage);
 
-		debugFunctionDevice = new DebugFunctionDevice("MIOS Debug Function");
+		debugFunctionDevice = new VirtualMidiDevice("MIOS Debug Function", -1,
+				-1);
+		debugFunction = new DebugFunction(debugFunctionDevice
+				.getMidiOutReceiver());
+		debugFunctionDevice.setMidiInReceiver(debugFunction);
 
-		MidiMonitorFiltered miosTerminalFiltered = new MidiMonitorFiltered(
-				new MIOSTerminal());
-
-		miosTerminalDevice = new MidiMonitorFilteredDevice("MIOS Terminal",
-				miosTerminalFiltered);
+		miosTerminalDevice = new VirtualMidiDevice("MIOS Terminal", 0, -1);
+		miosTerminal = new MidiMonitorFiltered(new MIOSTerminal());
+		miosTerminalDevice.setMidiInReceiver(miosTerminal);
 
 		// special for MIOS Terminal:
 		// disable all messages by default, only allow pass SysEx
 		// user can enable other MIDI events again if required
 
-		miosTerminalFiltered.getMidiFilter().setVoiceMessages(false);
+		miosTerminal.getMidiFilter().setVoiceMessages(false);
 
-		miosTerminalFiltered.getMidiFilter().setSystemCommonMessages(false);
+		miosTerminal.getMidiFilter().setSystemCommonMessages(false);
 
-		miosTerminalFiltered.getMidiFilter().setSystemRealtimeMessages(false);
+		miosTerminal.getMidiFilter().setSystemRealtimeMessages(false);
 
-		miosTerminalFiltered.getMidiFilter().setSysexMessages(true);
+		miosTerminal.getMidiFilter().setSysexMessages(true);
 
-		miosTerminalFiltered.getMidiFilter().setMetaMessages(false);
+		miosTerminal.getMidiFilter().setMetaMessages(false);
 	}
 
 	public MidiDeviceManager getMidiDeviceManager() {
 		return midiDeviceManager;
 	}
 
-	public MidiFilterDeviceManager getMidiFilterManager() {
+	public MidiFilterManager getMidiFilterManager() {
 		return midiFilterManager;
 	}
-
-	/*
-	 * public MidiMapDeviceManager getMidiMapManager() { return midiMapManager;
-	 * }
-	 */
 
 	public MidiDeviceRouting getMidiDeviceRouting() {
 		return midiDeviceRouting;
 	}
 
-	public MidiMonitorFilteredDevice getMidiOutPortMonitorDevice() {
-		return midiOutPortMonitorDevice;
+	public MidiMonitorFiltered getMidiOutPortMonitor() {
+		return midiOutPortMonitor;
 	}
 
-	public MidiMonitorFilteredDevice getMidiInPortMonitorDevice() {
-		return midiInPortMonitorDevice;
+	public MidiMonitorFiltered getMidiInPortMonitor() {
+		return midiInPortMonitor;
 	}
 
-	public MidiKeyboardControllerDevice getMidiKeyboardControllerDevice() {
-		return midiKeyboardControllerDevice;
+	public MidiKeyboardController getMidiKeyboardController() {
+		return midiKeyboardController;
 	}
 
-	public SysexSendReceiveDeviceManager getSysexSendReceiveDeviceManager() {
-		return sysexSendReceiveDeviceManager;
+	public SysexSendReceiveManager getSysexSendReceiveManager() {
+		return sysexSendReceiveManager;
 	}
 
-	public HexFileUploadDeviceManager getHexFileUploadDeviceManager() {
-		return hexFileUploadDeviceManager;
+	public HexFileUploadManager getHexFileUploadManager() {
+		return hexFileUploadManager;
 	}
 
-	public DebugFunctionDevice getDebugFunctionDevice() {
-		return debugFunctionDevice;
+	public DebugFunction getDebugFunction() {
+		return debugFunction;
 	}
 
-	/*
-	 * public MemoryReadWriteDevice getMemoryReadWriteDevice() { return
-	 * memoryReadWriteDevice; }
-	 */
-
-	public LCDMessageDevice getLcdMessageDevice() {
-		return lcdMessageDevice;
+	public LCDMessage getLcdMessage() {
+		return lcdMessage;
 	}
 
-	public MidiMonitorFilteredDevice getMIOSTerminalDevice() {
-		return miosTerminalDevice;
+	public MidiMonitorFiltered getMIOSTerminal() {
+		return miosTerminal;
 	}
 
 	public boolean isMidiThruOutPort() {
@@ -263,11 +257,6 @@ public class MIOSStudio extends Observable implements Observer {
 
 		if (midiThru) {
 
-			/*
-			 * midiDeviceRouting.connectDevices(midiThruFilterDevice,
-			 * midiThruMapDevice);
-			 */
-
 			midiDeviceRouting.disconnectDevice(miosStudioThruPort);
 
 			midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
@@ -276,11 +265,6 @@ public class MIOSStudio extends Observable implements Observer {
 			midiDeviceRouting.connectDevices(midiThruFilterDevice,
 					miosStudioOutPort);
 		} else {
-
-			/*
-			 * midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
-			 * midiThruMapDevice);
-			 */
 
 			midiDeviceRouting.disconnectDevices(midiThruFilterDevice,
 					miosStudioOutPort);
@@ -298,27 +282,24 @@ public class MIOSStudio extends Observable implements Observer {
 		clearChanged();
 	}
 
-	public MidiRouterDevice getMiosStudioInPort() {
+	public VirtualMidiDevice getMiosStudioInPort() {
 		return miosStudioInPort;
 	}
 
-	public MidiRouterDevice getMiosStudioOutPort() {
+	public VirtualMidiDevice getMiosStudioOutPort() {
 		return miosStudioOutPort;
 	}
 
-	public MidiFilterDevice getMidiThruFilterDevice() {
-		return midiThruFilterDevice;
+	public MidiFilter getMidiThruFilter() {
+		return midiThruFilter;
 	}
-
-	/*
-	 * public MidiMapDevice getMidiThruMapDevice() { return midiThruMapDevice; }
-	 */
 
 	public boolean isRouteIndividualDevices() {
 		return routeIndividualDevices;
 	}
 
 	public void setRouteIndividualDevices(boolean routeIndividualDevices) {
+
 		this.routeIndividualDevices = routeIndividualDevices;
 
 		// remove all devices
@@ -339,36 +320,9 @@ public class MIOSStudio extends Observable implements Observer {
 			}
 		}
 
-		reorder();
+		midiDeviceRouting.addMidiReadDevices(midiFilterDevices.values());
 
-		setChanged();
-
-		notifyObservers(ROUTE_INDIVIDUAL_DEVICES);
-
-		clearChanged();
-	}
-
-	public void reorder() {
-
-		midiDeviceRouting.getMidiReadDevices().removeAll(
-				midiFilterManager.getMidiFilterDevices());
-		midiDeviceRouting.getMidiWriteDevices().removeAll(
-				midiFilterManager.getMidiFilterDevices());
-
-		midiDeviceRouting.getMidiReadDevices().removeAll(
-				midiDeviceManager.getSelectedMidiReadDevices().values());
-		midiDeviceRouting.getMidiWriteDevices().removeAll(
-				midiDeviceManager.getSelectedMidiWriteDevices().values());
-
-		/*
-		 * midiReadDevices.removeAll(midiMapManager.getMidiMapDevices());
-		 * midiWriteDevices.removeAll(midiMapManager.getMidiMapDevices());
-		 */
-
-		midiDeviceRouting.addMidiReadDevices(midiFilterManager
-				.getMidiFilterDevices());
-		midiDeviceRouting.addMidiWriteDevices(midiFilterManager
-				.getMidiFilterDevices());
+		midiDeviceRouting.addMidiWriteDevices(midiFilterDevices.values());
 
 		Iterator it = midiDeviceManager.getMidiReadDevices().values()
 				.iterator();
@@ -384,6 +338,7 @@ public class MIOSStudio extends Observable implements Observer {
 		}
 
 		it = midiDeviceManager.getMidiWriteDevices().values().iterator();
+
 		while (it.hasNext()) {
 
 			Object object = it.next();
@@ -394,10 +349,11 @@ public class MIOSStudio extends Observable implements Observer {
 			}
 		}
 
-		/*
-		 * midiReadDevices.addAll(midiMapManager.getMidiMapDevices());
-		 * midiWriteDevices.addAll(midiMapManager.getMidiMapDevices());
-		 */
+		setChanged();
+
+		notifyObservers(ROUTE_INDIVIDUAL_DEVICES);
+
+		clearChanged();
 	}
 
 	protected void routeIndividualDevices() {
@@ -408,16 +364,12 @@ public class MIOSStudio extends Observable implements Observer {
 		midiDeviceRouting.addMidiWriteDevice(midiThruFilterDevice);
 		midiDeviceRouting.addMidiReadDevice(midiThruFilterDevice);
 
-		/*
-		 * midiDeviceRouting.addMidiWriteDevice(midiThruMapDevice);
-		 * midiDeviceRouting.addMidiReadDevice(midiThruMapDevice);
-		 */
-
 		if (!midiThruOutPort) {
 
 			midiDeviceRouting.addMidiWriteDevice(miosStudioThruPort);
 			midiDeviceRouting.addMidiReadDevice(miosStudioThruPort);
 		}
+
 		midiDeviceRouting.addMidiWriteDevice(miosStudioOutPort);
 		midiDeviceRouting.addMidiReadDevice(miosStudioOutPort);
 
@@ -425,29 +377,20 @@ public class MIOSStudio extends Observable implements Observer {
 
 		midiDeviceRouting.addMidiWriteDevice(midiInPortMonitorDevice);
 
-		/*
-		 * midiDeviceRouting.addMidiWriteDevice(inDumpReceiverDevice);
-		 * 
-		 * midiDeviceRouting.addMidiWriteDevice(outDumpReceiverDevice);
-		 */
-
 		midiDeviceRouting.addMidiWriteDevice(midiKeyboardControllerDevice);
 		midiDeviceRouting.addMidiReadDevice(midiKeyboardControllerDevice);
 
-		midiDeviceRouting.addMidiReadDevices(sysexSendReceiveDeviceManager
-				.getSysexSendReceiveDevices());
+		Collection virtualMidiDevices = sysexSendReceiveDevices.values();
 
-		midiDeviceRouting.addMidiWriteDevices(sysexSendReceiveDeviceManager
-				.getSysexSendReceiveDevices());
+		midiDeviceRouting.addMidiReadDevices(virtualMidiDevices);
 
-		midiDeviceRouting.addMidiReadDevices(hexFileUploadDeviceManager
-				.getHexFileUploadDevices());
-		midiDeviceRouting.addMidiWriteDevices(hexFileUploadDeviceManager
-				.getHexFileUploadDevices());
-		/*
-		 * midiDeviceRouting.addMidiWriteDevice(memoryReadWriteDevice);
-		 * midiDeviceRouting.addMidiReadDevice(memoryReadWriteDevice);
-		 */
+		midiDeviceRouting.addMidiWriteDevices(virtualMidiDevices);
+
+		virtualMidiDevices = hexFileUploadDevices.values();
+
+		midiDeviceRouting.addMidiReadDevices(virtualMidiDevices);
+
+		midiDeviceRouting.addMidiWriteDevices(virtualMidiDevices);
 
 		midiDeviceRouting.addMidiReadDevice(lcdMessageDevice);
 
@@ -467,47 +410,35 @@ public class MIOSStudio extends Observable implements Observer {
 		midiDeviceRouting.connectDevices(miosStudioOutPort,
 				midiOutPortMonitorDevice);
 
-		/*
-		 * midiDeviceRouting.connectDevices(inVirtualMidiPortDevice,
-		 * inDumpReceiverDevice);
-		 * midiDeviceRouting.connectDevices(outVirtualMidiPortDevice,
-		 * outDumpReceiverDevice);
-		 */
-
 		midiDeviceRouting.connectDevices(miosStudioInPort,
 				midiKeyboardControllerDevice);
 		midiDeviceRouting.connectDevices(midiKeyboardControllerDevice,
 				miosStudioOutPort);
 
-		Iterator it = sysexSendReceiveDeviceManager
-				.getSysexSendReceiveDevices().iterator();
+		Iterator it = sysexSendReceiveDevices.values().iterator();
 
 		while (it.hasNext()) {
-			SysexSendReceiveDevice sysexSendReceiveDevice = (SysexSendReceiveDevice) it
-					.next();
+
+			VirtualMidiDevice virtualMidiDevice = (VirtualMidiDevice) it.next();
+
 			midiDeviceRouting.connectDevices(miosStudioInPort,
-					sysexSendReceiveDevice);
-			midiDeviceRouting.connectDevices(sysexSendReceiveDevice,
+					virtualMidiDevice);
+
+			midiDeviceRouting.connectDevices(virtualMidiDevice,
 					miosStudioOutPort);
 		}
 
-		it = hexFileUploadDeviceManager.getHexFileUploadDevices().iterator();
+		it = hexFileUploadDevices.values().iterator();
 
 		while (it.hasNext()) {
-			HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) it
-					.next();
+
+			VirtualMidiDevice virtualMidiDevice = (VirtualMidiDevice) it.next();
+
 			midiDeviceRouting.connectDevices(miosStudioInPort,
-					hexFileUploadDevice);
-			midiDeviceRouting.connectDevices(hexFileUploadDevice,
+					virtualMidiDevice);
+			midiDeviceRouting.connectDevices(virtualMidiDevice,
 					miosStudioOutPort);
 		}
-
-		/*
-		 * midiDeviceRouting.connectDevices(miosStudioInPort,
-		 * memoryReadWriteDevice);
-		 * midiDeviceRouting.connectDevices(memoryReadWriteDevice,
-		 * miosStudioOutPort);
-		 */
 
 		midiDeviceRouting.connectDevices(lcdMessageDevice, miosStudioOutPort);
 		midiDeviceRouting.connectDevices(miosStudioInPort, debugFunctionDevice);
@@ -519,37 +450,90 @@ public class MIOSStudio extends Observable implements Observer {
 
 	public void update(Observable observable, Object object) {
 
-		if (observable == hexFileUploadDeviceManager) {
+		if (observable == hexFileUploadManager) {
 
-			HexFileUploadDevice hexFileUploadDevice = (HexFileUploadDevice) object;
+			HexFileUpload hexFileUpload = (HexFileUpload) object;
 
-			if (hexFileUploadDeviceManager.getHexFileUploadDevices().contains(
-					hexFileUploadDevice)) {
+			if (hexFileUploadDevices.containsKey(hexFileUpload)) {
+
+				VirtualMidiDevice virtualMidiDevice = (VirtualMidiDevice) hexFileUploadDevices
+						.get(hexFileUpload);
+
+				midiDeviceRouting.disconnectDevice(virtualMidiDevice);
+
+				hexFileUploadDevices.remove(hexFileUpload);
+
+			} else {
+
+				VirtualMidiDevice virtualMidiDevice = new VirtualMidiDevice("",
+						-1, -1);
+
+				virtualMidiDevice.setMidiInReceiver(hexFileUpload);
+
+				hexFileUpload.setReceiver(virtualMidiDevice
+						.getMidiOutReceiver());
 
 				midiDeviceRouting.connectDevices(miosStudioInPort,
-						hexFileUploadDevice);
-				midiDeviceRouting.connectDevices(hexFileUploadDevice,
+						virtualMidiDevice);
+				midiDeviceRouting.connectDevices(virtualMidiDevice,
 						miosStudioOutPort);
-			} else {
-				midiDeviceRouting.disconnectDevice(hexFileUploadDevice);
+
+				hexFileUploadDevices.put(hexFileUpload, virtualMidiDevice);
+			}
+
+			Collection virtualMidiDevices = hexFileUploadDevices.values();
+
+			for (int i = 0; i < virtualMidiDevices.size(); i++) {
+
+				VirtualMidiDevice virtualMidiDevice = (VirtualMidiDevice) virtualMidiDevices
+						.toArray()[i];
+
+				virtualMidiDevice.setName("Hex File Upload " + (i + 1));
 			}
 
 			setRouteIndividualDevices(routeIndividualDevices);
 		}
-		
-		if (observable == sysexSendReceiveDeviceManager) {
 
-			SysexSendReceiveDevice sysexSendReceiveDevice = (SysexSendReceiveDevice) object;
+		if (observable == sysexSendReceiveManager) {
 
-			if (sysexSendReceiveDeviceManager.getSysexSendReceiveDevices().contains(
-					sysexSendReceiveDevice)) {
+			SysexSendReceive sysexSendReceive = (SysexSendReceive) object;
+
+			if (sysexSendReceiveDevices.containsKey(sysexSendReceive)) {
+
+				VirtualMidiDevice virtualMidiDevice = (VirtualMidiDevice) sysexSendReceiveDevices
+						.get(sysexSendReceive);
+
+				midiDeviceRouting.disconnectDevice(virtualMidiDevice);
+
+				sysexSendReceiveDevices.remove(sysexSendReceive);
+
+			} else {
+
+				VirtualMidiDevice virtualMidiDevice = new VirtualMidiDevice("",
+						-1, -1);
+
+				virtualMidiDevice.setMidiInReceiver(sysexSendReceive);
+
+				sysexSendReceive.setReceiver(virtualMidiDevice
+						.getMidiOutReceiver());
 
 				midiDeviceRouting.connectDevices(miosStudioInPort,
-						sysexSendReceiveDevice);
-				midiDeviceRouting.connectDevices(sysexSendReceiveDevice,
+						virtualMidiDevice);
+				midiDeviceRouting.connectDevices(virtualMidiDevice,
 						miosStudioOutPort);
-			} else {
-				midiDeviceRouting.disconnectDevice(sysexSendReceiveDevice);
+
+				sysexSendReceiveDevices
+						.put(sysexSendReceive, virtualMidiDevice);
+			}
+
+			Collection virtualMidiDevices = sysexSendReceiveDevices.values();
+
+			for (int i = 0; i < virtualMidiDevices.size(); i++) {
+
+				VirtualMidiDevice virtualMidiDevice = (VirtualMidiDevice) virtualMidiDevices
+						.toArray()[i];
+
+				virtualMidiDevice.setName("Sysex Send/Receive " + (i + 1));
 			}
 
 			setRouteIndividualDevices(routeIndividualDevices);
@@ -571,10 +555,36 @@ public class MIOSStudio extends Observable implements Observer {
 
 		if (observable == midiFilterManager) {
 
-			MidiDevice midiFilter = (MidiDevice) object;
+			MidiFilter midiFilter = (MidiFilter) object;
 
-			if (!midiFilterManager.getMidiFilterDevices().contains(midiFilter)) {
-				midiDeviceRouting.disconnectDevice(midiFilter);
+			if (midiFilterDevices.containsKey(midiFilter)) {
+
+				midiDeviceRouting
+						.disconnectDevice((VirtualMidiDevice) midiFilterDevices
+								.get(midiFilter));
+
+				midiFilterDevices.remove(midiFilter);
+
+			} else {
+
+				VirtualMidiDevice virtualMidiDevice = new VirtualMidiDevice("",
+						-1, -1);
+
+				virtualMidiDevice.setMidiInReceiver(midiFilter);
+
+				midiFilter.setReceiver(virtualMidiDevice.getMidiOutReceiver());
+
+				midiFilterDevices.put(midiFilter, virtualMidiDevice);
+			}
+
+			Collection virtualMidiDevices = midiFilterDevices.values();
+
+			for (int i = 0; i < virtualMidiDevices.size(); i++) {
+
+				VirtualMidiDevice virtualMidiDevice = (VirtualMidiDevice) virtualMidiDevices
+						.toArray()[i];
+
+				virtualMidiDevice.setName("MIDI Filter " + (i + 1));
 			}
 
 			setRouteIndividualDevices(routeIndividualDevices);

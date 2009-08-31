@@ -75,20 +75,20 @@ import javax.swing.event.PopupMenuListener;
 import org.midibox.apps.miosstudio.MIOSStudio;
 import org.midibox.apps.miosstudio.gui.xml.MIOSStudioGUIXML;
 import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
-import org.midibox.midi.MidiFilterDevice;
-import org.midibox.midi.MidiKeyboardControllerDevice;
-import org.midibox.midi.MidiRouterDevice;
-import org.midibox.midi.SysexSendReceiveDevice;
+import org.midibox.midi.MidiFilter;
+import org.midibox.midi.MidiKeyboardController;
+import org.midibox.midi.SysexSendReceive;
+import org.midibox.midi.VirtualMidiDevice;
 import org.midibox.midi.gui.MidiDeviceManagerGUI;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
-import org.midibox.midi.gui.MidiFilterDeviceManagerGUI;
 import org.midibox.midi.gui.MidiFilterGUI;
+import org.midibox.midi.gui.MidiFilterManagerGUI;
 import org.midibox.midi.gui.MidiKeyboardControllerGUI;
 import org.midibox.midi.gui.MidiMonitorFilteredGUI;
-import org.midibox.midi.gui.SysexSendReceiveDeviceManagerGUI;
-import org.midibox.mios.HexFileUploadDevice;
+import org.midibox.midi.gui.SysexSendReceiveManagerGUI;
+import org.midibox.mios.HexFileUpload;
 import org.midibox.mios.gui.DebugFunctionGUI;
-import org.midibox.mios.gui.HexFileUploadDeviceManagerGUI;
+import org.midibox.mios.gui.HexFileUploadManagerGUI;
 import org.midibox.mios.gui.LCDMessageGUI;
 import org.midibox.utils.ResourceLoader;
 import org.midibox.utils.gui.DialogOwner;
@@ -131,11 +131,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private MIOSStudioInternalFrame midiKeyboardControllerWindow;
 
-	private SysexSendReceiveDeviceManagerGUI sysexSendReceiveDeviceManagerGUI;
+	private SysexSendReceiveManagerGUI sysexSendReceiveDeviceManagerGUI;
 
 	private MIOSStudioInternalFrame sysexSendReceiveDeviceManagerWindow;
 
-	private HexFileUploadDeviceManagerGUI hexFileUploadDeviceManagerGUI;
+	private HexFileUploadManagerGUI hexFileUploadDeviceManagerGUI;
 
 	private MIOSStudioInternalFrame hexFileUploadDeviceManagerWindow;
 
@@ -238,21 +238,21 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		createInternalFrames();
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiRouterDevice.class,
+		midiDeviceRoutingGUI.addMidiDeviceIcon(VirtualMidiDevice.class,
 				ImageLoader.getImageIcon("virtualMidiDevice.png"));
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiFilterDevice.class,
-				ImageLoader.getImageIcon("filter.png"));
+		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiFilter.class, ImageLoader
+				.getImageIcon("filter.png"));
 
 		// start In/Out/Terminal thread
-		miosStudio.getMidiInPortMonitorDevice().getMidiMonitorFiltered()
-				.getMidiMonitor().deleteObserver(midiInPortMonitorGUI);
+		miosStudio.getMidiInPortMonitor().getMidiMonitor().deleteObserver(
+				midiInPortMonitorGUI);
 
-		miosStudio.getMidiOutPortMonitorDevice().getMidiMonitorFiltered()
-				.getMidiMonitor().deleteObserver(midiOutPortMonitorGUI);
+		miosStudio.getMidiOutPortMonitor().getMidiMonitor().deleteObserver(
+				midiOutPortMonitorGUI);
 
-		miosStudio.getMIOSTerminalDevice().getMidiMonitorFiltered()
-				.getMidiMonitor().deleteObserver(miosTerminalGUI);
+		miosStudio.getMIOSTerminal().getMidiMonitor().deleteObserver(
+				miosTerminalGUI);
 
 		Thread t = new Thread() {
 
@@ -324,7 +324,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		// MIDI OUT Port
 		midiOutPortMonitorGUI = new MidiMonitorFilteredGUI(miosStudio
-				.getMidiOutPortMonitorDevice().getMidiMonitorFiltered());
+				.getMidiOutPortMonitor());
 
 		icon = ImageLoader.getImageIcon("midiOut.png");
 
@@ -337,11 +337,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		internalFrames.add(midiOutPortMonitorWindow);
 
 		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
-				.getMidiOutPortMonitorDevice(), icon);
+				.getMidiOutPortMonitor(), icon);
 
 		// MIDI IN Port
 		midiInPortMonitorGUI = new MidiMonitorFilteredGUI(miosStudio
-				.getMidiInPortMonitorDevice().getMidiMonitorFiltered());
+				.getMidiInPortMonitor());
 
 		icon = ImageLoader.getImageIcon("midiIn.png");
 
@@ -354,14 +354,14 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		internalFrames.add(midiInPortMonitorWindow);
 
 		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
-				.getMidiInPortMonitorDevice(), icon);
+				.getMidiInPortMonitor(), icon);
 
 		// MIDI Keyboard Controller
 
 		icon = ImageLoader.getImageIcon("piano.png");
 
 		midiKeyboardControllerGUI = new MidiKeyboardControllerGUI(miosStudio
-				.getMidiKeyboardControllerDevice().getMidiKeyboardController());
+				.getMidiKeyboardController());
 
 		midiKeyboardControllerWindow = new MIOSStudioInternalFrame(
 				"MIDI Keyboard Controller", false, // resizable
@@ -373,13 +373,13 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		internalFrames.add(midiKeyboardControllerWindow);
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(
-				MidiKeyboardControllerDevice.class, icon);
+		midiDeviceRoutingGUI.addMidiDeviceIcon(MidiKeyboardController.class,
+				icon);
 
 		// Sysex Send/Receive
 
-		sysexSendReceiveDeviceManagerGUI = new SysexSendReceiveDeviceManagerGUI(
-				miosStudio.getSysexSendReceiveDeviceManager());
+		sysexSendReceiveDeviceManagerGUI = new SysexSendReceiveManagerGUI(
+				miosStudio.getSysexSendReceiveManager());
 
 		icon = ImageLoader.getImageIcon("sysex.png");
 
@@ -391,13 +391,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		internalFrames.add(sysexSendReceiveDeviceManagerWindow);
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(SysexSendReceiveDevice.class,
-				icon);
+		midiDeviceRoutingGUI.addMidiDeviceIcon(SysexSendReceive.class, icon);
 
 		// Hex Upload
 
-		hexFileUploadDeviceManagerGUI = new HexFileUploadDeviceManagerGUI(
-				miosStudio.getHexFileUploadDeviceManager());
+		hexFileUploadDeviceManagerGUI = new HexFileUploadManagerGUI(miosStudio
+				.getHexFileUploadManager());
 
 		icon = ImageLoader.getImageIcon("hex.png");
 
@@ -409,7 +408,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		internalFrames.add(hexFileUploadDeviceManagerWindow);
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(HexFileUploadDevice.class, icon);
+		midiDeviceRoutingGUI.addMidiDeviceIcon(HexFileUpload.class, icon);
 
 		// Read/Write
 		/*
@@ -427,8 +426,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		// LCD Message
 		icon = ImageLoader.getImageIcon("lcd.png");
 
-		lcdMessageGUI = new LCDMessageGUI(miosStudio.getLcdMessageDevice()
-				.getLCDMessage());
+		lcdMessageGUI = new LCDMessageGUI(miosStudio.getLcdMessage());
 
 		lcdMessageWindow = new MIOSStudioInternalFrame("MIOS LCD Message",
 				true, true, true, true, icon, lcdMessageGUI);
@@ -437,15 +435,14 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		internalFrames.add(lcdMessageWindow);
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(
-				miosStudio.getLcdMessageDevice(), icon);
+		midiDeviceRoutingGUI
+				.addMidiDeviceIcon(miosStudio.getLcdMessage(), icon);
 
 		// MIOS Debug
 
 		icon = ImageLoader.getImageIcon("debug.png");
 
-		debugFunctionGUI = new DebugFunctionGUI(miosStudio
-				.getDebugFunctionDevice().getDebugFunction());
+		debugFunctionGUI = new DebugFunctionGUI(miosStudio.getDebugFunction());
 
 		debugFunctionWindow = new MIOSStudioInternalFrame(
 				"MIOS Debug Functions", true, true, true, true, icon,
@@ -455,12 +452,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		internalFrames.add(debugFunctionWindow);
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
-				.getDebugFunctionDevice(), icon);
+		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio.getDebugFunction(),
+				icon);
 
 		// MIOS Terminal
 		miosTerminalGUI = new MidiMonitorFilteredGUI(miosStudio
-				.getMIOSTerminalDevice().getMidiMonitorFiltered());
+				.getMIOSTerminal());
 
 		icon = ImageLoader.getImageIcon("miosTerminal.png");
 
@@ -471,8 +468,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		internalFrames.add(miosTerminalWindow);
 
-		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio
-				.getMIOSTerminalDevice(), icon);
+		midiDeviceRoutingGUI.addMidiDeviceIcon(miosStudio.getMIOSTerminal(),
+				icon);
 	}
 
 	public JMenuBar createMenuBar() {
@@ -657,11 +654,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		toolBar.setVisible(true);
 	}
 
-	public SysexSendReceiveDeviceManagerGUI getSysexSendReceiveDeviceManagerGUI() {
+	public SysexSendReceiveManagerGUI getSysexSendReceiveDeviceManagerGUI() {
 		return sysexSendReceiveDeviceManagerGUI;
 	}
 
-	public HexFileUploadDeviceManagerGUI getHexFileUploadDeviceManagerGUI() {
+	public HexFileUploadManagerGUI getHexFileUploadDeviceManagerGUI() {
 		return hexFileUploadDeviceManagerGUI;
 	}
 
@@ -945,7 +942,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	private void showMidiThruFilter() {
 		if (thruFilterProperties == null) {
 			final MidiFilterGUI midiFilterGUI = new MidiFilterGUI(miosStudio
-					.getMidiThruFilterDevice().getMidiFilter());
+					.getMidiThruFilter());
 
 			thruFilterProperties = new JDialog(DialogOwner.getFrame(),
 					"MIDI Thru Filter", false);
@@ -956,8 +953,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 			thruFilterProperties.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent we) {
-					miosStudio.getMidiThruFilterDevice().deleteObserver(
-							midiFilterGUI);
+					miosStudio.getMidiThruFilter()
+							.deleteObserver(midiFilterGUI);
 					thruFilterProperties = null;
 				}
 			});
@@ -1046,7 +1043,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private void showMidiFilterManagerDialog() {
 		if (midiFilterManagerDialog == null) {
-			final MidiFilterDeviceManagerGUI midiFilterManagerGUI = new MidiFilterDeviceManagerGUI(
+			final MidiFilterManagerGUI midiFilterManagerGUI = new MidiFilterManagerGUI(
 					miosStudio.getMidiFilterManager());
 
 			midiFilterManagerDialog = new JDialog(DialogOwner.getFrame(),

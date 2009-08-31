@@ -228,19 +228,19 @@ public class SysExController extends Observable implements Receiver,
 			if (!(m.indexOf(SIDSysexInfo.acknowledgedSysex.replace("<device>",
 					"00")) == 0)) {
 				if (m.substring(0, 2).equalsIgnoreCase("F0")) { // select next
-																// array item
-																// with each F0
+					// array item
+					// with each F0
 					tempSyx = m;
 				} else {
 					if (m.substring(0, 2).equalsIgnoreCase("F7")) { // for
-																	// windows
-																	// (1024
-																	// byte
-																	// limit, F7
-																	// added at
-																	// beginning
-																	// of next
-																	// chunk)
+						// windows
+						// (1024
+						// byte
+						// limit, F7
+						// added at
+						// beginning
+						// of next
+						// chunk)
 						m = m.substring(2);
 					}
 					tempSyx += m;

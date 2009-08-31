@@ -177,8 +177,8 @@ public class SIDSysexParameterControlGUI extends JPanel implements Observer,
 			midiParameter.snap = true;
 			if (Arrays.binarySearch(midiParameter.snapVals, midiParameter
 					.getMidiValue()) == -1) { // If current midi value is not
-												// part of the snap values reset
-												// to snapvals[0];
+				// part of the snap values reset
+				// to snapvals[0];
 				midiParameter.setMidiValue(midiParameter.snapVals[0], true);
 				for (int c = 0; c < midiParameters.size(); c++) {
 					SIDSysexParameterControl mp = (SIDSysexParameterControl) midiParameters

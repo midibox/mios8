@@ -106,6 +106,10 @@ public class MIOSSysexSendReceive extends Observable implements Receiver {
 		return receiver;
 	}
 
+	public void setReceiver(Receiver receiver) {
+		this.receiver = receiver;
+	}
+
 	public void addMessage(String message) {
 
 		messages.addLast(message);

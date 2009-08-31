@@ -16,6 +16,7 @@ public class MIOSStudioSID extends org.midibox.apps.miosstudio.MIOSStudio {
 		super.createDevices();
 
 		sidv2librarian = new SIDV2Editor(null, null);
+
 	}
 
 	protected void routeIndividualDevices() {
@@ -23,9 +24,10 @@ public class MIOSStudioSID extends org.midibox.apps.miosstudio.MIOSStudio {
 		super.routeIndividualDevices();
 
 		midiDeviceRouting.addMidiWriteDevice(sidv2librarian
-				.getSysExControllerDevice());
+				.getSysexControllerDevice());
+
 		midiDeviceRouting.addMidiReadDevice(sidv2librarian
-				.getSysExControllerDevice());
+				.getSysexControllerDevice());
 	}
 
 	public void connectDevices() {
@@ -33,8 +35,8 @@ public class MIOSStudioSID extends org.midibox.apps.miosstudio.MIOSStudio {
 		super.connectDevices();
 
 		midiDeviceRouting.connectDevices(miosStudioInPort, sidv2librarian
-				.getSysExControllerDevice());
+				.getSysexControllerDevice());
 		midiDeviceRouting.connectDevices(sidv2librarian
-				.getSysExControllerDevice(), miosStudioOutPort);
+				.getSysexControllerDevice(), miosStudioOutPort);
 	}
 }

@@ -22,8 +22,8 @@ package org.midibox.apps.virtualkeyboard;
 
 import org.midibox.midi.MidiDeviceManager;
 import org.midibox.midi.MidiDeviceRouting;
-import org.midibox.midi.MidiKeyboardControllerDevice;
-import org.midibox.midi.MidiRouterDevice;
+import org.midibox.midi.MidiKeyboardController;
+import org.midibox.midi.VirtualMidiDevice;
 
 public class VirtualKeyboard {
 
@@ -31,30 +31,44 @@ public class VirtualKeyboard {
 
 	private MidiDeviceRouting midiDeviceRouting;
 
-	private MidiKeyboardControllerDevice midiKeyboardControllerDevice;
+	private MidiKeyboardController midiKeyboardController;
 
-	private MidiRouterDevice virtualKeyboardInPort;
+	private VirtualMidiDevice midiKeyboardControllerDevice;
 
-	private MidiRouterDevice virtualKeyboardThruPort;
+	private VirtualMidiDevice virtualKeyboardInPort;
 
-	private MidiRouterDevice virtualKeyboardOutPort;
+	private VirtualMidiDevice virtualKeyboardThruPort;
+
+	private VirtualMidiDevice virtualKeyboardOutPort;
 
 	public VirtualKeyboard() {
 
 		midiDeviceRouting = new MidiDeviceRouting();
 
-		midiKeyboardControllerDevice = new MidiKeyboardControllerDevice(
-				"Virtual MIDI Keyboard", 0);
+		midiKeyboardControllerDevice = new VirtualMidiDevice(
+				"Virtual MIDI Keyboard", -1, -1);
+
+		midiKeyboardController = new MidiKeyboardController(
+				midiKeyboardControllerDevice.getMidiOutReceiver(), 0);
 
 		midiDeviceManager = new MidiDeviceManager();
 
 		midiDeviceManager.rescanDevices();
 
-		virtualKeyboardInPort = new MidiRouterDevice("Virtual Keyboard In");
+		virtualKeyboardInPort = new VirtualMidiDevice("Virtual Keyboard In",
+				-1, -1);
+		virtualKeyboardInPort.setMidiInReceiver(virtualKeyboardInPort
+				.getMidiOutReceiver());
 
-		virtualKeyboardThruPort = new MidiRouterDevice("Virtual Keyboard Thru");
+		virtualKeyboardThruPort = new VirtualMidiDevice(
+				"Virtual Keyboard Thru", -1, -1);
+		virtualKeyboardThruPort.setMidiInReceiver(virtualKeyboardThruPort
+				.getMidiOutReceiver());
 
-		virtualKeyboardOutPort = new MidiRouterDevice("Virtual Keyboard Out");
+		virtualKeyboardOutPort = new VirtualMidiDevice("Virtual Keyboard Out",
+				-1, -1);
+		virtualKeyboardOutPort.setMidiInReceiver(virtualKeyboardOutPort
+				.getMidiOutReceiver());
 
 		midiDeviceRouting.connectDevices(virtualKeyboardInPort,
 				midiKeyboardControllerDevice);
@@ -82,7 +96,7 @@ public class VirtualKeyboard {
 		return midiDeviceRouting;
 	}
 
-	public MidiKeyboardControllerDevice getMidiKeyboardControllerDevice() {
-		return midiKeyboardControllerDevice;
+	public MidiKeyboardController getMidiKeyboardController() {
+		return midiKeyboardController;
 	}
 }

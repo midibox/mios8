@@ -75,13 +75,13 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 		ChangeListener, Observer {
 
 	private JPopupMenu MRUPopupMenu;
-	
+
 	private SplitButton openMRUButton;
 
 	private static int maxMRU = 10;
-	
+
 	private static String currentDirectory = "";
-	
+
 	private static Vector MRU = new Vector();
 
 	private static JFileChooser fc = null;
@@ -127,14 +127,13 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 		hexUploadTask.addObserver(this);
 
 		Insets insets = new Insets(2, 2, 2, 2);
-		
+
 		browseButton = new JButton("Hex File", ImageLoader
 				.getImageIcon("open.png"));
 		browseButton.setActionCommand("browse");
 		browseButton.addActionListener(this);
 		browseButton.setMargin(insets);
 		browseButton.setToolTipText("Open Hex File");
-		
 
 		fileName = new JTextField();
 		fileName.setEditable(false);
@@ -165,7 +164,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 		queryButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		JPanel fileButtonsPanel = new JPanel(new BorderLayout(2, 0));
-		
+
 		MRUPopupMenu = new JPopupMenu();
 		MRUPopupMenu.addPopupMenuListener(new PopupMenuListener() {
 
@@ -186,7 +185,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		openMRUButton = new SplitButton(browseButton, MRUPopupMenu);
 		openMRUButton.setRollover(true);
-		
+
 		fileButtonsPanel.add(openMRUButton, BorderLayout.WEST);
 		fileButtonsPanel.add(fileName, BorderLayout.CENTER);
 		fileButtonsPanel.setBorder(BorderFactory.createEmptyBorder(7, 7, 5, 7));
@@ -338,7 +337,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		updateUploadControls();
 	}
-	
+
 	private void buildMRUMenu(JComponent menu) {
 
 		menu.removeAll();
@@ -362,7 +361,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 			menu.add(menuItem, 0);
 		}
 	}
-	
+
 	public static void saveMRU(String file) {
 
 		MRU.remove(file);
@@ -406,28 +405,27 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 
 		if (nRetVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			
+
 			openHexFile(file);
-			
+
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
 	}
-	
+
 	protected void openHexFile(File file) {
-		
+
 		if (file.exists()) {
-		
+
 			hexFileUpload.setFile(file);
-			
+
 			saveMRU(file.getPath());
-			
+
 		} else {
-			JOptionPane.showMessageDialog(this,
-					"Hex file no longer exists",
+			JOptionPane.showMessageDialog(this, "Hex file no longer exists",
 					"File does not exist", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	public static Vector getMRU() {
 		return MRU;
 	}

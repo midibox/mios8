@@ -298,6 +298,5 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 	public static void setCurrentDirectory(String currentDirectory) {
 		SysexSendReceiveGUI.currentDirectory = currentDirectory;
 	}
-	
-	
+
 }

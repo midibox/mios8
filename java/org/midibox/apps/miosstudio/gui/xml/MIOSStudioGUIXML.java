@@ -38,15 +38,15 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 	public final static String TAG_WORKSPACE_CURRENT_DIRECTORY = "workspaceCurrentDirectory";
 
-	public final static String TAG_MIDI_FILTER_DEVICE_MANAGER_GUI = "midiFilterDeviceManagerGUI";
+	public final static String TAG_MIDI_FILTER_MANAGER_GUI = "midiFilterManagerGUI";
 
 	public final static String TAG_MIDI_FILTER_GUI_CURRENT_DIRECTORY = "midiFilterGUICurrentDirectory";
 
-	public final static String TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI = "hexFileUploadDeviceManagerGUI";
+	public final static String TAG_HEX_FILE_UPLOAD_MANAGER_GUI = "hexFileUploadManagerGUI";
 
 	public final static String TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY = "hexFileUploadGUICurrentDirectory";
 
-	public final static String TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI = "sysexSendReceiveDeviceManagerGUI";
+	public final static String TAG_SYSEX_SEND_RECEIVE_MANAGER_GUI = "sysexSendReceiveManagerGUI";
 
 	public final static String TAG_SYSEX_SEND_RECEIVE_GUI_CURRENT_DIRECTORY = "sysexSendReceiveGUICurrentDirectory";
 
@@ -151,8 +151,8 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			addTag(TAG_MAIN_WINDOW);
 			addTag(TAG_INTERNAL_FRAMES);
-			addTag(TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI);
-			addTag(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
+			addTag(TAG_SYSEX_SEND_RECEIVE_MANAGER_GUI);
+			addTag(TAG_HEX_FILE_UPLOAD_MANAGER_GUI);
 		}
 
 		if (includeExternalCommands) {
@@ -171,7 +171,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 			addTag(TAG_WORKSPACE_CURRENT_DIRECTORY);
 			addTag(TAG_WORKSPACE_MRU_LIST);
 			addTag(TAG_WORKSPACE_MRU);
-			addTag(TAG_MIDI_FILTER_DEVICE_MANAGER_GUI);
+			addTag(TAG_MIDI_FILTER_MANAGER_GUI);
 			addTag(TAG_MIDI_FILTER_GUI_CURRENT_DIRECTORY);
 			addTag(TAG_MIDI_FILTER_GUI_MRU_LIST);
 			addTag(TAG_MIDI_FILTER_GUI_MRU);
@@ -334,14 +334,14 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			MIOSStudioGUI.setCurrentDirectory(element.getTextContent());
 
-		} else if (name == TAG_MIDI_FILTER_DEVICE_MANAGER_GUI) {
+		} else if (name == TAG_MIDI_FILTER_MANAGER_GUI) {
 
 		} else if (name == TAG_MIDI_FILTER_GUI_CURRENT_DIRECTORY) {
 
 			MidiFilterGUI.setCurrentDirectory(element.getTextContent());
 
-		} else if (name == TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI) {
-			
+		} else if (name == TAG_SYSEX_SEND_RECEIVE_MANAGER_GUI) {
+
 			int tabIndex = stringToInt(element.getAttribute(ATTR_SELECTED_TAB));
 
 			if (tabIndex < miosStudioGUI.getSysexSendReceiveDeviceManagerGUI()
@@ -356,7 +356,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			SysexSendReceiveGUI.setCurrentDirectory(element.getTextContent());
 
-		} else if (name == TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI) {
+		} else if (name == TAG_HEX_FILE_UPLOAD_MANAGER_GUI) {
 
 			int tabIndex = stringToInt(element.getAttribute(ATTR_SELECTED_TAB));
 
@@ -488,7 +488,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 			}
 
 			sysexSendReceiveDeviceManagerGUIelement = document
-					.createElement(TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI);
+					.createElement(TAG_SYSEX_SEND_RECEIVE_MANAGER_GUI);
 
 			rootElement.appendChild(sysexSendReceiveDeviceManagerGUIelement);
 
@@ -498,7 +498,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 							.getTabbedPane().getSelectedIndex()));
 
 			hexFileUploadDeviceManagerGUIelement = document
-					.createElement(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
+					.createElement(TAG_HEX_FILE_UPLOAD_MANAGER_GUI);
 
 			rootElement.appendChild(hexFileUploadDeviceManagerGUIelement);
 
@@ -543,7 +543,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			if (sysexSendReceiveDeviceManagerGUIelement == null) {
 				sysexSendReceiveDeviceManagerGUIelement = document
-						.createElement(TAG_SYSEX_SEND_RECEIVE_DEVICE_MANAGER_GUI);
+						.createElement(TAG_SYSEX_SEND_RECEIVE_MANAGER_GUI);
 
 				rootElement
 						.appendChild(sysexSendReceiveDeviceManagerGUIelement);
@@ -560,7 +560,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 			if (hexFileUploadDeviceManagerGUIelement == null) {
 				hexFileUploadDeviceManagerGUIelement = document
-						.createElement(TAG_HEX_FILE_UPLOAD_DEVICE_MANAGER_GUI);
+						.createElement(TAG_HEX_FILE_UPLOAD_MANAGER_GUI);
 
 				rootElement.appendChild(hexFileUploadDeviceManagerGUIelement);
 			}
@@ -612,7 +612,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 			}
 
 			Element midiFilterDeviceManagerGUIelement = document
-					.createElement(TAG_MIDI_FILTER_DEVICE_MANAGER_GUI);
+					.createElement(TAG_MIDI_FILTER_MANAGER_GUI);
 
 			rootElement.appendChild(midiFilterDeviceManagerGUIelement);
 

@@ -2,7 +2,7 @@ package org.midibox.apps.virtualkeyboard.xml;
 
 import org.midibox.apps.virtualkeyboard.VirtualKeyboard;
 import org.midibox.midi.xml.MidiDeviceRoutingXML;
-import org.midibox.midi.xml.MidiKeyboardControllerDeviceXML;
+import org.midibox.midi.xml.MidiKeyboardControllerXML;
 import org.midibox.utils.xml.XMLUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,7 +21,7 @@ public class VirtualKeyboardXML extends XMLUtils {
 		this.virtualKeyboard = virtualKeyboard;
 
 		addTag(MidiDeviceRoutingXML.TAG_ROOT_ELEMENT);
-		addTag(MidiKeyboardControllerDeviceXML.TAG_ROOT_ELEMENT);
+		addTag(MidiKeyboardControllerXML.TAG_ROOT_ELEMENT);
 	}
 
 	protected void parseElement(Element element) {
@@ -40,13 +40,13 @@ public class VirtualKeyboardXML extends XMLUtils {
 
 			midiDeviceRoutingXML.loadXML(element);
 
-		} else if (name == MidiKeyboardControllerDeviceXML.TAG_ROOT_ELEMENT) {
+		} else if (name == MidiKeyboardControllerXML.TAG_ROOT_ELEMENT) {
 
-			MidiKeyboardControllerDeviceXML midiKeyboardControllerDeviceXML = new MidiKeyboardControllerDeviceXML(
-					virtualKeyboard.getMidiKeyboardControllerDevice(),
-					MidiKeyboardControllerDeviceXML.TAG_ROOT_ELEMENT);
+			MidiKeyboardControllerXML midiKeyboardControllerXML = new MidiKeyboardControllerXML(
+					virtualKeyboard.getMidiKeyboardController(),
+					MidiKeyboardControllerXML.TAG_ROOT_ELEMENT);
 
-			midiKeyboardControllerDeviceXML.loadXML(element);
+			midiKeyboardControllerXML.loadXML(element);
 		}
 	}
 
@@ -60,9 +60,9 @@ public class VirtualKeyboardXML extends XMLUtils {
 
 		midiDeviceRoutingXML.saveXML(rootElement);
 
-		MidiKeyboardControllerDeviceXML midiKeyboardControllerDeviceXML = new MidiKeyboardControllerDeviceXML(
-				virtualKeyboard.getMidiKeyboardControllerDevice(),
-				MidiKeyboardControllerDeviceXML.TAG_ROOT_ELEMENT);
+		MidiKeyboardControllerXML midiKeyboardControllerDeviceXML = new MidiKeyboardControllerXML(
+				virtualKeyboard.getMidiKeyboardController(),
+				MidiKeyboardControllerXML.TAG_ROOT_ELEMENT);
 
 		midiKeyboardControllerDeviceXML.saveXML(rootElement);
 	}

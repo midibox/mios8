@@ -117,15 +117,15 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 	private JTable channelsTable;
 
 	private DefaultTableModel channelsModel;
-	
+
 	private JPopupMenu MRUPopupMenu;
-	
+
 	private SplitButton openMRUButton;
 
-	private static int maxMRU = 10;	
+	private static int maxMRU = 10;
 
 	private static String currentDirectory = "";
-	
+
 	private static Vector MRU = new Vector();
 
 	private static JFileChooser fc = null;
@@ -418,7 +418,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 
 		openMRUButton = new SplitButton(button, MRUPopupMenu);
 		openMRUButton.setRollover(true);
-		
+
 		toolBar.add(openMRUButton);
 
 		button = new JButton(ImageLoader.getImageIcon("save.png"));
@@ -463,25 +463,25 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
 	}
-	
+
 	protected void loadFilterDefinition(File file) {
-		
+
 		if (file.exists()) {
-			
+
 			MidiFilterXML midiFilterXML = new MidiFilterXML(midiFilter,
 					MidiFilterXML.TAG_ROOT_ELEMENT);
 
 			midiFilterXML.loadXML(file);
-			
+
 			saveMRU(file.getPath());
-			
+
 		} else {
 			JOptionPane.showMessageDialog(this,
 					"MIDI filter definition no longer exists",
 					"File does not exist", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	private void buildMRUMenu(JComponent menu) {
 
 		menu.removeAll();
@@ -505,7 +505,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 			menu.add(menuItem, 0);
 		}
 	}
-	
+
 	public static void saveMRU(String file) {
 
 		MRU.remove(file);
@@ -517,7 +517,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 			MRU.removeElementAt(i - 1);
 		}
 	}
-	
+
 	public static Vector getMRU() {
 		return MRU;
 	}
@@ -548,7 +548,7 @@ public class MidiFilterGUI extends JPanel implements Observer, ActionListener {
 			midiFilterXML.saveXML(file);
 
 			saveMRU(file.getPath());
-				
+
 			currentDirectory = fc.getCurrentDirectory().toString();
 		}
 	}

@@ -48,6 +48,7 @@ import java.util.Observer;
 import java.util.Vector;
 
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.Receiver;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -72,6 +73,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.midibox.midi.MidiDeviceRouting;
+import org.midibox.midi.VirtualMidiDevice;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.GuiUtils;
 import org.midibox.utils.gui.ImageLoader;
@@ -351,6 +353,20 @@ public class MidiDeviceRoutingGUI extends JPanel implements MouseListener,
 	}
 
 	public Icon getMidiDeviceIcon(MidiDevice md) {
+
+		if (md instanceof VirtualMidiDevice) {
+
+			Receiver receiver = ((VirtualMidiDevice) md).getMidiInReceiver();
+
+			if (icons.containsKey(receiver)) {
+				return (Icon) icons.get(receiver);
+			}
+
+			if (icons.containsKey(receiver.getClass())) {
+				return (Icon) icons.get(receiver.getClass());
+			}
+		}
+
 		if (icons.containsKey(md)) {
 			return (Icon) icons.get(md);
 		}

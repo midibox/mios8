@@ -157,7 +157,7 @@ public class SIDV2EditorGUI extends JPanel implements Observer, ActionListener,
 			sidEditController.deleteObserver(this);
 		}
 		sidv2librarian.reconnectAllDevices(); // java.sound.midi SysEx bug
-												// workaround
+		// workaround
 
 		sidEditController = new SIDEditController(sidLibController
 				.getCurrentPatch());

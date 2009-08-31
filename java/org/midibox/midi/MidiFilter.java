@@ -358,4 +358,8 @@ public class MidiFilter extends Observable implements Receiver {
 			receiver.send(message, timestamp);
 		}
 	}
+
+	public void setReceiver(Receiver receiver) {
+		this.receiver = receiver;
+	}
 }
