@@ -35,7 +35,7 @@ HEADER 3 MIDIbox SEQ V3 Hardware Options
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Detented or Non-Detented Encoders? </H2></DT>
   <DD>
    <P CLASS=DESC>In difference to suggestions for MIOS based MIDI controllers, for MIDIbox SEQ I strongly recomment <B>detented rotary encoders</B>! Of course, MIOS provides three types, and all are working. But for a sequencer, where you want to select the notes exactly and not "smoothly", detented encoders are really the prefered ones.</P>
-   <P CLASS=DESC>Note that there are two different types of detented rotary encoders (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoder_specifications">this Wiki page</A>). The setup_mbseq_v3.asm file has been preconfigured for "MIOS_ENC_MODE_DETENTED2", which is the most commonly used (encoders provided by Voti/SmashTV). If you notice, that your encoders only work in one direction, please change the type to "MIOS_ENC_MODE_DETENTED" at the bottom of the setup file.</P>
+   <P CLASS=DESC>Note that there are two different types of detented rotary encoders (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders">this Wiki page</A>). The setup_mbseq_v3.asm file has been preconfigured for "MIOS_ENC_MODE_DETENTED2", which is the most commonly used (encoders provided by Voti/SmashTV). If you notice, that your encoders only work in one direction, please change the type to "MIOS_ENC_MODE_DETENTED" at the bottom of the setup file.</P>
   </DD>
 </DL>
 
@@ -114,9 +114,7 @@ HEADER 3 MIDIbox SEQ V3 Hardware Options
   <P CLASS=DESC>For the first MBHP_IIC_MIDI module the MIDI OUT and IN port is supported. The MIDI IN is intended as <B>alternative</B> input to connect a MIDI keyboard if the core based MIDI IN is already allocated by a connection to a MIDI clock master device. Incoming data can also be routed to the MIDI OUT and AOUT ports. But: this MIDI input neither supports receiving MIDI clock, nor forwarding SysEx data (this possibility would affect the overall performance of the application).</P>
   <P CLASS=DESC>For the remaining three MBHP_IIC_MIDI modules the MIDI IN port is <B>not</B> supported, accordingly the <A HREF="mbhp/mbhp_iic_midi_out_only.pdf">"OUT only"</A> version is sufficient.</P>
   <P CLASS=DESC>Following diagram shows the <a href="midibox_seq/mbseq_v3_interconnections.pdf">module interconnections</A>. Note that J2:RI of the first IIC module has to be connected to J6:SI of the core module. This connection is new since MIDIbox SEQ V3.2 - without this connection MIDI IN data won't be transfered to the core!</P>
-  <P CLASS=DESC>If only one module is used, ID "10" is recommented (for IIC0), and this IIC ID should also be stored in the MIOS ID header (-> 000000100000)! If you've purchased a preburned PIC with an "all-zero" ID, you can adapt the ID with the "change_id" application. There is a prebuilt "iic_midi_10.hex" file in the package, which can be uploaded for doing the required modifications. After the upload, MIOS will redirect outgoing MIDI data to the MIDI Out port of the MBHP_IIC_MIDI module.</P>
-  <P CLASS=DESC>The other three MBHP_IIC_MIDI modules don't require special modifications in the MIOS ID header.</P>
-  <P CLASS=DESC>In any case (regardless of the MIOS ID header), the modules will be detected by the MIDIbox SEQ application automatically during startup. "Hot plug&play" while the application is running is not supported.</P>
+  <P CLASS=DESC>The modules will be detected by the MIDIbox SEQ application automatically during startup. "Hot plug&play" while the application is running is not supported.</P>
   </DD>
 </DL>
 
@@ -153,7 +151,7 @@ HEADER 3 MIDIbox SEQ V3 Hardware Options
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> CV outputs </H2></DT>
   <DD>
-   <P CLASS=DESC>MIDIbox SEQ V3 can control up to 8 analog outputs by connecting an <A HREF="mbhp_aout.html">MBHP_AOUT</A> module, or up to 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> modules to the core.</P>
+   <P CLASS=DESC>MIDIbox SEQ V4 can control up to 8 analog outputs by connecting an <A HREF="mbhp_aout.html">MBHP_AOUT</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module, or up to 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> modules to the core.</P>
    <P CLASS=DESC>Up to 8 digital triggers (gates) are available at J5 of the core module. They have to be enabled in the setup_mbseq_v3.asm file (this is to avoid a short circuit for the case that somebody uploads the .hex file on a MIDIbox where pots are connected to J5)</P>
    <P CLASS=DESC>For those who cannot get enough, 48 additional drum triggers are available in the DOUT chain. They can be controlled with individual key numbers and trigger a pulse of 1 mS. The used DOUT shift registers have to be defined in the setup_mbseq_v3.asm file (DEFAULT_ENABLE_DOUT_GATE_*)</P>
    <P CLASS=DESC>Tracks can be assigned to the outputs in the MIDI event menu. It's also possible to route incoming MIDI events to the AOUT/gate triggers in addition (this replaces a CV interface completely). The AOUT channel and trigger routing is described in the <A HREF="midibox_seq_manual.html">User Manual</A>.</P>
@@ -166,7 +164,7 @@ HEADER 3 MIDIbox SEQ V3 Hardware Options
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware costs </H2></DT>
    <DD>
    <P CLASS=INFO>Here a list of a common "MIDIbox SEQ V3" setup - you can reduce the costs by choosing cheaper buttons, a cheaper case/panel and by organizing collective orders in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A>!</P>
-   <P CLASS=INFO>Note that premade PCBs can be purchased at <A HREF="http://www.mikes-elektronikseite.de/midiseite.htm" TARGET="_blank">www.mikes-elektronikseite.de</A> or <A HREF="http://mbhp.coinoptech.com/" TARGET="_blank">http://mbhp.coinoptech.com</A>. They also purchase complete kits for the modules and some of the other parts (like rotary encoders).</P>
+   <P CLASS=INFO>Note that premade PCBs can be purchased at <A HREF="http://www.mikes-elektronikseite.de/midiseite.htm" TARGET="_blank">www.mikes-elektronikseite.de</A> or <A HREF="http://mbhp.avishowtech.com" TARGET="_blank">http://mbhp.avishowtech.com (SmashTV)</A>. They also purchase complete kits for the modules and some of the other parts (like rotary encoders).</P>
    <P CLASS=INFO>Prices and ordering numbers are from <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> if not specified. A list of alternative electronic shops outside germany can be found in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=where_to_order_components">Wiki</A></P>
    <DD><TABLE WIDTH=550 BORDER=0 CELLSPACING=5 CELLPADDING=0>
     <TR>
@@ -193,7 +191,7 @@ HEADER 3 MIDIbox SEQ V3 Hardware Options
                           PCB: ca. 5 EUR</TD>
     </TR>
     <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp_iic_midi.html">1 IIC_MIDI</A><BR>module</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp_iic_midi.html">IIC_MIDI</A><BR>module</TD>
       <TD CLASS=TABCOLOR2>Optional: 1..4 MBHP_IIC_MIDI modules for additional MIDI Out ports<BR>Note that the <A HREF="mbhp/mbhp_iic_midi_out_only.pdf">"OUT only"</A> version is sufficient - this reduces the part costs!</TD>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi_orderlist.txt">Parts: ca. n x 5 EUR</A><BR>
                           PCB: ca. n x 5 EUR</TD>
