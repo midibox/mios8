@@ -5,8 +5,52 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Installation
 <H1>MIDIbox SEQ V4</H1>
 <H1>User Manual --- Installation</H1>
 
-<P CLASS=INFO>Placeholder...<BR>
-<A HREF="midibox_seq_v3_options.html">Link to MIDIbox SEQ V3 Options</A>
+<P CLASS=INFO>The MIDIbox SEQ V4 firmware is released as a precompiled binary, which can be easily updated via USB MIDI by using MIOS Studio. Details about the bootloader are explained <A HREF="mios32_bootstrap_newbies.html">here</A>.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Step by Step </H2>
+
+<UL CLASS=CL>
+  <LI>it's assumed that you already tested the USB MIDI communication by pressing the Query button in MIOS Studio as explained in the <A HREF="mios32_bootstrap_newbies.html">Bootloader page</A> - you should get some informations about the chip and the running application.<BR>
+      If this procedure sounds unfamiliar to you, please follow the hardware test procedure first as explained in the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> page.</LI>
+  <LI>download the latest midibox_seq_v4_* release package from the <A HREF="mios32_download.html">MIOS32 Download Page</A>.
+  <LI>unzip the .zip archive</A>.
+  <LI>load the project.hex file with the "Hex Upload" window of MIOS Studio and press the Start button</A>.
+  <LI>the new firmware will be transfered to your MIDIbox</A>.
+  <LI>once the "Upload completed" message is displayed by MIOS Studio (after ca. 20..30 seconds), your MIDIbox will reboot, and the new firmware will be started.</A>.
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MBSEQ_HW.V4 </H2>
+
+<P CLASS=DESC>Some premade configuration files are located in the <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2F">hwcfg/ directory</A> of the release package. One of these files has to be copied into the root directory of the SD Card. Adaptions can be made if the default setup doesn't already match with your hardware, such as LED/Button/Encoder assignments, optional Button/LED Matrix setup, AOUT interface type, etc.</P>
+
+<P CLASS=DESC>So long no SD Card is connected, or the file cannot be found, the standard V4 definitions will be used as documented in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2Fstandard_v4%2FMBSEQ_HW.V4">hwcfg/standard_v4/MBSEQ_HW.V4</A>.</P>
+
+<P CLASS=DESC>The MBSEQ_HW.V4 file can be edited with a common text editor.</P>
+
+<P CLASS=DESC>It will be loaded (only once!) after startup. In distance to other configuration files, it won't be loaded again if the SD Card is reconnected to avoid sequencer hick-ups during runtime, and to cover the special case where files should be loaded from a SD card which contains a MBSEQ_HW.V4 file for a different hardware.</P>
+
+<P CLASS=DESC>Procedure to modify the configuration file:
+  <UL CLASS=CL>
+    <LI>ensure that the USB cable is connected to your PC/Mac
+    <LI>go to Utility->Disk and activate MSD mode
+    <LI>wait until your operating system detected and mounted the SD Card
+    <LI>open to the root directory of the SD Card and edit the MBSEQ_HW.V4 file with a text editor (e.g. Wordpad under Windows)
+    <LI>unmount the SD Card (don't forget this, otherwise it can happen that your OS doesn't update the file!)
+    <LI>in order to load the new configuration, power-off/on your MIDIbox
+  </UL>
 </P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Initial setup for Wilba's Frontpanel </H2>
+
+<P CLASS=DESC><A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_seq" TARGET="_blank">Wilba's Frontpanel</A> uses a special button/LED layout which is not compatible to the standard frontpanel. Accordingly, you won't be able to access the intended button functions so long the standard assignments are active (e.g. no SD Card connected).</P>
+
+<P CLASS=DESC>In order to get the frontpanel working correctly, please copy the prepared configuration file <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2Fwilba%2FMBSEQ_HW.V4">hwcfg/wilba/MBSEQ_HW.V4</A> into the root directory of the SD Card.</P>
+
+<P CLASS=DESC>Since the integrated MSD function is not accessible at this time, an external SD Card reader has to be used.</P>
+
+<P CLASS=DESC>Alternatively the <A HREF="mios32_download.html">usb_mass_storage_device</A> firmware can be temporary uploaded into the STM32 which provides the same function without the need for pushing buttons. Once the MBSEQ_HW.V4 file has been copied, upload the midibox_seq_v4 firmware again - the file will now be found by the firmware, and all encoders/buttons/LEDs should work correctly!</P>
 
 FOOTER

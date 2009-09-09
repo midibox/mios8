@@ -9,290 +9,233 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 
 <P CLASS=INFO>This page discusses various hardware options which are provided by <A HREF="midibox_seq.html">MIDIbox SEQ V4</A>.</P>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> USB MIDI </H2></DT>
-  <DD>
-    <P CLASS=DESC>Thanks to the integrated USB peripheral of <A HREF="mbhp_core_stm32.html">STM32</A>, USB MIDI is natively supported by the firmware. This simplifies the upload of new firmwares, and speeds up MIDI transfers to your DAW and/or virtual synthesizers up to 100 times and more - see also <A HREF="http://www.midibox.org/forum/index.php/topic,13542.0.html">this forum article</A>.</P>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> USB MIDI </H2>
+
+<P CLASS=DESC>Thanks to the integrated USB peripheral of <A HREF="mbhp_core_stm32.html">STM32</A>, USB MIDI is natively supported by the firmware. This simplifies the upload of new firmwares, and speeds up MIDI transfers to your DAW and/or virtual synthesizers up to 100 times and more - see also <A HREF="http://www.midibox.org/forum/index.php/topic,13542.0.html">this forum article</A>.</P>
     <P CLASS=DESC>The sequencer will also run without USB of course. Two MIDI IN and MIDI OUT ports are provided by the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module for connecting MIDI devices such as synthesizers, drum machines, Fx gear, keyboards, etc.</P>
-  </DD>
-</DL>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Power Supply </H2></DT>
-  <DD>
-    <P CLASS=DESC>The power consumption of a common MIDIbox SEQ V4 configuration is about 400..1000 mA depending on the used LCDs and LEDs. Especially blue backlights and LEDs can increase the consumption dramatically!</P>
 
-    <P CLASS=DESC>It's recommented to supply the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module from an external PSU (e.g. a wall adapter) connected to J1. Jumper J17 (USB Power Option) has to be disconnected in this case!</P>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Power Supply </H2>
 
-    <P CLASS=DESC>Alternatively MIDIbox SEQ V4 can be powered from the USB port (PSU removed from J1, J17 jumper connected) if an USB hub with external power supply is used.</P>
-  </DD>
-</DL>
+<P CLASS=DESC>The power consumption of a common MIDIbox SEQ V4 configuration is about 400..1000 mA depending on the used LCDs and LEDs. Especially blue backlights and LEDs can increase the consumption dramatically!</P>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> SD Card </H2></DT>
-  <DD>
-    <P CLASS=DESC>A <A HREF="mbhp_sdcard.html">SD Card</A> is required as data storage for patterns, songs, grooves, options, the hardware configuration, MIDI files, SysEx dumps and various other files. It obsoletes the BankSticks which were used in previous MIDIbox SEQ versions due to many advantages: cheaper, much more data can be stored, easy availability (even in supermarkets), easy data exchange/backups with a computer.</P>
+<P CLASS=DESC>It's recommented to supply the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module from an external PSU (e.g. a wall adapter) connected to J1. Jumper J17 (USB Power Option) has to be disconnected in this case!</P>
 
-    <P CLASS=DESC>The MIDIbox SEQ V4 firmware provides an integrated SD Card Reader function via USB which gets use of the Mass Storage Device (MSD) protocol, so that the SD Card can be mounted from your operating system (Windows/MacOS/Linux/etc...) without the need for a driver installation. The MSD mode has to be activated in the Disk menu (press Utility->Disk). It overrules the USB MIDI driver, which will be available again once the SD Card has been unmounted from the operating system.</P>
+<P CLASS=DESC>Alternatively MIDIbox SEQ V4 can be powered from the USB port (PSU removed from J1, J17 jumper connected) if an USB hub with external power supply is used.</P>
 
-    <P CLASS=DESC>Thanks to this useful feature, it's possible to build the SD Card into the case (no need for an external socket).</P>
 
-    <P CLASS=DESC>If you've the choice, buy a SD Card with speed factor 100x or more - it directly affects the access time to files. A speed factor of less than x60 is not sufficient for the realtime requirements (e.g. while changing patterns), the sequencer could sporadically block for a couple of mS which can result into temporal hang-ups.</P>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SD Card </H2>
 
-    <P CLASS=DESC>SD Card size: typically only ca. 5 MB are allocated by MBSEQ_* files. The remaining disk space can be used for storing backups, SysEx dumps and MIDI files, but probably never more than 50..200 MB will be used. Accordingly, a 256MB or 512MB card is already sufficient. Using a 1, 2 or 4 GB card is great but not really required. Sizes > 4 GB are *not* supported by the file system (FAT32) anyhow, and therefore not recommented.</P>
-  </DD>
-</DL>
+<P CLASS=DESC>A <A HREF="mbhp_sdcard.html">SD Card</A> is required as data storage for patterns, songs, grooves, options, the hardware configuration, MIDI files, SysEx dumps and various other files. It obsoletes the BankSticks which were used in previous MIDIbox SEQ versions due to many advantages: cheaper, much more data can be stored, easy availability (even in supermarkets), easy data exchange/backups with a computer.</P>
 
-<DL>
- <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MBSEQ_HW.V4 </H2></DT>
- <DD>
-    <P CLASS=DESC>Some premade configuration files are located in the <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2F">hwcfg/ directory</A> of the release package. One of these files has to be copied into the root directory of the SD Card. Adaptions can be made if the default setup doesn't already match with your hardware, such as LED/Button/Encoder assignments, optional Button/LED Matrix setup, AOUT interface type, etc.</P>
+<P CLASS=DESC>The MIDIbox SEQ V4 firmware provides an integrated SD Card Reader function via USB which gets use of the Mass Storage Device (MSD) protocol, so that the SD Card can be mounted from your operating system (Windows/MacOS/Linux/etc...) without the need for a driver installation. The MSD mode has to be activated in the Disk menu (press Utility->Disk). It overrules the USB MIDI driver, which will be available again once the SD Card has been unmounted from the operating system.</P>
 
-    <P CLASS=DESC>So long no SD Card is connected, or the file cannot be found, the standard V4 definitions will be used as documented in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2Fstandard_v4%2FMBSEQ_HW.V4">hwcfg/standard_v4/MBSEQ_HW.V4</A>.</P>
+<P CLASS=DESC>Thanks to this useful feature, it's possible to build the SD Card into the case (no need for an external socket).</P>
 
-    <P CLASS=DESC>The MBSEQ_HW.V4 file can be edited with a common text editor.</P>
+<P CLASS=DESC>If you've the choice, buy a SD Card with speed factor 100x or more - it directly affects the access time to files. A speed factor of less than x60 is not sufficient for the realtime requirements (e.g. while changing patterns), the sequencer could sporadically block for a couple of mS which can result into temporal hang-ups.</P>
 
-    <P CLASS=DESC>It will be loaded (only once!) after startup. In distance to other configuration files, it won't be loaded again if the SD Card is reconnected to avoid sequencer hick-ups during runtime, and to cover the special case where files should be loaded from a SD card which contains a MBSEQ_HW.V4 file for a different hardware.</P>
+<P CLASS=DESC>SD Card size: typically only ca. 5 MB are allocated by MBSEQ_* files. The remaining disk space can be used for storing backups, SysEx dumps and MIDI files, but probably never more than 50..200 MB will be used. Accordingly, a 256MB or 512MB card is already sufficient. Using a 1, 2 or 4 GB card is great but not really required. Sizes > 4 GB are *not* supported by the file system (FAT32) anyhow, and therefore not recommented.</P>
 
-    <P CLASS=DESC>Procedure to modify the configuration file:
-      <UL CLASS=CL>
-        <LI>ensure that the USB cable is connected to your PC/Mac
-        <LI>go to Utility->Disk and activate MSD mode
-        <LI>wait until your operating system detected and mounted the SD Card
-        <LI>open to the root directory of the SD Card and edit the MBSEQ_HW.V4 file with a text editor (e.g. Wordpad under Windows)
-        <LI>unmount the SD Card (don't forget this, otherwise it can happen that your OS doesn't update the file!)
-        <LI>in order to load the new configuration, power-off/on your MIDIbox
-      </UL>
-    </P>
-  </DD>
-</DL>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Pots or Encoders? </H2></DT>
-  <DD>
-   <P CLASS=DESC>MIDIbox SEQ V4 only provides an user interface with 16 rotary encoders (endless knobs) + 1 data wheel (the 17th rotary encoder).</P>
-   <P CLASS=DESC>Analog pots are not supported. The reason: pot control might sound like "vintage", "old style" and "analog sequencer", and possibly could imply that pots are the best solution for perfect sequences, but this is just a popular fallacy and nothing else! In fact pots are only useful for sequencers which are controlling the analog gear directly, but for a MIDI sequencer you defenitely want to have features like "total recall" and "jumpless switching" between tracks, layers and patterns.</P>
-   <P CLASS=DESC>In addition, the menu pages of MIDIbox SEQ V4 rely on rotary encoders more than before. MIDIbox SEQ has a flat menu hierarchy, and this requires that all values can be changed directly - with the 16 rotary encoders.</P>
-  </DD>
-</DL>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Pots or Encoders? </H2>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Inc/Dec button or Datawheel? </H2></DT>
-  <DD>
-   <P CLASS=DESC>For the menu navigation and data entry either Inc/Dec buttons and/or a datawheel can be used. The datawheel (rotary encoder with big knob) should be the prefered solution since it simplifies the selection of parameters with a wide value range (like BPM).</P>
-   <P CLASS=DESC>If you are planning a new frontpanel, it even could make sense to consider both - datawheel <B>and</B> Inc/Dec buttons, because buttons are sometimes better for finetuning parameters. The Fwd/Rew buttons can be used for the same purpose by default, but only so long the Song mode is not active.
-  </DD>
-</DL>
+<P CLASS=DESC>MIDIbox SEQ V4 only provides an user interface with 16 rotary encoders (endless knobs) + 1 data wheel (the 17th rotary encoder).</P>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Detented or Non-Detented Encoders? </H2></DT>
-  <DD>
-   <P CLASS=DESC>In difference to suggestions for MIOS based MIDI controllers, for MIDIbox SEQ I strongly recomment <B>detented rotary encoders</B>! Of course, MIOS provides three types, and all are working. But for a sequencer, where you want to select the notes exactly and not "smoothly", detented encoders are really the prefered ones.</P>
-   <P CLASS=DESC>Note that there are three different types of detented rotary encoders (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders">this Wiki page</A>). The MBSEQ_HW.V4 file has been preconfigured for "DETENTED2", which is the most commonly used (encoders provided by Voti/SmashTV). If you notice, that your encoders only work in one direction, please change the type to "DETENTED1" or "DETENTED3" at the bottom of the setup file.</P>
-  </DD>
-</DL>
+<P CLASS=DESC>Analog pots are not supported. The reason: pot control might sound like "vintage", "old style" and "analog sequencer", and possibly could imply that pots are the best solution for perfect sequences, but this is just a popular fallacy and nothing else! In fact pots are only useful for sequencers which are controlling the analog gear directly, but for a MIDI sequencer you defenitely want to have features like "total recall" and "jumpless switching" between tracks, layers and patterns.</P>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> How many buttons? </H2></DT>
-  <DD>
-   <P CLASS=DESC>If you are building a new MIDIbox SEQ it's highly recommented to mount at least the buttons which are used in the original V3/V4 design to ensure best ergonomic handling. This means, that you want to use at least 44 buttons!</P>
-   <P CLASS=DESC>With MIDIbox SEQ V4, some new button functions have been introduced, which should be considered on new frontpanel layouts. These are:
+<P CLASS=DESC>In addition, the menu pages of MIDIbox SEQ V4 rely on rotary encoders more than before. MIDIbox SEQ has a flat menu hierarchy, and this requires that all values can be changed directly - with the 16 rotary encoders.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Inc/Dec Buttons or Datawheel? </H2>
+
+<P CLASS=DESC>For the menu navigation and data entry either Inc/Dec (Up/Down) buttons and/or a datawheel can be used. The datawheel (rotary encoder with big knob) should be the prefered solution since it simplifies the selection of parameters with a wide value range (like BPM).</P>
+
+<P CLASS=DESC>If you are planning a new frontpanel, it even could make sense to consider both - datawheel <B>and</B> Inc/Dec buttons, because buttons are sometimes better for finetuning parameters. The Fwd/Rew buttons can be used for the same purpose by default, but only so long the Song mode is not active.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Detented or Non-Detented Encoders? </H2>
+
+<P CLASS=DESC>In difference to suggestions for MIOS based MIDI controllers, for MIDIbox SEQ I strongly recomment <B>detented rotary encoders</B>! Of course, MIOS provides three types, and all are working. But for a sequencer, where you want to select the notes exactly and not "smoothly", detented encoders are really the prefered ones.</P>
+<P CLASS=DESC>Note that there are three different types of detented rotary encoders (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders">this Wiki page</A>). The MBSEQ_HW.V4 file (stored on SD Card) has been preconfigured for "DETENTED2", which is the most commonly used (encoders provided by Voti/SmashTV). If you notice, that your encoders only work in one direction, please change the type to "DETENTED1" or "DETENTED3" at the bottom of the setup file.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> How many buttons? </H2>
+
+<P CLASS=DESC>If you are building a new MIDIbox SEQ it's highly recommented to mount at least the buttons which are used in the original V3/V4 design to ensure best ergonomic handling. This means, that you want to use at least 44 buttons!</P>
+<P CLASS=DESC>With MIDIbox SEQ V4, some new button functions have been introduced, which should be considered on new frontpanel layouts. These are:
 <UL CLASS=CL>
   <LI><B>Group Select Button 1/2/3/4</B>: Four buttons which provide a direct access to the four track groups. In combination with the four track buttons, this allows you to change between the 16 tracks quickly.<BR>
-    With the MBSEQ V2/V3 frontpanel, the track group has to be selected with the F4 button (called "TrackSel" now).</SPAN></LI>
+    With the MBSEQ V2/V3 frontpanel, the track group has to be selected with the F4 button.</SPAN></LI>
   <LI><B>Trigger Layer A/B/C:</B> Three buttons which provide a direct access to the trigger layers.<BR>
-      With the MBSEQ V2 frontpanel, the trigger layer has to be selected with the F3 button (called "TrigSel" now).</LI>
+      With the MBSEQ V2/V3 frontpanel, the trigger layer has to be selected with the F3 button.</LI>
   <LI><B>Step View:</B> Changes to the Step View selection display.<BR>
-      With the MBSEQ V2 frontpanel, the step view has to be selected with the F2 button (called "Step View" now).</LI>
-  <LI><B>Utility:</B> changes to the Utility menu, e.g. to select the Copy/Paste/Clear function.<BR>
-      With the MBSEQ V2 frontpanel, the step view has to be selected with the F1 button (called "Utility" now).</LI>
+      With the MBSEQ V2/V3 frontpanel, the step view has to be selected with the F2 button.</LI>
+  <LI><B>Utility:</B> changes to the Utility page, e.g. to access the Copy/Paste/Clear function.<BR>
+      With the MBSEQ V2/V3 frontpanel, the Utility page has to be selected with the F1 button.</LI>
 </UL>
 
-   <P CLASS=DESC>Note that there is also a <A HREF="midibox_seq/mbseqv4_remote_functions.pdf">MIDI Remote</A> feature available which allows you to trigger button functions with a MIDI keyboard. However, the handling isn't so perfect like with dedicated buttons (especially since the LEDs are missing on a master keyboard), but it works!</P>
-   <P CLASS=DESC>It isn't required that the buttons are assigned to the same DIN input pins like predefined in the MBSEQ_HW.V4 file. You are able to change the pinning for your (existing) hardware. But if you want to keep it compatible, then use exactly the same pinning like me.</P>
-   <P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_din.pdf">DIN Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></A></P>
-  </DD>
-</DL>
+<P CLASS=DESC>Note that there is also a <A HREF="midibox_seq/mbseqv4_remote_functions.pdf">MIDI Remote</A> feature available which allows you to trigger button functions with a MIDI keyboard. However, the handling isn't so perfect like with dedicated buttons (especially since the LEDs are missing on a master keyboard), but it works!</P>
+<P CLASS=DESC>It isn't required that the buttons are assigned to the same DIN input pins like predefined in the MBSEQ_HW.V4 file (stored on SD Card). You are able to change the pinning for your (existing) hardware. But if you want to keep it compatible, then use exactly the same pinning like me.</P>
+<P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_din.pdf">DIN Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></A></P>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> How many LEDs? </H2></DT>
-  <DD>
-   <P CLASS=DESC>Some button functions require a LED as some kind of feedback which is not given by the LCD. For example, the selected Track and Layer is not always displayed by the LCD, also Solo/Fast/All and especially the played (unmuted) steps.</P>
-   <P CLASS=DESC>This means that you want to have at least 30 LEDs. One additional LED can be added as beat indicator.</P>
-   <P CLASS=DESC>With MIDIbox SEQ V4, some new LED functions have been introduced, which should be considered on new frontpanel layouts. These are:
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> How many LEDs? </H2>
+
+<P CLASS=DESC>Some button functions require a LED as some kind of feedback which is not given by the LCD. For example, the selected Track and Layer is not always displayed by the LCD, also Solo/Fast/All and especially the played (unmuted) steps.</P>
+<P CLASS=DESC>This means that you want to have at least 30 LEDs. One additional LED can be added as beat indicator.</P>
+<P CLASS=DESC>With MIDIbox SEQ V4, some new LED functions have been introduced, which should be considered on new frontpanel layouts. These are:
 <UL CLASS=CL>
   <LI><B>Group Select LED 1/2/3/4</B>: to display the selected group</LI>
   <LI><B>Trigger Layer A/B/C:</B> to display the selected trigger layer</LI>
   <LI><B>16 Bicolour GP LEDs (Red/Green)</B>: improve the visualisation of the current step position</LI>
 </UL>
 
-   <P CLASS=DESC>Also LEDs for Play/Stop/Pause are available now. These LEDs have been requested, but if you ask me: they are not required...</P>
+<P CLASS=DESC>Also LEDs for Play/Stop/Pause are available now. These LEDs have been requested, but if you ask me: they are not required...</P>
+<P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_dout.pdf">DOUT Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></A></P>
 
-   <P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_dout.pdf">DOUT Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></A></P>
-  </DD>
-</DL>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Button/LED matrix </H2></DT>
-  <DD>
-   <P CLASS=DESC>By default the 16 "general purpose" LEDs (which belong to the 16 "general purpose" buttons) display the triggers of the current selected track. If the sequencer is running, they also display the current sequencer position by inverting the appr. step LED.</P>
-   <P CLASS=DESC>MIDIbox SEQ supports an option to handle 64 LEDs for all 4*16 steps of a pattern (which consists of 4 tracks). This option requires just 4 additional DOUT pins which are driving the cathodes of the LED rows.</P>
-   <P CLASS=DESC>It's even possible to use Duo-Colour LEDs, so that the step pointer gets an individual colour (no inversion of the active step required)</P>
-   <P CLASS=DESC>Another hardware option allows to use 64 instead of 16 GP buttons, or, to use the 64 buttons in addition to the 16 GP buttons.</P>
-   <P CLASS=DESC>All possible options, and the appr. settings are described in the MBSEQ_HW.V4 file of the release package.</P>
-   <P CLASS=DESC><A HREF="mbhp/button_duoled_matrix.pdf">Pinning of Button/Duo-LED matrix</A> <I>(Note: circuit needs to be improved for high-current LEDs!)</I></P>
-   <P CLASS=DESC>I built such a Button/Duo-LED matrix as some kind of "breakout box" for my MIDIbox SEQ, which sits on top of the sequencer - <A HREF="http://www.midibox.org/midibox_seq_blm_ext/">pictures</A>. <B>WARNING:</B> there is no premade PCB available - design not recommented for beginners!</P>
-  </DD>
-</DL>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Button/LED matrix </H2>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Which display size? </H2></DT>
-  <DD>
-   <P CLASS=DESC>For MIDIbox SEQ V4, <B>two 2x40 LCDs are required</B>! The menu pages won't be displayed completely on smaller LCDs, a software solution for 2x16 or 2x20 LCDs is not supported (and very hard to realize)!</P>
-   <P CLASS=DESC>A single 4x40 LCD as replacement for the two 2x20 LCDs is possible, but keep in mind, that this requires to arrange the GP buttons and rotary encoders at the top and the bottom of the LCD, so that they are aligned with the 8*5 character segments of the display. Without this alignment, menu item values cannot be edited intuitively.</P>
-  </DD>
-</DL>
+<P CLASS=DESC>By default the 16 "general purpose" LEDs (which belong to the 16 "general purpose" buttons) display the triggers of the current selected track. If the sequencer is running, they also display the current sequencer position by inverting the appr. step LED.</P>
+<P CLASS=DESC>MIDIbox SEQ supports an option to handle 64 LEDs for all 4*16 steps of a pattern (which consists of 4 tracks). This option requires just 4 additional DOUT pins which are driving the cathodes of the LED rows.</P>
+<P CLASS=DESC>It's even possible to use Duo-Colour LEDs, so that the step pointer gets an individual colour (no inversion of the active step required)</P>
+<P CLASS=DESC>Another hardware option allows to use 64 instead of 16 GP buttons, or, to use the 64 buttons in addition to the 16 GP buttons.</P>
+<P CLASS=DESC>All possible options, and the appr. settings are described in the MBSEQ_HW.V4 file of the release package.</P>
+<P CLASS=DESC><A HREF="mbhp/button_duoled_matrix.pdf">Pinning of Button/Duo-LED matrix</A> <I>(Note: circuit needs to be improved for high-current LEDs!)</I></P>
+<P CLASS=DESC>I built such a Button/Duo-LED matrix as some kind of "breakout box" for my MIDIbox SEQ, which sits on top of the sequencer - <A HREF="http://www.midibox.org/midibox_seq_blm_ext/">pictures</A>. <B>WARNING:</B> there is no premade PCB available - design not recommented for beginners!</P>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> BPM LED digits </H2></DT>
-  <DD>
-   <P CLASS=DESC>Optionally MIDIbox SEQ can be stuffed with 3 LED digits which display the current BPM value. Note that this only works in master mode, in slave mode SLA will be displayed instead. LED digits with common anode or cathode are supported. They are driven time multiplexed, and have to be connected to two dedicated shift registers like documented in <A HREF="midibox_seq/mbseq_v3_bpm_digits.pdf">this schematic</A>.
-  </DD>
-</DL>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_IIC_MIDI modules </H2></DT>
-  <DD><P CLASS=DESC>Up to 4 <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> modules can be added if desired (note: with a simple hack in the IIC firmware even 8 modules could be accessed from the sequencer - infos available on request).</P>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Which display size? </H2>
+
+<P CLASS=DESC>For MIDIbox SEQ V4, <B>two 2x40 LCDs are required</B>! The menu pages won't be displayed completely on smaller LCDs, a software solution for 2x16 or 2x20 LCDs is not supported (and very hard to realize)!</P>
+<P CLASS=DESC>A single 4x40 LCD as replacement for the two 2x20 LCDs is possible, but keep in mind, that this requires to arrange the GP buttons and rotary encoders at the top and the bottom of the LCD, so that they are aligned with the 8*5 character segments of the display. Without this alignment, menu item values cannot be edited intuitively.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> BPM LED digits </H2>
+
+<P CLASS=DESC>Optionally MIDIbox SEQ can be stuffed with 3 LED digits which display the current BPM value. Note that this only works in master mode, in slave mode SLA will be displayed instead. LED digits with common anode or cathode are supported. They are driven time multiplexed, and have to be connected to two dedicated shift registers like documented in <A HREF="midibox_seq/mbseq_v3_bpm_digits.pdf">this schematic</A>.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_IIC_MIDI modules </H2>
+
+<P CLASS=DESC>Up to 4 <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> modules can be added if desired (note: with a simple hack in the IIC firmware even 8 modules could be accessed from the sequencer - infos available on request).</P>
 
 <P CLASS=DESC>Main advantage of multiple MIDI ports is reduced latency (as MIDI events can be sent in parallel), and relaxed MIDI channel handling (for 4 synths you don't need to take care about the MIDI channel at all)</P>
   <P CLASS=DESC>The MIDI IN port is <B>not</B> supported, accordingly the <A HREF="mbhp/mbhp_iic_midi_out_only.pdf">"OUT only"</A> version is sufficient.</P>
   <P CLASS=DESC>Following diagram shows the <a href="midibox_seq/mbseq_v4_interconnections.pdf">module interconnections</A>.</P>
   <P CLASS=DESC>The modules will be detected by the MIDIbox SEQ application automatically during startup. "Hot plug&play" while the application is running is not supported.</P>
-  </DD>
-</DL>
 
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> CV outputs </H2></DT>
-  <DD>
-   <P CLASS=DESC>MIDIbox SEQ V4 can control up to 8 analog outputs by connecting an <A HREF="mbhp_aout.html">MBHP_AOUT</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module, or up to 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> modules to the core.</P>
-   <P CLASS=DESC>Up to 8 digital triggers (gates) are available at J5A/B of the core module. They have to be enabled with J5_ENABLED set to 1 in MBSEQ_HW.V4 (default). TODO: output voltage is only 3.3V - provide schematic for a buffer circuit - ask for more infos if interested.</P>
-   <P CLASS=DESC>For those who cannot get enough, 64 additional drum triggers are available in the DOUT chain. They can be controlled with individual key numbers and trigger a pulse of 1 mS. The used DOUT shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)</P>
-   <P CLASS=DESC>Tracks can be assigned to the outputs in the MIDI event menu. It's also possible to route incoming MIDI events to the AOUT/gate triggers in addition (this replaces a CV interface completely). The AOUT channel and trigger routing is described in the <A HREF="midibox_seq_manual_s.html">"Special Pages" chapter of the User Manual</A>.</P>
-  </DD>
-</DL>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> CV Outputs </H2>
+
+<P CLASS=DESC>MIDIbox SEQ V4 can control up to 8 analog outputs by connecting an <A HREF="mbhp_aout.html">MBHP_AOUT</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module, or up to 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> modules to the core.</P>
+<P CLASS=DESC>Up to 8 digital triggers (gates) are available at J5A/B of the core module. They have to be enabled with J5_ENABLED set to 1 in MBSEQ_HW.V4 (default). TODO: output voltage is only 3.3V - provide schematic for a buffer circuit - ask for more infos if interested.</P>
+<P CLASS=DESC>For those who cannot get enough, 64 additional drum triggers are available in the DOUT chain. They can be controlled with individual key numbers and trigger a pulse of 1 mS. The used DOUT shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)</P>
+<P CLASS=DESC>Tracks can be assigned to the outputs in the MIDI event menu. It's also possible to route incoming MIDI events to the AOUT/gate triggers in addition (this replaces a CV interface completely). The AOUT channel and trigger routing is described in the <A HREF="midibox_seq_manual_s.html">"Special Pages" chapter of the User Manual</A>.</P>
 
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Ethernet Interface </H2></DT>
-  <DD>
-   <P CLASS=DESC>The usage of <A HREF="mbhp_eth.html">MBHP_ETH</A> is under preparation to support the OSC protocol natively without the need for a computer based proxy.</P>
-   <P CLASS=DESC>First performance tests <A HREF="http://www.midibox.org/forum/index.php/topic,13542.0.html">show good results</A>, but USB transfers are still faster. The advantage of OSC compared to USB MIDI is the higher flexibility, especially when applications running on multiple computers should be accessed. Even wireless communication in a WLAN network is possible if the MBHP_ETH module is connected to a WLAN bridge.</P>
-  </DD>
-</DL>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Ethernet Interface </H2>
+
+<P CLASS=DESC>The usage of <A HREF="mbhp_eth.html">MBHP_ETH</A> is under preparation to support the OSC protocol natively without the need for a computer based proxy.</P>
+<P CLASS=DESC>First performance tests <A HREF="http://www.midibox.org/forum/index.php/topic,13542.0.html">show good results</A>, but USB transfers are still faster. The advantage of OSC compared to USB MIDI is the higher flexibility, especially when applications running on multiple computers should be accessed. Even wireless communication in a WLAN network is possible if the MBHP_ETH module is connected to a WLAN bridge.</P>
 
 
-<DL>
-   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware costs </H2></DT>
-   <DD>
-   <P CLASS=INFO>Here a list of a common "MIDIbox SEQ V4" setup - you can reduce the costs by choosing cheaper buttons, a cheaper case/panel and by organizing bulk orders in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A>!</P>
-   <P CLASS=INFO>Note that premade PCBs can be purchased at <A HREF="http://mbhp.avishowtech.com" TARGET="_blank">http://mbhp.avishowtech.com (SmashTV)</A>. They also purchase complete kits for the modules and some of the other parts (like rotary encoders).</P>
-   <P CLASS=INFO>Prices and ordering numbers are from <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> if not specified. A list of alternative electronic shops outside germany can be found in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=where_to_order_components">Wiki</A></P>
-   <DD><TABLE WIDTH=550 BORDER=0 CELLSPACING=5 CELLPADDING=0>
-    <TR>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part</STRONG></FONT></td>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Price</STRONG></FONT></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp_core_stm32.html">1 MBHP_CORE_STM32</A><BR>module</TD>
-      <TD CLASS=TABCOLOR2>the brain of MIDIbox SEQ V4</TD>
-      <TD CLASS=TABCOLOR2>Kit in <A HREF="http://mbhp.avishowtech.com" TARGET="_blank">SmashTV's Shop</A>: ca. 32 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp_din.html">3 DINX4</A><BR>module</TD>
-      <TD CLASS=TABCOLOR2>digital inputs for buttons and encoders</TD>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_orderlist.txt">Parts: ca. 15 EUR</A><BR>
-                          PCBs: ca. 15 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp_dout.html">1 DOUTX4</A><BR>module</TD>
-      <TD CLASS=TABCOLOR2>digital outputs for 32 LEDs</TD>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_orderlist.txt">Parts: ca. 3 EUR</A><BR>
-                          PCB: ca. 5 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp_iic_midi.html">IIC_MIDI</A><BR>module</TD>
-      <TD CLASS=TABCOLOR2>Optional: 1..4 MBHP_IIC_MIDI modules for additional MIDI Out ports<BR>Note that the <A HREF="mbhp/mbhp_iic_midi_out_only.pdf">"OUT only"</A> version is sufficient - this reduces the part costs!</TD>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi_orderlist.txt">Parts: ca. n x 5 EUR</A><BR>
-                          PCB: ca. n x 5 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>LCDs</TD>
-      <TD CLASS=TABCOLOR2>two 2x40 Displaytech "LCD 402A LED"<BR><I>Hot tip: such displays are mostly available at <A HREF="http://www.ebay.com" TARGET="_blank">EBay</A> for less than 10 EUR!</I></TD>
-      <TD CLASS=TABCOLOR2>ca. 50 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>BankSticks</TD>
-      <TD CLASS=TABCOLOR2>at least 3 x 24LC512-I/P for Patterns/Song/Mixer Map, Part #4915665 from <A HREF="http://www.farnell.com" TARGET="_blank">Farnell</A>, Part #579-24LC512-I/P from <A HREF="http://www.mouser.com" TARGET="_blank">Mouser</A></TD>
-      <TD CLASS=TABCOLOR2>ca. 9 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>44 buttons</TD>
-      <TD CLASS=TABCOLOR2>for example "DT 6 <I>colour</I>" (<I>colour</I> = BL, GN, GR, RT, SW) - optionally you can add 8 buttons for the new MIDIbox SEQ V3 specific functions, see above</TD>
-      <TD CLASS=TABCOLOR2>ca. 19 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>32 LEDs</TD>
-      <TD CLASS=TABCOLOR2>for example "LED 3mm St <I>colour</I>" - optionally you can add 9 LEDs for the new MIDIbox SEQ V3 specific functions, see above</TD>
-      <TD CLASS=TABCOLOR2>ca. 6 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>17 encoders</TD>
-      <TD CLASS=TABCOLOR2>for example M-SW-ROT from <A HREF="http://www.voti.nl/winkel/producten.html#M-SW-ROT" TARGET="_blank">Voti</A> or the Bourns encoders from <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Shop</A> </TD>
-      <TD CLASS=TABCOLOR2>ca. 20 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>16 Knobs<BR>1 datawheel</TD>
-      <TD CLASS=TABCOLOR2>12 x "DK13-164 black-soft", 4 x "DK13-164 gray-soft", 1 x "DK38-144" from <A HREF="http://www.albs.de" TARGET="_blank">Albs</A></TD>
-      <TD CLASS=TABCOLOR2>ca. 12 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>3 vectorboards</TD>
-      <TD CLASS=TABCOLOR2>for mounting the Buttons/Encoders/LEDs: "H25PR200"</TD>
-      <TD CLASS=TABCOLOR2>ca. 6 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>PSU</TD>
-      <TD CLASS=TABCOLOR2>Wall adapter (Power supply) 9V / 500 mA "MW 17-GS/6". Note: Higher current (1A, 1.5A) may be required depending on your LCD and LED choice.</TD>
-      <TD CLASS=TABCOLOR2>ca. 6 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>Case</TD>
-      <TD CLASS=TABCOLOR2>19" 3U rack #460 019 from <A HREF="http://www.pollin.de" TARGET="_blank">Pollin</A></TD>
-      <TD CLASS=TABCOLOR2>ca. 33 EUR</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2>Panel (re-used V3 design)</TD>
-      <TD CLASS=TABCOLOR2><A HREF="midibox_seq/mbseq_v3.fpd">mbseq_v3.fpd</A> from <A HREF="http://www.schaeffer-apparatebau.de" TARGET="_blank">Schaeffer Apparatebau</A><BR>Please edit this .fpd file so that the dimensions match with your components!</TD>
-      <TD CLASS=TABCOLOR2>ca. 105 EUR</TD>
-    </TR>
-  </TABLE></DD>
-  </DD>
-</DL>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware costs </H2>
+
+<P CLASS=INFO>Here a list of a common "MIDIbox SEQ V4" setup - you can reduce the costs by choosing cheaper buttons, a cheaper case/panel and by organizing bulk orders in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A>!</P>
+<P CLASS=INFO>Note that premade PCBs can be purchased at <A HREF="http://mbhp.avishowtech.com" TARGET="_blank">http://mbhp.avishowtech.com (SmashTV)</A>. They also purchase complete kits for the modules and some of the other parts (like rotary encoders).</P>
+<P CLASS=INFO>Prices and ordering numbers are from <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> if not specified. A list of alternative electronic shops outside germany can be found in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=where_to_order_components">Wiki</A></P>
+<TABLE WIDTH=575 BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part</STRONG></FONT></td>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Price</STRONG></FONT></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp_core_stm32.html">1 MBHP_CORE_STM32</A><BR>module</TD>
+    <TD CLASS=TABCOLOR2>the brain of MIDIbox SEQ V4</TD>
+    <TD CLASS=TABCOLOR2>Kit in <A HREF="http://mbhp.avishowtech.com" TARGET="_blank">SmashTV's Shop</A>: ca. 32 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp_din.html">3 DINX4</A><BR>module</TD>
+    <TD CLASS=TABCOLOR2>digital inputs for buttons and encoders</TD>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_orderlist.txt">Parts: ca. 15 EUR</A><BR>
+                        PCBs: ca. 15 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp_dout.html">1 DOUTX4</A><BR>module</TD>
+    <TD CLASS=TABCOLOR2>digital outputs for 32 LEDs</TD>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_orderlist.txt">Parts: ca. 3 EUR</A><BR>
+                        PCB: ca. 5 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp_iic_midi.html">IIC_MIDI</A><BR>module</TD>
+    <TD CLASS=TABCOLOR2>Optional: 1..4 MBHP_IIC_MIDI modules for additional MIDI Out ports<BR>Note that the <A HREF="mbhp/mbhp_iic_midi_out_only.pdf">"OUT only"</A> version is sufficient - this reduces the part costs!</TD>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_iic_midi_orderlist.txt">Parts: ca. n x 5 EUR</A><BR>
+                        PCB: ca. n x 5 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>LCDs</TD>
+    <TD CLASS=TABCOLOR2>two 2x40 Displaytech "LCD 402A LED"<BR><I>Hot tip: such displays are mostly available at <A HREF="http://www.ebay.com" TARGET="_blank">EBay</A> for less than 10 EUR!</I></TD>
+    <TD CLASS=TABCOLOR2>ca. 50 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>BankSticks</TD>
+    <TD CLASS=TABCOLOR2>at least 3 x 24LC512-I/P for Patterns/Song/Mixer Map, Part #4915665 from <A HREF="http://www.farnell.com" TARGET="_blank">Farnell</A>, Part #579-24LC512-I/P from <A HREF="http://www.mouser.com" TARGET="_blank">Mouser</A></TD>
+    <TD CLASS=TABCOLOR2>ca. 9 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>44 buttons</TD>
+    <TD CLASS=TABCOLOR2>for example "DT 6 <I>colour</I>" (<I>colour</I> = BL, GN, GR, RT, SW) - optionally you can add 8 buttons for the new MIDIbox SEQ V3 specific functions, see above</TD>
+    <TD CLASS=TABCOLOR2>ca. 19 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>32 LEDs</TD>
+    <TD CLASS=TABCOLOR2>for example "LED 3mm St <I>colour</I>" - optionally you can add 9 LEDs for the new MIDIbox SEQ V3 specific functions, see above</TD>
+    <TD CLASS=TABCOLOR2>ca. 6 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>17 encoders</TD>
+    <TD CLASS=TABCOLOR2>for example M-SW-ROT from <A HREF="http://www.voti.nl/winkel/producten.html#M-SW-ROT" TARGET="_blank">Voti</A> or the Bourns encoders from <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Shop</A> </TD>
+    <TD CLASS=TABCOLOR2>ca. 20 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>16 Knobs<BR>1 datawheel</TD>
+    <TD CLASS=TABCOLOR2>12 x "DK13-164 black-soft", 4 x "DK13-164 gray-soft", 1 x "DK38-144" from <A HREF="http://www.albs.de" TARGET="_blank">Albs</A></TD>
+    <TD CLASS=TABCOLOR2>ca. 12 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>3 vectorboards</TD>
+    <TD CLASS=TABCOLOR2>for mounting the Buttons/Encoders/LEDs: "H25PR200"</TD>
+    <TD CLASS=TABCOLOR2>ca. 6 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>PSU</TD>
+    <TD CLASS=TABCOLOR2>Wall adapter (Power supply) 9V / 500 mA "MW 17-GS/6". Note: Higher current (1A, 1.5A) may be required depending on your LCD and LED choice.</TD>
+    <TD CLASS=TABCOLOR2>ca. 6 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Case</TD>
+    <TD CLASS=TABCOLOR2>19" 3U rack #460 019 from <A HREF="http://www.pollin.de" TARGET="_blank">Pollin</A></TD>
+    <TD CLASS=TABCOLOR2>ca. 33 EUR</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Panel (re-used V3 design)</TD>
+    <TD CLASS=TABCOLOR2><A HREF="midibox_seq/mbseq_v3.fpd">mbseq_v3.fpd</A> from <A HREF="http://www.schaeffer-apparatebau.de" TARGET="_blank">Schaeffer Apparatebau</A><BR>Please edit this .fpd file so that the dimensions match with your components!</TD>
+    <TD CLASS=TABCOLOR2>ca. 105 EUR</TD>
+  </TR>
+</TABLE>
 
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Complete kit (?) </H2></DT>
-  <DD>
-  <P CLASS=INFO>A kit for a complete MIDIbox SEQ isn't available, but thanks to joined efforts in the MIDIbox community it never was so easy to build a superior looking sequencer!<BR>
-    Have a look at:
-    <UL CLASS=CL>
-      <LI><A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_seq" TARGET="_blank">Wilba's Frontpanel</A>: a PCB which replaces the DIN and DOUT modules. All buttons, encoders and LEDs directly mounted on the PCB together with DIN/DOUT shift registers.
-      <LI><A HREF="http://www.midibox.org/forum/index.php/board,36.0.html" TARGET="_blank">Bulk order section</A> of the MIDIbox forum - organize group buys to save money for special parts
-      <LI><A HREF="http://www.midibox.org/forum/index.php/board,28.0.html" TARGET="_blank">MIDIbox SEQ section</A> of the MIDIbox forum - search and/or ask there if anything about the hardware is unclear. We are also interested in reports about how you built your sequencer, where you ordered the parts, etc.!
-  </DD>
-</DL>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Complete kit (?) </H2>
+
+<P CLASS=INFO>A kit for a complete MIDIbox SEQ isn't available, but thanks to joined efforts in the MIDIbox community it never was so easy to build a superior looking sequencer!<BR>
+Have a look at:
+<UL CLASS=CL>
+  <LI><A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_seq" TARGET="_blank">Wilba's Frontpanel</A>: a PCB which replaces the DIN and DOUT modules. All buttons, encoders and LEDs are directly mounted on the PCB together with DIN/DOUT shift registers.
+  <LI><A HREF="http://www.midibox.org/forum/index.php/board,36.0.html" TARGET="_blank">Bulk order section</A> of the MIDIbox forum - organize group buys to save money for special parts
+  <LI><A HREF="http://www.midibox.org/forum/index.php/board,28.0.html" TARGET="_blank">MIDIbox SEQ section</A> of the MIDIbox forum - search and/or ask there if anything about the hardware is unclear. We are also interested in reports about how you built your sequencer, where you ordered the parts, etc.!
+</UL>
 
 
 FOOTER
