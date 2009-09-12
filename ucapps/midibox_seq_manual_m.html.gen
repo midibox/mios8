@@ -5,8 +5,856 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Main Pages
 <H1>MIDIbox SEQ V4</H1>
 <H1>User Manual --- Main Pages</H1>
 
-<P CLASS=INFO>Placeholder...<BR>
-<A HREF="midibox_seq_v3_manual.html">Link to MIDIbox SEQ V3 Manual</A>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Edit Screen </H2>
+<P CLASS=DESC>This is the main screen which is visible after startup. From any other menu page you can always go back to this screen by pushing the EDIT button.<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/edit1.gif" width=481 height=19 ALT="Edit Screen"></IMG></CENTER><BR>
+The <B>upper line</B> shows following informations:
+<UL CLASS=CL>
+  <LI><B>G1T1:</B> the group/track number (1,2,3,4) which is displayed in most menu pages at upper left corner. If multiple groups and/or tracks are selected, a M is displayed instead of the number.<BR>
+The track group can be changed in the PATTERN menu, with the TrackSel (F4) button or with the 4 optional GROUP buttons (not part of the original MBSEQ V2/V3 frontpanel, but part of the MIDIbox SEQ V4 panel)<BR>
+The track can be changed with the 4 TRACK buttons</LI>
+  <LI><B>Chn 1/Def:</B> the MIDI channel and MIDI port to which the track is sending.</LI>
+  <LI><B>A:Note:</B> the active layer (A,B,C,..P), and the parameter which is assigned to the layer.<BR>
+The parameter layer can be selected with the 3 LAYER buttons. Layer C button either toggles between C and D, or it shows a selection page for all parameter layers if the track is partitioned for more than 4 layers.</LI>
+  <LI><B>A:Gate:</B> the active trigger layer (A,B,C,..H), and the trigger function which is assigned to the layer<BR>
+The trigger layer can selected with the TrgSel (F3) button, or with the optional Trigger Selection buttons which are part of the MIDIbox SEQ V4 frontpanel.</LI>
+  <LI><B>Step:</B> the step number which is currently edited (1..256)<BR>
+  <LI><B>G#1 Vel:127 Len: 75%:</B> informations about the MIDI event which is sent by the selected step. It differs depending on the event assigned to the step, e.g. for a chord step the name of the chord will be displayed, for a CC step you will see the CC number and value.<BR>
+A new step is selected when the appr. rotary encoder is moved or by pressing the appr. GP button.</LI>
+</UL></P>
+
+
+<P CLASS=DESC>Alternatively, each track can get an individual name and category which are displayed at the upper display line. In this example, the name "SoloSynthline2" and the category name "Synth" has been choosen. Name/Category can be edited in the Event menu.</P>
+
+<CENTER><IMG SRC="midibox_seq/cs4/edit2.gif" width=481 height=19 ALT="Edit Screen"></IMG></CENTER><BR>
+
+<P CLASS=DESC>The <B>lower line</B> shows the values of 16 steps within the selected track view and parameter layer. They can be directly modified with the 16 GP rotary encoders below these items. The displayed parameter of the step changes with the active layer. E.g. in layer C the gatelength is controlled, which is visualised with vertical bars:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/edit3.gif" width=481 height=19 ALT="Edit Length"></IMG></CENTER></P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Gatelength </H2>
+<P CLASS=DESC>The gatelength parameter needs some additional explanations, as it not only allows to set the length of a note, but also to trigger a glide (overlapping note) and to play an event multiple times.</P>
+
+<P CLASS=DESC>The Length can be adjusted from 0% to 100% in 23 steps.<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/edit4.gif" width=481 height=19 ALT=""></IMG></CENTER>
+<CENTER><IMG SRC="midibox_seq/cs4/edit5.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+<P CLASS=DESC>In following audio example, the gatelength of all steps is varied with a single rotary encoder - this can be achieved by pushing the ALL button: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_gl_normal.mp3"#ffffff**</P>
+
+<P CLASS=DESC>The next example demonstrates the usage of the glide function. The track length is reduced to 4 steps. Following notes are played with a fixed gatelength of 92%:
+<CENTER><IMG SRC="midibox_seq/cs4/edit6.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+<P CLASS=DESC>Later, the length will be set to "glide" at step 2 - this note will overlap the next note at step 3 in order to trigger a Glide on synths which support "fingered portamento" or "SusKey"</P>
+<CENTER><IMG SRC="midibox_seq/cs4/edit7.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+<P CLASS=DESC>Finally glide will also be activated on the third step:</P>
+<CENTER><IMG SRC="midibox_seq/cs4/edit8.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+<P CLASS=DESC>It sounds like demonstated in this MP3 sample:**MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_gl_glide.mp3"#ffffff** </P>
+
+<P CLASS=DESC>The multi trigger allows to trigger a step multiple times (for example 2x12 and 3x16). It is displayed once the gatelength has exceeded the normal range (turn the encoder clockwise until the numbers are visible).<BR>
+The first number means, how often the event will be played (2, 3 or 4 times), the second number specifies the number of clock ticks between the events (1..31). Examples:</P>
+<P CLASS=DESC><IMG SRC="midibox_seq/tutorial3/gatelength_2x12.gif" width=200 height=109 ALT="" align="left">One step consists of 24 clock ticks. With the 2x12 setting the note will be played at the beginning and in the middle of the step. </IMG></P>
+<BR><BR><BR>
+<P CLASS=DESC><IMG SRC="midibox_seq/tutorial3/gatelength_3x16.gif" width=200 height=109 ALT="" align="left">With 3x16, the note will be played three times with a distance of 16 clock steps - at 0, 16 and 32. A delay of 32 crosses the step range of 24, so that the last note slips into the range of the second step. Thats the reason for the "!!!!" marker after 3x16. It means: you have to activate the gate of this step so that the last note will be played.</IMG></P>
+
+<P CLASS=DESC>The number of combined notes is selectable from 2-4, and the delay is free adjustable from 1-31 (!) - very "asynchronous" sequences can be created with odd numbers, e.g. 2x25 or 4x29</P>
+<P CLASS=DESC>Sidenote: ">>>>" means also that you are able to change the Note/Velocity value of this step - keep this in mind when doing some more advanced experiments.</P>
+<P CLASS=DESC>In following example, various multi triggers are used for the snare drum. Here a screenshot of the 32 step sequence (which is played 2 times):
+<CENTER><IMG SRC="midibox_seq/cs4/edit9.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+<CENTER><IMG SRC="midibox_seq/cs4/edit10.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+<P CLASS=DESC>And here the MP3 sample:
+    **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_gl_multi.mp3"#ffffff**</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Drum Edit Page</H2>
+
+<P CLASS=DESC>If a track is configured for drum mode, the edit page changes to a special view which doesn't show the Note names anymore, but small icons instead:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/edit_d1.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+
+<P CLASS=DESC>Up to 16 drum instruments can be triggered per track. You can change to another instrument by pressing the TrgSel (F3) or TrgLayer C button:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/edit_d2.gif" width=481 height=19 ALT=""></IMG></CENTER><BR>
+This page shows animated VU meters for each instrument (to give you an overview about the played instruments), and allows you to select the instrument with GP buttons.</P>
+
+<P CLASS=DESC>The name of the selected drum instrument is displayed at the right upper corner of the edit screen:
+<CENTER><IMG SRC="midibox_seq/cs4/edit_d3.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Selection Page</H2>
+
+<P CLASS=DESC>The track selection page shows animated VU meters for each track to give you an overview about the track activity. In addition, it allows you to select one or more tracks by using the GP buttons:
+<CENTER><IMG SRC="midibox_seq/cs4/trksel1.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Parameter Selection Page</H2>
+
+<P CLASS=DESC>By pressing the ParSel button (or ParLayer C button if the track is partitioned for more than 4 layers), the parameter selection page will be displayed which shows VU meters for each layer. By pressing a GP button a parameter layer can be selected for editing:
+<CENTER><IMG SRC="midibox_seq/cs4/parsel1.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Trigger Selection Page</H2>
+
+<P CLASS=DESC>Each track provides 8 trigger layers, which can be selected by pressing the TrgSel (F3) or Trigger Layer C button:
+<CENTER><IMG SRC="midibox_seq/cs4/trgsel1.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Step Selection Page</H2>
+
+<P CLASS=DESC>The StepView (F2) Button changes to a zoomed view of the edit page to give you a nice overview (if the track is configured for more than 64 steps, the dots for each step will be smaller). Use the GP buttons to change to another step view:
+<CENTER><IMG SRC="midibox_seq/cs4/stepsel1.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Event Configuration (Shortcut: MENU+GP Button #2)</H2>
+<P CLASS=INFO>Allows you to change the basic track setup: the type of MIDI events which should be sent by the track to a specific MIDI Channel and MIDI Port.<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trkevent1.gif" width=481 height=19 ALT="Track Event"></IMG></CENTER><BR>
+<UL CLASS=CL>
+  <LI><B>Track Type (Partitioning): </B> each track has a step memory of 1024 bytes, and a trigger memory of 2048 bits. There are predefined modes which simplify the partitioning of the available memory to free assignable parameter and trigger layers.</P>
+
+<P><TABLE WIDTH=550 BORDER=0 CELLSPACING=1 CELLPADDING=1>
+  <TR>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Mode</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Steps</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Parameter Layers</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Trigger Layers</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Instruments</STRONG></FONT></TD>
+  </TR>
+  <TR> <TD CLASS=TABCOLOR2>Note</TD>  <TD CLASS=TABCOLOR2>64</TD> <TD CLASS=TABCOLOR2>16</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Note</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Note</TD>  <TD CLASS=TABCOLOR2>256</TD> <TD CLASS=TABCOLOR2>4</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Chord</TD> <TD CLASS=TABCOLOR2>64</TD> <TD CLASS=TABCOLOR2>16</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Chord</TD> <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Chord</TD> <TD CLASS=TABCOLOR2>256</TD> <TD CLASS=TABCOLOR2>4</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>CC</TD>    <TD CLASS=TABCOLOR2>64</TD> <TD CLASS=TABCOLOR2>16</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>CC</TD>    <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>CC</TD>    <TD CLASS=TABCOLOR2>256</TD> <TD CLASS=TABCOLOR2>4</TD> <TD CLASS=TABCOLOR2>8</TD> <TD CLASS=TABCOLOR2>1</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>64</TD>  <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>2</TD> <TD CLASS=TABCOLOR2>16</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>2 (32 steps only)</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>16</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>2</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>256</TD> <TD CLASS=TABCOLOR2>2 (64 steps only)</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
+</TABLE>
+</LI>
+<LI>Parameter layers can be assigned to following functions:
+  <UL CLASS=CL>
+    <LI><B>None:</B> the parameter layer has no function.
+    <LI><B>Note:</B> controls the key and octave of a step. Notes can be assigned to multiple layers for polyphonic playing.
+    <LI><B>Chord:</B> a chord is generated instead of a single note. 32 chords are predefined and can be transposed by +/- 2 octaves. All notes are aligned to C scale, the track transpose function has to be used to play different scales.
+      <UL CLASS=CL>
+        <LI><B>A-C:</B> Major I, Major II, Major III (transposed variants)</LI>
+        <LI><B>D-F:</B> Root note, 3rd note, 5th note (single notes)</LI>
+        <LI><B>G,H:</B> Root+3rd, Root+5th</LI>
+        <LI><B>I-N:</B> Maj6, Maj7, Maj8, Maj9, Maj10, Maj12 (4-note chords)</LI>
+        <LI><B>O,P:</B> Sus4 and Maj+</LI>
+        <LI><B>a-c:</B> Minor I, Minor II, Minor III (transposed variants)</LI>
+        <LI><B>d-f:</B> Root note, 3rdMin note, 5th note (single notes)</LI>
+        <LI><B>g,h:</B> Root+3ndMin, Root+5th</LI>
+        <LI><B>i-n:</B> Min6, Min7, Min8, Min9, Min10, Min12 (4-note chords)</LI>
+        <LI><B>o-p:</B> Co7 and Min+</LI>
+      </UL></LI>
+    <LI><B>Velolcity:</B> controls the velocity value for all notes/chords of the instrument.
+    <LI><B>Length:</B> controls the gatelength of all notes of the instrument
+    <LI><B>CC:</B> plays a selectable CC number
+    <LI><B>Pitch:</B> sends a PitchWheel event
+    <LI><B>Prob:</B> sets the probability that the step will be played (1..100%)
+    <LI><B>Delay:</B> delays the step for 1..96 microticks
+    <LI><B>Roll:</B> plays the step 2..5 times with ascenting/descenting velocity (intensity: 0..15). 127 variations are available - great for drum patterns!
+  </UL></LI>
+<LI>The <B>MIDI Channel</B> can be selected from 1-16.</LI>
+<LI>Following <B>MIDI Ports</B> are available:<BR>
+  <UL CLASS=CL>
+    <LI><B>Default:</B> the default port as selected in the MIDI configuration page (usually USB1)</LI>
+    <LI><B>USB1..USB4:</B> 4 independent USB ports are available which are visible for your operating system</LI>
+    <LI><B>OUT1..OUT4:</B> 2 physical MIDI OUT ports are provided by the MBHP_CORE_STM32 module. The remaining two are reserved for the emulated MBSEQ</LI>
+    <LI><B>IIC1..IIC4:</B> to select the optional MBHP_IIC_MIDI ports</LI>
+    <LI><B>OSC1..OSC4:</B> planned</LI>
+    <LI><B>Bus1..Bus4:</B> virtual ports. Bus1 is used as loopback port (see description below), Bus2..4 can be used for the MIDI router function (see description of MIDI configuration page)</LI>
+    <LI><B>AOUT:</B> the AOUT port. See description below</LI>
+  </UL></LI>
+  <LI><B>INIT:</B> this item will flash whenever the selected partition type requires a re-initialisation of the track memory. Press the GP button below this item to confirm the initialisation (this will clear all steps!)</LI>
+</UL></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> IIC Ports</H2>
+
+<P CLASS=INFO>The <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module allows you to add 4 additional, independent (!) MIDI outputs. Main advantage of multiple MIDI ports is reduced latency (as MIDI events can be sent in parallel), and relaxed MIDI channel handling (for 4 synths you don't need to take care about the MIDI channel at all)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Bus1: the Loopback Port</H2>
+
+<P CLASS=INFO>The Loopback port forwards Note and CC events to the MIDI handler of the sequencer itself. This opens a wide range of possibilities, especially for experimental, non-static sequences. Classical usecase is a setup of self-modifiying and loopbacked tracks which play completely autarkic for several minutes without an interaction from your side.</P>
+
+<P CLASS=DESC>When a track sends MIDI notes, it can control the transposer and arpeggiator w/o an external keyboard. For the transposer a single note should be sent, for the arpeggiator either three notes (Event Mode #4) or Chords (Event Mode #2 or #3).</BR>
+The keyboard range for Transposer/Arpeggiator can be split in the MIDI menu, accordingly it's also possible to control them from two different tracks. The MIDI channel to which a note is sent doesn't matter.</P>
+
+<P CLASS=DESC>A CC loopback allows to control sequencer parameters which are listed in <A HREF="midibox_seq/mbseqv4_cc_implementation.txt">the CC implementation chart</A>. In difference to Note events, the MIDI channel gets an important purpose here, as it selects the target track of which the parameters should be modified. The CC# corresponds with the NRPN LSB number.<BR>
+Example: Loopback Channel #3, CC#49 controls the Octave Transpose of Track 3</P>
+
+<P CLASS=DESC>CC#1 has a special purpose, as it allows to control the Morphing parameter, which works track independent. Accordingly, Morphing can be controlled from any selected MIDI channel</P>
+
+
+<P CLASS=DESC><I>Hot tip (1): put the loopback tracks into a separate pattern. This allows you to play different chord lines from a "master pattern" without changing the "slave patterns". Note that the "master pattern" which sends to the Loopback port should be located at one of the first tracks (e.g. G1: Track 1-4), so that the Transposer/Arpeggiator/CC change for the "slave patterns" takes place during the same, and not at the next step.</I></P>
+<P CLASS=DESC><I>Hot tip (2): clock a loopback track with unqueal divider values, this can lead to surprising results!</I></P>
+
+<P CLASS=DESC>In following MP3 sample a loopback track transposes a second track which plays a bass line: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_loopback.mp3"#ffffff**<BR>
+From 0:00-0:07 the bassline is played w/ the base note C-3, from 0:00-0:23 the bassline is sometimes transposed by one octave (C-4) (Track Mode->Transpose activated). The loopback track is clocked at 384ppqn/4*16 (4th notes)<BR>
+From 0:24 I selected an alternative pattern which sends various notes to the loopback port at a clock rate of 384ppqn/4*13 - the result sounds like a live jam on the keyboard, but it was more or less a random effect initiated by the asynchronously clocked loopback track. :)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> AOUT Port</H2>
+
+<P CLASS=INFO>The AOUT Port allows you to control the analog outputs of a <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module. 8 gate triggers are available at port J5A/J5B of the core module (enabled by default in the MBSEQ_HW.V4 file)</P>
+
+<P CLASS=DESC>MIDI Channel encoding:<BR>
+<TABLE WIDTH=575 BORDER=0 CELLSPACING=1 CELLPADDING=1>
+  <TR>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Event</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Chn.</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Behaviour</STRONG></FONT></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>1..8</TD>
+    <TD CLASS=TABCOLOR2><I>(channel itself has no effect)</I><BR>
+                CC Number #16: CV Ouput #1, Gate #1 always set<BR>
+                CC Number #17: CV Ouput #2, Gate #2 always set<BR>
+                CC Number #18: CV Ouput #3, Gate #3 always set<BR>
+                CC Number #19: CV Ouput #4, Gate #4 always set<BR>
+                CC Number #20: CV Ouput #5, Gate #5 always set<BR>
+                CC Number #21: CV Ouput #6, Gate #6 always set<BR>
+                CC Number #22: CV Ouput #7, Gate #7 always set<BR>
+                CC Number #23: CV Ouput #8, Gate #8 always set</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>9</TD>
+    <TD CLASS=TABCOLOR2>CV Ouput #1, Gate #1 always set, CC Number ignored</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>10</TD>
+    <TD CLASS=TABCOLOR2>CV Ouput #2, Gate #2 always set, CC Number ignored</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>11</TD>
+    <TD CLASS=TABCOLOR2>CV Ouput #3, Gate #3 always set, CC Number ignored</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>12</TD>
+    <TD CLASS=TABCOLOR2>CV Ouput #4, Gate #4 always set, CC Number ignored</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>13</TD>
+    <TD CLASS=TABCOLOR2>CV Ouput #5, Gate #5 always set, CC Number ignored</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>14</TD>
+    <TD CLASS=TABCOLOR2>CV Ouput #6, Gate #6 always set, CC Number ignored</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>15</TD>
+    <TD CLASS=TABCOLOR2>CV Ouput #7, Gate #7 always set, CC Number ignored</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>CC</TD>
+    <TD CLASS=TABCOLOR2>16</TD>
+    <TD CLASS=TABCOLOR2>CV Ouput #8, Gate #8 always set, CC Number ignored</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>1</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #1, Gate #1 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>2</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #2, Gate #2 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>3</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #3, Gate #3 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>4</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #4, Gate #4 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>5</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #5, Gate #5 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>6</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #6, Gate #6 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>7</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #7, Gate #7 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>8</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #8, Gate #8 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>9</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #1, Velocity -> CV Out #2, Gate #1 and #2 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>10</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #3, Velocity -> CV Out #4, Gate #3 and #4 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>11</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #5, Velocity -> CV Out #6, Gate #5 and #6 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>12</TD>
+    <TD CLASS=TABCOLOR2>Key Value -> CV Out #7, Velocity -> CV Out #8, Gate #7 and #8 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>13</TD>
+    <TD CLASS=TABCOLOR2>Velocity -> CV Out #1, Key Value -> CV Out #2, Gate #1 and #2 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>14</TD>
+    <TD CLASS=TABCOLOR2>Velocity -> CV Out #3, Key Value -> CV Out #4, Gate #3 and #4 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>15</TD>
+    <TD CLASS=TABCOLOR2>Velocity -> CV Out #5, Key Value -> CV Out #6, Gate #5 and #6 triggered</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2>Note</TD>
+    <TD CLASS=TABCOLOR2>16</TD>
+    <TD CLASS=TABCOLOR2>DOUT drum gates/triggers<BR>
+Notes to AOUT Channel #16 will be redirected to up to 64 digital outputs of the DOUT chain. Each key number triggers an individual gate for 1 mS, accordingly this mode is predestinated for drum triggers. The used shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)
+</TD>
+  </TR>
+</TABLE></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Mode Page (Shortcut: MENU+GP Button #3)</H2>
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trkmode1.gif" width=481 height=19 ALT="Track Mode"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Track Mode:</B><BR>
+    <UL CLASS=CL>
+      <LI><B>Normal:</B> no transpose and no arpeggiator function</LI>
+      <LI><B>Transpose:</B> Notes and CCs can be transposed with an external keyboard or from a Loopback track</LI>
+      <LI><B>Arpeggiator:</B> Notes are controlled in a special way: instead of the key number, you define the "played key" (from a sorted list) and the octave transponation for each individual step. Once a track is configured for Arpeggiator Mode, Note events are displayed in a special format. Following example should make the correlations easy understandable:<BR>
+Let's assume the Chord C-3, E-3, G-3, B-3 is played on the external MIDI keyboard.<BR>
+A step which plays "1+0" will output Note C-3, "1-1" will output Note C-2, "1+1" will output Note C-4<BR>
+2+0 plays the second Key (E-3), 3+0 the third key (G-3), 4+0 the fourth key (B-3).<BR>
+Audio Example: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_arp.mp3"#ffffff**<BR>
+You cannot imagine how easy it is to setup complex arpeggiator textures when you never tried this by yourself :) - the <A HREF="http://www.youtube.com/watch?v=UtnUMpykQLc" TARGET="_blank">Session #4 video</A> gives a nice example of some arpeggios which where created within a few number of minutes<BR>
+When you turn the rotary encoder within the Edit Screen to select the "Arp Event" for a step, you may notice events with the format "x*y".<BR>
+These are Multi-Arp events. They play the appr. step so many times as notes are held on the external keyboard. Each key will be 
+transposed by the specified octave value (-3..+3). Once all keys have been played, the sequencer continues with the next step of the track.<BR>
+This feature has been explained in <A HREF="midibox_seq_tutorial4.html">Tutorial #4</A> for MBSEQ V2, and it is still available in MBSEQ V4<BR>
+Audio Example for Multi-Arp Events: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseq_tutorial4_3.mp3"#ffffff**</LI>
+    </UL>
+  <LI><B>Hold:</B> the last key or chord is held until a new key/chord is played on the keyboard (only relevant for Tranpose/Arpeggiator mode)</LI>
+  <LI><B>Sort:</B> only relevant for arpeggiator mode: the note stack will be sorted when this function is active (default); arpeggios will be played with notes "as played" when this functions is deactivated.</LI>
+  <LI><B>Restart:</B> the track is restarted when a new key/chord is played</LI>
+  <LI><B>Force Scale:</B> played notes are mapped to the global scale, which can be selected in the Fx-Scale menu page, accordingly only notes are played which match with the selected harmony. This is especially useful when the track consists of randomly generated notes! 127 predefined scales are available!</LI>
+  <LI><B>Sustain:</B> omits the "Note Off" event - notes are played endless, independent from the gatelength. Especially useful for strings and pads!</LI>
+</UL>
 </P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Direction Page (Shortcut: MENU+GP Button #4)</H2>
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trkdir1.gif" width=481 height=19 ALT="Direction"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Forward, Backward, Pendulum, PingPong, Random Direction, Random Step, Random Direction + Step:</B> should be selfexplaining</LI>
+  <LI><B>Fwd/Back/Replay Progression Parameters:</B> they allow to play the steps in an incontinous order.<BR>
+For example: "Steps Fwd: 5, Jump Back: 2" will play the steps in following order: 1-2-3-4-5-4-5-6-7-8-7-8-9-10-11-10-..<BR>
+The "Replay" parameter allows to repeat a portion of steps the given number of times.<BR>
+For Example: "Steps Fwd: 3, Repeat: x2" will play the steps in following order: 1-2-3-1-2-3-4-5-6-4-5-6-7-8-9-7-8-9-10..<BR>
+<I>Hot tip: My favourite setting is: "Steps Fwd: 5, Jump Back: 3, Replay: 1x"</I><BR>
+In following MP3 sample a static sequence has been varied with different Step Fwd/Jump Back/Replay values while it was playing:
+<IMG SRC="midibox_seq/cs4/trkdir2.gif" width=481 height=19 ALT=""></IMG><BR>
+And this is how it sounds: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_progression.mp3"#ffffff**</LI>
+  <LI><B>Repeat/Skip/Interval Progression Parameters:</B> have been introduced in MIDIbox SEQ V4 to simplify the creation of "Berlin School"
+patterns (as known from artists like Klaus Schulze, Tangerine Dream, ...) - the Iteration parameter defines a range at 
+which a step will be repeated several times, or several steps will be skipped.<BR>
+For example: "Itv.:4, Repeat:2, Skip:0" will play the steps in following order: 1-2-3-4-4-4-5-6-7-8-8-8-9-10-11-12-12-12-..<BR>
+Another example: "Itv.:4, Repeat:0, Skip:1" will play the steps in following order: 1-2-3-4-6-7-8-9-10-12-13-14-15-2-3-4-5-7-8-9-10-..<BR>
+Very interesting results can be achieved in conjunction with the groove function when it controls the velocity at a different interval. Also a second track which controls CC parameters with different track progression can lead to nice variations!
+TODO MP3</LI>
+  <LI><B>Synch to Measure:</B> the clock divider, but also the song position and progression parameters will be reset after each measure. This can result into very rhythmically results, try it out with different divider and progression values. The length of a measure (1..256 steps) can be configured in the Options menu.</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Clock Divider Page (Shortcut: MENU+GP Button #5)</H2>
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trkdiv1.gif" width=481 height=19 ALT="Clock Divider"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Clock Divider:</B> MBSEQ V4 works at a resolution of up to 384 ppqn, which is 16 times faster the MIDI clock standard of 24 ppqn. The divider allows you to clock the track with a fraction of the MIDI clock.<BR>
+A divider value of 4 clocks the track with normal resolution, accordingly each step plays a 16th note, and the gatelength can be varied between 1..96 steps!<BR>
+A divider value of 2 clocks the track two times faster, accordingly each step plays a 32th note, the gatelength can be varied between 1..48 steps.<BR>
+With a divider value of 64, each step will play a whole note (extremely slow, especially useful for strings/pads)</LI>
+  <LI><B>Normal/Triplet:</B> with the "normal" setting, the 384ppqn clock will be pre-divided by 24, whereas with "triple" it will be pre-divided by 16. This results into a triplet timebase, where (for example) 24 steps instead of 16 are played per measure during the same time period. The track length has to be adapted accordingly, or "Synch to measure" should be activated to ensure that the track is in synch with tracks which are played at a "normal" timebase.<BR>
+Example for a track clocked at a triplet timebase 16T. A bassline with "normal" timebase 16 is added at 0:03, a drumline at 0:07:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_triple.mp3"#ffffff**
+</LI>
+
+  <LI><B>Synch to Measure:</B> the clock divider, but also the song position and progression parameters will be reset after each measure. This can result into very rhythmically results, try it out with different divider and progression values. The length of a measure (1..256 steps) can be configured in the Options menu.</LI>
+  <LI><B>Quick Selection:</B> quick access to most useful timebases. Triplet timebases are marked with a 'T'</LI>
+</UL>
+</P>
+<P CLASS=DESC><I>Hot tip: try multiple tracks with unqual divider values like 7 or 13 for experimental sequences!</I></P>
+<P CLASS=DESC>Drum sequence w/ different clock dividers: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_clkdivider.mp3"#ffffff**</P>
+<P CLASS=DESC>(give the drummer another beer...)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Length Page (Shortcut: MENU+GP Button #6)</H2>
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trklen1.gif" width=481 height=19 ALT="Track Length"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Length:</B> each individual track can play 1 to 32 steps</LI>
+  <LI><B>Loop:</B> allows you to set a loop point to which the track will jump back once it has reached the end</LI>
+  <LI><B>Quick Selection:</B> allows you to quickly select most commonly used track lengths by pushing the button below the menu item.</LI>
+</UL>
+<P CLASS=DESC><I>Hot tip: try multiple tracks with unqual track lengths like 3, 5, 13, 15, 27 for experimental sequences!</I></P>
+<P CLASS=DESC>3 tracks w/ different tracklengths: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_tracklen.mp3"#ffffff**</P>
+<P CLASS=DESC>First a track with lenght=16 is played, then a second track with length=9, than a third track with length=13. At 0:25 all three tracks are played together.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Transpose Page (Shortcut: MENU+GP Button #7)</H2>
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trktran1.gif" width=481 height=19 ALT="Transpose"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Octave Transpose:</B> transposes the notes of a track by -7..+7 octaves. If the transposed key value is lower than 0, or higher than 127, the resulting value will be transposed back octavewise until it is within the range of 0..127 again</LI>
+  <LI><B>Semitone Transpose:</B> push the SELECT button to toggle between Octave/Semitone transpose selection. The semitone transpose increases/decreases the key value by +/- 7 semitones.</LI>
+</UL></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Groove Page (Shortcut: MENU+GP Button #8)</H2>
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trkgrv1.gif" width=481 height=19 ALT="Groove"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Groove Style:</B> selects a groove template - following styles are available:<BR>
+    <UL CLASS=CL>
+      <LI><B>Shuffle:</B> each second step will be delayed by 0..127 micro ticks - this can be controlled with the intensity value.</LI>
+      <LI><B>Inv. Shuffle:</B> like Shuffle, but steps with uneven numbers (1, 3, 5, ...) will be delayed</LI>
+      <LI><B>Shuffle 2:</B> each second step will be delayed by a fixed number of microticks (8), each fourth step will be delayed by the value given with the intensity parameter</LI>
+      <LI><B>Inv. Shuffle 2:</B> like Shuffle 2, but steps with uneven numbers (1, 3, 5, ...) will be delayed</LI>
+      <LI><B>Shuffle 3:</B> uses following delay sequence: 1:0, 2:8, 3:4, 4:intensity</LI>
+      <LI><B>Shuffle 4:</B> each second step will be delayed by 8 micro ticks. The intensity parameter controls the velocity</LI>
+      <LI><B>Shuffle 5:</B> each second step will be delayed by 8 micro ticks. The intensity parameter controls the gatelength</LI>
+      <LI><B>Custom #1..16:</B> configurable styles</LI>
+    </UL>
+  </LI>
+  <LI><B>Intensity:</B> available as VPOS/VNEG parameter to vary the style without creating a new groove template. Also nice for live tweaks to find "best matching" grooves!
+</UL></P>
+
+<P CLASS=DESC>Custom #1..#16 global groove styles can be freely edited. They are stored on SD Card (MBSEQ_G.V4 file) and available for all patterns:
+<CENTER><IMG SRC="midibox_seq/cs4/trkgrv2.gif" width=481 height=19 ALT="Groove"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Step:</B> selects the groove step (1-16)</LI>
+  <LI><B>Delay:</B> selects a delay modifier from VNEG,-127..0..+126,VPOS</LI>
+  <LI><B>Length:</B> selects a gatelength modifier from VNEG,-127..0..+126,VPOS</LI>
+  <LI><B>Velocity:</B> selects a velocity modifier from VNEG,-127..0..+126,VPOS</LI>
+  <LI><B>NumSteps:</B> selects the groove template length (1-16). When starting editing it makes sense to start with value 2 or 4 to get immediate response while the sequence is playing.</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Trigger Assignments Page (Shortcut: MENU+GP Button #9)</H2>
+<P CLASS=INFO>There are eight trigger layers A..H which control additional trigger functions. They can be set for each step individually with the 16 GP buttons within the Edit screen. Following triggers can be assigned to the trigger layers:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trgasg1.gif" width=481 height=19 ALT="Trigger Assignments"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Gate:</B> controls if a step should be played or not. If the Gate trigger is not assigned to any layer, all steps will be played, otherwise only the selected steps will be played.</LI>
+  <LI><B>Acc.:</B> Accent - the velocity will be set to maximum (127)</LI>
+  <LI><B>Roll:</B> step will be triggered 3 times with short delays - the same effect can be achieved with much more variations by setting the gatelength to 2xdelay, 3xdelay or 4xdelay (delay free definable) - the roll trigger is only an alternative, more comfortable solution</LI>
+  <LI><B>Glide:</B> overlaps two notes, so that a synth which provides a "fingered portamento" or "SusKey" function will activate the glide function</LI>
+  <LI><B>Skip:</B> the selected steps will be skipped, the sequencer jumps continues with the next step where the skip trigger is not set.</LI>
+  <LI><B>R.G.:</B> Random Gate - the step will be played randomly. This is especially useful for drum lines to increase the variation w/o creating multiple tracks
+  <LI><B>R.V.:</B> Random Value - the step values will be randomized</LI>
+  <LI><B>NoFx:</B> the step won't be forwarded to Fx functions like Echo, Humanizer and Limiter</LI>
+</UL></P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Manual Step Trigger Page (Shortcut: MENU+GP Button #11)</H2>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/manualtrg1.gif" width=481 height=19 ALT="Manual Step Trigger"></CENTER></IMG>
+<P CLASS=DESC>Push a GP button to trigger a step manually. Only the steps of selected tracks will be played. If the sequencer is running, it will continue from the position you've triggered. Accordingly, this page can also be used for live adjustments of the sequencer position.</P>
+<P CLASS=DESC>The selected tracks will be synched to measure when the SELECT button is pressed in this page. This can sometimes be useful for live situations - e.g., while you changed the track positions, they could be out-of-synch to the main beat. Pressing the SELECT button will properly synch them back.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Morph Page (Shortcut: MENU+GP Button #12)</H2>
+<P CLASS=INFO>This feature allows you to smoothly morph between one and another part of the track. The morph value (0-127) can either be controlled from this menu page, or with an external MIDI controller (e.g. with a ModWheel):
+<CENTER><IMG SRC="midibox_seq/cs4/trkmorph1.gif" width=481 height=19 ALT="Morphing"></CENTER></IMG><BR>
+<UL CLASS=CL>
+  <LI><B>Mode:</B> on or off</LI>
+  <LI><B>Val.</B> the morph position - can also be controlled with an external MIDI controller</LI>
+  <LI><B>Destination Range</B> the second part of the track to which the first part should be morphed (e.g. if the track has a length of 16 steps, the second part could be located at step 17-32</LI>
+  <LI><B>Vertical bar at right page:</B> graphical representation of the morph value</LI>
+</UL>
+<P CLASS=DESC>Slow morphing between two arp patterns: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_morph.mp3"#ffffff**</P>
+<P CLASS=DESC>Fast morphing between two CC patterns: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_morph2.mp3"#ffffff**<BR>
+(4 CC tracks are used to control several bandpass filters)</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> BPM Page (Shortcut: MENU+GP Button #13)</H2>
+<P CLASS=INFO>MIDIbox SEQ can work as MIDI clock master or slave. The MIDI clock (24ppqn) is multiplied by 16 to 384ppqn, which means, that the length of a 16th note is 96 microticks. Microticks are relevant for the gatelength and especially the groove function.<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/bpm1.gif" width=481 height=19 ALT="BPM"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>BPM Clock Mode</B> switches between master/slave clock and auto mode.
+    <UL CLASS=CL>
+      <LI>In <B>master</B> mode, the tempo will be generated internally with a selectable BPM rate. The sequencer will transmit MIDI Clock/Start/Stop/Continue events to the MIDI Out ports for synchronising with external gear (this has to be enabled for each port separately in the MIDI config page)</LI>
+      <LI>In <B>slave</B> mode, the sequencer will be controlled by incoming MIDI Clock/Start/Stop/Continue events for synchronisation with an external MIDI clock master. Note that the sequencer will halt so long no MIDI clock is received in this mode!</LI>
+      <LI>In <B>auto</B> mode, the sequencer will automatically switch between master and slave mode. This is the most comfortable setting, and therefore enabled by default.<BR>
+          Slave mode is selected once a MIDI Clock/Start/Stop/Continue event has been received.<BR>
+          Master mode is selected, when no MIDI clock command is received and the PLAY button is pressed.</LI>
+    </UL>
+  <LI><B>Preset:</B> select 1 of 16 tempo presets</LI>
+  <LI><B>Tempo:</B> only relevant for master mode: the BPM rate (2.5-300.0) - accuracy is 0.1 BPM, use ENC3 to set the rough value in +/- 1 steps, and ENC4 to set the fine value in 0.1 steps</LI>
+  <LI><B>Ramp:</B> defines a timespan of 1..99s at which the tempo change should take place.</LI>
+  <LI><B>Fire Preset:</B> changes the tempo (slowly) at the given ramp time. E.g., if the current tempo is 120, the new tempo is 140, ramp time is 5s: press this button to change the tempo from 120..121..122...140 within 5 seconds.</LI>
+  <LI><B>Preset page:</B> displays a preset page which allows you to select one of 16 tempo presets with GP buttons (very nice in conjunction with ramp times)</LI>
+  <LI><B>MIDI Clock In:</B> enable the MIDI clock in receiver for each individual MIDI IN port</LI>
+  <LI><B>MIDI Clock Out:</B> enable the MIDI clock out sender for each individual MIDI OUT port</LI>
+  <LI><B>DIN PPQN:</B> defines the output rate of the DIN Sync Clock output pin at J5C.A8 of the MBHP_CORE_STM32 module</LI>
+  <LI><B>Ext.Restart:</B> sends a MIDI clock start event to all MIDI devices at the next measure - a very useful feature to re-synchronize external MIDI gear to the MIDIbox.<BR>
+    To evaluate this function, try following steps:
+    <UL CLASS=CL>
+      <LI>connect a MIDI sequencer (or synth. with sequencer function) to your MBSEQ and configure it for MIDI slave mode.</LI>
+      <LI> ensure that MIDI clock is enabled for all OUT ports which should send the MIDI start event (+ a MIDI clock)</LI>
+      <LI> press PLAY button of MBSEQ - the external sequencer should start to play as well.</LI>
+      <LI> now stop the external sequencer
+      <LI> (change a patch, sound, or whatever...)
+      <LI> press Ext.Restart: the external sequencer should start once MBSEQ reaches the first step.
+      <LI> Note that the same function can be accessed by pressing MENU+METRONOME. A dedicated button can be assigned to this function as well (requires a modification in MBSEQ_HW.V4</LI>
+    </UL>
+  <LI><B>Tap Tempo:</B> Tap the button at least four times to define the BPM tempo manually. If the sequencer is currently stopped, it will start automatically with the 5th tap. The same function can be accessed by pressing MENU+PLAY</LI>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Metronome Page (only available from the main menu)</H2>
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/metronome1.gif" width=481 height=19 ALT="Metronome"></CENTER></IMG><BR>
+<UL CLASS=CL>
+  <LI><B>on/off:</B> same function as the dedicated METRONOME button</LI>
+  <LI><B>Port:</B> the MIDI port to which the metronome will send</LI>
+  <LI><B>Channel:</B> the channel to which the metronome will send</LI>
+  <LI><B>Measure Note:</B> note which will be send on each measure</LI>
+  <LI><B>Beat Note:</B> note which will be send on each beat</LI>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Save Page (Shortcut: MENU+GP Button #14)</H2>
+<P CLASS=INFO>Allows you to save the pattern of the currently active pattern group:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/save1.gif" width=481 height=19 ALT="Save"></CENTER></IMG></P>
+<P CLASS=DESC>Select the target bank with GP6, and the target pattern with GP7. While changing it, the name of the pattern which is already stored at this position will be displayed at the right LCD:
+<CENTER><IMG SRC="midibox_seq/cs4/save2.gif" width=481 height=19 ALT="Save"></CENTER></IMG></P>
+
+<P CLASS=DESC>Finally press SAVE (GP8 button). You will be asked for a Category and Pattern name. Use GP9..12 to edit the characters, or use GP15 and GP16 to quickly select one of the preset category/pattern names:
+<CENTER><IMG SRC="midibox_seq/cs4/save3.gif" width=481 height=19 ALT="Save"></CENTER></IMG></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MIDI Page (Shortcut: MENU+GP Button #15)</H2>
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/midi1.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Def.Port:</B> the port to which MIDI events will be sent by default.</LI>
+  <LI><B>Keyboard Channel:</B> the MIDI channel over which the arpeggiator/transpose can be controlled, and CCs will be received (e.g. for the morph function)</LI>
+  <LI><B>T/A Split:</B> optionally, the transpose and arpeggiator function can be controlled from two different keyboard zones</LI>
+  <LI><B>Middle Note:</B> separates between the transpose and arpeggiator function. The transpose function is controlled from the lower keys</LI>
+  <LI><B>MIDI Router</B> provides a simple possibility to route incoming MIDI events to synthesizers which are connected to the MIDI Out ports (which means: also to the AOUT port - MBSEQ replaces a CV interface!)
+   <UL CLASS=CL>
+     <LI><B>Node:</B> 8 routing pathes are available<BR>
+     <LI><B>IN:</B> selects the MIDI IN port.<BR>
+     <LI><B>Source Channel:</B> either a dedicated source channel (1-16) or "all" channels can be selected</LI>
+     <LI><B>OUT:</B> selects the MIDI output port</LI>
+     <LI><B>Target Channel:</B> either a dedicated target channel (1-16) or "all" channels can be selected</LI>
+  </UL>
+</UL>
+
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Record Page (Shortcut: UTILITY (F1)->Rec)</H2>
+<P CLASS=INFO>MIDIbox SEQ V4 provides a realtime (live) and step recording mode. Recording is always active so long you are in this menu page. In distance to certain other sequencers, it is not required to stop an ongoing sequence in order to start recording.<BR>
+Incoming events will be immediately inserted into the selected track. If the current step already holds a note/CC, it will be replaced by the new one. The gatelength of a note will be recorded as well, it can allocate multiple steps. If a new note is played over such a "stretched" step, the previous note will be automatically split.<BR>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/record1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
+<P CLASS=DESC>The <B>realtime recording mode</B> supports monophonic note, polyphonic chords (chord 1/2 and note/note/note layer mode), and CC events, which are stored into the currently selected track while the sequencer is playing.</P>
+<P CLASS=DESC>The <B>step recording mode</B> allows to input notes and CCs stepwise, the cursor will go to the next position after a new note/CC has been received and stored into the step. The cursor can be moved to another position with the rotary encoder below the "Step" item.</P>
+<P CLASS=DESC>Any incoming CC number will be converted to the target CC as specified by the EVENT mode. This means, that you can use a single controller (e.g. a Modulation Wheel) to record the different CC lines.</P>
+<P CLASS=DESC><B>AStart: </B> synchronized auto start of track recording. To use this feature, the sequencer has to be stopped. With the first played note, the sequencer will start and store the note into the first step.</P>
+<P CLASS=DESC><B>TglGate: </B> toggles the gate of the currently select step. Useful to quickly enable/disable a step in step recording mode.</P>
+
+<P><center><object width="400" height="225">	<param name="allowfullscreen" value="true" />	<param name="allowscriptaccess" value="always" />	<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" />	<embed src="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="225"></embed></object><br /><a href="http://vimeo.com/1628550?pg=embed&amp;sec=1628550" TARGET="_blank">Midibox Sequencer V3 for Live Recording</a> from <a href="http://vimeo.com/user710438?pg=embed&amp;sec=1628550" TARGET="_blank">Stuart Mitchell</a></center></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Utility Page (Shortcut: MENU+GP Button #10 or F1)</H2>
+<P CLASS=INFO>This page provides some useful functions for track modifications:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/util1.gif" width=481 height=19 ALT="Utility"></CENTER></IMG><BR>
+<UL CLASS=CL>
+  <LI><B>Copy:</B> transfers the currently selected track into the copy buffer.<BR>
+    If you press and hold the button below the COPY item, you can select the range which should be copied into the buffer with the GP encoders.<BR>
+    The encoders left of or at the begin marker shift the begin position, the encoders right to the begin marker shift the end position.<BR>
+    If you are unsure about the current position, just always use the leftmost encoder to move the begin marker, and the rightmost encoder to move the end marker.<BR>
+    Releasing the copy button copies the selected range into the buffer. If the button is just pressed and depressed, the whole range will be copied.</LI>
+  <LI><B>Paste:</B> transfers the copy buffer content into the track.<BR>
+      Either the parameter/trigger layers, or the whole track will be copied. The behaviour of this function can be configured in the UTIL->OPT page<BR>
+    So long the button below PASTE is pushed, you can specify the target position with a GP rotary encoder.<BR>
+    <I>Hot tip: This is the quickest solution to duplicate parts of a track!</I></LI>
+  <LI><B>Clr:</B> clears the parameter/trigger layers, or the whole track. The behaviour of this function can be configured in the UTIL->OPT page</LI>
+  <LI><B>Move:</B> so long the appr. button of this function is pushed, the edit page will be displayed, and steps can be moved with the encoder below the step.<BR>
+    It should be self explaining once you try it out! :)</LI>
+  <LI><B>Scroll:</B> so long the button of this function is pushed, the steps of the current track can be scrolled with the rotary encoders. The start position of the scrolling function depends on the used rotary encoder. E.g., if the first GP encoder is used, the whole track will be scrolled, if the 9th rotary encoder is used, the 9th and all steps behind will be scrolled, and step 1-8 will be left untouched.</LI>
+  <LI><B>Random:</B> shortcut to the Random Generator (see below)</LI>
+  <LI><B>Undo:</B> an undo function for the last Paste/Clear/Move/Scroll/Random operation.</LI>
+  <LI><B>Save:</B> directly branches into the save menu page (shortcut)</LI>
+  <LI><B>Rec.:</B> directly branches into the recording page (shortcut)</LI>
+  <LI><B>Mix.:</B> directly branches into the mixer page (shortcut)</LI>
+  <LI><B>Opt.:</B> directly branches into the options page (shortcut)</LI>
+  <LI><B>PMte:</B> directly branches into the port muting page (shortcut)</LI>
+  <LI><B>Disk:</B> directly branches into the disk page (shortcut)</LI>
+  <LI><B>Mute:</B> mutes all tracks</LI>
+  <LI><B>UnMte:</B> un-mutes all tracks</LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Random Generator Page (Shortcut: UTILITY (F1)->Rand)</H2>
+<P CLASS=INFO>This menu page allows to randomize the layers based on individual "intensity" parameters. In difference to the "Humanize" function, random values are statically stored in the layers, so that they can be modified (within the EDIT screen, or with Utility functions like Scroll, Move, ...) until a "best matching" line has been found.<BR>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/trkrnd1.gif" width=481 height=19 ALT="Random"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Generate:</B> generates a new pattern based on the constraints given at the right LCD</LI>
+  <LI><B>Clr:</B> clears the parameter/trigger layers, or the whole track. The behaviour of this function can be configured in the UTIL->OPT page</LI>
+  <LI><B>Util:</B> shortcut to the Utility page - note that this menu has a shortcut to the Random page at the same position, so that you can quickly toggle between the two pages</LI>
+  <LI><B>Undo:</B> copies back the overwritten pattern</LI>
+  <LI><B>LayA/LayB/LayC (0..63):</B> defines the "intensity" for Parameter Layer A/B/C. If 0 ("--"), the layer won't be overwritten, otherwise all 32 steps get random values of 64 +/- intensity</LI>
+  <LI><B>TrgA/TrgB/TrgC (0..15):</B> defines the "intensity" for Trigger Layer A/B/C. If 0 ("--"), the layer won't be overwritten, if 15 ("All"), all steps will be activated. Otherwise the values 1..14 define the propability (6.25%..93.75%) that a step will be activated.</LI>
+</UL>
+
+<P CLASS=DESC><I>Hot tip: use the randomizer in conjunction with the Force-to-Scale function for harmonic results!</I></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Options Page (Shortcut: UTIL (F1)->Opt.)</H2>
+<P CLASS=INFO>This page contains a selection of special options, for which no other page has been found:<BR>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/opt1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Sync. Pattern Change:</B> if active, a pattern change made in the PATTERN or SONG page (Phrase mode) won't take place immediately, but will be synchronized to the measure</LI>
+  <LI><B>Step Value below this item:</B> defines the number of steps per measure.<BR>
+The length is 16 16th note steps by default, it can be set from 1..256 steps!<BR>
+This setting affects:
+<UL CLASS=CL>
+  <LI>the synch-to-measure function for pattern changes (pattern change after x steps)</LI>
+  <LI>the synch-to-measure function for clock divider reset</LI>
+  <LI>the loop incrementer in song mode</LI>
+  <LI>the metronome ("Meas.Note" played after x steps)</LI>
+  <LI>the song position displayed at song page (shows reference step position)</LI>
+</UL>
+Note: for max. steps != track length it makes sense to activate the synch-to-measure 
+function for each track (-> divider page), so that the tracks are always in synch 
+with the reference step position. It can be left deactivated if it is your intention 
+ to clock tracks asynchronously to the reference position.</LI>
+
+  <LI><B>Follow Song:</B> within the SONG page, the song pointer follows the current song position while a song is played.</LI>
+  <LI><B>Paste/Clr Behaviour:</B> allows you to change the behaviour of the Paste and Clear function:
+    <UL CLASS=CL>
+      <LI><B>Steps only:</B> only parameter and trigger layers will be cleared/pasted (default)</LI>
+      <LI><B>Whole track:</B> the whole track configuration will be cleared/pasted. Only exception: MIDI channel and MIDI port will never be overwritten.</LI>
+    </UL>
+  </LI>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Mixer Page (Shortcut: MENU+GP Button #1)</H2>
+<P CLASS=INFO>MIDIbox SEQ V4 provides a MIDI mixer which can handle up to 127 different maps. They can be stored and restored from a dedicated BankStick. Each mixer map consists of:<BR>
+<UL CLASS=CL>
+  <LI>16 free definable MIDI port assignments</LI>
+  <LI>16 free definable MIDI channel assignments</LI>
+  <LI>16 Program Change values</LI>
+  <LI>16 Volume CC values</LI>
+  <LI>16 Panorama CC values</LI>
+  <LI>64 free assignable CCs (4 for each port)</LI>
+</UL></P>
+<P CLASS=DESC>There are 9 pages, which can be selected with the datawheel, or alternatively with the Rew/Fwd buttons when no song is playing: MIDI Port, MIDI Channel, Prog.Change, Volume, Panorama, CC1-4
+<CENTER><IMG SRC="midibox_seq/cs4/mixer1.gif" width=481 height=19 ALT="Mixer Map"></CENTER></IMG></P>
+<P CLASS=DESC>Values can be changed and sent with the GP encoders. The leftmost value ("----") deactivates the mixer item - no value will be sent.</P>
+<P CLASS=DESC>The ALL and FAST button are working as well. The ALL button provides the two known functions (values set to same value while button pushed, relative changes so long LED active). The FAST function will be deactivated/activated automatically depending on the value range.</P>
+<P CLASS=DESC>Values are sent directly over the selected MIDI port - all ports are selectable, even Loopback and AOUT!</P>
+
+<P CLASS=DESC>When the SELECT button is pressed, a utility page will be displayed:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/mixer2.gif" width=481 height=19 ALT="Mixer Utilities"></CENTER></IMG></P>
+<P CLASS=DESC>This page allows:<BR>
+<UL CLASS=CL>
+  <LI>to change and load a mixer map (one of 127)</LI>
+  <LI>to Copy/Paste the map</LI>
+  <LI>to clear the map</LI>
+  <LI>to reload the map from BankStick</LI>
+  <LI>to save the map into BankStick</LI>
+  <LI>to dump the complete map via the MIDI/AOUT/Loopback ports</LI>
+  <LI>to change the assignments for CC1/CC2/CC3/CC4</LI>
+</UL></P>
+
+<P CLASS=DESC><I>Hot tip: since the ports and channels are freely assignable and working totally independent from the selected sequencer patterns, the mixer map function behaves like a MIDI controller - you can define up to 127 maps which can be stored, restore, dumped and controlled in realtime!<BR>In song mode it is possible to dump one or more mixer maps before switching to a new pattern set.</I></P>
+
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Mute Screen </H2>
+<P CLASS=DESC>Within the mute screen you can quickly mute/unmute tracks with the 16 GP buttons:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/mute1.gif" width=481 height=19 ALT="Mute Screen"></IMG></CENTER><BR>
+Each track has an animated VU meter to display the MIDI activity.</P>
+
+<P CLASS=DESC>In addition, it's possible to mute individual parameter layers or drum instruments of a track by pressing&holding the Mute button:
+<CENTER><IMG SRC="midibox_seq/cs4/mute2.gif" width=481 height=19 ALT="Mute Screen"></IMG></CENTER></P>
+
+<P CLASS=DESC><I>Hot tip: nice breaks can be realized by activating SOLO and selecting multiple tracks - one after another - while the sequencer is playing. This technique is demonstrated at 2:44 of the <A HREF="http://www.youtube.com/watch?v=bgjET6dNA14" TARGET="_blank">Session #3 Video</A>.</I></P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Pattern Screen </H2>
+<P CLASS=DESC>Within the pattern screen you can quickly change the patterns of the four available track groups:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/pattern1.gif" width=481 height=19 ALT="Pattern"></CENTER></IMG></P>
+<P CLASS=DESC>The GP buttons and the track buttons have a special function within this menu page to improve the handling:<BR>
+<UL CLASS=CL>
+  <LI><B>Track buttons:</B> select between one of four track groups:<BR>
+  <UL CLASS=CL>
+    <LI><B>Group #1:</B> plays Track 1-4</LI>
+    <LI><B>Group #2:</B> plays Track 5-8</LI>
+    <LI><B>Group #3:</B> plays Track 9-12</LI>
+    <LI><B>Group #4:</B> plays Track 13-16</LI>
+  </UL></LI>
+  <LI><B>GP buttons:</B> the 128 patterns are enumerated from A1 to h8. The 8 buttons at the left side switch between A-H/a-h (press the button twice to select a "lower case" character), the 8 buttons at the right side are used to select the pattern number (1-8).</LI>
+</UL></P>
+
+<P CLASS=DESC>Patterns can be changed with four of the rotary encoders as well. In addition, four rotary encoders allow to select the BankStick from which the pattern is loaded.</P>
+<P CLASS=DESC>Each track has a small vertical bar which displays the MIDI activity while the sequencer is playing.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Song Screen </H2>
+<P CLASS=INFO>This page has two purposes - one purpose is to store pattern sets for all four groups which can be quickly recalled by pressing a GP button. This is the so called "Phrase Mode" (see below)</P>
+<P CLASS=INFO>The second (main) purpose is to chain and loop pattern sets without user interaction. You can toggle between Song and Phrase Mode by pushing the SONG button a second time.<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/song1.gif" width=481 height=19 ALT="Song"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Song:</B> currently 16 songs can be stored into a dedicated BankStick. Support for 32 songs is planned (will require a 64k BankStick!)</LI>
+  <LI><B>Pos:</B> the song position - 128 positions are available, they are enumerated from A1..P8</LI>
+  <LI><B>Action:</B> defines what should be done when this song position is reached:
+    <UL CLASS=CL>
+      <LI><B>Stop:</B> sequencer will be stopped.</LI>
+      <LI><B>x1..x16:</B> specified Pattern set (G1..G4) will be played the given number of times (x1..x16)</LI>
+      <LI><B>Jump Pos:</B> sequencer jumps to the specified position - allows to set loop points</LI>
+      <LI><B>Jump Song:</B> sequencer jumps to the specified song</LI>
+      <LI><B>Mixer:</B> the specified mixer map will be dumped. The sequencer will immediately continue with the next song position</LI>
+      <LI><B>Tempo:</B> tempo will change by given BPM rate and ramp time</LI>
+      <LI><B>Mutes:</B> allows to set/clear track mutes</LI>
+    </UL>
+  </LI>
+</UL>
+
+<P CLASS=DESC>For a fast usage the Track and Layer buttons have a special function in this screen: the Track buttons select the pattern group G1..G4, Layer button A sets the cursor to the "Song" item, Layer button B selects the "Position" item, Layer button C selects the "Action" item.</P>
+
+<P CLASS=DESC>Song mode is demonstrated in the <A HREF="http://www.youtube.com/watch?v=gyffClGnFN4" TARGET="_blank">Session #2 video</A></P>
+
+<P CLASS=DESC>Back to Phrase Mode: select the "Position" item by pushing Layer button B. By pushing a GP button, the sequencer will execute the action defined at song position A1, B1, C1..P1 (16 possible actions). If a pattern set or mixer map is defined at this song position, the sequencer will change to it and continue as normal - since we are not in song mode, the next song positions won't be processed.</P>
+<P CLASS=DESC>Phrases can also be combined with one or more mixer maps. In this case the first step (A1, B1, C1, ...) has to be assigned to a Mixer Map Action, whose content will be dumped out. The sequencer will go to the next song position, and check for a Mixer Map again. Once it has reached a position with a pattern set, it will change to the new set and give back control over pattern changes to the user.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Disk Page (Shortcut: UTILITY (F1)->Disk)</H2>
+<P CLASS=INFO>This page provides special functions for the SD Card:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/disk1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Backup:</B> copies all MBSEQ_*.V4 files from the root directory into a backup/n directory (n is a number between 1 and MAX_INT). The directories already have to exist in the file system. Means: you have to prepare them from Windows/MacOS/Linux! The first empty directory which will be found will be taken for the backup. It will take some minutes (ca. one cigarette break)!</LI>
+  <LI><B>MSD USB:</B> enables the "Mass Storage Device" driver, which turns your MIDIbox SEQ into a SD Card reader. Once enabled, the SD Card should be automatically mounted by your operating system (Windows/MacOS/Linux). USB MIDI will be disabled. The LEDs of the CS could flicker on each disk operation! It overrules the USB MIDI driver, which will be available again once the SD Card has been unmounted from the operating system.</LI>
+  <LI><B>Send SD Info to Terminal:</B> sends some useful informations about the connected SD Card to the MIOS Debug Terminal - available for support reasons.</LI>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Port Mute Page (Shortcut: UTILITY (F1)->PMute)</H2>
+
+<P CLASS=DESC>MIDI ports can be individually disabled - requested by several users:
+<CENTER><IMG SRC="midibox_seq/cs4/pmute1.gif" width=481 height=19 ALT="Port Mute"></CENTER></IMG></P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Menu (Shortcut: MENU->Fx</H2>
+<P CLASS=DESC>Menu to enter the local/global effects pages which are described below:
+<CENTER><IMG SRC="midibox_seq/cs4/fx_menu.gif" width=481 height=19 ALT="Fx Menu"></CENTER></IMG></P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Echo</H2>
+<P CLASS=DESC>This is one of the main new features of MIDIbox SEQ V4 - thanks to the mighty MIDI event scheduler the echo function works very accurate, even on quick parameter or pattern changes:
+<CENTER><IMG SRC="midibox_seq/cs4/fx_echo.gif" width=481 height=19 ALT="Fx Echo"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Repeats:</B> selects how many times a played MIDI event should be repeated (0..15).</LI>
+  <LI><B>Delay:</B> defines the delay between each repeat (64T, 64, 32T, 32, 16T, 16, 8T, 8, 4T, 4, 2T, 2, 1T, 1, Rnd1 and Rnd2)</LI>
+  <LI><B>Velocity Level:</B> defines the initial velocity level of the first repeating note</LI>
+  <LI><B>Feedback Velocity:</B> defines the gradual change of the velocity level for each repeat between 0..200%</LI>
+  <LI><B>Feedback Note:</B> defines the gradual change of note stepsonr each repeat between -24..+24, optionally random (RND).<BR>
+    Very powerful in conjunction with Force-to-Scale!!!</LI>
+  <LI><B>Gatelength:</B> defines the gradual change of the gatelength on each repeat between 0..200%<BR>
+  <LI><B>Ticks:</B> defines the gradual change of the delay between each repeat between 0..200%<BR>
+</UL>
+<P CLASS=DESC>TODO MP3</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Humanizer</H2>
+
+<P CLASS=INFO>Allows you to select following options:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/fx_humanizer.gif" width=481 height=19 ALT="Fx Humanizer"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Rnd. Intensity:</B> this is some kind of "humanizer" which allows to vary the parameters of a MIDI event randomly. The higher the "intensity" value, the higher the random variation.</LI>
+  <LI><B>Note:</B> Enables/Disables the random variation of key values</LI>
+  <LI><B>Vel/CC:</B> Enables/Disables the random variation of velocity or CC values</LI>
+  <LI><B>Length:</B> Enables/Disables the random variation of the gatelength</LI>
+</UL></P>
+
+<P CLASS=DESC>TODO MP3</P>
+
+<P CLASS=INFO>Allows you to limit the note range for each indiviual track:<BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Limiter</H2>
+<CENTER><IMG SRC="midibox_seq/cs4/fx_limiter.gif" width=481 height=19 ALT="Fx Limiter"></CENTER></IMG></P>
+
+<P CLASS=DESC>If a note is outside the range, it will be wrapped around the octave for musical results.</P>
+<P CLASS=DESC>TODO MP3</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Fx LFO</H2>
+<P CLASS=INFO>The LFO effect allows to automate periodical changes of various parameters:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/fx_lfo.gif" width=481 height=19 ALT="Fx LFO"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Wave:</B> selects the waveform: Sine, Triangle, Sawtooth, Pulse 5%..95%</LI>
+  <LI><B>Amplitude:</B> selects the amplitude from -128 to +127</LI>
+  <LI><B>Phase:</B> selects the waveform phase after the LFO has been reset</LI>
+  <LI><B>Steps:</B> selects the period of the LFO synchronized to the steps of a track (1..256) - this parameter automatically synchronizes to the MIDI clock depending on the BPM rate</LI>
+  <LI><B>Reset:</B> defines after how many steps the LFO should be reset</LI>
+  <LI><B>OneShort:</B> if enabled, the LFO waveform will only be processed once until the next reset</LI>
+  <LI><B>Note:</B> applies the LFO waveform over all Note values of the track (use low amplitudes values!) - especially interesting in conjunction with Force-to-Scale and the Limiter Fx!</LI>
+  <LI><B>Velocity:</B> applies the LFO waveform over the Velocity value of the track (use high amplitudes values!)</LI>
+  <LI><B>Length:</B> applies the LFO waveform over the Gatelength (why not...)</LI>
+  <LI><B>Extra CC#:</B> allows to define an CC number which will directly send the LFO value</LI>
+  <LI><B>Offset:</B> allows to increase/decrease the LFO offset within the range of 0.127</LI>
+  <LI><B>PPQN:</B> defines the update rate of the CC parameter (3..384 ppqn). Than higher the value, than more MIDI traffic will be produced! A value >= 96 ppqn is only recommented for virtual synthes controlled via MIDI USB!</LI>
+</UL></P>
+<P CLASS=DESC>TODO MP3</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Loop</H2>
+<P CLASS=DESC>Is this an "effect" or a "tool" which is useful while editing long sequences... decide by yourself:
+<CENTER><IMG SRC="midibox_seq/cs4/fx_loop.gif" width=481 height=19 ALT="Fx Loop"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Global Loop Mode:</B> following modes are supported:
+    <UL CLASS=CL>
+      <LI><B>All Tracks/Step View:</B> loops all tracks around the visible step view</LI>
+      <LI><B>All Tracks/Static View:</B> loops all tracks around the selected Offset/Step range</LI>
+      <LI><B>Selected Track/Step View:</B> loops the selected track around the visible step view</LI>
+      <LI><B>Selected Track/Static View:</B> loops the selected track around the selected Offset/Step range</LI>
+    </UL>
+  </LI>
+  <LI><B>Loop:</B> enables/disables the Loop function. Can alternatively be switched via MENU+SCRUB buttons.
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Scale</H2>
+<CENTER><IMG SRC="midibox_seq/cs4/fx_scale.gif" width=481 height=19 ALT="Fx Scale"></CENTER></IMG>
+
+<P CLASS=INFO>This page allows to configure the scale which should be used by the Force-to-Scale function:<BR>
+<UL CLASS=CL>
+  <LI><B>Control:</B> the scale and root note can either be controlled globally or pattern based. In distance to the global scale/root (which is stored in internal EEPROM), the pattern based scale/root is located within the G1/G2/G3 or G4 pattern and will be automatically changed when a new pattern is selected.<BR>
+Only one group can control the scale and root note - it can be selected with this menu item.</LI>
+  <LI><B>Root:</B> selects the root note (C, C#, D, D#, ..., B) of the scale. Optionally the root note can be directly controlled from a MIDI keyboard. In this case it is the base note which is also forwarded to the transposer. KEYB is the default setting.</LI>
+  <LI><B>Selected Scale:</B> allows you to select one of 166 (!!!) scales, which are used by all tracks with enabled "force scale" option.<BR>Scales are counted from zero so that the numbers are matching with the CC#3 value.<BR> Thanks to Stryd One for providing all the scale definitions! :-)</LI>
+</UL>
+<P CLASS=INFO>Sidenote reg. the global scale: when "Global" control mode is selected, the scale can also be changed from an external MIDI device via CC#3, and especially via internal loopback. This means, that a track can change the scale dynamically if it outputs CC#3s to the Loopback port.</P>
 
 FOOTER
