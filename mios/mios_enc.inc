@@ -14,15 +14,6 @@
 #if MIOS_ENABLE_ENC
 
 
-MIOS_ENC_SPEED_SLOW		EQU	0
-MIOS_ENC_SPEED_NORMAL		EQU	1
-MIOS_ENC_SPEED_FAST		EQU	2
-
-MIOS_ENC_MODE_NON_DETENTED	EQU	0x00
-MIOS_ENC_MODE_DETENTED		EQU	0x80
-MIOS_ENC_MODE_DETENTED2		EQU	0x81
-MIOS_ENC_MODE_DETENTED3		EQU	0x82
-
 ENC_STAT_ACT_A          EQU 0	; Current status of channel A
 ENC_STAT_ACT_B          EQU 1	; Current status of channel B
 ENC_STAT_LAST_A         EQU 2	; Last status of channel A
@@ -558,35 +549,85 @@ MIOS_ENC_AtomicHandler
 
 	;; ENC_STAT[3..0] = LB, LA, B, A
 
-	;; type 0x00 - INC: 2, B, D, 4
-	;;             DEC: 1, 7, E, 8
-	;; type 0x80 - INC: B, 4
-	;;             DEC: 7, 8
-	;; type 0x81 - INC: B
-	;;             DEC: 7
-	;; type 0x82 - INC: 4
-	;;             DEC: 8
+	;; non-detented - INC: 2, B, D, 4
+	;;                DEC: 1, 7, E, 8
+	;; detented1    - INC: B, 4
+	;;                DEC: 7, 8
+	;; detented2    - INC: B
+	;;                DEC: 7
+	;; detented3    - INC: 4
+	;;                DEC: 8
 
-	movf	IRQ_TMP4, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
-	rgoto	MIOS_ENC_Do_Nothing	; 0
-	rgoto	MIOS_ENC_Do_Dec_ND	; 1  -  only if NON_DETENTED
-	rgoto	MIOS_ENC_Do_Inc_ND	; 2  -  only if NON_DETENTED
-	rgoto	MIOS_ENC_Do_Nothing	; 3
-	rgoto	MIOS_ENC_Do_Inc_D13	; 4  -  only if NON_DETENTED, DETENTED1 or DETENTED3
-	rgoto	MIOS_ENC_Do_Nothing	; 5
-	rgoto	MIOS_ENC_Do_Nothing	; 6
-	rgoto	MIOS_ENC_Do_Dec_D12	; 7  -  only if NON_DETENTED, DETENTED1 or DETENTED2
-	rgoto	MIOS_ENC_Do_Dec_D13	; 8  -  only if NON_DETENTED, DETENTED1 or DETENTED3
-	rgoto	MIOS_ENC_Do_Nothing	; 9
-	rgoto	MIOS_ENC_Do_Nothing	; A
-	rgoto	MIOS_ENC_Do_Inc_D12	; B  -  only if NON_DETENTED, DETENTED1 or DETENTED2
-	rgoto	MIOS_ENC_Do_Nothing	; C
-	rgoto	MIOS_ENC_Do_Inc_ND	; D  -  only if NON_DETENTED
-	rgoto	MIOS_ENC_Do_Dec_ND	; E  -  only if NON_DETENTED
-	rgoto	MIOS_ENC_Do_Nothing	; F
+	BRA_IFSET IRQ_TMP4, 3, ACCESS, MIOS_ENC_Do_89ABCDEF
+MIOS_ENC_Do_01234567
+	BRA_IFSET IRQ_TMP4, 2, ACCESS, MIOS_ENC_Do_4567
+MIOS_ENC_Do_0123
+	BRA_IFSET IRQ_TMP4, 1, ACCESS, MIOS_ENC_Do_23
+MIOS_ENC_Do_01
+	;; 0: Do_Nothing
+	;; 1: Do_Dec
+	BRA_IFCLR IRQ_TMP4, 0, ACCESS, MIOS_ENC_Do_Nothing
+	BRA_IFSET TABLAT, 4, ACCESS, MIOS_ENC_Do_Dec
+	rgoto	MIOS_ENC_Do_Nothing
 
+MIOS_ENC_Do_23
+	;; 2: Do_Inc
+	;; 3: Do_Nothing
+	BRA_IFSET IRQ_TMP4, 0, ACCESS, MIOS_ENC_Do_Nothing
+	BRA_IFSET TABLAT, 0, ACCESS, MIOS_ENC_Do_Inc
+	rgoto	MIOS_ENC_Do_Nothing
+
+MIOS_ENC_Do_4567
+	BRA_IFSET IRQ_TMP4, 1, ACCESS, MIOS_ENC_Do_67
+MIOS_ENC_Do_45
+	;; 4: Do_Inc
+	;; 5: Do_Nothing
+	BRA_IFSET IRQ_TMP4, 3, ACCESS, MIOS_ENC_Do_Nothing
+	BRA_IFSET TABLAT, 5, ACCESS, MIOS_ENC_Do_Inc
+	rgoto	MIOS_ENC_Do_Nothing
+
+MIOS_ENC_Do_67
+	;; 6: Do_Nothing
+	;; 7: Do_Dec
+	BRA_IFSET IRQ_TMP4, 0, ACCESS, MIOS_ENC_Do_Nothing
+	BRA_IFSET TABLAT, 0, ACCESS, MIOS_ENC_Do_Inc
+	rgoto	MIOS_ENC_Do_Nothing
+
+MIOS_ENC_Do_89ABCDEF
+	BRA_IFSET IRQ_TMP4, 2, ACCESS, MIOS_ENC_Do_CDEF
+MIOS_ENC_Do_89AB
+	BRA_IFSET IRQ_TMP4, 1, ACCESS, MIOS_ENC_Do_AB
+MIOS_ENC_Do_89
+	;; 8: Do_Dec
+	;; 9: Do_Nothing
+	BRA_IFSET IRQ_TMP4, 0, ACCESS, MIOS_ENC_Do_Nothing
+	BRA_IFSET TABLAT, 7, ACCESS, MIOS_ENC_Do_Dec
+	rgoto	MIOS_ENC_Do_Nothing
+
+MIOS_ENC_Do_AB
+	;; A: Do_Nothing
+	;; B: Do_Inc
+	BRA_IFCLR IRQ_TMP4, 0, ACCESS, MIOS_ENC_Do_Nothing
+	BRA_IFSET TABLAT, 1, ACCESS, MIOS_ENC_Do_Inc
+	rgoto	MIOS_ENC_Do_Nothing
+
+MIOS_ENC_Do_CDEF
+	BRA_IFSET IRQ_TMP4, 1, ACCESS, MIOS_ENC_Do_EF
+MIOS_ENC_Do_CD
+	;; C: Do_Nothing
+	;; D: Do_Inc
+	BRA_IFCLR IRQ_TMP4, 2, ACCESS, MIOS_ENC_Do_Nothing
+	BRA_IFSET TABLAT, 0, ACCESS, MIOS_ENC_Do_Inc
+	rgoto	MIOS_ENC_Do_Nothing
+
+MIOS_ENC_Do_EF
+	;; E: Do_Dec
+	;; F: Do_Nothing
+	BRA_IFSET IRQ_TMP4, 0, ACCESS, MIOS_ENC_Do_Nothing
+	BRA_IFSET TABLAT, 6, ACCESS, MIOS_ENC_Do_Dec
+	;; 	rgoto	MIOS_ENC_Do_Nothing
+
+MIOS_ENC_Do_Nothing
 MIOS_ENC_Do_Return
 	tblrd*-			; switch back to first byte of entry
 	tblrd*
@@ -594,26 +635,6 @@ MIOS_ENC_Do_Return
 
 ;; --------------------------------------------------------------------------
 
-MIOS_ENC_Do_Nothing
-	rgoto	MIOS_ENC_Do_Return
-
-MIOS_ENC_Do_Inc_D13
-	;; only if NON_DETENTED, DETENTED1 or DETENTED3
-	BRA_IFCLR TABLAT, 7, ACCESS, MIOS_ENC_Do_Inc
-	BRA_IFCLR TABLAT, 0, ACCESS, MIOS_ENC_Do_Inc
-	rgoto	MIOS_ENC_Do_Nothing
-
-MIOS_ENC_Do_Inc_D12
-	;; only if NON_DETENTED, DETENTED1 or DETENTED2
-	BRA_IFCLR TABLAT, 7, ACCESS, MIOS_ENC_Do_Inc
-	BRA_IFCLR TABLAT, 1, ACCESS, MIOS_ENC_Do_Inc
-	rgoto	MIOS_ENC_Do_Nothing
-
-MIOS_ENC_Do_Inc_ND
-	;; only if NON_DETENTED
-	BRA_IFSET TABLAT, 7, ACCESS, MIOS_ENC_Do_Nothing
-	;; 	rgoto	MIOS_ENC_Do_Inc
-	
 MIOS_ENC_Do_Inc
 	;; plausibility check: when accl > 0xe0, exit if last event was a DEC
 	movlw	0xe0
@@ -658,22 +679,6 @@ MIOS_ENC_Do_Inc_Slow_NoO
 	rgoto	MIOS_ENC_Do_Inc_Slow_Cont
 
 ; ------------------
-
-MIOS_ENC_Do_Dec_D13
-	;; only if NON_DETENTED, DETENTED1 or DETENTED3
-	BRA_IFCLR TABLAT, 7, ACCESS, MIOS_ENC_Do_Dec
-	BRA_IFCLR TABLAT, 0, ACCESS, MIOS_ENC_Do_Dec
-	rgoto	MIOS_ENC_Do_Nothing
-	
-MIOS_ENC_Do_Dec_D12
-	;; only if NON_DETENTED, DETENTED1 or DETENTED2
-	BRA_IFCLR TABLAT, 7, ACCESS, MIOS_ENC_Do_Dec
-	BRA_IFCLR TABLAT, 1, ACCESS, MIOS_ENC_Do_Dec
-	rgoto	MIOS_ENC_Do_Nothing
-	
-MIOS_ENC_Do_Dec_ND
-	BRA_IFSET TABLAT, 7, ACCESS, MIOS_ENC_Do_Nothing
-	;; 	rgoto	MIOS_ENC_Do_Dec
 
 MIOS_ENC_Do_Dec
 	movwf	IRQ_TMP3
