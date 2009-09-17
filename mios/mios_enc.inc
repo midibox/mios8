@@ -538,7 +538,6 @@ MIOS_ENC_AtomicHandler
 	addwf	FSR2L, F
 
 	;; read second byte of entry --- now TABLAT contains the encoder mode!
-	;; MIOS_ENC_MODE_NON_DETENTED or MIOS_ENC_MODE_DETENTED[12]
 	tblrd*+
 	tblrd*
 
@@ -546,17 +545,23 @@ MIOS_ENC_AtomicHandler
         ; is too simple and doesn't work correctly!)
 	; changed 2000-1-5: special "analyse" state which corrects the ENC direction
 	; if encoder is rotated to fast - I should patent it ;-)
+	; changed 2009-09-14: new ENC_MODE-format, using Bits of ENC_MODE_xx to
+	; indicate edges, which trigger Do_Inc / Do_Dec
 
-	;; ENC_STAT[3..0] = LB, LA, B, A
+	;; if Bit N of ENC_MODE is set, according ENC_STAT triggers Do_Inc / Do_Dec
+	;;
+	;; Bit N     7   6   5   4  
+	;; ENC_STAT  8   E   7   1
+	;; DEC      <-  <-  <-  <-  
+	;; Pin A ____|-------|_______
+	;; Pin B ________|-------|___
+	;; INC       ->  ->  ->  ->  
+	;; ENC_STAT  2   B   D   4
+	;; Bit N     0   1   2   3 
 
-	;; non-detented - INC: 2, B, D, 4
-	;;                DEC: 1, 7, E, 8
-	;; detented1    - INC: B, 4
-	;;                DEC: 7, 8
-	;; detented2    - INC: B
-	;;                DEC: 7
-	;; detented3    - INC: 4
-	;;                DEC: 8
+	;; Binary tree translates ENC_STAT to N and calls Do_Inc / Do_Dec, if
+	;; related bit N is set
+	;; MEMO: IRQ_TMP4 = ENC_STAT, TABLAT = ENC_MODE
 
 	BRA_IFSET IRQ_TMP4, 3, ACCESS, MIOS_ENC_Do_89ABCDEF
 MIOS_ENC_Do_01234567

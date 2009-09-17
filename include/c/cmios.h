@@ -33,6 +33,18 @@
 #define MIOS_ENC_MODE_DETENTED2		0x81
 #define MIOS_ENC_MODE_DETENTED3		0x82
 #else
+/* new encoder modes: each bit of MIOS_ENC_MODE_xx tells, if an INC / DEC is 
+ * being triggered on the corresponding edge. 
+ * Bit      7   6   5   4  
+ * DEC     <-  <-  <-  <-
+ * Pin A ___|-------|_______
+ * Pin B _______|-------|___
+ * INC      ->  ->  ->  ->
+ * Bit      0   1   2   3
+ * Ex.:          Bit  76543210
+ *      DETENTED2 = 0b00100010 = 0x22
+ *      -> INC will be triggered on edge 1, DEC on edge 5
+ */
 #define MIOS_ENC_MODE_NON_DETENTED	0xff
 #define MIOS_ENC_MODE_DETENTED		0xaa
 #define MIOS_ENC_MODE_DETENTED1		0xaa
