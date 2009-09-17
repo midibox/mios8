@@ -561,6 +561,7 @@ MIOS_ENC_AtomicHandler
 
 	;; Binary tree translates ENC_STAT to N and calls Do_Inc / Do_Dec, if
 	;; related bit N is set
+	;; This method is based on ideas from Avogra
 	;; MEMO: IRQ_TMP4 = ENC_STAT, TABLAT = ENC_MODE
 
 	BRA_IFSET IRQ_TMP4, 3, ACCESS, MIOS_ENC_Do_89ABCDEF
