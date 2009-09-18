@@ -113,7 +113,6 @@ IRQ_UART_Rx
 	;; overrun error (RCSTA, OERR) checked in mainloop!
 
 	movf	RCREG, W			; get received byte
-	bcf	PIR1, RCIF			; clear interrupt request flag
 
 	btfss	RCSTA, FERR			; skip if frame error!
 	call	MIDI_RxBufferPut		; store received byte in buffer
@@ -154,7 +153,7 @@ INIT_ClearRAMLoop
 	movlw	0x07			; all PORTE pins are tristate
 	movwf	TRISE
 
-	movlw	0x0f			; PortA and E: All Pins are analog pins
+	movlw	0x0f			; PortA and E: All Pins are IO pins
 	movwf	ADCON1			; (done again in IIC_MIDI_Init)
 
 	;; init MIDI driver
