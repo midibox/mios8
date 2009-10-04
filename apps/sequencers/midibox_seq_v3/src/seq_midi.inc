@@ -514,6 +514,33 @@ SEQ_MIDI_CC_PatternChng
 SEQ_MIDI_CC_NoPatternChng
 #endif
 
+#if DEFAULT_MIDI_BANK_CHANGE_CC
+	;; check for bank change request (CC#116-CC#119)
+	movf	MIOS_PARAMETER2, W
+	andlw	0xfc
+	xorlw	0x74
+	bnz	SEQ_MIDI_CC_NoBankChng
+SEQ_MIDI_CC_BankChng
+	;; select group
+	movf	MIOS_PARAMETER2, W
+	andlw	0x03
+	movwf	SEQ_GROUP, BANKED
+	;; new bank
+	movf	MIOS_PARAMETER3, W
+	andlw	0x07
+	movwf	SEQ_PATTERN_BANK, BANKED
+	;; pattern stays the same
+	;; bank stays the same
+	lfsr	FSR1, SEQ_PATTERN0
+	movf	SEQ_GROUP, W, BANKED
+	movf	PLUSW1, W
+	andlw	0x7f
+	movwf	SEQ_PATTERN, BANKED
+	;; request change
+	call	SEQ_CORE_ChangePatternSynched
+SEQ_MIDI_CC_NoBankChng
+#endif
+
 SEQ_MIDI_CC_End
 	return
 

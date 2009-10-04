@@ -108,7 +108,9 @@ CS_M_EDIT_GP_Callback_Loop_NoDr
 	;; a) ALL function active, but ALL button not pressed: invert complete trigger layer
 	;; b) ALL function active and ALL button pressed: toggle step, set remaining steps to same new value
 	;; c) ALL function not active: toggle step
+	;; if DEFAULT_BEH_ALL_WITH_TRIGGERS is 0, we always apply case c)
 	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, CS_M_EDIT_GP_Callback_Loop_NoDrC
+#if DEFAULT_BEH_ALL_WITH_TRIGGERS
 	BRA_IFSET CS_STAT2, CS_STAT2_ALL_SAME_VALUE, ACCESS, CS_M_EDIT_GP_Callback_Loop_NoDrB
 CS_M_EDIT_GP_Callback_Loop_NoDrA ; case a)
 	movlw	0xfc		; remove register offset again (less branches when we undo the last "add offset" step)
@@ -141,6 +143,7 @@ CS_M_EDIT_GP_Callback_Loop_NoDB1
 	setf	POSTINC1	; set step 17-24
 	setf	POSTINC1	; set step 25-32
 	rgoto	CS_M_EDIT_GP_Callback_Loop_NoDrN
+#endif
 
 CS_M_EDIT_GP_Callback_Loop_NoDrC ; case c)
 	;; XOR

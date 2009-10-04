@@ -135,8 +135,7 @@ SEQ_GROOVE_NUMBER	EQU	(SEQ_GROOVE_TABLE_End-SEQ_GROOVE_TABLE) / SEQ_GROOVE_TABLE
 ;;  the event. Note that SEQ_GROOVE_Get has already been called much earlier
 ;;  to determine the delay of a step. Now we have to process the SEQ_TRKVARGRVSCALEx
 ;;  value
-;;  IN: SEQ_EVNTS: step number (0-15 for MIDIboxSEQ)
-;;      SEQ_EVNTT: track number (0-15 for MIDIboxSEQ)
+;;  IN: SEQ_EVNTT: track number (0-15 for MIDIboxSEQ)
 ;;      FSR0: pointer to track record
 ;;      FSR2: pointer to track variables
 ;;      SEQ_EVNT[012L]: the MIDI event
@@ -204,7 +203,7 @@ SEQ_GROOVE_GetName
 
 ;; --------------------------------------------------------------------------
 ;;  This function sets the number of clock ticks which should be played per step
-;;  IN: step number in SEQ_TRKVARSTEPx
+;;  IN: step number in SEQ_CLK_STEP_CTR (taking the global reference step)
 ;;      pointer to SEQ_TRKx in FSR0,
 ;;      pointer to SEQ_TRKVARx in FSR2
 ;;  OUT: tick number in SEQ_TRKVARPLYTICKx
@@ -226,7 +225,7 @@ SEQ_GROOVE_GetDelay
 ;;  style and step number
 ;;  IN: table offset (SEQ_GROOVE_TABLE_OFFSET_*) in WREG
 ;;      groove style in SEQ_TRKGROOVEx[7:4]
-;;      step number in SEQ_TRKVARSTEPx
+;;      step number in SEQ_CLK_STEP_CTR (taking the global reference step)
 ;;  OUT: new value in TABLAT
 ;; --------------------------------------------------------------------------
 SEQ_GROOVE_GetTablePtr
@@ -245,8 +244,12 @@ SEQ_GROOVE_GetTablePtr
 	addwfc	PRODH, W
 	movwf	TBLPTRH
 
+#if 0
 	movlw	SEQ_TRKVARSTEPx	; get step number (mask 16 steps, rightshift due to compact 4bit format)
 	rrf	PLUSW2, W
+#else
+	rrf	SEQ_CLK_STEP_CTR, W, BANKED ; get global step number (mask 16 steps, rightshift due to compact 4bit format)
+#endif
 	andlw	0x07
 	addwf	TABLAT, W	; add entry offset
 	addwf	TBLPTRL, F	; add to pointer
@@ -259,7 +262,7 @@ SEQ_GROOVE_GetTablePtr
 ;;  This function reads a nibble from the groove table and evtl. replaces
 ;;  it by the "groove intensity" parameter if it is 15 (DVAR, VVAR, LVAR)
 ;;  otherwise the original value will be returned
-;;  IN: step number in TRKVARSTEPx
+;;  IN: step number in SEQ_CLK_STEP_CTR (taking the global reference step)
 ;;      FSR0: pointer to track record
 ;;      FSR2: pointer to track variables
 ;;  OUT: new value in TABLAT
@@ -273,8 +276,12 @@ SEQ_GROOVE_GetEntry
 	tblrd*
 
 	;; swap byte of step number is odd
+#if 0
 	movlw	SEQ_TRKVARSTEPx
 	btfsc	PLUSW2, 0
+#else
+	btfsc	SEQ_CLK_STEP_CTR, 0, BANKED
+#endif
 	swapf	TABLAT, F
 
 	;; mask out 4bit value

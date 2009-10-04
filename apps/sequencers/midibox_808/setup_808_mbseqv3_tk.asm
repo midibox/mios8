@@ -395,9 +395,10 @@ LED_MIDI_TX	EQU	(((0    -1)<<3)+    0) ; SR=0 -> disabled by default
 ;;      for each encoder, an even number is expected: 0, 2, 4 or 6
 ;;    o the third parameter contains the encoder mode:
 ;;      either MIOS_ENC_MODE_NON_DETENTED
-;;          or MIOS_ENC_MODE_DETENTED
+;;          or MIOS_ENC_MODE_DETENTED1
 ;;          or MIOS_ENC_MODE_DETENTED2 (prefered for Encoders from Voti and SmashTV!)
 ;;          or MIOS_ENC_MODE_DETENTED3
+;;          or MIOS_ENC_MODE_DETENTED4
 ;;      see also http://www.midibox.org/dokuwiki/doku.php?id=encoder_types
 ;;
 ;; Configuration Examples:

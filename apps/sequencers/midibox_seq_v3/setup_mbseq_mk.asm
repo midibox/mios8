@@ -147,6 +147,11 @@
 ;; the same for the scrub button
 #define DEFAULT_BEHAVIOUR_BUTTON_SCRUB	0
 
+;; special behaviour of ALL button
+;; 0: only parameter layers are modified by ALL function
+;; 1: all trigger and parameter layers are modified by ALL function
+#define DEFAULT_BEH_ALL_WITH_TRIGGERS   0
+	
 ; MIDI IN Channel which is used for the transpose/arpeggiator/remote function
 ; Allowed values: 1-16, select 0 to disable
 #define DEFAULT_SEQUENCER_CHANNEL	1
@@ -168,6 +173,10 @@
 ;; if enabled (1), patterns can be changed via CC#112-CC#115
 ;; if disabled (0), these CCs are ignored
 #define DEFAULT_MIDI_PATTERN_CHANGE_CC	1
+
+;; if enabled (1), banks can be changed via CC#116-CC#119
+;; if disabled (0), these CCs are ignored
+#define DEFAULT_MIDI_BANK_CHANGE_CC	1
 
 ;; if enabled (1), song can be changed via program change
 ;; if disabled (0), program changes are ignored
@@ -444,9 +453,10 @@ LED_MIDI_TX	EQU	(((0    -1)<<3)+    0) ; SR=0 -> disabled by default
 ;;      for each encoder, an even number is expected: 0, 2, 4 or 6
 ;;    o the third parameter contains the encoder mode:
 ;;      either MIOS_ENC_MODE_NON_DETENTED
-;;          or MIOS_ENC_MODE_DETENTED
+;;          or MIOS_ENC_MODE_DETENTED1
 ;;          or MIOS_ENC_MODE_DETENTED2 (prefered for Encoders from Voti and SmashTV!)
 ;;          or MIOS_ENC_MODE_DETENTED3
+;;          or MIOS_ENC_MODE_DETENTED4
 ;;      see also http://www.midibox.org/dokuwiki/doku.php?id=encoder_types
 ;;
 ;; Configuration Examples:
