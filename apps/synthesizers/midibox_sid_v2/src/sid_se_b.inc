@@ -990,42 +990,16 @@ SIDSE_B_CS_LM_Normal_R_Dis
 
 SIDSE_B_CS_LM_Meter
 
-#if 0
-	;; activate level meters
-	bsf	CS_STAT2, CS_STAT2_LEVEL_METERS
+	;; also used by lead engine in sammichSID display mode!
+SIDSE_L_CS_LM_Meter_ReUse
 
-	;; trigger level meter whenever gate is active
+	;; also used by multi engine!
+SIDSE_M_CS_LM_Meter_ReUse
 
-	SET_BSR	SIDL_BASE
+	;; don't activate level meters
+	bcf	CS_STAT2, CS_STAT2_LEVEL_METERS
 
-	;; left meter
-SIDSE_B_CS_LM_L
-	movlw	0x3f
-	btfsc	SIDL_BASE + SIDx_V1_CTRL, 0, BANKED
-	movff	WREG, METER_VALUES1
-	btfsc	SIDL_BASE + SIDx_V1_CTRL, 0, BANKED
-	movff	WREG, METER_VALUES2
-	
-	;; right meter
-	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
-	BRA_IFSET WREG, SID_ENS_CTRL1_MONO, ACCESS, SIDSE_B_CS_LM_NotR
-SIDSE_B_CS_LM_R
-	movlw	0x3f
-	btfsc	SIDR_BASE + SIDx_V1_CTRL, 0, BANKED
-	movff	WREG, METER_VALUES5
-	btfsc	SIDR_BASE + SIDx_V1_CTRL, 0, BANKED
-	movff	WREG, METER_VALUES6
-SIDSE_B_CS_LM_NotR
-
-	;; clear remaining meter values
-	SET_BSR	METER_VALUES0
-	clrf	METER_VALUES0, BANKED
-	clrf	METER_VALUES3, BANKED
-	clrf	METER_VALUES4, BANKED
-	clrf	METER_VALUES7, BANKED
-	SET_BSR	SID_BASE
-#else
-
+	;; show frequencies
 SID_SE_B_METER_MACRO MACRO meter, Vx_STATE, Vx_LINEAR_FRQ_H, METER_VALUESx
 	LOCAL	NoGate
 	LOCAL	GateEnd
@@ -1043,7 +1017,6 @@ NoGate
 GateEnd
 	ENDM
 
-	;; show frequencies (much better "show" effect :)
 	SID_SE_B_METER_MACRO 1, SIDL_V1_BASE + SID_Vx_STATE, SIDL_V1_BASE + SID_Vx_LINEAR_FRQ_H, METER_VALUES1
 	SID_SE_B_METER_MACRO 2, SIDL_V2_BASE + SID_Vx_STATE, SIDL_V2_BASE + SID_Vx_LINEAR_FRQ_H, METER_VALUES2
 	SID_SE_B_METER_MACRO 3, SIDL_V3_BASE + SID_Vx_STATE, SIDL_V3_BASE + SID_Vx_LINEAR_FRQ_H, METER_VALUES3
@@ -1056,8 +1029,4 @@ GateEnd
 	clrf	METER_VALUES0, BANKED
 	clrf	METER_VALUES7, BANKED
 	SET_BSR	SID_BASE
-
-
-#endif
 	return
-

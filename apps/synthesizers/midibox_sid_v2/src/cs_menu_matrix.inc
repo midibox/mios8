@@ -82,6 +82,11 @@ CS_MENU_MATRIX_Handler_SP
 	movf	INDF1, W
 	skpz
 	decf	INDF1, F
+#if 1
+	;; TK: make VU meters a bit faster
+	skpz
+	decf	INDF1, F
+#endif
 
 	;; don't show pattern once counter is zero
 	movf	INDF1, W	; (ensure that WREG is 0 on branch to SP_Dis)

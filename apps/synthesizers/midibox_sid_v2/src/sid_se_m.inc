@@ -1508,8 +1508,9 @@ SIDSE_M_CS_LM
 	btfss	CS_MENU_MODE, CS_MENU_MODE_MATRIX_METER_DISP
 	return
 
-	;; also used by drum mode!
+	;; also used by drum engine!
 SIDSE_D_CS_LM_Meter_ReUse
+	;; also used by lead engine in sammichSID display mode!
 
 	;; activate level meters
 	bsf	CS_STAT2, CS_STAT2_LEVEL_METERS

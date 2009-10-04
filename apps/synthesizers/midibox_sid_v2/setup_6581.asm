@@ -189,7 +189,9 @@
 	;; sets the default display mode for the LED matrix
 	;;    0: shows modulation assignments after power-on
 	;;    1: shows modulation meters after power-on
-	;; the mode can be toggled by pressing two mod target buttons at the same time (e.g. O1 and O2 Pitch)
+	;;    2: special visualisation mode for sammichSID
+	;; mode 0/1 can be toggled by pressing two mod target buttons at the same time (e.g. O1 and O2 Pitch)
+	;; or by using a dedicated button (-> CS_MENU_BUTTON_M_Mode)
 #define DEFAULT_LEDMATRIX_MODE	0
 
 	;; if != 0, special variations for MB6582 hardware will be selected

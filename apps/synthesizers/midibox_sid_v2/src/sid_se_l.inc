@@ -263,6 +263,12 @@ SIDSE_L_HANDLER_EXT_MACRO MACRO patch_base, mod_base
 
 
 	;; ------------------------------------------------------------------
+	;; 2nd Cycle: LED Matrix Update
+	;; ------------------------------------------------------------------
+	call	SIDSE_L_CS_LM
+
+
+	;; ------------------------------------------------------------------
 	;; clear FA/FB and FC synch request
 	;; ------------------------------------------------------------------
 	bcf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FA_REQ, BANKED
@@ -1825,10 +1831,13 @@ SIDSE_L_MOD_OP_Cont
 	call	SIDSE_Hlp_ScaleDepth	; 15bit signed value in MUL_A_[LH], result in MUL_R_[12], uses IRQ_TMP1
 
 	;; store in METER_VALUES array for optional visualisation on the modulation matrix
+#if DEFAULT_LEDMATRIX_MODE != 2
+	;; not if sammichSID display mode is selected
 	movff	MUL_R_2, MIOS_PARAMETER1
 	movf	SID_SE_ELEMENT_NUM, W, BANKED
 	call	CS_MENU_MATRIX_MeterSet
 	;; uses FSR1 !!!
+#endif
 	
 	;; multiply by two (to allow full range sweeps)
 	rlf	MUL_R_1, F, BANKED
@@ -2105,3 +2114,35 @@ SIDSE_L_NOTE_Restart_NoABW
 	movff	PRODL, PLUSW1
 	return
 
+
+
+;; --------------------------------------------------------------------------
+;; This function updates the LED matrix
+;; For lead engine, this is interrupt driven for fastest update time
+;; only used when master is selected
+;; IN: -
+;; --------------------------------------------------------------------------
+SIDSE_L_CS_LM
+
+	;; if slave is selected: exit (update done in CS_MENU_LED_Update_ModMatrix)
+	btfss	CS_MENU_SELECTED_SID_FLAGS, 0
+	return
+
+	;; branch depending on normal/meter mode
+	BRA_IFSET CS_MENU_MODE, CS_MENU_MODE_MATRIX_METER_DISP, ACCESS, SIDSE_L_CS_LM_Meter
+SIDSE_L_CS_LM_Normal
+
+	;; matrix is updated in CS_MENU_LED_Update_ModMatrix
+	;; no special code required here
+	return
+
+SIDSE_L_CS_LM_Meter
+
+#if DEFAULT_LEDMATRIX_MODE != 2
+	;; meter values are updated in SIDSE_L_MOD_OP_Cont
+	;; no special code required here
+	return
+#else
+	;; use same function as for bassline engine
+	goto	SIDSE_L_CS_LM_Meter_ReUse
+#endif

@@ -368,8 +368,13 @@ SIDPLAY_Handler_CmdSeqDF_G1
 	bnz	SIDPLAY_Handler_CmdSeqDF_NG1
 	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, SIDPLAY_Handler_CmdSeqDF_NG1
 	movlw	0x3f
+#if DEFAULT_LEDMATRIX_MODE == 2
+	movff	WREG, METER_VALUES1 ; sammichSID layout
+	movff	WREG, METER_VALUES4
+#else
 	movff	WREG, METER_VALUES0
 	movff	WREG, METER_VALUES1
+#endif
 	rgoto	SIDPLAY_Handler_CmdSeqDF_Cont
 SIDPLAY_Handler_CmdSeqDF_NG1
 
@@ -381,8 +386,13 @@ SIDPLAY_Handler_CmdSeqDF_G2
 	bnz	SIDPLAY_Handler_CmdSeqDF_NG2
 	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, SIDPLAY_Handler_CmdSeqDF_NG2
 	movlw	0x3f
+#if DEFAULT_LEDMATRIX_MODE == 2
+	movff	WREG, METER_VALUES2 ; sammichSID layout
+	movff	WREG, METER_VALUES5
+#else
 	movff	WREG, METER_VALUES3
 	movff	WREG, METER_VALUES4
+#endif
 	rgoto	SIDPLAY_Handler_CmdSeqDF_Cont
 SIDPLAY_Handler_CmdSeqDF_NG2
 
@@ -394,8 +404,13 @@ SIDPLAY_Handler_CmdSeqDF_G3
 	bnz	SIDPLAY_Handler_CmdSeqDF_NG3
 	BRA_IFCLR MIOS_PARAMETER2, 0, ACCESS, SIDPLAY_Handler_CmdSeqDF_NG3
 	movlw	0x3f
+#if DEFAULT_LEDMATRIX_MODE == 2
+	movff	WREG, METER_VALUES3 ; sammichSID layout
+	movff	WREG, METER_VALUES6
+#else
 	movff	WREG, METER_VALUES6
 	movff	WREG, METER_VALUES7
+#endif
 	rgoto	SIDPLAY_Handler_CmdSeqDF_Cont
 SIDPLAY_Handler_CmdSeqDF_NG3
 

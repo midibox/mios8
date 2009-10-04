@@ -1,9 +1,8 @@
 ; $Id$
 	LIST R=DEC
 ;
-; Individual Setup File for MB-6582
+; Prepared Setup File for sammichSID
 ;
-
 
 	;; BankStick Chip Select Address for "ensembles"
 	;; -1: only one ensemble available, stored in internal EEPROM
@@ -28,16 +27,6 @@
 	;; in CS_MENU_DIN_TABLE below
 
 	;; number of LCD lines (supported: 2 for 2x* LCDs and 4 for 4x* LCDs)
-#if 1
-#define DEFAULT_LCD_LINES 4
-
-	;; LCD line -> cursor offsets
-#define DEFAULT_LCD_LINE_Y0	0x40
-#define DEFAULT_LCD_LINE_Y1	0x14
-#define DEFAULT_LCD_LINE_Y2	0x00
-#define DEFAULT_LCD_LINE_Y3	0x54
-#else
-	;; optional for testing 2x20 LCD with MB-6582 hardware
 #define DEFAULT_LCD_LINES 2
 
 	;; LCD line -> cursor offsets
@@ -45,7 +34,6 @@
 #define DEFAULT_LCD_LINE_Y1	0x40
 #define DEFAULT_LCD_LINE_Y2	0x14
 #define DEFAULT_LCD_LINE_Y3	0x54
-#endif
 
 	;; 1: LCD cursor will be set to current parameter position (clashes with bar graph which is enabled with DEFAULT_LCD_LINES >= 4)
 	;; 0: disable this feature
@@ -53,7 +41,7 @@
 
 	;; Inc/Dec buttons or rotary encoder of data entry?
 	;; use:  0 if rotary encoder should be used 
-	;;         (pins of encoder are defined in MIOS_ENC_PIN_TABLE this file)
+	;;         (pins of encoder are defined in MIOS_ENC_PIN_TABLE in this file)
 	;;       1 if buttons should be used instead
 #define CS_MENU_USE_INCDEC_BUTTONS 0
 
@@ -61,25 +49,25 @@
 	;; 1: J5 used for analog inputs - A0..A4 control Knob#1..#5, A5..A7 are not used at all
 	;; 2: J5 used as digital output (pins can be added in CS_MENU_DOUT_TABLE as "shift register #0")
 	;; 3: J5 used as digital output for external switches (replacement for DEFAULT_EXT_SWITCH_DOUT, AOUT_INTERFACE_TYPE must be != 0)
-#define DEFAULT_J5_FUNCTION	3
+#define DEFAULT_J5_FUNCTION	0
 
 	;; DOUT/DIN shift register matrix:
 	;; define the DOUT shift register (1-16) to which the cathodes are connected (common line driver)
 	;; 0 disables this shift register (doesn't make much sense)
-#define DEFAULT_SRM_CATHODES		3
+#define DEFAULT_SRM_CATHODES		8
 
 	;; define the DOUT shift register (1-16) to which the anodes of the modulation matrix are connected
 	;; 0 disables this shift register
-#define DEFAULT_SRM_MODMATRIX_DOUT	1
+#define DEFAULT_SRM_MODMATRIX_DOUT	7
 
-	;; optional LED/Button Matrix (used by MB-6582 PCB to reduce number of shift registers)
+	;; optional LED/Button Matrix (used by "Wilba's Board" to reduce number of shift registers)
 	;; define the DOUT shift register (1-16) to which the anodes of the LED matrix are connected
 	;; 0 disables the LED matrix function - LEDs have to be connected to individual DOUT pins
-#define DEFAULT_SRM_LEDS_DOUT		2
+#define DEFAULT_SRM_LEDS_DOUT		0
 
 	;; define the DIN shift register (1-16) to which the button matrix is connected
 	;; 0 disables the button matrix function - Buttons have to be connected to individual DIN pins
-#define DEFAULT_SRM_BUTTONS_DIN		5
+#define DEFAULT_SRM_BUTTONS_DIN		0
 
 	;; define the number of shift registers (1-16) in the SRIO chain (DIN/DOUT shift registers)
 	;; use the number of the longest chain - e.g. 4 DOUT registers, 10 DIN registers: use 10
@@ -92,7 +80,7 @@
 	;;   2: up to 4 (chained) MBHP_AOUT_LC modules
 	;;   3: one MBHP_AOUT_NG module
 	;; all other values invalid!
-#define AOUT_INTERFACE_TYPE 2
+#define AOUT_INTERFACE_TYPE 0
 
 	;; only relevant if one or more AOUT_LC modules are used:
 	;; define the resolution configuration here
@@ -203,16 +191,16 @@
 	;;    2: special visualisation mode for sammichSID
 	;; mode 0/1 can be toggled by pressing two mod target buttons at the same time (e.g. O1 and O2 Pitch)
 	;; or by using a dedicated button (-> CS_MENU_BUTTON_M_Mode)
-#define DEFAULT_LEDMATRIX_MODE	1
+#define DEFAULT_LEDMATRIX_MODE	2
 
 	;; if != 0, special variations for MB6582 hardware will be selected
-#define DEFAULT_MB6582_CS	1
+#define DEFAULT_MB6582_CS	0
 
 	;; if != 0, EDIT button won't store patch
 	;; actually this doesn't really make sense - but this function could be useful if you
 	;; want to demonstrate your MBSID to friends and ensure, that they won't unintentionally
 	;; overwrite your patches
-#define DEFAULT_DISABLE_EDIT_STORE_FUNCTION 1
+#define DEFAULT_DISABLE_EDIT_STORE_FUNCTION 0
 
 
 	org	0x3082		; never change the origin!
@@ -251,64 +239,68 @@ DIN_ENTRY_EOT MACRO
 	ENDM
 	
 CS_MENU_DIN_TABLE
-	DIN_ENTRY	CS_MENU_BUTTON_Sel1,	 16+3,	 0
-	DIN_ENTRY	CS_MENU_BUTTON_Sel2,	 16+3,	 1
-	DIN_ENTRY	CS_MENU_BUTTON_Sel3,	 16+3,	 2
-	DIN_ENTRY	CS_MENU_BUTTON_Sel4,	 16+3,	 3
-	DIN_ENTRY	CS_MENU_BUTTON_Sel5,	 16+3,	 4
-	DIN_ENTRY	CS_MENU_BUTTON_Exec,	 16+5,	 3
-	DIN_ENTRY	CS_MENU_BUTTON_Shift,	 16+5,	 0 ; **new** Shift button
-	;;DIN_ENTRY	CS_MENU_BUTTON_???,	 16+5,	 2 ; **new** Menu Encoder button
+	;;		Function name		SR#	Pin#
+	DIN_ENTRY	CS_MENU_BUTTON_Dec,	 1,	 0	; only valid if rotary encoder not assigned to these pins
+	DIN_ENTRY	CS_MENU_BUTTON_Inc,	 1,	 1	; (see MIOS_ENC_PIN_TABLE) and CS_MENU_USE_INCDEC_BUTTONS == 1
+	DIN_ENTRY	CS_MENU_BUTTON_Exec,	 1,	 2
+	DIN_ENTRY	CS_MENU_BUTTON_Sel1,	 1,	 7
+	DIN_ENTRY	CS_MENU_BUTTON_Sel2,	 1,	 6
+	DIN_ENTRY	CS_MENU_BUTTON_Sel3,	 1,	 5
+	DIN_ENTRY	CS_MENU_BUTTON_Sel4,	 1,	 4
+	DIN_ENTRY	CS_MENU_BUTTON_Sel5,	 1,	 3
+	DIN_ENTRY	CS_MENU_BUTTON_Sel6,	 0,	 0	; define this if CS_MENU_DISPLAYED_ITEMS > 5
+	DIN_ENTRY	CS_MENU_BUTTON_Sel7,	 0,	 0	; define this if CS_MENU_DISPLAYED_ITEMS > 5
+	DIN_ENTRY	CS_MENU_BUTTON_Sel8,	 0,	 0	; define this if CS_MENU_DISPLAYED_ITEMS > 5
+	DIN_ENTRY	CS_MENU_BUTTON_Sel9,	 0,	 0	; define this if CS_MENU_DISPLAYED_ITEMS > 5
+	DIN_ENTRY	CS_MENU_BUTTON_Sel10,	 0,	 0	; define this if CS_MENU_DISPLAYED_ITEMS > 5
 
-	DIN_ENTRY	CS_MENU_BUTTON_PageUp,   16+4,	 0 ; **new** Select A button (TK: could control PageUp)
-	DIN_ENTRY	CS_MENU_BUTTON_Inc,	 16+4,	 1 ; **new** Select B button
-	DIN_ENTRY	CS_MENU_BUTTON_Dec,	 16+4,	 2 ; **new** Select C button
-	DIN_ENTRY	CS_MENU_BUTTON_PageDown, 16+4,	 3 ; **new** Select D button (TK: could control PageDown)
+	DIN_ENTRY	CS_MENU_BUTTON_SID1,	 2,      0
+	DIN_ENTRY	CS_MENU_BUTTON_SID2,	 2,      1
+	DIN_ENTRY	CS_MENU_BUTTON_SID3,	 2,      2
+	DIN_ENTRY	CS_MENU_BUTTON_SID4,	 2,      3
+	DIN_ENTRY	CS_MENU_BUTTON_Shift,	 2,	 4	; was: link button
+	DIN_ENTRY	CS_MENU_BUTTON_CC_PageUp, 2,     5	; combined CC/PageUp -- CC actived together with shift button (no error)
+	DIN_ENTRY	CS_MENU_BUTTON_Edit_PageDown, 2, 6	; combined Edit/PageDown -- Edit actived together with shift button (no error)
 
-	DIN_ENTRY	CS_MENU_BUTTON_SID1,	 16+2,	 3
-	DIN_ENTRY	CS_MENU_BUTTON_SID2,	 16+2,	 2
-	DIN_ENTRY	CS_MENU_BUTTON_SID3,	 16+2,	 1
-	DIN_ENTRY	CS_MENU_BUTTON_SID4,	 16+2,	 0
-	DIN_ENTRY	CS_MENU_BUTTON_Sync,	 16+1,	 0 ; **new** Sync button
-	DIN_ENTRY	CS_MENU_BUTTON_CC,	 16+1,	 1
-	DIN_ENTRY	CS_MENU_BUTTON_Edit,	 16+1,	 2
-	DIN_ENTRY	CS_MENU_BUTTON_Play,	 16+1,	 3 ; **new** Play button
+	DIN_ENTRY	CS_MENU_BUTTON_Osc_Sel,	 4,	 2
+	DIN_ENTRY	CS_MENU_BUTTON_Osc_Ctrl, 4,	 3
+	DIN_ENTRY	CS_MENU_BUTTON_Osc_Wav,  4,	 4
+	DIN_ENTRY	CS_MENU_BUTTON_Osc_RS,   4,	 5
 
-	DIN_ENTRY	CS_MENU_BUTTON_Osc_Sel,	 16+8,	 2
-	DIN_ENTRY	CS_MENU_BUTTON_Osc_Ctrl, 16+8,	 7
-	DIN_ENTRY	CS_MENU_BUTTON_Osc_Wav,  16+8,	 1
-	DIN_ENTRY	CS_MENU_BUTTON_Osc_RS,   16+8,	 3
+ 	DIN_ENTRY	CS_MENU_BUTTON_LFO_Sel,	 5,	 2
+	DIN_ENTRY	CS_MENU_BUTTON_LFO_Wav,	 5,	 3
 
-	DIN_ENTRY	CS_MENU_BUTTON_Fil_Sel,	 16+8,	 5
-	DIN_ENTRY	CS_MENU_BUTTON_Fil_Mod,  16+8,	 6
- 	DIN_ENTRY	CS_MENU_BUTTON_Fil_ExtIn,16+3,	 7 ; **new** Filter Ext In button
+	DIN_ENTRY	CS_MENU_BUTTON_Env_Sel,	 7,	 2
+	DIN_ENTRY	CS_MENU_BUTTON_Env_Ctrl, 7,	 3
 
- 	DIN_ENTRY	CS_MENU_BUTTON_LFO_Sel,	 16+3,	 5
-	DIN_ENTRY	CS_MENU_BUTTON_LFO_Wav,	 16+4,	 6
+	DIN_ENTRY	CS_MENU_BUTTON_Fil_Sel,	 7,	 4
+	DIN_ENTRY	CS_MENU_BUTTON_Fil_Mod,  7,	 5
 
-	DIN_ENTRY	CS_MENU_BUTTON_Env_Sel,	 16+8,	 4
-	DIN_ENTRY	CS_MENU_BUTTON_Env_Ctrl, 16+3,	 6
-	DIN_ENTRY	CS_MENU_BUTTON_SID_LR,	 16+4,	 5 ; **new** SID L/R button
+	DIN_ENTRY	CS_MENU_BUTTON_M_O1Ptch, 7,	 6
+	DIN_ENTRY	CS_MENU_BUTTON_M_O2Ptch, 7,	 7
+	DIN_ENTRY	CS_MENU_BUTTON_M_O3Ptch, 8,	 0
+	DIN_ENTRY	CS_MENU_BUTTON_M_O1PW,   8,	 1
+	DIN_ENTRY	CS_MENU_BUTTON_M_O2PW,   8,	 2
+	DIN_ENTRY	CS_MENU_BUTTON_M_O3PW,   8,	 3
+	DIN_ENTRY	CS_MENU_BUTTON_M_Filter, 8,	 4
+	DIN_ENTRY	CS_MENU_BUTTON_M_E1,	 8,	 5
+	DIN_ENTRY	CS_MENU_BUTTON_M_E2,	 8,	 6
+	DIN_ENTRY	CS_MENU_BUTTON_M_L1,	 8,	 7
+	DIN_ENTRY	CS_MENU_BUTTON_M_L2,	 9,	 0
+	DIN_ENTRY	CS_MENU_BUTTON_M_L3,	 9,	 1
+	DIN_ENTRY	CS_MENU_BUTTON_M_L4,	 9,	 2
+	DIN_ENTRY	CS_MENU_BUTTON_M_L5,	 9,	 3
+	DIN_ENTRY	CS_MENU_BUTTON_M_L6,	 9,	 4
 
-	DIN_ENTRY	CS_MENU_BUTTON_M_O1Ptch, 16+7,	 0
-	DIN_ENTRY	CS_MENU_BUTTON_M_O2Ptch, 16+7,	 1
-	DIN_ENTRY	CS_MENU_BUTTON_M_O3Ptch, 16+7,	 2
-	DIN_ENTRY	CS_MENU_BUTTON_M_O1PW,   16+7,	 3
-	DIN_ENTRY	CS_MENU_BUTTON_M_O2PW,   16+7,	 4
-	DIN_ENTRY	CS_MENU_BUTTON_M_O3PW,   16+7,	 5
-	DIN_ENTRY	CS_MENU_BUTTON_M_Filter, 16+7,	 6
-	DIN_ENTRY	CS_MENU_BUTTON_M_Vol,	 16+7,	 7
-
-	DIN_ENTRY	CS_MENU_BUTTON_M_E1,	 16+6,	 0
-	DIN_ENTRY	CS_MENU_BUTTON_M_E2,	 16+6,	 1
-	DIN_ENTRY	CS_MENU_BUTTON_M_L1,	 16+6,	 2
-	DIN_ENTRY	CS_MENU_BUTTON_M_L2,	 16+6,	 3
-	DIN_ENTRY	CS_MENU_BUTTON_M_L3,	 16+6,	 4
-	DIN_ENTRY	CS_MENU_BUTTON_M_L4,	 16+6,	 5
-	DIN_ENTRY	CS_MENU_BUTTON_M_L5,	 16+6,	 6
-	DIN_ENTRY	CS_MENU_BUTTON_M_L6,	 16+6,	 7
-
-	DIN_ENTRY	CS_MENU_BUTTON_M_Mode,	 16+8,	 0 ; **new** matrix mode button
+	;; new for MBSID V2 (additional ***optional*** buttons)
+	;; don't worry, you still have full access to all functions w/o these buttons!
+	;; note that you could also re-arrange the pin assignments if required (e.g. if you don't like a certain button function)
+	DIN_ENTRY	CS_MENU_BUTTON_M_Vol,	 9,	 5	; matrix: button below M_Filter
+	DIN_ENTRY	CS_MENU_BUTTON_Play,	 9,	 6	; direct access to play function
+	DIN_ENTRY	CS_MENU_BUTTON_SID_LR,	 9,	 7	; direct access to L/R toggling
+	DIN_ENTRY	CS_MENU_BUTTON_M_Mode,	10,	 0	; direct access to meter on/off function
+	DIN_ENTRY	CS_MENU_BUTTON_Fil_ExtIn, 10,	 1	; direct access to Filter ExtIn Flag
+	DIN_ENTRY	CS_MENU_BUTTON_Sync,	10,	 2	; jumps to ENS->CLK menu
 
 	;; don't remove this "end-of-table" entry!
 	DIN_ENTRY_EOT
@@ -357,71 +349,68 @@ DOUT_ENTRY_EOT MACRO
 	
 CS_MENU_DOUT_TABLE
 	;;		Register and bit			SR#	Pin#	  Description
-	DOUT_ENTRY	CS_MENU_SELECTED_SID_FLAGS, 0,		16+2,	0	; SID1 LED
-	DOUT_ENTRY	CS_MENU_SELECTED_SID_FLAGS, 1,		16+2,	1	; SID2 LED
-	DOUT_ENTRY	CS_MENU_SELECTED_SID_FLAGS, 2,		16+2,	2	; SID3 LED
-	DOUT_ENTRY	CS_MENU_SELECTED_SID_FLAGS, 3,		16+2,	3	; SID4 LED
+	DOUT_ENTRY	CS_MENU_SELECTED_SID_FLAGS, 0,		1,	0	; SID1 LED (Note: Pin #0 is the D7 output of first SR)
+	DOUT_ENTRY	CS_MENU_SELECTED_SID_FLAGS, 1,		1,	1	; SID2 LED
+	DOUT_ENTRY	CS_MENU_SELECTED_SID_FLAGS, 2,		1,	2	; SID3 LED
+	DOUT_ENTRY	CS_MENU_SELECTED_SID_FLAGS, 3,		1,	3	; SID4 LED
 
-	;;DOUT_ENTRY	CS_MENU_MODE, 0,			16+1,	3	; Sync LED **new**
-	DOUT_ENTRY	CS_MENU_MODE, 1,			16+1,	2	; CC LED
-	DOUT_ENTRY	CS_MENU_MODE, 4,			16+1,	1	; Edit LED
-	DOUT_ENTRY	TMP5, 6,				16+1,	0	; Play LED **new**
+	DOUT_ENTRY	CS_MENU_MODE, 0,			1,	4	; Shift LED
+	DOUT_ENTRY	CS_MENU_MODE, 1,			1,	5	; CC LED
+	DOUT_ENTRY	CS_MENU_MODE, 4,			1,	6	; Edit LED
 
-	DOUT_ENTRY	CS_MENU_SELECTED_OSC_FLAGS, 0,		16+7,	5	; OSC1 LED
-	DOUT_ENTRY	CS_MENU_SELECTED_OSC_FLAGS, 1,		16+7,	6	; OSC2 LED
-	DOUT_ENTRY	CS_MENU_SELECTED_OSC_FLAGS, 2,		16+7,	7	; OSC3 LED
+	DOUT_ENTRY	CS_MENU_SELECTED_OSC_FLAGS, 0,		2,	0	; OSC1 LED
+	DOUT_ENTRY	CS_MENU_SELECTED_OSC_FLAGS, 1,		2,	1	; OSC2 LED
+	DOUT_ENTRY	CS_MENU_SELECTED_OSC_FLAGS, 2,		2,	2	; OSC3 LED
 
-	DOUT_ENTRY	TMP1, 0,				16+8,	3	; OSC Env LED
-	DOUT_ENTRY	TMP1, 1,				16+8,	2	; OSC Misc LED
-	DOUT_ENTRY	TMP1, 2,				16+8,	1	; OSC Assign LED
+	DOUT_ENTRY	TMP1, 0,				2,	3	; OSC Env LED
+	DOUT_ENTRY	TMP1, 1,				2,	4	; OSC Misc LED
+	DOUT_ENTRY	TMP1, 2,				2,	5	; OSC Assign LED
 
-	DOUT_ENTRY	TMP1, 4,				16+6,	4	; OSC Triangle LED
-	DOUT_ENTRY	TMP1, 5,				16+6,	5	; OSC Saw LED
-	DOUT_ENTRY	TMP1, 6,				16+6,	6	; OSC Pulse LED
-	DOUT_ENTRY	TMP1, 7,				16+6,	7	; OSC Noise LED
+	DOUT_ENTRY	TMP1, 4,				3,	0	; OSC Triangle LED
+	DOUT_ENTRY	TMP1, 5,				3,	1	; OSC Saw LED
+	DOUT_ENTRY	TMP1, 6,				3,	2	; OSC Pulse LED
+	DOUT_ENTRY	TMP1, 7,				3,	3	; OSC Noise LED
 
-	DOUT_ENTRY	TMP2, 0,				16+5,	7	; OSC Sync LED
-	DOUT_ENTRY	TMP2, 1,				16+5,	6	; OSC Ring LED
+	DOUT_ENTRY	TMP2, 0,				2,	6	; OSC Sync LED
+	DOUT_ENTRY	TMP2, 1,				2,	7	; OSC Ring LED
 
-	DOUT_ENTRY	TMP3, 0,				16+4,	7	; Filter O1 LED
-	DOUT_ENTRY	TMP3, 1,				16+4,	6	; Filter O2 LED
-	DOUT_ENTRY	TMP3, 2,				16+4,	5	; Filter O3 LED
-	DOUT_ENTRY	TMP3, 3,				16+3,	4	; Filter Ext LED
+	DOUT_ENTRY	TMP3, 0,				3,	4	; Filter O1 LED
+	DOUT_ENTRY	TMP3, 1,				3,	5	; Filter O2 LED
+	DOUT_ENTRY	TMP3, 2,				3,	6	; Filter O3 LED
+	DOUT_ENTRY	TMP3, 3,				3,	7	; Filter Ext LED
 
-	DOUT_ENTRY	TMP3, 4,				16+3,	5	; Filter LP LED
-	DOUT_ENTRY	TMP3, 5,				16+3,	6	; Filter BP LED
-	DOUT_ENTRY	TMP3, 6,				16+3,	7	; Filter HP LED
+	DOUT_ENTRY	TMP3, 4,				4,	0	; Filter LP LED
+	DOUT_ENTRY	TMP3, 5,				4,	1	; Filter BP LED
+	DOUT_ENTRY	TMP3, 6,				4,	2	; Filter HP LED
+	DOUT_ENTRY	TMP3, 7,				4,	3	; Filter 3O LED
 
-	DOUT_ENTRY	TMP2, 4,				16+5,	4	; ENV1 LED
-	DOUT_ENTRY	TMP2, 5,				16+5,	5	; ENV2 LED
-	
-	DOUT_ENTRY	TMP2, 6,				16+7,	3	; ENV Ctrl LED
-	DOUT_ENTRY	TMP5, 7,				16+7,	2	; ENV Misc LED **new**
-	DOUT_ENTRY	TMP2, 7,				16+7,	1	; ENV Assign LED
+	DOUT_ENTRY	TMP2, 4,				4,	4	; ENV1 LED
+	DOUT_ENTRY	TMP2, 5,				4,	5	; ENV2 LED
 
-	DOUT_ENTRY	TMP4, 6,				16+6,	3	; SID L LED **new**
-	DOUT_ENTRY	TMP4, 7,				16+6,	2	; SID R LED **new**
-	;;DOUT_ENTRY	TMP3, 6,				16+6,	1	; **unused**
+	DOUT_ENTRY	TMP2, 6,				4,	6	; ENV Ctrl LED
+	DOUT_ENTRY	TMP2, 7,				4,	7	; ENV Assign LED
 
-	DOUT_ENTRY	TMP4, 0,				16+3,	3	; LFO1 LED
-	DOUT_ENTRY	TMP4, 1,				16+3,	2	; LFO2 LED
-	DOUT_ENTRY	TMP4, 2,				16+3,	1	; LFO3 LED
-	DOUT_ENTRY	TMP4, 3,				16+3,	0	; LFO4 LED
-	DOUT_ENTRY	TMP4, 4,				16+4,	3	; LFO5 LED
-	DOUT_ENTRY	TMP4, 5,				16+4,	2	; LFO6 LED
+	DOUT_ENTRY	TMP4, 0,				5,	0	; LFO1 LED
+	DOUT_ENTRY	TMP4, 1,				5,	1	; LFO2 LED
+	DOUT_ENTRY	TMP4, 2,				5,	2	; LFO3 LED
+	DOUT_ENTRY	TMP4, 3,				5,	3	; LFO4 LED
+	DOUT_ENTRY	TMP4, 4,				5,	4	; LFO5 LED
+	DOUT_ENTRY	TMP4, 5,				5,	5	; LFO6 LED
 
-	DOUT_ENTRY	TMP5, 0,				16+4,	0	; LFO Sine LED
-	DOUT_ENTRY	TMP5, 1,				16+4,	1	; LFO Triangle LED
-	DOUT_ENTRY	TMP5, 2,				16+5,	3	; LFO Saw LED
-	DOUT_ENTRY	TMP5, 3,				16+5,	2	; LFO Pulse LED
-	DOUT_ENTRY	TMP5, 4,				16+5,	1	; LFO Random LED
-	DOUT_ENTRY	TMP5, 5,				16+5,	0	; LFO Positive LED **new**
+	DOUT_ENTRY	TMP5, 0,				5,	6	; LFO Sine LED
+	DOUT_ENTRY	TMP5, 1,				5,	7	; LFO Triangle LED
+	DOUT_ENTRY	TMP5, 2,				6,	0	; LFO Saw LED
+	DOUT_ENTRY	TMP5, 3,				6,	1	; LFO Pulse LED
+	DOUT_ENTRY	TMP5, 4,				6,	2	; LFO Random LED
 
-	DOUT_ENTRY	TMP2, 3,				16+8,	7	; Mode Matrix LED **new**
-	DOUT_ENTRY	TMP2, 2,				16+8,	6	; Mode Meter LED **new**
-	;;DOUT_ENTRY	TMP2, 2,				16+8,	5	; **unused**
-	;;DOUT_ENTRY	TMP2, 2,				16+8,	4	; **unused**
-	;;DOUT_ENTRY	TMP2, 2,				16+7,	4	; **unused**
+
+	;; additional LED functions which could be added:
+	;; o Play LED (TMP5, 6)
+	;; o Mode Meter LED (TMP2, 2)
+	;; o Mode Matrix LED (TMP2, 3)
+	;; o SID L LED (TMP4, 6)
+	;; o SID R LED (TMP4, 7)
+	;; o LFO Positive LED (TMP5, 5)
 
 	;; don't remove this "end-of-table" entry!
 	DOUT_ENTRY_EOT
@@ -464,28 +453,28 @@ ENC_EOT	MACRO
 MIOS_ENC_PIN_TABLE
 	;;        SR  Pin  Mode
 #if CS_MENU_USE_INCDEC_BUTTONS == 0
-	ENC_ENTRY  1,  6,  MIOS_ENC_MODE_DETENTED2	; menu encoder
+	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; menu encoder
 #endif
 
 	;; additional CS encoders
 	;;        SR  Pin  Mode
-	ENC_ENTRY  4,  4,  MIOS_ENC_MODE_DETENTED2	; Osc delay/transpose/assign #1
-	ENC_ENTRY  3,  0,  MIOS_ENC_MODE_DETENTED2	; Osc attack/finetune/assign #2
+	ENC_ENTRY  3,  0,  MIOS_ENC_MODE_DETENTED2	; Osc delay/transpose/assign #1
+	ENC_ENTRY  3,  2,  MIOS_ENC_MODE_DETENTED2	; Osc attack/finetune/assign #2
 	ENC_ENTRY  3,  4,  MIOS_ENC_MODE_DETENTED2	; Osc decay/portamento/assign #3
-	ENC_ENTRY  2,  0,  MIOS_ENC_MODE_DETENTED2	; Osc sustain/arpeggiator/assign #4
-	ENC_ENTRY  2,  4,  MIOS_ENC_MODE_DETENTED2	; Osc release/pulsewidth/assign #5
+	ENC_ENTRY  3,  6,  MIOS_ENC_MODE_DETENTED2	; Osc sustain/release/assign #4
+	ENC_ENTRY  4,  0,  MIOS_ENC_MODE_DETENTED2	; Osc release/pulsewidth/assign #5
 
-	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; LFO rate
-	ENC_ENTRY  1,  4,  MIOS_ENC_MODE_DETENTED2	; LFO depth
+	ENC_ENTRY  4,  6,  MIOS_ENC_MODE_DETENTED2	; LFO rate
+	ENC_ENTRY  5,  0,  MIOS_ENC_MODE_DETENTED2	; LFO depth
 
-	ENC_ENTRY  4,  2,  MIOS_ENC_MODE_DETENTED2	; Filter CutOff
-	ENC_ENTRY  4,  6,  MIOS_ENC_MODE_DETENTED2	; Filter Resonance
+	ENC_ENTRY  5,  4,  MIOS_ENC_MODE_DETENTED2	; Filter CutOff
+	ENC_ENTRY  5,  6,  MIOS_ENC_MODE_DETENTED2	; Filter Resonance
 
-	ENC_ENTRY  3,  2,  MIOS_ENC_MODE_DETENTED2	; Env depth/assign #1
-	ENC_ENTRY  3,  6,  MIOS_ENC_MODE_DETENTED2	; Env attack/assign #2
-	ENC_ENTRY  2,  2,  MIOS_ENC_MODE_DETENTED2	; Env decay/assign #3
-	ENC_ENTRY  2,  6,  MIOS_ENC_MODE_DETENTED2	; Env sustain/assign #4
-	ENC_ENTRY  1,  2,  MIOS_ENC_MODE_DETENTED2	; Env release/assign #5
+	ENC_ENTRY  6,  0,  MIOS_ENC_MODE_DETENTED2	; Env depth/assign #1
+	ENC_ENTRY  6,  2,  MIOS_ENC_MODE_DETENTED2	; Env attack/assign #2
+	ENC_ENTRY  6,  4,  MIOS_ENC_MODE_DETENTED2	; Env decay/assign #3
+	ENC_ENTRY  6,  6,  MIOS_ENC_MODE_DETENTED2	; Env sustain/assign #4
+	ENC_ENTRY  7,  0,  MIOS_ENC_MODE_DETENTED2	; Env release/assign #5
 
 	;; don't remove this "end-of-table" entry!
 	ENC_EOT
