@@ -12,7 +12,7 @@
 ;
 MIOS_VERSION_STR MACRO
 ; Version:                 <-------------->
-	STRING	16, 0x00, "MIOS V1.9f      "
+	STRING	16, 0x00, "MIOS V1.9g      "
 	ENDM
 ; (fixed string length - 16 characters!)
 ;
