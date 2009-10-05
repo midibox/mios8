@@ -57,7 +57,16 @@ CS_MENU_MATRIX_Handler
 	movlw	(DEFAULT_SRM_CATHODES-1) & 0xf
 	call	MIOS_DOUT_SRSet
 #endif
-#else
+#endif
+#if DEFAULT_SAMMICHSID_CS
+#if DEFAULT_SRM_CATHODES
+	xorlw	0xff
+	movwf	MIOS_PARAMETER1
+	movlw	(DEFAULT_SRM_CATHODES-1) & 0xf
+	call	MIOS_DOUT_SRSet
+#endif
+#endif
+#if !DEFAULT_MB6582_CS && !DEFAULT_SAMMICHSID_CS
 #if DEFAULT_SRM_MODMATRIX_DOUT
 	movwf	MIOS_PARAMETER1
 	movlw	(DEFAULT_SRM_MODMATRIX_DOUT-1) & 0xf
@@ -76,6 +85,9 @@ CS_MENU_MATRIX_Handler_SP
 	movf	CS_MENU_MATRIX_CTR, W
 #if DEFAULT_MB6582_CS
 	sublw	0x07		; invert order of columns (0=right, 7=left)
+#endif
+#if DEFAULT_SAMMICHSID_CS
+	rcall	CS_MENU_MATRIX_SammichSID_Column_Remap
 #endif
 	addwf	FSR1L, F
 
@@ -102,7 +114,7 @@ CS_MENU_MATRIX_Handler_SP
 	tblrd*+
 	movf	TABLAT, W
 CS_MENU_MATRIX_Handler_SP_Dis
-#if !DEFAULT_MB6582_CS
+#if !DEFAULT_MB6582_CS && !DEFAULT_SAMMICHSID_CS
 	xorlw	0xff
 #endif
 	rgoto	CS_MENU_MATRIX_Handler_SP_Cont
@@ -122,7 +134,12 @@ CS_MENU_MATRIX_Handler_Cont
 #if DEFAULT_MB6582_CS
 	sublw	0x07					; invert order of columns (0=right, 7=left)
 	movf	PLUSW1, W
-#else
+#endif
+#if DEFAULT_SAMMICHSID_CS
+	rcall	CS_MENU_MATRIX_SammichSID_Column_Remap
+	movf	PLUSW1, W
+#endif
+#if !DEFAULT_MB6582_CS && !DEFAULT_SAMMICHSID_CS
 	comf	PLUSW1, W
 #endif
 CS_MENU_MATRIX_Handler_SP_Cont
@@ -141,6 +158,9 @@ CS_MENU_MATRIX_Handler_Flash
 #if DEFAULT_MB6582_CS
 	sublw	0x07					; invert order of columns (0=right, 7=left)
 #endif
+#if DEFAULT_SAMMICHSID_CS
+	rcall	CS_MENU_MATRIX_SammichSID_Column_Remap
+#endif
 	call	MIOS_HLP_GetBitORMask
 	andwf	CS_MENU_MATRIX_SELECTED_ROW, W
 	skpz
@@ -152,7 +172,14 @@ CS_MENU_MATRIX_Handler_NoFlash
 	movlw	(DEFAULT_SRM_MODMATRIX_DOUT-1) & 0xf
 	call	MIOS_DOUT_SRSet
 #endif
-#else
+#endif
+#if DEFAULT_SAMMICHSID_CS
+#if DEFAULT_SRM_CATHODES
+	movlw	(DEFAULT_SRM_MODMATRIX_DOUT-1) & 0xf
+	call	MIOS_DOUT_SRSet
+#endif
+#endif
+#if !DEFAULT_MB6582_CS && !DEFAULT_SAMMICHSID_CS
 #if DEFAULT_SRM_CATHODES
 	movlw	(DEFAULT_SRM_CATHODES-1) & 0xf
 	call	MIOS_DOUT_SRSet
@@ -466,4 +493,28 @@ CS_MENU_MATRIX_LEVEL_METER_TABLE ; (used in meter level mode)
 	db	b'11100000', b'11110000'
 	db	b'11111000', b'11111100'
 	db	b'11111110', b'11111111'
+
+;; --------------------------------------------------------------------------
+;;  Remap sammichSID 6x8 LED matrix "row" to normal 8x8 LED matrix "column"
+;;  IN: LED "column", though actually horizontal row of LEDs (0-7) in WREG
+;;  OUT: column reference to use, i.e. into METER_VALUES array (0-7) in WREG
+;;
+;;  sammichSID "column" addressing (i.e. common cathodes connected to DOUT pins)
+;;
+;;  1 ooooooo oooooooo 0
+;;  3 ooooooo oooooooo 2
+;;  5 ooooooo oooooooo 4
+;;
+;; --------------------------------------------------------------------------
+CS_MENU_MATRIX_SammichSID_Column_Remap
+	JUMPTABLE_2BYTES_UNSECURE
+	andlw	0x07	; 0x07 masks 8 entries
+	retlw	0x04	; 0 -> col 4 (L3)
+	retlw	0x01	; 1 -> col 1 (E2)
+	retlw	0x05	; 2 -> col 5 (L4)
+	retlw	0x02	; 3 -> col 2 (L1)
+	retlw	0x06	; 4 -> col 6 (L4)
+	retlw	0x03	; 5 -> col 3 (L2)
+	retlw	0x00	; 6 -> col 0 (E1) **unused**
+	retlw	0x07	; 7 -> col 7 (L6) **unused**
 

@@ -1831,7 +1831,7 @@ SIDSE_L_MOD_OP_Cont
 	call	SIDSE_Hlp_ScaleDepth	; 15bit signed value in MUL_A_[LH], result in MUL_R_[12], uses IRQ_TMP1
 
 	;; store in METER_VALUES array for optional visualisation on the modulation matrix
-#if DEFAULT_LEDMATRIX_MODE != 2
+#if !DEFAULT_SAMMICHSID_CS
 	;; not if sammichSID display mode is selected
 	movff	MUL_R_2, MIOS_PARAMETER1
 	movf	SID_SE_ELEMENT_NUM, W, BANKED
@@ -2138,7 +2138,7 @@ SIDSE_L_CS_LM_Normal
 
 SIDSE_L_CS_LM_Meter
 
-#if DEFAULT_LEDMATRIX_MODE != 2
+#if !DEFAULT_SAMMICHSID_CS
 	;; meter values are updated in SIDSE_L_MOD_OP_Cont
 	;; no special code required here
 	return
