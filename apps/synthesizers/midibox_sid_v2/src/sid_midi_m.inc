@@ -406,7 +406,12 @@ SID_MIDI_M_Hlp_NoteOff_NoGOff
 	;; if there is still a note in the stack, play new note with NoteOn function (checked by caller)
 	movlw	SID_MVx_NOTE_STACK_PTR
 	movf	PLUSW0, W
-	skpz
+	bz	SID_MIDI_M_Hlp_NoteOff_GOff
+
+	;; activate portamento (will be ignored by Pitch handler if no portamento active - important for SusKey function to have it here!)
+	movlw	SID_Vx_STATE
+	bsf	PLUSW1, SID_V_STATE_PORTA_ACTIVE
+
 	retlw	0x01		; return, request Note On!
 
 SID_MIDI_M_Hlp_NoteOff_GOff
