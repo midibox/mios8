@@ -309,6 +309,7 @@ SID_MIDI_L_NoteOff_Loop_Norm
 
 	;; pop note from stack (pointer to stack in FSR2)
 	rcall	SID_MIDI_Hlp_PopNote
+	bnz	SID_MIDI_L_NoteOff_Loop_Next ; ZERO flag cleared: note not found!
 
 	movf	TMP3, W		; restore note
 	rcall	SID_MIDI_L_Hlp_NoteOff

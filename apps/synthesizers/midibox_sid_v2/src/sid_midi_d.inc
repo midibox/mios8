@@ -144,6 +144,7 @@ SID_MIDI_D_NoteOff
 	;; pop note from stack
 	lfsr	FSR2, SID_MV1_BASE + SID_MVx_NOTE_STACK_0
 	call	SID_MIDI_Hlp_PopNote
+	bnz	SID_MIDI_D_NoteOff_End ; ZERO flag cleared: note not found!
 
 	;; branch depending on SEQ/Normal mode
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_D_SEQ_SPEED, WREG

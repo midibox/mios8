@@ -239,6 +239,16 @@ SID_MIDI_CC_NoNRPNDataL
 	;; NRPN value MSB is engine specific and therefore handled in sid_midi_*.inc
 
 
+	;; check if All Notes Off (CC#123 == 0)
+	movlw	0x7b
+	cpfseq	SID_MIDI_PARAMETER1, BANKED
+	rgoto	SID_MIDI_CC_NoNotesOff
+	movf	SID_MIDI_PARAMETER2, BANKED
+	bnz	SID_MIDI_CC_NoNotesOff
+SID_MIDI_CC_NotesOff
+	goto	SID_PATCH_NotesOff
+SID_MIDI_CC_NoNotesOff
+
 	;; check for knob values
 	;; (only receiving on channel of first MIDI voice)
 	clrf	SID_CURRENT_MIDIVOICE, BANKED
@@ -745,6 +755,7 @@ SID_MIDI_Hlp_ArpNoteOff
 	BRA_IFSET TMP1, SID_I_V_ARP_MODE_HOLD, ACCESS, SID_MIDI_Hlp_ArpNoteOff_Hold
 	;; pop note from stack (pointer to stack in FSR2)
 	rcall	SID_MIDI_Hlp_PopNote
+	bnz	SID_MIDI_Hlp_ArpNoteOff_NoClr ; ZERO flag cleared: note not found!
 	rgoto	SID_MIDI_Hlp_ArpNoteOff_Cont
 SID_MIDI_Hlp_ArpNoteOff_Hold
 	rcall	SID_MIDI_Hlp_PopArpHold
