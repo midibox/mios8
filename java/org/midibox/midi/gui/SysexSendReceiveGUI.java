@@ -34,6 +34,7 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.StringTokenizer;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -44,6 +45,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -51,6 +53,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.Segment;
 
 import org.midibox.midi.MidiUtils;
 import org.midibox.midi.SysexSendReceive;
@@ -80,7 +83,7 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 
 	private JTextPane sysexReceiveTextArea;
 
-	private JSpinner sendBufferSizeSpinner;
+	private JSpinner sendDelayTimeSpinner;
 
 	public SysexSendReceiveGUI(SysexSendReceive sysexSendReceive) {
 		super(new BorderLayout());
@@ -137,14 +140,14 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 
 		gbc.fill = GridBagConstraints.NONE;
 
-		JLabel label = new JLabel("Send Buffer Size (bytes): ");
+		JLabel label = new JLabel("Delay between F0 (ms): ");
 		controlButtonsPanel.add(label, gbc);
 		gbc.gridx++;
 
-		sendBufferSizeSpinner = new JSpinner(new SpinnerNumberModel(
-				sysexSendReceive.getSendBufferSize(), 1, 1000, 1));
-		sendBufferSizeSpinner.addChangeListener(this);
-		controlButtonsPanel.add(sendBufferSizeSpinner, gbc);
+		sendDelayTimeSpinner = new JSpinner(new SpinnerNumberModel(
+				sysexSendReceive.getSendDelayTime(), 1, 1000, 1));
+		sendDelayTimeSpinner.addChangeListener(this);
+		controlButtonsPanel.add(sendDelayTimeSpinner, gbc);
 
 		JPanel sendPanel = new JPanel(new GridBagLayout());
 
@@ -157,7 +160,7 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 
 		sysexSendTextArea = new JTextPane();
 		sysexSendTextArea.setBackground(Color.WHITE);
-		sysexSendTextArea.setEditable(false);
+		sysexSendTextArea.setEditable(true);
 
 		StyledDocument doc = sysexSendTextArea.getStyledDocument();
 
@@ -189,7 +192,7 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 		sysexReceiveTextArea = new JTextPane();
 		sysexReceiveTextArea.setBackground(Color.WHITE);
 
-		sysexReceiveTextArea.setEditable(false);
+		sysexReceiveTextArea.setEditable(true);
 		JScrollPane sysexReceiveTextAreaScrollPane = new JScrollPane(
 				sysexReceiveTextArea);
 		sysexReceiveTextAreaScrollPane
@@ -223,17 +226,77 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 	}
 
 	public void UIUpdate() {
+		boolean bUploading = (!sysexSendReceive.isCancelled() && !sysexSendReceive.isDone());
 
+		startButton.setEnabled(!bUploading);
+		browseButton.setEnabled(!bUploading);
+		sendDelayTimeSpinner.setEnabled(!bUploading);
+		stopButton.setEnabled(bUploading);
+		sysexSendTextArea.setEnabled(!bUploading);
+		sysexReceiveTextArea.setEnabled(!bUploading);
 	}
+
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand() == "start") {
+			byte[] sysexData = new byte[sysexSendReceive.getSendBufferSize()];
+			int sysexDataOffset = 0;
+
+			StyledDocument doc = sysexSendTextArea.getStyledDocument();
+			int len = doc.getLength();
+
+			if( len > 0 ) {
+				int nleft = len;
+				Segment text = new Segment();
+				int offs = 0;
+				text.setPartialReturn(true);   
+				while (nleft > 0) {
+					try {
+						doc.getText(offs, nleft, text);
+					} catch (Exception ex) {
+						JOptionPane.showMessageDialog(null, "Error while parsing hex digits!", "Syntax Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					StringTokenizer st = new StringTokenizer(text.toString());
+					while (st.hasMoreTokens()) {
+						int value;
+
+						try { 
+							value = (int)java.lang.Integer.parseInt(st.nextToken(), 16); 
+							sysexData[sysexDataOffset++] = (byte)value;
+						} catch(Exception ex) {
+							JOptionPane.showMessageDialog(null, "Found invalid hexadecimal digit!", "Syntax Error", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+					}
+
+					nleft -= text.count;
+					offs += text.count;
+				}
+
+				if( sysexDataOffset > 0 ) {
+					final byte[] finalSysexData = sysexData;
+					final int finalSysexDataOffset = sysexDataOffset;
+
+					Thread t = new Thread() {
+							public void run() {
+								sysexSendReceive.startSend(finalSysexData, finalSysexDataOffset);
+							}
+						};
+					
+					t.start();
+				}
+			}
 
 		} else if (e.getActionCommand() == "stop") {
+			sysexSendReceive.cancel();
 
 		} else if (e.getActionCommand() == "browse") {
 			onOpenSysexFile();
 		}
+
+		UIUpdate();
 	}
 
 	protected void onOpenSysexFile() {
@@ -264,12 +327,20 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 
 	public void stateChanged(ChangeEvent e) {
 
+		Object source = e.getSource();
+
+		if (source == sendDelayTimeSpinner) {
+			sysexSendReceive.setSendDelayTime(((Integer) sendDelayTimeSpinner.getValue()).intValue());
+		}
+
 		UIUpdate();
 	}
 
 	public void update(Observable observable, Object object) {
 		if (observable == sysexSendReceive) {
-			if (object == sysexSendReceive.getFile()) {
+			if (object == sysexSendReceive.WORKER ) {
+			} else if (object == sysexSendReceive.getFile()) {
+				fileName.setText(sysexSendReceive.getFile().getPath());
 				sysexSendTextArea.setText("");
 				StyledDocument doc = sysexSendTextArea.getStyledDocument();
 				try {
@@ -284,6 +355,8 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 			} else if (object == sysexSendReceive.getReceivedBytes()) {
 
 			}
+
+			UIUpdate();
 		}
 	}
 

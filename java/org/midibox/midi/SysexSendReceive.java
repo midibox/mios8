@@ -24,11 +24,14 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.Observable;
 
+import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.SysexMessage;
 
 public class SysexSendReceive extends Observable implements Receiver {
+
+	public final static Object WORKER = new Object();
 
 	protected Receiver receiver;
 
@@ -42,12 +45,19 @@ public class SysexSendReceive extends Observable implements Receiver {
 
 	protected int sendBufferSize;
 
+	protected int sendDelayTime;
+
 	protected LinkedList receivedBytes;
+
+	protected boolean done = true;
+
+	protected boolean cancelled = true;
 
 	public SysexSendReceive(Receiver receiver) {
 		super();
 		this.receiver = receiver;
-		sendBufferSize = 256;
+		sendBufferSize = 100000; // TK: shouldn't be changed by user since Java doesn't allow to split SysEx streams properly
+		sendDelayTime = 750; // delay between F0
 		receivedBytes = new LinkedList();
 	}
 
@@ -85,23 +95,37 @@ public class SysexSendReceive extends Observable implements Receiver {
 		return sendBufferSize;
 	}
 
-	public void setSendBufferSize(int sendBufferSize) {
-		this.sendBufferSize = sendBufferSize;
+	public int getSendDelayTime() {
+		return sendDelayTime;
+	}
+
+	public void setSendDelayTime(int sendDelayTime) {
+		this.sendDelayTime = sendDelayTime;
 	}
 
 	public LinkedList getReceivedBytes() {
 		return receivedBytes;
 	}
 
-	public void send(MidiMessage message, long timestamp) {
-		if (message instanceof SysexMessage) {
-			receivedBytes.add(((SysexMessage) message).getData());
 
-			setChanged();
-			notifyObservers(receivedBytes);
-			clearChanged();
+
+	public boolean isDone() {
+		return done;
+	}
+
+	public boolean isCancelled() {
+		return cancelled;
+	}
+
+	public void cancel() {
+		synchronized (this) {
+			cancelled = true;
+			//addMessage("Process stopped by user");
+			notify(); // TK: finally the reason why threads where not informed
+			// about a cancel request and mixed the upload blocks!
 		}
 	}
+
 
 	public void close() {
 
@@ -116,5 +140,85 @@ public class SysexSendReceive extends Observable implements Receiver {
 		public void run() {
 
 		}
+	}
+
+
+	public void send(MidiMessage message, long timestamp) {
+		if (!isCancelled() && !isDone()) {
+			if (message instanceof SysexMessage) {
+				receivedBytes.add(((SysexMessage) message).getData());
+
+				setChanged();
+				notifyObservers(receivedBytes);
+				clearChanged();
+			}
+		}
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////////
+	// SysEx File Sender Functions
+	/////////////////////////////////////////////////////////////////////////////////
+
+
+	public void startSend(byte[] sysexData, int sysexDataLen) {
+		int offset = 0;
+
+		cancelled = false;
+		done = false;
+
+		synchronized (this) {
+
+			while (!cancelled && !done && offset < sysexDataLen ) {
+				int sendLen = 1;
+				int i;
+
+				// update GUI
+				setChanged();
+				notifyObservers(WORKER);
+				clearChanged();
+
+				for(i=1; i<sendBufferSize && (i+offset)<sysexDataLen && sysexData[i+offset] != (byte)0xf0; ++i) {
+					++sendLen;
+				}
+
+				if( sendLen == 0 ) {
+					done = true;
+					break;
+				}
+
+				byte[] axSysExData = new byte[sendLen];
+				System.arraycopy(sysexData, offset, axSysExData, 0, sendLen);
+
+				try {
+					SysexMessage sysExMessage = new SysexMessage();
+					sysExMessage.setMessage(axSysExData, axSysExData.length);
+					receiver.send(sysExMessage, -1);
+				} catch (InvalidMidiDataException ex) {
+					cancelled = true;
+					System.out.println("Error: " + ex.getMessage());
+					break;
+				}
+
+				offset += sendLen;
+
+				if( offset < sysexDataLen ) {
+					try {
+						wait(sendDelayTime);
+					} catch (InterruptedException e) {
+						cancelled = true;
+						System.out.println("Error: SysEx task interrupted");
+						break;
+					}
+				} else {
+					done = true;
+				}
+			}
+		}
+
+		// update GUI
+		setChanged();
+		notifyObservers(WORKER);
+		clearChanged();
 	}
 }
