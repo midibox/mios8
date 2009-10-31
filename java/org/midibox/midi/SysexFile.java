@@ -75,4 +75,5 @@ public class SysexFile {
 	public byte[] getData() {
 		return data;
 	}
+
 }

@@ -66,7 +66,7 @@ public class SysexSendReceiveManagerGUI extends JPanel implements
 	private JPanel createButtonPanel() {
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 4));
 
-		JLabel label = new JLabel("Sysex Send/Receive:", JLabel.LEFT);
+		JLabel label = new JLabel("SysEx Send/Receive:", JLabel.LEFT);
 		label.setOpaque(true);
 		buttonPanel.add(label);
 		buttonPanel.add(Box.createHorizontalStrut(10));
@@ -124,7 +124,7 @@ public class SysexSendReceiveManagerGUI extends JPanel implements
 
 				sysexSendReceiveGUIs.add(sysexSendReceiveGUI);
 
-				tabbedPane.addTab("Sysex Send/Receive"
+				tabbedPane.addTab("SysEx Send/Receive"
 						+ (sysexSendReceiveManager.getSysexSendReceives()
 								.indexOf(sysexSendReceive) + 1), ImageLoader
 						.getImageIcon("sysex.png"), sysexSendReceiveGUI);
@@ -162,7 +162,7 @@ public class SysexSendReceiveManagerGUI extends JPanel implements
 		for (int i = 0; i < sysexSendReceiveManager.getSysexSendReceives()
 				.size(); i++) {
 
-			tabbedPane.setTitleAt(i, "Sysex Send/Receive " + (i + 1));
+			tabbedPane.setTitleAt(i, "SysEx Send/Receive " + (i + 1));
 		}
 	}
 
