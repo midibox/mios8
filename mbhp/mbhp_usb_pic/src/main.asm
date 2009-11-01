@@ -27,6 +27,7 @@
 
 	extern	MIDI_TxBufferGet
 	extern	MIDI_RxBufferPut
+	extern	MIDI_LEDS_Handler
 	extern	MIDI_TX_BUFFER_HEAD
 	extern	MIDI_TX_BUFFER_TAIL
 
@@ -165,6 +166,10 @@ INIT_ClearRAMLoop
 	;; init USB driver
 	call	USBDRV_Init
 
+	;; initialize timer1
+        movlw   (1 << TMR1ON)           ; turn on Timer1
+        movwf   T1CON
+
 	; enable maskable IRQs
 	bsf	INTCON, PEIE
 	bsf	INTCON, GIE
@@ -177,6 +182,16 @@ MAINLOOP
 MAINLOOP_USB
 	call	USBDRV_Tick
 	call	USBCLS_USBMIDITick
+
+	;; call MIDI LED handler on timer1 interrupt
+	btfss	PIR1, TMR1IF
+	goto	MAINLOOP_NoTimer1Event
+MAINLOOP_Timer1Event
+	bcf	PIR1, TMR1IF
+	movlw	0xec		; every 1.024 mS (@20 MHz)
+	addwf	TMR1H, F
+	call	MIDI_LEDS_Handler
+MAINLOOP_NoTimer1Event
 
 	;; check for MIDI receive buffer overrun
 MAINLOOP_UART

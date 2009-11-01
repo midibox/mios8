@@ -278,7 +278,24 @@ USBDRV_SOFHandler
 USBDRV_StallHandler
 	btfss	UEP0, EPSTALL, ACCESS
 	rgoto	USBDRV_StallHandler_Ignore
+#if 0
 	call	USBDRV_PrepareForNextSetupTrf	; "Firmware Workaround"
+#else
+	;; taken from latest USB framework
+	SET_BSR	EP0BO
+	;; UOWN - if 0, owned by CPU, if 1, owned by SIE
+	movf	EP0BO + BDn_STAT, W, BANKED
+	xorlw	(1 << BDn_STAT_UOWN)
+	bnz	USBDRV_StallHandler_NoEPOut
+	movf	EP0BI + BDn_STAT, W, BANKED
+	xorlw	(1 << BDn_STAT_UOWN) | (1 << BDn_STAT_BSTALL)
+	bnz	USBDRV_StallHandler_NoEPOut
+USBDRV_StallHandler_EPOut
+	;; set EP0BO to stall also
+	movlw	(1 << BDn_STAT_UOWN) | (1 << BDn_STAT_DTSEN) | (1 << BDn_STAT_BSTALL)
+	movwf	EP0BO + BDn_STAT, BANKED
+#endif
+USBDRV_StallHandler_NoEPOut
 	bcf	UEP0, EPSTALL, ACCESS
 USBDRV_StallHandler_Ignore
 	bcf	UIR, STALLIF, ACCESS

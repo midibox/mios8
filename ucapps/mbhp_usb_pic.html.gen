@@ -8,10 +8,10 @@ Meanwhile a better solution has been found: <A HREF="mbhp_usb_gm5.html">MBHP_USB
 <DL>
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Summary</H2></DT>
 <UL CLASS=CL>
-<LI>In general this MIDI interface works fine under Windows and Linux, but there is a potential risk for data loss when large SysEx dumps are sent and received concurrently. However, MIOS uploads are unidirectional, and therefore working stable enough.</LI>
+<LI>In general this MIDI interface works fine under Windows, MacOS and Linux, but there is a potential risk for data loss when large SysEx dumps are sent and received concurrently. However, MIOS uploads are unidirectional, and therefore working stable enough.</LI>
 <LI>Windows legacy driver is not multiclient capable. This means: you have to close your MIDI software (or release the MIDI ports) when using MIOS Studio</LI>
-<LI>The module is not working correctly under Mac OS X (tested with Leopard only)</LI>
 <LI>The latest PIC18F4550 (or PIC18F2550) revision 5 is required to overcome the EUSART bug</LI>
+<LI>The SysEx issue under MacOS has been fixed in V1.1 of the firmware.</LI>
 <LI>No PCB available (yet), but MBHP_CORE module can be used. Just add the USB socket, a 470 nF cap, replace the crystal by a 20 MHz type, and add a Reset and Bootloader button.</LI>
 </UL>
 </DL>
@@ -79,20 +79,7 @@ Since this happens multiple times during the transfer of a SysEx stream, the rec
 <DL>
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> History - MBHP_USB_PIC firmware, third attempt</H2></DT>
    <DD>
-<P CLASS=DESC>In the following months I frequently got EMails and forum requests concerning the MBHP_USB_PIC project. People intended to save money with this DIY solution, or they intended to use the firmware as a template for their own projects. I never found the motivation to release the project properly due to the reasons described above, and therefore distributed the firmware privately with a big warning about the known limitations.</P>
-
-<P CLASS=DESC>For my own interests, as a new and happy Mac OS user, I tested the firmware with a PIC18F4550 rev.5 under Leopard in January 2008. Unfortunately it doesn't work better as under Windows - in distance: just send some MIDI notes, thereafter a SysEx string - this will hang up the MIDI Out port (to USB experts: the OUT endpoint doesn't receive any message anymore, BDn_STAT_UOWN is permanently set, no USB error is reported). Reconnect the interface, start with some SysEx messages: works. Send some notes: no MIDI out data anymore! MIDI In port is working better, but not perfectly (data loss on higher data rates).
-<CENTER><IMG SRC="mbhp/mbhp_usb_pic_macos_issue.gif" WIDTH=600 HEIGHT=488</IMG></CENTER></P>
-
-<P CLASS=DESC>Thereafter I tried two other PIC based MIDI USB firmwares, which are freely available in the web: <A HREF="http://www.nutsvolts.com/downloads.php" TARGET="_blank">Robert Lang's MIDI-nator firmware</A>: same effects as with MBHP_USB_PIC. Synthex's firmware for the <A HREF="http://www.megadrum.info/downloads.php" TARGET="_blank">Megadrum project</A>: same effects as with MBHP_USB_PIC. :-(</P>
-
-<P CLASS=DESC>I tried the Cypress based <A HREF="mbhp_usb.html">MBHP_USB</A> under Mac OS instead: works perfectly! Even better than under Windows (multiclient capability! :-))</P>
-
-<P CLASS=DESC>I incorporated all the framework errata which are documented in <A HREF="http://forum.microchip.com/tm.aspx?m=275422" TARGET="_blank">this Microchip forum article</A>, but they don't solve the problem. I also found a bug in my own code (risk that wrong byte counter used in the OUT ringbuffer), unfortunately no cure!</P>
-
-<P CLASS=DESC>I feel that I'm not able to continue debugging without a hardware based USB analyser. But they are too expensive, especially for a sparetime project.</P>
-
-<P CLASS=DESC>Therefore I decided to freeze the project again, and to publish the firmware with its known imperfections "as-is" for the case that somebody wants to help debugging, wants to use it as a learning example, or can live with the bugs.</P>
+<P CLASS=DESC>In the following months I frequently got EMails and forum requests concerning the MBHP_USB_PIC project. People intended to save money with this DIY solution, or they intended to use the firmware as a template for their own projects. I never found the motivation to release the project properly due to the reasons described above, and therefore distributed the firmware only as a learning example with a big warning about the known limitations.</P>
   </DD>
 </DL>
 
@@ -188,7 +175,7 @@ Since this happens multiple times during the transfer of a SysEx stream, the rec
       <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
     </TR>
     <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_pic_v1_0a.zip">mbhp_usb_pic_v1_0a.zip</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_usb_pic_v1_1.zip">mbhp_usb_pic_v1_1.zip</A></TD>
       <TD CLASS=TABCOLOR2>42k</TD>
       <TD CLASS=TABCOLOR2>MBHP_USB_PIC firmware + source code</TD>
     </TR>

@@ -161,6 +161,13 @@ USBCLS_EP2_Handler_Out_New
 	addwfc	PRODH, W
 	movwf	EP2BO + BDn_ADDRH, BANKED
 
+	;; this was missing in previous versions of MBHP_USB_PIC firmware:
+	;; it's important to write back the available buffer size into BDn_CNT
+	;; otherwise we won't receive a complete package anymore (relevant
+	;; for SysEx transfers under MacOS)
+	movlw	EP2_BUFFER_SIZE
+	movwf	EP2BO + BDn_CNT, BANKED
+
 	lfsr	FSR1, EP2BO + BDn_STAT	; send handshake to USB peripheral
 	call	USBDRV_DTSHandshake
 USBCLS_EP2_Handler_Out_End

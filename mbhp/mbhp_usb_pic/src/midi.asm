@@ -33,6 +33,8 @@
 	global	MIDI_TxBufferFlush
 	global	MIDI_TxSendDirect
 
+	global	MIDI_LEDS_Handler
+
 	global	MIDI_TX_BUFFER_HEAD	; (for fast access from IRQ handler)
 	global	MIDI_TX_BUFFER_TAIL
 
@@ -41,6 +43,16 @@
 
 #define MIDI_RX_BUFFER_SIZE	0x80
 #define MIDI_TX_BUFFER_SIZE	0x80
+
+; Number of update cycles (* 1mS) the LEDs will stay active on a Rx/Tx event
+#define MIDI_LEDS_RXTX_DELAY	30
+
+; note: LED outputs won't be set if port is specified with 0
+LED_RX_PORT	EQU	PORTB
+LED_RX_PIN	EQU	7
+LED_TX_PORT	EQU	PORTB
+LED_TX_PIN	EQU	6
+
 
 midi_rx			udata
 MIDI_RX_BUFFER		res	MIDI_RX_BUFFER_SIZE
@@ -55,6 +67,9 @@ MIDI_RX_BUFFER_TAIL	res	1
 MIDI_TX_BUFFER_TMP	res	1
 MIDI_TX_BUFFER_HEAD	res	1
 MIDI_TX_BUFFER_TAIL	res	1
+
+LED_TX_CTR		res	1
+LED_RX_CTR		res	1
 
 ; ==========================================================================
 MIDI	code
@@ -163,6 +178,11 @@ MIDI_RxBufferPut_Ok
 	addwf	FSR1L, F			; add tail offset
 	movf	MIDI_RX_BUFFER_TMP, W		; push byte onto buffer
 	movwf	INDF1
+
+	;; trigger LED
+	movlw	MIDI_LEDS_RXTX_DELAY
+	movwf	LED_RX_CTR
+
 	return
 
 ;; --------------------------------------------------------------------------
@@ -279,6 +299,10 @@ MIDI_TxBufferPut_Ok
 
 	bsf	PIE1, TXIE			; (re-)enable transmit IRQ
 	IRQ_ENABLE				; enable interrupts again
+
+	movlw	MIDI_LEDS_RXTX_DELAY	; trigger LED
+	movwf	LED_TX_CTR
+
 	return
 
 ;; --------------------------------------------------------------------------
@@ -348,6 +372,47 @@ MIDI_TxSendDirect_Poll
 	btfss	TXSTA, TRMT
 	rgoto	MIDI_TxSendDirect_Poll
 	movwf	TXREG
+	return
+
+
+;; --------------------------------------------------------------------------
+;;  FUNCTION: MIDI_LEDS_Handler
+;;  DESCRIPTION: this function should be called periodically from a timer
+;;  or the mainloop. It decrements the Rx/Tx counters and sets the LEDs 
+;;  depending on the counter values
+;; --------------------------------------------------------------------------
+MIDI_LEDS_Handler
+
+MIDI_LEDS_Handler_Rx
+	movf	LED_RX_CTR, W
+	bz	MIDI_LEDS_Handler_RxOff
+MIDI_LEDS_Handler_RxOn
+	decf	LED_RX_CTR, F
+#if LED_RX_PORT
+	bcf	LED_RX_PORT, LED_RX_PIN
+#endif
+	goto	MIDI_LEDS_Handler_Rx_End
+MIDI_LEDS_Handler_RxOff
+#if LED_RX_PORT
+	bsf	LED_RX_PORT, LED_RX_PIN
+#endif
+MIDI_LEDS_Handler_Rx_End
+
+MIDI_LEDS_Handler_Tx
+	movf	LED_TX_CTR, W
+	bz	MIDI_LEDS_Handler_TxOff
+MIDI_LEDS_Handler_TxOn
+	decf	LED_TX_CTR, F
+#if LED_TX_PORT
+	bcf	LED_TX_PORT, LED_TX_PIN
+#endif
+	goto	MIDI_LEDS_Handler_Tx_End
+MIDI_LEDS_Handler_TxOff
+#if LED_TX_PORT
+	bsf	LED_TX_PORT, LED_TX_PIN
+#endif
+MIDI_LEDS_Handler_Tx_End
+
 	return
 
 ; ==========================================================================
