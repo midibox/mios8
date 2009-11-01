@@ -49,9 +49,9 @@
 
 ; note: LED outputs won't be set if port is specified with 0
 LED_RX_PORT	EQU	PORTB
-LED_RX_PIN	EQU	7
+LED_RX_PIN	EQU	6
 LED_TX_PORT	EQU	PORTB
-LED_TX_PIN	EQU	6
+LED_TX_PIN	EQU	7
 
 
 midi_rx			udata

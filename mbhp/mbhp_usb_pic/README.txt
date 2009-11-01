@@ -26,8 +26,8 @@ Required hardware:
      has to be added, and a USB socket + 470 nF cap is required
 
 Optional hardware:
-   o Rx LED (Cathode connected via a 220 ohm resistor to PIC Pin RB7, Anode connected to +5V)
-   o Tx LED (Cathode connected via a 220 ohm resistor to PIC Pin RB6, Anode connected to +5V)
+   o Tx LED (Cathode connected via a 220 ohm resistor to PIC Pin RB7, Anode connected to +5V)
+   o Rx LED (Cathode connected via a 220 ohm resistor to PIC Pin RB6, Anode connected to +5V)
    o up to 4 MBHP_IIC_MIDI modules as IO extension
 
 ===============================================================================
