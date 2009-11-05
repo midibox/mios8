@@ -169,7 +169,24 @@ This page shows animated VU meters for each instrument (to give you an overview 
     <LI><B>Bus1..Bus4:</B> virtual ports. Bus1 is used as loopback port (see description below), Bus2..4 can be used for the MIDI router function (see description of MIDI configuration page)</LI>
     <LI><B>AOUT:</B> the AOUT port. See description below</LI>
   </UL></LI>
-  <LI><B>INIT:</B> this item will flash whenever the selected partition type requires a re-initialisation of the track memory. Press the GP button below this item to confirm the initialisation (this will clear all steps!)</LI>
+  <LI><B>Edit Name:</B>
+        <CENTER><IMG SRC="midibox_seq/cs4/trkevent2.gif" width=481 height=19 ALT="Track Event"></IMG></CENTER><BR>
+         Track and Drum instrument names can be edited so fast and easy like typing a SMS on a mobile phone. Use the first 10 GP buttons or encoders to cycle the characters (like on a telephone keypad), and the remaining buttons/encoders to select a character directly, move the cursor, delete/insert characters, selecting a preset (with the encoder) and to exit the editor.
+  <LI><B>INIT:</B> this item will flash whenever the selected partition type requires a re-initialisation of the track memory. Press&Hold the GP button below this item for two seconds to confirm the initialisation (this will clear all steps!)</LI>
+  <LI><B>PRESET:</B> this button opens a dialog which allows to select a preset file (left side), or to store a new preset:
+<CENTER><IMG SRC="midibox_seq/cs4/trkevent3.gif" width=481 height=19 ALT="Track Event"></IMG></CENTER><BR>
+Different sections can be selected before the preset is imported:
+<CENTER><IMG SRC="midibox_seq/cs4/trkevent4.gif" width=481 height=19 ALT="Track Event"></IMG></CENTER><BR>
+Exporting a track: just enter the name - done:
+<CENTER><IMG SRC="midibox_seq/cs4/trkevent5.gif" width=481 height=19 ALT="Track Event"></IMG></CENTER><BR>
+Advantages of using preset files:
+  <UL CLASS=CL>
+    <LI>You can store your favourite track configurations, melody lines, drum loops, etc. in separate files to recall them later
+    <LI>You can prepare drum maps for different instruments
+    <LI>You can prepare CC setups for different instruments
+    <LI>You can share the files (which are stored in the preset/ directory) with other users
+    <LI>You can view and edit the files with a common text editor.
+  </UL>
 </UL></P>
 
 
@@ -580,8 +597,9 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
 <P CLASS=DESC>Select the target bank with GP6, and the target pattern with GP7. While changing it, the name of the pattern which is already stored at this position will be displayed at the right LCD:
 <CENTER><IMG SRC="midibox_seq/cs4/save2.gif" width=481 height=19 ALT="Save"></CENTER></IMG></P>
 
-<P CLASS=DESC>Finally press SAVE (GP8 button). You will be asked for a Category and Pattern name. Use GP9..12 to edit the characters, or use GP15 and GP16 to quickly select one of the preset category/pattern names:
-<CENTER><IMG SRC="midibox_seq/cs4/save3.gif" width=481 height=19 ALT="Save"></CENTER></IMG></P>
+<P CLASS=DESC>Finally press SAVE (GP8 button). You will be asked for a Category and Pattern name:
+<CENTER><IMG SRC="midibox_seq/cs4/save3.gif" width=481 height=19 ALT="Save"></CENTER></IMG>
+Use the first 10 GP buttons or encoders to cycle the characters (like on a telephone keypad), and the remaining buttons/encoders to select a character directly, move the cursor, delete/insert characters, selecting a preset (with the encoder) and finally to SAVE the pattern.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> MIDI Page (Shortcut: MENU+GP Button #15)</H2>
@@ -599,7 +617,17 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
      <LI><B>Source Channel:</B> either a dedicated source channel (1-16) or "all" channels can be selected</LI>
      <LI><B>OUT:</B> selects the MIDI output port</LI>
      <LI><B>Target Channel:</B> either a dedicated target channel (1-16) or "all" channels can be selected</LI>
+     <LI><B>MIDI Monitor:</B> enters the MIDI Monitor page:<BR>
+        <CENTER><IMG SRC="midibox_seq/cs4/midi2.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG><BR>
+        It shows most of the IN ports at the upper line (e.g. Bus4 isn't displayed), and most of the OUT ports at the lower line.<BR>
+        Whenever an event is received or sent, the appr. item will show the event for a short moment.<BR>
+        This gives you a great overview of the MIDI activity, especially to analyze the current track and MIDI router setup.<BR>
+        <CENTER><IMG SRC="midibox_seq/cs4/midi3.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG><BR>
+        By pressing the SELECT button, filters for MIDI Clock (F8) and Active Sense (FE) events can be enabled/disabled.<BR>
+        Both filters are activated by default. Once the clock filter is deactivated, the OUT/IN items will (probably) show CLK permanently so long a MIDI clock is received/sent over the appr. port. This allows you to analyze the MIDI Clock In/Out settings as configured in the BPM page.
+        Once the Active Sense filter is deactivated, FE events will be displayed periodically on the appr. IN port if a connected MIDI keyboard sends such events.
   </UL>
+
 </UL>
 
 
@@ -666,14 +694,12 @@ Incoming events will be immediately inserted into the selected track. If the cur
 <P CLASS=INFO>This page contains a selection of special options, for which no other page has been found:<BR>
 <P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/opt1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
 <UL CLASS=CL>
-  <LI><B>Sync. Pattern Change:</B> if active, a pattern change made in the PATTERN or SONG page (Phrase mode) won't take place immediately, but will be synchronized to the measure</LI>
-  <LI><B>Step Value below this item:</B> defines the number of steps per measure.<BR>
+  <LI><B>Measure X Steps:</B> defines the number of steps per measure.<BR>
 The length is 16 16th note steps by default, it can be set from 1..256 steps!<BR>
+The left encoder below the item allows to select 16 step wise, the right encoder and datawheel stepwise.<BR>
 This setting affects:
 <UL CLASS=CL>
-  <LI>the synch-to-measure function for pattern changes (pattern change after x steps)</LI>
   <LI>the synch-to-measure function for clock divider reset</LI>
-  <LI>the loop incrementer in song mode</LI>
   <LI>the metronome ("Meas.Note" played after x steps)</LI>
   <LI>the song position displayed at song page (shows reference step position)</LI>
 </UL>
@@ -682,12 +708,21 @@ function for each track (-> divider page), so that the tracks are always in sync
 with the reference step position. It can be left deactivated if it is your intention 
  to clock tracks asynchronously to the reference position.</LI>
 
-  <LI><B>Follow Song:</B> within the SONG page, the song pointer follows the current song position while a song is played.</LI>
+  <LI><B>Pattern Y Steps:</B> defines the number of steps per pattern.<BR>
+This setting affects:
+<UL CLASS=CL>
+  <LI>the synch-to-measure function for pattern changes (pattern change after x steps)</LI>
+  <LI>the loop incrementer in song mode</LI>
+</UL>
+
+  <LI><B>Sync. (Pattern Change):</B> if active, a pattern change made in the PATTERN or SONG page (Phrase mode) won't take place immediately, but will be synchronized to the pattern length of Y steps as defined at the left side of this item.</LI>
+  <LI><B>Follow:</B> if activated, the step view in EDIT screen will change automatically if the played step of the selected track is outside the page. Within the SONG page, the song pointer follows the current song position while a song is played.</LI>
   <LI><B>Paste/Clr Behaviour:</B> allows you to change the behaviour of the Paste and Clear function:
     <UL CLASS=CL>
       <LI><B>Steps only:</B> only parameter and trigger layers will be cleared/pasted (default)</LI>
       <LI><B>Whole track:</B> the whole track configuration will be cleared/pasted. Only exception: MIDI channel and MIDI port will never be overwritten.</LI>
     </UL>
+  <LI><B>Remote/ID/Port/Request:</B> prepared for remote access to another MBSEQ V4 - this feature isn't completely implemented yet!</LI>
   </LI>
 </UL>
 
@@ -765,7 +800,7 @@ Each track has an animated VU meter to display the MIDI activity.</P>
   <LI><B>Action:</B> defines what should be done when this song position is reached:
     <UL CLASS=CL>
       <LI><B>Stop:</B> sequencer will be stopped.</LI>
-      <LI><B>x1..x16:</B> specified Pattern set (G1..G4) will be played the given number of times (x1..x16)</LI>
+      <LI><B>x1..x16:</B> specified Pattern set will be played the given number of cycles (x1..x16). The pattern for each group (G1..G4) can be specified at the right side of the "action" item. If "-:--" is selected instead of the pattern number, the pattern won't be changed for this song step.</LI>
       <LI><B>Jump Pos:</B> sequencer jumps to the specified position - allows to set loop points</LI>
       <LI><B>Jump Song:</B> sequencer jumps to the specified song</LI>
       <LI><B>Mixer:</B> the specified mixer map will be dumped. The sequencer will immediately continue with the next song position</LI>
@@ -803,8 +838,36 @@ Each track has an animated VU meter to display the MIDI activity.</P>
 <UL CLASS=CL>
   <LI><B>Backup:</B> copies all MBSEQ_*.V4 files from the root directory into a backup/n directory (n is a number between 1 and MAX_INT). The directories already have to exist in the file system. Means: you have to prepare them from Windows/MacOS/Linux! The first empty directory which will be found will be taken for the backup. It will take some minutes (ca. one cigarette break)!</LI>
   <LI><B>MSD USB:</B> enables the "Mass Storage Device" driver, which turns your MIDIbox SEQ into a SD Card reader. Once enabled, the SD Card should be automatically mounted by your operating system (Windows/MacOS/Linux). USB MIDI will be disabled. The LEDs of the CS could flicker on each disk operation! It overrules the USB MIDI driver, which will be available again once the SD Card has been unmounted from the operating system.</LI>
-  <LI><B>Send SD Info to Terminal:</B> sends some useful informations about the connected SD Card to the MIOS Debug Terminal - available for support reasons.</LI>
+  <LI><B>MIDI File Import:</B> not implemented yet (beta11).</LI>
+  <LI><B>MIDI File Export:</B> this function allows you to export Tracks, Patterns or Songs to a MIDI file, stored in the midi/ directory of your SD Card. This directory has to be created with a computer if it doesn't already exist.<BR>
+    <CENTER><IMG SRC="midibox_seq/cs4/disk_e1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG><BR>
+    By pressing the button a dialog page will be entered which allows to select the options:
+    <UL CLASS=CL>
+      <LI><B>Export:</B> use the GP encoder below this item to select "All Groups", "Group" (with pattern selection), "Track" (with track selection) or "Song" (with song selection).
+      <LI><B>Measures:</B> specify, how many measures should be exported
+      <LI><B>Steps Per Measure:</B> specify the number of steps per measure.
+      <LI><B>Continue:</B> continues the dialog
+      <LI><B>EXIT:</B> cancels the dialog and returns to the DISK page.
+    </UL>
+    <CENTER><IMG SRC="midibox_seq/cs4/disk_e3.gif" width=481 height=19 ALT="Disk"></CENTER></IMG>
+    After "Continue" has been pressed, the next dialog page appears which asks you to enter the filename.
+    <CENTER><IMG SRC="midibox_seq/cs4/disk_e4.gif" width=481 height=19 ALT="Disk"></CENTER></IMG>
+    If the file already exists, the dialog will ask you if it should be overwritten (YES), or if a new filename should be selected (NO).<BR>
+    Thereafter the .mid file will be generated and written into the midi/ directory.
+  <LI><B>MIDI File Import:</B> allows you to play a MIDI file with following options:
+    <CENTER><IMG SRC="midibox_seq/cs4/disk_p1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG>
+    <UL CLASS=CL>
+      <LI><B>Left page:</B> displays the MIDI files found in the midi/ directory. Use a GP encoder to scroll the page if more than 4 files have been found. Use a GP button to select (and play) the file.
+      <LI><B>Start/Stop Play:</B> plays/stops the MIDI file playback.
+      <LI><B>Loop:</B> enables the Loop function, so that the file will be automatically replayed once it reaches the end
+      <LI><B>Playmode:</B> with "exclusive" the MIDI file will be played instead of the sequencer tracks, with "parallel" it will be played together with the 16 sequencer tracks. Especially the parallel function is very powerful, as it allows you to play some static, prepared tracks (e.g. drum loops, melody lines, or a song that you previously exported) together with the 16 "normal" sequencer tracks which can be changed interactively!
+      <LI><B>Port:</B> the MIDI port to which the events of the .mid file will be sent.
+      <LI><B>EXIT:</B> exits to the DISK page.
+    </UL>
+</LI>
 </UL>
+
+<CENTER><IMG SRC="midibox_seq/cs4/disk1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Port Mute Page (Shortcut: UTILITY (F1)->PMute)</H2>
 

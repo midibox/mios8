@@ -10,7 +10,7 @@
 ; -> http://www.sidstation.com/sidsupport.php
 ; -> http://www.sidstation.com/files/asid_xp_1.0.zip
 ;
-; based on http://sammal.ton.tut.fi/~paulus/asid_protocol.txt
+; based on http://www.students.tut.fi/~paulus/asid_protocol.txt
 ; by Jouni Paulus (jobe@iki.fi)
 ;
 ; The biggest collection of SID files can be found here:
@@ -155,7 +155,7 @@ SIDPLAY_NoCSMessage
 ;;  This function should be called from USER_MPROC_NotifyReceivedByte
 ;;  to forward the incoming byte
 ;; 
-;;  The coding is described under http://sammal.ton.tut.fi/~paulus/asid_protocol.txt
+;;  The coding is described under http://www.students.tut.fi/~paulus/asid_protocol.txt
 ;; 
 ;;  IN:   incoming MIDI byte in WREG
 ;;  OUT:  ZERO flag set if SID player active
