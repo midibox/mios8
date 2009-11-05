@@ -78,6 +78,7 @@ import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiKeyboardController;
 import org.midibox.midi.SysexSendReceive;
+import org.midibox.midi.SysexSendReceiveManager;
 import org.midibox.midi.VirtualMidiDevice;
 import org.midibox.midi.gui.MidiDeviceManagerGUI;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
@@ -211,6 +212,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		this.miosStudio = miosStudio;
 
 		miosStudio.addObserver(this);
+				
+		miosStudio.getSysexSendReceiveManager().addObserver(this);		
+
+		miosStudio.getHexFileUploadManager().addObserver(this);
 
 		lookAndFeel = UIManager.getLookAndFeel().getClass().getName();
 
@@ -1432,6 +1437,28 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		} else if (object == MIOSStudio.MIDI_THRU_OUT_PORT) {
 
 			midiThruMenuItem.setSelected(miosStudio.isMidiThruOutPort());
+		
+		} else if (observable == miosStudio.getSysexSendReceiveManager()) {
+			
+			Dimension size = sysexSendReceiveDeviceManagerWindow.getSize();
+			
+			Dimension preferred = sysexSendReceiveDeviceManagerWindow.getPreferredSize();
+			
+			if ((size.height < preferred.height) || size.width < preferred.width) {
+			
+				sysexSendReceiveDeviceManagerWindow.pack();
+			}
+			
+		} else if (observable == miosStudio.getHexFileUploadManager()) {
+			
+			Dimension size = hexFileUploadDeviceManagerWindow.getSize();
+			
+			Dimension preferred = hexFileUploadDeviceManagerWindow.getPreferredSize();
+			
+			if ((size.height < preferred.height) || size.width < preferred.width) {
+			
+				hexFileUploadDeviceManagerWindow.pack();
+			}
 		}
 	}
 
