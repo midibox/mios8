@@ -11,9 +11,9 @@ import org.w3c.dom.Node;
 
 public class SysexSendReceiveManagerXML extends XMLUtils {
 
-	public final static String TAG_ROOT_ELEMENT = "hexFileUploadManager";
+	public final static String TAG_ROOT_ELEMENT = "sysexSendReceiveManager";
 
-	public final static String TAG_HEX_FILE_UPLOADS = "hexFileUploads";
+	public final static String TAG_SYSEX_SEND_RECEIVES = "sysexSendReceives";
 
 	protected SysexSendReceiveManager sysexSendReceiveManager;
 
@@ -25,7 +25,7 @@ public class SysexSendReceiveManagerXML extends XMLUtils {
 
 		this.sysexSendReceiveManager = sysexSendReceiveManager;
 
-		addTag(TAG_HEX_FILE_UPLOADS);
+		addTag(TAG_SYSEX_SEND_RECEIVES);
 		addTag(SysexSendReceiveXML.TAG_ROOT_ELEMENT);
 	}
 
@@ -37,7 +37,7 @@ public class SysexSendReceiveManagerXML extends XMLUtils {
 
 		if (name == rootElementTag) {
 
-		} else if (name == TAG_HEX_FILE_UPLOADS) {
+		} else if (name == TAG_SYSEX_SEND_RECEIVES) {
 
 			Iterator it = ((Vector) sysexSendReceiveManager
 					.getSysexSendReceives().clone()).iterator();
@@ -58,7 +58,7 @@ public class SysexSendReceiveManagerXML extends XMLUtils {
 			SysexSendReceiveXML sysexSendReceiveXML = new SysexSendReceiveXML(
 					sysexSendReceive, SysexSendReceiveXML.TAG_ROOT_ELEMENT);
 
-			sysexSendReceiveManager.newSysexSendReceive();
+			sysexSendReceiveManager.addSysexSendReceive(sysexSendReceive);
 
 			sysexSendReceiveXML.loadXML(element);
 		}
@@ -69,7 +69,7 @@ public class SysexSendReceiveManagerXML extends XMLUtils {
 		super.saveXML(node);
 
 		Element hexFileUploadDevicesElement = document
-				.createElement(TAG_HEX_FILE_UPLOADS);
+				.createElement(TAG_SYSEX_SEND_RECEIVES);
 
 		rootElement.appendChild(hexFileUploadDevicesElement);
 

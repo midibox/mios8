@@ -31,7 +31,7 @@ public class MIOSStudioXML extends XMLUtils {
 
 	public static final String TAG_MIDI_KEYBOARD_CONTROLLER = "midiKeyboardController";
 
-	public static final String TAG_SYSEX_SEND_RECEIVE_MANAGER = "sysexSendReciveManager";
+	public static final String TAG_SYSEX_SEND_RECEIVE_MANAGER = "sysexSendReceiveManager";
 
 	public static final String TAG_HEX_FILE_UPLOAD_MANAGER = "hexFileUploadManager";
 

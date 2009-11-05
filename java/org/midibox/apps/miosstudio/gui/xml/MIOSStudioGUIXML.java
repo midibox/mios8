@@ -395,7 +395,16 @@ public class MIOSStudioGUIXML extends XMLUtils {
 		} else if (name == TAG_HEX_FILE_UPLOAD_GUI_MRU) {
 
 			HexFileUploadGUI.saveMRU(element.getTextContent());
+
+		} else if (name == TAG_SYSEX_SEND_RECEIVE_GUI_MRU_LIST) {
+
+			HexFileUploadGUI.getMRU().removeAllElements();
+
+		} else if (name == TAG_SYSEX_SEND_RECEIVE_GUI_MRU) {
+
+			SysexSendReceiveGUI.saveMRU(element.getTextContent());
 		}
+
 	}
 
 	public void saveXML(Node node) {
@@ -555,6 +564,23 @@ public class MIOSStudioGUIXML extends XMLUtils {
 			sysexSendReceiveCurrentDirectoryElement
 					.setTextContent(SysexSendReceiveGUI.getCurrentDirectory());
 
+			Element mruListElement = document
+					.createElement(TAG_SYSEX_SEND_RECEIVE_GUI_MRU_LIST);
+
+			sysexSendReceiveDeviceManagerGUIelement.appendChild(mruListElement);
+
+			Iterator it = SysexSendReceiveGUI.getMRU().iterator();
+
+			while (it.hasNext()) {
+
+				Element mru = document
+						.createElement(TAG_SYSEX_SEND_RECEIVE_GUI_MRU);
+
+				mruListElement.appendChild(mru);
+
+				mru.setTextContent((String) it.next());
+			}
+
 			Element hexFileCurrentDirectoryElement = document
 					.createElement(TAG_HEX_FILE_UPLOAD_GUI_CURRENT_DIRECTORY);
 
@@ -571,12 +597,12 @@ public class MIOSStudioGUIXML extends XMLUtils {
 			hexFileCurrentDirectoryElement.setTextContent(HexFileUploadGUI
 					.getCurrentDirectory());
 
-			Element mruListElement = document
+			mruListElement = document
 					.createElement(TAG_HEX_FILE_UPLOAD_GUI_MRU_LIST);
 
 			hexFileUploadDeviceManagerGUIelement.appendChild(mruListElement);
 
-			Iterator it = HexFileUploadGUI.getMRU().iterator();
+			it = HexFileUploadGUI.getMRU().iterator();
 
 			while (it.hasNext()) {
 

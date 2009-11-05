@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -266,14 +265,13 @@ public class HexFile {
 		// therefore we have to insert the data stepwise
 
 		// Addendum1 (optimisation meassure to speed up hex upload)
-		// the effect described above has only be observed in .hex files 
-		// generated with GNU tools (-> MIOS32) - it's ensured that the 
-		// BSL block is never between two hex file lines, accordingly we 
+		// the effect described above has only be observed in .hex files
+		// generated with GNU tools (-> MIOS32) - it's ensured that the
+		// BSL block is never between two hex file lines, accordingly we
 		// can check for a valid block here before starting the insertion
 
 		// Addendum2: block addresses are stored in a HashMap now
 		// this speeds up hex load significantly! :-)
-
 
 		long lByteAddress = newBlock.lAddress;
 
@@ -282,31 +280,30 @@ public class HexFile {
 		if (mios32) {
 			// MIOS32: ignore BSL range
 			if (lByteAddress >= MIOS32_IGNORED_BSL_RANGE_START
-				&& lByteAddress <= MIOS32_IGNORED_BSL_RANGE_END) {
+					&& lByteAddress <= MIOS32_IGNORED_BSL_RANGE_END) {
 				// We don't store the block.
 				return true;
 			}
 		} else {
 			// MIOS8: map EEPROM/BankStick address
 			if (lByteAddress >= HEX_FILE_FLASH_ADDRESS_START
-				&& lByteAddress <= HEX_FILE_FLASH_ADDRESS_END) {
+					&& lByteAddress <= HEX_FILE_FLASH_ADDRESS_END) {
 				nBlockSize = BLOCK_SIZE_FLASH;
 			} else if (lByteAddress >= HEX_FILE_EEPROM_ADDRESS_START
-					   && lByteAddress <= HEX_FILE_EEPROM_ADDRESS_END) {
+					&& lByteAddress <= HEX_FILE_EEPROM_ADDRESS_END) {
 				nBlockSize = BLOCK_SIZE_EEPROM;
 				lMapAddressOffset = MAPPED_EEPROM_ADDRESS_START
-					- HEX_FILE_EEPROM_ADDRESS_START;
+						- HEX_FILE_EEPROM_ADDRESS_START;
 			} else if (lByteAddress >= HEX_FILE_BANKSTICK_ADDRESS_START
-					   && lByteAddress <= HEX_FILE_BANKSTICK_ADDRESS_END) {
+					&& lByteAddress <= HEX_FILE_BANKSTICK_ADDRESS_END) {
 				nBlockSize = BLOCK_SIZE_BANKSTICK;
 				lMapAddressOffset = MAPPED_BANKSTICK_ADDRESS_START
-					- HEX_FILE_BANKSTICK_ADDRESS_START;
+						- HEX_FILE_BANKSTICK_ADDRESS_START;
 			} else {
 				// We don't store the block.
 				return true;
 			}
 		}
-
 
 		int nBytePos;
 		for (nBytePos = 0; nBytePos < newBlock.axData.length; ++nBytePos, ++lByteAddress) {
@@ -314,7 +311,8 @@ public class HexFile {
 
 			Long lBigBlockAddress = lByteAddress / nBlockSize * nBlockSize;
 
-			Integer nBigBlockIndex = (Integer)_block_address_map.get(lBigBlockAddress);
+			Integer nBigBlockIndex = (Integer) _block_address_map
+					.get(lBigBlockAddress);
 			if (nBigBlockIndex == null) {
 				Block newBigBlock = new Block();
 				newBigBlock.axData = new byte[nBlockSize];

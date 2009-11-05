@@ -35,13 +35,18 @@ public class SysexSendReceiveManager extends Observable {
 
 		SysexSendReceive sysexSendReceive = new SysexSendReceive(null);
 
+		addSysexSendReceive(sysexSendReceive);
+
+		return sysexSendReceive;
+	}
+
+	public void addSysexSendReceive(SysexSendReceive sysexSendReceive) {
+
 		sysexSendReceives.add(sysexSendReceive);
 
 		setChanged();
 		notifyObservers(sysexSendReceive);
 		clearChanged();
-
-		return sysexSendReceive;
 	}
 
 	public void removeSysexSendReceive(SysexSendReceive sysexSendReceive) {

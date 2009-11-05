@@ -22,7 +22,6 @@ package org.midibox.midi;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.Observable;
@@ -36,6 +35,14 @@ public class SysexSendReceive extends Observable implements Receiver {
 
 	public final static Object WORKER = new Object();
 
+	public final static Object SEND_SYSEX_FILE = new Object();
+
+	public final static Object RECEIVE_SYSEX_FILE = new Object();
+
+	public final static Object SEND_DELAY_TIME = new Object();
+
+	public final static Object RECEIVED_BYTES = new Object();
+
 	protected Receiver receiver;
 
 	protected File sendFile;
@@ -44,8 +51,6 @@ public class SysexSendReceive extends Observable implements Receiver {
 	protected File receiveFile;
 
 	protected SysexFile sysexFile;
-
-	protected SysexSendReceiveWorkerTask sysexSendReceiveWorkerTask;
 
 	protected int sendBufferSize;
 
@@ -61,7 +66,9 @@ public class SysexSendReceive extends Observable implements Receiver {
 	public SysexSendReceive(Receiver receiver) {
 		super();
 		this.receiver = receiver;
-		sendBufferSize = 100000; // TK: shouldn't be changed by user since Java doesn't allow to split SysEx streams properly
+		sendBufferSize = 100000; // TK: shouldn't be changed by user since Java
+									// doesn't allow to split SysEx streams
+									// properly
 		sendDelayTime = 750; // delay between F0
 		receivedBytes = new LinkedList();
 	}
@@ -75,13 +82,15 @@ public class SysexSendReceive extends Observable implements Receiver {
 	}
 
 	public void setSendFile(File file) {
+
 		this.sendFile = file;
+
 		sendFileLastModified = sendFile.lastModified();
 
 		readSysexFile();
 
 		setChanged();
-		notifyObservers(sendFile);
+		notifyObservers(SEND_SYSEX_FILE);
 		clearChanged();
 	}
 
@@ -92,21 +101,18 @@ public class SysexSendReceive extends Observable implements Receiver {
 		}
 	}
 
-
 	public File getReceiveFile() {
 		return receiveFile;
 	}
 
 	public void setReceiveFile(File file) {
+
 		this.receiveFile = file;
 
 		setChanged();
-		notifyObservers(receiveFile);
+		notifyObservers(RECEIVE_SYSEX_FILE);
 		clearChanged();
 	}
-
-
-
 
 	public SysexFile getSysexFile() {
 		return sysexFile;
@@ -121,18 +127,21 @@ public class SysexSendReceive extends Observable implements Receiver {
 	}
 
 	public void setSendDelayTime(int sendDelayTime) {
+
 		this.sendDelayTime = sendDelayTime;
+
+		setChanged();
+		notifyObservers(SEND_DELAY_TIME);
+		clearChanged();
 	}
-
-
 
 	public LinkedList getReceivedBytes() {
 		return receivedBytes;
 	}
+
 	public void clearReceivedBytes() {
 		receivedBytes.clear();
 	}
-
 
 	public boolean writeSysexFile(File file, byte[] data, int dataLen) {
 		// could also be located in SysexFile.java?
@@ -141,13 +150,12 @@ public class SysexSendReceive extends Observable implements Receiver {
 			OutputStream os = new FileOutputStream(file);
 			os.write(data, 0, dataLen);
 			os.close();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			return false;
 		}
 
 		return true;
 	}
-
 
 	public boolean isSendDone() {
 		return sendDone;
@@ -160,7 +168,7 @@ public class SysexSendReceive extends Observable implements Receiver {
 	public void sendCancel() {
 		synchronized (this) {
 			sendCancelled = true;
-			//addMessage("Process stopped by user");
+			// addMessage("Process stopped by user");
 			notify(); // TK: finally the reason why threads where not informed
 			// about a cancel request and mixed the upload blocks!
 		}
@@ -170,10 +178,9 @@ public class SysexSendReceive extends Observable implements Receiver {
 		return receiveStopped;
 	}
 
-	public void setReceiveStopped(boolean receiveStopped ) {
+	public void setReceiveStopped(boolean receiveStopped) {
 		this.receiveStopped = receiveStopped;
 	}
-
 
 	public void close() {
 
@@ -183,31 +190,21 @@ public class SysexSendReceive extends Observable implements Receiver {
 		this.receiver = receiver;
 	}
 
-	public class SysexSendReceiveWorkerTask extends Thread {
-
-		public void run() {
-
-		}
-	}
-
-
 	public void send(MidiMessage message, long timestamp) {
 		if (!isReceiveStopped()) {
 			if (message instanceof SysexMessage) {
 				receivedBytes.add(((SysexMessage) message).getData());
 
 				setChanged();
-				notifyObservers(receivedBytes);
+				notifyObservers(RECEIVED_BYTES);
 				clearChanged();
 			}
 		}
 	}
 
-
-	/////////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////
 	// SysEx File Sender Functions
-	/////////////////////////////////////////////////////////////////////////////////
-
+	// ///////////////////////////////////////////////////////////////////////////////
 
 	public void startSend(byte[] sysexData, int sysexDataLen) {
 		int offset = 0;
@@ -217,7 +214,7 @@ public class SysexSendReceive extends Observable implements Receiver {
 
 		synchronized (this) {
 
-			while (!sendCancelled && !sendDone && offset < sysexDataLen ) {
+			while (!sendCancelled && !sendDone && offset < sysexDataLen) {
 				int sendLen = 1;
 				int i;
 
@@ -226,11 +223,12 @@ public class SysexSendReceive extends Observable implements Receiver {
 				notifyObservers(WORKER);
 				clearChanged();
 
-				for(i=1; i<sendBufferSize && (i+offset)<sysexDataLen && sysexData[i+offset] != (byte)0xf0; ++i) {
+				for (i = 1; i < sendBufferSize && (i + offset) < sysexDataLen
+						&& sysexData[i + offset] != (byte) 0xf0; ++i) {
 					++sendLen;
 				}
 
-				if( sendLen == 0 ) {
+				if (sendLen == 0) {
 					sendDone = true;
 					break;
 				}
@@ -250,7 +248,7 @@ public class SysexSendReceive extends Observable implements Receiver {
 
 				offset += sendLen;
 
-				if( offset < sysexDataLen ) {
+				if (offset < sysexDataLen) {
 					try {
 						wait(sendDelayTime);
 					} catch (InterruptedException e) {
