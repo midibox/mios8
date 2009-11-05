@@ -189,7 +189,8 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 		gbc.gridy = 0;
 		gbc.gridwidth = 1;
 		gbc.gridheight = 1;
-
+		gbc.fill = GridBagConstraints.NONE;
+		
 		gbc.insets = new Insets(5, 5, 5, 5);
 
 		sendControlButtonsPanel.add(sendStartButton, gbc);
@@ -282,9 +283,10 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.gridy = 0;
 		gbc.gridx = 0;
+		gbc.weighty = 0.0;
 		sendPanel.add(sendFileButtonsPanel, gbc);
 		gbc.gridy++;
-		gbc.weighty = 1.0;
+		gbc.weighty = 0.0;
 		sendPanel.add(sendControlButtonsPanel, gbc);
 		gbc.gridy++;
 		gbc.weighty = 1.0;
@@ -322,7 +324,7 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.gridy = 0;
 		gbc.gridx = 0;
-		gbc.weighty = 1.0;
+		gbc.weighty = 0.0;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		receivePanel.add(receiveControlButtonsPanel, gbc);
