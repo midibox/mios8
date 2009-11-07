@@ -1,0 +1,1481 @@
+;; midi_controller.inc
+
+;; FUNCTION:
+;; MIDI CC DATA HANDLING
+;;
+;; MIDI_EVNT0 = BIN '1011nnnn' 
+;; HEX Bn
+;; B=11 DECIMAL
+;; nnnn=MIDI CHANNEL 0-15
+;; THE MIDI CHANNEL HAS ALREADY BEEN WRITTEN TO:
+;; MIDI_EVNT_CHANNEL
+;;
+;; MIDI CONTROLLER = 0ccccccc
+;; ccccccc = Controller 0-127
+;; THE COTROLLER VALUE HAS ALREADY BEEN WRITTEN TO:
+;; MIDI_EVNT1
+;; 
+;; COTROLLER EVENT VALUE = 0vvvvvvv
+;; vvvvvvv = Controller Event Value 0-127
+;; THE COTROLLER EVENT VALUE HAS ALREADY BEEN WRITTEN TO:
+;; MIDI_EVNT_VALUE
+
+
+;; Controller (CC MIDI EVENT)
+MIDI_EVNT_IS_Bx	
+	;; Write CC to MIDI_EVENT_CHANGE_FLAG 
+	;; See => user_tick_lcd_redraw.inc
+	movff MIDI_EVNT1, MIDI_EVENT_CHANGE_FLAG 
+	
+	
+	;; COPY THE CC VALUE TO MIDI_CC_VALUE
+	movff MIDI_EVNT_VALUE, MIDI_CC_VALUE
+	
+	;; CONTROLLER 1 - 29 is IMPLEMENTED YET
+	;; IS CC > 29?
+	movlw 	CC_MAX_VALUE_29 ;; (1D HEX = 29 DEC)
+	cpfsgt  MIDI_EVNT1
+
+		; NO - OK CC IS VALID, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC_JUMPTABLE
+		
+		;YES - CC > CC MAX VALUE 
+		;CC IS NOT VALID - EXIT HERE
+		return
+
+MIDI_EVNT_IS_Bx_CC_JUMPTABLE	
+	;; Branch MIDI CONTROLLER 0-29 (30-127 are out of range for now)
+	;; // 30 == MIDI_EVENT_CHANGE_FLAG => PITCH BEND
+	;; // 32 == MIDI_EVENT_CHANGE_FLAG => MODULATION WHEEL
+	movf MIDI_EVNT1, W
+	
+	JUMPTABLE_4BYTES 30 ; 30 entries (0-29)
+	      	goto	MIDI_EVNT_IS_Bx_CC0	; CONTROLLER 00 - NOT USED 
+	      	goto	MIDI_EVNT_IS_Bx_CC1	; CONTROLLER 01 - ENVELOPE SHAPE (MODULATION WHEEL)
+	      	goto	MIDI_EVNT_IS_Bx_CC2	; CONTROLLER 02 - ENV. FINE 
+	      	goto	MIDI_EVNT_IS_Bx_CC3	; CONTROLLER 03 - ENV. FINE OFFSET + 128 (BIT7)
+	      	goto	MIDI_EVNT_IS_Bx_CC4	; CONTROLLER 04 - ENV. COARSE
+	      	goto	MIDI_EVNT_IS_Bx_CC5	; CONTROLLER 05 - ENV. COARSE OFFSET + 128 (BIT7)
+		goto	MIDI_EVNT_IS_Bx_CC6	; CONTROLLER 06	- NOISE PERIOD
+		goto	MIDI_EVNT_IS_Bx_CC7	; CONTROLLER 07	- VOLUME A
+		goto	MIDI_EVNT_IS_Bx_CC8	; CONTROLLER 08	- VOLUME B
+		goto	MIDI_EVNT_IS_Bx_CC9	; CONTROLLER 09	- VOLUME C
+		goto	MIDI_EVNT_IS_Bx_CC10	; CONTROLLER 10	- ON/OFF TONE A (MIXER)
+		goto	MIDI_EVNT_IS_Bx_CC11	; CONTROLLER 11	- ON/OFF TONE B (MIXER)
+		goto	MIDI_EVNT_IS_Bx_CC12	; CONTROLLER 12	- ON/OFF TONE C (MIXER)
+		goto	MIDI_EVNT_IS_Bx_CC13	; CONTROLLER 13	- NOISE A ON/OFF (MIXER)
+		goto	MIDI_EVNT_IS_Bx_CC14	; CONTROLLER 14	- NOISE B ON/OFF (MIXER)
+		goto	MIDI_EVNT_IS_Bx_CC15	; CONTROLLER 15	- NOISE C ON/OFF (MIXER)
+		goto	MIDI_EVNT_IS_Bx_CC16	; CONTROLLER 16	- TONE A ENV. ON/OFF
+		goto	MIDI_EVNT_IS_Bx_CC17	; CONTROLLER 17	- TONE B ENV. ON/OFF
+		goto	MIDI_EVNT_IS_Bx_CC18	; CONTROLLER 18	- TONE C ENV. ON/OFF
+		goto	MIDI_EVNT_IS_Bx_CC19	; CONTROLLER 19	- TONE A VELOCITY TO VOLUME ON/OFF
+		goto	MIDI_EVNT_IS_Bx_CC20	; CONTROLLER 20	- TONE B VELOCITY TO VOLUME ON/OFF
+		goto	MIDI_EVNT_IS_Bx_CC21	; CONTROLLER 21	- TONE C VELOCITY TO VOLUME ON/OFF
+		goto	MIDI_EVNT_IS_Bx_CC22	; CONTROLLER 22	- VELOCITY TO NOISE PERIOD ON/OFF
+		goto	MIDI_EVNT_IS_Bx_CC23	; CONTROLLER 23	- RESERVED
+		goto	MIDI_EVNT_IS_Bx_CC24	; CONTROLLER 24	- RESERVED
+		goto	MIDI_EVNT_IS_Bx_CC25	; CONTROLLER 25	- RESERVED
+		goto	MIDI_EVNT_IS_Bx_CC26	; CONTROLLER 26	- RESERVED
+		goto	MIDI_EVNT_IS_Bx_CC27	; CONTROLLER 27	- RESERVED
+		goto	MIDI_EVNT_IS_Bx_CC28	; CONTROLLER 28	- RESERVED
+		goto	MIDI_EVNT_IS_Bx_CC29	; CONTROLLER 29	- RESERVED
+			return
+	
+MIDI_EVNT_IS_Bx_CC0
+	;; CC0 IS NOT IMPLEMENTED YET
+	return
+
+
+MIDI_EVNT_IS_Bx_CC1
+;; MODULATION WHEEL
+;; ---------------------------------------
+;; CC01: write CC VALUE TO ENVELOPE SHAPE
+;; AY REG. 15
+;; ---------------------------------------
+
+;; CHECK IF CC HIT THE MIDI CHANNEL OF TONE A or B OR C
+;; ELSE SKIP WRITING TO ENV.SHAPE REG 15
+MIDI_EVNT_IS_Bx_CC1_CHK_CH_A	      
+      	       
+      	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. B
+		goto MIDI_EVNT_IS_Bx_CC1_CHK_CH_B
+		
+		;YES - OK, WRITE TO ENV.SHAPE REG
+		goto MIDI_EVNT_IS_Bx_CC1_WRITE_TO_ENV_SHAPE
+
+MIDI_EVNT_IS_Bx_CC1_CHK_CH_B	      
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. C
+		goto MIDI_EVNT_IS_Bx_CC1_CHK_CH_C
+		
+		;YES - OK, WRITE TO ENV.SHAPE REG
+		goto MIDI_EVNT_IS_Bx_CC1_WRITE_TO_ENV_SHAPE
+
+MIDI_EVNT_IS_Bx_CC1_CHK_CH_C
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - NO TONE CH. FOUND - SKIP HERE
+		return
+		
+		;YES - OK, WRITE TO ENV.SHAPE REG
+		goto MIDI_EVNT_IS_Bx_CC1_WRITE_TO_ENV_SHAPE
+
+MIDI_EVNT_IS_Bx_CC1_WRITE_TO_ENV_SHAPE	      
+	      ;; convert CC 01 TO ENVELOPE SHAPE
+	      ;; divide ==> (MIDI DATA(0-127))/8
+	      rrncf 	MIDI_CC_VALUE, F	 ;; /2
+	      bcf 		MIDI_CC_VALUE, 7
+	      rrncf 	MIDI_CC_VALUE, F	 ;; /4
+	      bcf 		MIDI_CC_VALUE, 7
+	      rrncf 	MIDI_CC_VALUE, F	 ;; /8
+	      bcf 		MIDI_CC_VALUE, 7
+
+	;; COPY (MIDI_CC_VALUE/8) to ENV_SHAPE_0_15_to_1_8_TRANSLATOR
+	movlw 0x08
+		cpfsgt  MIDI_CC_VALUE	
+			;; MIDI CC < or = 8		
+			rgoto MIDI_EVNT_IS_Bx_CC1_WRITE_TO_SHAPE_SELECTOR
+			
+			rgoto MIDI_EVNT_IS_Bx_CC1_VALUE_CORRETION
+
+MIDI_EVNT_IS_Bx_CC1_VALUE_CORRETION
+	movlw 0x08
+	movwf MIDI_CC_VALUE
+
+
+MIDI_EVNT_IS_Bx_CC1_WRITE_TO_SHAPE_SELECTOR	
+	movff MIDI_CC_VALUE, ENV_SHAPE_0_15_to_1_8_TRANSLATOR
+	
+	;; SET ENV SHAPE FOR AY CHIP REG 
+	;; (write a value to AY_R13_ENV_SHAPE_CYCLE)
+	;; SET ENV CS LED
+	;; function @ main_menu_05_envelope.inc
+	call ENVELOPE_TRANSLATOR_CALL
+			
+		;; Exit
+		return
+
+
+;; ------------------[CC 02]-------------------------------
+
+
+MIDI_EVNT_IS_Bx_CC2
+	      ;; ENVELOPE FINE
+	      
+MIDI_EVNT_IS_Bx_CC2_CHK_CH_A
+	      ;; CHECK IF MIDI CH. TONE A or B or C MATCH
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. B
+		rgoto MIDI_EVNT_IS_Bx_CC2_CHK_CH_B
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC2_WRITE_ENV_FINE
+
+MIDI_EVNT_IS_Bx_CC2_CHK_CH_B	      
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. C
+		rgoto MIDI_EVNT_IS_Bx_CC2_CHK_CH_C
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC2_WRITE_ENV_FINE
+
+MIDI_EVNT_IS_Bx_CC2_CHK_CH_C
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - NO TONE CH. FOUND - SKIP HERE
+		return
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC2_WRITE_ENV_FINE
+
+MIDI_EVNT_IS_Bx_CC2_WRITE_ENV_FINE
+		;; WRITE 7BIT (BIT 0-6) from CC to R11 AY REG.
+		;; BUT DON'T CHANGE BIT 7 of AY_R11_ENV_PERIOD_FINE! (OFFSET BIT 7)
+		movlw B'10000000'
+		andwf AY_R11_ENV_PERIOD_FINE, F ;; CLEAR BIT0-6 BUT NOT BIT7 (1)
+		;; COPY BIT0-6 to AY R11 SHADOW REG
+		;; CC VALUE RANGE = 0-127 (BIT0 to 6)
+		movf MIDI_CC_VALUE, W
+		addwf AY_R11_ENV_PERIOD_FINE, F 
+		
+		
+;; -------------[SEND ENVELOPE PERIOD FINE (EP FINE) AY R11 SHADOW REG TO AY REG 11]----
+	movlw AY_CHIP_ADR_11_GLOBAL_ENVELOPE_FINE	; REG ADRESS 	=> AY REGISTER
+	movwf AY_REG_ADDRESS 				; ADDRESS FOR 	=> AY_SR_Write
+ 
+	;; CC DATA TO AY REG
+	movff AY_R11_ENV_PERIOD_FINE, AY_REG_DATA
+	;; --------------[SEND DATA TO AY REG X]-----------------------------------------------------
+		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
+		;; ==========================================================================================
+	
+			;; Exit here
+			return
+
+
+;; ------------------[CC 03]-------------------------------
+
+MIDI_EVNT_IS_Bx_CC3
+	;; ENVELOPE FINE - OFFSET (SET/CLEAR BIT7 OF AY_R11_ENV_PERIOD_FINE)
+	
+MIDI_EVNT_IS_Bx_CC3_CHK_CH_A
+	      ;; CHECK IF MIDI CH. TONE A or B or C MATCH
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. B
+		rgoto MIDI_EVNT_IS_Bx_CC3_CHK_CH_B
+		
+		; YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC3_WRITE_ENV_FINE_OFFSET_BIT7
+
+MIDI_EVNT_IS_Bx_CC3_CHK_CH_B	      
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. C
+		rgoto MIDI_EVNT_IS_Bx_CC3_CHK_CH_C
+		
+		; YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC3_WRITE_ENV_FINE_OFFSET_BIT7
+
+MIDI_EVNT_IS_Bx_CC3_CHK_CH_C
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - NO TONE CH. FOUND - SKIP HERE
+		return
+		
+		; YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC3_WRITE_ENV_FINE_OFFSET_BIT7
+
+
+MIDI_EVNT_IS_Bx_CC3_WRITE_ENV_FINE_OFFSET_BIT7
+	;; OFFSET (SET/CLEAR BIT7 OF AY_R11_ENV_PERIOD_FINE)
+	
+	;; CHECK IF CC = 0
+	movlw 0x00
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - SET BIT7
+		rgoto MIDI_EVNT_IS_Bx_CC3_SET_BIT7
+		
+		; YES - CLEAR BIT7
+		rgoto MIDI_EVNT_IS_Bx_CC3_CLEAR_BIT7
+
+
+MIDI_EVNT_IS_Bx_CC3_SET_BIT7
+	;; SET BIT7 of AY_R11_ENV_PERIOD_FINE
+	;; + offset bit7
+	bsf AY_R11_ENV_PERIOD_FINE, 7
+	rgoto MIDI_EVNT_IS_Bx_CC3_WRITE_ENV_FINE
+	
+
+MIDI_EVNT_IS_Bx_CC3_CLEAR_BIT7
+	;; CLEAR BIT7 of AY_R11_ENV_PERIOD_FINE
+	;; - offset bit7
+	bcf AY_R11_ENV_PERIOD_FINE, 7
+	rgoto MIDI_EVNT_IS_Bx_CC3_WRITE_ENV_FINE
+
+
+MIDI_EVNT_IS_Bx_CC3_WRITE_ENV_FINE
+;; -------------[SEND ENVELOPE PERIOD FINE (EP FINE) AY R11 SHADOW REG TO AY REG 11]----
+	movlw AY_CHIP_ADR_11_GLOBAL_ENVELOPE_FINE	; REG ADRESS 	=> AY REGISTER
+	movwf AY_REG_ADDRESS 				; ADDRESS FOR 	=> AY_SR_Write
+ 
+	;; CC DATA TO AY REG
+	movff AY_R11_ENV_PERIOD_FINE, AY_REG_DATA
+	;; --------------[SEND DATA TO AY REG X]-----------------------------------------------------
+		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
+		;; ==========================================================================================
+	
+			;; Exit here
+			return
+
+;; ----------------------------------------------------------------------------------
+
+
+MIDI_EVNT_IS_Bx_CC4
+	;; ENVELOPE COARSE
+MIDI_EVNT_IS_Bx_CC4_CHK_CH_A
+	      ;; CHECK IF MIDI CH. TONE A or B or C MATCH
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. B
+		rgoto MIDI_EVNT_IS_Bx_CC4_CHK_CH_B
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC4_WRITE_ENV_COARSE
+
+MIDI_EVNT_IS_Bx_CC4_CHK_CH_B	      
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. C
+		rgoto MIDI_EVNT_IS_Bx_CC4_CHK_CH_C
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC4_WRITE_ENV_COARSE
+
+MIDI_EVNT_IS_Bx_CC4_CHK_CH_C
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - NO TONE CH. FOUND - SKIP HERE
+		return
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC4_WRITE_ENV_COARSE
+
+MIDI_EVNT_IS_Bx_CC4_WRITE_ENV_COARSE
+		
+		;; WRITE THE LOVER 7 BIT (BIT 0-6) from CC to R12 AY REG.
+		;; BUT DON'T CHANGE BIT 7 of AY_R12_ENV_PERIOD_COARSE (OFFSET BIT 7)
+		movlw B'10000000'
+		andwf AY_R12_ENV_PERIOD_COARSE, F ;; CLEAR BIT0-6 BUT NOT BIT7 (1)
+		;; COPY (ADD) BIT0-6 to AY R12 SHADOW REG
+		;; CC VALUE RANGE = 0-127 (BIT0 to 6)
+		movf MIDI_CC_VALUE, W
+		addwf AY_R12_ENV_PERIOD_COARSE, F 
+		
+		
+;; -------------[SEND ENVELOPE PERIOD FINE (EP FINE) AY R11 SHADOW REG TO AY REG 12]----
+	movlw AY_CHIP_ADR_12_GLOBAL_ENVELOPE_COARSE	; REG ADRESS 	=> AY REGISTER
+	movwf AY_REG_ADDRESS 				; ADDRESS FOR 	=> AY_SR_Write
+ 
+	;; CC DATA TO AY REG
+	movff AY_R12_ENV_PERIOD_COARSE, AY_REG_DATA
+	;; --------------[SEND DATA TO AY REG X]-----------------------------------------------------
+		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
+		;; ==========================================================================================
+	
+			;; Exit here
+			return
+
+
+MIDI_EVNT_IS_Bx_CC5
+		;; ENVELOPE COARSE - OFFSET (SET/CLEAR BIT7 OF AY_R12_ENV_PERIOD_FINE)
+		;; +128
+	
+MIDI_EVNT_IS_Bx_CC5_CHK_CH_A
+	      ;; CHECK IF MIDI CH. TONE A or B or C MATCH
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. B
+		rgoto MIDI_EVNT_IS_Bx_CC5_CHK_CH_B
+		
+		; YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC5_WRITE_ENV_FINE_OFFSET_BIT7
+
+MIDI_EVNT_IS_Bx_CC5_CHK_CH_B	      
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. C
+		rgoto MIDI_EVNT_IS_Bx_CC5_CHK_CH_C
+		
+		; YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC5_WRITE_ENV_FINE_OFFSET_BIT7
+
+MIDI_EVNT_IS_Bx_CC5_CHK_CH_C
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - NO TONE CH. FOUND - SKIP HERE
+		return
+		
+		; YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC5_WRITE_ENV_FINE_OFFSET_BIT7
+
+
+MIDI_EVNT_IS_Bx_CC5_WRITE_ENV_FINE_OFFSET_BIT7
+	;; OFFSET (SET/CLEAR BIT7 OF AY_R12_ENV_PERIOD_COARSE)
+	
+	;; CHECK IF CC = 0
+	clrw 
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - SET BIT7
+		rgoto MIDI_EVNT_IS_Bx_CC5_SET_BIT7
+		
+		; YES - CLEAR BIT7
+		rgoto MIDI_EVNT_IS_Bx_CC5_CLEAR_BIT7
+
+
+MIDI_EVNT_IS_Bx_CC5_SET_BIT7
+	;; SET BIT7 of AY_R11_ENV_PERIOD_FINE
+	bsf AY_R12_ENV_PERIOD_COARSE, 7
+	rgoto MIDI_EVNT_IS_Bx_CC5_WRITE_ENV_COARSE
+	
+
+MIDI_EVNT_IS_Bx_CC5_CLEAR_BIT7
+	;; CLEAR BIT7 of AY_R11_ENV_PERIOD_FINE
+	bcf AY_R12_ENV_PERIOD_COARSE, 7
+	rgoto MIDI_EVNT_IS_Bx_CC5_WRITE_ENV_COARSE
+
+
+MIDI_EVNT_IS_Bx_CC5_WRITE_ENV_COARSE
+;; -------------[SEND ENVELOPE PERIOD FINE (EP FINE) AY R11 SHADOW REG TO AY REG 12]----
+	movlw AY_CHIP_ADR_12_GLOBAL_ENVELOPE_COARSE	; REG ADRESS 	=> AY REGISTER
+	movwf AY_REG_ADDRESS 				; ADDRESS FOR 	=> AY_SR_Write
+ 
+	;; CC DATA TO AY REG
+	movff AY_R12_ENV_PERIOD_COARSE, AY_REG_DATA
+	;; --------------[SEND DATA TO AY REG X]-----------------------------------------------------
+		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
+		;; ==========================================================================================
+	
+			;; Exit here
+			return
+
+;; ---------------------------[CC => NOISE PERIOD]-------------------------------------------
+
+
+MIDI_EVNT_IS_Bx_CC6
+	;; CC6 IS NOISE PERIOD
+	
+	      ;; CHECK IF MIDI CH IS = TONE A B or C
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. B
+		rgoto MIDI_EVNT_IS_Bx_CC6_CHK_CH_B
+		
+		;YES - OK, WRITE TO ENV.SHAPE REG
+		rgoto MIDI_EVNT_IS_Bx_CC6_GO_ON_TO_WRITE_NOISE_PERIOD
+
+MIDI_EVNT_IS_Bx_CC6_CHK_CH_B	      
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - GO CHECK CH. C
+		rgoto MIDI_EVNT_IS_Bx_CC1_CHK_CH_C
+		
+		;YES - OK, WRITE TO ENV.SHAPE REG
+		rgoto MIDI_EVNT_IS_Bx_CC6_GO_ON_TO_WRITE_NOISE_PERIOD
+
+MIDI_EVNT_IS_Bx_CC6_CHK_CH_C
+	      movf    MIDI_EVNT_CHANNEL, W
+	      cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - NO TONE CH. FOUND - SKIP HERE
+		return
+		
+		;YES - OK, WRITE TO ENV.SHAPE REG
+MIDI_EVNT_IS_Bx_CC6_GO_ON_TO_WRITE_NOISE_PERIOD
+	
+	;; CONVERT MIDI DATA 7BIT (0-127) TO NOISE PERIOD 5BIT(0-31)
+	;; {NOISE TONE 5BIT} = {MIDI DATA 7BIT}/4
+
+	;; WRITE MIDI DATA BYTE2 0-127 
+	;; TO ---
+	movff	MIDI_EVNT_VALUE, AY_CC_6_TMP
+	      
+	          
+	      ;; convert AY_MIDI_VELOCITY_TO_NOISE_PERIOD 8bit to 5bit (0-31 dec.)
+	      ;; divide ==> (MIDI DATA)/4
+	      rrncf 	AY_CC_6_TMP, F	 ;; /2
+	      bcf 	AY_CC_6_TMP, 7
+	      rrncf 	AY_CC_6_TMP, F	 ;; /4
+	      bcf 	AY_CC_6_TMP, 7
+	      ;; NOW THE CC VALUE IS IN THE 5 LOWER BITS (0-31 dec.)
+	      ;; AY_CC_6_TMP => BIN '000C CCCC'
+
+	      
+	      movlw NOISE_PERIOD_MAX_VALUE ;; BIN 0001 1111
+	      andwf AY_CC_6_TMP, F
+ 
+	      ;; AY NOISE PERIOD:
+	      ;; CC6 0 	  => 0   => 31 @ NOISE PERIOD AY CHIP REG 
+	      ;; CC6 127  => 31  => 0  @ NOISE PERIOD AY CHIP REG 
+	      movlw 0x20 ;; BIN 0010 0000 (32 dec.)
+	      subfwb AY_CC_6_TMP, F
+
+		movlw NOISE_PERIOD_MAX_VALUE ;; BIN 0001 1111
+	      	andwf AY_CC_6_TMP, F
+
+	   	movlw NOISE_PERIOD_MAX_VALUE ;; BIN 0001 1111 (31 DEC)
+	      	cpfslt AY_CC_6_TMP
+
+		      ;; NO, WRITE 31 TO AY_CC_6_TMP
+		      rgoto MIDI_EVNT_IS_Bx_CC6_CORRECT_VALUE
+	
+		      ;; YES
+		      rgoto MIDI_EVNT_IS_Bx_CC6_WRITE_AY_NOISE_PERIOD
+
+MIDI_EVNT_IS_Bx_CC6_CORRECT_VALUE
+		movlw NOISE_PERIOD_MAX_VALUE ;; BIN 0001 1111 (31 DEC)
+		movwf AY_CC_6_TMP
+
+MIDI_EVNT_IS_Bx_CC6_WRITE_AY_NOISE_PERIOD
+	      
+	;; WRITE CC6 DATA TO AY SHADOW REG. NOISE PERIOD
+	movff AY_CC_6_TMP, AY_R6_NOISE_PERIOD
+	      
+	      
+	;; -------------[SEND CC6 DATA TO NOISE PERIOD REG 6]------------------------
+	movlw AY_CHIP_ADR_06_NOISE_PERIOD		; REG ADRESS 	=> AY REGISTER
+	movwf AY_REG_ADDRESS 				; ADDRESS FOR 	=> AY_SR_Write
+        
+	;; WRITE NOISE PERIOD TO AY CHIP 
+	movff AY_CC_6_TMP, AY_REG_DATA
+
+		;; --------------[SEND DATA TO AY REG X]-----------------------------------------------------
+		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
+		;; ==========================================================================================
+			;; Exit here
+			return
+
+;; ---------------------------[END CC => NOISE PERIOD]-------------------------------------------
+
+;; ---------------------------[CC => VOLUME TONE A]-------------------------------------------
+MIDI_EVNT_IS_Bx_CC7
+	;; CC7 => Volume Tone A
+	;; CHECK IF CURRENT MIDI CH. MATCH TONE A 
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC7_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC7_WRITE_TO_VOLUME
+
+MIDI_EVNT_IS_Bx_CC7_WRITE_TO_VOLUME
+	;; CONVERT MIDI DATA CC7 7BIT (0-127) TO VOLUME TONE A 4BIT(0-15)
+	;; {VOLUME TONE 4BIT} = {CC MIDI DATA 7BIT}/8
+
+	;; WRITE MIDI DATA BYTE2 0-127 
+	;; TO AY_CC_7_TMP
+	movff	MIDI_EVNT_VALUE, AY_CC_7_TMP
+	      
+	          
+	      ;; convert 7bit Value to 4bit value
+	      ;; divide ==> (MIDI DATA)/8
+	      rrncf 	AY_CC_7_TMP, F	 ;; /2
+	      bcf 	AY_CC_7_TMP, 7
+	      rrncf 	AY_CC_7_TMP, F	 ;; /4
+	      bcf 	AY_CC_7_TMP, 7
+	      rrncf 	AY_CC_7_TMP, F	 ;; /8
+	      bcf 	AY_CC_7_TMP, 7
+
+	      
+	      movlw VOLUME_ABC_MAX_VALUE ;; BIN 0000 1111
+	      andwf AY_CC_7_TMP, F
+
+	      ;; NOW THE CC VOLUME IS IN THE 4 LOWER BITS (0-15 dec.)
+	      ;; AY_CC_7_TMP => BIN '0000 VVVV'
+	      
+	      ;; COPY THE LOWER 4 BIT [BIT0-to 3] = (CC VOLUME (0-15))
+	      ;; BUT SAVE THE BIT4 = AMPLITUDE MODE!
+	      
+	      ;; COPY THE ENV. MODE BIT	      
+	      ;; WRITE 0 TO BIT0-3 
+	      
+	      ;; CLEAR BIT 0-3 AY SHADOW REG
+	      movlw 0xF0 ;; BIN 1111 0000
+	      andwf AY_R8_CH_A_AMPLITUDE, W
+	      
+	      ;; NOW THE SHADOW REG IS IN W REG
+	      ;; OR {CC VALUE/4} with W REG	
+	      iorwf AY_CC_7_TMP, W
+	      movwf AY_CC_7_TMP
+	      
+	      ;; Write CC To AY R8 Shadow Reg
+	      movff AY_CC_7_TMP, AY_R8_CH_A_AMPLITUDE
+
+	;; -------------[SEND AMPLITUDE TONE A - AY REG 8]------------------------
+	movlw AY_CHIP_ADR_08_TONE_A_VOLUME_ENV_MODE_ON_OFF	; REG ADRESS 	=> AY REGISTER
+	movwf AY_REG_ADDRESS 					; ADDRESS FOR 	=> AY_SR_Write
+        
+	      ;; WRITE TONE A AMPLITUDE TO AY REG
+	      movff AY_CC_7_TMP, AY_REG_DATA
+
+		;; --------------[SEND DATA TO AY REG X]------------------------------
+		call LABEL_AY_SR_Write	; WRITING 8BIT DATA 
+		;; (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
+	;; ===========================================================================
+
+
+
+MIDI_EVNT_IS_Bx_CC7_EXIT
+			
+			;; Exit here
+			return
+
+;; ---------------------------[END CC => VOLUME TONE A]-------------------------------------------
+
+;; ---------------------------[CC => VOLUME TONE B]-------------------------------------------
+MIDI_EVNT_IS_Bx_CC8
+	;; CC8 => Volume Tone B
+	;; CHECK IF CURRENT MIDI CH. MATCH TONE B
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO
+		goto MIDI_EVNT_IS_Bx_CC8_EXIT
+		
+		;YES - OK, GO ON
+		goto MIDI_EVNT_IS_Bx_CC8_WRITE_TO_VOLUME
+
+MIDI_EVNT_IS_Bx_CC8_WRITE_TO_VOLUME
+	;; CONVERT MIDI DATA CC8 7BIT (0-127) TO VOLUME TONE B 4BIT(0-15)
+	;; {VOLUME TONE 4BIT} = {CC MIDI DATA 7BIT}/8
+
+	;; WRITE MIDI DATA BYTE2 0-127 
+	;; TO AY_CC_8_TMP
+	movff	MIDI_EVNT_VALUE, AY_CC_8_TMP
+	      
+	          
+	      ;; convert 7bit Value to 4bit value
+	      ;; divide ==> (MIDI DATA)/8
+	      rrncf 	AY_CC_8_TMP, F	 ;; /2
+	      bcf 	AY_CC_8_TMP, 7
+	      rrncf 	AY_CC_8_TMP, F	 ;; /4
+	      bcf 	AY_CC_8_TMP, 7
+	      rrncf 	AY_CC_8_TMP, F	 ;; /8
+	      bcf 	AY_CC_8_TMP, 7
+
+	      
+	      movlw VOLUME_ABC_MAX_VALUE ;; BIN 00001111
+	      andwf AY_CC_8_TMP, F
+
+	      ;; NOW THE CC VOLUME IS IN THE 4 LOWER BITS (0-15 dec.)
+	      ;; AY_CC_8_TMP => BIN '0000 VVVV'
+	      
+	      ;; COPY THE LOWER 4 BIT [BIT0-to 3] = (CC VOLUME (0-15))
+	      ;; BUT SAVE THE BIT4 = AMPLITUDE MODE!
+	      
+	      ;; COPY THE ENV. MODE BIT	      
+	      ;; WRITE 0 TO BIT0-3 
+	      
+	      ;; CLEAR BIT 0-3 AY SHADOW REG
+	      movlw B'11110000' 
+	      andwf AY_R9_CH_B_AMPLITUDE, W
+	      
+	      ;; NOW THE SHADOW REG IS IN W REG
+	      ;; OR {CC VALUE/4} with W REG	
+	      iorwf AY_CC_8_TMP, W
+	      movwf AY_CC_8_TMP
+	      
+	      ;; Write CC To AY R9 Shadow Reg
+	      movff AY_CC_8_TMP, AY_R9_CH_B_AMPLITUDE
+
+	;; -------------[SEND AMPLITUDE TONE A - AY REG 8]------------------------
+	movlw AY_CHIP_ADR_09_TONE_B_VOLUME_ENV_MODE_ON_OFF	; REG ADRESS 	=> AY REGISTER
+	movwf AY_REG_ADDRESS 					; ADDRESS FOR 	=> AY_SR_Write
+        
+	      ;; WRITE B VOLUME TO AY CHIP
+	      movff AY_CC_8_TMP, AY_REG_DATA
+
+		;; --------------[SEND DATA TO AY REG X]------------------------------
+		call LABEL_AY_SR_Write	; WRITING 8BIT DATA 
+		;; (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
+	;; ===========================================================================
+
+
+
+MIDI_EVNT_IS_Bx_CC8_EXIT
+			
+			;; Exit here
+			return
+
+;; ---------------------------[END CC => VOLUME TONE B]-------------------------------------------
+
+;; ---------------------------[CC => VOLUME TONE C]-------------------------------------------
+
+MIDI_EVNT_IS_Bx_CC9
+	;; CC9 => Volume Tone C
+	;; CHECK IF CURRENT MIDI CH. MATCH TONE C
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO
+		goto MIDI_EVNT_IS_Bx_CC9_EXIT
+		
+		;YES - OK, GO ON
+		goto MIDI_EVNT_IS_Bx_CC9_WRITE_TO_VOLUME
+
+MIDI_EVNT_IS_Bx_CC9_WRITE_TO_VOLUME
+	;; CONVERT MIDI DATA CC9 7BIT (0-127) TO VOLUME TONE B 4BIT(0-15)
+	;; {VOLUME TONE 4BIT} = {CC MIDI DATA 7BIT}/8
+
+	;; WRITE MIDI DATA BYTE2 0-127 
+	;; TO AY_CC_9_TMP
+	movff	MIDI_EVNT_VALUE, AY_CC_9_TMP
+	      
+	          
+	      ;; convert 7bit Value to 4bit value
+	      ;; divide ==> (MIDI DATA)/8
+	      rrncf 	AY_CC_9_TMP, F	 ;; /2
+	      bcf 	AY_CC_9_TMP, 7
+	      rrncf 	AY_CC_9_TMP, F	 ;; /4
+	      bcf 	AY_CC_9_TMP, 7
+	      rrncf 	AY_CC_9_TMP, F	 ;; /8
+	      bcf 	AY_CC_9_TMP, 7
+
+	      
+	      movlw VOLUME_ABC_MAX_VALUE ;; BIN 00001111
+	      andwf AY_CC_9_TMP, F
+
+	      ;; NOW THE CC VOLUME IS IN THE 4 LOWER BITS (0-15 dec.)
+	      ;; AY_CC_9_TMP => BIN '0000 VVVV'
+	      
+	      ;; COPY THE LOWER 4 BIT [BIT0-to 3] = (CC VOLUME (0-15))
+	      ;; BUT SAVE THE BIT4 = AMPLITUDE MODE!
+	      
+	      ;; COPY THE ENV. MODE BIT	      
+	      ;; WRITE 0 TO BIT0-3 
+	      
+	      ;; CLEAR BIT 0-3 AY SHADOW REG
+	      movlw B'11110000' 
+	      andwf AY_R10_CH_C_AMPLITUDE, W
+	      
+	      ;; NOW THE SHADOW REG IS IN W REG
+	      ;; OR {CC VALUE/4} with W REG	
+	      iorwf AY_CC_9_TMP, W
+	      movwf AY_CC_9_TMP
+	      
+	      ;; Write CC To AY R10 Shadow Reg
+	      movff AY_CC_9_TMP, AY_R10_CH_C_AMPLITUDE
+
+	;; -------------[SEND AMPLITUDE TONE A - AY REG 10]------------------------
+	movlw AY_CHIP_ADR_10_TONE_C_VOLUME_ENV_MODE_ON_OFF 	; REG ADRESS 	=> AY REGISTER
+	movwf AY_REG_ADDRESS 					; ADDRESS FOR 	=> AY_SR_Write
+        
+	      ;; WRITE VOLUME C TO AY CHIP
+	      movff AY_CC_9_TMP, AY_REG_DATA
+
+		;; --------------[SEND DATA TO AY REG X]------------------------------
+		call LABEL_AY_SR_Write	; WRITING 8BIT DATA 
+		;; (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
+	;; ===========================================================================
+
+MIDI_EVNT_IS_Bx_CC9_EXIT
+			;; QUIT HERE
+			return
+
+;; ---------------------------[END CC => VOLUME TONE C]-----------------------------------
+
+
+;; ---------------------------[CONTROLLER 10 - ON/OFF TONE A]-----------------------------
+MIDI_EVNT_IS_Bx_CC10
+	;; CONTROLLER 10 - ON/OFF TONE A
+	
+	;; CHECK IF CURRENT MIDI CH. MATCH TONE A
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC10_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC10_TONE_A_ON_OR_OFF
+
+MIDI_EVNT_IS_Bx_CC10_TONE_A_ON_OR_OFF
+	;; CHECK IF THE CC VALUE
+	;; = 0 => TONE A OFF => CLEAR BIT0 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	;; > 0 => TONE A ON  => SET   BIT0 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC10_TONE_A_ON
+		
+		;YES 
+		rgoto MIDI_EVNT_IS_Bx_CC10_TONE_A_OFF 
+
+MIDI_EVNT_IS_Bx_CC10_TONE_A_ON
+	;; SWITCH TONE A ON
+	bcf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT0_TONE_A_ON_OFF
+	call  LED_ToneA_on
+	rgoto 	MIDI_EVNT_IS_Bx_CC10_EXIT
+
+MIDI_EVNT_IS_Bx_CC10_TONE_A_OFF
+	;; SWITCH TONE A OFF
+	bsf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT0_TONE_A_ON_OFF
+	call  LED_ToneA_off
+	rgoto 	MIDI_EVNT_IS_Bx_CC10_EXIT
+
+MIDI_EVNT_IS_Bx_CC10_EXIT	
+		;; Exit here
+		return
+
+;; ---------------------------[END: CONTROLLER 10 - ON/OFF TONE A]------------------------
+
+;; ---------------------------[CONTROLLER 11 - ON/OFF TONE B]-----------------------------
+MIDI_EVNT_IS_Bx_CC11
+	;; CONTROLLER 11 - ON/OFF TONE B
+	;; CHECK IF CURRENT MIDI CH. MATCH TONE B
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC11_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC11_TONE_B_ON_OR_OFF
+
+MIDI_EVNT_IS_Bx_CC11_TONE_B_ON_OR_OFF
+	;; CHECK IF THE CC VALUE
+	;; = 0 => TONE B OFF => CLEAR BIT1 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	;; > 0 => TONE B ON  => SET   BIT1 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC11_TONE_B_ON
+		
+		;YES 
+		rgoto MIDI_EVNT_IS_Bx_CC11_TONE_B_OFF
+
+MIDI_EVNT_IS_Bx_CC11_TONE_B_ON
+	;; SWITCH TONE B ON
+	bcf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT1_TONE_B_ON_OFF
+	call   LED_ToneB_on
+	rgoto 	MIDI_EVNT_IS_Bx_CC11_EXIT
+
+MIDI_EVNT_IS_Bx_CC11_TONE_B_OFF	
+	;; SWITCH TONE B OFF
+	bsf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT1_TONE_B_ON_OFF
+	call  LED_ToneB_off
+	rgoto 	MIDI_EVNT_IS_Bx_CC11_EXIT
+
+MIDI_EVNT_IS_Bx_CC11_EXIT	
+			;; Exit here
+			return
+
+;; ---------------------------[CONTROLLER 12 - ON/OFF TONE C]-----------------------------
+MIDI_EVNT_IS_Bx_CC12
+	;; CONTROLLER 12 - ON/OFF TONE C
+	
+	;; CHECK IF CURRENT MIDI CH. MATCH TONE C
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC12_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC12_TONE_C_ON_OR_OFF
+
+MIDI_EVNT_IS_Bx_CC12_TONE_C_ON_OR_OFF
+	;; CHECK IF THE CC VALUE
+	;; = 0 => TONE C OFF => CLEAR BIT2 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	;; > 0 => TONE C ON  => SET   BIT2 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO
+		goto MIDI_EVNT_IS_Bx_CC12_TONE_C_ON
+		
+		;YES 
+		goto MIDI_EVNT_IS_Bx_CC12_TONE_C_OFF
+
+MIDI_EVNT_IS_Bx_CC12_TONE_C_ON
+	;; SWITCH TONE C ON
+	bcf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT2_TONE_C_ON_OFF
+	call  	LED_ToneC_on
+	rgoto 	MIDI_EVNT_IS_Bx_CC12_EXIT
+
+MIDI_EVNT_IS_Bx_CC12_TONE_C_OFF
+	;; SWITCH TONE C OFF
+	bsf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT2_TONE_C_ON_OFF
+	call  	LED_ToneC_off
+	rgoto 	MIDI_EVNT_IS_Bx_CC12_EXIT
+
+MIDI_EVNT_IS_Bx_CC12_EXIT
+			;; exit here
+			return
+
+;; ---------------------------[END CONTROLLER 12 - ON/OFF TONE C]-----------------------------
+
+;; ---------------------------[CONTROLLER 13 - ON/OFF NOISE A]-----------------------------
+MIDI_EVNT_IS_Bx_CC13
+	;; CONTROLLER 13 - ON/OFF ADD NOISE A
+	
+	;; CHECK IF CURRENT MIDI CH. MATCH MIDI CH. TONE/NOISE A
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC13_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC13_NOISE_A_ON_OR_OFF
+
+MIDI_EVNT_IS_Bx_CC13_NOISE_A_ON_OR_OFF
+	;; CHECK IF THE CC VALUE
+	;; = 0 => ADD NOISE TO TONE A OFF => CLEAR BIT3 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	;; > 0 => ADD NOISE TO TONE A ON  => SET   BIT3 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC13_NOISE_A_ON
+		
+		;YES 
+		rgoto MIDI_EVNT_IS_Bx_CC13_NOISE_A_OFF
+
+MIDI_EVNT_IS_Bx_CC13_NOISE_A_ON	
+	;; SWITCH NOISE A ON
+	;; clear bit3 = noise on
+	bcf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT3_NOISE_A_ON_OFF
+	call  	LED_NoiseA_on
+	goto 	MIDI_EVNT_IS_Bx_CC13_EXIT
+
+MIDI_EVNT_IS_Bx_CC13_NOISE_A_OFF
+	;; SWITCH NOISE A OFF
+	;; set bit 3 = noise off
+	bsf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT3_NOISE_A_ON_OFF
+	call   	LED_NoiseA_off
+	goto 	MIDI_EVNT_IS_Bx_CC13_EXIT
+
+MIDI_EVNT_IS_Bx_CC13_EXIT	
+			;; Exit here
+			return
+
+;; ---------------------------[END: CONTROLLER 10 - ON/OFF NOISE A]------------------------
+
+;; ---------------------------[CONTROLLER 14 - ON/OFF NOISE B]-----------------------------
+MIDI_EVNT_IS_Bx_CC14
+	;; CONTROLLER 14 - ON/OFF ADD NOISE B
+	
+	;; CHECK IF CURRENT MIDI CH. MATCH MIDI CH. TONE/NOISE B
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC14_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC14_NOISE_B_ON_OR_OFF
+
+MIDI_EVNT_IS_Bx_CC14_NOISE_B_ON_OR_OFF
+	;; CHECK IF THE CC VALUE
+	;; = 0 => ADD NOISE TO TONE B OFF => CLEAR BIT4 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	;; > 0 => ADD NOISE TO TONE B ON  => SET   BIT4 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO
+		goto MIDI_EVNT_IS_Bx_CC14_NOISE_B_ON
+		
+		;YES 
+		goto MIDI_EVNT_IS_Bx_CC14_NOISE_B_OFF 
+
+
+MIDI_EVNT_IS_Bx_CC14_NOISE_B_ON
+	;; SWITCH NOISE B ON
+	bcf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT4_NOISE_B_ON_OFF
+	call    LED_NoiseB_on
+	rgoto 	MIDI_EVNT_IS_Bx_CC14_EXIT
+
+MIDI_EVNT_IS_Bx_CC14_NOISE_B_OFF	
+	;; SWITCH NOISE B OFF
+	bsf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT4_NOISE_B_ON_OFF
+	call   	LED_NoiseB_off
+	rgoto 	MIDI_EVNT_IS_Bx_CC14_EXIT
+
+MIDI_EVNT_IS_Bx_CC14_EXIT	
+		;; Exit here
+		return
+
+;; ---------------------------[END: CONTROLLER 14 - ON/OFF NOISE B]-----------------------------
+
+;; ---------------------------[CONTROLLER 15 - ON/OFF NOISE C]-----------------------------
+MIDI_EVNT_IS_Bx_CC15
+	;; CONTROLLER 15 - ON/OFF ADD NOISE C
+	;; CHECK IF CURRENT MIDI CH. MATCH MIDI CH. TONE/NOISE C
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC15_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC15_NOISE_C_ON_OR_OFF
+
+MIDI_EVNT_IS_Bx_CC15_NOISE_C_ON_OR_OFF
+	;; CHECK IF THE CC VALUE
+	;; = 0 => ADD NOISE TO TONE C OFF => CLEAR BIT5 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	;; > 0 => ADD NOISE TO TONE C ON  => SET   BIT5 of AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO
+		rgoto MIDI_EVNT_IS_Bx_CC15_NOISE_C_ON
+		
+		;YES 
+		rgoto  MIDI_EVNT_IS_Bx_CC15_NOISE_C_OFF
+
+
+MIDI_EVNT_IS_Bx_CC15_NOISE_C_ON
+	;; SWITCH NOISE C ON
+	bcf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT5_NOISE_C_ON_OFF
+	call  LED_NoiseC_on
+	rgoto 	MIDI_EVNT_IS_Bx_CC15_EXIT
+
+MIDI_EVNT_IS_Bx_CC15_NOISE_C_OFF	
+	;; SWITCH NOISE C OFF
+	bsf	AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT5_NOISE_C_ON_OFF
+	call   LED_NoiseC_off
+	rgoto 	MIDI_EVNT_IS_Bx_CC15_EXIT
+
+MIDI_EVNT_IS_Bx_CC15_EXIT	
+			;; Exit here
+			return
+
+;; ---------------------------[END: CONTROLLER 15 - ON/OFF NOISE C]-----------------------------
+
+;; ---------------------[CONTROLLER 16, 17, 18 - ENVELOPE MODE ON/OFF TONE ABC]--------------
+
+MIDI_EVNT_IS_Bx_CC16
+;; CONTROLLER 16 - TONE A ENV. ON/OFF
+;; ENVELOPE MODE TONE A ON/OFF WITH SET/CLEAR BIT4 @ AY_R8_CH_A_AMPLITUDE 
+	      
+      	;; CHECK IF MIDI CH. TONE A MATCH
+      	movf    MIDI_EVNT_CHANNEL, W
+      	cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - Qut here
+		rgoto MIDI_EVNT_IS_Bx_CC16_EXIT
+	
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC16_ENV_TONE_A_SET_OR_CLEAR
+
+MIDI_EVNT_IS_Bx_CC16_ENV_TONE_A_SET_OR_CLEAR
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - MIDI CC VALUE IS > 0
+		rgoto MIDI_EVNT_IS_Bx_CC16_ENV_TONE_A_ON
+		
+		;YES - MIDI CC VALUE IS 0
+		rgoto MIDI_EVNT_IS_Bx_CC16_ENV_TONE_A_OFF
+
+MIDI_EVNT_IS_Bx_CC16_ENV_TONE_A_ON
+	bsf AY_R8_CH_A_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+	call LED_EnvelopeModeA_on
+	goto MIDI_EVNT_IS_Bx_CC16_EXIT
+
+MIDI_EVNT_IS_Bx_CC16_ENV_TONE_A_OFF
+	bcf AY_R8_CH_A_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+	call LED_EnvelopeModeA_off
+
+MIDI_EVNT_IS_Bx_CC16_EXIT	
+		;; Exit here
+		return
+
+;; -----------------------------------------------------
+
+MIDI_EVNT_IS_Bx_CC17
+	;; CONTROLLER 17	
+	;; TONE B ENV. ON/OFF
+	;; ENVELOPE MODE TONE B ON/OFF WITH SET/CLEAR BIT4 @ AY_R9_CH_B_AMPLITUDE
+
+	;; CHECK IF MIDI CH. TONE B MATCH
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - Qut here
+		rgoto MIDI_EVNT_IS_Bx_CC17_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC17_ENV_TONE_B_SET_OR_CLEAR
+
+MIDI_EVNT_IS_Bx_CC17_ENV_TONE_B_SET_OR_CLEAR
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - MIDI CC VALUE IS > 0
+		rgoto MIDI_EVNT_IS_Bx_CC17_ENV_TONE_B_ON
+		
+		;YES - MIDI CC VALUE IS 0
+		rgoto MIDI_EVNT_IS_Bx_CC17_ENV_TONE_B_OFF
+
+MIDI_EVNT_IS_Bx_CC17_ENV_TONE_B_ON
+	bsf AY_R9_CH_B_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+	call LED_EnvelopeModeB_on
+	rgoto MIDI_EVNT_IS_Bx_CC17_EXIT
+
+MIDI_EVNT_IS_Bx_CC17_ENV_TONE_B_OFF
+	bcf AY_R9_CH_B_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+	call LED_EnvelopeModeB_off
+	
+MIDI_EVNT_IS_Bx_CC17_EXIT	
+		;; Exit here
+		return
+
+;; -----------------------------------------------------
+
+MIDI_EVNT_IS_Bx_CC18
+	;; CONTROLLER 18 - TONE C ENV. ON/OFF
+	;; ENVELOPE MODE TONE C ON/OFF WITH SET/CLEAR BIT4 @ AY_R10_CH_C_AMPLITUDE
+	;; CHECK IF MIDI CH. TONE A MATCH
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - Qut here
+		rgoto MIDI_EVNT_IS_Bx_CC18_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC18_ENV_TONE_C_SET_OR_CLEAR
+
+MIDI_EVNT_IS_Bx_CC18_ENV_TONE_C_SET_OR_CLEAR
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - MIDI CC VALUE IS > 0
+		rgoto MIDI_EVNT_IS_Bx_CC18_ENV_TONE_C_ON
+		
+		;YES - MIDI CC VALUE IS 0
+		rgoto MIDI_EVNT_IS_Bx_CC18_ENV_TONE_C_OFF
+
+MIDI_EVNT_IS_Bx_CC18_ENV_TONE_C_ON
+	bsf AY_R10_CH_C_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+	call LED_EnvelopeModeC_on
+	rgoto MIDI_EVNT_IS_Bx_CC18_EXIT
+
+MIDI_EVNT_IS_Bx_CC18_ENV_TONE_C_OFF
+	bcf AY_R10_CH_C_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+	call LED_EnvelopeModeC_off
+	;; EXIT
+
+MIDI_EVNT_IS_Bx_CC18_EXIT	
+		;; Exit here
+		return
+
+;; .------------------------------------------------------------------------------------
+
+MIDI_EVNT_IS_Bx_CC19
+	;; VELOCITY MODE TO TONE A ON/OFF 
+	;; SET/CLEAR BIT 0 in  AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF
+	 
+	 ;; CHECK IF MIDI CH. TONE A MATCH
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - Qut here
+		rgoto MIDI_EVNT_IS_Bx_CC19_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC19_VELOCITY_ON_OFF
+
+MIDI_EVNT_IS_Bx_CC19_VELOCITY_ON_OFF
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - MIDI CC VALUE IS > 0
+		rgoto MIDI_EVNT_IS_Bx_CC19_VELOCITY_ON
+		
+		;YES - MIDI CC VALUE IS 0
+		rgoto MIDI_EVNT_IS_Bx_CC19_VELOCITY_OFF
+
+MIDI_EVNT_IS_Bx_CC19_VELOCITY_ON
+	;; CC19 VALUE > 0
+	;; TOGGLE VELOCITY MODE TONE A ON
+	bsf AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT0_VELOCITY_ON_OFF_TONE_A
+	rgoto MIDI_EVNT_IS_Bx_CC19_EXIT
+
+MIDI_EVNT_IS_Bx_CC19_VELOCITY_OFF
+	;; CC19 VALUE = 0
+	;; VELOCITY MODE TONE A OFF
+	bcf AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT0_VELOCITY_ON_OFF_TONE_A
+	
+MIDI_EVNT_IS_Bx_CC19_EXIT
+		;; Exit here
+		return
+
+;; -------------------------------------------------------------------------------
+
+MIDI_EVNT_IS_Bx_CC20
+	;; VELOCITY MODE TO TONE B ON/OFF 
+	;; SET/CLEAR BIT 1 in  AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF
+	
+	;; CHECK IF MIDI CH. TONE B MATCH
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - Qut here
+		rgoto MIDI_EVNT_IS_Bx_CC20_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC20_VELOCITY_ON_OFF
+
+MIDI_EVNT_IS_Bx_CC20_VELOCITY_ON_OFF
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - MIDI CC VALUE IS > 0
+		rgoto MIDI_EVNT_IS_Bx_CC20_VELOCITY_ON
+		
+		;YES - MIDI CC VALUE IS 0
+		rgoto MIDI_EVNT_IS_Bx_CC20_VELOCITY_OFF
+
+MIDI_EVNT_IS_Bx_CC20_VELOCITY_ON
+	;; VELOCITY MODE TONE B ON
+	bsf AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT1_VELOCITY_ON_OFF_TONE_B
+	rgoto MIDI_EVNT_IS_Bx_CC20_EXIT
+
+MIDI_EVNT_IS_Bx_CC20_VELOCITY_OFF
+	;; VELOCITY MODE TONE B OFF
+	bcf AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT1_VELOCITY_ON_OFF_TONE_B
+	;; EXIT
+MIDI_EVNT_IS_Bx_CC20_EXIT
+		;; Exit here
+		return
+
+
+;; ----------------------------------------------------------------------------
+
+MIDI_EVNT_IS_Bx_CC21
+	;; VELOCITY MODE TO TONE C ON/OFF 
+	;; SET/CLEAR BIT 2 in  AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF
+	
+	;; CHECK IF MIDI CH. TONE C MATCH
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - Qut here
+		rgoto MIDI_EVNT_IS_Bx_CC21_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC21_VELOCITY_ON_OFF
+
+MIDI_EVNT_IS_Bx_CC21_VELOCITY_ON_OFF
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - MIDI CC VALUE IS > 0
+		rgoto MIDI_EVNT_IS_Bx_CC21_VELOCITY_ON
+		
+		;YES - MIDI CC VALUE IS 0
+		rgoto MIDI_EVNT_IS_Bx_CC21_VELOCITY_OFF
+
+MIDI_EVNT_IS_Bx_CC21_VELOCITY_ON
+	;; VELOCITY MODE TONE C ON
+	bsf AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT2_VELOCITY_ON_OFF_TONE_C 
+	rgoto MIDI_EVNT_IS_Bx_CC21_EXIT
+
+MIDI_EVNT_IS_Bx_CC21_VELOCITY_OFF
+	;; VELOCITY MODE TONE C OFF
+	bcf AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT2_VELOCITY_ON_OFF_TONE_C 
+	;; EXIT
+
+MIDI_EVNT_IS_Bx_CC21_EXIT
+		;; Exit here
+		return
+
+;; ----------------[CC22 SWITCH VELOCITY TO NOISE PERIOD ABC ON/OFF]-------------------------
+
+MIDI_EVNT_IS_Bx_CC22
+	;; VELOCITY MODE TO NOISE PERIOD ON/OFF 
+	;; SET/CLEAR BIT 3 in  AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF
+	;; BIT 5 = VELOCITY TONE A
+	;; BIT 6 = VELOCITY TONE B
+	;; BIT 7 = VELOCITY TONE C
+	;;------------ VELOCITY TO NOISE PERIOD ON/OFF]--------
+	;; CHECK IF MIDI CH. TONE A or B or C MATCH
+	;; CHECK IF MIDI CH. TONE A MATCH
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_A_MIDI_CHANNEL_USER
+
+		; NO - CHECK MIDI CH TONE B
+		rgoto MIDI_EVNT_IS_Bx_CC22_CHK_CH_B
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC22_TOGGLE_VELOCITY_NOISE_PERIOD
+
+MIDI_EVNT_IS_Bx_CC22_CHK_CH_B
+	;; CHECK IF MIDI CH. TONE B MATCH
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_B_MIDI_CHANNEL_USER
+
+		; NO - CHECK MIDI CH TONE C
+		rgoto MIDI_EVNT_IS_Bx_CC22_CHK_CH_C
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC22_TOGGLE_VELOCITY_NOISE_PERIOD
+
+MIDI_EVNT_IS_Bx_CC22_CHK_CH_C
+	;; CHECK IF MIDI CH. TONE C MATCH
+	movf    MIDI_EVNT_CHANNEL, W
+	cpfseq  AY_TONE_C_MIDI_CHANNEL_USER
+
+		; NO - NO TONE MIDI CHANNEL MATCH, SO QUIT HERE
+		rgoto MIDI_EVNT_IS_Bx_CC22_EXIT
+		
+		;YES - OK, GO ON
+		rgoto MIDI_EVNT_IS_Bx_CC22_TOGGLE_VELOCITY_NOISE_PERIOD
+
+
+MIDI_EVNT_IS_Bx_CC22_TOGGLE_VELOCITY_NOISE_PERIOD
+	;; CC VALUE = 0?
+	clrw
+	cpfseq  MIDI_CC_VALUE
+
+		; NO - MIDI CC VALUE IS > 0
+		rgoto MIDI_EVNT_IS_Bx_CC22_VELOCITY_TO_NOISE_PERIOD_ON
+		
+		;YES - MIDI CC VALUE IS 0
+		rgoto MIDI_EVNT_IS_Bx_CC22_VELOCITY_TO_NOISE_PERIOD_OFF
+	
+
+
+
+MIDI_EVNT_IS_Bx_CC22_VELOCITY_TO_NOISE_PERIOD_ON
+	;; CC22 VALUE = 1 =>  TOGGLE "VELOCITY TO NOISE PERIOD MODE" ON TAKE VELOCITY FROM TONE A
+	;; CC22 VALUE = 2 =>  TOGGLE "VELOCITY TO NOISE PERIOD MODE" ON TAKE VELOCITY FROM TONE B
+	;; CC22 VALUE = 3 =>  TOGGLE "VELOCITY TO NOISE PERIOD MODE" ON TAKE VELOCITY FROM TONE C
+	;; CC22 VALUE > 3 =>  TOGGLE "VELOCITY TO NOISE PERIOD MODE" ON TAKE VELOCITY FROM TONE C
+
+	;; CHECK IF CC22 VALUE = 1
+	;; CC22 VALUE = 1 =>  TOGGLE "VELOCITY TO NOISE PERIOD MODE" ON TAKE VELOCITY FROM TONE A
+	movlw   CC22_VALUE_1
+	cpfseq  MIDI_CC_VALUE
+
+		; NO 
+		rgoto MIDI_EVNT_IS_Bx_CC22_CHECK_IF_VALUE_IS_2
+		
+		;YES 
+		rgoto MIDI_EVNT_IS_Bx_CC22_VELOCITY_TONE_A
+		
+MIDI_EVNT_IS_Bx_CC22_VELOCITY_TONE_A
+	;; TOGGLE "VELOCITY TO NOISE PERIODE MODE" ON
+	;; TAKE VELOCITY FROM MIDI CH TONE A
+	
+	;; SWITCH ON  VELOCITY @ NOISE RATE
+	bsf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT3_VELOCITY_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH ON  VELOCITY TONE A
+	bsf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT5_VELOCITY_A_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE B
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT6_VELOCITY_B_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE C
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT7_VELOCITY_C_TO_NOISE_PERIOD_ON_OFF
+		
+		rgoto MIDI_EVNT_IS_Bx_CC22_EXIT
+
+
+MIDI_EVNT_IS_Bx_CC22_CHECK_IF_VALUE_IS_2
+	;; CHECK IF CC22 VALUE = 2
+	;; CC22 VALUE = 2 =>  TOGGLE "VELOCITY TO NOISE PERIOD MODE" ON TAKE VELOCITY FROM TONE B
+	movlw   CC22_VALUE_2
+	cpfseq  MIDI_CC_VALUE
+
+		; NO 
+		rgoto MIDI_EVNT_IS_Bx_CC22_CHECK_IF_VALUE_IS_3
+		
+		;YES 
+		rgoto MIDI_EVNT_IS_Bx_CC22_VELOCITY_TONE_B
+
+MIDI_EVNT_IS_Bx_CC22_VELOCITY_TONE_B	
+	;; TOGGLE "VELOCITY TO NOISE PERIODE MODE" ON
+	;; TAKE VELOCITY FROM MIDI CH TONE B
+
+	;; SWITCH ON  VELOCITY @ NOISE RATE
+	bsf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT3_VELOCITY_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE A
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT5_VELOCITY_A_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH ON  VELOCITY TONE B
+	bsf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT6_VELOCITY_B_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE C
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT7_VELOCITY_C_TO_NOISE_PERIOD_ON_OFF
+		
+		goto MIDI_EVNT_IS_Bx_CC22_EXIT
+
+MIDI_EVNT_IS_Bx_CC22_CHECK_IF_VALUE_IS_3
+	;; CHECK IF CC22 VALUE = 3
+	;; CC22 VALUE = 3 
+	;; =>  TOGGLE "VELOCITY TO NOISE PERIOD MODE" ON TAKE VELOCITY FROM TONE C
+	movlw   CC22_VALUE_3
+	cpfseq  MIDI_CC_VALUE
+
+		; NO  - EXIT HERE (CC22 VALUE > 3 IS NOT VALID)
+		rgoto MIDI_EVNT_IS_Bx_CC22_EXIT
+		
+		;YES 
+		rgoto MIDI_EVNT_IS_Bx_CC22_VELOCITY_TONE_C
+
+
+MIDI_EVNT_IS_Bx_CC22_VELOCITY_TONE_C
+	;; TOGGLE "VELOCITY TO NOISE PERIODE MODE" ON
+	;; TAKE VELOCITY FROM MIDI CH TONE C
+
+	;; SWITCH ON  VELOCITY @ NOISE RATE
+	bsf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT3_VELOCITY_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE A
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT5_VELOCITY_A_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE B
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT6_VELOCITY_B_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH ON  VELOCITY TONE C
+	bsf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT7_VELOCITY_C_TO_NOISE_PERIOD_ON_OFF
+		
+		goto MIDI_EVNT_IS_Bx_CC22_EXIT
+
+MIDI_EVNT_IS_Bx_CC22_VELOCITY_TO_NOISE_PERIOD_OFF
+	;; CC22 VALUE = 0 => TOGGLE "VELOCITY TO NOISE PERIOD MODE" OFF
+	;; SWITCH OFF VELOCITY @ NOISE RATE
+
+	;; SWITCH OFF VELOCITY @ NOISE RATE
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT3_VELOCITY_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE A
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT5_VELOCITY_A_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE B
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT6_VELOCITY_B_TO_NOISE_PERIOD_ON_OFF
+	;; SWITCH OFF VELOCITY TONE C
+	bcf	AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, BIT7_VELOCITY_C_TO_NOISE_PERIOD_ON_OFF
+		
+		;; Exit
+		
+
+MIDI_EVNT_IS_Bx_CC22_EXIT
+			;; Exit here
+			return
+
+;; ----------------
+
+MIDI_EVNT_IS_Bx_CC23
+	;; NOT IMPLEMENTED YET
+	return
+
+MIDI_EVNT_IS_Bx_CC24
+	;; NOT IMPLEMENTED YET
+	return
+
+MIDI_EVNT_IS_Bx_CC25
+	;; NOT IMPLEMENTED YET
+	return
+
+MIDI_EVNT_IS_Bx_CC26
+	;; NOT IMPLEMENTED YET
+	return
+
+MIDI_EVNT_IS_Bx_CC27
+	;; NOT IMPLEMENTED YET
+	return
+
+MIDI_EVNT_IS_Bx_CC28
+	;; NOT IMPLEMENTED YET
+	return
+
+MIDI_EVNT_IS_Bx_CC29
+	;; NOT IMPLEMENTED YET
+	return
+
+
+; END - Controller HANDLING

@@ -1,0 +1,1 @@
+gpasm -p 18f452 main.asm

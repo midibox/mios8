@@ -1,0 +1,469 @@
+;; main_menu_05_envelope.inc
+
+
+;; ----------------------------------------------------------------------------
+;; -------------------------[MB AY MENU 5: ENVELOPE]----------------------------- 
+;; =======================> (F5 has been pressed)
+
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE
+	;; print the envelope menu on LCD
+	;; ------------------------------
+	call    MIOS_LCD_Clear
+   
+	;; ENVELOPE TIME COASE
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_COASE
+	call    MIOS_LCD_PrintString
+	;; SET CURSOR ROW1 ENV. TIME COASE
+	movlw   LCD_ROW1 + 0x0d
+	call    MIOS_LCD_CursorSet
+ 	movf    AY_R12_ENV_PERIOD_COARSE,W
+	call    MIOS_LCD_PrintBCD3
+	
+        
+        ;; AY_R11_ENV_PERIOD_FINE 
+        TABLE_ADDR TEXT_AY_MENU_ENVELOPE_FINE
+        call    MIOS_LCD_PrintString
+        ;; SET CURSOR FOR ENV. PERIOD TIME FINE 
+	movlw   LCD_ROW2 + 0x0d
+        call    MIOS_LCD_CursorSet
+            
+        movf    AY_R11_ENV_PERIOD_FINE, W
+        call    MIOS_LCD_PrintBCD3
+        
+        ;; PRINT MENUE ENVELOPE ENV. SHAPE VALUE
+        TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE
+        call    MIOS_LCD_PrintString
+
+	;; FUNCTION:
+	;; 1) TRANSLATE ENV SHAPE 1-8 (ENV SHAPES) to 0-15 (AY CHIP REG) 
+	;; 2) Write Value to AY_R13_ENV_SHAPE_CYCLE (but do not write the AY_R13_ENV_SHAPE_CYCLE
+	;;    Value to AY Chip)
+	;; 3) Set ENV CS LED
+	call ENVELOPE_TRANSLATOR_CALL
+
+
+	;; WRITE ENV 1|2|3|4|5|6|7|8 Text to LCD
+	call WRITE_ENV_NAME_TO_LCD_CALL
+
+
+
+
+LABEL_AY_MENU_ENVELOPE_CHK_ENV_MODE_ABC
+
+	;; SHOW ON LCD TONE A,B and C MODE (ENV or VOLUME 0-15)
+        TABLE_ADDR TEXT_AY_MENU_ENVELOPE_MODE
+        call    MIOS_LCD_PrintString
+	
+
+LABEL_AY_MENU_ENVELOPE_CHK_MODE_A
+        
+        ;; IS ENVELOPE MODE (BIT4) ON OR OFF?
+        btfsc AY_R8_CH_A_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+        	;; BIT 4 is SET
+        	rgoto LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_ON_A
+		;; BIT 4 is CLEAR
+		rgoto LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_OFF_A
+
+LABEL_AY_MENU_ENVELOPE_CHK_MODE_B
+
+	;; IS ENVELOPE MODE (BIT4) ON OR OFF?
+        btfsc AY_R9_CH_B_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+        	rgoto LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_ON_B
+		rgoto LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_OFF_B
+
+
+
+LABEL_AY_MENU_ENVELOPE_CHK_MODE_C
+
+	;; IS ENVELOPE MODE (BIT4) ON OR OFF?
+        btfsc AY_R10_CH_C_AMPLITUDE, BIT4_ENVELOPE_ON_OFF
+        	rgoto LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_ON_C
+		rgoto LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_OFF_C
+
+
+
+;; -----------
+;; JUMP IN HEE FROM LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_ON_C
+;; OR LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_OFF_C
+;; ------------------------
+;; MAIN MENU 5 = ENVELOPE ABC: CHECK THE EDITING MODE POSITION...
+;; Show the POSITION of * [LCD: MAIN MENU EDIT POINTER] for Main Menu EDITING Posiotion
+LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS1
+
+	;; EDITING MODE @ ENV COASE PERIOD ?
+	;; IS AY_LCD_COURSER_POS_MAIN_MENU_ENVELOPE = 1?
+	movff AY_LCD_COURSER_POS_MAIN_MENU_ENVELOPE, MIOS_PARAMETER1
+	movlw MENU_ITEM_POS1	; WRITE 1 TO WREG
+	cpfseq MIOS_PARAMETER1 ;; COMPARE F WITH WREG
+			
+		;; NO
+		rgoto LABEL_AY_MAIN_MENU_05_NOT_POS1
+
+		;; YES
+		rgoto LABEL_AY_MAIN_MENU_05_POS1
+
+
+LABEL_AY_MAIN_MENU_05_POS1
+	;; EDITING MODE @ ENV COASE PERIOD
+	;; PRINT "*" ON EDIT POSITION1
+	movlw 	LCD_ROW1 + 11
+	call    MIOS_LCD_CursorSet
+	movlw   '*'
+        call    MIOS_LCD_PrintChar
+		
+			rgoto LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS2
+
+
+LABEL_AY_MAIN_MENU_05_NOT_POS1
+	;; NO EDITING MODE @ ENV COASE PERIOD
+	;; PRINT ":" ON EDIT POSITION1
+	movlw 	LCD_ROW1 + 11
+	call    MIOS_LCD_CursorSet
+	movlw   ':'
+        call    MIOS_LCD_PrintChar
+        	
+        		rgoto LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS2
+
+
+LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS2
+
+	;; EDITING MODE @ ENV FINE PERIOD
+	;; IS AY_LCD_COURSER_POS_MAIN_MENU_ENVELOPE = 2?
+	movff AY_LCD_COURSER_POS_MAIN_MENU_ENVELOPE, MIOS_PARAMETER1
+	movlw MENU_ITEM_POS2	; WRITE 2 TO WREG
+	cpfseq MIOS_PARAMETER1 ;; COMPARE F WITH WREG
+			
+		;; NO
+		rgoto LABEL_AY_MAIN_MENU_05_NOT_POS2
+
+		;; YES
+		rgoto LABEL_AY_MAIN_MENU_05_POS2
+
+
+
+LABEL_AY_MAIN_MENU_05_POS2
+	;; EDITING MODE @ ENV FINE PERIOD
+	;; PRINT "*" ON EDIT POSITION1
+	movlw 	LCD_ROW2 + 11
+	call    MIOS_LCD_CursorSet
+	movlw   '*'
+        call    MIOS_LCD_PrintChar
+		
+		rgoto LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS3
+
+
+LABEL_AY_MAIN_MENU_05_NOT_POS2
+	;; NO EDITING MODE @ ENV COASE PERIOD
+	;; PRINT ":" ON EDIT POSITION1
+	movlw 	LCD_ROW2 + 11
+	call    MIOS_LCD_CursorSet
+	movlw   ':'
+        call    MIOS_LCD_PrintChar
+        	
+        	rgoto LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS3
+
+
+	
+LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS3
+
+	;; EDITING MODE @ ENV SHAPE?
+	;; IS AY_LCD_COURSER_POS_MAIN_MENU_ENVELOPE = 3?
+	movff AY_LCD_COURSER_POS_MAIN_MENU_ENVELOPE, MIOS_PARAMETER1
+	movlw MENU_ITEM_POS3; WRITE 2 TO WREG
+	cpfseq MIOS_PARAMETER1 ;; COMPARE F WITH WREG
+			
+		;; NO
+		rgoto LABEL_AY_MAIN_MENU_05_NOT_POS3
+
+		;; YES
+		rgoto LABEL_AY_MAIN_MENU_05_POS3
+
+
+
+LABEL_AY_MAIN_MENU_05_POS3	
+	;; EDITING MODE @ ENV SHAPE
+	;; PRINT "*" ON EDIT POSITION2
+	movlw 	LCD_ROW3 + 5
+	call    MIOS_LCD_CursorSet
+	movlw   '*'
+        call    MIOS_LCD_PrintChar
+		
+			rgoto LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS4
+
+
+LABEL_AY_MAIN_MENU_05_NOT_POS3
+	;; NO EDITING MODE @ ENV SHAPE
+	;; PRINT ":" ON EDIT POSITION2
+	movlw 	LCD_ROW3 + 5
+	call    MIOS_LCD_CursorSet
+	movlw   ':'
+        call    MIOS_LCD_PrintChar
+        	
+        		rgoto LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS4
+
+
+
+LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS4
+
+	;; EDITING MODE @ ENV R.MODE?
+	;; IS AY_LCD_COURSER_POS_MAIN_MENU_ENVELOPE = 4?
+	movff AY_LCD_COURSER_POS_MAIN_MENU_ENVELOPE, MIOS_PARAMETER1
+	movlw MENU_ITEM_POS4	; WRITE 4 TO WREG
+	cpfseq MIOS_PARAMETER1 ;; COMPARE F WITH WREG
+			
+		;; NO
+		rgoto LABEL_AY_MAIN_MENU_05_NOT_POS4
+
+		;; YES
+		rgoto LABEL_AY_MAIN_MENU_05_POS4
+
+
+
+LABEL_AY_MAIN_MENU_05_POS4
+	;; EDITING MODE @ ENV R.MODE
+	;; PRINT "*" ON EDIT POSITION3
+	movlw 	LCD_ROW4 + 10
+	call    MIOS_LCD_CursorSet
+	movlw   '*'
+        call    MIOS_LCD_PrintChar
+		
+		rgoto LABEL_AY_MENU_ENVELOPE_CHK_MODE_END
+
+
+LABEL_AY_MAIN_MENU_05_NOT_POS4
+	;; NO EDITING MODE @ ENV R.MODE
+	;; PRINT ":" ON EDIT POSITION3
+	movlw 	LCD_ROW4 + 10
+	call    MIOS_LCD_CursorSet
+	movlw   ':'
+        call    MIOS_LCD_PrintChar
+        	
+        	rgoto LABEL_AY_MENU_ENVELOPE_CHK_MODE_END
+
+;; ---------END OF Show the POSITION of * ]--------------- 
+
+
+LABEL_AY_MENU_ENVELOPE_CHK_MODE_END
+	return
+
+
+;; -------------------------------------------------------
+
+
+
+;; --------------------------------------------------------------------------	
+;; [IF "RELATIVE AMPLITUDE MODE" IS SET SO WRITE AMPLITUDE MODE VALUE ON LCD]
+;; ---------------------------[SUBROUTINE]------------------------------------	
+
+	
+LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_ON_A
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_MODE_SET_A
+        call    MIOS_LCD_PrintString
+        	rgoto 	LABEL_AY_MENU_ENVELOPE_CHK_MODE_B
+
+
+LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_OFF_A
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_MODE_NOT_SET_A
+        call    MIOS_LCD_PrintString
+        	rgoto 	LABEL_AY_MENU_ENVELOPE_CHK_MODE_B
+
+
+
+LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_ON_B
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_MODE_SET_B
+        call    MIOS_LCD_PrintString
+        	rgoto 	LABEL_AY_MENU_ENVELOPE_CHK_MODE_C
+
+
+LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_OFF_B
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_MODE_NOT_SET_B
+        call    MIOS_LCD_PrintString
+        	rgoto 	LABEL_AY_MENU_ENVELOPE_CHK_MODE_C
+
+
+LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_ON_C
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_MODE_SET_C
+        call    MIOS_LCD_PrintString
+        	;; GO ON WITH CHK EDITING MODE "*"
+        	rgoto 	LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS1 
+
+
+LABEL_AY_MENU_ENVELOPE_RELATIVE_MODE_OFF_C
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_MODE_NOT_SET_C
+        call    MIOS_LCD_PrintString
+        	;; GO ON WITH CHK EDITING MODE "*"	
+        	rgoto 	LABEL_AY_MAIN_MENU_05_FIND_EDIT_POS1 
+
+
+
+;; ---------------------------------------
+
+
+
+ENVELOPE_TRANSLATOR_CALL
+;; USED BY MAIN MENU 5 and ENV MIDI Controller 
+
+	;; ENVELOPE SHAPE TOGGLE CALL
+
+	;; ENVELOPE SHAPES:
+	;; => ENV_SHAPE_0_15_to_1_8_TRANSLATOR:
+	;; ENV_SHAPE_0_15_to_1_8_TRANSLATOR: 1 => AY_R13_ENV_SHAPE_CYCLE: 0-3 	=> \__		[LED 1]
+	;; ENV_SHAPE_0_15_to_1_8_TRANSLATOR: 2 => AY_R13_ENV_SHAPE_CYCLE: 4-7 	=> /|_		[LED 2]
+	;; ENV_SHAPE_0_15_to_1_8_TRANSLATOR: 3 => AY_R13_ENV_SHAPE_CYCLE: 8	=> |\|\		[LED 3]
+	;; ENV_SHAPE_0_15_to_1_8_TRANSLATOR: 4 => AY_R13_ENV_SHAPE_CYCLE: 10	=> \/\/\	[LED 4]
+	;; ENV_SHAPE_0_15_to_1_8_TRANSLATOR: 5 => AY_R13_ENV_SHAPE_CYCLE: 11	=> \|		[LED 5]
+	;; ENV_SHAPE_0_15_to_1_8_TRANSLATOR: 6 => AY_R13_ENV_SHAPE_CYCLE: 12	=> /|/|		[LED 6]
+	;; ENV_SHAPE_0_15_to_1_8_TRANSLATOR: 7 => AY_R13_ENV_SHAPE_CYCLE: 13	=> /		[LED 7]
+	;; ENV_SHAPE_0_15_to_1_8_TRANSLATOR: 8 => AY_R13_ENV_SHAPE_CYCLE: 14	=> /\/\		[LED 8]
+
+	;; JUMP TO SHAPE
+	movf ENV_SHAPE_0_15_to_1_8_TRANSLATOR, W
+	JUMPTABLE_2BYTES 9 ;; [0-8 => ENV SHAPE 1-8]
+		rgoto   LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_0_3	;; if CC < 8 set ENV 1
+		rgoto   LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_0_3	;; 1 [LED 1]
+		rgoto 	LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_4_7	;; 2 [LED 2]
+		rgoto 	LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_8	;; 3 [LED 3]
+		rgoto 	LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_10	;; 4 [LED 4]
+		rgoto 	LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_11	;; 5 [LED 5]
+		rgoto 	LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_12	;; 6 [LED 6]
+		rgoto 	LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_13	;; 7 [LED 7]
+		rgoto 	LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_14	;; 8 [LED 8]
+		
+	
+	
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_0_3
+	;; SET ENV SHAPE 
+	movlw 0x03
+	movwf AY_R13_ENV_SHAPE_CYCLE
+	;; SET CS LED
+	call LED_Envelope_Shape_all_off
+	call LED_Envelope_Shape_1_on
+			return
+
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_4_7
+	;; SET ENV SHAPE
+	movlw 0x07
+	movwf AY_R13_ENV_SHAPE_CYCLE
+	;; CS LED
+	call LED_Envelope_Shape_all_off
+	call LED_Envelope_Shape_2_on
+			return
+
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_8
+	;; SET ENV SHAPE
+	movlw 0x08
+	movwf AY_R13_ENV_SHAPE_CYCLE
+	;; CS LED
+	call LED_Envelope_Shape_all_off
+	call LED_Envelope_Shape_3_on
+			return
+
+
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_10
+	;; SET ENV SHAPE
+	movlw 0x0A
+	movwf AY_R13_ENV_SHAPE_CYCLE
+	;; CS LED
+	call LED_Envelope_Shape_all_off
+	call LED_Envelope_Shape_4_on
+			return
+
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_11
+	;; SET ENV SHAPE
+	movlw 0x0B
+	movwf AY_R13_ENV_SHAPE_CYCLE
+	;; CS LED
+	call LED_Envelope_Shape_all_off
+	call LED_Envelope_Shape_5_on
+			return
+
+
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_12
+    ;; SET ENV SHAPE
+	movlw 0x0C
+	movwf AY_R13_ENV_SHAPE_CYCLE
+	;; CS LED
+	call LED_Envelope_Shape_all_off
+	call LED_Envelope_Shape_6_on
+			return
+
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_13
+	;; SET ENV SHAPE
+	movlw 0x0D
+	movwf AY_R13_ENV_SHAPE_CYCLE
+	;; CS LED
+	call LED_Envelope_Shape_all_off
+	call LED_Envelope_Shape_7_on
+		 	return
+
+LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE_DRAW_ENV_LCD_14
+	;; SET ENV SHAPE
+	movlw 0x0E
+	movwf AY_R13_ENV_SHAPE_CYCLE
+	;; CS LED
+	call LED_Envelope_Shape_all_off
+	call LED_Envelope_Shape_8_on
+			return
+
+
+;; ----------------------------------
+
+;; WRITE ENV 1-8 Text to LCD
+WRITE_ENV_NAME_TO_LCD_CALL
+
+;; WRITE THE ENV SHAPE NAME [1-8] TO LCD
+	movf ENV_SHAPE_0_15_to_1_8_TRANSLATOR, W
+	JUMPTABLE_2BYTES 9 ;; [0-8 => ENV SHAPE 1-8]
+		rgoto   WRITE_ENV_01_TO_LCD	;; ERROR - OUT OF RANGE
+		rgoto   WRITE_ENV_01_TO_LCD	;; 1 [LED 1]
+		rgoto 	WRITE_ENV_02_TO_LCD	;; 2 [LED 2]
+		rgoto 	WRITE_ENV_03_TO_LCD	;; 3 [LED 3]
+		rgoto 	WRITE_ENV_04_TO_LCD	;; 4 [LED 4]
+		rgoto 	WRITE_ENV_05_TO_LCD	;; 5 [LED 5]
+		rgoto 	WRITE_ENV_06_TO_LCD	;; 6 [LED 6]
+		rgoto 	WRITE_ENV_07_TO_LCD	;; 7 [LED 7]
+		rgoto 	WRITE_ENV_08_TO_LCD	;; 8 [LED 8]
+		
+	
+	
+WRITE_ENV_01_TO_LCD
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE_0_3
+	call    MIOS_LCD_PrintString
+		return
+
+WRITE_ENV_02_TO_LCD
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE_4_7
+	call    MIOS_LCD_PrintString
+		return
+
+WRITE_ENV_03_TO_LCD
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE_8
+	call    MIOS_LCD_PrintString
+		return
+
+WRITE_ENV_04_TO_LCD
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE_10
+	call    MIOS_LCD_PrintString
+		return
+
+WRITE_ENV_05_TO_LCD
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE_11
+	call    MIOS_LCD_PrintString
+		return
+
+
+WRITE_ENV_06_TO_LCD
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE_12
+    	call    MIOS_LCD_PrintString
+    		return
+
+WRITE_ENV_07_TO_LCD
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE_13
+        call    MIOS_LCD_PrintString
+	 	return
+
+WRITE_ENV_08_TO_LCD
+	TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE_14
+        call    MIOS_LCD_PrintString
+  		return
+

@@ -1,0 +1,915 @@
+
+;; keyb_decoding.inc
+
+;; ---------------------[C64 KEYBOARD BUTTON DECODING]-------------------
+;; The SCAN MATRIX DRIVER (8x8 scan matrix driver, sm_fast.inc) deliver 
+;; a *KEYBOARD BUTON VALUE* => [SM_DRIVER_KEYBOARD_KEY_VALUE]
+;; ----------------------------------------------------------------------
+;;
+
+
+	;; WHAT WILL HAPEN?
+	;;
+	;; 1)
+	;; IF A *SUB MENU* KEY ([+] /[-] / etc.) HAS BEEN PRESSED
+	;; A VALUE WILL BE WRITTEN TO 
+	;; => AY_SUB_MENUE_KEY_SWITCH
+	;; (FOR THE *SUB MENU* JUMPTABLE)
+	;; 
+	;; 2)IF A *MAIN MENU* KEY (F1, F2, ESC, etc.) HAS BEEN PRESSED
+	;; A VALUE WILL BE WRITTEN TO 
+	;; => CURRENT_MAIN_MENU
+	;; (FOR THE *MAIN MENU* JUMPTABLE)
+	;;
+	;;2a)
+	;; IF A *MAIN MENU* KEY HAS BEEN PRESSED 
+	;; => SWITCH_BETWEEN_MAIN_AND_SUBMENU = 0
+	;; 
+	;; 3)
+	;; THERE ARE SHIFT-KEY HANDLING ROUTINES
+	;; => AY_KEYB_SPECIAL_KEY_TOGGLE
+	;; when BIT0 IS SET THEN THE SHIFT KEY IS PRESSED
+	;; when BIT0 IS CLEAR THE THE SHIFT KEY IS NOT PRESSED
+	;; 
+	;; 4)
+	;; If needed write ASCII CODE Char to PATCH_NAME_ASC_KEY
+	;; 
+
+DECODE_KEYBOARD_BUTTON	
+	;; FUNCTION:
+	;; CHECK WITCH KEYBOARD BUTTON HAS BEEN PRESSED
+	
+	;; BUT FIRST: 
+	;; RESET the former AY_SUB_MENUE_KEY_SWITCH VALUE to 0
+	movlw 0x00
+	movwf AY_SUB_MENUE_KEY_SWITCH				;; JUMP 
+								;; WITH
+	;;							;; THE		NAME OF     
+	;; JUMPTABLE KEYBOARD KEY 8x8 (0x00 - 0x40)		;;8x8 SM	BUTTONS/    
+	movf SM_DRIVER_KEYBOARD_KEY, W				;;DRIVER 	KEYBOARD	
+	JUMPTABLE_4BYTES 64 ; 0-63				;;VALUE 	BUTTON NAME/	      Assigned
+		;;						  (DEC.)	C64 KEY		      CPM ASCII VALUE
+		;;						  ||		  ||		      FOR THE PATCH MENU 
+		;;	KEYBOARD JUMPTABLE			  ||   Assigned	  ||		      WRITE NAME ROUTINE
+		;;		||				  ||   SUB MENU	  ||			   ||
+		;;		||				  ||   KEY VALUE  ||			   ||
+		;;		||				  ||    ||	  ||			   ||
+		;;		\/				  \/    \/	  \/			   \/
+		;;------------------------------------------------------------------------------------------------------------
+		goto	DECODE_SM_BUTTON_MATRIX_00	 	;;00	[-]	INS DEL		CPM ASCII: 0x14 = INS DEL
+		goto	DECODE_SM_BUTTON_MATRIX_01 		;;01	[2]	RETURN		CPM ASCII: 0x0D = CR
+		goto	DECODE_SM_BUTTON_MATRIX_02 		;;02	[3]/[4]	CRSR RGT./LFT.	CPM ASCII: RGT. 0x1D, LFT. 0x9D 
+		goto	DECODE_SM_BUTTON_MATRIX_03 		;;03	[1]/[2]	CRSR UP/DWN.	CPM ASCII: UP 0x91 , DWN. 0x11
+		goto	DECODE_SM_BUTTON_MATRIX_04 		;;04 [MAINMENU]	F1 / F2 (+SHIFT)-
+		goto	DECODE_SM_BUTTON_MATRIX_05 		;;05 [MAINMENU]	F3 / F4 (+SHIFT)-
+		goto	DECODE_SM_BUTTON_MATRIX_06 		;;06 [MAINMENU]	F5 / F6 (+SHIFT)-
+		goto	DECODE_SM_BUTTON_MATRIX_07 		;;07 [MAINMENU]	F7 / F8 (+SHIFT)-
+		goto	DECODE_SM_BUTTON_MATRIX_NOT_USED_YET 	;;08	[-]	POUND		CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_NOT_USED_YET	;;09	[-]	*(STAR)		CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_NOT_USED_YET	;;10	[-]	; (SEMICOLON)	CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_NOT_USED_YET	;;11	[-]	/ (SLASH)	CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_12		;;12 [SHIFT R.](SpezialKEY)	CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_NOT_USED_YET	;;13	[-]	= 		CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_14		;;14	[1]	UP (Arrow UP)	-
+		goto	DECODE_SM_BUTTON_MATRIX_00 ;;[INS DEL]!	;;15	[-]	CLR HOME	CPM ASCII 0x14 = INS DEL
+		goto	DECODE_SM_BUTTON_MATRIX_16		;;16	[3]	+ (PLUS)	CPM ASCII:0x1D
+		goto	DECODE_SM_BUTTON_MATRIX_17		;;17	[-]	P		CPM ASCII 0x50
+		goto	DECODE_SM_BUTTON_MATRIX_18		;;18	[9]	L		CPM ASCII 0x4C
+		goto	DECODE_SM_BUTTON_MATRIX_23 ;;[-]!	;;19	[-]	, (COMMA)	CPM ASCII 0x9D 
+		goto	DECODE_SM_BUTTON_MATRIX_16 ;;[+]!	;;20	[-]	. (POINT)	CPM ASCII:0x1D
+		goto	DECODE_SM_BUTTON_MATRIX_NOT_USED_YET	;;21	[-]	: (colon)	CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_NOT_USED_YET	;;22	[-]	@		CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_23		;;23	[4]	- (MINUS)	CPM ASCII 0x9D 
+		goto	DECODE_SM_BUTTON_MATRIX_24		;;24	[-]	9		CPM ASCII 0x39
+		goto	DECODE_SM_BUTTON_MATRIX_25		;;25	[-]	I		CPM ASCII 0x49
+		goto	DECODE_SM_BUTTON_MATRIX_26		;;26	[-]	J		CPM ASCII 0x4A
+		goto	DECODE_SM_BUTTON_MATRIX_27		;;27	[-]	N		CPM ASCII 0x4E
+		goto	DECODE_SM_BUTTON_MATRIX_28		;;28	[-]	M		CPM ASCII 0x4D
+		goto	DECODE_SM_BUTTON_MATRIX_29		;;29	[-]	K		CPM ASCII 0x4B
+		goto	DECODE_SM_BUTTON_MATRIX_30		;;30	[-]	O		CPM ASCII 0x4F
+		goto	DECODE_SM_BUTTON_MATRIX_31		;;31	[-]	0		CPM ASCII 0x30
+		goto	DECODE_SM_BUTTON_MATRIX_32		;;32	[-]	7		CPM ASCII 0x37
+		goto	DECODE_SM_BUTTON_MATRIX_33		;;33	[-]	Y		CPM ASCII 0x59
+		goto	DECODE_SM_BUTTON_MATRIX_34		;;34	[-]	G		CPM ASCII 0x47
+		goto	DECODE_SM_BUTTON_MATRIX_35		;;35	[-]	V		CPM ASCII 0x56
+		goto	DECODE_SM_BUTTON_MATRIX_36		;;36	[6]	B		CPM ASCII 0x42
+		goto	DECODE_SM_BUTTON_MATRIX_37		;;37	[-]	H		CPM ASCII 0x48
+		goto	DECODE_SM_BUTTON_MATRIX_38		;;38	[-]	U		CPM ASCII 0x55
+		goto	DECODE_SM_BUTTON_MATRIX_39		;;39	[-]	8		CPM ASCII 0x38
+		goto	DECODE_SM_BUTTON_MATRIX_40		;;40	[-]	5		CPM ASCII 0x35
+		goto	DECODE_SM_BUTTON_MATRIX_41		;;41	[-]	R		CPM ASCII 0x52
+		goto	DECODE_SM_BUTTON_MATRIX_42		;;42	[-]	D		CPM ASCII 0x44
+		goto	DECODE_SM_BUTTON_MATRIX_43		;;43	[-]	X		CPM ASCII 0x58
+		goto	DECODE_SM_BUTTON_MATRIX_44		;;44	[-]	C		CPM ASCII 0x43
+		goto	DECODE_SM_BUTTON_MATRIX_45		;;45	[-]	F		CPM ASCII 0x46
+		goto	DECODE_SM_BUTTON_MATRIX_46		;;46	[-]	T		CPM ASCII 0x54
+		goto	DECODE_SM_BUTTON_MATRIX_47		;;47	[-]	6		CPM ASCII 0x36
+		goto	DECODE_SM_BUTTON_MATRIX_48		;;48	[-]	3		CPM ASCII 0x33 
+		goto	DECODE_SM_BUTTON_MATRIX_49		;;49	[8]	W		CPM ASCII 0x57
+		goto	DECODE_SM_BUTTON_MATRIX_50		;;50	[5]	A		CPM ASCII 0x41
+		goto	DECODE_SM_BUTTON_MATRIX_51		;;51 [SHIFT L.](SpezialKEY)	-
+		goto	DECODE_SM_BUTTON_MATRIX_52		;;52	[-]	Z		CPM ASCII 0x5A
+		goto	DECODE_SM_BUTTON_MATRIX_53		;;53	[-]	S		CPM ASCII 0x53
+		goto	DECODE_SM_BUTTON_MATRIX_54		;;54	[-]	E		CPM ASCII 0x45
+		goto	DECODE_SM_BUTTON_MATRIX_55		;;55	[-]	4		CPM ASCII 0x34
+		goto	DECODE_SM_BUTTON_MATRIX_56		;;56	[-]	1		CPM ASCII 0x31
+		goto	DECODE_SM_BUTTON_MATRIX_57		;;57 [MAINMENU]	<-(ESC)		-
+		goto	DECODE_SM_BUTTON_MATRIX_58		;;58 [MAINMENU]	CTRL		-
+		goto	DECODE_SM_BUTTON_MATRIX_57 ;; !ESC! 	;;57![MAINMENU] RUN STOP (ESC)	-
+		goto	DECODE_SM_BUTTON_MATRIX_60		;;60	[-]	SPACE		LCD:"_" = 0x5F(NOT CMP ASCII)
+		goto	DECODE_SM_BUTTON_MATRIX_NOT_USED_YET	;;61	[-]	COMMODORE	CPM ASCII 0x00
+		goto	DECODE_SM_BUTTON_MATRIX_62		;;62	[-]	Q		CPM ASCII 0x51
+		goto	DECODE_SM_BUTTON_MATRIX_63		;;63	[-]	2		CPM ASCII 0x32
+
+
+;; -------[JUMPTABLE KEYBOARD KEY :: destinations]-------
+
+
+;; -------[UNUSED KEYS]-------
+DECODE_SM_BUTTON_MATRIX_NOT_USED_YET
+	;; GO HERE IF A UNUSED KEY WAS PRESSED
+			;; WRITE CPM ASCII 0x00
+			movlw 0x00
+			movwf MIOS_PARAMETER1
+			movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+			return
+
+DECODE_SM_BUTTON_MATRIX_00
+			;; C64 Keyboard INST DEL
+			;; CPM ASCII 0x2E = ASC CODE "." 
+			movlw 0x14
+			movwf MIOS_PARAMETER1
+			movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+				
+			return
+
+
+;; -------[RETURN]-------
+DECODE_SM_BUTTON_MATRIX_01
+	movlw 0x02
+	movwf AY_SUB_MENUE_KEY_SWITCH
+	
+			;; ASCII 0D = CR
+			;; carriage return
+			movlw 0x0D
+			movwf MIOS_PARAMETER1
+			movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+			
+	
+			return
+
+;; -------[CRSR RGT./LFT.]-------
+DECODE_SM_BUTTON_MATRIX_02
+	;; CHECK SHIFT KEY
+	;; IS SHIFT PRESSED? (BIT 0)
+	btfss AY_KEYB_SPECIAL_KEY_TOGGLE, 0
+		
+		;; NO
+		goto DECODE_SM_BUTTON_CRSR_NO_SHIFT
+	
+		;; YES
+		goto DECODE_SM_BUTTON_CRSR_SHIFT
+
+DECODE_SM_BUTTON_CRSR_NO_SHIFT	
+			;; SUBMENU > +
+			movlw 	0x03
+			movwf	AY_SUB_MENUE_KEY_SWITCH
+				;; C64 KEYBOARD: CURSOR RIGHT
+				;; CPM ASCII = 29 / 0x1D
+				movlw 0x1D
+				movwf MIOS_PARAMETER1
+				movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+					return
+
+DECODE_SM_BUTTON_CRSR_SHIFT
+			;; SUBMENU > -
+			movlw 	0x04
+			movwf	AY_SUB_MENUE_KEY_SWITCH
+				;; C64 KEYBOARD: CURSOR LEFT
+				;; CPM ASCII = 0x9D
+				movlw 0x9D
+				movwf MIOS_PARAMETER1
+				movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+					return
+
+
+
+;; -------[CRSR UP/DWN.]-------
+DECODE_SM_BUTTON_MATRIX_03
+	;; CHECK SHIFT KEY
+	;; IS SHIFT PRESSED? (BIT 0)
+	btfss AY_KEYB_SPECIAL_KEY_TOGGLE, 0
+		;; NO
+		goto DECODE_SM_BUTTON_03_NO_SHIFT
+		;; YES
+		goto DECODE_SM_BUTTON_03_SHIFT
+
+DECODE_SM_BUTTON_03_NO_SHIFT
+			;; SUBMENU > POS DOWN
+			movlw 	0x02
+			movwf	AY_SUB_MENUE_KEY_SWITCH
+				;; CPM ASCII: DWN. 0x11
+				movlw 0x11
+				movwf MIOS_PARAMETER1
+				movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+					return
+
+DECODE_SM_BUTTON_03_SHIFT
+			;; SUBMENU > POS UP
+			movlw 	0x01
+			movwf	AY_SUB_MENUE_KEY_SWITCH
+				;; CPM ASCII: UP 0x91
+				movlw 0x91
+				movwf MIOS_PARAMETER1
+				movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+					return
+
+;; -------[F1 / F2 (WITH SHIFT ON)]-------
+DECODE_SM_BUTTON_MATRIX_04
+	;; JUMP TO MAIN MENU !
+	movlw 0x00
+	movwf SWITCH_BETWEEN_MAIN_AND_SUBMENU
+
+	;; KEYBORAD: KEY HANDLING
+	;; IF MAIN MENU KEY 
+	;; IS = DEPRESSED (AY_KEY_STATE=1)
+	;; THEN DO NOT EXECUTE A
+	;; MAIN MENU FUNCTION
+	movlw 0x00			;; 0 = KEY PRESSED, 1 = DEPRESSED
+	cpfseq SM_KEYB_KEY_STATE 	;; = 0?
+		
+		;; NO, Exit Here
+		return
+
+		;; F1 or F2
+		;; CHECK SHIFT KEY
+		;; IS SHIFT (BIT 0) ON? 
+		btfss AY_KEYB_SPECIAL_KEY_TOGGLE, 0
+		
+			;; NO  - GOTO MAIN MENU 1
+			goto DECODE_SM_BUTTON_MATRIX_04_F1
+	
+			;; YES - GOTO MAIN MENU 2
+			goto DECODE_SM_BUTTON_MATRIX_04_F2
+
+DECODE_SM_BUTTON_MATRIX_04_F1
+				movlw 0x01
+				movwf CURRENT_MAIN_MENU 
+					return
+
+DECODE_SM_BUTTON_MATRIX_04_F2
+				movlw 0x02
+				movwf CURRENT_MAIN_MENU 
+					return
+	
+
+
+;; -------[F3 / F4 (WITH SHIFT ON)]-------
+DECODE_SM_BUTTON_MATRIX_05
+	;; SWITCH TO MAIN MENU
+	movlw 0x00
+	movwf SWITCH_BETWEEN_MAIN_AND_SUBMENU
+
+	;; KEYBORAD: KEY HANDLING
+	;; IF MAIN MENU KEY 
+	;; IS = DEPRESSED (AY_KEY_STATE=1)
+	;; THEN DO NOT EXECUTE A
+	;; MAIN MENU FUNCTION
+	movlw 0x00			;; 0 = KEY PRESSED, 1 = DEPRESSED
+	cpfseq SM_KEYB_KEY_STATE 	;; = 0?
+		
+		;; NO, Exit Here
+		return
+
+	;; F3 or F4
+	;; CHECK SHIFT KEY
+	;; IS SHIFT (BIT 0) ON? 
+	btfss AY_KEYB_SPECIAL_KEY_TOGGLE, 0
+		
+		;; NO  - GOTO MAIN MENU 3
+		goto DECODE_SM_BUTTON_MATRIX_05_F3
+	
+		;; YES - GOTO MAIN MENU 4
+		goto DECODE_SM_BUTTON_MATRIX_05_F4
+
+DECODE_SM_BUTTON_MATRIX_05_F3
+			movlw 0x03
+			movwf CURRENT_MAIN_MENU 	
+					return
+
+DECODE_SM_BUTTON_MATRIX_05_F4
+			movlw 0x04
+			movwf CURRENT_MAIN_MENU 	
+					return
+
+
+
+
+;; -----[F5 / F6 (WITH SHIFT SET)]--------------
+DECODE_SM_BUTTON_MATRIX_06
+	;; JUMP TO MAIN MENU
+	movlw 0x00
+	movwf SWITCH_BETWEEN_MAIN_AND_SUBMENU
+
+	;; KEYBORAD: KEY HANDLING
+	;; IF MAIN MENU KEY 
+	;; IS = DEPRESSED (AY_KEY_STATE=1)
+	;; THEN DO NOT EXECUTE A
+	;; MAIN MENU FUNCTION
+	movlw 0x00			;; 0 = KEY PRESSED, 1 = DEPRESSED
+	cpfseq SM_KEYB_KEY_STATE 	;; = 0?
+		
+		;; NO, Exit Here
+		return
+	
+	;; F1 or F2
+	;; CHECK SHIFT KEY
+	;; IS SHIFT (BIT 0) ON? 
+	btfss AY_KEYB_SPECIAL_KEY_TOGGLE, 0
+		
+		;; NO  - GOTO MAIN MENU 5
+		goto DECODE_SM_BUTTON_MATRIX_06_F5
+	
+		;; YES - GOTO MAIN MENU 6
+		goto DECODE_SM_BUTTON_MATRIX_06_F6
+
+DECODE_SM_BUTTON_MATRIX_06_F5
+			movlw 0x05
+			movwf CURRENT_MAIN_MENU 
+	      			return
+
+DECODE_SM_BUTTON_MATRIX_06_F6
+			movlw 0x06
+			movwf CURRENT_MAIN_MENU 
+	      			return
+
+;; -----[F7 / F8 (with SHIFT SET)]-----------------
+DECODE_SM_BUTTON_MATRIX_07
+	;; SWITCH TO MAIN MENU
+	movlw 0x00
+	movwf SWITCH_BETWEEN_MAIN_AND_SUBMENU
+
+	;; KEYBORAD: KEY HANDLING
+	;; IF MAIN MENU KEY 
+	;; IS = DEPRESSED (AY_KEY_STATE=1)
+	;; THEN DO NOT EXECUTE A
+	;; MAIN MENU FUNCTION
+	movlw 0x00			;; 0 = KEY PRESSED, 1 = DEPRESSED
+	cpfseq SM_KEYB_KEY_STATE 	;; = 0?
+		
+		;; NO, Exit Here
+		return
+
+DECODE_SM_BUTTON_MATRIX_07_CHEK_SHIFT
+	;; F7 or F8
+	;; CHECK SHIFT KEY
+	;; IS SHIFT (BIT 0) ON? 
+	btfss AY_KEYB_SPECIAL_KEY_TOGGLE, 0
+		
+		;; NO  - GOTO MAIN MENU 7
+		goto DECODE_SM_BUTTON_MATRIX_07_F7
+	
+		;; YES - GOTO MAIN MENU 8
+		goto DECODE_SM_BUTTON_MATRIX_07_F8	
+
+DECODE_SM_BUTTON_MATRIX_07_F7
+			movlw 0x07
+			movwf CURRENT_MAIN_MENU 
+	      			return
+
+
+DECODE_SM_BUTTON_MATRIX_07_F8
+			movlw 0x08
+			movwf CURRENT_MAIN_MENU 
+	      			return
+
+
+;; -----[SHIFT RIGHT]-----------------
+DECODE_SM_BUTTON_MATRIX_12
+	;; SHIFT KEY IS NO VALID KEY 
+	;; @ WRITE PATCH NAME
+	movlw 0x00
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+	
+	;; TOGGLE SHIFT R. ON / OFF HERE
+	;; PRESSED OR DEPRESSED?
+	movlw 	0x00
+	cpfseq 	SM_KEYB_KEY_STATE 	;; => 0 = PRESSED
+					;; => 1 = DEPRESSED
+		;; NO
+		goto DECODE_SM_BUTTON_MATRIX_12_SHIFT_R_OFF
+
+		;; YES
+		goto DECODE_SM_BUTTON_MATRIX_12_SHIFT_R_ON
+
+DECODE_SM_BUTTON_MATRIX_12_SHIFT_R_ON
+	bsf AY_KEYB_SPECIAL_KEY_TOGGLE, 0	;; SET BIT 0 = SHIFT = ON
+		return
+
+DECODE_SM_BUTTON_MATRIX_12_SHIFT_R_OFF
+	bcf AY_KEYB_SPECIAL_KEY_TOGGLE, 0	;; CLEAR BIT 0 = SHIFT = OFF
+		return
+	
+
+DECODE_SM_BUTTON_MATRIX_14
+	;; UP (Arrow UP)
+	movlw 0x01
+	movwf AY_SUB_MENUE_KEY_SWITCH
+		return
+
+
+;; -----[+ (PLUS)]-----------------
+DECODE_SM_BUTTON_MATRIX_16
+	movlw 0x03
+	movwf AY_SUB_MENUE_KEY_SWITCH
+
+	;; CPM ASCII: RGT. 0x1D
+	movlw 0x1D
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[P]-----------------
+DECODE_SM_BUTTON_MATRIX_17
+	;; KEY [P] as ASCII value
+	movlw 0x50
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return	
+
+;; -----[L]-----------------
+DECODE_SM_BUTTON_MATRIX_18
+	movlw 0x09
+	movwf AY_SUB_MENUE_KEY_SWITCH
+	
+	;; KEY [L] as ASCII value
+	movlw 0x4C
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return	
+
+;; -----[ - (MINUS)]-----------------
+DECODE_SM_BUTTON_MATRIX_23
+	;; [-] = 4 sub menu switch
+	movlw 0x04
+	movwf AY_SUB_MENUE_KEY_SWITCH
+	;; CPM ASCII 0x9D 
+	movlw 0x9D
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[9]-----------------
+DECODE_SM_BUTTON_MATRIX_24
+	;; KEY [9] as ASCII value
+	movlw 0x39
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return		
+
+;; -----[I]-----------------
+DECODE_SM_BUTTON_MATRIX_25
+	;; KEY [I] as ASCII value
+	movlw 0x49
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return		
+
+;; -----[J]-----------------
+DECODE_SM_BUTTON_MATRIX_26
+	;; KEY [J] as ASCII value
+	movlw 0x4A
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return	
+
+;; -----[N]-----------------
+DECODE_SM_BUTTON_MATRIX_27
+	;; KEY [N] as ASCII value
+	movlw 0x4E
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return	
+
+;; -----[M]-----------------
+DECODE_SM_BUTTON_MATRIX_28
+	;; KEY [N] as ASCII value
+	movlw 0x4D
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return	
+
+;; -----[K]-----------------
+DECODE_SM_BUTTON_MATRIX_29
+	;; KEY [K] as ASCII value
+	movlw 0x4B
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return	
+
+;; -----[O]-----------------
+DECODE_SM_BUTTON_MATRIX_30
+	;; KEY [O] as ASCII value
+	movlw 0x4F
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return	
+
+;; -----[0]-----------------
+DECODE_SM_BUTTON_MATRIX_31
+	;; ASCII value 0x30
+	movlw 0x30
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+	
+
+;; -----[7]-----------------
+DECODE_SM_BUTTON_MATRIX_32
+	;; ASCII value
+	movlw 0x37
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[Y]-----------------
+DECODE_SM_BUTTON_MATRIX_33
+	;; ASCII value
+	movlw 0x59
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[G]-----------------
+DECODE_SM_BUTTON_MATRIX_34		
+	;; ASCII value
+	movlw 0x47
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[V]-----------------
+DECODE_SM_BUTTON_MATRIX_35
+	;; ASCII value
+	movlw 0x56
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[B]-----------------
+DECODE_SM_BUTTON_MATRIX_36
+	movlw 0x06
+	movwf AY_SUB_MENUE_KEY_SWITCH
+	;; Key [B] as ASCII value
+	movlw 0x42
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[H]-----------------
+DECODE_SM_BUTTON_MATRIX_37
+	;; Key [H] as ASCII value
+	movlw 0x48
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[U]-----------------
+DECODE_SM_BUTTON_MATRIX_38		
+	;; Key [U] as ASCII value
+	movlw 0x55
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+	
+;; -----[8]-----------------
+DECODE_SM_BUTTON_MATRIX_39		
+	;; Key [8] as ASCII value
+	movlw 0x38
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+		
+
+;; -----[5]-----------------
+DECODE_SM_BUTTON_MATRIX_40
+	;; 5 as ASCII value
+	movlw 0x35
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[R]-----------------
+DECODE_SM_BUTTON_MATRIX_41
+	;; Key [R] as ASCII value
+	movlw 0x52
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+	
+;; -----[D]-----------------
+DECODE_SM_BUTTON_MATRIX_42
+	;; D as ASCII value
+	movlw 0x44
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[X]-----------------	
+DECODE_SM_BUTTON_MATRIX_43
+	;; X as ASCII value
+	movlw 0x58
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[C]-----------------
+DECODE_SM_BUTTON_MATRIX_44
+	movlw 0x07
+	movwf AY_SUB_MENUE_KEY_SWITCH
+	;; C as ASCII value
+	movlw 0X43 
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[F]-----------------
+DECODE_SM_BUTTON_MATRIX_45
+	;; FORMATI BANSTICK via patch_write.inc [SUB MENU KEY: [F]]
+	movlw 0x0A
+	movwf AY_SUB_MENUE_KEY_SWITCH
+					
+	;; F as ASCII value
+	movlw 0x46
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[T]-----------------
+DECODE_SM_BUTTON_MATRIX_46	
+	;; T as ASCII value
+	movlw 0x54
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+	
+;; -----[6]-----------------
+DECODE_SM_BUTTON_MATRIX_47
+	;; 6 as ASCII value
+	movlw 0x36
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+		
+
+;; -----[3]-----------------
+DECODE_SM_BUTTON_MATRIX_48		
+	;; 3 as ASCII value
+	movlw 0x33 
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; -----[W]-----------------
+DECODE_SM_BUTTON_MATRIX_49		
+	movlw 0x08
+	movwf AY_SUB_MENUE_KEY_SWITCH
+	
+	;; W as ASCII value
+	movlw 0x57
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+		
+
+;; -----[A]-----------------
+DECODE_SM_BUTTON_MATRIX_50
+	;; 1)
+	movlw 0x05
+	movwf AY_SUB_MENUE_KEY_SWITCH
+	;; 2)
+	;; A as ASCII value
+	movlw 0x41
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+			return
+
+
+;; -----[SHIFT L.]-----------------
+DECODE_SM_BUTTON_MATRIX_51
+	;; SHIFT KEY IS NO VALID KEY 
+	;; @ WRITE PATCH NAME
+	movlw 0x00
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+
+	;; TOGGLE SHIFT L. ON / OFF HERE
+	;; PRESSED OR DEPRESSED?
+	movlw 	0x00
+	cpfseq 	SM_KEYB_KEY_STATE 	;; => 0 = PRESSED
+					;; => 1 = DEPRESSED
+		;; NO
+		goto DECODE_SM_BUTTON_MATRIX_51_SHIFT_L_OFF
+
+		;; YES
+		goto DECODE_SM_BUTTON_MATRIX_51_SHIFT_L_ON
+
+DECODE_SM_BUTTON_MATRIX_51_SHIFT_L_ON
+	bsf AY_KEYB_SPECIAL_KEY_TOGGLE, 0	;; SET BIT 0 = SHIFT L = ON
+	 	return
+
+DECODE_SM_BUTTON_MATRIX_51_SHIFT_L_OFF
+	bcf AY_KEYB_SPECIAL_KEY_TOGGLE, 0	;; CLEAR BIT 0 = SHIFT L = OFF
+	 	return
+	
+;; ---------[Z]-----------
+DECODE_SM_BUTTON_MATRIX_52
+	;; Key [Z] as ASCII value
+	movlw 0x5A
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; ---------[S]-----------
+DECODE_SM_BUTTON_MATRIX_53	
+	;; Key [S] as ASCII value
+	movlw 0x53
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+
+;; ---------[E]-----------
+DECODE_SM_BUTTON_MATRIX_54	
+	;; Key [E] as ASCII value
+	movlw 0x45
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+	
+;; ---------[4]-----------
+DECODE_SM_BUTTON_MATRIX_55
+	;; Key [4] as ASCII value
+	movlw 0x34
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+		
+
+;; ---------[1]-----------
+DECODE_SM_BUTTON_MATRIX_56		
+	;; Key [1] as ASCII value
+	movlw 0x31
+	movwf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+		return
+		
+
+
+;; -----[ESC [<-]]-----------------
+DECODE_SM_BUTTON_MATRIX_57
+	;; ESC BUTTON @ MAIN MENU
+	;; JUMP TO MAIN MENU !
+	movlw 0x00
+	movwf SWITCH_BETWEEN_MAIN_AND_SUBMENU
+	;; TO MAIN MENU 0
+	movlw 0x00
+	movwf CURRENT_MAIN_MENU 
+			return
+
+;; -----[CTRL]-----------------
+DECODE_SM_BUTTON_MATRIX_58
+	;; CTRL KEY WAS PRESSED
+	;; FUNCTION: 
+	;; STEP TO THE NEXT MAIN MENU OR
+	;; PREVIOUS MAIN MENU IF THE SHIFT KEY IS PRESSED
+	
+	;; CHECK:
+	;; WAS THE CTRL KEY PRESSED OR DEPRESSED?
+	movlw 	0x00
+	cpfseq 	SM_KEYB_KEY_STATE 	;; => 0 = PRESSED
+					;; => 1 = DEPRESSED
+
+		;; NO - DEPRESSED
+		goto DECODE_SM_BUTTON_MATRIX_58_CTRL_DEPRESSED
+
+		;; YES - PRESSED
+		goto DECODE_SM_BUTTON_MATRIX_58_CTRL_PRESSED
+
+DECODE_SM_BUTTON_MATRIX_58_CTRL_DEPRESSED
+	      ;; exit here
+	      		return
+
+DECODE_SM_BUTTON_MATRIX_58_CTRL_PRESSED
+	;; THE CTRL KEY WAS PRESSED
+	;; ==> CTRL FUNCTION = STEP TO THE NEXT MAIN MENU
+	;; ==> OR REDRAW THE MAIN MENU IF THE SHIPT KEY IS ALSO PRESSED
+	;; SO TOGGLE TO MAIN MENU!
+	movlw 0x00
+	movwf SWITCH_BETWEEN_MAIN_AND_SUBMENU
+
+	;; CHECK SHIFT KEY
+	;; IS SHIFT PRESSED? (BIT 0)
+	btfss AY_KEYB_SPECIAL_KEY_TOGGLE, 0
+		
+		;; NO - OK INC MAIN MENU 
+		goto DECODE_SM_BUTTON_MATRIX_58_INC_MAIN_MENU
+	
+		;; YES - JUST REDRAW CURRENT MAIN MENU
+		goto DECODE_SM_BUTTON_MATRIX_58_DEC_MAIN_MENU
+
+
+DECODE_SM_BUTTON_MATRIX_58_INC_MAIN_MENU
+	;; INC MAIN MENU
+	incf CURRENT_MAIN_MENU, F
+	
+	movlw 0x08
+	cpfsgt CURRENT_MAIN_MENU
+
+		;; NO - OK, GOTO MAIN MENU X
+		goto DECODE_SM_BUTTON_MATRIX_58_GO_MAIN_MENU
+	
+		;; YES - MAIN MENU IS > 7 SO MAIN MENU MUST BE 1
+		goto DECODE_SM_BUTTON_MATRIX_58_MAIN_MENU_RESET
+
+DECODE_SM_BUTTON_MATRIX_58_MAIN_MENU_RESET	
+	      ;; Reset Main Menu to 1
+	      movlw 0x01
+	      movwf CURRENT_MAIN_MENU
+	      		return
+	
+DECODE_SM_BUTTON_MATRIX_58_DEC_MAIN_MENU
+	;; DEC MAIN MENU
+	decf CURRENT_MAIN_MENU, F
+	
+	;; CHECK CURRENT_MAIN_MENU => 0x00 dec to 0xFF?
+	movlw 0xFF
+	cpfseq CURRENT_MAIN_MENU
+
+		;; NO - OK, GOTO MAIN MENU X
+		goto DECODE_SM_BUTTON_MATRIX_58_DEC_MAIN_MENU_CHECK_ZERO
+	
+		;; YES - MAIN MENU IS = 0xFF (OUT OF VALID VALUE)
+		;; SET CURRENT_MAIN_MENU to 0x07 (LAST MAIN MENU)
+		goto DECODE_SM_BUTTON_MATRIX_58_SET_TO_LAST_MAIN_MENU
+
+DECODE_SM_BUTTON_MATRIX_58_DEC_MAIN_MENU_CHECK_ZERO
+	movlw 0x00
+	cpfseq CURRENT_MAIN_MENU
+
+		;; NO - OK, GOTO MAIN MENU X
+		goto DECODE_SM_BUTTON_MATRIX_58_GO_MAIN_MENU
+	
+		;; YES - MAIN MENU IS = 0 SO MAIN MENU MUST BE SET 
+		;; TO THE LAST MAIN MENU
+		goto DECODE_SM_BUTTON_MATRIX_58_SET_TO_LAST_MAIN_MENU
+
+DECODE_SM_BUTTON_MATRIX_58_SET_TO_LAST_MAIN_MENU
+		;; MAIN MENU was 0 or out of RANGE so set 
+		;; MAIN MENU to 7
+	      	movlw 0x08
+	      	movwf CURRENT_MAIN_MENU
+	      		return
+	
+DECODE_SM_BUTTON_MATRIX_58_GO_MAIN_MENU
+		;; exit to main menu X
+			return
+;; --------[END: CTRL]--------------------------------------------------
+
+;; -----[SPACE (KEY)]-----------------
+DECODE_SM_BUTTON_MATRIX_60		
+		;; Space Key as underscore [_] in LCD Char Code! (non CMP ASCII Code)
+		movlw 0x5F
+		movwf MIOS_PARAMETER1
+		movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+			return
+
+;; -----[Q]-----------------
+DECODE_SM_BUTTON_MATRIX_62
+		;; Key [Q] as PCM ASCII Code
+		movlw 0x51
+		movwf MIOS_PARAMETER1
+		movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+			return
+
+;; -----[2]-----------------
+DECODE_SM_BUTTON_MATRIX_63		
+		;; Key [2] as ASCII value
+		movlw 0x32
+		movwf MIOS_PARAMETER1
+		movff MIOS_PARAMETER1, PATCH_NAME_ASC_KEY
+			return
+
+		
+
+
+
+;; ============[END OF SUB MENU BUTTON DECODING]======================
+
+
+
+

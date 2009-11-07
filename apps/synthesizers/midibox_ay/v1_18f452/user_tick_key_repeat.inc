@@ -1,0 +1,374 @@
+;; user_tick_key_repeat.inc
+;;
+;; FUNCTION:
+;; C64 KEYBOARD - AUTO KEY REPEAT
+
+
+;; ----------------------------------------------------
+
+;; CHECK IF THERE IS A NEED FOR AUTO REPEAT:
+;; @ [+] KEY OF THE C64 KAYBOARD
+;; @ [-] KEY OF THE C64 KAYBOARD
+
+	;; function: 
+	;; KEYBOARD KEY AUTO REPEAT FUNCTION
+	;; CONSTANDLY INC [+] or DEC [-] 
+	;; MENU ITEMS via THE C64 KEYBOARD [+]/[-] BUTTONS
+
+
+CHECK_CONSTANT_KEY_PRESSING
+;; JUMPED IN HERE FROM USER_Tick @ main.asm
+;; (This function is called when nothing else is to do)
+
+;; --------[START: CHECK KEY STATE]---------------------------------
+
+	;; KEYBORAD: KEY HANDLING
+	;; IF A KEY 
+	;; IS = PRESSED   (AY_KEY_STATE  = 0)
+	;; IS = DEPRESSED (AY_KEY_STATE  = 1)
+	movlw 	KEY_PRESSED_STATE_0	
+	cpfseq 	SM_KEYB_KEY_STATE 	
+		
+			;; KEY = DEPRESSED
+			rgoto	DO_SET_FIRST_KEY_STRIKE_DELAY_BIT_AND_EXIT_AUTO_REPEAT_ROUTINE
+		
+		;; KEY = PRESSED
+		;; SO GO ON WITH THIS ROUTINE
+
+;; --------[END: CHECK KEY STATE]---------------------------------
+
+
+;; --------[END: DEPRESSED KEY "FIRST KEY STRIKE DELAY" BIT HANDLING]--------------------------
+
+
+
+;; ---------------------------------------------------------------
+;; ------------------[GENERAL KEY AUTO REPEAT HANDLING]-----------
+;; ---------------------------------------------------------------
+      ;; JUSTAGE OF THE C64 KEYBOARD AUTO REPEAT RATE
+      movlw 	C64_KEY_AUTO_REPEAT_GENERAL_TIME	;; = RATE	[CONST  (ADJUST @ app_defines.h)]
+      cpfseq 	C64_KEY_AUTO_REPEAT_GENERAL_COUNTER	;; = COUNTER 	[VAR				]
+		
+		
+		;; C64_KEY_AUTO_REPEAT_GENERAL_TIME < > C64_KEY_AUTO_REPEAT_GENERAL_COUNTER
+		;; INC THE COUNTER
+		rgoto DO_INC_GENERAL_KEY_RATE_COUNTER
+		
+		;; C64_KEY_AUTO_REPEAT_GENERAL_TIME = C64_KEY_AUTO_REPEAT_GENERAL_COUNTER
+		;; GO ON 
+		rgoto DO_EXIT_GENERAL_KEY_RATE_CYCLE
+
+DO_INC_GENERAL_KEY_RATE_COUNTER
+			;; INC COUNTER
+			incf C64_KEY_AUTO_REPEAT_GENERAL_COUNTER, F
+				;; EXIT HERE
+				return
+
+DO_EXIT_GENERAL_KEY_RATE_CYCLE
+	;; RESET GENERAL KEY RATE COUNTER TO 0
+	clrf C64_KEY_AUTO_REPEAT_GENERAL_COUNTER
+	;; GO AND CHECK IF THE [+] KEY IS PRESSED
+		
+;; -----------[END OF GENERAL CYCLE]--------------------
+;; -----------------------------------------------------
+;; -------------[CHECK THE [+] KEY]---------------------
+;; -----------------------------------------------------
+
+	; CHECK IF THE PRESSED KEY = [+]
+	movlw 	PLUS_SUBMENU_KEY_VALUE 			;; CONST (app_defines.h)
+	cpfseq 	AY_SUB_MENUE_KEY_SWITCH 		;; KEY = [+] ? (Assigend @ keyb_decoding.inc)
+
+		; NO,
+		; PLUS_SUBMENU_KEY_VALUE <> AY_SUB_MENUE_KEY_SWITCH
+		; SO THERE IS NO [+] KEY PRESSING
+		rgoto DO_CHECK_MINUS_KEY
+
+	; YES - [+] KEY IS PRESSED SO GO ON
+;; -----[CHECK: "FIRST KEY STRIKE DELAY" BIT]--------------
+
+	; THERE IS A PLUS KEY PRESSING EVENT
+	; GO AND CHECK IF THERE IS THE FIRST KEY STRIKE
+	; 
+	; MEMO: "FIRST KEY STRIKE DELAY" BIT
+	; BEVOR A "AUTO REPEAT KEY" WILL BE PRESSED THE FIRST TIME
+	; THE "FIRST KEY STRIKE DELAY" BIT = SET 
+	; (via user_tick_key_repeat.inc, midibox_ay_ini.inc)
+	; CHECK IF THE KEY WAS PRESSED THE FIRST TIME:
+	; IS "ONE LOOP DELAY BIT" OFF? 
+	; (IS BIT 1 OF AY_KEYB_SPECIAL_KEY_TOGGLE CLEAR ?)
+	btfsc 	AY_KEYB_SPECIAL_KEY_TOGGLE, FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1
+
+		; NO,
+		; FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1 = 1 (SET)
+		; SO PERFORM A "FIRST KEY STRIKE DELAY" CYCLE
+		rgoto PLUS_FIRST_KEY_STRIKE_DELAY_CYCLE
+
+		; YES,
+		; FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1 = 0 (CLEAR)
+		; THE "ONE LOOP DELAY BIT" HAD ALREADY BEEN CLEARD 
+		; SO PERFORM A "PLUS KEY AUTO REPEAT DELAY CYCLE"
+		rgoto PLUS_KEY_AUTO_REPEAT_DELAY_CYCLE
+
+;; --------------------------------------------------------------------------------------
+;; -----------------------[START OF "FIRST KEY STRIKE DELAY" CYCLE | [+] KEY]------------
+
+PLUS_FIRST_KEY_STRIKE_DELAY_CYCLE
+	;; WHEN THE KEY IS PRESSED THE *FIRST TIME*
+	;; THERE MUST BE A SHORT DELAY FOR BETTER
+	;; KEYBOARD BUTTON HANDLING
+	
+	;; CHECK:
+	;; FIRST_KEY_STRIKE_CYCLE_COUNTER = FIRST_KEY_STRIKE_CYCLE_TIME
+	movlw  FIRST_KEY_STRIKE_CYCLE_TIME	;; CONST (ADJUST @ app_defines.h)
+	cpfseq FIRST_KEY_STRIKE_CYCLE_COUNTER	;; VAR
+
+		;; NO,
+		;; COUNTER < TIME
+		;; SO INC COUNTER +1
+		rgoto PLUS_KEY_DO_INC_FIRST_KEY_STRIKE_CYCLE_COUNTER
+
+		;; YES
+		;; FIRST_KEY_STRIKE_CYCLE_COUNTER = FIRST_KEY_STRIKE_CYCLE_TIME
+		;; EXIT "FIRST KEY STRIKE DELAY CYCLE" AND
+		;; DO *RESET* FIRST_KEY_STRIKE_CYCLE_COUNTER
+		;; DO *CLEAR* THE "FIRST KEY STRIKE DELAY" BIT
+		rgoto PLUS_KEY_DO_FINISH_FIRST_KEY_STRIKE_DELAY_CYCLE
+	
+PLUS_KEY_DO_INC_FIRST_KEY_STRIKE_CYCLE_COUNTER
+	      ;; INC FIRST_KEY_STRIKE_CYCLE_COUNTER +1
+	      incf FIRST_KEY_STRIKE_CYCLE_COUNTER, F
+			;; EXIT
+			return
+
+PLUS_KEY_DO_FINISH_FIRST_KEY_STRIKE_DELAY_CYCLE
+	;; "FIRST KEY STRIKE DELAY" CYCLE IS PERFORMD
+	;; SO LET'S GO ON		     
+		 
+		 ;; BUT FIRST RESET THE "FIRST KEY STRIKE DELAY" COUTER
+		 clrf FIRST_KEY_STRIKE_CYCLE_COUNTER
+
+	;; CLEAR THE "FIRST KEY STRIKE DELAY" BIT
+	;; SO THE NEXT "USER TICK KEY REPEAT CYCLE" WILL *NOT* BE
+	;; A "FIRST KEY STRIKE DELAY" CYCLE
+	bcf AY_KEYB_SPECIAL_KEY_TOGGLE, FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1			
+			;; EXIT HERE
+			return
+
+;; --------[END OF "FIRST KEY STRIKE DELAY" CYCLE AREA | [+] KEY]---------
+;; -----------------------------------------------------------------------
+		
+
+;; -----------------------------------------------------------------------
+;; -------[START OF THE [+] KEY "AUTO REPEAT DELAY CYCLE"]----------------
+
+PLUS_KEY_AUTO_REPEAT_DELAY_CYCLE
+	;; PERFORM THE [+] KEY "AUTO REPEAT DELAY CYCLE"
+	
+	;; CHECK IF WE CAN GO ON
+	movlw KEY_AUTO_REPEAT_TIME 
+	cpfseq KEY_AUTO_REPEAT_COUNTER
+
+		;; NO
+		;; KEY_AUTO_REPEAT_TIME < KEY_AUTO_REPEAT_COUNTER
+		rgoto PLUS_KEY_DO_INC_KEY_AUTO_REPEAT_CUNTER
+
+		;; KEY_AUTO_REPEAT_TIME = KEY_AUTO_REPEAT_COUNTER
+		rgoto PLUS_KEY_DO_AUTO_REPEAT
+
+PLUS_KEY_DO_INC_KEY_AUTO_REPEAT_CUNTER
+	  ;; INC DO_INC_KEY_AUTO_REPEAT_CUNTER +1
+	  incf KEY_AUTO_REPEAT_COUNTER, F
+	 		;; EXIT HERE
+	 		return
+
+;; -------------------------[DO AUTO REPEAT [+] KEY]-----------------------------
+PLUS_KEY_DO_AUTO_REPEAT
+	      ;; NOW THE [+] KEY AUTO REPEAT TAKE PLACE
+	      ;; AND A [+] KEY SUB MENU ROUTINE WILL BE PERFORMED
+		      ;; BUT FIRST:
+		      ;; RESET THE KEY_AUTO_REPEAT_COUNTER TO ZERO
+		      clrf  KEY_AUTO_REPEAT_COUNTER
+		
+	      ;; [+] KEY WAS PRESSED SO NOW
+	      ;; GO TO THE [+] KEY SUB-MENU ROUTINE
+	      goto LABEL_AY_SUB_MENU_PLUS
+    
+
+;; -------------------------[END OF AUTO REPEAT [+] KEY AREA]------------------
+;; ----------------------------------------------------------------------------
+
+
+;; ----------------------------------------------------------------------------
+
+
+;; -------------------------[START OF AUTO REPEAT [-] KEY AREA]----------------
+;; ----------------------------------------------------------------------------
+
+;; -------------------------[DO CHECK THE [-] KEY]-----------------------------
+DO_CHECK_MINUS_KEY	
+	;; CHECK:
+	;; IF THE PRESSED KEY IS THE [-] KEY
+	movlw 	MINUS_SUBMENU_KEY_VALUE
+	cpfseq 	AY_SUB_MENUE_KEY_SWITCH ;; KEY = [-] ?
+
+			;; NO,
+			;; MINUS_SUBMENU_KEY_VALUE < > AY_SUB_MENUE_KEY_SWITCH
+			;; THE SUBMENUE [-] KEY WAS THE LAST KEY TO CHECK SO
+			;; QUIT KEY REPEAT ROUTINE
+			rgoto DO_SET_FIRST_KEY_STRIKE_DELAY_BIT_AND_EXIT_AUTO_REPEAT_ROUTINE
+
+		;; YES,
+		;; MINUS_SUBMENU_KEY_VALUE = AY_SUB_MENUE_KEY_SWITCH
+		;; [-] KEY IS PRESSED, SO GO ON
+		
+;; -----------------[CHECK: "FIRST KEY STRIKE DELAY" BIT]------------------
+
+	; THERE IS A PLUS KEY PRESSING EVENT
+	; GO AND CHECK IF IT IS A "FIRST KEY STRIKE"
+	; 
+	; MEMO: 
+	; "FIRST KEY STRIKE DELAY" BIT
+	; BEVOR A "AUTO REPEAT KEY" WILL BE PRESSED THE FIRST TIME
+	; THE "FIRST KEY STRIKE DELAY" BIT = SET (via user_tick_key_repeat.inc, midibox_ay_ini.inc)
+	; SO CHECK IF THE [-] KEY WAS PRESSED THE FIRST TIME:
+	; IS THE "FIRST KEY STRIKE DELAY" BIT OFF? 
+	; (IS BIT 1 OF AY_KEYB_SPECIAL_KEY_TOGGLE = CLEAR ?)
+	btfsc 	AY_KEYB_SPECIAL_KEY_TOGGLE, FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1
+
+		; NO,
+		; FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1 = 1 (SET)
+		; SO PERFORM A "FIRST KEY STRIKE DELAY" CYCLE
+		rgoto MINUS_KEY_FIRST_KEY_STRIKE_DELAY_CYCLE
+
+		; YES,
+		; FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1 = 0 (CLEAR)
+		; THE "ONE LOOP DELAY BIT" HAD ALREADY BEEN CLEARD 
+		; SO PERFORM A "MINUS KEY AUTO REPEAT DELAY CYCLE"
+		rgoto MINUS_KEY_AUTO_REPEAT_DELAY_CYCLE
+
+;; --------------------------------------------------------------------------------------
+;; -----------------------[START OF "FIRST KEY STRIKE DELAY" CYCLE | [-] KEY]------------
+	
+
+MINUS_KEY_FIRST_KEY_STRIKE_DELAY_CYCLE
+	;; ADJUST THE DELAY-TIME HERE 
+	;; => THE DELAY TIME WHEN THE KEY IS PRESSED THE FIRST TIME
+	movlw  FIRST_KEY_STRIKE_CYCLE_TIME
+	cpfseq FIRST_KEY_STRIKE_CYCLE_COUNTER
+
+		;; NO,
+		;; COUNTER < TIME
+		;; SO INC COUNTER +1
+		rgoto MINUS_KEY_DO_INC_FIRST_KEY_STRIKE_CYCLE_COUNTER
+
+		;; YES
+		;; FIRST_KEY_STRIKE_CYCLE_COUNTER = FIRST_KEY_STRIKE_CYCLE_TIME
+		;; EXIT "FIRST KEY STRIKE DELAY CYCLE" AND
+		;; DO *RESET* FIRST_KEY_STRIKE_CYCLE_COUNTER
+		;; DO *CLEAR* THE "FIRST KEY STRIKE DELAY" BIT
+		rgoto MINUS_KEY_DO_FINISH_FIRST_KEY_STRIKE_DELAY_CYCLE
+	
+
+MINUS_KEY_DO_INC_FIRST_KEY_STRIKE_CYCLE_COUNTER
+	       ;; INC "FIRST KEY STRIKE DELAY" COUNTER +1
+	       incf FIRST_KEY_STRIKE_CYCLE_COUNTER, F
+				;; EXIT HERE
+				return
+
+MINUS_KEY_DO_FINISH_FIRST_KEY_STRIKE_DELAY_CYCLE
+		      ;; FIRST SET "FIRST KEY STRIKE DELAY CYCLE" COUNTER TO ZERO
+		       clrf FIRST_KEY_STRIKE_CYCLE_COUNTER
+
+		;; CLEAR THE "FIRST KEY STRIKE DELAY" BIT
+		;; SO THE NEXT "USER TICK KEY REPEAT CYCLE" WILL *NOT* BE
+		;; A "FIRST KEY STRIKE DELAY" CYCLE
+		bcf AY_KEYB_SPECIAL_KEY_TOGGLE, FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1			
+				;; EXIT HERE
+				return
+	
+;; -----------------------[END OF "FIRST KEY STRIKE DELAY" CYCLE AREA | [-] KEY]---------
+;; --------------------------------------------------------------------------------------
+		
+;; --------------------------------------------------------------------------------------
+;; ----------------------[START OF THE [-] KEY "AUTO REPEAT DELAY CYCLE"]----------------
+
+MINUS_KEY_AUTO_REPEAT_DELAY_CYCLE
+	;; NOW WE RUN THE MINUS KEY "ONE STEP AUTO REPEAT" CYCLE 
+	;; KEY_AUTO_REPEAT_TIME = KEY_AUTO_REPEAT_COUNTER ?
+	movlw  KEY_AUTO_REPEAT_TIME
+	cpfseq KEY_AUTO_REPEAT_COUNTER
+
+		;; NO,
+		;; KEY_AUTO_REPEAT_TIME < > KEY_AUTO_REPEAT_COUNTER
+		rgoto MINUS_KEY_INC_AUTO_REPEAT_CYCLE_COUNTER
+
+		;; YES,
+		;; KEY_AUTO_REPEAT_TIME = KEY_AUTO_REPEAT_COUNTER
+		rgoto MINUS_KEY_FINISH_AUTO_REPEAT_DELAY_CYCLE
+
+
+MINUS_KEY_INC_AUTO_REPEAT_CYCLE_COUNTER
+	 		;; INC KEY_AUTO_REPEAT_COUNTER +1
+			incf KEY_AUTO_REPEAT_COUNTER, F
+	 			 ;; EXIT HERE
+				 return
+        	   	
+MINUS_KEY_FINISH_AUTO_REPEAT_DELAY_CYCLE
+	;; NOW THE [-] KEY PRESSING TAKE PLACE
+	      			
+	      			;; BUT DO NOT FORGET TO
+	      			;; RESET THE COUNTERS
+	      			clrf FIRST_KEY_STRIKE_CYCLE_COUNTER
+	     		 	clrf KEY_AUTO_REPEAT_COUNTER
+		
+	;; [-] KEY WAS PRESSED SO NOW
+	;; JUMP TO [-] SUBMENU FUNCTION JUMP TABLE
+	goto 	LABEL_AY_SUB_MENU_MINUS
+
+;; -------------------------[END OF AUTO REPEAT [-] KEY AREA]------------------
+;; ----------------------------------------------------------------------------
+
+
+;; ----------------------------------------------------------------------------
+
+
+
+;; ---------------------------------------[EXIT]-------------------------------
+DO_SET_FIRST_KEY_STRIKE_DELAY_BIT_AND_EXIT_AUTO_REPEAT_ROUTINE
+
+		      ;; EXIT HERE BUT
+		      ;; FIRST...
+		      
+		      ;; RESET TIME BANDIT TO ZERO
+		      clrf C64_KEY_AUTO_REPEAT_GENERAL_COUNTER
+		      clrf FIRST_KEY_STRIKE_CYCLE_COUNTER
+		      clrf KEY_AUTO_REPEAT_COUNTER
+		      
+    
+	   	    ;; ACHTUNG: 
+	   	    ;; SOLLTEN SPAETER WEITER TASTEN
+	   	    ;; MIT IN DIESE ROUTINE EINGEFÜGT WERDEN,
+	   	    ;; SO MUSS IMMER NACH DER LETZTEN TASTENABFRAGE
+	   	    ;; DAS "ONE LOOP DELAY BIT" GESETZT WERDEN,
+	   	    ;; WIE ES HIER AN DIESER STELLE DER FALL IST.
+	   	    ;; 
+	   	    ;; ERLAEUTERUNG:
+	  	    ;; DAS "ONE LOOP DELAY BIT" MUSS IMMER AUTOMATISCH
+	  	    ;; GESETZT WERDEN, WENN KEINE GESUCHTE TASTE IN DIESEM FALL 
+	  	    ;; DIE [+] oder [-] TASTE GEDRUECKT WERDEN.
+	  	    ;; HIER NUN WIRD, WENN KEINER DER BEIDEN GESUCHTEN
+	  	    ;; TASTEN GEDRUECKT WIRD DANN DAS "ONE LOOP DELAY BIT" GESETZT
+	  	    ;; WELCHES ERST DURCH DEN ERSTEN [+] oder[-] TASTENDRUCK
+	  	    ;; WIEDER GELOESCHT WIRD.
+	  	    ;; DAS DELAY BIT VERHINDER, DASS
+	  	    ;; BEIM ERSTEN TASTENDRUCK
+	  	    ;; 2x DIE SUB MENU FUNCTION
+	 	    ;; AUFGERUFEN WIRD UND SORGT ZUSÄTZLICH 
+	 	    ;; DURCH EINEN TIME BANDIT FÜR EINE KLEINE 
+	 	    ;; "EXTRA PAUSE".
+	 	    bsf AY_KEYB_SPECIAL_KEY_TOGGLE, FIRST_KEY_STRIKE_TRUE_OR_FALSE_BIT1
+
+		;; EXIT HERE
+		return
+
+	
