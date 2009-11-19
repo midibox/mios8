@@ -507,8 +507,8 @@ CS_MENU_MATRIX_LEVEL_METER_TABLE ; (used in meter level mode)
 ;;
 ;; --------------------------------------------------------------------------
 CS_MENU_MATRIX_SammichSID_Column_Remap
-	JUMPTABLE_2BYTES_UNSECURE
 	andlw	0x07	; 0x07 masks 8 entries
+	JUMPTABLE_2BYTES_UNSECURE
 	retlw	0x04	; 0 -> col 4 (L3)
 	retlw	0x01	; 1 -> col 1 (E2)
 	retlw	0x05	; 2 -> col 5 (L4)
