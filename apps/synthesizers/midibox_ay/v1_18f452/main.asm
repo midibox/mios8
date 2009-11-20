@@ -7,17 +7,16 @@
 
 ;; -------------------------------------------------------------------------
 ;; APPLICATION: MIDIBOX AY 3 8912
-;; V1.00.pre01 (asm) / [17.09.2009]
+;; V1.00.pre01 (asm) / [13.11.2009]
 ;; CORE8, PIC 18F452 
 ;; For more Information see the MIDIbox AY 3 8912 Project Page:
 ;; http://www.midibox.org/dokuwiki/midibox_ay_3_8912
 ;; -------------------------------------------------------------------------
 
-;; TO DO:
-;; * FORMATING BANKSTICK ROUTINE [F] @ MAIN MENU1
-;; * READ PATCH DATA from BANKSTICK
-;; * WRITE PATCH DATA from BANKSTICK
-;;   ==> WRITE_ALL_FX_PATCH_DATA_TO_BANKSTICK
+;; MidiBox AY 8912
+;; By lemonhorse (2009)
+;; MIOS & MBHP by TK
+;; All rights by TK
 
 
 ;; ---[MIOS header file ]---
@@ -147,7 +146,7 @@ USER_DISPLAY_Init
 USER_DISPLAY_Tick
 	;; REDRAW MAIN MENU IF A Control Change (CC, etc.)
 	;; OR MOD WHEEL / PITCH BEND
-	;; MATCH THE currend MAIN MENU
+	;; MATCH THE CURRENT MAIN MENU
 	call	CHECK_EVENT_MENU_REDRAW
 
 		return

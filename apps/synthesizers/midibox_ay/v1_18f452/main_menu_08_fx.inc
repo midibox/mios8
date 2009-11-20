@@ -12,8 +12,8 @@
 
 
 LABEL_AY_MAIN_MENU_08_FX
- 	;; LOAD FX DATA @ CURREND POS for LCD
- 	call LOAD_FX_DATA_LCD_CURREND_POS
+ 	;; LOAD FX DATA @ CURRENT POS for LCD
+ 	call LOAD_FX_DATA_LCD_CURRENT_POS
  
 	;; SHOW MIDIBOX AY MENU SWITCH SCREEN
 	call    MIOS_LCD_Clear
@@ -23,7 +23,7 @@ LABEL_AY_MAIN_MENU_08_FX
 	call    MIOS_LCD_PrintString
 		 movlw   LCD_ROW1 + 14
         	 call    MIOS_LCD_CursorSet
-        	 movf    FX_POS_CURREND, W
+        	 movf    FX_POS_CURRENT, W
         	 call    MIOS_LCD_PrintBCD2 ;; 0-31
 
 	
@@ -31,13 +31,13 @@ LABEL_AY_MAIN_MENU_08_FX
 	call    MIOS_LCD_PrintString
 		movlw    LCD_ROW2 + 13
         	 call    MIOS_LCD_CursorSet
-        	 movf    FX_TIME_PRE_EXECUTION_CURREND, W
+        	 movf    FX_TIME_PRE_EXECUTION_CURRENT, W
         	 call    MIOS_LCD_PrintBCD3 
 
 	;; Fx FUNCTION
 	TABLE_ADDR TEXT_MB_AY_MENUE_FX_ROW3
 	call    MIOS_LCD_PrintString
-		;; DECODE and WRITE CURREND 
+		;; DECODE and WRITE CURRENT 
 		;; FUNCTION NAME TO LCD
 		call 	DECODE_FX_FUNCTION_FOR_LCD
 
@@ -46,7 +46,7 @@ LABEL_AY_MAIN_MENU_08_FX
 	call    MIOS_LCD_PrintString
 		movlw   LCD_ROW4 + 13
         	 call    MIOS_LCD_CursorSet
-        	 movf    FX_DATA_CURREND, W
+        	 movf    FX_DATA_CURRENT, W
         	 call    MIOS_LCD_PrintBCD3
 	
 	
@@ -197,7 +197,7 @@ MAIN_MENU_08_EDITING_MODE_IS_NOT_POS4
 DECODE_FX_FUNCTION_FOR_LCD
 
         ;; DECODE Fx FUNCTION
-	movf FX_FUNCTION_CURREND, W
+	movf FX_FUNCTION_CURRENT, W
 	JUMPTABLE_2BYTES 42 ;; [0 to 41]
         	rgoto        LCD_FX_FUNC_000	;; 0x00
         	rgoto        LCD_FX_FUNC_001	;; 0x01
@@ -455,30 +455,30 @@ LCD_FX_FUNC_041
 
 
 ;; ------------------------------------------------------------------------
-;; LOAD Fx CURREND DATA for POS (FX_POS_CURREND) for LCD
+;; LOAD Fx CURRENT DATA for POS (FX_POS_CURRENT) for LCD
 ;; ------------------------------------------------------------------------
-LOAD_FX_DATA_LCD_CURREND_POS
+LOAD_FX_DATA_LCD_CURRENT_POS
 	;; used by [+] and [-] submenu pos routine for Fx Main Menu (LCD)
 	movlw SELECT_Fx_RAM_BANK;; INDIRECT RAM ADDRESSING:
 	movwf FSR0H		;; SET THE RAM BANK TO 2
 	
-	;; LOAD FX FUNCTION Reg. @ Currend Fx Pos	
+	;; LOAD FX FUNCTION Reg. @ CURRENT Fx Pos	
 	movlw RAM_OFFSET_FX_FUNCTION ;; FX FUNCTIONS regs OFFSET 
-	addwf FX_POS_CURREND, W	;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L		;; LOAD CURREND OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
-	movff INDF0, FX_FUNCTION_CURREND ;; WRITE FX FUNCTION @ currend Pos
+	addwf FX_POS_CURRENT, W	;; + (0 to 31 [32]) => Fx Tab Pos
+	movwf FSR0L		;; LOAD CURRENT OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
+	movff INDF0, FX_FUNCTION_CURRENT ;; WRITE FX FUNCTION @ CURRENT Pos
 
-	;; LOAD FX Data Reg. @ Currend Fx Pos	
+	;; LOAD FX Data Reg. @ CURRENT Fx Pos	
 	movlw RAM_OFFSET_FX_DATA;; FX Data Regs OFFSET
-	addwf FX_POS_CURREND, W	;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L		;; LOAD CURREND OFFSET to Fx Fuction Reg. @ current Fx Pos.
-	movff INDF0,FX_DATA_CURREND	;; WRITE FX Data @ currend Pos
+	addwf FX_POS_CURRENT, W	;; + (0 to 31 [32]) => Fx Tab Pos
+	movwf FSR0L		;; LOAD CURRENT OFFSET to Fx Fuction Reg. @ current Fx Pos.
+	movff INDF0,FX_DATA_CURRENT	;; WRITE FX Data @ CURRENT Pos
 
-	;; LOAD FX Delay TIME Reg. @ Currend Fx Pos	
+	;; LOAD FX Delay TIME Reg. @ CURRENT Fx Pos	
 	movlw RAM_OFFSET_FX_TIME_PRE_EXECUTION ;; FX TIME Regs OFFSET 
-	addwf FX_POS_CURREND, W	;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L		;; LOAD CURREND OFFSET To Ind. Reg Adress
-	movff INDF0,FX_TIME_PRE_EXECUTION_CURREND	;; WRITE FX Data @ currend Pos
+	addwf FX_POS_CURRENT, W	;; + (0 to 31 [32]) => Fx Tab Pos
+	movwf FSR0L		;; LOAD CURRENT OFFSET To Ind. Reg Adress
+	movff INDF0,FX_TIME_PRE_EXECUTION_CURRENT	;; WRITE FX Data @ CURRENT Pos
 	
 		return
 

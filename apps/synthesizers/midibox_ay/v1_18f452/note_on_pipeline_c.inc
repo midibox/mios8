@@ -1,6 +1,4 @@
-;;-----------------------
 ;; note_on_pipeline_c.inc
-;; ----------------------
 
 ;; FUNCTION:
 ;; ---------
@@ -75,7 +73,7 @@ MIDI_EVNT_NOTE_ON_CHECK_MIDI_CHANNEL_C
 		bcf	AY_TONE_ABC_MIDI_ON_OFF, BIT2_TONE_C_ON_OFF
 		bcf	AY_TONE_ABC_MIDI_ON_OFF, BIT5_NOISE_C_ON_OFF
 
-		;; WRITE CURREND *NOTE ON VALUE* @ MIDI Ch Tone C
+		;; WRITE CURRENT *NOTE ON VALUE* @ MIDI Ch Tone C
 		;; FOR CHCKING if the Note OFF value correlates with the last
 		;; NOTE ON value (importend for MIDI KEYBOARD HANDLING of delayed NOTE OFF values) 
 		;; processing @ note_off.inc

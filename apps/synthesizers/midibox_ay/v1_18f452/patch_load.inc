@@ -1,8 +1,6 @@
 ;; patch_load.inc
 
 ;; ----------------------------------------------------------------------------------------
-;; -------------[FUNCTION: LOAD PATCH DATA from PIC Eeprom or BANKSTICK to PIC RAM]--------
-;; ----------------------------------------------------------------------------------------
 ;;                    LOAD A PATCH FROM EEPROM or BANKSTICK into PIC RAM
 ;; ----------------------------------------------------------------------------------------
 
@@ -46,7 +44,7 @@ PATCH_LOAD
 				;; ----------------------------------------------------------------
 				;; FIRST THING TO DO (IF A PATCH IS TO BE LOADED INTO PIC RAM)
 				;; IS TO CHECK THE PATCH DATA FINGERPRINT @ PATCH ARD 0
-				rgoto CHECK_PATCH_FINGERPRINT
+				rgoto GO_AND_LOAD_PATCH_DATA
 		
 		;; -------------[STATE: USER WAND TO LOAD A PATCH       ]------------------------
 		;; -------------[STATE: SELECTED PATCH = BANKSTICK PATCH]------------------------
@@ -85,232 +83,87 @@ PATCH_LOAD
 		;; -------------[STATE: BANKSTICK IS FORMATTED            ]---------------------------
 		;; SO WE CAN GO ON WITH PATCH LOAD from BANKSTICK 
 		;; FIRST WE HAVE TO CHECK THE BANKSTICK PATCH FINGERPRINT
-		
-CHECK_PATCH_FINGERPRINT
-	;; LOAD FINGERPRINT FROM EEPROM or BANKSTICK?
-	;; ------------------------------------------
-	;; CHECK:
-	;; PATCH_MENU_STATE_FLAGS
-	;; BIT2 = 0 = LOAD EEPROM PATCH (PIC INTERNAL PATCH)
-	;; BIT2 = 1 = LOAD BANKSTICK PATCH
-	btfsc	PATCH_MENU_STATE_FLAGS, BIT2_SELECTED_PATCH_BANKSTICK_OR_INTERNAL
-			;; BANKSTICK
-			;; BIT2 = SET	
-			;; ============[GO AND LOAD BANKSTICK PATCH FINGERPRINT]==========
-			rgoto LOAD_PATCH_FINGERPRINT_BANKSTICK
-				
-		;; ================[LOAD INTERNAL (EEPROM) PATCH FINGERPRINT]=============
-		;; PATCH_MENU_STATE_FLAGS BIT2 = CLEAR
-		;; PATCH = INTERNAL (PIC EEPROM)
-		;; LOAD FINGERPRINT from INTERNAL PATCH (PIC EEPROM)
-		;; -------------------------------------------------------------------	
-		;; CHECK THE FINGERPRINT @ EEPROM ADR 0
-		;; DATA MUST BE = PIC_INT_EEPROM_FINGERPRINT (0x12)
-		;; ELSE THE PATCH DATA IS NOT VALID
-		movlw   EEPROM_ADR_FINGERPRINT		;; ADR 0
-       		movwf   EEADR				;; MOVE ADR 0 TO EEPROM ARD REG
-        	call    MIOS_EEPROM_Read   		;; read Byte from EEPROM and INC EEADR +1 (AUTO INC ADR)
-        	movwf	MIOS_PARAMETER1			;; MOVE DATA from EEPROM ADR0 to MIOS_PARAMETER1
-        	;; MEMO:
-		;; PIC_INT_EEPROM_FINGERPRINT = CONST 
-        	;; DATA BYTE from PIC int EEPROM 
-		;; @ ADR0 = PIC_INT_EEPROM_FINGERPRINT?
-		movlw 	PIC_INT_EEPROM_FINGERPRINT	
-        	cpfseq	MIOS_PARAMETER1
-        		;; NO,
-			;; THERE IS NO VALID FINGERPRINT @ PIC EEPROM ADR0 (INTERNAL PATCH)
-			;; Fingerprint < > PIC_INT_EEPROM_FINGERPRINT
-        		rgoto PATCH_DATA_LOADING_Failed
-        		
-        	;; YES
-		;; Fingerprint = PIC_INT_EEPROM_FINGERPRINT
-		;; GO ON AND LOAD PATCH FROM PIC EEPROM (INTERNAL PATCH)
-		rgoto	PATCH_LOAD_DO
-		;; ============[END: LOAD INTERNAL (PIC EEPROM) PATCH FINGERPRINT]=================
 
-LOAD_PATCH_FINGERPRINT_BANKSTICK
-	;; =======================[LOAD BANKSTICK PATCH FINGERPRINT]===============================
-	;; MEMO: BANKSTICK DATA STRUCTURE
-	;; BANKSTICK ADRESS GOT A HIGH and a LOW BYTE [16 BIT ADRESS]
-	;; [HIGH BYTE ADR] [LOW BYTE ADR]
-	;; [  0000 0000      0000 0000  ] 16 BIT BANKSTICK ADR
-	;; THE [HIGH BYTE ADR] = [PATCH NUMBER (-1)] | RANGE: 0 to 127 | = PATCH NUMBER POINTER
-	;; THE [LOW  BYTE ADR] = PATCH DATA AREA     | RANGE: 0 to 255 | = PATCH DATA POINTER
-	;; EVERY SINGLE BANKSTICK PATCH GOT A OWN 255 BYTES DATA AREA. THE [LOW BYTE ADR] IS THE POINTER
-	;; TO EVERY SINGLE DATA BYTE OF A SINGLE PATCH. IN OTHER WORDS THE [LOW BYTE] IS THE PATCH
-	;; DATA POINTER. THE [HIGH BYTE ADR] DO DEFINE THE PATCH NUMBER (0 to 127). IN OTHER WORDS
-	;; THE [HIGH BYTE ADR] IS THE POINTER THE BANKSTICK PATCH NUMBER.
-			;; -----------[SET BANKSTICK LOWBYTE ADR]------------------------------------------
-			;; Store LOW-BYTE (FINGERPRINT) BANKSTICK ADRESS in MIOS_PARAMETER1 
-			;; SET LOW BYTE BANKSTICK ADRRESS to 0 ( = FINGERPRINT ADR)
-			clrf        MIOS_PARAMETER1
-       			;; -----------[SET BANKSTICK ADR HIGHBYTE]-------------------------------------
-       			;; Store HIGH-byte BANKSTICK ADRESS in MIOS_PARAMETER2
-       			;; FINGERPRINT (HIGH BYTE) = PATCH NR = [1 to 127]
-       			movff       BROWSE_PATCH_NR, MIOS_PARAMETER2
-       			;; -1 OFFSET
-       				;; ---------------------------------------------------------------------
-       				;; MEMO - HIGH BYTE ADR OFFSET:
-       				;; EVERY BANKSTICK PATCH NEED A HIGH BYTE OFFSET of -1
-       				;; SO THAT PATCH Nr 1   => HIGH BYTE = 0
-       				;; SO THAT PATCH Nr 2   => HIGH BYTE = 1
-       				;; SO THAT PATCH Nr 3   => HIGH BYTE = 2
-       				;; ...
-       				;; SO THAT PATCH Nr 127 => HIGH BYTE = 126
-       				;; THE HIGHEST BANKSTICK ADR = 7FFF 
-       				;; => [7F(ADR.HIGH_BYTE)FF(ADR.LOW_BYTE)]
-       				;; THERE WOULD BE NO ADR SPACE for A PATCH
-       				;; STARTING WITH A HIGH BYTE ADR @ 127 (!)
-       				;; SO THE LAST VALID HIGH BYTE ADR = 126 
-       				;; ----------------------------------------------------------------------
-        		decf        MIOS_PARAMETER2, F
-        		;; ---------------------------------------------------------------------
-        		;; LOAD BANKSTICK FINGERPRINT  
-        		;; @ CURREND PATCH ADR 0x00
-        		call    MIOS_BANKSTICK_Read        ; load FINGERPRINT-BYTE from BankStick
-        		movwf	MIOS_PARAMETER1	
-                        ;; branch to error exception
-                        ;; routine if neccesary
-        		;; BRA_IFCLR MIOS_BOX_STAT, MIOS_BOX_STAT_BS_AVAILABLE, ACCESS, PATCH_DATA_LOADING_Failed
-			
-				;; FINGERPRINT OK ?
-        			;; MUST BE CONST. BANKSTICK_PATCH_FINGERPRINT
-				movlw 	BANKSTICK_PATCH_FINGERPRINT
-        			cpfseq	MIOS_PARAMETER1
-        				;; NO,
-					;; Fingerprint < > BANKSTICK_PATCH_FINGERPRINT
-        				;; ERROR !
-					rgoto PATCH_DATA_LOADING_Failed
-		
-        		
-				;; YES
-				;; Fingerprint = BANKSTICK_PATCH_FINGERPRINT
-			;; ----------------------------------------------------------------------
-			;; ---------[STATE: BANKSTICK FINGERPRINT  = OK]-------------------------
-			;; ----------------------------------------------------------------------
-			
-			;; ---------[SET: BANKSTICK_LOW_BYTE_ADR_COUNTER]------------------------
-			;; THE FINGERPRINT IS  @ BANKSTICK ADR0 
-			;; THE PATCH NUMBER IS @ BANKSTICK ADR1
-			;; ALL OTHER PATCH DATA WILL FOLOW NOW @ ADR2
-			;; SO SET BANKSTICK LOW BYTE COUNTER TO  ADR2
-			movlw 	0x02
-			movwf	BANKSTICK_LOW_BYTE_ADR_COUNTER
-		
-	;; ============[STATE: BANKSTICK PATCH FINGERPRINT OK]=====
-	;; --------------------------------------------------------
-	;; GO AND LOAD BANKSTICK PATCH DATA BYTES...
+GO_AND_LOAD_PATCH_DATA
 
-PATCH_LOAD_DO
 	;; --------------------------------------------------------------
-	;; DISABLE IRQ ROUTINES
+	;; DISABLE IRQ ROUTINES @ DATA READING
 	IRQ_DISABLE
 	;; --------------------------------------------------------------
-	
+
 	;; --------------------------------------------------------------
-	;; -------------[READ PATCH NAME]--------------------------------
+	;; DO LOAD AND CHECK THE *FINGERPRINT* BYTE
+	;; @ INTERNAL PATCH or BANKSTICK PATCH | ADR 0x00
+	;; IF THE *FINGERPRINT* BYTE is not valid goto PATCH_DATA_LOADING_Failed
+	call CHECK_PATCH_FINGERPRINT
 	;; --------------------------------------------------------------
-
-	;; LOAD DATA BYTE @ EEPROM ADR 0x01 | @ BANKSTICK PATCH DATA BYTE ADR 0x02
-	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_0
 	
-	
-	
-	;; LOAD DATA BYTE @ EEPROM ADR 0x02 | @ BANKSTICK PATCH DATA BYTE ADR 0x03
-	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_1
-
-
-	
-	;; LOAD DATA BYTE @ EEPROM ADR 0x03 | @ BANKSTICK PATCH DATA BYTE ADR 0x04
-	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_2
-
-
-	;; @ EEPROM ADR 0x04 
-	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_3
-
-	;; @ EEPROM ADR 0x05
-	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_4
-
-	;; @ EEPROM ADR 0x06
-	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_5
-
-	;; @ EEPROM ADR 0x07
-	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_6
-
-	
-	;; LOAD DATA BYTE @ EEPROM ADR 0x08 | @ BANKSTICK PATCH DATA BYTE ADR 0x09
-	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_7
-
+	;; LOAD PATCH NAME (ASC) from EEPROM or BANKSTICK (SUB ROUTINE)
+	;; EEPROM 	ADR 0x01 to 0x08
+	;; BANKSTICK	ADR 0x02 to 0x09
+	call READ_PATCH_NAME_SUB_ROUTINE
 	
 	;; -----------------------------------------------------------
 	;; -------------[READ MIDIBOX AY OTHER PATCH DATA]------------
 	;; -----------------------------------------------------------
 	
-	;; @ EEPROM ADR 0x09
+	;; LOAD DATA BYTE @ EEPROM ADR 0x09 | @ BANKSTICK PATCH DATA BYTE ADR 0x0A
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_A_TUNE_FINE_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_A_TUNE_FINE_USER
 	
-	;; @ EEPROM ADR 0x0A
+	;; LOAD DATA BYTE @ EEPROM ADR 0x0A | @ BANKSTICK PATCH DATA BYTE ADR 0x0B
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_B_TUNE_FINE_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_B_TUNE_FINE_USER
 	
 
-	;; @ EEPROM ADR 0x0B
+	;; @ EEPROM ADR 0x0B		| @ BANKSTICK PATCH DATA BYTE ADR 0x0C
 	call    LOAD_PATCH_DATA_BYTE	
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_C_TUNE_FINE_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_C_TUNE_FINE_USER
 	
 	
-	;; @ EEPROM ADR 0x0C
+	;; @ EEPROM ADR 0x0C		| @ BANKSTICK PATCH DATA BYTE ADR 0x0D
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_A_TUNE_COARSE_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_A_TUNE_COARSE_USER
 	
 	
-	;; @ EEPROM ADR 0x0D
+	;; @ EEPROM ADR 0x0D		...
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_B_TUNE_COARSE_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_B_TUNE_COARSE_USER
 	
 	
 	;; @ EEPROM ADR 0x0E
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_C_TUNE_COARSE_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_C_TUNE_COARSE_USER
 	
 	
 	;; @ EEPROM ADR 0x0F
 	call    LOAD_PATCH_DATA_BYTE	
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_A_MIDI_CHANNEL_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_A_MIDI_CHANNEL_USER
 	
 	
 	;; @ EEPROM ADR 0x10
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_B_MIDI_CHANNEL_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_B_MIDI_CHANNEL_USER
 	
 	
 	;; @ EEPROM ADR 0x11
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_C_MIDI_CHANNEL_USER
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_C_MIDI_CHANNEL_USER
 	
 	
 	;; @ EEPROM ADR 0x12
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF
 	
 
 	;; @ EEPROM ADR 0x13
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_R6_NOISE_PERIOD
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_R6_NOISE_PERIOD
 	
 
 	;; @ EEPROM ADR 0x14
 	call    LOAD_PATCH_DATA_BYTE	
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_R8_CH_A_AMPLITUDE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_R8_CH_A_AMPLITUDE
 	
 	;; ----------------[ CHK: TONE A ENV ON?  ]-------------------	
 	;; CS LED ==> TONE A ENVELOPE MODE (BIT4)	
@@ -335,7 +188,7 @@ EEPROM_PATCH_LOAD_LED_CS_ENV_A_OFF
 EEPROM_PATCH_LOAD_R9
 	;; @ EEPROM ADR 0x15
 	call    LOAD_PATCH_DATA_BYTE	
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_R9_CH_B_AMPLITUDE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_R9_CH_B_AMPLITUDE
 	
 	;; ----------------[CHK: TONE B ENV ON?  ]-------------------	
 	;; CS LED ==> TONE B ENVELOPE MODE (BIT4)	
@@ -359,7 +212,7 @@ EEPROM_PATCH_LOAD_LED_CS_ENV_B_OFF
 EEPROM_PATCH_LOAD_R10
 	;; @ EEPROM ADR 0x16
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_R10_CH_C_AMPLITUDE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_R10_CH_C_AMPLITUDE
 	;; ----------------[ CHK: TONE C ENV ON?  ]-------------------	
 	;; CS LED ==> TONE C ENVELOPE MODE (BIT4)	
 	;; IS "ENVELOPE MODE" (BIT4) ON OR OFF?
@@ -381,7 +234,7 @@ EEPROM_PATCH_LOAD_LED_CS_ENV_C_OFF
 EEPROM_PATCH_LOAD_R11
 	;; @ EEPROM ADR 0x17
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_R11_ENV_PERIOD_FINE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_R11_ENV_PERIOD_FINE
 		;; PREPARE ITEM DATA FOR TRANSFERE TO AY CHIP VIA ay_sr.inc
 		;; --------------------------------------------------------
 		;; WRITE AY REG *ADRESS* TO AY_REG_ADDRESS FOR => AY_SR_Write
@@ -396,7 +249,7 @@ EEPROM_PATCH_LOAD_R11
 	
 	;; @ EEPROM ADR 0x18
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_R12_ENV_PERIOD_COARSE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_R12_ENV_PERIOD_COARSE
 
 		;; PREPARE ITEM DATA FOR TRANSFERE TO AY CHIP VIA ay_sr.inc
 		;; --------------------------------------------------------
@@ -414,7 +267,7 @@ EEPROM_PATCH_LOAD_R11
 	;; -------------[WRITE ENV SHAPE 1-8]--------------------------
 	;; @ EEPROM ADR 0x19
 	call    LOAD_PATCH_DATA_BYTE
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, ENV_SHAPE_0_15_to_1_8_TRANSLATOR
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, ENV_SHAPE_0_15_to_1_8_TRANSLATOR
 		;; FUNCTION:
 		;; 1) TRANSLATE ENV SHAPE 1-8 (ENV SHAPES) to 0-15 (AY CHIP REG) 
 		;; 2) Write Value to AY_R13_ENV_SHAPE_CYCLE (but do not write the AY_R13_ENV_SHAPE_CYCLE
@@ -429,7 +282,7 @@ EEPROM_PATCH_LOAD_R11
 	;; ----------------[ START @ EEPROM ADR 0x1A ]------------------
 	;; -------------[LOAD TONE NOISE ON OFF SWITCH]-----------------
 	call    LOAD_PATCH_DATA_BYTE	
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH
 		;; WRITE TO CS LED
 		;; IS BIT 0 CLEAR? [(=> TONE A) = 0 (=> ON)]?
 		btfsc AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, BIT0_TONE_A_ON_OFF
@@ -549,7 +402,7 @@ PATCH_LOAD_FX_USER_ON_OFF
 	;; INTERNAL PATCH DATA BYTE   [INTERNAL EEPROM PATCH - ADR 0x1B (027 DEC)@ EEPROM   ] 
 	;; BANKSTICK PATCH DATA BAYTE [BANKSTICK PATCH         ADR 0x1C (028 DEC)@ BANKSTICK]
 	call    LOAD_PATCH_DATA_BYTE	
-	movff 	CURREND_PATCH_DATA_BYTE_TEMP, FX_USER_ON_OFF_ABC
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, FX_USER_ON_OFF_ABC
 	
 	;; USER: FX ABC off (See MAIN MENU 3 / Mixer)
 	;; BIT0 = A (SET = ON / CLR = OFF)
@@ -606,7 +459,7 @@ PATCH_LOAD_CHK_FX_C
 			;; Fx C *IS* ON 
 			call LED_Fx_C_on
 			;; GO AND LOAD PATCH FX DATA
-			rgoto DO_LOAD_CURREND_PATCH_FX_DATA
+			rgoto DO_LOAD_CURRENT_PATCH_FX_DATA
 
 
 PATCH_LOAD_LED_CS_FX_C_OFF
@@ -618,7 +471,7 @@ PATCH_LOAD_LED_CS_FX_C_OFF
 
 ;; ---------------------------------------------------------------
 ;; ----------------[START: LOAD FX DATA]--------------------------			
-DO_LOAD_CURREND_PATCH_FX_DATA
+DO_LOAD_CURRENT_PATCH_FX_DATA
 ;; ---------------------------[LOAD Fx DATA]----------------------
 
 	;; ------------[PREPEAR Fx DATA LOADING]----------------
@@ -643,20 +496,20 @@ DO_LOAD_CURREND_PATCH_FX_DATA
 	;; -----------[LOAD Fx Function (Pos 0-31)]---------------------------------
 EEPROM_PATCH_LOAD_FX_FUNC_FROM_EEPROM
 	;; LOAD Fx FUNCTION BYTES CYCLE - DO 32x
-	;; LOAD FX FUNCTION @ Currend Fx Pos from PIC EEPROM to PIC RAM
+	;; LOAD FX FUNCTION @ CURRENT Fx Pos from PIC EEPROM to PIC RAM
 	;; -----------------------------------------------------------------
  	movlw		EEPROM_OFFSET_FX_FUNCTION		;; Fx Functions AREA - EEPROM OFFSET (!)
 	addwf		Fx_LOAD_WRITE_ADR_COUNTER_TMP, W	;; OFFSET + POS
 	movwf        	EEADR 			;; SET EEPROM ADRESS [OFFSET+POS]
-        call        	MIOS_EEPROM_Read       	;; READ FX FUNCTION @ currend Pos of PIC EEPROM (EEADR will be incremented)
- 	movwf        	Fx_PATCH_DATA_TMP       ;; WRITE FX FUNCTION @ currend Pos TO TMP
+        call        	MIOS_EEPROM_Read       	;; READ FX FUNCTION @ CURRENT Pos of PIC EEPROM (EEADR will be incremented)
+ 	movwf        	Fx_PATCH_DATA_TMP       ;; WRITE FX FUNCTION @ CURRENT Pos TO TMP
  	
- 	;; ------[ WRITE FX FUNCTION @ Currend Fx Pos ==> to PIC RAM ]---------�
+ 	;; ------[ WRITE FX FUNCTION @ CURRENT Fx Pos ==> to PIC RAM ]---------�
  	;; -----------------------------------------------------
 	movlw	RAM_OFFSET_FX_FUNCTION			;; Fx RAM AREA OFFSET (!)
  	addwf   Fx_LOAD_WRITE_ADR_COUNTER_TMP, W      	;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf   FSR0L		        	;; LOAD CURREND OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
- 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ currend Pos to Fx RAM
+	movwf   FSR0L		        	;; LOAD CURRENT OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
+ 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ CURRENT Pos to Fx RAM
 	
 		;; ----------[PERFORM CYCLE or Exit READ CYCLE]----
 		;; ------------------------------------------------
@@ -683,14 +536,14 @@ EEPROM_PATCH_LOAD_FX_DATA_FROM_EEPROM
  	movlw		EEPROM_OFFSET_FX_DATA			;; EEPROM OFFSET (!)
 	addwf		Fx_LOAD_WRITE_ADR_COUNTER_TMP, W	;; OFFSET + POS
 	movwf        	EEADR 			;; SET EEPROM ADRESS [OFFSET+POS]
-        call        	MIOS_EEPROM_Read       ;; READ FX FUNCTION @ currend Pos of PIC EEPROM (EEADR will be incremented)
- 	movwf        	Fx_PATCH_DATA_TMP        ;; WRITE FX FUNCTION @ currend Pos TO MIOS_PARAMETER2
+        call        	MIOS_EEPROM_Read       ;; READ FX FUNCTION @ CURRENT Pos of PIC EEPROM (EEADR will be incremented)
+ 	movwf        	Fx_PATCH_DATA_TMP        ;; WRITE FX FUNCTION @ CURRENT Pos TO MIOS_PARAMETER2
  	
- 	;; WRITE FX FUNCTION @ Currend Fx Pos to PIC RAM
+ 	;; WRITE FX FUNCTION @ CURRENT Fx Pos to PIC RAM
  	movlw	RAM_OFFSET_FX_DATA			;; Fx RAM AREA OFFSET (!)
  	addwf   Fx_LOAD_WRITE_ADR_COUNTER_TMP, W        ;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf   FSR0L		        	;; LOAD CURREND OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
- 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ currend Pos to Fx RAM
+	movwf   FSR0L		        	;; LOAD CURRENT OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
+ 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ CURRENT Pos to Fx RAM
 ; 	
 	
 	
@@ -719,14 +572,14 @@ EEPROM_PATCH_LOAD_FX_TIME_FROM_EEPROM
  	movlw	EEPROM_OFFSET_FX_TIME_PRE_EXECUTION	;; EEPROM OFFSET (!)
 	addwf	Fx_LOAD_WRITE_ADR_COUNTER_TMP, W	;; OFFSET + POS
 	movwf   EEADR 			;; SET EEPROM ADRESS [OFFSET+POS]
-        call    MIOS_EEPROM_Read        ;; READ FX FUNCTION @ currend Pos of PIC EEPROM (EEADR will be incremented)
- 	movwf   Fx_PATCH_DATA_TMP       ;; WRITE FX FUNCTION @ currend Pos TO MIOS_PARAMETER2
+        call    MIOS_EEPROM_Read        ;; READ FX FUNCTION @ CURRENT Pos of PIC EEPROM (EEADR will be incremented)
+ 	movwf   Fx_PATCH_DATA_TMP       ;; WRITE FX FUNCTION @ CURRENT Pos TO MIOS_PARAMETER2
  	
- 	;; WRITE FX FUNCTION @ Currend Fx Pos to PIC RAM
+ 	;; WRITE FX FUNCTION @ CURRENT Fx Pos to PIC RAM
  	movlw	RAM_OFFSET_FX_TIME_PRE_EXECUTION      ;; Fx RAM AREA OFFSET (!)
  	addwf   Fx_LOAD_WRITE_ADR_COUNTER_TMP, W      ;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf   FSR0L		        	;; LOAD CURREND OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
- 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ currend Pos to Fx RAM
+	movwf   FSR0L		        	;; LOAD CURRENT OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
+ 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ CURRENT Pos to Fx RAM
 
 	
 		incf Fx_LOAD_WRITE_ADR_COUNTER_TMP, F ;; pos = pos +1 | pos range 0 to 31 [32 pos gesamt]
@@ -761,17 +614,17 @@ BANKSTICK_PATCH_LOAD_FX_FUNC_FROM_BANKSTICK
 	movwf    MIOS_PARAMETER1
       	; store BANKSTICK high-byte of address in MIOS_PARAMETER2
         movff   BROWSE_PATCH_NR	, MIOS_PARAMETER2
-        decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURREND PATCH NR -1
+        decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURRENT PATCH NR -1
         ;; READ BYTE @ BANKSTICK
         call        	MIOS_BANKSTICK_Read    	;; READ FX FUNCTION @ from BANKSTICK 
  	movwf        	Fx_PATCH_DATA_TMP       ;; WRITE FX FUNCTION @ TO TMP
  	;; --------------------------------------------------------------------
- 	;; ------[ WRITE FX FUNCTION @ Currend Fx Pos ==> to PIC RAM ]---------
+ 	;; ------[ WRITE FX FUNCTION @ CURRENT Fx Pos ==> to PIC RAM ]---------
  	;; --------------------------------------------------------------------
 	movlw	RAM_OFFSET_FX_FUNCTION			;; Fx RAM AREA OFFSET (!)
  	addwf   Fx_LOAD_WRITE_ADR_COUNTER_TMP, W      	;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf   FSR0L		        	;; LOAD CURREND OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
- 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ currend Pos to Fx RAM
+	movwf   FSR0L		        	;; LOAD CURRENT OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
+ 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ CURRENT Pos to Fx RAM
 	
 		;; ----------[PERFORM CYCLE or Exit READ CYCLE]----
 		;; ------------------------------------------------
@@ -802,16 +655,16 @@ BANKSTICK_PATCH_LOAD_FX_DATA_FROM_BANKSTICK
 	movwf    MIOS_PARAMETER1
       	; store BANKSTICK high-byte of address in MIOS_PARAMETER2
         movff   BROWSE_PATCH_NR	, MIOS_PARAMETER2
-        decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURREND PATCH NR -1
+        decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURRENT PATCH NR -1
         ;; READ BYTE @ BANKSTICK
         call    MIOS_BANKSTICK_Read    	;; READ FX FUNCTION BYTE from BANKSTICK
  	movwf   Fx_PATCH_DATA_TMP       ;; WRITE FX FUNCTION TO TMP
  	;; ------------------------------------------------------------------------------
- 	;; WRITE FX FUNCTION @ Currend Fx Pos to PIC RAM
+ 	;; WRITE FX FUNCTION @ CURRENT Fx Pos to PIC RAM
  	movlw	RAM_OFFSET_FX_DATA			;; Fx RAM AREA OFFSET (!)
  	addwf   Fx_LOAD_WRITE_ADR_COUNTER_TMP, W        ;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf   FSR0L		        	;; LOAD CURREND OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
- 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ currend Pos to Fx RAM
+	movwf   FSR0L		        	;; LOAD CURRENT OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
+ 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ CURRENT Pos to Fx RAM
 	
 		;; READ CYCLE MANAGEMENT	
 		incf Fx_LOAD_WRITE_ADR_COUNTER_TMP, F ;; pos = pos +1 | pos range 0 to 31 [32 pos gesamt]
@@ -843,16 +696,16 @@ BANKSTICK_PATCH_LOAD_FX_TIME_FROM_BANKSTICK
 	movwf    MIOS_PARAMETER1
       	; store BANKSTICK high-byte of address in MIOS_PARAMETER2
         movff   BROWSE_PATCH_NR	, MIOS_PARAMETER2
-        decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURREND PATCH NR -1
+        decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURRENT PATCH NR -1
         ;; READ BYTE @ BANKSTICK
         call    MIOS_BANKSTICK_Read    	;; READ FX FUNCTION BYTE from BANKSTICK
  	movwf   Fx_PATCH_DATA_TMP       ;; WRITE FX FUNCTION TO TMP
  	;; ------------------------------------------------------------------------------
-  	;; WRITE FX FUNCTION @ Currend Fx Pos to PIC RAM
+  	;; WRITE FX FUNCTION @ CURRENT Fx Pos to PIC RAM
  	movlw	RAM_OFFSET_FX_TIME_PRE_EXECUTION      ;; Fx RAM AREA OFFSET (!)
  	addwf   Fx_LOAD_WRITE_ADR_COUNTER_TMP, W      ;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf   FSR0L		        	;; LOAD CURREND OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
- 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ currend Pos to Fx RAM
+	movwf   FSR0L		        	;; LOAD CURRENT OFFSET IND. ADR. for Fx Fuction Reg. @ current Fx Pos.
+ 	movff   Fx_PATCH_DATA_TMP, INDF0 	;; WRITE FX FUNCTION @ CURRENT Pos to Fx RAM
 
 	
 		incf Fx_LOAD_WRITE_ADR_COUNTER_TMP, F ;; pos = pos +1 | pos range 0 to 31 [32 pos gesamt]
@@ -886,12 +739,25 @@ PATCH_LOAD_OK
 		call    MIOS_LCD_PrintString
 		
 		;; AFTER LOADING THE PATCH: 
-		;; Currendt Patch = BROWSE PATCH
-		movff       BROWSE_PATCH_NR, CURREND_PATCH_NR
+		;; CURRENT Patch = BROWSE PATCH
+		movff       BROWSE_PATCH_NR, CURRENT_PATCH_NR
+
+		;; SET THE "A PATCH HAS BEEN LOADED" FLAG
+		bsf	PATCH_MENU_STATE_FLAGS, BIT4_A_PATCH_HAS_BEEN_LOADED
 
 		;; WRITE ASC. NAME @ LCD ROW1
 		;; subfunction @ patch_name_writing.inc
 		call WRITE_PATCH_NAME_ON_LCD
+
+		;; CLEAR THE =>!<= @ ROW1
+		;; PERHAPS THERE WAS A: =>!<= [PATCH NAME] ON LCD ROW1 
+		;; LETS CLEAR THE "!"
+		;; BECAUSER NOW THE LOADED PATCH HAS BECOME THE *CURRENT PATCH*
+		;; SO NOW THE CURRENT PATCH = BROWSE PATCH
+		movlw   LCD_ROW1 + 6
+        	call    MIOS_LCD_CursorSet
+		movlw   ' '
+        	call    MIOS_LCD_PrintChar	
 			
 			;; EXIT
 			return
@@ -914,16 +780,136 @@ PATCH_DATA_LOADING_Failed
 
 
 
-;; 
-
 ;; #########################################################################################
 ;; -----------------------------------------------------------------------------------------
 ;; -------------------------------[:: SUBROUTINES ::]---------------------------------------
 ;; -----------------------------------------------------------------------------------------
 ;; #########################################################################################
+
+
+CHECK_PATCH_FINGERPRINT
+	;; FUNCTION:
+	;; READ READ THE *Fingerprint* BYTE @ PATCH ADR 0x00
+
+	;; LOAD FINGERPRINT FROM EEPROM or BANKSTICK?
+	;; ------------------------------------------
+	;; CHECK:
+	;; PATCH_MENU_STATE_FLAGS
+	;; BIT2 = 0 = LOAD EEPROM PATCH (PIC INTERNAL PATCH)
+	;; BIT2 = 1 = LOAD BANKSTICK PATCH
+	btfsc	PATCH_MENU_STATE_FLAGS, BIT2_SELECTED_PATCH_BANKSTICK_OR_INTERNAL
+			;; BANKSTICK
+			;; BIT2 = SET	
+			;; ============[GO AND LOAD BANKSTICK PATCH FINGERPRINT]==========
+			rgoto LOAD_PATCH_FINGERPRINT_BANKSTICK
+				
+		;; ================[LOAD INTERNAL (EEPROM) PATCH FINGERPRINT]=============
+		;; PATCH_MENU_STATE_FLAGS BIT2 = CLEAR
+		;; PATCH = INTERNAL (PIC EEPROM)
+		;; LOAD FINGERPRINT from INTERNAL PATCH (PIC EEPROM)
+		;; -------------------------------------------------------------------	
+		;; CHECK THE FINGERPRINT @ EEPROM ADR 0
+		;; DATA MUST BE = PIC_INT_EEPROM_FINGERPRINT (0x12)
+		;; ELSE THE PATCH DATA IS NOT VALID
+		movlw   EEPROM_ADR_FINGERPRINT		;; ADR 0
+       		movwf   EEADR				;; MOVE ADR 0 TO EEPROM ARD REG
+        	call    MIOS_EEPROM_Read   		;; read Byte from EEPROM and INC EEADR +1 (AUTO INC ADR)
+        	movwf	MIOS_PARAMETER1			;; MOVE DATA from EEPROM ADR0 to MIOS_PARAMETER1
+        	;; MEMO:
+		;; PIC_INT_EEPROM_FINGERPRINT = CONST 
+        	;; DATA BYTE from PIC int EEPROM 
+		;; @ ADR0 = PIC_INT_EEPROM_FINGERPRINT?
+		movlw 	PIC_INT_EEPROM_FINGERPRINT	
+        	cpfseq	MIOS_PARAMETER1
+        		;; NO,
+			;; THERE IS NO VALID FINGERPRINT @ PIC EEPROM ADR0 (INTERNAL PATCH)
+			;; Fingerprint < > PIC_INT_EEPROM_FINGERPRINT
+        		rgoto PATCH_DATA_LOADING_Failed
+        		
+        	;; YES
+		;; Fingerprint = PIC_INT_EEPROM_FINGERPRINT
+		;; GO ON AND LOAD PATCH FROM PIC EEPROM (INTERNAL PATCH)
+		return
+		;; ============[END: LOAD INTERNAL (PIC EEPROM) PATCH FINGERPRINT]=================
+
+LOAD_PATCH_FINGERPRINT_BANKSTICK
+	;; =======================[LOAD BANKSTICK PATCH FINGERPRINT]===============================
+	;; MEMO: BANKSTICK DATA STRUCTURE
+	;; BANKSTICK ADRESS GOT A HIGH and a LOW BYTE [16 BIT ADRESS]
+	;; [HIGH BYTE ADR] [LOW BYTE ADR]
+	;; [  0000 0000      0000 0000  ] 16 BIT BANKSTICK ADR
+	;; THE [HIGH BYTE ADR] = [PATCH NUMBER (-1)] | RANGE: 0 to 127 | = PATCH NUMBER POINTER
+	;; THE [LOW  BYTE ADR] = PATCH DATA AREA     | RANGE: 0 to 255 | = PATCH DATA POINTER
+	;; EVERY SINGLE BANKSTICK PATCH GOT A OWN 255 BYTES DATA AREA. THE [LOW BYTE ADR] IS THE POINTER
+	;; TO EVERY SINGLE DATA BYTE OF A SINGLE PATCH. IN OTHER WORDS THE [LOW BYTE] IS THE PATCH
+	;; DATA POINTER. THE [HIGH BYTE ADR] DO DEFINE THE PATCH NUMBER (0 to 127). IN OTHER WORDS
+	;; THE [HIGH BYTE ADR] IS THE POINTER THE BANKSTICK PATCH NUMBER.
+			;; -----------[SET BANKSTICK LOWBYTE ADR]------------------------------------------
+			;; Store LOW-BYTE (FINGERPRINT) BANKSTICK ADRESS in MIOS_PARAMETER1 
+			;; SET LOW BYTE BANKSTICK ADRRESS to 0 ( = FINGERPRINT ADR)
+			clrf        MIOS_PARAMETER1
+       			;; -----------[SET BANKSTICK ADR HIGHBYTE]-------------------------------------
+       			;; Store HIGH-byte BANKSTICK ADRESS in MIOS_PARAMETER2
+       			;; FINGERPRINT (HIGH BYTE) = PATCH NR = [1 to 127]
+       			movff       BROWSE_PATCH_NR, MIOS_PARAMETER2
+       			;; -1 OFFSET
+       				;; ---------------------------------------------------------------------
+       				;; MEMO - HIGH BYTE ADR OFFSET:
+       				;; EVERY BANKSTICK PATCH NEED A HIGH BYTE OFFSET of -1
+       				;; SO THAT PATCH Nr 1   => HIGH BYTE = 0
+       				;; SO THAT PATCH Nr 2   => HIGH BYTE = 1
+       				;; SO THAT PATCH Nr 3   => HIGH BYTE = 2
+       				;; ...
+       				;; SO THAT PATCH Nr 127 => HIGH BYTE = 126
+       				;; THE HIGHEST BANKSTICK ADR = 7FFF 
+       				;; => [7F(ADR.HIGH_BYTE)FF(ADR.LOW_BYTE)]
+       				;; THERE WOULD BE NO ADR SPACE for A PATCH
+       				;; STARTING WITH A HIGH BYTE ADR @ 127 (!)
+       				;; SO THE LAST VALID HIGH BYTE ADR = 126 
+       				;; ----------------------------------------------------------------------
+        		decf        MIOS_PARAMETER2, F
+        		;; ---------------------------------------------------------------------
+        		;; LOAD BANKSTICK FINGERPRINT  
+        		;; @ CURRENT PATCH ADR 0x00
+        		call    MIOS_BANKSTICK_Read        ; load FINGERPRINT-BYTE from BankStick
+        		movwf	MIOS_PARAMETER1	
+                        ;; branch to error exception
+                        ;; routine if neccesary
+        		;; BRA_IFCLR MIOS_BOX_STAT, MIOS_BOX_STAT_BS_AVAILABLE, ACCESS, PATCH_DATA_LOADING_Failed
+			
+				;; FINGERPRINT OK ?
+        			;; MUST BE CONST. BANKSTICK_PATCH_FINGERPRINT
+				movlw 	BANKSTICK_PATCH_FINGERPRINT
+        			cpfseq	MIOS_PARAMETER1
+        				;; NO,
+					;; Fingerprint < > BANKSTICK_PATCH_FINGERPRINT
+        				;; ERROR !
+					rgoto PATCH_DATA_LOADING_Failed
+		
+        		
+				;; YES
+				;; Fingerprint = BANKSTICK_PATCH_FINGERPRINT
+			;; ----------------------------------------------------------------------
+			;; ---------[STATE: BANKSTICK FINGERPRINT  = OK]-------------------------
+			;; ----------------------------------------------------------------------
+			
+			;; ---------[SET: BANKSTICK_LOW_BYTE_ADR_COUNTER]------------------------
+			;; THE FINGERPRINT IS  @ BANKSTICK ADR0 
+			;; THE PATCH NUMBER IS @ BANKSTICK ADR1
+			;; ALL OTHER PATCH DATA WILL FOLOW NOW @ ADR2
+			;; SO SET BANKSTICK LOW BYTE COUNTER TO  ADR2
+			movlw 	0x02
+			movwf	BANKSTICK_LOW_BYTE_ADR_COUNTER
+	;; ============[STATE: BANKSTICK PATCH FINGERPRINT OK]=====
+	;; --------------------------------------------------------
+	;; GO AND LOAD BANKSTICK PATCH DATA BYTES...
+	return
+	;; ----------------------------------------------------------------------------------------
+
+
+
 ;; -----------------------------------------------------------------------------------------
-;; -----------------------------------------------------------------------------------------
-;; -----------------------[LOAD DATA BYTE from EEPROM OR BANKSTICK to PIC RAM]--------------
+;; ----------[LOAD DATA BYTE from EEPROM OR BANKSTICK to PIC RAM (SUBROUTINE)]--------------
 ;; -----------------------------------------------------------------------------------------
 LOAD_PATCH_DATA_BYTE
 	;; CHECK:
@@ -939,8 +925,8 @@ LOAD_PATCH_DATA_BYTE
 		;; BIT2 = CLEAR
 		;; LOAD INTERNAL PATCH (from PIC EEPROM)
 		call    MIOS_EEPROM_Read
-		movwf 	CURREND_PATCH_DATA_BYTE_TEMP
-		;; LOADED BYTE HAS BEEN WRITTEN TO CURREND_PATCH_DATA_BYTE_TEMP
+		movwf 	CURRENT_PATCH_DATA_BYTE_TEMP
+		;; LOADED BYTE HAS BEEN WRITTEN TO CURRENT_PATCH_DATA_BYTE_TEMP
 		;; EEPROM ADR = EEPROM ADR +1
 		;; EXIT THIS SUBROUTINE
 		return
@@ -952,15 +938,15 @@ LOAD_PATCH_DATA_BYTE_FROM_BANKSTICK
 			movff    BANKSTICK_LOW_BYTE_ADR_COUNTER, MIOS_PARAMETER1
       			; store high-byte of address in MIOS_PARAMETER2
         		movff   BROWSE_PATCH_NR	, MIOS_PARAMETER2
-        		decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURREND PATCH NR -1
+        		decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURRENT PATCH NR -1
         						;; -1 OFFSET
-        		;; LOAD THE CURREND DATA BYTE from BANKSTICK
+        		;; LOAD THE CURRENT DATA BYTE from BANKSTICK
         		call    MIOS_BANKSTICK_Read        		; (address will be incremented
         			                                      	;  after write)
         		;; bnz   BSProgrammingFailed       		; branch to your exception handler
 						
-			;; STORE PATCH DATA BYTE TO CURREND_PATCH_DATA_BYTE_TEMP
-        		movwf	CURREND_PATCH_DATA_BYTE_TEMP
+			;; STORE PATCH DATA BYTE TO CURRENT_PATCH_DATA_BYTE_TEMP
+        		movwf	CURRENT_PATCH_DATA_BYTE_TEMP
 			;; --------------------------------------------------------------------
 			;; BANKSTICK ADR = BANKSTICK ADR +1 (LOW BYTE)
 			incf	BANKSTICK_LOW_BYTE_ADR_COUNTER, F
@@ -969,5 +955,56 @@ LOAD_PATCH_DATA_BYTE_FROM_BANKSTICK
 			return
 			;; =====================================================================
 ;; ---------------------------------------------------------------------------------------------
-;; -----------------------[END: WRITE DATA BYTE TO EEPROM OR BANKSTICK]-------------------------
+;; -----------------------[END: WRITE DATA BYTE TO EEPROM OR BANKSTICK SUBROUTINE]--------------
 ;; ---------------------------------------------------------------------------------------------
+
+
+;; -------------------------------------------------------------------------------
+;; -----------------------[START SUBROUTINE: READ PATCH NAME]---------------------
+;; -------------------------------------------------------------------------------
+READ_PATCH_NAME_SUB_ROUTINE
+
+	;; LOAD DATA BYTE @ EEPROM ADR 0x01 | @ BANKSTICK PATCH DATA BYTE ADR 0x02
+	call    LOAD_PATCH_DATA_BYTE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_0
+	
+	
+	
+	;; LOAD DATA BYTE @ EEPROM ADR 0x02 | @ BANKSTICK PATCH DATA BYTE ADR 0x03
+	call    LOAD_PATCH_DATA_BYTE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_1
+
+
+	
+	;; LOAD DATA BYTE @ EEPROM ADR 0x03 | @ BANKSTICK PATCH DATA BYTE ADR 0x04
+	call    LOAD_PATCH_DATA_BYTE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_2
+
+
+	;; @ EEPROM ADR 0x04 
+	call    LOAD_PATCH_DATA_BYTE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_3
+
+	;; @ EEPROM ADR 0x05
+	call    LOAD_PATCH_DATA_BYTE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_4
+
+	;; @ EEPROM ADR 0x06
+	call    LOAD_PATCH_DATA_BYTE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_5
+
+	;; @ EEPROM ADR 0x07
+	call    LOAD_PATCH_DATA_BYTE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_6
+
+	
+	;; LOAD DATA BYTE @ EEPROM ADR 0x08 | @ BANKSTICK PATCH DATA BYTE ADR 0x09
+	call    LOAD_PATCH_DATA_BYTE
+	movff 	CURRENT_PATCH_DATA_BYTE_TEMP, PATCH_NAME_ASC_7
+
+		;; EXIT SUBROUTINE
+		return
+
+;; -------------------------------------------------------------------------------
+;; -------------------------[END: READ PATCH NAME]--------------------------------
+;; -------------------------------------------------------------------------------

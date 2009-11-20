@@ -19,17 +19,17 @@ LABEL_AY_MAIN_MENU_05_ABC_ENVELOPE
  	movf    AY_R12_ENV_PERIOD_COARSE,W
 	call    MIOS_LCD_PrintBCD3
 	
-        
+
         ;; AY_R11_ENV_PERIOD_FINE 
         TABLE_ADDR TEXT_AY_MENU_ENVELOPE_FINE
         call    MIOS_LCD_PrintString
         ;; SET CURSOR FOR ENV. PERIOD TIME FINE 
 	movlw   LCD_ROW2 + 0x0d
         call    MIOS_LCD_CursorSet
-            
+
         movf    AY_R11_ENV_PERIOD_FINE, W
         call    MIOS_LCD_PrintBCD3
-        
+
         ;; PRINT MENUE ENVELOPE ENV. SHAPE VALUE
         TABLE_ADDR TEXT_AY_MENU_ENVELOPE_SHAPE
         call    MIOS_LCD_PrintString

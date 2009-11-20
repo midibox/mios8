@@ -198,7 +198,7 @@ USER_TICK_PITCH_BEND_CHECK_IF_MAIN_MENU_IS_2
 
 
 ;; ----------------------------------------------------------------
-;; ---------[*REDRAW LCD / currend MAIN MENU*]---------------------
+;; ---------[*REDRAW LCD / CURRENT MAIN MENU*]---------------------
 USER_TICK_CC_DO_MAIN_MENU_REDRAW	
 			
 			;;RESET CC FLAG

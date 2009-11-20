@@ -1,8 +1,8 @@
 ;; main_menu_01_patch.inc
 ;; 
-;; function: 
-;; WRITE MAIN MENU1 = PATCH MENU
-;; TO LCD (Patch Name, etc.)
+;; function:
+;; WRITE MAIN MENU1 = PATCH MENU on LCD
+
 
 ;; ------[MB AY MAIN MENU 01: AY PATCH INFO ]------ 
 
@@ -11,7 +11,40 @@ LABEL_AY_MAIN_MENU_01_PATCH_INFO
 	
 	;; CLEAR LCD
 	call    MIOS_LCD_Clear
+
+	;; RESET PATCH NAME CURSOR POS
+	;; POS1 PATCH NAME
+	clrf MIOS_PARAMETER1
+	movff MIOS_PARAMETER1, PATCH_NAME_ASC_POS
 	
+	;; CHECK: NEW PATCH NAME?
+	;; (DID THE USER EDIED THE PATCH NAME?)
+	btfsc PATCH_MENU_STATE_FLAGS, BIT5_PATCH_NAME_IS_NEW
+		
+		;; ------------------------------------------------------
+		;; BIT5 = SET
+		;; THE PATCH NAME IS NEW (EDITED BY THE USER)
+		;; DO NOT OVERWRITE THE NEW PATCH NAME
+		rgoto LABEL_AY_MAIN_MENU_01_WRITE_PATCH_NAME_ON_LCD_ROW1
+
+	;; --------------------------------------------------------------
+	;; BIT5 = CLEAR
+	;; --------------------------------------------------------------
+	;; LOAD BROWSE PATCH NAME
+	;; --------------------------------------------------------------
+	;; DO LOAD AND CHECK THE *FINGERPRINT* BYTE
+	;; @ INTERNAL PATCH or BANKSTICK PATCH | ADR 0x00
+	;; IF THE *FINGERPRINT* BYTE is not valid goto PATCH_DATA_LOADING_Failed
+	call CHECK_PATCH_FINGERPRINT
+	;; --------------------------------------------------------------
+	;; LOAD PATCH NAME (ASC) from EEPROM or BANKSTICK (SUB ROUTINE)
+	;; EEPROM 	ADR 0x01 to 0x08
+	;; BANKSTICK	ADR 0x02 to 0x09
+	call READ_PATCH_NAME_SUB_ROUTINE
+	;; --------------------------------------------------------------
+	;; --------------------------------------------------------------
+
+LABEL_AY_MAIN_MENU_01_WRITE_PATCH_NAME_ON_LCD_ROW1
 	;; -------------[LCD ROW 1 (PATCH NAME)]--------------------------------
    	TABLE_ADDR TEXT_AY_MB_AY_PATCH_NAME
 	call    MIOS_LCD_PrintString
@@ -89,13 +122,65 @@ LABEL_AY_MAIN_MENU_01_PATCH_INFO
 		 	movf 	MIOS_PARAMETER1, W
         		call    MIOS_LCD_PrintChar
 		;; -------------------------------------------
-		;; ------[END: WRITE ASC PATCH NAME]----------
-		;; -----[END: LCD ROW 1 (PATCH NAME)]---------
+		;; -----[END: WRITE ASC PATCH NAME  ]---------
+
+;; -----[CHECK: DO WE HAVE TO WRITE A "!" ON LCD ROW1 (BEFORE PATCH NAME)?]----------
+
+	;; CKECK:
+	;; CURREND PATCH < > BROWSE PATCH?
+	;; WRITE: ! [PATCH NAME] ON LCD ROW1 IF < >
+	;; WRITE:   [PATCH NAME] ON LCD ROW1 IF =
+	movf  	CURRENT_PATCH_NR, W
+	cpfseq 	BROWSE_PATCH_NR
+			
+			;; NO
+			;; < >
+			rgoto LABEL_WRITE_EXCLAMATION_MARK_BEFORE_PATCH_NAME
+
+			;; YES
+			;; =
+			rgoto LABEL_CHECK_HAS_A_PATCH_BEEN_LOADED_YET
+	
+
+
+LABEL_CHECK_HAS_A_PATCH_BEEN_LOADED_YET
+	;; STATE: CURREND PATCH = BROWSE PATCH
+	;; CHECK: HAS A PATCH BEEN LOADED YET?
+	;; MEMO - NO PATCH IS LOADED AFTER STARTUP
+	;; NOW WE CHECK IF WE HAVE THIS CASE 
+	;; BIT4 = CLEAR?
+	btfsc PATCH_MENU_STATE_FLAGS, BIT4_A_PATCH_HAS_BEEN_LOADED
+
+			;; NO
+			;; BIT4 is SET
+			;; A PATCH HAS BEEN LOADED
+			;; DO *NOT* WRITE A  "!" on LCD 
+			rgoto MAIN_MENU_01_FIND_EDIT_POS1
+
+			;; YES
+			;; BIT4 IS CLEAR
+			;; NO PATCH HAS BEEN LOADED YET
+			;; WRITE A  "!" on LCD 
+			rgoto LABEL_WRITE_EXCLAMATION_MARK_BEFORE_PATCH_NAME
+
+
+
+LABEL_WRITE_EXCLAMATION_MARK_BEFORE_PATCH_NAME
+	;; WRITE: "!" BEFORE [PATCH NAME] ON LCD ROW1 
+	movlw   LCD_ROW1 + 6
+        call    MIOS_LCD_CursorSet
+
+	movlw   '!'
+        call    MIOS_LCD_PrintChar		
+
+;; ------------------------[END OF "!" PROOF @ LCD ROW1]------------------------------------------
+
+;; ------------------------[END: LCD ROW 1 (PATCH NAME)]------------------------------------------
 
 ;; ------------------------[START ITEM POS HANDLING]----------------------------------------------
 ;; ------------------------------[PATCH NAME]-----------------------------------------------------
 ;; Show the POSITION of "*" [LCD: MAIN MENU EDIT POINTER] 
-LABEL_AY_MAIN_MENU_01_FIND_EDIT_POS1
+MAIN_MENU_01_FIND_EDIT_POS1
 	;; POS1 = PATCH NAME
 	;; IS AY_LCD_COURSER_POS_MAIN_MENU_PATCH_INFO = 1?
 	movff  	AY_LCD_COURSER_POS_MAIN_MENU_PATCH_INFO, MIOS_PARAMETER1
@@ -154,6 +239,23 @@ LABEL_AY_MAIN_MENU_01_POS2
 			call    MIOS_LCD_PrintString
 			TABLE_ADDR TEXT_AY_MB_AY_PATCH_INT_PATCH
 			call    MIOS_LCD_PrintString
+
+			;; PRINT PATCH NUMBER on LCD
+			movlw   LCD_ROW2 + 0x04
+			call    MIOS_LCD_CursorSet
+			movf    BROWSE_PATCH_NR, W
+			call    MIOS_LCD_PrintBCD3
+        	
+			movlw 	LCD_ROW2 + 3
+			call    MIOS_LCD_CursorSet
+			movlw   '['
+			call    MIOS_LCD_PrintChar
+        	
+			movlw 	LCD_ROW2 + 7
+			call    MIOS_LCD_CursorSet
+			movlw   ']'
+			call    MIOS_LCD_PrintChar
+			
 				;; GO AND CHECK IF POS2 IS IN EDITING "*" MODE
 				rgoto 	LABEL_AY_MAIN_MENU_01_POS2_EDITING_MODE
 	;; ----[END: CHECK IF PATCH NR = 0 = INTERNAL (PIC EEPROM PATCH)]------------
@@ -289,7 +391,7 @@ LABEL_AY_MAIN_MENU_01_ROW4
 			call    MIOS_LCD_PrintChar
         		
 			;; WRITE PATCH FLAGS
-			;; SET CURREND PATCH = INTERNAL
+			;; SET CURRENT PATCH = INTERNAL
 			;; CLEAR BIT 2 of PATCH_MENU_STATE_FLAGS
 			bcf PATCH_MENU_STATE_FLAGS, BIT2_SELECTED_PATCH_BANKSTICK_OR_INTERNAL
         		
@@ -300,7 +402,7 @@ LABEL_AY_MAIN_MENU_01_ROW4
 ;; ----------------------[ROW4 PATCH (1-128) = BANKSTICK]--------------------------- 
 LABEL_AY_MAIN_MENU_01_POS4_FORMAT
 	;; WRITE PATCH FLAGS
-	;; SET CURREND PATCH = BANKSTICK
+	;; SET CURRENT PATCH = BANKSTICK
 	;; SET BIT 2 of PATCH_MENU_STATE_FLAGS
 	bsf PATCH_MENU_STATE_FLAGS, BIT2_SELECTED_PATCH_BANKSTICK_OR_INTERNAL
 	
@@ -326,7 +428,7 @@ LABEL_AY_MAIN_MENU_01_CHK_BANKSTICK_AVAILABLE
 		;; Save BANKSTICK1 PATCH1 Fingerprint (Byte)
 		;; FOR "IS THE BANKSTICK FORMATTED?" HANDLING
 		;; ------------------------------------------
-		movwf	CURREND_PATCH_DATA_BYTE_TEMP
+		movwf	CURRENT_PATCH_DATA_BYTE_TEMP
 		
 	;; NOW (AFTER READING BS ADR 0) WE CAN CHECK IF BANKSTICK1 IS AVAILABLE
 	;; BRANCH IF BANKSTICK1 IS NOT PRESENT
@@ -479,15 +581,15 @@ LABEL_AY_MAIN_MENU_01_BANKSTICK_AVAILABLE
 			
 			;; CHECK IF THERE IS THE BANKSTICK FINGERPRINT
 			;; (THE QUESTION IS: DO WE HAVE TO FORMAT THE BANKSTICK?)
-			;; BANKSTICK_PATCH_FINGERPRINT = CURREND_PATCH_DATA_BYTE_TEMP 
-			;; (REMEMBER WE HAVE STORED THE "BANKSTICK ADR0" BYTE in CURREND_PATCH_DATA_BYTE_TEMP)
+			;; BANKSTICK_PATCH_FINGERPRINT = CURRENT_PATCH_DATA_BYTE_TEMP 
+			;; (REMEMBER WE HAVE STORED THE "BANKSTICK ADR0" BYTE in CURRENT_PATCH_DATA_BYTE_TEMP)
 			movlw 	BANKSTICK_PATCH_FINGERPRINT
-			cpfseq	CURREND_PATCH_DATA_BYTE_TEMP
+			cpfseq	CURRENT_PATCH_DATA_BYTE_TEMP
 					;; -------------------------------------------------
 					;; -----[STATE: BANKSTICK IS NOT FORMATTED]---------
 					;; -------------------------------------------------
 					;; NO
-					;; BANKSTICK_EEPROM_FINGERPRINT < > CURREND_PATCH_DATA_BYTE_TEMP 
+					;; BANKSTICK_EEPROM_FINGERPRINT < > CURRENT_PATCH_DATA_BYTE_TEMP 
 					;; SO THE BANKSTICK IS NOT FORMETTED!
 					rgoto	LABEL_AY_MAIN_MENU_01_BANKSTICK_AVAILABLE_NO_FINGERPRINT
 			
@@ -495,7 +597,7 @@ LABEL_AY_MAIN_MENU_01_BANKSTICK_AVAILABLE
 				;; -----[STATE: BANKSTICK IS FORMATTED]----------------
 				;; ----------------------------------------------------
 				;; YES
-				;; BANKSTICK_EEPROM_FINGERPRINT = CURREND_PATCH_DATA_BYTE_TEMP 
+				;; BANKSTICK_EEPROM_FINGERPRINT = CURRENT_PATCH_DATA_BYTE_TEMP 
 				;; (SAVED BYTE: BANKSTICK1 ADR0)
 				;; OK, WRITE PATCH MENU STATUS FLAG:
 				;; BANKSTICK = FORMATED :-)
@@ -517,7 +619,7 @@ LABEL_AY_MAIN_MENU_01_BANKSTICK_AVAILABLE_NO_FINGERPRINT
 					;; IF BANKSTICK IS NOT FORMATTED ROW1
 					;; IS NOT A VALID EDITING MODE POS (!)
 					;; BECAUSE THERE IS A "DO FORMAT BANKSTICK" MASSAGE on LCD @ ROW1
-					;; CHECK: CURREND POS = 1?
+					;; CHECK: CURRENT POS = 1?
 					movff 	AY_LCD_COURSER_POS_MAIN_MENU_PATCH_INFO, MIOS_PARAMETER1
 					movlw 	MENU_ITEM_POS1
 					cpfsgt 	MIOS_PARAMETER1 ;; EDITING MODE ITEM  = 1?

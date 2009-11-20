@@ -30,11 +30,11 @@ MIDI_EVNT_IS_8x_NOTE_OFF_TONE_A
 	;; via CURRENT_MIDI_EVENT_NOTE_ON_OFF
 	movf MIDI_EVNT1, W
 	cpfseq CURRENT_MIDI_EVENT_NOTE_ON_OFF_A
-			;; current NOTE OFF value is <> currend NOTE ON value
+			;; current NOTE OFF value is < > CURRENT NOTE ON value
 			;; so do nothing and exit here
 			return
 
-		;; current NOTE OFF value is = currend NOTE ON value
+		;; current NOTE OFF value is = CURRENT NOTE ON value
 		;; *CLEAR* FX MIDI NOTE ON FLAG @ TONE A
 		bcf Fx_MIDI_NOTE_ON_OR_OFF, BIT0_TONE_A_ON_OFF
 		
@@ -83,11 +83,11 @@ MIDI_EVNT_IS_8x_NOTE_OFF_TONE_B
 	;; via CURRENT_MIDI_EVENT_NOTE_ON_OFF
 	movf MIDI_EVNT1, W
 	cpfseq CURRENT_MIDI_EVENT_NOTE_ON_OFF_B
-			;; current NOTE OFF value is <> currend NOTE ON value
+			;; current NOTE OFF value is <> CURRENT NOTE ON value
 			;; so do nothing and exit here
 		 	return
 
-		;; current NOTE OFF value is = currend NOTE ON value
+		;; current NOTE OFF value is = CURRENT NOTE ON value
 		;; *CLEAR* FX MIDI NOTE ON FLAG @ TONE B
 		bcf Fx_MIDI_NOTE_ON_OR_OFF, BIT1_TONE_B_ON_OFF
 		
@@ -138,11 +138,11 @@ MIDI_EVNT_IS_8x_NOTE_OFF_TONE_C
 	;; via CURRENT_MIDI_EVENT_NOTE_ON_OFF
 	movf MIDI_EVNT1, W
 	cpfseq CURRENT_MIDI_EVENT_NOTE_ON_OFF_C
-			;; current NOTE OFF value is <> currend NOTE ON value
+			;; current NOTE OFF value is <> CURRENT NOTE ON value
 			;; so do nothing and exit here
 			return
 		
-		;; current NOTE OFF value is = currend NOTE ON value
+		;; current NOTE OFF value is = CURRENT NOTE ON value
 		;; *CLEAR* FX MIDI NOTE ON FLAG @ TONE C
 		bcf Fx_MIDI_NOTE_ON_OR_OFF, BIT2_TONE_C_ON_OFF
 		

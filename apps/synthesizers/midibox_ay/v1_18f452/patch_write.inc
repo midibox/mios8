@@ -1,6 +1,8 @@
 ;; patch_write.inc
-;; -------------------[WRITE internal patch to pic eeprom or Bankstick ]------------
-;; ---------------------------------------------------------------------------------
+
+;; -------------------[WRITE mbAY PATCH to PIC Eeprom or Bankstick ]------------
+;; -----------------------------------------------------------------------------
+
 PATCH_WRITE
 	;; ----------------------------------------------------------------
 	;; WRITE (SAVE) PATCH TO EEPROM OR BANKSTICK
@@ -69,7 +71,7 @@ PATCH_WRITE
 	;; -------------[CHECK: IS THE "DO BANKSTICK FORMAT MODE" ON?]----------------------------- 
 	;; ----------------------------------------------------------------------------------------
 	;; CHECK IF THE "BANKSTICK DO FORMAT" BIT = ON or OFF
-	btfsc	PATCH_MENU_STATE_FLAGS, BIT3_SELECTED_PATCH_FORMAT_BANKSTICK		
+	btfsc	PATCH_MENU_STATE_FLAGS, BIT3_FORMAT_BANKSTICK_MODE_ON_OR_OFF	
 			;; ------------[FORMAT MODE = ON]----------------
 			;; BIT3 = 1 = THE "FORMAT BANKSTICK" BIT3 is SET
 			;; --------[DO FOARMAT BANKSTICK]----------------
@@ -79,7 +81,7 @@ PATCH_WRITE
 
 		;; ------------[FORMAT MODE = OFF]----------------
 		;; BIT3 = 0 = THE "FORMAT BANKSTICK" BIT3 is CLEAR 
-		;; DO NOT FORMAT THE CURREND BANKSTICK 
+		;; DO NOT FORMAT THE CURRENT BANKSTICK 
 		;; NEXT STEP: CHECK IF BANKSTICK IS FORMATTED
 
 ;; ---------------------------------------------------------------------------------------------------
@@ -133,10 +135,11 @@ PATCH_WRITE_DO
 	;;    PATCH NUMBER ADR = 0x01
 	
 	
-;; --------------------------------------------------------------------
-;; ---------[SAVE PATCH DATA to EEPROM (PIC EEPROM INT PATCH)]---------
-;;          Liste der zu speichernden MIDIBOX AY Patch variablen
-;; --------------------------------------------------------------------
+	;; --------------------------------------------------------------------
+	;; ---------[SAVE PATCH DATA to EEPROM (PIC EEPROM INT PATCH)]---------
+	;;         Liste der zu speichernden MIDIBOX AY Patch variablen
+	;; --------------------------------------------------------------------
+	
 	;; MEMO:
 	;; -----
 	;; EEPROM      ADR 0 = FINGERPRINT BYTE
@@ -145,114 +148,114 @@ PATCH_WRITE_DO
 	;; BANKSTICK ADR 1 = PATCH NUMBER BYTE
 	;; NEXT BANKSTICK PATCH ADR THAT WILL BE WRITTEN  = 0x02 
 	
-	;; WRITE:
-	;; ------
+	;; WRITE: PATCH NAME
+	;; -----------------
 	;; PATCH DATA BYTE 001
 	;; [INTERNAL PATCH - ADR 0x01 @ EEPROM] [BANKSTICK PATCH ADR 0x02 @ BANKSTICK]
-	movff	PATCH_NAME_ASC_0, CURREND_PATCH_DATA_BYTE_TEMP
+	movff	PATCH_NAME_ASC_0, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 002
 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x02 @ EEPROM] [BANKSTICK PATCH ADR 0x03 @ BANKSTICK]
-	movff	PATCH_NAME_ASC_1, CURREND_PATCH_DATA_BYTE_TEMP
+	movff	PATCH_NAME_ASC_1, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 003
 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x03 @ EEPROM] [BANKSTICK PATCH ADR 0x04 @ BANKSTICK]
-	movff	PATCH_NAME_ASC_2, CURREND_PATCH_DATA_BYTE_TEMP
+	movff	PATCH_NAME_ASC_2, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 004
 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x04 @ EEPROM] [BANKSTICK PATCH ADR 0x05 @ BANKSTICK]
-	movff	PATCH_NAME_ASC_3, CURREND_PATCH_DATA_BYTE_TEMP
+	movff	PATCH_NAME_ASC_3, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 005
 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x05 @ EEPROM] [BANKSTICK PATCH ADR 0x06 @ BANKSTICK]
-	movff	PATCH_NAME_ASC_4, CURREND_PATCH_DATA_BYTE_TEMP
+	movff	PATCH_NAME_ASC_4, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 006
 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x06 @ EEPROM] [BANKSTICK PATCH ADR 0x07 @ BANKSTICK]
-	movff	PATCH_NAME_ASC_5, CURREND_PATCH_DATA_BYTE_TEMP
+	movff	PATCH_NAME_ASC_5, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 007
 ; 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x07 @ EEPROM] [BANKSTICK PATCH ADR 0x08 @ BANKSTICK]
-	movff	PATCH_NAME_ASC_6, CURREND_PATCH_DATA_BYTE_TEMP
+	movff	PATCH_NAME_ASC_6, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 008
 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x08 @ EEPROM] [BANKSTICK PATCH ADR 0x09 @ BANKSTICK]
-	movff	PATCH_NAME_ASC_7, CURREND_PATCH_DATA_BYTE_TEMP
+	movff	PATCH_NAME_ASC_7, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 009
 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x09 @ EEPROM] [BANKSTICK PATCH ADR 0x0A @ BANKSTICK]
-	movff AY_TONE_A_TUNE_FINE_USER, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_A_TUNE_FINE_USER, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 010
 	;; PATCH DATA BYTE [INTERNAL PATCH - ADR 0x0A @ EEPROM] [BANKSTICK PATCH ADR 0x0B @ BANKSTICK]
-	movff AY_TONE_B_TUNE_FINE_USER, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_B_TUNE_FINE_USER, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 011
 	;; etc. ...
-	movff AY_TONE_C_TUNE_FINE_USER, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_C_TUNE_FINE_USER, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
 	;; PATCH DATA BYTE 012 ...
-	movff AY_TONE_A_TUNE_COARSE_USER, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_A_TUNE_COARSE_USER, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 
-	movff AY_TONE_B_TUNE_COARSE_USER, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_B_TUNE_COARSE_USER, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
-	movff AY_TONE_C_TUNE_COARSE_USER,CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_C_TUNE_COARSE_USER,CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
-	movff AY_TONE_A_MIDI_CHANNEL_USER, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_A_MIDI_CHANNEL_USER, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
-	movff AY_TONE_B_MIDI_CHANNEL_USER, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_B_MIDI_CHANNEL_USER, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
-	movff AY_TONE_C_MIDI_CHANNEL_USER, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_C_MIDI_CHANNEL_USER, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
-	movff AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_VELOCITY_TO_ABC_NOISE_PERIOD_ON_OFF, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 
-	movff AY_R6_NOISE_PERIOD, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_R6_NOISE_PERIOD, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
-	movff AY_R8_CH_A_AMPLITUDE, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_R8_CH_A_AMPLITUDE, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 
-	movff AY_R9_CH_B_AMPLITUDE, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_R9_CH_B_AMPLITUDE, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 
-	movff AY_R10_CH_C_AMPLITUDE, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_R10_CH_C_AMPLITUDE, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 
-	movff AY_R11_ENV_PERIOD_FINE, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_R11_ENV_PERIOD_FINE, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
-	movff AY_R12_ENV_PERIOD_COARSE, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_R12_ENV_PERIOD_COARSE, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 	
-	movff ENV_SHAPE_0_15_to_1_8_TRANSLATOR, CURREND_PATCH_DATA_BYTE_TEMP
+	movff ENV_SHAPE_0_15_to_1_8_TRANSLATOR, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 
-	movff AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, CURREND_PATCH_DATA_BYTE_TEMP
+	movff AY_TONE_NOISE_ABC_USER_ON_OFF_SWITCH, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 
 	;; WRITE:
 	;; PATCH DATA BYTE 027
 	;; INTERNAL PATCH DATA BYTE   [INTERNAL EEPROM PATCH - ADR 0x1B (027 DEC)@ EEPROM   ] 
 	;; BANKSTICK PATCH DATA BAYTE [BANKSTICK PATCH         ADR 0x1C (028 DEC)@ BANKSTICK]
-	movff FX_USER_ON_OFF_ABC, CURREND_PATCH_DATA_BYTE_TEMP
+	movff FX_USER_ON_OFF_ABC, CURRENT_PATCH_DATA_BYTE_TEMP
 	call 	WRITE_PATCH_DATA_BYTE
 
 
@@ -300,18 +303,18 @@ WRITE_PATCH_FX_FUNC_TO_EEPROM
 	;; -------------------------------------------------------------------------------
 	;; ---------------[WRITE Fx *Func* to EEPROM]-------------------------
 	;; LOAD FX FUNCTION [POS 0-31] from PIC RAM
-	;; Fx FUNCTIONS @ Currend Fx Pos [0-31]	
+	;; Fx FUNCTIONS @ CURRENT Fx Pos [0-31]	
 	movlw RAM_OFFSET_FX_FUNCTION 			;; PIC RAM BANK OFFSET - fx functions 
 	addwf Fx_LOAD_WRITE_ADR_COUNTER_TMP, W 		;; OFFSET + (0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L					;; CURREND Fx Func. ADR. (current Fx Func. Pos.)
- 	movff INDF0, Fx_PATCH_DATA_TMP 			;; WRITE FX FUNCTION (currend Pos) to TMP
+	movwf FSR0L					;; CURRENT Fx Func. ADR. (current Fx Func. Pos.)
+ 	movff INDF0, Fx_PATCH_DATA_TMP 			;; WRITE FX FUNCTION (CURRENT Pos) to TMP
 	;; ------------------------------------------------------------------------------
 	;; WRITE Fx FUNTION @ POS [0-31] TO EEPROM
 	movlw	EEPROM_OFFSET_FX_FUNCTION		;; CONST: EEPROM OFFSET (0x20)
 	addwf	Fx_LOAD_WRITE_ADR_COUNTER_TMP, W	;; ADD EEPROM OFFSET + POS
 	movwf   EEADR 					;; SETUP EEPROM ADRESS [OFFSET+POS] for WRITING
-	movf      Fx_PATCH_DATA_TMP, W        		;; WRITE FX FUNCTION @ currend Pos TO WREG
-	call      MIOS_EEPROM_Write        		;; WRITE FX FUNCTION @ currend Pos TO PIC EEPROM 
+	movf      Fx_PATCH_DATA_TMP, W        		;; WRITE FX FUNCTION @ CURRENT Pos TO WREG
+	call      MIOS_EEPROM_Write        		;; WRITE FX FUNCTION @ CURRENT Pos TO PIC EEPROM 
 									;; (EEADR will be incremented)
 	;; ------------------------------------------------------------------------------
 	;; ------------------------------------------------------------------------------
@@ -339,20 +342,20 @@ WRITE_PATCH_FX_FUNC_TO_EEPROM
 WRITE_PATCH_FX_DATA_TO_EEPROM
 	;; DO 32x 
 	;; LOAD Fx DATA [POS 0-31] from PIC RAM
-	;; Fx DATA @ Currend Fx Pos [0-31]	
+	;; Fx DATA @ CURRENT Fx Pos [0-31]	
 	;; LOAD FX DATA
-	;; Fx DATA Reg. @ Currend Fx Pos [0-31]	
+	;; Fx DATA Reg. @ CURRENT Fx Pos [0-31]	
 	movlw RAM_OFFSET_FX_DATA 			;; PIC RAM OFFSET - to fx DATA Registers
 	addwf Fx_LOAD_WRITE_ADR_COUNTER_TMP, W 		;; OFFSETT + POS (0 to 31 [32]) => Fx Tab. Pos
-	movwf FSR0L					;; LOAD CURREND OFFSET IND. ADR. 
+	movwf FSR0L					;; LOAD CURRENT OFFSET IND. ADR. 
 							;; for Fx DATA Registers @ current Fx Pos.
-	movff INDF0, Fx_PATCH_DATA_TMP 			;; WRITE FX DATA @ currend Pos to TEMP
+	movff INDF0, Fx_PATCH_DATA_TMP 			;; WRITE FX DATA @ CURRENT Pos to TEMP
 	;; --------------------------------------------------------------------------------------
 	movlw	EEPROM_OFFSET_FX_DATA			;; LOAD EEPROM OFFSET
 	addwf	Fx_LOAD_WRITE_ADR_COUNTER_TMP, W	;; EEPROM OFFSET + POS (0-31)
 	movwf   EEADR 					;; SET EEPROM ADRESS [OFFSET+POS]
-        movf    Fx_PATCH_DATA_TMP, W    		;; WRITE FX DATA @ currend Pos TO WREG
-        call    MIOS_EEPROM_Write    			;; WRITE FX DATA @ currend Pos TO PIC EEPROM 
+        movf    Fx_PATCH_DATA_TMP, W    		;; WRITE FX DATA @ CURRENT Pos TO WREG
+        call    MIOS_EEPROM_Write    			;; WRITE FX DATA @ CURRENT Pos TO PIC EEPROM 
 							;; EEADR will be incremented (AUTO INC)
 	;; ------------------------------------------------------------------------------
 		incf Fx_LOAD_WRITE_ADR_COUNTER_TMP, F ;; pos = pos +1 | pos range 0 to 31 [32 pos gesamt]
@@ -376,18 +379,18 @@ WRITE_PATCH_FX_TIME_TO_EEPROM
 	;; DO 32x 
 	;; ---------------[Fx PRE DELAY TIME to EEPROM WRITING CYCLE]---------------------------
 	;; LOAD FX PRE DELAY TIME
-	;; Fx PRE DELAY TIME Reg. @ Currend Fx Pos [0-31]	
+	;; Fx PRE DELAY TIME Reg. @ CURRENT Fx Pos [0-31]	
 	movlw RAM_OFFSET_FX_TIME_PRE_EXECUTION		;; PIC RAM OFFSET - to fx functions 
 	addwf Fx_LOAD_WRITE_ADR_COUNTER_TMP, W 		;; OFFSET + (0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L					;; LOAD CURREND OFFSET IND. ADR. 
+	movwf FSR0L					;; LOAD CURRENT OFFSET IND. ADR. 
 							;; for Fx TIME Registers @ current Fx Pos.
- 	movff INDF0, Fx_PATCH_DATA_TMP 			;; WRITE FX FUNCTION @ currend Pos to TEMP
+ 	movff INDF0, Fx_PATCH_DATA_TMP 			;; WRITE FX FUNCTION @ CURRENT Pos to TEMP
 	;; --------------------------------------------------------------------------------------
 	movlw	EEPROM_OFFSET_FX_TIME_PRE_EXECUTION  	;; EEPROM OFFSET (!)
 	addwf	Fx_LOAD_WRITE_ADR_COUNTER_TMP, W	;; OFFSET + POS
 	movwf   EEADR 					;; SET EEPROM ADRESS [OFFSET+POS]
-        movf    Fx_PATCH_DATA_TMP, W     		;; WRITE FX FUNCTION @ currend Pos TO WREG
-        call    MIOS_EEPROM_Write        		;; WRITE FX FUNCTION @ currend Pos TO PIC EEPROM 
+        movf    Fx_PATCH_DATA_TMP, W     		;; WRITE FX FUNCTION @ CURRENT Pos TO WREG
+        call    MIOS_EEPROM_Write        		;; WRITE FX FUNCTION @ CURRENT Pos TO PIC EEPROM 
 									;; (EEADR will be incremented)
 	;; ------------------------------------------------------------------------------
 	
@@ -425,26 +428,26 @@ WRITE_PATCH_FX_FUNC_TO_BANKSTICK
 	;; -------------------------------------------------------------------------------
 	;; ---------------[WRITE Fx *Functions* to BANKSTICK]----------------------------------
 	;; LOAD FX FUNCTION [POS 0-31] from PIC RAM
-	;; Fx FUNCTIONS @ Currend Fx Pos [0-31]	
+	;; Fx FUNCTIONS @ CURRENT Fx Pos [0-31]	
 	movlw RAM_OFFSET_FX_FUNCTION 		;; CONST: PIC RAM BANK OFFSET - fx functions Area 
 	addwf Fx_LOAD_WRITE_ADR_COUNTER_TMP, W 	;; OFFSET + (POS 0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L				;; CURREND Fx Func. ADR. (current Fx Func. Pos.)
- 	movff INDF0, Fx_PATCH_DATA_TMP 		;; WRITE FX FUNCTION (currend Pos) to TMP
+	movwf FSR0L				;; CURRENT Fx Func. ADR. (current Fx Func. Pos.)
+ 	movff INDF0, Fx_PATCH_DATA_TMP 		;; WRITE FX FUNCTION (CURRENT Pos) to TMP
 	;; ------------------------------------------------------------------------------
 	;; MEMO:
 	;; HOW DOES THIS ROUTINE CHOOSE THE RIGHT BANKSTICK ADRESS?
 	;; Fx_LOAD_WRITE_ADR_COUNTER_TMP WAS ALREADY CLEARD (WRITE CYCLE COUNTER [0-31])
 	;; THE BANKSTICK ADRESS WAS predefined by the *WRITE_PATCH_FINGERPRINT_BANKSTICK* ROUTINE
 	;; THE WRITE_PATCH_FINGERPRINT_BANKSTICK ROUTINE DO:
-	;; * SET THE BANKSTICK *HIGH BYTE* ADR to the *CURREND PATCH NUMBER* -1 [[[RANGE: 1 to 128] -1] (=> 0 to 127)]
+	;; * SET THE BANKSTICK *HIGH BYTE* ADR to the *CURRENT PATCH NUMBER* -1 [[[RANGE: 1 to 128] -1] (=> 0 to 127)]
 	;; * CLEAR THE BANKSTICK LOW ADR BYTE COUNTER to 0
 	;; * WRITE THE FINGERPRINT BYTE @ PATCH DATA LOW BYTE ADR. 0 (THEN THE LOW ADR. BYTE = 1 (AUTO INC))
 	;; * WRITE THE PATCH NUMBER BYTE @ PATCH DATA LOW BYTE ARD. 1 (THEN THE LOW ADR. BYTE = 2 (AUTO INC))
 	;; * SET THE BANKSTICK_LOW_BYTE_ADR_COUNTER to 2 (not relevant here)
 	;; -------------------------------------------------------------------------------
 	;; -----[DO WRITE BYTE TO BANKSTICK]----------------------------------------------
-	movf    Fx_PATCH_DATA_TMP, W        		;; WRITE FX FUNCTION @ currend Pos TO WREG
-	call   	MIOS_BANKSTICK_Write        		;; WRITE [FX FUNCTION] @ currend Pos TO PIC BANKSTICK
+	movf    Fx_PATCH_DATA_TMP, W        		;; WRITE FX FUNCTION @ CURRENT Pos TO WREG
+	call   	MIOS_BANKSTICK_Write        		;; WRITE [FX FUNCTION] @ CURRENT Pos TO PIC BANKSTICK
 							;; (BANKSTICK address will be incremented after write)
 
 		;; -------------------------------------------------
@@ -475,18 +478,18 @@ WRITE_PATCH_FX_FUNC_TO_BANKSTICK
 WRITE_PATCH_FX_DATA_TO_BANKSTICK
 	;; DO 32x 
 	;; LOAD Fx DATA [POS 0-31] from PIC RAM
-	;; Fx DATA @ Currend Fx Pos [0-31]	
+	;; Fx DATA @ CURRENT Fx Pos [0-31]	
 	;; LOAD FX DATA
-	;; Fx DATA Reg. @ Currend Fx Pos [0-31]	
+	;; Fx DATA Reg. @ CURRENT Fx Pos [0-31]	
 	movlw RAM_OFFSET_FX_DATA 		;; PIC RAM OFFSET - to fx DATA Registers
 	addwf Fx_LOAD_WRITE_ADR_COUNTER_TMP, W 	;; OFFSETT + POS (0 to 31 [32]) => Fx Tab. Pos
-	movwf FSR0L				;; LOAD CURREND OFFSET IND. ADR. for Fx DATA Registers @ current Fx Pos.
-	movff INDF0, Fx_PATCH_DATA_TMP 		;; WRITE FX DATA @ currend Pos to TEMP
+	movwf FSR0L				;; LOAD CURRENT OFFSET IND. ADR. for Fx DATA Registers @ current Fx Pos.
+	movff INDF0, Fx_PATCH_DATA_TMP 		;; WRITE FX DATA @ CURRENT Pos to TEMP
 	;; --------------------------------------------------------------------------------------
 	;; -----[DO WRITE BYTE TO BANKSTICK]----------------------------------------------
-	movf      Fx_PATCH_DATA_TMP, W        		;; WRITE FX FUNCTION @ currend Pos TO WREG
+	movf      Fx_PATCH_DATA_TMP, W        		;; WRITE FX FUNCTION @ CURRENT Pos TO WREG
 	;; movlw	0xCC	;; Just for testing
-	call   	MIOS_BANKSTICK_Write        		;; WRITE [FX DATA] @ currend Pos TO BANKSTICK
+	call   	MIOS_BANKSTICK_Write        		;; WRITE [FX DATA] @ CURRENT Pos TO BANKSTICK
 							;; (BANKSTICK ADDRESS will be incremented after write)
 							;; = ADR AUTO INC
 		;; -------------------------------------------------
@@ -516,17 +519,17 @@ WRITE_PATCH_FX_TIME_TO_BANKSTICK
 	;; DO 32x 
 	;; ---------------[Fx PRE DELAY TIME to EEPROM WRITING CYCLE]---------------------------
 	;; LOAD FX PRE DELAY TIME
-	;; Fx PRE DELAY TIME Reg. @ Currend Fx Pos [0-31]	
+	;; Fx PRE DELAY TIME Reg. @ CURRENT Fx Pos [0-31]	
 	movlw RAM_OFFSET_FX_TIME_PRE_EXECUTION		;; PIC RAM OFFSET - to fx functions 
 	addwf Fx_LOAD_WRITE_ADR_COUNTER_TMP, W 		;; OFFSET + (0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L					;; LOAD CURREND OFFSET IND. ADR. 
+	movwf FSR0L					;; LOAD CURRENT OFFSET IND. ADR. 
 							;; for Fx TIME Registers @ current Fx Pos.
- 	movff INDF0, Fx_PATCH_DATA_TMP 			;; WRITE FX FUNCTION @ currend Pos to TEMP
+ 	movff INDF0, Fx_PATCH_DATA_TMP 			;; WRITE FX FUNCTION @ CURRENT Pos to TEMP
 	;; --------------------------------------------------------------------------------------
 	;; -----[DO WRITE BYTE TO BANKSTICK]-----------------------------------------------------
-	movf      Fx_PATCH_DATA_TMP, W        		;; WRITE FX FUNCTION @ currend Pos TO WREG
+	movf      Fx_PATCH_DATA_TMP, W        		;; WRITE FX FUNCTION @ CURRENT Pos TO WREG
 	;; movlw	0xDD	;; Just for testing
-	call   	MIOS_BANKSTICK_Write        		;; WRITE [FX PRE EXECUTION TIME] @ currend Pos TO BANKSTICK
+	call   	MIOS_BANKSTICK_Write        		;; WRITE [FX PRE EXECUTION TIME] @ CURRENT Pos TO BANKSTICK
 							;; (BANKSTICK address will be incremented after write)
 							;; = ADR AUTO INC
 		;; ------------------------------------------------------------------------------
@@ -573,10 +576,10 @@ WRITE_PATCH_FINISH
 	;; PATCH TO INTERNAL EEPROM or BANKSTICK THE "DO FORMAT BANKSTICK" BIT = OFF
 	;; IN THIS CASE WE CAN GO ON WITH A
 	;; LCD "OK" MESSAGE on LCD ROW4
-	btfss	PATCH_MENU_STATE_FLAGS, BIT3_SELECTED_PATCH_FORMAT_BANKSTICK
+	btfss	PATCH_MENU_STATE_FLAGS, BIT3_FORMAT_BANKSTICK_MODE_ON_OR_OFF
 			;; ------------[FORMAT MODE = OFF]----------------------
 			;; BIT3 = 0 = THE "FORMAT BANKSTICK" BIT3 is CLEAR 
-			;; DO NOT FORMAT THE CURREND BANKSTICK 
+			;; DO NOT FORMAT THE CURRENT BANKSTICK 
 			;; DO WRITE GO AND WRITE "OK" on LCD 
 			rgoto WRITE_PATCH_FINISH_WRITE_ON_LCD		
 
@@ -608,6 +611,17 @@ WRITE_PATCH_FINISH_WRITE_ON_LCD
 		call    MIOS_LCD_PrintString
 		TABLE_ADDR TEXT_AY_MB_AY_PATCH_WRITE_OK
 		call    MIOS_LCD_PrintString
+		
+		;; CLEAR THE =>!<= @ ROW1
+		;; PERHAPS THERE WAS A: =>!<= [PATCH NAME] ON LCD ROW1 
+		;; LETS CLEAR THE "!"
+		;; BECAUSER NOW THE WRITTEN PATCH HAS BECOME THE *CURRENT PATCH*
+		;; SO NOW THE CURRENT PATCH = BROWSE PATCH
+		movlw   LCD_ROW1 + 6
+        	call    MIOS_LCD_CursorSet
+		movlw   ' '
+        	call    MIOS_LCD_PrintChar		
+
 				
 				;; All Done, so exit WTITE PACH subroutines here 
 				return
@@ -643,7 +657,7 @@ WRITE_PATCH_DATA_BYTE
 		;; ===[WRITE DATA BYTE TO INTERNAL EEPROM]=======
 		;; BIT2 = CLEAR
 		;; WRITE A BYTE to INTERNAL PATCH (PIC EEPROM)
-		movf 	CURREND_PATCH_DATA_BYTE_TEMP, W
+		movf 	CURRENT_PATCH_DATA_BYTE_TEMP, W
 		call    MIOS_EEPROM_Write
 		;; BYTE HAS BEEN WRITTEN TO EEPROM
 		;; EEPROM ADR = EEPROM ADR +1
@@ -659,13 +673,12 @@ WRITE_PATCH_DATA_BYTE_TO_BANKSTICK
 			movff   BROWSE_PATCH_NR, MIOS_PARAMETER2
 				;; -----------------------------------------------------------------
 				;; SET THE -1 OFFSET TO THE PATCH NR SELECTOR
-				decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURREND PATCH NR -1
+				decf	MIOS_PARAMETER2, F	;; ADR (HI BYTE) BS PATCH = CURRENT PATCH NR -1
 			;; -----------------------------------------------------------------
-			;; STORE THE CURREND PATCH DATA BYTE IN WREG
-			;; movlw 0xAA	;; JUST FOR TESTING
-			movf	CURREND_PATCH_DATA_BYTE_TEMP, W
+			;; STORE THE CURRENT PATCH DATA BYTE IN WREG
+			movf	CURRENT_PATCH_DATA_BYTE_TEMP, W
 			;; WRITE THE CURRENT DATA BYTE (WREG) TO BANKSTICK
-			call    MIOS_BANKSTICK_Write        		
+			call    MIOS_BANKSTICK_Write	
 			;; bnz   BSProgrammingFailed       		; branch to your exception handler
 			;; BYTE HAS BEEN WRITTEN TO BAKSTICK
 			;; --------------------------------------------------------------------
@@ -721,9 +734,9 @@ WRITE_PATCH_FINGERPRINT_BANKSTICK
 		;; ==================[WRITE BANKSTICK PATCH FINGERPRINT]=====
 		;; ----------------------------------------------------------------------------
 		;; 1) INITIALIZE BANKSTICK ADRESS 
-		;; 2) WRITE FINGERPRINT TO BANKSTICK PATCH [1-127] @ CURREND PATCH ADR0
-		;; 3) WRITE BROWSE_PATCH_NR TO BANKSTICK PATCH [1-127] @ CURREND PATCH ADR1
-		;; 4) SET BANKSTICK_LOW_BYTE_ADR_COUNTER to 2 (NOW CURREND PATCH ADR = 2 @ CURREND PATCH)
+		;; 2) WRITE FINGERPRINT TO BANKSTICK PATCH [1-127] @ CURRENT PATCH ADR0
+		;; 3) WRITE BROWSE_PATCH_NR TO BANKSTICK PATCH [1-127] @ CURRENT PATCH ADR1
+		;; 4) SET BANKSTICK_LOW_BYTE_ADR_COUNTER to 2 (NOW CURRENT PATCH ADR = 2 @ CURRENT PATCH)
 			;; ----------------------------------------------------------------------------
 			;; -----------[SET BANKSTICK ADR LOWBYTE]------------------
 			;; Store LOW-byte (FINGERPRINT) BANKSTICK ADRESS in MIOS_PARAMETER1
@@ -752,7 +765,7 @@ WRITE_PATCH_FINGERPRINT_BANKSTICK
         		decf        MIOS_PARAMETER2, F 
         		;; ---------------------------------------------------------------------
         		;; WRITE BANKSTICK FINGERPRINT TO PATCH [1-127] FINGERPRINT BYTE 
-        		;; @ CURREND PATCH ADR 0x00
+        		;; @ CURRENT PATCH ADR 0x00
         		movlw        BANKSTICK_PATCH_FINGERPRINT
         		;; ... TO BANKSTICK
         		call         MIOS_BANKSTICK_Write        ; (address will be incremented
@@ -760,7 +773,7 @@ WRITE_PATCH_FINGERPRINT_BANKSTICK
         		;; bnz        BSProgrammingFailed        ; branch to your exception handler
 			;; ----------------------------------------------------------------------
 			;; WRITE BANKSTICK PATCH NUMBER TO PATCH [1-127] 
-			;; @ CURREND PATCH ADR 0x01
+			;; @ CURRENT PATCH ADR 0x01
         		movf      BROWSE_PATCH_NR, W
         		;; ... TO BANKSTICK
         		call      MIOS_BANKSTICK_Write       	 ; (address will be incremented
@@ -769,7 +782,7 @@ WRITE_PATCH_FINGERPRINT_BANKSTICK
 			;; ----------------------------------------------------------------------
 			
 			;; AFTER WRITING THE PATCH THE CURRENT PATCH IS THE browser Patch 
-			movff       BROWSE_PATCH_NR, CURREND_PATCH_NR
+			movff       BROWSE_PATCH_NR, CURRENT_PATCH_NR
 			
 			;; ------------[RESET: BANKSTICK_LOW_BYTE_ADR_COUNTER]-------------------
 			;; THE FINGERPRINT HAS BEEN WRITTEN TO PATCH [VALID PATCH NR. RANGE 1 to 127] 

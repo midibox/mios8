@@ -297,31 +297,28 @@ INIT_VARIABLES
 	;; CC HAndling
 	clrf MIDI_EVENT_CHANGE_FLAG
 	
-	;; -----------[PATCH]----------------------------------
-	;; MIDIBOX AY BANKSTICK = 1 (INTERNAL: BANKSTICK 0)
+	;; -----------[PATCH DATA]------------------------------
+	;; -----------------------------------------------------
+	;; SET BANKSTICK [0 to 7]
+	;; DEFAULT BANKSTICK = 1
+	;; INTERNAL: 	BANKSTICK 1 = 0x00
+	;; 		BANKSTICK 2 = 0x01
+	;; 		...
+	;; 		BANKSTICK 8 = 0x07
 	movlw       0x00
-        call        MIOS_BANKSTICK_CtrlSet  ;; Select BankStick1
+        call        MIOS_BANKSTICK_CtrlSet  ;; Select BankStick
+	;; ----------------------------------------------------
 	
-	;; patch_name_writing.inc
-	;; WRITE "........" for PATCHNAME @ LCD
-	;; 8x PATCH KEY ASC
-	movlw 	"."
-	movwf 	MIOS_PARAMETER1
-	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_0
-	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_1
-	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_2
-	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_3
-	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_4
-	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_5
-	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_6
-	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_7
+	;; -------[CLEAR / RESET PATCH NAME]-------------------
+	call BLANK_PATCH_NAME
+
 	
 	;; POS1 PATCH NAME [POS1=0,...POS8=7]
 	clrf 	MIOS_PARAMETER1
 	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_POS
 	
 	;; PATCH NUMBER, STAE, ETC.
-	clrf	CURREND_PATCH_NR 	;; INITIAL PATCH NUMBER = 0 = INT (PIC EEPROM)
+	clrf	CURRENT_PATCH_NR 	;; INITIAL PATCH NUMBER = 0 = INT (PIC EEPROM)
 	clrf	PATCH_MENU_STATE_FLAGS	;; See PATCH_MENU_STATE_FLAGS @ CONST DEF	
 	clrf	FORMAT_BANKSTICK_CYCLE_COUNTER	;; See patch_write.inc 	
 	
@@ -335,14 +332,14 @@ INIT_VARIABLES
 	;; RESET Fx 
 	clrf Fx_MIDI_NOTE_ON_OR_OFF
 	clrf FX_TIMER
-	clrf FX_FUNCTION_CURREND
-	clrf FX_DATA_CURREND
-	clrf FX_TIME_PRE_EXECUTION_CURREND
-	clrf FX_POS_CURREND
+	clrf FX_FUNCTION_CURRENT
+	clrf FX_DATA_CURRENT
+	clrf FX_TIME_PRE_EXECUTION_CURRENT
+	clrf FX_POS_CURRENT
 	clrf FX_NOP_ON_OFF
-	clrf FX_POS_SESSION_CURREND	
-	clrf FX_FUNCTION_SESSION_CURREND		
-	clrf FX_TIME_PRE_EXECUTION_SESSION_CURREND
+	clrf FX_POS_SESSION_CURRENT	
+	clrf FX_FUNCTION_SESSION_CURRENT		
+	clrf FX_TIME_PRE_EXECUTION_SESSION_CURRENT
 	
 	;; C64 KEYS (user_tick_key_repeat.inc)
 	clrf 	AY_KEYB_SPECIAL_KEY_TOGGLE
@@ -452,4 +449,25 @@ INIT_USER_Timer
         ;; now the USER_Timer function is called every 2 mS!
 		
 		;; EXIT HERE
+		return
+
+;; -----------------------------------------------------------
+;; ----------------[SUBROUTINE]-------------------------------
+;; -----------------------------------------------------------
+BLANK_PATCH_NAME
+	;; RESET PATCH NAME
+	;; WRITE "        " 
+	;; FOR INITIAL "NO PATCH LOADED AND
+	;; FOR NEW FORMATTED BANKSTICK PATCH NAME
+	;; 8x PATCH KEY ASC
+	movlw 	" "
+	movwf 	MIOS_PARAMETER1
+	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_0
+	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_1
+	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_2
+	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_3
+	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_4
+	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_5
+	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_6
+	movff 	MIOS_PARAMETER1, PATCH_NAME_ASC_7
 		return

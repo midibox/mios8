@@ -35,22 +35,22 @@ FX_PIPELINE
 
 				;; YES, THE SAME NOTE ON SESSION - GO ON WITH A NOTHER FX POS BUT
 				;; FIRST CHECK IF Fx Tab Pos > 31 ==> NOP ON (NO Fx OPERATION)
-				rgoto CHECK_IF_FX_POS_CURREND_SESSION_IS_NOP
+				rgoto CHECK_IF_FX_POS_CURRENT_SESSION_IS_NOP
 
 
 FX_NEW_SESSION_RESET_POS
-	;; reset currend session/pos
+	;; reset CURRENT session/pos
 	;; after every new *note on* event
 	movff	FX_MIDI_NOTE_ON_SESSION, FX_PIPELINE_SESSION
-	clrf	FX_POS_SESSION_CURREND	;; RESET FX TABLE POS.
+	clrf	FX_POS_SESSION_CURRENT	;; RESET FX TABLE POS.
 	clrf 	FX_TIMER		;; RESET FX Timer
 	clrf 	FX_NOP_ON_OFF		;; RESET Fx NOP [NO OPERATION] (0x00 = NOP:OFF)
 	;; NOW THE RESET WAS DONE
 	;; GO AND LOAD Fx Pos DATA @ Pos 0
-	rgoto LOAD_CURREND_SESSION_POS_FX_DATA	
+	rgoto LOAD_CURRENT_SESSION_POS_FX_DATA	
 
 
-CHECK_IF_FX_POS_CURREND_SESSION_IS_NOP
+CHECK_IF_FX_POS_CURRENT_SESSION_IS_NOP
 	;; = 0 = Fx NOP IS OF (FX OPERATION IS ON)
 	;; > 0 = Fx NOP IS ON (FX OPERATION IS OFF)
 	movlw 	0x00
@@ -63,35 +63,35 @@ CHECK_IF_FX_POS_CURREND_SESSION_IS_NOP
 	;; YES - Fx NOP = 0 (0x00 = NOP:OFF)
 	;; SO GO ON AND LOAD Fx DATA 
 	
-LOAD_CURREND_SESSION_POS_FX_DATA
-	;; UPDATE Currend Fx 
-	;; POINTER TO FX SESSION CURREND POS [Pos Range: 0 to 31]
+LOAD_CURRENT_SESSION_POS_FX_DATA
+	;; UPDATE CURRENT Fx 
+	;; POINTER TO FX SESSION CURRENT POS [Pos Range: 0 to 31]
 	;; ------------------------
-	;; LOAD FX_FUNCTION_SESSION_CURREND		@ THE CURREND Fx POS = FX_POS_SESSION_CURREND
-	;; FX_TIME_PRE_EXECUTION_SESSION_CURREND	@ THE CURREND Fx POS = FX_POS_SESSION_CURREND
-	;; FX_DATA_SESSION_CURREND			@ THE CURREND Fx POS = FX_POS_SESSION_CURREND
-	call LOAD_FX_SESSION_DATA_CURREND_POS		
+	;; LOAD FX_FUNCTION_SESSION_CURRENT		@ THE CURRENT Fx POS = FX_POS_SESSION_CURRENT
+	;; FX_TIME_PRE_EXECUTION_SESSION_CURRENT	@ THE CURRENT Fx POS = FX_POS_SESSION_CURRENT
+	;; FX_DATA_SESSION_CURRENT			@ THE CURRENT Fx POS = FX_POS_SESSION_CURRENT
+	call LOAD_FX_SESSION_DATA_CURRENT_POS		
 	
 		
 	;; WORKFLOW *PRE Fx TIME PERIOD* 
 	;; (TIME Bevor the Fx will be Executed)
 	;; principle: 
-	;; IS Fx Timer (triggert by Timer0) [0-255] > FX_TIME_PRE_EXECUTION_SESSION_CURREND [0-200]
-	;; FX TIMER > FX_TIME_PRE_EXECUTION_SESSION_CURREND ?
-	movf FX_TIME_PRE_EXECUTION_SESSION_CURREND, W
+	;; IS Fx Timer (triggert by Timer0) [0-255] > FX_TIME_PRE_EXECUTION_SESSION_CURRENT [0-200]
+	;; FX TIMER > FX_TIME_PRE_EXECUTION_SESSION_CURRENT ?
+	movf FX_TIME_PRE_EXECUTION_SESSION_CURRENT, W
 	cpfsgt FX_TIMER
-		;; NO - Currend Fx Pre Delay Time takes more Timer0 Cycles
+		;; NO - CURRENT Fx Pre Delay Time takes more Timer0 Cycles
 		;; SO QUIT HERE and try again...
-		;; FX TIMER < or = FX_TIME_PRE_EXECUTION_SESSION_CURREND
+		;; FX TIMER < or = FX_TIME_PRE_EXECUTION_SESSION_CURRENT
 		rgoto FX_PIPELINE_EXIT
 
 	;; YES 
-	;; FX TIMER > FX_TIME_PRE_EXECUTION_SESSION_CURREND
+	;; FX TIMER > FX_TIME_PRE_EXECUTION_SESSION_CURRENT
 	;; SO GO ON WITH Corrend Pos Fx Execution
 	;; TO DO - GO ON WITH Fx Function Switch
 	
 
-EXECUTE_FX_AT_CURREND_POS
+EXECUTE_FX_AT_CURRENT_POS
 	
 	;; Fx Functions
 
@@ -141,7 +141,7 @@ EXECUTE_FX_AT_CURREND_POS
 	;; 41 0x29 => GOTO Fx POS [Data: 0-31]
 
 	;; JUMP TO THE GIVEN Fx FUNCTION
-	movf FX_FUNCTION_SESSION_CURREND, W
+	movf FX_FUNCTION_SESSION_CURRENT, W
 	JUMPTABLE_2BYTES 42 ;; [0 to 41]
         	rgoto        FX_FUNC_000 ;;   0x00	End Fx (Fx Off)
         	rgoto        FX_FUNC_001 ;;   0x01	On  Tone A
@@ -497,7 +497,7 @@ FX_FUNC_007
 	movff AY_TONE_A_TUNE_FINE_MIDI, TUNE_FINE_TEMP
 
 	
-	;; [ADD TUNE +] TUNE [PLUS] CURREND Fx DATA BYTE
+	;; [ADD TUNE +] TUNE [PLUS] CURRENT Fx DATA BYTE
 	call FX_TUNE_PLUS
 
 	;; TUNE_COARSE_TEMP  => TUNE COARSE A|B|C
@@ -535,7 +535,7 @@ FX_FUNC_008
 	movff AY_TONE_A_TUNE_FINE_MIDI, TUNE_FINE_TEMP
 
 	
-	;; [TUNE -] Currend TUNE [MINUS] CURREND Fx DATA
+	;; [TUNE -] CURRENT TUNE [MINUS] CURRENT Fx DATA
 	call FX_TUNE_MINUS
 
 	;; TUNE_COARSE_TEMP  => TUNE COARSE A|B|C
@@ -574,7 +574,7 @@ FX_FUNC_009
 	movff AY_TONE_B_TUNE_FINE_MIDI, TUNE_FINE_TEMP
 
 	
-	;; [ADD TUNE +] TUNE TEMP - CURREND Fx DATA BYTE
+	;; [ADD TUNE +] TUNE TEMP - CURRENT Fx DATA BYTE
 	call FX_TUNE_PLUS
 
 	;; TUNE_COARSE_TEMP  => TUNE COARSE A|B|C
@@ -610,7 +610,7 @@ FX_FUNC_010
 	movff AY_TONE_B_TUNE_FINE_MIDI, TUNE_FINE_TEMP
 
 	
-	;; [TUNE -] Currend TUNE [MINUS] CURREND Fx DATA
+	;; [TUNE -] CURRENT TUNE [MINUS] CURRENT Fx DATA
 	call FX_TUNE_MINUS
 
 	;; TUNE_COARSE_TEMP  => TUNE COARSE A|B|C
@@ -649,7 +649,7 @@ FX_FUNC_011
 	movff AY_TONE_C_TUNE_FINE_MIDI, TUNE_FINE_TEMP
 
 	
-	;; [ADD TUNE +] TUNE TEMP - CURREND Fx DATA BYTE
+	;; [ADD TUNE +] TUNE TEMP - CURRENT Fx DATA BYTE
 	call FX_TUNE_PLUS
 
 	;; TUNE_COARSE_TEMP  => TUNE COARSE A|B|C
@@ -686,7 +686,7 @@ FX_FUNC_012
 	movff AY_TONE_C_TUNE_FINE_MIDI, TUNE_FINE_TEMP
 
 	
-	;; [TUNE -] Currend TUNE [MINUS] CURREND Fx DATA
+	;; [TUNE -] CURRENT TUNE [MINUS] CURRENT Fx DATA
 	call FX_TUNE_MINUS
 
 	;; TUNE_COARSE_TEMP  => TUNE COARSE A|B|C
@@ -720,14 +720,14 @@ FX_FUNC_013
 	;; FORMAT VALUE TO 0-15 (DELETE values > 15)
 	
 	movlw VOLUME_ABC_MAX_VALUE ;; B'00001111'
-	cpfsgt FX_DATA_SESSION_CURREND
+	cpfsgt FX_DATA_SESSION_CURRENT
 		;; =< 15
 		rgoto FX_FUNC_013_WRITE_TO_AY_CHIP
 	 	
 	 	;; >15	
 	 	;; FORMAT VALUE TO 0-15 (DELETE values > 15)
 	 	movlw B'00001111'
-	 	movwf FX_DATA_SESSION_CURREND
+	 	movwf FX_DATA_SESSION_CURRENT
 		
 FX_FUNC_013_WRITE_TO_AY_CHIP		
 		;; SEND DATA TO AY CHIP
@@ -735,7 +735,7 @@ FX_FUNC_013_WRITE_TO_AY_CHIP
 		movwf AY_REG_ADDRESS 		; ADDRESS FOR 	=> AY_SR_Write
         	;; COPY DATA
         	;; WRITE VOL Tone A
-        	movff FX_DATA_SESSION_CURREND, AY_REG_DATA
+        	movff FX_DATA_SESSION_CURRENT, AY_REG_DATA
 		;; --------------[SEND DATA TO AY CHIP]-----------------------------------------------------
 		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
 		;; ==========================================================================================
@@ -744,14 +744,14 @@ FX_FUNC_013_WRITE_TO_AY_CHIP
 FX_FUNC_014
 	;; 0x0E => Vol.B	[Data: 0-15]
 	movlw VOLUME_ABC_MAX_VALUE  ;; B'00001111'
-	cpfsgt FX_DATA_SESSION_CURREND
+	cpfsgt FX_DATA_SESSION_CURRENT
 		;; <= 15
 		rgoto FX_FUNC_014_WRITE_TO_AY_CHIP
 	 	
 	 	;; > 15	
 	 	;; FORMAT VALUE TO 0-15 (DELETE values > 15)
 	 	movlw B'00001111'
-	 	movwf FX_DATA_SESSION_CURREND
+	 	movwf FX_DATA_SESSION_CURRENT
 		
 FX_FUNC_014_WRITE_TO_AY_CHIP		
 		;; SEND DATA TO AY REG 9
@@ -759,7 +759,7 @@ FX_FUNC_014_WRITE_TO_AY_CHIP
 		movwf AY_REG_ADDRESS 		; ADDRESS FOR 	=> AY_SR_Write
         	;; COPY DATA
         	;; WRITE VOL Tone B
-        	movff FX_DATA_SESSION_CURREND, AY_REG_DATA
+        	movff FX_DATA_SESSION_CURRENT, AY_REG_DATA
 		;; --------------[SEND DATA TO AY CHIP]-----------------------------------------------------
 		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
 		;; ==========================================================================================
@@ -768,21 +768,21 @@ FX_FUNC_014_WRITE_TO_AY_CHIP
 FX_FUNC_015
 	;; 0x0F => Vol.C	[Data: 0-15]
 	movlw VOLUME_ABC_MAX_VALUE  ;; B'00001111'
-	cpfsgt FX_DATA_SESSION_CURREND
+	cpfsgt FX_DATA_SESSION_CURRENT
 		;; <=15
 		rgoto FX_FUNC_015_WRITE_TO_AY_CHIP
 	 	
 	 	;; >15	
 	 	;; FORMAT VALUE TO 0-15 (DELETE values > 15)
 	 	movlw B'00001111'
-	 	movwf FX_DATA_SESSION_CURREND
+	 	movwf FX_DATA_SESSION_CURRENT
 		
 FX_FUNC_015_WRITE_TO_AY_CHIP		
 		;; SEND DATA TO AY REG 10
 		movlw AY_CHIP_ADR_10_TONE_C_VOLUME_ENV_MODE_ON_OFF	; REG ADRESS 	=> AY REGISTER 
 		movwf AY_REG_ADDRESS 		; ADDRESS FOR 	=> AY_SR_Write
         	;; COPY DATA
-        	movff FX_DATA_SESSION_CURREND, AY_REG_DATA
+        	movff FX_DATA_SESSION_CURRENT, AY_REG_DATA
         	;; WRITE VOL Tone C
 		;; --------------[SEND DATA TO AY CHIP]-----------------------------------------------------
 		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
@@ -1057,14 +1057,14 @@ FX_FUNC_021
 FX_FUNC_022
 	;;  Noise Frq.	[Data: 0-31]
 	movlw NOISE_PERIOD_MAX_VALUE ;; NOISE PERIOD MAX VALUE = B'00011111', 31 dec, 01F hex
-	cpfsgt FX_DATA_SESSION_CURREND
+	cpfsgt FX_DATA_SESSION_CURRENT
 		;; OK, GO ON
-		;; FX_DATA_SESSION_CURREND is not out of range [0-31]
+		;; FX_DATA_SESSION_CURRENT is not out of range [0-31]
 		rgoto FX_FUNC_022_GO_ON
 		
 		;; write noise period max MAX VALUE [fX DATA WAS OUT OF RAGE] 
 		movlw	NOISE_PERIOD_MAX_VALUE
-		movwf	FX_DATA_SESSION_CURREND
+		movwf	FX_DATA_SESSION_CURRENT
 		
 FX_FUNC_022_GO_ON		
 	;; REVERSE NOISE PERIOD VALUE 
@@ -1077,7 +1077,7 @@ FX_FUNC_022_GO_ON
 	;; [FX DATA] 31 => [AY CHIP REG 6REVERSE VALUE]  = 0
 	movlw NOISE_PERIOD_MAX_VALUE  ;; 31
 	movwf AY_R6_NOISE_PERIOD_REVERSE_VALUE
-	movf FX_DATA_SESSION_CURREND, W
+	movf FX_DATA_SESSION_CURRENT, W
 	subwf AY_R6_NOISE_PERIOD_REVERSE_VALUE, F
 		;; ==========================================================================================
 		;; SEND DATA TO AY REG 6
@@ -1093,7 +1093,7 @@ FX_FUNC_022_GO_ON
 FX_FUNC_023
 	;; ENV ON A
 	
-	;; get currend envelope shape
+	;; get CURRENT envelope shape
 	call ENVELOPE_TRANSLATOR_CALL
 			
 	movff AY_R8_CH_A_AMPLITUDE, Fx_TEMP
@@ -1143,7 +1143,7 @@ FX_FUNC_024
 FX_FUNC_025
 	;; ENV ON B
 
-	;; get currend envelope shape
+	;; get CURRENT envelope shape
 	call ENVELOPE_TRANSLATOR_CALL
 
 	movff AY_R9_CH_B_AMPLITUDE, Fx_TEMP
@@ -1192,7 +1192,7 @@ FX_FUNC_026
 FX_FUNC_027
 	;; ENV ON C
 
-	;; get currend envelope shape
+	;; get CURRENT envelope shape
 	call ENVELOPE_TRANSLATOR_CALL	
 
 	movff AY_R10_CH_C_AMPLITUDE, Fx_TEMP
@@ -1243,13 +1243,13 @@ FX_FUNC_028
 FX_FUNC_029
 	;; WRITE ENV Shape/CYCLE	[Data: 0-15]
 	movlw ENVELOPE_SHAPE_MAX_VALUE_8 ; ENVELOPE SHAPE 1-8 (8 = Max Value)
-	cpfsgt FX_DATA_SESSION_CURREND
+	cpfsgt FX_DATA_SESSION_CURRENT
 		
 		rgoto FX_FUNC_014_WRITE_TO_AY_CHIP
 	 		
 	 	;; FORMAT VALUE TO 0-15 (DELETE values > 15)
 	 	movlw ENVELOPE_SHAPE_MAX_VALUE_8
-	 	movwf FX_DATA_SESSION_CURREND
+	 	movwf FX_DATA_SESSION_CURRENT
 
 
 		
@@ -1260,7 +1260,7 @@ FX_FUNC_029_WRITE_TO_AY_CHIP
         	
 		;; ==========================================================================================
         	;; COPY DATA
-        	movff FX_DATA_SESSION_CURREND, AY_REG_DATA
+        	movff FX_DATA_SESSION_CURRENT, AY_REG_DATA
 		;; --------------[SEND DATA TO AY CHIP]-----------------------------------------------------
 		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
 		;; ==========================================================================================
@@ -1274,7 +1274,7 @@ FX_FUNC_030
 		movlw AY_CHIP_ADR_11_GLOBAL_ENVELOPE_FINE ; REG ADRESS 	=> AY REGISTER 11
 		movwf AY_REG_ADDRESS 		; ADDRESS FOR 	=> AY_SR_Write
         	;; COPY DATA
-        	movff FX_DATA_SESSION_CURREND, AY_REG_DATA
+        	movff FX_DATA_SESSION_CURRENT, AY_REG_DATA
 		;; --------------[SEND DATA TO AY CHIP]-----------------------------------------------------
 		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
 		;; ==========================================================================================
@@ -1287,7 +1287,7 @@ FX_FUNC_031
 		movlw AY_CHIP_ADR_12_GLOBAL_ENVELOPE_COARSE ; REG ADRESS 	=> AY REGISTER 12
 		movwf AY_REG_ADDRESS 		; ADDRESS FOR 	=> AY_SR_Write
         	;; COPY DATA
-        	movff FX_DATA_SESSION_CURREND, AY_REG_DATA
+        	movff FX_DATA_SESSION_CURRENT, AY_REG_DATA
 		;; --------------[SEND DATA TO AY CHIP]-----------------------------------------------------
 		call LABEL_AY_SR_Write	; WRITING 8BIT DATA (AY_REG_ADDRESS, AY_REG_DATA)TO AY REG(X) ROUTINE
 		;; ==========================================================================================
@@ -1485,19 +1485,19 @@ FX_FUNC_040
 
 FX_FUNC_041
 	;; GOTO Fx POS 	[Data: 0-31]
-	;; set FX_POS_CURREND
-	movff FX_DATA_SESSION_CURREND, FX_POS_SESSION_CURREND
+	;; set FX_POS_CURRENT
+	movff FX_DATA_SESSION_CURRENT, FX_POS_SESSION_CURRENT
 	
 	;; IS THE GOTO POS VALID?
 	movlw FX_POS_MAX_31 
-	cpfsgt FX_POS_SESSION_CURREND
+	cpfsgt FX_POS_SESSION_CURRENT
 		;; FX POS IS OK
 		rgoto FX_FUNC_041_RESET_FX_TIMER
 	 		
 	 	;; FX_POS IS OUT OF RANG 
 	 	;; SET FX POS TO MAX = POS 31
 	 	movlw FX_POS_MAX_31 
-	 	movwf FX_POS_SESSION_CURREND
+	 	movwf FX_POS_SESSION_CURRENT
 
 	
 FX_FUNC_041_RESET_FX_TIMER			
@@ -1519,10 +1519,10 @@ INC_FX_POS_FOR_THE_NEXT_FX_EXECUTION
 	
 	;; INC Fx POS	
 	;; +1 to Fx Pos
-	incf 	FX_POS_SESSION_CURREND, F
+	incf 	FX_POS_SESSION_CURRENT, F
 		;; chck if Fx Tab Pos > 31
 		movlw FX_POS_MAX_31  ;; 31
-		cpfsgt FX_POS_SESSION_CURREND
+		cpfsgt FX_POS_SESSION_CURRENT
 			;; NO - OK QUIT HERE
 			goto FX_PIPELINE_EXIT
 
@@ -1535,11 +1535,11 @@ INC_FX_POS_FOR_THE_NEXT_FX_EXECUTION
 
 
 FX_PIPELINE_EXIT
-			;; LOAD NEXT FX DATA for the NEXT CURREND POS /
+			;; LOAD NEXT FX DATA for the NEXT CURRENT POS /
 			;; for the NEXT Fx CYCLE
-			call LOAD_FX_SESSION_DATA_CURREND_POS
+			call LOAD_FX_SESSION_DATA_CURRENT_POS
 					;; EXIT
-					;; END OF CURREND FX CYCLE			
+					;; END OF CURRENT FX CYCLE			
 					return
 
 
@@ -1550,33 +1550,33 @@ FX_PIPELINE_EXIT
 ;; ----------------------------------------------------------------
 ;; Fx Call to Load Curren Fx date @ POS X
 
-;; LOAD CURREND POS for Fx Pipeline
+;; LOAD CURRENT POS for Fx Pipeline
 
-LOAD_FX_SESSION_DATA_CURREND_POS
+LOAD_FX_SESSION_DATA_CURRENT_POS
 	;; used by Fx pipeline 
 	;; DO INDIRECT RAM ACCESS via FSR0
 	movlw SELECT_Fx_RAM_BANK 	;; SET IDIRECT RAM ACCESS REG FSR0 
 	movwf FSR0H			;; RAM BANK: Fx DATA RAM AREA
 					
-	;; LOAD FX FUNCTION @ Currend SESSION Pos (in the Fx Data Area)	
+	;; LOAD FX FUNCTION @ CURRENT SESSION Pos (in the Fx Data Area)	
 	movlw RAM_OFFSET_FX_FUNCTION 		 ;; OFFSET @ RAM BANK 2 @ The RAM AREA of FX FUNCTIONS (in the Fx Data Area)	
-	addwf FX_POS_SESSION_CURREND, W		 ;; + Fx Tab SESSION Pos (0 to 31 [32])
-	movwf FSR0L				 ;; SET CURREND SESSION OFFSET for Fx Function @ current Fx SESSION Pos.
-	movff INDF0, FX_FUNCTION_SESSION_CURREND ;; WRITE FX FUNCTION @ currend Session Pos to Working Register
+	addwf FX_POS_SESSION_CURRENT, W		 ;; + Fx Tab SESSION Pos (0 to 31 [32])
+	movwf FSR0L				 ;; SET CURRENT SESSION OFFSET for Fx Function @ current Fx SESSION Pos.
+	movff INDF0, FX_FUNCTION_SESSION_CURRENT ;; WRITE FX FUNCTION @ CURRENT Session Pos to Working Register
 
-	;; LOAD FX Data Reg. @ Currend SESSION Pos (in the Fx Data Area)	
+	;; LOAD FX Data Reg. @ CURRENT SESSION Pos (in the Fx Data Area)	
 	movlw RAM_OFFSET_FX_DATA	;; OFFSET @ RAM BANK 2 @ The RAM AREA of FX Data (in the Fx Data Area)	
-	addwf FX_POS_SESSION_CURREND, W	;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L		;; SET CURREND OFFSET to Fx DATA @ current Fx SESSION Pos.
-	movff INDF0,FX_DATA_SESSION_CURREND	;; WRITE FX Data @ currend Session Pos to Working Register
+	addwf FX_POS_SESSION_CURRENT, W	;; + (0 to 31 [32]) => Fx Tab Pos
+	movwf FSR0L		;; SET CURRENT OFFSET to Fx DATA @ current Fx SESSION Pos.
+	movff INDF0,FX_DATA_SESSION_CURRENT	;; WRITE FX Data @ CURRENT Session Pos to Working Register
 
-	;; LOAD FX TIME DELAY @ Currend SESSION Pos (in the Fx Data Area)
+	;; LOAD FX TIME DELAY @ CURRENT SESSION Pos (in the Fx Data Area)
 	movlw RAM_OFFSET_FX_TIME_PRE_EXECUTION  	;; OFFSET @ RAM BANK 2 -  
 							;; The RAM AREA of FX TIME DELAY REGS (in the Fx Data Area)	 
-	addwf FX_POS_SESSION_CURREND, W			;; + (0 to 31 [32]) => Fx Tab Pos
-	movwf FSR0L					;; SET CURREND OFFSET To Ind. Reg Adress
-	movff INDF0,FX_TIME_PRE_EXECUTION_SESSION_CURREND	;; WRITE FX Pre Execution Time 
-								;; @ currend Session Pos to Working Register
+	addwf FX_POS_SESSION_CURRENT, W			;; + (0 to 31 [32]) => Fx Tab Pos
+	movwf FSR0L					;; SET CURRENT OFFSET To Ind. Reg Adress
+	movff INDF0,FX_TIME_PRE_EXECUTION_SESSION_CURRENT	;; WRITE FX Pre Execution Time 
+								;; @ CURRENT Session Pos to Working Register
 		;; End of Subroutine
 		return
 
@@ -1591,7 +1591,7 @@ WRITE_FX_TUNE_1_2_3
 		;; Save the last 3 Note On Values
 		;; 1) Fx Tune #2 	=> Fx Tune #3 (last but two Tune)
 		;; 2) Fx Tune #1 	=> Fx Tune #2 (last but one Tune)
-		;; 3) Currend Note On 	=> Fx Tune #1 (last Tune)
+		;; 3) CURRENT Note On 	=> Fx Tune #1 (last Tune)
 		movff Fx_Note_On_2_tune_coarse, Fx_Note_On_3_tune_coarse
 		movff Fx_Note_On_2_tune_fine, Fx_Note_On_3_tune_fine
 
@@ -1612,7 +1612,7 @@ WRITE_FX_TUNE_1_2_3
 ;; bevor call
 ;;
 ;; (2)
-;; TUNE_FINE_TEMP - CURREND Fx DATA BYTE
+;; TUNE_FINE_TEMP - CURRENT Fx DATA BYTE
 ;; 
 ;; (3)
 ;; BORROW HANDLING IF NEEDED (DEC TUNE_COARSE_TEMP -1)
@@ -1624,9 +1624,9 @@ WRITE_FX_TUNE_1_2_3
 ;; TUNE_FINE_TEMP    => TUNE FINE   A|B|C
 FX_TUNE_PLUS
 
-	movf FX_DATA_SESSION_CURREND, W
+	movf FX_DATA_SESSION_CURRENT, W
 	setc
-	;; TUNE_FINE_TEMP - CURREND Fx DATA BYTE
+	;; TUNE_FINE_TEMP - CURRENT Fx DATA BYTE
 	subwfb TUNE_FINE_TEMP, F	
 			;; CHECK BORROW BIT
 			;; IF THE BORROW BIT appear DEC BORROR BIT @ COARSE TUNE REG
@@ -1672,7 +1672,7 @@ FX_TUNE_PLUS_BORROW_BIT_HANDLING_SET_HIGHEST_TUNE
 ;; bevor call
 ;;
 ;; (2)
-;; TUNE_COARSE_TEMP + CURREND Fx DATA BYTE
+;; TUNE_COARSE_TEMP + CURRENT Fx DATA BYTE
 ;; 
 ;; (3)
 ;; CARRY HANDLING IF NEEDED (INC TUNE_COARSE_TEMP +1)
@@ -1683,11 +1683,11 @@ FX_TUNE_PLUS_BORROW_BIT_HANDLING_SET_HIGHEST_TUNE
 ;; TUNE_COARSE_TEMP  => TUNE COARSE A|B|C
 ;; TUNE_FINE_TEMP    => TUNE FINE   A|B|C
 FX_TUNE_MINUS
-	;; COPY CURREND FX DATA BYTE TO WREG
-	movf FX_DATA_SESSION_CURREND, W
+	;; COPY CURRENT FX DATA BYTE TO WREG
+	movf FX_DATA_SESSION_CURRENT, W
 		
 	clrc ;; CLEAR CARRY BIT @ STATUS REG
-	;; TUNE_FINE_TEMP REG [PLUS] CURREND Fx DATA BYTE
+	;; TUNE_FINE_TEMP REG [PLUS] CURRENT Fx DATA BYTE
 	addwfc TUNE_FINE_TEMP, F	
 			;; CHECK CARRY BIT (BRACH IF IT IS SET) 
 			bc FX_TUNE_MINUS_CARRY_BIT_HANDLING

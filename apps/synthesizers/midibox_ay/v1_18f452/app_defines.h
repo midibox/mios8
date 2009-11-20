@@ -1,10 +1,7 @@
-; app_defines.h
-; Specific Defines, 
-; constants and variables 
-; of the MIOS Application
-; MidiBox AY 8912
-; lemonhorse (2009)
-; All rights by TK
+;; app_defines.h
+;; Specific Defines, 
+;; constants and variables 
+;; of the MIOS Application
 ; 
 ; ==========================================================================
 ;; MEMO:
@@ -12,18 +9,15 @@
 ;; YOU CAN USE 		=> 0x010-0x37f
 ;; BUT DON'T USE 	=> 0x080-0x0FF [SFR's] 
 ; ==========================================================================
-;
 
 ;; =========================================================================
 ;; ======================[START: ACCESS RAM AREA]===========================
 ;; =========================================================================
+;; -------------------------------------------------------------------------
 ;; ----------[ACESS RAM - RAM BANK0 [[0x010] to [0x07f]]--------------------
 ;; -------------------------------------------------------------------------
-;; USER_DISPLAY_TICK
-;; => LCD Display Update
-;; =========================================
-; bit 0 will be set to request a display update
-DISPLAY_UPDATE_REQ				EQU	0x010
+
+;;  FREE_RAM_BYTE				EQU	0x010
 
 ;; used by midi_evnt.inc
 ;; =========================================
@@ -133,18 +127,24 @@ KEY_AUTO_REPEAT_COUNTER				EQU	0x03D ;;
 
 ;; ------------------[PATCH NUMBER (BANKSTICK, PIC EEPROM)]-----------------------------
 ;;                       PATCH MENU / MAIN MENU 1
-CURREND_PATCH_NR				EQU	0x03E 	;; 0 = INT (PIC EEPROM PATCH)
+CURRENT_PATCH_NR				EQU	0x03E 	;; 0 = INT (PIC EEPROM PATCH)
 								;; 1 - 128 (BANK STICK PATCHES)
 BROWSE_PATCH_NR					EQU	0x07C	;; (!!! ADR !!!) FOR BROWSING PATCHES
-PATCH_MENU_STATE_FLAGS				EQU	0x07D 	;; (!!! ADR !!!) PATCH MENU (INT, B.STICK, WRITE, LOAD, FORMAT)
-								;; BIT0 = 1 = BANKSTICK 1 FOUND
-								;; BIT0 = 0 = NO BANKSTICK 1 FOUND
-								;; BIT1 = 1 = BANKSTICK 1 browsed PATCH FORMATED, OK
-								;; BIT1 = 0 = BANKSTICK 1 browsed PATCH NOT FORMATED
-								;; BIT2 = 1 = browsed PATCH = INTERNAL (PIC EEPROM)
+PATCH_MENU_STATE_FLAGS				EQU	0x07D 	;; (!!! ADR !!!) PATCH STATE BYTE 
+								;; BIT0 = 1 = BANKSTICK FOUND
+								;; BIT0 = 0 = NO BANKSTICK FOUND
+								;; BIT1 = 1 = BANKSTICK PATCH FORMATED, OK
+								;; BIT1 = 0 = BANKSTICK PATCH NOT FORMATED
+								;; BIT2 = 1 = browsed PATCH = INTERNAL (0 [PIC Eeprom])
 								;; BIT2 = 0 = browsed PATCH = BANKSTICK (1-128)
+								;; BIT3 = 1 = DO FORMAT B.STICK MODE = ON
+								;; BIT3 = 0 = DO FORMAT B.STICK MODE = OFF
+								;; BIT4 = 1 = CURRENT PATCH NR =  BROWSE PATCH NR
+								;; BIT4 = 0 = CURRENT PATCH NR <> BROWSE PATCH NR
+
+
 FORMAT_BANKSTICK_CYCLE_COUNTER			EQU	0x07E	;; (!!! ADR !!!)
-CURREND_PATCH_DATA_BYTE_TEMP			EQU	0x03F 	;; 
+CURRENT_PATCH_DATA_BYTE_TEMP			EQU	0x03F 	;; 
 BANKSTICK_LOW_BYTE_ADR_COUNTER			EQU	0x07F 	;; !!! (see above) !!!
 
 ;;-------------------------------------[ CC ]-------------------------------------------
@@ -191,23 +191,23 @@ Fx_MIDI_NOTE_ON_OR_OFF				EQU 	0x04E
 						;; BIT 6 => Reserved
 						;; BIT 7 => Reserved
 
-FX_POS_CURREND					EQU 	0x04F
-						;; CURREND POS OF Fx Table (ROW)
+FX_POS_CURRENT					EQU 	0x04F
+						;; CURRENT POS OF Fx Table (ROW)
 						;; Fx Tab ROW Pointer
 
-FX_FUNCTION_CURREND				EQU 	0x050
+FX_FUNCTION_CURRENT				EQU 	0x050
 						;; Fx FUNCTIONS
 						;; Fx = 0 => DO x
 						;; FX = 1 => DO y
 						;; FX = 2 => DO z
 						;; etc.
 						
-FX_DATA_CURREND					EQU 	0x051
+FX_DATA_CURRENT					EQU 	0x051
 						;; USED for WRITING DATA TO AN AY CHIP REG.
 						;; Corresponding to FX_FUNCTION_X
 						
 
-FX_TIME_PRE_EXECUTION_CURREND			EQU	0x052
+FX_TIME_PRE_EXECUTION_CURRENT			EQU	0x052
 						;; TIME PERIOD TO THE NEXT FX POS.
 						;; EXECUTION
 
@@ -242,10 +242,10 @@ Fx_Note_On_3_tune_coarse			EQU	0x05E
 Fx_PATCH_DATA_TMP				EQU	0x05F
 Fx_LOAD_WRITE_ADR_COUNTER_TMP			EQU	0x060
 
-FX_POS_SESSION_CURREND				EQU 	0x061
-FX_FUNCTION_SESSION_CURREND			EQU	0x062
-FX_TIME_PRE_EXECUTION_SESSION_CURREND		EQU	0x063
-FX_DATA_SESSION_CURREND				EQU	0x07B ;; [(!!ADR!!!)]
+FX_POS_SESSION_CURRENT				EQU 	0x061
+FX_FUNCTION_SESSION_CURRENT			EQU	0x062
+FX_TIME_PRE_EXECUTION_SESSION_CURRENT		EQU	0x063
+FX_DATA_SESSION_CURRENT				EQU	0x07B ;; [(!!ADR!!!)]
 
 
 ;; ===========================================
@@ -262,7 +262,7 @@ AY_R4_CH_C_FINE_TUNE			EQU	0x068 ;; 0x00 to 0xFF
 AY_R5_CH_C_COARSE_TUNE			EQU	0x069 ;; 0x00 to 0x0F
 AY_R6_NOISE_PERIOD			EQU	0x06a ;; 0x00 to 0x1F
 AY_R7_ENABLE_ABC_NOISE_IO		EQU	0x06b ;; 0x00 to 0xFF
-  ;; -------[AY_R7_ENABLE_ABC_NOISE_IO ASSIGNMENT]------------------
+  ;; ----------------[AY CHIP REG 0x07: ASSIGNMENT]-----------------
   ;; >>> | BIT7  | BIT6  | BIT5 | BIT4 | BIT3 | BIT2 | BIT1 | BIT0 |
   ;; -------------------------------------------------------------
   ;; >>> | MODE  | MODE  | NOISE| NOISE| NOISE| TONE | TONE | TONE |
@@ -274,85 +274,8 @@ AY_R7_ENABLE_ABC_NOISE_IO		EQU	0x06b ;; 0x00 to 0xFF
   ;; ---------------------------------------------------------------
   ;; DEC.| D128  | D064  | D032 | D016 | D008 | D004 | D002 | D001 |
   ;; ---------------------------------------------------------------
-  ;; 
-  ;; EXAMPLES FOR AY_R7_ENABLE_ABC_NOISE_IO VALUES:
-  ;; ---------------------------------------------- 
-  ;; 1) 0x00 
-  ;; => IOA=INPUT, IOB=INPUT,
-  ;; => NOISE CHANNEL A B C IS SWITCHED ON
-  ;; => TONE CHANNEL A B C IS SWITCHED ON
-  ;; ------------------------------------------------------------
-  ;; >>> | BIT7 | BIT6 | BIT5 | BIT4 | BIT3 | BIT2 | BIT1 | BIT0 |
-  ;; -------------------------------------------------------------
-  ;; >>> | MODE | MODE | NOISE| NOISE| NOISE| TONE | TONE | TONE |
-  ;; >>> | IOB  | IOA  | CH C | CH B | CH A | CH C | CH B | CH A |
-  ;; >>> | /IN  | /IN  | /ON  | /ON  | /ON  | /ON  | /ON  | /ON  |
-  ;; >>> | OUT  | OUT  | OFF  | OFF  | OFF  | OFF  | OFF  | OFF  |
-  ;; -------------------------------------------------------------
-  ;; BIN.|  0   |   0  |  0   |   0  |  0   |   0  |   0  |   0  |
-  ;; -------------------------------------------------------------
-  ;; HEX.|  -   |   -  |  -   |   -  |  -   |   -  |   -  |   -  | = 0x00
-  ;; -------------------------------------------------------------
-  ;; DEC.|  -   |   -  |  -   |   -  |  -   |   -  |   -  |   -  | = D000
-  ;; -------------------------------------------------------------
-  ;;
-  ;; 2) 0x40 (BIT 6 IS SET)
-  ;; => IOA = OUTPUT, IOB = INPUT, 
-  ;; => NOISE CH. A B C IS SWITCHED ON, 
-  ;; => TONE CH. A B C IS SWITCHED ON
-  ;; >>> | BIT7 | BIT6 | BIT5 | BIT4 | BIT3 | BIT2 | BIT1 | BIT0 |
-  ;; ------------------------------------------------------------
-  ;; >>> | MODE | MODE | NOISE| NOISE| NOISE| TONE | TONE | TONE |
-  ;; >>> | IOB  | IOA  | CH C | CH B | CH A | CH C | CH B | CH A |
-  ;; >>> | /IN  | /IN  | /ON  | /ON  | /ON  | /ON  | /ON  | /ON  |
-  ;; >>> | OUT  | OUT  | OFF  | OFF  | OFF  | OFF  | OFF  | OFF  |
-  ;; -------------------------------------------------------------
-  ;; BIN.|  0   |   1  |  0   |   0  |  0   |   0  |   0  |   0  |
-  ;; -------------------------------------------------------------
-  ;; HEX.|  -   | 0x40 |  -   |  -   |  -   |   -  |   -  |   -  | = 0x40
-  ;; -------------------------------------------------------------
-  ;; DEC.|  -   | D064 |  -   |  -   |  -   |   -  |   -  |  -   | = D064
-  ;; -------------------------------------------------------------
-  ;;  
-  ;; 3) 0x78 (D120)
-  ;; => IOA=OUTPUT (BIT6 IS SET), IOB=INPUT (BIT7 IS NOT SET), 
-  ;; => NOISE OF CH A B C IS SWITCHED OFF (BIT: 3,4,5 IS SET))
-  ;; => TONE CH. A B C IS SWITCHED OFF  
-  ;; BIN | BIT7 | BIT6 | BIT5 | BIT4 | BIT3 | BIT2 | BIT1 | BIT0 |
-  ;; -------------------------------------------------------------
-  ;; >>> | MODE | MODE | NOISE| NOISE| NOISE| TONE | TONE | TONE |
-  ;; >>> | IOB  | IOA  | CH C | CH B | CH A | CH C | CH B | CH A |
-  ;; >>> | /IN  | /IN  | /ON  | /ON  | /ON  | /ON  | /ON  | /ON  |
-  ;; >>> | OUT  | OUT  | OFF  | OFF  | OFF  | OFF  | OFF  | OFF  |
-  ;; -------------------------------------------------------------
-  ;; >>> |  0   |   1   |  1   |   1  |  1   |   0  |   0  |  0  |
-  ;; -------------------------------------------------------------
-  ;; HEX.|  -   | 0x40  | 0x20 | 0x10 | 0x08 |   -  |   -  |  -  | = 0x78
-  ;; -------------------------------------------------------------
-  ;; DEC.|  -   | D064  | D032 | D016 | D008 |   -  |   -  |   - | = D120
-  ;; -------------------------------------------------------------
-  ;;
-  ;; 4) 0x78 (D120)
-  ;; => IOA=OUTPUT, IOB=INPUT
-  ;; => NOISE CH C ON, NOISE CH B OFF (BIT 4 IS SET), NOISE CH A ON,
-  ;; => TONE CH. A ON, TONE CH B ON TONE CH C OFF (BIT2 IS SET)   
-  ;; BIN | BIT7 | BIT6 | BIT5 | BIT4 | BIT3 | BIT2 | BIT1 | BIT0 |
-  ;; -------------------------------------------------------------
-  ;; >>> | MODE | MODE | NOISE| NOISE| NOISE| TONE | TONE | TONE |
-  ;; >>> | IOB  | IOA  | CH C | CH B | CH A | CH C | CH B | CH A |
-  ;; >>> | /IN  | /IN  | /ON  | /ON  | /ON  | /ON  | /ON  | /ON  |
-  ;; >>> | OUT  | OUT  | OFF  | OFF  | OFF  | OFF  | OFF  | OFF  |
-  ;; -------------------------------------------------------------
-  ;; >>> |  0   |   1   |  0   |   1  |  0  |   1  |   0  |   0  |
-  ;; -------------------------------------------------------------
-  ;; HEX.|  -   | 0x40  |  -   | 0x10 |  -  | 0x04 |   -  |   -  | = 0x54
-  ;; -------------------------------------------------------------
-  ;; DEC.|  -   | D064  |  -   | D016 |  -  | D004 |   -  |   -  | = D084
-  ;; -------------------------------------------------------------
-  
-  
 
-AY_R8_CH_A_AMPLITUDE		  	EQU	0x06c ; 0x00 to 0x1F (D031)  / OCTAL R10 (!)
+AY_R8_CH_A_AMPLITUDE		  	EQU	0x06c ; 0x00 to 0x1F (D031) 
   ;; THE AMPLITUDE (VOLUME) OF THE CH. A SIGNAL GENERATED BY 
   ;; THE D/A CONVERTER IS DETERMINED BY THE CONTENS OF THE LOWER BITS OF REGISTER 8
   ;;
@@ -369,8 +292,8 @@ AY_R8_CH_A_AMPLITUDE		  	EQU	0x06c ; 0x00 to 0x1F (D031)  / OCTAL R10 (!)
   ;; VOLUME => 0x00 to 0x0F (DEC. 000 to 015)
   ;; IF BIT4 IS SET => THE ENVELOPE SHAPE/CYCLE IS DEFINED BY REGISTER 13
   ;; (OCTAL R15 (!)) SEE DATASHEET FOR DETAILS
-   
-AY_R9_CH_B_AMPLITUDE		  	EQU	0x06d ; 0x00 to 0x1F (D031) / OCTAL R11 (!)
+
+AY_R9_CH_B_AMPLITUDE		  	EQU	0x06d ; 0x00 to 0x1F (D031) 
   ;; THE AMPLITUDE OF THE SIGNAS (CH. B) GENERATED BY 
   ;; THE D/A CONVERTER (ONE EACH FOR CHANNELS A, B, C) IS DETERMINED
   ;; BY THE CONTENS OF THE LOWER BITS OF REGISTER 8,9 AND 10 
@@ -390,11 +313,11 @@ AY_R9_CH_B_AMPLITUDE		  	EQU	0x06d ; 0x00 to 0x1F (D031) / OCTAL R11 (!)
   ;; IF BIT4 IS SET => THE ENVELOPE SHAPE/CYCLE IS DEFINED BY REGISTER 13
   ;; (OCTAL R15 (!)) SEE DATASHEET FOR DETAILS
 
-AY_R10_CH_C_AMPLITUDE		  	EQU	0x06E ; 0x00 to 0x1F (D031) / OCTAL R12 (!)
+AY_R10_CH_C_AMPLITUDE		  	EQU	0x06E ; 0x00 to 0x1F (D031) 
   ;; THE AMPLITUDE OF THE SIGNAL (CH. C) GENERATED BY EACH
   ;; OF THE 3 D/A CONVERTERS (ONE EACH FOR CHANNELS A, B, C) IS DETERMINED
   ;; BY THE CONTENS OF THE LOWER BITS OF REGISTER 8,9 AND 10 
-  ;; (REGISTER *OCTAL* 10,11 AND 12(ACCORDING TO SOME PDF DATASHEETS)): 
+  ;; (REGISTER *OCTAL* 10,11 AND 12 (ACCORDING TO SOME PDF DATASHEETS)): 
   ;;
   ;; >>> | BIT7 | BIT6 |BIT5|   BIT4   | BIT3 | BIT2 | BIT1 |  BIT0 |
   ;; ----------------------------------------------------------------
@@ -410,17 +333,15 @@ AY_R10_CH_C_AMPLITUDE		  	EQU	0x06E ; 0x00 to 0x1F (D031) / OCTAL R12 (!)
   ;; IF BIT4 IS SET => THE ENVELOPE SHAPE/CYCLE IS DEFINED BY REGISTER 13
   ;; (OCTAL R15 (!)) SEE DATASHEET FOR DETAILS
 
-
-
-AY_R11_ENV_PERIOD_FINE			EQU	0x06f ; (RANGE 0x00 to 0xFF)        / OCTAL R13 (!)
-AY_R12_ENV_PERIOD_COARSE		EQU	0x070 ; (RANGE 0x00 to 0xFF)        / OCTAL R14 (!)
+AY_R11_ENV_PERIOD_FINE			EQU	0x06f ; (RANGE 0x00 to 0xFF) | OCTAL R13 (!)
+AY_R12_ENV_PERIOD_COARSE		EQU	0x070 ; (RANGE 0x00 to 0xFF) | OCTAL R14 (!)
   ;; THE FREQUENCY OF THE ENVELOPE IS OPTAINED BY FIRST COUTING DOWN
   ;; THE INPUT CLOCK BY 256, THEN BY FURTHER COUNTING DOWN THE RESULT
   ;; BY THE PROGRAMMED 16BIT (SEE BIT 0-15) ENVELOPE PERIOD VALUE
   ;; R11 => BIT 0-7
   ;; R12 => BIT 8-15
 
-AY_R13_ENV_SHAPE_CYCLE			EQU	0x071 ; 0x00 to 0x0F (D015) / OCTAL R15 (!)
+AY_R13_ENV_SHAPE_CYCLE			EQU	0x071 ; 0x00 to 0x0F (D015) | OCTAL R15 (!)
   ;; THE RELATIVE SHAPE AND CYCLE PATTERN REGISTER
   ;; CH A,B,C ENVELOVE REGISTER IF "AMPLITUDE MODE" *BIT 4*
   ;; @ REGISTER 10 or 11 or 12 (OCTAL 12,13,14) is SET
@@ -443,16 +364,14 @@ AY_R14_AY_PORTA_DATA			EQU	0x072 ;; OCTAL R16 (!)
   ;; NOTE: R15 = I/O PORT B (NOT IMPLEMENTED IN AY 3 8912)
 
 
-
 ;; APPLICATION WORKING REGISTERS 
 ;; =============================================
   
 SWITCH_BETWEEN_MAIN_AND_SUBMENU		EQU	0x073 	;; => MAIN - SUB MENU SWITCH 
-							
-						      		      
-CURRENT_MAIN_MENU  			EQU	0x074 ;; => CURRENT main menu (INDICATES WHITCH MAIN MENU IS ACTIVE)
-						      ;; SWITCHED @ keyb_decoding.inc
-						      ;; SEE LABEL_AY_DECODE_KEYBOARD_BUTTON_MAINMENU
+
+CURRENT_MAIN_MENU  			EQU	0x074 	;; => CURRENT main menu (INDICATES WHITCH MAIN MENU IS ACTIVE)
+						      	;; SWITCHED @ keyb_decoding.inc
+						      	;; SEE LABEL_AY_DECODE_KEYBOARD_BUTTON_MAINMENU
 
 AY_SUB_MENUE_KEY_SWITCH			EQU	0x075 	;; => C64 KEYBOARD KEY (VALUE) - JUMP-SWITCH to sub menu (x)
 
@@ -484,7 +403,7 @@ AY_KEYB_SPECIAL_KEY_TOGGLE		EQU	0x079 	;; FOR SPECIAL KEY HANDLING
 ;; -----------------------------------------------------------------------------------------
 ;; Envelope Shape Pointer (Env. Shape Help Reg.)
 ENV_SHAPE_0_15_to_1_8_TRANSLATOR		EQU	0x07A
-;; FX_DATA_SESSION_CURREND			EQU	0x07B ;; !!! (see above) !!!
+;; FX_DATA_SESSION_CURRENT			EQU	0x07B ;; !!! (see above) !!!
 
 ;; -----------------------------------------------------------------------------------------
 ;; BROWSE_PATCH_NR				EQU	0x07C ;; !!! (see above) !!!
@@ -655,18 +574,18 @@ FX_FUNCTION_TIME_POS31				EQU	0x27F
 ;; =============================[START: RAM BANK3]==========================
 ;; ---------------------------------[BSR3]----------------------------------
 ;; internal eeprom patch
-PATCH_NAME_ASC_KEY				EQU	0x300	;; SAVED CURREND ASC VALUE
-PATCH_NAME_ASC_POS				EQU	0x301	;; SAVED CURREND CURSOR POS PATCH NAME
+PATCH_NAME_ASC_KEY				EQU	0x300	;; SAVED CURRENT ASC VALUE
+PATCH_NAME_ASC_POS				EQU	0x301	;; SAVED CURRENT CURSOR POS PATCH NAME
 FREE_RAM_0x302					EQU	0x302
 
-PATCH_NAME_ASC_0				EQU	0x303	;; CURREND PATCH NAME
-PATCH_NAME_ASC_1				EQU	0x304	;; CURREND PATCH NAME
-PATCH_NAME_ASC_2				EQU	0x305	;; CURREND PATCH NAME
-PATCH_NAME_ASC_3				EQU	0x306	;; CURREND PATCH NAME
-PATCH_NAME_ASC_4				EQU	0x307	;; CURREND PATCH NAME
-PATCH_NAME_ASC_5				EQU	0x308	;; CURREND PATCH NAME
-PATCH_NAME_ASC_6				EQU	0x309	;; CURREND PATCH NAME
-PATCH_NAME_ASC_7				EQU	0x30A	;; CURREND PATCH NAME
+PATCH_NAME_ASC_0				EQU	0x303	;; CURRENT PATCH NAME
+PATCH_NAME_ASC_1				EQU	0x304	;; CURRENT PATCH NAME
+PATCH_NAME_ASC_2				EQU	0x305	;; CURRENT PATCH NAME
+PATCH_NAME_ASC_3				EQU	0x306	;; CURRENT PATCH NAME
+PATCH_NAME_ASC_4				EQU	0x307	;; CURRENT PATCH NAME
+PATCH_NAME_ASC_5				EQU	0x308	;; CURRENT PATCH NAME
+PATCH_NAME_ASC_6				EQU	0x309	;; CURRENT PATCH NAME
+PATCH_NAME_ASC_7				EQU	0x30A	;; CURRENT PATCH NAME
 
 FREE_RAM_0x30B					EQU	0x30B
 FREE_RAM_0x30C					EQU	0x30C
@@ -674,6 +593,7 @@ FREE_RAM_0x30D					EQU	0x30D
 FREE_RAM_0x30E					EQU	0x30E
 FREE_RAM_0x30F					EQU	0x30F
 
+;; RESERVED / NOT IN USE (YET)
 BROWSED_PATCH_NAME_ASC_0			EQU	0x310	;; BROWSEND PATCH NAME
 BROWSED_PATCH_NAME_ASC_1			EQU	0x311	;; BROWSEND PATCH NAME
 BROWSED_PATCH_NAME_ASC_2			EQU	0x312	;; BROWSEND PATCH NAME
@@ -755,7 +675,7 @@ BROWSED_PATCH_NAME_ASC_7			EQU	0x317	;; BROWSEND PATCH NAME
 #define MENU_ITEM_POS6			0x06
 
 
-;; CUORSER POS CONST DEF
+;; COURSER POS CONST DEF
 #define INI_COURSER_POS		0x01 	;; (Do not Change, POS 0 is NOT VALID!)
 
 
@@ -787,15 +707,21 @@ BROWSED_PATCH_NAME_ASC_7			EQU	0x317	;; BROWSEND PATCH NAME
 ;; ==> For PATCH_MENU_STATE_FLAGS	
 ;; 	;; BIT0 = 1 = BANKSTICK 1 FOUND
 ;; 	;; BIT0 = 0 = NO BANKSTICK 1 FOUND
-;; 	;; BIT1 = 1 = BANKSTICK 1 CURREND PATCH FORMATED, OK
-;; 	;; BIT1 = 0 = BANKSTICK 1 CURREND PATCH NOT FORMATED
-;; 	;; BIT2 = 1 = CURREND PATCH = BANKSTICK (1-128)
-;; 	;; BIT2 = 0 = CURREND PATCH = INTERNAL (PIC EEPROM)
-;;	;; (BIT3-7 NOT USED YET)
+;; 	;; BIT1 = 1 = BANKSTICK 1 CURRENT PATCH FORMATED, OK
+;; 	;; BIT1 = 0 = BANKSTICK 1 CURRENT PATCH NOT FORMATED
+;; 	;; BIT2 = 1 = CURRENT PATCH = BANKSTICK (1-128)
+;; 	;; BIT2 = 0 = CURRENT PATCH = INTERNAL (PIC EEPROM)
+;;	;; BIT3 = 1 = DO FORMAT B.STICK MODE = ON
+;; 	;; BIT3 = 0 = DO FORMAT B.STICK MODE = OFF
+;;	;; BIT4 = 1 = CURRENT PATCH NR =  BROWSE PATCH NR
+;;	;; BIT4 = 0 = CURRENT PATCH NR <> BROWSE PATCH NR
+;;	;; (BIT5-7 NOT USED YET)
 #define BIT0_BANKSTICK_FOUND				0
 #define BIT1_BANKSTICK_SELECTED_PATCH_FORMATED		1
 #define BIT2_SELECTED_PATCH_BANKSTICK_OR_INTERNAL	2
-#define BIT3_SELECTED_PATCH_FORMAT_BANKSTICK		3
+#define BIT3_FORMAT_BANKSTICK_MODE_ON_OR_OFF		3
+#define BIT4_A_PATCH_HAS_BEEN_LOADED			4
+#define BIT5_PATCH_NAME_IS_NEW				5
 ;; ------------------------------------------------------------
 #define BANKSTICK_MAX_PATCH_NUMBER			127
 

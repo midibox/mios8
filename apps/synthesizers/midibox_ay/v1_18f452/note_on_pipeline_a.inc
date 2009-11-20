@@ -76,7 +76,7 @@ MIDI_EVNT_NOTE_ON_CHECK_MIDI_CHANNEL_A
 		bcf	AY_TONE_ABC_MIDI_ON_OFF, BIT0_TONE_A_ON_OFF
 		bcf	AY_TONE_ABC_MIDI_ON_OFF, BIT3_NOISE_A_ON_OFF
 
-		;; WRITE CURREND *NOTE ON VALUE* @ MIDI Ch Tone A
+		;; WRITE CURRENT *NOTE ON VALUE* @ MIDI Ch Tone A
 		;; FOR CHCKING if the Note OFF value correlates with the last
 		;; NOTE ON value (importend for MIDI KEYBOARD HANDLING of delayed NOTE OFF values) 
 		;; processing @ note_off.inc

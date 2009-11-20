@@ -1,46 +1,41 @@
 ;; start_screen.inc
-;; V0.1
 
 AY_START_SCREEN
-;; SHOW MIDIBOX USER THE LCD START SCREEN
-        	TABLE_ADDR TEXT_AY_START_SCREEN_ROW1
-        	call    MIOS_LCD_PrintString
+	;; SHOW MIDIBOX USER THE LCD START SCREEN
+        TABLE_ADDR TEXT_AY_START_SCREEN_ROW1
+        call    MIOS_LCD_PrintString
 
-		TABLE_ADDR TEXT_AY_START_SCREEN_ROW2
-		call    MIOS_LCD_PrintString
+	TABLE_ADDR TEXT_AY_START_SCREEN_ROW2
+	call    MIOS_LCD_PrintString
 
-		TABLE_ADDR TEXT_AY_START_SCREEN_ROW3
-		call    MIOS_LCD_PrintString
+	TABLE_ADDR TEXT_AY_START_SCREEN_ROW3
+	call    MIOS_LCD_PrintString
 		
-		TABLE_ADDR TEXT_AY_START_SCREEN_ROW4
-		call    MIOS_LCD_PrintString
-
-
-		;; request a display update
-		bsf	DISPLAY_UPDATE_REQ, 0
-
+	TABLE_ADDR TEXT_AY_START_SCREEN_ROW4
+	call    MIOS_LCD_PrintString
 
 		
-			;; WAIT THAT THE USER CAN READ THE START SCREEN
-			;; wait for exact 255 ms
-			clrw
-			movwf MIOS_PARAMETER1			
+		;; wait for exact 255 ms
+		;; THAT THE USER CAN READ THE STARTSCREEN
+		clrw
+		movwf MIOS_PARAMETER1			
 
 AY_START_SCREEN_SHOW_TIME		
 				
-			;; wait for exact 255 ms
-			movlw        255
-			call        MIOS_Delay
-		
-		
-			incf MIOS_PARAMETER1, F
+		;; one waitcycle 255 ms
+		movlw   255
+		call    MIOS_Delay
 				
-				;; MIDIBOX AY START SCREEN TIME 
-				movlw START_SCREEN_TIME ;; Adjust @ app_defines.h
-				cpfseq 	MIOS_PARAMETER1
+		incf MIOS_PARAMETER1, F
+			;; MIDIBOX AY START SCREEN TIME 
+			;; Adjust @ app_defines.h
+			movlw START_SCREEN_TIME 
+			cpfseq 	MIOS_PARAMETER1
+				
+				;; WAIT
+				;; Do another wait cycle	
+				rgoto AY_START_SCREEN_SHOW_TIME
 					
-					;; WAIT										
-					rgoto AY_START_SCREEN_SHOW_TIME
-					
-					;; EXIT START SCREEN NOW
-					return
+				;; EXIT START SCREEN NOW
+				return
+
