@@ -620,7 +620,10 @@ WRITE_PATCH_FINISH_WRITE_ON_LCD
 		movlw   LCD_ROW1 + 6
         	call    MIOS_LCD_CursorSet
 		movlw   ' '
-        	call    MIOS_LCD_PrintChar		
+        	call    MIOS_LCD_PrintChar	
+		
+		;; PATCH HAT BEEN WRITTEN SO SET BIT 4
+		bsf 	PATCH_MENU_STATE_FLAGS, BIT4_PATCH_HAS_BEEN_LOADED_OR_WRITTEN	
 
 				
 				;; All Done, so exit WTITE PACH subroutines here 
