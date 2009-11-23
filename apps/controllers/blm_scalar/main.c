@@ -122,15 +122,16 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
   // 0x40..0x5f: red LED on
   // 0x60..0x7f: both LEDs on
 
-  // only MIDI note numbers from 0x3c..0x4b are valid, each channel controls another row (-> 16*16 LEDs)
+  // only MIDI note numbers from 0x00..0x0f are valid, each channel controls another row (-> 16*16 LEDs)
+  // TODO: provide larger dimensions as well
 
-  if( (event_type == 0x8 || event_type == 0x9) && evnt1 >= 0x3c && evnt1 <= 0x4b ) {
+  if( (event_type == 0x8 || event_type == 0x9) && evnt1 <= 0x0f ) {
     unsigned char led_column;
     unsigned char led_row;
 
     // derive LED column and row from note number
-    led_column = 2*chn + (evnt1 >= (0x3c+8));
-    led_row = (evnt1-0x3c) & 0x7;
+    led_column = 2*chn + (evnt1 >> 3);
+    led_row = evnt1 & 0x7;
 
     // 90 xx 00 is the same like a note off event!
     // (-> http://www.borg.com/~jglatt/tech/midispec.htm)
@@ -255,7 +256,7 @@ void BLM_NotifyToggle(unsigned char pin, unsigned char value) __wparam
 
   // send pin number and value as Note On Event
   MIOS_MIDI_TxBufferPut(0x90 + (pin >> 4));
-  MIOS_MIDI_TxBufferPut(0x3c + (pin & 0xf));
+  MIOS_MIDI_TxBufferPut(pin & 0x0f);
   MIOS_MIDI_TxBufferPut(value ? 0x00 : 0x7f);
 
   // enable this code (turn #if 0 into #if 1) if buttons should change the LED colour directly
