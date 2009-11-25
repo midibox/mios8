@@ -300,10 +300,9 @@ CS_MENU_DIN_TABLE
 	DIN_ENTRY	CS_MENU_BUTTON_M_Vol,	 0,	 0	; matrix: button below M_Filter
 	DIN_ENTRY	CS_MENU_BUTTON_Play,	 1,	 3	; direct access to play function
 	DIN_ENTRY	CS_MENU_BUTTON_SID_LR,	 1,	 2	; direct access to L/R toggling
-	DIN_ENTRY	CS_MENU_BUTTON_M_Mode,	 0,	 0	; direct access to meter on/off function
+	DIN_ENTRY	CS_MENU_BUTTON_M_Mode,	 1,	 1	; direct access to meter on/off function
 	DIN_ENTRY	CS_MENU_BUTTON_Fil_ExtIn, 0, 0	; direct access to Filter ExtIn Flag
 	DIN_ENTRY	CS_MENU_BUTTON_Sync,	 0,	 0	; jumps to ENS->CLK menu
-	DIN_ENTRY	CS_MENU_BUTTON_Arp,	 1,	 1	;  enables/disables the arpeggiator of *all* oscillators
 
 	;; sammichSID buttons (SR#, Pin#) are F1=1,3 F2=1,2 F3=1,1
 	
@@ -463,23 +462,23 @@ MIOS_ENC_PIN_TABLE
 
 	;; additional CS encoders
 	;;        SR  Pin  Mode
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc delay/transpose/assign #1
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc attack/finetune/assign #2
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc decay/portamento/assign #3
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc sustain/release/assign #4
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc release/pulsewidth/assign #5
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Osc delay/transpose/assign #1
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Osc attack/finetune/assign #2
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Osc decay/portamento/assign #3
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Osc sustain/release/assign #4
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Osc release/pulsewidth/assign #5
 
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; LFO rate
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; LFO depth
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; LFO rate
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; LFO depth
 
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Filter CutOff
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Filter Resonance
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Filter CutOff
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Filter Resonance
 
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env depth/assign #1
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env attack/assign #2
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env decay/assign #3
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env sustain/assign #4
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env release/assign #5
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Env depth/assign #1
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Env attack/assign #2
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Env decay/assign #3
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Env sustain/assign #4
+	ENC_ENTRY  0,  0,  MIOS_ENC_MODE_DETENTED2	; Env release/assign #5
 
 	;; don't remove this "end-of-table" entry!
 	ENC_EOT
