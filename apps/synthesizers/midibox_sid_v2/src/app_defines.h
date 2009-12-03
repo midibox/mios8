@@ -983,7 +983,7 @@ SID_Ix_MODx_TARG_X2	EQU	0x07	; additional selectable target #2
 SID_Ix_WTx_SPEED	EQU	0x00	; [5:0] clock divider, [6] channel target SIDL, [7] channel target SIDR
 SID_Ix_WTx_ASSGN	EQU	0x01	; parameter assignment
 SID_Ix_WTx_BEGIN	EQU	0x02	; [6:0] start position in wavetable, [7] position controlled by MOD
-SID_Ix_WTx_END		EQU	0x03	; [6:0] end position in wavetable
+SID_Ix_WTx_END		EQU	0x03	; [6:0] end position in wavetable, [7] position controlled by KEY
 SID_Ix_WTx_LOOP		EQU	0x04	; [6:0] loop position in wavetable, [7] one shot
 
 SID_Ix_WAVETABLE	EQU	0x180;..0x1ff

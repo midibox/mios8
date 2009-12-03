@@ -125,20 +125,21 @@ SIDSE_M_Handler_Cycle2
 	;; ------------------------------------------------------------------
 	;; 2nd Cycle: Wavetable Handler
 	;; ------------------------------------------------------------------
-SIDSE_M_HANDLER_WT_MACRO MACRO patch_base, wt_base
+SIDSE_M_HANDLER_WT_MACRO MACRO patch_base, voice_base, wt_base
 	lfsr	FSR0, patch_base
+	lfsr	FSR1, voice_base
 	lfsr	FSR2, wt_base
 	rcall	SIDSE_M_WT
 	incf	SID_SE_ELEMENT_NUM, F, BANKED
 	ENDM
 
 	clrf	SID_SE_ELEMENT_NUM, BANKED
-	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I1_BASE, SID_WT1_BASE
-	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I2_BASE, SID_WT2_BASE
-	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I3_BASE, SID_WT3_BASE
-	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I4_BASE, SID_WT4_BASE
-	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I5_BASE, SID_WT5_BASE
-	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I6_BASE, SID_WT6_BASE
+	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I1_BASE, SIDL_V1_BASE, SID_WT1_BASE
+	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I2_BASE, SIDL_V2_BASE, SID_WT2_BASE
+	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I3_BASE, SIDL_V3_BASE, SID_WT3_BASE
+	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I4_BASE, SIDR_V1_BASE, SID_WT4_BASE
+	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I5_BASE, SIDR_V2_BASE, SID_WT5_BASE
+	SIDSE_M_HANDLER_WT_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_M_I6_BASE, SIDR_V3_BASE, SID_WT6_BASE
 
 	;; clear all WT requests
 	clrf	SID_SE_TRG_EVNT_U, BANKED
@@ -417,10 +418,66 @@ SIDSE_M_Note
 ;; --------------------------------------------------------------------------
 ;; This function handles the wavetables
 ;; IN: pointer to SID_Ix_M_Iy_BASE in FSR0 (patch record)
+;;     pointer to SID_Vx_BASE in FSR1 (voice record)
 ;;     pointer to SID_WTx_BASE in FSR2 (wt record)
 ;;     WT number in SID_SE_ELEMENT_NUM
 ;; --------------------------------------------------------------------------
 SIDSE_M_WT
+	;; if KEY control flag (END[7]) set, control position from current played key
+	movlw	SID_Ix_M_Vx_WT_END
+	BRA_IFCLR PLUSW0, 7, ACCESS, SIDSE_M_WT_NoKey
+SIDSE_M_WT_Key
+	;; copy currently played note (*2) to IRQ_TMP2
+	clrc
+	movlw	SID_Vx_PLAYED_NOTE
+	rlf	PLUSW1, W
+	movwf	IRQ_TMP2
+
+	;; determine range: END-BEGIN+1 -> IRQ_TMP5
+	;; start value -> IRQ_TMP4 (either END or BEGIN, depending on polarity)
+	movlw	SID_Ix_M_Vx_WT_END
+	movf	PLUSW0, W
+	andlw	0x7f
+	movwf	IRQ_TMP5
+	movlw	SID_Ix_M_Vx_WT_BEGIN
+	movf	PLUSW0, W
+	andlw	0x7f
+	movwf	IRQ_TMP4
+	subwf	IRQ_TMP5, F
+	;; n+1 complement if begin greater than end
+	BRA_IFCLR IRQ_TMP5, 7, ACCESS, SIDSE_M_WT_MOD_NoRngInv
+SIDSE_M_WT_MOD_RngInv
+	comf	IRQ_TMP5, F
+	incf	IRQ_TMP5, F
+	movlw	SID_Ix_M_Vx_WT_END
+	movf	PLUSW0, W
+	andlw	0x7f
+	movwf	IRQ_TMP4
+SIDSE_M_WT_MOD_NoRngInv
+	incf	IRQ_TMP5, F
+
+	;; determine position
+	movf	IRQ_TMP5, W		; range
+	mulwf	IRQ_TMP2, ACCESS	; modulation value
+	movf	PRODH, W		; scaled value
+ 	addwf	IRQ_TMP4, F		; add to begin position
+
+#if 0
+	;; play new step if position has been changed
+	movlw	SID_WTx_POS
+	movf	PLUSW2, W
+	xorwf	IRQ_TMP4, W
+	skpnz
+	rgoto	SIDSE_M_WT_End
+#endif
+	;; changed: always play new position
+	;; important while wavetable is edited
+	
+	movlw	SID_WTx_POS
+	movff	IRQ_TMP4, PLUSW2
+	rgoto	SIDSE_M_WT_PlayStep
+SIDSE_M_WT_NoKey
+
 	;; clear temporary WT flags
 	bcf	SID_SE_STATE, SID_SE_STATE_WT_NEW_STEP_REQ, BANKED
 
@@ -511,7 +568,7 @@ SIDSE_M_WT_NextStep_NoOv
 	movff	PRODL, PLUSW2
 
 	;; "play" the step
-	;; (entry point for SIDSE_M_WT_MOD_...)
+	;; (entry point for SIDSE_M_WT_KEY)
 SIDSE_M_WT_PlayStep
 	;; get pointer to WT value
 	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_WAVETABLE

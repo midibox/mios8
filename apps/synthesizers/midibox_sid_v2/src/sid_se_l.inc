@@ -388,34 +388,24 @@ SIDSE_L_Note
 ;;     WT number in SID_SE_ELEMENT_NUM
 ;; --------------------------------------------------------------------------
 SIDSE_L_WT
-	;; if MOD control flag (START[7] set, control position from modulation matrix
+	;; if KEY control flag (END[7]) set, control position from current played key
+	movlw	SID_Ix_WTx_END
+	BRA_IFCLR PLUSW0, 7, ACCESS, SIDSE_L_WT_NoKey
+SIDSE_L_WT_Key
+	;; copy currently played note (of first voice) * 2 to IRQ_TMP2
+	movff	SIDL_V1_BASE + SID_Vx_PLAYED_NOTE, IRQ_TMP2
+	clrc
+	rlf	IRQ_TMP2, F
+
+	;; continue at modulation handler (same code - to save code space)
+	rgoto	SIDSE_L_WT_Key_Cont
+SIDSE_L_WT_NoKey
+
+	;; 
+	;; if MOD control flag (START[7]) set, control position from modulation matrix
 	movlw	SID_Ix_WTx_BEGIN
 	BRA_IFCLR PLUSW0, 7, ACCESS, SIDSE_L_WT_NoMOD
 SIDSE_L_WT_MOD
-	;; determine range: END-BEGIN+1 -> IRQ_TMP5
-	;; start value -> IRQ_TMP4 (either END or BEGIN, depending on polarity)
-	movlw	SID_Ix_WTx_END
-	movf	PLUSW0, W
-	andlw	0x7f
-	movwf	IRQ_TMP5
-	bcf	IRQ_TMP5, 7
-	movlw	SID_Ix_WTx_BEGIN
-	movf	PLUSW0, W
-	andlw	0x7f
-	movwf	IRQ_TMP4
-	subwf	IRQ_TMP5, F
-	;; n+1 complement if begin greater than end
-	BRA_IFCLR IRQ_TMP5, 7, ACCESS, SIDSE_L_WT_MOD_NoRngInv
-SIDSE_L_WT_MOD_RngInv
-	comf	IRQ_TMP5, F
-	incf	IRQ_TMP5, F
-	movlw	SID_Ix_WTx_END
-	movf	PLUSW0, W
-	andlw	0x7f
-	movwf	IRQ_TMP4
-SIDSE_L_WT_MOD_NoRngInv
-	incf	IRQ_TMP5, F
-
 	;; determine pointer to modulation target value -> FSR1
 	movf	SID_SE_ELEMENT_NUM, W, BANKED
 	addlw	(SID_MOD_TARG_WT1_L-SID_MOD_TARG_BASE)/3
@@ -451,18 +441,48 @@ SIDSE_L_WT_MOD_SatNeg_Sat
 SIDSE_L_WT_MOD_NoSat
 SIDSE_L_WT_MOD_Sat_Cont
 
+
+	;; following part also used by KEY flag
+SIDSE_L_WT_Key_Cont
+	;; determine range: END-BEGIN+1 -> IRQ_TMP5
+	;; start value -> IRQ_TMP4 (either END or BEGIN, depending on polarity)
+	movlw	SID_Ix_WTx_END
+	movf	PLUSW0, W
+	andlw	0x7f
+	movwf	IRQ_TMP5
+	movlw	SID_Ix_WTx_BEGIN
+	movf	PLUSW0, W
+	andlw	0x7f
+	movwf	IRQ_TMP4
+	subwf	IRQ_TMP5, F
+	;; n+1 complement if begin greater than end
+	BRA_IFCLR IRQ_TMP5, 7, ACCESS, SIDSE_L_WT_MOD_NoRngInv
+SIDSE_L_WT_MOD_RngInv
+	comf	IRQ_TMP5, F
+	incf	IRQ_TMP5, F
+	movlw	SID_Ix_WTx_END
+	movf	PLUSW0, W
+	andlw	0x7f
+	movwf	IRQ_TMP4
+SIDSE_L_WT_MOD_NoRngInv
+	incf	IRQ_TMP5, F
+
 	;; determine position
 	movf	IRQ_TMP5, W		; range
 	mulwf	IRQ_TMP2, ACCESS	; modulation value
 	movf	PRODH, W		; scaled value
  	addwf	IRQ_TMP4, F		; add to begin position
 
+#if 0
 	;; play new step if position has been changed
 	movlw	SID_WTx_POS
 	movf	PLUSW2, W
 	xorwf	IRQ_TMP4, W
 	bz	SIDSE_L_WT_End
-	
+#endif
+	;; changed: always play new position
+	;; important while wavetable is edited
+
 	movlw	SID_WTx_POS
 	movff	IRQ_TMP4, PLUSW2
 	rgoto	SIDSE_L_WT_PlayStep
@@ -565,7 +585,7 @@ SIDSE_L_WT_NextStep_NoOv
 	movff	PRODL, PLUSW2
 
 	;; "play" the step
-	;; (entry point for SIDSE_L_WT_MOD_...)
+	;; (entry point for SIDSE_L_WT_MOD_ and KEY...)
 SIDSE_L_WT_PlayStep
 	;; get pointer to WT value
 	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_WAVETABLE
