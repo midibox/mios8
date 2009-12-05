@@ -326,6 +326,15 @@ SEQ_LED_UpdateIRQ_GPLED_LivePM
 	rgoto	SEQ_LED_UpdateIRQ_GPLED_NoMarker
 SEQ_LED_UpdateIRQ_GPLED_NoLivePM
 
+	;; in mute screen: XOR meter indicators with GP LEDs
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_MUTE, BANKED, SEQ_LED_UpdateIRQ_GPLED_NoMute
+SEQ_LED_UpdateIRQ_GPLED_Mute
+	movf	SEQ_LIVEPLAY_METERS0, W, BANKED
+	xorwf	IRQ_TMP1, F
+	movf	SEQ_LIVEPLAY_METERS1, W, BANKED
+	xorwf	IRQ_TMP2, F
+SEQ_LED_UpdateIRQ_GPLED_NoMute
+	
 	;; check if a position marker should be XORed
 	BRA_IFCLR IRQ_TMP5, 4, ACCESS, SEQ_LED_UpdateIRQ_GPLED_NoMarker
 SEQ_LED_UpdateIRQ_GPLED_Marker

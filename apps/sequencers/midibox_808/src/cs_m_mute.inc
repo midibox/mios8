@@ -136,6 +136,7 @@ CS_M_MUTE_UpdateGPLEDs_Sel
 	movff	SEQ_SELECTED_TRKS_0, CS_MENU_GP_OVERLAY_DOUT_SR0
 	movff	SEQ_SELECTED_TRKS_1, CS_MENU_GP_OVERLAY_DOUT_SR1
 
+
 	return
 
 ;; --------------------------------------------------------------------------
