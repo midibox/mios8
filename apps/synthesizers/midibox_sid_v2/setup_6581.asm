@@ -305,6 +305,8 @@ CS_MENU_DIN_TABLE
 	DIN_ENTRY	CS_MENU_BUTTON_M_Mode,	10,	 0	; direct access to meter on/off function
 	DIN_ENTRY	CS_MENU_BUTTON_Fil_ExtIn, 10,	 1	; direct access to Filter ExtIn Flag
 	DIN_ENTRY	CS_MENU_BUTTON_Sync,	10,	 2	; jumps to ENS->CLK menu
+	DIN_ENTRY	CS_MENU_BUTTON_Arp,	 0,	 0	; enables/disables the arpeggiator of *all* oscillators
+	DIN_ENTRY	CS_MENU_BUTTON_Knob,     0,      0	; changes to knob menu
 
 	;; don't remove this "end-of-table" entry!
 	DIN_ENTRY_EOT

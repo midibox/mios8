@@ -44,7 +44,7 @@ SID_PAROUT_Get
 
 	;; jump depending on mod ID
 	movf	PRODL, W
-	JUMPTABLE_2BYTES 0x3c+1 ; entries
+	JUMPTABLE_2BYTES 0x3d+1 ; entries
 	rgoto	SID_PAROUT_Get_NOP
 	rgoto	SID_PAROUT_Get_7
 	rgoto	SID_PAROUT_Get_8
@@ -56,6 +56,7 @@ SID_PAROUT_Get
 	rgoto	SID_PAROUT_Get_FIL4L
 	rgoto	SID_PAROUT_Get_FIL4U
 	rgoto	SID_PAROUT_Get_FIL12
+	rgoto	SID_PAROUT_Get_FIL12_DIRECT
 	rgoto	SID_PAROUT_Get_FIL8
 	rgoto	SID_PAROUT_Get_OSC123_PM7
 	rgoto	SID_PAROUT_Get_OSC123_PM8
@@ -256,7 +257,8 @@ SID_PAROUT_Get_FIL4U
 	rgoto	SID_PAROUT_Get_End
 
 SID_PAROUT_Get_FIL12
-	SID_PAROUT_SID_FIL_MACRO	; select SIDL/SIDR filter
+	SID_PAROUT_SID_FIL_MACRO	; for selected SIDL/SIDR filter
+SID_PAROUT_Get_FIL12_DIRECT		; for direct reads from SIDL/SIDR Filter value
 	movf	PREINC1, W
 	andlw	0x0f
 	movwf	MIOS_PARAMETER2

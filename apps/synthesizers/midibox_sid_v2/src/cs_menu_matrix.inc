@@ -75,6 +75,23 @@ CS_MENU_MATRIX_Handler
 #endif
 
 	;; now determine the pattern for the LED anodes
+	movf	CS_MENU_REINIT_CFG_CTR, W
+	bz	CS_MENU_MATRIX_Handler_NoStartup
+CS_MENU_MATRIX_Handler_Startup
+	;; christmas lights:
+	;; show a (somehow) random pattern
+	movf	CS_MENU_MATRIX_CTR, W ; matrix counter
+#if DEFAULT_SAMMICHSID_CS
+	rcall	CS_MENU_MATRIX_SammichSID_Column_Remap ; remap so that it looks better on a sammichSID
+	xorwf	TMR3L, W	; timer3 is MIOS_TIMER -- only for sammichSID
+#endif
+	xorwf	TMR2, W		; timer2 outputs the 1 MHz clock to the SID
+	xorwf	CS_MENU_REINIT_CFG_CTR, W ; xor with running startup counter
+	call	MIOS_HLP_GetBitORMask ; show only one LED per update cycle
+	movwf	MIOS_PARAMETER1
+	rgoto	CS_MENU_MATRIX_Handler_StartupCn
+CS_MENU_MATRIX_Handler_NoStartup
+
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_MATRIX_Handler_SP ; always used in SID player mode
 	BRA_IFCLR CS_STAT2, CS_STAT2_LEVEL_METERS, ACCESS, CS_MENU_MATRIX_Handler_NoSP	; optionally used in normal mode
 CS_MENU_MATRIX_Handler_SP
@@ -166,6 +183,7 @@ CS_MENU_MATRIX_Handler_Flash
 	skpz
 	comf	MIOS_PARAMETER1, F
 CS_MENU_MATRIX_Handler_NoFlash
+CS_MENU_MATRIX_Handler_StartupCn
 
 #if DEFAULT_MB6582_CS
 #if DEFAULT_SRM_MODMATRIX_DOUT

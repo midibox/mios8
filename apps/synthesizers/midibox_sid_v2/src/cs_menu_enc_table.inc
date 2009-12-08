@@ -73,8 +73,8 @@ CS_MENU_ENC_TABLE_L
 
 	;; Filter section
 	;;		menu		offset	cursor pos
-	CSENC_ENTRY	CS_MENU_L_FIL,	0x00,	0x01	; Cutoff
-	CSENC_ENTRY	CS_MENU_L_FIL,	0x00,	0x02	; Resonance
+	CSENC_ENTRY	CS_MENU_L_FIL,	0x00,	0x02	; Cutoff
+	CSENC_ENTRY	CS_MENU_L_FIL,	0x00,	0x03	; Resonance
 
 	;; Env "Env" Layer
 	;;		menu		offset	cursor pos
@@ -145,8 +145,8 @@ CS_MENU_ENC_TABLE_B
 
 	;; Filter section
 	;;		menu		offset	cursor pos
-	CSENC_ENTRY	CS_MENU_B_FIL,	0x00,	0x01	; Cutoff
-	CSENC_ENTRY	CS_MENU_B_FIL,	0x00,	0x02	; Resonance
+	CSENC_ENTRY	CS_MENU_B_FIL,	0x00,	0x02	; Cutoff
+	CSENC_ENTRY	CS_MENU_B_FIL,	0x00,	0x03	; Resonance
 
 	;; Env "Env" Layer
 	;;		menu		offset	cursor pos
@@ -217,8 +217,8 @@ CS_MENU_ENC_TABLE_D
 
 	;; Filter section
 	;;		menu		offset	cursor pos
-	CSENC_ENTRY	CS_MENU_D_FIL,	0x00,	0x01	; Cutoff
-	CSENC_ENTRY	CS_MENU_D_FIL,	0x00,	0x02	; Resonance
+	CSENC_ENTRY	CS_MENU_D_FIL,	0x00,	0x02	; Cutoff
+	CSENC_ENTRY	CS_MENU_D_FIL,	0x00,	0x03	; Resonance
 
 	;; Env "Env" Layer
 	;;		menu		offset	cursor pos
@@ -289,8 +289,8 @@ CS_MENU_ENC_TABLE_M
 
 	;; Filter section
 	;;		menu		offset	cursor pos
-	CSENC_ENTRY	CS_MENU_M_FIL,	0x00,	0x01	; Cutoff
-	CSENC_ENTRY	CS_MENU_M_FIL,	0x00,	0x02	; Resonance
+	CSENC_ENTRY	CS_MENU_M_FIL,	0x00,	0x02	; Cutoff
+	CSENC_ENTRY	CS_MENU_M_FIL,	0x00,	0x03	; Resonance
 
 	;; Env "Env" Layer
 	;;		menu		offset	cursor pos

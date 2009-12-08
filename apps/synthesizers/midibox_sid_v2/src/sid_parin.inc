@@ -47,7 +47,7 @@ SID_PARIN_Set_FromIRQ				; direct entry for SID_PARIN_Mod and SID_PARIN_SetWT
 
 	;; jump depending on mod ID
 	movf	PRODL, W
-	JUMPTABLE_2BYTES 0x3c+1 ; entries
+	JUMPTABLE_2BYTES 0x3d+1 ; entries
 	rgoto	SID_PARIN_Set_NOP
 	rgoto	SID_PARIN_Set_7
 	rgoto	SID_PARIN_Set_8
@@ -59,6 +59,7 @@ SID_PARIN_Set_FromIRQ				; direct entry for SID_PARIN_Mod and SID_PARIN_SetWT
 	rgoto	SID_PARIN_Set_FIL4L
 	rgoto	SID_PARIN_Set_FIL4U
 	rgoto	SID_PARIN_Set_FIL12
+	rgoto	SID_PARIN_Set_FIL12_DIRECT
 	rgoto	SID_PARIN_Set_FIL8
 	rgoto	SID_PARIN_Set_OSC123_PM7
 	rgoto	SID_PARIN_Set_OSC123_PM8
@@ -279,7 +280,8 @@ SID_PARIN_Set_FIL4U
 	return
 
 SID_PARIN_Set_FIL12
-	SID_PARIN_SID_FIL_MACRO		; select SIDL/SIDR filter
+	SID_PARIN_SID_FIL_MACRO		; for selected SIDL/SIDR filter
+SID_PARIN_Set_FIL12_DIRECT		; for direct writes to SIDL/SIDR Filter
 	movff	MIOS_PARAMETER1, POSTINC1
 	movf	MIOS_PARAMETER2, W
 	andlw	0x0f
@@ -845,7 +847,7 @@ SID_PARIN_Scale
 
 	;; store MAX value in SID_PAR_MAX_[LH]
 	movf	TABLAT, W	; (mod ID)
-	JUMPTABLE_2BYTES 0x3c+1 ; entries
+	JUMPTABLE_2BYTES 0x3d+1 ; entries
 	rgoto	SID_PARIN_Scale_0	;NOP
 	rgoto	SID_PARIN_Scale_7	;7
 	rgoto	SID_PARIN_Scale_8	;8
@@ -857,6 +859,7 @@ SID_PARIN_Scale
 	rgoto	SID_PARIN_Scale_4	;FIL4L
 	rgoto	SID_PARIN_Scale_4	;FIL4U
 	rgoto	SID_PARIN_Scale_12	;FIL12
+	rgoto	SID_PARIN_Scale_12	;FIL12_DIRECT
 	rgoto	SID_PARIN_Scale_8	;FIL8
 	rgoto	SID_PARIN_Scale_7	;OSC123_PM7
 	rgoto	SID_PARIN_Scale_8	;OSC123_PM8

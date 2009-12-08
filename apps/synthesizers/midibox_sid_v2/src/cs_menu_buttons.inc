@@ -515,6 +515,13 @@ CS_MENU_BUTTON_Osc_Sel
 	;; exit with message if SID player mode enabled and SID1 selected
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
 
+	;; only change to OSC page if not already selected
+	call	CS_MENU_GetMenuID_OSC
+	xorwf	CS_MENU, W
+	bnz	CS_MENU_BUTTON_Osc_Sel_End
+
+	;; otherwise increment oscillator
+
 	;; branch depending on engine
 	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
 	BRA_IFSET WREG, 1, ACCESS, CS_MENU_BUTTON_Osc_Sel_DM
@@ -532,10 +539,7 @@ CS_MENU_BUTTON_Osc_Sel_L
 
 	;; update OSC flags
 	call	CS_MENU_Hlp_UpdateOSCFlags
-
-	;; change to OSC page
-	call	CS_MENU_GetMenuID_OSC
-	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
+	rgoto	CS_MENU_BUTTON_Osc_Sel_End
 
 
 	;; maps current OSC selection flags to next CS_MENU_SELECTED_OSC (and not flags!)
@@ -553,24 +557,8 @@ CS_MENU_BUTTON_Osc_Sel_B
 
 	movlw	0x01
 	movwf	CS_MENU_SELECTED_OSC_FLAGS
+	rgoto	CS_MENU_BUTTON_Osc_Sel_End
 
-	;; branch depending on selected OSC Control Layer
-	movf	CS_MENU_SELECTED_OSC_CTRL, W
-	bz	CS_MENU_BUTTON_Osc_Sel_B_0
-	addlw	-1
-	bz	CS_MENU_BUTTON_Osc_Sel_B_1
-	rgoto	CS_MENU_BUTTON_Osc_Sel_B_2
-
-CS_MENU_BUTTON_Osc_Sel_B_0
-CS_MENU_BUTTON_Osc_Sel_B_1
-	;; change to OSC page
-	call	CS_MENU_GetMenuID_OSC
-	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
-
-CS_MENU_BUTTON_Osc_Sel_B_2
-	;; change to Knobs page
-	call	CS_MENU_GetMenuID_KNB
-	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
 
 CS_MENU_BUTTON_Osc_Sel_DM
 	BRA_IFSET WREG, 0, ACCESS, CS_MENU_BUTTON_Osc_Sel_M
@@ -579,14 +567,16 @@ CS_MENU_BUTTON_Osc_Sel_D
 	;; always select OSC1 (flag not really used by CS, we are working with instruments)
 	movlw	0x01
 	movwf	CS_MENU_SELECTED_OSC_FLAGS
-	;; change to OSC page
-	call	CS_MENU_GetMenuID_OSC
-	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
+	rgoto	CS_MENU_BUTTON_Osc_Sel_End
 
 CS_MENU_BUTTON_Osc_Sel_M
 	;; always select OSC1 (flag not really used by CS, we are working with instruments)
 	movlw	0x01
 	movwf	CS_MENU_SELECTED_OSC_FLAGS
+	rgoto	CS_MENU_BUTTON_Osc_Sel_End
+
+
+CS_MENU_BUTTON_Osc_Sel_End
 	;; change to OSC page
 	call	CS_MENU_GetMenuID_OSC
 	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
@@ -689,7 +679,19 @@ CS_MENU_BUTTON_LFO_Sel
 	;; do nothing if button has been depressed
 	btfsc	MIOS_PARAMETER2, 0
 	return
-	;; else increment LFO setting
+	;; exit with message if SID player mode enabled and SID1 selected
+	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
+
+	;; only change to LFO page if not already selected
+	call	CS_MENU_GetMenuID_LFO
+	xorwf	CS_MENU, W
+	bz	CS_MENU_BUTTON_LFO_Sel_Inc
+	call	CS_MENU_GetMenuID_LFO
+	goto	CS_MENU_EXEC_Hlp_ChangeMenu
+	
+
+	;; otherwise increment LFO
+CS_MENU_BUTTON_LFO_Sel_Inc
 	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
 	andlw	0x03
 	movlw	0x00		; cursor pos Lead is 0
@@ -728,6 +730,13 @@ CS_MENU_BUTTON_Env_Sel
 	;; exit with message if SID player mode enabled and SID1 selected
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
 
+	;; only change to ENV page if not already selected
+	call	CS_MENU_GetMenuID_ENV
+	xorwf	CS_MENU, W
+	bnz	CS_MENU_BUTTON_Env_Sel_End
+
+	;; otherwise increment envelope
+
 	;; branch depending on engine
 	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
 	BRA_IFSET WREG, 1, ACCESS, CS_MENU_BUTTON_Env_Sel_DM
@@ -750,21 +759,18 @@ CS_MENU_BUTTON_Env_Sel_B
 	skpnz
 	addlw	1
 	movwf	CS_MENU_SELECTED_SID_LR
-
-	;; change to ENV page
-	call	CS_MENU_GetMenuID_ENV
-	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
+ 	rgoto	CS_MENU_BUTTON_Env_Sel_End
 
 CS_MENU_BUTTON_Env_Sel_DM
 	BRA_IFSET WREG, 0, ACCESS, CS_MENU_BUTTON_Env_Sel_M
 
 CS_MENU_BUTTON_Env_Sel_D
-	;; only change to ENV page (one ENV only)
-	call	CS_MENU_GetMenuID_ENV
-	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
+	;; 	rgoto	CS_MENU_BUTTON_Env_Sel_End
 
 CS_MENU_BUTTON_Env_Sel_M
-	;; only change to ENV page (one ENV only)
+	;; 	rgoto	CS_MENU_BUTTON_Env_Sel_End
+
+CS_MENU_BUTTON_Env_Sel_End
 	call	CS_MENU_GetMenuID_ENV
 	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
 
@@ -838,8 +844,17 @@ CS_MENU_BUTTON_Fil_Sel
 	return
 	;; exit with message if SID player mode enabled and SID1 selected
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
+
+	;; only change to FIL page if not already selected
+	call	CS_MENU_GetMenuID_FIL
+	xorwf	CS_MENU, W
+	bz	CS_MENU_BUTTON_FIL_Sel_Inc
+	call	CS_MENU_GetMenuID_FIL
+	goto	CS_MENU_EXEC_Hlp_ChangeMenu
+
 	;; else increment Filter setting
-	movlw	0x00		; cursor pos
+CS_MENU_BUTTON_FIL_Sel_Inc
+	movlw	0x01		; cursor pos
 	movwf	MIOS_PARAMETER1
 	movlw	0x00		; page offset
 	movwf	MIOS_PARAMETER2
@@ -853,8 +868,17 @@ CS_MENU_BUTTON_Fil_Mod
 	return
 	;; exit with message if SID player mode enabled and SID1 selected
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
+
+	;; only change to FIL page if not already selected
+	call	CS_MENU_GetMenuID_FIL
+	xorwf	CS_MENU, W
+	bz	CS_MENU_BUTTON_FIL_Mod_Inc
+	call	CS_MENU_GetMenuID_FIL
+	goto	CS_MENU_EXEC_Hlp_ChangeMenu
+
+CS_MENU_BUTTON_FIL_Mod_Inc
 	;; else increment Filter setting
-	movlw	0x03		; cursor pos
+	movlw	0x04		; cursor pos
 	movwf	MIOS_PARAMETER1
 	movlw	0x00		; page offset
 	movwf	MIOS_PARAMETER2
@@ -868,19 +892,20 @@ CS_MENU_BUTTON_Fil_ExtIn
 	return
 	;; exit with message if SID player mode enabled and SID1 selected
 	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
+
 	;; else increment Filter setting
 	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
 	andlw	0x02		; different cursor pos in drum and multi mode (bit #1 of engine mode set)
 	xorlw	0x02
 
-	movlw	0x04		; cursor pos drum and multi
+	movlw	0x05		; cursor pos drum and multi
 	skpz
-	movlw	0x05		; cursor pos lead/bassline mode
+	movlw	0x06		; cursor pos lead/bassline mode
 	movwf	MIOS_PARAMETER1
 
-	movlw	0x00		; page offset drum and multi
+	movlw	0x01		; page offset drum and multi
 	skpz
-	movlw	0x01		; page offset lead/bassline mode
+	movlw	0x02		; page offset lead/bassline mode
 	movwf	MIOS_PARAMETER2
 	call	CS_MENU_GetMenuID_FIL	; menu page
 	goto	CS_MENU_ButtonInc
@@ -971,6 +996,17 @@ CS_MENU_BUTTON_Arp_Hlp_ToggleArp
 	;; send parameter
 	goto	CS_MENU_MS_SendParameter
 
+
+	;; ------------------------------------------------------------------
+CS_MENU_BUTTON_Knob
+	;; do nothing if button has been depressed
+	btfsc	MIOS_PARAMETER2, 0
+	return
+	;; exit with message if SID player mode enabled and SID1 selected
+	BRA_IFSET SID_STAT, SID_STAT_SIDPLAYER_CS_DISABLE, ACCESS, CS_MENU_BUTTON_SP_IgnoreMsg
+	;; change to Knobs page
+	call	CS_MENU_GetMenuID_KNB
+	rgoto	CS_MENU_BUTTON_Hlp_MenuChange
 
 	;; ------------------------------------------------------------------
 CS_MENU_BUTTON_PageUp

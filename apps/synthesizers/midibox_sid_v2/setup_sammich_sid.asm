@@ -299,11 +299,12 @@ CS_MENU_DIN_TABLE
 	;; note that you could also re-arrange the pin assignments if required (e.g. if you don't like a certain button function)
 	DIN_ENTRY	CS_MENU_BUTTON_M_Vol,	 0,	 0	; matrix: button below M_Filter
 	DIN_ENTRY	CS_MENU_BUTTON_Play,	 1,	 3	; direct access to play function
-	DIN_ENTRY	CS_MENU_BUTTON_SID_LR,	 1,	 2	; direct access to L/R toggling
+	DIN_ENTRY	CS_MENU_BUTTON_SID_LR,	 0,	 0	; direct access to L/R toggling
 	DIN_ENTRY	CS_MENU_BUTTON_M_Mode,	 0,	 0	; direct access to meter on/off function
 	DIN_ENTRY	CS_MENU_BUTTON_Fil_ExtIn, 0, 0	; direct access to Filter ExtIn Flag
 	DIN_ENTRY	CS_MENU_BUTTON_Sync,	 0,	 0	; jumps to ENS->CLK menu
-	DIN_ENTRY	CS_MENU_BUTTON_Arp,	 1,	 1	;  enables/disables the arpeggiator of *all* oscillators
+	DIN_ENTRY	CS_MENU_BUTTON_Arp,	 1,	 1	; enables/disables the arpeggiator of *all* oscillators
+	DIN_ENTRY	CS_MENU_BUTTON_Knob,     1,      2	; changes to knob menu
 
 	;; sammichSID buttons (SR#, Pin#) are F1=1,3 F2=1,2 F3=1,1
 	

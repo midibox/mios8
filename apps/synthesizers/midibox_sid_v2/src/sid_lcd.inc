@@ -258,10 +258,12 @@ SID_LCD_LongParName
 
 	;; print target (7 characters)
 	movf	TMP3, W
-	JUMPTABLE_2BYTES 19 ; entries
+	JUMPTABLE_2BYTES 21 ; entries
 	rgoto	SID_LCD_LongParName_NOP
 	rgoto	SID_LCD_LongParName_OSC
 	rgoto	SID_LCD_LongParName_FIL
+	rgoto	SID_LCD_LongParName_FIL_L
+	rgoto	SID_LCD_LongParName_FIL_R
 	rgoto	SID_LCD_LongParName_KNOB
 	rgoto	SID_LCD_LongParName_EXT
 	rgoto	SID_LCD_LongParName_OSC123
@@ -304,6 +306,22 @@ SID_LCD_LongParName_FIL
 	TABLE_ADDR SID_LCD_LongParName_FIL_STR
 	movlw	7
 	goto	MIOS_LCD_PrintPreconfString
+
+SID_LCD_LongParName_FIL_L
+	;; "FilterL"
+	TABLE_ADDR SID_LCD_LongParName_FIL_STR
+	movlw	6
+	call	MIOS_LCD_PrintPreconfString
+	movlw	'L'
+	rgoto	SID_LCD_PrintChar
+	
+SID_LCD_LongParName_FIL_R
+	;; "FilterR"
+	TABLE_ADDR SID_LCD_LongParName_FIL_STR
+	movlw	6
+	call	MIOS_LCD_PrintPreconfString
+	movlw	'R'
+	rgoto	SID_LCD_PrintChar
 	
 SID_LCD_LongParName_KNOB_TAB
 	db	'1', '2', '3', '4', '5', 'V', 'P', 'A'

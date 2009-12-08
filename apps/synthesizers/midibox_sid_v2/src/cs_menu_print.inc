@@ -1475,17 +1475,25 @@ CS_MENU_PRINT_RND_GEN
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_SAVE_BNK
+	;; flashing if second menu item selected (dirty, but the user won't see this code... ;)
+	;; this method has a second "advantage" (or side effect?):
+	;; the real bank number will be disabled for a short moment if internal patch selected
+	BRA_IFCLR CS_STAT, CS_STAT_MODIFY_PARAMETER, ACCESS, CS_MENU_PRINT_SAVE_BNK_NoFlash
+	BRA_IFCLR CS_STAT, CS_STAT_CURSOR_FLASH, ACCESS, CS_MENU_PRINT_SAVE_BNK_Flash
+
+CS_MENU_PRINT_SAVE_BNK_NoFlash
 	movff	CS_MENU_SAVE_BANK, SID_BANK
 	movff	CS_MENU_SAVE_PATCH, SID_PATCH
 	call	SID_PBANK_CheckPatchValid
-	bz	CS_MENU_PRINT_SAVE_BAK_Ok
+	bz	CS_MENU_PRINT_SAVE_BNK_Ok
 	movf	SID_BANK, W	; always allow to store in bank #0
-	bz	CS_MENU_PRINT_SAVE_BAK_Ok
+	bz	CS_MENU_PRINT_SAVE_BNK_Ok
 	
 CS_MENU_PRINT_SAVE_BNK_Inv
 	movf	CS_MENU_SAVE_BANK, W
 	addlw	'A'
 	rcall	CS_MENU_PRINT_Char
+
 	movlw	'-'
 	rcall	CS_MENU_PRINT_Char
 	movlw	'-'
@@ -1495,12 +1503,21 @@ CS_MENU_PRINT_SAVE_BNK_Inv
 	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
 
-CS_MENU_PRINT_SAVE_BAK_Ok
+CS_MENU_PRINT_SAVE_BNK_Ok
 	movff	CS_MENU_SAVE_BANK, PRODL
 	movff	CS_MENU_SAVE_PATCH, PRODH
 	call	SID_LCD_PrintPatchNumber
 	movlw	' '
 	rgoto	CS_MENU_PRINT_Char
+
+
+CS_MENU_PRINT_SAVE_BNK_Flash
+	movf	CS_MENU_SAVE_BANK, W
+	addlw	'A'
+	rcall	CS_MENU_PRINT_Char
+	movlw	4
+	goto	SID_LCD_PrintSpaces
+
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_SAVE_PAT
