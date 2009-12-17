@@ -25,6 +25,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 
 import javax.swing.JApplet;
@@ -37,6 +40,8 @@ import org.midibox.apps.miosstudio.gui.xml.MIOSStudioGUIXML;
 import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SplashScreen;
+
+import sun.awt.WindowClosingListener;
 
 /**
  * Driver class for launching MIOS Studio application. MIOS Studio can be
@@ -199,6 +204,8 @@ public class MIOSStudio extends JApplet {
 			exitMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent ae) {
 
+					miosStudio.destroy();
+					
 					System.exit(0);
 				}
 			});
@@ -207,11 +214,26 @@ public class MIOSStudio extends JApplet {
 			
 			miosStudio.miosStudioGUI.getFileMenu().add(exitMenuItem);
 			
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent we) {
+
+					miosStudio.destroy();
+
+					System.exit(0);
+				}
+			});
 
 		} else {
 
 			frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+			
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+
+				public void run() {
+					miosStudio.destroy();
+				}
+
+			});
 			
 			if (UIManager.getLookAndFeel().getClass().getName().toString() == UIManager
 					.getSystemLookAndFeelClassName()) {
@@ -225,15 +247,7 @@ public class MIOSStudio extends JApplet {
 						.setJMenuBar(miosStudio.miosStudioGUI.createMenuBar());
 			}
 		}
-
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-
-			public void run() {
-				miosStudio.destroy();
-			}
-
-		});
-
+		
 		frame.setContentPane(miosStudio);
 
 		if (!miosStudio.miosStudioGUI.isMDI()) {

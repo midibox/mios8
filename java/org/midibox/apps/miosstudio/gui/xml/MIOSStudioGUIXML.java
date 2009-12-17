@@ -246,7 +246,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 					e.printStackTrace();
 				}
 
-				if (element.getAttribute(ATTR_MDI) != null) {
+				if (element.getAttribute(ATTR_MDI) != "") {
 
 					MDI = stringToBoolean(element.getAttribute(ATTR_MDI));
 				}

@@ -995,7 +995,7 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 					}
 				};
 
-				t.setDaemon(true);
+				//t.setDaemon(true);
 				t.start();
 
 			} else {

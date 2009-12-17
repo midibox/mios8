@@ -271,7 +271,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		};
 
-		t.setDaemon(true);
+		//t.setDaemon(true);
 		t.start();
 
 		add(createToolBar(), BorderLayout.NORTH);
@@ -328,7 +328,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		// MIDI Device Routing
 
-		Icon icon = ImageLoader.getImageIcon("midiRouting.png");
+		ImageIcon icon = ImageLoader.getImageIcon("midiRouting.png");
 		midiDeviceRoutingGUI = new MidiDeviceRoutingGUI(miosStudio
 				.getMidiDeviceRouting());
 
@@ -1569,7 +1569,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 	}
 
 	private Container createFrame(String name, boolean resizeable,
-			boolean maximizeable, Icon icon, JComponent contentPane) {
+			boolean maximizeable, ImageIcon icon, JComponent contentPane) {
 
 		Container container;
 
@@ -1584,6 +1584,8 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 			frame.setResizable(resizeable);
 			frame.setContentPane(contentPane);
 
+			frame.setIconImage(icon.getImage());
+			
 			frame.setJMenuBar(createMenuBar());
 
 			container = frame;
