@@ -19,6 +19,7 @@
  */
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,12 +28,14 @@ import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
@@ -41,7 +44,8 @@ import org.midibox.utils.gui.DialogOwner;
 import org.midibox.utils.gui.ImageLoader;
 import org.midibox.utils.gui.SplashScreen;
 
-import sun.awt.WindowClosingListener;
+import com.apple.mrj.MRJApplicationUtils;
+import com.apple.mrj.MRJQuitHandler;
 
 /**
  * Driver class for launching MIOS Studio application. MIOS Studio can be
@@ -190,10 +194,13 @@ public class MIOSStudio extends JApplet {
 
 		frame.setIconImage(ImageLoader.getImageIcon("ucIcon.png").getImage());
 
-		frame.setBounds(50, 50, (screenSize.width - 100),
-				(screenSize.height - 100));
+		frame.setBounds(new Rectangle(0, 0, 0, 0));
+
+		frame.setVisible(true);
 
 		final MIOSStudio miosStudio = new MIOSStudio();
+
+		frame.setContentPane(miosStudio);
 
 		if (System.getProperty("mrj.version") == null) {
 
@@ -205,15 +212,19 @@ public class MIOSStudio extends JApplet {
 				public void actionPerformed(ActionEvent ae) {
 
 					miosStudio.destroy();
-					
+
 					System.exit(0);
 				}
 			});
-			
-			miosStudio.setJMenuBar(miosStudio.miosStudioGUI.createMenuBar());
-			
-			miosStudio.miosStudioGUI.getFileMenu().add(exitMenuItem);
-			
+
+			JMenuBar menuBar = miosStudio.miosStudioGUI.createMenuBar();
+
+			JMenu fileMenu = (JMenu) menuBar.getComponent(0);
+
+			fileMenu.add(exitMenuItem);
+
+			miosStudio.setJMenuBar(menuBar);
+
 			frame.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent we) {
 
@@ -226,15 +237,21 @@ public class MIOSStudio extends JApplet {
 		} else {
 
 			frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-			
-			Runtime.getRuntime().addShutdownHook(new Thread() {
 
-				public void run() {
-					miosStudio.destroy();
+			MRJApplicationUtils.registerQuitHandler(new MRJQuitHandler() {
+				public void handleQuit() {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							miosStudio.destroy();
+
+							System.exit(0);
+						}
+					});
+					throw new IllegalStateException(
+							"Stop Pending User Confirmation");
 				}
-
 			});
-			
+
 			if (UIManager.getLookAndFeel().getClass().getName().toString() == UIManager
 					.getSystemLookAndFeelClassName()) {
 
@@ -247,8 +264,12 @@ public class MIOSStudio extends JApplet {
 						.setJMenuBar(miosStudio.miosStudioGUI.createMenuBar());
 			}
 		}
-		
-		frame.setContentPane(miosStudio);
+
+		if (frame.getBounds() == new Rectangle(0, 0, 0, 0)) {
+
+			frame.setBounds(50, 50, (screenSize.width - 100),
+					(screenSize.height - 100));
+		}
 
 		if (!miosStudio.miosStudioGUI.isMDI()) {
 
@@ -274,12 +295,14 @@ public class MIOSStudio extends JApplet {
 						}
 					});
 
-		}
+		} else {
 
-		frame.setVisible(true);
+			frame.validate();
+		}
 
 		splashScreen.setVisible(false);
 
+		frame.requestFocus();
 	}
 
 }

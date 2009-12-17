@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
@@ -57,14 +58,16 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 						.getSidv2librarian().getSysExController(), icon);
 	}
 
-	protected void createMIOSMenu() {
+	protected JMenu createMIOSMenu() {
 
-		super.createMIOSMenu();
+		JMenu miosMenu = super.createMIOSMenu();
 
 		JMenuItem menuItem = new JMenuItem("SID V2 Editor");
 		menuItem.setActionCommand("sidv2_librarian");
 		menuItem.addActionListener(this);
 		miosMenu.add(menuItem);
+
+		return miosMenu;
 	}
 
 	protected void createMIOSButtons() {

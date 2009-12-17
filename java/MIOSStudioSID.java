@@ -201,7 +201,7 @@ public class MIOSStudioSID extends JApplet {
 				}
 			});
 
-			miosStudioSID.miosStudioSIDGUI.getFileMenu().add(exitMenuItem);
+			// miosStudioSID.miosStudioSIDGUI.getFileMenu().add(exitMenuItem);
 
 			miosStudioSID.setJMenuBar(miosStudioSID.miosStudioSIDGUI
 					.createMenuBar());
