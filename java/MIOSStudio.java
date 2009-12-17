@@ -22,14 +22,15 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
+import javax.swing.UIManager;
 
 import org.midibox.apps.miosstudio.gui.MIOSStudioGUI;
 import org.midibox.apps.miosstudio.gui.xml.MIOSStudioGUIXML;
@@ -113,13 +114,14 @@ public class MIOSStudio extends JApplet {
 
 		setContentPane(miosStudioGUI);
 
-		setJMenuBar(miosStudioGUI.createMenuBar());
+		if (miosStudioGUI.isMDI()) {
 
-		miosStudioGUI.setCommentLabel(frameComment);
+			miosStudioGUI.setCommentLabel(frameComment);
+		}
 	}
 
 	public void init() {
-
+		setJMenuBar(miosStudioGUI.createMenuBar());
 	}
 
 	public void destroy() {
@@ -165,6 +167,8 @@ public class MIOSStudio extends JApplet {
 
 	public static void main(String[] args) {
 
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+
 		SplashScreen splashScreen = new SplashScreen(splashImage, splashTitle);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -177,8 +181,6 @@ public class MIOSStudio extends JApplet {
 
 		final JFrame frame = new JFrame(frameTitle);
 
-		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
 		DialogOwner.setFrame(frame);
 
 		frame.setIconImage(ImageLoader.getImageIcon("ucIcon.png").getImage());
@@ -188,35 +190,82 @@ public class MIOSStudio extends JApplet {
 
 		final MIOSStudio miosStudio = new MIOSStudio();
 
-		miosStudio.init();
+		if (System.getProperty("mrj.version") == null) {
+
+			JMenuItem exitMenuItem = new JMenuItem("Exit");
+			exitMenuItem.setMnemonic(KeyEvent.VK_X);
+			exitMenuItem.setActionCommand("exit");
+
+			exitMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent ae) {
+
+					System.exit(0);
+				}
+			});
+			
+			miosStudio.miosStudioGUI.getFileMenu().add(exitMenuItem);
+
+			miosStudio.setJMenuBar(miosStudio.miosStudioGUI.createMenuBar());
+			
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		} else {
+
+			frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+			
+			if (UIManager.getLookAndFeel().getClass().getName().toString() == UIManager
+					.getSystemLookAndFeelClassName()) {
+
+				frame.setJMenuBar(miosStudio.miosStudioGUI.createMenuBar());
+			}
+
+			else {
+
+				miosStudio
+						.setJMenuBar(miosStudio.miosStudioGUI.createMenuBar());
+			}
+		}
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+
+			public void run() {
+				miosStudio.destroy();
+			}
+
+		});
 
 		frame.setContentPane(miosStudio);
 
-		JMenuItem exitMenuItem = new JMenuItem("Exit");
-		exitMenuItem.setMnemonic(KeyEvent.VK_X);
-		exitMenuItem.setActionCommand("exit");
+		if (!miosStudio.miosStudioGUI.isMDI()) {
 
-		exitMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
+			frame.setResizable(false);
 
-				miosStudio.destroy();
+			frame.pack();
 
-				System.exit(0);
-			}
-		});
+			miosStudio.miosStudioGUI.getToolBar().addContainerListener(
+					new ContainerListener() {
 
-		miosStudio.miosStudioGUI.getFileMenu().add(exitMenuItem);
+						@Override
+						public void componentRemoved(ContainerEvent e) {
 
-		frame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) {
+							frame.pack();
 
-				miosStudio.destroy();
+						}
 
-				System.exit(0);
-			}
-		});
+						@Override
+						public void componentAdded(ContainerEvent e) {
+
+							frame.pack();
+
+						}
+					});
+
+		}
 
 		frame.setVisible(true);
+
 		splashScreen.setVisible(false);
+
 	}
+
 }
