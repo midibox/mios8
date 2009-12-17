@@ -22,8 +22,10 @@ package org.midibox.apps.miosstudio.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -55,6 +57,7 @@ import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -78,7 +81,6 @@ import org.midibox.apps.miosstudio.xml.MIOSStudioXML;
 import org.midibox.midi.MidiFilter;
 import org.midibox.midi.MidiKeyboardController;
 import org.midibox.midi.SysexSendReceive;
-import org.midibox.midi.SysexSendReceiveManager;
 import org.midibox.midi.VirtualMidiDevice;
 import org.midibox.midi.gui.MidiDeviceManagerGUI;
 import org.midibox.midi.gui.MidiDeviceRoutingGUI;
@@ -110,7 +112,7 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	protected Vector internalFrames;
 
-	private MIOSStudioInternalFrame helpWindow;
+	private Container helpWindow;
 
 	private JDialog midiDeviceManagerDialog;
 
@@ -118,27 +120,27 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	protected MidiDeviceRoutingGUI midiDeviceRoutingGUI;
 
-	private MIOSStudioInternalFrame midiDeviceRoutingWindow;
+	private Container midiDeviceRoutingWindow;
 
 	private MidiMonitorFilteredGUI midiOutPortMonitorGUI;
 
-	private MIOSStudioInternalFrame midiOutPortMonitorWindow;
+	private Container midiOutPortMonitorWindow;
 
 	private MidiMonitorFilteredGUI midiInPortMonitorGUI;
 
-	private MIOSStudioInternalFrame midiInPortMonitorWindow;
+	private Container midiInPortMonitorWindow;
 
 	private MidiKeyboardControllerGUI midiKeyboardControllerGUI;
 
-	private MIOSStudioInternalFrame midiKeyboardControllerWindow;
+	private Container midiKeyboardControllerWindow;
 
 	private SysexSendReceiveManagerGUI sysexSendReceiveDeviceManagerGUI;
 
-	private MIOSStudioInternalFrame sysexSendReceiveDeviceManagerWindow;
+	private Container sysexSendReceiveDeviceManagerWindow;
 
 	private HexFileUploadManagerGUI hexFileUploadDeviceManagerGUI;
 
-	private MIOSStudioInternalFrame hexFileUploadDeviceManagerWindow;
+	private Container hexFileUploadDeviceManagerWindow;
 
 	/*
 	 * private MemoryReadWriteGUI memoryReadWriteGUI;
@@ -146,21 +148,18 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private LCDMessageGUI lcdMessageGUI;
 
-	private MIOSStudioInternalFrame lcdMessageWindow;
+	private Container lcdMessageWindow;
 
 	private DebugFunctionGUI debugFunctionGUI;
 
-	private MIOSStudioInternalFrame debugFunctionWindow;
+	private Container debugFunctionWindow;
 
 	private MidiMonitorFilteredGUI miosTerminalGUI;
 
-	private MIOSStudioInternalFrame miosTerminalWindow;
+	private Container miosTerminalWindow;
 
 	private JDialog thruFilterProperties;
 
-	/*
-	 * private JDialog thruMapProperties;
-	 */
 	protected JToolBar toolBar;
 
 	protected JPopupMenu toolBarMenu;
@@ -189,6 +188,12 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	private String lookAndFeel;
 
+	private JCheckBoxMenuItem MDIMenuItem;
+
+	private boolean MDI;
+
+	private boolean MDIflag;
+
 	private JLabel commentLabel;
 
 	private JMenu MRUMenu;
@@ -207,41 +212,28 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 	public MIOSStudioGUI(MIOSStudio miosStudio) {
 
+		this(miosStudio, true);
+	}
+
+	public MIOSStudioGUI(MIOSStudio miosStudio, boolean MDI) {
+
 		super(new BorderLayout());
 
 		this.miosStudio = miosStudio;
 
+		this.MDI = MDI;
+
+		this.MDIflag = MDI;
+
 		miosStudio.addObserver(this);
-				
-		miosStudio.getSysexSendReceiveManager().addObserver(this);		
+
+		miosStudio.getSysexSendReceiveManager().addObserver(this);
 
 		miosStudio.getHexFileUploadManager().addObserver(this);
 
 		lookAndFeel = UIManager.getLookAndFeel().getClass().getName();
 
-		add(createToolBar(), BorderLayout.NORTH);
-		add(createMainPanel(), BorderLayout.CENTER);
-		add(createCommentBar(), BorderLayout.SOUTH);
-	}
-
-	private JDesktopPane createMainPanel() {
-		desktop = new JDesktopPane() {
-			ImageIcon backgroundImage = ImageLoader
-					.getImageIcon("logo_watermark.png");
-
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				backgroundImage
-						.paintIcon(this, g, (this.getWidth() - backgroundImage
-								.getIconWidth()) - 20,
-								(this.getHeight() - backgroundImage
-										.getIconHeight()) - 20);
-			}
-		}; // JDesktop pane with paint method overridden to display watermark
-
-		desktop.setBackground(Color.WHITE);
-
-		createInternalFrames();
+		createFrames();
 
 		midiDeviceRoutingGUI.addMidiDeviceIcon(VirtualMidiDevice.class,
 				ImageLoader.getImageIcon("virtualMidiDevice.png"));
@@ -279,12 +271,45 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		};
 
+		t.setDaemon(true);
 		t.start();
+
+		add(createToolBar(), BorderLayout.NORTH);
+
+		if (MDI) {
+			add(createMainPanel(), BorderLayout.CENTER);
+			add(createCommentBar(), BorderLayout.SOUTH);
+		}
+	}
+
+	private JDesktopPane createMainPanel() {
+
+		if (MDI) {
+
+			desktop = new JDesktopPane() {
+				ImageIcon backgroundImage = ImageLoader
+						.getImageIcon("logo_watermark.png");
+
+				public void paintComponent(Graphics g) {
+					super.paintComponent(g);
+					backgroundImage
+							.paintIcon(this, g,
+									(this.getWidth() - backgroundImage
+											.getIconWidth()) - 20, (this
+											.getHeight() - backgroundImage
+											.getIconHeight()) - 20);
+				}
+			}; // JDesktop pane with paint method overridden to display
+			// watermark
+
+			desktop.setBackground(Color.WHITE);
+
+		}
 
 		return desktop;
 	}
 
-	protected void createInternalFrames() {
+	protected void createFrames() {
 
 		internalFrames = new Vector();
 
@@ -294,10 +319,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 				.getResource("help/index.html"));
 		helpPane.addPropertyChangeListener(this);
 
-		helpWindow = new MIOSStudioInternalFrame("MIOS Studio Help", true,
-				true, true, true, ImageLoader.getImageIcon("help.png"),
-				helpPane);
-		helpWindow.pack();
+		helpWindow = createFrame("MIOS Studio Help", true, true, ImageLoader
+				.getImageIcon("help.png"), helpPane);
+
+		packFrame(helpWindow);
 
 		internalFrames.add(helpWindow);
 
@@ -307,13 +332,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		midiDeviceRoutingGUI = new MidiDeviceRoutingGUI(miosStudio
 				.getMidiDeviceRouting());
 
-		midiDeviceRoutingWindow = new MIOSStudioInternalFrame(
-				"MIDI Device Routing", true, // resizable
-				true, // closable
-				true, // maximizable
+		midiDeviceRoutingWindow = createFrame("MIDI Device Routing", true, // resizable
+
 				true, icon, midiDeviceRoutingGUI);
 
-		midiDeviceRoutingWindow.pack();
+		packFrame(midiDeviceRoutingWindow);
 
 		internalFrames.add(midiDeviceRoutingWindow);
 
@@ -333,11 +356,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		icon = ImageLoader.getImageIcon("midiOut.png");
 
-		midiOutPortMonitorWindow = new MIOSStudioInternalFrame(
-				"MIDI Monitor: OUT", true, true, true, true, icon,
-				midiOutPortMonitorGUI);
+		midiOutPortMonitorWindow = createFrame("MIDI Monitor: OUT", true, true,
+				icon, midiOutPortMonitorGUI);
 
-		midiOutPortMonitorWindow.pack();
+		packFrame(midiOutPortMonitorWindow);
 
 		internalFrames.add(midiOutPortMonitorWindow);
 
@@ -350,11 +372,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		icon = ImageLoader.getImageIcon("midiIn.png");
 
-		midiInPortMonitorWindow = new MIOSStudioInternalFrame(
-				"MIDI Monitor: IN", true, true, true, true, icon,
-				midiInPortMonitorGUI);
+		midiInPortMonitorWindow = createFrame("MIDI Monitor: IN", true, true,
+				icon, midiInPortMonitorGUI);
 
-		midiInPortMonitorWindow.pack();
+		packFrame(midiInPortMonitorWindow);
 
 		internalFrames.add(midiInPortMonitorWindow);
 
@@ -368,13 +389,13 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		midiKeyboardControllerGUI = new MidiKeyboardControllerGUI(miosStudio
 				.getMidiKeyboardController());
 
-		midiKeyboardControllerWindow = new MIOSStudioInternalFrame(
-				"MIDI Keyboard Controller", false, // resizable
-				true, // closable
-				false, // maximizable
-				true, icon, midiKeyboardControllerGUI);
+		midiKeyboardControllerWindow = createFrame("MIDI Keyboard Controller",
+				false, // resizable
 
-		midiKeyboardControllerWindow.pack();
+				false, // maximizable
+				icon, midiKeyboardControllerGUI);
+
+		packFrame(midiKeyboardControllerWindow);
 
 		internalFrames.add(midiKeyboardControllerWindow);
 
@@ -388,11 +409,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		icon = ImageLoader.getImageIcon("sysex.png");
 
-		sysexSendReceiveDeviceManagerWindow = new MIOSStudioInternalFrame(
-				"Sysex Send/Receive", true, true, true, true, icon,
-				sysexSendReceiveDeviceManagerGUI);
+		sysexSendReceiveDeviceManagerWindow = createFrame("Sysex Send/Receive",
+				true, true, icon, sysexSendReceiveDeviceManagerGUI);
 
-		sysexSendReceiveDeviceManagerWindow.pack();
+		packFrame(sysexSendReceiveDeviceManagerWindow);
 
 		internalFrames.add(sysexSendReceiveDeviceManagerWindow);
 
@@ -405,11 +425,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		icon = ImageLoader.getImageIcon("hex.png");
 
-		hexFileUploadDeviceManagerWindow = new MIOSStudioInternalFrame(
-				"MIOS Hex File Upload", true, true, true, true, icon,
-				hexFileUploadDeviceManagerGUI);
+		hexFileUploadDeviceManagerWindow = createFrame("MIOS Hex File Upload",
+				true, true, icon, hexFileUploadDeviceManagerGUI);
 
-		hexFileUploadDeviceManagerWindow.pack();
+		packFrame(hexFileUploadDeviceManagerWindow);
 
 		internalFrames.add(hexFileUploadDeviceManagerWindow);
 
@@ -433,10 +452,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		lcdMessageGUI = new LCDMessageGUI(miosStudio.getLcdMessage());
 
-		lcdMessageWindow = new MIOSStudioInternalFrame("MIOS LCD Message",
-				true, true, true, true, icon, lcdMessageGUI);
+		lcdMessageWindow = createFrame("MIOS LCD Message", true, true, icon,
+				lcdMessageGUI);
 
-		lcdMessageWindow.pack();
+		packFrame(lcdMessageWindow);
 
 		internalFrames.add(lcdMessageWindow);
 
@@ -449,11 +468,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		debugFunctionGUI = new DebugFunctionGUI(miosStudio.getDebugFunction());
 
-		debugFunctionWindow = new MIOSStudioInternalFrame(
-				"MIOS Debug Functions", true, true, true, true, icon,
-				debugFunctionGUI);
+		debugFunctionWindow = createFrame("MIOS Debug Functions", true, true,
+				icon, debugFunctionGUI);
 
-		debugFunctionWindow.pack();
+		packFrame(debugFunctionWindow);
 
 		internalFrames.add(debugFunctionWindow);
 
@@ -466,10 +484,10 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		icon = ImageLoader.getImageIcon("miosTerminal.png");
 
-		miosTerminalWindow = new MIOSStudioInternalFrame("MIOS Terminal", true,
-				true, true, true, icon, miosTerminalGUI);
+		miosTerminalWindow = createFrame("MIOS Terminal", true, true, icon,
+				miosTerminalGUI);
 
-		miosTerminalWindow.pack();
+		packFrame(miosTerminalWindow);
 
 		internalFrames.add(miosTerminalWindow);
 
@@ -620,6 +638,11 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		lookAndFeelMenu = new JMenu("Look & Feel");
 		lookAndFeelMenu.addMenuListener(this);
 		optionsMenu.add(lookAndFeelMenu);
+
+		MDIMenuItem = new JCheckBoxMenuItem("MDI", MDIflag);
+		MDIMenuItem.addActionListener(this);
+		MDIMenuItem.setActionCommand("MDI");
+		optionsMenu.add(MDIMenuItem);
 	}
 
 	protected void createWindowMenu() {
@@ -1003,23 +1026,40 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		helpPane.goToURL(ResourceLoader.getResource("help/mios_fun.html"));
 	}
 
-	public void showFrame(JInternalFrame frame) {
-		try {
+	public void showFrame(Container container) {
+
+		if (MDI) {
+
+			JInternalFrame frame = (JInternalFrame) container;
+			try {
+				if (!frame.isVisible()) {
+					frame.setVisible(true);
+					desktop.add(frame);
+					frame.moveToFront();
+					frame.setSelected(true);
+				} else if (frame.isIcon()) {
+					frame.setIcon(false);
+					frame.moveToFront();
+					frame.setSelected(true);
+				} else {
+					frame.moveToFront();
+					frame.setSelected(true);
+				}
+			} catch (java.beans.PropertyVetoException e) {
+				System.out.println(e.toString());
+			}
+		} else {
+			JFrame frame = (JFrame) container;
+
 			if (!frame.isVisible()) {
 				frame.setVisible(true);
-				desktop.add(frame);
-				frame.moveToFront();
-				frame.setSelected(true);
-			} else if (frame.isIcon()) {
-				frame.setIcon(false);
-				frame.moveToFront();
-				frame.setSelected(true);
+				frame.toFront();
+			} else if (frame.getExtendedState() == Frame.ICONIFIED) {
+				frame.setExtendedState(Frame.NORMAL);
+				frame.toFront();
 			} else {
-				frame.moveToFront();
-				frame.setSelected(true);
+				frame.toFront();
 			}
-		} catch (java.beans.PropertyVetoException e) {
-			System.out.println(e.toString());
 		}
 	}
 
@@ -1157,44 +1197,30 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		return lookAndFeel;
 	}
 
+	public boolean isMDI() {
+		return MDI;
+	}
+
+	public boolean isMDIflag() {
+		return MDIflag;
+	}
+
+	public void setMDIflag(boolean MDIflag) {
+
+		if (this.MDI != MDIflag) {
+
+			JOptionPane
+					.showMessageDialog(
+							MIOSStudioGUI.this,
+							"The selected layout will be applied the next time you restart MIOS Studio",
+							"ALERT", JOptionPane.ERROR_MESSAGE);
+		}
+
+		this.MDIflag = MDIflag;
+	}
+
 	public JDesktopPane getDesktop() {
 		return desktop;
-	}
-
-	public MIOSStudioInternalFrame getMidiDeviceRoutingWindow() {
-		return midiDeviceRoutingWindow;
-	}
-
-	public MIOSStudioInternalFrame getMidiOutPortMonitorWindow() {
-		return midiOutPortMonitorWindow;
-	}
-
-	public MIOSStudioInternalFrame getMidiInPortMonitorWindow() {
-		return midiInPortMonitorWindow;
-	}
-
-	public MIOSStudioInternalFrame getMidiKeyboardControllerWindow() {
-		return midiKeyboardControllerWindow;
-	}
-
-	public MIOSStudioInternalFrame getHexFileUploadDeviceManagerWindow() {
-		return hexFileUploadDeviceManagerWindow;
-	}
-
-	public MIOSStudioInternalFrame getLcdMessageWindow() {
-		return lcdMessageWindow;
-	}
-
-	public MIOSStudioInternalFrame getDebugFunctionWindow() {
-		return debugFunctionWindow;
-	}
-
-	public MIOSStudioInternalFrame getMIOSTerminalWindow() {
-		return miosTerminalWindow;
-	}
-
-	public MIOSStudioInternalFrame getHelpWindow() {
-		return helpWindow;
 	}
 
 	protected void openWorkspace() {
@@ -1437,27 +1463,31 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 		} else if (object == MIOSStudio.MIDI_THRU_OUT_PORT) {
 
 			midiThruMenuItem.setSelected(miosStudio.isMidiThruOutPort());
-		
+
 		} else if (observable == miosStudio.getSysexSendReceiveManager()) {
-			
+
 			Dimension size = sysexSendReceiveDeviceManagerWindow.getSize();
-			
-			Dimension preferred = sysexSendReceiveDeviceManagerWindow.getPreferredSize();
-			
-			if ((size.height < preferred.height) || size.width < preferred.width) {
-			
-				sysexSendReceiveDeviceManagerWindow.pack();
+
+			Dimension preferred = sysexSendReceiveDeviceManagerWindow
+					.getPreferredSize();
+
+			if ((size.height < preferred.height)
+					|| size.width < preferred.width) {
+
+				packFrame(sysexSendReceiveDeviceManagerWindow);
 			}
-			
+
 		} else if (observable == miosStudio.getHexFileUploadManager()) {
-			
+
 			Dimension size = hexFileUploadDeviceManagerWindow.getSize();
-			
-			Dimension preferred = hexFileUploadDeviceManagerWindow.getPreferredSize();
-			
-			if ((size.height < preferred.height) || size.width < preferred.width) {
-			
-				hexFileUploadDeviceManagerWindow.pack();
+
+			Dimension preferred = hexFileUploadDeviceManagerWindow
+					.getPreferredSize();
+
+			if ((size.height < preferred.height)
+					|| size.width < preferred.width) {
+
+				packFrame(hexFileUploadDeviceManagerWindow);
 			}
 		}
 	}
@@ -1531,14 +1561,59 @@ public class MIOSStudioGUI extends JPanel implements ActionListener,
 
 		} else if (ae.getActionCommand().equals("save_workspace")) {
 			saveWorkspace();
+
+		} else if (ae.getActionCommand().equals("MDI")) {
+
+			setMDIflag(MDIMenuItem.isSelected());
 		}
+	}
+
+	private Container createFrame(String name, boolean resizeable,
+			boolean maximizeable, Icon icon, JComponent contentPane) {
+
+		Container container;
+
+		if (MDI) {
+
+			container = new MIOSStudioInternalFrame(name, resizeable,
+					maximizeable, icon, contentPane);
+
+		} else {
+
+			JFrame frame = new JFrame(name);
+			frame.setResizable(resizeable);
+			frame.setContentPane(contentPane);
+
+			frame.setJMenuBar(createMenuBar());
+
+			container = frame;
+		}
+
+		return container;
+	}
+
+	private void packFrame(Container frame) {
+
+		if (frame instanceof JFrame) {
+
+			((JFrame) frame).pack();
+		}
+
+		if (frame instanceof JInternalFrame) {
+
+			((JInternalFrame) frame).pack();
+		}
+	}
+
+	public JToolBar getToolBar() {
+
+		return toolBar;
 	}
 
 	public class MIOSStudioInternalFrame extends JInternalFrame {
 		public MIOSStudioInternalFrame(String name, boolean resizeable,
-				boolean closeable, boolean maximizeable, boolean iconifiable,
-				Icon icon, JComponent contentPane) {
-			super(name, resizeable, closeable, maximizeable, iconifiable);
+				boolean maximizeable, Icon icon, JComponent contentPane) {
+			super(name, resizeable, true, maximizeable, true);
 			setFrameIcon(icon);
 			setContentPane(contentPane);
 		}

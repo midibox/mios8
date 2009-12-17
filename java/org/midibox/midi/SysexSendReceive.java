@@ -67,8 +67,8 @@ public class SysexSendReceive extends Observable implements Receiver {
 		super();
 		this.receiver = receiver;
 		sendBufferSize = 100000; // TK: shouldn't be changed by user since Java
-									// doesn't allow to split SysEx streams
-									// properly
+		// doesn't allow to split SysEx streams
+		// properly
 		sendDelayTime = 750; // delay between F0
 		receivedBytes = new LinkedList();
 	}

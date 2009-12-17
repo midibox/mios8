@@ -1,6 +1,8 @@
 package org.midibox.apps.miosstudio.gui.xml;
 
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -87,6 +89,8 @@ public class MIOSStudioGUIXML extends XMLUtils {
 	public final static String ATTR_EXTERNAL_COMMAND = "externalCommand";
 
 	public final static String ATTR_SELECTED_TAB = "selectedTab";
+
+	public final static String ATTR_MDI = "multiDocumentInterface";
 
 	protected MIOSStudioGUI miosStudioGUI;
 
@@ -184,9 +188,9 @@ public class MIOSStudioGUIXML extends XMLUtils {
 		}
 	}
 
-	protected void createGUI() {
+	protected void createGUI(boolean MDI) {
 
-		miosStudioGUI = new MIOSStudioGUI(miosStudio);
+		miosStudioGUI = new MIOSStudioGUI(miosStudio, MDI);
 	}
 
 	protected void parseElement(Element element) {
@@ -215,11 +219,21 @@ public class MIOSStudioGUIXML extends XMLUtils {
 						.getAttribute(ATTR_POS_Y)), stringToInt(element
 						.getAttribute(ATTR_WIDTH)), stringToInt(element
 						.getAttribute(ATTR_HEIGHT)));
+
+				if (element.getAttribute(ATTR_MAXIMIZED) != null) {
+
+					if (stringToBoolean(element.getAttribute(ATTR_MAXIMIZED))) {
+
+						mainWindow.setExtendedState(Frame.MAXIMIZED_BOTH);
+					}
+				}
 			}
 
 		} else if (name == TAG_LOOK_AND_FEEL) {
 
 			String lookAndFeel = element.getTextContent();
+
+			boolean MDI = true;
 
 			if (miosStudioGUI == null) {
 
@@ -232,22 +246,32 @@ public class MIOSStudioGUIXML extends XMLUtils {
 					e.printStackTrace();
 				}
 
-				createGUI();
+				if (element.getAttribute(ATTR_MDI) != null) {
+
+					MDI = stringToBoolean(element.getAttribute(ATTR_MDI));
+				}
+
+				createGUI(MDI);
 			}
+
+			miosStudioGUI.setMDIflag(MDI);
 
 			miosStudioGUI.setLookAndFeel(lookAndFeel);
 
 		} else if (name == TAG_INTERNAL_FRAMES) {
 
-			Iterator it = miosStudioGUI.getInternalFrames().iterator();
+			if (miosStudioGUI.isMDI()) {
 
-			while (it.hasNext()) {
+				Iterator it = miosStudioGUI.getInternalFrames().iterator();
 
-				JInternalFrame internalFrame = (JInternalFrame) it.next();
+				while (it.hasNext()) {
 
-				internalFrame.setVisible(false);
+					JInternalFrame internalFrame = (JInternalFrame) it.next();
 
-				miosStudioGUI.getDesktop().remove(internalFrame);
+					internalFrame.setVisible(false);
+
+					miosStudioGUI.getDesktop().remove(internalFrame);
+				}
 			}
 
 			Node childNode = element.getLastChild();
@@ -258,10 +282,12 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 				if (element.getNodeName() == TAG_INTERNAL_FRAME) {
 
-					JInternalFrame internalFrame = findInternalFrame(element
+					Container container = findInternalFrame(element
 							.getAttribute(ATTR_TITLE));
 
-					if (internalFrame != null) {
+					if (container instanceof JInternalFrame) {
+
+						JInternalFrame internalFrame = (JInternalFrame) container;
 
 						Dimension d = internalFrame.getPreferredSize();
 
@@ -299,6 +325,56 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 							internalFrame.setIcon(stringToBoolean(element
 									.getAttribute(ATTR_ICONIFIED)));
+
+						} catch (Exception e) {
+
+							e.printStackTrace();
+						}
+					} else if (container instanceof JFrame) {
+
+						JFrame frame = (JFrame) container;
+
+						Dimension d = frame.getPreferredSize();
+
+						if (frame.isResizable()) {
+
+							frame.setBounds(stringToInt(element
+									.getAttribute(ATTR_POS_X)),
+									stringToInt(element
+											.getAttribute(ATTR_POS_Y)), Math
+											.max(stringToInt(element
+													.getAttribute(ATTR_WIDTH)),
+													d.width),
+									Math.max(stringToInt(element
+											.getAttribute(ATTR_HEIGHT)),
+											d.height));
+
+						} else {
+
+							frame.setBounds(stringToInt(element
+									.getAttribute(ATTR_POS_X)),
+									stringToInt(element
+											.getAttribute(ATTR_POS_Y)),
+									d.width, d.height);
+						}
+
+						if (stringToBoolean(element.getAttribute(ATTR_VISIBLE))) {
+
+							miosStudioGUI.showFrame(frame);
+						}
+
+						try {
+
+							if (stringToBoolean(element
+									.getAttribute(ATTR_MAXIMIZED))) {
+
+								frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+							}
+
+							if (stringToBoolean(element
+									.getAttribute(ATTR_ICONIFIED))) {
+								frame.setExtendedState(Frame.ICONIFIED);
+							}
 
 						} catch (Exception e) {
 
@@ -431,6 +507,9 @@ public class MIOSStudioGUIXML extends XMLUtils {
 			rootElement.appendChild(lookAndFeelElement);
 
 			lookAndFeelElement.setTextContent(miosStudioGUI.getLookAndFeel());
+
+			lookAndFeelElement.setAttribute(ATTR_MDI,
+					booleanToString(miosStudioGUI.isMDIflag()));
 		}
 
 		if (includeGUI) {
@@ -441,6 +520,13 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 				Element mainWindowElement = document
 						.createElement(TAG_MAIN_WINDOW);
+
+				mainWindowElement
+						.setAttribute(
+								ATTR_MAXIMIZED,
+								booleanToString(mainWindow.getExtendedState() == Frame.MAXIMIZED_BOTH));
+
+				mainWindow.setExtendedState(Frame.NORMAL);
 
 				rootElement.appendChild(mainWindowElement);
 
@@ -455,6 +541,7 @@ public class MIOSStudioGUIXML extends XMLUtils {
 
 				mainWindowElement.setAttribute(ATTR_HEIGHT,
 						intToString(mainWindow.getHeight()));
+
 			}
 
 			Element internalFramesElement = document
@@ -465,35 +552,38 @@ public class MIOSStudioGUIXML extends XMLUtils {
 			Vector internalFrames = (Vector) miosStudioGUI.getInternalFrames()
 					.clone();
 
-			JInternalFrame[] visibleInternalFrames = miosStudioGUI.getDesktop()
-					.getAllFrames();
+			if (miosStudioGUI.isMDI()) {
 
-			for (int i = 0; i < visibleInternalFrames.length; i++) {
+				JInternalFrame[] visibleInternalFrames = miosStudioGUI
+						.getDesktop().getAllFrames();
 
-				JInternalFrame internalFrame = visibleInternalFrames[i];
+				for (int i = 0; i < visibleInternalFrames.length; i++) {
 
-				Element internalFrameElement = document
-						.createElement(TAG_INTERNAL_FRAME);
+					JInternalFrame internalFrame = visibleInternalFrames[i];
 
-				internalFramesElement.appendChild(internalFrameElement);
+					Element internalFrameElement = document
+							.createElement(TAG_INTERNAL_FRAME);
 
-				saveInternalFrame(internalFrame, internalFrameElement);
+					internalFramesElement.appendChild(internalFrameElement);
 
-				internalFrames.remove(internalFrame);
+					saveInternalFrame(internalFrame, internalFrameElement);
+
+					internalFrames.remove(internalFrame);
+				}
 			}
 
 			Iterator it = internalFrames.iterator();
 
 			while (it.hasNext()) {
 
-				JInternalFrame internalFrame = (JInternalFrame) it.next();
+				Container container = (Container) it.next();
 
 				Element internalFrameElement = document
 						.createElement(TAG_INTERNAL_FRAME);
 
 				internalFramesElement.appendChild(internalFrameElement);
 
-				saveInternalFrame(internalFrame, internalFrameElement);
+				saveInternalFrame(container, internalFrameElement);
 			}
 
 			sysexSendReceiveDeviceManagerGUIelement = document
@@ -673,44 +763,89 @@ public class MIOSStudioGUIXML extends XMLUtils {
 		return miosStudioGUI;
 	}
 
-	protected void saveInternalFrame(JInternalFrame internalFrame,
+	protected void saveInternalFrame(Container container,
 			Element internalFrameElement) {
 
-		internalFrameElement.setAttribute(ATTR_TITLE, internalFrame.getTitle());
+		if (miosStudioGUI.isMDI()) {
 
-		internalFrameElement.setAttribute(ATTR_POS_X, intToString(internalFrame
-				.getX()));
+			JInternalFrame internalFrame = (JInternalFrame) container;
 
-		internalFrameElement.setAttribute(ATTR_POS_Y, intToString(internalFrame
-				.getY()));
+			internalFrameElement.setAttribute(ATTR_TITLE, internalFrame
+					.getTitle());
 
-		internalFrameElement.setAttribute(ATTR_WIDTH, intToString(internalFrame
-				.getWidth()));
+			internalFrameElement.setAttribute(ATTR_POS_X,
+					intToString(internalFrame.getX()));
 
-		internalFrameElement.setAttribute(ATTR_HEIGHT,
-				intToString(internalFrame.getHeight()));
+			internalFrameElement.setAttribute(ATTR_POS_Y,
+					intToString(internalFrame.getY()));
 
-		internalFrameElement.setAttribute(ATTR_VISIBLE,
-				booleanToString(internalFrame.isVisible()));
+			internalFrameElement.setAttribute(ATTR_WIDTH,
+					intToString(internalFrame.getWidth()));
 
-		internalFrameElement.setAttribute(ATTR_ICONIFIED,
-				booleanToString(internalFrame.isIcon()));
+			internalFrameElement.setAttribute(ATTR_HEIGHT,
+					intToString(internalFrame.getHeight()));
 
-		internalFrameElement.setAttribute(ATTR_MAXIMIZED,
-				booleanToString(internalFrame.isMaximum()));
+			internalFrameElement.setAttribute(ATTR_VISIBLE,
+					booleanToString(internalFrame.isVisible()));
+
+			internalFrameElement.setAttribute(ATTR_ICONIFIED,
+					booleanToString(internalFrame.isIcon()));
+
+			internalFrameElement.setAttribute(ATTR_MAXIMIZED,
+					booleanToString(internalFrame.isMaximum()));
+		} else {
+
+			JFrame frame = (JFrame) container;
+
+			internalFrameElement.setAttribute(ATTR_TITLE, frame.getTitle());
+
+			internalFrameElement.setAttribute(ATTR_POS_X, intToString(frame
+					.getX()));
+
+			internalFrameElement.setAttribute(ATTR_POS_Y, intToString(frame
+					.getY()));
+
+			internalFrameElement.setAttribute(ATTR_WIDTH, intToString(frame
+					.getWidth()));
+
+			internalFrameElement.setAttribute(ATTR_HEIGHT, intToString(frame
+					.getHeight()));
+
+			internalFrameElement.setAttribute(ATTR_VISIBLE,
+					booleanToString(frame.isVisible()));
+
+			internalFrameElement
+					.setAttribute(ATTR_ICONIFIED, booleanToString(frame
+							.getExtendedState() == Frame.ICONIFIED));
+
+			internalFrameElement
+					.setAttribute(ATTR_MAXIMIZED, booleanToString(frame
+							.getExtendedState() == Frame.MAXIMIZED_BOTH));
+		}
 	}
 
-	protected JInternalFrame findInternalFrame(String name) {
+	protected Container findInternalFrame(String name) {
 
 		Iterator it = miosStudioGUI.getInternalFrames().iterator();
 
 		while (it.hasNext()) {
 
-			JInternalFrame internalFrame = (JInternalFrame) it.next();
+			if (miosStudioGUI.isMDI()) {
 
-			if (internalFrame.getTitle().equals(name)) {
+				JInternalFrame internalFrame = (JInternalFrame) it.next();
 
-				return internalFrame;
+				if (internalFrame.getTitle().equals(name)) {
+
+					return internalFrame;
+				}
+
+			} else {
+				JFrame frame = (JFrame) it.next();
+
+				if (frame.getTitle().equals(name)) {
+
+					return frame;
+				}
 			}
 		}
 

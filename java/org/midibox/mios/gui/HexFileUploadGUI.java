@@ -508,6 +508,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 				}
 			};
 
+			t.setDaemon(true);
 			t.start();
 
 		} else if (command.equals("query")) {
@@ -519,6 +520,7 @@ public class HexFileUploadGUI extends JPanel implements ActionListener,
 				}
 			};
 
+			t.setDaemon(true);
 			t.start();
 
 		} else if (command.equals("stop")) {

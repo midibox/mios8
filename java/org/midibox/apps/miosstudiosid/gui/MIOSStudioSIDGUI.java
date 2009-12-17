@@ -32,7 +32,7 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 	}
 
 	protected void createInternalFrames() {
-		super.createInternalFrames();
+		super.createFrames();
 
 		// SIDV2 Librarian
 
@@ -43,7 +43,7 @@ public class MIOSStudioSIDGUI extends MIOSStudioGUI implements Observer {
 		Icon icon = ImageLoader.getImageIcon("sid.png");
 
 		sidv2librarianWindow = new MIOSStudioInternalFrame("SID V2 Editor",
-				false, true, false, true, icon, sidv2librariangui);
+				true, true, icon, sidv2librariangui);
 
 		// Don't display menu bar when integrated in MIOS Studio
 		sidv2librariangui.createMenu();

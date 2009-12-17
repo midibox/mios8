@@ -439,6 +439,7 @@ public class LCDMessageGUI extends JPanel implements ActionListener,
 				}
 			};
 
+			t.setDaemon(true);
 			t.start();
 
 		} else if (source == stopMessage) {
@@ -450,6 +451,7 @@ public class LCDMessageGUI extends JPanel implements ActionListener,
 				}
 			};
 
+			t.setDaemon(true);
 			t.start();
 		}
 	}

@@ -994,6 +994,8 @@ public class DebugFunctionGUI extends JPanel implements ActionListener,
 						debugFunction.createDebugFunctionsTask(showHex);
 					}
 				};
+
+				t.setDaemon(true);
 				t.start();
 
 			} else {

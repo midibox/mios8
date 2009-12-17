@@ -40,6 +40,7 @@ public class Blinker extends Observable implements Runnable {
 
 	private void reset() {
 		runner = new Thread(this);
+		runner.setDaemon(true);
 		runner.start();
 	}
 

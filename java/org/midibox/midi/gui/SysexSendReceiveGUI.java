@@ -190,7 +190,7 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 		gbc.gridwidth = 1;
 		gbc.gridheight = 1;
 		gbc.fill = GridBagConstraints.NONE;
-		
+
 		gbc.insets = new Insets(5, 5, 5, 5);
 
 		sendControlButtonsPanel.add(sendStartButton, gbc);
@@ -424,6 +424,7 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 						}
 					};
 
+					t.setDaemon(true);
 					t.start();
 				}
 			}
@@ -502,7 +503,7 @@ public class SysexSendReceiveGUI extends JPanel implements ActionListener,
 			currentDirectory = fc.getCurrentDirectory().toString();
 
 			int maxSysexDataLen = 200000; // TODO: find better method... linked
-											// list?
+			// list?
 			byte[] sysexData = new byte[maxSysexDataLen];
 			int sysexDataOffset = 0;
 
