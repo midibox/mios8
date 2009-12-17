@@ -203,9 +203,9 @@ public class MIOSStudio extends JApplet {
 				}
 			});
 			
-			miosStudio.miosStudioGUI.getFileMenu().add(exitMenuItem);
-
 			miosStudio.setJMenuBar(miosStudio.miosStudioGUI.createMenuBar());
+			
+			miosStudio.miosStudioGUI.getFileMenu().add(exitMenuItem);
 			
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
