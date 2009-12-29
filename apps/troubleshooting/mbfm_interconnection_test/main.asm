@@ -171,10 +171,10 @@ USER_MPROC_NotifyReceivedEvent
 	movf	MIOS_PARAMETER1, W
 	andlw	0xf0
 	xorlw	0xb0
-	bnz	USER_NotifyReceivedEvent_End
+	bnz	USER_NotifyReceivedEvent_ChkNote
 	movf	MIOS_PARAMETER2, W
 	xorlw	0x01
-	bnz	USER_NotifyReceivedEvent_End
+	bnz	USER_NotifyReceivedEvent_ChkNote
 
 	movf	MIOS_PARAMETER3, W
 	movwf	OPL3_PIN_NUMBER
@@ -185,6 +185,33 @@ USER_MPROC_NotifyReceivedEvent
 
 	;; set the pin depending on selected OPL3 number
 	call	OPL3_SetPin
+	rgoto	USER_NotifyReceivedEvent_End
+
+
+USER_NotifyReceivedEvent_ChkNote
+	;; alternative control via MIDI keyboard (Note On Events with velocity > 0)
+	movf	MIOS_PARAMETER1, W
+	andlw	0xf0
+	xorlw	0x90
+	bnz	USER_NotifyReceivedEvent_End
+	movf	MIOS_PARAMETER3, W
+	bnz	USER_NotifyReceivedEvent_End
+	;; normalize note to 0..11 range
+	movf	MIOS_PARAMETER2, W
+USER_NotifyReceivedEvent_NoteNor
+	addlw	-12
+	BRA_IFCLR WREG, 7, ACCESS, USER_NotifyReceivedEvent_NoteNor
+	addlw	12		; now in range 0..11
+	movwf	OPL3_PIN_NUMBER
+	
+	cpfslt	OPL3_PIN_NUMBER, ACCESS
+	clrf OPL3_PIN_NUMBER
+	bsf	DISPLAY_UPDATE_REQ, 0
+
+	;; set the pin depending on selected OPL3 number
+	call	OPL3_SetPin
+	;; 	rgoto	USER_NotifyReceivedEvent_End
+
 USER_NotifyReceivedEvent_End
 	return
 
