@@ -22,3 +22,6 @@ include $(MIOS_PATH)/include/makefile/asm_only.mk
 
 # include application specific LCD driver (dummy driver by default)
 include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
+
+# add mk_syx to the distribution package
+DIST += $(MIOS_PATH)/tools/mk_syx

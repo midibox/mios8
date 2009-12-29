@@ -470,7 +470,7 @@ SID_MIDI_L_Hlp_NoteOn_WTO
 	;; sus-key activated?
 	BRA_IFCLR SID_MIDI_FLAGS, SID_I_L_FLAGS1_SUS_KEY, BANKED, SID_MIDI_L_Hlp_NoteOn_NoSusKey
 SID_MIDI_L_Hlp_NoteOn_SusKey
-	;; in sus-key mode, we activate portamento only if at least one key is played
+	;; in sus-key mode, we activate portamento only if at least two keys are played
 	movlw	SID_MVx_NOTE_STACK_PTR
 	decf	PLUSW0, W
 	bz	SID_MIDI_L_Hlp_NoteOn_NoSusKeyPr

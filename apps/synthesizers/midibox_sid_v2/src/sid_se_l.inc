@@ -89,7 +89,14 @@ SIDSE_L_Handler_ModClearLoop
 #else
 	;; modulation only in positive direction
 	clrf	SID_MOD_SRC_L_KEY_L, BANKED
-	movff	SIDL_V1_BASE + SID_Vx_TRANSP_NOTE, SID_MOD_SRC_L_KEY_H
+#if 0
+	movff	SIDL_V1_BASE + SID_Vx_TRANSP_NOTE, 
+#else
+	;; use linear frequency instead, so that sweeps are considered as well
+	movff   SIDL_V1_BASE + SID_Vx_LINEAR_FRQ_H, SID_MOD_SRC_L_KEY_H
+	clrc
+	rrf	SID_MOD_SRC_L_KEY_H, F, BANKED
+#endif
 #endif
 
 	;; copy knob1 to MDW source
@@ -764,18 +771,6 @@ SIDSE_L_EXT_End
 ;;     LFO number in SID_SE_ELEMENT_NUM
 ;; --------------------------------------------------------------------------
 SIDSE_L_LFO_Restart
-	;; if oneshot mode: don't take sync mode into account if we already had a overrun condition
-	movlw	SID_Ix_LFOx_MODE
-	BRA_IFCLR PLUSW0, SID_I_LFO_MODE_ONESHOT, ACCESS, SIDSE_L_LFO_Restart_NoOneShot
-SIDSE_L_LFO_Restart_OneShot
-	movf	SID_SE_ELEMENT_NUM, W, BANKED
-	call	MIOS_HLP_GetBitORMask
-	andwf	SID_SE_LFO_OVERRUN, W, BANKED
-	bnz	SIDSE_L_LFO_Restart_OneShot_Cont
-	;; no overrun occured yet - check for sync
-SIDSE_L_LFO_Restart_NoOneShot
-
-SIDSE_L_LFO_Restart_OneShot_Cont
 	;; reset counter (take phase into account)
 	movlw	0x00
 	movwf	POSTINC1	; SID_LFOx_CTR_L
@@ -864,7 +859,7 @@ SIDSE_L_LFO_OneShotChk
 	rgoto	SIDSE_L_LFO_OneShot_Cont
 SIDSE_L_LFO_NoOneShotChk
 
-	;; if clock sync enabled: only increment on each 6th clock event
+	;; if clock sync enabled: only increment on each 16th clock event
 	movlw	SID_Ix_LFOx_MODE
 	BRA_IFCLR PLUSW0, SID_I_LFO_MODE_CLKSYNC, ACCESS, SIDSE_L_LFO_NoClkSync
 SIDSE_L_LFO_ClkSync
@@ -1305,7 +1300,7 @@ SIDSE_L_ENV_Attack1_NoDelay
 
 
 SIDSE_L_ENV_Attack2
-	;; in attack1 phase we have to increase the EG counter
+	;; in attack2 phase we have to increase the EG counter
 	;; attack rate in IRQ_TMP3
 	movlw	SID_Ix_L_ENVx_ATTACK2
 	movff	PLUSW0, IRQ_TMP3

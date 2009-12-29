@@ -933,11 +933,11 @@ SID_Ix_L_Fx_RESERVED2	EQU	0x5	; reserved for future expansions
 SID_Ix_Vx_FLAGS1	EQU	0x00	; [1:0] portamento (0), constant time glide (1), glissando (2), [2] GAE (gate always enabled)
 SID_Ix_Vx_WAVEFORM	EQU	0x01	; [3:0] waveform, [4] voice off, [5] sync, [6] ring, [7] reserved
 SID_Ix_Vx_AD		EQU	0x02	; 2*4bit value for attack [7:4] and decay [3:0]
-SID_Ix_Vx_SR		EQU	0x03	; 2*4bit value for sustain [7:4] and sustain [3:0]
+SID_Ix_Vx_SR		EQU	0x03	; 2*4bit value for release [7:4] and sustain [3:0]
 SID_Ix_Vx_PULSEWIDTH_L	EQU	0x04	; [7:0] low byte
 SID_Ix_Vx_PULSEWIDTH_H	EQU	0x05    ; [3:0] high nibble, [7:4] reserved
 SID_Ix_Vx_ACCENT	EQU	0x06	; not used by lead engine, could be replaced by something else
-SID_Ix_Vx_SWINSID_PHASE	EQU	0x06	; used by lead engine of SwinSID option enabled
+SID_Ix_Vx_SWINSID_PHASE	EQU	0x06	; used by lead engine if SwinSID option enabled
 SID_Ix_Vx_DELAY		EQU	0x07	; 8bit
 SID_Ix_Vx_TRANSPOSE	EQU	0x08	; 7bit
 SID_Ix_Vx_FINETUNE	EQU	0x09	; 8bit

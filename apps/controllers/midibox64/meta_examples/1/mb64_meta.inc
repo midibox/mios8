@@ -44,6 +44,8 @@ MB64_META_Handler_Button
 ;; for the same synth) should be sent, it would be more advantageous to
 ;; use a table which contains the parameter values and refers to the
 ;; sending routines
+;; 
+;; More examples are located in the meta_examples directory
 ;; --------------------------------------------------------------------------
 MB64_META_Handler
 
