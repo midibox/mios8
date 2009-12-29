@@ -195,7 +195,7 @@ USER_NotifyReceivedEvent_ChkNote
 	xorlw	0x90
 	bnz	USER_NotifyReceivedEvent_End
 	movf	MIOS_PARAMETER3, W
-	bnz	USER_NotifyReceivedEvent_End
+	bz	USER_NotifyReceivedEvent_End
 	;; normalize note to 0..11 range
 	movf	MIOS_PARAMETER2, W
 USER_NotifyReceivedEvent_NoteNor
