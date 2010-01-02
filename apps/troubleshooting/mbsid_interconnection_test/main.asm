@@ -165,7 +165,7 @@ USER_DISPLAY_Tick
 	bnz	USER_DISPLAY_Tick_Normal
 USER_DISPLAY_Tick_CS
 	call	DEBUG_MSG_SendASMString
-	db	"Pin 'CS#' of SID chip set to 5V, remaining digital pins set to 0V as well.", 0
+	db	"Pin 'CS#' of SID chip set to 0V, remaining digital pins set to 0V as well.", 0
 	call	DEBUG_MSG_SendFooter
 	return
 
