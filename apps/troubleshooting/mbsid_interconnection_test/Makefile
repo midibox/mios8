@@ -20,5 +20,8 @@ all: cleanall main.hex
 # include the asm_only.mk file
 include $(MIOS_PATH)/include/makefile/asm_only.mk
 
+# include debug message module
+include $(MIOS_PATH)/modules/debug_msg/debug_msg.mk
+
 # include application specific LCD driver (dummy driver by default)
 include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk

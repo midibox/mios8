@@ -74,19 +74,27 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
 </PRE></TT>
 
 
-<P CLASS=INFO><B>IMPORTANT:</B> the pins to which the encoders are connected must be specified in mios_wrapper/mios_tables.inc. Search for <B>MIOS_ENC_PIN_TABLE</B> and replace the first ENC_EOT entries (which terminate the table) by:</P>
+<P CLASS=INFO>The pins to which the encoders are connected must be specified in MIOS_ENC_TABLE, which can be placed at the top of your main.c file:</P>
 
 <TT><PRE>
-MIOS_ENC_PIN_TABLE
-        ;;        SR  Pin  Mode
-        ENC_ENTRY  1,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 1
-        ENC_ENTRY  1,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 2
-        ENC_ENTRY  1,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 3
-        ENC_ENTRY  1,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 4
-        ENC_ENTRY  2,  0,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 5
-        ENC_ENTRY  2,  2,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 6
-        ENC_ENTRY  2,  4,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 7
-        ENC_ENTRY  2,  6,  MIOS_ENC_MODE_NON_DETENTED   ; V-Pot 8
+MIOS_ENC_TABLE {
+             //  sr pin mode
+  MIOS_ENC_ENTRY( 1, 0, MIOS_ENC_MODE_NON_DETENTED), // V-Pot 1
+  MIOS_ENC_ENTRY( 1, 2, MIOS_ENC_MODE_NON_DETENTED), // V-Pot 2
+  MIOS_ENC_ENTRY( 1, 4, MIOS_ENC_MODE_NON_DETENTED), // V-Pot 3
+  MIOS_ENC_ENTRY( 1, 6, MIOS_ENC_MODE_NON_DETENTED), // V-Pot 4
+  MIOS_ENC_ENTRY( 2, 0, MIOS_ENC_MODE_NON_DETENTED), // V-Pot 5
+  MIOS_ENC_ENTRY( 2, 2, MIOS_ENC_MODE_NON_DETENTED), // V-Pot 6
+  MIOS_ENC_ENTRY( 2, 4, MIOS_ENC_MODE_NON_DETENTED), // V-Pot 7
+  MIOS_ENC_ENTRY( 2, 6, MIOS_ENC_MODE_NON_DETENTED), // V-Pot 8
+
+  MIOS_ENC_EOT
+};
+</PRE></TT>
+
+<P CLASS=INFO><B>IMPORTANT:</B> the default encoder table has to be disabled in the <B>Makefile</B> via -DDONT_INCLUDE_MIOS_ENC_TABLE. You could add this define to the MIOS_WRAPPER_DEFINES variable:</P>
+<TT><PRE>
+MIOS_WRAPPER_DEFINES = -DSTACK_HEAD=0x37f -DSTACK_IRQ_HEAD=0x33f -DDONT_INCLUDE_MIOS_ENC_TABLE
 </PRE></TT>
 
 <P CLASS=INFO>A list of available MIOS function can be found <A HREF="cmios_fun.html">here</A>.</P>

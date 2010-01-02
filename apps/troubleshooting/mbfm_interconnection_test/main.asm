@@ -38,6 +38,9 @@
 ;; ---[ Custom LCD driver ]---
 #include <app_lcd.inc>
 
+;; ---[ Debug Message Module ]---
+#include <debug_msg.inc>
+
 ; define the pins to which the MBHP_OPL3 module is connected
 ;
 MBFM_LAT_D	EQU	LATB		; Port B
@@ -106,6 +109,26 @@ USER_DISPLAY_Init
 	call	MIOS_LCD_PrintString
 	call	MIOS_LCD_PrintString
 
+	call	DEBUG_MSG_SendHeader
+	movlw	'\n'
+	call	DEBUG_MSG_SendChar
+	call	DEBUG_MSG_SendFooter
+	
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"MBFM Interconnection Test\n", 0
+	call	DEBUG_MSG_SendFooter
+	
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"=========================\n", 0
+	call	DEBUG_MSG_SendFooter
+
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"Please play a note on any MIDI channel.\n", 0
+	call	DEBUG_MSG_SendFooter
+	
 	bsf	DISPLAY_UPDATE_REQ, 0
 
 	return
@@ -135,6 +158,32 @@ USER_DISPLAY_Tick
 	addwfc	TBLPTRH, F
 	movlw	OPL3_PIN_NAMES_LEN
 	call	MIOS_LCD_PrintPreconfString
+
+
+	;; send message to MIOS Terminal
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"Pin '", 0
+
+	TABLE_ADDR OPL3_PIN_NAMES_TABLE
+	movf	OPL3_PIN_NUMBER, W
+	mullw	OPL3_PIN_NAMES_LEN
+	movf	PRODL, W
+	addwf	TBLPTRL, F
+	movf	PRODH, W
+	addwfc	TBLPTRH, F
+
+	;; always two chars
+	tblrd*+
+	movf	TABLAT, W
+	call	DEBUG_MSG_SendChar
+	tblrd*+
+	movf	TABLAT, W
+	call	DEBUG_MSG_SendChar
+
+	call	DEBUG_MSG_SendASMString
+	db	"' of MBHP_OPL3 module set to 5V, all other pins set to 0V", 0
+	call	DEBUG_MSG_SendFooter
 
 	;; IMPORTANT!!!
 	;; Since a LCD message could overwrite the data/address/control
@@ -204,6 +253,7 @@ USER_NotifyReceivedEvent_NoteNor
 	addlw	12		; now in range 0..11
 	movwf	OPL3_PIN_NUMBER
 	
+	movlw	OPL3_PIN_NAMES_NUM
 	cpfslt	OPL3_PIN_NUMBER, ACCESS
 	clrf OPL3_PIN_NUMBER
 	bsf	DISPLAY_UPDATE_REQ, 0

@@ -322,7 +322,7 @@ SIDSE_UPDATESTAT_MACRO	MACRO p_base, sid_base, swinsid_mode, swinsid_phase
 #endif
 	iorwf	sid_base + SIDx_V1_CTRL, F, BANKED
 
-	;; if ABW (ADSR bug workaround) function active, update ADSR register only when the gate is set
+	;; if ABW (ADSR bug workaround) function active, ADSR registers will be controlled by SIDSE_Gate
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_OPT1_FLAGS, WREG
 	BRA_IFSET WREG, SID_I_OPT1_FLAGS_ABW, ACCESS, SIDSE_L_UpdateStatRegs_NoADSR
 	movlw	SID_Ix_Vx_AD
@@ -409,7 +409,7 @@ SIDSE_L_WT_Key
 SIDSE_L_WT_NoKey
 
 	;; 
-	;; if MOD control flag (START[7]) set, control position from modulation matrix
+	;; if MOD control flag (BEGIN[7]) set, control position from modulation matrix
 	movlw	SID_Ix_WTx_BEGIN
 	BRA_IFCLR PLUSW0, 7, ACCESS, SIDSE_L_WT_NoMOD
 SIDSE_L_WT_MOD

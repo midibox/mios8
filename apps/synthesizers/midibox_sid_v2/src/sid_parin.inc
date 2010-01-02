@@ -769,7 +769,7 @@ SID_PARIN_Set_NOTE_On_NoGate
 	;; (temporary stored in TABLAT)
 	movff	MIOS_PARAMETER1, TABLAT
 
-	;; if > 0x7c, play arpeggiator note
+	;; if >= 0x7c, play arpeggiator note
 	movlw	0x7c-1
 	cpfsgt	TABLAT, ACCESS
 	rgoto SID_PARIN_Set_NOTE_On_NoArp
@@ -1208,13 +1208,13 @@ SID_PARIN_SetWT
 	;; branch depending on relative (bit 7 cleared) or absolute value (bit 7 set)
 	BRA_IFSET MIOS_PARAMETER1, 7, ACCESS, SID_PARIN_SetWT_Abs
 SID_PARIN_SetWT_Rel
-	;; convert signed 7bit to signed 15bit, result in MUL_R_[23]
+	;; convert signed 7bit to signed 16bit, result in MUL_R_[23]
 	clrf	MUL_R_2, BANKED
 	clrc
 	rlf	MIOS_PARAMETER1, W
 	addlw	-0x80
 	movwf	MUL_R_3, BANKED
-	;; skip modification if offset is 0
+	;; skip modification if offset is 0 (for compatibility with old presets, e.g. "A077: Analog Dream 1")
 	bz	SID_PARIN_SetWT_End
 
 	;; get current value -> MIOS_PARAMETER[12]

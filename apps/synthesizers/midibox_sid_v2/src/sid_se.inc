@@ -259,7 +259,7 @@ SIDSE_Clk
 	incf	SID_CLK_REQ_CTR, F, BANKED
 #endif
 
-	;; now determine master/slave flag depending on environment setup
+	;; now determine master/slave flag depending on ensemble setup
 	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
 	BRA_IFSET WREG, SID_ENS_CTRL1_CLK_AUTO, ACCESS, SIDSE_Clk_ModeAuto
 	BRA_IFSET WREG, SID_ENS_CTRL1_CLK_SLAVE, ACCESS, SIDSE_Clk_ModeSlave
@@ -791,7 +791,7 @@ SIDSE_Arp_NewNote_Rnd
 SIDSE_Arp_NewNote_Down_Cont
 SIDSE_Arp_NewNote_Up
 
-	;; now check for oneshot mode: if note is 0, or if note and oct counter is 0, stop here
+	;; now check for oneshot mode: if note is 0, or if note counter and oct counter is 0, stop here
 	movlw	SID_Ix_Vx_ARP_SPEED_DIV
 	BRA_IFCLR PLUSW0, SID_I_V_ARP_SPEED_DIV_ONESHOT, ACCESS, SIDSE_Arp_NewNote_NoOneShot
 SIDSE_Arp_NewNote_OneShot
@@ -2892,7 +2892,7 @@ SIDSE_Hlp_ENV_GetBendedValue_Crv
 	movlw	SID_ENVx_CTR_H
 	movff	PLUSW1, IRQ_TMP2
 
-	;; rightshift IRQ_TMP3 (7bit value range)
+	;; rightshift rate in IRQ_TMP3 (8bit -> 7bit value range)
 	clrc
 	rrf	IRQ_TMP3, F
 

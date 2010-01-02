@@ -38,6 +38,10 @@
 ;; ---[ Custom LCD driver ]---
 #include <app_lcd.inc>
 
+;; ---[ Debug Message Module ]---
+#include <debug_msg.inc>
+
+
 ;; ==========================================================================
 ;;  All MIOS hooks in one file
 ;; ==========================================================================
@@ -94,6 +98,26 @@ USER_DISPLAY_Init
 	call	MIOS_LCD_PrintString
 	call	MIOS_LCD_PrintString
 
+	call	DEBUG_MSG_SendHeader
+	movlw	'\n'
+	call	DEBUG_MSG_SendChar
+	call	DEBUG_MSG_SendFooter
+	
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"SRIO Interconnection Test\n", 0
+	call	DEBUG_MSG_SendFooter
+	
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"=========================\n", 0
+	call	DEBUG_MSG_SendFooter
+
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"Please play a note on any MIDI channel.\n", 0
+	call	DEBUG_MSG_SendFooter
+
 	bsf	DISPLAY_UPDATE_REQ, 0
 
 	return
@@ -122,7 +146,52 @@ USER_DISPLAY_Tick
 	movf	PRODH, W
 	addwfc	TBLPTRH, F
 	movlw	SRIO_PIN_NAMES_LEN
-	goto	MIOS_LCD_PrintPreconfString
+	call	MIOS_LCD_PrintPreconfString
+
+
+	;; send message to MIOS Terminal
+	call	DEBUG_MSG_SendHeader
+
+	movf	SRIO_PIN_NUMBER, W
+	bz	USER_DISPLAY_Tick_DO
+	addlw	-1
+	bz	USER_DISPLAY_Tick_SC
+	addlw	-1
+	bz	USER_DISPLAY_Tick_RC
+	rgoto	USER_DISPLAY_Tick_Fail
+
+USER_DISPLAY_Tick_DO
+	call	DEBUG_MSG_SendASMString
+	db	"Pin J8:DO set to 5V, J8:SC/J9:SC and J8:RC/J9:RC set to 0V. ", 0
+	rgoto	USER_DISPLAY_Tick_Cont
+
+USER_DISPLAY_Tick_SC
+	call	DEBUG_MSG_SendASMString
+	db	"Pin J8:SC/J9:SC set to 5V, J8:DO and J8:RC/J9:RC set to 0V. ", 0
+	rgoto	USER_DISPLAY_Tick_Cont
+
+USER_DISPLAY_Tick_RC
+	call	DEBUG_MSG_SendASMString
+	db	"Pin J8:RC/J9:RC set to 5V, J8:DO and J8:SC/J9:SC set to 0V. ", 0
+	rgoto	USER_DISPLAY_Tick_Cont
+
+USER_DISPLAY_Tick_Fail
+	call	DEBUG_MSG_SendASMString
+	db	"Something unexpected happened! Please report to tk@midibox.org! ", 0
+	;; 	rgoto	USER_DISPLAY_Tick_Cont
+
+USER_DISPLAY_Tick_Cont
+	BRA_IFSET MIOS_SRIO_PORT_DIN, MIOS_SRIO_PIN_DIN, ACCESS, USER_DISPLAY_Tick_DI1
+USER_DISPLAY_Tick_DI0
+	call	DEBUG_MSG_SendASMString
+	db	"Pin J9:SI reads Logic-0 (ca. 0V).\n", 0
+	goto	DEBUG_MSG_SendFooter
+
+USER_DISPLAY_Tick_DI1	
+	call	DEBUG_MSG_SendASMString
+	db	"Pin J9:SI reads Logic-1 (ca. 5V).\n", 0
+	goto	DEBUG_MSG_SendFooter
+
 	
 
 SRIO_PIN_NAMES_LEN	EQU	2
@@ -145,10 +214,10 @@ USER_MPROC_NotifyReceivedEvent
 	movf	MIOS_PARAMETER1, W
 	andlw	0xf0
 	xorlw	0xb0
-	bnz	USER_NotifyReceivedEvent_End
+	bnz	USER_NotifyReceivedEvent_ChkNote
 	movf	MIOS_PARAMETER2, W
 	xorlw	0x01
-	bnz	USER_NotifyReceivedEvent_End
+	bnz	USER_NotifyReceivedEvent_ChkNote
 
 	movf	MIOS_PARAMETER3, W
 	movwf	SRIO_PIN_NUMBER
@@ -157,8 +226,36 @@ USER_MPROC_NotifyReceivedEvent
 	clrf SRIO_PIN_NUMBER
 	bsf	DISPLAY_UPDATE_REQ, 0
 
-	;; set the pin depending on selected pin number
+	;; set the pin depending on selected SRIO number
 	call	SRIO_SetPin
+	rgoto	USER_NotifyReceivedEvent_End
+
+
+USER_NotifyReceivedEvent_ChkNote
+	;; alternative control via MIDI keyboard (Note On Events with velocity > 0)
+	movf	MIOS_PARAMETER1, W
+	andlw	0xf0
+	xorlw	0x90
+	bnz	USER_NotifyReceivedEvent_End
+	movf	MIOS_PARAMETER3, W
+	bz	USER_NotifyReceivedEvent_End
+	;; normalize note to 0..11 range
+	movf	MIOS_PARAMETER2, W
+USER_NotifyReceivedEvent_NoteNor
+	addlw	-12
+	BRA_IFCLR WREG, 7, ACCESS, USER_NotifyReceivedEvent_NoteNor
+	addlw	12		; now in range 0..11
+	movwf	SRIO_PIN_NUMBER
+	
+	movlw	SRIO_PIN_NAMES_NUM
+	cpfslt	SRIO_PIN_NUMBER, ACCESS
+	clrf SRIO_PIN_NUMBER
+	bsf	DISPLAY_UPDATE_REQ, 0
+
+	;; set the pin depending on selected SRIO number
+	call	SRIO_SetPin
+	;; 	rgoto	USER_NotifyReceivedEvent_End
+
 USER_NotifyReceivedEvent_End
 	return
 

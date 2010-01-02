@@ -132,7 +132,7 @@ SID_PAR_S_TABLE
 	
 
 ;; --------------------------------------------------------------------------
-;;  Parameter Number String Definitions and table
+;;  Parameter Number String Definitions
 ;; --------------------------------------------------------------------------
 P_N_NOP		EQU	0x00
 P_N_OSC		EQU	0x01
@@ -159,7 +159,7 @@ P_N_DRM_INS	EQU	0x14
 	;; read from sid_lcd.inc
 
 ;; --------------------------------------------------------------------------
-;;  Parameter Modification Definitions and table
+;;  Parameter Modification Definitions
 ;; --------------------------------------------------------------------------
 	;; used in sid_parin.inc and sid_parout.inc
 P_M_NOP		EQU	0x00
@@ -527,9 +527,9 @@ SID_PAR_TABLE_L
   PAR_ENTRY	P_S_REL_CURVE,	P_N_ENV,	P_M_ENV_8,	SID_Ix_L_ENV2_BASE+SID_Ix_L_ENVx_REL_CURVE
   ;; --[ 0xe0-0e3 ]-----------------------------------------------------------------------------
   PAR_ENTRY	P_S_SPEED,	P_N_WT,		P_M_WT_6,	SID_Ix_L_WT1_BASE+SID_Ix_WTx_SPEED
-  PAR_ENTRY	P_S_SPEED,	P_N_WT,		P_M_WT_6,	SID_Ix_L_WT1_BASE+SID_Ix_WTx_SPEED
-  PAR_ENTRY	P_S_SPEED,	P_N_WT,		P_M_WT_6,	SID_Ix_L_WT1_BASE+SID_Ix_WTx_SPEED
-  PAR_ENTRY	P_S_SPEED,	P_N_WT,		P_M_WT_6,	SID_Ix_L_WT1_BASE+SID_Ix_WTx_SPEED
+  PAR_ENTRY	P_S_SPEED,	P_N_WT,		P_M_WT_6,	SID_Ix_L_WT2_BASE+SID_Ix_WTx_SPEED
+  PAR_ENTRY	P_S_SPEED,	P_N_WT,		P_M_WT_6,	SID_Ix_L_WT3_BASE+SID_Ix_WTx_SPEED
+  PAR_ENTRY	P_S_SPEED,	P_N_WT,		P_M_WT_6,	SID_Ix_L_WT4_BASE+SID_Ix_WTx_SPEED
   ;; --[ 0xe4-0e7 ]-----------------------------------------------------------------------------
   PAR_ENTRY	P_S_START,	P_N_WT,		P_M_WT_7,	SID_Ix_L_WT1_BASE+SID_Ix_WTx_BEGIN
   PAR_ENTRY	P_S_START,	P_N_WT,		P_M_WT_7,	SID_Ix_L_WT2_BASE+SID_Ix_WTx_BEGIN

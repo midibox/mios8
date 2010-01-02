@@ -38,6 +38,10 @@
 ;; ---[ Custom LCD driver ]---
 #include <app_lcd.inc>
 
+;; ---[ Debug Message Module ]---
+#include <debug_msg.inc>
+
+
 ;; ==========================================================================
 ;;  All MIOS hooks in one file
 ;; ==========================================================================
@@ -92,6 +96,26 @@ USER_DISPLAY_Init
 	call	MIOS_LCD_PrintString
 	call	MIOS_LCD_PrintString
 
+	call	DEBUG_MSG_SendHeader
+	movlw	'\n'
+	call	DEBUG_MSG_SendChar
+	call	DEBUG_MSG_SendFooter
+	
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"LCD Interconnection Test\n", 0
+	call	DEBUG_MSG_SendFooter
+	
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"========================\n", 0
+	call	DEBUG_MSG_SendFooter
+
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"Please play a note on any MIDI channel.\n", 0
+	call	DEBUG_MSG_SendFooter
+	
 	bsf	DISPLAY_UPDATE_REQ, 0
 
 	return
@@ -127,7 +151,35 @@ USER_DISPLAY_Tick
 	movlw	LCD_PIN_NAMES_LEN
 	call	MIOS_LCD_PrintPreconfString
 
-	;; now set the LCD pin again (they have been toggled by the LCD driver)
+
+	;; send message to MIOS Terminal
+	call	DEBUG_MSG_SendHeader
+	call	DEBUG_MSG_SendASMString
+	db	"Pin '", 0
+
+	TABLE_ADDR LCD_PIN_NAMES_TABLE
+	movf	LCD_PIN_NUMBER, W
+	mullw	LCD_PIN_NAMES_LEN
+	movf	PRODL, W
+	addwf	TBLPTRL, F
+	movf	PRODH, W
+	addwfc	TBLPTRH, F
+
+	;; always two chars
+	tblrd*+
+	movf	TABLAT, W
+	call	DEBUG_MSG_SendChar
+	tblrd*+
+	movf	TABLAT, W
+	call	DEBUG_MSG_SendChar
+
+	call	DEBUG_MSG_SendASMString
+	db	"' of MBHP_CORE::J15 set to 5V, all other data/control pins set to 0V", 0
+	call	DEBUG_MSG_SendFooter
+
+	;; IMPORTANT!!!
+	;; Since a LCD message could overwrite the data/address/control
+	;; line value, we update the pins again
 	goto	LCD_SetPin
 	
 	
@@ -160,10 +212,10 @@ USER_MPROC_NotifyReceivedEvent
 	movf	MIOS_PARAMETER1, W
 	andlw	0xf0
 	xorlw	0xb0
-	bnz	USER_NotifyReceivedEvent_End
+	bnz	USER_NotifyReceivedEvent_ChkNote
 	movf	MIOS_PARAMETER2, W
 	xorlw	0x01
-	bnz	USER_NotifyReceivedEvent_End
+	bnz	USER_NotifyReceivedEvent_ChkNote
 
 	movf	MIOS_PARAMETER3, W
 	movwf	LCD_PIN_NUMBER
@@ -172,8 +224,36 @@ USER_MPROC_NotifyReceivedEvent
 	clrf LCD_PIN_NUMBER
 	bsf	DISPLAY_UPDATE_REQ, 0
 
-	;; set the pin depending on selected pin number
+	;; set the pin depending on selected LCD number
 	call	LCD_SetPin
+	rgoto	USER_NotifyReceivedEvent_End
+
+
+USER_NotifyReceivedEvent_ChkNote
+	;; alternative control via MIDI keyboard (Note On Events with velocity > 0)
+	movf	MIOS_PARAMETER1, W
+	andlw	0xf0
+	xorlw	0x90
+	bnz	USER_NotifyReceivedEvent_End
+	movf	MIOS_PARAMETER3, W
+	bz	USER_NotifyReceivedEvent_End
+	;; normalize note to 0..11 range
+	movf	MIOS_PARAMETER2, W
+USER_NotifyReceivedEvent_NoteNor
+	addlw	-12
+	BRA_IFCLR WREG, 7, ACCESS, USER_NotifyReceivedEvent_NoteNor
+	addlw	12		; now in range 0..11
+	movwf	LCD_PIN_NUMBER
+	
+	movlw	LCD_PIN_NAMES_NUM
+	cpfslt	LCD_PIN_NUMBER, ACCESS
+	clrf LCD_PIN_NUMBER
+	bsf	DISPLAY_UPDATE_REQ, 0
+
+	;; set the pin depending on selected LCD number
+	call	LCD_SetPin
+	;; 	rgoto	USER_NotifyReceivedEvent_End
+
 USER_NotifyReceivedEvent_End
 	return
 
