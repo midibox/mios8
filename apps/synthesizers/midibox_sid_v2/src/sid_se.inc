@@ -2254,7 +2254,7 @@ SIDSE_Filter
 	movwf	IRQ_TMP1
 
 	;; pointer to SID_MOD_TARG_FILx_L already in FSR1
-	;; multiplty target value by 2 (for easy to realize extreme modulation results)
+	;; multiplty target value by 2 (to simplify extreme modulation results)
 	;; -> IRQ_TMP[345]
 	movf	INDF1, W
 	addwf	POSTINC1, W

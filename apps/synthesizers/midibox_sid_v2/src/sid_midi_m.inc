@@ -371,6 +371,7 @@ SID_MIDI_M_Hlp_NoteOn_NoGate
 	movf	PLUSW0, W
 	bnz	SID_MIDI_M_Hlp_NoteOn_NoNOnTrg
 SID_MIDI_M_Hlp_NoteOn_NOnTrg
+	;; TODO: ??? removed code???
 SID_MIDI_M_Hlp_NoteOn_NoNOnTrg
 
 	;; save voice number in midivoice (instrument) record
@@ -487,7 +488,7 @@ SID_MIDI_M_Hlp_GateOff_Loop
 	bcf	PLUSW1, SID_V_STATE_VOICE_ACTIVE
 	bcf	PLUSW1, SID_V_STATE_GATE_SET_REQ
 
-	;; request gate clear via trigger matrix
+	;; request gate clear
 	movf	SID_CURRENT_VOICE, W, BANKED
 	call	MIOS_HLP_GetBitORMask
 	movlw	SID_Vx_STATE

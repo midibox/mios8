@@ -536,6 +536,10 @@ CS_MENU_Page_Init
 	;; to the entries
 	movff	TBLPTRL, CS_MENU_TABLE_0_L
 	movff	TBLPTRH, CS_MENU_TABLE_0_H
+	clrf	TBLPTRU		; not stored in RAM, the check below ensures that this doesn't cause a problem
+  IF UPPER(CS_MENU_TABLE_END) != 0
+	ERROR "CS_MENU_TABLE reached the 64k boundary - fix this!"
+  ENDIF
 
 	;; done in CS_MENU_EXEC_GoToRoot now, so that the cursor doesn't change when we are within a menu page and LCD initialisation is requested
 #if 0
@@ -1581,8 +1585,10 @@ CS_MENU_ParameterUpdate_Loop
 	call	MIOS_HLP_GetBitORMask
 	andwf	CS_MENU_SELECTED_SID_FLAGS, W
 	bz	CS_MENU_ParameterUpdate_Next
+
 	;; get handler IDs
 	rcall	CS_MENU_GetHandlerIDs_SIDPreSel
+
 	;; R2PP2R ID in MIOS_PARAMETER3
 	movf	MIOS_PARAMETER3, W
 	call	CS_MENU_P2R_Handler
@@ -1656,13 +1662,15 @@ CS_MENU_Hlp_GetPointer
 	movlw	0x00
 	addwfc	CS_MENU_ENTRY_TBLPTRH, W
 	movwf	TBLPTRH
-	clrf	TBLPTRU		; TBLPTRU must be 0 (lower 64k page)
+	clrf	TBLPTRU		; not stored in RAM, the check below ensures that this doesn't cause a problem
+  IF UPPER(CS_MENU_TABLE_END) != 0
+	ERROR "CS_MENU_TABLE reached the 64k boundary - fix this!"
+  ENDIF
 	return
 
 ;; --------------------------------------------------------------------------
 ;;  This function returns the handler IDs of the selected parameter in the menu
-;;  Prepares also MBFM_SELECTED_INS and CS_MENU_PARAMETER_IX depending on
-;;  the menu table entry
+;;  Prepares also CS_MENU_PARAMETER_IX depending on the menu table entry
 ;;  OUT: ID for CS_MENU_PRINT in MIOS_PARAMETER1
 ;;       ID for CS_MENU_EXEC in MIOS_PARAMETER2
 ;;       ID for CS_MENU_R2PP2R in MIOS_PARAMETER3
@@ -1678,6 +1686,10 @@ CS_MENU_GetHandlerIDs_SIDPreSel	; used by CS_MENU_ParameterUpdate which can call
 	;; copy offset to register entry (must be the first entry!) to tablepointer
 	movff	CS_MENU_ENTRY_TBLPTRL, TBLPTRL
 	movff	CS_MENU_ENTRY_TBLPTRH, TBLPTRH
+	clrf	TBLPTRU		; not stored in RAM, the check below ensures that this doesn't cause a problem
+  IF UPPER(CS_MENU_TABLE_END) != 0
+	ERROR "CS_MENU_TABLE reached the 64k boundary - fix this!"
+  ENDIF
 
 	;; get register address, add it to FSR0L and store it also in CS_MENU_PARAMETER_IX
 	tblrd*+
@@ -1710,6 +1722,10 @@ CS_MENU_Hlp_GetFirstVisibleEntry
 	;; copy pointer to first entry to CS_MENU_ENTRY_TBLPTR[LH]
 	movff	CS_MENU_TABLE_0_L, CS_MENU_ENTRY_TBLPTRL
 	movff	CS_MENU_TABLE_0_H, CS_MENU_ENTRY_TBLPTRH
+	clrf	TBLPTRU		; not stored in RAM, the check below ensures that this doesn't cause a problem
+  IF UPPER(CS_MENU_TABLE_END) != 0
+	ERROR "CS_MENU_TABLE reached the 64k boundary - fix this!"
+  ENDIF
 
 	;; calc offset to first visible entry:
 	movf	CS_MENU_PAGE_OFFSET, W
@@ -1727,6 +1743,10 @@ CS_MENU_Hlp_GetCursorPosEntry
 	;; copy pointer to first entry to CS_MENU_ENTRY_TBLPTR[LH]
 	movff	CS_MENU_TABLE_0_L, CS_MENU_ENTRY_TBLPTRL
 	movff	CS_MENU_TABLE_0_H, CS_MENU_ENTRY_TBLPTRH
+	clrf	TBLPTRU		; not stored in RAM, the check below ensures that this doesn't cause a problem
+  IF UPPER(CS_MENU_TABLE_END) != 0
+	ERROR "CS_MENU_TABLE reached the 64k boundary - fix this!"
+  ENDIF
 
 	;; calc offset to cursor pos entry:
 	movf	CS_MENU_CURSOR_POS, W

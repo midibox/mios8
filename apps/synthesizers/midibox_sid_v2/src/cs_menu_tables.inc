@@ -1137,3 +1137,7 @@ CS_MENU_TABLE_M_SAV
 	CS_MENU_ENTRY	CS_MENU_SAVE_PATCH,         "P# ", 0x07f, PRINT_SAVE_PAT,   EXEC_SELPAR,     R2PP2R_VAR
 	CS_MENU_ENTRY	SID_Ix_NAME_x,              "do!", 0x07f, PRINT_SAVE_NAME,  EXEC_SAVE_PATCH, R2PP2R_SAVE_NAME
 CS_MENU_TABLE_L_SAV_End
+
+
+	;; end of all tables - required for TBLPTRU check in cs_menu.inc
+CS_MENU_TABLE_END

@@ -116,7 +116,7 @@ SIDSE_B_Handler_Cycle2
 
 
 	;; ------------------------------------------------------------------
-	;; 2nd Cycle: Wavetable Handler
+	;; 2nd Cycle: Sequencer
 	;; ------------------------------------------------------------------
 SIDSE_B_HANDLER_SEQ_MACRO MACRO patch_base, voice_base, seq_base
 	lfsr	FSR0, patch_base
@@ -312,7 +312,7 @@ SIDSE_B_UPDATESTAT_MACRO	MACRO patch_base, voice_base, sid_base, swinsid_mode, s
 #endif
 	iorwf	sid_base + SIDx_V1_CTRL, F, BANKED
 
-	;; voice 2 oscillator has own waveform and voice enable flag, sync and ring are taken over from voice1
+	;; voice 2 oscillator has own waveform and voice enable flag
 	;; no gate/sync if waveform disabled
 	movlw	SID_Ix_B_V2_WAVEFORM
 	movf	PLUSW0, W
@@ -332,7 +332,7 @@ SIDSE_B_UpdateStatRegs_V2Enabled
 	iorwf	sid_base + SIDx_V2_CTRL, F, BANKED
 SIDSE_B_UpdateStatRegs_V2Cont
 
-	;; voice 3 oscillator has own waveform and voice enable flag, sync and ring are taken over from voice1
+	;; voice 3 oscillator has own waveform and voice enable flag
 	movlw	SID_Ix_B_V3_WAVEFORM
 	movf	PLUSW0, W
 	andlw	0x0f

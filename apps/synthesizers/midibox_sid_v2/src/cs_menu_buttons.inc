@@ -687,7 +687,7 @@ CS_MENU_BUTTON_LFO_Sel
 	xorwf	CS_MENU, W
 	bz	CS_MENU_BUTTON_LFO_Sel_Inc
 	call	CS_MENU_GetMenuID_LFO
-	goto	CS_MENU_EXEC_Hlp_ChangeMenu
+	goto	CS_MENU_BUTTON_Hlp_MenuChange
 	
 
 	;; otherwise increment LFO
@@ -850,7 +850,7 @@ CS_MENU_BUTTON_Fil_Sel
 	xorwf	CS_MENU, W
 	bz	CS_MENU_BUTTON_FIL_Sel_Inc
 	call	CS_MENU_GetMenuID_FIL
-	goto	CS_MENU_EXEC_Hlp_ChangeMenu
+	goto	CS_MENU_BUTTON_Hlp_MenuChange
 
 	;; else increment Filter setting
 CS_MENU_BUTTON_FIL_Sel_Inc
@@ -874,7 +874,7 @@ CS_MENU_BUTTON_Fil_Mod
 	xorwf	CS_MENU, W
 	bz	CS_MENU_BUTTON_FIL_Mod_Inc
 	call	CS_MENU_GetMenuID_FIL
-	goto	CS_MENU_EXEC_Hlp_ChangeMenu
+	goto	CS_MENU_BUTTON_Hlp_MenuChange
 
 CS_MENU_BUTTON_FIL_Mod_Inc
 	;; else increment Filter setting

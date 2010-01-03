@@ -90,12 +90,14 @@ SIDSE_L_Handler_ModClearLoop
 	;; modulation only in positive direction
 	clrf	SID_MOD_SRC_L_KEY_L, BANKED
 #if 0
-	movff	SIDL_V1_BASE + SID_Vx_TRANSP_NOTE, 
+	movff	SIDL_V1_BASE + SID_Vx_TRANSP_NOTE, SID_MOD_SRC_L_KEY_H
 #else
-	;; use linear frequency instead, so that sweeps are considered as well
+	;; use linear frequency instead, so that sweeps are considered as well with high resolution
 	movff   SIDL_V1_BASE + SID_Vx_LINEAR_FRQ_H, SID_MOD_SRC_L_KEY_H
+	movff   SIDL_V1_BASE + SID_Vx_LINEAR_FRQ_L, SID_MOD_SRC_L_KEY_L
 	clrc
 	rrf	SID_MOD_SRC_L_KEY_H, F, BANKED
+	rrf	SID_MOD_SRC_L_KEY_L, F, BANKED
 #endif
 #endif
 

@@ -297,12 +297,8 @@ CS_MENU_MS_SendKnob_CC_A
 
 ;; --------------------------------------------------------------------------
 ;;  A knob value should be updated (e.g. based on new Min/Max boundary)
-;;  IN: knob number in WREG
 ;; --------------------------------------------------------------------------
 CS_MENU_MS_UpdateKnob
-	;; store knob number in MIOS_PARAMETER1
-	movwf	MIOS_PARAMETER1
-
 	;; branch depending on selected SID
 	movf	CS_MENU_SID, W
 	bnz	CS_MENU_MS_UpdateKnob_Slave
