@@ -147,7 +147,7 @@ SID_MIDI_B_NoteOn_Loop_Seq
 	;; reset sequencer if voice was not active before
 	;; do this with both voices for proper synchronisation!
 
-	;; only used in master mode
+	;; only done in master mode
 	BRA_IFSET SID_STAT, SID_STAT_CLK_SLAVE, ACCESS, SID_MIDI_B_NoteOn_Loop_Seq_NoR01
 
 	movff	SIDL_V1_BASE + SID_Vx_STATE, WREG

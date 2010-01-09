@@ -519,7 +519,7 @@ SID_VOICE_GetLast_Found
 	xorwf	SID_CURRENT_MIDIVOICE, W, BANKED
 	bnz	SID_VOICE_GetLast_NotFound
 
-	;; if number of available voices has changed in meantime (e.g. Stereo->Mono switch):
+	;; if number of available voices has changed meanwhile (e.g. Stereo->Mono switch):
 	;; check that voice number still < n
 	swapf	SID_CURRENT_VOICE_ASSG, W, BANKED
 	andlw	0x07

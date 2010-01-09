@@ -141,17 +141,18 @@ SID_MIDI_D_NoteOff
 	call	SID_MIDI_Hlp_ChkChnAndSplit
 	bnz	SID_MIDI_D_NoteOff_End
 
-	;; pop note from stack
-	lfsr	FSR2, SID_MV1_BASE + SID_MVx_NOTE_STACK_0
-	call	SID_MIDI_Hlp_PopNote
-	bnz	SID_MIDI_D_NoteOff_End ; ZERO flag cleared: note not found!
-
 	;; branch depending on SEQ/Normal mode
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_D_SEQ_SPEED, WREG
 	andlw	(1 << SID_I_V_SEQ_ON)
 	bnz	SID_MIDI_D_NoteOff_Seq
 
 SID_MIDI_D_NoteOff_Norm
+	;; pop note from stack
+	lfsr	FSR2, SID_MV1_BASE + SID_MVx_NOTE_STACK_0
+	call	SID_MIDI_Hlp_PopNote
+	;; 	bnz	SID_MIDI_D_NoteOff_End ; ZERO flag cleared: note not found!
+	;; not here! we are able to play more drums than note stack depth!
+
 	;; normalize note (1..24) -> SID_CURRENT_MIDIVOICE
 	movf	SID_MIDI_PARAMETER1, W
 	rcall	SID_MIDI_D_Hlp_GetNote
@@ -167,6 +168,11 @@ SID_MIDI_D_NoteOff_Norm
 	rgoto	SID_MIDI_D_NoteOff_End
 
 SID_MIDI_D_NoteOff_Seq
+
+	;; pop note from stack
+	lfsr	FSR2, SID_MV1_BASE + SID_MVx_NOTE_STACK_0
+	call	SID_MIDI_Hlp_PopNote
+	bnz	SID_MIDI_D_NoteOff_End ; ZERO flag cleared: note not found!
 
 	;; select sequence if there is still a note in stack
 	movlw	SID_MVx_NOTE_STACK_PTR

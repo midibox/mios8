@@ -129,7 +129,14 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 <H2> <IMG SRC="images/bullet.gif" ALT=""> CV Outputs </H2>
 
 <P CLASS=DESC>MIDIbox SEQ V4 can control up to 8 analog outputs by connecting an <A HREF="mbhp_aout.html">MBHP_AOUT</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module, or up to 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> modules to the core.</P>
-<P CLASS=DESC>Up to 8 digital triggers (gates) are available at J5A/B of the core module. They have to be enabled with J5_ENABLED set to 1 in MBSEQ_HW.V4 (default). TODO: output voltage is only 3.3V - provide schematic for a buffer circuit - ask for more infos if interested.</P>
+<P CLASS=DESC>Up to 8 digital triggers (gates) are available at J5A/B of the core module. They have to be enabled with J5_ENABLED set to 1 in MBSEQ_HW.V4 (default). The output voltage is only 3.3V - if 5V triggers are required, a <A HREF="http://www.standardics.nxp.com/products/hc/datasheet/74hc541.74hct541.pdf" TARGET="_blank">74HC541</A> can be used as level shifter:
+<UL CLASS=CL>
+  <LI>Pin 1 and 19: OE# connected to ground</LI>
+  <LI>Pin 10: to ground as well</LI>
+  <LI>Pin 20: to 5V</LI>
+  <LI>Pin 2..9 are the inputs (connected to J5A/B)</LI>
+  <LI>Pin 11..18 are the outputs (connected to your synth gear)</LI>
+</UL></P>
 <P CLASS=DESC>For those who cannot get enough, 64 additional drum triggers are available in the DOUT chain. They can be controlled with individual key numbers and trigger a pulse of 1 mS. The used DOUT shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)</P>
 <P CLASS=DESC>Tracks can be assigned to the outputs in the MIDI event menu. It's also possible to route incoming MIDI events to the AOUT/gate triggers in addition (this replaces a CV interface completely). The AOUT channel and trigger routing is described in the <A HREF="midibox_seq_manual_s.html">"Special Pages" chapter of the User Manual</A>.</P>
 
@@ -178,11 +185,6 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
     <TD CLASS=TABCOLOR2>LCDs</TD>
     <TD CLASS=TABCOLOR2>two 2x40 Displaytech "LCD 402A LED"<BR><I>Hot tip: such displays are mostly available at <A HREF="http://www.ebay.com" TARGET="_blank">EBay</A> for less than 10 EUR!</I></TD>
     <TD CLASS=TABCOLOR2>ca. 50 EUR</TD>
-  </TR>
-  <TR>
-    <TD CLASS=TABCOLOR2>BankSticks</TD>
-    <TD CLASS=TABCOLOR2>at least 3 x 24LC512-I/P for Patterns/Song/Mixer Map, Part #4915665 from <A HREF="http://www.farnell.com" TARGET="_blank">Farnell</A>, Part #579-24LC512-I/P from <A HREF="http://www.mouser.com" TARGET="_blank">Mouser</A></TD>
-    <TD CLASS=TABCOLOR2>ca. 9 EUR</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2>44 buttons</TD>

@@ -624,15 +624,15 @@ SIDSE_D_NOTE_Restart
 	clrf	PRODH
 
 	;; delay if ABW (ADSR bug workaround) option active
-	;; this feature works different for drum engine: test flag is set and waveform/frequency are cleared instead
-	;; of clearing the ADSR registers - this approach is called "hard-sync"
+	;; this feature works different for drum engine: test flag is set and waveform is cleared
+	;; instead of clearing the ADSR registers - this approach is called "hard-sync"
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_OPT1_FLAGS, WREG
 	BRA_IFCLR WREG, SID_I_OPT1_FLAGS_ABW, ACCESS, SIDSE_D_NOTE_Restart_NoABW
 SIDSE_D_NOTE_Restart_ABW
 	movlw	0x01
 	movwf	PRODL
 
-	;; clear waveform register and set test flag
+	;; clear waveform register and set test+gate flag
 	call	SIDSE_Hlp_GetSIDFrqPtr
 
 	movlw	0x09
@@ -654,6 +654,7 @@ SIDSE_D_NOTE_Restart_NoABW
 	;; initialize CLR delay counter (could depend on drum type later)
 	movlw	0x01
 	movwf	PRODL
+	clrf	PRODH
 	movlw	SID_Vx_CLR_DELAY_CTR_L
 	movff	PRODL, PLUSW1
 	movlw	SID_Vx_CLR_DELAY_CTR_H
@@ -840,7 +841,7 @@ SIDSE_D_SEQ_ClkStop
 SIDSE_D_SEQ_NoClkStop
 
 	;; exit if not in sequencer mode
-	;; clear gate if sequencer just has been disabled (for proper transitions)
+	;; clear gates if sequencer just has been disabled (for proper transitions)
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_D_SEQ_SPEED, WREG
 	andlw	(1 << SID_I_V_SEQ_ON)
 	bnz	SIDSE_D_SEQ_On
@@ -1237,7 +1238,7 @@ SID_SE_D_NoteOn_SrchILoopBreak
 	movlw	SID_Vx_D_MODEL_BASENOTE
 	movff	TABLAT, PLUSW1
 
-	;; store base note in SID_Vx_MODEL_GATELENGTH
+	;; store gatelength in SID_Vx_MODEL_GATELENGTH
 	tblrd*+			; if != 0, use PAR1 to add offset
 	movf	TABLAT, W
 	bz	SID_SE_D_NoteOn_GL_Sat_Cont

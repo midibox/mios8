@@ -205,12 +205,14 @@ SIDSE_B_Handler_Note_R
 	movff	SIDR_V1_BASE + SID_Vx_STATE,       SIDR_V2_BASE + SID_Vx_STATE
 	movff	SIDR_V1_BASE + SID_Vx_ASSIGNED_MV, SIDR_V2_BASE + SID_Vx_ASSIGNED_MV
 	movff	SIDR_V1_BASE + SID_Vx_NOTE,        SIDR_V2_BASE + SID_Vx_NOTE
+	movff	SIDR_V1_BASE + SID_Vx_ARP_NOTE,    SIDR_V2_BASE + SID_Vx_ARP_NOTE
 	movff	SIDR_V1_BASE + SID_Vx_PLAYED_NOTE, SIDR_V2_BASE + SID_Vx_PLAYED_NOTE
 
 	;; transfer note values and state flags from OSC1 (master) to OSC3 (slave)
 	movff	SIDR_V1_BASE + SID_Vx_STATE,       SIDR_V3_BASE + SID_Vx_STATE
 	movff	SIDR_V1_BASE + SID_Vx_ASSIGNED_MV, SIDR_V3_BASE + SID_Vx_ASSIGNED_MV
 	movff	SIDR_V1_BASE + SID_Vx_NOTE,        SIDR_V3_BASE + SID_Vx_NOTE
+	movff	SIDR_V1_BASE + SID_Vx_ARP_NOTE,    SIDR_V3_BASE + SID_Vx_ARP_NOTE
 	movff	SIDR_V1_BASE + SID_Vx_PLAYED_NOTE, SIDR_V3_BASE + SID_Vx_PLAYED_NOTE
 
 	SIDSE_B_HANDLER_NOTE_MACRO SID_PATCH_BUFFER_SHADOW + SID_Ix_B_S2V1_BASE, SIDR_V1_BASE
@@ -444,7 +446,7 @@ SIDSE_B_SEQ_ClkStop
 	rgoto	SIDSE_B_SEQ_Off_ClrGate
 SIDSE_B_SEQ_NoClkStop
 
-	;; exit if WTO mode not set
+	;; exit if WTO mode not active
 	;; clear gate if WTO just has been disabled (for proper transitions)
 	movlw	SID_Ix_B_Vx_FLAGS2
 	BRA_IFSET PLUSW0, SID_I_B_V_FLAGS2_WT_ONLY, ACCESS, SIDSE_B_SEQ_On
@@ -569,7 +571,7 @@ SIDSE_B_SEQ_NextStep
 
 	;; if 0: new note & gate set
 	;; if 4: gate clear
-	;; if >=6: reset to 1, new note & gate set
+	;; if >=6: reset to 0, new note & gate set
 	movf	PRODL, W
 	bz	SIDSE_B_SEQ_NextStep_GateSet
 	xorlw	4
@@ -630,7 +632,7 @@ SIDSE_B_SEQ_NextStep_NoOv
 	;; "play" the step
 SIDSE_B_SEQ_PlayStep
 
-	;; gate off (without slide) if invalid song number (stop feature - seq >= 8)
+	;; gate off (without slide) if invalid song number (stop feature: seq >= 8)
 	movlw	SID_Ix_B_Vx_SEQ_NUM
 	movf	PLUSW0, W
 	andlw	0xf8
