@@ -398,7 +398,7 @@ SM_NotifyToggle
 	movf	SM_BUTTON_COLUMN, W		 ;  SM_BUTTON_COLUMN -> SM_LAST_COLUMN for LCD display
 	movwf	SM_LAST_COLUMN
 	
-#if 0
+#if 1
 	;; but in this example we just send a note on/off event depending on button status
 	movlw	0x90
 	movwf	MIDI_EVNT0
@@ -412,7 +412,7 @@ SM_NotifyToggle
 	movwf	MIDI_EVNT_VALUE
 	call	MIDI_EVNT_Send
 #else
-	;; Panasonic keyboard
+	;; for Panasonic keyboard
 	movlw	0x90					; MIDI Note On Chan 1
 	movwf	MIDI_EVNT0
 	
