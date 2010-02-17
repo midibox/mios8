@@ -1,52 +1,97 @@
-HEADER 3 MIDI Interface Troubleshooting
+HEADER 3 MIDI Interface Troubleshooting Guide
 
-<H1>MIDI Interface Troubleshooting</H1>
+<H1>MIDI Interface Troubleshooting Guide</H1>
 
-<P CLASS=INFO><I>This page has been written for troubleshooting a core module stuffed with a PIC18F452. For old PIC16F projects see <A HREF="howto_debug_midi_pic16f.html">this page</A></I></P>
+<P CLASS=INFO><I>This guide has been written for troubleshooting the MIDI connections between a PIC based <A HREF="mbhp_core.html">MBHP_CORE</A> module and your Windows/Linux PC or Mac. It is a collection of issues reported by users in the past years, and has been overworked with the launch of MIOS Studio MkII to consider the improved debugging capabilities of this tool.</I>
 
-<P CLASS=INFO>A proper link to your computer is essential for a successful upload of MIOS and MIOS applications, since these programs cannot be uploaded via a PIC programmer, but only via the MIDI interface. Once the bootstrap loader has been burned into the chip, you can put the MBHP_BURNER aside and should focus on getting the MIDI interconnection running.</P>
+<P CLASS=INFO>Please be aware that previous troubleshooting tips which were mentioned in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> are partly obsolete (like trying the expired hex2syx.pl script) or won't work anymore (such as Java based MIOS Studio under newer MacOS versions w/o commercial MIDI driver).</P>
 
-<P CLASS=INFO><B>NEWS:</B> MIOS Studio simplifies the upload of MIOS code. This guide still references the use of MIDI-Ox, this will be changed in future. Please try MIDI-Ox as well as MIOS Studio.</P>
+<P CLASS=INFO>Also the different steps of the test procedure have been rearranged based on experiences in the past. Now we are starting with the most simple checks to ensure that the basic infrastructure is working before going deeper into details like voltage checks, which are mostly not required anymore if you found the error in your MIDI cabling or PC/Mac setup.</P>
 
-<P CLASS=DESC>The bootstrap loader sends an upload request after power-on:<BR>
-<CENTER><IMG SRC="howtodebug/upload_request.gif" alt="" width=240 height=76></CENTER><BR>
-It's some kind of "sign of life" from your PIC. So long as MIOS isn't available, this request will be sent periodically every 2 seconds, otherwise it will only be sent once.</P>
+<P CLASS=INFO>Please don't ask for help in the forum before you haven't worked through this guide. If the guide doesn't cover your issue, please take reference to the steps you already tried - this will help a lot to understand your situation and usually will lead to a faster solution. Previously uncovered issues will be added to this guide to keep it so complete as possible.</P>
 
-<P CLASS=DESC>If this request message doesn't appear, you should first ensure that the most important parts of your core module are soldered properly:
+
+<H2>First tries to contact the PIC via MIDI</H2>
+
+<P CLASS=INFO>A proper MIDI link to your computer is essential for a successful upload of MIOS and MIOS applications. If you purchased a PIC directly from an electronic shop, you will have to burn the <A HREF="mios_bootstrap.html">MIOS Bootloader</A> before with a <A HREF="mbhp_burner.html">PIC Programmer</A>, if you purchased the PIC from Mike, the bootloader is already preprogrammed (so that a PIC programmer isn't required), and if you purchased it from SmashTV, MIOS is preinstalled in addition (advantage: this already allows you to test a LCD without installing MIOS).</P>
+
+<P CLASS=INFO>In any case, you have to ensure that MIOS is running before uploading a MIOS application. MIOS Studio helps you to test this via MIDI even if no LCD is connected.</P>
+
+<P CLASS=INFO>Start MIOS Studio and select the IN (1) and OUT (2) port of the MIDI interface to which you core module is connected:
+<CENTER><IMG SRC="mios_studio/mios_studio_pic_bl.png" width=803 height=359></CENTER></P>
+
+<P CLASS=INFO>MIOS Studio will automatically try to contact the PIC whenever a new MIDI port has been selected, and determine the run state.</P>
+
+<P CLASS=INFO>You can repeat this check by pressing the Query button.</P>
+
+<P CLASS=INFO> In the snapshot above, MIOS hasn't been installed yet (or if the core has been queried within 3 seconds after power-on) - the bootloader will be detected. (3)</P>
+
+<P CLASS=INFO>After a successful MIOS installation, the application should be detected instead:</P>
+
+<CENTER><IMG SRC="mios_studio/mios_studio_pic_app_running.png" width=325 height=162></CENTER></P>
+
+<P CLASS=INFO>Next steps:
 <UL CLASS=CL>
-   <LI><B>TEST PROG1:</B> If you are not sure that the bootstrap loader has been burned successfully, use the verify function of IC-Prog/P18.<BR>
-People who purchased a preburned PIC from SmashTV can be sure that Smash already did this check, and that he also uploaded MIOS via MIDI to ensure that the PIC is booting and that the bootloader is working correctly.</LI>
-   <LI><B>TEST CORE1:</B> ensure that you've stuffed a 10 MHz crystal (parallel cut) to your PIC18F core module</LI>
-   <LI><B>TEST CORE2:</B> only relevant for MBHP_CORE_V1 and MBHP_CORE_V2 PCB: are <A HREF="mbhp/mbhp_core_5.jpg">all 5 jumpers</A> connected to the programming port?</LI>
-   <LI><B>TEST CORE3:</B> Check it visually for bad solderings or missed junctions</LI>
-   <LI><B>TEST CORE4:</B> Check Vdd of the power supply like shown here: <A HREF="howtodebug/mbhp_core_extract_measuring_vdd.gif">mbhp_core_extract_measuring_vdd.gif</A></LI>
-   <LI><B>TEST CORE5:</B> Check the ground of the power supply like shown here: <A HREF="howtodebug/mbhp_core_extract_measuring_gnd.gif">mbhp_core_extract_measuring_gnd.gif</A></LI>
-   <LI><B>TEST CORE6:</B> Check the polarity of your MIDI plugs: <A HREF="howtodebug/mbhp_core_extract_midi_plugs.gif">mbhp_core_extract_midi_plugs.gif</A></LI>
-   <LI><B>TEST CORE7:</B> Check the polarity of the protection diode D1: <A HREF="howtodebug/mbhp_core_extract_d1.gif">mbhp_core_extract_midi_d1.gif</A></LI>
-   <LI><B>TEST CORE8:</B> Check the resistor values at the MIDI Out Port: R8 and R7=220 Ohm (resistor code: red-red-brown)</LI>
-   <LI><B>TEST CORE9:</B> Just to ensure: this diagram shows a crosslink between the core module and your PC: <A HREF="howtodebug/mbhp_core_midi_crosslink.gif">mbhp_core_midi_crosslink.gif</A></LI>
-   <LI><B>TEST CORE10:</B> If you notice a lot of request messages like shown in <A HREF="howtodebug/rxtx_feedback.gif">this snapshot</A>, then there is a short circuit between the Rx and Tx pin of the PIC. Check the tracks which are routed from the MIDI-Link port J11 to the Rx/Tx pins for direct connections (see the <A HREF="mbhp/mbhp_core.gif">layout</A> and <A HREF="mbhp/mbhp_core.pdf">schematic</A>), you could scratch with a screw driver between the tracks to ensure that they are not connected together.</LI>
-   <LI><B>TEST CORE11:</B> The code upload can also fail if no, or a too small bypass cap is connected to the power rails of the PIC. A possible effect is, that for example "F0 F0 F0 F0 7E F0 00 01" will be sent by the PIC instead of the proper SysEx string "F0 00 00 7E 40 ... F7". Another effect could be, that something is received by your MIDI interface, but not displayed by the MIDI monitor because of the invalid MIDI event structure. This all can happen even when the IO and Software loopback test which is discussed below is passing,<BR>
-If this happens, check that the 2200 uF cap (C5 of the core module) is soldered properly. If you are unsure about the state of the cap, since you've re-used it from an old device, try another one.<BR>
-If you are using the optimized PSU for MIDIbox SID, bypass the outer pins of the (not mounted) 7805, so that C5 has contact with the +5V/Ground rails (see also <A HREF="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</A>)!</LI>
-   <LI><B>TEST OUT1:</B> Connect a LED to your MIDI Out port and check if it flickers: <A HREF="howtodebug/mbhp_core_extract_out_led.gif">mbhp_core_extract_out_led.gif</A></LI>
-   <LI><B>TEST OUT2:</B> Somebody noticed in the forum, that the MIDI Out of his core module didn't work because of an "incompatibility issue" with the bench supply he used and the switching PSU of his PC. The solution was to disconnect the middle pin of J12 (ground line of MIDI Out port)</LI>
+  <LI><B>Application is up & running:</B> congratulations! MIOS has been installed successfully and the bidirectional MIDI communication is working. Stop reading here, and start to upload the .hex file of an application (e.g. downloaded from the <A HREF="mios_download.html">MIOS Download</A> page).
+  <LI><B>Only bootloader detected:</B> it seems that MIOS hasn't been installed yet, upload the latest release which can be found at the <A HREF="mios_download.html">MIOS Download</A> page.
+  <LI><B>Only bootloader detected, but you are sure that MIOS was installed before:</B> maybe the application crashes due to a programming error? Report this issue to the guy who implemented the application, and try to get an updated version. The new application can be uploaded via bootloader as well.
+  <LI><B>Only bootloader detected, and you are unsure if MIOS was installed before:</B> just upload MIOS again, it's fast and doesn't hurt!</LI>
+  <LI><B>Neither Bootloader nor Application detected:</B> continue reading the next chapters.
+</UL>
+</P>
+
+<H2>Checking the MIDI Interface via Loopback</H2>
+
+<UL CLASS=CL>
+  <LI><B>TEST PC1:</B> ensure that the MIDI interface of your computer is working: loopback the MIDI Out of your computer to the MIDI In of your computer. Press the Query button, a loopback should be detected as <A HREF="mios_studio/mios_studio_feedback.png">shown here</A>.<BR>
+Send some MIDI notes with the virtual keyboard; MIDI events displayed by the OUT monitor should also be displayed by the IN monitor as <A HREF="mios_studio/mios_studio_feedback_notes.png">shown here</A>.<BR>
+Now test SysEx transfers by typing some arbitrary strings into the MIOS terminal input window as <A HREF="mios_studio/mios_studio_feedback_sysex.png">shown here</A> (note that the MIOS terminal itself is mostly only supported by <A HREF="mios.html">MIOS32</A> - but it's a nice debugging help in this situation.<BR>
 </UL>
 
 
-<P>This should help to locate the problem on the core module site.</P>
-
-<P CLASS=INFO>At the PC site:<BR>
+<P CLASS=INFO>Next steps:
 <UL CLASS=CL>
-   <LI><B>TEST PC1:</B> check the MIDI-Ox configuration - <A HREF="mios/bootstrap_sysex0.gif">have you select the correct ports?</A></LI>
-   <LI><B>TEST PC2:</B> ensure that the MIDI interface of your computer is working: loopback the MIDI Out of your PC to the MIDI In of your PC and send any SysEx dump by using the "Send/Receive SysEx" function of MIDI-Ox. The number of sent bytes must match with the number of received bytes. If it doesn't match, search for a new driver for your MIDI interface/sound card. If not available, you can possibly fix this problem by lowering the Low Level Output Buffer size (normaly set to 2048) and by increasing the output delay (normaly set to 0 ms) in the <A HREF="mios/bootstrap_sysex1.gif">MIDI-Ox SysEx configuration menu</A></LI>
+  <LI><B>Loopback not working at all:</B> there seems to be a problem with your MIDI cable, with the MIDI interface or your the MIDI interface driver (google for solutions).
+  <LI><B>MIDI Notes are received, but no MIOS Terminal messages:</B> it seems that your MIDI interface doesn't handle SysEx messages correctly. See also the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=midi_interface_blacklist" TARGET="_blank">Blacklist</A>. Sometimes it helps to update the driver.
+  <LI><B>Loopback is working in all cases:</B> your MIDI interface works reliable, continue with the next chapter
+</UL>
+</P>
+
+
+<H2>Checking MIDI Connections between Computer and Core</H2>
+
+<UL CLASS=CL>
+   <LI><B>TEST MIDI1:</B> check the MIDI port configuration - are the correct ports selected in MIOS Studio? Important: MIDI In of the core has to be connected to the MIDI Out of your interface, and MIDI Out of the core has to be connected to the MIDI In of your interface (<A HREF="howtodebug/mbhp_core_midi_crosslink.gif">mbhp_core_midi_crosslink.gif</A>).
+   <LI><B>TEST MIDI2:</B> put the PIC out of the socket and loopback the MIDI IO ports at the Rx/Tx pins like demonstrated in <A HREF="howtodebug/mbhp_core_extract_io_loopback.gif">mbhp_core_extract_io_loopback.gif</A>. The core module has to be powered for this test! Repeat the loopback test of the previous chapter.
 </UL>
 
-<P CLASS=INFO>I assume that you do see the upload request string now. Try to upload MIOS, the core should reply with an acknowledge message after every uploaded block like shown here:<BR>
-<CENTER><IMG SRC="howtodebug/upload_acknowledge.gif" alt="" width=243 height=175></CENTER><BR>
-<B>Note:</B> the checksums will differ depending on the program.</P>
 
-<P CLASS=INFO>If nothing happens, your MIDI-In is possibly not working:<BR>
+<P CLASS=INFO>Next steps:
+<UL CLASS=CL>
+  <LI><B>Loopback is working:</B> MIDI In and Out port of your core module are working. The problem is probably related to your PIC or soldering work. Continue at the "Core Tests" chapter.
+  <LI><B>Loopback not working anymore:</B> there seems to be a problem with your core module which requires further analysis - continue with the next chapter
+</UL>
+</P>
+
+
+<H2>Checking the MIDI Output of your Core Module</H2>
+
+<UL CLASS=CL>
+  <LI><B>TEST OUT1:</B> Powercycle (Off/On) the core supply. The core should send one or more upload requests to MIOS Studio, which will be displayed in the MIDI IN window as "f0 00 00 7e 40 &lt;device-id&gt; 01 f7", such as "f0 00 00 7e 40 00 01 f7" - if a different device ID is displayed, change it in the selection above the query button and try to query the core again.
+  <LI><B>TEST OUT2:</B> Connect a LED to your MIDI Out port and check if it flickers: <A HREF="howtodebug/mbhp_core_extract_out_led.gif">mbhp_core_extract_out_led.gif</A></LI>
+  <LI><B>TEST OUT3:</B> Somebody noticed in the forum, that the MIDI Out of his core module didn't work because of an "incompatibility issue" with the bench supply he used and the switching PSU of his PC. The solution was to disconnect the middle pin of J12 (ground line of MIDI Out port)</LI>
+</UL>
+
+<P CLASS=INFO>Next steps:
+<UL CLASS=CL>
+  <LI><B>LED flickers:</B> the PIC is running and the MIDI Out port of your core module is working, continue with checking the MIDI Input circuit.
+  <LI><B>LED doesn't flicker:</B> the problem is probably related to your soldering work. Continue at the "Core Tests" chapter.
+</UL>
+</P>
+
+
+<H2>Checking the MIDI Input of your Core Module</H2>
+
 <UL CLASS=CL>
    <LI><B>TEST IN1A:</B> Check the resistor values at the MIDI In Port: R11=220 Ohm (resistor code: red-red-brown), R6=1.2kOhm (brown-red-red), R5=5.6kOhm (Green-Blue-Red).</LI>
    <LI><B>TEST IN1B:</B> Check that the 6N138 optocoupler is put with the correct pin orientation into the socket! Pin #1 (marked with a notch) shows into the direction of J11!<BR>
@@ -58,12 +103,40 @@ Note that the optocoupler could be damaged if you are trying the wrong pin orien
    <LI><B>TEST IN5:</B> If this doesn't help you to detect the error, continue with the next step - see <A HREF="mbhp/mbhp_core_midiin_debug2.gif">mbhp_core_midiin_debug2.gif</A> -  in this configuration the LED should only be lit when MIDI data is received. The more MIDI events are received a time, the brigther the LED. If the LED isn't lit, check the polarity of the protection diode D1 before the optocoupler (again...). Also check the polarity of the MIDI cable (again...).</LI>
    <LI><B>TEST IN6:</B> Standalone test for the optocoupler: <A HREF="howtodebug/mbhp_core_extract_opto_test.gif">mbhp_core_extract_opto_test.gif</A></LI>
    <LI><B>TEST IN7:</B> A second standalone test for the optocoupler, this time the optocoupler isn't plugged in the core module: <A HREF="howtodebug/mbhp_core_opto_test.gif">mbhp_core_opto_test.gif</A></LI>
-   <LI><B>TEST INOUT1:</B> final check to ensure that all 4 MIDI ports are working: put the PIC out of the socket and loopback the MIDI IO ports at the Rx/Tx pins like demonstrated in <A HREF="howtodebug/mbhp_core_extract_io_loopback.gif">mbhp_core_extract_io_loopback.gif</A>. Send any SysEx dump by using the "Send/Receive SysEx" function of MIDI-Ox. The number of sent bytes must match with the number of received bytes.</A></LI>
 </UL>
 
 <B>Disconnect the LED after the tests, otherwise the PIC won't receive MIDI data!</B>.</P>
 
-<P CLASS=INFO>Additional software checks:<BR>
+<P CLASS=INFO>Next steps:
+<UL CLASS=CL>
+  <LI><B>Any test fails:</B> the problem is probably related to your soldering work. Continue at the "Core Tests" chapter.
+</UL>
+</P>
+
+
+<H2>Core Tests</H2>
+
+
+<UL CLASS=CL>
+   <LI><B>TEST CORE1:</B> ensure that you've stuffed a 10 MHz crystal (parallel cut) to your PIC18F core module</LI>
+   <LI><B>TEST CORE2:</B> n/a anymore.</LI>
+   <LI><B>TEST CORE3:</B> Check it visually for bad solderings or missed junctions</LI>
+   <LI><B>TEST CORE4:</B> Check Vdd of the power supply like shown here: <A HREF="howtodebug/mbhp_core_extract_measuring_vdd.gif">mbhp_core_extract_measuring_vdd.gif</A></LI>
+   <LI><B>TEST CORE5:</B> Check the ground of the power supply like shown here: <A HREF="howtodebug/mbhp_core_extract_measuring_gnd.gif">mbhp_core_extract_measuring_gnd.gif</A></LI>
+   <LI><B>TEST CORE6:</B> Check the polarity of your MIDI plugs: <A HREF="howtodebug/mbhp_core_extract_midi_plugs.gif">mbhp_core_extract_midi_plugs.gif</A></LI>
+   <LI><B>TEST CORE7:</B> Check the polarity of the protection diode D1: <A HREF="howtodebug/mbhp_core_extract_d1.gif">mbhp_core_extract_midi_d1.gif</A></LI>
+   <LI><B>TEST CORE8:</B> Check the resistor values at the MIDI Out Port: R8 and R7=220 Ohm (resistor code: red-red-brown)</LI>
+   <LI><B>TEST CORE9:</B> n/a anymore.</LI>
+   <LI><B>TEST CORE10:</B> If you notice a lot of request messages like shown in <A HREF="howtodebug/rxtx_feedback.gif">this snapshot</A>, then there is a short circuit between the Rx and Tx pin of the PIC. Check the tracks which are routed from the MIDI-Link port J11 to the Rx/Tx pins for direct connections (see the <A HREF="mbhp/mbhp_core_v3.gif">layout</A> and <A HREF="mbhp/mbhp_core_v3.pdf">schematic</A>), you could scratch with a screw driver between the tracks to ensure that they are not connected together.</LI>
+   <LI><B>TEST CORE11:</B> The code upload can also fail if no, or a too small bypass cap is connected to the power rails of the PIC. A possible effect is, that for example "F0 F0 F0 F0 7E F0 00 01" will be sent by the PIC instead of the proper SysEx string "F0 00 00 7E 40 ... F7". Another effect could be, that something is received by your MIDI interface, but not displayed by the MIDI monitor because of the invalid MIDI event structure. This all can happen even when the IO and Software loopback test which is discussed below is passing,<BR>
+If this happens, check that the 2200 uF cap (C5 of the core module) is soldered properly. If you are unsure about the state of the cap, since you've re-used it from an old device, try another one.<BR>
+If you are using the optimized PSU for MIDIbox SID, bypass the outer pins of the (not mounted) 7805, so that C5 has contact with the +5V/Ground rails (see also <A HREF="mbhp/mbhp_4xsid_c64_psu_optimized.pdf">mbhp_4xsid_c64_psu_optimized.pdf</A>)!</LI>
+</UL>
+
+
+
+<H2>Addendum for Experts who own a PIC programmer</H2>
+
 <UL CLASS=CL>
    <LI><B>TEST SW1:</B> The bootstrap loader is normaly sufficient for MIDI In and Out Port checks, but under special circumstances an alternative firmware makes sense to get a better understanding about the root cause for a non-working code upload.<BR>
 The <A HREF="mios/sw_loopback_test.zip">software implemented loopback test</A> is a .hex file can be programmed directly into the PIC.<BR>
@@ -71,9 +144,9 @@ Connect the MIDI OUT of your MIDIbox with the MIDI IN of your computer and the M
    <LI><B>TEST SW2:</B> (only relevant if you've programmed the bootloader with your own PIC programmer): some PIC programmers are not able to modify the ID field, which specifies the MIOS device ID, the LCD type and especially the to-COM option (alternative baudrate). This wouldn't be a problem so long the ID is completely zero (common case), but unfortunately the ID field is FFFFFFFFFFFFFFFF by default. <A HREF="mios/mios_bootstrap_picstart_workaround_v1.zip">This program</A> fixes the ID field, details are described in the main.asm header</LI>
 </UL>
 
-<P CLASS=INFO><B>Sidenote:</B> if you own a <A HREF="mbhp_ltc.html">MBHP_LTC</A> module, debugging with a LED will be easier since the LEDs are buffered and therefore don't have to be disconnected when communicating with another MIDI device.</P>
 
-<P CLASS=INFO>If these tips don't help, it cannot be excluded that the MIDI interface of your PC doesn't work. Especially gameports are sometimes not reliable - mostly because of a driver issue or wrong BIOS settings (IRQ enabled?). Some soundcards are shipped with a buggy driver, which has to be updated (e.g. Soundblaster Audigy, SEK'D Prodif, ...). Cheap MIDI adapters without optocoupler mostly don't work, in this case it's better to make a 1:1 connection via the MIDIbox Link port of your core module like shown in <A HREF="mbhp/mbhp_midi_gameport.gif">mbhp_midi_gameport.gif</A>.</P>
+<H2>In any case...</H2>
+
 
 <P CLASS=INFO><B>Good Luck!</B></P>
 
