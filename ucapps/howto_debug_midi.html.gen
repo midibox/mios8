@@ -43,7 +43,7 @@ HEADER 3 MIDI Interface Troubleshooting Guide
 <H2>Checking the MIDI Interface via Loopback</H2>
 
 <UL CLASS=CL>
-  <LI><B>TEST PC1:</B> ensure that the MIDI interface of your computer is working: loopback the MIDI Out of your computer to the MIDI In of your computer. Press the Query button, a loopback should be detected as <A HREF="mios_studio/mios_studio_feedback.png">shown here</A>.<BR>
+  <LI><B>TEST PC1:</B> ensure that the MIDI interface of your computer is working: loopback the MIDI Out of your computer to the MIDI In of your computer with a MIDI cable. Press the Query button, a loopback should be detected as <A HREF="mios_studio/mios_studio_feedback.png">shown here</A>.<BR>
 Send some MIDI notes with the virtual keyboard; MIDI events displayed by the OUT monitor should also be displayed by the IN monitor as <A HREF="mios_studio/mios_studio_feedback_notes.png">shown here</A>.<BR>
 Now test SysEx transfers by typing some arbitrary strings into the MIOS terminal input window as <A HREF="mios_studio/mios_studio_feedback_sysex.png">shown here</A> (note that the MIOS terminal itself is mostly only supported by <A HREF="mios.html">MIOS32</A> - but it's a nice debugging help in this situation.<BR>
 </UL>
@@ -53,7 +53,7 @@ Now test SysEx transfers by typing some arbitrary strings into the MIOS terminal
 <UL CLASS=CL>
   <LI><B>Loopback not working at all:</B> there seems to be a problem with your MIDI cable, with the MIDI interface or your the MIDI interface driver (google for solutions).
   <LI><B>MIDI Notes are received, but no MIOS Terminal messages:</B> it seems that your MIDI interface doesn't handle SysEx messages correctly. See also the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=midi_interface_blacklist" TARGET="_blank">Blacklist</A>. Sometimes it helps to update the driver.
-  <LI><B>Loopback is working in all cases:</B> your MIDI interface works reliable, continue with the next chapter
+  <LI><B>Loopback is working in all cases:</B> it seems that your MIDI interface works reliable, continue with the next chapter
 </UL>
 </P>
 
@@ -140,7 +140,7 @@ If you are using the optimized PSU for MIDIbox SID, bypass the outer pins of the
 <UL CLASS=CL>
    <LI><B>TEST SW1:</B> The bootstrap loader is normaly sufficient for MIDI In and Out Port checks, but under special circumstances an alternative firmware makes sense to get a better understanding about the root cause for a non-working code upload.<BR>
 The <A HREF="mios/sw_loopback_test.zip">software implemented loopback test</A> is a .hex file can be programmed directly into the PIC.<BR>
-Connect the MIDI OUT of your MIDIbox with the MIDI IN of your computer and the MIDI IN of your MIDIbox with the MIDI OUT of your computer. Turn on your MIDIbox. Activate the virtual MIDI Keyboard in MIDI-OX. Press some keys (Q-W-E-R-T-Y...) and check the messages in the MIDI-OX window. If you only see the KEYBOARD events, the RxTx firmware doesn't forward the incoming MIDI bytes to the MIDI out. If you see a lot of messages after typing once the keyboard, you possibly have a MIDI feedback loop (check the MIDI Port menu). If you see the messages like on <A HREF="howtodebug/midibox_debug_rxtx.gif">this picture</A> (every event twice), the MIDI In- and Out port is working.<BR><B>Note:</B> newer MIDI-Ox releases provide a separate input and output window.<BR><B>Note2:</B> the RD4 pin (CORE::J14) toggles on each incoming MIDI byte, this is a nice additional debugging help.</LI>
+Connect the MIDI OUT of your MIDIbox with the MIDI IN of your computer and the MIDI IN of your MIDIbox with the MIDI OUT of your computer. Turn on your MIDIbox and try the loopback tests "TEST MIDI2", but w/o bridging Rx/Tx. <B>Note:</B> the RD4 pin (CORE::J14) toggles on each incoming MIDI byte, this is a nice additional debugging help.</LI>
    <LI><B>TEST SW2:</B> (only relevant if you've programmed the bootloader with your own PIC programmer): some PIC programmers are not able to modify the ID field, which specifies the MIOS device ID, the LCD type and especially the to-COM option (alternative baudrate). This wouldn't be a problem so long the ID is completely zero (common case), but unfortunately the ID field is FFFFFFFFFFFFFFFF by default. <A HREF="mios/mios_bootstrap_picstart_workaround_v1.zip">This program</A> fixes the ID field, details are described in the main.asm header</LI>
 </UL>
 
