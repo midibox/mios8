@@ -4,6 +4,12 @@
 ; Setup File for a MIDIbox16E without LED rings
 ; see also http://midibox.org/forums/index.php?/topic/13806-need-help/page__pid__123966__st__0
 ;
+; Overview Button/LED/Encoder assignments:
+;   Buttons connected to DIN SR 1, 2, 3, 4, 5, 6, 7, 8 (64 buttons)
+;   LEDs connected to DOUT SR 1, 2, 3, 4, 5, 6, 7, 8 (64 LEDs)
+;   Encoders connected to DIN SR 9, 10, 11, 12 (16 encoders)
+;
+;
 ; Number of connected encoders: 1-64
 #define DEFAULT_NUMBER_ENCS	16	; number of connected encoders
 ; NOTE: the encoders have to be assigned to the DIN pins in mios_tables.inc
@@ -105,10 +111,10 @@
 #define DEFAULT_DIN_SR_PIN_09_16	3
 #define DEFAULT_DIN_SR_PIN_17_24	1
 #define DEFAULT_DIN_SR_PIN_25_32	4
-#define DEFAULT_DIN_SR_PIN_33_40	9
-#define DEFAULT_DIN_SR_PIN_41_48	10
-#define DEFAULT_DIN_SR_PIN_49_56	11
-#define DEFAULT_DIN_SR_PIN_57_64	12
+#define DEFAULT_DIN_SR_PIN_33_40	5
+#define DEFAULT_DIN_SR_PIN_41_48	6
+#define DEFAULT_DIN_SR_PIN_49_56	7
+#define DEFAULT_DIN_SR_PIN_57_64	8
 ;
 ; Datawheel for menu navigation/data entry connected or not?
 ; A datawheel can replace the left/right buttons!
