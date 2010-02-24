@@ -14,7 +14,7 @@ GPASM_DEFINES =
 
 # default rule that defines the .hex files which should be created
 # note: always require a "cleanall", since dependencies (e.g. on .h and .inc files) are not properly declared
-all: cleanall setup_midibox_sid.hex setup_midibox_seq.hex setup_midibox_lc.hex setup_midibox_mf.hex setup_midibox64e.hex setup_midibox16e.hex
+all: cleanall setup_midibox_sid.hex setup_midibox_seq.hex setup_midibox_lc.hex setup_midibox_mf.hex setup_midibox64e.hex setup_midibox16e.hex setup_midibox16e_without_ledrings.hex
 
 
 # include the asm_only.mk file
