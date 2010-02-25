@@ -1,0 +1,142 @@
+#!/bin/sh
+# $Id: mios-gpasm 310 2008-05-01 17:49:18Z tk $
+#
+# MIOS specific wrapper for gpasm
+#
+# Executes gpasm
+# Swaps FSR0/FSR1 related registers if "-fixasm" is added to command line
+# to ensure compatibility with MIOS register usage for SDCC generated files
+#
+# Thorsten Klose (2008-02-03)
+#
+# SYNTAX: mios-gpasm <[-fixasm]> <gpasm-options> file
+#
+
+# store command args
+ARGS=$@
+
+# set to 1 if "-fixasm" is found in commandline
+FIXASM=0
+
+# set to 1 if "-o" or "--output" has been found in commandline (ommits to add our own -o option)
+RENAME_OUTPUT_FILE=1
+
+# holds remaining options
+declare -a GPASM_OPTIONS
+
+# holds file(s)
+declare -a GPASM_FILES
+
+
+# go through command line arguments
+while (( "$#" )); do
+
+  # add .asm and .s files to GPASM_FILES list
+  # memo: see http://www.linuxtopia.org/online_books/bash_guide_for_beginners/sect_10_03.html
+  # for hints about variable substitution
+  if [[ "${1:${#1}-4}" == ".asm" || "${1:${#1}-2}" == ".s" || "${1:${#1}-2}" == ".S" ]]; then
+    GPASM_FILES=( "${GPASM_FILES[@]}" $1 )
+  else 
+    # fixasm option passed?
+    if [[ "$1" == "-fixasm" ]]; then
+      FIXASM=1
+    else
+      # all other options stored in GPASM_OPTIONS array
+      GPASM_OPTIONS=( "${GPASM_OPTIONS[@]}" $1 )
+    fi
+
+    # -o or --output passed?
+    if [[ "$1" == "-o" || "$1" == "--output" ]]; then
+      # output file already specified
+      RENAME_OUTPUT_FILE=0
+    fi
+  fi
+
+  shift
+
+done
+
+# for debugging
+#echo "FIXASM $FIXASM"
+#echo "RENAME_OUTPUT_FILE $RENAME_OUTPUT_FILE"
+#echo "GPASM_OPTIONS ${GPASM_OPTIONS[@]}"
+#echo "GPASM_FILES ${GPASM_FILES[@]}"
+
+if [ "$FIXASM" -eq 0 ]; then
+  # pass arguments directly to gpasm if -fixasm not specificied
+  gpasm $ARGS
+else
+  # convert assembler file(s), and pass to gpasm
+  # note that gpasm only supports a single file - this is just to make it somehow future-proven
+  for FILE in ${GPASM_FILES[@]}; do
+    # determine extension
+    EXT=0
+    if [[ "${FILE:${#FILE}-4}" == ".asm" ]]; then
+      EXT=".asm"
+      FILE_WITHOUT_EXT="${FILE:0:${#FILE}-4}"
+    else
+      if [[ "${FILE:${#FILE}-2}" == ".s" ]]; then
+        EXT=".s"
+        FILE_WITHOUT_EXT="${FILE:0:${#FILE}-2}"
+      else
+        if [[ "${FILE:${#FILE}-2}" == ".S" ]]; then
+          EXT=".S"
+          FILE_WITHOUT_EXT="${FILE:0:${#FILE}-2}"
+        fi
+      fi
+    fi
+
+#    echo "$FILE $EXT $FILE_WITHOUT_EXT";
+
+    # check if EXT valid
+    if [ "$EXT" == "0" ]; then
+      echo "ERROR $0: not able to determine the file extension of ${FILE}"
+      exit 1
+    fi
+
+    # this is out temp file for converted assembler code
+    TMP_FILE="${FILE_WITHOUT_EXT}__mios-gpasm-tmp${EXT}"
+    echo "$0 modifies ${FILE}, result in ${TMP_FILE}"
+
+    # convert file with sed
+
+    # to prevent "Error - section '.registers' can not fit the absolute section. Section '.registers' start = 0x00000000, length=0x00000003"
+    # for MIOS it is also required to set the start address to 0x010
+
+    # many MIOS functions are using FSR1[LH] as internal working pointer. 
+    # FSR1 is used as stack pointer by SDCC --- to avoid problems, I'm
+    # swapping FSR1x and FSR0x
+    # note: the sed 3.02 version of msys (-> DOS) doesn't allow the usage of \s or \s+ or \t
+    # therefore I'm using .* instead (I don't like it! Please inform me if you know a better solution)
+    sed \
+      -e 's/^\.registers.*udata_ovr.*0x0000/.registers udata_ovr 0x0010 ;; normaly 0x0000, changed by mios-gpasm/g' \
+      -e 's/^INDF1.*equ.*0xfe7/INDF1 equ 0xfef ;; normaly 0xfe7, changed by mios-gpasm/g' \
+      -e 's/^POSTINC1.*equ.*0xfe6/POSTINC1 equ 0xfee ;; normaly 0xfe6, changed by mios-gpasm/g' \
+      -e 's/^POSTDEC1.*equ.*0xfe5/POSTDEC1 equ 0xfed ;; normaly 0xfe5, changed by mios-gpasm/g' \
+      -e 's/^PREINC1.*equ.*0xfe4/PREINC1 equ 0xfec ;; normaly 0xfe4, changed by mios-gpasm/g' \
+      -e 's/^PLUSW1.*equ.*0xfe3/PLUSW1 equ 0xfeb ;; normaly 0xfe3, changed by mios-gpasm/g' \
+      -e 's/^FSR1H.*equ.*0xfe2/FSR1H equ 0xfea ;; normaly 0xfe2, changed by mios-gpasm/g' \
+      -e 's/^FSR1L.*equ.*0xfe1/FSR1L equ 0xfe9 ;; normaly 0xfe1, changed by mios-gpasm/g' \
+      -e 's/^INDF0.*equ.*0xfef/INDF0 equ 0xfe7 ;; normaly 0xfef, changed by mios-gpasm/g' \
+      -e 's/^POSTINC0.*equ.*0xfee/POSTINC0 equ 0xfe6 ;; normaly 0xfee, changed by mios-gpasm/g' \
+      -e 's/^POSTDEC0.*equ.*0xfed/POSTDEC0 equ 0xfe5 ;; normaly 0xfed, changed by mios-gpasm/g' \
+      -e 's/^PREINC0.*equ.*0xfec/PREINC0 equ 0xfe4 ;; normaly 0xfec, changed by mios-gpasm/g' \
+      -e 's/^PLUSW0.*equ.*0xfeb/PLUSW0 equ 0xfe3 ;; normaly 0xfeb, changed by mios-gpasm/g' \
+      -e 's/^FSR0H.*equ.*0xfea/FSR0H equ 0xfe2 ;; normaly 0xfea, changed by mios-gpasm/g' \
+      -e 's/^FSR0L.*equ.*0xfe9/FSR0L equ 0xfe1 ;; normaly 0xfe9, changed by mios-gpasm/g' \
+      "${FILE}" > "${TMP_FILE}"
+
+    # rename .o file?
+    O_OPTION=""
+    if [ "$RENAME_OUTPUT_FILE" -ne 0 ]; then
+      O_OPTION="-o ${FILE_WITHOUT_EXT}.o"
+    fi
+
+    # finally execute gpasm
+    CMDLINE="${GPASM_OPTIONS[@]} ${TMP_FILE} ${O_OPTION}"
+#    { gpasm $CMDLINE; } && { echo "ERROR $0: 'gpasm ${CMDLINE}' exited with error status."; exit 1; }
+# strange: why does it always return error status under DOS?
+    gpasm $CMDLINE
+
+  done
+fi
