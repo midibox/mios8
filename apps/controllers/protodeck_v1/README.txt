@@ -8,6 +8,18 @@ See also http://www.julienbayle.net/diy/protodeck/
 
 =====================================================================================
 
+THE PROTODECK controller features:
+- 87 potentiometers
+- 90 buttons
+- 81 rgb leds
+- 2 PIC 18F4620 (20MHz RISC processors)
+- fully custom rgb led drivers
+- fully custom firmware
+- 2 MIDI IN/OUT interface
+- power supply unit included in the box 
+
+=====================================================================================
+
  Copyright protofuse (aka julien.bayle)
 
  Licensed for personal non-commercial use only.
