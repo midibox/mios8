@@ -4,7 +4,7 @@ mk_syx.pl                                                         tk@midibox.org
 --------------------------------------------------------------------------------
 
 The perl script mk_syx.pl converts a MIDIbox .ini file into a 
-.syx (SysEx) file which can be transfered to the MIDIbox via MIDI-OX 
+.syx (SysEx) file which can be transfered to the MIDIbox via MIOS Studio 2
 or any other SysEx Loader
 
 Note that this script version works only for the PIC18F based variant of 
@@ -61,11 +61,11 @@ How to start the script?
 How to transfer the .syx file?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   - Start MIDI-OX
-   - make sure that SysEx is enabled: Options->Pass SysEx must be checked
-   - start the SysEx tool with View->SysEx
-   - configure the data transfer: open SysEx->Configure
-   - set the delay between sysex blocks ("Delay after F7") to 750 mS
-   - load the generated .syx file and transfer it to the MIDIbox
+   - Start MIOS Studio 2
+   - select the MIDI In and Out ports
+   - start the SysEx tool with Tools->SysEx Tool
+   - ensure that the delay between sysex blocks is set to 750 mS
+   - load the .syx file
+   - press the SEND button
 
    See http://www.uCApps.de/howto_tools_mbsyx.html for more detailed instructions

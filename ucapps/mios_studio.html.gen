@@ -1,0 +1,81 @@
+HEADER 3 MIOS Studio 2
+
+<H1>MIOS Studio 2</H1>
+
+<CENTER><IMG SRC="mios_studio/mios_studio.png" width=803 height=676></CENTER></P>
+
+<P CLASS=INFO>MIOS Studio 2 is a <A HREF="http://www.rawmaterialsoftware.com/juce.php" TARGET="_blank">Juce</A> based, platform-independent MIDI processing environment which allows to upload an application binary to a <A HREF="mbhp_core.html">MIOS8</A> and <A HREF="mbhp_core_stm32.html">MIOS32</A> core. It also provides MIDI monitors, a virtual MIDI keyboard, a terminal to MIOS32 communicate with MIOS32 applications (partly also used by MIOS8 applications), a SysEx transfer tool and configuration tools for <A HREF="midio128.html">MIDIO128</A> and <A HREF="midibox_cv.html">MIDIbox CV</A>.</P>
+
+
+<H2>Four simple steps to upload a MIOS application</H2>
+<P CLASS=INFO>Start MIOS Studio and select the IN (1) and OUT (2) port of the MIDI interface to which you core module is connected:
+<CENTER><IMG SRC="mios_studio/mios_studio_4steps.png" width=802 height=386></CENTER></P>
+
+<P CLASS=INFO>MIOS Studio will automatically try to contact the core whenever a new MIDI port has been selected, and determine the run state. The detected application will be displayed in the query window.</P>
+
+<P CLASS=INFO>You can repeat this check by pressing the Query button.</P>
+
+<P CLASS=INFO>Select the .hex file you want to upload by pressing the browser button (3).</P>
+
+<P CLASS=INFO>Thereafter press the start button to upload the binary (4).</P>
+
+<P CLASS=INFO><B>DONE!</B> - if the upload should fail, please continue at the <A HREF="howto_debug_midi.html">MIDI troubleshooting guide</A>.
+
+
+<H2>MIOS Terminal</H2>
+
+<P CLASS=INFO>The MIOS Terminal is a very helpful debugging help for MIOS32 applications. It outputs strings which are sent by the <A HREF="http://midibox.org/mios32/manual/group___m_i_o_s32___m_i_d_i.html#gf5287553167123159564141481c02146" TARGET="_blank">MIOS32_MIDI_SendDebugMessage</A> or <A HREF="http://midibox.org/mios32/manual/group___m_i_o_s32___m_i_d_i.html#g29d708043a134724a68a9dad3c8e897b" TARGET="_blank">MIOS32_MIDI_SendDebugHexDump</A> function.</P>
+
+<P CLASS=INFO>Some MIOS32 applications even provide an interactive command interface:</P>
+
+<CENTER><IMG SRC="mios_studio/mios_studio_terminal32.png" width=802 height=218></CENTER></P>
+
+<P CLASS=INFO>A small number of MIOS8 applications are sending messages to the terminal as well, e.g. to give you instructions for testing pin connections:</P>
+
+<CENTER><IMG SRC="mios_studio/mios_studio_terminal8.png" width=801 height=331></CENTER></P>
+
+<P CLASS=INFO>Note: MIOS8 won't respond to a command string sent to the PIC microcontroller. This feature is provided by MIOS32 only!</P>
+
+
+<H2>SysEx Tool</H2>
+
+<P CLASS=INFO>A simple SysEx upload/download/load/save/edit tool which should be self-explaining:
+<CENTER><IMG SRC="mios_studio/mios_studio_sysex.png" width=863 height=529></CENTER></P>
+
+<H2>MIDIO128 Configuration Tool</H2>
+
+<H2>MIDIO128 Tool</H2>
+
+<P CLASS=INFO>Allows you to configure the <A HREF="midio128.html">MIDIO128</A> application:
+<CENTER><IMG SRC="mios_studio/mios_studio_midio128.png" width=862 height=528></CENTER></P>
+
+
+<H2>MIDIbox CV Tool</H2>
+
+<P CLASS=INFO>Allows you to configure the <A HREF="midibox_cv.html">MIDIbox CV</A> application:
+<CENTER><IMG SRC="mios_studio/mios_studio_mbcv.png" width=862 height=293></CENTER></P>
+
+
+
+<H2>Download</H2>
+
+<P CLASS=INFO>
+<UL CLASS=CL>
+  <LI><A HREF="mios_studio/MIOS_Studio_2_0.zip">MIOS_Studio_2_0 for WinXP/Vista/Win7</A>
+  <LI><A HREF="mios_studio/MIOS_Studio_2_0.app.zip">MIOS_Studio_2_0.app for MacOS 10.5/10.6</A>
+</UL>
+
+<H2>Known Issues</H2>
+
+<P CLASS=INFO>Firstly it should be highlighted, that the Juce based MIOS Studio 2 solved all MIDI uploading issues of V1 which were mainly related to the MIDI API of Java implemented by Sun and Apple (or third party vendors)!</P>
+
+<P CLASS=INFO>Currently there is only one known issue:
+<UL CLASS=CL>
+<LI><B>Windows7 64bit:</B> the SysEx communication gets stucked if a MIOS32 core opens more than one USB port (like MIDIbox SEQ V4).<BR>
+<B>Workarounds:</B> SysEx transfers are working stable if the bootloader is selected via J27 jumper, since it only opens a single USB port. Alternatively code can be uploaded properly through the common MIDI serial interface</P>
+</UL>
+
+<P CLASS=INFO>However, there is hope that either Microsoft will fix this issue, or that a workaround will be integrated into Juce</P>
+
+
+FOOTER

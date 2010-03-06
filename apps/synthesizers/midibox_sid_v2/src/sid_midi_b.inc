@@ -169,7 +169,7 @@ SID_MIDI_B_NoteOn_Loop_Seq_NoR01
 	rcall	SID_MIDI_B_Hlp_SetSeq
 
 	;; always set voice active flag of both voices to ensure that they are in sync
-	;; ensure that this is only done for instruments where WTO (sequence) is selected
+	;; ensure that this is only done for instruments where WTO (sequencer enabled) is selected
 	SET_BSR	SIDL_V1_BASE
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_B_S1V1_BASE + SID_Ix_B_Vx_FLAGS2, WREG
 	btfsc	WREG, SID_I_B_V_FLAGS2_WT_ONLY

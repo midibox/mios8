@@ -23,77 +23,20 @@ HEADER 3 MIOS Bootstrap Loader for Newbies
 <TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0>
 
   <TR>
-    <TD><A HREF="mios_download.html" TARGET="_blank"><IMG SRC="images/midibox_logo.gif" WIDTH=160 ALT="Link to MIOS Studio"></A></TD>
+    <TD><A HREF="mios_download.html" TARGET="_blank"><IMG SRC="mios_studio/mios_studio_icon.png" WIDTH=128 HEIGHT=128 ALT="Link to MIOS Studio"></A></TD>
     <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM> <A HREF="mios_download.html" TARGET="_blank">Download MIOS Studio</A> - this is a Java based environment with MIOS specific tools which runs on PCs and Macs.</SPAN></TD>
-  </TR>
-
-  <TR>
-    <TD><A HREF="http://java.sun.com" TARGET="_blank"><IMG SRC="mios/mios_download_java.gif" WIDTH=163 HEIGHT=84 ALT="Link to java.sun.com"></A></TD>
-    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM> Download the <A HREF="http://java.sun.com" TARGET="_blank">Java Runtime Environment</A> for your computer if it isn't installed yet.<BR>
-     MacOS users need to install a com.apple.audio.midi replacement like mmj, Plumstone or Mandolane as described in the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mios_studio" TARGET="_blank">Wiki</A></SPAN></TD>
-  </TR>
-
-  <TR>
-    <TD>&nbsp;</TD>
-    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM>Crossconnected the MIDI ports of the core module with the MIDI ports of your computer:
-<UL CLASS=CL>
-  <LI>MIDI In Core -> MIDI Out PC/Mac</LI>
-  <LI>MIDI Out Core -> MIDI In PC/Mac</LI>
-</UL></SPAN></TD>
-  </TR>
-
-  <TR>
-    <TD><A HREF="mios/mios_studio1.gif"><IMG SRC="mios/mios_studio1_small.gif" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
-    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM>Open the MIDI Device Routing window of MIOS Studio, Right-click on the MIDI In Port of your MIDI device, and route it to "MIOS Studio In Port"</SPAN></TD>
-  </TR>
-
-  <TR>
-    <TD><A HREF="mios/mios_studio2.gif"><IMG SRC="mios/mios_studio2_small.gif" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
-    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM>Right-click on the MIDI Out Port of the MIDI device, and route it to "MIOS Studio Out port". Now the tools of MIOS Studio can communicate with the core.</SPAN></TD>
-  </TR>
-
-  <TR>
-    <TD><A HREF="mios/mios_studio3.gif"><IMG SRC="mios/mios_studio3_small.gif" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
-    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM></SPAN>Open the MIDI In Monitor - it will propably display periodically repeating SysEx messages, which are received each 2 seconds. This is an "upload request" from the primary bootstrap loader. The loader sends this request each time after power-on to say "I'm up and running". Once you've uploaded MIOS, only a single request will sent after power-on. This identicates, that the operating system is installed properly.</SPAN></TD>
-  </TR>
-
-  <TR>
-    <TD>&nbsp;</TD>
-    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM>If you don't see the upload request, then please read the <A HREF="howto_debug_midi.html">MIDI troubleshooting guide</A>, which is a collection of typical problems.</SPAN></TD>
-  </TR>
-
-  <TR>
-    <TD><A HREF="mios/mios_studio4.gif"><IMG SRC="mios/mios_studio4_small.gif" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
-    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM>Presumed, that you can see the request message, open the upload window and select the memory image (.hex file) of the most recent MIOS release. Although this snapshot shows mios_v1_8.hex, a new version could be available in the meantime. Please always use the latest release!<BR>MIOS as well as the applications can be downloaded from <A HREF="mios_download.html">this page</A>.</SPAN></TD>
+    <TD><SPAN CLASS=NORM> <A HREF="mios_studio.html" TARGET="_blank">Download MIOS Studio</A> - this is a Juce based environment with MIOS specific tools which runs on PCs and Macs.</SPAN></TD>
   </TR>
 
 </TABLE>
 
-<P CLASS=DESC>If no error has been reported by the upload tool (to ensure this, scroll up the log window and check all status messages), it can be assumed that MIOS is installed. After the reboot, you should only see one upload request. If a LCD is connected to the core, a copyright message, and short time later a READY. should appear on the screen.</P>
+<P CLASS=DESC>Once the most recent <A HREF="mios_download.html">MIOS Release</A> has been installed on the PIC, the core will reboot and MIOS Studio should display that an application is up&running. If a LCD is connected to the core, a copyright message, and short time later a READY. should appear on the screen.</P>
 
 <H2>Uploading an application</H2>
 
 <P CLASS=DESC>Now you can upload an application, just while MIOS is running. You can exchange the application whenever you want, the system will always reboot after the upload (thats not an error), so that the application can be initialized properly. Note that it is not possible to run multiple applications in parallel - a new application will always overwrite the old one.</P>
 
-<TABLE ALIGN=CENTER CELLSPACING=20 CELLPADDING=0>
-
-  <TR>
-    <TD><A HREF="mios/mios_studio6.gif"><IMG SRC="mios/mios_studio6_small.gif" WIDTH=160 HEIGHT=128 ALT=""></A></TD>
-    <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM>In this example, the main.hex file of <A HREF="midimon.html">MIDImon</A> is uploaded. The LCD will display all incoming MIDI events - it's nice for debugging MIDI instruments without a computer.</SPAN></TD>
-  </TR>
-
-</TABLE>
-
-<P CLASS=DESC>With the <A HREF="midimon.html">MIDImon</A> application you will face a new issue - hardware configuration! The application cannot determine, which LCD is connected to the core. By default it is configured for big 4x20 LCDs, if only a 2x16 LCD is connected, some parts of the trace messages won't be visible. However, the programmer of this application was kind enough to integrate some hardware options into the program. Such options can mostly be found in the main.asm file of assembly based apps, and in the main.h file of C based applications (sometimes there is also a README.txt which gives a basic overview). <A HREF="howto_tools_gpasm.html">This HowTo</A> describes the required procedure to edit the code and to build a new .hex file.</P>
+<P CLASS=DESC>Some applications require hardware configuration! E.g. an application cannot determine, which LCD is connected to the core. Such options can mostly be found in the main.asm or setup_*.asm file of assembly based apps, and in the main.h file of C based applications (sometimes there is also a README.txt which gives a basic overview). <A HREF="howto_tools_gpasm.html">This HowTo</A> describes the required procedure to edit the code and to build a new .hex file.</P>
 
 <H2>Additional Hints</H2>
 
@@ -112,7 +55,6 @@ There are two adequate solutions to overcome this:
     <LI><B>the Expert method:</B> select the "Don't use feedback from core" option in the upload window of MIOS Studio, ensure that you've loaded the right .hex file and you've selected the right device ID. Enable the MIDI merger of the master by pressing the Link button on the control surface (if you haven't built it yet, you should prefer the newbie method), and press the start button - MIOS Studio will send all code blocks without waiting for a response. This method is easy to handle, but also dangerous if a block hasn't been received completely (e.g. on an unstable MIDI connection), because you won't get a notification. Therefore please select "Use feedback from core" so long a bidirectional connection is possible.</LI>
   </UL></LI>
   <LI>Please note: like every MIOS application, change_id won't work so long MIOS hasn't been installed. So, please upload MIOS first, thereafter upload the desired .hex file of the change_id application.
-  <LI>If MIOS Studio doesn't work on your computer for some reasons, then you could use the hex2syx script in order to upload code with a common MIDI monitor. More infos <A HREF="howto_tools_hex2syx.html">at this page</A>.
 </UL>
 </P>
 
