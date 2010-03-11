@@ -1,7 +1,7 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2010-01-12</H3></CENTER>
+<CENTER><H3>Last Release: 2010-03-12</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
@@ -9,6 +9,69 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 
 <UL CLASS=CL>
 
+
+<LI><I>V4.0beta17</I>
+  <UL>
+   <LI> implemented "Sessions" concept. Now you can change between different setups
+     stored on a single SD Card.<BR>
+     See <A HREF="http://www.ucapps.de/midibox_seq_manual_sessions.html">this page for more informations</A>
+
+   <LI> Sessions can be opened/saved/created in the main menu (press EXIT button)
+
+   o your old session isn't lost, it's just at the wrong place.<BR>
+     To take over this session:
+     <UL CLASS=CL>
+       <LI> enter MSD mode (UTILITY-&gt;DISK)
+       <LI> create a backup of all *.V4 files on your PC (recommented for Beta17!!!)
+       <LI> create a /SESSIONS directory if it doesn't exist yet
+       <LI> create a session subdirectory (8 characters maximum)<BR>
+         if you name it "DEFAULT", it will be loaded after startup!
+       <LI> copy following files:<BR>
+         MBSEQ_B1.V4, MBSEQ_B2.V4, MBSEQ_B3.V4, MBSEQ_B4.V4, <BR>
+         MBSEQ_S.V4, MBSEQ_G.V4, MBSEQ_C.V4<BR>
+       <LI> create a second session subdirectory
+       <LI> copy following files:
+         MBSEQ_B5.V4, MBSEQ_B6.V4, MBSEQ_B7.V4, MBSEQ_B8.V4, <BR>
+         MBSEQ_S.V4, MBSEQ_G.V4, MBSEQ_C.V4<BR>
+       <LI> rename these files to MBSEQ_B1.V4 to MBSEQ_B4.V4
+       <LI> don't copy MBSEQ_HW.V4 (always read from root directory)
+       <LI> remove the copied *.V4 files from root directory, or move
+         them to another directory for backup
+       <LI> unmount the SD Card on your computer
+       <LI> wait until MSD mode is disabled!
+       <LI> press EXIT, thereafter OPEN the session by pressing GP button 9
+    </UL>
+  <LI> changed default track configuration to 256 steps/4 parameter layers
+    since it's more useful in most cases
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+
+<LI><I>V4.0beta16</I>
+  <UL>
+  <LI>MIDI-&gt;Section Control: Octaves which are not taken for section selection
+  can now be optionally forwarded to a configurable MIDI port.<BR>
+  This saves you from adding a keyboard splitter to your MIDI keyboard, if
+  you want to play a MIDI instrument from an unused keyboard zone.
+
+  <LI>fixed bug in live recording function (notelength sometimes not recorded correctly)
+
+  <LI>MIOS terminal functions have been added. Just enter "help" in the terminal
+    which has been integrated into <A HREF="mios_studio.html">MIOS Studio 2</A>
+
+  <LI>copy function now works correctly together with the section concept
+
+  <LI>Follow function now available as dedicated button and with key combination MENU+EXIT
+
+  <LI>the Follow Song option under UTILITY-&gt;Options has been removed. The selected
+    follow mode won't be stored on SD Card anymore. Follow is deactivated after
+    power-on and has to be manually enabled (e.g. by pressing MENU+EXIT)
+
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 
 <LI><I>V4.0beta15</I>
   <UL>
@@ -26,7 +89,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
     8 sections are available which can be selected with Key C/C#/D/D#/E/F#/F/F#/G<BR>
 
 
-    It is recommented to activate the "Follow" function under UTILITY->OPTIONS
+    It is recommented to activate the "Follow" function under UTILITY-&gt;OPTIONS
     when using this feature, so that the edit display gets automatically updated
     whenever the section is changed.</LI>
 
@@ -52,7 +115,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 <LI><I>V4.0beta14</I>
   <UL>
   <LI> prepared support for MBHP_BLM_SCALAR.<BR>
-    The MIDI port can be configured in Options menu (Utility->Opt.)
+    The MIDI port can be configured in Options menu (Utility-&gt;Opt.)
 
   <LI> various minor bugfixes
   </UL>
@@ -86,7 +149,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
       with other users
       <LI> you can view and edit the files with a common text editor.
     </UL>
-    The preset functions are available in the MENU->EVENT page<BR>
+    The preset functions are available in the MENU-&gt;EVENT page<BR>
     You've to create a "presets" directory in the root directory of 
     your SD Card before using this feature (the DOSFS driver used 
     by MBSEQ doesn't support "mkdir")
@@ -109,22 +172,22 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 <LI><I>V4.0beta10</I>
   <UL>
   <LI> Tracks/Patterns/Songs can now be exported to a MIDI file.<BR>
-    The appr. menu function is available under UTILITY->DISK->Export
+    The appr. menu function is available under UTILITY-&gt;DISK-&gt;Export
 
   <LI> a simple MIDI In/Out monitor page has been added.<BR>
-    The page can be entered via MENU+MIDI->MIDI Monitor (GP 16 button).<BR>
+    The page can be entered via MENU+MIDI-&gt;MIDI Monitor (GP 16 button).<BR>
 
     MIDI Clock and Active Sense events are filtered by default. The
     filter option can be changed by pressing SELECT in the MIDI Monitor page.
 
-  <LI> separated "pattern length" from "measure length" parameter in UTILITY->OPT menu.
+  <LI> separated "pattern length" from "measure length" parameter in UTILITY-&gt;OPT menu.
     Pattern length is used for synchronized pattern changes, and measure
     length for the Synch-to-Measure function.<BR>
 
     The left encoder below the item allows to select 16 step wise, the right
     encoder and datawheel stepwise.
 
-  <LI> Paste/Clr behaviour option in UTILITY->OPT menu implemented now
+  <LI> Paste/Clr behaviour option in UTILITY-&gt;OPT menu implemented now
 
   <LI> HWCFG file option "BUTTONS_NO_UI" implemented now
   </UL>
@@ -149,7 +212,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
   <LI> now your MIDIbox SEQ can play MIDI files, either exclusively or in parallel to
     the 16 sequencer tracks.<BR>
     MIDI files have to be copied into the /midi directory of your SD Card.<BR>
-    To select a MIDI file, go to the UTIL->DISK->PLAY page, and select
+    To select a MIDI file, go to the UTIL-&gt;DISK-&gt;PLAY page, and select
     the desired modes (Exclusive/Parallel and Loop on/off)
 
   <LI> MIDI file import and export prepared in UI, but not implemented yet!
@@ -170,10 +233,10 @@ HEADER 3 ChangeLog of MIDIbox SEQ
     characters, selecting a preset (with the encoder) and to exit the editor.
 
   <LI> implemented synchronous pattern change after x steps (x=1..256)
-    This function has to be enabled in the UTIL->OPT page.<BR>
+    This function has to be enabled in the UTIL-&gt;OPT page.<BR>
     The same number of steps is used for the Synch-to-Measure function.
 
-  <LI> implemented Follow Song mode. It has to be enabled in UTIL->OPT menu.
+  <LI> implemented Follow Song mode. It has to be enabled in UTIL-&gt;OPT menu.
 
   <LI> a warning message will be print if Synch-to-Measure is enabled, and a 
     track length greater than steps per measure is selected.
@@ -206,7 +269,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
     Now copy .syx files into these directories which should be sent to the
     devices later.<BR>
 
-    Thats all! On your MIDIbox SEQ, change to the MENU-&ugt;SYSEX menu, the
+    Thats all! On your MIDIbox SEQ, change to the MENU-&gt;SYSEX menu, the
     devices will be displayed on screen. Select a device to browse through
     the file list. Select a file to send the dump.<BR>
 
@@ -274,8 +337,8 @@ HEADER 3 ChangeLog of MIDIbox SEQ
       <LI> if a SD Card without Banks/Songs/Mixer Maps is connected, the appr.
         files won't be created automatically anymore.
       <LI> messages are print on the PATTERN/SONG and MIXER page to inform
-        that files have to be created from the UTILITY->DISK menu
-      <LI> in the DISK->UTILITY menu you will find a special option at the left
+        that files have to be created from the UTILITY-&gt;DISK menu
+      <LI> in the DISK-&gt;UTILITY menu you will find a special option at the left
         side which allows to start the formatting process (in fact, the SD
         Card won't be formatted, but some files will be created)
       <LI> there is now a nice progress bar which informs about the state
