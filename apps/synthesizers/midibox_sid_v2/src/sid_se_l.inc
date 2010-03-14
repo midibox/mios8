@@ -1501,7 +1501,7 @@ SIDSE_L_MOD
 	movf	PLUSW0, W
 	xorlw	0x80
 	skpnz
-	rgoto	SIDSE_L_MOD_End
+	rgoto	SIDSE_L_MOD_IsZero
 
 	;; copy first source to SID_SE_MOD_SRC1_[LH]
 	movlw	SID_Ix_MODx_SRC1
@@ -1840,7 +1840,7 @@ SIDSE_L_MOD_OP_Cont
 	movf	MUL_A_L, W, BANKED
 	iorwf	MUL_A_H, W, BANKED
 	skpnz
-	rgoto	SIDSE_L_MOD_End
+	rgoto	SIDSE_L_MOD_IsZero
 
 	;; scale by MOD depth		; (zero check already at top of MOD function)
 	movlw	SID_Ix_MODx_DEPTH
@@ -1961,6 +1961,18 @@ SIDSE_L_MOD_COPYTARG_MACRO_Skip
 
 SIDSE_L_MOD_End
 	return
+
+SIDSE_L_MOD_IsZero
+	;; store in METER_VALUES array for optional visualisation on the modulation matrix
+#if !DEFAULT_SAMMICHSID_CS
+	;; not if sammichSID display mode is selected
+	clrf	MIOS_PARAMETER1
+	movf	SID_SE_ELEMENT_NUM, W, BANKED
+	call	CS_MENU_MATRIX_MeterSet
+	;; uses FSR1 !!!
+#endif
+	return
+	
 
 ;; help function which is used to add the result to a specific target (pointer in FSR2)
 SIDSE_L_MOD_Hlp_AddTarget1
