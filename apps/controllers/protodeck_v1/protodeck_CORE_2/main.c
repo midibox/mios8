@@ -17,7 +17,7 @@
  *
  * ==========================================================================
  *
- *  Copyright 2009 protofuse (aka julien.bayle)
+ *  Copyright 2009-2010 protofuse (aka julien.bayle)
  *	Inspired by noofny/mike code
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
@@ -45,8 +45,6 @@ app_flags_t app_flags;
 /////////////////////////////////////////////////////////////////////////////
 // Local variables
 /////////////////////////////////////////////////////////////////////////////
-
-//unsigned static int current_sysex_package = -1;
 
 // we create a 2-dimensional array with 64 entries for mapping between potentiometers movements & events associated
 // each entry consists of two bytes:
@@ -123,6 +121,23 @@ const unsigned char button_event_map[32][2] = {
 		{0x90, 0x57},   {0x90, 0x58},	{0x90, 0x59},   {0x90, 0x5A}
 };
 
+// define the LCD cursor positions
+#define LCD_LINE1_ADDR 0
+#define LCD_LINE2_ADDR 40
+
+#define LCD_Line1       MIOS_LCD_CursorSet(LCD_LINE1_ADDR);
+#define LCD_Line2       MIOS_LCD_CursorSet(LCD_LINE2_ADDR);
+
+void LCDhello() {
+
+        MIOS_LCD_Clear();
+
+        LCD_Line1;
+        MIOS_LCD_PrintCString("protodeck firmware  ");
+        LCD_Line2;
+        MIOS_LCD_PrintCString("v1.4 // julien bayle");
+		
+}
 
 // we create a 1-dimensional array with 32 entries for leds colors storage
 // each entry consists of 1 byte coded like that:
@@ -144,6 +159,15 @@ static unsigned char matrix[32] ;
 	unsigned char flash_ctr;
 #endif
 
+
+// LCD stuff
+// **song information
+unsigned int current_song = 0;
+
+// **drums fx status
+unsigned int BR_status;
+unsigned int GD_status;
+unsigned int RX_status;
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS after startup to initialize the
 // application
@@ -183,7 +207,8 @@ void Init(void) __wparam
 	MIOS_DOUT_SRSet(3, 0);
 
 	// hello sequence
-	DoStartupSequence();
+	LCDhello() ; 			// LCD
+	DoStartupSequence();	// Leds
 	
 		// note on hello from core2
 	MIOS_MIDI_BeginStream();
@@ -191,6 +216,9 @@ void Init(void) __wparam
 	MIOS_MIDI_TxBufferPut(0x7F);
 	MIOS_MIDI_TxBufferPut(0x7F);
 	MIOS_MIDI_EndStream();
+	
+	MIOS_Delay(250);
+	MIOS_Delay(250);
 }
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS in the mainloop when nothing else is to do
@@ -214,6 +242,20 @@ void Timer(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Init(void) __wparam
 {
+
+  // clear screen
+  MIOS_LCD_Clear();
+
+  // print static messages
+  LCD_Line1;
+  MIOS_LCD_PrintCString("SONG   |   BR GD RX ");
+  LCD_Line2;
+  MIOS_LCD_PrintCString(" 00    |   0  0  0  ");
+
+  // request display update
+  app_flags.DISPLAY_UPDATE_REQ = 1;
+
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -222,6 +264,30 @@ void DISPLAY_Init(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Tick(void) __wparam
 {
+
+  // do nothing if no update has been requested
+  if( !app_flags.DISPLAY_UPDATE_REQ )
+    return;
+
+  // clear request
+  app_flags.DISPLAY_UPDATE_REQ = 0;
+  
+  // print current SONG
+  MIOS_LCD_CursorSet(0x40 + 1);
+  MIOS_LCD_PrintBCD2(current_song);
+ 
+  // print drums beat repeat fx status
+  MIOS_LCD_CursorSet(0x40 + 11);
+  MIOS_LCD_PrintBCD2(BR_status);
+ 
+  // print drums grain delay fx status
+  MIOS_LCD_CursorSet(0x40 + 14);
+  MIOS_LCD_PrintBCD2(GD_status);
+
+  // print drums redux/reso fx status
+  MIOS_LCD_CursorSet(0x40 + 17);
+  MIOS_LCD_PrintBCD2(RX_status);
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -231,7 +297,7 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 {
 	if( (evnt0 & 0xf0) == 0x90)								// being sure that this is a note message
 	{
-		if(evnt1 >= _NOTE_MATRIX_OFFSET && evnt1 <= 0x7A)	// being sure parsing message for DOUT21 (matrix[] bounds are implicitely verified)
+		if(evnt1 >= _NOTE_MATRIX_OFFSET && evnt1 <= 0x71)	// being sure parsing message for DOUT21 (matrix[] bounds are implicitely verified)
 		{
 			unsigned char noteIndex = evnt1;
 			unsigned char value = evnt2;
@@ -241,6 +307,18 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 		{
 			 ClearMatrix();
 		}
+		else if(evnt1 == 0x7C)	// update the current observed song
+		{
+			 current_song = evnt2;
+			 
+			 // notify display handler in DISPLAY_Tick() that current song has changed
+			 app_flags.DISPLAY_UPDATE_REQ = 1;
+		}
+		
+		// update the drums FXs state on the LCD
+		else if(evnt1 == 0x78) 	{ BR_status = evnt2; app_flags.DISPLAY_UPDATE_REQ = 1; }
+		else if(evnt1 == 0x79) 	{ GD_status = evnt2; app_flags.DISPLAY_UPDATE_REQ = 1; }
+		else if(evnt1 == 0x7A) 	{ RX_status = evnt2; app_flags.DISPLAY_UPDATE_REQ = 1; }
 	}
 
 	/*
