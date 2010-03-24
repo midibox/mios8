@@ -2408,6 +2408,46 @@ SIDSE_Filter_IP
 	rcall	SIDSE_Hlp_IP
 SIDSE_Filter_NoIP
 
+	;; map to calibration table in sid_filter_table.inc
+#if 1
+	;; convert 16bit to 12bit value and create table pointer
+	;; to save CPU cycles, we assume that the table is located at 0x17000
+  IF LOW(SID_FILTER_TABLE) != 0x00
+    ERROR "SID_FILTER_TABLE assigned to wrong address, expecting 0x17000"
+  ENDIF
+  IF HIGH(SID_FILTER_TABLE) != 0x70
+    ERROR "SID_FILTER_TABLE assigned to wrong address, expecting 0x17000"
+  ENDIF
+  IF UPPER(SID_FILTER_TABLE) != 0x01
+    ERROR "SID_FILTER_TABLE assigned to wrong address, expecting 0x17000"
+  ENDIF
+
+	swapf	IRQ_TMP1, W
+	andlw	0x0e		; bit #0 always 0 to ensure correct alignment
+	movwf	TBLPTRL
+	swapf	IRQ_TMP2, W
+	andlw	0xf0
+	iorwf	TBLPTRL, F
+	swapf	IRQ_TMP2, W
+	andlw	0x0f
+	addlw	HIGH(SID_FILTER_TABLE)
+	movwf	TBLPTRH
+	movlw	UPPER(SID_FILTER_TABLE)
+	movwf	TBLPTRU
+
+	;; read low-byte
+	tblrd*+
+	swapf	TABLAT, F	; SID format: 3 lowes bits in bit [2:0] of low-register
+	clrc
+	rrf	TABLAT, F
+	movlw	SIDx_FC_L
+	movff	TABLAT, PLUSW2
+
+	;; read high-byte
+	tblrd*+
+	movlw	SIDx_FC_H
+	movff	TABLAT, PLUSW2
+#else
 	;; convert to 11bit value (SID format: 3 lowes bits in bit [2:0] of low-register)
 	swapf	IRQ_TMP1, W
 	rrf	WREG, W
@@ -2419,6 +2459,7 @@ SIDSE_Filter_NoIP
 	movff	IRQ_TMP3, PLUSW2
 	movlw	SIDx_FC_H
 	movff	IRQ_TMP2, PLUSW2
+#endif
 
 	;; Forward CutOff and Resonance to AOUT if enabled
 	movff	SID_LOCAL_ENS + SID_ENSx_CTRL2, WREG

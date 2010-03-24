@@ -22,7 +22,7 @@
 ; ==========================================================================
 ;
 ; Version:                <-------------------->
-#define MBSID_VERSION_STR "MIDIboxSID V2.0RC35 "
+#define MBSID_VERSION_STR "MIDIboxSID V2.0RC36 "
 ; (fixed string length - 20 characters!)
 
 ;; MBNET specific definitions (ping reply information - don't touch this!)
@@ -783,6 +783,9 @@ AIN_NotifyChange_Loop_Next
 
 ;; ---[ SIDplay module ]---
 #include "sidplay.inc"
+
+;; ---[ Filter calibration table (switches to static address, accordingly should be included after code, but before presets ]---
+#include "sid_filter_table.inc"
 
 ;; ---[ SID EEPROM content ]---
 #include "sid_presets.inc"
