@@ -131,6 +131,9 @@ This page shows animated VU meters for each instrument (to give you an overview 
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>2 (32 steps only)</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>16</TD> </TR>
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>2</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>256</TD> <TD CLASS=TABCOLOR2>2 (64 steps only)</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>64</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>16</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>256</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>4</TD> </TR>
 </TABLE>
 </LI>
 <LI>Parameter layers can be assigned to following functions:
@@ -641,6 +644,8 @@ Incoming events will be immediately inserted into the selected track. If the cur
 <P CLASS=DESC>Any incoming CC number will be converted to the target CC as specified by the EVENT mode. This means, that you can use a single controller (e.g. a Modulation Wheel) to record the different CC lines.</P>
 <P CLASS=DESC><B>AStart: </B> synchronized auto start of track recording. To use this feature, the sequencer has to be stopped. With the first played note, the sequencer will start and store the note into the first step.</P>
 <P CLASS=DESC><B>TglGate: </B> toggles the gate of the currently select step. Useful to quickly enable/disable a step in step recording mode.</P>
+<P CLASS=DESC><B>Port: </B> the MIDI port to which your MIDI keyboard is connected.</P>
+<P CLASS=DESC><B>Chn: </B> the MIDI channel used for recording.</P>
 
 <P><center><object width="400" height="225">	<param name="allowfullscreen" value="true" />	<param name="allowscriptaccess" value="always" />	<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" />	<embed src="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="225"></embed></object><br /><a href="http://vimeo.com/1628550?pg=embed&amp;sec=1628550" TARGET="_blank">Midibox Sequencer V3 for Live Recording</a> from <a href="http://vimeo.com/user710438?pg=embed&amp;sec=1628550" TARGET="_blank">Stuart Mitchell</a></center></P>
 
@@ -837,7 +842,25 @@ Each track has an animated VU meter to display the MIDI activity.</P>
 <UL CLASS=CL>
   <LI><B>Backup:</B> copies all MBSEQ_*.V4 files from the root directory into a backup/n directory (n is a number between 1 and MAX_INT). The directories already have to exist in the file system. Means: you have to prepare them from Windows/MacOS/Linux! The first empty directory which will be found will be taken for the backup. It will take some minutes (ca. one cigarette break)!</LI>
   <LI><B>MSD USB:</B> enables the "Mass Storage Device" driver, which turns your MIDIbox SEQ into a SD Card reader. Once enabled, the SD Card should be automatically mounted by your operating system (Windows/MacOS/Linux). USB MIDI will be disabled. The LEDs of the CS could flicker on each disk operation! It overrules the USB MIDI driver, which will be available again once the SD Card has been unmounted from the operating system.</LI>
-  <LI><B>MIDI File Import:</B> not implemented yet (beta11).</LI>
+  <LI><B>MIDI File Import:</B> allows to import MIDI files, stored in the midi/ directory of your SD Card.<BR>
+    <CENTER><IMG SRC="midibox_seq/cs4/disk_i1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG><BR>
+    All tracks are imported at once (up to 16) in the same order they are stored in the .mid file. Accordingly, track assignments can be done within the .mid file before it is imported (e.g. edit the .mid file with your DAW)<BR>
+    Currently only MIDI Notes and drums are supported (no CCs, no Pitchbender).<BR>
+    To import drum tracks, change the import mode from "Note" to "Drum". This mode especially allows to control the velocity of each step separately.<BR>
+    Currently drum instruments are only mapped to a pre-selection of 4/8/16 notes - this map cannot be customized yet!<BR>
+    Since MIDIbox SEQ is a step sequencer, notes will be quantised with a selectable resolution (16th, 32th or 64th).<BR>
+    Also the number of layers/drum instruments is selectable (4, 8 or 16). <BR>
+    Than more layers are available, than more notes can be played at the same step. In "Note" mode, all notes share the same velocity and length value, in "Drum" mode each step and instrument has a dedicated velocity value.<BR>
+    If the imported track contains different velocity or length values for polyphonic played notes, and this characteristic is important, it is recommented to split the track into multiple pieces (e.g. for long and for short notes) and to import them into separate MBSEQ tracks.<BR>
+    Another hint: if notes of the imported track don't start exactly at the 16th/32th/64th note position (e.g. because they have a "swing" feel), it is recommented to quantize the notes in a DAW before the import.<BR>
+    The swing feel can be added again after the import (GROOVE page).<BR>
+    All tracks will be initialized depending on the selected resolution and layers before the import is started. Than higher the resolution, or than more layers are selected, than less bars can be imported (number of bars is displayed on screen).<BR>
+    The MIDI port will always be set to DEFAULT during import. The MIDI channel will be set to the channel of the first played note (for each track separately).<BR>
+    MIDI Files can be imported while the sequencer is running. This allows you to search for a certain file, but also to try different parameters during runtime.<BR>
+    Here two MP3 examples of patterns that have been imported, and that are played by MBSEQ (and not by a MIDI player...).<BR>
+    Virus-like tunes: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv4_import_tunes.mp3"#ffffff**<BR>
+    Drum pattern at 64th resolution: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv4_import_drum.mp3"#ffffff**
+</LI>
   <LI><B>MIDI File Export:</B> this function allows you to export Tracks, Patterns or Songs to a MIDI file, stored in the midi/ directory of your SD Card. This directory has to be created with a computer if it doesn't already exist.<BR>
     <CENTER><IMG SRC="midibox_seq/cs4/disk_e1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG><BR>
     By pressing the button a dialog page will be entered which allows to select the options:
