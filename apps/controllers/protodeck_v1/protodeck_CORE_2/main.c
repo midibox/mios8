@@ -1,5 +1,5 @@
 /*
- * CORE 2 PART FOR THE PROTODECK CONTROLLER
+ * CORE 2 PART FOR THE PROTODECK CONTROLLER	// 1.42
  * main.c
  *
  * Note: hardware settings (e.g. number of pots, muxed/unmuxed mode) are specified in main.h
@@ -130,18 +130,48 @@ const unsigned char button_event_map[32][2] = {
 
 void LCDhello() {
 
+		unsigned int x;
         MIOS_LCD_Clear();
 
         LCD_Line1;
         MIOS_LCD_PrintCString("protodeck firmware  ");
         LCD_Line2;
-        MIOS_LCD_PrintCString("v1.4 // julien bayle");
+        MIOS_LCD_PrintCString("v1.42 4/4/10 j.bayle");
 		
+		// show this while 2s
+		MIOS_Delay(250);
+		MIOS_Delay(250);
+		MIOS_Delay(250);
+		MIOS_Delay(250);
+		MIOS_Delay(250);
+		MIOS_Delay(250);
+		MIOS_Delay(250);
+		MIOS_Delay(250);
+		
+		// make a . fx
+		for (x = 0; x < 20; x++)
+		{	
+			MIOS_LCD_CursorSet(0x00 + x);
+			MIOS_LCD_PrintChar('.');
+			MIOS_Delay(30);
+		}		
+		
+		for (x = 0; x < 20; x++)
+		{
+			MIOS_LCD_CursorSet(0x40 + x);
+			MIOS_LCD_PrintChar('.');
+			MIOS_Delay(15);
+		}		
+		
+		// show this while 1/2 s
+		MIOS_Delay(250);
+		MIOS_Delay(250);
 }
 
-// we create a 1-dimensional array with 32 entries for leds colors storage
+
+// we create an array with 32 entries for leds colors storage
 // each entry consists of 1 byte coded like that:
-// 0x00 = OFF
+// 0x00 = OFF						
 // 0x10 = RED
 // 0x20 = GREEN
 // 0x40 = BLUE
@@ -152,22 +182,17 @@ void LCDhello() {
 // structure is matrix[]=COLOR
 static unsigned char matrix[32] ;
 
-// blinking stuff
-// thanks TK: http://www.midibox.org/forum/index.php/topic,14129.msg121892.html#msg121892
-#if BLINKING_FEATURE
-	unsigned char matrixBlinkingState[32] ;
-	unsigned char flash_ctr;
-#endif
-
-
 // LCD stuff
 // **song information
 unsigned int current_song = 0;
+unsigned int total_number_of_song = 0;
 
 // **drums fx status
 unsigned int BR_status;
 unsigned int GD_status;
 unsigned int RX_status;
+
+
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS after startup to initialize the
 // application
@@ -179,7 +204,7 @@ void Init(void) __wparam
 	MIOS_MIDI_MergerSet(MIOS_MIDI_MERGER_MBLINK_EP);
 
 	// set shift register update frequency
-	MIOS_SRIO_UpdateFrqSet(1); // ms
+	MIOS_SRIO_UpdateFrqSet(1); // 1ms means a 1000Hz cycle (fast!)
 
 	// we need to set at least one IO shift register pair
 	MIOS_SRIO_NumberSet(NUMBER_OF_SRIO);
@@ -191,26 +216,19 @@ void Init(void) __wparam
 
 	// initialize the AIN driver
 	MIOS_AIN_NumberSet(AIN_NUMBER_INPUTS);
-#if AIN_MUXED_MODE
 	MIOS_AIN_Muxed();
-#else
-	MIOS_AIN_UnMuxed();
-#endif
 	MIOS_AIN_DeadbandSet(AIN_DEADBAND);
-
-
 
 	// all pin of row & column driver low
 	MIOS_DOUT_SRSet(0, 0);
 	MIOS_DOUT_SRSet(1, 0);
 	MIOS_DOUT_SRSet(2, 0);
 	MIOS_DOUT_SRSet(3, 0);
-
+	
 	// hello sequence
-	LCDhello() ; 			// LCD
 	DoStartupSequence();	// Leds
 	
-		// note on hello from core2
+	// note on hello from core2
 	MIOS_MIDI_BeginStream();
 	MIOS_MIDI_TxBufferPut(0x90);
 	MIOS_MIDI_TxBufferPut(0x7F);
@@ -242,20 +260,19 @@ void Timer(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Init(void) __wparam
 {
-
+  LCDhello() ;
+  
   // clear screen
   MIOS_LCD_Clear();
 
   // print static messages
   LCD_Line1;
-  MIOS_LCD_PrintCString("SONG   |   BR GD RX ");
+  MIOS_LCD_PrintCString("SONG   -   BR GD RX ");
   LCD_Line2;
-  MIOS_LCD_PrintCString(" 00    |   0  0  0  ");
+  MIOS_LCD_PrintCString("00/00  -   O  O  O  ");
 
   // request display update
   app_flags.DISPLAY_UPDATE_REQ = 1;
-
-
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -264,30 +281,41 @@ void DISPLAY_Init(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Tick(void) __wparam
 {
+	// do nothing if no update has been requested
+	if( !app_flags.DISPLAY_UPDATE_REQ )
+	return;
 
-  // do nothing if no update has been requested
-  if( !app_flags.DISPLAY_UPDATE_REQ )
-    return;
+	// clear request
+	app_flags.DISPLAY_UPDATE_REQ = 0;
 
-  // clear request
-  app_flags.DISPLAY_UPDATE_REQ = 0;
+	LCD_Line1;
+	MIOS_LCD_PrintCString("SONG   -   BR GD RX "); // be sure the LCD infos 
+	MIOS_LCD_CursorSet(0x40 + 2);
+	MIOS_LCD_PrintCString("/");
+	
+	// print current SONG
+	MIOS_LCD_CursorSet(0x40 + 0);
+	MIOS_LCD_PrintBCD2(current_song);
+
+	// print total number of SONG
+	MIOS_LCD_CursorSet(0x40 + 3);
+	MIOS_LCD_PrintBCD2(total_number_of_song);
+	
+	// print drums beat repeat fx status
+	MIOS_LCD_CursorSet(0x40 + 11);
+	if (BR_status == 1)	MIOS_LCD_PrintChar('O');
+	else if (BR_status == 127)	MIOS_LCD_PrintChar('X');
+	
+	// print drums grain delay fx status
+	MIOS_LCD_CursorSet(0x40 + 14);
+	if (GD_status == 1)	MIOS_LCD_PrintChar('O');
+	else if (GD_status == 127)	MIOS_LCD_PrintChar('X');
+	
+	// print drums redux/reso fx status
+	MIOS_LCD_CursorSet(0x40 + 17);
+	if (RX_status == 1)	MIOS_LCD_PrintChar('O');
+	else if (RX_status == 127)	MIOS_LCD_PrintChar('X');
   
-  // print current SONG
-  MIOS_LCD_CursorSet(0x40 + 1);
-  MIOS_LCD_PrintBCD2(current_song);
- 
-  // print drums beat repeat fx status
-  MIOS_LCD_CursorSet(0x40 + 11);
-  MIOS_LCD_PrintBCD2(BR_status);
- 
-  // print drums grain delay fx status
-  MIOS_LCD_CursorSet(0x40 + 14);
-  MIOS_LCD_PrintBCD2(GD_status);
-
-  // print drums redux/reso fx status
-  MIOS_LCD_CursorSet(0x40 + 17);
-  MIOS_LCD_PrintBCD2(RX_status);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -295,19 +323,15 @@ void DISPLAY_Tick(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
 {
-	if( (evnt0 & 0xf0) == 0x90)								// being sure that this is a note message
+	if ( (evnt0 & 0xf0) == 0x90 )								// being sure that this is a note message
 	{
-		if(evnt1 >= _NOTE_MATRIX_OFFSET && evnt1 <= 0x71)	// being sure parsing message for DOUT21 (matrix[] bounds are implicitely verified)
+		if (evnt1 >= _NOTE_MATRIX_OFFSET && evnt1 <= 0x70)	// being sure parsing message for DOUT21 (matrix[] bounds are implicitely verified)
 		{
 			unsigned char noteIndex = evnt1;
 			unsigned char value = evnt2;
 			matrix[noteIndex - _NOTE_MATRIX_OFFSET] = value;
 		}
-		else if(evnt1 == 0x7D)	// clear the matrix with only one midi message
-		{
-			 ClearMatrix();
-		}
-		else if(evnt1 == 0x7C)	// update the current observed song
+		else if(evnt1 == 0x7b)	// update the current observed song
 		{
 			 current_song = evnt2;
 			 
@@ -318,26 +342,14 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 		// update the drums FXs state on the LCD
 		else if(evnt1 == 0x78) 	{ BR_status = evnt2; app_flags.DISPLAY_UPDATE_REQ = 1; }
 		else if(evnt1 == 0x79) 	{ GD_status = evnt2; app_flags.DISPLAY_UPDATE_REQ = 1; }
-		else if(evnt1 == 0x7A) 	{ RX_status = evnt2; app_flags.DISPLAY_UPDATE_REQ = 1; }
+		else if(evnt1 == 0x7a) 	{ RX_status = evnt2; app_flags.DISPLAY_UPDATE_REQ = 1; }
+		
+		else if (evnt1 == 0x7d)	// clear the matrix with only one midi message
+		{
+			 ClearMatrix();
+		}
+		else if (evnt1 == 0x71)	{ total_number_of_song = evnt2; app_flags.DISPLAY_UPDATE_REQ = 1; }	// total song number
 	}
-
-	/*
-		int channelIndex = evnt0-0x90;
-		int noteIndex = evnt1;
-		unsigned char value = evnt2;
-	#if BLINKING_FEATURE
-		if (value != _BLINKING_OFF_VELOCITY || value != _BLINKING_ON_VELOCITY)
-			matrix[8*(noteIndex - 1 - _NOTE_MATRIX_OFFSET)+channelIndex] = value; //-1 cause note begin at 1 and row at 0
-
-		else if (value == _BLINKING_ON_VELOCITY) // value = 0x7F means blinking state ON
-			matrixBlinkingState[8*(noteIndex - 1 - _NOTE_MATRIX_OFFSET)+channelIndex] = 0x01;
-
-		else if (value == _BLINKING_OFF_VELOCITY) // value = 0x7E means blinking state OFF
-			matrixBlinkingState[8*(noteIndex - 1 - _NOTE_MATRIX_OFFSET)+channelIndex] = 0x00;
-	#else
-		matrix[8*(noteIndex - 1 - _NOTE_MATRIX_OFFSET)+channelIndex] = value;
-	#endif
-	 */
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -366,23 +378,23 @@ void MPROC_NotifyReceivedByte(unsigned char byte) __wparam
 void DisplayLED(unsigned int column, unsigned char color) __wparam
 {
 	color >>= 4;
-	MIOS_DOUT_PinSet(column+8,		(unsigned char)(color & 0x01)); // RED
+	MIOS_DOUT_PinSet(column+8,		(color & 0x01)); 	// RED
 	color >>= 1;
-	MIOS_DOUT_PinSet(column+8+8,	(unsigned char)(color & 0x01)); // GREEN
+	MIOS_DOUT_PinSet(column+8+8,	(color & 0x01)); 	// BLUE
 	color >>= 1;
-	MIOS_DOUT_PinSet(column+8+8+8,	(unsigned char)(color & 0x01));	// BLUE
+	MIOS_DOUT_PinSet(column+8+8+8,	(color & 0x01));	// GREEN
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS before the shift register are loaded
 /////////////////////////////////////////////////////////////////////////////
 void SR_Service_Prepare(void) __wparam
-{
+{	
 	static unsigned int row;
 	static unsigned int lastrow;
 	unsigned int x;
-
-	row = ++row & 0x03;						// row cycling
+	
+	row = ++row & 0x07;						// row cycling
 	MIOS_DOUT_PinSet0(lastrow);				// lastrow OFF
 	MIOS_DOUT_PinSet1(row);					// current row ON
 
@@ -391,35 +403,7 @@ void SR_Service_Prepare(void) __wparam
 		DisplayLED(x , matrix[x+row*8]);	// displaying the led (x,row)
 	}
 	lastrow = row;
-
-	/*
-		static unsigned int row;
-		static unsigned int lastrow;
-		unsigned char color;
-		unsigned int x;
-
-		row = ++row & 0x07;						// row cycling
-		MIOS_DOUT_PinSet0(lastrow);				// lastrow OFF
-		MIOS_DOUT_PinSet1(row);					// current row ON
-
-		for (x = 0; x < 8; x++)
-		{
-	#if BLINKING_FEATURE
-			if( flash_ctr >= 200 ) {
-				flash_ctr = 0;
-				if (matrixBlinkingState[x+row*8] == 0x00)
-						DisplayLED(x , matrix[x+row*8]);	// displaying the led (x,row) not blinking
-				else 	DisplayLED(x , 0x00);			// OFF this led cause it blinks
-			}
-	#else
-			DisplayLED(x , matrix[x+row*8]);
-	#endif
-		}
-		lastrow = row;
-		flash_ctr++;
-	 */
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS after the shift register have been loaded
@@ -462,34 +446,21 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 
 
 // ----------------------------------------------------------------------------------------------------------------
-
 void ClearMatrix(void) __wparam
 {
-	unsigned int index = 0;
+	unsigned int index = 0 ;
 	for (index = 0; index < 64; index++)
 	{
 		matrix[index] = _COLOR_OFF;
 	}
 }
 
-#if BLINKING_FEATURE
-void ClearMatrixBlinking(void) __wparam
-{
-	unsigned int index = 0;
-	for (index = 0; index < 64; index++)
-	{
-		matrixBlinkingState[index] = _COLOR_OFF;
-	}
-}
-#endif
-
 void DoStartupSequence(void) __wparam
 {
-	unsigned int index;
-	unsigned int waitTime=25;
+	unsigned int index = 0 ;
 	for (index = 0; index < 32; index++)
 	{
-		matrix[index] = _COLOR_GREEN ;
-		MIOS_Delay(waitTime);
+		matrix[index] = _COLOR_RED ;
+		MIOS_Delay(20);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * CORE 1 PART FOR THE PROTODECK CONTROLLER
+ * CORE 1 PART FOR THE PROTODECK CONTROLLER	// 1.42
  * main.c
  *
  * Note: hardware settings (e.g. number of pots, muxed/unmuxed mode) are specified in main.h
@@ -17,7 +17,7 @@
  *
  * ==========================================================================
  *
- *  Copyright 2009 protofuse (aka julien.bayle)
+ *  Copyright 2009-2010 protofuse (aka julien.bayle)
  *	Inspired by noofny/mike code
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
@@ -70,7 +70,6 @@ const unsigned char pot_event_map[32][2] = {
 		{0xb0, 0x1D},   {0xb0, 0x1E},   {0xb0, 0x1F},   {0xb0, 0x20}
 };
 
-
 // we create a 2-dimensional array with 64 entries for mapping between switches  push & events associated
 // each entry consists of two bytes:
 //   o one for the first MIDI byte (MIDI status) => 0x9* means Note message for Channel *
@@ -112,7 +111,7 @@ const unsigned char button_event_map[64][2] = { //------- clip matrix control
 		{0x90, 0x3D},   {0x90, 0x3E},   {0x90, 0x3F},   {0x90, 0x40}
 };
 
-// we create a 1-dimensional array with 64 entries for leds colors storage
+// we create an array with 64 entries for leds colors storage
 // each entry consists of 1 byte coded like that:
 // 0x00 = OFF
 // 0x10 = RED
@@ -125,25 +124,6 @@ const unsigned char button_event_map[64][2] = { //------- clip matrix control
 // structure is matrix[]=COLOR
 static unsigned char matrix[64] ;
 
-const unsigned char patternInit[64] = {
-		0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
-		0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
-		0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
-		0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
-		0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
-		0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
-		0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40,
-		0x40,0x40,0x40,0x40,0x40,0x40,0x40,0x40
-};
-
-// blinking stuff
-// thanks TK: http://www.midibox.org/forum/index.php/topic,14129.msg121892.html#msg121892
-#if BLINKING_FEATURE
-	unsigned char matrixBlinkingState[64] ;
-	unsigned char flash_ctr;
-#endif
-
-
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS after startup to initialize the
 // application
@@ -155,7 +135,7 @@ void Init(void) __wparam
 	MIOS_MIDI_MergerSet(MIOS_MIDI_MERGER_MBLINK_FP);
 
 	// set shift register update frequency
-	MIOS_SRIO_UpdateFrqSet(1); // ms
+	MIOS_SRIO_UpdateFrqSet(1); // 1ms means a 1000Hz cycle (fast!)
 
 	// we need to set at least one IO shift register pair
 	MIOS_SRIO_NumberSet(NUMBER_OF_SRIO);
@@ -166,20 +146,15 @@ void Init(void) __wparam
 
 	// initialize the AIN driver
 	MIOS_AIN_NumberSet(AIN_NUMBER_INPUTS);
-#if AIN_MUXED_MODE
 	MIOS_AIN_Muxed();
-#else
-	MIOS_AIN_UnMuxed();
-#endif
 	MIOS_AIN_DeadbandSet(AIN_DEADBAND);
 
-	// arbitrarely delay to wait for core2 (race condition for which core1 which has to win!)
+	// arbitrary delay to wait for core2 (race condition in which core1 has to win!)
 	MIOS_Delay(250);
 	MIOS_Delay(250);
 	MIOS_Delay(250);
 	MIOS_Delay(250);
 	MIOS_Delay(250);
-
 
 	// all pin of row & column driver low
 	MIOS_DOUT_SRSet(0, 0);
@@ -189,7 +164,6 @@ void Init(void) __wparam
 
 	// hello sequence
 	DoStartupSequence();
-	
 	
 	// note on hello from core1
 	MIOS_MIDI_BeginStream();
@@ -236,6 +210,7 @@ void DISPLAY_Tick(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void MPROC_NotifyReceivedByte(unsigned char byte) __wparam
 {
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -243,37 +218,19 @@ void MPROC_NotifyReceivedByte(unsigned char byte) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam
 {
-	if( (evnt0 & 0xf0) == 0x90)				// being sure that this is a note message
+	if ( (evnt0 & 0xf0) == 0x90 )				// being sure that this is a note message
 	{
-		if(evnt1 >= 0x01 && evnt1 <= 0x40)	// being sure parsing a message for DOUT11 (matrix[] bounds are implicitely verified)
+		if (evnt1 >= 0x01 && evnt1 <= 0x40)	// being sure parsing a message for DOUT11 (matrix[] bounds are implicitely verified)
 		{
 			unsigned char noteIndex = evnt1;
 			unsigned char value = evnt2;
 			matrix[noteIndex - 0x01] = value;
 		}
-		else if(evnt1 == 0x7C)	// clear the matrix with only one midi message
+		else if (evnt1 == 0x7c)	// clear the matrix with only one midi message
 		{
 			 ClearMatrix();
 		}
 	}
-
-	/*
-		int channelIndex = evnt0-0x90;
-		int noteIndex = evnt1;
-		unsigned char value = evnt2;
-	#if BLINKING_FEATURE
-		if (value != _BLINKING_OFF_VELOCITY || value != _BLINKING_ON_VELOCITY)
-			matrix[8*(noteIndex - 1 - _NOTE_MATRIX_OFFSET)+channelIndex] = value; //-1 cause note begin at 1 and row at 0
-
-		else if (value == _BLINKING_ON_VELOCITY) // value = 0x7F means blinking state ON
-			matrixBlinkingState[8*(noteIndex - 1 - _NOTE_MATRIX_OFFSET)+channelIndex] = 0x01;
-
-		else if (value == _BLINKING_OFF_VELOCITY) // value = 0x7E means blinking state OFF
-			matrixBlinkingState[8*(noteIndex - 1 - _NOTE_MATRIX_OFFSET)+channelIndex] = 0x00;
-	#else
-		matrix[8*(noteIndex - 1 - _NOTE_MATRIX_OFFSET)+channelIndex] = value;
-	#endif
-	 */
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -298,58 +255,31 @@ void MPROC_NotifyTimeout(void) __wparam
 void DisplayLED(unsigned int column, unsigned char color) __wparam
 {
 	color >>= 4;
-	MIOS_DOUT_PinSet(column+8,		(unsigned char)(color & 0x01));  // RED
+	MIOS_DOUT_PinSet(column+8,		(color & 0x01));  	// RED
 	color >>= 1;
-	MIOS_DOUT_PinSet(column+8+8,	(unsigned char)(color & 0x01)); // BLUE
+	MIOS_DOUT_PinSet(column+8+8,	(color & 0x01)); 	// BLUE
 	color >>= 1;
-	MIOS_DOUT_PinSet(column+8+8+8,	(unsigned char)(color & 0x01));	// GREEN
+	MIOS_DOUT_PinSet(column+8+8+8,	(color & 0x01));	// GREEN
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS before the shift register are loaded
 /////////////////////////////////////////////////////////////////////////////
 void SR_Service_Prepare(void) __wparam
-{
+{	
 	static unsigned int row;
 	static unsigned int lastrow;
 	unsigned int x;
-
+	
 	row = ++row & 0x07;						// row cycling
 	MIOS_DOUT_PinSet0(lastrow);				// lastrow OFF
 	MIOS_DOUT_PinSet1(row);					// current row ON
 
 	for (x = 0; x < 8; x++)
 	{
-		DisplayLED(x , matrix[x+row*8]);
+		DisplayLED(x , matrix[x+row*8]);	// displaying the led (x,row)
 	}
 	lastrow = row;
-
-/*
-	static unsigned int row;
-	static unsigned int lastrow;
-	unsigned char color;
-	unsigned int x;
-
-	row = ++row & 0x07;						// row cycling
-	MIOS_DOUT_PinSet0(lastrow);				// lastrow OFF
-	MIOS_DOUT_PinSet1(row);					// current row ON
-
-	for (x = 0; x < 8; x++)
-	{
-#if BLINKING_FEATURE
-		if( flash_ctr >= 200 ) {
-			flash_ctr = 0;
-			if (matrixBlinkingState[x+row*8] == 0x00)
-					DisplayLED(x , matrix[x+row*8]);	// displaying the led (x,row) not blinking
-			else 	DisplayLED(x , 0x00);			// OFF this led cause it blinks
-		}
-#else
-		DisplayLED(x , matrix[x+row*8]);
-#endif
-	}
-	lastrow = row;
-	flash_ctr++;
-*/
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -399,33 +329,19 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 // ----------------------------------------------------------------------------------------------------------------
 void ClearMatrix(void) __wparam
 {
-	unsigned int index = 0;
+	unsigned int index ;
 	for (index = 0; index < 64; index++)
 	{
 		matrix[index] = _COLOR_OFF;
 	}
 }
 
-#if BLINKING_FEATURE
-void ClearMatrixBlinking(void) __wparam
-{
-	unsigned int index = 0;
-	for (index = 0; index < 64; index++)
-	{
-		matrixBlinkingState[index] = _COLOR_OFF;
-	}
-}
-#endif
-
 void DoStartupSequence(void) __wparam
 {
-	unsigned int index;
-	unsigned int waitTime;
-	waitTime = 10;
-
+	unsigned int index ;
 	for (index = 0; index < 64; index++)
 	{
-		matrix[index] = _COLOR_RED ;
-		MIOS_Delay(waitTime);
+		matrix[index] = _COLOR_GREEN ;
+		MIOS_Delay(5);
 	}
 }
