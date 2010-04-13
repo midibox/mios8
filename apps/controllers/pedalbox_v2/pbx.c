@@ -1,9 +1,9 @@
 /*
  * MIOS Pedal Box / Pedal Board - pbx.c
- * v2.5beta3 - April 2009
+ * v2.6rc1 - April 2010
  * ==========================================================================
  *
- *  Copyright (C) 2009  Mick Crozier - mick@durisian.com
+ *  Copyright (C) 2010  Mick Crozier - mick@durisian.com
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
  *
@@ -137,12 +137,14 @@ void program_mode_handler(void)
                 MIOS_BANKSTICK_CtrlSet(0);
                 MIOS_BANKSTICK_Write(0x6900 + (bankpin << 2) + 1, 0x00);
                 MIOS_BANKSTICK_Write(0x6900 + (bankpin << 2) + 2, 0x7f);
+				button_bankpin_on_value[bankpin] = 0x7f;
             }
             else
             {
                 MIOS_BANKSTICK_CtrlSet(0);
                 MIOS_BANKSTICK_Write(0x6900 + (bankpin << 2) + 1, found_event.low_value);
                 MIOS_BANKSTICK_Write(0x6900 + (bankpin << 2) + 2, found_event.high_value);
+				button_bankpin_on_value[bankpin] = found_event.high_value;
             }
             MIOS_BANKSTICK_Write(0x6900 + (bankpin << 2) + 0, bankpin_map_to_event_entry);
             MIOS_BANKSTICK_Write(0x6900 + (bankpin << 2) + 3, (found_event.button_type << 7) | (found_event.event_type << 4) | found_event.bankstick );
@@ -221,23 +223,22 @@ void MIDI_message_TX(unsigned char evnt0, unsigned char evnt1, unsigned char evn
 // They control the LED indicators
 //
 ////////////////////////////////////////////////////////////////////
-void set_led_indicators(unsigned char bank)
+void set_led_indicators(void)
 {
 #if PEDALBOARD
+
     command_numbers_in_this_bank = DIN_BANKED_BUTTONS;
     which_bank = 1;
     count_commands = 0;
-    current_bankstick = MIOS_BANKSTICK_CtrlGet(); // This will later be used to reset the bankstick to it's current #
+
 
     // set the dout's based on button_bankpin_value
     for (i=0; i<16 + 128; i++)
     {
 
-        MIOS_BANKSTICK_CtrlSet(0);
-
         if (i<DIN_FIXED_BUTTONS)
         {
-            if (button_bankpin_value[i] == MIOS_BANKSTICK_Read((0x6900 + (i << 2)) + 2))
+            if (button_bankpin_value[i] == button_bankpin_on_value[i])
             {
                 MIOS_DOUT_PinSet(i, 1);
             }
@@ -258,7 +259,7 @@ void set_led_indicators(unsigned char bank)
             {
                 pin_hlp = ((bank * DIN_BANKED_BUTTONS) - DIN_BANKED_BUTTONS - (i - 16)); // could also use count_commands instead of i - 16
                 pin_hlp = 0 - pin_hlp;
-                if (button_bankpin_value[i] == MIOS_BANKSTICK_Read((0x6900 + (i << 2)) + 2))
+                if (button_bankpin_value[i] == button_bankpin_on_value[i])
                 {
                     MIOS_DOUT_PinSet(pin_hlp + DIN_FIXED_BUTTONS, 1);
                 }
@@ -269,7 +270,7 @@ void set_led_indicators(unsigned char bank)
             }
         }
     } // for loop
-    MIOS_BANKSTICK_CtrlSet(current_bankstick); // Reset to current bankstick
+
 #endif // PEDALBOARD
 }
 
@@ -335,8 +336,8 @@ void run_event(void)
     MIOS_BANKSTICK_CtrlSet(found_event.bankstick);
 
     channel = bankstick_channel[found_event.bankstick];
-    found_event.status = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 16);
-    found_event.param1 = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 17);
+    //found_event.status = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 16);
+    found_event.param1 = found_event.entry; // found_event.param1 is obsolete - this line just saved me codeing time
     found_event.event_handler = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 18);
 
 
@@ -402,6 +403,8 @@ void run_event(void)
     else if (found_event.event_type == STAT_PITCH_BEND)
     {
         found_event.status = 0xe0;
+		found_event.param1 = found_event.param2;
+		if (found_event.param2 == 64) found_event.param2 = 0; // allows for pitchbend center
         MIDI_message_TX(found_event.status, found_event.param1, found_event.param2, channel);
         set_value_related_buttons(found_event.entry, found_event.event_type, found_event.bankstick, found_event.param2);
     }
@@ -413,8 +416,9 @@ void run_event(void)
 /////////////////////////////////////////////////////////////////////////////
 void run_patch(unsigned char patch)
 {
-    current_event_type = found_event.event_type;
-
+    triggerPedalSwap(7); //kill pedalswap if it's active
+	current_event_type = found_event.event_type;
+	
     patch_entry == found_event.entry; // found_event.entry gets over written, patch_entry is later used to set found_event.entry back for the display handlers
     for (i=0;i<32;i++)
     {
@@ -441,9 +445,10 @@ void run_patch(unsigned char patch)
             dout_set = MIOS_BANKSTICK_Read(0x0020 + (0x92 * patch) + 0x90) << i;
             dout_set = dout_set >> 7;
 			MIOS_DOUT_PinSet(relay_led_dout_start_pin + i, dout_set);
-			if (relay_polarity[i] == 0) {
+			if (extended_MIOS_EEPROM_Read(0x78 + i) == 1) {
 				dout_set = ~dout_set; 
 			}
+			
             MIOS_DOUT_PinSet(relay_dout_start_pin + i, dout_set);
             
 			
@@ -496,9 +501,10 @@ void fill_found_control_info(unsigned short int offset, unsigned char master_ent
 
 void send_midi_and_update(void)
 {
-    MIDI_message_TX(found_event.status, found_event.param1, found_event.param2, channel);
+
+	MIDI_message_TX(found_event.status, found_event.param1, found_event.param2, channel);
 	set_value_related_buttons(found_event.entry, found_event.event_type, found_event.bankstick, found_event.param2);
-    set_led_indicators(bank);
+    app_flags.LED_UPDATE_REQ = 1;
     display_temp();
 }
 
@@ -578,4 +584,115 @@ void correct_program_mode_selection(void)
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
+// Cues code
+// 
+/////////////////////////////////////////////////////////////////////////////
 
+
+void go_prevcue()
+{
+	// go prev cue
+
+	if (current_cue == 0) {
+		for (i=0;i<128;i++) { // find of table mark
+			if(MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (i << 1)) == 128) {
+				break; // exit for if found end of table mark
+			}		
+		}
+		if (i == 128) i = 127; //if there was no no end mark
+		current_cue = i - 1;
+	} else {
+		current_cue--;
+	}
+	
+	found_event.entry = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (current_cue << 1));
+	for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (0x92 * found_event.entry) + t);
+	found_event.bankstick = 0;
+	program_change_handler();
+	
+	run_patch(found_event.entry);
+	found_event.entry = 0;
+	found_event.event_type = STAT_SPECIAL;
+	found_event.bankstick = 0;
+	display_temp();
+	app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+
+void go_nextcue()
+{
+	// go next cue
+
+	current_cue++;
+	if (MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (current_cue << 1)) == 128 || current_cue > 127) { //if cue is end mark or too high
+		current_cue = 0;
+	}
+
+	found_event.entry = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (current_cue << 1));
+	for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (0x92 * found_event.entry) + t);
+	found_event.bankstick = 0;
+	program_change_handler();
+	
+	run_patch(found_event.entry);
+	found_event.entry = 1;
+	found_event.event_type = STAT_SPECIAL;
+	found_event.event_type = STAT_SPECIAL;
+	found_event.bankstick = 0;
+	display_temp();
+	app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+
+void triggerPedalSwap(unsigned char pedalswapnum)
+{
+	//current_pedalswap_patch = 130; //OFF
+	if (pedalswapnum < 7) {
+		current_pedalswap_patch = MIOS_BANKSTICK_Read(0x09 + pedalswapnum);
+	} 
+	
+	if (current_pedalswap_patch == 130) {  // bail - swap patchnum not set
+		pedalswapnum = active_pedalswap;
+		current_pedalswap_patch = MIOS_BANKSTICK_Read(0x09 + pedalswapnum);
+		//possibly put LED's off into here as well, then call return
+		//will stop not set pedalswap from showing pedalswap off
+		//when activated while no pedalswap is active
+			#if USE_LED_INDICATORS
+	//turn LEDS Off
+	 for (i=0;i<NUM_PEDALSWAP_BUTTONS;i++) {
+		MIOS_DOUT_PinSet(i + FIRST_PEDALSWAP_DIN_PIN, 0);
+	 }
+	 //Turn on the the current swap num LED
+	 if (pedalswapnum != 7) MIOS_DOUT_PinSet(pedalswapnum + FIRST_PEDALSWAP_DIN_PIN, 1);
+	 #endif
+	 return;
+	}
+	
+	if (pedalswapnum == 7) {
+		current_pedalswap_patch = 130;
+	}
+	
+	active_pedalswap = pedalswapnum;
+	
+	display_temp();
+	app_flags.DISPLAY_UPDATE_REQ = 1;
+	
+	#if USE_LED_INDICATORS
+	//turn LEDS Off
+	 for (i=0;i<NUM_PEDALSWAP_BUTTONS;i++) {
+		MIOS_DOUT_PinSet(i + FIRST_PEDALSWAP_DIN_PIN, 0);
+	 }
+	 //Turn on the the current swap num LED
+	 if (pedalswapnum != 7) MIOS_DOUT_PinSet(pedalswapnum + FIRST_PEDALSWAP_DIN_PIN, 1);
+	 #endif
+	 
+
+}
+
+unsigned int extended_MIOS_EEPROM_Read(unsigned int address)
+{
+	EEADRH = address >> 8;
+	eeprom_data = MIOS_EEPROM_Read(address & 0xFF);
+	EEADRH = 0;
+	return eeprom_data;
+	
+
+}

@@ -1,9 +1,9 @@
 /*
  * MIOS Pedal Box / Pedal Board - pbx_digits.c
- * v2.5beta3 - April 2009
+ * v2.6rc1 - April 2010
  * ==========================================================================
  *
- *  Copyright (C) 2009  Mick Crozier - mick@durisian.com
+ *  Copyright (C) 2010  Mick Crozier - mick@durisian.com
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
  *
@@ -47,14 +47,20 @@ void digits_handler (unsigned char decimal_digits)
     decimal_digit2_hlp = (decimal_digits / 10);
     decimal_digit1_hlp = decimal_digits - (decimal_digit2_hlp * 10);
     for (i=0; i<7; i++) {
-      #if DIGITS_CONNECTED == 2
-      //10's
-      on_or_off = LED_digit[decimal_digit2_hlp][i];
-      MIOS_DOUT_PinSet(i + digits_start_pin + 8, on_or_off);
-      #endif
-      //1's
-      on_or_off = LED_digit[decimal_digit1_hlp][i];
-      MIOS_DOUT_PinSet(i + digits_start_pin, on_or_off);
+	#if DIGITS_CONNECTED == 2
+		//10's
+		on_or_off = LED_digit[decimal_digit2_hlp][i];
+		MIOS_DOUT_PinSet(i + digits_start_pin + 8, on_or_off);
+	#else
+		if (decimal_digit2_hlp) {
+			MIOS_DOUT_PinSet(8 + digits_start_pin, 1); // 1s digit dot on
+		} else {
+			MIOS_DOUT_PinSet(8 + digits_start_pin, 0); // 1s digit dot off
+		}
+	#endif
+		//1's
+		on_or_off = LED_digit[decimal_digit1_hlp][i];
+		MIOS_DOUT_PinSet(i + digits_start_pin, on_or_off);
     }
 
 }

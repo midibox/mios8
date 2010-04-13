@@ -1,9 +1,9 @@
 /*
  * MIOS Pedal Box / Pedal Board - main.h
- * v2.5beta3 - April 2009
+ * v2.6rc1 - April 2010
  * ==========================================================================
  *
- *  Copyright (C) 2009  Mick Crozier - mick@durisian.com
+ *  Copyright (C) 2010  Mick Crozier - mick@durisian.com
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
  *
@@ -25,6 +25,8 @@ typedef union {
     unsigned TAP_FLAG:1;            // Tells tap tempo timer to start/stop
     unsigned SPLASH:1;              // Used to display splash screen at startup
     unsigned PCRX:1;                // Received program change
+	unsigned PEDALSWAP_TRIGGERED:1; // PedalSwap has just been triggered
+	unsigned LED_UPDATE_REQ:1;      // requests LED update
   };
 } app_flags_t;
 
@@ -78,9 +80,10 @@ unsigned char bankpin_map_to_event_entry; // used in programing mode to assign a
 unsigned char previous_bankpin; // as above but for the previous value
 unsigned char previous_event_entry;
 unsigned char button_bankpin_value[152]; // Stores param2 of bankpin for bankpin_event_entry
+unsigned char button_bankpin_on_value[144];
 unsigned char button_event_map[152]; // Stores bankpin_event_entry of button
 unsigned char button_event_typeAndBankstick[152];
-
+//unsigned char relay_invert[8]; // holds whether to invert the relay disaply of not
 
 unsigned char channel; // current channel to be used, or recieved
 unsigned char bank; // current bank
@@ -96,6 +99,9 @@ unsigned char previous_input_type; // what was last used - din, ain, or midi
 unsigned char event_entry_current_programchange[8]; // event_entry of current program change for each device
 unsigned char event_entry_previous_programchange[8]; // event_entry of previous program change for each device
 unsigned char current_programchange_param1[8]; // current program change value for each bankstick
+unsigned char current_pedalswap_patch; // currently activated pedalswap patch number (130 = off)
+unsigned char found_patchnum;
+unsigned char active_pedalswap;
 
 unsigned char program_mode; // current program mode for assigning settings
 
@@ -134,6 +140,8 @@ unsigned char digits_start_pin;
 // Used for calculationg indicator led status
 unsigned char dout_set_hlp;
 unsigned char dout_set;
+unsigned char led_set;
+unsigned char val_set;
 
 // Gig Control
 unsigned char current_cue;
@@ -173,13 +181,16 @@ unsigned char current_event_type; // hold a restore point for found_event.event_
 
 unsigned char ain_mf[8];
 unsigned char debug;
+
 unsigned char byte_low_nibble; // holds channel number for MPROC_Recieved_byte
 
 unsigned int suspend_lcd_counter;
+unsigned int flash_counter;
 
-
+unsigned char eeprom_data;
 //unsigned char debug[8];
 
+void AIN_handler(unsigned char pin, unsigned char pin_value);
 
 ///////////////////////////////////////////////////////////////////////////
 // Definitions

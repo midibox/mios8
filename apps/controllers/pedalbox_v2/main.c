@@ -1,9 +1,9 @@
 /*
 * MIOS Pedal Box / Pedal Board - main.c
- * v2.5beta3 - April 2009
+ * v2.6rc1 - April 2010
  * ==========================================================================
  *
- *  Copyright (C) 2009  Mick Crozier - mick@durisian.com
+ *  Copyright (C) 2010  Mick Crozier - mick@durisian.com
  *  Licensed for personal non-commercial use only.
  *  All other rights reserved.
  *
@@ -16,12 +16,13 @@
 #include "main.h"
 #include "pbx_config.h"
 #include "pbx_midi_config.h"
-#include "pbx_relay_config.h"
+//#include "pbx_relay_config.h"
 #include "pbx.c"
 #if DIGITS_CONNECTED
 #include "pbx_digits.c"
 #endif
 #include "pbx_lcd.c"
+
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS after startup to initialize the
@@ -40,8 +41,8 @@ void Init(void) __wparam
 	// set shift register update frequency
 	MIOS_SRIO_UpdateFrqSet(1); // ms
 
-	// we need to set at least one IO shift register pair
-	MIOS_SRIO_NumberSet(NUMBER_OF_SRIO);
+	// THERE IS NO NEED TO CHANGE THIS UNLESS YOU'VE BEEN MODIFYING CODE
+	MIOS_SRIO_NumberSet(9);
 
 	// debouncing value for DINs
 	MIOS_SRIO_DebounceSet(DIN_DEBOUNCE_VALUE);
@@ -115,6 +116,7 @@ void Init(void) __wparam
 
 		button_event_map[i] = MIOS_BANKSTICK_Read(0x6900 + (i << 2));
 		button_event_typeAndBankstick[i] = MIOS_BANKSTICK_Read(0x6900 + (i << 2) + 3);
+		button_bankpin_on_value[i] = MIOS_BANKSTICK_Read(0x6900 + (i << 2) + 2);
 
 	}
 
@@ -125,6 +127,7 @@ void Init(void) __wparam
 	previous_bankpin = 255;
 	count = 0;
 
+	current_cue_list = MIOS_BANKSTICK_Read(0x0005);
 	current_cue = 0;
 
 	// Set SR map
@@ -134,17 +137,27 @@ void Init(void) __wparam
 	
 		// Set relays to off state
 	for (i=0;i<8;i++) {
-		if (relay_polarity[i] == 0) {
+
+		if (extended_MIOS_EEPROM_Read(0x78 + i) == 1) {
 			MIOS_DOUT_PinSet(relay_dout_start_pin + i, 1); 
 		}
 	}
+	
+	current_pedalswap_patch = 130;
+	active_pedalswap = 7;
+	
+	
+	
+
+	
+
 
 #if PEDALBOARD
 #if DIGITS_CONNECTED
 	digits_handler(bank); // display current bank
 #endif
 #if USE_LED_INDICATORS
-	set_led_indicators(bank); //update led indicators
+	app_flags.LED_UPDATE_REQ = 1; //update led indicators
 #endif
 #endif
 }
@@ -154,6 +167,27 @@ void Init(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void Tick(void) __wparam
 {
+//suspend LCD timer
+	if(app_flags.PCRX == 1) {
+		suspend_lcd_counter++;
+		if (suspend_lcd_counter == 1000) {
+			resume_LCD();
+		}
+	}
+	
+	if(app_flags.LED_UPDATE_REQ == 1) {
+		app_flags.LED_UPDATE_REQ = 0;
+		
+		//need to isolate this call to here
+			set_led_indicators();
+		
+		// need to change ALL functions to REQUEST an update - function takes to too long to process on midi input pedal movements
+	}
+	
+	
+	
+
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -162,6 +196,7 @@ void Tick(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void Timer(void) __wparam
 {
+	/* 
 	if (app_flags.PCRX == 1)
 	{
 		countms++;
@@ -172,13 +207,14 @@ void Timer(void) __wparam
 		}
 	}
 	else
-	{
+	{ 
+	*/
 		bpmcountms++; //add 1 to bpmcountms
 		if (bpmcountms > 3000 )   //3 seconds have passed
 		{
 			tap_tempo_stop();
 		}
-	}
+	//}
 
 }
 
@@ -207,7 +243,7 @@ void DISPLAY_Init(void) __wparam
 		}
 		else
 		{
-			MIOS_LCD_PrintCString("Version 2.5b3  ");
+			MIOS_LCD_PrintCString("Version 2.6b1   ");
 		}
 
 		for (t = 0; t<16; t++) MIOS_LCD_PrintChar(' ');
@@ -217,6 +253,7 @@ void DISPLAY_Init(void) __wparam
 	{
 		app_flags.DISPLAY_UPDATE_REQ = 1;
 	}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -225,12 +262,10 @@ void DISPLAY_Init(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void DISPLAY_Tick(void) __wparam
 {
-	if(app_flags.PCRX == 1) {
-		suspend_lcd_counter += 1;
-		if (suspend_lcd_counter == 1000) {
-			resume_LCD();
-		}
-	}
+
+	
+	
+
 	
 	
 	// do nothing if no update has been requested
@@ -242,11 +277,13 @@ void DISPLAY_Tick(void) __wparam
 #if DIGITS_CONNECTED
 	digits_handler(bank); // update bank display
 #endif
-#if USE_LED_INDICATORS
-#if PEDALBOARD
-	set_led_indicators(bank); //update led indicators
-#endif
-#endif
+
+
+//OVERWRITE EVERYTHING WHEN IDLE (DEBUG)
+//MIOS_LCD_CursorSet(0x40);
+//MIOS_LCD_PrintBCD3(current_programchange_param1[0]);
+//MIOS_LCD_PrintBCD3(debug);
+
 }
 
 
@@ -282,9 +319,50 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 	previous_evnt1 = evnt1;
 
 #endif
-//#if PEDALBOARD == 0
-	// NO programming functions via midi when in pedal board mode
 
+
+	
+#if ENABLE_MIDI_TO_AIN
+	//Override MIDI In to Covert MIDI pedal to AIN
+	
+	if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == MIDI_PEDAL0_E1)
+	{
+		AIN_handler(0, evnt2);
+	} 
+	else if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == MIDI_PEDAL1_E1)
+	{
+		AIN_handler(1, evnt2);
+	} 
+	else if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == MIDI_PEDAL2_E1)
+	{
+		AIN_handler(2, evnt2);
+	} 
+	else if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == MIDI_PEDAL3_E1)
+	{
+		AIN_handler(3, evnt2);
+	} 
+	else if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == MIDI_PEDAL4_E1)
+	{
+		AIN_handler(4, evnt2);
+	} 
+	else if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == MIDI_PEDAL5_E1)
+	{
+		AIN_handler(5, evnt2);
+	} 
+	else if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == MIDI_PEDAL6_E1)
+	{
+		AIN_handler(6, evnt2);
+	} 
+	else if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == MIDI_PEDAL7_E1)
+	{
+		AIN_handler(7, evnt2);
+	}
+	
+	
+	else
+	{
+	// End override
+#endif
 	// Setup and misc functions
 
 	if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == EVENT_SETUP_E1 && evnt2 == EVENT_SETUP_E2)
@@ -441,6 +519,7 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 	else if (evnt0_MSB == 0xb0 && bankstick_select == 0 && evnt1 == CUE_SELECT_E1 && evnt2 == CUE_SELECT_E2)
 	{
 		program_mode = CUE_SELECT_LIST;
+		current_cue = 0;
 		patch_select = 0;
 		patch_event = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select * 2));
 		MIOS_LCD_MessageStop();
@@ -459,13 +538,8 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 		}
 		else
 		{
-			current_cue--;
-			if (current_cue > 127) current_cue = 0;
-			found_event.entry = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (current_cue << 1));
-			for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (0x92 * found_event.entry) + t);
-			program_change_handler();
-			run_patch(found_event.entry);
-			app_flags.DISPLAY_UPDATE_REQ = 1;
+			// go prev cue
+			go_prevcue();
 		}
 	}
 
@@ -473,6 +547,7 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 	{
 		if (program_mode == CUE_PATCH_SELECT)
 		{
+			
 			MIOS_BANKSTICK_Write(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1), patch_event);
 			patch_select++;
 			patch_event = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1));
@@ -481,13 +556,8 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 		}
 		else
 		{
-			current_cue++;
-			if (current_cue > 127) current_cue = 0;
-			found_event.entry = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (current_cue << 1));
-			for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (0x92 * found_event.entry) + t);
-			program_change_handler();
-			run_patch(found_event.entry);
-			app_flags.DISPLAY_UPDATE_REQ = 1;
+			// go next cue
+			go_nextcue();
 		}
 	}
 
@@ -498,20 +568,25 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 		found_event.event_type = STAT_SPECIAL;
 		if (evnt2 >= 0x40)
 		{
-			dout_set = 1;
-			if (relay_polarity[evnt1 - RELAY_E1] == 0) {
-				dout_set = 0; 
+			if (MIOS_BANKSTICK_Read(0x5ff0 + evnt1 - RELAY_E1) == 1) {
+				dout_set = 0; //if inverted
+			} else {
+				dout_set = 1;
 			}
+			//debug = 1;
 			MIOS_DOUT_PinSet(relay_dout_start_pin + evnt1 - RELAY_E1, dout_set);
 			MIOS_DOUT_PinSet(relay_led_dout_start_pin + evnt1 - RELAY_E1, 1);
 			set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, 0x7f);
 		}
 		else
 		{
-			dout_set = 0;
-			if (relay_polarity[evnt1 - RELAY_E1] == 0) {
-				dout_set = 1; 
+			//dout_set = 0;
+			if (MIOS_BANKSTICK_Read(0x5ff0 + evnt1 - RELAY_E1) == 1) {
+				dout_set = 1;  // if inverted
+			} else {
+				dout_set = 0;	
 			}
+			debug = 0;
 			MIOS_DOUT_PinSet(relay_dout_start_pin + evnt1 - RELAY_E1, dout_set);
 			MIOS_DOUT_PinSet(relay_led_dout_start_pin + evnt1 - RELAY_E1, 0);
 			set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, 0x00);
@@ -579,14 +654,29 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 			app_flags.DISPLAY_UPDATE_REQ = 1;
 		}
 	}
+	
 	// Normal MIDI mode
-//#else
-//	if (1 != 1)
-//	{
-		// DUMMY IF STATEMENT
-//	}
-//#endif //PEDALBOARD == 0
+
 #if ENABLE_MIDI_IN
+	else if (program_mode == NONE && evnt0_MSB == 0xb0 && evnt1 >= PEDALSWAP_E1 && evnt1 < PEDALSWAP_E1 + NUM_PEDALSWAP_BUTTONS && bankstick_select == 0) {
+	
+	
+		
+			
+			MIOS_BANKSTICK_CtrlSet(0);
+			app_flags.PEDALSWAP_TRIGGERED = 1;
+			found_patchnum = MIOS_BANKSTICK_Read(0x09 + (evnt1 - PEDALSWAP_E1));
+			if (found_patchnum == current_pedalswap_patch) {
+				triggerPedalSwap(7); // disable
+			} else {
+				triggerPedalSwap(evnt1 - PEDALSWAP_E1);
+			}
+
+
+
+		
+		
+	}
 	else if (program_mode == NONE)
 	{
 
@@ -598,8 +688,10 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 				found_event.entry = evnt1;
 				program_change_handler();
 				set_value_related_buttons(found_event.entry, STAT_PROGRAM, found_event.bankstick, 0x7f);
+				suspend_LCD();
 				run_patch(evnt1);
 				app_flags.DISPLAY_UPDATE_REQ = 1;
+				
 			}
 
 		}
@@ -684,7 +776,9 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 			}
 		}
 	}
-
+#if ENABLE_MIDI_TO_AIN
+	}
+#endif
 	
 	MIOS_MPROC_MergerEnable();
 
@@ -742,6 +836,24 @@ void SR_Service_Prepare(void) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void SR_Service_Finish(void) __wparam
 {
+		//Pedalswap flash LED timer
+
+	if (active_pedalswap != 7) {
+		flash_counter++;
+		if (flash_counter > 1000) {
+			MIOS_DOUT_PinSet(active_pedalswap + FIRST_PEDALSWAP_DIN_PIN, ~MIOS_DOUT_PinGet(active_pedalswap + FIRST_PEDALSWAP_DIN_PIN));
+
+			flash_counter = 0;
+		}
+		/*
+		MIOS_LCD_CursorSet(0x0f);
+		if (MIOS_DOUT_PinGet(active_pedalswap + FIRST_PEDALSWAP_DIN_PIN) == 1) {
+			MIOS_LCD_PrintChar('X');
+		} else {
+			MIOS_LCD_PrintBCD1(active_pedalswap + 1);
+		}
+		*/
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -757,7 +869,7 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 #if ENABLE_BANK_LEDS
 	if (pin == DIN_BANK_UP || pin == DIN_BANK_DOWN)
 	{
-		MIOS_DOUT_PinSet(pin, ~pin_value);
+		MIOS_DOUT_PinSet(pin, ~pin_value & 0x01);
 	}
 # endif
 
@@ -1008,289 +1120,347 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 	else if (program_mode == NONE || program_mode == CUE_PATCH_SELECT)   // Handling for floorboard mode
 	{
 
-		MIOS_BANKSTICK_CtrlSet(0); // set to patch bankstick]
-		bankpin = 4;
-		if (pin > DIN_FIXED_BUTTONS - 1)
-		{
-			bankpin = pin + (bank * DIN_BANKED_BUTTONS) - DIN_BANKED_BUTTONS - DIN_FIXED_BUTTONS + 16;
-			if (bankpin > 143) bankpin = 143; // catch for the 'make up' bank to stop buttons with values higher than 128
-		}
-		else
-		{
-			bankpin = pin;
-		}
+		if (pin >= FIRST_PEDALSWAP_DIN_PIN && pin < FIRST_PEDALSWAP_DIN_PIN + NUM_PEDALSWAP_BUTTONS && program_mode == NONE) {
+			app_flags.PEDALSWAP_TRIGGERED = 1;
+			MIOS_BANKSTICK_CtrlSet(0);
+			found_patchnum = MIOS_BANKSTICK_Read(0x09 + (pin - FIRST_PEDALSWAP_DIN_PIN));
+			if (found_patchnum == current_pedalswap_patch) {
+				triggerPedalSwap(7); // disable
+			} else {
+				triggerPedalSwap(pin - FIRST_PEDALSWAP_DIN_PIN);
+			}
+			
+		} else {
 
-		previous_bankpin = bankpin;
-		previous_input_type = DIN;
-		found_event.bankstick = MIOS_BANKSTICK_Read(0x6900 + (bankpin << 2) + 3) & 0x07;
-
-		if (found_event.bankstick == 0)
-		{
-			found_event.entry = MIOS_BANKSTICK_Read(0x6900 + (bankpin << 2));
-			found_event.button_type = (MIOS_BANKSTICK_Read(0x6900 + (bankpin << 2) + 3) & 0x80) >> 7;
-			found_event.event_type = (MIOS_BANKSTICK_Read(0x6900 + (bankpin << 2) + 3) & 0x70) >> 4;
-			if (found_event.event_type == STAT_SPECIAL)
+			MIOS_BANKSTICK_CtrlSet(0); // set to patch bankstick]
+			bankpin = 4;
+			if (pin > DIN_FIXED_BUTTONS - 1)
 			{
-				if (found_event.entry == 0 && pin_value == 0)      // next cue sfb
+				bankpin = pin + (bank * DIN_BANKED_BUTTONS) - DIN_BANKED_BUTTONS - DIN_FIXED_BUTTONS + 16;
+				if (bankpin > 143) bankpin = 143; // catch for the 'make up' bank to stop buttons with values higher than 128
+			}
+			else
+			{
+				bankpin = pin;
+			}
+
+			previous_bankpin = bankpin;
+			previous_input_type = DIN;
+			found_event.bankstick = MIOS_BANKSTICK_Read(0x6900 + (bankpin << 2) + 3) & 0x07;
+
+			if (found_event.bankstick == 0)
+			{
+				found_event.entry = MIOS_BANKSTICK_Read(0x6900 + (bankpin << 2));
+				found_event.button_type = (MIOS_BANKSTICK_Read(0x6900 + (bankpin << 2) + 3) & 0x80) >> 7;
+				found_event.event_type = (MIOS_BANKSTICK_Read(0x6900 + (bankpin << 2) + 3) & 0x70) >> 4;
+				if (found_event.event_type == STAT_SPECIAL)
 				{
-					if (MIOS_DIN_PinGet(DIN_BANK_DOWN) == 0)
+					if (found_event.entry == 0 && pin_value == 0)      // next cue sfb
 					{
-						program_mode = CUE_SELECT_LIST;
-						patch_select = 0;
-						patch_event = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1));
-						MIOS_LCD_MessageStop();
-						app_flags.DISPLAY_UPDATE_REQ = 1;
+						if (MIOS_DIN_PinGet(DIN_BANK_DOWN) == 0)
+						{
+							program_mode = CUE_SELECT_LIST;
+							patch_select = 0;
+							current_cue = 0;
+							patch_event = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1));
+							MIOS_LCD_MessageStop();
+							app_flags.DISPLAY_UPDATE_REQ = 1;
+						}
+						else if (program_mode == CUE_PATCH_SELECT)
+						{
+							MIOS_BANKSTICK_Write(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1), patch_event);
+							patch_select++;
+							patch_event = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1));
+							
+							MIOS_LCD_MessageStop();
+							app_flags.DISPLAY_UPDATE_REQ = 1;
+						}
+						else
+						{
+							go_nextcue();
+						}
 					}
-					else if (program_mode == CUE_PATCH_SELECT)
+
+					else if (found_event.entry == 1 && pin_value == 0)   // previous cue sfb
 					{
-						MIOS_BANKSTICK_Write(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1), patch_event);
-						patch_select++;
-						patch_event = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1));
-						MIOS_LCD_MessageStop();
-						app_flags.DISPLAY_UPDATE_REQ = 1;
+						if (program_mode == CUE_PATCH_SELECT)
+						{
+							MIOS_BANKSTICK_Write(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1), patch_event);
+							patch_select--;
+							patch_event = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1));
+							MIOS_LCD_MessageStop();
+							app_flags.DISPLAY_UPDATE_REQ = 1;
+						}
+						else
+						{
+							go_prevcue();
+						}
 					}
-					else
+
+					else if (found_event.entry >= 2)   // relay switces
 					{
-						current_cue++;
-						if (current_cue > 127) current_cue = 0;
+						bankpin_map_to_event_entry = found_event.entry;
+
+						if (found_event.button_type == SWITCH  && pin_value == 0 )
+						{
+
+							if (MIOS_BANKSTICK_Read(0x5ff0 + found_event.entry - 2) == 1) {
+								dout_set = 1; // if inverted
+							} else {
+								dout_set = 0;
+							}
+								led_set =  0;
+							if (MIOS_DOUT_PinGet(relay_dout_start_pin + found_event.entry - 2) == dout_set)
+							{
+								dout_set = ~dout_set & 0x01;
+								led_set = ~led_set & 0x01;
+							}
+							if (led_set == 0) {
+								val_set = 0x00;
+							} else {
+								val_set = 0x7f;
+							}
+							MIOS_DOUT_PinSet(relay_dout_start_pin + found_event.entry - 2, dout_set);
+							MIOS_DOUT_PinSet(relay_led_dout_start_pin + found_event.entry - 2, led_set);
+							set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, val_set);
+						}
+						
+						else
+						{
+
+							
+							if (pin_value == 0)
+							{
+								
+								if (MIOS_BANKSTICK_Read(0x5ff0 + found_event.entry - 2) == 1) {
+									dout_set = 0; // if inverted
+								} else {
+									dout_set = 1;
+								}
+							
+								MIOS_DOUT_PinSet(relay_dout_start_pin + found_event.entry - 2, dout_set);
+								MIOS_DOUT_PinSet(relay_led_dout_start_pin + found_event.entry - 2, 1);
+								set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, 0x7f);
+							}
+							else
+							{
+								if (MIOS_BANKSTICK_Read(0x5ff0 + found_event.entry - 2) == 1) {
+									dout_set = 1; // if inverted
+								} else {
+									dout_set = 0;
+								}
+								MIOS_DOUT_PinSet(relay_dout_start_pin + found_event.entry - 2, dout_set);
+								MIOS_DOUT_PinSet(relay_led_dout_start_pin + found_event.entry - 2, 0);
+								set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, 0x00);
+							}
+						}
+
+						display_temp();
+					}
+				}
+				if (program_mode == NONE  && pin_value == 0 && found_event.event_type == STAT_SPECIAL) {
+					if (found_event.entry == 0 || found_event.entry == 1)      // RUN THE CUE
+					{
+						cue_entry = found_event.entry;
+						found_event.entry = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (current_cue << 1));
+						for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (0x92 * found_event.entry) + t);
+						program_change_handler();
+						run_patch(found_event.entry);
+						found_event.entry = cue_entry;
+						display_temp();
+						//suspend_LCD();
 					}
 				}
 
-				else if (found_event.entry == 1 && pin_value == 0)   // previous cue sfb
-				{
-					if (program_mode == CUE_PATCH_SELECT)
-					{
-						MIOS_BANKSTICK_Write(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1), patch_event);
-						patch_select--;
-						patch_event = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (patch_select << 1));
-						MIOS_LCD_MessageStop();
-						app_flags.DISPLAY_UPDATE_REQ = 1;
-					}
-					else
-					{
-						current_cue--;
-						if (current_cue > 127) current_cue = 0;
-					}
-				}
-
-				else if (found_event.entry >= 2)   // relay switces
+				else if (program_mode == NONE && found_event.event_type != STAT_SPECIAL && pin_value == 0)
 				{
 					bankpin_map_to_event_entry = found_event.entry;
-
-					if (found_event.button_type == SWITCH)
-					{
-						dout_set = 0;
-						if (relay_polarity[found_event.entry - 2] == 0) {
-							dout_set = 1; 
-						}
-							
-						if (MIOS_DOUT_PinGet(relay_dout_start_pin + found_event.entry - 2) == dout_set && pin_value == 0)
-						{
-							dout_set = 1;
-							if (relay_polarity[found_event.entry - 2] == 0) {
-								dout_set = 0; 
-							}
-							MIOS_DOUT_PinSet(relay_dout_start_pin + found_event.entry - 2, dout_set);
-							MIOS_DOUT_PinSet(relay_led_dout_start_pin + found_event.entry - 2, 1);
-							set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, 0x7f);
-						}
-						else if (pin_value == 0)
-						{
-							dout_set = 0;
-							if (relay_polarity[found_event.entry - 2] == 0) {
-								dout_set = 1; 
-							}
-							MIOS_DOUT_PinSet(relay_dout_start_pin + found_event.entry - 2, dout_set);
-							MIOS_DOUT_PinSet(relay_led_dout_start_pin + found_event.entry - 2, 0);
-							set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, 0x00);
-						}
-					}
-					else
-					{
-
-						
-						if (pin_value == 0)
-						{
-							dout_set = 1;
-							if (relay_polarity[found_event.entry - 2] == 0) {
-								dout_set = 0; 
-							}
-						
-							MIOS_DOUT_PinSet(relay_dout_start_pin + found_event.entry - 2, dout_set);
-							MIOS_DOUT_PinSet(relay_led_dout_start_pin + found_event.entry - 2, 1);
-							set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, 0x7f);
-						}
-						else
-						{
-							dout_set = 0;
-							if (relay_polarity[found_event.entry - 2] == 0) {
-								dout_set = 1; 
-							}
-							MIOS_DOUT_PinSet(relay_dout_start_pin + found_event.entry - 2, dout_set);
-							MIOS_DOUT_PinSet(relay_led_dout_start_pin + found_event.entry - 2, 0);
-							set_value_related_buttons(found_event.entry, STAT_SPECIAL, 0, 0x00);
-						}
-					}
-
-					display_temp();
-				}
-			}
-			if (program_mode == NONE  && pin_value == 0 && found_event.event_type == STAT_SPECIAL) {
-				if (found_event.entry == 0 || found_event.entry == 1)      // RUN THE CUE
-				{
-					cue_entry = found_event.entry;
-					found_event.entry = MIOS_BANKSTICK_Read(0x4920 + (current_cue_list * 0x110 ) + 16 + (current_cue << 1));
-					for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (0x92 * found_event.entry) + t);
 					program_change_handler();
+					suspend_LCD();
 					run_patch(found_event.entry);
-					found_event.entry = cue_entry;
-					display_temp();
-					//suspend_LCD();
+					MIOS_LCD_MessageStop();
+					app_flags.DISPLAY_UPDATE_REQ = 1;
+
 				}
-			}
-
-			else if (program_mode == NONE && found_event.event_type != STAT_SPECIAL && pin_value == 0)
-			{
-				bankpin_map_to_event_entry = found_event.entry;
-				program_change_handler();
-				run_patch(found_event.entry);
-				MIOS_LCD_MessageStop();
-				app_flags.DISPLAY_UPDATE_REQ = 1;
+			
 
 			}
 
-
-		}
-
-		else
-		{
-			fill_found_control_info(0x6900, bankpin, 4, 0, 0, 0);
-			bankpin_map_to_event_entry = found_event.entry; // used by programing mode
-
-			//run_event();
-			MIOS_BANKSTICK_CtrlSet(found_event.bankstick);
-			channel = bankstick_channel[found_event.bankstick];
-
-			found_event.status = getHexFromStat(found_event.event_type);
-			found_event.param1 = found_event.entry;
-
-			if (found_event.event_type == STAT_CONTROL)
+			else
 			{
+				fill_found_control_info(0x6900, bankpin, 4, 0, 0, 0);
+				bankpin_map_to_event_entry = found_event.entry; // used by programing mode
 
+				//run_event();
+				MIOS_BANKSTICK_CtrlSet(found_event.bankstick);
+				channel = bankstick_channel[found_event.bankstick];
 
-				// Set found_event variables
-				for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + t);
-				//found_event.status = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 16);
-				//found_event.param1 = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 17);
-				found_event.event_handler = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 18);
+				found_event.status = getHexFromStat(found_event.event_type);
+				found_event.param1 = found_event.entry;
 
-
-
-				// Button handling dependant on type (event_handler)
-				if (found_event.event_handler == ON_OFF_ONLY)    // is an on/off funtion
+				if (found_event.event_type == STAT_CONTROL)
 				{
-					if (pin_value == 0 && found_event.button_type == 0)   // is toggle type
+
+
+					// Set found_event variables
+					for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + t);
+					//found_event.status = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 16);
+					//found_event.param1 = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 17);
+					found_event.event_handler = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 18);
+
+
+
+					// Button handling dependant on type (event_handler)
+					if (found_event.event_handler == ON_OFF_ONLY)    // is an on/off funtion
 					{
-						if (button_bankpin_value[bankpin] != 0x7f)
+						if (pin_value == 0 && found_event.button_type == 0)   // is toggle type
 						{
-							found_event.param2 = 0x7f;
+							if (button_bankpin_value[bankpin] != 0x7f)
+							{
+								found_event.param2 = 0x7f;
+							}
+							else
+							{
+								found_event.param2 = 0x00;
+							}
+							send_midi_and_update();
 						}
-						else
+						else if (pin_value == 1 && found_event.button_type == 1)   // is momentary off
 						{
 							found_event.param2 = 0x00;
+							send_midi_and_update();
 						}
-						send_midi_and_update();
+						else if (pin_value == 0 && found_event.button_type == 1)   // is momentary on
+						{
+							found_event.param2 = 0x7f;
+							send_midi_and_update();
+						}
 					}
-					else if (pin_value == 1 && found_event.button_type == 1)   // is momentary off
+
+
+					else if (found_event.event_handler == TAP_TEMPO)  // is the tap tempo function
 					{
+						if (pin_value == 0)
+						{
+							tap_tempo_handler();
+							button_bankpin_value[bankpin] = 0x7f; // force led on
+							send_midi_and_update();
+						}
+						else
+						{
+							button_bankpin_value[bankpin] = 0x00; // force led off
+						}
+	#if USE_LED_INDICATORS
+						app_flags.LED_UPDATE_REQ = 1;
+	#endif
+					}
+
+					else          // > 2  - More handling could go here if needed
+					{
+						if (pin_value == 0 && found_event.button_type == 0)   // is toggle type
+						{
+							if (button_bankpin_value[bankpin] != found_event.high_value)
+							{
+								found_event.param2 = found_event.high_value;
+							}
+							else
+							{
+								found_event.param2 = found_event.low_value;
+							}
+							send_midi_and_update();
+						}
+
+						else if (pin_value == 1 && found_event.button_type == 1)   // is momentary off
+						{
+							found_event.param2 = found_event.low_value;
+							send_midi_and_update();
+						}
+
+						else if (pin_value == 0 && found_event.button_type == 1)   // is momentary on
+						{
+							found_event.param2 = found_event.high_value;
+							send_midi_and_update();
+						}
+					}
+
+				}
+				else if (found_event.event_type == STAT_PROGRAM)
+				{
+
+					if (pin_value == 0)
+					{
+						program_change_handler();
+						MIDI_message_TX(found_event.status, found_event.entry, found_event.param1, channel);
+						MIOS_LCD_MessageStop();
+						app_flags.DISPLAY_UPDATE_REQ = 1;
+						suspend_LCD();
+					}
+				}
+				else if (found_event.event_type == STAT_NOTE_OFF)
+				{
+					if (pin_value == 0)
+					{
+						//found_event.status = 0x80;
+						found_event.param1 = found_event.entry;
 						found_event.param2 = 0x00;
 						send_midi_and_update();
 					}
-					else if (pin_value == 0 && found_event.button_type == 1)   // is momentary on
-					{
-						found_event.param2 = 0x7f;
-						send_midi_and_update();
-					}
 				}
-
-
-				else if (found_event.event_handler == TAP_TEMPO)  // is the tap tempo function
-				{
-					if (pin_value == 0)
-					{
-						tap_tempo_handler();
-						button_bankpin_value[bankpin] = 0x7f; // force led on
-						send_midi_and_update();
-					}
-					else
-					{
-						button_bankpin_value[bankpin] = 0x00; // force led off
-					}
-#if USE_LED_INDICATORS
-					set_led_indicators(bank);
-#endif
-				}
-
-				else          // > 2  - More handling could go here if needed
-				{
-					if (pin_value == 0 && found_event.button_type == 0)   // is toggle type
-					{
-						if (button_bankpin_value[bankpin] != found_event.high_value)
-						{
-							found_event.param2 = found_event.high_value;
-						}
-						else
-						{
-							found_event.param2 = found_event.low_value;
-						}
-						send_midi_and_update();
-					}
-
-					else if (pin_value == 1 && found_event.button_type == 1)   // is momentary off
-					{
-						found_event.param2 = found_event.low_value;
-						send_midi_and_update();
-					}
-
-					else if (pin_value == 0 && found_event.button_type == 1)   // is momentary on
-					{
-						found_event.param2 = found_event.high_value;
-						send_midi_and_update();
-					}
-				}
-
-			}
-			else if (found_event.event_type == STAT_PROGRAM)
-			{
-
-				if (pin_value == 0)
-				{
-					program_change_handler();
-					MIDI_message_TX(found_event.status, found_event.entry, found_event.param1, channel);
-					MIOS_LCD_MessageStop();
-					app_flags.DISPLAY_UPDATE_REQ = 1;
-					suspend_LCD();
-				}
-			}
-			else if (found_event.event_type == STAT_NOTE_OFF)
-			{
-				if (pin_value == 0)
+				else if (found_event.event_type == STAT_NOTE_ON)
 				{
 					//found_event.status = 0x80;
 					found_event.param1 = found_event.entry;
-					found_event.param2 = 0x00;
+					if (found_event.button_type == SWITCH)
+					{
+						if (pin_value == 0)
+						{
+							if (button_bankpin_value[bankpin] != found_event.high_value)
+							{
+								found_event.param2 = found_event.high_value;
+							}
+							else
+							{
+								found_event.param2 = found_event.low_value;
+							}
+						}
+
+					}
+					else
+					{
+						if (pin_value == 0)
+						{
+							found_event.param2 = found_event.high_value;
+						}
+						else
+						{
+							found_event.param2 = found_event.low_value;
+						}
+					}
 					send_midi_and_update();
 				}
-			}
-			else if (found_event.event_type == STAT_NOTE_ON)
-			{
-				//found_event.status = 0x80;
-				found_event.param1 = found_event.entry;
-				if (found_event.button_type == SWITCH)
+
+				else if (found_event.event_type == STAT_AFTER_TOUCH)
 				{
-					if (pin_value == 0)
+					//found_event.status = 0xa0;
+					found_event.param1 = found_event.entry;
+					if (found_event.button_type == SWITCH)
 					{
-						if (button_bankpin_value[bankpin] != found_event.high_value)
+						if (pin_value == 0)
+						{
+							if (button_bankpin_value[bankpin] != found_event.high_value)
+							{
+								found_event.param2 = found_event.high_value;
+							}
+							else
+							{
+								found_event.param2 = found_event.low_value;
+							}
+						}
+
+					}
+					else
+					{
+						if (pin_value == 0)
 						{
 							found_event.param2 = found_event.high_value;
 						}
@@ -1299,65 +1469,32 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 							found_event.param2 = found_event.low_value;
 						}
 					}
-
+					send_midi_and_update();
 				}
-				else
+
+
+				else if (found_event.event_type == STAT_PRESSURE)
 				{
-					if (pin_value == 0)
+
+					//found_event.status = 0xd0;
+					if (found_event.button_type == SWITCH)
 					{
-						found_event.param2 = found_event.high_value;
+						if (pin_value == 0)
+						{
+							if (button_bankpin_value[bankpin] != found_event.high_value)
+							{
+								found_event.param1 = found_event.high_value;
+							}
+							else
+							{
+								found_event.param1 = found_event.low_value;
+							}
+						}
+
 					}
 					else
 					{
-						found_event.param2 = found_event.low_value;
-					}
-				}
-				send_midi_and_update();
-			}
-
-			else if (found_event.event_type == STAT_AFTER_TOUCH)
-			{
-				//found_event.status = 0xa0;
-				found_event.param1 = found_event.entry;
-				if (found_event.button_type == SWITCH)
-				{
-					if (pin_value == 0)
-					{
-						if (button_bankpin_value[bankpin] != found_event.high_value)
-						{
-							found_event.param2 = found_event.high_value;
-						}
-						else
-						{
-							found_event.param2 = found_event.low_value;
-						}
-					}
-
-				}
-				else
-				{
-					if (pin_value == 0)
-					{
-						found_event.param2 = found_event.high_value;
-					}
-					else
-					{
-						found_event.param2 = found_event.low_value;
-					}
-				}
-				send_midi_and_update();
-			}
-
-
-			else if (found_event.event_type == STAT_PRESSURE)
-			{
-
-				//found_event.status = 0xd0;
-				if (found_event.button_type == SWITCH)
-				{
-					if (pin_value == 0)
-					{
-						if (button_bankpin_value[bankpin] != found_event.high_value)
+						if (pin_value == 0)
 						{
 							found_event.param1 = found_event.high_value;
 						}
@@ -1366,32 +1503,37 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 							found_event.param1 = found_event.low_value;
 						}
 					}
-
+					found_event.param1 = found_event.param2;
+						
+					send_midi_and_update();
 				}
-				else
+
+
+				else if (found_event.event_type == STAT_PITCH_BEND)
 				{
-					if (pin_value == 0)
+					//found_event.status = 0xe0;
+					found_event.param1 = found_event.entry;
+					if (found_event.button_type == SWITCH)
 					{
-						found_event.param1 = found_event.high_value;
+						if (pin_value == 0)
+						{
+							if (button_bankpin_value[bankpin] != found_event.high_value)
+							{
+								found_event.param2 = found_event.high_value;
+							}
+							else
+							{
+								found_event.param2 = found_event.low_value;
+							}
+												
+						
+
+						}
+
 					}
 					else
 					{
-						found_event.param1 = found_event.low_value;
-					}
-				}
-				send_midi_and_update();
-			}
-
-
-			else if (found_event.event_type == STAT_PITCH_BEND)
-			{
-				//found_event.status = 0xe0;
-				found_event.param1 = found_event.entry;
-				if (found_event.button_type == SWITCH)
-				{
-					if (pin_value == 0)
-					{
-						if (button_bankpin_value[bankpin] != found_event.high_value)
+						if (pin_value == 0)
 						{
 							found_event.param2 = found_event.high_value;
 						}
@@ -1400,22 +1542,12 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 							found_event.param2 = found_event.low_value;
 						}
 					}
-
+					found_event.param1 = found_event.param2;
+					if (found_event.param2 == 64) found_event.param2 = 0; // allows for pitchbend center
+					send_midi_and_update();
 				}
-				else
-				{
-					if (pin_value == 0)
-					{
-						found_event.param2 = found_event.high_value;
-					}
-					else
-					{
-						found_event.param2 = found_event.low_value;
-					}
-				}
-				send_midi_and_update();
 			}
-		}
+		} // PEDALWAP OVERRIDE
 	}
 	//suspend_LCD();
 #endif //PEDALBOARD
@@ -1435,43 +1567,48 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
 /////////////////////////////////////////////////////////////////////////////
 void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 {
+	AIN_handler(pin, MIOS_AIN_Pin7bitGet(pin));
+}
+
+void AIN_handler(unsigned char pin, unsigned char pin_7bit_value)
+{
 	// Start with program mode handler
 	if (program_mode == EVENT_SELECT)    // In program mode
 	{
 		if (found_event.bankstick == 0 && found_event.event_type == STAT_SPECIAL)
 		{
-			bankpin_map_to_event_entry = (MIOS_AIN_Pin7bitGet(pin)) >> 3;
+			bankpin_map_to_event_entry = (pin_7bit_value) >> 3;
 			if (bankpin_map_to_event_entry > 9) bankpin_map_to_event_entry = 9;
 		}
 		else if (found_event.bankstick == 0 && found_event.event_type != STAT_SPECIAL)
 		{
-			bankpin_map_to_event_entry = (MIOS_AIN_Pin7bitGet(pin));
+			bankpin_map_to_event_entry = (pin_7bit_value);
 
 		}
 		else
 		{
-			bankpin_map_to_event_entry = (MIOS_AIN_Pin7bitGet(pin));
+			bankpin_map_to_event_entry = pin_7bit_value;
 		}
 	}
 
 	else if (program_mode == SET_MIN)
 	{
-		found_event.low_value = MIOS_AIN_Pin7bitGet(pin);
+		found_event.low_value = pin_7bit_value;
 	}
 
 	else if (program_mode == SET_MAX)
 	{
-		found_event.high_value = MIOS_AIN_Pin7bitGet(pin);
+		found_event.high_value = pin_7bit_value;
 	}
 
 	else if (program_mode == SET_AIN_FIXED)
 	{
-		AIN_fixed[pin] = MIOS_AIN_Pin7bitGet(pin) >> 6; // gives 0 or 1
+		AIN_fixed[pin] = pin_7bit_value >> 6; // gives 0 or 1
 	}
 
 	else if (program_mode == SET_EVENT_BANKSTICK)
 	{
-		found_event.bankstick = MIOS_AIN_Pin7bitGet(pin) >> 4;
+		found_event.bankstick = pin_7bit_value >> 4;
 		if (previous_input_type == AIN && found_event.bankstick == 0) found_event.bankstick = 1;
 	}
 
@@ -1479,32 +1616,32 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 	{
 		if (bankstick_channel[program_mode - SET_BANKSTICK1_CH] != 255)
 		{
-			bankstick_channel[program_mode - SET_BANKSTICK1_CH] = MIOS_AIN_Pin7bitGet(pin) >> 3;
+			bankstick_channel[program_mode - SET_BANKSTICK1_CH] = pin_7bit_value >> 3;
 		}
 	}
 
 	else if (program_mode == CUE_SELECT_LIST)
 	{
 		MIOS_BANKSTICK_CtrlSet(0);
-		current_cue_list = MIOS_AIN_PinGet(pin) >> 5;
-		if (current_cue_list > 29) current_cue_list = 29;
+		current_cue_list = pin_7bit_value >> 2;
+		if (current_cue_list > 19) current_cue_list = 19;
 	}
 
 	else if (program_mode == CUE_PATCH_SELECT)
 	{
 		MIOS_BANKSTICK_CtrlSet(0);
-		patch_event = MIOS_AIN_Pin7bitGet(pin);
+		patch_event = pin_7bit_value;
 	}
 
 	else if (program_mode == PATCH_EVENT_SELECT)
 	{
 		MIOS_BANKSTICK_CtrlSet(patch_event_bankstick);
-		patch_entry = (MIOS_AIN_Pin7bitGet(pin));
+		patch_entry = pin_7bit_value;
 	}
 
 	else if (program_mode == PATCH_SET_EVENT_BANKSTICK)
 	{
-		patch_event_bankstick = MIOS_AIN_Pin7bitGet(pin) >> 4;
+		patch_event_bankstick = pin_7bit_value >> 4;
 		if (patch_event_bankstick == 0) patch_event_bankstick = 1;
 		MIOS_BANKSTICK_CtrlSet(patch_event_bankstick);
 
@@ -1512,13 +1649,13 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 
 	else if (program_mode == PATCH_SET_EVENT_VALUE)
 	{
-		patch_event_high_value = MIOS_AIN_Pin7bitGet(pin);
+		patch_event_high_value = pin_7bit_value;
 	}
 
 	else if (program_mode >= PATCH_SET_RELAY1 && program_mode <= PATCH_SET_RELAY8)
 	{
 		current_relay = program_mode - PATCH_SET_RELAY1;
-		relay_on_off[current_relay] = MIOS_AIN_Pin7bitGet(pin) >> 6;
+		relay_on_off[current_relay] = pin_7bit_value >> 6;
 	}
 	else if (program_mode == SET_EVENT_TYPE)
 	{
@@ -1540,7 +1677,7 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 	else if (program_mode == PATCH_SET_EVENT_TYPE)
 	{
 
-		patch_event_type = MIOS_AIN_Pin7bitGet(pin) >> 4;
+		patch_event_type = pin_7bit_value >> 4;
 		if(patch_event_type == STAT_SPECIAL) patch_event_type = STAT_PITCH_BEND;
 
 	}
@@ -1551,10 +1688,16 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 		bankpin = pin + 144; // used by programing mode to identify AIN pins
 		MIOS_BANKSTICK_CtrlSet(0);
 
-		//AIN_map_offset = pin << 9;
+
 		if (AIN_fixed[pin] == 0)   // pin st to change midi event with program change
 		{
-			fill_found_control_info(0x7000, pin, 0x200, 0, current_programchange_param1[0], 4);
+			if (active_pedalswap == 7) { //no swap active
+				fill_found_control_info(0x7000, pin, 0x200, 0, current_programchange_param1[0], 4);
+				debug = 221;
+			} else {
+				fill_found_control_info(0x7000, pin, 0x200, 0, current_pedalswap_patch, 4);
+				debug = 112;
+			}
 			//found_event.bankstick = (MIOS_BANKSTICK_Read(0x7000 + (AIN_map_offset) + (current_programchange_param1[0] << 2) + 3)) & 0x07;
 			button_event_map[bankpin] = found_event.entry;
 		}
@@ -1570,20 +1713,21 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 		channel = bankstick_channel[MIOS_BANKSTICK_CtrlGet()];
 		// Set found_event variables
 		for (t=0; t<16; t++) found_event.name[t] = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + t);
-		found_event.param1 = found_event.entry;
+		found_event.param1 = found_event.entry; //found_event.param1 is obsolete - this line saves me codeing time
 		found_event.event_handler = MIOS_BANKSTICK_Read(0x0020 + (found_event.entry * 20) + 18);
 		previous_bankpin = bankpin;
 		previous_input_type = AIN;
 
-		found_event.param2 = Scale_7bit(MIOS_AIN_Pin7bitGet(pin), found_event.low_value, found_event.high_value);
+		found_event.param2 = Scale_7bit(pin_7bit_value, found_event.low_value, found_event.high_value);
 		set_value_related_buttons(found_event.entry, found_event.event_type, found_event.bankstick, found_event.param2);
 
 	}
 	if (program_mode == NONE)
 	{
-		if (found_event.event_type == STAT_PRESSURE)
+		if (found_event.event_type == STAT_PRESSURE || found_event.event_type == STAT_PITCH_BEND)
 		{
 			found_event.param1 = found_event.param2;
+			if (found_event.param2 == 64) found_event.param2 = 0; // allows for pitchbend center
 		}
 		found_event.status = getHexFromStat(found_event.event_type);
 		send_midi_and_update();
