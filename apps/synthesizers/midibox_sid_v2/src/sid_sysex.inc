@@ -796,11 +796,18 @@ SID_SYSEX_Cmd_Ack
 ;; --------------------------------------------------------------------------
 SID_SYSEX_Ping
 	;; do nothing until end of stream
-	BRA_IFCLR SID_SYSEX_STATE, SID_SYSEX_STATE_END, BANKED, SID_SYSEX_SysExCheck_End
+	BRA_IFSET SID_SYSEX_STATE, SID_SYSEX_STATE_END, BANKED, SID_SYSEX_Ping_End
+	;; remember that we received at least one byte (for feedback detection)
+	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_TYPE_RECEIVED, BANKED
+	rgoto	SID_SYSEX_SysExCheck_End
 
+SID_SYSEX_Ping_End
 	;; send Acknowledge
+	;; feedback detection: but only if no additional byte has been received
+	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_TYPE_RECEIVED, BANKED, SID_SYSEX_Ping_End_NoAck
 	rcall	SID_SYSEX_Send_Acknowledge
 
+SID_SYSEX_Ping_End_NoAck
 	;; finish Action
 	rgoto	SID_SYSEX_ActionFinished
 
