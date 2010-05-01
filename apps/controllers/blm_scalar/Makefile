@@ -6,7 +6,7 @@ LKR_FILE  = $(MIOS_PATH)/etc/lkr/p$(PROCESSOR).lkr
 PROJECT   = project
 
 # list of objects that should be created and linked
-OBJS = mios_wrapper.o app_lcd.o main.o blm.o
+OBJS = mios_wrapper.o app_lcd.o main.o blm.o blm_scalar.o
 
 # include pathes (more will be added by .mk files)
 GPASM_INCLUDE = 
@@ -40,3 +40,6 @@ BLM_DEFINES += -DBLM_CATHODES_INV_MASK=0x0f
 #BLM_DEFINES += -DBLM_DIN_L=11 -DBLM_DIN_R=12
 #BLM_DEFINES += -DBLM_NO_DEBOUNCING=0
 include $(MIOS_PATH)/modules/blm/blm.mk
+
+# include Button/Duo-LED driver for BLM_SCALAR
+include $(MIOS_PATH)/modules/blm_scalar/blm_scalar.mk

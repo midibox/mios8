@@ -39,6 +39,8 @@ typedef union {
 
 // moved from blm.h
 extern void BLM_NotifyToggle(unsigned char pin, unsigned char value) __wparam;
+// moved from blm_scalar.h
+extern void BLM_SCALAR_NotifyToggle(unsigned char pin, unsigned char value) __wparam;
 
 /////////////////////////////////////////////////////////////////////////////
 // Export global variables

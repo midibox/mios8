@@ -19,15 +19,21 @@
 #include <pic18fregs.h>
 
 #include <blm.h>
+#include <blm_scalar.h>
 #include "main.h"
 
+
+/////////////////////////////////////////////////////////////////////////////
+// Use BLM or BLM_SCALAR driver?
+/////////////////////////////////////////////////////////////////////////////
+#define USE_BLM_SCALAR 1
 
 
 /////////////////////////////////////////////////////////////////////////////
 // Number of LED rows (1..16)
 /////////////////////////////////////////////////////////////////////////////
 
-#define NUM_LED_ROWS 4
+#define NUM_LED_ROWS 16
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -49,10 +55,17 @@ app_flags_t app_flags;
 void Init(void) __wparam
 {
   // initialize the scan matrix driver
+#if USE_BLM_SCALAR
+  BLM_SCALAR_Init();
+
+  // set initial debounce delay (should be done after BLM_Init(), as this function overwrites the value)
+  //blm_scalar_button_debounce_delay = 20;    // (-> 20 * 4 mS = 80 mS)
+#else
   BLM_Init();
 
   // set initial debounce delay (should be done after BLM_Init(), as this function overwrites the value)
   blm_button_debounce_delay = 20;    // (-> 20 * 4 mS = 80 mS)
+#endif
 
   // initialize the shift registers
   MIOS_SRIO_NumberSet(16);           // use up to 16 shift registers
@@ -65,7 +78,11 @@ void Init(void) __wparam
 void Tick(void) __wparam
 {
   // call the scan matrix button handler
+#if USE_BLM_SCALAR
+  BLM_SCALAR_ButtonHandler();
+#else
   BLM_ButtonHandler();
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -138,26 +155,46 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
     if( event_type == 0x8 || evnt2 == 0x00 ) {
 
       // Note Off or velocity == 0x00: clear both LEDs
+#if USE_BLM_SCALAR
+      blm_scalar_row_green[led_column] &= MIOS_HLP_GetBitANDMask(led_row);
+      blm_scalar_row_red[led_column]   &= MIOS_HLP_GetBitANDMask(led_row);
+#else
       blm_row_green[led_column] &= MIOS_HLP_GetBitANDMask(led_row);
       blm_row_red[led_column]   &= MIOS_HLP_GetBitANDMask(led_row);
+#endif
 
     } else if( evnt2 < 0x40 ) {
 
       // Velocity < 0x40: set green LED, clear red LED
+#if USE_BLM_SCALAR
+      blm_scalar_row_green[led_column] |= MIOS_HLP_GetBitORMask(led_row);
+      blm_scalar_row_red[led_column]   &= MIOS_HLP_GetBitANDMask(led_row);
+#else
       blm_row_green[led_column] |= MIOS_HLP_GetBitORMask(led_row);
       blm_row_red[led_column]   &= MIOS_HLP_GetBitANDMask(led_row);
+#endif
 
     } else if( evnt2 < 0x60 ) {
 
       // Velocity < 0x60: clear green LED, set red LED
+#if USE_BLM_SCALAR
+      blm_scalar_row_green[led_column] &= MIOS_HLP_GetBitANDMask(led_row);
+      blm_scalar_row_red[led_column]   |= MIOS_HLP_GetBitORMask(led_row);
+#else
       blm_row_green[led_column] &= MIOS_HLP_GetBitANDMask(led_row);
       blm_row_red[led_column]   |= MIOS_HLP_GetBitORMask(led_row);
+#endif
 
     } else {
 
       // Velocity >= 0x60: set both LEDs
+#if USE_BLM_SCALAR
+      blm_scalar_row_green[led_column] |= MIOS_HLP_GetBitORMask(led_row);
+      blm_scalar_row_red[led_column]   |= MIOS_HLP_GetBitORMask(led_row);
+#else
       blm_row_green[led_column] |= MIOS_HLP_GetBitORMask(led_row);
       blm_row_red[led_column]   |= MIOS_HLP_GetBitORMask(led_row);
+#endif
 
     }
   }
@@ -169,10 +206,17 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
       pattern |= (1 << 7);
 
     switch( evnt1 & 0xfe ) {
+#if USE_BLM_SCALAR
       case 0x10: blm_row_green[2*chn + 0] = pattern; break;
       case 0x12: blm_row_green[2*chn + 1] = pattern; break;
       case 0x20: blm_row_red[2*chn + 0] = pattern; break;
       case 0x22: blm_row_red[2*chn + 1] = pattern; break;
+#else
+      case 0x10: blm_scalar_row_green[2*chn + 0] = pattern; break;
+      case 0x12: blm_scalar_row_green[2*chn + 1] = pattern; break;
+      case 0x20: blm_scalar_row_red[2*chn + 0] = pattern; break;
+      case 0x22: blm_scalar_row_red[2*chn + 1] = pattern; break;
+#endif
     }
   }
 }
@@ -206,7 +250,11 @@ void MPROC_NotifyReceivedByte(unsigned char byte) __wparam
 void SR_Service_Prepare(void) __wparam
 {
   // call the Scan Matrix Driver
+#if USE_BLM_SCALAR
+  BLM_SCALAR_PrepareCol();
+#else
   BLM_PrepareCol();
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -215,7 +263,11 @@ void SR_Service_Prepare(void) __wparam
 void SR_Service_Finish(void) __wparam
 {
   // call the Scan Matrix Driver
+#if USE_BLM_SCALAR
+  BLM_SCALAR_GetRow();
+#else
   BLM_GetRow();
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -264,10 +316,47 @@ void BLM_NotifyToggle(unsigned char pin, unsigned char value) __wparam
 #if 0
   // cycle colour whenever button has been pressed (value == 0)
   if( !value ) {
-      mask = MIOS_HLP_GetBitORMask(blm_button_column);
-      if ( blm_row_green[blm_button_row] & mask )
-         blm_row_red[blm_button_row] ^= mask;
-      blm_row_green[blm_button_row] ^= mask;
+    mask = MIOS_HLP_GetBitORMask(blm_button_column);
+    if ( blm_row_green[blm_button_row] & mask )
+      blm_row_red[blm_button_row] ^= mask;
+    blm_row_green[blm_button_row] ^= mask;
+  }
+#endif
+  
+  // request display update
+  app_flags.DISPLAY_UPDATE_REQ = 1;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// This function is NOT called by MIOS, but by the scan matrix handler
+// in $MIOS_PATH/modules/blm_scalar, when a pin of the scan matrix has been toggled
+// Note: in addition to "pin" and "value", the "blm_button_column" and
+// "blm_button_row" are available as global variables (defined in blm.h)
+/////////////////////////////////////////////////////////////////////////////
+void BLM_SCALAR_NotifyToggle(unsigned char pin, unsigned char value) __wparam
+{
+  unsigned char mask;
+
+  // send pin number and value as Note On Event
+  MIOS_MIDI_TxBufferPut(0x90 + (pin >> 4));
+  MIOS_MIDI_TxBufferPut(pin & 0x0f);
+  MIOS_MIDI_TxBufferPut(value ? 0x00 : 0x7f);
+
+  // enable this code (turn #if 0 into #if 1) if buttons should change the LED colour directly
+  // disable it when LEDs should only be controlled via MIDI
+#if 1
+  // cycle colour whenever button has been pressed (value == 0)
+  if( !value ) {
+    MIOS_MIDI_TxBufferPut(0xc0);
+    MIOS_MIDI_TxBufferPut(pin);
+    MIOS_MIDI_TxBufferPut(0xb0);
+    MIOS_MIDI_TxBufferPut(blm_scalar_button_column);
+    MIOS_MIDI_TxBufferPut(blm_scalar_button_row);
+    mask = MIOS_HLP_GetBitORMask(blm_scalar_button_column);
+    if ( blm_scalar_row_green[blm_scalar_button_row] & mask )
+      blm_scalar_row_red[blm_scalar_button_row] ^= mask;
+    blm_scalar_row_green[blm_scalar_button_row] ^= mask;
   }
 #endif
   
