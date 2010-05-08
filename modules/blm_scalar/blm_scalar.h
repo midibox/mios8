@@ -42,7 +42,7 @@ extern unsigned char blm_scalar_button_row;
 extern unsigned char blm_scalar_button_value;
 extern unsigned char blm_scalar_button_debounce_delay;
 
-extern unsigned char blm_scalar_row_red[8];
-extern unsigned char blm_scalar_row_green[8];
+extern unsigned char blm_scalar_row_red[5*8];
+extern unsigned char blm_scalar_row_green[5*8];
 
 #endif /* _BLM_SCALAR_H */

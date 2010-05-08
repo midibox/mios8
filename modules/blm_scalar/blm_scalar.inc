@@ -25,6 +25,9 @@
 #ifndef BLM_SCALAR_DOUT_GREEN4
 #define BLM_SCALAR_DOUT_GREEN4	11
 #endif
+#ifndef BLM_SCALAR_DOUT_GREEN5
+#define BLM_SCALAR_DOUT_GREEN5	14
+#endif
 	
 #ifndef BLM_SCALAR_DOUT_RED1
 #define BLM_SCALAR_DOUT_RED1	3
@@ -37,6 +40,9 @@
 #endif
 #ifndef BLM_SCALAR_DOUT_RED4
 #define BLM_SCALAR_DOUT_RED4	12
+#endif
+#ifndef BLM_SCALAR_DOUT_RED5
+#define BLM_SCALAR_DOUT_RED5	15
 #endif
 ;
 ; define the shift register to which the cathodes of these LEDs are connected
@@ -51,6 +57,9 @@
 #endif
 #ifndef BLM_SCALAR_DOUT_CATHODES4
 #define BLM_SCALAR_DOUT_CATHODES4	10
+#endif
+#ifndef BLM_SCALAR_DOUT_CATHODES5
+#define BLM_SCALAR_DOUT_CATHODES5	13
 #endif
 ;
 ; set an inversion mask for the DOUT shift registers if sink drivers (transistors)
@@ -74,6 +83,9 @@
 #ifndef BLM_SCALAR_DIN4
 #define BLM_SCALAR_DIN4		4
 #endif
+#ifndef BLM_SCALAR_DIN5
+#define BLM_SCALAR_DIN5		5
+#endif
 ;
 ; set to 1 if buttons should not be debounced (debouncing allocates 256 extra bytes)
 #ifndef BLM_SCALAR_NO_DEBOUNCING
@@ -93,16 +105,16 @@ _BLM_SCALAR_Init ; (for C)
 BLM_SCALAR_Init
 	;; set button value to initial value (1) of all 256 buttons
 	lfsr	FSR1, blm_scalar_button_row_values
-	movlw	0x20
+	movlw	0x28
 	movwf	PRODL
 BLM_SCALAR_Init_Loop1
 	setf	POSTINC1
 	decfsz	PRODL, F
 	rgoto	BLM_SCALAR_Init_Loop1
 
-	;; clear "changed" status of all 256 buttons
+	;; clear "changed" status of all 320 buttons
 	lfsr	FSR1, blm_scalar_button_row_changed
-	movlw	0x20
+	movlw	0x28
 	movwf	PRODL
 BLM_SCALAR_Init_Loop2
 	clrf	POSTINC1
@@ -110,7 +122,8 @@ BLM_SCALAR_Init_Loop2
 	rgoto	BLM_SCALAR_Init_Loop2
 
 #if BLM_SCALAR_NO_DEBOUNCING == 0
-	;; initialise debounce counters of 256 buttons
+	;; initialise debounce counters of 320 buttons
+	;; TODO: currently only prepared for 256
 	lfsr	FSR1, blm_scalar_button_debounce_ctr
 	clrf	PRODL
 BLM_SCALAR_Init_Loop3
@@ -127,9 +140,26 @@ BLM_SCALAR_Init_Loop3
 	;; select first column
 	movlw	0x00
 	call	MIOS_HLP_GetBitANDMask	; (inverted 1 of 8 code)
+	xorlw	BLM_SCALAR_CATHODES_INV_MASK
 	movwf	MIOS_PARAMETER1
 #if BLM_SCALAR_DOUT_CATHODES1
 	movlw	BLM_SCALAR_DOUT_CATHODES1 - 1
+	call	MIOS_DOUT_SRSet
+#endif
+#if BLM_SCALAR_DOUT_CATHODES2
+	movlw	BLM_SCALAR_DOUT_CATHODES2 - 1
+	call	MIOS_DOUT_SRSet
+#endif
+#if BLM_SCALAR_DOUT_CATHODES3
+	movlw	BLM_SCALAR_DOUT_CATHODES3 - 1
+	call	MIOS_DOUT_SRSet
+#endif
+#if BLM_SCALAR_DOUT_CATHODES4
+	movlw	BLM_SCALAR_DOUT_CATHODES4 - 1
+	call	MIOS_DOUT_SRSet
+#endif
+#if BLM_SCALAR_DOUT_CATHODES5
+	movlw	BLM_SCALAR_DOUT_CATHODES5 - 1
 	call	MIOS_DOUT_SRSet
 #endif
 
@@ -183,10 +213,14 @@ BLM_SCALAR_PrepareCol
 	movlw	BLM_SCALAR_DOUT_CATHODES4 - 1
 	call	MIOS_DOUT_SRSet
 #endif
+#if BLM_SCALAR_DOUT_CATHODES5
+	movlw	BLM_SCALAR_DOUT_CATHODES5 - 1
+	call	MIOS_DOUT_SRSet
+#endif
 
 #if BLM_SCALAR_DOUT_GREEN1
 	;; output value of "green LED row" depending on current column
-	lfsr	FSR2, _blm_scalar_row_green
+	lfsr	FSR2, _blm_scalar_row_green + 0*8
 	movf	blm_scalar_selected_column, W
 	movff	PLUSW2, MIOS_PARAMETER1
 	movlw	BLM_SCALAR_DOUT_GREEN1 - 1
@@ -195,7 +229,7 @@ BLM_SCALAR_PrepareCol
 
 #if BLM_SCALAR_DOUT_RED1
 	;; output value of "red LED row" depending on current column
-	lfsr	FSR2, _blm_scalar_row_red
+	lfsr	FSR2, _blm_scalar_row_red + 0*8
 	movf	blm_scalar_selected_column, W
 	movff	PLUSW2, MIOS_PARAMETER1
 	movlw	BLM_SCALAR_DOUT_RED1 - 1
@@ -204,9 +238,8 @@ BLM_SCALAR_PrepareCol
 
 #if BLM_SCALAR_DOUT_GREEN2
 	;; output value of "green LED row" depending on current column
-	lfsr	FSR2, _blm_scalar_row_green
+	lfsr	FSR2, _blm_scalar_row_green + 1*8
 	movf	blm_scalar_selected_column, W
-	addlw	8
 	movff	PLUSW2, MIOS_PARAMETER1
 	movlw	BLM_SCALAR_DOUT_GREEN2 - 1
 	call	MIOS_DOUT_SRSet
@@ -214,9 +247,8 @@ BLM_SCALAR_PrepareCol
 
 #if BLM_SCALAR_DOUT_RED2
 	;; output value of "red LED row" depending on current column
-	lfsr	FSR2, _blm_scalar_row_red
+	lfsr	FSR2, _blm_scalar_row_red + 1*8
 	movf	blm_scalar_selected_column, W
-	addlw	8
 	movff	PLUSW2, MIOS_PARAMETER1
 	movlw	BLM_SCALAR_DOUT_RED2 - 1
 	call	MIOS_DOUT_SRSet
@@ -224,9 +256,8 @@ BLM_SCALAR_PrepareCol
 
 #if BLM_SCALAR_DOUT_GREEN3
 	;; output value of "green LED row" depending on current column
-	lfsr	FSR2, _blm_scalar_row_green
+	lfsr	FSR2, _blm_scalar_row_green + 2*8
 	movf	blm_scalar_selected_column, W
-	addlw	16
 	movff	PLUSW2, MIOS_PARAMETER1
 	movlw	BLM_SCALAR_DOUT_GREEN3 - 1
 	call	MIOS_DOUT_SRSet
@@ -234,9 +265,8 @@ BLM_SCALAR_PrepareCol
 
 #if BLM_SCALAR_DOUT_RED3
 	;; output value of "red LED row" depending on current column
-	lfsr	FSR2, _blm_scalar_row_red
+	lfsr	FSR2, _blm_scalar_row_red + 2*8
 	movf	blm_scalar_selected_column, W
-	addlw	16
 	movff	PLUSW2, MIOS_PARAMETER1
 	movlw	BLM_SCALAR_DOUT_RED3 - 1
 	call	MIOS_DOUT_SRSet
@@ -244,9 +274,8 @@ BLM_SCALAR_PrepareCol
 
 #if BLM_SCALAR_DOUT_GREEN4
 	;; output value of "green LED row" depending on current column
-	lfsr	FSR2, _blm_scalar_row_green
+	lfsr	FSR2, _blm_scalar_row_green + 3*8
 	movf	blm_scalar_selected_column, W
-	addlw	24
 	movff	PLUSW2, MIOS_PARAMETER1
 	movlw	BLM_SCALAR_DOUT_GREEN4 - 1
 	call	MIOS_DOUT_SRSet
@@ -254,11 +283,28 @@ BLM_SCALAR_PrepareCol
 
 #if BLM_SCALAR_DOUT_RED4
 	;; output value of "red LED row" depending on current column
-	lfsr	FSR2, _blm_scalar_row_red
+	lfsr	FSR2, _blm_scalar_row_red + 3*8
 	movf	blm_scalar_selected_column, W
-	addlw	24
 	movff	PLUSW2, MIOS_PARAMETER1
 	movlw	BLM_SCALAR_DOUT_RED4 - 1
+	call	MIOS_DOUT_SRSet
+#endif
+
+#if BLM_SCALAR_DOUT_GREEN5
+	;; output value of "green LED row" depending on current column
+	lfsr	FSR2, _blm_scalar_row_green + 4*8
+	movf	blm_scalar_selected_column, W
+	movff	PLUSW2, MIOS_PARAMETER1
+	movlw	BLM_SCALAR_DOUT_GREEN5 - 1
+	call	MIOS_DOUT_SRSet
+#endif
+
+#if BLM_SCALAR_DOUT_RED5
+	;; output value of "red LED row" depending on current column
+	lfsr	FSR2, _blm_scalar_row_red + 4*8
+	movf	blm_scalar_selected_column, W
+	movff	PLUSW2, MIOS_PARAMETER1
+	movlw	BLM_SCALAR_DOUT_RED5 - 1
 	call	MIOS_DOUT_SRSet
 #endif
 
@@ -308,6 +354,13 @@ BLM_SCALAR_GetRow
 	addwf	IRQ_TMP1, F
 #if BLM_SCALAR_DIN4
 	movlw	BLM_SCALAR_DIN4 - 1
+	rcall	BLM_SCALAR_GetRow_Sub
+#endif
+
+	movlw	8
+	addwf	IRQ_TMP1, F
+#if BLM_SCALAR_DIN5
+	movlw	BLM_SCALAR_DIN5 - 1
 	rcall	BLM_SCALAR_GetRow_Sub
 #endif
 
@@ -459,7 +512,7 @@ BLM_SCALAR_ButtonHandler_Loop
 	rcall	BLM_SCALAR_NotifyToggle_Pin7
 BLM_SCALAR_ButtonHandler_Loop_Next
 	incf	blm_scalar_button_column_ctr, F, BANKED
-	movlw	0x20-1		; (8 columns)
+	movlw	0x28-1		; (8 columns)
 	cpfsgt	blm_scalar_button_column_ctr, BANKED
 	rgoto	BLM_SCALAR_ButtonHandler_Loop
 	return

@@ -63,17 +63,17 @@ _blm_scalar_button_value	res	1
 
 #if _BLM_SCALAR_NO_DEBOUNCING == 0
 _blm_scalar_button_debounce_delay res	1
-blm_scalar_button_debounce_ctr	res	256
+blm_scalar_button_debounce_ctr	res	5*64 ; TODO: won't work since value > 256, we should create blocks of 64 bytes
 #endif
 
 blm_scalar_selected_column	res	1
 blm_scalar_button_column_ctr	res	1
 
-blm_scalar_button_row_values	res	32
-blm_scalar_button_row_changed	res	32
+blm_scalar_button_row_values	res	5*8
+blm_scalar_button_row_changed	res	5*8
 
-_blm_scalar_row_green		res	32
-_blm_scalar_row_red		res	32
+_blm_scalar_row_green		res	5*8
+_blm_scalar_row_red		res	5*8
 
 ; ==========================================================================
 BLM_SCALAR code
