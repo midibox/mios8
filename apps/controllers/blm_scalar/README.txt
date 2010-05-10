@@ -89,18 +89,18 @@ BLM16x16 optimized LED pattern transfer (prefered usage):
 
 
 BLM16x16 optimized LED pattern transfer with 90° rotated view
-(rows and columns swapped, LSB starts at the bottom!)
-+-------------------------------------------+------------------------+
-| row LEDs 15..9, green colour, 9th LED off | B<column> 18 <pattern> |
-| row LEDs 15..9, green colour, 9th LED on  | B<column> 19 <pattern> |
-| row LEDs 7..1, green colour, 1st LED off  | B<column> 1A <pattern> |
-| row LEDs 7..1, green colour, 1st LED on   | B<column> 1B <pattern> |
-+-------------------------------------------+------------------------+
-| row LEDs 15..9, red colour, 9th LED off   | B<column> 28 <pattern> |
-| row LEDs 15..9, red colour, 9th LED on    | B<column> 29 <pattern> |
-| row LEDs 7..1, red colour, 1st LED off    | B<column> 2A <pattern> |
-| row LEDs 7..1, red colour, 1st LED on     | B<column> 2B <pattern> |
-+-------------------------------------------+------------------------+
+(rows and columns swapped, LSB starts at top left edge!)
++--------------------------------------------+------------------------+
+| row LEDs 0..6, green colour, 8th LED off   | B<column> 18 <pattern> |
+| row LEDs 0..6, green colour, 8th LED on    | B<column> 19 <pattern> |
+| row LEDs 8..14, green colour, 16th LED off | B<column> 1A <pattern> |
+| row LEDs 8..14, green colour, 16th LED on  | B<column> 1B <pattern> |
++--------------------------------------------+------------------------+
+| row LEDs 0..6, red colour, 9th LED off     | B<column> 28 <pattern> |
+| row LEDs 0..6, red colour, 9th LED on      | B<column> 29 <pattern> |
+| row LEDs 8..14, red colour, 16th LED off   | B<column> 2A <pattern> |
+| row LEDs 8..14, red colour, 16th LED on    | B<column> 2B <pattern> |
++--------------------------------------------+------------------------+
 
 
 Extra Column optimized LED pattern transfer (prefered usage):
