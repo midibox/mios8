@@ -268,8 +268,36 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
       case 0x10: blm_scalar_row_green[2*chn + 0] = pattern; break;
       case 0x12: blm_scalar_row_green[2*chn + 1] = pattern; break;
 
+      case 0x18:
+      case 0x1a: {
+	unsigned char offset = ((evnt1 & 0x02) ? 0 : 16) + (chn >> 3);
+	unsigned char mask = MIOS_HLP_GetBitORMask(chn);
+	if( pattern & 0x80 ) { blm_scalar_row_green[offset +  0] |= mask; } else { blm_scalar_row_green[offset +  0] &= ~mask; }
+	if( pattern & 0x40 ) { blm_scalar_row_green[offset +  2] |= mask; } else { blm_scalar_row_green[offset +  2] &= ~mask; }
+	if( pattern & 0x20 ) { blm_scalar_row_green[offset +  4] |= mask; } else { blm_scalar_row_green[offset +  4] &= ~mask; }
+	if( pattern & 0x10 ) { blm_scalar_row_green[offset +  6] |= mask; } else { blm_scalar_row_green[offset +  6] &= ~mask; }
+	if( pattern & 0x08 ) { blm_scalar_row_green[offset +  8] |= mask; } else { blm_scalar_row_green[offset +  8] &= ~mask; }
+	if( pattern & 0x04 ) { blm_scalar_row_green[offset + 10] |= mask; } else { blm_scalar_row_green[offset + 10] &= ~mask; }
+	if( pattern & 0x02 ) { blm_scalar_row_green[offset + 12] |= mask; } else { blm_scalar_row_green[offset + 12] &= ~mask; }
+	if( pattern & 0x01 ) { blm_scalar_row_green[offset + 14] |= mask; } else { blm_scalar_row_green[offset + 14] &= ~mask; }
+      } break;
+
       case 0x20: blm_scalar_row_red[2*chn + 0] = pattern; break;
       case 0x22: blm_scalar_row_red[2*chn + 1] = pattern; break;
+
+      case 0x28:
+      case 0x2a: {
+	unsigned char offset = ((evnt1 & 0x02) ? 0 : 16) + (chn >> 3);
+	unsigned char mask = MIOS_HLP_GetBitORMask(chn);
+	if( pattern & 0x80 ) { blm_scalar_row_red[offset +  0] |= mask; } else { blm_scalar_row_red[offset +  0] &= ~mask; }
+	if( pattern & 0x40 ) { blm_scalar_row_red[offset +  2] |= mask; } else { blm_scalar_row_red[offset +  2] &= ~mask; }
+	if( pattern & 0x20 ) { blm_scalar_row_red[offset +  4] |= mask; } else { blm_scalar_row_red[offset +  4] &= ~mask; }
+	if( pattern & 0x10 ) { blm_scalar_row_red[offset +  6] |= mask; } else { blm_scalar_row_red[offset +  6] &= ~mask; }
+	if( pattern & 0x08 ) { blm_scalar_row_red[offset +  8] |= mask; } else { blm_scalar_row_red[offset +  8] &= ~mask; }
+	if( pattern & 0x04 ) { blm_scalar_row_red[offset + 10] |= mask; } else { blm_scalar_row_red[offset + 10] &= ~mask; }
+	if( pattern & 0x02 ) { blm_scalar_row_red[offset + 12] |= mask; } else { blm_scalar_row_red[offset + 12] &= ~mask; }
+	if( pattern & 0x01 ) { blm_scalar_row_red[offset + 14] |= mask; } else { blm_scalar_row_red[offset + 14] &= ~mask; }
+      } break;
 
       case 0x40: 
       case 0x42: {

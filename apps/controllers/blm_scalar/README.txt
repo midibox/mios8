@@ -88,6 +88,21 @@ BLM16x16 optimized LED pattern transfer (prefered usage):
 +-----------------------------------------------+---------------------+
 
 
+BLM16x16 optimized LED pattern transfer with 90° rotated view
+(rows and columns swapped, LSB starts at the bottom!)
++-------------------------------------------+------------------------+
+| row LEDs 15..9, green colour, 9th LED off | B<column> 18 <pattern> |
+| row LEDs 15..9, green colour, 9th LED on  | B<column> 19 <pattern> |
+| row LEDs 7..1, green colour, 1st LED off  | B<column> 1A <pattern> |
+| row LEDs 7..1, green colour, 1st LED on   | B<column> 1B <pattern> |
++-------------------------------------------+------------------------+
+| row LEDs 15..9, red colour, 9th LED off   | B<column> 28 <pattern> |
+| row LEDs 15..9, red colour, 9th LED on    | B<column> 29 <pattern> |
+| row LEDs 7..1, red colour, 1st LED off    | B<column> 2A <pattern> |
+| row LEDs 7..1, red colour, 1st LED on     | B<column> 2B <pattern> |
++-------------------------------------------+------------------------+
+
+
 Extra Column optimized LED pattern transfer (prefered usage):
 NOTE: in distance to single LED access, we always sent over the same channel!
 +--------------------------------------------+-----------------+
