@@ -84,7 +84,6 @@ void SYSEX_SendLayoutInfo(void)
   // number of LED colours
   MIOS_MIDI_TxBufferPut(2); // TODO: should be configurable
 
-#if 0
   // number of extra rows
   MIOS_MIDI_TxBufferPut(1);
 
@@ -93,7 +92,6 @@ void SYSEX_SendLayoutInfo(void)
 
   // number of extra buttons (e.g. shift)
   MIOS_MIDI_TxBufferPut(1);
-#endif
 
   // send footer
   MIOS_MIDI_TxBufferPut(0xf7);
@@ -104,7 +102,7 @@ void SYSEX_SendLayoutInfo(void)
 // This function sends a SysEx acknowledge to notify the user about the received command
 // expects acknowledge code (e.g. 0x0f for good, 0x0e for error) and additional argument
 /////////////////////////////////////////////////////////////////////////////
-static void SYSEX_SendAck(unsigned char ack_code, unsigned char ack_arg)
+void SYSEX_SendAck(unsigned char ack_code, unsigned char ack_arg)
 {
   int i;
   unsigned char checksum;

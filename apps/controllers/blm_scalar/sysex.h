@@ -76,6 +76,7 @@ typedef union {
 extern void SYSEX_Init(void);
 extern void SYSEX_Parser(unsigned char midi_in);
 extern void SYSEX_SendLayoutInfo(void);
+extern void SYSEX_SendAck(unsigned char ack_code, unsigned char ack_arg);
 
 /////////////////////////////////////////////////////////////////////////////
 // global variables

@@ -45,8 +45,9 @@
 // Local variables
 /////////////////////////////////////////////////////////////////////////////
 
-// send layout informations each 5 seconds if BLM hasn't been updated
-static unsigned int timeoutCounter;
+// send layout informations or ping each 5 seconds
+static unsigned int sysexRequestTimer;
+static unsigned char midiDataReceived;
 
 static unsigned char testmode;
 
@@ -57,7 +58,8 @@ static unsigned char testmode;
 /////////////////////////////////////////////////////////////////////////////
 void Init(void) __wparam
 {
-  timeoutCounter = 0;
+  sysexRequestTimer = 0;
+  midiDataReceived = 0;
   testmode = 1;
 
   // initialize the scan matrix driver
@@ -89,16 +91,11 @@ void Init(void) __wparam
 
 
 /////////////////////////////////////////////////////////////////////////////
-// This function resets the timeout counter and exits testmode
+// This function notifies received BLM data and exits testmode
 /////////////////////////////////////////////////////////////////////////////
-static void ResetTimeoutCounter(void)
+static void notifyDataReceived(void)
 {
-  // reset counter (atomic access due to multiple bytes!)
-  INTCONbits.GIE = 0;
-  timeoutCounter = 0;
-  INTCONbits.GIE = 1;
-
-  // disable testmode
+  midiDataReceived = 1;
   testmode = 0;
 }
 
@@ -109,9 +106,17 @@ static void ResetTimeoutCounter(void)
 void Tick(void) __wparam
 {
   // send layout informations each 5 seconds if BLM hasn't been updated
-  if( timeoutCounter > 5000 ) {
-    ResetTimeoutCounter();
-    SYSEX_SendLayoutInfo();
+  if( sysexRequestTimer > 5000 ) {
+    INTCONbits.GIE = 0;
+    sysexRequestTimer = 0;
+    INTCONbits.GIE = 1;
+
+    if( midiDataReceived )
+      SYSEX_SendAck(SYSEX_ACK, 0x00);
+    else
+      SYSEX_SendLayoutInfo();
+
+    midiDataReceived = 0;
   }
 
   // call the scan matrix button handler
@@ -253,7 +258,7 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 #endif
       }
 
-      ResetTimeoutCounter();
+      notifyDataReceived();
     }
   }
 
@@ -385,7 +390,7 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 #endif
     }
 
-    ResetTimeoutCounter();
+    notifyDataReceived();
   }
 }
 
@@ -439,8 +444,8 @@ void SR_Service_Finish(void) __wparam
   BLM_GetRow();
 #endif
 
-  // increment timeout counter
-  ++timeoutCounter;
+  // increment request timer counter
+  ++sysexRequestTimer;
 }
 
 /////////////////////////////////////////////////////////////////////////////

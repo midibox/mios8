@@ -178,8 +178,10 @@ Communication
      the host, and allows to implement an additional timeout mechanism at the 
      host site to check the bidirectional BLM connection.
 
-     The host should stop sending data if no layout informations have been
-     received within 15 seconds.
+   - in any case, each 5 seconds a Sysex string will be sent. Either the
+     layout info, or a ping.
+     The host is allowed to stop sending data if no SysEx strig has been received
+     within 15 seconds.
 
 
 As long as no MIDI data has been received after startup, the BLM is in test mode.
