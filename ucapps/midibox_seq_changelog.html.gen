@@ -1,7 +1,7 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2010-04-02</H3></CENTER>
+<CENTER><H3>Last Release: 2010-05-23</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
@@ -9,7 +9,75 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 
 <UL CLASS=CL>
 
+<LI><I>V4.0beta21</I>
+  <UL>
+  <LI> ongoing preparation work for BLM16x16<BR>
+    Features will be described under <A HREF="http://www.ucapps.de/midibox_seq_manual_blm.html">midibox_seq_manual_blm.html</A>.
 
+  <LI> the simple Transpose/Arpeggiator MIDI split function has been replaced by 
+    a new bus routing concept.<BR>
+
+    There are 4 busses that can be configured in the MIDI page.<BR>
+    Each bus provides a dedicated MIDI port, channel and lower/upper MIDI note
+    to define a keyboard range.
+
+  <LI> the bus can either be routed to the transpose/arpeggiator function ("T&A Mode"),
+    or it can be used to play the currently selected track "live" ("Play Mode")
+
+  <LI> Track Mode page: now allows to select the bus over that the transpose/arpeggiator
+    function should be controlled
+
+  <LI> Record function: whenever active, the MIDI port and channel used for recording
+    won't be routed to Transpose/Arpeggiator/Play bus.
+
+  <LI> the "Roll" trigger now selects a 2D10 roll instead of 3D08 since it's more
+    useful in most cases.<BR>
+    In order to apply customized roll values, please use the roll function of
+    the parameter layer instead of the Roll trigger.
+
+  <LI> implemented "Roll2" parameter layer function.<BR>
+    This alternative solution to "Roll" allows to define the number of step repeats,
+    and the distance between them.
+
+  <LI> added optional button/LED function for UNDO
+
+  <LI> fixed MIDI clock issue sent to USB5..USB8 (resulted into multiplied tempo 
+    values in some DAWs)
+
+  <LI> CC assignment displayed correctly in mixer page
+
+  <LI> LFO CC not sent anymore if track is muted
+
+  <LI> fixed crash if preset name is longer than 7 characters
+
+  <LI> fixed step selection of copy function
+
+  <LI> inverted encoder behaviour in mute page: moving clockwise will unmute,
+    moving counter clockwise will activate mute
+
+  <LI> if a previously "empty" pattern/map/song is stored without name, it will be
+    labled with "unnamed" now.
+
+  <LI> LFO effect now works on CC parameters as intended
+
+  <LI> If a track is in CC mode, a CC/Pitchbender value will only be sent if
+    the gate trigger is set.<BR>
+    CCs/Pitchbender events are sent for each step regardless of the gate
+    as before if the track is in Note or Chord mode.
+
+  <LI> transpose now works correctly on CC and Pitchbender values, but only if the
+    track is configured for CC mode.<BR>
+    Transpose will be ignored for CC/Pitchbender events if track is in
+    Note or Chord mode.
+
+  <LI> AOUT gates now 0V after power-on
+
+  <LI> some minor bugfixes
+  </UL>
+</LI>
+
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.0beta20</I>
   <UL>
   <LI> taken over track/layer button/LED usage of MBSEQ V3 (important if you are

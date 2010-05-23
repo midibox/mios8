@@ -41,7 +41,7 @@ If the track consists of more than 16 steps, the selection pattern will be appli
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Gatelength </H2>
 <P CLASS=DESC>The gatelength parameter needs some additional explanations, as it not only allows to set the length of a note, but also to trigger a glide (overlapping note) and to play an event multiple times.</P>
 
-<P CLASS=DESC>The Length can be adjusted from 0% to 100% in 23 steps.<BR>
+<P CLASS=DESC>The Length can be adjusted from 0% to 100% in 96 steps.<BR>
 <CENTER><IMG SRC="midibox_seq/cs4/edit4.gif" width=481 height=19 ALT=""></IMG></CENTER>
 <CENTER><IMG SRC="midibox_seq/cs4/edit5.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
 <P CLASS=DESC>In following audio example, the gatelength of all steps is varied with a single rotary encoder - this can be achieved by pushing the ALL button: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_gl_normal.mp3"#ffffff**</P>
@@ -53,20 +53,6 @@ If the track consists of more than 16 steps, the selection pattern will be appli
 <P CLASS=DESC>Finally glide will also be activated on the third step:</P>
 <CENTER><IMG SRC="midibox_seq/cs4/edit8.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
 <P CLASS=DESC>It sounds like demonstated in this MP3 sample:**MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_gl_glide.mp3"#ffffff** </P>
-
-<P CLASS=DESC>The multi trigger allows to trigger a step multiple times (for example 2x12 and 3x16). It is displayed once the gatelength has exceeded the normal range (turn the encoder clockwise until the numbers are visible).<BR>
-The first number means, how often the event will be played (2, 3 or 4 times), the second number specifies the number of clock ticks between the events (1..31). Examples:</P>
-<P CLASS=DESC><IMG SRC="midibox_seq/tutorial3/gatelength_2x12.gif" width=200 height=109 ALT="" align="left">One step consists of 24 clock ticks. With the 2x12 setting the note will be played at the beginning and in the middle of the step. </IMG></P>
-<BR><BR><BR>
-<P CLASS=DESC><IMG SRC="midibox_seq/tutorial3/gatelength_3x16.gif" width=200 height=109 ALT="" align="left">With 3x16, the note will be played three times with a distance of 16 clock steps - at 0, 16 and 32. A delay of 32 crosses the step range of 24, so that the last note slips into the range of the second step. Thats the reason for the "!!!!" marker after 3x16. It means: you have to activate the gate of this step so that the last note will be played.</IMG></P>
-
-<P CLASS=DESC>The number of combined notes is selectable from 2-4, and the delay is free adjustable from 1-31 (!) - very "asynchronous" sequences can be created with odd numbers, e.g. 2x25 or 4x29</P>
-<P CLASS=DESC>Sidenote: ">>>>" means also that you are able to change the Note/Velocity value of this step - keep this in mind when doing some more advanced experiments.</P>
-<P CLASS=DESC>In following example, various multi triggers are used for the snare drum. Here a screenshot of the 32 step sequence (which is played 2 times):
-<CENTER><IMG SRC="midibox_seq/cs4/edit9.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
-<CENTER><IMG SRC="midibox_seq/cs4/edit10.gif" width=481 height=19 ALT=""></IMG></CENTER></P>
-<P CLASS=DESC>And here the MP3 sample:
-    **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_gl_multi.mp3"#ffffff**</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Drum Edit Page</H2>
@@ -159,7 +145,16 @@ This page shows animated VU meters for each instrument (to give you an overview 
     <LI><B>Pitch:</B> sends a PitchWheel event
     <LI><B>Prob:</B> sets the probability that the step will be played (1..100%)
     <LI><B>Delay:</B> delays the step for 1..96 microticks
-    <LI><B>Roll:</B> plays the step 2..5 times with ascenting/descenting velocity (intensity: 0..15). 127 variations are available - great for drum patterns!
+    <LI><B>Roll:</B> plays the step 2..5 times with ascenting/descenting velocity (intensity: 0..15). 127 variations are available - great for drum patterns!<BR>
+The distance between the repeats is predefined to: 48 ticks on 2 repeats, 32 ticks on 3 repeats, 36 ticks on 4 repeats, 32 ticks on 5 repeats.
+    <LI><B>Roll2:</B> plays the step 2..5 times. Instead of velocity the distance between the steps can be directly controlled.<BR>
+The first number means, how often the event will be played (2, 3, 4 or 5 times), the second number specifies the number of clock ticks between the events (accuracy depends on number of repeats). Examples:</P>
+<P CLASS=DESC><IMG SRC="midibox_seq/tutorial4/gatelength_v4_2x48.gif" width=200 height=109 ALT="" align="left">One step consists of 96 clock ticks. With the 2x48 setting the note will be played at the beginning and in the middle of the step. </IMG></P>
+<BR><BR><BR>
+<P CLASS=DESC><IMG SRC="midibox_seq/tutorial4/gatelength_v4_3x63.gif" width=200 height=109 ALT="" align="left">With 3x63, the note will be played three times with a distance of 63 clock steps - at 0, 63 and 126. A delay of 126 crosses the step range of 96, so that the last note slips into the range of the second step. This sometimes results into nice, unexpected grooves! :-)</P>
+<P CLASS=DESC>In following example, various roll2 parameters are used for the snare drum. Here a screenshot of the 32 step sequence (which is played 2 times):
+    **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_gl_multi.mp3"#ffffff**</P>
+
   </UL></LI>
 <LI>The <B>MIDI Channel</B> can be selected from 1-16.</LI>
 <LI>Following <B>MIDI Ports</B> are available:<BR>
@@ -169,7 +164,7 @@ This page shows animated VU meters for each instrument (to give you an overview 
     <LI><B>OUT1..OUT4:</B> 2 physical MIDI OUT ports are provided by the MBHP_CORE_STM32 module. The remaining two are reserved for the emulated MBSEQ</LI>
     <LI><B>IIC1..IIC4:</B> to select the optional MBHP_IIC_MIDI ports</LI>
     <LI><B>OSC1..OSC4:</B> planned</LI>
-    <LI><B>Bus1..Bus4:</B> virtual ports. Bus1 is used as loopback port (see description below), Bus2..4 can be used for the MIDI router function (see description of MIDI configuration page)</LI>
+    <LI><B>Bus1..Bus4:</B> virtual ports. They are used to control the transposer/arpeggiator (see loopback description below), and can optionally be used for the MIDI router function (see description of MIDI configuration page)</LI>
     <LI><B>AOUT:</B> the AOUT port. See description below</LI>
   </UL></LI>
   <LI><B>Edit Name:</B>
@@ -198,12 +193,13 @@ Advantages of using preset files:
 <P CLASS=INFO>The <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module allows you to add 4 additional, independent (!) MIDI outputs. Main advantage of multiple MIDI ports is reduced latency (as MIDI events can be sent in parallel), and relaxed MIDI channel handling (for 4 synths you don't need to take care about the MIDI channel at all)</P>
 
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Bus1: the Loopback Port</H2>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Bus1..4: the Loopback Ports</H2>
 
-<P CLASS=INFO>The Loopback port forwards Note and CC events to the MIDI handler of the sequencer itself. This opens a wide range of possibilities, especially for experimental, non-static sequences. Classical usecase is a setup of self-modifiying and loopbacked tracks which play completely autarkic for several minutes without an interaction from your side.</P>
+<P CLASS=INFO>A loopback port forwards Note and CC events to the MIDI handler of the sequencer itself. This opens a wide range of possibilities, especially for experimental, non-static, self-changing sequences. Classical usecase is a setup of self-modifiying and loopbacked tracks which play completely autarkic for several minutes without an interaction from your side.</P>
 
-<P CLASS=DESC>When a track sends MIDI notes, it can control the transposer and arpeggiator w/o an external keyboard. For the transposer a single note should be sent, for the arpeggiator either three notes (Event Mode #4) or Chords (Event Mode #2 or #3).</BR>
-The keyboard range for Transposer/Arpeggiator can be split in the MIDI menu, accordingly it's also possible to control them from two different tracks. The MIDI channel to which a note is sent doesn't matter.</P>
+<P CLASS=DESC>When a track sends MIDI notes, it can control the transposer and arpeggiator w/o an external keyboard. For the transposer a single note should be sent, for the arpeggiator either four notes (from different parameter layers) or Chords (from a single parameter layer).</BR>
+
+<P CLASS=INFO>Loopbacks can be send to four busses. Each track provides the possibility to select the Bus to that the Transposer/Arpeggiator should listen. This allows to transpose tracks individually. The MIDI channel to which a note is sent doesn't matter.</P>
 
 <P CLASS=DESC>A CC loopback allows to control sequencer parameters which are listed in <A HREF="midibox_seq/mbseqv4_cc_implementation.txt">the CC implementation chart</A>. In difference to Note events, the MIDI channel gets an important purpose here, as it selects the target track of which the parameters should be modified. The CC# corresponds with the NRPN LSB number.<BR>
 Example: Loopback Channel #3, CC#49 controls the Octave Transpose of Track 3</P>
@@ -376,10 +372,23 @@ Notes to AOUT Channel #16 will be redirected to up to 64 digital outputs of the 
     <UL CLASS=CL>
       <LI><B>Normal:</B> no transpose and no arpeggiator function</LI>
       <LI><B>Transpose:</B> Notes and CCs can be transposed with an external keyboard or from a Loopback track</LI>
-      <LI><B>Arpeggiator:</B> Notes are controlled in a special way: instead of the key number, you define the "played key" (from a sorted list) and the octave transponation for each individual step. Once a track is configured for Arpeggiator Mode, Note events are displayed in a special format. Following example should make the correlations easy understandable:<BR>
-Let's assume the Chord C-3, E-3, G-3, B-3 is played on the external MIDI keyboard.<BR>
-A step which plays "1+0" will output Note C-3, "1-1" will output Note C-2, "1+1" will output Note C-4<BR>
-2+0 plays the second Key (E-3), 3+0 the third key (G-3), 4+0 the fourth key (B-3).<BR>
+      <LI><B>Arpeggiator:</B> Notes are controlled in a special way: instead of specifying the actual note, you make a note selection and an octave transposition selection. The note is selected from the currently received chord and the octave transposition is relative to that note. Both selections are done for each individual step and are displayed in a special format concisting of note and octave transposition.<BR>
+The following example shows the notation:<BR>
+Let's assume the Chord C-3, E-3, G-3, B-3 is played on the external MIDI keyboard and that the pattern<BR>
+1+0 --- 1-1 --- 1+1 --- 2+0 --- 3+0 --- 4+0 --- 2+0 3+1 2-1 4+2<BR>
+is entered into the sequencer.<BR>
+<UL CLASS=CL>
+<LI>at the first step the note C-3 (first note, no transpose) will be output.
+<LI>at step 3, C-2 (first note, -1 octave transpose).
+<LI>at step 5, C-4 (first note, +1 octave transpose).
+<LI>at step 7, E-3 (second note, no octave transpose).
+<LI>at step 9, G-3 (third note, no octave transpose).
+<LI>at step 11, B-3 (forth note, no octave transpose).
+<LI>at step 13, E-3 (second note, no octave transpose).
+<LI>at step 14, G-4 (third note, +1 octave transpose).
+<LI>at step 15, E-2 (second note, -1 octave transpose).
+<LI>at step 16, B-5 (forth note, +2 octave transpose). 
+</UL>
 Audio Example: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_arp.mp3"#ffffff**<BR>
 You cannot imagine how easy it is to setup complex arpeggiator textures when you never tried this by yourself :) - the <A HREF="http://www.youtube.com/watch?v=UtnUMpykQLc" TARGET="_blank">Session #4 video</A> gives a nice example of some arpeggios which where created within a few number of minutes<BR>
 When you turn the rotary encoder within the Edit Screen to select the "Arp Event" for a step, you may notice events with the format "x*y".<BR>
@@ -388,6 +397,8 @@ transposed by the specified octave value (-3..+3). Once all keys have been playe
 This feature has been explained in <A HREF="midibox_seq_tutorial4.html">Tutorial #4</A> for MBSEQ V2, and it is still available in MBSEQ V4<BR>
 Audio Example for Multi-Arp Events: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseq_tutorial4_3.mp3"#ffffff**</LI>
     </UL>
+  <LI><B>Bus:</B> selects Bus1..Bus4 over which the Transposer/Arpeggiator should be controlled. Each bus provides a separate MIDI port/channel/keyboard zone that can be configured in the MIDI page. Alternatively busses can transfer the output of loopback tracks as described earlier.<BR>
+     Since each track has an own bus assignment, it's possible to transpose tracks individually.</LI>
   <LI><B>Hold:</B> the last key or chord is held until a new key/chord is played on the keyboard (only relevant for Tranpose/Arpeggiator mode)</LI>
   <LI><B>Sort:</B> only relevant for arpeggiator mode: the note stack will be sorted when this function is active (default); arpeggios will be played with notes "as played" when this functions is deactivated.</LI>
   <LI><B>Restart:</B> the track is restarted when a new key/chord is played</LI>
@@ -606,30 +617,74 @@ Use the first 10 GP buttons or encoders to cycle the characters (like on a telep
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> MIDI Page (Shortcut: MENU+GP Button #15)</H2>
-<P CLASS=INFO>Allows you to select following options:<BR>
+<P CLASS=INFO>This page is divided into four subpages that have to be selected with the left sided GP buttons:<BR>
+
+<P CLASS=INFO><B>Transposer and Arp.:</B>
 <CENTER><IMG SRC="midibox_seq/cs4/midi1.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
 <UL CLASS=CL>
-  <LI><B>Def.Port:</B> the port to which MIDI events will be sent by default.</LI>
-  <LI><B>Keyboard Channel:</B> the MIDI channel over which the arpeggiator/transpose can be controlled, and CCs will be received (e.g. for the morph function)</LI>
-  <LI><B>T/A Split:</B> optionally, the transpose and arpeggiator function can be controlled from two different keyboard zones</LI>
-  <LI><B>Middle Note:</B> separates between the transpose and arpeggiator function. The transpose function is controlled from the lower keys</LI>
-  <LI><B>MIDI Router</B> provides a simple possibility to route incoming MIDI events to synthesizers which are connected to the MIDI Out ports (which means: also to the AOUT port - MBSEQ replaces a CV interface!)
-   <UL CLASS=CL>
-     <LI><B>Node:</B> 8 routing pathes are available<BR>
-     <LI><B>IN:</B> selects the MIDI IN port.<BR>
-     <LI><B>Source Channel:</B> either a dedicated source channel (1-16) or "all" channels can be selected</LI>
-     <LI><B>OUT:</B> selects the MIDI output port</LI>
-     <LI><B>Target Channel:</B> either a dedicated target channel (1-16) or "all" channels can be selected</LI>
-     <LI><B>MIDI Monitor:</B> enters the MIDI Monitor page:<BR>
-        <CENTER><IMG SRC="midibox_seq/cs4/midi2.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG><BR>
-        It shows most of the IN ports at the upper line (e.g. Bus4 isn't displayed), and most of the OUT ports at the lower line.<BR>
-        Whenever an event is received or sent, the appr. item will show the event for a short moment.<BR>
-        This gives you a great overview of the MIDI activity, especially to analyze the current track and MIDI router setup.<BR>
-        <CENTER><IMG SRC="midibox_seq/cs4/midi3.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG><BR>
-        By pressing the SELECT button, filters for MIDI Clock (F8) and Active Sense (FE) events can be enabled/disabled.<BR>
-        Both filters are activated by default. Once the clock filter is deactivated, the OUT/IN items will (probably) show CLK permanently so long a MIDI clock is received/sent over the appr. port. This allows you to analyze the MIDI Clock In/Out settings as configured in the BPM page.
-        Once the Active Sense filter is deactivated, FE events will be displayed periodically on the appr. IN port if a connected MIDI keyboard sends such events.
+  <LI><B>Bus:</B> four individual busses (Bus1..Bus4) are available for this function. Each bus provides separate note stacks for Transposer and Arpeggiator.</LI>
+  <LI><B>Port:</B> the MIDI input port for the selected bus. If "ALL" is selected, MIDI data will be received from any port.</LI>
+  <LI><B>Channel:</B> selects the MIDI channel over which the arpeggiator/transpose can be controlled, and CCs will be received (e.g. for the morph function). With "---" no events will be received (bus disabled)</LI>
+  <LI><B>Lower/Upper:</B> defines the lower and upper note of a keyboard zone for transpose/arpeggiator function.<BR>
+      With Lower = "---" and Upper = "G-8" the complete keyboard will be taken.<BR>
+      Defining different (or overlapping) keyboard zones allows you to control the four Transposer/Arpeggiator busses from a single MIDI keyboard over the same MIDI channel.</LI>
+  <LI><B>Mode:</B>
+    <UL CLASS=CL>
+      <LI><B>T&A:</B> MIDI events are routed to the Transposer/Arpeggiator notestacks
+      <LI><B>Play:</B> MIDI events are directly routed to MIDI Port and Channel of the currently selected track. This allows you to play the selected track "live".
+    </UL>
+  <LI><B>Reset Stacks:</B> clears all note stacks. Useful if the MIDI keyboard (or external sequencer) has been disconnected from MIDIbox SEQ while some keys were still active.
+</UL>
+</P>
+
+<P CLASS=INFO><B>Section Control:</B></P>
+<P CLASS=INFO>It's possible to select sections of a track that should be played from a MIDI keyboard as demonstrated in following video:
+<center><object width="400" height="300"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=8003266&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=8003266&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="300"></embed></object></center></P>
+
+<P CLASS=INFO>Each group (G1/2/3/4) has a separate selection zone on the keyboard.<BR>
+Key C..B select section 1..12, the first key of the octave (C) plays the first section as usual, it has the same effect as if this feature is disabled.<BR>
+The width of a section depends on the track length.<BR>
+E.g., if the track length is set to 32, and if it consists of 256 steps, 8 sections are available which can be selected with Key C/C#/D/D#/E/F#/F/F#/G<BR>
+It is recommented to activate the "Follow" function under UTILITY-&gt;OPTIONS when using this feature, so that the edit display gets automatically updated whenever the section is changed.</P>
+
+<CENTER><IMG SRC="midibox_seq/cs4/midi2.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Port:</B> selects the MIDI port that should be used to select the sections.
+  <LI><B>Channel:</B> selects the MIDI channel that should be used to select the sections.
+  <LI><B>G1..G4:</B> selects the octave that should be used to select the sections for each pattern group individually. It is possible to assign all groups to the same octave if desired.
+  <LI><B>Fwd:</B> optionally all octaves that are not selected by G1..G4 can be forwarded to the given port.
+  <LI><B>Reset Stacks:</B> clears all note stacks. Useful if the MIDI keyboard (or external sequencer) has been disconnected from MIDIbox SEQ while some keys were still active.
+</UL>
+</P>
+
+<P CLASS=INFO><B>MIDI Router:</B>
+<P CLASS=INFO>Provides a simple possibility to route incoming MIDI events to synthesizers which are connected to the MIDI Out ports (which means: also to the AOUT port - MBSEQ replaces a CV interface!)
+<CENTER><IMG SRC="midibox_seq/cs4/midi3.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>Node:</B> 8 routing pathes are available<BR>
+  <LI><B>IN:</B> selects the MIDI IN port.<BR>
+  <LI><B>Source Channel:</B> either a dedicated source channel (1-16) or "all" channels can be selected</LI>
+  <LI><B>OUT:</B> selects the MIDI output port</LI>
+  <LI><B>Target Channel:</B> either a dedicated target channel (1-16) or "all" channels can be selected</LI>
+  <LI><B>Default Port:</B> selects the port to which MIDI events should be sent if the "Def." port has been selected in the EVENT page.
+</UL>
+</P>
+
+<P CLASS=INFO><B>Misc.:</B>
+<CENTER><IMG SRC="midibox_seq/cs4/midi4.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
+<UL CLASS=CL>
+  <LI><B>BLM_SCALAR port:</B> see <A HREF="midibox_seq_manual_blm.html">this manual chapter</A>.
+  <LI><B>MIDI Monitor:</B> enters the MIDI Monitor page:<BR>
+    <CENTER><IMG SRC="midibox_seq/cs4/midi5.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG><BR>
+    It shows most of the IN ports at the upper line (e.g. Bus4 isn't displayed), and most of the OUT ports at the lower line.<BR>
+    Whenever an event is received or sent, the appr. item will show the event for a short moment.<BR>
+    This gives you a great overview of the MIDI activity, especially to analyze the current track and MIDI router setup.<BR>
+    <CENTER><IMG SRC="midibox_seq/cs4/midi6.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG><BR>
+    By pressing the SELECT button, filters for MIDI Clock (F8) and Active Sense (FE) events can be enabled/disabled.<BR>
+    Both filters are activated by default. Once the clock filter is deactivated, the OUT/IN items will (probably) show CLK permanently so long a MIDI clock is received/sent over the appr. port. This allows you to analyze the MIDI Clock In/Out settings as configured in the BPM page.
+    Once the Active Sense filter is deactivated, FE events will be displayed periodically on the appr. IN port if a connected MIDI keyboard sends such events.
   </UL>
+</UL>
 
 </UL>
 
