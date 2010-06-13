@@ -42,7 +42,43 @@ HEADER 3 MIOS Studio 2
 <P CLASS=INFO>A simple SysEx upload/download/load/save/edit tool which should be self-explaining:
 <CENTER><IMG SRC="mios_studio/mios_studio_sysex.png" width=863 height=529></CENTER></P>
 
-<H2>MIDIO128 Configuration Tool</H2>
+
+<H2>OSC Tool</H2>
+
+<P CLASS=INFO>This tool allows you to send and receive OSC datagrams:
+<CENTER><IMG SRC="mios_studio/mios_studio_osc.png" width=853 height=553></CENTER></P>
+
+<P CLASS=INFO>Similar to the SysEx window, there is one frame to enter data that should be sent, and another frame which displays received messages.</P>
+
+<P CLASS=INFO>Enter the remote host and port over which datagrams should be sent. You can either enter the IP address or the host name of the host that should receive outgoing data (such as "localhost" to send data internally on your PC/Mac).</P>
+
+<P CLASS=INFO>The local port is the one which receives OSC datagrams from any IP. It's allowed to set the local port to the same number as the remote port if your application requires this.</P>
+
+<P CLASS=INFO>E.g., by setting remote host to "localhost", and both ports (remote and local) to "10000", outgoing datagrams will be received like on a loopback.</P>
+
+<P CLASS=INFO>The send window supports multiple OSC messages sent in a bundle. The syntax for entering datagrams is the same as displayed by the receive window.</P>
+
+<P CLASS=INFO>Here some examples. To improve the readability, we always take /foo/bar as the free definable path, and we leave out the timestamp (which can optionally be specified by writing @&lt;seconds&gt;.&lt;fraction&gt; before the path.
+<UL CLASS=CL>
+  <LI><B>/foo/bar i1234</B> sends the integer value 1234 (int32)
+  <LI><B>/foo/bar f0.42</B> sends the floating value 0.42 (float32)
+  <LI><B>/foo/bar sHello!</B> sends the string "Hello!"
+  <LI><B>/foo/bar SHello!</B> sends the alternate string "Hello!"
+  <LI><B>/foo/bar b4:12345678</B> sends a "blob" with length of 4 bytes, values 0x12, 0x34, 0x56, 0x78
+  <LI><B>/foo/bar h123456789012345678</B> sends an integer value with double resolution (int64)
+  <LI><B>/foo/bar d3.1415927</B> sends the floaing value with double resolution (float64)
+  <LI><B>/foo/bar t100.2</B> sends the timetag 100 (seconds) 2 (fraction)
+  <LI><B>/foo/bar cX</B> sends the ASCII character X
+  <LI><B>/foo/bar r8899AAFF</B> sends the RGB value (numbers in hexadecimal format)
+  <LI><B>/foo/bar m903C7F00</B> sends a MIDI events (numbers in hexadecimal format, 8 digits required!)
+  <LI><B>/foo/bar T</B> sends "TRUE"
+  <LI><B>/foo/bar F</B> sends "FALSE"
+  <LI><B>/foo/bar N</B> sends "NIL"
+  <LI><B>/foo/bar I</B> sends "Infinitum"
+  <LI><B>/foo/bar [</B> sends "Beginning of Array"
+  <LI><B>/foo/bar ]</B> sends "End of Array"
+</UL>
+
 
 <H2>MIDIO128 Tool</H2>
 
@@ -61,8 +97,8 @@ HEADER 3 MIOS Studio 2
 
 <P CLASS=INFO>
 <UL CLASS=CL>
-  <LI><A HREF="mios_studio/MIOS_Studio_2_0.zip">MIOS_Studio_2_0 for WinXP/Vista/Win7</A>
-  <LI><A HREF="mios_studio/MIOS_Studio_2_0.app.zip">MIOS_Studio_2_0.app for MacOS 10.5/10.6</A>
+  <LI><A HREF="mios_studio/MIOS_Studio_2_1.zip">MIOS_Studio_2_1 for WinXP/Vista/Win7</A>
+  <LI><A HREF="mios_studio/MIOS_Studio_2_1.app.zip">MIOS_Studio_2_1.app for MacOS 10.5/10.6</A>
 </UL>
 
 <H2>Source Code</H2>
@@ -73,12 +109,11 @@ HEADER 3 MIOS Studio 2
 
 <P CLASS=INFO>Firstly it should be highlighted, that the Juce based MIOS Studio 2 solved all MIDI uploading issues of V1 which were mainly related to the MIDI API of Java implemented by Sun and Apple (or third party vendors)!</P>
 
-<P CLASS=INFO>Currently there are only two known issues:
+<P CLASS=INFO>Currently there is only one known issue:
 <UL CLASS=CL>
-<LI><B>Windows:</B> MIOS Studio 2.0 freezes if the CC assignment of a MIDI slider is changed. This doesn't happen under MacOS.<BR>
-<B>Workaround:</B> none - will be fixed in 2.1
 <LI><B>Windows7 64bit:</B> the SysEx communication gets stucked if a MIOS32 core opens more than one USB port (like MIDIbox SEQ V4).<BR>
-<B>Workarounds:</B> this seems to be related to the legacy USB MIDI driver provided by Microsoft. No issue with the 32bit version. SysEx transfers are working stable under 64bit if the bootloader is selected via J27 jumper, since it only opens a single USB port. Alternatively code can be uploaded properly through the common serial MIDI interface.<BR>However, there is hope that either Microsoft will fix this issue, or that a workaround will be integrated into Juce.
+<B>Workarounds:</B> this seems to be related to the legacy USB MIDI driver provided by Microsoft. No issue with the 32bit version. SysEx transfers are working stable under 64bit if the bootloader is selected via J27 jumper, since it only opens a single USB port. Alternatively code can be uploaded properly through the common serial MIDI interface.<BR>However, there is hope that either Microsoft will fix this issue, or that a workaround will be integrated into Juce.<BR>
+We found an easier workaround for MBSEQ V4: type "help" into the terminal window multiple times until the complete help page is displayed. See also <A HREF="mios_studio/mios_studio_win7_workaround.png">this snapshot</A>.
 </UL>
 
 

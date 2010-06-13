@@ -5,12 +5,90 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- 16x16+X Button/LED Matrix
 <H1>MIDIbox SEQ V4</H1>
 <H1>User Manual --- 16x16+X Button/LED Matrix</H1>
 
-<P CLASS=INFO>As long as no detailed informations are available, enjoy this video:</P>
 <center>
 <object width="400" height="300"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=11768389&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=11768389&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="300"></embed></object>
 </center>
 
+<H2>General informations and discussions about this project</H2>
+
 <P CLASS=INFO><A HREF="http://midibox.org/forums/index.php?/forum/43-midibox-blm/" TARGET="_blank">Link to special "MIDIbox BLM" forum section</A></P>
+
+<H2>Supported features by MIDIbox SEQ V4</H2>
+
+<P CLASS=INFO>MIDIbox BLM doesn't provide any intelligence to play sequences by itself, instead it only acts as a control surface enhancement for the host application such as <A HREF="midibox_seq.html">MIDIbox SEQ V4</A>. This means in other words, that all features are implemented at the host side.</P>
+
+<P CLASS=INFO>Following BLM modes are supported by MBSEQ. You can switch between the modes by holding the SHIFT button while pressing an "extra column" button.
+
+<UL CLASS=CL>
+  <LI><B>Grid mode:</B> displays a 16 step view of the selected track. The usage depends on the parameter layer assignment:
+    <UL CLASS=CL>
+      <LI><B>Note Layer:</B> each 16x16 row will play a different note. The 16 notes per column are pre-selected based on the current scale (MENU+FX-&gt;Scale) to increase the octave range, and to simplify the entry of harmonic notes.<BR>
+      <B>Important:</B> one note per step can be selected if the track only contains a single note layer (default). By adding more note layers in the MENU+Event page it's possible to select multiple notes per step for polyphonic sequences.
+      <LI><B>Any other parameter layer</B> such as velocity/length/CC/PitchBender/Roll/Probability/etc.: each 16x16 column works like a VU meter.
+      <LI><B>Drum Tracks:</B> each 16x16 row is assigned to a different note (drum instrument) as configured in the MENU+Event page.<BR>
+          <B>Hint:</B> instead of drums you could also play a synth. Since each note can be predefined, you are able to create your own "scale" this way.
+      <LI><B>Extra Column:</B> selects the track that should be edited. Push the button twice to mute/unmute a track.
+      <LI><B>Extra Row:</B> selects the step view. Increase the track length to play more step views. Use loop mode or the section function to play only a single step view.
+      <LI><B>Planned future enhancements:</B> pressing SHIFT+16x16 button should set accent, pressing SHIFT+extra row button should select the section that should be played
+    </UL>
+
+  <LI><B>Track mode:</B> displays a 16 step view of all tracks.
+    <UL CLASS=CL>
+      <LI><B>16x16 buttons:</B> set/clear a trigger.<BR>
+      <LI><B>Extra Column:</B> selects a track. Push the button twice to mute/unmute a track.
+      <LI><B>Extra Row:</B> selects the step view. Increase the track length to play more step views. Use loop mode or the section function to play only a single step view.
+      <LI><B>Planned future enhancements:</B> pressing SHIFT+16x16 button should set accent, pressing SHIFT+extra row button should select the section that should be played
+    </UL>
+
+  <LI><B>Pattern mode:</B> displays the patterns of all 4 groups.
+    <UL CLASS=CL>
+      <LI><B>16x16 buttons:</B> each quarter directly selects the pattern of a group (up to 64 patterns per group)
+      <LI><B>16x16 LEDs:</B> green: pattern is selected for next measure, red: pattern is played, yellow: pattern is selected and played
+      <LI><B>Extra Column:</B> selects a track. Push the button twice to mute/unmute a track.
+      <LI><B>Extra Row:</B> no function yet.
+      <LI><B>Planned future enhancements:</B> pressing SHIFT+16x16 button should select the pattern synchronized to measure independent from the global "synch-to-measure" function.<BR>
+            The extra row could select a song phrase (so that all 4 groups change to predefined patterns)
+    </UL>
+
+  <LI><B>Keyboard mode:</B> allows to play notes of the selected track "live".
+    <UL CLASS=CL>
+      <LI><B>16x16 buttons:</B> each 16x16 column will play a different note. Than higher the row, than higher the velocity of the played note. The 16 notes per column are pre-selected based on the current scale (MENU+FX-&gt;Scale) to increase the octave range, and to simplify the entry of harmonic notes.<BR>
+      <LI><B>Extra Column:</B> selects a track. Push the button twice to mute/unmute a track.
+      <LI><B>Extra Row:</B> sends a note to the transposer (starting from C-2, unscaled)
+      <LI><B>Planned future enhancements:</B> pressing SHIFT+16x16 button should play&hold a note until the same column is selected again.<BR>
+            Support for playing notes on drum tracks.
+    </UL>
+
+  <LI><B>Stop:</B> stops the sequencer
+  <LI><B>Start:</B> starts/restarts the sequencer
+</UL>
+
+<P CLASS=INFO>Following extensions are planned for future releases:</P>
+<UL CLASS=CL>
+  <LI><B>Keyboard Recording mode:</B> live recording function
+  <LI><B>Transposer mode:</B> direct access to all 4 Transposer/Arpeggiator busses
+  <LI><B>Keyboard Split mode:</B> play two instruments with upper/lower half of 16x16 matrix (with reduced velocity resolution)
+  <LI><B>Keyboard Track mode:</B> all 16 tracks can be played "live" with only a single velocity value. Will be nice for quick soundchecks.
+  <LI><B>Loop mode:</B> all 16 tracks are displayed like in "Track" mode. By pressing one button the last step can be defined (restart at first step once this step has been reached). By pressing two buttons the sequencer will loop between the steps.
+  <LI><B>Mixer mode:</B> direct control of CCs and program changes like in the MENU+Mixer page
+</UL>
+
+
+<H2>Virtual BLM16x16+X</H2>
+
+<P CLASS=INFO>The virtual MIDIbox BLM16x16+X runs on a Windows PC or Mac and allows you to evaluate the new possibilities before building the hardware:
+
+<CENTER><IMG SRC="midibox_blm/midibox_blm16x16_virtual.png" width=666 height=633></CENTER></P>
+
+<P CLASS=INFO>To establish the communication between MIDIbox SEQ and the BLM emulation, select an unused USB MIDI port (e.g. USB4) in the BLM application and in the MENU+MIDI menu of your MIDIbox SEQ V4:
+<CENTER><IMG SRC="midibox_seq/cs4/midi4_usb4.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
+
+<P CLASS=INFO><B>Important:</B> the BLM modes are normaly selected with the SHIFT button. Since it isn't possible to select two button functions with a mouse (if you don't own a touchscreen...), the SHIFT function can alternatively be activated with the space key of your computer keyboard. Due to an unsolved issue with Juce, you have to press any BLM button after startup to get the space key working!
+
+<UL CLASS=CL>
+  <LI><A HREF="midibox_blm/MIDIbox_BLM_1_0.zip">MIDIbox_BLM_1_0 for WinXP/Vista/Win7</A>
+  <LI><A HREF="midibox_blm/MIDIbox_BLM_1_0.app.zip">MIDIbox_BLM_1_0.app for MacOS 10.5/10.6</A>
+</UL>
 
 
 FOOTER
