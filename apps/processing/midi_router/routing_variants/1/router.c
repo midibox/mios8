@@ -204,7 +204,7 @@ void ROUTER_Rx_IIC3(unsigned char ptype, unsigned char evnt0, unsigned char evnt
   if( ptype >= 0x08 && ptype <= 0x09 ) {
 
     if( (evnt0 & 0x0f) == 0x0f ) {
-      if( evnt1 < 36 ) {
+      if( evnt1 < 0x3c ) {
 	ROUTER_Tx_IIC0(ptype, (evnt0 & 0xf0) | 9, evnt1, evnt2);
 
 	transposed_note = evnt1 + 2*12;
