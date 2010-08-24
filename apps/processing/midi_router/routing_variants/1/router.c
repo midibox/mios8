@@ -199,6 +199,8 @@ void ROUTER_Rx_IIC3(unsigned char ptype, unsigned char evnt0, unsigned char evnt
     return;
 
   // apply exactly the routing as documented under http://www.ucapps.de/midi_router/midi_router_default.gif
+  // note: parameters selectable on the UI are not taken into account here
+  // if this is desired, replace constants by router_flags.* variables as in the original router.c file
   if( ptype >= 0x08 && ptype <= 0x09 ) {
 
     if( (evnt0 & 0x0f) == 0x0f ) {
@@ -220,8 +222,7 @@ void ROUTER_Rx_IIC3(unsigned char ptype, unsigned char evnt0, unsigned char evnt
   // if no FE
   if( evnt0 != 0xfe )
 #endif
-    if( !router_flags.IIC3_FWD_MBSID && !router_flags.IIC3_FWD_MBFM && !router_flags.IIC3_FWD_MBSEQ )
-      ROUTER_Tx_INT0(ptype, evnt0, evnt1, evnt2);
+    ROUTER_Tx_INT0(ptype, evnt0, evnt1, evnt2);
 }
 
 
