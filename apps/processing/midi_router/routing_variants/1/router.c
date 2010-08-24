@@ -203,16 +203,16 @@ void ROUTER_Rx_IIC3(unsigned char ptype, unsigned char evnt0, unsigned char evnt
   // if this is desired, replace constants by router_flags.* variables as in the original router.c file
   if( ptype >= 0x08 && ptype <= 0x09 ) {
 
-    if( (evnt0 & 0x0f) == 0x0f ) {
+    if( (evnt0 & 0x0f) == MIDI_CHN16 ) {
       if( evnt1 < 0x3c ) {
-	ROUTER_Tx_IIC0(ptype, (evnt0 & 0xf0) | 9, evnt1, evnt2);
+	ROUTER_Tx_IIC0(ptype, (evnt0 & 0xf0) | MIDI_CHN9, evnt1, evnt2);
 
 	transposed_note = evnt1 + 2*12;
 	// if value >= 0x80, decrement 12 until we have reached the range <= 0x7f again
 	while( transposed_note & 0x80 ) transposed_note -= 12;
-	ROUTER_Tx_IIC2(ptype, (evnt0 & 0xf0) | 1, transposed_note, evnt2);
+	ROUTER_Tx_IIC2(ptype, (evnt0 & 0xf0) | MIDI_CHN1, transposed_note, evnt2);
       } else {
-	ROUTER_Tx_IIC1(ptype, (evnt0 & 0xf0) | 13, evnt1, evnt2);
+	ROUTER_Tx_IIC1(ptype, (evnt0 & 0xf0) | MIDI_CHN13, evnt1, evnt2);
       }
     }
   }
