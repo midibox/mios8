@@ -639,7 +639,7 @@ CS_MENU_PRINT_I4Px_PMDEC
 CS_MENU_PRINT_AOUTxINST
 	call	CS_MENU_Hlp_GetPxAOUTxValue
 	swapf	WREG, W
-	andlw	0x07
+	andlw	0x03
 	rgoto	CS_MENU_PRINT_DecPlus1
 
 ; --------------------------------------------------------------------------
