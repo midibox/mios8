@@ -161,9 +161,9 @@ The first number means, how often the event will be played (2, 3, 4 or 5 times),
   <UL CLASS=CL>
     <LI><B>Default:</B> the default port as selected in the MIDI configuration page (usually USB1)</LI>
     <LI><B>USB1..USB4:</B> 4 independent USB ports are available which are visible for your operating system</LI>
-    <LI><B>OUT1..OUT4:</B> 2 physical MIDI OUT ports are provided by the MBHP_CORE_STM32 module. The remaining two are reserved for the emulated MBSEQ</LI>
+    <LI><B>OUT1..OUT4:</B> 3 physical MIDI OUT ports are provided by the MBHP_CORE_STM32 module. The remaining one is reserved for the emulated MBSEQ</LI>
     <LI><B>IIC1..IIC4:</B> to select the optional MBHP_IIC_MIDI ports</LI>
-    <LI><B>OSC1..OSC4:</B> planned</LI>
+    <LI><B>OSC1..OSC4:</B> allows to send/receive events via Ethernet</LI>
     <LI><B>Bus1..Bus4:</B> virtual ports. They are used to control the transposer/arpeggiator (see loopback description below), and can optionally be used for the MIDI router function (see description of MIDI configuration page)</LI>
     <LI><B>AOUT:</B> the AOUT port. See description below</LI>
   </UL></LI>
@@ -645,7 +645,7 @@ Use the first 10 GP buttons or encoders to cycle the characters (like on a telep
 Key C..B select section 1..12, the first key of the octave (C) plays the first section as usual, it has the same effect as if this feature is disabled.<BR>
 The width of a section depends on the track length.<BR>
 E.g., if the track length is set to 32, and if it consists of 256 steps, 8 sections are available which can be selected with Key C/C#/D/D#/E/F#/F/F#/G<BR>
-It is recommented to activate the "Follow" function under UTILITY-&gt;OPTIONS when using this feature, so that the edit display gets automatically updated whenever the section is changed.</P>
+It is recommended to activate the "Follow" function under UTILITY-&gt;OPTIONS when using this feature, so that the edit display gets automatically updated whenever the section is changed.</P>
 
 <CENTER><IMG SRC="midibox_seq/cs4/midi2.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
 <UL CLASS=CL>
@@ -906,8 +906,8 @@ Each track has an animated VU meter to display the MIDI activity.</P>
     Since MIDIbox SEQ is a step sequencer, notes will be quantised with a selectable resolution (16th, 32th or 64th).<BR>
     Also the number of layers/drum instruments is selectable (4, 8 or 16). <BR>
     Than more layers are available, than more notes can be played at the same step. In "Note" mode, all notes share the same velocity and length value, in "Drum" mode each step and instrument has a dedicated velocity value.<BR>
-    If the imported track contains different velocity or length values for polyphonic played notes, and this characteristic is important, it is recommented to split the track into multiple pieces (e.g. for long and for short notes) and to import them into separate MBSEQ tracks.<BR>
-    Another hint: if notes of the imported track don't start exactly at the 16th/32th/64th note position (e.g. because they have a "swing" feel), it is recommented to quantize the notes in a DAW before the import.<BR>
+    If the imported track contains different velocity or length values for polyphonic played notes, and this characteristic is important, it is recommended to split the track into multiple pieces (e.g. for long and for short notes) and to import them into separate MBSEQ tracks.<BR>
+    Another hint: if notes of the imported track don't start exactly at the 16th/32th/64th note position (e.g. because they have a "swing" feel), it is recommended to quantize the notes in a DAW before the import.<BR>
     The swing feel can be added again after the import (GROOVE page).<BR>
     All tracks will be initialized depending on the selected resolution and layers before the import is started. Than higher the resolution, or than more layers are selected, than less bars can be imported (number of bars is displayed on screen).<BR>
     The MIDI port will always be set to DEFAULT during import. The MIDI channel will be set to the channel of the first played note (for each track separately).<BR>
@@ -1007,7 +1007,7 @@ Each track has an animated VU meter to display the MIDI activity.</P>
   <LI><B>Length:</B> applies the LFO waveform over the Gatelength (why not...)</LI>
   <LI><B>Extra CC#:</B> allows to define an CC number which will directly send the LFO value</LI>
   <LI><B>Offset:</B> allows to increase/decrease the LFO offset within the range of 0.127</LI>
-  <LI><B>PPQN:</B> defines the update rate of the CC parameter (3..384 ppqn). Than higher the value, than more MIDI traffic will be produced! A value >= 96 ppqn is only recommented for virtual synths controlled via MIDI USB!</LI>
+  <LI><B>PPQN:</B> defines the update rate of the CC parameter (3..384 ppqn). Than higher the value, than more MIDI traffic will be produced! A value >= 96 ppqn is only recommended for virtual synths controlled via MIDI USB!</LI>
 </UL></P>
 
 <P CLASS=DESC>In following demo video (which you probably already know) the live usage of a LFO is demonstrated with different waveforms, frequencies, CC modulation, Echo Fx, transposer and force-to-scale (LFO part starts at 2:05).<BR>
@@ -1059,9 +1059,11 @@ Only one group can control the scale and root note - it can be selected with thi
     </UL>
   <LI><B>OSC Configuration Parameters:</B>
     <UL>
+      <LI><B>OSC Port:</B> 4 ports are available (OSC1..OSC4), each one can be configured with a different IP and port settings.
       <LI><B>Remote IP:</B> sets the IP of the host to which OSC packets should be sent/received
       <LI><B>Remote Port:</B> sets the port number to which OSC packets will be sent
       <LI><B>Local Port:</B> sets the port number over which OSC packets will be received
+      <LI><B>Tx Mode:</B> selects the transfer mode (MIDI messages, Text messages with Integers or Floats, <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro format</A>)
     </UL>
 </UL>
 
