@@ -520,6 +520,7 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
   <LI><B>Velocity:</B> selects a velocity modifier from VNEG,-127..0..+126,VPOS</LI>
   <LI><B>NumSteps:</B> selects the groove template length (1-16). When starting editing it makes sense to start with value 2 or 4 to get immediate response while the sequence is playing.</LI>
 </UL>
+<P CLASS=CL><I>Hot tip: Use a custom groove with a reduced number of steps (e.g. 2, 3 or 4) and different velocity/length values on a track which controls the steps with progression parameters like "Itv.4, Repeat: 1, Skip:0". It rocks! This is one of my most favourite features! It can lead to fantastic results, especially if velocity doesn't modulate the volume of a sound, but sound parameters like CutOff, VCF Decay, FM Timbre, etc.!</I></P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Trigger Assignments Page (Shortcut: MENU+GP Button #9)</H2>
@@ -574,7 +575,6 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
   <LI><B>Preset page:</B> displays a preset page which allows you to select one of 16 tempo presets with GP buttons (very nice in conjunction with ramp times)</LI>
   <LI><B>MIDI Clock In:</B> enable the MIDI clock in receiver for each individual MIDI IN port</LI>
   <LI><B>MIDI Clock Out:</B> enable the MIDI clock out sender for each individual MIDI OUT port</LI>
-  <LI><B>DIN PPQN:</B> defines the output rate of the DIN Sync Clock output pin at J5C.A8 of the MBHP_CORE_STM32 module (1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96, 192, 384 ppqn)</LI>
   <LI><B>Ext.Restart:</B> sends a MIDI clock start event to all MIDI devices at the next measure - a very useful feature to re-synchronize external MIDI gear to the MIDIbox.<BR>
     To evaluate this function, try following steps:
     <UL CLASS=CL>
@@ -895,7 +895,6 @@ Each track has an animated VU meter to display the MIDI activity.</P>
 <P CLASS=INFO>This page provides special functions for the SD Card:<BR>
 <CENTER><IMG SRC="midibox_seq/cs4/disk1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG>
 <UL CLASS=CL>
-  <LI><B>Backup:</B> copies all MBSEQ_*.V4 files from the root directory into a backup/n directory (n is a number between 1 and MAX_INT). The directories already have to exist in the file system. Means: you have to prepare them from Windows/MacOS/Linux! The first empty directory which will be found will be taken for the backup. It will take some minutes (ca. one cigarette break)!</LI>
   <LI><B>MSD USB:</B> enables the "Mass Storage Device" driver, which turns your MIDIbox SEQ into a SD Card reader. Once enabled, the SD Card should be automatically mounted by your operating system (Windows/MacOS/Linux). USB MIDI will be disabled. The LEDs of the CS could flicker on each disk operation! It overrules the USB MIDI driver, which will be available again once the SD Card has been unmounted from the operating system.</LI>
   <LI><B>MIDI File Import:</B> allows to import MIDI files, stored in the midi/ directory of your SD Card.<BR>
     <CENTER><IMG SRC="midibox_seq/cs4/disk_i1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG><BR>
@@ -1040,6 +1039,26 @@ Only one group can control the scale and root note - it can be selected with thi
   <LI><B>Selected Scale:</B> allows you to select one of 166 (!!!) scales, which are used by all tracks with enabled "force scale" option.<BR>Scales are counted from zero so that the numbers are matching with the CC#3 value.<BR> Thanks to Stryd One for providing all the scale definitions! :-)</LI>
 </UL>
 <P CLASS=INFO>Sidenote reg. the global scale: when "Global" control mode is selected, the scale can also be changed from an external MIDI device via CC#3, and especially via internal loopback. This means, that a track can change the scale dynamically if it outputs CC#3s to the Loopback port.</P>
+
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> CV Configuration Page</H2>
+<CENTER><IMG SRC="midibox_seq/cs4/cv1.gif" width=481 height=19 ALT="CV"></CENTER></IMG>
+
+<P CLASS=INFO>This page allows to select the AOUT/AOUT_LC/AOUT_NG interface, to configure CV channel and gate parameters, and to configure the DIN Sync Clock output.<BR>
+
+<UL CLASS=CL>
+  <LI><B>CV:</B> selects the CV channel (1..8)
+  <LI><B>Curve:</B> selects the output curve: V/Oct, Hz/V, Inverted
+  <LI><B>Slew Rate:</B> allows to configure a slew rate (slack) in the range of 0..255 mS
+  <LI><B>PRng:</B> sets the pitch range for pitch bender events (normaly 2, use 12 or 24 to sweep over one, resp. two octaves)
+  <LI><B>Gate:</B> sets the gate polarity (positive or negative)
+  <LI><B>Calibr.:</B> allows to force different output voltages for calibration (Min/Middle/Max/1V, 2V, 4V, 8V)
+  <LI><B>PPQN:</B> defines the output rate of the DIN Sync Clock output pin at J5C.A8 of the MBHP_CORE_STM32 module (1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96, 192, 384 ppqn)</LI>
+  <LI><B>Width:</B> sets the pulsewidth of the DIN Sync Clock (1..255 mS)</LI>
+  <LI><B>Module:</B> selects the AOUT module which is connected to J19 of the core module (AOUT, AOUT_LC or AOUT_NG)</LI>
+</UL>
+
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Ethernet (OSC) Page</H2>

@@ -1,13 +1,40 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2010-09-22</H3></CENTER>
+<CENTER><H3>Last Release: 2010-10-02</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+<LI><I>V4.0beta28</I>
+  <UL>
+  <LI> fixed bug in session load function which happened when no MBSEQ_GC.V4 file exists on SD Card
+
+  <LI> added new "udpmon &lt;0..4&gt;" terminal command which allows to monitor incoming and outgoing
+    UDP packets, e.g. to debug OSC settings and/or to determine the port of incoming OSC
+    packets.<BR>
+    In MIOS Terminal, use "udpmon 3" to display all packets with port number >= 1024
+
+  <LI> now we have a special CV configuration page which allows:
+    <UL CLASS=CL>
+    <LI> to select V/Oct, Hz/V and Inverse curve for each CV channel
+    <LI> the slew rate 0..255 mV for each CV channel
+    <LI> the pitch range (for pitchbend events)
+    <LI> the gate polarity for each CV channel
+    <LI> to calibrate each channel
+    <LI> to set the DIN Sync Clock PPQN Divider and Pulse Width
+    <LI> AOUT Module Type (previously hard-configured in MBSEQ_HW.V4 file)
+    </UL>
+
+  <LI> each CV channel has now an own notestack.<BR>
+    This is especially nice if AOUT channels are controlled through the MIDI Router
+    from an external MIDI keyboard (live)
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.0beta27</I>
   <UL>
   <LI> fixed a crash on rescheduled notes (caused by a gcc bug) - this bug only exists in beta26
