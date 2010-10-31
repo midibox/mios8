@@ -738,3 +738,21 @@ MEMO:
     This would allow to embedd multiple WT sounds (e.g. drums) into a patch,
     and to select them with the note number (especially nice for multi patches)
 
+-------------------------------------------------------------------------
+Wilba wrote:
+Starting with a completely init ensemble, init patch... turn on arp for osc 1, sort on, 
+
+dir up, range 1, play C3 E3 G3 => loop { C3 E3 G3 }   (good)
+dir down, range 1, play C3 E3 G3 => loop { G3 E3 C3 }   (good)
+
+dir up, range 2, play C3 E3 G3 => loop { C3 E3 G3 C4 E4 G4 }   (good)
+dir down, range 2, play C3 E3 G3 => loop { C3 G3 E3 C4 G4 E4 }   (wtf? i expected loop { G4 E4 C4 G3 E3 C3 } )
+
+This continues in a strange way if you add more notes:
+dir down, range 2, play C3 E3 G3 A3 => loop { C3 A3 G3 E3 C4 A4 G4 E4 }   (wtf?)
+
+anyway... I was expecting that the range parameter is always positive octaves, i.e. you will get the notes repeated with a +12 semitone transpose, and if you happen to play notes more spaced than 12 semitones then I wouldn't expect it to do anything fancy to avoid a sequence which is not an ordered "note number"
+i.e. dir up, range 2, play C3 C4 C5 => loop ( C3 C4 C5 C4 C5 C6 ) no problem for me ;-)
+
+but when using down direction and range > 1, shouldn't it be the exact inverse of what you would get for up direction and range > 1?
+-------------------------------------------------------------------------
