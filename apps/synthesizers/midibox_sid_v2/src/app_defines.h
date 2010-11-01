@@ -285,38 +285,38 @@ SID_SUPERPOLY_VOICE_NOTE_TAB EQU 0x0fc  ;  4 bytes used
 ;;  a lot of SID control variables in BANKED page
 ;; ==========================================================================
 SID_BASE		EQU	0x100		; address space of registers which are directly accessed via BANKED
-SIDSE_CLEAR_BEGIN	EQU	0x100		; used to initialize the whole SIDSE memory
-SIDSE_CLEAR_128B_BLOCKS	EQU	5		; number of 128 byte blocks which should be cleared (here: 2 = 0x100..0x37f)
+SIDSE_CLEAR_BEGIN	EQU	0x108		; used to initialize the whole SIDSE memory
+SIDSE_CLEAR_128B_BLOCKS	EQU	5		; number of 128 byte blocks which should be cleared (here: 2 = 0x108..0x37f)
 
 ;; ==========================================================================
-SID_CURRENT_MIDIVOICE	EQU	0x100	; selects the currently handled MIDI voice
-SID_CURRENT_VOICE	EQU	0x101	; selects the currently handled SID voice
-SID_CURRENT_VOICE_ASSG	EQU	0x102	; contains the current voice assignment [2:0] and the number of voices [6:4]
-SID_CURRENT_CHANNEL	EQU	0x103	; used in sid_midi.inc
-SID_MIDI_PARAMETER1	EQU	0x104	; used in sid_midi.inc
-SID_MIDI_PARAMETER2	EQU	0x105	; used in sid_midi.inc
-SID_MIDI_FLAGS		EQU	0x106	; used in sid_midi.inc
-SID_MIDIVOICE_SUSTAIN	EQU	0x107	; used in sid_midi.inc - each voice has a sustain flag, which is controlled via CC#64
-SID_PAR_IX		EQU	0x108	; parameter index
+SID_SYSEX_STATE		EQU	0x100	; used by sid_sysex.inc --- not cleared on patch changes!
+SID_SYSEX_STATE2	EQU	0x101	; used by sid_sysex.inc --- not cleared on patch changes!
+SID_SYSEX_IN		EQU	0x102	; used by sid_sysex.inc --- not cleared on patch changes!
+SID_SYSEX_CHECKSUM	EQU	0x103	; used by sid_sysex.inc --- not cleared on patch changes!
+SID_SYSEX_DATA		EQU	0x104	; used by sid_sysex.inc --- not cleared on patch changes!
+SID_SYSEX_ADDRESS_L	EQU	0x105	; used by sid_sysex.inc --- not cleared on patch changes!
+SID_SYSEX_ADDRESS_H	EQU	0x106	; used by sid_sysex.inc --- not cleared on patch changes!
+SID_SYSEX_TYPE		EQU	0x107	; used by sid_sysex.inc --- not cleared on patch changes!
 
 ;; ==========================================================================
-SID_KNOB_NUM		EQU	0x109	; temporary used in sid_knob.inc
-SID_KNOB_VALUE_L	EQU	0x10a	; temporary used in sid_knob.inc
-SID_KNOB_VALUE_H	EQU	0x10b	; temporary used in sid_knob.inc
+SID_CURRENT_MIDIVOICE	EQU	0x108	; selects the currently handled MIDI voice
+SID_CURRENT_VOICE	EQU	0x109	; selects the currently handled SID voice
+SID_CURRENT_VOICE_ASSG	EQU	0x10a	; contains the current voice assignment [2:0] and the number of voices [6:4]
+SID_CURRENT_CHANNEL	EQU	0x10b	; used in sid_midi.inc
+SID_MIDI_PARAMETER1	EQU	0x10c	; used in sid_midi.inc
+SID_MIDI_PARAMETER2	EQU	0x10d	; used in sid_midi.inc
+SID_MIDI_FLAGS		EQU	0x10e	; used in sid_midi.inc
+SID_MIDIVOICE_SUSTAIN	EQU	0x10f	; used in sid_midi.inc - each voice has a sustain flag, which is controlled via CC#64
+SID_PAR_IX		EQU	0x110	; parameter index
 
 ;; ==========================================================================
-SID_RANDOM_SEED_L	EQU	0x10c	; used in sid_rnd.inc
-SID_RANDOM_SEED_H	EQU	0x10d	; used in sid_rnd.inc
+SID_KNOB_NUM		EQU	0x111	; temporary used in sid_knob.inc
+SID_KNOB_VALUE_L	EQU	0x112	; temporary used in sid_knob.inc
+SID_KNOB_VALUE_H	EQU	0x113	; temporary used in sid_knob.inc
 
 ;; ==========================================================================
-SID_SYSEX_STATE		EQU	0x10e	; used by sid_sysex.inc
-SID_SYSEX_STATE2	EQU	0x10f	; used by sid_sysex.inc
-SID_SYSEX_IN		EQU	0x110	; used by sid_sysex.inc
-SID_SYSEX_CHECKSUM	EQU	0x111	; used by sid_sysex.inc
-SID_SYSEX_DATA		EQU	0x112	; used by sid_sysex.inc
-SID_SYSEX_ADDRESS_L	EQU	0x113	; used by sid_sysex.inc
-SID_SYSEX_ADDRESS_H	EQU	0x114	; used by sid_sysex.inc
-SID_SYSEX_TYPE		EQU	0x115	; used by sid_sysex.inc
+SID_RANDOM_SEED_L	EQU	0x114	; used in sid_rnd.inc
+SID_RANDOM_SEED_H	EQU	0x115	; used in sid_rnd.inc
 
 ;; ==========================================================================
 MUL_A_L			EQU	0x116	; used by math_mul16_16.inc, should be located in SID_BASE bank

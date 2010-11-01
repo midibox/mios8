@@ -198,6 +198,15 @@ SID_MIDI_CC_00_NoCS
 
 SID_MIDI_CC_No00
 
+	;; this switch enables the CC#32 filter for programs which send this CC always
+	;; together with CC#0 on bank changes
+#if DEFAULT_CC32_FILTER
+	movlw	0x20
+	xorwf	SID_MIDI_PARAMETER1, W, BANKED
+	skpnz
+	return
+#endif
+
 	;; NRPN address/LSB?
 	;; always stored independent from channel for more consistent usage
 	;; (e.g. for Multi Engine, where up to 6 instruments could be assigned

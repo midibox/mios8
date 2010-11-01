@@ -13,21 +13,26 @@
 SID_SYSEX_STATE_MYSYSEX		EQU	7
 SID_SYSEX_STATE_ACTION		EQU	6
 SID_SYSEX_STATE_END		EQU	5
-SID_SYSEX_STATE_ERROR		EQU	4
+SID_SYSEX_STATE_EXTENDED_DUMP	EQU	4	; part of sysex command - never move this flag!
+SID_SYSEX_STATE_CMD3		EQU	3	; part of sysex command
+SID_SYSEX_STATE_CMD2		EQU	2	; part of sysex command
+SID_SYSEX_STATE_CMD1		EQU	1	; part of sysex command
+SID_SYSEX_STATE_CMD0		EQU	0	; part of sysex command
 
-SID_SYSEX_STATE2_TYPE_RECEIVED	EQU	0	; used by most actions
+SID_SYSEX_STATE2_ERROR		EQU	0
+SID_SYSEX_STATE2_TYPE_RECEIVED	EQU	1	; used by most actions
 
-SID_SYSEX_STATE2_BANK_RECEIVED	EQU	1	; used by Action PATCH_[Read/Write]
-SID_SYSEX_STATE2_PATCH_RECEIVED EQU	2	; used by Action PATCH_[Read/Write]
-SID_SYSEX_STATE2_WAIT_CHECKSUM	EQU	3	; used by Action PATCH_Write
-SID_SYSEX_STATE2_LNIBBLE_RECV	EQU	4	; used by Action PATCH_Write
+SID_SYSEX_STATE2_BANK_RECEIVED	EQU	2	; used by Action PATCH_[Read/Write]
+SID_SYSEX_STATE2_PATCH_RECEIVED EQU	3	; used by Action PATCH_[Read/Write]
+SID_SYSEX_STATE2_WAIT_CHECKSUM	EQU	4	; used by Action PATCH_Write
+SID_SYSEX_STATE2_LNIBBLE_RECV	EQU	5	; used by Action PATCH_Write
 
-SID_SYSEX_STATE2_AH_RECEIVED	EQU	1	; used by Action PAR_[Read/Write]
-SID_SYSEX_STATE2_AL_RECEIVED	EQU	2	; used by Action PAR_[Read/Write]
-SID_SYSEX_STATE2_DL_RECEIVED	EQU	3	; used by Action PAR_[Write]
-SID_SYSEX_STATE2_DH_RECEIVED	EQU	4	; used by Action PAR_[Write]
+SID_SYSEX_STATE2_AH_RECEIVED	EQU	2	; used by Action PAR_[Read/Write]
+SID_SYSEX_STATE2_AL_RECEIVED	EQU	3	; used by Action PAR_[Read/Write]
+SID_SYSEX_STATE2_DL_RECEIVED	EQU	4	; used by Action PAR_[Write]
+SID_SYSEX_STATE2_DH_RECEIVED	EQU	5	; used by Action PAR_[Write]
 
-SID_SYSEX_STATE2_CMDBYTE_RECEIVED EQU	1	; used by Action CMD
+SID_SYSEX_STATE2_CMDBYTE_RECEIVED EQU	2	; used by Action CMD
 
 SID_DISACK_LESS_BYTES_THAN_EXP	EQU     0x01
 SID_DISACK_WRONG_CHECKSUM	EQU     0x03
@@ -123,7 +128,7 @@ SID_SYSEX_Handler
 SID_SYSEX_Handler_Begin
 	bsf	SID_SYSEX_STATE, SID_SYSEX_STATE_ACTION, BANKED
 	movf	SID_SYSEX_IN, W, BANKED
-	andlw	0x0f
+	andlw	0x1f		; note:	bit #4 contains the "extended dump" flag SID_SYSEX_STATE_EXTENDED_DUMP
 	iorwf	SID_SYSEX_STATE, F, BANKED
 	rgoto	SID_SYSEX_SysExCheck_End
 SID_SYSEX_Handler_NotBegin
@@ -134,14 +139,14 @@ SID_SYSEX_Handler_End
 	;; if sysex footer (F7) has not been received here, command is invalid!
 	movlw	0xf7
 	cpfseq	SID_SYSEX_IN, BANKED
-	rgoto SID_SYSEX_ActionInvalid
+	rgoto	SID_SYSEX_ActionInvalid
 	;; notify end
 	bsf	SID_SYSEX_STATE, SID_SYSEX_STATE_END, BANKED
 SID_SYSEX_Handler_NotEnd
 
 	;; branch depending on current action ID
 	movf	SID_SYSEX_STATE, W, BANKED
-	andlw	0x0f
+	andlw	0x0f		; note:	filter out the "extended dump" flag
 	addlw	-1
 	BRA_IFSET STATUS, Z, ACCESS, SID_SYSEX_PatchRead	; 1
 	addlw	-2+1
@@ -183,7 +188,7 @@ SID_SYSEX_PatchRead_Nr
 	movff	SID_SYSEX_IN, SID_PATCH	; copy patch number to SID_PATCH
 	rcall	SID_SYSEX_SetPatch		; change patch if required
 	skpz					; set error flag if patch/bank not available
-	bsf	SID_SYSEX_STATE, SID_SYSEX_STATE_ERROR, BANKED
+	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_ERROR, BANKED
 	rgoto	SID_SYSEX_SysExCheck_End	; wait for next byte
 
 SID_SYSEX_PatchRead_Stl
@@ -198,7 +203,7 @@ SID_SYSEX_PatchRead_End
 	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_PATCH_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
 
 	;; action invalid if patch/bank not available
-	BRA_IFSET SID_SYSEX_STATE, SID_SYSEX_STATE_ERROR, BANKED, SID_SYSEX_DisAck_BS_NotAvail
+	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_ERROR, BANKED, SID_SYSEX_DisAck_BS_NotAvail
 
 	;; action invalid if patch >= 64 should be read from a too small bankstick
 	rcall	SID_SYSEX_Check_BS_Size
@@ -213,6 +218,7 @@ SID_SYSEX_PatchRead_End
 
 	;; finish Action
 	rgoto	SID_SYSEX_ActionFinished
+
 
 ;; --------------------------------------------------------------------------
 ;;  MIDI Action: Patch Write
@@ -248,7 +254,7 @@ SID_SYSEX_PatchWrite_Nr
 	movff	SID_SYSEX_IN, SID_PATCH		; copy patch number to SID_PATCH
 	rcall	SID_SYSEX_SetPatch		; change patch if required
 	skpz					; set error flag if patch/bank not available
-	bsf	SID_SYSEX_STATE, SID_SYSEX_STATE_ERROR, BANKED
+	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_ERROR, BANKED
 	rgoto	SID_SYSEX_SysExCheck_End	; wait for next byte
 
 SID_SYSEX_PatchWrite_Data
@@ -302,8 +308,12 @@ SID_SYSEX_PatchWrite_Data_U_I
 	incf	SID_SYSEX_ADDRESS_H, F, BANKED
 
 	;; once high byte is 2, go into WAIT_CHECKSUM state
+	;; on extended dump: wait for 2*4
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
-	xorlw	0x02
+	btfsc	SID_SYSEX_STATE, SID_SYSEX_STATE_EXTENDED_DUMP, BANKED
+	xorlw	2*4
+	btfss	SID_SYSEX_STATE, SID_SYSEX_STATE_EXTENDED_DUMP, BANKED
+	xorlw	2
 	skpnz
 	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_WAIT_CHECKSUM, BANKED
 
@@ -340,7 +350,7 @@ SID_SYSEX_PatchWrite_End
 	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_WAIT_CHECKSUM, BANKED, SID_SYSEX_DisAck_NotComplete
 
 	;; action invalid if patch/bank not available
-	BRA_IFSET SID_SYSEX_STATE, SID_SYSEX_STATE_ERROR, BANKED, SID_SYSEX_DisAck_BS_NotAvail
+	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_ERROR, BANKED, SID_SYSEX_DisAck_BS_NotAvail
 
 	;; action invalid if patch >= 64 should be written into a too small bankstick
 	rcall	SID_SYSEX_Check_BS_Size
@@ -527,7 +537,7 @@ SID_SYSEX_ReadAll_Bnk
 	clrf	SID_PATCH		; start with patch #1
 	rcall	SID_SYSEX_SetPatch	; change patch if required
 	skpz					; set error flag if patch/bank not available
-	bsf	SID_SYSEX_STATE, SID_SYSEX_STATE_ERROR, BANKED
+	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_ERROR, BANKED
 	rgoto	SID_SYSEX_SysExCheck_End	; wait for next byte
 
 SID_SYSEX_ReadAll_Stl
@@ -540,7 +550,7 @@ SID_SYSEX_ReadAll_End
 	;; action invalid if patch number has not been received
 	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_BANK_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
 	;; action invalid if patch/bank not available
-	BRA_IFSET SID_SYSEX_STATE, SID_SYSEX_STATE_ERROR, BANKED, SID_SYSEX_DisAck_BS_NotAvail
+	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_ERROR, BANKED, SID_SYSEX_DisAck_BS_NotAvail
 
 	;; branch depending on patch/ensemble
 	movf	SID_SYSEX_TYPE, W, BANKED
@@ -615,7 +625,10 @@ SID_SYSEX_ParWrite_AH
 	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_AH_RECEIVED, BANKED, SID_SYSEX_ParWrite_AL
 	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_AH_RECEIVED, BANKED
 	rrf	SID_SYSEX_IN, W, BANKED		; store upper part of address
-	andlw	0x03
+	btfsc	SID_SYSEX_STATE, SID_SYSEX_STATE_EXTENDED_DUMP, BANKED
+	andlw	0x07
+	btfss	SID_SYSEX_STATE, SID_SYSEX_STATE_EXTENDED_DUMP, BANKED
+	andlw	0x01
 	movwf	SID_SYSEX_ADDRESS_H, BANKED
 	clrf	SID_SYSEX_ADDRESS_L, BANKED	; clear register and set SID_SYSEX_ADDRESS[7] if IN[0] is set
 	btfsc	SID_SYSEX_IN, 0, BANKED
@@ -983,6 +996,42 @@ SID_SYSEX_WritePar_I
 	;; initial patch address
 	lfsr	FSR0, SID_PATCH_BUFFER
 
+	;; in extended dump mode, use following rules:
+	;; address 0x00..0x5f of a patch is identical for all engines.
+	;; This data section could always be picked up from the first dump.
+	;; address 0x60..0x1ff would be selected based on the engine code stored at address 0x10
+	;; So:
+	;; lead engine takes over bytes 0x060..0x1ff
+	;; bassline engine takes over bytes 0x260..0x3ff
+	;; drum engine takes over bytes 0x460..0x5ff
+	;; multi engine takes over bytes 0x660..0x7ff
+	BRA_IFCLR SID_SYSEX_STATE, SID_SYSEX_STATE_EXTENDED_DUMP, BANKED, SID_SYSEX_WritePar_I_NoExtDump
+SID_SYSEX_WritePar_I_ExtDump
+	;; check for 0x000..0x05f
+	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	bnz	SID_SYSEX_WritePar_I_ExtDump_ECh;eck
+	movlw	0x60
+	cpfslt	SID_SYSEX_ADDRESS_L, BANKED
+	rgoto	SID_SYSEX_WritePar_I_ExtDump_ECh;eck
+
+	;; 0x000..0x05f: always passed
+	rgoto	SID_SYSEX_WritePar_I_ExtDumpPass
+
+SID_SYSEX_WritePar_I_ExtDump_ECh;eck
+	;; address & 0x1ff in range 0x060..0x1ff:
+	;; pass depending on engine
+	rrf	SID_SYSEX_ADDRESS_H, W, BANKED ; engine coded in address[10:9]
+	movwf	PRODL
+	movlw	SID_Ix_ENGINE
+	movf	PLUSW0, W
+	xorwf	PRODL, W
+	andlw	0x03
+	bz	SID_SYSEX_WritePar_I_ExtDumpPass
+	return	; silently ignore
+
+SID_SYSEX_WritePar_I_ExtDumpPass
+SID_SYSEX_WritePar_I_NoExtDump
+
 	;; no address checks if WOPT == 0(see doc/mbsidv2_sysex_implementation.txt)
 	movf	SID_SYSEX_TYPE, W, BANKED
 	andlw	0xf3
@@ -990,6 +1039,7 @@ SID_SYSEX_WritePar_I
 
 	;; for all engines and all WOPTS (note: specification only allows WOPT==1 here)
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	andlw	0x01
 	bnz	SID_SYSEX_WritePar_I_Eng
 
 	;; check for external range 0x040..0x04f
@@ -1023,6 +1073,7 @@ SID_SYSEX_WritePar_I_Eng
 SID_SYSEX_WritePar_I_L
 	;; check for target assignment range 0x104..0x105, 0x10c..0x10d, 0x114..0x115, ..., 0x13c..013d
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	andlw	0x01
 	bz	SID_SYSEX_WritePar_I_L_NoMTarg
 	movf	SID_SYSEX_ADDRESS_L, W, BANKED
 	andlw	0xc6		; binary mask: 0b11000110 - should match with the addresses listed above
@@ -1032,6 +1083,7 @@ SID_SYSEX_WritePar_I_L
 SID_SYSEX_WritePar_I_L_NoMTarg
 	;; check for voice range 0x060..0x0bf
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	andlw	0x01
 	bnz	SID_SYSEX_WritePar_I_L_NoV
 	movlw	0x60-1
 	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
@@ -1046,6 +1098,7 @@ SID_SYSEX_WritePar_I_L_NoV
 SID_SYSEX_WritePar_I_B
 	;; check for voice range 0x060..0x0ff
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	andlw	0x01
 	bnz	SID_SYSEX_WritePar_I_B_NoV
 	movlw	0x60-1
 	cpfsgt	SID_SYSEX_ADDRESS_L, BANKED
@@ -1068,6 +1121,7 @@ SID_SYSEX_WritePar_I_Single
 	movf	SID_SYSEX_ADDRESS_L, W, BANKED
 	addwf	FSR0L, F
 	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	andlw	0x01
 	addwfc	FSR0H, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
 	;; 	rgoto	SID_SYSEX_WritePar_I_End
@@ -1516,7 +1570,10 @@ SID_SYSEX_SendDump_Edit_Cont
 	rcall	SID_SYSEX_Send_SysExHeader
 
 	;; send PATCH_Write ID
-	movlw	0x02
+	SET_BSR SID_SYSEX_STATE
+	movf	SID_SYSEX_STATE, W, BANKED
+	andlw	0x10		; mask SID_SYSEX_STATE_EXTENDED_DUMP
+	iorlw	0x02
 	rcall	SID_SYSEX_TxBufferPut
 
 	;; send requested type number
@@ -1579,8 +1636,8 @@ SID_SYSEX_SendDump_I_SlaveFetch
 	lfsr	FSR0, SID_EDIT_BUFFER		; now it's in the edit buffer
 
 SID_SYSEX_SendDump_I_Master	
-	clrf	EEADR			; 2*0x200 bytes to send, use EEADR as counter
-	clrf	EEADRH
+	clrf	PRODL			; 2*0x200 bytes to send, use PROD[LH] as counter
+	clrf	PRODH
 	;; 	lfsr	FSR0, SID_PATCH_BUFFER
 	;; (already prepared above, so that we can differ between EDIT and PATCH buffer)
 SID_SYSEX_SendDump_I_Loop
@@ -1588,14 +1645,15 @@ SID_SYSEX_SendDump_I_Loop
 	movff	POSTINC0, TABLAT
 
 	movlw	0x10		; ensure that patch name doesn't contain characters < 0x20
-	cpfslt	EEADR, ACCESS
-	rgoto SID_SYSEX_SendDump_I_Loop_NoN
-	movf	EEADRH, W
+	cpfslt	PRODL, ACCESS
+	rgoto	SID_SYSEX_SendDump_I_Loop_NoN
+	movf	PRODH, W
+	andlw	0x01
 	bnz	SID_SYSEX_SendDump_I_Loop_NoN
 SID_SYSEX_SendDump_I_Loop_N
 	movlw	0x20
 	cpfslt	TABLAT, ACCESS
-	rgoto SID_SYSEX_SendDump_I_Loop_NoN
+	rgoto	SID_SYSEX_SendDump_I_Loop_NoN
 	movwf	TABLAT
 SID_SYSEX_SendDump_I_Loop_NoN
 
@@ -1614,15 +1672,29 @@ SID_SYSEX_SendDump_I_Loop_NoN
 	SET_BSR	SID_BASE
 
 	;; increment offset
-	incf	EEADR, F
+	incf	PRODL, F
 	skpnz
-	incf	EEADRH, F
+	incf	PRODH, F
 
+	;; if 0x200 boundary is reached: reset FSR0H to base address
+	movf	PRODL, W
+	bnz	SID_SYSEX_SendDump_I_Loop_NotB
+	movf	PRODH, W
+	andlw	0x01
+	bnz	SID_SYSEX_SendDump_I_Loop_NotB
+	movlw	-2
+	addwf	FSR0H, F
+SID_SYSEX_SendDump_I_Loop_NotB
 	;; loop 512 times
-	movf	EEADR, W
+	;; if extended dump: loop 4*512 times
+	movf	PRODL, W
 	bnz	SID_SYSEX_SendDump_I_Loop
+	SET_BSR SID_SYSEX_STATE
+	btfsc	SID_SYSEX_STATE, SID_SYSEX_STATE_EXTENDED_DUMP, BANKED
+	movlw	4*2-1
+	btfss	SID_SYSEX_STATE, SID_SYSEX_STATE_EXTENDED_DUMP, BANKED
 	movlw	2-1
-	cpfsgt	EEADRH, ACCESS
+	cpfsgt	PRODH, ACCESS
 	rgoto SID_SYSEX_SendDump_I_Loop
 
 	;; if slave was selected: re-fetch previous content

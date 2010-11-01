@@ -204,6 +204,10 @@
 	;; overwrite your patches
 #define DEFAULT_DISABLE_EDIT_STORE_FUNCTION 0
 
+	;; this switch enables the CC#32 filter for programs which send this CC always
+	;; together with CC#0 on bank changes
+#define DEFAULT_CC32_FILTER 0
+	
 
 	org	0x3082		; never change the origin!
 ; ==========================================================================

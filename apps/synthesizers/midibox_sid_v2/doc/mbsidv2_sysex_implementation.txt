@@ -108,6 +108,53 @@ Implemented SysEx Commands
 
 
 
+Extended SysEx Dumps
+~~~~~~~~~~~~~~~~~~~~
+
+Following commands are provided as a "hack" for sound editors which don't allow to select
+multiple views of a dump (for 4 different sound engines)
+
+Whenever bit #4 of the SysEx command is set, the patch is sent/received 4 times.
+
+Example:
+F0 00 00 7E 4B <device-number> 12 00 <bank> <patch>
+  <1024 bytes of dump data>
+  <copy of 1024 bytes of dump data>
+  <copy of 1024 bytes of dump data>
+  <copy of 1024 bytes of dump data>
+  <checksum> F7
+
+Note: command "12" instead of "02" to select the extended format.
+
+
+And now the trick: when the patch is received, MBSID picks up the dump which matches with
+the selected engine code which is stored in the first dump.
+
+For direct parameter access the same method is used - just add an offset of 512 (resulting
+nibble-wise address 1024) to access the parameters of another engine, and if the address 
+range doesn't match with the currently active engine, MBSID will silently ignore it.
+
+
+Address 0x00..0x5f of a patch is identical for all engines.
+This data section could always be picked up from the first dump.
+
+Address 0x60..0x1ff would be selected based on the engine code stored at address 0x10
+
+So:
+lead engine takes over bytes 0x060..0x1ff
+bassline engine takes over bytes 0x260..0x3ff
+drum engine takes over bytes 0x460..0x5ff
+multi engine takes over bytes 0x660..0x7ff
+
+
+Following commands support the extended dump format:
+
+F0 00 00 7E 4B <device-number> 11 ... (dump request)
+F0 00 00 7E 4B <device-number> 12 ... (dump write)
+F0 00 00 7E 4B <device-number> 13 ... (bank request)
+F0 00 00 7E 4B <device-number> 16 ... (parameter write)
+
+
 Response Messages
 ~~~~~~~~~~~~~~~~~
 
