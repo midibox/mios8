@@ -52,6 +52,50 @@ CS_MENU_MATRIX_BHandler_LoopNext
 ;;  The pins are defined in cs_menu_io_tables.inc
 ;; --------------------------------------------------------------------------
 CS_MENU_MATRIX_Handler
+
+#ifdef CS_SAMMICH_FM
+	;; increment row counter, wrap at 2
+	;; this is repurposing the variable used in the full
+	;; LED/button matrix, which is unused. Thus this
+	;; would need a refactor if it is required.
+	incf	CS_MENU_MATRIX_CTR, W
+	andlw	0x01
+	movwf	CS_MENU_MATRIX_CTR
+ 	bnz	CS_MENU_MATRIX_Handler_LED_Row_Inst
+CS_MENU_MATRIX_Handler_LED_Row_Op
+	movlw	0x40	; Op LED column is pin D1
+	btfsc	CS_MENU_MODE, CS_MENU_MODE_INS_OP
+	iorlw	0x10	; Op LED
+	btfsc	CS_MENU_SELECTED_OP_FLAGS, 0
+	iorlw	0x08	; Op 1 LED
+	btfsc	CS_MENU_SELECTED_OP_FLAGS, 1	
+	iorlw	0x04	; Op 2 LED
+	btfsc	CS_MENU_SELECTED_OP_FLAGS, 2	
+	iorlw	0x02	; Op 3 LED
+	btfsc	CS_MENU_SELECTED_OP_FLAGS, 3	
+	iorlw	0x01	; Op 4 LED
+	movwf	MIOS_PARAMETER1
+	rgoto CS_MENU_MATRIX_Handler_LED_Row_Cont
+CS_MENU_MATRIX_Handler_LED_Row_Inst
+	movlw	0x20	; Inst LED column is pin D2
+	btfss	CS_MENU_MODE, CS_MENU_MODE_INS_OP	
+	iorlw	0x10	; Inst LED
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 0
+	iorlw	0x08	; Inst 1 LED
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 1	
+	iorlw	0x04	; Inst 2 LED
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 2	
+	iorlw	0x02	; Inst 3 LED
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 3	
+	iorlw	0x01	; Inst 4 LED
+	movwf	MIOS_PARAMETER1
+	;;rgoto CS_MENU_MATRIX_Handler_LED_Row_Cont
+CS_MENU_MATRIX_Handler_LED_Row_Cont
+	movlw	0x00	; 1st SR
+	call MIOS_DOUT_SRSet
+	return
+#endif
+
 	;; init table pointer, start with the DOUT pins for the columns
 	TABLE_ADDR DIO_M_TABLE + 6
 

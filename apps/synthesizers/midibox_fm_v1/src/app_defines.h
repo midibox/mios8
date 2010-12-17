@@ -202,7 +202,17 @@ PERFORMANCE_LOAD_REG_L	EQU	0x052
 PERFORMANCE_LOAD_REG_H	EQU	0x053
 PERFORMANCE_REF_CTR	EQU	0x054
 
-	;; free: 0x55-0x5b
+#ifdef USE_CUSTOM_CHAR_HANDLER
+LAST_CHARSET 	EQU 	0x055	
+#endif
+
+#ifdef CS_SAMMICH_FM
+SAMMICH_FLAGS 	EQU 	0x056	
+SAMMICH_BAK   	EQU 	0x057	
+SOURCE_BUTTON	EQU		0
+#endif
+
+	;; free: (0x55)0x58-0x5b
 
 ;; ==========================================================================
 GATES			EQU	0x05c

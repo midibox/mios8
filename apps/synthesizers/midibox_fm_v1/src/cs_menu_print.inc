@@ -21,7 +21,7 @@
 ;  All supported PRINT_* indices
 ;; (max allowed number: 0x3f!)
 ; ==========================================================================
-PRINT_NOP		EQU	0x00
+PRINT_NOP			EQU	0x00
 
 PRINT_VAR_BANK		EQU	0x01
 PRINT_VAR_DEC		EQU	0x02
@@ -32,7 +32,7 @@ PRINT_VAR_WTMODE	EQU	0x06
 PRINT_VAR_WTPAR		EQU	0x07
 PRINT_VAR_BD_OP		EQU	0x08
 PRINT_VAR_HH		EQU	0x09
-PRINT_NAME		EQU	0x0a
+PRINT_NAME			EQU	0x0a
 
 PRINT_Px_BANK		EQU	0x0b
 PRINT_Px_DEC		EQU	0x0c
@@ -87,12 +87,21 @@ PRINT_AOUTxINST 	EQU	0x35
 PRINT_AOUTxASSG 	EQU	0x36
 PRINT_AOUTxOFFS 	EQU	0x37
 
+#ifdef USE_CUSTOM_CHAR_HANDLER
+PRINT_PxOx_WAVE		EQU 0x38
+PRINT_PxLFO_WAVE_2	EQU 0x39
+#endif
+
 ; ==========================================================================
 ;  The PRINT handler
 ;; IN: PRINT_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_PRINT_Handler
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	JUMPTABLE_2BYTES (0x39+1) ; entries
+#else	
 	JUMPTABLE_2BYTES (0x37+1) ; entries
+#endif	
 	rgoto	CS_MENU_PRINT_NOP
 
 	rgoto	CS_MENU_PRINT_VAR_BANK
@@ -158,6 +167,11 @@ CS_MENU_PRINT_Handler
 	rgoto	CS_MENU_PRINT_AOUTxINST 
 	rgoto	CS_MENU_PRINT_AOUTxASSG
 	rgoto	CS_MENU_PRINT_AOUTxOFFS
+
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	rgoto	CS_MENU_PRINT_PxOx_WAVE
+	rgoto	CS_MENU_PRINT_LFO_WAVE_2
+#endif 
 
 ; ==========================================================================
 ; ==========================================================================
@@ -339,6 +353,32 @@ CS_MENU_PRINT_Px_PLAY_Tab
 	dw	"----"
 
 ; --------------------------------------------------------------------------
+#ifdef USE_CUSTOM_CHAR_HANDLER
+CS_MENU_PRINT_Px_CON
+	rcall	CS_MENU_Hlp_GetPxValue
+	andlw 	0x03
+	movwf	TMP1
+	btfsc	TMP1, 1
+	rgoto	CS_MENU_PRINT_Px_CON_SECOND_SET
+CS_MENU_PRINT_Px_CON_FIRST_SET
+	movlw	0
+	call	MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
+	rgoto 	CS_MENU_PRINT_Px_CON_DoPrint
+CS_MENU_PRINT_Px_CON_SECOND_SET
+	movlw	1
+	call	MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
+	;; rgoto 	CS_MENU_PRINT_Px_CON_DoPrint
+CS_MENU_PRINT_Px_CON_DoPrint
+	TABLE_ADDR CS_MENU_PRINT_Px_CON_Tab
+	movf	TMP1, W
+	rgoto	CS_MENU_PRINT_StringFromTable
+CS_MENU_PRINT_Px_CON_Tab
+	dw	0x0304, 0x0303
+	dw	0x0605, 0x0706
+	dw	0x0504, 0x2D07
+	dw	0x0305, 0x0706
+
+#else
 CS_MENU_PRINT_Px_CON
 	rcall	CS_MENU_Hlp_GetPxValue
 	movwf	TMP1
@@ -351,6 +391,7 @@ CS_MENU_PRINT_Px_CON_Tab
 	dw	"1+F "
 	dw	"F+F "
 	dw	"AFA "
+#endif
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Px_SUSK
@@ -752,18 +793,18 @@ CS_MENU_PRINT_OnOff
 	andwf	MIOS_PARAMETER1, W
 	bnz 	CS_MENU_PRINT_OnOff1
 CS_MENU_PRINT_OnOff0
-	movlw	' '
-	rcall	CS_MENU_PRINT_Char
-	movlw	'o'
+	movlw	'['
 	rcall	CS_MENU_PRINT_Char
 	movlw	' '
+	rcall	CS_MENU_PRINT_Char
+	movlw	']'
 	rgoto	CS_MENU_PRINT_Char
 CS_MENU_PRINT_OnOff1
-	movlw	' '
+	movlw	'['
 	rcall	CS_MENU_PRINT_Char
-	movlw	'*'
+	movlw	219
 	rcall	CS_MENU_PRINT_Char
-	movlw	' '
+	movlw	']'
 	rgoto	CS_MENU_PRINT_Char
 
 ; --------------------------------------------------------------------------
@@ -824,3 +865,15 @@ CS_MENU_PRINT_1234
 	btfsc	TMP1, 3
 	movlw '4'
 	rgoto	CS_MENU_PRINT_Char
+
+#ifdef USE_CUSTOM_CHAR_HANDLER	
+; --------------------------------------------------------------------------
+;; print waveform 
+CS_MENU_PRINT_PxOx_WAVE
+	goto CS_MENU_PRINT_WRITE_Waveform
+
+; --------------------------------------------------------------------------
+;; print lfo waveform 
+CS_MENU_PRINT_LFO_WAVE_2
+	goto CS_MENU_PRINT_WRITE_LFO_Waveform
+#endif

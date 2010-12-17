@@ -1,7 +1,7 @@
 # $Id$
 
 # define the processor here
-PROCESSOR = 18f452
+PROCESSOR = 18f4685
 
 # default flags to GPASM here
 GPASM_FLAGS   = 
@@ -14,7 +14,7 @@ GPASM_DEFINES =
 
 # default rule that defines the .hex files which should be created
 # note: always require a "cleanall", since dependencies (e.g. on .h and .inc files) are not properly declared
-all: cleanall setup_mbfm_tk.hex setup_mbfm_v1.hex
+all: cleanall setup_mbfm_tk.hex setup_mbfm_v1.hex setup_sammich_fm.hex
 
 
 # include the asm_only.mk file

@@ -74,6 +74,26 @@ CS_MENU_BUTTON_Dec
 	call	MIOS_DIN_PinAutoRepeatEnable
 	;; decrement 1
 	movlw	0xff
+#ifdef CS_SAMMICH_FM
+	;; branch if mainpage is displayed
+	GOTO_IFSET CS_MENU, 7, ACCESS, CS_MENU_BUTTON_Dec_End
+	;; if we're editing a parameter...
+	btfsc	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	;; ...stop doing that :)
+	call	CS_MENU_Exec
+
+	;; set SOURCE_BUTTON flag, so we can determine that it's a 
+	;; button triggering this event
+	bsf		SAMMICH_FLAGS, SOURCE_BUTTON
+
+	;; decrement to the next value where x mod 4 = 0
+	decf 	CS_MENU_PAGE_OFFSET, W
+	btfsc	W, 7
+	movlw   0
+	andlw	0x03
+	sublw	0xff
+CS_MENU_BUTTON_Dec_End
+#endif
 	;; branch to ENC handler
 	rgoto	CS_MENU_ENC_Handler
 
@@ -88,6 +108,27 @@ CS_MENU_BUTTON_Inc
 	call	MIOS_DIN_PinAutoRepeatEnable
 	;; increment 1
 	movlw	0x01
+#ifdef CS_SAMMICH_FM
+	;; branch if mainpage is displayed
+	GOTO_IFSET CS_MENU, 7, ACCESS, CS_MENU_BUTTON_Dec_End
+
+	;; if we're editing a parameter...
+	btfsc	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	;; ...stop doing that :)
+	call	CS_MENU_Exec
+	
+	;; set SOURCE_BUTTON flag, so we can determine that it's a 
+	;; button triggering this event
+	bsf		SAMMICH_FLAGS, SOURCE_BUTTON
+	
+	;; prepare increment and so on
+	bsf	MIOS_PARAMETER1, 0
+	;; set incrementer to next page mod 4
+	movf 	CS_MENU_PAGE_OFFSET, W
+	andlw	0x03
+	sublw	4
+CS_MENU_BUTTON_Inc_End
+#endif
 	;; branch to ENC handler
 	rgoto	CS_MENU_ENC_Handler
 
@@ -155,6 +196,13 @@ CS_MENU_BUTTON_Select_Cont
 
 	;; ------------------------------------------------------------------
 CS_MENU_BUTTON_Cfg
+#ifdef CS_SAMMICH_FM	
+	;; sammichFM ignores the CFG button while in name editing mode
+	;; it leads to odd behaviour - is this the case in a regular FM as well?
+	btfsc CS_STAT, CS_STAT_MODIFY_NAME
+	return
+#endif
+
 	;; switch on/off the CFG page
 	bcf	CS_MENU_MODE, CS_MENU_MODE_CFG
 	btfss	MIOS_PARAMETER2, 0

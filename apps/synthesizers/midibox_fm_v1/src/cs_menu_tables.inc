@@ -146,7 +146,11 @@ CS_MENU_TABLE_OP
 
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_OP_FLAGS, " OP ", 0x06, PRINT_VAR_1234,   EXEC_SELPAR,     R2PP2R_VAR_OP
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	CS_MENU_ENTRY	MBFM_Px_OPx_WS,            "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_PxOx
+#else
 	CS_MENU_ENTRY	MBFM_Px_OPx_WS,            "Wave", 0x07, PRINT_PxOx_DECP1, EXEC_SELPAR,     R2PP2R_PxOx
+#endif	
 	CS_MENU_ENTRY	MBFM_Px_OPx_TL,            "Vol.", 0x3f, PRINT_PxOx_DEC,   EXEC_SELPAR,     R2PP2R_PxOx
 	CS_MENU_ENTRY	MBFM_Px_OPx_MULT,          "Mult", 0x0f, PRINT_PxOx_DEC,   EXEC_SELPAR,     R2PP2R_PxOx
 	CS_MENU_ENTRY	MBFM_Px_OPx_AR,            "Atck", 0x0f, PRINT_PxOx_DEC,   EXEC_SELPAR,     R2PP2R_PxOx
@@ -168,7 +172,11 @@ CS_MENU_TABLE_LFO
 
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_LFO,      "LFO ", 0x01, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Wave", 0x05, PRINT_PxLFO_WAVE_2, EXEC_SELPAR,     R2PP2R_PxLFO_WAVE
+#else
 	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Wave", 0x05, PRINT_PxLFO_WAVE, EXEC_SELPAR,     R2PP2R_PxLFO_WAVE
+#endif
 	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Sync", 0x01, PRINT_PxLFO_SYNC, EXEC_TOGPAR,     R2PP2R_PxLFO_SYNC
 	CS_MENU_ENTRY	MBFM_Px_LFOx_PHASE,        "Phas", 0x7f, PRINT_PxLFO_DEC,  EXEC_SELPAR,     R2PP2R_PxLFO
 	CS_MENU_ENTRY	MBFM_Px_LFOx_RATE,         "Rate", 0x7f, PRINT_PxLFO_DEC,  EXEC_SELPAR,     R2PP2R_PxLFO
@@ -252,7 +260,7 @@ CS_MENU_TABLE_SAVE
 	CS_MENU_ENTRY	CS_MENU_SAVE_TYPE,         "Type", 0x02, PRINT_SAVE_TYPE,  EXEC_SELPAR,     R2PP2R_VAR
 	CS_MENU_ENTRY	0x00,                      "Bank", 0x07, PRINT_SAVE_BANK,  EXEC_SELPAR,     R2PP2R_SAVE_BANK
 	CS_MENU_ENTRY	0x00,                      "Slot", 0x7f, PRINT_SAVE_SLOT,  EXEC_SELPAR,     R2PP2R_SAVE_SLOT
-	CS_MENU_ENTRY	0x00,                      " do!", 0x00, PRINT_SAVE_NAME,  EXEC_SAVE_IT,    R2PP2R_NOP
+	CS_MENU_ENTRY	0x00,                      "DoIt", 0x00, PRINT_SAVE_NAME,  EXEC_SAVE_IT,    R2PP2R_NOP
 CS_MENU_TABLE_SAVE_End
 
 
@@ -266,7 +274,11 @@ CS_MENU_TABLE_BD
 	CS_MENU_ENTRY	CS_MENU_SELECTED_BD_HH,    " OP ", 0x01, PRINT_VAR_BD_OP,  EXEC_TOGPAR,     R2PP2R_VAR_BD_OP
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_TL,          "Vol ", 0x3f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_MULT,        "Mult", 0x0f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	CS_MENU_ENTRY	MBFM_PDx_BD_M_WS,          "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_PDxBD
+#else
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_WS,          "Wave", 0x07, PRINT_PDxBD_DECP1,EXEC_SELPAR,     R2PP2R_PDxBD
+#endif
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_AR,          "Atck", 0x0f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_DR,          "Dec.", 0x0f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_SL,          "Sust", 0x0f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
@@ -284,7 +296,11 @@ CS_MENU_TABLE_SD
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	MBFM_PDx_SD_TL,            "Vol ", 0x3f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_SD_MULT,          "Mult", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	CS_MENU_ENTRY	MBFM_PDx_SD_WS,            "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_Px
+#else
 	CS_MENU_ENTRY	MBFM_PDx_SD_WS,            "Wave", 0x07, PRINT_Px_DECP1,   EXEC_SELPAR,     R2PP2R_Px
+#endif
 	CS_MENU_ENTRY	MBFM_PDx_SD_AR,            "Atck", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_SD_DR,            "Dec.", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_SD_SL,            "Sust", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
@@ -300,7 +316,11 @@ CS_MENU_TABLE_TOM
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	MBFM_PDx_TOM_TL,           "Vol ", 0x3f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_TOM_MULT,         "Mult", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	CS_MENU_ENTRY	MBFM_PDx_TOM_WS,           "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_Px
+#else
 	CS_MENU_ENTRY	MBFM_PDx_TOM_WS,           "Wave", 0x07, PRINT_Px_DECP1,   EXEC_SELPAR,     R2PP2R_Px
+#endif
 	CS_MENU_ENTRY	MBFM_PDx_TOM_AR,           "Atck", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_TOM_DR,           "Dec.", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_TOM_SL,           "Sust", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
@@ -318,7 +338,11 @@ CS_MENU_TABLE_HH
 	CS_MENU_ENTRY	CS_MENU_SELECTED_BD_HH,    " HH ", 0x01, PRINT_VAR_HH,     EXEC_TOGPAR,     R2PP2R_VAR_HH
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_TL,          "Vol ", 0x3f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_MULT,        "Mult", 0x0f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	CS_MENU_ENTRY	MBFM_PDx_HH_O_WS,          "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_PDxHH
+#else
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_WS,          "Wave", 0x07, PRINT_PDxHH_DECP1,EXEC_SELPAR,     R2PP2R_PDxHH
+#endif
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_AR,          "Atck", 0x0f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_DR,          "Dec.", 0x0f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_SL,          "Sust", 0x0f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
@@ -334,7 +358,11 @@ CS_MENU_TABLE_CYM
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	MBFM_PDx_CYM_TL,           "Vol ", 0x3f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_CYM_MULT,         "Mult", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	CS_MENU_ENTRY	MBFM_PDx_CYM_WS,           "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_Px
+#else
 	CS_MENU_ENTRY	MBFM_PDx_CYM_WS,           "Wave", 0x07, PRINT_Px_DECP1,   EXEC_SELPAR,     R2PP2R_Px
+#endif
 	CS_MENU_ENTRY	MBFM_PDx_CYM_AR,           "Atck", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_CYM_DR,           "Dec.", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_CYM_SL,           "Sust", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px

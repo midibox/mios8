@@ -28,8 +28,13 @@ CS_MENU_Reset
 
 	;; only if character LCD connected: init special characters
 	BRA_IFSET MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, CS_MENU_Reset_NoCLCD
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	movlw	2
+	call	MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
+#else
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS	; (defined in special_characters.inc)
 	call	MIOS_CLCD_SpecialCharsInit
+#endif	
 CS_MENU_Reset_NoCLCD
 
 	;; set merger mode
@@ -212,6 +217,10 @@ CS_MENU_Page_Cfg_End
 ;;  print the main page
 ;; --------------------------------------------------------------------------
 CS_MENU_Page_Main
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	movlw	2
+	call	MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
+#endif
 	;; branch depending on view mode
 	BRA_IFSET CS_MENU_MODE, CS_MENU_MODE_VIEW, ACCESS, CS_MENU_Page_Main_Inst
 CS_MENU_Page_Main_Full
@@ -312,6 +321,7 @@ CS_MENU_Page_Main_Full_End
 CS_MENU_PAGE_MAIN_INSTR_STR
 	STRING 40, 0x00, "Ens.|I|Ptch|Name            | Chn.|Audio"
 
+#ifdef CS_SAMMICH_FM
 CS_MENU_Page_Main_Inst
 	;; set instrument number
 	call	CS_MENU_MS_GetInstrNumber
@@ -332,7 +342,134 @@ CS_MENU_Page_Main_Inst
 	;; last step reached
 	clrf	CS_MENU_REFRESH_ITEM_CTR
 	return
+
+CS_MENU_Page_Main_Inst_UL
+	;; print static content
+	rgoto	CS_MENU_Page_Main_Inst_End
+
+CS_MENU_Page_Main_Inst_LL_Ens
+	;; set cursor position
+	movlw	0x40 + 0
+	call	MIOS_LCD_CursorSet
+	;; print inverted E
+	movlw	5
+	call MIOS_LCD_PrintChar
+	;; print ensemble bank number
+	movf	MBFM_EBANK, W
+	addlw	'A'
+	call	MIOS_LCD_PrintChar
+	;; and the ensemble (+1)
+	movlw	' '
+	call 	MIOS_LCD_PrintChar
+	incf	MBFM_ENSEMBLE, W
+	call	MIOS_LCD_PrintBCD2
+	;; print space and divider
+	movlw	1
+	rcall	CS_MENU_Hlp_PrintSpaces
+	rgoto	CS_MENU_Page_Main_Inst_End
+
+CS_MENU_Page_Main_Inst_LL_Inst
+	;; set cursor position
+	movlw	0x40 + 6
+	call	MIOS_LCD_CursorSet
+	;; print inverted I
+	movlw	6
+	call	MIOS_LCD_PrintChar
+	;; print instrument number
+	SET_BSR	MBFM_BASE
+	incf	MBFM_CURRENT_INSTRUMENT, W, BANKED
+	call	MIOS_LCD_PrintBCD1
+	;; print space
+	movlw	' '
+	call	MIOS_LCD_PrintChar
+	;; print inverted P
+	movlw	7
+	call 	MIOS_LCD_PrintChar
+	;; get MBFM_BANK/MBFM_PATCH
+	call	CS_MENU_MS_GetInstrPatch
+	;; print patch bank number
+	movf	MBFM_BANK, W
+	addlw	'A'
+	call	MIOS_LCD_PrintChar
+	;; and the patch number (+1)
+	incf	MBFM_PATCH, W
+	call	MIOS_LCD_PrintBCD3
+	;; print divider
+	movlw	' '
+	call	MIOS_LCD_PrintChar
+	rgoto	CS_MENU_Page_Main_Inst_End
+
+CS_MENU_Page_Main_Inst_LL_Name
+	;; set cursor position
+	movlw	0x00
+	call	MIOS_LCD_CursorSet
+	;; print patch name (16 characters)
+	movlw	16
+	call	MBFM_LCD_PrintPatch
+	rgoto	CS_MENU_Page_Main_Inst_End
+
+CS_MENU_Page_Main_Inst_LL_Chn
+	;; set cursor position
+	movlw	0x00 + 17
+	call	MIOS_LCD_CursorSet
+	;; print inverted [C]
+	movlw 	4
+	call 	MIOS_LCD_PrintChar
+	;; get the midi channel
+	call	MBFM_INSTR_GetBase
+	;; print MIDI channel of instrument
+	movlw	MBFM_Ix_MIDI_CHANNEL
+	incf	PLUSW1, W
+	call	MIOS_LCD_PrintBCD2
+	rgoto	CS_MENU_Page_Main_Inst_End
+
+CS_MENU_Page_Main_Inst_LL_Audio
+	;; set cursor position
+	movlw	0x40 + 15
+	call	MIOS_LCD_CursorSet
+	;; print inverted A
+	movlw	3
+	call	MIOS_LCD_PrintChar
+	call	MBFM_INSTR_GetBase
+	;; print combined (OP12 | OP34) audio channels
+	movlw	MBFM_Ix_ACHN_OP12
+	movf	PLUSW1, W
+	movwf	TMP1
+	movlw	MBFM_Ix_ACHN_OP34
+	movf	PLUSW1, W
+	iorwf	TMP1, W
+	call	CS_MENU_PRINT_1234
+	;; 	rgoto	CS_MENU_Page_Main_Inst_End
+
+CS_MENU_Page_Main_Inst_End
+	;; increment counter
+	incf	CS_MENU_REFRESH_ITEM_CTR, F
+	return
 	
+;; end sammichFM
+#else
+	
+CS_MENU_Page_Main_Inst
+	;; set instrument number
+	call	CS_MENU_MS_GetInstrNumber
+
+	;; branch depending on step
+	movf	CS_MENU_REFRESH_ITEM_CTR, W
+	bz	CS_MENU_Page_Main_Inst_UL
+	addlw	-1
+	bz	CS_MENU_Page_Main_Inst_LL_Ens
+	addlw	-1
+	bz	CS_MENU_Page_Main_Inst_LL_Inst
+	addlw	-1
+	bz	CS_MENU_Page_Main_Inst_LL_Name
+	addlw	-1
+	bz	CS_MENU_Page_Main_Inst_LL_Chn
+	addlw	-1
+	bz	CS_MENU_Page_Main_Inst_LL_Audio
+	;; last step reached
+	clrf	CS_MENU_REFRESH_ITEM_CTR
+	return
+
 CS_MENU_Page_Main_Inst_UL
 	;; print upper line
 	TABLE_ADDR CS_MENU_PAGE_MAIN_INSTR_STR
@@ -390,7 +527,7 @@ CS_MENU_Page_Main_Inst_LL_Name
 	movlw	16
 	call	MBFM_LCD_PrintPatch
 	;; print divider
-	movlw	'|'
+	movlw	'|'	
 	call	MIOS_LCD_PrintChar
 	rgoto	CS_MENU_Page_Main_Inst_End
 
@@ -430,6 +567,7 @@ CS_MENU_Page_Main_Inst_End
 	incf	CS_MENU_REFRESH_ITEM_CTR, F
 	return
 
+#endif ;; main page draw routines
 
 ;; --------------------------------------------------------------------------
 ;;  print the root page
@@ -559,8 +697,13 @@ CS_MENU_Page_Parameters
 	call	MIOS_LCD_CursorSet
 
 	;; enable blinking CLCD cursor and exit
+#ifndef CS_SAMMICH_FM
 	movlw	0x0e
 	goto	MIOS_LCD_Cmd
+#else
+	return
+#endif
+
 
 ;; --------------------------------------------------------------------------
 ;;  print name editing screen
@@ -610,9 +753,15 @@ CS_MENU_Page_EditName_NoSpc
 	movlw	0x0e
 	goto	MIOS_LCD_Cmd
 
-					;;  <------------------>
+#ifdef CS_SAMMICH_FM	
+									    ;;  <------------------>
+TEXT_CS_MENU_EDIT_OPTIONS STRING 20, 0x40, " <    >   Del  Ins  "
+										;;  1234 1234 1234 12345
+#else
+										;;  <------------------>
 TEXT_CS_MENU_EDIT_OPTIONS STRING 20, 0x40, " <   >  Del Ins Clr "
-					;;  12341234123412341234
+										;;  12341234123412341234
+#endif
 
 ;; --------------------------------------------------------------------------
 ;;  print the menu items line
@@ -702,18 +851,14 @@ CS_MENU_PrintILine_Arw_LSp
 	movlw	' '	
 	rgoto	CS_MENU_PrintILine_Arw_C
 CS_MENU_PrintILine_Arw_LNS
-#if CS_MENU_OLD_STYLE
-	;; if CS_MENU_CURSOR_POS != CS_MENU_ENTRIES-1, print '>'
-	decf	CS_MENU_ENTRIES, W
-	cpfseq	CS_MENU_CURSOR_POS, ACCESS
-	rgoto CS_MENU_PrintILine_Arw_LR
-#else
-	;; if CS_MENU_PAGE_OFFSET != CS_MENU_ENTRIES-CS_MENU_DISPLAY_ITEMS, print '>'
+	;; if CS_MENU_PAGE_OFFSET == 0, print '>'
+	movf	CS_MENU_PAGE_OFFSET, W
+	bz	CS_MENU_PrintILine_Arw_LR
+	;; if CS_MENU_PAGE_OFFSET != CS_MENU_ENTRIES-CS_MENU_DISPLAY_ITEMS, print '<>'
 	movf	CS_MENU_ENTRIES, W
 	addlw	-CS_MENU_DISPLAYED_ITEMS
 	cpfseq	CS_MENU_PAGE_OFFSET, ACCESS
-	rgoto CS_MENU_PrintILine_Arw_LR
-#endif
+	rgoto CS_MENU_PrintILine_Arw_LLR
 CS_MENU_PrintILine_Arw_LL
 	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD; special char #0: '<'
 	movlw 0x00
@@ -721,8 +866,14 @@ CS_MENU_PrintILine_Arw_LL
 	movlw 0x08
 	rgoto	CS_MENU_PrintILine_Arw_C
 CS_MENU_PrintILine_Arw_LR
-	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD; special char #0: '>'
+	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD; special char #1: '>'
 	movlw 0x01
+	btfsc	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD; undocumented feature: GLCD special char #9: '>'	
+	movlw 0x09
+	rgoto	CS_MENU_PrintILine_Arw_C
+CS_MENU_PrintILine_Arw_LLR
+	btfss	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD; special char #2: '<>'
+	movlw 0x02
 	btfsc	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD; undocumented feature: GLCD special char #9: '>'	
 	movlw 0x09
 	rgoto	CS_MENU_PrintILine_Arw_C
@@ -1012,9 +1163,14 @@ CS_MENU_EncMaxSet
 
 	;; set CS_MENU_PARAMETER depending on CS_MENU (main/drum or menu page)
 	BRA_IFSET CS_MENU, 7, ACCESS, CS_MENU_ParameterMaxSet_Main
+;; if there's less than 8 menu items display, ie with a 2x20, the drum page needs
+;; to scroll like any other page (using the inc/dec buttons)
+#if CS_MENU_DISPLAYED_ITEMS > 7
 	movf	CS_MENU, W
 	xorlw	CS_MENU_DRUM
-	bz	CS_MENU_ParameterMaxSet_Drum
+	bz		CS_MENU_ParameterMaxSet_Drum
+#endif 
+
 CS_MENU_ParameterMaxSet_Root
 	decf	CS_MENU_ENTRIES, W
 #if CS_MENU_OLD_STYLE
@@ -1138,7 +1294,12 @@ CS_MENU_Select_NameFunc
 	bcf	CS_STAT, CS_STAT_CURSOR_FLASH
 
 	;; branch depending on (new) cursor pos, set by the select button
+#ifdef CS_SAMMICH_FM	
+	movf	CS_MENU_PAGE_OFFSET, W
+	subwf	TMP1, W
+#else
 	movf	TMP1, W
+#endif	
 	JUMPTABLE_2BYTES 5	; 5 entries
 	rgoto	CS_MENU_Select_NameFunc_Dec
 	rgoto	CS_MENU_Select_NameFunc_Inc
@@ -1485,10 +1646,17 @@ CS_MENU_Hlp_PrintSpaces_Loop
 ;; --------------------------------------------------------------------------
 ;;  prints "save ***" on screen
 ;; --------------------------------------------------------------------------
+#ifdef CS_SAMMICH_FM
+TEXT_SAVE_DATA_0	db "(i) Patch saved     "
+TEXT_SAVE_DATA_1	db "(i) Drumset saved   "
+TEXT_SAVE_DATA_2	db "(i) Ensemble saved  "
+TEXT_SAVE_DATA_3	db "(i) Everything saved"
+#else
 TEXT_SAVE_DATA_0	db "-- Patch saved --   "
 TEXT_SAVE_DATA_1	db "-- Drumset saved -- "
 TEXT_SAVE_DATA_2	db "-- Ensemble saved --"
 TEXT_SAVE_DATA_3	db "- Everything saved -"
+#endif
 
 CS_MENU_PrintSaveData
 	;; print "Save Patch/Drumset/Ensemble/Everything saved"

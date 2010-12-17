@@ -166,8 +166,20 @@ USER_DISPLAY_Init_Startup
 	bsf	CS_STAT, CS_STAT_STARTUP_DONE
 	call	MIOS_LCD_PrintMessage		; first line
 
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	movlw	255
+	movwf	LAST_CHARSET
+	movlw	2
+	call	MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
+#else
+	TABLE_ADDR CS_MENU_SPECIAL_CHARS	; (defined in special_characters.inc)
+	call	MIOS_CLCD_SpecialCharsInit	
+#endif	
+
+#ifndef CS_SAMMICH_FM
 	TABLE_ADDR TEXT_WELCOME_10
 	call	MIOS_LCD_PrintMessage		; second line
+#endif	
 USER_DISPLAY_Init_NoStartup
 
 	;; request an initialization
@@ -393,6 +405,12 @@ USER_AIN_NotifyChange
 #include "cs_menu_ms.inc"
 #include "cs_menu_cfg.inc"
 #include "cs_menu_tables.inc"
+
+#ifdef USE_CUSTOM_CHAR_HANDLER
+#include "mios_custom_char_handler.inc"
+#include "cs_menu_print_waveform.inc"
+#endif
+
 #endif
 
 ;; ---[ modules from code library ]---

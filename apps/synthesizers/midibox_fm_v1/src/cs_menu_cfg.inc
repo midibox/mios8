@@ -13,7 +13,16 @@
 ;; --------------------------------------------------------------------------
 ;;  Prints the upper line of the CFG page
 ;; --------------------------------------------------------------------------
+#ifdef CS_SAMMICH_FM
+;;
+;; reorder/show the four most useful CFG menu items in the 20 characters available.
+;; TODO: support scrolling of the CFG menu for 2x20 char displays
+;;
+CS_MENU_CFG_STR_0 STRING 40, 0x00,   "SyxD PSav DSav ESav Merger CC MJmp View"
+#else
 CS_MENU_CFG_STR_0 STRING 40, 0x00,   "Merger CC MJmp SyxD PSav DSav ESav View"
+#endif
+
 CS_MENU_CFG_PrintUL
 	TABLE_ADDR CS_MENU_CFG_STR_0
 	goto	MIOS_LCD_PrintString
@@ -33,6 +42,11 @@ CS_MENU_CFG_PrintLL
 	movlw	0x40
 	call	MIOS_LCD_CursorSet
 
+#ifdef CS_SAMMICH_FM
+	goto	CS_MENU_CFG_PrintLL_SyxD
+#endif
+
+CS_MENU_CFG_PrintLL_Merger
 	;; Merger mode
 	movlw	0x00
 	btfsc	CS_MENU_MODE, CS_MENU_MODE_MERGER
@@ -51,6 +65,11 @@ CS_MENU_CFG_PrintLL
 	movlw 0x00
 	rcall	CS_MENU_CFG_PrintLL_OnOff
 
+#ifdef CS_SAMMICH_FM
+	goto	CS_MENU_CFG_PrintLL_View
+#endif
+	
+CS_MENU_CFG_PrintLL_SyxD	
 	;; SysEx dump
 	rcall	CS_MENU_CFG_GetSyxType
 	mullw	4
@@ -76,6 +95,12 @@ CS_MENU_CFG_PrintLL
 	call	CS_MENU_PrintBnkAndEnsemble
  	rcall	CS_MENU_CFG_PrintLL_Space
 
+#ifdef CS_SAMMICH_FM
+	goto	CS_MENU_CFG_PrintLL_Merger
+#endif
+
+	
+CS_MENU_CFG_PrintLL_View
 	;; display view mode
 	TABLE_ADDR CS_MENU_CFG_STR_VIEW_0
 	BRA_IFCLR CS_MENU_MODE, CS_MENU_MODE_VIEW, ACCESS, CS_MENU_CFG_PrintLL_View0
@@ -119,6 +144,16 @@ CS_MENU_CFG_Button
 	;; branch depending on button
 	andlw	0x07
 	JUMPTABLE_2BYTES_UNSECURE
+#ifdef CS_SAMMICH_FM
+	rgoto	CS_MENU_CFG_Button_SyxD
+	rgoto	CS_MENU_CFG_Button_PSav
+	rgoto	CS_MENU_CFG_Button_DSav
+	rgoto	CS_MENU_CFG_Button_ESav
+	rgoto	CS_MENU_CFG_Button_Merg
+	rgoto	CS_MENU_CFG_Button_CC
+	rgoto	CS_MENU_CFG_Button_MJmp
+	rgoto	CS_MENU_CFG_Button_View
+#else
 	rgoto	CS_MENU_CFG_Button_Merg
 	rgoto	CS_MENU_CFG_Button_CC
 	rgoto	CS_MENU_CFG_Button_MJmp
@@ -127,6 +162,7 @@ CS_MENU_CFG_Button
 	rgoto	CS_MENU_CFG_Button_DSav
 	rgoto	CS_MENU_CFG_Button_ESav
 	rgoto	CS_MENU_CFG_Button_View
+#endif
 
 CS_MENU_CFG_Button_Merg
 	btg	CS_MENU_MODE, CS_MENU_MODE_MERGER

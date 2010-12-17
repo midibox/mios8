@@ -39,6 +39,34 @@ DIN_ENTRY MACRO function, sr, pin
 DIN_ENTRY_EOT MACRO
 	dw	0x0000, 0x0000
 	ENDM
+
+#ifdef CS_SAMMICH_FM
+CS_MENU_DIN_TABLE
+	;;		Function name		SR#	Pin#
+	DIN_ENTRY	CS_MENU_BUTTON_Dec,	 1,	 0	; only valid if rotary encoder not assigned to these pins
+	DIN_ENTRY	CS_MENU_BUTTON_Inc,	 1,	 1	; (see mios_tables.inc) and CS_MENU_USE_INCDEC_BUTTONS == 1
+	DIN_ENTRY	CS_MENU_BUTTON_Esc,	 1,	 2
+	
+	DIN_ENTRY	CS_MENU_BUTTON_Sel1,	 1,	 4
+	DIN_ENTRY	CS_MENU_BUTTON_Sel2,	 1,	 5
+	DIN_ENTRY	CS_MENU_BUTTON_Sel3,	 1,	 7
+	DIN_ENTRY	CS_MENU_BUTTON_Sel4,	 1,	 6
+	;;DIN_ENTRY	CS_MENU_BUTTON_Sel5,	 0,	 0
+	;;DIN_ENTRY	CS_MENU_BUTTON_Sel6,	 0,	 0
+	;;DIN_ENTRY	CS_MENU_BUTTON_Sel7,	 0,	 0
+	;;DIN_ENTRY	CS_MENU_BUTTON_Sel8,	 0,	 0
+	DIN_ENTRY	CS_MENU_BUTTON_Cfg,	 1,	 3
+	
+	DIN_ENTRY	CS_MENU_BUTTON_InsOP1,	 2,      2
+	DIN_ENTRY	CS_MENU_BUTTON_InsOP2,	 2,      1
+	DIN_ENTRY	CS_MENU_BUTTON_InsOP3,	 2,      0
+	DIN_ENTRY	CS_MENU_BUTTON_InsOP4,	 2,      4
+	DIN_ENTRY	CS_MENU_BUTTON_InsOPSel, 2,	 3
+
+	;; the M_Row[1234] buttons are handled from an interrupt service routine!
+	DIN_ENTRY_EOT
+
+#else
 	
 CS_MENU_DIN_TABLE
 	;;		Function name		SR#	Pin#
@@ -65,6 +93,7 @@ CS_MENU_DIN_TABLE
 	;; the M_Row[1234] buttons are handled from an interrupt service routine!
 	DIN_ENTRY_EOT
 
+#endif
 
 ; ==========================================================================
 ;  This short table lists the SR/pin numbers of the four
@@ -128,6 +157,8 @@ DOUT_ENTRY_EOT MACRO
 	ENDM
 	
 CS_MENU_DOUT_TABLE
+
+#ifndef CS_SAMMICH_FM
 	;;		Register and bit			SR#	Pin#	  Description
 	DOUT_ENTRY	CS_MENU_SELECTED_INS_FLAGS, 0,		1,	0	; INS1 LED (Note: Pin #0 is the D7 output of first SR)
 	DOUT_ENTRY	CS_MENU_SELECTED_INS_FLAGS, 1,		1,	1	; INS2 LED
@@ -141,6 +172,7 @@ CS_MENU_DOUT_TABLE
 
 	DOUT_ENTRY	TMP1, 0,				2,	0	; Instrument LED
 	DOUT_ENTRY	TMP1, 1,				2,	1	; OP LED
+#endif
 
 	;; NOTE: the pins of the MIDI Rx/Tx LEDs are assigned at main.asm
 	DOUT_ENTRY_EOT
