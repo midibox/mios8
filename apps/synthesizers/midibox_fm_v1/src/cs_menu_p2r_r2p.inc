@@ -286,9 +286,9 @@ CS_MENU_P2R_SUSK
 
 CS_MENU_R2P_SUSK
 	rcall	CS_MENU_Hlp_GetPxValue
-	movlw	0x00
-	btfsc	INDF0, 2
-	movlw 0x01
+	andlw	1 << 2
+	skpz
+	movlw	1
 	rgoto	CS_MENU_R2P_SetPar
 
 ; --------------------------------------------------------------------------
@@ -371,7 +371,7 @@ CS_MENU_R2P_PxOxKSR
 	movlw	0
 	rgoto	CS_MENU_R2P_PxOxFlags_Cont
 CS_MENU_R2P_PxOxFlags_Cont
-	call	MIOS_HLP_GetBitANDMask
+	call	MIOS_HLP_GetBitORMask
 	movwf	TMP1
 	rcall	CS_MENU_Hlp_GetPxOxValue
 	andwf	TMP1, W
@@ -429,9 +429,9 @@ CS_MENU_P2R_PxLFO_SYNC
 
 CS_MENU_R2P_PxLFO_SYNC
 	rcall	CS_MENU_Hlp_GetPxLFOxValue
-	movlw	0x00
-	btfsc	INDF0, 2
-	movlw 0x01
+	andlw	1 << 2
+	skpz
+	movlw	0x01
 	rgoto	CS_MENU_R2P_SetPar
 
 ; --------------------------------------------------------------------------

@@ -137,11 +137,18 @@ CS_MENU_EXEC_TogPar
 	;; select parameter
 	rcall	CS_MENU_EXEC_SelPar
 
-	;; toggle it
-	btg	CS_MENU_PARAMETER_L, 0
+	;; increment it, wrap at max value (we expect values < 0x100)
+	incf	CS_MENU_PARAMETER_L, F
+	incf	CS_MENU_PARAMETER_MAX_L, W
+	cpfslt	CS_MENU_PARAMETER_L, ACCESS
+	clrf	CS_MENU_PARAMETER_L
 
 	;; transfer to register
-	rgoto	CS_MENU_ParameterUpdate
+	call	CS_MENU_ParameterUpdate
+
+	;; deselect item
+	rgoto	CS_MENU_EXEC_Hlp_Deselect
+	
 
 ; ==========================================================================
 ;  Enter the "edit name" function
@@ -190,6 +197,7 @@ CS_MENU_EXEC_SavePat_Cont
 CS_MENU_EXEC_Hlp_ChangeMenu
 	BRA_IFCLR CS_STAT, CS_STAT_MODIFY_PARAMETER, ACCESS, CS_MENU_EXEC_Hlp_ChangeMenu_Now
 
+CS_MENU_EXEC_Hlp_Deselect	; used by CS_MENU_EXEC_TogPar
 	;; we are in "modify parameter" mode, clear flag and update screen
 	;; the user has to press the exec button once more to leave the menu
 	bcf	CS_STAT, CS_STAT_MODIFY_PARAMETER
