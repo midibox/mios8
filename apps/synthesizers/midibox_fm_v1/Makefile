@@ -1,7 +1,7 @@
 # $Id$
 
 # define the processor here
-PROCESSOR = 18f4685
+PROCESSOR = 18f452
 
 # default flags to GPASM here
 GPASM_FLAGS   = 
@@ -15,6 +15,10 @@ GPASM_DEFINES =
 # default rule that defines the .hex files which should be created
 # note: always require a "cleanall", since dependencies (e.g. on .h and .inc files) are not properly declared
 all: cleanall setup_mbfm_tk.hex setup_mbfm_v1.hex setup_sammich_fm.hex
+
+# compile sammichFM for PIC18F4685
+setup_sammich_fm.hex:
+	gpasm  -p p18f4685  -I./src -I $(MIOS_PATH)/include/asm -I $(MIOS_PATH)/include/share -I $(MIOS_PATH)/modules/app_lcd/dummy -I $(MIOS_PATH)/modules/aout   setup_sammich_fm.asm
 
 
 # include the asm_only.mk file
