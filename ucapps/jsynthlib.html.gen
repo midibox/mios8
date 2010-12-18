@@ -6,16 +6,21 @@ HEADER 3 Short JSynthLib Guide
 
 <H2>Java installation</H2>
 
-<P CLASS=DESC>The latest release is Java V1.5.0_06, which is called "J2SE 5.0" at the sun website. The runtime environment (JRE) can be downloaded from <A HREF="http://java.sun.com" TARGET="_blank">java.sun.com</A>. Here a <A HREF="http://java.sun.com/j2se/1.5.0/download.jsp" TARGET="_blank">direct link</A>. Note that the development kit (JDK) is only required, if you are planning to (re)compile java sources. So long you only want to use precompiled java programs, then the JRE package is all you need.</P>
+<P CLASS=DESC>The latest release is Java V1.6, which is called "J2SE 6.0" at the sun website. The runtime environment (JRE) can be downloaded from <A HREF="http://java.sun.com" TARGET="_blank">java.sun.com</A>. Here a <A HREF="http://www.oracle.com/technetwork/java/javase/downloads/index.html" TARGET="_blank">direct link</A>. Note that the development kit (JDK) is only required, if you are planning to (re)compile java sources. As long as you only want to use precompiled java programs, then the JRE package is all you need.</P>
+
+<P CLASS=DESC><B>Note:</B> MacOS users don't need to install Java, it's already pre-installed. But a separate MIDI driver is required as Apple's Java MIDI implementation doesn't support SysEx transfers!<BR>
+Please download the latest and greatest MMJ driver from <A HREF="http://www.humatic.de/htools/mmj.htm" TARGET="_blank">this location!</A>; copy the mmj.jar and libmmj.jnilib files to /Library/Java/Extensions - done!</P>
 
 <H2>JSynthLib installation</H2>
 
 <P CLASS=DESC>The JSynthLib release consists of a single .jar package, which can be started by double-clicking on it. From the command shell (e.g. Linux) it can be started with "java -jar &lt;filename&gt;".</P>
 
 <P CLASS=INFO>Unfortunately the official 0.20-beta release at the <A HREF="http://www.jsynthlib.org" TARGET="_blank">JSynthLib Website</A> has a bug in the synthdriver of MIDIbox SID, which prevents you from uploading patches correctly. Since updates are very rare, I provide a snapshot release from the CVS here:</P>
-<P CLASS=DESC> --&gt; <A HREF="http://www.midibox.org/jsynthlib/JSynthLib-Snapshot-2006-01-28.jar.zip">JSynthLib-Snapshot-2006-01-28.jar.zip</A></P>
+<P CLASS=DESC> --&gt; <A HREF="http://www.midibox.org/jsynthlib/JSynthLib-Snapshot-2010-12-18.jar.zip">JSynthLib-Snapshot-2010-12-18.jar.zip</A></P>
 
-<P CLASS=DESC>Note that I've tested this snapshot with MBSID and MBFM only, I cannot guarantee that the remaining synth drivers are working!</P>
+<P CLASS=DESC>Note that I've tested this snapshot with MBSID V1 and MBFM only, I cannot guarantee that the remaining synth drivers are working!</P>
+
+<P CLASS=DESC>Note also the MIDIbox SID V2 is not supported by JSynthLib, it got <A HREF="midibox_sid_manual_ed.html">an own editor</A> instead.
 
 <H2>Selecting MIDIbox SID/FM driver</H2>
 
@@ -36,7 +41,7 @@ HEADER 3 Short JSynthLib Guide
 <P CLASS=DESC>A patch can be edit by right-clicking on the appr. entry:<BR>
 <IMG SRC="howto_jsynthlib/jsynthlib-edit-patch.gif" WIDTH=644 HEIGHT=618></IMG></P>
 
-<H2>Java MIDI Bug</H2>
+<H2>Java MIDI Bug under Windows</H2>
 
 <P CLASS=DESC>With Java 1.5, Sun introduced an improved support for MIDI interfaces. It works very well with common MIDI events, but has some problems with SysEx strings: once a SysEx string is sent, which is shorter then the previous strings, additional bytes will be appended. Example: if a MIDIbox SID patch is sent, which consists of 262 bytes, and thereafter a sound parameter change is sent by the editor (11 bytes), 262 bytes will be sent again - the 11 new bytes at the beginning, and the remaining 251 bytes of the previous SysEx message at the end. This not only increases the latency of parameter changes, but also violates the MIDI protocol.</P>
 
