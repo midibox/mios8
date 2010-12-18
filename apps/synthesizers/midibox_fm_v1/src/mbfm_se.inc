@@ -259,8 +259,8 @@ MBFM_SE_Note_Mod
 	movff	MIOS_PARAMETER2, MBFM_SE_TARGET_FRQ_H
 
 	;; pitch result stored in MUL_A_[LH]
-	clrf	MUL_A_L
-	clrf	MUL_A_H
+	clrf	MUL_A_L, BANKED
+	clrf	MUL_A_H, BANKED
 
 	;; calc MUL_A_[LH] = pitchbender+finetune (9-bit signed)
 	movlw	MBFM_Ix_PITCHBENDER
@@ -268,11 +268,11 @@ MBFM_SE_Note_Mod
 	movwf	IRQ_TMP1
 	bz	MBFM_SE_Note_Mod_NoPP
 MBFM_SE_Note_Mod_PP
-	addwf	MUL_A_L, F
+	addwf	MUL_A_L, F, BANKED
 	movlw	0x00
 	btfsc	IRQ_TMP1, 7
 	movlw 0xff
-	addwfc	MUL_A_H, F
+	addwfc	MUL_A_H, F, BANKED
 MBFM_SE_Note_Mod_NoPP
 
 	movlw	MBFM_Ix_FINETUNE
@@ -282,11 +282,11 @@ MBFM_SE_Note_Mod_NoPP
 	movwf	IRQ_TMP1
 	bz	MBFM_SE_Note_Mod_NoFT
 MBFM_SE_Note_Mod_FT
-	addwf	MUL_A_L, F
+	addwf	MUL_A_L, F, BANKED
 	movlw	0x00
 	btfsc	IRQ_TMP1, 7
 	movlw 0xff
-	addwfc	MUL_A_H, F
+	addwfc	MUL_A_H, F, BANKED
 MBFM_SE_Note_Mod_NoFT
 
 	;; unisono feature only possible in poly mode
@@ -303,16 +303,16 @@ MBFM_SE_Note_Mod_US_2nd
 	comf	IRQ_TMP1, F
 MBFM_SE_Note_Mod_US_Not2nd
 	movf	IRQ_TMP1, W
-	addwf	MUL_A_L, F
+	addwf	MUL_A_L, F, BANKED
 	movlw	0x00
 	btfsc	IRQ_TMP1, 7
 	movlw 0xff
-	addwfc	MUL_A_H, F
+	addwfc	MUL_A_H, F, BANKED
 MBFM_SE_Note_Mod_NoUS
 
 	;; skip tuning if no frequency sweep and MUL_A_[LH] == zero
-	movf	MUL_A_L, W
-	iorwf	MUL_A_H, W
+	movf	MUL_A_L, W, BANKED
+	iorwf	MUL_A_H, W, BANKED
 	bnz	MBFM_SE_Note_Mod_ABS16
 	BRA_IFSET MBFM_SE_STAT, MBFM_SE_STAT_FRQ_SWEEP_ACTIVE, BANKED, MBFM_SE_Note_Mod_AddMulCont
 #if MBFM_SE_MEASURE_WORST_CASE < 1
@@ -323,17 +323,17 @@ MBFM_SE_Note_Mod_NoUS
 MBFM_SE_Note_Mod_ABS16
 	clrf	IRQ_TMP1
 	clrc
-	BRA_IFCLR MUL_A_H, 7, ACCESS, MBFM_SE_Note_Mod_ABS16_Pos
+	BRA_IFCLR MUL_A_H, 7, BANKED, MBFM_SE_Note_Mod_ABS16_Pos
 MBFM_SE_Note_Mod_ABS16_Neg
 	bsf	IRQ_TMP1, 0	; save sign in IRQ_TMP1[0]
-	comf	MUL_A_L, F
-	comf	MUL_A_H, F
+	comf	MUL_A_L, F, BANKED
+	comf	MUL_A_H, F, BANKED
 	setc
 MBFM_SE_Note_Mod_ABS16_Pos
 	;; *2
-	rlf	MUL_A_L, F
-	rlf	MUL_A_H, F
-
+	rlf	MUL_A_L, F, BANKED
+	rlf	MUL_A_H, F, BANKED
+	
 	;; add pitchrange depending on direction with saturation
 	BRA_IFSET IRQ_TMP1, 0, ACCESS, MBFM_SE_Note_Mod_PDec
 MBFM_SE_Note_Mod_PInc
