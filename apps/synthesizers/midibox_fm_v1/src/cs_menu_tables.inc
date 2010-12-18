@@ -167,9 +167,30 @@ CS_MENU_TABLE_OP_End
 ; ==========================================================================
 ;  The LFO menu
 ; ==========================================================================
+#ifdef CS_SAMMICH_FM
 CS_MENU_TABLE_LFO
 	db	(CS_MENU_TABLE_LFO_End-CS_MENU_TABLE_LFO)/CS_MENU_ENTRY_LEN, 0x00
-
+	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
+	CS_MENU_ENTRY	CS_MENU_SELECTED_LFO,      "LFO ", 0x01, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
+#ifdef USE_CUSTOM_CHAR_HANDLER
+	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Wave", 0x05, PRINT_PxLFO_WAVE_2, EXEC_SELPAR,     R2PP2R_PxLFO_WAVE
+#else
+	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Wave", 0x05, PRINT_PxLFO_WAVE, EXEC_SELPAR,     R2PP2R_PxLFO_WAVE
+#endif
+	CS_MENU_ENTRY	MBFM_Px_LFOx_RATE,         "Rate", 0x7f, PRINT_PxLFO_DEC,  EXEC_SELPAR,     R2PP2R_PxLFO
+	CS_MENU_ENTRY	MBFM_Px_LFOx_PHASE,        "Phas", 0x7f, PRINT_PxLFO_DEC,  EXEC_SELPAR,     R2PP2R_PxLFO
+	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Sync", 0x01, PRINT_PxLFO_SYNC, EXEC_TOGPAR,     R2PP2R_PxLFO_SYNC
+	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_P,      "DepP", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
+	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_L,      "DepL", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
+	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_A,      "DepA", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
+	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_V1,     "DVo1", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
+	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_V2,     "DVo2", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
+	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_V3,     "DVo3", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
+	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_V4,     "DVo4", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
+CS_MENU_TABLE_LFO_End
+#else
+CS_MENU_TABLE_LFO
+	db	(CS_MENU_TABLE_LFO_End-CS_MENU_TABLE_LFO)/CS_MENU_ENTRY_LEN, 0x00
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_LFO,      "LFO ", 0x01, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
 #ifdef USE_CUSTOM_CHAR_HANDLER
@@ -188,6 +209,7 @@ CS_MENU_TABLE_LFO
 	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_L,      "DepL", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
 	CS_MENU_ENTRY	MBFM_Px_LFOx_DEPTH_A,      "DepA", 0x7f, PRINT_PxLFO_PMDEC,EXEC_SELPAR,     R2PP2R_PxLFO
 CS_MENU_TABLE_LFO_End
+#endif
 
 ; ==========================================================================
 ;  The envelope generator menu
