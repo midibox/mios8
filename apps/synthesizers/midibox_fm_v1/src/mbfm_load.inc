@@ -11,7 +11,6 @@
 ; 
 ; ==========================================================================
 
-
 ;; --------------------------------------------------------------------------
 ;;  This function should be called from the USER_Tick loop to increment
 ;;  the load counter
@@ -64,4 +63,3 @@ MBFM_LOAD_Print
 	movff	PERFORMANCE_LOAD_REG_H, MIOS_PARAMETER1
 	movf	PERFORMANCE_LOAD_REG_L, W
 	goto	MIOS_LCD_PrintBCD5
-

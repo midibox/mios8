@@ -136,6 +136,16 @@ MBFM_SE_Handler_Loop_GateSet
 	call	MBFM_SE_EG_Restart
 	;; notify that mod values have been changed
 	bsf	MBFM_SE_STAT, MBFM_SE_STAT_MOD_VALUE_CHANGED, BANKED
+#if DISPLAY_PERFORMANCE == 0
+	;; service dedicated meter for instrument
+	lfsr	FSR2, METER_VALUE_I1
+	movlw	MBFM_Vx_ASSIGNED_INSTR
+	movf	PLUSW1, W
+	andlw	0x03
+	addwf	FSR2L, F
+	movlw	0xff
+	movwf	INDF2
+#endif
 
 	;; 	rgoto	MBFM_SE_Handler_Loop_Gate_End
 MBFM_SE_Handler_Loop_NoGateSet

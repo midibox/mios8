@@ -195,12 +195,19 @@ CS_MENU_WT_MODIFIED	EQU	0x04c	; each parameter column has it's own flag
 #endif
 
 ;; ==========================================================================
-
+#if DISPLAY_PERFORMANCE
 PERFORMANCE_LOAD_CTR_L	EQU	0x050	; for mbfm_load.inc
 PERFORMANCE_LOAD_CTR_H	EQU	0x051
 PERFORMANCE_LOAD_REG_L	EQU	0x052
 PERFORMANCE_LOAD_REG_H	EQU	0x053
 PERFORMANCE_REF_CTR	EQU	0x054
+#else
+METER_VALUE_I1		EQU	0x050   ; for cs_menu_matrix.inc
+METER_VALUE_I2		EQU	0x051
+METER_VALUE_I3		EQU	0x052
+METER_VALUE_I4		EQU	0x053
+METER_I_ACTIVITY_FLAGS  EQU	0x054
+#endif
 
 #ifdef USE_CUSTOM_CHAR_HANDLER
 LAST_CHARSET 	EQU 	0x055	

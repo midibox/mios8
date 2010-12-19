@@ -53,6 +53,42 @@ CS_MENU_MATRIX_BHandler_LoopNext
 ;; --------------------------------------------------------------------------
 CS_MENU_MATRIX_Handler
 
+#if DISPLAY_PERFORMANCE == 0
+	;; METER_I_ACTIVITY_FLAGS will contain XOR flags for each instrument
+	;; they get active whenever METER_VALUE_Ix is > 0
+	;; in addition, these flags will be pulse-modulated to improve the effect :)
+	clrf	METER_I_ACTIVITY_FLAGS
+	;; handle meter counters
+	lfsr	FSR1, METER_VALUE_I1
+	movlw	0x01		; IRQ_TMP1 is used as loop counter and OR mask for PRODH (therefore we leftshift the register with each loop)
+	movwf	IRQ_TMP1
+CS_MENU_MATRIX_HandlerMetersLoop
+	movf	INDF1, W
+	bz	CS_MENU_MATRIX_HandlerMetersLpNxt
+	decf	INDF1, F	; decrement meter counter
+
+	;; cheap PWM effect (only 16 brightness levels)
+	;; frequency and brightness derived from meter counter value
+	;; we assume that meter starts at 0xff (for 255 mS activity time) and will be decremented
+	swapf	INDF1, W
+	andlw	0x0f
+	movwf	IRQ_TMP2	; IRQ_TMP2 now holds the brightness level
+
+	movf	INDF1, W	; now check current counter value, turn off LED if (counter & 0xf) < brightness level
+	andlw	0x0f
+	cpfsgt	IRQ_TMP2, ACCESS
+	rgoto	CS_MENU_MATRIX_HandlerMetersLpNxt
+
+	;; LED activated
+	movf	IRQ_TMP1, W
+	iorwf	METER_I_ACTIVITY_FLAGS, F	; add to activity mask
+CS_MENU_MATRIX_HandlerMetersLpNxt
+	movf	POSTINC1, W	; increment pointer
+	clrc
+	rlf	IRQ_TMP1, F	; loop 4 times
+	BRA_IFCLR IRQ_TMP1, 4, ACCESS, CS_MENU_MATRIX_HandlerMetersLoop
+#endif
+
 #ifdef CS_SAMMICH_FM
 	;; increment row counter, wrap at 2
 	;; this is repurposing the variable used in the full
@@ -77,16 +113,22 @@ CS_MENU_MATRIX_Handler_LED_Row_Op
 	movwf	MIOS_PARAMETER1
 	rgoto CS_MENU_MATRIX_Handler_LED_Row_Cont
 CS_MENU_MATRIX_Handler_LED_Row_Inst
+	movf	CS_MENU_SELECTED_INS_FLAGS, W ; INS LEDs show also the activity
+#if DISPLAY_PERFORMANCE == 0
+	xorwf	METER_I_ACTIVITY_FLAGS, W
+#endif
+	movwf	MIOS_PARAMETER1
+
 	movlw	0x20	; Inst LED column is pin D2
 	btfss	CS_MENU_MODE, CS_MENU_MODE_INS_OP	
 	iorlw	0x10	; Inst LED
-	btfsc	CS_MENU_SELECTED_INS_FLAGS, 0
+	btfsc	MIOS_PARAMETER1, 0 ;  CS_MENU_SELECTED_INS_FLAGS[0] XOR METER_I_ACTIVITY_FLAGS[0]
 	iorlw	0x08	; Inst 1 LED
-	btfsc	CS_MENU_SELECTED_INS_FLAGS, 1	
+	btfsc	MIOS_PARAMETER1, 1 ;  CS_MENU_SELECTED_INS_FLAGS[1] XOR METER_I_ACTIVITY_FLAGS[1]
 	iorlw	0x04	; Inst 2 LED
-	btfsc	CS_MENU_SELECTED_INS_FLAGS, 2	
+	btfsc	MIOS_PARAMETER1, 2 ;  CS_MENU_SELECTED_INS_FLAGS[2] XOR METER_I_ACTIVITY_FLAGS[2]
 	iorlw	0x02	; Inst 3 LED
-	btfsc	CS_MENU_SELECTED_INS_FLAGS, 3	
+	btfsc	MIOS_PARAMETER1, 3 ;  CS_MENU_SELECTED_INS_FLAGS[3] XOR METER_I_ACTIVITY_FLAGS[3]
 	iorlw	0x01	; Inst 4 LED
 	movwf	MIOS_PARAMETER1
 	;;rgoto CS_MENU_MATRIX_Handler_LED_Row_Cont
@@ -94,6 +136,36 @@ CS_MENU_MATRIX_Handler_LED_Row_Cont
 	movlw	0x00	; 1st SR
 	call MIOS_DOUT_SRSet
 	return
+#else
+	;; normal LED output w/o matrix
+
+	movf	CS_MENU_SELECTED_INS_FLAGS, W
+#if DISPLAY_PERFORMANCE == 0
+	xorwf	METER_I_ACTIVITY_FLAGS, W
+#endif
+	andlw	0x0f
+	movwf	MIOS_PARAMETER1
+
+	swapf	CS_MENU_SELECTED_OP_FLAGS, W
+	andlw	0xf0
+	iorwf	MIOS_PARAMETER1, F
+
+	movlw	0x00		; SR#1
+	call	MIOS_DOUT_SRSet
+
+	;; INS and OP LED
+	movlw	0x01		; SR#2 read
+	call	MIOS_DOUT_SRGet
+	movlw	0xfc		; mask out first two LEDs
+	andwf	MIOS_PARAMETER1, F
+
+	btfss	CS_MENU_MODE, CS_MENU_MODE_INS_OP
+	bsf	MIOS_PARAMETER1, 0 ; INS LED
+	btfsc	CS_MENU_MODE, CS_MENU_MODE_INS_OP
+	bsf	MIOS_PARAMETER1, 1 ; OP LED
+
+	movlw	0x01		; SR#2 write-back
+	call	MIOS_DOUT_SRSet
 #endif
 
 	;; init table pointer, start with the DOUT pins for the columns

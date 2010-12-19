@@ -117,8 +117,10 @@ USER_Tick
 	;; ---[ update AOUTs channels (if enabled) ]---
 	call	MBFM_AOUT_Update
 
+#if DISPLAY_PERFORMANCE == 1
 	;; ---[ for performance measuring ]---
 	call	MBFM_LOAD_IncLoadCtr
+#endif
 
 	return
 
@@ -211,7 +213,6 @@ USER_DISPLAY_Tick
 	call	MIOS_LCD_CursorSet
 	call	MBFM_LOAD_Print
 #endif
-
 	return
 
 
@@ -372,8 +373,10 @@ USER_SR_Service_Prepare_NoCS
 ;;  and IRQ_TMPx instead of TMPx -- and make the routine as fast as possible
 ;; --------------------------------------------------------------------------
 USER_SR_Service_Finish
+#if DISPLAY_PERFORMANCE == 1
 	;; ---[ for performance measuring ]---
 	call	MBFM_LOAD_IncRefCtr
+#endif
 
 	;; ---[ handler for selection matrix buttons/LEDs ]---
 	goto	CS_MENU_MATRIX_Handler
@@ -451,7 +454,11 @@ USER_AIN_NotifyChange
 #include "mbfm_lfo_table.inc"
 #include "mbfm_sin_table.inc"
 #include "mbfm_lcd.inc"
-#include "mbfm_load.inc"
+
+#if DISPLAY_PERFORMANCE == 1
+# include "mbfm_load.inc"
+#endif
+
 #include "mbfm_note_table.inc"
 #include "mbfm_vol_table.inc"
 #include "mbfm_par_table.inc"
