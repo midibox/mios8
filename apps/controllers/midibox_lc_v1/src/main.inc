@@ -165,6 +165,7 @@ USER_Init_EncSpeedLoop
 	movlw	50000 & 0xff		; low-byte
 	movwf	MIOS_PARAMETER1
 	movlw	50000 >> 8		; high-byte
+ 	movwf	MIOS_PARAMETER2
 	movlw	0x02			; use 1:4 prescaler
 	call	MIOS_TIMER_Init
 
@@ -255,7 +256,6 @@ USER_Tick
 USER_Timer
 	;; branch to Meter Timer
 	goto	LC_LED_MeterTimer
-
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by MIOS when a debug command has been received

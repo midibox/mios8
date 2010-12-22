@@ -128,11 +128,8 @@ LC_LED_MeterTimer_Loop
 	decf	INDF1, F
 	bnz	LC_LED_MeterTimer_Loop_Next
 	;; else reload counter
-#if 0
 	movlw	15		; according to spec
-#else
-	movlw	127		; slower (and nicer)
-#endif
+
 	movwf	INDF1
 	;; and decrement meter level if != 0
 	movf	INDF2, W
