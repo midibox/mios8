@@ -221,6 +221,7 @@ MIOS_MF_FaderMove_Skip
 ;; --------------------------------------------------------------------------
 MIOS_MF_Enable
 	;; ensure that max. 8 faders are active
+	SET_BSR MIOS_AIN_NUMBER
 	movlw	0x08
 	cpfsgt	MIOS_AIN_NUMBER, BANKED
 	rgoto MIOS_MF_Enable_NumberOk
