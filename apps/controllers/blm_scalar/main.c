@@ -510,8 +510,8 @@ void BLM_NotifyToggle(unsigned char pin, unsigned char value) __wparam
 /////////////////////////////////////////////////////////////////////////////
 // This function is NOT called by MIOS, but by the scan matrix handler
 // in $MIOS_PATH/modules/blm_scalar, when a pin of the scan matrix has been toggled
-// Note: in addition to "pin" and "value", the "blm_button_column" and
-// "blm_button_row" are available as global variables (defined in blm.h)
+// Note: in addition to "pin" and "value", the "blm_scalar_button_column" and
+// "blm_scalar_button_row" are available as global variables (defined in blm.h)
 /////////////////////////////////////////////////////////////////////////////
 void BLM_SCALAR_NotifyToggle(unsigned char pin, unsigned char value) __wparam
 {
