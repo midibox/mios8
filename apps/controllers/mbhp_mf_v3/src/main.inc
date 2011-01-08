@@ -233,7 +233,69 @@ USER_DISPLAY_Tick
 ;;     o third  MIDI event byte in MIOS_PARAMETER3
 ;; --------------------------------------------------------------------------
 USER_MPROC_NotifyReceivedEvent
+	;; branch to USER_MPROC_Received_Ex if pitch bender event (for motorfaders) has been received
+	movf	MIOS_PARAMETER1, W
+	andlw	0xf0
+	xorlw	0xe0
+	bz	USER_MPROC_Received_Ex
+
+	;; nothing else to parse
 	return
+
+
+USER_MPROC_Received_Ex
+	;; mask out MIDI channel (== fader number)
+	movlw	0x0f
+	andwf	MIOS_PARAMETER1, F
+
+	;; do nothing if fader number >= 8
+	movlw	0x08
+	cpfslt	MIOS_PARAMETER1, ACCESS
+	return
+
+	;; save fader number in LC_FADER_NUMBER
+	movf	MIOS_PARAMETER1, W
+	movwf	LC_FADER_NUMBER
+
+	;; reset touch detection if touch sensor mode >= 1
+	SET_BSR	MF_BASE
+	movf	MF_TOUCHSENSOR_MODE, W, BANKED
+	bnz	USER_MPROC_Received_Ex_NoTs
+USER_MPROC_Received_Ex_Ts
+	movf	LC_FADER_NUMBER, W
+	call	MF_TouchDetectionReset
+USER_MPROC_Received_Ex_NoTs
+
+	;; derive 10-bit value from received 14-bit value. Store result in LC_FADER_POS_[LH]
+	movff	MIOS_PARAMETER2, LC_FADER_POS_L ; MIDI LSB -> LC_FADER_POS_L
+	movff	MIOS_PARAMETER3, LC_FADER_POS_H ; MIDI MSB -> LC_FADER_POS_H
+
+	;; LSB = MSB[0] | MIDI LSB
+	btfsc	LC_FADER_POS_H, 0
+	bsf	LC_FADER_POS_L, 7
+	;; MSB = MIDI MSB >> 1
+	clrc
+	rrf	LC_FADER_POS_H, F
+
+	;; 10-bit value = 14-bit value >> 4
+	clrc
+	rrf	LC_FADER_POS_H, F	; 1
+	rrf	LC_FADER_POS_L, F
+	clrc
+	rrf	LC_FADER_POS_H, F	; 2
+	rrf	LC_FADER_POS_L, F
+	clrc
+	rrf	LC_FADER_POS_H, F	; 3
+	rrf	LC_FADER_POS_L, F
+	clrc
+	rrf	LC_FADER_POS_H, F	; 4
+	rrf	LC_FADER_POS_L, F
+
+	;; finally move fader
+	movff	LC_FADER_POS_L, MIOS_PARAMETER1
+	movff	LC_FADER_POS_H, MIOS_PARAMETER2
+	movf	LC_FADER_NUMBER, W
+	goto	MF_FaderMove
 
 
 ;; --------------------------------------------------------------------------
