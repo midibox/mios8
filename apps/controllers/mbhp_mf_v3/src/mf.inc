@@ -257,6 +257,10 @@ MF_Tick
 MF_Tick_EndlessLoop	; force a watchdog timer reset in this case
 	rgoto	MF_Tick_EndlessLoop
 
+	;; --- store PROD[LH]
+	movff	PRODL, MF_STORED_PRODL
+	movff	PRODH, MF_STORED_PRODH
+
 	;; --- calc initial pointer to MF* page and add MF number
 	lfsr	FSR2, MF_BASE & 0xf80
 	movf	MF_NUMBER, W, BANKED
@@ -264,11 +268,23 @@ MF_Tick_EndlessLoop	; force a watchdog timer reset in this case
 
 	;; --- skip if motor not enabled
 	movlw	MF_MODE_0 & 0x7f
-	BRA_IFCLR PLUSW2, MF_MODE_FLAG_ENABLED, ACCESS, MF_Tick_End
+	BRA_IFSET PLUSW2, MF_MODE_FLAG_ENABLED, ACCESS, MF_Tick_FaderEnabled
+	rcall	MF_StandBy	; force standby fader
+	rgoto	MF_Tick_End
+MF_Tick_FaderEnabled
 
 	;; --- store current fader value into MF_VALUE_[LH]
 	movff	ADRESL, MF_VALUE_L		; take original value from ADC so that AIN deadband doesn't matter!
 	movff	ADRESH, MF_VALUE_H
+	
+	;; --- store also in MF_TRACE_VALUE_[LH]?
+	movf	MF_TRACE_FADER, W, BANKED
+	xorwf	MF_NUMBER, W, BANKED
+	bnz	MF_Tick_NotTraceFader
+MF_Tick_TraceFader
+	movff	ADRESL, MF_TRACE_VALUE_L	; take original value from ADC so that AIN deadband doesn't matter!
+	movff	ADRESH, MF_TRACE_VALUE_H
+MF_Tick_NotTraceFader
 
 	;; -- clear "changed" flag
 	lfsr	FSR1, AIN_RESULT_H_00
@@ -362,13 +378,16 @@ MF_Tick_NotSnapped
 	;; case: motor very slow or not moving
 	;; ----------------------------------------------------------------------------------------
 	movff	AIN_POTSPEED, IRQ_TMP4
-	movlw	0x01
+	movlw	0x07
 	cpfslt	IRQ_TMP4, ACCESS
-	rgoto MF_Tick_Moving
+	rgoto	MF_Tick_Moving
 MF_Tick_NotMoving
 	;; --- continue if TIMEOUT > 0
 	movf	MF_TIMEOUT_CTR, W, BANKED
 	bnz	MF_Tick_MovingCont
+
+	;; --- Dont Move Fader -> Standby
+	rcall	MF_StandBy
 
 	;; --- if TIMEOUT == 0, write 0x01 into REPEAT_CTRx for a proper shutdown
 	movlw	MF_REPEAT_CTR_0 & 0x7f
@@ -407,12 +426,12 @@ MF_Tick_Suspended
 MF_Tick_NotSuspended
 
 	;; ----------------------------------------------------------------------------------------
-	;; Don't move motor if speed > 5/1024
+	;; Don't move motor if speed > 20/1024
 	;; ----------------------------------------------------------------------------------------
 	movff	AIN_POTSPEED, IRQ_TMP4
-	movlw	10
+	movlw	20
 	cpfsgt	IRQ_TMP4, ACCESS
-	rgoto MF_Tick_DontReduceSpeed
+	rgoto	MF_Tick_DontReduceSpeed
 MF_Tick_ReduceSpeed
 	;; --- Dont Move Fader -> Standby
 	rcall	MF_StandBy
@@ -424,18 +443,35 @@ MF_Tick_DontReduceSpeed
 	;; case: determine in which direction the motor should be moved
 	;; ----------------------------------------------------------------------------------------
 
-	;; --- special case: if target and current position <= 0x07, stop motor
-	;; (workaround for ALPS faders which never reach the 0x00 value)
+	;; --- special case: if target and current position < MF_MIN_VALUE, stop motor
 	movf	MF_TARGET_POS_H, W, BANKED
-	bnz	MF_Tick_NotTargetZero
+	bnz	MF_Tick_NotTargetMin
 	movf	MF_VALUE_H, W, BANKED
-	bnz	MF_Tick_NotTargetZero
-	movf	MF_TARGET_POS_L, W, BANKED
-	iorwf	MF_VALUE_L, W, BANKED
-	andlw	0xf8
-	bnz	MF_Tick_NotTargetZero
+	bnz	MF_Tick_NotTargetMin
+	movlw	MF_MIN_VALUE_L_0 & 0x7f
+	movf	PLUSW2, W
+	cpfslt	MF_TARGET_POS_L, BANKED
+	rgoto	MF_Tick_NotTargetMin
+	cpfslt	MF_VALUE_L, BANKED
+	rgoto	MF_Tick_NotTargetMin
 	rgoto	MF_DontMove
-MF_Tick_NotTargetZero
+MF_Tick_NotTargetMin
+
+	;; --- special case: if target and current position > MF_MAX_VALUE, stop motor
+	movf	MF_TARGET_POS_H, W, BANKED
+	xorlw	0x03
+	bnz	MF_Tick_NotTargetMax
+	movf	MF_VALUE_H, W, BANKED
+	xorlw	0x03
+	bnz	MF_Tick_NotTargetMax
+	movlw	MF_MAX_VALUE_L_0 & 0x7f
+	movf	PLUSW2, W
+	cpfsgt	MF_TARGET_POS_L, BANKED
+	rgoto	MF_Tick_NotTargetMax
+	cpfsgt	MF_VALUE_L, BANKED
+	rgoto	MF_Tick_NotTargetMax
+	rgoto	MF_DontMove
+MF_Tick_NotTargetMax
 
 	;; --- check distance between current and target position
 	;; --- if fader is in between "deadband", don't move it
@@ -468,13 +504,13 @@ MF_SVNotNeg
 	movff	PLUSW2, IRQ_TMP4
 	movf	MF_DEADBAND, W, BANKED
 	btfsc	IRQ_TMP4, 2
-	movlw 0x04
+	movlw	0x04
 	btfsc	IRQ_TMP4, 3
-	movlw 0x08
+	movlw	0x08
 	btfsc	IRQ_TMP4, 4
-	movlw 0x20
+	movlw	0x20
 	cpfsgt	IRQ_TMP1, ACCESS
-	rgoto MF_DontMove
+	rgoto	MF_DontMove
 	rgoto	MF_Move
 
 MF_DontMove
@@ -490,37 +526,55 @@ MF_DontMove
 
 MF_Move
 	;; ----------------------------------------------------------------------------------------
+	;; motor speed in IRQ_TMP1 (saturated to 0xff)
 	;; motor direction in IRQ_TMP3, 0 (0=down, 1=up)
-	;; invert if configured in MF_MODE
 	;; ----------------------------------------------------------------------------------------
-	movlw	MF_MODE_0 & 0x7f
-	btfsc	PLUSW2, MF_MODE_FLAG_MOTOR_INVERTED
-	btg	IRQ_TMP3, 0
 
 	;; ----------------------------------------------------------------------------------------
 	;; set motor speed
 	;; slow down motor if distance between current and target position < 0x60
 	;; ----------------------------------------------------------------------------------------
-	;; max by default
-	movlw	MF_MAX_DUTY_0 & 0x7f
-	movff	PLUSW2, IRQ_TMP5
-
-	;; slow down if target position < 0x60
-	;; TODO: use different PWM values depending on distance!
-	movlw	0x60
-	cpfslt	IRQ_TMP1, ACCESS
-	rgoto	MF_Tick_NoPWM
-	movlw	MF_MIN_DUTY_0 & 0x7f
-	movff	PLUSW2, IRQ_TMP5
-MF_Tick_NoPWM
-	movlw	MF_PWM_DUTY_0 & 0x7f
-	movff	IRQ_TMP5, PLUSW2
-
 	;; --- check if fader should be moved up or down
 	BRA_IFSET IRQ_TMP3, 0, ACCESS, MF_MoveUp	; check marker for "motor moved up"
 
 MF_MoveDown
+	;; max by default
+	movlw	MF_MAX_DUTY_DOWN_0 & 0x7f
+	movff	PLUSW2, IRQ_TMP5
+
+	;; slow down if distance to target position < 0x80
+	movlw	0x80
+	cpfslt	IRQ_TMP1, ACCESS
+	rgoto	MF_MoveDown_NoPWM
+MF_MoveDown_PWM
+	;; scale between MF_MIN_DUTY and MF_PWM_STEPS depending on distance
+#if 0
+	;; for comparison w/o scaling (use calibration curve feature of MbhpMfTool to see the difference!)
+	movlw	MF_MIN_DUTY_DOWN_0 & 0x7f
+	movff	PLUSW2, IRQ_TMP5
+#else
+	movlw	MF_MIN_DUTY_DOWN_0 & 0x7f
+	movf	PLUSW2, W
+	subwf	MF_PWM_STEPS, W, BANKED
+	mulwf	IRQ_TMP1, ACCESS
+	clrc
+	rlf	PRODL, F
+	rlf	PRODH, F
+
+	movlw	MF_MIN_DUTY_DOWN_0 & 0x7f
+	movf	PLUSW2, W
+	addwf	PRODH, W
+	movwf	IRQ_TMP5
+#endif
+MF_MoveDown_NoPWM
+	movlw	MF_PWM_DUTY_0 & 0x7f
+	movff	IRQ_TMP5, PLUSW2
+
 	;; ---> Move Fader Down
+	movlw	MF_MODE_0 & 0x7f
+	btfsc	PLUSW2, MF_MODE_FLAG_MOTOR_INVERTED
+	rgoto	MF_MoveDown_Inverted
+MF_MoveUp_Inverted
 	movf	MF_NUMBER, W, BANKED
 	call	MIOS_HLP_GetBitANDMask
 	andwf	MF_MOTOR_DIR, F, BANKED
@@ -528,7 +582,43 @@ MF_MoveDown
 	rgoto	MF_Tick_End
 
 MF_MoveUp
+	;; max by default
+	movlw	MF_MAX_DUTY_UP_0 & 0x7f
+	movff	PLUSW2, IRQ_TMP5
+
+	;; slow down if distance to target position < 0x80
+	movlw	0x80
+	cpfslt	IRQ_TMP1, ACCESS
+	rgoto	MF_MoveUp_NoPWM
+MF_MoveUp_PWM
+	;; scale between MF_MIN_DUTY and MF_PWM_STEPS depending on distance
+#if 0
+	;; for comparison w/o scaling (use calibration curve feature of MbhpMfTool to see the difference!)
+	movlw	MF_MIN_DUTY_UP_0 & 0x7f
+	movff	PLUSW2, IRQ_TMP5
+#else
+	movlw	MF_MIN_DUTY_UP_0 & 0x7f
+	movf	PLUSW2, W
+	subwf	MF_PWM_STEPS, W, BANKED
+	mulwf	IRQ_TMP1, ACCESS
+	clrc
+	rlf	PRODL, F
+	rlf	PRODH, F
+
+	movlw	MF_MIN_DUTY_UP_0 & 0x7f
+	movf	PLUSW2, W
+	addwf	PRODH, W
+	movwf	IRQ_TMP5
+#endif
+MF_MoveUp_NoPWM
+	movlw	MF_PWM_DUTY_0 & 0x7f
+	movff	IRQ_TMP5, PLUSW2
+
 	;; ---> Move Fader Up
+	movlw	MF_MODE_0 & 0x7f
+	btfsc	PLUSW2, MF_MODE_FLAG_MOTOR_INVERTED
+	rgoto	MF_MoveUp_Inverted
+MF_MoveDown_Inverted
 	movf	MF_NUMBER, W, BANKED
 	call	MIOS_HLP_GetBitORMask
 	iorwf	MF_MOTOR_DIR, F, BANKED
@@ -536,6 +626,10 @@ MF_MoveUp
 	;; 	goto	MF_Tick_End
 
 MF_Tick_End
+	;; --- restore PROD[LH]
+	movff	MF_STORED_PRODL, PRODL
+	movff	MF_STORED_PRODH, PRODH
+
 	return
 
 
@@ -570,14 +664,14 @@ MF_TRACE_Init_Loop
 	return
 
 
-	;; traces MIOS_PARAMETER[12]
+	;; traces MF_TRACE_VALUE_[LH]
 	;; we expect MF_BASE in BSR
 MF_TRACE_Push
 	movff	MF_TRACE_PTR_L, FSR1L
 	movff	MF_TRACE_PTR_H, FSR1H
 
-	movff	MIOS_PARAMETER1, POSTINC1
-	movff	MIOS_PARAMETER2, POSTINC1
+	movff	MF_TRACE_VALUE_L, POSTINC1
+	movff	MF_TRACE_VALUE_H, POSTINC1
 
 	;; end reached?
 	movf	FSR1L, W
@@ -635,8 +729,6 @@ MF_Periodic_mS_Tick_Loop
 	movf	MF_TRACE_SCALE_CTR, W, BANKED
 	bnz	MF_Periodic_mS_Tick_NoTrace
 MF_Periodic_mS_Tick_Trace
-	movf	MF_TRACE_FADER, W, BANKED
-	call	AIN_PinGet
 	rcall	MF_TRACE_Push
 MF_Periodic_mS_Tick_NoTrace
 

@@ -301,12 +301,43 @@ USER_MIDI_NotifyRx
 ;;       - 0 if button has been pressed (=0V)
 ;; --------------------------------------------------------------------------
 USER_DIN_NotifyToggle
+	;; exit if touch sensors have been disabled
+	SET_BSR	MF_BASE
+	movf	MF_TOUCHSENSOR_MODE, W, BANKED
+	skpnz
+	return
+
 	;; only button 0..7 should toggle - exit function if button >= 8
 	andlw	0xf8
 	skpz
 	return
 
+	;; TOUCH_SENSOR_MODE >= 2
+	SET_BSR	MF_BASE
+	movlw	2-1
+	cpfsgt	MF_TOUCHSENSOR_MODE, BANKED
+	rgoto	USER_DIN_NotifyToggle_NoSuspend
+
+	;; in this mode, motorfaders will be suspended if touch sensors active
+USER_DIN_NotifyToggle_Suspend
+	movf	MIOS_PARAMETER2, W
+	bz	USER_DIN_NotifyToggle_Suspend1
+USER_DIN_NotifyToggle_Suspend0
+	movf	MIOS_PARAMETER1, W
+	call	MF_SuspendDisable
+	rgoto	USER_DIN_NotifyToggle_Cont
+USER_DIN_NotifyToggle_Suspend1
+	movf	MIOS_PARAMETER1, W
+	call	MF_SuspendEnable
+	;; 	rgoto	USER_DIN_NotifyToggle_Cont
+USER_DIN_NotifyToggle_Cont
+USER_DIN_NotifyToggle_NoSuspend
+
 	;; generate MIDI event
+
+	;; for MIDIbox Link: notify begin of stream
+	call	MIOS_MIDI_BeginStream
+
 	;; Note On/Off 0x68..0x6f complies to Mackie Control Spec
 	movlw	0x90			; Note Event Channel #1
 	call	MIOS_MIDI_TxBufferPut
@@ -320,6 +351,9 @@ USER_DIN_NotifyToggle
 	skpnz
 	movlw	0x7f
 	call	MIOS_MIDI_TxBufferPut
+
+	;; for MIDIbox Link: notify end of stream
+	call	MIOS_MIDI_EndStream
 
 	return
 
@@ -365,14 +399,19 @@ USER_AIN_NotifyChange
 	;; save the fader number in LC_FADER_NUMBER
 	movwf	LC_FADER_NUMBER
 
-#if 0
-	;; TOUCH_SENSOR_MODE >= 2
-	;; in this mode, no value will be sent if touch sensor not active
-	movf	LC_FADER_NUMBER, W
-	call	MIOS_MF_SuspendGet
-	bz	LC_MF_FaderEvent_End
-#endif
+	;; TOUCH_SENSOR_MODE >= 3
+	SET_BSR	MF_BASE
+	movlw	3-1
+	cpfsgt	MF_TOUCHSENSOR_MODE, BANKED
+	rgoto	USER_AIN_NotifyChange_SendAlways
 
+	;; in this mode, no value will be sent if touch sensor not active (fader not suspended)
+USER_AIN_NotifyChange_SendIfAct
+	movf	LC_FADER_NUMBER, W
+	call	MF_SuspendGet
+	bz	LC_MF_FaderEvent_End
+
+USER_AIN_NotifyChange_SendAlways
 	;; store 10-bit LSB value in LC_FADER_POS_L
 	movff	MIOS_PARAMETER2, LC_FADER_POS_L
 
