@@ -22,11 +22,12 @@
 #define MF_TRACE_STATE_FLAG_FINISHED	2
 #define MF_TRACE_STATE_FLAG_SENT	3
 
-	
-MF_TIMEOUT_RELOAD_VALUE EQU 0xff
-MF_REPEAT_CTR_VALUE     EQU 0x1f
-MF_MANUAL_CTR_VALUE     EQU 0xff
-
+#define MF_USE_DYNAMIC_DEADBAND         1
+#define MF_SCALE_PWM_BETWEEN_MIN_MAX    1
+#define MF_REDUCE_SPEED_AT_DIFF		127
+#define MF_TIMEOUT_RELOAD_VALUE 	0xff
+#define MF_REPEAT_CTR_VALUE     	0x1f
+#define MF_MANUAL_CTR_VALUE		0xff
 
 ;; --------------------------------------------------------------------------
 ;;  FUNCTION: MF_FaderMove
@@ -377,9 +378,8 @@ MF_Tick_NotSnapped
 	;; ----------------------------------------------------------------------------------------
 	;; case: motor very slow or not moving
 	;; ----------------------------------------------------------------------------------------
-	movff	AIN_POTSPEED, IRQ_TMP4
 	movlw	0x07
-	cpfslt	IRQ_TMP4, ACCESS
+	cpfslt	AIN_POTSPEED, BANKED
 	rgoto	MF_Tick_Moving
 MF_Tick_NotMoving
 	;; --- continue if TIMEOUT > 0
@@ -426,20 +426,6 @@ MF_Tick_Suspended
 MF_Tick_NotSuspended
 
 	;; ----------------------------------------------------------------------------------------
-	;; Don't move motor if speed > 20/1024
-	;; ----------------------------------------------------------------------------------------
-	movff	AIN_POTSPEED, IRQ_TMP4
-	movlw	20
-	cpfsgt	IRQ_TMP4, ACCESS
-	rgoto	MF_Tick_DontReduceSpeed
-MF_Tick_ReduceSpeed
-	;; --- Dont Move Fader -> Standby
-	rcall	MF_StandBy
-	;; ---> END
-	rgoto	MF_Tick_End
-MF_Tick_DontReduceSpeed
-
-	;; ----------------------------------------------------------------------------------------
 	;; case: determine in which direction the motor should be moved
 	;; ----------------------------------------------------------------------------------------
 
@@ -475,41 +461,44 @@ MF_Tick_NotTargetMax
 
 	;; --- check distance between current and target position
 	;; --- if fader is in between "deadband", don't move it
-	;; calc IRQ_TMP_[12] = MF_VALUE_[LH] - MF_TARGET_POS_[LH]
+	;; calc MF_TARGET_DIFF_[LH] = MF_VALUE_[LH] - MF_TARGET_POS_[LH]
 	movf	MF_TARGET_POS_L, W, BANKED
 	subwf	MF_VALUE_L, W, BANKED
-	movwf	IRQ_TMP1
+	movwf	MF_TARGET_DIFF, BANKED
 	movf	MF_TARGET_POS_H, W, BANKED
 	subwfb	MF_VALUE_H, W, BANKED
-	movwf	IRQ_TMP2
+	movwf	MF_TARGET_DIFF_H, BANKED
 	;; if result negative, invert values
-	bcf	IRQ_TMP3, 0
-	BRA_IFCLR IRQ_TMP2, 7, ACCESS, MF_SVNotNeg
-	comf	IRQ_TMP1, F
-	comf	IRQ_TMP2, F
-	incf	IRQ_TMP1, F
+	bcf	MF_TARGET_MOTOR_DIR, 0, BANKED
+	BRA_IFCLR MF_TARGET_DIFF_H, 7, BANKED, MF_SVNotNeg
+	comf	MF_TARGET_DIFF, F, BANKED
+	comf	MF_TARGET_DIFF_H, F, BANKED
+	incf	MF_TARGET_DIFF, F, BANKED
 	skpnz
-	incf	IRQ_TMP2, F
-	bsf	IRQ_TMP3, 0		; set marker for "motor moved up"
+	incf	MF_TARGET_DIFF_H, F, BANKED
+	bsf	MF_TARGET_MOTOR_DIR, 0, BANKED		; set marker for "motor moved up"
 MF_SVNotNeg
 
-	movf	IRQ_TMP1, W
-	movf	IRQ_TMP2, F
+	;; saturate difference at 0xff (therefore the appr. variable has no _L postfix)
+	movf	MF_TARGET_DIFF, W, BANKED
+	movf	MF_TARGET_DIFF_H, F, BANKED
 	skpz
 	movlw	0xff
-	movwf	IRQ_TMP1
+	movwf	MF_TARGET_DIFF, BANKED
 
 	;; dynamic deadband - depends on repeat counter
 	movlw	MF_REPEAT_CTR_0 & 0x7f
 	movff	PLUSW2, IRQ_TMP4
 	movf	MF_DEADBAND, W, BANKED
+#if MF_USE_DYNAMIC_DEADBAND
 	btfsc	IRQ_TMP4, 2
 	movlw	0x04
 	btfsc	IRQ_TMP4, 3
 	movlw	0x08
 	btfsc	IRQ_TMP4, 4
-	movlw	0x20
-	cpfsgt	IRQ_TMP1, ACCESS
+	movlw	0x10
+#endif
+	cpfsgt	MF_TARGET_DIFF, BANKED
 	rgoto	MF_DontMove
 	rgoto	MF_Move
 
@@ -526,8 +515,8 @@ MF_DontMove
 
 MF_Move
 	;; ----------------------------------------------------------------------------------------
-	;; motor speed in IRQ_TMP1 (saturated to 0xff)
-	;; motor direction in IRQ_TMP3, 0 (0=down, 1=up)
+	;; motor speed in MF_TARGET_DIFF (saturated to 0xff)
+	;; motor direction in MF_TARGET_MOTOR_DIR, 0 (0=down, 1=up)
 	;; ----------------------------------------------------------------------------------------
 
 	;; ----------------------------------------------------------------------------------------
@@ -535,28 +524,37 @@ MF_Move
 	;; slow down motor if distance between current and target position < 0x60
 	;; ----------------------------------------------------------------------------------------
 	;; --- check if fader should be moved up or down
-	BRA_IFSET IRQ_TMP3, 0, ACCESS, MF_MoveUp	; check marker for "motor moved up"
+	BRA_IFSET MF_TARGET_MOTOR_DIR, 0, BANKED, MF_MoveUp
 
 MF_MoveDown
 	;; max by default
 	movlw	MF_MAX_DUTY_DOWN_0 & 0x7f
 	movff	PLUSW2, IRQ_TMP5
 
-	;; slow down if distance to target position < 0x80
-	movlw	0x80
-	cpfslt	IRQ_TMP1, ACCESS
-	rgoto	MF_MoveDown_NoPWM
-MF_MoveDown_PWM
-	;; scale between MF_MIN_DUTY and MF_PWM_STEPS depending on distance
-#if 0
-	;; for comparison w/o scaling (use calibration curve feature of MbhpMfTool to see the difference!)
+	;; slow down to min PWM if speed > MF_REDUCE_SPEED_AT_DIFF/1024
+	movlw	MF_REDUCE_SPEED_AT_DIFF
+	cpfsgt	AIN_POTSPEED, BANKED
+	rgoto	MF_MoveDown_DontReduceSpeed
+MF_MoveDown_ReduceSpeed
 	movlw	MF_MIN_DUTY_DOWN_0 & 0x7f
 	movff	PLUSW2, IRQ_TMP5
-#else
+	clrf	IRQ_TMP5
+	rgoto	MF_MoveDown_NoPWM
+MF_MoveDown_DontReduceSpeed
+
+	;; slow down if distance to target position < 0x80
+	movlw	0x80
+	cpfslt	MF_TARGET_DIFF, BANKED
+	rgoto	MF_MoveDown_NoPWM
+MF_MoveDown_PWM
+#if MF_SCALE_PWM_BETWEEN_MIN_MAX
+	;; scale between MF_MIN_DUTY and MF_PWM_STEPS depending on distance
+	movlw	MF_MAX_DUTY_DOWN_0 & 0x7f
+	movff	PLUSW2, PRODL
 	movlw	MF_MIN_DUTY_DOWN_0 & 0x7f
 	movf	PLUSW2, W
-	subwf	MF_PWM_STEPS, W, BANKED
-	mulwf	IRQ_TMP1, ACCESS
+	subwf	PRODL, W
+	mulwf	MF_TARGET_DIFF, BANKED
 	clrc
 	rlf	PRODL, F
 	rlf	PRODH, F
@@ -565,6 +563,10 @@ MF_MoveDown_PWM
 	movf	PLUSW2, W
 	addwf	PRODH, W
 	movwf	IRQ_TMP5
+#else
+	;; for comparison w/o scaling (use calibration curve feature of MbhpMfTool to see the difference!)
+	movlw	MF_MIN_DUTY_DOWN_0 & 0x7f
+	movff	PLUSW2, IRQ_TMP5
 #endif
 MF_MoveDown_NoPWM
 	movlw	MF_PWM_DUTY_0 & 0x7f
@@ -581,26 +583,37 @@ MF_MoveUp_Inverted
 	;; ---> END
 	rgoto	MF_Tick_End
 
+
+
 MF_MoveUp
 	;; max by default
 	movlw	MF_MAX_DUTY_UP_0 & 0x7f
 	movff	PLUSW2, IRQ_TMP5
 
-	;; slow down if distance to target position < 0x80
-	movlw	0x80
-	cpfslt	IRQ_TMP1, ACCESS
-	rgoto	MF_MoveUp_NoPWM
-MF_MoveUp_PWM
-	;; scale between MF_MIN_DUTY and MF_PWM_STEPS depending on distance
-#if 0
-	;; for comparison w/o scaling (use calibration curve feature of MbhpMfTool to see the difference!)
+	;; slow down to min PWM if speed > MF_REDUCE_SPEED_AT_DIFF/1024
+	movlw	MF_REDUCE_SPEED_AT_DIFF
+	cpfsgt	AIN_POTSPEED, BANKED
+	rgoto	MF_MoveUp_DontReduceSpeed
+MF_MoveUp_ReduceSpeed
 	movlw	MF_MIN_DUTY_UP_0 & 0x7f
 	movff	PLUSW2, IRQ_TMP5
-#else
+	clrf	IRQ_TMP5
+	rgoto	MF_MoveUp_NoPWM
+MF_MoveUp_DontReduceSpeed
+
+	;; slow down if distance to target position < 0x80
+	movlw	0x80
+	cpfslt	MF_TARGET_DIFF, BANKED
+	rgoto	MF_MoveUp_NoPWM
+MF_MoveUp_PWM
+#if MF_SCALE_PWM_BETWEEN_MIN_MAX
+	;; scale between MF_MIN_DUTY and MF_PWM_STEPS depending on distance
+	movlw	MF_MAX_DUTY_UP_0 & 0x7f
+	movff	PLUSW2, PRODL
 	movlw	MF_MIN_DUTY_UP_0 & 0x7f
 	movf	PLUSW2, W
-	subwf	MF_PWM_STEPS, W, BANKED
-	mulwf	IRQ_TMP1, ACCESS
+	subwf	PRODL, W
+	mulwf	MF_TARGET_DIFF, BANKED
 	clrc
 	rlf	PRODL, F
 	rlf	PRODH, F
@@ -609,6 +622,10 @@ MF_MoveUp_PWM
 	movf	PLUSW2, W
 	addwf	PRODH, W
 	movwf	IRQ_TMP5
+#else
+	;; for comparison w/o scaling (use calibration curve feature of MbhpMfTool to see the difference!)
+	movlw	MF_MIN_DUTY_UP_0 & 0x7f
+	movff	PLUSW2, IRQ_TMP5
 #endif
 MF_MoveUp_NoPWM
 	movlw	MF_PWM_DUTY_0 & 0x7f
@@ -648,6 +665,8 @@ MF_TRACE_Init
 	lfsr	FSR1, TRACE_MEM_START
 	movff	FSR1L, MF_TRACE_PTR_L
 	movff	FSR1H, MF_TRACE_PTR_H
+#if 0
+	;; not required - trace will be sent after dump complete!
 MF_TRACE_Init_Loop
 	setf	POSTINC1	; invalidate
 
@@ -657,6 +676,7 @@ MF_TRACE_Init_Loop
 	movf	FSR1H, W
 	xorlw	HIGH(TRACE_MEM_END+1)
 	bnz	MF_TRACE_Init_Loop
+#endif
 
 	movlw	0x00		; don't touch BSR
 	movff	WREG, MF_TRACE_SCALE_CTR
