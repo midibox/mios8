@@ -177,7 +177,7 @@ CS_MENU_P2R_VAR_WTSTEP
 	;; change pos
 	rcall	CS_MENU_P2RR2P_SetVAR
 	;; update buffer
-	rgoto	CS_MENU_MS_Update_WT_Buffer
+	goto	CS_MENU_MS_Update_WT_Buffer
 
 CS_MENU_R2P_VAR_WTSTEP
 	rgoto	CS_MENU_R2P_VAR

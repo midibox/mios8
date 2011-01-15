@@ -27,8 +27,9 @@ EXEC_MENU_WT	EQU	0x02
 EXEC_MENU_SAVE	EQU	0x03
 EXEC_SELPAR	EQU	0x04
 EXEC_TOGPAR	EQU	0x05
-EXEC_EDITNAME	EQU	0x06
-EXEC_SAVE_IT	EQU	0x07
+EXEC_RND	EQU	0x06
+EXEC_EDITNAME	EQU	0x07
+EXEC_SAVE_IT	EQU	0x08
 
 
 ; ==========================================================================
@@ -43,6 +44,7 @@ CS_MENU_EXEC_Handler
 	rgoto	CS_MENU_EXEC_Menu_Save
 	rgoto	CS_MENU_EXEC_SelPar
 	rgoto	CS_MENU_EXEC_TogPar
+	rgoto	CS_MENU_EXEC_Rnd
 	rgoto	CS_MENU_EXEC_EditName
 	rgoto	CS_MENU_EXEC_SaveIt
 
@@ -149,6 +151,22 @@ CS_MENU_EXEC_TogPar
 	;; deselect item
 	rgoto	CS_MENU_EXEC_Hlp_Deselect
 	
+
+; ==========================================================================
+;  Use this function to trigger the random generator
+; ==========================================================================
+CS_MENU_EXEC_Rnd
+#if ENABLE_RANDOM_GENERATOR
+	;; get current instrument and store it in MBFM_CURRENT_INSTRUMENT
+	call	CS_MENU_MS_GetInstrNumber
+	;; generate depending on cursor position
+	movf	CS_MENU_PARAMETER_IX, W
+	call	MBFM_RND_GeneratePart
+	;; update patch and exit
+	goto	MBFM_INSTR_Init_RAM
+#else
+	return
+#endif
 
 ; ==========================================================================
 ;  Enter the "edit name" function

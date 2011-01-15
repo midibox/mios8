@@ -55,14 +55,7 @@ MBFM_SE_Handler
 	movff	FSR0H, SAVED_FSR0H
 
 	;; generate new pseudo-random number
-	movf	MBFM_LFO_RANDOM_SEED_L, W, BANKED
-	mulwf	MBFM_LFO_RANDOM_SEED_H, BANKED
-	movf	TMR0L, W
-	addwf	PRODL, W
-	movwf	MBFM_LFO_RANDOM_SEED_L, BANKED
-	movlw	0x69
-	addwfc	PRODH, W
-	movwf	MBFM_LFO_RANDOM_SEED_H, BANKED
+	call	MBFM_RND_GenRandomNumber
 
 	lfsr	FSR1, MBFM_V1_BASE
 	BRA_IFCLR MBFM_SE_STAT, MBFM_SE_STAT_CYCLE2, BANKED, MBFM_SE_Handler_NotCycle2
@@ -1299,10 +1292,10 @@ MBFM_SE_LFO_Hlp_WFBranch_Pul
 	rgoto	MBFM_SE_LFO_Hlp_WFBranch_Cont
 MBFM_SE_LFO_Hlp_WFBranch_Ran
 	;; just get pieces of the random number
-	movf	MBFM_LFO_RANDOM_SEED_H, W, BANKED
+	movf	MBFM_RANDOM_SEED_H, W, BANKED
 	andlw	0x55
 	movwf	IRQ_TMP1
-	movf	MBFM_LFO_RANDOM_SEED_L, W, BANKED
+	movf	MBFM_RANDOM_SEED_L, W, BANKED
 	andlw	0xaa
 	iorwf	IRQ_TMP1, W
 	;; 	rgoto	MBFM_SE_LFO_Hlp_WFBranch_Cont

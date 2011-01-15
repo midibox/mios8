@@ -30,6 +30,7 @@ CS_MENU_TABLES
 	dw	CS_MENU_TABLE_SAVE, CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToRoot
 	dw	CS_MENU_TABLE_AOUT, CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToRootAOUT
 	dw	CS_MENU_TABLE_USER, CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToRoot
+	dw	CS_MENU_TABLE_RND,  CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToRoot
 
 	dw	CS_MENU_TABLE_BD,   CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToDRUM
 	dw	CS_MENU_TABLE_SD,   CS_MENU_Page_Parameters, CS_MENU_EXEC_GoToDRUM
@@ -53,15 +54,16 @@ CS_MENU_DRUM	EQU	0x07
 CS_MENU_SAVE	EQU	0x08
 CS_MENU_AOUT	EQU	0x09
 CS_MENU_USER	EQU	0x0a
+CS_MENU_RND	EQU	0x0b
 
-CS_MENU_BD	EQU	0x0b
-CS_MENU_SD	EQU	0x0c
-CS_MENU_HH	EQU	0x0d
-CS_MENU_CYM	EQU	0x0e
-CS_MENU_TOM	EQU	0x0f
-CS_MENU_FRQ	EQU	0x10
-CS_MENU_OUT	EQU	0x11
-CS_MENU_DM	EQU	0x12
+CS_MENU_BD	EQU	0x0c
+CS_MENU_SD	EQU	0x0d
+CS_MENU_HH	EQU	0x0e
+CS_MENU_CYM	EQU	0x0f
+CS_MENU_TOM	EQU	0x10
+CS_MENU_FRQ	EQU	0x11
+CS_MENU_OUT	EQU	0x12
+CS_MENU_DM	EQU	0x13
 
 
 	;; ID for main page (7th bit must be set)
@@ -85,6 +87,9 @@ CS_MENU_TABLE_ROOT
 	CS_MENU_ENTRY	CS_MENU_SAVE,              "SAVE", 0x00, PRINT_NOP,        EXEC_MENU_SAVE,  R2PP2R_NOP
 	CS_MENU_ENTRY	CS_MENU_AOUT,              "AOUT", 0x00, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP
 	CS_MENU_ENTRY	CS_MENU_USER,              "USER", 0x00, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP
+#if ENABLE_RANDOM_GENERATOR
+	CS_MENU_ENTRY	CS_MENU_RND,               "RND ", 0x00, PRINT_NOP,        EXEC_MENU,       R2PP2R_NOP
+#endif
 CS_MENU_TABLE_ROOT_End
 
 ; ==========================================================================
@@ -146,11 +151,7 @@ CS_MENU_TABLE_OP
 
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_OP_FLAGS, " OP ", 0x06, PRINT_VAR_1234,   EXEC_SELPAR,     R2PP2R_VAR_OP
-#if USE_CUSTOM_CHAR_HANDLER
 	CS_MENU_ENTRY	MBFM_Px_OPx_WS,            "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_PxOx
-#else
-	CS_MENU_ENTRY	MBFM_Px_OPx_WS,            "Wave", 0x07, PRINT_PxOx_DECP1, EXEC_SELPAR,     R2PP2R_PxOx
-#endif	
 	CS_MENU_ENTRY	MBFM_Px_OPx_TL,            "Vol.", 0x3f, PRINT_PxOx_DEC,   EXEC_SELPAR,     R2PP2R_PxOx
 	CS_MENU_ENTRY	MBFM_Px_OPx_MULT,          "Mult", 0x0f, PRINT_PxOx_DEC,   EXEC_SELPAR,     R2PP2R_PxOx
 	CS_MENU_ENTRY	MBFM_Px_OPx_AR,            "Atck", 0x0f, PRINT_PxOx_DEC,   EXEC_SELPAR,     R2PP2R_PxOx
@@ -167,16 +168,12 @@ CS_MENU_TABLE_OP_End
 ; ==========================================================================
 ;  The LFO menu
 ; ==========================================================================
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 CS_MENU_TABLE_LFO
 	db	(CS_MENU_TABLE_LFO_End-CS_MENU_TABLE_LFO)/CS_MENU_ENTRY_LEN, 0x00
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_LFO,      "LFO ", 0x01, PRINT_VAR_DECP1,  EXEC_SELPAR,     R2PP2R_VAR
-#if USE_CUSTOM_CHAR_HANDLER
-	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Wave", 0x05, PRINT_PxLFO_WAVE_2, EXEC_SELPAR,     R2PP2R_PxLFO_WAVE
-#else
 	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Wave", 0x05, PRINT_PxLFO_WAVE, EXEC_SELPAR,     R2PP2R_PxLFO_WAVE
-#endif
 	CS_MENU_ENTRY	MBFM_Px_LFOx_RATE,         "Rate", 0x7f, PRINT_PxLFO_DEC,  EXEC_SELPAR,     R2PP2R_PxLFO
 	CS_MENU_ENTRY	MBFM_Px_LFOx_PHASE,        "Phas", 0x7f, PRINT_PxLFO_DEC,  EXEC_SELPAR,     R2PP2R_PxLFO
 	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Sync", 0x01, PRINT_PxLFO_SYNC, EXEC_TOGPAR,     R2PP2R_PxLFO_SYNC
@@ -193,11 +190,7 @@ CS_MENU_TABLE_LFO
 	db	(CS_MENU_TABLE_LFO_End-CS_MENU_TABLE_LFO)/CS_MENU_ENTRY_LEN, 0x00
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	CS_MENU_SELECTED_LFO,      "LFO ", 0x01, PRINT_VAR_DECP1,  EXEC_TOGPAR,     R2PP2R_VAR
-#if USE_CUSTOM_CHAR_HANDLER
-	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Wave", 0x05, PRINT_PxLFO_WAVE_2, EXEC_SELPAR,     R2PP2R_PxLFO_WAVE
-#else
 	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Wave", 0x05, PRINT_PxLFO_WAVE, EXEC_SELPAR,     R2PP2R_PxLFO_WAVE
-#endif
 	CS_MENU_ENTRY	MBFM_Px_LFOx_MODE,         "Sync", 0x01, PRINT_PxLFO_SYNC, EXEC_TOGPAR,     R2PP2R_PxLFO_SYNC
 	CS_MENU_ENTRY	MBFM_Px_LFOx_PHASE,        "Phas", 0x7f, PRINT_PxLFO_DEC,  EXEC_SELPAR,     R2PP2R_PxLFO
 	CS_MENU_ENTRY	MBFM_Px_LFOx_RATE,         "Rate", 0x7f, PRINT_PxLFO_DEC,  EXEC_SELPAR,     R2PP2R_PxLFO
@@ -296,11 +289,7 @@ CS_MENU_TABLE_BD
 	CS_MENU_ENTRY	CS_MENU_SELECTED_BD_HH,    " OP ", 0x01, PRINT_VAR_BD_OP,  EXEC_TOGPAR,     R2PP2R_VAR_BD_OP
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_TL,          "Vol ", 0x3f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_MULT,        "Mult", 0x0f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
-#if USE_CUSTOM_CHAR_HANDLER
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_WS,          "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_PDxBD
-#else
-	CS_MENU_ENTRY	MBFM_PDx_BD_M_WS,          "Wave", 0x07, PRINT_PDxBD_DECP1,EXEC_SELPAR,     R2PP2R_PDxBD
-#endif
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_AR,          "Atck", 0x0f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_DR,          "Dec.", 0x0f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
 	CS_MENU_ENTRY	MBFM_PDx_BD_M_SL,          "Sust", 0x0f, PRINT_PDxBD_DEC,  EXEC_SELPAR,     R2PP2R_PDxBD
@@ -318,11 +307,7 @@ CS_MENU_TABLE_SD
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	MBFM_PDx_SD_TL,            "Vol ", 0x3f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_SD_MULT,          "Mult", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
-#if USE_CUSTOM_CHAR_HANDLER
 	CS_MENU_ENTRY	MBFM_PDx_SD_WS,            "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_Px
-#else
-	CS_MENU_ENTRY	MBFM_PDx_SD_WS,            "Wave", 0x07, PRINT_Px_DECP1,   EXEC_SELPAR,     R2PP2R_Px
-#endif
 	CS_MENU_ENTRY	MBFM_PDx_SD_AR,            "Atck", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_SD_DR,            "Dec.", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_SD_SL,            "Sust", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
@@ -338,11 +323,7 @@ CS_MENU_TABLE_TOM
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	MBFM_PDx_TOM_TL,           "Vol ", 0x3f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_TOM_MULT,         "Mult", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
-#if USE_CUSTOM_CHAR_HANDLER
 	CS_MENU_ENTRY	MBFM_PDx_TOM_WS,           "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_Px
-#else
-	CS_MENU_ENTRY	MBFM_PDx_TOM_WS,           "Wave", 0x07, PRINT_Px_DECP1,   EXEC_SELPAR,     R2PP2R_Px
-#endif
 	CS_MENU_ENTRY	MBFM_PDx_TOM_AR,           "Atck", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_TOM_DR,           "Dec.", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_TOM_SL,           "Sust", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
@@ -360,11 +341,7 @@ CS_MENU_TABLE_HH
 	CS_MENU_ENTRY	CS_MENU_SELECTED_BD_HH,    " HH ", 0x01, PRINT_VAR_HH,     EXEC_TOGPAR,     R2PP2R_VAR_HH
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_TL,          "Vol ", 0x3f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_MULT,        "Mult", 0x0f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
-#if USE_CUSTOM_CHAR_HANDLER
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_WS,          "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_PDxHH
-#else
-	CS_MENU_ENTRY	MBFM_PDx_HH_O_WS,          "Wave", 0x07, PRINT_PDxHH_DECP1,EXEC_SELPAR,     R2PP2R_PDxHH
-#endif
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_AR,          "Atck", 0x0f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_DR,          "Dec.", 0x0f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
 	CS_MENU_ENTRY	MBFM_PDx_HH_O_SL,          "Sust", 0x0f, PRINT_PDxHH_DEC,  EXEC_SELPAR,     R2PP2R_PDxHH
@@ -380,11 +357,7 @@ CS_MENU_TABLE_CYM
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	MBFM_PDx_CYM_TL,           "Vol ", 0x3f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_CYM_MULT,         "Mult", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
-#if USE_CUSTOM_CHAR_HANDLER
 	CS_MENU_ENTRY	MBFM_PDx_CYM_WS,           "Wave", 0x07, PRINT_PxOx_WAVE,  EXEC_SELPAR,     R2PP2R_Px
-#else
-	CS_MENU_ENTRY	MBFM_PDx_CYM_WS,           "Wave", 0x07, PRINT_Px_DECP1,   EXEC_SELPAR,     R2PP2R_Px
-#endif
 	CS_MENU_ENTRY	MBFM_PDx_CYM_AR,           "Atck", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_CYM_DR,           "Dec.", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_CYM_SL,           "Sust", 0x0f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
@@ -487,3 +460,19 @@ CS_MENU_TABLE_USER
 	CS_MENU_ENTRY	MBFM_PDx_HH_C_TL,          "HHCV", 0x3f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 CS_MENU_TABLE_USER_End
 
+; ==========================================================================
+;  The random generator menu
+; ==========================================================================
+CS_MENU_TABLE_RND
+	db	(CS_MENU_TABLE_RND_End-CS_MENU_TABLE_RND)/CS_MENU_ENTRY_LEN, 0x00
+
+#if ENABLE_RANDOM_GENERATOR
+	;;              Register (00=dummy)         |<->|  max   print ix          exec ix          parameter transfer
+	CS_MENU_ENTRY	0x00,                       "All ", 0x00, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
+	CS_MENU_ENTRY	0x01,                       " OP ", 0x00, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
+	CS_MENU_ENTRY	0x02,                       "LFO ", 0x00, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
+	CS_MENU_ENTRY	0x03,                       "EG5 ", 0x00, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
+	CS_MENU_ENTRY	0x04,                       "WTC ", 0x00, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
+	CS_MENU_ENTRY	0x05,                       "WTE ", 0x00, PRINT_RND_GEN,   EXEC_RND,        R2PP2R_NOP
+#endif
+CS_MENU_TABLE_RND_End

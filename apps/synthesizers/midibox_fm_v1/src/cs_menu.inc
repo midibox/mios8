@@ -321,7 +321,7 @@ CS_MENU_Page_Main_Full_End
 CS_MENU_PAGE_MAIN_INSTR_STR
 	STRING 40, 0x00, "Ens.|I|Ptch|Name            | Chn.|Audio"
 
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 CS_MENU_Page_Main_Inst
 	;; set instrument number
 	call	CS_MENU_MS_GetInstrNumber
@@ -747,7 +747,7 @@ CS_MENU_Page_EditName_NoSpc
 	movlw	0x0e
 	goto	MIOS_LCD_Cmd
 
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 									    ;;  <------------------>
 TEXT_CS_MENU_EDIT_OPTIONS STRING 20, 0x40, " <    >   Del  Ins  "
 										;;  1234 1234 1234 12345
@@ -1288,7 +1288,7 @@ CS_MENU_Select_NameFunc
 	bcf	CS_STAT, CS_STAT_CURSOR_FLASH
 
 	;; branch depending on (new) cursor pos, set by the select button
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 	movf	CS_MENU_PAGE_OFFSET, W
 	subwf	TMP1, W
 #else

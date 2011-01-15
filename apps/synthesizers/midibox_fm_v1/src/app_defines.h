@@ -192,6 +192,7 @@ CS_MENU_MATRIX_RBUTTONS EQU	0x04a	; the state of the row buttons
 CS_MENU_MATRIX_SELECTED EQU	0x04b	; selected matrix row [3..0] and column [7..4]
 
 CS_MENU_WT_MODIFIED	EQU	0x04c	; each parameter column has it's own flag
+CS_MENU_PLAY_INS_FLAGS	EQU	0x04d	; [3:0] play instrument flags
 #endif
 
 ;; ==========================================================================
@@ -213,7 +214,7 @@ METER_I_ACTIVITY_FLAGS  EQU	0x054
 LAST_CHARSET 	EQU 	0x055	
 #endif
 
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 SAMMICH_FLAGS 	EQU 	0x056	
 SAMMICH_BAK   	EQU 	0x057	
 SOURCE_BUTTON	EQU		0
@@ -285,8 +286,8 @@ MBFM_MIDI_SYNC		EQU	0x09e
 MBFM_MIDI_SYNC_CTR	EQU	0x09f
 MBFM_MIDI_SYNC_CTR_REG	EQU	0x0a0
 
-MBFM_LFO_RANDOM_SEED_L	EQU	0x0a1
-MBFM_LFO_RANDOM_SEED_H	EQU	0x0a2
+MBFM_RANDOM_SEED_L	EQU	0x0a1
+MBFM_RANDOM_SEED_H	EQU	0x0a2
 
 ;; -----------------------------------
 

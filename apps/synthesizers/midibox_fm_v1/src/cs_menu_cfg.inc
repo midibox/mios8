@@ -13,7 +13,7 @@
 ;; --------------------------------------------------------------------------
 ;;  Prints the upper line of the CFG page
 ;; --------------------------------------------------------------------------
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 ;;
 ;; reorder/show the four most useful CFG menu items in the 20 characters available.
 ;; TODO: support scrolling of the CFG menu for 2x20 char displays
@@ -42,7 +42,7 @@ CS_MENU_CFG_PrintLL
 	movlw	0x40
 	call	MIOS_LCD_CursorSet
 
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 	goto	CS_MENU_CFG_PrintLL_SyxD
 #endif
 
@@ -65,7 +65,7 @@ CS_MENU_CFG_PrintLL_Merger
 	movlw 0x00
 	rcall	CS_MENU_CFG_PrintLL_OnOff
 
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 	goto	CS_MENU_CFG_PrintLL_View
 #endif
 	
@@ -95,7 +95,7 @@ CS_MENU_CFG_PrintLL_SyxD
 	call	CS_MENU_PrintBnkAndEnsemble
  	rcall	CS_MENU_CFG_PrintLL_Space
 
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 	goto	CS_MENU_CFG_PrintLL_Merger
 #endif
 
@@ -144,7 +144,7 @@ CS_MENU_CFG_Button
 	;; branch depending on button
 	andlw	0x07
 	JUMPTABLE_2BYTES_UNSECURE
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 	rgoto	CS_MENU_CFG_Button_SyxD
 	rgoto	CS_MENU_CFG_Button_PSav
 	rgoto	CS_MENU_CFG_Button_DSav

@@ -89,7 +89,7 @@ CS_MENU_MATRIX_HandlerMetersLpNxt
 	BRA_IFCLR IRQ_TMP1, 4, ACCESS, CS_MENU_MATRIX_HandlerMetersLoop
 #endif
 
-#if CS_SAMMICH_FM != 0
+#if CS_SAMMICH_FM
 	;; increment row counter, wrap at 2
 	;; this is repurposing the variable used in the full
 	;; LED/button matrix, which is unused. Thus this
@@ -114,6 +114,8 @@ CS_MENU_MATRIX_Handler_LED_Row_Op
 	rgoto CS_MENU_MATRIX_Handler_LED_Row_Cont
 CS_MENU_MATRIX_Handler_LED_Row_Inst
 	movf	CS_MENU_SELECTED_INS_FLAGS, W ; INS LEDs show also the activity
+	btfsc	CS_MENU_MODE, CS_MENU_MODE_CFG ; resp. PLAY mode if CFG button pressed
+	movf	CS_MENU_PLAY_INS_FLAGS, W
 #if DISPLAY_PERFORMANCE == 0
 	xorwf	METER_I_ACTIVITY_FLAGS, W
 #endif
@@ -140,6 +142,8 @@ CS_MENU_MATRIX_Handler_LED_Row_Cont
 	;; normal LED output w/o matrix
 
 	movf	CS_MENU_SELECTED_INS_FLAGS, W
+	btfsc	CS_MENU_MODE, CS_MENU_MODE_CFG ; resp. PLAY mode if CFG button pressed
+	movf	CS_MENU_PLAY_INS_FLAGS, W
 #if DISPLAY_PERFORMANCE == 0
 	xorwf	METER_I_ACTIVITY_FLAGS, W
 #endif

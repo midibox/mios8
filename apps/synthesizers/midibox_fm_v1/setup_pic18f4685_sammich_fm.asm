@@ -84,6 +84,9 @@
 	;; Note: this option should only be enabled for PIC18F4685 (PIC18F452 doesn't contain a CAN)
 #define ENABLE_MBNET 1
 
+	;; enables the inbuilt random patch generator (requires PIC18F4685!)
+#define ENABLE_RANDOM_GENERATOR 1
+
 	;; only for debugging: prints the MBFM load at the right upper edge of the 2x40 LCD
 #define DISPLAY_PERFORMANCE 0
 

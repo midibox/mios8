@@ -405,7 +405,6 @@ USER_AIN_NotifyChange
 
 #if USE_CUSTOM_CHAR_HANDLER
 #include "mios_custom_char_handler.inc"
-#include "cs_menu_print_waveform.inc"
 #endif
 
 #endif
@@ -448,6 +447,7 @@ USER_AIN_NotifyChange
 #include "mbfm_lfo_table.inc"
 #include "mbfm_sin_table.inc"
 #include "mbfm_lcd.inc"
+#include "mbfm_rnd.inc"
 
 #if DISPLAY_PERFORMANCE == 1
 # include "mbfm_load.inc"
