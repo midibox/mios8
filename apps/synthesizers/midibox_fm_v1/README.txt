@@ -1,5 +1,5 @@
 
-MIDIbox FM V1.1
+MIDIbox FM V1.2
 ===============================================================================
 Copyright 2006 Thorsten Klose (tk@midibox.org)
 Licensed for personal non-commercial use only.
@@ -19,12 +19,14 @@ Please read also CHANGELOG.txt for the last changes.
 
 
 Some precompiled setups are part of this package:
-   o setup_mbfm_v1.hex         (default setup)
-   o setup_mbfm_tk.hex         (TK's setup)
+   o setup_pic18f452_mbfm_v1.hex         (default setup for PIC18F452)
+   o setup_pic18f452_mbfm_tk.hex         (TK's setup for PIC18F452)
+   o setup_pic18f4685_mbfm_v1.hex        (setup for PIC18F4685 with enhanced features)
+   o setup_pic18f4685_mbfm_tk.hex        (TK's setup for PIC18F4685)
+   o setup_pic18f4685_sammich_fm.hex     (setup for sammichFM)
 
 The required application upload procedure is described
 under http://www.ucapps.de/mios_bootstrap_newbies.html
-
 
 Infos for customization:
    o some general settings can be found in the "Control surface settings" section 
@@ -35,5 +37,12 @@ Infos for customization:
 
 For details, how to build a new .hex file, see
    http://www.midibox.org/dokuwiki/application_development
+
+===============================================================================
+
+Some preset patches can be found in the presets directory.
+
+They have to be uploaded into the BankStick via MIDI after MIOS and the 
+firmware have been installed.
 
 ===============================================================================
