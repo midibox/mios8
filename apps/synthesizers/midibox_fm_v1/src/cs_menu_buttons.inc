@@ -74,7 +74,7 @@ CS_MENU_BUTTON_Dec
 	call	MIOS_DIN_PinAutoRepeatEnable
 	;; decrement 1
 	movlw	0xff
-#ifdef CS_SAMMICH_FM
+#if CS_SAMMICH_FM != 0
 	;; branch if mainpage is displayed
 	GOTO_IFSET CS_MENU, 7, ACCESS, CS_MENU_BUTTON_Dec_End
 	;; if we're editing a parameter...
@@ -108,7 +108,7 @@ CS_MENU_BUTTON_Inc
 	call	MIOS_DIN_PinAutoRepeatEnable
 	;; increment 1
 	movlw	0x01
-#ifdef CS_SAMMICH_FM
+#if CS_SAMMICH_FM != 0
 	;; branch if mainpage is displayed
 	GOTO_IFSET CS_MENU, 7, ACCESS, CS_MENU_BUTTON_Dec_End
 
@@ -196,12 +196,10 @@ CS_MENU_BUTTON_Select_Cont
 
 	;; ------------------------------------------------------------------
 CS_MENU_BUTTON_Cfg
-#ifdef CS_SAMMICH_FM	
-	;; sammichFM ignores the CFG button while in name editing mode
-	;; it leads to odd behaviour - is this the case in a regular FM as well?
+	;; ignore the CFG button while in name editing mode
+	;; it leads to odd behaviour
 	btfsc CS_STAT, CS_STAT_MODIFY_NAME
 	return
-#endif
 
 	;; switch on/off the CFG page
 	bcf	CS_MENU_MODE, CS_MENU_MODE_CFG

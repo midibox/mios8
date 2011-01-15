@@ -6,10 +6,18 @@
 ; rotary encoder type and an enabled AOUT interface
 ;
 
+; Hardware related setup:
+
 	;; set this to '0' to disable the control surface - this is especially usefull for
 	;; people who want to program their own CS handler in order to free
 	;; some memory
 #define CS_ENABLED 1
+
+	;; specific changes for the sammichFM control surface (requires PIC18F4685!)
+#define CS_SAMMICH_FM 0
+	
+	;; new custom char display handler (requires PIC18F4685!)
+#define USE_CUSTOM_CHAR_HANDLER 0
 
 	;; number of visible menu items on LCD
 	;; use:  3 for 2x16 displays
@@ -48,7 +56,6 @@
 	;; select the default mode of the main display after startup:
 	;; 0: show all 4 instruments, names are cropped to 9 characters
 	;; 1: show only the selected instrument, full name is displayed
-	;; the display mode can also be changed in the CFG menu (press CFG button)
 #define CS_MENU_DEFAULT_VIEW_MODE 1
 
 	;; define the AOUT interface which is used here:
@@ -56,7 +63,7 @@
 	;;   2: up to 4 (chained) MBHP_AOUT_LC modules
 	;;   3: one MBHP_AOUT_NG module
 	;; all other values invalid!
-#define AOUT_INTERFACE_TYPE 2
+#define AOUT_INTERFACE_TYPE 0
 
 	;; only relevant if one or more AOUT_LC modules are used:
 	;; define the resolution configuration here
@@ -69,12 +76,20 @@
 #define AOUT_LC_RESOLUTION_OPTION_M3 0
 #define AOUT_LC_RESOLUTION_OPTION_M4 0
 
+	;; if 0: pin RB2 and RB3 not used for CAN bus
+	;;       All MBHP_OPL3 data pins connected to J15
+	;; if 1: pin RB2 and RB3 are used for CAN bus
+	;;       MBHP_OPL3 data pins #2 and #3 have to be connected to PIC pin RB1 and RB2
+	;;       (available at J5:A6 and J5:A7)
+	;; Note: this option should only be enabled for PIC18F4685 (PIC18F452 doesn't contain a CAN)
+#define ENABLE_MBNET 0
+
 	;; only for debugging: prints the MBFM load at the right upper edge of the 2x40 LCD
 #define DISPLAY_PERFORMANCE 0
 
-
 	;; experimental superpoly mode (currently hard-coded to save programming effort)
 #define SUPERPOLY_EXPERIMENT 0
+
 
 
 ;; --------------------------------------------------------------------------
@@ -119,15 +134,15 @@ MIOS_ENC_PIN_TABLE
 #if CS_MENU_USE_INCDEC_BUTTONS
 	ENC_EOT
 #else
-	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED	; menu encoder
+	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; menu encoder
 #endif
 
 	;; additional CS encoders
 	;;        SR  Pin  Mode
-	ENC_ENTRY  3,  2,  MIOS_ENC_MODE_DETENTED	; Multipurpose Enc #1
-	ENC_ENTRY  3,  4,  MIOS_ENC_MODE_DETENTED	; Multipurpose Enc #2
-	ENC_ENTRY  3,  6,  MIOS_ENC_MODE_DETENTED	; Multipurpose Enc #3
-	ENC_ENTRY  4,  0,  MIOS_ENC_MODE_DETENTED	; Multipurpose Enc #4
+	ENC_ENTRY  3,  2,  MIOS_ENC_MODE_DETENTED2	; Multipurpose Enc #1
+	ENC_ENTRY  3,  4,  MIOS_ENC_MODE_DETENTED2	; Multipurpose Enc #2
+	ENC_ENTRY  3,  6,  MIOS_ENC_MODE_DETENTED2	; Multipurpose Enc #3
+	ENC_ENTRY  4,  0,  MIOS_ENC_MODE_DETENTED2	; Multipurpose Enc #4
 
 	ENC_EOT
 

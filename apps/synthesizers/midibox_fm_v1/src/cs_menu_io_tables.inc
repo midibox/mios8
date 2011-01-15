@@ -40,7 +40,7 @@ DIN_ENTRY_EOT MACRO
 	dw	0x0000, 0x0000
 	ENDM
 
-#ifdef CS_SAMMICH_FM
+#if CS_SAMMICH_FM != 0
 CS_MENU_DIN_TABLE
 	;;		Function name		SR#	Pin#
 	DIN_ENTRY	CS_MENU_BUTTON_Dec,	 1,	 0	; only valid if rotary encoder not assigned to these pins

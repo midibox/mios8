@@ -13,7 +13,7 @@
 ;; --------------------------------------------------------------------------
 ;;  Table of special characters
 ;; --------------------------------------------------------------------------
-#ifndef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER == 0
 
 CS_MENU_SPECIAL_CHARS
 	;; due to an imperfection in the MPASM we have

@@ -13,11 +13,17 @@
 	;; some memory
 #define CS_ENABLED 1
 
+	;; specific changes for the sammichFM control surface (requires PIC18F4685!)
+#define CS_SAMMICH_FM 1
+	
+	;; new custom char display handler (requires PIC18F4685!)
+#define USE_CUSTOM_CHAR_HANDLER 1
+
 	;; number of visible menu items on LCD
 	;; use:  3 for 2x16 displays
 	;;       4 for 2x20 displays
 	;;       8 for 2x40 displays
-#define CS_MENU_DISPLAYED_ITEMS 8
+#define CS_MENU_DISPLAYED_ITEMS 4
 	;; NOTE: if CS_MENU_DISPLAYED_ITEMS < 8, you have to adapt the DIN settings
 	;; in cs_menu_io_tables.inc
 
@@ -70,6 +76,14 @@
 #define AOUT_LC_RESOLUTION_OPTION_M3 0
 #define AOUT_LC_RESOLUTION_OPTION_M4 0
 
+	;; if 0: pin RB2 and RB3 not used for CAN bus
+	;;       All MBHP_OPL3 data pins connected to J15
+	;; if 1: pin RB2 and RB3 are used for CAN bus
+	;;       MBHP_OPL3 data pins #2 and #3 have to be connected to PIC pin RB1 and RB2
+	;;       (available at J5:A6 and J5:A7)
+	;; Note: this option should only be enabled for PIC18F4685 (PIC18F452 doesn't contain a CAN)
+#define ENABLE_MBNET 1
+
 	;; only for debugging: prints the MBFM load at the right upper edge of the 2x40 LCD
 #define DISPLAY_PERFORMANCE 0
 
@@ -120,7 +134,7 @@ MIOS_ENC_PIN_TABLE
 #if CS_MENU_USE_INCDEC_BUTTONS
 	ENC_EOT
 #else
-	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; menu encoder
+	ENC_ENTRY  2,  6,  MIOS_ENC_MODE_DETENTED2	; menu encoder
 #endif
 
 	;; additional CS encoders

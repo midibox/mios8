@@ -155,7 +155,6 @@ USER_MPROC_DebugTrigger
 ;; --------------------------------------------------------------------------
 
 TEXT_WELCOME_0	STRING 16, 0x00, MBFM_VERSION_STR
-TEXT_WELCOME_10	STRING 16, 0x40, "Launching CS    "
 TEXT_WELCOME_11	STRING 16, 0x40, "CS not enabled! "
 
 USER_DISPLAY_Init
@@ -168,7 +167,7 @@ USER_DISPLAY_Init_Startup
 	bsf	CS_STAT, CS_STAT_STARTUP_DONE
 	call	MIOS_LCD_PrintMessage		; first line
 
-#ifdef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER
 	movlw	255
 	movwf	LAST_CHARSET
 	movlw	2
@@ -176,11 +175,6 @@ USER_DISPLAY_Init_Startup
 #else
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS	; (defined in special_characters.inc)
 	call	MIOS_CLCD_SpecialCharsInit	
-#endif	
-
-#ifndef CS_SAMMICH_FM
-	TABLE_ADDR TEXT_WELCOME_10
-	call	MIOS_LCD_PrintMessage		; second line
 #endif	
 USER_DISPLAY_Init_NoStartup
 
@@ -409,7 +403,7 @@ USER_AIN_NotifyChange
 #include "cs_menu_cfg.inc"
 #include "cs_menu_tables.inc"
 
-#ifdef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER
 #include "mios_custom_char_handler.inc"
 #include "cs_menu_print_waveform.inc"
 #endif

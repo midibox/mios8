@@ -87,7 +87,7 @@ PRINT_AOUTxINST 	EQU	0x35
 PRINT_AOUTxASSG 	EQU	0x36
 PRINT_AOUTxOFFS 	EQU	0x37
 
-#ifdef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER
 PRINT_PxOx_WAVE		EQU 0x38
 PRINT_PxLFO_WAVE_2	EQU 0x39
 #endif
@@ -97,7 +97,7 @@ PRINT_PxLFO_WAVE_2	EQU 0x39
 ;; IN: PRINT_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_PRINT_Handler
-#ifdef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER
 	JUMPTABLE_2BYTES (0x39+1) ; entries
 #else	
 	JUMPTABLE_2BYTES (0x37+1) ; entries
@@ -168,7 +168,7 @@ CS_MENU_PRINT_Handler
 	rgoto	CS_MENU_PRINT_AOUTxASSG
 	rgoto	CS_MENU_PRINT_AOUTxOFFS
 
-#ifdef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER
 	rgoto	CS_MENU_PRINT_PxOx_WAVE
 	rgoto	CS_MENU_PRINT_LFO_WAVE_2
 #endif 
@@ -353,7 +353,7 @@ CS_MENU_PRINT_Px_PLAY_Tab
 	dw	"----"
 
 ; --------------------------------------------------------------------------
-#ifdef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER
 CS_MENU_PRINT_Px_CON
 	rcall	CS_MENU_Hlp_GetPxValue
 	andlw 	0x03
@@ -866,7 +866,7 @@ CS_MENU_PRINT_1234
 	movlw '4'
 	rgoto	CS_MENU_PRINT_Char
 
-#ifdef USE_CUSTOM_CHAR_HANDLER	
+#if USE_CUSTOM_CHAR_HANDLER	
 ; --------------------------------------------------------------------------
 ;; print waveform 
 CS_MENU_PRINT_PxOx_WAVE

@@ -32,17 +32,18 @@ MBFM_PIN_IC	EQU	4
 ;; --------------------------------------------------------------------------
 MBFM_REG_Init
 
-;;	--------------------------------------------------------------------------
-;;   PIC18F4685 SPECIFIC 
-;;	--------------------------------------------------------------------------
-	;; This will undo setting TRISB in MIOS_STARTUP_ClearRAMLoop,
+#if ENABLE_MBNET
+	;; This will undo setting TRISB in MIOS_STARTUP
 	;; leaves RB2 and RB3 free for CAN bus use
 	movlw	0x0c		; set all except TRISB[3:2] as output
 	andwf	TRISB, F
 	;; Use RE1 and RE2 instead of RB2 and RB3
 	movlw	0xf9		; set only TRISE[2:1] as output
 	andwf	TRISE, F
-;;	--------------------------------------------------------------------------
+#else
+	movlw	0xf0
+	andwf	TRISB, F	; ensure that lower outputs are enabled
+#endif	
 
 	;; activate reset of OPL3 module (low-active)
 	bcf	MBFM_LAT_IC, MBFM_PIN_IC
@@ -103,14 +104,12 @@ MBFM_REG_Write
 	bsf	MBFM_LAT_A1, MBFM_PIN_A1
 	movff	MIOS_PARAMETER1, MBFM_LAT_D	; D0-D7: selected address
 
-;;	--------------------------------------------------------------------------
-;;   PIC18F4685 SPECIFIC 
-;;	--------------------------------------------------------------------------
+#if ENABLE_MBNET
 	;; store bits 3:2 into port E bits 2:1
 	rrncf 	MIOS_PARAMETER1, F, 0	;; shift right
 	movff	MIOS_PARAMETER1, LATE		;; store in port E latch
 	rlncf	MIOS_PARAMETER1, F, 0	;; shift left, leave MIOS_PARAMETER1 as it was!
-;;	--------------------------------------------------------------------------
+#endif
 	
 	bcf	MBFM_LAT_CS, MBFM_PIN_CS	; activate chip select line
 	nop
@@ -126,14 +125,12 @@ MBFM_REG_Write_WaitLoop1
 	bsf	MBFM_LAT_A0, MBFM_PIN_A0	; A0=1: data write mode, don't change A0
 	movff	MIOS_PARAMETER3, MBFM_LAT_D	; D0-D7: data word
 	
-;;	--------------------------------------------------------------------------
-;;   PIC18F4685 SPECIFIC 
-;;	--------------------------------------------------------------------------
+#if ENABLE_MBNET
 	;; store bits 3:2 into port E bits 2:1
 	rrncf 	MIOS_PARAMETER3, F, 0	;; shift right
 	movff	MIOS_PARAMETER3, LATE		;; store in port E latch
 	rlncf	MIOS_PARAMETER3, F, 0	;; shift left, leave MIOS_PARAMETER3 as it was!
-;;	--------------------------------------------------------------------------	
+#endif
 	
 	bcf	MBFM_LAT_CS, MBFM_PIN_CS	; activate chip select line
 	nop

@@ -28,7 +28,7 @@ CS_MENU_Reset
 
 	;; only if character LCD connected: init special characters
 	BRA_IFSET MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, CS_MENU_Reset_NoCLCD
-#ifdef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER
 	movlw	2
 	call	MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
 #else
@@ -217,7 +217,7 @@ CS_MENU_Page_Cfg_End
 ;;  print the main page
 ;; --------------------------------------------------------------------------
 CS_MENU_Page_Main
-#ifdef USE_CUSTOM_CHAR_HANDLER
+#if USE_CUSTOM_CHAR_HANDLER
 	movlw	2
 	call	MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
 #endif
@@ -321,7 +321,7 @@ CS_MENU_Page_Main_Full_End
 CS_MENU_PAGE_MAIN_INSTR_STR
 	STRING 40, 0x00, "Ens.|I|Ptch|Name            | Chn.|Audio"
 
-#ifdef CS_SAMMICH_FM
+#if CS_SAMMICH_FM != 0
 CS_MENU_Page_Main_Inst
 	;; set instrument number
 	call	CS_MENU_MS_GetInstrNumber
@@ -696,13 +696,7 @@ CS_MENU_Page_Parameters
 	addlw	0x40 + 2
 	call	MIOS_LCD_CursorSet
 
-	;; enable blinking CLCD cursor and exit
-#ifndef CS_SAMMICH_FM
-	movlw	0x0e
-	goto	MIOS_LCD_Cmd
-#else
 	return
-#endif
 
 
 ;; --------------------------------------------------------------------------
@@ -753,7 +747,7 @@ CS_MENU_Page_EditName_NoSpc
 	movlw	0x0e
 	goto	MIOS_LCD_Cmd
 
-#ifdef CS_SAMMICH_FM	
+#if CS_SAMMICH_FM != 0
 									    ;;  <------------------>
 TEXT_CS_MENU_EDIT_OPTIONS STRING 20, 0x40, " <    >   Del  Ins  "
 										;;  1234 1234 1234 12345
@@ -1294,7 +1288,7 @@ CS_MENU_Select_NameFunc
 	bcf	CS_STAT, CS_STAT_CURSOR_FLASH
 
 	;; branch depending on (new) cursor pos, set by the select button
-#ifdef CS_SAMMICH_FM	
+#if CS_SAMMICH_FM != 0
 	movf	CS_MENU_PAGE_OFFSET, W
 	subwf	TMP1, W
 #else
@@ -1646,17 +1640,10 @@ CS_MENU_Hlp_PrintSpaces_Loop
 ;; --------------------------------------------------------------------------
 ;;  prints "save ***" on screen
 ;; --------------------------------------------------------------------------
-#ifdef CS_SAMMICH_FM
 TEXT_SAVE_DATA_0	db "(i) Patch saved     "
 TEXT_SAVE_DATA_1	db "(i) Drumset saved   "
 TEXT_SAVE_DATA_2	db "(i) Ensemble saved  "
 TEXT_SAVE_DATA_3	db "(i) Everything saved"
-#else
-TEXT_SAVE_DATA_0	db "-- Patch saved --   "
-TEXT_SAVE_DATA_1	db "-- Drumset saved -- "
-TEXT_SAVE_DATA_2	db "-- Ensemble saved --"
-TEXT_SAVE_DATA_3	db "- Everything saved -"
-#endif
 
 CS_MENU_PrintSaveData
 	;; print "Save Patch/Drumset/Ensemble/Everything saved"

@@ -89,7 +89,7 @@ CS_MENU_MATRIX_HandlerMetersLpNxt
 	BRA_IFCLR IRQ_TMP1, 4, ACCESS, CS_MENU_MATRIX_HandlerMetersLoop
 #endif
 
-#ifdef CS_SAMMICH_FM
+#if CS_SAMMICH_FM != 0
 	;; increment row counter, wrap at 2
 	;; this is repurposing the variable used in the full
 	;; LED/button matrix, which is unused. Thus this
