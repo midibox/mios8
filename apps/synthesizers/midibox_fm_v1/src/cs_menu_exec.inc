@@ -37,7 +37,7 @@ EXEC_SAVE_IT	EQU	0x08
 ;; IN: EXEC_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_EXEC_Handler
-	JUMPTABLE_2BYTES (0x07+1)	; entries
+	JUMPTABLE_2BYTES (0x08+1)	; entries
 	rgoto	CS_MENU_EXEC_NOP
 	rgoto	CS_MENU_EXEC_Menu
 	rgoto	CS_MENU_EXEC_Menu_WT
