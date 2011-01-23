@@ -1669,6 +1669,7 @@ SEQ_CORE_Hlp_GetTRKQUEUE1_Ptr_C
 	movf	SEQ_EVNTT, W, BANKED
 	mullw	4
 	movf	PRODL, W
+	addwf	FSR1L, F
 	return
 
 ;; --------------------------------------------------------------------------
