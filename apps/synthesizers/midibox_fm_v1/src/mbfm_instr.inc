@@ -31,6 +31,26 @@ MBFM_INSTR_GetBase
 	addwfc	FSR1H, F
 	return
 
+#if WAVETABLES_IN_RAM
+;; --------------------------------------------------------------------------
+;;  This function returns the base address to the wavetable of an instrument
+;;  Input:
+;;     o instrument number in MBFM_CURRENT_INSTRUMENT
+;;  Output:
+;;     o base address to wavetable in FSR1
+;; --------------------------------------------------------------------------
+MBFM_INSTR_GetWTBase
+	;; calc base address to wavetable
+	SET_BSR	MBFM_BASE
+	lfsr	FSR1, MBFM_I1_WAVETABLE_BASE
+	movf	MBFM_CURRENT_INSTRUMENT, W, BANKED
+	mullw	0x80
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
+	return
+#endif
 
 ;; --------------------------------------------------------------------------
 ;;  This function returns the base address of an instrument, the bank and
@@ -231,7 +251,11 @@ MBFM_INSTR_Init
 
 	;; load patch from EEPROM/BankStick
  	call	MBFM_BANK_LoadP
-
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetWTBase
+	call	MBFM_BANK_LoadW
+#endif
+	
 MBFM_INSTR_Init_Cont
 	;; update all voices which are assigned to the instrument
 	SET_BSR	MBFM_BASE

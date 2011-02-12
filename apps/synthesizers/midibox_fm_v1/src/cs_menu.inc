@@ -172,6 +172,7 @@ CS_MENU_Page_Init
 
 	;; get address from table, store it in TBLPTR[LH]
 	call	MIOS_HLP_AddressFromTable
+	clrf	TBLPTRU		; TBLPTRU must be 0 (lower 64k page)
 
 	;; read number of menu entries and save it in CS_MENU_ENTRIES
 	tblrd*+
@@ -182,10 +183,17 @@ CS_MENU_Page_Init
 	;; to the entries
 	movff	TBLPTRL, CS_MENU_TABLE_0_L
 	movff	TBLPTRH, CS_MENU_TABLE_0_H
+	clrf	TBLPTRU		; not stored in RAM, the check below ensures that this doesn't cause a problem
+  IF UPPER(CS_MENU_TABLE_END) != 0
+	ERROR "CS_MENU_TABLE reached the 64k boundary - fix this!"
+  ENDIF
 
+	;; done in CS_MENU_EXEC_GoToRoot now, so that the cursor doesn't change when we are within a menu page and LCD initialisation is requested
+#if 0
 	;; clear cursor and page offset
 	clrf	CS_MENU_CURSOR_POS
 	clrf	CS_MENU_PAGE_OFFSET
+#endif
 
 	return
 
@@ -729,9 +737,9 @@ CS_MENU_Page_EditName_NoSpc
 	;; print button options @ position 0x40 (second line)
 	TABLE_ADDR TEXT_CS_MENU_EDIT_OPTIONS
 	call	MIOS_LCD_PrintString
-	;; print 20 spaces (for 2x40 displays)
+	;; print remaining 11 spaces (for 2x40 displays)
 #if CS_MENU_DISPLAYED_ITEMS > 5
-	movlw	20
+	movlw	11
 	rcall	CS_MENU_Hlp_PrintSpaces
 #endif
 
@@ -748,13 +756,13 @@ CS_MENU_Page_EditName_NoSpc
 	goto	MIOS_LCD_Cmd
 
 #if CS_SAMMICH_FM
-									    ;;  <------------------>
-TEXT_CS_MENU_EDIT_OPTIONS STRING 20, 0x40, " <    >   Del  Ins  "
-										;;  1234 1234 1234 12345
+				        ;;  <------------------>
+TEXT_CS_MENU_EDIT_OPTIONS STRING 20, 0x40, "SAVE  <    >   Del  "
+					;;  1234 1234 1234 12345
 #else
-										;;  <------------------>
-TEXT_CS_MENU_EDIT_OPTIONS STRING 20, 0x40, " <   >  Del Ins Clr "
-										;;  12341234123412341234
+					;;  <---------------------->
+TEXT_CS_MENU_EDIT_OPTIONS STRING 29, 0x40, "SAVE  <    >   Del  Ins   Clr"
+					;;  1234 1234 1234 1234 1234 1234
 #endif
 
 ;; --------------------------------------------------------------------------
@@ -1294,12 +1302,18 @@ CS_MENU_Select_NameFunc
 #else
 	movf	TMP1, W
 #endif	
-	JUMPTABLE_2BYTES 5	; 5 entries
+	JUMPTABLE_2BYTES 6	; 6 entries
+	rgoto	CS_MENU_Select_NameFunc_Save
 	rgoto	CS_MENU_Select_NameFunc_Dec
 	rgoto	CS_MENU_Select_NameFunc_Inc
 	rgoto	CS_MENU_Select_NameFunc_Del
 	rgoto	CS_MENU_Select_NameFunc_Ins
 	rgoto	CS_MENU_Select_NameFunc_Clr
+
+CS_MENU_Select_NameFunc_Save
+	;; exit page and store patch
+	call	CS_MENU_EXEC_Hlp_Deselect
+	goto	CS_MENU_EXEC_SaveIt_Final
 
 CS_MENU_Select_NameFunc_Dec	; decrement name pos
 	decf	CS_MENU_NAME_POS, W
@@ -1692,7 +1706,11 @@ CS_MENU_SaveCurPatch
 	;; ensure that WT buffer won't be flushed
 	bcf	CS_EEPROM_WR, CS_EEPROM_WR_WT_REQ
 	bcf	CS_EEPROM_WR, CS_EEPROM_WR_WT_GNT
-	
+
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetWTBase
+	call	MBFM_BANK_StoreW
+#else
 	;; copy WT EEPROM content to save patch
 	clrwdt
 	clrf	TMP1
@@ -1706,6 +1724,7 @@ CS_MENU_SavePatch_CopyWTLoop
 	call	MBFM_BANK_WriteWByte
 	incf	TMP1, F
 	BRA_IFCLR TMP1, 7, ACCESS, CS_MENU_SavePatch_CopyWTLoop
+#endif
 
 	;; switch to new patch
 	call	CS_MENU_MS_GetInstrBase
@@ -1746,6 +1765,13 @@ CS_MENU_SaveCurEnsemble
 ;;  EEPROM write handler
 ;; --------------------------------------------------------------------------
 CS_MENU_Write_EEPROM
+#if WAVETABLES_IN_RAM
+	;; if WT write has been requested, grant it now
+	;; (EEPROM: done after a certain delay in cs_menu_timer.inc)
+	btfsc	CS_EEPROM_WR, CS_EEPROM_WR_WT_REQ
+	bsf	CS_EEPROM_WR, CS_EEPROM_WR_WT_GNT
+#endif
+
 	IRQ_DISABLE
 	;; do nothing if write to WT has not been granted
 	BRA_IFCLR CS_EEPROM_WR, CS_EEPROM_WR_WT_GNT, ACCESS, CS_MENU_Write_EEPROM_End

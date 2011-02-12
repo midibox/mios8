@@ -81,7 +81,7 @@ CS_MENU_MS_Update_WT_Buffer
 
 	clrf	TMP1
 CS_MENU_MS_Update_WT_Buffer_Loop
-	call	MBFM_BANK_ReadWByte
+	call	MBFM_WT_ReadByte
 	andlw	0x7f
 	movwf	POSTINC0
 	incf	TMP1, F
@@ -162,13 +162,13 @@ CS_MENU_MS_Update_WT_EEPROMLoop
 	addwf	EEADR, F			; (only relevant if Step == "All"
 
 	;; copy old content to TMP[1234]
-	call	MBFM_BANK_ReadWByte
+	call	MBFM_WT_ReadByte
 	movwf	TMP1
-	call	MBFM_BANK_ReadWByte
+	call	MBFM_WT_ReadByte
 	movwf	TMP2
-	call	MBFM_BANK_ReadWByte
+	call	MBFM_WT_ReadByte
 	movwf	TMP3
-	call	MBFM_BANK_ReadWByte
+	call	MBFM_WT_ReadByte
 	movwf	TMP4
 	movlw	-4		; switch back to first byte
 	addwf	EEADR, F
@@ -227,6 +227,15 @@ CS_MENU_MS_Update_WT_EEPROM_M3
 	movwf	TMP4
 CS_MENU_MS_Update_WT_EEPROM_M3N;ot
 
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetWTBase
+	movf	EEADR, W
+	addwf	FSR1L, F
+	movff	TMP1, POSTINC1
+	movff	TMP2, POSTINC1
+	movff	TMP3, POSTINC1
+	movff	TMP4, POSTINC1
+#else
 	movf	TMP1, W
 	call	MBFM_BANK_WriteWByte
 	movf	TMP2, W
@@ -235,6 +244,7 @@ CS_MENU_MS_Update_WT_EEPROM_M3N;ot
 	call	MBFM_BANK_WriteWByte
 	movf	TMP4, W
 	call	MBFM_BANK_WriteWByte
+#endif
 
 CS_MENU_MS_Update_WT_EEPROMLpNxt
 	;; if WT_STEP >= 0x20 ("All"), increment TMP5 by 4 and loop until it has reached 0x80

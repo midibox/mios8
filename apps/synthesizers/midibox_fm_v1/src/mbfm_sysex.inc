@@ -319,7 +319,11 @@ MBFM_SYSEX_PATCH_Write_I
 MBFM_SYSEX_PATCH_Write_I_EE
 	;; store patch and wavetable
 	call	MBFM_BANK_StoreP
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetWTBase
+#else
 	lfsr	FSR1, MBFM_EE_BUFFER
+#endif
   	call	MBFM_BANK_StoreW
 	;; initialize instrument from EEPROM
 	call	MBFM_INSTR_Init
@@ -474,7 +478,10 @@ MBFM_SYSEX_PATCH_Store_I
 	call	MBFM_INSTR_GetBasePatchAndBank
 	;; store patch
 	call	MBFM_BANK_StoreP
-#if 0
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetWTBase
+  	call	MBFM_BANK_StoreW
+#else
 	;; (don't store wavetable)
 	lfsr	FSR1, MBFM_EE_BUFFER
   	call	MBFM_BANK_StoreW
@@ -663,7 +670,11 @@ MBFM_SYSEX_WritePar_I_EE_Drct
 	rgoto	MBFM_SYSEX_WritePar_End
 MBFM_SYSEX_WritePar_I_EE_NDrct
 	;; write into RAM buffer
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetWTBase
+#else
 	lfsr	FSR1, MBFM_EE_BUFFER
+#endif
 	movf	MBFM_SYSEX_ADDRESS, W, BANKED
 	andlw	0x7f
 	movff	MBFM_SYSEX_IN, PLUSW1
@@ -742,10 +753,10 @@ MBFM_SYSEX_ReadPar_I_RAM
 	rgoto	MBFM_SYSEX_ReadPar_End
 	
 MBFM_SYSEX_ReadPar_I_EE
-	;; read from EEPROM
+	;; read from EEPROM (PIC18F4685: from RAM)
 	movff	MBFM_SYSEX_ADDRESS, EEADR
 	bcf	EEADR, 7
-	call	MBFM_BANK_ReadWByte
+	call	MBFM_WT_ReadByte
 	rgoto	MBFM_SYSEX_ReadPar_End
 
 MBFM_SYSEX_ReadPar_D

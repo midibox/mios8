@@ -28,8 +28,7 @@ EXEC_MENU_SAVE	EQU	0x03
 EXEC_SELPAR	EQU	0x04
 EXEC_TOGPAR	EQU	0x05
 EXEC_RND	EQU	0x06
-EXEC_EDITNAME	EQU	0x07
-EXEC_SAVE_IT	EQU	0x08
+EXEC_SAVE_IT	EQU	0x07
 
 
 ; ==========================================================================
@@ -37,7 +36,7 @@ EXEC_SAVE_IT	EQU	0x08
 ;; IN: EXEC_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_EXEC_Handler
-	JUMPTABLE_2BYTES (0x08+1)	; entries
+	JUMPTABLE_2BYTES (0x07+1)	; entries
 	rgoto	CS_MENU_EXEC_NOP
 	rgoto	CS_MENU_EXEC_Menu
 	rgoto	CS_MENU_EXEC_Menu_WT
@@ -45,7 +44,6 @@ CS_MENU_EXEC_Handler
 	rgoto	CS_MENU_EXEC_SelPar
 	rgoto	CS_MENU_EXEC_TogPar
 	rgoto	CS_MENU_EXEC_Rnd
-	rgoto	CS_MENU_EXEC_EditName
 	rgoto	CS_MENU_EXEC_SaveIt
 
 
@@ -59,6 +57,13 @@ CS_MENU_EXEC_NOP
 ;  Use this function to change to a menu
 ; ==========================================================================
 CS_MENU_EXEC_Menu
+	;; was previousliy located in CS_MENU_Page_Init
+	;; now done here, so that the cursor doesn't change when we are within a menu page and LCD initialisation is requested
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_CURSOR_POS
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_PAGE_OFFSET
+
 	movf	CS_MENU_PARAMETER_IX, W
 	rgoto	CS_MENU_EXEC_Hlp_ChangeMenu
 
@@ -77,6 +82,13 @@ CS_MENU_EXEC_Menu_WT
 ;  Use this function to change to the save patch menu
 ; ==========================================================================
 CS_MENU_EXEC_Menu_Save
+	;; was previousliy located in CS_MENU_Page_Init
+	;; now done here, so that the cursor doesn't change when we are within a menu page and LCD initialisation is requested
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_CURSOR_POS
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_PAGE_OFFSET
+
 	;; copy current patch/bank number to SAVE_PATCH and SAVE_BANK and change menu
 	call	CS_MENU_MS_GetInstrPatch
 	movff	MBFM_PATCH, CS_MENU_SAVE_PATCH
@@ -162,27 +174,42 @@ CS_MENU_EXEC_Rnd
 	;; generate depending on cursor position
 	movf	CS_MENU_PARAMETER_IX, W
 	call	MBFM_RND_GeneratePart
-	;; update patch and exit
-	goto	MBFM_INSTR_Init_RAM
+	;; update all selected patches
+	SET_BSR	MBFM_BASE
+	clrf	MBFM_CURRENT_INSTRUMENT, BANKED
+CS_MENU_EXEC_Rnd_Loop
+	movf	MBFM_CURRENT_INSTRUMENT, W, BANKED
+	call	MIOS_HLP_GetBitANDMask
+	andwf	CS_MENU_SELECTED_INS_FLAGS, W
+	andlw	0x0f
+	bnz	CS_MENU_EXEC_Rnd_Loop_Next
+	call	MBFM_INSTR_Init_RAM
+CS_MENU_EXEC_Rnd_Loop_Next
+	SET_BSR	MBFM_BASE
+	incf	MBFM_CURRENT_INSTRUMENT, F, BANKED
+	BRA_IFCLR MBFM_CURRENT_INSTRUMENT, 2, BANKED, CS_MENU_EXEC_Rnd_Loop
+	return
 #else
 	return
 #endif
 
 ; ==========================================================================
-;  Enter the "edit name" function
+;  Use this function to save the current patch to CS_MENU_SAVE_PATCH
 ; ==========================================================================
-CS_MENU_EXEC_EditName
-	;; clear name position
+CS_MENU_EXEC_SaveIt
+	;; NEW in MBFM V1.3: go into name editor if patch should be stored
+	movf	CS_MENU_SAVE_TYPE, W
+	bnz	CS_MENU_EXEC_SaveIt_Final
+
+CS_MENU_EXEC_SaveItPatchName
 	clrf	CS_MENU_NAME_POS
 	;; enable "edit name" mode
 	bsf	CS_STAT, CS_STAT_MODIFY_NAME
 	;; enter parameter mode
 	goto	CS_MENU_EXEC_SelPar
 
-; ==========================================================================
-;  Use this function to save the current patch to CS_MENU_SAVE_PATCH
-; ==========================================================================
-CS_MENU_EXEC_SaveIt
+	;; patch editor will jump back to this label
+CS_MENU_EXEC_SaveIt_Final
 	;; save patch/drumset/ensemble
 	movf	CS_MENU_SAVE_TYPE, W
 	bz	CS_MENU_EXEC_SavePat_P
@@ -255,6 +282,13 @@ CS_MENU_EXEC_GoToMain
 ;  Use this function to change to the root menu
 ; ==========================================================================
 CS_MENU_EXEC_GoToRoot
+	;; was previousliy located in CS_MENU_Page_Init
+	;; now done here, so that the cursor doesn't change when we are within a menu page and LCD initialisation is requested
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_CURSOR_POS
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_PAGE_OFFSET
+
 	movlw	CS_MENU_ROOT
 	rgoto	CS_MENU_EXEC_Hlp_ChangeMenu
 
@@ -263,6 +297,13 @@ CS_MENU_EXEC_GoToRoot
 ;  This function first writes to EEPROM before it changes to the root menu
 ; ==========================================================================
 CS_MENU_EXEC_GoToRootWT
+	;; was previousliy located in CS_MENU_Page_Init
+	;; now done here, so that the cursor doesn't change when we are within a menu page and LCD initialisation is requested
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_CURSOR_POS
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_PAGE_OFFSET
+
 	;; force write to EEPROM
 	call	CS_MENU_MS_Update_WT_EEPROM
 	rgoto	CS_MENU_EXEC_GoToRoot
@@ -272,6 +313,13 @@ CS_MENU_EXEC_GoToRootWT
 ;  This function first stores the AOUT mapping before it changes to the root menu
 ; ==========================================================================
 CS_MENU_EXEC_GoToRootAOUT
+	;; was previousliy located in CS_MENU_Page_Init
+	;; now done here, so that the cursor doesn't change when we are within a menu page and LCD initialisation is requested
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_CURSOR_POS
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_PAGE_OFFSET
+
 	;; write AOUT mapping into EEPROM
 	call	MBFM_BANK_StoreA
 	rgoto	CS_MENU_EXEC_GoToRoot
@@ -281,6 +329,13 @@ CS_MENU_EXEC_GoToRootAOUT
 ;  Use this function to change to the Drum menu
 ; ==========================================================================
 CS_MENU_EXEC_GoToDRUM
+	;; was previousliy located in CS_MENU_Page_Init
+	;; now done here, so that the cursor doesn't change when we are within a menu page and LCD initialisation is requested
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_CURSOR_POS
+	btfss	CS_STAT, CS_STAT_MODIFY_PARAMETER
+	clrf CS_MENU_PAGE_OFFSET
+
 	movff	MBFM_DRUMSET, CS_MENU_PARAMETER_L
 
 	movlw	CS_MENU_DRUM

@@ -32,13 +32,13 @@ PRINT_VAR_WTMODE	EQU	0x06
 PRINT_VAR_WTPAR		EQU	0x07
 PRINT_VAR_BD_OP		EQU	0x08
 PRINT_VAR_HH		EQU	0x09
-PRINT_NAME			EQU	0x0a
 
-PRINT_Px_BANK		EQU	0x0b
-PRINT_Px_DEC		EQU	0x0c
-PRINT_Px_PMDEC		EQU	0x0d
-PRINT_Px_DECP1		EQU	0x0e
-PRINT_Px_NOTE		EQU	0x0f
+PRINT_Px_BANK		EQU	0x0a
+PRINT_Px_DEC		EQU	0x0b
+PRINT_Px_PMDEC		EQU	0x0c
+PRINT_Px_DECP1		EQU	0x0d
+PRINT_Px_NOTE		EQU	0x0e
+PRINT_Px_WAVE		EQU	0x0f
 PRINT_Px_VEL		EQU	0x10
 PRINT_Px_1234		EQU	0x11
 PRINT_Px_PLAY		EQU	0x12
@@ -68,33 +68,35 @@ PRINT_SAVE_NAME		EQU	0x27
 
 PRINT_PDxBD_DEC		EQU	0x28
 PRINT_PDxBD_DECP1	EQU	0x29
-PRINT_PDxHH_DEC		EQU	0x2a
-PRINT_PDxHH_DECP1	EQU	0x2b
-PRINT_PDxBD_CON		EQU	0x2c
-PRINT_DRUM_CHN		EQU	0x2d
+PRINT_PDxBD_WAVE	EQU	0x2a
+PRINT_PDxHH_DEC		EQU	0x2b
+PRINT_PDxHH_DECP1	EQU	0x2c
+PRINT_PDxHH_WAVE	EQU	0x2d
+PRINT_PDxBD_CON		EQU	0x2e
+PRINT_DRUM_CHN		EQU	0x2f
 
-PRINT_I1Px_DEC		EQU	0x2e
-PRINT_I2Px_DEC		EQU	0x2f
-PRINT_I3Px_DEC		EQU	0x30
-PRINT_I4Px_DEC		EQU	0x31
+PRINT_I1Px_DEC		EQU	0x30
+PRINT_I2Px_DEC		EQU	0x31
+PRINT_I3Px_DEC		EQU	0x32
+PRINT_I4Px_DEC		EQU	0x33
 
-PRINT_I1Px_PMDEC	EQU	0x32
-PRINT_I2Px_PMDEC	EQU	0x33
-PRINT_I3Px_PMDEC	EQU	0x34
-PRINT_I4Px_PMDEC	EQU	0x35
+PRINT_I1Px_PMDEC	EQU	0x34
+PRINT_I2Px_PMDEC	EQU	0x35
+PRINT_I3Px_PMDEC	EQU	0x36
+PRINT_I4Px_PMDEC	EQU	0x37
 
-PRINT_AOUTxINST 	EQU	0x36
-PRINT_AOUTxASSG 	EQU	0x37
-PRINT_AOUTxOFFS 	EQU	0x38
+PRINT_AOUTxINST 	EQU	0x38
+PRINT_AOUTxASSG 	EQU	0x39
+PRINT_AOUTxOFFS 	EQU	0x3a
 
-PRINT_RND_GEN		EQU	0x39
+PRINT_RND_GEN		EQU	0x3b
 
 ; ==========================================================================
 ;  The PRINT handler
 ;; IN: PRINT_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_PRINT_Handler
-	JUMPTABLE_2BYTES (0x39+1) ; entries
+	JUMPTABLE_2BYTES (0x3b+1) ; entries
 	rgoto	CS_MENU_PRINT_NOP
 
 	rgoto	CS_MENU_PRINT_VAR_BANK
@@ -106,13 +108,13 @@ CS_MENU_PRINT_Handler
 	rgoto	CS_MENU_PRINT_VAR_WTPAR
 	rgoto	CS_MENU_PRINT_VAR_BD_OP
 	rgoto	CS_MENU_PRINT_VAR_HH
-	rgoto	CS_MENU_PRINT_NAME
 
 	rgoto	CS_MENU_PRINT_Px_BANK
 	rgoto	CS_MENU_PRINT_Px_DEC
 	rgoto	CS_MENU_PRINT_Px_PMDEC
 	rgoto	CS_MENU_PRINT_Px_DECP1
 	rgoto	CS_MENU_PRINT_Px_NOTE
+	rgoto	CS_MENU_PRINT_Px_WAVE
 	rgoto	CS_MENU_PRINT_Px_VEL
 	rgoto	CS_MENU_PRINT_Px_1234
 	rgoto	CS_MENU_PRINT_Px_PLAY
@@ -143,8 +145,10 @@ CS_MENU_PRINT_Handler
 
 	rgoto	CS_MENU_PRINT_PDxBD_DEC
 	rgoto	CS_MENU_PRINT_PDxBD_DECP1
+	rgoto	CS_MENU_PRINT_PDxBD_WAVE
 	rgoto	CS_MENU_PRINT_PDxHH_DEC
 	rgoto	CS_MENU_PRINT_PDxHH_DECP1
+	rgoto	CS_MENU_PRINT_PDxHH_WAVE
 	rgoto	CS_MENU_PRINT_PDxBD_CON
 	rgoto	CS_MENU_PRINT_DRUM_CHN
 	
@@ -271,21 +275,6 @@ CS_MENU_PRINT_VAR_HH_Tab
 	dw	"Cls."	
 
 ; --------------------------------------------------------------------------
-CS_MENU_PRINT_NAME
-	call	CS_MENU_MS_GetCurInstrBase
-	clrf	TMP1
-CS_MENU_PRINT_NAME_Loop
-	movf	POSTINC0, W
-	skpnz
-	movlw	' '
-	rcall	CS_MENU_PRINT_Char
-	incf	TMP1, F
-	movlw	4-1
-	cpfsgt	TMP1, ACCESS
-	rgoto CS_MENU_PRINT_NAME_Loop
-	return
-
-; --------------------------------------------------------------------------
 CS_MENU_PRINT_Px_BANK
 	rcall	CS_MENU_Hlp_GetPxValue
 	rgoto	CS_MENU_PRINT_Bank
@@ -309,6 +298,15 @@ CS_MENU_PRINT_Px_DECP1
 CS_MENU_PRINT_Px_NOTE
 	rcall	CS_MENU_Hlp_GetPxValue
 	rgoto	CS_MENU_PRINT_Note
+
+; --------------------------------------------------------------------------
+CS_MENU_PRINT_Px_WAVE
+#if USE_CUSTOM_CHAR_HANDLER	
+	rcall	CS_MENU_Hlp_GetPxValue
+	rgoto	CS_MENU_PRINT_OP_Wave
+#else
+	rgoto	CS_MENU_PRINT_Px_DECP1
+#endif
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_Px_VEL
@@ -422,9 +420,9 @@ CS_MENU_PRINT_PxOx_DECP1
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_PxOx_WAVE
-	rcall	CS_MENU_Hlp_GetPxOxValue
 #if USE_CUSTOM_CHAR_HANDLER	
-	goto	CS_MENU_PRINT_WRITE_Waveform
+	rcall	CS_MENU_Hlp_GetPxOxValue
+	goto	CS_MENU_PRINT_OP_Wave
 #else
 	rgoto	CS_MENU_PRINT_PxOx_DECP1
 #endif
@@ -654,6 +652,15 @@ CS_MENU_PRINT_PDxBD_DECP1
 	rgoto	CS_MENU_PRINT_DecPlus1
 
 ; --------------------------------------------------------------------------
+CS_MENU_PRINT_PDxBD_WAVE
+#if USE_CUSTOM_CHAR_HANDLER	
+	rcall	CS_MENU_Hlp_GetPxBDxValue
+	rgoto	CS_MENU_PRINT_OP_Wave
+#else
+	rgoto	CS_MENU_PRINT_PDxBD_DECP1
+#endif
+
+; --------------------------------------------------------------------------
 CS_MENU_PRINT_PDxHH_DEC
 	rcall	CS_MENU_Hlp_GetPxHHxValue
 	rgoto	CS_MENU_PRINT_Dec
@@ -662,6 +669,15 @@ CS_MENU_PRINT_PDxHH_DEC
 CS_MENU_PRINT_PDxHH_DECP1
 	rcall	CS_MENU_Hlp_GetPxHHxValue
 	rgoto	CS_MENU_PRINT_DecPlus1
+
+; --------------------------------------------------------------------------
+CS_MENU_PRINT_PDxHH_WAVE
+#if USE_CUSTOM_CHAR_HANDLER	
+	rcall	CS_MENU_Hlp_GetPxHHxValue
+	rgoto	CS_MENU_PRINT_OP_Wave
+#else
+	rgoto	CS_MENU_PRINT_PDxHH_DECP1
+#endif
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_PDxBD_CON
@@ -927,31 +943,31 @@ CS_MENU_PRINT_1234
 
 ; --------------------------------------------------------------------------
 ;; print waveform
-CS_MENU_PRINT_WRITE_Waveform
+CS_MENU_PRINT_OP_Wave
 #if USE_CUSTOM_CHAR_HANDLER
 	movwf	TMP1
 
 	JUMPTABLE_2BYTES 8 ; entries
-	rgoto CS_MENU_PRINT_WRITE_Waveform_Set0
-	rgoto CS_MENU_PRINT_WRITE_Waveform_Set0
-	rgoto CS_MENU_PRINT_WRITE_Waveform_Set0
-	rgoto CS_MENU_PRINT_WRITE_Waveform_Set0
-	rgoto CS_MENU_PRINT_WRITE_Waveform_Set1
-	rgoto CS_MENU_PRINT_WRITE_Waveform_Set1
-	rgoto CS_MENU_PRINT_WRITE_Waveform_Set1
-	rgoto CS_MENU_PRINT_WRITE_Waveform_Set0
+	rgoto CS_MENU_PRINT_OP_Wave_Set0
+	rgoto CS_MENU_PRINT_OP_Wave_Set0
+	rgoto CS_MENU_PRINT_OP_Wave_Set0
+	rgoto CS_MENU_PRINT_OP_Wave_Set0
+	rgoto CS_MENU_PRINT_OP_Wave_Set1
+	rgoto CS_MENU_PRINT_OP_Wave_Set1
+	rgoto CS_MENU_PRINT_OP_Wave_Set1
+	rgoto CS_MENU_PRINT_OP_Wave_Set0
 
-CS_MENU_PRINT_WRITE_Waveform_Set0
+CS_MENU_PRINT_OP_Wave_Set0
 	movlw	3
-	goto	CS_MENU_PRINT_WRITE_Waveform_PrintIt
-CS_MENU_PRINT_WRITE_Waveform_Set1
+	goto	CS_MENU_PRINT_OP_Wave_PrintIt
+CS_MENU_PRINT_OP_Wave_Set1
 	movlw	4
-CS_MENU_PRINT_WRITE_Waveform_PrintIt
+CS_MENU_PRINT_OP_Wave_PrintIt
 	call	MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
-	TABLE_ADDR CS_MENU_PRINT_WRITE_Waveform_Tab
+	TABLE_ADDR CS_MENU_PRINT_OP_Wave_Tab
 	movf	TMP1, W
 	goto	CS_MENU_PRINT_StringFromTable
-CS_MENU_PRINT_WRITE_Waveform_Tab
+CS_MENU_PRINT_OP_Wave_Tab
 	dw	0x0403, 0x0605 
 	dw	0x0403, 0x2D2D 
 	dw	0x0403, 0x0403

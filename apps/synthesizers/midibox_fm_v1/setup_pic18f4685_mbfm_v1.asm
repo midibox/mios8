@@ -87,6 +87,9 @@
 	;; enables the inbuilt random patch generator (requires PIC18F4685!)
 #define ENABLE_RANDOM_GENERATOR 1
 
+	;; wavetables astored in RAM? (requires PIC18F4685!)
+#define WAVETABLES_IN_RAM   1
+
 	;; only for debugging: prints the MBFM load at the right upper edge of the 2x40 LCD
 #define DISPLAY_PERFORMANCE 0
 

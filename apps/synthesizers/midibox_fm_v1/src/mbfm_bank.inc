@@ -161,11 +161,38 @@ MBFM_BANK_GetPAddressInternal
 ; ==========================================================================
 ; ==========================================================================
 
+#if WAVETABLES_IN_RAM
+;; --------------------------------------------------------------------------
+;;  Loads a wavetable from BankStick into RAM
+;;  IN: Patch Number in MBFM_PATCH
+;;      Bank Number in MBFM_BANK
+;;      address to buffer in FSR1 (normaly Ix_WAVETABLE_BASE on PIC18F4685 option)
+;; --------------------------------------------------------------------------
+MBFM_BANK_LoadW
+	clrf	EEADR				; ensure that EEPROM address is zero
+	rcall	MBFM_BANK_GetWAddress		; sets the address for EEPROM or BankStick
+	;; returns PRODH[0] to notify if BankStick or EEPROM should be used
+
+	;; EEPROM not supported for wavetables
+	BRA_IFCLR PRODH, 0, ACCESS, MBFM_BANK_LoadW_End
+
+	call	MIOS_BANKSTICK_ReadPage	; reads 0x40 bytes
+	call	MIOS_BANKSTICK_ReadPage	; reads 0x40 bytes
+	;; 	bnz	MBFM_BANK_LoadW_Err		; write error?
+	rgoto	MBFM_BANK_LoadW_End
+
+MBFM_BANK_LoadW_Err
+	;; here we could add error processing
+MBFM_BANK_LoadW_End
+	SET_BSR	MBFM_BASE			; fix BSR after a MIOS routine has been called
+	return
+#endif
+
 ;; --------------------------------------------------------------------------
 ;;  Stores a wavetable from a RAM buffer in BankStick
 ;;  IN: Patch Number in MBFM_PATCH
 ;;      Bank Number in MBFM_BANK
-;;      address to buffer in FSR1 (normaly MBFM_EE_BUFFER)
+;;      address to buffer in FSR1 (normaly MBFM_EE_BUFFER or Ix_WAVETABLE_BASE on PIC18F4685 option)
 ;; --------------------------------------------------------------------------
 MBFM_BANK_StoreW
 	clrf	EEADR				; ensure that EEPROM address is zero

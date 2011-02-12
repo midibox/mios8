@@ -80,8 +80,11 @@ MBFM_WT_NextClkLoop
 
 	;; get first entry
 	rcall	MBFM_WT_Hlp_CalcPos
-	call	MBFM_BANK_ReadWByte
+	rcall	MBFM_WT_ReadByte
 	movwf	TMP4
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetBase
+#endif
 MBFM_WT_Loop
 	;; branch depending on entry ID
 	movf	TMP4, W
@@ -105,8 +108,11 @@ MBFM_WT_Branch_Play_NoS
 	bsf	PLUSW1, MBFM_WT_STATE_STEP_DONE
 
 	;; first parameter
-	call	MBFM_BANK_ReadWByte
+	rcall	MBFM_WT_ReadByte
 	movwf	TMP2
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetBase
+#endif
 	btfsc	TMP4, 4
 	bsf	TMP2, 7
 	movlw	MBFM_Ix_WT_PAR1
@@ -115,8 +121,11 @@ MBFM_WT_Branch_Play_NoS
 	rcall	MBFM_WT_Hlp_Play_P
 
 	;; second parameter
-	call	MBFM_BANK_ReadWByte
+	rcall	MBFM_WT_ReadByte
 	movwf	TMP2
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetBase
+#endif
 	btfsc	TMP4, 5
 	bsf	TMP2, 7
 	movlw	MBFM_Ix_WT_PAR2
@@ -125,8 +134,11 @@ MBFM_WT_Branch_Play_NoS
 	rcall	MBFM_WT_Hlp_Play_P
 
 	;; third parameter
-	call	MBFM_BANK_ReadWByte
+	rcall	MBFM_WT_ReadByte
 	movwf	TMP2
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetBase
+#endif
 	btfsc	TMP4, 6
 	bsf	TMP2, 7
 	movlw	MBFM_Ix_WT_PAR3
@@ -144,14 +156,21 @@ MBFM_WT_Branch_End
 	
 	;; ---
 MBFM_WT_Branch_Goto
-	call	MBFM_BANK_ReadWByte
+	rcall	MBFM_WT_ReadByte
 	andlw	0x1f
 	movwf	TMP4
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetBase
+#endif
 	movlw	MBFM_Ix_WT_POS
 	movff	TMP4, PLUSW1
 	rcall	MBFM_WT_Hlp_CalcPos
-	call	MBFM_BANK_ReadWByte	; prevent endless loops
+	rcall	MBFM_WT_ReadByte
 	movwf	TMP4
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetBase
+#endif
+	movf	TMP4, W
 	andlw	0x03
 	xorlw	0x02
 	bz	MBFM_WT_Branch_End
@@ -227,3 +246,20 @@ MBFM_WT_Hlp_Play_P_Cont
 	;; restore base address to instrument
 	goto	MBFM_INSTR_GetBase
 
+
+
+;; --------------------------------------------------------------------------
+;;  Reads a byte from wavetable
+;;  Expecting instrument in MBFM_CURRENT_INSTRUMENT and WT offset in EEADR
+;;  Overwrites FSR1!!!
+;; --------------------------------------------------------------------------
+MBFM_WT_ReadByte
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetWTBase
+	movf	EEADR, W
+	movf	PLUSW1, W
+	incf	EEADR, F
+	return
+#else
+	goto	MBFM_BANK_ReadWByte
+#endif

@@ -575,5 +575,12 @@ MBFM_V5_BASE		EQU	0x300 + 4 * MBFM_Vx_RECORD_LEN	; 0x380
 MBFM_V6_BASE		EQU	0x300 + 5 * MBFM_Vx_RECORD_LEN	; 0x3a0
 
 ;; ==========================================================================
+#if WAVETABLES_IN_RAM
+MBFM_I1_WAVETABLE_BASE	EQU	0x600
+MBFM_I2_WAVETABLE_BASE	EQU	0x680
+MBFM_I3_WAVETABLE_BASE	EQU	0x700
+MBFM_I4_WAVETABLE_BASE	EQU	0x780
+#else
 MBFM_EE_BUFFER		EQU	0x300		; buffer temporary used for writing WT data into EEPROM
 						; voices have to be re-initialized after use
+#endif

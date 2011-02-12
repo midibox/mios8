@@ -212,7 +212,13 @@ MBFM_RND_GenerateOP
 	andwf	POSTINC1, F	; OP3 WS [2:0]
 	andwf	POSTINC1, F	; OP4 WS [2:0]
 
-	return
+
+	;; copy to all selected instruments
+	movlw	MBFM_Ix_OP1_FLAGS_MULT
+	movwf	MIOS_PARAMETER1
+	movlw	MBFM_Ix_OP34_CH_FB_CNT
+	movwf	MIOS_PARAMETER2
+	rgoto	MBFM_RND_CopyToInstruments
 
 ;; ------------------------------------------------------------------
 ;; LFOs
@@ -264,7 +270,12 @@ MBFM_RND_GenerateLFO
 	movlw	0x40
 	movwf	INDF1
 
-	return
+	;; copy to all selected instruments
+	movlw	MBFM_Ix_LFO1_MODE
+	movwf	MIOS_PARAMETER1
+	movlw	MBFM_Ix_LFO2_DEPTH_A
+	movwf	MIOS_PARAMETER2
+	rgoto	MBFM_RND_CopyToInstruments
 
 ;; ------------------------------------------------------------------
 ;; EG5
@@ -300,7 +311,12 @@ MBFM_RND_GenerateEG5
 	movlw	0x40
 	movwf	INDF1
 
-	return
+	;; copy to all selected instruments
+	movlw	MBFM_Ix_EG5_MODE
+	movwf	MIOS_PARAMETER1
+	movlw	MBFM_Ix_EG5_DEPTH_L
+	movwf	MIOS_PARAMETER2
+	rgoto	MBFM_RND_CopyToInstruments
 
 
 ;; ------------------------------------------------------------------
@@ -327,7 +343,13 @@ MBFM_RND_GenerateWTC
 	movwf	POSTINC1	; PAR2
 	rcall	MBFM_RND_GenerateWTC_Par
 	movwf	POSTINC1	; PAR3
-	return
+
+	;; copy to all selected instruments
+	movlw	MBFM_Ix_WT_RATE
+	movwf	MIOS_PARAMETER1
+	movlw	MBFM_Ix_WT_PAR3
+	movwf	MIOS_PARAMETER2
+	rgoto	MBFM_RND_CopyToInstruments
 
 MBFM_RND_GenerateWTC_Par
 	TABLE_ADDR MBFM_RND_GenerateWTC_Par_TABLE
@@ -348,15 +370,39 @@ MBFM_RND_GenerateWTC_Par_TABLE
 ;; ------------------------------------------------------------------
 MBFM_RND_GenerateWTE
 	;; generate 128 random numbers
-	;; TODO: write into RAM once feature is available for PIC18F4685
 
+#if WAVETABLES_IN_RAM
+	call	MBFM_INSTR_GetWTBase
+	clrf	TMP1
+MBFM_RND_GenerateWTE_Loop
+	call	MBFM_RND_GenRandomNumber
+	movwf	TMP2
+
+	;; store in wavetables of all selected instruments
+	movf	TMP1, W
+	lfsr	FSR1, MBFM_I1_WAVETABLE_BASE
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 0
+	movff	TMP2, PLUSW1
+	lfsr	FSR1, MBFM_I2_WAVETABLE_BASE
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 1
+	movff	TMP2, PLUSW1
+	lfsr	FSR1, MBFM_I3_WAVETABLE_BASE
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 2
+	movff	TMP2, PLUSW1
+	lfsr	FSR1, MBFM_I4_WAVETABLE_BASE
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 3
+	movff	TMP2, PLUSW1
+
+	BRA_IFSET TMP1, 7, ACCESS, MBFM_RND_GenerateWTE_Loop
+#else
 	call	MBFM_INSTR_GetBasePatchAndBank
 	movlw	0x80
 	movwf	EEADR
-MBFM_RND_GenerateWTE_Loop
-	call	MBFM_RND_GenRandomNumber
+ MBFM_RND_GenerateWTE_Loop
+ 	call	MBFM_RND_GenRandomNumber
 	call	MBFM_BANK_WriteWByte
 	BRA_IFSET EEADR, 7, ACCESS, MBFM_RND_GenerateWTE_Loop
+#endif
 	return
 
 
@@ -389,5 +435,50 @@ MBFM_RND_GenerateAll_NameLoop
 
 MBFM_RND_PATCH_NAME
 	db	"Random Patch    "
+
+
+;; --------------------------------------------------------------------------
+;;  Copies a patch section of MBFM_CURRENT_INSTRUMENT to all other selected instruments
+;;  Expecting begin and end parameter in MIOS_PARAMETER[12]
+;; --------------------------------------------------------------------------
+MBFM_RND_CopyToInstruments
+	;; small imperfection: redundant copy operation from current to selected instrument
+	;; but it doesn't hurt...
+	
+	lfsr	FSR0, MBFM_I1_BASE
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 0
+	rcall	MBFM_RND_CopyToInstrumentsSingle
+
+	lfsr	FSR0, MBFM_I2_BASE
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 1
+	rcall	MBFM_RND_CopyToInstrumentsSingle
+
+	lfsr	FSR0, MBFM_I3_BASE
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 2
+	rcall	MBFM_RND_CopyToInstrumentsSingle
+
+	lfsr	FSR0, MBFM_I4_BASE
+	btfsc	CS_MENU_SELECTED_INS_FLAGS, 3
+	rcall	MBFM_RND_CopyToInstrumentsSingle
+
+	return
+
+
+MBFM_RND_CopyToInstrumentsSingle
+	;; pointer to target location in FSR0
+	call	MBFM_INSTR_GetBase
+	;; pointer to source location now in FSR1
+
+	movff	MIOS_PARAMETER1, PRODL
+MBFM_RND_CopyToInstrumentsLoop
+	movf	PRODL, W
+	movff	PLUSW1, PRODH
+	movff	PRODH, PLUSW0
+	incf	PRODL, F
+	movf	MIOS_PARAMETER2, W
+	xorwf	PRODL, W
+	bnz	MBFM_RND_CopyToInstrumentsLoop
+
+	return
 
 #endif
