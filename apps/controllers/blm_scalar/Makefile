@@ -6,7 +6,7 @@ LKR_FILE  = $(MIOS_PATH)/etc/lkr/p$(PROCESSOR).lkr
 PROJECT   = project
 
 # list of objects that should be created and linked
-OBJS = mios_wrapper.o app_lcd.o main.o blm.o blm_scalar.o sysex.o
+OBJS = mios_wrapper.o app_lcd.o main.o blm_scalar.o sysex.o
 
 # include pathes (more will be added by .mk files)
 GPASM_INCLUDE = 
@@ -30,16 +30,29 @@ include $(MIOS_PATH)/include/makefile/common.mk
 # include application specific driver (select app_lcd/dummy if MIOS internal driver used)
 include $(MIOS_PATH)/modules/app_lcd/dummy/app_lcd.mk
 
-# include Button/Duo-LED driver
-# commented out defines are shift register assignments of MBSEQ V3 hardware
-# see $MIOS_PATH/modules/blm/blm.inc for default assignments
-#BLM_DEFINES += -DBLM_DOUT_L1=6 -DBLM_DOUT_R1=9
-#BLM_DEFINES += -DBLM_DOUT_CATHODES1=5 -DBLM_DOUT_CATHODES2=8
-BLM_DEFINES += -DBLM_CATHODES_INV_MASK=0x0f
-#BLM_DEFINES += -DBLM_DOUT_L2=7 -DBLM_DOUT_R2=10
-#BLM_DEFINES += -DBLM_DIN_L=11 -DBLM_DIN_R=12
-#BLM_DEFINES += -DBLM_NO_DEBOUNCING=0
-include $(MIOS_PATH)/modules/blm/blm.mk
-
 # include Button/Duo-LED driver for BLM_SCALAR
+# You can override following defines to re-assign shiftregisters if required
+# some of the parameters are self-explaining, some others maybe not... just
+# have a look into the source code at $(MIOS_PATH)/modules/blm_scalar/blm_scalar.inc
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_GREEN1=2
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_GREEN2=5
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_GREEN3=8
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_GREEN4=11
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_GREEN5=14
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_RED1=3
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_RED2=6
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_RED3=9
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_RED4=12
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_RED5=15
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_CATHODES1=1
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_CATHODES2=4
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_CATHODES3=7
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_CATHODES4=10
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DOUT_CATHODES5=13
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_CATHODES_INV_MASK=0xff
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DIN1=1
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DIN2=2
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DIN3=3
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DIN4=4
+BLM_SCALAR_DEFINES += -DBLM_SCALAR_DIN5=5
 include $(MIOS_PATH)/modules/blm_scalar/blm_scalar.mk

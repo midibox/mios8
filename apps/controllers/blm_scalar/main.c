@@ -18,16 +18,9 @@
 #include <cmios.h>
 #include <pic18fregs.h>
 
-#include <blm.h>
 #include <blm_scalar.h>
 #include "main.h"
 #include "sysex.h"
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Use BLM or BLM_SCALAR driver?
-/////////////////////////////////////////////////////////////////////////////
-#define USE_BLM_SCALAR 1
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -63,17 +56,7 @@ void Init(void) __wparam
   testmode = 1;
 
   // initialize the scan matrix driver
-#if USE_BLM_SCALAR
   BLM_SCALAR_Init();
-
-  // set initial debounce delay (should be done after BLM_Init(), as this function overwrites the value)
-  //blm_scalar_button_debounce_delay = 20;    // (-> 20 * 4 mS = 80 mS)
-#else
-  BLM_Init();
-
-  // set initial debounce delay (should be done after BLM_Init(), as this function overwrites the value)
-  blm_button_debounce_delay = 20;    // (-> 20 * 4 mS = 80 mS)
-#endif
 
   // initialize SysEx parser
   SYSEX_Init();
@@ -120,11 +103,7 @@ void Tick(void) __wparam
   }
 
   // call the scan matrix button handler
-#if USE_BLM_SCALAR
   BLM_SCALAR_ButtonHandler();
-#else
-  BLM_ButtonHandler();
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -213,49 +192,21 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
       // (-> http://www.borg.com/~jglatt/tech/midispec.htm)
       if( event_type == 0x8 || evnt2 == 0x00 ) {
 	// Note Off or velocity == 0x00: clear both LEDs
-#if USE_BLM_SCALAR
 	blm_scalar_row_green[led_row_ix] &= MIOS_HLP_GetBitANDMask(led_column_ix);
 	blm_scalar_row_red[led_row_ix]   &= MIOS_HLP_GetBitANDMask(led_column_ix);
-#else
-	if( led_row_ix < 8 ) {
-	  blm_row_green[led_row_ix] &= MIOS_HLP_GetBitANDMask(led_column_ix);
-	  blm_row_red[led_row_ix]   &= MIOS_HLP_GetBitANDMask(led_column_ix);
-	}
-#endif
 
       } else if( evnt2 < 0x40 ) {
 	// Velocity < 0x40: set green LED, clear red LED
-#if USE_BLM_SCALAR
 	blm_scalar_row_green[led_row_ix] |= MIOS_HLP_GetBitORMask(led_column_ix);
 	blm_scalar_row_red[led_row_ix]   &= MIOS_HLP_GetBitANDMask(led_column_ix);
-#else
-	if( led_row_ix < 8 ) {
-	  blm_row_green[led_row_ix] |= MIOS_HLP_GetBitORMask(led_column_ix);
-	  blm_row_red[led_row_ix]   &= MIOS_HLP_GetBitANDMask(led_column_ix);
-	}
-#endif
       } else if( evnt2 < 0x60 ) {
 	// Velocity < 0x60: clear green LED, set red LED
-#if USE_BLM_SCALAR
 	blm_scalar_row_green[led_row_ix] &= MIOS_HLP_GetBitANDMask(led_column_ix);
 	blm_scalar_row_red[led_row_ix]   |= MIOS_HLP_GetBitORMask(led_column_ix);
-#else
-	if( led_row_ix < 8 ) {
-	  blm_row_green[led_row_ix] &= MIOS_HLP_GetBitANDMask(led_column_ix);
-	  blm_row_red[led_row_ix]   |= MIOS_HLP_GetBitORMask(led_column_ix);
-	}
-#endif
       } else {
 	// Velocity >= 0x60: set both LEDs
-#if USE_BLM_SCALAR
 	blm_scalar_row_green[led_row_ix] |= MIOS_HLP_GetBitORMask(led_column_ix);
 	blm_scalar_row_red[led_row_ix]   |= MIOS_HLP_GetBitORMask(led_column_ix);
-#else
-	if( led_row_ix < 8 ) {
-	  blm_row_green[led_row_ix] |= MIOS_HLP_GetBitORMask(led_column_ix);
-	  blm_row_red[led_row_ix]   |= MIOS_HLP_GetBitORMask(led_column_ix);
-	}
-#endif
       }
 
       notifyDataReceived();
@@ -269,7 +220,6 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
       pattern |= (1 << 7);
 
     switch( evnt1 & 0xfe ) {
-#if USE_BLM_SCALAR
       case 0x10: blm_scalar_row_green[2*chn + 0] = pattern; break;
       case 0x12: blm_scalar_row_green[2*chn + 1] = pattern; break;
 
@@ -382,12 +332,6 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 	  blm_scalar_row_red[led_row_ix] = (blm_scalar_row_red[led_row_ix] & 0x0f) | (pattern & 0xf0);
 	}
       } break;
-#else
-      case 0x10: blm_row_green[2*chn + 0] = pattern; break;
-      case 0x12: blm_row_green[2*chn + 1] = pattern; break;
-      case 0x20: blm_row_red[2*chn + 0] = pattern; break;
-      case 0x22: blm_row_red[2*chn + 1] = pattern; break;
-#endif
     }
 
     notifyDataReceived();
@@ -425,11 +369,7 @@ void MPROC_NotifyReceivedByte(unsigned char byte) __wparam
 void SR_Service_Prepare(void) __wparam
 {
   // call the Scan Matrix Driver
-#if USE_BLM_SCALAR
   BLM_SCALAR_PrepareCol();
-#else
-  BLM_PrepareCol();
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -438,11 +378,7 @@ void SR_Service_Prepare(void) __wparam
 void SR_Service_Finish(void) __wparam
 {
   // call the Scan Matrix Driver
-#if USE_BLM_SCALAR
   BLM_SCALAR_GetRow();
-#else
-  BLM_GetRow();
-#endif
 
   // increment request timer counter
   ++sysexRequestTimer;
@@ -476,35 +412,6 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
   MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(pin));
 }
 
-
-
-/////////////////////////////////////////////////////////////////////////////
-// This function is NOT called by MIOS, but by the scan matrix handler
-// in $MIOS_PATH/modules/blm, when a pin of the scan matrix has been toggled
-// Note: in addition to "pin" and "value", the "blm_button_column" and
-// "blm_button_row" are available as global variables (defined in blm.h)
-/////////////////////////////////////////////////////////////////////////////
-void BLM_NotifyToggle(unsigned char pin, unsigned char value) __wparam
-{
-  unsigned char mask;
-
-  // send pin number and value as Note On Event
-  MIOS_MIDI_TxBufferPut(0x90 + (pin >> 4));
-  MIOS_MIDI_TxBufferPut(pin & 0x0f);
-  MIOS_MIDI_TxBufferPut(value ? 0x00 : 0x7f);
-
-  // enable this code (turn #if 0 into #if 1) if buttons should change the LED colour directly
-  // disable it when LEDs should only be controlled via MIDI
-  if( testmode ) {
-    // cycle colour whenever button has been pressed (value == 0)
-    if( !value ) {
-      mask = MIOS_HLP_GetBitORMask(blm_button_column);
-      if ( blm_row_green[blm_button_row] & mask )
-	blm_row_red[blm_button_row] ^= mask;
-      blm_row_green[blm_button_row] ^= mask;
-    }
-  }
-}
 
 
 /////////////////////////////////////////////////////////////////////////////
