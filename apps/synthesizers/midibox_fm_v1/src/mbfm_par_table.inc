@@ -206,6 +206,7 @@ CMD_PAR_ACHN		EQU	0x0c
 CMD_PAR_MODWHEEL	EQU	0x0d
 CMD_PAR_VELOCITY	EQU	0x0e
 CMD_PAR_AFTERTOUCH	EQU	0x0f
+CMD_PAR_WTPAR		EQU	0x10
 
 ;; --------------------------------------------------------------------------
 ;;  IN: index of parameter in WREG, instrument in MBFM_CURRENT_INSTRUMENT
@@ -362,7 +363,11 @@ MBFM_PAR_TABLE
 	db	CMD_PAR_7BIT,			MBFM_Ix_LFO1_DEPTH_A	; LFO1 AOUT depth
 	db	CMD_PAR_NOP,			0			; reserved
 	db	CMD_PAR_NOP,			0			; reserved
+#if USE_SHADOW_BUFFERS
+	db	CMD_PAR_VELOCITY,               MBFM_Ix_VELOCITY_ASSIGN	; velocity parameter
+#else
 	db	CMD_PAR_7BIT,                   MBFM_Ix_VELOCITY_ASSIGN	; velocity parameter
+#endif
 	db	CMD_PAR_VELOCITY,		MBFM_Ix_VELOCITY_INIT	; initial value
 	db	CMD_PAR_VELOCITY,		MBFM_Ix_VELOCITY_DEPTH	; depth
 	db	CMD_PAR_NOP,			0			; reserved
@@ -380,7 +385,11 @@ MBFM_PAR_TABLE
 	db	CMD_PAR_7BIT,			MBFM_Ix_LFO2_DEPTH_A	; LFO2 AOUT depth
 	db	CMD_PAR_NOP,			0			; reserved
 	db	CMD_PAR_NOP,			0			; reserved
+#if USE_SHADOW_BUFFERS
+	db	CMD_PAR_AFTERTOUCH,             MBFM_Ix_AFTERTOUCH_ASSIGN ; aftertouch parameter
+#else
 	db	CMD_PAR_7BIT,                   MBFM_Ix_AFTERTOUCH_ASSIGN ; aftertouch parameter
+#endif
 	db	CMD_PAR_AFTERTOUCH,		MBFM_Ix_AFTERTOUCH_INIT	; initial value
 	db	CMD_PAR_AFTERTOUCH,		MBFM_Ix_AFTERTOUCH_DEPTH ; depth
 	db	CMD_PAR_NOP,			0			; reserved
@@ -412,11 +421,21 @@ MBFM_PAR_TABLE
 	db	CMD_PAR_7BIT,			MBFM_Ix_PITCHRANGE	; pitchrange
 	db	CMD_PAR_7BIT,			MBFM_Ix_PORTA_RATE	; portamento rate
 	db	CMD_PAR_7BIT,			MBFM_Ix_WT_RATE		; wavetable rate
+#if USE_SHADOW_BUFFERS
+	db	CMD_PAR_WTPAR,			MBFM_Ix_WT_PAR1		; wt parameter #1
+	db	CMD_PAR_WTPAR,			MBFM_Ix_WT_PAR2		; wt parameter #2
+	db	CMD_PAR_WTPAR,			MBFM_Ix_WT_PAR3		; wt parameter #3
+#else
 	db	CMD_PAR_7BIT,			MBFM_Ix_WT_PAR1		; wt parameter #1
 	db	CMD_PAR_7BIT,			MBFM_Ix_WT_PAR2		; wt parameter #2
 	db	CMD_PAR_7BIT,			MBFM_Ix_WT_PAR3		; wt parameter #3
+#endif
 	db	CMD_PAR_NOP,			0			; reserved
+#if USE_SHADOW_BUFFERS
+	db	CMD_PAR_MODWHEEL,               MBFM_Ix_MODWHEEL_ASSIGN ; modwheel parameter
+#else
 	db	CMD_PAR_7BIT,                   MBFM_Ix_MODWHEEL_ASSIGN ; modwheel parameter
+#endif
 	db	CMD_PAR_MODWHEEL,		MBFM_Ix_MODWHEEL_INIT	; initial value
 	db	CMD_PAR_MODWHEEL,		MBFM_Ix_MODWHEEL_DEPTH	; depth
 	db	CMD_PAR_NOP,			0			; reserved

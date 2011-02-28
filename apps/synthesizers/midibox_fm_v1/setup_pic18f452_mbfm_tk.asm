@@ -89,6 +89,9 @@
 	;; wavetables astored in RAM? (requires PIC18F4685!)
 #define WAVETABLES_IN_RAM   0
 
+	;; shadow buffers for non-destructive modulations? (requires PIC18F4685!)
+#define USE_SHADOW_BUFFERS  0
+
 	;; only for debugging: prints the MBFM load at the right upper edge of the 2x40 LCD
 #define DISPLAY_PERFORMANCE 0
 

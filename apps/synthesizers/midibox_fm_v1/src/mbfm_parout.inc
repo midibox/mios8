@@ -24,8 +24,7 @@ MBFM_PAROUT_Get
 MBFM_PAROUT_Set_Cmd
 	;; branch depending on command
 	movf	MIOS_PARAMETER2, W
-	andlw	0x0f
-	JUMPTABLE_2BYTES_UNSECURE
+	JUMPTABLE_2BYTES 17 ; parameters
 	rgoto	MBFM_PAROUT_Cmd_NOP
 	rgoto	MBFM_PAROUT_Cmd_7BIT
 	rgoto	MBFM_PAROUT_Cmd_7BIT_TO_7_4
@@ -42,6 +41,7 @@ MBFM_PAROUT_Set_Cmd
 	rgoto	MBFM_PAROUT_Cmd_MODWHEEL
 	rgoto	MBFM_PAROUT_Cmd_VELOCITY
 	rgoto	MBFM_PAROUT_Cmd_AFTERTOUCH
+	rgoto	MBFM_PAROUT_Cmd_WTPAR
 
 ; =========================================================================
 
@@ -72,6 +72,7 @@ MBFM_PAROUT_Cmd_NOP
 
 ;; --------------------------------------------------------------------------
 MBFM_PAROUT_Cmd_7BIT
+MBFM_PAROUT_Cmd_WTPAR
 	movf	INDF1, W
 	return
 

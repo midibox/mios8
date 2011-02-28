@@ -945,6 +945,7 @@ CS_MENU_PRINT_1234
 ;; print waveform
 CS_MENU_PRINT_OP_Wave
 #if USE_CUSTOM_CHAR_HANDLER
+	andlw	0x07
 	movwf	TMP1
 
 	JUMPTABLE_2BYTES 8 ; entries

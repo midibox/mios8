@@ -241,7 +241,7 @@ MBFM_WT_Hlp_Play_P_Cont
 	andlw	0x7f
 	movwf	MIOS_PARAMETER1
 	movf	TMP3, W
-	call	MBFM_PARIN_Set
+	call	MBFM_PARIN_Set_NoShadowUpdate
 
 	;; restore base address to instrument
 	goto	MBFM_INSTR_GetBase

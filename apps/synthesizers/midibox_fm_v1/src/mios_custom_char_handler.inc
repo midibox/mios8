@@ -13,7 +13,7 @@
 ;; loads a new charset if necessary, charset ID in WREG
 MIOS_CUSTOM_CHAR_HANDLER_LoadCharset
 	;; check if the charset is already loaded
-	cpfseq 	LAST_CHARSET
+	cpfseq 	LAST_CHARSET, ACCESS
 	rgoto 	MIOS_CUSTOM_CHAR_HANDLER_DoLoad
 	;; not loading the same charset again
 	return
@@ -35,32 +35,25 @@ MIOS_CUSTOM_CHAR_HANDLER_DoLoad
 	;; pick right table
 MIOS_CUSTOM_CHAR_HANDLER_0
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS_SET0
-	call	MIOS_CLCD_SpecialCharsInit
-	return
+	goto	MIOS_CLCD_SpecialCharsInit
 MIOS_CUSTOM_CHAR_HANDLER_1	
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS_SET1
-	call	MIOS_CLCD_SpecialCharsInit
-	return
+	goto	MIOS_CLCD_SpecialCharsInit
 MIOS_CUSTOM_CHAR_HANDLER_2
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS_SET2
-	call	MIOS_CLCD_SpecialCharsInit
-	return
+	goto	MIOS_CLCD_SpecialCharsInit
 MIOS_CUSTOM_CHAR_HANDLER_3
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS_SET3
-	call	MIOS_CLCD_SpecialCharsInit
-	return
+	goto	MIOS_CLCD_SpecialCharsInit
 MIOS_CUSTOM_CHAR_HANDLER_4
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS_SET4
-	call	MIOS_CLCD_SpecialCharsInit
-	return
+	goto	MIOS_CLCD_SpecialCharsInit
 MIOS_CUSTOM_CHAR_HANDLER_5
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS_SET5
-	call	MIOS_CLCD_SpecialCharsInit
-	return
+	goto	MIOS_CLCD_SpecialCharsInit
 MIOS_CUSTOM_CHAR_HANDLER_6
 	TABLE_ADDR CS_MENU_SPECIAL_CHARS_SET6
-	call	MIOS_CLCD_SpecialCharsInit
-	return
+	goto    MIOS_CLCD_SpecialCharsInit
 	
 ;; all charsets have identical chars 0-3 (left, right and both arrows)
 ;; as they appear on all menu pages	

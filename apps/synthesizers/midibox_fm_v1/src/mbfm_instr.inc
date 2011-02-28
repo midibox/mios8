@@ -255,17 +255,32 @@ MBFM_INSTR_Init
 	call	MBFM_INSTR_GetWTBase
 	call	MBFM_BANK_LoadW
 #endif
-	
+
 MBFM_INSTR_Init_Cont
+#if USE_SHADOW_BUFFERS
+	;; copy RAM content into shadow buffers
+	rcall	MBFM_INSTR_CopyToShadow
+#endif
+
+	;; refresh all assigned voices
+	rgoto	MBFM_INST_RefreshVoices
+
+
+;; --------------------------------------------------------------------------
+;;  This function refreshes all voices which are assigned to the instrument
+;;  Input:
+;;     o instrument number in MBFM_CURRENT_INSTRUMENT
+;; --------------------------------------------------------------------------
+MBFM_INST_RefreshVoices
 	;; update all voices which are assigned to the instrument
 	SET_BSR	MBFM_BASE
 	clrf	MBFM_CURRENT_VOICE, BANKED
 	lfsr	FSR1, MBFM_V1_BASE
-MBFM_INSTR_InitLoop
+MBFM_INST_RefreshVoicesLoop
 	movlw	MBFM_Vx_ASSIGNED_INSTR
 	movf	PLUSW1, W
 	cpfseq	MBFM_CURRENT_INSTRUMENT, BANKED
-	rgoto MBFM_INSTR_InitLoop_Next
+	rgoto	MBFM_INST_RefreshVoices_Next
 
 	movlw	MBFM_Vx_STAT
 	bsf	PLUSW1, MBFM_STAT_VOICE_REFRESH
@@ -273,7 +288,7 @@ MBFM_INSTR_InitLoop
 	;; transfer volume to voice registers
 	call	MBFM_MIDI_Hlp_Vol
 
-MBFM_INSTR_InitLoop_Next
+MBFM_INST_RefreshVoices_Next
 	movlw	MBFM_Vx_RECORD_LEN
 	addwf	FSR1L, F
 	movlw	0x00
@@ -281,7 +296,7 @@ MBFM_INSTR_InitLoop_Next
 	incf	MBFM_CURRENT_VOICE, F, BANKED
 	movlw	MBFM_Vx_NUM - 1
 	cpfsgt	MBFM_CURRENT_VOICE, BANKED
-	rgoto MBFM_INSTR_InitLoop
+	rgoto	MBFM_INST_RefreshVoicesLoop
 
 	;; send audio channels
 	rcall	MBFM_INSTR_SendAudioChn
@@ -326,3 +341,65 @@ MBFM_INSTR_InitAll_RAM
 	rcall	MBFM_INSTR_Init_RAM
 	incf	MBFM_CURRENT_INSTRUMENT, F, BANKED
 	rgoto	MBFM_INSTR_Init_RAM
+
+
+#if USE_SHADOW_BUFFERS
+;; --------------------------------------------------------------------------
+;;  This function copies all instrument parameters to shadow buffer
+;;  Input:
+;;     o instrument number in MBFM_CURRENT_INSTRUMENT
+;; --------------------------------------------------------------------------
+MBFM_INSTR_CopyToShadow
+	rcall	MBFM_INSTR_GetBase
+
+	clrf	PRODL
+MBFM_INSTR_CopyToShadowLoop
+	movff	INDF1, PRODH
+	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
+	addwf	FSR1H, F
+	movff	PRODH, POSTINC1
+	movlw	HIGH(MBFM_I1_BASE-MBFM_I1_SHADOW)
+	addwf	FSR1H, F
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 7, ACCESS, MBFM_INSTR_CopyToShadowLoop
+	return
+
+;; --------------------------------------------------------------------------
+;;  This function copies the shadow buffer back to instrument parameters
+;;  Input:
+;;     o instrument number in MBFM_CURRENT_INSTRUMENT
+;; --------------------------------------------------------------------------
+MBFM_INSTR_CopyFromShadow
+	rcall	MBFM_INSTR_GetBase
+
+	;; only select instrument parameters, skip name and control parameters
+	movlw	MBFM_Ix_BANK-MBFM_Ix_OP1_FLAGS_MULT
+	movwf	PRODL
+	movlw	MBFM_Ix_OP1_FLAGS_MULT
+	addwf	FSR1L, F
+MBFM_INSTR_CopyFromShadowLoop
+	rcall	MBFM_INSTR_CopyFromShadowHlp
+	decfsz	PRODL, F
+	rgoto	MBFM_INSTR_CopyFromShadowLoop
+
+	movlw	MBFM_Ix_VOLUME-MBFM_Ix_BANK
+	addwf	FSR1L, F
+	rcall	MBFM_INSTR_CopyFromShadowHlp  ; MBFM_Ix_VOLUME
+	rcall	MBFM_INSTR_CopyFromShadowHlp  ; MBFM_Ix_TRANSPOSE
+	rcall	MBFM_INSTR_CopyFromShadowHlp  ; MBFM_Ix_UNISONO
+	rcall	MBFM_INSTR_CopyFromShadowHlp  ; MBFM_Ix_ACHN_OP12
+	rcall	MBFM_INSTR_CopyFromShadowHlp  ; MBFM_Ix_ACHN_OP34
+
+	;; refresh voice registers
+	rgoto	MBFM_INST_RefreshVoices
+
+MBFM_INSTR_CopyFromShadowHlp
+	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
+	addwf	FSR1H, F
+	movff	INDF1, PRODH
+	movlw	HIGH(MBFM_I1_BASE-MBFM_I1_SHADOW)
+	addwf	FSR1H, F
+	movff	PRODH, POSTINC1
+	return
+
+#endif

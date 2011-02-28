@@ -13,6 +13,7 @@
 #define MBFM_STAT_ENGINE_DISABLE	0 ; if set, MBFM SE handler will not be processed
 #define MBFM_STAT_FORCE_REFRESH		1 ; if set, a refresh will be forced with next MBFM_SE_Update
 #define MBFM_STAT_CC_DUMP_REQ		2 ; if set, a CC dump will be sent
+#define MBFM_STAT_SHADOW_UPDATE		3 ; update of shadow parameter requested
 
 #define MBFM_UPDATE0_FLAGS_MULT		0
 #define MBFM_UPDATE0_AR_DR		1
@@ -381,7 +382,9 @@ MBFM_DR_CYM_SPLIT_UPPER	EQU	0x0f7
 	;; last address which should be stored in BankStick. Everything else will be set to zero
 MBFM_DR_LAST_BANKSTICK_ADDR EQU	MBFM_DR_CYM_SPLIT_UPPER - MBFM_DR_BASE
 
-	;; free 0xf8-0xf9
+	;; free 0xf8
+MBFM_PAR_IX		EQU	0x0f9
+
 MBFM_DR_BD_FRQL		EQU	0x0fa
 MBFM_DR_BD_FRQH		EQU	0x0fb
 MBFM_DR_HH_FRQL		EQU	0x0fc
@@ -583,4 +586,13 @@ MBFM_I4_WAVETABLE_BASE	EQU	0x780
 #else
 MBFM_EE_BUFFER		EQU	0x300		; buffer temporary used for writing WT data into EEPROM
 						; voices have to be re-initialized after use
+#endif
+
+
+#if USE_SHADOW_BUFFERS
+	;; shadow addresses of instrument records
+MBFM_I1_SHADOW		EQU	0x800 + 0 * MBFM_Ix_RECORD_LEN	; 0x800-0x87f
+MBFM_I2_SHADOW		EQU	0x800 + 1 * MBFM_Ix_RECORD_LEN	; 0x880-0x8ff
+MBFM_I3_SHADOW		EQU	0x800 + 2 * MBFM_Ix_RECORD_LEN	; 0x900-0x97f
+MBFM_I4_SHADOW		EQU	0x800 + 3 * MBFM_Ix_RECORD_LEN	; 0x980-0x9ff
 #endif
