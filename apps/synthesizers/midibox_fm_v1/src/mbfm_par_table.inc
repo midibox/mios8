@@ -16,9 +16,9 @@
 MBFM_Px_TRANSPOSE	EQU	0x02
 MBFM_Px_UNISONO		EQU	0x03
 MBFM_Px_VOLUME		EQU	0x07
-MBFM_Px_ACHN_ALL	EQU	0x0a
-MBFM_Px_ACHN_OP12	EQU	0x0b
-MBFM_Px_ACHN_OP34	EQU	0x0c
+MBFM_Px_ACHN_ALL	EQU	0x0d
+MBFM_Px_ACHN_OP12	EQU	0x0e
+MBFM_Px_ACHN_OP34	EQU	0x0f
 
 MBFM_Px_OPx_FLAGS	EQU	0x10
 MBFM_Px_OPx_MULT	EQU	0x14
@@ -220,13 +220,7 @@ CMD_PAR_WTPAR		EQU	0x10
 MBFM_PAR_TABLE_Get
 	movwf	TABLAT
 
-	mullw	2
-	movlw	MBFM_PAR_TABLE & 0xff
-	addwf	PRODL, W
-	movwf	TBLPTRL
-	movlw	MBFM_PAR_TABLE >> 8
-	addwfc	PRODH, W
-	movwf	TBLPTRH
+	TABLE_ADDR_MUL_W MBFM_PAR_TABLE, 2
 
 	;; get base address to instrument/drum/ensemble record -> FSR1
 	movf	TABLAT, W
@@ -289,12 +283,12 @@ MBFM_PAR_TABLE
 
 	db	CMD_PAR_NOP,			0			; reserved
 	db	CMD_PAR_NOP,			0			; reserved
+	db	CMD_PAR_NOP,			0			; reserved
+	db	CMD_PAR_NOP,			0			; reserved
+	db	CMD_PAR_NOP,			0			; reserved
 	db	CMD_PAR_ACHN_ALL,		MBFM_Ix_ACHN_OP12	; all audio channels at once
 	db	CMD_PAR_ACHN,			MBFM_Ix_ACHN_OP12	; audio channels of OP12
 	db	CMD_PAR_ACHN,			MBFM_Ix_ACHN_OP34	; audio channels of OP34
-	db	CMD_PAR_NOP,			0			; reserved
-	db	CMD_PAR_NOP,			0			; reserved
-	db	CMD_PAR_NOP,			0			; reserved
 
 	;; 0x10-0x1f
 	db	CMD_PAR_7BIT_TO_7_4,		MBFM_Ix_OP1_FLAGS_MULT	; OP1 AM/VIB/EGT/KSR
@@ -602,3 +596,150 @@ MBFM_PAR_TABLE
 
 ; ==========================================================================
 
+#if DISPLAY_CC_ASSIGNMENT_NAMES
+;; --------------------------------------------------------------------------
+;;  IN: index of parameter in WREG
+;;  OUT: pointer to CC Name string in TBLPTR[LHU]
+;; --------------------------------------------------------------------------
+MBFM_PAR_TABLE_CCName_Get
+	TABLE_ADDR_MUL_W MBFM_PAR_TABLE_CC_NAMES, 16
+	return
+
+MBFM_PAR_TABLE_CC_NAMES
+	;; 	<---------------->
+	db	"--------        "	; 0x00
+	db	"ModWheel        "	; 0x01
+	db	"Transpose   All "	; 0x02
+	db	"Unisono         "	; 0x03
+	db	"--------        "	; 0x04
+	db	"--------        "	; 0x05
+	db	"--------        "	; 0x06
+	db	"Volume      All "	; 0x07
+	db	"--------        "	; 0x08
+	db	"--------        "	; 0x09
+	db	"--------        "	; 0x0a
+	db	"--------        "	; 0x0b
+	db	"--------        "	; 0x0c
+	db	"AudioChn.   All "	; 0x0d
+	db	"AudioChn.   OP12"	; 0x0e
+	db	"AudioChn.   OP34"	; 0x0f
+
+	db	"OP Flags     OP1"	; 0x10
+	db	"OP Flags     OP2"	; 0x11
+	db	"OP Flags     OP3"	; 0x12
+	db	"OP Flags     OP4"	; 0x13
+	db	"OP Mult.     OP1"	; 0x14
+	db	"OP Mult.     OP2"	; 0x15
+	db	"OP Mult.     OP3"	; 0x16
+	db	"OP Mult.     OP4"	; 0x17
+	db	"OP KSL       OP1"	; 0x18
+	db	"OP KSL       OP2"	; 0x19
+	db	"OP KSL       OP3"	; 0x1a
+	db	"OP KSL       OP4"	; 0x1b
+	db	"OP Volume    OP1"	; 0x1c
+	db	"OP Volume    OP2"	; 0x1d
+	db	"OP Volume    OP3"	; 0x1e
+	db	"OP Volume    OP4"	; 0x1f
+
+	db	"OP Attack    OP1"	; 0x20
+	db	"OP Attack    OP2"	; 0x21
+	db	"OP Attack    OP3"	; 0x22
+	db	"OP Attack    OP4"	; 0x23
+	db	"OP Decay     OP1"	; 0x24
+	db	"OP Decay     OP2"	; 0x25
+	db	"OP Decay     OP3"	; 0x26
+	db	"OP Decay     OP4"	; 0x27
+	db	"OP Sustain   OP1"	; 0x28
+	db	"OP Sustain   OP2"	; 0x29
+	db	"OP Sustain   OP3"	; 0x2a
+	db	"OP Sustain   OP4"	; 0x2b
+	db	"OP Release   OP1"	; 0x2c
+	db	"OP Release   OP2"	; 0x2d
+	db	"OP Release   OP3"	; 0x2e
+	db	"OP Release   OP4"	; 0x2f
+
+	db	"OP Waveform  OP1"	; 0x30
+	db	"OP Waveform  OP2"	; 0x31
+	db	"OP Waveform  OP3"	; 0x32
+	db	"OP Waveform  OP4"	; 0x33
+	db	"--------        "	; 0x34
+	db	"--------        "	; 0x35
+	db	"--------        "	; 0x36
+	db	"--------        "	; 0x37
+	db	"OP Feedback  OP1"	; 0x38
+	db	"--------        "	; 0x39
+	db	"--------        "	; 0x3a
+	db	"--------        "	; 0x3b
+	db	"OP Algorithm    "	; 0x3c
+	db	"--------        "	; 0x3d
+	db	"--------        "	; 0x3e
+	db	"--------        "	; 0x3f
+
+	db	"Mode        LFO1"	; 0x40
+	db	"Rate        LFO1"	; 0x41
+	db	"Phase       LFO1"	; 0x42
+	db	"Pitch Depth LFO1"	; 0x43
+	db	"Vol1 Depth  LFO1"	; 0x44
+	db	"Vol2 Depth  LFO1"	; 0x45
+	db	"Vol3 Depth  LFO1"	; 0x46
+	db	"Vol4 Depth  LFO1"	; 0x47
+	db	"LFO2Depth   LFO1"	; 0x48
+	db	"AOUTDepth   LFO1"	; 0x49
+	db	"--------        "	; 0x4a
+	db	"--------        "	; 0x4b
+	db	"CC Assign.   Vel"	; 0x4c
+	db	"Init Value   Vel"	; 0x4d
+	db	"Depth        Vel"	; 0x4e
+	db	"--------        "	; 0x4f
+
+	db	"Mode        LFO2"	; 0x50
+	db	"Rate        LFO2"	; 0x51
+	db	"Phase       LFO2"	; 0x52
+	db	"Pitch Depth LFO2"	; 0x53
+	db	"Vol1 Depth  LFO2"	; 0x54
+	db	"Vol2 Depth  LFO2"	; 0x55
+	db	"Vol3 Depth  LFO2"	; 0x56
+	db	"Vol4 Depth  LFO2"	; 0x57
+	db	"LFO2 Depth  LFO2"	; 0x58
+	db	"AOUT Depth  LFO2"	; 0x59
+	db	"--------        "	; 0x5a
+	db	"--------        "	; 0x5b
+	db	"CC Assign.   Aft"	; 0x5c
+	db	"Init Value   Aft"	; 0x5d
+	db	"Depth        Aft"	; 0x5e
+	db	"--------        "	; 0x5f
+
+	db	"Mode         EG5"	; 0x60
+	db	"Attack       EG5"	; 0x61
+	db	"AttLevel     EG5"	; 0x62
+	db	"Decay1       EG5"	; 0x63
+	db	"DecLevel     EG5"	; 0x64
+	db	"Decay2       EG5"	; 0x65
+	db	"Sustain      EG5"	; 0x66
+	db	"Release      EG5"	; 0x67
+	db	"Curve        EG5"	; 0x68
+	db	"Pitch Depth  EG5"	; 0x69
+	db	"Vol1 Depth   EG5"	; 0x6a
+	db	"Vol2 Depth   EG5"	; 0x6b
+	db	"Vol3 Depth   EG5"	; 0x6c
+	db	"Vol4 Depth   EG5"	; 0x6d
+	db	"LFO1 Depth   EG5"	; 0x6e
+	db	"AOUT Depth   EG5"	; 0x6f
+
+	db	"Play Mode       "	; 0x70
+	db	"--------        "	; 0x71
+	db	"MIDI Sync       "	; 0x72
+	db	"WT Mode       WT"	; 0x73
+	db	"Finetune        "	; 0x74
+	db	"Pitch Range     "	; 0x75
+	db	"Portamento Rate "	; 0x76
+	db	"WT Rate       WT"	; 0x77
+	db	"WT Par1 Asg.  WT"	; 0x78
+	db	"WT Par2 Asg.  WT"	; 0x79
+	db	"WT Par3 Asg.  WT"	; 0x7a
+	db	"--------        "	; 0x7b
+	db	"CC Assign.   Mod"	; 0x7c
+	db	"Init Value   Mod"	; 0x7d
+	db	"Depth        Mod"	; 0x7e
+	db	"--------        "	; 0x7f
+#endif

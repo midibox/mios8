@@ -16,7 +16,7 @@
 ;;  OUT: CC value in WREG
 ;; --------------------------------------------------------------------------
 MBFM_PAROUT_Get
-	rcall	MBFM_PAR_TABLE_Get
+	call	MBFM_PAR_TABLE_Get
 	;; now:
 	;; command   is in MIOS_PARAMETER2
 	;; parameter is in FSR1 (pointer)

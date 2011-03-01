@@ -92,6 +92,9 @@
 	;; shadow buffers for non-destructive modulations? (requires PIC18F4685!)
 #define USE_SHADOW_BUFFERS  1
 
+	;; display CC assignment names? (requires PIC18F4685!)
+#define DISPLAY_CC_ASSIGNMENT_NAMES 1
+
 	;; only for debugging: prints the MBFM load at the right upper edge of the 2x40 LCD
 #define DISPLAY_PERFORMANCE 0
 

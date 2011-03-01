@@ -98,13 +98,14 @@
 ;; ==========================================================================
 
 #if CS_ENABLED == 1
+#define CS_STAT_STARTUP_DONE		0	; flag 0: for startup message
 #define CS_STAT_DISPLAY_INIT_REQ	1	; flag 1: request a display initialization
 #define CS_STAT_DISPLAY_UPDATE_REQ	2	; flag 2: request a display update
 #define CS_STAT_DISPLAY_LONGLABEL_REQ	3	; flag 3: request a long label message
 #define CS_STAT_CURSOR_FLASH		4	; flag 4: handled by cs_menu_timer.inc
 #define CS_STAT_MODIFY_PARAMETER	5	; flag 5: modify parameter if set, else select parameter
 #define CS_STAT_MODIFY_NAME		6	; flag 6: modify name if set, else modify parameter
-#define CS_STAT_STARTUP_DONE		7	; flag 7: for startup message
+#define CS_STAT_BIG_MSG			7	; flag 7: e.g. for temporary print parameter name
 
 #define CS_MENU_MODE_MERGER		0	; flag 0: Link mode (merger on/off)
 #define CS_MENU_MODE_CC			1	; flag 1: CC mode

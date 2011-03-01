@@ -30,7 +30,7 @@ MBFM_PARIN_Set_Cont
 	SET_BSR	MBFM_BASE
 	movwf	MBFM_PAR_IX, BANKED
 
-	rcall	MBFM_PAR_TABLE_Get
+	call	MBFM_PAR_TABLE_Get
 	;; now:
 	;; value     is in MIOS_PARAMETER1
 	;; command   is in MIOS_PARAMETER2
@@ -252,11 +252,14 @@ MBFM_PARIN_Cmd_MODWHEEL
 	xorlw	MBFM_Ix_MODWHEEL_ASSIGN
 	bnz	MBFM_PARIN_Cmd_MODWHEEL_NoAsg
 MBFM_PARIN_Cmd_MODWHEEL_Asg
+	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_MODWHEEL_AsgNoSh
+MBFM_PARIN_Cmd_MODWHEEL_AsgSh
 	;; copy new assignment into shadow buffer
 	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
 	movff	PRODH, POSTINC1
+MBFM_PARIN_Cmd_MODWHEEL_AsgNoSh
 	;; copy all parameters from shadow buffer
 	call	MBFM_INSTR_CopyFromShadow
 MBFM_PARIN_Cmd_MODWHEEL_NoAsg
@@ -305,11 +308,14 @@ MBFM_PARIN_Cmd_VELOCITY
 	xorlw	MBFM_Ix_VELOCITY_ASSIGN
 	bnz	MBFM_PARIN_Cmd_VELOCITY_NoAsg
 MBFM_PARIN_Cmd_VELOCITY_Asg
+	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_VELOCITY_AsgNoSh
+MBFM_PARIN_Cmd_VELOCITY_AsgSh
 	;; copy new assignment into shadow buffer
 	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
 	movff	PRODH, POSTINC1
+MBFM_PARIN_Cmd_VELOCITY_AsgNoSh
 	;; copy all parameters from shadow buffer
 	call	MBFM_INSTR_CopyFromShadow
 MBFM_PARIN_Cmd_VELOCITY_NoAsg
@@ -357,11 +363,14 @@ MBFM_PARIN_Cmd_AFTERTOUCH
 	xorlw	MBFM_Ix_AFTERTOUCH_ASSIGN
 	bnz	MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
 MBFM_PARIN_Cmd_AFTERTOUCH_Asg
+	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_AFTERTOUCH_AsgNoSh
+MBFM_PARIN_Cmd_AFTERTOUCH_AsgSh
 	;; copy new assignment into shadow buffer
 	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
 	movff	PRODH, POSTINC1
+MBFM_PARIN_Cmd_AFTERTOUCH_AsgNoSh
 	;; copy all parameters from shadow buffer
 	call	MBFM_INSTR_CopyFromShadow
 MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
@@ -404,11 +413,15 @@ MBFM_PARIN_Cmd_WTPAR
 	andlw	0x7f
 	xorwf	MIOS_PARAMETER1, W
 	bz	MBFM_PARIN_Cmd_WTPAR_NoAsg
+
+	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_WTPAR_NoSh
+MBFM_PARIN_Cmd_WTPAR_Sh
 	;; copy new assignment into shadow buffer
 	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
 	movff	PRODH, POSTINC1
+MBFM_PARIN_Cmd_WTPAR_NoSh
 MBFM_PARIN_Cmd_WTPAR_Asg
 	;; copy all parameters from shadow buffer
 	call	MBFM_INSTR_CopyFromShadow

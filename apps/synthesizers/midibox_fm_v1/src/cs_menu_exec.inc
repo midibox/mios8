@@ -26,9 +26,10 @@ EXEC_MENU	EQU	0x01
 EXEC_MENU_WT	EQU	0x02
 EXEC_MENU_SAVE	EQU	0x03
 EXEC_SELPAR	EQU	0x04
-EXEC_TOGPAR	EQU	0x05
-EXEC_RND	EQU	0x06
-EXEC_SAVE_IT	EQU	0x07
+EXEC_SELPAR_ASG	EQU	0x05
+EXEC_TOGPAR	EQU	0x06
+EXEC_RND	EQU	0x07
+EXEC_SAVE_IT	EQU	0x08
 
 
 ; ==========================================================================
@@ -36,12 +37,13 @@ EXEC_SAVE_IT	EQU	0x07
 ;; IN: EXEC_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_EXEC_Handler
-	JUMPTABLE_2BYTES (0x07+1)	; entries
+	JUMPTABLE_2BYTES (0x08+1)	; entries
 	rgoto	CS_MENU_EXEC_NOP
 	rgoto	CS_MENU_EXEC_Menu
 	rgoto	CS_MENU_EXEC_Menu_WT
 	rgoto	CS_MENU_EXEC_Menu_Save
 	rgoto	CS_MENU_EXEC_SelPar
+	rgoto	CS_MENU_EXEC_SelPar_Asg
 	rgoto	CS_MENU_EXEC_TogPar
 	rgoto	CS_MENU_EXEC_Rnd
 	rgoto	CS_MENU_EXEC_SaveIt
@@ -115,15 +117,17 @@ CS_MENU_EXEC_SelPar
 	bsf	CS_STAT, CS_STAT_MODIFY_PARAMETER
 	;; clear counter so that cs_menu_timer.inc counts from zero and the menu entry is marked for a short time
 	clrf	CS_CURSOR_CTR
+	;; ensure that "Big Message" not displayed anymore
+	bcf	CS_STAT, CS_STAT_BIG_MSG
 	;; clear "CS_STAT_CURSOR_FLASH" bit (see cs_menu.inc for the handling)
 	bcf	CS_STAT, CS_STAT_CURSOR_FLASH
 	;; request a display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ	; (see cs_menu.inc)
 
 	;; copy new max value to CS_MENU_PARAMETER_MAX_L
-	rcall	CS_MENU_Hlp_GetCursorPosEntry
+	call	CS_MENU_Hlp_GetCursorPosEntry
 	movlw	CS_MENU_ENTRY_MAX_OFFSET
-	rcall	CS_MENU_Hlp_GetPointer
+	call	CS_MENU_Hlp_GetPointer
 
 	;; read and copy
 	tblrd*+
@@ -136,6 +140,28 @@ CS_MENU_EXEC_SelPar
 
 	;; update parameter value
 	goto	CS_MENU_EncParameterSet
+
+; ==========================================================================
+;  Similar to SelPar, but prints parameter assignment as big screen message
+; ==========================================================================
+CS_MENU_EXEC_SelPar_Asg
+	;; handle parameter selection
+	rcall	CS_MENU_EXEC_SelPar
+
+#if DISPLAY_CC_ASSIGNMENT_NAMES
+	;; ignore if no menu item
+	movf	CS_MENU_ENTRIES, W
+	cpfslt	CS_MENU_CURSOR_POS, ACCESS
+	return
+
+	;; clear screen
+	call	MIOS_LCD_Clear
+
+	;; print big message
+	goto	CS_MENU_Page_BigMsg_ParName
+#else
+	return
+#endif
 
 
 ; ==========================================================================
@@ -247,6 +273,7 @@ CS_MENU_EXEC_Hlp_Deselect	; used by CS_MENU_EXEC_TogPar
 	;; the user has to press the exec button once more to leave the menu
 	bcf	CS_STAT, CS_STAT_MODIFY_PARAMETER
 	bcf	CS_STAT, CS_STAT_MODIFY_NAME
+	bcf	CS_STAT, CS_STAT_BIG_MSG
 	;; request update of display
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	;; clear counter so that cs_menu_timer.inc counts from zero and the menu entry is marked for a short time

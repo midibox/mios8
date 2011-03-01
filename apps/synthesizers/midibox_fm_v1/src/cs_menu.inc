@@ -69,7 +69,7 @@ CS_MENU_Reset_Loop
 ;; --------------------------------------------------------------------------
 CS_MENU_Handler
 	;; call EEPROM write handler
-	rcall	CS_MENU_Write_EEPROM
+	call	CS_MENU_Write_EEPROM
 
 	;; check if new row/column has been selected in matrix
 	call	CS_MENU_MATRIX_Update
@@ -86,6 +86,8 @@ CS_MENU_Handler_Init
 	clrf	CS_CURSOR_CTR
 	;; clear "CS_STAT_CURSOR_FLASH" bit (see cs_menu.inc for the handling)
 	bcf	CS_STAT, CS_STAT_CURSOR_FLASH
+	;; disable "big" message
+	bcf	CS_STAT, CS_STAT_BIG_MSG
 
 	;; if not in CFG page
 	BRA_IFSET CS_MENU_MODE, CS_MENU_MODE_CFG, ACCESS, CS_MENU_Handler_Init_CFGSkip
@@ -666,12 +668,20 @@ CS_MENU_Page_Parameters
 	BRA_IFSET CS_STAT, CS_STAT_MODIFY_NAME, ACCESS, CS_MENU_Page_EditName
 
 	;; print menu item name
+	;; skip if page or "big" message is print
+	BRA_IFSET CS_STAT, CS_STAT_BIG_MSG, ACCESS, CS_MENU_Page_Parameters_SkipUL
+CS_MENU_Page_Parameters_UL
 	movlw	0x00
 	call	CS_MENU_PrintILine
+CS_MENU_Page_Parameters_SkipUL
 
-	;; print parameter value
+	;; print parameter value 
+	;; skip if "big" big message is print
+	BRA_IFSET CS_STAT, CS_STAT_BIG_MSG, ACCESS, CS_MENU_Page_Parameters_SkipLL
+CS_MENU_Page_Parameters_LL
 	movlw	0x40
 	call	CS_MENU_PrintPLine
+CS_MENU_Page_Parameters_SkipLL
 
 	;; increment counter until last step reached
 	incf	CS_MENU_REFRESH_ITEM_CTR, F
@@ -696,6 +706,10 @@ CS_MENU_Page_Parameters
 	cpfslt	CS_MENU_CURSOR_POS, ACCESS
 	return
 
+	;; don't set cursor if "big message" is visible
+	btfsc	CS_STAT, CS_STAT_BIG_MSG
+	return
+
 	;; set cursor to: 0x40 + 5*(CS_MENU_CURSOR_POS-CS_MENU_PAGE_OFFSET) + 2
 	movf	CS_MENU_PAGE_OFFSET, W
 	subwf	CS_MENU_CURSOR_POS, W
@@ -705,6 +719,39 @@ CS_MENU_Page_Parameters
 	call	MIOS_LCD_CursorSet
 
 	return
+
+#if DISPLAY_CC_ASSIGNMENT_NAMES
+;; --------------------------------------------------------------------------
+;;  print parameter name on whole screen
+;;  called when a parameter assignment is edited
+;; --------------------------------------------------------------------------
+				     ;;  <------------------>
+TEXT_CS_MENU_PARAMETER STRING 20, 0x00, "Parameter Assign.:  "
+				     ;;  12341234123412341234
+CS_MENU_Page_BigMsg_ParName
+	;; notify that "big" message will be print (until item is deselected)
+	bsf	CS_STAT, CS_STAT_BIG_MSG
+
+	;; print uppper line
+	TABLE_ADDR TEXT_CS_MENU_PARAMETER
+	call	MIOS_LCD_PrintString
+
+	;; print lower line
+	movlw	0x40
+	call	MIOS_LCD_CursorSet
+
+	movf	CS_MENU_PARAMETER_L, W
+	call	MIOS_LCD_PrintBCD3
+	movlw	'|'
+	call	MIOS_LCD_PrintChar
+
+	movf	CS_MENU_PARAMETER_L, W
+	call	MBFM_PAR_TABLE_CCName_Get
+	movlw	16
+	call	MIOS_LCD_PrintPreconfString
+
+	return
+#endif
 
 
 ;; --------------------------------------------------------------------------
@@ -1532,6 +1579,23 @@ CS_MENU_ParameterUpdate
 	movf	MIOS_PARAMETER3, W
 	rcall	CS_MENU_P2R_Handler
 
+#if DISPLAY_CC_ASSIGNMENT_NAMES
+	;; temporary print long label on special menu items which are listed below
+	;; get handler IDs
+	rcall	CS_MENU_GetHandlerIDs
+	;; PRINT ID in MIOS_PARAMETER1
+	movf	MIOS_PARAMETER1, W
+	xorlw	PRINT_Px_CCASG		; CC Assignment
+	bz	CS_MENU_ParameterUpdateParName
+	rgoto	CS_MENU_ParameterUpdateNoBigMsg
+
+CS_MENU_ParameterUpdateParName
+	rcall	CS_MENU_Page_BigMsg_ParName
+	;; 	rgoto	CS_MENU_ParameterUpdateParName_C
+CS_MENU_ParameterUpdateParName_C
+CS_MENU_ParameterUpdateNoBigMsg
+#endif
+
 	;; now request a display update so that we see the new parameter on screen
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ	; (see tc_display.inc)
 	;; set counter to 2*2 so that the cs_menu_timer.inc function prints the value
@@ -1818,7 +1882,7 @@ CS_MENU_ENC_CSInc
 
 	;; change to menu
 	movwf	CS_MENU
-	rcall	CS_MENU_Page_Init
+	call	CS_MENU_Page_Init
 
 	;; set new page offset and cursor pos
 	movff	MIOS_PARAMETER1, CS_MENU_CURSOR_POS
@@ -1847,7 +1911,7 @@ CS_MENU_ENC_CSInc
 CS_MENU_ENC_CSInc_Jmp
 	;; change back to old menu and cursor pos
 	movff	SAVED_CS_MENU, CS_MENU
-	rcall	CS_MENU_Page_Init
+	call	CS_MENU_Page_Init
 	movff	SAVED_CS_MENU_PAGE_OFFSET, CS_MENU_PAGE_OFFSET
 	movff	SAVED_CS_MENU_CURSOR_POS, CS_MENU_CURSOR_POS
 CS_MENU_ENC_CSInc_NoJmp
