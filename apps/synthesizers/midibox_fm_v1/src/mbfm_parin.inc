@@ -243,27 +243,26 @@ MBFM_PARIN_Cmd_MODWHEEL
 	movff	MIOS_PARAMETER1, INDF1
 
 #if USE_SHADOW_BUFFERS
-	movf	MIOS_PARAMETER1, W  ; ignore if modwheel assigned to itself
-	xorlw	MBFM_Ix_MODWHEEL_ASSIGN
-	bz	MBFM_PARIN_Cmd_MODWHEEL_NoAsg
-	;; if any assignment changed: restore complete shadow buffer (not only the changed parameter... keep it simple!)
-	movf	FSR1L, W
-	andlw	0x7f
-	xorlw	MBFM_Ix_MODWHEEL_ASSIGN
-	bnz	MBFM_PARIN_Cmd_MODWHEEL_NoAsg
-	xorlw	MBFM_Ix_MODWHEEL_INIT ^ MBFM_Ix_MODWHEEL_ASSIGN
-	bnz	MBFM_PARIN_Cmd_MODWHEEL_NoAsg
-	xorlw	MBFM_Ix_MODWHEEL_DEPTH ^ MBFM_Ix_MODWHEEL_INIT
-	bnz	MBFM_PARIN_Cmd_MODWHEEL_NoAsg
-MBFM_PARIN_Cmd_MODWHEEL_Asg
+	;; copy new value into shadow buffer
 	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_MODWHEEL_AsgNoSh
 MBFM_PARIN_Cmd_MODWHEEL_AsgSh
-	;; copy new assignment into shadow buffer
 	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
 	movff	PRODH, POSTINC1
 MBFM_PARIN_Cmd_MODWHEEL_AsgNoSh
+
+	;; ignore if modwheel assigned to itself
+	movf	MIOS_PARAMETER1, W
+	xorlw	MBFM_Ix_MODWHEEL_ASSIGN
+	bz	MBFM_PARIN_Cmd_MODWHEEL_NoAsg
+
+	;; if any assignment changed: restore complete shadow buffer (not only the changed parameter... keep it simple!)
+	movf	FSR1L, W
+	andlw	0x7f
+	xorlw	MBFM_Ix_MODWHEEL_ASSIGN
+	bnz	MBFM_PARIN_Cmd_MODWHEEL_NoAsg
+MBFM_PARIN_Cmd_MODWHEEL_Asg
 	;; copy all parameters from shadow buffer
 	call	MBFM_INSTR_CopyFromShadow
 MBFM_PARIN_Cmd_MODWHEEL_NoAsg
@@ -303,27 +302,26 @@ MBFM_PARIN_Cmd_VELOCITY
 	movff	MIOS_PARAMETER1, INDF1
 
 #if USE_SHADOW_BUFFERS
-	movf	MIOS_PARAMETER1, W  ; ignore if velocity assigned to itself
-	xorlw	MBFM_Ix_VELOCITY_ASSIGN
-	bz	MBFM_PARIN_Cmd_VELOCITY_NoAsg
-	;; if any assignment changed: restore complete shadow buffer (not only the changed parameter... keep it simple!)
-	movf	FSR1L, W
-	andlw	0x7f
-	xorlw	MBFM_Ix_VELOCITY_ASSIGN
-	bnz	MBFM_PARIN_Cmd_VELOCITY_NoAsg
-	xorlw	MBFM_Ix_VELOCITY_INIT ^ MBFM_Ix_VELOCITY_ASSIGN
-	bnz	MBFM_PARIN_Cmd_VELOCITY_NoAsg
-	xorlw	MBFM_Ix_VELOCITY_DEPTH ^ MBFM_Ix_VELOCITY_INIT
-	bnz	MBFM_PARIN_Cmd_VELOCITY_NoAsg
-MBFM_PARIN_Cmd_VELOCITY_Asg
+	;; copy new value into shadow buffer
 	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_VELOCITY_AsgNoSh
 MBFM_PARIN_Cmd_VELOCITY_AsgSh
-	;; copy new assignment into shadow buffer
 	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
 	movff	PRODH, POSTINC1
 MBFM_PARIN_Cmd_VELOCITY_AsgNoSh
+
+	;; ignore if velocity assigned to itself
+	movf	MIOS_PARAMETER1, W
+	xorlw	MBFM_Ix_VELOCITY_ASSIGN
+	bz	MBFM_PARIN_Cmd_VELOCITY_NoAsg
+
+	;; if any assignment changed: restore complete shadow buffer (not only the changed parameter... keep it simple!)
+	movf	FSR1L, W
+	andlw	0x7f
+	xorlw	MBFM_Ix_VELOCITY_ASSIGN
+	bnz	MBFM_PARIN_Cmd_VELOCITY_NoAsg
+MBFM_PARIN_Cmd_VELOCITY_Asg
 	;; copy all parameters from shadow buffer
 	call	MBFM_INSTR_CopyFromShadow
 MBFM_PARIN_Cmd_VELOCITY_NoAsg
@@ -362,27 +360,26 @@ MBFM_PARIN_Cmd_AFTERTOUCH
 	movff	MIOS_PARAMETER1, INDF1
 
 #if USE_SHADOW_BUFFERS
-	movf	MIOS_PARAMETER1, W  ; ignore if aftertouch assigned to itself
-	xorlw	MBFM_Ix_AFTERTOUCH_ASSIGN
-	bz	MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
-	;; if any assignment changed: restore complete shadow buffer (not only the changed parameter... keep it simple!)
-	movf	FSR1L, W
-	andlw	0x7f
-	xorlw	MBFM_Ix_AFTERTOUCH_ASSIGN
-	bnz	MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
-	xorlw	MBFM_Ix_AFTERTOUCH_INIT ^ MBFM_Ix_AFTERTOUCH_ASSIGN
-	bnz	MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
-	xorlw	MBFM_Ix_AFTERTOUCH_DEPTH ^ MBFM_Ix_AFTERTOUCH_INIT
-	bnz	MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
-MBFM_PARIN_Cmd_AFTERTOUCH_Asg
+	;; copy new value into shadow buffer
 	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_AFTERTOUCH_AsgNoSh
 MBFM_PARIN_Cmd_AFTERTOUCH_AsgSh
-	;; copy new assignment into shadow buffer
 	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
 	movff	PRODH, POSTINC1
 MBFM_PARIN_Cmd_AFTERTOUCH_AsgNoSh
+
+	;; ignore if aftertouch assigned to itself
+	movf	MIOS_PARAMETER1, W
+	xorlw	MBFM_Ix_AFTERTOUCH_ASSIGN
+	bz	MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
+
+	;; if any assignment changed: restore complete shadow buffer (not only the changed parameter... keep it simple!)
+	movf	FSR1L, W
+	andlw	0x7f
+	xorlw	MBFM_Ix_AFTERTOUCH_ASSIGN
+	bnz	MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
+MBFM_PARIN_Cmd_AFTERTOUCH_Asg
 	;; copy all parameters from shadow buffer
 	call	MBFM_INSTR_CopyFromShadow
 MBFM_PARIN_Cmd_AFTERTOUCH_NoAsg
