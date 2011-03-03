@@ -246,10 +246,9 @@ MBFM_PARIN_Cmd_MODWHEEL
 	;; copy new value into shadow buffer
 	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_MODWHEEL_AsgNoSh
 MBFM_PARIN_Cmd_MODWHEEL_AsgSh
-	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
-	movff	PRODH, POSTINC1
+	movff	MIOS_PARAMETER1, INDF1
 MBFM_PARIN_Cmd_MODWHEEL_AsgNoSh
 
 	;; ignore if modwheel assigned to itself
@@ -305,10 +304,9 @@ MBFM_PARIN_Cmd_VELOCITY
 	;; copy new value into shadow buffer
 	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_VELOCITY_AsgNoSh
 MBFM_PARIN_Cmd_VELOCITY_AsgSh
-	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
-	movff	PRODH, POSTINC1
+	movff	MIOS_PARAMETER1, INDF1
 MBFM_PARIN_Cmd_VELOCITY_AsgNoSh
 
 	;; ignore if velocity assigned to itself
@@ -363,10 +361,9 @@ MBFM_PARIN_Cmd_AFTERTOUCH
 	;; copy new value into shadow buffer
 	BRA_IFCLR MBFM_STAT, MBFM_STAT_SHADOW_UPDATE, ACCESS, MBFM_PARIN_Cmd_AFTERTOUCH_AsgNoSh
 MBFM_PARIN_Cmd_AFTERTOUCH_AsgSh
-	movff	INDF1, PRODH
 	movlw	HIGH(MBFM_I1_SHADOW-MBFM_I1_BASE)
 	addwf	FSR1H, F
-	movff	PRODH, POSTINC1
+	movff	MIOS_PARAMETER1, INDF1
 MBFM_PARIN_Cmd_AFTERTOUCH_AsgNoSh
 
 	;; ignore if aftertouch assigned to itself
