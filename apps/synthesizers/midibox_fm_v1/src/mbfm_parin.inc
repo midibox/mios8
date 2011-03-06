@@ -94,25 +94,30 @@ MBFM_PARIN_SysEx_Set_Norm
 MBFM_PARIN_Modulate
 	movf	MIOS_PARAMETER2, W	; multiply depth with value
 	andlw	0x3f
+	bz	MBFM_PARIN_Modulate_Cont  ; depth == 0
 	btfss	MIOS_PARAMETER2, 6
-	sublw 0x3f
+	sublw	0x3f
+	btfss	MIOS_PARAMETER2, 6
+	addlw	1
+
 	clrc
-	rlf	WREG, F
 	rlf	WREG, W
+	addlw	2
 	mulwf	MIOS_PARAMETER1, ACCESS
 
 	movf	PRODH, W
 	BRA_IFSET MIOS_PARAMETER2, 6, ACCESS, MBFM_PARIN_Modulate_Pos
 MBFM_PARIN_Modulate_Neg
-	xorlw	0xff
+ 	xorlw	0xff
+	addlw	1
 	addwf	MIOS_PARAMETER3, W
 	btfsc	WREG, 7
-	movlw 0x00
+	movlw	0x00
 	goto	MBFM_PARIN_Modulate_Cont
 MBFM_PARIN_Modulate_Pos
 	addwf	MIOS_PARAMETER3, W
 	btfsc	WREG, 7
-	movlw 0x7f
+	movlw	0x7f
 MBFM_PARIN_Modulate_Cont
 	return
 
