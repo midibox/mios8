@@ -17,6 +17,11 @@
 /*** hardware flags **********************************************************/
 #include <hw_flags.h>
 
+/*** fix false-positive syntax errors in eclipse cdt *************************/
+#ifdef __CDT_PARSER__
+    #define __wparam
+#endif
+
 /*** general MIOS definitions ************************************************/
 #define MIOS_MIDI_INTERFACE_COMMON	0x00
 #define MIOS_MIDI_INTERFACE_TO_HOST	0x01
