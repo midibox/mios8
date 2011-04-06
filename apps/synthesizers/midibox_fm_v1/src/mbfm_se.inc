@@ -1835,6 +1835,12 @@ MBFM_SE_Wt_Loop_Next
 MBFM_SE_AOUT
 	clrf	MBFM_SE_VOICE_CTR, BANKED	; using VOICE_CTR as AOUT counter
 MBFM_SE_AOUT_Loop
+	;; pointer to MBFM_AOUT_BASE -> FSR1
+	lfsr	FSR1, MBFM_AOUT_BASE
+	rlf	MBFM_SE_VOICE_CTR, W, BANKED
+	andlw	0xfe
+	addwf	FSR1L, F
+
 	;; pointer to assigned instrument -> FSR0
 	lfsr	FSR0, MBFM_I1_BASE
 	movlw	MBFM_AOUTx_ASSIGN
@@ -1845,12 +1851,6 @@ MBFM_SE_AOUT_Loop
 	addwf	FSR0L, F
 	movf	PRODH, W
 	addwf	FSR0H, F
-
-	;; pointer to MBFM_AOUT_BASE -> FSR1
-	lfsr	FSR1, MBFM_AOUT_BASE
-	rlf	MBFM_SE_VOICE_CTR, W, BANKED
-	andlw	0xfe
-	addwf	FSR1L, F
 
 	;; pointer to voice -> FSR2
 	lfsr	FSR2, MBFM_V1_BASE
