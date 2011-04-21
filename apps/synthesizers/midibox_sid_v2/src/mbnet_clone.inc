@@ -3,6 +3,14 @@
 ;; MBNet Clone Code -- must be located at the begin of the user flash range
 ;; reserved region: 0x3300-0x3500
 ;
+; NEW: common MBNet routines are running with ECAN mode #2 (FIFO) now, but
+; this variant is coded for ECAN Mode #1
+;
+; In order to ensure that users are still able to update their Slave SIDs, this
+; code hasn't been changed (because it won't be updated during cloning).
+; Instead we switch to ECAN Mode #1 *before* MBNET_CLONE is called to achieve
+; the same preconditions as before.
+;
 ; ==========================================================================
 ;
 ;  Copyright 2007 Thorsten Klose (tk@midibox.org)

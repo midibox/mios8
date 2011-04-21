@@ -135,8 +135,8 @@ MBNET_ReInit
 	movlw	0x80
 	rcall	MBNET_ECAN_ChangeMode
 
-	;; set ECAN mode 1 (enhanced legacy mode)
-	movlw	0x40
+	;; set ECAN mode 2 (enhanced FIFO mode)
+	movlw	0x80
 	movwf	ECANCON
 
 	;; set bit rate values
@@ -159,10 +159,8 @@ MBNET_ReInit
 	movwf	RXB1CON, BANKED	; all valid messages, use acceptance filter 0
 
 	;; all additional message buffers are configured for receive mode
-	;; note: FIFO functionality (mode 2) not enabled, since we need a separate receive buffer for acknoweldge messages
 	SET_BSR	BSEL0
-	movlw	b'00000000'
-	movwf	BSEL0, BANKED
+	clrf	BSEL0, BANKED
 
 	;; clear receive/transmit mode of additional message buffers
 	SET_BSR	B0CON
@@ -173,9 +171,9 @@ MBNET_ReInit
 	clrf	B4CON, BANKED
 	clrf	B5CON, BANKED
 
-	;; filter #0 used for FIFO, filter #1 for acknowledge messages, all other filters disabled
+	;; filter #0 used for FIFO, all other filters disabled
 	SET_BSR	RXFCON0
-	movlw	0x03
+	movlw	0x01
 	movwf	RXFCON0, BANKED
 	clrf	RXFCON1, BANKED
 
@@ -183,11 +181,9 @@ MBNET_ReInit
 	SET_BSR	SDFLC
 	clrf	SDFLC, BANKED
 
-	;; assign filter #0 to RX0, RX1 B0-B4 buffers
-	;; assign filter #1 to B5 buffer (0x7)
+	;; assign filter #0 to all buffers
 	SET_BSR	RXFBCON0
-	movlw	(7 << 4) | (0 << 0)
-	movwf	RXFBCON0, BANKED
+	clrf	RXFBCON0, BANKED
 	clrf	RXFBCON1, BANKED
 	clrf	RXFBCON2, BANKED
 	clrf	RXFBCON3, BANKED
@@ -213,16 +209,10 @@ MBNET_ReInit
 	lfsr	FSR1, RXF0SIDH
 	rcall	MBNET_SetID
 
-	;; setup filter #1 - we check for REQUEST_NODE=MIOS Device ID and ACK=1
-	movff	MBNET_MY_ID, MBNET_MASTER_ID
-	lfsr	FSR1, RXF1SIDH
-	movlw	MBNET_ACK_TOS_OK
-	rcall	MBNET_SetAckID
-
-	;; acceptance mask for all filters: only ACK and REQUEST_NODE are checked
+	;; acceptance mask for all filters: only REQUEST_NODE is checked
 	;; always expect extended IDs
 	SET_BSR	RXM0SIDH
-	movlw	0xff
+	movlw	0x7f
 	movwf	RXM0SIDH, BANKED
  	movlw	0x08	; extended frames are required
 	movwf	RXM0SIDL, BANKED
@@ -249,7 +239,7 @@ MBNET_ConHandler
 	movf	MBNET_MY_ID, W, BANKED
 	bnz	MBNET_ConHandler_End
 
-	;; check all 32 loops
+	;; check all 64 loops
 	decf	MBNET_RETRY_WAIT_CTR, W, BANKED
 	andlw	0x3f
 	movwf	MBNET_RETRY_WAIT_CTR, BANKED
@@ -282,11 +272,11 @@ MBNET_ConHandler
 	iorwf	MBNET_NODE_AVAIL, F, BANKED
 
 	;; send a ping, wait for a pong
-	movff	MBNET_RETRY_NODE, MBNET_SLAVE_ID	; prepare transmission
+	movff	MBNET_RETRY_NODE, MBNET_SLAVE_ID; prepare transmission
 	clrf	MBNET_EID_L, BANKED		; EID[LH] always 0
 	clrf	MBNET_EID_H, BANKED
 	movlw	MBNET_TOS_PING			; TOS
-	rcall	MBNET_Tx_Prepare			; returns pointer to DLC of Tx buffer in FSR1
+	rcall	MBNET_Tx_Prepare		; returns pointer to DLC of Tx buffer in FSR1
 	bnz	MBNET_ConHandler_End		; skip if node still not available
 
 	movlw	0				; 0 bytes to send
@@ -330,21 +320,12 @@ MBNET_RxHandler
 	return
 
 	;; check if something has been received
-	lfsr	FSR1, RXB0CON
-	BRA_IFSET INDF1, RXFUL, ACCESS, MBNET_RxHandler_Go
-	lfsr	FSR1, RXB1CON
-	BRA_IFSET INDF1, RXFUL, ACCESS, MBNET_RxHandler_Go
-	lfsr	FSR1, B0CON
-	BRA_IFSET INDF1, RXFUL, ACCESS, MBNET_RxHandler_Go
-	lfsr	FSR1, B1CON
-	BRA_IFSET INDF1, RXFUL, ACCESS, MBNET_RxHandler_Go
-	lfsr	FSR1, B2CON
-	BRA_IFSET INDF1, RXFUL, ACCESS, MBNET_RxHandler_Go
-	lfsr	FSR1, B3CON
-	BRA_IFSET INDF1, RXFUL, ACCESS, MBNET_RxHandler_Go
-	lfsr	FSR1, B4CON
-	BRA_IFSET INDF1, RXFUL, ACCESS, MBNET_RxHandler_Go
-	;; B5CON used as dedicated acknowledge buffer
+	;; map FIFO head to 0xf60 (access bank), so that it can be accessed via RXB0CON
+	movf	CANCON, W
+	andlw	0x07
+	iorlw	0x90
+	movwf	ECANCON
+	BRA_IFSET RXB0CON, RXFUL, ACCESS, MBNET_RxHandler_Go
 
 	;; loop so long receive handler is locked
 	SET_BSR	MBNET_BASE
@@ -352,20 +333,16 @@ MBNET_RxHandler
 	return			; else exit
 
 MBNET_RxHandler_Go
-	;; store pointer to receive buffer
-	movff	FSR1L, MBNET_RX_BUFFER_PTR_L
-	movff	FSR1H, MBNET_RX_BUFFER_PTR_H
+	;; ignore message if it wasn't a REQ (TODO: or send a retry?)
+	BRA_IFCLR RXB0SIDH, 7, ACCESS, MBNET_RxHandler_Go_Req
+	bcf	RXB0CON, RXFUL, ACCESS
+	rgoto	MBNET_RxHandler
+MBNET_RxHandler_Go_Req
 
-	;; always copy number of received bytes to loop counter
-	movlw	RXB0DLC & 0xf
-	movf	PLUSW1, W
-	andlw	0x0f
 	SET_BSR	MBNET_BASE
-	movwf	MBNET_LOOP_CTR, BANKED
 
 	;; extract master ID and copy it to MBNET_MASTER_ID
-	movlw	RXB0SIDL & 0xf		; located in EIDH[17:16]
-	rrf	PLUSW1, W
+	rrf	RXB0SIDL, W, ACCESS	; located in EIDH[17:16]
 	andlw	0x70
 	movwf	MBNET_MASTER_ID, BANKED
 
@@ -379,8 +356,7 @@ MBNET_RxHandler_Go_RetryChk
 MBNET_RxHandler_Go_NoRetry
 
 	;; check TOS (type of service)
-	movlw	RXB0SIDL & 0xf		; located in EIDH[17:16]
-	movf	PLUSW1, W
+	movf	RXB0SIDL, W, ACCESS	; located in EIDH[17:16]
 	andlw	0x03
 	bz	MBNET_RxHandler_Special	; TOS=0: Special Service
 	addlw	-1
@@ -390,7 +366,6 @@ MBNET_RxHandler_Go_NoRetry
 	rgoto	MBNET_RxHandler_Ping	; TOS=3: ping
 
 	;; all of these functions branch back to the acknowledge response
-
 MBNET_RxHandler_AckOk
 	movlw	MBNET_ACK_TOS_OK
 	rgoto	MBNET_RxHandler_Ack
@@ -409,9 +384,7 @@ MBNET_RxHandler_Ack
 	;; if -1, no acknowledge will be sent (already done before - RAM read case)
 
 	;; release buffer
-	movff	MBNET_RX_BUFFER_PTR_L, FSR1L
-	movff	MBNET_RX_BUFFER_PTR_H, FSR1H
-	bcf	INDF1, RXFUL
+	bcf	RXB0CON, RXFUL, ACCESS
 
 	;; send acknowledge, TOS in WREG
 	addlw	1
@@ -463,7 +436,7 @@ MBNET_RxHandler_RAMWr
 	
 MBNET_RxHandler_Ping
 	;; release buffer
-	bcf	INDF1, RXFUL
+	bcf	RXB0CON, RXFUL, ACCESS
 
 	;; send acknowledge with ok status
 	movlw	0
@@ -477,13 +450,11 @@ MBNET_RxHandler_Special
 	;; ignore number of received byte (ignored for future compatibility, service is coded in EID)
 
 	;; branch depending on EIDL
-	movlw	RXB0EIDL & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS
 	andlw	0xf0
 	bnz	MBNET_RxHandler_Special_App	; branch if Application Specific ETOS
 
-	movlw	RXB0EIDL & 0xf			; HLP specific ETOS
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS		; HLP specific ETOS
 	bz	MBNET_RxHandler_Special_LR	; ETOS=0 -> lock receiver
 	addlw	-1
 	bz	MBNET_RxHandler_Special_ULR	; ETOS=1 -> unlock receiver
@@ -507,8 +478,7 @@ MBNET_RxHandler_Special
 
 MBNET_RxHandler_Special_App
 	;; call hook in MBSID engine
-	movlw	RXB0EIDL & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS
 	;; WREG contains received TOS
 	call	SID_MBNET_RxSpecial
 	;; WREG contains Ack TOS
@@ -540,16 +510,17 @@ MBNET_RxHandler_Special_M4
 MBNET_RxHandler_Special_M5
 	;; error if != 4 byte received
 	movlw	4
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	rgoto MBNET_RxHandler_AckError
+	cpfseq	RXB0DLC, ACCESS
+	rgoto	MBNET_RxHandler_AckError
 
 	;; transfer bytes into WREG and MIOS_PARAMETER[123]
-	movlw	RXB0D0 & 0x0f
-	addwf	FSR1L, F
-	movff	POSTINC1, WREG
-	movff	POSTINC1, MIOS_PARAMETER1
-	movff	POSTINC1, MIOS_PARAMETER2
-	movff	POSTINC1, MIOS_PARAMETER3
+	movf	RXB0D3, W, ACCESS
+	movwf	MIOS_PARAMETER3
+	movf	RXB0D2, W, ACCESS
+	movwf	MIOS_PARAMETER2
+	movf	RXB0D1, W, ACCESS
+	movwf	MIOS_PARAMETER1
+	movf	RXB0D0, W, ACCESS
 
 	;; call hook
 	call	USER_MPROC_DebugTrigger
@@ -560,15 +531,16 @@ MBNET_RxHandler_Special_M5
 MBNET_RxHandler_Special_M6
 	;; error if != 3 byte received
 	movlw	3
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	rgoto MBNET_RxHandler_AckError
+	cpfseq	RXB0DLC, ACCESS
+	rgoto	MBNET_RxHandler_AckError
 
 	;; transfer bytes into MIOS_PARAMETER[123]
-	movlw	RXB0D0 & 0x0f
-	addwf	FSR1L, F
-	movff	POSTINC1, MIOS_PARAMETER1
-	movff	POSTINC1, MIOS_PARAMETER2
-	movff	POSTINC1, MIOS_PARAMETER3
+	movf	RXB0D2, W, ACCESS
+	movwf	MIOS_PARAMETER3
+	movf	RXB0D1, W, ACCESS
+	movwf	MIOS_PARAMETER2
+	movf	RXB0D0, W, ACCESS
+	movwf	MIOS_PARAMETER1
 
 	;; call hook
 	call	USER_MPROC_NotifyReceivedEvent
@@ -579,13 +551,11 @@ MBNET_RxHandler_Special_M6
 MBNET_RxHandler_Special_M7
 	;; error if != 1 byte received
 	movlw	1
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	rgoto MBNET_RxHandler_AckError
+	cpfseq	RXB0DLC, ACCESS
+	rgoto	MBNET_RxHandler_AckError
 
 	;; transfer byte into WREG and MIOS_PARAMETER[1]
-	movlw	RXB0D0 & 0x0f
-	addwf	FSR1L, F
-	movf	POSTINC1, W
+	movf	RXB0D0, W, ACCESS
 	movwf	MIOS_PARAMETER1
 
 	;; call hook
@@ -597,15 +567,14 @@ MBNET_RxHandler_Special_M7
 MBNET_RxHandler_Special_M8
 	;; error if != 2 bytes received
 	movlw	2
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	rgoto MBNET_RxHandler_AckError
+	cpfseq	RXB0DLC, ACCESS
+	rgoto	MBNET_RxHandler_AckError
 
 	;; transfer bytes into WREG and MIOS_PARAMETER[12]
-	movlw	RXB0D0 & 0x0f
-	addwf	FSR1L, F
-	movf	POSTINC1, W
+	movf	RXB0D1, W, ACCESS
+	movwf	MIOS_PARAMETER2
+	movf	RXB0D0, W, ACCESS
 	movwf	MIOS_PARAMETER1
-	movff	POSTINC1, MIOS_PARAMETER2
 
 	;; call hook
 	call	USER_DIN_NotifyToggle
@@ -616,15 +585,14 @@ MBNET_RxHandler_Special_M8
 MBNET_RxHandler_Special_M9
 	;; error if != 2 bytes received
 	movlw	2
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	rgoto MBNET_RxHandler_AckError
+	cpfseq	RXB0DLC, ACCESS
+	rgoto	MBNET_RxHandler_AckError
 
 	;; transfer bytes into WREG and MIOS_PARAMETER[12]
-	movlw	RXB0D0 & 0x0f
-	addwf	FSR1L, F
-	movf	POSTINC1, W
+	movf	RXB0D2, W, ACCESS
+	movwf	MIOS_PARAMETER2
+	movf	RXB0D1, W, ACCESS
 	movwf	MIOS_PARAMETER1
-	movff	POSTINC1, MIOS_PARAMETER2
 
 	;; call hook
 	call	USER_ENC_NotifyChange
@@ -636,16 +604,14 @@ MBNET_RxHandler_Special_M9
 MBNET_RxHandler_Special_M10
 	;; error if != 3 bytes received
 	movlw	3
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	rgoto MBNET_RxHandler_AckError
+	cpfseq	RXB0DLC, ACCESS
+	rgoto	MBNET_RxHandler_AckError
 
 	;; transfer bytes into WREG and MIOS_PARAMETER[12]
-	movlw	RXB0D0 & 0x0f
-	addwf	FSR1L, F
-	movf	POSTINC1, W
+	movf	RXB0D1, W, ACCESS
+	movwf	MIOS_PARAMETER2
+	movf	RXB0D0, W, ACCESS
 	movwf	MIOS_PARAMETER1
-	movff	POSTINC1, MIOS_PARAMETER2
-	movff	POSTINC1, MIOS_PARAMETER3
 
 	;; call hook
 	call	USER_AIN_NotifyChange
@@ -654,8 +620,28 @@ MBNET_RxHandler_Special_M10
 
 
 MBNET_RxHandler_Special_M15
+
+	;; NEW: switch to ECAN mode #1 for legacy reasons (see comments in mbnet_clone.inc)
+	movlw	0x80		; switch to configuration mode
+	rcall	MBNET_ECAN_ChangeMode
+	movlw	0x40		; set ECAN mode 1
+	movwf	ECANCON
+	movlw	0x00		; switch to functional mode
+	rcall	MBNET_ECAN_ChangeMode
+
+	movlw	0x50		; map RXB0CON
+	movwf	ECANCON
+
+	lfsr	FSR1, RXB0CON	; ...the old MBNET_CLONE implementation needs this
+	movff	FSR1L, MBNET_RX_BUFFER_PTR_L
+	movff	FSR1H, MBNET_RX_BUFFER_PTR_H
+
 	;; branch to cloning routine (will acknowledge by itself)
 	call	MBNET_CLONE
+
+	;; NEW: switch back to ECAN mode #2
+	rcall	MBNET_ReInit
+
 	;; this function will reset the device at the end
 	;; if it returns, an error has happened
 	rgoto	MBNET_RxHandler_AckError
@@ -817,6 +803,38 @@ MBNET_ECAN_ChangeModeLoop
 
 
 ;; --------------------------------------------------------------------------
+;; returns pointer to RX buffer depending on CANCON.FP in FSR1
+MBNET_GetRxPtr
+	BRA_IFSET CANCON, 2, ACCESS, MBNET_GetRxPtr_4567
+MBNET_GetRxPtr_0123
+	BRA_IFSET CANCON, 1, ACCESS, MBNET_GetRxPtr_23
+MBNET_GetRxPtr_01
+	lfsr	FSR1, RXB0CON
+	btfsc	CANCON, 0
+	lfsr	FSR1, RXB1CON
+	return
+
+MBNET_GetRxPtr_23
+	lfsr	FSR1, B0CON
+	btfsc	CANCON, 0
+	lfsr	FSR1, B1CON
+	return
+
+MBNET_GetRxPtr_4567
+	BRA_IFSET CANCON, 1, ACCESS, MBNET_GetRxPtr_67
+MBNET_GetRxPtr_45
+	lfsr	FSR1, B2CON
+	btfsc	CANCON, 0
+	lfsr	FSR1, B3CON
+	return
+
+MBNET_GetRxPtr_67
+	lfsr	FSR1, B4CON
+	btfsc	CANCON, 0
+	lfsr	FSR1, B5CON
+	return
+
+;; --------------------------------------------------------------------------
 ;; prepare transfer
 ;; IN: TOS[3:0] in WREG
 ;;     MIOS Device ID in MBNET_SLAVE_ID
@@ -871,10 +889,22 @@ MBNET_Tx_Prepare_Fail
 ;; later (MBNET_Tx_Perform_Start, MBNET_Tx_Perform_Finish)
 ;; IN: expected slave ID in MBNET_SLAVE_ID
 MBNET_Tx_Perform_Start
-	;; discard evtl. received message in acknowledge buffer (fault tolerant)
-	SET_BSR	B5CON
-	bcf	B5CON, RXFUL
+MBNET_Tx_Perform_Start_RxClear
+	;; discard evtl. received ACK message (fault tolerant)
+	movf	CANCON, W
+	andlw	0x07
+	iorlw	0x90
+	movwf	ECANCON
+	BRA_IFCLR RXB0CON, RXFUL, ACCESS, MBNET_Tx_Perform_Start_RxCleared
+	BRA_IFCLR RXB0SIDH, 7, ACCESS, MBNET_Tx_Perform_Start_RxCleared
+	bcf	RXB0CON, RXFUL, ACCESS
+	movlw	0xd0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x00
+	call	MIOS_MIDI_TxBufferPut
+	rgoto	MBNET_Tx_Perform_Start_RxClear
 
+MBNET_Tx_Perform_Start_RxCleared
 	SET_BSR	TXB0CON
 	bsf	TXB0CON, TXREQ, BANKED	; start the transfer
 
@@ -902,8 +932,11 @@ MBNET_Tx_Perform
 MBNET_Tx_Perform_NoTO
 	rcall	MBNET_Tx_Perform_Start
 MBNET_Tx_Perform_NoTO_Loop
-	SET_BSR	B5CON
-	BRA_IFCLR B5CON, RXFUL, BANKED, MBNET_Tx_Perform_NoTO_Loop
+	movf	CANCON, W
+	andlw	0x07
+	iorlw	0x90
+	movwf	ECANCON
+	BRA_IFCLR RXB0CON, RXFUL, ACCESS, MBNET_Tx_Perform_NoTO_Loop
 	rgoto	MBNET_Tx_Perform_Finish_Cont
 
 
@@ -929,9 +962,22 @@ MBNET_Tx_PerformLoop
 	;; to avoid dropout during SysEx transfers... :-/
 	BRA_IFSET MBNET_TIMEOUT_CTR_H, 7, BANKED, MBNET_Tx_Perform_Failed
 #endif
-	SET_BSR	B5CON
-	BRA_IFCLR B5CON, RXFUL, BANKED, MBNET_Tx_PerformLoop
+	movf	CANCON, W
+	andlw	0x07
+	iorlw	0x90
+	movwf	ECANCON
+	BRA_IFCLR RXB0CON, RXFUL, ACCESS, MBNET_Tx_PerformLoop
 
+	;; ignore message if it wasn't an ACK (TODO: or send a retry?)
+	BRA_IFSET RXB0SIDH, 7, ACCESS, MBNET_Tx_Perform_Finish_Cont
+	movlw	0xd1
+	call	MIOS_MIDI_TxBufferPut
+	movf	RXB0CON, W, ACCESS
+	andlw	0x7f
+	call	MIOS_MIDI_TxBufferPut
+	bcf	RXB0CON, RXFUL, ACCESS
+	rgoto	MBNET_Tx_PerformLoop
+	
 MBNET_Tx_Perform_Finish_Cont
 	;; acknowledge message received
 	;; clear panic state (seems that the bus is available again)
@@ -939,12 +985,12 @@ MBNET_Tx_Perform_Finish_Cont
 	bcf	MBNET_STATE, MBNET_STATE_PANIC, BANKED
 
 	;; check that EIDL contains the expected slave ID
-	movff	B5EIDL, WREG
+	movf	RXB0EIDL, W, ACCESS
 	cpfseq	MBNET_SLAVE_ID, BANKED
-	rgoto MBNET_Tx_Perform_Failed
+	rgoto	MBNET_Tx_Perform_Failed
 
 	;; branch depending on acknowledge TOS
-	movff	B5SIDL, WREG
+	movf	RXB0SIDL, W, ACCESS
 	andlw	0x03
 	bz	MBNET_Tx_Perform_AckOk	; TOS=0 (Ok)
 	addlw	-1
@@ -968,44 +1014,43 @@ MBNET_Tx_Perform_AckOk_Pong
 	addwf	FSR1L, F
 
 	;; transfer playload
-	SET_BSR	B5D0
-	movff	B5D0, POSTINC1
-	movff	B5D1, POSTINC1
-	movff	B5D2, POSTINC1
-	movff	B5D3, POSTINC1
-	movff	B5D4, POSTINC1
-	movff	B5D5, POSTINC1
-	movff	B5D6, POSTINC1
-	movff	B5D7, POSTINC1
+	movff	RXB0D0, POSTINC1
+	movff	RXB0D1, POSTINC1
+	movff	RXB0D2, POSTINC1
+	movff	RXB0D3, POSTINC1
+	movff	RXB0D4, POSTINC1
+	movff	RXB0D5, POSTINC1
+	movff	RXB0D6, POSTINC1
+	movff	RXB0D7, POSTINC1
 
 	;; error if we haven't received 8 bytes - set incompatible flag in this case and clear info array
-	movf	B5DLC, W, BANKED
+	movf	RXB0DLC, W, ACCESS
 	xorlw	8
 	bnz	MBNET_Tx_Perform_AckOk_PongNotOk
 
 	;; error if protocol version doesn't match
 	movlw	MBNET_CONST_PROTOCOL_V
-	cpfseq	B5D0, BANKED
-	rgoto MBNET_Tx_Perform_AckOk_PongNotOk
+	cpfseq	RXB0D0, ACCESS
+	rgoto	MBNET_Tx_Perform_AckOk_PongNotOk
 
 	;; error if type characters don't match
 	movlw	MBNET_CONST_TYPE_C0
-	cpfseq	B5D1, BANKED
-	rgoto MBNET_Tx_Perform_AckOk_PongNotOk
+	cpfseq	RXB0D1, ACCESS
+	rgoto	MBNET_Tx_Perform_AckOk_PongNotOk
 	movlw	MBNET_CONST_TYPE_C1
-	cpfseq	B5D2, BANKED
-	rgoto MBNET_Tx_Perform_AckOk_PongNotOk
+	cpfseq	RXB0D2, ACCESS
+	rgoto	MBNET_Tx_Perform_AckOk_PongNotOk
 	movlw	MBNET_CONST_TYPE_C2
-	cpfseq	B5D3, BANKED
-	rgoto MBNET_Tx_Perform_AckOk_PongNotOk
+	cpfseq	RXB0D3, ACCESS
+	rgoto	MBNET_Tx_Perform_AckOk_PongNotOk
 	movlw	MBNET_CONST_TYPE_C3
-	cpfseq	B5D4, BANKED
-	rgoto MBNET_Tx_Perform_AckOk_PongNotOk
+	cpfseq	RXB0D4, ACCESS
+	rgoto	MBNET_Tx_Perform_AckOk_PongNotOk
 
 	;; error if type version number doesn't match
 	movlw	MBNET_CONST_TYPE_VERSION
-	cpfseq	B5D5, BANKED
-	rgoto MBNET_Tx_Perform_AckOk_PongNotOk
+	cpfseq	RXB0D5, ACCESS
+	rgoto	MBNET_Tx_Perform_AckOk_PongNotOk
 
 	;; subversions are ignored
 	rgoto	MBNET_Tx_Perform_Cont
@@ -1026,8 +1071,7 @@ MBNET_Tx_Perform_Retry
 
 MBNET_Tx_Perform_Cont
 	;; release message buffer
-	SET_BSR	B5CON
-	bcf	B5CON, RXFUL
+	bcf	RXB0CON, RXFUL, ACCESS
 
 #ifdef MBNET_SLAVE_ACK_MEASURING_PORT
 	bcf	MBNET_SLAVE_ACK_MEASURING_PORT
@@ -1040,8 +1084,7 @@ MBNET_Tx_Perform_Cont
 
 MBNET_Tx_Perform_Failed
 	;; release message buffer
-	SET_BSR	B5CON
-	bcf	B5CON, RXFUL
+	bcf	RXB0CON, RXFUL, ACCESS
 
 	;; slave didn't respond, disable it
 	;; Note: a connection to the slave can be retried by pressing the appr. SID button on the Control Surface
@@ -1141,7 +1184,7 @@ MBNET_RequestSync
 	movwf	PRODL
 	lfsr	FSR1, MBNET_RETRY_NODE_CTR_BEGIN
 	addwf	FSR1L, F
-	movlw	8		; retry 8 times
+	movlw	64		; retry 8 times
 	movwf	INDF1
 
 	movf	PRODL, W
@@ -1170,7 +1213,7 @@ MBNET_Clone_STR_WAIT_RESET
 	STRING	17, 0x40, "Waiting for Reset"
 
 MBNET_Clone_STR_FAILED
-	STRING	16, 0x40, "!!!! FAILED !!!!"
+	STRING	17, 0x40, "!!!! FAILED !!!! "
 
 MBNET_Clone_Me
 	;; skip if not master
@@ -1194,21 +1237,12 @@ MBNET_Clone_Me_WaitLoop
 	decfsz	PRODL, F
 	rgoto	MBNET_Clone_Me_WaitLoop
 
-	;; search for slaves until all retry counters are zero
-MBNET_Clone_Me_WaitSlaves
-	clrwdt
-	rcall	MBNET_ConHandler
-
-	lfsr	FSR1, MBNET_RETRY_NODE_CTR_BEGIN+1
-	movf	POSTINC1, W	; Slave #01
-	bnz	MBNET_Clone_Me_WaitSlaves
-	movf	POSTINC1, W	; Slave #02
-	bnz	MBNET_Clone_Me_WaitSlaves
-	movf	POSTINC1, W	; Slave #03
-	bnz	MBNET_Clone_Me_WaitSlaves
-
-	;; retry phase finished - all slaves should be detected now
-
+	;; for debugging and remote diagnosis
+	movff	MBNET_SLAVE_ID, WREG
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x00
+	call	MIOS_MIDI_TxBufferPut
 
 	;; start with slave ID #01
 	movlw	0x01
@@ -1226,13 +1260,78 @@ MBNET_Clone_Me_Loop
 	call	MIOS_LCD_PrintString
 	SET_BSR	MBNET_BASE
 
+	;; for debugging and remote diagnosis
+	movff	MBNET_SLAVE_ID, WREG
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x01
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	MBNET_BASE
+
+	;; store slave ID in TMP1
+	SET_BSR	MBNET_BASE
+	movf	MBNET_SLAVE_ID, W, BANKED
+	movwf	TMP1
+	rcall	MBNET_RequestSync
+
+	;; search for slave until all retry counter is zero
+MBNET_Clone_Me_WaitSlave
+	movlw	1
+	call	MIOS_Delay
+	clrwdt
+	rcall	MBNET_ConHandler
+
+	lfsr	FSR1, MBNET_RETRY_NODE_CTR_BEGIN
+	movf	TMP1, W
+	movf	PLUSW1, W
+	bnz	MBNET_Clone_Me_WaitSlave
+
+	;; restore slave ID
+	SET_BSR	MBNET_BASE
+	movf	TMP1, W
+	movwf	MBNET_SLAVE_ID, BANKED
+
+	;; break if slave not available
+	;; 	movf	TMP1, W
+	call	MIOS_HLP_GetBitORMask
+	andwf	MBNET_NODE_AVAIL, W, BANKED
+	skpnz
+	rgoto	MBNET_Clone_Me_Failed
+
+
+	;; for debugging and remote diagnosis
+	movff	MBNET_SLAVE_ID, WREG
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x02
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	MBNET_BASE
+
 	movlw	0				; ETOS=0 -> lock receiver
 	rcall	MBNET_Clone_Me_SendCmd
-	bnz	MBNET_Clone_Me_Failed
+	skpz
+	rgoto	MBNET_Clone_Me_Failed
+
+	;; for debugging and remote diagnosis
+	movff	MBNET_SLAVE_ID, WREG
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x03
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	MBNET_BASE
 
 	movlw	15				; ETOS=15 -> clone
 	rcall	MBNET_Clone_Me_SendCmd
-	bnz	MBNET_Clone_Me_Failed
+	skpz
+	rgoto	MBNET_Clone_Me_Failed
+
+	;; for debugging and remote diagnosis
+	movff	MBNET_SLAVE_ID, WREG
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x04
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	MBNET_BASE
 
 	;; slave now in special receive state (code located in mbnet_clone.inc)
 	;; start clone loop - start from 0x3000
@@ -1267,7 +1366,7 @@ MBNET_Clone_Me_TxLoop_O_NoLCD
 	rrf	MBNET_EID_L, F, BANKED
 	movlw	MBNET_TOS_RAM_WRITE		; TOS for writing into RAM (here: FLASH/EEPROM)
 	rcall	MBNET_Tx_Prepare		; returns pointer to DLC of Tx buffer in FSR1
-	bnz	MBNET_Clone_Me_Failed	; skip if slave not available
+	bnz	MBNET_Clone_Me_Failed		; skip if slave not available
 
 	movlw	8				; DLC always 8
 	movwf	POSTINC1
@@ -1294,9 +1393,25 @@ MBNET_Clone_Me_TxLoop_I
 
 	;; the end
 
+	;; for debugging and remote diagnosis
+	movff	MBNET_SLAVE_ID, WREG
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x05
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	MBNET_BASE
+
 MBNET_Clone_Me_Ok
 	movlw	1				; ETOS=1 -> unlock receiver (will reset the slave device!)
 	rcall	MBNET_Clone_Me_SendCmd
+
+	;; for debugging and remote diagnosis
+	movff	MBNET_SLAVE_ID, WREG
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x06
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	MBNET_BASE
 
 	;; print message "waiting for reset"
 	TABLE_ADDR MBNET_Clone_STR_WAIT_RESET
@@ -1331,6 +1446,14 @@ MBNET_Clone_Me_Ok_WaitLoop
 	andwf	MBNET_NODE_AVAIL, W, BANKED
 	bz	MBNET_Clone_Me_Ok_WaitLoop
 
+	;; for debugging and remote diagnosis
+	movff	MBNET_SLAVE_ID, WREG
+	iorlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x07
+	call	MIOS_MIDI_TxBufferPut
+	SET_BSR	MBNET_BASE
+
 MBNET_Clone_Me_Loop_Next
 	;; clone all 3 slaves
 	SET_BSR	MBNET_BASE
@@ -1338,6 +1461,13 @@ MBNET_Clone_Me_Loop_Next
 	movlw	4-1
 	cpfsgt	MBNET_SLAVE_ID, BANKED
 	rgoto MBNET_Clone_Me_Loop
+
+	;; for debugging and remote diagnosis
+	movlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x7f
+	call	MIOS_MIDI_TxBufferPut
+
 	return
 
 
@@ -1354,6 +1484,7 @@ MBNET_Clone_Me_Failed
 MBNET_Clone_Me_SendCmd
 	;; expecting ETOS in WREG
 	;; slave number already in MBNET_SLAVE_ID
+	SET_BSR	MBNET_BASE
 	movwf	MBNET_EID_L, BANKED
 	clrf	MBNET_EID_H, BANKED		; EIDH always 0
 	movlw	0				; TOS

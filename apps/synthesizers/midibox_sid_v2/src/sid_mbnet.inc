@@ -16,8 +16,7 @@
 ;;  This hook is called from MBNET_RxHandler when a special command
 ;;  has been received (TOS=0)
 ;;  IN: special command number 16-127 in WREG
-;;      pointer to receive buffer in FSR1
-;;      number of received bytes in MBNET_LOOP_CTR
+;;      receive buffer in RXB0
 ;;  OUT: must return the acknowledge TOS (MBNET_ACK_TOS_*)
 ;; --------------------------------------------------------------------------
 SID_MBNET_RxSpecial
@@ -57,17 +56,15 @@ SID_MBNET_RxSpecial_IP
 SID_MBNET_RxSpecial_EPAR
 	;; error if != 4 byte received
 	movlw	4
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	retlw MBNET_ACK_TOS_ERROR
+	cpfseq	RXB0DLC, ACCESS
+	retlw	MBNET_ACK_TOS_ERROR
 
-	movlw	RXB0D2 & 0xf
-	movff	PLUSW1, PRODL
+	movff	RXB0D2, PRODL
 	;; ignore high-byte of data (RXB0D3), we currently only use 1 byte writes
 
 	;; determine address to ensemble buffer -> FSR0
 	lfsr	FSR0, SID_ENS_BUFFER
-	movlw	RXB0D0 & 0xf	; low byte
-	movf	PLUSW1, W
+	movf	RXB0D0, W, ACCESS; low byte
 	andlw	0x3f		; 64 byte range
 	addwf	FSR0L, F
 
@@ -82,20 +79,19 @@ SID_MBNET_RxSpecial_EPAR
 SID_MBNET_RxSpecial_PAR
 	;; error if != 4 byte received
 	movlw	4
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	retlw MBNET_ACK_TOS_ERROR
+	cpfseq	RXB0DLC, ACCESS
+	retlw	MBNET_ACK_TOS_ERROR
 
-	movlw	RXB0D2 & 0xf
-	movff	PLUSW1, PRODL
+	movf	RXB0D2, W, ACCESS
+	movwf	PRODL
 	;; ignore high-byte of data (RXB0D3), we currently only use 1 byte writes
 
 	;; determine patch buffer address -> FSR0
 	;; shadow buffer address -> FSR2
-	movlw	RXB0D0 & 0xf	; low byte
-	movff	PLUSW1, FSR0L
-	movff	PLUSW1, FSR2L
-	movlw	RXB0D1 & 0xf	; high byte
-	movf	PLUSW1, W
+	movf	RXB0D0, W, ACCESS; low byte
+	movwf	FSR0L
+	movwf	FSR2L
+	movf	RXB0D1, W, ACCESS; high byte
 	andlw	0x01
 	addlw	HIGH(SID_PATCH_BUFFER)
 	movwf	FSR0H
@@ -111,16 +107,14 @@ SID_MBNET_RxSpecial_PAR
 SID_MBNET_RxSpecial_KNB
 	;; error if != 4 byte received
 	movlw	4
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	retlw MBNET_ACK_TOS_ERROR
+	cpfseq	RXB0DLC, ACCESS
+	retlw	MBNET_ACK_TOS_ERROR
 
-	movlw	RXB0D2 & 0xf
-	movff	PLUSW1, MIOS_PARAMETER1
+	movff	RXB0D2, MIOS_PARAMETER1
 	;; ignore high-byte of data (RXB0D3), we currently only use 1 byte writes
 
 	;; knob number in D0
-	movlw	RXB0D0 & 0xf
-	movf	PLUSW1, W
+	movf	RXB0D0, W, ACCESS
 	andlw	0x07		; 8 knobs
 	call	SID_KNOB_SetValue
 
@@ -129,11 +123,10 @@ SID_MBNET_RxSpecial_KNB
 SID_MBNET_RxSpecial_UKNB
 	;; error if != 1 byte received
 	movlw	1
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	retlw MBNET_ACK_TOS_ERROR
+	cpfseq	RXB0DLC, ACCESS
+	retlw	MBNET_ACK_TOS_ERROR
 
-	movlw	RXB0D0 & 0xf
-	movf	PLUSW1, W
+	movf	RXB0D0, W, ACCESS
 	call	SID_KNOB_UpdateValue
 	retlw	MBNET_ACK_TOS_OK
 
@@ -153,13 +146,12 @@ SID_MBNET_RxSpecial_IE
 SID_MBNET_RxSpecial_NON
 	;; error if != 2 byte received
 	movlw	2
-	cpfseq	MBNET_LOOP_CTR, BANKED
+	cpfseq	RXB0DLC, ACCESS
 	retlw	MBNET_ACK_TOS_ERROR
+	
 	;; received instrument and selected SID number
-	movlw	RXB0D0 & 0xf
-	movff	PLUSW1, CS_MENU_SELECTED_INS
-	movlw	RXB0D1 & 0xf
-	movff	PLUSW1, CS_MENU_SELECTED_SID_LR
+	movff	RXB0D0, CS_MENU_SELECTED_INS
+	movff	RXB0D1, CS_MENU_SELECTED_SID_LR
 	;; (selected) notes on
 	call	SID_PATCH_NotesOn
 	retlw	MBNET_ACK_TOS_OK
@@ -175,13 +167,12 @@ SID_MBNET_RxSpecial_VINI
 SID_MBNET_RxSpecial_SPNOTE
 	;; error if != 2 byte received
 	movlw	2
-	cpfseq	MBNET_LOOP_CTR, BANKED
+	cpfseq	RXB0DLC, ACCESS
 	retlw	MBNET_ACK_TOS_ERROR
+
 	;; received note and velocity
-	movlw	RXB0D0 & 0xf
-	movff	PLUSW1, SID_MIDI_PARAMETER1
-	movlw	RXB0D1 & 0xf
-	movff	PLUSW1, SID_MIDI_PARAMETER2
+	movff	RXB0D0, SID_MIDI_PARAMETER1
+	movff	RXB0D1, SID_MIDI_PARAMETER2
 	;; exit if lead engine not selected
 	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
 	andlw	0x03
@@ -203,17 +194,14 @@ SID_MBNET_RxSpecial_SPNOTE_End
 SID_MBNET_RxSpecial_TMPBNK0
 	;; error if != 4 byte received
 	movlw	4
-	cpfseq	MBNET_LOOP_CTR, BANKED
-	retlw MBNET_ACK_TOS_ERROR
+	cpfseq	RXB0DLC, ACCESS
+	retlw	MBNET_ACK_TOS_ERROR
 
-	movlw	RXB0D2 & 0xf
-	movff	PLUSW1, PRODL
+	movff	RXB0D2, PRODL
 	;; ignore high-byte of data (RXB0D3), we currently only use 1 byte writes
 
 	;; determine address to bank 0 -> FSR0
-	movlw	RXB0D0 & 0xf	; low byte
-	movf	PLUSW1, W
-	movwf	FSR0L
+	movff	RXB0D0, FSR0L	; low byte
 	clrf	FSR0H
 
 	;; transfer value
@@ -233,8 +221,7 @@ SID_MBNET_RAM_Read
 	SET_BSR	MBNET_BASE
 
 	;; address HIGH byte = 0xff selects ensemble buffer
-	movlw	RXB0EIDH & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDH, W, ACCESS
 	xorlw	0xff
 	bz	SID_MBNET_RAM_Read_Ens
 
@@ -244,10 +231,8 @@ SID_MBNET_RAM_Read
 
 SID_MBNET_RAM_Read_Patch
 	;; determine address -> FSR0
-	movlw	RXB0EIDL & 0xf
-	movff	PLUSW1, FSR0L
-	movlw	RXB0EIDH & 0xf
-	movf	PLUSW1, W
+	movff	RXB0EIDL, FSR0L
+	movf	RXB0EIDH, W, ACCESS
 	addlw	HIGH(SID_PATCH_BUFFER)
 	movwf	FSR0H
 	rgoto	SID_MBNET_RAM_Read_Cont
@@ -255,8 +240,7 @@ SID_MBNET_RAM_Read_Patch
 SID_MBNET_RAM_Read_Ens
 	;; determine address -> FSR0
 	lfsr	FSR0, SID_ENS_BUFFER
-	movlw	RXB0EIDL & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS
 	andlw	0x3f
 	addwf	FSR0L, F
  	rgoto	SID_MBNET_RAM_Read_Cont
@@ -265,8 +249,7 @@ SID_MBNET_RAM_Read_SID
 	;; determine address -> FSR0
 	;; SIDL mapped to 0xfe00..0xfe1f
 	;; SIDR mapped to 0xfe20..0xfe3f
-	movlw	RXB0EIDL & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS
 	lfsr	FSR0, SIDL_BASE
 	btfsc	WREG, 5
 	lfsr	FSR0, SIDR_BASE
@@ -294,34 +277,34 @@ SID_MBNET_RAM_Read_Cont
 ;; --------------------------------------------------------------------------
 ;;  This hook is called from MBNET_RxHandler when a RAM write message has been
 ;;  received (TOS=2)
-;;  IN: pointer to receive buffer in FSR1
-;;      number of received bytes in MBNET_LOOP_CTR
+;;  IN: pointer to receive buffer in RXB0
 ;;  OUT: must return the acknowledge TOS (MBNET_ACK_TOS_*)
 ;; --------------------------------------------------------------------------
 SID_MBNET_RAM_Write
 	;; error if no byte has been received
-	movf	MBNET_LOOP_CTR, W, BANKED
+	movf	RXB0DLC, W, ACCESS
 	skpnz
 	retlw	MBNET_ACK_TOS_ERROR
 
 	;; address HIGH byte = 0xff selects ensemble buffer
-	movlw	RXB0EIDH & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDH, W, ACCESS
 	xorlw	0xff
 	bz	SID_MBNET_RAM_Write_Ens
 
 	;; address HIGH byte = 0xfe selects direct access to SID registers
 	xorlw	0xfe ^ 0xff
 	bz	SID_MBNET_RAM_Write_SID
+	;; address HIGH byte = 0xfd: same like 0xfe, but SID registers will be updated
+	xorlw	0xfd ^ 0xfe
+	bz	SID_MBNET_RAM_Write_SID
 
 SID_MBNET_RAM_Write_Patch
 	;; FSR0 contains patch buffer address, which is extracted from the EID
 	;; FSR2 points to the shadow buffer
-	movlw	RXB0EIDL & 0xf
-	movff	PLUSW1, FSR0L
-	movff	PLUSW1, FSR2L
-	movlw	RXB0EIDH & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS
+	movwf	FSR0L
+	movwf	FSR2L
+	movf	RXB0EIDH, W, ACCESS
 	andlw	0x01		; (buffer size 0x200 prepared for MBSID V2)
 	addlw	HIGH(SID_PATCH_BUFFER)
 	movwf	FSR0H
@@ -333,11 +316,32 @@ SID_MBNET_RAM_Write_Patch
 SID_MBNET_RAM_Write_Ens
 	;; determine address -> FSR0
 	lfsr	FSR0, SID_ENS_BUFFER
-	movlw	RXB0EIDL & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS
 	andlw	0x3f
 	addwf	FSR0L, F
-	rgoto	SID_MBNET_RAM_Write_Cont
+	;; shadow buffer: not available, use same address!
+	movff	FSR0L, FSR2L
+	movff	FSR0H, FSR2H
+
+	;; 	rgoto	SID_MBNET_RAM_Write_Cont
+
+SID_MBNET_RAM_Write_Cont
+	movff	RXB0DLC, PRODL
+
+	;; FSR1 contains pointer to data buffer
+	call	MBNET_GetRxPtr
+	movlw	RXB0D0 & 0xf
+	addwf	FSR1L, F
+
+SID_MBNET_RAM_Write_CopyLoop
+	movff	INDF1, POSTINC0			; copy content of MBNET receive buffer to patch buffer
+	movff	POSTINC1, POSTINC2		; and into shadow buffer
+	decfsz	PRODL, F			; continue until loop counter is zero
+	rgoto	SID_MBNET_RAM_Write_CopyLoop
+
+	;; exit with Ok status
+	retlw	MBNET_ACK_TOS_OK
+
 
 
 SID_MBNET_RAM_Write_SID
@@ -346,73 +350,80 @@ SID_MBNET_RAM_Write_SID
 	bsf	SID_STAT, SID_STAT_MBNET_ACCESS
 
 	;; determine address -> FSR0
-	;; SIDL mapped to 0xfe00..0xfe1f
-	;; SIDR mapped to 0xfe20..0xfe3f
+	;; SIDL mapped to 0xfe00..0xfe1f and 0xfd00..0xfd1f (0xfd: with reg update)
+	;; SIDR mapped to 0xfe20..0xfe3f and 0xfd20..0xfd3f (0xfd: with reg update)
 	;; in addition, all gates (6 bits, located in [2:0] and [6:4]) are mapped to 0xfe80
 	;; TODO: provide more special address ranges to access certain registers in a single package
 	;;       e.g. L/R filters and all 6 waveform registers
-	movlw	RXB0EIDL & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS
 	xorlw	0x80
 	bnz	SID_MBNET_RAM_Write_SID_Normal
 
 SID_MBNET_RAM_Write_SID_Gates
-	;; FSR1 contains pointer to RXB0 data buffer
-	movlw	RXB0D0 & 0xf
-	addwf	FSR1L, F
-
 	SET_BSR	SIDL_BASE
 	bcf	SIDL_BASE + SIDx_V1_CTRL, 0, BANKED
-	btfsc	INDF1, 0
+	btfsc	RXB0D0, 0, ACCESS
 	bsf	SIDL_BASE + SIDx_V1_CTRL, 0, BANKED
 
 	bcf	SIDL_BASE + SIDx_V2_CTRL, 0, BANKED
-	btfsc	INDF1, 1
+	btfsc	RXB0D0, 1, ACCESS
 	bsf	SIDL_BASE + SIDx_V2_CTRL, 0, BANKED
 
 	bcf	SIDL_BASE + SIDx_V3_CTRL, 0, BANKED
-	btfsc	INDF1, 2
+	btfsc	RXB0D0, 2, ACCESS
 	bsf	SIDL_BASE + SIDx_V3_CTRL, 0, BANKED
 
 	bcf	SIDR_BASE + SIDx_V1_CTRL, 0, BANKED
-	btfsc	INDF1, 4
+	btfsc	RXB0D0, 4, ACCESS
 	bsf	SIDR_BASE + SIDx_V1_CTRL, 0, BANKED
 
 	bcf	SIDR_BASE + SIDx_V2_CTRL, 0, BANKED
-	btfsc	INDF1, 5
+	btfsc	RXB0D0, 5, ACCESS
 	bsf	SIDR_BASE + SIDx_V2_CTRL, 0, BANKED
 
 	bcf	SIDR_BASE + SIDx_V3_CTRL, 0, BANKED
-	btfsc	INDF1, 6
+	btfsc	RXB0D0, 6, ACCESS
 	bsf	SIDR_BASE + SIDx_V3_CTRL, 0, BANKED
 
-	;; exit with Ok status
-	retlw	MBNET_ACK_TOS_OK
+	rgoto	SID_MBNET_RAM_Write_SID_End
 
 
 SID_MBNET_RAM_Write_SID_Normal
-	movlw	RXB0EIDL & 0xf
-	movf	PLUSW1, W
+	movf	RXB0EIDL, W, ACCESS
 	lfsr	FSR0, SIDL_BASE
 	btfsc	WREG, 5
 	lfsr	FSR0, SIDR_BASE
 	andlw	0x1f
 	addwf	FSR0L, F
-	;; 	rgoto	SID_MBNET_RAM_Write_Cont
+	;; 	rgoto	SID_MBNET_RAM_Write_SIDCopy
 
 
-SID_MBNET_RAM_Write_Cont
-	;; FSR1 contains pointer to RXB0 data buffer
+SID_MBNET_RAM_Write_SIDCopy
+	movff	RXB0DLC, PRODL
+
+	;; FSR1 contains pointer to data buffer
+	call	MBNET_GetRxPtr
 	movlw	RXB0D0 & 0xf
 	addwf	FSR1L, F
 
-SID_MBNET_RAM_Write_CopyLoop
-	movff	INDF1, POSTINC0			; copy content of MBNET receive buffer to patch buffer
-	movff	POSTINC1, POSTINC2		; and into shadow buffer
-	decfsz	MBNET_LOOP_CTR, F, BANKED	; continue until loop counter is zero
-	rgoto	SID_MBNET_RAM_Write_CopyLoop
+SID_MBNET_RAM_Write_SIDCopyLoop
+	movff	POSTINC1, POSTINC0		; copy content of MBNET receive buffer to SID buffer
+	decfsz	PRODL, F			; continue until loop counter is zero
+	rgoto	SID_MBNET_RAM_Write_SIDCopyLoop
 
-	;; exit with Ok status
-	retlw	MBNET_ACK_TOS_OK
+SID_MBNET_RAM_Write_SID_End
+	;; disable sound engine
+	bsf	SID_STAT, SID_STAT_ENGINE_DISABLE
 
+	;; SID access: no acknowledge
+	movf	RXB0EIDH, W, ACCESS
+	xorlw	0xfe
+	bz	SID_MBNET_RAM_Write_SID_NoAck0
 
+SID_MBNET_RAM_Write_SID_NoAck1
+	;; 0xfd: send to SIDs
+	call _SID_SR_Handler
+
+SID_MBNET_RAM_Write_SID_NoAck0
+	;; 0xfe and 0xfd: don't send acknowledge for higher bandwidth
+	retlw	-1

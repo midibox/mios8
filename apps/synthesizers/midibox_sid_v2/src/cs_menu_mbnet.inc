@@ -508,8 +508,7 @@ CS_MENU_MBNET_Tx_GetPatch_LoopO
 	rgoto	CS_MENU_MBNET_Error
 
 	;; check that we received 8 bytes
-	lfsr	FSR1, B5DLC
-	movf	POSTINC1, W
+	movf	RXB0DLC, W, ACCESS
 	xorlw	8
 	skpz
 	rgoto	CS_MENU_MBNET_Error
@@ -521,14 +520,14 @@ CS_MENU_MBNET_Tx_GetPatch_LoopO
 	addlw	HIGH(SID_EDIT_BUFFER)
 	movwf	FSR0H
 
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
+	movff	RXB0D0, POSTINC0
+	movff	RXB0D1, POSTINC0
+	movff	RXB0D2, POSTINC0
+	movff	RXB0D3, POSTINC0
+	movff	RXB0D4, POSTINC0
+	movff	RXB0D5, POSTINC0
+	movff	RXB0D6, POSTINC0
+	movff	RXB0D7, POSTINC0
 
 	movlw	8
 	addwf	CS_MENU_GET_PATCH_ADDR_L, F
@@ -589,8 +588,7 @@ CS_MENU_MBNET_Tx_GetEns_LoopO
 	rgoto	CS_MENU_MBNET_Error
 
 	;; check that we received 8 bytes
-	lfsr	FSR1, B5DLC
-	movf	POSTINC1, W
+	movf	RXB0DLC, W, ACCESS
 	xorlw	8
 	skpz
 	rgoto	CS_MENU_MBNET_Error
@@ -600,14 +598,14 @@ CS_MENU_MBNET_Tx_GetEns_LoopO
 	movf	EEADR, W
 	addwf	FSR0L, F
 
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
-	movff	POSTINC1, POSTINC0
+	movff	RXB0D0, POSTINC0
+	movff	RXB0D1, POSTINC0
+	movff	RXB0D2, POSTINC0
+	movff	RXB0D3, POSTINC0
+	movff	RXB0D4, POSTINC0
+	movff	RXB0D5, POSTINC0
+	movff	RXB0D6, POSTINC0
+	movff	RXB0D7, POSTINC0
 
 	movlw	8
 	addwf	EEADR, F
