@@ -4,7 +4,7 @@
 ; MIDIbox FM
 ;
 ; Version:                <-------------->
-#define MBFM_VERSION_STR "MIDIbox FM V1.4 "
+#define MBFM_VERSION_STR "MIDIbox FM V1.4b"
 ; (fixed string length - 16 characters!)
 ;
 ; ==========================================================================
@@ -90,6 +90,14 @@ USER_Init
 	;; init voices
 	call	MBFM_VOICE_Init
 
+	;; initialize the timer for the sound engine handler
+	movlw	LOW(10000)		; every 1 mS (update cycle splitted into 2 halfs!)
+	movwf	MIOS_PARAMETER1
+	movlw	HIGH(10000)
+	movwf	MIOS_PARAMETER2
+	movlw	0x00			; prescaler 1:1
+	call	MIOS_TIMER_Init
+
 	;; ------------------------------------------------------------------
 
 #if CS_ENABLED
@@ -132,7 +140,8 @@ USER_Tick
 ;;  and IRQ_TMPx instead of TMPx -- and make the routine as fast as possible!
 ;; --------------------------------------------------------------------------
 USER_Timer
-	return
+	;; ---[ call Synth Engine Handler ]---
+	goto	MBFM_SE_Handler
 
 
 ;; --------------------------------------------------------------------------
@@ -344,14 +353,6 @@ USER_ENC_NotifyChange_NoMenu
 ;;  and IRQ_TMPx instead of TMPx -- and make the routine as fast as possible
 ;; --------------------------------------------------------------------------
 USER_SR_Service_Prepare
-
-	;; the synth engine handler is hooked here
-	;; since updates are made each millisecond (which is also the update
-	;; cycle of the shift register chains)
-
-	;; ---[ call Synth Engine Handler ]---
-	call	MBFM_SE_Handler
-
 #if CS_ENABLED
 	;; ---[ handle with control surface variables (flashing cursor, etc) ]---
 	goto	CS_MENU_TIMER

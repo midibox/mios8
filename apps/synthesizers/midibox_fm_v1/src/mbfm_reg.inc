@@ -279,7 +279,9 @@ MBFM_REG_Update_NotGates
 
 MBFM_REG_Update_Loop
 	;; disable interrupts to avoid inconsistencies
-	IRQ_DISABLE
+	;; 	IRQ_DISABLE
+	bcf	PIE2, TMR3IE	; disable only sound engine timer
+	
 
 	;; do nothing if no update requested
 	movlw	MBFM_Vx_UPDATE0
@@ -467,7 +469,8 @@ MBFM_REG_Update_Loop_Next
 	bcf	PLUSW1, MBFM_STAT_UPDATE_NOT_DONE
 
 	;; enable interrupts again
-	IRQ_ENABLE
+	;; 	IRQ_ENABLE
+	bsf	PIE2, TMR3IE	; sound engine timer
 
 	;; increment base pointer to next voice and loop until last voice reached
 	incf	MBFM_CURRENT_VOICE, F, BANKED
