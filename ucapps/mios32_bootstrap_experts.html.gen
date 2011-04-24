@@ -2,13 +2,13 @@ HEADER 3 MIOS32 Bootloader Installation
 
 <H1>MIOS32 Bootloader Installation</H1>
 
-<P CLASS=DESC>This page describes how to install the MIOS32 bootloader on a STM32 microcontroller, so that applications can be uploaded via MIDI without opening the MIDIbox case.</P>
+<P CLASS=DESC>This page describes how to install the MIOS32 bootloader on a STM32 and LPC17 microcontroller, so that applications can be uploaded via MIDI without opening the MIDIbox case.</P>
 
-<P CLASS=DESC>Following informations are not for interest if you got a preburned STM32F103RE -&gt; please continue at <A HREF="mios32_bootstrap_newbies.html">this page</A>.</P>
+<P CLASS=DESC>Following informations are not for interest if you got a preburned STM32F103RE resp. LPC1769 device -&gt; please continue at <A HREF="mios32_bootstrap_newbies.html">this page</A>.</P>
 
 <H2>COM or JTAG?</H2>
 
-<P CLASS=DESC>Unfortunately STM missed to integrate an USB based bootloader into the ROM memory, so that additional hardware is required to program a "virgin" internal flash memory. Using the ROM based UART Bootloader is probably the cheapest method, as it only requires a RS232 level shifter (e.g. available on the <A HREF="mbhp_ltc.html">MBHP_LTC module</A>) and a COM port on your PC (virtual USB based COM devices are working as well).</P>
+<P CLASS=DESC>Unfortunately STM and NXP missed to integrate an USB based bootloader into the ROM memory, so that additional hardware is required to program a "virgin" internal flash memory. Using the ROM based UART Bootloader is probably the cheapest method, as it only requires a RS232 level shifter (e.g. available on the <A HREF="mbhp_ltc.html">MBHP_LTC module</A>) and a COM port on your PC (virtual USB based COM devices are working as well).</P>
 
 <P CLASS=DESC>The preferred method for experts is the usage of a JTAG wiggler, as it gives access to debugging features of the ARM Cortex M3, like halting the CPU, setting breakpoints, reading/writing memories during the application is running.</P>
 
@@ -18,9 +18,9 @@ Here an oversight about the advantages/disadvantages in conjunction with code up
     <UL CLASS=CL>
       <LI>- has to be programmed into a virgin flash via JTAG or UART - or has to be provided in "preprogrammed chips"
       <LI>- can be destroyed by the application on gross program errors (e.g. erasing the wrong flash sector), therefore JTAG or UART BSL has to be used as fallback solution
-      <LI>- no access to debug features of STM32
+      <LI>- no access to debug features of STM32/LPC17
       <LI>- UART based MIDI is much slower than JTAG or UART BSL (ca. 2.5 kb/s)
-      <LI>+ however, USB MIDI (13..17 kb/s) is even faster than JTAG (12 kb/s)
+      <LI>+ however, USB MIDI (STM32: 13..17 kb/s, LPC17: 20..30 kb/s) is even faster than JTAG (12 kb/s)
       <LI>+ USB interface won't be reset after code upload (means: no need to re-open a running MIDI program on your Windows PC)
       <LI>+ a solution to program STM32 Primer under Linux/MacOS
       <LI>+ proven concept for end-users
@@ -34,6 +34,7 @@ Here an oversight about the advantages/disadvantages in conjunction with code up
       <LI>+ FT2232 based USB JTAG wiggler is expensive, but works fast & flawless under Windows/Linux/MacOS
       <LI>+ allows to debug application during runtime (e.g. display and modify memory locations, halt the CPU, setting breakpoints)
       <LI>- MIDIbox case has to be opened to connect the JTAG wiggler
+      <LI>+ LPC17 only: the LPCXPRESSO board includes a LPC-Link, which is a proprotary JTAG interface which runs with a <A HREF="http://ics.nxp.com/lpcxpresso" TARGET="_blank">commercial software</A>. A demo version allows to debug applications of up to 128k for free. But the best: it allows to program the MIOS32 BSL! :-)
     </UL>
   <LI><B>UART BSL</B>
     <UL CLASS=CL>
@@ -157,5 +158,10 @@ Picture of my test setup:<BR>
 <IMG SRC="mbhp/mbhp_core_stm32_uart_bsl.jpg" WIDTH=550 HEIGHT=412></P>
 
 <P CLASS=DESC>Note that you need to remove the bootmode jumpers on J27 and J23, and power-cycle the core after code upload.</P>
+
+
+<H2>LPCXPRESSO: using LPC-Link to upload the MIOS32 Bootloader</H2>
+
+<P CLASS=DESC>TODO</P>
 
 FOOTER

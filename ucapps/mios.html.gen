@@ -10,7 +10,9 @@ HEADER 3 The MIDIbox Operating System
 
 <P CLASS=INFO>Between 1999 and 2008, MIDIbox applications have been developed for <A HREF="mbhp_core.html">PIC microcontrollers</A>, since 2002 with MIOS8 as operating system. Most of them are implemented in assembly language to get the maximum out of the PIC, with the drawback that the code was difficult to understand and to enhance - not only for newbies. Later a <A HREF="mios8_c.html">C interface</A> has been developed to allow the implementation of small gadgets on a more elegant way, but experienced programmers quickly reached the limitations of the PIC where only assembly optimized code or the usage of multiple PICs could help.</P>
 
-<P CLASS=INFO>Between 2008/2009, MIOS32 has been developed for the <A HREF="mbhp_core_stm32.html">STM32</A> microcontroller. No stone has been left unturned! As you can see in some <A HREF="mios32_c.html">tutorial applications</A>, execution performance doesn't need to be focused anymore, the usage of assembly language isn't required to realize even complex projects like an algorithmic MIDI sequencer or an audio synthesizer. Interfaces like USB (e.g. for native USB MIDI support) and Ethernet (e.g. for native OSC support) speed up the communication with external devices dramatically, the usage of a <A HREF="mbhp_sdcard.html">SD Card</A> instead of <A HREF="mbhp_bankstick.html">BankStick</A> simplifies data exchange, premade <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fmodules%2F">software modules (libraries)</A> reduce the time to develop new applications.</A>.
+<P CLASS=INFO>Between 2008/2010, MIOS32 has been developed for the <A HREF="mbhp_core_stm32.html">STM32</A> microcontroller. No stone has been left unturned! As you can see in some <A HREF="mios32_c.html">tutorial applications</A>, execution performance doesn't need to be focused anymore, the usage of assembly language isn't required to realize even complex projects like an algorithmic MIDI sequencer or an audio synthesizer. Interfaces like USB (e.g. for native USB MIDI support) and Ethernet (e.g. for native OSC support) speed up the communication with external devices dramatically, the usage of a <A HREF="mbhp_sdcard.html">SD Card</A> instead of <A HREF="mbhp_bankstick.html">BankStick</A> simplifies data exchange, premade <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fmodules%2F">software modules (libraries)</A> reduce the time to develop new applications.</A>.
+
+<P CLASS=INFO>Since 2011, MIOS32 also supports <A HREF="mbhp_core_lpc17.html">LPC17xx</A> microcontrollers. Most applications which access peripheral functions via the <A HREF="mios32_c.html">MIOS32 Hardware Abstraction Layer</A> are 100% compatible and only need to be recompiled for this microcontroller. Applications are typically running ca. 30..50% faster on a LPC1769, and thanks to the usage of the LPCXPRESSO evaluation board as basis it's also easier to adapt the "base board" for different usecases.</A>.
 
 <H2>Specs</H2>
 
@@ -18,235 +20,272 @@ HEADER 3 The MIDIbox Operating System
   <TR>
     <TD CLASS=TABCOLOR1 width="20%">&nbsp;</td>
     <TD CLASS=TABCOLOR1 width="40%"><FONT SIZE=2><STRONG>MIOS8</STRONG></FONT></TD>
-    <TD CLASS=TABCOLOR1 width="40%"><FONT SIZE=2><STRONG>MIOS32</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1 width="40%"><FONT SIZE=2><STRONG>MIOS32 STM32</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1 width="40%"><FONT SIZE=2><STRONG>MIOS32 LPC17</STRONG></FONT></TD>
   </TR>
   <TR>
-    <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Hardware</STRONG></FONT></TD>
+    <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Hardware</STRONG></FONT></TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Core Module:</B></TD>
     <TD CLASS=TABCOLOR2><A HREF="mbhp_core.html">MBHP_CORE</A> module</TD>
     <TD CLASS=TABCOLOR2><A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module</TD>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Microcontroller:</B></TD>
     <TD CLASS=TABCOLOR2>PIC18F452<BR>PIC18F4620<BR>PIC18F4685</TD>
-    <TD CLASS=TABCOLOR2>STM32F103RE<BR>Environment prepared for different microcontroller families!</TD>
+    <TD CLASS=TABCOLOR2>STM32F103RE<BR>STM32F103RE</TD>
+    <TD CLASS=TABCOLOR2>STM32F103RE<BR>LPC1769</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>CPU:</B></TD>
     <TD CLASS=TABCOLOR2>PIC18 MCU (8-bit)</TD>
+    <TD CLASS=TABCOLOR2>ARM Cortex M3 (32-bit)</TD>
     <TD CLASS=TABCOLOR2>ARM Cortex M3 (32-bit)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Speed:</B></TD>
     <TD CLASS=TABCOLOR2>10 MIPS @ 40 MHz</TD>
     <TD CLASS=TABCOLOR2>90 DMIPS @ 72 MHz</TD>
+    <TD CLASS=TABCOLOR2>typically 30..50% faster @120 MHz than STM32 </TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Embedded memory:</B></TD>
     <TD CLASS=TABCOLOR2>32k..96k Flash<BR>1.5k..3.9k RAM</TD>
+    <TD CLASS=TABCOLOR2>512k Flash<BR>64k RAM</TD>
     <TD CLASS=TABCOLOR2>512k Flash<BR>64k RAM</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>IO voltage:</B></TD>
     <TD CLASS=TABCOLOR2>5V</TD>
     <TD CLASS=TABCOLOR2>3.3V, but most input pins are 5V tolerant</TD>
+    <TD CLASS=TABCOLOR2>3.3V, but most input pins are 5V tolerant</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Price of uC only:</B></TD>
     <TD CLASS=TABCOLOR2>ca. US $5..$10</TD>
-    <TD CLASS=TABCOLOR2>ca. US $10</TD>
+    <TD CLASS=TABCOLOR2>ca. US $14</TD>
+    <TD CLASS=TABCOLOR2>ca. US $12</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Core module kit with all parts:</B></TD>
     <TD CLASS=TABCOLOR2>US $27 (Double Sided PCB, <A HREF="http://mbhp.avishowtech.com" TARGET="_blank">SmashTV</A>)<BR>
                         EUR 23 (Single Sided PCB, <A HREF="http://www.mikes-elektronikseite.de/midiseite.htm">Mike</A>)</TD>
-    <TD CLASS=TABCOLOR2>tbd. (<A HREF="http://mbhp.avishowtech.com" TARGET="_blank">SmashTV</A>)<BR>STM32 chip already soldered on PCB</TD>
+    <TD CLASS=TABCOLOR2>US $57 (<A HREF="http://mbhp.avishowtech.com" TARGET="_blank">SmashTV</A>)<BR>STM32 chip already soldered on PCB</TD>
+    <TD CLASS=TABCOLOR2>ca. 50 EUR with all components, but low-cost solutions will be available as well (more DIY friendly)</TD>
   </TR>
   <TR>
-    <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Software Architecture</STRONG></FONT></TD>
+    <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Software Architecture</STRONG></FONT></TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Kernel:</B></TD>
     <TD CLASS=TABCOLOR2>Monolithic kernel programmed in assembly language. Two priorities (interrupt and main task), hooks to hard- and software events which optionally execute C routines.</TD>
-    <TD CLASS=TABCOLOR2>Modular kernel programmed in C language, combined with (but not strictly tied to) <A HREF="http://www.freertos.org" TARGET="_blank">FreeRTOS</A> as realtime operating system.<BR>While FreeRTOS provides preemptive multitasking, multiple tasks priorities and synchronisation mechanisms, MIOS32 acts as an abstraction layer between hardware and software components.</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>Modular kernel programmed in C language, combined with (but not strictly tied to) <A HREF="http://www.freertos.org" TARGET="_blank">FreeRTOS</A> as realtime operating system.<BR>While FreeRTOS provides preemptive multitasking, multiple tasks priorities and synchronisation mechanisms, MIOS32 acts as an abstraction layer between hardware and software components.</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Bootloader:</B></TD>
     <TD CLASS=TABCOLOR2>yes, via MIDI (requires reliable MIDI interface)</TD>
-    <TD CLASS=TABCOLOR2>yes, via MIDI and USB MIDI (no additional MIDI interface required)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes, via MIDI and USB MIDI (no additional MIDI interface required)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Applications:</B></TD>
     <TD CLASS=TABCOLOR2>PIC Assembly or C based.<BR>Compiled as a separate binary.</TD>
-    <TD CLASS=TABCOLOR2>C (optionally C++) based.<BR>Compiled together with FreeRTOS, MIOS32 and software modules to a single binary.</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>C (optionally C++) based.<BR>Compiled together with FreeRTOS, MIOS32 and software modules to a single binary.</TD>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Toolchain:</B></TD>
     <TD CLASS=TABCOLOR2>GPASM and SDCC based</TD>
-    <TD CLASS=TABCOLOR2>GCC based</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>GCC based</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>SVN Repository:</B></TD>
     <TD CLASS=TABCOLOR2><A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios&path=%2Ftrunk%2F" TARGET="_blank">LINK</A></TD>
-    <TD CLASS=TABCOLOR2><A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2F" TARGET="_blank">LINK</A></TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2><A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2F" TARGET="_blank">LINK</A></TD>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Documentation:</B></TD>
     <TD CLASS=TABCOLOR2><A HREF="http://www.ucapps.de/cmios_fun.html">LINK</A> and <A HREF="http://www.ucapps.de/mios8_c.html">LINK</A></TD>
-    <TD CLASS=TABCOLOR2><A HREF="http://www.midibox.org/mios32/manual">LINK</A> and <A HREF="http://www.ucapps.de/mios32_c.html">LINK</A></TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2><A HREF="http://www.midibox.org/mios32/manual">LINK</A> and <A HREF="http://www.ucapps.de/mios32_c.html">LINK</A></TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Download Area:</B></TD>
     <TD CLASS=TABCOLOR2><A HREF="mios_download.html">LINK</A></TD>
-    <TD CLASS=TABCOLOR2><A HREF="mios32_download.html">LINK</A></TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2><A HREF="mios32_download.html">LINK</A></TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Open Source:</B></TD>
     <TD CLASS=TABCOLOR2>yes (completely)</TD>
-    <TD CLASS=TABCOLOR2>yes (completely)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes (completely)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>License:</B></TD>
     <TD CLASS=TABCOLOR2>Personal non-commercial use only</TD>
-    <TD CLASS=TABCOLOR2>Personal non-commercial use only</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>Personal non-commercial use only</TD>
   </TR>
   <TR>
-    <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Natively supported Peripherals</STRONG></FONT></TD>
+    <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Natively supported Peripherals</STRONG></FONT></TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>MIDI Interface:</B></TD>
     <TD CLASS=TABCOLOR2>1 MIDI IN, 1 MIDI OUT</TD>
-    <TD CLASS=TABCOLOR2>2 MIDI IN, 2 MIDI OUT</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>2 MIDI IN, 2 MIDI OUT, optional third MIDI IO available at J5</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>USB Interface:</B></TD>
     <TD CLASS=TABCOLOR2>no</TD>
-    <TD CLASS=TABCOLOR2>yes</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>Ethernet Interface:</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>only via external HW</TD>
+    <TD CLASS=TABCOLOR2>yes, integrated</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>CAN Interface:</B></TD>
     <TD CLASS=TABCOLOR2>only PIC18F4685</TD>
+    <TD CLASS=TABCOLOR2>yes, but can't use USB in parallel!</TD>
     <TD CLASS=TABCOLOR2>yes</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>JTAG Interface:</B></TD>
     <TD CLASS=TABCOLOR2>no</TD>
-    <TD CLASS=TABCOLOR2>yes (for code debugging, e.g. to set set breakpoints, display runtime variables, etc.)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes (for code debugging, e.g. to set set breakpoints, display runtime variables, etc.)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>LCD Interface:</B></TD>
     <TD CLASS=TABCOLOR2>yes (J15, multiple LCDs can be connected by sacrificing IO pins)</TD>
-    <TD CLASS=TABCOLOR2>yes (J15A/B to connect two LCDs, more LCDs can be connected by sacrificing IO pins)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes (J15A/B to connect two LCDs, more LCDs can be connected by sacrificing IO pins)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Direct digital IO:</B></TD>
     <TD CLASS=TABCOLOR2>8 free programmable IO pins (Port J5)</TD>
     <TD CLASS=TABCOLOR2>12 free programmable IO pins (Port J5A/B/C)</TD>
+    <TD CLASS=TABCOLOR2>16 free programmable IO pins (Port J5A/B and J10)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Serial digital IO:</B></TD>
     <TD COLSPAN=2 CLASS=TABCOLOR2>Up to 128 inputs via <A HREF="mbhp_din.html">DIN module</A>, up to 128 outputs via <A HREF="mbhp_dout.html">DOUT module</A>.<BR>IO pins can be multiplexed to extend the number of controlable buttons/LEDs.</TD>
+    <TD CLASS=TABCOLOR2>Only limited by execution time and used HW buffers</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Direct analog IO:</B></TD>
     <TD CLASS=TABCOLOR2>8 analog inputs (Port J5) at 10 bit resolution and 5V range</TD>
     <TD CLASS=TABCOLOR2>16 analog inputs (Port J5A/B/C, J16) at 12 bit resolution and 3.3V range</TD>
+    <TD CLASS=TABCOLOR2>8 analog inputs (Port J5A/B) at 12 bit resolution and 3.3V range</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Multiplexed analog IO:</B></TD>
     <TD CLASS=TABCOLOR2>up to 64 analog inputs, multiplexed via <A HREF="mbhp_ain.html">MBHP_AIN</A> module(s)</TD>
     <TD CLASS=TABCOLOR2>up to 128 analog inputs, multiplexed via <A HREF="mbhp_ain.html">MBHP_AIN</A> module(s)</TD>
+    <TD CLASS=TABCOLOR2>up to 64 analog inputs, multiplexed via <A HREF="mbhp_ain.html">MBHP_AIN</A> module(s)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Serial/Parallel Interface (SPI):</B></TD>
     <TD CLASS=TABCOLOR2>Software emulated, e.g. to scan <A HREF="mbhp_din.html">DIN</A>/<A HREF="mbhp_dout.html">DOUT</A> modules.</TD>
-    <TD CLASS=TABCOLOR2>2 hardware based interfaces (J8/9 and J16), 1 software emulated (J19)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>2 hardware based interfaces (J8/9 and J16), 1 software emulated (J19)</TD>
   </TR>
   <TR>
-    <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Software Layers</STRONG></FONT></TD>
+    <TD CLASS=TABCOLOR1 width="20%"><B>I2C Interface:</B></TD>
+    <TD CLASS=TABCOLOR2>1 SW based</TD>
+    <TD CLASS=TABCOLOR2>1 HW based, another alternative</TD>
+    <TD CLASS=TABCOLOR2>3 HW based</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR1 width="20%"><B>I2S Interface:</B></TD>
+    <TD CLASS=TABCOLOR2>no</TD>
+    <TD CLASS=TABCOLOR2>yes (but shared with J8/9)</TD>
+    <TD CLASS=TABCOLOR2>yes, dedicated port!</TD>
+  </TR>
+  <TR>
+    <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Software Layers</STRONG></FONT></TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>MIDI:</B></TD>
     <TD CLASS=TABCOLOR2>yes (single port, stream oriented access)</TD>
-    <TD CLASS=TABCOLOR2>yes (multiple ports and interfaces, packet oriented access)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes (multiple ports and interfaces, packet oriented access)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>COM/RS232:</B></TD>
     <TD CLASS=TABCOLOR2>no</TD>
-    <TD CLASS=TABCOLOR2>yes (multiple ports and interfaces)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes (multiple ports and interfaces)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Ethernet:</B></TD>
     <TD CLASS=TABCOLOR2>no</TD>
     <TD CLASS=TABCOLOR2>yes (via <A HREF="mbhp_eth.html">ENC28J60</A>)</TD>
+    <TD CLASS=TABCOLOR2>yes (integrated)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>OSC:</B></TD>
     <TD CLASS=TABCOLOR2>no</TD>
-    <TD CLASS=TABCOLOR2>yes (via Ethernet or alternative transport device)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes (via Ethernet or alternative transport device)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>BOARD:</B></TD>
     <TD CLASS=TABCOLOR2>as library component</TD>
-    <TD CLASS=TABCOLOR2>part of MIOS32</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>part of MIOS32</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>TIMER:</B></TD>
     <TD CLASS=TABCOLOR2>1 at uS accuracy</TD>
-    <TD CLASS=TABCOLOR2>3 at uS accuracy, more at mS accuracy can be defined as FreeRTOS tasks.</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>3 at uS accuracy, more at mS accuracy can be defined as FreeRTOS tasks.</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>Realtime Clock</B></TD>
     <TD CLASS=TABCOLOR2>no</TD>
-    <TD CLASS=TABCOLOR2>yes</TD>
+    <TD CLASS=TABCOLOR2>yes, at mS resoltion</TD>
+    <TD CLASS=TABCOLOR2>yes, but only S resolution</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>SRIO:</B></TD>
     <TD CLASS=TABCOLOR2>128 DIN, 128 DOUT pins (2 * 16 shift registers)</TD>
-    <TD CLASS=TABCOLOR2>128 DIN, 128 DOUT pins (2 * 16 shift registers)<BR>Number of SRs extendible with hardware enhancements, e.g. usage of buffers for SCLK/RCLK line.</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>128 DIN, 128 DOUT pins (2 * 16 shift registers)<BR>Number of SRs extendible with hardware enhancements, e.g. usage of buffers for SCLK/RCLK line.</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>ENC (Encoders):</B></TD>
     <TD CLASS=TABCOLOR2>up to 64 detented or non-detented rotary encoders</TD>
-    <TD CLASS=TABCOLOR2>like MIOS8, but number free definable</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>like MIOS8, but number free definable</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>MF (Motorfaders):</B></TD>
     <TD CLASS=TABCOLOR2>up to 8</TD>
     <TD CLASS=TABCOLOR2>up to 16</TD>
+    <TD CLASS=TABCOLOR2>up to 8</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>IIC:</B></TD>
     <TD CLASS=TABCOLOR2>yes (single port)</TD>
     <TD CLASS=TABCOLOR2>yes (two ports)</TD>
+    <TD CLASS=TABCOLOR2>yes (three ports)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>IIC_MIDI:</B></TD>
     <TD CLASS=TABCOLOR2>as library component</TD>
-    <TD CLASS=TABCOLOR2>part of MIOS32 MIDI API</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>part of MIOS32 MIDI API</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>BANKSTICK:</B></TD>
-    <TD COLSPAN=2 CLASS=TABCOLOR2>yes (up to 8 32k and 64k)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=3>yes (up to 8 32k and 64k)</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>SD Card:</B></TD>
     <TD CLASS=TABCOLOR2>as library component, but limited FAT support</TD>
-    <TD CLASS=TABCOLOR2>yes. DOSFS module supports FAT12/FAT16/FAT32</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=2>yes. DOSFS module supports FAT12/FAT16/FAT32</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>(Internal) EEPROM:</B></TD>
     <TD CLASS=TABCOLOR2>accessing 256..1024 byte depending on PIC</TD>
     <TD CLASS=TABCOLOR2>accessing up to 2047 byte via EEPROM emulation</TD>
+    <TD CLASS=TABCOLOR2>onboard 1k IIC EEPROM</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>LCD:</B></TD>
-    <TD COLSPAN=2 CLASS=TABCOLOR2>Various CLCDs and GLCDs as library component/software modules</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=3>Various CLCDs and GLCDs as library component/software modules</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR1 width="20%"><B>I2S Audio:</B></TD>
     <TD CLASS=TABCOLOR2>no</TD>
-    <TD CLASS=TABCOLOR2>yes (16bit Stereo)</TD>
+    <TD CLASS=TABCOLOR2 COLSPAN=3>yes (16bit Stereo)</TD>
   </TR>
 </TABLE>
 
@@ -291,6 +330,6 @@ HEADER 3 The MIDIbox Operating System
 
 <H2>Wikipedia Entry</H2>
 
-<P CLASS=DESC><A HREF="http://en.wikipedia.org/wiki/Midibox" TARGET="_blank">MIDIbox</A> (it doesn't consider MIOS32 yet)</P>
+<P CLASS=DESC><A HREF="http://en.wikipedia.org/wiki/Midibox" TARGET="_blank">MIDIbox</A></P>
 
 FOOTER
