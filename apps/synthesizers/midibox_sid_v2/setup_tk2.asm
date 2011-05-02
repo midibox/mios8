@@ -167,7 +167,7 @@
 #define DEFAULT_O2A_OSC2_R_AOUT		0
 #define DEFAULT_O2A_OSC3_R_AOUT		0
 
-	;; gate/slide/accent of all 6 oscillators can be forwarded to the 8 digital outputs at J5
+	;; gate/slide/accent of all 6 oscillators + filter flags can be forwarded to the 8 digital outputs at J5
 	;; note that this overlays the switch assignments of the patch structure
 	;; DEFAULT_J5_FUNCTION should be set to 3 if you are plannung to use this function.
 	;; possible values: 0..8 - 0 disables an assignment
@@ -195,6 +195,56 @@
 #define DEFAULT_ACCENT_OSC1_R_OUT	0
 #define DEFAULT_ACCENT_OSC2_R_OUT	0
 #define DEFAULT_ACCENT_OSC3_R_OUT	0
+
+	;; filter flags supported by all engines
+#define DEFAULT_FILTER_LP_L_OUT		0
+#define DEFAULT_FILTER_BP_L_OUT		0
+#define DEFAULT_FILTER_HP_L_OUT		0
+
+#define DEFAULT_FILTER_LP_R_OUT		0
+#define DEFAULT_FILTER_BP_R_OUT		0
+#define DEFAULT_FILTER_HP_R_OUT		0
+
+#define DEFAULT_FILTER_O1_L_OUT		0
+#define DEFAULT_FILTER_O2_L_OUT		0
+#define DEFAULT_FILTER_O3_L_OUT		0
+#define DEFAULT_FILTER_EXTIN_L_OUT	0
+
+#define DEFAULT_FILTER_O1_R_OUT		0
+#define DEFAULT_FILTER_O2_R_OUT		0
+#define DEFAULT_FILTER_O3_R_OUT		0
+#define DEFAULT_FILTER_EXTIN_R_OUT	0
+
+	;; selected waveform supported by all engines
+#define DEFAULT_WAVE_O1_L_TRI		0
+#define DEFAULT_WAVE_O1_L_SAW		0
+#define DEFAULT_WAVE_O1_L_PULSE		0
+#define DEFAULT_WAVE_O1_L_NOISE		0
+
+#define DEFAULT_WAVE_O2_L_TRI		0
+#define DEFAULT_WAVE_O2_L_SAW		0
+#define DEFAULT_WAVE_O2_L_PULSE		0
+#define DEFAULT_WAVE_O2_L_NOISE		0
+
+#define DEFAULT_WAVE_O3_L_TRI		0
+#define DEFAULT_WAVE_O3_L_SAW		0
+#define DEFAULT_WAVE_O3_L_PULSE		0
+#define DEFAULT_WAVE_O3_L_NOISE		0
+
+#define DEFAULT_WAVE_O1_R_TRI		0
+#define DEFAULT_WAVE_O1_R_SAW		0
+#define DEFAULT_WAVE_O1_R_PULSE		0
+#define DEFAULT_WAVE_O1_R_NOISE		0
+
+#define DEFAULT_WAVE_O2_R_TRI		0
+#define DEFAULT_WAVE_O2_R_SAW		0
+#define DEFAULT_WAVE_O2_R_PULSE		0
+#define DEFAULT_WAVE_O2_R_NOISE		0
+
+#define DEFAULT_WAVE_O3_R_TRI		0
+#define DEFAULT_WAVE_O3_R_SAW		0
+#define DEFAULT_WAVE_O3_R_PULSE		0
+#define DEFAULT_WAVE_O3_R_NOISE		0
 
 
 	;; sets the default display mode for the LED matrix
