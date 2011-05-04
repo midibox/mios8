@@ -145,10 +145,9 @@ MBFM_DRUM_Init
 	call	MBFM_BANK_LoadD
 
 MBFM_DRUM_Init_Cont
-	;; enable percussion mode, clear gates
+	;; clear trigger requests
 	SET_BSR	MBFM_BASE
-	movlw	0x20
-	movwf	MBFM_DRUM_GATES, BANKED
+	clrf	MBFM_DRUM_GATES_TRIGGER, BANKED
 	bsf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_GATES
 
 	;; enable interrupts again

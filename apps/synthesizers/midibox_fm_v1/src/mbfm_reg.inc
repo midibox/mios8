@@ -106,9 +106,9 @@ MBFM_REG_Write
 
 #if ENABLE_MBNET
 	;; store bits 3:2 into port E bits 2:1
-	rrncf 	MIOS_PARAMETER1, F, 0	;; shift right
-	movff	MIOS_PARAMETER1, LATE		;; store in port E latch
-	rlncf	MIOS_PARAMETER1, F, 0	;; shift left, leave MIOS_PARAMETER1 as it was!
+	rrf	MBFM_LAT_D, W	; shift right
+	andlw	0x06		; mask to ensure that pport flags stay 0
+	movwf	LATE		; output at port E
 #endif
 	
 	bcf	MBFM_LAT_CS, MBFM_PIN_CS	; activate chip select line
@@ -127,9 +127,9 @@ MBFM_REG_Write_WaitLoop1
 	
 #if ENABLE_MBNET
 	;; store bits 3:2 into port E bits 2:1
-	rrncf 	MIOS_PARAMETER3, F, 0	;; shift right
-	movff	MIOS_PARAMETER3, LATE		;; store in port E latch
-	rlncf	MIOS_PARAMETER3, F, 0	;; shift left, leave MIOS_PARAMETER3 as it was!
+	rrf	MBFM_LAT_D, W	; shift right
+	andlw	0x06		; mask to ensure that pport flags stay 0
+	movwf	LATE		; output at port E
 #endif
 	
 	bcf	MBFM_LAT_CS, MBFM_PIN_CS	; activate chip select line
@@ -182,6 +182,7 @@ MBFM_REG_Update
 
 	BRA_IFCLR MBFM_UPDATE_DR, MBFM_UPDATE_DR_BD_FNUM, BANKED, MBFM_REG_Update_NotBDFNUM
 MBFM_REG_Update_BD
+	bcf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_BD_FNUM, BANKED
 	lfsr	FSR1, MBFM_DR_BD_FRQL
 	movlw	0xa6
 	rcall	MBFM_REG_Update_DrumFrq
@@ -189,6 +190,7 @@ MBFM_REG_Update_NotBDFNUM
 
 	BRA_IFCLR MBFM_UPDATE_DR, MBFM_UPDATE_DR_HH_FNUM, BANKED, MBFM_REG_Update_NotHHFNUM
 MBFM_REG_Update_HH
+	bcf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_HH_FNUM, BANKED
 	lfsr	FSR1, MBFM_DR_HH_FRQL
 	movlw	0xa7
 	rcall	MBFM_REG_Update_DrumFrq
@@ -196,6 +198,7 @@ MBFM_REG_Update_NotHHFNUM
 
 	BRA_IFCLR MBFM_UPDATE_DR, MBFM_UPDATE_DR_TOM_FNUM, BANKED, MBFM_REG_Update_NotTOMFNUM
 MBFM_REG_Update_TOM
+	bcf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_TOM_FNUM, BANKED
 	lfsr	FSR1, MBFM_DR_TOM_FRQL
 	movlw	0xa8
 	rcall	MBFM_REG_Update_DrumFrq
@@ -203,6 +206,7 @@ MBFM_REG_Update_NotTOMFNUM
 
 	BRA_IFCLR MBFM_UPDATE_DR, MBFM_UPDATE_DR_HH_OPEN, BANKED, MBFM_REG_Update_NotHHOpen
 MBFM_REG_Update_HHOpen
+	bcf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_HH_OPEN, BANKED
 	movlw	0x31
 	movwf	MIOS_PARAMETER1
 	movf	MBFM_DR_HH_O_FLAGS_MULT, W
@@ -232,6 +236,7 @@ MBFM_REG_Update_NotHHOpen
 
 	BRA_IFCLR MBFM_UPDATE_DR, MBFM_UPDATE_DR_HH_CLOSE, BANKED, MBFM_REG_Update_NotHHClose
 MBFM_REG_Update_HHClose
+	bcf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_HH_CLOSE, BANKED
 	movlw	0x31
 	movwf	MIOS_PARAMETER1
 	movf	MBFM_DR_HH_C_FLAGS_MULT, W
@@ -261,15 +266,22 @@ MBFM_REG_Update_NotHHClose
 
 	BRA_IFCLR MBFM_UPDATE_DR, MBFM_UPDATE_DR_GATES, BANKED, MBFM_REG_Update_NotGates
 MBFM_REG_Update_Gates
+	bcf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_GATES, BANKED
 	movlw	0xbd
 	movwf	MIOS_PARAMETER1
-	movf	MBFM_DRUM_GATES, W, BANKED
+	movf	MBFM_DRUM_GATES_TRIGGER, W, BANKED
+	iorlw	0x20		; ensure that percussion mode is enabled
 	rcall	MBFM_REG_Write
 	rcall	MBFM_REG_WaitOPL
+
+	;; clear trigger requests if set
+	;; request another register update next round (to add a small delay)
+	movf	MBFM_DRUM_GATES_TRIGGER, W, BANKED
+	bz	MBFM_REG_Update_NotGates
+	clrf	MBFM_DRUM_GATES_TRIGGER, BANKED
+	bsf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_GATES, BANKED
 MBFM_REG_Update_NotGates
 
-	;; all drums done
-	clrf	MBFM_UPDATE_DR, BANKED
 
 	;; update voice registers
 	clrf	MBFM_CURRENT_VOICE, BANKED		; voice number

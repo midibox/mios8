@@ -142,13 +142,16 @@ MBFM_MIDI_NoteOn_Loop_Next
 ;;     o velocity in MBFM_MIDI_PARAMETER2
 ;; --------------------------------------------------------------------------
 MBFM_MIDI_NoteOff
+#if 0
 	;; drum special
+	;; NOTE REQUIRED ANYMORE, WE WORK WITH TRIGGER REQUESTS NOW
 	movf	MBFM_DRUM_MIDI_CHANNEL, W, BANKED
 	cpfseq	MBFM_CURRENT_CHANNEL, BANKED
 	rgoto MBFM_MIDI_NoteOffNoDrum
 MBFM_MIDI_NoteOffDrum
 	call	MBFM_MIDI_DrumOff
 MBFM_MIDI_NoteOffNoDrum
+#endif
 
 	clrf	MBFM_CURRENT_INSTRUMENT, BANKED		; loop counter
 	lfsr	FSR0, MBFM_I1_BASE
@@ -916,8 +919,8 @@ MBFM_MIDI_DrumOn
 
 	BRA_IFCLR TMP1, 0, ACCESS, MBFM_MIDI_DrumOn_NotBD
 MBFM_MIDI_DrumOn_BD
-	movf	MBFM_MIDI_PARAMETER1, W, BANKED
-	subwf	MBFM_DR_BD_SPLIT_LOWER, W, BANKED
+	movf	MBFM_DR_BD_SPLIT_LOWER, W, BANKED
+	subwf	MBFM_MIDI_PARAMETER1, W, BANKED
 	addwf	MBFM_DR_BD_FRQ, W, BANKED
 	call	MBFM_DRUM_SetBDFrq
 
@@ -935,8 +938,8 @@ MBFM_MIDI_DrumOn_NotBD
 
 	BRA_IFCLR TMP1, 1, ACCESS, MBFM_MIDI_DrumOn_NotHHO
 MBFM_MIDI_DrumOn_HHO
-	movf	MBFM_MIDI_PARAMETER1, W, BANKED
-	subwf	MBFM_DR_HH_O_SPLIT_LOWER, W, BANKED
+	movf	MBFM_DR_HH_O_SPLIT_LOWER, W, BANKED
+	subwf	MBFM_MIDI_PARAMETER1, W, BANKED
 	addwf	MBFM_DR_HH_FRQ, W, BANKED
 	call	MBFM_DRUM_SetHHFrq
 
@@ -953,8 +956,8 @@ MBFM_MIDI_DrumOn_NotHHO
 
 	BRA_IFCLR TMP1, 2, ACCESS, MBFM_MIDI_DrumOn_NotHHC
 MBFM_MIDI_DrumOn_HHC
-	movf	MBFM_MIDI_PARAMETER1, W, BANKED
-	subwf	MBFM_DR_HH_C_SPLIT_LOWER, W, BANKED
+	movf	MBFM_DR_HH_C_SPLIT_LOWER, W, BANKED
+	subwf	MBFM_MIDI_PARAMETER1, W, BANKED
 	addwf	MBFM_DR_HH_FRQ, W, BANKED
 	call	MBFM_DRUM_SetHHFrq
 
@@ -982,8 +985,8 @@ MBFM_MIDI_DrumOn_NotSD
 
 	BRA_IFCLR TMP1, 4, ACCESS, MBFM_MIDI_DrumOn_NotTOM
 MBFM_MIDI_DrumOn_TOM
-	movf	MBFM_MIDI_PARAMETER1, W, BANKED
-	subwf	MBFM_DR_TOM_SPLIT_LOWER, W, BANKED
+	movf	MBFM_DR_TOM_SPLIT_LOWER, W, BANKED
+	subwf	MBFM_MIDI_PARAMETER1, W, BANKED
 	addwf	MBFM_DR_TOM_FRQ, W, BANKED
 	call	MBFM_DRUM_SetTOMFrq
 
@@ -997,8 +1000,8 @@ MBFM_MIDI_DrumOn_NotTOM
 
 	BRA_IFCLR TMP1, 5, ACCESS, MBFM_MIDI_DrumOn_NotCYM
 MBFM_MIDI_DrumOn_CYM
-	movf	MBFM_MIDI_PARAMETER1, W, BANKED
-	subwf	MBFM_DR_TOM_SPLIT_LOWER, W, BANKED
+	movf	MBFM_DR_CYM_SPLIT_LOWER, W, BANKED
+	subwf	MBFM_MIDI_PARAMETER1, W, BANKED
 	addwf	MBFM_DR_TOM_FRQ, W, BANKED
 	call	MBFM_DRUM_SetTOMFrq
 
@@ -1015,7 +1018,7 @@ MBFM_MIDI_DrumOn_NotCYM
 
 ;; Help functions for Drum-On
 MBFM_MIDI_DrumOn_SetGate
-	iorwf	MBFM_DRUM_GATES, F, BANKED
+	iorwf	MBFM_DRUM_GATES_TRIGGER, F, BANKED
 	bsf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_GATES, BANKED
 	return
 
@@ -1056,69 +1059,6 @@ MBFM_MIDI_DrumOn_Hlp_Vol_NoSat
 	andlw	0x3f
 	call	MBFM_REG_Write
 	goto	MBFM_REG_WaitOPL		; wait for 32 OPL3 clock cycles (ca. 2.2 uS)
-
-
-;; --------------------------------------------------------------------------
-;;  This function is called to forward a Drum Off event to the synthesizer
-;;  Input:
-;;     o note number in MBFM_MIDI_PARAMETER1
-;;     o velocity in MBFM_MIDI_PARAMETER2
-;; --------------------------------------------------------------------------
-MBFM_MIDI_DrumOff
-	;; get selected drums
-	rcall	MBFM_MIDI_Drum_GetSel
-	;; result in TMP1:
-	;; TMP1[0]: BD
-	;; TMP1[1]: HH Open
-	;; TMP1[2]: HH Close
-	;; TMP1[3]: SD
-	;; TMP1[4]: Tom
-	;; TMP1[5]: Cymbal
-
-	BRA_IFCLR TMP1, 0, ACCESS, MBFM_MIDI_DrumOff_NotBD
-MBFM_MIDI_DrumOff_BD
-	movlw	~0x10
-	rcall	MBFM_MIDI_DrumOff_ClrGate
-MBFM_MIDI_DrumOff_NotBD
-
-	BRA_IFCLR TMP1, 1, ACCESS, MBFM_MIDI_DrumOff_NotHHO
-MBFM_MIDI_DrumOff_HHO
-	movlw	~0x01
-	rcall	MBFM_MIDI_DrumOff_ClrGate
-MBFM_MIDI_DrumOff_NotHHO
-
-	BRA_IFCLR TMP1, 2, ACCESS, MBFM_MIDI_DrumOff_NotHHC
-MBFM_MIDI_DrumOff_HHC
-	movlw	~0x01
-	rcall	MBFM_MIDI_DrumOff_ClrGate
-MBFM_MIDI_DrumOff_NotHHC
-
-	BRA_IFCLR TMP1, 3, ACCESS, MBFM_MIDI_DrumOff_NotSD
-MBFM_MIDI_DrumOff_SD
-	movlw	~0x08
-	rcall	MBFM_MIDI_DrumOff_ClrGate
-MBFM_MIDI_DrumOff_NotSD
-
-	BRA_IFCLR TMP1, 4, ACCESS, MBFM_MIDI_DrumOff_NotTOM
-MBFM_MIDI_DrumOff_TOM
-	movlw	~0x04
-	rcall	MBFM_MIDI_DrumOff_ClrGate
-MBFM_MIDI_DrumOff_NotTOM
-
-	BRA_IFCLR TMP1, 5, ACCESS, MBFM_MIDI_DrumOff_NotCYM
-MBFM_MIDI_DrumOff_CYM
-	movlw	~0x02
-	rcall	MBFM_MIDI_DrumOff_ClrGate
-MBFM_MIDI_DrumOff_NotCYM
-	return
-
-
-
-;; Help functions for Drum-Off
-MBFM_MIDI_DrumOff_ClrGate
-	andwf	MBFM_DRUM_GATES, F, BANKED
-	bsf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_GATES, BANKED
-	return
 
 
 ;; --------------------------------------------------------------------------
