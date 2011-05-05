@@ -135,6 +135,47 @@ UART_SpeakJetInit
 	call	UART_Init_Delay
 	bsf	SPEAKJET_RST_N_PORT, SPEAKJET_RST_N_PIN	; low active!
 
+	;; we need some (!!!) delay here before SpeakJet is ready!
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+	call	UART_Init_Delay
+
 	;; (we hear a "sonar ping" sound now!)
 
 	;; continue with baudrate detection: send 0x55 to SpeakJet
