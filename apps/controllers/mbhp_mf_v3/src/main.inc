@@ -48,6 +48,7 @@
 #include <mf_bank.inc>
 #include <mf_dump.inc>
 #include <mf_sysex.inc>
+#include <lc_sysex.inc>
 
 ;; ==========================================================================
 ;;  All MIOS hooks in one file
@@ -233,25 +234,51 @@ USER_DISPLAY_Tick
 ;;     o third  MIDI event byte in MIOS_PARAMETER3
 ;; --------------------------------------------------------------------------
 USER_MPROC_NotifyReceivedEvent
+	;; branch depending on selected operation mode
+	SET_BSR	MF_BASE
+	movf	MF_OPERATION_MODE, W, BANKED
+	JUMPTABLE_2BYTES 10	; entries
+	rgoto	USER_MPROC_M0  ; Pitchbender Chn1..8
+	rgoto	USER_MPROC_M1  ; Pitchbender Chn9..16
+	rgoto	USER_MPROC_M2  ; CC7 Chn1..8
+	rgoto	USER_MPROC_M3  ; CC7 Chn9..16
+	rgoto	USER_MPROC_M4  ; CC16..23
+	rgoto	USER_MPROC_M5  ; CC24..31
+	rgoto	USER_MPROC_M6  ; Logic Control
+	rgoto	USER_MPROC_M7  ; Logic Control Extension
+	rgoto	USER_MPROC_M8  ; Mackie Control
+	rgoto	USER_MPROC_M9  ; Mackie Control Extension
+
+
+USER_MPROC_M0  ; Pitchbender Chn1..8
+USER_MPROC_M6  ; Logic Control
+USER_MPROC_M7  ; Logic Control Extension
+USER_MPROC_M8  ; Mackie Control
+USER_MPROC_M9  ; Mackie Control Extension
 	;; branch to USER_MPROC_Received_Ex if pitch bender event (for motorfaders) has been received
 	movf	MIOS_PARAMETER1, W
-	andlw	0xf0
+	andlw	0xf8
 	xorlw	0xe0
-	bz	USER_MPROC_Received_Ex
+	bz	USER_MPROC_Ex
+
+	;; nothing else to parse
+	return
+	
+USER_MPROC_M1  ; Pitchbender Chn9..16
+	;; branch to USER_MPROC_Ex if pitch bender event (for motorfaders) has been received
+	movf	MIOS_PARAMETER1, W
+	andlw	0xf8
+	xorlw	0xe8
+	bz	USER_MPROC_Ex
 
 	;; nothing else to parse
 	return
 
 
-USER_MPROC_Received_Ex
+USER_MPROC_Ex
 	;; mask out MIDI channel (== fader number)
-	movlw	0x0f
+	movlw	0x07
 	andwf	MIOS_PARAMETER1, F
-
-	;; do nothing if fader number >= 8
-	movlw	0x08
-	cpfslt	MIOS_PARAMETER1, ACCESS
-	return
 
 	;; save fader number in LC_FADER_NUMBER
 	movf	MIOS_PARAMETER1, W
@@ -260,11 +287,11 @@ USER_MPROC_Received_Ex
 	;; reset touch detection if touch sensor mode >= 1
 	SET_BSR	MF_BASE
 	movf	MF_TOUCHSENSOR_MODE, W, BANKED
-	bnz	USER_MPROC_Received_Ex_NoTs
-USER_MPROC_Received_Ex_Ts
+	bnz	USER_MPROC_Ex_NoTs
+USER_MPROC_Ex_Ts
 	movf	LC_FADER_NUMBER, W
 	call	MF_TouchDetectionReset
-USER_MPROC_Received_Ex_NoTs
+USER_MPROC_Ex_NoTs
 
 	;; derive 10-bit value from received 14-bit value. Store result in LC_FADER_POS_[LH]
 	movff	MIOS_PARAMETER2, LC_FADER_POS_L ; MIDI LSB -> LC_FADER_POS_L
@@ -298,6 +325,118 @@ USER_MPROC_Received_Ex_NoTs
 	goto	MF_FaderMove
 
 
+;; ---------------------------------------------------------
+USER_MPROC_M2  ; CC7 Chn1..8
+	movf	MIOS_PARAMETER1, W  ; CC Chn1..8?
+	andlw	0xf8
+	xorlw	0xb0
+	bnz	USER_MPROC_M2_End
+
+	movf	MIOS_PARAMETER2, W  ; CC#7?
+	xorlw	7
+	bnz	USER_MPROC_M2_End
+	
+	;; mask out MIDI channel (== fader number)
+	movf	MIOS_PARAMETER1, W
+	andlw	0x07
+	movwf	LC_FADER_NUMBER
+	rgoto	USER_MPROC_Bx
+
+USER_MPROC_M2_End
+	return
+
+;; ---------------------------------------------------------
+USER_MPROC_M3  ; CC7 Chn9..16
+	movf	MIOS_PARAMETER1, W  ; CC Chn9..16?
+	andlw	0xf8
+	xorlw	0xb8
+	bnz	USER_MPROC_M3_End
+
+	movf	MIOS_PARAMETER2, W  ; CC#7?
+	xorlw	7
+	bnz	USER_MPROC_M3_End
+	
+	;; mask out MIDI channel (== fader number)
+	movf	MIOS_PARAMETER1, W
+	andlw	0x07
+	movwf	LC_FADER_NUMBER
+	rgoto	USER_MPROC_Bx
+
+USER_MPROC_M3_End
+	return
+
+;; ---------------------------------------------------------
+USER_MPROC_M4  ; CC16..23
+	movf	MIOS_PARAMETER1, W  ; CC Chn1?
+	xorlw	0xb0
+	bnz	USER_MPROC_M4_End
+
+	movf	MIOS_PARAMETER2, W  ; CC#16..23?
+	andlw	0xf8
+	xorlw	0x10
+	bnz	USER_MPROC_M4_End
+	
+	;; mask out CC LSBs (== fader number)
+	movf	MIOS_PARAMETER2, W
+	andlw	0x07
+	movwf	LC_FADER_NUMBER
+	rgoto	USER_MPROC_Bx
+
+USER_MPROC_M4_End
+	return
+
+;; ---------------------------------------------------------
+USER_MPROC_M5  ; CC24..31
+	movf	MIOS_PARAMETER1, W  ; CC Chn1?
+	xorlw	0xb0
+	bnz	USER_MPROC_M5_End
+
+	movf	MIOS_PARAMETER2, W  ; CC#24..31?
+	andlw	0xf8
+	xorlw	0x18
+	bnz	USER_MPROC_M5_End
+	
+	;; mask out CC LSBs (== fader number)
+	movf	MIOS_PARAMETER2, W
+	andlw	0x07
+	movwf	LC_FADER_NUMBER
+	rgoto	USER_MPROC_Bx
+
+USER_MPROC_M5_End
+	return
+
+
+USER_MPROC_Bx
+	;; reset touch detection if touch sensor mode >= 1
+	SET_BSR	MF_BASE
+	movf	MF_TOUCHSENSOR_MODE, W, BANKED
+	bnz	USER_MPROC_Bx_NoTs
+USER_MPROC_Bx_Ts
+	movf	LC_FADER_NUMBER, W
+	call	MF_TouchDetectionReset
+USER_MPROC_Bx_NoTs
+
+	;; derive 10-bit value from received 7-bit value. Store result in LC_FADER_POS_[LH]
+	movff	MIOS_PARAMETER3, LC_FADER_POS_L ; MIDI LSB -> LC_FADER_POS_L
+	clrf	LC_FADER_POS_H			; MIDI MSB -> LC_FADER_POS_H
+
+	;; 10-bit value = 7-bit value << 3
+	clrc
+	rlf	LC_FADER_POS_L, F	; 1
+	rlf	LC_FADER_POS_H, F
+	clrc
+	rlf	LC_FADER_POS_L, F	; 2
+	rlf	LC_FADER_POS_H, F
+	clrc
+	rlf	LC_FADER_POS_L, F	; 3
+	rlf	LC_FADER_POS_H, F
+
+	;; finally move fader
+	movff	LC_FADER_POS_L, MIOS_PARAMETER1
+	movff	LC_FADER_POS_H, MIOS_PARAMETER2
+	movf	LC_FADER_NUMBER, W
+	goto	MF_FaderMove
+
 ;; --------------------------------------------------------------------------
 ;;  This function is called by MIOS when a MIDI event has been received
 ;;  which has been specified in the CONFIG_MIDI_IN table
@@ -317,7 +456,8 @@ USER_MPROC_NotifyFoundEvent
 ;; --------------------------------------------------------------------------
 USER_MPROC_NotifyTimeout
 	;; -> jump to "ActionInvalid" for a proper reset of the sysex parser
-	goto	MF_SYSEX_ActionInvalid
+	call	MF_SYSEX_ActionInvalid
+	goto	LC_SYSEX_ActionInvalid
 
 
 ;; --------------------------------------------------------------------------
@@ -326,8 +466,12 @@ USER_MPROC_NotifyTimeout
 ;;     o received MIDI byte in WREG and MIOS_PARAMETER1
 ;; --------------------------------------------------------------------------
 USER_MPROC_NotifyReceivedByte
-	;; -> branch to SysEx parser
-	goto	MF_SYSEX_Parser
+	movwf	LC_RECEIVED_SYSEX_BYTE  ; store byte
+
+	;; -> branch to SysEx parsers
+	call	MF_SYSEX_Parser
+	movf	LC_RECEIVED_SYSEX_BYTE, W ; restore byte for next parser
+	goto	LC_SYSEX_Parser
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by MIOS before the transfer of a MIDI byte. 
@@ -395,7 +539,9 @@ USER_DIN_NotifyToggle_Suspend1
 USER_DIN_NotifyToggle_Cont
 USER_DIN_NotifyToggle_NoSuspend
 
-	;; generate MIDI event
+	;; generate MIDI event if LC emulation enabled
+	movf	LC_ID, W
+	bz	USER_DIN_NotifyToggle_End
 
 	;; for MIDIbox Link: notify begin of stream
 	call	MIOS_MIDI_BeginStream
@@ -417,6 +563,7 @@ USER_DIN_NotifyToggle_NoSuspend
 	;; for MIDIbox Link: notify end of stream
 	call	MIOS_MIDI_EndStream
 
+USER_DIN_NotifyToggle_End
 	return
 
 
@@ -471,9 +618,43 @@ USER_AIN_NotifyChange
 USER_AIN_NotifyChange_SendIfAct
 	movf	LC_FADER_NUMBER, W
 	call	MF_SuspendGet
-	bz	LC_MF_FaderEvent_End
+	skpnz
+	rgoto	LC_MF_FaderEvent_End
 
 USER_AIN_NotifyChange_SendAlways
+
+	;; branch depending on selected operation mode
+	SET_BSR	MF_BASE
+	movf	MF_OPERATION_MODE, W, BANKED
+	JUMPTABLE_2BYTES 10	; entries
+	rgoto	USER_AIN_NotifyChange_M0  ; Pitchbender Chn1..8
+	rgoto	USER_AIN_NotifyChange_M1  ; Pitchbender Chn9..16
+	rgoto	USER_AIN_NotifyChange_M2  ; CC7 Chn1..8
+	rgoto	USER_AIN_NotifyChange_M3  ; CC7 Chn9..16
+	rgoto	USER_AIN_NotifyChange_M4  ; CC16..23
+	rgoto	USER_AIN_NotifyChange_M5  ; CC24..31
+	rgoto	USER_AIN_NotifyChange_M6  ; Logic Control
+	rgoto	USER_AIN_NotifyChange_M7  ; Logic Control Extension
+	rgoto	USER_AIN_NotifyChange_M8  ; Mackie Control
+	rgoto	USER_AIN_NotifyChange_M9  ; Mackie Control Extension
+
+
+USER_AIN_NotifyChange_M0  ; Pitchbender Chn1..8
+USER_AIN_NotifyChange_M6  ; Logic Control
+USER_AIN_NotifyChange_M7  ; Logic Control Extension
+USER_AIN_NotifyChange_M8  ; Mackie Control
+USER_AIN_NotifyChange_M9  ; Mackie Control Extension
+	movlw	0x00		; channel offset
+	movwf	TMP1
+	rgoto	USER_AIN_NotifyChange_PB
+
+USER_AIN_NotifyChange_M1  ; Pitchbender Chn9..16
+	movlw	0x08		; channel offset
+	movwf	TMP1
+	;; 	rgoto	USER_AIN_NotifyChange_PB
+
+USER_AIN_NotifyChange_PB	; expecting channel offset in TMP1 (0 or 8)
+	
 	;; store 10-bit LSB value in LC_FADER_POS_L
 	movff	MIOS_PARAMETER2, LC_FADER_POS_L
 
@@ -498,7 +679,7 @@ USER_AIN_NotifyChange_SendAlways
 	clrc
 	rlf	LC_FADER_POS_H, W
 	btfsc	LC_FADER_POS_L, 7
-	iorlw 0x01
+	iorlw	0x01
 	movwf	LC_FADER_POS_H
 
 	;; MIDI LSB: LC_FADER_POS_L & 0x7f
@@ -510,6 +691,7 @@ USER_AIN_NotifyChange_SendAlways
 
 	;; finally send value: E<fader> LSB MSB
 	movf	LC_FADER_NUMBER, W
+	addwf	TMP1, W		; add channel offset
 	andlw	0x0f
 	iorlw	0xe0
 	call	MIOS_MIDI_TxBufferPut
@@ -522,7 +704,104 @@ USER_AIN_NotifyChange_SendAlways
 
 	;; for MIDIbox Link: notify end of stream
 	call	MIOS_MIDI_EndStream
+
+	rgoto	LC_MF_FaderEvent_End
+
 	
+;; ---------------------------------------------------------
+USER_AIN_NotifyChange_M2  ; CC7 Chn1..8
+	;; for MIDIbox Link: notify begin of stream
+	call	MIOS_MIDI_BeginStream
+
+	;; finally send value: E<fader> LSB MSB
+	movf	LC_FADER_NUMBER, W
+	andlw	0x0f
+	iorlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+
+	movlw	0x07
+	call	MIOS_MIDI_TxBufferPut
+
+	movf	LC_FADER_NUMBER, W
+	call	MIOS_AIN_Pin7bitGet
+	call	MIOS_MIDI_TxBufferPut
+
+	;; for MIDIbox Link: notify end of stream
+	call	MIOS_MIDI_EndStream
+
+	rgoto	LC_MF_FaderEvent_End
+
+;; ---------------------------------------------------------
+USER_AIN_NotifyChange_M3  ; CC7 Chn9..16
+	;; for MIDIbox Link: notify begin of stream
+	call	MIOS_MIDI_BeginStream
+
+	;; finally send value: E<fader> LSB MSB
+	movf	LC_FADER_NUMBER, W
+	addlw	8
+	andlw	0x0f
+	iorlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+
+	movlw	0x07
+	call	MIOS_MIDI_TxBufferPut
+
+	movf	LC_FADER_NUMBER, W
+	call	MIOS_AIN_Pin7bitGet
+	call	MIOS_MIDI_TxBufferPut
+
+	;; for MIDIbox Link: notify end of stream
+	call	MIOS_MIDI_EndStream
+
+	rgoto	LC_MF_FaderEvent_End
+
+;; ---------------------------------------------------------
+USER_AIN_NotifyChange_M4  ; CC16..23
+	;; for MIDIbox Link: notify begin of stream
+	call	MIOS_MIDI_BeginStream
+
+	;; finally send value: E<fader> LSB MSB
+	movlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+
+	movf	LC_FADER_NUMBER, W
+	addlw	0x10
+	call	MIOS_MIDI_TxBufferPut
+
+	movf	LC_FADER_NUMBER, W
+	call	MIOS_AIN_Pin7bitGet
+	call	MIOS_MIDI_TxBufferPut
+
+	;; for MIDIbox Link: notify end of stream
+	call	MIOS_MIDI_EndStream
+
+	rgoto	LC_MF_FaderEvent_End
+
+;; ---------------------------------------------------------
+USER_AIN_NotifyChange_M5  ; CC24..31
+	;; for MIDIbox Link: notify begin of stream
+	call	MIOS_MIDI_BeginStream
+
+	;; finally send value: E<fader> LSB MSB
+	movlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+
+	movf	LC_FADER_NUMBER, W
+	addlw	0x18
+	call	MIOS_MIDI_TxBufferPut
+
+	movf	LC_FADER_NUMBER, W
+	call	MIOS_AIN_Pin7bitGet
+	call	MIOS_MIDI_TxBufferPut
+
+	;; for MIDIbox Link: notify end of stream
+	call	MIOS_MIDI_EndStream
+
+	rgoto	LC_MF_FaderEvent_End
+
+
+	
+;; ---------------------------------------------------------
 LC_MF_FaderEvent_End
 	;; thats all
 	return

@@ -24,5 +24,15 @@ Required hardware:
 
 ===============================================================================
 
+No proper documentation yet, but all features implemented! :-)
+
+
+For Configuration just use the MBHB_MF V3 tool which is part
+of MIOS Studio (2.2 and higher)
+
+
+Schematic and discussion:
+http://midibox.org/forums/topic/15004-upcoming-mbhp-mf-v3-module/
+
 
 ===============================================================================

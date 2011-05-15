@@ -14,11 +14,16 @@
 	;; free memory for user applications:	
 	;; 0x010-0x37f
 
-LC_FADER_NUMBER		EQU	0x10 ; stores the fader number
-LC_FADER_POS_L		EQU	0x11 ; stores the fader position (low byte)
-LC_FADER_POS_H		EQU	0x12 ; stores the fader position (high byte)
+LC_FADER_NUMBER		EQU	0x010 ; stores the fader number
+LC_FADER_POS_L		EQU	0x011 ; stores the fader position (low byte)
+LC_FADER_POS_H		EQU	0x012 ; stores the fader position (high byte)
+LC_ID			EQU	0x013 ; if 0x00:	LC emulation disabled, otherwise 0x10/0x11/0x14/0x15 for different LC/Mackie modes
+LC_RECEIVED_SYSEX_BYTE	EQU	0x014 ; stores the received sysex byte for multiple sysex parsers
+LC_SYSEX_IN		EQU	0x015 ; used in lc_sysex.inc
+LC_SYSEX_STATE		EQU	0x016 ; used in lc_sysex.inc
+LC_SYSEX_ACTION		EQU	0x017 ; used in lc_sysex.inc
 
-PERIODIC_MS_CTR 	EQU	0x13
+PERIODIC_MS_CTR 	EQU	0x020
 
 ;; ==========================================================================
 ;; for fader move traces
