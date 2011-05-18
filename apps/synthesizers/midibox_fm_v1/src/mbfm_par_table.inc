@@ -676,8 +676,8 @@ MBFM_PAR_TABLE_CC_NAMES
 	db	"--------        "	; 0x3f
 
 	db	"Mode        LFO1"	; 0x40
-	db	"Rate        LFO1"	; 0x41
-	db	"Phase       LFO1"	; 0x42
+	db	"Phase       LFO1"	; 0x41
+	db	"Rate        LFO1"	; 0x42
 	db	"Pitch Depth LFO1"	; 0x43
 	db	"Vol1 Depth  LFO1"	; 0x44
 	db	"Vol2 Depth  LFO1"	; 0x45
@@ -693,8 +693,8 @@ MBFM_PAR_TABLE_CC_NAMES
 	db	"--------        "	; 0x4f
 
 	db	"Mode        LFO2"	; 0x50
-	db	"Rate        LFO2"	; 0x51
-	db	"Phase       LFO2"	; 0x52
+	db	"Phase       LFO2"	; 0x51
+	db	"Rate        LFO2"	; 0x52
 	db	"Pitch Depth LFO2"	; 0x53
 	db	"Vol1 Depth  LFO2"	; 0x54
 	db	"Vol2 Depth  LFO2"	; 0x55
