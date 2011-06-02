@@ -8,4 +8,200 @@ HEADER 3 MBHP_CORE_LPC17 Module
 
 <P CLASS=INFO>Stay tuned!</P>
 
+<P CLASS=DESC>Main features of the <A HREF="http://www.nxp.com" TARGET="_blank">NXP LPC1769</A> based MBHP_CORE_LPC17 module:
+<UL CLASS=CL>
+<LI> 512k Flash and 64k RAM like <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A>
+<LI> The prebuilt LPCXPRESSO is available for 20 EUR at <A HREF="http://www.embeddedartists.com/products/lpcxpresso/lpc1769_xpr.php" TARGET="_blank">Embedded Artists</A> (+ VAT + shipping - in total ca. 30 EUR with "First Class Mail" option). <B>News:</B> now also available directly in Germany for 24 EUR + Shipping at <A HREF="http://www.watterott.com/de/LPC1769-LPCXpresso" TARGET="_blank">Watterot</A>!<BR>
+It will just be attached to the MBHP_CORE_LPC17 PCB
+<LI> Easily available for private persons in small quantities and no SMD soldering skills required
+<LI> ARM Cortex-M3 CPU is widely supported by the GNU toolchain, accordingly source code can be compiled under Windows/Linux/MacOS w/o spending money for an expensive ARM compiler
+<LI> Much better performance - compared to PIC or ATMega, the LPC17xx really plays in a different league because of the higher frequency (120 MHz), higher data width (32bit), hardware multiplier and division unit, etc.
+<LI>MIOS32 applications are typically running ca. 30..50% faster than on STM32F103RE @ 72 MHz
+<LI> Very useful integrated peripherals for MIDI and Synthesizer applications, such as UART, SPI, I2C, USB, CAN, Timers, ADC, DAC, Ethernet
+<LI> in distance to STM32F103RE, CAN and USB can be used in parallel
+<LI> the integrated ethernet interface leads to ca. 3 times higher throughput compared to the <A HREF="mbhp_eth.html">MBHP_ETH</A> based solution. Performance could even be better by improving the uIP driver.
+<LI> It's easy to interface external components like <A HREF="mbhp_sdcard.html">SD Card</A> and I2S Audio DACs
+<LI> LPC17xx is supplied at 3.3V, but 5V tolerant inputs allow to access all existing MBHP modules without additional hardware.
+<LI> Performance boost by using the DMA for background operations, such as scanning DIN/DOUT modules, analog inputs but also I2S transfers (Audio Output) w/o loading the CPU
+<LI> Supported by a free available Realtime Operating System: <A HREF="http://www.freertos.org" TARGET="_blank">FreeRTOS</A>
+<LI> no programmer for flash required, LPC-Link is part of the LPCXPRESSO board to program the MIOS32 bootloader into a "virgin" device
+<LI> Fast upload of application code via USB MIDI (ca. 20..40kb/s) - thanks to the <A HREF="mios32_bootstrap_newbies.html">MIOS32 Bootloader</A>
+<LI> Due to improved performance, it allowed me to program MIOS32 and some first applications completely in C. This finally makes MIDIbox applications portable, e.g. it is possible to emulate a MIDIbox on a PC/Mac.
+</UL>
+
+<P CLASS=DESC>Ok, enough praises for this nice toy. Here a list of issues/imperfections that I don't really like:
+<UL CLASS=CL>
+<LI> ADCs cannot be supplied at 5V, 3.3V is the limit. This decreases the signal/noise ratio
+<LI> all DMA channels share a single interrupt. Request flags have to be checked by the interrupt handler, this consumes some cycles (however, the high CPU frequency somehow compensates this drawback)
+<LI> DMA doesn't support decrement address function, so that SRIO (serial shift register input and output) streams have to be reversed by software.
+<LI> output pins can't be used in open drain mode if a peripheral function like SPI or UART is assigned to it. This seems to be a design bug, because it isn't mentioned in the user manual (in distance: the description of the IO configuration implies that it should work, but it doesn't) - NXP support contacted, no reply yet!
+<LI>accordingly, such peripheral output functions can't be pulled to 5V, 74HCL based buffers are required (part of MBHP_CORE_LPC17 module).
+<LI> RTC can only be clocked at 1 Hz by an external 32kHz crystal. Accordingly it isn't possible to use it at mS accuracy (no possibility to clock it by the main oscillator)
+<LI> RAM splitted into two 32k halves, there is a gap between the two SRAM ranges which makes it difficult for a code developer to locate variables in GCC. This will lead to unwanted dependencies for bigger MIOS32 applications (large arrays have to be assigned to RAM sections in the C code)
+</UL>
+
+<P CLASS=DESC>However, although some of these limitations are really annoying, I find the LPC17xx family superior to STM32 for the MIDIbox Hardware Platform, especially due to the inexpensive LPCXPRESSO boards with integrated LPC-Link better suitable for DIY projects.</P>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Installing the MIOS32 Bootloader </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_program6.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>The original LPCXpresso board consists of a debug interface (left side) and the so called target (right side), which we will attach on the MBHP_CORE_LPC17 module later.<BR>
+      Before a MIOS32 application can be uploaded via USB-MIDI, it's required to install the MIOS32 Bootloader. This can be done with the freely available LPCXpresso IDE which can be downloaded from the <A HREF="http://lpcxpresso.code-red-tech.com" TARGET="_blank">Code Red Technologies</A> webpage.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_program5.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Note that a registration is required to get access to the IDE installation package. A version for Windows and Linux is available. Mac Users can run the Linux version on a virtual machine like <A HREF="http://www.virtualbox.org" TARGET="_blank">VirtualBox</A> (this is what I did). Once the IDE has been installed, another registration has to be done to enable the LPC-Link interface - ready!
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program2.png"><IMG SRC="mbhp/mbhp_core_lpc17_program2.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>After the LPCxpresso IDE has been opened, click on the small "Program Flash" icon
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program3.png"><IMG SRC="mbhp/mbhp_core_lpc17_program3.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Thereafter select the LPC1769 target.<BR>
+        You will be informed that the freeware version of the IDE only allows to program 128k of the flash memory, but since the MIOS32 bootloader is smaller (ca. 16k), this limitation isn't an issue for us. Later we will upload applications from <A HREF="mios32_bootstrap_newbies.html">MIOS Studio</A> which is much faster anyhow (up to 40 kb/s!).
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program4.png"><IMG SRC="mbhp/mbhp_core_lpc17_program4.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Select a suitable project.bin file - in fact any project.bin of a LPC17 based MIOS32 application can be used which is smaller than 128k, because the bootloader is always included. If you are unsure about the best binary, just upload the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application - it contains the bootloader, and a checking routine which verifies that the flash has been programmed correctly.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_program7.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>Finally disconnect the USB plug, connect it again.</B><BR>
+    The red status LED should slowly fade three times (effect via PWM modulation) - the MIOS32 bootloader is up and running!
+      </TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2 COLSPAN=2>
+        Please note that the bootloader doesn't work through the USB port of LPC-Link! Instead, a second USB socket will be required, which is directly connected to the LPC1769 target, and which is part of the MBHP_CORE_LPC17 module. But before we can use it, some additional preparations are required as explained in the next sections.
+      </TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Preparing the LPCXpresso module </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+    <TR>
+      <TD CLASS=TABCOLOR2 COLSPAN=2>
+        The next step is <B>optional!!!</B> and only recommended for <B>experienced DIYers</B>.<BR>
+        We will split the LPCXpresso module into two pieces for aesthetical reasons. Once this has been done, the LPC-Link can still be connected to the target via headers, or optionally a standard JTAG interface could be connected via J3 of the MBHP_CORE_LPC17 module to allow access via alternative debug software (and to overcome the 128k limit for debugging purposes).
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare1.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Several methods can be found on the web, here I propose an alternative solution. You need a veroboard, a 1-row SIL header with 8 pins, and a so called Stanley knife (carpet knife, german "Teppichmesser").
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare2.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Stick the SIL header at the border of the vero board; no soldering required (because you want to re-use the SIL header later for other purposes).
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare3.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Now stick the other side of the SIL header into J4 of the target board - again: no soldering required!
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare4.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Now you have to cut a deep groove between the two PCB halves. The veroboard will perfectly guide the knife. The PCB material is quite robust, so that it will require multiple (and especially strong!) cuts. The first time it took me more than 10 minutes to get a sufficient groove, the next time (with some practice and less patience) maybe two minutes.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare5.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Now you can gently try to separate the boards. Continue with the previous step if it doesn't work - period!
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare6.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Finally separated. The sharp ends could be beveled with a file!
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare7.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Now add male headers at the bottom of the target board. You will need:
+        <UL CLASS=CL>
+          <LI>two 27-pin SIL headers for the upper/lower side
+          <LI>one 2x6-pin DIL header and a 6-pin SIL header for the right side (pin 19 not used, no need to add a header there)
+        </UL>
+        A 8-pin SIL header should be soldered at he bottom of the left side if a standard JTAG debugger will be connected via J3 of the MBHP_CORE_LPC17 module.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare8.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>If you are planning to use the LPC-Link instead, the 8-pin SIL header should be mounted at the top...
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare9.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>...so that it can be attached via a SIL female header like shown in this picture.
+      </TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_CORE_LPC17_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_lpc17.pdf">mbhp_core_lpc17.pdf</A></TD>
+      <TD CLASS=TABCOLOR2 COLSPAN=2>under construction</TD>
+    </TR>
+  </TABLE></DD>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> The next steps...</H2></DT>
+  <DD>
+      <P CLASS=DESC>...will be explained once the MBHP_CORE_LPC17 PCB is ready.<BR>
+      Currently only a small part of the upcoming circuit exists on a prototype board!
+      <IMG SRC="mbhp/mbhp_core_lpc17_proto1.jpg" WIDTH=640 BORDER=0 ALT="">
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Minimal Circuit to get USB running</H2></DT>
+  <DD>
+      <P CLASS=DESC>Following minimal circuit is helpful for impatient builders who want to do some experiments with the LPCXPRESSO running under MIOS32. Interaction with the application is possible via the MIOS Studio Terminal and via MIDI of course!</P>
+      <P CLASS=DESC>It provides:
+        <UL CLASS=CL>
+          <LI>USB Socket for USB-MIDI and to connect to <A HREF="mios_studio.html">MIOS Studio</A>
+          <LI>jumper for disconnecting the USB power supply
+          <LI>3.3V voltage regulator LF33, 100 uF and 100 nF caps
+          <LI>an optional Bootloader Hold jumper which could be useful if the application hangs up due to a programming error (if this happens: close this jumper and reconnect the On/Off jumper to reboot the core - the bootloader stays active and a new .hex file can be uploaded).<BR>
+          Note that code upload is possible w/o this HOLD jumper if the application is working properly. In other words: the jumper is only a fallback solution for developers.
+        </UL>
+      </P>
+      <P CLASS=DESC>Other components such as MIDI IN/OUT sockets, MagJack for Ethernet, SRIO ports or whatever can be added successively if required.</P>
+
+      <P CLASS=DESC>Click on the images for higher resolution:</P>
+      <TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+       <TR>
+         <TD><A HREF="mbhp/mbhp_core_lpc17_miniproto1.jpg"><IMG SRC="mbhp/mbhp_core_lpc17_miniproto1.jpg" WIDTH=320 BORDER=0 ALT=""></A></TD>
+         <TD><A HREF="mbhp/mbhp_core_lpc17_miniproto2.jpg"><IMG SRC="mbhp/mbhp_core_lpc17_miniproto2.jpg" WIDTH=320 BORDER=0 ALT=""></A></TD>
+       </TR>
+     </TABLE>
+  </DD>
+</DL>
+  
 FOOTER

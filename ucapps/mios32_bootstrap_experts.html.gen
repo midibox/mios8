@@ -20,7 +20,7 @@ Here an oversight about the advantages/disadvantages in conjunction with code up
       <LI>- can be destroyed by the application on gross program errors (e.g. erasing the wrong flash sector), therefore JTAG or UART BSL has to be used as fallback solution
       <LI>- no access to debug features of STM32/LPC17
       <LI>- UART based MIDI is much slower than JTAG or UART BSL (ca. 2.5 kb/s)
-      <LI>+ however, USB MIDI (STM32: 13..17 kb/s, LPC17: 20..30 kb/s) is even faster than JTAG (12 kb/s)
+      <LI>+ however, USB MIDI (STM32: 13..17 kb/s, LPC17: 20..40 kb/s) is even faster than JTAG (12 kb/s)
       <LI>+ USB interface won't be reset after code upload (means: no need to re-open a running MIDI program on your Windows PC)
       <LI>+ a solution to program STM32 Primer under Linux/MacOS
       <LI>+ proven concept for end-users
@@ -45,10 +45,56 @@ Here an oversight about the advantages/disadvantages in conjunction with code up
       <LI>- before using the BSL, jumpers have to be stuffed on the core module
       <LI>- no access to ARM debugging functions
       <LI>+ anyhow, perfect fallback solution for end-users, if the MIOS32 BSL has been destroyed, and useful for textual output as well
+  </UL>
 </UL>
 </P>
 
-<H2>Accessing the core via JTAG</H2>
+
+<H2>LPCXPRESSO: using LPC-Link to upload the MIOS32 Bootloader</H2>
+
+  <TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_program6.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>The original LPCXpresso board consists of a debug interface (left side) and the so called target (right side), which we will mount on the MBHP_CORE_LPC17 module later.<BR>
+      Before a MIOS32 application can be uploaded via USB-MIDI, it's required to install the MIOS32 Bootloader. This can be done with the freely available LPCXpresso IDE which can be downloaded from the <A HREF="http://lpcxpresso.code-red-tech.com" TARGET="_blank">Code Red Technologies</A> webpage.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_program5.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Note that a registration is required to get access to the IDE installation package. A version for Windows and Linux is available. Mac Users can run the Linux version on a virtual machine like <A HREF="http://www.virtualbox.org" TARGET="_blank">VirtualBox</A> (this is what I did). Once the IDE has been installed, another registration has to be done to enable the LPC-Link interface - ready!
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program2.png"><IMG SRC="mbhp/mbhp_core_lpc17_program2.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>After the LPCxpresso IDE has been opened, click on the small "Program Flash" icon
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program3.png"><IMG SRC="mbhp/mbhp_core_lpc17_program3.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Thereafter select the LPC1769 target.<BR>
+        You will be informed that the freeware version of the IDE only allows to program 128k of the flash memory, but since the MIOS32 bootloader is smaller (ca. 16k), this limitation isn't an issue for us. Later we will upload applications from <A HREF="mios32_bootstrap_newbies.html">MIOS Studio</A> which is much faster anyhow (up to 40 kb/s!).
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program4.png"><IMG SRC="mbhp/mbhp_core_lpc17_program4.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Select a suitable project.bin file - in fact any project.bin of a LPC17 based MIOS32 application can be used which is smaller than 128k, because the bootloader is always included. If you are unsure about the best application, just upload the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application - it contains the bootloader, and a checking routine which verifies that the flash has been programmed correctly.
+      </TD>
+    </TR>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_program7.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2><B>Finally disconnect the USB plug, connect it again.</B><BR>
+    The red status LED should slowly fade three times (effect via PWM modulation) - the MIOS32 bootloader is up and running!
+      </TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2 COLSPAN=2>
+        Please note that the bootloader doesn't work through the USB port of LPC-Link! Instead, a second USB socket will be required, which is directly connected to the LPC1769 target, and which is part of the MBHP_CORE_LPC17 module. The next steps are explained at the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17 page</A>.
+      </TD>
+    </TR>
+  </TABLE>
+
+
+<H2>STM32: Accessing the core via JTAG</H2>
 
 <P CLASS=DESC>JTAG is a standardized serial interface (IEEE 1149.1) made especially for debugging and testing purposes, and supported by many hardware devices today, especially by microcontrollers.</P>
 
@@ -146,7 +192,7 @@ mdw                    # to display memory regions, e.g. flash, SRAM and periphe
 <P CLASS=DESC>Personally I prefer to edit source code with xemacs, run "make" in the shell to build a new binary, and debugging my code with printf messages or by sending MIDI events. Under special circumstances, I'm using <A HREF="http://sourceware.org/insight" TARGET="_blank">Insight</A> to debug the application for interactive debugging via gdb. A short installation guide can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fdoc%2FMEMO" TARGET="_blank">MIOS32 MEMO</A>.</P>
 
 
-<H2>Uploading code via ROM based UART Bootloader</H2>
+<H2>STM32: Uploading code via ROM based UART Bootloader</H2>
 
 <P CLASS=DESC>This is probably the cheapest solution to download code into a "virgin" device. STM provides a comfortable windows application which connects to the bootloader and allows to upload a .bin file.<BR>
 References: <A HREF="http://www.st.com/stonline/products/support/micro/files/um0462.zip" TARGET="_blank">Flash Loader</A>, <A HREF="http://www.st.com/stonline/products/literature/um/13916.pdf" TARGET="_blank">Documentation</A>.</P>
@@ -160,8 +206,5 @@ Picture of my test setup:<BR>
 <P CLASS=DESC>Note that you need to remove the bootmode jumpers on J27 and J23, and power-cycle the core after code upload.</P>
 
 
-<H2>LPCXPRESSO: using LPC-Link to upload the MIOS32 Bootloader</H2>
-
-<P CLASS=DESC>TODO</P>
 
 FOOTER

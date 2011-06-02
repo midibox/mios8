@@ -729,6 +729,38 @@ Incoming events will be immediately inserted into the selected track. If the cur
 <P><center><object width="400" height="225">	<param name="allowfullscreen" value="true" />	<param name="allowscriptaccess" value="always" />	<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" />	<embed src="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="225"></embed></object><br /><a href="http://vimeo.com/1628550?pg=embed&amp;sec=1628550" TARGET="_blank">Midibox Sequencer V3 for Live Recording</a> from <a href="http://vimeo.com/user710438?pg=embed&amp;sec=1628550" TARGET="_blank">Stuart Mitchell</a></center></P>
 
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Live Play Page (Shortcut: UTILITY (F1)->Live)</H2>
+
+<P CLASS=INFO>Inside this page notes (and drum instruments) can be played with the GP buttons.</P>
+
+<P CLASS=INFO>In addition the 4 MIDI IN Busses for Transposer/Arpeggiator/Live Playing can be configured like in the MIDI Config page.
+
+<CENTER><IMG SRC="midibox_seq/cs4/live1.gif" width=481 height=19 ALT="Live"></CENTER></IMG>
+
+<P CLASS=INFO>Following Live Play parameters are available:</P>
+<UL CLASS=CL>
+  <LI><B>Track:</B> selection
+  <LI><B>Mute:</B> mute/unmute the selected track
+  <LI><B>Trn.:</B> Octavewise transpose
+  <LI><B>Velocity:</B> (only used for GP button keyboard)
+  <LI><B>FTS:</B> Force-To-Scale
+  <LI><B>FX:</B> enables Humanizer, LFO, Limiter and Echo<BR>
+       Note: the Echo effect will only work when the sequencer is running!
+  <LI><B>Bus:</B> four individual busses (Bus1..Bus4) are available for this function. Each bus provides separate note stacks for Transposer and Arpeggiator.</LI>
+  <LI><B>Port:</B> the MIDI input port for the selected bus. If "ALL" is selected, MIDI data will be received from any port.</LI>
+  <LI><B>Channel:</B> selects the MIDI channel over which the arpeggiator/transpose can be controlled, and CCs will be received (e.g. for the morph function). With "---" no events will be received (bus disabled)</LI>
+  <LI><B>Lower/Upper:</B> defines the lower and upper note of a keyboard zone for transpose/arpeggiator function.<BR>
+      With Lower = "---" and Upper = "G-8" the complete keyboard will be taken.<BR>
+      Defining different (or overlapping) keyboard zones allows you to control the four Transposer/Arpeggiator busses from a single MIDI keyboard over the same MIDI channel.</LI>
+  <LI><B>Mode:</B>
+    <UL CLASS=CL>
+      <LI><B>T&A:</B> MIDI events are routed to the Transposer/Arpeggiator notestacks
+      <LI><B>Play:</B> MIDI events are directly routed to MIDI Port and Channel of the currently selected track. This allows you to play the selected track "live".
+    </UL>
+  <LI><B>Reset Stacks:</B> clears all note stacks. Useful if the MIDI keyboard (or external sequencer) has been disconnected from MIDIbox SEQ while some keys were still active.
+</UL>
+</P>
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Utility Page (Shortcut: MENU+GP Button #10 or F1)</H2>
 <P CLASS=INFO>This page provides some useful functions for track modifications:<BR>
 <CENTER><IMG SRC="midibox_seq/cs4/util1.gif" width=481 height=19 ALT="Utility"></CENTER></IMG><BR>
@@ -750,7 +782,7 @@ Incoming events will be immediately inserted into the selected track. If the cur
   <LI><B>Undo:</B> an undo function for the last Paste/Clear/Move/Scroll/Random operation.</LI>
   <LI><B>Save:</B> directly branches into the save menu page (shortcut)</LI>
   <LI><B>Rec.:</B> directly branches into the recording page (shortcut)</LI>
-  <LI><B>Mix.:</B> directly branches into the mixer page (shortcut)</LI>
+  <LI><B>Live:</B> directly branches into the live play page (shortcut)</LI>
   <LI><B>Opt.:</B> directly branches into the options page (shortcut)</LI>
   <LI><B>PMte:</B> directly branches into the port muting page (shortcut)</LI>
   <LI><B>Disk:</B> directly branches into the disk page (shortcut)</LI>
@@ -800,6 +832,7 @@ This setting affects:
 </UL>
 
   <LI><B>Sync. (Pattern) Change:</B> if active, a pattern change made in the PATTERN or SONG page (Phrase mode) won't take place immediately, but will be synchronized to the pattern length of Y steps as defined at the left side of this item.</LI>
+  <LI><B>RATOPC (Restart All Tracks On Pattern Change:</B> added due to requests from multiple users: all tracks will be restarted whenever a new pattern is selected. If SyncChange enabled, this means that all tracks will synchronize correctly independent from their track length, if SyncChange disabled, this means that you can do nice breaks while changing patterns (try it! ;-)</LI>
   <LI><B>Paste/Clr Behaviour:</B> allows you to change the behaviour of the Paste and Clear function:
     <UL CLASS=CL>
       <LI><B>Steps only:</B> only parameter and trigger layers will be cleared/pasted (default)</LI>
@@ -919,10 +952,10 @@ Each track has an animated VU meter to display the MIDI activity.</P>
 <P CLASS=INFO>This page provides special functions for the SD Card:<BR>
 <CENTER><IMG SRC="midibox_seq/cs4/disk1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG>
 <UL CLASS=CL>
-  <LI><B>Session Import:</B> allows to copy one or multiple patterns/songs/mixer maps/grooves/configs from another session:<BR>
+  <LI><B>Session Import:</B> allows to copy one or multiple patterns/songs/mixer maps/grooves/configs/bookmarks from another session:<BR>
     <CENTER><IMG SRC="midibox_seq/cs4/disk_si1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG><BR>
   </LI>
-  <LI><B>Session Export:</B> allows to copy one or multiple patterns/songs/mixer maps/grooves/configs into another session:<BR>
+  <LI><B>Session Export:</B> allows to copy one or multiple patterns/songs/mixer maps/grooves/configs/bookmarks into another session:<BR>
     <CENTER><IMG SRC="midibox_seq/cs4/disk_se1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG><BR>
   </LI>
   <LI><B>MIDI File Import:</B> allows to import MIDI files, stored in the midi/ directory of your SD Card.<BR>
@@ -1117,5 +1150,87 @@ Only one group can control the scale and root note - it can be selected with thi
 </UL>
 
 <P CLASS=INFO>More about the OSC option has been documented in <A HREF="midibox_seq_manual_osc.html">a special chapter</A>!
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Bookmark Page</H2>
+<CENTER><IMG SRC="midibox_seq/cs4/bm1.gif" width=481 height=19 ALT"Bookmarks"></CENTER></IMG>
+
+<P CLASS=DESC>Ok, now you've probably walked through so many pages, how to remember the most favourite ones?<BR>
+Use Bookmarks!<BR>
+The bookmark pages is entered by pressing MENU+SELECT, or a dedicated button which is assigned in your MBSEQ_HW.V4 file (e.g. the hwcfg/wilba/MBSEQ_HW.V4 file presets this functions to the F1 button)</P>
+
+<P CLASS=DESC>Inside this menu, press a GP button (shortly) to recall a bookmark, press&hold a GP button for 3 seconds to store a bookmark</P>
+
+<P CLASS=DESC>The bookmark function stores following UI settings:
+<UL CLASS=CL>
+  <LI> Bookmark name
+  <LI> Current page
+  <LI> Group
+  <LI> Tracks
+  <LI> Mutes
+  <LI> Parameter Layer
+  <LI> Trigger Layer
+  <LI> Instrument
+  <LI> Step View
+  <LI> Step
+  <LI> Edit View
+  <LI> Solo/All/Fast/Metronome/Loop/Follow button mode
+</UL>
+
+<P CLASS=DESC>The first 8 "global" Bookmarks are stored into the MBSEQ_BM.V4 file of the root directory, the remaining bookmarks are stored into the MBSEQ_BM.V4 file of the session directory. Both files can be edited with a common text editor.<BR>
+This is the only way to change a bookmark name (5 characters)</P>
+
+<P CLASS=DESC>It's possible to prevent, that a certain UI parameter will be overwritten by a bookmark. This can (only) be done by editing the MBSEQ_BM.V4 file:<BR>
+Just replace the '+' sign at the beginning of the parameter name by a '-' sign.</P>
+
+<P CLASS=DESC>Typical configuration slot:<BR>
+<PRE>
+####################
+Slot 1
+Name Def.
+####################
++Page 16
++Group 1
++Tracks 1000000000000000
++Mutes 0000000000000000
++ParLayer A
++TrgLayer A
++Instrument 1
++StepView 1
++Step 1
++EditView 0
++Solo 0
++All 0
++Fast 0
++Metronome 0
++LoopMode 0
++FollowMode 0
+</PRE>
+
+<P CLASS=DESC>You could turn this into an "all tracks selected" bookmark by writing:
+<PRE>
+####################
+Slot 1
+Name AllT
+####################
+-Page 16
+-Group 1
++Tracks 1111111111111111
+-Mutes 0000000000000000
+-ParLayer A
+-TrgLayer A
+-Instrument 1
+-StepView 1
+-Step 1
+-EditView 0
+-Solo 0
+-All 0
+-Fast 0
+-Metronome 0
+-LoopMode 0
+-FollowMode 0
+</PRE>
+
+<P CLASS=DESC>This will only change the tracks, all other parameters won't be touched!
 
 FOOTER

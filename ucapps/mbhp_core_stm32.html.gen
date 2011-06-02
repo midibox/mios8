@@ -25,7 +25,7 @@ HEADER 3 MBHP_CORE_STM32 Module
 <LI> Due to improved performance, it allowed me to program MIOS32 and some first applications completely in C. This finally makes MIDIbox applications portable, e.g. it is possible to emulate a MIDIbox on a PC/Mac.
 </UL>
 
-<P CLASS=DESC>Ok, enough praises for this nice toy. Here a list of issues/imperfections I don't really like, but which have to be accepted so long there are no better alternative solutions on the market:
+<P CLASS=DESC>Ok, enough praises for this nice toy. Here a list of issues/imperfections I don't really like, but which have to be accepted as long as there are no better alternative solutions on the market (update: now <A HREF="mbhp_core_lpc17.html">it is</A>)
 <UL CLASS=CL>
 <LI> Chip is only available in fine pitch SMD package, which is hard to solder, especially for Newbies (therefore STM32 presoldered boards will be provided)
 <LI> Embedded flash has to be accessed with two wait cycles, which slows down the CPU whenever code isn't already available in the prefetch buffer. This can lead to different timing behaviour of a routine depending on the address the linker located the code.
@@ -278,8 +278,8 @@ Remove the jumper to start the application.
   <LI>Jumper J23 (Boot0)
   <LI>and MIDI Link port J11 to the board.
 </UL>
-<B>You will never need to close J23 so long you don't use the ROM based RS232 bootloader.</B><BR>
-Accordingly, following advice is only relevant for the case that you neither own a preprogrammed STM32, nor a JTAG programmer: you are not able to test the MIOS32 bootloader so long it hasn't been flashed into the chip. Now you have the minimal infrastructure to do this as described on the <A HREF="mios32_bootstrap_experts.html">Experts page</A>.
+<B>You will never need to close J23 as long as you don't use the ROM based RS232 bootloader.</B><BR>
+Accordingly, following advice is only relevant for the case that you neither own a preprogrammed STM32, nor a JTAG programmer: you are not able to test the MIOS32 bootloader as long as it hasn't been flashed into the chip. Now you have the minimal infrastructure to do this as described on the <A HREF="mios32_bootstrap_experts.html">Experts page</A>.
       </TD>
     </TR>
     <TR>
@@ -327,7 +327,7 @@ Pull-Up resistors are only required if a 5V supplied module is connected to a se
     </TR>
     <TR>
       <TD><IMG SRC="mbhp/mbhp_core_stm32_10.jpg" WIDTH=280 HEIGHT=222 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>For J8/J9 (R31) it is recommended to use 220 Ohm resistors, especially if many DIN/DOUT modules are connected. For other ports 4*1k arrays are sufficient and recommended so long the 5V option is used (again: leave out the array if 3.3V option is used!).<BR>
+      <TD CLASS=TABCOLOR2>For J8/J9 (R31) it is recommended to use 220 Ohm resistors, especially if many DIN/DOUT modules are connected. For other ports 4*1k arrays are sufficient and recommended as long as the 5V option is used (again: leave out the array if 3.3V option is used!).<BR>
 If you are planning to use the core module for different applications, you can use SIP socket strips for the 3 resistor arrays, so that you are able to remove/replace them whenever required. The 5 pins of the arrays can be extended with cutted resistor legs (yeah - here we need them again)<BR>
 TODO: provide table with all the options
       </TD>

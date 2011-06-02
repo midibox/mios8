@@ -1,12 +1,117 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2011-04-06</H3></CENTER>
+<CENTER><H3>Last Release: 2011-06-02</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
+<UL CLASS=CL>
+<LI><I>V4.0beta42</I>
+  <UL CLASS=CL>
+  <LI> Handling of Start/Stop/Pause button changed for Slave and Auto Mode to allow 
+     proper synchronisation to the measure when multiple sequencers are playing
+     together.<BR>
+
+     Whenever a MIDI clock is received:
+     <UL CLASS=CL>
+     <LI> the STOP button won't stop the sequencer, but just disables the output of
+       all tracks (like a Mute). The step progression continues to run.
+     <LI> the START button won't start the sequencer immediately.
+       Instead MBSEQ will wait for the next measure and then enable track output again.
+     <LI> the PAUSE button will enable/disable track output, but the track progression
+       continues to run.
+     </UL>
+
+     In order to notify that track outputs are disabled, the START/STOP/PAUSE
+     LED flashes to the beat.
+
+   <LI> Added Live page.<BR>
+     The page can be entered by pressing UTILITY -> Live (GP Button #11)<BR>
+
+     Inside this page notes (and drum instruments) can be played with the GP buttons.<BR>
+
+     In addition the 4 MIDI IN Busses for Transposer/Arpeggiator/Live Playing can be
+     configured like in the MIDI page.<BR>
+
+     Following Live Play parameters are available:
+     <UL CLASS=CL>
+     <LI> track selection
+     <LI> track mute/unmute
+     <LI> Octavewise transpose
+     <LI> Velocity (only used for GP button keyboard)
+     <LI> FTS (Force-To-Scale)
+     <LI> FX on (enables Humanizer, LFO, Limiter and Echo)<BR>
+       Note: the Echo effect will only work when the sequencer is running!
+     </UL>
+
+   <LI> parameter layer mutes are now also working for
+     velocity/length/probability/delay/roll/roll2
+
+   <LI> Echo Fx now also works with "zero delay". In conjunction with the Note incrementer
+     and (optionally) force to scale this results into a "poor man's chord" mechanism. ;-)
+
+   <LI> Move function works beyond step 16 as intended again
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.0beta41</I>
+  <UL CLASS=CL>
+   <LI> Global/Session bookmarks: the first 8 bookmarks are now stored in the root
+     directory, the remaining 8 bookmarks in the session directory
+
+   <LI> hwcfg/wilba/MBSEQ_HW.V4: F1 button now assigned to bookmark page
+
+   <LI> added 16 dedicated bookmark buttons which can be assigned in MBSEQ_HW.V4
+
+   <LI> Manual Trigger Request: now synchronized to next step
+
+   <LI> edit page in drum mode: parameter layer is displayed when parameter
+     select button is pressed
+
+   <LI> added "RATOPC" (restart all tracks on pattern change) option to UTIL->Opt menu
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.0beta40</I>
+  <UL CLASS=CL>
+   <LI> added bookmark function:
+    <UL CLASS=CL>
+     <LI> Press MENU+SELECT to enter the bookmark page
+     <LI> Alternatively this function can be assigned to a dedicated button/LED
+     <LI> inside this menu, press a GP button (shortly) to recall a bookmark
+     <LI> press&hold a GP button for 3 seconds to store a bookmark
+    </UL>
+   <LI> the bookmark function stores following UI settings:
+    <UL CLASS=CL>
+     <LI> Bookmark name
+     <LI> Current page
+     <LI> Group
+     <LI> Tracks
+     <LI> Mutes
+     <LI> Parameter Layer
+     <LI> Trigger Layer
+     <LI> Instrument
+     <LI> Step View
+     <LI> Step
+     <LI> Edit View
+     <LI> Solo/All/Fast/Metronome/Loop/Follow button mode
+    </UL>
+
+   <LI> Bookmarks are stored into the MBSEQ_BM.V4 file, which can be edited with
+     a common text editor.<BR>
+     This is the only way to change a bookmark name (5 characters)
+
+   <LI> it's possible to prevent, that a certain UI parameter will be overwritten by a
+     bookmark. This can (only) be done by editing the MBSEQ_BM.V4 file:
+     Just replace the '+' sign at the beginning of the parameter name by a '-' sign.
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <UL CLASS=CL>
 <LI><I>V4.0beta39</I>
   <UL>

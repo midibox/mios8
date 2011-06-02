@@ -39,7 +39,7 @@ If a PIC18F4685 is used in the project (-> <A HREF="midibox_sid.html">MIDIbox SI
     <TR>
       <TD CLASS=TABCOLOR2>MIOS8 Connectivity: Both displays have to be connected to the same data and control pins at J15, only the E (enable) input of the second LCD requires a dedicated output (pin C.4, J10:RC) which is not routed to J15 and therefore has to be soldered directly to the core module.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_2xclcd_mios8.pdf">mbhp_2xclcd_mios8.pdf</A></TD>
-      <TD CLASS=TABCOLOR2>MIOS32 Connectivity: the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module provides two LCD ports (J15A and J15B) where displays can be directly plugged in without the need for an adapter cable.</TD>
+      <TD CLASS=TABCOLOR2>MIOS32 Connectivity: the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module provides two LCD ports (J15A and J15B) where displays can be directly plugged in without the need for an adapter cable.</TD>
     </TR>
     </TR>
     <TR>
@@ -54,7 +54,7 @@ If a PIC18F4685 is used in the project (-> <A HREF="midibox_sid.html">MIDIbox SI
 <B>Connectivity:</B> any free pin of the PIC can be used for the enable line. For instance, if your application doesn't use the analog pins at J5 of the core module, you are able to connect 8 additional LCDs. You could also program a multiplexer interface in order to address even more LCDs by routing the enable line to one PIC pin.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_nxclcd_mios8.pdf">mbhp_nxclcd_mios8.pdf</A><BR></TD>
       <TD CLASS=TABCOLOR2>MIOS32: the standard CLCD driver is prepared for controlling up to 256 enable lines selected via MIOS32_LCD_DeviceSet().<BR>
-<B>Connectivity:</B> any free pin of the STM32 can be used for the enable line. For instance, if your application doesn't use the analog pins at J5A/B/C of the core module, you are able to connect 12 additional LCDs. You could also program a multiplexer interface in order to address even more LCDs by routing the enable line to one PIC pin.<BR>
+<B>Connectivity:</B> any free pin of the STM32 and LPC17 can be used for the enable line. For instance, if your application doesn't use the analog pins at J5A/B/C of the core module, you are able to connect 12 additional LCDs. You could also program a multiplexer interface in order to address even more LCDs by routing the enable line to one PIC pin.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_nxclcd_mios32.pdf">mbhp_nxclcd_mios32.pdf</A><BR></TD>
     </TR>
 
@@ -133,11 +133,26 @@ Note: regardless of the serial interface, the performance of this display is eve
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><B>MIOS8 Wiring Diagrams:</B> <A HREF="mbhp/mbhp_lcd_pcd8544_single_mios8.pdf">mbhp_lcd_pcd8544_single_mios8.pdf</A>, <A HREF="mbhp/mbhp_lcd_pcd8544_multiple_mios8.pdf">mbhp_lcd_pcd8544_multiple_mios8.pdf</A></TD>
-      <TD CLASS=TABCOLOR2><B>MIOS8 Wiring Diagrams:</B> <A HREF="mbhp/mbhp_lcd_pcd8544_single_mios32.pdf">mbhp_lcd_pcd8544_single_mios32.pdf</A>, <A HREF="mbhp/mbhp_lcd_pcd8544_multiple_mios32.pdf">mbhp_lcd_pcd8544_multiple_mios32.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><B>MIOS32 Wiring Diagrams:</B> <A HREF="mbhp/mbhp_lcd_pcd8544_single_mios32.pdf">mbhp_lcd_pcd8544_single_mios32.pdf</A>, <A HREF="mbhp/mbhp_lcd_pcd8544_multiple_mios32.pdf">mbhp_lcd_pcd8544_multiple_mios32.pdf</A></TD>
     </TR>
     <TR>
       <TD COLSPAN=2 CLASS=TABCOLOR2><B>Photo:</B> <A HREF="mbhp/mbhp_glcd_pcd5844.jpg">follow this link</A><BR>
       <B>More informations:</B> see <A HREF="http://serdisplib.sourceforge.net/ser/pcd8544.html" TARGET="_blank">this sourceforge page</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=2 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>SSD1306 based OLED</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=2 CLASS=TABCOLOR2>The tiny OLEDs which are available today provide high resolution and nice looking colours for an attractive price of typically 4..8 EUR. If you are searching for OLEDs, take care that they come with a breakout board, because soldering the pads on a veroboard is almost impossible, and some caps for the integrated DCDC to generate higher voltages have to be added as well... no fun! I found an attractive OLED/PCB combination from Alientek at <A HREF="http://item.taobao.com/item.htm?id=6239945991" TARGET="_blank">Taobao</A> which is recommendable. Buy it via <A HREF="http://www.yoybuy.com" TARGET="_blank">Yoybuy</A> for easier handling if you don't like shops w/o english translations.<BR>
+Up to 8 OLEDs can be (natively) controlled by a MIOS32 based core, they are accessed via 4-wire serial interface.</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><B>MIOS8 Wiring Diagrams:</B> not adapted (yet)</TD>
+      <TD CLASS=TABCOLOR2><B>MIOS32 Wiring Diagrams:</B> <A HREF="mbhp/mbhp_lcd_ssd1306_single_mios32.pdf">mbhp_lcd_ssd1306_single_mios32.pdf</A>, <A HREF="mbhp/mbhp_lcd_ssd1306_multiple_mios32.pdf">mbhp_lcd_ssd1306_multiple_mios32.pdf</A></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=2 CLASS=TABCOLOR2><B>Photo:</B> <A HREF="mbhp/mbhp_glcd_ssd1306.jpg">follow this link</A> and <A HREF="mbhp/mbhp_glcd_ssd1306_sideview.jpg">this link</A>
     </TR>
 
     <TR>
@@ -159,7 +174,7 @@ Another example is given with the IIC driver which accesses Magic Orbital LCDs v
   <DD>
   <DD>
 <P CLASS=DESC>Jim Henry wrote a superb guide which can be downloaded from the MIDIbox server: <A HREF="http://www.midibox.org/users/jim_henry/building_a_midibox_lcd_cable.pdf">building_a_midibox_lcd_cable.pdf</A>. It has been written for the pinning of the <A HREF="mbhp_core.html">MBHP_CORE</A> module.<BR>
-The <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module uses a 1:1 pinning instead which simplifies the wiring a bit.</P>
+The <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module uses a 1:1 pinning instead which simplifies the wiring a bit.</P>
 
 <P CLASS=DESC>Please note that there are some additional hints at the <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=home:mbhp:module:lcd" TARGET="_blank">MIDIbox Wiki</A> page!</P>
   </DD>
