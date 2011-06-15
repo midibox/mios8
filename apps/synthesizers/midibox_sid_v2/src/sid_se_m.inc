@@ -590,6 +590,28 @@ SIDSE_M_WT_PlayStep
 	movf	PLUSW0, W
 	call	SID_PARIN_SetWT
 
+	;; if W+16 option set, play waveform as well at offset 16
+	movlw	SID_Ix_M_Vx_WT_BEGIN
+	BRA_IFCLR PLUSW0, 7, ACCESS, SIDSE_M_WT_NoWP16
+SIDSE_M_WT_WP16
+	;; store value from offset 16 in MIOS_PARAMETER1
+	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_WAVETABLE
+	movlw	SID_WTx_POS
+	movf	PLUSW2, W
+	addlw	0x10
+	andlw	0x7f
+	addwf	FSR1L, F
+	movff	INDF1, MIOS_PARAMETER1
+	;; store SIDs which should be modified in MIOS_PARAMETER3[1:0], and instrument in MIOS_PARAMETER[6:4]
+	swapf	SID_SE_ELEMENT_NUM, W, BANKED
+	andlw	0xf0
+	iorlw	0x03
+	movwf	MIOS_PARAMETER3
+	;; call WT Parameter Handler
+	movlw	0x21		; Waveform of Current Instrument
+	call	SID_PARIN_SetWT
+SIDSE_M_WT_NoWP16
+
 SIDSE_M_WT_End
 	return
 

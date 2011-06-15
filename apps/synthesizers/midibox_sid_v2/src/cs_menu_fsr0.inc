@@ -364,21 +364,21 @@ CS_MENU_FSR0_WTPos_Cont
 	movwf	PRODH
 
 	;; now determine WT entry
-	;; if outside begin-end range, set FSR0L to 0!
-
 	movf	CS_MENU_WT_POS, W
 	andlw	0x7f
 	addwf	PRODL, F
-	incf	PRODH, W
-	cpfslt	PRODL, ACCESS
-	rgoto CS_MENU_FSR0_WTPos_Inv
-CS_MENU_FSR0_WTPos_Ok
 	lfsr	FSR0, SID_EDIT_BUFFER
 	movf	PRODL, W
 	addlw	LOW(SID_Ix_WAVETABLE)
 	movwf	FSR0L
 	movlw	HIGH(SID_Ix_WAVETABLE)
 	addwfc	FSR0H, F
+
+	;; if outside begin-end range, set WREG to 0!
+	incf	PRODH, W
+	cpfslt	PRODL, ACCESS
+	rgoto CS_MENU_FSR0_WTPos_Inv
+CS_MENU_FSR0_WTPos_Ok
 	iorlw	0xff		; clear zero flag
 	return
 

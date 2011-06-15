@@ -367,16 +367,16 @@ CS_MENU_PRINT_BNK
 	call	CS_MENU_MS_GetSIDBank
 	movwf	SID_BANK
 	addlw	'A'
-	rcall	CS_MENU_PRINT_Char
+	call	CS_MENU_PRINT_Char
 
 	;; add '*' if BankStick or Patch not available
 	call	SID_PBANK_CheckPatchValid
 	movlw	' '
 	skpz
 	movlw	'*'
-	rcall	CS_MENU_PRINT_Char
+	call	CS_MENU_PRINT_Char
 	movlw	' '
-	rgoto	CS_MENU_PRINT_Char
+	goto	CS_MENU_PRINT_Char
 	
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_PAT
@@ -1159,164 +1159,8 @@ CS_MENU_PRINT_WTE_POS_Val
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_WTE_PAR
-	call	CS_MENU_FSR0_WTPos		; sets ZERO flag if value outside range
-	bnz	CS_MENU_PRINT_WTE_PAR_Ok
-CS_MENU_PRINT_WTE_PAR_Inv
-	movlw	'.'
-	rcall	CS_MENU_PRINT_Char
-	movlw	'.'
-	rcall	CS_MENU_PRINT_Char
-	movlw	'.'
-	rcall	CS_MENU_PRINT_Char
-	rgoto	CS_MENU_PRINT_WTE_PAR_End
-
-CS_MENU_PRINT_WTE_PAR_Ok
-	BRA_IFCLR INDF0, 7, ACCESS, CS_MENU_PRINT_WTE_PAR_PM
-CS_MENU_PRINT_WTE_PAR_Px
-	;; special case: if Assignment in between 0xfc..0xff: print note instead of hex/dec number
-
-	;; get WT assignment which corresponds to displayed entry
-	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
-	BRA_IFSET WREG, 1, ACCESS, CS_MENU_PRINT_WTE_PAR_Px_DM
-CS_MENU_PRINT_WTE_PAR_Px_LB
-	BRA_IFSET WREG, 0, ACCESS, CS_MENU_PRINT_WTE_PAR_Px_B
-CS_MENU_PRINT_WTE_PAR_Px_L
-	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_L_WT1_BASE + SID_Ix_WTx_ASSGN
-	movf	CS_MENU_PARAMETER_IX, W
-	andlw	0x03
-	mullw	SID_Ix_L_WT2_BASE-SID_Ix_L_WT1_BASE
-	movf	PRODL, W
-	addwf	FSR1L, F
-	movf	INDF1, W
-	andlw	0xfc
-	xorlw	0xfc
-	rgoto	CS_MENU_PRINT_WTE_PAR_Px_FOk
-CS_MENU_PRINT_WTE_PAR_Px_B
-	rgoto	CS_MENU_PRINT_WTE_PAR_Px_L	; not implemented yet
-CS_MENU_PRINT_WTE_PAR_Px_DM
-	BRA_IFSET WREG, 0, ACCESS, CS_MENU_PRINT_WTE_PAR_Px_M
-CS_MENU_PRINT_WTE_PAR_Px_D
-	rgoto	CS_MENU_PRINT_WTE_PAR_Px_L	; not implemented yet
-CS_MENU_PRINT_WTE_PAR_Px_M
-	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_M_I1_BASE + SID_Ix_M_Vx_WT_ASSGN
-	movf	CS_MENU_PARAMETER_IX, W
-	andlw	0x07
-	mullw	SID_Ix_M_I2_BASE - SID_Ix_M_I1_BASE
-	movf	PRODL, W
-	addwf	FSR1L, F
-	movf	PRODH, W
-	addwfc	FSR1H, F
-	movf	INDF1, W
-	andlw	0xf8
-	xorlw	0xf8
-	;; 	rgoto	CS_MENU_PRINT_WTE_PAR_Px_FOk
-
-CS_MENU_PRINT_WTE_PAR_Px_FOk
-
-	bnz	CS_MENU_PRINT_WTE_PAR_Px_Hex
-CS_MENU_PRINT_WTE_PAR_Px_Note
-	;; if INDF0 >= 0xfc, print Ky1...Ky4 (for arpeggiator)
-	movf	INDF0, W
-	andlw	0xfc
-	xorlw	0xfc
-	bnz	CS_MENU_PRINT_WTE_PAR_Px_NoArp
-CS_MENU_PRINT_WTE_PAR_Px_Arp
-	movlw	'K'
-	rcall	CS_MENU_PRINT_Char
-	movlw	'y'
-	rcall	CS_MENU_PRINT_Char
-	movf	INDF0, W
-	andlw	0x03
-	addlw	1
-	call	MIOS_LCD_PrintBCD1
-	rgoto	CS_MENU_PRINT_WTE_PAR_End
-
-CS_MENU_PRINT_WTE_PAR_Px_NoArp
-	;; if INDF0 == 0, print "---" (for no note)
-	movf	INDF0, W
-	andlw	0x7f
-	bz	CS_MENU_PRINT_WTE_PAR_Px_NoN
-	;; if INDF0 == 1, print "+++" (for hold note)
-	addlw	-1
-	bz	CS_MENU_PRINT_WTE_PAR_Px_Hold
-	;; else print note name
-CS_MENU_PRINT_WTE_PAR_Px_NoHld
-	addlw	+1
-	call	SID_NOTE_Print
-	rgoto	CS_MENU_PRINT_WTE_PAR_End
-
-CS_MENU_PRINT_WTE_PAR_Px_NoN
-	movlw	'-'
-	rgoto	CS_MENU_PRINT_WTE_PAR_Px_NoNC
-CS_MENU_PRINT_WTE_PAR_Px_Hold
-	movlw	'+'
-CS_MENU_PRINT_WTE_PAR_Px_NoNC
-	movwf	TABLAT
-	rcall	CS_MENU_PRINT_Char
-	movf	TABLAT, W
-	rcall	CS_MENU_PRINT_Char
-	movf	TABLAT, W
-	rcall	CS_MENU_PRINT_Char
-	rgoto	CS_MENU_PRINT_WTE_PAR_End
-
-CS_MENU_PRINT_WTE_PAR_Px_Hex
-	movf	INDF0, W
-	andlw	0x7f
-	rcall	CS_MENU_PRINT_WTVal
-	rgoto	CS_MENU_PRINT_WTE_PAR_End
-
-CS_MENU_PRINT_WTE_PAR_PM
-	movf	INDF0, W
-	rcall	CS_MENU_PRINT_PMWTVal
-	;; 	rgoto	CS_MENU_PRINT_WTE_PAR_End
-
-CS_MENU_PRINT_WTE_PAR_End
-	;; if position matches with loop point, add '<' marker
-	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
-	BRA_IFSET WREG, 1, ACCESS, CS_MENU_PRINT_WTE_PAR_LC_DM
-CS_MENU_PRINT_WTE_PAR_LC_LB
-	BRA_IFSET WREG, 0, ACCESS, CS_MENU_PRINT_WTE_PAR_LC_B
-CS_MENU_PRINT_WTE_PAR_LC_L
-	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_L_WT1_BASE + SID_Ix_WTx_LOOP
-	movf	CS_MENU_PARAMETER_IX, W
-	andlw	0x03
-	mullw	SID_Ix_L_WT2_BASE-SID_Ix_L_WT1_BASE
-	rgoto	CS_MENU_PRINT_WTE_PAR_LC_FOk
-CS_MENU_PRINT_WTE_PAR_LC_B
-	rgoto	CS_MENU_PRINT_WTE_PAR_LC_L	; not implemented yet
-CS_MENU_PRINT_WTE_PAR_LC_DM
-	BRA_IFSET WREG, 0, ACCESS, CS_MENU_PRINT_WTE_PAR_LC_M
-CS_MENU_PRINT_WTE_PAR_LC_D
-	rgoto	CS_MENU_PRINT_WTE_PAR_LC_L	; not implemented yet
-CS_MENU_PRINT_WTE_PAR_LC_M
-	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_M_I1_BASE + SID_Ix_WTx_LOOP
-	movf	CS_MENU_PARAMETER_IX, W
-	andlw	0x07
-	mullw	SID_Ix_M_I2_BASE - SID_Ix_M_I1_BASE
-	;; 	rgoto	CS_MENU_PRINT_WTE_PAR_LC_FOk
-
-CS_MENU_PRINT_WTE_PAR_LC_FOk
-	movf	PRODL, W
-	addwf	FSR1L, F
-	movf	PRODH, W
-	addwfc	FSR1H, F
-
-	;; skip if oneshot flag set
-	btfsc	INDF1, 7
-	return
-	movf	INDF1, W
-	andlw	0x7f
-	movwf	PRODL
-
-	movf	FSR0L, W
-	addlw	0-LOW(SID_Ix_WAVETABLE)
-	xorwf	PRODL, W
-	movlw	'<'
-	skpz
-	movlw	' '
-	rcall	CS_MENU_PRINT_Char
-	return
-
+	;; we have to move the code, otherwise rcalls to print functions (CS_MENU_PRINT_Handler) not working
+	goto	CS_MENU_PRINT_WTE_PAR_Hlp
 
 ; --------------------------------------------------------------------------
 CS_MENU_PRINT_WT_VAL
@@ -2013,6 +1857,205 @@ CS_MENU_PRINT_PMWTVal_Dec
 #else
 	return			; mostly need only 3 chars
 #endif
+
+
+
+; --------------------------------------------------------------------------
+;  Following help fuinction located here to ensure that CS_MENU_PRINT_Handler can
+;  work with 2byte "rgoto"'s
+; --------------------------------------------------------------------------
+CS_MENU_PRINT_WTE_PAR_Hlp
+	call	CS_MENU_FSR0_WTPos		; sets ZERO flag if value outside range
+	bnz	CS_MENU_PRINT_WTE_PAR_Ok
+CS_MENU_PRINT_WTE_PAR_Inv
+	;; extra for multi engine: if W+16 flag set, show "invalid" positions as well
+	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
+	andlw	0x03
+	xorlw	0x03
+	bnz	CS_MENU_PRINT_WTE_PAR_InvDotDot
+	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_M_I1_BASE + SID_Ix_M_Vx_WT_BEGIN
+	movf	CS_MENU_PARAMETER_IX, W
+	andlw	0x07
+	mullw	SID_Ix_M_I2_BASE - SID_Ix_M_I1_BASE
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
+	BRA_IFSET INDF1, 7, ACCESS, CS_MENU_PRINT_WTE_PAR_Ok
+
+CS_MENU_PRINT_WTE_PAR_InvDotDot
+	movlw	'.'
+	rcall	CS_MENU_PRINT_Char
+	movlw	'.'
+	rcall	CS_MENU_PRINT_Char
+	movlw	'.'
+	rcall	CS_MENU_PRINT_Char
+	rgoto	CS_MENU_PRINT_WTE_PAR_End
+
+CS_MENU_PRINT_WTE_PAR_Ok
+	BRA_IFCLR INDF0, 7, ACCESS, CS_MENU_PRINT_WTE_PAR_PM
+CS_MENU_PRINT_WTE_PAR_Px
+	;; special case: if Assignment in between 0xfc..0xff: print note instead of hex/dec number
+
+	;; get WT assignment which corresponds to displayed entry
+	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
+	BRA_IFSET WREG, 1, ACCESS, CS_MENU_PRINT_WTE_PAR_Px_DM
+CS_MENU_PRINT_WTE_PAR_Px_LB
+	BRA_IFSET WREG, 0, ACCESS, CS_MENU_PRINT_WTE_PAR_Px_B
+CS_MENU_PRINT_WTE_PAR_Px_L
+	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_L_WT1_BASE + SID_Ix_WTx_ASSGN
+	movf	CS_MENU_PARAMETER_IX, W
+	andlw	0x03
+	mullw	SID_Ix_L_WT2_BASE-SID_Ix_L_WT1_BASE
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	INDF1, W
+	andlw	0xfc
+	xorlw	0xfc
+	rgoto	CS_MENU_PRINT_WTE_PAR_Px_FOk
+CS_MENU_PRINT_WTE_PAR_Px_B
+	rgoto	CS_MENU_PRINT_WTE_PAR_Px_L	; not implemented yet
+CS_MENU_PRINT_WTE_PAR_Px_DM
+	BRA_IFSET WREG, 0, ACCESS, CS_MENU_PRINT_WTE_PAR_Px_M
+CS_MENU_PRINT_WTE_PAR_Px_D
+	rgoto	CS_MENU_PRINT_WTE_PAR_Px_L	; not implemented yet
+CS_MENU_PRINT_WTE_PAR_Px_M
+	;; consider W+16 (no note display if current position > begin
+	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_M_I1_BASE + SID_Ix_M_Vx_WT_BEGIN
+	movf	CS_MENU_PARAMETER_IX, W
+	andlw	0x07
+	mullw	SID_Ix_M_I2_BASE - SID_Ix_M_I1_BASE
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
+	BRA_IFCLR INDF1, 7, ACCESS, CS_MENU_PRINT_WTE_PAR_Px_M2
+
+	movlw	SID_Ix_M_Vx_WT_END - SID_Ix_M_Vx_WT_BEGIN
+	addwf	FSR1L, F
+	movf	INDF1, W
+	andlw	0x7f
+	addlw	1
+	cpfslt	CS_MENU_WT_POS, ACCESS
+	rgoto	CS_MENU_PRINT_WTE_PAR_Px_Hex
+	movlw	SID_Ix_M_Vx_WT_BEGIN - SID_Ix_M_Vx_WT_END
+	addwf	FSR1L, F
+
+CS_MENU_PRINT_WTE_PAR_Px_M2
+	movlw	SID_Ix_M_Vx_WT_ASSGN - SID_Ix_M_Vx_WT_BEGIN
+	addwf	FSR1L, F
+	movf	INDF1, W
+	andlw	0xf8
+	xorlw	0xf8
+	;; 	rgoto	CS_MENU_PRINT_WTE_PAR_Px_FOk
+
+CS_MENU_PRINT_WTE_PAR_Px_FOk
+
+	bnz	CS_MENU_PRINT_WTE_PAR_Px_Hex
+CS_MENU_PRINT_WTE_PAR_Px_Note
+	;; if INDF0 >= 0xfc, print Ky1...Ky4 (for arpeggiator)
+	movf	INDF0, W
+	andlw	0xfc
+	xorlw	0xfc
+	bnz	CS_MENU_PRINT_WTE_PAR_Px_NoArp
+CS_MENU_PRINT_WTE_PAR_Px_Arp
+	movlw	'K'
+	rcall	CS_MENU_PRINT_Char
+	movlw	'y'
+	rcall	CS_MENU_PRINT_Char
+	movf	INDF0, W
+	andlw	0x03
+	addlw	1
+	call	MIOS_LCD_PrintBCD1
+	rgoto	CS_MENU_PRINT_WTE_PAR_End
+
+CS_MENU_PRINT_WTE_PAR_Px_NoArp
+	;; if INDF0 == 0, print "---" (for no note)
+	movf	INDF0, W
+	andlw	0x7f
+	bz	CS_MENU_PRINT_WTE_PAR_Px_NoN
+	;; if INDF0 == 1, print "+++" (for hold note)
+	addlw	-1
+	bz	CS_MENU_PRINT_WTE_PAR_Px_Hold
+	;; else print note name
+CS_MENU_PRINT_WTE_PAR_Px_NoHld
+	addlw	+1
+	call	SID_NOTE_Print
+	rgoto	CS_MENU_PRINT_WTE_PAR_End
+
+CS_MENU_PRINT_WTE_PAR_Px_NoN
+	movlw	'-'
+	rgoto	CS_MENU_PRINT_WTE_PAR_Px_NoNC
+CS_MENU_PRINT_WTE_PAR_Px_Hold
+	movlw	'+'
+CS_MENU_PRINT_WTE_PAR_Px_NoNC
+	movwf	TABLAT
+	rcall	CS_MENU_PRINT_Char
+	movf	TABLAT, W
+	rcall	CS_MENU_PRINT_Char
+	movf	TABLAT, W
+	rcall	CS_MENU_PRINT_Char
+	rgoto	CS_MENU_PRINT_WTE_PAR_End
+
+CS_MENU_PRINT_WTE_PAR_Px_Hex
+	movf	INDF0, W
+	andlw	0x7f
+	rcall	CS_MENU_PRINT_WTVal
+	rgoto	CS_MENU_PRINT_WTE_PAR_End
+
+CS_MENU_PRINT_WTE_PAR_PM
+	movf	INDF0, W
+	rcall	CS_MENU_PRINT_PMWTVal
+	;; 	rgoto	CS_MENU_PRINT_WTE_PAR_End
+
+CS_MENU_PRINT_WTE_PAR_End
+	;; if position matches with loop point, add '<' marker
+	movff	SID_EDIT_BUFFER + SID_Ix_ENGINE, WREG
+	BRA_IFSET WREG, 1, ACCESS, CS_MENU_PRINT_WTE_PAR_LC_DM
+CS_MENU_PRINT_WTE_PAR_LC_LB
+	BRA_IFSET WREG, 0, ACCESS, CS_MENU_PRINT_WTE_PAR_LC_B
+CS_MENU_PRINT_WTE_PAR_LC_L
+	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_L_WT1_BASE + SID_Ix_WTx_LOOP
+	movf	CS_MENU_PARAMETER_IX, W
+	andlw	0x03
+	mullw	SID_Ix_L_WT2_BASE-SID_Ix_L_WT1_BASE
+	rgoto	CS_MENU_PRINT_WTE_PAR_LC_FOk
+CS_MENU_PRINT_WTE_PAR_LC_B
+	rgoto	CS_MENU_PRINT_WTE_PAR_LC_L	; not implemented yet
+CS_MENU_PRINT_WTE_PAR_LC_DM
+	BRA_IFSET WREG, 0, ACCESS, CS_MENU_PRINT_WTE_PAR_LC_M
+CS_MENU_PRINT_WTE_PAR_LC_D
+	rgoto	CS_MENU_PRINT_WTE_PAR_LC_L	; not implemented yet
+CS_MENU_PRINT_WTE_PAR_LC_M
+	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_M_I1_BASE + SID_Ix_WTx_LOOP
+	movf	CS_MENU_PARAMETER_IX, W
+	andlw	0x07
+	mullw	SID_Ix_M_I2_BASE - SID_Ix_M_I1_BASE
+	;; 	rgoto	CS_MENU_PRINT_WTE_PAR_LC_FOk
+
+CS_MENU_PRINT_WTE_PAR_LC_FOk
+	movf	PRODL, W
+	addwf	FSR1L, F
+	movf	PRODH, W
+	addwfc	FSR1H, F
+
+	;; skip if oneshot flag set
+	btfsc	INDF1, 7
+	return
+	movf	INDF1, W
+	andlw	0x7f
+	movwf	PRODL
+
+	movf	FSR0L, W
+	addlw	0-LOW(SID_Ix_WAVETABLE)
+	xorwf	PRODL, W
+	movlw	'<'
+	skpz
+	movlw	' '
+	rcall	CS_MENU_PRINT_Char
+	return
+
+
 
 ; --------------------------------------------------------------------------
 ;  Large String tables (located here to ensure that CS_MENU_PRINT_Handler can

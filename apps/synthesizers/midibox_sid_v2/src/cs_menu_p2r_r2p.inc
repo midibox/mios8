@@ -2308,8 +2308,11 @@ CS_MENU_R2P_TRGx_Nx
 CS_MENU_P2R_Hlp_WTP
 	;; store parameter
 	call	CS_MENU_FSR0_WTPos		; sets ZERO flag if value outside range
+#if 0
+	;; changes outside common range required due to W+16 function... :-/
 	skpnz
 	return
+#endif
 
 	movf	CS_MENU_WT_POS, W
 	xorlw	0x80
