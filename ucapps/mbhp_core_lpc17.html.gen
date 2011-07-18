@@ -2,10 +2,11 @@ HEADER 3 MBHP_CORE_LPC17 Module
 
 <H1>MIDIbox Hardware Platform, CORE_LPC17 Module</H1>
 
-<P CLASS=INFO>Coming soon...!</P>
+<P><CENTER><IMG SRC="mbhp/mbhp_core_lpc17_v1.jpg" width=550 height=283></CENTER></P>
 
 <P CLASS=INFO>MBHP_CORE_LPC17 is the successor of the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module.</P>
 
+<P CLASS=INFO>Coming soon...!</P>
 <P CLASS=INFO>Stay tuned!</P>
 
 <P CLASS=DESC>Main features of the <A HREF="http://www.nxp.com" TARGET="_blank">NXP LPC1769</A> based MBHP_CORE_LPC17 module:
@@ -170,19 +171,27 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
     </TR>
   </TABLE></DD>
 
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> The next steps...</H2></DT>
-  <DD>
-      <P CLASS=DESC>...will be explained once the MBHP_CORE_LPC17 PCB is ready.<BR>
-      Currently only a small part of the upcoming circuit exists on a prototype board!
-      <IMG SRC="mbhp/mbhp_core_lpc17_proto1.jpg" WIDTH=640 BORDER=0 ALT="">
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_lpc17_orderlist.txt">mbhp_core_lpc17_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+  </TABLE></DD>
   </DD>
-</DL>
 
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Minimal Circuit to get USB running</H2></DT>
   <DD>
-      <P CLASS=DESC>Following minimal circuit is helpful for impatient builders who want to do some experiments with the LPCXPRESSO running under MIOS32. Interaction with the application is possible via the MIOS Studio Terminal and via MIDI of course!</P>
+      <P CLASS=DESC>Following minimal circuit is helpful for impatient builders who want to do some experiments with the LPCXPRESSO running under MIOS32 without using the complete MBHP_CORE_LPC17 module. Interaction with the application is possible via the MIOS Studio Terminal and via MIDI of course!</P>
       <P CLASS=DESC>It provides:
         <UL CLASS=CL>
           <LI>USB Socket for USB-MIDI and to connect to <A HREF="mios_studio.html">MIOS Studio</A>
@@ -203,5 +212,130 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
      </TABLE>
   </DD>
 </DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide for the complete MBHP_CORE_LPC17 module</H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_2.jpg" WIDTH=280 HEIGHT=238 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>It's always a good idea to start with the smallest components to simplify mounting.<BR>
+So, start with the resistors and diodes:
+<UL CLASS=CL>
+<LI>R7, R8, R9, R10 = 2.2k
+<LI>R11, R13, R18, R23 = 1k
+<LI>R12 = 10k
+<LI>R19, R24 = 4.7k
+<LI>R20, R21, R22, R25, R26, R27 = 220
+<LI>D1, D2, D3 = 1N4148 (polarity! Check the black ring!)
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_3.jpg" WIDTH=280 HEIGHT=239 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Continue with the resistor arrays.<BR>
+Take care that they are "polarised"! The dot marks the common pin which has to be soldered into the appr. square pad of the PCB:
+<UL CLASS=CL>
+<LI>R2 = 4x10k
+<LI>R33 = 4x1k
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_4.jpg" WIDTH=280 HEIGHT=235 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Now solder the caps.<BR>
+Pay attention for the polarity of the El.Caps! The positive leg of an El.Cap is longer than the negative leg. The negative leg is also marked on the cap case. Put the positive into the pad which is marked with "+".
+<UL CLASS=CL>
+<LI>C11, C13, C14, C15 = 100 nF
+<LI>C10 = 47 uF (El.Cap - polarity!)
+<LI>C12 = 100 uF (El.Cap - polarity!)
+<LI>C9 = 330 nF
+<LI>C8 = 2200 uF (El.Cap - polarity!)
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_5.jpg" WIDTH=280 HEIGHT=231 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Solder the special components:
+<UL CLASS=CL>
+<LI>T1 = BC337 (polarity!)
+<LI>P1, P2 = 10k Pots
+<LI>IC6 = 7805 (polarity! see picture)
+<LI>IC7 = LF33 (polarity! see picture)
+<LI>X1 = rectifier (polarity!)
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_6.jpg" WIDTH=280 HEIGHT=231 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>And add IC sockets and jumpers:
+<UL CLASS=CL>
+<LI>IC1, IC2, IC4, IC5 sockets
+<LI>J17, J15_S, J27 jumpers
+<LI>J1, J2, J4A, J4B, J18 sockets
+<LI>USB socket
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_7.jpg" WIDTH=280 HEIGHT=223 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Optional step: before continuing, it makes sense to do a basic voltage check: plug in the USB cable, and mount the "USB Power" jumper on J17. Thereafter you should measure ca. 3.3V between GND (lower left corner in this picture) and the 3v3 (lower right corner) supply pins to the LPCXPRESSO module.<BR>
+Note that USB Power Jumper J17 <B>has to be removed</B> when the core is supplied externally via J1!
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_8.jpg" WIDTH=280 HEIGHT=247 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Add the remaining sockets:
+<UL CLASS=CL>
+<LI>2x5 pin sockets J5A, J5B, J19, J8/9, J16, J10
+<LI>2x8 pin sockets J15A and J15B
+<LI>2x10 pin socket J3 (optional for JTAG)
+<LI>4 MIDI Sockets
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_9.jpg" WIDTH=280 HEIGHT=244 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Plug the LPCXPRESSO into the board and solder all pins.<BR>
+Finally plug the ICs into the sockets:
+<UL CLASS=CL>
+<LI>IC1 = 74HCT541
+<LI>IC2 = 74HCT595 if LCD should be supplied at 5V, otherwise 74HC595 for 3.3V option<BR>
+Note: 74HCT595 not available at Reichelt - take 74HC595 instead, it will work properly anyhow!
+<LI>IC4, IC5 = 6N138
+</UL>
+                DONE! :-)
+      </TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Special Guide: Connecting a 2x20 (or 2x40) LCD</H2></DT>
+  <DD>
+  <P CLASS=INFO>The pinning of the 2x8 LCD connectors J15A and J15B is mirrored to simplify the cabling of common 2x20 and 2x40 displays (and partly due to historical reasons - it's originated from the so called "UltraPCB").<BR>
+Note also that in difference to the MBHP_CORE_STM32 module, the J15 ports have been rotaed by 180 degrees! But the polarity is the same, which means that you can re-use the LCD cables which you made for the MBHP_CORE_STM32 module.<BR>
+Following pictures illustrate the orientation of the IDC connectors:
+<P><CENTER><IMG SRC="mbhp/mbhp_core_lpc17_lcd1.jpg" width=550 height=403></CENTER></P>
+<P><CENTER><IMG SRC="mbhp/mbhp_core_lpc17_lcd2.jpg" width=550 height=403></CENTER></P>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Credits </H2></DT>
+  <DD><P CLASS=DESC>A big thank-you goes to <A HREF="http://www.exodusamps.com" TARGET="_blank">Sebastian Kulik</A>, who pushed me to evaluate a new microcontroller and who created the layout. He used <A HREF="http://www.altium.com/" TARGET="_blank">Altium Designer</A> for this task and wants to thank the company for the very friendly support.<P>
+  </DD>
+</DL>
+
   
 FOOTER

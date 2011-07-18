@@ -11,15 +11,15 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> USB MIDI </H2>
 
-<P CLASS=DESC>Thanks to the integrated USB peripheral of <A HREF="mbhp_core_stm32.html">STM32</A>, USB MIDI is natively supported by the firmware. This simplifies the upload of new firmwares, and speeds up MIDI transfers to your DAW and/or virtual synthesizers up to 100 times and more - see also <A HREF="http://www.midibox.org/forum/index.php/topic,13542.0.html">this forum article</A>.</P>
-    <P CLASS=DESC>The sequencer will also run without USB of course. Two MIDI IN and MIDI OUT ports are provided by the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module for connecting MIDI devices such as synthesizers, drum machines, Fx gear, keyboards, etc.</P>
+<P CLASS=DESC>Thanks to the integrated USB peripheral of <A HREF="mbhp_core_stm32.html">STM32</A> and <A HREF="mbhp_core_lpc17.html">LPC17</A>, USB MIDI is natively supported by the firmware. This simplifies the upload of new firmwares, and speeds up MIDI transfers to your DAW and/or virtual synthesizers up to 100 times and more - see also <A HREF="http://www.midibox.org/forum/index.php/topic,13542.0.html">this forum article</A>.</P>
+    <P CLASS=DESC>The sequencer will also run without USB of course. Two MIDI IN and MIDI OUT ports are provided by the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module for connecting MIDI devices such as synthesizers, drum machines, Fx gear, keyboards, etc. - a third MIDI IO port can be added on J5 (details below)</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Power Supply </H2>
 
 <P CLASS=DESC>The power consumption of a common MIDIbox SEQ V4 configuration is about 400..1000 mA depending on the used LCDs and LEDs. Especially blue backlights and LEDs can increase the consumption dramatically!</P>
 
-<P CLASS=DESC>It's recommended to supply the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module from an external PSU (e.g. a wall adapter) connected to J1. Jumper J17 (USB Power Option) has to be disconnected in this case!</P>
+<P CLASS=DESC>It's recommended to supply the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> resp. <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module from an external PSU (e.g. a wall adapter) connected to J1. Jumper J17 (USB Power Option) has to be disconnected in this case!</P>
 
 <P CLASS=DESC>Alternatively MIDIbox SEQ V4 can be powered from the USB port (PSU removed from J1, J17 jumper connected) if an USB hub with external power supply is used.</P>
 
@@ -126,7 +126,8 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 
 <P CLASS=DESC>A third MIDI IN/OUT port is supported by the core (see also <a href="midibox_seq/mbseq_v4_interconnections.pdf" TARGET="_blank">this interconnection diagram</A>). It's normaly used as dedicated IO port for the <A HREF="midibox_seq_manual_blm.html">BLM16x16+X</A>, but can also be used as optional extension:
 <UL CLASS=CL>
-  <LI><A HREF="mbhp/mbhp_core_stm32_midi3_extension.pdf" TARGET="_blank">schematic for MIDI IN3/MIDI OUT3 extension</A>
+  <LI><A HREF="mbhp/mbhp_core_stm32_midi3_extension.pdf" TARGET="_blank">schematic for MIDI IN3/MIDI OUT3 extension of STM32</A>
+  <LI><A HREF="mbhp/mbhp_core_lpc17_midi3_extension.pdf" TARGET="_blank">schematic for MIDI IN3/MIDI OUT3 extension of LPC17</A>
   <LI><A HREF="midibox_blm/blm_connector_mbseq.pdf" TARGET="_blank">schematic for BLM connector</A>
 </UL>
 
@@ -159,10 +160,9 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Ethernet Interface </H2>
 
-<P CLASS=DESC>The usage of <A HREF="mbhp_eth.html">MBHP_ETH</A> is under preparation to support the OSC protocol natively without the need for a computer based proxy.</P>
-<P CLASS=DESC>First performance tests <A HREF="http://www.midibox.org/forum/index.php/topic,13542.0.html">show good results</A>, but USB transfers are still faster. The advantage of OSC compared to USB MIDI is the higher flexibility, especially when applications running on multiple computers should be accessed. Even wireless communication in a WLAN network is possible if the MBHP_ETH module is connected to a WLAN bridge.</P>
+<P CLASS=DESC>An ethernet option is natively supported with the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module, and optionally with the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> in conjunction with the <A HREF="mbhp_eth.html">MBHP_ETH</A> module.</P>
 
-<P CLASS=DESC>Latest update: the ethernet option is available since Beta24</P>
+<P CLASS=DESC>Details are explained in this <A HREF="midibox_seq_manual_osc.html">separate chapter about OSC</A>.
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware costs </H2>
@@ -177,7 +177,7 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
     <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Price</STRONG></FONT></TD>
   </TR>
   <TR>
-    <TD CLASS=TABCOLOR2><A HREF="mbhp_core_stm32.html">1 MBHP_CORE_STM32</A><BR>module</TD>
+    <TD CLASS=TABCOLOR2><A HREF="mbhp_core_stm32.html">1 MBHP_CORE_STM32</A><BR>or<BR><A HREF="mbhp_core_lpc17.html">1 MBHP_CORE_LPC17</A><BR>module</TD>
     <TD CLASS=TABCOLOR2>the brain of MIDIbox SEQ V4</TD>
     <TD CLASS=TABCOLOR2>Kit in <A HREF="http://mbhp.avishowtech.com" TARGET="_blank">SmashTV's Shop</A>: ca. 32 EUR</TD>
   </TR>

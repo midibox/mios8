@@ -178,7 +178,7 @@ The first number means, how often the event will be played (2, 3, 4 or 5 times),
   <UL CLASS=CL>
     <LI><B>Default:</B> the default port as selected in the MIDI configuration page (usually USB1)</LI>
     <LI><B>USB1..USB4:</B> 4 independent USB ports are available which are visible for your operating system</LI>
-    <LI><B>OUT1..OUT4:</B> 3 physical MIDI OUT ports are provided by the MBHP_CORE_STM32 module. The remaining one is reserved for the emulated MBSEQ</LI>
+    <LI><B>OUT1..OUT4:</B> 3 physical MIDI OUT ports are provided by the MBHP_CORE_STM32 resp. MBHP_CORE_LPC17 module. The remaining one is reserved for the emulated MBSEQ</LI>
     <LI><B>IIC1..IIC4:</B> to select the optional MBHP_IIC_MIDI ports</LI>
     <LI><B>OSC1..OSC4:</B> allows to send/receive events via Ethernet</LI>
     <LI><B>Bus1..Bus4:</B> virtual ports. They are used to control the transposer/arpeggiator (see loopback description below), and can optionally be used for the MIDI router function (see description of MIDI configuration page)</LI>
@@ -375,7 +375,7 @@ From 0:24 I selected an alternative pattern which sends various notes to the loo
     <TD CLASS=TABCOLOR2>Note</TD>
     <TD CLASS=TABCOLOR2>16</TD>
     <TD CLASS=TABCOLOR2>DOUT drum gates/triggers<BR>
-Notes to AOUT Channel #16 will be redirected to up to 64 digital outputs of the DOUT chain. Each key number triggers an individual gate for 1 mS, accordingly this mode is predestinated for drum triggers. The used shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)
+Notes to AOUT Channel #16 (C-1, C#1, D-1, ... upwards) will be redirected to up to 64 digital outputs of the DOUT chain. Each key number triggers an individual gate for 1 mS, accordingly this mode is predestinated for drum triggers. The used shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)
 </TD>
   </TR>
 </TABLE></P>
@@ -741,7 +741,7 @@ Incoming events will be immediately inserted into the selected track. If the cur
 <UL CLASS=CL>
   <LI><B>Track:</B> selection
   <LI><B>Mute:</B> mute/unmute the selected track
-  <LI><B>Trn.:</B> Octavewise transpose
+  <LI><B>Oct.:</B> Octavewise transpose
   <LI><B>Velocity:</B> (only used for GP button keyboard)
   <LI><B>FTS:</B> Force-To-Scale
   <LI><B>FX:</B> enables Humanizer, LFO, Limiter and Echo<BR>
@@ -799,8 +799,10 @@ Incoming events will be immediately inserted into the selected track. If the cur
   <LI><B>Clr:</B> clears the parameter/trigger layers, or the whole track. The behaviour of this function can be configured in the UTIL->OPT page</LI>
   <LI><B>Util:</B> shortcut to the Utility page - note that this menu has a shortcut to the Random page at the same position, so that you can quickly toggle between the two pages</LI>
   <LI><B>Undo:</B> copies back the overwritten pattern</LI>
-  <LI><B>LayA/LayB/LayC (0..63):</B> defines the "intensity" for Parameter Layer A/B/C. If 0 ("--"), the layer won't be overwritten, otherwise all 32 steps get random values of 64 +/- intensity</LI>
-  <LI><B>TrgA/TrgB/TrgC (0..15):</B> defines the "intensity" for Trigger Layer A/B/C. If 0 ("--"), the layer won't be overwritten, if 15 ("All"), all steps will be activated. Otherwise the values 1..14 define the propability (6.25%..93.75%) that a step will be activated.</LI>
+  <LI><B>Scrl:</B> scrolls through the list of available layers (parameters/triggers/drum instruments)</LI>
+  <LI><B>LayA/LayB/... (0..63):</B> defines the "intensity" for a Parameter Layer. If 0 ("--"), the layer won't be overwritten, otherwise all 32 steps get random values of 64 +/- intensity</LI>
+  <LI><B>TrgA/TrgB/... (0..15):</B> defines the "intensity" for a Trigger Layer. If 0 ("--"), the layer won't be overwritten, if 15 ("All"), all steps will be activated. Otherwise the values 1..14 define the propability (6.25%..93.75%) that a step will be activated.</LI>
+  <LI><B>Drum instrument names (0..15):</B> defines the "intensity" for a Drum instrument. If 0 ("--"), the layer won't be overwritten, if 15 ("All"), all steps will be activated. Otherwise the values 1..14 define the propability (6.25%..93.75%) that a step will be activated.</LI>
 </UL>
 
 <P CLASS=DESC><I>Hot tip: use the randomizer in conjunction with the Force-to-Scale function for harmonic results!</I></P>
@@ -833,12 +835,13 @@ This setting affects:
 
   <LI><B>Sync. (Pattern) Change:</B> if active, a pattern change made in the PATTERN or SONG page (Phrase mode) won't take place immediately, but will be synchronized to the pattern length of Y steps as defined at the left side of this item.</LI>
   <LI><B>RATOPC (Restart All Tracks On Pattern Change:</B> added due to requests from multiple users: all tracks will be restarted whenever a new pattern is selected. If SyncChange enabled, this means that all tracks will synchronize correctly independent from their track length, if SyncChange disabled, this means that you can do nice breaks while changing patterns (try it! ;-)</LI>
+  <LI><B>Sync Mute:</B> if enabled, mutes set in the Mute page will be synched to the selected steps per measure. This feature is inspired from the "MIDI Clip Launcher" of Ableton Live.</LI>
+  <LI><B>Sync Unmute:</B> the same for Unmute (behaviour can be selected separately).</LI>
   <LI><B>Paste/Clr Behaviour:</B> allows you to change the behaviour of the Paste and Clear function:
     <UL CLASS=CL>
       <LI><B>Steps only:</B> only parameter and trigger layers will be cleared/pasted (default)</LI>
       <LI><B>Whole track:</B> the whole track configuration will be cleared/pasted. Only exception: MIDI channel and MIDI port will never be overwritten.</LI>
     </UL>
-  <LI><B>Remote/ID/Port/Request:</B> prepared for remote access to another MBSEQ V4 - this feature isn't completely implemented yet!</LI>
   </LI>
 </UL>
 
@@ -885,6 +888,8 @@ Each track has an animated VU meter to display the MIDI activity.</P>
 <CENTER><IMG SRC="midibox_seq/cs4/mute2.gif" width=481 height=19 ALT="Mute Screen"></IMG></CENTER></P>
 
 <P CLASS=DESC><I>Hot tip: nice breaks can be realized by activating SOLO and selecting multiple tracks - one after another - while the sequencer is playing. This technique is demonstrated at 2:44 of the <A HREF="http://www.youtube.com/watch?v=bgjET6dNA14" TARGET="_blank">Session #3 Video</A>.</I></P>
+
+<P CLASS=DESC>With V4.0 beta43 and higher it's possible to synchronize Mutes and Unmutes to a selectable measure of 1..256 steps. This feature is inspired from the "MIDI Clip Launcher" of Ableton Live and can be enabled in the Utility->Options page! Whenever a GP button is pressed, the Mute won't take place immediately, but synchronized to the measure. A countdown will be displayed under the track name to inform you about an ongoing mute/unmute.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Pattern Screen </H2>
