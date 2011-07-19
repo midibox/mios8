@@ -207,12 +207,13 @@ SEQ_DATA_BUFFER_END	EQU	0x0bf
 ;; 8 gate pins
 GATES			EQU	0x0c0
 GATES_LAST		EQU	0x0c1
+GATES_LEGATO		EQU	0x0c2
 	
 ;; ==========================================================================
 ;; used by AOUT driver ($MIOS_PATH/modules/aout/)
-AOUT_INVERTED		EQU	0x0c2
-AOUT_UPDATE_REQ		EQU	0x0c3
-;; free: 0xc2-0xc7
+AOUT_INVERTED		EQU	0x0c3
+AOUT_UPDATE_REQ		EQU	0x0c4
+;; free: 0xc5-0xc7
 AOUT_VALUES		EQU	0x0c8;..0x0d7 (8 * 16bit words)
 
 ;; ==========================================================================

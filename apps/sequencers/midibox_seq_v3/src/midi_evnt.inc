@@ -480,14 +480,42 @@ MIDI_EVNT_AOUT_GatePinSet
 	movf	MIOS_PARAMETER1, F
 	bz	MIDI_EVNT_AOUT_PinSet0
 MIDI_EVNT_AOUT_PinSet1
+#if 1
+	;; extension for legato handling
+	;; if gate was already set, save this state in GATES_LEGATO
+	movwf	PRODL
+	call	MIOS_HLP_GetBitANDMask
+	andwf	GATES, W, BANKED
+	iorwf	GATES_LEGATO, F, BANKED
+	movf	PRODL, W
+#endif
 	call	MIOS_HLP_GetBitORMask
 	iorwf	GATES, F, BANKED
 	return
 
 MIDI_EVNT_AOUT_PinSet0
 	call	MIOS_HLP_GetBitANDMask
+#if 1
+	;; extension for legato handling
+	;; if GATE_LEGATO flag is set, clear this flag and exit
+	;; otherwise clear the flag in GATES (so that the pin is set to 0)
+	movwf	PRODL
+
+	andwf	GATES_LEGATO, W, BANKED
+	bnz	MIDI_EVNT_AOUT_PinSet0_Legato
+MIDI_EVNT_AOUT_PinSet0_NoLegato
+	movf	PRODL, W
 	andwf	GATES, F, BANKED
 	return
+
+MIDI_EVNT_AOUT_PinSet0_Legato
+	movf	PRODL, W
+	andwf	GATES_LEGATO, F, BANKED
+	return
+#else	
+	andwf	GATES, F, BANKED
+	return
+#endif
 
 
 ;; --------------------------------------------------------------------------
