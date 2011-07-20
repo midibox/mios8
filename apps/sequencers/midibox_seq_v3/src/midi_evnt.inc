@@ -480,16 +480,15 @@ MIDI_EVNT_AOUT_GatePinSet
 	movf	MIOS_PARAMETER1, F
 	bz	MIDI_EVNT_AOUT_PinSet0
 MIDI_EVNT_AOUT_PinSet1
+	call	MIOS_HLP_GetBitORMask
 #if 1
 	;; extension for legato handling
 	;; if gate was already set, save this state in GATES_LEGATO
 	movwf	PRODL
-	call	MIOS_HLP_GetBitANDMask
 	andwf	GATES, W, BANKED
 	iorwf	GATES_LEGATO, F, BANKED
 	movf	PRODL, W
 #endif
-	call	MIOS_HLP_GetBitORMask
 	iorwf	GATES, F, BANKED
 	return
 
