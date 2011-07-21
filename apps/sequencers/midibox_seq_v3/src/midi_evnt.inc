@@ -493,25 +493,27 @@ MIDI_EVNT_AOUT_PinSet1
 	return
 
 MIDI_EVNT_AOUT_PinSet0
-	call	MIOS_HLP_GetBitANDMask
 #if 1
 	;; extension for legato handling
 	;; if GATE_LEGATO flag is set, clear this flag and exit
 	;; otherwise clear the flag in GATES (so that the pin is set to 0)
 	movwf	PRODL
-
+	call	MIOS_HLP_GetBitORMask
 	andwf	GATES_LEGATO, W, BANKED
 	bnz	MIDI_EVNT_AOUT_PinSet0_Legato
 MIDI_EVNT_AOUT_PinSet0_NoLegato
 	movf	PRODL, W
+	call	MIOS_HLP_GetBitANDMask
 	andwf	GATES, F, BANKED
 	return
 
 MIDI_EVNT_AOUT_PinSet0_Legato
 	movf	PRODL, W
+	call	MIOS_HLP_GetBitANDMask
 	andwf	GATES_LEGATO, F, BANKED
 	return
 #else	
+	call	MIOS_HLP_GetBitANDMask
 	andwf	GATES, F, BANKED
 	return
 #endif
