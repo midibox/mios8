@@ -34,7 +34,7 @@ SEQ_PRESETS_METRO_CHN			de	10, 0		; metronome channel (0 to disable)
 SEQ_PRESETS_METRO_NOTES			de	0x25, 0x25	; C#1/C#1 (0 to disable)
 SEQ_PRESETS_GLOBAL_SCALE		de	0x00, 0x00	; global scale, scale control mode (global/group1-4) and root note
 
-SEQ_PRESETS_MCLK_ENABLED		de	0x20, 0		; router settings: MIDI clock enabled (second byte is dummy)
+SEQ_PRESETS_MCLK_AND_CFG1		de	0x20, 0x00	; router settings: MIDI clock enabled, SEQ_CFG1
 					;; flag mapping: -> see seq_router.inc, SEQ_ROUTER_MAP_TABLE
 
 SEQ_PRESETS_ROUTER_IN0_PORT0		de	0x00, 0x00	; source/destination of port 0

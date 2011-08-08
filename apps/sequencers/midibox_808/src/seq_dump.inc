@@ -225,7 +225,11 @@ SEQ_DUMP_RestoreGlobal
 	;; ---[ restore MIDI router settings ]---
 	call	MIOS_EEPROM_Read
 	movff	WREG, SEQ_ROUTER_MCLK_ENABLED
-	incf	EEADR, F	; dummy increment
+
+	;; ---[ restore SEQ_CFG1 ]---
+	call	MIOS_EEPROM_Read
+	SET_BSR	SEQ_BASE
+	movwf	SEQ_CFG1, BANKED
 
 	lfsr	FSR0, ROUTER_IN0_SRC0_CHN
 	lfsr	FSR2, ROUTER_IN0_DST0_CHN
@@ -318,10 +322,10 @@ SEQ_DUMP_StoreGlobal
 	movff	SEQ_ROUTER_MCLK_ENABLED, WREG
 	call	MIOS_EEPROM_Write
 
-	;; ---[ dummy ]---
-	movlw	0x00
+	;; ---[ store box configuration, part 2 ]---
+	movff	SEQ_CFG1, WREG
 	call	MIOS_EEPROM_Write
-
+	
 	lfsr	FSR0, ROUTER_IN0_SRC0_CHN
 	lfsr	FSR2, ROUTER_IN0_DST0_CHN
 	movlw	8		; store IN0

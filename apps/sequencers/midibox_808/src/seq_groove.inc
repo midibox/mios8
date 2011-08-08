@@ -255,8 +255,12 @@ SEQ_GROOVE_GetTablePtr
 	addwfc	PRODH, W
 	movwf	TBLPTRH
 
+#if 0
 	movlw	SEQ_TRKVARSTEPx	; get step number (mask 16 steps, rightshift due to compact 4bit format)
 	rrf	PLUSW2, W
+#else
+	rrf	SEQ_CLK_STEP_CTR, W, BANKED ; get global step number (mask 16 steps, rightshift due to compact 4bit format)
+#endif
 	andlw	0x07
 	addwf	TABLAT, W	; add entry offset
 	addwf	TBLPTRL, F	; add to pointer

@@ -1,7 +1,7 @@
 ; $Id$
 ;
 ; MIOS Application
-; MIDIbox SEQ V3
+; MIDIbox 808
 ;
 ; ==========================================================================
 ; Detailed infos for customization can be found at
@@ -14,7 +14,7 @@
 ;
 MBSEQ_VERSION_STR MACRO
 ; Version:                 <-------------->
-	STRING	16, 0x00, "MIDIbox 808 V1.1"
+	STRING	16, 0x00, "MIDIbox 808 V1.2"
 	ENDM
 ; (fixed string length - 16 characters!)
 ;

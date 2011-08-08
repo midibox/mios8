@@ -901,7 +901,7 @@ SEQ_BUTTON_SectionX_NoShift
 	;; branch depending on state of select buttons:
 	;; if only one select button pressed: radio-button function (1 of 4)
 	;; if more than one select button pressed: toggle function (4 of 4)	
-	movf	SEQ_SELECTED_ABCD, W, BANKED
+	movf	SEQ_NEXT_SELECTED_ABCD, W, BANKED
 	andlw	0xf0
 	xorlw	0xf0
 	bz	SEQ_BUTTON_SectionX_Radio
@@ -909,15 +909,15 @@ SEQ_BUTTON_SectionX_Toggle
 	;; toggle section A/B/C/D flag
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitORMask
-	xorwf	SEQ_SELECTED_ABCD, F, BANKED
+	xorwf	SEQ_NEXT_SELECTED_ABCD, F, BANKED
  	rgoto	SEQ_BUTTON_SectionX_Cont2
 SEQ_BUTTON_SectionX_Radio
 	;; select 1 of 4
 	movlw	0xf0
-	andwf	SEQ_SELECTED_ABCD, F, BANKED
+	andwf	SEQ_NEXT_SELECTED_ABCD, F, BANKED
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitORMask
-	iorwf	SEQ_SELECTED_ABCD, F, BANKED
+	iorwf	SEQ_NEXT_SELECTED_ABCD, F, BANKED
 
 	;; 	rgoto	SEQ_BUTTON_SectionX_Cont2
 	
@@ -941,7 +941,7 @@ SEQ_BUTTON_SectionX_MIDI
 	movlw	0x40
 	call	MIOS_MIDI_TxBufferPut
 	SET_BSR	SEQ_BASE
-	movf	SEQ_SELECTED_ABCD, W, BANKED
+	movf	SEQ_NEXT_SELECTED_ABCD, W, BANKED
 	andlw	0x0f
 	call	MIOS_MIDI_TxBufferPut
 SEQ_BUTTON_SectionX_NoMIDI
@@ -957,14 +957,23 @@ SEQ_BUTTON_SectionX_Hlp_Sav
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitANDMask
 	swapf	WREG, W
-	andwf	SEQ_SELECTED_ABCD, F, BANKED
+	andwf	SEQ_NEXT_SELECTED_ABCD, F, BANKED
 
-	;; store new button status (pressed/depressed) in SEQ_SELECTED_ABCD[7..4]
+	;; store new button status (pressed/depressed) in SEQ_NEXT_SELECTED_ABCD[7..4]
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_HLP_GetBitORMask
 	swapf	WREG, W
 	btfsc	MIOS_PARAMETER2, 0
-	iorwf	SEQ_SELECTED_ABCD, F, BANKED
+	iorwf	SEQ_NEXT_SELECTED_ABCD, F, BANKED
+
+	;; take over immediately if synched section change not enabled
+	;; or if sequencer not running
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_BUTTON_SectionX_Hlp_SavSect
+	BRA_IFSET SEQ_CFG1, SEQ_CFG1_SECTION_SYNCH, BANKED, SEQ_BUTTON_SectionX_Hlp_Sav_End
+SEQ_BUTTON_SectionX_Hlp_SavSect
+	movff	SEQ_NEXT_SELECTED_ABCD, SEQ_SELECTED_ABCD
+
+SEQ_BUTTON_SectionX_Hlp_Sav_End
 	return
 
 

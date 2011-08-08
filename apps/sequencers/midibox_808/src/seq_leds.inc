@@ -334,6 +334,30 @@ SEQ_LED_UpdateIRQ_GPLED_Mute
 	movf	SEQ_LIVEPLAY_METERS1, W, BANKED
 	xorwf	IRQ_TMP2, F
 SEQ_LED_UpdateIRQ_GPLED_NoMute
+
+#if 1
+	;; new: in pattern selection page, the currently played pattern flashes to the beat like section LEDs
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_PATTERN, BANKED, SEQ_LED_UpdateIRQ_NoPatternPage
+SEQ_LED_UpdateIRQ_PatternPage
+	SET_BSR	SEQ_BASE
+	BRA_IFSET SEQ_PATTERN0, 7, BANKED, SEQ_LED_UpdateIRQ_PatternNoBeat
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_LED_UpdateIRQ_PatternNoBeat
+	movf	SEQ_CLK_STEP_CTR, W, BANKED
+	andlw	0x03
+	bnz	SEQ_LED_UpdateIRQ_PatternNoBeat
+SEQ_LED_UpdateIRQ_PatternBeat
+	;; XOR appr. LEDs
+	rlf	SEQ_PATTERN0, W, BANKED
+	swapf	WREG, W
+	call	MIOS_HLP_GetBitORMask
+	xorwf	IRQ_TMP1, F	
+
+	movf	SEQ_PATTERN0, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	xorwf	IRQ_TMP2, F
+SEQ_LED_UpdateIRQ_PatternNoBeat
+SEQ_LED_UpdateIRQ_NoPatternPage
+#endif
 	
 	;; check if a position marker should be XORed
 	BRA_IFCLR IRQ_TMP5, 4, ACCESS, SEQ_LED_UpdateIRQ_GPLED_NoMarker
@@ -524,7 +548,7 @@ SEQ_LED_UpdateIRQ_NoBeat
 
 #if 1
 	;; section selection LEDS
-	movf	SEQ_SELECTED_ABCD, W, BANKED
+	movf	SEQ_NEXT_SELECTED_ABCD, W, BANKED
 #else
 	;; section selection LEDS
 	movf	SEQ_SELECTED_STEP_VIEW, W

@@ -47,6 +47,9 @@
 #define SEQ_CFG0_SEND_MIDI_SONG 6 ; if set, song changes will be sent via MIDI CC
 #define SEQ_CFG0_SEND_MIDI_MUTE 7 ; if set, mute changes will be sent via MIDI CC
 
+#define SEQ_CFG1_SECTION_SYNCH  0 ; synched section changes
+#define SEQ_CFG1_PATTERN_SYNCH  1 ; synched pattern changes
+
 ;; ==========================================================================
 
 #define CS_STAT_DISPLAY_INIT_REQ	0	; request a display initialization
@@ -260,16 +263,18 @@ ROUTER_IN1_DST7_CHN	EQU	0x0ff ; reserved
 
 SEQ_BASE		EQU	0x100
 
-SEQ_CFG0		EQU	0x100	; merger configuration
-SEQ_MIDI_CHANNEL	EQU	0x101	; channel which is used for transpose/arpeggiator function
-SEQ_MIDI_SPLIT_NOTE	EQU	0x102	; split point for transpose/arpeggiator (used when SEQ_CFG0_T_A_SPLIT enabled)
-SEQ_PATTERN		EQU	0x103	; selects pattern for SEQ_BANK* functions
-SEQ_PATTERN_BANK	EQU	0x104	; selects pattern for SEQ_BANK* functions
-	;; free: 0x105..0x109
-SEQ_SELECTED_TRK	EQU	0x109	; UI: selected track (0-15)
-SEQ_SELECTED_TRKS_0	EQU	0x10a	; UI: selected tracks 0-7
-SEQ_SELECTED_TRKS_1	EQU	0x10b	; UI: selected tracks 8-15
-SEQ_SELECTED_ABCD	EQU	0x10c	; [3:0] A/B/C/D selected, [7:4] copy of A/B/C/D button (for multi-selection)
+SEQ_CFG0		EQU	0x100	; configuration
+SEQ_CFG1		EQU	0x101	; configuration
+SEQ_MIDI_CHANNEL	EQU	0x102	; channel which is used for transpose/arpeggiator function
+SEQ_MIDI_SPLIT_NOTE	EQU	0x103	; split point for transpose/arpeggiator (used when SEQ_CFG0_T_A_SPLIT enabled)
+SEQ_PATTERN		EQU	0x104	; selects pattern for SEQ_BANK* functions
+SEQ_PATTERN_BANK	EQU	0x105	; selects pattern for SEQ_BANK* functions
+	;; free: 0x106..0x107
+SEQ_SELECTED_TRK	EQU	0x108	; UI: selected track (0-15)
+SEQ_SELECTED_TRKS_0	EQU	0x109	; UI: selected tracks 0-7
+SEQ_SELECTED_TRKS_1	EQU	0x10a	; UI: selected tracks 8-15
+SEQ_SELECTED_ABCD	EQU	0x10b	; [3:0] A/B/C/D selected, [7:4] copy of A/B/C/D button (for multi-selection)
+SEQ_NEXT_SELECTED_ABCD	EQU	0x10c	; next selection sections (edited with buttons, optionally synched take-over)
 SEQ_SELECTED_STEP_VIEW	EQU	0x10d	; [1:0] if A/B/C/D view should be edited
 SEQ_SELECTED_LAYERS	EQU	0x10e	; [0] gate layer selected, [1] aux layer selected, [5:4] copy of layer buttons (for multi-selection)
 SEQ_CURRENT_STEP	EQU	0x10f	; the currently selected step (only one a time)
