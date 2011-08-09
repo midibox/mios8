@@ -204,7 +204,7 @@ SEQ_GROOVE_GetName
 
 ;; --------------------------------------------------------------------------
 ;;  This function sets the number of clock ticks which should be played per step
-;;  IN: step number in SEQ_TRKVARSTEPx
+;;  IN: step number in SEQ_CLK_STEP_CTR (taking the global reference step)
 ;;      pointer to SEQ_TRKx in FSR0,
 ;;      pointer to SEQ_TRKVARx in FSR2
 ;;  OUT: tick number in SEQ_TRKVARPLYTICKx
@@ -273,7 +273,7 @@ SEQ_GROOVE_GetTablePtr
 ;;  This function reads a nibble from the groove table and evtl. replaces
 ;;  it by the "groove intensity" parameter if it is 15 (DVAR, VVAR, LVAR)
 ;;  otherwise the original value will be returned
-;;  IN: step number in TRKVARSTEPx
+;;  IN: step number in SEQ_CLK_STEP_CTR (taking the global reference step)
 ;;      FSR0: pointer to track record
 ;;      FSR2: pointer to track variables
 ;;  OUT: new value in TABLAT
@@ -287,8 +287,12 @@ SEQ_GROOVE_GetEntry
 	tblrd*
 
 	;; swap byte of step number is odd
+#if 0
 	movlw	SEQ_TRKVARSTEPx
 	btfsc	PLUSW2, 0
+#else
+	btfsc	SEQ_CLK_STEP_CTR, 0, BANKED
+#endif
 	swapf	TABLAT, F
 
 	;; mask out 4bit value

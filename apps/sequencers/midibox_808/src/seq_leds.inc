@@ -361,6 +361,10 @@ SEQ_LED_UpdateIRQ_NoPatternPage
 	
 	;; check if a position marker should be XORed
 	BRA_IFCLR IRQ_TMP5, 4, ACCESS, SEQ_LED_UpdateIRQ_GPLED_NoMarker
+	;; substep counter counts from 0..3, XOR LED only for the first three substeps
+	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
+	xorlw	3
+	bz	SEQ_LED_UpdateIRQ_GPLED_NoMarker
 SEQ_LED_UpdateIRQ_GPLED_Marker
 	;; get xor mask and operate with IRQ_TMP[12] (pos[3] selects the register)
 	movf	IRQ_TMP3, W

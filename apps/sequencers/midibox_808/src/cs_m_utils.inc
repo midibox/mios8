@@ -784,6 +784,9 @@ CS_M_UTILS_RotateLeft_ILoop
 CS_M_UTILS_RotateLeft_OLoopN
 	incf	SEQ_EVNTT, F, BANKED
 	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTILS_RotateLeft_OLoop
+
+	;; request display update and exit
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
 
 
@@ -842,6 +845,9 @@ CS_M_UTILS_RotateRight_ILoop
 CS_M_UTILS_RotateRight_OLoopN
 	incf	SEQ_EVNTT, F, BANKED
 	BRA_IFCLR SEQ_EVNTT, 4, BANKED, CS_M_UTILS_RotateRight_OLoop
+
+	;; request display update and exit
+	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
 	return
 
 

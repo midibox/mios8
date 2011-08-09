@@ -86,6 +86,10 @@ SEQ_ENC_TEMPO_STR_R STRING 10, 0x00 + 10, " BPM      "
 SEQ_ENC_Inst
 	SET_BSR	SEQ_BASE
 
+        ;; If shift is pressed
+        btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
+        goto	SEQ_ENC_Inst_Shift
+
 	;; get current track and copy into TMP[12]
 	call	CS_M_HLP_GetSelectedTrk
 	movwf	TMP1
@@ -159,6 +163,13 @@ SEQ_ENC_Inst_ChangeAll_Cont
 	return
 
 	return
+
+
+SEQ_ENC_Inst_Shift
+        incfsz  MIOS_PARAMETER2, W     ; increment MIOS_PARAMETER2. If it was -1 now it will be 0
+        goto    CS_M_UTILS_RotateRight
+        goto    CS_M_UTILS_RotateLeft
+
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by USER_ENC_NotifyChange when a GP encoder has
