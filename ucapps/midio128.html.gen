@@ -1,217 +1,29 @@
-HEADER 3 MIDIO128
+HEADER 3 MIDIO128 V3
 
-<H1>MIDIO128</H1>
-<H3>Created in September 2001</H3>
+<H1>MIDIO128 V3</H1>
+<H3>Created in July 2011</H3>
 
-<P CLASS=INFO>The MIDIO128 interface enables you to drive up to 128 digital
-output pins and to react on up to 128 digital input pins via MIDI.</P>
-<P CLASS=INFO>The main intention of MIDIO128 was to midify an very old orchestrion called Frati. Find a brief description from the owner <A HREF="http://mmd.foxtail.com/Archives/Digests/199910/1999.10.24.02.html" TARGET="_blank">here</A> and especially <A HREF="http://mmd.foxtail.com/Tech/mvdReijden.html" TARGET="_blank">here</A>. Someday Willy asked me for assistance because he wanted to build an interface between the orchestrion and his PC in order to record and replay the playrolls via MIDI. It wasn't much effort for me to modify my existing MIDIbox64 design for this purpose, so I just did it. :) Maybe other people are also interested in controlling instruments or electronical devices like lights, motors or just a coffee machine, so I suppose it is a good idea to publish the design.</P>
+<P CLASS=INFO><B>This page is under construction!</B></P>
 
-<DL>
-   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> The Hardware </H2></DT>
-   <DD>
-<P CLASS=DESC>The Hardware design is kept very simple. Since it is based on the <A HREF="mbhp.html">MBHP</A> and is running under <A HREF="mios.html">MIOS</A>, it allows a lot of extensions in the future. The PIC is connected with MIDI In/Out ports and two large serial register chains: one chain for the inputs, one for the outputs. If you want to build this project, but don't need 128 IOs, you are allowed to left some shift registers (every shift register includes 8 in- or outputs). It's only important that the last input shift register is terminated with ground level (0V), so that the firmware doesn't recognize invalid values.
-   </DD>
-</DL>
+<P CLASS=INFO>The MIDIO128 application allows to midify keyboard instruments such as organs.<BR>
+It can also be used for other purposes of course - whenever you are planning to trigger MIDI events with buttons, and/or to control LEDs (or relays) via USB, MIDI or Ethernet/OSC, have a closer look to the feature list!</P>
 
-<DL>
-   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> The Software </H2></DT>
-   <DD>
-<P CLASS=DESC>The software captures all 128 inputs within a period of 1 mS. If the status of an input pin has been changed, the program searches for the predefined MIDI event in a big table and sends it out:</P>
-
-<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER WIDTH=500 CELLSPACING=2 CELLPADDING=3>
-  <TR>
-    <TH> <P CLASS=INFO>Outgoing<BR>MIDI Event</P> </TD>
-    <TH> <P CLASS=DESC>On Input pin changes, send:</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>9n xx v1, 9n yy v2</I></P> </TD>
-    <TD> <P CLASS=DESC>Note Event, channel n<BR>number xx v1 if input=0V<BR>number yy v2 if input=5V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>An xx v1, An yy v2</I></P> </TD>
-    <TD> <P CLASS=DESC>Aftertouch Event, channel n<BR>number xx v1 if input=0V<BR>number yy v2 if input=5V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>Bn xx v1, Bn yy v2</I></P> </TD>
-    <TD> <P CLASS=DESC>Controller Event, channel n<BR>number xx v1 if input=0V<BR>number yy v2 if input=5V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>Cn xx</I></P> </TD>
-    <TD> <P CLASS=DESC>Program Change Event, channel n<BR>number xx v1 if input=0V<BR>number yy v2 if input=5V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>Dn xx</I></P> </TD>
-    <TD> <P CLASS=DESC>Channel Aftertouch Event, channel n</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>En xx v1, En yy v2</I></P> </TD>
-    <TD> <P CLASS=DESC>Pitchbender Event, channel n<BR>number xx v1 if input=0V<BR>number yy v2 if input=5V</P></TD>
-  </TR>
-</TABLE>
-
-<P CLASS=DESC>On incomming MIDI events, the software searches in another table if an output pin is assigned for the event and sets (or toggles) the pin(s) if it matches:</P>
-
-<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER WIDTH=500 CELLSPACING=2 CELLPADDING=3>
-  <TR>
-    <TH> <P CLASS=INFO>Incoming<BR>MIDI Event</P> </TD>
-    <TH> <P CLASS=DESC>Output pin:</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>9n xx vv</I></P> </TD>
-    <TD> <P CLASS=DESC>0V if vv=00, else 5V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>An xx vv</I></P> </TD>
-    <TD> <P CLASS=DESC>0V if vv=00, else 5V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>Bn xx vv</I></P> </TD>
-    <TD> <P CLASS=DESC>0V if vv=00, else 5V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>Cn xx</I></P> </TD>
-    <TD> <P CLASS=DESC>Two modes are configurable in the midio128.ini file:<BR><I>Normal Mode:</I> on incoming program change events, the appr. output pin will just toggle from 0V to 5V and vice versa<BR><I>Alternative Mode:</I>on incoming program change events, all output pins (assigned to program change) of the same channel will be set to 0V, but the pin which is assigned to the channel and to the program change value will be set to 5V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>Dn xx</I></P> </TD>
-    <TD> <P CLASS=DESC>Toggle: 0V if output pin currently 5V<BR>5V if output pin currently 0V</P></TD>
-  </TR>
-  <TR>
-    <TD> <P CLASS=INFO><I>En xx vv</I></P> </TD>
-    <TD> <P CLASS=DESC>0V if vv=00, else 5V</P></TD>
-  </TR>
-</TABLE>
-
-<P CLASS=DESC>The MIDI Events for all IO pins can be configured with the mk_midio128_syx.pl script, which converts a .ini file into a SysEx Dump file. The SysEx dump has to be transfered to the MIDIO128 device via MIDI. On this way you are able to redefine the IOs every time you want without much effort and especially without re-programming the PIC. :)</P>
-<P CLASS=DESC><I>Note that also the polarity of the input and output pins (negative or positive logic) can be configured in the midio128.ini file.</I></P>
-
-<P CLASS=INFO>Alternatively, the configuration can be done with <A HREF="mios_studio.html">MIOS Studio 2</A>:
-<CENTER><IMG SRC="mios_studio/mios_studio_midio128.png" width=862 height=528></CENTER></P>
-
-   </DD>
-</DL>
-
-<DL>
-   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> MIDI Merger </H2></DT>
-   <DD>
-<P CLASS=DESC>The MIDI Merger has to be enabled within the midio128.ini file. If activated, the MIDIO128 forwards all incoming MIDI events to the MIDI Out port. This allows you to cascade MIDI devices, i.e. to plug another MIDIO128, a MIDIbox or a keyboard behind or before the MIDIO128.</P>
-   </DD>
-</DL>
-
-<DL>
-   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Interfacing </H2></DT>
-   <DD>
-<P CLASS=DESC>Every output pin can drive up to 10-20 mA. This is enough for digital applications or LEDs. In order to control relays, lamps, motors or coffee machines, I recomment a darlington transistor driver like the ULN2803, which is cheap and handy. A datasheet can be found below.</P>
-<P CLASS=DESC>The digital input reacts on TTL levels, this means it switches to "0" on a level below 0.5V and switches to "1" on a level above ca. 3V. <B>Don't drive the inputs with voltages above 5V!!!</B> See the MIDIbox64 schematic if you want to use buttons. Optocouplers help to isolate the device from critical machines.</P>
-   </DD>
-</DL>
-
-<DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
-  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
-
-    <TR>
-      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Schematics & PCBs</STRONG></FONT></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
-      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp.html">MBHP</A></TD>
-      <TD CLASS=TABCOLOR2>LINK</TD>
-      <TD CLASS=TABCOLOR2>see MIDIbox Hardware Platform</TD>
-    </TR>
-
-    <TR>
-      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Firmware</STRONG></FONT></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mios_download.html">MIOS Download</A></TD>
-      <TD CLASS=TABCOLOR2>LINK</TD>
-      <TD CLASS=TABCOLOR2>Port to PIC18F452 with Source code</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="pic16f_firmwares.html">PIC16F Firmwares</A></TD>
-      <TD CLASS=TABCOLOR2>LINK</TD>
-      <TD CLASS=TABCOLOR2>Firmware for PIC16F877 (expired, don't use it for new MIDIboxes!)</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midio128_changelog.html">ChangeLog</A></TD>
-      <TD CLASS=TABCOLOR2>LINK</TD>
-      <TD CLASS=TABCOLOR2>MIDIO128 ChangeLog</TD>
-    </TR>
-
-    <TR>
-      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>.syx File Generator</STRONG></FONT></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midio128/midio128_sysex_implementation.txt">sysex_implementation.txt</A></TD>
-      <TD CLASS=TABCOLOR2>2k</TD>
-      <TD CLASS=TABCOLOR2>Regarding the SysEx format</TD>
-    </TR>
-
-    <TR>
-      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Alternative PCBs (see also <A HREF="mbhp.html">MBHP</A>)</STRONG></FONT></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midio128/midio128_pcb_rasmus.zip">midio128_pcb_rasmus.zip</A></TD>
-      <TD CLASS=TABCOLOR2>1.38MB</TD>
-      <TD CLASS=TABCOLOR2>PCB Layout by <A HREF="mailto:rasmail@mail.dk">Rasmus</A></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midio128/midio128_pcb_roman.zip">midio128_pcb_roman.zip</A></TD>
-      <TD CLASS=TABCOLOR2>675k</TD>
-      <TD CLASS=TABCOLOR2>PCB Layout by <A HREF="mailto:roman.krause@online-club.de">Roman Krause</A></TD>
-    </TR>
-
-    <TR>
-      <TD COLSPAN=3 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>Misc.</STRONG></FONT></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="http://forum.ucapps.de">MIDIbox Forum</A></TD>
-      <TD CLASS=TABCOLOR2>LINK</TD>
-      <TD CLASS=TABCOLOR2>Support at the MIDIbox Forum</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="http://wiki.midibox.org" TARGET="_blank">MIDIbox Wiki</A></TD>
-      <TD CLASS=TABCOLOR2>LINK</TD>
-      <TD CLASS=TABCOLOR2>A lot of additional informations on MIDIbox, MIOS and MIDIO128</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midibox/midi_thru.gif">midi_thru.gif</A></TD>
-      <TD CLASS=TABCOLOR2>50k</TD>
-      <TD CLASS=TABCOLOR2>Optional MIDI Thru Port</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midio128/relay_example.pdf">relay_example.pdf</A></TD>
-      <TD CLASS=TABCOLOR2>6k</TD>
-      <TD CLASS=TABCOLOR2>How to connect relays to the MIDIO128</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midio128/uln2803.pdf">uln2803.pdf</A></TD>
-      <TD CLASS=TABCOLOR2>96k</TD>
-      <TD CLASS=TABCOLOR2>ULN2803 datasheet</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx1_reed_relays.pdf">mbhp_doutx1_reed_relays.pdf</A></TD>
-      <TD CLASS=TABCOLOR2>9k</TD>
-      <TD CLASS=TABCOLOR2>How to connect Reed Relays to a DOUT module - see also <A HREF="mbhp/mbhp_doutx1_reed_relays.jpg">this photo</A></TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="midio128/fratipcb.jpg">fratipcb.jpg</A></TD>
-      <TD CLASS=TABCOLOR2>33k</TD>
-      <TD CLASS=TABCOLOR2>A picture of the Frati MIDI Interface</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="http://mmd.foxtail.com/Tech/mvdReijden.html">mvdReijden.html</A></TD>
-      <TD CLASS=TABCOLOR2>LINK</TD>
-      <TD CLASS=TABCOLOR2>An article about the MIDIO128 project by Willy van Reijden</TD>
-    </TR>
-
-  </TABLE></DD>
-</DL>
+<P CLASS=INFO>While the <A HREF="midio128_v2.html">previous version</A> was based on the <A HREF="mbhp_core.html">expired PIC based core</A>, MIDIO128 V3 utilizes the new <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17 module</A> and provides much more features:
+<UL CLASS=CL>
+<LI> up to 16 8bit input shift registers (=128 pins, =4 x <A HREF="mbhp_din.html">MBHP_DINX4 modules)</A>
+<LI> up to 16 8bit output shift registers (=128 pins, =4 x <A HREF="mbhp_din.html">MBHP_DOUTX4 modules)</A>
+<LI> up to 16 scan matrices for up to 1024 pins/keys
+<LI> 2 MIDI IN ports and 2 MIDI OUT ports
+<LI> USB MIDI port with much higher transfer rate (ca. 100x faster!) than common MIDI
+<LI> Ethernet port to send/receive events via <A HREF="http://opensoundcontrol.org" TARGET="_blank">OSC</A>
+<LI> support for DHCP - connect the module to a wireless route without additional configuration
+<LI> different OSC modes are prepared for popular PC/Mac/iPhone/iPad apps, extensions can be added on request
+<LI> can also be used as USB/MIDI interface, or even as a OSC/MIDI interface
+<LI> multiple patches are stored on SD Card
+<LI> optional Control Surface for direct editing without a computer
+<LI> but patches can also be edited on a computer, e.g. in an Excel or Open Office spreadsheet
+<LI> integrated MIDI File Player
+<LI> more features available on request
+</UL>
 
 FOOTER

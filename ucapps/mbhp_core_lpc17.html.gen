@@ -6,9 +6,6 @@ HEADER 3 MBHP_CORE_LPC17 Module
 
 <P CLASS=INFO>MBHP_CORE_LPC17 is the successor of the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module.</P>
 
-<P CLASS=INFO>Coming soon...!</P>
-<P CLASS=INFO>Stay tuned!</P>
-
 <P CLASS=DESC>Main features of the <A HREF="http://www.nxp.com" TARGET="_blank">NXP LPC1769</A> based MBHP_CORE_LPC17 module:
 <UL CLASS=CL>
 <LI> 512k Flash and 64k RAM like <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A>
@@ -136,13 +133,14 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
         <UL CLASS=CL>
           <LI>two 27-pin SIL headers for the upper/lower side
           <LI>one 2x6-pin DIL header and a 6-pin SIL header for the right side (pin 19 not used, no need to add a header there)
+          <LI>Please note, that some people might prefer to solder female sockets instead - see also the "Making the LPCXPRESSO module removable" topic below!
         </UL>
-        A 8-pin SIL header should be soldered at he bottom of the left side if a standard JTAG debugger will be connected via J3 of the MBHP_CORE_LPC17 module.
       </TD>
     </TR>
     <TR>
       <TD><IMG SRC="mbhp/mbhp_core_lpc17_prepare8.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>If you are planning to use the LPC-Link instead, the 8-pin SIL header should be mounted at the top...
+      <TD CLASS=TABCOLOR2>A 8-pin SIL header should be soldered at he bottom of the left side if a standard JTAG debugger will be connected via J3 of the MBHP_CORE_LPC17 module.<BR>
+If you are planning to use the LPC-Link instead, the 8-pin SIL header should be mounted at the top...
       </TD>
     </TR>
     <TR>
@@ -249,10 +247,10 @@ Take care that they are "polarised"! The dot marks the common pin which has to b
 Pay attention for the polarity of the El.Caps! The positive leg of an El.Cap is longer than the negative leg. The negative leg is also marked on the cap case. Put the positive into the pad which is marked with "+".
 <UL CLASS=CL>
 <LI>C11, C13, C14, C15 = 100 nF
-<LI>C10 = 47 uF (El.Cap - polarity!)
-<LI>C12 = 100 uF (El.Cap - polarity!)
+<LI>C10 = 47 uF (El.Cap - polarity! Plus leg shows to border)
+<LI>C12 = 100 uF (El.Cap - polarity! Plus leg shows to border)
 <LI>C9 = 330 nF
-<LI>C8 = 2200 uF (El.Cap - polarity!)
+<LI>C8 = 2200 uF (El.Cap - polarity! Plus leg shows to border)
 </UL>
       </TD>
     </TR>
@@ -302,6 +300,12 @@ Note that USB Power Jumper J17 <B>has to be removed</B> when the core is supplie
     </TR>
 
     <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_lpc17_8_sockets.jpg" WIDTH=280 HEIGHT=249 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>And the optional female (or male) sockets for the LPCXPRESSO module if you want (see also the "making the LPCXPRESSO module removable" topic below).
+      </TD>
+    </TR>
+
+    <TR>
       <TD><IMG SRC="mbhp/mbhp_core_lpc17_9.jpg" WIDTH=280 HEIGHT=244 BORDER=0 ALT=""></TD>
       <TD CLASS=TABCOLOR2>Plug the LPCXPRESSO into the board and solder all pins.<BR>
 Finally plug the ICs into the sockets:
@@ -311,11 +315,28 @@ Finally plug the ICs into the sockets:
 Note: 74HCT595 not available at Reichelt - take 74HC595 instead, it will work properly anyhow!
 <LI>IC4, IC5 = 6N138
 </UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_10.jpg" TARGET="_blank"><IMG SRC="mbhp/mbhp_core_lpc17_10.jpg" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Since the LPCXPRESSO module doesn't provide dedicated pins for the two Ethernet Socket LEDs, you have to solder them directly from the appr. on-board SMD LEDs to J26 of the core module with two wires (click on picture to enlarge).<BR>
+                <BR>
                 DONE! :-)
+
       </TD>
     </TR>
 
   </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Hint: making the LPCXPRESSO module removable</H2>
+  <DD>
+  <P CLASS=INFO>Ilmenator demonstrates in <A HREF="http://midibox.org/forums/topic/15892-lpc17xx-socket-connection-to-mbhp32-core-board" TARGET="_blank">this forum posting</A> how you can make the LPCXPRESSO module removable by using female sockets. Unfortunately it's hard to get perfectly matching female sockets with at least 27 pins, and the 20-pin sockets available at Reichelt are slightly too long. Therefore some file work is required to combine multiple sockets.</P>
+  <P CLASS=INFO>Using sockets for the LPCXPRESSO module is recommended, but not required if you are sure what you are doing.</P>
+  <P CLASS=INFO>It's also up to you if you prefer to use these female sockets for the LPCXPRESSO module, or for the MBHP_CORE_LPC17 module. Since female sockets are more expensive, you have to consider if you would like to use the LPCXPRESSO module on multiple boards, or if you want to get the possibility to replace the LPCXPRESSO module by another (pin compatible) one in future.
   </DD>
 </DL>
 
