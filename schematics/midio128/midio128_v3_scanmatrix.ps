@@ -1,7 +1,7 @@
 %!PS-Adobe-3.0
 %%Title: midio128_v3_scanmatrix
 %%Creator: XCircuit v3.6 rev144
-%%CreationDate: Sun Aug 14 16:54:57 2011
+%%CreationDate: Mon Aug 15 01:09:28 2011
 %%Pages: 1
 %%BoundingBox: 0 0 612 792
 %%DocumentNeededResources: font Helvetica Times-Roman Courier 
@@ -189,7 +189,7 @@ begingate
 endgate
 } def
 
-/analog::resistor {
+/::_resistor {
 begingate
 1 1.000 0 64 0 36 2 polygon
 1 1.000 0 -64 0 -36 2 polygon
@@ -200,6 +200,18 @@ begingate
 0.180 0.545 0.341 scb
 (spice:R%i %pr.1 %pr.2 1.0K) {/Times-Roman cf} 2 0 0 1.000 -208 -160 infolabel
 (sim:r %pr.1 %pr.2) {/Times-Roman cf} 2 0 0 1.000 -208 -208 infolabel
+endgate
+} def
+
+/analog::gnd {
+% trivial
+begingate
+1 1.000 0 0 0 -32 2 polygon
+1 1.000 -32 -32 32 -32 2 polygon
+1 1.000 -18 -46 18 -46 2 polygon
+1 1.000 -4 -60 4 -60 2 polygon
+0.933 0.604 0.000 scb
+(GND) {/Times-Roman cf} 2 1 0 1.000 0 0 pinglobal
 endgate
 } def
 
@@ -214,53 +226,6 @@ endgate
 0.5654 inchscale
 2.6000 setlinewidth 2571 1987 translate
 
-0.906 0.890 0.906 scb
-240 1.000 -832 -352 -832 416 -1920 416 -1920 -352 4 polygon
-sce
-1 1.000 -1840 256 11 -180.000 180.000 xcarc
-1 1.000 -1840 192 11 -180.000 180.000 xcarc
-1 1.000 -1840 128 11 -180.000 180.000 xcarc
-1 1.000 -1840 64 11 -180.000 180.000 xcarc
-1 1.000 -1840 320 11 -180.000 180.000 xcarc
-0 2.000 -1808 32 -1808 352 -1872 352 -1872 32 4 polygon
-0.000 0.000 1.000 scb
-(RC) {/Courier cf} 2 20 0 0.500 -1840 336 label
-(SC) {/Courier cf} 2 20 0 0.500 -1840 272 label
-(Vd) {/Courier cf} 2 20 0 0.500 -1840 144 label
-(Vs) {/Courier cf} 2 20 0 0.500 -1840 80 label
-sce
-(J2) {/Courier cf} 2 21 0 0.750 -1832 16 label
-0.000 0.000 1.000 scb
-(SO) {/Courier cf} 2 20 0 0.500 -1840 208 label
-sce
-1 1.000 -1088 -256 11 -180.000 180.000 xcarc
-1 1.000 -1152 -256 11 -180.000 180.000 xcarc
-1 1.000 -1216 -256 11 -180.000 180.000 xcarc
-1 1.000 -1280 -256 11 -180.000 180.000 xcarc
-0 2.000 -1056 -288 -1056 -224 -1648 -224 -1648 -288 4 polygon
-0.000 0.000 1.000 scb
-(Vs) {/Courier cf} 2 20 0 0.500 -1088 -240 label
-(D5) {/Courier cf} 2 20 0 0.500 -1280 -240 label
-(D7) {/Courier cf} 2 20 0 0.500 -1152 -240 label
-(D6) {/Courier cf} 2 20 0 0.500 -1216 -240 label
-sce
-1 1.000 -1344 -256 11 -180.000 180.000 xcarc
-0.000 0.000 1.000 scb
-(D4) {/Courier cf} 2 20 0 0.500 -1344 -240 label
-sce
-1 1.000 -1408 -256 11 -180.000 180.000 xcarc
-1 1.000 -1472 -256 11 -180.000 180.000 xcarc
-1 1.000 -1536 -256 11 -180.000 180.000 xcarc
-0.000 0.000 1.000 scb
-(D1) {/Courier cf} 2 20 0 0.500 -1536 -240 label
-(D3) {/Courier cf} 2 20 0 0.500 -1408 -240 label
-(D2) {/Courier cf} 2 20 0 0.500 -1472 -240 label
-sce
-1 1.000 -1600 -256 11 -180.000 180.000 xcarc
-0.000 0.000 1.000 scb
-(D0) {/Courier cf} 2 20 0 0.500 -1600 -240 label
-sce
-(DOUT module) {/Courier cf} 2 21 0 2.000 -1352 144 label
 (MIDIO128 V3) {/Helvetica cf} 2 20 0 0.750 -2128 -1504 label
 0 3.000 -2160 -1472 -2160 -1648 -1680 -1648 -1680 -1472 4 polygon
 (\(C\) T. Klose 2011-08-14) {/Helvetica cf} 2 20 0 0.750 -2128 -1600 label
@@ -326,18 +291,7 @@ sce
 1.000 90 -1216 -576 ::no_pushbutton
 1.000 90 -1136 -576 ::no_pushbutton
 1.000 90 -976 -576 ::no_pushbutton
-1.000 360 -992 -672 analog::diode
 1.000 90 -1056 -576 ::no_pushbutton
-1.000 0.000 0.000 scb
-(220 Ohm can be optionally) {/Courier cf} 2 21 0 0.750 -1328 72 label
-sce
-1.000 360 -1072 -672 analog::diode
-1.000 360 -1152 -672 analog::diode
-1.000 360 -1232 -672 analog::diode
-1.000 360 -1312 -672 analog::diode
-1.000 360 -1392 -672 analog::diode
-1.000 360 -1472 -672 analog::diode
-1.000 360 -1552 -672 analog::diode
 0.000 0.000 1.000 scb
 1 1.000 -1552 -720 -992 -720 2 polygon
 0.180 0.545 0.341 scb
@@ -347,6 +301,9 @@ sce
 1 2.000 -1488 -496 -1456 -496 -1472 -480 -1488 -496 4 polygon
 (C1) {/Courier cf} 2 21 0 0.500 -1472 -464 label
 1 2.000 -1472 -496 -1472 -512 2 polygon
+sce
+1.000 180 -1552 -672 analog::diode
+0.180 0.545 0.341 scb
 1 2.000 -1408 -496 -1376 -496 -1392 -480 -1408 -496 4 polygon
 (C2) {/Courier cf} 2 21 0 0.500 -1392 -464 label
 1 2.000 -1392 -496 -1392 -512 2 polygon
@@ -367,30 +324,6 @@ sce
 1 2.000 -992 -496 -992 -512 2 polygon
 0.000 0.000 1.000 scb
 1 1.000 -992 -720 -944 -720 2 polygon
-1 2.000 -1600 -256 -1600 -304 -1616 -304 -1600 -320 -1584 -304 -1600 -304 
-6 polygon
-(R0) {/Courier cf} 2 21 0 0.500 -1600 -336 label
-1 2.000 -1536 -256 -1536 -304 -1552 -304 -1536 -320 -1520 -304 -1536 -304 
-6 polygon
-(R1) {/Courier cf} 2 21 0 0.500 -1536 -336 label
-1 2.000 -1472 -256 -1472 -304 -1488 -304 -1472 -320 -1456 -304 -1472 -304 
-6 polygon
-(R2) {/Courier cf} 2 21 0 0.500 -1472 -336 label
-1 2.000 -1408 -256 -1408 -304 -1424 -304 -1408 -320 -1392 -304 -1408 -304 
-6 polygon
-(R3) {/Courier cf} 2 21 0 0.500 -1408 -336 label
-1 2.000 -1344 -256 -1344 -304 -1360 -304 -1344 -320 -1328 -304 -1344 -304 
-6 polygon
-(R4) {/Courier cf} 2 21 0 0.500 -1344 -336 label
-1 2.000 -1280 -256 -1280 -304 -1296 -304 -1280 -320 -1264 -304 -1280 -304 
-6 polygon
-(R5) {/Courier cf} 2 21 0 0.500 -1280 -336 label
-1 2.000 -1216 -256 -1216 -304 -1232 -304 -1216 -320 -1200 -304 -1216 -304 
-6 polygon
-(R6) {/Courier cf} 2 21 0 0.500 -1216 -336 label
-1 2.000 -1152 -256 -1152 -304 -1168 -304 -1152 -320 -1136 -304 -1152 -304 
-6 polygon
-(R7) {/Courier cf} 2 21 0 0.500 -1152 -336 label
 0.192 0.541 0.353 scb
 1 2.000 -352 -272 -352 -320 -368 -320 -352 -336 -336 -320 -352 -320 6 polygon
 (C0) {/Courier cf} 2 21 0 0.500 -352 -352 label
@@ -419,15 +352,7 @@ sce
 1.000 90 -1216 -864 ::no_pushbutton
 1.000 90 -1136 -864 ::no_pushbutton
 1.000 90 -976 -864 ::no_pushbutton
-1.000 360 -992 -960 analog::diode
 1.000 90 -1056 -864 ::no_pushbutton
-1.000 360 -1072 -960 analog::diode
-1.000 360 -1152 -960 analog::diode
-1.000 360 -1232 -960 analog::diode
-1.000 360 -1312 -960 analog::diode
-1.000 360 -1392 -960 analog::diode
-1.000 360 -1472 -960 analog::diode
-1.000 360 -1552 -960 analog::diode
 0.000 0.000 1.000 scb
 1 1.000 -1552 -1008 -992 -1008 2 polygon
 0.180 0.545 0.341 scb
@@ -468,15 +393,7 @@ sce
 1.000 90 -1216 -1152 ::no_pushbutton
 1.000 90 -1136 -1152 ::no_pushbutton
 1.000 90 -976 -1152 ::no_pushbutton
-1.000 360 -992 -1248 analog::diode
 1.000 90 -1056 -1152 ::no_pushbutton
-1.000 360 -1072 -1248 analog::diode
-1.000 360 -1152 -1248 analog::diode
-1.000 360 -1232 -1248 analog::diode
-1.000 360 -1312 -1248 analog::diode
-1.000 360 -1392 -1248 analog::diode
-1.000 360 -1472 -1248 analog::diode
-1.000 360 -1552 -1248 analog::diode
 0.000 0.000 1.000 scb
 1 1.000 -1552 -1296 -992 -1296 2 polygon
 0.180 0.545 0.341 scb
@@ -517,15 +434,7 @@ sce
 1.000 90 -1216 -1440 ::no_pushbutton
 1.000 90 -1136 -1440 ::no_pushbutton
 1.000 90 -976 -1440 ::no_pushbutton
-1.000 360 -992 -1536 analog::diode
 1.000 90 -1056 -1440 ::no_pushbutton
-1.000 360 -1072 -1536 analog::diode
-1.000 360 -1152 -1536 analog::diode
-1.000 360 -1232 -1536 analog::diode
-1.000 360 -1312 -1536 analog::diode
-1.000 360 -1392 -1536 analog::diode
-1.000 360 -1472 -1536 analog::diode
-1.000 360 -1552 -1536 analog::diode
 0.000 0.000 1.000 scb
 1 1.000 -1552 -1584 -992 -1584 2 polygon
 0.180 0.545 0.341 scb
@@ -566,15 +475,7 @@ sce
 1.000 90 -480 -576 ::no_pushbutton
 1.000 90 -400 -576 ::no_pushbutton
 1.000 90 -240 -576 ::no_pushbutton
-1.000 360 -256 -672 analog::diode
 1.000 90 -320 -576 ::no_pushbutton
-1.000 360 -336 -672 analog::diode
-1.000 360 -416 -672 analog::diode
-1.000 360 -496 -672 analog::diode
-1.000 360 -576 -672 analog::diode
-1.000 360 -656 -672 analog::diode
-1.000 360 -736 -672 analog::diode
-1.000 360 -816 -672 analog::diode
 0.000 0.000 1.000 scb
 1 1.000 -816 -720 -256 -720 2 polygon
 0.180 0.545 0.341 scb
@@ -614,15 +515,7 @@ sce
 1.000 90 -480 -864 ::no_pushbutton
 1.000 90 -400 -864 ::no_pushbutton
 1.000 90 -240 -864 ::no_pushbutton
-1.000 360 -256 -960 analog::diode
 1.000 90 -320 -864 ::no_pushbutton
-1.000 360 -336 -960 analog::diode
-1.000 360 -416 -960 analog::diode
-1.000 360 -496 -960 analog::diode
-1.000 360 -576 -960 analog::diode
-1.000 360 -656 -960 analog::diode
-1.000 360 -736 -960 analog::diode
-1.000 360 -816 -960 analog::diode
 0.000 0.000 1.000 scb
 1 1.000 -816 -1008 -256 -1008 2 polygon
 0.180 0.545 0.341 scb
@@ -663,15 +556,7 @@ sce
 1.000 90 -480 -1152 ::no_pushbutton
 1.000 90 -400 -1152 ::no_pushbutton
 1.000 90 -240 -1152 ::no_pushbutton
-1.000 360 -256 -1248 analog::diode
 1.000 90 -320 -1152 ::no_pushbutton
-1.000 360 -336 -1248 analog::diode
-1.000 360 -416 -1248 analog::diode
-1.000 360 -496 -1248 analog::diode
-1.000 360 -576 -1248 analog::diode
-1.000 360 -656 -1248 analog::diode
-1.000 360 -736 -1248 analog::diode
-1.000 360 -816 -1248 analog::diode
 0.000 0.000 1.000 scb
 1 1.000 -816 -1296 -256 -1296 2 polygon
 0.180 0.545 0.341 scb
@@ -712,15 +597,7 @@ sce
 1.000 90 -480 -1440 ::no_pushbutton
 1.000 90 -400 -1440 ::no_pushbutton
 1.000 90 -240 -1440 ::no_pushbutton
-1.000 360 -256 -1536 analog::diode
 1.000 90 -320 -1440 ::no_pushbutton
-1.000 360 -336 -1536 analog::diode
-1.000 360 -416 -1536 analog::diode
-1.000 360 -496 -1536 analog::diode
-1.000 360 -576 -1536 analog::diode
-1.000 360 -656 -1536 analog::diode
-1.000 360 -736 -1536 analog::diode
-1.000 360 -816 -1536 analog::diode
 0.000 0.000 1.000 scb
 1 1.000 -816 -1584 -256 -1584 2 polygon
 0.180 0.545 0.341 scb
@@ -761,26 +638,166 @@ label
 32 -552 label
 (between all scan matrices, or a dedicated) {/Courier cf} 2 20 0 0.750 32 -584 
 label
-(replaced by Bridges!) {/Courier cf} 2 21 0 0.750 -1328 40 label
-sce
-1.000 0 -1600 -112 analog::resistor
-1 1.000 -1600 -176 -1600 -240 2 polygon
-1.000 0 -1536 -112 analog::resistor
-1 1.000 -1536 -176 -1536 -240 2 polygon
-1.000 0 -1472 -112 analog::resistor
-1 1.000 -1472 -176 -1472 -240 2 polygon
-1.000 0 -1408 -112 analog::resistor
-1 1.000 -1408 -176 -1408 -240 2 polygon
-1.000 0 -1344 -112 analog::resistor
-1 1.000 -1344 -176 -1344 -240 2 polygon
-1.000 0 -1280 -112 analog::resistor
-1 1.000 -1280 -176 -1280 -240 2 polygon
-1.000 0 -1216 -112 analog::resistor
-1 1.000 -1216 -176 -1216 -240 2 polygon
-1.000 0 -1152 -112 analog::resistor
-1 1.000 -1152 -176 -1152 -240 2 polygon
-1.000 0.000 0.000 scb
 (DOUT can be used for each matrix) {/Courier cf} 2 20 0 0.750 32 -616 label
+0.906 0.890 0.906 scb
+240 1.000 -1791 415 -1791 -352 -816 -352 -816 415 4 polygon
+sce
+1 1.000 -1503 319 11 0.000 360.000 xcarc
+1 1.000 -1439 319 11 0.000 360.000 xcarc
+1 1.000 -1375 319 11 0.000 360.000 xcarc
+1 1.000 -1311 319 11 0.000 360.000 xcarc
+0 2.000 -1535 351 -1535 287 -943 287 -943 351 4 polygon
+0.000 0.000 1.000 scb
+(Vs) {/Courier cf} 2 23 0 0.500 -1503 303 label
+(D5) {/Courier cf} 2 23 0 0.500 -1311 303 label
+(D7) {/Courier cf} 2 23 0 0.500 -1439 303 label
+(D6) {/Courier cf} 2 23 0 0.500 -1375 303 label
+sce
+1 1.000 -1247 319 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(D4) {/Courier cf} 2 23 0 0.500 -1247 303 label
+sce
+(J3) {/Courier cf} 2 21 0 0.750 -1535 375 label
+1 1.000 -1711 -209 11 0.000 360.000 xcarc
+1 1.000 -1711 -145 11 0.000 360.000 xcarc
+1 1.000 -1711 -81 11 0.000 360.000 xcarc
+1 1.000 -1711 -17 11 0.000 360.000 xcarc
+1 1.000 -1711 -273 11 0.000 360.000 xcarc
+0 2.000 -1743 15 -1743 -305 -1679 -305 -1679 15 4 polygon
+0.000 0.000 1.000 scb
+(RC) {/Courier cf} 2 23 0 0.500 -1711 -289 label
+(SC) {/Courier cf} 2 23 0 0.500 -1711 -225 label
+(Vd) {/Courier cf} 2 23 0 0.500 -1711 -97 label
+(Vs) {/Courier cf} 2 23 0 0.500 -1711 -33 label
+sce
+(J1) {/Courier cf} 2 21 0 0.750 -1719 31 label
+0.000 0.000 1.000 scb
+(SO) {/Courier cf} 2 23 0 0.500 -1711 -161 label
+sce
+1 1.000 -1183 319 11 0.000 360.000 xcarc
+1 1.000 -1119 319 11 0.000 360.000 xcarc
+1 1.000 -1055 319 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(D1) {/Courier cf} 2 23 0 0.500 -1055 303 label
+(D3) {/Courier cf} 2 23 0 0.500 -1183 303 label
+(D2) {/Courier cf} 2 23 0 0.500 -1119 303 label
+sce
+1 1.000 -991 319 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(D0) {/Courier cf} 2 23 0 0.500 -991 303 label
+sce
+1 1.000 -1439 239 -1439 319 2 polygon
+1 1.000 -1375 239 -1375 319 2 polygon
+1 1.000 -1311 239 -1311 319 2 polygon
+1 1.000 -1247 239 -1247 319 2 polygon
+1 1.000 -1183 239 -1183 319 2 polygon
+1 1.000 -1119 239 -1119 319 2 polygon
+1 1.000 -1055 239 -1055 319 2 polygon
+1 1.000 -991 239 -991 319 2 polygon
+1.000 180 -1439 191 ::_resistor
+1.000 180 -1375 191 ::_resistor
+1.000 180 -1311 191 ::_resistor
+1.000 180 -1247 191 ::_resistor
+1.000 180 -1183 191 ::_resistor
+1.000 180 -1119 191 ::_resistor
+1.000 180 -1055 191 ::_resistor
+1.000 180 -991 191 ::_resistor
+1 1.000 -1439 239 -1439 319 2 polygon
+1 1.000 -1375 239 -1375 319 2 polygon
+1 1.000 -1311 239 -1311 319 2 polygon
+1 1.000 -1247 239 -1247 319 2 polygon
+1 1.000 -1183 239 -1183 319 2 polygon
+1 1.000 -1119 239 -1119 319 2 polygon
+1 1.000 -1055 239 -1055 319 2 polygon
+1 1.000 -991 239 -991 319 2 polygon
+0.500 0 -1502 110 analog::gnd
+1 1.000 -1503 111 -1503 319 2 polygon
+(DOUT module) {/Courier cf} 2 21 0 2.000 -1240 -64 label
+1.000 0.000 0.000 scb
+(220 Ohm resistors can be optionally) {/Courier cf} 2 21 0 0.750 -1216 -136 
+label
+(replaced by Bridges!) {/Courier cf} 2 21 0 0.750 -1216 -168 label
+0.000 0.000 1.000 scb
+(R0) {/Courier cf} 2 21 0 0.500 -1440 400 label
+1 2.000 -1440 320 -1440 368 -1456 368 -1440 384 -1424 368 -1440 368 6 polygon
+(R1) {/Courier cf} 2 21 0 0.500 -1376 400 label
+1 2.000 -1376 320 -1376 368 -1392 368 -1376 384 -1360 368 -1376 368 6 polygon
+(R2) {/Courier cf} 2 21 0 0.500 -1312 400 label
+1 2.000 -1312 320 -1312 368 -1328 368 -1312 384 -1296 368 -1312 368 6 polygon
+(R3) {/Courier cf} 2 21 0 0.500 -1248 400 label
+1 2.000 -1248 320 -1248 368 -1264 368 -1248 384 -1232 368 -1248 368 6 polygon
+(R4) {/Courier cf} 2 21 0 0.500 -1184 400 label
+1 2.000 -1184 320 -1184 368 -1200 368 -1184 384 -1168 368 -1184 368 6 polygon
+(R5) {/Courier cf} 2 21 0 0.500 -1120 400 label
+1 2.000 -1120 320 -1120 368 -1136 368 -1120 384 -1104 368 -1120 368 6 polygon
+(R6) {/Courier cf} 2 21 0 0.500 -1056 400 label
+1 2.000 -1056 320 -1056 368 -1072 368 -1056 384 -1040 368 -1056 368 6 polygon
+(R7) {/Courier cf} 2 21 0 0.500 -992 400 label
+1 2.000 -992 320 -992 368 -1008 368 -992 384 -976 368 -992 368 6 polygon
+sce
+1.000 180 -1472 -672 analog::diode
+1.000 180 -1392 -672 analog::diode
+1.000 180 -1312 -672 analog::diode
+1.000 180 -1232 -672 analog::diode
+1.000 180 -1152 -672 analog::diode
+1.000 180 -1072 -672 analog::diode
+1.000 180 -992 -672 analog::diode
+1.000 180 -816 -672 analog::diode
+1.000 180 -736 -672 analog::diode
+1.000 180 -656 -672 analog::diode
+1.000 180 -576 -672 analog::diode
+1.000 180 -496 -672 analog::diode
+1.000 180 -416 -672 analog::diode
+1.000 180 -336 -672 analog::diode
+1.000 180 -256 -672 analog::diode
+1.000 180 -1552 -960 analog::diode
+1.000 180 -1472 -960 analog::diode
+1.000 180 -1392 -960 analog::diode
+1.000 180 -1312 -960 analog::diode
+1.000 180 -1232 -960 analog::diode
+1.000 180 -1152 -960 analog::diode
+1.000 180 -1072 -960 analog::diode
+1.000 180 -992 -960 analog::diode
+1.000 180 -816 -960 analog::diode
+1.000 180 -736 -960 analog::diode
+1.000 180 -656 -960 analog::diode
+1.000 180 -576 -960 analog::diode
+1.000 180 -496 -960 analog::diode
+1.000 180 -416 -960 analog::diode
+1.000 180 -336 -960 analog::diode
+1.000 180 -256 -960 analog::diode
+1.000 180 -816 -1248 analog::diode
+1.000 180 -736 -1248 analog::diode
+1.000 180 -656 -1248 analog::diode
+1.000 180 -576 -1248 analog::diode
+1.000 180 -496 -1248 analog::diode
+1.000 180 -416 -1248 analog::diode
+1.000 180 -336 -1248 analog::diode
+1.000 180 -256 -1248 analog::diode
+1.000 180 -1552 -1248 analog::diode
+1.000 180 -1472 -1248 analog::diode
+1.000 180 -1392 -1248 analog::diode
+1.000 180 -1312 -1248 analog::diode
+1.000 180 -1232 -1248 analog::diode
+1.000 180 -1152 -1248 analog::diode
+1.000 180 -1072 -1248 analog::diode
+1.000 180 -992 -1248 analog::diode
+1.000 180 -1552 -1536 analog::diode
+1.000 180 -1472 -1536 analog::diode
+1.000 180 -1392 -1536 analog::diode
+1.000 180 -1312 -1536 analog::diode
+1.000 180 -1232 -1536 analog::diode
+1.000 180 -1152 -1536 analog::diode
+1.000 180 -1072 -1536 analog::diode
+1.000 180 -992 -1536 analog::diode
+1.000 180 -816 -1536 analog::diode
+1.000 180 -736 -1536 analog::diode
+1.000 180 -656 -1536 analog::diode
+1.000 180 -576 -1536 analog::diode
+1.000 180 -496 -1536 analog::diode
+1.000 180 -416 -1536 analog::diode
+1.000 180 -336 -1536 analog::diode
+1.000 180 -256 -1536 analog::diode
 pgsave restore showpage
 
 %%Trailer
