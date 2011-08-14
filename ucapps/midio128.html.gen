@@ -3,8 +3,6 @@ HEADER 3 MIDIO128 V3
 <H1>MIDIO128 V3</H1>
 <H3>Created in July 2011</H3>
 
-<P CLASS=INFO><B>This page is under construction!</B></P>
-
 <P CLASS=INFO>The MIDIO128 application allows to midify keyboard instruments such as organs.<BR>
 It can also be used for other purposes of course - whenever you are planning to trigger MIDI events with buttons, and/or to control LEDs (or relays) via USB, MIDI or Ethernet/OSC, have a closer look to the feature list!</P>
 
@@ -16,14 +14,287 @@ It can also be used for other purposes of course - whenever you are planning to 
 <LI> 2 MIDI IN ports and 2 MIDI OUT ports
 <LI> USB MIDI port with much higher transfer rate (ca. 100x faster!) than common MIDI
 <LI> Ethernet port to send/receive events via <A HREF="http://opensoundcontrol.org" TARGET="_blank">OSC</A>
-<LI> support for DHCP - connect the module to a wireless route without additional configuration
+<LI> support for DHCP - connect the module to a wireless router without additional configuration
 <LI> different OSC modes are prepared for popular PC/Mac/iPhone/iPad apps, extensions can be added on request
 <LI> can also be used as USB/MIDI interface, or even as a OSC/MIDI interface
+<LI> integrated MIDI router with 16 configurable nodes
 <LI> multiple patches are stored on SD Card
 <LI> optional Control Surface for direct editing without a computer
 <LI> but patches can also be edited on a computer, e.g. in an Excel or Open Office spreadsheet
 <LI> integrated MIDI File Player
 <LI> more features available on request
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware </H2>
+
+<P CLASS=DESC>The MIDIO128 V3 application consists of:
+<UL CLASS=CL>
+  <LI>a <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module
+  <LI>up to 4 <A HREF="mbhp_din.html">MBHP_DINX4</A> modules
+  <LI>up to 4 <A HREF="mbhp_dout.html">MBHP_DOUTX4</A> modules
+  <LI>an (more or less) optional <A HREF="mbhp_sdcard.html">SD Card</A><BR>
+      Without a SD Card patches can't be stored/restored, and MIDI files can't be played
+  <LI>an optional 2x20 LCD + 6 buttons + rotary encoder for the control surface<BR>
+      Without the control surface patches can only be edited with a PC/Mac
+</UL>
+
+<p></p><center><a href="midio128/midio128_v3_interconnections.pdf"><img src="midio128/midio128_v3_interconnections.png" width="550" height=633></a></center><p></p>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Controlling Reed Relays </H2>
+
+<P CLASS=INFO><A HREF="mbhp/mbhp_doutx1_reed_relays.pdf">This diagram</A> shows, how Reed Relays can be connected to the DOUT module.<P>
+<P CLASS=INFO><A HREF="mbhp/mbhp_doutx1_reed_relays.jpg">This photo</A> shows the circuit together with a 74HC595 shift register (DOUT) built on a veroboard.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Scan Matrices </H2>
+
+<P CLASS=INFO>MIDIO128 V3 allows to scan up to 16 8x8 matrices, which are connected between a DOUT and DIN shift register.<BR>
+<A HREF="midio128/midio128_v3_scanmatrix.pdf">Connection diagram for a single matrix</A>
+</P>
+
+<P CLASS=INFO>Each matrix can be assigned to a dedicated DIN and DOUT shift register. Optionally it's possible to share a single DOUT register for all matrices (in this case assign a DOUT to the first matrix, and disable the DOUT for all other matrices). The remaining (not assigned) DIN/DOUT registers can still be used to connect buttons and LEDs directly.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Installation </H2>
+
+<P CLASS=DESC>The MIDIO128 V3 firmware is released as a precompiled binary, which can be easily updated via USB MIDI by using MIOS Studio. Details about the bootloader are explained <A HREF="mios32_bootstrap_newbies.html">here</A>.</P>
+
+<P CLASS=DESC>Step by Step:
+<UL CLASS=CL>
+  <LI>it's assumed that you already tested the USB MIDI communication by pressing the Query button in MIOS Studio as explained in the <A HREF="mios32_bootstrap_newbies.html">Bootloader page</A> - you should get some informations about the chip and the running application.<BR>
+      If this procedure sounds unfamiliar to you, please follow the hardware test procedure first as explained in the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> page.</LI>
+  <LI>download the latest midio128_v3_* release package from the <A HREF="mios32_download.html">MIOS32 Download Page</A>.
+  <LI>unzip the .zip archive</A>.
+  <LI>load the project.hex file with the "Hex Upload" window of MIOS Studio and press the Start button</A>.
+  <LI>the new firmware will be transfered to your MIDIbox</A>.
+  <LI>once the "Upload completed" message is displayed by MIOS Studio (after ca. 20..30 seconds), your MIDIbox will reboot, and the new firmware will be started.</A>.
+</UL>
+</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> The Control Surface </H2>
+
+<center><img src="midio128/midio128_v3_cs.jpg" width="550" height=554></IMG></center>
+
+<P CLASS=DESC>The optional control surface allows to edit most configuration values without the need of a computer. The rotary encoder and buttons can be directly connected to J10 of the MBHP_CORE_LPC17 module, no special DIN shift register is required (see also <a href="midio128/midio128_v3_interconnections.pdf">this schematic</A>).</P>
+
+<P CLASS=DESC>After startup the main screen will be displayed as shown on the picture above. The upper line shows the current MIDI file once the soft-button below "PLAY" is pushed. The next two soft buttons allow to select the previous/next MIDI file found in the root directory of the SD Card. The soft-button below "MENU" enters the configuration menu:
+<IMG SRC="midio128/cs3/root1.gif" width=482 height=38 ALT="Screen"></IMG><BR>
+The pages are described in more details below.<BR>
+Note that the 2x20 LCD will only display 4 of these items at once. Use the rotary encoder to scroll through the menu, and use a soft button to select the item above the button. Use the Exit button to get back to the previous page.</P>
+
+<P CLASS=DESC>By pressing the Shift button a special page will pop up:<BR>
+<IMG SRC="midio128/cs3/shift1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+which allows you to start/stop the MIDI file player and to disable all DOUTs (like "All Notes Off") from any menu page.</P>
+
+<P CLASS=DESC>The <B>DIN</B> page:<BR>
+<IMG SRC="midio128/cs3/din1.gif" width=481 height=19 ALT="Screen"></IMG><BR>
+allows to configure parameters for each individual input pin of the DIN shift register chain:
+<UL CLASS=CL>
+  <LI><B>Pin:</B> the pin number counted from 0 (0..127)
+  <LI><B>DIN:</B> the same number in "SR.Dx" format: first number displays the number of shift register (counted from 1, 1..16), and the second number the data input of the shift register (D0..D7)
+  <LI><B>Mode:</B> the button behaviour can be configured in three modes:
+    <UL CLASS=CL>
+      <LI><I>Normal:</I> On-Event sent when button pushed, Off-Event sent when button depressed
+      <LI><I>OnOff:</I> only On-Event is sent, no event sent when button depressed
+      <LI><I>Toggle:</I> alternates between On- and Off-Event whenever button is pushed
+    </UL>
+  <LI><B>E0On..E2On:</B> the three bytes of the "On-Event" which is sent when the button is pushed in hexadecimal format
+  <LI><B>E0Off..E2Off:</B> the three bytes of the "Off-Event" which is sent when the button is depressed (resp. Toggle mode: the alternate event) in hexadecimal format
+  <LI><B>USB1..OSC4:</B> selects the MIDI ports over which the selected DIN pin will send the MIDI event
+</UL>
+
+<P CLASS=INFO><I>Hot tip:</I> the usage of this page is too cumpersome for "mass edits" - if multiple (or all) pins should be changed, you might prefer to use a spreadsheet as described in the topic "Editing a patch with Excel/OpenOffice"</P>
+
+
+<P CLASS=DESC>The <B>DOUT</B> page:<BR>
+<IMG SRC="midio128/cs3/dout1.gif" width=331 height=19 ALT="Screen"></IMG><BR>
+allows to configure parameters for each individual output pin of the DOUT shift register chain:
+<UL CLASS=CL>
+  <LI><B>Pin:</B> the pin number counted from 0 (0..127)
+  <LI><B>DOUT:</B> the same number in "SR.Dx" format: first number displays the number of shift register (counted from 1, 1..16), and the second number the data input of the shift register (D7..D0). Note that D7..D0 is reversed, so that outputs can be connected from the left to the right side of the MBHP_DOUT module!
+  <LI><B>Evn0..Evn1:</B> the first two bytes of the event which sets the output pin. Whenever the value 0x00..0x3F is received, the pin will be switched off, with values >= 0x40 the pin will be switched on.
+  <LI><B>USB1..OSC4:</B> selects the MIDI ports over which the selected DOUT pin will receive MIDI events
+</UL>
+
+<P CLASS=INFO><I>Hot tip:</I> the usage of this page is too cumpersome for "mass edits" - if multiple (or all) pins should be changed, you might prefer to use a spreadsheet as described in the topic "Editing a patch with Excel/OpenOffice"</P>
+
+
+<P CLASS=DESC>The <B>M8x8</B> page:<BR>
+<IMG SRC="midio128/cs3/m8x8_1.gif" width=302 height=19 ALT="Screen"></IMG><BR>
+allows to configure the scan matrices:
+<UL CLASS=CL>
+  <LI><B>Matrix:</B> the matrix number counted from 1..16
+  <LI><B>Channel:</B> the MIDI channel to which the matrix will send Note Events
+  <LI><B>Base:</B> the base node for the first pin of the matrix.
+  <LI><B>DIN:</B> DIN register assignment. If "---", the matrix is disabled, with "1..16" the selected matrix is assigned to the given DIN shift register.<BR>
+<I>Please note that the appr. pins of the shift register won't be available for sending common MIDI events as configured in the DIN page anymore!</I>
+  <LI><B>DOUT:</B> DOUT register assignment. If "---", the matrix won't write to any DOUT register, with "1..16" the matrix will write to the given DOUT register in order to select the matrix row.<BR>
+<I>Please note that the appr. pins of the shift register won't be available for outputing values on incoming MIDI events as configured in the DOUT page anymore!</I><BR>
+<I>Please note also that all matrices will output the same value to the DOUT shift registers in order to select a button row. Accordingly it's possible to share a single DOUT register for all matrices to save hardware. However, using multple DOUT SRs could make sense if for example selarate keyboards should be scanned.</I>
+</UL>
+
+<P CLASS=DESC>The Matrix handler is prepared for supporting different modes, which will be added on request. Currently only a single matrix configuration <A HREF="midio128/midio128_v3_scanmatrix.pdf">(DINs connected to columns, DOUTs connected to rows)</A> is available, and only Note events over a selectable channel with a selectable base note are sent.</P>
+
+
+<P CLASS=DESC>The <B>Router</B> page:<BR>
+<IMG SRC="midio128/cs3/rout1.gif" width=302 height=38 ALT="Screen"></IMG><BR>
+allows to configure the integrated MIDI Router.<BR>
+The router consists of 16 "nodes".<BR>
+Each node can be connected to an individual source and destination port.<BR>
+A node is activated by selecting a source MIDI channel != "--", e.g. 1..16 or All (for all channels).<BR>
+The node will forward a MIDI event to the destination port. Either to the original channel ("All"), or to a changed channel (1..16)
+
+<UL CLASS=CL>
+  <LI><B>Node:</B> the selected router node (1..16)
+  <LI><B>SrcP:</B> the source port
+  <LI><B>Chn.:</B> the source channel ("--" to disable, 1..16 or "All")
+  <LI><B>DstP:</B> the destination port
+  <LI><B>Chn.:</B> the destination channel ("--" to disable, 1..16 to change the channel, or "All" to keep it untouched)
+</UL>
+
+
+<P CLASS=DESC>The <B>OSC</B> page:<BR>
+<IMG SRC="midio128/cs3/osc1.gif" width=422 height=38 ALT="Screen"></IMG><BR>
+allows to configure the OSC ports 1..4.<BR>
+Each OSC port has an individual remote IP, a remote port (to which OSC packets will be sent) and a local port (from which OSC packets will be received). Various packet formats are supported, additional modes can be added in future on request.
+
+<UL CLASS=CL>
+  <LI><B>Port:</B> the selected OSC port (1..4)
+  <LI><B>Remote IP:</B> the remote IP assigned to the OSC port (e.g. the IP of your iPad)
+  <LI><B>Remote IP:</B> the remote port to which OSC packets will be sent
+  <LI><B>Remote IP:</B> the local port from which OSC packets will be received
+  <LI><B>Mode:</B> following transfer formats are currently supported:
+    <UL CLASS=CL>
+      <LI><B>MIDI:</B> MIDI events are bundled into MIDI elements
+      <LI><B>Text Msg (Integer):</B> uses human readable pathes, values are in integer format
+      <LI><B>Text Msg (Float):</B> uses human readable pathes, values are in float format
+      <LI><B>MPP (Pianist Pro):</B> selects format which is used by <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro</A>
+      <LI><B>TOSC (TouchOSC):</B> selects format which is used by <A HREF="http://hexler.net/software/touchosc" TARGET="_blank">TouchOSC</A>
+    </UL>
+</UL>
+</P>
+
+<P CLASS=DESC>The various OSC modes are described in more detail in the "Supported OSC Packet Formats" topic below.
+
+<P CLASS=DESC>The <B>Network</B> page:<BR>
+<IMG SRC="midio128/cs3/netw1.gif" width=302 height=38 ALT="Screen"></IMG><BR>
+allows to configure the Ethernet interface of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module.
+
+<UL CLASS=CL>
+  <LI><B>DHCP:</B> if enabled (default), the Host IP, Network Mask and Gateway address will be requested from a DHCP Daemon (e.g. your wireless router) automatically whenever the ethernet cable is connected. The configuration could take some seconds depending on the responsiveness of your router.
+  <LI><B>IP Host:</B> if DHCP on: displays the current IP address, if DHCP off: allows to enter the IP address of your MIDIO128 manually
+  <LI><B>Netmask:</B> if DHCP on: displays the current netmask, if DHCP off: allows to enter the netmask of your MIDIO128 manually
+  <LI><B>IP Gateway:</B> if DHCP on: displays the current gateway address, if DHCP off: allows to enter the gateway of the ethernet network manually
+</UL>
+
+<P CLASS=DESC>The <B>MIDI</B> page:<BR>
+<IMG SRC="midio128/cs3/midi1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+allows to select the MIDI play mode, and to directly select a MIDI file.
+
+<UL CLASS=CL>
+  <LI><B>Mode:</B> two modes are available: "All" plays all MIDI files which can be found in the root directory of your SD Card.<BR>
+"Single" plays the current MIDI file in a loop.
+  <LI><B>Filename:</B> opens a filename browser:<BR>
+      <IMG SRC="midio128/cs3/midi2.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+      Use the rotary encoder or the &lt;/&gt; soft buttons to scroll through the directory. Press "Load" to play the selected MIDI file.
+</UL>
+
+<P CLASS=DESC>The <B>Disk</B> page:<BR>
+<IMG SRC="midio128/cs3/disk1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+allows to store and restore a patch on SD Card of a given name.
+
+<UL CLASS=CL>
+  <LI><B>Load:</B> opens a filename browser for all .MIO files found on SD Card:
+      <IMG SRC="midio128/cs3/disk2.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+      Select one of these files to load the patch (or press the Exit button to cancel this operation).
+  <LI><B>Save:</B> enter the filename with the rotary encoder:<BR>
+      <IMG SRC="midio128/cs3/disk3.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+      Press "SAVE" to store the patch (or press the Exit button to cancel this operation).
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Editing a patch with Excel/OpenOffice </H2>
+
+<P CLASS=DESC>Patches are stored in "CSV" (character separated values) format on SD Card, the items are delimited with semicolons.</P>
+
+<P CLASS=DESC>This format allows to edit patches with a common text editor, but also in a spreadsheet with Microsoft Excel or <A HREF="http://www.openoffice.org" TARGET="_blank">OpenOffice</A>.
+
+Most simple solution: mount the SD Card, search for the .MIO patch (e.g. "DEFAULT.MIO"), rename it to "DEFAULT.CSV" and double-click on the file.<BR>
+Open Office will ask you for some formatting parameters, just use the default setup:</P>
+
+<p></p><center><a href="midio128/midio128_v3_spreadsheet1.png"><img src="midio128/midio128_v3_spreadsheet1.png" width="550"></a></center><p></p>
+
+<P CLASS=DESC>Now each cell will contain a single configuration value, and you can simply edit/copy/paste/etc... - vertically and horizontally!
+<p></p><center><a href="midio128/midio128_v3_spreadsheet2.png"><img src="midio128/midio128_v3_spreadsheet2.png" width="550"></a></center><p></p>
+
+<P CLASS=DESC>Note that some columns (such as USB2..4, RES1..4, etc...) have no effect yet, and are reserved for future extensions.
+<I>(more details on the value formats required? This should be selfexplaining...)</I></P>
+
+<P CLASS=DESC>Store your edits, and rename the file to the original filename. Thereafter load the patch from the Disk-&gt;Load menu - done!</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Remote-Configuration from MIOS Terminal</H2>
+
+<P CLASS=DESC>Some configuration values can be edited from the MIOS Terminal which is part of <A HREF="mios_studio.html">MIOS Studio</A>.<BR>
+Enter "help" to get a list of available commands:</P>
+<p></p><center><a href="midio128/midio128_v3_terminal.png"><img src="midio128/midio128_v3_terminal.png" width="550"></a></center><p></p>
+
+<P CLASS=DESC>In future it could be possible to edit any configuration parameter from the terminal, which might be helpful for runtime editing if MIDIO128 is used without a control surface.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Supported OSC Packet Formats</H2>
+
+<P CLASS=DESC>Following <A HREF="http://opensoundcontrol.org" TARGET="_blank">OSC</A> formats are supported by the application - the list of supported formats will be enhanced on request:
+
+<UL CLASS=CL>
+  <LI><B>MIDI:</B> MIDI events are bundled into MIDI elements, so that they can be forwarded with a MIDI proxy running on a computer. Currently only a <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Ftools%2Fosc_midi_proxy%2F" TARGET="_blank">selfwritten proxy for MacOS exists</A>, but it should be possible to port it to other operating systems as well (if somebody is interested: step forward!)<BR>
+The proxy supports common MIDI events, but also SysEx streams (!!!) embedded into "blobs".<BR>
+OSC packets are sent to the path "/midi1" ... "/midi4" depending on the OSC port number.</P>
+
+  <LI><B>Text Msg (Integer or Float):</B> MIDI events will be converted into human readable pathes. Values are either in integer or float format (e.g. float is the only type which is supported by <A HREF="http://www.native-instruments.com/#/en/products/producer/reaktor-5/" TARGET="_blank">NI Reaktor</A>.<BR>
+  List of Events:
+    <UL CLASS=CL>
+      <LI><B>Note Events:</B> /&lt;chn&gt;/note &lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>Polypressure Events:</B> /&lt;chn&gt;/polypressure &lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>CC Events:</B> /&lt;chn&gt;/cc &lt;cc-number&gt; &lt;cc-value&gt;
+      <LI><B>Program Change Events:</B> /&lt;chn&gt;/programchange &lt;program-number&gt;
+      <LI><B>Aftertouch Events:</B> /&lt;chn&gt;/aftertouch &lt;key-number&gt;
+      <LI><B>Pitchbend Events:</B> /&lt;chn&gt;/pitchbend &lt;pitch&gt;
+    </UL>
+
+  <BR>
+  <LI><B>Pianist Pro:</B> MIDI events will be converted into the format which is used by <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro</A>:
+    <UL CLASS=CL>
+      <LI><B>Note Events:</B> /mcmpp/key/&lt;chn&gt;/&lt;key-number&gt &lt;velocity&gt;
+      <LI><B>Polypressure Events:</B> /mcmpp/polypressure/&lt;chn&gt;/&lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>CC Events:</B> /mcmpp/cc/&lt;chn&gt;/&lt;cc-number&gt; &lt;cc-value&gt;
+      <LI><B>Program Change Events:</B> /mcmpp/programchange/&lt;chn&gt;/&lt;program-number&gt;
+      <LI><B>Aftertouch Events:</B> /aftertouch/&lt;chn&gt; &lt;key-number&gt;
+      <LI><B>Pitchbend Events:</B> /pitch/&lt;chn&gt; &lt;pitch&gt;
+    </UL>
+
+  <BR>
+  <LI><B>TouchOSC:</B> MIDI events will be converted into the format which is compatible to <A HREF="http://hexler.net/software/touchosc" TARGET="_blank">TouchOSC</A>:
+    <UL CLASS=CL>
+      <LI><B>Note Events:</B> /&lt;chn&gt;/note_&lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>Polypressure Events:</B> /&lt;chn&gt;/polypressure_&lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>CC Events:</B> /&lt;chn&gt;/cc_&lt;cc-number&gt; &lt;cc-value&gt;
+      <LI><B>Program Change Events:</B> /&lt;chn&gt;/programchange_&lt;program-number&gt;
+      <LI><B>Aftertouch Events:</B> /&lt;chn&gt;/aftertouch_&lt;key-number&gt;
+      <LI><B>Pitchbend Events:</B> /&lt;chn&gt;/pitchbend_&lt;pitch&gt;
+    </UL>
+    An simply example configuration for iPad can be downloaded <A HREF="midio128/midio128_v3_touchosc_patches.zip">from here</A>.
+</UL>
+
+<P CLASS=DESC><I>Hot tip:</I> you can use the integrated <A HREF="mios_studio/mios_studio_osc.png">OSC Monitor</A> of <A HREF="mios_studio.html">MIOS Studio</A> to send and receive OSC events to check your configuration.</P>
+
+<P CLASS=DESC>Please note: local and remote port have to be swapped when two devices communicate together. It's like connecting the "MIDI OUT" to the "MIDI IN" port. In other words: the "local port" of MIDIO128 has to be set to the "remote port" of the remote host, and vice versa.</P>
+<P CLASS=DESC>Please note also that MIDIO128 allows to use the same port number for "local" and "remote", but unfortunately most other applications don't support this simplified setup.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Future Enhancements/Wishlist:</H2>
+
+<UL CLASS=CL>
+  <LI>integrate MSD (Mass Storage Device) driver, so that SD Card can be mounted via USB without disconnecting it from the MBHP_CORE_LPC17 module. This function could be accessible from the SHIFT menu. Unfortunately it will only work with the control surface, as MIDI connection gets lost once this mode is enabled (and comes back once the SD Card has been unmounted from the computer)
+  <LI>your request might be added here if it's easy to implement
 </UL>
 
 FOOTER
