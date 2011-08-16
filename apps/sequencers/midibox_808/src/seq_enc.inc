@@ -160,8 +160,8 @@ SEQ_ENC_Inst_ChangeAll_Cont
 
 	;; force display update
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
-	return
-
+	;; request display re-initisation to update the mute page (and others which print instrument only during init phase)
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
 	return
 
 
