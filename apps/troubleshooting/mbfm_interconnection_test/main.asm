@@ -44,6 +44,7 @@
 ; define the pins to which the MBHP_OPL3 module is connected
 ;
 MBFM_LAT_D	EQU	LATB		; Port B
+MBFM_LAT_D_23_18F4685 EQU LATE		; RB[23] -> RE[12]
 MBFM_LAT_A1	EQU	LATD		; Pin D.6
 MBFM_PIN_A1	EQU	6
 MBFM_LAT_A0	EQU	LATD		; Pin D.5
@@ -62,6 +63,13 @@ MBFM_PIN_IC	EQU	4
 ;;  application
 ;; --------------------------------------------------------------------------
 USER_Init
+	;; for PIC18F4685:
+	;; Use RE1 and RE2 instead of RB2 and RB3
+	;; in this application we will set RE1/RB2 and RE2/RB3 together so that the same
+	;; binary can be used for both chips
+	movlw	0xf9		; set only TRISE[2:1] as output
+	andwf	TRISE, F
+
 	clrf	OPL3_PIN_NUMBER
 	call	OPL3_SetPin
 	return
@@ -379,6 +387,7 @@ USER_AIN_NotifyChange
 OPL3_SetPin
 	;; clear all pins
 	clrf	MBFM_LAT_D
+	clrf	MBFM_LAT_D_23_18F4685
 	bcf	MBFM_LAT_A0, MBFM_PIN_A0
 	bcf	MBFM_LAT_A1, MBFM_PIN_A1
 	bcf	MBFM_LAT_CS, MBFM_PIN_CS
@@ -426,10 +435,12 @@ OPL3_SetPin_D1
 
 OPL3_SetPin_D2
 	bsf	MBFM_LAT_D, 2
+	bsf	MBFM_LAT_D_23_18F4685, 1
 	return
 
 OPL3_SetPin_D3
 	bsf	MBFM_LAT_D, 3
+	bsf	MBFM_LAT_D_23_18F4685, 2
 	return
 
 OPL3_SetPin_D4
