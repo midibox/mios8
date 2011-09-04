@@ -327,7 +327,7 @@ char SCALE_Note(unsigned char *note, unsigned char scale, unsigned char root) __
   if( note_number < 0 )
     note_number += 12;
   else {
-    while( note_number > 12 ) {
+    while( note_number >= 12 ) {
       note_number -= 12;
       ++octave;
     }
