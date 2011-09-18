@@ -153,7 +153,41 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
   <LI>Pin 2..9 are the inputs (connected to J5A/B/C)</LI>
   <LI>Pin 11..18 are the outputs (connected to your synth gear)</LI>
 </UL></P>
-<P CLASS=DESC><B>NOTE:</B> as you can see in the <a href="midibox_seq/mbseq_v4_interconnections.pdf" TARGET="_blank">interconnection diagram</A>, Gate #7 and #8 are available at J5C.A10 and J5C.A11, because J5B.A6 and J5B.A7 are allocated for the third MIDI IN/OUT port.
+
+<P CLASS=DESC><B>NOTE:</B> as you can see in the <a href="midibox_seq/mbseq_v4_interconnections.pdf" TARGET="_blank">interconnection diagram</A>, Gate #7 and #8 are available at J5C.A10 and J5C.A11, because J5B.A6 and J5B.A7 are allocated for the third MIDI IN/OUT port.</P>
+
+<P CLASS=DESC>Here a complete list for <B>MBHP_CORE_STM32:</B>
+<UL CLASS=CL>
+  <LI> MBHP_CORE_STM32::J5A.A0: Gate 1
+  <LI> MBHP_CORE_STM32::J5A.A1: Gate 2
+  <LI> MBHP_CORE_STM32::J5A.A2: Gate 3
+  <LI> MBHP_CORE_STM32::J5A.A3: Gate 4
+  <LI> MBHP_CORE_STM32::J5B.A4: Gate 5
+  <LI> MBHP_CORE_STM32::J5B.A5: Gate 6
+  <LI> MBHP_CORE_STM32::J5B.A6: MIDI OUT3
+  <LI> MBHP_CORE_STM32::J5B.A7: MIDI IN3
+  <LI> MBHP_CORE_STM32::J5C.A8: Clock
+  <LI> MBHP_CORE_STM32::J5C.A9: Start/Stop
+  <LI> MBHP_CORE_STM32::J5C.A10: Gate 7
+  <LI> MBHP_CORE_STM32::J5C.A11: Gate 8
+</UL>
+
+<P CLASS=DESC><B>NOTE for MBHP_CORE_LPC17 users:</B> since this board doesn't provide a J5C connector, some signals are available at J28. Here a complete list for <B>MBHP_CORE_LPC17:</B>
+<UL CLASS_CL>
+  <LI> MBHP_CORE_LPC17::J5A.A0: Gate 1
+  <LI> MBHP_CORE_LPC17::J5A.A1: Gate 2
+  <LI> MBHP_CORE_LPC17::J5A.A2: Gate 3
+  <LI> MBHP_CORE_LPC17::J5A.A3: Gate 4
+  <LI> MBHP_CORE_LPC17::J5B.A4: Gate 5
+  <LI> MBHP_CORE_LPC17::J5B.A5: Gate 6
+  <LI> MBHP_CORE_LPC17::J5B.A6: MIDI IN3 (!!! Swapped compared to STM32 variant !!!)
+  <LI> MBHP_CORE_LPC17::J5B.A7: MIDI OUT3 (!!! Swapped compared to STM32 variant !!!)
+  <LI> MBHP_CORE_LPC17::J28.SDA: Clock
+  <LI> MBHP_CORE_LPC17::J28.SC: Start/Stop
+  <LI> MBHP_CORE_LPC17::J28.WS: Gate 7
+  <LI> MBHP_CORE_LPC17::J28.MCLK: Gate 8
+</UL>
+
 <P CLASS=DESC>For those who cannot get enough, 64 additional drum triggers are available in the DOUT chain. They can be controlled with individual key numbers and trigger a pulse of 1 mS. The used DOUT shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)</P>
 <P CLASS=DESC>Tracks can be assigned to the outputs in the MIDI event menu. It's also possible to route incoming MIDI events to the AOUT/gate triggers in addition (this replaces a CV interface completely). The AOUT channel and trigger routing is described in the <A HREF="midibox_seq_manual_s.html">"Special Pages" chapter of the User Manual</A>.</P>
 

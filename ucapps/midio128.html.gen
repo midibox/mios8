@@ -11,6 +11,7 @@ It can also be used for other purposes of course - whenever you are planning to 
 <LI> up to 16 8bit input shift registers (=128 pins, =4 x <A HREF="mbhp_din.html">MBHP_DINX4 modules)</A>
 <LI> up to 16 8bit output shift registers (=128 pins, =4 x <A HREF="mbhp_din.html">MBHP_DOUTX4 modules)</A>
 <LI> up to 16 scan matrices for up to 1024 pins/keys
+<LI> up to 8 pots/faders</A>
 <LI> 2 MIDI IN ports and 2 MIDI OUT ports
 <LI> USB MIDI port with much higher transfer rate (ca. 100x faster!) than common MIDI
 <LI> Ethernet port to send/receive events via <A HREF="http://opensoundcontrol.org" TARGET="_blank">OSC</A>
@@ -21,7 +22,9 @@ It can also be used for other purposes of course - whenever you are planning to 
 <LI> multiple patches are stored on SD Card
 <LI> optional Control Surface for direct editing without a computer
 <LI> but patches can also be edited on a computer, e.g. in an Excel or Open Office spreadsheet
+<LI> integrated MIDI monitor for all Ports (USB/MIDI/OSC)
 <LI> integrated MIDI File Player
+<LI> integrated SD Card Reader (Mass Storage Device driver for USB)
 <LI> more features available on request
 </UL>
 
@@ -36,9 +39,10 @@ It can also be used for other purposes of course - whenever you are planning to 
       Without a SD Card patches can't be stored/restored, and MIDI files can't be played
   <LI>an optional 2x20 LCD + 6 buttons + rotary encoder for the control surface<BR>
       Without the control surface patches can only be edited with a PC/Mac
+  <LI>up to 8 pots/faders connected to J5A/J5B of the core module
 </UL>
 
-<p></p><center><a href="midio128/midio128_v3_interconnections.pdf"><img src="midio128/midio128_v3_interconnections.png" width="550" height=633></a></center><p></p>
+<p></p><center><a href="midio128/midio128_v3_interconnections.pdf"><img src="midio128/midio128_v3_interconnections.png" width="550" height=425></a></center><p></p>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Controlling Reed Relays </H2>
 
@@ -52,6 +56,13 @@ It can also be used for other purposes of course - whenever you are planning to 
 </P>
 
 <P CLASS=INFO>Each matrix can be assigned to a dedicated DIN and DOUT shift register. Optionally it's possible to share a single DOUT register for all matrices (in this case assign a DOUT to the first matrix, and disable the DOUT for all other matrices). The remaining (not assigned) DIN/DOUT registers can still be used to connect buttons and LEDs directly.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Pots/Faders </H2>
+
+<P CLASS=INFO>Up to 8 pots/faders can be connected to J5A/B of the MBHP_CORE_LPC17 module as shown in the <a href="midio128/midio128_v3_interconnections.pdf">interconnection diagram</A>.</P>
+
+<P CLASS=INFO>The resistor value should be in the range of 1k..10k. It's recommended to connect 100 pF caps from the wiper to ground to get stable conversion values. The cable between pot and J5 port shouldn't be longer than 0.5m if 10k pots are used. With a shielded cable and 1k pots the allowed length is up to 2m.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Installation </H2>
@@ -77,13 +88,17 @@ It can also be used for other purposes of course - whenever you are planning to 
 <P CLASS=DESC>The optional control surface allows to edit most configuration values without the need of a computer. The rotary encoder and buttons can be directly connected to J10 of the MBHP_CORE_LPC17 module, no special DIN shift register is required (see also <a href="midio128/midio128_v3_interconnections.pdf">this schematic</A>).</P>
 
 <P CLASS=DESC>After startup the main screen will be displayed as shown on the picture above. The upper line shows the current MIDI file once the soft-button below "PLAY" is pushed. The next two soft buttons allow to select the previous/next MIDI file found in the root directory of the SD Card. The soft-button below "MENU" enters the configuration menu:
-<IMG SRC="midio128/cs3/root1.gif" width=482 height=38 ALT="Screen"></IMG><BR>
+<IMG SRC="midio128/cs3/root1.gif" width=602 height=38 ALT="Screen"></IMG><BR>
 The pages are described in more details below.<BR>
 Note that the 2x20 LCD will only display 4 of these items at once. Use the rotary encoder to scroll through the menu, and use a soft button to select the item above the button. Use the Exit button to get back to the previous page.</P>
 
 <P CLASS=DESC>By pressing the Shift button a special page will pop up:<BR>
 <IMG SRC="midio128/cs3/shift1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
-which allows you to start/stop the MIDI file player and to disable all DOUTs (like "All Notes Off") from any menu page.</P>
+<UL CLASS=CL>
+  <LI><B>MIDI:</B> allows to start/stop the MIDI file player from any page
+  <LI><B>MIDI:</B> allows to disable all DOUT pins (like "All Notes Off") from any page
+  <LI><B>MSD:</B> enables/disables the Mass Storage Device driver as descriped in the "Integrated SD Card Reader" topic
+</UL>
 
 <P CLASS=DESC>The <B>DIN</B> page:<BR>
 <IMG SRC="midio128/cs3/din1.gif" width=481 height=19 ALT="Screen"></IMG><BR>
@@ -111,7 +126,7 @@ allows to configure parameters for each individual output pin of the DOUT shift 
 <UL CLASS=CL>
   <LI><B>Pin:</B> the pin number counted from 0 (0..127)
   <LI><B>DOUT:</B> the same number in "SR.Dx" format: first number displays the number of shift register (counted from 1, 1..16), and the second number the data input of the shift register (D7..D0). Note that D7..D0 is reversed, so that outputs can be connected from the left to the right side of the MBHP_DOUT module!
-  <LI><B>Evn0..Evn1:</B> the first two bytes of the event which sets the output pin. Whenever the value 0x00..0x3F is received, the pin will be switched off, with values >= 0x40 the pin will be switched on.
+  <LI><B>Evn0..Evn1:</B> the first two bytes of the event which will set the output pin. Whenever the value 0x00..0x3F is received, the pin will be switched off, with values >= 0x40 the pin will be switched on.
   <LI><B>USB1..OSC4:</B> selects the MIDI ports over which the selected DOUT pin will receive MIDI events
 </UL>
 
@@ -133,6 +148,18 @@ allows to configure the scan matrices:
 </UL>
 
 <P CLASS=DESC>The Matrix handler is prepared for supporting different modes, which will be added on request. Currently only a single matrix configuration <A HREF="midio128/midio128_v3_scanmatrix.pdf">(DINs connected to columns, DOUTs connected to rows)</A> is available, and only Note events over a selectable channel with a selectable base note are sent.</P>
+
+
+<P CLASS=DESC>The <B>AIN</B> page:<BR>
+<IMG SRC="midio128/cs3/ain1.gif" width=301 height=19 ALT="Screen"></IMG><BR>
+allows to configure parameters for each individual analog pin of J5A/J5B of the core module:
+<UL CLASS=CL>
+  <LI><B>Pin:</B> the pin number counted from 0 (0..7)
+  <LI><B>Evn0..Evn1:</B> the first two bytes of the event which is sent by the analog pin
+  <LI><B>USB1..OSC4:</B> selects the MIDI ports over which the AIN will send MIDI events
+</UL>
+
+<P CLASS=INFO><B>Please note:</B> an unconnected analog input will send a permanent stream of random MIDI values. Therefore the pins are disabled by default (no MIDI port assigned). Please ensure that the pot/fader is properly connected before enabling the output port(s), either in the AIN page or in your .MIO file!</P>
 
 
 <P CLASS=DESC>The <B>Router</B> page:<BR>
@@ -198,6 +225,15 @@ allows to select the MIDI play mode, and to directly select a MIDI file.
       Use the rotary encoder or the &lt;/&gt; soft buttons to scroll through the directory. Press "Load" to play the selected MIDI file.
 </UL>
 
+
+<P CLASS=DESC>The <B>Monitor</B> page:<BR>
+<IMG SRC="midio128/cs3/mon1.gif" width=422 height=38 ALT="Screen"></IMG><BR>
+shows all IN ports at the upper line, and OUT ports at the lower line.</P>
+
+<P CLASS=DESC>Whenever an event is received or sent, the appr. item will show the event for a short moment.<BR>
+This gives you a great overview of the MIDI activity, especially to analyze the current track and MIDI router setup.</P>
+
+
 <P CLASS=DESC>The <B>Disk</B> page:<BR>
 <IMG SRC="midio128/cs3/disk1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
 allows to store and restore a patch on SD Card of a given name.
@@ -229,6 +265,17 @@ Open Office will ask you for some formatting parameters, just use the default se
 <I>(more details on the value formats required? This should be selfexplaining...)</I></P>
 
 <P CLASS=DESC>Store your edits, and rename the file to the original filename. Thereafter load the patch from the Disk-&gt;Load menu - done!</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Integrated SD Card Reader</H2>
+
+<P CLASS=DESC>A MSD (Mass Storage Device) driver is integrated into the firmware. It allows you to mount your SD Card via USB without disconnecting it from the MBHP_CORE_LPC17 module, which is especially useful if you want to quickly edit a .MIO file, or copy some .MID files.</P>
+
+<P CLASS=DESC>It can be activated by pressing SHIFT and the soft button under the "MSD" item:
+<IMG SRC="midio128/cs3/shift1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+</P>
+
+<P CLASS=DESC>Once enabled, the SD Card should be automatically mounted by your operating system (Windows/MacOS/Linux). USB MIDI will be disabled. The upper line of the LCD will show the MSD status in any menu page until your SD Card has been unmounted from the operating system (and MSD has been disabled again).</LI>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Remote-Configuration from MIOS Terminal</H2>
@@ -278,8 +325,8 @@ OSC packets are sent to the path "/midi1" ... "/midi4" depending on the OSC port
       <LI><B>Polypressure Events:</B> /&lt;chn&gt;/polypressure_&lt;key-number&gt; &lt;velocity&gt;
       <LI><B>CC Events:</B> /&lt;chn&gt;/cc_&lt;cc-number&gt; &lt;cc-value&gt;
       <LI><B>Program Change Events:</B> /&lt;chn&gt;/programchange_&lt;program-number&gt;
-      <LI><B>Aftertouch Events:</B> /&lt;chn&gt;/aftertouch_&lt;key-number&gt;
-      <LI><B>Pitchbend Events:</B> /&lt;chn&gt;/pitchbend_&lt;pitch&gt;
+      <LI><B>Aftertouch Events:</B> /&lt;chn&gt;/aftertouch &lt;key-number&gt;
+      <LI><B>Pitchbend Events:</B> /&lt;chn&gt;/pitchbend &lt;pitch&gt;
     </UL>
     A simple example configuration for iPad can be downloaded <A HREF="midio128/midio128_v3_touchosc_patches.zip">from here</A>.
 </UL>
@@ -293,7 +340,7 @@ OSC packets are sent to the path "/midi1" ... "/midi4" depending on the OSC port
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Future Enhancements/Wishlist:</H2>
 
 <UL CLASS=CL>
-  <LI>integrate MSD (Mass Storage Device) driver, so that SD Card can be mounted via USB without disconnecting it from the MBHP_CORE_LPC17 module. This function could be accessible from the SHIFT menu. Unfortunately it will only work with the control surface, as MIDI connection gets lost once this mode is enabled (and comes back once the SD Card has been unmounted from the computer)
+  <LI>all open requests have been implemented
   <LI>your request might be added here if it's easy to implement
 </UL>
 
