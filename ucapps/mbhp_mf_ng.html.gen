@@ -1,0 +1,83 @@
+HEADER 3 MBHP MF Module
+
+<H1>MIDIbox Hardware Platform, Motorfader NG Module</H1>
+
+<P CLASS=INFO>The MF_NG module is the successor of the <A HREF="mbhp_mf.html">MBHP_MF</A> module and has following design targets:
+
+<UL CLASS=CL>
+  <LI> find a solution to handle high-quality faders like Alps K faders with "coreless" motors
+  <LI> find a solution for <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> which doesn't deliver stable enough ADC conversion results due to the reduced 3.3V voltage range
+  <LI> find a solution for <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> which cannot handle touch sensors properly without heavy CPU load (resp. without an additional external device or microcontroller)
+  <LI> find a solution which is compatible with PIC based projects for best usability
+  <LI> find a solution which is DIY friendly and doesn't require additional gear for something which isn't part of the MBHP yet
+  <LI> find a solution which can be easily tested and troubleshooted (no need to learn new processes)
+</UL>
+
+<P CLASS=DESC>And this module is the result:
+<CENTER><IMG SRC="http://www.ucapps.de/mbhp/mbhp_mf_ng_final1.jpg" WIDTH=550></CENTER>
+
+<UL CLASS=CL>
+  <LI> a dedicated PIC controller controls the motorfaders directly.
+  <LI> the firmware can be updated via MIDI!
+  <LI> motorfaders are accessed via MIDI - this allows standalone usage, cascading (to chain multiple modules), and the re-use of existing infrastructure such as <A HREF="mios.html">MIOS</A>, <A HREF="mios_studio.html">MIOS Studio</A> and <A HREF="mios_bootstrap.html">MIOS Bootloader</A>
+  <LI> the module can either be connected to a PC directly, or controlled from a second PIC or STM32 or LPC17 (note that <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> has a third and even a fourth MIDI IO port at TTL level so that the available two MIDI IO pairs are still free)
+  <LI> native support of various protocols (e.g. PitchBender, CCs, even Logic Control and Mackie Control Emulation)
+  <LI> support for 8 touch sensors
+  <LI> instead of TC4427 I'm using L293D now - not at least because of the integrated diodes.
+  <LI> due to the direct motor control connections, the PIC is now able to generate PWM with 50 uS steps for improved motor speed control while a motor is moved
+  <LI> since the firmware is dedicated for this task, there was enough memory free to integrate advanced features, such as runtime-calibration and motor position tracing which are supported by <A HREF="mios_studio.html">MIOS Studio</A>:
+</UL>
+
+
+<CENTER><IMG SRC="http://www.ucapps.de/mbhp/mbhp_mf_v3_calib.png" WIDTH=701 HEIGHT=681></CENTER>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+  <DD>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A>. The .pdf based schematic has been created with <A HREF="http://opencircuitdesign.com/xcircuit" TARGET="_blank">xcircuit</A>. There are no special eagle schematics available, since components have been netlisted in the .brd file directly!</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_MF_NG</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf_ng.pdf">mbhp_mf_ng.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf_ng_v1.brd">mbhp_mf_ng_v1.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf_ng.png">mbhp_mf_ng.png</A></TD>
+    </TR>
+  </TABLE></DD>
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_mf_ng_orderlist.txt">mbhp_mf_ng_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+  </TABLE></DD>
+</DL>
+
+<P CLASS=DESC>More informations (e.g. recommended motor voltages and fader comparison) will follow soon.
+
+<P CLASS=DESC><A HREF="http://midibox.org/forums/topic/15004-upcoming-mbhp-mf-ng-module/" TARGET="_blank">Link to Forum Thread</A>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Credits </H2></DT>
+  <DD><P CLASS=DESC>Thank-you goes to SmashTV who created the PCB layout and will provide the Kits in his <A HREF="http://www.midibox-shop.com" TARGET="_blank">MIDIbox Shop</A>.
+  </DD>
+</DL>
+
+
+FOOTER
