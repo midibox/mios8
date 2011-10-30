@@ -9,7 +9,7 @@ HEADER 3 MBHP_CORE_LPC17 Module
 <P CLASS=DESC>Main features of the <A HREF="http://www.nxp.com" TARGET="_blank">NXP LPC1769</A> based MBHP_CORE_LPC17 module:
 <UL CLASS=CL>
 <LI> 512k Flash and 64k RAM like <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A>
-<LI> The prebuilt LPCXPRESSO is available for 20 EUR at <A HREF="http://www.embeddedartists.com/products/lpcxpresso/lpc1769_xpr.php" TARGET="_blank">Embedded Artists</A> (+ VAT + shipping - in total ca. 30 EUR with "First Class Mail" option). <B>News:</B> now also available directly in Germany for 24 EUR + Shipping at <A HREF="http://www.watterott.com/de/LPC1769-LPCXpresso" TARGET="_blank">Watterot</A>!<BR>
+<LI> The prebuilt LPCXPRESSO is available for 20 EUR at <A HREF="http://www.embeddedartists.com/products/lpcxpresso/lpc1769_xpr.php" TARGET="_blank">Embedded Artists</A> (+ VAT + shipping - in total ca. 30 EUR with "First Class Mail" option). <B>News:</B> now also available directly in Germany for 24 EUR + Shipping at <A HREF="http://www.watterott.com/de/LPC1769-LPCXpresso" TARGET="_blank">Watterot</A> and in the USA at <A HREF="http://www2.mouser.com/ProductDetail/Embedded-Artists/EA-XPR-003/?qs=S92LKl1JvFyxqKp2Q1rskQ%3d%3d" TARGET="_blank">Mouser (#924-EA-XPR-003)</A>!<BR>
 It will just be attached to the MBHP_CORE_LPC17 PCB
 <LI> Easily available for private persons in small quantities and no SMD soldering skills required
 <LI> ARM Cortex-M3 CPU is widely supported by the GNU toolchain, accordingly source code can be compiled under Windows/Linux/MacOS w/o spending money for an expensive ARM compiler
@@ -186,6 +186,167 @@ If you are planning to use the LPC-Link instead, the 8-pin SIL header should be 
     </TR>
   </TABLE></DD>
   </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the core module:
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>J1</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>Optional connection to a powersupply unit (PSU). A 7V-10V transformer, or a wall adapter could be used. At least 500 mA is recommended, especially if a backlit display is connected. AC or DC doesn't matter, since the rectifier behind J1 converts to DC anyhow. Also the polarity has not to be taken into account.<BR>
+       Note that the prefered solution is to power the module via the USB socket (see below) - in fact J1 only exists due to historical reasons.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J22</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>Alternatively the core module can be supplied via USB (prefered solution).<BR>
+Once multiple LEDs and/or backlit LCDs are connected to the core module, it's recommended to use a "selfpowered" USB Hub like <A HREF="http://www.reichelt.de/USB-Hubs/MAXXTRO-MX-UAP/index.html?;ACTION=3;LA=444;GROUP=EU3;GROUPID=4831;ARTICLE=99781;START=0;SORT=artnr;OFFSET=16;SID=11TVLbZ38AAAIAAG9MIgIec1e46ae3eb4fc2fe4e011f269170227" TARGET="_blank">this one from Reichelt</A>. Advantage: it has a power-switch!<BR>
+Using a hub has another advantage: it can be used to power multiple core modules even when no PC is available - this saves you from buying dedicated PSUs (therefore powering via J1 is obsolete).<BR>
+The USB port provides the "MIDI USB" protocol by default, which works more than 50..100 times faster than a common MIDI IN/OUT connection. Also protocols like "Mass Storage Device" (MSD) to access a SD Card directly from a computer are provided by most MIOS32 based firmwares.<BR>
+Applications can be updated quickly via USB port as <A HREF="mios32_bootstrap_newbies.html">explained here</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J17</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>This jumper enables power supply via USB. Before closing the jumper, ensure that any other supply sources (e.g. at J1 or J2) are removed to avoid shorts or backcurrents to your PC!</TD>
+    </TR>
+
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2><B>When used as +5V output:</B> to supply modules which are not connected to a Jxx port which already provides a 5V output. Note that the 7805 gets very hot when it delivers currents above 500 mA. Maximum current drain is 1A!<BR>
+      <B>When used as +5V input: </B> for supplying the core from an external stabilized Power Supply Unit (PSU). The voltage regulator (IC3) doesn't need to be connected, also the rest of the voltage stabilization circuit between J1 and J2 (X1, C8, C9) can be left out. If the core module (and all connected modules to this branch) drains more than 100 mA, it's recommended to mount C8 directly to J2 (a small cable between the outer soldering pads of the left-out 7805 will do this).</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J3</TD>
+      <TD CLASS=TABCOLOR2>20</TD>
+      <TD CLASS=TABCOLOR2>Standard 20 pin interface to JTAG Wiggler, see <A HREF="mios32_bootstrap_experts.html">this page</A> for details.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J4A</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>IIC port. Interface to <A HREF="mbhp_bankstick.html">BankSticks</A> or to MBHP_IIC_* modules like <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J4B</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>A second IIC port, which can also be used as an additional MIDI IN/OUT port (MIDI IN4/OUT4) if enabled in MIOS32 (add "#define MIOS32_UART_NUM 4" to the mios32_config.h file).<BR>
+MIDI IN4 will be available on the J4B.SC. If a 6N138 based optocoupler circuit should be connected, replace the 2.2k pull-up R10 by 1k, or add a second 2.2k in parallel to get 1.1k effectively.<BR>
+MIDI OUT4 will be available on the J5B.SA pin, it isn't required to remove R11 if already soldered - it doesn't hurt.
+</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J5a/b</TD>
+      <TD CLASS=TABCOLOR2>2*10</TD>
+      <TD CLASS=TABCOLOR2>Analog sources (like pots) can be connected to this port (8 pots maximum). If multiplexed via <A HREF="mbhp_ain.html">AIN module</A>, up to 64 pots can be scanned. There are also some application which use this pin as digital in- or output (mostly described in README.txt file).<BR>
+Alternatively J5 pins can also be used as digital input and/or output pins (MIOS32_BOARD_J5_*, see tutorial applications).
+And J5B.A6 (MIDI IN3) and J5B.A7 (MIDI OUT3) provide an alternative MIDI IO port as well if "#define MIOS32_UART_NUM 3" has been added to the mios32_config.h file (defines the number of UART ports).<BR>
+Sidenote: if MIDI IN4/OUT4 should be enabled, but J5B.A6/A7 should be used for other purposes - e.g. as pot inputs - just write "#define MIOS32_UART_NUM 4" and add "#define MIOS32_UART2_ASSIGNMENT 0" to the mios32_config.h file.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J8/J9</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>DMA driven SPI port which works at 5V level. J8 is the interface to the <A HREF="mbhp_dout.html">DOUT module</A> chain, whereas J9 is the interface to the <A HREF="mbhp_din.html">DIN module</A> chain.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J11</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>NOT PART OF THE MBHP_CORE_LPC17 PCB DUE TO SPACE REASONS!<BR>
+      This port provides two MIDI IOs at TTL level, interface to the <A HREF="mbhp_ltc.html">LED/Thru/COM module</A>. Can also be used to cascade multiple core modules in a MIDI chain (see <A HREF="midibox_link.html">MIDIbox Link</A>). <B>Note:</B> It's possible to distribute the Tx (MIDI Out) signal to multiple cores, but it isn't allowed to connect more than one Tx output to a Rx input. Instead, a <A HREF="midimerger.html">MIDImerger</A> is necessary to combine multiple MIDI IN sources.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J12/J20</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>MIDI OUT port 1 and 2. See the schematic, how to connect a MIDI socket to this port.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J13/J21</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>MIDI IN port 1 and 2. See the schematic, how to connect a MIDI socket to this port.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J15a/b</TD>
+      <TD CLASS=TABCOLOR2>16</TD>
+      <TD CLASS=TABCOLOR2>Interface to one or two <A HREF="mbhp_lcd.html">LC display module(s)</A>.<BR>
+Please note that the pinout is different compared to the <A HREF="mbhp_core.html">MBHP_CORE</A> module!<BR>
+See also special section at the end of this page!
+</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J15_S</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>Allows to select between 5V and 3.3V based LCDs.<BR>
+      For common LCDs (5V based) please stuff the jumper between the middle and 5V pin - the LCD won't be supplied (= won't work) without this jumper!
+</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J16</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>DMA driven SPI port at 3.3V level for <A HREF="mbhp_sdcard.html">SD Card</A> and additional fast serial interfaces in future. Two chip select lines are available, additional chip selects could be provided by other free pins.<BR>
+See the <A HREF="mbhp_sdcard.html">MBHP_SDCARD</A> page for cheap SD Card adapters.
+</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J18</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>CAN interface at TTL level as used by <A HREF="midibox_network.html">MBNet</A>.<BR>
+This port can also be used for measuring frequencies as demonstrated in <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fexamples%2Fcv_autotune%2F" TARGET="_blank">this example</A>.
+</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J19</TD>
+      <TD CLASS=TABCOLOR2>8</TD>
+      <TD CLASS=TABCOLOR2>Interface to application specific module extensions at 5V level like the <A HREF="mbhp_aout.html">AOUT module</A>. Prepared for serial interfaces (although not driven by an integrated SPI), two chip select lines are available, additional select lines can be taken from free pins.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J27</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>Bootloader HOLD Mode jumper. The application will be started when this jumper is <B>NOT</B> connected! Bootloader entry will be forced with connected jumper (fallback solution if the application crashes during initialisation).</TD>
+    </TR>
+
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J28</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>I2S (Audio DAC) Interface as documented at the <A HREF="mbhp_i2s.html">MBHP_I2S</A> page. Can also be used as general purpose IO port with 4 IO pins by using the MIOS32_BOARD_J28* functions.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J10</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>General purpose IO port with 8 pins, accessible via MIOS32_BOARD_J10* functions. Mostly used for the "Standard Control Surface" (SCS, see the appr. tutorial application and <A HREF="mbhp/mbhp_scs_for_j10.pdf">this schematic</A>) to connect buttons and encoders without the need for a DIN Shift Register.</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
 
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Minimal Circuit to get USB running</H2></DT>

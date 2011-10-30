@@ -92,7 +92,7 @@
 	;;   2: up to 4 (chained) MBHP_AOUT_LC modules
 	;;   3: one MBHP_AOUT_NG module
 	;; all other values invalid!
-#define AOUT_INTERFACE_TYPE 2
+#define AOUT_INTERFACE_TYPE 3
 
 	;; only relevant if one or more AOUT_LC modules are used:
 	;; define the resolution configuration here
@@ -122,25 +122,25 @@
 	;; assign the AOUT channels for the F2A (Filter to AOUT function) here
 	;; we have 4 assignments for CutOff Left/Right and Resonance Left/Right
 	;; 0 disables an assignment
-#define DEFAULT_F2A_CUTOFF_L_AOUT	1
-#define DEFAULT_F2A_RESONANCE_L_AOUT	2
-#define DEFAULT_F2A_CUTOFF_R_AOUT	3
-#define DEFAULT_F2A_RESONANCE_R_AOUT	4
+#define DEFAULT_F2A_CUTOFF_L_AOUT	3
+#define DEFAULT_F2A_RESONANCE_L_AOUT	4
+#define DEFAULT_F2A_CUTOFF_R_AOUT	5
+#define DEFAULT_F2A_RESONANCE_R_AOUT	6
 
 	;; assign the AOUT channel for the V2A (Volume to AOUT function) here
 	;; we have two assignments for the left/right SID channel
 	;; 0 disables an assignment
-#define DEFAULT_V2A_VOLUME_L_AOUT	5
-#define DEFAULT_V2A_VOLUME_R_AOUT	6
+#define DEFAULT_V2A_VOLUME_L_AOUT	7
+#define DEFAULT_V2A_VOLUME_R_AOUT	8
 
 	;; assign the AOUT channel for the P2A (Pulsewidth to AOUT function) here
 	;; we have six assignments for all oscillators (left/right channel)
 	;; note that there is a channel conflict between other *2A functions - adaption for your setup required!
 	;; 0 disables an assignment
-#define DEFAULT_P2A_OSC1_L_AOUT		5
+#define DEFAULT_P2A_OSC1_L_AOUT		0
 #define DEFAULT_P2A_OSC2_L_AOUT		0
 #define DEFAULT_P2A_OSC3_L_AOUT		0
-#define DEFAULT_P2A_OSC1_R_AOUT		6
+#define DEFAULT_P2A_OSC1_R_AOUT		0
 #define DEFAULT_P2A_OSC2_R_AOUT		0
 #define DEFAULT_P2A_OSC3_R_AOUT		0
 
@@ -148,10 +148,10 @@
 	;; we have six assignments for all oscillators (left/right channel)
 	;; note that there is a channel conflict between other *2A functions - adaption for your setup required!
 	;; 0 disables an assignment
-#define DEFAULT_K2A_OSC1_L_AOUT		7
+#define DEFAULT_K2A_OSC1_L_AOUT		1
 #define DEFAULT_K2A_OSC2_L_AOUT		0
 #define DEFAULT_K2A_OSC3_L_AOUT		0
-#define DEFAULT_K2A_OSC1_R_AOUT		8
+#define DEFAULT_K2A_OSC1_R_AOUT		2
 #define DEFAULT_K2A_OSC2_R_AOUT		0
 #define DEFAULT_K2A_OSC3_R_AOUT		0
 
@@ -160,10 +160,10 @@
 	;; note that there is a channel conflict between other *2A functions - adaption for your setup required!
 	;; note also, that with O2A enabled, the connected SIDs won't output the correct frequencies anymore
 	;; 0 disables an assignment
-#define DEFAULT_O2A_OSC1_L_AOUT		7
+#define DEFAULT_O2A_OSC1_L_AOUT		1
 #define DEFAULT_O2A_OSC2_L_AOUT		0
 #define DEFAULT_O2A_OSC3_L_AOUT		0
-#define DEFAULT_O2A_OSC1_R_AOUT		8
+#define DEFAULT_O2A_OSC1_R_AOUT		2
 #define DEFAULT_O2A_OSC2_R_AOUT		0
 #define DEFAULT_O2A_OSC3_R_AOUT		0
 
