@@ -509,8 +509,12 @@ USER_MIDI_NotifyRx_Clk
 USER_MIDI_NotifyRx_NoClk
 
 	;; if MIDI start: notify start
-	movlw	0xfa
-	cpfseq	IRQ_TMP1, ACCESS
+	movf	IRQ_TMP1, W
+	xorlw	0xfa
+	bz	USER_MIDI_NotifyRx_Start
+	xorlw	0xf2 ^ 0xfa		; quick&dirty: reset divider on song position change as well
+	bz	USER_MIDI_NotifyRx_Start ; normaly we should parse the new position as well, but for
+					; most common cases (interaction with DAW) this is sufficient
 	rgoto USER_MIDI_NotifyRx_NoStart
 USER_MIDI_NotifyRx_Start
 	bsf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FA_REQ, BANKED

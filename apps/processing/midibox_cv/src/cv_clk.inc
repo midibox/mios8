@@ -200,8 +200,12 @@ CV_CLK_NotifyRx_Clk_IP
 
 CV_CLK_NotifyRx_NoClk
 
-	movlw	0xfa
-	cpfseq	IRQ_TMP1, ACCESS
+	movf	IRQ_TMP1, W
+	xorlw	0xfa
+	bz	CV_CLK_NotifyRx_Start
+	xorlw	0xf2 ^ 0xfa		; quick&dirty: reset divider on song position change as well
+	bz	CV_CLK_NotifyRx_Start	; normaly we should parse the new position as well, but for
+					; most common cases (interaction with DAW) this is sufficient
 	rgoto CV_CLK_NotifyRx_NoStart
 CV_CLK_NotifyRx_Start
 	clrf	CV_CLK_DIVIDER, BANKED	; clear clock divider (!)

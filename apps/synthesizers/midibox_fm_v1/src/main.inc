@@ -298,6 +298,13 @@ USER_MIDI_NotifyRx
 	skpnz
 	bsf	INDF2, MBFM_MIDI_SYNC_FA
 
+	;; quick&dirty: reset divider on song position change as well
+	;; normaly we should parse the new position as well, but for
+	;; most common cases (interaction with DAW) this is sufficient
+	xorlw	0xf2 ^ 0xfa
+	skpnz
+	bsf	INDF2, MBFM_MIDI_SYNC_FA
+
 	return
 
 ;; --------------------------------------------------------------------------
