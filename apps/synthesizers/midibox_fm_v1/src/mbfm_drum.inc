@@ -187,7 +187,7 @@ MBFM_DRUM_SetBDFrq
 	return
 
 ;; --------------------------------------------------------------------------
-;;  This function sets the SD frequency
+;;  This function sets the HH/SD frequency
 ;;  frq in WREG
 ;; --------------------------------------------------------------------------
 MBFM_DRUM_SetHHFrq
@@ -204,7 +204,7 @@ MBFM_DRUM_SetHHFrq
 	return
 
 ;; --------------------------------------------------------------------------
-;;  This function sets the TOM frequency
+;;  This function sets the TOM/Cymbal frequency
 ;;  frq in WREG
 ;; --------------------------------------------------------------------------
 MBFM_DRUM_SetTOMFrq

@@ -11,6 +11,7 @@
 ; 
 ; ==========================================================================
 
+	
 ;; --------------------------------------------------------------------------
 ;;  This function is called by USER_MIDI_NotifyReceivedEvent when a complete 
 ;;  MIDI event has been received
@@ -144,7 +145,7 @@ MBFM_MIDI_NoteOn_Loop_Next
 MBFM_MIDI_NoteOff
 #if 0
 	;; drum special
-	;; NOTE REQUIRED ANYMORE, WE WORK WITH TRIGGER REQUESTS NOW
+	;; NOT REQUIRED ANYMORE, WE WORK WITH TRIGGER REQUESTS NOW
 	movf	MBFM_DRUM_MIDI_CHANNEL, W, BANKED
 	cpfseq	MBFM_CURRENT_CHANNEL, BANKED
 	rgoto MBFM_MIDI_NoteOffNoDrum
@@ -975,6 +976,15 @@ MBFM_MIDI_DrumOn_NotHHC
 
 	BRA_IFCLR TMP1, 3, ACCESS, MBFM_MIDI_DrumOn_NotSD
 MBFM_MIDI_DrumOn_SD
+#if DEFAULT_DRUM_SD_CHANGES_HH_OP
+	movf	MBFM_DR_SD_SPLIT_LOWER, W, BANKED
+	subwf	MBFM_MIDI_PARAMETER1, W, BANKED
+	addwf	MBFM_DR_HH_FRQ, W, BANKED
+	call	MBFM_DRUM_SetHHFrq
+
+	;; switch the remaining parameters to "SD"
+	bsf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_SD
+#endif
 	movff	MBFM_DR_SD_KSL_TL, PRODL
 	movlw	0x54
 	rcall	MBFM_MIDI_DrumOn_Hlp_Vol

@@ -264,6 +264,39 @@ MBFM_REG_Update_HHClose
 	rcall	MBFM_REG_WaitOPL
 MBFM_REG_Update_NotHHClose
 
+#if DEFAULT_DRUM_SD_CHANGES_HH_OP
+	;; note: SD will overwrite HH registers of OPL3!!!
+	BRA_IFCLR MBFM_UPDATE_DR, MBFM_UPDATE_DR_SD, BANKED, MBFM_REG_Update_NotSD
+MBFM_REG_Update_SD
+	bcf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_SD, BANKED
+	movlw	0x31
+	movwf	MIOS_PARAMETER1
+	movf	MBFM_DR_SD_FLAGS_MULT, W
+	rcall	MBFM_REG_Write
+	rcall	MBFM_REG_WaitOPL
+
+	;; KSL_TL already set
+	
+	movlw	0x71
+	movwf	MIOS_PARAMETER1
+	movf	MBFM_DR_SD_AR_DR, W
+	rcall	MBFM_REG_Write
+	rcall	MBFM_REG_WaitOPL
+
+	movlw	0x91
+	movwf	MIOS_PARAMETER1
+	movf	MBFM_DR_SD_SL_RR, W
+	rcall	MBFM_REG_Write
+	rcall	MBFM_REG_WaitOPL
+
+	movlw	0xf1
+	movwf	MIOS_PARAMETER1
+	movf	MBFM_DR_SD_WS, W
+	rcall	MBFM_REG_Write
+	rcall	MBFM_REG_WaitOPL
+MBFM_REG_Update_NotSD
+#endif
+
 	BRA_IFCLR MBFM_UPDATE_DR, MBFM_UPDATE_DR_GATES, BANKED, MBFM_REG_Update_NotGates
 MBFM_REG_Update_Gates
 	bcf	MBFM_UPDATE_DR, MBFM_UPDATE_DR_GATES, BANKED

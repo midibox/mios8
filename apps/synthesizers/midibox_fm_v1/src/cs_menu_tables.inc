@@ -373,9 +373,9 @@ CS_MENU_TABLE_FRQ
 	;;              Register (00=dummy)        |<-->|  max   print ix,         exec ix          parameter transfer
 	CS_MENU_ENTRY	MBFM_PDx_BD_FRQ,           "BD F", 0x7f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_BD_FRQ_DECR,      "Decr", 0x7f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
-	CS_MENU_ENTRY	MBFM_PDx_HH_FRQ,           "HH F", 0x7f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
+	CS_MENU_ENTRY	MBFM_PDx_HH_FRQ,           "S/HH", 0x7f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_HH_FRQ_DECR,      "Decr", 0x7f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
-	CS_MENU_ENTRY	MBFM_PDx_TOM_FRQ,          "TomF", 0x7f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
+	CS_MENU_ENTRY	MBFM_PDx_TOM_FRQ,          "T/Cy", 0x7f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 	CS_MENU_ENTRY	MBFM_PDx_TOM_FRQ_DECR,     "Decr", 0x7f, PRINT_Px_DEC,     EXEC_SELPAR,     R2PP2R_Px
 CS_MENU_TABLE_FRQ_End
 

@@ -102,6 +102,9 @@
 	;; experimental superpoly mode (currently hard-coded to save programming effort)
 #define SUPERPOLY_EXPERIMENT 0
 
+	;; experimental option: HiHat parameters are changed when snare drum is played, since both instruments share the same operators
+#define DEFAULT_DRUM_SD_CHANGES_HH_OP 1
+
 
 ;; --------------------------------------------------------------------------
 ;; In this table DIN pins have to be assigned to rotary encoders for the
