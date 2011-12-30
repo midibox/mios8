@@ -152,6 +152,36 @@ If you are planning to use the LPC-Link instead, the 8-pin SIL header should be 
   </DD>
 </DL>
 
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> IMPORTANT: Preparations if LPC-Link not separated</H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+    <TR>
+      <TD CLASS=TABCOLOR2 COLSPAN=2>
+        If you decided not to separate the LPC-Link from the LPCXpresso module, it's mandatory to cut the 3.3V line from the two parts!<BR>
+        <B>As long as the 3.3V is connected to the LPCXpresso, the core module won't boot!!!</B>
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_prepare_withlink.jpg"><IMG SRC="mbhp/mbhp_core_lpc17_prepare_withlink.jpg" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>You could use a knife or a screwdriver to do this. Note that the 8-pin SIL header and the JTAG socket don't have to be stuffed as well if the LPC-Link is available. On the other hand you don't need to remove them to get the core module working!<BR>
+      (click on picture to enlarge)
+      </TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2 COLSPAN=2>
+      Background: the 3.3V line between LPC-Link and target powers the core if an USB cable is connected to the LPC-Link module.<BR>
+      But usually we want to power the core from the USB socket of the MBHP_CORE_LPC17 module. As long as the 3.3V connection is available, the LPC-Link will be powered as well, and it forces the LPC1769 chip into reset as long as no debugger connection has been opened by the LPCXpresso IDE.<BR>
+      Once the MIOS32 Bootloader has been programmed, you don't need to use this IDE anymore to program an application, therefore the 3.3V connection can be safely removed.
+      </TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+
 <DL>
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
    <DD>
@@ -477,6 +507,20 @@ Finally plug the ICs into the sockets:
 Note: 74HCT595 not available at Reichelt - take 74HC595 instead, it will work properly anyhow!
 <LI>IC4, IC5 = 6N138
 </UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2 COLSPAN=2>
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_prepare_withlink.jpg"><IMG SRC="mbhp/mbhp_core_lpc17_prepare_withlink.jpg" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>
+        If you decided not to separate the LPC-Link from the LPCXpresso module, it's mandatory to cut the 3.3V line from the two parts!<BR>
+        <B>As long as the 3.3V is connected to the LPCXpresso, the core module won't boot!!!</B><BR>
+        You could use a knife or a screwdriver to do this. Note that the 8-pin SIL header and the JTAG socket don't have to be stuffed as well if the LPC-Link is available. On the other hand you don't need to remove them to get the core module working!<BR>
+      (click on picture to enlarge)
       </TD>
     </TR>
 
