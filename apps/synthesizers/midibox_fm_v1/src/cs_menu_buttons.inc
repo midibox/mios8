@@ -73,7 +73,7 @@ CS_MENU_BUTTON_Dec
 	movf	MIOS_PARAMETER1, W
 	call	MIOS_DIN_PinAutoRepeatEnable
 	;; decrement 1
-	movlw	0xff
+	movlw	-1
 #if CS_SAMMICH_FM
 	;; branch if mainpage is displayed
 	GOTO_IFSET CS_MENU, 7, ACCESS, CS_MENU_BUTTON_Dec_End
@@ -84,9 +84,17 @@ CS_MENU_BUTTON_Dec
 
 	;; set SOURCE_BUTTON flag, so we can determine that it's a 
 	;; button triggering this event
-	bsf		SAMMICH_FLAGS, SOURCE_BUTTON
+	bsf	SAMMICH_FLAGS, SOURCE_BUTTON
 
 	;; decrement to the next value where x mod 4 = 0
+	;; (not in drum menu)
+	movf	CS_MENU, W
+	xorlw	CS_MENU_DRUM
+	bnz	CS_MENU_BUTTON_Dec_NotDrumPage
+	movlw	-1
+	rgoto	CS_MENU_BUTTON_Dec_End
+
+CS_MENU_BUTTON_Dec_NotDrumPage
 	decf 	CS_MENU_PAGE_OFFSET, W
 	btfsc	W, 7
 	movlw   0
@@ -110,7 +118,7 @@ CS_MENU_BUTTON_Inc
 	movlw	0x01
 #if CS_SAMMICH_FM
 	;; branch if mainpage is displayed
-	GOTO_IFSET CS_MENU, 7, ACCESS, CS_MENU_BUTTON_Dec_End
+	GOTO_IFSET CS_MENU, 7, ACCESS, CS_MENU_BUTTON_Inc_End
 
 	;; if we're editing a parameter...
 	btfsc	CS_STAT, CS_STAT_MODIFY_PARAMETER
@@ -119,11 +127,20 @@ CS_MENU_BUTTON_Inc
 	
 	;; set SOURCE_BUTTON flag, so we can determine that it's a 
 	;; button triggering this event
-	bsf		SAMMICH_FLAGS, SOURCE_BUTTON
+	bsf	SAMMICH_FLAGS, SOURCE_BUTTON
 	
 	;; prepare increment and so on
 	bsf	MIOS_PARAMETER1, 0
+
 	;; set incrementer to next page mod 4
+	;; (not in drum menu)
+	movf	CS_MENU, W
+	xorlw	CS_MENU_DRUM
+	bnz	CS_MENU_BUTTON_Inc_NotDrumPage
+	movlw	0x01
+	rgoto	CS_MENU_BUTTON_Inc_End
+
+CS_MENU_BUTTON_Inc_NotDrumPage
 	movf 	CS_MENU_PAGE_OFFSET, W
 	andlw	0x03
 	sublw	4
