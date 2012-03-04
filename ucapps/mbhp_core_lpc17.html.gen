@@ -29,7 +29,7 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
 
 <P CLASS=DESC>Ok, enough praises for this nice toy. Here a list of issues/imperfections that I don't really like:
 <UL CLASS=CL>
-<LI> ADCs cannot be supplied at 5V, 3.3V is the limit. This decreases the signal/noise ratio
+<LI> ADCs cannot be supplied at 5V, 3.3V is the limit. This decreases the signal/noise ratio. The <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module helps to overcome this by using an external 5V ADC.
 <LI> all DMA channels share a single interrupt. Request flags have to be checked by the interrupt handler, this consumes some cycles (however, the high CPU frequency somehow compensates this drawback)
 <LI> DMA doesn't support decrement address function, so that SRIO (serial shift register input and output) streams have to be reversed by software.
 <LI> output pins can't be used in open drain mode if a peripheral function like SPI or UART is assigned to it. This seems to be a design bug, because it isn't mentioned in the user manual (in distance: the description of the IO configuration implies that it should work, but it doesn't) - NXP support contacted, no reply yet!
@@ -284,7 +284,7 @@ MIDI OUT4 will be available on the J5B.SA pin, it isn't required to remove R11 i
     <TR>
       <TD CLASS=TABCOLOR2>J5a/b</TD>
       <TD CLASS=TABCOLOR2>2*10</TD>
-      <TD CLASS=TABCOLOR2>Analog sources (like pots) can be connected to this port (8 pots maximum). If multiplexed via <A HREF="mbhp_ain.html">AIN module</A>, up to 64 pots can be scanned. There are also some application which use this pin as digital in- or output (mostly described in README.txt file).<BR>
+      <TD CLASS=TABCOLOR2>Analog sources (like pots) can be connected to this port (8 pots maximum). If more analog pins should be scanned, please use the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module! There are also some application which use this pin as digital in- or output (mostly described in README.txt file).<BR>
 Alternatively J5 pins can also be used as digital input and/or output pins (MIOS32_BOARD_J5_*, see tutorial applications).
 And J5B.A6 (MIDI IN3) and J5B.A7 (MIDI OUT3) provide an alternative MIDI IO port as well if "#define MIOS32_UART_NUM 3" has been added to the mios32_config.h file (defines the number of UART ports).<BR>
 Sidenote: if MIDI IN4/OUT4 should be enabled, but J5B.A6/A7 should be used for other purposes - e.g. as pot inputs - just write "#define MIOS32_UART_NUM 4" and add "#define MIOS32_UART2_ASSIGNMENT 0" to the mios32_config.h file.</TD>
@@ -351,7 +351,7 @@ This port can also be used for measuring frequencies as demonstrated in <A HREF=
     <TR>
       <TD CLASS=TABCOLOR2>J19</TD>
       <TD CLASS=TABCOLOR2>8</TD>
-      <TD CLASS=TABCOLOR2>Interface to application specific module extensions at 5V level like the <A HREF="mbhp_aout.html">AOUT module</A>. Prepared for serial interfaces (although not driven by an integrated SPI), two chip select lines are available, additional select lines can be taken from free pins.</TD>
+      <TD CLASS=TABCOLOR2>Interface to application specific module extensions at 5V level like the <A HREF="mbhp_ainser64.html">AINSER64</A> and <A HREF="mbhp_aout.html">AOUT</A> module. Prepared for serial interfaces (although not driven by an integrated SPI), two chip select lines are available, additional select lines can be taken from free pins.</TD>
     </TR>
 
     <TR>
@@ -550,7 +550,8 @@ Note: 74HCT595 not available at Reichelt - take 74HC595 instead, it will work pr
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Special Guide: Connecting a 2x20 (or 2x40) LCD</H2></DT>
   <DD>
   <P CLASS=INFO>The pinning of the 2x8 LCD connectors J15A and J15B is mirrored to simplify the cabling of common 2x20 and 2x40 displays (and partly due to historical reasons - it's originated from the so called "UltraPCB").<BR>
-Note also that in difference to the MBHP_CORE_STM32 module, the J15 ports have been rotaed by 180 degrees! But the polarity is the same, which means that you can re-use the LCD cables which you made for the MBHP_CORE_STM32 module.<BR>
+Note also that in difference to the MBHP_CORE_STM32 module, the J15 ports have been rotated by 180 degrees! But the polarity is the same, which means that you can re-use the LCD cables which you made for the MBHP_CORE_STM32 module.<BR>
+J15 Pin 1 (labeled with Vs) goes to Pin 1 of the LCD (normaly named "Vss").<BR>
 Following pictures illustrate the orientation of the IDC connectors:
 <P><CENTER><IMG SRC="mbhp/mbhp_core_lpc17_lcd1.jpg" width=550 height=403></CENTER></P>
 <P><CENTER><IMG SRC="mbhp/mbhp_core_lpc17_lcd2.jpg" width=550 height=403></CENTER></P>

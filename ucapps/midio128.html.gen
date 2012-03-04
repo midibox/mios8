@@ -11,8 +11,8 @@ It can also be used for other purposes of course - whenever you are planning to 
 <LI> up to 16 8bit input shift registers (=128 pins, =4 x <A HREF="mbhp_din.html">MBHP_DINX4 modules)</A>
 <LI> up to 16 8bit output shift registers (=128 pins, =4 x <A HREF="mbhp_din.html">MBHP_DOUTX4 modules)</A>
 <LI> up to 16 scan matrices for up to 1024 pins/keys
-<LI> up to 8 pots/faders</A>
-<LI> 2 MIDI IN ports and 2 MIDI OUT ports
+<LI> up to 8 pots/faders directly connected to the core
+<LI> up to 128 pots/faders connected to up to two <A HREF="mbhp_ainser64.html">MBHP_AINSER64 modules</A>.
 <LI> USB MIDI port with much higher transfer rate (ca. 100x faster!) than common MIDI
 <LI> Ethernet port to send/receive events via <A HREF="http://opensoundcontrol.org" TARGET="_blank">OSC</A>
 <LI> support for DHCP - connect the module to a wireless router without additional configuration
@@ -60,9 +60,14 @@ It can also be used for other purposes of course - whenever you are planning to 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Pots/Faders </H2>
 
-<P CLASS=INFO>Up to 8 pots/faders can be connected to J5A/B of the MBHP_CORE_LPC17 module as shown in the <a href="midio128/midio128_v3_interconnections.pdf">interconnection diagram</A>.</P>
+<P CLASS=INFO>Up to 8 pots/faders can be directly connected to J5A/B of the MBHP_CORE_LPC17 module as shown in the <a href="midio128/midio128_v3_interconnections.pdf">interconnection diagram</A>.</P>
 
-<P CLASS=INFO>The resistor value should be in the range of 1k..10k. It's recommended to connect 100 pF caps from the wiper to ground to get stable conversion values. The cable between pot and J5 port shouldn't be longer than 0.5m if 10k pots are used. With a shielded cable and 1k pots the allowed length is up to 2m.</P>
+<P CLASS=INFO>The resistor value should be in the range of 1k..10k. The cable between pot and J5 port shouldn't be longer than 0.5m if 10k pots are used. With a shielded cable and 1k pots the allowed length is up to 2m.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> More Pots/Faders </H2>
+
+<P CLASS=INFO>Up to 128 pots/faders can be scanned by using one or two <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> modules. The MIDIO128 firmware allows to configure individual MIDI events and Port routings for each analog input.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Installation </H2>
@@ -304,6 +309,7 @@ OSC packets are sent to the path "/midi1" ... "/midi4" depending on the OSC port
       <LI><B>Note Events:</B> /&lt;chn&gt;/note &lt;key-number&gt; &lt;velocity&gt;
       <LI><B>Polypressure Events:</B> /&lt;chn&gt;/polypressure &lt;key-number&gt; &lt;velocity&gt;
       <LI><B>CC Events:</B> /&lt;chn&gt;/cc &lt;cc-number&gt; &lt;cc-value&gt;
+      <LI><B>NRPN Events:</B> /&lt;chn&gt;/nrpn &lt;nrpn-number&gt; &lt;14bit-value&gt;
       <LI><B>Program Change Events:</B> /&lt;chn&gt;/programchange &lt;program-number&gt;
       <LI><B>Aftertouch Events:</B> /&lt;chn&gt;/aftertouch &lt;key-number&gt;
       <LI><B>Pitchbend Events:</B> /&lt;chn&gt;/pitchbend &lt;pitch&gt;

@@ -5,7 +5,7 @@
 ;
 MBCV_VERSION_STR MACRO
 ; Version:                 <-------------->
-	STRING	16, 0x00, "MIDIbox CV V1.2b"
+	STRING	16, 0x00, "MIDIbox CV V1.3 "
 	ENDM
 ; (fixed string length - 16 characters!)
 ;

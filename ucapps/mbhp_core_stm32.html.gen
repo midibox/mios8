@@ -34,7 +34,7 @@ HEADER 3 MBHP_CORE_STM32 Module
 <LI> USB and CAN interface cannot be used in parallel, since they share the same memory
 <LI> no ROM based USB Bootloader, so that the MIOS32 Bootloader can only be flashed via JTAG or RS232
 <LI> Pin mapping suboptimal in some cases. E.g., the two DAC outputs overlay SPI1 pins, which are used to access a SD card. SRIO chain has to use SPI1 instead of SPI2 if I2S based DAC should be connected, or JTAG pins have to be used for I2S, which limits the debugging capabilities
-<LI> ADCs cannot be supplied at 5V, 3.3V is the limit. This decreases the signal/noise ratio
+<LI> ADCs cannot be supplied at 5V, 3.3V is the limit. This decreases the signal/noise ratio. The <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module helps to overcome this by using an external 5V ADC.
 <LI> DMA doesn't support decrement address function, so that SRIO (serial shift register input and output) streams have to be reversed by software.
 <LI> I2C peripheral has conceptional flaws which requires the usage of high priority interrupts to prevent corrupted transfers
 </UL>
@@ -136,7 +136,7 @@ Applications can be updated via USB port, it's the <A HREF="mios32_bootstrap_new
     <TR>
       <TD CLASS=TABCOLOR2>J5a/b/c</TD>
       <TD CLASS=TABCOLOR2>3*10</TD>
-      <TD CLASS=TABCOLOR2>Analog sources (like pots) can be connected to this port (12 pots maximum). If multiplexed via <A HREF="mbhp_ain.html">AIN module</A>, up to 96 pots can be scanned. There are also some application which use this pin as digital in- or output (mostly described in README.txt file).</TD>
+      <TD CLASS=TABCOLOR2>Analog sources (like pots) can be connected to this port (12 pots maximum). If more analog pins should be scanned, please use the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module! There are also some application which use this pin as digital in- or output (mostly described in README.txt file).</TD>
     </TR>
 
     <TR>
@@ -190,7 +190,7 @@ Please note, that STM32 doesn't allow to use CAN and USB at the same time, since
     <TR>
       <TD CLASS=TABCOLOR2>J19</TD>
       <TD CLASS=TABCOLOR2>8</TD>
-      <TD CLASS=TABCOLOR2>Interface to application specific module extensions like the <A HREF="mbhp_sid.html">SID module</A> and/or <A HREF="mbhp_aout.html">AOUT module</A>. Prepared for serial interfaces (although not driven by an integrated SPI), two chip select lines are available, additional select lines can be taken from free pins.</TD>
+      <TD CLASS=TABCOLOR2>Interface to application specific module extensions like the <A HREF="mbhp_ainser64.html">AINSER64</A> and <A HREF="mbhp_aout.html">AOUT</A> module. Prepared for serial interfaces (although not driven by an integrated SPI), two chip select lines are available, additional select lines can be taken from free pins.</TD>
     </TR>
 
     <TR>

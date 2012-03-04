@@ -1,7 +1,7 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2011-11-06</H3></CENTER>
+<CENTER><H3>Last Release: 2012-02-12</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
@@ -9,6 +9,87 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 
 <UL CLASS=CL>
 
+<LI><I>V4.057</I>
+  <UL CLASS=CL>
+   <LI>improved MIDI OUT throughput for LPC17
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.056</I>
+  <UL CLASS=CL>
+   <LI> pattern page: the ALL button now allows to change all patterns 
+     to the same number at once (banks won't be influenced by ALL button).
+     
+   <LI> the ALL function will always be turned off when changing to another page.
+   
+   <LI> song page: the previously "Stop" action has been renamed to "End" - it doesn't
+     stop the sequencer anymore, instead it only exits song mode and loops the
+     current pattern set endless (e.g. to fade out or as bridge before you select
+     the next song).
+     
+   <LI> song page: press SELECT+GP16 to take over the current pattern set into the
+     selected song position - this function can be used for quick song/phrase edits.
+     
+   <LI> song page: in song mode it's now possible to select a phrase with GP buttons
+     (like in Phrase mode).<BR>
+     Difference: the song positions will be played until they are looping or "End"
+     is reached. This allows to split a song into multiple parts which are 
+     interactively selected.
+
+   <LI> song page: Fwd/Rwd button change also the edit position in song page
+ 
+   <LI> if the sequencer is started in song page, the song will directly jump to the
+     current edit position
+
+   <LI> the main page now displays the effective BPM. If in slave mode, the received
+     BPM will be displayed.
+     
+   <LI> the BPM digit display shows the received BPM in slave mode.
+   
+   <LI> new layer type: program change
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.055</I>
+  <UL CLASS=CL>
+   <LI> LPC17 build: optimized MIDI IN handling
+
+   <LI> LPC17 build: MIDI clock can now be received over MIDI IN1..4
+
+   <LI> SysEx forwarding via MIDI router working (again)
+
+   <LI> MIDI router supports 16 nodes now! (previously only 8)
+
+   <LI> fixed bug in PitchBender Editing mode
+
+   <LI> added new MIOS terminal commands:
+     <UL CLASS=CL>
+       <LI> display network informations, modify network and OSC settings
+       <LI> display MIDI router informations, modify MIDI router settings
+       <LI> change BLM port remotely
+       <LI> "store" and "restore" the session remotely
+     </UL>
+
+   <LI> BLM now supports Lemur on iPad<BR>
+     Example configuration (we assume that iPad IP address is 192.168.1.110):
+     <UL CLASS=CL>
+       <LI> set osc_remote 3 192.168.1.110
+       <LI> set osc_local_port 3 8000
+       <LI> set osc_remote_port 3 8000
+       <LI> set osc_mode 3 1
+       <LI> set blm_port OSC3
+       <LI> store
+     </UL>
+     (the commands can be entered in MIOS terminal).<BR>
+     On your iPad, set the IP address of your MIDIbox with port 8000
+
+   <LI> BLM now allows to record MIDI notes in the keyboard page
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.054</I>
   <UL CLASS=CL>
    <LI> in edit page the datawheel can now be used for different purposes:
