@@ -791,12 +791,12 @@ CS_MENU_PRINT_LFOx_RATE
 
 	;; prepare TBLPTR[LH]
 	TABLE_ADDR CS_MENU_PRINT_LFOx_RATE_Tab
-	;; if clock sync activated, and rate >= 245, print period length
 	movlw	(SID_Ix_LFOx_MODE-SID_Ix_LFOx_RATE)
 	BRA_IFCLR PLUSW0, SID_I_LFO_MODE_CLKSYNC, ACCESS, CS_MENU_PRINT_LFOx_RATE_Dec
-	movf	INDF0, W
-	addlw	-245
-	bnc	CS_MENU_PRINT_LFOx_RATE_Dec
+	rrf	INDF0, W
+	rrf	WREG, W
+	rrf	WREG, W
+	andlw	0x1f
 CS_MENU_PRINT_LFOx_RATE_Str
 	rgoto	CS_MENU_PRINT_StringFromTable
 	
@@ -2139,17 +2139,38 @@ CS_MENU_PRINT_LFOx_WAV_Tab
 	dw	"PPl "
 
 CS_MENU_PRINT_LFOx_RATE_Tab
-	dw	"64/1"
-	dw	"32/1"
-	dw	"16/1"
-	dw	"8/1 "
-	dw	"4/1 "
-	dw	"2/1 "
-	dw	"1/1 "
+	dw	"--- "
+	dw	"16b "
+	dw	"14b "
+	dw	"12b "
+	dw	"10b "
+	dw	" 9b "
+	dw	" 8b "
+	dw	" 7b "
+	dw	" 6b "
+	dw	" 5b "
+	dw	" 4b "
+	dw	"3.5b"
+	dw	" 3b "
+	dw	"2.5b"
+	dw	" 2b "
+	dw	"1.5b"
+	dw	" 1b "
+	dw	"1/2D"
+	dw	"1/1T"
 	dw	"1/2 "
+	dw	"1/4D"
+	dw	"1/2T"
 	dw	"1/4 "
+	dw	"1/8D"
+	dw	"1/4T"
 	dw	"1/8 "
-	dw	"1/16"
+	dw	"/16D"
+	dw	"1/8T"
+	dw	"/16 "
+	dw	"/32D"
+	dw	"/16T"
+	dw	"/32 "
 
 CS_MENU_PRINT_ENVx_Loop_Tab
 	dw	"--- "

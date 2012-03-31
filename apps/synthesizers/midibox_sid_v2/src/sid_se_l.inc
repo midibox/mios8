@@ -784,6 +784,18 @@ SIDSE_L_LFO_Restart
 	call	MIOS_HLP_GetBitANDMask
 	andwf	SID_SE_LFO_OVERRUN, F, BANKED
 
+	;; delay counter used as clock counter in CLKSYNC mode
+	movlw	SID_Ix_LFOx_MODE
+	BRA_IFCLR PLUSW0, SID_I_LFO_MODE_CLKSYNC, ACCESS, SIDSE_L_LFO_Restart_NoClkSync
+SIDSE_L_LFO_Restart_ClkSync
+	movlw	SID_LFOx_DELAY_CTR_L
+	clrf	PLUSW1
+	movlw	SID_LFOx_DELAY_CTR_H
+	clrf	PLUSW1
+	;; continue at waveform calculation
+	rgoto	SIDSE_L_LFO_Restart_Cont
+
+SIDSE_L_LFO_Restart_NoClkSync
 	;; check if LFO should be delayed - set delay counter to 0x0001 in this case, else to 0x0000
 	movlw	SID_LFOx_DELAY_CTR_H	; high byte always reset to 0
 	clrf	PLUSW1
@@ -814,6 +826,10 @@ SIDSE_L_LFO_Disabled
 	rgoto	SIDSE_L_LFO_End
 SIDSE_L_LFO_Enabled
 
+	;; delay counter used as clock counter in CLKSYNC mode
+	movlw	SID_Ix_LFOx_MODE
+	BRA_IFCLR PLUSW0, SID_I_LFO_MODE_CLKSYNC, ACCESS, SIDSE_L_LFO_SkipDelay
+
 	;; temporary shift FSR1 to SID_LFOx_DELAY_CTR_L for easier handling
 	movlw	SID_LFOx_DELAY_CTR_L
 	addwf	FSR1L, F
@@ -841,6 +857,7 @@ SIDSE_L_LFO_DelayOv
 SIDSE_L_LFO_NoDelay
 	movlw	-SID_LFOx_DELAY_CTR_L	; switch back to SID_LFOx_CTR_L
 	addwf	FSR1L, F
+SIDSE_L_LFO_SkipDelay
 
 	;; implementation: a LFO is just a 16bit ramp which is mapped to a waveform
 
@@ -866,9 +883,6 @@ SIDSE_L_LFO_NoOneShotChk
 	BRA_IFCLR PLUSW0, SID_I_LFO_MODE_CLKSYNC, ACCESS, SIDSE_L_LFO_NoClkSync
 SIDSE_L_LFO_ClkSync
 	BRA_IFCLR SID_SE_STATE, SID_SE_STATE_GLOBAL_CLK_EVENT, BANKED, SIDSE_L_LFO_NoClk_Cont
-	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
-	andlw	0x0f
-	bnz	SIDSE_L_LFO_NoClk_Cont
 SIDSE_L_LFO_NoClkSync
 
 	;; increment 16bit counter by given rate
@@ -907,16 +921,49 @@ SIDSE_L_LFO_Rate_SatNeg_Sat
 SIDSE_L_LFO_RateNeg_Sat_Cont
 SIDSE_L_LFO_RateNeg_NoSat
 
-	;; if LFO synched via clock, replace 245-255 by MIDI clock optimized incrementers
 	movlw	SID_Ix_LFOx_MODE
 	BRA_IFCLR PLUSW0, SID_I_LFO_MODE_CLKSYNC, ACCESS, SIDSE_L_LFO_Rate_NoClkSync
 SIDSE_L_LFO_Rate_ClkSync
-	movf	IRQ_TMP1, W
-	addlw	-245
-	bnc	SIDSE_L_LFO_Rate_NoClkSyncValues
-	TABLE_ADDR_MUL_W SID_LFO_TABLE_MCLK, 2
+	rrf	IRQ_TMP1, W
+	rrf	WREG, W
+	rrf	WREG, W
+	andlw	0x1f
+	TABLE_ADDR_MUL_W SID_LFO_TABLE_MCLK, 4
+
+	;; switch to SID_LFOx_DELAY_CTR_[LH]
+	movlw	SID_LFOx_DELAY_CTR_L-SID_LFOx_CTR_L
+	addwf	FSR1L, F
+	incf	POSTINC1, F	; SID_LFOx_DELAY_CTR_L
+	skpnz
+	incf	INDF1, F	; SID_LFOx_DELAY_CTR_H
+	decf	FSR1L, F
+
+	;; no inc if max value hasn't been reached
+	tblrd*+
+	movf	TABLAT, W
+	subwf	POSTINC1, W	; SID_LFOx_DELAY_CTR_L
+	tblrd*+
+	movf	TABLAT, W
+	subwfb	INDF1, W	; SID_LFOx_DELAY_CTR_H
+	bc	SIDSE_L_LFO_Rate_ClkSync_NoInc
+
+SIDSE_L_LFO_Rate_ClkSync_Inc
+	;; clear counter
+	clrf	POSTDEC1	; SID_LFOx_DELAY_CTR_H
+	clrf	INDF1		; SID_LFOx_DELAY_CTR_L
+
+	;; switch back to SID_LFOx_CTR_[LH]
+	movlw	SID_LFOx_CTR_L-SID_LFOx_DELAY_CTR_L
+	addwf	FSR1L, F
 	rgoto	SIDSE_L_LFO_Rate_ClkSync_Cont
-SIDSE_L_LFO_Rate_NoClkSyncValues
+
+SIDSE_L_LFO_Rate_ClkSync_NoInc
+	;; switch back to SID_LFOx_CTR_[LH]
+	movlw	SID_LFOx_CTR_L-SID_LFOx_DELAY_CTR_H
+	addwf	FSR1L, F
+	;; no inc
+	rgoto	SIDSE_L_LFO_NoClk_Cont
+
 SIDSE_L_LFO_Rate_NoClkSync
 
 	movf	IRQ_TMP1, W
