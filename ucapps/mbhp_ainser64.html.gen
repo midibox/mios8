@@ -116,7 +116,7 @@ HEADER 3 MBHP_AINSER64 Module
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide</H2></DT>
   <DD>
-  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2>
     <TR>
       <TD><IMG SRC="mbhp/mbhp_ainser64_1.jpg" WIDTH=280 HEIGHT=347 BORDER=0 ALT=""></TD>
       <TD CLASS=TABCOLOR2>
@@ -193,7 +193,7 @@ This can be done during runtime ("hot plug&play"), a reboot isn't required.
 
 <P CLASS=DESC>The yellow "analog supply" LED is turned on as well independent from J5 jumper selection. It will turn off if there is a short circuit in the analog voltage domain (e.g. caused by a badly connected pot).</P>
 
-<P CLASS=DESC>The green "link" LED is either on or off - this signals, that the application which is running on the core module doesn't access the module. The LED should slowly flash (cheap PWM modulated) with an application which supports the AINSER64 module.</P>
+<P CLASS=DESC>If the green "link" LED is permanently on or off, it signals, that the application which is running on the core module doesn't access the module. The LED should slowly flash (cheap PWM modulated) with an application which supports the AINSER64 module.</P>
 
 <P CLASS=DESC>So, the next step is to upload an application for testing the analog inputs. <A HREF="midio128.html">MIDIO128</A> is well suitable for this, as it supports two AINSER64 modules and sends CC events for each analog pin by default without further configuration! The application can be downloaded from <A HREF="mios32_download.html">this page</A>. Upload it to the core module with <A HREF="mios_studio.html">MIOS Studio</A> as usual.</P>
 
@@ -203,7 +203,7 @@ This can be done during runtime ("hot plug&play"), a reboot isn't required.
 
 <P CLASS=DESC>Please keep also in mind that all unusued analog inputs have to be clamped to ground, otherwise the application will flood the MIDI monitor with random CC values!</P>
 
-<P CLASS=DESC>At the <A HREF="mios32_download.html">MIOS32 Download Page</A> you will also find a diagnosis application which allows to measure the jitter for each analog input. It could be helpful to check the quality of the power supply that you are using. After the upload of "ainser_jitter_mon" the MIOS Terminal will output a report each second the the minimum and maximum value which has been converted during this time (1000 samples) + the difference (-> the jitter):
+<P CLASS=DESC>At the <A HREF="mios32_download.html">MIOS32 Download Page</A> you will also find a diagnosis application which measures the jitter for each analog input. It allows to check the quality of the power supply that you are using. After the upload of "ainser_jitter_mon" the MIOS Terminal will periodically output the minimum and maximum value which has been converted in between 1 second (1000 samples) + the difference (-> the jitter):
 <P><CENTER><IMG SRC="mbhp/mbhp_ainser64_jittermon.png" width=802 height=456></CENTER></P>
 
 <P CLASS=DESC>The monitor displays the 8 conversion results of a given 4051 multiplexer.<BR>

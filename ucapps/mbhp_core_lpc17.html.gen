@@ -44,7 +44,7 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Installing the MIOS32 Bootloader </H2></DT>
   <DD>
-  <DD><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2 WIDTH=640>
     <TR>
       <TD><IMG SRC="mbhp/mbhp_core_lpc17_program6.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
       <TD CLASS=TABCOLOR2>The original LPCXpresso board consists of a debug interface (left side) and the so called target (right side), which we will attach on the MBHP_CORE_LPC17 module later.<BR>
@@ -53,25 +53,35 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
     </TR>
     <TR>
       <TD><IMG SRC="mbhp/mbhp_core_lpc17_program5.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>Note that a registration is required to get access to the IDE installation package. A version for Windows and Linux is available. Mac Users can run the Linux version on a virtual machine like <A HREF="http://www.virtualbox.org" TARGET="_blank">VirtualBox</A> (this is what I did). Once the IDE has been installed, another registration has to be done to enable the LPC-Link interface - ready!
+      <TD CLASS=TABCOLOR2>Note that a registration is required to get access to the IDE installation package. A version for Windows and Linux is available. Mac Users can run the Windows or Linux version on a virtual machine like <A HREF="http://www.virtualbox.org" TARGET="_blank">VirtualBox</A> (this is what I did - both variants are working fine!).<BR>Once the IDE has been installed, another registration has to be done to enable the LPC-Link interface - ready!
       </TD>
     </TR>
     <TR>
-      <TD><A HREF="mbhp/mbhp_core_lpc17_program2.png"><IMG SRC="mbhp/mbhp_core_lpc17_program2.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>After the LPCxpresso IDE has been opened, click on the small "Program Flash" icon
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program_win2.png"><IMG SRC="mbhp/mbhp_core_lpc17_program_win2.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>After the LPCxpresso IDE has been opened, create a new "FreeRTOS project" for LPC1700 controllers.<BR>This project is only used as a dummy to enable the flash programmer - you don't need to change something in the code template, it won't run under MIOS32 anyhow!<BR>(You will transfer a precompiled binary into the flash)
       </TD>
     </TR>
     <TR>
-      <TD><A HREF="mbhp/mbhp_core_lpc17_program3.png"><IMG SRC="mbhp/mbhp_core_lpc17_program3.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>Thereafter select the LPC1769 target.<BR>
-        You will be informed that the freeware version of the IDE only allows to program 128k of the flash memory, but since the MIOS32 bootloader is smaller (ca. 16k), this limitation isn't an issue for us. Later we will upload applications from <A HREF="mios32_bootstrap_newbies.html">MIOS Studio</A> which is much faster anyhow (up to 40 kb/s!).
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program_win3.png"><IMG SRC="mbhp/mbhp_core_lpc17_program_win3.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Select the LPC1769 target. It's red marked because it isn't fully supported by the evaluation version of this IDE - but again: for application development you wouldn't use this IDE anyhow!
       </TD>
     </TR>
     <TR>
-      <TD><A HREF="mbhp/mbhp_core_lpc17_program4.png"><IMG SRC="mbhp/mbhp_core_lpc17_program4.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>Select a suitable project.bin file - in fact any project.bin of a LPC17 based MIOS32 application can be used which is smaller than 128k, because the bootloader is always included. If you are unsure about the best binary, just upload the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application - it contains the bootloader, and a checking routine which verifies that the flash has been programmed correctly.
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program_win4.png"><IMG SRC="mbhp/mbhp_core_lpc17_program_win4.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the small "Program Flash" icon
       </TD>
     </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program_win5.png"><IMG SRC="mbhp/mbhp_core_lpc17_program_win5.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the "Browse" button and search for the project.bin binary of the MBHP_CORE_LPC1769 directory which comes with the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application. Note that you've to explicitely change the file search mask to "*.bin", since this isn't done by default (-&gt; project.bin file not displayed)
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program_win6.png"><IMG SRC="mbhp/mbhp_core_lpc17_program_win6.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the "OK" button to program the bootloader into the flash.
+      </TD>
+    </TR>
+
     <TR>
       <TD><IMG SRC="mbhp/mbhp_core_lpc17_program7.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
       <TD CLASS=TABCOLOR2><B>Finally disconnect the USB plug, connect it again.</B><BR>
@@ -90,7 +100,7 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Preparing the LPCXpresso module </H2></DT>
   <DD>
-  <DD><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2 WIDTH=640>
     <TR>
       <TD CLASS=TABCOLOR2 COLSPAN=2>
         The next step is <B>optional!!!</B> and only recommended for <B>experienced DIYers</B>.<BR>
@@ -156,7 +166,7 @@ If you are planning to use the LPC-Link instead, the 8-pin SIL header should be 
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> IMPORTANT: Preparations if LPC-Link not separated</H2></DT>
   <DD>
-  <DD><TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2 WIDTH=640>
     <TR>
       <TD CLASS=TABCOLOR2 COLSPAN=2>
         If you decided not to separate the LPC-Link from the LPCXpresso module, it's mandatory to cut the 3.3V line from the two parts!<BR>
@@ -214,6 +224,12 @@ If you are planning to use the LPC-Link instead, the 8-pin SIL header should be 
       <TD CLASS=TABCOLOR2>1k</TD>
       <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
     </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_lpc17_midi3_midi4_extension.pdf">mbhp_core_lpc17_midi3_midi4_extension.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>10k</TD>
+      <TD CLASS=TABCOLOR2>Optional MIDI IN3/OUT3 and MIDI IN4/OUT4 extension for MBHP_CORE_LPC17 module (must be explicitely enabled by firmware)</TD>
+    </TR>
+  <LI><A HREF="mbhp/mbhp_core_lpc17_midi3_midi4_extension.pdf" TARGET="_blank">schematic for MIDI IN3/OUT3 and IN4/OUT4 extension of LPC17</A>
   </TABLE></DD>
   </DD>
 </DL>
@@ -394,7 +410,7 @@ This port can also be used for measuring frequencies as demonstrated in <A HREF=
       <P CLASS=DESC>Other components such as MIDI IN/OUT sockets, MagJack for Ethernet, SRIO ports or whatever can be added successively if required.</P>
 
       <P CLASS=DESC>Click on the images for higher resolution:</P>
-      <TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=640>
+      <TABLE CELLSPACING=2 CELLPADDING=2 WIDTH=640>
        <TR>
          <TD><A HREF="mbhp/mbhp_core_lpc17_miniproto1.jpg"><IMG SRC="mbhp/mbhp_core_lpc17_miniproto1.jpg" WIDTH=320 BORDER=0 ALT=""></A></TD>
          <TD><A HREF="mbhp/mbhp_core_lpc17_miniproto2.jpg"><IMG SRC="mbhp/mbhp_core_lpc17_miniproto2.jpg" WIDTH=320 BORDER=0 ALT=""></A></TD>
@@ -406,7 +422,7 @@ This port can also be used for measuring frequencies as demonstrated in <A HREF=
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide for the complete MBHP_CORE_LPC17 module</H2></DT>
   <DD>
-  <DD><TABLE CELLSPACING=0 CELLPADDING=0>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2>
     <TR>
       <TD><IMG SRC="mbhp/mbhp_core_lpc17_2.jpg" WIDTH=280 HEIGHT=238 BORDER=0 ALT=""></TD>
       <TD CLASS=TABCOLOR2>It's always a good idea to start with the smallest components to simplify mounting.<BR>

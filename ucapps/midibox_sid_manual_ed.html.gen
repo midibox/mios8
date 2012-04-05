@@ -7,59 +7,31 @@ HEADER 3 MIDIbox SID V2 User Manual --- SysEx Editor
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Introduction </H2>
 
-<P CLASS=INFO>Rutger implemented a Java based patch editor and bank librarian for MIDIbox SID V2, which allows you to manage/modify/create new patches under Windows/Mac/Linux remotely without the <A HREF="midibox_sid_manual_fp.html">control surface</A>.</P>
+<P CLASS=INFO>A <A HREF="http://www.ctrlr.org" TARGET="_blank">Ctrlr based</A> SysEx Editor has been created which gives you access over all engines remotely from your computer.</P>
 
-<P CLASS=INFO>Even users who built a complete MIDIbox SID might find it very useful, as this software gives a good insight into hundreds of parameters for all 4 sound engines!</P>
+<P CLASS=INFO>Here some teasing snapshots:</P>
 
-<P CLASS=INFO>Note that the editor is still under development. Please give feedback <A HREF="http://www.midibox.org/forum/index.php/topic,11935.0.html" TARGET="_blank">in this forum article</A></P>.
+<P><CENTER><IMG SRC="midibox_sid/mbsid_ctrlr_panel1.png" width=575></CENTER></P>
+<P><CENTER><IMG SRC="midibox_sid/mbsid_ctrlr_panel2.png" width=575></CENTER></P>
+<P><CENTER><IMG SRC="midibox_sid/mbsid_ctrlr_panel3.png" width=575></CENTER></P>
+<P><CENTER><IMG SRC="midibox_sid/mbsid_ctrlr_panel4.png" width=575></CENTER></P>
+<P><CENTER><IMG SRC="midibox_sid/mbsid_ctrlr_panel5.png" width=575></CENTER></P>
+<P><CENTER><IMG SRC="midibox_sid/mbsid_ctrlr_panel6.png" width=575></CENTER></P>
 
+<P CLASS=INFO>Ctrlr works standalone, but also as AU and VST plug-in under MacOS, Windows and Linux!</P>
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Snapshots </H2>
+<P CLASS=INFO>The panel is part of the the <A HREF="http://www.ctrlr.org/page.php?p=ddb" TARGET="_blank">Device Data Base</A>, so that it can be downloaded directly from Ctrlr (or from this webpage)</P>
 
-<P CLASS=INFO>Click on the thumbnails to enlarge</P>
-
-<TR><TD><TABLE ALIGN=CENTER CELLSPACING=5 CELLPADDING=5>
-<TR><TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_bank.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_bank.gif" HEIGHT=100 ALT=""></A></TD>
-    <TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_osc.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_osc.gif" WIDTH=160 ALT=""></A></TD>
-    <TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_modmatrix.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_modmatrix.gif" WIDTH=160 ALT=""></A></TD></TR>
-<TR><TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_trgmatrix.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_trgmatrix.gif" WIDTH=160 ALT=""></A></TD>
-    <TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_b_seq.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_b_seq.gif" WIDTH=160 ALT=""></A></TD>
-    <TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_d_seq.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_d_seq.gif" WIDTH=160 ALT=""></A></TD></TR>
-<TR><TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_d_instr.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_d_instr.gif" WIDTH=160 ALT=""></A></TD>
-    <TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_m_instr.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_m_instr.gif" WIDTH=160 ALT=""></A></TD>
-    <TD><A HREF="midibox_sid/v2_editor/mbsidv2_editor_m_wt.gif"><IMG SRC="midibox_sid/v2_editor/mbsidv2_editor_m_wt.gif" WIDTH=160 ALT=""></A></TD></TR>
-</TABLE>
+<P CLASS=INFO>Please follow <A HREF="http://midibox.org/forums/topic/16709-ctrlr-based-editor-for-mbsid-v2/" TARGET="_blank">this forum article</A> for the latest informations.</P>
 
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Workaround for some MIDI interfaces under Windows </H2>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Alternative Editors</H2>
 
-<P CLASS=DESC>With Java 1.5, Sun introduced an improved support for MIDI interfaces. It works very well with common MIDI events, but has some problems with SysEx strings: once a SysEx string is sent, which is shorter than the previous strings, additional bytes will be appended (see also <A HREF="jsynthlib.html">JSynthLib workaround</A>).</P>
-
-<P CLASS=DESC>Rutger integrated a workaround for this issue into the editor, but you might still notice failing transfers due to a second issue, which exists in WinXP and older versions: if the SysEx string exceeds the SysEx buffer size, some bytes at the boundary between two buffers will be corrupted. Since Java seems to use a static buffer size of 512 bytes, but a MBSID V2 patch consists of 1036 bytes, a new workaround is required: the usage of <A HREF="http://www.hermannseib.com/miditrix.htm" TARGET="_blank">MIDItrix from Hermann Seib</A>.
-
-<P CLASS=DESC>Like for the <A HREF="jsynthlib.html">JSynthLib workaround</A>, MIDI Yoke has to be installed as a "virtual MIDI device". It can be downloaded from the <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-Ox</A> website.</P>
-
-<P CLASS=DESC>But instead of using MIDI-Ox to forward the MIDI events, we are using <A HREF="http://www.hermannseib.com/miditrix.htm" TARGET="_blank">MIDItrix</A> (which is a bit more comfortable anyhow).</P>
-
-<P CLASS=DESC>Input Device Configuration: select MIDI Yoke NT Port 1 and your physical MIDI In Port(s). Ensure that the "Defragment" option is selected - this one is doing the trick!<BR>
-<CENTER><IMG SRC="howto_jsynthlib/miditrix2.gif" WIDTH=540 HEIGHT=367</IMG></CENTER></P>
-
-<P CLASS=DESC>Output Device Configuration: select MIDI Yoke NT Port 2 and your physical MIDI Out Port(s). Again, ensure that the "Defragment" option is selected!<BR>
-<CENTER><IMG SRC="howto_jsynthlib/miditrix3.gif" WIDTH=542 HEIGHT=366</IMG></CENTER></P>
-
-<P CLASS=DESC>Now you can patch the IOs in the configuration matrix like shown here: MIDI Out assigned to MIDI Yoke Port #2, and MIDI In assigned to MIDI Yoke Port #1:<BR>
-<CENTER><IMG SRC="howto_jsynthlib/miditrix1.gif" WIDTH=494 HEIGHT=399</IMG></CENTER>
-
-<P CLASS=DESC>In the MIDIbox SID V2 editor, select MIDI Yoke Port #2 as input port, and MIDI Yoke Port #1 as output port - done! :-)<BR>
-<CENTER><IMG SRC="howto_jsynthlib/miditrix4.gif" WIDTH=574 HEIGHT=275</IMG></CENTER>
-
-<P CLASS=DESC>Note that the usage of Miditrix is also helpful to forward the MIDI stream of a MIDI keyboard or sequencer to the MIDI Out which is connected to your MIDIbox SID, so that you are able to play & edit concurrently.</P>
-
-<P CLASS=DESC>In this small demonstration, a <A HREF="mbhp_usb_gm5.html">MBHP_USB_GM5 module</A> with Microsoft USB-MIDI driver has been used. All MIDI interfaces which are using this driver are affected. The workaround is not required once the GM5 driver has been installed. Since the GM5 driver is multi client capable, the usage of a virtual MIDI cable to join MIDI streams in Miditrix (or MIDI-Ox) isn't required as well.</P>
+<UL CLASS=CL>
+  <LI>a Java based editor has been implemented by Rutger. It's older than the Ctrlr based solution and doesn't work correctly under MacOS 10.7 and higher. It isn't maintained anymore, but since it's complete and nice to use, here a link to the latest version: <A HREF="midibox_sid/v2_editor/MBSIDV2_Editor_v0_5.zip">V0.5 release from 2009-02-18 (470k)</A>. Link to <A HREF="http://midibox.org/forums/topic/11126-midibox-sid-v2-editor" TARGET="_blank">related forum article</A>.
+  <LI>Nils implemented "Patch Turkey", a preliminary version can be downloaded from <A HREF="http://midibox.org/forums/topic/13345-127-arps/" TARGET="_blank">this forum article</A>. It has a great graphical user interface, but only supports the Lead engine and only works under Windows.
+</UL>
 
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2>
-
-<P CLASS=INFO><A HREF="midibox_sid/v2_editor/MBSIDV2_Editor_v0_5.zip">V0.5 release from 2009-02-18 (470k)</A>
 
 FOOTER
