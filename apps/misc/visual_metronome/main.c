@@ -1,4 +1,4 @@
-// $Id: main.c 172 2008-03-06 21:45:07Z tk $
+// $Id$
 /*
  * VISUAL METRONOME (MIDI Clock Sender)
  *
