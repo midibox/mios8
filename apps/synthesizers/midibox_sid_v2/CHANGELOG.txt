@@ -1,7 +1,412 @@
 $Id$
 
-MIDIboxSID V2.0
-~~~~~~~~~~~~~~~
+MIDIboxSID V2.040
+~~~~~~~~~~~~~~~~~
+
+  o fixed SysEx patch write issue which happened when patches were received
+    with the common format (e.g. preset patches)
+
+
+MIDIboxSID V2.039
+~~~~~~~~~~~~~~~~~
+
+  o LFO MIDI Clock Sync has been overworked, it now supports 32 different
+    rates from 16 bars to 1/32 notes including triple and dotted delays!
+
+    If the CSn flag enabled the available rates are:
+    0=LFO disabled, 8=16 bars, 16=14 bars, 24=12 bars, 32=10 bars,
+    40=9 bars, 48=8 bars, 56=7 bars, 64=6 bars, 72=5 bars, 80=4 bars,
+    88=3.5 bars, 96=3 bars, 104=2.5 bars, 112=2 bars, 120=1.5 bars,
+    128=1 bar, 136=1/2., 144=1/1T, 152=1/2, 160=1/4., 168=1/2T,
+    176=1/4, 184=1/8., 192=1/4T, 200=1/8, 208=1/16., 216=1/8T,
+    224=1/16, 232=1/32., 240=1/16T, 248=1/32
+
+    Note that in MIDI Sync mode, the LFO Delay won't work because
+    the appr. resource is used as MIDI clock counter.
+
+  o current bank and patch number won't be changed anymore on direct RAM
+    access via SysEx
+
+
+MIDIboxSID V2 RC38
+~~~~~~~~~~~~~~~~~~
+
+  o optimized MBNet Handler for fast external access to SID registers
+
+  o added DEFAULT_CC32_FILTER switch to setup_*.asm - it filters CC#32 for
+    programs which send this CC always together with CC#0 on bank changes
+
+  o support for "extended SysEx dump" - see also mbsidv2_sysex_implementation.txt
+
+  o filter mode/channel and waveform flags can now be optionally passed to 
+    J5 (configuration has to be done in setup_*.asm file)
+
+  o (only for Multi Engine): "W+16" flag - waveform can be changed from
+    offset +16 of the wavetable, in combination with another parameter
+    (such as #249), it's possible to control pitch and waveform from
+    a single WT track
+
+
+MIDIboxSID V2 RC37
+~~~~~~~~~~~~~~~~~~
+
+  o SW based feedback loops won't lead to endless repeated replies
+
+
+MIDIboxSID V2 RC36
+~~~~~~~~~~~~~~~~~~
+
+  o Bassline engine: detune parameter now mapped to Parameter #003
+  o a table based calibration table is now provided for the SID filter.
+    It has to be adapted under src/sid_filter_table.inc and can either be
+    uploaded together with the firmware build, or separately if by uploading
+    "sid_filter_table.hex" after the "make" command (type "make sid_filter_table"
+    to build only this file)
+    The table can be used to compensate technology related non-linearities
+    of the 6581 R-2R DAC
+  o various minor bugfixes
+
+
+MIDIboxSID V2 RC35
+~~~~~~~~~~~~~~~~~~
+
+  o modulation source "KEY" now uses current frequency instead of key number
+    to consider frequency sweeps correctly
+  o bugfix for "jump to page" (empty page if current item position outside new page)
+  o bugfix for knob page (min/max value modified Pa1 if multiple SIDs selected)
+
+
+MIDIboxSID V2 RC34
+~~~~~~~~~~~~~~~~~~
+
+  o fixed race condition in SusKey portamento function
+  o Note Off keys which are not in the note stack are ignored now
+  o implemented CC#123 (All Notes Off)
+    Complies to MIDI spec. Means: only CC#123=0 will unplay all notes,
+    all other values (1..127) are silently ignored
+  o new wavetable control function "Key" allows to select a wavetable
+    step with the currently played note inside the given Begin/End range.
+    E.g., with Begin=0x00, End=0x7f, KEY=on, Par=200 you are able to
+    define different ENV1 Decay parameters for each note.
+    There are much more usecases of course (e.g. different LFO values,
+    different waveforms, Sync/Ring enable/disable in certain keyranges)
+    - be creative :)
+  o Arpeggiator "Easy Chord" function now active in default Lead/Bassline/Multi
+    patch
+  o sammichSID: F2 button now jumps to Knob page by default (especially
+    nice for bassline patches, for other engines the knob assignments
+    are mostly not preconfigured)
+  o Multi Engine: Knob parameter #6 and #7 now allow to control CutOff
+    frequency of left/right channel SID separately. Note that this isn't
+    consistent to Lead/Bassline assignments, but unfortunately there is
+    no other possible solution.
+  o filter page now allows direct L/R channel selection
+  o the full control surface now handles the first press of Osc Select, 
+    Env Select, LFO Select and Filter Mode/Channel Select as a 
+    "jump to page" function if that page was not displayed, and 
+    thereafter, function as a "change selection" function. Thus 
+    if you are not on the LFO page, pressing LFO Select jumps to 
+    LFO page, and then pressing it again will change the selected LFO.
+  o this is the christmas edition, therefore the Matrix LEDs are flickering
+    during startup ;-)
+
+
+MIDIboxSID V2 RC33
+~~~~~~~~~~~~~~~~~~
+
+  o built for MIOS V1.9g (or higher) to support new encoder types.
+    Rotary encoders won't work with older MIOS versions!
+    Note that MIOS only has to be updated on the master SID, as encoders
+    are not connected to SID slaves anyhow.
+  o a new LED matrix visualisation mode for sammichSID has been added
+    which is selected with DEFAULT_LEDMATRIX_MODE 2
+    - Lead and Bassline engine: 6x8 LEDs show VU meters for OSC frequency
+    - Multi and Drum engine: 6x8 LEDs show animated VU meters for OSC triggers
+    - ASID player mode: 6x8 LEDs show animated VU meters for OSC triggers
+  o animated VU meters are a bit faster now
+  o a special configuration file and prebuilt binary for sammichSID 
+    is now part of the release package -> setup_sammich_sid.hex
+
+
+MIDIboxSID V2 RC32
+~~~~~~~~~~~~~~~~~~
+
+  o fixed strange Oct display output in Bassline Sequence Editor
+  o added "DEFAULT_ENABLE_UPPER_WAVEFORMS" switch to setup_* files to enable the
+    selection of additional waveforms for SwinSID
+  o overworked Meter display mode in Bassline Mode (enjoy the effect! :)
+  o changed behaviour of Play button: now it plays all SIDs regardless if they
+    are selected or not.
+    Dedicated SIDs can be played by pressing & holding the appr. SID buttons
+    before pressing PLAY
+
+
+MIDIboxSID V2 RC31
+~~~~~~~~~~~~~~~~~~
+
+  o fixed storing ensemble in internal EEPROM if no BankStick selected
+  o the ensemble stored in internal EEPROM (previously called E001) is now called EInt
+  o the patch stored in internal EEPROM (previously called [A-H]001) is now called PInt
+  o EInt now automatically selected after startup if no ensemble BankStick connected
+  o E002 now automatically selected after startup if EInt was selected before
+  o fix for communication with Rutger's SysEx editor: mod matrix direct assignments
+    are handled correctly now in stereo edit mode
+
+
+MIDIboxSID V2 RC30
+~~~~~~~~~~~~~~~~~~
+
+  o fixed OSC button behaviour (OSC selection corrupted on page changes)
+
+
+MIDIboxSID V2 RC29
+~~~~~~~~~~~~~~~~~~
+
+  o fixed CC#07 (now controls volume as intended)
+  o for 4x20 LCD: MIDI channels and Engines of selected ensemble are displayed at upper line
+  o OSC button now cycles between 1--, -2-, --3 and 123
+  o added optional CS_MENU_BUTTON_Arp function, which can be assigned to a button in setup_*.asm
+
+
+MIDIboxSID V2 RC28
+~~~~~~~~~~~~~~~~~~
+
+  o fixed arpeggiator note handling bug
+  o arpeggiator: the previously hardcoded "experimental arp behaviour" switch is now 
+    available as software controlable switch called "Easy Chord".
+    It has to be enabled in the ARP menu ("Esy" flag)
+    Difference compared to normal chord entry: depressed keys will still
+    be cylced by the arpeggiator until a new key is pressed.
+    This feature is especially useful when slow arpeggios are played, since
+    it avoids unintended "long notes" on chord changes.
+    It is not useful if you intend to play a voice like a common lead instrument,
+    which should turn into a fast arpeggio when more than one key is played
+    (in this case, ensure that the "Esy" switch is disabled)
+  o fixed drum model handling (listen to the drum patches again - they sound much better now :)
+  o preliminary support for parameter access via 7bit CC
+    (only available for Lead Engine yet)
+
+
+MIDIboxSID V2 RC27
+~~~~~~~~~~~~~~~~~~
+
+  o Super Poly voice queue now handled centrally from master.
+    Slaves notes are triggered via MBNet
+  o SPV value now changed simultaneously for all slaves
+    It can only be changed if master SID selected
+  o PLAY button now plays a chord in superpoly mode
+  o Mod matrix changes forwarded to all selected SIDs
+
+
+MIDIboxSID V2 RC26
+~~~~~~~~~~~~~~~~~~
+
+  o various improvements for Super Poly Mode and SysEx distribution via CAN
+
+
+MIDIboxSID V2 RC25
+~~~~~~~~~~~~~~~~~~
+
+  o improved "SusKey" (fingered portamento) handling
+
+
+MIDIboxSID V2 RC24
+~~~~~~~~~~~~~~~~~~
+
+  o voice allocation of multi engine working again
+  o Lead engine: MdW (ModWheel) and Key modulation source now provide a value in
+    positive range only
+  o overworked oscillator pitch handling: now completely linear frequency
+    calculations. 
+    Advantages:
+      - modulation frequency (e.g. LFO vibrato) independent from oscillator frequency
+      - accurate filter key tracking
+      - the O2A option (forward pitch to AOUT) doesn't result into out-of-scale
+        SID frequencies anymore
+  o the presets under presets/v2_vintage_bank.syx have been overworked according to
+    the new osc frequency handling
+
+
+MIDIboxSID V2 RC23
+~~~~~~~~~~~~~~~~~~
+
+  o finetune is working properly again
+
+
+MIDIboxSID V2 RC22
+~~~~~~~~~~~~~~~~~~
+
+  o "menu labels" (activated if DEFAULT_LCD_LINES >= 3) now completely implemented
+  o added keyboard transpose function for bassline sequencer. MIDI channels and
+    keyboard zones have to be configured for L/R bassline separately with
+    ensemble instrument 3 and 4. The transposer uses C-3 as base note.
+    Example configuration:
+    Ins1 Chn 1 SpL C-3 SpU B-3 Trn 0     L Bassline sequence selected with key C-3..B-3
+    Ins2 Chn 1 SpL C-4 SpU G-8 Trn 0     R Bassline sequence selected with key C-4..
+    Ins3 Chn 1 SpL c-2 SpU B-2 Trn +12   L Bassline sequence transposed with lower keys until B-2
+    Ins4 Chn 1 SpL c-2 SpU B-2 Trn +12   R same as for L
+    "Trn +12" is required in this setup to compensate the octave range of the transposer
+    (base note C-3 is outside the selected keyboard zone c-2..B-2)
+  o bassline and drum sequences not stopped anymore on patch changes
+  o random generator for bassline O23 settings
+
+
+MIDIboxSID V2 RC21
+~~~~~~~~~~~~~~~~~~
+
+  o added "Log" flag to ENS->FIL menu: cutoff frequency converted through log function
+    to achieve better linearisation of 8580 filter
+  o Filter Keytracking parameter now also available for Lead Engine, the scaling has been slightly
+    changed, so that the maximum value 255 leads to 1:1 tracking (e.g. if 8580 Log function activated,
+    or an external filter is connected)
+  o added "DOR" flag to the ENS->SID menu: Disable automatic Oscillator Reset during patch change
+    could also be called DAORDPC flag ;-)
+  o MB-6582 setup: swapped page up/down button, added Inc/Dec button function
+  o support for 4x20 LCD has used for MB-6582: DEFAULT_LCD_LINES and DEFAULT_LCD_LINE_Y* can
+    be configured in the setup_*.asm file
+  o MB-6582 screen now centered at 2nd and 3rd line
+  o if DEFAULT_LCD_LINES >= 3, the name of the menu will be print at the upper line
+  o if DEFAULT_LCD_LINES >= 4: the value of the currently edited parameter will be displayed
+    as horizontal bar graph at the lower LCD line
+    TODO: display bidirectional parameters like "depth" with a left/right splitted graph
+    TODO: update when a new OSC/Channel/SID is selected
+  o the "blinking LCD cursor" which was set to the selected parameter position is
+    disabled by default now (DEFAULT_LCD_PRINT_CURSOR set to 0), since it clashes with
+    the horizontal bar graph output routine
+  o added experimental features to bassline engine:
+    - new menu page O23 which allows to use OSC2 and OSC3 as slave oscillators
+    - waveforms of slave oscillators can be selected separately
+    - individual sync and ringmod flags
+    - individual octavewise transpose
+    - individual pulsewidth
+    - optional static note (decoupled from master osc) for nice sync/ringmod effects or chords
+    - phase offset
+    - detune
+    - TODO: Knob assignments and maybe more functions
+
+
+MIDIboxSID V2 RC20
+~~~~~~~~~~~~~~~~~~
+
+  o Multi Engine: arp handler working properly again
+  o Lead Engine: ENV encoder section working properly again
+  o increased startup delay, so that slave cores will be found even if no BankStick connected
+
+
+MIDIboxSID V2 RC19
+~~~~~~~~~~~~~~~~~~
+
+  o Enhancements for SysEx Editor
+    (see also doc/mbsidv2_sysex_implementation.txt)
+    - introduced <WOPT> function which allows to change parameters of
+      multiple voices with a single SysEx command
+    - introduced <sids> selection which allows to access slave SIDs
+      via master SID (command 0C 00 <sids>)
+    - added SysEx command for all notes/sequences off (command 0C 08)
+    - added SysEx command to play the current patch (command 0C 09 [<ins>])
+      Note: for proper handling of <ins>, separate keyboard zones or MIDI channels
+      for multi instruments are currently required - this is no bug, 
+      but just an imperfection (I was too lazy to overwork SID_PATCH_NotesOn yet)
+  o parameter assignment/patch/bank selection: "big message" now displayed
+    immediately when menu item has been selected
+  o The "note off" function of the SHIFT menu now works as "Note On/Off" (called "Ply")
+    This function is intended as replacement for the optional Play button
+    Patch will be played/stopped on all selected SIDs
+  o Removed button combination "SIDx+MENU" (which was previously used for Play function)
+    This combination could get a different purpose on future
+  o LFOs and ENVs of right channel bassline working properly again
+  o AOUT_LC driver now supports 12/12/8 resolution (requires 4 combined 74HC595)
+
+
+MIDIboxSID V2 RC18
+~~~~~~~~~~~~~~~~~~
+
+  o modulation matrix: comparison operators >, < and = now return 0 instead
+    of full negative value if comparison is false
+  o changed SusKey handling, so that it also works in Mono mode (previously
+    it was only working in Legato mode)
+  o SusKey and Legato flags now accessible in Bassline CFG menu
+  o Individual Attack/Decay/Release Curve assignments now accessible in
+    Multi/Bassline ENV menu
+  o Trigger Matrix: since the BPM clock generator concept has been changed in
+    one of the previous releases, we now have a Clk/6 and Clk/24 trigger instead
+    of Clk/4 and Clk/16
+  o LFO and ENV MIDI sync working properly again
+  o portamento omitted after patch change when first key is played
+
+
+MIDIboxSID V2 RC17
+~~~~~~~~~~~~~~~~~~
+
+  o switched from MPASM to gpasm
+    code now under version control (SVN)
+
+
+MIDIboxSID V2 RC16
+~~~~~~~~~~~~~~~~~~
+
+  o "ENV Misc" layer added for MB6582 Control Surface
+  o SIDPlayer: lower line now always cleared when new LCD message
+    is sent by host
+  o changed encoder speed behaviour: values incremented fast by
+    default now. Incrementer is slowed down by pressing the SHIFT button
+    (previously it was the opposite behaviour)
+
+
+MIDIboxSID V2 RC15
+~~~~~~~~~~~~~~~~~~
+
+  o improved FIP function (linear interpolation of filter cutoff) - it
+    is working now the same way as implemented in MIDIbox CV
+  o F2A and V2A flags moved to new storage position in ensemble - old
+    ensemble setups (where F2A and/or V2A was set) have to be adapted!
+  o added new AOUT forwarding functions:
+     - P2A (Pulsewidth-to-AOUT)
+     - K2A (Key-to-AOUT)
+     - O2A (Oscillator Frequency-to-AOUT)
+    Channel assignments have to be adapted in setup_*.asm - all channels 
+    are disabled by default
+  o added functions to forward the 6 gates/slide/accent signals to the
+    digital outputs at J5. Assignments have to be configured in the
+    setup_*.asm file.
+    Note that DEFAULT_J5_FUNCTION has to be set to 3 in order to
+    enable the digital output function of CORE:J5
+
+
+MIDIboxSID V2 RC14
+~~~~~~~~~~~~~~~~~~
+
+  o BankStick write via SysEx now gracefully aborted if only 32k BankStick
+    is addressed and patch number >= 065
+    SysEx error number 0x11 ("BankStick too small") will be returned in this case
+  o the "send dump" function of the "shift menu" now sends the edit buffer
+    of the selected SID, which also includes the corresponding device ID.
+    BankStick content won't be overwritten if such a dump is sent back.
+  o menu page automatically changed to the previous selection if SID master
+    or slave selected which is running with a different engine
+
+
+MIDIboxSID V2 RC13
+~~~~~~~~~~~~~~~~~~
+
+  o multi engine: improved approach for routing LFOs to filters (only
+    LFO of last assigned voice will be used for more predictable results)
+  o reduced intensity of LFO pitch modulation for multi and bassline engine
+    (Lead engine: intensity can be reduced by decreasing the depth
+    of the modulation path)
+  o 8 external switches can now be connected to 
+     - DOUT shift register (-> DEFAULT_EXT_SWITCH_DOUT != 0)
+     - port J5 of the core mode (-> DEFAULT_J5_FUNCTION == 3)
+    The switch states are stored in the patch structure, and
+    can be accessed via Control Surface (EXT menu) or via Parameter Change
+    (NRPNs/Knobs/Wavetables)
+  o support for dumping ensembles via SysEx
+  o the SysEx structures are now completely documented under
+    doc/mbsidv2_sysex_implementation.txt
+
+
+MIDIboxSID V2.0 Initial Beta History (RC13)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
    o created patch structure for Lead engine
    o removed old sound engine, the new one will be built up from scratch
@@ -387,329 +792,13 @@ MIDIboxSID V2.0
     a fast LFO or envelope (on the other hand: it produces interesting
     effects in such cases ;-)
 
-RC13:
-  o multi engine: improved approach for routing LFOs to filters (only
-    LFO of last assigned voice will be used for more predictable results)
-  o reduced intensity of LFO pitch modulation for multi and bassline engine
-    (Lead engine: intensity can be reduced by decreasing the depth
-    of the modulation path)
-  o 8 external switches can now be connected to 
-     - DOUT shift register (-> DEFAULT_EXT_SWITCH_DOUT != 0)
-     - port J5 of the core mode (-> DEFAULT_J5_FUNCTION == 3)
-    The switch states are stored in the patch structure, and
-    can be accessed via Control Surface (EXT menu) or via Parameter Change
-    (NRPNs/Knobs/Wavetables)
-  o support for dumping ensembles via SysEx
-  o the SysEx structures are now completely documented under
-    doc/mbsidv2_sysex_implementation.txt
-
-RC14:
-  o BankStick write via SysEx now gracefully aborted if only 32k BankStick
-    is addressed and patch number >= 065
-    SysEx error number 0x11 ("BankStick too small") will be returned in this case
-  o the "send dump" function of the "shift menu" now sends the edit buffer
-    of the selected SID, which also includes the corresponding device ID.
-    BankStick content won't be overwritten if such a dump is sent back.
-  o menu page automatically changed to the previous selection if SID master
-    or slave selected which is running with a different engine
-
-RC15:
-  o improved FIP function (linear interpolation of filter cutoff) - it
-    is working now the same way as implemented in MIDIbox CV
-  o F2A and V2A flags moved to new storage position in ensemble - old
-    ensemble setups (where F2A and/or V2A was set) have to be adapted!
-  o added new AOUT forwarding functions:
-     - P2A (Pulsewidth-to-AOUT)
-     - K2A (Key-to-AOUT)
-     - O2A (Oscillator Frequency-to-AOUT)
-    Channel assignments have to be adapted in setup_*.asm - all channels 
-    are disabled by default
-  o added functions to forward the 6 gates/slide/accent signals to the
-    digital outputs at J5. Assignments have to be configured in the
-    setup_*.asm file.
-    Note that DEFAULT_J5_FUNCTION has to be set to 3 in order to
-    enable the digital output function of CORE:J5
-
-RC16:
-  o "ENV Misc" layer added for MB6582 Control Surface
-  o SIDPlayer: lower line now always cleared when new LCD message
-    is sent by host
-  o changed encoder speed behaviour: values incremented fast by
-    default now. Incrementer is slowed down by pressing the SHIFT button
-    (previously it was the opposite behaviour)
-
-RC17:
-  o switched from MPASM to gpasm
-    code now under version control (SVN)
-
-RC18:
-  o modulation matrix: comparison operators >, < and = now return 0 instead
-    of full negative value if comparison is false
-  o changed SusKey handling, so that it also works in Mono mode (previously
-    it was only working in Legato mode)
-  o SusKey and Legato flags now accessible in Bassline CFG menu
-  o Individual Attack/Decay/Release Curve assignments now accessible in
-    Multi/Bassline ENV menu
-  o Trigger Matrix: since the BPM clock generator concept has been changed in
-    one of the previous releases, we now have a Clk/6 and Clk/24 trigger instead
-    of Clk/4 and Clk/16
-  o LFO and ENV MIDI sync working properly again
-  o portamento omitted after patch change when first key is played
-
-RC19:
-  o Enhancements for SysEx Editor
-    (see also doc/mbsidv2_sysex_implementation.txt)
-    - introduced <WOPT> function which allows to change parameters of
-      multiple voices with a single SysEx command
-    - introduced <sids> selection which allows to access slave SIDs
-      via master SID (command 0C 00 <sids>)
-    - added SysEx command for all notes/sequences off (command 0C 08)
-    - added SysEx command to play the current patch (command 0C 09 [<ins>])
-      Note: for proper handling of <ins>, separate keyboard zones or MIDI channels
-      for multi instruments are currently required - this is no bug, 
-      but just an imperfection (I was too lazy to overwork SID_PATCH_NotesOn yet)
-  o parameter assignment/patch/bank selection: "big message" now displayed
-    immediately when menu item has been selected
-  o The "note off" function of the SHIFT menu now works as "Note On/Off" (called "Ply")
-    This function is intended as replacement for the optional Play button
-    Patch will be played/stopped on all selected SIDs
-  o Removed button combination "SIDx+MENU" (which was previously used for Play function)
-    This combination could get a different purpose on future
-  o LFOs and ENVs of right channel bassline working properly again
-  o AOUT_LC driver now supports 12/12/8 resolution (requires 4 combined 74HC595)
-
-RC20:
-  o Multi Engine: arp handler working properly again
-  o Lead Engine: ENV encoder section working properly again
-  o increased startup delay, so that slave cores will be found even if no BankStick connected
-
-RC21:
-  o added "Log" flag to ENS->FIL menu: cutoff frequency converted through log function
-    to achieve better linearisation of 8580 filter
-  o Filter Keytracking parameter now also available for Lead Engine, the scaling has been slightly
-    changed, so that the maximum value 255 leads to 1:1 tracking (e.g. if 8580 Log function activated,
-    or an external filter is connected)
-  o added "DOR" flag to the ENS->SID menu: Disable automatic Oscillator Reset during patch change
-    could also be called DAORDPC flag ;-)
-  o MB-6582 setup: swapped page up/down button, added Inc/Dec button function
-  o support for 4x20 LCD has used for MB-6582: DEFAULT_LCD_LINES and DEFAULT_LCD_LINE_Y* can
-    be configured in the setup_*.asm file
-  o MB-6582 screen now centered at 2nd and 3rd line
-  o if DEFAULT_LCD_LINES >= 3, the name of the menu will be print at the upper line
-  o if DEFAULT_LCD_LINES >= 4: the value of the currently edited parameter will be displayed
-    as horizontal bar graph at the lower LCD line
-    TODO: display bidirectional parameters like "depth" with a left/right splitted graph
-    TODO: update when a new OSC/Channel/SID is selected
-  o the "blinking LCD cursor" which was set to the selected parameter position is
-    disabled by default now (DEFAULT_LCD_PRINT_CURSOR set to 0), since it clashes with
-    the horizontal bar graph output routine
-  o added experimental features to bassline engine:
-    - new menu page O23 which allows to use OSC2 and OSC3 as slave oscillators
-    - waveforms of slave oscillators can be selected separately
-    - individual sync and ringmod flags
-    - individual octavewise transpose
-    - individual pulsewidth
-    - optional static note (decoupled from master osc) for nice sync/ringmod effects or chords
-    - phase offset
-    - detune
-    - TODO: Knob assignments and maybe more functions
-
-RC22:
-  o "menu labels" (activated if DEFAULT_LCD_LINES >= 3) now completely implemented
-  o added keyboard transpose function for bassline sequencer. MIDI channels and
-    keyboard zones have to be configured for L/R bassline separately with
-    ensemble instrument 3 and 4. The transposer uses C-3 as base note.
-    Example configuration:
-    Ins1 Chn 1 SpL C-3 SpU B-3 Trn 0     L Bassline sequence selected with key C-3..B-3
-    Ins2 Chn 1 SpL C-4 SpU G-8 Trn 0     R Bassline sequence selected with key C-4..
-    Ins3 Chn 1 SpL c-2 SpU B-2 Trn +12   L Bassline sequence transposed with lower keys until B-2
-    Ins4 Chn 1 SpL c-2 SpU B-2 Trn +12   R same as for L
-    "Trn +12" is required in this setup to compensate the octave range of the transposer
-    (base note C-3 is outside the selected keyboard zone c-2..B-2)
-  o bassline and drum sequences not stopped anymore on patch changes
-  o random generator for bassline O23 settings
-
-RC23:
-  o finetune is working properly again
-
-RC24:
-  o voice allocation of multi engine working again
-  o Lead engine: MdW (ModWheel) and Key modulation source now provide a value in
-    positive range only
-  o overworked oscillator pitch handling: now completely linear frequency
-    calculations. 
-    Advantages:
-      - modulation frequency (e.g. LFO vibrato) independent from oscillator frequency
-      - accurate filter key tracking
-      - the O2A option (forward pitch to AOUT) doesn't result into out-of-scale
-        SID frequencies anymore
-  o the presets under presets/v2_vintage_bank.syx have been overworked according to
-    the new osc frequency handling
-
-RC25:
-  o improved "SusKey" (fingered portamento) handling
-
-RC26:
-  o various improvements for Super Poly Mode and SysEx distribution via CAN
-
-RC27:
-  o Super Poly voice queue now handled centrally from master.
-    Slaves notes are triggered via MBNet
-  o SPV value now changed simultaneously for all slaves
-    It can only be changed if master SID selected
-  o PLAY button now plays a chord in superpoly mode
-  o Mod matrix changes forwarded to all selected SIDs
-
-RC28:
-  o fixed arpeggiator note handling bug
-  o arpeggiator: the previously hardcoded "experimental arp behaviour" switch is now 
-    available as software controlable switch called "Easy Chord".
-    It has to be enabled in the ARP menu ("Esy" flag)
-    Difference compared to normal chord entry: depressed keys will still
-    be cylced by the arpeggiator until a new key is pressed.
-    This feature is especially useful when slow arpeggios are played, since
-    it avoids unintended "long notes" on chord changes.
-    It is not useful if you intend to play a voice like a common lead instrument,
-    which should turn into a fast arpeggio when more than one key is played
-    (in this case, ensure that the "Esy" switch is disabled)
-  o fixed drum model handling (listen to the drum patches again - they sound much better now :)
-  o preliminary support for parameter access via 7bit CC
-    (only available for Lead Engine yet)
-
-RC29:
-  o fixed CC#07 (now controls volume as intended)
-  o for 4x20 LCD: MIDI channels and Engines of selected ensemble are displayed at upper line
-  o OSC button now cycles between 1--, -2-, --3 and 123
-  o added optional CS_MENU_BUTTON_Arp function, which can be assigned to a button in setup_*.asm
-
-RC30:
-  o fixed OSC button behaviour (OSC selection corrupted on page changes)
-
-RC31:
-  o fixed storing ensemble in internal EEPROM if no BankStick selected
-  o the ensemble stored in internal EEPROM (previously called E001) is now called EInt
-  o the patch stored in internal EEPROM (previously called [A-H]001) is now called PInt
-  o EInt now automatically selected after startup if no ensemble BankStick connected
-  o E002 now automatically selected after startup if EInt was selected before
-  o fix for communication with Rutger's SysEx editor: mod matrix direct assignments
-    are handled correctly now in stereo edit mode
-
-RC32:
-  o fixed strange Oct display output in Bassline Sequence Editor
-  o added "DEFAULT_ENABLE_UPPER_WAVEFORMS" switch to setup_* files to enable the
-    selection of additional waveforms for SwinSID
-  o overworked Meter display mode in Bassline Mode (enjoy the effect! :)
-  o changed behaviour of Play button: now it plays all SIDs regardless if they
-    are selected or not.
-    Dedicated SIDs can be played by pressing & holding the appr. SID buttons
-    before pressing PLAY
-
-RC33:
-  o built for MIOS V1.9g (or higher) to support new encoder types.
-    Rotary encoders won't work with older MIOS versions!
-    Note that MIOS only has to be updated on the master SID, as encoders
-    are not connected to SID slaves anyhow.
-  o a new LED matrix visualisation mode for sammichSID has been added
-    which is selected with DEFAULT_LEDMATRIX_MODE 2
-    - Lead and Bassline engine: 6x8 LEDs show VU meters for OSC frequency
-    - Multi and Drum engine: 6x8 LEDs show animated VU meters for OSC triggers
-    - ASID player mode: 6x8 LEDs show animated VU meters for OSC triggers
-  o animated VU meters are a bit faster now
-  o a special configuration file and prebuilt binary for sammichSID 
-    is now part of the release package -> setup_sammich_sid.hex
-
-RC34:
-  o fixed race condition in SusKey portamento function
-  o Note Off keys which are not in the note stack are ignored now
-  o implemented CC#123 (All Notes Off)
-    Complies to MIDI spec. Means: only CC#123=0 will unplay all notes,
-    all other values (1..127) are silently ignored
-  o new wavetable control function "Key" allows to select a wavetable
-    step with the currently played note inside the given Begin/End range.
-    E.g., with Begin=0x00, End=0x7f, KEY=on, Par=200 you are able to
-    define different ENV1 Decay parameters for each note.
-    There are much more usecases of course (e.g. different LFO values,
-    different waveforms, Sync/Ring enable/disable in certain keyranges)
-    - be creative :)
-  o Arpeggiator "Easy Chord" function now active in default Lead/Bassline/Multi
-    patch
-  o sammichSID: F2 button now jumps to Knob page by default (especially
-    nice for bassline patches, for other engines the knob assignments
-    are mostly not preconfigured)
-  o Multi Engine: Knob parameter #6 and #7 now allow to control CutOff
-    frequency of left/right channel SID separately. Note that this isn't
-    consistent to Lead/Bassline assignments, but unfortunately there is
-    no other possible solution.
-  o filter page now allows direct L/R channel selection
-  o the full control surface now handles the first press of Osc Select, 
-    Env Select, LFO Select and Filter Mode/Channel Select as a 
-    "jump to page" function if that page was not displayed, and 
-    thereafter, function as a "change selection" function. Thus 
-    if you are not on the LFO page, pressing LFO Select jumps to 
-    LFO page, and then pressing it again will change the selected LFO.
-  o this is the christmas edition, therefore the Matrix LEDs are flickering
-    during startup ;-)
 
 
-RC35:
-  o modulation source "KEY" now uses current frequency instead of key number
-    to consider frequency sweeps correctly
-  o bugfix for "jump to page" (empty page if current item position outside new page)
-  o bugfix for knob page (min/max value modified Pa1 if multiple SIDs selected)
 
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
-RC36:
-  o Bassline engine: detune parameter now mapped to Parameter #003
-  o a table based calibration table is now provided for the SID filter.
-    It has to be adapted under src/sid_filter_table.inc and can either be
-    uploaded together with the firmware build, or separately if by uploading
-    "sid_filter_table.hex" after the "make" command (type "make sid_filter_table"
-    to build only this file)
-    The table can be used to compensate technology related non-linearities
-    of the 6581 R-2R DAC
-  o various minor bugfixes
-
-
-RC37:
-  o SW based feedback loops won't lead to endless repeated replies
-
-
-RC38:
-  o optimized MBNet Handler for fast external access to SID registers
-
-  o added DEFAULT_CC32_FILTER switch to setup_*.asm - it filters CC#32 for
-    programs which send this CC always together with CC#0 on bank changes
-
-  o support for "extended SysEx dump" - see also mbsidv2_sysex_implementation.txt
-
-  o filter mode/channel and waveform flags can now be optionally passed to 
-    J5 (configuration has to be done in setup_*.asm file)
-
-  o (only for Multi Engine): "W+16" flag - waveform can be changed from
-    offset +16 of the wavetable, in combination with another parameter
-    (such as #249), it's possible to control pitch and waveform from
-    a single WT track
-
-
-V2.039:
-  o LFO MIDI Clock Sync has been overworked, it now supports 32 different
-    rates from 16 bars to 1/32 notes including triple and dotted delays!
-
-    If the CSn flag enabled the available rates are:
-    0=LFO disabled, 8=16 bars, 16=14 bars, 24=12 bars, 32=10 bars,
-    40=9 bars, 48=8 bars, 56=7 bars, 64=6 bars, 72=5 bars, 80=4 bars,
-    88=3.5 bars, 96=3 bars, 104=2.5 bars, 112=2 bars, 120=1.5 bars,
-    128=1 bar, 136=1/2., 144=1/1T, 152=1/2, 160=1/4., 168=1/2T,
-    176=1/4, 184=1/8., 192=1/4T, 200=1/8, 208=1/16., 216=1/8T,
-    224=1/16, 232=1/32., 240=1/16T, 248=1/32
-
-    Note that in MIDI Sync mode, the LFO Delay won't work because
-    the appr. resource is used as MIDI clock counter.
-
-  o current bank and patch number won't be changed anymore on direct RAM
-    access via SysEx
-
-  
 
 MEMO:
   - in Bassline mode, CCs could control individual knob parameters for

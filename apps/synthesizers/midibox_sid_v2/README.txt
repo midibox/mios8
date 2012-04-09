@@ -26,6 +26,9 @@ Some precompiled setups are part of this package:
    o setup_8580.hex            (MBSID stuffed with 8580)
    o setup_tk.hex              (TK's Setup)
    o setup_mb6582.hex          (MB-6582 Setup)
+   o setup_tk2.hex             (TK's Setup for his MB-6582)
+   o setup_sammich_sid.hex     (Special setup for sammichSID)
+
 
 The required application upload procedure is described
 under http://www.ucapps.de/mios_bootstrap_newbies.html
