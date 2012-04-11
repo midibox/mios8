@@ -111,22 +111,17 @@ MF_DUMP_WriteData_Cfg_11
 
 	;; set LC emulation ID depending on mode
 	movf	PRODL, W
-	rcall	MF_DUMP_WriteData_Cfg_GetEmuId
-	movwf	LC_ID
+	TABLE_ADDR_MUL_W MF_DUMP_WriteData_Cfg_EmuIdTable, 1
+	tblrd*
+	movff	TABLAT, LC_ID
 	return
 
-MF_DUMP_WriteData_Cfg_GetEmuId
-	JUMPTABLE_2BYTES 10	; entries
-	retlw	0x00  ; Pitchbender Chn1..8
-	retlw	0x00  ; Pitchbender Chn9..16
-	retlw	0x00  ; CC7 Chn1..8
-	retlw	0x00  ; CC7 Chn9..16
-	retlw	0x00  ; CC16..23
-	retlw	0x00  ; CC24..31
-	retlw	0x10  ; Logic Control
-	retlw	0x11  ; Logic Control Extension
-	retlw	0x14  ; Mackie Control
-	retlw	0x15  ; Mackie Control Extension
+MF_DUMP_WriteData_Cfg_EmuIdTable
+	db	0x00, 0x00	; Pitchbender Chn1..8 and Chn9..16
+	db	0x00, 0x00	; CC7 Chn1..8 and Chn9..16
+	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	 ; CCs
+	db	0x10, 0x11	; Logic Control and Extension
+	db	0x14, 0x15	; Mackie Control and Extension
 
 
 MF_DUMP_WriteData_Cfg_12
