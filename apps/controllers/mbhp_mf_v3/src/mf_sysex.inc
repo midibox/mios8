@@ -104,7 +104,7 @@ MF_SYSEX_SysExHeaderGet
 	retlw	0x00		; Vendor ID
 	retlw	0x00
 	retlw	0x7e
-	retlw	0x4f		; MBHP_MF V3 ID
+	retlw	0x4f		; MBHP_MF_NG ID
 	call	MIOS_MIDI_DeviceIDGet
 	SET_BSR	MF_BASE		; (just to improve portability with old sysex handlers which are not prepared for BSR change caused by MIOS_MIDI_DeviceIDGet)
 	return

@@ -1,7 +1,7 @@
 ; $Id$
 ;
 ; Downstripped version of MIOS AIN Handler
-; Adapted to MBHP_MF_V3 project
+; Adapted to MBHP_MF_NG project
 ;
 ; ==========================================================================
 ;

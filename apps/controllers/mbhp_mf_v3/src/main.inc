@@ -1,6 +1,6 @@
 ;$Id$
 ;
-;  Source Code of MBHP_MF_V3 Firmware
+;  Source Code of MBHP_MF_NG Firmware
 ;
 ; ==========================================================================
 ;
@@ -60,7 +60,7 @@
 ;; --------------------------------------------------------------------------
 USER_Init
 	;; ------------------------------------------------------------------
-	;; no LCD is connected to MBHP_MF_V3 module
+	;; no LCD is connected to MBHP_MF_NG module
 	;; -> enable "dummy" LCD driver to avoid J15 port accesses
 	;; ------------------------------------------------------------------
 	clrf	MIOS_PARAMETER1
@@ -237,24 +237,38 @@ USER_MPROC_NotifyReceivedEvent
 	;; branch depending on selected operation mode
 	SET_BSR	MF_BASE
 	movf	MF_OPERATION_MODE, W, BANKED
-	JUMPTABLE_2BYTES 10	; entries
+	JUMPTABLE_2BYTES 24	; entries
 	rgoto	USER_MPROC_M0  ; Pitchbender Chn1..8
 	rgoto	USER_MPROC_M1  ; Pitchbender Chn9..16
 	rgoto	USER_MPROC_M2  ; CC7 Chn1..8
 	rgoto	USER_MPROC_M3  ; CC7 Chn9..16
-	rgoto	USER_MPROC_M4  ; CC16..23
-	rgoto	USER_MPROC_M5  ; CC24..31
-	rgoto	USER_MPROC_M6  ; Logic Control
-	rgoto	USER_MPROC_M7  ; Logic Control Extension
-	rgoto	USER_MPROC_M8  ; Mackie Control
-	rgoto	USER_MPROC_M9  ; Mackie Control Extension
+	rgoto	USER_MPROC_M4  ; CC0..7
+	rgoto	USER_MPROC_M5  ; CC8..15
+	rgoto	USER_MPROC_M6  ; CC16..23
+	rgoto	USER_MPROC_M7  ; CC24..31
+	rgoto	USER_MPROC_M8  ; CC32..39
+	rgoto	USER_MPROC_M9  ; CC40..47
+	rgoto	USER_MPROC_M10 ; CC48..55
+	rgoto	USER_MPROC_M11 ; CC56..63
+	rgoto	USER_MPROC_M12 ; CC64..71
+	rgoto	USER_MPROC_M13 ; CC72..79
+	rgoto	USER_MPROC_M14 ; CC80..87
+	rgoto	USER_MPROC_M15 ; CC88..95
+	rgoto	USER_MPROC_M16 ; CC96..103
+	rgoto	USER_MPROC_M17 ; CC104..111
+	rgoto	USER_MPROC_M18 ; CC112..119
+	rgoto	USER_MPROC_M19 ; CC120..127
+	rgoto	USER_MPROC_M20 ; Logic Control
+	rgoto	USER_MPROC_M21 ; Logic Control Extension
+	rgoto	USER_MPROC_M22 ; Mackie Control
+	rgoto	USER_MPROC_M23 ; Mackie Control Extension
 
 
 USER_MPROC_M0  ; Pitchbender Chn1..8
-USER_MPROC_M6  ; Logic Control
-USER_MPROC_M7  ; Logic Control Extension
-USER_MPROC_M8  ; Mackie Control
-USER_MPROC_M9  ; Mackie Control Extension
+USER_MPROC_M20 ; Logic Control
+USER_MPROC_M21 ; Logic Control Extension
+USER_MPROC_M22 ; Mackie Control
+USER_MPROC_M23 ; Mackie Control Extension
 	;; branch to USER_MPROC_Received_Ex if pitch bender event (for motorfaders) has been received
 	movf	MIOS_PARAMETER1, W
 	andlw	0xf8
@@ -366,14 +380,33 @@ USER_MPROC_M3_End
 	return
 
 ;; ---------------------------------------------------------
-USER_MPROC_M4  ; CC16..23
+USER_MPROC_M4  ; CC0..7
+USER_MPROC_M5  ; CC8..15
+USER_MPROC_M6  ; CC16..23
+USER_MPROC_M7  ; CC24..31
+USER_MPROC_M8  ; CC32..39
+USER_MPROC_M9  ; CC40..47
+USER_MPROC_M10 ; CC48..55
+USER_MPROC_M11 ; CC56..63
+USER_MPROC_M12 ; CC64..71
+USER_MPROC_M13 ; CC72..79
+USER_MPROC_M14 ; CC80..87
+USER_MPROC_M15 ; CC88..95
+USER_MPROC_M16 ; CC96..103
+USER_MPROC_M17 ; CC104..111
+USER_MPROC_M18 ; CC112..119
+USER_MPROC_M19 ; CC120..127
 	movf	MIOS_PARAMETER1, W  ; CC Chn1?
 	xorlw	0xb0
 	bnz	USER_MPROC_M4_End
 
-	movf	MIOS_PARAMETER2, W  ; CC#16..23?
+	movf	MF_OPERATION_MODE, W, BANKED  ; CC matching?
+	addlw	-4
+	rlf	WREG, W
+	rlf	WREG, W
+	rlf	WREG, W
+	xorwf	MIOS_PARAMETER2, W  ; CC matching?
 	andlw	0xf8
-	xorlw	0x10
 	bnz	USER_MPROC_M4_End
 	
 	;; mask out CC LSBs (== fader number)
@@ -385,25 +418,6 @@ USER_MPROC_M4  ; CC16..23
 USER_MPROC_M4_End
 	return
 
-;; ---------------------------------------------------------
-USER_MPROC_M5  ; CC24..31
-	movf	MIOS_PARAMETER1, W  ; CC Chn1?
-	xorlw	0xb0
-	bnz	USER_MPROC_M5_End
-
-	movf	MIOS_PARAMETER2, W  ; CC#24..31?
-	andlw	0xf8
-	xorlw	0x18
-	bnz	USER_MPROC_M5_End
-	
-	;; mask out CC LSBs (== fader number)
-	movf	MIOS_PARAMETER2, W
-	andlw	0x07
-	movwf	LC_FADER_NUMBER
-	rgoto	USER_MPROC_Bx
-
-USER_MPROC_M5_End
-	return
 
 
 USER_MPROC_Bx
@@ -626,24 +640,38 @@ USER_AIN_NotifyChange_SendAlways
 	;; branch depending on selected operation mode
 	SET_BSR	MF_BASE
 	movf	MF_OPERATION_MODE, W, BANKED
-	JUMPTABLE_2BYTES 10	; entries
+	JUMPTABLE_2BYTES 24	; entries
 	rgoto	USER_AIN_NotifyChange_M0  ; Pitchbender Chn1..8
 	rgoto	USER_AIN_NotifyChange_M1  ; Pitchbender Chn9..16
 	rgoto	USER_AIN_NotifyChange_M2  ; CC7 Chn1..8
 	rgoto	USER_AIN_NotifyChange_M3  ; CC7 Chn9..16
-	rgoto	USER_AIN_NotifyChange_M4  ; CC16..23
-	rgoto	USER_AIN_NotifyChange_M5  ; CC24..31
-	rgoto	USER_AIN_NotifyChange_M6  ; Logic Control
-	rgoto	USER_AIN_NotifyChange_M7  ; Logic Control Extension
-	rgoto	USER_AIN_NotifyChange_M8  ; Mackie Control
-	rgoto	USER_AIN_NotifyChange_M9  ; Mackie Control Extension
+	rgoto	USER_AIN_NotifyChange_M4  ; CC0..7
+	rgoto	USER_AIN_NotifyChange_M5  ; CC8..15
+	rgoto	USER_AIN_NotifyChange_M6  ; CC16..23
+	rgoto	USER_AIN_NotifyChange_M7  ; CC24..31
+	rgoto	USER_AIN_NotifyChange_M8  ; CC32..39
+	rgoto	USER_AIN_NotifyChange_M9  ; CC40..47
+	rgoto	USER_AIN_NotifyChange_M10 ; CC48..55
+	rgoto	USER_AIN_NotifyChange_M11 ; CC56..63
+	rgoto	USER_AIN_NotifyChange_M12 ; CC64..71
+	rgoto	USER_AIN_NotifyChange_M13 ; CC72..79
+	rgoto	USER_AIN_NotifyChange_M14 ; CC80..87
+	rgoto	USER_AIN_NotifyChange_M15 ; CC88..95
+	rgoto	USER_AIN_NotifyChange_M16 ; CC96..103
+	rgoto	USER_AIN_NotifyChange_M17 ; CC104..111
+	rgoto	USER_AIN_NotifyChange_M18 ; CC112..119
+	rgoto	USER_AIN_NotifyChange_M19 ; CC120..127
+	rgoto	USER_AIN_NotifyChange_M20 ; Logic Control
+	rgoto	USER_AIN_NotifyChange_M21 ; Logic Control Extension
+	rgoto	USER_AIN_NotifyChange_M22 ; Mackie Control
+	rgoto	USER_AIN_NotifyChange_M23 ; Mackie Control Extension
 
 
 USER_AIN_NotifyChange_M0  ; Pitchbender Chn1..8
-USER_AIN_NotifyChange_M6  ; Logic Control
-USER_AIN_NotifyChange_M7  ; Logic Control Extension
-USER_AIN_NotifyChange_M8  ; Mackie Control
-USER_AIN_NotifyChange_M9  ; Mackie Control Extension
+USER_AIN_NotifyChange_M20 ; Logic Control
+USER_AIN_NotifyChange_M21 ; Logic Control Extension
+USER_AIN_NotifyChange_M22 ; Mackie Control
+USER_AIN_NotifyChange_M23 ; Mackie Control Extension
 	movlw	0x00		; channel offset
 	movwf	TMP1
 	rgoto	USER_AIN_NotifyChange_PB
@@ -756,7 +784,22 @@ USER_AIN_NotifyChange_M3  ; CC7 Chn9..16
 	rgoto	LC_MF_FaderEvent_End
 
 ;; ---------------------------------------------------------
-USER_AIN_NotifyChange_M4  ; CC16..23
+USER_AIN_NotifyChange_M4  ; CC0..7
+USER_AIN_NotifyChange_M5  ; CC8..15
+USER_AIN_NotifyChange_M6  ; CC16..23
+USER_AIN_NotifyChange_M7  ; CC24..31
+USER_AIN_NotifyChange_M8  ; CC32..39
+USER_AIN_NotifyChange_M9  ; CC40..47
+USER_AIN_NotifyChange_M10 ; CC48..55
+USER_AIN_NotifyChange_M11 ; CC56..63
+USER_AIN_NotifyChange_M12 ; CC64..71
+USER_AIN_NotifyChange_M13 ; CC72..79
+USER_AIN_NotifyChange_M14 ; CC80..87
+USER_AIN_NotifyChange_M15 ; CC88..95
+USER_AIN_NotifyChange_M16 ; CC96..103
+USER_AIN_NotifyChange_M17 ; CC104..111
+USER_AIN_NotifyChange_M18 ; CC112..119
+USER_AIN_NotifyChange_M19 ; CC120..127
 	;; for MIDIbox Link: notify begin of stream
 	call	MIOS_MIDI_BeginStream
 
@@ -764,8 +807,13 @@ USER_AIN_NotifyChange_M4  ; CC16..23
 	movlw	0xb0
 	call	MIOS_MIDI_TxBufferPut
 
-	movf	LC_FADER_NUMBER, W
-	addlw	0x10
+	movff	MF_OPERATION_MODE, WREG
+	addlw	-4
+	rlf	WREG, W
+	rlf	WREG, W
+	rlf	WREG, W
+	andlw	0x78
+	addwf	LC_FADER_NUMBER, W
 	call	MIOS_MIDI_TxBufferPut
 
 	movf	LC_FADER_NUMBER, W
@@ -776,29 +824,6 @@ USER_AIN_NotifyChange_M4  ; CC16..23
 	call	MIOS_MIDI_EndStream
 
 	rgoto	LC_MF_FaderEvent_End
-
-;; ---------------------------------------------------------
-USER_AIN_NotifyChange_M5  ; CC24..31
-	;; for MIDIbox Link: notify begin of stream
-	call	MIOS_MIDI_BeginStream
-
-	;; finally send value: E<fader> LSB MSB
-	movlw	0xb0
-	call	MIOS_MIDI_TxBufferPut
-
-	movf	LC_FADER_NUMBER, W
-	addlw	0x18
-	call	MIOS_MIDI_TxBufferPut
-
-	movf	LC_FADER_NUMBER, W
-	call	MIOS_AIN_Pin7bitGet
-	call	MIOS_MIDI_TxBufferPut
-
-	;; for MIDIbox Link: notify end of stream
-	call	MIOS_MIDI_EndStream
-
-	rgoto	LC_MF_FaderEvent_End
-
 
 	
 ;; ---------------------------------------------------------
