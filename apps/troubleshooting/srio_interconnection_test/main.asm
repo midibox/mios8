@@ -162,17 +162,17 @@ USER_DISPLAY_Tick
 
 USER_DISPLAY_Tick_DO
 	call	DEBUG_MSG_SendASMString
-	db	"Pin J8:DO set to 5V, J8:SC/J9:SC and J8:RC/J9:RC set to 0V. ", 0
+	db	"Pin J8:SO set to 5V, J8:SC/J9:SC and J8:RC/J9:RC set to 0V. ", 0
 	rgoto	USER_DISPLAY_Tick_Cont
 
 USER_DISPLAY_Tick_SC
 	call	DEBUG_MSG_SendASMString
-	db	"Pin J8:SC/J9:SC set to 5V, J8:DO and J8:RC/J9:RC set to 0V. ", 0
+	db	"Pin J8:SC/J9:SC set to 5V, J8:SO and J8:RC/J9:RC set to 0V. ", 0
 	rgoto	USER_DISPLAY_Tick_Cont
 
 USER_DISPLAY_Tick_RC
 	call	DEBUG_MSG_SendASMString
-	db	"Pin J8:RC/J9:RC set to 5V, J8:DO and J8:SC/J9:SC set to 0V. ", 0
+	db	"Pin J8:RC/J9:RC set to 5V, J8:SO and J8:SC/J9:SC set to 0V. ", 0
 	rgoto	USER_DISPLAY_Tick_Cont
 
 USER_DISPLAY_Tick_Fail

@@ -14,7 +14,7 @@ from the application -> see debugging.png as an example setup
 
 The Pins are mapped to following keys:
 
-   C : Pin CORE::J8:DO and DOUT::J1:DO = ca. 5V
+   C : Pin CORE::J8:SO and DOUT::J1:SO = ca. 5V
    C#: Pin CORE::J8:SC, CORE::J9:SC, DOUT::J1:SC, DIN::J1:SC = ca. 5V
    D : Pin CORE::J8:RC, CORE::J9:RC, DOUT::J1:RC, DIN::J1:RC = ca. 5V
 
@@ -30,9 +30,9 @@ a look into the schematics:
    http://www.ucapps.de/mbhp/mbhp_doutx4.pdf
    http://www.ucapps.de/mbhp/mbhp_dinx4.pdf
 
-The current status of the J9:DI pin is displayed as well.
+The current status of the J9:SI pin is displayed as well.
 If you disconnect the DIN module from J9, you can directly set the voltage
-level with a cable between J9:DI and Vs (0V), resp. J9:DI and Vd (5V).
+level with a cable between J9:SI and Vs (0V), resp. J9:SI and Vd (5V).
 If no cable is connected, the pin should read 5V (caused by the Pull-Up 
 resistor R9)
 
