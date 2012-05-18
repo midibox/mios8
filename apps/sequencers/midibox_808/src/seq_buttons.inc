@@ -45,6 +45,11 @@ SEQ_BUTTON_Handler_ChkGP1
 	bnz	SEQ_BUTTON_Handler_ChkGP2
 	movlw	0x07
 	andwf	MIOS_PARAMETER1, F
+#if DEFAULT_GP_DIN_REVERSED
+	movf	MIOS_PARAMETER1, W
+	xorlw	0x07
+	movwf	MIOS_PARAMETER1
+#endif
 	call	SEQ_GP_Button
 	rgoto	SEQ_BUTTON_Handler_End
 
@@ -56,6 +61,11 @@ SEQ_BUTTON_Handler_ChkGP2
 	movlw	0x07
 	andwf	MIOS_PARAMETER1, F
 	bsf	MIOS_PARAMETER1, 3
+#if DEFAULT_GP_DIN_REVERSED
+	movf	MIOS_PARAMETER1, W
+	xorlw	0x07
+	movwf	MIOS_PARAMETER1
+#endif
 	call	SEQ_GP_Button
 	rgoto	SEQ_BUTTON_Handler_End
 

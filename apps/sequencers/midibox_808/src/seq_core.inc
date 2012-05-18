@@ -1228,9 +1228,9 @@ SEQ_CORE_Clk_SendEvent_NoMIDI
 	;; note that accent flags assigned to aux layer are handled separately in seq_trg.inc
 #if DEFAULT_GLOBAL_ACCENT_TRK && DEFAULT_GLOBAL_ACCENT_TRK < 17
 	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED, SEQ_CORE_Clk_SendEvent_NoAccFrce
-	movlw	DEFAULT_GLOBAL_ACCENT_TRK - 1
 	movlw	0x7f
 	movwf	MIOS_PARAMETER1
+	movlw	DEFAULT_GLOBAL_ACCENT_TRK - 1
 	call	SEQ_TRK_ReqTrigger
 SEQ_CORE_Clk_SendEvent_NoAccFrce
 #endif

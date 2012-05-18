@@ -1,18 +1,17 @@
 ;$Id$
 	LIST R=DEC
 ;
-; Default setup File for MIDIbox SEQ V3
+; Default setup File for MIDIbox SEQ Dr
 ;
 ; Detailed infos for customization can be found at http://www.ucapps.de/midibox_seq_options.html
-; and http://www.ucapps.de/midibox_808.html
+; and http://www.ucapps.de/midibox_seq_dr.html
 ;
 ; define the LCD display width:
 ;    16: for a 2x16 display
 ;    20: for a 2x20 display (no additional information - screen will be centered, thats all)
 ;    80: for two 2x40 displays
 ;    other values not supported!
-#define DEFAULT_LCD_WIDTH 80
-;
+#define DEFAULT_LCD_WIDTH 16
 ;
 ; Following table allows you to define
 ;   - the track names (must consist of exactly 6 characters!)
@@ -38,12 +37,12 @@ DEFAULT_TRKINFO MACRO
 	db	"Ext1  ",  0,  0,   1,    0	; Track 13
 	db	"Ext2  ",  0,  0,   1,    0	; Track 14
 	db	"Ext3  ",  0,  0,   1,    0	; Track 15
-	db	"Ext4  ",  0,  0,   1,    0	; Track 16
+	db	"Acc.  ",  0,  0,   7,    0	; Track 16
 	ENDM
 ;
 ; define the track which is used for global accent
 ; (0=disabled, 1-16: track number)
-#define DEFAULT_GLOBAL_ACCENT_TRK 0
+#define DEFAULT_GLOBAL_ACCENT_TRK 16
 ;
 ;
 ; BankStick Mode & Allocation Map
@@ -69,7 +68,7 @@ DEFAULT_TRKINFO MACRO
 ;
 ;
 ; Max. length of the DIN/DOUT shift register chain (1-16)
-#define DEFAULT_NUMBER_SR	13
+#define DEFAULT_NUMBER_SR	16
 ;
 ; debounce counter (see the function description of MIOS_SRIO_DebounceSet)
 ; Use 0 for high-quality buttons, use higher values for low-quality buttons
@@ -78,18 +77,18 @@ DEFAULT_TRKINFO MACRO
 ; Some menus are provide the possibility to use 16 "general purpose" buttons
 ; Define the two shift registers which are assigned to this function here:
 ; (valid numbers: 1-16)
-#define DEFAULT_GP_DIN_SR_L	7	; first GP DIN shift register assigned to SR#7
-#define DEFAULT_GP_DIN_SR_R	10	; second GP DIN shift register assigned to SR#10
+#define DEFAULT_GP_DIN_SR_L	5	; first GP DIN shift register assigned to SR#3
+#define DEFAULT_GP_DIN_SR_R	4	; second GP DIN shift register assigned to SR#4
 ;
 ; DIN pins reversed?
-#define DEFAULT_GP_DIN_REVERSED 0
+#define DEFAULT_GP_DIN_REVERSED 1
 ;
 ; above these buttons LEDs should be mounted to visualize the played MIDI events,
 ; but also the current sequencer position, the selected pattern, the menu, etc.
 ; Define the two shift registers which are assigned to this function here:	
 ; (valid numbers: 1-16)
-#define DEFAULT_GP_DOUT_SR_L	3	; first GP DOUT shift register assigned to SR#3
-#define DEFAULT_GP_DOUT_SR_R	4	; second GP DOUT shift register assigned to SR#4
+#define DEFAULT_GP_DOUT_SR_L	2	; first GP DOUT shift register assigned to SR#3
+#define DEFAULT_GP_DOUT_SR_R	1	; second GP DOUT shift register assigned to SR#5
 ;
 ;
 ; === Shift Register Matrix ===
@@ -138,10 +137,10 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_BPM_DIGITS_COMMON	6
 ;
 ;
-; the speed value for the tempo encoder which is used when the "FAST" button is activated:
+; the speed value for the tempo encoder (#0) which is used when the "FAST" button is activated:
 #define DEFAULT_ENC_TEMPO_SPEED_VALUE	3
 ;
-; the speed value for the additional encoders (#1-#16) which is used when the "FAST" button is activated:
+; the speed value for the additional encoders which is used when the "FAST" button is activated:
 #define DEFAULT_ENC_SPEED_VALUE		3
 
 ;; Auto FAST mode: if a layer is assigned to velocity or CC, the fast button will be automatically
@@ -243,7 +242,6 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_STARTUP_PAGE CS_MENU_PAGE_EDIT
 
 
-
 	org	0x3082		; never change the origin!
 ; ==========================================================================
 ;  In this table all button functions are mapped to the DIN pins
@@ -278,47 +276,46 @@ DIN_ENTRY_EOT MACRO
 SEQ_IO_TABLE_DIN
 	;;		Function name		SR#	Pin#
 	;; NOTE: the pins of the 16 general purpose buttons are assigned above, search for DEFAULT_GP_DIN_SR_L (and _R)
-	DIN_ENTRY	SEQ_BUTTON_Live,	 1,	 2
-	DIN_ENTRY	SEQ_BUTTON_Metronome,	 1,	 3
+	DIN_ENTRY	SEQ_BUTTON_Scrub,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Metronome,	 0,	 0
 
-	DIN_ENTRY	SEQ_BUTTON_Stop,	 1,	 4
-	DIN_ENTRY	SEQ_BUTTON_Pause,	 1,	 5
-	DIN_ENTRY	SEQ_BUTTON_Play,	 1,	 6
-	DIN_ENTRY	SEQ_BUTTON_Rew,		 1,	 7
-	DIN_ENTRY	SEQ_BUTTON_Fwd,		 2,	 0
+	DIN_ENTRY	SEQ_BUTTON_Stop,	 3,	 3
+	DIN_ENTRY	SEQ_BUTTON_Pause,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Play,	 3,	 4
+	DIN_ENTRY	SEQ_BUTTON_Rew,		 3,	 1
+	DIN_ENTRY	SEQ_BUTTON_Fwd,		 3,	 2
+	DIN_ENTRY	SEQ_BUTTON_Live,	 3,	 0
 
-	DIN_ENTRY	SEQ_BUTTON_F1,		 2,	 1
-	DIN_ENTRY	SEQ_BUTTON_F2,		 2,	 2
-	DIN_ENTRY	SEQ_BUTTON_F3,		 2,	 3
-	DIN_ENTRY	SEQ_BUTTON_F4,		 2,	 4
+	DIN_ENTRY	SEQ_BUTTON_F1,		 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_F2,		 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_F3,		 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_F4,		 0,	 0
 
-	DIN_ENTRY	SEQ_BUTTON_Alt,		 2,	 5
-	DIN_ENTRY	SEQ_BUTTON_Shift,	 2,	 6
-	DIN_ENTRY	SEQ_BUTTON_Alt,		 2,	 7
+	DIN_ENTRY	SEQ_BUTTON_Alt,		 3,	 6
+	DIN_ENTRY	SEQ_BUTTON_Shift,	 3,	 5
 
-	DIN_ENTRY	SEQ_BUTTON_SectionA,	 3,	 0
-	DIN_ENTRY	SEQ_BUTTON_SectionB,	 3,	 1
-	DIN_ENTRY	SEQ_BUTTON_SectionC,	 3,	 2
-	DIN_ENTRY	SEQ_BUTTON_SectionD,	 3,	 3
+	DIN_ENTRY	SEQ_BUTTON_SectionA,	 2,	 4
+	DIN_ENTRY	SEQ_BUTTON_SectionB,	 2,	 5
+	DIN_ENTRY	SEQ_BUTTON_SectionC,	 2,	 6
+	DIN_ENTRY	SEQ_BUTTON_SectionD,	 2,	 7
 
-	DIN_ENTRY	SEQ_BUTTON_LayerGate,	 3,	 4
-	DIN_ENTRY	SEQ_BUTTON_LayerAux,	 3,	 5
-	DIN_ENTRY	SEQ_BUTTON_Live,	 3,	 6
+	DIN_ENTRY	SEQ_BUTTON_LayerGate,	 1,	 0
+	DIN_ENTRY	SEQ_BUTTON_LayerAux,	 1,	 1
 
-	DIN_ENTRY	SEQ_BUTTON_Edit,	 4,	 0
-	DIN_ENTRY	SEQ_BUTTON_Mute,	 4,	 1
-	DIN_ENTRY	SEQ_BUTTON_Pattern,	 4,	 2
-	DIN_ENTRY	SEQ_BUTTON_Song,	 4,	 3
+	DIN_ENTRY	SEQ_BUTTON_Edit,	 2,	 3
+	DIN_ENTRY	SEQ_BUTTON_Mute,	 2,	 0
+	DIN_ENTRY	SEQ_BUTTON_Pattern,	 2,	 1
+	DIN_ENTRY	SEQ_BUTTON_Song,	 2,	 2
 
-	DIN_ENTRY	SEQ_BUTTON_Solo,	 4,	 4
-	DIN_ENTRY	SEQ_BUTTON_Fast,	 4,	 5
-	DIN_ENTRY	SEQ_BUTTON_All,		 4,	 6
+	DIN_ENTRY	SEQ_BUTTON_Solo,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Fast,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_All,		 0,	 0
 
 	;; OPTIONAL! see CHANGELOG.txt
-	DIN_ENTRY	SEQ_BUTTON_Group1,	13,	 0
-	DIN_ENTRY	SEQ_BUTTON_Group2,	13,	 1
-	DIN_ENTRY	SEQ_BUTTON_Group3,	13,	 2
-	DIN_ENTRY	SEQ_BUTTON_Group4,	13,	 3
+	DIN_ENTRY	SEQ_BUTTON_Group1,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Group2,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Group3,	 0,	 0
+	DIN_ENTRY	SEQ_BUTTON_Group4,	 0,	 0
 
 	DIN_ENTRY_EOT
 
@@ -334,32 +331,31 @@ SEQ_IO_TABLE_DIN
 ; ==========================================================================
 
 ;;                         SR    ignore    Pin
-LED_SECTION_A	EQU	((( 1   -1)<<3)+    0)
-LED_SECTION_B	EQU	((( 1   -1)<<3)+    1)
-LED_SECTION_C	EQU	((( 1   -1)<<3)+    2)
-LED_SECTION_D	EQU	((( 1   -1)<<3)+    3)
+LED_SECTION_A	EQU	((( 3   -1)<<3)+    0)
+LED_SECTION_B	EQU	((( 3   -1)<<3)+    1)
+LED_SECTION_C	EQU	((( 3   -1)<<3)+    2)
+LED_SECTION_D	EQU	((( 3   -1)<<3)+    3)
 
 ;;                         SR    ignore    Pin
-LED_LAYER_GATE	EQU	((( 1   -1)<<3)+    4)
-LED_LAYER_AUX	EQU	((( 1   -1)<<3)+    5)
-LED_LIVE	EQU	((( 1   -1)<<3)+    6)
+LED_LAYER_GATE	EQU	((( 0   -1)<<3)+    0)
+LED_LAYER_AUX	EQU	((( 0   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
-LED_EDIT	EQU	((( 2   -1)<<3)+    0)
-LED_MUTE	EQU	((( 2   -1)<<3)+    1)
-LED_PATTERN	EQU	((( 2   -1)<<3)+    2)
-LED_SONG	EQU	((( 2   -1)<<3)+    3)
+LED_EDIT	EQU	((( 3   -1)<<3)+    7)
+LED_MUTE	EQU	((( 3   -1)<<3)+    4)
+LED_PATTERN	EQU	((( 3   -1)<<3)+    5)
+LED_SONG	EQU	((( 3   -1)<<3)+    6)
 
 ;;                         SR    ignore    Pin
-LED_SOLO	EQU	((( 2   -1)<<3)+    4)
-LED_FAST	EQU	((( 2   -1)<<3)+    5)
-LED_ALL		EQU	((( 2   -1)<<3)+    6)
+LED_SOLO	EQU	((( 0   -1)<<3)+    0)
+LED_FAST	EQU	((( 0   -1)<<3)+    0)
+LED_ALL		EQU	((( 0   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
-LED_GROUP1	EQU	(((11   -1)<<3)+    0)
-LED_GROUP2	EQU	(((11   -1)<<3)+    2)
-LED_GROUP3	EQU	(((11   -1)<<3)+    4)
-LED_GROUP4	EQU	(((11   -1)<<3)+    6)
+LED_GROUP1	EQU	((( 0   -1)<<3)+    0)
+LED_GROUP2	EQU	((( 0   -1)<<3)+    0)
+LED_GROUP3	EQU	((( 0   -1)<<3)+    0)
+LED_GROUP4	EQU	((( 0   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
 LED_SHIFT	EQU	((( 0   -1)<<3)+    0)
@@ -367,7 +363,7 @@ LED_ALT		EQU	((( 0   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
 LED_RECORD	EQU	((( 0   -1)<<3)+    0)
-LED_AUX		EQU	((( 0   -1)<<3)+    0)
+LED_BEAT	EQU	((( 0   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
 LED_PLAY	EQU	((( 0   -1)<<3)+    0)
@@ -375,12 +371,10 @@ LED_STOP	EQU	((( 0   -1)<<3)+    0)
 LED_PAUSE	EQU	((( 0   -1)<<3)+    0)
 LED_FWD		EQU	((( 0   -1)<<3)+    0)
 LED_REW		EQU	((( 0   -1)<<3)+    0)
+LED_LIVE	EQU	((( 0   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
-LED_BEAT	EQU	((( 1   -1)<<3)+    7)
-
-;;                         SR    ignore    Pin
-LED_MIDI_RX	EQU	(((2    -1)<<3)+    7) ; OPTIONAL! see CHANGELOG.txt
+LED_MIDI_RX	EQU	(((0    -1)<<3)+    0) ; OPTIONAL! see CHANGELOG.txt
 LED_MIDI_TX	EQU	(((0    -1)<<3)+    0) ; SR=0 -> disabled by default
 
 
@@ -421,25 +415,8 @@ ENC_EOT	MACRO
 
 MIOS_ENC_PIN_TABLE
 	;;        SR  Pin  Mode
-	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; Tempo Encoder
-	ENC_ENTRY 16,  6,  MIOS_ENC_MODE_DETENTED2	; Instrument Encoder (disabled, use last two pins of SRIO)
-
-	ENC_ENTRY  5,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 1
-	ENC_ENTRY  5,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 2
-	ENC_ENTRY  5,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 3
-	ENC_ENTRY  5,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 4
-	ENC_ENTRY  6,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 5
-	ENC_ENTRY  6,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 6
-	ENC_ENTRY  6,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 7
-	ENC_ENTRY  6,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 8
-	ENC_ENTRY  8,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 9
-	ENC_ENTRY  8,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 10
-	ENC_ENTRY  8,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 11
-	ENC_ENTRY  8,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 12
-	ENC_ENTRY  9,  0,  MIOS_ENC_MODE_DETENTED2	; V-Pot 13
-	ENC_ENTRY  9,  2,  MIOS_ENC_MODE_DETENTED2	; V-Pot 14
-	ENC_ENTRY  9,  4,  MIOS_ENC_MODE_DETENTED2	; V-Pot 15
-	ENC_ENTRY  9,  6,  MIOS_ENC_MODE_DETENTED2	; V-Pot 16
+	ENC_ENTRY  1,  6,  MIOS_ENC_MODE_DETENTED2	; Instrument Encoder
+	ENC_ENTRY  1,  4,  MIOS_ENC_MODE_DETENTED2	; Tempo Encoder
 
 	;; don't remove this "end-of-table" entry!
 	ENC_EOT			

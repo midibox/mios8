@@ -14,7 +14,7 @@ GPASM_DEFINES =
 
 # default rule that defines the .hex files which should be created
 # note: always require a "cleanall", since dependencies (e.g. on .h and .inc files) are not properly declared
-all: cleanall setup_808_mbseqv3_hardware.hex setup_808_mbseqv3_tk.hex setup_808_tk.hex setup_808_default.hex setup_808_with_swingpot.hex
+all: cleanall setup_808_mbseqv3_hardware.hex setup_808_mbseqv3_tk.hex setup_808_tk.hex setup_808_default.hex setup_808_with_swingpot.hex setup_seq_dr_default.hex setup_seq_dr_with_swingpot.hex
 
 
 # include the asm_only.mk file

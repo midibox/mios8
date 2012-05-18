@@ -80,6 +80,9 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_GP_DIN_SR_L	3	; first GP DIN shift register assigned to SR#3
 #define DEFAULT_GP_DIN_SR_R	4	; second GP DIN shift register assigned to SR#4
 ;
+; DIN pins reversed?
+#define DEFAULT_GP_DIN_REVERSED 0
+;
 ; above these buttons LEDs should be mounted to visualize the played MIDI events,
 ; but also the current sequencer position, the selected pattern, the menu, etc.
 ; Define the two shift registers which are assigned to this function here:	
@@ -288,7 +291,6 @@ SEQ_IO_TABLE_DIN
 	DIN_ENTRY	SEQ_BUTTON_F3,		 0,	 0
 	DIN_ENTRY	SEQ_BUTTON_F4,		 0,	 0
 
-	DIN_ENTRY	SEQ_BUTTON_Alt,		 0,	 0
 	DIN_ENTRY	SEQ_BUTTON_Shift,	 2,	 5
 	DIN_ENTRY	SEQ_BUTTON_Alt,		 2,	 4
 
