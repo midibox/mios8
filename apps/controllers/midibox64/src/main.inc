@@ -125,9 +125,9 @@ USER_Init
 	call	MB64_LCD_SetDefaultOffsets
 	;; if "snapshot at poweron" flag is set, request it here
 	SET_BSR	MB64_BASE
-	bcf	MB_STAT, MB_STAT_SNAPSHOT_REQ
+	bcf	MB_STAT2, MB_STAT2_PWR_SNAPSHOT_REQ
 	btfsc	MB64_CFG1, MB64_CFG1_SNAPSHOT_AT_POWERON, BANKED
-	bsf	MB_STAT, MB_STAT_SNAPSHOT_REQ
+	bsf	MB_STAT2, MB_STAT2_PWR_SNAPSHOT_REQ
 
 	;; ------------------------------------------------------------------
 
@@ -177,6 +177,9 @@ USER_Tick
 	;; ---[ if snapshot has been requested, send it here ]---
 	CALL_IFSET MB_STAT, MB_STAT_SNAPSHOT_REQ, ACCESS, MB64_PATCH_Send
 	bcf	MB_STAT, MB_STAT_SNAPSHOT_REQ
+
+	CALL_IFSET MB_STAT2, MB_STAT2_PWR_SNAPSHOT_REQ, ACCESS, MB64_PATCH_SendCurrent
+	bcf	MB_STAT2, MB_STAT2_PWR_SNAPSHOT_REQ
 
 #if DEFAULT_ENABLE_DRUMS
 	;; ---[ call drum handler ]---

@@ -13,11 +13,62 @@
 
 
 ;; --------------------------------------------------------------------------
+;;  sends current pot/button settings
+;; --------------------------------------------------------------------------
+MB64_PATCH_SendCurrent
+	;; copy current pot/button values into arrays
+
+#if DEFAULT_NUMBER_POTS
+	SET_BSR	MB64_BASE
+	clrf	MB64_CURRENT_POT, BANKED
+MB64_PATCH_SendCurrent_P_Loop
+	call	MB64_FSR_PotValue
+	movff	MB64_CURRENT_POT, WREG
+	call	MIOS_AIN_Pin7bitGet
+	movwf	INDF0
+
+	SET_BSR	MB64_BASE
+	incf	MB64_CURRENT_POT, F, BANKED
+	movlw	DEFAULT_NUMBER_POTS-1
+	cpfsgt	MB64_CURRENT_POT, BANKED
+	rgoto	MB64_PATCH_SendCurrent_P_Loop
+#endif
+
+#if DEFAULT_NUMBER_BUTTONS
+	SET_BSR	MB64_BASE
+	clrf	MB64_CURRENT_BUTTON, BANKED
+MB64_PATCH_SendCurrent_B_Loop
+	rrf	MB64_CURRENT_BUTTON, W, BANKED
+	rrf	WREG, W
+	rrf	WREG, W
+	andlw	0xf	
+	call	MIOS_DIN_SRGet
+	movwf	TMP1
+
+	call	MB64_FSR_ButtonValue
+	movff	TMP1, INDF0
+
+	SET_BSR	MB64_BASE
+	movlw	8
+	addwf	MB64_CURRENT_BUTTON, F, BANKED
+	movlw	DEFAULT_NUMBER_BUTTONS-1
+	cpfsgt	MB64_CURRENT_BUTTON, BANKED
+	rgoto	MB64_PATCH_SendCurrent_B_Loop
+#endif
+
+	rgoto	MB64_PATCH_SendCurrentCont
+
+;; --------------------------------------------------------------------------
 ;;  sends a pot/button snapshot
 ;; --------------------------------------------------------------------------
 MB64_PATCH_SENDING_STR_0	STRING 16, 0x00, "Sending Snapshot"
 MB64_PATCH_Send
 
+	;; restore settings
+	call	MB64_DUMP_RestorePatch
+
+	;; optionally send current pot/button settings without restoring patch
+MB64_PATCH_SendCurrentCont
 	;; clear screen
 	call	MIOS_LCD_Clear
 
@@ -28,9 +79,6 @@ MB64_PATCH_Send
 	;; for the progress bar: begin at second line, first column
 	movlw	0x40
 	call	MIOS_LCD_CursorSet
-
-	;; restore settings
-	call	MB64_DUMP_RestorePatch
 
 #if DEFAULT_NUMBER_POTS
 	;; send pot events

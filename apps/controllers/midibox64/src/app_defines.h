@@ -38,6 +38,7 @@
 
 #define MB_STAT2_DONT_FLASH_L_GP_DOUT	0 ; if set, the 8 GP leds on the left side won't be flashed
 #define MB_STAT2_DONT_FLASH_R_GP_DOUT	1 ; if set, the 8 GP leds on the right side won't be flashed
+#define MB_STAT2_PWR_SNAPSHOT_REQ	2 ; if set, the current pot/button values will be sent after power-on
 
 ;; ==========================================================================
 
