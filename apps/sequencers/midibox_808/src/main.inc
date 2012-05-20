@@ -409,6 +409,9 @@ USER_ENC_NotifyChange_GP
 ;;  and IRQ_TMPx instead of TMPx -- and make the routine as fast as possible
 ;; --------------------------------------------------------------------------
 USER_SR_Service_Prepare
+	;; ---[ service CV DOUTs ]---
+	call	SEQ_TRK_CV_DOUT_Update
+
 	;; call the SEQ LED IRQ update handler
  	call	SEQ_LED_UpdateIRQ
 	;; branch to the Rx/Tx LED handler

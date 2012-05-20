@@ -18,26 +18,28 @@
 ;   - the DOUT shift registers (SR) to which the drum triggers are connected
 ;     (1-16; 0 disables assignment)
 ;   - the DOUT pin to which the drum triggers are connected (0-7)
+;     Note: since version v1.3 the "real" Dx pin number (D0..D7) has to be specified, in previous releases it was mirrored!
 ;   - the MIDI output port (0=disabled, 1=Default, 2=Internal, 3=IIC1, 4=IIC2, 5=IIC3, 6=IIC4, 7=Trigger Only)
-;   - the AOUT channel to output velocity (1-8, 0=disabled)
+;   - the AOUT/CV channel to output velocity (1-16, 0=disabled)
+;     Note: AOUT module only supports 8 highres channels, but CV outputs can also be realized with DOUTs (see DEFAULT_CV_DOUT* option)
 DEFAULT_TRKINFO MACRO
 	;;       Name     SR  Pin MPort AChn
-	db	"BD    ",  1,  1,   1,    0	; Track 1
-	db	"SD    ",  1,  2,   1,    0	; Track 2
-	db	"LT/LC ",  1,  3,   1,    0	; Track 3
-	db	"MT/MC ",  1,  4,   1,    0	; Track 4
-	db	"HT/HC ",  1,  5,   1,    0	; Track 5
-	db	"CP    ",  1,  6,   1,    0	; Track 6
-	db	"MA    ",  1,  7,   1,    0	; Track 7
-	db	"RS/CL ",  4,  0,   1,    0	; Track 8
-	db	"CB    ",  4,  1,   1,    0	; Track 9
-	db	"CY    ",  4,  3,   1,    0	; Track 10
-	db	"OH    ",  4,  4,   1,    0	; Track 11
-	db	"CH    ",  4,  5,   1,    0	; Track 12
+	db	"BD    ",  1,  6,   1,    0	; Track 1
+	db	"SD    ",  1,  5,   1,    0	; Track 2
+	db	"LT/LC ",  1,  4,   1,    0	; Track 3
+	db	"MT/MC ",  1,  3,   1,    0	; Track 4
+	db	"HT/HC ",  1,  2,   1,    0	; Track 5
+	db	"CP    ",  1,  1,   1,    0	; Track 6
+	db	"MA    ",  1,  0,   1,    0	; Track 7
+	db	"RS/CL ",  4,  7,   1,    0	; Track 8
+	db	"CB    ",  4,  6,   1,    0	; Track 9
+	db	"CY    ",  4,  4,   1,    0	; Track 10
+	db	"OH    ",  4,  3,   1,    0	; Track 11
+	db	"CH    ",  4,  2,   1,    0	; Track 12
 	db	"Ext1  ",  0,  0,   1,    0	; Track 13
 	db	"Ext2  ",  0,  0,   1,    0	; Track 14
 	db	"Ext3  ",  0,  0,   1,    0	; Track 15
-	db	"Acc.  ",  7,  7,   7,    0	; Track 16
+	db	"Acc.  ",  7,  0,   7,    0	; Track 16
 	ENDM
 ;
 ; define the track which is used for global accent
@@ -227,6 +229,49 @@ DEFAULT_TRKINFO MACRO
 #define AOUT_LC_RESOLUTION_OPTION_M2 1
 #define AOUT_LC_RESOLUTION_OPTION_M3 1
 #define AOUT_LC_RESOLUTION_OPTION_M4 1
+
+
+;;
+;; CV values can also be output via DOUT shift registers
+;; This option is sufficient to control the "velocity" of drum instruments, and it's cheap as well!
+;; We expect following connections:
+;; 
+;;   DOUT      ca. 160k
+;;    D7 ---o---/\/\/\---*
+;;              ca. 80k  |
+;;    D6 ---o---/\/\/\---*
+;;              ca. 40k  |
+;;    D5 ---o---/\/\/\---*
+;;              ca. 20k  |
+;;    D4 ---o---/\/\/\---*
+;;              ca. 10k  |
+;;    D3 ---o---/\/\/\---*
+;;              ca. 5k   |
+;;    D2 ---o---/\/\/\---*----o CV Out
+;;              220 Ohm
+;;    D1 ---o---/\/\/\--------o free assignable trigger
+;;              220 Ohm
+;;    D0 ---o---/\/\/\--------o another free assignable trigger
+;; 
+;; The DOUTx channels are matching with the AOUT channels as specified in the DEFAULT_TRKINFO table above.
+;; Allowed values: 1-16 (selects DOUT shift register) or 0 to disable
+;; Ensure that DEFAULT_NUMBER_SR is high enough so that all DOUTs are updated.
+#define DEFAULT_CV_DOUT_SR1  0
+#define DEFAULT_CV_DOUT_SR2  0
+#define DEFAULT_CV_DOUT_SR3  0
+#define DEFAULT_CV_DOUT_SR4  0
+#define DEFAULT_CV_DOUT_SR5  0
+#define DEFAULT_CV_DOUT_SR6  0
+#define DEFAULT_CV_DOUT_SR7  0
+#define DEFAULT_CV_DOUT_SR8  0
+#define DEFAULT_CV_DOUT_SR9  0
+#define DEFAULT_CV_DOUT_SR10 0
+#define DEFAULT_CV_DOUT_SR11 0
+#define DEFAULT_CV_DOUT_SR12 0
+#define DEFAULT_CV_DOUT_SR13 0
+#define DEFAULT_CV_DOUT_SR14 0
+#define DEFAULT_CV_DOUT_SR15 0
+#define DEFAULT_CV_DOUT_SR16 0
 
 
 ;; 0: disables swing pot

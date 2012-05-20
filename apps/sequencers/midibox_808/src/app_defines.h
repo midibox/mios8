@@ -427,7 +427,25 @@ SEQ_TAPTEMPO_AVERAGE3_H	EQU	0x17f	; used in "seq_core.inc" for tap tempo functio
 SEQ_CHAIN_PLAY_PTR	EQU	0x180	; used in "seq_core.inc" to go through chain
 SEQ_CHAIN_TOP		EQU	0x181	; used in "seq_core.inc" to store top if chain
 
-	;; free: 0x178-0x19d
+SEQ_CV_DOUT_VALUE1      EQU     0x182	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE2      EQU     0x183	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE3      EQU     0x184	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE4      EQU     0x185	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE5      EQU     0x186	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE6      EQU     0x187	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE7      EQU     0x188	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE8      EQU     0x189	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE9      EQU     0x18a	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE10     EQU     0x18b	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE11     EQU     0x18c	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE12     EQU     0x18d	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE13     EQU     0x18e	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE14     EQU     0x18f	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE15     EQU     0x190	; used in "seq_trk.inc"
+SEQ_CV_DOUT_VALUE16     EQU     0x191	; used in "seq_trk.inc"
+
+	;; free: 0x192-0x19d
+
 
 ;; ==================================================================================
 

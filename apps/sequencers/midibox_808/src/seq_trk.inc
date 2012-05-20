@@ -67,8 +67,25 @@ SEQ_TRK_ReqTrigger
 	movf	TABLAT, W
 	bz	SEQ_TRK_ReqTrigger_NoAOUT
 SEQ_TRK_ReqTrigger_AOUT
-	movf	MIOS_PARAMETER2, W	; pin number was temporary stored in MIOS_PARAMETER2
+	decf	TABLAT, W		; check for CV DOUT channel number in range 0..15
+	andlw	0xf0
+	bnz	SEQ_TRK_ReqTrigger_CV_Invalid
+SEQ_TRK_ReqTrigger_CV
+	lfsr	FSR1, SEQ_CV_DOUT_VALUE1
+	decf	TABLAT, W		; assigned CV channel number
+	andlw	0x0f
+	addwf	FSR1L, F
+	rrf	MIOS_PARAMETER1, W	; use 6bit resolution 
+	andlw	0x3f
+	movwf	INDF1
+SEQ_TRK_ReqTrigger_CV_Invalid
+
+	decf	TABLAT, W		; check for AOUT channel number in range 0..7
+	andlw	0xf8
+	bnz	SEQ_TRK_ReqTrigger_AOUT_Invalid
+	decf	TABLAT, W		; assigned AOUT channel number
 	call	AOUT_Pin7bitSet		; velocity passed in MIOS_PARAMETER1
+SEQ_TRK_ReqTrigger_AOUT_Invalid
 SEQ_TRK_ReqTrigger_NoAOUT
 
 	return
@@ -115,6 +132,7 @@ SEQ_TRK_SetTriggersLoop_Cont
 	
 	tblrd*+				; read pin number
 	movf	TABLAT, W
+	xorlw	0x07			; DOUT pins are mirrored!
 	call	MIOS_HLP_GetBitORMask	; get OR mask
 	iorwf	INDF1, F		; set bit
 SEQ_TRK_SetTriggersLoop_Next
@@ -167,6 +185,7 @@ SEQ_TRK_ClearTriggersLoop_Cont
 	
 	tblrd*+				; read pin number
 	movf	TABLAT, W
+	xorlw	0x07			; DOUT pins are mirrored!
 	call	MIOS_HLP_GetBitANDMask	; get AND mask
 	andwf	INDF1, F		; clear bit
 SEQ_TRK_ClearTriggersLoop_Next
@@ -201,3 +220,42 @@ SEQ_TRK_GetMIDIPort
 	return
 
 
+;; --------------------------------------------------------------------------
+;;  This function is called periodically by USER_SR_ServicePrepare to
+;;  transfer CV channel values to DOUT registers
+;; --------------------------------------------------------------------------
+SEQ_TRK_CV_DOUT_Update
+
+	;; help macro
+SEQ_TRK_CV_DOUT_Update_SR MACRO cv, DOUT_SR
+  IF DOUT_SR && DOUT_SR <= 16
+	movlw	DOUT_SR-1
+	call	MIOS_DOUT_SRGet
+	andlw	0xc0
+	SET_BSR	SEQ_BASE
+	iorwf	SEQ_CV_DOUT_VALUE1+cv, W, BANKED
+	movwf	MIOS_PARAMETER1
+	movlw	DOUT_SR-1
+	call	MIOS_DOUT_SRSet
+  ENDIF
+	ENDM
+
+
+	SEQ_TRK_CV_DOUT_Update_SR 0, DEFAULT_CV_DOUT_SR1
+	SEQ_TRK_CV_DOUT_Update_SR 1, DEFAULT_CV_DOUT_SR2
+	SEQ_TRK_CV_DOUT_Update_SR 2, DEFAULT_CV_DOUT_SR3
+	SEQ_TRK_CV_DOUT_Update_SR 3, DEFAULT_CV_DOUT_SR4
+	SEQ_TRK_CV_DOUT_Update_SR 4, DEFAULT_CV_DOUT_SR5
+	SEQ_TRK_CV_DOUT_Update_SR 5, DEFAULT_CV_DOUT_SR6
+	SEQ_TRK_CV_DOUT_Update_SR 6, DEFAULT_CV_DOUT_SR7
+	SEQ_TRK_CV_DOUT_Update_SR 7, DEFAULT_CV_DOUT_SR8
+	SEQ_TRK_CV_DOUT_Update_SR 8, DEFAULT_CV_DOUT_SR9
+	SEQ_TRK_CV_DOUT_Update_SR 9, DEFAULT_CV_DOUT_SR10
+	SEQ_TRK_CV_DOUT_Update_SR 10, DEFAULT_CV_DOUT_SR11
+	SEQ_TRK_CV_DOUT_Update_SR 11, DEFAULT_CV_DOUT_SR12
+	SEQ_TRK_CV_DOUT_Update_SR 12, DEFAULT_CV_DOUT_SR13
+	SEQ_TRK_CV_DOUT_Update_SR 13, DEFAULT_CV_DOUT_SR14
+	SEQ_TRK_CV_DOUT_Update_SR 14, DEFAULT_CV_DOUT_SR15
+	SEQ_TRK_CV_DOUT_Update_SR 15, DEFAULT_CV_DOUT_SR16
+
+	return
