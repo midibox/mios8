@@ -93,8 +93,9 @@ SEQ_MODE2_FWD_HOLD		EQU	0	; FWD button hold
 SEQ_MODE2_REW_HOLD		EQU	1	; REW button hold
 SEQ_MODE2_LIVE_MODE		EQU	2	; if live play mode active
 SEQ_MODE2_LIVEPLAY		EQU	2	; currently assigned to loop button (therefore same flag): liveplay mode
-SEQ_MODE2_FORCE_ACCENT		EQU	3	; force accented notes
-SEQ_MODE2_FORCE_AUX		EQU	4	; force aux layer
+SEQ_MODE2_GLOBAL_ACCENT		EQU	3	; global accent controlled by accent track
+SEQ_MODE2_FORCE_ACCENT		EQU	4	; force accented notes
+SEQ_MODE2_FORCE_AUX		EQU	6	; force aux layer
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by USER_Init to initialize the sequencer
@@ -748,19 +749,83 @@ SEQ_CORE_Clk_NoMetro
 	bsf	LATC, 5
 #endif
 
+
+	;; ------------------------------------------------------------------
+	;; Handle the accent track first
+	;; ------------------------------------------------------------------
+	bcf	SEQ_MODE2, SEQ_MODE2_GLOBAL_ACCENT, BANKED
+
+#if DEFAULT_GLOBAL_ACCENT_TRK && DEFAULT_GLOBAL_ACCENT_TRK < 17
+	movlw	DEFAULT_GLOBAL_ACCENT_TRK-1
+	movwf	SEQ_EVNTT, BANKED
+	call	SEQ_CORE_Trk
+
+	;; extra: if global accent track available, and "FORCE_ACCENT" flag set: trigger it!
+	;; note that accent flags assigned to aux layer are handled separately in seq_trg.inc
+	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED, SEQ_CORE_Clk_NoAccFrce
+SEQ_CORE_Clk_AccFrce
+	bsf	SEQ_MODE2, SEQ_MODE2_GLOBAL_ACCENT, BANKED
+
+	movlw	0x7f
+	movwf	MIOS_PARAMETER1
+	movlw	DEFAULT_GLOBAL_ACCENT_TRK - 1
+	call	SEQ_TRK_ReqTrigger
+SEQ_CORE_Clk_NoAccFrce
+#endif
+
 	;; ------------------------------------------------------------------
 	;; starting the big clock loop which handles every single track separately
 	;; ------------------------------------------------------------------
 	clrf	MIDI_EVNT_PORT0_RS		; clear running status of port 0 (so that it is ensured that we start with status event)
 	clrf	SEQ_EVNTT, BANKED		; using SEQ_EVNTT as loop counter
 SEQ_CORE_Clk_Loop
+
+#if DEFAULT_GLOBAL_ACCENT_TRK && DEFAULT_GLOBAL_ACCENT_TRK < 17
+	;; don't handle accent track again
+	movf	SEQ_EVNTT, W, BANKED
+	xorlw	DEFAULT_GLOBAL_ACCENT_TRK-1
+	bz	SEQ_CORE_Clk_NextTrack
+#endif
+
+	call	SEQ_CORE_Trk
+
+	;; ------------------------------------------------------------------
+	;; switch to next track until last track reached
+	;; ------------------------------------------------------------------
+SEQ_CORE_Clk_NextTrack
+	incf	SEQ_EVNTT, F, BANKED	; increment track number
+	movlw	SEQ_NUMBER_TRACKS-1
+	cpfsgt	SEQ_EVNTT, BANKED
+	rgoto SEQ_CORE_Clk_Loop
+
+	;; ------------------------------------------------------------------
+
+SEQ_CORE_Clk_End
+	;; clear global accent flag, should only be set temporary controlled by accent track
+	bcf	SEQ_MODE2, SEQ_MODE2_GLOBAL_ACCENT, BANKED
+
+	;; finally...
+
+#if SEQ_CORE_MEASURE_PERFORMANCE
+	bcf	LATC, 5
+#endif
+	return
+
+
+
+
+;; --------------------------------------------------------------------------
+;;  Handles a clock event for the given track
+;;  IN: track number in SEQ_EVNTT
+;; --------------------------------------------------------------------------
+SEQ_CORE_Trk
 	rcall	SEQ_CORE_Calc_TRKx_FSR0		; calculate pointer to SEQ_TRKx -> FSR0
 	rcall	SEQ_CORE_Calc_TRKVARx_FSR2	; calculate pointer to SEQ_TRKVARx -> FSR2
 
 	;; ------------------------------------------------------------------
 	;; play "off event" when decremented TRKVARQUEUEL_[LH]x reaches 0
 	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_OffEvent
+SEQ_CORE_Trk_OffEvent
 	;; transfer length to PROD[LH] for easier calculation
 	movlw	SEQ_TRKVARQUEUEL_Lx
 	movff	PLUSW2, PRODL
@@ -770,7 +835,7 @@ SEQ_CORE_Clk_OffEvent
 
 	;; skip if length (high and low byte) already zero
 	iorwf	PRODL, W
-	bz	SEQ_CORE_Clk_NoOffEvent
+	bz	SEQ_CORE_Trk_NoOffEvent
 
 	;; decrement length counter and copy it back into TRKVAR registers
 	decf	PRODL, F
@@ -784,16 +849,16 @@ SEQ_CORE_Clk_OffEvent
 	;; skip if length hasn't reached zero
 	movf	PRODH, W
 	iorwf	PRODL, W
-	bnz	SEQ_CORE_Clk_NoOffEvent
+	bnz	SEQ_CORE_Trk_NoOffEvent
 
 	;; play off events of the track
 	rcall	SEQ_CORE_Hlp_PlayTrkOffEvnts
-SEQ_CORE_Clk_NoOffEvent
+SEQ_CORE_Trk_NoOffEvent
 
 	;; ------------------------------------------------------------------
 	;; Decrement the delay counter (for multiple triggered steps)
 	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_DecReTrgCtr
+SEQ_CORE_Trk_DecReTrgCtr
 	;; clear retrigger flag
 	movlw	SEQ_TRKVARSTATEx
 	bcf	PLUSW2, SEQ_TRKVARSTATE_RETRIGGER
@@ -801,23 +866,23 @@ SEQ_CORE_Clk_DecReTrgCtr
 	;; decrement delay counter (SEQ_TRKRETRGx[4..0]) so long the whole SEQ_TRKRETRGx register is > 0
 	movlw	SEQ_TRKVARRETRGx
 	movf	PLUSW2, F
-	bz	SEQ_CORE_Clk_NoDecReTrgCtr
+	bz	SEQ_CORE_Trk_NoDecReTrgCtr
 	decf	PLUSW2, F
 
 	;; don't retrigger if repeat counter (SEQ_TRKRETRGx[6..5]) == 0
 	movlw	SEQ_TRKVARRETRGx
 	movf	PLUSW2, W
 	andlw	0x60
-	bz	SEQ_CORE_Clk_NoDecReTrgCtr
+	bz	SEQ_CORE_Trk_NoDecReTrgCtr
 
 	;; no retrigger if delay counter (SEQ_TRKRETRGx[4..0]) > 0
 	movlw	SEQ_TRKVARRETRGx
 	movf	PLUSW2, W
 	movwf	TABLAT
 	andlw	0x1f
-	bnz	SEQ_CORE_Clk_NoReTrg
+	bnz	SEQ_CORE_Trk_NoReTrg
 
-SEQ_CORE_Clk_ReTrigger
+SEQ_CORE_Trk_ReTrigger
 	;; decrement repeat counter
 	movlw	-0x20
 	addwf	TABLAT, F
@@ -826,13 +891,13 @@ SEQ_CORE_Clk_ReTrigger
 	;; set retrigger delay - it is stored in SEQ_TRKVARRETRGRELOADx, copy this value to SEQ_TRKRETRGx[4..0]
 	movf	TABLAT, W
 	andlw	0x60
-	bz	SEQ_CORE_Clk_NoReTriggerReload
-SEQ_CORE_Clk_ReTriggerReload
+	bz	SEQ_CORE_Trk_NoReTriggerReload
+SEQ_CORE_Trk_ReTriggerReload
 	movlw	SEQ_TRKVARRETRGRELOADx
 	movf	PLUSW2, W
 	andlw	0x1f
 	iorwf	TABLAT, F
-SEQ_CORE_Clk_NoReTriggerReload
+SEQ_CORE_Trk_NoReTriggerReload
 
 	;; store result in RETRGx
 	movlw	SEQ_TRKVARRETRGx
@@ -841,82 +906,82 @@ SEQ_CORE_Clk_NoReTriggerReload
 	;; set retrigger flag
 	movlw	SEQ_TRKVARSTATEx
 	bsf	PLUSW2, SEQ_TRKVARSTATE_RETRIGGER
-SEQ_CORE_Clk_NoDecReTrgCtr
-SEQ_CORE_Clk_NoReTrg
+SEQ_CORE_Trk_NoDecReTrgCtr
+SEQ_CORE_Trk_NoReTrg
 
 	;; ------------------------------------------------------------------
 	;; check if tick counter matches with PLYTICKx
 	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_ChkPlay
+SEQ_CORE_Trk_ChkPlay
 	;; select clock counter depending on triplet flag
 	movlw	SEQ_TRKDIVx
-	BRA_IFCLR PLUSW0, SEQ_TRKDIV_TRIPLETS, ACCESS, SEQ_CORE_Clk_ChkPlay_6
-SEQ_CORE_Clk_ChkPlay_4
+	BRA_IFCLR PLUSW0, SEQ_TRKDIV_TRIPLETS, ACCESS, SEQ_CORE_Trk_ChkPlay_6
+SEQ_CORE_Trk_ChkPlay_4
 	movf	SEQ_CLK_TICK4_CTR, W, BANKED
-	bz	SEQ_CORE_Clk_Step
-	rgoto	SEQ_CORE_Clk_ChkPlay_Cont
+	bz	SEQ_CORE_Trk_Step
+	rgoto	SEQ_CORE_Trk_ChkPlay_Cont
 
-SEQ_CORE_Clk_ChkPlay_6
+SEQ_CORE_Trk_ChkPlay_6
 	;; next step once step tick counter reached zero
 	movf	SEQ_CLK_TICK6_CTR, W, BANKED
-	bz	SEQ_CORE_Clk_Step
-	;; 	rgoto	SEQ_CORE_Clk_ChkPlay_Cont
+	bz	SEQ_CORE_Trk_Step
+	;; 	rgoto	SEQ_CORE_Trk_ChkPlay_Cont
 
-SEQ_CORE_Clk_ChkPlay_Cont
+SEQ_CORE_Trk_ChkPlay_Cont
 	;; force to play ON event if retrigger flag set
 	movlw	SEQ_TRKVARSTATEx
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Clk_OnEvent
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Trk_OnEvent
 
 	;; play ON event if event has been delayed
 	;; decrement counter until it has reached zero
 	movlw	SEQ_TRKVARPLYTICKx
 	movf	PLUSW2, F
-	bz	SEQ_CORE_Clk_ChkPlay_NotPosted
+	bz	SEQ_CORE_Trk_ChkPlay_NotPosted
 	decf	PLUSW2, F
 	skpnz
-	rgoto	SEQ_CORE_Clk_Step_Posted
-SEQ_CORE_Clk_ChkPlay_NotPosted
+	rgoto	SEQ_CORE_Trk_Step_Posted
+SEQ_CORE_Trk_ChkPlay_NotPosted
 
 	;; else continue with next track
-	rgoto	SEQ_CORE_Clk_NextTrack
+	rgoto	SEQ_CORE_Trk_End
 
 	;; ------------------------------------------------------------------
 	;; Play new note immediately if manual trigger has been requested
 	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_ManualTrigger
-	;; 	BIFSET	SEQ_STATE, SEQ_STATE_MANUAL_TRIGGER, BANKED, rgoto SEQ_CORE_Clk_OnEvent
+SEQ_CORE_Trk_ManualTrigger
+	;; 	BIFSET	SEQ_STATE, SEQ_STATE_MANUAL_TRIGGER, BANKED, rgoto SEQ_CORE_Trk_OnEvent
 
 	;; ------------------------------------------------------------------
 	;; Determine track position of next step
 	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_Step
+SEQ_CORE_Trk_Step
 	;; check for "synch to measure" flag - reset step counter if master track has reached zero again
 	movlw	SEQ_TRKVARSTATE2x	; (set on pattern changes in song or "pattern_synch" mode)
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE, ACCESS, SEQ_CORE_Clk_Step_CtrResetForced
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE, ACCESS, SEQ_CORE_Trk_Step_CtrResetForced
 	movlw	SEQ_TRKDIVx		; (optional flag in clock divider menu)
-	BRA_IFCLR PLUSW0, SEQ_TRKDIV_SYNCH_TO_MEASURE, ACCESS, SEQ_CORE_Clk_Step_NoCtrReset
-SEQ_CORE_Clk_Step_CtrResetForced
+	BRA_IFCLR PLUSW0, SEQ_TRKDIV_SYNCH_TO_MEASURE, ACCESS, SEQ_CORE_Trk_Step_NoCtrReset
+SEQ_CORE_Trk_Step_CtrResetForced
 	movf	SEQ_CLK_STEP_CTR, W, BANKED
-	bnz	SEQ_CORE_Clk_Step_NoCtrReset
+	bnz	SEQ_CORE_Trk_Step_NoCtrReset
 	movf	SEQ_CLK_TICK6_CTR, W, BANKED
-	bnz	SEQ_CORE_Clk_Step_NoCtrReset
+	bnz	SEQ_CORE_Trk_Step_NoCtrReset
 	movf	SEQ_CLK_SUBSTEP_CTR, W, BANKED
-	bnz	SEQ_CORE_Clk_Step_NoCtrReset
-SEQ_CORE_Clk_Step_CtrReset
+	bnz	SEQ_CORE_Trk_Step_NoCtrReset
+SEQ_CORE_Trk_Step_CtrReset
 	rcall	SEQ_CORE_ResetTrkPos
 
 	movlw	SEQ_TRKVARSTATE2x
 	bcf	PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE
-SEQ_CORE_Clk_Step_NoCtrReset
+SEQ_CORE_Trk_Step_NoCtrReset
 
 	;; don't increment on the first clock event
 	movlw	SEQ_TRKVARSTATEx
-	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE_FIRST_CLK, ACCESS, SEQ_CORE_Clk_Step_No1st
-SEQ_CORE_Clk_Step_1st
+	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE_FIRST_CLK, ACCESS, SEQ_CORE_Trk_Step_No1st
+SEQ_CORE_Trk_Step_1st
 	bcf	PLUSW2, SEQ_TRKVARSTATE_FIRST_CLK
 	bsf	PLUSW2, SEQ_TRKVARSTATE_PLAY_STEP
-	rgoto	SEQ_CORE_Clk_Step_NoIncDec
-SEQ_CORE_Clk_Step_No1st
+	rgoto	SEQ_CORE_Trk_Step_NoIncDec
+SEQ_CORE_Trk_Step_No1st
 
 	;; increment SEQ_TRKDIVCTRx and save new value in TMP1
 	movlw	SEQ_TRKVARDIVCTRx
@@ -930,36 +995,36 @@ SEQ_CORE_Clk_Step_No1st
 	movwf	TMP2		; we need this to determine the TAKE_NEXT_STEP flag -> TMP2
 	addlw	1
 	cpfslt	TMP1, ACCESS
-	rgoto SEQ_CORE_Clk_Step_IncDec
+	rgoto SEQ_CORE_Trk_Step_IncDec
 
 	;; if max value not reached ensure that the next step will not be played
 	movlw	SEQ_TRKVARSTATEx
 	bcf	PLUSW2, SEQ_TRKVARSTATE_PLAY_STEP
 
 	;; live record: increment length counter
-	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_CORE_Clk_Step_NoRecLCtr
-	BRA_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_STEP, BANKED, SEQ_CORE_Clk_Step_NoRecLCtr
+	BRA_IFCLR SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_CORE_Trk_Step_NoRecLCtr
+	BRA_IFSET SEQ_RECORD_MODE, SEQ_RECORD_MODE_STEP, BANKED, SEQ_CORE_Trk_Step_NoRecLCtr
 	movlw	SEQ_TRKVARSTATE2x
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_REC_EVNT_ACTIVE, ACCESS, SEQ_CORE_Clk_Step_NoRecLCtr
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_REC_EVNT_ACTIVE, ACCESS, SEQ_CORE_Trk_Step_NoRecLCtr
 	call	CS_M_HLP_ChkTrkSelected
-	bnz	SEQ_CORE_Clk_Step_NoRecLCtr
-SEQ_CORE_Clk_Step_RecLCtr
+	bnz	SEQ_CORE_Trk_Step_NoRecLCtr
+SEQ_CORE_Trk_Step_RecLCtr
 	movlw	6*4
 	cpfslt	SEQ_RECORD_LENGTH_CTR, BANKED
-	rgoto SEQ_CORE_Clk_Step_NoRecLCtr
+	rgoto SEQ_CORE_Trk_Step_NoRecLCtr
 	movlw	4
 	addwf	SEQ_RECORD_LENGTH_CTR, BANKED
-SEQ_CORE_Clk_Step_NoRecLCtr
+SEQ_CORE_Trk_Step_NoRecLCtr
 
-	rgoto	SEQ_CORE_Clk_Step_NoIncDec
+	rgoto	SEQ_CORE_Trk_Step_NoIncDec
 
-SEQ_CORE_Clk_Step_IncDec
+SEQ_CORE_Trk_Step_IncDec
 	;; save current position (for multi triggers)
 	movlw	SEQ_TRKVARSTEPx
 	movff	PLUSW2, SEQ_CORE_TRK_LASTPOS
 
 	clrf	SEQ_SKIP_STEP_PROTECTION_CTR, BANKED
-SEQ_CORE_Clk_Step_IncDecLoop
+SEQ_CORE_Trk_Step_IncDecLoop
 	;; clear divider counter
 	movlw	SEQ_TRKVARDIVCTRx
 	clrf	PLUSW2
@@ -974,20 +1039,20 @@ SEQ_CORE_Clk_Step_IncDecLoop
 
 	;; check if step should be skipped
 	call	SEQ_TRG_SkipGet
-	bz	SEQ_CORE_Clk_Step_IncDecLoopBrk
+	bz	SEQ_CORE_Trk_Step_IncDecLoopBrk
 
 	;; try skipping up to 32 times
 	incf	SEQ_SKIP_STEP_PROTECTION_CTR, F, BANKED
-	BRA_IFCLR SEQ_SKIP_STEP_PROTECTION_CTR, 5, BANKED, SEQ_CORE_Clk_Step_IncDecLoop
+	BRA_IFCLR SEQ_SKIP_STEP_PROTECTION_CTR, 5, BANKED, SEQ_CORE_Trk_Step_IncDecLoop
 
 	;; skip whole track if more than 32 skips
-	rgoto	SEQ_CORE_Clk_NextTrack
-SEQ_CORE_Clk_Step_IncDecLoopBrk
+	rgoto	SEQ_CORE_Trk_End
+SEQ_CORE_Trk_Step_IncDecLoopBrk
 
 	;; call record hook
 	CALL_IFSET SEQ_MODE1, SEQ_MODE1_RECORD, BANKED, SEQ_CORE_RecStep
 
-SEQ_CORE_Clk_Step_NoIncDec
+SEQ_CORE_Trk_Step_NoIncDec
 
 	;; ------------------------------------------------------------------
 	;; if step is played: determine on which tick the step should be played
@@ -999,13 +1064,13 @@ SEQ_CORE_Clk_Step_NoIncDec
 	;; if SEQ_TRKVARPLYTICKx != 0, post playing the step
 	movlw	SEQ_TRKVARPLYTICKx
 	movf	PLUSW2, W
-	bz	SEQ_CORE_Clk_Step_NotPosted
-	rgoto	SEQ_CORE_Clk_NextTrack
+	bz	SEQ_CORE_Trk_Step_NotPosted
+	rgoto	SEQ_CORE_Trk_End
 
-SEQ_CORE_Clk_Step_Posted
+SEQ_CORE_Trk_Step_Posted
 	movlw	SEQ_TRKVARSTATEx	; play step
 	bsf	PLUSW2, SEQ_TRKVARSTATE_PLAY_STEP
-SEQ_CORE_Clk_Step_NotPosted
+SEQ_CORE_Trk_Step_NotPosted
 
 	;; ------------------------------------------------------------------
 	;; Don't send new event so long it hasn't been synched to measure
@@ -1014,42 +1079,42 @@ SEQ_CORE_Clk_Step_NotPosted
 #if 0
 	;; TK: let's check if it works better without mute (because of Nudge function...)
 	movf	SEQ_CHAIN_TOP, W
-	bnz	SEQ_CORE_Clk_Step_SyncMute
-	BRA_IFSET SEQ_CFG1, SEQ_CFG1_PATTERN_SYNCH, BANKED, SEQ_CORE_Clk_Step_SyncMute
-	;; 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Clk_Step_NoSyncMute
-SEQ_CORE_Clk_Step_SyncMute
+	bnz	SEQ_CORE_Trk_Step_SyncMute
+	BRA_IFSET SEQ_CFG1, SEQ_CFG1_PATTERN_SYNCH, BANKED, SEQ_CORE_Trk_Step_SyncMute
+	;; 	BRA_IFCLR SEQ_STATE, SEQ_STATE_SONG, BANKED, SEQ_CORE_Trk_Step_NoSyncMute
+SEQ_CORE_Trk_Step_SyncMute
 	movlw	SEQ_TRKVARSTATE2x	; (set on pattern changes in song mode)
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE, ACCESS, SEQ_CORE_Clk_Muted
-SEQ_CORE_Clk_Step_NoSyncMute
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE2_SYNC_MEASURE, ACCESS, SEQ_CORE_Trk_Muted
+SEQ_CORE_Trk_Step_NoSyncMute
 #endif
 
 	;; ------------------------------------------------------------------
 	;; Don't send new event if sequencer not in RUN mode
 	;; ------------------------------------------------------------------
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_CORE_Clk_Muted
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_RUN, BANKED, SEQ_CORE_Trk_Muted
 
 	;; ------------------------------------------------------------------
 	;; else play "on event"
 	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_OnEvent
+SEQ_CORE_Trk_OnEvent
 
 	;; check for manual trigger mode
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_MANUAL_TRIGGER, BANKED, SEQ_CORE_Clk_OnEvent_NM
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_MANUAL_TRIGGER, BANKED, SEQ_CORE_Trk_OnEvent_NM
 	;; skip track if not selected for manual trigger
 	call	CS_M_HLP_ChkTrkSelected
-	bz	SEQ_CORE_Clk_OnEvent_NM
-	rgoto	SEQ_CORE_Clk_Muted
+	bz	SEQ_CORE_Trk_OnEvent_NM
+	rgoto	SEQ_CORE_Trk_Muted
 
-SEQ_CORE_Clk_OnEvent_NM
+SEQ_CORE_Trk_OnEvent_NM
 	;; skip track if the RETRIGGER or PLAY_STEP flag not set (important for clock dividers > 1)
 	movlw	SEQ_TRKVARSTATEx
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Clk_OnEventNMS
-	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE_PLAY_STEP, ACCESS, SEQ_CORE_Clk_NextTrack
-SEQ_CORE_Clk_OnEventNMS
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Trk_OnEventNMS
+	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE_PLAY_STEP, ACCESS, SEQ_CORE_Trk_End
+SEQ_CORE_Trk_OnEventNMS
 #if 0
 	;; skip track if pattern disabled
 	movlw	SEQ_TRKVARSTATEx
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_DISABLED, ACCESS, SEQ_CORE_Clk_Muted
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_DISABLED, ACCESS, SEQ_CORE_Trk_Muted
 #endif
 	;; skip track if muted
 	movf	SEQ_EVNTT, W, BANKED
@@ -1059,7 +1124,7 @@ SEQ_CORE_Clk_OnEventNMS
 	btfsc	SEQ_EVNTT, 3, BANKED
 	andwf	SEQ_TRKS_MUTED1, W, BANKED
 	skpz
-	rgoto	SEQ_CORE_Clk_Muted
+	rgoto	SEQ_CORE_Trk_Muted
 
 	;; skip if port assigned to track is muted
 	movlw	SEQ_TRKCHNx
@@ -1068,15 +1133,15 @@ SEQ_CORE_Clk_OnEventNMS
 	call	MIOS_HLP_GetBitORMask
 	andwf	SEQ_PORTS_MUTED, W, BANKED
 	skpz
-	rgoto	SEQ_CORE_Clk_Muted
+	rgoto	SEQ_CORE_Trk_Muted
 
 	;; skip track if solo and not selected track
-	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_SOLO, BANKED, SEQ_CORE_Clk_OnEvent_NoSolo
-SEQ_CORE_Clk_OnEvent_ChkSolo
+	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_SOLO, BANKED, SEQ_CORE_Trk_OnEvent_NoSolo
+SEQ_CORE_Trk_OnEvent_ChkSolo
 	call	CS_M_HLP_ChkTrkSelected
 	skpz
-	rgoto	SEQ_CORE_Clk_Muted
-SEQ_CORE_Clk_OnEvent_NoSolo
+	rgoto	SEQ_CORE_Trk_Muted
+SEQ_CORE_Trk_OnEvent_NoSolo
 
 	;; ------------------------------------------------------------------
 
@@ -1088,26 +1153,26 @@ SEQ_CORE_Clk_OnEvent_NoSolo
 
 	;; play step randomly if "random gate" function is set
 	call	SEQ_TRG_RandomGateGet
-	bz	SEQ_CORE_Clk_OnEvent_NoRandomG
-SEQ_CORE_Clk_OnEvent_Random
+	bz	SEQ_CORE_Trk_OnEvent_NoRandomG
+SEQ_CORE_Trk_OnEvent_Random
 	rcall	SEQ_CORE_GenRandomNumber
 	movlw	0x80
 	cpfslt	SEQ_RANDOM_SEED_H, BANKED
-	rgoto SEQ_CORE_Clk_NextTrack
-SEQ_CORE_Clk_OnEvent_NoRandomG
+	rgoto SEQ_CORE_Trk_End
+SEQ_CORE_Trk_OnEvent_NoRandomG
 
 	bcf	SEQ_STATE, SEQ_STATE_SET_LEN, BANKED	; notifies that a new gate length has to be set
 
 	;; don't play if retrigger flag set and retrigger counter (SEQ_TRKVARRETGx[4..0]) > 0
 	movlw	SEQ_TRKVARSTATEx
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Clk_OnEvent_ReTrg
-SEQ_CORE_Clk_OnEvent_NoReTrg
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Trk_OnEvent_ReTrg
+SEQ_CORE_Trk_OnEvent_NoReTrg
 	movlw	SEQ_TRKVARRETRGx
 	movf	PLUSW2, W
 	andlw	0x1f
 	skpz
-	rgoto	SEQ_CORE_Clk_NoOnEvent
-SEQ_CORE_Clk_OnEvent_ReTrg
+	rgoto	SEQ_CORE_Trk_NoOnEvent
+SEQ_CORE_Trk_OnEvent_ReTrg
 
 	;; get MIDI event
 	call	SEQ_LAYER_GetEvnt
@@ -1115,27 +1180,27 @@ SEQ_CORE_Clk_OnEvent_ReTrg
 
 	;; don't handle multiple events per step if event is 0 (muted)
 	movf	SEQ_EVNT0, W, BANKED
-	bnz	SEQ_CORE_Clk_ReTrgNotMuted
-SEQ_CORE_Clk_ReTrgMuted
+	bnz	SEQ_CORE_Trk_ReTrgNotMuted
+SEQ_CORE_Trk_ReTrgMuted
 	movlw	SEQ_TRKVARRETRGx		; clear retrigger counter
 	clrf	PLUSW2
-	rgoto	SEQ_CORE_Clk_SendEvent_SkipReTrg
-SEQ_CORE_Clk_ReTrgNotMuted
+	rgoto	SEQ_CORE_Trk_SendEvent_SkipReTrg
+SEQ_CORE_Trk_ReTrgNotMuted
 
 	;; preload SEQ_TRKVARRETRGx and SEQ_TRKVARRETRGRELOADx if RETRIGGER flag is not set
 	movlw	SEQ_TRKVARSTATEx
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Clk_ReTrgNoReload
-SEQ_CORE_Clk_ReTrgReload
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Trk_ReTrgNoReload
+SEQ_CORE_Trk_ReTrgReload
 	;; clear it if SEQ_EVNTL[5..6] (retrigger counter) is 0 and exit retrigger handler (single note)
 	movf	SEQ_EVNTL, W, BANKED
 	andlw	0x60
-	bnz	SEQ_CORE_Clk_ReTrgReloadOk
-SEQ_CORE_Clk_ReTrgReloadClr
+	bnz	SEQ_CORE_Trk_ReTrgReloadOk
+SEQ_CORE_Trk_ReTrgReloadClr
 	movlw	SEQ_TRKVARRETRGx
 	clrf	PLUSW2
-	rgoto	SEQ_CORE_Clk_SendEvent_SkipReTrg
+	rgoto	SEQ_CORE_Trk_SendEvent_SkipReTrg
 
-SEQ_CORE_Clk_ReTrgReloadOk
+SEQ_CORE_Trk_ReTrgReloadOk
 	movlw	SEQ_TRKVARRETRGx
 	movff	SEQ_EVNTL, PLUSW2
 	movf	SEQ_EVNTL, W, BANKED
@@ -1143,19 +1208,19 @@ SEQ_CORE_Clk_ReTrgReloadOk
 	movwf	TABLAT
 	movlw	SEQ_TRKVARRETRGRELOADx
 	movff	TABLAT, PLUSW2
-SEQ_CORE_Clk_ReTrgNoReload
+SEQ_CORE_Trk_ReTrgNoReload
 
-SEQ_CORE_Clk_SendEvent_SkipReTrg
+SEQ_CORE_Trk_SendEvent_SkipReTrg
 
 	;; groove it
 	call	SEQ_GROOVE_Event
 
 	;; check if we have to stretch the gatelength
 	movf	SEQ_EVNT0, W, BANKED
-	bnz	SEQ_CORE_Clk_NoStretch
+	bnz	SEQ_CORE_Trk_NoStretch
 	movlw	SEQ_TRKVARSTATEx
-	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE_STRETCH_GL, ACCESS, SEQ_CORE_Clk_NoOnEvent
-SEQ_CORE_Clk_Stretch
+	BRA_IFCLR PLUSW2, SEQ_TRKVARSTATE_STRETCH_GL, ACCESS, SEQ_CORE_Trk_NoOnEvent
+SEQ_CORE_Trk_Stretch
 	;; get scaled gatelength -> PROD[LH]
 	movf	SEQ_EVNTL, W, BANKED
 	rcall	SEQ_CORE_ScaleLen
@@ -1164,8 +1229,8 @@ SEQ_CORE_Clk_Stretch
 	movff	PRODL, PLUSW2
 	movlw	SEQ_TRKVARQUEUEL_Hx
 	movff	PRODH, PLUSW2
-	rgoto	SEQ_CORE_Clk_NoOnEvent
-SEQ_CORE_Clk_NoStretch
+	rgoto	SEQ_CORE_Trk_NoOnEvent
+SEQ_CORE_Trk_NoStretch
 
 	;; ------------------------------------------------------------------
 
@@ -1177,27 +1242,27 @@ SEQ_CORE_Clk_NoStretch
 	movf	SEQ_EVNT0, W, BANKED
 	andlw	0xf0
 	xorlw	0xb0
-	bz	SEQ_CORE_Clk_SendEvent_CCChk
+	bz	SEQ_CORE_Trk_SendEvent_CCChk
 
-SEQ_CORE_Clk_SendEvent_NoteChk
+SEQ_CORE_Trk_SendEvent_NoteChk
 	;; don't play if note number == 0x00
 	movf	SEQ_EVNT1, W, BANKED
-	bz	SEQ_CORE_Clk_SendEvent_NoteChkOE
+	bz	SEQ_CORE_Trk_SendEvent_NoteChkOE
 	;; don't play if velocity == 0x00
 	movf	SEQ_EVNT2, W, BANKED
-	bz	SEQ_CORE_Clk_SendEvent_NoteChkOE
-	rgoto	SEQ_CORE_Clk_SendEvent_Chk_End
-SEQ_CORE_Clk_SendEvent_NoteChkOE
-	rgoto	SEQ_CORE_Clk_NoOnEvent
+	bz	SEQ_CORE_Trk_SendEvent_NoteChkOE
+	rgoto	SEQ_CORE_Trk_SendEvent_Chk_End
+SEQ_CORE_Trk_SendEvent_NoteChkOE
+	rgoto	SEQ_CORE_Trk_NoOnEvent
 
-SEQ_CORE_Clk_SendEvent_CCChk
+SEQ_CORE_Trk_SendEvent_CCChk
 	;; don't play if CC number == 0x00
 	movf	SEQ_EVNT1, W, BANKED
 	skpnz
-	rgoto	SEQ_CORE_Clk_NoOnEvent
-	;; 	rgoto	SEQ_CORE_Clk_SendEvent_Chk_End
+	rgoto	SEQ_CORE_Trk_NoOnEvent
+	;; 	rgoto	SEQ_CORE_Trk_SendEvent_Chk_End
 
-SEQ_CORE_Clk_SendEvent_Chk_End
+SEQ_CORE_Trk_SendEvent_Chk_End
 
 	;; ------------------------------------------------------------------
 	;; play the new MIDI event
@@ -1211,28 +1276,25 @@ SEQ_CORE_Clk_SendEvent_Chk_End
 	movf	SEQ_EVNTT, W, BANKED
 	call	SEQ_TRK_GetMIDIPort
 	addlw	-1
-	movwf	MIDI_EVNT_PORT	; we need this value again at SEQ_CORE_Clk_SendEvent_PNoOff
+	movwf	MIDI_EVNT_PORT	; we need this value again at SEQ_CORE_Trk_SendEvent_PNoOff
 	addlw	1
-	bz	SEQ_CORE_Clk_SendEvent_NoMIDI
-SEQ_CORE_Clk_SendEvent_MIDI
+	bz	SEQ_CORE_Trk_SendEvent_NoMIDI
+SEQ_CORE_Trk_SendEvent_MIDI
 	call	MIDI_EVNT_Send
-SEQ_CORE_Clk_SendEvent_NoMIDI
+SEQ_CORE_Trk_SendEvent_NoMIDI
 
 	;; request to toggle trigger pin
 	SET_BSR	SEQ_BASE
 	movf	SEQ_EVNTT, W, BANKED
  	movff	SEQ_EVNT2, MIOS_PARAMETER1
 	call	SEQ_TRK_ReqTrigger
-
-	;; extra: if global accent track available, and "FORCE_ACCENT" flag set: trigger it!
-	;; note that accent flags assigned to aux layer are handled separately in seq_trg.inc
+	
 #if DEFAULT_GLOBAL_ACCENT_TRK && DEFAULT_GLOBAL_ACCENT_TRK < 17
-	BRA_IFCLR SEQ_MODE2, SEQ_MODE2_FORCE_ACCENT, BANKED, SEQ_CORE_Clk_SendEvent_NoAccFrce
-	movlw	0x7f
-	movwf	MIOS_PARAMETER1
-	movlw	DEFAULT_GLOBAL_ACCENT_TRK - 1
-	call	SEQ_TRK_ReqTrigger
-SEQ_CORE_Clk_SendEvent_NoAccFrce
+	;; if accent track: set global accent
+	movf	SEQ_EVNTT, W, BANKED
+	xorlw	DEFAULT_GLOBAL_ACCENT_TRK - 1
+	skpnz
+	bsf	SEQ_MODE2, SEQ_MODE2_GLOBAL_ACCENT, BANKED
 #endif
 
 	;; update the meter (for mute menu)
@@ -1248,66 +1310,66 @@ SEQ_CORE_Clk_SendEvent_NoAccFrce
 	;; exception: CC and length == 0x1f
 	;; another exception: MIDI_EVNT_PORT == 0xff
 	incf	MIDI_EVNT_PORT, W
-	bz	SEQ_CORE_Clk_SendEvent_PNoOff
+	bz	SEQ_CORE_Trk_SendEvent_PNoOff
 	movf	SEQ_EVNT0, W, BANKED
 	andlw	0xf0
 	xorlw	0xb0
-	bnz	SEQ_CORE_Clk_SendEvent_NoCC
+	bnz	SEQ_CORE_Trk_SendEvent_NoCC
 	movf	SEQ_EVNTL, W, BANKED
 	xorlw	0x1f
-	bz	SEQ_CORE_Clk_SendEvent_CCNoOff
-SEQ_CORE_Clk_SendEvent_NoCC
+	bz	SEQ_CORE_Trk_SendEvent_CCNoOff
+SEQ_CORE_Trk_SendEvent_NoCC
 	rcall	SEQ_CORE_Hlp_GetTRKQUEUEP_Ptr
 	movff	MIDI_EVNT_PORT, INDF1
 	rcall	SEQ_CORE_Hlp_GetTRKQUEUE0_Ptr
 	movff	SEQ_EVNT0, INDF1
 	rcall	SEQ_CORE_Hlp_GetTRKQUEUE1_Ptr
 	movff	SEQ_EVNT1, INDF1
-SEQ_CORE_Clk_SendEvent_PNoOff
-SEQ_CORE_Clk_SendEvent_CCNoOff
+SEQ_CORE_Trk_SendEvent_PNoOff
+SEQ_CORE_Trk_SendEvent_CCNoOff
 
 	;; notify that a new gate length has to be set
 	bsf	SEQ_STATE, SEQ_STATE_SET_LEN, BANKED
 
 	;; ---
-SEQ_CORE_Clk_NoOnEvent
-SEQ_CORE_Clk_OnEventPostponed
-SEQ_CORE_Clk_OnEventPlayed
+SEQ_CORE_Trk_NoOnEvent
+SEQ_CORE_Trk_OnEventPostponed
+SEQ_CORE_Trk_OnEventPlayed
 	
 	;; set length if requested (event has been played)
-	BRA_IFCLR SEQ_STATE, SEQ_STATE_SET_LEN, BANKED, SEQ_CORE_Clk_NoNewLen
-SEQ_CORE_Clk_NewLen
+	BRA_IFCLR SEQ_STATE, SEQ_STATE_SET_LEN, BANKED, SEQ_CORE_Trk_NoNewLen
+SEQ_CORE_Trk_NewLen
 	;; get scaled gatelength -> PROD[LH]
 	movf	SEQ_EVNTL, W, BANKED
 	rcall	SEQ_CORE_ScaleLen
 
 	;; if retrigger flag is set or SEQ_EVNTL[6..5] > 0, we have to determine a new gatelength
 	movlw	SEQ_TRKVARSTATEx
-	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Clk_NewLenReTrg
+	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_RETRIGGER, ACCESS, SEQ_CORE_Trk_NewLenReTrg
 	movlw	SEQ_TRKVARRETRGx
 	movf	PLUSW2, W
 	andlw	0x60
-	bz	SEQ_CORE_Clk_NewLen_NoRe
-SEQ_CORE_Clk_NewLenReTrg
+	bz	SEQ_CORE_Trk_NewLen_NoRe
+SEQ_CORE_Trk_NewLenReTrg
 	;; note length: length = retrigger delay / 2
 	clrc
 	rrf	PRODH, F
 	rrf	PRODL, F
-SEQ_CORE_Clk_NewLen_NoRe
+SEQ_CORE_Trk_NewLen_NoRe
 
 	;; ensure that length is > 1
 	movf	PRODH, W
-	bnz	SEQ_CORE_Clk_NewLen_Not0
+	bnz	SEQ_CORE_Trk_NewLen_Not0
 	movf	PRODL, W
 	skpnz
 	incf	PRODL, F
-SEQ_CORE_Clk_NewLen_Not0
+SEQ_CORE_Trk_NewLen_Not0
 
 	movlw	SEQ_TRKVARQUEUEL_Lx
 	movff	PRODL, PLUSW2
 	movlw	SEQ_TRKVARQUEUEL_Hx
 	movff	PRODH, PLUSW2
-SEQ_CORE_Clk_NoNewLen
+SEQ_CORE_Trk_NoNewLen
 
 	;; ------------------------------------------------------------------
 	;; request stretching if original gatelength entry (SEQ_EVNTL) is >= 24 and < 32
@@ -1315,10 +1377,10 @@ SEQ_CORE_Clk_NoNewLen
 	bcf	PLUSW2, SEQ_TRKVARSTATE_STRETCH_GL
 	movlw	24-1
 	cpfsgt	SEQ_EVNTL, BANKED
-	rgoto SEQ_CORE_Clk_NoStretchReq
+	rgoto SEQ_CORE_Trk_NoStretchReq
 	movlw	32
 	cpfslt	SEQ_EVNTL, BANKED
-	rgoto SEQ_CORE_Clk_NoStretchReq
+	rgoto SEQ_CORE_Trk_NoStretchReq
 	movlw	SEQ_TRKVARQUEUEL_Lx
 	setf	PLUSW2
 	movlw	SEQ_TRKVARQUEUEL_Hx
@@ -1329,47 +1391,32 @@ SEQ_CORE_Clk_NoNewLen
 	clrf	PLUSW2
 	movlw	SEQ_TRKVARRETRGRELOADx
 	clrf	PLUSW2
-SEQ_CORE_Clk_NoStretchReq
+SEQ_CORE_Trk_NoStretchReq
+	rgoto	SEQ_CORE_Trk_End
 
-	;; ------------------------------------------------------------------
-	;; finally switch to next track until last track reached
-	;; ------------------------------------------------------------------
-	rgoto	SEQ_CORE_Clk_NextTrack
 
 	;; ------------------------------------------------------------------
 	;; all muted or switched off tracks should send note off events if
 	;; required
 	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_Muted
+SEQ_CORE_Trk_Muted
 	;; skip if length already zero
 	movlw	SEQ_TRKVARQUEUEL_Lx
 	movf	PLUSW2, W
-	bnz	SEQ_CORE_Clk_Muted_PlyOff
+	bnz	SEQ_CORE_Trk_Muted_PlyOff
 	movlw	SEQ_TRKVARQUEUEL_Hx
 	movf	PLUSW2, W
-	bnz	SEQ_CORE_Clk_Muted_PlyOff
-	rgoto	SEQ_CORE_Clk_Muted_NoOff
-SEQ_CORE_Clk_Muted_PlyOff
+	bnz	SEQ_CORE_Trk_Muted_PlyOff
+	rgoto	SEQ_CORE_Trk_Muted_NoOff
+SEQ_CORE_Trk_Muted_PlyOff
 	rcall	SEQ_CORE_Hlp_PlayTrkOffEvnts
-SEQ_CORE_Clk_Muted_NoOff
+SEQ_CORE_Trk_Muted_NoOff
 
+
+SEQ_CORE_Trk_End
 	;; ------------------------------------------------------------------
-	;; switch to next track until last track reached
+	;; the end
 	;; ------------------------------------------------------------------
-SEQ_CORE_Clk_NextTrack
-	incf	SEQ_EVNTT, F, BANKED	; increment track number
-	movlw	SEQ_NUMBER_TRACKS-1
-	cpfsgt	SEQ_EVNTT, BANKED
-	rgoto SEQ_CORE_Clk_Loop
-
-	;; ------------------------------------------------------------------
-
-SEQ_CORE_Clk_End
-	;; finally...
-
-#if SEQ_CORE_MEASURE_PERFORMANCE
-	bcf	LATC, 5
-#endif
 	return
 
 	

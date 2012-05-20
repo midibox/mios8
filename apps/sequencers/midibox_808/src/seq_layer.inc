@@ -55,6 +55,7 @@ SEQ_LAYER_GetEvnt_Set
 	movff	INDF1, SEQ_EVNT1
 
 	;; note velocity is constant value depending on accent flag
+	BRA_IFSET SEQ_MODE2, SEQ_MODE2_GLOBAL_ACCENT, BANKED, SEQ_LAYER_GetEvnt_Accent
 	call	SEQ_TRG_AccentGet
 	bnz	SEQ_LAYER_GetEvnt_Accent
 SEQ_LAYER_GetEvnt_NoAccent
