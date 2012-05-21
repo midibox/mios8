@@ -35,10 +35,17 @@ MB64_PATCH_SendCurrent_P_Loop
 #endif
 
 #if DEFAULT_NUMBER_BUTTONS
-	SET_BSR	MB64_BASE
-	clrf	MB64_CURRENT_BUTTON, BANKED
+	clrf	TMP5
 MB64_PATCH_SendCurrent_B_Loop
-	rrf	MB64_CURRENT_BUTTON, W, BANKED
+	movff	TMP5, MIOS_PARAMETER1
+	call	MB64_BUTTON_Map
+	bnz	MB64_PATCH_SendCurrent_B_Next
+
+	SET_BSR	MB64_BASE
+	movf	MIOS_PARAMETER1, W
+	movwf	MB64_CURRENT_BUTTON, BANKED
+
+	rrf	TMP5, W
 	rrf	WREG, W
 	rrf	WREG, W
 	andlw	0xf	
@@ -48,11 +55,11 @@ MB64_PATCH_SendCurrent_B_Loop
 	call	MB64_FSR_ButtonValue
 	movff	TMP1, INDF0
 
-	SET_BSR	MB64_BASE
+MB64_PATCH_SendCurrent_B_Next
 	movlw	8
-	addwf	MB64_CURRENT_BUTTON, F, BANKED
+	addwf	TMP5, F
 	movlw	DEFAULT_NUMBER_BUTTONS-1
-	cpfsgt	MB64_CURRENT_BUTTON, BANKED
+	cpfsgt	TMP5, ACCESS
 	rgoto	MB64_PATCH_SendCurrent_B_Loop
 #endif
 
