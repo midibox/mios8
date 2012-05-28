@@ -2,8 +2,173 @@ HEADER 3 MBHP_DIO_MATRIX Module
 
 <H1>MIDIbox Hardware Platform, DIO_MATRIX Module</H1>
 
-<P><CENTER><IMG SRC="mbhp/mbhp_dio_matrix_v1.png" width=550></CENTER></P>
+<P><CENTER><IMG SRC="mbhp/mbhp_dio_matrix.jpg" width=550 height=265></CENTER></P>
 
-<P CLASS=INFO>Upcoming module for the <A HREF="midibox_kb.html">MIDIbox KB</A> project, which will be useful for scanning keyboard matrices, but can also be used for other purposes where two DIN and two DOUT shift registers are required.</P>
+<P CLASS=INFO>The MBHP_DIO_MATRIX module has been initially be designed for the <A HREF="midio128.html">MIDIO128</A> and <A HREF="midibox_kb.html">MIDIbox KB</A> project to simplify connections to keyboard matrices. It's compatible to the <A HREF="mbhp_din.html">MBHP_DIN</A> and <A HREF="mbhp_dout.html">MBHP_DOUT</A> module, which means that it's for example possible to use it as a replacement when only two DIN and two DOUT shift registers are needed for a project, or when the special pinout of the digital in- and output pins lead to a better wiring to the frontpanel.</P>
+
+<P CLASS=INFO>The digital input part consists of two 74HC165 based serial shift registers; every register provides 8 digital inputs which are sampled with the latch enable signal LD, and shifted out with the clock signal SCLK.<BR>
+The digital output part consists of two 74HC595 based serial shift registers; every register provides 8 digital outputs which are updated with the latch enable signal RCLK, and shifted out with the clock signal SCLK.</P>
+
+<P CLASS=INFO>The advantage of using such shift registers is, that they can be cascaded to a long chain without the need of more than 6 cables to the core module. This means that multiple MBHP_DIO_MATRIX modules can be connected in order to enhance the number of inputs and outputs. Normaly up to 16 DIN and up to 16 DOUT shift registers are supported by <A HREF="mios.html">MIOS or MIOS32 based applications</A>.</P>
+
+<P CLASS=INFO>By connecting multiple buttons to a matrix, it's possible to scan multiple rows as shown in <A HREF="midio128/midio128_v3_dio_scanmatrix.pdf">this schematic</A>.</P>
+<P CLASS=INFO>Additional connection diagrams for Fatar keyboards can be found at the <A HREF="midibox_kb.html">MIDIbox KB</P> project side</A>.</P>
+<P CLASS=INFO>Please note that the module could also be used for many other projects whenever they support matrices if not explicitely mentioned. Just translate "DIN shift register" and "DOUT shift register" to the schematic of the MBHP_DIO_MATRIX module! :-)</P>
+<P CLASS=INFO>It's even possible to connect buttons (or encoders) and LEDs directly to the MBHP_DIO_MATRIX module as shown in <A HREF="mbhp/mbhp_dio_matrix_button_led_directly.pdf">this schematic</A>.</P>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A>. The .pdf based schematic has been created with <A HREF="http://opencircuitdesign.com/xcircuit" TARGET="_blank">xcircuit</A>. There are no special eagle schematics available, since components have been netlisted in the .brd file directly!</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_DIO_MATRIX_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dio_matrix.pdf">mbhp_dio_matrix.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dio_matrix_v1.brd">mbhp_dio_matrix_v1.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dio_matrix_v1.png">mbhp_dio_matrix_v1.png</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dio_matrix_orderlist.txt">mbhp_dio_matrix_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the DIO_MATRIX module:
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>J1</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>Interface to CORE:J8/J9. DINX4:J1 provides two power pins for 5V/Ground, the serial clock, the latch enable and the serial input and output of the register chain.<BR>This port can also be connected with J2 of another DIO_MATRIX, DIN or DOUT module.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>Interface to another DIO_MATRIX, DIN or DOUT module. DINX4:J2 provides nearly the same pins like J1, just only the serial in- and output of the last shift register is connected instead of the out- and input of the first one to realize a cascaded serial chain.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J3 and J4</TD>
+      <TD CLASS=TABCOLOR2>16</TD>
+      <TD CLASS=TABCOLOR2>8 digital inputs (I0..I7) and 8 digital outputs (O7..O0). Note that the outputs are reversed; all firmwares take care for this, means: with the first (leftmost) input pin is usually connected to I0, the first (leftmost) output pin is connected to O7.
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J5</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>Provides a +5V (=Vd) and ground (=Vs) output.<BR>
+          While in a matrix configuration the ground isn't relevant, it becomes important when buttons and LEDs are <A HREF="mbhp/mbhp_dio_matrix_button_led_directly.pdf">directly connected</A></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J6</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>A jumper has to be connected to this port to select pull-up or pull-down behaviour for the digital inputs. For most projects the pull-up behaviour should be selected! The pull-down behaviour might be required for adaption to existing keyboard matrices with reversed diodes.</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide</H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_dio_matrix_1.jpg" WIDTH=280 HEIGHT=139 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>It's always a good idea to start with the smallest components to simplify mounting.<BR>
+So, start with the resistor networks and caps:
+<UL CLASS=CL>
+<LI>C1-C4 = 100 nF
+<LI>RN1-RN4 = 5x10k<BR>
+<B>Attention:</B> take care for the polarity! The dot on the resistor network marks pin 1!
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_dio_matrix_2.jpg" WIDTH=280 HEIGHT=140 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Continue with the IC sockets
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_dio_matrix_4.jpg" WIDTH=280 HEIGHT=195 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Thereafter mount the connectors J1..J6.<BR>
+You could already stuff the pull selection jumper at J6, because it's essential! For "normal" projects the Pull-Up option has to be selected.
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_dio_matrix_5.jpg" WIDTH=280 HEIGHT=135 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Put the ICs into the sockets:
+<UL CLASS=CL>
+<LI>IC3 and IC4 = 74HC165 ("DINs")
+<LI>IC1 and IC2 = 74HC595 ("DOUTs")
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_dio_matrix_6.jpg" WIDTH=280 HEIGHT=222 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Prepare the 1:1 ribbon cable to the core module (resp. to the output of another DIO_MATRIX, DIN or DOUT module)
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_dio_matrix_7.jpg" WIDTH=280 HEIGHT=144 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Please note that it's intended that the cable is somehow twisted by 180 degree!
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_dio_matrix_8.jpg" WIDTH=280 HEIGHT=212 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>When you turn the module at the side of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module, you will see the plan! ;-)
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_dio_matrix_9.jpg" WIDTH=280 HEIGHT=189 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>This picture shows a setup where a DINX4 and DOUTX4 module by <A HREF="http://www.midibox-shop.com/">SmashTV</A> are connected after a MBHP_DIO_MATRIX module. The same 1:1 ribbon cable can be used here! :-)
+      </TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
   
 FOOTER

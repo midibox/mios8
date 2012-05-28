@@ -1,9 +1,11 @@
 HEADER 3 MIDIbox KB
 
 <H1>MIDIbox KB</H1>
-<H1>Keyboard Controller</H1>
+<H2>Keyboard Controller with MIDI, USB-MIDI and Ethernet interface</H1>
 
 <P CLASS=INFO>This page collects some preliminary informations about the MIDIbox KB project.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Schematics </H2>
 
 <P CLASS=INFO>All schematics are subject to change without notice!</P>
 
@@ -43,5 +45,424 @@ HEADER 3 MIDIbox KB
       <TD CLASS=TABCOLOR2>Fatar DF Type with 88 keys</TD>
     </TR>
   </TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Terminal Commands </H2>
+
+<P CLASS=INFO>MIDIbox KB can be completely configured from the MIOS Terminal of <A HREF="mios_studio.html">MIOS Studio</A>.</P>
+
+<P CLASS=DESC>Enter 'help' to get a list of available commands.<BR>
+Here a more detailed description of most commands:</P>
+
+<P CLASS=DESC>
+<TABLE CLASS=BOX WIDTH=700 ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+  <TR>
+    <TD WIDTH=200> <SPAN CLASS=NORM><I>help</I></TD>
+    <TD WIDTH=500> <SPAN CLASS=NORM>Lists all available commands (some of them are maybe not listed here)
+    </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>store</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Stores the complete configuration (not only keyboard parameters, but also router, etc...) into the EEPROM of the LPCXPRESSO module, so that they will be restored during startup.<BR>
+    Usually a firmware update doesn't overwrite the stored parameters if not noticed in the ChangeLog.<BR>
+    Please enter the <I>store</I> command once you've adapted the parameters for your keyboard setup.
+    </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>restore</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Restores the complete configuration from EEPROM. This command could become useful if you messed up the configuration, just type <I>restore</I> to undo the changes.
+    </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>system</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Prints some system informations, such as the name and version number of the application.
+    </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>reset</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Restarts the application remotely. Mainly intended for development.
+    </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set srio_num &lt;1..16&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the number of DIN/DOUT shift registers (resp. 74HC165 and 74HC595) which should be scanned.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set srio_num 2</I>: two DIN and two DOUTs should be scanned<BR>
+         <I>set srio_num 4</I>: four DIN and four DOUTs should be scanned<BR>
+         <I>set srio_num 6</I>: e.g. if six DIN and four DOUTs should be scanned - more DINs than DOUTs, therefore the number of DINs is relevant here!<BR>
+      </SPAN>
+      <SPAN CLASS=NORM>Than more shift registers are scanned, than higher the latency of your keyboards. Therefore the minimum value is desired.<BR>
+      <I>2</I> is typically a good choice if only one keyboard should be scanned, and <I>4</I> if two keyboard should be scanned.
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>kb &lt;1|2&gt;</I><BR><I>keyboard &lt;1|2&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Prints a list of all keyboard parameters. MIDIbox KB can handle up to 2 keyboards in parallel, please specify the keyboard number with:<BR>
+      <I>kb 1</I> or <I>kb 2</I>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; debug &lt;on|off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Enables some useful debugging messages for troubleshooting the hardware. This switch is not stored in EEPROM. Means: on each reset/power-on MIDIbox KB starts with debug mode disabled, and you have to enable it again.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 debug on</I>: print some useful debugging messages for keyboard 1<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; midi_ports &lt;ports&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Each keyboard can send to one or multiple MIDI ports. They are currently (unfortunately) entered via a hexadecimal number, which is a nice short cut for techies, but probably difficult to understand for normal users. A more comfortable solution will be available once I found the time to improve the parser.<BR>
+      Coding:</SPAN>
+      <UL CLASS=CL>
+        <LI><B>Bit 0:</B> USB1</LI>
+        <LI><B>Bit 1:</B> USB2</LI>
+        <LI><B>Bit 2:</B> USB3</LI>
+        <LI><B>Bit 3:</B> USB4</LI>
+        <LI><B>Bit 4:</B> MIDI OUT1</LI>
+        <LI><B>Bit 5:</B> MIDI OUT2</LI>
+        <LI><B>Bit 12:</B> OSC1</LI>
+        <LI><B>Bit 13:</B> OSC2</LI>
+        <LI><B>Bit 14:</B> OSC3</LI>
+        <LI><B>Bit 15:</B> OSC4</LI>
+      </UL>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 midi_ports 0x1011</I>: keyboard 1 will send to USB1, OUT1 and OSC1<BR>
+         <I>set kb 1 midi_ports 0x0020</I>: keyboard 1 will only send to OUT2<BR>
+         <I>set kb 2 midi_ports 0x0030</I>: keyboard 2 will send to OUT1 and OUT2
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; midi_chn &lt;channel&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Each keyboard can send to a dedicated MIDI channel.<BR>
+       Select 1..16 for MIDI Channel 1..16. 0 will disable MIDI (no events will be sent to any channel)<BR></SPAN>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 midi_chn 1</I>: keyboard 1 will send MIDI Channel 1<BR>
+         <I>set kb 2 midi_chn 5</I>: keyboard 2 will send MIDI Channel 5
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; note_offset &lt;0-127&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Sets the starting note of the leftmost key of your keyboard. The value is entered in decimal format.<BR>
+      Most important values:</SPAN>
+      <UL CLASS=CL>
+        <LI><B>24:</B> C-0
+        <LI><B>36:</B> C-1
+        <LI><B>48:</B> C-2
+        <LI><B>60:</B> C-3
+      </UL>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 note_offset 36</I>: keyboard 1 will start with C-1<BR>
+         <I>set kb 2 note_offset 48</I>: keyboard 2 will start with C-2
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; rows &lt;0-16&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Specifies how many rows of the keyboard matrix have to be scanned.<BR>
+       If rows &lt; 9, and a second DOUT is specified, the selection signal will be available on both DOUTs (perfect for 1:1 connection to a Fatar Keyboard with 61 keys)<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 rows 8</I>: keyboard 1 will scan 8 rows of the matrix -&gt; up to 128 inputs = 64 break/make contacts (keys)<BR>
+         <I>set kb 1 rows 16</I>: for a different hardware: keyboard 1 will scan 16 rows of the matrix -&gt; up to 256 inputs = 128 break/make contacts (keys)<BR>
+         <I>set kb 2 rows 11</I>: keyboard 2 will scan 11 rows of the matrix -&gt; up to 176 inputs = 88 break/make contacts (keys)<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; velocity &lt;on|off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM><B>off:</B> each row will send a MIDI event with maximum velocity. Has to be used for keyboard with only one contact per key<BR>
+      <B>on:</B> one row is connect to "make" contacts, the next row to "break" contacts; period. This allows to measure the delay between contact activation in order to generate a velocity between 1 and 127 (see Fatar keyboard configuration examples below)<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 velocity on</I>: keyboard 1 provides two contacts to measure velocity<BR>
+         <I>set kb 1 velocity off</I>: keyboard 1 provides only one contact, resp. a common button matrix is used<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; optimized &lt;on|off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Only valid in velocity mode.<BR>
+      <B>off:</B> break and make contacts are always scanned. This is the default configuration and should be used for debugging!<BR>
+      -&gt; The resulting scan latency of a complete Fatar 63 keys keyboard is ca. <B>130 uS</B><BR>
+      <B>on:</B> make contacts will only be scanned if break contacts are active. This reduces the scan latency in most cases (no or only some keys are played). Won't work with <A HREF="midibox_kb/midibox_kb_scanmatrix_type3.pdf">Keyboard Type #3!</A><BR>
+      -&gt; The resulting scan latency of a complete Fatar 63 keys keyboard is ca. <B>65 uS</B><BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 optimized off</I>: keyboard 1 should be debugged because it doesn't send notes (e.g. type <I>set kb 1 debug on</I> thereafter).<BR>
+         <I>set kb 1 optimized on</I>: keyboard 1 should run in low-latency mode. Type <I>store</I> thereafter if the keyboard works as expected!<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; dout_sr1 &lt;0-16&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the first DOUT shift register which is used to select the keyboard matrix rows.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 dout_sr1 1</I>: row selection lines 1..8 of keyboard 1 are connected to first DOUT shift register.<BR>
+         <I>set kb 2 dout_sr1 3</I>: row selection lines 1..8 of keyboard 2 are connected to third DOUT shift register.<BR>
+         <I>set kb 1 dout_sr1 0</I>: disable this function for keyboard 1 (use DOUT for other purposes)<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; dout_sr2 &lt;0-16&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the second DOUT shift register which is used to select the keyboard matrix rows.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 dout_sr2 2</I>: row selection lines 9..16 of keyboard 1 are connected to the second DOUT shift register (if rows &lt; 9, this DOUT will output the same pattern as dout_sr1)<BR>
+         <I>set kb 2 dout_sr2 4</I>: row selection lines 9..16 of keyboard 2 are connected to the fourth DOUT shift register (if rows &lt; 9, this DOUT will output the same pattern as dout_sr1)<BR>
+         <I>set kb 1 dout_sr2 0</I>: disable this function for keyboard 1 (use DOUT for other purposes)<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; din_sr1 &lt;0-16&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the first DIN shift register which is used to scan a keyboard matrix row.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 din_sr1 1</I>: left side of keyboard 1 is connected to first DIN shift register.<BR>
+         <I>set kb 2 din_sr1 3</I>: left side of keyboard 2 is connected to third DIN shift register.<BR>
+         <I>set kb 1 din_sr1 0</I>: disable this function for keyboard 1 (use DIN for other purposes)<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; din_sr2 &lt;0-16&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the second DIN shift register which is used to scan a keyboard matrix row.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 din_sr2 2</I>: right side of keyboard 1 is connected to second DIN shift register.<BR>
+         <I>set kb 2 din_sr2 4</I>: right side of keyboard 2 is connected to fourthDIN shift register.<BR>
+         <I>set kb 1 din_sr1 0</I>: disable this function for keyboard 1 (use DIN for other purposes)<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; din_key_offset &lt;0-127&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the offset which is added to the keys of the right half. Typically 32 for velocity keyboards (64 contacts), and 64 for non-velocity keyboards.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 din_key_offset 32</I>: key number starts at 32 for the right side of keyboard 1 (velocity sensitive)<BR>
+         <I>set kb 1 din_key_offset 64</I>: key number starts at 64 for the right side of keyboard 1 (no velocity)<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; din_inverted &lt;on|off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>This option should be enabled if diodes are used with the opposite polarity, and pull-downs are connected to DINs.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 din_inverted off</I>: diodes with "normal" direction and pull-up resistors at 74HC165<BR>
+         <I>set kb 1 din_inverted on</I>: diodes with opposite direction and pull-down resistors at 74HC165<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; break_inverted &lt;on|off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>This option should be enabled for velocity keyboards with single switches (instead of break/make swicthes).<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 break_inverted off</I>: we have a break and make switch per key -&gt; <A HREF="midibox_kb/midibox_kb_scanmatrix_type2.pdf">Type #2</A><BR>
+         <I>set kb 1 break_inverted on</I>: we have only a single switch per key -&gt; <A HREF="midibox_kb/midibox_kb_scanmatrix_type3.pdf">Type #3</A><BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; delay_fastest &lt;0-65535&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Only relevant for velocity sensitive keyboards: selects the minimum delay value at which the maximum velocity (=127) should be sent. Use <I>debug</I> mode to display the minimum delay when keys are hit strongly!<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 delay_fastest 100</I>: send maximum velocity when delay is &lt;= 100<BR>
+         <I>set kb 1 delay_fastest 200</I>: send maximum velocity when delay is &lt;= 200<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; delay_slowest &lt;0-65535&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Only relevant for velocity sensitive keyboards: selects the maximum delay value at which the minimum velocity (=1) should be sent. Use <I>debug</I> mode to display the maximum delay when keys are hit softly!<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 delay_slowest 2000</I>: send maximum velocity when delay is &gt;= 2000<BR>
+         <I>set kb 1 delay_slowest 3000</I>: send maximum velocity when delay is &gt;= 3000<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_pitchwheel &lt;0-5 or off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the J5.Ax input to which the PitchWheel pot is connected. Use <I>off</I> if no PitchWheel is used to avoid that the unconnected analog input will send random MIDI events!<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ain_pitchwheel 0</I>: PitchWheel of keyboard 1 connected to J5.A0 of the core module<BR>
+         <I>set kb 2 ain_pitchwheel 2</I>: PitchWheel of keyboard 2 connected to J5.A2 of the core module<BR>
+         <I>set kb 1 ain_pitchwheel off</I>: no PitchWheel connected<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ctrl_pitchwheel &lt;0-129&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>What kind of MIDI events should be sent by the PitchWheel?
+      <UL CLASS=CL>
+        <LI><B>0..127:</B> CC#0 .. CC#127
+        <LI><B>128:</B> PitchBend (default)
+        <LI><B>129:</B> Aftertouch
+      </UL>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ctrl_pitchwheel 128</I>: the PitchWheel of keyboard 1 sends PitchBend MIDI events<BR>
+         <I>set kb 1 ctrl_pitchwheel 129</I>: the PitchWheel of keyboard 2 sends Aftertouch MIDI events<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_modwheel &lt;0-5 or off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the J5.Ax input to which the ModWheel pot is connected. Use <I>off</I> if no ModWheel is used to avoid that the unconnected analog input will send random MIDI events!<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ain_modwheel 1</I>: ModWheel of keyboard 1 connected to J5.A1 of the core module<BR>
+         <I>set kb 2 ain_modwheel 3</I>: ModWheel of keyboard 2 connected to J5.A3 of the core module<BR>
+         <I>set kb 1 ain_modwheel off</I>: no ModWheel connected<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ctrl_modwheel &lt;0-129&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>What kind of MIDI events should be sent by the ModWheel?
+      <UL CLASS=CL>
+        <LI><B>0..127:</B> CC#0 .. CC#127 (default: CC#1)
+        <LI><B>128:</B> PitchBend
+        <LI><B>129:</B> Aftertouch
+      </UL>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ctrl_modwheel 1</I>: the ModWheel of keyboard 1 sends CC#1 (CC Modulation)<BR>
+         <I>set kb 2 ctrl_modwheel 7</I>: the ModWheel of keyboard 2 sends CC#7 (CC Volume)<BR>
+      </SPAN></TD>
+  </TR>
+
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Recommended Configurations </H2>
+
+<P CLASS=INFO>Configuration examples for various keyboards - this list will be enhanced whenever new configurations have been tested:</P>
+
+<P CLASS=DESC>
+<TABLE CLASS=BOX WIDTH=700 ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=3 >
+  <TR>
+    <TD WIDTH=300> <SPAN CLASS=NORM>Fatar DF Type with 61 keys (<A HREF="midibox_kb/midibox_kb_fatar_df_61_interconnections.pdf">schematic</A>)
+    <TD WIDTH=400>
+      <UL CLASS=CL>
+        <LI><I>set kb 1 note_offset 36</I>
+        <LI><I>set kb 1 rows 8</I>
+        <LI><I>set kb 1 velocity on</I>
+        <LI><I>set kb 1 optimized on</I>
+        <LI><I>set kb 1 dout_sr1 1</I>
+        <LI><I>set kb 1 dout_sr2 2</I>
+        <LI><I>set kb 1 din_sr1 1</I>
+        <LI><I>set kb 1 din_sr2 2</I>
+        <LI><I>set kb 1 din_key_offset 32</I>
+        <LI><I>set kb 1 din_inverted off</I>
+        <LI><I>set kb 1 break_inverted off</I>
+        <LI><I>set kb 1 delay_fastest 100</I>
+        <LI><I>set kb 1 delay_slowest 2000</I>
+        <LI><I>store</I>
+      </UL>
+    </SPAN></TD>
+  </TR>
+
+
+  <TR>
+    <TD WIDTH=300> <SPAN CLASS=NORM>Fatar DF Type with 76 keys (<A HREF="midibox_kb/midibox_kb_fatar_df_76_interconnections.pdf">schematic</A>)
+    <TD WIDTH=400>
+      <UL CLASS=CL>
+        <LI><I>set kb 1 note_offset 36</I>
+        <LI><I>set kb 1 rows 10</I>
+        <LI><I>set kb 1 velocity on</I>
+        <LI><I>set kb 1 optimized on</I>
+        <LI><I>set kb 1 dout_sr1 1</I>
+        <LI><I>set kb 1 dout_sr2 2</I>
+        <LI><I>set kb 1 din_sr1 1</I>
+        <LI><I>set kb 1 din_sr2 2</I>
+        <LI><I>set kb 1 din_key_offset 32</I>
+        <LI><I>set kb 1 din_inverted off</I>
+        <LI><I>set kb 1 break_inverted off</I>
+        <LI><I>set kb 1 delay_fastest 100</I>
+        <LI><I>set kb 1 delay_slowest 2000</I>
+        <LI><I>store</I>
+      </UL>
+    </SPAN></TD>
+  </TR>
+
+
+  <TR>
+    <TD WIDTH=300> <SPAN CLASS=NORM>Fatar DF Type with 88 keys (<A HREF="midibox_kb/midibox_kb_fatar_df_88_interconnections.pdf">schematic</A>)
+    <TD WIDTH=400>
+      <UL CLASS=CL>
+        <LI><I>set kb 1 note_offset 24</I>
+        <LI><I>set kb 1 rows 12</I>
+        <LI><I>set kb 1 velocity on</I>
+        <LI><I>set kb 1 optimized on</I>
+        <LI><I>set kb 1 dout_sr1 1</I>
+        <LI><I>set kb 1 dout_sr2 2</I>
+        <LI><I>set kb 1 din_sr1 1</I>
+        <LI><I>set kb 1 din_sr2 2</I>
+        <LI><I>set kb 1 din_key_offset 40</I>
+        <LI><I>set kb 1 din_inverted off</I>
+        <LI><I>set kb 1 break_inverted off</I>
+        <LI><I>set kb 1 delay_fastest 100</I>
+        <LI><I>set kb 1 delay_slowest 2000</I>
+        <LI><I>store</I>
+      </UL>
+    </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=300> <SPAN CLASS=NORM>Two "Refurbished Organ" keyboards with 63 keys (<A HREF="midibox_kb/midibox_kb_scanmatrix_type3.pdf">schematic</A>)
+    <TD WIDTH=400>
+      <UL CLASS=CL>
+        <LI><I>set srio_num 4</I>
+        <LI><I>set kb 1 note_offset 36</I>
+        <LI><I>set kb 1 rows 8</I>
+        <LI><I>set kb 1 velocity on</I>
+        <LI><I>set kb 1 optimized off</I>
+        <LI><I>set kb 1 dout_sr1 1</I>
+        <LI><I>set kb 1 dout_sr2 2</I>
+        <LI><I>set kb 1 din_sr1 1</I>
+        <LI><I>set kb 1 din_sr2 2</I>
+        <LI><I>set kb 1 din_key_offset 32</I>
+        <LI><I>set kb 1 din_inverted off</I>
+        <LI><I>set kb 1 break_inverted on</I>
+        <LI><I>set kb 1 delay_fastest 100</I>
+        <LI><I>set kb 1 delay_slowest 2000</I>
+        <LI><I>set kb 2 note_offset 36</I>
+        <LI><I>set kb 2 rows 8</I>
+        <LI><I>set kb 2 velocity on</I>
+        <LI><I>set kb 2 optimized off</I>
+        <LI><I>set kb 2 dout_sr1 3</I>
+        <LI><I>set kb 2 dout_sr2 4</I>
+        <LI><I>set kb 2 din_sr1 3</I>
+        <LI><I>set kb 2 din_sr2 4</I>
+        <LI><I>set kb 2 din_key_offset 32</I>
+        <LI><I>set kb 2 din_inverted off</I>
+        <LI><I>set kb 2 break_inverted on</I>
+        <LI><I>set kb 2 delay_fastest 100</I>
+        <LI><I>set kb 2 delay_slowest 2000</I>
+        <LI><I>store</I>
+      </UL>
+    </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=300> <SPAN CLASS=NORM>Adding a Pitch Wheel to J5.A0<BR>and a Modulation Wheel to J5.A1<BR>(no schematic yet)
+    <TD WIDTH=400>
+      <UL CLASS=CL>
+        <LI><I>set kb 1 ain_pitchwheel 0</I>
+        <LI><I>set kb 1 ctrl_pitchwheel 128</I>
+        <LI><I>set kb 1 ain_modwheel 1</I>
+        <LI><I>set kb 1 ctrl_modwheel 1</I>
+        <LI><I>store</I>
+      </UL>
+    </SPAN></TD>
+  </TR>
+
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Firmware Download </H2>
+
+<P CLASS=INFO>The precompiled application can be downloaded from the <A HREF="mios32_download.html">MIOS32 Download</A> page.</P>
 
 FOOTER
