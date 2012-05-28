@@ -25,21 +25,21 @@
 DEFAULT_TRKINFO MACRO
 	;;       Name     SR  Pin MPort AChn
 	db	"BD    ",  4,  0,   1,    1	; Track 1
-	db	"SD    ",  0,  0,   1,    0	; Track 2
-	db	"LT/LC ",  0,  0,   1,    0	; Track 3
-	db	"MT/MC ",  0,  0,   1,    0	; Track 4
-	db	"HT/HC ",  0,  0,   1,    0	; Track 5
-	db	"CP    ",  0,  0,   1,    0	; Track 6
-	db	"MA    ",  0,  0,   1,    0	; Track 7
-	db	"RS/CL ",  0,  0,   1,    0	; Track 8
-	db	"CB    ",  0,  0,   1,    0	; Track 9
-	db	"CY    ",  0,  0,   1,    0	; Track 10
-	db	"OH    ",  0,  0,   1,    0	; Track 11
-	db	"CH    ",  0,  0,   1,    0	; Track 12
-	db	"Ext1  ",  0,  0,   1,    0	; Track 13
-	db	"Ext2  ",  0,  0,   1,    0	; Track 14
-	db	"Ext3  ",  0,  0,   1,    0	; Track 15
-	db	"Acc.  ",  0,  0,   7,    0	; Track 16
+	db	"SD    ",  5,  0,   1,    2	; Track 2
+	db	"LT/LC ",  6,  0,   1,    3	; Track 3
+	db	"MT/MC ",  7,  0,   1,    4	; Track 4
+	db	"HT/HC ",  8,  0,   1,    5	; Track 5
+	db	"CP    ",  9,  0,   1,    6	; Track 6
+	db	"MA    ", 10,  0,   1,    7	; Track 7
+	db	"RS/CL ", 11,  0,   1,    8	; Track 8
+	db	"CB    ", 12,  0,   1,    9	; Track 9
+	db	"CY    ", 13,  0,   1,   10	; Track 10
+	db	"OH    ", 14,  0,   1,   11	; Track 11
+	db	"CH    ", 15,  0,   1,   12	; Track 12
+	db	"Ext1  ", 16,  0,   1,   13	; Track 13
+	db	"Ext2  ",  0,  0,   1,   14	; Track 14
+	db	"Ext3  ",  0,  0,   1,   15	; Track 15
+	db	"Acc.  ",  0,  0,   7,   16	; Track 16
 	ENDM
 ;
 ; define the track which is used for global accent
@@ -256,18 +256,18 @@ DEFAULT_TRKINFO MACRO
 ;; Allowed values: 1-16 (selects DOUT shift register) or 0 to disable
 ;; Ensure that DEFAULT_NUMBER_SR is high enough so that all DOUTs are updated.
 #define DEFAULT_CV_DOUT_SR1  4
-#define DEFAULT_CV_DOUT_SR2  0
-#define DEFAULT_CV_DOUT_SR3  0
-#define DEFAULT_CV_DOUT_SR4  0
-#define DEFAULT_CV_DOUT_SR5  0
-#define DEFAULT_CV_DOUT_SR6  0
-#define DEFAULT_CV_DOUT_SR7  0
-#define DEFAULT_CV_DOUT_SR8  0
-#define DEFAULT_CV_DOUT_SR9  0
-#define DEFAULT_CV_DOUT_SR10 0
-#define DEFAULT_CV_DOUT_SR11 0
-#define DEFAULT_CV_DOUT_SR12 0
-#define DEFAULT_CV_DOUT_SR13 0
+#define DEFAULT_CV_DOUT_SR2  5
+#define DEFAULT_CV_DOUT_SR3  6
+#define DEFAULT_CV_DOUT_SR4  7
+#define DEFAULT_CV_DOUT_SR5  8
+#define DEFAULT_CV_DOUT_SR6  9
+#define DEFAULT_CV_DOUT_SR7  10
+#define DEFAULT_CV_DOUT_SR8  11
+#define DEFAULT_CV_DOUT_SR9  12
+#define DEFAULT_CV_DOUT_SR10 13
+#define DEFAULT_CV_DOUT_SR11 14
+#define DEFAULT_CV_DOUT_SR12 15
+#define DEFAULT_CV_DOUT_SR13 16
 #define DEFAULT_CV_DOUT_SR14 0
 #define DEFAULT_CV_DOUT_SR15 0
 #define DEFAULT_CV_DOUT_SR16 0
