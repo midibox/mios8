@@ -25,6 +25,21 @@ LC_SYSEX_ACTION		EQU	0x017 ; used in lc_sysex.inc
 
 PERIODIC_MS_CTR 	EQU	0x020
 
+PERIODIC_S_CTR_L 	EQU	0x021
+PERIODIC_S_CTR_H 	EQU	0x022
+PERIODIC_S_OVERRUN 	EQU	0x023
+
+;; free: 0x24..0x2f
+
+HUI_HIGH_BYTES_0        EQU     0x030
+HUI_HIGH_BYTES_1        EQU     0x031
+HUI_HIGH_BYTES_2        EQU     0x032
+HUI_HIGH_BYTES_3        EQU     0x033
+HUI_HIGH_BYTES_4        EQU     0x034
+HUI_HIGH_BYTES_5        EQU     0x035
+HUI_HIGH_BYTES_6        EQU     0x036
+HUI_HIGH_BYTES_7        EQU     0x037
+
 ;; ==========================================================================
 ;; for fader move traces
 TRACE_MEM_START		EQU	0x100

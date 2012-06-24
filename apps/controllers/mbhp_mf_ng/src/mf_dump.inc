@@ -122,6 +122,7 @@ MF_DUMP_WriteData_Cfg_EmuIdTable
 	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	 ; CCs
 	db	0x10, 0x11	; Logic Control and Extension
 	db	0x14, 0x15	; Mackie Control and Extension
+	db	0x00, 0x00	; Mackie HUI and Motormix (no SysEx emulation required)
 
 
 MF_DUMP_WriteData_Cfg_12
