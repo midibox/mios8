@@ -4,7 +4,7 @@
 ; MIDIbox FM
 ;
 ; Version:                <-------------->
-#define MBFM_VERSION_STR "MIDIbox FM V1.4d"
+#define MBFM_VERSION_STR "MIDIbox FM V1.4e"
 ; (fixed string length - 16 characters!)
 ;
 ; ==========================================================================

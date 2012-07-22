@@ -148,15 +148,15 @@ MIOS_ENC_PIN_TABLE
 #if CS_MENU_USE_INCDEC_BUTTONS
 	ENC_EOT
 #else
-	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED2	; menu encoder
+	ENC_ENTRY  1,  0,  MIOS_ENC_MODE_DETENTED3	; menu encoder
 #endif
 
 	;; additional CS encoders
 	;;        SR  Pin  Mode
-	ENC_ENTRY  3,  2,  MIOS_ENC_MODE_DETENTED2	; Multipurpose Enc #1
-	ENC_ENTRY  3,  4,  MIOS_ENC_MODE_DETENTED2	; Multipurpose Enc #2
-	ENC_ENTRY  3,  6,  MIOS_ENC_MODE_DETENTED2	; Multipurpose Enc #3
-	ENC_ENTRY  4,  0,  MIOS_ENC_MODE_DETENTED2	; Multipurpose Enc #4
+	ENC_ENTRY  3,  2,  MIOS_ENC_MODE_DETENTED3	; Multipurpose Enc #1
+	ENC_ENTRY  3,  4,  MIOS_ENC_MODE_DETENTED3	; Multipurpose Enc #2
+	ENC_ENTRY  3,  6,  MIOS_ENC_MODE_DETENTED3	; Multipurpose Enc #3
+	ENC_ENTRY  4,  0,  MIOS_ENC_MODE_DETENTED3	; Multipurpose Enc #4
 
 	ENC_EOT
 

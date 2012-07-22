@@ -1495,14 +1495,41 @@ CS_MENU_PatchUpdate_Hlp_Load
 
 ;; --------------------------------------------------------------------------
 ;;  called by cs_menu_enc.inc when the drumset number should be updated
-;;  drumset number in CS_MENU_PARAMETER_[LH]
+;;  incrementer in MIOS_PARAMETER1
 ;; --------------------------------------------------------------------------
-CS_MENU_DrumUpdate
-	;; save new number
-	movf	CS_MENU_PARAMETER_L, W
+CS_MENU_DrumInc
+	;; from 0x00..0x7f (8*16 drumsets)
+	movf	MBFM_DRUMSET, W
+	andlw	0x0f
+	movwf	PRODL
+	swapf	MBFM_DBANK, W
+	andlw	0x70
+	iorwf	PRODL, F
+	movff	PRODL, PRODH	; copy for later comparison with original value
+
+	;; inc/dec
+	movf	MIOS_PARAMETER1, W
+	addwf	PRODL, F
+
+	;; saturate: 0x7f if pos, 0x00 if neg
+	movlw	0x7f ; pos
+	btfsc	MIOS_PARAMETER1, 7
+	movlw	0x00 ; neg
+
+	btfsc	PRODL, 7 ; write on INC/DEC overrun
+	movwf	PRODL
+
+	;; ignore if new value is equal to original value
+	movf	PRODL, W
+	xorwf	PRODH, W
+	skpnz
+	return
+
+	;; copy new value into drumset and bank
+	movf	PRODL, W
 	andlw	0x0f
 	movwf	MBFM_DRUMSET
-	swapf	CS_MENU_PARAMETER_L, W
+	swapf	PRODL, W
 	andlw	0x07
 	movwf	MBFM_DBANK
 
