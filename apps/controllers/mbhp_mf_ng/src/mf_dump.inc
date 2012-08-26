@@ -150,6 +150,11 @@ MF_DUMP_WriteData_Cfg_17
 	goto	MIOS_SRIO_TS_SensitivitySet
 
 MF_DUMP_WriteData_Cfg_18
+	movf	PRODL, W
+	andlw	0x0f
+	movwf	MIDI_CHANNEL
+	return
+
 MF_DUMP_WriteData_Cfg_19
 MF_DUMP_WriteData_Cfg_1A
 MF_DUMP_WriteData_Cfg_1B
@@ -241,6 +246,10 @@ MF_DUMP_ReadData_Cfg_17
 	goto	MIOS_SRIO_TS_SensitivityGet
 
 MF_DUMP_ReadData_Cfg_18
+	movff	MIDI_CHANNEL, WREG
+	andlw	0x0f
+	return
+
 MF_DUMP_ReadData_Cfg_19
 MF_DUMP_ReadData_Cfg_1A
 MF_DUMP_ReadData_Cfg_1B

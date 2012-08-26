@@ -441,8 +441,10 @@ USER_MPROC_M16 ; CC96..103
 USER_MPROC_M17 ; CC104..111
 USER_MPROC_M18 ; CC112..119
 USER_MPROC_M19 ; CC120..127
-	movf	MIOS_PARAMETER1, W  ; CC Chn1?
-	xorlw	0xb0
+	movf	MIDI_CHANNEL, W	    ; CC over selected MIDI channel?
+	andlw	0x0f
+	iorlw	0xb0
+	xorwf	MIOS_PARAMETER1, W
 	bnz	USER_MPROC_M4_End
 
 	movf	MF_OPERATION_MODE, W, BANKED  ; CC matching?
@@ -501,11 +503,13 @@ USER_MPROC_M24 ; Mackie HUI
 USER_MPROC_M25 ; Motormix
 
 	;; Position transfered via two events:
-	;; B0 0x <high>
-	;; B0 2x <low>  (+ fader move)
+	;; Bn 0x <high>
+	;; Bn 2x <low>  (+ fader move)
 
-	movf	MIOS_PARAMETER1, W
-	xorlw	0xb0
+	movf	MIDI_CHANNEL, W	    ; CC over selected MIDI channel?
+	andlw	0x0f
+	iorlw	0xb0
+	xorwf	MIOS_PARAMETER1, W
 	bnz	USER_MPROC_NoHUI
 USER_MPROC_HUI
 	movf	MIOS_PARAMETER2, W
@@ -749,10 +753,12 @@ USER_DIN_NotifyToggle_M25 ; Motormix
 	;; for MIDIbox Link: notify begin of stream
 	call	MIOS_MIDI_BeginStream
 
-	;; Touch Fader:   B0 0F <fader> 2F 40
-	;; Release Fader: B0 0F <fader> 2F 00
+	;; Touch Fader:   Bn 0F <fader> 2F 40
+	;; Release Fader: Bn 0F <fader> 2F 00
 
-	movlw	0xb0
+	movf	MIDI_CHANNEL, W
+	andlw	0x0f
+	iorlw	0xb0
 	call	MIOS_MIDI_TxBufferPut
 
 	movlw	0x0f
@@ -1005,8 +1011,10 @@ USER_AIN_NotifyChange_M19 ; CC120..127
 	;; for MIDIbox Link: notify begin of stream
 	call	MIOS_MIDI_BeginStream
 
-	;; finally send value: E<fader> LSB MSB
-	movlw	0xb0
+	;; finally send value: Bn CC MSB
+	movf	MIDI_CHANNEL, W
+	andlw	0x0f
+	iorlw	0xb0
 	call	MIOS_MIDI_TxBufferPut
 
 	movff	MF_OPERATION_MODE, WREG
@@ -1065,8 +1073,10 @@ USER_AIN_NotifyChange_M25 ; Motormix
 	;; for MIDIbox Link: notify begin of stream
 	call	MIOS_MIDI_BeginStream
 
-	;; finally send value: B0 0<fader> MSB 2<fader> LSB
-	movlw	0xb0
+	;; finally send value: Bn 0<fader> MSB 2<fader> LSB
+	movf	MIDI_CHANNEL, W
+	andlw	0x0f
+	iorlw	0xb0
 	call	MIOS_MIDI_TxBufferPut
 
 	movf	LC_FADER_NUMBER, W
