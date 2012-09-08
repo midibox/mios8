@@ -179,7 +179,7 @@ SID_SYSEX_PatchRead_Type
 SID_SYSEX_PatchRead_Bnk
 	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_BANK_RECEIVED, BANKED, SID_SYSEX_PatchRead_Nr
 	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_BANK_RECEIVED, BANKED
-	btfsc	SID_SYSEX_TYPE, 3, BANKED  ; skip if RAM flag set
+	btfss	SID_SYSEX_TYPE, 3, BANKED  ; skip if RAM flag set
 	movff	SID_SYSEX_IN, SID_BANK	; copy bank number to SID_BANK
 	rgoto	SID_SYSEX_SysExCheck_End	; wait for next byte
 	
@@ -248,7 +248,7 @@ SID_SYSEX_PatchWrite_Type
 SID_SYSEX_PatchWrite_Bnk
 	BRA_IFSET SID_SYSEX_STATE2, SID_SYSEX_STATE2_BANK_RECEIVED, BANKED, SID_SYSEX_PatchWrite_Nr
 	bsf	SID_SYSEX_STATE2, SID_SYSEX_STATE2_BANK_RECEIVED, BANKED
-	btfsc	SID_SYSEX_TYPE, 3, BANKED	; skip if RAM flag set
+	btfss	SID_SYSEX_TYPE, 3, BANKED	; skip if RAM flag set
 	movff	SID_SYSEX_IN, SID_BANK		; copy bank number to SID_BANK
 	rgoto	SID_SYSEX_SysExCheck_End	; wait for next byte
 
