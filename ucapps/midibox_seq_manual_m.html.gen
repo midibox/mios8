@@ -50,6 +50,10 @@ A new step is selected when the appr. rotary encoder is moved or by pressing the
      <LI> <B>Step Select:</B> allows to enable/disable the steps which are controlled by the ALL function. E.g., with the pattern below, only steps 1,2,5,6,9,10,13,14 (plus the edited step) will be changed if the ALL function has been activated:
 <CENTER><IMG SRC="midibox_seq/cs4/edit12.gif" width=481 height=19 ALT="Edit Screen"></IMG></CENTER><BR>
 If the track consists of more than 16 steps, the selection pattern will be applied on each step view.
+     <LI> <B>Random Generator:</B> enters the Random Generator page (see detailed menu page description later in this chapter)
+<CENTER><IMG SRC="midibox_seq/cs4/trkrnd1.gif" width=481 height=19 ALT="Random"></IMG></CENTER><BR>
+     <LI> <B>Euclid Generator:</B> enters the Euclidean Rhythm Generator page (see detailed menu page description later in this chapter)
+<CENTER><IMG SRC="midibox_seq/cs4/trkeuclid1.gif" width=481 height=19 ALT="Euclid"></IMG></CENTER><BR>
      </UL>
 </P>
 
@@ -825,6 +829,41 @@ Incoming events will be immediately inserted into the selected track. If the cur
 <P CLASS=DESC><I>Hot tip: use the randomizer in conjunction with the Force-to-Scale function for harmonic results!</I></P>
 
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Euclidean Rhythm Generator Page (Shortcut: SELECT-&gt;GP16 in EDIT page)</H2>
+<P CLASS=INFO>This menu page provides an Euclidean Rhythm Generator which was inspired from <A HREF="http://ruinwesen.com/blog?id=216" TARGET="_blank">this Ruin&amp;Wesen blog article</A>.</P>
+
+<P CLASS=INFO>In distance to common solutions which you can find around the web, the MBSEQ based generator writes static sequences into the track storage so that they can also be modified if desired! There are separate views for Drum and "Normal" tracks - for Drum tracks individual sequences can be generated for each instrument, while in a normal track the gates are only generated for a single instrument.<BR>
+Another difference to common solutions is the random accent generator which adds some more variety to each step.</P>
+
+<P CLASS=INFO>Normal Track View:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trkeuclid2.gif" width=481 height=19 ALT="Euclid"></CENTER></IMG></P>
+<P CLASS=INFO>Drum Track View:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/trkeuclid1.gif" width=481 height=19 ALT="Euclid"></CENTER></IMG></P>
+
+<UL CLASS=CL>
+  <LI><B>TrkLength:</B> selects the track length. The length should be adapted to the maximum loop length which is defined on the right display.</LI>
+  <LI><B>Drum:</B> if the track is configured for drum mode, the instrument can be selected here.</LI>
+  <LI><B>Note:</B> if the track is configured for drum mode, the note which is played by the instrument can be selected here (same as in MIDI event configuration page)</LI>
+  <LI><B>VelN and VelA:</B> velocity used for normal and accented steps.</LI>
+  <LI><B>RndA:</B> defines the probability for generating accented steps. Whenever the value is changed, accents will be generated immediately. If the track provides a parameter layer for velocity, these values will be changed instead of setting accent triggers. This allows to fine-adjust the velocity values later in EDIT page.</LI>
+  <LI><B>Len:</B> defines the loop length of an euclidean pattern.<BR>
+                  Changing this value will immediately re-generate pattern + accents</LI>
+  <LI><B>Pulses:</B> defines the number of pulses which will be inserted into the loop.<BR>
+                  Changing this value will immediately re-generate pattern + accents</LI>
+  <LI><B>Offset:</B> allows to shift the generated pattern within the loop.<BR>
+                  Changing this value will immediately re-generate pattern + accents</LI>
+  <LI><B>Dots and Stars:</B> show the currently active gate/accent pattern (similar to the pattern shown on EDIT page) to give an overview about the generator results.</LI>
+</UL>
+
+<P CLASS=INFO>Demos:
+<UL CLASS=CL>
+  <LI>Changing the parameters while a single drum track is playing:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv4_euclid1.mp3"#ffffff**<BR>
+  <LI>Different chords have been entered into each step, and the gates are modified by the rhythm generator:<BR>
+**MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv4_euclid2.mp3"#ffffff**<BR>
+</UL>
+
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Options Page (Shortcut: UTIL (F1)->Opt.)</H2>
 <P CLASS=INFO>This page contains a selection of special options, for which no other page has been found:<BR>
 <P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/opt1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
@@ -928,7 +967,7 @@ Each track has an animated VU meter to display the MIDI activity.</P>
 <P CLASS=DESC>Each track has a small vertical bar which displays the MIDI activity while the sequencer is playing.</P>
 
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Song Screen </H2>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Song Page </H2>
 <P CLASS=INFO>This page has two purposes - one purpose is to store pattern sets for all four groups which can be quickly recalled by pressing a GP button. This is the so called "Phrase Mode" (see below)</P>
 <P CLASS=INFO>The second (main) purpose is to chain and loop pattern sets without user interaction. You can toggle between Song and Phrase Mode with GP Encoder #8 or #9<BR>
 <CENTER><IMG SRC="midibox_seq/cs4/song1.gif" width=481 height=19 ALT="Song"></CENTER></IMG></P>
@@ -966,8 +1005,17 @@ Each track has an animated VU meter to display the MIDI activity.</P>
   <LI>to insert an empty item into the current song position</LI>
   <LI>to delete the current song position (following positions will be shifted to the current position)</LI>
   <LI>to change between Phrase and Song Mode</LI>
+  <LI>to take copy the currently played pattern set into the song position</LI>
 </UL></P>
 
+
+<P CLASS=DESC>In song mode one additional item is available:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/song3.gif" width=481 height=19 ALT="Song Utilities"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI>the optional <B>Guide Track</B> defines the loop length of a song position.<BR>
+     Once the last loop has been played, all tracks will be synchronized to step 1.<BR>
+     This allows to program breaks with a step length which is independent from the measure.
+</UL></P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Disk Page (Shortcut: UTILITY (F1)->Disk)</H2>
