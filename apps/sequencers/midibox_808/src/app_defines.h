@@ -330,8 +330,7 @@ SEQ_SYSEX_IN		EQU	0x136	; used by seq_sysex.inc
 SEQ_SYSEX_CHECKSUM	EQU	0x137	; used by seq_sysex.inc
 SEQ_SYSEX_ADDRESS_L	EQU	0x138	; used by seq_sysex.inc
 SEQ_SYSEX_ADDRESS_H	EQU	0x139	; used by seq_sysex.inc
-SEQ_SYSEX_TARGET_BANK	EQU	0x13a	; used by seq_sysex.inc
-SEQ_SYSEX_TARGET_PATTERN EQU	0x13b	; used by seq_sysex.inc
+;; free: 0x13a..0x13b
 SEQ_SYSEX_SOURCE	EQU	0x13c	; used by cs_m_sysex.inc
 
 SEQ_MIDIPOS_STATE	EQU	0x13d	; used by the SEQ_MIDI_ClkPosParser

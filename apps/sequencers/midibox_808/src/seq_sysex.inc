@@ -532,7 +532,7 @@ SEQ_SYSEX_Send_SysExFooter_Force
 ;;  Send a SysEx dump of a single pattern
 ;;  IN: source pattern in SEQ_PATTERN/SEQ_PATTERN_BANK
 ;;      if SEQ_PATTERN == 0x80, send RAM dump of P1 instead
-;;      pattern number/bank of the sent dump in SEQ_SYSEX_TARGET_PATTERN/SEQ_SYSEX_TARGET_BANK
+;;      pattern number/bank of the sent dump in SEQ_PATTERN/SEQ_PATTERN_BANK
 ;; --------------------------------------------------------------------------
 SEQ_SYSEX_SendDump
 	;; send SysEx header
@@ -544,12 +544,12 @@ SEQ_SYSEX_SendDump
 
 	;; send requested pattern bank and number
 	SET_BSR	SEQ_BASE
-	movf	SEQ_SYSEX_TARGET_BANK, W, BANKED
+	movf	SEQ_PATTERN_BANK, W, BANKED
 	andlw	0x7f
 	call	MIOS_MIDI_TxBufferPut
 
 	SET_BSR	SEQ_BASE
-	movf	SEQ_SYSEX_TARGET_PATTERN, W, BANKED
+	movf	SEQ_PATTERN, W, BANKED
 	andlw	0x7f
 	call	MIOS_MIDI_TxBufferPut
 
