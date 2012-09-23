@@ -54,8 +54,8 @@
 	__CONFIG    _CONFIG1, _CP_OFF & _CCP1_RB0 & _DEBUG_OFF & _WRT_PROTECT_OFF & _CPD_OFF & _LVP_OFF & _BODEN_ON & _MCLR_OFF & _PWRTE_OFF & _WDT_ON & _INTRC_IO
 
 ; reload value and sample offset for Timer0, used by software UART
-TMR0_RELOAD		EQU     -64
-TMR0_SAMPLE_OFFSET	EQU	16	; shifts the sample point more to the middle
+TMR0_RELOAD		EQU     -61
+TMR0_SAMPLE_OFFSET	EQU	10	; shifts the sample point more to the middle
 
 ; Pins of Software UART
 PORT_SUART_IN	EQU	PORTA
