@@ -825,6 +825,7 @@ CS_M_MIXER_ValueSend
 	andlw	0x0f
 	movwf	MIDI_EVNT_PORT
 	movf	INDF1, W
+	andlw	0x0f
 	iorlw	0xb0
 	movwf	MIDI_EVNT0
 
