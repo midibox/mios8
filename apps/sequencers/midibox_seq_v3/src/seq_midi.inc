@@ -485,9 +485,27 @@ SEQ_MIDI_CC_NRPNData
 	movff	SEQ_NRPN_ADDRESS_MSB, MIOS_PARAMETER2	; track number
 	movff	MIOS_PARAMETER3, MIOS_PARAMETER1	; parameter value
 	movf	SEQ_NRPN_ADDRESS_LSB, W, BANKED		; parameter number
-	call	SEQ_CCIN_Set
-	rgoto	SEQ_MIDI_CC_End
+	goto	SEQ_CCIN_Set
 SEQ_MIDI_CC_NoNRPNData
+
+#if DEFAULT_MIXER_MAP_DUMP_CC
+	;; check for mixer map dump (CC#111)
+	movlw	111
+	cpfseq	MIOS_PARAMETER2, ACCESS
+	rgoto	SEQ_MIDI_CC_NoMixerMapDump
+SEQ_MIDI_CC_MixerMapDump
+	;; select mixer map if not already done
+	movf	MIOS_PARAMETER3, W
+	xorwf	CS_MIXER_MAP, W
+	bz	SEQ_MIDI_CC_MixerMapDumpNoSel
+SEQ_MIDI_CC_MixerMapDumpSel
+	movff	MIOS_PARAMETER3, CS_MIXER_MAP
+	call	CS_M_MIXER_LoadMap
+SEQ_MIDI_CC_MixerMapDumpNoSel
+	;; dump
+	goto	CS_M_MIXER_DumpMap	
+SEQ_MIDI_CC_NoMixerMapDump
+#endif
 
 #if DEFAULT_MIDI_PATTERN_CHANGE_CC
 	;; check for pattern change request (CC#112-CC#115)
@@ -510,7 +528,7 @@ SEQ_MIDI_CC_PatternChng
 	andlw	0x07
 	movwf	SEQ_PATTERN_BANK, BANKED
 	;; request change
-	call	SEQ_CORE_ChangePatternSynched
+	goto	SEQ_CORE_ChangePatternSynched
 SEQ_MIDI_CC_NoPatternChng
 #endif
 
@@ -537,7 +555,7 @@ SEQ_MIDI_CC_BankChng
 	andlw	0x7f
 	movwf	SEQ_PATTERN, BANKED
 	;; request change
-	call	SEQ_CORE_ChangePatternSynched
+	goto	SEQ_CORE_ChangePatternSynched
 SEQ_MIDI_CC_NoBankChng
 #endif
 

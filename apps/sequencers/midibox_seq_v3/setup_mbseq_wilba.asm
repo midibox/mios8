@@ -170,6 +170,10 @@
 #define DEFAULT_MIDI_CHANNEL_LAYER_C	0
 #define DEFAULT_MIDI_CHANNEL_CFG	0
 
+;; if enabled (1), values of a mixer map can be dumped via CC#111
+;; if disabled (0), this CC will be ignored
+#define DEFAULT_MIXER_MAP_DUMP_CC	1
+
 ;; if enabled (1), patterns can be changed via CC#112-CC#115
 ;; if disabled (0), these CCs are ignored
 #define DEFAULT_MIDI_PATTERN_CHANGE_CC	1
