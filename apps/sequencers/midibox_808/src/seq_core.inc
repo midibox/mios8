@@ -2124,11 +2124,36 @@ SEQ_CORE_NextStep_FwdReverse
 	BRA_IFSET PLUSW2, SEQ_TRKVARSTATE_POS_RESET, ACCESS, SEQ_CORE_NextStep_BckR
 
 	;; jump to last step if first loop step has been reached
+	;; branch depending on track length
+	movlw	SEQ_TRKLASTx
+	incf	PLUSW0, W
+	BRA_IFSET WREG, 6, ACCESS, SEQ_CORE_NextStep_BckChk_64
+	BRA_IFSET WREG, 5, ACCESS, SEQ_CORE_NextStep_BckChk_32
+SEQ_CORE_NextStep_BckChk_16
 	movlw	SEQ_TRKLOOPx
 	movff	PLUSW0, PRODL
 	movlw	SEQ_TRKVARSTEPx
 	movf	PLUSW2, W
 	andlw	0x0f
+	rgoto	SEQ_CORE_NextStep_BckChk_Cont
+
+SEQ_CORE_NextStep_BckChk_32
+	movlw	SEQ_TRKLOOPx
+	movff	PLUSW0, PRODL
+	movlw	SEQ_TRKVARSTEPx
+	movf	PLUSW2, W
+	andlw	0x1f
+	rgoto	SEQ_CORE_NextStep_BckChk_Cont
+
+SEQ_CORE_NextStep_BckChk_64
+	movlw	SEQ_TRKLOOPx
+	movff	PLUSW0, PRODL
+	movlw	SEQ_TRKVARSTEPx
+	movf	PLUSW2, W
+	andlw	0x3f
+	;; 	rgoto	SEQ_CORE_NextStep_BckChk_Cont
+
+SEQ_CORE_NextStep_BckChk_Cont
 	xorwf	PRODL, W
 	bz	SEQ_CORE_NextStep_BckR
 
