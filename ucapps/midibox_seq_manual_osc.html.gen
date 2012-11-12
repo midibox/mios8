@@ -5,43 +5,13 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- OSC
 <H1>MIDIbox SEQ V4</H1>
 <H1>User Manual --- OSC</H1>
 
-<P CLASS=INFO>OSC stands for <A HREF="http://opensoundcontrol.org/introduction-osc" TARGET="_blank">"Open Sound Control"</A>. This protocol becomes more and more popular these days, especially with the advent of gadgets such as iPhone and iPad which provide a touchscreen and wireless network interface, perfectly suitable for remote controlling musical gear. But the protocol allows much more usecases of course! It's especially more flexible than the MIDI protocol, which was tailored around the capabilities of synths developed in the 80s, and therefore has certain limitations (e.g. number of channels, resolution, the way how frequencies of notes are controlled).</P>
-
-<H2>OSC vs. MIDI</H2>
-
-<P CLASS=INFO>As somebody who developed programs for MIDI since the early 90s (started on a C64) I would like to give my personal opinions first before describing the OSC features provided by MIDIbox SEQ.</P>
-
-<P CLASS=INFO><B>Speed:</B> very often you will read that OSC is faster than MIDI as informations are typically sent over fast ethernet interfaces.<BR>
-This statement is true as long as MIDI devices are connected through a common MIDI interface running at a baudrate of 31.25kbaud. Accordingly, the transmission of a single (unoptimized) MIDI event (3 bytes) will take ca. 1 mS, while over an ethernet line a bundle of OSC messages could be transmitted in a fraction of this time.<BR>
-This statement is not true once MIDI events are sent over a different physical interface, such as USB.<BR>
-If OSC is processed by a common microcontroller, USB-MIDI is even faster - see also the results of <A HREF="http://midibox.org/forums/topic/12644-mbseq-v4-midi-out-performance/" TARGET="_blank">these experiments</A>!</P>
-
-<P CLASS=INFO><B>Speed2:</B> sometimes I also read the argument that MIDI is so outdated that people don't understand why it hasn't been replaced by more modern protocol yet. From my experiences with using MIDI with low-cost microcontrollers: I'm very happy that it still exists! The usage of MIDI is uncomplicated and still leads to better performance compared to OSC; OSC can never beat it in these terms since the protocol requires more hardware and more computing. Of course, today even cheap microcontrollers of the typical DIY range are powerful enough to send/receive OSC messages (if not via ethernet, then via RS232 resp. COM devices), but developers quickly run into problems once multiple tasks should run in parallel.<BR>
-Not only that OSC increases the CPU load, it also leads to the requirement to process incoming packets much faster than with MIDI messages to avoid buffer overruns.<BR>
-In other words: while with a common MIDI connection it was guaranteed that the application won't receive more than one MIDI event per mS (resp. 640 uS for running status optimized event), with OSC a huge bundle of messages could be received at the same time. This makes OSC applications less robust!<BR>
-The reliability can be improved by transporting OSC messages via TCP/IP (a handshake protocol) instead of UDP, but this slows down the communication and adds some overhead (especially for embedded devices) so that the overall transfer speed could even be slower than 31.25kbaud!</P>
-
-<P CLASS=INFO><B>Flexibility:</B> OSC standardizes value types, formats and the addressing of entities. The same results could be achieved with MIDI (e.g. by using SysEx messages), but it isn't standardized! Extensions to the MIDI protocol are always proprietary and bound to custom applications.</P>
-
-<P CLASS=INFO><B>Usability:</B> Unfortunately OSC is still not supported by major DAWs such as Logic, Cubase, Sonar, Pro Tools, Ableton Live, etc! Especially when connecting control devices it would provide so many benfits, but it seems that the big companies are sleeping since years! There is still only a small number of applications which are supporting OSC, such as Reaktor and Max/MSP (to name the most favourite ones).</P>
-
-<P CLASS=INFO><B>Personal conclusion:</B> although OSC isn't the best performance option for a MIDI sequencer, I found already usecases which are very helpful for me, such as connection to an iPad based controller or transfer of MIDI events via WiFi (embedded into OSC messages), e.g. to a notebook. My hope is, that OSC will be supported in future versions of major DAWs - MIDIbox SEQ is prepared for this step! :-)</P>
-
-
-<H2>Ethernet Hardware</H2>
-
-<P CLASS=INFO>MIDIbox SEQ sends OSC packets over a "real ethernet device" (and not via COM has it can be found on many DIY projects). Accordingly, no computer is required for a communication to another device which provides OSC applications as well, such as iPhone and iPad. In these particular cases, just connect your MIDIbox to a wireless router and it will work!</P>
-
-<P CLASS=INFO>The <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module provides an integrated Ethernet port, so that the OSC option can be used without additional hardware!</P>
-
-<P CLASS=INFO>OSC is also supported by the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> variant of the firmware if the <A HREF="mbhp_eth.html">MBHP_ETH</A> module is connected to the SPI port J16 of the (in parallel to the SD Card) as described in the <A HREF="midibox_seq_manual_hw.html">Hardware chapter</A>.
+<P CLASS=INFO>Background informations about the OSC integration into MIDIbox applications can be found at <A HREF="midibox_osc.html">this page</A>.
 
 
 <H2>Ethernet Configuration</H2>
 
+<P CLASS=DESC>Aside from the possibility to configure Ethernet and OSC Server/Client from the MIOS Terminal as described at the <A HREF="midibox_osc.html">MIDIbox OSC page</A>, it's also possible to change the settings from the control surface:
 <CENTER><IMG SRC="midibox_seq/cs4/eth1.gif" width=481 height=19 ALT="Ethernet"></CENTER></IMG>
-
-<P CLASS=INFO>A special page is available which allows to configure the IP settings of the MBHP_ETH interface, and the remote settings of the OSC server.<BR>
 
 <P CLASS=INFO>All changes won't take effect immediately, but have to be confirmed by pressing one of the "Enter" soft-buttons (GP8 and GP16)! They will be stored in the global configuration file /MBSEQ_GC.V4 on SD Card.</P>
 
@@ -59,29 +29,14 @@ The reliability can be improved by transporting OSC messages via TCP/IP (a hands
       <LI><B>Remote IP:</B> sets the IP of the host to which OSC packets should be sent/received
       <LI><B>Remote Port:</B> sets the port number to which OSC packets will be sent
       <LI><B>Local Port:</B> sets the port number over which OSC packets will be received
-      <LI><B>Tx Mode:</B> selects the transfer mode (MIDI messages, Text messages with Integers or Floats, <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro format</A>). See also next subchapter.
+  <LI><B>Mode:</B> following transfer formats are currently supported:
+    <UL CLASS=CL>
+      <LI><B>MIDI:</B> MIDI events are bundled into MIDI elements
+      <LI><B>Text Msg (Integer):</B> uses human readable pathes, values are in integer format
+      <LI><B>Text Msg (Float):</B> uses human readable pathes, values are in float format
+      <LI><B>MPP (Pianist Pro):</B> selects format which is used by <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro</A>
+      <LI><B>TOSC (TouchOSC):</B> selects format which is used by <A HREF="http://hexler.net/software/touchosc" TARGET="_blank">TouchOSC</A>
     </UL>
 </UL>
-
-<P CLASS=INFO><B>Configuration Example #1:</B> you connect the ethernet port directly to a Mac and ensured that 
-
-<CENTER><IMG SRC="midibox_seq/midibox_seq_eth_cfg1.png" width=671 height=608 ALT="Ethernet Cfg1"></CENTER></IMG>
-<CENTER><IMG SRC="midibox_seq/midibox_seq_eth_cfg2.png" width=668 height=559 ALT="Ethernet Cfg2"></CENTER></IMG>
-<CENTER><IMG SRC="midibox_seq/midibox_seq_eth_ping1.png" width=589 height=261 ALT="Ethernet Ping1"></CENTER></IMG>
-<CENTER><IMG SRC="midibox_seq/midibox_seq_eth_ping2.png" width=606 height=274 ALT="Ethernet Ping2"></CENTER></IMG>
-
-192.168.2.6
-
-...
-
-<P CLASS=INFO>To be continued...</P>
-
-<H2>Application Configuration</H2>
-
-<P CLASS=INFO>TODO</P>
-
-<H2>The MIDI Proxy</H2>
-
-<P CLASS=INFO>TODO</P>
 
 FOOTER

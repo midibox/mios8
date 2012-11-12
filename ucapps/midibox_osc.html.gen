@@ -1,0 +1,530 @@
+HEADER 3 MIDIbox OSC Server/Client
+
+<H1>MIDIbox OSC Server/Client</H1>
+
+<P CLASS=INFO>OSC stands for <A HREF="http://opensoundcontrol.org/introduction-osc" TARGET="_blank">"Open Sound Control"</A>. This protocol becomes more and more popular these days, especially with the advent of gadgets such as iPhone and iPad which provide a touchscreen and wireless network interface, perfectly suitable for remote controlling musical gear. But the protocol allows much more usecases of course! It's especially more flexible than the MIDI protocol, which was tailored around the capabilities of synths developed in the 80s, and therefore has certain limitations (e.g. number of channels, resolution, the way how frequencies of notes are controlled).</P>
+
+<H2>OSC vs. MIDI</H2>
+
+<P CLASS=DESC>As somebody who developed programs for MIDI since the early 90s (started on a C64) I would like to give my personal opinions first before describing the OSC features provided by MIDIbox.</P>
+
+<P CLASS=DESC><B>Speed:</B> very often you will read that OSC is faster than MIDI as informations are typically sent over fast ethernet interfaces.<BR>
+This statement is true as long as MIDI devices are connected through a common MIDI interface running at a baudrate of 31.25kbaud. Accordingly, the transmission of a single (unoptimized) MIDI event (3 bytes) will take ca. 1 mS, while over an ethernet line a bundle of OSC messages could be transmitted in a fraction of this time.<BR>
+This statement is not true once MIDI events are sent over a different physical interface, such as USB.<BR>
+If OSC is processed by a common microcontroller, USB-MIDI is even faster - see also the results of <A HREF="http://midibox.org/forums/topic/12644-mbseq-v4-midi-out-performance/" TARGET="_blank">these experiments</A>!</P>
+
+<P CLASS=DESC><B>Speed2:</B> sometimes I also read the argument that MIDI is so outdated that people don't understand why it hasn't been replaced by more modern protocol yet. From my experiences with using MIDI with low-cost microcontrollers: I'm very happy that it still exists! The usage of MIDI is uncomplicated and still leads to better performance compared to OSC; OSC can never beat it in these terms since the protocol requires more hardware and more computing power. Of course, today even cheap microcontrollers of the typical DIY range are powerful enough to send/receive OSC messages (if not via ethernet, then via RS232 resp. COM devices), but developers quickly run into problems once multiple tasks should run in parallel.<BR>
+Not only that OSC increases the CPU load, it also leads to the requirement to process incoming packets much faster than with MIDI messages to avoid buffer overruns.<BR>
+In other words: while with a common MIDI connection it was guaranteed that the application won't receive more than one MIDI event per mS (resp. 640 uS for running status optimized event), with OSC a huge bundle of messages could be received at the same time. This makes OSC applications less robust!<BR>
+The reliability can be improved by transporting OSC messages via TCP/IP (a handshake protocol) instead of UDP, but this slows down the communication and adds some overhead (especially for embedded devices) so that the overall transfer speed could even be slower than 31.25kbaud!</P>
+
+<P CLASS=DESC><B>Flexibility:</B> OSC standardizes value types, formats and the addressing of entities. The same results could be achieved with MIDI (e.g. by using SysEx messages), but it isn't standardized! Extensions to the MIDI protocol are always proprietary and bound to custom applications.</P>
+
+<P CLASS=DESC><B>Usability:</B> Unfortunately OSC is still not supported by major DAWs such as Logic, Cubase, Sonar, Pro Tools, Ableton Live, etc! Especially when connecting control devices it would provide so many benfits, but it seems that the big companies are sleeping since years! There is still only a small number of applications which are supporting OSC, such as Reaktor and Max/MSP (to name the most favourite ones).</P>
+
+<P CLASS=DESC><B>Personal conclusion:</B> although OSC isn't the best performance option for a MIDI sequencer, I found already usecases which are very helpful for me, such as connection to an iPad based controller or transfer of MIDI events via WiFi (embedded into OSC messages), e.g. to a notebook. My hope is, that OSC will be supported in future versions of major DAWs - MIDIbox is prepared for this step! :-)</P>
+
+
+<H2>Ethernet Hardware</H2>
+
+<P CLASS=DESC>MIDIbox sends OSC packets over a "real ethernet device" (and not via COM has it can be found on many DIY projects). Accordingly, no computer is required for a communication to another device which provides OSC applications as well, such as iPhone and iPad. In these particular cases, just connect your MIDIbox to a wireless router and it will work!</P>
+
+<P CLASS=DESC>The <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module provides an integrated Ethernet port, so that the OSC option can be used without additional hardware!</P>
+
+<P CLASS=DESC>OSC is also supported by the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> variant of the firmware if the <A HREF="mbhp_eth.html">MBHP_ETH</A> module is connected to the SPI port J16 of the (in parallel to the SD Card).
+
+
+<H2>OSC-ready Applications</H2>
+
+<P CLASS=DESC>The OSC protocol is only supported by <A HREF="mios.html">MIOS32</A> based applications, and they have to reference the standard <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fmodules%2Fuip_task_standard%2F" TARGET="_blank">OSC Server/Client</A> which can be seen as some kind of "plug-in".</P>
+
+<P CLASS=DESC>It's currently included in applications like:
+<UL CLASS=CL>
+  <LI><A HREF="midibox_seq.html">MIDIbox SEQ V4</A>
+  <LI><A HREF="midio128.html">MIDIO128</A>
+  <LI><A HREF="midibox_kb.html">MIDIbox KB</A>
+  <LI>upcoming <A HREF="midibox_ng.html">MIDIbox NG</A>
+  <LI>upcoming <A HREF="http://midibox.org/forums/topic/16415-midibox-cv-v2-concept/">MIDIbox CV V2</A>
+</UL>
+
+<P CLASS=DESC>Please note: since these applications also include the MIDI router "plug-in", it's possible to use the MIDIboxes as OSC&lt;-&gt;MIDI translator as well. See the appr. configuration example below.
+
+<P CLASS=DESC>If you would like to include OSC into your self-developed application, then have a look into <A HREF="mios32_c.html">Tutorial #028 (Simple OSC Server and Client)</A>
+
+<H2>Ethernet Configuration</H2>
+
+<P CLASS=DESC>The way how the ethernet interface and OSC server/client can be configured depends on the MIDIbox project, e.g. <A HREF="midibox_seq.html">MIDIbox SEQ</A> provides a special configuration page for this:
+<CENTER><IMG SRC="midibox_seq/cs4/eth1.gif" width=481 height=19 ALT="Ethernet"></CENTER></IMG>
+
+<P CLASS=DESC>Alternatively all applications can be configured from the MIOS Terminal, which is part of <A HREF="mios_studio.html">MIOS Studio</A>. Therefore below I will only refer to this possibility to keep this documentation generic.</P>
+
+<P CLASS=DESC>All available terminal commands can be displayed by typing <I>help</I> in the MIOS Terminal:</P>
+<TT><PRE>
+Following commands are available:
+...
+  network:                          print network info
+  set dhcp &lt;on|off&gt;:                enables/disables DHCP
+  set ip &lt;address&gt;:                 changes IP address
+  set netmask &lt;mask&gt;:               changes netmask
+  set gateway &lt;address&gt;:            changes gateway address
+  set osc_remote &lt;con&gt; &lt;address&gt;:   changes OSC Remote Address
+  set osc_remote_port &lt;con&gt; &lt;port&gt;: changes OSC Remote Port (1024..65535)
+  set osc_local_port &lt;con&gt; &lt;port&gt;:  changes OSC Local Port (1024..65535)
+  set osc_mode &lt;con&gt; &lt;mode&gt;:        changes OSC Transfer Mode (0..4)
+  set udpmon &lt;0..4&gt;:                enables UDP monitor (verbose level: 0)
+...
+</PRE></TT>
+
+<P CLASS=DESC>With the <I>network</I> command the current configuration will be displayed:</P>
+<TT><PRE>
+Ethernet cable connected: yes
+Ethernet MAC address: 00:5F:00:00:70:C4
+Ethernet services running: yes
+DHCP: enabled
+IP address: 192.168.1.103
+Netmask: 255.255.255.0
+Default Router (Gateway): 192.168.1.1
+OSC1 Remote address: 192.168.1.101
+OSC1 Remote port: 8001
+OSC1 Local port: 8000
+OSC1 Transfer Mode: 0 - MIDI Messages       
+OSC2 Remote address: 192.168.1.101
+OSC2 Remote port: 8001
+OSC2 Local port: 8000
+OSC2 Transfer Mode: 0 - MIDI Messages       
+OSC3 Remote address: 192.168.1.101
+OSC3 Remote port: 8001
+OSC3 Local port: 8000
+OSC3 Transfer Mode: 0 - MIDI Messages       
+OSC4 Remote address: 192.168.1.101
+OSC4 Remote port: 8001
+OSC4 Local port: 8000
+OSC4 Transfer Mode: 0 - MIDI Messages       
+UDP Monitor: verbose level #0
+</PRE></TT>
+
+<P CLASS=DESC>Network related commands:<BR>
+<UL CLASS=CL>
+  <LI><I>set dhcp &lt;on|off&gt;</I>: if enabled via <I>set dhcp on</I> (default), the Host IP, Network Mask and Gateway address will be requested from a DHCP Daemon (e.g. your wireless router) automatically whenever the ethernet cable is connected. The configuration could take some seconds depending on the responsiveness of your router.</BR>
+      <I>set dhcp off</I> will disable this function, so that the IP settings can be specified directly.
+  <LI><I>set ip &lt;address&gt;</I>: allows to enter the IP address of your MIDIbox manually if DHCP is disabled.<BR>
+         Example: <I>set ip 192.168.1.180</I>
+  <LI><I>set netmask &lt;mask&gt;</I>: allows to enter the netmask of your MIDIbox manually if DHCP is disabled.<BR>
+         Example: <I>set netmask 255.255.255.0</I>
+  <LI><I>set gateway &lt;address&gt;</I>: allows to enter the gateway of the ethernet network manually if DHCP is disabled.<BR>
+         Example: <I>set gateway 192.168.1.1</I>
+</UL>
+
+<P CLASS=DESC>OSC related commands:
+<UL CLASS=CL>
+  <LI><I>set osc_remote &lt;con&gt; &lt;address&gt;</I>: defines the remote IP assigned to the given OSC connection (e.g. the IP of your iPad).<BR>
+         <I>&lt;con&gt;</I> ranges from 1..4 and is displayed as OSC1..OSC4.<BR>
+      Example: <I>set osc_remote 1 192.168.1.110</I>
+  <LI><I>set osc_remote_port &lt;con&gt; &lt;port&gt;</I>: defines the remote port to which OSC packets will be sent.<BR>
+      Example: <I>set osc_remote_port 1 10001</I>
+  <LI><I>set osc_local_port &lt;con&gt; &lt;port&gt;</I>: defines the local port from which OSC packets will be received.<BR>
+      Example: <I>set osc_local_port 1 10000</I>
+  <LI><I>set osc_mode &lt;con&gt; &lt;mode&gt;</I>: defines the packet format which should be used.<BR>
+      If you omit <I>&lt;mode&gt;</I>, the supported transfer formats will be listed:
+    <UL CLASS=CL>
+      <LI><B>0: MIDI Messages:</B> MIDI events are bundled into MIDI elements
+      <LI><B>1: Text Msg (Integer):</B> uses human readable pathes, values are in integer format
+      <LI><B>2: Text Msg (Float):</B> uses human readable pathes, values are in float format
+      <LI><B>3: MPP (Pianist Pro):</B> selects format which is used by <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro</A>
+      <LI><B>4: TOSC (TouchOSC):</B> selects format which is used by <A HREF="http://hexler.net/software/touchosc" TARGET="_blank">TouchOSC</A>
+    </UL>
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Supported OSC Packet Formats</H2>
+
+<P CLASS=DESC>Following <A HREF="http://opensoundcontrol.org" TARGET="_blank">OSC</A> formats are supported by the application - the list of supported formats will be enhanced on request:
+
+<UL CLASS=CL>
+  <LI><B>MIDI:</B> MIDI events are bundled into MIDI elements, so that they can be forwarded with a MIDI proxy running on a computer. Currently only a <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Ftools%2Fosc_midi_proxy%2F" TARGET="_blank">selfwritten proxy for MacOS exists</A>, but it should be possible to port it to other operating systems as well (if somebody is interested: step forward!)<BR>
+The proxy supports common MIDI events, but also SysEx streams (!!!) embedded into "blobs".<BR>
+OSC packets are sent to the path "/midi1" ... "/midi4" depending on the OSC port number.</P>
+
+  <LI><B>Text Msg (Integer or Float):</B> MIDI events will be converted into human readable pathes. Values are either in integer or float format (e.g. float is the only type which is supported by <A HREF="http://www.native-instruments.com/#/en/products/producer/reaktor-5/" TARGET="_blank">NI Reaktor</A>.<BR>
+  List of Events:
+    <UL CLASS=CL>
+      <LI><B>Note Events:</B> /&lt;chn&gt;/note &lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>Polypressure Events:</B> /&lt;chn&gt;/polypressure &lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>CC Events:</B> /&lt;chn&gt;/cc &lt;cc-number&gt; &lt;cc-value&gt;
+      <LI><B>NRPN Events:</B> /&lt;chn&gt;/nrpn &lt;nrpn-number&gt; &lt;14bit-value&gt;
+      <LI><B>Program Change Events:</B> /&lt;chn&gt;/programchange &lt;program-number&gt;
+      <LI><B>Aftertouch Events:</B> /&lt;chn&gt;/aftertouch &lt;key-number&gt;
+      <LI><B>Pitchbend Events:</B> /&lt;chn&gt;/pitchbend &lt;pitch&gt;
+    </UL>
+
+  <BR>
+  <LI><B>Pianist Pro:</B> MIDI events will be converted into the format which is used by <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro</A>:
+    <UL CLASS=CL>
+      <LI><B>Note Events:</B> /mcmpp/key/&lt;chn&gt;/&lt;key-number&gt &lt;velocity&gt;
+      <LI><B>Polypressure Events:</B> /mcmpp/polypressure/&lt;chn&gt;/&lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>CC Events:</B> /mcmpp/cc/&lt;chn&gt;/&lt;cc-number&gt; &lt;cc-value&gt;
+      <LI><B>Program Change Events:</B> /mcmpp/programchange/&lt;chn&gt;/&lt;program-number&gt;
+      <LI><B>Aftertouch Events:</B> /aftertouch/&lt;chn&gt; &lt;key-number&gt;
+      <LI><B>Pitchbend Events:</B> /pitch/&lt;chn&gt; &lt;pitch&gt;
+    </UL>
+
+  <BR>
+  <LI><B>TouchOSC:</B> MIDI events will be converted into the format which is compatible to <A HREF="http://hexler.net/software/touchosc" TARGET="_blank">TouchOSC</A>:
+    <UL CLASS=CL>
+      <LI><B>Note Events:</B> /&lt;chn&gt;/note_&lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>Polypressure Events:</B> /&lt;chn&gt;/polypressure_&lt;key-number&gt; &lt;velocity&gt;
+      <LI><B>CC Events:</B> /&lt;chn&gt;/cc_&lt;cc-number&gt; &lt;cc-value&gt;
+      <LI><B>Program Change Events:</B> /&lt;chn&gt;/programchange_&lt;program-number&gt;
+      <LI><B>Aftertouch Events:</B> /&lt;chn&gt;/aftertouch &lt;key-number&gt;
+      <LI><B>Pitchbend Events:</B> /&lt;chn&gt;/pitchbend &lt;pitch&gt;
+    </UL>
+    A simple example configuration for iPad can be downloaded <A HREF="midio128/midio128_v3_touchosc_patches.zip">from here</A>.<BR>
+    <B>Update:</B> this format is also the best choice for newer <A HREF="http://www.native-instruments.com/#/en/products/producer/reaktor-5/" TARGET="_blank">Native Instruments Reaktor</A> versions meanwhile, because it's natively supported (nice word game ;-)) - see also the configuration example at the end of this page.
+</UL>
+
+<P CLASS=DESC>Please note: local and remote port have to be swapped when two devices communicate together. It's like connecting the "MIDI OUT" to the "MIDI IN" port. In other words: the "local port" of your MIDIbox has to be set to the "remote port" of the remote host, and vice versa.</P>
+<P CLASS=DESC>Please note also that the MIDIbox implementation allows to use the same port number for "local" and "remote", but unfortunately most other applications don't support this simplified setup.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Visualize OSC data on a PC/Mac </H2>
+
+<P CLASS=DESC>The <A HREF="mios_studio.html">OSC Tool of MIOS Studio</A> allows to send and receive OSC datagrams:
+<CENTER><IMG SRC="mios_studio/mios_studio_osc.png" width=853 height=553></CENTER></P>
+
+<P CLASS=DESC>Similar to the SysEx window, there is one frame to enter data that should be sent, and another frame which displays received messages.</P>
+
+<P CLASS=DESC>Enter the remote host and port over which datagrams should be sent. You can either enter the IP address or the host name of the host that should receive outgoing data (such as "localhost" to send data internally on your PC/Mac).</P>
+
+<P CLASS=DESC>The local port is the one which receives OSC datagrams from any IP. It's allowed to set the local port to the same number as the remote port if your application requires this.</P>
+
+<P CLASS=DESC>If no data is received in the monitor, it makes sense to check the IP address of your MIDIbox from your PC/Mac.<BR>
+This can be done from the command line (Windows: run 'cmd', MacOS: search for 'terminal' in Spotlight).<BR>
+Example:
+<CENTER><IMG SRC="midibox_seq/midibox_seq_eth_ping1.png" width=589 height=261 ALT="Ethernet Ping1"></CENTER></IMG>
+
+<P CLASS=DESC>Note that with a WiFi connection the latency could be much higher:<BR>
+<CENTER><IMG SRC="midibox_seq/midibox_seq_eth_ping2.png" width=606 height=274 ALT="Ethernet Ping2"></CENTER></IMG>
+
+<P CLASS=DESC>So: <I>ping</I> is also a nice tool to determine the network performance!
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Visualize OSC data on your MIDIbox </H2>
+
+<P CLASS=DESC>An integrated UDP packet monitor can be enabled in the MIOS Terminal with different verbose levels:
+<UL CLASS=CL>
+  <LI><I>set udpmon 4</I>: maximum verbose level, displays all received and sent packets:
+<TT><PRE>
+Set UDP monitor level to 4 (all received and sent packets)
+[UDP:DHCP] from 0.0.0.0:0 to port 0 (0 bytes)
+[UDP:DHCP] from 0.0.0.0:0 to port 0 (0 bytes)
+[UDP:DHCP] from 0.0.0.0:65165 to port 10901 (0 bytes)
+[UDP:DHCP] from 0.0.0.0:65165 to port 10901 (0 bytes)
+[UDP:OSC_RECEIVED] from 192.168.1.110:63152 to port 10000 (20 bytes)
+00000000  2F 31 2F 6E 6F 74 65 5F 35 32 00 00 2C 66 00 00  /1/note_52..,f..
+00000010  3F 80 00 00                                      ?...
+[UDP:DHCP] from 192.168.1.110:63152 to port 10000 (0 bytes)
+[UDP:DHCP] from 192.168.1.110:63152 to port 10000 (0 bytes)
+[UDP:DHCP] from 192.168.1.110:63152 to port 10000 (0 bytes)
+[UDP:DHCP] from 0.0.0.0:65165 to port 10901 (0 bytes)
+[UDP:DHCP] from 0.0.0.0:65165 to port 10901 (0 bytes)
+[UDP:DHCP] from 0.0.0.0:65165 to port 10901 (0 bytes)
+[UDP:OSC_RECEIVED] from 192.168.1.110:63152 to port 10000 (20 bytes)
+00000000  2F 31 2F 6E 6F 74 65 5F 35 32 00 00 2C 66 00 00  /1/note_52..,f..
+00000010  00 00 00 00                                      ....
+[UDP:OSC_RECEIVED] from 192.168.1.110:63152 to port 10000 (20 bytes)
+00000000  2F 31 2F 6E 6F 74 65 5F 35 36 00 00 2C 66 00 00  /1/note_56..,f..
+00000010  3F 80 00 00                                      ?...
+[UDP:OSC_RECEIVED] from 192.168.1.110:63152 to port 10000 (20 bytes)
+00000000  2F 31 2F 6E 6F 74 65 5F 35 36 00 00 2C 66 00 00  /1/note_56..,f..
+00000010  00 00 00 00                                      ....
+[UDP:OSC_RECEIVED] from 192.168.1.110:63152 to port 10000 (20 bytes)
+00000000  2F 31 2F 6E 6F 74 65 5F 35 38 00 00 2C 66 00 00  /1/note_58..,f..
+00000010  3F 80 00 00                                      ?...
+</PRE></TT>
+
+  <LI><I>set udpmon 3</I>: displays all received and sent packets with port number >= 1024.
+  <LI><I>set udpmon 2</I>: displays all received and sent packets which are assigned to OSC1..OSC4
+  <LI><I>set udpmon 1</I>: displays all received packets which are assigned to OSC1..OSC4
+  <LI><I>set udpmon 0</I>: disables the monitor (default)
+</UL>
+
+
+<H2>Usage Example: MIDI to OSC</H2>
+
+<P CLASS=DESC>We want to use the integrated MIDI router to translate MIDI events from an external MIDI device (e.g. a MIDI keyboard) into OSC packets. The OSC packets should be transmitted to a Reaktor patch running on a PC or Mac.
+<UL CLASS=CL>
+  <LI>determine the IP address of your PC/Mac; we assume it's 192.168.1.101:
+<TT><PRE><I>set osc_remote 1 192.168.1.113</I></PRE></TT>
+  <LI>define a remote to which Reaktor will listen, and local port to which your MIDIbox will listen, e.g.:
+<TT><PRE><I>set osc_remote_port 1 10001</I>
+<I>set osc_local_port 1 10000</I></PRE></TT>
+  <LI>check the OSC transfer modes which are available:
+<TT><PRE><I>set osc_mode 1</I></PRE></TT>
+      will output:
+<TT><PRE>
+Expecting OSC transfer mode 0..4
+Transfer Mode Mapping:
+0: MIDI Messages       
+1: Text Msg (Integer)  
+2: Text Msg (Float)
+3: Pianist Pro (iPad)  
+4: TouchOSC    (*)    
+</PRE></TT>
+  <LI>select the transfer mode which is suitable for Reaktor, e.g. 4 (TouchOSC)
+<TT><PRE><I>set osc_mode 1 4</I></PRE></TT>
+  <LI>now configure the integrated MIDI merger, so that it forwards MIDI events received from IN1 to OSC1, and MIDI events received from OSC1 to OUT1:
+<TT><PRE><I>set router 1 IN1 all OSC1 all</I>
+<I>set router 2 OSC1 all OUT1 all</I></PRE></TT>
+  <LI>type following command to check the setup:
+<TT><PRE><I>router</I></PRE></TT>
+It should display:
+<TT><PRE>
+MIDI Router Nodes (change with 'set router &lt;in-port&gt; &lt;channel&gt; &lt;out-port&gt; &lt;channel&gt;)
+   1  SRC:IN1  all  DST:OSC1 all
+   2  SRC:OSC1 all  DST:OUT1 all
+   3  SRC:USB1 off  DST:OUT1 all
+   4  SRC:USB1 off  DST:OUT1 all
+   5  SRC:USB1 off  DST:OUT1 all
+   6  SRC:USB1 off  DST:OUT1 all
+   7  SRC:USB1 off  DST:OUT1 all
+   8  SRC:USB1 off  DST:OUT1 all
+   9  SRC:USB1 off  DST:OUT1 all
+  10  SRC:USB1 off  DST:OUT1 all
+  11  SRC:USB1 off  DST:OUT1 all
+  12  SRC:USB1 off  DST:OUT1 all
+  13  SRC:USB1 off  DST:OUT1 all
+  14  SRC:USB1 off  DST:OUT1 all
+  15  SRC:USB1 off  DST:OUT1 all
+  16  SRC:USB1 off  DST:OUT1 all
+</PRE></TT>
+  <LI>enable the UDP monitor to display outgoing packets:
+<TT><PRE><I>set udpmon 2</I></PRE></TT>
+  and move the modulation wheel on your MIDI keyboard. The MIOS terminal should display:
+<TT><PRE>
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E D9 B3 67  /1/cc_1.,f..>..g
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E E5 CB 97  /1/cc_1.,f..>...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E E9 D3 A7  /1/cc_1.,f..>...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E ED DB B7  /1/cc_1.,f..>...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E F9 F3 E8  /1/cc_1.,f..>...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3F 01 02 04  /1/cc_1.,f..?...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3F 03 06 0C  /1/cc_1.,f..?...
+</PRE></TT>
+  <LI>turn the UDP monitor off again to save performance:
+<TT><PRE><I>set udpmon 0</I></PRE></TT>
+  <LI>start Reaktor on your PC/Mac, and open the OSC configuration (File-&gt;OSC Settings)<BR>
+      Activate OSC, select the local port 10001 (remember: you've configured 10001 as remote port on your MIDIbox which is the right choice!).
+      Enable the OSC Monitor ("Append Lines") and move the modulation wheel on your keyboard again. You should see:<BR>
+<IMG SRC="midibox_osc/midibox_osc_reaktor_cfg.png" width=339 height=539><BR>
+      If you don't see incoming packets, check that no other application on your PC/Mac listens to the same port (this won't work!) - check especially that the OSC monitor of MIOS Studio is disconnected - Reaktor won't notify this conflict and won't receive packets!<BR>
+      Finally you should add your device to the device list (here: MIDIbox 192.168.1.103 10000)
+  <LI>Integrate a synth into the Reaktor ensemble, select a knob and display the preferences.<BR>
+      Select the Connect tab and then the OSC event to which the knob shut listen (here: CutOff to cc_1):
+<IMG SRC="midibox_osc/midibox_osc_reaktor_cutoff.png" width=601 height=630><BR>
+      -&gt;done! :-)
+</UL>
+
+
+<H2>Usage Example: MIDIbox to MIDIbox via Ethernet</H2>
+
+<P CLASS=DESC>We want to connect two MIDIboxes via Ethernet, and transfer MIDI streams between the MIDI IN/OUT ports.
+<UL CLASS=CL>
+  <LI>we assume that MIDIbox A has IP address 192.168.1.112, and MIDIbox B the IP address 192.168.1.103.<BR>
+  Configure MIDIbox A to send to MIDIbox B:
+<TT><PRE><I>set osc_remote 1 192.168.1.103</I>
+<I>set osc_remote_port 1 10000</I>
+<I>set osc_local_port 1 10001</I>
+<I>set osc_mode 1 0</I>
+<I>set osc_remote 2 192.168.1.103</I>
+<I>set osc_remote_port 2 10002</I>
+<I>set osc_local_port 2 10003</I>
+<I>set osc_mode 2 0</I></PRE></TT>
+  And configure MIDIbox B to send to MIDIbox A:
+<TT><PRE><I>set osc_remote 1 192.168.1.112</I>
+<I>set osc_remote_port 1 10001</I>
+<I>set osc_local_port 1 10000</I>
+<I>set osc_mode 1 0</I>
+<I>set osc_remote 2 192.168.1.112</I>
+<I>set osc_remote_port 2 10003</I>
+<I>set osc_local_port 2 10002</I>
+<I>set osc_mode 2 0</I></PRE></TT>
+  In both cases we select OSC transfer mode 0 (MIDI events), which will even work for SysEx streams!
+  <LI>now configure the integrated MIDI merger, so that it forwards MIDI events received from IN1 to OSC1 + IN2 to OSC2, and MIDI events received from OSC1 to OUT1 + OSC2 to OUT2:
+<TT><PRE><I>set router 1 IN1 all OSC1 all</I>
+<I>set router 2 OSC1 all OUT1 all</I>
+<I>set router 3 IN2 all OSC2 all</I>
+<I>set router 4 OSC2 all OUT2 all</I></PRE></TT>
+  This has to be done for both MIDIbox devices!
+  <LI>type following command to check the setup:
+<TT><PRE><I>router</I></PRE></TT>
+It should display:
+<TT><PRE>
+MIDI Router Nodes (change with 'set router &lt;in-port&gt; &lt;channel&gt; &lt;out-port&gt; &lt;channel&gt;)
+   1  SRC:IN1  all  DST:OSC1 all
+   2  SRC:OSC1 all  DST:OUT1 all
+   3  SRC:IN2  all  DST:OSC2 all
+   4  SRC:OSC2 all  DST:OUT2 all
+   5  SRC:USB1 off  DST:OUT1 all
+   6  SRC:USB1 off  DST:OUT1 all
+   7  SRC:USB1 off  DST:OUT1 all
+   8  SRC:USB1 off  DST:OUT1 all
+   9  SRC:USB1 off  DST:OUT1 all
+  10  SRC:USB1 off  DST:OUT1 all
+  11  SRC:USB1 off  DST:OUT1 all
+  12  SRC:USB1 off  DST:OUT1 all
+  13  SRC:USB1 off  DST:OUT1 all
+  14  SRC:USB1 off  DST:OUT1 all
+  15  SRC:USB1 off  DST:OUT1 all
+  16  SRC:USB1 off  DST:OUT1 all
+</PRE></TT>
+  <LI>done! You've now a bidirectional connection between two MIDIboxes via Ethernet! :-)<BR>
+      Use the udpmon to troubleshoot the connections for the case that MIDI data won't be forwarded!
+</UL>
+
+
+<H2>Usage Example: Bridging a MIDIbox IN/OUT port to a Mac via Ethernet</H2>
+
+<P CLASS=DESC>We want send MIDI events to a computer via Ethernet, and they should be converted back to MIDI events and forwarded to an internal (virtual) MIDI bus. Such a "proxy" currently only exists for MacOS. The source code can be found <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Ftools%2Fosc_midi_proxy%2F" TARGET="_blank">in the SVN repository</A>. It should be possible to port it to other operating systems as well (if somebody is interested: step forward!)</P>
+
+<P CLASS=DESC>A prebuilt binary is available as well: <A HREF="midibox_osc/osc_midi_proxy_v1.zip">osc_midi_proxy_v1.zip</A>
+
+<UL CLASS=CL>
+  <LI>determine the IP address of your PC/Mac; we assume it's 192.168.1.101:
+<TT><PRE><I>set osc_remote 1 192.168.1.113</I></PRE></TT>
+  <LI>define a remote to which Reaktor will listen, and local port to which your MIDIbox will listen, e.g.:
+<TT><PRE><I>set osc_remote_port 1 10001</I>
+<I>set osc_local_port 1 10000</I></PRE></TT>
+  <LI>check the OSC transfer modes which are available:
+<TT><PRE><I>set osc_mode 1</I></PRE></TT>
+      will output:
+<TT><PRE>
+Expecting OSC transfer mode 0..4
+Transfer Mode Mapping:
+0: MIDI Messages           (*)
+1: Text Msg (Integer)  
+2: Text Msg (Float)
+3: Pianist Pro (iPad)  
+4: TouchOSC
+</PRE></TT>
+  <LI>select the MIDI transfer mode 0, because it will support SysEx streams as well!
+<TT><PRE><I>set osc_mode 1 0</I></PRE></TT>
+  <LI>now configure the integrated MIDI merger, so that it forwards MIDI events received from IN1 to OSC1, and MIDI events received from OSC1 to OUT1:
+<TT><PRE><I>set router 1 IN1 all OSC1 all</I>
+<I>set router 2 OSC1 all OUT1 all</I></PRE></TT>
+  <LI>type following command to check the setup:
+<TT><PRE><I>router</I></PRE></TT>
+It should display:
+<TT><PRE>
+MIDI Router Nodes (change with 'set router &lt;in-port&gt; &lt;channel&gt; &lt;out-port&gt; &lt;channel&gt;)
+   1  SRC:IN1  all  DST:OSC1 all
+   2  SRC:OSC1 all  DST:OUT1 all
+   3  SRC:USB1 off  DST:OUT1 all
+   4  SRC:USB1 off  DST:OUT1 all
+   5  SRC:USB1 off  DST:OUT1 all
+   6  SRC:USB1 off  DST:OUT1 all
+   7  SRC:USB1 off  DST:OUT1 all
+   8  SRC:USB1 off  DST:OUT1 all
+   9  SRC:USB1 off  DST:OUT1 all
+  10  SRC:USB1 off  DST:OUT1 all
+  11  SRC:USB1 off  DST:OUT1 all
+  12  SRC:USB1 off  DST:OUT1 all
+  13  SRC:USB1 off  DST:OUT1 all
+  14  SRC:USB1 off  DST:OUT1 all
+  15  SRC:USB1 off  DST:OUT1 all
+  16  SRC:USB1 off  DST:OUT1 all
+</PRE></TT>
+  <LI>enable the UDP monitor to display outgoing packets:
+<TT><PRE><I>set udpmon 2</I></PRE></TT>
+  and move the modulation wheel on your MIDI keyboard. The MIOS terminal should display:
+<TT><PRE>
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E D9 B3 67  /1/cc_1.,f..>..g
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E E5 CB 97  /1/cc_1.,f..>...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E E9 D3 A7  /1/cc_1.,f..>...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E ED DB B7  /1/cc_1.,f..>...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3E F9 F3 E8  /1/cc_1.,f..>...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3F 01 02 04  /1/cc_1.,f..?...
+[UDP:OSC_SEND] to 192.168.1.103:10001 from port 10000 (16 bytes)
+00000000  2F 31 2F 63 63 5F 31 00 2C 66 00 00 3F 03 06 0C  /1/cc_1.,f..?...
+</PRE></TT>
+  <LI>turn the UDP monitor off again to save performance:
+<TT><PRE><I>set udpmon 0</I></PRE></TT>
+  <LI>on your Mac, open the command line terminal by searching for "terminal" in Spotlight.
+  <LI>change to the Download directory where you downloaded the <A HREF="midibox_osc/osc_midi_proxy_v1.zip">prebuilt binary</A>:
+<TT><PRE><I>cd ~/Downloads/osc_midi_proxy_v1/macos</I></PRE></TT>
+  <LI>execute the tool without arguments to see the syntax:
+<TT><PRE><I>./osc_midi_proxy</I>
+SYNTAX: ./osc_midi_proxy <remote-host> <remote-port> [<local-port>] [--in <in-port-number>] [--out <out-port-number>]</PRE></TT>
+  <LI>type:
+<TT><PRE><I>./osc_midi_proxy 192.168.1.103 10000 10001</I></PRE></TT>
+(note that local/remote ports have to be swapped here!)<BR>
+...and go through the dialog:
+<TT><PRE>
+Connecting to 192.168.1.103 on port 10000
+Receiving on port 10001
+[ 0] CoreMIDI, USB-MIDI-Ger?t Anschluss 1 (default input)
+[ 1] CoreMIDI, USB-MIDI-Ger?t Anschluss 2 (input)
+[ 2] CoreMIDI, USB-MIDI-Ger?t Anschluss 3 (input)
+[ 3] CoreMIDI, USB-MIDI-Ger?t Anschluss 4 (input)
+[ 4] CoreMIDI, USB-MIDI-Ger?t Anschluss 5 (input)
+[ 5] CoreMIDI, LPC17 Core 2 (input)
+[ 6] CoreMIDI, MIDIbox SEQ V4 Anschluss 1 (input)
+[ 7] CoreMIDI, MIDIbox SEQ V4 Anschluss 2 (input)
+[ 8] CoreMIDI, MIDIbox SEQ V4 Anschluss 3 (input)
+[ 9] CoreMIDI, MIDIbox SEQ V4 Anschluss 4 (input)
+[10] CoreMIDI, IAC-Treiber IAC-Bus 1 (input)
+[11] CoreMIDI, IAC-Treiber IAC-Bus 2 (input)
+[12] CoreMIDI, Daemon Input 0 (input)
+[13] CoreMIDI, Daemon Input 1 (input)
+[14] CoreMIDI, Daemon Input 2 (input)
+[15] CoreMIDI, Daemon Input 3 (input)
+[16] CoreMIDI, Daemon Input 4 (input)
+[17] CoreMIDI, Daemon Input 5 (input)
+[18] CoreMIDI, Daemon Input 6 (input)
+[19] CoreMIDI, Daemon Input 7 (input)
+[20] CoreMIDI, MidiKeys (input)
+Type input number: <I>10</I>
+[21] CoreMIDI: USB-MIDI-Ger?t Anschluss 1 (default output)
+[22] CoreMIDI: USB-MIDI-Ger?t Anschluss 2 (output)
+[23] CoreMIDI: USB-MIDI-Ger?t Anschluss 3 (output)
+[24] CoreMIDI: USB-MIDI-Ger?t Anschluss 4 (output)
+[25] CoreMIDI: USB-MIDI-Ger?t Anschluss 5 (output)
+[26] CoreMIDI: LPC17 Core 2 (output)
+[27] CoreMIDI: MIDIbox SEQ V4 Anschluss 1 (output)
+[28] CoreMIDI: MIDIbox SEQ V4 Anschluss 2 (output)
+[29] CoreMIDI: MIDIbox SEQ V4 Anschluss 3 (output)
+[30] CoreMIDI: MIDIbox SEQ V4 Anschluss 4 (output)
+[31] CoreMIDI: IAC-Treiber IAC-Bus 1 (output)
+[32] CoreMIDI: IAC-Treiber IAC-Bus 2 (output)
+[33] CoreMIDI: Daemon Output 0 (output)
+[34] CoreMIDI: Daemon Output 1 (output)
+[35] CoreMIDI: Daemon Output 2 (output)
+[36] CoreMIDI: Daemon Output 3 (output)
+[37] CoreMIDI: Daemon Output 4 (output)
+[38] CoreMIDI: Daemon Output 5 (output)
+[39] CoreMIDI: Daemon Output 6 (output)
+[40] CoreMIDI: Daemon Output 7 (output)
+Type output number: <I>32</I>
+HINT: next time you could select the MIDI In/Out port from command line with:
+   ./osc_midi_proxy 192.168.1.103 10000 10001 --in 10 --out 32
+MIDI IN 'CoreMIDI: IAC-Treiber IAC-Bus 1' opened.
+MIDI OUT 'CoreMIDI: IAC-Treiber IAC-Bus 2' opened.
+Proxy is running!
+</PRE></TT>
+  <LI>done! You've now a bidirectional MIDI connection between a MIDIbox and your computer via Ethernet! :-)<BR>
+      Note that the osc_midi_proxy even allows to forward MIDI events to physical MIDI IN/OUT ports connected to your computer!<BR>
+      Use the udpmon to troubleshoot the connections for the case that MIDI data won't be forwarded!
+</UL>
+
+
+FOOTER
