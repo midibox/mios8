@@ -1,0 +1,179 @@
+HEADER 3 MIDIbox NG User Manual --- First Steps
+
+<P CLASS=INFO><B><A HREF="midibox_ng_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox NG</H1>
+<H1>User Manual --- First Steps</H1>
+
+<P CLASS=INFO>The aim of this chapter is to give you a rough oversight about the configuration of a <A HREF="midibox_ng.html">MIDIbox NG</A> before your are working through the details of the <A HREF="midibox_ng_manual_ngc.html">.NGC</A> and <A HREF="midibox_ng_manual_ngl.html">.NGL</A> format.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Editing Configuration Files </H2>
+
+<P CLASS=DESC>First of all it makes sense to get familiar with <A HREF="mios_studio.html">MIOS Studio</A> and especially the integrated MIOS Filebrowser, because it will enable you to try out changes in your MIDIbox NG setup quickly by editing the configuration files, and transfering the changes via USB-MIDI.
+
+<P CLASS=DESC>After power-on, your MIDIbox will always load the DEFAULT.NGC and DEFAULT.NGL file - you will see the appr. messages in the MIOS Terminal (click on the image to enlarge):
+<CENTER><A HREF="mios_studio/mios_studio_mbng1.png"><IMG SRC="mios_studio/mios_studio_mbng1.png" width=401 height=350></A></CENTER>
+
+<P CLASS=DESC>The DEFAULT files will be automatically generated if they don't exist on the connected SD Card.
+
+<P CLASS=DESC>By opening the MIOS Filebrowser tool in MIOS Studio, you will be able to access the files which are stored on SD Card:
+<CENTER><A HREF="mios_studio/mios_studio_mbng2.png"><IMG SRC="mios_studio/mios_studio_mbng2.png" width=508 height=285></A></CENTER>
+<P CLASS=DESC>After a click on the "Update" button, files can be uploaded/downloaded from/to your harddisk - but it's especially possible to edit files without the need for an external text editor!
+
+<P CLASS=DESC>After transfering your changes back to the SD Card (press the SAVE button), the new file can be loaded from the MIOS Terminal with the "load" command:
+<CENTER><A HREF="mios_studio/mios_studio_mbng3.png"><IMG SRC="mios_studio/mios_studio_mbng3.png" width=401 height=350></A></CENTER>
+
+<P CLASS=DESC>The filename has to be specified without the .NGC extension.
+
+<P CLASS=DESC>From the MIOS Terminal it's also possible to store the current setup. So - in order to make any setup as your DEFAULT setup which will be restored after power-on, just type:
+<TT><PRE style="margin-left:50px">
+load &lt;your-setup-file&gt;
+save default
+</PRE></TT>
+-&gt; done! :-)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Hello World! </H2>
+
+<P CLASS=DESC>Let's start with the obligatory "Hello World" example. Unfortunately this experiment will only work with a LCD which is connected to your core module.
+
+<P CLASS=DESC>In MIOS Filebrowser, create a new configuration file by clicking on the "Create File" button. Name it "hello.ngc", and then click on the "Update" button to re-scan the directory.
+
+<P CLASS=DESC>Click on the "HELLO.NGC" file and push the "Edit Text" button.
+
+<P CLASS=DESC>Thereafter enter following commands into this file:
+<TT><PRE style="margin-left:50px">
+RESET_HW
+
+LCD "%CHello World!"
+</PRE></TT>
+
+<P CLASS=DESC>Click on the "Save" button, change to the main MIOS Studio window and enter following command into the MIOS Terminal:
+<TT><PRE style="margin-left:50px">
+load hello
+</PRE></TT>
+
+<P CLASS=DESC>Your LCD should show the message now!
+
+<P CLASS=DESC><B>Note:</B> detailed informations about the commands which are mentioned at this page can be found in the <A HREF="midibox_ng_manual_ngc.html">.NGC chapter</A>.
+
+<P CLASS=DESC>This is probably also the best place to mention, that filenames (without the .NG* extension) are limited to 8 characters!</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Push me! </H2>
+
+<P CLASS=DESC>The next experiment will work if a DIN shift register (e.g. of a <A HREF="mbhp_din.html">MBHP_DIN</A> or <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A> module is connected to J8/9 of the core module.
+
+<P CLASS=DESC>We want to generate a Note event with a button connected to the D0 pin of the first shift register. The appr. button ID is 1.
+
+<P CLASS=DESC>Add following command to your HELLO.NGC file:
+<TT><PRE style="margin-left:50px">
+RESET_HW
+
+LCD "%CHello World!"
+
+EVENT_BUTTON id=1  type=NoteOn key=36
+</PRE></TT>
+
+<P CLASS=DESC>Activate the change by typing "load hello" in the MIOS terminal - this step won't be mentioned again in the steps below, because you should have good practice with this procedure now! ;-)
+
+<P CLASS=DESC>Push the button - it should send a Note On event with C-1, velocity 127. When you release the button, it should send C-1 with velocity 0, which equates to NoteOff.
+
+<P CLASS=DESC>These events are displayed in the MIDI IN monitor of MIOS Studio in hexadecimal format (in this case: 90 24 7F when pressed, and 90 24 00 when depressed) and in text format.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Push me softer! </H2>
+
+<P CLASS=DESC>You want to play a Note with less velocity? Then just change the range of the event:
+
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=1  type=NoteOn key=36 range=0:100
+</PRE></TT>
+
+<P CLASS=DESC>The MIDI IN monitor of MIOS Studio should now display NoteOn events with velocity 64
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Changing the Channel </H2>
+
+<P CLASS=DESC>Events are sent to MIDI channel 1 by default. If you want to select a different channel, e.g. 3, write:
+
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=1  type=NoteOn key=36 chn=3 range=0:100
+</PRE></TT>
+
+<P CLASS=DESC>The MIDI protocol provides 16 MIDI channels....
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Changing the Port </H2>
+
+<P CLASS=DESC>...but in some situations it might be helpful to have more!
+
+<P CLASS=DESC>For this purpose, MIDIbox NG provides multiple MIDI ports. With following command:
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=1  type=NoteOn key=36 chn=3 range=0:100 ports=0100010000000000
+</PRE></TT>
+
+<P CLASS=DESC>The MIDI event will now be send over USB2 and MIDI OUT2
+
+<P CLASS=DESC><B>Important:</B> the MIDI IN monitor of MIOS Studio won't display this event, because it only allows to select a single input port. Select the second USB port of your MIDIbox NG to display the event, or just run a second MIOS Studio instance, or a different MIDI monitor (such as the <A HREF="http://www.snoize.com/MIDIMonitor/" TARGET="_blank">Snoize MIDI Monitor for MacOS</A> or <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-Ox for Windows</A>).
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Be Verbose! </H2>
+
+<P CLASS=DESC>Now we want to display the button movement on our LCD, because the "Hello World!" message gets boring.
+
+<P CLASS=DESC>Replace the previous EVENT definition by:
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=1  type=NoteOn key=36  lcd_pos=1:1:1 label="Button #%3i: %3d"
+</PRE></TT>
+
+Whenever you are pushing the button, the LCD should display: <TT>Button #  1: 127</TT><BR>
+When it's released the LCD should display: <TT>Button #  1:   0</TT>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Let there be light! </H2>
+
+<P CLASS=DESC>This experiment requires a DOUT shift register (e.g. of a <A HREF="mbhp_dout.html">MBHP_DOUT</A> or <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A> module connected to J8/9 of the core module) in addition. The anode (long leg) of the LED should be connected at D7 (the first (leftmost) DOUT output pin), the cathode (short leg) to Vs (ground).
+
+<P CLASS=DESC><B>Beware:</B> the MBHP_DIO_MATRIX module has no series resistor for the LED! Please use a 220 Ohm resistor between Anode (long leg) and the D7 pin, otherwise the LED will be fried!
+
+<P CLASS=DESC>So much about the obligatory disclaimer... don't worry, this resistor should be already stuffed on your <A HREF="mbhp_dout.html">MBHP_DOUT</A> module
+
+<P CLASS=DESC>Change the EVENT_BUTTON definition in your HELLO.NGC file as follows:
+
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=1  fwd_id=LED:1  type=NoteOn key=36  lcd_pos=1:1:1 label="Button #%3i: %3d"
+</PRE></TT>
+
+<P CLASS=DESC>The LED should turn on while you are pressing the button.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Remote me! </H2>
+
+<P CLASS=DESC>With the previous EVENT_BUTTON statement, play MIDI Note C1 on the virtual MIDI keyboard of MIOS Studio.
+
+<P CLASS=DESC>The LED should be lit whenever you are clicking with the mouse on the lower boundary of the C1 key of the virtual keyboard (velocity has to be >= 64, check this in the MIDI OUT monitor). If you click a bit more higher, the LED won't turn on because the velocity is below the half of the specified range.
+
+<P CLASS=DESC>In other words: the LED will only be lit if the received velocity is greater than int((127-0)/2) = 63. Velocities which are &lt;= this value will turn off the LED.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Surprise me! </H2>
+
+<P CLASS=DESC>Our last experiment with the button ends with a small surprise: change the EVENT_BUTTON statement to:
+
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=1  fwd_id=LED:1  button_mode=OnOnly \
+             type=SysEx stream="0xf0 0x00 0x00 0x7e 0x32 0x00 0x0d 0x40 0x57 0x6F 0x77 0x21 0xf7" \
+             lcd_pos=1:1:1 label="Button #%3i: %3d"
+</PRE></TT>
+
+<P CLASS=DESC>...and have a look at the MIOS Terminal while pressing the button... ;-)
+
+<P CLASS=DESC>Ok, this demonstration should also show you, that it's possible to send SysEx streams, and that multiple lines in the configuration file can be concatenated to a single command with the backslash (\) character.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> To be continued... </H2>
+
+<P CLASS=DESC>...soon!</P>
+
+FOOTER

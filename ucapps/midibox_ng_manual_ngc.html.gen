@@ -1,0 +1,984 @@
+HEADER 3 MIDIbox NG User Manual --- .NGC Configuration File
+
+<P CLASS=INFO><B><A HREF="midibox_ng_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox NG</H1>
+<H1>User Manual --- .NGC Configuration File</H1>
+
+<P CLASS=INFO>This chapter lists all configuration commands and parameters of the .NGC file. If this format is new to you, please read the <A HREF="midibox_ng_manual_fs.html">First Steps chapter</A> first to get a basic understanding.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Syntax </H2>
+
+<P CLASS=DESC>The syntax of the .NGC file is tailored around the need to express the processing of MIDI events in an extendable format, so that simple operations can be defined with a small number of parameters, and complex configurations are (hopefully) still human readable. Each parameter has a name which will cause a bit more writing effort, on the other hand this will allow to provide extensions in future firmware versions without compatibility issues.</P>
+
+<P CLASS=DESC>Each configuration entry begins with a keyword, and is followed by parameters which have to be defined in a single command line. In order to keep the oversight (not everybody is working on a big widescreen display), it's possible to split the command line over multiple lines in the .NGC file by appending them with the \ (Backslash) character at the end of a line:
+<TT><PRE style="margin-left:50px">
+COMMAND  parameter1=ABC  parameter2=XxXxX  parameter3=qwertz \
+         parameter4=Foo  parameter5=Bar \
+         parameter6=42
+</PRE></TT>
+
+<P CLASS=DESC>The complete command line can consist of up to 1000 characters! <!-- for techs who read the .html source: up to 1023 chars ;-) -->
+
+<P CLASS=DESC>It's allowed to add space characters before and after the = (equal) sign, which helps to improve the readability:
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=  1  type=NoteOn chn= 1 key= 36
+EVENT_BUTTON id=  2  type=NoteOn chn=16 key= 37
+EVENT_BUTTON id=  3  type=CC     chn= 1 cc = 16
+</PRE></TT>
+
+<P CLASS=DESC>Values can be defined in decimal or hexadecimal format. Hexadecimal numbers begin with 0x (C-Style):
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=  1  type=CC  chn= 1 cc=0x10
+</PRE></TT>
+
+<P CLASS=DESC>Strings could contain intended spaces, therefore they have to be wrapped around single (') or double (") quotation marks. It's allowed to use single quotes inside double quotes and vice versa:
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=  1  type=CC  chn= 1 cc= 16  label="This is a Test!"
+EVENT_BUTTON id=  2  type=CC  chn= 1 cc= 17  label='This is a Test!'
+EVENT_BUTTON id=  3  type=CC  chn= 1 cc= 18  label="This is a 'Test'!"
+EVENT_BUTTON id=  4  type=CC  chn= 1 cc= 19  label='This is a "Test"!'
+EVENT_BUTTON id=  4  type=SysEx  stream="0xf0 0x11 0x22 0x33 0xf7"
+</PRE></TT>
+
+<P CLASS=DESC>Certain parameters expect ranges or multiple values. These values are concatenated with colons (:)<BR>
+<B>Spaces before/after colons are not allowed!</B>
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=  1  type=CC  chn= 1 cc= 16  range=  0:127
+EVENT_BUTTON id=  2  type=CC  chn= 1 cc= 17  range=  0:10
+EVENT_BUTTON id=  3  type=CC  chn= 1 cc= 18  range=100:127
+EVENT_BUTTON id=  4  type=CC  chn= 1 cc= 19  range=  0:127  lcd_pos= 1:1:1 label="First LCD, First Line"
+</PRE></TT>
+
+<P CLASS=DESC>The parser doesn't disallow to specify a parameter multiple times, but in most cases only the last assignment will be taken:
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=1  id=2  id=3 type=CC  chn= 1 cc= 16  range=  0:127
+# this button will have  ^^^^ ID 3
+</PRE></TT>
+
+<P CLASS=DESC>Exceptions are mentioned in the tables below. E.g. it's possible to specify multiple meta events:
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=  1     type=Meta   meta=SetBank      meta=DoAnythingElse:42
+#                                   ^^^^ first event  ^^^^ second event
+</PRE></TT>
+
+<P CLASS=DESC>Last but not least: comments can be added to the .NGC file by starting with a hash (#):
+<TT><PRE style="margin-left:50px">
+# My first .NGC file
+</PRE></TT>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> BANK </H2>
+
+<P CLASS=DESC>The <I>BANK</I> command allows to map hardware resources to "virtual control elements". Up to 16 banks are available, they can group individual ranges of buttons/LEDs/encoders/pots/motorfaders, and map them to EVENT_* commands. Bank switching is done with control elements which are assigned to the <I>SetBank</I>, <I>IncBank</I> or <I>DecBank</I> meta event. Either dedicated buttons could be used for such a purpose, or a rotary encoder, or MIDI events sent from external. Alternatively it will be possible to select a bank from the SCS.
+
+<P CLASS=DESC>Example for a setup with 4 banks, which is used to map 16 rotary encoders to 64 EVENT_ENC elements:
+<TT><PRE style="margin-left:50px">
+BANK n=1  enc=1:16:1
+BANK n=2  enc=1:16:17
+BANK n=3  enc=1:16:33
+BANK n=4  enc=1:16:49
+</PRE></TT>
+<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fencbanks.ngc" TARGET="_blank">Link to the complete example</A>.
+
+<P CLASS=DESC>The syntax for a hardware assignment is:<BR>
+<I>&lt;controller&gt;=&lt;first-hardware-element&gt;:&lt;number-of-hardware-elements&gt;:&lt;first-event-id&gt;</I>
+
+<P CLASS=DESC>Available controllers are:
+<UL CLASS=CL>
+  <LI><I>button</I>: the first button (1) is connected to the first DIN shift register, pin D0, the second button (2) to the first DIN shift register, pin D1, ... the 9th button to the second DIN shift register, pin D0, etc...<BR>
+Up to 128 buttons are currently supported (will be more in future)
+  <LI><I>led</I>: the first LED (1) is connected to the first DOUT shift register, pin D7 (!), the second LED (2) to the first DOUT shift register, pin D6, ... the 9th LED to the second DOUT shift register, pin D7, etc...<BR>
+Up to 128 LEDs are currently supported (will be more in future)
+  <LI><I>enc</I>: rotary encoders allocate two DIN pins, which have to be assigned with the ENC command which is described later in this chapter.<BR>
+Up to 128 rotary encoders are currently supported
+  <LI><I>ain</I>: 6 AIN (analog input) pins are directly available on the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module at J5A.A0 .. J5B.A5 - conversion values are working at 7bit resolution only due to the reduced voltage range of 0..3.3V. For higher resolutions or more inputs please use the AINSER option!
+  <LI><I>ainser</I>: the usage of the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module is the recommended solution for pots and faders. The resultion is up to 10bit without jittering values. Up to 2 MBHP_AINSER64 modules can be handled by the firmware, accordingly up to 128 AINSER based controllers are available.<BR>
+The inputs of the first AINSER module are available as AINSER controller 1-64, the inputs of the second module as AINSER controller 65-128
+  <LI><I>mf</I>: up to 4 <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> modules can be connected, which means that up to 32 motorfaders can be used as controllers. The modules are configured with the MF command which is described later in this chapter.<BR>
+The faders of the first MBHP_MF_NG module are available as MF controller 1-8, the faders of the second module as MF controller 9-16, etc.
+</UL>
+
+<P CLASS=DESC>Buttons and LEDs which are connected to a DIN/DOUT matrix can be used in banks by emulating BUTTON/LED controllers, see the <I>button_emu_id_offset</I> and <I>led_emu_id_offset</I> of the <I>DIN_MATRIX</I> and <I>DOUT_MATRIX</I> configuration command.
+
+<P CLASS=DESC>By default, only a single bank is configured, in which all hardware controllers are mapped to a unique EVENT id starting from 1:
+<TT><PRE style="margin-left:50px">
+BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:128:1   mf=1:32:1
+</PRE></TT>
+
+<P CLASS=DESC>Please note that it's also possible to map only a subset of controllers to banks, and to use the remaining hardware elements for dedicated functions outside the bank: <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Febnkpart.ngc" TARGET="_blank">Link to a configuration example</A>.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> EVENT_* </H2>
+
+<P CLASS=DESC>The EVENT_* commands confgure "virtual control elements" which will act as a MIDI event source and/or destination:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>EVENT Command</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_BUTTON</I></TD>
+    <TD CLASS=TABCOLOR2>A button can send a MIDI event whenever it's pressed or depressed. If pressed, the maximum value of the specified range will be sent (typically 127), if depressed the minimum value (typically 0). In toggle mode, the on/off state will be updated when it receives the same event.
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_LED</I></TD>
+    <TD CLASS=TABCOLOR2>A LED can receive a MIDI event. It's turned on if the received value is >= the mid value of the specified range, otherwise it's turned off.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_BUTTON_MATRIX</I></TD>
+    <TD CLASS=TABCOLOR2>A button matrix is a hardware option where one or more DIN/DOUT shift registers scan a network of buttons. The corresponding EVENT_BUTTON_MATRIX command sends a value from the specified key or CC number upwards. Toggle mode is not supported! If this is desired, or if individual MIDI events should be sent from the matrix, the events have to be configured with <I>BUTTON_MATRIX button_emu_id_offset=&lt;offset&gt;</I> instead. In this case, the button matrix won't react on EVENT_BUTTON_MATRIX anymore, but on EVENT_BUTTON instead!
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_LED_MATRIX</I></TD>
+    <TD CLASS=TABCOLOR2>A LED matrix is a hardware option where multiple DOUT shift registers scan a network of LEDs. The corresponding EVENT_LED_MATRIX command allows to assign a MIDI event to control individual LEDs of the matrix, or to set a row in the LED matrix to a specified pattern:
+      <UL CLASS=CL>
+        <LI>MIDI events from <I>key/cc=&lt;value&gt;</I> upwards will turn on/off the LEDs of the matrix
+        <LI>if <I>led_matrix_pattern</I> is specified, MIDI events will set a whole LED row of a matrix with the incoming MIDI event value (for LED Rings, Meters, etc...)
+      </UL>
+      This works as long as the <I>LED_MATRIX</I> hardware has been configured with <I>led_emu_id_offset=0</I> (default). With <I>led_emu_id_offset=1 (or greater)</I> the LED matrix will react on individual MIDI events instead, specified with <I>EVENT_LED</I> events.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_ENC</I></TD>
+    <TD CLASS=TABCOLOR2>An encoder can send and receive MIDI events. In "absolute mode" it will handle a value internally, in incremental modes it will just send an inc/dec event and expects the handling of the resulting value at the host site. In conjunction with a LED Ring (specified via DOUT_MATRIX) it can display the handled value. It's possible to specify individual <I>led_matrix_pattern</I> for each encoder event.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_AIN</I></TD>
+    <TD CLASS=TABCOLOR2>An AIN (core baed analog input) can send and receive MIDI events. Various modes are available, such as "Snap" and "Parallax" to avoid jumping values if a host has notified a value change.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_AINSER</I></TD>
+    <TD CLASS=TABCOLOR2>Similar to EVENT_AIN, the AINSER event can send and receive MIDI events. Various modes are available, such as "Snap" and "Parallax" to avoid jumping values if a host has notified a value change.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_MF</I></TD>
+    <TD CLASS=TABCOLOR2>A MF (motorfader) event can send and receive MIDI events, and forward them to a <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> module via MIDI.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_CV</I></TD>
+    <TD CLASS=TABCOLOR2>This event is planned to forward events to the <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_RECEIVER</I></TD>
+    <TD CLASS=TABCOLOR2>A receiver is a generic destination which can receive MIDI events and process them according to the specified parameters. It's especially useful as a "forwarding device" to pass received MIDI event values to any other component.<BR>
+    A receiver won't send MIDI events.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_SENDER</I></TD>
+    <TD CLASS=TABCOLOR2>A sender is a generic source which can send MIDI events when it gets a forwarded event from any other device. This one is especially useful in conjunction with <I>EVENT_RECEIVER</I> for converting or just 1:1 forwarding incoming MIDI event values.<BR>
+    A sender won't react on incoming MIDI events.
+    </TD>
+  </TR>
+</TABLE>
+
+<P CLASS=DESC>Each EVENT_*:
+  <UL CLASS=CL>
+    <LI>has an individual ID from id=1 .. id=4095
+    <LI>can be assigned to a MIDI event such as Note (7bit), CC (7bit), Aftertouch, PitchBend (14bit), NRPN (14bit), SysEx with the <I>type</I> parameter
+    <LI>can forward the received value to another EVENT_* definition with the <I>fwd</I> parameter
+    <LI>can listen/send to specified MIDI ports with the <I>ports</I> parameter
+    <LI>can convert the value to a specified range with the <I>range</I> parameter
+    <LI>can display a value on the LCD with the <I>lcd_pos</I> and <I>label</I> parameter
+    <LI>etc... etc...
+  </UL>
+<P CLASS=DESC>List of parameters:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>EVENT_* Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>id=&lt;1..4095&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the ID of the event which can range from 1..4095.<BR>
+       Each EVENT_* element requires a unique ID in the configuration file!<BR>
+       The EVENT_&lt;type&gt; is part of the ID, which means that BUTTON, LED, ENC, AINSER can have the same id number.<BR>
+       IDs from 0..1024 are typically grouped, IDs from 1025..4095 act as autonomous controllers.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>fwd_id=&lt;target:id&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Whenever an matching MIDI event has been received, the value can be forwarded to another EVENT element:
+      <UL CLASS=CL>
+        <LI><I>BUTTON:&lt;1..4095&gt;</I>
+        <LI><I>LED:&lt;1..4095&gt;</I>
+        <LI><I>BUTTON_MATRIX:&lt;1..4095&gt;</I>
+        <LI><I>LED_MATRIX:&lt;1..4095&gt;</I>
+        <LI><I>ENC:&lt;1..4095&gt;</I>
+        <LI><I>AIN:&lt;1..4095&gt;</I>
+        <LI><I>AINSER:&lt;1..4095&gt;</I>
+        <LI><I>CV:&lt;1..4095&gt;</I>
+        <LI><I>RECEIVER:&lt;1..4095&gt;</I>
+        <LI><I>SENDER:&lt;1..4095&gt;</I>
+      </UL>
+      There are many usecases for this function. E.g. it allows to pass the received value of a button to the corresponding LED, or the value of an encoder to a LED_MATRIX based LED Ring.<BR>
+      In conjunction with EVENT_RECEIVER and EVENT_SENDER it's also possible to convert MIDI events, even from "simple" to SysEx and vice versa. Some examples can be found in the <A HREF="midibox_ng_manual_fs.html">First Steps</A> chapter.<BR>
+      Multiple events can be chained this way, but the maximum chain length is limited to 4!<BR>
+      If a value is passed to an unspecified EVENT id (because you want to avoid unnecessary writing effort), it's assumed that it will have the same parameters like the EVENT which forwards the value. E.g.:
+<TT><PRE style="margin-left:50px">EVENT_ENC id=1 fwd_id=LED_MATRIX:1 led_matrix_pattern=1</PRE></TT>
+      will forward the received value to an EVENT_LED_MATRIX entry with id=1. If this entry hasn't been specified, then it will inherit the parameters of the ENC element. Since the ENC element specified led_matrix_pattern=1, the LED Ring will display the value with pattern #1
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>type=&lt;event-type&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the MIDI event type which should be sent and/or received.<BR>
+       <UL CLASS=CL>
+         <LI><I>NoteOff</I>: will send/receive a Note Off event with the specified key value
+         <LI><I>NoteOn</I>: will send/receive a Note On event with the specified key value. Please consider that the MIDI protocol handles a NoteOn with value 0 like a Note Off event, therefore <I>type=NoteOff</I> is actually redundant.
+         <LI><I>PolyPressure</I>: will send/receive a Poly Pressure event with the specified key value
+         <LI><I>CC</I>: will send/receive a CC event with the specified cc value
+         <LI><I>ProgramChange</I>: will send/recieve a Program Change event
+         <LI><I>Aftertouch</I>: will send/recieve an Aftertouch event with the specified key value
+         <LI><I>PitchBend</I>: will send/recieve a Pitch Bender event with the specified 14bit (!) value
+         <LI><I>SysEx</I>: will send/recieve SysEx values with the specified stream
+         <LI><I>NRPN</I>: will send/recieve NRPN values with the specified nrpn number and format
+         <LI><I>Meta</I>: will perform the specified Meta command with the specified meta event
+       </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>chn=&lt;1..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the MIDI channel number (1..16) for <I>NoteOff, NoteOn, PolyPressure, CC, ProgramChange, Aftertouch, PitchBend and NRPN</I> events
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>key=&lt;0..127&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the key number (0..127) for <I>type=NoteOff, NoteOn, PolyPressure and Aftertouch</I> events
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>cc=&lt;0..127&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the CC number (0..127) for <I>type=CC</I> events
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>nrpn=&lt;0..16383&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the NRPN number (0..16383) for <I>type=NRPN</I> events
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>nrpn_format=&lt;Unsigned|Signed&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the NRPN format for a <I>type=NRPN</I> event: <I>Unsigned</I> or <I>Signed</I>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>stream=&lt;...&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the SysEx stream of a <I>type=SysEx</I> event. The stream is specified as a string with decimal and/or hexadecimal numbers. It can also contain variables which are identified with a Caret (^):<BR>
+<TT><PRE style="margin-left:50px">stream="0xf0 0x11 0x22 0x33 ^dev 0x00 ^val 0xf7"</PRE></TT>
+        This example sends and receives a SysEx string starting with "0xf0 0x11 0x22 0x33", then we send/expect the device number, 0x00, the value (which will be passed or send to/from the control element) and 0xf7.<BR>
+        Following SysEx variables are available:
+        <UL CLASS=CL>
+          <LI><I>^dev</I>: the device number which can be specified with <I>SysExDev</I> or from the Control Surface (SCS)
+          <LI><I>^pat</I>: the patch number which can be specified with <I>SysExPat</I> or from the Control Surface (SCS)
+          <LI><I>^bnk</I>: the bank number which can be specified with <I>SysExBnk</I> or from the Control Surface (SCS)
+          <LI><I>^ins</I>: the instrument number which can be specified with <I>SysExIns</I> or from the Control Surface (SCS)
+          <LI><I>^chn</I>: the channel number which can be specified with <I>SysExChn</I> or from the Control Surface (SCS)
+          <LI><I>^chk_start</I>: starts the calculation of a checksum (this is a control word, it doesn't send/receive a byte)
+          <LI><I>^chk</I>: sends the checksum over all bytes between the last ^chk_start and ^chk
+          <LI><I>^chk_inv</I>: sends the inverted checksum over all bytes between the last ^chk_start and ^chk_inv
+          <LI><I>^val</I>: sends the lower 7bit of the EVENT value
+          <LI><I>^val_h</I>: sends bit 13..7 of the EVENT value
+          <LI><I>^val_n1</I>: sends the first nibble of the EVENT value (bit 0..3)
+          <LI><I>^val_n2</I>: sends the second nibble of the EVENT value (bit 4..7)
+          <LI><I>^val_n3</I>: sends the third nibble of the EVENT value (bit 8..11)
+          <LI><I>^val_n4</I>: sends the fourth nibble of the EVENT value (bit 12..15)
+          <LI><I>^ignore</I>: ignores an incoming byte, doesn't send a byte
+          <LI><I>^dump</I>: starts the SysEx dump mapping: EVENTs with <I>syxdump_pos</I> will get the received values at the specified positions.
+        </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>meta=&lt;...&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies an operation for <I>type=Meta</I> event:
+      <UL CLASS=CL>
+        <LI><I>SetBank</I>: sets the bank according to the EVENT value (1..16). If buttons are used to select the bank, please specify <I>meta=SetBank range=1:1 button_mode=OnOnly</I> to select the first bank. If an encoder, pot, etc... is used, please specify <I>meta=SetBank range=1:16</I>.
+        <LI><I>IncBank</I>: increments the bank number
+        <LI><I>DecBank</I>: decrements the bank number
+      </UL>
+      It's allowed to specify multiple <I>meta=&lt;...&gt;</I> parameters for a single EVENT element, e.g.:
+<TT><PRE style="margin-left:50px">meta=SetBank  meta=DoAnythingElse:42</PRE></TT>
+      This is just a starting point, much more meta events will be available in future!<BR>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>range=&lt;min-value&gt;:&lt;max-value&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>The received/sent value will be scaled to the specified, colon separated, range.<BR>
+      For 7bit types such as <I>NoteOn, CC, ...</I> it typically ranges from 0..127<BR>
+      For 14bit types such as <I>PitchBend, NRPN but also SysEx</I> it can also range between -16384..16383 -&gt; try it out! ;-)<BR>
+      It's also allowed to specify an ranges such as <I>range=127:0</I> to invert values.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>offset=&lt;-16384..16383&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the value offset at which the received value will be displayed in the range of -16384..16383<BR>
+       Only relevant in conjunction with LCD <I>label</I>.<BR>
+       Usage example: the received CC value ranges from 0:127, but it should be displayed from -64..63: in this case specify <I>offset=-64</I>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>syxdump_pos</I></TD>
+    <TD CLASS=TABCOLOR2><I>type=SysEx</I> events are able to start a ^dump for starting the collection of incoming values. The syxdump_pos parameter selects the value position within the ^dump.<BR>
+       Syntax: <I>syxdump_pos=&lt;receiver-id&gt;:&lt;syxdump-pos&gt;</I>. A usage example can be found under <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Fblofeld.ngc" TARGET="_blank">cfg/templates/blofeld.ngc</A>.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>button_mode=&lt;mode&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Following button modes are supported:
+      <UL CLASS=CL>
+        <LI><I>OnOff</I> (default): the button will send the maximum value of the specified <I>range</I> when pressed, and the mimimum value when depressed
+        <LI><I>OnOnly</I>: the button will only send the maximum value of the specified <I>range</I> when pressed, it won't send a value when depressed
+        <LI><I>Toggle</I>: toggles between on/off state whenever the button is pressed. The maximum/minimum value of the <I>range</I> will be sent according to the on/off state.
+      </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>enc_mode=&lt;mode&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Following encoder modes are supported:
+      <UL CLASS=CL>
+        <LI><I>Absolute</I>: the encoder will send/receive an absolute value in the specified <I>range</I>
+        <LI><I>40Speed</I>: the encoder will send 0x40+&lt;speed&gt; when moved clockwise, and 0x40-&lt;speed&gt; when moved counter-clockwise
+        <LI><I>00Speed</I>: the encoder will send 0x00+&lt;speed&gt; when moved clockwise, and 0x7f-&lt;speed&gt; when moved counter-clockwise
+        <LI><I>Inc00Speed_Dec40Speed</I>: the encoder will send 0x00+&lt;speed&gt; when moved clockwise, and 0x40+&lt;speed&gt; when moved counter-clockwise
+        <LI><I>Inc41_Dec3F</I>: the encoder will send 0x41 when moved clockwise, and 0x3f when moved counter-clockwise
+        <LI><I>Inc01_Dec7F</I>: the encoder will send 0x01 when moved clockwise, and 0x7f when moved counter-clockwise
+        <LI><I>Inc01_Dec41</I>: the encoder will send 0x01 when moved clockwise, and 0x41 when moved counter-clockwise
+        <LI><I>IncDec</I>: the encoder will send different CC events when moved clockwise or counter-clockwise. This will allow to send CC#96 and CC#97 (Data Inc/Dec) in future (not implemented yet)
+      </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>led_matrix_pattern=&lt;pattern-number&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>LED patterns can be specified for ENC and LED_MATRIX events:
+      <UL CLASS=CL>
+        <LI><I>1</I>: the first LED pattern specified with <I>LED_MATRIX_PATTERN n=1</I> commands
+        <LI><I>2</I>: the second LED pattern specified with <I>LED_MATRIX_PATTERN n=2</I> commands
+        <LI><I>3</I>: the third LED pattern specified with <I>LED_MATRIX_PATTERN n=3</I> commands
+        <LI><I>4</I>: the fourth LED pattern specified with <I>LED_MATRIX_PATTERN n=4</I> commands
+        <LI><I>LcAuto</I>: to handle the Logic Control protocol correctly, this pattern type will set the pattern number (1..4) according bit 5..4 of the received MIDI event value. Bit 3..0 will select the pattern position, and the 6th bit will set the "Center LED".
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>ports=&lt;port-selections&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Expects a 16bit binary value (0|1) to select the MIDI ports over which the event should send and receive:
+       <UL CLASS=CL>
+          <LI>the first 4 digits enable/disable USB1..USB4
+          <LI>the next 4 digits enable/disable MIDI1..MIDI4
+          <LI>the next 4 digits are reserved, don't use!
+          <LI>the last 4 digits enable/disable OSC1..OSC4
+       </UL>
+       Example: following binary value (which is the default value)
+<TT><PRE style="margin-left:50px">ports=1000100000001000</PRE></TT>
+       will enable USB1, MIDI1 (IN1 and OUT1) and OSC1, and following binary:
+<TT><PRE style="margin-left:50px">ports=0000110000000000</PRE></TT>
+       will only enable MIDI1 and MIDI2
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>lcd_pos=&lt;lcd&gt;:&lt;X&gt;:&lt;Y&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Each event can output a label whenever a value has been received via MIDI, or the control element has been moved (e.g. button has been pushed, encoder/motorfader/pot has been moved).<BR>
+      <I>lcd</I> specifies the LCD number which should be used to output the label, <I>X</I> the column and <I>Y</I> the line. E.g.:
+<TT><PRE style="margin-left:50px">lcd_pos=1:1:1</PRE></TT>
+        will output the label on the first LCD, first character in the first line. And:
+<TT><PRE style="margin-left:50px">lcd_pos=1:1:2</PRE></TT>
+        will output the label on the first LCD, first character in the second line.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>label=&lt;string&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the label (string) which should be output at the specified <I>lcd_pos</I>. The string can contain printf-linke control characters to output formatted values or strings, and it can contain references to globally defined labels of the <A HREF="midibox_ng_manual_ngl.html">.NGL file</A>.
+      <UL CLASS=CL>
+        <LI><I>%d</I>: will output the value (minus specified <I>offset</I>) in decimal format
+        <LI><I>%u</I>: same like %d, but value always in unsigned format
+        <LI><I>%x</I>: will output the value (minus specified <I>offset</I>) in hexadecimal format
+        <LI><I>%X</I>: same like %x, but with capital letters
+        <LI><I>%c</I>: will output the value as character
+        <LI><I>%s</I>: will output an empty string. In conjunction with padding values it could save some memory, e.g. "%20s" will output 20 spaces
+        <LI><I>%i</I>: the ID of the EVENT
+        <LI><I>%e</I>: the MIDI event of the EVENT (up to 3 hexadecimal values, always 6 characters)
+        <LI><I>%m</I>: the minimum value of the EVENT which has been specified with <I>range</I>
+        <LI><I>%M</I>: the maximum value of the EVENT which has been specified with <I>range</I>
+        <LI><I>%b</I>: a binary digit: * if value >= (range/2), o if value < (range/2)
+        <LI><I>%B</I>: a vertical bar which works like a meter.<BR>In conjunction with various fonts (selected with <I>&amp;&lt;font&gt;</I>) alternative icons will be output instead.
+        <LI><I>%q</I>: current selected bank (q is a rotated b - do you see it? ;-)
+        <LI><I>%C</I>: clear all LCDs
+        <LI><I>%%</I>: outputs the % character
+        <LI><I>^^</I>: outputs the ^ character
+        <LI><I>^&lt;label&gt;</I>: outputs a globally defined, conditional or unconditional label. See the <A HREF="midibox_ng_manual_ngl.html">.NGL chapter</A> for details.
+      </UL>
+      It's possible to format the output by adding following specifiers after the percent (%) character. In following example the %d (decimal value) is used, but this works with any format type:
+      <UL CLASS=CL>
+        <LI><I>%3d</I>: the value will be padded with spaces to 3 characters, and it will be output right-aligned, e.g. "  1", " 10", "100"
+        <LI><I>%-3d</I>: the value will be padded with spaces to 3 characters, and it will be output left-aligned, e.g. "1  ", "10 ", "100"
+        <LI><I>%03d</I>: the value will be padded with zeroes to 3 characters, and it will be output right-aligned, e.g. "001", "010", "100"
+      </UL>
+      Examples:
+<TT><PRE style="margin-left:50px">lcd_pos=1:1:1  label="ENC #%3i    %3d%B"</PRE></TT>
+      will output at the first LCD, first column, first line a string with 20 characters. It starts with "ENC #", followed by the ID of the EVENT_ENC (3 digits), some spaces, the EVENT value (3 digits right-aligned) and a vertical bar.
+<TT><PRE style="margin-left:50px">lcd_pos=1:1:1  label="FIL1 Type ^fil_type"</PRE></TT>
+      will output "FIL1 Type " and then a conditional label called ^fil_type which has been specified in the <A HREF="midibox_ng_manual_ngl.html">.NGL file</A>.<BR>
+      GLCDs can output different fonts which are selected with the ampersant (&amp;) character:
+      <UL CLASS=CL>
+        <LI><I>&amp;&amp;</I>: outputs the &amp; character
+        <LI><I>&amp;&lt;font&gt;</I>: selects a font for graphical LCDs:
+          <UL CLASS=CL>
+            <LI><I>&amp;n</I>: selects the "normal" 6x8 font
+            <LI><I>&amp;s</I>: selects the "small" 4x8 font
+            <LI><I>&amp;b</I>: selects the "big" 24x16 font
+            <LI><I>&amp;k</I>: selects "knob icons", a 24x32 font. Values can be output with %B
+            <LI><I>&amp;h</I>: selects a meter with horizontal orientation, a 32x8 font. Values can be output with %B
+            <LI><I>&amp;v</I>: selects a meter with vertical orientation, a 8x32 font. Values can be output with %B
+          </UL>
+      </UL>
+      And finally it's also possible to change the output LCD and position within a label:
+      <UL CLASS=CL>
+        <LI><I>@(&lt;lcd&gt;:&lt;X&gt;:&lt;Y&gt;)</I>: changes to the given lcd, X and Y position.
+      </UL>
+      Example:
+<TT><PRE style="margin-left:50px">lcd_pos=1:1:1  label="Enc%3i&amp;k@(1:1:2)%B&amp;n@(1:18:1)%3d"</PRE></TT>
+      No, this is not an encrypted message, because the processing rules are well documented! ;-) - it will output "ENC" + the ID number. Then it will select the "knob" icon, jump to position X=1 Y=2 and output the knob icon based on the EVENT value. Thereafter it will select the normal font, jump to position X=18 Y=1 and output the MIDI value in decimal format.
+    </TD>
+  </TR>
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ENC </H2>
+
+<P CLASS=DESC>The ENC command configures rotary encoders which are connected to a <A HREF="mbhp_din.html">MBHP_DIN</A> module:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>ENC Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..128&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the encoder number which should be configured; it can range from 1..128</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr=&lt;1..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the DIN shift register to which the encoder is connected. 1 stands for the first DIN in the chain, 2 for the second, etc...</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>pins=&lt;pin-a&gt;:&lt;pin-b&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the pair of digital input pins of the DIN shift register to which the encoder is connected. The allowed pinning is restricted to following combinations:
+      <UL CLASS=CL>
+        <LI><I>0:1</I> encoder connected to input pin D0 and D1
+        <LI><I>2:3</I> encoder connected to input pin D2 and D3
+        <LI><I>4:5</I> encoder connected to input pin D4 and D5
+        <LI><I>6:7</I> encoder connected to input pin D6 and D7
+      </UL>
+      If you notice that the encoder increments in the wrong direction, the pins have to be swapped at the hardware side!
+    </TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>type=&lt;name&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the encoder type: <I>non_detented</I>, <I>detented1</I>, <I>detented2</I> or <I>detented3</I>.<BR>
+      A documentation about these types can be found in <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders" TARGET="_blank">Wiki article</A>.
+    </TD>
+  </TR>
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> DIN_MATRIX </H2>
+
+<P CLASS=DESC>The DIN_MATRIX command configures button matrices which are connected between DIN/DOUT shift registers. Please note that all assigned shift registers can't be used for common button or LED functions anymore:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>DIN_MATRIX Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..8&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the matrix number which should be configured; it can range from 1..8</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>rows=&lt;4|8|16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the number of rows which should be scanned:
+      <UL CLASS=CL>
+        <LI><I>rows=4</I>: 4 selection pulses are output by the DOUT register specified with <I>sr_dout_sel1</I>. The pulses are available twice: at D7:D4 and D3:D0.<BR>This configuration allows to scan up to 4x8 buttons with a single DIN, or 4x16 buttons with two DINs.
+        <LI><I>rows=8</I>: 8 selection pulses are output by the DOUT register specified with <I>sr_dout_sel1</I>. The pulses are available at D7:D0<BR>This configuration allows to scan up to 8x8 buttons with a single DIN, or 8x16 buttons with two DINs.
+        <LI><I>rows=16</I>: 16 selection pulses are output by the DOUT registers specified with <I>sr_dout_sel1</I> and <I>sr_dout_sel2</I>. The pulses are available at D7:D0 of each register.<BR>This configuration allows to scan up to 16x8 buttons with a single DIN, or 16x16 buttons with two DINs.
+      </UL>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>inverted=&lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>DOUT selection lines will be inverted with <I>inverted=1</I>. This is required if the diodes of the button matrix have been connected in the opposite order:
+       <UL CLASS=CL>
+          <LI><I>inverted=0</I>: Cathodes are connected to the DOUT selection lines, see also <A HREF="midio128/midio128_v3_scanmatrix.pdf" TARGET="_blank">this schematic</A>.
+          <LI><I>inverted=1</I>: Anodes are connected to the DOUT selection lines (not standard, but sometimes required if already existing hardware should be re-used).
+       </UL>
+    </TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_sel1=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the first DOUT shift register which should output the row selection signals.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_sel2=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the second DOUT shift register which should output the row selection signals in a <I>row=16</I> setup.<BR>Set this parameter to 0 if a second DOUT is not required.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_din1=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the first DIN shift register of the button matrix.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_din2=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the (optional) second DIN shift register of the button matrix.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>button_emu_id_offset=&lt;1..4095&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>With a value &gt;0, the button matrix will trigger EVENT_BUTTON events instead of EVENT_BUTTON_MATRIX, starting with the specified ID. A matrix of 8x8 buttons can emulate 64 buttons with individual event assignments this way.
+  </TR>
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> DOUT_MATRIX </H2>
+
+<P CLASS=DESC>The DOUT_MATRIX command configures LED matrices which are connected between multiple DOUT shift registers. Please note that all assigned shift registers can't be used for common LED functions anymore:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>DOUT_MATRIX Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..8&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the matrix number which should be configured; it can range from 1..8</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>rows=&lt;4|8|16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the number of rows which should be scanned:
+      <UL CLASS=CL>
+        <LI><I>rows=4</I>: 4 selection pulses are output by the DOUT register specified with <I>sr_dout_sel1</I>. The pulses are available twice: at D7:D4 and D3:D0.<BR>This configuration allows to scan up to 4x8 LEDs with two DOUTs, or 4x16 LEDs with three DOUTs.
+        <LI><I>rows=8</I>: 8 selection pulses are output by the DOUT register specified with <I>sr_dout_sel1</I>. The pulses are available at D7:D0<BR>This configuration allows to scan up to 8x8 LED with two DOUTs, or 8x16 LEDs with three DOUTs.
+        <LI><I>rows=16</I>: 16 selection pulses are output by the DOUT registers specified with <I>sr_dout_sel1</I> and <I>sr_dout_sel2</I>. The pulses are available at D7:D0 of each register.<BR>This configuration allows to scan up to 16x8 LEDs with three DOUTs, or 16x16 LEDs with four DOUTs.
+      </UL>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>inverted=&lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>DOUT selection lines will be inverted with <I>inverted=1</I>. This is required if the LEDs of the matrix have been connected in the opposite order:
+       <UL CLASS=CL>
+          <LI><I>inverted=0</I>: Cathodes are connected to the DOUT selection lines, see also <A HREF="mbhp/mbhp_blm_map.pdf" TARGET="_blank">this schematic</A>.
+          <LI><I>inverted=1</I>: Anodes are connected to the DOUT selection lines (not standard, but sometimes required if already existing hardware should be re-used).
+       </UL>
+    </TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_sel1=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the first DOUT shift register which should output the row selection signals.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_sel2=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the second DOUT shift register which should output the row selection signals in a <I>row=16</I> setup.<BR>Set this parameter to 0 if a second DOUT is not required.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_r1=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the first DOUT shift register of the LED matrix row.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_r2=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the (optional) second DOUT shift register of the LED matrix row.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_g1=&lt;0..16&gt;</I><BR><I>sr_dout_g2=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>These parameters allow to drive duo-colour or RGB LEDs by using a second set of DOUTs connected to the green LEDs.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_b1=&lt;0..16&gt;</I><BR><I>sr_dout_b2=&lt;0..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>These parameters allow to drive RGB LEDs by using a third set of DOUTs connected to the blue LEDs.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>led_emu_id_offset=&lt;1..4095&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>With a value &gt;0, the LED matrix will listen on EVENT_LED events instead of EVENT_LED_MATRIX, starting with the specified ID. A matrix of 8x8 LED can emulate 64 LEDs with individual event assignments this way.
+  </TR>
+</TABLE>
+
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LED_MATRIX_PATTERN </H2>
+
+<P CLASS=DESC>The LED_MATRIX_PATTERN command is used in conjunction with LED Rings to configure the output based on an incoming value for EVENT_MATRIX_DOUT elements with the <I>led_pattern</I> parameter. Optionally the pattern can also be selected by a EVENT_ENC element if no EVENT_MATRIX_DOUT event has been defined.
+
+<P CLASS=DESC>Each pattern-set consists of 17 entries. 16 entries are scaled over the specified min/max range of incoming value. The 17th entry is called 'M' and is used when the middle of the value range has been reached.
+
+Examples for a typical patterns for a LED Ring with 11 LEDs, and a 12th "center" LED (see also <A HREF="http://www.ucapps.de/mbhp/mbhp_doutx4_ledrings.pdf" TARGET="_blank">this schematic</A>):
+<TT><PRE style="margin-left:50px">
+LED_MATRIX_PATTERN n= 1  pos= 0  pattern=0000000000000001
+LED_MATRIX_PATTERN n= 1  pos= 1  pattern=0000000000000011
+LED_MATRIX_PATTERN n= 1  pos= 2  pattern=0000000000000011
+LED_MATRIX_PATTERN n= 1  pos= 3  pattern=0000000000000111
+LED_MATRIX_PATTERN n= 1  pos= 4  pattern=0000000000000111
+LED_MATRIX_PATTERN n= 1  pos= 5  pattern=0000000000001111
+LED_MATRIX_PATTERN n= 1  pos= 6  pattern=0000000000001111
+LED_MATRIX_PATTERN n= 1  pos= 7  pattern=0000000000011111
+LED_MATRIX_PATTERN n= 1  pos= M  pattern=0000100000111111
+LED_MATRIX_PATTERN n= 1  pos= 8  pattern=0000000001111111
+LED_MATRIX_PATTERN n= 1  pos= 9  pattern=0000000011111111
+LED_MATRIX_PATTERN n= 1  pos=10  pattern=0000000011111111
+LED_MATRIX_PATTERN n= 1  pos=11  pattern=0000000111111111
+LED_MATRIX_PATTERN n= 1  pos=12  pattern=0000000111111111
+LED_MATRIX_PATTERN n= 1  pos=13  pattern=0000001111111111
+LED_MATRIX_PATTERN n= 1  pos=14  pattern=0000001111111111
+LED_MATRIX_PATTERN n= 1  pos=15  pattern=0000011111111111
+
+LED_MATRIX_PATTERN n= 2  pos= 0  pattern=0000000000111111
+LED_MATRIX_PATTERN n= 2  pos= 1  pattern=0000000000111110
+LED_MATRIX_PATTERN n= 2  pos= 2  pattern=0000000000111110
+LED_MATRIX_PATTERN n= 2  pos= 3  pattern=0000000000111100
+LED_MATRIX_PATTERN n= 2  pos= 4  pattern=0000000000111000
+LED_MATRIX_PATTERN n= 2  pos= 5  pattern=0000000000111000
+LED_MATRIX_PATTERN n= 2  pos= 6  pattern=0000000000110000
+LED_MATRIX_PATTERN n= 2  pos= 7  pattern=0000000000100000
+LED_MATRIX_PATTERN n= 2  pos= M  pattern=0000100001110000
+LED_MATRIX_PATTERN n= 2  pos= 8  pattern=0000000000100000
+LED_MATRIX_PATTERN n= 2  pos= 9  pattern=0000000001100000
+LED_MATRIX_PATTERN n= 2  pos=10  pattern=0000000001100000
+LED_MATRIX_PATTERN n= 2  pos=11  pattern=0000000011100000
+LED_MATRIX_PATTERN n= 2  pos=12  pattern=0000000111100000
+LED_MATRIX_PATTERN n= 2  pos=13  pattern=0000000111100000
+LED_MATRIX_PATTERN n= 2  pos=14  pattern=0000001111100000
+LED_MATRIX_PATTERN n= 2  pos=15  pattern=0000011111100000
+
+LED_MATRIX_PATTERN n= 3  pos= 0  pattern=0000000000000001
+LED_MATRIX_PATTERN n= 3  pos= 1  pattern=0000000000000010
+LED_MATRIX_PATTERN n= 3  pos= 2  pattern=0000000000000010
+LED_MATRIX_PATTERN n= 3  pos= 3  pattern=0000000000000100
+LED_MATRIX_PATTERN n= 3  pos= 4  pattern=0000000000000100
+LED_MATRIX_PATTERN n= 3  pos= 5  pattern=0000000000001000
+LED_MATRIX_PATTERN n= 3  pos= 6  pattern=0000000000010000
+LED_MATRIX_PATTERN n= 3  pos= 7  pattern=0000000000100000
+LED_MATRIX_PATTERN n= 3  pos= M  pattern=0000100001110000
+LED_MATRIX_PATTERN n= 3  pos= 8  pattern=0000000000100000
+LED_MATRIX_PATTERN n= 3  pos= 9  pattern=0000000001000000
+LED_MATRIX_PATTERN n= 3  pos=10  pattern=0000000010000000
+LED_MATRIX_PATTERN n= 3  pos=11  pattern=0000000010000000
+LED_MATRIX_PATTERN n= 3  pos=12  pattern=0000000100000000
+LED_MATRIX_PATTERN n= 3  pos=13  pattern=0000001000000000
+LED_MATRIX_PATTERN n= 3  pos=14  pattern=0000001000000000
+LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000010000000000
+</PRE></TT>
+
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>LED_MATRIX_PATTERN Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..4&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the pattern-set number; it can range from 1..8</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>pos=&lt;0..15|M&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the position for the following pattern (0..15, or M for middle position)
+  <TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>pattern=&lt;16-bit-binary&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the pattern for the given position. It consists of 16 binary digits (0 or 1 for LED off/on)
+  <TR>
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> AIN </H2>
+
+<P CLASS=DESC>The AIN command allows to enable/disable core based analog inputs with the <I>enable_mask</I> parameter. It consists of 6 binary digits which stand for J5A.A0..J5B.A5
+
+<P CLASS=DESC>Example:
+<TT><PRE style="margin-left:50px">
+# AIN hardware
+AIN enable_mask=110000
+</PRE></TT>
+will enable the J5A.A0 and J5A.A1 inputs.
+
+<P CLASS=DESC><B>Please note:</B> unconnected analog inputs which haven't been disabled will generate random MIDI event values! It's strongly recommended to disable unused pins in the <I>enable_mask</I>, or to connect these pins to ground!
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> AINSER </H2>
+
+<P CLASS=DESC>The AINSER command configures the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>AINSER Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..2&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the AINSER module which should be configured (1 or 2)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>enabled=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Enables the module with 1, disables the module with 0 so that it doesn't generate EVENT_AINSER events.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>cs=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the "chip select" line which is jumpered with J4 of the module. Each module has to be configured for a dedicated chip select line!</TD>
+  </TR>
+</TABLE>
+
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MF </H2>
+
+<P CLASS=DESC>The MF command configures the <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> module. The module has to be configured for "Motormix" emulation, because this protocol allows to send and receive fader movements over dedicated MIDI channels with 14bit resolution. It's allowed to connect multiple modules in a MIDI chain, in such a case the MIDI merger has to be configured as "MIDIbox Link Endpoint" for the last module, and as "MIDIbox Link Forwarding Point" for the remaining modules in the MBHP_MF_NG configuration tool which is part of <A HREF="mios_studio.html">MIOS Studio</A>:
+<CENTER><IMG SRC="mios_studio/mios_studio_mbhp_mf_ng_tool.png" width=702 height=680></CENTER></P>
+
+<P CLASS=DESC>List of parameters:
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>MF Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..4&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the MF module which should be configured (1..4)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>enabled=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Enables the module with 1, disables the module with 0 so that it doesn't generate EVENT_MF events.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>midi_in_port=&lt;IN1..IN4&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the MIDI IN port to which the module is connected (IN1..IN4)<BR>Please ensure that this port is not used by the <I>MIDI_ROUTER</LI>.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>midi_out_port=&lt;OUT1..OUT4&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the MIDI OUT port to which the module is connected (OUT1..OUT4)<BR>Please ensure that this port is not used by the <I>MIDI_ROUTER</LI>.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>config_port=&lt;USB1..USB4&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the USB port over which the MBHP_MF_NG module should be configured (with the MIOS Studio based tool described above). It's recommended not to use USB1 for SysEx accesses (including firmware updates), since MIOS32 listens to the same port for firmware updates if it's assigned to the same SysEx Device ID. Any other USB port (USB2..USB4) will work without such potential collisions.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>chn=&lt;1..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the MIDI channel over which the MBHP_MF_NG module will send and receive fader movements</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>ts_first_button_id=&lt;0..4095&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>With a value &gt;0, touch sensor events generated by the MBHP_MF_NG module will trigger EVENT_BUTTON elements with the specified ID upwards. This allows to convert these events into any over MIDI output (and/or to display them on the LCD)</TD>
+  </TR>
+</TABLE>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ROUTER </H2>
+
+<P CLASS=DESC>The integrated MIDI router consists of 16 "nodes". Each node can be connected to an individual source and destination port. A node is activated by selecting a source MIDI channel != "--", e.g. 1..16 or All (for all channels). The node will forward a MIDI event to the destination port. Either to the original channel ("All"), or to a changed channel (1..16).
+
+<P CLASS=DESC>List of parameters:
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>ROUTER Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..16&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the ROUTER node which should be configured (1..16)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>src_port=&lt;port&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the source port from which MIDI events should be forwarded:
+      <UL CLASS=CL>
+        <LI><I>USB1..USB4</I>: for USB ports
+        <LI><I>IN1..IN4</I>: for MIDI ports
+        <LI><I>OSC1..OSC4</I>: for Ethernet based OSC ports
+      </UL>
+    </TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>src_chn=&lt;0..17&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Allows to select a dedicated channel which should be forwarded:
+      <UL CLASS=CL>
+        <LI><I>0 or Off</I>: no channel will be forwarded (node disabled)
+        <LI><I>1..16</I>: only the specified MIDI channel will be forwarded, all others will be filtered
+        <LI><I>17 or All</I>: all MIDI channels will be forwarded
+      </UL>
+    </TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>dst_port=&lt;port&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the destination port to which MIDI events should be forwarded:
+      <UL CLASS=CL>
+        <LI><I>USB1..USB4</I>: for USB ports
+        <LI><I>OUT1..OUT4</I>: for MIDI ports
+        <LI><I>OSC1..OSC4</I>: for Ethernet based OSC ports
+      </UL>
+    </TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>dst_chn=&lt;0..17&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Allows to convert the incoming MIDI channel:
+      <UL CLASS=CL>
+        <LI><I>0 or Off</I>: no channel will be forwarded (node disabled)
+        <LI><I>1..16</I>: the incoming MIDI channel(s) will be changed to the specified channel
+        <LI><I>17 or All</I>: no conversion will take place
+      </UL>
+    </TD>
+  </TR>
+</TABLE>
+
+<P CLASS=DESC><B>Please note:</B> the MIDI router can also be configured during runtime in the MIOS Terminal with the "set router" command. "router" you output an oversight over the complete configuration.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ETH </H2>
+
+<P CLASS=DESC>The ETH command allows to configure the ethernet interface of the MBHP_CORE_LPC17 module:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>ETH Command</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>dhcp=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>if enabled (default), the Host IP, Network Mask and Gateway address will be requested from a DHCP Daemon (e.g. your wireless router) automatically whenever the ethernet cable is connected. The configuration could take some seconds depending on the responsiveness of your router.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>local_ip=&lt;ip&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the IP address of your MIDIbox NG directly if <I>dhcp=0</I></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>netmask=&lt;mask&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the netmask of your MIDIbox NG directly if <I>dhcp=0</I></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>gateway=&lt;ip&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the IP address of the gateway (typically your router) directly if <I>dhcp=0</I></TD>
+  </TR>
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> OSC </H2>
+
+<P CLASS=DESC>The OSC command configures the OSC ports. More details about the MIOS32 based OSC implementation can be found <A HREF="midibox_osc.html">at this page</A>.<BR>
+
+List of parameters:
+
+Each OSC port has an individual remote IP, a remote port (to which OSC packets will be sent) and a local port (from which OSC packets will be received):
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>OSC Command</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..4&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the OSC port which should be configured (1..4)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>remote_ip=&lt;ip&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the remote IP assigned to the OSC port (e.g. the IP of your iPad)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>remote_port=&lt;ip&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the remote port to which OSC packets will be sent</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>local_port=&lt;ip&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the local port from which OSC packets will be received</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>mode=&lt;format&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Following transfer formats are currently supported:
+      <UL CLASS=CL>
+        <LI><I>MIDI</I>: MIDI events are bundled into MIDI elements
+        <LI><I>Int</I>: uses human readable pathes, values are in integer format
+        <LI><I>Flt</I>: uses human readable pathes, values are in float format
+        <LI><I>MPP</I>: selects format which is used by <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro</A>
+        <LI><I>TOSC</I>: selects format which is used by <A HREF="http://hexler.net/software/touchosc" TARGET="_blank">TouchOSC</A>
+      </UL>
+      Additional modes can be added in future on request:
+      </TD>
+  </TR>
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> DebounceCtr </H2>
+
+<P CLASS=DESC><I>DebounceCtr &lt;0..255&gt;</I>: this command allows to enable a debouncing mechanism for digital inputs (buttons). The number specifies the dead time in mS at which button events will be rejected.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> GlobalChannel </H2>
+
+<P CLASS=DESC><I>GlobalChannel &lt;0..16&gt;</I>: if set to a value &gt;0, all MIDI events generated with EVENT_* commands will be forced to the given MIDI channel. <B>not implemented yet!</B>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> AllNotesOffChannel </H2>
+
+<P CLASS=DESC><I>AllNotesOffChannel &lt;0..16&gt;</I>: if set to a value &gt;0, the CC#123 event will turn off all LEDs when received over the specified channel
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> ConvertNoteOffToOn0 </H2>
+
+<P CLASS=DESC><I>ConvertNoteOffToOn0 &lt;0|1&gt;</I>: if set to 1, incoming NoteOff events will be converted to NoteOn with velocity 0. This option is enabled by default to simplify the configuration of receivers (e.g. LEDs) which should be turned off on any NoteOff event, including NoteOn with velocity 0 which has the same purpose (according to the MIDI spec).
+
+<P CLASS=DESC>If set to 0, this simplification doesn't take place, so that NoteOn and NoteOff events can be handled separately.
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SysEx* </H2>
+
+<P CLASS=DESC>These commands specify the default values of various SysEx variables, which are available for <I>EVENT_* stream="..."</I>:
+<UL CLASS=CL>
+  <LI><I>SysExDev</I>: the Device ID (<I>^dev</I>)
+  <LI><I>SysExPat</I>: the Patch number (<I>^pat</I>)
+  <LI><I>SysExBnk</I>: the Bank number (<I>^bnk</I>)
+  <LI><I>SysExIns</I>: the Instrument number (<I>^ins</I>)
+  <LI><I>SysExChn</I>: the Channel number (<I>^chn</I>)
+</UL>
+
+<P CLASS=DESC>The variables could also be used for other purposes of course, they are only placeholders for typical usecases.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> RESET_HW </H2>
+
+<P CLASS=INFO>The <I>RESET_HW</I> command can be set at the top of a .NGC file to reset the complete configuration. This is especially useful if your file only specifies a small number of settings, so that the remaining hardware is in a "known state".
+
+<P CLASS=INFO>This command shouldn't be specified in files which contain partial setups, e.g. an alternative <I>EVENT_*</I> configuration for your hardware, or different <I>ROUTER</I> and <I>OSC</I> settings which you could load during runtime without overwriting the actual controller setup.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LCD </H2>
+
+<P CLASS=INFO>The <I>LCD</I> command prints an immediate message on screen while it's executed.
+
+<P CLASS=INFO>It can be used to initialize the LCDs with static text, or just to display the purpose of your file before an EVENT_* based label overwrites the message.
+
+<P CLASS=INFO>All string control formats and directives are supported (see description of <I>EVENT_* label</I> parameter), which especially means that it's possible to clear the screen, and to jump to different cursor positions at different displays.
+
+Example:
+<TT><PRE style="margin-left:50px">
+LCD "%C@(1:1:1)Hello World!"
+</PRE></TT>
+
+FOOTER

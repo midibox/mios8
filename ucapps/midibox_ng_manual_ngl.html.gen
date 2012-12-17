@@ -1,0 +1,136 @@
+HEADER 3 MIDIbox NG User Manual --- .NGL Configuration File
+
+<P CLASS=INFO><B><A HREF="midibox_ng_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox NG</H1>
+<H1>User Manual --- .NGL Configuration File</H1>
+
+<P CLASS=INFO>This chapter lists the configuration commands of a .NGL file. If this format is new to you, please read the <A HREF="midibox_ng_manual_fs.html">First Steps chapter</A> first to get a basic understanding.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LABEL </H2>
+
+<P CLASS=DESC>The <I>LABEL</I> command specifies global label definitions which can be referenced by using the Caret (^) specifier in label or LCD output definitions of the <A HREF="midibox_ng_manual_ngc.html">.NGC file</A>.
+
+<P CLASS=DESC>A basic usage example can already be found in the DEFAULT.NGL file which has been generated whenever a "virgin" SD Card has been connected to the core module:
+<TT><PRE style="margin-left:50px">
+# Standard label for buttons:
+LABEL std_btn  "Button #%3i %3d%b"
+
+# Standard label for LEDs:
+LABEL std_led  "LED #%3i       %b"
+
+# Standard label for rotary encoders:
+LABEL std_enc  "ENC #%3i    %3d%B"
+
+# Standard label for pots connected to AIN pins:
+LABEL std_ain  "AIN #%3i    %3d%B"
+
+# Standard label for pots connected to AINSER module:
+LABEL std_aser "AINSER #%3i %3d%B"
+
+# Standard label for motorfaders:
+LABEL std_mf   "MF #%3i     %3d%B"
+</PRE></TT>
+
+These standard labels are displayed whenever an EVENT_* in the .NGC file refers to the appr. label, such as:
+<TT><PRE style="margin-left:50px">
+# this command is part of a .NGC file:
+EVENT_BUTTON id=1  type=NoteOn key=36  lcd_pos=1:1:1 label="^std_btn"
+</PRE></TT>
+
+<P CLASS=DESC>The size of a label is limited to 8 characters to avoid unnecessary compute overhead while searching for matching strings.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> COND </H2>
+
+<P CLASS=DESC>CONDitional labels are the most powerful purpose of global label definitions - they allow to output different strings based on the EVENT value!</P>
+
+<P CLASS=DESC>Following example demonstrates the purpose pretty nicely:
+<TT><PRE style="margin-left:50px">
+COND_LABEL fil_type
+COND =0    "Bypass   "
+COND =1    "LP 24dB  "
+COND =2    "LP 12dB  "
+COND =3    "BP 24dB  "
+COND =4    "BP 12dB  "
+COND =5    "HP 24dB  "
+COND =6    "HP 12dB  "
+COND =7    "Notch24dB"
+COND =8    "Notch12dB"
+COND =9    "Comb+    "
+COND =10   "Comb-    "
+COND =11   "PPG LP   "
+COND_ELSE  "Type %3d "
+</PRE></TT>
+
+<P CLASS=DESC>An EVENT_* command can use it this way:
+
+<TT><PRE style="margin-left:50px">
+# this command is part of a .NGC file:
+EVENT_ENC id=1  type=CC cc=16  lcd_pos=1:1:1 label="Filter Type: ^fil_type"
+</PRE></TT>
+
+<P CLASS=DESC>So: each value can be named, but it's also possible to define value ranges at which a string should be taken, such as:
+<TT><PRE style="margin-left:50px">
+COND_LABEL test1
+COND =0   "Val is 000   %3d"
+COND =1   "Val is 001   %3d"
+COND =2   "Val is 002   %3d"
+COND =3   "Val is 003   %3d"
+COND <20  "Val is <20   %3d"
+COND <=40 "Val is <=40  %3d"
+COND_ELSE "else cond.   %3d"
+</PRE></TT>
+
+<P CLASS=DESC>Here a list of supported commands:
+
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>COND Statement</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>COND_LABEL "&lt;name&gt;"</I></TD>
+    <TD CLASS=TABCOLOR2>Starts a conditional label. The size of a label name is limited to 8 characters!
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>COND = or ==</I></TD>
+    <TD CLASS=TABCOLOR2>String will be taken if the EVENT value is equal to the specified constant
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>COND &lt;</I></TD>
+    <TD CLASS=TABCOLOR2>String will be taken if the EVENT value is less than the specified constant
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>COND &lt;=</I></TD>
+    <TD CLASS=TABCOLOR2>String will be taken if the EVENT value is less or equal the specified constant
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>COND &gt;</I></TD>
+    <TD CLASS=TABCOLOR2>String will be taken if the EVENT value is greater than the specified constant
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>COND &gt;=</I></TD>
+    <TD CLASS=TABCOLOR2>String will be taken if the EVENT value is greater or equal the specified constant
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>COND_ELSE</I></TD>
+    <TD CLASS=TABCOLOR2>This finishes a conditional label and returns a string if the previous statements haven't hit.<BR>
+      It's strongly recommended to use this condition regardless if your definitions cover all possible values or not - it's at least a debugging help:
+<TT><PRE style="margin-left:50px">
+COND_ELSE "I made an error!"
+</PRE></TT>
+  </TR>
+</TABLE>
+
+<P CLASS=DESC>Note that <I>&gt;</I> and <I>&gt;=</I> actually don't make much sense, since the conditions are processed top-down. Once the EVENT value is greater(-equal) the constant, the matching label will be taken, and the remaining conditions won't be processed anyhow. These statements are only provided for completeness purposes... ;-) (and sometimes it's useful to express conditions this way)
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Technical Background </H2>
+
+<P CLASS=DESC>Actually the RAM memory size of a MBHP_CORE_STM32 or MBHP_CORE_LPC17 core is too low to provide instant access to huge conditional string lists. Therefore the definitions of a .NGL file will be automatically compiled into a .BIN file whenever the .NGL file has been modified. The .BIN file is structured in a way so that MIDIbox NG can quickly access the strings directly from SD Card. By using a clever registration mechanism this mostly allows access within less than 1 mS, which is totally acceptable for a thread which is running in background, and which doesn't delay the MIDI processing.
+
+<P CLASS=DESC>Therefore you are welcome to use conditional labels as often as you like - they won't affect the performance, and they are a very useful extension to improve the readability of parameter value selections! :-)</P>
+
+FOOTER
