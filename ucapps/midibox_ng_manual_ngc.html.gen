@@ -86,9 +86,9 @@ BANK n=4  enc=1:16:49
 <P CLASS=DESC>Available controllers are:
 <UL CLASS=CL>
   <LI><I>button</I>: the first button (1) is connected to the first DIN shift register, pin D0, the second button (2) to the first DIN shift register, pin D1, ... the 9th button to the second DIN shift register, pin D0, etc...<BR>
-Up to 128 buttons are currently supported (will be more in future)
+Up to 256 buttons can be connected to up to 32 DIN shift registers. 1024 virtual button functions are available.
   <LI><I>led</I>: the first LED (1) is connected to the first DOUT shift register, pin D7 (!), the second LED (2) to the first DOUT shift register, pin D6, ... the 9th LED to the second DOUT shift register, pin D7, etc...<BR>
-Up to 128 LEDs are currently supported (will be more in future)
+Up to 128 LEDs can be connected to up to 32 DOUT shift registers. 1024 virtual LED functions are available.
   <LI><I>enc</I>: rotary encoders allocate two DIN pins, which have to be assigned with the ENC command which is described later in this chapter.<BR>
 Up to 128 rotary encoders are currently supported
   <LI><I>ain</I>: 6 AIN (analog input) pins are directly available on the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module at J5A.A0 .. J5B.A5 - conversion values are working at 7bit resolution only due to the reduced voltage range of 0..3.3V. For higher resolutions or more inputs please use the AINSER option!
@@ -321,6 +321,41 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
         <LI><I>SetBank</I>: sets the bank according to the EVENT value (1..16). If buttons are used to select the bank, please specify <I>meta=SetBank range=1:1 button_mode=OnOnly</I> to select the first bank. If an encoder, pot, etc... is used, please specify <I>meta=SetBank range=1:16</I>.
         <LI><I>IncBank</I>: increments the bank number
         <LI><I>DecBank</I>: decrements the bank number
+        <LI><I>EncFast</I>: speeds up encoder movements according to the EVENT value. E.g. if <I>meta=EncFast range=0:5</I> is assigned to a BUTTON_EVENT, encoders will increment 5 times faster if the button is pressed.
+        <LI><I>ScsEnc</I>: emulates a SCS encoder movement. This Meta event can either be issued from EVENT_ENC or EVENT_BUTTON events. A usage example is given below.
+        <LI><I>ScsSoft1</I>: emulates the SOFT1 button of the SCS
+        <LI><I>ScsSoft2</I>: emulates the SOFT2 button of the SCS
+        <LI><I>ScsSoft3</I>: emulates the SOFT3 button of the SCS
+        <LI><I>ScsSoft4</I>: emulates the SOFT4 button of the SCS
+        <LI><I>ScsShift</I>: emulates the SHIFT button of the SCS
+        <LI><I>ScsMenu</I>: emulates the MENU button of the SCS<BR>
+           Here a complete configuration example for 8 emulated SCS buttons:
+<TT><PRE style="margin-left:20px">
+EVENT_BUTTON id=  1  type=Meta   meta=ScsSoft1 range=0:1
+EVENT_BUTTON id=  2  type=Meta   meta=ScsSoft2 range=0:1
+EVENT_BUTTON id=  3  type=Meta   meta=ScsSoft3 range=0:1
+EVENT_BUTTON id=  4  type=Meta   meta=ScsSoft4 range=0:1
+EVENT_BUTTON id=  5  type=Meta   meta=ScsShift range=0:1
+EVENT_BUTTON id=  6  type=Meta   meta=ScsMenu  range=0:1
+# if dec/inc buttons should be used:
+# DEC:
+EVENT_BUTTON id=  7  type=Meta   meta=ScsEnc   range=63:63 button_mode=OnOnly
+# INC:
+EVENT_BUTTON id=  8  type=Meta   meta=ScsEnc   range=65:65 button_mode=OnOnly
+</PRE></TT>
+
+           Here a complete configuration example for 6 emulated SCS buttons + 1 SCS encoder:
+<TT><PRE style="margin-left:20px">
+EVENT_BUTTON id=  1  type=Meta   meta=ScsSoft1 range=0:1
+EVENT_BUTTON id=  2  type=Meta   meta=ScsSoft2 range=0:1
+EVENT_BUTTON id=  3  type=Meta   meta=ScsSoft3 range=0:1
+EVENT_BUTTON id=  4  type=Meta   meta=ScsSoft4 range=0:1
+EVENT_BUTTON id=  5  type=Meta   meta=ScsShift range=0:1
+EVENT_BUTTON id=  6  type=Meta   meta=ScsMenu  range=0:1
+# if a rotary encoder should be used:
+ENC n=  1   sr= 15 pins=0:1   type=detented3
+EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
+</PRE></TT>
       </UL>
       It's allowed to specify multiple <I>meta=&lt;...&gt;</I> parameters for a single EVENT element, e.g.:
 <TT><PRE style="margin-left:50px">meta=SetBank  meta=DoAnythingElse:42</PRE></TT>
@@ -430,6 +465,7 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
         <LI><I>%c</I>: will output the value as character
         <LI><I>%s</I>: will output an empty string. In conjunction with padding values it could save some memory, e.g. "%20s" will output 20 spaces
         <LI><I>%i</I>: the ID of the EVENT
+        <LI><I>%p</I>: for EVENT_BUTTON_MATRIX only: the pin number of the matrix
         <LI><I>%e</I>: the MIDI event of the EVENT (up to 3 hexadecimal values, always 6 characters)
         <LI><I>%m</I>: the minimum value of the EVENT which has been specified with <I>range</I>
         <LI><I>%M</I>: the maximum value of the EVENT which has been specified with <I>range</I>
@@ -475,6 +511,40 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
     </TD>
   </TR>
 </TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SYSEX_VAR </H2>
+
+<P CLASS=DESC>This command specifies the default values of various SysEx variables, which are available for <I>EVENT_* stream="..."</I>:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>SYSEX_VAR Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>dev=&lt;0..127&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>the Device ID (<I>^dev</I>)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>pat=&lt;0..127&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>the Patch number (<I>^pat</I>)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>bnk=&lt;0..127&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>the Bank number (<I>^bnk</I>)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>ins=&lt;0..127&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>the Instrument number (<I>^ins</I>)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>chn=&lt;0..127&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>the Channel number (<I>^chn</I>)</TD>
+  </TR>
+</TABLE>
+
+<P CLASS=DESC>The variables could also be used for other purposes of course, they are only placeholders for typical usecases.
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> ENC </H2>
@@ -596,7 +666,7 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
     <TD CLASS=TABCOLOR2>DOUT selection lines will be inverted with <I>inverted=1</I>. This is required if the LEDs of the matrix have been connected in the opposite order:
        <UL CLASS=CL>
           <LI><I>inverted=0</I>: Cathodes are connected to the DOUT selection lines, see also <A HREF="mbhp/mbhp_blm_map.pdf" TARGET="_blank">this schematic</A>.
-          <LI><I>inverted=1</I>: Anodes are connected to the DOUT selection lines (not standard, but sometimes required if already existing hardware should be re-used).
+          <LI><I>inverted=1</I>: Anodes are connected to the DOUT selection lines (e.g. sink drivers are used)
        </UL>
     </TD>
   </TR>
@@ -913,7 +983,7 @@ Each OSC port has an individual remote IP, a remote port (to which OSC packets w
     <TD CLASS=TABCOLOR2>Sets the local port from which OSC packets will be received</TD>
   </TR>
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>mode=&lt;format&gt;</I></TD>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>transfer_mode=&lt;format&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Following transfer formats are currently supported:
       <UL CLASS=CL>
         <LI><I>MIDI</I>: MIDI events are bundled into MIDI elements
@@ -946,20 +1016,6 @@ Each OSC port has an individual remote IP, a remote port (to which OSC packets w
 <P CLASS=DESC><I>ConvertNoteOffToOn0 &lt;0|1&gt;</I>: if set to 1, incoming NoteOff events will be converted to NoteOn with velocity 0. This option is enabled by default to simplify the configuration of receivers (e.g. LEDs) which should be turned off on any NoteOff event, including NoteOn with velocity 0 which has the same purpose (according to the MIDI spec).
 
 <P CLASS=DESC>If set to 0, this simplification doesn't take place, so that NoteOn and NoteOff events can be handled separately.
-
-<H2> <IMG SRC="images/bullet.gif" ALT=""> SysEx* </H2>
-
-<P CLASS=DESC>These commands specify the default values of various SysEx variables, which are available for <I>EVENT_* stream="..."</I>:
-<UL CLASS=CL>
-  <LI><I>SysExDev</I>: the Device ID (<I>^dev</I>)
-  <LI><I>SysExPat</I>: the Patch number (<I>^pat</I>)
-  <LI><I>SysExBnk</I>: the Bank number (<I>^bnk</I>)
-  <LI><I>SysExIns</I>: the Instrument number (<I>^ins</I>)
-  <LI><I>SysExChn</I>: the Channel number (<I>^chn</I>)
-</UL>
-
-<P CLASS=DESC>The variables could also be used for other purposes of course, they are only placeholders for typical usecases.
-
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> RESET_HW </H2>
 
