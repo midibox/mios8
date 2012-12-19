@@ -157,9 +157,18 @@ EVENT_BUTTON id=1  fwd_id=LED:1  type=NoteOn key=36  lcd_pos=1:1:1 label="Button
 <P CLASS=DESC>In other words: the LED will only be lit if the received velocity is greater than int((127-0)/2) = 63. Velocities which are &lt;= this value will turn off the LED.
 
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Toggle me! </H2>
+
+<P CLASS=DESC>Sometimes you probably want to hold the button state after the button has been pushed, and you want to turn it off by pushing it again. This toggling behaviour can be easily configured with the "button_mode" parameter:
+
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=1  fwd_id=LED:1  type=NoteOn key=36 range=0:127  button_mode=Toggle
+</PRE></TT>
+
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Surprise me! </H2>
 
-<P CLASS=DESC>Our last experiment with the button ends with a small surprise: change the EVENT_BUTTON statement to:
+<P CLASS=DESC>Our last experiment with a single button ends with a small surprise: change the EVENT_BUTTON statement to:
 
 <TT><PRE style="margin-left:50px">
 EVENT_BUTTON id=1  fwd_id=LED:1  button_mode=OnOnly \
@@ -171,6 +180,314 @@ EVENT_BUTTON id=1  fwd_id=LED:1  button_mode=OnOnly \
 
 <P CLASS=DESC>Ok, this demonstration should also show you, that it's possible to send SysEx streams, and that multiple lines in the configuration file can be concatenated to a single command with the backslash (\) character.
 
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MIDIbox killed the Radio Star </H2>
+
+<P CLASS=DESC>Let's get serious again! A typical usecase for buttons is to switch between different modes of an external device. If the mode has to be configured over a single CC event, you need to assign multiple buttons. In conjunction with LEDs it would be nice if only the LED which matches with the mode selection is lit, and that all others are off.</P>
+
+<P CLASS=DESC>This behaviour can be configured with so called "Radio groups" (see also <A HREF="http://en.wikipedia.org/wiki/Radio_button" TARGET="_blank">this Wikipedia article about Radio Buttons</A>).
+
+<P CLASS=DESC>So, let's try it! Following experiment requires 8 buttons connected to the first DIN shift register (input D0..D7), and 8 LEDs connected to the first DOUT shift register (output D7..D0):
+
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=  1  fwd_id=LED:1  type=CC chn=1 cc=16  button_mode=OnOnly  range= 0:0   radio_group=1
+EVENT_BUTTON id=  2  fwd_id=LED:2  type=CC chn=1 cc=16  button_mode=OnOnly  range= 1:1   radio_group=1
+EVENT_BUTTON id=  3  fwd_id=LED:3  type=CC chn=1 cc=16  button_mode=OnOnly  range= 2:2   radio_group=1
+EVENT_BUTTON id=  4  fwd_id=LED:4  type=CC chn=1 cc=16  button_mode=OnOnly  range= 3:3   radio_group=1
+EVENT_BUTTON id=  5  fwd_id=LED:5  type=CC chn=1 cc=16  button_mode=OnOnly  range= 4:4   radio_group=1
+EVENT_BUTTON id=  6  fwd_id=LED:6  type=CC chn=1 cc=16  button_mode=OnOnly  range= 5:5   radio_group=1
+EVENT_BUTTON id=  7  fwd_id=LED:7  type=CC chn=1 cc=16  button_mode=OnOnly  range= 6:6   radio_group=1
+EVENT_BUTTON id=  8  fwd_id=LED:8  type=CC chn=1 cc=16  button_mode=OnOnly  range= 7:7   radio_group=1
+</PRE></TT>
+
+<P CLASS=DESC>They are all assigned to the same radio group 1 (note that up to 63 groups are available!).
+
+<P CLASS=DESC>Now push the buttons one after another. Only the LED of the pressed buttons should be activated, all others will be turned off.
+
+<P CLASS=DESC>Next step: send a CC16 event from MIOS Studio (take a slider above the virtual keyboard). The LEDs should change their state corresponding to the received value.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Radio LEDs </H2>
+
+<P CLASS=DESC>The same can be done without buttons, but only with LEDs. And it's also possible to select larger value ranges for a radio group!
+
+<P CLASS=DESC>So, let's assume that 8 additional LEDs are connected to the second DOUT shift register, output D7..D0. We want to select the LED depeding on the incoming CC1 (modulation wheel) value. Just write:
+
+<TT><PRE style="margin-left:50px">
+EVENT_LED    id=  9                type=CC chn=1 cc= 1  range= 0:9  radio_group=2
+EVENT_LED    id= 10                type=CC chn=1 cc= 1  range=10:19 radio_group=2
+EVENT_LED    id= 11                type=CC chn=1 cc= 1  range=20:29 radio_group=2
+EVENT_LED    id= 12                type=CC chn=1 cc= 1  range=30:39 radio_group=2
+EVENT_LED    id= 13                type=CC chn=1 cc= 1  range=40:49 radio_group=2
+EVENT_LED    id= 14                type=CC chn=1 cc= 1  range=50:59 radio_group=2
+EVENT_LED    id= 15                type=CC chn=1 cc= 1  range=60:69 radio_group=2
+EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=2
+</PRE></TT>
+
+<P CLASS=DESC>...and move the slider for "CC1: ModWheel" in MIOS Studio to select the different LEDs. :-)
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Rotate me! </H2>
+
+<P CLASS=DESC>We are coming to the next control element: a <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders" TARGET="_blank">Rotary Encoder</A>.
+
+<P CLASS=DESC>MIOS32 supports different type of encoders, we can mainly differentiate between "detented" and "non-detented". For detented encoders we also have to differ between various types, mainly depending on the state where it makes "click" ;-)
+
+<P CLASS=DESC>The configuration of an encoder has to be done independent from the EVENT definition. E.g. take following configuration as an example:
+
+<TT><PRE style="margin-left:50px">
+ENC n=  1   sr=3 pins=0:1   type=non_detented
+ENC n=  2   sr=3 pins=2:3   type=non_detented
+ENC n=  3   sr=3 pins=4:5   type=non_detented
+ENC n=  4   sr=3 pins=6:7   type=non_detented
+ENC n=  5   sr=4 pins=0:1   type=non_detented
+ENC n=  6   sr=4 pins=2:3   type=non_detented
+ENC n=  7   sr=4 pins=4:5   type=non_detented
+ENC n=  8   sr=4 pins=6:7   type=non_detented
+</PRE></TT>
+
+<P CLASS=DESC>In this example it's assumed, that 8 rotary encoders are connected to the third and fourth DIN shift register of your <A HREF="mbhp_din.html">MBHP_DINX4</A> module. Of course, you are free to use different DIN SRs for this, please adapt your configuration accordingly by changing the "sr=&lt;shift-register-number&gt;" assignment.
+
+<P CLASS=DESC>Channel A and B of the encoder have to be connected to pin D0/D1, D2/D3, D4/D5 or D6/D7. The third pin has to be connected to ground. Some encoders have the ground at the middle pin, some others at the left or right pin - please consult the datasheet of the encoder that you bought!
+
+<P CLASS=DESC>Without EVENT_ENC definition your encoder won't generate any MIDI event. But you will already be able to check, if encoder movements are notified by MIOS32. For this purpose, please activate the debug mode of MIDIbox NG in <B>the MIOS Terminal</B>:
+<TT><PRE style="margin-left:50px">
+set debug on
+</PRE></TT>
+
+When you are now moving the encoder, you should get debugging messages such as:
+<TT><PRE style="margin-left:50px">
+...
+[472675.962] MBNG_ENC_NotifyChange(0, 1)
+[472675.962] No event assigned to ENC id=1
+[472676.035] MBNG_ENC_NotifyChange(0, 1)
+[472676.035] No event assigned to ENC id=1
+[472676.061] MBNG_ENC_NotifyChange(0, 1)
+[472676.061] No event assigned to ENC id=1
+...
+</PRE></TT>
+
+<P CLASS=DESC>on clockwise movements, and:
+
+<TT><PRE style="margin-left:50px">
+...
+[472692.954] MBNG_ENC_NotifyChange(0, -1)
+[472692.954] No event assigned to ENC id=1
+[472692.969] MBNG_ENC_NotifyChange(0, -1)
+[472692.969] No event assigned to ENC id=1
+[472693.040] MBNG_ENC_NotifyChange(0, -1)
+[472693.040] No event assigned to ENC id=1
+...
+</PRE></TT>
+
+<P CLASS=DESC>on counter-clockwise movements of the first encoder (MIOS32 starts to count encoders from #0)
+
+<P CLASS=DESC>This debugging mode already allows you to debug your configuration. E.g. if you are using a detented encoder, try:
+<UL CLASS=CL>
+  <LI><I>enc_mode=detented1</I>
+  <LI>or <I>enc_mode=detented2</I>
+  <LI>or <I>enc_mode=detented3</I>
+</UL>
+
+<P CLASS=DESC>and check if the increments are notified correctly after each "click".
+
+<P CLASS=DESC>If the increments are inversed (-1 on clockwise movements), then you've probably swapped the connections between channel A and B of the encoder. In this case, please fix your hardware connections (this can't be changed in the configuration).
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Encoder: send MIDI - now! </H2>
+
+<P CLASS=DESC>It's time to assign MIDI events to the encoders:
+
+<TT><PRE style="margin-left:50px">
+EVENT_ENC id=1  type=CC chn= 1 cc= 16
+EVENT_ENC id=2  type=CC chn= 1 cc= 17
+EVENT_ENC id=3  type=CC chn= 1 cc= 18
+EVENT_ENC id=4  type=CC chn= 1 cc= 19
+EVENT_ENC id=5  type=CC chn= 1 cc= 20
+EVENT_ENC id=6  type=CC chn= 1 cc= 21
+EVENT_ENC id=7  type=CC chn= 1 cc= 22
+EVENT_ENC id=8  type=CC chn= 1 cc= 23
+</PRE></TT>
+
+<P CLASS=DESC>Your encoders will now send CC#16 .. CC#23 events, which should be displayed in the MIDI IN monitor of MIOS Studio!
+
+<P CLASS=DESC>The big advantage of those encoders is, that they can take over incoming MIDI values, and modify them without the danger of "value jumps" when the encoder is moved again to modify the value (in other words: it will be on-synch to the remote device if it sends its own value changes as well).
+
+<P CLASS=DESC>So, the next experiment will be, to send a CC#16 event to your MIDIbox NG, e.g. with the slider above the virtual keyboard in MIOS Studio.
+
+<P CLASS=DESC>E.g. move the slider so that it sends CC#16 = 64 (check this with the MIDI OUT monitor of MIOS Studio).
+
+<P CLASS=DESC>Now move the first encoder: it should increment/decrement from this received value!
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Display me! </H2>
+
+<P CLASS=DESC>You already own a LCD? Fine - the next experiment will display some useful informations on the LCD instead of the static "Hello World!" string:
+
+<TT><PRE style="margin-left:50px">
+EVENT_ENC id=1  type=CC chn= 1 cc= 16  lcd_pos=1:1:1  label="ENC #%3i    %3d%B"
+EVENT_ENC id=2  type=CC chn= 1 cc= 17  lcd_pos=1:1:1  label="ENC #%3i    %3d%B"
+EVENT_ENC id=3  type=CC chn= 1 cc= 18  lcd_pos=1:1:1  label="ENC #%3i    %3d%B"
+EVENT_ENC id=4  type=CC chn= 1 cc= 19  lcd_pos=1:1:1  label="ENC #%3i    %3d%B"
+EVENT_ENC id=5  type=CC chn= 1 cc= 20  lcd_pos=1:1:1  label="ENC #%3i    %3d%B"
+EVENT_ENC id=6  type=CC chn= 1 cc= 21  lcd_pos=1:1:1  label="ENC #%3i    %3d%B"
+EVENT_ENC id=7  type=CC chn= 1 cc= 22  lcd_pos=1:1:1  label="ENC #%3i    %3d%B"
+EVENT_ENC id=8  type=CC chn= 1 cc= 23  lcd_pos=1:1:1  label="ENC #%3i    %3d%B"
+</PRE></TT>
+
+<P CLASS=DESC>If you are confused about the strange "format specifiers" (starting with %), have a look into the <A HREF="midibox_ng_manual_ngc.html">.NGC format specification</A>, search for "label=&lt;string&gt;"
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Toy me! </H2>
+
+<P CLASS=DESC>Let's play a bit with the labels. The example above overwrites the previous string whenever a different encoder is moved. But what if you want to get an oversight over all encoders - at least a vertical meter for each encoder?
+
+<P CLASS=DESC>Try this one:
+<TT><PRE style="margin-left:50px">
+EVENT_ENC id=1  type=CC chn= 1 cc= 16  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:1:2)%B"
+EVENT_ENC id=2  type=CC chn= 1 cc= 17  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:2:2)%B"
+EVENT_ENC id=3  type=CC chn= 1 cc= 18  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:3:2)%B"
+EVENT_ENC id=4  type=CC chn= 1 cc= 19  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:4:2)%B"
+EVENT_ENC id=5  type=CC chn= 1 cc= 20  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:5:2)%B"
+EVENT_ENC id=6  type=CC chn= 1 cc= 21  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:6:2)%B"
+EVENT_ENC id=7  type=CC chn= 1 cc= 22  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:7:2)%B"
+EVENT_ENC id=8  type=CC chn= 1 cc= 23  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:8:2)%B"
+</PRE></TT>
+
+<P CLASS=DESC>This will display the state of each encoder at the second LCD line - we selected it with the <I>@(&lt;lcd&gt;:&lt;X&gt;:&lt;Y&gt;)</I> specifier.
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Toy me remotely! </H2>
+
+<P CLASS=DESC>You may have already noticed, that the LCD message isn't updated when the encoder value is changed from external (e.g. from a slider in MIOS Studio). The reason is, that incoming MIDI events won't trigger a LCD message by default (because this could be unwanted under certain situations).
+
+<P CLASS=DESC>In order to update the LCD also in such situations, add the "fwd_to_lcd=1" parameter to your EVENT_* definition:
+
+<TT><PRE style="margin-left:50px">
+EVENT_ENC id=1  fwd_to_lcd=1  type=CC chn= 1 cc= 16  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:1:2)%B"
+EVENT_ENC id=2  fwd_to_lcd=1  type=CC chn= 1 cc= 17  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:2:2)%B"
+EVENT_ENC id=3  fwd_to_lcd=1  type=CC chn= 1 cc= 18  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:3:2)%B"
+EVENT_ENC id=4  fwd_to_lcd=1  type=CC chn= 1 cc= 19  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:4:2)%B"
+EVENT_ENC id=5  fwd_to_lcd=1  type=CC chn= 1 cc= 20  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:5:2)%B"
+EVENT_ENC id=6  fwd_to_lcd=1  type=CC chn= 1 cc= 21  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:6:2)%B"
+EVENT_ENC id=7  fwd_to_lcd=1  type=CC chn= 1 cc= 22  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:7:2)%B"
+EVENT_ENC id=8  fwd_to_lcd=1  type=CC chn= 1 cc= 23  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:8:2)%B"
+</PRE></TT>
+
+<P CLASS=DESC>Now move the sliders in MIOS Studio and watch the LCD output! :-)
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Ring me! </H2>
+
+<P CLASS=DESC>The next step - and this is really an advanced one - will be to use LED Rings for displaying the state of each rotary encoder.
+
+<P CLASS=DESC>The <A HREF="midibox_ng_manual_hw.html">(non-existing) Hardware Chapter</A> describes, how the circuitry looks like.
+
+<P CLASS=DESC>Actually it doesn't matter, if you are building the circuit based on the given schematic, or customize it, e.g. only for 8 LED Rings, or with a different number of LEDs per ring.
+
+<P CLASS=DESC>The entry point to configure LED Rings is the <I>DOUT_MATRIX</I> command. It specifies the DOUT shift registers, which are used to access the LEDs in a matrix configuration. Matrix is good for such a usecase, because it saves a lot of digital output pins. The (small) drawback is, that LEDs are activated time multiplexed, which means that they are not so bright as if they would be driven directly (permanently) from a digital output pin. However, by using low-current LEDs this can be easily compensated. See it as an advantage: time multiplexing saves power (you still want to supply your MIDIbox NG via USB...)
+
+<P CLASS=DESC>So, in following configuration example we assume a 16 LED Ring configuration, because this is the most common one that I used in previous projects like the <A HREF="http://www.ucapps.de/midibox16e/midibox16e.jpg" TARGET="_blank">MIDIbox16E</A>:
+<TT><PRE style="margin-left:50px">
+# LEDring configuration
+DOUT_MATRIX n= 1   rows=16 sr_dout_sel1= 1 sr_dout_sel2= 2  sr_dout_r1= 3 sr_dout_r2= 4
+</PRE></TT>
+
+<P CLASS=DESC>Today we would prefer to use <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=fairlightiii" TARGET="_blank">Fairlightiii's premade PCB solution</A> instead - more informations about this once I get my hands on the PCBs! :-)
+
+<P CLASS=DESC>Anyhow, as you can see in the definitions above, the matrix allocates four DOUT shift registers to select the 16 rows, and to output the pattern. The pattern is predefined for 11 LEDs, but could also be changed for any number of LEDs with the <A HREF="midibox_ng_manual_ngc.html">LED_MATRIX_PATTERN</A> command.
+
+<P CLASS=DESC>Now let's try following .NGC file - this is a copy&paste of my complete setup (for the case that you lost the thread... ;-)<BR>
+<B>It might be necessary that you adapt the shift register (sr*=) definitions to your hardware, depending on which shift registers (SRs) your encoders and LED Rings are located!</B>
+
+<TT><PRE style="margin-left:50px">
+RESET_HW
+
+LCD "%CHello"
+
+# Encoder configuration
+ENC n=  1   sr= 5  pins=0:1   type=non_detented
+ENC n=  2   sr= 5  pins=2:3   type=non_detented
+ENC n=  3   sr= 5  pins=4:5   type=non_detented
+ENC n=  4   sr= 5  pins=6:7   type=non_detented
+ENC n=  5   sr= 6  pins=0:1   type=non_detented
+ENC n=  6   sr= 6  pins=2:3   type=non_detented
+ENC n=  7   sr= 6  pins=4:5   type=non_detented
+ENC n=  8   sr= 6  pins=6:7   type=non_detented
+ENC n=  9   sr= 7  pins=0:1   type=non_detented
+ENC n= 10   sr= 7  pins=2:3   type=non_detented
+ENC n= 11   sr= 7  pins=4:5   type=non_detented
+ENC n= 12   sr= 7  pins=6:7   type=non_detented
+ENC n= 13   sr= 8  pins=0:1   type=non_detented
+ENC n= 14   sr= 8  pins=2:3   type=non_detented
+ENC n= 15   sr= 8  pins=4:5   type=non_detented
+ENC n= 16   sr= 8  pins=6:7   type=non_detented
+
+# LEDring configuration
+DOUT_MATRIX n= 1   rows=16 sr_dout_sel1= 1 sr_dout_sel2= 2  sr_dout_r1= 3 sr_dout_r2= 4
+
+# Encoder events
+EVENT_ENC id= 1  fwd_id=LED_MATRIX:1   fwd_to_lcd=1  type=CC chn= 1 cc= 16  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:1:2)%B"
+EVENT_ENC id= 2  fwd_id=LED_MATRIX:2   fwd_to_lcd=1  type=CC chn= 1 cc= 17  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:2:2)%B"
+EVENT_ENC id= 3  fwd_id=LED_MATRIX:3   fwd_to_lcd=1  type=CC chn= 1 cc= 18  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:3:2)%B"
+EVENT_ENC id= 4  fwd_id=LED_MATRIX:4   fwd_to_lcd=1  type=CC chn= 1 cc= 19  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:4:2)%B"
+EVENT_ENC id= 5  fwd_id=LED_MATRIX:5   fwd_to_lcd=1  type=CC chn= 1 cc= 20  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:5:2)%B"
+EVENT_ENC id= 6  fwd_id=LED_MATRIX:6   fwd_to_lcd=1  type=CC chn= 1 cc= 21  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:6:2)%B"
+EVENT_ENC id= 7  fwd_id=LED_MATRIX:7   fwd_to_lcd=1  type=CC chn= 1 cc= 22  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:7:2)%B"
+EVENT_ENC id= 8  fwd_id=LED_MATRIX:8   fwd_to_lcd=1  type=CC chn= 1 cc= 23  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:8:2)%B"
+EVENT_ENC id= 9  fwd_id=LED_MATRIX:9   fwd_to_lcd=1  type=CC chn= 1 cc= 24  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:9:2)%B"
+EVENT_ENC id=10  fwd_id=LED_MATRIX:10  fwd_to_lcd=1  type=CC chn= 1 cc= 25  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:10:2)%B"
+EVENT_ENC id=11  fwd_id=LED_MATRIX:11  fwd_to_lcd=1  type=CC chn= 1 cc= 26  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:11:2)%B"
+EVENT_ENC id=12  fwd_id=LED_MATRIX:12  fwd_to_lcd=1  type=CC chn= 1 cc= 27  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:12:2)%B"
+EVENT_ENC id=13  fwd_id=LED_MATRIX:13  fwd_to_lcd=1  type=CC chn= 1 cc= 28  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:13:2)%B"
+EVENT_ENC id=14  fwd_id=LED_MATRIX:14  fwd_to_lcd=1  type=CC chn= 1 cc= 29  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:14:2)%B"
+EVENT_ENC id=15  fwd_id=LED_MATRIX:15  fwd_to_lcd=1  type=CC chn= 1 cc= 30  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:15:2)%B"
+EVENT_ENC id=16  fwd_id=LED_MATRIX:16  fwd_to_lcd=1  type=CC chn= 1 cc= 31  lcd_pos=1:1:1  label="ENC #%3i    %3d@(1:16:2)%B"
+</PRE></TT>
+
+<P CLASS=DESC>This setup:
+<UL CLASS=CL>
+  <LI>configures the encoders and LED Ring hardware
+  <LI>sends cc=16..31 whenever an encoder has been moved
+  <LI>receives cc=16..31 to update the encoder value
+  <LI>forwards the sent/received encoder value to the LED Ring
+  <LI>and forwards the sent/received encoder value to the LCD
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Bank me! </H2>
+
+<P CLASS=DESC>You want to get more for the same price? Let's bank the encoders! :-)
+
+<TT><PRE style="margin-left:50px">
+BANK n=1  enc=1:16:1
+BANK n=2  enc=1:16:17
+BANK n=3  enc=1:16:33
+BANK n=4  enc=1:16:49
+</PRE></TT>
+
+<P CLASS=DESC>These commands will map the 16 hardware encoders (starting from 1) to the EVENT_ENC elements 1..16, 17..32, 33..48 and 49..64
+
+<P CLASS=DESC>You will need 4 buttons to switch between the banks - this is achieved by using so called "Meta Events" which don't issue MIDI output, but trigger internal functions instead:
+<TT><PRE style="margin-left:50px">
+EVENT_BUTTON id=  1  type=Meta   meta=SetBank button_mode=OnOnly range=1:1  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=  2  type=Meta   meta=SetBank button_mode=OnOnly range=2:2  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=  3  type=Meta   meta=SetBank button_mode=OnOnly range=3:3  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=  4  type=Meta   meta=SetBank button_mode=OnOnly range=4:4  lcd_pos=1:17:1 label="Bnk%q"
+</PRE></TT>
+
+<P CLASS=DESC>A complete configuration example can be found in the SVN repository: <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fencbanks.ngc" TARGET="_blank">encbanks.ngc</A>
+
+
+<P CLASS=DESC>This setup:
+<UL CLASS=CL>
+  <LI>configures the encoders and LED Ring hardware
+  <LI>sends cc=16..31, cc=32..47, cc=48..63, cc=64..79 <B>depending on the bank selection</B> whenever an encoder has been moved
+  <LI>always receives cc=16..79 independent from the bank selection. The LED Rings will be updated <B>according to the visible bank range</B>
+  <LI>forwards the sent/received encoder value to the LED Ring
+  <LI>and forwards the sent/received encoder value to the LCD <B>within the visible bank range</B>
+</UL>
+
+<P CLASS=DESC>So, this is actually what I started a century ago with the <A HREF="http://www.ucapps.de/midibox16e.html" TARGET="_blank">MIDIbox 16E</A> project. But with the MIDIbox NG approach we got a much more flexible solution - not to mention the advantages of USB-MIDI, OSC, SD Card as storage, no need to recompile the firmware on configuration changes, grouped Buttons/LEDs, support for NRPN and SysEx, more shift registers, more LCDs, even graphical LCDs (see below - in future - implemented but not documented at this place yet), etc, etc...</P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> To be continued... </H2>
 

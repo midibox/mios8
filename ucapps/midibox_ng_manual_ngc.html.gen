@@ -240,6 +240,12 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>fwd_to_lcd=&lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Whenever an matching MIDI event has been received, and a label is assigned to the EVENT, and the EVENT is not part of a BANK, or the BANK is selected, the label will be print on screen.<BR>Use this option to display value changes from external on the LCD.
+    </TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>type=&lt;event-type&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Specifies the MIDI event type which should be sent and/or received.<BR>
        <UL CLASS=CL>
@@ -389,7 +395,7 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
 
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>button_mode=&lt;mode&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Following button modes are supported:
+    <TD CLASS=TABCOLOR2>Following button modes are supported for EVENT_BUTTON:
       <UL CLASS=CL>
         <LI><I>OnOff</I> (default): the button will send the maximum value of the specified <I>range</I> when pressed, and the mimimum value when depressed
         <LI><I>OnOnly</I>: the button will only send the maximum value of the specified <I>range</I> when pressed, it won't send a value when depressed
@@ -399,8 +405,49 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>radio_group=&lt;0..63&gt;</I></TD>
+    <TD CLASS=TABCOLOR2><I>EVENT_BUTTON</I> and <I>EVENT_LED</I> elements can be assigned to groups, which handle the same value over multiple elements.<BR>
+      E.g. let's say, that 8 buttons should send different CC#16 values, and the related LEDs should display the button state. Only one LED should turn on depending on the value which has been sent:
+<PRE style="margin-left:50px">
+EVENT_BUTTON id=  1  fwd_id=LED:1  type=CC chn=1 cc=16  button_mode=OnOnly  range= 0:0   radio_group=1
+EVENT_BUTTON id=  2  fwd_id=LED:2  type=CC chn=1 cc=16  button_mode=OnOnly  range= 1:1   radio_group=1
+EVENT_BUTTON id=  3  fwd_id=LED:3  type=CC chn=1 cc=16  button_mode=OnOnly  range= 2:2   radio_group=1
+EVENT_BUTTON id=  4  fwd_id=LED:4  type=CC chn=1 cc=16  button_mode=OnOnly  range= 3:3   radio_group=1
+EVENT_BUTTON id=  5  fwd_id=LED:5  type=CC chn=1 cc=16  button_mode=OnOnly  range= 4:4   radio_group=1
+EVENT_BUTTON id=  6  fwd_id=LED:6  type=CC chn=1 cc=16  button_mode=OnOnly  range= 5:5   radio_group=1
+EVENT_BUTTON id=  7  fwd_id=LED:7  type=CC chn=1 cc=16  button_mode=OnOnly  range= 6:6   radio_group=1
+EVENT_BUTTON id=  8  fwd_id=LED:8  type=CC chn=1 cc=16  button_mode=OnOnly  range= 7:7   radio_group=1
+</PRE></TT>
+
+      This also works if only LEDs are used, and it's allowed to use larger ranges:
+<PRE style="margin-left:50px">
+EVENT_LED    id=  9                type=CC chn=1 cc= 1  range= 0:9  radio_group=2
+EVENT_LED    id= 10                type=CC chn=1 cc= 1  range=10:19 radio_group=2
+EVENT_LED    id= 11                type=CC chn=1 cc= 1  range=20:29 radio_group=2
+EVENT_LED    id= 12                type=CC chn=1 cc= 1  range=30:39 radio_group=2
+EVENT_LED    id= 13                type=CC chn=1 cc= 1  range=40:49 radio_group=2
+EVENT_LED    id= 14                type=CC chn=1 cc= 1  range=50:59 radio_group=2
+EVENT_LED    id= 15                type=CC chn=1 cc= 1  range=60:69 radio_group=2
+EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=2
+</PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>ain_mode=&lt;mode&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Following ain modes are supported for EVENT_AIN and EVENT_AINSER:
+      <UL CLASS=CL>
+        <LI><I>Direct</I>: the output value jumps directly to the new conversion value whenever the pot/fader is moved
+        <LI><I>Snap</I>: (in literature also called "Soft-Takeover") whenever a new value is received from external, pot/fader movements won't generate MIDI events until it passed beyond the new position.
+        <LI><I>Relative</I>: whenever a new value is received from external, pot/fader movements will increment the received value instead of setting it to the absolute position
+        <LI><I>Parallax</I>: this name is cool, isn't it? ;-) A description can be found in <A HREF="http://www.ucapps.de/midibox/midibox_plus_parallax.gif">this history document from the year 1999</A>.
+      </UL>
+    </TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>enc_mode=&lt;mode&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Following encoder modes are supported:
+    <TD CLASS=TABCOLOR2>Following encoder modes are supported for EVENT_ENC:
       <UL CLASS=CL>
         <LI><I>Absolute</I>: the encoder will send/receive an absolute value in the specified <I>range</I>
         <LI><I>40Speed</I>: the encoder will send 0x40+&lt;speed&gt; when moved clockwise, and 0x40-&lt;speed&gt; when moved counter-clockwise
@@ -416,7 +463,7 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
 
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>led_matrix_pattern=&lt;pattern-number&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>LED patterns can be specified for ENC and LED_MATRIX events:
+    <TD CLASS=TABCOLOR2>LED patterns can be specified if an event should forward its value to a LED_MATRIX element:
       <UL CLASS=CL>
         <LI><I>1</I>: the first LED pattern specified with <I>LED_MATRIX_PATTERN n=1</I> commands
         <LI><I>2</I>: the second LED pattern specified with <I>LED_MATRIX_PATTERN n=2</I> commands
@@ -579,7 +626,7 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>type=&lt;name&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Sets the encoder type: <I>non_detented</I>, <I>detented1</I>, <I>detented2</I> or <I>detented3</I>.<BR>
-      A documentation about these types can be found in <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders" TARGET="_blank">Wiki article</A>.
+      A documentation about these types can be found in <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders" TARGET="_blank">this Wiki article</A>.
     </TD>
   </TR>
 </TABLE>
@@ -710,59 +757,60 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
 
 Examples for a typical patterns for a LED Ring with 11 LEDs, and a 12th "center" LED (see also <A HREF="http://www.ucapps.de/mbhp/mbhp_doutx4_ledrings.pdf" TARGET="_blank">this schematic</A>):
 <TT><PRE style="margin-left:50px">
-LED_MATRIX_PATTERN n= 1  pos= 0  pattern=0000000000000001
-LED_MATRIX_PATTERN n= 1  pos= 1  pattern=0000000000000011
-LED_MATRIX_PATTERN n= 1  pos= 2  pattern=0000000000000011
-LED_MATRIX_PATTERN n= 1  pos= 3  pattern=0000000000000111
-LED_MATRIX_PATTERN n= 1  pos= 4  pattern=0000000000000111
-LED_MATRIX_PATTERN n= 1  pos= 5  pattern=0000000000001111
-LED_MATRIX_PATTERN n= 1  pos= 6  pattern=0000000000001111
-LED_MATRIX_PATTERN n= 1  pos= 7  pattern=0000000000011111
-LED_MATRIX_PATTERN n= 1  pos= M  pattern=0000100000111111
-LED_MATRIX_PATTERN n= 1  pos= 8  pattern=0000000001111111
-LED_MATRIX_PATTERN n= 1  pos= 9  pattern=0000000011111111
-LED_MATRIX_PATTERN n= 1  pos=10  pattern=0000000011111111
-LED_MATRIX_PATTERN n= 1  pos=11  pattern=0000000111111111
-LED_MATRIX_PATTERN n= 1  pos=12  pattern=0000000111111111
-LED_MATRIX_PATTERN n= 1  pos=13  pattern=0000001111111111
-LED_MATRIX_PATTERN n= 1  pos=14  pattern=0000001111111111
-LED_MATRIX_PATTERN n= 1  pos=15  pattern=0000011111111111
+# LED_MATRIX_PATTERNs
+LED_MATRIX_PATTERN n= 1  pos= 0  pattern=1000000000000000
+LED_MATRIX_PATTERN n= 1  pos= 1  pattern=1100000000000000
+LED_MATRIX_PATTERN n= 1  pos= 2  pattern=1100000000000000
+LED_MATRIX_PATTERN n= 1  pos= 3  pattern=1110000000000000
+LED_MATRIX_PATTERN n= 1  pos= 4  pattern=1110000000000000
+LED_MATRIX_PATTERN n= 1  pos= 5  pattern=1111000000000000
+LED_MATRIX_PATTERN n= 1  pos= 6  pattern=1111000000000000
+LED_MATRIX_PATTERN n= 1  pos= 7  pattern=1111100000000000
+LED_MATRIX_PATTERN n= 1  pos= M  pattern=1111110000010000
+LED_MATRIX_PATTERN n= 1  pos= 8  pattern=1111111000000000
+LED_MATRIX_PATTERN n= 1  pos= 9  pattern=1111111100000000
+LED_MATRIX_PATTERN n= 1  pos=10  pattern=1111111100000000
+LED_MATRIX_PATTERN n= 1  pos=11  pattern=1111111110000000
+LED_MATRIX_PATTERN n= 1  pos=12  pattern=1111111110000000
+LED_MATRIX_PATTERN n= 1  pos=13  pattern=1111111111000000
+LED_MATRIX_PATTERN n= 1  pos=14  pattern=1111111111000000
+LED_MATRIX_PATTERN n= 1  pos=15  pattern=1111111111100000
 
-LED_MATRIX_PATTERN n= 2  pos= 0  pattern=0000000000111111
-LED_MATRIX_PATTERN n= 2  pos= 1  pattern=0000000000111110
-LED_MATRIX_PATTERN n= 2  pos= 2  pattern=0000000000111110
-LED_MATRIX_PATTERN n= 2  pos= 3  pattern=0000000000111100
-LED_MATRIX_PATTERN n= 2  pos= 4  pattern=0000000000111000
-LED_MATRIX_PATTERN n= 2  pos= 5  pattern=0000000000111000
-LED_MATRIX_PATTERN n= 2  pos= 6  pattern=0000000000110000
-LED_MATRIX_PATTERN n= 2  pos= 7  pattern=0000000000100000
-LED_MATRIX_PATTERN n= 2  pos= M  pattern=0000100001110000
-LED_MATRIX_PATTERN n= 2  pos= 8  pattern=0000000000100000
-LED_MATRIX_PATTERN n= 2  pos= 9  pattern=0000000001100000
-LED_MATRIX_PATTERN n= 2  pos=10  pattern=0000000001100000
-LED_MATRIX_PATTERN n= 2  pos=11  pattern=0000000011100000
-LED_MATRIX_PATTERN n= 2  pos=12  pattern=0000000111100000
-LED_MATRIX_PATTERN n= 2  pos=13  pattern=0000000111100000
-LED_MATRIX_PATTERN n= 2  pos=14  pattern=0000001111100000
+LED_MATRIX_PATTERN n= 2  pos= 0  pattern=1111110000000000
+LED_MATRIX_PATTERN n= 2  pos= 1  pattern=0111110000000000
+LED_MATRIX_PATTERN n= 2  pos= 2  pattern=0111110000000000
+LED_MATRIX_PATTERN n= 2  pos= 3  pattern=0011110000000000
+LED_MATRIX_PATTERN n= 2  pos= 4  pattern=0001110000000000
+LED_MATRIX_PATTERN n= 2  pos= 5  pattern=0001110000000000
+LED_MATRIX_PATTERN n= 2  pos= 6  pattern=0000110000000000
+LED_MATRIX_PATTERN n= 2  pos= 7  pattern=0000010000000000
+LED_MATRIX_PATTERN n= 2  pos= M  pattern=0000111000010000
+LED_MATRIX_PATTERN n= 2  pos= 8  pattern=0000010000000000
+LED_MATRIX_PATTERN n= 2  pos= 9  pattern=0000011000000000
+LED_MATRIX_PATTERN n= 2  pos=10  pattern=0000011000000000
+LED_MATRIX_PATTERN n= 2  pos=11  pattern=0000011100000000
+LED_MATRIX_PATTERN n= 2  pos=12  pattern=0000011110000000
+LED_MATRIX_PATTERN n= 2  pos=13  pattern=0000011110000000
+LED_MATRIX_PATTERN n= 2  pos=14  pattern=0000011111000000
 LED_MATRIX_PATTERN n= 2  pos=15  pattern=0000011111100000
 
-LED_MATRIX_PATTERN n= 3  pos= 0  pattern=0000000000000001
-LED_MATRIX_PATTERN n= 3  pos= 1  pattern=0000000000000010
-LED_MATRIX_PATTERN n= 3  pos= 2  pattern=0000000000000010
-LED_MATRIX_PATTERN n= 3  pos= 3  pattern=0000000000000100
-LED_MATRIX_PATTERN n= 3  pos= 4  pattern=0000000000000100
-LED_MATRIX_PATTERN n= 3  pos= 5  pattern=0000000000001000
-LED_MATRIX_PATTERN n= 3  pos= 6  pattern=0000000000010000
-LED_MATRIX_PATTERN n= 3  pos= 7  pattern=0000000000100000
-LED_MATRIX_PATTERN n= 3  pos= M  pattern=0000100001110000
-LED_MATRIX_PATTERN n= 3  pos= 8  pattern=0000000000100000
-LED_MATRIX_PATTERN n= 3  pos= 9  pattern=0000000001000000
-LED_MATRIX_PATTERN n= 3  pos=10  pattern=0000000010000000
-LED_MATRIX_PATTERN n= 3  pos=11  pattern=0000000010000000
-LED_MATRIX_PATTERN n= 3  pos=12  pattern=0000000100000000
-LED_MATRIX_PATTERN n= 3  pos=13  pattern=0000001000000000
-LED_MATRIX_PATTERN n= 3  pos=14  pattern=0000001000000000
-LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000010000000000
+LED_MATRIX_PATTERN n= 3  pos= 0  pattern=1000000000000000
+LED_MATRIX_PATTERN n= 3  pos= 1  pattern=0100000000000000
+LED_MATRIX_PATTERN n= 3  pos= 2  pattern=0100000000000000
+LED_MATRIX_PATTERN n= 3  pos= 3  pattern=0010000000000000
+LED_MATRIX_PATTERN n= 3  pos= 4  pattern=0010000000000000
+LED_MATRIX_PATTERN n= 3  pos= 5  pattern=0001000000000000
+LED_MATRIX_PATTERN n= 3  pos= 6  pattern=0000100000000000
+LED_MATRIX_PATTERN n= 3  pos= 7  pattern=0000010000000000
+LED_MATRIX_PATTERN n= 3  pos= M  pattern=0000111000010000
+LED_MATRIX_PATTERN n= 3  pos= 8  pattern=0000010000000000
+LED_MATRIX_PATTERN n= 3  pos= 9  pattern=0000001000000000
+LED_MATRIX_PATTERN n= 3  pos=10  pattern=0000000100000000
+LED_MATRIX_PATTERN n= 3  pos=11  pattern=0000000100000000
+LED_MATRIX_PATTERN n= 3  pos=12  pattern=0000000010000000
+LED_MATRIX_PATTERN n= 3  pos=13  pattern=0000000001000000
+LED_MATRIX_PATTERN n= 3  pos=14  pattern=0000000001000000
+LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000000000100000
 </PRE></TT>
 
 
@@ -922,7 +970,7 @@ will enable the J5A.A0 and J5A.A1 inputs.
   </TR>
 </TABLE>
 
-<P CLASS=DESC><B>Please note:</B> the MIDI router can also be configured during runtime in the MIOS Terminal with the "set router" command. "router" you output an oversight over the complete configuration.
+<P CLASS=DESC><B>Please note:</B> the MIDI router can also be configured during runtime in the MIOS Terminal with the "set router" command. "router" will output an oversight over the complete configuration.
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> ETH </H2>
