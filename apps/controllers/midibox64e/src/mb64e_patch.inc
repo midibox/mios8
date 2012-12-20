@@ -25,6 +25,7 @@ MB64E_PATCH_SendCurrent
 MB64E_PATCH_SendCurrent_P_Loop
 	call	MB64E_FSR_FaderValue
 	movff	MB64E_CURRENT_ENTRY, WREG
+	addlw	-0x40
 	call	MIOS_AIN_Pin7bitGet
 	movwf	INDF0
 
