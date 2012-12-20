@@ -190,6 +190,7 @@
 ; if 0: no multiplexers (a *must* when MF module connected)
 ; if 1: use multiplexers
 #define DEFAULT_ENABLE_AIN_MUX		0
+
 ;
 ; motorfaders connected?
 ; if 0: MF module disabled

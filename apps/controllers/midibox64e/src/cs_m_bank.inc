@@ -139,11 +139,28 @@ CS_M_BANK_STR_1	STRING 10, 0x40, "Act. Bank:"
 ;;  This hook is called when the menu parameter value has been changed
 ;; --------------------------------------------------------------------------
 CS_M_BANK_ValueChanged
+#define MEASURE_LOAD_PERFORMANCE 0
+;; if 1, program change statements will be sent. MIOS Studio shows the timestamps, this allows to measure the performance
+#if MEASURE_LOAD_PERFORMANCE
+	movlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x00
+	call	MIOS_MIDI_TxBufferPut
+#endif
 	;; change to a new bank
 	movf	CS_MENU_PARAMETER_L, W
 	call	MB64E_BANK_Change
 	;; and update LEDs
-	rgoto	CS_M_BANK_UpdateGPLEDs
+	rcall	CS_M_BANK_UpdateGPLEDs
+
+#if MEASURE_LOAD_PERFORMANCE
+	movlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movlw	0x01
+	call	MIOS_MIDI_TxBufferPut
+#endif
+
+	return
 
 
 ;; ==========================================================================

@@ -111,11 +111,12 @@ USER_Init
 
 	;; init default LCD offsets
 	call	MB64E_LCD_SetDefaultOffsets
+
 	;; if "snapshot at poweron" flag is set, request it here
-	SET_BSR	MB64E_BASE
-	bcf	MB_STAT, MB_STAT_SNAPSHOT_REQ
-	btfsc	MB64E_CFG1, MB64E_CFG1_SNAPSHOT_AT_POWERON, BANKED
-	bsf	MB_STAT, MB_STAT_SNAPSHOT_REQ
+        SET_BSR MB64E_BASE
+        bcf     MB_STAT3, MB_STAT3_PWR_SNAPSHOT_REQ
+        btfsc   MB64E_CFG1, MB64E_CFG1_SNAPSHOT_AT_POWERON, BANKED
+        bsf     MB_STAT3, MB_STAT3_PWR_SNAPSHOT_REQ
 
 	;; ------------------------------------------------------------------
 	return
@@ -131,6 +132,9 @@ USER_Tick
 	;; ---[ if snapshot has been requested, send it here ]---
 	CALL_IFSET MB_STAT, MB_STAT_SNAPSHOT_REQ, ACCESS, MB64E_PATCH_Send
 	bcf	MB_STAT, MB_STAT_SNAPSHOT_REQ
+
+        CALL_IFSET MB_STAT3, MB_STAT3_PWR_SNAPSHOT_REQ, ACCESS, MB64E_PATCH_SendCurrent
+        bcf     MB_STAT3, MB_STAT3_PWR_SNAPSHOT_REQ
 
 #if DEFAULT_ENABLE_MOTORDRIVER
 	;; ---[ if fader positions should be updated, do it here ]---

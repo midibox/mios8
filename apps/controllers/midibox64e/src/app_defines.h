@@ -35,6 +35,7 @@
 #define MB_STAT3_FADER_UPDATE_REQ	2 ; if set, motorfaders will be repositioned
 #define MB_STAT3_MUTE_FADERS		3 ; if set, no fader events will be sent
 #define MB_STAT3_MUTE_ENCODERS		4 ; if set, no encoder events will be sent
+#define MB_STAT3_PWR_SNAPSHOT_REQ       5 ; if set, the current pot/button values will be sent after power-on
 
 ;; ==========================================================================
 

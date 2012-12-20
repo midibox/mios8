@@ -13,11 +13,71 @@
 
 
 ;; --------------------------------------------------------------------------
+;;  sends current pot/button settings
+;; --------------------------------------------------------------------------
+MB64E_PATCH_SendCurrent
+	;; copy current pot/button values into arrays
+
+#if DEFAULT_NUMBER_AIN
+	SET_BSR	MB64E_BASE
+	movlw	0x40		; pots/faders are starting at offset 0x40
+	movwf	MB64E_CURRENT_ENTRY, BANKED
+MB64E_PATCH_SendCurrent_P_Loop
+	call	MB64E_FSR_FaderValue
+	movff	MB64E_CURRENT_ENTRY, WREG
+	call	MIOS_AIN_Pin7bitGet
+	movwf	INDF0
+
+	SET_BSR	MB64E_BASE
+	incf	MB64E_CURRENT_ENTRY, F, BANKED
+	movlw	DEFAULT_NUMBER_AIN-1
+	cpfsgt	MB64E_CURRENT_ENTRY, BANKED
+	rgoto	MB64E_PATCH_SendCurrent_P_Loop
+#endif
+
+#if DEFAULT_NUMBER_BUTTONS
+	clrf	TMP5
+MB64E_PATCH_SendCurrent_B_Loop
+	movff	TMP5, MIOS_PARAMETER1
+	call	MB64E_BUTTON_Map
+	bnz	MB64E_PATCH_SendCurrent_B_Next
+
+	SET_BSR	MB64E_BASE
+	movf	MIOS_PARAMETER1, W
+	movwf	MB64E_CURRENT_BUTTON, BANKED
+
+	rrf	TMP5, W
+	rrf	WREG, W
+	rrf	WREG, W
+	andlw	0xf	
+	call	MIOS_DIN_SRGet
+	movwf	TMP1
+
+	call	MB64E_FSR_ButtonValue
+	movff	TMP1, INDF0
+
+MB64E_PATCH_SendCurrent_B_Next
+	movlw	8
+	addwf	TMP5, F
+	movlw	DEFAULT_NUMBER_BUTTONS-1
+	cpfsgt	TMP5, ACCESS
+	rgoto	MB64E_PATCH_SendCurrent_B_Loop
+#endif
+
+	rgoto	MB64E_PATCH_SendCurrentCont
+
+
+;; --------------------------------------------------------------------------
 ;;  sends a enc/button snapshot
 ;; --------------------------------------------------------------------------
 MB64E_PATCH_SENDING_STR_0	STRING 16, 0x00, "Sending Snapshot"
 MB64E_PATCH_Send
 
+	;; restore settings
+	call	MB64E_DUMP_RestorePatch
+
+        ;; optionally send current pot/button settings without restoring patch
+MB64E_PATCH_SendCurrentCont
 	;; clear screen
 	call	MIOS_LCD_Clear
 
@@ -28,9 +88,6 @@ MB64E_PATCH_Send
 	;; for the progress bar: begin at second line, first column
 	movlw	0x40
 	call	MIOS_LCD_CursorSet
-
-	;; restore settings
-	call	MB64E_DUMP_RestorePatch
 
 #if DEFAULT_NUMBER_ENCS
 	;; send enc events

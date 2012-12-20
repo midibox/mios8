@@ -577,7 +577,10 @@ MB64E_BANK_Change
 	movff	MB_NEW_BANK, MB_BANK
 	bcf	MB_STAT, MB_STAT_USE_BANKSTICK	; check if bankstick for this bank is available
 	rcall	MB64E_BANK_CheckStick
+#if 0
+	;; TK: no need to do this again - new bank is already reloaded by MB64E_BANK_CheckStick
 	call	MB64E_DUMP_RestoreAll
+#endif
 
 	;; request re-init of page so that the new bankname will be displayed
 	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
@@ -652,7 +655,7 @@ MB64E_BANK_CheckStick_Ext
 	call	MIOS_LCD_PrintMessage
 
 	movlw	255				; wait some ms to get a stable status
-	call	MIOS_Delay			
+	call	MIOS_Delay
 MB64E_BANK_CheckStick_Ext_NoMsg
 
 #if DEFAULT_PATCHMODE == 0
