@@ -3,44 +3,57 @@ HEADER 3 MIDIbox NG
 <H1>MIDIbox NG</H1>
 <H3>Created 2012/13</H3>
 
-<P CLASS=INFO>MIDIbox NG is the "next generation" controller, running on a <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module, and it should replace the old PIC based projects <A HREF="midibox64.html">MIDIbox64</A>, <A HREF="midibox16e.html">MIDIbox64E</A> and <A HREF="midibox_lc.html">MIDIbox LC</A></P>
+<P CLASS=INFO>MIDIbox NG is the "next generation" controller, running on a <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module.<BR>
+It replaces the old PIC based projects <A HREF="midibox64.html">MIDIbox64</A>, <A HREF="midibox16e.html">MIDIbox64E</A> and <A HREF="midibox_lc.html">MIDIbox LC</A></P>
 
 <P CLASS=INFO>The firmware is currently in beta state. Details can be found in <A HREF="http://midibox.org/forums/topic/17498-midibox-ng-release-feedback/" TARGET="_blank">in this forum article</A>.</P>
 
 <P CLASS=INFO>Meanwhile also the creation of the <A HREF="midibox_ng_manual.html">User Manual</A> is in progress.</P>
 
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Implemented Features</H2>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Concept</H2>
 
+<P CLASS=DESC>Based on the experiences of the last 14 years, MIDIbox NG covers <B>almost all usecases</B> that I've seen so far, without the need to program a dedicated firmware.</P>
+
+<P CLASS=DESC>The behaviour of the MIDI controller is defined in configuration files which are stored on a SD Card. It's possible to change the configuration quickly during runtime. This is especially important for newbies to ramp-up a project without rocket-science knowledge.</P>
+
+<P CLASS=DESC>I believe that MIDIbox NG is the most advanced DIY MIDI controller available today (Year 2012), because it supports:
 <UL CLASS=CL>
-<LI> generic, (very) customizable MIDI controller with multiple MIDI IOs, USB MIDI and <A HREF="midibox_osc.html">OSC (Ethernet)</A>
-<LI> it doesn't matter if you are planning a Mini-Controller or a huge Monster-Controller (even with multiple LPC17 cores)
-<LI> each control element can send and receive common MIDI events, but also NRPN and SysEx!</A>
-<LI> buttons: either directly connected to <A HREF="mbhp_din.html">MBHP_DIN</A> module, or in 8x8 matrices via the <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A> module
-<LI> LEDs: either directly connected to <A HREF="mbhp_dout.html">MBHP_DOUT</A> module, or in 8x8 matrixes via the <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A> module
-<LI> LEDs: support for Duo and RGB Colour LEDs (will require matrix configuration)
-<LI> Buttons/LEDs can be grouped ("radio groups") to control a single CC event via multiple buttons
-<LI> support for various rotary encoders (detented/non-detented) with optional slow/fast function (which could be assigned to an inbuilt encoder switch, or separate button)
-<LI> support for LED rings (e.g. via <A HREF="mbhp_dout.html">MBHP_DOUT</A> based matrices, and/or the upcoming <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=fairlightiii">16 LEDrings/encoders PCB</A>
-<LI> support for analog pots via the <A HREF="mbhp_ain_ser64.html">MBHP_AINSER64</A> module. They also support Direct, Snap (Soft-Takeover), Relative and Parallax mode to avoid jumping values when a new value has been received from external.
-<LI> support for motorfaders via the <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> module
-<LI> support for multiple LCDs. Selectable pages will be fully customizable (e.g. static text, Button/Encoder/Pot label, values, animated bars, MTC, MIDI Clock tempo &amp; position)
-<LI> support for character and graphical LCDs
-<LI> Buttons/Pots/Encoders can send fully customizable MIDI (or OSC) message. SysEx and RPN/NRPN will be supported as well. Multiple events can be sent per control element
-<LI> LEDs and Motorfaders can be controlled by fully customizable MIDI (or OSC) messages via multiple parse trees (speed optimized)
-<LI> Buttons can also work in On/Off, On Only or Toggle mode
-<LI> configuration stored on SD Card and can be switched during runtime (either by loading a different setup file, or by exchanging the SD Card)
-<LI> multiple banks to control different functions with the same control elements ("shift button")
-<LI> integrated MIDI router to forward events from up to 4 MIDI IN/OUTs, up to 4 USB MIDI IN/OUTs and up to 4 OSC ports
-<LI> support for <A HREF="http://www.ucapps.de/midibox_network.html">MBNet</A> to link multiple cores
-<LI> integrated MIDI processor to map/modify incoming MIDI events to outgoing MIDI events
+  <LI>MIDI messages received and sent over multiple (traditional) MIDI IN/OUT ports, USB-MIDI and <A HREF="midibox_osc.html">OSC (Ethernet)</A>
+  <LI>up to 256 buttons which are directly connected to <A HREF="mbhp_din.html">MBHP_DIN</A> modules
+  <LI>up to 8 button matrices with 4x8, 8x8, 4x16, 8x16 or 16x16 configuration which are connected to <A HREF="mbhp_din.html">MBHP_DIN</A>/<A HREF="mbhp_din.html">MBHP_DOUT</A>, or to the <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A> module -&gt; up to 2048 buttons accesible!
+  <LI>up to 256 LEDs which are directly connected to <A HREF="mbhp_dout.html">MBHP_DOUT</A> modules
+  <LI>up to 8 LED matrices with 4x8, 8x8, 4x16, 8x16 or 16x16 configuration which are connected to <A HREF="mbhp_dout.html">MBHP_DOUT</A> modules -&gt; up to 2048 LEDs accessible! Duo and RGB Colour LEDs are supported as well!
+  <LI>up to 128 rotary encoders connected to <A HREF="mbhp_din.html">MBHP_DIN</A> modules
+  <LI>up to 128 pots/faders connected to <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> modules
+  <LI>up to 32 motorfaders connected to <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> modules
+  <LI>up to 32 CV output channels connected to <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng" TARGET="_blank">MBHP_AOUT_NG</A> modules
+  <LI>up to 8 <A HREF="mbhp_lcd.html">character or graphical displays</A> can be connected - and even more in future!
 </UL>
+
+<P CLASS=DESC>It doesn't matter if you are planning a Mini-Controller or a huge Monster-Controller. MIDIbox NG can be used as a simple MIDI-&gt;USB or OSC-&gt;MIDI router or just as a MIDI processor based on a single <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module without additional hardware.
+
+<P CLASS=DESC>But it could also consist of multiple cores which are linked together either at the host or client side, either via MIDI, USB or Ethernet, to scale the hardware indefinitely.</P>
+
+<P CLASS=DESC>In order achieve the highest flexibility, the <A HREF="midibox_ng_manual_ngc.html">.NGC configuration format</A>:
+<UL CLASS=CL>
+  <LI>allows to process common MIDI messages, such as Note, CC, Aftertouch, Program Change, PitchBend
+  <LI>allows to process NRPN events for higher resolution (14bit)
+  <LI>allows to process SysEx streams - it's even possible to map the SysEx dump of a MIDI device to multiple control elements to implement a "Synthesizer Programmer" (!)
+  <LI>allows to trigger multiple actions when a control element has been moved or a MIDI message has been received
+  <LI>allows to combine actions in "radio groups"
+  <LI>allows to ouput to character or grapical LCDs with a printf-like format - the <A HREF="midibox_ng_manual_ngl.html">.NGL format</A> enables you to name each value!
+</UL>
+
+<P CLASS=DESC>All control elements, such as buttons, LEDs, encoders, pots/faders, can be banked to multiply the access to MIDI parameters.
+
+<P CLASS=DESC>For a more detailed impresssion, please have a look into the <A HREF="midibox_ng_manual_fs.html">First Steps</A> chapter of the <A HREF="midibox_ng_manual.html">User's Manual</A>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Planned Features</H2>
 
 <UL CLASS=CL>
 <LI> improved documentation, example setups with pictures (users have to help out!)
-<LI> configuration of RGB LEDs not completed yet
+<LI> handling of RGB LEDs not completed yet
 <LI> support for LED digits
 <LI> support for more than 2 LCDs
 <LI> MIDI Learn function
@@ -51,7 +64,6 @@ HEADER 3 MIDIbox NG
 <LI> SysEx receiver/dumper to store and "fire" SysEx dumps to/from SD Card
 <LI> complete support of Logic/Mackie Control and Motormix protocol
 <LI> support for the <A HREF="http://www.ucapps.de/midibox_seq_manual_blm.html">BLM16x16+X protocol</A>
-<LI> integrated MIDI clock master and slave (slave only to measure tempo)
 <LI> integrated test modes for all control elements to troubleshoot hardware issues
 </UL>
 
@@ -60,12 +72,8 @@ HEADER 3 MIDIbox NG
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Features/Specs under evaluation</H2>
 
 <UL CLASS=CL>
-<LI> Online configuration will require at least a 2x16 LCD + one dedicated button + one encoder. Additional buttons, which are normaly used for the controller, could be used for menu navigation and selection as well when dedicated button is pressed
-<LI> providing a second DIN/DOUT chain to enhance the number of connectable buttons/encoders/LEDs without the danger for unstable serial transfers
 <LI> in mid-term the <A HREF="midibox_kb.html">MIDIbox KB</A> firmware could be merged with MBNG.
 <LI> adding support for <A HREF="http://www.copperlan.org" TARGET="_blank">CopperLAN</A>
-<LI> the usage of <A HREF="http://www.eluaproject.net" TARGET="_blank">eLua</A> to send/receive MIDI messages and output messages script based (advantage: highest flexibility, disadvantage: slower processing and higher memory consumption)
-<LI> providing integrated MIDI effects such as harmonizer, MIDI echo, arpeggiator, little sequencer (taken over from MBSEQ)
 <LI> allow to extract patch names from received SysEx messages
 <LI> evaluate the usage of longer SRIO chains with more than 16 registers with different hardware setups
 </UL>
@@ -74,9 +82,6 @@ HEADER 3 MIDIbox NG
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Already known Design Limitations</H2>
 
 <UL CLASS=CL>
-<LI> due to reduced RAM of the LPC17 (64k only) the controller won't be simply scalable. However, the configuration should take this into account by applying dynamic memory allocation while reading the configuration file, so that no RAM is wasted
-<LI> than more DIN/DOUT shiftregisters are chained, than higher the danger for instable value transfers. Limitation of 16 DINs and 16 DOUTs still holds for high robustness and low latencies, but we can overcome this by providing a second SRIO chain with 16 additional DIN/DOUT SRs
-<LI> in distance to the previous designs (MIDIbox64, MIDIbox64E) the controller won't be fully configurable directly on the controller anymore, instead the configuration file stored on SD Card has to be edited. However, simple configuration (e.g. via MIDI learn) still possible.
 <LI> no support for big GLCDs, no support for touchpanels. Re-inventing Lemur, an iPad or similar tablet PC is out of scope. However, second-hand iPad1s are cheap today, and you could connect to the MBNG via OSC
 </UL>
 

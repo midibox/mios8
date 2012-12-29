@@ -85,17 +85,18 @@ BANK n=4  enc=1:16:49
 
 <P CLASS=DESC>Available controllers are:
 <UL CLASS=CL>
-  <LI><I>button</I>: the first button (1) is connected to the first DIN shift register, pin D0, the second button (2) to the first DIN shift register, pin D1, ... the 9th button to the second DIN shift register, pin D0, etc...<BR>
+  <LI><I>BUTTON</I>: the first button (1) is connected to the first DIN shift register, pin D0, the second button (2) to the first DIN shift register, pin D1, ... the 9th button to the second DIN shift register, pin D0, etc...<BR>
 Up to 256 buttons can be connected to up to 32 DIN shift registers. 1024 virtual button functions are available.
-  <LI><I>led</I>: the first LED (1) is connected to the first DOUT shift register, pin D7 (!), the second LED (2) to the first DOUT shift register, pin D6, ... the 9th LED to the second DOUT shift register, pin D7, etc...<BR>
+  <LI><I>LED</I>: the first LED (1) is connected to the first DOUT shift register, pin D7 (!), the second LED (2) to the first DOUT shift register, pin D6, ... the 9th LED to the second DOUT shift register, pin D7, etc...<BR>
 Up to 128 LEDs can be connected to up to 32 DOUT shift registers. 1024 virtual LED functions are available.
-  <LI><I>enc</I>: rotary encoders allocate two DIN pins, which have to be assigned with the ENC command which is described later in this chapter.<BR>
+  <LI><I>ENC</I>: rotary encoders allocate two DIN pins, which have to be assigned with the ENC command which is described later in this chapter.<BR>
 Up to 128 rotary encoders are currently supported
-  <LI><I>ain</I>: 6 AIN (analog input) pins are directly available on the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module at J5A.A0 .. J5B.A5 - conversion values are working at 7bit resolution only due to the reduced voltage range of 0..3.3V. For higher resolutions or more inputs please use the AINSER option!
-  <LI><I>ainser</I>: the usage of the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module is the recommended solution for pots and faders. The resultion is up to 10bit without jittering values. Up to 2 MBHP_AINSER64 modules can be handled by the firmware, accordingly up to 128 AINSER based controllers are available.<BR>
+  <LI><I>AIN</I>: 6 AIN (analog input) pins are directly available on the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module at J5A.A0 .. J5B.A5 - conversion values are working at 7bit resolution only due to the reduced voltage range of 0..3.3V. For higher resolutions or more inputs please use the AINSER option!
+  <LI><I>AINSER</I>: the usage of the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module is the recommended solution for pots and faders. The resultion is up to 11bit without jittering values. Up to 2 MBHP_AINSER64 modules can be handled by the firmware, accordingly up to 128 AINSER based controllers are available.<BR>
 The inputs of the first AINSER module are available as AINSER controller 1-64, the inputs of the second module as AINSER controller 65-128
-  <LI><I>mf</I>: up to 4 <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> modules can be connected, which means that up to 32 motorfaders can be used as controllers. The modules are configured with the MF command which is described later in this chapter.<BR>
+  <LI><I>MF</I>: up to 4 <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> modules can be connected, which means that up to 32 motorfaders can be used as controllers. The modules are configured with the MF command which is described later in this chapter.<BR>
 The faders of the first MBHP_MF_NG module are available as MF controller 1-8, the faders of the second module as MF controller 9-16, etc.
+  <LI><I>CV</I>: up to 4 <A HREF="mbhp_aout.html">MBHP_AOUT</A> or 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or 4 <A HREF="http://www.midibox.org/dokuwiki/aout_ng" TARGET="_blank">MBHP_AOUT_NG</A> modules can be connected, which means that up to 32 CV channels can be controlled. The modules are configured with the AOUT command which is described later in this chapter.<BR>
 </UL>
 
 <P CLASS=DESC>Buttons and LEDs which are connected to a DIN/DOUT matrix can be used in banks by emulating BUTTON/LED controllers, see the <I>button_emu_id_offset</I> and <I>led_emu_id_offset</I> of the <I>DIN_MATRIX</I> and <I>DOUT_MATRIX</I> configuration command.
@@ -170,7 +171,7 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
 
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_CV</I></TD>
-    <TD CLASS=TABCOLOR2>This event is planned to forward events to the <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module.
+    <TD CLASS=TABCOLOR2>A CV channel can receive a MIDI event and forward the value to the <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module(s). Up to 4 modules are supported, which means that up to 32 channels are available!<BR><B>Note:</B> it isn't possible to mix the module types - so, either 4 MBHP_AOUT, or 4 MBHP_AOUT_LC, or 4 MBHP_AOUT_NG modules can be used!<BR>There is a special handling for note events: they are processed through note stacks (each channel has its own) so that MBNG can also be used to play synths from a MIDI keyboard.
     </TD>
   </TR>
 
@@ -270,14 +271,39 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>key=&lt;0..127&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Specifies the key number (0..127) for <I>type=NoteOff, NoteOn, PolyPressure and Aftertouch</I> events
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>key=&lt;0..127&gt;</I><BR><I>key=any</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the key number (0..127) for <I>type=NoteOff, NoteOn, PolyPressure and Aftertouch</I> events.<BR>
+    With <I>key=any</I> the event will take any key number. In combination with the <I>use_key_number</I> flag it's possible to process the received key number instead of the velocity value.
     </TD>
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>cc=&lt;0..127&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Specifies the CC number (0..127) for <I>type=CC</I> events
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>cc=&lt;0..127&gt;</I><BR><I>cc=any</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the CC number (0..127) for <I>type=CC</I> events.<BR>
+    With <I>cc=any</I> the event will take any CC number. In combination with the <I>use_cc_number</I> flag it's possible to process the received CC number instead of the CC value.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>use_key_number=&lt;0|1&gt;</I><BR><I>use_cc_number=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>By default, a Note or CC event will process the velocity or CC value.<BR>
+    With <I>use_key_number=1</I> or <I>use_cc_number=1</I> the key/CC number will be processed instead.<BR>
+    This is especially useful for EVENT_CV to handle the note stack:
+<TT><PRE style="margin-left:50px">
+# these two events listen to any key on channel 1
+# the first event uses the "key" as value, sets CV Channel #1 and the CV Gate #1 (at J5A.A0)
+# the second event uses velocity as value (default) and sets CV Channel #2
+EVENT_CV  id= 1  type=NoteOn  chn= 1 key=any use_key_number=1  fwd_gate_to_dout_pin=1.D7
+EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
+</PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>fwd_gate_to_dout_pin=&lt;1..32&gt;.D&lt;7..0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Only supported by EVENT_CV: sets the given DOUT pin on Note events.<BR>
+      The first number specifies the DOUT shift register (1..32), and the second number the data pin (D7..D0).<BR>
+      Example: <I>fwd_gate_to_dout_pin=2.D4</I> will forward the gate to the D4 pin of the second shift register.
     </TD>
   </TR>
 
@@ -370,12 +396,19 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>range=&lt;min-value&gt;:&lt;max-value&gt;</I></TD>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>range=&lt;min-value&gt;:&lt;max-value&gt;</I><BR><I>range=map&lt;1..255&gt;</I></TD>
     <TD CLASS=TABCOLOR2>The received/sent value will be scaled to the specified, colon separated, range.<BR>
       For 7bit types such as <I>NoteOn, CC, ...</I> it typically ranges from 0..127<BR>
       For 14bit types such as <I>PitchBend, NRPN but also SysEx</I> it can also range between -16384..16383 -&gt; try it out! ;-)<BR>
-      It's also allowed to specify an ranges such as <I>range=127:0</I> to invert values.
+      It's also allowed to specify an ranges such as <I>range=127:0</I> to invert values.<BR>
+      In addition, it's possible to use a MAP for the range (<I>range=map1 .. map255</I>). This powerful feature is described
+      in a separate chapter (search for the MAP command)
     </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>value=&lt;0..16383&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the initial value of the event.</TD>
   </TR>
 
   <TR>
@@ -462,6 +495,19 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>enc_speed_mode=&lt;mode:par&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>The encoder speed mode allows to modify the speed response of an EVENT_ENC:
+      <UL CLASS=CL>
+        <LI><I>Auto</I>: speed automatically adapted according to the value <I>range</I>. It isn't required to specify a value after Auto
+        <LI><I>Slow:0 .. Slow:7</I>: divides the increments
+        <LI><I>Normal</I>: no special measure, increments will be passed 1:1
+        <LI><I>Fast:0 .. Fast:7</I>: accelerates the increments
+      </UL>
+      <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fencspeed.ngc" TARGET="_blank">Link to test application for all modes</A>
+    </TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>led_matrix_pattern=&lt;pattern-number&gt;</I></TD>
     <TD CLASS=TABCOLOR2>LED patterns can be specified if an event should forward its value to a LED_MATRIX element:
       <UL CLASS=CL>
@@ -471,6 +517,26 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>4</I>: the fourth LED pattern specified with <I>LED_MATRIX_PATTERN n=4</I> commands
         <LI><I>LcAuto</I>: to handle the Logic Control protocol correctly, this pattern type will set the pattern number (1..4) according bit 5..4 of the received MIDI event value. Bit 3..0 will select the pattern position, and the 6th bit will set the "Center LED".
     </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>cv_inverted=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Only relevant for EVENT_CV: with <I>cv_inverted=1</I> the CV output will be inverted.</TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>cv_hz_v=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Only relevant for EVENT_CV:
+    <UL CLASS=CL>
+      <LI><I>cv_hz_v=0</I>: (default) the CV output will change with 1V per octave (if correctly calibrated)
+      <LI><I>cv_hz_v=1</I>: The V/Hz scaling is suitable for synths like the Korg MS-20.
+    </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>cv_gate_inverted=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Only relevant for EVENT_CV: with <I>cv_gate_inverted=1</I> the CV gate output (specified with <I>fwd_gate_to_dout_pin</I> will be inverted.</TD>
   </TR>
 
   <TR>
@@ -558,6 +624,34 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
     </TD>
   </TR>
 </TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MAP&lt;n&gt; </H2>
+
+<P CLASS=DESC>This command creates a map of values which can be used by EVENTs for alternative value ranges without continuous values.
+
+<P CLASS=DESC>E.g., consider that an encoder should only send following values:
+<TT><PRE style="margin-left:50px">
+MAP1   1 2 4 8 16 32 64
+</PRE></TT>
+
+<P CLASS=DESC>Then select this map with:
+<TT><PRE style="margin-left:50px">
+EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1  type=CC chn= 1 cc= 16  range=map1  lcd_pos=1:1:1  label="^std_enc"
+</PRE></TT>
+
+<P CLASS=DESC>Up to 255 maps can be defined (<I>MAP1</I> .. <I>MAP255</I>), each map can specify up to 128 values, the value range is 0..255 (8bit)
+
+<P CLASS=DESC>The various control elements use maps the following way:
+<UL CLASS=CL>
+  <LI><I>EVENT_ENC</I>: send a mapped value with <I>enc_mode=Absolute</I> - <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmapenc.ngc" TARGET="_blank">configuration example</A>
+  <LI><I>EVENT_AIN</I> and <I>EVENT_AINSER</I>: send a mapped value - <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmapain.ngc" TARGET="_blank">configuration example</A>
+  <LI><I>EVENT_MF</I>: send a mapped value - <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmapmf.ngc" TARGET="_blank">configuration example</A>
+  <LI><I>EVENT_BUTTON</I>: with <I>button_mode=Toggle</I> a single button can cycle between the map values - <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmapbtn.ngc" TARGET="_blank">configuration example</A>
+  <LI><I>EVENT_SENDER</I> and <I>EVENT_RECEIVER</I>: the sent/received value will be mapped - <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmapmidi.ngc" TARGET="_blank">configuration example</A>
+</UL>
+
+<P CLASS=DESC>Other EVENTs don't support mapped ranges yet. It could make sense for EVENT_CV to map output voltages (problem: maps only work at 8bit resolution), or for EVENT_BUTTON_MATRIX to map a Note key - this could be provided in future versions.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> SYSEX_VAR </H2>
@@ -867,7 +961,25 @@ will enable the J5A.A0 and J5A.A1 inputs.
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>cs=&lt;0|1&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Specifies the "chip select" line which is jumpered with J4 of the module. Each module has to be configured for a dedicated chip select line!</TD>
+    <TD CLASS=TABCOLOR2>Specifies the "chip select" line which is jumpered with J4 of the module. Each module has to be configured for a dedicated chip select line!<BR><I>cs=0</I> selects CS1, <I>cs=1</I> selects CS2 (sorry for the confusion...)</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>resolution=&lt;4..12bit&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the resolution at which the analog inputs should be scanned.<BR>
+    By default the pins are scanned at 7bit resolution. Up to 12bit is supported, but in this case there won't be any (deadband based) jitter rejection.<BR>
+    So, the recommended values are:
+      <UL CLASS=CL>
+        <LI><I>7bit</I> for sending common MIDI events
+        <LI><I>11bit</I> for sending high-resolution MIDI events
+      </UL>
+      The 11bit setting requires a clean pot wiring! Ground and +5V should be wired star-like, and the middle pins of the pots should be wired with shielded cables.<BR>
+      If you should still notice jittering values with this resolution, try lower options such as 10bit or 9bit first - maybe this already satisies your needs before you've to spend a lot of effort into hardware improvements.<BR>
+      Please note that the resolution setting is independent from the resolution sent by a MIDI event. This one will be scaled automatically to the target resolution depending on the specified range!
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>num_pins=&lt;1..64&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the number of scanned analog input pins.<BR>
+      By default all 64 pins of the MBHP_AINSER module will be scanned. It makes sense to specify a lower number of the upper analog inputs are not connected (even not to ground) to avoid the generation of random values due to the floating inputs.</TD>
   </TR>
 </TABLE>
 
@@ -913,6 +1025,55 @@ will enable the J5A.A0 and J5A.A1 inputs.
     <TD CLASS=TABCOLOR2>With a value &gt;0, touch sensor events generated by the MBHP_MF_NG module will trigger EVENT_BUTTON elements with the specified ID upwards. This allows to convert these events into any over MIDI output (and/or to display them on the LCD)</TD>
   </TR>
 </TABLE>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> AOUT </H2>
+
+<P CLASS=DESC>This command configures the AOUT module:
+
+<P CLASS=DESC>List of parameters:
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>AOUT Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>type=&lt;aout-type&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the AOUT module which is connected to port J19 of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module:
+      <UL CLASS=CL>
+        <LI><I>type=none</I>: disables the AOUT modules -&gt; no CV channels available!
+        <LI><I>type=AOUT</I>: selects the <A HREF="mbhp_aout.html">MBHP_AOUT</A> module
+        <LI><I>type=AOUT_LC</I>: selects the <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> module
+        <LI><I>type=AOUT_NG</I>: selects the <A HREF="http://www.midibox.org/dokuwiki/aout_ng" TARGET="_blank">MBHP_AOUT_NG</A> module
+      </UL>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>cs=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the "chip select" line which to which the AOUT module is connected:
+      <UL CLASS=CL>
+        <LI><I>cs=0</I>: CS line connected to J19.RC1
+        <LI><I>cs=1</I>: CS line connected to J19.RC2
+      </UL>
+      Please take care that the CS line doesn't conflict with the AINSER configuration, which uses the same serial port!
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>num_channels=&lt;1..32&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the number of channels which should be controlled via EVENT_CV events. The channel number corresponds with the EVENT id
+  </TR>
+</TABLE>
+
+<P CLASS=INFO>Configuration example:
+<TT><PRE style="margin-left:50px">
+# initialize the AOUT module
+AOUT  type=AOUT_NG  cs=0  num_channels=8
+</PRE></TT>
+
+<P CLASS=INFO>Complete examples:
+<UL CLASS=CL>
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fcv.ngc" TARGET="_blank">Simple configuration</A>
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fcvhires.ngc" TARGET="_blank">High-Res configuration</A>
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fcvnotes.ngc" TARGET="_blank">Handling Note, Gate and Velocity</A>
+</UL>
+
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> ROUTER </H2>
 

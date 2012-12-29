@@ -126,6 +126,37 @@ COND_ELSE "I made an error!"
 
 <P CLASS=DESC>Note that <I>&gt;</I> and <I>&gt;=</I> actually don't make much sense, since the conditions are processed top-down. Once the EVENT value is greater(-equal) the constant, the matching label will be taken, and the remaining conditions won't be processed anymore. These statements are only provided for completeness purposes... ;-) (and sometimes it's useful to express conditions this way)
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Format Specifiers </H2>
+
+<P CLASS=DESC>Following format specifiers are available:
+
+<UL CLASS=CL>
+  <LI><I>%d</I>: will output the value (minus specified <I>offset</I>) in decimal format
+  <LI><I>%u</I>: same like %d, but value always in unsigned format
+  <LI><I>%x</I>: will output the value (minus specified <I>offset</I>) in hexadecimal format
+  <LI><I>%X</I>: same like %x, but with capital letters
+  <LI><I>%c</I>: will output the value as character
+  <LI><I>%s</I>: will output an empty string. In conjunction with padding values it could save some memory, e.g. "%20s" will output 20 spaces
+  <LI><I>%i</I>: the ID of the EVENT
+  <LI><I>%p</I>: for EVENT_BUTTON_MATRIX only: the pin number of the matrix
+  <LI><I>%e</I>: the MIDI event of the EVENT (up to 3 hexadecimal values, always 6 characters)
+  <LI><I>%m</I>: the minimum value of the EVENT which has been specified with <I>range</I>
+  <LI><I>%M</I>: the maximum value of the EVENT which has been specified with <I>range</I>
+  <LI><I>%b</I>: a binary digit: * if value >= (range/2), o if value < (range/2)
+  <LI><I>%B</I>: a vertical bar which works like a meter.<BR>In conjunction with various fonts (selected with <I>&amp;&lt;font&gt;</I>) alternative icons will be output instead.
+  <LI><I>%q</I>: current selected bank (q is a rotated b - do you see it? ;-)
+  <LI><I>%C</I>: clear all LCDs
+  <LI><I>%%</I>: outputs the % character
+  <LI><I>^^</I>: outputs the ^ character
+  <LI><I>^&lt;label&gt;</I>: outputs a globally defined, conditional or unconditional label. See the <A HREF="midibox_ng_manual_ngl.html">.NGL chapter</A> for details.
+</UL>
+
+<P CLASS=DESC>It's possible to format the output by adding following specifiers after the percent (%) character. In following example the %d (decimal value) is used, but this works with any format type:
+<UL CLASS=CL>
+  <LI><I>%3d</I>: the value will be padded with spaces to 3 characters, and it will be output right-aligned, e.g. "  1", " 10", "100"
+  <LI><I>%-3d</I>: the value will be padded with spaces to 3 characters, and it will be output left-aligned, e.g. "1  ", "10 ", "100"
+  <LI><I>%03d</I>: the value will be padded with zeroes to 3 characters, and it will be output right-aligned, e.g. "001", "010", "100"
+</UL>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Technical Background </H2>
 
