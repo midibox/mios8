@@ -1274,6 +1274,8 @@ SIDSE_L_ENV_ClkSync
 	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
 	andlw	0x0f
 	bz	SIDSE_L_ENV_ClkSync_Cont
+	xorlw	0x06
+	bz	SIDSE_L_ENV_ClkSync_Cont	
 SIDSE_L_ENV_ClkSync_Skp
 	;; transfer current ENV counter into MIOS_PARAMETER[12]
 	movff	POSTINC1, MIOS_PARAMETER1

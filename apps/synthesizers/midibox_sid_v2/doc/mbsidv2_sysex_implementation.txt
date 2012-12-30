@@ -103,6 +103,18 @@ Implemented SysEx Commands
           for multi instruments are currently required - this is no bug, 
           but just an imperfection (I was too lazy to overwork SID_PATCH_NotesOn yet)
 
+  0C/b) F0 00 00 7E 4B <device-number> 0C 10 <enable> F7
+        With <enable> = 1: enables special SysEx transmission mode for Lemur - the patch is sent as Poly Pressure events
+        With <enable> = 0: disables special SysEx transmission mode for Lemur
+
+  0C/b) F0 00 00 7E 4B <device-number> 0C 18 <type> F7
+        With <type> = 0x08: stores the current edit buffer of SID1 in BankStick
+        With <type> = 0x09: stores the current edit buffer of SID2 in BankStick
+        With <type> = 0x0a: stores the current edit buffer of SID3 in BankStick
+        With <type> = 0x0b: stores the current edit buffer of SID4 in BankStick
+        With <type> = 0x70: stores the current ensemble in BankStick
+
+
   0F/a) F0 00 00 7E 4B <device number> 0F F7
         Ping (just sends back the same SysEx string + <sids>)
 
@@ -186,7 +198,7 @@ Response Messages
          10 == RAM access not supported
          11 == BankStick too small (only 32k BS connected, patch number >= 64)
 	 12 == wrong type
-	 13 == reserved for: "selected SID not available" (currently only supported by MBSIDV3)
+	 13 == selected SID not available
 
 
 Patch Structure --- Address 0x000-0x04f is identical for all Engines
@@ -1090,7 +1102,7 @@ Patch Structure --- Ensemble
  0x01 | [6:0] Patch (0-127)
       | [7] reserved
  0x02 | [1:0] BPM generator mode: 0=Master, 1=Slave, 2=Auto
-      | [3] reserved
+      | [3] Clock Out Enabled
       | [4] FilLog (CutOff uses logartithmic curve for linearisation of 8580 filter)
       | [5] reserved
       | [6] Mono

@@ -513,28 +513,28 @@ ENC_EOT	MACRO
 MIOS_ENC_PIN_TABLE
 	;;        SR  Pin  Mode
 #if CS_MENU_USE_INCDEC_BUTTONS == 0
-	ENC_ENTRY  2,  4,  MIOS_ENC_MODE_DETENTED2	; menu encoder
+	ENC_ENTRY  2,  4,  MIOS_ENC_MODE_DETENTED3	; menu encoder
 #endif
 
 	;; additional CS encoders
 	;;        SR  Pin  Mode
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc delay/transpose/assign #1
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc attack/finetune/assign #2
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc decay/portamento/assign #3
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc sustain/release/assign #4
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Osc release/pulsewidth/assign #5
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Osc delay/transpose/assign #1
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Osc attack/finetune/assign #2
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Osc decay/portamento/assign #3
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Osc sustain/release/assign #4
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Osc release/pulsewidth/assign #5
 
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; LFO rate
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; LFO depth
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; LFO rate
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; LFO depth
 
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Filter CutOff
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Filter Resonance
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Filter CutOff
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Filter Resonance
 
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env depth/assign #1
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env attack/assign #2
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env decay/assign #3
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env sustain/assign #4
-	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED2	; Env release/assign #5
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Env depth/assign #1
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Env attack/assign #2
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Env decay/assign #3
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Env sustain/assign #4
+	ENC_ENTRY  16,  0,  MIOS_ENC_MODE_DETENTED3	; Env release/assign #5
 
 	;; don't remove this "end-of-table" entry!
 	ENC_EOT

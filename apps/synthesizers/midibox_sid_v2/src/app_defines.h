@@ -40,6 +40,7 @@
 #define CS_STAT3_MODIFY_SEQ		0	; flag 0: edit drum sequence
 #define CS_STAT3_MODIFY_SEQ_ROTATE	1	; flag 1: activate rotate function in drum editor
 #define CS_STAT3_SHIFT_PAGE		2	; flag 2: show SHIFT page
+#define CS_STAT3_LEMUR_MODE		3	; flag 3: SysEx patch dumps sent for Lemur
 
 #define CS_MENU_MODE_SHIFT_PRESSED	0	; flag 0: Shift Button pressed
 #define CS_MENU_MODE_CC			1	; flag 1: CC mode
@@ -183,7 +184,7 @@ SID_ENS_BUFFER		EQU	0x080;..0x0bf
 
 SID_ENSx_BANK		EQU	0x00	; [2:0] selected bank
 SID_ENSx_PATCH		EQU	0x01	; [6:0] selected patch
-SID_ENSx_CTRL1		EQU	0x02	; [1:0] clock master/slave/auto, [6] mono
+SID_ENSx_CTRL1		EQU	0x02	; [1:0] clock master/slave/auto, [3] Clock Out Enabled [4] FilLog [6] mono [7] DOR
 SID_ENSx_CTRL2		EQU	0x03	; [0] F2A, [1] V2A, [3] P2A, [4] K2A, [5] O2A
 SID_ENSx_RESERVED1	EQU	0x04	; was global clock divider --- not used anymore, replaced by BPM!
 SID_ENSx_BPM		EQU	0x05	; global BPM
@@ -1251,7 +1252,10 @@ SID_VOICE_INSTR_0	EQU	0x6f6
 SID_VOICE_INSTR_5	EQU	0x6fb
 SID_VOICE_INSTR_OFFSET	EQU	SID_VOICE_INSTR_0 - SID_VOICE_QUEUE_0
 
-	;; free: 0x6fc-0x6ff
+SID_CLK_SEND_F8_CTR	EQU	0x6fc
+SID_CLK_SEND_FA		EQU	0x6fd
+
+	;; free: 0x6fe-0x6ff
 
 ;; ==========================================================================
 

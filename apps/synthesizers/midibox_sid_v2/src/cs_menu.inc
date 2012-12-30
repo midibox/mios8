@@ -1216,13 +1216,14 @@ CS_MENU_EncSpeedSet_SelItem
 	goto	MIOS_ENC_SpeedSet
 
 	;; in main page (where the patch number is selected with the encoder)
-	;; - set to "fast mode" if SHIFT button is *not* pressed (fast selection)
-	;; - set to "normal mode" if SHIFT button is pressed (slow selection)
+	;; - set to "fast mode" if SHIFT button is pressed (fast selection)
+	;; - set to "normal mode" if SHIFT button is not pressed (slow selection)
+	;; TK: swapped this in v2.042, since the usage was too confusing
 CS_MENU_EncSpeedSet_Main
 	movlw	2			; this speed value is taken when ENC_SPEED_FAST is selected
 	movwf	MIOS_PARAMETER2
 	movlw	MIOS_ENC_SPEED_FAST	; FAST or NORMAL mode depending on state of shift button
-	btfsc	CS_MENU_MODE, CS_MENU_MODE_SHIFT_PRESSED
+	btfss	CS_MENU_MODE, CS_MENU_MODE_SHIFT_PRESSED
 	movlw	MIOS_ENC_SPEED_NORMAL
 	movwf	MIOS_PARAMETER1
 	movf	PRODL, W		; encoder number
@@ -1257,8 +1258,8 @@ CS_MENU_EncSpeedSet_ModVal_GT1F
 	cpfsgt  TMP2, ACCESS	; (IFLEQ)
 	movf	TMP2, W
 
-	;; increase speed if shift button NOT pressed
-	btfss	CS_MENU_MODE, CS_MENU_MODE_SHIFT_PRESSED
+	;; increase speed if shift button pressed
+	btfsc	CS_MENU_MODE, CS_MENU_MODE_SHIFT_PRESSED
 	addlw 2
 
 	movwf	MIOS_PARAMETER2

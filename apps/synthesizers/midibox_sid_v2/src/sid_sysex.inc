@@ -41,6 +41,8 @@ SID_DISACK_PAR_NOT_AVAILABLE	EQU	0x0b
 SID_DISACK_INVALID_COMMAND	EQU	0x0c
 SID_DISACK_NO_RAM_ACCESS	EQU	0x10
 SID_DISACK_BS_TOO_SMALL		EQU	0x11
+SID_DISACK_WRONG_TYPE		EQU	0x12
+SID_DISACK_SLAVE_NOT_AVAILABLE	EQU	0x13
 
 ;; --------------------------------------------------------------------------
 ;;  This function is called by MIOS when a MIDI byte has been received
@@ -428,7 +430,7 @@ SID_SYSEX_PATCH_Write_I_Mst_Next
 	BRA_IFCLR CS_MENU_SID, 2, ACCESS, SID_SYSEX_PATCH_Write_I_MstLoop
 
 
-SID_SYSEX_PATCH_Write_I_End
+SID_SYSEX_PATCH_Write_I_End	; re-used from SID_SYSEX_Cmd_18_SavePatch_Ok
 	;; print message if CS enabled
 	TABLE_ADDR SID_SYSEX_PATCH_Write_I_STR
 	call	MIOS_LCD_PrintMessage
@@ -455,9 +457,9 @@ SID_SYSEX_PATCH_WritePrnLoop
 
 
 SID_SYSEX_PATCH_Write_I_STR
-	STRING	20, 0x00, "Patch A  1 uploaded "
+	STRING	20, 0x00, "Patch A  1 stored   "
 SID_SYSEX_PATCH_Write_E_STR
-	STRING	20, 0x00, "Ensemble xxxx upld. "
+	STRING	20, 0x00, "Ensemble xxxx stored"
 
 SID_SYSEX_PATCH_Write_E
 	;; write into EEPROM or RAM?
@@ -490,7 +492,7 @@ SID_SYSEX_PATCH_Write_E_RAM_Loop
 	bnz	SID_SYSEX_PATCH_Write_E_RAM_Loop
 
 
-SID_SYSEX_PATCH_Write_E_EE_Cont
+SID_SYSEX_PATCH_Write_E_EE_Cont	; re-used from SID_SYSEX_Cmd_18_SaveEns
 	;; if no direct RAM upload: re-init ensemble here
 	SET_BSR	SID_BASE
 	CALL_IFCLR SID_SYSEX_TYPE, 3, BANKED, SID_ENS_Init
@@ -728,10 +730,14 @@ SID_SYSEX_Cmd_End
 	;; branch depending on command type
 	movf	SID_SYSEX_TYPE, W, BANKED
 	bz	SID_SYSEX_Cmd_00
-	addlw	-8
+	addlw	0x00-0x08
 	bz	SID_SYSEX_Cmd_08
-	addlw	-1
+	addlw	0x08-0x09
 	bz	SID_SYSEX_Cmd_09
+	addlw	0x09-0x10
+	bz	SID_SYSEX_Cmd_10
+	addlw	0x10-0x18
+	bz	SID_SYSEX_Cmd_18
 SID_SYSEX_Cmd_Inv
 	;; invalid command
 	rgoto	SID_SYSEX_DisAck_InvCmd
@@ -800,7 +806,97 @@ SID_SYSEX_Cmd_09_Loop_Next
 
 	movff	SID_SYSEX_TYPE, CS_MENU_SELECTED_INS	; restore selected instrument
 	movff	SID_SYSEX_IN, CS_MENU_SELECTED_SID_LR	; restore left/right selection
-	;; 	rgoto	SID_SYSEX_Cmd_Ack
+ 	rgoto	SID_SYSEX_Cmd_Ack
+
+
+SID_SYSEX_Cmd_10
+	;; action invalid if command byte hasn't been received
+	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_CMDBYTE_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
+
+	;; enable/disable lemur mode
+	bcf	CS_STAT3, CS_STAT3_LEMUR_MODE
+	movf	SID_SYSEX_DATA, W, BANKED
+	skpz
+	bsf	CS_STAT3, CS_STAT3_LEMUR_MODE
+	rgoto	SID_SYSEX_Cmd_Ack
+
+
+SID_SYSEX_Cmd_18
+	;; action invalid if command byte hasn't been received
+	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_CMDBYTE_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
+
+	movff	SID_SYSEX_DATA, SID_SYSEX_TYPE
+
+	;; branch depending on type
+	movf	SID_SYSEX_TYPE, W, BANKED
+	andlw	0xfc
+	xorlw	0x08
+	bz	SID_SYSEX_Cmd_18_SavePatch
+
+	movf	SID_SYSEX_TYPE, W, BANKED
+	xorlw	0x70
+	bz	SID_SYSEX_Cmd_18_SaveEns
+	;; invalid command
+	rgoto	SID_SYSEX_DisAck_InvCmd
+
+
+SID_SYSEX_Cmd_18_SavePatch
+	movf	SID_SYSEX_TYPE, W, BANKED
+	andlw	0x07
+	xorwf	CS_MENU_EDIT_BUFFER_SID, W
+	bz	SID_SYSEX_Cmd_18_SavePatch_NoUpd
+SID_SYSEX_Cmd_18_SavePatch_Updat
+	;; select SID
+	movf	SID_SYSEX_TYPE, W, BANKED
+	call	MIOS_HLP_GetBitORMask
+	andlw	0x0f
+	iorlw	0xf0
+	movwf	CS_MENU_SELECTED_SID_FLAGS
+
+	;; update edit buffer
+	movf	SID_SYSEX_TYPE, W, BANKED
+	andlw	0x03
+	movwf	CS_MENU_EDIT_BUFFER_SID, W
+	call	CS_MENU_MS_UpdateEditBufferNow
+SID_SYSEX_Cmd_18_SavePatch_NoUpd
+
+	;; check if node is available
+	movff	MBNET_NODE_AVAIL, WREG
+	iorlw	0x01		; master always available
+	xorwf	CS_MENU_SELECTED_SID_FLAGS, W
+	andlw	0x0f		; 4 SIDs maximum
+	bz	SID_SYSEX_Cmd_18_SavePatch_Ok
+
+	;; send error acknowledge
+	rgoto	SID_SYSEX_DisAck_Slave_NotAvail
+
+
+SID_SYSEX_Cmd_18_SavePatch_Ok
+	;; copy current patch/bank number to SAVE_PATCH and SAVE_BANK
+	call	CS_MENU_MS_GetSIDNumber
+	call	CS_MENU_MS_GetSIDPatch; sets FSR1 to patch register
+	movf	INDF1, W
+	andlw	0x7f
+	movwf	CS_MENU_SAVE_PATCH
+	call	CS_MENU_MS_GetSIDBank; sets FSR1 to bank register
+	movf	INDF1, W
+	andlw	0x07
+	movwf	CS_MENU_SAVE_BANK
+
+	;; finally store patch
+	call	CS_MENU_SavePatch
+
+	;; and generate display message
+	rgoto	SID_SYSEX_PATCH_Write_I_End
+
+SID_SYSEX_Cmd_18_SaveEns
+	;; store ensemble
+	movff	SID_ENSEMBLE, CS_MENU_SAVE_ENS
+	call	CS_MENU_SaveEns
+
+	;; and generate display message
+	rgoto	SID_SYSEX_PATCH_Write_E_EE_Cont
+
 
 SID_SYSEX_Cmd_Ack
 	;; send Acknowledge
@@ -866,6 +962,11 @@ SID_SYSEX_DisAck_NoRAM
 SID_SYSEX_DisAck_BSTooSmall
 	;; send disacknowledge "BankStick too small"
 	movlw	SID_DISACK_BS_TOO_SMALL
+	rgoto	SID_SYSEX_DisAck_Cont
+
+SID_SYSEX_DisAck_Slave_NotAvail
+	;; send disacknowledge "Slave not available"
+	movlw	SID_DISACK_SLAVE_NOT_AVAILABLE
 	;; 	rgoto	SID_SYSEX_DisAck_Cont
 
 SID_SYSEX_DisAck_Cont
@@ -1601,6 +1702,17 @@ SID_SYSEX_SendDump_Edit_Cont
 	;; feed WDT
 	clrwdt
 
+	;; lemur mode?
+	BRA_IFCLR CS_STAT3, CS_STAT3_LEMUR_MODE, ACCESS, SID_SYSEX_SendDump_NoLemur
+SID_SYSEX_SendDump_Lemur
+	movlw	0xf7		; end SysEx
+	rcall	SID_SYSEX_TxBufferPut
+
+	movlw	0xa0		; for Lemur: start sending common MIDI events
+	rcall	SID_SYSEX_TxBufferPut
+	SET_BSR	SID_BASE
+SID_SYSEX_SendDump_NoLemur
+
 	;; branch depending on SysEx type
 	movf	SID_SYSEX_TYPE, W, BANKED
 	andlw	0xf7
@@ -1779,6 +1891,22 @@ SID_SYSEX_SendDump_E_Loop_NoLoad
 	call	CS_MENU_MS_UpdateEnsBuffer
 
 SID_SYSEX_SendDump_I_Cont
+	;; lemur mode?
+	BRA_IFCLR CS_STAT3, CS_STAT3_LEMUR_MODE, ACCESS, SID_SYSEX_SendDump_I_Cont_NoLemur
+SID_SYSEX_SendDump_I_Cont_Lemur
+	;; send checksum
+	movlw	0xa1		; Poly Pressure, Channel 2 - all data sent + checksum
+	rcall	SID_SYSEX_TxBufferPut
+
+	movff	SID_SYSEX_CHECKSUM, WREG
+	sublw	0x80
+	andlw	0x7f
+	rcall	SID_SYSEX_TxBufferPut
+
+	movlw	0x00		; dummy
+	rgoto	SID_SYSEX_TxBufferPut
+
+SID_SYSEX_SendDump_I_Cont_NoLemur
 	;; send checksum
 	movff	SID_SYSEX_CHECKSUM, WREG
 	sublw	0x80

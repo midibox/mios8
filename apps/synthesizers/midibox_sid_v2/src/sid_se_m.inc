@@ -824,8 +824,11 @@ SIDSE_M_LFO_ClkSync
 	BRA_IFCLR SID_SE_STATE, SID_SE_STATE_GLOBAL_CLK_EVENT, BANKED, SIDSE_M_LFO_NoClk_Cont
 	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
 	andlw	0x0f
+	bz	SIDSE_M_LFO_ClkSync_Cont
+	xorlw	0x06
 	bnz	SIDSE_M_LFO_NoClk_Cont
 SIDSE_M_LFO_NoClkSync
+SIDSE_M_LFO_ClkSync_Cont
 
 	;; increment 16bit counter by given rate
 	movlw	SID_Ix_LFOx_RATE

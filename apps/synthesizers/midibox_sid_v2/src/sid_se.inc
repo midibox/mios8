@@ -137,6 +137,7 @@ SID_ENV_STATE_RELEASE2		EQU	6
 
 SID_ENS_CTRL1_CLK_SLAVE		EQU	0	; switch between MIDI clock master/slave
 SID_ENS_CTRL1_CLK_AUTO		EQU	1	; automatic switching between master/slave
+SID_ENS_CTRL1_CLK_OUT		EQU	3	; enable clock output
 SID_ENS_CTRL1_FIL_LOG		EQU	4	; Select logarithmic scale for filter
 SID_ENS_CTRL1_MONO		EQU	6	; SIDs are played mono
 SID_ENS_CTRL1_DOR		EQU	7	; Disable automatic Oscillator Reset during patch change (could also be called DAORDPC flag ;)
@@ -296,6 +297,16 @@ SIDSE_Clk_NoSlaveTrigger
 	;; handle FA event (MIDI clock start)
 	BRA_IFCLR SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FA_REQ, BANKED, SIDSE_Clk_NoFA
 SIDSE_Clk_FA
+	;; send to MIDI OUT?
+	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
+	BRA_IFCLR WREG, SID_ENS_CTRL1_CLK_OUT, ACCESS, SIDSE_Clk_FA_NoOut
+SIDSE_Clk_FA_Out
+	;; handled in USER_Tick
+	SET_BSR	SID_CLK_SEND_FA
+	bsf	SID_CLK_SEND_FA, 0, BANKED
+	SET_BSR	SID_BASE
+SIDSE_Clk_FA_NoOut
+
 	;; request not cleared here, because it's also used by Arp and sequencer
 	;; must be cleared at end of update cycle
 	;; 	bcf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FA_REQ, BANKED
@@ -357,15 +368,36 @@ SIDSE_Clk_Inc
 	;; increment global clock counter (for Clk/6 and Clk/24 divider)
 	incf	SID_SE_GLOBAL_CLK_CTR, F, BANKED
 
+	;; send to MIDI OUT?
+	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
+	andlw	0x03
+	bnz	SIDSE_Clk_F8_NoOut
+	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
+	BRA_IFCLR WREG, SID_ENS_CTRL1_CLK_OUT, ACCESS, SIDSE_Clk_F8_NoOut
+SIDSE_Clk_F8_Out
+	;; handled in USER_Tick
+	SET_BSR	SID_CLK_SEND_F8_CTR
+	incf	SID_CLK_SEND_F8_CTR, W, BANKED
+	bz	SIDSE_Clk_F8_NoOut  ; counter is 0xff - not serviced...?
+	incf	SID_CLK_SEND_F8_CTR, F, BANKED
+SIDSE_Clk_F8_NoOut
+	SET_BSR	SID_BASE
+
 	;; reset lower nibble on each 6th clock, increment high nibble
 	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
 	andlw	0x0f
 	xorlw	0x06
+	bz	SIDSE_Clk_Inc_6th
+
+	;; if 12 is reached, we also reset the subcounter
+	;; previously it was at 6, but we need a value dividable by 4 for the SID_CLK_SEND_F8 function
+	xorlw	0x0c ^ 0x06	; reset at 12
 	bnz	SIDSE_Clk_Inc_Not6th
+	movlw	0xf0
+	andwf	SID_SE_GLOBAL_CLK_CTR, F, BANKED
 SIDSE_Clk_Inc_6th
 	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
 	addlw	0x10
-	andlw	0xf0
 	movwf	SID_SE_GLOBAL_CLK_CTR, BANKED
 SIDSE_Clk_Inc_Not6th
 
@@ -392,8 +424,10 @@ SIDSE_Clk_Reset_Lead
 	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_Cl6_BASE
 	movf	SID_SE_GLOBAL_CLK_CTR, W, BANKED
 	andlw	0x0f
-	skpnz
+	bnz	SIDSE_Clk_Reset_NoClk4
+SIDSE_Clk_Reset_Clk4
 	rcall	SIDSE_Clk_Hlp_PropClkEvent
+SIDSE_Clk_Reset_NoClk4
 
 	;; propagate clock/16 event to trigger matrix on each 24th clock
 	lfsr	FSR1, SID_PATCH_BUFFER_SHADOW + SID_Ix_L_TRG_C24_BASE

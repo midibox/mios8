@@ -22,7 +22,7 @@
 ; ==========================================================================
 ;
 ; Version:                <-------------------->
-#define MBSID_VERSION_STR "MIDIboxSID V2.041   "
+#define MBSID_VERSION_STR "MIDIboxSID V2.042   "
 ; (fixed string length - 20 characters!)
 
 ;; MBNET specific definitions (ping reply information - don't touch this!)
@@ -277,6 +277,28 @@ USER_Tick_SIDPlayDisabled_Cont
 	;; ---[ AD handler ]---
 	call	AIN_Handler
 #endif
+
+	;; send MIDI Start?
+	SET_BSR SID_CLK_SEND_FA
+	BRA_IFCLR SID_CLK_SEND_FA, 0, BANKED, USER_Tick_NoFA
+USER_Tick_FA
+	bcf	SID_CLK_SEND_FA, 0, BANKED
+	movlw	0xfa
+	call	MIOS_MIDI_TxBufferPut
+USER_Tick_NoFA
+
+	;; send MIDI Clock?
+USER_Tick_F8_Chk
+	SET_BSR SID_CLK_SEND_F8_CTR
+	movf	SID_CLK_SEND_F8_CTR, W, BANKED
+	bz	USER_Tick_NoF8
+	decf	SID_CLK_SEND_F8_CTR, F, BANKED
+USER_Tick_F8
+	movlw	0xf8
+	call	MIOS_MIDI_TxBufferPut
+	rgoto	USER_Tick_F8_Chk
+USER_Tick_NoF8
+
 	return
 
 
