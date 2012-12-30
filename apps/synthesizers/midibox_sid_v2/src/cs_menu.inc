@@ -155,6 +155,9 @@ CS_MENU_Handler_Init_MainPage
 	call	MIOS_LCD_CursorSet
 	call	SID_LCD_PrintPatch
 
+	;; we should also already print the new patch number, so that the patch selection "feels faster" on fast encoder movements
+	call	CS_MENU_Handler_MainPage_0
+
 CS_MENU_Handler_Init_NotMainPage
 
 CS_MENU_Handler_Init_End
@@ -242,7 +245,7 @@ CS_MENU_Handler_MainPage
 	;; ensemble is the leftmost value!
 	;; Printing the patch value first ensures, that value will be displayed immediately
 	;; on fast encoder turns
-CS_MENU_Handler_MainPage_0
+CS_MENU_Handler_MainPage_0	; attention: sync this label with CS_MENU_Handler_Init_MainPage
 	movlw	0x00 + 5
 	call	MIOS_LCD_CursorSet
 	call	CS_MENU_MS_GetSIDBank
