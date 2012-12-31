@@ -11,7 +11,8 @@ HEADER 3 MIDIbox KB
 <UL CLASS=CL>
 <LI> up to 2 keyboard matrices can be scanned separately at a very high scan rate (around 100 uS)</A>
 <LI> optional support for velocity!</A>
-<LI> 6 analog inputs of the core module can be used to connect pitchwheels, modulation wheels and aftertouch</A>
+<LI> 6 analog inputs of the core module can be used to connect pitchwheels, modulation wheels and sustain pedal (or aftertouch)</A>
+<LI> analog inputs can be calibrated</A>
 <LI> two MIDI IN and two MIDI OUT ports
 <LI> USB MIDI port with much higher transfer rate (ca. 100x faster!) than common MIDI
 <LI> Ethernet port to send/receive events via <A HREF="midibox_osc.html">OSC</A>
@@ -310,8 +311,8 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; delay_slowest &lt;0-65535&gt;</I></TD>
     <TD WIDTH=475> <SPAN CLASS=NORM>Only relevant for velocity sensitive keyboards: selects the maximum delay value at which the minimum velocity (=1) should be sent. Use <I>debug</I> mode to display the maximum delay when keys are hit softly!<BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 delay_slowest 1000</I>: send maximum velocity when delay is &gt;= 1000<BR>
          <I>set kb 1 delay_slowest 2000</I>: send maximum velocity when delay is &gt;= 2000<BR>
-         <I>set kb 1 delay_slowest 3000</I>: send maximum velocity when delay is &gt;= 3000<BR>
       </SPAN></TD>
   </TR>
 
@@ -320,7 +321,7 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=475> <SPAN CLASS=NORM>Selects the J5.Ax input to which the PitchWheel pot is connected. Use <I>off</I> if no PitchWheel is used to avoid that the unconnected analog input will send random MIDI events!<BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
          <I>set kb 1 ain_pitchwheel 0</I>: PitchWheel of keyboard 1 connected to J5.A0 of the core module<BR>
-         <I>set kb 2 ain_pitchwheel 2</I>: PitchWheel of keyboard 2 connected to J5.A2 of the core module<BR>
+         <I>set kb 2 ain_pitchwheel 3</I>: PitchWheel of keyboard 2 connected to J5.A3 of the core module<BR>
          <I>set kb 1 ain_pitchwheel off</I>: no PitchWheel connected<BR>
       </SPAN></TD>
   </TR>
@@ -344,7 +345,7 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=475> <SPAN CLASS=NORM>Selects the J5.Ax input to which the ModWheel pot is connected. Use <I>off</I> if no ModWheel is used to avoid that the unconnected analog input will send random MIDI events!<BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
          <I>set kb 1 ain_modwheel 1</I>: ModWheel of keyboard 1 connected to J5.A1 of the core module<BR>
-         <I>set kb 2 ain_modwheel 3</I>: ModWheel of keyboard 2 connected to J5.A3 of the core module<BR>
+         <I>set kb 2 ain_modwheel 4</I>: ModWheel of keyboard 2 connected to J5.A4 of the core module<BR>
          <I>set kb 1 ain_modwheel off</I>: no ModWheel connected<BR>
       </SPAN></TD>
   </TR>
@@ -361,6 +362,36 @@ Here a more detailed description of most commands:</P>
          <I>set kb 1 ctrl_modwheel 1</I>: the ModWheel of keyboard 1 sends CC#1 (CC Modulation)<BR>
          <I>set kb 2 ctrl_modwheel 7</I>: the ModWheel of keyboard 2 sends CC#7 (CC Volume)<BR>
       </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_sustain &lt;0-5 or off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the J5.Ax input to which a Sustain Pedal is connected. Use <I>off</I> if no Pedal is used to avoid that the unconnected analog input will send random MIDI events!<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ain_sustain 2</I>: Sustain Pedal of keyboard 1 connected to J5.A2 of the core module<BR>
+         <I>set kb 2 ain_sustain 5</I>: Sustain Pedal of keyboard 2 connected to J5.A5 of the core module<BR>
+         <I>set kb 1 ain_sustain off</I>: no Sustain Pedal connected<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ctrl_sustain &lt;0-129&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>What kind of MIDI events should be sent by the Sustain Pedal?
+      <UL CLASS=CL>
+        <LI><B>0..127:</B> CC#0 .. CC#127 (default: CC#64)
+        <LI><B>128:</B> PitchBend
+        <LI><B>129:</B> Aftertouch
+      </UL>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ctrl_sustain 64</I>: the Sustain Pedal of keyboard 1 sends CC#64 (CC Sustain)<BR>
+         <I>set kb 2 ctrl_sustain 65</I>: the Sustain Pedal of keyboard 2 sends CC#65 (CC Portamento On)<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; calibration &lt;off|pitchwheel|modwheel|sustain&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Starts the calibration of PitchWheel/ModWheel/Sustain potentiometers (or switches) to determine the minimum/maximum value.<BR>
+       After the calibration, just enter 'set kb 1 calibration off' to stop the calibration (and to test the behaviour), thereafter type 'store' to save the new values.
   </TR>
 
 </TABLE>
@@ -387,8 +418,8 @@ Here a more detailed description of most commands:</P>
         <LI><I>set kb 1 din_key_offset 32</I>
         <LI><I>set kb 1 din_inverted off</I>
         <LI><I>set kb 1 break_inverted off</I>
-        <LI><I>set kb 1 delay_fastest 100</I>
-        <LI><I>set kb 1 delay_slowest 2000</I>
+        <LI><I>set kb 1 delay_fastest 50</I>
+        <LI><I>set kb 1 delay_slowest 1000</I>
         <LI><I>store</I>
       </UL>
     </SPAN></TD>
@@ -410,8 +441,8 @@ Here a more detailed description of most commands:</P>
         <LI><I>set kb 1 din_key_offset 32</I>
         <LI><I>set kb 1 din_inverted off</I>
         <LI><I>set kb 1 break_inverted off</I>
-        <LI><I>set kb 1 delay_fastest 100</I>
-        <LI><I>set kb 1 delay_slowest 2000</I>
+        <LI><I>set kb 1 delay_fastest 50</I>
+        <LI><I>set kb 1 delay_slowest 1000</I>
         <LI><I>store</I>
       </UL>
     </SPAN></TD>
@@ -433,8 +464,8 @@ Here a more detailed description of most commands:</P>
         <LI><I>set kb 1 din_key_offset 40</I>
         <LI><I>set kb 1 din_inverted off</I>
         <LI><I>set kb 1 break_inverted off</I>
-        <LI><I>set kb 1 delay_fastest 100</I>
-        <LI><I>set kb 1 delay_slowest 2000</I>
+        <LI><I>set kb 1 delay_fastest 50</I>
+        <LI><I>set kb 1 delay_slowest 1000</I>
         <LI><I>store</I>
       </UL>
     </SPAN></TD>
@@ -456,8 +487,8 @@ Here a more detailed description of most commands:</P>
         <LI><I>set kb 1 din_key_offset 32</I>
         <LI><I>set kb 1 din_inverted off</I>
         <LI><I>set kb 1 break_inverted on</I>
-        <LI><I>set kb 1 delay_fastest 100</I>
-        <LI><I>set kb 1 delay_slowest 2000</I>
+        <LI><I>set kb 1 delay_fastest 50</I>
+        <LI><I>set kb 1 delay_slowest 1000</I>
         <LI><I>set kb 2 note_offset 36</I>
         <LI><I>set kb 2 rows 8</I>
         <LI><I>set kb 2 velocity on</I>
@@ -469,21 +500,31 @@ Here a more detailed description of most commands:</P>
         <LI><I>set kb 2 din_key_offset 32</I>
         <LI><I>set kb 2 din_inverted off</I>
         <LI><I>set kb 2 break_inverted on</I>
-        <LI><I>set kb 2 delay_fastest 100</I>
-        <LI><I>set kb 2 delay_slowest 2000</I>
+        <LI><I>set kb 2 delay_fastest 50</I>
+        <LI><I>set kb 2 delay_slowest 1000</I>
         <LI><I>store</I>
       </UL>
     </SPAN></TD>
   </TR>
 
   <TR>
-    <TD WIDTH=300> <SPAN CLASS=NORM>Adding a Pitch Wheel to J5.A0<BR>and a Modulation Wheel to J5.A1<BR>(no schematic yet)
+    <TD WIDTH=300> <SPAN CLASS=NORM>Adding a Pitch Wheel to J5.A0<BR>and a Modulation Wheel to J5.A1<BR>and a Sustain Pedal to J5.A2<BR>(no schematic yet)
     <TD WIDTH=400>
       <UL CLASS=CL>
         <LI><I>set kb 1 ain_pitchwheel 0</I>
         <LI><I>set kb 1 ctrl_pitchwheel 128</I>
         <LI><I>set kb 1 ain_modwheel 1</I>
         <LI><I>set kb 1 ctrl_modwheel 1</I>
+        <LI><I>set kb 1 ain_sustain 2</I>
+        <LI><I>set kb 1 ctrl_sustain 64</I>
+        <LI><I>store</I>
+      </UL>
+      Use following commands to calibrate the potentiometers (resp. switches):
+      <UL CLASS=CL>
+        <LI><I>set kb 1 calibration pitchwheel</I><BR>-&gt; move the PitchWheel to min/max position
+        <LI><I>set kb 1 calibration modwheel</I><BR>-&gt; move the PitchWheel to min/max position
+        <LI><I>set kb 1 calibration sustain</I><BR>-&gt; turn on/off the Sustain Pedal
+        <LI><I>set kb 1 calibration off</I>
         <LI><I>store</I>
       </UL>
     </SPAN></TD>
