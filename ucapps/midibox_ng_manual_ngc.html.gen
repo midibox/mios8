@@ -1075,6 +1075,56 @@ AOUT  type=AOUT_NG  cs=0  num_channels=8
 </UL>
 
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SCS </H2>
+
+<P CLASS=DESC>SCS stands for "Standard Control Surface" which is explained in the <A HREF="midibox_ng_manual_scs.html">SCS chapter</A>.
+
+<P CLASS=DESC>The SCS command allows to define the emulated button and encoder IDs which are used when the SCS is in the main page.
+
+<P CLASS=DESC>List of parameters:
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=200>AOUT Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>soft1_button_emu_id=&lt;0..4095&gt;</I><BR>
+                                  <I>soft2_button_emu_id=&lt;0..4095&gt;</I><BR>
+                                  <I>soft3_button_emu_id=&lt;0..4095&gt;</I><BR>
+                                  <I>soft4_button_emu_id=&lt;0..4095&gt;</I><BR>
+                                  <I>shift_button_emu_id=&lt;0..4095&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>A SCS button will emulate the specified BUTTON ID if the SCS is in the main page.<BR>If the id is set to 0, the button function won't have any effect!</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>enc_emu_id==&lt;0..4095&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>A SCS encoder will emulate the specified ENC ID if the SCS is in the main page.<BR>If the id is set to 0, the encoder function won't have any effect!</TD>
+  </TR>
+</TABLE>
+
+<P CLASS=INFO>Configuration example:
+<TT><PRE style="margin-left:50px">
+# the SCS should emulate button/enc functions in main page
+SCS soft1_button_emu_id=2000 \
+    soft2_button_emu_id=2001 \
+    soft3_button_emu_id=2002 \
+    soft4_button_emu_id=2003 \
+    shift_button_emu_id=2004 \
+    enc_emu_id=2000
+
+
+# Controlled from SCS buttons at J10 in main page
+EVENT_BUTTON id=2000  type=Meta   meta=SetBank   button_mode=OnOnly range=1:1  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2001  type=Meta   meta=SetBank   button_mode=OnOnly range=2:2  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2002  type=Meta   meta=SetBank   button_mode=OnOnly range=3:3  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2003  type=Meta   meta=SetBank   button_mode=OnOnly range=4:4  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2004  type=Meta   meta=EncFast:4 button_mode=OnOff  range=0:2
+
+# the SCS encoder at J10 just increments/decrements the bank
+# redundant function - could be changed in future
+EVENT_ENC    id=2000  type=Meta   meta=SetBank   range=1:4
+</PRE></TT>
+
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> ROUTER </H2>
 
 <P CLASS=DESC>The integrated MIDI router consists of 16 "nodes". Each node can be connected to an individual source and destination port. A node is activated by selecting a source MIDI channel != "--", e.g. 1..16 or All (for all channels). The node will forward a MIDI event to the destination port. Either to the original channel ("All"), or to a changed channel (1..16).

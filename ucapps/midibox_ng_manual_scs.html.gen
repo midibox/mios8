@@ -1,0 +1,202 @@
+HEADER 3 MIDIbox NG User Manual --- Standard Control Surface
+
+<P CLASS=INFO><B><A HREF="midibox_ng_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox NG</H1>
+<H1>User Manual --- Standard Control Surface</H1>
+
+<P CLASS=INFO>The optional control surface allows to edit some (but not all) configuration values without the need of a computer.
+
+<center><img src="midio128/midio128_v3_cs.jpg" width="550" height=554></IMG></center>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware: the original SCS </H2>
+
+<P CLASS=INFO>Actually we've two ways how to access the SCS menu system. First let's describe the original SCS:</P>
+
+<P CLASS=INFO>A rotary encoder and 6 buttons are directly connected to J10 of the MBHP_CORE_LPC17 module to control the menu system:<BR>
+<a href="midibox_ng/mbng_scs.pdf">Schematic of the Standard Control Surface</A><BR>
+In addition a LCD is required. The recommended size is at least 2x20! Graphical LCDs (GLCDs) are supported as well.</P>
+
+<P CLASS=INFO>The <A HREF="midio128.html">MIDIO128 project</A> uses the same control surface, which means that users who built a MIDIO128 can upload the MIDIbox NG firmware and control it with their existing hardware, and vice versa!
+
+
+<P CLASS=DESC>In the main page (which is active after power-on) it's possible to emulate <A HREF="midibox_ng_manual_ngc.html">BUTTON and ENC</A> functions, which means that a very basic MIDI controller with a rotary encoder + 6 buttons could be created without the need to attach a <A HREF="mbhp_din.html">MBHP_DIN</A> module to the core!</P>
+
+<P CLASS=DESC>A premade PCB layout for the SCS doesn't exist yet, but if you are interested to create one: step forward! :-)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware: the emulated SCS </H2>
+
+<P CLASS=DESC>Alternatively, it's possible to access the SCS menu system from buttons/encoder which are connected to a <A HREF="mbhp_din.html">MBHP_DIN</A> module.</P>
+
+<P CLASS=DESC>In this case, Meta events have to be used to trigger the SCS functions. The events could be assigned to dedicated buttons/encoder, but also to controllers which are part of a bank (means: access the SCS by pressing your self-defined shift button which switches to a different bank).
+
+<P CLASS=DESC>Example configuration:
+<TT><PRE style="margin-left:20px">
+EVENT_BUTTON id=  1  type=Meta   meta=ScsSoft1 range=0:1
+EVENT_BUTTON id=  2  type=Meta   meta=ScsSoft2 range=0:1
+EVENT_BUTTON id=  3  type=Meta   meta=ScsSoft3 range=0:1
+EVENT_BUTTON id=  4  type=Meta   meta=ScsSoft4 range=0:1
+EVENT_BUTTON id=  5  type=Meta   meta=ScsShift range=0:1
+EVENT_BUTTON id=  6  type=Meta   meta=ScsMenu  range=0:1
+
+# if dec/inc buttons should be used:
+# DEC:
+EVENT_BUTTON id=  7  type=Meta   meta=ScsEnc   range=63:63 button_mode=OnOnly
+# INC:
+EVENT_BUTTON id=  8  type=Meta   meta=ScsEnc   range=65:65 button_mode=OnOnly
+
+# if a rotary encoder should be used:
+ENC n=  1   sr= 15 pins=0:1   type=detented3
+EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
+</PRE></TT>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Main Page </H2>
+
+<P CLASS=INFO>In the main page (which is active after power-on) the SCS menu system is inactive. Instead, MIDIbox NG will display the strings which are printed by the controllers as specified in the <A HREF="midibox_ng_manual_ngc.html">.NGC file</A>.</P>
+
+<P CLASS=INFO>By pressing the EXIT button the menu system will be entered. Press it again to exit the menu system.</P>
+
+<P CLASS=INFO>The SOFT1..4 and SHIFT button, as well as the encoder have no effect in the main page by default, but they can emulate controller ids!
+
+<P CLASS=INFO>E.g. with following configuration, the SOFT buttons can be used to select a bank, and the SHIFT button is used to enable the FAST mode for rotary encoders:
+
+<TT><PRE style="margin-left:50px">
+# the SCS should emulate button/enc functions in main page
+SCS soft1_button_emu_id=2000 \
+    soft2_button_emu_id=2001 \
+    soft3_button_emu_id=2002 \
+    soft4_button_emu_id=2003 \
+    shift_button_emu_id=2004 \
+    enc_emu_id=2000
+
+
+# Controlled from SCS buttons at J10 in main page
+EVENT_BUTTON id=2000  type=Meta   meta=SetBank   button_mode=OnOnly range=1:1  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2001  type=Meta   meta=SetBank   button_mode=OnOnly range=2:2  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2002  type=Meta   meta=SetBank   button_mode=OnOnly range=3:3  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2003  type=Meta   meta=SetBank   button_mode=OnOnly range=4:4  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2004  type=Meta   meta=EncFast:4 button_mode=OnOff  range=0:2
+
+# the SCS encoder at J10 just increments/decrements the bank
+# redundant function - could be changed in future
+EVENT_ENC    id=2000  type=Meta   meta=SetBank   range=1:4
+</PRE></TT>
+
+<P CLASS=INFO>Of course, the buttons/encoders could also trigger any other action which is controllable by an EVENT_* definition. E.g., they could also send MIDI events.
+
+<P CLASS=INFO>In fact, MIDIbox NG configurations are thinkable which only only consist of these SCS components!</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Menu Pages </H2>
+
+<P CLASS=DESC>The SCS menu will be entered by pressing the EXIT button in the main page:<BR>
+<IMG SRC="midibox_ng/cs/root1.gif" width=362 height=38 ALT="Screen"></IMG><BR>
+The pages are described in more details below.<BR>
+Note that the 2x20 LCD will only display 4 of these items at once. Use the rotary encoder to scroll through the menu, and use a soft button to select the item above the button. Use the Exit button to get back to the previous page.</P>
+
+<P CLASS=DESC>By pressing the Shift button a special page will pop up:<BR>
+<IMG SRC="midibox_ng/cs/shift1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+<UL CLASS=CL>
+  <LI><B>Clk:</B> <I>no function yet!</I>
+  <LI><B>BPM:</B> <I>no function yet!</I>
+  <LI><B>DOUT:</B> allows to disable all DOUT pins (like "All Notes Off") from any page
+  <LI><B>MSD:</B> enables/disables the Mass Storage Device driver as descriped in the "Integrated SD Card Reader" topic
+</UL>
+
+<P CLASS=DESC>The <B>Var(iable)</B> page:<BR>
+<IMG SRC="midibox_ng/cs/var1.gif" width=302 height=38 ALT="Screen"></IMG><BR>
+allows to change SysEx dump related variables directly from the control surface:
+<UL CLASS=CL>
+  <LI><B>Dev:</B> the device number <I>^dev</I>
+  <LI><B>Pat:</B> the patch number <I>^pat</I>
+  <LI><B>Bnk:</B> the bank number <I>^bnk</I>
+  <LI><B>Ins:</B> the instrument number <I>^ins</I>
+  <LI><B>Chn:</B> the channel number <I>^chn</I>
+</UL>
+
+<P CLASS=DESC>The variables could also be used for other purposes of course, they are only placeholders for typical usecases.
+
+
+<P CLASS=DESC>The <B>Router</B> page:<BR>
+<IMG SRC="midibox_ng/cs/rout1.gif" width=302 height=38 ALT="Screen"></IMG><BR>
+allows to configure the integrated MIDI Router.<BR>
+The router consists of 16 "nodes".<BR>
+Each node can be connected to an individual source and destination port.<BR>
+A node is activated by selecting a source MIDI channel != "--", e.g. 1..16 or All (for all channels).<BR>
+The node will forward a MIDI event to the destination port. Either to the original channel ("All"), or to a changed channel (1..16)
+
+<UL CLASS=CL>
+  <LI><B>Node:</B> the selected router node (1..16)
+  <LI><B>SrcP:</B> the source port
+  <LI><B>Chn.:</B> the source channel ("--" to disable, 1..16 or "All")
+  <LI><B>DstP:</B> the destination port
+  <LI><B>Chn.:</B> the destination channel ("--" to disable, 1..16 to change the channel, or "All" to keep it untouched)
+</UL>
+
+
+<P CLASS=DESC>The <B>OSC</B> page:<BR>
+
+<P CLASS=DESC>Aside from the possibility to configure Ethernet and OSC Server/Client from the MIOS Terminal as described at the <A HREF="midibox_osc.html">MIDIbox OSC page</A>, it's also possible to change the settings from the control surface:<BR>
+<IMG SRC="midibox_ng/cs/osc1.gif" width=422 height=38 ALT="Screen"></IMG><BR>
+allows to configure the OSC ports 1..4.<BR>
+Each OSC port has an individual remote IP, a remote port (to which OSC packets will be sent) and a local port (from which OSC packets will be received). Various packet formats are supported, additional modes can be added in future on request.
+
+<UL CLASS=CL>
+  <LI><B>Port:</B> the selected OSC port (1..4)
+  <LI><B>Remote IP:</B> the remote IP assigned to the OSC port (e.g. the IP of your iPad)
+  <LI><B>Remote Port:</B> the remote port to which OSC packets will be sent
+  <LI><B>Local Port:</B> the local port from which OSC packets will be received
+  <LI><B>Mode:</B> following transfer formats are currently supported:
+    <UL CLASS=CL>
+      <LI><B>MIDI:</B> MIDI events are bundled into MIDI elements
+      <LI><B>Text Msg (Integer):</B> uses human readable pathes, values are in integer format
+      <LI><B>Text Msg (Float):</B> uses human readable pathes, values are in float format
+      <LI><B>MPP (Pianist Pro):</B> selects format which is used by <A HREF="http://moocowmusic.com/PianistPro/index.html" TARGET="_blank">Pianist Pro</A>
+      <LI><B>TOSC (TouchOSC):</B> selects format which is used by <A HREF="http://hexler.net/software/touchosc" TARGET="_blank">TouchOSC</A>
+    </UL>
+</UL>
+</P>
+
+<P CLASS=DESC>See the <A HREF="midibox_osc.html">MIDIbox OSC page</A> for more details about the OSC protocol.</P>
+
+<P CLASS=DESC>The <B>Network</B> page:<BR>
+<IMG SRC="midibox_ng/cs/netw1.gif" width=302 height=38 ALT="Screen"></IMG><BR>
+allows to configure the Ethernet interface of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module.
+
+<UL CLASS=CL>
+  <LI><B>DHCP:</B> if enabled (default), the Host IP, Network Mask and Gateway address will be requested from a DHCP Daemon (e.g. your wireless router) automatically whenever the ethernet cable is connected. The configuration could take some seconds depending on the responsiveness of your router.
+  <LI><B>IP Host:</B> if DHCP on: displays the current IP address, if DHCP off: allows to enter the IP address of your MIDIbox NG manually
+  <LI><B>Netmask:</B> if DHCP on: displays the current netmask, if DHCP off: allows to enter the netmask of your MIDIbox NG manually
+  <LI><B>IP Gateway:</B> if DHCP on: displays the current gateway address, if DHCP off: allows to enter the gateway of the ethernet network manually
+</UL>
+
+<P CLASS=DESC>The <B>Monitor</B> page:<BR>
+<IMG SRC="midibox_ng/cs/mon1.gif" width=722 height=38 ALT="Screen"></IMG><BR>
+shows all IN ports at the upper line, and OUT ports at the lower line.</P>
+
+<P CLASS=DESC>Whenever an event is received or sent, the appr. item will show the event for a short moment.<BR>
+This gives you a great overview of the MIDI activity, especially to analyze the current track and MIDI router setup.</P>
+
+
+<P CLASS=DESC>The <B>Disk</B> page:<BR>
+<IMG SRC="midibox_ng/cs/disk1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+allows to store and restore a patch on SD Card of a given name.
+
+<UL CLASS=CL>
+  <LI><B>Load:</B> opens a filename browser for all .MIO files found on SD Card:<BR>
+      <IMG SRC="midibox_ng/cs/disk2.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+      Select one of these files to load the patch (or press the Exit button to cancel this operation).
+  <LI><B>Save:</B> enter the filename with the rotary encoder:<BR>
+      <IMG SRC="midibox_ng/cs/disk3.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+      Press "SAVE" to store the patch (or press the Exit button to cancel this operation).
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Planned Features </H2>
+
+<P CLASS=INFO>It's planned to store/restore "snapshots" from the SCS, which allow to recall controller values (resp. SysEx patches) from files stored on SD Card.</P>
+
+FOOTER
