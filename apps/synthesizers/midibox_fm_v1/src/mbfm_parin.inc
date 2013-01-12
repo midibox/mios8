@@ -74,6 +74,10 @@ MBFM_PARIN_SysEx_Set_Name
 	call	MBFM_INSTR_GetBase
 	movf	TABLAT, W
 	movff	MIOS_PARAMETER1, PLUSW1
+
+	;; re-init display
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ
+	
 	return
 
 MBFM_PARIN_SysEx_Set_Norm

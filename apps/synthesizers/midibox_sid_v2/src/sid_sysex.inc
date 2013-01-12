@@ -1231,6 +1231,16 @@ SID_SYSEX_WritePar_I_Single
 	andlw	0x01
 	addwfc	FSR0H, F
 	rcall	SID_SYSEX_WritePar_I_Hlp
+
+	;; if write into patchname buffer: re-init display
+	movf	SID_SYSEX_ADDRESS_H, W, BANKED
+	bnz	SID_SYSEX_WritePar_I_Single_NoNm
+	movf	SID_SYSEX_ADDRESS_L, W, BANKED
+	andlw	0xf0
+	bnz	SID_SYSEX_WritePar_I_Single_NoNm
+SID_SYSEX_WritePar_I_Single_Nm
+	bsf	CS_STAT, CS_STAT_DISPLAY_INIT_REQ	
+SID_SYSEX_WritePar_I_Single_NoNm
 	;; 	rgoto	SID_SYSEX_WritePar_I_End
 
 SID_SYSEX_WritePar_I_End
