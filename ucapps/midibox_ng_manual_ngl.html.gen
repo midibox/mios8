@@ -12,7 +12,7 @@ HEADER 3 MIDIbox NG User Manual --- .NGL Configuration File
 <P CLASS=DESC>The <I>LABEL</I> command specifies global label definitions which can be referenced by using the Caret (^) specifier in label or LCD output definitions of the <A HREF="midibox_ng_manual_ngc.html">.NGC file</A>.
 
 <P CLASS=DESC>A basic usage example can already be found in the DEFAULT.NGL file which has been generated whenever a "virgin" SD Card has been connected to the core module:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 # Standard label for buttons:
 LABEL std_btn  "Button #%3i %3d%b"
 
@@ -33,10 +33,24 @@ LABEL std_mf   "MF #%3i     %3d%B"
 </PRE></TT>
 
 These standard labels are displayed whenever an EVENT_* in the .NGC file refers to the appr. label, such as:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 # this command is part of a .NGC file:
 EVENT_BUTTON id=1  type=NoteOn key=36  lcd_pos=1:1:1 label="^std_btn"
 </PRE></TT>
+
+<P CLASS=DESC>It's allowed that one label follows another in the same string:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# this command is part of a .NGC file:
+EVENT_BUTTON id=1  type=NoteOn key=36  lcd_pos=1:1:1 label="^clr^btn^value"
+</PRE></TT>
+will print the ^clr, the ^btn and the ^value label (which have been defined by yourself).</P>
+
+<P CLASS=DESC>And for the case, that text follows a label, terminate it with ^#
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# this command is part of a .NGC file:
+EVENT_BUTTON id=1  type=NoteOn key=36  lcd_pos=1:1:1 label="^clr^#MyText"
+</PRE></TT>
+will print the ^clr label (which has been defined by yourself), followed by "MyText".</P>
 
 <P CLASS=DESC>The size of a label is limited to 8 characters to avoid unnecessary compute overhead while searching for matching strings.
 
@@ -46,7 +60,7 @@ EVENT_BUTTON id=1  type=NoteOn key=36  lcd_pos=1:1:1 label="^std_btn"
 <P CLASS=DESC>CONDitional labels are the most powerful purpose of global label definitions - they allow to output different strings based on the EVENT value!</P>
 
 <P CLASS=DESC>Following example demonstrates the purpose pretty nicely:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 COND_LABEL fil_type
 COND =0    "Bypass   "
 COND =1    "LP 24dB  "
@@ -65,13 +79,13 @@ COND_ELSE  "Type %3d "
 
 <P CLASS=DESC>An EVENT_* command can use it this way:
 
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 # this command is part of a .NGC file:
 EVENT_ENC id=1  type=CC cc=16  lcd_pos=1:1:1 label="Filter Type: ^fil_type"
 </PRE></TT>
 
 <P CLASS=DESC>So: each value can be named, but it's also possible to define value ranges at which a string should be taken, such as:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 COND_LABEL test1
 COND =0   "Val is 000   %3d"
 COND =1   "Val is 001   %3d"
@@ -118,7 +132,7 @@ COND_ELSE "else cond.   %3d"
     <TD CLASS=TABCOLOR2 WIDTH=150><I>COND_ELSE</I></TD>
     <TD CLASS=TABCOLOR2>This finishes a conditional label and returns a string if the previous statements haven't hit.<BR>
       It's strongly recommended to use this condition regardless if your definitions cover all possible values or not - it's at least a debugging help:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 COND_ELSE "I made an error!"
 </PRE></TT>
   </TR>

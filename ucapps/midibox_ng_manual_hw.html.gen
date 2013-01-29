@@ -1,0 +1,149 @@
+HEADER 3 MIDIbox NG User Manual --- Hardware Options
+
+<P CLASS=INFO><B><A HREF="midibox_ng_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox NG</H1>
+<H1>User Manual --- Hardware Options</H1>
+
+<P CLASS=INFO><A HREF="midibox_ng.html">MIDIbox NG</A> is flexible enough to handle almost all modules of the <A HREF="mbhp.html">MIDIbox Hardware Platform</A> (exeptions are MBHP_SID and MBHP_OPL3 which require a synthesizer engine... ;-)</P>
+
+<P CLASS=INFO><B>This page is under construction! It's currently only a rough draft which collects the supported modules, and will contain more detailed informations in future!</B></P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_CORE_LPC17 </H2>
+
+<IMG SRC="mbhp/mbhp_core_lpc17_v1.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>The <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module is the brain of the MIDI controller. Today (2013) it's a state-of-the-art solution for such a purpose, especially because of the high performance, the 4 MIDI IN and OUT ports, integrated USB-MIDI and Ethernet interface.
+<BR clear="all">
+
+<P CLASS=DESC>The setup and configuration of a MBHP_CORE_LPC17 module is easier than known from 8bit controllers. The <A HREF="mios32_bootstrap_newbies.html">Bootstrap Loader</A> can be flashed with the programmer which is part of the LPCXPRESSO module, and thereafter <A HREF="mios_studio.html">MIOS Studio</A> can directly access the chip via USB to program the <A HREF="mios32_download.html">MIDIbox NG application</A>. The complete installation process is described in the <A HREF="midibox_ng_manual_in.html">Installation Chapter</A>.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SD Card </H2>
+
+<IMG SRC="mbhp/mbhp_sdcard_lowcost_12.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>The MIDIbox NG application requires a <A HREF="mbhp_sdcard.html">SD Card</A> to store configuration files and snapshots. The cheapest and preferred solution is the usage of a Micro SD Card adapter, because combined adapter/card packages are available in many super-(or media-) markets - there is no need to buy an expensive SD Card socket from your electronic dealer!<BR>
+It will still be possible to plug the Micro-SD-Card into another adapter, e.g. if you would like to access it from your computer with a <A HREF="http://www.reichelt.de/Kartenleser-und-Adapter/SWEEX-CR013/3/index.html?;ACTION=3;LA=446;ARTICLE=122269;GROUPID=4825;artnr=SWEEX+CR013;SID=11TVLbZ38AAAIAAG9MIgIec1e46ae3eb4fc2fe4e011f269170227" TARGET="_blank">SD Card Reader</A>.
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Standard Control Surface </H2>
+
+<IMG SRC="midio128/midio128_v3_cs.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>The optional "Standard Control Surface" (SCS) allows to edit some (but not all) configuration values without the need of a computer.<BR>
+It consists of a LCD (at least 2x20 character LCD) + 6 buttons + 1 rotary encoder.<BR>
+Details are explained in this <A HREF="midibox_ng_manual_scs.html">special chapter</A>.
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Buttons </H2>
+
+<IMG SRC="mbhp/mbhp_dinx4_v5_smashtv.gif" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>Buttons are usually connected to one or more <A HREF="mbhp_din.html">MBHP_DIN</A> modules, Up to 32 serial 74HC165 based "DIN" shift registers can be chained, which allows to directly access up to 256 buttons.
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LEDs </H2>
+
+<IMG SRC="mbhp/mbhp_doutx4_v5_smashtv.gif" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>LEDs are usually connected to one or more <A HREF="mbhp_dout.html">MBHP_DOUT</A> modules, Up to 32 serial 74HC595 based "DOUT" shift registers can be chained, which allows to directly access up to 256 LEDs.
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Combined Button/LEDs </H2>
+
+<IMG SRC="mbhp/mbhp_dio_matrix.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>If you are planning to combine button and LEDs, it makes sense to consider the usage of one or more <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A> modules, which provides two DIN and two DOUT registers on a single board.<BR>
+<B>Advantage:</B> simplified wiring especially if only 16 Buttons/LEDs should be used.<BR>
+<B>Disadvantage:</B> the 220 Ohm series resistors for the LEDs have to be added externally
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Button Matrices </H2>
+
+<IMG SRC="midibox_blm/blm_buttons.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>Buttons connected in a matrix allow to multiply the number of buttons are be scanned from a DIN/DOUT shiftregister combo.<BR>
+E.g. with a single DIN and DOUT register it's possible to scan 8x8 = 64 buttons, with two DIN and DOUT registers (the <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX module</A>) even 16x16 = 256 buttons.<BR>
+MIDIbox NG supports up to 8 button matrices, which means that up to 2048 buttons can be scanned!<BR>
+Drawback is the decreased latency (1 mS for each row in the matrix) and the increased wiring and debugging effort, especially since Diodes have to be added to each button to ensure that they don't short other buttons (to avoid "ghost triggers").<BR>
+Newbies normally prefer to connect buttons directly to <A HREF="mbhp_din.html">MBHP_DIN</A> modules. Experts prefer matrix configurations, especially if they design a dedicated PCB for their frontpanel!
+</P>
+<BR clear="all">
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LED Matrices </H2>
+
+<IMG SRC="midibox_blm/blm_leds.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>LEDs connected in a matrix allow to multiply the number of LEDs which are scanned from DOUT shiftregisters.<BR>
+E.g. with two DOUT registers it's possible to scan 8x8 = 64 LEDs, with four DOUT registers (the <A HREF="mbhp_dout_matrix.html">MBHP_DOUTX4 module</A>) even 16x16 = 256 LEDs.<BR>
+MIDIbox NG supports up to 8 LED matrices, which means that up to 2048 LEDs can be serviced!<BR>
+Drawback is the decreased brightness of the LEDs (the duty cycle is 1/4, 1/8 resp. 1/16 depending on the number of matrix rows). It's not a big issue for 8x8 configurations, but especially 8x16 or 16x16 configurations require LEDs with perfect mcd values, otherwise LEDs will be too dark in a bright environment!<BR>
+Newbies normally prefer to connect LEDs directly to <A HREF="mbhp_dout.html">MBHP_DOUT</A> modules. Experts prefer matrix configurations, especially if they design a dedicated PCB for their frontpanel. Good to know: it's possible to share the same DOUT shiftregister to select LED and Button matrix rows! :-)
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Rotary Encoders </H2>
+
+<IMG SRC="midibox_ng/rotary_encoder.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>Rotary encoders (also known as "endless pots") are an attractive choise for MIDI controllers, since they allow to edit values without "parameter jumps", e.g. if they are used to access multiple parameter banks.<BR>
+An encoder has two terminals (called A and B) which generate <A HREF="http://en.wikipedia.org/wiki/Gray_code" TARGET="_blank">Gray encoded signals</A>, and a common pin connected to ground. A/B are connected to two pins of the <A HREF="mbhp_din.html">MBHP_DIN module</A>, so that MIDIbox NG can determine the rotation direction.<BR>
+Up to 128 rotary encoders can be handled by the MIDIbox NG application, non-detented and various detented types are supported.
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LED Rings </H2>
+
+<IMG SRC="midibox_ng/lre8x2.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>The problem with rotary encoders is the missing visual feedback of the selected value. This can be solved by displaying the value on a <A HREF="mbhp_lcd.html">LCD</A> - or with LED rings!<BR>
+Especially with <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=fairlightiii" TARGET="_blank">Fairlightiii's LRE8x2 module</A> it was never so easy (and inexpensive) to realize Encoder/LEDring combos as before! :-)
+</P>
+<BR clear="all">
+
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Pots/Faders </H2>
+
+<IMG SRC="midibox/midibox64_foto.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>Many people like the direct feedback which is provided by analog pots or faders. Such components can be added by using the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module.<BR>
+Each module allows to scan 64 pots/faders.<BR>
+Up to 2 modules (= 128 pots/faders) are supported by MIDIbox NG.
+<BR clear="all">
+<P CLASS=DESC><B>Advantage:</B> the tactual feel is much better compared to rotary encoders, parameters can be modified "blindly" by touching the exact position of the knob.<BR>
+<B>Disadvantage:</B> parameter jumps if a different parameter bank is selected, or values are changed by your DAW. It's possible to overcome this drawback by using the Snap (Soft-Takeover), Relative or Parallax mode, but although they don't lead to an audible hick-up, they usually slow-down the handling of parameter changes.
+
+<P CLASS=DESC>IMHO the perfect MIDI controller consists of rotary encoders for parameter values which are banked, and pots/faders for values which are interactively changed while you are making music! :-)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Motorfaders </H2>
+
+<IMG SRC="mbhp/mbhp_mf_v3_proto1.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>Motorfaders will move to the target position on bank or DAW changes. They are expensive! But this doesn't prevent Power-DIYers to add them to their MIDI controller - especially Mixing consoles with total recall capabilities! ;-)<BR>
+MIDIbox NG allows to access up to 4 <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> modules, which means that up to 32 motorfaders (and motorpots) can be controlled.
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> CV Outputs </H2>
+
+<IMG SRC="midibox_sid/mbsidv2_kobol_experiment1.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>Voltage Controled outputs (CV) are supported as well - they allow to convert MIDI values into analog voltages. Beside of the simple translation of 7bit based CC or 14bit NRPN/PitchBend values, MIDIbox NG even supports Note Stacks and Gate functions (available on <A HREF="mbhp_dout.html">DOUT pins</A>) so that analog synthesizers can be played via MIDI.<BR>
+Up to 4 <A HREF="mbhp_aout.html">MBHP_AOUT</A> or 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or 4 <A HREF="http://www.midibox.org/dokuwiki/aout_ng" TARGET="_blank">MBHP_AOUT_NG</A> modules can be connected, which means that up to 32 CV channels can be controlled.
+</P>
+<BR clear="all">
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> More than one LCD </H2>
+
+<IMG SRC="mbhp/mbhp_glcd_ssd1306.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>MIDIbox NG provides so many different LCD options, that this topic deserves a special page: <A HREF="midibox_ng_manual_lcd.html">LCD Hardware Options</A>.
+</P>
+<BR clear="all">
+
+
+
+FOOTER

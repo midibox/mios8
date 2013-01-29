@@ -12,7 +12,7 @@ HEADER 3 MIDIbox NG User Manual --- .NGC Configuration File
 <P CLASS=DESC>The syntax of the .NGC file is tailored around the need to express the processing of MIDI events in an extendable format, so that simple operations can be defined with a small number of parameters, and complex configurations are (hopefully) still human readable. Each parameter has a name which will cause a bit more writing effort, on the other hand this will allow to provide extensions in future firmware versions without compatibility issues.</P>
 
 <P CLASS=DESC>Each configuration entry begins with a keyword, and is followed by parameters which have to be defined in a single command line. In order to keep the oversight (not everybody is working on a big widescreen display), it's possible to split the command line over multiple lines in the .NGC file by appending them with the \ (Backslash) character at the end of a line:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 COMMAND  parameter1=ABC  parameter2=XxXxX  parameter3=qwertz \
          parameter4=Foo  parameter5=Bar \
          parameter6=42
@@ -21,29 +21,29 @@ COMMAND  parameter1=ABC  parameter2=XxXxX  parameter3=qwertz \
 <P CLASS=DESC>The complete command line can consist of up to 1000 characters! <!-- for techs who read the .html source: up to 1023 chars ;-) -->
 
 <P CLASS=DESC>It's allowed to add space characters before and after the = (equal) sign, which helps to improve the readability:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 EVENT_BUTTON id=  1  type=NoteOn chn= 1 key= 36
 EVENT_BUTTON id=  2  type=NoteOn chn=16 key= 37
 EVENT_BUTTON id=  3  type=CC     chn= 1 cc = 16
 </PRE></TT>
 
 <P CLASS=DESC>Values can be defined in decimal or hexadecimal format. Hexadecimal numbers begin with 0x (C-Style):
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 EVENT_BUTTON id=  1  type=CC  chn= 1 cc=0x10
 </PRE></TT>
 
 <P CLASS=DESC>Strings could contain intended spaces, therefore they have to be wrapped around single (') or double (") quotation marks. It's allowed to use single quotes inside double quotes and vice versa:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 EVENT_BUTTON id=  1  type=CC  chn= 1 cc= 16  label="This is a Test!"
 EVENT_BUTTON id=  2  type=CC  chn= 1 cc= 17  label='This is a Test!'
 EVENT_BUTTON id=  3  type=CC  chn= 1 cc= 18  label="This is a 'Test'!"
 EVENT_BUTTON id=  4  type=CC  chn= 1 cc= 19  label='This is a "Test"!'
-EVENT_BUTTON id=  4  type=SysEx  stream="0xf0 0x11 0x22 0x33 0xf7"
+EVENT_BUTTON id=  5  type=SysEx  stream="0xf0 0x11 0x22 0x33 0xf7"
 </PRE></TT>
 
 <P CLASS=DESC>Certain parameters expect ranges or multiple values. These values are concatenated with colons (:)<BR>
 <B>Spaces before/after colons are not allowed!</B>
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 EVENT_BUTTON id=  1  type=CC  chn= 1 cc= 16  range=  0:127
 EVENT_BUTTON id=  2  type=CC  chn= 1 cc= 17  range=  0:10
 EVENT_BUTTON id=  3  type=CC  chn= 1 cc= 18  range=100:127
@@ -51,62 +51,98 @@ EVENT_BUTTON id=  4  type=CC  chn= 1 cc= 19  range=  0:127  lcd_pos= 1:1:1 label
 </PRE></TT>
 
 <P CLASS=DESC>The parser doesn't disallow to specify a parameter multiple times, but in most cases only the last assignment will be taken:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 EVENT_BUTTON id=1  id=2  id=3 type=CC  chn= 1 cc= 16  range=  0:127
 # this button will have  ^^^^ ID 3
 </PRE></TT>
 
 <P CLASS=DESC>Exceptions are mentioned in the tables below. E.g. it's possible to specify multiple meta events:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 EVENT_BUTTON id=  1     type=Meta   meta=SetBank      meta=DoAnythingElse:42
 #                                   ^^^^ first event  ^^^^ second event
 </PRE></TT>
 
 <P CLASS=DESC>Last but not least: comments can be added to the .NGC file by starting with a hash (#):
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 # My first .NGC file
 </PRE></TT>
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> BANK </H2>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> IDs and Banks </H2>
 
-<P CLASS=DESC>The <I>BANK</I> command allows to map hardware resources to "virtual control elements". Up to 16 banks are available, they can group individual ranges of buttons/LEDs/encoders/pots/motorfaders, and map them to EVENT_* commands. Bank switching is done with control elements which are assigned to the <I>SetBank</I>, <I>IncBank</I> or <I>DecBank</I> meta event. Either dedicated buttons could be used for such a purpose, or a rotary encoder, or MIDI events sent from external. Alternatively it will be possible to select a bank from the SCS.
+<P CLASS=INFO>Several ID values are used to address hardware and software functions.</P>
 
-<P CLASS=DESC>Example for a setup with 4 banks, which is used to map 16 rotary encoders to 64 EVENT_ENC elements:
-<TT><PRE style="margin-left:50px">
-BANK n=1  enc=1:16:1
-BANK n=2  enc=1:16:17
-BANK n=3  enc=1:16:33
-BANK n=4  enc=1:16:49
-</PRE></TT>
-<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fencbanks.ngc" TARGET="_blank">Link to the complete example</A>.
-
-<P CLASS=DESC>The syntax for a hardware assignment is:<BR>
-<I>&lt;controller&gt;=&lt;first-hardware-element&gt;:&lt;number-of-hardware-elements&gt;:&lt;first-event-id&gt;</I>
+<P CLASS=DESC>We mainly differ between the <I>id</I> of an EVENT (see next chapter), which can range from 1..4095 for each control element, and the <I>hw_id</I> which addresses the actual hardware controller.
 
 <P CLASS=DESC>Available controllers are:
 <UL CLASS=CL>
   <LI><I>BUTTON</I>: the first button (1) is connected to the first DIN shift register, pin D0, the second button (2) to the first DIN shift register, pin D1, ... the 9th button to the second DIN shift register, pin D0, etc...<BR>
-Up to 256 buttons can be connected to up to 32 DIN shift registers. 1024 virtual button functions are available.
+Up to 256 buttons can be connected to up to 32 DIN shift registers.<BR>
+   The <I>hw_id</I> ranges from 1..256
   <LI><I>LED</I>: the first LED (1) is connected to the first DOUT shift register, pin D7 (!), the second LED (2) to the first DOUT shift register, pin D6, ... the 9th LED to the second DOUT shift register, pin D7, etc...<BR>
-Up to 128 LEDs can be connected to up to 32 DOUT shift registers. 1024 virtual LED functions are available.
+Up to 128 LEDs can be connected to up to 32 DOUT shift registers.<BR>
+   The <I>hw_id</I> ranges from 1..256
   <LI><I>ENC</I>: rotary encoders allocate two DIN pins, which have to be assigned with the ENC command which is described later in this chapter.<BR>
-Up to 128 rotary encoders are currently supported
-  <LI><I>AIN</I>: 6 AIN (analog input) pins are directly available on the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module at J5A.A0 .. J5B.A5 - conversion values are working at 7bit resolution only due to the reduced voltage range of 0..3.3V. For higher resolutions or more inputs please use the AINSER option!
+Up to 128 rotary encoders are currently supported.
+   The <I>hw_id</I> ranges from 1..128
+  <LI><I>AIN</I>: 6 AIN (analog input) pins are directly available on the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module at J5A.A0 .. J5B.A5 - conversion values are working at 7bit resolution only due to the reduced voltage range of 0..3.3V. For higher resolutions or more inputs please use the AINSER option!<BR>
+   The <I>hw_id</I> ranges from 1..6
   <LI><I>AINSER</I>: the usage of the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module is the recommended solution for pots and faders. The resultion is up to 11bit without jittering values. Up to 2 MBHP_AINSER64 modules can be handled by the firmware, accordingly up to 128 AINSER based controllers are available.<BR>
-The inputs of the first AINSER module are available as AINSER controller 1-64, the inputs of the second module as AINSER controller 65-128
+The inputs of the first AINSER module are available as AINSER controller 1-64, the inputs of the second module as AINSER controller 65-128.<BR>
+   The <I>hw_id</I> ranges from 1..128
   <LI><I>MF</I>: up to 4 <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> modules can be connected, which means that up to 32 motorfaders can be used as controllers. The modules are configured with the MF command which is described later in this chapter.<BR>
-The faders of the first MBHP_MF_NG module are available as MF controller 1-8, the faders of the second module as MF controller 9-16, etc.
+The faders of the first MBHP_MF_NG module are available as MF controller 1-8, the faders of the second module as MF controller 9-16, etc.<BR>
+   The <I>hw_id</I> ranges from 1..32
   <LI><I>CV</I>: up to 4 <A HREF="mbhp_aout.html">MBHP_AOUT</A> or 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or 4 <A HREF="http://www.midibox.org/dokuwiki/aout_ng" TARGET="_blank">MBHP_AOUT_NG</A> modules can be connected, which means that up to 32 CV channels can be controlled. The modules are configured with the AOUT command which is described later in this chapter.<BR>
+   The <I>hw_id</I> ranges from 1..32
+  <LI><I>KEYBOARD</I>: up to 2 <A HREF="midibox_kb.html">MIDI Keyboards with velocity</A> can be scanned. The same driver as for MIDIbox KB is used.<BR>
+   The <I>hw_id</I> ranges from 1..2
 </UL>
 
-<P CLASS=DESC>Buttons and LEDs which are connected to a DIN/DOUT matrix can be used in banks by emulating BUTTON/LED controllers, see the <I>button_emu_id_offset</I> and <I>led_emu_id_offset</I> of the <I>DIN_MATRIX</I> and <I>DOUT_MATRIX</I> configuration command.
+<P CLASS=DESC>The separation of these ids is important for banking. By default, the <I>hw_id</I> will be identical to the <I>id</I> if not further specified, but by changing the <I>hw_id</I> in an EVENT definition it's possible to assign the same hardware to multiple software functions, and to select the function with the <I>bank</I> parameter.
 
-<P CLASS=DESC>By default, only a single bank is configured, in which all hardware controllers are mapped to a unique EVENT id starting from 1:
-<TT><PRE style="margin-left:50px">
-BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:128:1   mf=1:32:1
+<P CLASS=DESC>The bank can then be switched with control elements which are assigned to the <I>SetBank</I>, <I>IncBank</I>, <I>DecBank</I> or <I>CycleBank</I> meta event. Either dedicated buttons could be used for such a purpose, or a rotary encoder, or MIDI events sent from external. Alternatively it will be possible to select a bank from the SCS.
+
+<P CLASS=DESC>Configuration Example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# decrement/increment bank
+EVENT_BUTTON id=2001  type=Meta  meta=DecBank  button_mode=OnOnly  lcd_pos=1:17:1 label="Bnk%q"
+EVENT_BUTTON id=2002  type=Meta  meta=IncBank  button_mode=OnOnly  lcd_pos=1:17:1 label="Bnk%q"
 </PRE></TT>
 
-<P CLASS=DESC>Please note that it's also possible to map only a subset of controllers to banks, and to use the remaining hardware elements for dedicated functions outside the bank: <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Febnkpart.ngc" TARGET="_blank">Link to a configuration example</A>.
+<P CLASS=DESC>With the <I>SetBankOfHwId</I>, <I>IncBankOfHwId</I>, <I>DecBankOfHwId</I> or <I>CycleBankOfHwId</I> events it's even possible to select only the EVENT definition for a specific (or multiple) hardware controllers, selected with their <I>hw_id</I>, e.g.:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# the two leftmost encoders (hw_id=1 and 2) select the bank for the remaining upper/lower encoders
+EVENT_ENC    id=101  hw_id =  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1  type=Meta  range=  1:4 \
+             meta=SetBankOfHwId:3 \
+             meta=SetBankOfHwId:5 \
+             meta=SetBankOfHwId:7 \
+             meta=SetBankOfHwId:9 \
+             meta=SetBankOfHwId:11 \
+             meta=SetBankOfHwId:13 \
+             meta=SetBankOfHwId:15 \
+             lcd_pos=1:17:1 label="Bnk%d"
+
+EVENT_ENC    id=102  hw_id =  2  fwd_id=LED_MATRIX:2  fwd_to_lcd=1  type=Meta  range=  1:4 \
+             meta=SetBankOfHwId:4 \
+             meta=SetBankOfHwId:6 \
+             meta=SetBankOfHwId:8 \
+             meta=SetBankOfHwId:10 \
+             meta=SetBankOfHwId:12 \
+             meta=SetBankOfHwId:14 \
+             meta=SetBankOfHwId:16 \
+             lcd_pos=1:17:2 label="Bnk%d"
+</PRE></TT>
+
+<P CLASS=DESC>Following examples are worth to gather more informations about this topic:
+  <UL CLASS=CL>
+    <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fencbanks.ngc" TARGET="_blank">encbanks.ngc</A>.
+    <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fbnk_2sel.ngc" TARGET="_blank">bnk_2sel.ngc</A>.
+    <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fbnk_8sel.ngc" TARGET="_blank">bnk_8sel.ngc</A>.
+  </UL>
+
+<P CLASS=DESC>Please note that it's also possible to assign only a subset of controllers to banks, and to use the remaining hardware elements for dedicated functions outside the bank: <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Febnkpart.ngc" TARGET="_blank">Link to a configuration example</A>.
+
+<P CLASS=DESC>Buttons and LEDs which are connected to a DIN/DOUT matrix can be used in banks by emulating BUTTON/LED controllers, see the <I>button_emu_id_offset</I> and <I>led_emu_id_offset</I> of the <I>DIN_MATRIX</I> and <I>DOUT_MATRIX</I> configuration command.
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> EVENT_* </H2>
@@ -211,8 +247,21 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
     <TD CLASS=TABCOLOR2 WIDTH=150><I>id=&lt;1..4095&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Specifies the ID of the event which can range from 1..4095.<BR>
        Each EVENT_* element requires a unique ID in the configuration file!<BR>
-       The EVENT_&lt;type&gt; is part of the ID, which means that BUTTON, LED, ENC, AINSER can have the same id number.<BR>
-       IDs from 0..1024 are typically grouped, IDs from 1025..4095 act as autonomous controllers.
+       The EVENT_&lt;type&gt; is part of the ID, which means that BUTTON, LED, ENC, AINSER can have the same id number.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>hw_id=&lt;1..4095&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Optionally specifies the <I>hw_id</I> (hardware controller) to which the EVENT definition is assigned. See also the detailed description in the previous chapter.<BR>
+       If not specified, the <I>hw_id</I> will match with the <I>id</I>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>bank=&lt;0..255&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the bank to which the <I>hw_id</I> is assigned. See also the detailed description in the previous chapter.<BR>
+       With <I>bank=0</I> the controller won't be assigned to any bank, with <I>bank=1..255</I> it will be assigned, so that the EVENT definition is only active if the selected bank matches with the given number.
     </TD>
   </TR>
 
@@ -235,14 +284,14 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
       In conjunction with EVENT_RECEIVER and EVENT_SENDER it's also possible to convert MIDI events, even from "simple" to SysEx and vice versa. Some examples can be found in the <A HREF="midibox_ng_manual_fs.html">First Steps</A> chapter.<BR>
       Multiple events can be chained this way, but the maximum chain length is limited to 4!<BR>
       If a value is passed to an unspecified EVENT id (because you want to avoid unnecessary writing effort), it's assumed that it will have the same parameters like the EVENT which forwards the value. E.g.:
-<TT><PRE style="margin-left:50px">EVENT_ENC id=1 fwd_id=LED_MATRIX:1 led_matrix_pattern=1</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">EVENT_ENC id=1 fwd_id=LED_MATRIX:1 led_matrix_pattern=1</PRE></TT>
       will forward the received value to an EVENT_LED_MATRIX entry with id=1. If this entry hasn't been specified, then it will inherit the parameters of the ENC element. Since the ENC element specified led_matrix_pattern=1, the LED Ring will display the value with pattern #1
     </TD>
   </TR>
 
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>fwd_to_lcd=&lt;1|0&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Whenever an matching MIDI event has been received, and a label is assigned to the EVENT, and the EVENT is not part of a BANK, or the BANK is selected, the label will be print on screen.<BR>Use this option to display value changes from external on the LCD.
+    <TD CLASS=TABCOLOR2>Whenever an matching MIDI event has been received, and a label is assigned to the EVENT, and the EVENT is not part of a bank, or the bank is selected, the label will be print on screen.<BR>Use this option to display value changes from external on the LCD.
     </TD>
   </TR>
 
@@ -289,7 +338,7 @@ BANK n= 1  button=1:128:1   led=1:128:1   enc=1:128:1   ain=1:6:1     ainser=1:1
     <TD CLASS=TABCOLOR2>By default, a Note or CC event will process the velocity or CC value.<BR>
     With <I>use_key_number=1</I> or <I>use_cc_number=1</I> the key/CC number will be processed instead.<BR>
     This is especially useful for EVENT_CV to handle the note stack:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 # these two events listen to any key on channel 1
 # the first event uses the "key" as value, sets CV Channel #1 and the CV Gate #1 (at J5A.A0)
 # the second event uses velocity as value (default) and sets CV Channel #2
@@ -322,7 +371,7 @@ EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>stream=&lt;...&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Specifies the SysEx stream of a <I>type=SysEx</I> event. The stream is specified as a string with decimal and/or hexadecimal numbers. It can also contain variables which are identified with a Caret (^):<BR>
-<TT><PRE style="margin-left:50px">stream="0xf0 0x11 0x22 0x33 ^dev 0x00 ^val 0xf7"</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">stream="0xf0 0x11 0x22 0x33 ^dev 0x00 ^val 0xf7"</PRE></TT>
         This example sends and receives a SysEx string starting with "0xf0 0x11 0x22 0x33", then we send/expect the device number, 0x00, the value (which will be passed or send to/from the control element) and 0xf7.<BR>
         Following SysEx variables are available:
         <UL CLASS=CL>
@@ -342,6 +391,11 @@ EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
           <LI><I>^val_n4</I>: sends the fourth nibble of the EVENT value (bit 12..15)
           <LI><I>^ignore</I>: ignores an incoming byte, doesn't send a byte
           <LI><I>^dump</I>: starts the SysEx dump mapping: EVENTs with <I>syxdump_pos</I> will get the received values at the specified positions.
+          <LI><I>^cursor</I>: allows to directly set the LCD cursor from a SysEx dump. This is used when text messages should be received via SysEx.<BR>Value 0..63 will set the cursor at the first line, value 64..127 at the second line.<BR> If the text is longer than 40 characters, and a second 2x40 LCD is connected, it will be automatically continued there.
+          <LI><I>^txt</I>: outputs the received text to the LCD until F7 is received
+          <LI><I>^txt56</I>: outputs the received text to the LCD until F7 is received. Automatically jumps to the next line if the cursor has exceeded the 56th column.<BR>
+          ^txt and ^txt56 also allow to map incoming characters to different cursor positions. An example can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Flogictrl.ngc" TARGET="_blank">logictrl.ngc template</A>.<BR>
+          Independent from this map feature, ^txt and ^txt56 now also take lcd_pos=... and label=... into account to set the initial LCD and cursor position, at which the message will start. The label can be used to change the GLCD font before the characters will be print. An example can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Flogictrl.ngc" TARGET="_blank">logictrl.ngc template</A> as well.
         </UL>
     </TD>
   </TR>
@@ -353,7 +407,15 @@ EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
         <LI><I>SetBank</I>: sets the bank according to the EVENT value (1..16). If buttons are used to select the bank, please specify <I>meta=SetBank range=1:1 button_mode=OnOnly</I> to select the first bank. If an encoder, pot, etc... is used, please specify <I>meta=SetBank range=1:16</I>.
         <LI><I>IncBank</I>: increments the bank number
         <LI><I>DecBank</I>: decrements the bank number
+        <LI><I>CycleBank</I>: increments the bank number, resets to 1 if last bank reached
+        <LI><I>SetBankOfHwId:&lt;hw_id&gt;</I>: sets the bank number only for the EVENTs which are matching with the given <I>hw_id</I>
+        <LI><I>IncBankOfHwId:&lt;hw_id&gt;</I>: increments the bank number number only for the EVENTs which are matching with the given <I>hw_id</I>
+        <LI><I>DecBankOfHwId:&lt;hw_id&gt;</I>: decrements the bank number number only for the EVENTs which are matching with the given <I>hw_id</I>
+        <LI><I>CycleBankOfHwId:&lt;hw_id&gt;</I>: increments the bank number, resets to 1 if last bank reached for the EVENTs which are matching with the given <I>hw_id</I>
         <LI><I>EncFast</I>: speeds up encoder movements according to the EVENT value. E.g. if <I>meta=EncFast range=0:5</I> is assigned to a BUTTON_EVENT, encoders will increment 5 times faster if the button is pressed.
+        <LI><I>MidiLearn</I>: can be used to enable MIDI Learn mode from a dedicated button (instead of the <A HREF="midibox_ng_manual_scs.html">SCS</A>).<BR>
+        E.g. if <I>meta=MidiLearn range=0:1</I> is assigned to a BUTTON_EVENT, Learn Mode will be enabled when the button is pressed, and disabled once it has been released.<BR>
+        With <I>meta=MidiLearn range=0:2</I> NRPNs can be learned as well - in the case, CC#6/38/98/99 will be transformed into a NRPN event.
         <LI><I>ScsEnc</I>: emulates a SCS encoder movement. This Meta event can either be issued from EVENT_ENC or EVENT_BUTTON events. A usage example is given below.
         <LI><I>ScsSoft1</I>: emulates the SOFT1 button of the SCS
         <LI><I>ScsSoft2</I>: emulates the SOFT2 button of the SCS
@@ -362,7 +424,7 @@ EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
         <LI><I>ScsShift</I>: emulates the SHIFT button of the SCS
         <LI><I>ScsMenu</I>: emulates the MENU button of the SCS<BR>
            Here a complete configuration example for 8 emulated SCS buttons:
-<TT><PRE style="margin-left:20px">
+<TT><PRE style="margin-left:20px; font-size:8pt">
 EVENT_BUTTON id=  1  type=Meta   meta=ScsSoft1 range=0:1
 EVENT_BUTTON id=  2  type=Meta   meta=ScsSoft2 range=0:1
 EVENT_BUTTON id=  3  type=Meta   meta=ScsSoft3 range=0:1
@@ -377,7 +439,7 @@ EVENT_BUTTON id=  8  type=Meta   meta=ScsEnc   range=65:65 button_mode=OnOnly
 </PRE></TT>
 
            Here a complete configuration example for 6 emulated SCS buttons + 1 SCS encoder:
-<TT><PRE style="margin-left:20px">
+<TT><PRE style="margin-left:20px; font-size:8pt">
 EVENT_BUTTON id=  1  type=Meta   meta=ScsSoft1 range=0:1
 EVENT_BUTTON id=  2  type=Meta   meta=ScsSoft2 range=0:1
 EVENT_BUTTON id=  3  type=Meta   meta=ScsSoft3 range=0:1
@@ -390,7 +452,7 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
 </PRE></TT>
       </UL>
       It's allowed to specify multiple <I>meta=&lt;...&gt;</I> parameters for a single EVENT element, e.g.:
-<TT><PRE style="margin-left:50px">meta=SetBank  meta=DoAnythingElse:42</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">meta=SetBank  meta=DoAnythingElse:42</PRE></TT>
       This is just a starting point, much more meta events will be available in future!<BR>
     </TD>
   </TR>
@@ -439,21 +501,21 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
 
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>radio_group=&lt;0..63&gt;</I></TD>
-    <TD CLASS=TABCOLOR2><I>EVENT_BUTTON</I> and <I>EVENT_LED</I> elements can be assigned to groups, which handle the same value over multiple elements.<BR>
+    <TD CLASS=TABCOLOR2><I>EVENT_BUTTON</I>, <I>EVENT_LED</I>, <I>EVENT_SENDER</I> and <I>EVENT_RECEIVER</I> elements can be assigned to groups, which handle the same value over multiple elements.<BR>
       E.g. let's say, that 8 buttons should send different CC#16 values, and the related LEDs should display the button state. Only one LED should turn on depending on the value which has been sent:
-<PRE style="margin-left:50px">
-EVENT_BUTTON id=  1  fwd_id=LED:1  type=CC chn=1 cc=16  button_mode=OnOnly  range= 0:0   radio_group=1
-EVENT_BUTTON id=  2  fwd_id=LED:2  type=CC chn=1 cc=16  button_mode=OnOnly  range= 1:1   radio_group=1
-EVENT_BUTTON id=  3  fwd_id=LED:3  type=CC chn=1 cc=16  button_mode=OnOnly  range= 2:2   radio_group=1
-EVENT_BUTTON id=  4  fwd_id=LED:4  type=CC chn=1 cc=16  button_mode=OnOnly  range= 3:3   radio_group=1
-EVENT_BUTTON id=  5  fwd_id=LED:5  type=CC chn=1 cc=16  button_mode=OnOnly  range= 4:4   radio_group=1
-EVENT_BUTTON id=  6  fwd_id=LED:6  type=CC chn=1 cc=16  button_mode=OnOnly  range= 5:5   radio_group=1
-EVENT_BUTTON id=  7  fwd_id=LED:7  type=CC chn=1 cc=16  button_mode=OnOnly  range= 6:6   radio_group=1
-EVENT_BUTTON id=  8  fwd_id=LED:8  type=CC chn=1 cc=16  button_mode=OnOnly  range= 7:7   radio_group=1
+<PRE style="margin-left:10px; font-size:8pt; font-size:8pt">
+EVENT_BUTTON id=1  fwd_id=LED:1  type=CC chn=1 cc=16  button_mode=OnOnly range= 0:0 radio_group=1
+EVENT_BUTTON id=2  fwd_id=LED:2  type=CC chn=1 cc=16  button_mode=OnOnly range= 1:1 radio_group=1
+EVENT_BUTTON id=3  fwd_id=LED:3  type=CC chn=1 cc=16  button_mode=OnOnly range= 2:2 radio_group=1
+EVENT_BUTTON id=4  fwd_id=LED:4  type=CC chn=1 cc=16  button_mode=OnOnly range= 3:3 radio_group=1
+EVENT_BUTTON id=5  fwd_id=LED:5  type=CC chn=1 cc=16  button_mode=OnOnly range= 4:4 radio_group=1
+EVENT_BUTTON id=6  fwd_id=LED:6  type=CC chn=1 cc=16  button_mode=OnOnly range= 5:5 radio_group=1
+EVENT_BUTTON id=7  fwd_id=LED:7  type=CC chn=1 cc=16  button_mode=OnOnly range= 6:6 radio_group=1
+EVENT_BUTTON id=8  fwd_id=LED:8  type=CC chn=1 cc=16  button_mode=OnOnly range= 7:7 radio_group=1
 </PRE></TT>
 
       This also works if only LEDs are used, and it's allowed to use larger ranges:
-<PRE style="margin-left:50px">
+<PRE style="margin-left:50px; font-size:8pt">
 EVENT_LED    id=  9                type=CC chn=1 cc= 1  range= 0:9  radio_group=2
 EVENT_LED    id= 10                type=CC chn=1 cc= 1  range=10:19 radio_group=2
 EVENT_LED    id= 11                type=CC chn=1 cc= 1  range=20:29 radio_group=2
@@ -463,6 +525,13 @@ EVENT_LED    id= 14                type=CC chn=1 cc= 1  range=50:59 radio_group=
 EVENT_LED    id= 15                type=CC chn=1 cc= 1  range=60:69 radio_group=2
 EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=2
 </PRE></TT>
+
+  <P CLASS=DESC>More usage examples:
+    <UL CLASS=CL>
+      <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fradiogrp.ngc" TARGET="_blank">radiogrp.ngc</A>: demonstrates the usage of radio groups as shown above
+      <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fbnkled.ngc" TARGET="_blank">bnkled.ngc</A>: using a radio group to display the selected bank with LEDs
+      <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fbnkledcc.ngc" TARGET="_blank">bnkledcc.ngc</A>: same as above, but in additional a MIDI event is sent with EVENT_SENDER assigned to the same radio group
+    </UL>
     </TD>
   </TR>
 
@@ -549,9 +618,9 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
           <LI>the last 4 digits enable/disable OSC1..OSC4
        </UL>
        Example: following binary value (which is the default value)
-<TT><PRE style="margin-left:50px">ports=1000100000001000</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">ports=1000100000001000</PRE></TT>
        will enable USB1, MIDI1 (IN1 and OUT1) and OSC1, and following binary:
-<TT><PRE style="margin-left:50px">ports=0000110000000000</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">ports=0000110000000000</PRE></TT>
        will only enable MIDI1 and MIDI2
     </TD>
   </TR>
@@ -560,9 +629,9 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
     <TD CLASS=TABCOLOR2 WIDTH=150><I>lcd_pos=&lt;lcd&gt;:&lt;X&gt;:&lt;Y&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Each event can output a label whenever a value has been received via MIDI, or the control element has been moved (e.g. button has been pushed, encoder/motorfader/pot has been moved).<BR>
       <I>lcd</I> specifies the LCD number which should be used to output the label, <I>X</I> the column and <I>Y</I> the line. E.g.:
-<TT><PRE style="margin-left:50px">lcd_pos=1:1:1</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">lcd_pos=1:1:1</PRE></TT>
         will output the label on the first LCD, first character in the first line. And:
-<TT><PRE style="margin-left:50px">lcd_pos=1:1:2</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">lcd_pos=1:1:2</PRE></TT>
         will output the label on the first LCD, first character in the second line.
     </TD>
   </TR>
@@ -589,6 +658,7 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>%%</I>: outputs the % character
         <LI><I>^^</I>: outputs the ^ character
         <LI><I>^&lt;label&gt;</I>: outputs a globally defined, conditional or unconditional label. See the <A HREF="midibox_ng_manual_ngl.html">.NGL chapter</A> for details.
+        <LI><I>^#</I>: is doing nothing - this "terminator" is used if text should follow a label, e.g. label="^clr^#MyText" will print the ^clr label, and thereafter "MyText".
       </UL>
       It's possible to format the output by adding following specifiers after the percent (%) character. In following example the %d (decimal value) is used, but this works with any format type:
       <UL CLASS=CL>
@@ -597,9 +667,9 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>%03d</I>: the value will be padded with zeroes to 3 characters, and it will be output right-aligned, e.g. "001", "010", "100"
       </UL>
       Examples:
-<TT><PRE style="margin-left:50px">lcd_pos=1:1:1  label="ENC #%3i    %3d%B"</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">lcd_pos=1:1:1  label="ENC #%3i    %3d%B"</PRE></TT>
       will output at the first LCD, first column, first line a string with 20 characters. It starts with "ENC #", followed by the ID of the EVENT_ENC (3 digits), some spaces, the EVENT value (3 digits right-aligned) and a vertical bar.
-<TT><PRE style="margin-left:50px">lcd_pos=1:1:1  label="FIL1 Type ^fil_type"</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">lcd_pos=1:1:1  label="FIL1 Type ^fil_type"</PRE></TT>
       will output "FIL1 Type " and then a conditional label called ^fil_type which has been specified in the <A HREF="midibox_ng_manual_ngl.html">.NGL file</A>.<BR>
       GLCDs can output different fonts which are selected with the ampersant (&amp;) character:
       <UL CLASS=CL>
@@ -619,7 +689,7 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>@(&lt;lcd&gt;:&lt;X&gt;:&lt;Y&gt;)</I>: changes to the given lcd, X and Y position.
       </UL>
       Example:
-<TT><PRE style="margin-left:50px">lcd_pos=1:1:1  label="Enc%3i&amp;k@(1:1:2)%B&amp;n@(1:18:1)%3d"</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">lcd_pos=1:1:1  label="Enc%3i&amp;k@(1:1:2)%B&amp;n@(1:18:1)%3d"</PRE></TT>
       No, this is not an encrypted message, because the processing rules are well documented! ;-) - it will output "ENC" + the ID number. Then it will select the "knob" icon, jump to position X=1 Y=2 and output the knob icon based on the EVENT value. Thereafter it will select the normal font, jump to position X=18 Y=1 and output the MIDI value in decimal format.
     </TD>
   </TR>
@@ -631,13 +701,14 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
 <P CLASS=DESC>This command creates a map of values which can be used by EVENTs for alternative value ranges without continuous values.
 
 <P CLASS=DESC>E.g., consider that an encoder should only send following values:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 MAP1   1 2 4 8 16 32 64
 </PRE></TT>
 
 <P CLASS=DESC>Then select this map with:
-<TT><PRE style="margin-left:50px">
-EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1  type=CC chn= 1 cc= 16  range=map1  lcd_pos=1:1:1  label="^std_enc"
+<TT><PRE style="margin-left:50px; font-size:8pt; font-size:8pt">
+EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
+                     type=CC chn= 1 cc= 16  range=map1  lcd_pos=1:1:1  label="^std_enc"
 </PRE></TT>
 
 <P CLASS=DESC>Up to 255 maps can be defined (<I>MAP1</I> .. <I>MAP255</I>), each map can specify up to 128 values, the value range is 0..255 (8bit)
@@ -749,13 +820,18 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1  type=CC chn= 1 cc= 16  r
       </UL>
   </TR>
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>inverted=&lt;1|0&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>DOUT selection lines will be inverted with <I>inverted=1</I>. This is required if the diodes of the button matrix have been connected in the opposite order:
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>inverted=&lt;1|0&gt;<BR>inverted_sel=&lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>DOUT selection lines will be inverted with <I>inverted=1</I> or <I>inverted_sel=1</I>. This is required if the diodes of the button matrix have been connected in the opposite order:
        <UL CLASS=CL>
           <LI><I>inverted=0</I>: Cathodes are connected to the DOUT selection lines, see also <A HREF="midio128/midio128_v3_scanmatrix.pdf" TARGET="_blank">this schematic</A>.
-          <LI><I>inverted=1</I>: Anodes are connected to the DOUT selection lines (not standard, but sometimes required if already existing hardware should be re-used).
+          <LI><I>inverted=1</I>: Inverting sink drivers have been added to the DOUT register.
+          <LI><I>inverted_sel=1 and inverted_row=1</I>: Anodes are connected to the DOUT selection lines (not standard, but sometimes required if already existing hardware should be re-used).
        </UL>
     </TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>inverted_row=&lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>DIN row patterns can be inverted with <I>inverted_row=1</I>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_sel1=&lt;0..16&gt;</I></TD>
@@ -807,9 +883,14 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1  type=CC chn= 1 cc= 16  r
     <TD CLASS=TABCOLOR2>DOUT selection lines will be inverted with <I>inverted=1</I>. This is required if the LEDs of the matrix have been connected in the opposite order:
        <UL CLASS=CL>
           <LI><I>inverted=0</I>: Cathodes are connected to the DOUT selection lines, see also <A HREF="mbhp/mbhp_blm_map.pdf" TARGET="_blank">this schematic</A>.
-          <LI><I>inverted=1</I>: Anodes are connected to the DOUT selection lines (e.g. sink drivers are used)
+          <LI><I>inverted=1</I>: Inverting sink drivers have been added to the DOUT register.
+          <LI><I>inverted_sel=1 and inverted_row=1</I>: Anodes are connected to the DOUT selection lines (swapped polarity)
        </UL>
     </TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>inverted_row=&lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>DOUT row patterns can be inverted with <I>inverted_row=1</I>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>sr_dout_sel1=&lt;0..16&gt;</I></TD>
@@ -850,7 +931,7 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1  type=CC chn= 1 cc= 16  r
 <P CLASS=DESC>Each pattern-set consists of 17 entries. 16 entries are scaled over the specified min/max range of incoming value. The 17th entry is called 'M' and is used when the middle of the value range has been reached.
 
 Examples for a typical patterns for a LED Ring with 11 LEDs, and a 12th "center" LED (see also <A HREF="http://www.ucapps.de/mbhp/mbhp_doutx4_ledrings.pdf" TARGET="_blank">this schematic</A>):
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 # LED_MATRIX_PATTERNs
 LED_MATRIX_PATTERN n= 1  pos= 0  pattern=1000000000000000
 LED_MATRIX_PATTERN n= 1  pos= 1  pattern=1100000000000000
@@ -928,12 +1009,31 @@ LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000000000100000
 </TABLE>
 
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> KEYBOARD </H2>
+
+<P CLASS=DESC>The KEYBOARD command configures (hardware) keyboards. The same driver like for <A HREF="midibox_kb.html">MIDIbox KB</A> is used, but the scan frequency is slower (10 times!). Each row is scanned in 320 uS (instead of 32 uS). This has to be considered in the velocity delay configuration: delay_slowest should be 100 (instead of 1000), and delay_fastest should be 5 (instead of 50)</P>
+
+<P CLASS=DESC>Here a typical keyboard configuration for a Fatar DF type with 61 keys:
+<TT><PRE style="margin-left:10px; font-size:8pt; font-size:8pt">
+KEYBOARD n=1   rows=8  dout_sr1=1  dout_sr2=2  din_sr1=1  din_sr2=2 \
+               din_inverted=0  break_inverted=0  din_key_offset=32 \
+               scan_velocity=1  scan_optimized=0  note_offset=28 \
+               midi_ports=1000100000001000  midi_chn=1 \
+               delay_fastest=5  delay_fastest_black_keys=0  delay_slowest=100 \
+               ain_pitchwheel_pin=  0  ain_pitchwheel_ctrl=128  ain_pitchwheel_min=  1  ain_pitchwheel_max=254 \
+               ain_modwheel_pin  =  0  ain_modwheel_ctrl  =  1  ain_modwheel_min  =  1  ain_modwheel_max  =254 \
+               ain_sustain_pin   =  0  ain_sustain_ctrl   = 64  ain_sustain_min   =  1  ain_sustain_max   =254
+</PRE></TT>
+
+
+<P CLASS=DESC>Please note, that the configuration commands are identical "set kb..." as documented at the <A HREF="http://www.ucapps.de/midibox_kb.html">MIDIbox KB page</A>. This means, that the keyboard parameters can also be changed during runtime to determine the best matching values, before they are written into the .NGC file.</P>
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> AIN </H2>
 
 <P CLASS=DESC>The AIN command allows to enable/disable core based analog inputs with the <I>enable_mask</I> parameter. It consists of 6 binary digits which stand for J5A.A0..J5B.A5
 
 <P CLASS=DESC>Example:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 # AIN hardware
 AIN enable_mask=110000
 </PRE></TT>
@@ -1062,7 +1162,7 @@ will enable the J5A.A0 and J5A.A1 inputs.
 </TABLE>
 
 <P CLASS=INFO>Configuration example:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 # initialize the AOUT module
 AOUT  type=AOUT_NG  cs=0  num_channels=8
 </PRE></TT>
@@ -1102,7 +1202,7 @@ AOUT  type=AOUT_NG  cs=0  num_channels=8
 </TABLE>
 
 <P CLASS=INFO>Configuration example:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt; font-size:8pt">
 # the SCS should emulate button/enc functions in main page
 SCS soft1_button_emu_id=2000 \
     soft2_button_emu_id=2001 \
@@ -1292,7 +1392,7 @@ Each OSC port has an individual remote IP, a remote port (to which OSC packets w
 <P CLASS=INFO>All string control formats and directives are supported (see description of <I>EVENT_* label</I> parameter), which especially means that it's possible to clear the screen, and to jump to different cursor positions at different displays.
 
 Example:
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:50px; font-size:8pt">
 LCD "%C@(1:1:1)Hello World!"
 </PRE></TT>
 

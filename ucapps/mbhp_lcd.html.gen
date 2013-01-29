@@ -26,7 +26,8 @@ HEADER 3 MBHP LCD Module
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd_mios8.pdf">mbhp_lcd_mios8.pdf</A><BR>
 If a PIC18F4685 is used in the project (-> <A HREF="midibox_sid.html">MIDIbox SID V2</A>), the LCD is accessed in 4bit mode. Accordingly, the data pins D0/D1/D2 and D3 should be left open at core and LCD side (don't connect them to ground!) - see <A HREF="mbhp/mbhp_lcd_4bit_mios8.pdf">mbhp_lcd_4bit_mios8.pdf</A></TD>
       <TD CLASS=TABCOLOR2><B>MIOS32 Connectivity:</B> thanks to the double sided PCB layout, the pinning is 1:1 (*)!<BR>Following schematic shows, how to connect a LCD 162C display from <A HREF="http://www.displaytech.com.hk/" TARGET="_blank">Displaytech</A> to the interface. <I>Please note, that the pin assignments are different on some other displays!</I> Sometimes the pins are mirrored, sometimes the backlight pads are on another place. Fortunately the order of the bus pins is the same on every display! So, before you buy one, try also to get a datasheet from the display: consult <A HREF="http://www.google.com" TARGET="_blank">www.google.com</A>, keywords: "displayname datasheet".<BR>
-<B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd_mios32.pdf">mbhp_lcd_mios32.pdf</A><BR>
+<B>Wiring Diagram for 2x16:</B> <A HREF="mbhp/mbhp_lcd_mios32.pdf">mbhp_lcd_mios32.pdf</A><BR>
+<B>Wiring Diagram for 2x20 (and 2x40):</B> <A HREF="mbhp/mbhp_lcd_2x20_mios32.pdf">mbhp_lcd_2x20_mios32.pdf</A><BR>
 <B>(*) it's 1:1 and mirrored</B> to simplify the cabling of common 2x40 displays (and partly due to historical reasons - it's originated from the so called "UltraPCB").<BR> Pictures of LCD cable for 2x40 displays:</B> <A HREF="mbhp/mbhp_core_stm32_lcd_cable1.jpg">Image1</A> <A HREF="mbhp/mbhp_core_stm32_lcd_cable2.jpg">Image2</A></TD>
     </TR>
 
@@ -54,7 +55,7 @@ If a PIC18F4685 is used in the project (-> <A HREF="midibox_sid.html">MIDIbox SI
 <B>Connectivity:</B> any free pin of the PIC can be used for the enable line. For instance, if your application doesn't use the analog pins at J5 of the core module, you are able to connect 8 additional LCDs. You could also program a multiplexer interface in order to address even more LCDs by routing the enable line to one PIC pin.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_nxclcd_mios8.pdf">mbhp_nxclcd_mios8.pdf</A><BR></TD>
       <TD CLASS=TABCOLOR2>MIOS32: the standard CLCD driver is prepared for controlling up to 256 devices selected via MIOS32_LCD_DeviceSet(). Please understand this value as a theoretical possibility, physical parameters (like cable capacities) have to be considered as well. ;-) <BR>
-<B>Connectivity:</B> any free pin of the STM32 and LPC17 can be used for the enable line. For instance, if your application doesn't use the analog pins at J5A/B/C of the core module, you are able to connect 12 additional LCDs. You could also program a multiplexer interface in order to address even more LCDs by routing the enable line to one PIC pin.<BR>
+<B>Connectivity:</B> see <A HREF="midibox_ng_manual_lcd.html">this MIDIbox NG Manual Chapter</A>.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_nxclcd_mios32.pdf">mbhp_nxclcd_mios32.pdf</A><BR></TD>
     </TR>
 
@@ -84,7 +85,7 @@ The performance of the KS0107 and HD61202 controller is perfect, as the pixel in
       <TD CLASS=TABCOLOR2><B>MIOS8 Connectivity:</B> the bus interface is similar to a character based LCD, but every 128x64 block needs a CS (chip select) line. Since these lines are gated through the E (enable) pin, it was possible to share the CS lines with other PIC outputs. The MIOS driver takes care for possible conflicts.<BR>
 All graphical LCDs require a negative voltage to drive the Liquid Crystal cells. Some LCDs provide an inbuild DC converter, some others not. The schematic below shows a MAX759 voltage converter which can be used if a Vout pin is not provided by the GLCD.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd_ks0108_mios8.pdf">mbhp_lcd_ks0108_mios8.pdf</A> and <A HREF="mbhp/mbhp_lcd_64240a_mios8.pdf">mbhp_lcd_64240a_mios8.pdf</A> (Displaytech 64240A)</TD>
-      <TD CLASS=TABCOLOR2><B>MIOS32 Connectivity:</B> the bus interface is similar to a character based LCD, but every 128x64 block needs a CS (chip select) line which is available at J5C by default, but can optionally be changed to other pins.<BR>
+      <TD CLASS=TABCOLOR2><B>MIOS32 Connectivity:</B> the bus interface is similar to a character based LCD, but every 128x64 block needs a CS (chip select) line which is available at J28 (MBHP_CORE_STM32: J5C).<BR>
 All graphical LCDs require a negative voltage to drive the Liquid Crystal cells. Some LCDs provide an inbuild DC converter, some others not. The schematic below shows a MAX759 voltage converter which can be used if a Vout pin is not provided by the GLCD.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd_ks0108_mios32.pdf">mbhp_lcd_ks0108_mios32.pdf</A></TD>
     </TR>
@@ -145,7 +146,9 @@ Note: regardless of the serial interface, the performance of this display is eve
     </TR>
     <TR>
       <TD COLSPAN=2 CLASS=TABCOLOR2>This 128x64 graphical LCD allows to add a touchscreen panel which can be scanned with two ADC channels as demonstrated in <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Ftutorials%2F022_glcd_touchpanel%2F">this application</A>.<BR>
-Up to 8 DOGM displays can be (natively) controlled by a MIOS32 based core, they are accessed via 4-wire serial interface.</TD>
+Up to 8 DOGM displays can be (natively) controlled by a MIOS32 based core, they are accessed via 4-wire serial interface.<BR>
+<A HREF="midibox_ng_manual_lcd.html">MIDIbox NG</A> even supports up to 64 SSD1306 displays!<BR>
+<B>IMPORTANT:</B> please power-cycle the MBHP_CORE_LPC17 module whenever the lcd_type has been changed, otherwise the GLCD won't be initialized correctly (it has to be reset!)</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><B>MIOS8 Wiring Diagrams:</B> not adapted (yet)</TD>
@@ -160,7 +163,9 @@ Up to 8 DOGM displays can be (natively) controlled by a MIOS32 based core, they 
     </TR>
     <TR>
       <TD COLSPAN=2 CLASS=TABCOLOR2>The tiny OLEDs which are available today provide high resolution and nice looking colours for an attractive price of typically 4..8 EUR. If you are searching for OLEDs, take care that they come with a breakout board, because soldering the pads on a veroboard is almost impossible, and some caps for the integrated DCDC to generate higher voltages have to be added as well... no fun! I found an attractive OLED/PCB combination from Alientek at <A HREF="http://item.taobao.com/item.htm?id=6239945991" TARGET="_blank">Taobao</A> which is recommendable. Buy it via <A HREF="http://www.yoybuy.com" TARGET="_blank">Yoybuy</A> for easier handling if you don't like shops w/o english translations.<BR>
-Up to 8 OLEDs can be (natively) controlled by a MIOS32 based core, they are accessed via 4-wire serial interface.</TD>
+Up to 8 OLEDs can be (natively) controlled by a MIOS32 based core, they are accessed via 4-wire serial interface.<BR>
+<A HREF="midibox_ng_manual_lcd.html">MIDIbox NG</A> even supports up to 64 SSD1306 displays!<BR>
+<B>IMPORTANT:</B> please power-cycle the MBHP_CORE_LPC17 module whenever the lcd_type has been changed, otherwise the GLCD won't be initialized correctly (it has to be reset!)</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><B>MIOS8 Wiring Diagrams:</B> not adapted (yet)</TD>

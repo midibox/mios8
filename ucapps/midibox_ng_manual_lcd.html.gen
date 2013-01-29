@@ -1,0 +1,346 @@
+HEADER 3 MIDIbox NG User Manual --- LCD Options
+
+<P CLASS=INFO><B><A HREF="midibox_ng_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox NG</H1>
+<H1>User Manual --- LCD</H1>
+
+<P CLASS=INFO><A HREF="midibox_ng.html">MIDIbox NG</A> provides so many different LCD hardware options, that this topic deserves a special page!</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Character LCDs (CLCDs) </H2>
+
+<P CLASS=DESC>Character LCDs are available for few money in many different variants, most of them comply to the HD44780 industrial standard from <A HREF="http://semiconductor.hitachi.com" TARGET="_blank">Hitachi</A>. Regardless of the number of provided characters (2x16, 2x20, 4x16, 4x20, 2x40), they are communicating over the same bus interface with the core.</P>
+
+<P CLASS=DESC>The best choice for MIDIbox NG are 2x20 or 2x40 LCDs, because they typically provide a 1:1 matching pinning with the LCD connectors on the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module, so that they can be directly connected with a <A HREF="mbhp/mbhp_core_lpc17_lcd2.jpg">flat 16pin ribbon cable + IDC connectors</A> to J15A:</P>
+<IMG SRC="mbhp/mbhp_core_lpc17_lcd1.jpg" width=550 height=403 ALT="" align=left>
+<A HREF="mbhp/mbhp_lcd_2x20_mios32.pdf">Schematic</A></P>
+<BR clear="all">
+
+<P CLASS=DESC>If you are planning to use the <A HREF="midibox_ng_manual_scs.html">Standard Control Surface</A>, at least 2x20 characters for the first CLCD connected to J15A are recommended. Although MIDIbox NG allows to configure the SCS for 2x16 or 2x20 or 2x40 LCDs, you would stay compatible with other MIOS32 based applications (such as <A HREF="midio128.html">MIDIO128</A>) which don't provide such a configuration option.</P>
+
+<P CLASS=DESC>2x16 LCDs have a <A HREF="mbhp/mbhp_lcd_mios32.pdf">different pinning</A>, which results into a bit more (error prone) soldering effort for Newbies, and is therefore not recommended from my side. However, if you found a supercheap source for 2x26 LCDs at EBay and want to stuff your MIDIbox NG with plenty of those, then the MIDIbox NG application doesn't prevent you from using such displays of course... ;-) - the same applies for more exotic sizes, such as 1x6 or 1x8 displays.</P>
+
+<P CLASS=DESC>By default, two CLCDs with up to 2x40 characters are enabled in the firmware. They have to be connected to J15A and J15B of the core module as mentioned earlier.</P>
+
+<P CLASS=DESC>A second LCD is usually directly connected to J15B with a 1:1 cable:<BR>
+<IMG SRC="mbhp/mbhp_lcd_2x2x40_mios32.jpg" width=800 height=237 ALT="" align=left>
+<BR clear="all">
+<P CLASS=DESC>Experts use a single ribbon cable from J15A, and connect the E input (which addresses the LCD) with a single wire to J15B:E:<BR>
+<IMG SRC="mbhp/mbhp_lcd_2x2x40_singleline_1.jpg" width=800 height=229 ALT="" align=left>
+<BR clear="all">
+More pictures: <A HREF="mbhp/mbhp_lcd_2x2x40_singleline_2.jpg">#2</A> <A HREF="mbhp/mbhp_lcd_2x2x40_singleline_3.jpg">#3</A> <A HREF="mbhp/mbhp_lcd_2x2x40_singleline_4.jpg">#4</A>.<BR>
+See also <A HREF="mbhp/mbhp_lcd_2x2x20_mios32.pdf">this schematic</A>.</P>
+
+
+<P CLASS=DESC>In the <A HREF="midibox_ng_manual_ngc.html">.NGC file</A> the first LCD can be addressed with (example):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+EVENT_xxx ... lcd_pos=1:1:1 label="First LCD, First Line"
+</PRE></TT>
+and the second LCD with:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+EVENT_xxx ... lcd_pos=2:1:1 label="Second LCD, First Line"
+</PRE></TT>
+
+<P CLASS=DESC>It's also possible to write to both LCDs from a single label by moving the cursor within the label string, such as:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+EVENT_xxx ... label="@(1:1:1)LCD1@(2:1:1)LCD2"
+</PRE></TT>
+
+<P CLASS=DESC>Another point, which might be interesting is, that the two LCDs can be combined to a 2x80 display, which is especially useful when large text messages are received via SysEx, e.g. from a DAW during a Logic (resp. Mackie) Control emulation. For example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+EVENT_xxx ... lcd_pos=1:1:1 label="This text message could also be print   from an external SysEx message."
+EVENT_xxx ... lcd_pos=1:1:2 label="And this is the second line."
+</PRE></TT>
+will output:
+<IMG SRC="midibox_ng/cs/lcdhw1.gif" width=986 height=38 ALT="Screen"></IMG><BR>
+on the two LCDs.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> 3..6 CLCDs </H2>
+
+<P CLASS=DESC>Once more than 2 CLCDs should be connected to the core module, J28 can be used to extend
+the number of enable (E) lines.<BR>
+Dedicated drivers and trimpots are required for the Backlight luminance and contrast for each pair of 2 CLCDs.<BR>
+See also <A HREF="mbhp/mbhp_lcd_6x2x20_mios32.pdf">this schematic</A>.
+
+<P CLASS=DESC>Softwarewise the number of connected CLCDs has to be configured with the <A HREF="mios32_bootstrap_newbies.html">Bootloader Update Application</A>. This application can be uploaded at any time to change the LCD parameters, and to store them in a special flash location which won't be overwritten by applications, so that the configuration is permanently available.</P>
+
+<P CLASS=DESC>After this application has been uploaded, enter following commands to configure 6 2x20 LCDs:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type CLCD
+lcd_num_x 6
+lcd_num_y 1
+lcd_width 20
+lcd_height 2
+store
+</PRE></TT>
+
+With this configuration, the CLCDs can be accessed in the .NGC file with:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+EVENT_xxx ... lcd_pos=1:1:1 label="LCD1"
+EVENT_xxx ... lcd_pos=2:1:1 label="LCD2"
+EVENT_xxx ... lcd_pos=3:1:1 label="LCD3"
+EVENT_xxx ... lcd_pos=4:1:1 label="LCD4"
+EVENT_xxx ... lcd_pos=5:1:1 label="LCD5"
+EVENT_xxx ... lcd_pos=6:1:1 label="LCD6"
+</PRE></TT>
+
+and will print:<BR>
+<IMG SRC="midibox_ng/cs/lcdhw2.gif" width=781 height=19 ALT="Screen"></IMG><BR>
+
+Long text messages will be combined in a single 'X' line with an overall dimension of 120x2:
+<IMG SRC="midibox_ng/cs/lcdhw3.gif" width=781 height=19 ALT="Screen"></IMG><BR>
+
+With following configuration:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type CLCD
+lcd_num_x 3
+lcd_num_y 2
+lcd_width 20
+lcd_height 2
+store
+</PRE></TT>
+
+we would get a 60x4 screen instead:<BR>
+<IMG SRC="midibox_ng/cs/lcdhw4_1.gif" width=385 height=19 ALT="Screen"></IMG><BR>
+<IMG SRC="midibox_ng/cs/lcdhw4_2.gif" width=385 height=19 ALT="Screen"></IMG><BR>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> 7..64 CLCDs </H2>
+
+<P CLASS=DESC>Once more than 6 CLCDs should be connected to the core module, <A HREF="mbhp_dout.html">MBHP_DOUT</A> modules (resp. 74HC595 shift registers)
+have to be used to output the enable (E) lines. Summa summarum up to 64 E lines are supported: two from the J15A/B port, and 62 additional lines from two MBHP_DOUTX4 boards! The remaining two outputs of the 8th 74HC595 shift register in the chain aren't used!<BR>
+Dedicated drivers and trimpots are required for the Backlight luminance and contrast for each pair of 2 CLCDs.<BR>
+See also <A HREF="mbhp/mbhp_lcd_nx2x20_mios32.pdf">this schematic</A>.
+<P CLASS=DESC>This schematic doesn't show that the data lines D0..D7 probably have to be buffered as well. This is currently under evaluation!</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> LCD Buffer Limitations </H2>
+
+<P CLASS=DESC>Since version 1.013 there are no buffer limits anymore - up to 64 CLCDs with any size can be accessed! :-)</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Testing CLCDs </H2>
+
+<P CLASS=DESC>For the case that the connected LCDs don't seem to work, following testing procedure (hopefully) helps:
+
+<UL CLASS=CL>
+  <LI>Most MIOS32 applications only initialize the first two CLCDs (connected to J15A/B) by default. Currently only MIDIbox NG initializes all LCDs which have been specified in the bootloader.
+  <LI>MBNG will only output messages on the first LCD, connected to J15A, by default. You've to enhance your <A HREF="midibox_ng_manual_ngc.html">.NGC file</A> to address the remaining LCDs.
+  <LI>check the contrast trimpot in both directions. Usually the display doesn't show anything if this trimpot selects a voltage >1V. With 0V you should see the full contrast.
+  <LI>if the LCD only shows bars in the upper line, it hasn't been initialized. Ensure that the correct number of displays has been specified in the <A HREF="mios32_bootstrap_newbies.html">Bootloader Update Application</A> by typing "help" after the application has been uploaded.
+  <LI>if the parameters are correct, you can upload the MIDIbox NG application again and continue debugging from there.
+  <LI>use the "testlcdpin" command into MIOS Terminal to change the state of the LCD control pins directly.<BR>
+If you enter the command without parameters, following help page will show you the available options:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+testlcdpin rs 0  -> sets J15(AB):RS to ca. 0V
+testlcdpin rs 1  -> sets J15(AB):RS to ca. 3.3V
+testlcdpin e1 0  -> sets J15A:E to ca. 0V
+testlcdpin e1 1  -> sets J15A:E to ca. 3.3V
+testlcdpin e2 0  -> sets J15B:E to ca. 0V
+testlcdpin e2 1  -> sets J15B:E to ca. 3.3V
+testlcdpin rw 0  -> sets J15(AB):RW to ca. 0V
+testlcdpin rw 1  -> sets J15(AB):RW to ca. 3.3V
+testlcdpin d0 0  -> sets J15(AB):D0 to ca. 0V
+testlcdpin d0 1  -> sets J15(AB):D0 to ca. 5V (resp. 3.3V)
+testlcdpin d1 0  -> sets J15(AB):D1 to ca. 0V
+testlcdpin d1 1  -> sets J15(AB):D1 to ca. 5V (resp. 3.3V)
+testlcdpin d...  -> same for J15(AB):D2, D3, D4, D5, D6, D7
+testlcdpin reset -> re-initializes LCD modules so that they can be used again.</PRE></TT>
+
+Whenever a pin state has been changed, you should measure the appr. voltage (0, ca. 3.3V or ca. 5V) at the selected control or data pin.<BR>
+Note: the remaining pins are set to 0V, only a single pin is set to ca. 3.3V resp. 5V!
+  <LI>With these tests you are able to:
+    <UL CLASS=CL>
+      <LI>check that the core module can control all LCD pins
+      <LI>that the LCD pins are connected to the right signals
+      <LI>that there is no short circuit between the pins (due to a soldering error, e.g. a bridge)
+      <LI>Good luck!
+    </UL>
+</UL>
+
+<P CLASS=DESC>Note that under certain circumstances a wrong connection could permanently damage the LCD! So, if you notice that pins are swapped, and the LCD is even not working after the corrected connections, it could be that there is no hope to fix this damaged LCD anymore, and you would have to buy a new one!</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Graphical LCDs </H2>
+
+<P CLASS=DESC>Graphical LCDs are supported as well. Various fonts are available which can be selected in the "label" message as described in the <A HREF="midibox_ng_manual_ngc.html">.NGC chapter</A>. The LCD buffer is reduced to 512 characters only, because the upper half is used to store the used font!
+
+<P CLASS=DESC>The subchapters below list the supported LCD types.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> KS0107/KS0108 or HD61202 based GLCDs </H2>
+
+<P CLASS=DESC>The bus interface of this GLCD is similar to a CLCD, but every 128x64 block needs a CS (chip select) line which is available at J28 (MBHP_CORE_STM32: J5C).<BR>
+All graphical LCDs require a negative voltage to drive the Liquid Crystal cells. Some LCDs provide an inbuild DC converter, some others not. The schematic below shows a MAX759 voltage converter which can be used if a Vout pin is not provided by the GLCD.<BR>
+Schematic: <A HREF="mbhp/mbhp_lcd_ks0108_mios32.pdf">mbhp_lcd_ks0108_mios32.pdf</A>
+
+<P CLASS=DESC>Following configuration is required in the <A HREF="mios32_bootstrap_newbies.html">Bootloader Update Application</A> for a 128x64 GLCD (2 CS lines):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_KS0108
+lcd_num_x 1
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>If the CS lines of your GLCD are inverted (=low-active), then enter following configuration:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_KS0108_INVCS
+lcd_num_x 1
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+
+<P CLASS=DESC>For a 240x64 GLCD (with 4 CS lines) like used for the original <A HREF="midibox_lc/midibox_lc_1.jpg">MIDIbox LC</A> enter:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_KS0108
+lcd_num_x 1
+lcd_num_y 1
+lcd_width 240
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>Note that lcd_num_x/num_y have no effect yet; only 4 CS lines are supported for KS0108 based GLCDs!</P>
+
+<P CLASS=DESC><B>Limitations:</B> up to 4 LCD segments are supported (limited by the number of pins at J28).<BR>
+Each segment has a size of 64x64, makes 256x64 in total.<BR>
+With the "normal font" (6x8) up to 42x8 characters can be print, fonts can be selected without limitations.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> DOGM and DOGL based GLCDs </H2>
+
+<P CLASS=DESC>This 128x64 graphical LCD is really nice, because it provides a serial interface, so that the data pins of the J15 socket can be used as chip-select pins! Accordingly, it's possible to connect up to 8 GLCDs to J15A.<BR>
+Schematic: <A HREF="mbhp/mbhp_lcd_dogm128_mios32.pdf">mbhp_lcd_dogm128_mios32.pdf</A>
+
+<P CLASS=DESC>Following configuration is required in the <A HREF="mios32_bootstrap_newbies.html">Bootloader Update Application</A> for a single DOGM GLCD:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_DOG
+lcd_num_x 1
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+
+<P CLASS=DESC>Following configuration for 8 DOGM GLCDs:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_DOG
+lcd_num_x 8
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>Following configuration for 12 DOGM GLCDs (remaining CS pins connected to J28):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_DOG
+lcd_num_x 12
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>Following configuration for 16 DOGM GLCDs (remaining CS pins connected to a 74HC595 based shift register at J28):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_DOG
+lcd_num_x 16
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>Following configuration for 64 DOGM GLCDs (remaining CS pins connected to seven chained 74HC595 based shift register at J28):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_DOG
+lcd_num_x 64
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC><B>IMPORTANT:</B> please power-cycle the MBHP_CORE_LPC17 module whenever the lcd_type has been changed, otherwise the GLCD won't be initialized correctly (it has to be reset!)</P>
+
+<P CLASS=DESC><B>Limitations:</B> up to 64 LCDs are supported.<BR>
+Each LCD has a size of 128x64, the LCD handler will reserve 21x8 characters for each LCD!</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SSD1306 GLCDs </H2>
+
+<P CLASS=DESC>These are my personal favourites: the tiny OLEDs which are available today provide high resolution and nice looking colours for an attractive price of typically 4..8 EUR. If you are searching for OLEDs, take care that they come with a breakout board, because soldering the pads on a veroboard is almost impossible, and some caps for the integrated DCDC to generate higher voltages have to be added as well... no fun! I found an attractive OLED/PCB combination from Alientek at <A HREF="http://item.taobao.com/item.htm?id=6239945991" TARGET="_blank">Taobao</A> which is recommendable. Buy it via <A HREF="http://www.yoybuy.com" TARGET="_blank">Yoybuy</A> for easier handling if you don't like shops w/o english translations.<BR>
+Up to 12 OLEDs can be (natively) controlled by a MIOS32 based core, they are accessed via 4-wire serial interface.<BR>
+Schematics: <A HREF="mbhp/mbhp_lcd_ssd1306_single_mios32.pdf">mbhp_lcd_ssd1306_single_mios32.pdf</A>, <A HREF="mbhp/mbhp_lcd_ssd1306_multiple_mios32.pdf">mbhp_lcd_ssd1306_multiple_mios32.pdf</A><BR>
+Photo: <A HREF="mbhp/mbhp_glcd_ssd1306.jpg">follow this link</A> and <A HREF="mbhp/mbhp_glcd_ssd1306_sideview.jpg">this link</A>
+
+<P CLASS=DESC>Following configuration is required in the <A HREF="mios32_bootstrap_newbies.html">Bootloader Update Application</A> for a single SSD1306 GLCD:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SSD1306
+lcd_num_x 1
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>Following configuration for 8 SSD1306 GLCDs:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SSD1306
+lcd_num_x 8
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>Following configuration for 12 SSD1306 GLCDs (remaining CS pins connected to J28):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SSD1306
+lcd_num_x 12
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>Following configuration for 16 SSD1306 GLCDs (remaining CS pins connected to a 74HC595 based shift register at J28):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SSD1306
+lcd_num_x 16
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+<P CLASS=DESC>Following configuration for 64 SSD1306 GLCDs (remaining CS pins connected to seven chained 74HC595 based shift register at J28):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SSD1306
+lcd_num_x 64
+lcd_num_y 1
+lcd_width 128
+lcd_height 64
+store
+</PRE></TT>
+
+
+<P CLASS=DESC>Alternatively the SSD1306 screen can be rotated by 180 degrees, which might be useful in some cases (e.g. if it has been mounted the wrong way). In this case, please enter following lcd_type into the bootloader:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SSD1306_ROTATED
+store
+</PRE></TT>
+resp. "lcd_type 0x85" if you are using Bootloader V1.010 (V1.011 hasn't been released yet...)
+
+<P CLASS=DESC><B>IMPORTANT:</B> please power-cycle the MBHP_CORE_LPC17 module whenever the lcd_type has been changed, otherwise the GLCD won't be initialized correctly (it has to be reset!)</P>
+
+<P CLASS=DESC><B>Limitations:</B> up to 64 LCDs are supported.<BR>
+Each LCD has a size of 128x64, the LCD handler will reserve 21x8 characters for each LCD!</P>
+
+FOOTER

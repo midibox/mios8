@@ -11,13 +11,13 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Installation
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Step by Step </H2>
 
 <UL CLASS=CL>
-  <LI>it's assumed that you already tested the USB MIDI communication by pressing the Query button in MIOS Studio as explained in the <A HREF="mios32_bootstrap_newbies.html">Bootloader page</A> - you should get some informations about the chip and the running application.<BR>
+  <LI>it's assumed that you already tested the USB MIDI communication by pressing the Query button in <A HREF="mios_studio.html">MIOS Studio</A> as explained in the <A HREF="mios32_bootstrap_newbies.html">Bootloader page</A> - you should get some informations about the chip and the running application.<BR>
       If this procedure sounds unfamiliar to you, please follow the hardware test procedure first as explained in the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> resp. <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> page.</LI>
   <LI>download the latest midibox_seq_v4_* release package from the <A HREF="mios32_download.html">MIOS32 Download Page</A>.
-  <LI>unzip the .zip archive</A>.
-  <LI>load the project.hex file with the "Hex Upload" window of MIOS Studio and press the Start button</A>.
-  <LI>the new firmware will be transfered to your MIDIbox</A>.
-  <LI>once the "Upload completed" message is displayed by MIOS Studio (after ca. 20..30 seconds), your MIDIbox will reboot, and the new firmware will be started.</A>.
+  <LI>unzip the .zip archive.
+  <LI>load the project.hex file with the "Hex Upload" window of MIOS Studio and press the Start button.
+  <LI>the new firmware will be transfered to your MIDIbox.
+  <LI>once the "Upload completed" message is displayed by MIOS Studio (after ca. 20..30 seconds), your MIDIbox will reboot, and the new firmware will be started.
 </UL>
 
 
@@ -29,20 +29,19 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Installation
 
 <P CLASS=DESC>If your MIDIbox is based on <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_seq" TARGET="_blank">Wilba's frontpanel</A>, please use <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2Fwilba%2FMBSEQ_HW.V4">hwcfg/wilba/MBSEQ_HW.V4</A>, otherwise the dedicated button and LED assignments won't work (see also special chapter below)!</P>
 
-<P CLASS=DESC>The MBSEQ_HW.V4 file can be edited with a common text editor.</P>
+<P CLASS=DESC>A matching file can be uploaded with the Filebrowser which is integrated into <A HREF="mios_studio.html">MIOS Studio</A>.
+<CENTER><IMG SRC="mios_studio/mios_studio_filebrowser.png" width=952 height=550></CENTER></P>
 
-<P CLASS=DESC>It will be loaded (only once!) after startup. In distance to other configuration files, it won't be loaded again if the SD Card is reconnected to avoid sequencer hick-ups during runtime, and to cover the special case where files should be loaded from a SD card which contains a MBSEQ_HW.V4 file for a different hardware.</P>
+<P CLASS=DESC>The "Update" button retrieves the directory structure. Once it has been read, files and directories can be selected in the directory tree.<BR>
+Existing files can be downloaded to your computer at a speed of ca. 40..50 kb/s.<BR>
+New files (like the MBSEQ_HW.V4) can be uploaded from your computer at a speed of ca. 10..20 kb/s.</P>
 
-<P CLASS=DESC>Procedure to modify the configuration file:
-  <UL CLASS=CL>
-    <LI>ensure that the USB cable is connected to your PC/Mac
-    <LI>go to Utility->Disk and activate MSD mode
-    <LI>wait until your operating system detected and mounted the SD Card
-    <LI>open to the root directory of the SD Card and edit the MBSEQ_HW.V4 file with a text editor (e.g. Wordpad under Windows)
-    <LI>unmount the SD Card (don't forget this, otherwise it can happen that your OS doesn't update the file!)
-    <LI>in order to load the new configuration, power-off/on your MIDIbox
-  </UL>
-</P>
+<P CLASS=DESC>You can use the integrated EDIT function to modify the MBSEQ_HW.V4 file for your needs. Push the SAVE button to store your changes on SD Card.</P>
+
+<P CLASS=DESC>The file will be loaded (only once!) after startup. In distance to other configuration files, it won't be loaded again if the SD Card is reconnected to avoid sequencer hick-ups during runtime, and to cover the special case where files should be loaded from a SD card which contains a MBSEQ_HW.V4 file for a different hardware.</P>
+
+<P CLASS=DESC>This means, that you've to power-cycle the core module to see the effects of your changes.</P>
+<P CLASS=DESC>Alternatively - and this is the preferred method - just enter <I>reset</I> in the MIOS Terminal to restart the application.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Initial setup for Wilba's Frontpanel </H2>

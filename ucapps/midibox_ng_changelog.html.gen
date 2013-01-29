@@ -1,13 +1,138 @@
 HEADER 3 ChangeLog of MIDIbox NG
 
 <CENTER><H1>MIDIbox NG Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2013-02-02</H3></CENTER>
+<CENTER><H3>Last Release: 2013-01-29</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_ng.html">http://www.uCApps.de/midibox_ng.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.015</I>
+  <UL CLASS=CL>
+   <LI> support for GLCD_SSD1306_ROTATED
+
+   <LI> the ^txt and ^txt56 SysEx command now allows to map incoming characters to
+     different cursor positions. An example can be found in cfg/templates/logictrl.ngc
+
+   <LI> independent from this map feature, ^txt and ^txt56 now also take lcd_pos=... and
+     label=... into account to set the initial LCD and cursor position, at which the
+     message will start. The label can be used to change the GLCD font before the
+     characters will be print.<BR>
+     An example can be found in cfg/templates/logictrl.ngc as well.
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.014</I>
+  <UL CLASS=CL>
+   <LI> the keyboard handler of MIDIbox KB has been integrated.
+     The configuration commands are identical "set kb..." as documented at
+     the <A HREF="http://www.ucapps.de/midibox_kb.html">MIDIbox KB page</A>.
+
+   <LI> keyboard parameters are also stored in the .NGC file, and can be
+     configured from there.
+
+   <LI> please note that the latency is 10 times higher than in the MIDIbox KB
+     application! Each row is scanned in 320 uS (instead of 32 uS).<BR>
+     This has to be considered in the velocity delay configuration.
+     delay_slowest should be 100 (instead of 1000), and delay_fastest should
+     be 5 (instead of 50)
+
+   <LI> DOGM and SSD1306 GLCDs: support for more than 12 displays via DOUT shift
+     registers connected to J28
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.013</I>
+  <UL CLASS=CL>
+   <LI> overworked LCD handling: there is no buffer limitation anymore, any LCD and GLCD size
+     is accepted, which especially means that GLCD fonts are displayed correctly
+     independent from the specified number of connected devices.
+
+   <LI> this change has freed some RAM which can be used for other purposes in future
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.012</I>
+  <UL CLASS=CL>
+   <LI> The application boots a little bit faster now
+
+   <LI> support for more than 2 LCDs.<BR>
+     A documentation can be found in the <A HREF="midibox_ng_manual_lcd.html">User Manual</A>.
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.011</I>
+  <UL CLASS=CL>
+   <LI> EVENT_SENDER and EVENT_RECEIVER can now also be assigned to a radio_group.<BR>
+     This can not only be used in conjunction with BUTTON/LED radio groups, but also
+     to distribute MIDI events to from receiver to multiple senders without
+     forwarding chains (which then can be used for a different purpose)
+
+   <LI> the "sdcard_format" command allows to format the connected SD Card with FAT32
+     from the MIOS Terminal
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.010</I>
+  <UL CLASS=CL>
+   <LI> SysEx: added ^cursor, ^txt and ^txt56 identifiers.<BR>
+     They allow to send messages to the LCD via SysEx.<BR>
+     A usage example can be found under cfg/templates/logictrl.ngc
+
+   <LI> Labels: ^# allows to terminate a label.<BR>
+     E.g. "^label^#MyText" prints "MyText" directly after the specified ^label
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.009</I>
+  <UL CLASS=CL>
+   <LI> with a button assigned to 'type=Meta meta=MidiLearn range=0:1' it's now possible
+     to activate a MIDI Learn mode which allows to assign an incoming MIDI event to any
+     control element
+
+   <LI> with 'type=Meta meta=MidiLearn range=0:2' also NRPN events can be learned (in this case,
+     CC#62 and CC#63 will be ignored!)
+
+   <LI> MIDI Learn mode can also be activated in the SCS menu
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.008</I>
+  <UL CLASS=CL>
+   <LI> DIN_MATRIX with rows=4 now properly supported
+
+   <LI> DIN_MATRIX/DOUT_MATRIX: it's now possible to invert the rows as well:<BR>
+     inverted=1 or inverted_sel=1 will invert the selection lines<BR>
+     inverted_row=1 will invert the row pattern
+
+   <LI> configuration examples for the 16x4 Button/Duo-LED matrix are now
+     available under cfg/tests/blm16x4*.ngc
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.007</I>
+  <UL CLASS=CL>
+   o changed bank concept: the BANK command has been removed, instead the EVENT
+     command got a new "hw_id" and "bank" parameter.<BR>
+     A simple configuration example can be found under cfg/tests/encbanks.ngc<BR>
+     More complex configuration examples under cfg/tests/bnk*.ngc
+
+   <LI> added meta=CycleBank (increments bank, resets to 1 if last bank reached)<BR>
+
+   <LI> additional new metas: SetBankOfHwId, DecBankOfHwId, IncBankOfHwId, CycleBankOfHwId
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V1.006</I>

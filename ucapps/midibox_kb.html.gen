@@ -9,7 +9,7 @@ HEADER 3 MIDIbox KB
 
 <P CLASS=INFO>Currently following features are already implemented:
 <UL CLASS=CL>
-<LI> up to 2 keyboard matrices can be scanned separately at a very high scan rate (around 100 uS)</A>
+<LI> up to 2 keyboard matrices can be scanned separately at a very high scan rate (around 200 uS)</A>
 <LI> optional support for velocity!</A>
 <LI> 6 analog inputs of the core module can be used to connect pitchwheels, modulation wheels and sustain pedal (or aftertouch)</A>
 <LI> analog inputs can be calibrated</A>
@@ -25,17 +25,10 @@ HEADER 3 MIDIbox KB
 </UL>
 </P>
 
-<P CLASS=INFO>Following features are planned for future versions:
-<UL CLASS=CL>
-<LI> optional Control Surface for direct editing without a computer
-<LI> the control surface will also allow to transpose notes, send program change, configure pitchwheel/modulationwheel/aftertouch assignments, etc.
-<LI> integrated MIDI monitor for all Ports (USB/MIDI/OSC)
-<LI> up to 128 pots/faders connected to up to two <A HREF="mbhp_ainser64.html">MBHP_AINSER64 modules</A> (MIDI Controller functions).
-<LI> connection of additional LEDs, buttons and rotary encoders (MIDI Controller functions)
-<LI> CV and gate outputs + support for polyphonic CV
-<LI> thanks to the integrated MIDI router, the CV channels will also be controllable via MIDI
-<LI> more features available on request
-</UL>
+<P CLASS=DESC>Please note: the same keyboard driver is also available in <A HREF="midibox_ng.html">MIDIbox NG</A>. If you are searching for more capabilities (e.g. integrated controller with many pots, encoders, buttons, leds), consider to use the MBNG firmware instead of MBKB.</P>
+
+<P CLASS=DESC>The main difference between the two applications is, that MIDIbox KB is optimized for high scan speeds! MIDIbox NG scans the keyboard 10 times slower to give the core more processing time for other tasks. However, with MBNG the latency to scan the whole keyboard is still lower than 3 mS (MBKB: 260 uS)!</P>
+
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Schematics </H2>
 
@@ -186,14 +179,12 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=475> <SPAN CLASS=NORM>Sets the starting note of the leftmost key of your keyboard. The value is entered in decimal format.<BR>
       Most important values:</SPAN>
       <UL CLASS=CL>
-        <LI><B>24:</B> C-0
-        <LI><B>36:</B> C-1
-        <LI><B>48:</B> C-2
-        <LI><B>60:</B> C-3
+        <LI><B>28:</B> C-1 for Fatar DF Type with 61 or 76 keys
+        <LI><B>21:</B> C-1 for Fatar DF Type with 88 keys
       </UL>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
-         <I>set kb 1 note_offset 36</I>: keyboard 1 will start with C-1<BR>
-         <I>set kb 2 note_offset 48</I>: keyboard 2 will start with C-2
+         <I>set kb 1 note_offset 28</I>: a Fatar 61 or 76 keys will start with C-1<BR>
+         <I>set kb 2 note_offset 21</I>: a Fatar 88 keys will start with A-1<BR>
       </SPAN></TD>
   </TR>
 
@@ -222,9 +213,9 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; optimized &lt;on|off&gt;</I></TD>
     <TD WIDTH=475> <SPAN CLASS=NORM>Only valid in velocity mode.<BR>
       <B>off:</B> break and make contacts are always scanned. This is the default configuration and should be used for debugging!<BR>
-      -&gt; The resulting scan latency of a complete Fatar 63 keys keyboard is ca. <B>130 uS</B><BR>
+      -&gt; The resulting scan latency of a complete Fatar 63 keys keyboard is ca. <B>260 uS</B><BR>
       <B>on:</B> make contacts will only be scanned if break contacts are active. This reduces the scan latency in most cases (no or only some keys are played). Won't work with <A HREF="midibox_kb/midibox_kb_scanmatrix_type3.pdf">Keyboard Type #3!</A><BR>
-      -&gt; The resulting scan latency of a complete Fatar 63 keys keyboard is ca. <B>65 uS</B><BR>
+      -&gt; The resulting scan latency of a complete Fatar 63 keys keyboard is ca. <B>130 uS</B><BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
          <I>set kb 1 optimized off</I>: keyboard 1 should be debugged because it doesn't send notes (e.g. type <I>set kb 1 debug on</I> thereafter).<BR>
          <I>set kb 1 optimized on</I>: keyboard 1 should run in low-latency mode. Type <I>store</I> thereafter if the keyboard works as expected!<BR>
@@ -407,7 +398,7 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=300> <SPAN CLASS=NORM>Fatar DF Type with 61 keys (<A HREF="midibox_kb/midibox_kb_fatar_df_61_interconnections.pdf">schematic</A>)
     <TD WIDTH=400>
       <UL CLASS=CL>
-        <LI><I>set kb 1 note_offset 36</I>
+        <LI><I>set kb 1 note_offset 28</I>
         <LI><I>set kb 1 rows 8</I>
         <LI><I>set kb 1 velocity on</I>
         <LI><I>set kb 1 optimized on</I>
@@ -453,7 +444,7 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=300> <SPAN CLASS=NORM>Fatar DF Type with 88 keys (<A HREF="midibox_kb/midibox_kb_fatar_df_88_interconnections.pdf">schematic</A>)
     <TD WIDTH=400>
       <UL CLASS=CL>
-        <LI><I>set kb 1 note_offset 24</I>
+        <LI><I>set kb 1 note_offset 21</I>
         <LI><I>set kb 1 rows 12</I>
         <LI><I>set kb 1 velocity on</I>
         <LI><I>set kb 1 optimized on</I>

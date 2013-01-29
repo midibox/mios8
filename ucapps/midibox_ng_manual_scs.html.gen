@@ -5,7 +5,7 @@ HEADER 3 MIDIbox NG User Manual --- Standard Control Surface
 <H1>MIDIbox NG</H1>
 <H1>User Manual --- Standard Control Surface</H1>
 
-<P CLASS=INFO>The optional control surface allows to edit some (but not all) configuration values without the need of a computer.
+<P CLASS=INFO>The optional Standard Control Surface (SCS) allows to edit some (but not all) configuration values without the need of a computer.
 
 <center><img src="midio128/midio128_v3_cs.jpg" width="550" height=554></IMG></center>
 
@@ -14,7 +14,7 @@ HEADER 3 MIDIbox NG User Manual --- Standard Control Surface
 
 <P CLASS=INFO>Actually we've two ways how to access the SCS menu system. First let's describe the original SCS:</P>
 
-<P CLASS=INFO>A rotary encoder and 6 buttons are directly connected to J10 of the MBHP_CORE_LPC17 module to control the menu system:<BR>
+<P CLASS=INFO>A <B>detented</B> rotary encoder and 6 buttons are directly connected to J10 of the MBHP_CORE_LPC17 module to control the menu system:<BR>
 <a href="midibox_ng/mbng_scs.pdf">Schematic of the Standard Control Surface</A><BR>
 In addition a LCD is required. The recommended size is at least 2x20! Graphical LCDs (GLCDs) are supported as well.</P>
 
@@ -63,7 +63,7 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
 
 <P CLASS=INFO>E.g. with following configuration, the SOFT buttons can be used to select a bank, and the SHIFT button is used to enable the FAST mode for rotary encoders:
 
-<TT><PRE style="margin-left:50px">
+<TT><PRE style="margin-left:20px; font-size:8pt">
 # the SCS should emulate button/enc functions in main page
 SCS soft1_button_emu_id=2000 \
     soft2_button_emu_id=2001 \
@@ -93,7 +93,7 @@ EVENT_ENC    id=2000  type=Meta   meta=SetBank   range=1:4
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Menu Pages </H2>
 
 <P CLASS=DESC>The SCS menu will be entered by pressing the EXIT button in the main page:<BR>
-<IMG SRC="midibox_ng/cs/root1.gif" width=362 height=38 ALT="Screen"></IMG><BR>
+<IMG SRC="midibox_ng/cs/root1.gif" width=422 height=38 ALT="Screen"></IMG><BR>
 The pages are described in more details below.<BR>
 Note that the 2x20 LCD will only display 4 of these items at once. Use the rotary encoder to scroll through the menu, and use a soft button to select the item above the button. Use the Exit button to get back to the previous page.</P>
 
@@ -106,9 +106,11 @@ Note that the 2x20 LCD will only display 4 of these items at once. Use the rotar
   <LI><B>MSD:</B> enables/disables the Mass Storage Device driver as descriped in the "Integrated SD Card Reader" topic
 </UL>
 
-<P CLASS=DESC>The <B>Var(iable)</B> page:<BR>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Var(iable) </H2>
+
 <IMG SRC="midibox_ng/cs/var1.gif" width=302 height=38 ALT="Screen"></IMG><BR>
-allows to change SysEx dump related variables directly from the control surface:
+<P CLASS=DESC>The Var page allows to change SysEx dump related variables directly from the control surface:
 <UL CLASS=CL>
   <LI><B>Dev:</B> the device number <I>^dev</I>
   <LI><B>Pat:</B> the patch number <I>^pat</I>
@@ -120,9 +122,10 @@ allows to change SysEx dump related variables directly from the control surface:
 <P CLASS=DESC>The variables could also be used for other purposes of course, they are only placeholders for typical usecases.
 
 
-<P CLASS=DESC>The <B>Router</B> page:<BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Router </H2>
+
 <IMG SRC="midibox_ng/cs/rout1.gif" width=302 height=38 ALT="Screen"></IMG><BR>
-allows to configure the integrated MIDI Router.<BR>
+<P CLASS=DESC>The Router page allows to configure the integrated MIDI Router.<BR>
 The router consists of 16 "nodes".<BR>
 Each node can be connected to an individual source and destination port.<BR>
 A node is activated by selecting a source MIDI channel != "--", e.g. 1..16 or All (for all channels).<BR>
@@ -137,7 +140,7 @@ The node will forward a MIDI event to the destination port. Either to the origin
 </UL>
 
 
-<P CLASS=DESC>The <B>OSC</B> page:<BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> OSC </H2>
 
 <P CLASS=DESC>Aside from the possibility to configure Ethernet and OSC Server/Client from the MIOS Terminal as described at the <A HREF="midibox_osc.html">MIDIbox OSC page</A>, it's also possible to change the settings from the control surface:<BR>
 <IMG SRC="midibox_ng/cs/osc1.gif" width=422 height=38 ALT="Screen"></IMG><BR>
@@ -160,11 +163,13 @@ Each OSC port has an individual remote IP, a remote port (to which OSC packets w
 </UL>
 </P>
 
-<P CLASS=DESC>See the <A HREF="midibox_osc.html">MIDIbox OSC page</A> for more details about the OSC protocol.</P>
+<P CLASS=DESC>See the <A HREF="midibox_osc.html">MIDIbox OSC chapter</A> for more details about the OSC protocol.</P>
 
-<P CLASS=DESC>The <B>Network</B> page:<BR>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Network </H2>
+
 <IMG SRC="midibox_ng/cs/netw1.gif" width=302 height=38 ALT="Screen"></IMG><BR>
-allows to configure the Ethernet interface of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module.
+<P CLASS=DESC>The Network page allows to configure the Ethernet interface of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module.
 
 <UL CLASS=CL>
   <LI><B>DHCP:</B> if enabled (default), the Host IP, Network Mask and Gateway address will be requested from a DHCP Daemon (e.g. your wireless router) automatically whenever the ethernet cable is connected. The configuration could take some seconds depending on the responsiveness of your router.
@@ -173,17 +178,39 @@ allows to configure the Ethernet interface of the <A HREF="mbhp_core_lpc17.html"
   <LI><B>IP Gateway:</B> if DHCP on: displays the current gateway address, if DHCP off: allows to enter the gateway of the ethernet network manually
 </UL>
 
-<P CLASS=DESC>The <B>Monitor</B> page:<BR>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Monitor </H2>
+
 <IMG SRC="midibox_ng/cs/mon1.gif" width=722 height=38 ALT="Screen"></IMG><BR>
-shows all IN ports at the upper line, and OUT ports at the lower line.</P>
+<P CLASS=DESC>The Monitor page shows all IN ports at the upper line, and OUT ports at the lower line.</P>
 
 <P CLASS=DESC>Whenever an event is received or sent, the appr. item will show the event for a short moment.<BR>
 This gives you a great overview of the MIDI activity, especially to analyze the current track and MIDI router setup.</P>
 
 
-<P CLASS=DESC>The <B>Disk</B> page:<BR>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Learn </H2>
+
+<P CLASS=DESC>The MIDI Learn function allows to assign a received MIDI event (Note/Aftertouch/CC/Program Change/PitchBender) to a controller (button/encoder/pot/motorfader). In NRPN mode it's even possible to assign an incoming NRPN event. In this learn mode, CC#6/38/98/99 will be transformed to an NRPN and can't be learned "standalone", therefore it's provided as a separate selection.
+
+<P CLASS=DESC>The usage is simple:<BR>
+<IMG SRC="midibox_ng/cs/learn1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+<P CLASS=DESC>Select either "Common" or "NRPN" to start the learning procedure. Thereafter following screen will appear:<BR>
+<IMG SRC="midibox_ng/cs/learn2.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+which tells you that MBNG is waiting for an incoming MIDI event.
+
+<P CLASS=DESC>The incoming MIDI event should be sent over the full range (e..g. 0...127) to define the min/max value of the event which should be learnt:
+<IMG SRC="midibox_ng/cs/learn3.gif" width=242 height=38 ALT="Screen"></IMG><BR>
+Once the values have been received, just move the controller (button/encoder/pot/motorfader) to which the new event should be assigned.</P>
+
+<P CLASS=DESC>-&gt; done!</P>
+
+<P CLASS=DESC>Please note that it's also possible to assign the MIDI Learn function to a dedicated button by using a <A HREF="midibox_ng_manual_ngc.html">Meta Function</A>.</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Disk </H2>
+
 <IMG SRC="midibox_ng/cs/disk1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
-allows to store and restore a patch on SD Card of a given name.
+<P CLASS=DESC>The Disk page allows to store and restore a patch on SD Card of a given name.
 
 <UL CLASS=CL>
   <LI><B>Load:</B> opens a filename browser for all .MIO files found on SD Card:<BR>
