@@ -48,6 +48,18 @@
 ;;  application
 ;; --------------------------------------------------------------------------
 USER_Init
+	;; change #if 0 to #if 1 if a KS0108 GLCD should be selected and the PIC ID Header hasn't been programmed accordingly
+	;; see also http://midibox.org/forums/topic/17721-problem-with-glcd-for-midiboxlc-on-pic18f4620-with-mios-19g
+#if 0
+	;; select LCD type #1 (KS0108)
+	movlw   0x00            ; if 0: non-inverted CS, if 1: inverted CS#
+	movwf   MIOS_PARAMETER1
+	movlw   0x00            ; here you could forward an additional parameter
+	movwf   MIOS_PARAMETER2
+	movlw   0x01
+	call    MIOS_LCD_TypeSet
+#endif
+
 	;; initialize application specific variables
 	movlw	LC_EMULATION_ID		; Logic Control ID
 	movwf	LC_ID
@@ -96,6 +108,7 @@ USER_Init
 
 	;; use LC_STAT.LC_STAT_GLCD as indicator if graphical LCD
 	;; or character LCD is connected
+	call	MIOS_LCD_Init	; has to be called to update MIOS_BOX_CFG0_USE_GLCD
 	bcf	LC_STAT, LC_STAT_GLCD
 	btfsc	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD
 	bsf	LC_STAT, LC_STAT_GLCD
