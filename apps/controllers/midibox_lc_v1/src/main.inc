@@ -58,6 +58,13 @@ USER_Init
 	movwf   MIOS_PARAMETER2
 	movlw   0x01
 	call    MIOS_LCD_TypeSet
+	bsf	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD
+#else
+	;; default: assume GLCD is type is != 0
+	;; if you are using a customized CLCD driver in app_lcd, please use "bcf" instead of "bsf" to clear the GLCD flag
+	call    MIOS_LCD_TypeGet
+	skpz
+	bsf	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD	
 #endif
 
 	;; initialize application specific variables
@@ -108,7 +115,6 @@ USER_Init
 
 	;; use LC_STAT.LC_STAT_GLCD as indicator if graphical LCD
 	;; or character LCD is connected
-	call	MIOS_LCD_Init	; has to be called to update MIOS_BOX_CFG0_USE_GLCD
 	bcf	LC_STAT, LC_STAT_GLCD
 	btfsc	MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD
 	bsf	LC_STAT, LC_STAT_GLCD
