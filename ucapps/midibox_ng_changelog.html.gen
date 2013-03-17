@@ -1,13 +1,157 @@
 HEADER 3 ChangeLog of MIDIbox NG
 
 <CENTER><H1>MIDIbox NG Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2013-01-29</H3></CENTER>
+<CENTER><H3>Last Release: 2013-03-17</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_ng.html">http://www.uCApps.de/midibox_ng.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.021</I>
+  <UL CLASS=CL>
+   <LI> support for the "single_usb" option, which can be enabled with the
+     bootloader update application V1.012 ("set usb_single 1")<BR>
+
+     Use this option if you are working with a Windows PC which can't handle
+     the 4 USB ports correctly (e.g. stucking MIDI, Filebrowser operations are failing, etc.)
+
+   <LI> added .NGS file which allows to store and restore values into
+     up to 128 snapshots (0..127).<BR>
+     The snapshot can be changed in the "Snap" menu in the SCS
+
+   <LI> the "Snap" menu also allows to dump all events (e.g. after a new
+     snapshot has been loaded)
+
+   <LI> added new (hopefully selfexplaining) meta events:<BR>
+     SetSnapshot, DecSnapshot, IncSnapshot, CycleSnapshot, LoadSnapshot,
+     SaveSnapshot and DumpSnapshot<BR>
+     Note that multiple meta commands can be assigned to an event, e.g.
+     to set, auto-load and dump a snapshot from an encoder write:<BR>
+     EVENT_ENC ... type=Meta meta=SetSnapshot meta=LoadSnapshot meta=DumpSnapshot
+
+   <LI> added "no_dump" parameter to EVENT_xxx<BR>
+     It specifies if an EVENT_xxx should be sent during a DumpSnapshot.<BR>
+
+     no_dump=1 is set for EVENT_RECEIVER and EVENT_KB and events which are using
+     type=Meta by default.<BR>
+     If such events should be part of the dump, set no_dump=0
+
+     For all other events/types no_dump=0 is set by default, set no_dump=1 if
+     they shouldn't send MIDI events on a snapshot dump.
+
+   <LI> new label printf-control "%S" prints the snapshot number 0..127
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.020</I>
+  <UL CLASS=CL>
+  <LI>added "rgb" parameter.<BR>
+     See cfg/tests/rgb_*.ngc for various examples.
+
+  <LI>added "spread_center" option to AIN/AINSER calibration.<BR>
+     See cfg/tests/kb_1.ngc for an usage example.
+
+  <LI>reduced memory consumption of EVENT_* definitions
+
+  <LI>added MIOS Terminal commands: "show id" and "show hw_id"
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.019</I>
+  <UL CLASS=CL>
+   <LI> added "Autoload" function: whenever a .NGC file has been uploaded via the
+     MIOS Filebrowser, it will be automatically loaded, so that "load &lt;file&gt;" 
+     doesn't need to be entered in the MIOS Terminal anymore.
+
+   <LI> EVENT_LED_MATRIX: now expects the 'colour' parameter to address the
+     red (colour=0), green (colour=1) or blue (colour=2) LED.<BR>
+
+     Note that it's still possible to control the LEDs from a single incoming
+     MIDI message, e.g. by assigning the 3 EVENT_LED_MATRIX entries to the
+     same CC number.
+
+     But now it's also possible to address the LEDs independent from each other.
+
+
+   <LI> LEDs can now be dimmed with 16 brightness levels over the value range.<BR>
+     This feature has to be enabled with dimmed=1 in the EVENT_* definition.<BR>
+     Configuration example: cfg/tests/dimled.ngc
+
+   <LI> LEDs in a matrix configuration can be dimmed as well. The dim range is the
+     same (0..15), but the effective dim level is limited by the number of 
+     scanned rows:
+     <UL CLASS=CL>
+        <LI> 4  rows: only 8 levels (0..1, 2..3, 4..5, 6..7, 8..9, 10..11, 12..13, 14..15)
+        <LI> 8  rows: only 4 levels (0..3, 4..7, 8..11, 12..15)
+        <LI> 16 rows: only 2 levels (0..7, 8..15)
+     </UL>
+     Configuration example: cfg/tests/dimled_m.ngc
+
+   <LI> the new MIOS Terminal command "lcd" allows to directly output a (formatted)
+     string to the LCD(s).<BR>
+     E.g. try "lcd @(1:1:1)Hello World!"<BR>
+
+     Note that terminal strings can also be sent via SysEx from a DAW:<BR>
+     F0 00 00 7E 32 00 0D 00 &lt;ascii-text&gt; 0A F7
+
+     Accordingly, this SysEx string will print "Hello World!" as well:<BR>
+     F0 00 00 7E 32 00 0D 00 6C 63 64 20 40 28 31 3A 31 3A 31 29 48 65 6C 6C 6F 20 57 6F 72 6C 64 21 0A F7
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.018</I>
+  <UL CLASS=CL>
+   <LI> added EVENT_KB. See cfg/tests/kb_*.ngc for usage examples
+
+   <LI> new LCD formats: %N prints the note name based on the specified MIDI event,
+     and %n based on the event value
+
+   <LI> new meta event: SwapValues - it swaps the primary and secondary value of an event.<BR>
+     E.g. on a note event, velocity can be swapped with the key value.<BR>
+     A usage example can be found in cfg/tests/kb_4.ngc, where the key and velocity
+     value should be output by separate CV channels
+
+   <LI> AIN/AINSER configuration: added pinrange parameter.<BR>
+     It allows to specify individual ranges for the connected pots to calibrate
+     the physical min/max limits.
+
+   <LI> SCS configuration: added SCS num_items and lcd_pos parameters
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.017</I>
+  <UL CLASS=CL>
+   <LI> it's now possible to use the same hw_id in multiple event definitions.
+     This allows for example to send multiple MIDI events from a single
+     control element (e.g. from a single button)
+
+   <LI> the fwd_id now forwards to the event(s) with the given hw_id
+     (which is the same like the "normal id" if not explicitely specified)
+
+   <LI> implemented "conditional events".<BR>
+     See the <A HREF="midibox_ng_manual_ngc.html">User Manual</A> for details and examples.
+
+   <LI> the new meta event UpdateLcd allows to force a refresh of the complete
+     LCD content. This is especially useful in conjunction with conditional
+     events: whenever a source value has been changed (e.g. a button state),
+     all events which have this value in their condition will print out the
+     label if the specified condition matches.
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.016</I>
+  <UL CLASS=CL>
+   <LI> LPC17: robustness of LCD driver has been improved
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V1.015</I>

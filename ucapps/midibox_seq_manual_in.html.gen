@@ -21,6 +21,33 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Installation
 </UL>
 
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Working under Windows? </H2>
+
+<P CLASS=DESC>MIDIbox SEQ enables 4 USB MIDI ports. Unfortunately some windows versions can't handle this correctly: MIDI is stucking sometimes, Filebrowser operations are failing, etc.</P>
+
+<P CLASS=DESC>In order to overcome this issue, sometimes it helps to install the GM5 USB MIDI driver, which can be downloaded from the <A HREF="mios32_download.html">MIOS32 Download page</A>.
+
+<P CLASS=DESC>Unfortunately the GM5 driver can cause new issues if multiple cores are connected. And users reported that it doesn't work stable under Windows XP. In such cases it's recommended to force the usage of a single USB port which solves the MIDI transfer issues with the drawback of the reduced functionality.
+
+<P CLASS=DESC>So: if you notice MIDI transfer issues, please enable the single_usb option with the <A HREF="mios32_bootstrap_newbies.html">MIOS32 Bootloader</A> update application.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Working under MacOS? </H2>
+
+<P CLASS=DESC>The USB MIDI implementation of MacOS is perfectly working, regardless of the number of USB MIDI ports!
+
+<P CLASS=DESC>So far we only noticed a minor issue when an app changes the number of USB MIDI ports or the device name. Such changes won't be taken over automatically, instead you've to delete the old interface description in the Audio-MIDI-Setup:
+<UL CLASS=CL>
+  <LI>start the Audio-MIDI-Setup of MacOS (e.g. search for "audio-midi" with Spotlight)
+  <LI>disconnect the core module from USB
+  <LI>delete the interface in the Audio-MIDI-Setup
+  <LI>connect the core module to USB again
+</UL>
+
+<P CLASS=DESC>Thereafter you should see an interface with the new names and the right number of USB MIDI Ports:
+<A HREF="mios32/macos_midi_setup.png"><IMG SRC="mios32/macos_midi_setup.png" WIDTH=550></A>
+
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> MBSEQ_HW.V4 </H2>
 
 <P CLASS=DESC>Some premade configuration files are located in the <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2F">hwcfg/ directory</A> of the release package. One of these files has to be copied into the root directory of the SD Card. Adaptions can be made if the default setup doesn't already match with your hardware, such as LED/Button/Encoder assignments, optional Button/LED Matrix setup, AOUT interface type, etc.</P>

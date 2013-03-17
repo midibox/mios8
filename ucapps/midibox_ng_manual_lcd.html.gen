@@ -170,7 +170,7 @@ Note: the remaining pins are set to 0V, only a single pin is set to ca. 3.3V res
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> KS0107/KS0108 or HD61202 based GLCDs </H2>
 
-<P CLASS=DESC>The bus interface of this GLCD is similar to a CLCD, but every 128x64 block needs a CS (chip select) line which is available at J28 (MBHP_CORE_STM32: J5C).<BR>
+<P CLASS=DESC>The bus interface of this GLCD is similar to a CLCD, but every 64x64 segment needs a CS (chip select) line which is available at J28 (MBHP_CORE_STM32: J5C).<BR>
 All graphical LCDs require a negative voltage to drive the Liquid Crystal cells. Some LCDs provide an inbuild DC converter, some others not. The schematic below shows a MAX759 voltage converter which can be used if a Vout pin is not provided by the GLCD.<BR>
 Schematic: <A HREF="mbhp/mbhp_lcd_ks0108_mios32.pdf">mbhp_lcd_ks0108_mios32.pdf</A>
 
@@ -210,6 +210,56 @@ store
 <P CLASS=DESC><B>Limitations:</B> up to 4 LCD segments are supported (limited by the number of pins at J28).<BR>
 Each segment has a size of 64x64, makes 256x64 in total.<BR>
 With the "normal font" (6x8) up to 42x8 characters can be print, fonts can be selected without limitations.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SED1520 based GLCDs </H2>
+
+<P CLASS=DESC>GLCDs which are SED1520 compatible are an inexpensive alternative solution for KS0108 based displays.<BR>
+E.g. the "Wintek WD-G1203T" with 122x32 pixel resolution available at <A HREF="http://www.pollin.de/shop/dt/MzM0OTc4OTk-/Bauelemente_Bauteile/Aktive_Bauelemente/Displays/LCD_Modul_WINTEK_WD_G1203T.html" TARGET="_blank">Pollin</A> is sold for only 2 EUR!<BR>
+Please note that not every SED1520 based GLCD at Pollin is recommendable. E.g. the "LCD Datavision DG-12232" didn't work at my side. It would also need a negative display voltage and 50V AC (!) to supply the EL backlight - forget this display! ;-)
+
+<P CLASS=DESC>The bus interface is similar to a character based LCD, but every 61x32 segment needs a CS (chip select) line which is available at J28<BR>
+Schematic: <A HREF="mbhp/mbhp_lcd_sed1520_mios32.pdf">mbhp_lcd_sed1520_mios32.pdf</A>
+Picture: <A HREF="mbhp/mbhp_lcd_sed1520.jpg">mbhp_lcd_sed1520.jpg</A>
+
+<P CLASS=DESC>Following configuration is required in the <A HREF="mios32_bootstrap_newbies.html">Bootloader Update Application</A> for a 122x32 GLCD (2 CS lines):
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SED1520
+lcd_num_x 1
+lcd_num_y 1
+lcd_width 122
+lcd_height 32
+store
+</PRE></TT>
+
+<P CLASS=DESC>It's possible to combine two SED1520 LCDs by connecting all signals (beside of CS) in parallel to J15A. The two CS lines of the second display have to be connected to the CS3 and CS4 output at J28. Configuration:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SED1520
+lcd_num_x 1
+lcd_num_y 1
+lcd_width 244
+lcd_height 32
+store
+</PRE></TT>
+
+<P CLASS=DESC>It's also possible to combine four SED1520 LCDs by
+<UL CLASS=CL>
+  <LI>connecting all signals of the first and second display (beside of CS) in parallel to J15A. The four CS lines have to be connected to J28.
+  <LI>connecting all signals of the third and fourth display (beside of CS) in parallel to J15B. The four CS lines have to be connected to J28 (in parallel to the CS lines of the first and second display
+</UL>
+Configuration:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+lcd_type GLCD_SED1520
+lcd_num_x 2
+lcd_num_y 1
+lcd_width 244
+lcd_height 32
+store
+</PRE></TT>
+
+<P CLASS=DESC><B>Limitations:</B> up to 8 LCD segments are supported (limited by the number of E pins at J15A/B, and the 4 pins at J28)
+Each segment has a size of 61x32, makes 488x32 in total.<BR>
+With the "normal font" (6x8) up to 160x4 characters can be print, fonts can be selected without limitations.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> DOGM and DOGL based GLCDs </H2>

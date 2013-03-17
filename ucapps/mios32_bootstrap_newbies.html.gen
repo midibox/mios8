@@ -52,9 +52,9 @@ Another typical Windows issue: instead of "MIOS32", the USB device is probably c
 
 <P CLASS=DESC>The bootloader provides a permanent storage for parameters which are referenced
 by (most) applications. These parameters can be customized from the MIOS Terminal
-(part of MIOS Studio) by uploading this application.</P>
+(part of MIOS Studio) by uploading the <B>mios32_bootloader</B> update application.</P>
 
-<P CLASS=DESC>Just type "help" in the MIOS Terminal to get a list of available commands.</P>
+<P CLASS=DESC>After the upload of this app, type "help" in the MIOS Terminal to get a list of available commands.</P>
 
 <P CLASS=DESC>Explanation of the most important parameters:
 <UL CLASS=CL>
@@ -76,6 +76,21 @@ by (most) applications. These parameters can be customized from the MIOS Termina
 
   Note that no MIDI upload request will be sent during power-on anymore!<BR>
   Please consider this when reading documentation about MIDI troubleshooting.
+
+
+  <LI><B>single_usb:</B> use this option if you are working with a Windows PC which can't handle
+     multiple USB ports correctly.<BR>
+     E.g. applications like <A HREF="midio128.html">MIDIO128</A>,
+     <A HREF="midibox_seq.html">MIDIbox SEQ</A> or <A HREF="midibox_ng.html">MIDIbox NG</A> enable
+     4 USB ports by default. Certain Windows versions (such as Windows XP) are failing:
+     sometimes MIDI events are stucking, MIOS Studio filebrowser operations are failing, etc.<BR>
+     Even the installation of the GM5 USB MIDI driver doesn't help (which solves the issue under Windows7), 
+     or causes new issues when multiple core modules are connected.<BR>
+     As a workaround, it's possible to enforce that only a single USB port is enabled:
+<TT><PRE style="margin-left:50px">
+     set single_usb 1
+</PRE></TT>
+     This should solve the windows driver issue - with the drawback of the reduced functionality.
 
 
 <LI><B>USB device name:</B> it's possible to assign a dedicated name for your MBHP_CORE_STM32
@@ -170,5 +185,21 @@ by (most) applications. These parameters can be customized from the MIOS Termina
   LCD driver (MIOS32_LCD != "universal") which don't consider these parameters.
   It's up to the developer to document this limitation.<BR>
 </UL>
+
+
+<H2> Working under MacOS? </H2>
+
+<P CLASS=DESC>The USB MIDI implementation of MacOS is perfectly working, regardless of the number of USB MIDI ports!
+
+<P CLASS=DESC>So far we only noticed a minor issue when an app changes the number of USB MIDI ports or the device name. Such changes won't be taken over automatically, instead you've to delete the old interface description in the Audio-MIDI-Setup:
+<UL CLASS=CL>
+  <LI>start the Audio-MIDI-Setup of MacOS (e.g. search for "audio-midi" with Spotlight)
+  <LI>disconnect the core module from USB
+  <LI>delete the interface in the Audio-MIDI-Setup
+  <LI>connect the core module to USB again
+</UL>
+
+<P CLASS=DESC>Thereafter you should see an interface with the new names and the right number of USB MIDI Ports:
+<A HREF="mios32/macos_midi_setup.png"><IMG SRC="mios32/macos_midi_setup.png" WIDTH=550></A>
 
 FOOTER

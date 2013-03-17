@@ -1,13 +1,75 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2012-12-30</H3></CENTER>
+<CENTER><H3>Last Release: 2013-03-17</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.072</I>
+  <UL CLASS=CL>
+   <LI> support for the "single_usb" option, which can be enabled with the
+     bootloader update application V1.012 ("set usb_single 1")<BR>
+
+     Use this option if you are working with a Windows PC which can't handle
+     the 4 USB ports correctly (e.g. stucking MIDI, Filebrowser operations are failing, etc.)
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.071</I>
+  <UL CLASS=CL>
+   <LI> if not in song mode, the Rew/Fwd buttons can now be used to select the step view.
+
+   <LI> the MIDI router provides the new destination "Track".<BR>
+
+     If this destination is selected, incoming MIDI events will be routed to the
+     MIDI port and channel of a track depending on the incoming MIDI channel number.<BR>
+
+     Usecase: MIDI events, such as CC or Notes, should be sent from a master keyboard
+     or MIDI controller to synths which are assigned to different port and MIDI channels
+     in the track configuration.<BR>
+     Just select the track with the MIDI channel on your keyboard/controller, the router
+     will take care that the events reach the right destination.
+
+   <LI> it's now possible to send a CC when a track has been selected.<BR>
+     This feature allows to synchronize the track selection with a DAW.<BR>
+     It has to be configured in the MBSEQ_HW.V4 file (search for TRACK_CC in hwcfg/*/MBSEQ_HW.V4)
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.070</I>
+  <UL CLASS=CL>
+   <LI> LPC17: robustness of LCD driver has been improved
+
+   <LI> the MIDI configuration page got a new subpage called "Ext.Ctrl"<BR>
+     This subpage allows to assign CCs to functions like Morph Value,
+     Scale, Song, Phrase, Patterns, Banks, All Note Off, etc.<BR>
+     Some of these functions can also be assigned to a Program Change Event.<BR>
+     The MIDI port and channel over which these functions are accessible is free assignable.<BR>
+     The MIDI channel is disabled by default, which means that the Ext Ctrl. feature
+     has to be explicitly enabled in the MIDI-&gtExt Ctrl. page!!
+
+   <LI> improved transpose handling if loopback track is running with sustain enabled,
+     or with notes &gt step length (glide)
+
+   <LI> note stack now automatically cleared if transpose was controlled by a loopback
+     track, and then manually from an external keyboard.
+
+   <LI> it's now possible to transpose with chords (or multiple notes) from a loopback
+     track
+
+   <LI> the "sdcard_format" command allows to format the connected SD Card with FAT32
+     from the MIOS Terminal
+
+   <LI> added BLM_GP_ALWAYS_SELECT_MENU_PAGE option to MBSEQ_V4.HW file
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.069</I>

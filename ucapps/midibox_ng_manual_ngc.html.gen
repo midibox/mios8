@@ -94,11 +94,11 @@ The faders of the first MBHP_MF_NG module are available as MF controller 1-8, th
    The <I>hw_id</I> ranges from 1..32
   <LI><I>CV</I>: up to 4 <A HREF="mbhp_aout.html">MBHP_AOUT</A> or 4 <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or 4 <A HREF="http://www.midibox.org/dokuwiki/aout_ng" TARGET="_blank">MBHP_AOUT_NG</A> modules can be connected, which means that up to 32 CV channels can be controlled. The modules are configured with the AOUT command which is described later in this chapter.<BR>
    The <I>hw_id</I> ranges from 1..32
-  <LI><I>KEYBOARD</I>: up to 2 <A HREF="midibox_kb.html">MIDI Keyboards with velocity</A> can be scanned. The same driver as for MIDIbox KB is used.<BR>
+  <LI><I>KB</I>: up to 2 <A HREF="midibox_kb.html">MIDI Keyboards with (or without) velocity</A> can be scanned. The same driver as for MIDIbox KB is used.<BR>
    The <I>hw_id</I> ranges from 1..2
 </UL>
 
-<P CLASS=DESC>The separation of these ids is important for banking. By default, the <I>hw_id</I> will be identical to the <I>id</I> if not further specified, but by changing the <I>hw_id</I> in an EVENT definition it's possible to assign the same hardware to multiple software functions, and to select the function with the <I>bank</I> parameter.
+<P CLASS=DESC>The separation of these ids is important for banking (new: and for conditional events). By default, the <I>hw_id</I> will be identical to the <I>id</I> if not further specified, but by changing the <I>hw_id</I> in an EVENT definition it's possible to assign the same hardware to multiple software functions, and to select the function with the <I>bank</I> parameter.
 
 <P CLASS=DESC>The bank can then be switched with control elements which are assigned to the <I>SetBank</I>, <I>IncBank</I>, <I>DecBank</I> or <I>CycleBank</I> meta event. Either dedicated buttons could be used for such a purpose, or a rotary encoder, or MIDI events sent from external. Alternatively it will be possible to select a bank from the SCS.
 
@@ -143,6 +143,53 @@ EVENT_ENC    id=102  hw_id =  2  fwd_id=LED_MATRIX:2  fwd_to_lcd=1  type=Meta  r
 <P CLASS=DESC>Please note that it's also possible to assign only a subset of controllers to banks, and to use the remaining hardware elements for dedicated functions outside the bank: <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Febnkpart.ngc" TARGET="_blank">Link to a configuration example</A>.
 
 <P CLASS=DESC>Buttons and LEDs which are connected to a DIN/DOUT matrix can be used in banks by emulating BUTTON/LED controllers, see the <I>button_emu_id_offset</I> and <I>led_emu_id_offset</I> of the <I>DIN_MATRIX</I> and <I>DOUT_MATRIX</I> configuration command.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> IDs and Conditional Events </H2>
+
+<P CLASS=DESC>Whenever a control element (e.g. a button, or an encoder) is moved, the EVENT with a matching <I>hw_id</I> (resp. <I>id</I> if no <I>hw_id</I> specified) and <I>bank</I> will be triggered.</P>
+
+<P CLASS=DESC>It's also possible to trigger multiple events in the same <I>bank</I> from the same control element if they are all assigned to the same <I>hw_id</I>.<BR>
+Example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# the first encoder should send CC#16 over channel 1
+EVENT_ENC  id=1    hw_id=1  type=CC cc=16 chn=1
+# and CC#32 over channel 2
+EVENT_ENC  id=101  hw_id=1  type=CC cc=32 chn=2
+</PRE></TT>
+
+<P CLASS=DESC>Maybe you would like to switch between the two events with a button independent from the bank selection? Here conditions come into the game: a condition allows to enable the event depending on the event value, or the value of another event!</P>
+
+<P CLASS=DESC>Example where the condition depends on the "own" event value:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# the first encoder should send CC#16 over channel 1 if the value is <64
+EVENT_ENC  id=1    hw_id=1  if_less_stop_on_match=64  type=CC cc=16 chn=1
+# and CC#32 over channel 2 if the previous condition didn't stop the processing
+EVENT_ENC  id=101  hw_id=1                            type=CC cc=32 chn=2
+</PRE></TT>
+
+
+<P CLASS=DESC>Example where the condition depends on the value of another event:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# this toggle button switches between two CC modes
+EVENT_BUTTON  id=1  type=meta  meta=UpdateLcd  range=0:1  button_mode=Toggle
+
+# the first encoder should send CC#16 over channel 1 if the toggle button is deactivated
+EVENT_ENC  id=1    hw_id=1  if_equal=Button:1:0  type=CC cc=16 chn=1
+# and CC#32 over channel 2 if the toggle button is activated
+EVENT_ENC  id=101  hw_id=1  if_equal=Button:1:1  type=CC cc=32 chn=2
+</PRE></TT>
+
+<P CLASS=DESC>Here are some more examples from the repository:
+  <UL CLASS=CL>
+    <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fconev_1.ngc" TARGET="_blank">conev_1.ngc</A>.
+    <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fconev_2.ngc" TARGET="_blank">conev_2.ngc</A>.
+    <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fconev_3.ngc" TARGET="_blank">conev_3.ngc</A>.
+    <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fconev_4.ngc" TARGET="_blank">conev_4.ngc</A>.
+    <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fconev_5.ngc" TARGET="_blank">conev_5.ngc</A>.
+  </UL>
+
+<P CLASS=DESC>All available conditions and options are described in the <I>if_*</I> description of the next chapter.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> EVENT_* </H2>
@@ -253,8 +300,9 @@ EVENT_ENC    id=102  hw_id =  2  fwd_id=LED_MATRIX:2  fwd_to_lcd=1  type=Meta  r
 
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>hw_id=&lt;1..4095&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Optionally specifies the <I>hw_id</I> (hardware controller) to which the EVENT definition is assigned. See also the detailed description in the previous chapter.<BR>
-       If not specified, the <I>hw_id</I> will match with the <I>id</I>
+    <TD CLASS=TABCOLOR2>Optionally specifies the <I>hw_id</I> (hardware controller) to which the EVENT definition is assigned.<BR>
+       If not specified, the <I>hw_id</I> will match with the <I>id</I><BR>
+       It's possible to trigger multiple events from the same control element (e.g. button or encoder) by assigning them to the same <I>hw_id</I>. The <I>bank</I> and <I>if_*</I> conditions allow to filter the processing.
     </TD>
   </TR>
 
@@ -266,8 +314,47 @@ EVENT_ENC    id=102  hw_id =  2  fwd_id=LED_MATRIX:2  fwd_to_lcd=1  type=Meta  r
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>if_*=&lt;value&gt;</I><BR>
+                                  <I>if_*=&lt;element&gt;:&lt;hw_id&gt;:&lt;value&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies a conditional event which either compares the "own" event value, or the event value of another event, with a constant.<BR>
+      Following conditional checks are available:
+      <UL CLASS=CL>
+         <LI><I>if_equal</I>: event will be processed if the specified constant is matching
+         <LI><I>if_unequal</I>: event will be processed if the specified constant is not matching
+         <LI><I>if_less</I>: event will be processed if the specified constant less than the event value
+         <LI><I>if_lessequal</I>: event will be processed if the specified constant less or equal the event value
+      </UL>
+
+      Usage examples:
+      <UL CLASS=CL>
+         <LI><I>if_equal=64</I>: event will only be processed if the event value is 64
+         <LI><I>if_less=64</I>: event will be processed if the event value is &lt;64
+         <LI><I>if_less=Enc:1:64</I>: event will be processed if the value of Enc:1 (the first encoder) is &lt;64
+      </UL>
+
+      The conditions will be checked for all events assigned to the same <I>hw_id</I>.<BR>
+      In some usecases it's required to stop the search for events when a condition matched.<BR>
+      Just add the <I>_stop_on_match</I> flag in such cases:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# the first encoder should send CC#16 over channel 1 if the value is <64
+EVENT_ENC  id=1    hw_id=1  if_less_stop_on_match=64  type=CC cc=16 chn=1
+# and CC#32 over channel 2 if the previous condition didn't stop the processing
+EVENT_ENC  id=101  hw_id=1                            type=CC cc=32 chn=2
+</PRE></TT>
+
+      Complete list:
+      <UL CLASS=CL>
+         <LI><I>if_equal_stop_on_match</I>
+         <LI><I>if_unequal_stop_on_match</I>
+         <LI><I>if_less_stop_on_match</I>
+         <LI><I>if_lessequal_stop_on_match</I>
+      </UL>
+    </TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>fwd_id=&lt;target:id&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Whenever an matching MIDI event has been received, the value can be forwarded to another EVENT element:
+    <TD CLASS=TABCOLOR2>Whenever an matching MIDI event has been received, the value can be forwarded to another EVENT element with a specific <I>hw_id</I>:
       <UL CLASS=CL>
         <LI><I>BUTTON:&lt;1..4095&gt;</I>
         <LI><I>LED:&lt;1..4095&gt;</I>
@@ -323,6 +410,19 @@ EVENT_ENC    id=102  hw_id =  2  fwd_id=LED_MATRIX:2  fwd_to_lcd=1  type=Meta  r
     <TD CLASS=TABCOLOR2 WIDTH=150><I>key=&lt;0..127&gt;</I><BR><I>key=any</I></TD>
     <TD CLASS=TABCOLOR2>Specifies the key number (0..127) for <I>type=NoteOff, NoteOn, PolyPressure and Aftertouch</I> events.<BR>
     With <I>key=any</I> the event will take any key number. In combination with the <I>use_key_number</I> flag it's possible to process the received key number instead of the velocity value.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>kb_transpose=&lt;-128..127&gt;</TD>
+    <TD CLASS=TABCOLOR2>Only valid for <I>EVENT_KB</I>: specifies the transpose value for the played key from -128..127
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>kb_velocity_map=map&lt;1..255&gt;</TD>
+    <TD CLASS=TABCOLOR2>Allows to convert the velocity of a <I>EVENT_KB</I> with a map which consists of 128 values.<BR>
+    A usage example can be found in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_2.ngc" TARGET="_blank">cfg/tests/kb_2.ngc</A>.
     </TD>
   </TR>
 
@@ -412,15 +512,49 @@ EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
         <LI><I>IncBankOfHwId:&lt;hw_id&gt;</I>: increments the bank number number only for the EVENTs which are matching with the given <I>hw_id</I>
         <LI><I>DecBankOfHwId:&lt;hw_id&gt;</I>: decrements the bank number number only for the EVENTs which are matching with the given <I>hw_id</I>
         <LI><I>CycleBankOfHwId:&lt;hw_id&gt;</I>: increments the bank number, resets to 1 if last bank reached for the EVENTs which are matching with the given <I>hw_id</I>
+
+        <LI><I>SetSnapshot</I>: sets the snapshot number according to the EVENT value (0..127). If buttons are used to select the snapshot, please specify <I>meta=SetSnapshot range=0:0 button_mode=OnOnly</I> to select the first snapshot, <I>meta=SetSnapshot range=1:1 button_mode=OnOnly</I> for the second snapshot, etc.<BR>
+If an encoder, pot, etc... is used, please specify <I>meta=SetSnapshot range=0:127</I>.<BR>
+<B>Note that snapshots can also be accessed from the <A HREF="midibox_ng_manual_scs.html">SCS menu</A>.</B>
+        <LI><I>IncSnapshot</I>: increments the snapshot number
+        <LI><I>DecSnapshot</I>: decrements the snapshot number
+        <LI><I>CycleSnapshot</I>: increments the snapshot number, resets to 0 if last snapshot reached
+        <LI><I>LoadSnapshot</I>: loads a snapshot with the currently selected number from the .NGS file
+        <LI><I>SaveSnapshot</I>: stores a snapshot with the currently selected number into the .NGS file
+        <LI><I>DumpSnapshot</I>: dumps the values of all control elements which haven't specified no_dump=1.<BR>
+        Note that multiple meta commands can be assigned to an event, e.g. to set, auto-load and dump a snapshot from an encoder write:
+
+<TT><PRE style="margin-left:20px; font-size:8pt">
+EVENT_ENC ... type=Meta meta=SetSnapshot meta=LoadSnapshot meta=DumpSnapshot
+</PRE></TT>
+
+        It's also possible to use DumpSnapshot independent from the values stored in a .NGS file:
+<TT><PRE style="margin-left:20px; font-size:8pt">
+EVENT_BUTTON ... type=Meta meta=DumpSnapshot
+</PRE></TT>
+        will just dump the current values without a load operation.
+
         <LI><I>EncFast</I>: speeds up encoder movements according to the EVENT value. E.g. if <I>meta=EncFast range=0:5</I> is assigned to a BUTTON_EVENT, encoders will increment 5 times faster if the button is pressed.
+
         <LI><I>MidiLearn</I>: can be used to enable MIDI Learn mode from a dedicated button (instead of the <A HREF="midibox_ng_manual_scs.html">SCS</A>).<BR>
         E.g. if <I>meta=MidiLearn range=0:1</I> is assigned to a BUTTON_EVENT, Learn Mode will be enabled when the button is pressed, and disabled once it has been released.<BR>
         With <I>meta=MidiLearn range=0:2</I> NRPNs can be learned as well - in the case, CC#6/38/98/99 will be transformed into a NRPN event.
+        <LI><I>UpdateLcd</I>: allows to force a refresh of the complete LCD content.<BR>
+        This is especially useful in conjunction with conditional events: whenever a source value has been changed (e.g. a button state), all events which have this value in their condition will print out the label if the specified condition matches.
+
+        <LI><I>SwapValues</I>: swaps the primary and secondary value of an event.<BR>
+           E.g. on a note event, velocity can be swapped with the key value.<BR>
+           A usage example can be found in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_4.ngc" TARGET="_blank">cfg/tests/kb_4.ngc</A>, where the key and velocity value should be output by separate CV channels.
+
         <LI><I>ScsEnc</I>: emulates a SCS encoder movement. This Meta event can either be issued from EVENT_ENC or EVENT_BUTTON events. A usage example is given below.
         <LI><I>ScsSoft1</I>: emulates the SOFT1 button of the SCS
         <LI><I>ScsSoft2</I>: emulates the SOFT2 button of the SCS
         <LI><I>ScsSoft3</I>: emulates the SOFT3 button of the SCS
         <LI><I>ScsSoft4</I>: emulates the SOFT4 button of the SCS
+        <LI><I>ScsSoft5</I>: emulates the SOFT5 button of the SCS (only relevant for 2x25 screen size)
+        <LI><I>ScsSoft6</I>: emulates the SOFT6 button of the SCS (only relevant for 2x30 screen size)
+        <LI><I>ScsSoft7</I>: emulates the SOFT7 button of the SCS (only relevant for 2x35 screen size)
+        <LI><I>ScsSoft8</I>: emulates the SOFT8 button of the SCS (only relevant for 2x40 screen size)
         <LI><I>ScsShift</I>: emulates the SHIFT button of the SCS
         <LI><I>ScsMenu</I>: emulates the MENU button of the SCS<BR>
            Here a complete configuration example for 8 emulated SCS buttons:
@@ -471,6 +605,14 @@ EVENT_ENC    id=  1  type=Meta   meta=ScsEnc   range=0:127 enc_mode=40Speed
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>value=&lt;0..16383&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Specifies the initial value of the event.</TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>no_dump=&lt;0 or 1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies if the current value of the control element should be sent during DumpSnapshot.<BR>
+     <I>no_dump=1</I> is set automatically for EVENT_RECEIVER and EVENT_KB and events which are using type=Meta by default. If such events should be part of the dump, set <I>no_dump=0</I>.<BR>
+     For all other events/types <I>no_dump=0</I> is set by default, set <I>no_dump=1</I> if they shouldn't send MIDI events on a snapshot dump.
+     </TD>
   </TR>
 
   <TR>
@@ -589,6 +731,48 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>colour=&lt;0..2&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the color layer of the LED_MATRIX:
+      <UL CLASS=CL>
+        <LI><I>colour=0</I>: (default) the first "red" layer
+        <LI><I>colour=1</I>: (default) the second "green" layer
+        <LI><I>colour=2</I>: (default) the third "blue" layer
+      </UL>
+
+      A typical usage example can be found in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fblm16x4.ngc" TARGET="_blank">cfg/test/blm16x4.ngc</A>.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>dimmed=&lt;0 or 1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>LEDs can now be dimmed with 16 brightness levels over the value range. This feature has to be enabled with <I>dimmed=1</I> in the EVENT_* definition.<BR>
+     Configuration example: <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fdimled.ngc" TARGET="_blank">cfg/test/dimled.ngc</A>.<BR>
+
+     LEDs in a matrix configuration can be dimmed as well. The dim range is the same (0..15), but the effective dim level is limited by the number of scanned rows:
+     <UL CLASS=CL>
+       <LI><B>4  rows:</B> only 8 levels (0..1, 2..3, 4..5, 6..7, 8..9, 10..11, 12..13, 14..15)
+       <LI><B>8  rows:</B> only 4 levels (0..3, 4..7, 8..11, 12..15)
+       <LI><B>16 rows:</B> only 2 levels (0..7, 8..15)
+     </UL>
+     Configuration example: <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fdimled_m.ngc" TARGET="_blank">cfg/test/dimled_m.ngc</A>.<BR>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>rgb=&lt;red&gt;:&lt;green&gt;&lt;blue&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>In distance to the <I>dimmed</I> option, the <I>rgb</I> parameter allows to set preconfigured brightness levels for the three LED layers of a LED matrix.<BR>
+    All three values range from 0..15.<BR>
+     Configuration Examples:
+     <UL CLASS=CL>
+       <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frgb_1.ngc" TARGET="_blank">rgb_1.ngc</A>: individual brightness levels for RGB LEDs
+       <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frgb_2.ngc" TARGET="_blank">rgb_2.ngc</A>: individual brightness levels for RGB LEDs forwarded from EVENT_BUTTON
+       <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frgb_3.ngc" TARGET="_blank">rgb_3.ngc</A>: different RGB brightness levels are used in different banks
+     </UL>
+     <B>Note:</B> <I>rgb</I> also works with "normal" LEDs directly connected to DOUT pins. In this case the <I>&lt;red&gt;</I> value will statically set the brightness level of the single-colour LED. The remaining <I>&lt;green&gt;</> and <I>&lt;blue&gt;</I> levels have no effect in this case.
+    </TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>cv_inverted=&lt;0|1&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Only relevant for EVENT_CV: with <I>cv_inverted=1</I> the CV output will be inverted.</TD>
   </TR>
@@ -651,9 +835,12 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>%e</I>: the MIDI event of the EVENT (up to 3 hexadecimal values, always 6 characters)
         <LI><I>%m</I>: the minimum value of the EVENT which has been specified with <I>range</I>
         <LI><I>%M</I>: the maximum value of the EVENT which has been specified with <I>range</I>
+        <LI><I>%n</I>: print note name (C-1, C#1, D-1, D#1, ...) based on the EVENT value
+        <LI><I>%N</I>: print note name (C-1, C#1, D-1, D#1, ...) based on the MIDI event which is sent
         <LI><I>%b</I>: a binary digit: * if value >= (range/2), o if value < (range/2)
         <LI><I>%B</I>: a vertical bar which works like a meter.<BR>In conjunction with various fonts (selected with <I>&amp;&lt;font&gt;</I>) alternative icons will be output instead.
         <LI><I>%q</I>: current selected bank (q is a rotated b - do you see it? ;-)
+        <LI><I>%S</I>: current snapshot number (0..127)
         <LI><I>%C</I>: clear all LCDs
         <LI><I>%%</I>: outputs the % character
         <LI><I>^^</I>: outputs the ^ character
@@ -1018,12 +1205,18 @@ LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000000000100000
 KEYBOARD n=1   rows=8  dout_sr1=1  dout_sr2=2  din_sr1=1  din_sr2=2 \
                din_inverted=0  break_inverted=0  din_key_offset=32 \
                scan_velocity=1  scan_optimized=0  note_offset=28 \
-               midi_ports=1000100000001000  midi_chn=1 \
-               delay_fastest=5  delay_fastest_black_keys=0  delay_slowest=100 \
-               ain_pitchwheel_pin=  0  ain_pitchwheel_ctrl=128  ain_pitchwheel_min=  1  ain_pitchwheel_max=254 \
-               ain_modwheel_pin  =  0  ain_modwheel_ctrl  =  1  ain_modwheel_min  =  1  ain_modwheel_max  =254 \
-               ain_sustain_pin   =  0  ain_sustain_ctrl   = 64  ain_sustain_min   =  1  ain_sustain_max   =254
+               delay_fastest=5  delay_fastest_black_keys=0  delay_slowest=100
+
+EVENT_KB id=1  type=NoteOn chn=1 key=any use_key_number=1 range=0:127  lcd_pos=1:1:1 label="Note %n"
 </PRE></TT>
+
+Configuration examples:
+<UL CLASS=CL>
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_1.ngc" TARGET="_blank">kb_1.ngc</A>: simple configuration
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_2.ngc" TARGET="_blank">kb_2.ngc</A>: usage of a velocity map
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_3.ngc" TARGET="_blank">kb_3.ngc</A>: splitting keyboard into two zones
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_4.ngc" TARGET="_blank">kb_4.ngc</A>: forwarding to CV outputs
+</UL>
 
 
 <P CLASS=DESC>Please note, that the configuration commands are identical "set kb..." as documented at the <A HREF="http://www.ucapps.de/midibox_kb.html">MIDIbox KB page</A>. This means, that the keyboard parameters can also be changed during runtime to determine the best matching values, before they are written into the .NGC file.</P>
@@ -1038,6 +1231,24 @@ KEYBOARD n=1   rows=8  dout_sr1=1  dout_sr2=2  din_sr1=1  din_sr2=2 \
 AIN enable_mask=110000
 </PRE></TT>
 will enable the J5A.A0 and J5A.A1 inputs.
+
+<P CLASS=DESC>In addition, it's possible to specify the physical min/max limits for each individual input pin with this command, example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+AIN pinrange=1:18:4065
+AIN pinrange=2:18:4065
+</PRE></TT>
+
+Syntax: <I>pinrange=&lt;pin&gt;:&lt;min&gt;:&lt;max&gt;[&lt;:spread_center&gt;]</I><BR>
+
+<P CLASS=DESC>Purpose: under certain circumstances, a connected potentiometer doesn't output 0V on the min position, and/or 3.3V on the max position due to physical limitations. The <I>pinrange</I> parameter allows to overcome this by scaling the received conversion values to the full 0..4095 range.<BR>
+In order to find out the value range of a pot, please activate the debug mode by entering <B>set debug on</B> in the MIOS Terminal. This mode will output the original conversion values whenever the pot is moved. The minimum/maximum displayed values are the ones which have to be specified with the <I>pinrange</I> parameter.
+
+<P CLASS=DESC>If a Pitchwheel (a pot which snaps to the center position) is connected, you may notice that the middle value won't always be reached due to mechanical reasons.<BR>
+In order to solve this issue, the <I>:spread_center</I> option can be used:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+AIN pinrange=1:18:4065:spread_center
+</PRE></TT>
+It spreads the deadband around the center position by +/- 40 (in 12bit resolution) to ensure a reliable middle value when the Pitchwheel snaps back.</P>
 
 <P CLASS=DESC><B>Please note:</B> unconnected analog inputs which haven't been disabled will generate random MIDI event values! It's strongly recommended to disable unused pins in the <I>enable_mask</I>, or to connect these pins to ground!
 
@@ -1080,6 +1291,23 @@ will enable the J5A.A0 and J5A.A1 inputs.
     <TD CLASS=TABCOLOR2 WIDTH=150><I>num_pins=&lt;1..64&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Specifies the number of scanned analog input pins.<BR>
       By default all 64 pins of the MBHP_AINSER module will be scanned. It makes sense to specify a lower number of the upper analog inputs are not connected (even not to ground) to avoid the generation of random values due to the floating inputs.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>pinrange=&lt;pin&gt;:&lt;min&gt;:&lt;max&gt;[&lt;:spread_center&gt;]</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the physical min/max limits for each individual input pin with this command, example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+AINSER pinrange=1:18:4065
+AINSER pinrange=2:18:4065
+</PRE></TT>
+    Purpose: under certain circumstances, a connected potentiometer doesn't output 0V on the min position, and/or 3.3V on the max position due to physical limitations. The <I>pinrange</I> parameter allows to overcome this by scaling the received conversion values to the full 0..4095 range.<BR>
+In order to find out the value range of a pot, please activate the debug mode by entering <B>set debug on</B> in the MIOS Terminal. This mode will output the original conversion values whenever the pot is moved. The minimum/maximum displayed values are the ones which have to be specified with the <I>pinrange</I> parameter.<BR>
+
+If a Pitchwheel (a pot which snaps to the center position) is connected, you may notice that the middle value won't always be reached due to mechanical reasons.<BR>
+In order to solve this issue, the <I>:spread_center</I> option can be used:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+AINSER pinrange=1:18:4065:spread_center
+</PRE></TT>
+It spreads the deadband around the center position by +/- 40 (in 12bit resolution) to ensure a reliable middle value when the Pitchwheel snaps back.
   </TR>
 </TABLE>
 
@@ -1192,12 +1420,41 @@ AOUT  type=AOUT_NG  cs=0  num_channels=8
                                   <I>soft2_button_emu_id=&lt;0..4095&gt;</I><BR>
                                   <I>soft3_button_emu_id=&lt;0..4095&gt;</I><BR>
                                   <I>soft4_button_emu_id=&lt;0..4095&gt;</I><BR>
+                                  <I>soft5_button_emu_id=&lt;0..4095&gt;</I><BR>
+                                  <I>soft6_button_emu_id=&lt;0..4095&gt;</I><BR>
+                                  <I>soft7_button_emu_id=&lt;0..4095&gt;</I><BR>
+                                  <I>soft8_button_emu_id=&lt;0..4095&gt;</I><BR>
                                   <I>shift_button_emu_id=&lt;0..4095&gt;</I></TD>
     <TD CLASS=TABCOLOR2>A SCS button will emulate the specified BUTTON ID if the SCS is in the main page.<BR>If the id is set to 0, the button function won't have any effect!</TD>
   </TR>
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>enc_emu_id==&lt;0..4095&gt;</I></TD>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>enc_emu_id=&lt;0..4095&gt;</I></TD>
     <TD CLASS=TABCOLOR2>A SCS encoder will emulate the specified ENC ID if the SCS is in the main page.<BR>If the id is set to 0, the encoder function won't have any effect!</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>lcd_pos=&lt;lcd&gt;:&lt;X&gt;:&lt;Y&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the LCD position at which the SCS menu page will be print when the MENU button is pressed.
+                        The SCS allocates two lines on the LCD.<BR>
+                        The width of the SCS page depends on the number of items: each item consumes 5 characters.<BR>
+                        With the default value num_items=4 the page spans over a 2x20 screen.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>num_items=&lt;1..8&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the number of items which are handled in a SCS page. This also defines the screen size which is alloctated by the SCS when the menu system is active (MENU button pressed).<BR>
+                        Meaningful values:
+                        <UL CLASS=CL>
+                          <LI><I>num_items=3</I>: for a 2x16 LCD (15 characters allocated)
+                          <LI><I>num_items=4</I>: for a 2x20 LCD (default and recommended)
+                          <LI><I>num_items=8</I>: for a 2x40 LCD.<BR>Potential problem with this configuration: only 4 soft buttons can be connected to J10 of the core module. The 4 remaining soft buttons (to select and change item 5..8) have to be connected to a MBHP_DIN module, and have to generate following meta events:
+<TT><PRE style="margin-left:20px; font-size:8pt">
+# define 4 addtional SCS soft buttons which can't be connected to J10:
+EVENT_BUTTON id=  5  type=Meta   meta=ScsSoft5 range=0:1
+EVENT_BUTTON id=  6  type=Meta   meta=ScsSoft6 range=0:1
+EVENT_BUTTON id=  7  type=Meta   meta=ScsSoft7 range=0:1
+EVENT_BUTTON id=  8  type=Meta   meta=ScsSoft8 range=0:1
+</PRE></TT>
+                        </UL>
+    </TD>
   </TR>
 </TABLE>
 

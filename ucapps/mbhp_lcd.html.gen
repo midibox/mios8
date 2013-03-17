@@ -82,15 +82,34 @@ GLCDs which are KS0107/KS0108 or HD61202 compatible are the preferred displays w
 The performance of the KS0107 and HD61202 controller is perfect, as the pixel information is stored in the <A HREF="mbhp/mbhp_glcd_vertical.gif">vertical direction</A>. This means, that only 5 bus accesses are required to print a 5x8 character (however, the Y position must be aligned to 8 pixels in the vertical direction).<BR>Note that currently only the MIDIbox LC applications gets use of customized fonts and icons.</TD>
     </TR>
     <TR>
-      <TD CLASS=TABCOLOR2><B>MIOS8 Connectivity:</B> the bus interface is similar to a character based LCD, but every 128x64 block needs a CS (chip select) line. Since these lines are gated through the E (enable) pin, it was possible to share the CS lines with other PIC outputs. The MIOS driver takes care for possible conflicts.<BR>
+      <TD CLASS=TABCOLOR2><B>MIOS8 Connectivity:</B> the bus interface is similar to a character based LCD, but every 64x64 segment needs a CS (chip select) line. Since these lines are gated through the E (enable) pin, it was possible to share the CS lines with other PIC outputs. The MIOS driver takes care for possible conflicts.<BR>
 All graphical LCDs require a negative voltage to drive the Liquid Crystal cells. Some LCDs provide an inbuild DC converter, some others not. The schematic below shows a MAX759 voltage converter which can be used if a Vout pin is not provided by the GLCD.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd_ks0108_mios8.pdf">mbhp_lcd_ks0108_mios8.pdf</A> and <A HREF="mbhp/mbhp_lcd_64240a_mios8.pdf">mbhp_lcd_64240a_mios8.pdf</A> (Displaytech 64240A)</TD>
-      <TD CLASS=TABCOLOR2><B>MIOS32 Connectivity:</B> the bus interface is similar to a character based LCD, but every 128x64 block needs a CS (chip select) line which is available at J28 (MBHP_CORE_STM32: J5C).<BR>
+      <TD CLASS=TABCOLOR2><B>MIOS32 Connectivity:</B> the bus interface is similar to a character based LCD, but every 64x64 segment needs a CS (chip select) line which is available at J28 (MBHP_CORE_STM32: J5C).<BR>
 All graphical LCDs require a negative voltage to drive the Liquid Crystal cells. Some LCDs provide an inbuild DC converter, some others not. The schematic below shows a MAX759 voltage converter which can be used if a Vout pin is not provided by the GLCD.<BR>
 <B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd_ks0108_mios32.pdf">mbhp_lcd_ks0108_mios32.pdf</A></TD>
     </TR>
     <TR>
       <TD COLSPAN=2 CLASS=TABCOLOR2><B>Photos:</B> <A HREF="mbhp/mbhp_glcd0_photo.jpg">follow this link</A><BR>or see the MIDIbox LC in Action: <A HREF="midibox_lc/mblc_lcd_page1.jpg">[1]</A> <A HREF="midibox_lc/mblc_lcd_page2.jpg">[2]</A> <A HREF="midibox_lc/mblc_lcd_page3.jpg">[3]</A></TD>
+    </TR>
+
+    <TR>
+      <TD COLSPAN=2 CLASS=TABCOLOR1><FONT SIZE=3><STRONG>SED1520 based graphical LCD</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=2 CLASS=TABCOLOR2>
+GLCDs which are SED1520 compatible are an inexpensive alternative solution for KS0108 based displays.<BR>
+E.g. the "Wintek WD-G1203T" with 122x32 pixel resolution available at <A HREF="http://www.pollin.de/shop/dt/MzM0OTc4OTk-/Bauelemente_Bauteile/Aktive_Bauelemente/Displays/LCD_Modul_WINTEK_WD_G1203T.html" TARGET="_blank">Pollin</A> is sold for only 2 EUR!<BR>
+Please note that not every SED1520 based GLCD at Pollin is recommendable. E.g. the "LCD Datavision DG-12232" didn't work at my side. It would also need a negative display voltage and 50V AC (!) to supply the EL backlight - forget this display! ;-)<BR>
+SED1520 displays are only supported by MIOS32!
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><B>MIOS8 Connectivity:</B> not supported</TD>
+      <TD CLASS=TABCOLOR2><B>MIOS32 Connectivity:</B> the bus interface is similar to a character based LCD, but every 61x32 segment needs a CS (chip select) line which is available at J28 (MBHP_CORE_STM32: J5C).<BR>
+<B>Wiring Diagram:</B> <A HREF="mbhp/mbhp_lcd_sed1520_mios32.pdf">mbhp_lcd_sed1520_mios32.pdf</A></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN=2 CLASS=TABCOLOR2><B>Photos:</B> <A HREF="mbhp/mbhp_lcd_sed1520.jpg">follow this link</A></TD>
     </TR>
 
     <TR>

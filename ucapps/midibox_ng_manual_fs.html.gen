@@ -22,6 +22,7 @@ HEADER 3 MIDIbox NG User Manual --- First Steps
 
 <P CLASS=DESC>After transfering your changes back to the SD Card (press the SAVE button), the new file can be loaded from the MIOS Terminal with the "load" command:
 <CENTER><A HREF="mios_studio/mios_studio_mbng3.png"><IMG SRC="mios_studio/mios_studio_mbng3.png" width=401 height=350></A></CENTER>
+<B>UPDATE:</B> since V1.019 the file will be loaded automatically whenever it has been uploaded. There is no need to enter the "load" command into the MIOS Terminal after the upload anymore! :-)
 
 <P CLASS=DESC>The filename has to be specified without the .NGC extension.
 
@@ -48,10 +49,7 @@ RESET_HW
 LCD "%CHello World!"
 </PRE></TT>
 
-<P CLASS=DESC>Click on the "Save" button, change to the main MIOS Studio window and enter following command into the MIOS Terminal:
-<TT><PRE style="margin-left:50px; font-size:8pt">
-load hello
-</PRE></TT>
+<P CLASS=DESC>Click on the "Save" button. The AUTOLOAD function should automatically execute the "load hello" command after upload.
 
 <P CLASS=DESC>Your LCD should show the message now!
 
@@ -75,7 +73,7 @@ LCD "%CHello World!"
 EVENT_BUTTON id=1  type=NoteOn key=36
 </PRE></TT>
 
-<P CLASS=DESC>Activate the change by typing "load hello" in the MIOS terminal - this step won't be mentioned again in the steps below, because you should have good practice with this procedure now! ;-)
+<P CLASS=DESC>Save the file in the filebrowser - the AUTOLOAD function will automatically execute "load hello" - this step won't be mentioned again in the steps below, because you should have good practice with this procedure now! ;-)
 
 <P CLASS=DESC>Push the button - it should send a Note On event with C-1, velocity 127. When you release the button, it should send C-1 with velocity 0, which equates to NoteOff.
 
@@ -155,6 +153,24 @@ EVENT_BUTTON id=1  fwd_id=LED:1  type=NoteOn key=36  lcd_pos=1:1:1 label="Button
 <P CLASS=DESC>The LED should be lit whenever you are clicking with the mouse on the lower boundary of the C1 key of the virtual keyboard (velocity has to be >= 64, check this in the MIDI OUT monitor). If you click a bit more higher, the LED won't turn on because the velocity is below the half of the specified range.
 
 <P CLASS=DESC>In other words: the LED will only be lit if the received velocity is greater than int((127-0)/2) = 63. Velocities which are &lt;= this value will turn off the LED.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Dim me! </H2>
+
+<P CLASS=DESC>While previously the LED was only switched between on and off state depending on the incoming MIDI value, now we want to control the brightness level with the received velocity value instead:
+
+<TT><PRE style="margin-left:50px; font-size:8pt">
+EVENT_BUTTON id=1  fwd_id=LED:1 dimmed=1  type=NoteOn key=36  lcd_pos=1:1:1 label="Button #%3i: %3d"
+</PRE></TT>
+
+<P CLASS=DESC>Only the <I>dimmed=1</I> parameter has been added. The LED will change the brightness over the 0..127 value range in 16 levels.
+
+<P CLASS=DESC>Just for fun you could also control the brightness from a CC event:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+EVENT_LED  id=1  dimmed=1  type=CC cc=16
+</PRE></TT>
+
+<P CLASS=DESC>Move the "CC16" slider in MIOS Studio to check what happens! :-)
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Toggle me! </H2>

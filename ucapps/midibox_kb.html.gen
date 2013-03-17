@@ -179,12 +179,13 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=475> <SPAN CLASS=NORM>Sets the starting note of the leftmost key of your keyboard. The value is entered in decimal format.<BR>
       Most important values:</SPAN>
       <UL CLASS=CL>
-        <LI><B>28:</B> C-1 for Fatar DF Type with 61 or 76 keys
-        <LI><B>21:</B> C-1 for Fatar DF Type with 88 keys
+        <LI><B>21:</B> a-1 for Fatar DF Type with 88 keys
+        <LI><B>28:</B> E-0 for Fatar DF Type with 76 keys
+        <LI><B>36:</B> C-1 for Fatar DF Type with 61 and 49 keys
+        <LI><B>48:</B> C-2 for Fatar DF Type with 25 keys
       </UL>
-      <SPAN CLASS=NORM><B>Examples:</B><BR>
-         <I>set kb 1 note_offset 28</I>: a Fatar 61 or 76 keys will start with C-1<BR>
-         <I>set kb 2 note_offset 21</I>: a Fatar 88 keys will start with A-1<BR>
+      <SPAN CLASS=NORM><B>Example:</B><BR>
+         <I>set kb 1 note_offset 36</I>: a Fatar 61 keys will start with C-1<BR>
       </SPAN></TD>
   </TR>
 
@@ -195,7 +196,7 @@ Here a more detailed description of most commands:</P>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
          <I>set kb 1 rows 8</I>: keyboard 1 will scan 8 rows of the matrix -&gt; up to 128 inputs = 64 break/make contacts (keys)<BR>
          <I>set kb 1 rows 16</I>: for a different hardware: keyboard 1 will scan 16 rows of the matrix -&gt; up to 256 inputs = 128 break/make contacts (keys)<BR>
-         <I>set kb 2 rows 11</I>: keyboard 2 will scan 11 rows of the matrix -&gt; up to 176 inputs = 88 break/make contacts (keys)<BR>
+         <I>set kb 2 rows 12</I>: keyboard 2 will scan 12 rows of the matrix -&gt; up to 192 inputs = 96 break/make contacts (keys)<BR>
       </SPAN></TD>
   </TR>
 
@@ -207,6 +208,20 @@ Here a more detailed description of most commands:</P>
          <I>set kb 1 velocity on</I>: keyboard 1 provides two contacts to measure velocity<BR>
          <I>set kb 1 velocity off</I>: keyboard 1 provides only one contact, resp. a common button matrix is used<BR>
       </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; release_velocity &lt;on|off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM><B>off:</B> when a key is released, a "Note On" event with velocity 0 will be sent.<BR>
+      <B>on:</B> when a key is released, a "Note Off" event with a velocity value which has been determined with the <I>delay_fastest_release</I>, <I>delay_fastest_release_black_keys</I> and <I>delay_slowest_release</I> parameters will be sent.<BR>
+      Example configuration:
+      <UL CLASS=CL>
+       <LI><I>set kb 1 release_velocity on</I>
+       <LI><I>set kb 1 delay_fastest_release 100</I>
+       <LI><I>set kb 1 delay_fastest_release_black_keys 80</I>
+       <LI><I>set kb 1 delay_slowest_release 1000</I>
+      </UL>
+      </TD>
   </TR>
 
   <TR>
@@ -266,7 +281,8 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; din_key_offset &lt;0-127&gt;</I></TD>
     <TD WIDTH=475> <SPAN CLASS=NORM>Selects the offset which is added to the keys of the right half. Typically 32 for velocity keyboards (64 contacts), and 64 for non-velocity keyboards.<BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
-         <I>set kb 1 din_key_offset 32</I>: key number starts at 32 for the right side of keyboard 1 (velocity sensitive)<BR>
+         <I>set kb 1 din_key_offset 32</I>: key number starts at 32 for the right side of keyboard 1 (velocity sensitive), e.g. suitable for Fatar 61 and 76 keys<BR>
+         <I>set kb 1 din_key_offset 40</I>: key number starts at 40 for the right side of keyboard 1 (velocity sensitive), e.g. suitable for Fatar 88 keys<BR>
          <I>set kb 1 din_key_offset 64</I>: key number starts at 64 for the right side of keyboard 1 (no velocity)<BR>
       </SPAN></TD>
   </TR>
@@ -299,12 +315,33 @@ Here a more detailed description of most commands:</P>
   </TR>
 
   <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; delay_fastest_release &lt;0-65535&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>The same for the <I>release_velocity</I> option.</TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; delay_fastest_black_keys &lt;0-65535&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Optionally it's possible to specify a different delay value for the black keys (if 0: the value of <I>delay_fastest</I> will also be used for black keys - default!).<BR>
+    Background: it turned out, that black keys reach the make contact faster than white keys. By specifying a different delay value it's possible to compensate this.</TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; delay_fastest_release_black_keys &lt;0-65535&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>The same for the <I>release_velocity</I> option.</TD>
+  </TR>
+
+  <TR>
     <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; delay_slowest &lt;0-65535&gt;</I></TD>
     <TD WIDTH=475> <SPAN CLASS=NORM>Only relevant for velocity sensitive keyboards: selects the maximum delay value at which the minimum velocity (=1) should be sent. Use <I>debug</I> mode to display the maximum delay when keys are hit softly!<BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
          <I>set kb 1 delay_slowest 1000</I>: send maximum velocity when delay is &gt;= 1000<BR>
          <I>set kb 1 delay_slowest 2000</I>: send maximum velocity when delay is &gt;= 2000<BR>
       </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; delay_slowest_release &lt;0-65535&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>The same for the <I>release_velocity</I> option.</TD>
   </TR>
 
   <TR>
@@ -398,7 +435,7 @@ Here a more detailed description of most commands:</P>
     <TD WIDTH=300> <SPAN CLASS=NORM>Fatar DF Type with 61 keys (<A HREF="midibox_kb/midibox_kb_fatar_df_61_interconnections.pdf">schematic</A>)
     <TD WIDTH=400>
       <UL CLASS=CL>
-        <LI><I>set kb 1 note_offset 28</I>
+        <LI><I>set kb 1 note_offset 36</I>
         <LI><I>set kb 1 rows 8</I>
         <LI><I>set kb 1 velocity on</I>
         <LI><I>set kb 1 optimized on</I>
