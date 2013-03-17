@@ -346,7 +346,7 @@ USER_MPROC_Ex
 	;; reset touch detection if touch sensor mode >= 1
 	SET_BSR	MF_BASE
 	movf	MF_TOUCHSENSOR_MODE, W, BANKED
-	bnz	USER_MPROC_Ex_NoTs
+	bz	USER_MPROC_Ex_NoTs
 USER_MPROC_Ex_Ts
 	movf	LC_FADER_NUMBER, W
 	call	MF_TouchDetectionReset
@@ -470,7 +470,7 @@ USER_MPROC_Bx
 	;; reset touch detection if touch sensor mode >= 1
 	SET_BSR	MF_BASE
 	movf	MF_TOUCHSENSOR_MODE, W, BANKED
-	bnz	USER_MPROC_Bx_NoTs
+	bz	USER_MPROC_Bx_NoTs
 USER_MPROC_Bx_Ts
 	movf	LC_FADER_NUMBER, W
 	call	MF_TouchDetectionReset
@@ -543,14 +543,14 @@ USER_MPROC_HUI_L
 	;; reset touch detection if touch sensor mode >= 1
 	SET_BSR	MF_BASE
 	movf	MF_TOUCHSENSOR_MODE, W, BANKED
-	bnz	USER_MPROC_HUI_L_NoTs
+	bz	USER_MPROC_HUI_L_NoTs
 USER_MPROC_HUI_L_Ts
 	movf	LC_FADER_NUMBER, W
 	call	MF_TouchDetectionReset
 USER_MPROC_HUI_L_NoTs
 
 	;; derive 10-bit value from received 14-bit value. Store result in LC_FADER_POS_[LH]
-	movff	MIOS_PARAMETER3, LC_FADER_POS_H ; MIDI LSB -> LC_FADER_POS_L
+	movff	MIOS_PARAMETER3, LC_FADER_POS_L ; MIDI LSB -> LC_FADER_POS_L
 	lfsr	FSR1, HUI_HIGH_BYTES_0
 	movf	LC_FADER_NUMBER, W
 	movff	PLUSW1, LC_FADER_POS_H ; MIDI MSB -> LC_FADER_POS_H
