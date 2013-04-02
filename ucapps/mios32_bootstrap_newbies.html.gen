@@ -56,6 +56,9 @@ by (most) applications. These parameters can be customized from the MIOS Termina
 
 <P CLASS=DESC>After the upload of this app, type "help" in the MIOS Terminal to get a list of available commands.</P>
 
+<P CLASS=DESC><B>IMPORTANT:</B> parameter changes have to be stored with the "store" command before uploading a new application, otherwise they will get lost!<BR>
+These commands are only available in the mios32_bootloader update app, and not in MIDIO128, MIDIbox SEQ, MIDIbox NG or similar - in order to change the parameter, just upload the update app, modify the configuration, and upload the actual firmware for your MIDIbox again.</P>
+
 <P CLASS=DESC>Explanation of the most important parameters:
 <UL CLASS=CL>
   <LI><B>fastboot:</B> normaly after power-on the bootloader waits for an upload request for 
@@ -70,6 +73,7 @@ by (most) applications. These parameters can be customized from the MIOS Termina
   Therefore: enter<BR>
 <TT><PRE style="margin-left:50px">
      set fastboot 1
+     store
 </PRE></TT>
   in the MIOS Terminal to skip this phase, and to start the application immediately!<BR>
   You will like this option! :-)<BR>
@@ -77,22 +81,26 @@ by (most) applications. These parameters can be customized from the MIOS Termina
   Note that no MIDI upload request will be sent during power-on anymore!<BR>
   Please consider this when reading documentation about MIDI troubleshooting.
 
-
+</UL>
+<UL CLASS=CL>
   <LI><B>single_usb:</B> use this option if you are working with a Windows PC which can't handle
      multiple USB ports correctly.<BR>
      E.g. applications like <A HREF="midio128.html">MIDIO128</A>,
      <A HREF="midibox_seq.html">MIDIbox SEQ</A> or <A HREF="midibox_ng.html">MIDIbox NG</A> enable
      4 USB ports by default. Certain Windows versions (such as Windows XP) are failing:
-     sometimes MIDI events are stucking, MIOS Studio filebrowser operations are failing, etc.<BR>
-     Even the installation of the GM5 USB MIDI driver doesn't help (which solves the issue under Windows7), 
+     sometimes MIDI events get stucked, MIOS Studio filebrowser operations abort with an error message, etc.<BR>
+     Even the installation of the GM5 USB MIDI driver doesn't help (which sometimes solves the issues under Windows7), 
      or causes new issues when multiple core modules are connected.<BR>
      As a workaround, it's possible to enforce that only a single USB port is enabled:
 <TT><PRE style="margin-left:50px">
      set single_usb 1
+     store
 </PRE></TT>
-     This should solve the windows driver issue - with the drawback of the reduced functionality.
+     This should solve the windows USB MIDI issues - with the drawback of the reduced functionality.
 
 
+</UL>
+<UL CLASS=CL>
 <LI><B>USB device name:</B> it's possible to assign a dedicated name for your MBHP_CORE_STM32
   or MBHP_CORE_LPC17 module which is used for the USB connection.<BR>
 
@@ -101,18 +109,22 @@ by (most) applications. These parameters can be customized from the MIOS Termina
 
   The USB name can be permanently changed with:<BR>
 <TT><PRE style="margin-left:50px">
-    set name <name>
+     set name <name>
 </PRE></TT>
   e.g.
 <TT><PRE style="margin-left:50px">
-    set name MIDIbox SEQ V4 - 1
+     set name MIDIbox SEQ V4 - 1
+     store
 </PRE></TT>
   or
 <TT><PRE style="margin-left:50px">
-    set name MIDIbox SEQ V4 - 2
+     set name MIDIbox SEQ V4 - 2
+     store
 </PRE></TT>
 
 
+</UL>
+<UL CLASS=CL>
 <LI><B>Device ID:</B> this ID is relevant once multiple cores are available on the same MIDI port,
   or if you are using your MIOS32 based core as a USB<->MIDI / OSC<->MIDI gateway to a
   PIC based MBHP_CORE.<BR>
@@ -123,14 +135,18 @@ by (most) applications. These parameters can be customized from the MIOS Termina
   Enter:<BR>
 <TT><PRE style="margin-left:50px">
      set device_id 127
+     store
 </PRE></TT>
   to assign a new device id<BR>
   Again: this is only relevant if multiple cores are connected to the same MIDI port.<BR>
+  Changing the device ID is not required if the MIDIboxes are accessed from dedicated USB MIDI ports!<BR>
 
-  IMPORTANT NOTE: don't change the Device ID if you are using MIOS Studio 2.2.1 or lower!
+  <B>IMPORTANT NOTE:</B> don't change the Device ID if you are using MIOS Studio 2.2.1 or lower!
   Device IDs are properly supported with MIOS Studio 2.2.2 and higher!
 
 
+</UL>
+<UL CLASS=CL>
 <LI><B>LCD Type:</B> applications which are compiled with the "universal" LCD driver can handle
   various character/graphical LCD types and display dimensions.<BR>
 
@@ -138,12 +154,13 @@ by (most) applications. These parameters can be customized from the MIOS Termina
 
   Following commands are available:<BR>
 <TT><PRE style="margin-left:50px">
-    lcd_types           lists all available LCD types and their appr. number
-    set lcd_type <value>       the LCD type number (enter "lcd_types" to get a list of available types)
-    set lcd_num_x <value>      number of LCDs in X direction
-    set lcd_num_y <value>      number of LCDs in Y direction
-    set lcd_width <value>      width of a single LCD (*)
-    set lcd_height <value>     height of a single LCD (*)
+     lcd_types           lists all available LCD types and their appr. number
+     set lcd_type <value>       the LCD type number (enter "lcd_types" to get a list of available types)
+     set lcd_num_x <value>      number of LCDs in X direction
+     set lcd_num_y <value>      number of LCDs in Y direction
+     set lcd_width <value>      width of a single LCD (*)
+     set lcd_height <value>     height of a single LCD (*)
+     store
 </PRE></TT>
 
   (*) CLCDs: number of characters, GLCD: number of pixels<BR>
@@ -156,6 +173,7 @@ by (most) applications. These parameters can be customized from the MIOS Termina
      lcd_num_y 1
      lcd_width 20
      lcd_height 2
+     store
 </PRE></TT>
 
   Example2: two HD44780 based 2x40 character LCDs are connected to your MIDIbox<BR>
@@ -166,6 +184,7 @@ by (most) applications. These parameters can be customized from the MIOS Termina
      lcd_num_y 1
      lcd_width 40
      lcd_height 2
+     store
 </PRE></TT>
 
   Example3: five SSD1306 based 128x64 OLEDs are connected to your MIDIbox in vertical direction<BR>
@@ -176,6 +195,7 @@ by (most) applications. These parameters can be customized from the MIOS Termina
      lcd_num_y 5
      lcd_width 128
      lcd_height 64
+     store
 </PRE></TT>
 
   Please note: some applications (like MIDIbox SEQ V4) could overrule the predefined

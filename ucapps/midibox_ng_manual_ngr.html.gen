@@ -1,0 +1,311 @@
+HEADER 3 MIDIbox NG User Manual --- .NGR Script
+
+<P CLASS=INFO><B><A HREF="midibox_ng_manual.html">Back to main page...</A></B></P>
+
+<H1>MIDIbox NG</H1>
+<H1>User Manual --- .NGR Script</H1>
+
+<P CLASS=INFO>MIDIbox NG provides a (primitive) script language which allows to change values of control elements, to send free definable MIDI events, to output special text strings on LCD and to send debug messages to the MIOS Terminal. It even supports (limited) flowcontrol with if/elsif/else statements.</P>
+
+<P CLASS=DESC>The idea for this script feature came up with the request to run a sequence of value changes (with delays in between) during power-on, resp. after a <A HREF="midibox_ng_manual_ngc.html">.NGC file</A> has been loaded. Over the time it has been enhanced by additional commands to cover other usecases, and meanwhile we even have some kind of flow control!</P>
+
+<P CLASS=DESC>However, the capabilities are still very limited, mainly caused by RAM size limitations of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A>. See also the "Limitations" chapter at the end of this page.<BR>
+E.g. the script has to be directly parsed from SD Card whenever it is called, which means that the execution consumes some time (typically 5..50 mS). Call requests are not queued, therefore it can happen that requests get lost if they are triggered while the .NGR file is already processed.</P>
+
+<P CLASS=DESC>Therefore this script language is <B>no replacement</B> for EVENT definitions defined in the <A HREF="midibox_ng_manual_ngc.html">.NGC file</A>! If MIDIbox NG should react on concurrent actions in realtime without the danger that an action gets lost, please define them as EVENTs!<BR>
+But it's viable solution for events which are processed very rarely, such as special button functions.
+
+<P CLASS=DESC>The .NGR file has the same name like the .NGC file. After power-on MIDIbox NG will load DEFAULT.NGC, and therefore also DEFAULT.NGR (if available).</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Usecases </H2>
+
+<P CLASS=DESC>Here a list of intended usecases:
+<UL CLASS=CL>
+  <LI>set values of control elements (LEDs, Buttons, LED Rings, Encoders, etc...) during startup with optional delays (for having some "blink" ;-).<BR>
+      E.g. a nice sequence of patterns for LEDs and LED Rings by pushing a button to surprise your friends.
+  <LI>send an informative message to the MIOS Studio terminal.<BR>
+      E.g. to debug your .NGC setup (or the .NGR execution flow).
+  <LI>set a control element value depending on conditions, which are derived from other control elements.<BR>
+      E.g. to implement complex selections (if BUTTON:1 and BUTTON:2 is pressed the same time, do something special...)
+  <LI>send a fully customizable MIDI messages, even multiple ones triggered by the same event.<BR>
+      E.g. to select different patches on synthesizers which are connected to different MIDI ports and listen to different MIDI channels.
+</UL>
+
+<P CLASS=DESC>If you know other interesting usecases which are not listed here, please let me know! :-)
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Calling the .NGR script </H2>
+
+<P CLASS=DESC>The .NGR script can be called with following methods:
+<UL CLASS=CL>
+  <LI>it's started automatically with <I>^section == 0</I> after the corresponding .NGC file has been loaded. If you want to prevent the execution, please write following lines at the beginning of the .NGR file:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+if ^section == 0
+  exit
+endif
+</PRE></TT>
+  <LI>it can be started from a Meta event which is defined in the <A HREF="midibox_ng_manual_ngc.html">.NGC file</A>, e.g.:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+# start script with ^section == 1
+EVENT_BUTTON id=1  type=Meta  meta=RunSection:1  button_mode=OnOnly
+</PRE></TT>
+
+Some configuration examples can be found under <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frunscr1.ngc" TARGET="_blank">runscr1.ngc</A> (which calls <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frunscr1.ngr" TARGET="_blank">runscr1.ngr</A>) and <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frunscr2.ngc" TARGET="_blank">runscr2.ngc</A> (which calls <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frunscr2.ngr" TARGET="_blank">runscr2.ngr</A>)
+
+  <LI>it can be started from the MIOS Terminal with <I>run &lt;section&gt; &lt;value&gt;</I><BR>
+The ^section variable will contain the value of <I>&lt;section&gt;</I><BR>
+And the ^value variable will contain &lt;value&gt;</I><BR>
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+run 1 127
+</PRE></TT>
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Commands </H2>
+
+<P CLASS=DESC>Here a list of available commands:
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>Command</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>LCD &lt;string&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Prints an immediate message on screen while it's executed.<BR>
+      All string control formats and directives are supported (see description of <A HREF="midibox_ng_manual_ngc.html">EVENT_* label parameter)</A>, which especially means that it's possible to clear the screen, and to jump to different cursor positions at different displays.<BR>
+Examples:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+# clear screen
+LCD "%C"
+
+# print message on first line of first LCD
+LCD "@(1:1:1)Hello World!"
+
+# print message on second line of first LCD
+LCD "@(1:1:2)Second Line"
+
+# print message on first line of second LCD
+LCD "@(2:1:1)Second Display"
+</PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>LOG &lt;string&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sends a message to the MIOS Terminal.<BR>
+                        Currently formatted messages are not supported, only static string (could change in future).
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+LOG "Hello World!"
+</PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>SEND &lt;midi-event&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sends a MIDI event. The event definition typically contains:
+      <UL CLASS=CL>
+        <LI>the MIDI event type (NoteOff, NoteOn, PolyPressure, CC, ProgramChange, Aftertouch, Pitchbend, NRPN, SysEx)
+        <LI>the MIDI port (USB1..USB4, OUT1..OUT4, OSC1..OSC4)
+        <LI>the MIDI channel (1..16)
+        <LI>one or more values depending on the event type
+      </UL>
+Examples:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+#    type   port chn key  value
+send NoteOn USB1   1  36  ^value
+send NoteOn USB1   1  36  0
+
+#    type         port chn key value
+send Polypressure USB1   1  36 ^value
+
+#    type port chn key  value
+send CC   USB1   1  16  ^value
+
+#    type          port chn value
+send ProgramChange USB1   1 ^value
+
+#    type       port chn value
+send Aftertouch USB1   1 ^value
+
+#    type      port chn value
+send PitchBend USB1   1 ^value
+
+#    type port chn number value
+send NRPN USB1   1 0x0123 ^value
+
+#    type  port stream
+send SysEx USB1 0xf0 0x11 0x22 0x33 0x44 ^value 0xf7
+</PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>TRIGGER &lt;id&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Triggers a control element with the given <I>&lt;id&gt;</I>, so that it sends out it's MIDI event and prints it's label on LCD.<BR>
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+# send the MIDI event of the first three pots connected to the AINSER module
+trigger AINSER:1
+trigger AINSER:2
+trigger AINSER:3
+</PRE></TT>
+    Experts: please note that the ID addresses the actual id, not the hw_id!
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>SET &lt;id&gt; &lt;value&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Similar to TRIGGER, but it also changes the value of the control element.<BR>
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+# turn on the first 3 LEDs connected to the DOUT module:
+set LED:1 127
+set LED:2 127
+set LED:3 127
+</PRE></TT>
+    Experts: please note that the ID addresses the actual id, not the hw_id!
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>DELAY_MS &lt;ms&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Delays the execution of the script for the given number of milliseconds.<BR>
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+set LED:1 127
+delay_ms 100
+set LED:1 0
+
+set LED:2 127
+delay_ms 100
+set LED:2 0
+
+set LED:3 127
+delay_ms 100
+set LED:3 0
+</PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>IF</I><BR><I>ELSIF</I><BR><I>ELSE</I><BR><I>ENDIF</I></TD>
+    <TD CLASS=TABCOLOR2>See special flow control chapter below.
+    </TD>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EXIT</I></TD>
+    <TD CLASS=TABCOLOR2>Stops the execution of the .NGR script.
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+# don't do anything during startup
+if ^section == 0
+  exit
+endif
+</PRE></TT>
+    </TD>
+  </TR>
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Expressions </H2>
+
+<P CLASS=DESC>All values specified with the SET/SEND/IF/etc... command are handled as expressions which can be:
+<UL CLASS=CL>
+  <LI>a constant decimal value from -16384..16384
+  <LI>a constant hexadecimal value from 0x0..0x3fff
+  <LI>a constant octal value from 0..037777
+  <LI>a control element id, such as BUTTON:1, LED:1, AINSER:1, ENC:1, etc... (see also <A HREF="midibox_ng_manual_ngc.html">.NGC chapter</A>)
+  <LI><I>^section</I>: this variable can be passed from the Meta event or "run" terminal command. It's 0 when a .NGC file.
+  <LI><I>^value</I>: the item value when the script is called from a Meta event.
+  <LI><I>^bank</I>: the current bank
+</UL>
+
+<P CLASS=DESC>More ^ variables can be implemented on request.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Flow Control </H2>
+
+<P CLASS=DESC>With the IF/ELSIF/ELSE/ENDIF commands it's possible to define condition under which blocks of commands are executed. Nested IF conditions are allowed, the max. depth is 16!</P>
+
+<P CLASS=DESC>A condition consists of a left and right value + a condition in the middle:
+<LI><I>&lt;left expression&gt; &lt;condition &lt;right expression&gt;</I></P>
+
+<P CLASS=DESC>Examples:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+if ^section == 1
+
+  log "Section is 1"
+endif
+</PRE></TT>
+
+or:
+
+<TT><PRE style="margin-left:50px; font-size:8pt">
+if ^section == 1
+  # initial patches for my synths:
+  send CC OUT1 1 0 0
+  send ProgramChange OUT1 1 0
+
+  send CC OUT1 2 0 0
+  send ProgramChange OUT1 2 0
+
+  send CC OUT1 3 0 0
+  send ProgramChange OUT1 3 0
+
+  send CC OUT2 1 0 0
+  send ProgramChange OUT2 1 0
+
+  exit
+endif
+
+
+if ^section == 2
+  # alternative patches for my synths:
+  send CC OUT1 1 0 0
+  send ProgramChange OUT1 1 21
+
+  send CC OUT1 2 0 0
+  send ProgramChange OUT1 2 1
+
+  send CC OUT1 3 0 0
+  send ProgramChange OUT1 3 75
+
+  send CC OUT2 1 0 0
+  send ProgramChange OUT2 1 0x10
+
+  exit
+endif
+</PRE></TT>
+
+or:
+
+<TT><PRE style="margin-left:50px; font-size:8pt">
+if ^section == 1
+  if BUTTON:1 > 0
+    if BUTTON:2 > 0
+      log "BUTTON:1 and BUTTON:2 are pressed"
+    endif
+  endif
+endif
+</PRE></TT>
+
+<P CLASS=DESC>Supported conditions are: <I>==, !=, &lt;, &lt;=, &gt;, &gt;=</I>.<BR>
+Logical combinations are not supported.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Limitations </H2>
+
+<P CLASS=DESC>The capabilities are still limited, mainly caused by RAM size limitations of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A>. Following limitations have to be considered:
+<UL CLASS=CL>
+  <LI>please don't expect a script language which is so powerful like for example <A HREF="http://www.eluaproject.net" TARGET="_blank">eLua</A>! Although it would be possible to run eLua on a LPC1769, the available RAM isn't sufficient to satisfy the needs for MIDIbox NG in parallel!
+  <LI>the script has to be directly parsed from SD Card whenever it is called, which means that the execution consumes some time (typically 5..50 mS). Call requests are not queued, therefore it can happen that requests get lost if they are triggered while the .NGR file is already processed.
+  <LI>It's currently not possible to declare and set customized variables. Limited capabilities could be available in future, but they will consume some RAM!
+
+  <LI>It's not possible to combine conditions in an IF statement (e.g. with && or ||) because this would blow up the parser too much. If this is desired, use nested IF statements on an AND condition, or multiple IF statements on an OR condition.
+</UL>
+
+FOOTER

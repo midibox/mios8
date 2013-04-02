@@ -79,7 +79,7 @@ EVENT_BUTTON id=  1     type=Meta   meta=SetBank      meta=DoAnythingElse:42
 Up to 256 buttons can be connected to up to 32 DIN shift registers.<BR>
    The <I>hw_id</I> ranges from 1..256
   <LI><I>LED</I>: the first LED (1) is connected to the first DOUT shift register, pin D7 (!), the second LED (2) to the first DOUT shift register, pin D6, ... the 9th LED to the second DOUT shift register, pin D7, etc...<BR>
-Up to 128 LEDs can be connected to up to 32 DOUT shift registers.<BR>
+Up to 256 LEDs can be connected to up to 32 DOUT shift registers.<BR>
    The <I>hw_id</I> ranges from 1..256
   <LI><I>ENC</I>: rotary encoders allocate two DIN pins, which have to be assigned with the ENC command which is described later in this chapter.<BR>
 Up to 128 rotary encoders are currently supported.
@@ -213,7 +213,8 @@ EVENT_ENC  id=101  hw_id=1  if_equal=Button:1:1  type=CC cc=32 chn=2
 
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_BUTTON_MATRIX</I></TD>
-    <TD CLASS=TABCOLOR2>A button matrix is a hardware option where one or more DIN/DOUT shift registers scan a network of buttons. The corresponding EVENT_BUTTON_MATRIX command sends a value from the specified key or CC number upwards. Toggle mode is not supported! If this is desired, or if individual MIDI events should be sent from the matrix, the events have to be configured with <I>BUTTON_MATRIX button_emu_id_offset=&lt;offset&gt;</I> instead. In this case, the button matrix won't react on EVENT_BUTTON_MATRIX anymore, but on EVENT_BUTTON instead!
+    <TD CLASS=TABCOLOR2>A button matrix is a hardware option where one or more DIN/DOUT shift registers scan a network of buttons. The corresponding EVENT_BUTTON_MATRIX command sends a value from the specified key or CC number upwards. Toggle mode is not supported! If this is desired, or if individual MIDI events should be sent from the matrix, the events have to be configured with <I>BUTTON_MATRIX button_emu_id_offset=&lt;offset&gt;</I> instead. In this case, the button matrix won't react on EVENT_BUTTON_MATRIX anymore, but on EVENT_BUTTON instead!<BR>
+      In order to avoid conflicts with buttons which are directly connected to DIN pins (and which are accessed with BUTTON:1 .. BUTTON:256), it's recommended specify emulated ids outside this range, e.g. <I>button_emu_id_offset=1001</I>.
     </TD>
   </TR>
 
@@ -224,7 +225,8 @@ EVENT_ENC  id=101  hw_id=1  if_equal=Button:1:1  type=CC cc=32 chn=2
         <LI>MIDI events from <I>key/cc=&lt;value&gt;</I> upwards will turn on/off the LEDs of the matrix
         <LI>if <I>led_matrix_pattern</I> is specified, MIDI events will set a whole LED row of a matrix with the incoming MIDI event value (for LED Rings, Meters, etc...)
       </UL>
-      This works as long as the <I>LED_MATRIX</I> hardware has been configured with <I>led_emu_id_offset=0</I> (default). With <I>led_emu_id_offset=1 (or greater)</I> the LED matrix will react on individual MIDI events instead, specified with <I>EVENT_LED</I> events.
+      This works as long as the <I>LED_MATRIX</I> hardware has been configured with <I>led_emu_id_offset=0</I> (default). With <I>led_emu_id_offset=1 (or greater)</I> the LED matrix will react on individual MIDI events instead, specified with <I>EVENT_LED</I> events.<BR>
+      In order to avoid conflicts with LEDs which are directly connected to DOUT pins (and which are accessed with LED:1 .. LED:256), it's recommended specify emulated ids outside this range, e.g. <I>led_emu_id_offset=1001</I>.
     </TD>
   </TR>
 
@@ -496,6 +498,7 @@ EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
           <LI><I>^txt56</I>: outputs the received text to the LCD until F7 is received. Automatically jumps to the next line if the cursor has exceeded the 56th column.<BR>
           ^txt and ^txt56 also allow to map incoming characters to different cursor positions. An example can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Flogictrl.ngc" TARGET="_blank">logictrl.ngc template</A>.<BR>
           Independent from this map feature, ^txt and ^txt56 now also take lcd_pos=... and label=... into account to set the initial LCD and cursor position, at which the message will start. The label can be used to change the GLCD font before the characters will be print. An example can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Flogictrl.ngc" TARGET="_blank">logictrl.ngc template</A> as well.
+          <LI><I>^label</I>: inserts the ASCII code of a label string into a SysEx stream. An example can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fsyxlabel.ngc" TARGET="_blank">syxlabel.ngc file</A>.
         </UL>
     </TD>
   </TR>
@@ -545,6 +548,8 @@ EVENT_BUTTON ... type=Meta meta=DumpSnapshot
         <LI><I>SwapValues</I>: swaps the primary and secondary value of an event.<BR>
            E.g. on a note event, velocity can be swapped with the key value.<BR>
            A usage example can be found in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_4.ngc" TARGET="_blank">cfg/tests/kb_4.ngc</A>, where the key and velocity value should be output by separate CV channels.
+
+        <LI><I>RunSection:&lt;section&gt;</I>: executes the <A HREF="midibox_ng_manual_ngr.html">.NGR script</A> with ^section set to the specified value.
 
         <LI><I>ScsEnc</I>: emulates a SCS encoder movement. This Meta event can either be issued from EVENT_ENC or EVENT_BUTTON events. A usage example is given below.
         <LI><I>ScsSoft1</I>: emulates the SOFT1 button of the SCS
@@ -1038,7 +1043,8 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>button_emu_id_offset=&lt;1..4095&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>With a value &gt;0, the button matrix will trigger EVENT_BUTTON events instead of EVENT_BUTTON_MATRIX, starting with the specified ID. A matrix of 8x8 buttons can emulate 64 buttons with individual event assignments this way.
+    <TD CLASS=TABCOLOR2>With a value &gt;0, the button matrix will trigger EVENT_BUTTON events instead of EVENT_BUTTON_MATRIX, starting with the specified ID. A matrix of 8x8 buttons can emulate 64 buttons with individual event assignments this way.<BR>
+      In order to avoid conflicts with buttons which are directly connected to DIN pins (and which are accessed with BUTTON:1 .. BUTTON:256), it's recommended specify emulated ids outside this range, e.g. <I>button_emu_id_offset=1001</I>.
   </TR>
 </TABLE>
 
@@ -1105,7 +1111,8 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>led_emu_id_offset=&lt;1..4095&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>With a value &gt;0, the LED matrix will listen on EVENT_LED events instead of EVENT_LED_MATRIX, starting with the specified ID. A matrix of 8x8 LED can emulate 64 LEDs with individual event assignments this way.
+    <TD CLASS=TABCOLOR2>With a value &gt;0, the LED matrix will listen on EVENT_LED events instead of EVENT_LED_MATRIX, starting with the specified ID. A matrix of 8x8 LED can emulate 64 LEDs with individual event assignments this way.<BR>
+      In order to avoid conflicts with LEDs which are directly connected to DOUT pins (and which are accessed with LED:1 .. LED:256), it's recommended specify emulated ids outside this range, e.g. <I>led_emu_id_offset=1001</I>.
   </TR>
 </TABLE>
 
