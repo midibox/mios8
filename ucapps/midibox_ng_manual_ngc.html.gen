@@ -537,6 +537,9 @@ EVENT_BUTTON ... type=Meta meta=DumpSnapshot
 </PRE></TT>
         will just dump the current values without a load operation.
 
+        <LI><I>RetrieveAinValues</I>: the values of AIN EVENTs will be updated according to the current analog values (pot positions)
+        <LI><I>RetrieveAinserValues</I>: the values of AINSER EVENTs will be updated according to the current analog values (pot positions)
+
         <LI><I>EncFast</I>: speeds up encoder movements according to the EVENT value. E.g. if <I>meta=EncFast range=0:5</I> is assigned to a BUTTON_EVENT, encoders will increment 5 times faster if the button is pressed.
 
         <LI><I>MidiLearn</I>: can be used to enable MIDI Learn mode from a dedicated button (instead of the <A HREF="midibox_ng_manual_scs.html">SCS</A>).<BR>
@@ -550,6 +553,7 @@ EVENT_BUTTON ... type=Meta meta=DumpSnapshot
            A usage example can be found in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_4.ngc" TARGET="_blank">cfg/tests/kb_4.ngc</A>, where the key and velocity value should be output by separate CV channels.
 
         <LI><I>RunSection:&lt;section&gt;</I>: executes the <A HREF="midibox_ng_manual_ngr.html">.NGR script</A> with ^section set to the specified value.
+        <LI><I>RunStop</I>: stops the execution of a currently running <A HREF="midibox_ng_manual_ngr.html">.NGR script</A>.
 
         <LI><I>ScsEnc</I>: emulates a SCS encoder movement. This Meta event can either be issued from EVENT_ENC or EVENT_BUTTON events. A usage example is given below.
         <LI><I>ScsSoft1</I>: emulates the SOFT1 button of the SCS
@@ -705,7 +709,6 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>Inc41_Dec3F</I>: the encoder will send 0x41 when moved clockwise, and 0x3f when moved counter-clockwise
         <LI><I>Inc01_Dec7F</I>: the encoder will send 0x01 when moved clockwise, and 0x7f when moved counter-clockwise
         <LI><I>Inc01_Dec41</I>: the encoder will send 0x01 when moved clockwise, and 0x41 when moved counter-clockwise
-        <LI><I>IncDec</I>: the encoder will send different CC events when moved clockwise or counter-clockwise. This will allow to send CC#96 and CC#97 (Data Inc/Dec) in future (not implemented yet)
       </UL>
     </TD>
   </TR>
@@ -724,6 +727,28 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>emu_enc_mode=&lt;mode&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Encoder events can also be emulated from external via MIDI by using an EVENT_RECEIVER, and setting the <I>emu_enc_mode</I> and <I>emu_enc_hw_id</I>. See also following configuration example: <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Femu_enc.ngc" TARGET="_blank">emu_enc.ngc</A>.<BR>
+      Following encoder modes can be emulated by a EVENT_RECEIVER:
+      <UL CLASS=CL>
+        <LI><I>Absolute</I>: just forwards the received value to the EVENT_ENC
+        <LI><I>40Speed</I>: increments the target EVENT_ENC value when 0x40+&lt;speed&gt; is received, decrements with 0x40-&lt;speed&gt;
+        <LI><I>00Speed</I>: increments the target EVENT_ENC value when 0x00+&lt;speed&gt; is received, decrements with 0x7f-&lt;speed&gt;
+        <LI><I>Inc00Speed_Dec40Speed</I>: increments the target EVENT_ENC value when 0x00+&lt;speed&gt; is received, decrements with 0x40+&lt;speed&gt;
+        <LI><I>Inc41_Dec3F</I>: increments the target ENC value when 0x41 (or higher) is received, decrements with 0x3f (or lower)
+        <LI><I>Inc01_Dec7F</I>: increments the target ENC value when 0x01..0x3f is received, decrements with 0x40..0x7f. Ignores 0x00
+        <LI><I>Inc01_Dec41</I>: increments the target ENC value when 0x01..0x3f is received, decrements with 0x41..0x7f. Ignores 0x00 and 0x40
+      </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>emu_enc_hw_id=&lt;1..128&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the encoder hw_id which should be incremented by a EVENT_RECEIVER. See also <I>emu_enc_mode</I>.
+    </TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>led_matrix_pattern=&lt;pattern-number&gt;</I></TD>
     <TD CLASS=TABCOLOR2>LED patterns can be specified if an event should forward its value to a LED_MATRIX element:
       <UL CLASS=CL>
@@ -731,7 +756,13 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>2</I>: the second LED pattern specified with <I>LED_MATRIX_PATTERN n=2</I> commands
         <LI><I>3</I>: the third LED pattern specified with <I>LED_MATRIX_PATTERN n=3</I> commands
         <LI><I>4</I>: the fourth LED pattern specified with <I>LED_MATRIX_PATTERN n=4</I> commands
-        <LI><I>LcAuto</I>: to handle the Logic Control protocol correctly, this pattern type will set the pattern number (1..4) according bit 5..4 of the received MIDI event value. Bit 3..0 will select the pattern position, and the 6th bit will set the "Center LED".
+        <LI><I>Digit1</I>: outputs the first (rightmost) BCD digit of the value. See also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fleddig1.ngc" TARGET="_blank">cfg/test/leddig1.ngc</A>
+        <LI><I>Digit2</I>: outputs the second BCD digit of the value: (value / 10) % 10
+        <LI><I>Digit3</I>: outputs the third BCD digit of the value: (value / 100) % 10
+        <LI><I>Digit4</I>: outputs the fourth BCD digit of the value: (value / 1000) % 10
+        <LI><I>Digit5</I>: outputs the fith BCD digit of the value: (value / 10000) % 10
+        <LI><I>LcDigit</I>: converts the value directly into a BCD digit as used for the Logic Control protocol. See also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fleddig2.ngc" TARGET="_blank">cfg/test/leddig2.ngc</A>
+        <LI><I>LcAuto</I>: to handle the Logic Control protocol correctly, this pattern type will set the pattern number (1..4) according bit 5..4 of the received MIDI event value. Bit 3..0 will select the pattern position, and the 6th bit will set the "Center LED". See also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Flogictrl.ngc" TARGET="_blank">cfg/test/logictrl.ngc</A> for the usage
     </TD>
   </TR>
 
@@ -1042,6 +1073,10 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
     <TD CLASS=TABCOLOR2>Sets the (optional) second DIN shift register of the button matrix.</TD>
   </TR>
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>mirrored_row=&lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>The pins of a DIN row can be mirrored. This happens only for the shift register value itself. Means: if two DIN shift registers are assigned to the row, they won't be swapped. If this is desired, just change the <I>sr_din1</I>/<I>sr_din2</I> assignments.
+  </TR>
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>button_emu_id_offset=&lt;1..4095&gt;</I></TD>
     <TD CLASS=TABCOLOR2>With a value &gt;0, the button matrix will trigger EVENT_BUTTON events instead of EVENT_BUTTON_MATRIX, starting with the specified ID. A matrix of 8x8 buttons can emulate 64 buttons with individual event assignments this way.<BR>
       In order to avoid conflicts with buttons which are directly connected to DIN pins (and which are accessed with BUTTON:1 .. BUTTON:256), it's recommended specify emulated ids outside this range, e.g. <I>button_emu_id_offset=1001</I>.
@@ -1051,8 +1086,22 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> DOUT_MATRIX </H2>
 
-<P CLASS=DESC>The DOUT_MATRIX command configures LED matrices which are connected between multiple DOUT shift registers. Please note that all assigned shift registers can't be used for common LED functions anymore:
+<P CLASS=DESC>The DOUT_MATRIX command configures LED matrices which are connected between multiple DOUT shift registers.</P>
 
+<P CLASS=DESC>Usecases:
+<UL CLASS=CL>
+  <LI>Already with 2 DOUT shift registers it's possible to control 64 LEDs. One DOUT is used to select the column, the second DOUT to set the row pattern. By using the <I>led_emu_id_offset</I> parameter they behave like common EVENT_LED elements and can be controlled individually. This saves some hardware! (only 2 DOUT shift registers instead of 8 to drive 64 LEDs).<BR>
+      Other useful hardware configurations: with 1 DOUT assigned to the column, and two assigned to the row, up to 128 LEDs can be controlled from 3 DOUT shift registers. With two DOUTs assigned to the column, and two assigned to the row, up to 256 LEDs can be controlled from 4 DOUT shift registers.
+  <LI>Actually each matrix provides three separate "row layers", called r, g, b (red, green, blue). You get the message: this allows you to control multicolour LEDs!
+  <LI>LED Rings - see also the LED_MATRIX_PATTERN configuration below. The <I>led_matrix_pattern</I> can be passed from a control element (e.g. EVENT_ENC) to the LED matrix in order to output a pattern based on the event value.
+  <LI>LED Digits (7-segment displays) are controlled from a DOUT_MATRIX as well. Here are some interconnection diagrams with the appr. .NGC configuration examples:
+  <UL CLASS=CL>
+    <LI><A HREF="midibox_ng/mbng_led_digits_5x7bit.pdf">Interconnections for 5 7bit displays</A> (<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fleddig1.ngc" TARGET="_blank">cfg/test/leddig1.ngc</A>)
+    <LI><A HREF="midibox_ng/mbng_led_digits_mtc.pdf">Interconnections for MTC and Status LED Digits of a Logic Control Emulation</A> (<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fleddig2.ngc" TARGET="_blank">cfg/test/leddig2.ngc</A>)
+  </UL>
+</UL>
+
+<P CLASS=DESC>Available configuration parameters:
 <TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
   <TR>
     <TH WIDTH=150>DOUT_MATRIX Parameter</TD>
@@ -1110,17 +1159,22 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
     <TD CLASS=TABCOLOR2>These parameters allow to drive RGB LEDs by using a third set of DOUTs connected to the blue LEDs.</TD>
   </TR>
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>mirrored_row=&lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>The pins of the DOUT rows can be mirrored. This happens only for the shift register value itself. Means: if two DOUT shift registers are assigned to the row, they won't be swapped. If this is desired, just change the <I>sr_dout_r1</I>/<I>sr_dout_r2</I> assignments.
+  </TR>
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>led_emu_id_offset=&lt;1..4095&gt;</I></TD>
     <TD CLASS=TABCOLOR2>With a value &gt;0, the LED matrix will listen on EVENT_LED events instead of EVENT_LED_MATRIX, starting with the specified ID. A matrix of 8x8 LED can emulate 64 LEDs with individual event assignments this way.<BR>
       In order to avoid conflicts with LEDs which are directly connected to DOUT pins (and which are accessed with LED:1 .. LED:256), it's recommended specify emulated ids outside this range, e.g. <I>led_emu_id_offset=1001</I>.
   </TR>
 </TABLE>
 
+<P CLASS=DESC>Please note that all assigned shift registers can't be used for other purposes anymore! E.g. if only 4 rows are scanned, and accordingly only 4 pins are used to select the columns, the remaining 4 pins of the shift register can't be used to control 4 LEDs directly!</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> LED_MATRIX_PATTERN </H2>
 
-<P CLASS=DESC>The LED_MATRIX_PATTERN command is used in conjunction with LED Rings to configure the output based on an incoming value for EVENT_MATRIX_DOUT elements with the <I>led_pattern</I> parameter. Optionally the pattern can also be selected by a EVENT_ENC element if no EVENT_MATRIX_DOUT event has been defined.
+<P CLASS=DESC>The LED_MATRIX_PATTERN command is used in conjunction with LED Rings to configure the output based on an incoming value for EVENT_MATRIX_DOUT elements with the <I>led_matrix_pattern</I> parameter. Optionally the pattern can also be selected by a EVENT_ENC element if no EVENT_MATRIX_DOUT event has been defined.
 
 <P CLASS=DESC>Each pattern-set consists of 17 entries. 16 entries are scaled over the specified min/max range of incoming value. The 17th entry is called 'M' and is used when the middle of the value range has been reached.
 

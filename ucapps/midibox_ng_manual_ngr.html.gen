@@ -144,6 +144,29 @@ send SysEx USB1 0xf0 0x11 0x22 0x33 0x44 ^value 0xf7
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EXEC_META &lt;meta-event&gt; [&lt;value&gt;]</I></TD>
+    <TD CLASS=TABCOLOR2>Executes a meta event with an optional value.<BR>
+      A list of available meta events can be found in the <A HREF="midibox_ng_manual_ngc.html">.NGC chapter</A>.
+Examples:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+if ^section == 0
+  exec_meta RetrieveAinserValues
+  exec_meta DumpSnapshot
+endif
+</PRE></TT>
+
+or
+
+<TT><PRE style="margin-left:10px; font-size:8pt">
+if ^section == 1
+  exec_meta SetSnapshot 1
+  exec_meta DumpSnapshot
+endif
+</PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>TRIGGER &lt;id&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Triggers a control element with the given <I>&lt;id&gt;</I>, so that it sends out it's MIDI event and prints it's label on LCD.<BR>
 Example:
@@ -153,7 +176,6 @@ trigger AINSER:1
 trigger AINSER:2
 trigger AINSER:3
 </PRE></TT>
-    Experts: please note that the ID addresses the actual id, not the hw_id!
     </TD>
   </TR>
 
@@ -167,7 +189,54 @@ set LED:1 127
 set LED:2 127
 set LED:3 127
 </PRE></TT>
-    Experts: please note that the ID addresses the actual id, not the hw_id!
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>SET_RGB &lt;id&gt; &lt;red&gt;:&lt;green&gt;&lt;blue&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Similar to the <I>rgb</I> parameter in the .NGC file, this command allows to change the brightness levels for the three LED layers of a LED matrix. All three values range from 0..15.<BR>
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+# it's assumed, that a DOUT_MATRIX is configured for all three layers,
+# and that led_emu_id_offset is set to 1001, so that the LEDs are
+# individually accessible via LED:1001, LED:1002, ...
+
+# set the RGB levels for multicolour LEDs connected to a DOUT_MATRIX
+
+# Red
+set_rgb LED:1001 15:0:0
+
+# Green
+set_rgb LED:1002 0:15:0
+
+# Blue
+set_rgb LED:1003 0:0:15
+
+# Yellow
+set_rgb LED:1004 15:15:0
+
+# Cyan
+set_rgb LED:1005 0:15:15
+
+# Magenta
+set_rgb LED:1006 15:0:15
+
+# Orange
+set_rgb LED:1007 15:8:0
+
+# White
+set_rgb LED:1008 15:15:15
+
+# now turn on the LEDs by setting the maximum value
+set LED:1001 127
+set LED:1002 127
+set LED:1003 127
+set LED:1004 127
+set LED:1005 127
+set LED:1006 127
+set LED:1007 127
+set LED:1008 127
+</PRE></TT>
     </TD>
   </TR>
 
@@ -218,13 +287,53 @@ endif
   <LI>a constant decimal value from -16384..16384
   <LI>a constant hexadecimal value from 0x0..0x3fff
   <LI>a constant octal value from 0..037777
-  <LI>a control element id, such as BUTTON:1, LED:1, AINSER:1, ENC:1, etc... (see also <A HREF="midibox_ng_manual_ngc.html">.NGC chapter</A>)
+  <LI>a control element <I>hw_id</I>, e.g. BUTTON:1, ENC:1, AINSER:1, etc... (see next section about IDs)
+  <LI>a control element <I>id</I>, e.g. (id)BUTTON:1, (id)ENC:1, (id)AINSER:1, etc... (see next section about IDs)
   <LI><I>^section</I>: this variable can be passed from the Meta event or "run" terminal command. It's 0 when a .NGC file.
   <LI><I>^value</I>: the item value when the script is called from a Meta event.
   <LI><I>^bank</I>: the current bank
 </UL>
 
 <P CLASS=DESC>More ^ variables can be implemented on request.
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> IDs </H2>
+
+<P CLASS=DESC>Whenever a control element is addressed with it's id (e.g. BUTTON:1, LED:1, AINSER:1, ENC:1 (see also <A HREF="midibox_ng_manual_ngc.html">.NGC chapter</A>), the parser will search for a matching <B>hardware id</B> (<I>hw_id</I>) by default.</P>
+
+<P CLASS=DESC>This means for example, that a
+<TT><PRE style="margin-left:50px; font-size:8pt">
+set LED:1 127
+</PRE></TT>
+command will change the value of the first LED connected to the first pin of a DOUT shift register (or emulated LED matrix LED if <I>emu_led_id_offset</I> is used in the DOUT_MATRIX configuration).</P>
+
+<P CLASS=DESC>If no EVENT_LED has been defined in the .NGC file, the hardware will be directly accessed via a virtual event like known from <I>fwd_id</I>.
+
+<P CLASS=DESC>If multiple EVENT_LED are assigned to the same <I>hw_id</I>, but to different <I>bank</I>s, only the EVENT item of the currently selected bank will be accessed.
+
+<P CLASS=DESC>Sometimes you want to access an element based on it's <I>id</I> independent from the current bank selection. Or the specified <I>id</I> doesn't match with the assigned <I>hw_id</I>. For such cases, it's possible to cast this type with the <I>(id)</I>:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# set EVENT_LED id=1 directly without considering the current bank selection
+set (id)LED:1 127
+</PRE></TT>
+
+<P CLASS=DESC>For completeness reasons, it's also possible to cast <I>(hw_id)</I>, although this type is used by default:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# set EVENT_LED id=??? hw_id=1
+set (hw_id)LED:1 127
+
+# is doing the same like:
+set LED:1 127
+</PRE></TT>
+
+
+<P CLASS=DESC>The casting method is also useful if you want to read a value of a control element independent from the bank selection, such as:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+if (id)BUTTON:20 != 0
+  log "BUTTON:20 is pressed"
+endif
+</PRE></TT>
+
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Flow Control </H2>
@@ -295,6 +404,49 @@ endif
 
 <P CLASS=DESC>Supported conditions are: <I>==, !=, &lt;, &lt;=, &gt;, &gt;=</I>.<BR>
 Logical combinations are not supported.</P>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Loops (resp. restarting)</H2>
+
+<P CLASS=DESC>Loops are not directly supported. There is neither a "goto"/"jump" command, nor a "do" or "while" loop, to keep the parser algorithm simple.
+
+<P CLASS=DESC>But with following trick it's possible to restart the .NGR script with the <I>RunSection:&lt;section&gt;</I> meta event. As you can see, this even allows to start the .NGR file with a different ^section value.
+
+Usage example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# don't do anything during startup & patch load
+if ^section == 0
+  exit
+endif
+
+# loop this section as long as BUTTON:2000 is active
+# Note that this button has been configured for toggle mode!
+if ^section == 1
+  log "Section 1 called"
+
+  # do this
+
+  # and that
+
+  # maybe with some delays:
+  delay_ms 100
+
+  # and finally:
+  if (id)BUTTON:2000 != 0
+    LCD "@(1:1:2)loop running "
+    log "Retriggering section 1"
+    exec_meta RunSection:1
+  else
+    LCD "@(1:1:2)loop finished"
+    log "Finished."
+  endif
+  exit
+endif
+</PRE></TT>
+
+<P CLASS=DESC>The files can be found under <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frunscr3.ngc" TARGET="_blank">runscr3.ngc</A> and <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frunscr3.ngr" TARGET="_blank">runscr3.ngr</A>.
+
+<P CLASS=DESC>For the case, that you (unintentionally) created an endless loop, it's possible to stop the execution with the "runstop" command in the MIOS Terminal. In addition, it's possible to generate a <I>RunStop</I> meta event with a dedicated button.
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Limitations </H2>
