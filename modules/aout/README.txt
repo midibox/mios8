@@ -135,8 +135,8 @@ AOUT_TRIS_CS=TRISC	; is connected to Port C.5
 AOUT_PIN_CS=5		; (CANNOT be shared with other outputs!)
 
 AOUT_LAT_DIN=LATC	; The data input pin DIN
-AOUT_TRIS_SCLK=TRISC	; is connected to Port C.4
-AOUT_PIN_SCLK=4		; (can be shared with other outputs)
+AOUT_TRIS_DIN=TRISC	; is connected to Port C.4
+AOUT_PIN_DIN=4		; (can be shared with other outputs)
 
 AOUT_LAT_SCLK=LATD	; The shift clock input pin SCLK
 AOUT_TRIS_SCLK=TRISD	; is connected to Port D.5
