@@ -271,7 +271,7 @@ SID_MIDI_M_CC_Loop
 	cpfseq	SID_CURRENT_CHANNEL, BANKED
 	rgoto SID_MIDI_M_CC_Loop_Next
 
-	;; if CC#06 (NRPN data LSB) received, forward to parameter handler
+	;; if CC#06 (NRPN data MSB) received, forward to parameter handler
 	movlw	0x06
 	cpfseq	SID_MIDI_PARAMETER1, BANKED
 	rgoto SID_MIDI_M_CC_NoNRPNDataH
@@ -290,6 +290,12 @@ SID_MIDI_M_CC_NoNRPNDataH
 SID_MIDI_M_CC_64
 	;; TODO: not supported yet
 SID_MIDI_M_CC_Not64
+
+	;; handle remaining CCs
+	swapf	SID_CURRENT_MIDIVOICE, W, BANKED	; expecting instrument in MIOS_PARAMETER3[6:4]
+	andlw	0xf0
+	movwf	MIOS_PARAMETER3
+	call	SID_CC_TABLE_Set
 
 SID_MIDI_M_CC_Loop_Next
 	movlw	SID_MVx_RECORD_LEN

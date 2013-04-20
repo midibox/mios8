@@ -401,7 +401,7 @@ SID_MIDI_B_CC_Loop
 	cpfseq	SID_CURRENT_CHANNEL, BANKED
 	rgoto SID_MIDI_B_CC_Loop_Next
 
-	;; if CC#06 (NRPN data LSB) received, forward to parameter handler
+	;; if CC#06 (NRPN data MSB) received, forward to parameter handler
 	movlw	0x06
 	cpfseq	SID_MIDI_PARAMETER1, BANKED
 	rgoto SID_MIDI_B_CC_NoNRPNDataH
@@ -421,14 +421,15 @@ SID_MIDI_B_CC_64
 	;; TODO: not supported yet
 SID_MIDI_B_CC_Not64
 
-SID_MIDI_B_CC_Loop_Next
+	;; handle remaining CCs
+	movf	SID_CURRENT_MIDIVOICE, W, BANKED	; expecting instrument in MIOS_PARAMETER3[5:4]
+	call	MIOS_HLP_GetBitORMask
+	andlw	0x03
+	swapf	WREG, W
+	movwf	MIOS_PARAMETER3
+	call	SID_CC_TABLE_Set
 
-	;; extra: ignore if MIDI channel of second bassline matches with first bassline
-	;; (parameter transfer already done)
-	movff	SID_MV1_BASE+SID_MVx_MIDI_CHANNEL, PRODL
-	movff	SID_MV2_BASE+SID_MVx_MIDI_CHANNEL, WREG
-	xorwf	PRODL, W
-	bz	SID_MIDI_B_CC_Loop_End
+SID_MIDI_B_CC_Loop_Next
 
 	movlw	SID_MVx_RECORD_LEN
 	addwf	FSR0L, F

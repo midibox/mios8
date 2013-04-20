@@ -1286,39 +1286,8 @@ SID_PARIN_Hlp_GetVoices_Single
 	addlw	-1
 SID_PARIN_Hlp_GetVoices_Cur_Cont
 	;; final voice selection in PRODH
-	clrf	PRODH
-	SET_BSR	SIDL_V1_BASE
-	cpfseq	SIDL_V1_BASE + SID_Vx_ASSIGNED_MV, BANKED
-	rgoto	SID_PARIN_Hlp_GetVoices_Not0
-SID_PARIN_Hlp_GetVoices_0
-	bsf	PRODH, 0
-SID_PARIN_Hlp_GetVoices_Not0
-	cpfseq	SIDL_V2_BASE + SID_Vx_ASSIGNED_MV, BANKED
-	rgoto	SID_PARIN_Hlp_GetVoices_Not1
-SID_PARIN_Hlp_GetVoices_1
-	bsf	PRODH, 1
-SID_PARIN_Hlp_GetVoices_Not1
-	cpfseq	SIDL_V3_BASE + SID_Vx_ASSIGNED_MV, BANKED
-	rgoto	SID_PARIN_Hlp_GetVoices_Not2
-SID_PARIN_Hlp_GetVoices_2
-	bsf	PRODH, 2
-SID_PARIN_Hlp_GetVoices_Not2
-	cpfseq	SIDR_V1_BASE + SID_Vx_ASSIGNED_MV, BANKED
-	rgoto	SID_PARIN_Hlp_GetVoices_Not3
-SID_PARIN_Hlp_GetVoices_3
-	bsf	PRODH, 3
-SID_PARIN_Hlp_GetVoices_Not3
-	cpfseq	SIDR_V2_BASE + SID_Vx_ASSIGNED_MV, BANKED
-	rgoto	SID_PARIN_Hlp_GetVoices_Not4
-SID_PARIN_Hlp_GetVoices_4
-	bsf	PRODH, 4
-SID_PARIN_Hlp_GetVoices_Not4
-	cpfseq	SIDR_V3_BASE + SID_Vx_ASSIGNED_MV, BANKED
-	rgoto	SID_PARIN_Hlp_GetVoices_Not5
-SID_PARIN_Hlp_GetVoices_5
-	bsf	PRODH, 5
-SID_PARIN_Hlp_GetVoices_Not5
-	SET_BSR	SID_BASE
+	call	MIOS_HLP_GetBitORMask
+	movwf	PRODH
 	return
 
 SID_PARIN_Hlp_GetVoices_All

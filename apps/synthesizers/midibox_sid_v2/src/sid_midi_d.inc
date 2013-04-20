@@ -230,7 +230,7 @@ SID_MIDI_D_CC
 	cpfseq	SID_CURRENT_CHANNEL, BANKED
 	rgoto SID_MIDI_D_End
 
-	;; if CC#06 (NRPN data LSB) received, forward to parameter handler
+	;; if CC#06 (NRPN data MSB) received, forward to parameter handler
 	movlw	0x06
 	cpfseq	SID_MIDI_PARAMETER1, BANKED
 	rgoto SID_MIDI_D_CC_NoNRPNDataH
@@ -241,6 +241,10 @@ SID_MIDI_D_CC_NRPNDataH
 	call	SID_PARIN_SetNRPN
 	rgoto	SID_MIDI_D_End
 SID_MIDI_D_CC_NoNRPNDataH
+
+	;; handle remaining CCs
+	clrf	MIOS_PARAMETER3
+	call	SID_CC_TABLE_Set
 
 SID_MIDI_D_End
 	return
