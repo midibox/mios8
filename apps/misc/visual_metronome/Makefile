@@ -1,7 +1,7 @@
 # $Id$
 
 # define the processor, linker file and project name
-PROCESSOR = 18f452
+PROCESSOR = 18f4685
 LKR_FILE  = $(MIOS_PATH)/etc/lkr/p$(PROCESSOR).lkr
 PROJECT   = project
 

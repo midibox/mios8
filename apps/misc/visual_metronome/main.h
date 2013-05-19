@@ -40,6 +40,9 @@ typedef union {
     unsigned DISPLAY_UPDATE_REQ:1;  // requests a display update
     unsigned MIDI_CLOCK_ENABLE:1;      //clock enable
     unsigned METRONOME_ENABLE_SET:1;
+    unsigned STORE_ENABLE_SET:1;
+ //   unsigned RECALL_ENABLE_SET:1;
+    unsigned FORMAT_ENABLE_SET:1;
 
   };
 } app_flags_t;

@@ -1,4 +1,4 @@
-Visual Metronome V0.1   (C) Tim Jefford 2012  (gomiboy99 at gmail.com)
+Visual Metronome V0.2   (C) Tim Jefford 2013  (gomiboy99 at gmail.com)
 based on clockbox version 1.0 (C) 2005 Thorsten Klose (tk@midibox.org)
 ===============================================================================
 

@@ -66,20 +66,12 @@ void Init(void) __wparam
   // set encoder speed mode of datawheel
   MIOS_ENC_SpeedSet(0, DATAWHEEL_SPEED_MODE, DATAWHEEL_SPEED_DIVIDER);
 
-
   // initialize the MIDI clock module (-> mclock.c)
   MCLOCK_Init();
-  MCLOCK_BPMSet(140);
-
+//  MCLOCK_BPMSet(140);
+//  MCLOCK_BPMSet(MIOS_EEPROM_Read(0x00));
   MIOS_DOUT_PinSet(9, 1); //STOP
   MIOS_DOUT_PinSet(11, 1); //MIDI CLICK ON
-
-  menu_pos = 1;
-
-  clock_enable = 0;
-
-  metro_high = (note_high * 0x0C);
-  metro_low = (note_low * 0x0C);
 
 }
 
@@ -129,7 +121,7 @@ void Timer(void) __wparam
 const unsigned char lcd_charset[3*8] = {
   0x08, 0x0c, 0x0e, 0x0f, 0x0f, 0x0e, 0x0c, 0x08, // Play
   0x00, 0x00, 0x0e, 0x0e, 0x0e, 0x0e, 0x00, 0x00, // Stop
-  0x00, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, // Pause
+//  0x00, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x00, // Pause
   };
 
 void DISPLAY_Init(void) __wparam
@@ -140,16 +132,10 @@ void DISPLAY_Init(void) __wparam
   // clear screen
   MIOS_LCD_Clear();
 
-  // request display update
+    // request display update
+
   MIOS_LCD_CursorSet(0x00 + 15);
-  MIOS_LCD_PrintCString("BPM");
-
-  if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
-            MIOS_LCD_CursorSet(0x40 + 7);
-            MIOS_LCD_PrintCString("Ck");
-            MIOS_DOUT_PinSet(8, 1);
-  }
-
+  MIOS_LCD_PrintCString("Rcl");
 
   app_flags.DISPLAY_UPDATE_REQ = 1;
 }
@@ -167,13 +153,21 @@ void DISPLAY_Tick(void) __wparam
   // clear request
   app_flags.DISPLAY_UPDATE_REQ = 0;
 
+  if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
+            MIOS_LCD_CursorSet(0x40 + 1);
+            MIOS_LCD_PrintChar('*');
+  } else {
+            MIOS_LCD_CursorSet(0x40 + 1);
+            MIOS_LCD_PrintChar(' ');
+            }
+
   MIOS_LCD_CursorSet(0x00 + 0);
-  MIOS_LCD_PrintCString("C");
+  MIOS_LCD_PrintChar('C');
   MIOS_LCD_CursorSet(0x00 + 1);
   MIOS_LCD_PrintBCD2(midi_ch);
 
   MIOS_LCD_CursorSet(0x00 + 4);
-  MIOS_LCD_PrintCString("B");
+  MIOS_LCD_PrintChar('B');
   MIOS_LCD_CursorSet(0x00 + 5);
   MIOS_LCD_PrintBCD1(meas_ctr_beats);
 
@@ -189,21 +183,22 @@ void DISPLAY_Tick(void) __wparam
 
   // print Play/Stop/Pause char at the right upper corner
   MIOS_LCD_CursorSet(0x00 + 19);
-  if( mclock_state.PAUSE ) {
-    MIOS_LCD_PrintChar(0x02); // Pause
-  } else {
-    if( mclock_state.RUN ) {
+     if( mclock_state.RUN ) {
       MIOS_LCD_PrintChar(0x00); // Play
     } else {
       MIOS_LCD_PrintChar(0x01); // Stop
     }
-  }
 
   MIOS_LCD_CursorSet(0x40); // first line
-  MIOS_LCD_PrintCString("BPM");
-  // print BPM at lower line, left side
-  MIOS_LCD_CursorSet(0x40 + 3);
+  MIOS_LCD_PrintChar('B');
+ //  print BPM at lower line, left side
+  MIOS_LCD_CursorSet(0x40 + 2);
   MIOS_LCD_PrintBCD3(MCLOCK_BPMGet());
+
+  MIOS_LCD_CursorSet(0x40 + 6);
+  MIOS_LCD_PrintChar('P');
+  MIOS_LCD_CursorSet(0x40 + 7);
+  MIOS_LCD_PrintBCD2(eeprom_location + 1);
 
   // print the meter at lower line, right side
   MIOS_LCD_CursorSet(0x40 + 9);
@@ -283,37 +278,8 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 
   switch( pin ) {
 
-    case 5: // Menu Scroll
-      if( pin_value == 0 )
-        menu_pos = ( menu_pos + 1 );
-        if( menu_pos == 7 ) {
-            menu_pos = 1;
-        }
-        if( menu_pos == 1) {
-      MIOS_LCD_CursorSet(0x00 + 15);
-      MIOS_LCD_PrintCString("BPM");
-        } else if( menu_pos == 5 ) {
-      MIOS_LCD_CursorSet(0x00 + 15);
-      MIOS_LCD_PrintCString("Ch ");
-        } else if( menu_pos == 6 ) {
-      MIOS_LCD_CursorSet(0x00 + 15);
-      MIOS_LCD_PrintCString("Clk");
-        } else if( menu_pos == 3 ) {
-      MIOS_LCD_CursorSet(0x00 + 15);
-      MIOS_LCD_PrintCString("MC ");
-        } else if( menu_pos == 4 ) {
-      MIOS_LCD_CursorSet(0x00 + 15);
-      MIOS_LCD_PrintCString("BC ");
-        } else if( menu_pos == 2 ) {
-      MIOS_LCD_CursorSet(0x00 + 15);
-      MIOS_LCD_PrintCString("Bar");
-        }
 
-  app_flags.DISPLAY_UPDATE_REQ = 1;
-
-      break;
-
-    case 3: // PLAY
+    case 2: // PLAY
       if( pin_value == 0 )
         if( ! mclock_state.START_REQ )
         return;
@@ -336,7 +302,7 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 
       break;
 
-    case 4: // STOP
+    case 3: // STOP
       if( pin_value == 0 )
     METRO_Event_Off();
     MIOS_DOUT_SRSet (0, 0);
@@ -358,19 +324,100 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 
       break;
 
-     case 2: // CLOCK SEND ENABLE
+    case 4: // Menu Scroll
+      if( pin_value == 0 )
+        menu_pos = ( menu_pos + 1 );
+        if( menu_pos == 10 ) {
+            menu_pos = 1;
+        }
+        if( menu_pos == 1) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("BPM");
+        } else if( menu_pos == 2 ) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("Bar");
+        } else if( menu_pos == 3 ) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("MC ");
+        } else if( menu_pos == 4 ) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("BC ");
+        } else if( menu_pos == 5 ) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("Ch ");
+        } else if( menu_pos == 6 ) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("Clk");
+        } else if( menu_pos == 7 ) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("WRT");
+      app_flags.STORE_ENABLE_SET = 1;
+        } else if( menu_pos == 8 ) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("Rcl");
+ //     app_flags.RECALL_ENABLE_SET = 1;
+        } else if( menu_pos == 9 ) {
+      MIOS_LCD_CursorSet(0x00 + 15);
+      MIOS_LCD_PrintCString("CLR");
+      app_flags.FORMAT_ENABLE_SET = 1;
+        }
+
+  app_flags.DISPLAY_UPDATE_REQ = 1;
 
       break;
 
-     case 6: // Fwd Button
+      case 5: // STORE
+       if( pin_value == 0 )
+
+        if( app_flags.STORE_ENABLE_SET == 1 ) {
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 0), (unsigned int)MCLOCK_BPMGet());
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 1), note_high);
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 2), note_low);
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 3), midi_ch);
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 4), meas_ctr_beats);
+                if( app_flags.MIDI_CLOCK_ENABLE==1 ){
+                        MIOS_EEPROM_Write(((eeprom_location * 8) + 5), 0x01);
+                } else {
+                        MIOS_EEPROM_Write(((eeprom_location * 8) + 5), 0x00);
+                        }
+                if( app_flags.METRONOME_ENABLE_SET==1 ){
+                        MIOS_EEPROM_Write(((eeprom_location * 8) + 6), 0x01);
+                } else {
+                        MIOS_EEPROM_Write(((eeprom_location * 8) + 6), 0x00);
+                        }
+            MIOS_EEPROM_Write(0x07, eeprom_location); //LAST EEPROM PRESET SAVED
+            app_flags.STORE_ENABLE_SET == 0;
+            app_flags.DISPLAY_UPDATE_REQ = 1;
+        }
 
       break;
 
-     case 7: // Rev Button
+      case 6: // FORMAT
+       if( pin_value == 0 )
+//
+          if( app_flags.FORMAT_ENABLE_SET == 1 ) {
+//            int i;
+            for (eeprom_location=0; eeprom_location<0x20; eeprom_location++)
+            {
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 0), 0x78); //120 bpm
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 1), 0x01); //off
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 2), 0x01); //off
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 3), 0x01); //ch 1
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 4), 0x04); //4 beats
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 5), 0x01); //clk on
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 6), 0x00); //Metronome off
+            MIOS_EEPROM_Write(((eeprom_location * 8) + 7), eeprom_location);
+            }
+            app_flags.FORMAT_ENABLE_SET == 0;
+            eeprom_location = 0x00;
 
+          }
+      break;
+      case 7: // Fwd Button
 
       break;
   }
+
 }
 
 
@@ -383,8 +430,8 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
 {
   unsigned int value;
 
-  if( menu_pos == 1 ) {
-  // encoder 0 is used to control the BPM
+  if( menu_pos == 1 ) {     //BPM SETTING
+
     if( encoder == 0 ) {
       value = (unsigned int)MCLOCK_BPMGet() - 48;
       if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 255 - 48) ) {
@@ -394,46 +441,27 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
     }
   }
 
-  if( menu_pos == 5 ) {
-    if( encoder == 0 ) {
-      value = (unsigned char)midi_ch;
-      if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 17 - 1) ) {
-         midi_ch = value;
-        if( midi_ch >= 16 ) {
-            midi_ch = 16;
-        }
-      }
-        if( midi_ch <= 1 ) {
-            midi_ch = 1;
-        }
-        app_flags.DISPLAY_UPDATE_REQ = 1;
-   }
-  }
+  if( menu_pos == 2 ) {     //BEATS TO THE BAR
 
-  if( menu_pos == 6 ) {
-  // encoder 0 is used to control the BPM
     if( encoder == 0 ) {
-      value = (unsigned char)clock_enable;
-      if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 2 - 1) ) {
-         clock_enable = value;
-        if( clock_enable - 1 == 0 ) {
-            app_flags.MIDI_CLOCK_ENABLE = 0;
-            MIOS_LCD_CursorSet(0x40 + 7);
-            MIOS_LCD_PrintCString("  ");
-            MIOS_DOUT_PinSet(8, 0);
-        } else {
-            app_flags.MIDI_CLOCK_ENABLE = 1;
-            MIOS_LCD_CursorSet(0x40 + 7);
-            MIOS_LCD_PrintCString("Ck");
-            MIOS_DOUT_PinSet(8, 1);
+      value = (unsigned char)meas_ctr_beats;
+      if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 9 - 1) ) {
+         meas_ctr_beats = value;
+        MCLOCK_DoStop();
+        METRO_Event_Off();
+        if( meas_ctr_beats >= 8 ) {
+            meas_ctr_beats = 8;
         }
-        app_flags.DISPLAY_UPDATE_REQ = 1;
+        if( meas_ctr_beats <= 2 ) {
+            meas_ctr_beats = 2;
+          }
+         app_flags.DISPLAY_UPDATE_REQ = 1;
       }
     }
   }
 
-  if( menu_pos == 3 ) {
-  // encoder 0 is used to control the BPM
+  if( menu_pos == 3 ) {     //METRONOME MEASURE NOTE & ON/OFF
+
     if( encoder == 0 ) {
       value = (unsigned char)note_high;
       if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 10 - 1) ) {
@@ -459,8 +487,8 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
     }
   }
 
-  if( menu_pos == 4 ) {
-  // encoder 0 is used to control the BPM
+  if( menu_pos == 4 ) {     //METRONOME BEAT NOTE
+
     if( encoder == 0 ) {
       value = (unsigned char)note_low;
       if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 10 - 1) ) {
@@ -479,26 +507,90 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
     }
   }
 
-  if( menu_pos == 2 ) {
-  // encoder 0 is used to control the BPM
+  if( menu_pos == 5 ) {     //MIDI CHANNEL
     if( encoder == 0 ) {
-      value = (unsigned char)meas_ctr_beats;
-      if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 9 - 1) ) {
-         meas_ctr_beats = value;
-        MCLOCK_DoStop();
-        METRO_Event_Off();
-        if( meas_ctr_beats >= 8 ) {
-            meas_ctr_beats = 8;
+      value = (unsigned char)midi_ch;
+      if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 17 - 1) ) {
+         midi_ch = value;
+        if( midi_ch >= 16 ) {
+            midi_ch = 16;
         }
-        if( meas_ctr_beats <= 2 ) {
-            meas_ctr_beats = 2;
+      }
+        if( midi_ch <= 1 ) {
+            midi_ch = 1;
+        }
+        app_flags.DISPLAY_UPDATE_REQ = 1;
+   }
+  }
+
+  if( menu_pos == 6 ) {     //CLOCK ON/OFF
+
+    if( encoder == 0 ) {
+      value = (unsigned char)clock_enable;
+      if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 2 - 1) ) {
+         clock_enable = value;
+        if( clock_enable - 1 == 0 ) {
+            app_flags.MIDI_CLOCK_ENABLE = 0;
+//            MIOS_LCD_CursorSet(0x40 + 1);
+//            MIOS_LCD_PrintCString(" ");
+            MIOS_DOUT_PinSet(8, 0);
+                } else {
+            app_flags.MIDI_CLOCK_ENABLE = 1;
+//            MIOS_LCD_CursorSet(0x40 + 1);
+//            MIOS_LCD_PrintCString("*");
+            MIOS_DOUT_PinSet(8, 1);
         }
       }
         app_flags.DISPLAY_UPDATE_REQ = 1;
     }
+  }
+
+  if( menu_pos == 7 ) {     //STORE CURRENT SETTINGS IN MEMORY
+
+    if( encoder == 0 ) {
+      value = (unsigned char)eeprom_location;
+      if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 32 - 1) ) {
+         eeprom_location = value;
+         app_flags.STORE_ENABLE_SET == 1;
+      }
+        app_flags.DISPLAY_UPDATE_REQ = 1;
+    }
+  }
+
+  if( menu_pos == 8 ) {   //RECALL MEMORY
+
+    if( encoder == 0 ) {
+      value = (unsigned char)eeprom_location;
+      if( MIOS_HLP_16bitAddSaturate(incrementer, &value, 32 - 1) ) {
+        eeprom_location = value;
+
+        MCLOCK_BPMSet(MIOS_EEPROM_Read((eeprom_location * 8) + 0));
+        note_high = MIOS_EEPROM_Read((eeprom_location * 8) + 1);
+        note_low = MIOS_EEPROM_Read((eeprom_location * 8) + 2);
+        midi_ch = MIOS_EEPROM_Read((eeprom_location * 8) + 3);
+        meas_ctr_beats = MIOS_EEPROM_Read((eeprom_location * 8) + 4);
+            if( MIOS_EEPROM_Read((eeprom_location * 8) + 5) ==1 ) {
+                    app_flags.MIDI_CLOCK_ENABLE = 1;
+            } else {
+                    app_flags.MIDI_CLOCK_ENABLE = 0;
+                    }
+            if( MIOS_EEPROM_Read((eeprom_location * 8) + 6) ==1 ) {
+                    app_flags.METRONOME_ENABLE_SET = 1;
+            } else {
+                    app_flags.METRONOME_ENABLE_SET = 0;
+                    }
+      }
+       MIOS_EEPROM_Write(0x07, eeprom_location); //LAST EEPROM PRESET USED
+       app_flags.DISPLAY_UPDATE_REQ = 1;
+    }
+  }
+    if( menu_pos == 9 ) {  //CLEAR MEMORY
+
+        app_flags.FORMAT_ENABLE_SET = 1;
 
   }
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS when a pot has been moved

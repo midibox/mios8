@@ -49,6 +49,7 @@ unsigned char midi_ch;
 unsigned char note_low;
 unsigned char note_high;
 unsigned char menu_pos;
+unsigned char eeprom_location;
 
 unsigned char clock_enable;
 /////////////////////////////////////////////////////////////////////////////
@@ -71,21 +72,39 @@ void MCLOCK_Init(void)
   //  DEFAULT SETTINGS                                                   //
   /////////////////////////////////////////////////////////////////////////
 
-  midi_ch = 0x01; // default channel 1
-  note_high = 0x06;  // C4
-  note_low = 0x05;   // C5
+  eeprom_location = (MIOS_EEPROM_Read(0x07)); //READ LAST PRESET USED
+
+  MCLOCK_BPMSet(MIOS_EEPROM_Read((eeprom_location * 8) + 0));
+  midi_ch = (MIOS_EEPROM_Read((eeprom_location * 8) + 3)); // default channel 1
+  note_high = (MIOS_EEPROM_Read((eeprom_location * 8) + 1));  // C4
+  note_low = (MIOS_EEPROM_Read((eeprom_location * 8) + 2));   // C5
 
   note_on = (0x8F + midi_ch);   // DO NOT CHANGE
   note_off = (0x7F + midi_ch);  // DO NOT CHANGE
   note_vel = 0x79;  // MAX 127 VELOCITY
 
-  menu_pos = 0; //BPM
+  menu_pos = 8; //PGM
 
-  meas_ctr_beats = 4;  //DEFAULT
+  metro_high = (note_high * 0x0C);
 
-  app_flags.METRONOME_ENABLE_SET = 1; //METRONOME MIDI OUT ENABLED BY DEFAULT
+  metro_low = (note_low * 0x0C);
 
-  app_flags.MIDI_CLOCK_ENABLE = 1; //ENABLE CLOCK OUT BY DEFAULT
+  meas_ctr_beats = (MIOS_EEPROM_Read((eeprom_location * 8) + 4));  //DEFAULT
+
+ if( MIOS_EEPROM_Read((eeprom_location * 8) + 6) ==1 ) {
+                    app_flags.METRONOME_ENABLE_SET = 1;
+            } else {
+                    app_flags.METRONOME_ENABLE_SET = 0;
+                    }   //METRONOME MIDI OUT ENABLED BY DEFAULT
+
+  if( MIOS_EEPROM_Read((eeprom_location * 8) + 5) ==1 ) {
+                    app_flags.MIDI_CLOCK_ENABLE = 1;
+            } else {
+                    app_flags.MIDI_CLOCK_ENABLE = 0;
+                    }
+ // app_flags.MIDI_CLOCK_ENABLE = 1; //ENABLE CLOCK OUT BY DEFAULT
+     app_flags.DISPLAY_UPDATE_REQ = 1;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////

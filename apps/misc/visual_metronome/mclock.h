@@ -100,4 +100,6 @@ extern unsigned char metro_high;
 
 extern unsigned char metro_low;
 
+extern unsigned char eeprom_location;
+
 #endif /* _MCLOCK_H */
