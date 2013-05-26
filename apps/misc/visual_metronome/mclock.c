@@ -91,17 +91,18 @@ void MCLOCK_Init(void)
 
   meas_ctr_beats = (MIOS_EEPROM_Read((eeprom_location * 8) + 4));  //DEFAULT
 
- if( MIOS_EEPROM_Read((eeprom_location * 8) + 6) ==1 ) {
+ if( MIOS_EEPROM_Read((eeprom_location * 8) + 6) == 1 ) {
                     app_flags.METRONOME_ENABLE_SET = 1;
             } else {
                     app_flags.METRONOME_ENABLE_SET = 0;
                     }   //METRONOME MIDI OUT ENABLED BY DEFAULT
 
-  if( MIOS_EEPROM_Read((eeprom_location * 8) + 5) ==1 ) {
+  if( MIOS_EEPROM_Read((eeprom_location * 8) + 5) == 1 ) {
                     app_flags.MIDI_CLOCK_ENABLE = 1;
             } else {
                     app_flags.MIDI_CLOCK_ENABLE = 0;
                     }
+
  // app_flags.MIDI_CLOCK_ENABLE = 1; //ENABLE CLOCK OUT BY DEFAULT
      app_flags.DISPLAY_UPDATE_REQ = 1;
 

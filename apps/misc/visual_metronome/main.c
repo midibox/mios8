@@ -71,7 +71,18 @@ void Init(void) __wparam
 //  MCLOCK_BPMSet(140);
 //  MCLOCK_BPMSet(MIOS_EEPROM_Read(0x00));
   MIOS_DOUT_PinSet(9, 1); //STOP
-  MIOS_DOUT_PinSet(11, 1); //MIDI CLICK ON
+//  MIOS_DOUT_PinSet(11, 1); //MIDI CLICK ON
+
+        if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
+	    MIOS_DOUT_PinSet(8, 1);
+        } else {
+        MIOS_DOUT_PinSet(8, 0);
+        }
+        if( app_flags.METRONOME_ENABLE_SET == 1) {
+        MIOS_DOUT_PinSet(11, 1);
+        } else {
+        MIOS_DOUT_PinSet(11, 0);
+        }
 
 }
 
