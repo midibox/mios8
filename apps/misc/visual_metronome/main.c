@@ -68,10 +68,7 @@ void Init(void) __wparam
 
   // initialize the MIDI clock module (-> mclock.c)
   MCLOCK_Init();
-//  MCLOCK_BPMSet(140);
-//  MCLOCK_BPMSet(MIOS_EEPROM_Read(0x00));
   MIOS_DOUT_PinSet(9, 1); //STOP
-//  MIOS_DOUT_PinSet(11, 1); //MIDI CLICK ON
 
         if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
 	    MIOS_DOUT_PinSet(8, 1);
@@ -167,9 +164,19 @@ void DISPLAY_Tick(void) __wparam
   if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
             MIOS_LCD_CursorSet(0x40 + 1);
             MIOS_LCD_PrintChar('*');
+            MIOS_DOUT_PinSet(8, 1);
   } else {
             MIOS_LCD_CursorSet(0x40 + 1);
             MIOS_LCD_PrintChar(' ');
+            MIOS_DOUT_PinSet(8, 0);
+            }
+
+  if( app_flags.METRONOME_ENABLE_SET == 1) {
+            MIOS_DOUT_PinSet(11, 1);
+            metro_high = (note_high * 0x0C); // note_high * 12
+            metro_low = (note_low * 0x0C); // note_low * 12
+  } else {
+            MIOS_DOUT_PinSet(11, 0);
             }
 
   MIOS_LCD_CursorSet(0x00 + 0);
@@ -300,17 +307,6 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
  	MIOS_DOUT_PinSet(10, 1);
     METRO_Event_On();
 
-        if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
-	    MIOS_DOUT_PinSet(8, 1);
-        } else {
-        MIOS_DOUT_PinSet(8, 0);
-        }
-        if( app_flags.METRONOME_ENABLE_SET == 1) {
-        MIOS_DOUT_PinSet(11, 1);
-        } else {
-        MIOS_DOUT_PinSet(11, 0);
-        }
-
       break;
 
     case 3: // STOP
@@ -321,17 +317,6 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
 	MIOS_DOUT_PinSet(9, 1);
 
 	MCLOCK_DoStop();
-
-        if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
-	    MIOS_DOUT_PinSet(8, 1);
-        } else {
-        MIOS_DOUT_PinSet(8, 0);
-        }
-        if( app_flags.METRONOME_ENABLE_SET == 1) {
-        MIOS_DOUT_PinSet(11, 1);
-        } else {
-        MIOS_DOUT_PinSet(11, 0);
-        }
 
       break;
 
@@ -366,7 +351,6 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam
         } else if( menu_pos == 8 ) {
       MIOS_LCD_CursorSet(0x00 + 15);
       MIOS_LCD_PrintCString("Rcl");
- //     app_flags.RECALL_ENABLE_SET = 1;
         } else if( menu_pos == 9 ) {
       MIOS_LCD_CursorSet(0x00 + 15);
       MIOS_LCD_PrintCString("CLR");
@@ -486,10 +470,8 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
         }
         if(note_high - 1 != 0 ) {  // enable or disable metronome midi notes
             app_flags.METRONOME_ENABLE_SET = 1;
-            MIOS_DOUT_PinSet(11, 1);
         } else {
             app_flags.METRONOME_ENABLE_SET = 0;
-            MIOS_DOUT_PinSet(11, 0);
         }
         metro_high = (note_high * 0x0C); // note_high * 12
 
@@ -542,14 +524,8 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
          clock_enable = value;
         if( clock_enable - 1 == 0 ) {
             app_flags.MIDI_CLOCK_ENABLE = 0;
-//            MIOS_LCD_CursorSet(0x40 + 1);
-//            MIOS_LCD_PrintCString(" ");
-            MIOS_DOUT_PinSet(8, 0);
-                } else {
+        } else {
             app_flags.MIDI_CLOCK_ENABLE = 1;
-//            MIOS_LCD_CursorSet(0x40 + 1);
-//            MIOS_LCD_PrintCString("*");
-            MIOS_DOUT_PinSet(8, 1);
         }
       }
         app_flags.DISPLAY_UPDATE_REQ = 1;
@@ -590,16 +566,7 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
             } else {
                     app_flags.METRONOME_ENABLE_SET = 0;
                     }
-        if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
-	    MIOS_DOUT_PinSet(8, 1);
-        } else {
-        MIOS_DOUT_PinSet(8, 0);
-        }
-        if( app_flags.METRONOME_ENABLE_SET == 1) {
-        MIOS_DOUT_PinSet(11, 1);
-        } else {
-        MIOS_DOUT_PinSet(11, 0);
-        }
+
       }
        MIOS_EEPROM_Write(0x07, eeprom_location); //LAST EEPROM PRESET USED
        app_flags.DISPLAY_UPDATE_REQ = 1;
