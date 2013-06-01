@@ -590,6 +590,16 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
             } else {
                     app_flags.METRONOME_ENABLE_SET = 0;
                     }
+        if( app_flags.MIDI_CLOCK_ENABLE == 1 ) {
+	    MIOS_DOUT_PinSet(8, 1);
+        } else {
+        MIOS_DOUT_PinSet(8, 0);
+        }
+        if( app_flags.METRONOME_ENABLE_SET == 1) {
+        MIOS_DOUT_PinSet(11, 1);
+        } else {
+        MIOS_DOUT_PinSet(11, 0);
+        }
       }
        MIOS_EEPROM_Write(0x07, eeprom_location); //LAST EEPROM PRESET USED
        app_flags.DISPLAY_UPDATE_REQ = 1;
