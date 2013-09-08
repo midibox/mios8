@@ -86,7 +86,7 @@ Up to 128 rotary encoders are currently supported.
    The <I>hw_id</I> ranges from 1..128
   <LI><I>AIN</I>: 6 AIN (analog input) pins are directly available on the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> and <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module at J5A.A0 .. J5B.A5 - conversion values are working at 7bit resolution only due to the reduced voltage range of 0..3.3V. For higher resolutions or more inputs please use the AINSER option!<BR>
    The <I>hw_id</I> ranges from 1..6
-  <LI><I>AINSER</I>: the usage of the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module is the recommended solution for pots and faders. The resultion is up to 11bit without jittering values. Up to 2 MBHP_AINSER64 modules can be handled by the firmware, accordingly up to 128 AINSER based controllers are available.<BR>
+  <LI><I>AINSER</I>: the usage of the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> or <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module is the recommended solution for pots and faders. The resultion is up to 11bit without jittering values. Up to 2 MBHP_AINSER* modules can be handled by the firmware, accordingly up to 128 AINSER based controllers are available with AINSER64, resp. 16 with two AINSER8.<BR>
 The inputs of the first AINSER module are available as AINSER controller 1-64, the inputs of the second module as AINSER controller 65-128.<BR>
    The <I>hw_id</I> ranges from 1..128
   <LI><I>MF</I>: up to 4 <A HREF="mbhp_mf_ng.html">MBHP_MF_NG</A> modules can be connected, which means that up to 32 motorfaders can be used as controllers. The modules are configured with the MF command which is described later in this chapter.<BR>
@@ -466,7 +466,7 @@ EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
 
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>nrpn_format=&lt;Unsigned|Signed&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Specifies the NRPN format for a <I>type=NRPN</I> event: <I>Unsigned</I> or <I>Signed</I>
+    <TD CLASS=TABCOLOR2>Specifies the NRPN format for a <I>type=NRPN</I> event: <I>Unsigned</I>, <I>Signed</I> or <I>MsbOnly</I>.
     </TD>
   </TR>
 
@@ -493,7 +493,8 @@ EVENT_CV  id= 2  type=NoteOn  chn= 1 key=any use_key_number=0
           <LI><I>^val_n4</I>: sends the fourth nibble of the EVENT value (bit 12..15)
           <LI><I>^ignore</I>: ignores an incoming byte, doesn't send a byte
           <LI><I>^dump</I>: starts the SysEx dump mapping: EVENTs with <I>syxdump_pos</I> will get the received values at the specified positions.
-          <LI><I>^cursor</I>: allows to directly set the LCD cursor from a SysEx dump. This is used when text messages should be received via SysEx.<BR>Value 0..63 will set the cursor at the first line, value 64..127 at the second line.<BR> If the text is longer than 40 characters, and a second 2x40 LCD is connected, it will be automatically continued there.
+          <LI><I>^cursor</I>: allows to directly set the LCD cursor from a SysEx dump. This is used when text messages should be received via SysEx.<BR>Value 0..63 will set the cursor at the first line, value 64..127 at the second line.<BR> If the text is longer than 40 characters, and a second 2x40 LCD is connected, it will be automatically continued there.<BR>
+          Normaly ^cursor should always be part of the SysEx stream. If it's omitted, ^txt and ^txt56 will start at the position specified with <I>lcd_pos=&lt;device&gt;:&lt;x&gt;:&lt;y&gt;</I>
           <LI><I>^txt</I>: outputs the received text to the LCD until F7 is received
           <LI><I>^txt56</I>: outputs the received text to the LCD until F7 is received. Automatically jumps to the next line if the cursor has exceeded the 56th column.<BR>
           ^txt and ^txt56 also allow to map incoming characters to different cursor positions. An example can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Flogictrl.ngc" TARGET="_blank">logictrl.ngc template</A>.<BR>
@@ -695,6 +696,22 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>Relative</I>: whenever a new value is received from external, pot/fader movements will increment the received value instead of setting it to the absolute position
         <LI><I>Parallax</I>: this name is cool, isn't it? ;-) A description can be found in <A HREF="http://www.ucapps.de/midibox/midibox_plus_parallax.gif">this history document from the year 1999</A>.
       </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>ain_sensor_mode=&lt;mode&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Following sensor modes are supported for EVENT_AIN and EVENT_AINSER:
+      <UL CLASS=CL>
+        <LI><I>None</I>: (default if no sensor mode specified): Note events will be generated as continuous stream like CCs
+        <LI><I>NoteOnOff</I>: AIN and AINSER events, which are assigned to Note events, send velocity 0 before a new Note is sent with velocity > 0 to avoid hanging notes.
+      </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>ain_filter_delay_ms=&lt;delay&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Experimental option for sensors. See also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fain_fsr.ngc" TARGET="_blank">ain_fsr.ngc</A>
     </TD>
   </TR>
 
@@ -1316,7 +1333,7 @@ It spreads the deadband around the center position by +/- 40 (in 12bit resolutio
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> AINSER </H2>
 
-<P CLASS=DESC>The AINSER command configures the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module:
+<P CLASS=DESC>The AINSER command configures the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> resp. <A HREF="mbhp_ainser64.html">MBHP_AINSER8</A> module:
 
 <TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
   <TR>
@@ -1330,6 +1347,12 @@ It spreads the deadband around the center position by +/- 40 (in 12bit resolutio
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>enabled=&lt;0|1&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Enables the module with 1, disables the module with 0 so that it doesn't generate EVENT_AINSER events.</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>muxed=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Enables the multiplexers of a AINSER64 module with muxed=1 (default).<BR>
+                        Use muxed=0 for the AINSER8 module.<BR>
+                        Please note that regardless of the muxed setting, the pin number (and accordingly hw_id) of the second module always starts at offset 65.</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>cs=&lt;0|1&gt;</I></TD>

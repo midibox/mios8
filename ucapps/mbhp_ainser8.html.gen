@@ -1,0 +1,168 @@
+HEADER 3 MBHP_AINSER8 Module
+
+<H1>MIDIbox Hardware Platform, AINSER8 Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_ainser8.jpg" width=550 height=464></CENTER></P>
+
+<P CLASS=INFO>MBHP_AINSER8 is a reduced version of the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module without 1-to-8 multiplexers and on-board VR, and only supported by <A HREF="mios.html">MIOS32</A>!</P>
+
+<P CLASS=INFO>It is based on the 8-channel ADC MCP3208 from <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A>. It can be used to scan pots and/or faders with 12bit resolution between 0 and 5V.</P>
+
+<P CLASS=INFO>The accuracy and especially the signal/noise ratio is much better compared to the internal ADCs of STM32 or LPC17 for insignificantly higher costs (+ 3 EUR).</P>
+
+<P CLASS=INFO>Another advantage is the improved scalability. While with the previous <A HREF="mbhp_ain.html">MBHP_AIN</A> module the maximum number of scannable inputs was limited by the number of on-chip ADC channels, the new approach allows to access multiple MBHP_AINSER64 and MBHP_AINSER8 modules from the same microcontroller.</P>
+
+<P CLASS=INFO>The ADC is accessed via SPI (e.g. J19 of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module).</P>
+
+<P CLASS=INFO>Multiple MBHP_AINSER8 (or MBHP_AINSER64) modules are connected to J19 in parallel, and accessed by strobing dedicated chip select lines. J19 provides two chip selects (called "RC1" and "RC2"), if more modules should be scanned, common IO pins could be used for the same purpose (e.g. available at J5). To programmers: alternatively, AINSER* modules could be chained, or a 3-to-8 MUX could be used for accessing 8 modules via 3 IO pins of the microcontroller.</P>
+
+<P CLASS=INFO>Accuracy: if directly powered from the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module, values are jittering by ca. +/-1..2 LSBs (for comparison: the on-chip ADCs of STM32 and LPC17 are jittering by at least +/- 16). Accordingly, the effective resolution which can be used for MIDI controller purposes is 10 bit. Such a high resolution is especially useful for PitchBender and NRPN messages.</P>
+
+<P CLASS=INFO>Powering the module via USB (provided at J19 by the core module) is sufficient. It's recommended to use a "selfpowered" USB Hub like <A HREF="http://www.reichelt.de/USB-Hubs/MAXXTRO-MX-UAP/index.html?;ACTION=3;LA=444;GROUP=EU3;GROUPID=4831;ARTICLE=99781;START=0;SORT=artnr;OFFSET=16;SID=11TVLbZ38AAAIAAG9MIgIec1e46ae3eb4fc2fe4e011f269170227" TARGET="_blank">this one from Reichelt</A>. It also decouples the power from the (noisy) PC supply, and allows to run the MIDIbox without a PC connection.</P>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A>. The .pdf based schematic has been created with <A HREF="http://opencircuitdesign.com/xcircuit" TARGET="_blank">xcircuit</A>. There are no special eagle schematics available, since components have been netlisted in the .brd file directly!</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_AINSER8_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainser8.pdf">mbhp_ainser8.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainser8_v1.brd">mbhp_ainser8_v1.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainser8_v1.png">mbhp_ainser8_v1.png</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainser8_orderlist.txt">mbhp_ainser8_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_ainser8_interconnections.pdf">mbhp_ainser8_interconnections.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>18k</TD>
+      <TD CLASS=TABCOLOR2>Interconnection diagram between MBHP_CORE_LPC17 and two MBHP_AINSER8 modules</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the AINSER64 module:
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>Serial input which is usually connected to J19 of the MBHP_CORE_LPC17 module.<BR>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J3</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>Serial output which could be used to chain multiple MBHP_AINSER* modules.<BR>
+      <B>Please note: the standard AINSER driver for MIOS32 doesn't support this method!</B> Instead it expects that multiple modules are connected to J19 in parallel, and that they are using dedicated chip select lines (selected via jumper J4)!</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J4</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>A jumper has to be connected to this port to select the first or second chip select line of J2 for accessing the ADC.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J6</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>8 analog inputs and 5V (=Vd) / Ground (=Vs) connections.<BR>
+      <B>Please note:</B> all unused analog inputs have to be clamped to ground (Vss), otherwise your MIDIbox will send out a lot of random MIDI events!</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide</H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ainser8.jpg" WIDTH=280 HEIGHT=236 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>
+Solder following components:
+<UL CLASS=CL>
+  <LI>R1 = 10 Ohm
+  <LI>R2 = 470 Ohm
+  <LI>C4, C6 = 100 nF
+  <LI>C5 = 10 uF (check the polarity!)
+  <LI>Red "Supply" LED (polarity! Long leg is + (Anode)), it shows to the 470 Ohm resistor
+  <LI>the 16 pin socket for the MCP3208
+  <LI>the three 2x5 DIL headers J2, J3 and J6
+  <LI>the 3-pin SIL header J4 for chip select
+</UL>
+Important: the jumper have to be stuffed to get the module working!<BR>
+Usually J4 selects Chip Select line 1, and J5 selects the "Dig." option for analog supply.<BR>
+      </TD>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_ainser8_2.jpg" WIDTH=280 HEIGHT=225 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>
+Finally connect your finished AINSER64 module to J19 of the core module with a ribbon cable.<BR>
+This can be done during runtime ("hot plug&play"), a reboot isn't required.
+      </TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Testing</H2></DT>
+  <DD>
+<P CLASS=DESC>After J2 of the AINSER8 module has been connected to J19 of the core module, the red "supply" LED should turn on. If it stays off, check the voltage between the Vs and Vd pin of J2 with a multimeter, it should be ca. 5V. Yes: check that the LED has been soldered with the right polarity (the long leg is anode and should be soldered with the pin which is marked with + and should show to the 470 Ohm resistor).</P>
+
+<P CLASS=DESC>Sidenote (for the case this isn't obvious to you): the outer pins of a pot have to be connected to +5V (Vd) and Ground (Vs) - this voltage is available at the J6 port. The middle pin of the pot has to be connected to one of the A0/A1/...A7 pins of J6.</P>
+
+<P CLASS=DESC>Please keep also in mind that all unusued analog inputs have to be clamped to ground, otherwise the application will flood the MIDI monitor with random CC values!</P>
+
+<P CLASS=DESC>The next step is to upload an application for testing the analog inputs. At the <A HREF="mios32_download.html">MIOS32 Download Page</A> you will also find a diagnosis application which measures the jitter for each analog input. It allows to check the quality of the power supply that you are using. After the upload of "ainser_jitter_mon" the MIOS Terminal will periodically output the minimum and maximum value which has been converted in between 1 second (1000 samples) + the difference (-> the jitter):
+<P><CENTER><IMG SRC="mbhp/mbhp_ainser64_jittermon.png" width=802 height=456></CENTER></P>
+
+<P CLASS=DESC>Although this application has been originally developed for the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module, it can also be used for MBHP_AINSER8.<BR>
+Most important terminal commands:
+<UL CLASS=CL>
+  <LI><I>check_module:</I> type "check_module 1" to check the first module, or "check_module 2" to check the second module
+  <LI><I>check_mux:</I> type "check_mux 1" ... "check_mux 8" to select the analog input pin (and *not* a multiplexer):<BR>
+1=J6.A0, 2=J6.A1, 3=J6.A2, 4=J6.A3, 5=J6.A4, 6=J6.A5, 7=J6.A6, 8=J6.A7
+  <LI><I>help:</I> to display all available commands
+  </DD>
+</DL>
+  
+FOOTER

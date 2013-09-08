@@ -73,7 +73,7 @@ run 1 127
     <TH>Description</TD>
   </TR>
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>LCD &lt;string&gt;</I></TD>
+    <TD CLASS=TABCOLOR2><I>LCD &lt;string&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Prints an immediate message on screen while it's executed.<BR>
       All string control formats and directives are supported (see description of <A HREF="midibox_ng_manual_ngc.html">EVENT_* label parameter)</A>, which especially means that it's possible to clear the screen, and to jump to different cursor positions at different displays.<BR>
 Examples:
@@ -94,7 +94,7 @@ LCD "@(2:1:1)Second Display"
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>LOG &lt;string&gt;</I></TD>
+    <TD CLASS=TABCOLOR2><I>LOG &lt;string&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Sends a message to the MIOS Terminal.<BR>
                         Currently formatted messages are not supported, only static string (could change in future).
 Example:
@@ -105,7 +105,7 @@ LOG "Hello World!"
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>SEND &lt;midi-event&gt;</I></TD>
+    <TD CLASS=TABCOLOR2><I>SEND &lt;midi-event&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Sends a MIDI event. The event definition typically contains:
       <UL CLASS=CL>
         <LI>the MIDI event type (NoteOff, NoteOn, PolyPressure, CC, ProgramChange, Aftertouch, Pitchbend, NRPN, SysEx)
@@ -144,7 +144,7 @@ send SysEx USB1 0xf0 0x11 0x22 0x33 0x44 ^value 0xf7
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>EXEC_META &lt;meta-event&gt; [&lt;value&gt;]</I></TD>
+    <TD CLASS=TABCOLOR2><I>EXEC_META &lt;meta-event&gt; [&lt;value&gt;]</I></TD>
     <TD CLASS=TABCOLOR2>Executes a meta event with an optional value.<BR>
       A list of available meta events can be found in the <A HREF="midibox_ng_manual_ngc.html">.NGC chapter</A>.
 Examples:
@@ -167,7 +167,7 @@ endif
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>TRIGGER &lt;id&gt;</I></TD>
+    <TD CLASS=TABCOLOR2><I>TRIGGER &lt;id&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Triggers a control element with the given <I>&lt;id&gt;</I>, so that it sends out it's MIDI event and prints it's label on LCD.<BR>
 Example:
 <TT><PRE style="margin-left:10px; font-size:8pt">
@@ -180,7 +180,8 @@ trigger AINSER:3
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>SET &lt;id&gt; &lt;value&gt;</I></TD>
+    <TD CLASS=TABCOLOR2><I>SET &lt;id&gt; &lt;value&gt;</I><BR>
+                                  <I>SET ^&lt;variable&gt; &lt;value&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Similar to TRIGGER, but it also changes the value of the control element.<BR>
 Example:
 <TT><PRE style="margin-left:10px; font-size:8pt">
@@ -189,11 +190,21 @@ set LED:1 127
 set LED:2 127
 set LED:3 127
 </PRE></TT>
+
+    The <I>SET</I> command also allows to change the variables: ^section, ^value, ^bank (will change the EVENT banks). And it allows to change the global variables ^dev, ^pat, ^bnk, ^ins, ^chn.<BR>
+    Examples:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+# turn on the first 3 LEDs connected to the DOUT module:
+set ^section 1
+set ^value 2
+set ^bank 3
+set ^pat ENC:1
+</PRE></TT>
     </TD>
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>SET_RGB &lt;id&gt; &lt;red&gt;:&lt;green&gt;&lt;blue&gt;</I></TD>
+    <TD CLASS=TABCOLOR2><I>SET_RGB &lt;id&gt; &lt;red&gt;:&lt;green&gt;&lt;blue&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Similar to the <I>rgb</I> parameter in the .NGC file, this command allows to change the brightness levels for the three LED layers of a LED matrix. All three values range from 0..15.<BR>
 Example:
 <TT><PRE style="margin-left:10px; font-size:8pt">
@@ -241,7 +252,23 @@ set LED:1008 127
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>DELAY_MS &lt;ms&gt;</I></TD>
+    <TD CLASS=TABCOLOR2><I>SET_LOCK &lt;id&gt; &lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Allows to lock/unlock the MIDI receiver of an EVENT.<BR>
+    Examples: with
+<TT><PRE style="margin-left:10px; font-size:8pt">
+      set_lock ENC:1 1
+</PRE></TT>
+    the encoder with hw_id=1 won't change its value on incoming MIDI events anymore (it still can be changed manually when it's moved).<BR>
+    With:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+      set_lock ENC:1 0
+</PRE></TT>
+    the encoder will be unlocked, so that it will change the value on a matching incoming MIDI event again (default).
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2><I>DELAY_MS &lt;ms&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Delays the execution of the script for the given number of milliseconds.<BR>
 Example:
 <TT><PRE style="margin-left:10px; font-size:8pt">
@@ -261,12 +288,12 @@ set LED:3 0
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>IF</I><BR><I>ELSIF</I><BR><I>ELSE</I><BR><I>ENDIF</I></TD>
+    <TD CLASS=TABCOLOR2><I>IF</I><BR><I>ELSIF</I><BR><I>ELSE</I><BR><I>ENDIF</I></TD>
     <TD CLASS=TABCOLOR2>See special flow control chapter below.
     </TD>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>EXIT</I></TD>
+    <TD CLASS=TABCOLOR2><I>EXIT</I></TD>
     <TD CLASS=TABCOLOR2>Stops the execution of the .NGR script.
 Example:
 <TT><PRE style="margin-left:10px; font-size:8pt">

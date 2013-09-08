@@ -5,16 +5,17 @@ HEADER 3 MBHP_AINSER64 Module
 <P><CENTER><IMG SRC="mbhp/mbhp_ainser64.jpg" width=550 height=448></CENTER></P>
 
 <P CLASS=INFO>MBHP_AINSER64 is the successor of the <A HREF="mbhp_ain.html">MBHP_AIN</A> module and only supported by <A HREF="mios.html">MIOS32</A>!</P>
+<P CLASS=INFO><A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> is a reduced version without 1-to-8 multiplexers and on-board VR.</P>
 
 <P CLASS=INFO>It is based on the 8-channel ADC MCP3208 from <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A> and 8 4051 multiplexers so that up to 64 analog inputs are available. They can be used to scan pots and/or faders with 12bit resolution between 0 and 5V.</P>
 
 <P CLASS=INFO>The accuracy and especially the signal/noise ratio is much better compared to the internal ADCs of STM32 or LPC17 for insignificantly higher costs (+ 3 EUR).</P>
 
-<P CLASS=INFO>Another advantage is the improved scalability. While with the previous <A HREF="mbhp_ain.html">MBHP_AIN</A> module the maximum number of scannable inputs was limited by the number of on-chip ADC channels, the new approach allows to access multiple MBHP_AINSER64 modules from the same microcontroller.</P>
+<P CLASS=INFO>Another advantage is the improved scalability. While with the previous <A HREF="mbhp_ain.html">MBHP_AIN</A> module the maximum number of scannable inputs was limited by the number of on-chip ADC channels, the new approach allows to access multiple MBHP_AINSER64 and MBHP_AINSER8 modules from the same microcontroller.</P>
 
 <P CLASS=INFO>The ADC is accessed via SPI (e.g. J19 of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module). An additional 74HC595 is accessed via SPI as well to control the 4051 multiplexers and the "link status" LED which is helpful for troubleshooting the module connections.</P>
 
-<P CLASS=INFO>Multiple MBHP_AINSER64 modules are connected to J19 in parallel, and accessed by strobing dedicated chip select lines. J19 provides two chip selects (called "RC1" and "RC2"), if more modules should be scanned, common IO pins could be used for the same purpose (e.g. available at J5). To programmers: alternatively, AINSER64 modules could be chained, or a 3-to-8 MUX could be used for accessing 8 modules via 3 IO pins of the microcontroller.</P>
+<P CLASS=INFO>Multiple MBHP_AINSER64 (or MBHP_AINSER8) modules are connected to J19 in parallel, and accessed by strobing dedicated chip select lines. J19 provides two chip selects (called "RC1" and "RC2"), if more modules should be scanned, common IO pins could be used for the same purpose (e.g. available at J5). To programmers: alternatively, AINSER64 modules could be chained, or a 3-to-8 MUX could be used for accessing 8 modules via 3 IO pins of the microcontroller.</P>
 
 <P CLASS=INFO>Accuracy: if directly powered from the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module, values are jittering by ca. +/-1..2 LSBs (for comparison: the on-chip ADCs of STM32 and LPC17 are jittering by at least +/- 16). Accordingly, the effective resolution which can be used for MIDI controller purposes is 10 bit. Such a high resolution is especially useful for PitchBender and NRPN messages.</P>
 
@@ -86,10 +87,16 @@ HEADER 3 MBHP_AINSER64 Module
     </TR>
 
     <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>Serial input which is usually connected to J19 of the MBHP_CORE_LPC17 module.<BR>
+    </TR>
+
+    <TR>
       <TD CLASS=TABCOLOR2>J3</TD>
       <TD CLASS=TABCOLOR2>10</TD>
-      <TD CLASS=TABCOLOR2>Serial output which could be used to chain multiple MBHP_AINSER64 modules.<BR>
-      <B>Please note: the standard AINSER64 driver for MIOS32 doesn't support this method!</B> Instead it expects that multiple modules are connected to J19 in parallel, and that they are using dedicated chip select lines (selected via jumper J4)!</TD>
+      <TD CLASS=TABCOLOR2>Serial output which could be used to chain multiple MBHP_AINSER* modules.<BR>
+      <B>Please note: the standard AINSER driver for MIOS32 doesn't support this method!</B> Instead it expects that multiple modules are connected to J19 in parallel, and that they are using dedicated chip select lines (selected via jumper J4)!</TD>
     </TR>
 
     <TR>

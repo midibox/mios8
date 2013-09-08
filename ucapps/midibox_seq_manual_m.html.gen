@@ -163,7 +163,8 @@ This page shows animated VU meters for each instrument (to give you an overview 
       </UL></LI>
     <LI><B>Velolcity:</B> controls the velocity value for all notes/chords of the instrument.
     <LI><B>Length:</B> controls the gatelength of all notes of the instrument
-    <LI><B>CC:</B> plays a selectable CC number
+    <LI><B>CC:</B> plays a selectable CC number.<BR>
+           CC#128 (displayed as "off") is initialized by default for each layers. With this CC assignment, no events will be sent, which means in other words, that a valid CC number has to be selected with one of the GP encoders 11..13 to send something. Note also, that after the CC has been selected, one of the GP buttons 11..13 has to be pressed to confirm the CC number change. This handling ensures, that no unintended CCs will be sent while the CC number is changed.
     <LI><B>Pitch:</B> sends a PitchWheel event
     <LI><B>Prob:</B> sets the probability that the step will be played (1..100%)
     <LI><B>Delay:</B> delays the step for 1..96 microticks
@@ -723,6 +724,31 @@ It is recommended to activate the "Follow" function under UTILITY-&gt;OPTIONS wh
 </UL>
 </P>
 
+<P CLASS=INFO><B>Ext. Ctrl:</B>
+
+<P CLASS=INFO>This subpage allows to assign CCs to functions like Morph Value, Scale, Song, Phrase, Patterns, Banks, All Note Off, etc.<BR>
+Some of these functions can also be assigned to a Program Change Event.<BR>
+
+<CENTER><IMG SRC="midibox_seq/cs4/midi7.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
+
+The MIDI ports and channel over which these functions are accessible is free assignable. An IN port can be specified for receiving the events (e.g. functions should be controlled from an external DAW), and an OUT port for sending the events (e.g. changes made interactively on the control panel should be recorded with an external DAW).<BR>
+The MIDI channel is disabled by default, which means that the Ext Ctrl. feature has to be explicitly enabled in the MIDI-&gtExt Ctrl. page!!<BR>
+Following functions can be assigned:
+<UL CLASS=CL>
+  <LI><B>Morph Value:</B> controls the morph function for all tracks.
+  <LI><B>Scale:</B> allows to change the scale for the force-to-scale function.
+  <LI><B>Song Number:</B> selects a song
+  <LI><B>Song Phrase:</B> selects a phrase in the current song
+  <LI><B>Mixer Map:</B> selects and dump a mixer map
+  <LI><B>Pattern G1..G4:</B> selects a pattern for Group 1..4 (4 different CCs have to be specified)
+  <LI><B>Bank G1..G4:</B> selects a bank for Group 1..4 (4 different CCs have to be specified, however it's recommended to leave the banks untouched, which means: G1 should always use Bank 1, G2 should use Bank 2, G3 Bank 3, G4 Bank 4)
+  <LI><B>All Notes Off:</B> empties all note stack (transposer, arpeggiator, AOUT)
+  <LI><B>NRPNs:</B> sequencer parameters can be accessed via NRPNs, see also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fdoc%2Fmbseqv4_cc_implementation.txt" TARGET="_blank">mbseqv4_cc_implementation.txt</A>. This option allows to enable/disable this function.
+  <LI><B>Program Change Mode:</B> specifies what a Program Change event should change: off/Patterns/Song/Phrase
+  <LI><B>Mutes (first CC):</B> the 16 track mutes can be controlled via CCs as well. With this option you specify the first CC which should be taken. E.g. with CC16, the Mute of Track1 will be turned on/off with CC#16, Track2 with CC#17, Track3 with CC#18, ... Track16 with CC#31
+</UL>
+</P>
+
 <P CLASS=INFO><B>Misc.:</B>
 <CENTER><IMG SRC="midibox_seq/cs4/midi4.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
 <UL CLASS=CL>
@@ -736,10 +762,8 @@ It is recommended to activate the "Follow" function under UTILITY-&gt;OPTIONS wh
     By pressing the SELECT button, filters for MIDI Clock (F8) and Active Sense (FE) events can be enabled/disabled.<BR>
     Both filters are activated by default. Once the clock filter is deactivated, the OUT/IN items will (probably) show CLK permanently as long as a MIDI clock is received/sent over the appr. port. This allows you to analyze the MIDI Clock In/Out settings as configured in the BPM page.
     Once the Active Sense filter is deactivated, FE events will be displayed periodically on the appr. IN port if a connected MIDI keyboard sends such events.
-  </UL>
 </UL>
-
-</UL>
+</P>
 
 
 
@@ -759,6 +783,7 @@ Incoming events will be immediately inserted into the selected track. If the cur
 
 <P><center><object width="400" height="225">	<param name="allowfullscreen" value="true" />	<param name="allowscriptaccess" value="always" />	<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" />	<embed src="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="225"></embed></object><br /><a href="http://vimeo.com/1628550?pg=embed&amp;sec=1628550" TARGET="_blank">Midibox Sequencer V3 for Live Recording</a> from <a href="http://vimeo.com/user710438?pg=embed&amp;sec=1628550" TARGET="_blank">Stuart Mitchell</a></center></P>
 
+<P CLASS=INFO>CC can be recorded as well. Incoming CC events will be automatically assigned to free CC layers so that no pre-configuration is required. A CC layer is "free" (unassigned) as long as the CC number is turned "off". This is the default setting for all CC layers after initialisation, and can be changed in the MENU-&gt;EVENT page if desired.
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Live Play Page (Shortcut: UTILITY (F1)->Live)</H2>
 
@@ -875,12 +900,12 @@ Another difference to common solutions is the random accent generator which adds
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Options Page (Shortcut: UTIL (F1)->Opt.)</H2>
-<P CLASS=INFO>This page contains a selection of special options, for which no other page has been found:<BR>
-<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/opt1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
+<P CLASS=INFO>This page has an unusual layout and handling! It is intended for special customizations for which no other place have been found, or which need extended descriptions (whenever a short item name wouldn't describe the parameter sufficiently).</P>
+<P CLASS=INFO>The various parameters have to be selected with one of encoders GP1..8 (left screen), and the parameter value has to be selected with one of the encoders GP9..16 (right screen).</P>
+<P CLASS=INFO>Here a list of all available options:</P>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/opt1.gif" width=481 height=19 ALT="Options"></CENTER></IMG></P>
 <UL CLASS=CL>
-  <LI><B>Measure X Steps:</B> defines the number of steps per measure.<BR>
-The length is 16 16th note steps by default, it can be set from 1..256 steps!<BR>
-The left encoder below the item allows to select 16 step wise, the right encoder and datawheel stepwise.<BR>
+  <LI><B>Track Synchronisation - Steps per Measure</B>: the length of a measure is 16 16th note steps by default, it can be set from 1..256 steps.<BR>
 This setting affects:
 <UL CLASS=CL>
   <LI>the synch-to-measure function for clock divider reset</LI>
@@ -892,23 +917,32 @@ function for each track (-> divider page), so that the tracks are always in sync
 with the reference step position. It can be left deactivated if it is your intention 
  to clock tracks asynchronously to the reference position.</LI>
 
-  <LI><B>Pattern Y Steps:</B> defines the number of steps per pattern.<BR>
-This setting affects:
+  <LI><B>Pattern Change Synchronisation - Change considered each x steps</B>: defines the number of steps per pattern. This setting affects:
 <UL CLASS=CL>
-  <LI>the synch-to-measure function for pattern changes (pattern change after x steps)</LI>
+  <LI>the synch-to-measure function for pattern changes (pattern change after X steps)</LI>
   <LI>the loop incrementer in song mode</LI>
 </UL>
 
-  <LI><B>Sync. (Pattern) Change:</B> if active, a pattern change made in the PATTERN or SONG page (Phrase mode) won't take place immediately, but will be synchronized to the pattern length of Y steps as defined at the left side of this item.</LI>
-  <LI><B>RATOPC (Restart All Tracks On Pattern Change:</B> added due to requests from multiple users: all tracks will be restarted whenever a new pattern is selected. If SyncChange enabled, this means that all tracks will synchronize correctly independent from their track length, if SyncChange disabled, this means that you can do nice breaks while changing patterns (try it! ;-)</LI>
-  <LI><B>Sync Mute:</B> if enabled, mutes set in the Mute page will be synched to the selected steps per measure. This feature is inspired from the "MIDI Clip Launcher" of Ableton Live.</LI>
-  <LI><B>Sync Unmute:</B> the same for Unmute (behaviour can be selected separately).</LI>
-  <LI><B>Paste/Clr Behaviour:</B> allows you to change the behaviour of the Paste and Clear function:
+  <LI><B>Pattern Change Synchronisation:</B> if enabled, a pattern change made in the PATTERN or SONG page (Phrase mode) won't take place immediately, but will be synchronized to the pattern length of X steps as defined in the previous option page.</LI>
+  <LI><B>Restart all Tracks on Pattern Change (RATOPC):</B> added due to requests from multiple users: all tracks will be restarted whenever a new pattern is selected. If SyncChange enabled, this means that all tracks will synchronize correctly independent from their track length, if SyncChange disabled, this means that you can do nice breaks while changing patterns (try it! ;-)</LI>
+  <LI><B>Dump a predefined Mixer Map on Pattern Changes:</B> whenever a pattern is changed, a corresponding mixer map will be dumped. The Mixer map number is predefined: A1 uses Mixer Map #1, A2 uses Mixer Map #2, etc...</LI>
+  <LI><B>Synchronize MUTE to Measure:</B> if enabled, mutes set in the Mute page will be synched to the selected steps per measure. This feature is inspired from the "MIDI Clip Launcher" of Ableton Live.</LI>
+  <LI><B>Synchronize UNMUTE to Measure:</B> the same for Unmute (behaviour can be selected separately).</LI>
+  <LI><B>Paste and Clear Button will modify</B> allows you to change the behaviour of the Paste and Clear function:
     <UL CLASS=CL>
-      <LI><B>Steps only:</B> only parameter and trigger layers will be cleared/pasted (default)</LI>
-      <LI><B>Whole track:</B> the whole track configuration will be cleared/pasted. Only exception: MIDI channel and MIDI port will never be overwritten.</LI>
+      <LI><B>Only Steps:</B> only parameter and trigger layers will be cleared/pasted (default)</LI>
+      <LI><B>Complete Track:</B> the whole track configuration will be cleared/pasted. Only exception: MIDI channel and MIDI port will never be overwritten.</LI>
     </UL>
   </LI>
+  <LI><B>Initial CC value for Clear and Init is: X</B>: allows to specify the default value which will be used for CCs whenever the Clear button is pressed, or the Init function in the MENU-&gt;EVENT page is used. It's normally 64, but some people prefer 0 instead. Just define it here.</LI>
+  <LI><B>If Live function, matching received MIDI events will ...</B>: this experimental function works in conjunction with Live mode or the MIDI Router in "Track" or "Sel.Trk" mode.<BR>
+    Whenever Note, CC, PitchBender, Program Change events are received on the selected IN Port, the corresponding track layer (or LFO CC) will be muted completely, or temporary for a given number of steps. This allows to temporary overrule events generated by the sequencer from an external MIDI keyboard or controller.<BR>
+    Supported settings:
+    <UL CLASS=CL>
+       <LI><B>do nothing</B>: function disabled
+       <LI><B>mute the appr. layer</B>: once a matching events has been received, the corresponding track layers will be muted, and have to be unmuted in the MUTE page
+       <LI><B>mute layer for X steps</B>: allows to temporary mute the layer for a given number of steps
+</LI>
 </UL>
 
 
@@ -946,15 +980,19 @@ This setting affects:
 
 
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Mute Screen </H2>
-<P CLASS=DESC>Within the mute screen you can quickly mute/unmute tracks with the 16 GP buttons:<BR>
-<CENTER><IMG SRC="midibox_seq/cs4/mute1.gif" width=481 height=19 ALT="Mute Screen"></IMG></CENTER><BR>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Mute Page </H2>
+<P CLASS=DESC>Within the mute page you can quickly mute/unmute tracks with the 16 GP buttons:<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/mute1.gif" width=481 height=19 ALT="Mute Page"></IMG></CENTER><BR>
 Each track has an animated VU meter to display the MIDI activity.</P>
 
 <P CLASS=DESC>In addition, it's possible to mute individual parameter layers or drum instruments of a track by pressing&holding the Mute button:
-<CENTER><IMG SRC="midibox_seq/cs4/mute2.gif" width=481 height=19 ALT="Mute Screen"></IMG></CENTER></P>
+<CENTER><IMG SRC="midibox_seq/cs4/mute2.gif" width=481 height=19 ALT="Mute Page"></IMG></CENTER></P>
 
 <P CLASS=DESC><I>Hot tip: nice breaks can be realized by activating SOLO and selecting multiple tracks - one after another - while the sequencer is playing. This technique is demonstrated at 2:44 of the <A HREF="http://www.youtube.com/watch?v=bgjET6dNA14" TARGET="_blank">Session #3 Video</A>.</I></P>
+
+<P CLASS=DESC>By pressing the ALL button in this page, some special shortcuts are available:
+<CENTER><IMG SRC="midibox_seq/cs4/mute3.gif" width=481 height=19 ALT="Mute Page"></IMG></CENTER></P>
+This page allows you to Mute or Unmute all tracks, all layers of the selected track, or all tracks and layers with a single push on the button.</P>
 
 <P CLASS=DESC>With V4.0 beta43 and higher it's possible to synchronize Mutes and Unmutes to a selectable measure of 1..256 steps. This feature is inspired from the "MIDI Clip Launcher" of Ableton Live and can be enabled in the Utility->Options page! Whenever a GP button is pressed, the Mute won't take place immediately, but synchronized to the measure. A countdown will be displayed under the track name to inform you about an ongoing mute/unmute.</P>
 
@@ -971,7 +1009,7 @@ Each track has an animated VU meter to display the MIDI activity.</P>
     <LI><B>Group #3:</B> plays Track 9-12</LI>
     <LI><B>Group #4:</B> plays Track 13-16</LI>
   </UL></LI>
-  <LI><B>GP buttons:</B> the 128 patterns are enumerated from A1 to h8. The 8 buttons at the left side switch between A-H/a-h (press the button twice to select a "lower case" character), the 8 buttons at the right side are used to select the pattern number (1-8).</LI>
+  <LI><B>GP buttons:</B> the 64 patterns are enumerated from A1 to H8. The 8 buttons at the left side switch between A-H, the 8 buttons at the right side are used to select the pattern number (1-8).</LI>
 </UL></P>
 
 <P CLASS=DESC>Patterns can be changed with four of the rotary encoders as well. In addition, four rotary encoders allow to select the BankStick from which the pattern is loaded.</P>
@@ -1085,7 +1123,6 @@ Each track has an animated VU meter to display the MIDI activity.</P>
       <LI><B>EXIT:</B> exits to the DISK page.
     </UL>
 </LI>
-  <LI><B>MSD USB:</B> enables the "Mass Storage Device" driver, which turns your MIDIbox SEQ into a SD Card reader. Once enabled, the SD Card should be automatically mounted by your operating system (Windows/MacOS/Linux). USB MIDI will be disabled. The LEDs of the CS could flicker on each disk operation! It overrules the USB MIDI driver, which will be available again once the SD Card has been unmounted from the operating system.</LI>
 </UL>
 
 <CENTER><IMG SRC="midibox_seq/cs4/disk1.gif" width=481 height=19 ALT="Disk"></CENTER></IMG>
@@ -1196,7 +1233,7 @@ Only one group can control the scale and root note - it can be selected with thi
   <LI><B>CV:</B> selects the CV channel (1..8)
   <LI><B>Curve:</B> selects the output curve: V/Oct, Hz/V, Inverted
   <LI><B>Slew Rate:</B> allows to configure a slew rate (slack) in the range of 0..255 mS
-  <LI><B>PRng:</B> sets the pitch range for pitch bender events (normaly 2, use 12 or 24 to sweep over one, resp. two octaves)
+  <LI><B>PRng:</B> sets the pitch range for pitch bender events (normally 2, use 12 or 24 to sweep over one, resp. two octaves)
   <LI><B>Gate:</B> sets the gate polarity (positive or negative)
   <LI><B>Calibr.:</B> allows to force different output voltages for calibration (Min/Middle/Max/1V, 2V, 4V, 8V)
   <LI><B>PPQN:</B> defines the output rate of the DIN Sync Clock output pin at J5C.A8 of the MBHP_CORE_STM32 module (1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96, 192, 384 ppqn)</LI>
