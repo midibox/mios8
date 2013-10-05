@@ -56,43 +56,36 @@ MB64E_META_Handler_Button
 ;; --------------------------------------------------------------------------
 MB64E_META_Handler
 
-	;; send:
-	; 0xb0, 0x0x, vv                    fader value, MSB (of a 10bit value)
-	; 0xb0, 0x2x, vv                    fader value, LSB (of a 10bit value)
+	; send note event depending on encoder direction
+	; the encoders have to be configured in "0 +/- 1" mode!
 	;
-	; x can be specified with the second byte of the meta event.
-	; 
-	; MIDI_EVNT_VALUE is 7bit, MSB/LSB represent a 10bit value which is splitted into two 7bit values, accordingly the
-	; - MSB will contain the upper 3 bits
-	; - LSB will contain the lower 7 bits (padded by 0)
-	;
-	; this leads to following implementation:
+	; Example Config:
+	;   Meta Event 0x30 will send a Note On Event C-2 on left-turn, and C#2 on right-turn
 
-	movlw	0xb0
+	movf	MIDI_EVNT0, W	; extract MIDI channel
+	andlw	0x0f
+	iorlw	0x90		; Note Event
 	call	MIOS_MIDI_TxBufferPut
 
-	SET_BSR MIDI_EVNT1		; addresses the MSB
+	;; left or right turn?
+	movf	MIDI_EVNT_VALUE, W
+	xorlw	1
+	bz	MB64E_META_Handler_Left
+
+MB64E_META_Handler_Right
 	movf	MIDI_EVNT1, W
-	call	MIOS_MIDI_TxBufferPut
+	rgoto	MB64E_META_Handler_Cont
 
-	rrf	MIDI_EVNT_VALUE, W	; rightshifted value into WREG, the leftmost bit is now at #5 (bits counted from 0)
-	rrf	WREG, W			; rightshift again, the leftmost bit is now at #4 (bits counted from 0)
-	rrf	WREG, W			; rightshift again, the leftmost bit is now at #3 (bits counted from 0)
-	rrf	WREG, W			; rightshift again, the leftmost bit is now at #2 (bits counted from 0)
-	andlw	0x07			; mask value (3 bits)
-	call	MIOS_MIDI_TxBufferPut	; send MSB value
-
-	;; note: no need to send 0xb0 again, we get use of the "running status"
-	
-	SET_BSR MIDI_EVNT1		; addresses the LSB
+MB64E_META_Handler_Left
 	movf	MIDI_EVNT1, W
-	addlw	0x20
+	addlw	1		; add +1
+	andlw	0x7f		; ensure value range 0x00..0x7f
+	rgoto	MB64E_META_Handler_Cont
+
+MB64E_META_Handler_Cont
 	call	MIOS_MIDI_TxBufferPut
 
-	rlf	MIDI_EVNT_VALUE, W	; leftshifted value into WREG, we've to shift 3 times
-	rlf	WREG, W			; again...
-	rlf	WREG, W			; ... and again.
-	andlw	0x78			; mask value (5 bits)
-	call	MIOS_MIDI_TxBufferPut	; send LSB value
+	movlw	0x7f		; velocity 0x7f
+	call	MIOS_MIDI_TxBufferPut
 
 	return

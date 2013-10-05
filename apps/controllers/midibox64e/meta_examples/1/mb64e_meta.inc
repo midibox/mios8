@@ -15,7 +15,7 @@
 ;;        o enc value in MIDI_EVNT_VALUE (no BANKED access required)
 ;;
 ;;     on button events (entry point: MB64E_META_Handler_Button):
-;;        o Enc number in MB64E_CURRENT_BUTTON (BANKED access required!)
+;;        o Button number in MB64E_CURRENT_BUTTON (BANKED access required!)
 ;;        o first MIDI byte in MIDI_EVNT0 (no BANKED access required)
 ;;        o second MIDI byte in MIDI_EVNT1 (no BANKED access required)
 ;;        o button value in MIDI_EVNT_VALUE (no BANKED access required)
