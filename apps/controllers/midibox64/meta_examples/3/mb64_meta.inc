@@ -15,7 +15,7 @@
 ;;        o pot value in MIDI_EVNT_VALUE (no BANKED access required)
 ;;
 ;;     on button events (entry point: MB64_META_Handler_Button):
-;;        o Pot number in MB64_CURRENT_BUTTON (BANKED access required!)
+;;        o Button number in MB64_CURRENT_BUTTON (BANKED access required!)
 ;;        o first MIDI byte in MIDI_EVNT0 (no BANKED access required)
 ;;        o second MIDI byte in MIDI_EVNT1 (no BANKED access required)
 ;;        o button value in MIDI_EVNT_VALUE (no BANKED access required)

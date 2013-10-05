@@ -34,7 +34,8 @@
 
 ;; ---[ configuration table for MIDI processor and rotary encoders ]---
 #include <mios_mt_table.inc>	; use dummy table located in $MIOS_PATH/include/asm
-#include <mios_enc_table.inc>	; use dummy table located in $MIOS_PATH/include/asm
+;; note: the mios_enc_table is located in setup_midibox64.asm
+	org	0x3300		; never change the origin!
 
 ;; ---[ Custom LCD driver ]---
 #include <app_lcd.inc>
@@ -361,6 +362,14 @@ USER_DIN_NotifyToggle
 ;; --------------------------------------------------------------------------
 USER_ENC_NotifyChange
 #if DEFAULT_ENC_DATAWHEEL >= 0
+	movlw	0xb0
+	call	MIOS_MIDI_TxBufferPut
+	movf	MIOS_PARAMETER1, W
+	call	MIOS_MIDI_TxBufferPut
+	movf	MIOS_PARAMETER2, W
+	andlw	0x7f
+	call	MIOS_MIDI_TxBufferPut
+
 	;; branch to CS_MENU_Enc if datawheel
 	movlw	DEFAULT_ENC_DATAWHEEL
 	cpfseq	MIOS_PARAMETER1, ACCESS

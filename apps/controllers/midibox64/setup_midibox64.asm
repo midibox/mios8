@@ -83,8 +83,8 @@
 ; Datawheel for menu navigation/data entry connected or not?
 ; A datawheel can replace the left/right buttons!
 ; if -1: datawheel not connected
-; if >= 0: encoder number assigned to datawheel function
-; don't forget to check the pins of the datawheel in MIOS_ENC_PIN_TABLE (-> mios_tables.inc or setup_*.asm)
+; if  0: the first encoder in the MIOS_ENC_PIN_TABLE will be assigned to datawheel function
+; don't forget to check the pins of the datawheel in MIOS_ENC_PIN_TABLE (-> bottom of this file)
 ; it has to be connected to pin 4 and 5 by default
 #define DEFAULT_ENC_DATAWHEEL   -1
 ;
@@ -193,5 +193,50 @@
 ; experimental support for drum triggers
 #define DEFAULT_ENABLE_DRUMS 0
 
+
+;; --------------------------------------------------------------------------
+;; In this table DIN pins have to be assigned to rotary encoders for the
+;; MIOS_ENC driver 
+;; 
+;; up to 64 entries are provided
+;; 
+;; The table must be terminated with an ENC_EOT entry. Unused entries should
+;; be filled with ENC_EOT
+;; 
+;; ENC_ENTRY provides following parameters
+;;    o first parameter: number of shift register - 1, 2, 3, ... 16
+;;    o second parameter: number of pin; since two pins are necessary
+;;      for each encoder, an even number is expected: 0, 2, 4 or 6
+;;    o the third parameter contains the encoder mode:
+;;      either MIOS_ENC_MODE_NON_DETENTED
+;;          or MIOS_ENC_MODE_DETENTED
+;;          or MIOS_ENC_MODE_DETENTED2
+;;          or MIOS_ENC_MODE_DETENTED3
+;;
+;; Configuration Examples:
+;;    ENC_ENTRY  1,  0,  MIOS_ENC_MODE_NON_DETENTED    ; non-detented encoder at pin 0 and 1 of SR 1
+;;    ENC_ENTRY  1,  2,  MIOS_ENC_MODE_DETENTED        ; detented encoder at pin 2 and 3 of SR 1
+;;    ENC_ENTRY  9,  6,  MIOS_ENC_MODE_NON_DETENTED    ; non-detented encoder at pin 6 and 7 of SR 9
+;; --------------------------------------------------------------------------
+
+	;; encoder entry structure
+ENC_ENTRY MACRO sr, din_0, mode
+	dw	(mode << 8) | (din_0 + 8*(sr-1))
+	ENDM	
+ENC_EOT	MACRO
+	dw	0xffff
+	ENDM
+
+	org	0x3280		; never change the origin!
+MIOS_ENC_PIN_TABLE
+	;;        SR  Pin  Mode
+#if DEFAULT_ENC_DATAWHEEL == 0
+	ENC_ENTRY   1,  4,  MIOS_ENC_MODE_DETENTED3	; Optional Datawheel
+#else
+#if DEFAULT_ENC_DATAWHEEL != -1
+	ERROR "DEFAULT_ENC_DATAWHEEL should either be set to 0 or -1!"
+#endif
+#endif
+	ENC_EOT
 
 #include "src/main.inc"
