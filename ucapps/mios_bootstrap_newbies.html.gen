@@ -4,17 +4,19 @@ HEADER 3 MIOS Bootstrap Loader for Newbies
 
 <P CLASS=INFO>The MIOS Bootstrap Loader is a special firmware for the PIC18F which allows you to upload <A HREF="mios.html">MIOS</A> (the operating system) and a MIOS application (the program) into the PIC flash memory via the MIDI interface.</P>
 
-<P CLASS=DESC>The big advantage of the bootstrap method is, that you don't need a programming device like the <A HREF="mbhp_burner.html">MBHP_BURNER</A> to install the software on your MIDIbox, instead you can buy a preprogrammed PIC18F452 from <A HREF="http://mbhp.avishowtech.com/buy.html" TARGET="_blank">SmashTV</A> or <A HREF="http://www.mikes-elektronikseite.com" TARGET="_blank">Mike</A>, or you can ask a friend or a member of the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> who already owns a PIC programmer for burning the firmware into the PIC (the memory image can be downloaded from <A HREF="mios_download.html">this page</A>).</P>
+<P CLASS=DESC>The big advantage of the bootstrap method is, that you don't need a <A HREF="mios_bootstrap_experts.html">PIC programmer</A> to install the software on your MIDIbox, instead you can buy preprogrammed PICs from <A HREF="http://mbhp.avishowtech.com/buy.html" TARGET="_blank">SmashTV</A> or <A HREF="http://www.mikes-elektronikseite.com" TARGET="_blank">Mike</A>, or you can ask a friend or a member of the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> who already owns a PIC programmer for burning the <A HREF="mios_bootstrap_experts.html">bootstrap loader</A> into the chip.</P>
 
-<P CLASS=DESC>Even for people who own a flash programmer, the bootstrap loader brings benefit, because the usage is more comfortable; it's possible to upload new code on-the-fly without unplugging the PIC from the <A HREF="mbhp_core.html">MBHP_CORE</A> module within a few number of seconds!</P>
-
-<P CLASS=DESC><B>Note:</B> please never try to upload the .hex file of Bootloader V1.2 via MIDI, there are cases which can lead to a permanent failure, so that the PIC needs to be reprogrammed. The README.TXT in the upload package describes several update pathes for Bootloader V1.2, please read it carefully!</P>
+<P CLASS=DESC>Even for people who own a programmer, the bootstrap loader brings benefit, because the usage is much more comfortable; it's possible to upload new code on-the-fly without unplugging the PIC from the <A HREF="mbhp_core.html">MBHP_CORE</A> module within a few number of seconds!</P>
 
 <H2>Take two</H2>
 
-<P CLASS=DESC>In fact two bootstrap loaders do exist, one with a very basic functionality, which gets active for ca. 2 seconds after a power-on, and a secondary loader, which is part of MIOS itself. The communication protocol of both loaders is identical, accordingly the same tools can be used.</P>
+<P CLASS=DESC>In fact two bootstrap loaders do exist:
+<UL CLASS=CL>
+  <LI>The primary bootstrap loader, which has been installed with a <A HREF="mios_bootstrap_experts.html">PIC programmer</A>. It will be active for the first 2 seconds after power-on and provides a very basic functionality to upload MIOS and applications.
+  <LI>The secondary bootstrap loader, which is part of MIOS, and provides enhanced functionality, such as programming external EEPROMs (<A HREF="mbhp_bankstick.html">Banksticks</A>).</P>
+</UL>
 
-<P CLASS=DESC>It's important to know, that MIOS itself can only be uploaded with the primary loader. Applications can always be uploaded - if not, there is an error in the application which prevents this, but in this case you could just use the primary loader in order to refresh the code under safe conditions (just power-off/power-on the core or trigger the external reset by tipping ground to pin #1 of the PIC).</P>
+<P CLASS=DESC>It's important to know, that MIOS itself can only be uploaded with the primary loader. Applications can always be uploaded - if not, there is an error in the application which prevents this, but in this case you could just use the primary loader in order to refresh the code under safe conditions (just push the start button in MIOS Studio, and power-off/power-on the core or trigger the external reset by tipping ground to pin #1 of the PIC).</P>
 
 <H2>Uploading MIOS</H2>
 
@@ -25,7 +27,7 @@ HEADER 3 MIOS Bootstrap Loader for Newbies
   <TR>
     <TD><A HREF="mios_download.html" TARGET="_blank"><IMG SRC="mios_studio/mios_studio_icon.png" WIDTH=128 HEIGHT=128 ALT="Link to MIOS Studio"></A></TD>
     <TD><IMG SRC="images/1x1dot.gif" width=10 ALT=""></TD>
-    <TD><SPAN CLASS=NORM> <A HREF="mios_studio.html" TARGET="_blank">Download MIOS Studio</A> - this is a Juce based environment with MIOS specific tools which runs on PCs and Macs.</SPAN></TD>
+    <TD><SPAN CLASS=NORM> <A HREF="mios_studio.html" TARGET="_blank">Download MIOS Studio</A> - this is a Juce based environment with MIOS specific tools which runs under Windows, Linux and MacOS.</SPAN></TD>
   </TR>
 
 </TABLE>
@@ -42,19 +44,13 @@ HEADER 3 MIOS Bootstrap Loader for Newbies
 
 <P CLASS=DESC>
 <UL CLASS=CL>
-  <LI>If you upload an application which reacts on the analog input lines of the PIC or an AIN module (e.g. <A HREF="midibox64.html">MIDIbox64</A> or <A HREF="midibox_lc.html">MIDIbox LC</A>), the core will propably send a lot of random MIDI events so long no pots/faders or other voltage sources are connected to the analog inputs - therefore all unusued analog inputs should always be clamped to ground.<BR>
+  <LI>If you upload an application which reacts on the analog input lines of the PIC or an AIN module (e.g. <A HREF="midibox64.html">MIDIbox64</A> or <A HREF="midibox_lc.html">MIDIbox LC</A>), the core will propably send a lot of random MIDI events as long as no pots/faders or other voltage sources are connected to the analog inputs - therefore all unusued analog inputs should always be clamped to ground.<BR>
 Please refer to <A HREF="mbhp/auaimbctg.pdf">this wiring diagram</A> for a better understanding.</LI>
   <LI>if multiple cores are connected to a single MIDI port in parallel or in a chain, each core should get it's unique device ID, so that the upload tool can address the code to the right receiver. The device ID is part of the ID header, which can only be modified during the flash programming of the bootstrap loader, or with the <A HREF="mios_download.html">change_id</A> application.<BR>
 The device ID selected in the upload window must match with the device ID of the core which should response to the transfer.<BR>
 This means in other words: after the MIOS device ID has been modified by the change_id application, the ID in the MIOS Studio Upload Window has to be changed as well, so that it matches with the new ID value.<BR>
-So long only one MIDIbox is connected to the MIDI port, it's safe to use device ID 00. A project where different device IDs are required is the MIDIbox SID (the master gets the ID 00, the slaves the IDs 01, 02 and 03)</LI>
-  <LI>Especially MIDIbox SID users will notice the problem, that the MIDI Outs of the slaves are not connected to the PC (only the MIDI Out of the master core). Accordingly, the upload tool of MIOS studio won't continue after the first code block has been transfered, since it doesn't get a response.<BR>
-There are two adequate solutions to overcome this:
-  <UL CLASS=CL>
-    <LI><B>the Newbie method:</B> plug the slave PIC into the master core socket and program it in the same way like you did for the master PIC. Only differences: you have to pick another .hex file, and you need to change the device ID. This has the advantage, that you can also ensure that the software is installed properly with the master core/SID as a "reference".</LI>
-    <LI><B>the Expert method:</B> select the "Don't use feedback from core" option in the upload window of MIOS Studio, ensure that you've loaded the right .hex file and you've selected the right device ID. Enable the MIDI merger of the master by pressing the Link button on the control surface (if you haven't built it yet, you should prefer the newbie method), and press the start button - MIOS Studio will send all code blocks without waiting for a response. This method is easy to handle, but also dangerous if a block hasn't been received completely (e.g. on an unstable MIDI connection), because you won't get a notification. Therefore please select "Use feedback from core" so long a bidirectional connection is possible.</LI>
-  </UL></LI>
-  <LI>Please note: like every MIOS application, change_id won't work so long MIOS hasn't been installed. So, please upload MIOS first, thereafter upload the desired .hex file of the change_id application.
+As long as only one MIDIbox is connected to the MIDI port, it's safe to use device ID 00. A project where different device IDs are required is the MIDIbox SID (the master gets the ID 00, the slaves the IDs 01, 02 and 03)</LI>
+  <LI>Please note: like every MIOS application, change_id won't work as long as MIOS hasn't been installed. So, please upload MIOS first, thereafter upload the desired .hex file of the change_id application.
 </UL>
 </P>
 

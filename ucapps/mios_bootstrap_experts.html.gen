@@ -2,67 +2,74 @@ HEADER 3 MIOS Bootstrap Loader
 
 <H1>MIOS Bootstrap Loader</H1>
 
-<P CLASS=INFO>The MIOS bootstrap loader allows you to write applications, but also the operating system itself into the flash memory of a PIC18F452 over the MIDI interface without the use of a special programming device like the <A HREF="mbhp_burner.html">MBHP_BURNER module</A>. It is possible to exchange application code on-the-fly. The development of new code can be handled much more efficiently, since it isn't necessary anymore to switch off the MIDIbox, to plug the programming adapter into the ICP socket and to wait two minutes until the flash content has been updated - with the MIOS loader this formerly tiresome procedure takes not more than 3 seconds anymore for a common application.<P>
+<P CLASS=INFO>The MIOS bootstrap loader allows you to install applications, but also the operating system itself in the flash memory of a PIC over the MIDI interface without the use of a special programming device. It is possible to exchange application code on-the-fly, which makes the development of applications very efficient.<P>
 
-<H2>Take two</H2>
+<H2>Installation of the Primary Bootstrap Loader</H2>
 
-<P CLASS=DESC>In fact two bootstrap loaders are provided by MIOS: the primary and the secondary loader:
-<UL CLASS=CL>
-   <LI>The primary loader gets active immediately after power-on for about two seconds. During this time the loader waits for a SysEx command which initiates a flash write. If this command is not received, the loader deactivates itself and MIOS will be started.</LI>
-   <LI>The secondary loader gets active after MIOS has been booted and the application is running. In difference to the primary loader, the secondary doesn't allow to overwrite the memory allocated by the operating system. This kind of protection saves you from destroying MIOS if your application overlaps the system area by mistake.</LI>
-</UL></P>
+<P CLASS=DESC>The MIDIbox project started around 1998. In these years it was quite common that PCs were equipped with a RS232 and SSP interface port, so that PICs could be programmed with cheap DIY programmers such as <A HREF="mbhp_jdm_expired.html">MBHP_JDM</A> or <A HREF="mbhp_burner.html">MBHP_BURNER</A>.</P>
 
-<P CLASS=DESC>After the upload and for the case of an application failure ("blue screen"), the PIC will be reset and the primary loader will be started again for 2 seconds. If your application crashes very early, so that you are not able to correct the error by exchanging the code during runtime, the primary loader will save your day. :)</P>
+<P CLASS=DESC>Today (more than 10 years later), these interfaces have been completely replaced by USB. If you don't own an old PC, this will be the only choice. Some DIY USB programmers exist, such as <A HREF="http://www.sprut.de/electronic/pic/projekte/brenner8/index.htm" TARGET="_blank">Brenner8</A>, but fortunately <A HREF="http://www.microchip.com" TARGET="_blank">Microchip</A> noticed the need for a hobbyist solution as well, and published the <A HREF="http://www.microchip.com/pickit2" TARGET="_blank">PICkit2</A> (and later also the <A HREF="http://www.microchip.com/pickit3" TARGET="_blank">PICkit3</A>), which are available for around 50 EUR.</P>
 
-<P CLASS=DESC><I>However, such features don't mean that the bootstrap loader is only a tool for code developers - the common user gets the advantage that he don't need to build a MBHP_BURNER module by himself, but can ask others for doing this job. Once the primary loader has been burned into the PIC, you are able to update the operating system and applications without a PIC burner.</I></P>
+<P CLASS=DESC>Since Microchip published the schematics as open source, some clones exist which are even cheaper. And these clones are actually my proposed solution for people who want to program PICs for the MBHP platform. PICkit2 (and not PICkit3) compatible clones are recommended, because they will also work under Linux and MacOS with command line tools which are provided by Microchip at the <A HREF="http://www.microchip.com/pickit2" TARGET="_blank">PICkit2</A> page!</P>
 
-<P CLASS=DESC><I>And here another hint to make it clear: it is not possible to use any MIOS application without the bootstrap loader and without uploading MIOS before! The upload procedure is described at the bottom of this page.</I></P>
+<P CLASS=DESC>I tried a PICkit2 clone from <A HREF="http://www.diamex.de" TARGET="_blank">Diamex</A>, which is available in their shop, but also at <A HREF="http://www.reichelt.de/Programmer-Entwicklungstools/DIAMEX-PIC-PROG/3/index.html?&ACTION=3&LA=446&ARTICLE=137174&GROUPID=2969&artnr=DIAMEX+PIC+PROG" TARGET="_blank">Reichelt</A> for 30 EUR. Similar clones can be found at <A HREF="http://www.ebay.com" TARGET="_blank">ebay</A>.</P>
+
+<P CLASS=DESC><A HREF="mbhp_core.html">MBHP_CORE</A> isn't designed for "In Circuit Serial Programming" (ICSB), therefore you have to build a special programming board which consists of a DIP socket and a 6-pin header, which connects to the PICkit2 (clone):<BR>
+<center><img src="mbhp/pickit_dip40_adapter_board.jpg" width="575"></center></P>
+
+<P CLASS=DESC><A HREF="mbhp/pickit_dip40_adapter_board.pdf">Here the schematic</A></P>
+
+<P CLASS=DESC>Programming the bootloader under Windows is easy: just use the <A HREF="http://www.microchip.com/pickit2" TARGET="_blank">PICkit GUI</A>, import the bootloader_*.hex which matches with your PIC (can be found in the <A HREF="mios_download.html">MIOS installation package</A>), and press the "Write" button.<BR>
+<center><img src="mbhp/pickit_programming_windows.png" width=543 height=659></center></P>
+
+<P CLASS=DESC>Under MacOS and Linux, you can use <B>pk2cmd</B>, which can be downloaded from the <A HREF="http://www.microchip.com/pickit2" TARGET="_blank">PICkit2 page</A> as well. After the download, copy the bootloader_*.hex file into the same directory where pk2cmd resists - here a typical command log while programming the bootloader for a PIC18F4685 device under MacOS:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+<I>macmini2:PK2CMDv1-20MacOSX TK$</I> <B>cd ~/Downloads/PK2CMDv1-20MacOSX</B>
+<I>macmini2:PK2CMDv1-20MacOSX TK$</I> <B>cp ~/Downloads/mios_v1_9g/pic18f4685/burner/bootloader_v1_2b_pic18f4685.hex .</B>
+<I>macmini2:PK2CMDv1-20MacOSX TK$</I> <B>./pk2cmd -P</B>
+Auto-Detect: Found part PIC18F4685.
+Operation Succeeded
+<I>macmini2:PK2CMDv1-20MacOSX TK$</I> <B>./pk2cmd -P -F bootloader_v1_2b_pic18f4685.hex -J0 -M</B>
+Auto-Detect: Found part PIC18F4685.
+PICkit 2 Program Report       
+12-10-2013, 9:14:03
+Device Type: PIC18F4685
+Program Succeeded.
+Operation Succeeded
+</PRE></TT>
+
+
+<H2>You don't want to buy a PIC programmer to save money?</H2>
+
+<P CLASS=DESC>You could buy preprogrammed PICs from <A HREF="http://mbhp.avishowtech.com/buy.html" TARGET="_blank">SmashTV</A> or <A HREF="http://www.mikes-elektronikseite.com" TARGET="_blank">Mike</A>, or you can ask a friend or a member of the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> who already owns a PIC programmer for burning the bootstrap loader into the chip</P>
+
+<H2>MIOS and Application Download</H2>
+
+<P CLASS=INFO>After the primary bootloader has been flashed, it's strongly recommended to use <A HREF="mios_studio.html">MIOS Studio</A> to download MIOS and the applicatio via MIDI. Don't flash the appr. .hex files with your programmer, because this will overwrite previous installations of the primary bootloader (and MIOS if application .hex is flashed).</P>
+
+<P CLASS=INFO>See also the <A HREF="mios_bootstrap_newbies.html">Newbies page</A>, and in case of troubles, the <A HREF="howto_debug_midi.html">MIOS Studio Troubleshooting Page</A>.</P>
+
 
 <H2>Boot options</H2>
 
-<P CLASS=DESC>The bootstrap loader has to know about two important parameters: the MIDI device ID, which should be unique number in a chain of multiple MIDIboxes, and the baudrate. Currently it can be chosen between the common MIDI baudrate (31250) and the rate used by the <A HREF="midibox_to_com.html">MIDIbox-to-COM</A> interface (38400).<BR>A third parameter allows to define the connected LCD type, so that MIOS is able to select the appropriate driver before printing a message on screen. Currently character displays (1x8, 1x16, 2x16, 2x20, 2x40, 4x16, 4x40) and KS0108-based graphical LCDs are supported, other GLCD types require a special driver which is embedded into the application.</P>
-<P CLASS=DESC><I>Info for code developers: MIOS uses the following functions during the boot phase: <A HREF="mios_fun/MIOS_MIDI_DeviceIDAutoSet.html">MIOS_MIDI_DeviceIDAutoSet</A>, <A HREF="mios_fun/MIOS_MIDI_InterfaceAutoSet.html">MIOS_MIDI_InterfaceAutoSet</A>, <A HREF="mios_fun/MIOS_LCD_TypeAutoSet.html">MIOS_LCD_TypeAutoSet</A>, so that you don't have to take care about these settings. Never overwrite these modes if it doesn't make sense in order to ensure the compatibility with different hardware setups.</I></P>
+<P CLASS=DESC>The bootstrap loader has to know about two important parameters: the MIDI device ID, which should be unique number in a chain of multiple MIDIboxes, and the baudrate. It can be chosen between the common MIDI baudrate (31250) and the rate used by the <A HREF="midibox_to_com.html">MIDIbox-to-COM</A> interface (38400).<BR>A third parameter allows to define the connected LCD type, so that MIOS is able to select the appropriate driver before printing a message on screen. Currently character displays (1x8, 1x16, 2x16, 2x20, 2x40, 4x16, 4x40) and KS0108-based graphical LCDs are supported, other GLCD types require a special driver which is embedded into the application.</P>
 
-<P CLASS=DESC>With Bootloader V1.2 and higher, it's possible to use a <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A> module as alternative default MIDI Out port. This is intended as workaround for the <A HREF="http://www.midibox.org/dokuwiki/eusart_bug">EUSART bug</A> (only PIC18F4620 A3 and A4 affected).</P>
-
-<P CLASS=DESC>The boot options are located in the PIC ID header, which can be modified by using IC-Prog or the change_id application. The SysEx device ID is located in bitfield ID[57-63], the UART mode in ID[55], the LCD type in ID[48..51], the MBHP_IIC_MIDI address for MIDI Out redirection in ID[40..47].  Here are some setup examples:</P>
-<TABLE CLASS=BOX WIDTH="100%" ALIGN=CENTER BORDER CELLSPACING=2 CELLPADDING=10>
-  <TR>
-     <TD><SPAN CLASS=NORM> ID = 0000000000000000<BR><B>USE THIS ID IF YOU ARE UNSURE!</B> </SPAN></TD>
-     <TD><SPAN CLASS=NORM> Device ID = 0x00<BR>common MIDI interface<BR>character LCD </SPAN></TD>
-     <TD ROWSPAN=4 WIDTH=140><A HREF="mios/bootstrap_id_header.gif"><IMG SRC="mios/bootstrap_id_header.gif" WIDTH=135 HEIGHT=85 ALT="The configurable ID header"></A><BR><SPAN CLASS=NORM>A snapshot of IC-Prog which shows the location of the ID section<BR><B>Note:</B>If you are using a single core, it's highly recommended to select Device ID = 0x00 - the examples at the left side are using different IDs to indicate the position.</SPAN></TD>
-  </TR>
-  <TR>
-     <TD><SPAN CLASS=NORM> ID = 0000000000000012 </SPAN></TD>
-     <TD><SPAN CLASS=NORM> Device ID = 0x12<BR>common MIDI interface<BR>character LCD </SPAN></TD>
-  </TR>
-  <TR>
-     <TD><SPAN CLASS=NORM> ID = 0000000000000142 </SPAN></TD>
-     <TD><SPAN CLASS=NORM> Device ID = 0x42<BR>MIDIbox-to-COM interface<BR>character LCD </SPAN></TD>
-  </TR>
-  <TR>
-     <TD><SPAN CLASS=NORM> ID = 0000000000001000 </SPAN></TD>
-     <TD><SPAN CLASS=NORM> Device ID = 0x00<BR>common MIDI interface<BR>graphical LCD (KS0108) </SPAN></TD>
-  </TR>
-  <TR>
-     <TD><SPAN CLASS=NORM> ID = 0000000000120000 </SPAN></TD>
-     <TD><SPAN CLASS=NORM> Device ID = 0x00<BR>common MIDI interface<BR>Redirect MIDI Out stream to MBHP_IIC_MIDI with address 0x12</SPAN></TD>
-  </TR>
-</TABLE>
+<P CLASS=DESC>The boot options are located in the PIC ID header. The SysEx device ID is located in bitfield ID[57-63], the UART mode in ID[55], the LCD type in ID[48..51], the MBHP_IIC_MIDI address for MIDI Out redirection in ID[40..47].  Here are some setup examples:
+<UL CLASS=CL>
+  <LI><B>ID = 0000000000000000</B>: common MIDI interface, character LCD, Device ID 0x00
+  <LI><B>ID = 0000000000000001</B>: common MIDI interface, character LCD, Device ID 0x01 (e.g. for a <A HREF="midibox_sid.html">MBSID Slave #1"</A>)
+  <LI><B>ID = 0000000000000002</B>: common MIDI interface, character LCD, Device ID 0x01 (e.g. for a <A HREF="midibox_sid.html">MBSID Slave #2"</A>)
+  <LI><B>ID = 0000000000000003</B>: common MIDI interface, character LCD, Device ID 0x01 (e.g. for a <A HREF="midibox_sid.html">MBSID Slave #3"</A>)
+  <LI><B>ID = 0000000000000142</B>: MIDIbox-to-COM interface, character LCD
+  <LI><B>ID = 0000000000001000</B>: common MIDI interface, graphical LCD (KS0108)
+  <LI><B>ID = 0000000000007000</B>: common MIDI interface, custom LCD driver (see also <A HREF="http://svnmios.midibox.org/listing.php?repname=svn.mios&path=%2Ftrunk%2Fapps%2Fexamples%2Flcd7%2F" TARGET="_blank">these examples</A>)
+  <LI><B>ID = 0000000000120000</B>: common MIDI interface, redirect MIDI Out stream to MBHP_IIC_MIDI with address 0x12
+</UL>
 
 <P CLASS=DESC>SmashTV wrote a nice online user interface to select the <A HREF="http://www.avishowtech.com/mbhp/idgen.html" TARGET="_blank">PIC ID values</A>!</P>
 
-
-<H2>Restrictions</H2>
-
-<P CLASS=DESC>In order to improve the upload speed, the dump is stored in a 1k RAM buffer first before it will be written into the flash memory. Therefore blocks larger than 1k cannot be uploaded at once. However, MIOS Studio takes care for this restriction and split the program into several SysEx strings.<BR>Once a 1k block has been uploaded (this takes about 330 mS), the loader will go into programming state for ca. 400 mS. During this time, incoming MIDI events are ignored! The SysEx tool has to insert delays between the SysEx strings in order to prevent data-loss, suggested tools which can do this pretty well are <A HREF="http://www.midiox.com" TARGET="_blank">MIDI-Ox</A> for Windows, and <A HREF="http://www.snoize.com/SysExLibrarian/">SysEx Librarian</A> for MacOSX</P>
-
-<P CLASS=DESC>Sidenote: MIOS Studio splits the code into 256 byte chunks in order to overcome WinXP/Java specific issues with some MIDI interfaces, the required delay between these blocks is ca. 300 uS.</P>
-
-
-<H2>MIOS Studio</H2>
-
-<P CLASS=INFO><A HREF="mios_studio.html">MIOS Studio</A> simplifies the upload of code, provides a debug environment for code development, and much more. Don't miss this nice Juce based and OS independent tool!</P>
+<P CLASS=DESC>Unfortunately, "modern" PIC programmers (like for PICKIT2) don't allow to change the ID from the GUI anymore. :-(<BR>
+Therefore the proposed solution (aside from .hex file hacking) is the usage of the <A HREF="mios_download.html">change_id</A> application, which allows to change these parameters via MIDI.</A>
 
 <H2>SysEx protocol specifics</H2>
 
@@ -75,5 +82,5 @@ HEADER 3 MIOS Bootstrap Loader
 </UL>
 
 <H2>Download</H2>
-<P CLASS=DESC><A HREF="mios_download.html">this way</A></P>
+<P CLASS=DESC><A HREF="mios_download.html">The bootloader image file is part of the MIOS release package.</A></P>
 FOOTER
