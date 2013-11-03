@@ -419,6 +419,11 @@ SID_PATCH_NotesOff_DisVLoop
 	cpfsgt	SID_CURRENT_VOICE, BANKED
 	rgoto SID_PATCH_NotesOff_DisVLoop
 
+	;; trigger matrix
+	bsf	SID_SE_TRG_EVNT_H, SID_TRG_TARGET_H_E1R, BANKED	 ; for lead engine
+	bsf	SID_SE_TRG_EVNT_H, SID_TRG_TARGET_H_E2R, BANKED	 ; for lead engine
+	setf	SID_SE_TRG_EVNT_ENVR, BANKED			 ; for multi and bassline engine
+
 SID_PATCH_NotesOff_Drums_Cont
 	;; clear all runtime variables of MIDI voices
 	clrf	TABLAT
