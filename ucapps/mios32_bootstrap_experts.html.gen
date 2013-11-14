@@ -2,9 +2,9 @@ HEADER 3 MIOS32 Bootloader Installation
 
 <H1>MIOS32 Bootloader Installation</H1>
 
-<P CLASS=DESC>This page describes how to install the MIOS32 bootloader on a STM32 and LPC17 microcontroller, so that applications can be uploaded via MIDI without opening the MIDIbox case.</P>
+<P CLASS=DESC>This page describes how to install the MIOS32 bootloader on a STM32F1, STM32F4 and LPC17 microcontroller, so that applications can be uploaded via MIDI without opening the MIDIbox case.</P>
 
-<P CLASS=DESC>Following informations are not for interest if you got a preburned STM32F103RE resp. LPC1769 device -&gt; please continue at <A HREF="mios32_bootstrap_newbies.html">this page</A>.</P>
+<P CLASS=DESC>Following informations are not for interest if you got a preburned STM32F103RE device -&gt; please continue at <A HREF="mios32_bootstrap_newbies.html">this page</A>.</P>
 
 <H2>COM or JTAG?</H2>
 
@@ -103,7 +103,74 @@ Here an oversight about the advantages/disadvantages in conjunction with code up
     </TR>
   </TABLE>
 
-<H2>STM32: Accessing the core via JTAG</H2>
+
+<H2>STM32F4: using ST-Link to upload the MIOS32 Bootloader</H2>
+
+<TABLE CELLSPACING=2 CELLPADDING=2 WIDTH=640>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_prog.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>The STM32F4DISCOVERY board is equipped with an on-board debugger (right side) which is called ST-LINK/V2. It has to be connected via a Mini-USB cable to your PC, and allows to program the flash of the target device (the STM32F407VE chip).<BR>
+      We use ST-LINK to install the MIOS32 Bootloader, so that a MIOS32 application can be flashed via USB-MIDI later with the Micro-USB connector at the left side. This approach will allow you to update an application on-the-fly without the need for a second USB port on your MIDIbox, it's even faster than via ST-LINK, and it will work under MacOS and Linux as well by using <A HREF="mios_studio.html">MIOS Studio</A> instead of the Windows propritary ST-LINK utility.! :-)
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win.png" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>STM provides a Windows tool for ST-LINK/V2 which can be downloaded from <A HREF="http://www.st.com/web/catalog/tools/FM146/CL1984/SC724/SS1677/PF251168" TARGET="_blank">this webpage</A>. You should also download the Windows driver, and install it before starting the ST-Link utility.<BR>
+Linux and Mac Users could run the ST-LINK utility on a virtual machine like <A HREF="http://www.virtualbox.org" TARGET="_blank">VirtualBox</A> (this is what I did). Alternatively, they could try alternative debugging tools like <A HREF="http://openocd.sourceforge.net" TARGET="_blank">OpenOCD</A> or <A HREF="https://code.google.com/p/qstlink2/" TARGET="_blank">qstlink2</A>. However, using the "official" utility is the most simple solution, especially because it's ready-to-go (no compile orgies, no hunting for missing libraries, etc...).<BR>
+You only need to install the MIOS32 bootloader once, thereafter you can continue with the platform independent <A HREF="mios_studio.html">MIOS Studio</A>!
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win1.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win1.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>After the STM32F4DISCOVERY board has been connected to your PC, the driver has been installed, and the ST-LINK utility has been opened, try to connect to the ST-LINK by pushing the appr. button.
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win2.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win2.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>The target device should be displayed.
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win3.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win3.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the small "Program and Verify" icon
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win4.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win4.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the "Browse" button and search for the project.hex binary of the STM32F4DISCOVERY directory which comes with the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application.
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program_win6.png"><IMG SRC="mbhp/mbhp_core_lpc17_program_win6.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the "START" button to program the bootloader into the flash. The "Verification...OK" message should be displayed -&gt; success! :-)
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_led.jpg"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_led.jpg" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Finally press the (black) Reset button on the STM32F4DISCOVERY board. The green status LED should flash two times (effect via PWM modulation) - the MIOS32 bootloader is up and running!
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_2usb.jpg"><IMG SRC="mbhp/mbhp_core_stm32f4_2usb.jpg" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>The bootloader doesn't work through the USB port of ST-LINK. Instead, a second USB cable has to be connected to the Micro-USB socket at the left side of the board!<BR>
+        After the cable has been plugged in, wait until your operating system has found the interface and installed the legacy USB MIDI driver (typically works immediately under MacOS and Linux, but could take several seconds under Windows).<BR>
+        <A HREF="mios32_bootstrap_newbies.html">More informations about the bootloader can be found here</A>.
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_miosstudio.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_miosstudio.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>
+        Now start <A HREF="mios_studio.html">MIOS Studio</A>, select the correct MIDI IN and OUT ports (called "MIOS32" or "MIOS32 Bootloader"). MIOS Studio should be able to query the device parameters as shown at the left picture.
+      </TD>
+    </TR>
+  </TABLE>
+
+<H2>STM32F1: Accessing the core via JTAG</H2>
 
 <P CLASS=DESC>JTAG is a standardized serial interface (IEEE 1149.1) made especially for debugging and testing purposes, and supported by many hardware devices today, especially by microcontrollers.</P>
 
@@ -201,7 +268,7 @@ mdw                    # to display memory regions, e.g. flash, SRAM and periphe
 <P CLASS=DESC>Personally I prefer to edit source code with xemacs, run "make" in the shell to build a new binary, and debugging my code with printf messages or by sending MIDI events. Under special circumstances, I'm using <A HREF="http://sourceware.org/insight" TARGET="_blank">Insight</A> to debug the application for interactive debugging via gdb. A short installation guide can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fdoc%2FMEMO" TARGET="_blank">MIOS32 MEMO</A>.</P>
 
 
-<H2>STM32: Uploading code via ROM based UART Bootloader</H2>
+<H2>STM32F1: Uploading code via ROM based UART Bootloader</H2>
 
 <P CLASS=DESC>This is probably the cheapest solution to download code into a "virgin" device. STM provides a comfortable windows application which connects to the bootloader and allows to upload a .bin file.<BR>
 References: <A HREF="http://www.st.com/stonline/products/support/micro/files/um0462.zip" TARGET="_blank">Flash Loader</A>, <A HREF="http://www.st.com/stonline/products/literature/um/13916.pdf" TARGET="_blank">Documentation</A>.</P>

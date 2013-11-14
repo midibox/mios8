@@ -4,7 +4,7 @@ HEADER 3 MBHP_CORE_LPC17 Module
 
 <P><CENTER><IMG SRC="mbhp/mbhp_core_lpc17_v1.jpg" width=550 height=283></CENTER></P>
 
-<P CLASS=INFO>MBHP_CORE_LPC17 is the successor of the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module.</P>
+<P CLASS=INFO>MBHP_CORE_LPC17 is the successor of the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module, and an alternative solution to the <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module.
 
 <P CLASS=DESC>Main features of the <A HREF="http://www.nxp.com" TARGET="_blank">NXP LPC1769</A> based MBHP_CORE_LPC17 module:
 <UL CLASS=CL>
@@ -29,7 +29,7 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
 
 <P CLASS=DESC>Ok, enough praises for this nice toy. Here a list of issues/imperfections that I don't really like:
 <UL CLASS=CL>
-<LI> ADCs cannot be supplied at 5V, 3.3V is the limit. This decreases the signal/noise ratio. The <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module helps to overcome this by using an external 5V ADC.
+<LI> ADCs cannot be supplied at 5V, 3.3V is the limit. This decreases the signal/noise ratio. The <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> and <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module helps to overcome this by using an external 5V ADC.
 <LI> all DMA channels share a single interrupt. Request flags have to be checked by the interrupt handler, this consumes some cycles (however, the high CPU frequency somehow compensates this drawback)
 <LI> DMA doesn't support decrement address function, so that SRIO (serial shift register input and output) streams have to be reversed by software.
 <LI> output pins can't be used in open drain mode if a peripheral function like SPI or UART is assigned to it. This seems to be a design bug, because it isn't mentioned in the user manual (in distance: the description of the IO configuration implies that it should work, but it doesn't) - NXP support contacted, no reply yet!
@@ -38,7 +38,7 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
 <LI> RAM splitted into two 32k halves, there is a gap between the two SRAM ranges which makes it difficult for a code developer to locate variables in GCC. This will lead to unwanted dependencies for bigger MIOS32 applications (large arrays have to be assigned to RAM sections in the C code)
 </UL>
 
-<P CLASS=DESC>However, although some of these limitations are really annoying, I find the LPC17xx family superior to STM32 for the MIDIbox Hardware Platform, especially due to the inexpensive LPCXPRESSO boards with integrated LPC-Link better suitable for DIY projects.</P>
+<P CLASS=DESC>However, although some of these limitations are really annoying, I find the LPC17xx family a good alternative to <A HREF="mbhp_core_stm32f4.html">STM32F4</A> for the MIDIbox Hardware Platform, especially due to the inexpensive LPCXPRESSO boards with on-board Ethernet PHY.</P>
 
 
 <DL>
@@ -206,7 +206,7 @@ If you are planning to use the LPC-Link instead, the 8-pin SIL header should be 
       <TD CLASS=TABCOLOR2><I>MBHP_CORE_LPC17_V1</I></TD>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_lpc17.pdf">mbhp_core_lpc17.pdf</A></TD>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_lpc17_pcb_v1_0.zip">mbhp_core_lpc17_pcb_v1_0.zip</A></TD>
-      <TD CLASS=TABCOLOR2 COLSPAN=1>under construction</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_lpc17_pcb_v1_0.png">mbhp_core_lpc17_pcb_v1_0.png</A></TD>
     </TR>
   </TABLE></DD>
 

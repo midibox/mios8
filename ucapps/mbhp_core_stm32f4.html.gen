@@ -1,0 +1,266 @@
+HEADER 3 MBHP_CORE_STM32F4 Module
+
+<H1>MIDIbox Hardware Platform, CORE_STM32F4 Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_proto.jpg" width=550 height=326></CENTER></P>
+
+<P CLASS=INFO>MBHP_CORE_STM32F4 is the successor of the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module, and an alternative solution to the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module.</P>
+
+<P CLASS=DESC>Main features of the <A HREF="http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/PF252419" TARGET="_blank">STM32F4DISCOVERY</A> based MBHP_CORE_STM32F4 module:
+<UL CLASS=CL>
+<LI> 1MB Flash and 192k RAM (significantly more than previous core modules)
+<LI> The STM32F4DISCOVERY evaluation board is available for 15 EUR at <A HREF="http://mouser.com/Search/Refine.aspx?Keyword=STM32F4DISCOVERY" TARGET="_blank">Mouser</A>, 17 EUR at <A HREF="http://www.watterott.com/de/STM32F4Discovery" TARGET="_blank">Watterott</A> (Germany), 11 GBP at <A HREF="http://uk.farnell.com/jsp/search/browse.jsp?N=2031+203908&Ntk=gensearch&Ntt=stm32f4discovery&Ntx=mode+matchallpartial" TARGET="_blank">Farnell</A> (GB)!<BR>
+It will be attached on the MBHP_CORE_STM32F4 PCB, but can also be used standalone for mini applications which only require USB MIDI and a small number of IOs or the Audio DAC.
+<LI> Easily available for private persons in small quantities and no SMD soldering skills required
+<LI> ARM Cortex-M4 CPU is widely supported by the GNU toolchain, accordingly source code can be compiled under Windows/Linux/MacOS w/o spending money for an expensive ARM compiler
+<LI> increased performance compared to STM32F1xx and LPC17xx because of the higher frequency (168 MHz) and enhanced instruction set for DSP operations
+<LI> MIOS32 applications are typically running more than 2..3 times faster than on STM32F103RE @72 MHz, and ca. 50% faster than on a LPC1769 @120 MHz
+<LI> Very useful integrated peripherals for MIDI and Synthesizer applications, such as UART, SPI, I2C, USB, CAN, Timers, ADC, DAC
+<LI> The on-board Audio DAC predestinates this module for synthesizer projects - it could even be used standalone without the MBHP_CORE_STM32F4 breakout board for this purpose.
+<LI> in distance to STM32F103RE, CAN and USB can be used in parallel
+<LI> It's easy to interface external components like <A HREF="mbhp_sdcard.html">SD Cards</A> and <A HREF="mbhp_eth.html">MBHP_ETH</A>
+<LI> STM32F4xx is supplied at 3V, but 5V tolerant inputs allow to access all existing MBHP modules without additional hardware.
+<LI> Performance boost by using the DMA for background operations, such as scanning DIN/DOUT modules, analog inputs but also I2S transfers (Audio Output) w/o loading the CPU
+<LI> Supported by a free available Realtime Operating System: <A HREF="http://www.freertos.org" TARGET="_blank">FreeRTOS</A>
+<LI> no external flash programmer required, ST-LINK/V2 is part of the STM32F4DISCOVERY board to program the MIOS32 bootloader into a "virgin" device
+<LI> Fast upload of application code via USB MIDI (ca. 50kb/s) - thanks to the <A HREF="mios32_bootstrap_newbies.html">MIOS32 Bootloader</A>
+</UL>
+
+<P CLASS=DESC>Ok, enough praises for this nice toy. Here a list of issues/imperfections that I don't really like:
+<UL CLASS=CL>
+<LI> ADCs cannot be supplied at 5V, 3.3V is the limit, and the STM32F4DISCOVERY board uses an even lower voltage (3V). This decreases the signal/noise ratio. The <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> and <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module helps to overcome this by using an external 5V ADC.
+<LI> Pin mapping suboptimal in some cases. E.g., the outputs of the integrated DAC (not the on-board Audio-DAC) overlay SPI1 pins. However, one DAC channel has been freed up with the small drawback that SPI1 can't be used in slave mode.<BR>
+The IO pins of the SDIO peripheral (high speed SD Card access) conflicts with the on-board Audio DAC, so that it can't be used.<BR>
+Although the chip contains 6 UARTs, only 4 RX and TX pins could be found for MIDI IN/OUT. IN3/OUT3 even have to use two different UARTs.
+<LI> No on-board Ethernet PHY
+<LI> No PHY for the second USB peripheral - would be nice to have, e.g. to support USB MIDI device and host (e.g. for the connection of a USB MIDI Keyboard), USB Memory Sticks or even a USB harddisk in parallel.
+</UL>
+
+<P CLASS=DESC>However, although some of these limitations are really annoying, the STM32F4 based solution is currently the best choice for future MIDIbox projects. It beats the <A HREF="mbhp_core_lpc17.html">LPC1769</A> performance, flash/RAM resources and feature-wise. :-) Only drawback is the missing ethernet interface, but as long as only <A HREF="midibox_osc.html">OSC</A> messages should be sent and received, the external <A HREF="mbhp_eth.html">MBHP_ETH</A> module might be sufficient.</P>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Installing the MIOS32 Bootloader </H2></DT>
+  <DD>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2 WIDTH=640>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_prog.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>The STM32F4DISCOVERY board is equipped with an on-board debugger (right side) which is called ST-LINK/V2. It has to be connected via a Mini-USB cable to your PC, and allows to program the flash of the target device (the STM32F407VE chip).<BR>
+      We use ST-LINK to install the MIOS32 Bootloader, so that a MIOS32 application can be flashed via USB-MIDI later with the Micro-USB connector at the left side. This approach will allow you to update an application on-the-fly without the need for a second USB port on your MIDIbox, it's even faster than via ST-LINK, and it will work under MacOS and Linux as well by using <A HREF="mios_studio.html">MIOS Studio</A> instead of the Windows propritary ST-LINK utility.! :-)
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win.png" WIDTH=280 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>STM provides a Windows tool for ST-LINK/V2 which can be downloaded from <A HREF="http://www.st.com/web/catalog/tools/FM146/CL1984/SC724/SS1677/PF251168" TARGET="_blank">this webpage</A>. You should also download the Windows driver, and install it before starting the ST-Link utility.<BR>
+Linux and Mac Users could run the ST-LINK utility on a virtual machine like <A HREF="http://www.virtualbox.org" TARGET="_blank">VirtualBox</A> (this is what I did). Alternatively, they could try alternative debugging tools like <A HREF="http://openocd.sourceforge.net" TARGET="_blank">OpenOCD</A> or <A HREF="https://code.google.com/p/qstlink2/" TARGET="_blank">qstlink2</A>. However, using the "official" utility is the most simple solution, especially because it's ready-to-go (no compile orgies, no hunting for missing libraries, etc...).<BR>
+You only need to install the MIOS32 bootloader once, thereafter you can continue with the platform independent <A HREF="mios_studio.html">MIOS Studio</A>!
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win1.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win1.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>After the STM32F4DISCOVERY board has been connected to your PC, the driver has been installed, and the ST-LINK utility has been opened, try to connect to the ST-LINK by pushing the appr. button.
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win2.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win2.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>The target device should be displayed.
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win3.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win3.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the small "Program and Verify" icon
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win4.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win4.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the "Browse" button and search for the project.hex binary of the STM32F4DISCOVERY directory which comes with the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application.
+      </TD>
+    </TR>
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_lpc17_program_win6.png"><IMG SRC="mbhp/mbhp_core_lpc17_program_win6.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Click on the "START" button to program the bootloader into the flash. The "Verification...OK" message should be displayed -&gt; success! :-)
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_led.jpg"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_led.jpg" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>Finally press the (black) Reset button on the STM32F4DISCOVERY board. The green status LED should flash two times (effect via PWM modulation) - the MIOS32 bootloader is up and running!
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_2usb.jpg"><IMG SRC="mbhp/mbhp_core_stm32f4_2usb.jpg" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>The bootloader doesn't work through the USB port of ST-LINK. Instead, a second USB cable has to be connected to the Micro-USB socket at the left side of the board!<BR>
+        After the cable has been plugged in, wait until your operating system has found the interface and installed the legacy USB MIDI driver (typically works immediately under MacOS and Linux, but could take several seconds under Windows).<BR>
+        <A HREF="mios32_bootstrap_newbies.html">More informations about the bootloader can be found here</A>.
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_miosstudio.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_miosstudio.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
+      <TD CLASS=TABCOLOR2>
+        Now start <A HREF="mios_studio.html">MIOS Studio</A>, select the correct MIDI IN and OUT ports (called "MIOS32" or "MIOS32 Bootloader"). MIOS Studio should be able to query the device parameters as shown at the left picture.
+      </TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Using the STM32F4DISCOVERY Board standalone </H2></DT>
+  <P CLASS=INFO>You've probably already noticed, that the board is powered via the ST-LINK connector CN1, and not via the USB connector CN5 which is used for USB-MIDI. This can be changed by bridging the PA9 pin to the 5V input with a short cable:<BR>
+<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_standalone.jpg" width=550 height=382></CENTER></P>
+
+<P CLASS=INFO>In addition, it makes sense to mount dual row pin headers at the bottom of the PCB for P1 and P2:<BR>
+<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_headers.jpg" width=550 height=327></CENTER></P>
+
+<P CLASS=INFO>Two 2x25 SIL headers are required (e.g. Reichelt order number: <A HREF="http://www.reichelt.de/index.html?ACTION=3;ARTICLE=19494;SEARCH=SL%202X25G%202,54" TARGET="_blank">SL 2X25G 2,54</A>). The usage of such headers has the advantage, that later you can plug the STM32F4DISCOVERY board on the MBHP_CORE_STM32F4 module into the corresponding female sockets - and that you can remove it, e.g. to plug it into another MBHP_CORE_STM32F4 module.
+<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_fheaders.jpg" width=550 height=338></CENTER></P>
+
+<P CLASS=INFO>As you can see, I'm currently using a breadboard for prototyping, since the MBHP_CORE_STM32F4 PCB isn't finished yet. This approach is only recommended for DIY people who don't flinch from handling the big mess of short wire wraps ;-)<BR>
+<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_noodles.jpg" width=550 height=358></CENTER></P>
+
+  </DD>
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_CORE_STM32F4_V1</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_stm32f4.pdf">mbhp_core_stm32f4.pdf</A></TD>
+      <TD CLASS=TABCOLOR2 COLSPAN=1>under construction</TD>
+      <TD CLASS=TABCOLOR2 COLSPAN=1>under construction</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
+   <DD>
+<P CLASS=DESC>Following interfaces are provided by the core module:
+  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Name</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>No. of pins</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J17</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>This jumper enables power supply via USB (it connects PA9 with 5V, the same as recommended for the standalone version above). Before closing the jumper, ensure that any other supply sources (e.g. at J2) are removed to avoid shorts or backcurrents to your PC!</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>Micro-USB</TD>
+      <TD CLASS=TABCOLOR2>6</TD>
+      <TD CLASS=TABCOLOR2>Alternatively the core module can be supplied via USB (prefered solution).<BR>
+Once multiple LEDs and/or backlit LCDs are connected to the core module, it's recommended to use a "selfpowered" USB Hub like <A HREF="http://www.reichelt.de/USB-Hubs/MAXXTRO-MX-UAP/index.html?;ACTION=3;LA=444;GROUP=EU3;GROUPID=4831;ARTICLE=99781;START=0;SORT=artnr;OFFSET=16;SID=11TVLbZ38AAAIAAG9MIgIec1e46ae3eb4fc2fe4e011f269170227" TARGET="_blank">this one from Reichelt</A>. Advantage: it has a power-switch!<BR>
+Using a hub has another advantage: it can be used to power multiple core modules even when no PC is available - this saves you from buying dedicated PSUs (therefore powering via J1 is obsolete).<BR>
+The USB port provides the "MIDI USB" protocol by default, which works more than 50..100 times faster than a common MIDI IN/OUT connection. Also protocols like "Mass Storage Device" (MSD) to access a SD Card directly from a computer are provided by most MIOS32 based firmwares.<BR>
+Applications can be updated quickly via USB port as <A HREF="mios32_bootstrap_newbies.html">explained here</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J2</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2><B>When used as +5V output:</B> to supply modules which are not connected to a Jxx port which already provides a 5V output. Note that the 7805 gets very hot when it delivers currents above 500 mA. Maximum current drain is 1A!<BR>
+      <B>When used as +5V input: </B> for supplying the core from an external stabilized Power Supply Unit (PSU).</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J4A<BR>J4B</TD>
+      <TD CLASS=TABCOLOR2>4</TD>
+      <TD CLASS=TABCOLOR2>Two IIC ports. Interface to <A HREF="mbhp_bankstick.html">BankSticks</A> or to MBHP_IIC_* modules like <A HREF="mbhp_iic_midi.html">MBHP_IIC_MIDI</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J5a/b</TD>
+      <TD CLASS=TABCOLOR2>2*10</TD>
+      <TD CLASS=TABCOLOR2>Analog sources (like pots) can be connected to this port (8 pots maximum). If more analog pins should be scanned, please use the <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> module! There are also some application which use this pin as digital in- or output (mostly described in README.txt file).<BR>
+Alternatively J5 pins can also be used as digital input and/or output pins (MIOS32_BOARD_J5_*, see tutorial applications).
+And J5B.A6 (MIDI IN3) and J5B.A7 (MIDI OUT3) provide an alternative MIDI IO port as well if "#define MIOS32_UART_NUM 3" has been added to the mios32_config.h file (defines the number of UART ports).</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J8/J9</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>DMA driven SPI port which works at 5V level. J8 is the interface to the <A HREF="mbhp_dout.html">DOUT module</A> chain, whereas J9 is the interface to the <A HREF="mbhp_din.html">DIN module</A> chain.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J11E</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>This port provides four MIDI IOs at 3V level, interface to the upcoming MIDI IO breakout board.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J15a/b</TD>
+      <TD CLASS=TABCOLOR2>16</TD>
+      <TD CLASS=TABCOLOR2>Interface to one or two <A HREF="mbhp_lcd.html">LC display module(s)</A>.<BR>
+Please note that the pinout is different compared to the <A HREF="mbhp_core.html">MBHP_CORE</A> module!<BR>
+See also special section at the end of this page!
+</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J15_S</TD>
+      <TD CLASS=TABCOLOR2>3</TD>
+      <TD CLASS=TABCOLOR2>Allows to select between 5V and 3.3V based LCDs.<BR>
+      For common LCDs (5V based) please stuff the jumper between the middle and 5V pin - the LCD won't be supplied (= won't work) without this jumper!
+</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J16</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>DMA driven SPI port at 3.3V level for <A HREF="mbhp_sdcard.html">SD Card</A> and <A HREF="mbhp_eth.html">MBHP_ETH</A>, and additional fast serial interfaces in future. Two chip select lines are available, additional chip selects could be provided by other free pins.<BR>
+Note: the MBHP_CORE_STM32F4 module has an on-board SD Card Socket, which is directly connected to J16!
+</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J18</TD>
+      <TD CLASS=TABCOLOR2>2</TD>
+      <TD CLASS=TABCOLOR2>CAN interface at TTL level as used by <A HREF="midibox_network.html">MBNet</A>.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J19</TD>
+      <TD CLASS=TABCOLOR2>8</TD>
+      <TD CLASS=TABCOLOR2>SPI interface to application specific module extensions at 5V level like the <A HREF="mbhp_ainser8.html">AINSER8</A>, <A HREF="mbhp_ainser64.html">AINSER64</A> and <A HREF="mbhp_aout.html">AOUT</A> module. Two chip select lines are available, additional select lines can be taken from free pins.</TD>
+    </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR2>J10A<BR>J10B</TD>
+      <TD CLASS=TABCOLOR2>10</TD>
+      <TD CLASS=TABCOLOR2>General purpose IO ports with 8 pins each, accessible via MIOS32_BOARD_J10* functions. J10A is mostly used for the "Standard Control Surface" (SCS, see the appr. tutorial application and <A HREF="mbhp/mbhp_scs_for_j10.pdf">this schematic</A>) to connect buttons and encoders without the need for a DIN Shift Register.</TD>
+    </TR>
+
+  </TABLE></DD>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> To be continued...</H2></DT>
+  <DD>
+      <P CLASS=DESC>This page will be continued once the MBHP_CORE_STM32F4 PCB is available - stay tuned! :-)</P>
+  </DD>
+</DL>
+
+  
+FOOTER

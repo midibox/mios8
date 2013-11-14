@@ -68,6 +68,22 @@ When the bassline/drum or multi engine is running, the LED matrix displays level
    The VAs (Voice Assignment) setting can be found in the CFG (multi engine) or DRM (Drum Engine) menu. It can be easily overlooked when doing modifications on patches from other users.<BR>
    <I>Tip:</I> if you own a MIDIbox SID with LED matrix, enable the level metering mode to monitor the voice allocation (works for Multi and Drum engine, when the patch is played on the master core SID1)</LI>
 
+   <LI><I>[19]</I> <B>An envelope doesn't sweep through the whole value range:</B> yes, this is true if only the ENV depth is set to maximum level (+127). With the default configuration of the modulation matrix, this will result into a quarter of the available value range.<BR>
+E.g. if the filter cutoff is set to 0, ENV depth set to 127, the filter will only sweep between 0%..25%. Same for volume.<BR>
+In order to sweep through the whole range, the modulation path parameters have to be changed:
+  <UL CLASS=CL>
+    <LI>enter the MOD page
+    <LI>select MOD 1 (if not already done) for EG1
+    <LI>you will notice, that EG1 is only assigned to Sr1 - assign it also to Sr2, and ensure that the "1+2" operator is selected<BR>
+        -&gt; this will double the ENV level
+    <LI>in addition, set the Depth parameter of the modulation path to 127
+        -&gt; this will double the MP level
+  </UL>
+As the result, you will get an envelope which sweeps through the whole value range from 0% to 100%</LI>
+
+   <LI><I>[20]</I> <B>The AOUT channel is always at maximum level when the V2A option is used:</B> because the volume parameter in the CFG page sets the offset for this AOUT routing option. Change the volume to 0, so that the AOUT channel offset starts at 0V (similar to CutOff).<BR>
+Note that with V2A enabled, the SID volume will be automatically set to maximum and can't be influenced with the Vol parameter anymore.</LI>
+
 </UL>
 
 FOOTER

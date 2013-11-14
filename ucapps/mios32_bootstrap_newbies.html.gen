@@ -2,16 +2,17 @@ HEADER 3 MIOS32 Bootloader for Newbies
 
 <H1>MIOS32 Bootloader for Newbies</H1>
 
-<P CLASS=INFO>The MIOS32 Bootloader allows you to upload a MIOS32 application into the internal flash memory of STM32 and LPC17 via USB or UART based MIDI interface.</P>
+<P CLASS=INFO>The MIOS32 Bootloader allows you to upload a MIOS32 application into the internal flash memory of STM32F1, STM32F4 and LPC17 via USB or UART based MIDI interface.</P>
 
 <P CLASS=DESC>The big advantage of the so called bootstrap method is, that you don't need a programming device like JTAG or a COM port to install or update the software on your MIDIbox. Instead you can
 <UL CLASS=CL>
-  <LI><B>STM32:</B> buy a preprogrammed STM32F103RE from <A HREF="http://mbhp.avishowtech.com/buy.html" TARGET="_blank">SmashTV</A> (already presoldered on a <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32 PCB</A>) for a reasonable price, or you can ask a friend or a member of the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> who already owns the equipment for flashing the firmware into the STM32.
+  <LI><B>STM32F1:</B> buy a preprogrammed STM32F103RE from <A HREF="http://mbhp.avishowtech.com/buy.html" TARGET="_blank">SmashTV</A> (already presoldered on a <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32 PCB</A>) for a reasonable price, or you can ask a friend or a member of the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A> who already owns the equipment for flashing the firmware into the STM32.
+  <LI><B>STM32F4:</B> use the ST-Link which is part of STM32F4DISCOVERY evaluation board to flash the bootloader via USB based JTAG
   <LI><B>LPC17:</B> use the LPC-Link which is part of LPCXPRESSO evaluation board to flash the bootloader via USB based JTAG
 </UL>
 This only has to be done once! The details are explained in the <A HREF="mios32_bootstrap_experts.html">Experts Section</A>.</P>
 
-<P CLASS=DESC>The bootloader brings benefit even for people who own this equipment, because the usage is faster and more comfortable; it's possible to upload new code on-the-fly without opening the MIDIbox case or plugging cables within a few number of seconds! Speaking about upload performance: an upload via USB MIDI is usually faster than via JTAG (ca. 13..17 kb/s on a STM32, ca. 20..40 kb/s on a LPC1769)!</P>
+<P CLASS=DESC>The bootloader brings benefit even for people who own this equipment, because the usage is faster and more comfortable; it's possible to upload new code on-the-fly without opening the MIDIbox case or plugging cables within a few number of seconds! Speaking about upload performance: an upload via USB MIDI is usually faster than via JTAG (ca. 13..17 kb/s on a STM32F1, ca. 50 kb/s on a STM32F4, ca. 20..40 kb/s on a LPC1769)!</P>
 
 <P CLASS=DESC>In distance to MIOS8, the bootloader, MIOS32 and the application itself are provided as a single binary. This means: once any application has been flashed into the STM32/LPC17 chip, the bootloader will be available for future code uploads via MIDI as well.</P>
 
@@ -19,15 +20,20 @@ This only has to be done once! The details are explained in the <A HREF="mios32_
 
 <P CLASS=DESC>The bootloader is started on each STM32/LPC17 power-on reset, or during runtime if a special SysEx command is received. It sends an upload request, waits 3 seconds for a response (if the fastboot option isn't enabled), and thereafter starts the actual application. The temporary activation after power-on is provided as a fallback solution; it allows you to replace a faulty application which hangs up or blocks the MIDI interface.</P>
 
-<P CLASS=DESC>For MBHP_CORE_STM32 and MBHP_CORE_LPC17, upload via common MIDI cables (UART based MIDI interface) plugged into MIDI IN1/OUT1 sockets is always possible.</P>
+<P CLASS=DESC>For MBHP_CORE_STM32 and MBHP_CORE_LPC17, upload via common MIDI cables (UART based MIDI interface) plugged into MIDI IN1/OUT1 sockets is always possible. This option is not supported by the STM32F4DISCOVERY based variant due to memory limitations in the bootloader range.</P>
 
 <P CLASS=DESC>Upload via USB (the fastest method) requires some special measures, as the USB MIDI device won't be enumerated fast enough by the host operating system (e.g. Windows) after power-on:
 <UL CLASS=CL>
   <LI>upload via USB interface can be started during runtime if the application configured it for MIDI (this is mostly the case) and doesn't crash on incoming MIDI streams (should be mostly the case for released applications)
-  <LI>if the application uses the USB interface for other purposes (e.g. Virtual COM), or the upload doesn't work for any reason (e.g. due to a bug during program development), jumper J27 (Boot1) can be stuffed on the MBHP_CORE_STM32/MBHP_CORE_LPC17 module to select Bootloader Hold mode (J23 aka. Boot0 should *not* be stuffed!).<BR>
-  Thereafter power-cycle the core.<BR>
-  Once in hold mode, a special USB MIDI device will be available (called "MIOS32 Bootloader") to upload code. The application will be started once the jumper has been removed again. It is recommended to power-cycle the core thereafter to get a proper USB connection (under Windows), and to restart MIOS Studio, so that it sees the new USB MIDI port ("MIOS32" instead of "MIOS32 Bootloader").
-  <LI>If the bootloader is running on a STM32 Primer, the Hold mode can be activated by soldering a small cable between the boot1 signal on R48 and Ground as shown <A HREF="">in this picture</A>. However, the Primer contains an integrated debug interface which makes it easy to recover the MIOS32 installation w/o this measure.</UL>
+  <LI>if the application uses the USB interface for other purposes (e.g. Virtual COM), or the upload doesn't work for any reason (e.g. due to a bug during program development), the so called "boot hold" mode can be enabled during power-on. Once in hold mode, a special USB MIDI device will be available (called "MIOS32 Bootloader") to upload code. The application will be started once the jumper has been removed again. It is recommended to power-cycle the core thereafter to get a proper USB connection (under Windows), and to restart MIOS Studio, so that it sees the new USB MIDI port ("MIOS32" instead of "MIOS32 Bootloader").<BR>
+How to enter this mode:
+<UL CLASS=CL>
+  <LI><B>MBHP_CORE_STM32:</B> stuff jumper J27 (Boot1) module to select the bootloader hold mode (J23 aka. Boot0 should *not* be stuffed!), thereafter power-cycle the core.
+  <LI><B>STM32 Primer:</B> solder a small cable between the boot1 signal on R48 and Ground as shown <A HREF="">in this picture</A>. However, the Primer contains an integrated debug interface which makes it easy to recover the MIOS32 installation w/o this measure.
+  <LI><B>MBHP_CORE_LPC17:</B> stuff jumper J27 (BL Hold) to select the bootloader hold mode, thereafter power-cycle the core.
+  <LI><B>MBHP_CORE_STM32F4 and STM32F4DISCOVERY:</B> press and hold the blue "User" button, trigger the black "Reset" button shortly. This will restart the core and enforce bootloader mode as long as the blue "User" button is pressed.
+  </UL>
+</UL>
 </P>
 
 <H2>Code Upload</H2>
