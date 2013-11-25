@@ -5,7 +5,7 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 <H1>MIDIbox SEQ V4</H1>
 <H1>User Manual --- Hardware Options</H1>
 
-<p></p><center><a href="midibox_seq/mbseq_v4_interconnections.pdf"><img src="midibox_seq/mbseq_v4_interconnections.png" width="575" height=566></a></center><p></p>
+<p></p><center><a href="midibox_seq/mbseq_v4_interconnections_lpc17.pdf"><img src="midibox_seq/mbseq_v4_interconnections_lpc17.png" width="575" height=367></a></center><p></p>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware Variants </H2>
@@ -76,14 +76,13 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 
 <P CLASS=DESC>The power consumption of a common MIDIbox SEQ V4 configuration is about 400..1000 mA depending on the used LCDs and LEDs. Especially blue backlights and LEDs can increase the consumption dramatically!</P>
 
-<P CLASS=DESC>It's recommended to supply the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> resp. <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module from an external PSU (e.g. a wall adapter) connected to J1. Jumper J17 (USB Power Option) has to be disconnected in this case!</P>
+<P CLASS=DESC>Today it's common practice to supply the MIDIbox SEQ from a "selfpowered" USB Hub like <A HREF="http://www.reichelt.de/USB-Hubs/MAXXTRO-MX-UAP/index.html?;ACTION=3;LA=444;GROUP=EU3;GROUPID=4831;ARTICLE=99781;START=0;SORT=artnr;OFFSET=16;SID=11TVLbZ38AAAIAAG9MIgIec1e46ae3eb4fc2fe4e011f269170227" TARGET="_blank">this one from Reichelt</A>. Advantage: it has a power-switch!<BR>
 
-<P CLASS=DESC>Alternatively MIDIbox SEQ V4 can be powered from the USB port (PSU removed from J1, J17 jumper connected) if an USB hub with external power supply is used.</P>
-
+<P CLASS=DESC>Alternatively the core module can be directly supplied from an external PSU (e.g. a wall adapter) connected to J1. Jumper J17 (USB Power Option) has to be disconnected in this case!</P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> SD Card </H2>
 
-<P CLASS=DESC>A <A HREF="mbhp_sdcard.html">SD Card</A> is required as data storage for patterns, songs, grooves, options, the hardware configuration, MIDI files, SysEx dumps and various other files. It obsoletes the BankSticks which were used in previous MIDIbox SEQ versions due to many advantages: cheaper, much more data can be stored, easy availability (even in supermarkets), easy data exchange/backups with a computer.</P>
+<P CLASS=DESC>A <A HREF="mbhp_sdcard.html">SD Card</A> is required as data storage for patterns, songs, grooves, options, the hardware configuration, MIDI files, SysEx dumps and various other files.</P>
 
 <P CLASS=DESC>The MIDIbox SEQ V4 firmware provides access to the MIOS Filebrowser, which is part of <A HREF="mios_studio.html">MIOS Studio</A>. With this tool, it's possible to download, upload and edit files. The communication is handled via the USB MIDI protocol, so that active MIDI connections stay active.</P>
 
@@ -91,12 +90,12 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 
 <P CLASS=DESC>If you've the choice, buy a SD Card with speed factor 100x or more - it directly affects the access time to files. A speed factor of less than x60 is not sufficient for the realtime requirements (e.g. while changing patterns), the sequencer could sporadically block for a couple of mS which can result into temporal hang-ups.</P>
 
-<P CLASS=DESC>SD Card size: typically only ca. 5 MB are allocated by MBSEQ_* files. The remaining disk space can be used for storing backups, SysEx dumps and MIDI files, but probably never more than 50..200 MB will be used. Accordingly, a 256MB or 512MB card is already sufficient. Using a 1, 2 or 4 GB card is great but not really required. Sizes > 4 GB are *not* supported by the file system (FAT32) anyhow, and therefore not recommended.</P>
+<P CLASS=DESC>SD Card size: typically only ca. 5 MB are allocated by MBSEQ_* files. The remaining disk space can be used for storing backups, SysEx dumps and MIDI files, but probably never more than 50..200 MB will be used. Accordingly, a 256MB or 512MB card is already sufficient. Using a 1, 2 or 4 GB card is great but not really required. Sizes > 4 GB are *not* supported by the file system (FAT32), and therefore not recommended.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Pots or Encoders? </H2>
 
-<P CLASS=DESC>MIDIbox SEQ V4 only provides an user interface with 16 rotary encoders (endless knobs) + 1 data wheel (the 17th rotary encoder).</P>
+<P CLASS=DESC>MIDIbox SEQ V4 provides an user interface with 16 rotary encoders (endless knobs) + 1 data wheel (the 17th rotary encoder).</P>
 
 <P CLASS=DESC>Analog pots are not supported. The reason: pot control might sound like "vintage", "old style" and "analog sequencer", and possibly could imply that pots are the best solution for perfect sequences, but this is just a popular fallacy and nothing else! In fact pots are only useful for sequencers which are controlling the analog gear directly, but for a MIDI sequencer you defenitely want to have features like "total recall" and "jumpless switching" between tracks, layers and patterns.</P>
 
@@ -113,7 +112,7 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Detented or Non-Detented Encoders? </H2>
 
 <P CLASS=DESC>In difference to suggestions for MIOS based MIDI controllers, for MIDIbox SEQ I strongly recomment <B>detented rotary encoders</B>! Of course, MIOS provides three types, and all are working. But for a sequencer, where you want to select the notes exactly and not "smoothly", detented encoders are really the preferred ones.</P>
-<P CLASS=DESC>Note that there are three different types of detented rotary encoders (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders">this Wiki page</A>). The MBSEQ_HW.V4 file (stored on SD Card) has been preconfigured for "DETENTED2", which is the most commonly used (encoders provided by Voti/SmashTV). If you notice, that your encoders only work in one direction, please change the type to "DETENTED1" or "DETENTED3" at the bottom of the setup file.</P>
+<P CLASS=DESC>Note that there are three different types of detented rotary encoders (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders">this Wiki page</A>). The MBSEQ_HW.V4 file (stored on SD Card) has been preconfigured for "DETENTED3", which is the most commonly used (encoders provided by Voti/SmashTV). If you notice, that your encoders only work in one direction, please change the type to "DETENTED1" or "DETENTED2" at the bottom of the setup file.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> How many buttons? </H2>
@@ -131,9 +130,11 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
       With the MBSEQ V2/V3 frontpanel, the Utility page has to be selected with the F1 button.</LI>
 </UL>
 
+<P CLASS=DESC>A lot of additional button functions have been added later, mostly based on user requests. A full list can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2Fstandard_v4%2FMBSEQ_HW.V4" TARGET="_blank">MBSEQ_HW.V4 template</A> (search for BUTTON_)</P>
+
 <P CLASS=DESC>Note that there is also a <A HREF="midibox_seq/mbseqv4_remote_functions.pdf">MIDI Remote</A> feature available which allows you to trigger button functions with a MIDI keyboard. However, the handling isn't so perfect like with dedicated buttons (especially since the LEDs are missing on a master keyboard), but it works!</P>
 <P CLASS=DESC>It isn't required that the buttons are assigned to the same DIN input pins like predefined in the MBSEQ_HW.V4 file (stored on SD Card). You are able to change the pinning for your (existing) hardware. But if you want to keep it compatible, then use exactly the same pinning like me.</P>
-<P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_din.pdf">DIN Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></A></P>
+<P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_din.pdf">DIN Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> How many LEDs? </H2>
@@ -147,8 +148,9 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
   <LI><B>16 Bicolour GP LEDs (Red/Green)</B>: improve the visualisation of the current step position</LI>
 </UL>
 
-<P CLASS=DESC>Also LEDs for Play/Stop/Pause are available now. These LEDs have been requested, but if you ask me: they are not required...</P>
-<P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_dout.pdf">DOUT Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></A></P>
+<P CLASS=DESC>Also LEDs for Play/Stop/Pause are available now. These LEDs have been requested, but if you ask me: they are not required... however, a full list can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2Fstandard_v4%2FMBSEQ_HW.V4" TARGET="_blank">MBSEQ_HW.V4 template</A> (search for LED_)</P>
+
+<P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_dout.pdf">DOUT Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Simple 4x16 Button/LED matrix </H2>
@@ -158,8 +160,7 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 <P CLASS=DESC>It's even possible to use Duo-Colour LEDs, so that the step pointer gets an individual colour (no inversion of the active step required)</P>
 <P CLASS=DESC>Another hardware option allows to use 64 instead of 16 GP buttons, or, to use the 64 buttons in addition to the 16 GP buttons.</P>
 <P CLASS=DESC>All possible options, and the appr. settings are described in the MBSEQ_HW.V4 file of the release package.</P>
-<P CLASS=DESC><A HREF="mbhp/button_duoled_matrix.pdf">Pinning of Button/Duo-LED matrix</A> <I>(Note: circuit needs to be improved for high-current LEDs!)</I></P>
-<P CLASS=DESC>I built such a Button/Duo-LED matrix as some kind of "breakout box" for my MIDIbox SEQ, which sits on top of the sequencer - <A HREF="http://www.midibox.org/midibox_seq_blm_ext/">pictures</A>. <B>WARNING:</B> there is no premade PCB available - design not recommended for beginners!</P>
+<P CLASS=DESC>Meanwhile Ilmenator created a PCB for the 4x16 BLM. More informations can be found at <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=16x4blm_pcb" TARGET="_blank">this Wiki page</A>.</P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Giant 16x16+X Button/LED matrix </H2>
 
@@ -187,9 +188,15 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 <P CLASS=DESC>It's also possible to add 3 LED digits to display the current selected step (1..256). Interconnections are similar to the BPM digits, DOUT shift register pinning can be customized in MBSEQ_HW.V4.
 
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Position Display </H2>
+
+<P CLASS=DESC>For those who are searching for more blink on their box, the Track Position Display, created by Hawkeye and Ilmenator, could be for interest!<BR>
+Ilmenator created a special PCB which combines BPM, Step and TPD + encoder + four buttons on a small PCB. More informations <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=tpd_pcb" TARGET="_blank">on this Wiki page</A>.</P>
+
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Additional MIDI IN/OUT ports </H2>
 
-<P CLASS=DESC>A third MIDI IN/OUT port is supported by the STM32 core (see also <a href="midibox_seq/mbseq_v4_interconnections.pdf" TARGET="_blank">this interconnection diagram</A>), and two additional IOs by the LPC17 core. It's normaly used as dedicated IO port for the <A HREF="midibox_seq_manual_blm.html">BLM16x16+X</A>, but can also be used as optional extension:
+<P CLASS=DESC>A third MIDI IN/OUT port is supported by the STM32 core (see also <a href="midibox_seq/mbseq_v4_interconnections.pdf" TARGET="_blank">this interconnection diagram for STM32</A>), and two additional IOs by the LPC17 core (see also <a href="midibox_seq/mbseq_v4_interconnections_lpc17.pdf" TARGET="_blank">this interconnection diagram for LPC17</A>). It's normaly used as dedicated IO port for the <A HREF="midibox_seq_manual_blm.html">BLM16x16+X</A>, but can also be used as optional extension:
 <UL CLASS=CL>
   <LI><A HREF="mbhp/mbhp_core_stm32_midi3_extension.pdf" TARGET="_blank">schematic for MIDI IN3/MIDI OUT3 extension of STM32</A>
   <LI><A HREF="mbhp/mbhp_core_lpc17_midi3_midi4_extension.pdf" TARGET="_blank">schematic for MIDI IN3/OUT3 and IN4/OUT4 extension of LPC17</A>
@@ -203,7 +210,7 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
 
 <P CLASS=DESC>Main advantage of multiple MIDI ports is reduced latency (as MIDI events can be sent in parallel), and relaxed MIDI channel handling (for 4 synths you don't need to take care about the MIDI channel at all)</P>
   <P CLASS=DESC>The MIDI IN port is <B>not</B> supported, accordingly the <A HREF="mbhp/mbhp_iic_midi_out_only.pdf">"OUT only"</A> version is sufficient.</P>
-  <P CLASS=DESC>Following diagram shows the <a href="midibox_seq/mbseq_v4_interconnections.pdf">module interconnections</A>.</P>
+  <P CLASS=DESC>Following diagram shows the <a href="midibox_seq/mbseq_v4_interconnections_lpc17.pdf">module interconnections</A>.</P>
   <P CLASS=DESC>The modules will be detected by the MIDIbox SEQ application automatically during startup. "Hot plug&play" while the application is running is not supported.</P>
 
 
@@ -220,7 +227,7 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
       It's recommended to add a 220 Ohm resistor in serial to each output as a short-circuit protection!</LI>
 </UL></P>
 
-<P CLASS=DESC><B>NOTE:</B> as you can see in the <a href="midibox_seq/mbseq_v4_interconnections.pdf" TARGET="_blank">interconnection diagram</A>, Gate #7 and #8 are available at J5C.A10 and J5C.A11, because J5B.A6 and J5B.A7 are allocated for the third MIDI IN/OUT port.</P>
+<P CLASS=DESC><B>NOTE:</B> as you can see in the <a href="midibox_seq/mbseq_v4_interconnections.pdf" TARGET="_blank">interconnection diagram for STM32</A>, Gate #7 and #8 are available at J5C.A10 and J5C.A11, because J5B.A6 and J5B.A7 are allocated for the third MIDI IN/OUT port.</P>
 
 <P CLASS=DESC>Here a complete list for <B>MBHP_CORE_STM32:</B>
 <UL CLASS=CL>
@@ -238,7 +245,7 @@ HEADER 3 MIDIbox SEQ V4 User Manual --- Hardware Options
   <LI> MBHP_CORE_STM32::J5C.A11: Gate 8
 </UL>
 
-<P CLASS=DESC><B>NOTE for MBHP_CORE_LPC17 users:</B> since this board doesn't provide a J5C connector, some signals are available at J28.<BR>
+<P CLASS=DESC><B>NOTE for MBHP_CORE_LPC17 users:</B> since this board doesn't provide a J5C connector, some signals are available at J28. See also <a href="midibox_seq/mbseq_v4_interconnections_lpc17.pdf" TARGET="_blank">interconnection diagram for LPC17</A>.<BR>
 Schematic: <A HREF="mbhp/mbhp_core_lpc17_output_buffers.pdf">mbhp_core_lpc17_output_buffers.pdf</A><BR>
 Here a complete list for <B>MBHP_CORE_LPC17:</B>
 <UL CLASS_CL>
@@ -257,7 +264,7 @@ Here a complete list for <B>MBHP_CORE_LPC17:</B>
 </UL>
 
 <P CLASS=DESC>For those who cannot get enough, 64 additional drum triggers are available in the DOUT chain. They can be controlled with individual key numbers and trigger a pulse of 1 mS. The used DOUT shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)</P>
-<P CLASS=DESC>Tracks can be assigned to the outputs in the MIDI event menu. It's also possible to route incoming MIDI events to the AOUT/gate triggers in addition (this replaces a CV interface completely). The AOUT channel and trigger routing is described in the <A HREF="midibox_seq_manual_s.html">"Special Pages" chapter of the User Manual</A>.</P>
+<P CLASS=DESC>Tracks can be assigned to the outputs in the MIDI event menu. It's also possible to route incoming MIDI events to the AOUT/gate triggers in addition (this replaces a CV interface completely). The AOUT channel and trigger routing is described in the <A HREF="midibox_seq_manual_m.html">"AOUT Port" chapter of the User Manual</A>.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Ethernet Interface </H2>

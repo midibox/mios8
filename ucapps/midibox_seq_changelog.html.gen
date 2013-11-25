@@ -1,13 +1,49 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2013-09-01</H3></CENTER>
+<CENTER><H3>Last Release: 2013-11-25</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.079</I>
+  <UL CLASS=CL>
+   <LI> added new Fx which allows to send to one or more additional MIDI channels
+     from a single track with various behaviours (forward to all, alternate
+     between channels, randomly select channel)<BR>
+     The new functions can be configured at the Fx-&gt;Dupl (like Duplicate) page
+
+   <LI> groove page: added possibility to change the intensity for all tracks at once
+
+   <LI> MBSEQ_HW.V4 file: SR numbers for BUTTON and LED functions which are
+     assigned to the BLM8x8 matrix (-> Wilba's Frontpanel) are now named M1..M8
+     instead of 17..24<BR>
+     See also the configuration template under hwcfg/wilba/MBSEQ_HW.V4<BR>
+     The old syntax is still provided to keep old MBSEQ_HW.V4 files compatible.
+     Once the new SRIO_NUM_SR parameter is set to 17 or more SRs, the new syntax
+     has to be used.
+
+   <LI> MBSEQ_HW.V4 file: new parameter SRIO_NUM_SR allows to specify the maximum
+     number of DIN/DOUT shift registers in a chain. Up to 23 DINs/DOUTs can be
+     chained now - this is also the new default value in the MBSEQ_HW.V4 templates.
+
+   <LI> whenever a MBSEQ_HW.V4 file is uploaded with the MIOS Filebrowser, the
+     configuration will be automatically reloaded (no need to reset the core)
+
+   <LI> official support for Ilmenator's Track Position Display.<BR>
+     See also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=tpd_pcb" TARGET="_blank">this wiki page</A>.
+     An example configuration (TPD directly connected to J2 of Wilba's Frontpanel PCB)
+     can be found under hwcfg/wilba_tpd/MBSEQ_HW.V4
+
+   <LI> the TPD display mode can now be configured in the Utility->Options menu (item #11)
+
+   <LI> added new MIOS Terminal commands: new, saveas, save, load, delete, session, sessions
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.078</I>

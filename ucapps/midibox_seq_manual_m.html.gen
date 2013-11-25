@@ -1144,12 +1144,12 @@ This page allows you to Mute or Unmute all tracks, all layers of the selected tr
   <LI><B>Delay:</B> defines the delay between each repeat (64T, 64, 32T, 64d, 32, 16T, 32d, 16, 8T, 16d, 8, 4T, 8d, 4, 2T, 4d, 2, 1T, 2d, 1, Rnd1 and Rnd2)</LI>
   <LI><B>Velocity Level:</B> defines the initial velocity level of the first repeating note</LI>
   <LI><B>Feedback Velocity:</B> defines the gradual change of the velocity level for each repeat between 0..200%</LI>
-  <LI><B>Feedback Note:</B> defines the gradual change of note stepsonr each repeat between -24..+24, optionally random (RND).<BR>
+  <LI><B>Feedback Note:</B> defines the gradual change of note steps on each repeat between -24..+24, optionally random (RND).<BR>
     Very powerful in conjunction with Force-to-Scale!!!</LI>
   <LI><B>Gatelength:</B> defines the gradual change of the gatelength on each repeat between 0..200%<BR>
   <LI><B>Ticks:</B> defines the gradual change of the delay between each repeat between 0..200%<BR>
 </UL>
-<P CLASS=DESC>TODO MP3 (however, the LFO demo below gives some impressions about the usage of the Echo Fx as well!)</P>
+<P CLASS=DESC>Demo: see "Fx Dupl"</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Humanizer</H2>
@@ -1194,6 +1194,40 @@ This page allows you to Mute or Unmute all tracks, all layers of the selected tr
 <P CLASS=DESC>In following demo video (which you probably already know) the live usage of a LFO is demonstrated with different waveforms, frequencies, CC modulation, Echo Fx, transposer and force-to-scale (LFO part starts at 2:05).<BR>
 <center><object width="400" height="300"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=5250512&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=5250512&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="300"></embed></object><p><a href="http://vimeo.com/5250512">MIDIbox SEQ V4 Teaser #2</a> from <a href="http://vimeo.com/ucapps">Thorsten Klose</a> on <a href="http://vimeo.com">Vimeo</a>.</p></center></P>
 
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Dupl(icate)</H2>
+<P CLASS=INFO>The duplication effect sends MIDI notes to multiple MIDI channels of a given MIDI port (which can be different from the MIDI port assigned in the Track Event page). Use this effect to play (equal) monophonic synths like a polyphonic synth, or to trigger notes with different timbres.<BR>
+This feature also works together with the AOUT port to support polyphonic play of analog synths!<BR>
+<CENTER><IMG SRC="midibox_seq/cs4/fx_dupl.gif" width=481 height=19 ALT="Fx Dupl"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Number of additional channels:</B> as the name says. The effect will be disabled with value 0, and enabled with a value > 0.</LI>
+  <LI><B>First Channel:</B> specifies the first channel to which additional note events should be forwarded.<BR>
+      E.g. with 3 channels starting at Channel 2, Notes will be forwarded to the original MIDI channel configured in the Track Event page + Channel 2, 3 and 4.</LI>
+  <LI><B>Port:</B> selects the MIDI port to which the additional notes should be forwarded. With "Same" the events will be sent to the MIDI port configured in the Track Event page, with the remaining port settings the MIDI notes will be sent to the selected MIDI port.</LI>
+  <LI><B>Non-Notes:</B> specifies what should happen with Non-Note events (such as CCs, PitchBender, Channel Pressure, Program Change): they can be filtered, or forwarded to all additional MIDI channels.</LI>
+  <LI><B>Mode:</B> selects the behaviour of this Fx:
+     <UL CLASS=CL>
+       <LI><B>Forward to all Channels:</B> notes will be directly forwarded to all MIDI channels
+       <LI><B>Alternate Channels:</B> only one MIDI event will be generated, and with each note the next MIDI channel will be selected.<BR>
+           E.g. with Original MIDI Channel (in Track Event Page) 1, Number of additional Channels 3, First MIDI Channel 2, the effect will cycle between MIDI Channel 1, 2, 3 and 4
+       <LI><B>Alternate with Echo Synch:</B> alternates only notes which are played by the Echo Fx
+       <LI><B>Random:</B> each Note will be sent to a randomly selected MIDI channel. Either the original MIDI channel (configured in the Track Event page), or the additional channel(s) of this Fx
+     </UL>
+</UL></P>
+
+<P CLASS=DESC>Here a demo of the Fx: **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv4_demo_dupl_fx.mp3"#ffffff**<BR>
+A single track plays a simple sequence which isn't changed during the whole demo.<BR>
+Only some Fx parameters are changed.
+<UL CLASS=CL>
+<LI> 0:00 - single channel plays the sequence
+<LI> 0:14 - alternating between two channels. The second channel plays the same instrument with a different timbre
+<LI> 0:21 - alternating between four channels, each instrument has a different timbre
+<LI> 0:28 - switching between channels in random order
+<LI> 0:36 - enabled Echo Fx with 3 repeats an 8d Delay
+<LI> 0:50 - enabled LFO Fx with Saw Waveform, Amp 14, 16 Steps, Reset after 16th step - note that Force-to-Scale is enabled
+<LI> 1:02 - changing some LFO parameters
+<LI> 1:15 - changing Note steps for each Echo tap between 0, +2 and +3
+</UL></P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Loop</H2>
 <P CLASS=DESC>Is this an "effect" or a "tool" which is useful while editing long sequences... decide by yourself:
