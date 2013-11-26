@@ -222,9 +222,11 @@ MBFM_PARIN_Cmd_7BIT_TO_CNT
 	;; EXTRA sending routine for second byte: dirty but ok here
 	call	MBFM_INSTR_GetBase
 	movlw	MBFM_Ix_OP34_CH_FB_CNT
-	movwf	MIOS_PARAMETER1
-	movf	PLUSW1, W
-	goto	MBFM_INSTR_SendPar
+	movwf	MIOS_PARAMETER3
+	addwf	FSR1L, F
+	movlw	0x00
+	addwfc	FSR1H, F
+	rgoto	MBFM_PARIN_Send
 
 ;; --------------------------------------------------------------------------
 MBFM_PARIN_Cmd_7BIT_TO_0
