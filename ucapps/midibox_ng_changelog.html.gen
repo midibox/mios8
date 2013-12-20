@@ -1,13 +1,51 @@
 HEADER 3 ChangeLog of MIDIbox NG
 
 <CENTER><H1>MIDIbox NG Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2013-06-16</H3></CENTER>
+<CENTER><H3>Last Release: 2013-12-01</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_ng.html">http://www.uCApps.de/midibox_ng.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.027</I>
+  <UL CLASS=CL>
+   <LI> .NGR: added "set_active" command. It can be alternatively used
+     instead of the bank mechanism to activate/deactivate events,
+     e.g. if the same events should be activated in multiple banks under
+     certain conditions.<BR>
+     A demo can be found under cfg/tests/multibnk.*
+
+   <LI> it's now possible to set a static forward value independent from the
+     actual value of the event which initiates the forwarding.<BR>
+
+     E.g. with<BR>
+<TT><PRE style="margin-left:20px; font-size:8pt">
+     EVENT_xxx fwd_id=SENDER:1:42
+</PRE></TT>
+     the SENDER:1 will always get value 42 for additional processing
+
+   <LI> support for multiple MBHP_MF_NG modules in a chain.<BR>
+     See cfg/test/mf_multi.ngc for a configuration example
+
+   <LI> support for Logic Control Meters.<BR>
+     Configuration example: see cfg/templates/logictrl.ngc
+     (search for "meter")
+
+   <LI> added new GLCD fonts (provided by Pcbatterij): Inverted and Tiny.<BR>
+     In order to test these fonts, try following commands in the MIOS Terminal:<BR>
+<TT><PRE style="margin-left:20px; font-size:8pt">
+     lcd %C&t@(1:1:1)Tiny Font
+     lcd %C&i@(1:1:1)Inverted Font
+</PRE></TT>
+
+   <LI> fixed OSC receiver (avoided stack overflow)
+
+   <LI> various minor bugfixes
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V1.026</I>

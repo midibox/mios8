@@ -355,7 +355,7 @@ EVENT_ENC  id=101  hw_id=1                            type=CC cc=32 chn=2
   </TR>
 
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>fwd_id=&lt;target:id&gt;</I></TD>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>fwd_id=&lt;target:id&gt;</I><BR><I>fwd_id=&lt;target:id:value&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Whenever an matching MIDI event has been received, the value can be forwarded to another EVENT element with a specific <I>hw_id</I>:
       <UL CLASS=CL>
         <LI><I>BUTTON:&lt;1..4095&gt;</I>
@@ -374,7 +374,18 @@ EVENT_ENC  id=101  hw_id=1                            type=CC cc=32 chn=2
       Multiple events can be chained this way, but the maximum chain length is limited to 4!<BR>
       If a value is passed to an unspecified EVENT id (because you want to avoid unnecessary writing effort), it's assumed that it will have the same parameters like the EVENT which forwards the value. E.g.:
 <TT><PRE style="margin-left:50px; font-size:8pt">EVENT_ENC id=1 fwd_id=LED_MATRIX:1 led_matrix_pattern=1</PRE></TT>
-      will forward the received value to an EVENT_LED_MATRIX entry with id=1. If this entry hasn't been specified, then it will inherit the parameters of the ENC element. Since the ENC element specified led_matrix_pattern=1, the LED Ring will display the value with pattern #1
+      will forward the received value to an EVENT_LED_MATRIX entry with id=1. If this entry hasn't been specified, then it will inherit the parameters of the ENC element. Since the ENC element specified led_matrix_pattern=1, the LED Ring will display the value with pattern #1<BR>
+      Alternatively, it's also possible to forward a constant value. A typical usecase for this option: multiple EVENTs forward to a single, central event to send a specific MIDI command.<BR>
+      Example:
+<TT><PRE style="margin-left:20px; font-size:8pt">
+# whenever CC#16, CC#17 or CC#18 is received, we want to send CC#1 with value 100, 101 or 102 via SENDER:1
+EVENT_RECEIVER id=1  fwd_id=SENDER:1:101  type=CC chn= 1  cc= 16
+EVENT_RECEIVER id=2  fwd_id=SENDER:1:102  type=CC chn= 1  cc= 17
+EVENT_RECEIVER id=3  fwd_id=SENDER:1:103  type=CC chn= 1  cc= 18
+
+EVENT_SENDER   id=1                       type=CC chn= 1  cc=  1
+</PRE></TT>
+
     </TD>
   </TR>
 
@@ -917,7 +928,9 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>&amp;&lt;font&gt;</I>: selects a font for graphical LCDs:
           <UL CLASS=CL>
             <LI><I>&amp;n</I>: selects the "normal" 6x8 font
+            <LI><I>&amp;i</I>: selects the inverted 6x8 font
             <LI><I>&amp;s</I>: selects the "small" 4x8 font
+            <LI><I>&amp;t</I>: selects the "tiny" 4x8 font
             <LI><I>&amp;b</I>: selects the "big" 24x16 font
             <LI><I>&amp;k</I>: selects "knob icons", a 24x32 font. Values can be output with %B
             <LI><I>&amp;h</I>: selects a meter with horizontal orientation, a 32x8 font. Values can be output with %B
@@ -1110,7 +1123,7 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
   <LI>Already with 2 DOUT shift registers it's possible to control 64 LEDs. One DOUT is used to select the column, the second DOUT to set the row pattern. By using the <I>led_emu_id_offset</I> parameter they behave like common EVENT_LED elements and can be controlled individually. This saves some hardware! (only 2 DOUT shift registers instead of 8 to drive 64 LEDs).<BR>
       Other useful hardware configurations: with 1 DOUT assigned to the column, and two assigned to the row, up to 128 LEDs can be controlled from 3 DOUT shift registers. With two DOUTs assigned to the column, and two assigned to the row, up to 256 LEDs can be controlled from 4 DOUT shift registers.
   <LI>Actually each matrix provides three separate "row layers", called r, g, b (red, green, blue). You get the message: this allows you to control multicolour LEDs!
-  <LI>LED Rings - see also the LED_MATRIX_PATTERN configuration below. The <I>led_matrix_pattern</I> can be passed from a control element (e.g. EVENT_ENC) to the LED matrix in order to output a pattern based on the event value.
+  <LI>LED Rings and Meters - see also the LED_MATRIX_PATTERN configuration below. The <I>led_matrix_pattern</I> can be passed from a control element (e.g. EVENT_ENC) to the LED matrix in order to output a pattern based on the event value.
   <LI>LED Digits (7-segment displays) are controlled from a DOUT_MATRIX as well. Here are some interconnection diagrams with the appr. .NGC configuration examples:
   <UL CLASS=CL>
     <LI><A HREF="midibox_ng/mbng_led_digits_5x7bit.pdf">Interconnections for 5 7bit displays</A> (<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fleddig1.ngc" TARGET="_blank">cfg/test/leddig1.ngc</A>)
@@ -1183,6 +1196,10 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
     <TD CLASS=TABCOLOR2 WIDTH=150><I>led_emu_id_offset=&lt;1..4095&gt;</I></TD>
     <TD CLASS=TABCOLOR2>With a value &gt;0, the LED matrix will listen on EVENT_LED events instead of EVENT_LED_MATRIX, starting with the specified ID. A matrix of 8x8 LED can emulate 64 LEDs with individual event assignments this way.<BR>
       In order to avoid conflicts with LEDs which are directly connected to DOUT pins (and which are accessed with LED:1 .. LED:256), it's recommended specify emulated ids outside this range, e.g. <I>led_emu_id_offset=1001</I>.
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>lc_meter_port=&lt;USB1..USB4|IN1..IN4&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Special option for the Logic/Mackie Control emulation. It allows to transfer incoming Poly Preasure events (which are used by the protocol to trigger the meters) to LED bars. An usage example can be found in following template (search for "meter"):  <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Flogictrl.ngc" TARGET="_blank">logictrl.ngc</A>
   </TR>
 </TABLE>
 
