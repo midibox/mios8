@@ -1,0 +1,210 @@
+HEADER 3 MIDIbox CV V2
+
+<H1>MIDIbox CV V2</H1>
+<H3>Created 2012..14</H3>
+
+<P CLASS=INFO>MIDIbox CV V2 is the predecessor of <A HREF="midibox_cv_v1.html">MIDIbox CV V1</A> with focus on digital, high-resolution modulation of CV outputs and an enhanced control surface.</P>
+
+<P CLASS=INFO>This project is currently under development, please follow the progress <A HREF="http://midibox.org/forums/topic/16415-midibox-cv-v2-concept/" TARGET="_blank">in this forum article</A> and feel free to contribute with your ideas!</P>
+
+<P CLASS=INFO>Here a video which has been created with an early prototype:<BR>
+<object width="560" height="315"><param name="movie" value="//www.youtube.com/v/utr23hp2nRM?version=3&amp;hl=de_DE"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="//www.youtube.com/v/utr23hp2nRM?version=3&amp;hl=de_DE" type="application/x-shockwave-flash" width="560" height="315" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+</P>
+
+<P CLASS=INFO>Below you will find some preliminary informations:</P>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Concept</H2>
+
+<P CLASS=DESC>Key features:
+<UL CLASS=CL>
+  <LI>Running on a <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> (legacy) or <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module (recommended once PCBs are available)
+  <LI>MIDI messages received and sent over multiple (traditional) MIDI IN/OUT ports, USB-MIDI and <A HREF="midibox_osc.html">OSC (Ethernet)</A>
+  <LI>limited to 8 CV output channels maximum
+  <LI>Up to 64 gate outputs, which can also be used as drum triggers (with configurable pulse width).
+  <LI>DIN Sync interface with Start/Stop and 7 Clock Outputs (clock dividers are configurable individually)
+  <LI>Various modulation and sequencing functions (see separate list below)
+  <LI>Control Surface with graphical LCD support (see separate list below)
+  <LI>Remote Control via Lemur, running under iOS
+  <LI>Patches stored on SD Card
+</UL>
+</P>
+
+<P CLASS=DESC>Available functions for each CV channel:
+<UL CLASS=CL>
+  <LI>typically 12bit outputs with common MBHP based AOUT modules. Internally working with 16bit
+  <LI>Volt/Octave (positive and negative) and Herz/Volt characteristic
+  <LI>configurable slew rate to "smooth" the output curve (e.g. if controlled only by 7bit CCs)
+  <LI>selectable MIDI port (USB/MIDI/OSC), can also listen to multiple ports
+  <LI>selectable MIDI channel and keyboard range (if it listens to MIDI notes)
+  <LI>can listen to MIDI Note, Velocity, Aftertouch, CC, NRPN (14bit), PitchBender (14bit)
+  <LI>Portamento, Glide, Glissando
+  <LI>Octave Transpose, Semitone Transpose, Finetune, Pitch Range for incoming PitchBender events in MIDI Note mode.
+  <LI>Legato, SusKey (fingered portamento)
+  <LI>Poly chain mode to combine multiple CV for controlling multiple VCOs
+  <LI>Arpeggiator with Up/Down/Up&amp;Down, Random, etc. modes. Options: Sort, Sync, Oneshot, Constant Arp Cycle rate, Easy&amp;Expert play, Speed and Gatelength.
+  <LI>303-like Bassline Sequencer with up to 32 steps and 8 sequences. Supports also Glide and Accent
+  <LI>2 LFOs with Amplitude, Rate, Delay, Phase and predefined modulation targets CV output, LFO2/1 Amplitude, LFO2/1 Rate, ENV1/2 Rate.<BR>
+      Various waveforms such as Sine, Saw, Pulse, Random, Positive Sine/Saw/Pulse, etc.
+      Works in "slow" (0.008..44 Hz) and "fast" mode (up to 440 Hz). Supports also Key Sync, MIDI Clock Sync and Oneshot
+  <LI>1 simple ENV with Amplitude, Delay, Attack, Decay, Sustain, Release and predefined modulation targets CV output, LFO2/1 Amplitude, LFO2/1 Rate,<BR>
+      Supports Linear and Exponential curve.<BR>
+      Works in "slow" and "fast" mode. Supports also Key Sync, MIDI Clock Sync and Oneshot.
+  <LI>1 multi-stage ENV with Amplitude, Offset, Rate, 16 steps with selectable loop and sustain step and predefined modulation targets CV output, LFO2/1 Amplitude, LFO2/1 Rate.<BR>
+      Supports Linear and Exponential curve.<BR>
+      Works in "slow" and "fast" mode. Supports also Key Sync, MIDI Clock Sync and Oneshot.
+  <LI>4 Modulation Matrices with two sources (incl. constant values), two destination paths (invertable), and operations such as +, -, multiply, XOR, OR, AND, MIN, MAX, &lt;, &gt;, Equal, Sample&amp;Hold
+</UL>
+</P>
+
+<P CLASS=DESC>Control Surface functions:
+<UL CLASS=CL>
+  <LI> a "Standard Control Surface" (SCS), compatible to various other MIDIbox projects, which gives (a cumbersome) access to all parameters.
+  <LI> the display used for the SCS can either be a 2x20 character LCD (CLCD), or a 128x64 graphical LCD. The graphical LCD will also print a scope!
+  <LI> support for 4 OLEDs which are used as scopes! CV channels can be assigned to the scope displays individually. Selectable oversampling rate and trigger level.
+  <LI> all parameters are also bidirectionally accessible via NRPN, this is demonstrated by a sophisticated Lemur template, running on an iPad. A PC/Mac based solution (e.g. based on Ctrlr) is feasible as well
+  <LI> user configurable buttons (up to 32)
+  <LI> user configurable pots connected to a <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module
+  <LI> user configurable rotary encoders (up to 16)
+  <LI> optional LED rings for encoders
+</UL>
+
+<P CLASS=DESC>Additional features:
+<UL CLASS=CL>
+  <LI> MIDI Router with 16 nodes
+  <LI> MIDI Monitor for all ports
+</UL>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Planned/Requested Features</H2>
+
+<UL CLASS=CL>
+  <LI> support for up to 8 analog inputs which are connected to a <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module, and can be used in the modulation matrix for modulation operations
+  <LI> 8 sync inputs for all CV channels
+  <LI> a clock sync input which will then be transfered into the divided (or multiplied) clock outputs
+  <LI> force-to-scale with selectable keys (no predefined scales)
+  <LI> patch morphing
+</UL>
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Hardware</H2>
+
+<H3> * Core Module</H3>
+
+<P CLASS=DESC>The brain of MIDIbox CV V2 is one of following core modules:
+  <UL CLASS=CL>
+    <LI><A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A>: supported due to legacy reasons
+    <LI><A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A>: recommended once PCBs are available. Less expensive, and runs ca. 25% faster than LPC17
+  </UL>
+</P>
+
+
+<H3> * SD Card</H3>
+
+<P CLASS=DESC>MIDIbox CV V2 stores patches and configuration data on a SD Card. For MBHP_CORE_LPC17 it will be required to build an <A HREF="mbhp_sdcard.html">adapter</A>, the MBHP_CORE_STM32F4 has an on-board SD Card slot!</P>
+</P>
+
+
+<H3> * CV Outputs</H3>
+
+<P CLASS=DESC>Following MBHP based modules are recommended:
+  <UL CLASS=CL>
+    <LI><A HREF="mbhp_aout.html">MBHP_AOUT</A>: was the first AOUT module, and is still popular, although the two MAX525 makes it expensive.
+    <LI><A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A>: the preferred AOUT module, which uses the TLV5630, and also provides a bipolar option for +/- 5V
+  </UL>
+</P>
+
+
+<H3> * CV Gates</H3>
+
+<P CLASS=DESC>The 8 CV channels have dedicated CV outputs which can be assigned to a shift register of a <A HREF="mbhp_dout.html">MBHP_DOUT module</A>. By default, they are assigned to the first shift register in the SRIO chain, but the assignment can be changed in the DEFAULT.CV2 file which is stored on SD Card.</P>
+
+<P CLASS=DESC>Note that the gates are assigned from the left to the right output pin, accordingly:
+<UL CLASS=CL>
+  <LI>Gate of CV1 is available at the D7 output
+  <LI>Gate of CV2 is available at the D6 output
+  <LI>Gate of CV3 is available at the D5 output
+  <LI>Gate of CV4 is available at the D4 output
+  <LI>Gate of CV5 is available at the D3 output
+  <LI>Gate of CV6 is available at the D2 output
+  <LI>Gate of CV7 is available at the D1 output
+  <LI>Gate of CV8 is available at the D0 output
+</UL>
+
+<P CLASS=DESC>In addition, it will be possible to assign up to 7 additional shift registers for gate outputs which are unrelated to the CV channels. Note values, channel and port are free assignable, and it's also possible to specify a pulse lenght for the case that the outputs should be used as drum triggers.</P>
+
+<P CLASS=DESC>The gates are switching between 0V and 5V level, and should be protected with a serial 220 Ohm resistor (already part of the MBHP_DOUT module)</P>
+
+
+<H3> * DIN Sync outputs</H3>
+
+<P CLASS=DESC>Another <A HREF="mbhp_dout.html">MBHP_DOUT</A> based shift register can be assigned to DIN Sync outputs:
+<UL CLASS=CL>
+  <LI>D7 outputs a Start/Stop signal
+  <LI>D6..D0 output clock #1..#7 with individually configurable clock dividers
+</UL>
+
+<P CLASS=DESC>The signals are switching between 0V and 5V level, and should be protected with a serial 220 Ohm resistor (already part of the MBHP_DOUT module)</P>
+
+
+<H3> * Sync inputs</H3>
+
+<P CLASS=DESC>Not implemented yet... they will require a dedicated assignment of a <A HREF="mbhp_din.html">MBHP_DIN</A> based shift register.</P>
+
+<P CLASS=DESC>The inputs have to be protected against too low/high voltage ranges with diodes against ground and 5V. <I>TODO: schematic!</I></P>
+
+
+<H3> * CV inputs and potentiometers</H3>
+
+<P CLASS=DESC>Not implemented yet... they will require a dedicated assignment of a <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> based analog input.</P>
+
+<P CLASS=DESC>The inputs have to be protected against too low/high voltage ranges with diodes against ground and 5V. <I>TODO: schematic!</I></P>
+
+
+<H3> * SCS</H3>
+
+<P CLASS=DESC>The optional Standard Control Surface (SCS) allows to edit some (but not all) configuration values without the need of a computer.
+<center><img src="midibox_cv/midibox_cv2_scs.jpg" width="550" height=227></IMG></center>
+</P>
+
+<P CLASS=DESC>A <B>detented</B> rotary encoder and 6 buttons are directly connected to J10 of the core module to control the menu system:<BR>
+<a href="midibox_ng/mbng_scs.pdf">Schematic of the Standard Control Surface</A><BR>
+In addition a 2x20 LCD or a 128x64 graphical LCD is required.</P>
+
+<P CLASS=INFO>The <A HREF="midio128.html">MIDIO128</A> and <A HREF="midibox_ng.html">MIDIbox NG</A> project use the same control surface, which means that users who built a MIDIO128 or MBNG can upload the MIDIbox CV firmware and control it with their existing hardware, and vice versa!</P>
+
+
+<H3> * Scope displays</H3>
+
+<P CLASS=DESC>Up to 4 SSD1306 based "scope displays" can be connected to display CV output waveforms with a selectable oversampling rate and trigger level:<BR>
+<center><img src="midibox_cv/midibox_cv2_scopes.jpg" width="550" height=289></IMG></center>
+</P>
+
+<P CLASS=DESC>Interconnection diagrams:
+<UL CLASS=INFO>
+  <LI><B>MBHP_CORE_LPC17:</B> <I>TODO</I> (connections to J5A and J28)
+  <LI><B>MBHP_CORE_STM32F4:</B> <I>TODO</I> (connections to J5A and J10B)
+</UL>
+</P>
+
+<P CLASS=DESC><B>Note:</B> certain PCB breakout boards for this OLED have a different pinning, please check the datasheet! <I>TODO: document at least one alternative connection diagram for different pinning!</I>
+
+<H3> * Dedicated Buttons</H3>
+
+<P CLASS=DESC>Up to 32 free assignable button functions are available. The buttons have to be connected to a <A HREF="mbhp_din.html">MBHP_DIN</A> module, and can be assigned to functions in the DEFAULT.CV2 file.
+<center><img src="midibox_cv/midibox_cv2_userbuttons.jpg" width="550" height=410></IMG></center>
+</P>
+
+
+<H3> * Rotary Encoders and LED Rings</H3>
+
+<P CLASS=DESC>Up to 16 free assignable rotary encoder functions are available, which are stored in the patch structure (and not in the DEFAULT.CV2 file). The encoders have to be connected to a <A HREF="mbhp_din.html">MBHP_DIN</A> module, the LED rings to four shift registers of a <A HREF="mbhp_dout.html">MBHP_DOUT</A> module.
+<center><img src="midibox_cv/midibox_cv2_lre8x2.jpg" width="550" height=137></IMG></center>
+<P CLASS=DESC>A complete frontpanel PCB with encoders, LED rings, DIN and DOUT shift registers has been created by Fairlightiii and is documented at <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mb-lre8x2cs_pcb" TARGET="_blank">this page</A>.
+</P>
+
+
+<H3> * Frontpanel PCBs</H3>
+
+<P CLASS=INFO>Currently under discussion, see the <A HREF="http://midibox.org/forums/topic/16415-midibox-cv-v2-concept/" TARGET="_blank">forum thread</A> for further details.</P>
+
+
+FOOTER

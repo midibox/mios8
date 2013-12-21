@@ -1,0 +1,552 @@
+HEADER 3 ChangeLog of MIDIbox NG
+
+<CENTER><H1>MIDIbox NG Change Log</H1></CENTER>
+<CENTER><H3>Last Release: 2013-12-01</H3></CENTER>
+
+<P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_ng.html">http://www.uCApps.de/midibox_ng.html</A>.</P>
+
+<IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
+
+<UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.027</I>
+  <UL CLASS=CL>
+   <LI> .NGR: added "set_active" command. It can be alternatively used
+     instead of the bank mechanism to activate/deactivate events,
+     e.g. if the same events should be activated in multiple banks under
+     certain conditions.<BR>
+     A demo can be found under cfg/tests/multibnk.*
+
+   <LI> it's now possible to set a static forward value independent from the
+     actual value of the event which initiates the forwarding.<BR>
+
+     E.g. with<BR>
+<TT><PRE style="margin-left:20px; font-size:8pt">
+     EVENT_xxx fwd_id=SENDER:1:42
+</PRE></TT>
+     the SENDER:1 will always get value 42 for additional processing
+
+   <LI> support for multiple MBHP_MF_NG modules in a chain.<BR>
+     See cfg/test/mf_multi.ngc for a configuration example
+
+   <LI> support for Logic Control Meters.<BR>
+     Configuration example: see cfg/templates/logictrl.ngc
+     (search for "meter")
+
+   <LI> added new GLCD fonts (provided by Pcbatterij): Inverted and Tiny.<BR>
+     In order to test these fonts, try following commands in the MIOS Terminal:<BR>
+<TT><PRE style="margin-left:20px; font-size:8pt">
+     lcd %C&t@(1:1:1)Tiny Font
+     lcd %C&i@(1:1:1)Inverted Font
+</PRE></TT>
+
+   <LI> fixed OSC receiver (avoided stack overflow)
+
+   <LI> various minor bugfixes
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.026</I>
+  <UL CLASS=CL>
+   <LI>support for nrpn_format=MsbOnly (e.g. for MBSEQ V4 NRPNs)
+
+   <LI> new EVENT parameter ain_sensor_mode:
+     <UL CLASS=CL>
+       <LI>With ain_sensor_mode=NoteOnOff, AIN and AINSER events, which are 
+         assigned to Note events, send velocity 0 before a new Note is sent
+         with velocity > 0 to avoid hanging notes.
+       <LI>With ain_sensor_mode=None (default if no sensor mode specified),
+         Note events will be generated as a continuous stream like CCs
+     </UL>
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.025</I>
+  <UL CLASS=CL>
+   <LI> new terminal commands:
+    <UL CLASS=CL>
+     <LI> ngc: allows to execute a .NGC command directly
+     <LI> ngr: allows to execute a .NGR command directly
+     <LI> ngr_section: sets the ^section for .NGR execution
+     <LI> ngr_value: sets the ^value for .NGR execution
+     <LI> run: can now also executed without specified &lt;section&gt; &lt;value&gt;<BR>
+       (the previously set values will be taken in this case)
+    </UL>
+
+   <LI> inofficial support for MAX72xx chains - see cfg/tests/max72xx.ngc for
+     a configuration example (no schematic available yet)
+
+   <LI> .NGR: fixed "delay statements in if branches" issue
+
+   <LI> .NGR: added "set_lock" command. It allows to prevent, that received
+     events will overwrite a value of an event.
+
+   <LI> .NGR: the "set" command now also allows to change variables, e.g.:<BR>
+       set ^value 1<BR>
+       set ^section 2<BR>
+       set ^bank 3<BR>
+       (etc...)<BR>
+     the last one (^bank) will also switch MBNG to the specified bank
+
+   <LI> .NGR: added variables ^dev, ^pat, ^bnk, ^ins, ^chn<BR>
+     These are the same which can be used in SysEx strings, and which can
+     be changed in a SCS page (e.g. the variables could also be used for
+     different purposes)
+
+   <LI> added new SCS menu page to execute the .NGR file with given
+     ^section and ^value
+
+   <LI> the AIN command now supports the "resolution" parameter
+
+   <LI> the AINSER command now supports the "muxed" parameter.<BR>
+     Use muxed=1 for the AINSER64 module (default), and muxed=0 for the AINSER8 module.
+
+   <LI> AIN and AINSER events, which are assigned to Note events, send velocity 0
+     before a new Note is sent with velocity > 0 to avoid hanging notes.
+
+   <LI> added "ain_filter_delay_ms" to support sensors (experimental stage)
+
+   <LI> EVENT_RECEIVER in conjunction with ^txt or ^txt56: if ^cursor is not specified
+     in the SysEx stream, it will start at offset 0 from the specified lcd_pos=<device>:<x>:<y>
+
+   <LI> EVENT ... syxdumppos now supports the full receiver range 1..4095 (previously
+     only 1..15)
+
+   <LI> the MIDI router forwards SysEx messages regardless if channels are filtered,
+     or "All" is used. It's ensured that messages are only sent once if multiple
+     router nodes forward to the same destination port.
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.024</I>
+  <UL CLASS=CL>
+   <LI> bugfix for "single_usb" option
+
+   <LI> support for LED Digits (7-segment displays).<BR>
+     Configuration examples can be found under cfg/tests/leddig*.ngc
+
+   <LI> the DIN_MATRIX and DOUT_MATRIX configuration command now allows to
+     mirror the row pattern with "mirrored_row=1"
+
+   <LI> added EVENT_RECEIVER emu_enc_mode and emu_enc_hw_id parameters.<BR>
+     See cfg/tests/emu_enc.ngc for an usage example
+
+   <LI> .NGR now allows to cast the ID type: (id) or (hw_id).<BR>
+     E.g. (id)LED:1 will search for the EVENT specified with id=1, and
+     (hw_id)LED:1 will search for the EVENT specified with hw_id=1<BR>
+
+     if (hw_id) is used (default if no type specified), and no EVENT with
+     a matching hw_id can be found, a virtual event will access the control
+     element directly. This is currently only relevant for the SET command.<BR>
+
+     This matches with the behaviour of the "EVENT ... fwd_id=<id>" function.
+
+   <LI> added RunStop meta event to stop the execution of a .NGR file
+
+   <LI> added "runstop" terminal command
+
+   <LI> new .NGR command: set_rgb <id> <r:g:b><BR>
+     E.g. "set_rgb (id)LED:1001 15:8:4"
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.023</I>
+  <UL CLASS=CL>
+   <LI> the current AIN/AINSER pot values can now be taken over by the meta events
+     RetrieveAinValues and RetrieveAinserValues
+   <LI> new .NGR command: EXEC_META
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.022</I>
+  <UL CLASS=CL>
+   <LI> support for run scripts.<BR>
+     See also the <A HREF="midibox_ng_manual_ngr.html">new manual page</A>.
+
+   <LI> the new SysEx command ^label has been added. It allows to insert the ASCII code
+     of a label string into a SysEx stream.<BR>
+     See also cfg/tests/syxlabel.ngc
+
+   <LI> big GLCD font now correctly handled by ^txt and ^txt56 SysEx command
+
+   <LI> line number now displayed on errors in .NGC, .NGL or .NGR file
+
+   <LI> various bugfixes and improvements
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.021</I>
+  <UL CLASS=CL>
+   <LI> support for the "single_usb" option, which can be enabled with the
+     bootloader update application V1.012 ("set usb_single 1")<BR>
+
+     Use this option if you are working with a Windows PC which can't handle
+     the 4 USB ports correctly (e.g. stucking MIDI, Filebrowser operations are failing, etc.)
+
+   <LI> added .NGS file which allows to store and restore values into
+     up to 128 snapshots (0..127).<BR>
+     The snapshot can be changed in the "Snap" menu in the SCS
+
+   <LI> the "Snap" menu also allows to dump all events (e.g. after a new
+     snapshot has been loaded)
+
+   <LI> added new (hopefully selfexplaining) meta events:<BR>
+     SetSnapshot, DecSnapshot, IncSnapshot, CycleSnapshot, LoadSnapshot,
+     SaveSnapshot and DumpSnapshot<BR>
+     Note that multiple meta commands can be assigned to an event, e.g.
+     to set, auto-load and dump a snapshot from an encoder write:<BR>
+     EVENT_ENC ... type=Meta meta=SetSnapshot meta=LoadSnapshot meta=DumpSnapshot
+
+   <LI> added "no_dump" parameter to EVENT_xxx<BR>
+     It specifies if an EVENT_xxx should be sent during a DumpSnapshot.<BR>
+
+     no_dump=1 is set for EVENT_RECEIVER and EVENT_KB and events which are using
+     type=Meta by default.<BR>
+     If such events should be part of the dump, set no_dump=0
+
+     For all other events/types no_dump=0 is set by default, set no_dump=1 if
+     they shouldn't send MIDI events on a snapshot dump.
+
+   <LI> new label printf-control "%S" prints the snapshot number 0..127
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.020</I>
+  <UL CLASS=CL>
+  <LI>added "rgb" parameter.<BR>
+     See cfg/tests/rgb_*.ngc for various examples.
+
+  <LI>added "spread_center" option to AIN/AINSER calibration.<BR>
+     See cfg/tests/kb_1.ngc for an usage example.
+
+  <LI>reduced memory consumption of EVENT_* definitions
+
+  <LI>added MIOS Terminal commands: "show id" and "show hw_id"
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.019</I>
+  <UL CLASS=CL>
+   <LI> added "Autoload" function: whenever a .NGC file has been uploaded via the
+     MIOS Filebrowser, it will be automatically loaded, so that "load &lt;file&gt;" 
+     doesn't need to be entered in the MIOS Terminal anymore.
+
+   <LI> EVENT_LED_MATRIX: now expects the 'colour' parameter to address the
+     red (colour=0), green (colour=1) or blue (colour=2) LED.<BR>
+
+     Note that it's still possible to control the LEDs from a single incoming
+     MIDI message, e.g. by assigning the 3 EVENT_LED_MATRIX entries to the
+     same CC number.
+
+     But now it's also possible to address the LEDs independent from each other.
+
+
+   <LI> LEDs can now be dimmed with 16 brightness levels over the value range.<BR>
+     This feature has to be enabled with dimmed=1 in the EVENT_* definition.<BR>
+     Configuration example: cfg/tests/dimled.ngc
+
+   <LI> LEDs in a matrix configuration can be dimmed as well. The dim range is the
+     same (0..15), but the effective dim level is limited by the number of 
+     scanned rows:
+     <UL CLASS=CL>
+        <LI> 4  rows: only 8 levels (0..1, 2..3, 4..5, 6..7, 8..9, 10..11, 12..13, 14..15)
+        <LI> 8  rows: only 4 levels (0..3, 4..7, 8..11, 12..15)
+        <LI> 16 rows: only 2 levels (0..7, 8..15)
+     </UL>
+     Configuration example: cfg/tests/dimled_m.ngc
+
+   <LI> the new MIOS Terminal command "lcd" allows to directly output a (formatted)
+     string to the LCD(s).<BR>
+     E.g. try "lcd @(1:1:1)Hello World!"<BR>
+
+     Note that terminal strings can also be sent via SysEx from a DAW:<BR>
+     F0 00 00 7E 32 00 0D 00 &lt;ascii-text&gt; 0A F7
+
+     Accordingly, this SysEx string will print "Hello World!" as well:<BR>
+     F0 00 00 7E 32 00 0D 00 6C 63 64 20 40 28 31 3A 31 3A 31 29 48 65 6C 6C 6F 20 57 6F 72 6C 64 21 0A F7
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.018</I>
+  <UL CLASS=CL>
+   <LI> added EVENT_KB. See cfg/tests/kb_*.ngc for usage examples
+
+   <LI> new LCD formats: %N prints the note name based on the specified MIDI event,
+     and %n based on the event value
+
+   <LI> new meta event: SwapValues - it swaps the primary and secondary value of an event.<BR>
+     E.g. on a note event, velocity can be swapped with the key value.<BR>
+     A usage example can be found in cfg/tests/kb_4.ngc, where the key and velocity
+     value should be output by separate CV channels
+
+   <LI> AIN/AINSER configuration: added pinrange parameter.<BR>
+     It allows to specify individual ranges for the connected pots to calibrate
+     the physical min/max limits.
+
+   <LI> SCS configuration: added SCS num_items and lcd_pos parameters
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.017</I>
+  <UL CLASS=CL>
+   <LI> it's now possible to use the same hw_id in multiple event definitions.
+     This allows for example to send multiple MIDI events from a single
+     control element (e.g. from a single button)
+
+   <LI> the fwd_id now forwards to the event(s) with the given hw_id
+     (which is the same like the "normal id" if not explicitely specified)
+
+   <LI> implemented "conditional events".<BR>
+     See the <A HREF="midibox_ng_manual_ngc.html">User Manual</A> for details and examples.
+
+   <LI> the new meta event UpdateLcd allows to force a refresh of the complete
+     LCD content. This is especially useful in conjunction with conditional
+     events: whenever a source value has been changed (e.g. a button state),
+     all events which have this value in their condition will print out the
+     label if the specified condition matches.
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.016</I>
+  <UL CLASS=CL>
+   <LI> LPC17: robustness of LCD driver has been improved
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.015</I>
+  <UL CLASS=CL>
+   <LI> support for GLCD_SSD1306_ROTATED
+
+   <LI> the ^txt and ^txt56 SysEx command now allows to map incoming characters to
+     different cursor positions. An example can be found in cfg/templates/logictrl.ngc
+
+   <LI> independent from this map feature, ^txt and ^txt56 now also take lcd_pos=... and
+     label=... into account to set the initial LCD and cursor position, at which the
+     message will start. The label can be used to change the GLCD font before the
+     characters will be print.<BR>
+     An example can be found in cfg/templates/logictrl.ngc as well.
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.014</I>
+  <UL CLASS=CL>
+   <LI> the keyboard handler of MIDIbox KB has been integrated.
+     The configuration commands are identical "set kb..." as documented at
+     the <A HREF="http://www.ucapps.de/midibox_kb.html">MIDIbox KB page</A>.
+
+   <LI> keyboard parameters are also stored in the .NGC file, and can be
+     configured from there.
+
+   <LI> please note that the latency is 10 times higher than in the MIDIbox KB
+     application! Each row is scanned in 320 uS (instead of 32 uS).<BR>
+     This has to be considered in the velocity delay configuration.
+     delay_slowest should be 100 (instead of 1000), and delay_fastest should
+     be 5 (instead of 50)
+
+   <LI> DOGM and SSD1306 GLCDs: support for more than 12 displays via DOUT shift
+     registers connected to J28
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.013</I>
+  <UL CLASS=CL>
+   <LI> overworked LCD handling: there is no buffer limitation anymore, any LCD and GLCD size
+     is accepted, which especially means that GLCD fonts are displayed correctly
+     independent from the specified number of connected devices.
+
+   <LI> this change has freed some RAM which can be used for other purposes in future
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.012</I>
+  <UL CLASS=CL>
+   <LI> The application boots a little bit faster now
+
+   <LI> support for more than 2 LCDs.<BR>
+     A documentation can be found in the <A HREF="midibox_ng_manual_lcd.html">User Manual</A>.
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.011</I>
+  <UL CLASS=CL>
+   <LI> EVENT_SENDER and EVENT_RECEIVER can now also be assigned to a radio_group.<BR>
+     This can not only be used in conjunction with BUTTON/LED radio groups, but also
+     to distribute MIDI events to from receiver to multiple senders without
+     forwarding chains (which then can be used for a different purpose)
+
+   <LI> the "sdcard_format" command allows to format the connected SD Card with FAT32
+     from the MIOS Terminal
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.010</I>
+  <UL CLASS=CL>
+   <LI> SysEx: added ^cursor, ^txt and ^txt56 identifiers.<BR>
+     They allow to send messages to the LCD via SysEx.<BR>
+     A usage example can be found under cfg/templates/logictrl.ngc
+
+   <LI> Labels: ^# allows to terminate a label.<BR>
+     E.g. "^label^#MyText" prints "MyText" directly after the specified ^label
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.009</I>
+  <UL CLASS=CL>
+   <LI> with a button assigned to 'type=Meta meta=MidiLearn range=0:1' it's now possible
+     to activate a MIDI Learn mode which allows to assign an incoming MIDI event to any
+     control element
+
+   <LI> with 'type=Meta meta=MidiLearn range=0:2' also NRPN events can be learned (in this case,
+     CC#62 and CC#63 will be ignored!)
+
+   <LI> MIDI Learn mode can also be activated in the SCS menu
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.008</I>
+  <UL CLASS=CL>
+   <LI> DIN_MATRIX with rows=4 now properly supported
+
+   <LI> DIN_MATRIX/DOUT_MATRIX: it's now possible to invert the rows as well:<BR>
+     inverted=1 or inverted_sel=1 will invert the selection lines<BR>
+     inverted_row=1 will invert the row pattern
+
+   <LI> configuration examples for the 16x4 Button/Duo-LED matrix are now
+     available under cfg/tests/blm16x4*.ngc
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.007</I>
+  <UL CLASS=CL>
+   o changed bank concept: the BANK command has been removed, instead the EVENT
+     command got a new "hw_id" and "bank" parameter.<BR>
+     A simple configuration example can be found under cfg/tests/encbanks.ngc<BR>
+     More complex configuration examples under cfg/tests/bnk*.ngc
+
+   <LI> added meta=CycleBank (increments bank, resets to 1 if last bank reached)<BR>
+
+   <LI> additional new metas: SetBankOfHwId, DecBankOfHwId, IncBankOfHwId, CycleBankOfHwId
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.006</I>
+  <UL CLASS=CL>
+   <LI> corrected LED pattern output for the case that the selection lines are inverted.
+
+   <LI> the new SCS command allows to assign emulated button/encoder functions if the SCS
+     shows the mainpage.<BR>
+     A usage example can be found under cfg/templates/lre8x2.ngc
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.005</I>
+  <UL CLASS=CL>
+   <LI> support for value MAPs.<BR>
+     Various examples can be found under cfg/tests/map*.ngc
+
+   <LI> support for EVENT_CV<BR>
+     Various examples can be found under cfg/tests/cv*.ngc
+
+   <LI> AINSER modules now disabled after RESET_HW<BR>
+     They have to be explicitely enabled with the AINSER command
+
+   <LI> the AINSER command now supports the "resolution" and "num_pins" parameters
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.004</I>
+  <UL CLASS=CL>
+   <LI>some minor code cleanup
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.003</I>
+  <UL CLASS=CL>
+   <LI>added "enc_speed_mode" parameter to EVENT_ENC<BR>
+     Valid modes are:
+     <UL CLASS=CL>
+       <LI>Auto (speed automatically adapted according to the value range),
+       <LI>Slow:0 .. Slow:7 (divides the increments),
+       <LI>Normal (no special measure) and
+       <LI>Fast:0 .. Fast:7 (accelerates the increments)
+     </UL>
+     A configuration example can be found under cfg/tests/encspeed.ngc
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.002</I>
+  <UL CLASS=CL>
+   <LI> the patterns specified with LED_MATRIX_PATTERN are now reversed so that the
+     bit orientation matches with the hardware.
+
+   <LI> reversed value ranges (min value greater than max value) now properly supported
+
+   <LI> support for ain_mode Direct/Snap/Relative/Parallax
+
+   <LI> incoming MIDI values can now trigger the output of EVENT labels if the "fwd_to_lcd"
+     option is set to 1 in the related EVENT_* definitions.
+
+   <LI> support for "Radio Groups": button and LEDs can now be assigned to groups, which
+     handle the same value over multiple elements.<BR>
+     A configuration example can be found under: cfg/tests/radiogrp.ngc
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.001</I>
+  <UL CLASS=CL>
+   <LI> maximum length of DIN/DOUT shift register chain increased to 32.<BR>
+     This means that up to 256 digital inputs, and 256 digital outputs are available.
+
+   <LI> Number of virtual button and LED functions increased to 1024
+
+   <LI> New meta event for speeding up ENC movements (EncFast, see .NGC documentation)
+
+   <LI> New meta events for emulating SCS buttons/encoder (see .NGC documentation)
+
+   <LI> Ethernet and OSC setup now stored with ETH/OSC commands in .NGC file
+
+   <LI> SysEx variables are now stored with a SYSEX_VAR command in .NGC file
+
+   <LI> EVENT_BUTTON_MATRIX and EVENT_LED_MATRIX now properly supported<BR>
+     See cfg/tests/blm8x8.ngc for a simple configuration example
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.000</I>
+  <UL>
+    <LI>initial version</LI>
+  </UL>
+</LI>
+
+</UL>
+
+
+FOOTER
