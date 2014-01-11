@@ -398,7 +398,7 @@ MBFM_RND_GenerateWTE_Loop
 	call	MBFM_INSTR_GetBasePatchAndBank
 	movlw	0x80
 	movwf	EEADR
- MBFM_RND_GenerateWTE_Loop
+MBFM_RND_GenerateWTE_Loop
  	call	MBFM_RND_GenRandomNumber
 	call	MBFM_BANK_WriteWByte
 	BRA_IFSET EEADR, 7, ACCESS, MBFM_RND_GenerateWTE_Loop

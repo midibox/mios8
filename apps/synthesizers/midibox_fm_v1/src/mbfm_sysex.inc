@@ -332,6 +332,7 @@ MBFM_SYSEX_PATCH_Write_I_EE
 MBFM_SYSEX_PATCH_Write_I_RAM
 	;; initialize instrument from RAM
 	call	MBFM_INSTR_Init_RAM
+	call	CS_MENU_MS_Update_WT_Buffer ; CS update
 	rgoto	MBFM_SYSEX_PATCH_Write_Ack
 
 MBFM_SYSEX_PATCH_Write_D
@@ -658,9 +659,13 @@ MBFM_SYSEX_WritePar_I_RAM
 MBFM_SYSEX_WritePar_I_EE
 	;; direct write?
 	BRA_IFSET MBFM_SYSEX_TYPE, 3, BANKED, MBFM_SYSEX_WritePar_I_EE_Drct
+#if WAVETABLES_IN_RAM
+	rgoto   MBFM_SYSEX_WritePar_I_EE_NDrct
+#else
 	movlw	0x06
 	cpfseq	MBFM_SYSEX_ACTION, BANKED
 	rgoto MBFM_SYSEX_WritePar_I_EE_NDrct
+#endif
 MBFM_SYSEX_WritePar_I_EE_Drct
 	;; write into EEPROM
 	movff	MBFM_SYSEX_ADDRESS, EEADR
@@ -678,6 +683,9 @@ MBFM_SYSEX_WritePar_I_EE_NDrct
 	movf	MBFM_SYSEX_ADDRESS, W, BANKED
 	andlw	0x7f
 	movff	MBFM_SYSEX_IN, PLUSW1
+
+	call	CS_MENU_MS_Update_WT_Buffer ; CS update
+
 	rgoto	MBFM_SYSEX_WritePar_End
 
 
