@@ -177,6 +177,8 @@ MBFM_BANK_LoadW
 	BRA_IFCLR PRODH, 0, ACCESS, MBFM_BANK_LoadW_End
 
 	call	MIOS_BANKSTICK_ReadPage	; reads 0x40 bytes
+	movlw	0x40			; switch to next RAM section
+	addwf	FSR1L, F
 	call	MIOS_BANKSTICK_ReadPage	; reads 0x40 bytes
 	;; 	bnz	MBFM_BANK_LoadW_Err		; write error?
 	rgoto	MBFM_BANK_LoadW_End
@@ -203,6 +205,8 @@ MBFM_BANK_StoreW
 	BRA_IFCLR PRODH, 0, ACCESS, MBFM_BANK_StoreW_End
 
 	call	MIOS_BANKSTICK_WritePage	; writes 0x40 bytes
+	movlw	0x40			; switch to next RAM section
+	addwf	FSR1L, F
 	call	MIOS_BANKSTICK_WritePage	; writes 0x40 bytes
 	;; 	bnz	MBFM_BANK_StoreW_Err		; write error?
 	rgoto	MBFM_BANK_StoreW_End

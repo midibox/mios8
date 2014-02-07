@@ -77,6 +77,10 @@ CS_MENU_EXEC_Menu_WT
 	clrf	CS_MENU_WT_STEP
 	call	CS_MENU_MS_Update_WT_Buffer
 
+	;; start at cursor offset 0
+	clrf CS_MENU_PAGE_OFFSET
+
+	;; change to page
 	movf	CS_MENU_PARAMETER_IX, W
 	rgoto	CS_MENU_EXEC_Hlp_ChangeMenu
 
