@@ -1,13 +1,73 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2013-11-25</H3></CENTER>
+<CENTER><H3>Last Release: 2014-05-03</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.082</I>
+  <UL CLASS=CL>
+   <LI> Options in LIVE page are now stored in session specific MBSEQ_C.V4 file
+
+   <LI> initial release for MBHP_CORE_STM32F4
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.081</I>
+  <UL CLASS=CL>
+   <LI> added USB MIDI workaround for Windows
+
+   <LI> fixed synchronisation issue in Song mode
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.080</I>
+  <UL CLASS=CL>
+   <LI> SELECT+PASTE transfers the parameter layer, which was active during COPY, to
+     the current parameter layer.<BR>
+     If a drum track is selected, it's doing this for the trigger layer (and not
+     for the parameter layer).
+
+   <LI> SELECT+CLEAR clears only the current parameter layer.<BR>
+     If a drum track is selected, it's doing this for the trigger layer (and not
+     for the parameter layer)
+
+   <LI> it's now possible to control the track steps with CCs.<BR>
+     Each track has a dedicated CC which has to be configured in the
+     MIDI->Ext.Ctrl page.
+
+   <LI> it's now possible to turn off the track clock by enabling the new "Manual"
+     mode in the DIVIDER page. Once enabled, a step will only be played if:
+     <UL CLASS=CL>
+       <LI>manually triggered in the MANUAL page
+       <LI>set with the new CC based step control feature (MIDI->Ext.Ctrl page)
+     </UL>
+
+     Use cases:
+     <UL CLASS=CL>
+       <LI> predefined MIDI events, stored in the track layers, should be manually
+       triggered (and not sequenced).<BR>
+       E.g. in conjunction with a sampler, you could set each step to a note
+       which "fires" a certain sample. In addition, you can fire CCs,
+       Program Change, Aftertouch etc. from the MANUAL page.
+
+       <LI> the track should be controlled from an analog modulation source (e.g. a
+       sawwave from a LFO). MIDIbox SEQ doesn't provide analog inputs, so that
+       an external CV-to-MIDI interface is required.<BR>
+       Note that this interface also has to scale the CC value over the desired
+       step range. If the modulation source should sweep over step 1..16, then
+       the CV-to-MIDI interface has to scale down the converted value to the
+       CC value range 0..15!
+     </UL>
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.079</I>

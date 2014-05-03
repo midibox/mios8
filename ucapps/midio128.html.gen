@@ -6,7 +6,7 @@ HEADER 3 MIDIO128 V3
 <P CLASS=INFO>The MIDIO128 application allows to midify keyboard instruments such as organs.<BR>
 It can also be used for other purposes of course - whenever you are planning to trigger MIDI events with buttons, and/or to control LEDs (or relays) via USB, MIDI or Ethernet/OSC, have a closer look to the feature list!</P>
 
-<P CLASS=INFO>While the <A HREF="midio128_v2.html">previous version</A> was based on the <A HREF="mbhp_core.html">expired PIC based core</A>, MIDIO128 V3 utilizes the new <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17 module</A> and provides much more features:
+<P CLASS=INFO>While the <A HREF="midio128_v2.html">previous version</A> was based on the <A HREF="mbhp_core.html">expired PIC based core</A>, MIDIO128 V3 utilizes the new <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> and <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4 module</A>, and provides much more features:
 <UL CLASS=CL>
 <LI> up to 16 8bit input shift registers (=128 pins, =4 x <A HREF="mbhp_din.html">MBHP_DINX4 modules)</A>
 <LI> up to 16 8bit output shift registers (=128 pins, =4 x <A HREF="mbhp_din.html">MBHP_DOUTX4 modules)</A>
@@ -32,7 +32,7 @@ It can also be used for other purposes of course - whenever you are planning to 
 
 <P CLASS=DESC>The MIDIO128 V3 application consists of:
 <UL CLASS=CL>
-  <LI>a <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module
+  <LI>a <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> or <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module
   <LI>up to 4 <A HREF="mbhp_din.html">MBHP_DINX4</A> modules
   <LI>up to 4 <A HREF="mbhp_dout.html">MBHP_DOUTX4</A> modules
   <LI>an (more or less) optional <A HREF="mbhp_sdcard.html">SD Card</A><BR>
@@ -61,7 +61,7 @@ It can also be used for other purposes of course - whenever you are planning to 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Pots/Faders </H2>
 
-<P CLASS=INFO>Up to 8 pots/faders can be directly connected to J5A/B of the MBHP_CORE_LPC17 module as shown in the <a href="midio128/midio128_v3_interconnections.pdf">interconnection diagram</A>.</P>
+<P CLASS=INFO>Up to 8 pots/faders can be directly connected to J5A/B of the MBHP_CORE_LPC17 or MBHP_CORE_STM32F4 module as shown in the <a href="midio128/midio128_v3_interconnections.pdf">interconnection diagram</A>.</P>
 
 <P CLASS=INFO>The resistor value should be in the range of 1k..10k. The cable between pot and J5 port shouldn't be longer than 0.5m if 10k pots are used. With a shielded cable and 1k pots the allowed length is up to 2m.</P>
 
@@ -78,7 +78,7 @@ It can also be used for other purposes of course - whenever you are planning to 
 <P CLASS=DESC>Step by Step:
 <UL CLASS=CL>
   <LI>it's assumed that you already tested the USB MIDI communication by pressing the Query button in MIOS Studio as explained in the <A HREF="mios32_bootstrap_newbies.html">Bootloader page</A> - you should get some informations about the chip and the running application.<BR>
-      If this procedure sounds unfamiliar to you, please follow the hardware test procedure first as explained in the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> page.</LI>
+      If this procedure sounds unfamiliar to you, please follow the hardware test procedure first as explained in the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> resp. <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> page.</LI>
   <LI>download the latest midio128_v3_* release package from the <A HREF="mios32_download.html">MIOS32 Download Page</A>.
   <LI>unzip the .zip archive.
   <LI>load the project.hex file with the "Hex Upload" window of MIOS Studio and press the Start button.
@@ -118,7 +118,7 @@ It can also be used for other purposes of course - whenever you are planning to 
 
 <center><img src="midio128/midio128_v3_cs.jpg" width="550" height=554></IMG></center>
 
-<P CLASS=DESC>The optional control surface allows to edit most configuration values without the need of a computer. The detented rotary encoder and buttons can be directly connected to J10 of the MBHP_CORE_LPC17 module, no special DIN shift register is required (see also <a href="midio128/midio128_v3_interconnections.pdf">this schematic</A>).</P>
+<P CLASS=DESC>The optional control surface allows to edit most configuration values without the need of a computer. The detented rotary encoder and buttons can be directly connected to J10 of the MBHP_CORE_LPC17, resp. J10A of the MBHP_CORE_STM32F4 module, no special DIN shift register is required (see also <a href="midio128/midio128_v3_interconnections.pdf">this schematic</A>).</P>
 
 <P CLASS=DESC>After startup the main screen will be displayed:<BR>
 <IMG SRC="midio128/cs3/main1.gif" width=242 height=38 ALT="Screen"></IMG><BR>
@@ -338,7 +338,7 @@ Open Office will ask you for some formatting parameters, just use the default se
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Integrated SD Card Reader</H2>
 
-<P CLASS=DESC>A MSD (Mass Storage Device) driver is integrated into the firmware. It allows you to mount your SD Card via USB without disconnecting it from the MBHP_CORE_LPC17 module, which is especially useful if you want to quickly edit a .MIO file, or copy some .MID files.</P>
+<P CLASS=DESC>A MSD (Mass Storage Device) driver is integrated into the firmware. It allows you to mount your SD Card via USB without disconnecting it from the core module, which is especially useful if you want to quickly edit a .MIO file, or copy some .MID files.</P>
 
 <P CLASS=DESC>It can be activated by pressing SHIFT and the soft button under the "MSD" item:<BR>
 <IMG SRC="midio128/cs3/shift1.gif" width=242 height=38 ALT="Screen"></IMG><BR>

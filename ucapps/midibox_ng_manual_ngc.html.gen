@@ -567,6 +567,14 @@ EVENT_BUTTON ... type=Meta meta=DumpSnapshot
         <LI><I>RunSection:&lt;section&gt;</I>: executes the <A HREF="midibox_ng_manual_ngr.html">.NGR script</A> with ^section set to the specified value.
         <LI><I>RunStop</I>: stops the execution of a currently running <A HREF="midibox_ng_manual_ngr.html">.NGR script</A>.
 
+        <LI><I>MClkPlay</I>: starts the internal MIDI Clock Generator
+        <LI><I>MClkStop</I>: stops the internal MIDI Clock Generator
+        <LI><I>MClkPause</I>: pauses the internal MIDI Clock Generator
+        <LI><I>MClkPlayStop</I>: toggles between Play and Stop
+        <LI><I>MClkDecTempo</I>: decrements the current tempo by 1 BPM
+        <LI><I>MClkIncTempo</I>: increments the current tempo by 1 BPM
+        <LI><I>MClkSetTempo</I>: sets the BPM value of the current tempo
+
         <LI><I>ScsEnc</I>: emulates a SCS encoder movement. This Meta event can either be issued from EVENT_ENC or EVENT_BUTTON events. A usage example is given below.
         <LI><I>ScsSoft1</I>: emulates the SOFT1 button of the SCS
         <LI><I>ScsSoft2</I>: emulates the SOFT2 button of the SCS
@@ -703,6 +711,8 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
     <TD CLASS=TABCOLOR2>Following ain modes are supported for EVENT_AIN and EVENT_AINSER:
       <UL CLASS=CL>
         <LI><I>Direct</I>: the output value jumps directly to the new conversion value whenever the pot/fader is moved
+        <LI><I>Switch</I>: Can be used if buttons are connected to analog inputs. The event will send the min value if a 30% threshold is reached, and the max value if a 70% threshold is reached (hysteresis behaviour).
+           <TT><PRE style="margin-left:50px; font-size:8pt">Schematic:  Ground |----o Button o-----> analog input + 10k Pull-Up resistor to 3.3V (AIN) resp. 5V (AINSER)</PRE></TT>
         <LI><I>Snap</I>: (in literature also called "Soft-Takeover") whenever a new value is received from external, pot/fader movements won't generate MIDI events until it passed beyond the new position.
         <LI><I>Relative</I>: whenever a new value is received from external, pot/fader movements will increment the received value instead of setting it to the absolute position
         <LI><I>Parallax</I>: this name is cool, isn't it? ;-) A description can be found in <A HREF="http://www.ucapps.de/midibox/midibox_plus_parallax.gif">this history document from the year 1999</A>.
@@ -905,6 +915,8 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>%B</I>: a vertical bar which works like a meter.<BR>In conjunction with various fonts (selected with <I>&amp;&lt;font&gt;</I>) alternative icons will be output instead.
         <LI><I>%q</I>: current selected bank (q is a rotated b - do you see it? ;-)
         <LI><I>%S</I>: current snapshot number (0..127)
+        <LI><I>%t</I>: displays MIDI clock state ("Play" or "Stop")
+        <LI><I>%T</I>: displays the current tempo in BPM (recommended usage: %3T to display tempos from 0..999 BPM)
         <LI><I>%C</I>: clear all LCDs
         <LI><I>%%</I>: outputs the % character
         <LI><I>^^</I>: outputs the ^ character
@@ -1299,6 +1311,7 @@ LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000000000100000
 <TT><PRE style="margin-left:10px; font-size:8pt; font-size:8pt">
 KEYBOARD n=1   rows=8  dout_sr1=1  dout_sr2=2  din_sr1=1  din_sr2=2 \
                din_inverted=0  break_inverted=0  din_key_offset=32 \
+               make_debounced=0 \
                scan_velocity=1  scan_optimized=0  note_offset=28 \
                delay_fastest=5  delay_fastest_black_keys=0  delay_slowest=100
 

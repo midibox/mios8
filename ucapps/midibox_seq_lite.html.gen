@@ -324,8 +324,22 @@ Alternative cases are definitely welcomed!!!</P>
 
   <TR>
     <TD> <SPAN CLASS=BIG>Clear</SPAN></TD>
-    <TD> <SPAN CLASS=NORM>Clears the selected sequence(s).<BR>
-                          All steps and parameters will be cleared. Only the "Force-to-Scale" selection and current mutes won't be touched.
+    <TD> <SPAN CLASS=NORM>Press this button + one of the SEQ1/SEQ2 or General Purpose (GP) buttons to clear the whole, or parts of a sequence:
+   <UL CLASS=CL>
+     <LI> CLEAR+SEQ1: clear entire Seq1 + configuration (*)
+     <LI> CLEAR+SEQ2: clear entire Seq2 + configuration (*)
+     <LI> CLEAR+GP1: clear note triggers (values are kept but not played)
+     <LI> CLEAR+GP2: reset velocity values to 64
+     <LI> CLEAR+GP3: reset note length values to half step
+     <LI> CLEAR+GP4: clear Track 4 (Pitchbend + last CC lines)
+     <LI> CLEAR+GP5: clear CCs of Track 5
+     <LI> CLEAR+GP6: clear CCs of Track 6
+     <LI> CLEAR+GP7: clear CCs of Track 7
+     <LI> CLEAR+GP8: clear CCs of Track 8
+     <LI> Same for GP9..16 for Seq2
+    </UL>
+     (*) All steps and parameters will be cleared. Only the "Force-to-Scale" selection and current mutes won't be touched.<BR>
+         Track configuration won't be changed if 'PasteClrAll' set to 0 in MBSEQ_GC.V4 file
     </SPAN></TD>
   </TR>
 
@@ -499,7 +513,35 @@ Alternative cases are definitely welcomed!!!</P>
   <TR>
     <TD> <SPAN CLASS=BIG>RecLive</SPAN></TD>
     <TD> <SPAN CLASS=NORM>In this page realtime recording takes place. Start the sequencer and play some notes, they will be repeated once the step position pointer reaches the steps again.<BR>
-         CC and Pitchbender values will be recorded as well with high resolution (64th). CCs will be automatically assigned to free track slots (4 slots per track).
+         CC and Pitchbender values will be recorded as well with high resolution (64th). CCs will be automatically assigned to free track slots (4 slots per track).<BR>
+    Following track and layer assignment algorithm is used:
+     <UL CLASS=CL>
+     <LI> 1st CC line is recorded into Track 5, Layer A
+     <LI> 2nd CC line is recorded into Track 6, Layer A
+     <LI> 3rd CC line is recorded into Track 7, Layer A
+     <LI> 4th CC line is recorded into Track 8, Layer A
+     <LI> 5th CC line is recorded into Track 8, Layer B
+     <LI> 6th CC line is recorded into Track 8, Layer C
+     <LI> 7th CC line is recorded into Track 8, Layer D
+     <LI> 8th CC line is recorded into Track 7, Layer B
+     <LI> 9th CC line is recorded into Track 7, Layer C
+     <LI> 10th CC line is recorded into Track 7, Layer D
+     <LI> 11th CC line is recorded into Track 6, Layer B
+     <LI> 12th CC line is recorded into Track 6, Layer C
+     <LI> 13th CC line is recorded into Track 6, Layer D
+     <LI> 14th CC line is recorded into Track 5, Layer B
+     <LI> 15th CC line is recorded into Track 5, Layer C
+     <LI> 16th CC line is recorded into Track 5, Layer D
+     <LI> 17th CC line is recorded into Track 4, Layer B
+     <LI> 18th CC line is recorded into Track 4, Layer C
+     <LI> 19th CC line is recorded into Track 4, Layer D
+     <LI> Same for Track 12..16 for Seq2
+     </UL>
+     Advantage: if only a few CC lines are recorded, we've dedicated tracks
+     for PitchBend and CCs (Track 4-8, Layer A) which can be individually muted
+     and cleared.<BR>
+     Additional CCs populate the remaining layers from Track 8 backwards, so that
+     PitchBend remains an individual track if not more than 17 CC lines are recorded.
     </SPAN></TD>
   </TR>
 

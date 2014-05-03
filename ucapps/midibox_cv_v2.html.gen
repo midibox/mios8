@@ -3,7 +3,7 @@ HEADER 3 MIDIbox CV V2
 <H1>MIDIbox CV V2</H1>
 <H3>Created 2012..14</H3>
 
-<P CLASS=INFO>MIDIbox CV V2 is the predecessor of <A HREF="midibox_cv_v1.html">MIDIbox CV V1</A> with focus on digital, high-resolution modulation of CV outputs and an enhanced control surface.</P>
+<P CLASS=INFO>MIDIbox CV V2 is the successor of <A HREF="midibox_cv_v1.html">MIDIbox CV V1</A> with focus on digital, high-resolution modulation of CV outputs and an enhanced control surface.</P>
 
 <P CLASS=INFO>This project is currently under development, please follow the progress <A HREF="http://midibox.org/forums/topic/16415-midibox-cv-v2-concept/" TARGET="_blank">in this forum article</A> and feel free to contribute with your ideas!</P>
 
@@ -65,7 +65,6 @@ HEADER 3 MIDIbox CV V2
   <LI> support for 4 OLEDs which are used as scopes! CV channels can be assigned to the scope displays individually. Selectable oversampling rate and trigger level.
   <LI> all parameters are also bidirectionally accessible via NRPN, this is demonstrated by a sophisticated Lemur template, running on an iPad. A PC/Mac based solution (e.g. based on Ctrlr) is feasible as well
   <LI> user configurable buttons (up to 32)
-  <LI> user configurable pots connected to a <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module
   <LI> user configurable rotary encoders (up to 16)
   <LI> optional LED rings for encoders
 </UL>
@@ -81,7 +80,7 @@ HEADER 3 MIDIbox CV V2
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Planned/Requested Features</H2>
 
 <UL CLASS=CL>
-  <LI> support for up to 8 analog inputs which are connected to a <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module, and can be used in the modulation matrix for modulation operations
+  <LI> support for up to 8 fast scanned analog inputs at J5A and J5B which can be used in the modulation matrix for modulation operations (note LPC17 will only provide 6 inputs, since J5B.A6 and A7 are used for MIDI3)
   <LI> 8 sync inputs for all CV channels
   <LI> a clock sync input which will then be transfered into the divided (or multiplied) clock outputs
   <LI> force-to-scale with selectable keys (no predefined scales)
@@ -191,8 +190,8 @@ In addition a 2x20 LCD or a 128x64 graphical LCD is required.</P>
 
 <P CLASS=DESC>Interconnection diagrams:
 <UL CLASS=INFO>
-  <LI><B>MBHP_CORE_LPC17:</B> <I>TODO</I> (connections to J5A and J28)
-  <LI><B>MBHP_CORE_STM32F4:</B> <I>TODO</I> (connections to J5A and J10B)
+  <LI><B>MBHP_CORE_LPC17:</B> <A HREF="mbhp/mbhp_lcd_ssd1306_alt_port__lpc17.pdf">mbhp_lcd_ssd1306_alt_port__lpc17.pdf</A> (connections to J5A and J28)
+  <LI><B>MBHP_CORE_STM32F4:</B> <A HREF="mbhp/mbhp_lcd_ssd1306_alt_port__stm32f4.pdf">mbhp_lcd_ssd1306_alt_port__stm32f4.pdf</A> (connections to J10B)
 </UL>
 </P>
 
@@ -207,7 +206,7 @@ In addition a 2x20 LCD or a 128x64 graphical LCD is required.</P>
 
 <H3 CLASS="left"> * Rotary Encoders and LED Rings</H3>
 
-<P CLASS=DESC>Up to 16 free assignable rotary encoder functions are available, which are stored in the patch structure (and not in the DEFAULT.CV2 file). The encoders have to be connected to a <A HREF="mbhp_din.html">MBHP_DIN</A> module, the LED rings to four shift registers of a <A HREF="mbhp_dout.html">MBHP_DOUT</A> module.
+<P CLASS=DESC>Up to 16 free assignable rotary encoder functions with support for LED rings are available. The encoders have to be connected to a <A HREF="mbhp_din.html">MBHP_DIN</A> module, the LED rings to four shift registers of a <A HREF="mbhp_dout.html">MBHP_DOUT</A> module.
 <center><img src="midibox_cv/midibox_cv2_lre8x2.jpg" width="550" height=137></IMG></center>
 <P CLASS=DESC>A complete frontpanel PCB with encoders, LED rings, DIN and DOUT shift registers has been created by Fairlightiii and is documented at <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=mb-lre8x2cs_pcb" TARGET="_blank">this page</A>.
 </P>
@@ -215,7 +214,7 @@ In addition a 2x20 LCD or a 128x64 graphical LCD is required.</P>
 
 <H3 CLASS="left"> * iPad + Lemur</H3>
 
-<P CLASS=DESC>The Lemur based control surface gives you full remote access to MIDIbox CV V2! I used it during the development phase, and maintain it frequently (to test new features), therefore it's the reference for full parameter access. If you don't own an iPad yet, you could buy it second-hand via <A HREF="http://www.ebay.de" TARGET="_blank">Ebay</A>; even and iPad of the first generation (search for iPad1) will work with a sufficient performance!</P>
+<P CLASS=DESC>The Lemur based control surface gives you full remote access to MIDIbox CV V2! I used it during the development phase, and maintain it frequently (to test new features), therefore it's the reference for full parameter access. If you don't own an iPad yet, you could buy it second-hand via <A HREF="http://www.ebay.de" TARGET="_blank">Ebay</A>; even an iPad of the first generation (search for iPad1) will work with a sufficient performance!</P>
 
 <P CLASS=DESC>Lemur is available at <A HREF="https://itunes.apple.com/us/app/lemur/id481290621?mt=8" TARGET="_blank">iTunes</A> for ca. 25 EUR, and it's definitely worth the money. Especially due to the scripting capabilities I was able to create sophisticated control panels which communicate via NRPN parameters (= 14bit value range) bidirectionally! Means: the parameters used by MIDIbox CV V2 are in sync with the panels!</P>
 </P>

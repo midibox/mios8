@@ -34,6 +34,7 @@ It will just be attached to the MBHP_CORE_LPC17 PCB
 <LI> DMA doesn't support decrement address function, so that SRIO (serial shift register input and output) streams have to be reversed by software.
 <LI> output pins can't be used in open drain mode if a peripheral function like SPI or UART is assigned to it. This seems to be a design bug, because it isn't mentioned in the user manual (in distance: the description of the IO configuration implies that it should work, but it doesn't) - NXP support contacted, no reply yet!
 <LI>accordingly, such peripheral output functions can't be pulled to 5V, 74HCL based buffers are required (part of MBHP_CORE_LPC17 module).
+<LI>this limitation especially hurts for the MIDI OUTs, which can't be supplied at the (commonly used) 5V anymore. As a counter measure, R21, R22, R26 and R27 resistors are 47 Ohm instead of 220 Ohm to achieve a current of more than 5 mA for driving the optocoupler of the MIDI target device.
 <LI> RTC can only be clocked at 1 Hz by an external 32kHz crystal. Accordingly it isn't possible to use it at mS accuracy (no possibility to clock it by the main oscillator)
 <LI> RAM splitted into two 32k halves, there is a gap between the two SRAM ranges which makes it difficult for a code developer to locate variables in GCC. This will lead to unwanted dependencies for bigger MIOS32 applications (large arrays have to be assigned to RAM sections in the C code)
 </UL>
@@ -277,7 +278,7 @@ Applications can be updated quickly via USB port as <A HREF="mios32_bootstrap_ne
       <TD CLASS=TABCOLOR2>J2</TD>
       <TD CLASS=TABCOLOR2>2</TD>
       <TD CLASS=TABCOLOR2><B>When used as +5V output:</B> to supply modules which are not connected to a Jxx port which already provides a 5V output. Note that the 7805 gets very hot when it delivers currents above 500 mA. Maximum current drain is 1A!<BR>
-      <B>When used as +5V input: </B> for supplying the core from an external stabilized Power Supply Unit (PSU). The voltage regulator (IC3) doesn't need to be connected, also the rest of the voltage stabilization circuit between J1 and J2 (X1, C8, C9) can be left out. If the core module (and all connected modules to this branch) drains more than 100 mA, it's recommended to mount C8 directly to J2 (a small cable between the outer soldering pads of the left-out 7805 will do this).</TD>
+      <B>When used as +5V input: </B> for supplying the core from an external stabilized Power Supply Unit (PSU). The voltage regulator (IC6) doesn't need to be connected, also the rest of the voltage stabilization circuit between J1 and J2 (X1, C8, C9) can be left out. If the core module (and all connected modules to this branch) drains more than 100 mA, it's recommended to mount C8 directly to J2 (a small cable between the outer soldering pads of the left-out 7805 will do this).</TD>
     </TR>
 
     <TR>
@@ -297,7 +298,7 @@ Applications can be updated quickly via USB port as <A HREF="mios32_bootstrap_ne
       <TD CLASS=TABCOLOR2>4</TD>
       <TD CLASS=TABCOLOR2>A second IIC port, which can also be used as an additional MIDI IN/OUT port (MIDI IN4/OUT4) if enabled in MIOS32 (add "#define MIOS32_UART_NUM 4" to the mios32_config.h file).<BR>
 MIDI IN4 will be available on the J4B.SC. If a 6N138 based optocoupler circuit should be connected, replace the 2.2k pull-up R10 by 1k, or add a second 2.2k in parallel to get 1.1k effectively.<BR>
-MIDI OUT4 will be available on the J4B.SA pin, it isn't required to remove R11 if already soldered - it doesn't hurt.
+MIDI OUT4 will be available on the J4B.SD pin, it isn't required to remove R9 if already soldered - it doesn't hurt.
 </TD>
     </TR>
 
@@ -436,7 +437,8 @@ So, start with the resistors and diodes:
 <LI>R11, R13, R18, R23 = 1k
 <LI>R12 = 10k
 <LI>R19, R24 = 4.7k
-<LI>R20, R21, R22, R25, R26, R27 = 220
+<LI>R20, R25 = 220
+<LI>R21, R22, R26, R27 = 47
 <LI>D1, D2, D3 = 1N4148 (polarity! Check the black ring!)
 </UL>
       </TD>
