@@ -1202,6 +1202,9 @@ CS_MENU_PrintPEntry
 ;;  If >0, function has to be called after CS_MENU_PARAMETER_MAX_[LH] has been updated!
 ;; --------------------------------------------------------------------------
 CS_MENU_EncSpeedSet
+#if DEFAULT_TESTMODE_ENC_SPEED
+	return			; don't modify encoder speed, instead the user has to configure it in the SHIFT page
+#else
 	;; if encoder number > 0, always use ModVal speed
 	movwf	PRODL		; store number in PRODL
 	andlw	0xff		; fix ZERO flag
@@ -1271,6 +1274,7 @@ CS_MENU_EncSpeedSet_ModVal_GT1F
 	movwf	MIOS_PARAMETER1
 	movf	PRODL, W	; encoder number
 	goto	MIOS_ENC_SpeedSet
+#endif
 
 
 ;; --------------------------------------------------------------------------

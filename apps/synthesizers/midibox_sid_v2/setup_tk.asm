@@ -257,6 +257,13 @@
 	;; this switch enables the CC#32 filter for programs which send this CC always
 	;; together with CC#0 on bank changes
 #define DEFAULT_CC32_FILTER 0
+
+	;; Enables special testmode to check different encoder speed values.
+	;; Should be disabled again for "productive usage" of the MIDIbox SID!
+	;; If enabled, the encoder speed doesn't depend on the value range of the modified parameter.
+	;; Instead, it can be set in a special configuration page by pressing the SHIFT button.
+	;; Use this mode to find the best matching values for your encoders.
+#define DEFAULT_TESTMODE_ENC_SPEED 0
 	
 
 	org	0x3082		; never change the origin!

@@ -10,6 +10,112 @@
 ; 
 ; ==========================================================================
 
+
+#if DEFAULT_TESTMODE_ENC_SPEED
+	;; encoder configuration in testmode
+
+;; --------------------------------------------------------------------------
+;;  Prints the upper line of the CFG page
+;; --------------------------------------------------------------------------
+CS_MENU_SHIFT_STR_0 STRING 20, 0x00,   "Mode Speed          "
+CS_MENU_SHIFT_PrintUL
+	;; if CLCD: disable blinking CLCD cursor
+	movlw	0x0c
+	CALL_IFCLR MIOS_BOX_CFG0, MIOS_BOX_CFG0_USE_GLCD, ACCESS, MIOS_LCD_Cmd	
+
+	TABLE_ADDR CS_MENU_SHIFT_STR_0
+	goto	MIOS_LCD_PrintString
+
+;; --------------------------------------------------------------------------
+;;  Prints the lower line of the CFG page
+;; --------------------------------------------------------------------------
+CS_MENU_SHIFT_PrintLL
+	movlw	0x40
+	call	MIOS_LCD_CursorSet
+
+CS_MENU_SHIFT_STR_MODE	db "Slow", "Norm", "Fast"
+	movlw	0x00
+	call	MIOS_ENC_SpeedGet
+	movf	MIOS_PARAMETER1, W
+	TABLE_ADDR_MUL_W CS_MENU_SHIFT_STR_MODE, 4
+	movlw	4
+	call	MIOS_LCD_PrintPreconfString
+
+	movlw	' '
+	call	MIOS_LCD_PrintChar
+
+	movf	MIOS_PARAMETER1, W
+	xorlw	MIOS_ENC_SPEED_NORMAL
+	bz	CS_MENU_SHIFT_PrintLL_Norm
+CS_MENU_SHIFT_PrintLL_NotNorm
+	movf	MIOS_PARAMETER2, W
+	call	MIOS_LCD_PrintBCD3
+	rgoto	CS_MENU_SHIFT_PrintLL_Cont
+CS_MENU_SHIFT_PrintLL_Norm
+	movlw	'-'
+	call	MIOS_LCD_PrintChar
+	movlw	'-'
+	call	MIOS_LCD_PrintChar
+	movlw	'-'
+	call	MIOS_LCD_PrintChar
+
+CS_MENU_SHIFT_PrintLL_Cont
+	movlw	12
+	goto	SID_LCD_PrintSpaces
+
+
+;; --------------------------------------------------------------------------
+;;  A soft button has been pressed
+;;  IN: button number in WREG
+;; --------------------------------------------------------------------------
+CS_MENU_SHIFT_Button
+	;; branch depending on button
+	andlw	0x07
+	JUMPTABLE_2BYTES_UNSECURE
+	rgoto	CS_MENU_SHIFT_Button_EncMode
+	rgoto	CS_MENU_SHIFT_Button_EncSpeed
+	return
+	return
+	return
+	return
+	return
+	return
+
+CS_MENU_SHIFT_Button_EncMode
+	movlw	0x00
+	call	MIOS_ENC_SpeedGet
+
+	;; select from 0..2
+	incf	MIOS_PARAMETER1, F
+	incf	MIOS_PARAMETER1, W
+	andlw	0x03
+	skpnz
+	clrf	MIOS_PARAMETER1
+
+CS_MENU_SHIFT_Button_EncConfig
+	;; transfers new configuration into all encoder setups
+	clrf	PRODL
+CS_MENU_SHIFT_Button_EncConfigLp
+	movf	PRODL, W
+	call	MIOS_ENC_SpeedSet
+	incf	PRODL, F
+	BRA_IFCLR PRODL, 6, ACCESS, CS_MENU_SHIFT_Button_EncConfigLp
+	rgoto	CS_MENU_SHIFT_PrintLL
+
+		
+CS_MENU_SHIFT_Button_EncSpeed
+	movlw	0x00
+	call	MIOS_ENC_SpeedGet
+
+	;; select from 0..7
+	incf	MIOS_PARAMETER2, W
+	andlw	0x07
+	movwf	MIOS_PARAMETER2
+
+	rgoto	CS_MENU_SHIFT_Button_EncConfig
+
+#else
+	
 ;; --------------------------------------------------------------------------
 ;;  Prints the upper line of the CFG page
 ;; --------------------------------------------------------------------------
@@ -335,3 +441,4 @@ CS_MENU_SHIFT_GetSyxType
 	btfsc	CS_MENU, 6
 	movlw 0x70
 	return
+#endif
