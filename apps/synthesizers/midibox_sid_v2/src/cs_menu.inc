@@ -1221,26 +1221,13 @@ CS_MENU_EncSpeedSet_SelItem
 	movf	PRODL, W	; encoder number
 	goto	MIOS_ENC_SpeedSet
 
-	;; in main page (where the patch number is selected with the encoder)
-	;; - set to "fast mode" if SHIFT button is pressed (fast selection)
-	;; - set to "normal mode" if SHIFT button is not pressed (slow selection)
-	;; TK: swapped this in v2.042, since the usage was too confusing
 CS_MENU_EncSpeedSet_Main
-	movlw	2			; this speed value is taken when ENC_SPEED_FAST is selected
-	movwf	MIOS_PARAMETER2
-	movlw	MIOS_ENC_SPEED_FAST	; FAST or NORMAL mode depending on state of shift button
-	btfss	CS_MENU_MODE, CS_MENU_MODE_SHIFT_PRESSED
-	movlw	MIOS_ENC_SPEED_NORMAL
-	movwf	MIOS_PARAMETER1
-	movf	PRODL, W		; encoder number
-	goto	MIOS_ENC_SpeedSet
-
 CS_MENU_EncSpeedSet_ModVal
-	;; "modify parameter" mode: set encoder speed to "fast"
+	;; main page "modify parameter" mode: set encoder speed to "fast"
 	;; divider value depends directly on max value
+	;; shift button alternates the speed
 
 	movf	CS_MENU_PARAMETER_MAX_L, W
-	movwf	TMP1
 	andlw	0xe0
 	iorwf	CS_MENU_PARAMETER_MAX_H, W
 	bnz	CS_MENU_EncSpeedSet_ModVal_GT1F
@@ -1255,20 +1242,81 @@ CS_MENU_EncSpeedSet_ModVal_LE1F
 	goto	MIOS_ENC_SpeedSet
 
 CS_MENU_EncSpeedSet_ModVal_GT1F
-	;; max value > 0x1f: set fast speed
+	;; max value > 0x1f: set fast speed depending on range:
 	movf	CS_MENU_PARAMETER_MAX_H, W
-	movwf	TMP2
-	rlf	TMP1, F
-	rlf	TMP2, F
-	movlw	0x05		; saturate if value >= 5
-	cpfsgt  TMP2, ACCESS	; (IFLEQ)
-	movf	TMP2, W
+	andlw	0xf3
+	bnz	CS_MENU_EncSpeedSet_ModVal_GE400
+	movf	CS_MENU_PARAMETER_MAX_H, W
+	bnz	CS_MENU_EncSpeedSet_ModVal_GE100
+	movf	CS_MENU_PARAMETER_MAX_L, W
+	andlw	0x80
+	bnz	CS_MENU_EncSpeedSet_ModVal_GE80
+	movf	CS_MENU_PARAMETER_MAX_L, W
+	andlw	0xc0
+	bnz	CS_MENU_EncSpeedSet_ModVal_GE40
 
+#if DEFAULT_SHIFT_SPEED_CONTROL_MODE == 1
+	;; SHIFT button makes encoders faster
+CS_MENU_EncSpeedSet_ModVal_GE20
+	movlw	0x00
+	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_GE80
+	movlw	0x00
+	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_GE40
+	movlw	0x01
+	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_GE100
+	movlw	0x03
+	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_GE400
+	movlw	0x05
+	;; 	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_Cont
 	;; increase speed if shift button pressed
 	btfsc	CS_MENU_MODE, CS_MENU_MODE_SHIFT_PRESSED
-	addlw 2
-
+	addlw	2
 	movwf	MIOS_PARAMETER2
+	;; saturate if value is >= 7
+	andlw	0xf8
+	bz	CS_MENU_EncSpeedSet_ModVal_Cont7
+	movlw	0x07
+	movwf	MIOS_PARAMETER2
+CS_MENU_EncSpeedSet_ModVal_Cont7
+#else
+	;; SHIFT button makes encoders slower
+CS_MENU_EncSpeedSet_ModVal_GE20
+	movlw	0x00
+	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_GE40
+	movlw	0x02
+	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_GE80
+	movlw	0x03
+	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_GE100
+	movlw	0x05
+	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_GE400
+	movlw	0x07
+	;; 	rgoto	CS_MENU_EncSpeedSet_ModVal_Cont
+CS_MENU_EncSpeedSet_ModVal_Cont
+	;; increase speed if shift button pressed
+	btfsc	CS_MENU_MODE, CS_MENU_MODE_SHIFT_PRESSED
+	addlw	-2
+	movwf	MIOS_PARAMETER2
+	;; saturate if value is < 0
+	btfsc	MIOS_PARAMETER2, 7
+	clrf	MIOS_PARAMETER2
+#endif
+
+#if 0
+	;; for testing purposes: send speed value as Program Change Event
+	movlw	0xc0
+	call	MIOS_MIDI_TxBufferPut
+	movf	MIOS_PARAMETER2, W
+	call	MIOS_MIDI_TxBufferPut
+#endif
 
 	movlw	MIOS_ENC_SPEED_FAST
 	movwf	MIOS_PARAMETER1

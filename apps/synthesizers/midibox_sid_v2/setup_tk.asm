@@ -266,6 +266,13 @@
 #define DEFAULT_TESTMODE_ENC_SPEED 0
 	
 
+	;; the SHIFT button allows to alternate the encoder speed
+	;; select the desired behaviour here:
+	;; 0: (default) encoders are fast by default, by pressing the SHIFT button encoders are slower
+	;; 1: encoders are slow by default, by pressing the SHIFT button encoders are faster
+#define DEFAULT_SHIFT_SPEED_CONTROL_MODE 0
+
+
 	org	0x3082		; never change the origin!
 ; ==========================================================================
 ;  In this table all button functions are mapped to the DIN pins
