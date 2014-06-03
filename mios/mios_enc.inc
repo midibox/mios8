@@ -750,7 +750,20 @@ MIOS_ENC_SaveState
 	;; used when MIOS_ENC_SPEED_FAST is set
 	;; determines increment/decrement value depending on accelerator counter
 MIOS_ENC_ModifyAccelerator
-	movff	IRQ_TMP5, IRQ_TMP3	; copy accelerator counter to IRQ_TMP3
+	movf	IRQ_TMP5, W		; copy accelerator counter to IRQ_TMP3
+#if 1
+	;; new in MIOS8 V1.9h:
+	;; this mask leads to an improved "feeling": we've only 4 speed stages anymore, which especially means 
+	;; that the faster increments won't start so early.
+	;; see also http://midibox.org/forums/topic/18820-optimizing-encoder-behavior-in-mbsid-firmware/?p=164539
+	andlw	0xc0
+	movwf	IRQ_TMP3
+	xorlw	0xc0		; set to 0xff for highest speed
+	skpnz
+	setf	IRQ_TMP3
+#else
+	movwf	IRQ_TMP3
+#endif
 	bcf	FSR2L, 7		; switch to ENCx_PARAMETER
 	movf	INDF2, W		; get speed parameter
 	bsf	FSR2L, 7		; switch back to ENCx_INC
