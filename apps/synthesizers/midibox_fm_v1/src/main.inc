@@ -4,7 +4,7 @@
 ; MIDIbox FM
 ;
 ; Version:                <-------------->
-#define MBFM_VERSION_STR "MIDIbox FM V1.4i"
+#define MBFM_VERSION_STR "MIDIbox FM V1.4j"
 ; (fixed string length - 16 characters!)
 ;
 ; ==========================================================================
@@ -47,7 +47,11 @@
 #include "mios_tables.inc"
 
 ;; ---[ Custom LCD driver ]---
+#if USE_8BIT_LCD_DRIVER
+#include "app_lcd_8bitdriver.inc"
+#else
 #include <app_lcd.inc>
+#endif
 
 ;; ==========================================================================
 ;;  All MIOS hooks in one file
@@ -60,6 +64,15 @@
 USER_Init
 	;; initialize OPL3 module
 	call	MBFM_REG_Init
+
+#if USE_8BIT_LCD_DRIVER
+	;; optional 8bit LCD driver (located in app_lcd_8bitdriver.inc)
+	;; select LCD type #7 (custom LCD driver, hooks in app_lcd module will be used)
+	clrf	MIOS_PARAMETER1	; variable enable pin not provided
+	clrf	MIOS_PARAMETER2	; variable enable pin not provided
+	movlw	0x07
+	call	MIOS_LCD_TypeSet	
+#endif
 
 	;; ------------------------------------------------------------------
 

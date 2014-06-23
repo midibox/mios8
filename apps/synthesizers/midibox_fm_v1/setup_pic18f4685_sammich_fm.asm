@@ -15,6 +15,17 @@
 
 	;; specific changes for the sammichFM control surface (requires PIC18F4685!)
 #define CS_SAMMICH_FM 1
+
+	;; set this flag to 1 in order to enable 8bit LCD access mode for PIC18F4685 derivatives.
+	;; IMPORTANT: this option requires a modification on the sammichFM hardware:
+	;; Connect:
+	;; - PIC Pin RE1 to J16:D3
+	;; - PIC Pin RE2 to J16:D2
+	;; - PIC Pin RB1 to J16:D1
+	;; - PIC Pin RB0 to J16:D0
+	;; Compare following schematic for sammichFM J16 pinning: http://www.midibox.org/dokuwiki/lib/exe/fetch.php?media=sammichfm:sammichfm_base_pcb_rev_1.pdf
+	;; And following schematic for PIC pinning: http://www.ucapps.de/mbhp/mbhp_core_v3.pdf
+#define USE_8BIT_LCD_DRIVER 0
 	
 	;; new custom char display handler (requires PIC18F4685!)
 #define USE_CUSTOM_CHAR_HANDLER 1
