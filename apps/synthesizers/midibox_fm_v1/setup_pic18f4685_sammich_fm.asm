@@ -19,8 +19,8 @@
 	;; set this flag to 1 in order to enable 8bit LCD access mode for PIC18F4685 derivatives.
 	;; IMPORTANT: this option requires a modification on the sammichFM hardware:
 	;; Connect:
-	;; - PIC Pin RE1 to J16:D3
-	;; - PIC Pin RE2 to J16:D2
+	;; - PIC Pin RE2 to J16:D3
+	;; - PIC Pin RE1 to J16:D2
 	;; - PIC Pin RB1 to J16:D1
 	;; - PIC Pin RB0 to J16:D0
 	;; Compare following schematic for sammichFM J16 pinning: http://www.midibox.org/dokuwiki/lib/exe/fetch.php?media=sammichfm:sammichfm_base_pcb_rev_1.pdf
