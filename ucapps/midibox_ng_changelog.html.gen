@@ -1,13 +1,58 @@
 HEADER 3 ChangeLog of MIDIbox NG
 
 <CENTER><H1>MIDIbox NG Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2014-01-28</H3></CENTER>
+<CENTER><H3>Last Release: 2014-05-31</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_ng.html">http://www.uCApps.de/midibox_ng.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.030</I>
+  <UL CLASS=CL>
+   <LI> increased event pool size to 64k for MBHP_CORE_STM32F4
+
+   <LI> added ain_mode=Switch for AIN and AINSER events.<BR>
+     Can be used if buttons are connected to analog inputs. The event will send the
+     min value if a 30% threshold is reached, and the max value if a 70% threshold
+     is reached.<BR>
+     Schematic:  Ground |----o Button o-----> analog input + 10k Pull-Up resistor to 3.3V (AIN) resp. 5V (AINSER)
+
+   <LI> .ngr: added "change" command. It works similar to the "set" command, but
+     only changes the value, and doesn't generate a MIDI event.
+
+   <LI> .ngr: added "set_min" and "set_max" command which allows to modify the
+     min/max range of a EVENT
+
+   <LI> added new meta events to control the internal MIDI clock generator:
+     MClkPlay, MClkStop, MClkPlayStop, MClkPause, MClkDecTempo, MClkIncTempo, MClkSetTempo.<BR>
+     Example can be found under cfg/test/midiclk.ngc
+
+   <LI> added new string formatting items:
+    <UL CLASS=CL>
+     <LI>%t to display MIDI clock state (Play/Stop)
+     <LI>%T to display tempo (BPM)
+    </UL>
+
+   <LI> added new MClk menu page to SCS to control the tempo w/o dedicated controllers
+
+   <LI> fixed AOUT_NG module communication issue if AINSER was used in addition
+
+   <LI> added new meta events:
+     <UL CLASS=CL>
+       <LI> CvPitchBend14Bit:<cv-channel>
+       <LI> CvPitchBend7Bit:<cv-channel>
+       <LI> CvPitchRange:<cv-channel>
+       <LI> CvTransposeOctave:<cv-channel>
+       <LI> CvTransposeSemitones:<cv-channel>
+     </UL>
+     see cfg/test/cvtransp.ngc for usage examples
+
+   <LI> BUTTON toggle function can now also handle with inverted and reduced value ranges
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V1.029</I>
