@@ -132,50 +132,52 @@ CS_MENU_DEL_CALLBACK_HOOK_L EQU	0x034	; contains low-byte of delayed callback fu
 CS_MENU_DEL_CALLBACK_HOOK_H EQU	0x035	; contains high-byte of delayed callback function (e.g. used by save button)
 CS_MENU_GP_CALLBACK_HOOK_L EQU	0x036	; contains low-byte of callback function used for general purpose buttons
 CS_MENU_GP_CALLBACK_HOOK_H EQU	0x037	; contains high-byte of callback function used for general purpose buttons
-CS_MENU_GP_OVERLAY_DOUT_SR0 EQU	0x038	; contains the LED status of GP DOUT #0
-CS_MENU_GP_OVERLAY_DOUT_SR1 EQU	0x039	; contains the LED status of GP DOUT #1
-CS_MENU_PARAMETER_TABLE_L EQU	0x03a	; contains low-byte of parameter table
-CS_MENU_PARAMETER_TABLE_H EQU	0x03b	; contains high-byte of parameter table
-CS_MENU_CURSOR_POS	EQU	0x03c	; the cursor position within the current menu page
-CS_MENU_CURSOR_POS_MAX	EQU	0x03d	; the max. cursor position
-CS_MENU_CURSOR_LCD_POS	EQU	0x03e	; LCD position of the cursor
-CS_MENU_CURSOR_LCD_WIDTH EQU	0x03f	; cursor width
-CS_MENU_DOUBLECLICK_CTR  EQU    0x040   ; will be decremented until 0 to determine doubleclicks
-CS_MENU_DOUBLECLICK_LAST_DIN EQU 0x041  ; stores the last DIN
-CS_MENU_METER_DELAY_CTR	EQU	0x042	; delay counter for meters (cs_menu_timer.inc)
-CS_MENU_METER_CTR_BEGIN	EQU	0x043	; meter decrement counter (for mute display, handled by cs_menu_timer.inc)
-CS_MENU_METER_CTR_END	EQU	0x052	; (16 meters for 16 tracks)
-CS_MENU_ENC_INCREMENTER EQU     0x053   ; used by seq_enc.inc and cs_m_*
-CS_MENU_CURSOR_POS_OLD	EQU	0x054	; used by seq_enc.inc and cs_m_*
-CS_STAT2		EQU	0x055	; additional status variables
-CS_ROUTER_SOURCE	EQU	0x056	; used in cs_m_midicfg.inc
-CS_ROUTER_TARGET	EQU	0x057	; used in cs_m_midicfg.inc
-CS_IN_MENU_MSG		EQU	0x058	; can be used to start a short in-menu message to notify about something when a button has been pressed
-CS_COPYPASTE_BEGIN	EQU	0x059	; used in "cs_m_utils.inc"
-CS_COPYPASTE_END	EQU	0x05a	; used in "cs_m_utils.inc"
-CS_MOVE_ENCODER		EQU	0x05b	; used in "cs_m_utils.inc"
-CS_UNDO_TRK		EQU	0x05c	; used in "cs_m_utils.inc"
-CS_TRKDIV_TIMEBASE	EQU	0x05d	; used in "cs_m_trkdiv.inc"
-CS_TRKMIDI_NOTE		EQU	0x05e	; used in "cs_m_trkmidi.inc"
-CS_TRKMIDI_OCTAVE	EQU	0x05f	; used in "cs_m_trkmidi.inc"
-CS_PATTERN_GP_STATE_R	EQU	0x060	; state of right pattern select buttons
-CS_PATTERN_NEW_BANK	EQU	0x061	; pre-selects new bank
+CS_MENU_GP_OVERLAY_DOUT_SR0_A EQU 0x038	; contains the LED status of GP DOUT #0, Layer A
+CS_MENU_GP_OVERLAY_DOUT_SR1_A EQU 0x039	; contains the LED status of GP DOUT #1, Layer A
+CS_MENU_GP_OVERLAY_DOUT_SR0_B EQU 0x03a	; contains the LED status of GP DOUT #0, Layer B
+CS_MENU_GP_OVERLAY_DOUT_SR1_B EQU 0x03b	; contains the LED status of GP DOUT #1, Layer B
+CS_MENU_PARAMETER_TABLE_L EQU	0x03c	; contains low-byte of parameter table
+CS_MENU_PARAMETER_TABLE_H EQU	0x03d	; contains high-byte of parameter table
+CS_MENU_CURSOR_POS	EQU	0x03e	; the cursor position within the current menu page
+CS_MENU_CURSOR_POS_MAX	EQU	0x03f	; the max. cursor position
+CS_MENU_CURSOR_LCD_POS	EQU	0x040	; LCD position of the cursor
+CS_MENU_CURSOR_LCD_WIDTH EQU	0x041	; cursor width
+CS_MENU_DOUBLECLICK_CTR  EQU    0x042   ; will be decremented until 0 to determine doubleclicks
+CS_MENU_DOUBLECLICK_LAST_DIN EQU 0x043  ; stores the last DIN
+CS_MENU_METER_DELAY_CTR	EQU	0x044	; delay counter for meters (cs_menu_timer.inc)
+CS_MENU_METER_CTR_BEGIN	EQU	0x045	; meter decrement counter (for mute display, handled by cs_menu_timer.inc)
+CS_MENU_METER_CTR_END	EQU	0x056	; (16 meters for 16 tracks)
+CS_MENU_ENC_INCREMENTER EQU     0x057   ; used by seq_enc.inc and cs_m_*
+CS_MENU_CURSOR_POS_OLD	EQU	0x058	; used by seq_enc.inc and cs_m_*
+CS_STAT2		EQU	0x059	; additional status variables
+CS_ROUTER_SOURCE	EQU	0x05a	; used in cs_m_midicfg.inc
+CS_ROUTER_TARGET	EQU	0x05b	; used in cs_m_midicfg.inc
+CS_IN_MENU_MSG		EQU	0x05c	; can be used to start a short in-menu message to notify about something when a button has been pressed
+CS_COPYPASTE_BEGIN	EQU	0x05d	; used in "cs_m_utils.inc"
+CS_COPYPASTE_END	EQU	0x05e	; used in "cs_m_utils.inc"
+CS_MOVE_ENCODER		EQU	0x05f	; used in "cs_m_utils.inc"
+CS_UNDO_TRK		EQU	0x060	; used in "cs_m_utils.inc"
+CS_TRKDIV_TIMEBASE	EQU	0x061	; used in "cs_m_trkdiv.inc"
+CS_TRKMIDI_NOTE		EQU	0x062	; used in "cs_m_trkmidi.inc"
+CS_TRKMIDI_OCTAVE	EQU	0x063	; used in "cs_m_trkmidi.inc"
+CS_PATTERN_GP_STATE_R	EQU	0x064	; state of right pattern select buttons
+CS_PATTERN_NEW_BANK	EQU	0x065	; pre-selects new bank
 
-CS_MENU_INST_OVERLAY_DOUT_SR0 EQU 0x067	; contains the instrument indicator of GP DOUT #0
-CS_MENU_INST_OVERLAY_DOUT_SR1 EQU 0x068	; contains the instrument indicator of GP DOUT #1
-CS_MENU_INST_OVERLAY_CTR EQU	0x069	; display delay for instrument indicator
-
-;; ==========================================================================
-
-PERFORMANCE_LOAD_CTR_L	EQU	0x06a	; for seq_load.inc
-PERFORMANCE_LOAD_CTR_H	EQU	0x06b
-PERFORMANCE_LOAD_REG_L	EQU	0x06c
-PERFORMANCE_LOAD_REG_H	EQU	0x06d
-PERFORMANCE_REF_CTR	EQU	0x06e
+CS_MENU_INST_OVERLAY_DOUT_SR0 EQU 0x066	; contains the instrument indicator of GP DOUT #0
+CS_MENU_INST_OVERLAY_DOUT_SR1 EQU 0x067	; contains the instrument indicator of GP DOUT #1
+CS_MENU_INST_OVERLAY_CTR EQU	0x068	; display delay for instrument indicator
 
 ;; ==========================================================================
 
-	;; free: 0x6f-0x6f
+PERFORMANCE_LOAD_CTR_L	EQU	0x069	; for seq_load.inc
+PERFORMANCE_LOAD_CTR_H	EQU	0x06a
+PERFORMANCE_LOAD_REG_L	EQU	0x06b
+PERFORMANCE_LOAD_REG_H	EQU	0x06c
+PERFORMANCE_REF_CTR	EQU	0x06d
+
+;; ==========================================================================
+
+	;; free: 0x6e-0x6f
 
 ;; ==========================================================================
 
@@ -344,8 +346,8 @@ SEQ_BANKSTICK_STATUS	EQU	0x143	; used in "seq_bank.inc" (each BankStick has an o
 SEQ_BANKSTICK_SIZE	EQU	0x144	; used in "seq_bank.inc" (each BankStick has a size flag - 0=32k, 1=64k)
 SEQ_BANKSTICK_DISABLED	EQU	0x145	; used in "seq_bank.inc" to disable Mixer-BankSticks (so that they won't be reformatted)
 
-SEQ_GP_LED_L		EQU	0x146	; status of the general purpose LEDs (left side)
-SEQ_GP_LED_R		EQU	0x147	; status of the general purpose LEDs (right side)
+SEQ_GP_LED_L_A		EQU	0x146	; status of the general purpose LEDs (left side, A layer)
+SEQ_GP_LED_R_A		EQU	0x147	; status of the general purpose LEDs (right side, A layer)
 SEQ_BLM_ROW_CTR	        EQU	0x148	; used by seq_leds.inc when DEFAULT_TRACK_LEDS_ENABLED set
 SEQ_BLM_COL_CTR		EQU	0x149	; used by "seq_button.inc"
 
@@ -444,6 +446,9 @@ SEQ_CV_DOUT_VALUE15     EQU     0x190	; used in "seq_trk.inc"
 SEQ_CV_DOUT_VALUE16     EQU     0x191	; used in "seq_trk.inc"
 
 	;; free: 0x192-0x19d
+SEQ_GP_LED_CTR		EQU	0x192	; for dimmed LEDs
+SEQ_GP_LED_L_B		EQU	0x193	; status of the general purpose LEDs (left side, B layer)
+SEQ_GP_LED_R_B		EQU	0x194	; status of the general purpose LEDs (right side, B layer)
 
 
 ;; ==================================================================================

@@ -14,7 +14,7 @@
 ;
 MBSEQ_VERSION_STR MACRO
 ; Version:                 <-------------->
-	STRING	16, 0x00, "MIDIbox 808 V1.3a"
+	STRING	16, 0x00, "MIDIbox 808 V1.4"
 	ENDM
 ; (fixed string length - 16 characters!)
 ;

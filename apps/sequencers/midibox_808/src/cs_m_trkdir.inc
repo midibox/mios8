@@ -50,8 +50,8 @@ CS_M_TRKDIR_GP_Callback
 ;; --------------------------------------------------------------------------
 CS_M_TRKDIR_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; flash LEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
@@ -60,7 +60,12 @@ CS_M_TRKDIR_UpdateGPLEDs
 	;; LED 1-7: direction
 	movf	CS_MENU_CURSOR_POS, W
 	call	MIOS_HLP_GetBitORMask
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+
+
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 
 	return
 

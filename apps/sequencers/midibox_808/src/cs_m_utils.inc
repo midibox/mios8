@@ -135,8 +135,8 @@ CS_M_UTILS_GP_Callback_Cont
 ;; --------------------------------------------------------------------------
 CS_M_UTILS_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; *don't* flash LEDs
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
@@ -150,11 +150,15 @@ CS_M_UTILS_UpdateGPLEDs
 	movf	CS_MENU_CURSOR_POS, W
 	call	MIOS_HLP_GetBitORMask
 	btfss	CS_MENU_CURSOR_POS, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	btfsc	CS_MENU_CURSOR_POS, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 CS_M_UTILS_UpdateGPLEDs_End
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
+
 	return
 
 

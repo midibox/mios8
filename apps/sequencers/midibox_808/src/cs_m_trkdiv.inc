@@ -84,8 +84,8 @@ CS_M_TRKDIV_GP_Callback_Cont
 ;; --------------------------------------------------------------------------
 CS_M_TRKDIV_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; flash LEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
@@ -97,9 +97,9 @@ CS_M_TRKDIV_UpdateGPLEDs_Quick
 	movf	CS_TRKDIV_TIMEBASE, W
 	call	MIOS_HLP_GetBitORMask	; set appr. LED
 	btfss	CS_TRKDIV_TIMEBASE, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	btfsc	CS_TRKDIV_TIMEBASE, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 CS_M_TRKDIV_UpdateGPLEDs_NoQuick
 
 	;; LED 16: ResetAtTrkEnd (Synch To Measure)
@@ -107,7 +107,11 @@ CS_M_TRKDIV_UpdateGPLEDs_NoQuick
 	call	CS_M_HLP_TrkCC_Get
 	andlw	(1 << 0)
 	skpz
-	bsf	CS_MENU_GP_OVERLAY_DOUT_SR1, 7
+	bsf	CS_MENU_GP_OVERLAY_DOUT_SR1_A, 7
+
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 	
 	return
 

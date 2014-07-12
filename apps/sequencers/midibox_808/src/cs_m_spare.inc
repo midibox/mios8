@@ -41,13 +41,17 @@ CS_M_SPARE_GP_Callback
 ;; --------------------------------------------------------------------------
 CS_M_SPARE_UpdateGPLEDs
 	;; *set* all LEDs to inform the user (no bug!)
-	setf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	setf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	setf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	setf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; flash LEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
+	
 	return
 
 ;; --------------------------------------------------------------------------

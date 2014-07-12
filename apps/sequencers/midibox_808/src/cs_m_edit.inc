@@ -54,14 +54,18 @@ CS_M_EDIT_GP_Callback_Loop
 	call	CS_M_HLP_ChkTrkSelected
 	bnz	CS_M_EDIT_GP_Callback_Loop_Next
 CS_M_EDIT_GP_Callback_Loop_All
+
 	;; gate layer selected?
 	BRA_IFCLR SEQ_SELECTED_LAYERS, 0, BANKED, CS_M_EDIT_GP_Callback_Loop_NotG
+	;; NEW: gate and aux layer selected?
+	;; -> go to new button handling which allows to set both flags with three button states
+	BRA_IFSET SEQ_SELECTED_LAYERS, 1, BANKED, CS_M_EDIT_GP_Callback_Loop_GACrl
+
 CS_M_EDIT_GP_Callback_Loop_Gate
 	;; get pointer to gate layer
 	call	SEQ_FSR_TrgGate
+	rgoto	CS_M_EDIT_GP_Callback_Loop_GateC;ont
 
-	;; call help function which toggles the step
-	rcall	CS_M_EDIT_GP_Callback_Hlp_Stp
 CS_M_EDIT_GP_Callback_Loop_NotG
 
 	;; aux layer selected?
@@ -70,9 +74,141 @@ CS_M_EDIT_GP_Callback_Loop_Aux
 	;; get pointer to aux layer
 	call	SEQ_FSR_TrgAux
 
-	;; call help function which toggles the step
-	rcall	CS_M_EDIT_GP_Callback_Hlp_Stp
+CS_M_EDIT_GP_Callback_Loop_GateC;ont
+;; expecting base pointer to layer in FSR1, step in SEQ_EVNTS, step mask in TMP1
+CS_M_EDIT_GP_Callback_Hlp_Stp
+	;; add step offset
+	rlf	SEQ_EVNTS, W, BANKED
+	swapf	WREG, W
+	andlw	0x07
+	addwf	FSR1L, F
+
+	;; if this is the first time: xor bit and remember state (so that all other tracks are changed to same state)
+	BRA_IFSET CS_STAT2, CS_STAT2_TRK_CHANGED, ACCESS, CS_M_EDIT_GP_Callback_Hlp_StpNFr
+CS_M_EDIT_GP_Callback_Hlp_Stp_Fr
+	;; XOR
+	movf	TMP1, W
+	xorwf	INDF1, F
+
+	;; remember state
+	movf	INDF1, W
+	andwf	TMP1, W
+	bcf	TMP2, 0
+	skpz
+	bsf	TMP2, 0
+
+	;; notify that trigger has been toggled
+	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED
+
+CS_M_EDIT_GP_Callback_Hlp_StpNFr
+	;; branch depending on 0/1 state of first modified step
+	BRA_IFSET TMP2, 0, ACCESS, CS_M_EDIT_GP_Callback_Hlp_Stp_S1
+CS_M_EDIT_GP_Callback_Hlp_Stp_S0
+	comf	TMP1, W
+	andwf	INDF1, F
+	rgoto	CS_M_EDIT_GP_Callback_Hlp_StpEnd
+
+CS_M_EDIT_GP_Callback_Hlp_Stp_S1
+	movf	TMP1, W
+	iorwf	INDF1, F
+	;; 	rgoto	CS_M_EDIT_GP_Callback_Hlp_StpEnd
+CS_M_EDIT_GP_Callback_Hlp_StpEnd
+
 CS_M_EDIT_GP_Callback_Loop_NotA
+	rgoto	CS_M_EDIT_GP_Callback_Loop_Next
+
+
+
+	;; new: toggle gate/aux flags independent from layer with three button states
+CS_M_EDIT_GP_Callback_Loop_GACrl
+
+	;; if this is the first time: xor bit and remember state (so that all other tracks are changed to same state)
+	BRA_IFSET CS_STAT2, CS_STAT2_TRK_CHANGED, ACCESS, CS_M_EDIT_GP_Callback_Loop_NFr
+CS_M_EDIT_GP_Callback_Loop_Fr
+	;; aux layer selected? -> clear aux and gate flag
+	call	SEQ_FSR_TrgAux
+	rlf	SEQ_EVNTS, W, BANKED
+	swapf	WREG, W
+	andlw	0x07
+	addwf	FSR1L, F
+	movf	INDF1, W
+	andwf	TMP1, W
+	bnz	CS_M_EDIT_GP_Callback_Loop_ClrGA
+
+	;; gate layer selected? -> set aux flag
+	call	SEQ_FSR_TrgGate
+	rlf	SEQ_EVNTS, W, BANKED
+	swapf	WREG, W
+	andlw	0x07
+	addwf	FSR1L, F
+	movf	INDF1, W
+	andwf	TMP1, W
+	bnz	CS_M_EDIT_GP_Callback_Loop_SetA
+
+	;; set gate flag, clear aux flag
+CS_M_EDIT_GP_Callback_Loop_SetG
+	bsf	TMP2, 0
+	bcf	TMP2, 1
+	rgoto	CS_M_EDIT_GP_Callback_Loop_NFr
+
+	;; set aux + gate flag
+CS_M_EDIT_GP_Callback_Loop_SetA
+	bsf	TMP2, 0
+	bsf	TMP2, 1
+	rgoto	CS_M_EDIT_GP_Callback_Loop_NFr
+
+	;; clear aux + gate flag
+CS_M_EDIT_GP_Callback_Loop_ClrGA
+	bcf	TMP2, 0
+	bcf	TMP2, 1
+	;; 	rgoto	CS_M_EDIT_GP_Callback_Loop_NFr
+
+CS_M_EDIT_GP_Callback_Loop_NFr
+	;; notify that trigger has been toggled
+	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED
+
+	;; 
+	;; set/clear gate flag
+	;; 
+	call	SEQ_FSR_TrgGate
+	rlf	SEQ_EVNTS, W, BANKED
+	swapf	WREG, W
+	andlw	0x07
+	addwf	FSR1L, F
+
+	BRA_IFSET TMP2, 0, ACCESS, CS_M_EDIT_GP_Callback_Loop_G1
+CS_M_EDIT_GP_Callback_Loop_G0
+	comf	TMP1, W
+	andwf	INDF1, F
+	rgoto	CS_M_EDIT_GP_Callback_Loop_GC
+
+CS_M_EDIT_GP_Callback_Loop_G1
+	movf	TMP1, W
+	iorwf	INDF1, F
+	;; 	rgoto	CS_M_EDIT_GP_Callback_Loop_GC
+CS_M_EDIT_GP_Callback_Loop_GC
+
+
+	;; 
+	;; set/clear aux flag
+	;; 
+	call	SEQ_FSR_TrgAux
+	rlf	SEQ_EVNTS, W, BANKED
+	swapf	WREG, W
+	andlw	0x07
+	addwf	FSR1L, F
+
+	BRA_IFSET TMP2, 1, ACCESS, CS_M_EDIT_GP_Callback_Loop_A1
+CS_M_EDIT_GP_Callback_Loop_A0
+	comf	TMP1, W
+	andwf	INDF1, F
+	rgoto	CS_M_EDIT_GP_Callback_Loop_AC
+
+CS_M_EDIT_GP_Callback_Loop_A1
+	movf	TMP1, W
+	iorwf	INDF1, F
+	;; 	rgoto	CS_M_EDIT_GP_Callback_Loop_AC
+CS_M_EDIT_GP_Callback_Loop_AC
 
 CS_M_EDIT_GP_Callback_Loop_Next
 	incf	SEQ_EVNTT, F, BANKED
@@ -130,47 +266,6 @@ CS_M_EDIT_GP_Callback_End
 
 
 ;; --------------------------------------------------------------------------
-;; used inside CS_M_EDIT_GP_Callback_Loop to toggle a step
-;; expecting base pointer to layer in FSR1, step in SEQ_EVNTS, step mask in TMP1
-CS_M_EDIT_GP_Callback_Hlp_Stp
-	;; add step offset
-	rlf	SEQ_EVNTS, W, BANKED
-	swapf	WREG, W
-	andlw	0x07
-	addwf	FSR1L, F
-
-	;; if this is the first time: xor bit and remember state (so that all other tracks are changed to same state)
-	BRA_IFSET CS_STAT2, CS_STAT2_TRK_CHANGED, ACCESS, CS_M_EDIT_GP_Callback_Hlp_StpNFr
-CS_M_EDIT_GP_Callback_Hlp_Stp_Fr
-	;; XOR
-	movf	TMP1, W
-	xorwf	INDF1, F
-
-	;; remember state
-	movf	INDF1, W
-	andwf	TMP1, W
-	bcf	TMP2, 0
-	skpz
-	bsf	TMP2, 0
-
-	;; notify that trigger has been toggled
-	bsf	CS_STAT2, CS_STAT2_TRK_CHANGED
-
-CS_M_EDIT_GP_Callback_Hlp_StpNFr
-	;; branch depending on 0/1 state of first modified step
-	BRA_IFSET TMP2, 0, ACCESS, CS_M_EDIT_GP_Callback_Hlp_Stp_S1
-CS_M_EDIT_GP_Callback_Hlp_Stp_S0
-	comf	TMP1, W
-	andwf	INDF1, F
-	return
-
-CS_M_EDIT_GP_Callback_Hlp_Stp_S1
-	movf	TMP1, W
-	iorwf	INDF1, F
-	return
-
-
-;; --------------------------------------------------------------------------
 CS_M_EDIT_UpdateGPLEDs
 	;; branch depending on Edit Button status
 	SET_BSR	SEQ_BASE
@@ -185,17 +280,26 @@ CS_M_EDIT_UpdateGPLEDs_Normal
 	SET_BSR	SEQ_BASE
 	movwf	SEQ_EVNTT, BANKED
 
-	;; get pointer to button trigger register depending on selected trigger layer
-	call	CS_M_HLP_GetSelectedTrgLayerPtr	;  -> FSR1
-
-	;; add step offset
+	;; get pointer to gate layer
+	call	SEQ_FSR_TrgGate
 	rlf	SEQ_SELECTED_STEP_VIEW, W, BANKED
 	andlw	0x06
 	addwf	FSR1L, F
 
-	;; copy pattern to SEQ_GP_LED_[LR]
-	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR0
-	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR1
+	;; copy pattern to SEQ_GP_LED_[LR]_A
+	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR1_A
+
+
+	;; get pointer to aux layer
+	call	SEQ_FSR_TrgAux
+	rlf	SEQ_SELECTED_STEP_VIEW, W, BANKED
+	andlw	0x06
+	addwf	FSR1L, F
+
+	;; copy pattern to SEQ_GP_LED_[LR]_B
+	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 
 	return
 
@@ -209,14 +313,20 @@ CS_M_EDIT_UpdateGPLEDs_Sel
 	BRA_IFCLR SEQ_MODE0, SEQ_MODE0_CHANGE_ALL_STEPS, BANKED, CS_M_EDIT_UpdateGPLEDs_Sel_NotAll
 CS_M_EDIT_UpdateGPLEDs_Sel_All
 	;; light up all tracks
-	setf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	setf	CS_MENU_GP_OVERLAY_DOUT_SR1
-	return
+	setf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	setf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
+	rgoto	CS_M_EDIT_UpdateGPLEDs_Sel_End
 
 CS_M_EDIT_UpdateGPLEDs_Sel_NotAll
 	;; light up selected tracks
-	movff	SEQ_SELECTED_TRKS_0, CS_MENU_GP_OVERLAY_DOUT_SR0
-	movff	SEQ_SELECTED_TRKS_1, CS_MENU_GP_OVERLAY_DOUT_SR1
+	movff	SEQ_SELECTED_TRKS_0, CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	movff	SEQ_SELECTED_TRKS_1, CS_MENU_GP_OVERLAY_DOUT_SR1_A
+
+CS_M_EDIT_UpdateGPLEDs_Sel_End
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
+
 	return
 
 

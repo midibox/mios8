@@ -55,8 +55,8 @@ CS_M_SYSEX_GP_Callback
 ;; --------------------------------------------------------------------------
 CS_M_SYSEX_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; flash LEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
@@ -66,9 +66,13 @@ CS_M_SYSEX_UpdateGPLEDs
 	movf	MIDI_DEVICE_ID, W
 	call	MIOS_HLP_GetBitORMask
 	btfss	MIDI_DEVICE_ID, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	btfsc	MIDI_DEVICE_ID, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
+
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 
 	return
 

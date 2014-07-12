@@ -72,8 +72,8 @@ CS_M_TRKMIDI_GP_Callback_Cont
 ;; --------------------------------------------------------------------------
 CS_M_TRKMIDI_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; flash LEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
@@ -88,9 +88,9 @@ CS_M_TRKMIDI_UpdateGPLEDs_NoteOct
 	movf	CS_TRKMIDI_NOTE, W
 	call	MIOS_HLP_GetBitORMask
 	btfss	CS_TRKMIDI_NOTE, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	btfsc	CS_TRKMIDI_NOTE, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; LED 13-16: octave (if >= 3 and <= 6)
 
@@ -107,9 +107,9 @@ CS_M_TRKMIDI_UpdateGPLEDs_NoteOct
 	movf	CS_TRKMIDI_OCTAVE, W
 	addlw	1		; (shift to LED position 13..16)
 	call	MIOS_HLP_GetBitORMask
-	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR1, F
+	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A, F
 
-	return
+	rgoto	CS_M_TRKMIDI_UpdateGPLEDs_End
 
 CS_M_TRKMIDI_UpdateGPLEDs_Chn
 	movlw	SEQ_CC_OFFSET_MIDI_CHANNEL
@@ -118,9 +118,14 @@ CS_M_TRKMIDI_UpdateGPLEDs_Chn
 	call	MIOS_HLP_GetBitORMask
 
 	btfss	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	btfsc	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
+
+CS_M_TRKMIDI_UpdateGPLEDs_End
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 
 	return
 

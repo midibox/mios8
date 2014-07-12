@@ -54,14 +54,14 @@ CS_M_TRKVEL_GP_Callback
 ;; --------------------------------------------------------------------------
 CS_M_TRKVEL_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; flash LEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
-	;; LED 1-16: velocity >> 3
+	;; LED 1-16: velocity >> 3 in thermometer code
 	SET_BSR	SEQ_BASE
 	movlw	SEQ_CC_OFFSET_MIDI_VEL
 	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
@@ -70,14 +70,37 @@ CS_M_TRKVEL_UpdateGPLEDs
 	rrf	WREG, W
 	rrf	WREG, W
 	rrf	WREG, W
-	movwf	PRODL
-	call	MIOS_HLP_GetBitORMask
-	btfss	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	btfsc	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	andlw	0x0f
+        TABLE_ADDR_MUL_W CS_M_TRKVEL_UpdateGPLEDs_TAB, 2
+
+	tblrd*+
+	movff	TABLAT, CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	tblrd*+
+	movff	TABLAT, CS_MENU_GP_OVERLAY_DOUT_SR1_A
+
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 
 	return
+
+CS_M_TRKVEL_UpdateGPLEDs_TAB
+	dw	0x0001
+	dw	0x0003
+	dw	0x0007
+	dw	0x000f
+	dw	0x001f
+	dw	0x003f
+	dw	0x007f
+	dw	0x00ff
+	dw	0x01ff
+	dw	0x03ff
+	dw	0x07ff
+	dw	0x0fff
+	dw	0x1fff
+	dw	0x3fff
+	dw	0x7fff
+	dw	0xffff
 
 ;; --------------------------------------------------------------------------
 ;;  Menu Init routine is called when menu page should be initialized

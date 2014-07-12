@@ -299,8 +299,17 @@ SEQ_LED_UpdateIRQ_SeqOff
 	;; only used when Shift Registers of the primary GP LEDs are not equal to the multiplexed LED SRs
 SEQ_LED_UpdateIRQ_GPLED
 	;; transfer current LED pattern to IRQ_TMP[12]
-	movff	SEQ_GP_LED_L, IRQ_TMP1
-	movff	SEQ_GP_LED_R, IRQ_TMP2
+	movff	SEQ_GP_LED_L_A, IRQ_TMP1
+	movff	SEQ_GP_LED_R_A, IRQ_TMP2
+
+	;; dimmed LEDs - toggle between A and B layer each 8th update cycle
+	incf	SEQ_GP_LED_CTR, F, BANKED
+	BRA_IFCLR SEQ_GP_LED_CTR, 3, BANKED, SEQ_LED_UpdateIRQ_GPLED_A
+SEQ_LED_UpdateIRQ_GPLED_B
+	movff	SEQ_GP_LED_L_B, IRQ_TMP1
+	movff	SEQ_GP_LED_R_B, IRQ_TMP2
+SEQ_LED_UpdateIRQ_GPLED_A
+
 
 	;; flickering feature for INST_OVERLAY
 	;; clear LEDs whenever INST_OVERLAY_CTR[5] set

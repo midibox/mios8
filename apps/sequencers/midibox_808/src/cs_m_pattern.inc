@@ -176,8 +176,10 @@ CS_M_PATTERN_GP_Callback_Chain
 	;; DIRTY!
 	;; ensure that GP LEDs updated immediately
 	rcall	CS_M_PATTERN_UpdateGPLEDs
-	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
-	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, SEQ_GP_LED_L_A
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_B, SEQ_GP_LED_L_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, SEQ_GP_LED_R_A
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_B, SEQ_GP_LED_R_B
 
 	;; 	rgoto	CS_M_PATTERN_GP_Callback_Cont
 
@@ -193,8 +195,8 @@ CS_M_PATTERN_GP_Callback_Cont
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; exit when menu parameter == 0
 	movf	CS_MENU_PARAMETER_L, W
@@ -206,7 +208,7 @@ CS_M_PATTERN_UpdateGPLEDs
 	rlf	WREG, W
 	swapf	WREG, W
 	call	MIOS_HLP_GetBitORMask
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 
 	;; last 8 leds: (CS_MENU_PARAMETER_L-1)[2..0]
 	;; + state of GP buttons if SHIFT button not pressed (no chain mode)
@@ -215,7 +217,11 @@ CS_M_PATTERN_UpdateGPLEDs
 	SET_BSR	SEQ_BASE
 	btfsc	SEQ_MODE1, SEQ_MODE1_SHIFT, BANKED
 	iorwf	CS_PATTERN_GP_STATE_R, W
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
+
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 
 	return
 

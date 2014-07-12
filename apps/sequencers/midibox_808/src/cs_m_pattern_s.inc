@@ -97,8 +97,10 @@ CS_M_PATTERN_S_GP_Callback_NSveC
 	;; DIRTY!
 	;; ensure that GP LEDs updated immediately
 	rcall	CS_M_PATTERN_S_UpdateGPLEDs
-	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
-	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, SEQ_GP_LED_L_A
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_B, SEQ_GP_LED_L_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, SEQ_GP_LED_R_A
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_B, SEQ_GP_LED_R_B
 	return
 #else
 	goto	CS_M_HLP_ChangePage
@@ -111,8 +113,10 @@ CS_M_PATTERN_S_GP_Callback_NoSave
 
 	;; DIRTY!
 	;; ensure that GP LEDs updated immediately
-	movff	CS_MENU_GP_OVERLAY_DOUT_SR0, SEQ_GP_LED_L
-	movff	CS_MENU_GP_OVERLAY_DOUT_SR1, SEQ_GP_LED_R
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, SEQ_GP_LED_L_A
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_B, SEQ_GP_LED_L_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, SEQ_GP_LED_R_A
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_B, SEQ_GP_LED_R_B
 
 	;; request display update and exit
 	bsf	CS_STAT, CS_STAT_DISPLAY_UPDATE_REQ
@@ -122,8 +126,8 @@ CS_M_PATTERN_S_GP_Callback_NoSave
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_S_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; exit when menu parameter == 0
 	movf	CS_MENU_PARAMETER_L, W
@@ -135,12 +139,17 @@ CS_M_PATTERN_S_UpdateGPLEDs
 	rlf	WREG, W
 	swapf	WREG, W
 	call	MIOS_HLP_GetBitORMask
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 
 	;; last 8 leds: (CS_MENU_PARAMETER_L-1)[2..0]
 	decf	CS_MENU_PARAMETER_L, W
 	call	MIOS_HLP_GetBitORMask
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
+
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
+
 	return
 
 

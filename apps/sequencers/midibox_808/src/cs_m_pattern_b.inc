@@ -46,8 +46,8 @@ CS_M_PATTERN_B_GP_Callback
 ;; --------------------------------------------------------------------------
 CS_M_PATTERN_B_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; bank change requested?
 	movf	CS_PATTERN_NEW_BANK, W
@@ -64,15 +64,15 @@ CS_M_PATTERN_B_UpdateGPLEDsNChng
 	movf	PRODL, W
 	call	MIOS_HLP_GetBitORMask
 	btfss	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	btfsc	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; don't flash LEDs
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
-	return
+	rgoto	CS_M_PATTERN_B_UpdateGPLEDs_End
 
 CS_M_PATTERN_B_UpdateGPLEDs_Chng
 	;; display requested bank
@@ -80,13 +80,18 @@ CS_M_PATTERN_B_UpdateGPLEDs_Chng
 	movwf	PRODL
 	call	MIOS_HLP_GetBitORMask
 	btfss	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	btfsc	PRODL, 3
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; flash LEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
+
+CS_M_PATTERN_B_UpdateGPLEDs_End
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 
 	return
 

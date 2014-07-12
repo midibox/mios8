@@ -113,8 +113,8 @@ CS_M_BPM_GP_Callback_Cont
 ;; --------------------------------------------------------------------------
 CS_M_BPM_UpdateGPLEDs
 	;; clear all LEDs
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0
-	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	clrf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	;; flash LEDs
 	bcf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
@@ -127,18 +127,22 @@ CS_M_BPM_UpdateGPLEDs
 	movlw	0x02
 	btfsc	SEQ_CFG0, SEQ_CFG0_BPM_CLK_AUTO, BANKED
 	movlw	0x04
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 
 	movf	SEQ_CORE_INT_CLK_DIVIDER_PRELOAD, W, BANKED
 	andlw	0x03
 	call	MIOS_HLP_GetBitORMask
-	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1
+	movwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
 	movf	SEQ_CORE_EXT_CLK_DIVIDER_PRELOAD, W, BANKED
 	andlw	0x03
 	call	MIOS_HLP_GetBitORMask
 	swapf	WREG, W
-	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR1, F
+	iorwf	CS_MENU_GP_OVERLAY_DOUT_SR1_A, F
+
+	;; copy A into B LED layer (no dimming used)
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
+	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B
 
 	return
 
