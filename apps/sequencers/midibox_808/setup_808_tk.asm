@@ -274,6 +274,18 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_CV_DOUT_SR16 0
 
 
+;; Optional 909-like OH/CH selection pin.
+;; In order to use this feature, set DEFAULT_909LIKE_HH_CONTROL_ENABLED to 1, and
+;; select the tracks to which the OH and CH are assigned in DEFAULT_909LIKE_HH_TRACK_OH/CH.
+;; Change the DEFAULT_TRKINFO table in the header of this file, so that both track triggers share the same pin!
+;; Then define the DOUT pin which should select OH/CH in DEFAULT_909LIKE_HH_SWITCH_SR/PIN below
+#define DEFAULT_909LIKE_HH_CONTROL_ENABLED  0  ; 0 to disable, 1 to enable
+#define DEFAULT_909LIKE_HH_TRACK_OH        11  ; OH track number - this track will set the SWITCH pin to 0
+#define DEFAULT_909LIKE_HH_TRACK_CH        12  ; CH track number - will set the SWITCH pin to 1
+#define DEFAULT_909LIKE_HH_SWITCH_SR        4  ; DOUT shift register of the SWITCH (1..16, 0 disables the assignment)
+#define DEFAULT_909LIKE_HH_SWITCH_PIN       2  ; switch pin (0..7 for D0..D7)
+
+
 ;; 0: disables swing pot
 ;; 1: enables swing pot, connected to pin J5:A0
 ;;    NOTE: to avoid random swing values, set this #define to 0 when NO pot is connected!
@@ -285,6 +297,25 @@ DEFAULT_TRKINFO MACRO
 ;; define the page, which should be displayed after poweron, here
 ;; Examples: CS_MENU_PAGE_EDIT for edit page, CS_MENU_PAGE_PATTERN for pattern page
 #define DEFAULT_STARTUP_PAGE CS_MENU_PAGE_PATTERN
+
+
+;; define the default Aux layer assignment:
+;;   0: Accent
+;;   1: Skip
+;;   2: Flam1
+;;   3: Flam2
+;;   4: Flam3
+;;   5: Flam4
+;;   6: Random Gate
+;;   7: Random Flam
+;;   8: Delay1
+;;   9: Delay2
+;;  10: Delay3
+;;  11: Delay4
+;; 
+;; Note: if BankSticks have already been formated, the previous default assignment will still be active.
+;; The new default assignment will be taken when a pattern is cleared (Options page, GP button #10)
+#define DEFAULT_AUX_LAYER_ASSIGN 2
 
 
 	org	0x3082		; never change the origin!

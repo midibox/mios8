@@ -275,11 +275,19 @@ CS_M_EDIT_UpdateGPLEDs_Normal
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_R_GP_DOUT
 	bsf	MB_STAT, MB_STAT_DONT_FLASH_L_GP_DOUT
 
-	;; transfer step trigger status (16 steps) to SEQ_GP_LED_[LR]
+	;; base pointer to trigger layer depending on selected track
 	call	CS_M_HLP_GetSelectedTrk
 	SET_BSR	SEQ_BASE
 	movwf	SEQ_EVNTT, BANKED
 
+	;; branch depending on layer selection
+	decf	SEQ_SELECTED_LAYERS, W, BANKED
+	andlw	0x03
+	bz	CS_M_EDIT_UpdateGPLEDs_Gate
+	addlw	-1
+	bz	CS_M_EDIT_UpdateGPLEDs_Aux
+
+CS_M_EDIT_UpdateGPLEDs_GateAux
 	;; get pointer to gate layer
 	call	SEQ_FSR_TrgGate
 	rlf	SEQ_SELECTED_STEP_VIEW, W, BANKED
@@ -289,7 +297,6 @@ CS_M_EDIT_UpdateGPLEDs_Normal
 	;; copy pattern to SEQ_GP_LED_[LR]_A
 	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR1_A
-
 
 	;; get pointer to aux layer
 	call	SEQ_FSR_TrgAux
@@ -303,6 +310,25 @@ CS_M_EDIT_UpdateGPLEDs_Normal
 
 	return
 
+CS_M_EDIT_UpdateGPLEDs_Gate
+	call	SEQ_FSR_TrgGate
+	rgoto	CS_M_EDIT_UpdateGPLEDs_Gate_Cont
+
+CS_M_EDIT_UpdateGPLEDs_Aux
+	call	SEQ_FSR_TrgAux
+	;; 	rgoto	CS_M_EDIT_UpdateGPLEDs_Gate_Cont
+
+CS_M_EDIT_UpdateGPLEDs_Gate_Cont
+	rlf	SEQ_SELECTED_STEP_VIEW, W, BANKED
+	andlw	0x06
+	addwf	FSR1L, F
+
+	;; copy pattern to SEQ_GP_LED_[LR]_A
+	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR0_A
+	movff	POSTINC1, CS_MENU_GP_OVERLAY_DOUT_SR1_A
+
+	rgoto	CS_M_EDIT_UpdateGPLEDs_End
+
 
 CS_M_EDIT_UpdateGPLEDs_Sel
 	;; flash LEDs
@@ -315,14 +341,14 @@ CS_M_EDIT_UpdateGPLEDs_Sel_All
 	;; light up all tracks
 	setf	CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	setf	CS_MENU_GP_OVERLAY_DOUT_SR1_A
-	rgoto	CS_M_EDIT_UpdateGPLEDs_Sel_End
+	rgoto	CS_M_EDIT_UpdateGPLEDs_End
 
 CS_M_EDIT_UpdateGPLEDs_Sel_NotAll
 	;; light up selected tracks
 	movff	SEQ_SELECTED_TRKS_0, CS_MENU_GP_OVERLAY_DOUT_SR0_A
 	movff	SEQ_SELECTED_TRKS_1, CS_MENU_GP_OVERLAY_DOUT_SR1_A
 
-CS_M_EDIT_UpdateGPLEDs_Sel_End
+CS_M_EDIT_UpdateGPLEDs_End
 	;; copy A into B LED layer (no dimming used)
 	movff	CS_MENU_GP_OVERLAY_DOUT_SR0_A, CS_MENU_GP_OVERLAY_DOUT_SR0_B
 	movff	CS_MENU_GP_OVERLAY_DOUT_SR1_A, CS_MENU_GP_OVERLAY_DOUT_SR1_B

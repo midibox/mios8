@@ -117,8 +117,8 @@ SEQ_CORE_Init
 	movwf	SEQ_SELECTED_ABCD, BANKED
 	movwf	SEQ_NEXT_SELECTED_ABCD, BANKED
 
-	;; select gate layer by default, assume that buttons deselected
-	movlw	(1 << 0) | 0xf0
+	;; select gate and aux layer by default, assume that buttons deselected
+	movlw	(3 << 0) | 0xf0
 	movwf	SEQ_SELECTED_LAYERS, BANKED
 
 	;; go into edit mode by default

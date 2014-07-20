@@ -104,6 +104,39 @@ SEQ_TRK_SetTriggers
 	;; are set during the same SRIO update cycle
 	movff	INTCON, PRODH		; store current interrupt status in PRODH
 	IRQ_DISABLE			; disable IRQs
+
+#if DEFAULT_909LIKE_HH_CONTROL_ENABLED
+	;; special HH selection logic for 909 like control
+	movlw	DEFAULT_909LIKE_HH_TRACK_CH - 1
+	lfsr	FSR1, SEQ_DRUM_TRIGGERS0
+	btfsc	WREG, 3
+	incf	FSR1L, F
+	call	MIOS_HLP_GetBitORMask
+	andwf	INDF1, W
+	bz	SEQ_TRK_SetTriggers_909CH_Cont
+SEQ_TRK_SetTriggers_909CH_1
+#if DEFAULT_909LIKE_HH_SWITCH_SR
+	movlw	((DEFAULT_909LIKE_HH_SWITCH_SR-1) << 3) | ((7 - DEFAULT_909LIKE_HH_SWITCH_PIN) & 0x7)
+	call	MIOS_DOUT_PinSet1
+#endif
+SEQ_TRK_SetTriggers_909CH_Cont
+
+	movlw	DEFAULT_909LIKE_HH_TRACK_OH - 1
+	lfsr	FSR1, SEQ_DRUM_TRIGGERS0
+	btfsc	WREG, 3
+	incf	FSR1L, F
+	call	MIOS_HLP_GetBitORMask
+	andwf	INDF1, W
+	bz	SEQ_TRK_SetTriggers_909OH_Cont
+SEQ_TRK_SetTriggers_909OH_1
+#if DEFAULT_909LIKE_HH_SWITCH_SR
+	movlw	((DEFAULT_909LIKE_HH_SWITCH_SR-1) << 3) | ((7 - DEFAULT_909LIKE_HH_SWITCH_PIN) & 0x7)
+	call	MIOS_DOUT_PinSet0
+#endif	
+SEQ_TRK_SetTriggers_909OH_Cont
+		
+#endif
+
 	
 	;; get offset to table
 	movlw	LOW(SEQ_TRK_INFO_TABLE)
