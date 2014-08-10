@@ -277,6 +277,23 @@ MF_Tick_FaderEnabled
 	;; --- store current fader value into MF_VALUE_[LH]
 	movff	ADRESL, MF_VALUE_L		; take original value from ADC so that AIN deadband doesn't matter!
 	movff	ADRESH, MF_VALUE_H
+
+	;; --- map via calibration table
+	clrc
+	rlf	MF_VALUE_L, W, BANKED
+	movwf	TBLPTRL
+	rlf	MF_VALUE_H, W, BANKED
+	movwf	TBLPTRH
+	clrf	TBLPTRU
+
+	movlw	LOW(CAL_MOTOR_TABLE)
+	addwf	TBLPTRL, F
+	movlw	HIGH(CAL_MOTOR_TABLE)
+	addwf	TBLPTRH, F
+	tblrd*+
+	movff	TABLAT, MF_VALUE_L
+	tblrd*+
+	movff	TABLAT, MF_VALUE_H
 	
 	;; --- store also in MF_TRACE_VALUE_[LH]?
 	movf	MF_TRACE_FADER, W, BANKED

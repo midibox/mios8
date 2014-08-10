@@ -93,9 +93,9 @@ USER_Init
 	;; ------------------------------------------------------------------
 	;; configure SRIO (only a single DIN SR is connected for touchsensors)
 	;; ------------------------------------------------------------------
-	movlw	0x01			; use 1 shift register
+	movlw	1			; use 1 shift register
 	call	MIOS_SRIO_NumberSet
-	movlw	0x01			; set update frequncy to 1/1 mS
+	movlw	1			; set update frequncy to 1/1 mS
 	call	MIOS_SRIO_UpdateFrqSet
 	movlw	10			; 10 mS debouncing
 	call	MIOS_SRIO_DebounceSet
@@ -843,6 +843,24 @@ USER_AIN_NotifyChange_SendIfAct
 
 USER_AIN_NotifyChange_SendAlways
 
+	;; map MIOS_PARAMETER[23] to calibration table
+	clrc
+	rlf	MIOS_PARAMETER2, W
+	movwf	TBLPTRL
+	rlf	MIOS_PARAMETER3, W
+	movwf	TBLPTRH
+	clrf	TBLPTRU
+
+	movlw	LOW(CAL_FADER_TABLE)
+	addwf	TBLPTRL, F
+	movlw	HIGH(CAL_FADER_TABLE)
+	addwfc	TBLPTRH, F
+	tblrd*+
+	movff	TABLAT, MIOS_PARAMETER2
+	tblrd*+
+	movff	TABLAT, MIOS_PARAMETER3
+
+
 	;; branch depending on selected operation mode
 	SET_BSR	MF_BASE
 	movf	MF_OPERATION_MODE, W, BANKED
@@ -1103,8 +1121,19 @@ LC_MF_FaderEvent_End
 	;; thats all
 	return
 
+;; ---[ Calibration Tables ]---
+
+	org 0x6000
+CAL_MOTOR_TABLE
+#include "cal_motor.inc"
+
+	org 0x6800
+CAL_FADER_TABLE
+#include "cal_fader.inc"
+
 
 ;; ---[ EEPROM content ]---
 #include "mf_presets.inc"
+
 
 	END
