@@ -236,17 +236,17 @@ DEFAULT_TRKINFO MACRO
 ;; This option is sufficient to control the "velocity" of drum instruments, and it's cheap as well!
 ;; We expect following connections:
 ;; 
-;;   DOUT      ca. 160k
+;;   DOUT         160k
 ;;    D7 ---o---/\/\/\---*
-;;              ca. 80k  |
+;;               80.6k   |
 ;;    D6 ---o---/\/\/\---*
-;;              ca. 40k  |
+;;               40.2k   |
 ;;    D5 ---o---/\/\/\---*
-;;              ca. 20k  |
+;;               20.0k   |
 ;;    D4 ---o---/\/\/\---*
-;;              ca. 10k  |
+;;               10.0k   |
 ;;    D3 ---o---/\/\/\---*
-;;              ca. 5k   |
+;;                5.1k   |
 ;;    D2 ---o---/\/\/\---*----o CV Out
 ;;              220 Ohm
 ;;    D1 ---o---/\/\/\--------o free assignable trigger
