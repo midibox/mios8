@@ -2,7 +2,7 @@ HEADER 3 MBHP_CORE_STM32F4 Module
 
 <H1>MIDIbox Hardware Platform, CORE_STM32F4 Module</H1>
 
-<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_proto.jpg" width=550 height=326></CENTER></P>
+<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4.jpg" width=550 height=324></CENTER></P>
 
 <P CLASS=INFO>MBHP_CORE_STM32F4 is the successor of the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module, and an alternative solution to the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module.</P>
 
@@ -17,6 +17,7 @@ It will be attached on the MBHP_CORE_STM32F4 PCB, but can also be used standalon
 <LI> the enhanced instruction set with DSP operations makes Cortex-M4 very interesting for audio applications (e.g. Synths and Fx)
 <LI> MIOS32 applications are typically running more than 2..3 times faster than on STM32F103RE @72 MHz, and ca. 50% faster than on a LPC1769 @120 MHz
 <LI> Very useful integrated peripherals for MIDI and Synthesizer applications, such as UART, SPI, I2C, USB, CAN, Timers, ADC, DAC
+<LI> The USB OTG (Micro-USB) socket supports MIDI Host, which means that it's possible to connect a USB MIDI Keyboard or Synth (see also <A HREF="http://midibox.org/forums/topic/18906-usb-host-support-for-mbhp-core-stm32f4/" TARGET="_blank">this forum article</A>)
 <LI> The on-board Audio DAC predestinates this module for synthesizer projects - it could even be used standalone without the MBHP_CORE_STM32F4 breakout board for this purpose.
 <LI> in distance to STM32F103RE, CAN and USB can be used in parallel
 <LI> It's easy to interface external components like <A HREF="mbhp_sdcard.html">SD Cards</A> and <A HREF="mbhp_eth.html">MBHP_ETH</A>
@@ -71,17 +72,12 @@ You only need to install the MIOS32 bootloader once, thereafter you can continue
     </TR>
     <TR>
       <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win3.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win3.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>Click on the small "Program and Verify" icon
+      <TD CLASS=TABCOLOR2>Click on the small "Program and Verify" icon. Click on the "Browse" button and search for the project.hex binary of the STM32F4DISCOVERY directory which comes with the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application.
       </TD>
     </TR>
     <TR>
       <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win4.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win4.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>Click on the "Browse" button and search for the project.hex binary of the STM32F4DISCOVERY directory which comes with the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application.
-      </TD>
-    </TR>
-    <TR>
-      <TD><A HREF="mbhp/mbhp_core_lpc17_program_win6.png"><IMG SRC="mbhp/mbhp_core_lpc17_program_win6.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>Click on the "START" button to program the bootloader into the flash. The "Verification...OK" message should be displayed -&gt; success! :-)
+      <TD CLASS=TABCOLOR2>The success message should show up after the programming procedure.
       </TD>
     </TR>
 
@@ -120,9 +116,6 @@ You only need to install the MIOS32 bootloader once, thereafter you can continue
 <P CLASS=INFO>Two 2x25 SIL headers are required (e.g. Reichelt order number: <A HREF="http://www.reichelt.de/index.html?ACTION=3;ARTICLE=19494;SEARCH=SL%202X25G%202,54" TARGET="_blank">SL 2X25G 2,54</A>). The usage of such headers has the advantage, that later you can plug the STM32F4DISCOVERY board on the MBHP_CORE_STM32F4 module into the corresponding female sockets - and that you can remove it, e.g. to plug it into another MBHP_CORE_STM32F4 module.
 <P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_fheaders.jpg" width=550 height=338></CENTER></P>
 
-<P CLASS=INFO>As you can see, I'm currently using a breadboard for prototyping, since the MBHP_CORE_STM32F4 PCB isn't finished yet. This approach is only recommended for DIY people who don't flinch from handling the big mess of short wire wraps ;-)<BR>
-<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_noodles.jpg" width=550 height=358></CENTER></P>
-
   </DD>
 </DL>
 
@@ -141,7 +134,7 @@ You only need to install the MIOS32 bootloader once, thereafter you can continue
       <TD CLASS=TABCOLOR2><I>MBHP_CORE_STM32F4_V1</I></TD>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_core_stm32f4.pdf">mbhp_core_stm32f4.pdf</A></TD>
       <TD CLASS=TABCOLOR2 COLSPAN=1>under construction</TD>
-      <TD CLASS=TABCOLOR2 COLSPAN=1>under construction</TD>
+      <TD CLASS=TABCOLOR2 COLSPAN=1><A HREF="mbhp/mbhp_core_stm32f4_0.jpg">mbhp_core_stm32f4_0.jpg</A></TD>
     </TR>
   </TABLE></DD>
 
@@ -273,10 +266,90 @@ Note: the MBHP_CORE_STM32F4 module has an on-board SD Card Socket, which is dire
 
 
 <DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> To be continued...</H2></DT>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide</H2></DT>
   <DD>
-      <P CLASS=DESC>This page will be continued once the MBHP_CORE_STM32F4 PCB is available - stay tuned! :-)</P>
+  <DD><TABLE CELLSPACING=2 CELLPADDING=2>
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_1.jpg" WIDTH=280 HEIGHT=208 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>It's always a good idea to start with the smallest components to simplify mounting.<BR>
+So, start with the resistors and diodes:
+<UL CLASS=CL>
+<LI>R7a, R7b, R8a, R8b: 2.2k
+<LI>R11, R13: 1k
+<LI>R12: 10k
+<LI>R33: 4x1k resistor array (polarity!)
+<LI>D1: 1N4148 (polarity!)
+<UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_2.jpg" WIDTH=280 HEIGHT=207 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Continue with caps, transistor and trimpots:
+<UL CLASS=CL>
+<LI>C14, C15 = 100 nF ceramic caps
+<LI>T1: BC337 transistor
+<LI>P1, P2: 10k trimpots
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_3.jpg" WIDTH=280 HEIGHT=213 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Mount the IC sockets and DIL headers:
+<UL CLASS=CL>
+<LI>IC1: 20 pin socket
+<LI>IC2: 16 pin socket
+<LI>10 2x5 DIL headers
+<LI>2 2x8 DIL headers
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_4.jpg" WIDTH=280 HEIGHT=211 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>And then the remaining headers:
+<UL CLASS=CL>
+<LI>2 2x25 female SIL headers for the STM32F4DISCOVERY module
+<LI>3 1x2 male SIL header
+<LI>1 1x3 male SIL header
+<LI>2 jumpers stuffed on J17 (USB PWR) and J15_S to select the LCD voltage (5V or 3.3V)
+<LI>SD Card socket
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_5.jpg" WIDTH=280 HEIGHT=196 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>And finally put the ICs, and then the STM32F4DISCOVERY module into the sockets:
+<UL CLASS=CL>
+<LI>IC1: 74HCT541
+<LI>IC2: 74HC595
+<LI>STM32F4DISCOVERY
+</UL>
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_6.jpg" WIDTH=280 HEIGHT=160 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>The bootloader can be installed on the STM32F4 chip by connecting a Mini-USB cable at the right side of the module (see also description in the "Installing the MIOS32 Bootloader" section of this page) - this only has to be done once, thereafter updates are possible via MIOS Studio. This Mini-USB socket can't be used for USB MIDI based connections!
+      </TD>
+    </TR>
+
+    <TR>
+      <TD><IMG SRC="mbhp/mbhp_core_stm32f4_7.jpg" WIDTH=280 HEIGHT=152 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Applications (and bootloader updates) can be installed via MIOS Studio by connecting a Micro-USB cable at the left side of the module. This USB port is also used for common USB MIDI connections.
+      </TD>
+    </TR>
+
+  </TABLE></DD>
   </DD>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_midi_io_chain.jpg" width=550 height=174></CENTER></P>
+<P CLASS=DESC>
+In order to add up to 4 MIDI IN and OUT ports, you will need one or two MBHP_MIDI_IO modules. Please <A HREF="mbhp_midi_io.html">follow this page</A>.
+</P>
+
 </DL>
 
 <DL>

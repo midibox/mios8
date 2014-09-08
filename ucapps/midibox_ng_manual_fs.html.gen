@@ -62,6 +62,8 @@ LCD "%CHello World!"
 
 <P CLASS=DESC>The next experiment will work if a DIN shift register (e.g. of a <A HREF="mbhp_din.html">MBHP_DIN</A> or <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A> module is connected to J8/9 of the core module.
 
+<P CLASS=DESC><I><B>New:</B> alternatively you could emulate up to 2 DIN shift registers at port J10A and J10B of a <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module by using the DIO command. In this case, please add the two DIO commands like shown in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fdiocfg_1.ngc" TARGET="_blank">the diocfg_1.ngc example</A>, and connect the button(s) to J10.D0..D15</I>
+
 <P CLASS=DESC>We want to generate a Note event with a button connected to the D0 pin of the first shift register. The appr. button ID is 1.
 
 <P CLASS=DESC>Add following command to your HELLO.NGC file:
@@ -133,7 +135,9 @@ When it's released the LCD should display: <TT>Button #  1:   0</TT>
 
 <P CLASS=DESC>This experiment requires a DOUT shift register (e.g. of a <A HREF="mbhp_dout.html">MBHP_DOUT</A> or <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A> module connected to J8/9 of the core module) in addition. The anode (long leg) of the LED should be connected at D7 (the first (leftmost) DOUT output pin), the cathode (short leg) to Vs (ground).
 
-<P CLASS=DESC><B>Beware:</B> the MBHP_DIO_MATRIX module has no series resistor for the LED! Please use a 220 Ohm resistor between Anode (long leg) and the D7 pin, otherwise the LED will be fried!
+<P CLASS=DESC><I><B>New:</B> alternatively you could emulate up to 2 DOUT shift registers at port J10A and J10B of a <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module by using the DIO command. In this case, please add the two DIO commands like shown in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fdiocfg_2.ngc" TARGET="_blank">the diocfg_2.ngc example</A>, and connect the button(s) to J10A, and the LEDs to J10B</I>
+
+<P CLASS=DESC><B>Beware:</B> the J10 ports and the MBHP_DIO_MATRIX module have no series resistor for the LED! Please use a 220 Ohm resistor between Anode (long leg) and the output pin, otherwise the LED will be fried!
 
 <P CLASS=DESC>So much about the obligatory disclaimer... don't worry, this resistor should be already stuffed on your <A HREF="mbhp_dout.html">MBHP_DOUT</A> module
 

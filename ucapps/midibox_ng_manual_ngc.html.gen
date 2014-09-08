@@ -1309,6 +1309,41 @@ LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000000000100000
 </TABLE>
 
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> DIO </H2>
+
+<P CLASS=DESC>The DIO command has been added for <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> users who want to start with a very simple MIDIbox NG setup and only need a small number of digital inputs and outputs (e.g. for buttons, encoders and/or LEDs), and don't want to connect serial shift registers (MBHP_DINX4, MBHP_DOUTX4, MBHP_DIO_MATRIX). In this case, J10A and J10B can be used for up to 16 digital pins. Each J10 port can overrule a DIN or DOUT shift register.
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>DIO Parameter</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>port=&lt;port-name&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Specifies the IO port which should be configured:
+<UL CLASS=CL>
+  <LI><B>STM32F4:</B> <I>port=&lt;J10A or J10B&gt;</I><BR>
+  <LI><B>LPC17:</B> <I>port=&lt;J10 or J28&gt;
+</UL></TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>emu_din_sr=&lt;1..32&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>The selected port will overrule a DIN shift register position, so that 8 inputs are available. Note that internal pull-up devices will be enabled, which means that buttons could be connected directly between J10 pins and ground.<BR>
+Note that you can't specify emu_dout_sr in addition for the same port. The entire port is either configured for inputs our outputs!</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>emu_dout_sr=&lt;1..32&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>The selected port will overrule a DOUT shift register position, so that 8 outputs at 3.3V are available.<BR>
+Note that you can't specify emu_din_sr in addition for the same port. The entire port is either configured for inputs our outputs!</TD>
+  </TR>
+</TABLE>
+
+Configuration examples:
+<UL CLASS=CL>
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fdiocfg_1.ngc" TARGET="_blank">diocfg_1.ngc</A>: use J10A and J10B for up to 16 buttons
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fdiocfg_2.ngc" TARGET="_blank">diocfg_2.ngc</A>: use J10A for 8 buttons, and J10B for 8 LEDs
+</UL>
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> KEYBOARD </H2>
 
 <P CLASS=DESC>The KEYBOARD command configures (hardware) keyboards. The same driver like for <A HREF="midibox_kb.html">MIDIbox KB</A> is used, but the scan frequency is slower (10 times!). Each row is scanned in 320 uS (instead of 32 uS). This has to be considered in the velocity delay configuration: delay_slowest should be 100 (instead of 1000), and delay_fastest should be 5 (instead of 50)</P>
