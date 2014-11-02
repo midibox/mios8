@@ -83,7 +83,7 @@ DEFAULT_TRKINFO MACRO
 #define DEFAULT_GP_DIN_SR_R	4	; second GP DIN shift register assigned to SR#4
 ;
 ; DIN pins reversed?
-#define DEFAULT_GP_DIN_REVERSED 1
+#define DEFAULT_GP_DIN_REVERSED 0
 ;
 ; above these buttons LEDs should be mounted to visualize the played MIDI events,
 ; but also the current sequencer position, the selected pattern, the menu, etc.
@@ -412,8 +412,8 @@ LED_SECTION_C	EQU	((( 3   -1)<<3)+    2)
 LED_SECTION_D	EQU	((( 3   -1)<<3)+    3)
 
 ;;                         SR    ignore    Pin
-LED_LAYER_GATE	EQU	((( 0   -1)<<3)+    0)
-LED_LAYER_AUX	EQU	((( 0   -1)<<3)+    0)
+LED_LAYER_GATE	EQU	((( 4   -1)<<3)+    6)
+LED_LAYER_AUX	EQU	((( 5   -1)<<3)+    6)
 
 ;;                         SR    ignore    Pin
 LED_EDIT	EQU	((( 3   -1)<<3)+    7)
@@ -433,8 +433,8 @@ LED_GROUP3	EQU	((( 0   -1)<<3)+    0)
 LED_GROUP4	EQU	((( 0   -1)<<3)+    0)
 
 ;;                         SR    ignore    Pin
-LED_SHIFT	EQU	((( 0   -1)<<3)+    0)
-LED_ALT		EQU	((( 0   -1)<<3)+    0)
+LED_SHIFT	EQU	((( 7   -1)<<3)+    6)
+LED_ALT		EQU	((( 6   -1)<<3)+    6)
 
 ;;                         SR    ignore    Pin
 LED_RECORD	EQU	((( 0   -1)<<3)+    0)
@@ -446,7 +446,7 @@ LED_STOP	EQU	((( 0   -1)<<3)+    0)
 LED_PAUSE	EQU	((( 0   -1)<<3)+    0)
 LED_FWD		EQU	((( 0   -1)<<3)+    0)
 LED_REW		EQU	((( 0   -1)<<3)+    0)
-LED_LIVE	EQU	((( 0   -1)<<3)+    0)
+LED_LIVE	EQU	(((12   -1)<<3)+    6)
 
 ;;                         SR    ignore    Pin
 LED_MIDI_RX	EQU	(((0    -1)<<3)+    0) ; OPTIONAL! see CHANGELOG.txt
