@@ -88,6 +88,7 @@ These commands are only available in the mios32_bootloader update app, and not i
   Please consider this when reading documentation about MIDI troubleshooting.
 
 </UL>
+
 <UL CLASS=CL>
   <LI><B>single_usb:</B> use this option if you are working with a Windows PC which can't handle
      multiple USB ports correctly.<BR>
@@ -103,9 +104,21 @@ These commands are only available in the mios32_bootloader update app, and not i
      store
 </PRE></TT>
      This should solve the windows USB MIDI issues - with the drawback of the reduced functionality.
-
-
 </UL>
+
+<UL CLASS=CL>
+  <LI><B>enforce_usb_device:</B> this option has only an effect on core modules which support USB Host mode such as
+     the <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module.<BR>
+     If set to 1, USB device mode will be selected regardless of the cable type A or B.
+     If set to 0 (default), USB host mode will be selected with A type cables, and USB device mode with B type cables.<BR>
+     This type of selection is also known as USB OTG (on-the-go).<BR>
+     The usage of the default setup is normally save, "set enforce_usb_device 1" only if you are using an "unusual" cable.<BR>
+     Note that setting this parameter could lead to a dilemma: it can only be set with a bidirectional MIDI connection between the core module and the
+     MIOS Studio terminal. If you don't own a Micro-USB B type cable to establish this connection, the only possibility to change this parameter
+     is a "traditional" MIDI connection via MIDI IN/OUT between the core module and your PC/Mac!<BR>
+     If you don't own a MIDI interface for such a connection, it's cheaper to buy the right Micro-USB cable - once you've changed the parameter, you can use the "improper" cable for your core!
+</UL>
+
 <UL CLASS=CL>
 <LI><B>USB device name:</B> it's possible to assign a dedicated name for your MBHP_CORE_STM32
   or MBHP_CORE_LPC17 module which is used for the USB connection.<BR>

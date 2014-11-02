@@ -2,9 +2,15 @@ HEADER 3 MBHP DIN Module
 
 <H1>MIDIbox Hardware Platform, Digital IN Module</H1>
 
-<P><CENTER><IMG SRC="mbhp/mbhp_dinx4.jpg" width=500 height=400></CENTER></P>
+<P><CENTER><IMG SRC="mbhp/mbhp_din_r5.jpg" width=500 height=229></CENTER></P>
 
-<P CLASS=INFO>The DIN module comes with multiple serial registers 74HC165; every register provides 8 digital inputs, which are sampled with the latch enable signal LD and shifted out with the clock signal CLK. The advantage of using such shift registers is, that they can be cascaded to a long chain without the need of more than 5 cables to the core module. The DIN board has been designed on a way which allows to cascade not only the ICs on the board, but also several DIN modules. But note that it depends on the firmware how much inputs are processed by the core module. For instance, the <A HREF="midibox64.html">MIDIbox64</A> allows to connect up to 64 buttons = 8 ICs = 2 * DINX4, the <A HREF="midio128.html">MIDIO128</A> supports 128 inputs = 16 ICs = 4 DINX4 modules, and <A HREF="midibox_ng.html">MIDIbox NG</A> even up to 256 inputs = 32 ICs = 8 DINX4 modules!</P>
+<P CLASS=INFO>The DIN module comes with multiple serial registers 74HC165; every register (SR) provides 8 digital inputs, which are sampled with the latch enable signal LD and shifted out with the clock signal CLK. The advantage of using such shift registers is, that they can be cascaded to a long chain without the need of more than 5 cables to the core module. The DIN board has been designed on a way which allows to cascade not only the ICs on the board, but also several DIN modules. But note that it depends on the firmware how much inputs are processed by the core module:
+<UL CLASS=CL>
+  <LI>MIOS8 based applications typically allow to cascade up to 4 modules (=16 DIN SRs), makes up to 128 digital inputs
+  <LI>MIOS32 based applications typically allow to cascade up to 8 modules (=32 DIN SRs), makes up to 256 digital inputs
+</UL></P>
+
+<P CLASS=DESC>Some applications also allow to scan the shift registers in a so called "matrix" configuration. E.g. a 8x8 matrix (which is driven by a single DOUT SR and captured by a single DIN SR) can scan up to 64 buttons, a 16x16 matrix could scan up to 256 buttons. But normally 8x8 matrices are perferred due to lower latency.</P>
 
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
@@ -17,8 +23,8 @@ HEADER 3 MBHP DIN Module
     <TR>
       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data (old PCB)</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view (old PCB)</STRONG></FONT></TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><I>MBHP_DINX4_V2</I></TD>
@@ -44,6 +50,20 @@ HEADER 3 MBHP DIN Module
       <TD CLASS=TABCOLOR2>(normaly built on veroboard)</A></TD>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx1.jpg">mbhp_dinx1.jpg</A></TD>
     </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data (revised PCB)</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view (revised PCB)</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_DINX4_R5</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_r5.pdf">mbhp_dinx4_r5.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>ask SmashTV</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_din_r5_detail.jpg">mbhp_din_r5_detail.jpg</A></TD>
+    </TR>
+
   </TABLE></DD>
 
   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
@@ -58,27 +78,27 @@ HEADER 3 MBHP DIN Module
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_orderlist.txt">mbhp_dinx4_orderlist.txt</A></TD>
       <TD CLASS=TABCOLOR2>1k</TD>
-      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist for old layout</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_r5_orderlist.txt">mbhp_dinx4_r5_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist for SmashTV layout</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_32buttons.pdf">mbhp_dinx4_32buttons.pdf</A></TD>
       <TD CLASS=TABCOLOR2>16k</TD>
-      <TD CLASS=TABCOLOR2>How to connect 32 buttons</TD>
-    </TR>
-    <TR>
-      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_mb64seq.pdf">mbhp_dinx4_mb64seq.pdf</A></TD>
-      <TD CLASS=TABCOLOR2>16k</TD>
-      <TD CLASS=TABCOLOR2>Key assigns for MIDIbox64 SEQ</TD>
+      <TD CLASS=TABCOLOR2>How to connect 32 buttons (old PCB)</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_16enc.pdf">mbhp_dinx4_16enc.pdf</A></TD>
       <TD CLASS=TABCOLOR2>16k</TD>
-      <TD CLASS=TABCOLOR2>How to connect 16 rotary encoders to the <A HREF="midibox16e.html">MIDIbox16E</A> (and MIOS based controllers)</TD>
+      <TD CLASS=TABCOLOR2>How to connect 16 rotary encoders (old PCB)</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dinx4_16enc_alps_stec16b03.pdf">mbhp_dinx4_16enc_alps_stec16b03.pdf</A></TD>
       <TD CLASS=TABCOLOR2>16k</TD>
-      <TD CLASS=TABCOLOR2>Same for ALPS STEC16B rotary encoders</TD>
+      <TD CLASS=TABCOLOR2>Same for ALPS STEC16B rotary encoders (old PCB)</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/alps_stec16b03.lbr">alps_stec16b03.lbr</A></TD>
@@ -88,7 +108,7 @@ HEADER 3 MBHP DIN Module
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_din_touchsensors.pdf">mbhp_din_touchsensors.pdf</A></TD>
       <TD CLASS=TABCOLOR2>4k</TD>
-      <TD CLASS=TABCOLOR2>connection diagram for the touch sensors</TD>
+      <TD CLASS=TABCOLOR2>connection diagram for the touch sensors (old PCB, only supported by MIOS8, not supported by MIOS32!)</TD>
     </TR>
   </TABLE></DD>
   </DD>
@@ -97,7 +117,7 @@ HEADER 3 MBHP DIN Module
 <DL>
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
    <DD>
-<P CLASS=DESC>Following interfaces are provided by the dinx4 module:</P>
+<P CLASS=DESC>Following interfaces are provided by the DINX4 module:</P>
   <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
 
     <TR>
@@ -108,19 +128,21 @@ HEADER 3 MBHP DIN Module
     <TR>
       <TD CLASS=TABCOLOR2>J1</TD>
       <TD CLASS=TABCOLOR2>5</TD>
-      <TD CLASS=TABCOLOR2>Interface to CORE:J9 (if buttons are used) and CORE:J6 (if encoders are used, MIDIbox16E only). DINX4:J1 provides two power pins for 5V/0V, the serial clock, the latch enable and the serial output of the register chain.<BR>This port can also be connected with J2 of another DINX module.</TD>
+      <TD CLASS=TABCOLOR2>Interface to CORE:J9. DINX4:J1 provides two power pins for 5V/0V, the serial clock, the latch enable and the serial output of the register chain.<BR>This port can also be connected with J2 of another DINX module.<BR>
+      The revised PCB layout from SmashTV uses a 2-row DIL Header instead to simplify the connection to the J8/9 connector of the core module.</TD>
     </TR>
 
     <TR>
       <TD CLASS=TABCOLOR2>J2</TD>
       <TD CLASS=TABCOLOR2>5</TD>
-      <TD CLASS=TABCOLOR2>Interface to another DINX4 module. DINX4:J2 provides nearly the same pins like J1, just only the serial output of the first IC is replaced by the serial input of the last IC.<BR>This port can be connected with J1 of another DINX module.</TD>
+      <TD CLASS=TABCOLOR2>Interface to another DINX4 module. DINX4:J2 provides nearly the same pins like J1, just only the serial output of the first IC is replaced by the serial input of the last IC.<BR>This port can be connected with J1 of the next DINX module.</TD>
     </TR>
 
     <TR>
       <TD CLASS=TABCOLOR2>J3-J9</TD>
       <TD CLASS=TABCOLOR2>5</TD>
-      <TD CLASS=TABCOLOR2>These are the digital input lines, every connector comes with 4 of them and an additional pin for ground. See <A HREF="mbhp/mbhp_dinx4_32buttons.pdf">mbhp_dinx4_32buttons.pdf</A> as an example how to connect buttons to these pins, and <A HREF="mbhp/mbhp_dinx4_16enc.pdf">mbhp_dinx4_16enc.pdf</A> how to connect rotary encoders.</TD>
+      <TD CLASS=TABCOLOR2>These are the digital input lines, every connector comes with 4 of them and an additional pin for ground. See <A HREF="mbhp/mbhp_dinx4_32buttons.pdf">mbhp_dinx4_32buttons.pdf</A> as an example how to connect buttons to these pins, and <A HREF="mbhp/mbhp_dinx4_16enc.pdf">mbhp_dinx4_16enc.pdf</A> how to connect rotary encoders.<BR>
+      The revised PCB layout from SmashTV uses 2-row DIL headers instead so that buttons can be easily connected via 2-row DIL sockets.</TD>
     </TR>
   </TABLE></DD>
   </DD>
@@ -130,9 +152,7 @@ HEADER 3 MBHP DIN Module
 <DL>
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Used Components </H2></DT>
    <DD>
-<P CLASS=DESC>Here a list of the used components. A complete orderlist for <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> can be found <A HREF="mbhp/mbhp_dinx4_orderlist.txt">here</A>, Mouser partlist for the US: see <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Website</A>, if you have a orderlist for a distributor on your country, feel free publish it on this page!</P>
-
-  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+   <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
 
     <TR>
       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part Name</STRONG></FONT></td>
@@ -173,7 +193,7 @@ HEADER 3 MBHP DIN Module
     <TR>
       <TD CLASS=TABCOLOR2>DIL</TD>
       <TD CLASS=TABCOLOR2>SOCKETS</TD>
-      <TD CLASS=TABCOLOR2>Don't forget to buy sockets for the shift registers. 4 * 16 pin DIL sockets are required.</TD>
+      <TD CLASS=TABCOLOR2>Don't forget to buy sockets for the shift registers. 8 * 5 pin DIL sockets are required for the old PCB layout, resp. 4 2x5 DIL sockets for the SmashTV layout.</TD>
     </TR>
   </TABLE></DD>
   </DD>
@@ -183,36 +203,38 @@ HEADER 3 MBHP DIN Module
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
   <DD>
+  <P CLASS=DESC>This soldering guide explains how to build a DIN module based on the revised layout from <A HREF="http://www.midibox-shop.com" TARGET="_blank">SmashTV</A>. If you want to build a DIN module based on the old layout (e.g. from <A HREF="http://www.mikes-elektronikseite.de" TARGET="_blank">Mike</A>) please continue at <A HREF="mbhp_din_oldpcb.html">this page</A>.</P>
+
   <DD><TABLE CELLSPACING=0 CELLPADDING=0>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_din_1.jpg" WIDTH=280 HEIGHT=119 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>Start with soldering the 10 bridges which save you from creating a 2-layer board. You can use the cutted legs of caps and resistors, before you throw them away after you finished all the modules! :-) Note that the 4 bridges between Pin 15 of the ICs and Vss (ground) will be soldered at the bottom side!</TD>
+      <TD><IMG SRC="mbhp/mbhp_din_r5_2.jpg" WIDTH=280 HEIGHT=139 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>It's always a good idea to start with the smallest components to simplify mounting.<BR>
+So, start with the caps and resistor arrays:
+<UL>
+<LI>8 5x10k resistor arrays (resp. discrete 36x10k resistors if you don't use resistor arrays)
+<LI>C1-C4: 100 nF
+</UL>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_din_2.jpg" WIDTH=280 HEIGHT=119 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>This pictures shows the 4 additional bridges, realized with isolated cables.</TD>
+      <TD><IMG SRC="mbhp/mbhp_din_r5_3.jpg" WIDTH=280 HEIGHT=143 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Continue with the 4 IC sockets.</TD>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_din_3.jpg" WIDTH=280 HEIGHT=128 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>Stuff the other components: IC-sockets, Resistors, Connectors, ICs.</TD>
+      <TD><IMG SRC="mbhp/mbhp_din_r5_4.jpg" WIDTH=280 HEIGHT=136 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Thereafter mount the 2x5 SIL headers. As you can see, we are using "polarized" headers for J1 and J2, and DIL headers for J3-J6, so that the silkscreen (which shows the pin names) won't be hidden. It's your personal choice to use "polarized" headers for these connections as well.</TD>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_din_6.jpg" WIDTH=280 HEIGHT=118 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>Add also the four additional Bypass Caps between Vdd and ground (Vss) of each chip on the bottom side of the PCB as close to the +5V power input of the 74HC165 as possible. They improve the power integrity.</TD>
+      <TD><IMG SRC="mbhp/mbhp_din_r5_5.jpg" WIDTH=280 HEIGHT=130 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Finally put the 74HC165 ICs into the sockets. Your module is now ready for use!</TD>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_din_4.jpg" WIDTH=280 HEIGHT=259 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>This picture shows how to connect a DINX4 module to the core module (DINX4:J1 -> CORE:J9)</TD>
+      <TD COLSPAN=2 CLASS=TABCOLOR2><IMG SRC="mbhp/mbhp_din_r5_chain.jpg" WIDTH=500 HEIGHT=268 BORDER=0 ALT=""><BR>
+      Two cascaded DINX4 modules connected to J8/9 of a <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module with selfmade IDC cables.</TD>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_din_5.jpg" WIDTH=280 HEIGHT=149 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>A DINX4 module within a MIDIbox64.</TD>
-    </TR>
-    <TR>
-      <TD COLSPAN=2 CLASS=TABCOLOR2>128 inputs for MIDIO128 (yes, this pictures is a fake! ;-)</TD>
-    </TR>
-    <TR>
-      <TD COLSPAN=2 CLASS=TABCOLOR2><IMG SRC="mbhp/mbhp_din_chain.jpg" WIDTH=540 HEIGHT=48 BORDER=0 ALT=""></TD>
+      <TD COLSPAN=2 CLASS=TABCOLOR2><IMG SRC="mbhp/mbhp_dindout_r5_chain.jpg" WIDTH=500 HEIGHT=268 BORDER=0 ALT=""><BR>
+      Two cascaded DINX4 and two <A HREF="mbhp_dout.html">DOUTX4</A> modules connected to J8/9 of a <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module with selfmade IDC cables.<BR>
+      <A HREF="mbhp/mbhp_dindout_cable.jpg">This picture</A> gives you a more detailed view of the special (selfmade) cable which has one additional DIL socket at the middle so that the DIN and DOUT chain can be connected to the J8/9 connector of the core module.</TD>
     </TR>
   </TABLE></DD>
   </DD>

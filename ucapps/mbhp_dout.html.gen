@@ -2,9 +2,17 @@ HEADER 3 MBHP DOUT Module
 
 <H1>MIDIbox Hardware Platform, Digital OUT Module</H1>
 
-<P><CENTER><IMG SRC="mbhp/mbhp_doutx4.jpg" width=500 height=400></CENTER></P>
+<P><CENTER><IMG SRC="mbhp/mbhp_dout_r5.jpg" width=500 height=228></CENTER></P>
 
-<P CLASS=INFO>The DOUT module comes with multiple serial registers 74HC595; every register provides 8 digital outputs, which are updated with the latch enable signal RCLK and shifted out with the clock signal SCLK. The advantage of using such shift registers is, that they can be cascaded to a long chain without the need of more than 5 cables to the core module. The DOUT board has been designed on a way which allows to cascade not only the ICs on the board, but also several DOUT modules. But note that it depends on the firmware how much outputs are processed by the core module. For instance, the MIDIbox64 allows to connect up to 64 LEDs = 8 ICs = 2 * DOUTX4, the MIDIO128 supports 128 outputs = 16 ICs = 4 DOUTX4 modules, and <A HREF="midibox_ng.html">MIDIbox NG</A> even up to 256 outputs = 32 ICs = 8 DOUTX4 modules!</P>
+<P CLASS=INFO>The DOUT module comes with multiple serial registers 74HC595; every register provides 8 digital outputs, which are updated with the latch enable signal RCLK and shifted out with the clock signal SCLK. The advantage of using such shift registers is, that they can be cascaded to a long chain without the need of more than 5 cables to the core module. The DOUT board has been designed on a way which allows to cascade not only the ICs on the board, but also several DOUT modules. But note that it depends on the firmware how much outputs are processed by the core module:
+<UL CLASS=CL>
+  <LI>MIOS8 based applications typically allow to cascade up to 4 modules (=16 DOUT SRs), makes up to 128 digital outputs
+  <LI>MIOS32 based applications typically allow to cascade up to 8 modules (=32 DOUT SRs), makes up to 256 digital outputs
+</UL></P>
+
+<P CLASS=DESC>Some applications also allow to scan the shift registers in a so called "matrix" configuration. E.g. a 8x8 matrix (which is driven by a two DOUT SRs) can drive up to 64 LEDs, a 16x16 matrix could drive up to 256 LEDs. But normally 8x8 matrices are perferred due to higher duty cycle: 8x8 matrices make LED visible at 12.5% of the time which is normally bright enough, 16x16 matrices make LED visible at only 6.2% of the time which is mostly too dark!.</P>
+
+<P CLASS=DESC><B>Please note:</B> due to historical reasons, the "first LED" is usually located at D7 of an output connector, while on a <A HREF="mbhp_din.html">MBHP_DIN</A> module the "first button" is located at D0 of an output connector. See also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=din_dout_pintable" TARGET="_blank">this Wiki page</A>. This might be confusing, on the other hand changing these assignments for newer MIDIbox projects might confuse users even more! Therefore please bear with me that this assignment won't be changed anymore (it also has layout advantages)!</P>
 
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
@@ -17,8 +25,8 @@ HEADER 3 MBHP DOUT Module
     <TR>
       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
-      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data (old PCB)</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view (old PCB)</STRONG></FONT></TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><I>MBHP_DOUTX4_V1</I></TD>
@@ -50,6 +58,19 @@ HEADER 3 MBHP DOUT Module
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dout_mtc_v1.brd">mbhp_dout_mtc_v1.brd</A></TD>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dout_mtc_v1.gif">mbhp_dout_mtc.gif</A></TD>
     </TR>
+
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data (revised PCB)</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view (revised PCB)</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>MBHP_DOUTX4_R5</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_r5.pdf">mbhp_doutx4_r5.pdf</A></TD>
+      <TD CLASS=TABCOLOR2>ask SmashTV</TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_dout_r5_detail.jpg">mbhp_dout_r5_detail.jpg</A></TD>
+    </TR>
   </TABLE></DD>
 
   <DD><TABLE BORDER=0 CELLSPACING=5 CELLPADDING=0>
@@ -64,27 +85,32 @@ HEADER 3 MBHP DOUT Module
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_orderlist.txt">mbhp_doutx4_orderlist.txt</A></TD>
       <TD CLASS=TABCOLOR2>1k</TD>
-      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist for old layout</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_r5_orderlist.txt">mbhp_doutx4_r5_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist for SmashTV layout</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_32leds.pdf">mbhp_doutx4_32leds.pdf</A></TD>
       <TD CLASS=TABCOLOR2>16k</TD>
-      <TD CLASS=TABCOLOR2>How to connect 32 LEDs</TD>
+      <TD CLASS=TABCOLOR2>How to connect 32 LEDs (old PCB)</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_ledrings.pdf">mbhp_doutx4_ledrings.pdf</A></TD>
       <TD CLASS=TABCOLOR2>31k</TD>
-      <TD CLASS=TABCOLOR2>How to connect 16 LED-rings to the <A HREF="midibox16e.html">MIDIbox16E</A></TD>
+      <TD CLASS=TABCOLOR2>How to connect 16 LED-rings (old PCB)</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx4_mtc.pdf">mbhp_doutx4_mtc.pdf</A></TD>
       <TD CLASS=TABCOLOR2>12k</TD>
-      <TD CLASS=TABCOLOR2>How to connect 8 LED-digits for the MTC display of <A HREF="midimon.html">MIDImon</A></TD>
+      <TD CLASS=TABCOLOR2>How to connect 8 LED-digits for the MTC display of <A HREF="midimon.html">MIDImon</A> (old PCB)</TD>
     </TR>
     <TR>
       <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_doutx1_reed_relays.pdf">mbhp_doutx1_reed_relays.pdf</A></TD>
       <TD CLASS=TABCOLOR2>9k</TD>
-      <TD CLASS=TABCOLOR2>How to connect Reed Relays to a DOUT module - see also <A HREF="mbhp/mbhp_doutx1_reed_relays.jpg">this photo</A></TD>
+      <TD CLASS=TABCOLOR2>How to connect Reed Relays to a DOUT module (old PCB) - see also <A HREF="mbhp/mbhp_doutx1_reed_relays.jpg">this photo</A></TD>
     </TR>
   </TABLE></DD>
   </DD>
@@ -93,7 +119,7 @@ HEADER 3 MBHP DOUT Module
 <DL>
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Available Ports </H2></DT>
    <DD>
-<P CLASS=DESC>Following interfaces are provided by the doutx4 module:</P>
+<P CLASS=DESC>Following interfaces are provided by the DOUTX4 module:</P>
   <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
 
     <TR>
@@ -104,19 +130,22 @@ HEADER 3 MBHP DOUT Module
     <TR>
       <TD CLASS=TABCOLOR2>J1</TD>
       <TD CLASS=TABCOLOR2>5</TD>
-      <TD CLASS=TABCOLOR2>Interface to CORE:J8 (if LEDs are used) and CORE:J7 (if LED-Rings are used, MIDIbox16E only). DOUTX4:J1 provides two power pins for 5V/0V, the serial clock, the latch enable and the serial input of the register chain.<BR>This port can also be connected with J2 of another DOUTX module.</TD>
+      <TD CLASS=TABCOLOR2>Interface to CORE:J8 (if LEDs are used). DOUTX4:J1 provides two power pins for 5V/0V, the serial clock, the latch enable and the serial input of the register chain.<BR>This port can also be connected with J2 of another DOUTX module.<BR>
+      The revised PCB layout from SmashTV uses a 2-row DIL Header instead to simplify the connection to the J8/9 connector of the core module.</TD>
     </TR>
 
     <TR>
       <TD CLASS=TABCOLOR2>J2</TD>
       <TD CLASS=TABCOLOR2>5</TD>
-      <TD CLASS=TABCOLOR2>Interface to another DOUTX4 module. DOUTX4:J2 provides nearly the same pins like J1, just only the serial input of the first IC is replaced by the serial output of the last IC.<BR>This port can be connected with J1 of another DOUTX module.</TD>
+      <TD CLASS=TABCOLOR2>Interface to another DOUTX4 module. DOUTX4:J2 provides nearly the same pins like J1, just only the serial input of the first IC is replaced by the serial output of the last IC.<BR>This port can be connected with J1 of the next DOUTX module.</TD>
     </TR>
 
     <TR>
       <TD CLASS=TABCOLOR2>J3-J6</TD>
       <TD CLASS=TABCOLOR2>5</TD>
-      <TD CLASS=TABCOLOR2>These are the digital output lines, every connector comes with 8 of them and an additional pin for ground. See <A HREF="mbhp/mbhp_doutx4_32leds.pdf">mbhp_doutx4_32leds.pdf</A> as an example how to connect LEDs to these pins, and <A HREF="mbhp/mbhp_doutx4_ledrings.pdf">mbhp_doutx4_ledrings.pdf</A> how to connect LED rings.</TD>
+      <TD CLASS=TABCOLOR2>These are the digital output lines, every connector comes with 8 of them and an additional pin for ground. See <A HREF="mbhp/mbhp_doutx4_32leds.pdf">mbhp_doutx4_32leds.pdf</A> as an example how to connect LEDs to these pins, and <A HREF="mbhp/mbhp_doutx4_ledrings.pdf">mbhp_doutx4_ledrings.pdf</A> how to connect LED rings.<BR>
+</TD>
+      The revised PCB layout from SmashTV uses 2-row DIL headers instead so that buttons can be easily connected via 2-row DIL sockets.</TD>
     </TR>
   </TABLE></DD>
   </DD>
@@ -126,9 +155,7 @@ HEADER 3 MBHP DOUT Module
 <DL>
    <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Used Components </H2></DT>
    <DD>
-<P CLASS=DESC>Here a list of the used components. A complete orderlist for <A HREF="http://www.reichelt.de" TARGET="_blank">Reichelt</A> can be found <A HREF="mbhp/mbhp_doutx4_orderlist.txt">here</A>, Mouser partlist for the US: see <A HREF="http://mbhp.coinoptech.com" TARGET="_blank">SmashTV's Website</A>, if you have a orderlist for a distributor on your country, feel free publish it on this page!</P>
-
-  <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
+   <DD><TABLE CLASS=BOX WIDTH="100%" BORDER=1 CELLSPACING=5 CELLPADDING=0>
 
     <TR>
       <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Part Name</STRONG></FONT></td>
@@ -163,7 +190,7 @@ HEADER 3 MBHP DOUT Module
     <TR>
       <TD CLASS=TABCOLOR2>DIL</TD>
       <TD CLASS=TABCOLOR2>SOCKETS</TD>
-      <TD CLASS=TABCOLOR2>Don't forget to buy sockets for the shift registers. 4 * 16 pin DIL sockets are required.</TD>
+      <TD CLASS=TABCOLOR2>Don't forget to buy sockets for the shift registers. 4 * 16 pin DIL sockets are required for the old PCB layout, resp. 4 2x5 DIL sockets for the SmashTV layout.</TD>
     </TR>
   </TABLE></DD>
   </DD>
@@ -173,32 +200,41 @@ HEADER 3 MBHP DOUT Module
 <DL>
   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Soldering Guide </H2></DT>
   <DD>
+  <P CLASS=DESC>This soldering guide explains how to build a DOUT module based on the revised layout from <A HREF="http://www.midibox-shop.com" TARGET="_blank">SmashTV</A>. If you want to build a DOUT module based on the old layout (e.g. from <A HREF="http://www.mikes-elektronikseite.de" TARGET="_blank">Mike</A>) please continue at <A HREF="mbhp_dout_oldpcb.html">this page</A>.</P>
+
   <DD><TABLE CELLSPACING=0 CELLPADDING=0>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_dout_1.jpg" WIDTH=280 HEIGHT=118 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>Start with soldering the 15 bridges which save you from creating a 2-layer board. You can use the cutted legs of caps and resistors, before you throw them away after you finished all the modules! :-) Note that the 5 bridges between Pin 13 of the ICs and Vss (ground) and Pin 15 -> J6:D0 will be soldered at the bottom side!</TD>
+      <TD><IMG SRC="mbhp/mbhp_dout_r5_2.jpg" WIDTH=280 HEIGHT=139 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>It's always a good idea to start with the smallest components to simplify mounting.<BR>
+So, start with the caps:
+<UL>
+<LI>C1-C4: 100 nF
+</UL>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_dout_2.jpg" WIDTH=280 HEIGHT=119 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>Mount the IC-sockets before continuing.</TD>
+      <TD><IMG SRC="mbhp/mbhp_dout_r5_3.jpg" WIDTH=280 HEIGHT=143 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Continue with the 4 IC sockets.</TD>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_dout_3.jpg" WIDTH=280 HEIGHT=119 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>This picture shows the 5 additional bridges, realized with isolated cables.</TD>
+      <TD><IMG SRC="mbhp/mbhp_dout_r5_4.jpg" WIDTH=280 HEIGHT=142 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>And then solder the resistors - here I'm using the nice 8x220 Ohm arrays (which look like ICs). Unfortunately they are only available at <A HREF="http://www.mouser.com" TARGET="_blank">Mouser</A> (652-4116R-1LF-220). Alternatively mount 32 discrete 220 Ohm resistors (not shown here).</TD>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_dout_5.jpg" WIDTH=280 HEIGHT=100 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>Add also the four additional Bypass Caps between Vdd and ground (Vss) of each chip on the bottom side of the PCB as close to the +5V power input of the 74HC595 as possible. Add an additional cap (100 uF) at the power input of the DOUT module. These caps improve the power integrity.</TD>
+      <TD><IMG SRC="mbhp/mbhp_dout_r5_5.jpg" WIDTH=280 HEIGHT=132 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Thereafter mount the 2x5 SIL headers. As you can see, we are using "polarized" headers for J1 and J2, and DIL headers for J3-J6, so that the silkscreen (which shows the pin names) won't be hidden. It's your personal choice to use "polarized" headers for these connections as well.</TD>
     </TR>
     <TR>
-      <TD><IMG SRC="mbhp/mbhp_dout_4.jpg" WIDTH=280 HEIGHT=101 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>A full stuffed DOUTX4 module within a MIDIbox64.</TD>
+      <TD><IMG SRC="mbhp/mbhp_dout_r5_6.jpg" WIDTH=280 HEIGHT=129 BORDER=0 ALT=""></TD>
+      <TD CLASS=TABCOLOR2>Finally put the 74HC595 ICs into the sockets. Your module is now ready for use!</TD>
     </TR>
     <TR>
-      <TD COLSPAN=2 CLASS=TABCOLOR2>128 outputs for MIDIO128 (yes, this picture is a fake! ;-)</TD>
+      <TD COLSPAN=2 CLASS=TABCOLOR2><IMG SRC="mbhp/mbhp_dout_r5_chain.jpg" WIDTH=500 HEIGHT=290 BORDER=0 ALT=""><BR>
+      Two cascaded DOUTX4 modules connected to J8/9 of a <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module with selfmade IDC cables.</TD>
     </TR>
     <TR>
-      <TD COLSPAN=2 CLASS=TABCOLOR2><IMG SRC="mbhp/mbhp_dout_chain.jpg" WIDTH=540 HEIGHT=48 BORDER=0 ALT=""></TD>
+      <TD COLSPAN=2 CLASS=TABCOLOR2><IMG SRC="mbhp/mbhp_dindout_r5_chain.jpg" WIDTH=500 HEIGHT=268 BORDER=0 ALT=""><BR>
+      Two cascaded <A HREF="mbhp_din.html">DINX4</A> and two DOUTX4 modules connected to J8/9 of a <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module with selfmade IDC cables.<BR>
+      <A HREF="mbhp/mbhp_dindout_cable.jpg">This picture</A> gives you a more detailed view of the special (selfmade) cable which has one additional DIL socket at the middle so that the DIN and DOUT chain can be connected to the J8/9 connector of the core module.</TD>
     </TR>
   </TABLE></DD>
   </DD>
