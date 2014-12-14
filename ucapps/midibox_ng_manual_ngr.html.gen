@@ -288,6 +288,12 @@ set LED:1008 127
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2><I>SET_NO_DUMP &lt;id&gt; &lt;1|0&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Allows to change the "no_dump" flag which specifies if an EVENT_xxx should be sent during a DumpSnapshot.
+     This feature can be used to handle different snapshot setups.</TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2><I>SET_MIN &lt;id&gt; &lt;1|0&gt;</I><BR><I>SET_MAX &lt;id&gt; &lt;1|0&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Sets the minimal/maximal value of an event (in the .NGR file specified with range=&lt;min&gt;:&lt;max&gt;.<BR>
        Example:
@@ -393,6 +399,43 @@ if (id)BUTTON:20 != 0
   log "BUTTON:20 is pressed"
 endif
 </PRE></TT>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Operations </H2>
+
+<P CLASS=DESC>Some basic mathematical operations are supported. They have to be surrounded with square-brackets ([...]).</P>
+
+<P CLASS=DESC>Syntax: <I>[&lt;left-operand&gt;&lt;operator&gt;&lt;right-operand&gt;]</I></P>
+
+<P CLASS=DESC>Examples:
+<UL CLASS=CL>
+  <LI><I>set LED:2000 [LED:2000 + 1]</I><BR>
+      will increment the value stored in LED:2000
+  <LI><I>set LED:2000 [LED:2000 - 1]</I><BR>
+      will decrement the value stored in LED:2000
+</UL>
+</P>
+
+<P CLASS=DESC>Note that nested operations are supported as well, such as:
+<UL CLASS=CL>
+  <LI><I>send CC USB1 1 [LED:2000 + [LED:2001 + [LED:2002 + LED:2003]]]</I>
+</UL>
+</P>
+
+<P CLASS=DESC>More examples can be found in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frunscr5.ngc" TARGET="_blank">runscr5.ngc</A> and <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frunscr5.ngr" TARGET="_blank">runscr5.ngr</A></P>
+
+<P CLASS=DESC>Support operators:
+<UL CLASS=CL>
+  <LI><I>+</I>: addition
+  <LI><I>-</I>: substraction
+  <LI><I>*</I>: multiplication
+  <LI><I>/</I>: divide
+  <LI><I>%</I>: modulo
+  <LI><I>&amp;</I>: logical AND
+  <LI><I>|</I>: logical OR
+  <LI><I>^</I>: logical XOR
+</UL>
+</P>
 
 
 

@@ -581,6 +581,11 @@ EVENT_BUTTON ... type=Meta meta=DumpSnapshot
         <LI><I>CvTransposeOctave:&lt;cv-channel&gt;</I>: transposes the given CV channel octave-wise. See <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fcvtransp.ngc" TARGET="_blank">cvtransp.ngc example</A>.
         <LI><I>CvTransposeSemitones:&lt;cv-channel&gt;</I>: transposes the given CV channel semitone-wise. See <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fcvtransp.ngc" TARGET="_blank">cvtransp.ngc example</A>.
 
+        <LI><I>KbBreakIsMake:&lt;keyboard-number&gt;</I>: this command changes the behaviour of a keyboard (EVENT_KB): with value > 0 the keyboard will already trigger a note event when the break contact is activated (nice for playing organ style).<BR>
+      Trigger it from a toggle button function as shown in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_5.ngc" TARGET="_blank">kb_5.ngc</A><BR>
+      Can be optionally set from the terminal as well with following
+      command: <I>set kb &lt;keyboard-number&gt; break_is_make &lt;on|off&gt;</I> (e.g. <I>set kb 1 break_is_make on</I>).
+
         <LI><I>ScsEnc</I>: emulates a SCS encoder movement. This Meta event can either be issued from EVENT_ENC or EVENT_BUTTON events. A usage example is given below.
         <LI><I>ScsSoft1</I>: emulates the SOFT1 button of the SCS
         <LI><I>ScsSoft2</I>: emulates the SOFT2 button of the SCS
@@ -719,6 +724,7 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>Direct</I>: the output value jumps directly to the new conversion value whenever the pot/fader is moved
         <LI><I>Switch</I>: Can be used if buttons are connected to analog inputs. The event will send the min value if a 30% threshold is reached, and the max value if a 70% threshold is reached (hysteresis behaviour).
            <TT><PRE style="margin-left:50px; font-size:8pt">Schematic:  Ground |----o Button o-----> analog input + 10k Pull-Up resistor to 3.3V (AIN) resp. 5V (AINSER)</PRE></TT>
+        <LI><I>Toggle</I>: Similar to Switch it can be used if buttons are connected to analog inputs. The event will toggle between the min and max value.
         <LI><I>Snap</I>: (in literature also called "Soft-Takeover") whenever a new value is received from external, pot/fader movements won't generate MIDI events until it passed beyond the new position.
         <LI><I>Relative</I>: whenever a new value is received from external, pot/fader movements will increment the received value instead of setting it to the absolute position
         <LI><I>Parallax</I>: this name is cool, isn't it? ;-) A description can be found in <A HREF="http://www.ucapps.de/midibox/midibox_plus_parallax.gif">this history document from the year 1999</A>.
@@ -1365,6 +1371,7 @@ Configuration examples:
   <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_2.ngc" TARGET="_blank">kb_2.ngc</A>: usage of a velocity map
   <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_3.ngc" TARGET="_blank">kb_3.ngc</A>: splitting keyboard into two zones
   <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_4.ngc" TARGET="_blank">kb_4.ngc</A>: forwarding to CV outputs
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_5.ngc" TARGET="_blank">kb_5.ngc</A>: using the KbBreakIsMake option
 </UL>
 
 
@@ -1768,6 +1775,12 @@ Each OSC port has an individual remote IP, a remote port (to which OSC packets w
   </TR>
 </TABLE>
 
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SRIO </H2>
+
+<P CLASS=DESC><I>SRIO num_sr=&lt;1..32&gt;</I>: By default 32 DIN and DOUT shift registers are scanned, which result into an update rate of ca. 420 uS on a STM32F4 based core.</P>
+
+<P CLASS=DESC>With (for example) <I>SRIO sr_num=8</I> only up to 8 DIN and 8 DOUT SRs will be scanned anymore, but the update rate is reduced to ca. 110..120 uS (a little bit more than a quarter due to SR handling overhead).</P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> DebounceCtr </H2>
 

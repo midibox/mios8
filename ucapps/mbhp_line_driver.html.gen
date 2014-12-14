@@ -1,0 +1,134 @@
+HEADER 3 MBHP_LINE_DRIVER Module
+
+<H1>MIDIbox Hardware Platform, LINE_DRIVER Module</H1>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_line_driver_transmitter_v1.png" width=250 height=210>
+           <IMG SRC="mbhp/mbhp_line_driver_receiver_v1.png" width=250 height=210></CENTER></P>
+
+<P><CENTER><IMG SRC="mbhp/mbhp_line_driver_aout_ng.jpg" width=550 height=348></CENTER></P>
+
+<P CLASS=INFO>The line driver modules have been designed to connect SPI devices and serial shift registers (DINs/DOUTs) to a MIDIbox over long distances. For this purpose two MC3487 are used as transmitter, and two MC3486 as receiver ICs to transfer the serial signals with bidirectional voltages according to ANSI TIA/EIA-422-B (also known as RS-422). With the given hardware connections up to 5m are possible at 1 MBit/s. Even longer cables could work, but haven't been tested at my side. They might require special twisted pair cables at the right impedance (100 Ohm) - however, the given solution works properly with cheap 25pin male-to-male "parallel cables" as known from the PC world which are also used to connect printers (before the USB era).</P>
+
+<P CLASS=DESC>Two SPI ports are provided. A SPI port can be used to
+<UL CLASS=CL>
+  <LI>extend serial shift register chains (SRIO) such as <A HREF="mbhp_din.html">MBHP_DIN</A>, <A HREF="mbhp_dout.html">MBHP_DOUT</A> and <A HREF="mbhp_dio_matrix.html">MBHP_DIO_MATRIX</A>
+  <LI>connect SPI devices such as <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A>, <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A>, <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A>
+</UL>
+
+<P CLASS=DESC>The first SPI port (J2) is usually connected to the end of the SRIO chain (DIN/DOUT modules) or directly to J8/9 of the core module at the MIDIbox side, and allows to connect additional DIN/DOUT modules at the receiver side.</P>
+
+<P CLASS=DESC>The second SPI port (J19) is usually connected to J19 of the core module, and to SPI devices at the receiver side.</P>
+
+<P CLASS=DESC>Note that both SPI ports can handle two devices: a separate DIN and DOUT chain can be connected to J2, and two SPI devices can be connected to J19, because two chip select lines (RC1 and RC2) are available.
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Typical Use Cases </H2></DT>
+
+  <P CLASS=DESC>Here some wiring examples for typical use cases:</P>
+
+  <P><CENTER><IMG SRC="mbhp/mbhp_line_driver_usecase_direct.png" width=550 height=523></CENTER></P>
+
+  <UL CLASS=CL>
+    <LI>J8/9 (the SRIO port) of the core module is directly connected to J2 of the transmitter module
+    <LI>The J2_SI jumper is mounted, so that the J2:SI pin is directly routed to the transmitter port
+    <LI>J19 of the core module is directly connected to J19 of the transmitter module
+    <LI>JCI port not used here (they would allow to route two additional input signals through the cable
+    <LI>a long cable between transmitter and receiver module
+    <LI>DIN/DOUT modules connected to J2 at the receiver module
+    <LI>one or two SPI devices connected to J19 of the receiver module
+  </UL>
+
+
+  <P CLASS=DESC>Following diagram shows how DIN/DOUT connections could be extended:</P>
+
+  <P><CENTER><IMG SRC="mbhp/mbhp_line_driver_usecase_srio_ext1.png" width=550 height=749></CENTER></P>
+
+  <UL CLASS=CL>
+    <LI>One or more DINX4/DOUTX4 modules are connected to J8/9 of the core module with a <A HREF="mbhp/mbhp_dindout_r5_chain.jpg">Y cable</A>
+    <LI>J2 of the MBHP_DOUTX4 module connected to J2 of the transmitter module
+    <LI>The J2_SI jumper is <B>not</B> mounted! Instead the J2:SI pin of the DINX4 module is connected with a cable to the J2:SI input of the transmitter module
+    <LI>J19 of the core module is directly connected to J19 of the transmitter module
+    <LI>JCI port not used here
+    <LI>a long cable between transmitter and receiver module
+    <LI>Additional DINX4/DOUTX4 modules connected to J2 of the receiver module, again with a Y cable
+    <LI>one or two SPI devices connected to J19 of the receiver module
+  </UL>
+
+
+  <P CLASS=DESC><A HREF="midibox_seq.html">MIDIbox SEQ</A> users will prefer this wiring:</P>
+
+  <P><CENTER><IMG SRC="mbhp/mbhp_line_driver_usecase_mbseq.png" width=550 height=590></CENTER></P>
+
+  <UL CLASS=CL>
+    <LI>J8/9 (the SRIO port) of the core module connected to J1 of the MBSEQ Frontpanel PCB
+    <LI>J2 of the Frontpanel PCB connected to J2 of the transmitter module
+    <LI>The J2_SI jumper is mounted, so that the J2:SI pin is directly routed to the transmitter port
+    <LI>J19 of the core module is directly connected to J19 of the transmitter module
+    <LI>JCI port not used here (it's planned to use these lines for DIN Sync Clock and Start/Stop input in future)
+    <LI>a long cable between transmitter and receiver module
+    <LI>DOUTX4 module connected to J2 at the receiver module<BR>
+        This module can output 8 Gates, 8 Clocks (incl. Start/Stop) and 16 additional Gates/Drum Triggers<BR>
+        Note that a second DOUTX4 module could be connected behind this one for +32 additional gates/drum triggers
+        (MBSEQ firmware supports up to 48 gates/drum triggers aside from the "common" gates which correlate to the CV outputs)
+    <LI>a AOUT_NG module connected to the JAOUT port of the receiver module (it has a matching 5-pin layout which is used by AOUT modules)
+  </UL>
+
+</DL>
+
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Download </H2></DT>
+   <DD>
+   <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1>PCB data, can be viewed, modified and converted with <A HREF="http://www.cadsoft.de/download.htm" TARGET="_blank">Eagle Light</A>. The .pdf based schematic has been created with <A HREF="http://opencircuitdesign.com/xcircuit" TARGET="_blank">xcircuit</A>. There are no special eagle schematics available, since components have been netlisted in the .brd file directly!</TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Module</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Schematic</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Layout Data</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Quick-view</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>Transmitter</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_line_driver_transmitter.pdf">mbhp_line_driver_transmitter.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_line_driver_transmitter_v1.brd">...transmitter_v1.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_line_driver_transmitter_v1.png">...transmitter_v1.png</A></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><I>Receiver</I></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_line_driver_receiver.pdf">mbhp_line_driver_receiver.pdf</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_line_driver_receiver_v1.brd">...receiver_v1.brd</A></TD>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_line_driver_receiver_v1.png">...receiver_v1.png</A></TD>
+    </TR>
+  </TABLE></DD>
+
+  <DD><TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+    <TR>
+      <TD COLSPAN=4 CLASS=TABCOLOR1><FONT SIZE=3>Additional informations</FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>File</STRONG></FONT></td>
+      <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Size</STRONG></FONT></td>
+      <TD NOWRAP CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Description</STRONG></FONT></TD>
+    </TR>
+    <TR>
+      <TD CLASS=TABCOLOR2><A HREF="mbhp/mbhp_line_driver_orderlist.txt">mbhp_line_driver_orderlist.txt</A></TD>
+      <TD CLASS=TABCOLOR2>1k</TD>
+      <TD CLASS=TABCOLOR2><A HREF="http://www.reichelt.de/" TARGET="_blank">Reichelt</A> orderlist for both modules</TD>
+    </TR>
+  </TABLE></DD>
+  </DD>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Forum Thread</H2></DT>
+   <P CLASS=INFO>The line driver modules are discussed in <A HREF="http://midibox.org/forums/topic/19127-revised-25-pin-breakout-port/" TARGET="_blank">this forum thread</A>.</P>
+</DL>
+
+<DL>
+   <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Premade PCB </H2></DT>
+   <P CLASS=INFO>Premade PCBs are currently not available in SmashTV's shop, but the .brd files could be produced at <A HREF="https://oshpark.com" TARGET="_blank">OSH Park</A>. Ca. US $24 for 3 PCBs, makes ca. US $50 for 3 transmitter and 3 receiver PCBs. Only 1 transmitter and 1 receiver PCB is required, so that it makes sense to combine orders (come together in the <A HREF="http://forum.midibox.org" TARGET="_blank">MIDIbox Forum</A>).
+</DL>
+  
+FOOTER

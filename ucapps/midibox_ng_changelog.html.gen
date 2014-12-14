@@ -1,13 +1,70 @@
 HEADER 3 ChangeLog of MIDIbox NG
 
 <CENTER><H1>MIDIbox NG Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2014-08-24</H3></CENTER>
+<CENTER><H3>Last Release: 2014-11-09</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_ng.html">http://www.uCApps.de/midibox_ng.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.032</I>
+  <UL CLASS=CL>
+   <LI> support for mathematical operations in .NGR script.
+     They have to be surrounded with square-brackets ([...])<BR>
+     Syntax: [&lt;left-operand&gt;&lt;operator&gt;&lt;right-operand&gt;]<BR>
+     Example:
+     <UL CLASS=CL>
+        <LI> set LED:2000 [LED:2000 + 1]<BR>
+          will increment the value stored in LED:2000
+        <LI> set LED:2000 [LED:2000 - 1]
+          will decrement the value stored in LED:2000
+     </UL>
+
+     Note that nested operations are supported as well, such as:
+     <UL CLASS=CL>
+        <LI> send CC USB1 1 [LED:2000 + [LED:2001 + [LED:2002 + LED:2003]]]
+     </UL>
+
+     More examples in cfg/tests/runscr5.ngc<BR>
+     Support operators: + - * / % &amp; | ^
+
+
+   <LI> number of scanned SRIOs now configurable in .NGC file
+     with 'SRIO num_sr=&lt;1..32&gt;'<BR>
+
+     By default 32 DIN and DOUT shift registers are scanned, which
+     result into an update rate of ca. 420 uS on a STM32F4 based core.<BR>
+
+     With (for example) 'sr_num=8' only up to 8 DIN and 8 DOUT SRs will
+     be scanned anymore, but the update rate is reduced to ca. 110..120 uS
+     (a little bit more than a quarter due to SR handling overhead)
+     
+
+    <LI> corrected DebounceCtr parameter (value was not passed to MIOS32).<BR>
+      Now also part of the SRIO configuration, use: SRIO debounce_cycles=&lt;1..255&gt;
+
+    <LI> added new meta event "KbBreakIsMake:&lt;keyboard-number&gt;" which will
+      already trigger a note event when the break contact is activated
+      (nice for playing organ style).<BR>
+      Trigger it from a toggle button function as shown in cfg/test/kb_5.ngc
+      Can be optionally set from the terminal as well with following
+      command: "set kb &lt;keyboard-number&gt; break_is_make &lt;on|off&gt;"
+      (e.g. "set kb 1 break_is_make on")
+
+   <LI> added ain_mode=Toggle for AIN and AINSER events.<BR>
+     Similar to ain_mode=Switch it can be used if buttons are connected to analog inputs.
+     The event will toggle between the min and max value.
+
+   <LI> .NGR: added "set_no_dump" command. It allows to change the "no_dump" flag
+     which specifies if an EVENT_xxx should be sent during a DumpSnapshot.<BR>
+     This feature can be used to handle different snapshot setups.
+
+   <LI> STM32F4: support for bootloader "enforce_usb_device" flag
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V1.031</I>
