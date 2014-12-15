@@ -128,7 +128,41 @@ Here the part list: <A HREF="mbhp/mbhp_midi_io_orderlist.txt">mbhp_midi_io_order
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Detented or Non-Detented Encoders? </H2>
 
 <P CLASS=DESC>In difference to suggestions for MIOS based MIDI controllers, for MIDIbox SEQ I strongly recomment <B>detented rotary encoders</B>! Of course, MIOS provides three types, and all are working. But for a sequencer, where you want to select the notes exactly and not "smoothly", detented encoders are really the preferred ones.</P>
-<P CLASS=DESC>Note that there are three different types of detented rotary encoders (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders">this Wiki page</A>). The MBSEQ_HW.V4 file (stored on SD Card) has been preconfigured for "DETENTED3", which is the most commonly used (encoders provided by Voti/SmashTV). If you notice, that your encoders only work in one direction, please change the type to "DETENTED1" or "DETENTED2" at the bottom of the setup file.</P>
+<P CLASS=DESC>Note that there are three different types of detented rotary encoders (see also <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=encoders">this Wiki page</A>). The MBSEQ_HW.V4 file (stored on SD Card) has been preconfigured for "DETENTED3", which is the most commonly used (encoders provided by Voti/SmashTV). If you notice, that your encoders only work in one direction, please change the type to DETENTED2, DETENTED2 or DETENTED3 (default) at the bottom of the setup file.</P>
+
+<P CLASS=DESC>Here a configuration example for the <A HREF="midibox_seq/mbseq_v4_din.pdf">standard</A> layout:</P>
+<TT><PRE style="margin-left:20px">
+##################################################
+# Encoder Functions
+# SR = 0: encoder disabled
+# SR = 1..16: DIN assignment
+# Types: NON_DETENTED, DETENTED1, DETENTED2, DETENTED3
+##################################################
+
+#              SR  Pin  Type
+ENC_DATAWHEEL   6   2   DETENTED3
+
+# the speed value for the datawheel which is used when the "FAST" button is activated:
+ENC_DATAWHEEL_FAST_SPEED 3
+
+#        SR  Pin  Type
+ENC_GP1   1   6   DETENTED3
+ENC_GP2   1   4   DETENTED3
+ENC_GP3   1   2   DETENTED3
+ENC_GP4   1   0   DETENTED3
+ENC_GP5   3   6   DETENTED3
+ENC_GP6   3   4   DETENTED3
+ENC_GP7   3   2   DETENTED3
+ENC_GP8   3   0   DETENTED3
+ENC_GP9   4   6   DETENTED3
+ENC_GP10  4   4   DETENTED3
+ENC_GP11  4   2   DETENTED3
+ENC_GP12  4   0   DETENTED3
+ENC_GP13  5   6   DETENTED3
+ENC_GP14  5   4   DETENTED3
+ENC_GP15  5   2   DETENTED3
+ENC_GP16  5   0   DETENTED3
+</PRE></TT></P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> How many buttons? </H2>
@@ -147,6 +181,25 @@ Here the part list: <A HREF="mbhp/mbhp_midi_io_orderlist.txt">mbhp_midi_io_order
 </UL>
 
 <P CLASS=DESC>A lot of additional button functions have been added later, mostly based on user requests. A full list can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2Fstandard_v4%2FMBSEQ_HW.V4" TARGET="_blank">MBSEQ_HW.V4 template</A> (search for BUTTON_)</P>
+
+<P CLASS=DESC>For illustration purposes, here a configuration example which assigns the Stop/Pause/Play/Rew buttons to the first DIN, Pin D4..D7, and the Fwd button to the second DIN, pin D0. The Loop and Follow buttons are not assigned, but you could do this adding these buttons to your frontpanel, connecting them to unused DIN pins and define the appr. SR & pin numbers in your own MBSEQ_HW.V4 file:
+<TT><PRE style="margin-left:20px">
+##################################################
+# Button assignments to DIN pins
+# SR = 0: Button disabled
+# SR = 1..23:  directly triggered from DIN pin
+# SR = M1..M8: triggered from a 8x8 button matrix
+##################################################
+
+#             SR  Pin
+BUTTON_STOP    1   4
+BUTTON_PAUSE   1   5
+BUTTON_PLAY    1   6
+BUTTON_REW     1   7
+BUTTON_FWD     2   0
+BUTTON_LOOP    0   0
+BUTTON_FOLLOW  0   0
+</PRE></TT></P>
 
 <P CLASS=DESC>Note that there is also a <A HREF="midibox_seq/mbseqv4_remote_functions.pdf">MIDI Remote</A> feature available which allows you to trigger button functions with a MIDI keyboard. However, the handling isn't so perfect like with dedicated buttons (especially since the LEDs are missing on a master keyboard), but it works!</P>
 <P CLASS=DESC>It isn't required that the buttons are assigned to the same DIN input pins like predefined in the MBSEQ_HW.V4 file (stored on SD Card). You are able to change the pinning for your (existing) hardware. But if you want to keep it compatible, then use exactly the same pinning like me.</P>
@@ -169,13 +222,78 @@ Here the part list: <A HREF="mbhp/mbhp_midi_io_orderlist.txt">mbhp_midi_io_order
 
 <P CLASS=DESC><A HREF="midibox_seq/mbseq_v4_dout.pdf">DOUT Pinning of hwcfg/standard_v4/MBSEQ_HW.V4</A></P>
 
-<P CLASS=DESC><I>Note: alternatively the MIDIbox SEQ firmware also allows to connect up to 64 LEDs in a matrix configuration. See "Reduced DIN/DOUT Option" topic below.</I></P>
+<P CLASS=DESC>For illustration purposes, here a configuration example which assigns the Track 1-4 LEDs to DOUT, Pin D0..3.
+
+Stop/Pause/Play/Rew buttons to the first DIN, Pin D4..D7, and the Fwd button to the second DIN, pin D0. The Loop and Follow buttons are not assigned, but you could do this adding these buttons to your frontpanel, connecting them to unused DIN pins and define the appr. SR & pin numbers in your own MBSEQ_HW.V4 file:
+<TT><PRE style="margin-left:20px">
+##################################################
+# LED assignments to DOUT pins
+# SR = 0: LED disabled
+# SR = 1..23:  directly forwarded to DOUT pin
+# SR = M1..M8: forwarded to a 8x8 LED matrix
+#
+# Please note: due to historical reasons, pin 0-7
+# are mirrored!
+# Pin 0 = DOUT Pin D7
+# Pin 1 = DOUT Pin D6
+# Pin 2 = DOUT Pin D5
+# ...
+# Pin 7 = DOUT Pin D0
+##################################################
+
+#           SR  Pin
+LED_TRACK1   1   0
+LED_TRACK2   1   1
+LED_TRACK3   1   2
+LED_TRACK4   1   3
+</PRE></TT></P>
+
+<P CLASS=DESC><I>Note: alternatively the MIDIbox SEQ firmware allows to connect up to 64 LEDs in a matrix configuration. See "Reduced DIN/DOUT Option" topic below.</I></P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Reduced DIN/DOUT Option </H2>
 
-<P CLASS=DESC>For <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_seq" TARGET="_blank">Wilba's frontpanel</A> a feature has been built into the firmware which reduces the number of required DIN/DOUT shift registers. This is achieved by connecting the buttons and LEDs to a 8x8 matrix. 
+<P CLASS=DESC>For <A HREF="http://www.midibox.org/dokuwiki/doku.php?id=wilba_mb_seq" TARGET="_blank">Wilba's frontpanel</A> a feature has been built into the firmware which reduces the number of required DIN/DOUT shift registers. This is achieved by connecting the buttons and LEDs to a 8x8 matrix.</P>
+
+<P CLASS=DESC>The so called BLM8x8 mode will be activated with:
+<TT><PRE style="margin-left:20px">
+##################################################
+# Additional 8x8 BLM as used for Wilba's Frontpanel
+##################################################
+
+# set to 1 to enable 8x8 BLM driver
+BLM8X8_ENABLED  1
+
+# to which shift register are the select lines connected?
+# Allowed values: 0 to disable, 1..16 to assign shift register
+BLM8X8_DOUT_CATHODES_SR  1
+
+# set an inversion mask for the DOUT shift registers if sink drivers (transistors)
+# have been added to the cathode lines
+BLM8X8_DOUT_CATHODES_INV_MASK 0x00
+
+# to which shift register are the LED anode lines connected?
+# Allowed values: 0 to disable, 1..16 to assign shift register
+BLM8X8_DOUT_LED_SR      2
+
+# 0: no mapping of 8x8 LEDs
+# 1: enable GP LED -> 8x8 matrix mapping for Wilba's MB-SEQ PCB
+BLM8X8_DOUT_GP_MAPPING  1
+
+# 8x8 matrix for misc. button functions
+BLM8X8_DIN_SR  2
+</PRE></TT></P>
 
 <P CLASS=DESC>A preconfigured MBSEQ_HW.V4 file for this setup can be found in the <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fsequencers%2Fmidibox_seq_v4%2Fhwcfg%2Fwilba%2FMBSEQ_HW.V4" TARGET="_blank">hwcfg/wilba/MBSEQ_HW.V4</A> file which is part of the release package. The appr. configuration parameters are starting with BLM8x8_*, and BUTTON_*/LED_* entries are assigned to the M1..M8 'SR' instead of specific DIN/DOUT SR numbers.</P>
+
+<P CLASS=DESC>Example:
+<TT><PRE style="margin-left:20px">
+#             SR  Pin
+BUTTON_STOP   M3   5
+BUTTON_PAUSE  M2   4
+BUTTON_PLAY   M2   5
+BUTTON_REW    M3   4
+BUTTON_FWD    M1   4
+</PRE></TT></P>
 
 <P CLASS=DESC>A connection diagram (for those who even want to DIY the frontpanel) is available here:<BR><A HREF="midibox_seq/mbseq_v4_dio_wilba_layout.pdf">DIN/DOUT Pinning for hwcfg/wilba/MBSEQ_HW.V4</A></P>
 
@@ -209,6 +327,32 @@ Here the part list: <A HREF="mbhp/mbhp_midi_io_orderlist.txt">mbhp_midi_io_order
 
 <P CLASS=DESC>Optionally MIDIbox SEQ can be stuffed with 4 LED digits which display the current BPM value (the 4th digit prints the value after the dot for higher precession - it can be omitted). Note that this only works in master mode, in slave mode SLA will be displayed instead. LED digits with common anode or cathode are supported. They are driven time multiplexed, and have to be connected to two dedicated shift registers like documented in <A HREF="midibox_seq/mbseq_v4_bpm_digits.pdf">this schematic</A>. The DOUT shift register pinning can be customized in MBSEQ_HW.V4
 
+<P CLASS=DESC>Configuration example (Segments connected to 3rd DOUT SR, selection lines to 4th DOUT SR):
+<TT><PRE style="margin-left:20px">
+##################################################
+# Optional BPM digits
+##################################################
+
+# set to 1 or 2 to enable the 3 optional BPM digits
+# 0: BPM digits disabled
+# 1: BPM digits with common cathode
+# 2: BPM digits with common anode
+BPM_DIGITS_ENABLED 1
+
+# define the DOUT shift register to which the segments are connected (0=disabled)
+BPM_DIGITS_SEGMENTS_SR 3
+
+# define the DOUT SR and pin to which the common pins are connected
+# we are counting from right to left
+# Example: 140.5 BPM: (COMMON1 = .5, COMMON2=0., COMMON3=4, COMMON4=1)
+#                       SR  Pin
+BPM_DIGITS_COMMON1_PIN   4   0
+BPM_DIGITS_COMMON2_PIN   4   1
+BPM_DIGITS_COMMON3_PIN   4   2
+BPM_DIGITS_COMMON4_PIN   4   3
+</PRE></TT></P>
+
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Dedicated BPM (Tempo) Encoder </H2>
 
 <P CLASS=DESC>An encoder for directly controlling the tempo can be added as well. The DIN shift register connections have to be specified in MBSEQ_HW.V4
@@ -216,6 +360,30 @@ Here the part list: <A HREF="mbhp/mbhp_midi_io_orderlist.txt">mbhp_midi_io_order
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Step LED digits </H2>
 
 <P CLASS=DESC>It's also possible to add 3 LED digits to display the current selected step (1..256). Interconnections are similar to the BPM digits, DOUT shift register pinning can be customized in MBSEQ_HW.V4.
+
+<P CLASS=DESC>Configuration example (Segments connected to 3rd DOUT SR, selection lines to 4th DOUT SR):
+<TT><PRE style="margin-left:20px">
+##################################################
+# Optional Step digits
+##################################################
+
+# set to 1 or 2 to enable the 3 optional STEP digits
+# 0: STEP digits disabled
+# 1: STEP digits with common cathode
+# 2: STEP digits with common anode
+STEP_DIGITS_ENABLED 1
+
+# define the DOUT shift register to which the segments are connected (0=disabled)
+STEP_DIGITS_SEGMENTS_SR 3
+
+# define the DOUT SR and pin to which the common pins are connected
+# we are counting from right to left
+# Example: Step 123: (COMMON1 = 3, COMMON2=2, COMMON3=1)
+#                       SR  Pin
+STEP_DIGITS_COMMON1_PIN   4   4
+STEP_DIGITS_COMMON2_PIN   4   5
+STEP_DIGITS_COMMON3_PIN   4   6
+</PRE></TT></P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Track Position Display </H2>
@@ -294,7 +462,7 @@ DOUT_GATE_SR7   0
 DOUT_GATE_SR8   0
 </PRE></TT></P>
 
-<P CLASS=DESC>The gates are available at the 3rd DOUT shift register, the clocks at the 4th DOUT shift register, and additional gates/drum triggers at the 5th and 7th DOUT shift registers. This works, since Wilba's Frontpanel PCB only uses two DOUT shift registers; a MBHP_DOUTX4 module connected to J2 of the PCB will represent SR 3, 4, 5 and 6.<BR>
+<P CLASS=DESC>The gates are available at the 3rd DOUT shift register, the clocks at the 4th DOUT shift register, and additional gates/drum triggers at the 5th and 7th DOUT shift registers. This works, since Wilba's Frontpanel PCB only uses two DOUT shift registers; a MBHP_DOUTX4 module connected to J2 of the PCB will represent DOUT number 3, 4, 5 and 6.<BR>
 If more gates are required, just add another MBHP_DOUTX4 module and assign the number 7..10 to DOUT_GATE_SR3..6 accordingly.</P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Ethernet Interface </H2>
