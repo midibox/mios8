@@ -199,9 +199,7 @@ The first number means, how often the event will be played (2, 3, 4 or 5 times),
     <LI><B>Bus1..Bus4:</B> virtual ports. They are used to control the transposer/arpeggiator (see loopback description below), and can optionally be used for the MIDI router function (see description of MIDI configuration page)</LI>
     <LI><B>AOUT:</B> the AOUT port. See description below</LI>
   </UL></LI>
-  <LI><B>Edit Name:</B>
-        <CENTER><IMG SRC="midibox_seq/cs4/trkevent2.gif" width=481 height=19 ALT="Track Event"></IMG></CENTER><BR>
-         Track and Drum instrument names can be edited so fast and easy like typing a SMS on a mobile phone. Use the first 10 GP buttons or encoders to cycle the characters (like on a telephone keypad), and the remaining buttons/encoders to select a character directly, move the cursor, delete/insert characters, selecting a preset (with the encoder) and to exit the editor.
+  <LI><B>Track Instrument:</B> enters a special configuration page for instrument parameters such as Program & Bank Change and Instrument Name</LI>
   <LI><B>INIT:</B> this item will flash whenever the selected partition type requires a re-initialisation of the track memory. Press&Hold the GP button below this item for two seconds to confirm the initialisation (this will clear all steps!)</LI>
   <LI><B>PRESET:</B> this button opens a dialog which allows to select a preset file (left side), or to store a new preset:
 <CENTER><IMG SRC="midibox_seq/cs4/trkevent3.gif" width=481 height=19 ALT="Track Event"></IMG></CENTER><BR>
@@ -411,6 +409,24 @@ Notes to AOUT Channel #16 (C-1, C#1, D-1, ... upwards) will be redirected to up 
   </TR>
 </TABLE></P>
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Track Instrument Page</H2>
+
+<P CLASS=INFO>This page is usually entered from the Track Event page by pressing GP button #8 (under "Trk.Inst."). Inside the page, you can switch back to the event page by pressing the same GP button.</P>
+
+<CENTER><IMG SRC="midibox_seq/cs4/trkinst1.gif" width=481 height=19 ALT="Track Instrument"></IMG></CENTER><BR>
+
+<P CLASS=INFO>This page allows to configure following parameters:
+<UL CLASS=CL>
+  <LI><B>Port:</B> the MIDI port to which the instrument will send (same parameter like in the Event page)</LI>
+  <LI><B>Channel:</B> the channel to which the instrument will send (same parameter like in the Event page)</LI>
+  <LI><B>PC:</B> the program change event which will be sent while a track switches to this track.<BR>
+         <I>Note: together with the bank change events the PC event will only be sent if it is different compared to the previous track, since it could cause an additional delay on your synth before the newly selected patch is ready! Note also that the first note could be delayed for this reason, therefore it's recommended to use this feature only if the receiving MIDI device can handle patch changes quickly!</I>
+  <LI><B>BankH</B> and <B>BankL</B>: the high- and low byte of a bank change CC. They will be sent before the program change if enabled.
+  <LI><B>Track Event</B>: switches back to the Track Event page.
+  <LI><B>Edit Name:</B>
+        <CENTER><IMG SRC="midibox_seq/cs4/trkevent2.gif" width=481 height=19 ALT="Track Instrument"></IMG></CENTER><BR>
+         Track and Drum instrument names can be edited so fast and easy like typing a SMS on a mobile phone. Use the first 10 GP buttons or encoders to cycle the characters (like on a telephone keypad), and the remaining buttons/encoders to select a character directly, move the cursor, delete/insert characters, selecting a preset (with the encoder) and to exit the editor.
+</UL>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Track Mode Page (Shortcut: MENU+GP Button #3)</H2>
 <P CLASS=INFO>Allows you to select following options:<BR>
@@ -954,6 +970,7 @@ with the reference step position. It can be left deactivated if it is your inten
        <LI><B>do nothing</B>: function disabled
        <LI><B>mute the appr. layer</B>: once a matching events has been received, the corresponding track layers will be muted, and have to be unmuted in the MUTE page
        <LI><B>mute layer for X steps</B>: allows to temporary mute the layer for a given number of steps
+    </UL>
 </LI>
 </UL>
 
@@ -972,6 +989,7 @@ with the reference step position. It can be left deactivated if it is your inten
 <CENTER><IMG SRC="midibox_seq/cs4/mixer1.gif" width=481 height=19 ALT="Mixer Map"></CENTER></IMG></P>
 <P CLASS=DESC>Values can be changed and sent with the GP encoders. The leftmost value ("----") deactivates the mixer item - no value will be sent.</P>
 <P CLASS=DESC>The ALL and FAST button are working as well. The ALL button provides the two known functions (values set to same value while button pushed, relative changes as long as LED active). The FAST function will be deactivated/activated automatically depending on the value range.</P>
+<P CLASS=DESC>If a GP button of a mixer channel is pressed, all events of this channel will be dumped.
 <P CLASS=DESC>Values are sent directly over the selected MIDI port - all ports are selectable, even Loopback and AOUT!</P>
 
 <P CLASS=DESC>When the SELECT button is pressed, a utility page will be displayed:<BR>
@@ -985,11 +1003,10 @@ with the reference step position. It can be left deactivated if it is your inten
   <LI>to save the map into BankStick</LI>
   <LI>to dump the complete map via the MIDI/AOUT/Loopback ports</LI>
   <LI>to change the assignments for CC1/CC2/CC3/CC4</LI>
-  <LI>to change the mixer map name</LI>
+  <LI>to activate the Live Send" mode. If enabled, value changes in the mixer map will be immediately sent, if disabled they will only be sent with the Dump function (either triggered in this page, or with a GP button for a single channel in the mixer main page)</LI>
 </UL></P>
 
 <P CLASS=DESC><I>Hot tip: since the ports and channels are freely assignable and working totally independent from the selected sequencer patterns, the mixer map function behaves like a MIDI controller - you can define up to 127 maps which can be stored, restore, dumped and controlled in realtime!<BR>In song mode it is possible to dump one or more mixer maps before switching to a new pattern set.</I></P>
-
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Mute Page </H2>
@@ -1006,7 +1023,9 @@ Each track has an animated VU meter to display the MIDI activity.</P>
 <CENTER><IMG SRC="midibox_seq/cs4/mute3.gif" width=481 height=19 ALT="Mute Page"></IMG></CENTER></P>
 This page allows you to Mute or Unmute all tracks, all layers of the selected track, or all tracks and layers with a single push on the button.</P>
 
-<P CLASS=DESC>With V4.0 beta43 and higher it's possible to synchronize Mutes and Unmutes to a selectable measure of 1..256 steps. This feature is inspired from the "MIDI Clip Launcher" of Ableton Live and can be enabled in the Utility->Options page! Whenever a GP button is pressed, the Mute won't take place immediately, but synchronized to the measure. A countdown will be displayed under the track name to inform you about an ongoing mute/unmute.</P>
+<P CLASS=DESC>It's possible to synchronize Mutes and Unmutes to a selectable measure of 1..256 steps. This feature is inspired from the "MIDI Clip Launcher" of Ableton Live and can be enabled in the Utility-&gt;Options page! Whenever a GP button is pressed, the Mute won't take place immediately, but synchronized to the measure. A countdown will be displayed under the track name to inform you about an ongoing mute/unmute.</P>
+
+<P CLASS=DESC>With synchronisation enabled, it's sometimes preferable to bypass this option for an immediate mute/unmute. This can be achieved by activating the FAST button function.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Pattern Page </H2>
@@ -1284,8 +1303,9 @@ Only one group can control the scale and root note - it can be selected with thi
   <LI><B>PRng:</B> sets the pitch range for pitch bender events (normally 2, use 12 or 24 to sweep over one, resp. two octaves)
   <LI><B>Gate:</B> sets the gate polarity (positive or negative)
   <LI><B>Calibr.:</B> allows to force different output voltages for calibration (Min/Middle/Max/1V, 2V, 4V, 8V)
-  <LI><B>PPQN:</B> defines the output rate of the DIN Sync Clock output pin at J5C.A8 of the MBHP_CORE_STM32 module (1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96, 192, 384 ppqn)</LI>
-  <LI><B>Width:</B> sets the pulsewidth of the DIN Sync Clock (1..255 mS)</LI>
+  <LI><B>Clk:</B> selects 1 of 8 clock outputs (available at a dedicated DOUT shift registered which has been configured with the CV_CLK_SR parameter in the MBSEQ_HW.V4 file). Each clock has an individual clock divider, or can optionally be used to output a Start/Stop signal
+  <LI><B>Rate:</B> defines the output rate of the selected clock output (1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96, 192, 384 ppqn and Start/Stop)</LI>
+  <LI><B>Width:</B> sets the pulsewidth of the clock output signal (1..255 mS)</LI>
   <LI><B>Module:</B> selects the AOUT module which is connected to J19 of the core module (AOUT, AOUT_LC or AOUT_NG)</LI>
 </UL>
 

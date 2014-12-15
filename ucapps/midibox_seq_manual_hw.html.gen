@@ -261,6 +261,42 @@ Ilmenator created a special PCB which combines BPM, Step and TPD + encoder + fou
 
 <P><CENTER><IMG SRC="mbhp/mbhp_line_driver_aout_ng.jpg" width=550 height=348></CENTER></P>
 
+<P CLASS=DESC>Here a MBSEQ_HW.V4 configuration example which works with the MBSEQ Frontpanel PCB:
+<TT><PRE style="margin-left:20px">
+##################################################
+# CV and Gate/Trigger/Sync Setup
+##################################################
+
+# the 8 CV gates can be assigned to a shift register (0=off, 1-32: number of shift register):
+# - 1st CV Gate available at DOUT SR output D7
+# - 2nd CV Gate available at DOUT SR output D6
+# - 3rd CV Gate available at DOUT SR output D5
+# - ...
+# - 8th CV Gate available at DOUT SR output D0
+CV_GATE_SR1   3
+
+# and DIN Clock Outputs can be assigned to a shift register as well (0=off, 1-32: number of shift register):
+# D7..D0 will output individual clock or start/stop signals which can be configured in the CV configuration page
+CLK_SR        4
+
+# additional gate triggers are available on common digital output pins of the
+# DOUT shift register chain - they are assigned to AOUT channel #16 (Note C-1, C#1, D-1, ...)
+# define the shift registers which should be used here (each provides 8 gates)
+# Note that SRs assigned to this function cannot be used as LED outputs (exclusive function)
+# Allowed values: 1-32, 0 disables the function, all other values invalid and not allowed
+DOUT_GATE_SR1   5
+DOUT_GATE_SR2   6
+DOUT_GATE_SR3   0
+DOUT_GATE_SR4   0
+DOUT_GATE_SR5   0
+DOUT_GATE_SR6   0
+DOUT_GATE_SR7   0
+DOUT_GATE_SR8   0
+</PRE></TT></P>
+
+<P CLASS=DESC>The gates are available at the 3rd DOUT shift register, the clocks at the 4th DOUT shift register, and additional gates/drum triggers at the 5th and 7th DOUT shift registers. This works, since Wilba's Frontpanel PCB only uses two DOUT shift registers; a MBHP_DOUTX4 module connected to J2 of the PCB will represent SR 3, 4, 5 and 6.<BR>
+If more gates are required, just add another MBHP_DOUTX4 module and assign the number 7..10 to DOUT_GATE_SR3..6 accordingly.</P>
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Ethernet Interface </H2>
 
 <P CLASS=DESC>An Ethernet port can be optionally added to send and receive OSC messages. It requires a <A HREF="mbhp_eth.html">MBHP_ETH</A> module. Details about the possibilities are explained <A HREF="midibox_osc.html">at this page</A>.</P>

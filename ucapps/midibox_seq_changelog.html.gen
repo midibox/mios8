@@ -1,13 +1,53 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2014-09-08</H3></CENTER>
+<CENTER><H3>Last Release: 2014-12-15</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.087</I>
+  <UL CLASS=CL>
+   <LI> new page: "Track Instrument"<BR>
+     Can be selected with MENU-&gt;EVNT-&gt;Trk Inst (GP #8) or from the main page (after Track Event item)<BR>
+     Allows to configure the MIDI port, channel and instrument name.
+
+   <LI> the new Track Instrument page also allows to select Program Change and Bank (Low/High byte)<BR>
+     If activated, these parameters will be sent when the sequencer is started and on pattern changes.<BR>
+     Please note: a program and bank change can stall your synth so that the first note could be delayed!
+     Use this function only when the device can handle patch changes quickly!
+
+   <LI> added CV_GATE_SR1 and CLK_SR to MBSEQ_HW.V4 config<BR>
+     This is the prefered option to add CV gates and DIN clock/start signals to your MIDIbox SEQ in future.
+     See also updated <A HREF="http://www.ucapps.de/midibox_seq_manual_hw.html">HW section in the user manual</A>.
+
+   <LI> 8 individual DIN Sync clock outputs with individual divider and pulsewidth values are
+     provided now. A clock output can optionally be turned to a Start/Stop output.<BR>
+     The outputs are available at the configured CLK_SR DOUT shift register pin D7..D0
+     (D7=first output, D6=second output, etc...)<BR>
+     The clock parameters can be configured in the CV configuration page.
+
+   <LI> Mixer page: channel events can be dumped by pressing the corresponding GP button.<BR>
+     This also allows to prepare different mixer setups, sending to the same channel, triggered
+     by a GP button
+
+   <LI> Mixer page: press SELECT to activate/deactivate "live sending" mode (values are sent
+     while moving an encoder)
+
+   <LI> Mute page: the synchronized mute/unmute option can be temporary overruled by activating
+     the FAST button function
+
+   <LI> improved step recording display for drum tracks
+
+   <LI> Selected Datawheel mode in edit page now stored/restored to/from SD Card
+
+   <LI> STM32F4: support for bootloader "enforce_usb_device" flag
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.086</I>
