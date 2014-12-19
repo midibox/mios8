@@ -881,7 +881,9 @@ SID_Ix_L_LFO4_BASE	EQU	0x0cf;..0x0d3    LFO4
 SID_Ix_L_LFO5_BASE	EQU	0x0d4;..0x0d8    LFO5
 SID_Ix_L_LFO6_BASE	EQU	0x0d9;..0x0dd    LFO6
 
-;; free: 0xde and 0xdf
+;; Detune mode
+SID_Ix_L_OSC_DTM	EQU 0x0de;..0x0de    DTM
+;; free: 0xdf
 
 ;; ENV sections (uses SID_Ix_ENVx_* offsets)
 SID_Ix_L_ENV1_BASE	EQU	0x0e0;..0x0ef    ENV1
@@ -1114,6 +1116,7 @@ SID_Ix_B_V3_PULSEWIDTH_H EQU	0x4a    ; [3:0] high nibble, [7:4] reserved
 SID_Ix_B_V3_OCT_TRANSPOSE EQU	0x4b	; [2:0] 0: no transpose, 1..3: transpose +1..+3, 4..7: transpose -1..-4
 SID_Ix_B_V3_STATIC_NOTE EQU	0x4c	; [6:0] if >0, play static note instead of transposed note
 	;; free offsets: 0x4d..0x4f
+
 
 SID_Ix_B_SEQUENCES	EQU	0x100;..0x1ff
 	;; structure: 2 bytes for each step (selected with address bit #7)

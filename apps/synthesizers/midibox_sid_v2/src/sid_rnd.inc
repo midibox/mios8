@@ -236,6 +236,10 @@ SID_RND_GenerateOsc_L
 	movlw	0x1f
 	andwf	SID_EDIT_BUFFER + SID_Ix_L_OSC_DETUNE, BANKED
 
+	;; detune mode always 0
+	SET_BSR	SID_EDIT_BUFFER
+	clrf	SID_EDIT_BUFFER + SID_Ix_L_OSC_DTM, BANKED
+
 	;; loop through left channel voices
 	SET_BSR	SID_BASE
 	lfsr	FSR1, SID_EDIT_BUFFER + SID_Ix_L_S1V1_BASE

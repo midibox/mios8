@@ -70,6 +70,7 @@ P_S_DECAY_A	EQU	0x33
 P_S_MODEL	EQU	0x34
 P_S_GATELENGTH	EQU	0x35
 P_S_PAR3	EQU	0x36
+P_S_DTM		EQU	0x37
 
 	;; read from sid_lcd.inc
 SID_PAR_S_TABLE_WIDTH	EQU	8
@@ -129,7 +130,8 @@ SID_PAR_S_TABLE
 	db	"D.Model "
 	db	"GateLn. "
 	db	"Param.3 "
-	
+	db	"Det.Mode"
+
 
 ;; --------------------------------------------------------------------------
 ;;  Parameter Number String Definitions
@@ -372,8 +374,9 @@ SID_PAR_TABLE_L
   PAR_ENTRY	P_S_PITCHBENDER,P_N_OSC123,	P_M_OSC123_PB,	SIDL_V1_BASE
   PAR_ENTRY	P_S_PITCHBENDER,P_N_OSC123,	P_M_OSC123_PB,	SIDL_V2_BASE
   PAR_ENTRY	P_S_PITCHBENDER,P_N_OSC123,	P_M_OSC123_PB,	SIDL_V3_BASE
-  ;; --[ 0x54-0x5f ]-----------------------------------------------------------------------------
-  PAR_ENTRY	P_S_NOP,	P_N_NOP,	P_M_NOP,	0
+  ;; --[ 0x54-0x54 ]-----------------------------------------------------------------------------
+  PAR_ENTRY	P_S_DTM,        P_N_OSC,        P_M_8,          SID_Ix_L_OSC_DTM  
+  ;; --[ 0x55-0x5f ]-----------------------------------------------------------------------------
   PAR_ENTRY	P_S_NOP,	P_N_NOP,	P_M_NOP,	0
   PAR_ENTRY	P_S_NOP,	P_N_NOP,	P_M_NOP,	0
   PAR_ENTRY	P_S_NOP,	P_N_NOP,	P_M_NOP,	0
@@ -971,8 +974,9 @@ SID_PAR_TABLE_B
   PAR_ENTRY	P_S_PITCHBENDER,P_N_OSC_BL,	P_M_OSC_BL_PB,	SIDL_V1_BASE
   PAR_ENTRY	P_S_PITCHBENDER,P_N_OSC_BL,	P_M_OSC_BL_PB,	SIDL_V2_BASE
   PAR_ENTRY	P_S_PITCHBENDER,P_N_OSC_BL,	P_M_OSC_BL_PB,	SIDL_V3_BASE
-  ;; --[ 0x54-0x5f ]-----------------------------------------------------------------------------
-  PAR_ENTRY	P_S_NOP,	P_N_NOP,	P_M_NOP,	0
+  ;; --[ 0x54-0x54 ]-----------------------------------------------------------------------------
+  PAR_ENTRY	P_S_DTM,        P_N_OSC,        P_M_8,          SID_Ix_L_OSC_DTM  
+  ;; --[ 0x55-0x5f ]-----------------------------------------------------------------------------
   PAR_ENTRY	P_S_NOP,	P_N_NOP,	P_M_NOP,	0
   PAR_ENTRY	P_S_NOP,	P_N_NOP,	P_M_NOP,	0
   PAR_ENTRY	P_S_NOP,	P_N_NOP,	P_M_NOP,	0

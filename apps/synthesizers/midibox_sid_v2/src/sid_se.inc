@@ -11,6 +11,7 @@
 ;
 ;  Copyright 1998-2007 Thorsten Klose (tk@midibox.org)
 ;  Idea for ENV Curve Parameter and OSC synchronization by Jess D. Skov-Nielsen
+;  SuperSaw detune mode created by Lis0r
 ;  Licensed for personal non-commercial use only.
 ;  All other rights reserved.
 ; 
@@ -1570,6 +1571,74 @@ SIDSE_Pitch_NoFinetune
 	bz	SIDSE_Pitch_NoDetune
 SIDSE_Pitch_Detune
 	movwf	IRQ_TMP1
+
+	;; implement detune modes
+	SET_BSR	SID_PATCH_BUFFER_SHADOW
+	BRA_IFSET SID_PATCH_BUFFER_SHADOW + SID_Ix_L_OSC_DTM, 0, BANKED, SIDSE_Pitch_SuperNeg
+	BRA_IFSET SID_PATCH_BUFFER_SHADOW + SID_Ix_L_OSC_DTM, 1, BANKED, SIDSE_Pitch_SuperPos
+	SET_BSR	SID_BASE
+	rgoto SIDSE_Pitch_NormalDetune
+
+	;; super-saw like detune modes
+	;; Created by Lis0r, based on the research from this paper:
+	;; http://www.nada.kth.se/utbildning/grukth/exjobb/rapportlistor/2010/rapporter10/szabo_adam_10131.pdf
+SIDSE_Pitch_SuperNeg
+	SET_BSR	SID_BASE
+	;; Left OSC1: -detune
+	BRA_IFSET SID_SE_ELEMENT_NUM, 2, BANKED, SIDSE_Pitch_Super_45
+SIDSE_Pitch_SuperNeg_0123
+	BRA_IFSET SID_SE_ELEMENT_NUM, 1, BANKED, SIDSE_Pitch_Super_23
+SIDSE_Pitch_SuperNeg_01
+	BRA_IFSET SID_SE_ELEMENT_NUM, 0, BANKED, SIDSE_Pitch_Super_1
+SIDSE_Pitch_SuperNeg_0 ; SIDL, OSC1
+	rgoto	SIDSE_Pitch_Detune_Sub
+
+SIDSE_Pitch_SuperPos
+	SET_BSR	SID_BASE
+	;; Left OSC1: +detune
+	BRA_IFSET SID_SE_ELEMENT_NUM, 2, BANKED, SIDSE_Pitch_Super_45
+SIDSE_Pitch_SuperPos_0123
+	BRA_IFSET SID_SE_ELEMENT_NUM, 1, BANKED, SIDSE_Pitch_Super_23
+SIDSE_Pitch_SuperPos_01
+	BRA_IFSET SID_SE_ELEMENT_NUM, 0, BANKED, SIDSE_Pitch_Super_1
+SIDSE_Pitch_SuperPos_0 ; SIDL, OSC1
+	rgoto	SIDSE_Pitch_Detune_Add
+
+	;; Right OSC1: 0
+	;; Left OSC2: +detune/3
+	;; Right OSC2: -detune/3
+	;; Left OSC3: -2*detune/3
+	;; Right OSC3: +2*detune/3
+SIDSE_Pitch_Super_1 ; SIDL, OSC2
+	rcall	SIDSE_Hlp_Div3
+	rgoto	SIDSE_Pitch_Detune_Add
+	
+SIDSE_Pitch_Super_23
+	BRA_IFSET SID_SE_ELEMENT_NUM, 0, BANKED, SIDSE_Pitch_Super_3
+SIDSE_Pitch_Super_2	; SIDL, OSC3
+	rcall SIDSE_Hlp_Div3
+	movf  IRQ_TMP1, W
+	addwf IRQ_TMP1, F
+	rgoto	SIDSE_Pitch_Detune_Sub
+SIDSE_Pitch_Super_3	; SIDR, OSC1
+	rgoto SIDSE_Pitch_NoDetune
+	
+SIDSE_Pitch_Super_45
+	BRA_IFSET SID_SE_ELEMENT_NUM, 0, BANKED, SIDSE_Pitch_Super_5
+SIDSE_Pitch_Super_4	; SIDR, OSC2
+	rcall SIDSE_Hlp_Div3
+	rgoto	SIDSE_Pitch_Detune_Sub
+SIDSE_Pitch_Super_5	; SIDR, OSC3
+	rcall SIDSE_Hlp_Div3
+	movf  IRQ_TMP1, W
+	addwf IRQ_TMP1, F
+	rgoto	SIDSE_Pitch_Detune_Add
+
+	;; traditional normal detune mode
+SIDSE_Pitch_NormalDetune
+	movf	SID_PATCH_BUFFER_SHADOW + SID_Ix_L_OSC_DETUNE, W, BANKED
+	SET_BSR	SID_BASE
+	bz	SIDSE_Pitch_NoDetune
 	;; additional detuning depending on SID channel and oscillator
 	;; Left OSC1: +detune/4   (lead only, 0 in bassline mode)
 	;; Right OSC1: -detune/4  (lead only, 0 in bassline mode)
@@ -2795,6 +2864,34 @@ SIDSE_EXT_SWITCHES_FORWARD MACRO addr, flag, out
 ;;  Help Functions which are used by all engines
 ;; --------------------------------------------------------------------------
 ;; --------------------------------------------------------------------------
+
+;; --------------------------------------------------------------------------
+;; Help Function: Divide by 3 by evaluating series x/2 - x/4 + x/8 - x/16...
+;; based on http://www.piclist.com/techref/microchip/math/div/8byconst3-aw.htm
+;; IN:  8 bit value in IRQ_TMP1
+;; OUT: result in IRQ_TMP1
+;; USES: WREG
+;; --------------------------------------------------------------------------
+SIDSE_Hlp_Div3						
+	movff  IRQ_TMP1, IRQ_TMP2
+ 	clrf   IRQ_TMP1
+
+SIDSE_Hlp_Div3_Loop			;; while IRQ_TMP2 != 0
+ 	bcf    STATUS, C
+ 	rrf    IRQ_TMP2, F		;; IRQ_TMP2 /= 2 (i.e. "x/2" in Series)
+ 	movf   IRQ_TMP2, W		
+ 	btfsc  STATUS, Z		;; ==0?
+ 	return					;; Yes, done
+
+ 	addwf  IRQ_TMP1, F		;; IRQ_TMP1 += IRQ_TMP2
+ 	
+	rrf    IRQ_TMP2, F		;; IRQ_TMP2 /= 2 (i.e. "x/4" in Series)
+	movf   IRQ_TMP2, W
+	btfsc  STATUS, Z 		;; ==0?
+	return					;; Yes, done
+
+	subwf  IRQ_TMP1, f		;; IRQ_TMP1 -= IRQ_TMP2
+	goto   SIDSE_Hlp_Div3_Loop
 
 ;; --------------------------------------------------------------------------
 ;; Help Function: Scale Depth (7bit signed value scales 15bit signed value)

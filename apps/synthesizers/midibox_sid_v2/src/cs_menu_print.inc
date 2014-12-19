@@ -164,13 +164,15 @@ PRINT_ENSx_DOR		EQU	0x79
 PRINT_ENSx_SPV		EQU	0x7a
 PRINT_ENSx_EXTINV	EQU	0x7b
 
+PRINT_DTM			EQU 0x7c
+
 
 ; ==========================================================================
 ;  The PRINT handler
 ;; IN: PRINT_xxx ID in WREG
 ; ==========================================================================
 CS_MENU_PRINT_Handler
-	JUMPTABLE_2BYTES (0x7b+1) ; entries
+	JUMPTABLE_2BYTES (0x7c+1) ; entries
 	rgoto	CS_MENU_PRINT_NOP
 
 	rgoto	CS_MENU_PRINT_DEC8
@@ -315,6 +317,8 @@ CS_MENU_PRINT_Handler
 	rgoto	CS_MENU_PRINT_ENSx_DOR
 	rgoto	CS_MENU_PRINT_ENSx_SPV
 	rgoto	CS_MENU_PRINT_ENSx_EXTINV
+	
+	rgoto	CS_MENU_PRINT_DTM
 
 
 ; ==========================================================================
@@ -1509,7 +1513,12 @@ CS_MENU_PRINT_ENSx_EXTINV
 	movwf	FSR0L
 	movf	CS_MENU_PARAMETER_IX, W
 	rgoto	CS_MENU_PRINT_OnOff_INDF0
-	
+
+; --------------------------------------------------------------------------
+CS_MENU_PRINT_DTM
+	TABLE_ADDR CS_MENU_PRINT_DTM_Tab
+	movf	INDF0, W
+	rgoto   CS_MENU_PRINT_StringFromTable	
 
 ; ==========================================================================
 ; ==========================================================================
@@ -2133,6 +2142,11 @@ CS_MENU_PRINT_Vx_ARP_DIR_Tab
 	dw	"DU2 "
 	dw	"Rnd "
 	dw	"r.7 "		; reserved
+
+CS_MENU_PRINT_DTM_Tab
+	dw	"Nor "
+	dw	"Su- "
+	dw	"Su+ "
 
 CS_MENU_PRINT_LFOx_WAV_Tab
 	dw	"off "
