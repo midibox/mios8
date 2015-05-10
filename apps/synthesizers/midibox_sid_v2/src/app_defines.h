@@ -110,7 +110,7 @@ CS_MENU_MATRIX_SELECTED_COL EQU	0x03c	; selected matrix column (every button has
 CS_MENU_EDIT_BUFFER_SID EQU	0x03d	; reference to SID patch which is stored in edit buffer
 CS_MENU_SELECTED_SID_FLAGS EQU  0x03e	; every flag stays for one SID
 CS_MENU_SELECTED_SID_LR	EQU	0x03f	; selected SID L/R
-CS_MENU_SELECTED_INS	EQU	0x040	; the selected ensemble
+CS_MENU_SELECTED_INS	EQU	0x040	; the selected instrument
 CS_MENU_SELECTED_OSC	EQU	0x041	; the selected oscillator
 CS_MENU_SELECTED_OSC_FLAGS EQU	0x042	; every flag stays for one oscillator
 CS_MENU_SELECTED_OSC_CTRL EQU	0x043	; selects Env/Misc and Assign

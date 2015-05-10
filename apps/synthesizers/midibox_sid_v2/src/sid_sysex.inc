@@ -392,7 +392,7 @@ SID_SYSEX_PATCH_Write_I
 	movf	SID_MIDI_DEVICE, W
 	bz	SID_SYSEX_PATCH_Write_I_Mst
 SID_SYSEX_PATCH_Write_I_Slv
-	rcall	SID_SYSEX_CopyBuffer
+	call	SID_SYSEX_CopyBuffer
 	rgoto	SID_SYSEX_PATCH_Write_I_End
 
 SID_SYSEX_PATCH_Write_I_Mst
@@ -415,7 +415,7 @@ SID_SYSEX_PATCH_Write_I_MstLoop
 	movf	CS_MENU_SID, W
 	bnz	SID_SYSEX_PATCH_Write_I_Mst_CAN
 SID_SYSEX_PATCH_Write_I_Mst_Copy
-	rcall	SID_SYSEX_CopyBuffer
+	call	SID_SYSEX_CopyBuffer
  	rgoto	SID_SYSEX_PATCH_Write_I_Mst_Next
 
 SID_SYSEX_PATCH_Write_I_Mst_CAN
@@ -738,6 +738,8 @@ SID_SYSEX_Cmd_End
 	bz	SID_SYSEX_Cmd_10
 	addlw	0x10-0x18
 	bz	SID_SYSEX_Cmd_18
+	addlw	0x18-0x20
+	bz	SID_SYSEX_Cmd_20
 SID_SYSEX_Cmd_Inv
 	;; invalid command
 	rgoto	SID_SYSEX_DisAck_InvCmd
@@ -896,6 +898,43 @@ SID_SYSEX_Cmd_18_SaveEns
 
 	;; and generate display message
 	rgoto	SID_SYSEX_PATCH_Write_E_EE_Cont
+
+SID_SYSEX_Cmd_20
+	;; action invalid if command byte hasn't been received
+	BRA_IFCLR SID_SYSEX_STATE2, SID_SYSEX_STATE2_CMDBYTE_RECEIVED, BANKED, SID_SYSEX_DisAck_NotComplete
+
+	;; check if instrument selection is within the range
+	movff	SID_PATCH_BUFFER_SHADOW + SID_Ix_ENGINE, WREG
+	andlw	0x03
+	JUMPTABLE_2BYTES_UNSECURE
+	rgoto	SID_SYSEX_Cmd_20_L
+	rgoto	SID_SYSEX_Cmd_20_B
+	rgoto	SID_SYSEX_Cmd_20_D
+	rgoto	SID_SYSEX_Cmd_20_M
+
+SID_SYSEX_Cmd_20_L		; lead: range 0..3 selects between --, L-, R- and LR)
+        movlw   4-1
+        cpfsgt  SID_SYSEX_DATA, BANKED
+	movff	SID_SYSEX_DATA, CS_MENU_SELECTED_SID_LR
+	rgoto	SID_SYSEX_Cmd_Ack
+	
+SID_SYSEX_Cmd_20_B		; bassline: range 0..3 selects between --, L-, R- and LR)
+        movlw   4-1
+        cpfsgt  SID_SYSEX_DATA, BANKED
+	movff	SID_SYSEX_DATA, CS_MENU_SELECTED_SID_LR
+	rgoto	SID_SYSEX_Cmd_Ack
+
+SID_SYSEX_Cmd_20_D		; drums: range 0..15
+        movlw   16-1
+        cpfsgt  SID_SYSEX_DATA, BANKED
+	movff	SID_SYSEX_DATA, CS_MENU_SELECTED_INS
+	rgoto	SID_SYSEX_Cmd_Ack
+
+SID_SYSEX_Cmd_20_M		; multi: range 0..5
+        movlw   6-1
+        cpfsgt  SID_SYSEX_DATA, BANKED
+	movff	SID_SYSEX_DATA, CS_MENU_SELECTED_INS
+	rgoto	SID_SYSEX_Cmd_Ack
 
 
 SID_SYSEX_Cmd_Ack
