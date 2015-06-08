@@ -47,7 +47,7 @@ static unsigned char testmode;
 
 #if BLM_AIN_PIN_MAP
 // optional AIN pin map
-static const ain_pin_map[8] = {3, 2, 1, 0, 4, 5, 6, 7};
+static const unsigned char ain_pin_map[8] = {3, 2, 1, 0, 4, 5, 6, 7};
 #endif
 
 
