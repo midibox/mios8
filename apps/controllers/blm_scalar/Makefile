@@ -16,6 +16,11 @@ SDCC_INCLUDE  =
 GPASM_DEFINES = -DDEBUG_MODE=0
 SDCC_DEFINES  = -DDEBUG_MODE=0
 
+# optional app flags for special hardware variants
+SDCC_DEFINES += -DBLM_MIRROR_MAIN_DIN=0
+SDCC_DEFINES += -DBLM_AIN_PIN_MAP=0
+
+
 # pass parameters to MIOS wrapper
 MIOS_WRAPPER_DEFINES = -DSTACK_HEAD=0x37f -DSTACK_IRQ_HEAD=0x33f
 

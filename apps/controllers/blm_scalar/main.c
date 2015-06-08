@@ -45,6 +45,12 @@ static unsigned char midiDataReceived;
 static unsigned char testmode;
 
 
+#if BLM_AIN_PIN_MAP
+// optional AIN pin map
+static const ain_pin_map[8] = {3, 2, 1, 0, 4, 5, 6, 7};
+#endif
+
+
 /////////////////////////////////////////////////////////////////////////////
 // This function is called by MIOS after startup to initialize the 
 // application
@@ -407,6 +413,10 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
 void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 {
   // a pot has been moved, send modulation CC#1
+#if BLM_AIN_PIN_MAP
+#warning "AIN Pin Map has been activated"
+  pin = ain_pin_map[pin & 7];
+#endif
   MIOS_MIDI_TxBufferPut(0xb0 + (pin & 0x0f));
   MIOS_MIDI_TxBufferPut(0x01);
   MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(pin));
@@ -427,6 +437,10 @@ void BLM_SCALAR_NotifyToggle(unsigned char pin, unsigned char value) __wparam
   // send pin number and value as Note On Event
   if( blm_scalar_button_row < 0x20 ) {
     // BLM 16x16
+#if BLM_MIRROR_MAIN_DIN
+#warning "BLM Main DIN mirroring has been activated!"
+    pin = (pin & 0x8) | (7 - pin);
+#endif
     MIOS_MIDI_TxBufferPut(0x90 + (pin >> 4));
     MIOS_MIDI_TxBufferPut(pin & 0x0f);
     MIOS_MIDI_TxBufferPut(value ? 0x00 : 0x7f);
