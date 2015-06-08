@@ -439,7 +439,7 @@ void BLM_SCALAR_NotifyToggle(unsigned char pin, unsigned char value) __wparam
     // BLM 16x16
 #if BLM_MIRROR_MAIN_DIN
 #warning "BLM Main DIN mirroring has been activated!"
-    pin = (pin & 0x8) | (7 - pin);
+    pin = (pin & 0xf8) | (7 - (pin & 7));
 #endif
     MIOS_MIDI_TxBufferPut(0x90 + (pin >> 4));
     MIOS_MIDI_TxBufferPut(pin & 0x0f);
