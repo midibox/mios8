@@ -413,13 +413,14 @@ void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam
 void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 {
   // a pot has been moved, send modulation CC#1
+  unsigned char original_pin = pin;
 #if BLM_AIN_PIN_MAP
 #warning "AIN Pin Map has been activated"
   pin = ain_pin_map[pin & 7];
 #endif
   MIOS_MIDI_TxBufferPut(0xb0 + (pin & 0x0f));
   MIOS_MIDI_TxBufferPut(0x01);
-  MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(pin));
+  MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(original_pin));
 }
 
 
