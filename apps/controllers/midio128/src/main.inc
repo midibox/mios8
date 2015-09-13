@@ -89,6 +89,20 @@ USER_Init
 	;; init default LCD offsets
 	call	MIDIO_LCD_SetDefaultOffsets
 
+#if DEFAULT_AIN_ENABLED > 0
+	;; optional:
+        ;; initialize the AIN driver
+        movlw   DEFAULT_AIN_ENABLED
+        call    MIOS_AIN_NumberSet
+#if DEFAULT_AIN_ENABLED > 8
+        call    MIOS_AIN_Muxed        ; use multiplexer interface
+#else
+        call    MIOS_AIN_UnMuxed        ; don't use multiplexer interface
+#endif
+        movlw   0x07                    ; set deadband to 7
+        call    MIOS_AIN_DeadbandSet
+#endif
+
 	;; ------------------------------------------------------------------
 	return
 
@@ -280,6 +294,29 @@ USER_SR_Service_Finish_End
 ;;     o MSB value in MIOS_PARAMETER3
 ;; --------------------------------------------------------------------------
 USER_AIN_NotifyChange
+#if DEFAULT_AIN_ENABLED > 0
+        ;; store pot number in PRODL
+        movwf   PRODL
+
+        ;; copy 7bit value into MIOS_PARAMETER2 (pot number already in WREG)
+        call    MIOS_AIN_Pin7bitGet
+        movwf   MIOS_PARAMETER2
+
+        ;; restore pot number
+	movff	PRODL, MIOS_PARAMETER1
+
+        ;; now: pot number in WREG and MIOS_PARAMETER1
+        ;; 7-bit value in MIOS_PARAMETER2
+
+	movlw	0xb0			; CC channel #1
+	call	MIOS_MIDI_TxBufferPut
+	movf	MIOS_PARAMETER1, W
+	addlw	16			; CC#16 + pot number
+	call	MIOS_MIDI_TxBufferPut
+	movf	MIOS_PARAMETER2, W	; CC value
+	call	MIOS_MIDI_TxBufferPut
+#endif
+	
 	return
 
 	

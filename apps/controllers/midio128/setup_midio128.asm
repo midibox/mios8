@@ -47,6 +47,22 @@
 ; Default value of touch sensor sensitivity
 #define DEFAULT_TS_SENSITIVITY	0x03
 ;
+; Enable AIN option?
+; Up to 64 pots can be connected to J5, unusued analog inputs have to be clamped to ground!
+; The sent MIDI message is not configurable here, please customize in src/main.inc 
+; (USER_AIN_NotifyChange function) instead
+; By default, it will send CC#16, 17, 18, ... over channel #1
+; The parameter also specifies the number of pots
+;    0:	AIN disabled
+;    1:	1 pot directly connected to J5.A0, remaining inputs don't need to be clamped
+;    2:	2 pots directly connected to J5.A0 and J5.A1, remaining inputs don't need to be clamped
+;   ...
+;    8:	8 pots directly connected to J5.A0..J5.A7
+;    9:	9 pots, requires 4051 multiplexers (-> see MBHP_AIN page)
+;   ...
+;   64:	64 pots, requires 4051 multiplexers (-> see MBHP_AIN page)
+#define DEFAULT_AIN_ENABLED     0
+;
 ; For MIDI activity monitor: define the DOUT pins for the Rx and Tx LED
 #define DEFAULT_MIDI_MONITOR_ENABLED 0  ; if 1, the Tx/Rx LEDs are enabled
 #define DEFAULT_MIDI_RX_LED 0x00	; DOUT SR#1, pin D0
