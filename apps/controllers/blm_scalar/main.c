@@ -418,9 +418,11 @@ void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam
 #warning "AIN Pin Map has been activated"
   pin = ain_pin_map[pin & 7];
 #endif
-  MIOS_MIDI_TxBufferPut(0xb0 + (pin & 0x0f));
-  MIOS_MIDI_TxBufferPut(0x01);
-  MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(original_pin));
+  if( MIOS_AIN_Pin7bitGet(original_pin) && pin < BLM_AIN_NUM_PINS ) {
+    MIOS_MIDI_TxBufferPut(0xb0 + (pin & 0x0f));
+    MIOS_MIDI_TxBufferPut(0x01);
+    MIOS_MIDI_TxBufferPut(MIOS_AIN_Pin7bitGet(original_pin));
+  }
 }
 
 
