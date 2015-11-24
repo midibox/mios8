@@ -11,7 +11,8 @@ HEADER 3 MIDIbox KB
 <UL CLASS=CL>
 <LI> up to 2 keyboard matrices can be scanned separately at a very high scan rate (around 200 uS)</A>
 <LI> optional support for velocity!</A>
-<LI> 6 analog inputs of the core module can be used to connect pitchwheels, modulation wheels and sustain pedal (or aftertouch)</A>
+<LI> 8 analog inputs of the core module can be used to connect pitchwheels, modulation wheel, sustain and expression pedal (or aftertouch).<BR>
+     Alternatively a <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module can be connected for higherer quality signal conversion without jitter.
 <LI> analog inputs can be calibrated</A>
 <LI> two MIDI IN and two MIDI OUT ports
 <LI> USB MIDI port with much higher transfer rate (ca. 100x faster!) than common MIDI
@@ -363,11 +364,13 @@ Here a more detailed description of most commands:</P>
   </TR>
 
   <TR>
-    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_pitchwheel &lt;0-5 or off&gt;</I></TD>
-    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the J5.Ax input to which the PitchWheel pot is connected. Use <I>off</I> if no PitchWheel is used to avoid that the unconnected analog input will send random MIDI events!<BR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_pitchwheel &lt;0-7, 128-135 or off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>A number from 0..7 selects the J5.Ax input to which the PitchWheel pot is connected. A number of 128..135 selects the AINSER8 located Ax input. Use <I>off</I> if no PitchWheel is used to avoid that the unconnected analog input will send random MIDI events!<BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
          <I>set kb 1 ain_pitchwheel 0</I>: PitchWheel of keyboard 1 connected to J5.A0 of the core module<BR>
          <I>set kb 2 ain_pitchwheel 3</I>: PitchWheel of keyboard 2 connected to J5.A3 of the core module<BR>
+         <I>set kb 1 ain_pitchwheel 128</I>: PitchWheel of keyboard 1 connected to A0 of an AINSER8 module<BR>
+         <I>set kb 2 ain_pitchwheel 131</I>: PitchWheel of keyboard 2 connected to A3 of an AINSER8 module<BR>
          <I>set kb 1 ain_pitchwheel off</I>: no PitchWheel connected<BR>
       </SPAN></TD>
   </TR>
@@ -396,11 +399,13 @@ Here a more detailed description of most commands:</P>
   </TR>
 
   <TR>
-    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_modwheel &lt;0-5 or off&gt;</I></TD>
-    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the J5.Ax input to which the ModWheel pot is connected. Use <I>off</I> if no ModWheel is used to avoid that the unconnected analog input will send random MIDI events!<BR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_modwheel &lt;0-7, 128-135 or off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>A number from 0..7 selects the J5.Ax input to which the ModWheel pot is connected. A number of 128..135 selects the AINSER8 located Ax input. Use <I>off</I> if no ModWheel is used to avoid that the unconnected analog input will send random MIDI events!<BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
          <I>set kb 1 ain_modwheel 1</I>: ModWheel of keyboard 1 connected to J5.A1 of the core module<BR>
          <I>set kb 2 ain_modwheel 4</I>: ModWheel of keyboard 2 connected to J5.A4 of the core module<BR>
+         <I>set kb 1 ain_modwheel 129</I>: ModWheel of keyboard 1 connected to A1 of an AINSER8 module<BR>
+         <I>set kb 2 ain_modwheel 132</I>: ModWheel of keyboard 2 connected to A4 of an AINSER8 module<BR>
          <I>set kb 1 ain_modwheel off</I>: no ModWheel connected<BR>
       </SPAN></TD>
   </TR>
@@ -429,11 +434,13 @@ Here a more detailed description of most commands:</P>
   </TR>
 
   <TR>
-    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_sustain &lt;0-5 or off&gt;</I></TD>
-    <TD WIDTH=475> <SPAN CLASS=NORM>Selects the J5.Ax input to which a Sustain Pedal is connected. Use <I>off</I> if no Pedal is used to avoid that the unconnected analog input will send random MIDI events!<BR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_sustain &lt;0-7, 128-135 or off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>A number from 0..7 selects the J5.Ax input to which a Sustain Pedal is connected. A number of 128..135 selects the AINSER8 located Ax input. Use <I>off</I> if no Pedal is used to avoid that the unconnected analog input will send random MIDI events!<BR>
       <SPAN CLASS=NORM><B>Examples:</B><BR>
          <I>set kb 1 ain_sustain 2</I>: Sustain Pedal of keyboard 1 connected to J5.A2 of the core module<BR>
          <I>set kb 2 ain_sustain 5</I>: Sustain Pedal of keyboard 2 connected to J5.A5 of the core module<BR>
+         <I>set kb 1 ain_sustain 130</I>: Sustain Pedal of keyboard 1 connected to A2 of an AINSER8 module<BR>
+         <I>set kb 2 ain_sustain 133</I>: Sustain Pedal of keyboard 2 connected to A5 of an AINSER8 module<BR>
          <I>set kb 1 ain_sustain off</I>: no Sustain Pedal connected<BR>
       </SPAN></TD>
   </TR>
@@ -471,14 +478,49 @@ Here a more detailed description of most commands:</P>
   </TR>
 
   <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ain_expression &lt;0-7, 128-135 or off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>A number from 0..7 selects the J5.Ax input to which the Expression pedal is connected. A number of 128..135 selects the AINSER8 located Ax input. Use <I>off</I> if no Expression pedal is used to avoid that the unconnected analog input will send random MIDI events!<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ain_expression 6</I>: Expression pedal of keyboard 1 connected to J5.A6 of the core module<BR>
+         <I>set kb 2 ain_expression 7</I>: Expression pedal of keyboard 2 connected to J5.A7 of the core module<BR>
+         <I>set kb 1 ain_expression 134</I>: Expression pedal of keyboard 1 connected to A6 of an AINSER8 module<BR>
+         <I>set kb 2 ain_expression 135</I>: Expression pedal of keyboard 2 connected to A7 of an AINSER8 module<BR>
+         <I>set kb 1 ain_expression off</I>: no Expression connected<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt;<BR>ain_expression_inverted<BR>&lt;on|off&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Inverts the output of the Expression pedal.<BR>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ain_expression_inverted off</I>: (default) Expression outputs 0..127<BR>
+         <I>set kb 1 ain_expression_inverted on</I>: Expression outputs 127..0<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; ctrl_expression &lt;0-129&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>What kind of MIDI events should be sent by the Expression pedal?
+      <UL CLASS=CL>
+        <LI><B>0..127:</B> CC#0 .. CC#127 (default: CC#1)
+        <LI><B>128:</B> PitchBend
+        <LI><B>129:</B> Aftertouch
+      </UL>
+      <SPAN CLASS=NORM><B>Examples:</B><BR>
+         <I>set kb 1 ctrl_expression 1</I>: the Expression pedal of keyboard 1 sends CC#1 (CC Modulation)<BR>
+         <I>set kb 2 ctrl_expression 7</I>: the Expression pedal of keyboard 2 sends CC#7 (CC Volume)<BR>
+      </SPAN></TD>
+  </TR>
+
+  <TR>
     <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt;<BR>ain_bandwidth_ms &lt;delay&gt;</I></TD>
     <TD WIDTH=475> <SPAN CLASS=NORM>Allows to reduce the bandwidth for analog events. With 0 the default (very high) bandwidth will be used, which can send multiple MIDI events per milliseconds over USB. If this stresses your DAW too much, use higher values. E.g. with <I>set kb 1 ain_bandwidth_ms 5</I> MIDI events will only be sent each 5 mS (on value changes).
       </SPAN></TD>
   </TR>
 
   <TR>
-    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; calibration &lt;off|pitchwheel|modwheel|sustain&gt;</I></TD>
-    <TD WIDTH=475> <SPAN CLASS=NORM>Starts the calibration of PitchWheel/ModWheel/Sustain potentiometers (or switches) to determine the minimum/maximum value.<BR>
+    <TD WIDTH=100> <SPAN CLASS=NORM><I>set kb &lt;1|2&gt; calibration &lt;off|pitchwheel|modwheel|expression|sustain&gt;</I></TD>
+    <TD WIDTH=475> <SPAN CLASS=NORM>Starts the calibration of PitchWheel/ModWheel/Expression/Sustain potentiometers (or switches) to determine the minimum/maximum value.<BR>
        After the calibration, just enter 'set kb 1 calibration off' to stop the calibration (and to test the behaviour), thereafter type 'store' to save the new values.
   </TR>
 
@@ -605,12 +647,15 @@ Here a more detailed description of most commands:</P>
         <LI><I>set kb 1 ctrl_modwheel 1</I>
         <LI><I>set kb 1 ain_sustain 2</I>
         <LI><I>set kb 1 ctrl_sustain 64</I>
+        <LI><I>set kb 1 ain_expression 6</I>
+        <LI><I>set kb 1 ctrl_expression 11</I>
         <LI><I>store</I>
       </UL>
       Use following commands to calibrate the potentiometers (resp. switches):
       <UL CLASS=CL>
         <LI><I>set kb 1 calibration pitchwheel</I><BR>-&gt; move the PitchWheel to min/max position
         <LI><I>set kb 1 calibration modwheel</I><BR>-&gt; move the PitchWheel to min/max position
+        <LI><I>set kb 1 calibration expression</I><BR>-&gt; move the Expression Pedal to min/max position
         <LI><I>set kb 1 calibration sustain</I><BR>-&gt; turn on/off the Sustain Pedal
         <LI><I>set kb 1 calibration off</I>
         <LI><I>store</I>

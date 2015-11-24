@@ -1,13 +1,87 @@
 HEADER 3 ChangeLog of MIDIbox NG
 
 <CENTER><H1>MIDIbox NG Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2014-11-09</H3></CENTER>
+<CENTER><H3>Last Release: 2015-11-24</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_ng.html">http://www.uCApps.de/midibox_ng.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.033</I>
+  <UL CLASS=CL>
+   <LI> with this release, .NGR scripts running on a STM32F4 are directly executed from RAM in a compressed
+     format, and therefore they are significantly faster, so that they could even be used for timing
+     critical operations.</LI>
+
+   <LI> added basic support for SPI_MIDI<BR>
+     This feature requires an update to MIOS32 bootloader v1.018<BR>
+     In the bootloader update app, enter "set spi_midi 1" to enable the SPI MIDI device at J16 (RC2 chip select line).
+     This will also disable the OSC ports via MBHP_ETH module, which is normally connected to this port.</LI>
+
+   <LI> support for WS2812 LED strips (currently only for the MBHP_CORE_STM32F4 module).<BR>
+     The data input has to be connected to J4B.SC, ground to J4B.VS and +5V to an external PSU (required, since
+     each RGB LED can consume up to 20 mA!)<BR>
+
+     Following meta event commands are available:
+     <UL CLASS=CL>
+       <LI> RgbLedClearAll (clears all LEDs)
+       <LI> RgbLedSetRgb:&lt;led&gt;:&lt;r&gt;:&lt;g&gt;:&lt;b&gt; (led=1..64, r/g/b=0..255)
+       <LI> RgbLedSetHsv:&lt;led&gt;:&lt;h&gt;:&lt;s&gt;:&lt;v&gt; (led=1..64, h=0..359, s=0..100, v=0..100)
+       <LI> RgbLedRainbow:&lt;speed&gt;:&lt;brightness&gt; (speed=1..255, brightness=0..100)
+    </UL>
+
+    Most simple way to test a LED strip: enter following command in MIOS Terminal<BR>
+       ngr exec_meta RgbLedRainbow:9:100<BR>
+    (don't forget to wear sunglasses, or start with brightness 20!!! ;-)
+
+   <LI> added EVENT_RGBLED<BR>
+     See cfg/test/rgbled_1.ngc for usage examples
+
+   <LI> .NGR file: added "set_hsv" command which allows to control the hue parameters of a RGBLED
+
+   <LI> SRIO num_sr=<value> reconfiguration works correctly with DIN/DOUT matrices now
+
+   <LI> added "inverted=1" to EVENT_BUTTON and EVENT_LED
+
+   <LI> .NGR file: added "load <setup>" command which allows to switch to another setup (.NGC, .NGS, .NGR, ... files)
+
+   <LI> implemented new meta command "SendEvent" which allows to remote control one or more events from a single event
+     within a given value range and direction.<BR>
+     See cfg/test/metalrn.ngc for a usage example
+
+   <LI> implemented new meta command "LearnEvent" which allows to learn SendEvent based controller assignments during runtime.
+     See cfg/test/metalrn.ngc for a usage example
+
+   <LI> added new meta command "SaveDelayedSnapshot:<seconds>"<BR>
+     It will request to store a snapshot after at least the given seconds.
+
+   <LI> added new event type "NoteOnOff", which will send a NoteOff event immediately after NoteOn (resp. actually it will
+     send Note On with velocity 0 for runtime event optimisation)
+
+   <LI> added possibility to calibrate the delay_slowest values for each individual key of a keyboard.<BR>
+     New terminal commands:
+     <UL CLASS=CL>
+       <LI> set kb <1|2> key_calibration on: delay values will be measured (method described at the MIDIbox KB webpage)
+       <LI> set kb <1|2> key_calibration off: captured delay values will be used: (<measured-delay> * delay_slowest / 1000)
+       <LI> set kb <1|2> key_calibration clean: shows the captured measurement values
+       <LI> set kb <1|2> key_calibration_value <key> <value>: allows to modify a calibration value directly
+       <LI> kb <1|2> delays: shows the measured delay values
+     </UL>
+
+   <LI> keyboard calibration values are stored in a new file: .NGK, and can also be edited there
+
+   <LI> bugfix for DELAY_MS
+
+   <LI> bugfix for fwd_id to a non-existing ID with specific value
+
+   <LI> bugfix for maps with duplicated values
+
+   <LI> bugfix for sporadic file access errors reported during snapshot restore
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V1.032</I>

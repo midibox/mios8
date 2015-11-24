@@ -13,7 +13,7 @@ HEADER 3 MBHP_AINSER64 Module
 
 <P CLASS=INFO>Another advantage is the improved scalability. While with the previous <A HREF="mbhp_ain.html">MBHP_AIN</A> module the maximum number of scannable inputs was limited by the number of on-chip ADC channels, the new approach allows to access multiple MBHP_AINSER64 and MBHP_AINSER8 modules from the same microcontroller.</P>
 
-<P CLASS=INFO>The ADC is accessed via SPI (e.g. J19 of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module). An additional 74HC595 is accessed via SPI as well to control the 4051 multiplexers and the "link status" LED which is helpful for troubleshooting the module connections.</P>
+<P CLASS=INFO>The ADC is accessed via SPI (e.g. J19 of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> or <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module). An additional 74HC595 is accessed via SPI as well to control the 4051 multiplexers and the "link status" LED which is helpful for troubleshooting the module connections.</P>
 
 <P CLASS=INFO>Multiple MBHP_AINSER64 (or MBHP_AINSER8) modules are connected to J19 in parallel, and accessed by strobing dedicated chip select lines. J19 provides two chip selects (called "RC1" and "RC2"), if more modules should be scanned, common IO pins could be used for the same purpose (e.g. available at J5). To programmers: alternatively, AINSER64 modules could be chained, or a 3-to-8 MUX could be used for accessing 8 modules via 3 IO pins of the microcontroller.</P>
 
@@ -83,7 +83,7 @@ HEADER 3 MBHP_AINSER64 Module
       <TD CLASS=TABCOLOR2>2</TD>
       <TD CLASS=TABCOLOR2>Optional connection to a powersupply unit (PSU). A 7V-10V transformer, or a wall adapter could be used. At least 500 mA is recommended if 1k pots are used, and 50 mA if 10k pots are used.<BR>
        Jumper J5 has to select the "Ext." routing if the analog domain should be powered by the external source.<BR>
-       Note that the prefered solution is to power the module via J2 (resp. via the USB supply of the MBHP_CORE_LPC17 module). The external supply option is only provided for the case that the USB based power source is too weak to supply the module.</TD>
+       Note that the prefered solution is to power the module via J2 (resp. via the USB supply of the MBHP_CORE_LPC17 or MBHP_CORE_STM32F4 module). The external supply option is only provided for the case that the USB based power source is too weak to supply the module.</TD>
     </TR>
 
     <TR>

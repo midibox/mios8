@@ -9,11 +9,8 @@ HEADER 3 MIDIbox NG User Manual --- .NGR Script
 
 <P CLASS=DESC>The idea for this script feature came up with the request to run a sequence of value changes (with delays in between) during power-on, resp. after a <A HREF="midibox_ng_manual_ngc.html">.NGC file</A> has been loaded. Over the time it has been enhanced by additional commands to cover other usecases, and meanwhile we even have some kind of flow control!</P>
 
-<P CLASS=DESC>However, the capabilities are still very limited, mainly caused by RAM size limitations of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A>. See also the "Limitations" chapter at the end of this page.<BR>
-E.g. the script has to be directly parsed from SD Card whenever it is called, which means that the execution consumes some time (typically 5..50 mS). Call requests are not queued, therefore it can happen that requests get lost if they are triggered while the .NGR file is already processed.</P>
-
-<P CLASS=DESC>Therefore this script language is <B>no replacement</B> for EVENT definitions defined in the <A HREF="midibox_ng_manual_ngc.html">.NGC file</A>! If MIDIbox NG should react on concurrent actions in realtime without the danger that an action gets lost, please define them as EVENTs!<BR>
-But it's viable solution for events which are processed very rarely, such as special button functions.
+<P CLASS=DESC>On a <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A>, the .NGR script will loaded from SD Card and then compiled into RAM to allow realtime execution of the commands within less than 1 mS! :-)<BR>
+The <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module only allows direct execution from SD Card, which is much slower and therefore only allows sporadic interactive operations like special button functions (typically it will take 5..50 mS on this core!).</P>
 
 <P CLASS=DESC>The .NGR file has the same name like the .NGC file. After power-on MIDIbox NG will load DEFAULT.NGC, and therefore also DEFAULT.NGR (if available).</P>
 
@@ -30,6 +27,7 @@ But it's viable solution for events which are processed very rarely, such as spe
       E.g. to implement complex selections (if BUTTON:1 and BUTTON:2 is pressed the same time, do something special...)
   <LI>send a fully customizable MIDI messages, even multiple ones triggered by the same event.<BR>
       E.g. to select different patches on synthesizers which are connected to different MIDI ports and listen to different MIDI channels.
+  <LI><B>MBHP_CORE_STM32F4 only (direct execution from RAM):</B> advanced event processing in realtime
 </UL>
 
 <P CLASS=DESC>If you know other interesting usecases which are not listed here, please let me know! :-)
@@ -150,7 +148,13 @@ send SysEx USB1 0xf0 0x11 0x22 0x33 0x44 ^value 0xf7
 Examples:
 <TT><PRE style="margin-left:10px; font-size:8pt">
 if ^section == 0
+  # wait until all values have been scanned (consider 2 seconds startup delay + a little bit margin)
+  delay_ms 2500
+  
+  # now capture the AINSER values
   exec_meta RetrieveAinserValues
+
+  # and dump out values
   exec_meta DumpSnapshot
 endif
 </PRE></TT>
@@ -262,6 +266,23 @@ set LED:1008 127
   </TR>
 
   <TR>
+    <TD CLASS=TABCOLOR2><I>SET_HSV &lt;id&gt; &lt;h&gt;:&lt;s&gt;&lt;v&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the hue/saturation/value colour code of a WS2812 based RGBLED. H ranges from 0..359 (grad); saturation and value (brightness) range from 0..100 (percentage)<BR>
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+# red
+set_hsv RGBLED:1 0:100:25
+
+# green
+set_hsv RGBLED:2 120:100:25
+
+# blue
+set_hsv RGBLED:3 240:100:25
+</PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
     <TD CLASS=TABCOLOR2><I>SET_LOCK &lt;id&gt; &lt;1|0&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Allows to lock/unlock the MIDI receiver of an EVENT.<BR>
     Examples: with
@@ -323,6 +344,12 @@ set LED:3 127
 delay_ms 100
 set LED:3 0
 </PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2><I>LOAD &lt;setup&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Switch to another setup (.NGC, .NGS, .NGR, ... files)
     </TD>
   </TR>
 
@@ -557,9 +584,7 @@ endif
 <P CLASS=DESC>The capabilities are still limited, mainly caused by RAM size limitations of the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A>. Following limitations have to be considered:
 <UL CLASS=CL>
   <LI>please don't expect a script language which is so powerful like for example <A HREF="http://www.eluaproject.net" TARGET="_blank">eLua</A>! Although it would be possible to run eLua on a LPC1769, the available RAM isn't sufficient to satisfy the needs for MIDIbox NG in parallel!
-  <LI>the script has to be directly parsed from SD Card whenever it is called, which means that the execution consumes some time (typically 5..50 mS). Call requests are not queued, therefore it can happen that requests get lost if they are triggered while the .NGR file is already processed.
   <LI>It's currently not possible to declare and set customized variables. Limited capabilities could be available in future, but they will consume some RAM!
-
   <LI>It's not possible to combine conditions in an IF statement (e.g. with && or ||) because this would blow up the parser too much. If this is desired, use nested IF statements on an AND condition, or multiple IF statements on an OR condition.
 </UL>
 

@@ -1,13 +1,100 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2014-12-15</H3></CENTER>
+<CENTER><H3>Last Release: 2015-10-04</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.089</I>
+  <UL CLASS=CL>
+   <LI> added DIN testmode which can be enabled from the MIOS terminal with the
+     "set din_testmode on" command to display button and encoder movements.
+
+   <LI> added "Roll Gate" as new optional trigger layer assignment.<BR>
+     It gates the Roll or Roll2 value which is configured in a parameter layer.
+
+   <LI> Euclid Generator: parameter layer into which the pattern will be copied
+     now selectable.<BR>
+     Velocity/Accent will only be changed if the first parameter layer is selected.
+
+   <LI> it's now possible to quickly duplicate the steps of a track:
+     press&hold COPY and press the PASTE button
+
+   <LI> Groove page: by default, groove configuration changes are applied on all tracks now.
+     It's possible to select a "local groove" by pressing GP7 button in the groove page.
+
+   <LI> BPM page: it's now possible to configure an output delay for each MIDI port.
+     (positive and negative delays are supported - this is currently an experimental feature!)
+
+   <LI> fixed NoteOff in Jam Forwarding mode if FTS, Limit or Humanizer is enabled
+
+   <LI> <B>NOTE:</B> due to a RAM capacity issue, the UNDO function is currently not available
+     for the LPC17 firmware
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.088</I>
+  <UL CLASS=CL>
+   <LI> improved glide function for polyphonic steps
+
+   <LI> BLM16x16+X support for Mute and Solo.<BR>
+     The new functions are available at Extra Row Button #3 and #4
+     (if a BLM16x8+X is connected, they replace Start/Stop at Extra Row Button #1 and #2)<BR>
+
+     If Mute active: the extra column buttons mute/unmute tracks<BR>
+     If Solo active: the extra column buttons solo/unsolo tracks<BR>
+
+     LED Colour coding:<BR>
+     <UL CLASS=CL>
+       <LI>LED off: Track neither muted nor soloed
+       <LI>LED green: Track muted
+       <LI>LED yellow: Track soloed
+       <LI>LED red: Track muted and soloed - solo has higher priority, therefore track will be played
+     </UL>
+
+     Special Key combinations:
+     <UL CLASS=CL>
+       <LI>ALT+Mute clears all mutes
+       <LI>ALT+Solo clears all solos
+     </UL>
+     </LI>
+
+   <LI> added Robotizer Fx from Borfo
+
+   <LI> added LCD Screensaver.<BR>
+     It will be active after 30 minutes by default.<BR>
+     The time can be changed in the UTIL->OPT menu page.
+
+   <LI> added DETENTED4/DETENTED5 option for rotary encoders in MBSEQ_HW.V4 file
+
+   <LI> added new parameter layers "Nth1" and "Nth2" which trigger a special action 
+     on each nth bar (Nth1) starting at the 1st bar, or after nth bars (Nth2).<BR>
+     Following trigger conditions are available:
+     <UL CLASS=CL>
+       <LI> Pl (Play each nth bar)
+       <LI> Mu (Mute each nth bar)
+       <LI> Ac (Accent each nth bar)
+       <LI> Ro (Roll each nth bar)
+       <LI> Fx (enable Fx each nth bar)
+       <LI> Nx (don't enable Fx each nth bar)
+     </UL>
+     </LI>
+
+   <LI> combined Record and Live page to a new single "Jam" page with sub pages 
+     to improve the overview and simplify the configuration.
+
+   <LI> added Live Pattern Recording to Jam page which can be used to play and record
+     customizable arpeggiator sequences.<BR>
+     Available in the Jam page (Utility->Jam->Ptn)<BR>
+     See <A HREF="midibox_seq_manual_m.html">updated user manual</A> for further information.
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.087</I>

@@ -35,7 +35,7 @@ A new step is selected when the appr. rotary encoder is moved or by pressing the
 <CENTER><IMG SRC="midibox_seq/cs4/editrec.gif" width=481 height=19 ALT="Edit Record"></IMG></CENTER></P>
 <P CLASS=DESC>EDIT recording can also be toggled on/off with the SELECT button. This allows you to keep this recording mode enabled while no GP button is pressed (useful if you want to enter chords with two hands). Select the step into which the events should be recorded with the datawheel.<BR>
 <I>Note1: if recording isn't working as expected, check the recording configuration by pressing EDIT+GP12. At the right side of the page the MIDI port and channel to which the recording function will listen has to be selected.</I><BR>
-<I>Note2: EDIT RECORDING always behaves like a step recording (not like a live recording) regardless of the configuration in the record page. Live recording is only active while you are in the record page!</I><BR>
+<I>Note2: EDIT RECORDING always behaves like a step recording (not like a live recording) regardless of the configuration in the JAM page. Live recording is only active while you are in the JAM page!</I><BR>
 <I>Note3: EDIT RECORDING is the most simple way to enter chords into the parameter layers!</I><BR>
 
 <P CLASS=DESC>Press&amp;hold the EDIT button to open a special page which allows to select different view modes:
@@ -185,7 +185,39 @@ The first number means, how often the event will be played (2, 3, 4 or 5 times),
 <P CLASS=DESC><IMG SRC="midibox_seq/tutorial4/gatelength_v4_3x63.gif" width=200 height=109 ALT="" align="left">With 3x63, the note will be played three times with a distance of 63 clock steps - at 0, 63 and 126. A delay of 126 crosses the step range of 96, so that the last note slips into the range of the second step. This sometimes results into nice, unexpected grooves! :-)</P>
 <P CLASS=DESC>In following example, various roll2 parameters are used for the snare drum. Here a screenshot of the 32 step sequence (which is played 2 times):
     **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv3_gl_multi.mp3"#ffffff**</P>
-
+    <LI><B>Nth1 and Nth2:</B> this powerful feature has been suggested by <A HREF="http://midibox.org/forums/topic/13137-midibox-seq-v4-release-feedback/?p=169722" TARGET="_blank">Pawaga</A> in the MIDIbox forum, it allows to create long variant patterns which change based on mathematical rules.<BR>
+    A special action will be triggered on each nth bar (Nth1) starting at the 1st bar, or after nth bars (Nth2).<BR>
+    For example for a 4 step sequence "CGDF" with Nth1 values "Pl1, Pl3, Mu3, Pl4" would result into:
+    <UL CLASS=CL>
+      <LI><B>Bar 1:</B> CG-F 
+      <LI><B>Bar 2:</B> C-D-
+      <LI><B>Bar 3:</B> C-D-
+      <LI><B>Bar 4:</B> CG--
+      <LI><B>Bar 5:</B> C-DF
+      <LI><B>Bar 6:</B> C-D-
+      <LI><B>Bar 7:</B> CG--
+      <LI><B>Bar 8:</B> C-D-
+    </UL>
+    A 4 step sequence "CGDF" with Nth2 values "Pl1, Pl3, Mu3, Pl4" would result into:
+    <UL CLASS=CL>
+      <LI><B>Bar 1:</B> C-D- 
+      <LI><B>Bar 2:</B> C-D-
+      <LI><B>Bar 3:</B> CG--
+      <LI><B>Bar 4:</B> C-DF
+      <LI><B>Bar 5:</B> C-D-
+      <LI><B>Bar 6:</B> CG--
+      <LI><B>Bar 7:</B> C-D-
+      <LI><B>Bar 8:</B> C-DF
+    </UL>
+    Following trigger conditions are available:
+    <UL CLASS=CL>
+      <LI> <B>Pl:</B> Play each nth bar
+      <LI> <B>Mu:</B> Mute each nth bar
+      <LI> <B>Ac:</B> Accent each nth bar
+      <LI> <B>Ro:</B> Roll each nth bar
+      <LI> <B>Fx:</B> enable Fx each nth bar
+      <LI> <B>Nx:</B> don't enable Fx each nth bar
+    </UL></LI>
   </UL></LI>
 <LI>The <B>MIDI Channel</B> can be selected from 1-16.</LI>
 <LI>Following <B>MIDI Ports</B> are available:<BR>
@@ -263,7 +295,7 @@ From 0:24 I selected an alternative pattern which sends various notes to the loo
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> AOUT Port</H2>
 
-<P CLASS=INFO>The AOUT Port allows you to control the analog outputs of a <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module. 8 gate triggers are available at port J5A/J5B of the core module (enabled by default in the MBSEQ_HW.V4 file)</P>
+<P CLASS=INFO>The AOUT Port allows you to control the analog outputs of a <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module. 8 gate triggers are available at port J5A/J5B of the core module (enabled by default in the MBSEQ_HW.V4 file) or (preferred) at a DOUT shift register which is configured in the MBSEQ_HW.V4 file (search for CV_GATE_SR1)</P>
 
 <P CLASS=DESC>MIDI Channel encoding:<BR>
 <TABLE WIDTH=575 BORDER=0 CELLSPACING=1 CELLPADDING=1>
@@ -579,6 +611,7 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
     </UL>
   </LI>
   <LI><B>Intensity:</B> available as VPOS/VNEG parameter to vary the style without creating a new groove template. Also nice for live tweaks to find "best matching" grooves!
+  <LI><B>Global:</B> By default, groove configuration changes are applied on all tracks. By turning Global "off" the selected groove will only be used for the edited track. This way it's possible to select individual grooves for certain tracks, but also to keep the groove selection for the remaining tracks global.
 </UL></P>
 
 <P CLASS=DESC>Custom #1..#16 global groove styles can be freely edited. They are stored on SD Card (MBSEQ_G.V4 file) and available for all patterns of a session:
@@ -605,6 +638,7 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
   <LI><B>R.G.:</B> Random Gate - the step will be played randomly. This is especially useful for drum lines to increase the variation w/o creating multiple tracks
   <LI><B>R.V.:</B> Random Value - the step values will be randomized</LI>
   <LI><B>NoFx:</B> the step won't be forwarded to Fx functions like Echo, Humanizer and Limiter</LI>
+  <LI><B>RollG:</B> Roll and Roll2 parameter layers will be gated by this trigger</LI>
 </UL></P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Manual Step Trigger Page (Shortcut: MENU+GP Button #11)</H2>
@@ -645,6 +679,7 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
   <LI><B>Preset page:</B> displays a preset page which allows you to select one of 16 tempo presets with GP buttons (very nice in conjunction with ramp times)</LI>
   <LI><B>MIDI Clock In:</B> enable the MIDI clock in receiver for each individual MIDI IN port</LI>
   <LI><B>MIDI Clock Out:</B> enable the MIDI clock out sender for each individual MIDI OUT port</LI>
+  <LI><B>Delay:</B> allows to apply a negative or positive delay from -128 to 127 mS for sent MIDI events (Clock, Notes, CCs, etc.) to the selected MClk port in order to compensate latencies in the audio path.</LI>
   <LI><B>Ext.Restart:</B> sends a MIDI clock start event to all MIDI devices at the next measure - a very useful feature to re-synchronize external MIDI gear to the MIDIbox.<BR>
     To evaluate this function, try following steps:
     <UL CLASS=CL>
@@ -701,7 +736,7 @@ Use the first 10 GP buttons or encoders to cycle the characters (like on a telep
   <LI><B>Mode:</B>
     <UL CLASS=CL>
       <LI><B>T&A:</B> MIDI events are routed to the Transposer/Arpeggiator notestacks
-      <LI><B>Play:</B> MIDI events are directly routed to MIDI Port and Channel of the currently selected track. This allows you to play the selected track "live".
+      <LI><B>Jam:</B> MIDI events are used for recording and forwarding to the MIDI Port and Channel of the currently selected track.
     </UL>
   <LI><B>Reset Stacks:</B> clears all note stacks. Useful if the MIDI keyboard (or external sequencer) has been disconnected from MIDIbox SEQ while some keys were still active.
 </UL>
@@ -791,46 +826,90 @@ Following functions can be assigned:
 
 
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Record Page (Shortcut: EDIT->Record Config or UTILITY (F1)->Rec)</H2>
-<P CLASS=INFO>MIDIbox SEQ V4 provides a realtime (live) and step recording mode. Recording is always active as long as you are in this menu page. A special "edit recording" is also available in the EDIT page (press GP button in EDIT page to record MIDI events into the selected step).</P>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> Jam Page (Shortcut: EDIT->Record Config or UTILITY->Jam)</H2>
+<P CLASS=INFO>Connect an external MIDI keyboard to your MIDIbox SEQ V4 and start to Jam!</P>
 
-<P CLASS=INFO>In distance to certain other sequencers, it is not required to stop an ongoing sequence in order to start recording.<BR>
-Incoming events will be immediately inserted into the selected track. If the current step already holds a note/CC, it will be replaced by the new one. The gatelength of a note will be recorded as well, it can allocate multiple steps. If a new note is played over such a "stretched" step, the previous note will be automatically split.<BR>
-<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/record1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
-<P CLASS=DESC>The <B>realtime recording mode</B> supports monophonic note, polyphonic chords (chord 1/2 and note/note/note layer mode), and CC events, which are stored into the currently selected track while the sequencer is playing.</P>
-<P CLASS=DESC>The <B>step recording mode</B> allows to input notes and CCs stepwise, the cursor will go to the next position after a new note/CC has been received and stored into the step. The cursor can be moved to another position with the rotary encoder below the "Step" item.</P>
-<P CLASS=DESC>Any incoming CC number will be converted to the target CC as specified by the EVENT mode. This means, that you can use a single controller (e.g. a Modulation Wheel) to record the different CC lines.</P>
-<P CLASS=DESC><B>AStart: </B> synchronized auto start of track recording. To use this feature, the sequencer has to be stopped. With the first played note, the sequencer will start and store the note into the first step.</P>
-<P CLASS=DESC><B>TglGate: </B> toggles the gate of the currently select step. Useful to quickly enable/disable a step in step recording mode.</P>
-<P CLASS=DESC><B>Port: </B> the MIDI port to which your MIDI keyboard is connected.</P>
-<P CLASS=DESC><B>Chn: </B> the MIDI channel used for recording.</P>
-<P CLASS=DESC><B>Forward MIDI:</B> if on (default): events played by an external keyboard were always immediately forwarded to the MIDI output. "off" disables this function for keyboards w/o a "local off" function.</P>
-<P CLASS=DESC><B>FTS:</B> enables force-to-scale for the forwarding function</P>
-<P CLASS=DESC><B>FX:</B> enables MIDI effects (such as MIDI Echo and Humanizer) for the forwarding function</P>
-<P CLASS=DESC><B>Quantize:</B> than lower the percentage value, than lower the quantization (-&gt; events not shifted to the next step)</P>
+<P CLASS=DESC>Following functions can be controlled from the "Jam cockpit":
+<UL CLASS=CL>
+  <LI><B>Step Recording</B> allows to input notes and CCs stepwise, the cursor will jump to the next position after a new note/CC has been received and stored into the step.
+  <LI><B>Realtime (Live) Recording</B> supports monophonic note, polyphonic chords (chord 1/2 and note/note/note layer mode), and CC events, which are stored into the currently selected track while the sequencer is playing.</B> 
+  <LI><B>Live Pattern Recording</B> can be used to play and record customizable arpeggiator sequences.
+  <LI><B>Live Forwarding</B> forwards incoming MIDI events (e.g. from a MIDI keyboard) to the MIDI port/channel which is configured for the currently selected track. Octave Transpose, MIDI effects (such as Echo, Humanizer, Limits) such as Force-to-Scale can be optionally applied.
+</UL>
 
-<P><center><object width="400" height="225">	<param name="allowfullscreen" value="true" />	<param name="allowscriptaccess" value="always" />	<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" />	<embed src="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="225"></embed></object><br /><a href="http://vimeo.com/1628550?pg=embed&amp;sec=1628550" TARGET="_blank">Midibox Sequencer V3 for Live Recording</a> from <a href="http://vimeo.com/user710438?pg=embed&amp;sec=1628550" TARGET="_blank">Stuart Mitchell</a></center></P>
+<P CLASS=DESC>In distance to certain other sequencers, it is not required to stop an ongoing sequence to start recording!<BR>
+Incoming events will be immediately inserted into the selected track. If the current step already holds a note/CC, it will be replaced by the new one. The gatelength of a note will be recorded as well, it can allocate multiple steps. If a new note is played over such a "stretched" step, the previous note will be automatically split.</P>
 
-<P CLASS=INFO>CC can be recorded as well. Incoming CC events will be automatically assigned to free CC layers so that no pre-configuration is required. A CC layer is "free" (unassigned) as long as the CC number is turned "off". This is the default setting for all CC layers after initialisation, and can be changed in the MENU-&gt;EVENT page if desired.
+<P CLASS=DESC>Incoming CC events will be automatically assigned to free CC layers so that no pre-configuration is required. A CC layer is "free" (unassigned) as long as the CC number is turned "off". This is the default setting for all CC layers after initialisation, and can be changed in the MENU-&gt;EVENT page if desired.</P>
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Live Play Page (Shortcut: UTILITY (F1)->Live)</H2>
+<P CLASS=DESC>Here an older video (created on MIDIbox SEQ V3) which demonstrates the live recording - many more features have been added in V4, but this video gives you good expression about the basic usage:<BR>
+<center><object width="400" height="225">	<param name="allowfullscreen" value="true" />	<param name="allowscriptaccess" value="always" />	<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" />	<embed src="http://vimeo.com/moogaloop.swf?clip_id=1628550&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="225"></embed></object><br /><a href="http://vimeo.com/1628550?pg=embed&amp;sec=1628550" TARGET="_blank">Midibox Sequencer V3 for Live Recording</a> from <a href="http://vimeo.com/user710438?pg=embed&amp;sec=1628550" TARGET="_blank">Stuart Mitchell</a></center></P>
 
-<P CLASS=INFO>Inside this page notes (and drum instruments) can be played with the GP buttons.</P>
+<P CLASS=DESC><I><B>Important:</B> at least one bus has to be assigned to Jam mode in order to use it for recording and live forwarding! Please configure it in the MIDI configuration subpage by selecting a MIDI port, channel, keyboard zone and select the Jam (instead of T&A) function!</I></LI>
 
-<P CLASS=INFO>In addition the 4 MIDI IN Busses for Transposer/Arpeggiator/Live Playing can be configured like in the MIDI Config page.
-
-<CENTER><IMG SRC="midibox_seq/cs4/live1.gif" width=481 height=19 ALT="Live"></CENTER></IMG>
-
-<P CLASS=INFO>Following Live Play parameters are available:</P>
+<P CLASS=INFO><B>Step Recording:</B>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/jam_step1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
 <UL CLASS=CL>
   <LI><B>Track:</B> selection
-  <LI><B>Mute:</B> mute/unmute the selected track
-  <LI><B>Oct.:</B> Octavewise transpose
-  <LI><B>Velocity:</B> (only used for GP button keyboard)
-  <LI><B>FTS:</B> Force-To-Scale
-  <LI><B>FX:</B> enables Humanizer, LFO, Limiter and Echo<BR>
-       Note: the Echo effect will only work when the sequencer is running!
-  <LI><B>Bus:</B> four individual busses (Bus1..Bus4) are available for this function. Each bus provides separate note stacks for Transposer and Arpeggiator.</LI>
+  <LI><B>Rec(ording):</B> enables/disables recording
+  <LI><B>Fwd (Forwarding):</B> enables/disables forwarding of incoming notes to the MIDI port/channel of the selected track
+  <LI><B>Configuration Pages:</B> allows to select the subpage for Step/Live/Pattern/MIDI/Misc configuration.
+  <LI><B>Mode:</B> switches between Mono and Poly recording. With Poly recording multiple note events can be recorded into a single step - ensure that a sufficient number of parameter layers has been configured as a Note Layer in the EVENT configuration page.
+  <LI><B>AStart:</B> synchronized auto start of track recording. To use this feature, the sequencer has to be stopped. With the first played note, the sequencer will start and store the note into the first step.
+  <LI><B>Step:</B> use the encoder below this item to move the step cursor. Once this item is selected, the datawheel can be used for this purpose as well (like in the EDIT page)
+  <LI><B>Inc(rementer):</B> specifies the number of step the cursor should jump after a note has been entered. Works only in Mono recording mode. E.g. with "0" the cursor won't be moved, so that different notes can be tried out, with "1" the cursor will be automatically moved to the next step, with "4" to the next quarter.
+  <LI><B>Toggle Gate:</B> toggles the gate of the currently select step. Useful to quickly enable/disable a step during step recording.
+</UL>
+
+
+<P CLASS=INFO><B>Live (Realtime) Recording:</B>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/jam_live1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Mode:</B> switches between Mono and Poly recording. With Poly recording multiple note events can be recorded into a single step - ensure that a sufficient number of parameter layers has been configured as a Note Layer in the EVENT configuration page.
+  <LI><B>AStart:</B> synchronized auto start of track recording. To use this feature, the sequencer has to be stopped. With the first played note, the sequencer will start and store the note into the first step.
+  <LI><B>Quantize:</B> than lower the percentage value, than lower the quantization (-&gt; events not shifted to the next step)</P>
+</UL>
+
+<P CLASS=INFO><B>Live Pattern Recording:</B>
+<P CLASS=DESC>Live patterns are inspired from the note repeat function of Akai MPC to allow a quick and expressive pattern creation in real time (see <A HREF="http://midibox.org/forums/topic/19406-mpc-style-note-repeat-function/" TARGET="_blank">this forum discussion</A>). The 16 step gate/accent patterns are free customizable. Velocity values are taken from the original entered note, and can be changed via aftertouch while the note(s) is/are playing.</P>
+<P CLASS=DESC>In order to edit a pattern, press&hold the SELECT button, and change the gate/accent with the GP buttons. The patterns are stored in the local (session specific) MBSEQ_C.V4 file with following ASCII format (. = no trigger, o = Gate, * = Gate+Accent):
+<PRE>
+LivePattern  1  o...............
+LivePattern  2  o.......o.......
+LivePattern  3  ....o.......o...
+LivePattern  4  o...o...o...o...
+LivePattern  5  *...o...*...o...
+LivePattern  6  ..o...o...o...o.
+LivePattern  7  ..*...o...*...o.
+LivePattern  8  o.o.o.o.o.o.o.o.
+LivePattern  9  *.o.o.o.*.o.o.o.
+LivePattern 10  .o.o.o.o.o.o.o.o
+LivePattern 11  .*.o.*.o.*.o.*.o
+LivePattern 12  oooooooooooooooo
+LivePattern 13  *ooooooooooooooo
+LivePattern 14  *ooooooo*ooooooo
+LivePattern 15  *ooo*ooo*ooo*ooo
+LivePattern 16  ooooo*ooooooo*oo
+</PRE>
+and can be modified with the MIOS Studio based Filebrowser as well.</P>
+
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/jam_ptn1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Drum:</B> allows to select the instrument layer if the track is configured as a drum track in the EVENT page. Has no function for other track modes (in this case, monophonic and polyphonic notes can be played and recorded).
+  <LI><B>Ptn:</B> enables/disables pattern play/recording
+  <LI><B>Pattern:</B> allows to change between Pattern 1..16 with the encoders. Press this button to enter a special "quick selection" page which allows you to do the same with GP buttons:<BR>
+     <CENTER><IMG SRC="midibox_seq/cs4/jam_ptn2.gif" width=481 height=19 ALT="Record"></CENTER></IMG><BR>
+     Note: in this page it's possible to edit the selected pattern by turning the GP rotary encoders.
+  <LI><B>Length:</B> specifies the gatelength
+  <LI><B>Cpy (Copy):</B> copies the current selected pattern into edit buffer (the COPY button can be used for the same purpose)
+  <LI><B>Paste:</B> copies the edit buffer into the current selected pattern (the PASTE button can be used for the same purpose)
+</UL>
+
+<P CLASS=INFO><B>MIDI Configuration:</B>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/jam_midi1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Bus:</B> four individual busses (Bus1..Bus4) are available which allow to define how incoming MIDI events should be processed. They can either be assigned to the Transposer and Arpeggiator functions (T&A), or to the Jam functions.<BR>
+    <I><B>Important:</B> at least one bus has to be assigned to Jam mode in order to use it for recording and live forwarding!</I></LI>
   <LI><B>Port:</B> the MIDI input port for the selected bus. If "ALL" is selected, MIDI data will be received from any port.</LI>
   <LI><B>Channel:</B> selects the MIDI channel over which the arpeggiator/transpose can be controlled, and CCs will be received (e.g. for the morph function). With "---" no events will be received (bus disabled)</LI>
   <LI><B>Lower/Upper:</B> defines the lower and upper note of a keyboard zone for transpose/arpeggiator function.<BR>
@@ -838,12 +917,21 @@ Incoming events will be immediately inserted into the selected track. If the cur
       Defining different (or overlapping) keyboard zones allows you to control the four Transposer/Arpeggiator busses from a single MIDI keyboard over the same MIDI channel.</LI>
   <LI><B>Mode:</B>
     <UL CLASS=CL>
-      <LI><B>T&A:</B> MIDI events are routed to the Transposer/Arpeggiator notestacks
-      <LI><B>Play:</B> MIDI events are directly routed to MIDI Port and Channel of the currently selected track. This allows you to play the selected track "live".
+      <LI><B>T&A:</B> MIDI events are routed to the Transposer/Arpeggiator notestacks (and not used for recording)
+      <LI><B>Jam:</B> MIDI events are used for recording and forwarding to the MIDI Port and Channel of the currently selected track.<BR>
+          <I><B>Important:</B> at least one bus has to be assigned to Jam to use it for recording and live forwarding!</I>
     </UL>
   <LI><B>Reset Stacks:</B> clears all note stacks. Useful if the MIDI keyboard (or external sequencer) has been disconnected from MIDIbox SEQ while some keys were still active.
 </UL>
-</P>
+
+<P CLASS=INFO><B>Misc. Configuration:</B>
+<P CLASS=INFO><CENTER><IMG SRC="midibox_seq/cs4/jam_misc1.gif" width=481 height=19 ALT="Record"></CENTER></IMG></P>
+<UL CLASS=CL>
+  <LI><B>Oct.:</B> Octavewise transpose
+  <LI><B>FX:</B> enables Humanizer, LFO, Limiter and Echo<BR>
+       Note: the Echo effect will only work when the sequencer is running!
+  <LI><B>FTS:</B> enables Force-To-Scale
+</UL>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Utility Page (Shortcut: MENU+GP Button #10 or F1)</H2>
 <P CLASS=INFO>This page provides some useful functions for track modifications:<BR>
@@ -865,8 +953,7 @@ Incoming events will be immediately inserted into the selected track. If the cur
   <LI><B>Random:</B> shortcut to the Random Generator (see below)</LI>
   <LI><B>Undo:</B> an undo function for the last Paste/Clear/Move/Scroll/Random operation.</LI>
   <LI><B>Save:</B> directly branches into the save menu page (shortcut)</LI>
-  <LI><B>Rec.:</B> directly branches into the recording page (shortcut)</LI>
-  <LI><B>Live:</B> directly branches into the live play page (shortcut)</LI>
+  <LI><B>Jam:</B> directly branches into the Jam page (shortcut)</LI>
   <LI><B>Opt.:</B> directly branches into the options page (shortcut)</LI>
   <LI><B>PMte:</B> directly branches into the port muting page (shortcut)</LI>
   <LI><B>Disk:</B> directly branches into the disk page (shortcut)</LI>
@@ -907,6 +994,8 @@ Another difference to common solutions is the random accent generator which adds
   <LI><B>TrkLength:</B> selects the track length. The length should be adapted to the maximum loop length which is defined on the right display.</LI>
   <LI><B>Drum:</B> if the track is configured for drum mode, the instrument can be selected here.</LI>
   <LI><B>Note:</B> if the track is configured for drum mode, the note which is played by the instrument can be selected here (same as in MIDI event configuration page)</LI>
+  <LI><B>Par(A-P):</B> if the track is configured for normal mode, the parameter layer can be selected here.</LI>
+  <LI><B>Val.:</B> parameter values have to be overwritten for parameter layers B-P, the "Val." item allows to set the values which should be used.</LI>
   <LI><B>VelN and VelA:</B> velocity used for normal and accented steps.</LI>
   <LI><B>RndA:</B> defines the probability for generating accented steps. Whenever the value is changed, accents will be generated immediately. If the track provides a parameter layer for velocity, these values will be changed instead of setting accent triggers. This allows to fine-adjust the velocity values later in EDIT page.</LI>
   <LI><B>Len:</B> defines the loop length of an euclidean pattern.<BR>
@@ -1303,7 +1392,7 @@ Only one group can control the scale and root note - it can be selected with thi
   <LI><B>PRng:</B> sets the pitch range for pitch bender events (normally 2, use 12 or 24 to sweep over one, resp. two octaves)
   <LI><B>Gate:</B> sets the gate polarity (positive or negative)
   <LI><B>Calibr.:</B> allows to force different output voltages for calibration (Min/Middle/Max/1V, 2V, 4V, 8V)
-  <LI><B>Clk:</B> selects 1 of 8 clock outputs (available at a dedicated DOUT shift registered which has been configured with the CV_CLK_SR parameter in the MBSEQ_HW.V4 file). Each clock has an individual clock divider, or can optionally be used to output a Start/Stop signal
+  <LI><B>Clk:</B> selects 1 of 8 clock outputs (available at a dedicated DOUT shift registered which has been configured with the CLK_SR parameter in the MBSEQ_HW.V4 file). Each clock has an individual clock divider, or can optionally be used to output a Start/Stop signal
   <LI><B>Rate:</B> defines the output rate of the selected clock output (1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96, 192, 384 ppqn and Start/Stop)</LI>
   <LI><B>Width:</B> sets the pulsewidth of the clock output signal (1..255 mS)</LI>
   <LI><B>Module:</B> selects the AOUT module which is connected to J19 of the core module (AOUT, AOUT_LC or AOUT_NG)</LI>

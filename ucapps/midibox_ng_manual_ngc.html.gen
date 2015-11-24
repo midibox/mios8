@@ -81,6 +81,8 @@ Up to 256 buttons can be connected to up to 32 DIN shift registers.<BR>
   <LI><I>LED</I>: the first LED (1) is connected to the first DOUT shift register, pin D7 (!), the second LED (2) to the first DOUT shift register, pin D6, ... the 9th LED to the second DOUT shift register, pin D7, etc...<BR>
 Up to 256 LEDs can be connected to up to 32 DOUT shift registers.<BR>
    The <I>hw_id</I> ranges from 1..256
+  <LI><I>RGBLED</I>: WS2812 based LED strips are currently only supported for the MBHP_CORE_STM32F4 module. The data input has to be connected to J4B.SC, ground to J4B.VS and +5V to an external PSU (required, since each RGB LED can consume up to 20 mA!)<BR>
+Up to 64 RGB LEDs can be driven by the core. More could be enabled if desired by increasing the number with '#define WS2812_NUM_LEDS &lt;number&gt;' in the mios32_config.h file, but note that each LED will consume 48 bytes and therefore the RAM limit of the STM32F4 could be reached quickly! However, 128 LEDs are working ok so far, but this could change than more firmware features are added in future.
   <LI><I>ENC</I>: rotary encoders allocate two DIN pins, which have to be assigned with the ENC command which is described later in this chapter.<BR>
 Up to 128 rotary encoders are currently supported.
    The <I>hw_id</I> ranges from 1..128
@@ -208,6 +210,12 @@ EVENT_ENC  id=101  hw_id=1  if_equal=Button:1:1  type=CC cc=32 chn=2
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_LED</I></TD>
     <TD CLASS=TABCOLOR2>A LED can receive a MIDI event. It's turned on if the received value is >= the mid value of the specified range, otherwise it's turned off.
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>EVENT_RGBLED</I></TD>
+    <TD CLASS=TABCOLOR2>A WS2812 based RGB LED can receive a MIDI event. By default the received velocity controls the brightness of a pre-configured colour, but it's also possible to control the colour instead. Configuration examples can be found in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frgbled_1.ngc" TARGET="_blank">rgbled_1.ngc</A>
     </TD>
   </TR>
 
@@ -401,6 +409,7 @@ EVENT_SENDER   id=1                       type=CC chn= 1  cc=  1
        <UL CLASS=CL>
          <LI><I>NoteOff</I>: will send/receive a Note Off event with the specified key value
          <LI><I>NoteOn</I>: will send/receive a Note On event with the specified key value. Please consider that the MIDI protocol handles a NoteOn with value 0 like a Note Off event, therefore <I>type=NoteOff</I> is actually redundant.
+         <LI><I>NoteOnOff</I>: will send a NoteOn, and immediately a NoteOff event.
          <LI><I>PolyPressure</I>: will send/receive a Poly Pressure event with the specified key value
          <LI><I>CC</I>: will send/receive a CC event with the specified cc value
          <LI><I>ProgramChange</I>: will send/recieve a Program Change event
@@ -536,6 +545,7 @@ If an encoder, pot, etc... is used, please specify <I>meta=SetSnapshot range=0:1
         <LI><I>CycleSnapshot</I>: increments the snapshot number, resets to 0 if last snapshot reached
         <LI><I>LoadSnapshot</I>: loads a snapshot with the currently selected number from the .NGS file
         <LI><I>SaveSnapshot</I>: stores a snapshot with the currently selected number into the .NGS file
+        <LI><I>SaveDelayedSnapshot:&lt;seconds&gt;</I>: this command will request to store the currently selected snapshot after at least the given seconds.<BR>Usage should be prefered over SaveSnapshot whenever multiple EVENTs could trigger the store operation to avoid unwanted delays.
         <LI><I>DumpSnapshot</I>: dumps the values of all control elements which haven't specified no_dump=1.<BR>
         Note that multiple meta commands can be assigned to an event, e.g. to set, auto-load and dump a snapshot from an encoder write:
 
@@ -585,6 +595,43 @@ EVENT_BUTTON ... type=Meta meta=DumpSnapshot
       Trigger it from a toggle button function as shown in <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_5.ngc" TARGET="_blank">kb_5.ngc</A><BR>
       Can be optionally set from the terminal as well with following
       command: <I>set kb &lt;keyboard-number&gt; break_is_make &lt;on|off&gt;</I> (e.g. <I>set kb 1 break_is_make on</I>).
+
+        <LI><I>SendEvent&lt;controller&gt;:&lt;id&gt;:&lt;min&gt;:&lt;max&gt;</I>: allows to remote control one or more events from a single event within a given value range and direction.<BR>
+           Usage Examples:
+           <TT><PRE style="margin-left:20px; font-size:8pt">
+# MetaA sends EVENT_ENC id=3, 4, 5, 6 in different ranges
+EVENT_ENC    id=  1  hw_id =  1          fwd_id=LED_MATRIX:1    fwd_to_lcd=1  \
+             type=Meta \
+             meta=SendEvent:ENC:3:64:127 \
+             meta=SendEvent:ENC:4:127:64 \
+             meta=SendEvent:ENC:5:10:117 \
+             meta=SendEvent:ENC:6:117:10 \
+             range=  0:127 offset=  0  lcd_pos=1:1:1  label="ENC MetaA   %3d@(1:1:2)%B"
+
+# MetaB sends EVENT_ENC id=7, 8, 9, 10 in different ranges
+EVENT_ENC    id=  2  hw_id =  2          fwd_id=LED_MATRIX:2    fwd_to_lcd=1  \
+             type=Meta \
+             meta=SendEvent:ENC:7:64:127  \
+             meta=SendEvent:ENC:8:127:64  \
+             meta=SendEvent:ENC:9:10:117  \
+             meta=SendEvent:ENC:10:117:10 \
+             range=  0:127 offset=  0  lcd_pos=1:1:1  label="ENC MetaB   %3d@(1:2:2)%B"
+           </PRE></TT>
+       See also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmetalrn.ngc" TARGET="_blank">metalrn.ngc</A> for further information</LI>
+
+        <LI><I>LearnEvent&lt;controller&gt;:&lt;id&gt;</I>: allows to learn SendEvent based controller assignments during runtime.<BR>
+       See also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmetalrn.ngc" TARGET="_blank">metalrn.ngc</A> for further information</LI>
+
+
+        <LI><I>RgbLedClearAll</I>: (clears all LEDs)
+        <LI><I>RgbLedSetRgb:&lt;led&gt;:&lt;r&gt;:&lt;g&gt;:&lt;b&gt;</I>: (led=1..64, r/g/b=0..255)
+        <LI><I>RgbLedSetHsv:&lt;led&gt;:&lt;h&gt;:&lt;s&gt;:&lt;v&gt;</I>: (led=1..64, h=0..359, s=0..100, v=0..100)
+        <LI><I>RgbLedRainbow:&lt;speed&gt;:&lt;brightness&gt;</I>: (speed=1..255, brightness=0..100)<BR>
+           Most simple way to test a LED strip: enter following command in MIOS Terminal:
+           <TT><PRE style="margin-left:20px; font-size:8pt">
+              ngr exec_meta RgbLedRainbow:9:100
+           </PRE></TT>
+           (don't forget to wear sunglasses, or start with brightness 20!!! ;-)</LI>
 
         <LI><I>ScsEnc</I>: emulates a SCS encoder movement. This Meta event can either be issued from EVENT_ENC or EVENT_BUTTON events. A usage example is given below.
         <LI><I>ScsSoft1</I>: emulates the SOFT1 button of the SCS
@@ -854,8 +901,25 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
        <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frgb_2.ngc" TARGET="_blank">rgb_2.ngc</A>: individual brightness levels for RGB LEDs forwarded from EVENT_BUTTON
        <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frgb_3.ngc" TARGET="_blank">rgb_3.ngc</A>: different RGB brightness levels are used in different banks
      </UL>
-     <B>Note:</B> <I>rgb</I> also works with "normal" LEDs directly connected to DOUT pins. In this case the <I>&lt;red&gt;</I> value will statically set the brightness level of the single-colour LED. The remaining <I>&lt;green&gt;</> and <I>&lt;blue&gt;</I> levels have no effect in this case.
+     <B>Note:</B> <I>rgb</I> also works with "normal" LEDs directly connected to DOUT pins. In this case the <I>&lt;red&gt;</I> value will statically set the brightness level of the single-colour LED. The remaining <I>&lt;green&gt;</I> and <I>&lt;blue&gt;</I> levels have no effect in this case.<BR>
+     <B>Note2:</B> <I>rgb</I> will also work for WS2812 based RGBLEDs, but due to the higher resolution the hsv parameter described below is prefered.
     </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>hsv=&lt;hue&gt;:&lt;saturation&gt;&lt;brightness&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>This command will only work for WS2812 based RGBLEDs!<BR>
+                        Sets the hue/saturation/value colour code of a WS2812 based RGBLED. H ranges from 0..359 (grad); saturation and value (brightness) range from 0..100 (percentage)<BR>
+     Configuration Example:
+     <UL CLASS=CL>
+       <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Frgbled_1.ngc" TARGET="_blank">rgbled_1.ngc</A>: various usage examples for WS2812 based RGBLEDs
+     </UL>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>inverted=&lt;0|1&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Only relevant for EVENT_BUTTON and EVENT_LED: with <I>inverted=1</I> the DIN input resp. DOUT output will be inverted.</TD>
   </TR>
 
   <TR>
@@ -1302,7 +1366,7 @@ LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000000000100000
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>n=&lt;1..4&gt;</I></TD>
-    <TD CLASS=TABCOLOR2>Specifies the pattern-set number; it can range from 1..8</TD>
+    <TD CLASS=TABCOLOR2>Specifies the pattern-set number; it can range from 1..4</TD>
   </TR>
   <TR>
     <TD CLASS=TABCOLOR2 WIDTH=150><I>pos=&lt;0..15|M&gt;</I></TD>
@@ -1312,6 +1376,26 @@ LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000000000100000
     <TD CLASS=TABCOLOR2 WIDTH=150><I>pattern=&lt;16-bit-binary&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Sets the pattern for the given position. It consists of 16 binary digits (0 or 1 for LED off/on)
   <TR>
+</TABLE>
+
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> SRIO </H2>
+
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>SRIO Command</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>num_sr=&lt;1..32&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>By default 32 DIN and DOUT shift registers are scanned, which result into an update rate of ca. 420 uS on a STM32F4 based core.<BR>
+    With (for example) <I>SRIO sr_num=8</I> only up to 8 DIN and 8 DOUT SRs will be scanned anymore, but the update rate is reduced to ca. 110..120 uS (a little bit more than a quarter due to SR handling overhead).</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>debounce_cycles=&lt;0..255&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>This command allows to enable a debouncing mechanism for digital inputs (buttons). The number specifies the dead time in SRIO cycles at which button events will be rejected.<BR>
+The time of a SRIO cycle depends on the num_sr configuration, typically it's around 420 uS for 32 SRs, which means that with debounce_cycles=20 the debouncing dead time is 8.4 mS.</TD>
+  </TR>
 </TABLE>
 
 
@@ -1376,6 +1460,8 @@ Configuration examples:
 
 
 <P CLASS=DESC>Please note, that the configuration commands are identical "set kb..." as documented at the <A HREF="http://www.ucapps.de/midibox_kb.html">MIDIbox KB page</A>. This means, that the keyboard parameters can also be changed during runtime to determine the best matching values, before they are written into the .NGC file.</P>
+
+<P CLASS=DESC>Optionally the delay_slowest values can be calibrated for each individual key of the keyboard. The values are stored in the .NGK file, and can be edited with the MIOS Filebrowser.
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> AIN </H2>
 
@@ -1774,17 +1860,6 @@ Each OSC port has an individual remote IP, a remote port (to which OSC packets w
       </TD>
   </TR>
 </TABLE>
-
-
-<H2> <IMG SRC="images/bullet.gif" ALT=""> SRIO </H2>
-
-<P CLASS=DESC><I>SRIO num_sr=&lt;1..32&gt;</I>: By default 32 DIN and DOUT shift registers are scanned, which result into an update rate of ca. 420 uS on a STM32F4 based core.</P>
-
-<P CLASS=DESC>With (for example) <I>SRIO sr_num=8</I> only up to 8 DIN and 8 DOUT SRs will be scanned anymore, but the update rate is reduced to ca. 110..120 uS (a little bit more than a quarter due to SR handling overhead).</P>
-
-<H2> <IMG SRC="images/bullet.gif" ALT=""> DebounceCtr </H2>
-
-<P CLASS=DESC><I>DebounceCtr &lt;0..255&gt;</I>: this command allows to enable a debouncing mechanism for digital inputs (buttons). The number specifies the dead time in mS at which button events will be rejected.
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> GlobalChannel </H2>
