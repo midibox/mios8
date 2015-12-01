@@ -27,7 +27,7 @@
 struct midi_bus{
   unsigned int inputs;
   unsigned int outputs;  
-  };
+};
   
 //--constants--
 
@@ -41,7 +41,7 @@ const unsigned int int_bit_ormask[16] = {
   0x0010,0x0020,0x0040,0x0080,  
   0x0100,0x0200,0x0400,0x0800,  
   0x1000,0x2000,0x4000,0x8000  
-  };
+};
   
 
 
@@ -87,18 +87,18 @@ void led_flash_set(unsigned char) __wparam;
 
 
 void Init(void) __wparam{
-    MIOS_SRIO_UpdateFrqSet(3); // ms
-    MIOS_SRIO_NumberSet(3);//need 20 inputs / outputs 
-    MIOS_SRIO_DebounceSet(20);
-    MIOS_BANKSTICK_CtrlSet(0x40);//stick 0, verify disabled
-    //load last application state
-    current_screen_num = MIOS_EEPROM_Read(0x00);
-    current_preset_num = MIOS_EEPROM_Read(0x01);
-    current_bus_num = MIOS_EEPROM_Read(0x02);
-    preset_load(current_preset_num);
-    //init screen
-    screen_print();
-    }
+  MIOS_SRIO_UpdateFrqSet(3); // ms
+  MIOS_SRIO_NumberSet(3);//need 20 inputs / outputs 
+  MIOS_SRIO_DebounceSet(20);
+  MIOS_BANKSTICK_CtrlSet(0x40);//stick 0, verify disabled
+  //load last application state
+  current_screen_num = MIOS_EEPROM_Read(0x00);
+  current_preset_num = MIOS_EEPROM_Read(0x01);
+  current_bus_num = MIOS_EEPROM_Read(0x02);
+  preset_load(current_preset_num);
+  //init screen
+  screen_print();
+}
 
 
 //---------------preset load/store/build map/init------------
@@ -107,14 +107,14 @@ void preset_load(unsigned char num) __wparam{
   unsigned int addr=num;
   addr <<=6;
   MIOS_BANKSTICK_ReadPage(addr,(char*)current_preset);
-  }
+}
 
 
 void preset_store(unsigned char num) __wparam{
   unsigned int addr=num;
   addr <<=6;
   MIOS_BANKSTICK_WritePage(addr,(char*)current_preset);  
-  }
+}
   
 void preset_init(unsigned char empty) __wparam{
   unsigned char i;
@@ -122,8 +122,8 @@ void preset_init(unsigned char empty) __wparam{
     current_preset[i].inputs = current_preset[i].outputs = (empty ? 0 : int_bit_ormask[i]);
     midi_inout_map[i][0]= (empty ? 0xff : i);
     midi_inout_map[i][1]=0xff;//terminate    
-    }
   }
+}
   
 void inout_map_build(void) __wparam{
   unsigned char input,output,bus,i;
@@ -133,19 +133,22 @@ void inout_map_build(void) __wparam{
   for(input=0;input<16;input++){
     for(bus=0;bus<16;bus++){
       for(input=0;input<16;input++){
-        if(current_preset[bus].inputs & int_bit_ormask[input])
+        if(current_preset[bus].inputs & int_bit_ormask[input]){
           outputs[input] |= current_preset[bus].outputs;
         }
       }
     }
+  }
   for(input=0;input<16;input++){
     i=0;
-    for(output=0;output<16;output++)
-      if(outputs[input]&int_bit_ormask[output])
+    for(output=0;output<16;output++){
+      if(outputs[input]&int_bit_ormask[output]){
         midi_inout_map[input][i++]=output;
-    midi_inout_map[input][i] = 0xff;
+      }
     }
+    midi_inout_map[input][i] = 0xff;
   }
+}
   
 //-------------screen-------------------
 
@@ -154,45 +157,57 @@ void info_screen_print(unsigned char info_screen) __wparam{
   unsigned char bus;
   switch(info_screen){
     case 0://buses assigned to inputs?
-      for(bus=0;bus<16;bus++)
-        if(current_preset[bus].inputs && (temp_value==0xff || current_preset[bus].inputs & int_bit_ormask[temp_value]))
+      for(bus=0;bus<16;bus++){
+        if(current_preset[bus].inputs && (temp_value==0xff || current_preset[bus].inputs & int_bit_ormask[temp_value])){
           values_set |= int_bit_ormask[bus];
+        }
+      }
       break;
     case 1://buses assigned to outputs?
-      for(bus=0;bus<16;bus++)
-        if(current_preset[bus].outputs && (temp_value==0xff || current_preset[bus].outputs & int_bit_ormask[temp_value]))
+      for(bus=0;bus<16;bus++){
+        if(current_preset[bus].outputs && (temp_value==0xff || current_preset[bus].outputs & int_bit_ormask[temp_value])){
           values_set |= int_bit_ormask[bus];
+        }
+      }
       break;
     case 2://inputs assigned to buses?
       if(temp_value==0xff){//inputs of all buses
-        for(bus=0;bus<16;bus++)
+        for(bus=0;bus<16;bus++){
           values_set |= current_preset[bus].inputs;
         }
-      else//only inputs of bus [temp_value]
+      }
+      else{//only inputs of bus [temp_value]
         values_set = current_preset[temp_value].inputs;
+      }
       break;
     case 3://inputs assigned to outputs?
-      for(bus=0;bus<16;bus++)
-        if(current_preset[bus].outputs && (temp_value==0xff || current_preset[bus].outputs & int_bit_ormask[temp_value]))
+      for(bus=0;bus<16;bus++){
+        if(current_preset[bus].outputs && (temp_value==0xff || current_preset[bus].outputs & int_bit_ormask[temp_value])){
           values_set |= current_preset[bus].inputs;
+        }
+      }
       break;
     case 4://outputs assigned to buses?
       if(temp_value==0xff){//outputs of all buses
-        for(bus=0;bus<16;bus++)
+        for(bus=0;bus<16;bus++){
           values_set |= current_preset[bus].outputs;
         }
-      else//only outputs of bus [temp_value]
+      }
+      else{//only outputs of bus [temp_value]
         values_set = current_preset[temp_value].outputs;
+      }
       break;
     case 5://outputs assigned to inputs?
-      for(bus=0;bus<16;bus++)
-        if(current_preset[bus].inputs && (temp_value==0xff || current_preset[bus].inputs & int_bit_ormask[temp_value]))
+      for(bus=0;bus<16;bus++){
+        if(current_preset[bus].inputs && (temp_value==0xff || current_preset[bus].inputs & int_bit_ormask[temp_value])){
           values_set |= current_preset[bus].outputs;
+        }
+      }
       break;
-    }
+  }
   MIOS_DOUT_SRSet(0x01,(unsigned char)(values_set & 0x00ff));
   MIOS_DOUT_SRSet(0x02,(unsigned char)((values_set >>8) & 0x00ff));
-  }
+}
     
 void screen_print(void) __wparam{
   if(timed_function==2)
@@ -219,7 +234,7 @@ void screen_print(void) __wparam{
           MIOS_DOUT_SRSet(0x01,MIOS_HLP_GetBitORMask(current_bus_num));
         else
           MIOS_DOUT_SRSet(0x02,MIOS_HLP_GetBitORMask(current_bus_num-8));              
-        }
+      }
       break;
     case 2://inputs screen
       if(current_shift_state == 0x06)//inputs assigned to bus (info screen)
@@ -229,7 +244,7 @@ void screen_print(void) __wparam{
       else{//regular input screen
         MIOS_DOUT_SRSet(0x01,(unsigned char)(current_preset[current_bus_num].inputs & 0x00ff));
         MIOS_DOUT_SRSet(0x02,(unsigned char)((current_preset[current_bus_num].inputs >>8) & 0x00ff));
-        }
+      }
       break;
     case 3://outputs screen
       if(current_shift_state == 0x0A)//outputs assigned to bus (info screen)
@@ -239,46 +254,47 @@ void screen_print(void) __wparam{
       else{//regular output screen
         MIOS_DOUT_SRSet(0x01,(unsigned char)(current_preset[current_bus_num].outputs & 0x00ff));
         MIOS_DOUT_SRSet(0x02,(unsigned char)((current_preset[current_bus_num].outputs >>8) & 0x00ff));
-        }
-    }
+      }
+      break;
   }
+}
   
 void current_screen_set(unsigned char value) __wparam{
   current_screen_num = value;
   MIOS_EEPROM_Write(0x00, current_screen_num);    
-  }
+}
   
 void current_bus_set(unsigned char value) __wparam{
   current_bus_num = value;
   MIOS_EEPROM_Write(0x02,value);
-  }
+}
   
 void current_preset_set(unsigned char value) __wparam{
   current_preset_num = value;
   preset_load(value);
   inout_map_build();
   MIOS_EEPROM_Write(0x01,value);
-  }
+}
 
   
 //----------timed functions----------------
 
 void Timer(void) __wparam{
   timer_ticks_count++;
-  }
+}
 
 
 void timed_function_start(unsigned char func) __wparam{
   timer_ticks_count=0;
   timed_function = func;
   MIOS_TIMER_Init(0x01,50000);
-  }
+}
   
 void timed_function_stop(void) __wparam{
   MIOS_TIMER_Stop();
   timed_function = 0;
   timer_ticks_count = 0;
-  }
+}
   
 void led_flash_start(unsigned char led,unsigned char times,unsigned char ticks) __wparam{
   led_flash_led = led;
@@ -286,17 +302,18 @@ void led_flash_start(unsigned char led,unsigned char times,unsigned char ticks) 
   led_flash_count = (times<<1) + 1;
   led_flash_set(0);
   timed_function_start(2);
-  }
+}
   
 void led_flash_set(unsigned char state) __wparam{
   if(led_flash_led == 0xff){
     state = (state ? 0xff : 0x00);
     MIOS_DOUT_SRSet(0x01,state);
     MIOS_DOUT_SRSet(0x02,state);
-    }
-  else
+  }
+  else{
     MIOS_DOUT_PinSet(led_flash_led,state);
   }
+}
 
 
 void Tick(void) __wparam{
@@ -309,30 +326,31 @@ void Tick(void) __wparam{
       preset_init(0);
       preset_store(0);
       preset_init(1);
-      for(i=1;i<16;i++)
+      for(i=1;i<16;i++){
         preset_store(i);
+      }
       current_preset_set(0);
       current_bus_set(0);
       inout_map_build();
       led_flash_start(0xff,5,10);//flash 5 times
-      }
+    }
     else{//screen is bank
       preset_init(1);//empty current preset
       current_bus_set(0);
       led_flash_start(0xff,2,10);//flash 2 times
-      }
     }
+  }
   else if(timed_function==2 && (timer_ticks_count >= led_flash_ticks)){
     if(led_flash_count > 1){
       led_flash_set(led_flash_count-- & 0x01);
       timer_ticks_count = 0;
-      }
+    }
     else{
       timed_function_stop();
       screen_print();
-      }
     }
   }
+}
 
   
 //------------------button handling-----------------------
@@ -346,63 +364,65 @@ void DIN_NotifyToggle(unsigned char pin, unsigned char pin_value) __wparam{
   if(pin > 7 && !pin_value){//this is a temp_value button. only handle if button is pushed
     temp_value = pin - 8;
     if((current_shift_state & -current_shift_state) == current_shift_state){//max. one screen button pushed, one bit set
-        switch(current_screen_num){
-          case 0://preset screen
-            if (current_shift_state & MIOS_HLP_GetBitORMask(0)){
-              preset_store(current_preset_num);
-              led_flash_start(current_preset_num+8,0,50);//LED off for half a second to indicate save
-              }
-            else
-              current_preset_set(temp_value);
-            break;      
-          case 1://bus screen
-            current_bus_set(temp_value);
-            break;      
-          case 2://input screen
-            if (current_shift_state & MIOS_HLP_GetBitORMask(2)){//add/remove input chanel
-              current_preset[current_bus_num].inputs = 
-                (current_preset[current_bus_num].inputs & int_bit_ormask[temp_value])?
-                  (current_preset[current_bus_num].inputs ^ int_bit_ormask[temp_value]):
-                  (current_preset[current_bus_num].inputs | int_bit_ormask[temp_value]);
-              }
-            else{//set / unset input channel
-              current_preset[current_bus_num].inputs = 
-                (current_preset[current_bus_num].inputs==int_bit_ormask[temp_value]) ? 0x0000 :int_bit_ormask[temp_value];
-              }    
-            inout_map_build();
-            break;      
-          case 3://output screen
-            if (current_shift_state & MIOS_HLP_GetBitORMask(3)){//set/unset output chanel
-              current_preset[current_bus_num].outputs = 
-                (current_preset[current_bus_num].outputs & int_bit_ormask[temp_value])?
-                  (current_preset[current_bus_num].outputs ^ int_bit_ormask[temp_value]):
-                  (current_preset[current_bus_num].outputs | int_bit_ormask[temp_value]);
-              }
-            else{//add/remove output chanel
-              current_preset[current_bus_num].outputs = 
-                (current_preset[current_bus_num].outputs==int_bit_ormask[temp_value]) ? 
-                  0x0000 :int_bit_ormask[temp_value];
-              }        
-            inout_map_build();
-            break;
+      switch(current_screen_num){
+        case 0://preset screen
+          if (current_shift_state & MIOS_HLP_GetBitORMask(0)){
+            preset_store(current_preset_num);
+            led_flash_start(current_preset_num+8,0,50);//LED off for half a second to indicate save
           }
-        }
+          else{
+            current_preset_set(temp_value);
+          }
+          break;      
+        case 1://bus screen
+          current_bus_set(temp_value);
+          break;      
+        case 2://input screen
+          if (current_shift_state & MIOS_HLP_GetBitORMask(2)){//add/remove input chanel
+            current_preset[current_bus_num].inputs = 
+              (current_preset[current_bus_num].inputs & int_bit_ormask[temp_value])?
+                (current_preset[current_bus_num].inputs ^ int_bit_ormask[temp_value]):
+                (current_preset[current_bus_num].inputs | int_bit_ormask[temp_value]);
+          }
+          else{//set / unset input channel
+            current_preset[current_bus_num].inputs = 
+              (current_preset[current_bus_num].inputs==int_bit_ormask[temp_value]) ? 0x0000 :int_bit_ormask[temp_value];
+          }    
+          inout_map_build();
+          break;      
+        case 3://output screen
+          if (current_shift_state & MIOS_HLP_GetBitORMask(3)){//set/unset output chanel
+            current_preset[current_bus_num].outputs = 
+              (current_preset[current_bus_num].outputs & int_bit_ormask[temp_value])?
+                (current_preset[current_bus_num].outputs ^ int_bit_ormask[temp_value]):
+                (current_preset[current_bus_num].outputs | int_bit_ormask[temp_value]);
+          }
+          else{//add/remove output chanel
+            current_preset[current_bus_num].outputs = 
+              (current_preset[current_bus_num].outputs==int_bit_ormask[temp_value]) ? 
+                0x0000 :int_bit_ormask[temp_value];
+          }        
+          inout_map_build();
+          break;
+      }
     }
+  }
   else if(pin < 4){
     temp_value = 0xff;
-    if(pin_value)
+    if(pin_value){
       current_shift_state &= ~MIOS_HLP_GetBitORMask(pin);//remove shift flag
+    }
     else{
       if(!current_shift_state){
         current_screen_set(pin);
         if(pin < 2)//start init request countdown
           timed_function_start(1);
-        }
-      current_shift_state |= MIOS_HLP_GetBitORMask(pin);//add shift flag
       }
+      current_shift_state |= MIOS_HLP_GetBitORMask(pin);//add shift flag
     }
-  screen_print();
   }
+  screen_print();
+}
   
 
 
@@ -427,14 +447,15 @@ void MPROC_NotifyReceivedByte(unsigned char byte) __wparam{
         break;
       default://applies also on 0xf7!
         fx_status = 0;
-       }   
-      }
-    else if(fx_status){
-      MIOS_MIDI_TxBufferPut(byte);
-      if(fx_status!=0xff)
-        fx_status--;
-     }
-   }
+    }   
+  }
+  else if(fx_status){
+    MIOS_MIDI_TxBufferPut(byte);
+    if(fx_status!=0xff){
+      fx_status--;
+    }
+  }
+}
 
 
 void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam{
@@ -445,10 +466,11 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
   for(i=0;i<16 && midi_inout_map[in_chn][i]!=-1;i++){
     MIOS_MIDI_TxBufferPut(evnt_type+midi_inout_map[in_chn][i]);
     MIOS_MIDI_TxBufferPut(evnt1);
-    if(evnt2_send)
+    if(evnt2_send){
       MIOS_MIDI_TxBufferPut(evnt2);
     }
   }
+}
 
 
 
@@ -456,25 +478,25 @@ void MPROC_NotifyReceivedEvnt(unsigned char evnt0, unsigned char evnt1, unsigned
 //---------------------------not used in this application----------------
 
 void DISPLAY_Init(void) __wparam{
-  }
+}
 
 void DISPLAY_Tick(void) __wparam{
-  }
+}
 
 void MPROC_NotifyFoundEvent(unsigned entry, unsigned char evnt0, unsigned char evnt1, unsigned char evnt2) __wparam{
-  }
+}
 
 void MPROC_NotifyTimeout(void) __wparam{
-  }
+}
 
 void SR_Service_Prepare(void) __wparam{
-  }
+}
 
 void SR_Service_Finish(void) __wparam{
-  }
+}
 
 void ENC_NotifyChange(unsigned char encoder, char incrementer) __wparam{
-  }
+}
 
 void AIN_NotifyChange(unsigned char pin, unsigned int pin_value) __wparam{
-  }
+}
