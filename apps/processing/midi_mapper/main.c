@@ -107,6 +107,7 @@ void preset_load(unsigned char num) __wparam{
   unsigned int addr=num;
   addr <<=6;
   MIOS_BANKSTICK_ReadPage(addr,(char*)current_preset);
+  inout_map_build();
 }
 
 
@@ -272,7 +273,6 @@ void current_bus_set(unsigned char value) __wparam{
 void current_preset_set(unsigned char value) __wparam{
   current_preset_num = value;
   preset_load(value);
-  inout_map_build();
   MIOS_EEPROM_Write(0x01,value);
 }
 
@@ -331,7 +331,6 @@ void Tick(void) __wparam{
       }
       current_preset_set(0);
       current_bus_set(0);
-      inout_map_build();
       led_flash_start(0xff,5,10);//flash 5 times
     }
     else{//screen is bank
