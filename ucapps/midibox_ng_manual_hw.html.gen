@@ -9,21 +9,29 @@ HEADER 3 MIDIbox NG User Manual --- Hardware Options
 
 <P CLASS=INFO><B>This page is under construction! It's currently only a rough draft which collects the supported modules, and will contain more detailed informations in future!</B></P>
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_CORE_LPC17 </H2>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MBHP_CORE_LPC17 or MBHP_CORE_STM32F4 </H2>
 
 <IMG SRC="mbhp/mbhp_core_lpc17_v1.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
 <P CLASS=DESC>The <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module is the brain of the MIDI controller. Today (2013) it's a state-of-the-art solution for such a purpose, especially because of the high performance, the 4 MIDI IN and OUT ports, integrated USB-MIDI and Ethernet interface.
 <BR clear="all">
 
-<P CLASS=DESC>The setup and configuration of a MBHP_CORE_LPC17 module is easier than known from 8bit controllers. The <A HREF="mios32_bootstrap_newbies.html">Bootstrap Loader</A> can be flashed with the programmer which is part of the LPCXPRESSO module, and thereafter <A HREF="mios_studio.html">MIOS Studio</A> can directly access the chip via USB to program the <A HREF="mios32_download.html">MIDIbox NG application</A>. The complete installation process is described in the <A HREF="midibox_ng_manual_in.html">Installation Chapter</A>.</P>
+<IMG SRC="mbhp/mbhp_core_stm32f4.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>The <A HREF="mbhp_core_stm32f4.html">MBHP_CORE_STM32F4</A> module is more powerful (e.g. faster and more RAM) and less expensive - only drawback is the missing integrated ethernet interface, but a <A HREF="mbhp_eth.html">MBHP_ETH</A> module could be used instead if OSC messages should be sent and received.<BR>
+<B>Note:</B> MBHP_CORE_STM32F4 allows to execute <A HREF="midibox_ng_manual_ngr.html">NGR</A> scripts directly from RAM, therefore it's the first choice for complex realtime processing.
+<BR clear="all">
+
+<P CLASS=DESC>The setup and configuration of the core module is easier than known from 8bit controllers. The <A HREF="mios32_bootstrap_newbies.html">Bootstrap Loader</A> can be flashed with the programmer which is part of the LPCXPRESSO module, and thereafter <A HREF="mios_studio.html">MIOS Studio</A> can directly access the chip via USB to program the <A HREF="mios32_download.html">MIDIbox NG application</A>. The complete installation process is described in the <A HREF="midibox_ng_manual_in.html">Installation Chapter</A>.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> SD Card </H2>
 
 <IMG SRC="mbhp/mbhp_sdcard_lowcost_12.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
-<P CLASS=DESC>The MIDIbox NG application requires a <A HREF="mbhp_sdcard.html">SD Card</A> to store configuration files and snapshots. The cheapest and preferred solution is the usage of a Micro SD Card adapter, because combined adapter/card packages are available in many super-(or media-) markets - there is no need to buy an expensive SD Card socket from your electronic dealer!<BR>
+<P CLASS=DESC>The MIDIbox NG application requires a <A HREF="mbhp_sdcard.html">SD Card</A> to store configuration files and snapshots.</P>
+
+<P CLASS=DESC><B>MBHP_CORE_LPC17:</B> the cheapest and preferred solution is the usage of a Micro SD Card adapter, because combined adapter/card packages are available in many super-(or media-) markets - there is no need to buy an expensive SD Card socket from your electronic dealer!<BR>
 It will still be possible to plug the Micro-SD-Card into another adapter, e.g. if you would like to access it from your computer with a <A HREF="http://www.reichelt.de/Kartenleser-und-Adapter/SWEEX-CR013/3/index.html?;ACTION=3;LA=446;ARTICLE=122269;GROUPID=4825;artnr=SWEEX+CR013;SID=11TVLbZ38AAAIAAG9MIgIec1e46ae3eb4fc2fe4e011f269170227" TARGET="_blank">SD Card Reader</A>.
 </P>
+<P CLASS=DESC><B>MBHP_CORE_STM32F4:</B> the SD Card socket is already part of the core module</P>
 <BR clear="all">
 
 
@@ -101,6 +109,13 @@ Newbies normally prefer to connect LEDs directly to <A HREF="mbhp_dout.html">MBH
 </P>
 <BR clear="all">
 
+<H2> <IMG SRC="images/bullet.gif" ALT=""> WS2812 based RGB LEDs </H2>
+
+<IMG SRC="http://www.ucapps.de/midibox_ng/rgb_leds.gif" WIDTH=240 BORDER=0 ALT="" align=left>
+<P CLASS=DESC>With a MBHP_CORE_STM32F4 module it's possible to drive WS2812 based RGB LEDs (usually used for LED strips) with 3x8bit resolution. The data input has to be connected to J4B.SC, ground to J4B.VS and +5V to an external PSU (required, since each RGB LED can consume up to 20 mA!)<BR>
+Up to 64 RGB LEDs can be driven by the core. More could be enabled if desired by increasing the number with '#define WS2812_NUM_LEDS &lt;number&gt;' in the mios32_config.h file, but note that each LED will consume 48 bytes and therefore the RAM limit of the STM32F4 could be reached quickly! However, 128 LEDs are working ok so far, but this could change than more firmware features are added in future.</P>
+<BR clear="all">
+
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Rotary Encoders </H2>
 
 <IMG SRC="midibox_ng/rotary_encoder.jpg" WIDTH=120 BORDER=0 ALT="" align=left>
@@ -165,13 +180,13 @@ Up to 4 <A HREF="mbhp_aout.html">MBHP_AOUT</A> or 4 <A HREF="mbhp_aout_lc.html">
 
 <P CLASS=DESC>Interconnection diagrams:
 <UL CLASS=CL>
-  <LI><A HREF="midibox_ng/mbng_aout_interconnections.pdf">Interconnections between MBNP_CORE_LPC17 and MBNG_AOUT</A>
-  <LI><A HREF="midibox_ng/mbng_aout_lc_interconnections.pdf">Interconnections between MBNP_CORE_LPC17 and MBNG_AOUT_LC</A>
-  <LI><A HREF="midibox_ng/mbng_aout_ng_interconnections.pdf">Interconnections between MBNP_CORE_LPC17 and MBNG_AOUT_NG</A>
+  <LI><A HREF="midibox_ng/mbng_aout_interconnections.pdf">Interconnections between core and MBNG_AOUT</A>
+  <LI><A HREF="midibox_ng/mbng_aout_lc_interconnections.pdf">Interconnections between core and MBNG_AOUT_LC</A>
+  <LI><A HREF="midibox_ng/mbng_aout_ng_interconnections.pdf">Interconnections between core and MBNG_AOUT_NG</A>
 </UL>
 </P>
 
-<P CLASS=DESC>Note: gates have to be connected to DOUT pins; MIDIbox NG doesn't allow to connect them to J5 pins like for other MIDIboxes (which would require additional hardware (level shifters) anyhow, since these pins only output 3.3V)</P>
+<P CLASS=DESC><B>Note:</A> gates have to be connected to DOUT pins; MIDIbox NG doesn't allow to connect them to J5 pins like for other MIDIboxes (which would require additional hardware (level shifters) anyhow, since these pins only output 3.3V)</P>
 
 <BR clear="all">
 
