@@ -19,7 +19,7 @@ SDCC_DEFINES  = -DDEBUG_MODE=0
 # optional app flags for special hardware variants
 SDCC_DEFINES += -DBLM_MIRROR_MAIN_DIN=0
 SDCC_DEFINES += -DBLM_AIN_PIN_MAP=0
-SDCC_DEFINES += -DBLM_AIN_NUM_PINS=8
+SDCC_DEFINES += -DBLM_AIN_NUM_PINS=0
 
 
 # pass parameters to MIOS wrapper
