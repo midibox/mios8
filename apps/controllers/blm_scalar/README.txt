@@ -46,9 +46,9 @@ Manually configured in Makefile by changing the BLM_AIN_NUM_PINS and BLM_AIN_PIN
 switches:
 
   o project_without_ain.hex            -> without AIN enabled (use this if J5 pins not connected to ground)
-  o project_with_4_mapped_ains.hex     -> for Laticid On's BLM PCB layout, only 4 faders used
+  o project_with_4_mapped_ains.hex     -> for Latigid On's BLM PCB layout, only 4 faders used
   o project_with_4_unmapped_ains.hex   -> AIN pins are mapped 1:1
-  o project_with_8_mapped_ains.hex     -> for Laticid On's BLM PCB layout if 4 faders + 4 extension AINs are used
+  o project_with_8_mapped_ains.hex     -> for Latigid On's BLM PCB layout if 4 faders + 4 extension AINs are used
   o project_with_8_unmapped_ains.hex   -> AIN pins are mapped 1:1
 
 ===============================================================================
