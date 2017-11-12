@@ -1,13 +1,52 @@
 HEADER 3 ChangeLog of MIDIbox NG
 
 <CENTER><H1>MIDIbox NG Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2015-11-24</H3></CENTER>
+<CENTER><H3>Last Release: 2016-02-08</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_ng.html">http://www.uCApps.de/midibox_ng.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.035</I>
+  <UL CLASS=CL>
+   <LI> Support for secure keyboard handling if patch is switched: keep original
+     MIDI port, note, channel when playing Note Off
+     (this feature is not supported for LPC17 due to high memory consumption)
+
+    <LI> Fixed encoder incrementer in absolute mode
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V1.034</I>
+  <UL CLASS=CL>
+   <LI> Support for interpolation tables:<BR>
+     MAPs can now apply linear interpolation between data points.<BR>
+     This allows to quickly define curves without the need to enter the values for the complete range.
+     E.g. previously it was required to enter 128 values to create a curve for a CC controller,
+     now it's mostly sufficient to define the same with 3..4 data points. MBNG will interpolate
+     the values between these points.<BR>
+
+     Interpolation tables can be defined with following commands:
+     MAP&lt;n&gt;/BYTEI and MAP&lt;n&gt;/HWORDI<BR>
+
+     A BYTEI map can define up to 64 datapoints with 8bit resultion,
+     and a HWORDI map can define up to 32 datapoints with 16bit resolution.<BR>
+
+     Usage examples can be found under cfg/test/map* and cfg/test/kb_2.ngc<BR>
+
+     See the user manual for further explanations.
+
+   <LI> Support for 16bit maps: with MAP&lt;n&gt;/HWORD 16bit values can be mapped.
+
+   <LI> label "std_rgbled" renamed to "std_rgb" to avoid error message
+
+   <LI> Cursor handling on SysEx based GLCD output should now work correctly if the big font is activated
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V1.033</I>

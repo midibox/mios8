@@ -6,10 +6,10 @@ HEADER 3 MBHP_CORE_STM32F4 Module
 
 <P CLASS=INFO>MBHP_CORE_STM32F4 is the successor of the <A HREF="mbhp_core_stm32.html">MBHP_CORE_STM32</A> module, and an alternative solution to the <A HREF="mbhp_core_lpc17.html">MBHP_CORE_LPC17</A> module.</P>
 
-<P CLASS=DESC>Main features of the <A HREF="http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/PF252419" TARGET="_blank">STM32F4DISCOVERY</A> based MBHP_CORE_STM32F4 module:
+<P CLASS=DESC>Main features of the <A HREF="http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/PF252419" TARGET="_blank">STM32F407G-DISC1</A> based MBHP_CORE_STM32F4 module:
 <UL CLASS=CL>
 <LI> 1MB Flash and 192k RAM (significantly more than previous core modules)
-<LI> The STM32F4DISCOVERY evaluation board is available for 15 EUR at <A HREF="http://mouser.com/Search/Refine.aspx?Keyword=STM32F4DISCOVERY" TARGET="_blank">Mouser</A>, 17 EUR at <A HREF="http://www.watterott.com/de/STM32F4Discovery" TARGET="_blank">Watterott</A> (Germany), 11 GBP at <A HREF="http://uk.farnell.com/jsp/search/browse.jsp?N=2031+203908&Ntk=gensearch&Ntt=stm32f4discovery&Ntx=mode+matchallpartial" TARGET="_blank">Farnell</A> (GB) - an meanwhile even at <A HREF="http://www.amazon.de/STM32F4-DISCOVERY-STM32F407VGT6-Cortex-M4-Development/dp/B00GGCNBAC/ref=sr_1_1?s=ce-de&ie=UTF8&qid=1442176910&sr=1-1&keywords=stm32f4+discovery" TARGET="_blank">Amazon</A>!<BR>
+<LI> The STM32F407G-DISC1 evaluation board is available for 15 EUR at <A HREF="http://mouser.com/Search/Refine.aspx?Keyword=STM32F407G-DISC" TARGET="_blank">Mouser</A>, 17 EUR at <A HREF="http://www.watterott.com/de/STM32F4Discovery" TARGET="_blank">Watterott</A> (Germany), 11 GBP at <A HREF="http://uk.farnell.com/stmicroelectronics/stm32f407g-disc1/dev-brd-stm32f407vg-foundation/dp/2506840?ost=stm32f407g-disc&selectedCategoryId=&categoryName=All+Categories&categoryNameResp=All%2BCategories" TARGET="_blank">Farnell</A> (GB) - an meanwhile even at <A HREF="https://www.amazon.de/s/ref=nb_sb_noss_1?__mk_de_DE=ÅMÅŽÕÑ&url=search-alias%3Daps&field-keywords=stm32f407g-disc1" TARGET="_blank">Amazon</A>!<BR>
 It will be attached on the MBHP_CORE_STM32F4 PCB, but can also be used standalone for mini applications which only require USB MIDI and a small number of IOs or the Audio DAC.
 <LI> Easily available for private persons in small quantities and no SMD soldering skills required
 <LI> ARM Cortex-M4 CPU is widely supported by the GNU toolchain, accordingly source code can be compiled under Windows/Linux/MacOS w/o spending money for an expensive ARM compiler
@@ -24,13 +24,13 @@ It will be attached on the MBHP_CORE_STM32F4 PCB, but can also be used standalon
 <LI> STM32F4xx is supplied at 3V, but 5V tolerant inputs allow to access all existing MBHP modules without additional hardware.
 <LI> Performance boost by using the DMA for background operations, such as scanning DIN/DOUT modules, analog inputs but also I2S transfers (Audio Output) w/o loading the CPU
 <LI> Supported by a free available Realtime Operating System: <A HREF="http://www.freertos.org" TARGET="_blank">FreeRTOS</A>
-<LI> no external flash programmer required, ST-LINK/V2 is part of the STM32F4DISCOVERY board to program the MIOS32 bootloader into a "virgin" device
+<LI> no external flash programmer required, ST-LINK/V2 is part of the STM32F407G-DISC1 board to program the MIOS32 bootloader into a "virgin" device
 <LI> Fast upload of application code via USB MIDI (ca. 50kb/s) - thanks to the <A HREF="mios32_bootstrap_newbies.html">MIOS32 Bootloader</A>
 </UL>
 
 <P CLASS=DESC>Ok, enough praises for this nice toy. Here a list of issues/imperfections that I don't really like:
 <UL CLASS=CL>
-<LI> ADCs cannot be supplied at 5V, 3.3V is the limit, and the STM32F4DISCOVERY board uses an even lower voltage (3V). This decreases the signal/noise ratio. The <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> and <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module helps to overcome this by using an external 5V ADC.
+<LI> ADCs cannot be supplied at 5V, 3.3V is the limit, and the STM32F407G-DISC1 board uses an even lower voltage (3V). This decreases the signal/noise ratio. The <A HREF="mbhp_ainser64.html">MBHP_AINSER64</A> and <A HREF="mbhp_ainser8.html">MBHP_AINSER8</A> module helps to overcome this by using an external 5V ADC.
 <LI> Pin mapping suboptimal in some cases. E.g., the outputs of the integrated DAC (not the on-board Audio-DAC) overlay SPI1 pins. However, one DAC channel has been freed up with the small drawback that SPI1 can't be used in slave mode.<BR>
 The IO pins of the SDIO peripheral (high speed SD Card access) conflicts with the on-board Audio DAC, so that it can't be used.<BR>
 Although the chip contains 6 UARTs, only 4 RX and TX pins could be found for MIDI IN/OUT. IN3/OUT3 even have to use two different UARTs.
@@ -47,7 +47,7 @@ Although the chip contains 6 UARTs, only 4 RX and TX pins could be found for MID
   <DD><TABLE CELLSPACING=2 CELLPADDING=2 WIDTH=640>
     <TR>
       <TD><IMG SRC="mbhp/mbhp_core_stm32f4_prog.jpg" WIDTH=280 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>The STM32F4DISCOVERY board is equipped with an on-board debugger (right side) which is called ST-LINK/V2. It has to be connected via a Mini-USB cable to your PC, and allows to program the flash of the target device (the STM32F407VE chip).<BR>
+      <TD CLASS=TABCOLOR2>The STM32F407G-DISC1 board is equipped with an on-board debugger (right side) which is called ST-LINK/V2. It has to be connected via a Mini-USB cable to your PC, and allows to program the flash of the target device (the STM32F407VE chip).<BR>
       We use ST-LINK to install the MIOS32 Bootloader, so that a MIOS32 application can be flashed via USB-MIDI later with the Micro-USB connector at the left side. This approach will allow you to update an application on-the-fly without the need for a second USB port on your MIDIbox, it's even faster than via ST-LINK, and it will work under MacOS and Linux as well by using <A HREF="mios_studio.html">MIOS Studio</A> instead of the Windows propritary ST-LINK utility.! :-)
       </TD>
     </TR>
@@ -62,7 +62,7 @@ You only need to install the MIOS32 bootloader once, thereafter you can continue
 
     <TR>
       <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win1.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win1.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>After the STM32F4DISCOVERY board has been connected to your PC, the driver has been installed, and the ST-LINK utility has been opened, try to connect to the ST-LINK by pushing the appr. button.
+      <TD CLASS=TABCOLOR2>After the STM32F407G-DISC1 board has been connected to your PC, the driver has been installed, and the ST-LINK utility has been opened, try to connect to the ST-LINK by pushing the appr. button.
       </TD>
     </TR>
     <TR>
@@ -72,7 +72,7 @@ You only need to install the MIOS32 bootloader once, thereafter you can continue
     </TR>
     <TR>
       <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_win3.png"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_win3.png" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>Click on the small "Program and Verify" icon. Click on the "Browse" button and search for the project.hex binary of the STM32F4DISCOVERY directory which comes with the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application.
+      <TD CLASS=TABCOLOR2>Click on the small "Program and Verify" icon. Click on the "Browse" button and search for the project.hex binary of the STM32F407G-DISC1 directory which comes with the <A HREF="mios32_download.html">MIOS32 Bootloader</A> application.
       </TD>
     </TR>
     <TR>
@@ -83,7 +83,7 @@ You only need to install the MIOS32 bootloader once, thereafter you can continue
 
     <TR>
       <TD><A HREF="mbhp/mbhp_core_stm32f4_prog_led.jpg"><IMG SRC="mbhp/mbhp_core_stm32f4_prog_led.jpg" WIDTH=280 BORDER=0 ALT=""></A></TD>
-      <TD CLASS=TABCOLOR2>Finally press the (black) Reset button on the STM32F4DISCOVERY board. The green status LED should flash two times (effect via PWM modulation) - the MIOS32 bootloader is up and running!
+      <TD CLASS=TABCOLOR2>Finally press the (black) Reset button on the STM32F407G-DISC1 board. The green status LED should flash two times (effect via PWM modulation) - the MIOS32 bootloader is up and running!
       </TD>
     </TR>
 
@@ -106,14 +106,22 @@ You only need to install the MIOS32 bootloader once, thereafter you can continue
 </DL>
 
 <DL>
-  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Using the STM32F4DISCOVERY Board standalone </H2></DT>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Required Firmware Update for newer board version </H2></DT>
+  <P CLASS=INFO>Newer board versions marked with <B>MB997D</B> require a firmware update for STM Link, so that the microcontroller can boot with Micro USB power supply instead of the ST-Link connector. This update can be done with the ST Link Utility:</P>
+<P><CENTER><A HREF=""><IMG SRC="mbhp/st_link_firmware_update.png" width=347 height=112></A></CENTER></P>
+  </DD>
+</DL>
+
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Using the STM32F407G-DISC1 Board standalone </H2></DT>
   <P CLASS=INFO>You've probably already noticed, that the board is powered via the ST-LINK connector CN1, and not via the USB connector CN5 which is used for USB-MIDI. This can be changed by bridging the PA9 pin to the 5V input with a short cable:<BR>
 <P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_standalone.jpg" width=550 height=382></CENTER></P>
 
 <P CLASS=INFO>In addition, it makes sense to mount dual row pin headers at the bottom of the PCB for P1 and P2:<BR>
 <P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_headers.jpg" width=550 height=327></CENTER></P>
 
-<P CLASS=INFO>Two 2x25 SIL headers are required (e.g. Reichelt order number: <A HREF="http://www.reichelt.de/index.html?ACTION=3;ARTICLE=19494;SEARCH=SL%202X25G%202,54" TARGET="_blank">SL 2X25G 2,54</A>). The usage of such headers has the advantage, that later you can plug the STM32F4DISCOVERY board on the MBHP_CORE_STM32F4 module into the corresponding female sockets - and that you can remove it, e.g. to plug it into another MBHP_CORE_STM32F4 module.
+<P CLASS=INFO>Two 2x25 SIL headers are required (e.g. Reichelt order number: <A HREF="http://www.reichelt.de/index.html?ACTION=3;ARTICLE=19494;SEARCH=SL%202X25G%202,54" TARGET="_blank">SL 2X25G 2,54</A>). The usage of such headers has the advantage, that later you can plug the STM32F407G-DISC1 board on the MBHP_CORE_STM32F4 module into the corresponding female sockets - and that you can remove it, e.g. to plug it into another MBHP_CORE_STM32F4 module.
 <P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_fheaders.jpg" width=550 height=338></CENTER></P>
 
   </DD>
@@ -214,7 +222,8 @@ And J5B.A6 (MIDI IN3) and J5B.A7 (MIDI OUT3) provide an alternative MIDI IO port
     <TR>
       <TD CLASS=TABCOLOR2>J11E</TD>
       <TD CLASS=TABCOLOR2>10</TD>
-      <TD CLASS=TABCOLOR2>This port provides four MIDI IOs at 3V level, interface to the <A HREF="mbhp_midi_io.html">MBHP_MIDI_IO</A> breakout board.</TD>
+      <TD CLASS=TABCOLOR2>This port provides four MIDI IOs at ca. 5V level (the pin is configured in open-drain mode, so that a resistor connected between the MOx pins and 5V can pull the output level to 3V or 5V. Normally this pull-up resistor is not required if an opto coupler is used at the receiver side)<BR>
+  Interface to the <A HREF="mbhp_midi_io.html">MBHP_MIDI_IO</A> breakout board.</TD>
     </TR>
 
     <TR>
@@ -310,7 +319,7 @@ So, start with the resistors and diodes:
       <TD><IMG SRC="mbhp/mbhp_core_stm32f4_4.jpg" WIDTH=280 HEIGHT=211 BORDER=0 ALT=""></TD>
       <TD CLASS=TABCOLOR2>And then the remaining headers:
 <UL CLASS=CL>
-<LI>2 2x25 female SIL headers for the STM32F4DISCOVERY module
+<LI>2 2x25 female SIL headers for the STM32F407G-DISC1 module
 <LI>3 1x2 male SIL header
 <LI>1 1x3 male SIL header
 <LI>2 jumpers stuffed on J17 (USB PWR) and J15_S to select the LCD voltage (5V or 3.3V)
@@ -321,11 +330,11 @@ So, start with the resistors and diodes:
 
     <TR>
       <TD><IMG SRC="mbhp/mbhp_core_stm32f4_5.jpg" WIDTH=280 HEIGHT=196 BORDER=0 ALT=""></TD>
-      <TD CLASS=TABCOLOR2>And finally put the ICs, and then the STM32F4DISCOVERY module into the sockets:
+      <TD CLASS=TABCOLOR2>And finally put the ICs, and then the STM32F407G-DISC1 module into the sockets:
 <UL CLASS=CL>
 <LI>IC1: 74HCT541
 <LI>IC2: 74HC595
-<LI>STM32F4DISCOVERY
+<LI>STM32F407G-DISC1
 </UL>
       </TD>
     </TR>
@@ -350,6 +359,18 @@ So, start with the resistors and diodes:
 In order to add up to 4 MIDI IN and OUT ports, you will need one or two MBHP_MIDI_IO modules. Please <A HREF="mbhp_midi_io.html">follow this page</A>.
 </P>
 
+</DL>
+
+<DL>
+  <DT><H2> <IMG SRC="images/bullet.gif" ALT=""> Special Guide: Connecting a 2x40 (or 2x20) LCD</H2></DT>
+  <DD>
+  <P CLASS=INFO>The pinning of the 2x8 LCD connectors J15A and J15B is mirrored to simplify the cabling of common 2x20 and 2x40 displays (and partly due to historical reasons - it's originated from the so called "UltraPCB").<BR>
+J15 Pin 1 (labeled with Vs) goes to Pin 1 of the LCD (normaly named "Vss").<BR>
+Following picture illustrates the orientation of the IDC connectors:
+<P><CENTER><IMG SRC="mbhp/mbhp_core_stm32f4_lcd_connection.jpg" width=550 height=412></CENTER></P>
+<P CLASS=DESC>See also <A HREF="mbhp/mbhp_lcd_2x20_mios32.pdf">this schematic</A>.
+<P CLASS=DESC>You should be able to change the contrast of the LCD with the contrast pot. If the lumination pot changes the contrast instead, the orientation of the IDC connectors is not correct (rotated by 180 degrees).
+  </DD>
 </DL>
 
 <DL>

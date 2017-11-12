@@ -562,7 +562,7 @@ EVENT_BUTTON ... type=Meta meta=DumpSnapshot
         <LI><I>RetrieveAinValues</I>: the values of AIN EVENTs will be updated according to the current analog values (pot positions)
         <LI><I>RetrieveAinserValues</I>: the values of AINSER EVENTs will be updated according to the current analog values (pot positions)
 
-        <LI><I>EncFast</I>: speeds up encoder movements according to the EVENT value. E.g. if <I>meta=EncFast range=0:5</I> is assigned to a BUTTON_EVENT, encoders will increment 5 times faster if the button is pressed.
+        <LI><I>EncFast</I>: speeds up encoder movements according to the EVENT value. E.g. if <I>meta=EncFast:1 range=0:5</I> is assigned to a BUTTON_EVENT, encoder #1 will increment 5 times faster if the button is pressed.
 
         <LI><I>MidiLearn</I>: can be used to enable MIDI Learn mode from a dedicated button (instead of the <A HREF="midibox_ng_manual_scs.html">SCS</A>).<BR>
         E.g. if <I>meta=MidiLearn range=0:1</I> is assigned to a BUTTON_EVENT, Learn Mode will be enabled when the button is pressed, and disabled once it has been released.<BR>
@@ -949,13 +949,16 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
           <LI>the first 4 digits enable/disable USB1..USB4
           <LI>the next 4 digits enable/disable MIDI1..MIDI4
           <LI>the next 4 digits are reserved, don't use!
-          <LI>the last 4 digits enable/disable OSC1..OSC4
+          <LI>the next 4 digits enable/disable OSC1..OSC4
+          <LI>the last 4 digits enable/disable SPI1..SPI4 (requires that the spi_midi flag has been enabled in the <A HREF="mios32_bootstrap_newbies.html">MIOS32 Bootloader configuration</A>.
        </UL>
        Example: following binary value (which is the default value)
-<TT><PRE style="margin-left:50px; font-size:8pt">ports=1000100000001000</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">ports=10001000000010000000</PRE></TT>
        will enable USB1, MIDI1 (IN1 and OUT1) and OSC1, and following binary:
-<TT><PRE style="margin-left:50px; font-size:8pt">ports=0000110000000000</PRE></TT>
+<TT><PRE style="margin-left:50px; font-size:8pt">ports=00001100000000000000</PRE></TT>
        will only enable MIDI1 and MIDI2
+<TT><PRE style="margin-left:50px; font-size:8pt">ports=00000000000000001000</PRE></TT>
+       will enable SPI1
     </TD>
   </TR>
 
@@ -1052,7 +1055,56 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
                      type=CC chn= 1 cc= 16  range=map1  lcd_pos=1:1:1  label="^std_enc"
 </PRE></TT>
 
-<P CLASS=DESC>Up to 255 maps can be defined (<I>MAP1</I> .. <I>MAP255</I>), each map can specify up to 128 values, the value range is 0..255 (8bit)
+<P CLASS=DESC>Up to 255 maps can be defined (<I>MAP1</I> .. <I>MAP255</I>).
+
+Four different types are available:
+<TABLE WIDTH="100%" BORDER=0 CELLSPACING=5 CELLPADDING=0>
+  <TR>
+    <TH WIDTH=150>MAP</TD>
+    <TH>Description</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>MAP&lt;n&gt; or MAP&lt;n&gt;/BYTE</I></TD>
+    <TD CLASS=TABCOLOR2>Up to 128 values can be specified, the value range is 0..255 (8bit)<BR>
+Example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+MAP1/BYTE 1 2 4 8 32 64
+</PRE></TT>
+</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>MAP&lt;n&gt;/HWORD</I></TD>
+    <TD CLASS=TABCOLOR2>Up to 64 values can be specified, the value range is 0..16383 (16bit)<BR>
+Example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+MAP1/HWORD 1 2 4 8 32 64 128 256 512 1024 4096 8192
+</PRE></TT>
+</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>MAP&lt;n&gt;/BYTEI</I></TD>
+    <TD CLASS=TABCOLOR2>Applies linear interpolation between data points. This allows to quickly define curves without the need to enter the values for the complete range. E.g. with MAP/BYTE it is required to enter 128 values to create a curve for a CC controller, with MAP/BYTEI it's mostly sufficient to define the same with 3..4 data points. MBNG will interpolate the values between these points. Up to 64 datapoints can be specified, the value range is 0..255 (8bit).<BR>
+Example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# using an interpolation map to define the velocity curve
+MAP1/BYTEI  0:0  64:30  96:80  127:127
+</PRE></TT>
+</TD>
+  </TR>
+  <TR>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>MAP&lt;n&gt;/HWORDI</I></TD>
+    <TD CLASS=TABCOLOR2>Applies linear interpolation between data points. Up to 32 datapoints can be specified, the value range is 0..65535 (16bit).<BR>
+Example:
+<TT><PRE style="margin-left:50px; font-size:8pt">
+# pot is working at 12bit resolution (0..4095)
+# 0..2048 should send CC value 127..0 downwards,
+# and 2049..4095 (the second half) should send 0..127 upwards.
+MAP1/HWORDI 0:127  2048:0    4095:127
+</PRE></TT>
+</TD>
+  </TR>
+</TABLE>
+
 
 <P CLASS=DESC>The various control elements use maps the following way:
 <UL CLASS=CL>
@@ -1062,8 +1114,6 @@ EVENT_ENC    id=  1  fwd_id=LED_MATRIX:1  fwd_to_lcd=1 \
   <LI><I>EVENT_BUTTON</I>: with <I>button_mode=Toggle</I> a single button can cycle between the map values - <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmapbtn.ngc" TARGET="_blank">configuration example</A>
   <LI><I>EVENT_SENDER</I> and <I>EVENT_RECEIVER</I>: the sent/received value will be mapped - <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fmapmidi.ngc" TARGET="_blank">configuration example</A>
 </UL>
-
-<P CLASS=DESC>Other EVENTs don't support mapped ranges yet. It could make sense for EVENT_CV to map output voltages (problem: maps only work at 8bit resolution), or for EVENT_BUTTON_MATRIX to map a Note key - this could be provided in future versions.</P>
 
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> SYSEX_VAR </H2>
@@ -1392,7 +1442,7 @@ LED_MATRIX_PATTERN n= 3  pos=15  pattern=0000000000100000
     With (for example) <I>SRIO sr_num=8</I> only up to 8 DIN and 8 DOUT SRs will be scanned anymore, but the update rate is reduced to ca. 110..120 uS (a little bit more than a quarter due to SR handling overhead).</TD>
   </TR>
   <TR>
-    <TD CLASS=TABCOLOR2 WIDTH=150><I>debounce_cycles=&lt;0..255&gt;</I></TD>
+    <TD CLASS=TABCOLOR2 WIDTH=150><I>debounce_cycles=&lt;0..65535&gt;</I></TD>
     <TD CLASS=TABCOLOR2>This command allows to enable a debouncing mechanism for digital inputs (buttons). The number specifies the dead time in SRIO cycles at which button events will be rejected.<BR>
 The time of a SRIO cycle depends on the num_sr configuration, typically it's around 420 uS for 32 SRs, which means that with debounce_cycles=20 the debouncing dead time is 8.4 mS.</TD>
   </TR>

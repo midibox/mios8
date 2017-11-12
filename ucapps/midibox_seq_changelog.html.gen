@@ -1,13 +1,184 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2015-12-22</H3></CENTER>
+<CENTER><H3>Last Release: 2017-11-05</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.094</I>
+  <UL CLASS=CL>
+   <LI> support for Antilog Frontpanel.<BR>
+     The appr. HW configuration file can be found under hwcfg/antilog/MBSEQ_HW.V4
+
+   <LI> enhanced COPY/PASTE/CLEAR functions for following pages:
+     <UL CLASS=CL>
+     <LI> PATTERN page: copy/paste/clears all patterns.<BR>
+                     Special function: by pressing COPY+PASTE the patterns will be pasted into the next slots
+     <LI> PARSEL page: copy/paste/clears the currently selected parameter layer only
+     <LI> TRGSEL page: copy/paste/clears the currently selected trigger layer only
+     <LI> INSSEL page: copy/paste/clears the currently selected instrument only
+                    (useful for drums: corresponding trigger any parameter layers are cleared)
+    </UL>
+   <LI> improved ALL button behaviour
+
+   <LI> New worflow for PATTERN page: GP 1/2, 5/6, 9/10, 13/14 allow to select group as well<BR>
+     (especially interesting for Antilog Frontpanel: Selection buttons can be used for mutes)
+
+   <LI> New worflow for MUTE page: whenever a track or parameter layer is unmuted, it will be automatically selected
+
+   <LI> EDIT page: improved handling for chord layers
+
+   <LI> moved some configuration settings which were previously part of the
+     MBSEQ_HW.V4 file to the Options page, so that they can be changed without
+     a file editor:
+     <UL CLASS=CL>
+     <LI> MIDI remote key (or CC)
+     <LI> Track Selection CC
+     <LI> MIDI OUT Runtime Status Optimisation
+     <LI> MENU button assignments
+     </UL>
+
+   <LI> support for "Shadow Out", which will forward the MIDI events of the currently selected
+     track to a specified MIDI port and channel (e.g. can be used to visualize played notes
+     with an external device). Select the port/channel in the OPTIONS page.
+
+   <LI> Metronome page removed. Please configure the metronome function in the Options page.
+
+   <LI> Pattern banks can't be modified by default anymore, because they are typically
+     assigned to group 1/2/3/4, changed bank assignments can confused users
+     to much. If somebody still finds this feature useful: it can be enabled in the
+     Options page
+
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.093</I>
+  <UL CLASS=CL>
+   <LI> new parameter type "Chord3" provides an alternative set of 108 chords.<BR>
+     Thanks to EsotericLabs for providing the chord table!
+
+   <LI> notes in edit screen are displayed transposed now
+
+   <LI> drum tracks: random probability layer now working as intended
+
+   <LI> layers are now initialized for 6 notes polyphony by default (8 layers, 128 steps)
+
+   <LI> optionally pattern changes don't re-send the PC/bank settings.<BR>
+     This option can be configured in the UTILITY->Options menu (item #4/18)
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.092</I>
+  <UL CLASS=CL>
+   <LI>new parameter layers for track specific root note and scale<BR>
+     Root selection strategy: if Root is assigned to any parameter 
+     layer of a track, the layer can either select the global root 
+     selection ("Glb") or set the root note for each step explicitely.<BR>
+     The global root selection is configured in the FX->Scale page,
+     it's either "Keyb" (for MIDI keyboard entry) or C, C#, ... B<BR>
+     The local root selection is C, C#, ... B<BR>
+     Notes and Chords will be transposed accordingly if the track is in
+     Normal mode (and not in Transpose or Arpeggiator mode)<BR>
+     Similar for Scale: it can override the globally configured scale
+     of the FX->Scale page for each step.
+     
+   <LI> new drum configurations: 4*16/2*64, 4*16/2*128, 4*16/1*256
+
+   <LI> new configuration option in Track Mode page: "Note Last/First"<BR>
+     Allows to specify, if the transposer should take the last or first
+     played note (previously it always played the last note)
+
+   <LI> new configuration option in Track Mode page: "STrg" (Step Trigger).<BR>
+     If activated, the step progression will be controlled from the transposer
+     bus, hence it can either be triggered from a loopback track or from an 
+     external MIDI device (MIDI keyboard, sequencer, etc.)<BR>
+     Note that each track can be assigned to a dedicated transpose bus
+     (4 busses are available), this allows to control 4 independent step progressions
+     for all 16 tracks.
+
+   <LI> individual steps of CC, PitchBender, Program Change and Aftertouch
+     layers can now be disabled so that they won't play.<BR>
+     Turn the encoder to the rightmost position (value 128)<BR>
+     Also the init value has been changed: for these layers, the steps
+     are now disabled by default.<BR>
+     For CCs please change the init value by yourself in the UTIL->OPT
+     page (option #12: Initial CC value)
+
+   <LI> new behaviour of CLEAR button in recording mode:<BR>
+     it clears only the selected step (instead of the entire pattern).
+     During live recording it will clear the "played" steps while the
+     button is pressed.
+
+   <LI> new CC functions which can be configured in MIDI->ExtCtrl. page:
+     <UL CLASS=CL>
+       <LI>Play/Stop: allows to assign the PLAY button to a CC
+       <LI>Record: allows to assign the RECORD button to a CC
+     </UL>
+
+   <LI> new option in Groove page: Sync<BR>
+     Allows to sync the groove to the global reference step (RefS)
+     or to the local track step
+
+   <LI> fixed G# transpose
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.091</I>
+  <UL CLASS=CL>
+   <LI> new parameter type "Chord2" provides an alternative set of 32 chords
+
+   <LI> new parameter type "Aftertouch" allows to send and record channel pressure events
+
+   <LI> CPU load display has been re-adjusted for LPC17 and STM32F4
+
+   <LI> hwcfg/wilba*/MBSEQ_HW.V4: default F1-F4 assignments changed to:<BR>
+     F1: Track Select, F2: Live Forwarding, F3: Recording, F4: Save All
+
+   <LI> MBSEQ_HW.V4: added new button/LED functions: FX, MOVE, SCROLL
+
+   <LI> MBSEQ_HW.V4: added new LED_MEASURE function which will activate a LED
+     when the first step of the measure is played.
+
+   <LI> CC Parameter layer label now prints "#<number>" instead of "CC"
+
+   <LI> Jam page: AStart now starts to record into first step in 
+     live recording mode (as intended), it starts on the selected step
+     in step recording mode
+
+   <LI> Purpose of Record and Live Button & LED change:<BR>
+     they switch between record (and live) mode w/o changing to the Jam page
+
+   <LI> new button/LED combo: JAM_LIVE and JAM_STEP: they switch to the JAM
+     page and select Live resp. Step recording mode
+
+   <LI> BLM16x16+X keyboard can now record into any track
+
+   <LI> Transpose page now allows selection based on Scale
+
+   <LI> New option page item #10 "Initial Gate Trigger Layer" 
+     (empty or trigger on each 4th step)
+
+   <LI> Event configuration page: new drum track configuration 2*64/2*128
+
+   <LI> AOUT: added suskey function (AKA fingered portamento: slew rate only
+     enabled if more than 2 keys are played)<BR>
+     This function can be enabled in the CV Configuration page
+
+   <LI> removed obsolete (non-working) pattern based scale control
+
+   <LI> fixed LED behaviour in Step View page (corrected display if page is deselected)
+
+   <LI> various minor bugfixes & improvements
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.090</I>

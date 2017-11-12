@@ -31,7 +31,7 @@ A new step is selected when the appr. rotary encoder is moved or by pressing the
 <P CLASS=DESC>The <B>lower line</B> shows the values of 16 steps within the selected track view and parameter layer. They can be directly modified with the 16 GP rotary encoders below these items. The displayed parameter of the step changes with the active layer. E.g. in layer C the gatelength is controlled, which is visualised with vertical bars:<BR>
 <CENTER><IMG SRC="midibox_seq/cs4/edit3.gif" width=481 height=19 ALT="Edit Length"></IMG></CENTER></P>
 
-<P CLASS=DESC>Press&amp;hold a GP button to change into <B>EDIT RECORDING</B> mode. Incoming MIDI events will be recorded into the selected step as long as the parameter layer configuration is matching, and layers are free. E.g. it's possible to record MIDI Notes, CCs, PitchBender, Program Change values. The step will be framed by curly brackets to indicate the mode:
+<P CLASS=DESC>Press&amp;hold a GP button to change into <B>EDIT RECORDING</B> mode. Incoming MIDI events will be recorded into the selected step as long as the parameter layer configuration is matching, and layers are free. E.g. it's possible to record MIDI Notes, CCs, PitchBender, Poly Pressure (Aftertouch), Program Change values. The step will be framed by curly brackets to indicate the mode:
 <CENTER><IMG SRC="midibox_seq/cs4/editrec.gif" width=481 height=19 ALT="Edit Record"></IMG></CENTER></P>
 <P CLASS=DESC>EDIT recording can also be toggled on/off with the SELECT button. This allows you to keep this recording mode enabled while no GP button is pressed (useful if you want to enter chords with two hands). Select the step into which the events should be recorded with the datawheel.<BR>
 <I>Note1: if recording isn't working as expected, check the recording configuration by pressing EDIT+GP12. At the right side of the page the MIDI port and channel to which the recording function will listen has to be selected.</I><BR>
@@ -147,6 +147,7 @@ This page shows animated VU meters for each instrument (to give you an overview 
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>2 (32 steps only)</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>16</TD> </TR>
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>2</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>256</TD> <TD CLASS=TABCOLOR2>2 (64 steps only)</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
+  <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>64</TD> <TD CLASS=TABCOLOR2>2</TD> <TD CLASS=TABCOLOR2>2</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>64</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>16</TD> </TR>
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>128</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>8</TD> </TR>
   <TR> <TD CLASS=TABCOLOR2>Drum</TD>  <TD CLASS=TABCOLOR2>256</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>1</TD> <TD CLASS=TABCOLOR2>4</TD> </TR>
@@ -169,10 +170,13 @@ This page shows animated VU meters for each instrument (to give you an overview 
         <LI><B>i-n:</B> Min6, Min7, Min8, Min9, Min10, Min12 (4-note chords)</LI>
         <LI><B>o-p:</B> Co7 and Min+</LI>
       </UL></LI>
+    <LI><B>Chord2:</B> enhanced chords</LI>
+    <LI><B>Chord3:</B> our secrent weapon with >100 chords provided by EsotericLabs! **MP3**"http://www.ucapps.de/mp3/midibox_seq/20170623.mp3"#ffffff**</LI>
     <LI><B>Velolcity:</B> controls the velocity value for all notes/chords of the instrument.
     <LI><B>Length:</B> controls the gatelength of all notes of the instrument
     <LI><B>CC:</B> plays a selectable CC number.<BR>
            CC#128 (displayed as "off") is initialized by default for each layers. With this CC assignment, no events will be sent, which means in other words, that a valid CC number has to be selected with one of the GP encoders 11..13 to send something. Note also, that after the CC has been selected, one of the GP buttons 11..13 has to be pressed to confirm the CC number change. This handling ensures, that no unintended CCs will be sent while the CC number is changed.
+    <LI><B>PrgCh:</B> sends a program change event.
     <LI><B>Pitch:</B> sends a PitchWheel event
     <LI><B>Prob:</B> sets the probability that the step will be played (1..100%)
     <LI><B>Delay:</B> delays the step for 1..96 microticks
@@ -218,6 +222,11 @@ The first number means, how often the event will be played (2, 3, 4 or 5 times),
       <LI> <B>Fx:</B> enable Fx each nth bar
       <LI> <B>Nx:</B> don't enable Fx each nth bar
     </UL></LI>
+    <LI><B>Root:</B> if Root is assigned to any parameter layer of a track, the layer can either select the global root selection ("Glb") or set the root note for each step explicitely.<BR>
+The global root selection is configured in the FX->Scale page, it's either "Keyb" (for MIDI keyboard entry) or C, C#, ... B
+The local root selection is C, C#, ... B<BR>
+Notes and Chords will be transposed accordingly if the track is in Normal mode (and not in Transpose or Arpeggiator mode)
+    <LI><B>Scale:</B> overrides the globally configured scale of the FX->Scale page for each step.
   </UL></LI>
 <LI>The <B>MIDI Channel</B> can be selected from 1-16.</LI>
 <LI>Following <B>MIDI Ports</B> are available:<BR>
@@ -495,10 +504,14 @@ Audio Example for Multi-Arp Events: **MP3**"http://www.ucapps.de/mp3/midibox_seq
     </UL>
   <LI><B>Bus:</B> selects Bus1..Bus4 over which the Transposer/Arpeggiator should be controlled. Each bus provides a separate MIDI port/channel/keyboard zone that can be configured in the MIDI page. Alternatively busses can transfer the output of loopback tracks as described earlier.<BR>
      Since each track has an own bus assignment, it's possible to transpose tracks individually.</LI>
-  <LI><B>Hold:</B> the last key or chord is held until a new key/chord is played on the keyboard (only relevant for Tranpose/Arpeggiator mode)</LI>
+  <LI><B>Note:</B> Allows to specify, if the transposer should take the last or first played note</LI>
+  <LI><B>Hold:</B> the last or first key or chord is held until a new key/chord is played on the keyboard (only relevant for Tranpose/Arpeggiator mode)</LI>
   <LI><B>Sort:</B> only relevant for arpeggiator mode: the note stack will be sorted when this function is active (default); arpeggios will be played with notes "as played" when this functions is deactivated.</LI>
-  <LI><B>Restart:</B> the track is restarted when a new key/chord is played</LI>
-  <LI><B>Force Scale:</B> played notes are mapped to the global scale, which can be selected in the Fx-Scale menu page, accordingly only notes are played which match with the selected harmony. This is especially useful when the track consists of randomly generated notes! 127 predefined scales are available!<BR>
+  <LI><B>ReSt. (Restart):</B> the track is restarted when a new key/chord is played</LI>
+  <LI><B>STrg. (Step Trigger):</B> if activated, the step progression will be controlled from the transposer
+     bus, hence it can either be triggered from a loopback track or from an external MIDI device (MIDI keyboard, sequencer, etc.)<BR>
+     Note that each track can be assigned to a dedicated transpose bus (4 busses are available), this allows to control 4 independent step progressions for all 16 tracks.</LI>
+  <LI><B>FTS (Force to Scale):</B> played notes are mapped to the global scale, which can be selected in the Fx-Scale menu page, accordingly only notes are played which match with the selected harmony. This is especially useful when the track consists of randomly generated notes! 127 predefined scales are available!<BR>
 <A HREF="midibox_seq/scalesMidiboxSeqv4.pdf" TARGET="_blank">Nuke created some nice graphics for all scales - thank you!!!</A></LI>
   <LI><B>Sustain:</B> omits the "Note Off" event - notes are played endless, independent from the gatelength. Especially useful for strings and pads!</LI>
 </UL>
@@ -612,6 +625,7 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
   </LI>
   <LI><B>Intensity:</B> available as VPOS/VNEG parameter to vary the style without creating a new groove template. Also nice for live tweaks to find "best matching" grooves!
   <LI><B>Global:</B> By default, groove configuration changes are applied on all tracks. By turning Global "off" the selected groove will only be used for the edited track. This way it's possible to select individual grooves for certain tracks, but also to keep the groove selection for the remaining tracks global.
+  <LI><B>Sync:</B> allows to sync the groove to the global reference step (RefS) or to the local track step
 </UL></P>
 
 <P CLASS=DESC>Custom #1..#16 global groove styles can be freely edited. They are stored on SD Card (MBSEQ_G.V4 file) and available for all patterns of a session:
@@ -1053,7 +1067,7 @@ with the reference step position. It can be left deactivated if it is your inten
   </LI>
   <LI><B>Initial CC value for Clear and Init is: X</B>: allows to specify the default value which will be used for CCs whenever the Clear button is pressed, or the Init function in the MENU-&gt;EVENT page is used. It's normally 64, but some people prefer 0 instead. Just define it here.</LI>
   <LI><B>If Live function, matching received MIDI events will ...</B>: this experimental function works in conjunction with Live mode or the MIDI Router in "Track" or "Sel.Trk" mode.<BR>
-    Whenever Note, CC, PitchBender, Program Change events are received on the selected IN Port, the corresponding track layer (or LFO CC) will be muted completely, or temporary for a given number of steps. This allows to temporary overrule events generated by the sequencer from an external MIDI keyboard or controller.<BR>
+    Whenever Note, CC, PitchBender, Poly Pressure (Aftertouch), Program Change events are received on the selected IN Port, the corresponding track layer (or LFO CC) will be muted completely, or temporary for a given number of steps. This allows to temporary overrule events generated by the sequencer from an external MIDI keyboard or controller.<BR>
     Supported settings:
     <UL CLASS=CL>
        <LI><B>do nothing</B>: function disabled
@@ -1145,7 +1159,7 @@ This page allows you to Mute or Unmute all tracks, all layers of the selected tr
   <LI><B>Pos:</B> the song position - 128 positions are available, they are enumerated from A1..P8</LI>
   <LI><B>Action:</B> defines what should be done when this song position is reached:
     <UL CLASS=CL>
-      <LI><B>Stop:</B> sequencer will be stopped.</LI>
+      <LI><B>End:</B> sequencer will loop this position endless.</LI>
       <LI><B>x1..x16:</B> specified Pattern set will be played the given number of cycles (x1..x16). The pattern for each group (G1..G4) can be specified at the right side of the "action" item. If "-:--" is selected instead of the pattern number, the pattern won't be changed for this song step.</LI>
       <LI><B>Jump Pos:</B> sequencer jumps to the specified position - allows to set loop points</LI>
       <LI><B>Jump Song:</B> sequencer jumps to the specified song</LI>
@@ -1326,7 +1340,7 @@ This feature also works together with the AOUT port to support polyphonic play o
   <LI><B>First Channel:</B> specifies the first channel to which additional note events should be forwarded.<BR>
       E.g. with 3 channels starting at Channel 2, Notes will be forwarded to the original MIDI channel configured in the Track Event page + Channel 2, 3 and 4.</LI>
   <LI><B>Port:</B> selects the MIDI port to which the additional notes should be forwarded. With "Same" the events will be sent to the MIDI port configured in the Track Event page, with the remaining port settings the MIDI notes will be sent to the selected MIDI port.</LI>
-  <LI><B>Non-Notes:</B> specifies what should happen with Non-Note events (such as CCs, PitchBender, Channel Pressure, Program Change): they can be filtered, or forwarded to all additional MIDI channels.</LI>
+  <LI><B>Non-Notes:</B> specifies what should happen with Non-Note events (such as CCs, PitchBender, Aftertouch, Program Change): they can be filtered, or forwarded to all additional MIDI channels.</LI>
   <LI><B>Mode:</B> selects the behaviour of this Fx:
      <UL CLASS=CL>
        <LI><B>Forward to all Channels:</B> notes will be directly forwarded to all MIDI channels
@@ -1388,7 +1402,8 @@ Only one group can control the scale and root note - it can be selected with thi
 <UL CLASS=CL>
   <LI><B>CV:</B> selects the CV channel (1..8)
   <LI><B>Curve:</B> selects the output curve: V/Oct, Hz/V, Inverted
-  <LI><B>Slew Rate:</B> allows to configure a slew rate (slack) in the range of 0..255 mS
+  <LI><B>SlewR(ate):</B> allows to configure a slew rate (slack) in the range of 0..255 mS
+  <LI><B>SusK:</B> activates the "SusKey" function (also known as "fingered portamento"): the slew rate will only be activated if at least two notes are played. This allows to use the glide function to enable slew only on demand.
   <LI><B>PRng:</B> sets the pitch range for pitch bender events (normally 2, use 12 or 24 to sweep over one, resp. two octaves)
   <LI><B>Gate:</B> sets the gate polarity (positive or negative)
   <LI><B>Calibr.:</B> allows to force different output voltages for calibration (Min/Middle/Max/1V, 2V, 4V, 8V)
