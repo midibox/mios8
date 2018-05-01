@@ -153,6 +153,29 @@ SID_PATCH_Init_CopyLoop
 	call	SIDSE_Filter
 	IRQ_ENABLE
 
+#if DEFAULT_ENABLE_FPGASID
+	;; FPGASID: enable configuration mode
+	SET_BSR	SIDL_BASE
+
+	movlw	0x81
+	movwf	SIDL_BASE + SIDx_FPGASID_POTX, BANKED
+	movwf	SIDR_BASE + SIDx_FPGASID_POTX, BANKED
+
+	movlw	0x65
+	movwf	SIDL_BASE + SIDx_FPGASID_POTY, BANKED
+	movwf	SIDR_BASE + SIDx_FPGASID_POTY, BANKED
+
+	;; default stereo config: map second SID to 0xde00
+	movlw	0x04
+	movwf	SIDL_BASE + SIDx_FPGASID_STEREO_CFG, BANKED
+	movwf	SIDR_BASE + SIDx_FPGASID_STEREO_CFG, BANKED
+
+	;; SID config: enable 8580
+	movlw	0x0f
+	movwf	SIDL_BASE + SIDx_FPGASID_SID_CFG, BANKED
+	movwf	SIDR_BASE + SIDx_FPGASID_SID_CFG, BANKED
+#endif
+
 	;; force a refresh of all registers
  	call	SID_SR_Refresh
 

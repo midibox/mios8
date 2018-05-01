@@ -47,7 +47,7 @@ SID_SR_Refresh
 	IRQ_DISABLE				; disable interrupts to avoid inconsistencies
 
 	;; just modify the shadow registers, so that the content is not equal to the main register set
-#if DEFAULT_ENABLE_SWINSID
+#if DEFAULT_ENABLE_SWINSID || DEFAULT_ENABLE_FPGASID
 	movlw	0x20				; number of registers: 0x20
 #else
 	movlw	SIDx_MODE_VOL+1			; number of registers (0x19)
@@ -182,6 +182,19 @@ SID_SR_Handler_Loop
 	SID_SR_HANDLER_MACRO SIDx_SWINSID_V1_MODE
 	SID_SR_HANDLER_MACRO SIDx_SWINSID_V2_MODE
 	SID_SR_HANDLER_MACRO SIDx_SWINSID_V3_MODE
+#endif
+
+#if DEFAULT_ENABLE_FPGASID
+	movlw	0xe0 | SIDx_FPGASID_POTX	; start address
+	movwf	MIOS_PARAMETER1
+	SID_SR_HANDLER_MACRO SIDx_FPGASID_POTX
+	SID_SR_HANDLER_MACRO SIDx_FPGASID_POTY
+
+	movlw	0xe0 | SIDx_FPGASID_DIGIFIX	; start address
+	movwf	MIOS_PARAMETER1
+	SID_SR_HANDLER_MACRO SIDx_FPGASID_DIGIFIX
+	SID_SR_HANDLER_MACRO SIDx_FPGASID_STEREO_CFG
+	SID_SR_HANDLER_MACRO SIDx_FPGASID_SID_CFG
 #endif
 
 	IRQ_ENABLE			; temporary enable interrupts for reduced IRQ latency

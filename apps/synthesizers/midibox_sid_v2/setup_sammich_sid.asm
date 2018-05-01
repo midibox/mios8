@@ -103,6 +103,10 @@
 	;; 1: SwinSID extensions enabled
 #define DEFAULT_ENABLE_SWINSID 0
 
+	;; 0: FPGASID extensions disabled
+	;; 1: FPGASID extensions enabled
+#define DEFAULT_ENABLE_FPGASID 0
+
 	;; 0: only waveform 0-8 selectable
 	;; 1: waveform 0-15 selectable (e.g. for selecting additional SwinSID Waveforms)
 #define DEFAULT_ENABLE_UPPER_WAVEFORMS 0
