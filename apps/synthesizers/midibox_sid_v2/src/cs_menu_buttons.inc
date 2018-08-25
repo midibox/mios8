@@ -1156,7 +1156,16 @@ CS_MENU_BUTTON_M_SetCol_End
 
 CS_MENU_BUTTON_M_SetCol_1_B
 	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_B_S1V1_BASE + SID_Ix_B_Vx_SEQ_NUM
+	;; special handling: if same sequence already selected, disable it
+	movf	CS_MENU_SELECTED_MOD_TARG, W
+	xorwf	INDF0, W
+	bnz	CS_MENU_BUTTON_M_SetCol_1_B_NotEq
+	movlw	0x08
+	movwf	INDF0
+	rgoto	CS_MENU_BUTTON_M_SetCol_1_B_Eq
+CS_MENU_BUTTON_M_SetCol_1_B_NotEq	
 	movff	CS_MENU_SELECTED_MOD_TARG, INDF0
+CS_MENU_BUTTON_M_SetCol_1_B_Eq
 	call	CS_MENU_MS_SendParameter
 	;; change sequence (don't switch to SEQ menu, this disturbs the useflow)
 	movff	CS_MENU_SELECTED_MOD_TARG, CS_MENU_WT_SEQ
@@ -1167,7 +1176,16 @@ CS_MENU_BUTTON_M_SetCol_1_DM
 	BRA_IFSET WREG, 0, ACCESS, CS_MENU_BUTTON_M_SetCol_1_M
 CS_MENU_BUTTON_M_SetCol_1_D
 	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_D_SEQ_NUM
+	;; special handling: if same sequence already selected, disable it
+	movf	CS_MENU_SELECTED_MOD_TARG, W
+	xorwf	INDF0, W
+	bnz	CS_MENU_BUTTON_M_SetCol_1_D_NotEq
+	movlw	0x08
+	movwf	INDF0
+	rgoto	CS_MENU_BUTTON_M_SetCol_1_D_Eq
+CS_MENU_BUTTON_M_SetCol_1_D_NotEq
 	movff	CS_MENU_SELECTED_MOD_TARG, INDF0
+CS_MENU_BUTTON_M_SetCol_1_D_Eq
 	call	CS_MENU_MS_SendParameter
 	;; change sequence
 	movff	CS_MENU_SELECTED_MOD_TARG, CS_MENU_WT_SEQ
@@ -1285,7 +1303,16 @@ CS_MENU_BUTTON_Chg_Lx
 
 CS_MENU_BUTTON_M_SetRow_B
 	lfsr	FSR0, SID_EDIT_BUFFER + SID_Ix_B_S2V1_BASE + SID_Ix_B_Vx_SEQ_NUM
+	;; special handling: if same sequence already selected, disable it
+	movf	CS_MENU_SELECTED_MOD_SRC, W
+	xorwf	INDF0, W
+	bnz	CS_MENU_BUTTON_M_SetRow_B_NotEq
+	movlw	0x08
+	movwf	INDF0
+	rgoto	CS_MENU_BUTTON_M_SetRow_B_Eq
+CS_MENU_BUTTON_M_SetRow_B_NotEq
 	movff	CS_MENU_SELECTED_MOD_SRC, INDF0
+CS_MENU_BUTTON_M_SetRow_B_Eq
 	call	CS_MENU_MS_SendParameter
 	;; change sequence (don't switch to SEQ menu, this disturbs the useflow)
 	movff	CS_MENU_SELECTED_MOD_SRC, CS_MENU_WT_SEQ

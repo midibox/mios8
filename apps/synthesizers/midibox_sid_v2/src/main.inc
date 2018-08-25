@@ -534,12 +534,16 @@ USER_MIDI_NotifyRx_NoClk
 	movf	IRQ_TMP1, W
 	xorlw	0xfa
 	bz	USER_MIDI_NotifyRx_Start
+#if 0
+	;; disabled: causes problems with new LogicX SPP handling
 	xorlw	0xf2 ^ 0xfa		; quick&dirty: reset divider on song position change as well
 	bz	USER_MIDI_NotifyRx_Start ; normaly we should parse the new position as well, but for
 					; most common cases (interaction with DAW) this is sufficient
+#endif
 	rgoto USER_MIDI_NotifyRx_NoStart
 USER_MIDI_NotifyRx_Start
 	bsf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FA_REQ, BANKED
+	bcf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FC_REQ, BANKED  ; to consider fast back-to-back FC->FA
 
 	;; Auto Mode: immediately switch to slave mode
 	movff	SID_LOCAL_ENS + SID_ENSx_CTRL1, WREG
@@ -564,6 +568,7 @@ USER_MIDI_NotifyRx_NoStart
 	rgoto USER_MIDI_NotifyRx_NoCont
 USER_MIDI_NotifyRx_Cont
 	bsf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FB_REQ, BANKED
+	bcf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FC_REQ, BANKED  ; to consider fast back-to-back FC->FA
 USER_MIDI_NotifyRx_NoCont
 
 	;; if MIDI stop: notify stop
@@ -572,6 +577,8 @@ USER_MIDI_NotifyRx_NoCont
 	rgoto USER_MIDI_NotifyRx_NoStop
 USER_MIDI_NotifyRx_Stop
 	bsf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FC_REQ, BANKED
+	bcf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FA_REQ, BANKED  ; to consider fast back-to-back FA->FC
+	bcf	SID_SE_STATE, SID_SE_STATE_MIDI_CLK_FB_REQ, BANKED  ; to consider fast back-to-back FA->FB
 USER_MIDI_NotifyRx_NoStop
 
 	return
