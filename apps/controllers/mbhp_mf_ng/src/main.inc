@@ -727,10 +727,11 @@ USER_DIN_NotifyToggle_M23 ; Mackie Control Extension
 	call	MIOS_MIDI_BeginStream
 
 	;; Note On/Off 0x68..0x6f complies to Mackie Control Spec
+	;; UPDATED: added +12, see also http://midibox.org/forums/topic/15004-upcoming-mbhp_mf_ng-module/?do=findComment&comment=178903
 	movlw	0x90			; Note Event Channel #1
 	call	MIOS_MIDI_TxBufferPut
 	
-	movlw	0x68			; 0x68..0x6f depending on button number
+	movlw	0x68 + 12		; 0x68..0x6f depending on button number
 	addwf	MIOS_PARAMETER1, W
 	call	MIOS_MIDI_TxBufferPut
 

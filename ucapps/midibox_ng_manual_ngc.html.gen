@@ -416,6 +416,10 @@ EVENT_SENDER   id=1                       type=CC chn= 1  cc=  1
          <LI><I>Aftertouch</I>: will send/recieve an Aftertouch event with the specified key value
          <LI><I>PitchBend</I>: will send/recieve a Pitch Bender event with the specified 14bit (!) value
          <LI><I>SysEx</I>: will send/recieve SysEx values with the specified stream
+         <LI><I>Clock</I>: will send a MIDI clock event (0xf8)
+         <LI><I>Start</I>: will send a MIDI start event (0xfa)
+         <LI><I>Stop</I>: will send a MIDI stop event (0xfb)
+         <LI><I>Cont</I>: will send a MIDI cont event (0xfc)
          <LI><I>NRPN</I>: will send/recieve NRPN values with the specified nrpn number and format
          <LI><I>Meta</I>: will perform the specified Meta command with the specified meta event
        </UL>
@@ -584,6 +588,9 @@ EVENT_BUTTON ... type=Meta meta=DumpSnapshot
         <LI><I>MClkDecTempo</I>: decrements the current tempo by 1 BPM
         <LI><I>MClkIncTempo</I>: increments the current tempo by 1 BPM
         <LI><I>MClkSetTempo</I>: sets the BPM value of the current tempo
+        <LI><I>MClkDecDivider</I>: decrements the MIDI clock divider
+        <LI><I>MClkIncDivider</I>: increments the MIDI clock divider
+        <LI><I>MClkSetDivider</I>: sets the MIDI clock divider (6 by default)
 
         <LI><I>CvPitchBend14Bit:&lt;cv-channel&gt;</I>: sets the pitch (within the given pitchrange) of a CV channel in 14bit resolution, e.g. forwarded from a PitchBend event. See <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fcvtransp.ngc" TARGET="_blank">cvtransp.ngc example</A>.
         <LI><I>CvPitchBend7Bit:&lt;cv-channel&gt;</I>: sets the pitch (within the given pitchrange) of a CV channel in 7bit resolution, e.g. forwarded from a CC event. See <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fcvtransp.ngc" TARGET="_blank">cvtransp.ngc example</A>.
@@ -986,6 +993,7 @@ EVENT_LED    id= 16                type=CC chn=1 cc= 1  range=70:79 radio_group=
         <LI><I>%i</I>: the ID of the EVENT
         <LI><I>%p</I>: for EVENT_BUTTON_MATRIX only: the pin number of the matrix
         <LI><I>%e</I>: the MIDI event of the EVENT (up to 3 hexadecimal values, always 6 characters)
+        <LI><I>%L</I>: displays logic control digits (MTC and status digits). See <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftemplates%2Flogictrl.ngc" TARGET="_blank">cfg/templates/logictrl.ngc</A>for an example</I>
         <LI><I>%m</I>: the minimum value of the EVENT which has been specified with <I>range</I>
         <LI><I>%M</I>: the maximum value of the EVENT which has been specified with <I>range</I>
         <LI><I>%n</I>: print note name (C-1, C#1, D-1, D#1, ...) based on the EVENT value
@@ -1506,6 +1514,7 @@ Configuration examples:
   <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_3.ngc" TARGET="_blank">kb_3.ngc</A>: splitting keyboard into two zones
   <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_4.ngc" TARGET="_blank">kb_4.ngc</A>: forwarding to CV outputs
   <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_5.ngc" TARGET="_blank">kb_5.ngc</A>: using the KbBreakIsMake option
+  <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_6.ngc" TARGET="_blank">kb_6.ngc</A>/<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_6.ngr" TARGET="_blank">kb_6.ngr</A>: selectable transpose and velocity map
 </UL>
 
 
@@ -1911,6 +1920,11 @@ Each OSC port has an individual remote IP, a remote port (to which OSC packets w
   </TR>
 </TABLE>
 
+
+<H2> <IMG SRC="images/bullet.gif" ALT=""> MidiClkOutPorts and MidiClkInPorts </H2>
+
+<P CLASS=DESC><I>MidiClkOutPorts &lt;ports&gt;</I>: sets the MIDI clock output ports</P>
+<P CLASS=DESC><I>MidiClkInPorts &lt;ports&gt;</I>: sets the MIDI clock input ports</P>
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> GlobalChannel </H2>
 

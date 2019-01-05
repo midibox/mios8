@@ -1,13 +1,100 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2017-11-05</H3></CENTER>
+<CENTER><H3>Last Release: 2018-12-20</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.095</I>
+  <UL CLASS=CL>
+   <LI> support for midiphy Frontpanel.<BR>
+     The appr. HW configuration file can be found under
+     hwcfg/midiphy_lh/MBSEQ_HW.V4 and hwcfg/midiphy_rh/MBSEQ_HW.V4
+
+   <LI> introduced first "MBSEQV4+" function.<BR>
+     MIDIbox SEQ V4+ is a special firmware variant for the STM32F4 core.<BR>
+     It offers additional memory and/or CPU hungry functions which can't be implemented
+     for STM32F1 or LPC17 due to resource limitations.<BR>
+     These special functions are marked with "V4+" in future.
+
+   <LI> V4+: implemented CC layers for drum tracks.<BR>
+     The CC numbers are statically assigned for all tracks of the session.<BR>
+     They can be changed in the Options page (item 20/26)
+
+   <LI> trigger/layer edit views now also supported for drum tracks
+
+   <LI> reference step for pattern changes now works indpendent from reference step used for sync-to-measure
+
+   <LI> PATTERN page: pattern is switched immediately if SELECT button is pressed, regardless of
+     the pattern change synchronisation option.
+
+   <LI> OPTIONS page: new option "Print and Modify Steps w/o changing Gate".<BR>
+     If enabled: note values will always be print regardless if they are played or not.
+     Changing a note value won't automatically enable the gate
+
+   <LI> OPTIONS page: new option "Print Notes with transposed value".<BR>
+     Enabled by default (due to change in V4.093), can be optionally disabled now.
+
+   <LI> OPTIONS page: new option "Swap LED colours" (relevant for Wilba and midiphy Frontpanels)
+
+   <LI> OPTIONS page: new option "Invert Mute LEDs"
+
+   <LI> OPTIONS page: new TPD option "BPM" and "BPM with Beat": prints tempo value and optionally flashes to measure/beat
+
+   <LI> OPTIONS page: new TPD option "Logo" and "Logo with Beat": prints a 16x8 logo and optionally flashes to measure/beat.<BR>
+     There are individual logos for each session which can be edited in the MBSEQ_C.V4 file.<BR>
+     If you don't find "TpdLogoLine" items there (because you are using an older session) just trigger the "Save" function
+
+   <LI> AOUT: MIDI Channel 9..12/13..15 now set the gate pins #1/3/5/7 as documented (previously it was #1/2/3/4 due to a code translation error)<BR>
+     New: gate pins #2/4/6/8 are now set whenever the velocity is >100.<BR>
+     This way the pins can be used as an accent trigger
+
+   <LI> V4+ AOUT: support for AOUT channel calibration.<BR>
+     In the CV configuration menu, turn GP ENC #7 until 0V/1V/2V/.../Max will be visible.<BR>
+     Calibrate the offset of the target value with ENC #8.<BR>
+     Press GP #8 to cycle between min/0/max offset of the calibration point.<BR>
+     Each V has a dedicated calibration value which can be configured this way, the output will be interpolated accordingly.<BR>
+     Note that with exiting the CV configuration menu the calibration values are stored on SD Card in the MBSEQ_GC.V4 file
+     (-> CV_Cali &lt;cv-counting-from-0&gt;).<BR>
+     You could backup/set/restore the values from there if required.<BR>
+     To reset all calibration values: delete all CV_Cali items in MBSEQ_GC.V4, store the file and enter "reset" in MIOS terminal.
+
+   <LI> Bugfix for permanently cleared notes if live recording is used after previous step recording
+
+   <LI> ProgramChange Layer: steps now disabled by default when the track is cleared
+
+   <LI> Whenever a track or parameter layer is unmuted, it will be automatically selected.<BR>
+     This option can now be disabled in the OPTIONS page (item 9/29)
+
+   <LI> new terminal command "lcd" allows to display a temporary message from on LCD from
+     an external device via SysEx
+
+   <LI> encoder buttons can now be assigned in the MBSEQ_HW.V4 file (currently hardcoded to FAST function)
+
+   <LI> STM32F4 board: orange LED shows SD Card available, red LED any received MIDI IN, blue LED any transmitted MIDI OUT
+
+   <LI> experimental: terminal command "backup" creates a .tar file of the entire SD card.<BR>
+     Whenever "backup" is entered, a new bak<incremented-number>.tar file will be created.<BR>
+     This file can be downloaded from MIOS Studio (might take a lot of time!) or from a computer by
+     plugging the SD Card into a SD Card reader.<BR>
+     .tar files can be unpacked with "tar xfv &lt;filename&gt;" or with other decompression tools (might be 
+     already installed on your computer by default)
+
+   <LI> experimental (might be optional in future): show measure and pattern step position in main screen
+  </UL>
+</LI>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.094b</I>
+  <UL CLASS=CL>
+   <LI> fixed LED handling for common frontpanels (e.g. MUTE LED stayed active regardless of selected view)
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.094</I>

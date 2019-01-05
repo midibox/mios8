@@ -73,7 +73,7 @@ run 1 127
   <TR>
     <TD CLASS=TABCOLOR2><I>LCD &lt;string&gt;</I></TD>
     <TD CLASS=TABCOLOR2>Prints an immediate message on screen while it's executed.<BR>
-      All string control formats and directives are supported (see description of <A HREF="midibox_ng_manual_ngc.html">EVENT_* label parameter)</A>, which especially means that it's possible to clear the screen, and to jump to different cursor positions at different displays.<BR>
+      All string control formats and directives are supported (see description of <A HREF="midibox_ng_manual_ngc.html">EVENT_* label parameter)</A>, which especially means that it's possible to clear the screen, and to jump to different cursor positions at different displays. %d etc. will print the current ^value<BR>
 Examples:
 <TT><PRE style="margin-left:10px; font-size:8pt">
 # clear screen
@@ -138,6 +138,18 @@ send NRPN USB1   1 0x0123 ^value
 #    type  port stream
 send SysEx USB1 0xf0 0x11 0x22 0x33 0x44 ^value 0xf7
 </PRE></TT>
+    </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2><I>SEND_SEQ &lt;delay&gt; &lt;length&gt; &lt;type&gt; &lt;port&gt; &lt;chn&gt; &lt;key|cc&gt; &lt;velocity|value&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>A very powerful command which allows to sequence MIDI events, e.g. to play tunes or even to create a simple step sequencer!<BR>
+      Please find examples under:
+      <UL CLASS=CL>
+        <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fseq1.ngr" TARGET="_blank">seq1.ngr</A>/<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fseq1.ngc" TARGET="_blank">seq1.ngc</A>: a 16 step note sequencer controlled from 16 rotary encoders
+        <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fseq2.ngr" TARGET="_blank">seq2.ngr</A>/<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fseq1.ngc" TARGET="_blank">seq1.ngc</A>: a 8 step note sequencer controlled from 16 rotary encoders (upper row: notes, lower row: velocity
+        <LI><A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fseq3.ngr" TARGET="_blank">seq3.ngr</A>/<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fseq1.ngc" TARGET="_blank">seq1.ngc</A>: a 16 step CC sequencer controlled from 16 rotary encoders
+      </UL>
     </TD>
   </TR>
 
@@ -345,6 +357,26 @@ delay_ms 100
 set LED:3 0
 </PRE></TT>
     </TD>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2><I>SET_KB_TRANSPOSE &lt;KB:1|2&gt; &lt;transpose-value&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the keyboard transpose value.
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+set_kb_transpose KB:1 ^value
+</PRE></TT>
+will change the transpose according to a given ^value, e.g. from an rotary encoder. See also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_6.ngr" TARGET="_blank">kb_6.ngr</A>/<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_6.ngc" TARGET="_blank">kb_6.ngc</A>
+  </TR>
+
+  <TR>
+    <TD CLASS=TABCOLOR2><I>SET_KB_VELOCITY_MAP &lt;KB:1|2&gt; &lt;velocity-map&gt;</I></TD>
+    <TD CLASS=TABCOLOR2>Sets the keyboard transpose value.
+Example:
+<TT><PRE style="margin-left:10px; font-size:8pt">
+set_kb_velocity_map KB:1 3
+</PRE></TT>
+will change the velocity map according to a given value (here: 3), e.g. triggered by a button. See also <A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_6.ngr" TARGET="_blank">kb_6.ngr</A>/<A HREF="http://svnmios.midibox.org/filedetails.php?repname=svn.mios32&path=%2Ftrunk%2Fapps%2Fcontrollers%2Fmidibox_ng_v1%2Fcfg%2Ftests%2Fkb_6.ngc" TARGET="_blank">kb_6.ngc</A>
   </TR>
 
   <TR>

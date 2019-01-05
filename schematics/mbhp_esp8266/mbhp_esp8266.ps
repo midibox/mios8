@@ -1,10 +1,10 @@
 %!PS-Adobe-3.0
-%%Title: mbhp_lcd_mios32.ps
+%%Title: mbhp_esp8266.ps
 %%Creator: XCircuit v3.8 rev45
-%%CreationDate: Sat Jan  5 17:17:29 2019
+%%CreationDate: Sun Apr  3 21:13:49 2016
 %%Pages: 1
 %%BoundingBox: 0 0 612 792
-%%DocumentNeededResources: font Helvetica Courier 
+%%DocumentNeededResources: font Helvetica Times-Roman Courier 
 %%EndComments
 %%BeginProlog
 %
@@ -176,124 +176,196 @@
 
 %%BeginSetup
 
+/generic::circle {
+% trivial
+begingate
+1 1.000 16 0 6 0.000 360.000 xcarc
+1 1.000 0 0 10 0 2 polygon
+1.000 0.000 0.000 scb
+(out) {/Times-Roman cf} 2 4 0 1.000 16 0 pinlabel
+(out) {/Times-Roman cf} 2 7 0 1.000 0 0 pinlabel
+endgate
+} def
+
+/generic::arrowhead {
+% nonetwork
+begingate
+8 -28 beginpath
+3 -18 3 -15 0 0 curveto
+-3 -15 -3 -18 -8 -28 curveto
+-2 -26 2 -26 8 -28 curveto
+249 
+1.000 endpath
+endgate
+} def
+
+/analog::switch {
+% trivial
+begingate
+1 1.300 32 32 2 -43 2 polygon
+1 0.600 0 -48 57 49.000 90.000 xcarc
+-1.000 /sv 90 0 -64 generic::circle
+0.600 /sv 270 -12 8 generic::arrowhead
+1.000 90 0 48 generic::circle
+1.000 0.000 0.000 scb
+(sw.1) {/Times-Roman cf} 2 9 0 1.000 0 48 pinlabel
+(sw.2) {/Times-Roman cf} 2 13 0 1.000 0 -64 pinlabel
+endgate
+} def
+
+/generic::dot {
+% trivial
+begingate
+248 1.000 0 0 6 0.000 360.000 xcarc
+1.000 0.000 0.000 scb
+(x) {/Times-Roman cf} 2 29 0 1.000 0 0 pinlabel
+endgate
+} def
+
+/analog::resistor {
+begingate
+1 1.000 0 64 0 36 2 polygon
+1 1.000 0 -64 0 -36 2 polygon
+1 1.000 0 -36 14 -30 -14 -18 14 -6 -14 6 14 18 -14 30 0 36 8 polygon
+1.000 0.000 0.000 scb
+(r.1) {/Times-Roman cf} 2 9 0 1.000 0 64 pinlabel
+(r.2) {/Times-Roman cf} 2 13 0 1.000 0 -64 pinlabel
+0.180 0.545 0.341 scb
+(spice:R%i %pr.1 %pr.2 1.0K) {/Times-Roman cf} 2 0 0 1.000 -208 -160 infolabel
+(sim:r %pr.1 %pr.2) {/Times-Roman cf} 2 0 0 1.000 -208 -208 infolabel
+endgate
+} def
+
 
 %%EndSetup
 
-%%Page: mbhp_lcd_mios32 1
-%%PageOrientation: Portrait
+%%Page: mbhp_core_stm32f4 1
+%%PageOrientation: Landscape
 %%PageBoundingBox: 0 0 612 792
 /pgsave save def bop
-% 32.00 8.00 gridspace
-1.1034 inchscale
-2.6000 setlinewidth 166 821 translate
+90 rotate -11 -599 translate
+1.1684 inchscale
+2.6000 setlinewidth -610 116 translate
 
-(Vss) {/Helvetica cf} 2 20 90 0.500 101 -144 label
-(Vdd) {/Helvetica cf} 2 20 90 0.500 133 -144 label
-(V0) {/Helvetica cf} 2 20 90 0.500 165 -144 label
-(RS) {/Helvetica cf} 2 20 90 0.500 197 -144 label
-(R/W) {/Helvetica cf} 2 20 90 0.500 229 -144 label
-(E) {/Helvetica cf} 2 20 90 0.500 261 -144 label
-(D0) {/Helvetica cf} 2 20 90 0.500 293 -144 label
-(D1) {/Helvetica cf} 2 20 90 0.500 325 -144 label
-(D2) {/Helvetica cf} 2 20 90 0.500 357 -144 label
-(D3) {/Helvetica cf} 2 20 90 0.500 389 -144 label
-(D4) {/Helvetica cf} 2 20 90 0.500 421 -144 label
-(D5) {/Helvetica cf} 2 20 90 0.500 453 -144 label
-(D6) {/Helvetica cf} 2 20 90 0.500 485 -144 label
-(D7) {/Helvetica cf} 2 20 90 0.500 517 -144 label
-(Displaytech C162 \(Front\)) {/Helvetica cf} 2 21 0 0.500 427 -224 label
-240 1.000 88 -96 88 -128 104 -128 104 -96 4 polygon
-240 1.000 120 -96 120 -128 136 -128 136 -96 4 polygon
-240 1.000 152 -96 152 -128 168 -128 168 -96 4 polygon
-240 1.000 184 -96 184 -128 200 -128 200 -96 4 polygon
-240 1.000 216 -96 216 -128 232 -128 232 -96 4 polygon
-240 1.000 248 -96 248 -128 264 -128 264 -96 4 polygon
-240 1.000 280 -96 280 -128 296 -128 296 -96 4 polygon
-240 1.000 312 -96 312 -128 328 -128 328 -96 4 polygon
-240 1.000 344 -96 344 -128 360 -128 360 -96 4 polygon
-240 1.000 376 -96 376 -128 392 -128 392 -96 4 polygon
-240 1.000 408 -96 408 -128 424 -128 424 -96 4 polygon
-240 1.000 440 -96 440 -128 456 -128 456 -96 4 polygon
-240 1.000 472 -96 472 -128 488 -128 488 -96 4 polygon
-240 1.000 504 -96 504 -128 520 -128 520 -96 4 polygon
-240 1.000 536 -96 536 -128 552 -128 552 -96 4 polygon
-240 1.000 568 -96 568 -128 584 -128 584 -96 4 polygon
-(LED-) {/Helvetica cf} 2 20 90 0.500 581 -144 label
-(LED+) {/Helvetica cf} 2 20 90 0.500 549 -144 label
-(1) {/Helvetica cf} 2 20 0 0.500 72 -128 label
-(16) {/Helvetica cf} 2 20 0 0.500 600 -128 label
-0 1.000 8 -96 8 -400 840 -400 840 -96 4 polygon
-0 1.000 72 -192 72 -352 776 -352 776 -192 4 polygon
-1 1.000 808 -128 16 0.000 360.000 xcarc
-1 1.000 808 -368 16 0.000 360.000 xcarc
-1 1.000 40 -368 16 0.000 360.000 xcarc
-1 1.000 40 -128 16 0.000 360.000 xcarc
-1.000 0.000 0.000 scb
-(Other displays mostly have the same pinning, but it *could* be mirrored!) 
-{/Helvetica cf} 2 21 0 0.500 427 -257 label
-(Pin 15 and 16 are only available on Backlight LCDs) {/Helvetica cf} 2 21 0 
-0.500 427 -289 label
+(MIDIbox Hardware Platform) {/Helvetica cf} 2 20 0 0.750 1832 184 label
+0 3.000 1792 224 1792 48 2240 48 2240 224 4 polygon
+(\(C\) T. Klose 2016-03-23) {/Helvetica cf} 2 20 0 0.750 1824 88 label
 0.000 0.000 1.000 scb
-(Vd) {/Courier cf} 2 23 0 0.500 864 552 label
-(RS) {/Courier cf} 2 23 0 0.500 864 488 label
-(E) {/Courier cf} 2 23 0 0.500 864 424 label
-(D1) {/Courier cf} 2 23 0 0.500 864 360 label
-(D3) {/Courier cf} 2 23 0 0.500 864 296 label
-(D5) {/Courier cf} 2 23 0 0.500 864 232 label
-(D7) {/Courier cf} 2 23 0 0.500 864 168 label
-(B-) {/Courier cf} 2 23 0 0.500 864 104 label
-(B+) {/Courier cf} 2 20 0 0.500 912 104 label
-(D6) {/Courier cf} 2 20 0 0.500 912 168 label
-(D4) {/Courier cf} 2 20 0 0.500 912 232 label
-(D2) {/Courier cf} 2 20 0 0.500 912 296 label
-(RW) {/Courier cf} 2 20 0 0.500 912 424 label
-(V0) {/Courier cf} 2 20 0 0.500 912 488 label
-(Vs) {/Courier cf} 2 20 0 0.500 912 552 label
-(D0) {/Courier cf} 2 20 0 0.500 912 360 label
+(ESP8266 Adaptor) {/Helvetica cf} 2 20 0 0.750 1832 136 label
 sce
-1 1.000 864 568 11 0.000 360.000 xcarc
-1 1.000 864 504 11 0.000 360.000 xcarc
-1 1.000 864 440 11 0.000 360.000 xcarc
-1 1.000 864 376 11 0.000 360.000 xcarc
-1 1.000 864 312 11 0.000 360.000 xcarc
-1 1.000 864 248 11 0.000 360.000 xcarc
-1 1.000 864 184 11 0.000 360.000 xcarc
-1 1.000 864 120 11 0.000 360.000 xcarc
-1 1.000 912 120 11 0.000 360.000 xcarc
-1 1.000 912 184 11 0.000 360.000 xcarc
-1 1.000 912 248 11 0.000 360.000 xcarc
-1 1.000 912 312 11 0.000 360.000 xcarc
-1 1.000 912 376 11 0.000 360.000 xcarc
-1 1.000 912 440 11 0.000 360.000 xcarc
-1 1.000 912 504 11 0.000 360.000 xcarc
-1 1.000 912 568 11 0.000 360.000 xcarc
-0 2.000 832 600 832 88 944 88 944 600 4 polygon
-(J15A of MBHP_CORE_LPC17 Module) {/Helvetica cf} 2 21 0 0.500 891 664 label
-(The \(optional\) second Display can be connected to J15B) {/Helvetica cf} 2 21 
-0 0.500 891 632 label
-0 1.000 824 608 824 80 952 80 952 608 4 polygon
-368 1.000 944 392 944 296 952 296 952 392 4 polygon
+1 1.000 2192 712 11 0.000 360.000 xcarc
+1 1.000 2192 648 11 0.000 360.000 xcarc
+1 1.000 2192 584 11 0.000 360.000 xcarc
+1 1.000 2192 520 11 0.000 360.000 xcarc
+1 1.000 2192 776 11 0.000 360.000 xcarc
+1 1.000 2144 776 11 0.000 360.000 xcarc
+0 2.000 2112 808 2112 472 2224 472 2224 808 4 polygon
+0.000 0.000 1.000 scb
+(Vs) {/Courier cf} 2 23 0 0.500 2144 760 label
+(Vd5) {/Courier cf} 2 23 0 0.500 2208 760 label
+(MI1) {/Courier cf} 2 23 0 0.500 2200 688 label
+(MI3) {/Courier cf} 2 23 0 0.500 2200 624 label
+(MO1) {/Courier cf} 2 23 0 0.500 2200 560 label
+(MO3) {/Courier cf} 2 23 0 0.500 2200 496 label
+sce
+1 1.000 2144 712 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(MI2) {/Courier cf} 2 23 0 0.500 2152 688 label
+sce
+1 1.000 2144 648 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(MI4) {/Courier cf} 2 23 0 0.500 2152 624 label
+sce
+1 1.000 2144 584 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(MO2) {/Courier cf} 2 23 0 0.500 2152 560 label
+sce
+1 1.000 2144 520 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(MO4) {/Courier cf} 2 23 0 0.500 2152 496 label
+sce
+(J11E) {/Courier cf} 2 21 0 0.750 2168 848 label
+0.800 0.800 0.800 scb
+0 2.000 2096 816 2096 463 2243 463 2243 816 4 polygon
+0 2.000 2099 695 2099 599 2115 599 2115 695 4 polygon
+sce
+1 1.000 1424 800 11 0.000 360.000 xcarc
+1 1.000 1376 800 11 0.000 360.000 xcarc
+1 1.000 1424 736 11 0.000 360.000 xcarc
+1 1.000 1376 736 11 0.000 360.000 xcarc
+1 1.000 1376 672 11 0.000 360.000 xcarc
+1 1.000 1424 672 11 0.000 360.000 xcarc
+1 1.000 1424 608 11 0.000 360.000 xcarc
+1 1.000 1376 608 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(RXD) {/Courier cf} 2 23 0 0.500 1360 824 label
+(VCC) {/Courier cf} 2 20 0 0.500 1448 824 label
+(RST) {/Courier cf} 2 20 0 0.500 1448 760 label
+(CH_PD) {/Courier cf} 2 20 0 0.500 1448 696 label
+(TXD) {/Courier cf} 2 20 0 0.500 1448 632 label
+(GPIO0) {/Courier cf} 2 23 0 0.500 1360 760 label
+(GPIO2) {/Courier cf} 2 23 0 0.500 1360 696 label
+(GND) {/Courier cf} 2 23 0 0.500 1360 632 label
+sce
+0 2.000 800 896 800 512 1440 512 1440 896 4 polygon
+1 5.000 1024 736 1024 544 864 544 864 576 960 576 960 608 864 608 864 640 960 
+640 960 672 864 672 864 704 960 704 960 736 864 736 864 864 16 polygon
+0.000 0.000 0.000 scb
+(TOP VIEW) {/Courier cf} 2 23 0 0.500 1152 776 label
+sce
+1.000 270 1664 960 analog::switch
+1.000 270 1856 960 analog::switch
 1.000 0.000 0.000 scb
-225 3.000 576 -112 576 120 864 120 3 polygon
-225 3.000 912 120 896 96 544 96 544 -112 4 polygon
-225 3.000 512 -112 512 184 864 184 3 polygon
-225 3.000 912 184 896 160 480 160 480 -112 4 polygon
-225 3.000 448 -112 448 248 864 248 3 polygon
-225 3.000 912 248 896 224 416 224 416 -112 4 polygon
-225 3.000 384 -112 384 312 864 312 3 polygon
-225 3.000 912 312 896 288 352 288 352 -112 4 polygon
-225 3.000 320 -112 320 376 864 376 3 polygon
-225 3.000 912 376 896 352 288 352 288 -112 4 polygon
-225 3.000 256 -112 256 440 864 440 3 polygon
-225 3.000 912 440 896 416 224 416 224 -112 4 polygon
-225 3.000 192 -112 192 504 864 504 3 polygon
-225 3.000 912 504 896 480 160 480 160 -112 4 polygon
-225 3.000 128 -112 128 568 864 568 3 polygon
-225 3.000 912 568 896 544 96 544 96 -112 4 polygon
-(Sometimes \(especially 2x40 LCDs\) they are called A and K) {/Helvetica cf} 2 
-21 0 0.500 427 -313 label
-(Order of wires is *NOT* matching) {/Courier cf} 2 20 0 0.500 624 24 label
-(with flat ribbon cable) {/Courier cf} 2 20 0 0.500 624 0 label
+1 2.000 1424 800 1648 800 1648 800 3 polygon
+0.627 0.125 0.941 scb
+(MBHP_CORE_STM32F4) {/Courier cf} 2 23 90 0.500 2272 536 label
+0.647 0.165 0.165 scb
+1 2.000 1376 608 1392 584 2048 584 2048 776 2144 776 5 polygon
+0.361 0.675 0.933 scb
+1 2.000 1424 608 2016 608 2016 672 2176 672 2192 648 5 polygon
+0.647 0.165 0.165 scb
+1 2.000 1912 960 1952 960 1952 832 2048 832 4 polygon
+1 2.000 1952 832 1760 832 1760 960 1720 960 4 polygon
+1 2.000 2048 776 2048 832 2 polygon
+1.000 0 1952 832 generic::dot
+1.000 0 2048 776 generic::dot
+1.000 0.000 0.000 scb
+1 2.000 1424 672 1656 672 1656 800 3 polygon
+1.000 0 1656 800 generic::dot
+0.000 0.000 0.000 scb
+1.000 270 1584 736 analog::resistor
+1.000 0.000 0.000 scb
+1 2.000 1624 736 1656 736 2 polygon
+1.000 0 1656 736 generic::dot
+0.180 0.545 0.341 scb
+1 2.000 2192 520 2184 544 1280 544 1280 800 1376 800 5 polygon
+0.000 0.000 0.000 scb
+(10k) {/Courier cf} 2 20 0 0.500 1568 768 label
+0.933 0.604 0.000 scb
+1 2.000 1376 736 1400 760 1400 960 1624 960 4 polygon
+0.627 0.125 0.941 scb
+1 2.000 1424 736 1544 736 2 polygon
+1 2.000 1504 736 1504 896 1792 896 1792 960 1816 960 5 polygon
+1.000 0 1504 736 generic::dot
+0.000 0.000 0.000 scb
+(ESP-01) {/Courier cf} 2 23 0 2.000 1240 840 label
+(Bootloader) {/Courier cf} 2 21 0 0.500 1680 1032 label
+(Reset) {/Courier cf} 2 21 0 0.500 1856 1032 label
+1.000 0.000 0.000 scb
+1 2.000 1648 800 1984 800 2016 800 2016 992 2144 992 5 polygon
+0.647 0.165 0.165 scb
+1 2.000 2048 832 2048 944 2144 944 3 polygon
+sce
+1 1.000 2144 992 11 0.000 360.000 xcarc
+1 1.000 2144 944 11 0.000 360.000 xcarc
+0.000 0.000 1.000 scb
+(Vs) {/Courier cf} 2 23 0 0.500 2160 920 label
+(Vd3) {/Courier cf} 2 23 0 0.500 2160 968 label
+0.000 0.000 0.000 scb
+0 2.000 2112 1024 2112 896 2176 896 2176 1024 4 polygon
+sce
+(3.3V Supply) {/Courier cf} 2 21 0 0.500 2088 1056 label
+(\(directly connected to core\)) {/Courier cf} 2 21 0 0.500 2104 1040 label
 pgsave restore showpage
 
 %%Trailer
