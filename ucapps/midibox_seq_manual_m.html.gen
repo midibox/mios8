@@ -180,7 +180,7 @@ This page shows animated VU meters for each instrument (to give you an overview 
     <LI><B>Pitch:</B> sends a PitchWheel event
     <LI><B>Prob:</B> sets the probability that the step will be played (1..100%)
     <LI><B>Delay:</B> delays the step for 1..96 microticks
-    <LI><B>Roll:</B> plays the step 2..5 times with ascenting/descenting velocity (intensity: 0..15). 127 variations are available - great for drum patterns!<BR>
+    <LI><B>Roll:</B> also known as "ratcheting", plays the step 2..5 times with ascenting/descenting velocity (intensity: 0..15). 127 variations are available - great for drum patterns!<BR>
 The distance between the repeats is predefined to: 48 ticks on 2 repeats, 32 ticks on 3 repeats, 36 ticks on 4 repeats, 32 ticks on 5 repeats.
     <LI><B>Roll2:</B> plays the step 2..5 times. Instead of velocity the distance between the steps can be directly controlled.<BR>
 The first number means, how often the event will be played (2, 3, 4 or 5 times), the second number specifies the number of clock ticks between the events (accuracy depends on number of repeats). Examples:</P>
@@ -238,7 +238,7 @@ Notes and Chords will be transposed accordingly if the track is in Normal mode (
     <LI><B>IIC1..IIC4:</B> to select the optional MBHP_IIC_MIDI ports</LI>
     <LI><B>OSC1..OSC4:</B> allows to send/receive events via Ethernet</LI>
     <LI><B>Bus1..Bus4:</B> virtual ports. They are used to control the transposer/arpeggiator (see loopback description below), and can optionally be used for the MIDI router function (see description of MIDI configuration page)</LI>
-    <LI><B>AOUT:</B> the AOUT port. See description below</LI>
+    <LI><B>CV1..CV4:</B> the CV output port. See description below</LI>
   </UL></LI>
   <LI><B>Track Instrument:</B> enters a special configuration page for instrument parameters such as Program & Bank Change and Instrument Name</LI>
   <LI><B>INIT:</B> this item will flash whenever the selected partition type requires a re-initialisation of the track memory. Press&Hold the GP button below this item for two seconds to confirm the initialisation (this will clear all steps!)</LI>
@@ -302,11 +302,11 @@ From 0:00-0:07 the bassline is played w/ the base note C-3, from 0:00-0:23 the b
 From 0:24 I selected an alternative pattern which sends various notes to the loopback port at a clock rate of 384ppqn/4*13 - the result sounds like a live jam on the keyboard, but it was more or less a random effect initiated by the asynchronously clocked loopback track. :)</P>
 
 
-<H2> <IMG SRC="images/bullet.gif" ALT=""> AOUT Port</H2>
+<H2> <IMG SRC="images/bullet.gif" ALT=""> CV Port (also known as "AOUT Port")</H2>
 
-<P CLASS=INFO>The AOUT Port allows you to control the analog outputs of a <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> module. 8 gate triggers are available at port J5A/J5B of the core module (enabled by default in the MBSEQ_HW.V4 file) or (preferred) at a DOUT shift register which is configured in the MBSEQ_HW.V4 file (search for CV_GATE_SR1)</P>
+<P CLASS=INFO>The CV1..4 Port allows you to control the analog outputs of up to 4 chained <A HREF="mbhp_aout.html">MBHP_AOUT</A>, <A HREF="mbhp_aout_lc.html">MBHP_AOUT_LC</A> or <A HREF="http://www.midibox.org/dokuwiki/aout_ng">MBHP_AOUT_NG</A> modules. 8 gate triggers are available at port J5A/J5B of the core module (enabled by default in the MBSEQ_HW.V4 file) or (preferred) at DOUT shift registers which is configured in the MBSEQ_HW.V4 file (search for CV_GATE_SR1) - this way you get access to all 32 gates if 4 DOUT SRs are used.</P>
 
-<P CLASS=DESC>MIDI Channel encoding:<BR>
+<P CLASS=DESC>MIDI Channel encoding - each CV port controls one AOUT/AOUT_NG module:<BR>
 <TABLE WIDTH=575 BORDER=0 CELLSPACING=1 CELLPADDING=1>
   <TR>
     <TD CLASS=TABCOLOR1><FONT SIZE=2><STRONG>Event</STRONG></FONT></TD>
@@ -445,7 +445,7 @@ From 0:24 I selected an alternative pattern which sends various notes to the loo
     <TD CLASS=TABCOLOR2>Note</TD>
     <TD CLASS=TABCOLOR2>16</TD>
     <TD CLASS=TABCOLOR2>DOUT drum gates/triggers<BR>
-Notes to AOUT Channel #16 (C-1, C#1, D-1, ... upwards) will be redirected to up to 64 digital outputs of the DOUT chain. Each key number triggers an individual gate for 1 mS, accordingly this mode is predestinated for drum triggers. The used shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)
+Notes to CV Channel #16 (C-1, C#1, D-1, ... upwards) will be redirected to up to 64 digital outputs of the DOUT chain. Each key number triggers an individual gate for 1 mS, accordingly this mode is predestinated for drum triggers. The used shift registers have to be defined in the MBSEQ_HW.V4 file (DOUT_GATE_SR1..8)
 </TD>
   </TR>
 </TABLE></P>
@@ -712,18 +712,6 @@ Example for a track clocked at a triplet timebase 16T. A bassline with "normal" 
 <P CLASS=DESC>Following MP3 demonstrates slow tempo changes which are controlled from the BPM Preset page - note that a such a tempo change doesn't block the sequencer. E.g., during the ramp time you can switch to the PATTERN page to select a new pattern, you can mute tracks in the MUTE page, etc.:<BR>
 **MP3**"http://www.ucapps.de/mp3/midibox_seq/mbseqv4_demo_tempo_sweeps.mp3"#ffffff**</P>
 
-
-<H2> <IMG SRC="images/bullet.gif" ALT=""> Metronome Page (only available from the main menu)</H2>
-<P CLASS=INFO>Allows you to select following options:<BR>
-<CENTER><IMG SRC="midibox_seq/cs4/metronome1.gif" width=481 height=19 ALT="Metronome"></CENTER></IMG><BR>
-<UL CLASS=CL>
-  <LI><B>on/off:</B> same function as the dedicated METRONOME button</LI>
-  <LI><B>Port:</B> the MIDI port to which the metronome will send</LI>
-  <LI><B>Channel:</B> the channel to which the metronome will send</LI>
-  <LI><B>Measure Note:</B> note which will be send on each measure</LI>
-  <LI><B>Beat Note:</B> note which will be send on each beat</LI>
-</UL>
-
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Save Page (Shortcut: MENU+GP Button #14)</H2>
 <P CLASS=INFO>Allows you to save the pattern of the currently active pattern group:<BR>
 <CENTER><IMG SRC="midibox_seq/cs4/save1.gif" width=481 height=19 ALT="Save"></CENTER></IMG></P>
@@ -780,7 +768,7 @@ It is recommended to activate the "Follow" function under UTILITY-&gt;OPTIONS wh
 </P>
 
 <P CLASS=INFO><B>MIDI Router:</B>
-<P CLASS=INFO>Provides a simple possibility to route incoming MIDI events to synthesizers which are connected to the MIDI Out ports (which means: also to the AOUT port - MBSEQ replaces a CV interface!)
+<P CLASS=INFO>Provides a simple possibility to route incoming MIDI events to synthesizers which are connected to the MIDI Out ports (which means: also to the CV port - MBSEQ replaces a CV interface!)
 <CENTER><IMG SRC="midibox_seq/cs4/midi3.gif" width=481 height=19 ALT="MIDI Cfg"></CENTER></IMG>
 <UL CLASS=CL>
   <LI><B>Node:</B> 8 routing pathes are available<BR>
@@ -971,6 +959,7 @@ and can be modified with the MIOS Studio based Filebrowser as well.</P>
   <LI><B>Undo:</B> an undo function for the last Paste/Clear/Move/Scroll/Random operation.</LI>
   <LI><B>Save:</B> directly branches into the save menu page (shortcut)</LI>
   <LI><B>Jam:</B> directly branches into the Jam page (shortcut)</LI>
+  <LI><B>CV</B> directly branches into the CV configuration page (shortcut)</LI>
   <LI><B>Opt.:</B> directly branches into the options page (shortcut)</LI>
   <LI><B>PMte:</B> directly branches into the port muting page (shortcut)</LI>
   <LI><B>Disk:</B> directly branches into the disk page (shortcut)</LI>
@@ -1058,17 +1047,59 @@ with the reference step position. It can be left deactivated if it is your inten
 </UL>
 
   <LI><B>Pattern Change Synchronisation:</B> if enabled, a pattern change made in the PATTERN or SONG page (Phrase mode) won't take place immediately, but will be synchronized to the pattern length of X steps as defined in the previous option page.</LI>
+
+  <LI><B>Pattern Change re-sends Program Change:</B> enable this option if a Program Change MIDI message should be re-sent whenever a pattern is changed (you might want to use it to re-initialize synth patches).</LI>
+  
   <LI><B>Restart all Tracks on Pattern Change (RATOPC):</B> added due to requests from multiple users: all tracks will be restarted whenever a new pattern is selected. If SyncChange enabled, this means that all tracks will synchronize correctly independent from their track length, if SyncChange disabled, this means that you can do nice breaks while changing patterns (try it! ;-)</LI>
+  
   <LI><B>Dump a predefined Mixer Map on Pattern Changes:</B> whenever a pattern is changed, a corresponding mixer map will be dumped. The Mixer map number is predefined: A1 uses Mixer Map #1, A2 uses Mixer Map #2, etc...</LI>
+  
   <LI><B>Synchronize MUTE to Measure:</B> if enabled, mutes set in the Mute page will be synched to the selected steps per measure. This feature is inspired from the "MIDI Clip Launcher" of Ableton Live.</LI>
+  
   <LI><B>Synchronize UNMUTE to Measure:</B> the same for Unmute (behaviour can be selected separately).</LI>
+  
+  <LI><B>Unmute Tracks on Pattern Change:</B> some users requested this.</LI>
+  
+  <LI><B>Auto-Select unmuted Track:</B> nobody requested this, but I find it useful :-)</LI>
+  
   <LI><B>Paste and Clear Button will modify</B> allows you to change the behaviour of the Paste and Clear function:
     <UL CLASS=CL>
       <LI><B>Only Steps:</B> only parameter and trigger layers will be cleared/pasted (default)</LI>
       <LI><B>Complete Track:</B> the whole track configuration will be cleared/pasted. Only exception: MIDI channel and MIDI port will never be overwritten.</LI>
     </UL>
   </LI>
+  
+  <LI><B>Selection restored on Track Change:</B> if enabled, each track will have its individual instrument, parameter/trigger layer and step view selections</LI>
+  
+  <LI><B>Allow to change Pattern Banks:</B> by default, track groups 1/2/3/4 are assigned to bank 1/2/3/4. Actually it could confuse users if banks are changed, therefore it's possible to hide the bank selection, so that it can't be changed.</LI>
+  
+  <LI><B>ALL Function works on Step View only:</B> the edit page has multiple views, the default one is called "step view". In other pages the ALL function (which changes all values based on the encoder entry of the currently edited step) might confuse users, therefore it can be disabled there.</LI>
+  
+  <LI><B>Print/Modify Steps w/o changing Gates:</B> by default, a gate is activated whenever a note value is changed. If the user desires to change note values without playing them by default (gate stays inactive), this option should be enabled. In this case, the gate always has to be enabled manually to play a note!</LI>
+  
+  <LI><B>Print Notes with Transposed Values:</B> if enabled, the Note values of a track will be print according to the current transpose.</LI>
+
+  <LI><B>Metronome:</B> configures the Metronome function:
+       <CENTER><IMG SRC="midibox_seq/cs4/metronome1.gif" width=481 height=19 ALT="Metronome"></CENTER></IMG><BR>
+       <UL CLASS=CL>
+         <LI><B>on/off:</B> same function as the dedicated METRONOME button</LI>
+         <LI><B>Port:</B> the MIDI port to which the metronome will send</LI>
+         <LI><B>Channel:</B> the channel to which the metronome will send</LI>
+         <LI><B>Measure Note:</B> note which will be send on each measure</LI>
+         <LI><B>Beat Note:</B> note which will be send on each beat</LI>
+       </UL>
+    </LI>
+
+  <LI><B>Shadow Out</B>: this option allows you to send all outgoing MIDI messages to a second output port. This might be useful in conjunction with controllers allow to display played notes.</LI>
+  
+  <LI><B>Frontpanel MIDI Remote Control</B> via a configurable key. If the key is pressed, frontpanel functions can be emulated with additional keys as documented <A HREF="midibox_seq/mbseq_remote_functions.pdf">here</A></LI>
+  
+  <LI><B>Sending selected Track as CC to a DAW:</B> allows to send a CC message whenever a track is changed. Useful to synchronize a DAW with the frontpanel selection.</LI>
+  
+  <LI><B>Runtime Status Optimization:</B> for MIDI OUT ports is enabled by default, which saves some bandwidth. If your MIDI device doesn't handle it correctly, disable this feature (can be done for each individual OUT port).</LI>
+  
   <LI><B>Initial CC value for Clear and Init is: X</B>: allows to specify the default value which will be used for CCs whenever the Clear button is pressed, or the Init function in the MENU-&gt;EVENT page is used. It's normally 64, but some people prefer 0 instead. Just define it here.</LI>
+
   <LI><B>If Live function, matching received MIDI events will ...</B>: this experimental function works in conjunction with Live mode or the MIDI Router in "Track" or "Sel.Trk" mode.<BR>
     Whenever Note, CC, PitchBender, Poly Pressure (Aftertouch), Program Change events are received on the selected IN Port, the corresponding track layer (or LFO CC) will be muted completely, or temporary for a given number of steps. This allows to temporary overrule events generated by the sequencer from an external MIDI keyboard or controller.<BR>
     Supported settings:
@@ -1077,7 +1108,25 @@ with the reference step position. It can be left deactivated if it is your inten
        <LI><B>mute the appr. layer</B>: once a matching events has been received, the corresponding track layers will be muted, and have to be unmuted in the MUTE page
        <LI><B>mute layer for X steps</B>: allows to temporary mute the layer for a given number of steps
     </UL>
-</LI>
+  </LI>
+
+  <LI><B>Session specific Drum CC Assignments:</B> only relevant for MBSEQ V4+: allows to setup individual CCs for each drum instrument in drum tracks</LI>
+
+  <LI><B>Track Position Display (TPD) Mode:</B> allows to select various modes for the TPD, which is for example available on the midiPhy frontpanel</LI>
+
+  <LI><B>Swap LED Colours:</B> if Duo-colour LEDs are used, this option allows to swap the colours. This can be done separately for GP and Selection LEDs. In addition it's possible to define, if the sequencer position should XOR the LED colour to improve the visibility.</LI>
+
+  <LI><B>Invert Mute LEDs:</B> by default, LED is turned on if a track is muted. With this option, it will be on of the track is unmuted.</LI>
+
+  <LI><B>BLM16x16+X should always use Force-to-Scale in Grid Edit Mode:</B> as the name says...</LI>
+
+  <LI><B>BLM16x16+X Fader assignments:</B> up to 8 faders connected to a BLM16x16+X can be assigned to various functions</LI>
+
+  <LI><B>Mixer CCs should be changed after Pattern Change:</B> as the name says...</LI>
+
+  <LI><B>Menu Button page assignments:</B> the MENU button allows you a quick selection to up to 16 pages via GP buttons. This page allows you to customize the button assignments.</LI>
+  <LI><B>Screen Saver:</B> especially recommended if OLED displays are used: allows to customize the time when the screen saver becomes active.</LI>
+
 </UL>
 
 
@@ -1336,7 +1385,7 @@ This page allows you to Mute or Unmute all tracks, all layers of the selected tr
 
 <H2> <IMG SRC="images/bullet.gif" ALT=""> Fx Dupl(icate)</H2>
 <P CLASS=INFO>The duplication effect sends MIDI notes to multiple MIDI channels of a given MIDI port (which can be different from the MIDI port assigned in the Track Event page). Use this effect to play (equal) monophonic synths like a polyphonic synth, or to trigger notes with different timbres.<BR>
-This feature also works together with the AOUT port to support polyphonic play of analog synths!<BR>
+This feature also works together with the CV port to support polyphonic play of analog synths!<BR>
 <CENTER><IMG SRC="midibox_seq/cs4/fx_dupl.gif" width=481 height=19 ALT="Fx Dupl"></CENTER></IMG></P>
 <UL CLASS=CL>
   <LI><B>Number of additional channels:</B> as the name says. The effect will be disabled with value 0, and enabled with a value > 0.</LI>
@@ -1403,13 +1452,15 @@ Only one group can control the scale and root note - it can be selected with thi
 <P CLASS=INFO>This page allows to select the AOUT/AOUT_LC/AOUT_NG interface, to configure CV channel and gate parameters, and to configure the DIN Sync Clock output.<BR>
 
 <UL CLASS=CL>
-  <LI><B>CV:</B> selects the CV channel (1..8)
+  <LI><B>CV:</B> selects the CV channel (1..8, resp on MBSEQV4+ 1..32)
   <LI><B>Curve:</B> selects the output curve: V/Oct, Hz/V, Inverted
   <LI><B>SlewR(ate):</B> allows to configure a slew rate (slack) in the range of 0..255 mS
   <LI><B>SusK:</B> activates the "SusKey" function (also known as "fingered portamento"): the slew rate will only be activated if at least two notes are played. This allows to use the glide function to enable slew only on demand.
   <LI><B>PRng:</B> sets the pitch range for pitch bender events (normally 2, use 12 or 24 to sweep over one, resp. two octaves)
   <LI><B>Gate:</B> sets the gate polarity (positive or negative)
-  <LI><B>Calibr.:</B> allows to force different output voltages for calibration (Min/Middle/Max/1V, 2V, 4V, 8V)
+  <LI><B>Calibr.:</B> allows to force different output voltages for calibration (Min/Middle/Max/1V, 2V, 4V, 8V)<BR>
+    With MBSEQV4+ additional calibration points are available which can be adjusted via SW - this allows you to compensate non-linearities of the DACs<BR>
+    Note also: by pressing the GP7 button, the display will switch between unipolar (0..10V) and bilolar (-5V..5V) values - use the display mode which is matching with your HW setup.
   <LI><B>Clk:</B> selects 1 of 8 clock outputs (available at a dedicated DOUT shift registered which has been configured with the CLK_SR parameter in the MBSEQ_HW.V4 file). Each clock has an individual clock divider, or can optionally be used to output a Start/Stop signal
   <LI><B>Rate:</B> defines the output rate of the selected clock output (1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96, 192, 384 ppqn and Start/Stop)</LI>
   <LI><B>Width:</B> sets the pulsewidth of the clock output signal (1..255 mS)</LI>

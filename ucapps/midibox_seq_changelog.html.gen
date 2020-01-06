@@ -1,13 +1,93 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2018-12-20</H3></CENTER>
+<CENTER><H3>Last Release: 2020-01-06</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.095</I>
+  <UL CLASS=CL>
+   <LI> Only for MBSEQV4+: support for up to 32 CV outputs (and corresponding gates).<BR>
+     Means: up to 4 AOUT modules can be chained.<BR>
+     Tested with MAX525 (and midiphy Eurorack Expander), but should also work with TLV5630 based AOUT_NG
+     The additional CV outputs can be accessed with MIDI port CV2..4.
+
+   <LI> AOUT port has been renamed to CV1..CV4
+
+   <LI> Utility Page, GP Button #11 now changes to the CV Configuration Page
+
+   <LI> DOUT_1MS_TRIGGER in the MBSEQ_HW.V4 file has been replaced by a configurable trigger width which
+     can be adjusted in the CV Configuration Page with GP13 now
+
+   <LI> Improved selection handling for midiphy frontpanel:
+     <UL CLASS=CL>
+       <LI> if you press&hold the Bookm/Step/Track/Param/Trigger/Instr/Mute or Phrase button, and then
+         make a selection with SEL or GP buttons, the selection button will jump back to the previous
+         function
+       <LI> if you press&release these buttons without a selection, the function stays active.
+     </UL>
+
+     Example: let's say the track selection is active.
+     Press&Hold Param button, change to a new parameter layer, then release the Param button
+     -&gt; the selection buttons will jump back to track selection.<BR>
+
+     If it's desired to permanently control the parameter layer with the selection buttons, just
+     press&release the Param button.
+
+   <LI> It's now possible to customize the list of labels which are used during track/pattern
+     name and category and drum selection. After booting the new firmware, following files
+     will be created in the /PRESETS folder: TRKLABEL.V4P, TRKCATS.V4P and TRKDRUMS.V4P<BR>
+
+     Edit these files with the MIOS File browser. Uploaded changes are immediately taken
+     over.
+
+     <UL CLASS=CL>
+      <LI> TRKLABEL and TRKCATS: are used in MENU-&gt;EVNT, "Trk Inst.", "Edit Name" page
+       (Use GP15 to select the Preset)
+
+     <LI> TRKDRUMS is used on the same page when a drum track is edited (instead of a
+       track name we configure instrument names)<BR>
+
+       Special treatment: TRKDRUMS.V4P also maps MIDI notes to the drum labels.
+       Whenever a new preset drum is selected, the drum note will be changed accordingly.
+       This allows you to fully customize drum maps.<BR>
+
+       The first 16 drums are taken by default whenever a drum track is initialized, and the
+       remaining drums in the list can be optionally selected to replace on of the 16
+       drum instruments.
+
+     <LI> TRKLABEL and TRKCATS are also used when a pattern is saved
+   </UL>
+
+   <LI> New option 9/33 allows to unmute tracks on pattern changes
+
+   <LI> New option 14/33 allows to change the steps of the current selected view only
+
+   <LI> the MIDI mixer can now send CC values to a bus.<BR>
+     This especially allows to record CC changes (configure MENU-&gt;MIDI-&gt;Port accordingly
+     so that it listens to the bus in Jam mode)
+
+   <LI> New parameter layer "Ctrl" allows to change track parameters as documented in
+     the doc/mbseqv4_cc_implementation.txt table (previously this was only possible
+     from a dedicated loopback track).
+
+   <LI> Recording function considers "Ctrl" layers as well if the assigned parameters
+     are changed on the UI
+
+   <LI> CV Calibration in CV page: special handling for Hz/V curve
+
+   <LI> CV Calibration in CV page: press GP7 button to switch between bipolar/unipolar display
+
+   <LI> fixed "lost button mapping" issue if SD Card is removed
+
+   <LI> MBSEQV4+: fixed MIDI export crash    
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.095</I>
@@ -60,7 +140,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
      Press GP #8 to cycle between min/0/max offset of the calibration point.<BR>
      Each V has a dedicated calibration value which can be configured this way, the output will be interpolated accordingly.<BR>
      Note that with exiting the CV configuration menu the calibration values are stored on SD Card in the MBSEQ_GC.V4 file
-     (-> CV_Cali &lt;cv-counting-from-0&gt;).<BR>
+     (-&gt; CV_Cali &lt;cv-counting-from-0&gt;).<BR>
      You could backup/set/restore the values from there if required.<BR>
      To reset all calibration values: delete all CV_Cali items in MBSEQ_GC.V4, store the file and enter "reset" in MIOS terminal.
 
@@ -157,7 +237,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
    <LI> layers are now initialized for 6 notes polyphony by default (8 layers, 128 steps)
 
    <LI> optionally pattern changes don't re-send the PC/bank settings.<BR>
-     This option can be configured in the UTILITY->Options menu (item #4/18)
+     This option can be configured in the UTILITY-&gt;Options menu (item #4/18)
   </UL>
 </LI>
 
@@ -168,13 +248,13 @@ HEADER 3 ChangeLog of MIDIbox SEQ
      Root selection strategy: if Root is assigned to any parameter 
      layer of a track, the layer can either select the global root 
      selection ("Glb") or set the root note for each step explicitely.<BR>
-     The global root selection is configured in the FX->Scale page,
+     The global root selection is configured in the FX-&gt;Scale page,
      it's either "Keyb" (for MIDI keyboard entry) or C, C#, ... B<BR>
      The local root selection is C, C#, ... B<BR>
      Notes and Chords will be transposed accordingly if the track is in
      Normal mode (and not in Transpose or Arpeggiator mode)<BR>
      Similar for Scale: it can override the globally configured scale
-     of the FX->Scale page for each step.
+     of the FX-&gt;Scale page for each step.
      
    <LI> new drum configurations: 4*16/2*64, 4*16/2*128, 4*16/1*256
 
@@ -195,7 +275,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
      Turn the encoder to the rightmost position (value 128)<BR>
      Also the init value has been changed: for these layers, the steps
      are now disabled by default.<BR>
-     For CCs please change the init value by yourself in the UTIL->OPT
+     For CCs please change the init value by yourself in the UTIL-&gt;OPT
      page (option #12: Initial CC value)
 
    <LI> new behaviour of CLEAR button in recording mode:<BR>
@@ -203,7 +283,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
      During live recording it will clear the "played" steps while the
      button is pressed.
 
-   <LI> new CC functions which can be configured in MIDI->ExtCtrl. page:
+   <LI> new CC functions which can be configured in MIDI-&gt;ExtCtrl. page:
      <UL CLASS=CL>
        <LI>Play/Stop: allows to assign the PLAY button to a CC
        <LI>Record: allows to assign the RECORD button to a CC
@@ -366,7 +446,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 
    <LI> added LCD Screensaver.<BR>
      It will be active after 30 minutes by default.<BR>
-     The time can be changed in the UTIL->OPT menu page.
+     The time can be changed in the UTIL-&gt;OPT menu page.
 
    <LI> added DETENTED4/DETENTED5 option for rotary encoders in MBSEQ_HW.V4 file
 
@@ -388,7 +468,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 
    <LI> added Live Pattern Recording to Jam page which can be used to play and record
      customizable arpeggiator sequences.<BR>
-     Available in the Jam page (Utility->Jam->Ptn)<BR>
+     Available in the Jam page (Utility-&gt;Jam-&gt;Ptn)<BR>
      See <A HREF="midibox_seq_manual_m.html">updated user manual</A> for further information.
   </UL>
 </LI>
@@ -509,7 +589,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 
    <LI> Song page: new action "Unmute all" will unmute all tracks and parameter layers
 
-   <LI> Mixer: in the UTIL->Options page it's now possible to define if CC1, CC2, CC3, CC4
+   <LI> Mixer: in the UTIL-&gt;Options page it's now possible to define if CC1, CC2, CC3, CC4
      should be sent after or before the Program Change event.
 
    <LI> NRPN MSB=127 allows to modify parameters of the currently selected track
@@ -555,13 +635,13 @@ HEADER 3 ChangeLog of MIDIbox SEQ
 
    <LI> it's now possible to control the track steps with CCs.<BR>
      Each track has a dedicated CC which has to be configured in the
-     MIDI->Ext.Ctrl page.
+     MIDI-&gt;Ext.Ctrl page.
 
    <LI> it's now possible to turn off the track clock by enabling the new "Manual"
      mode in the DIVIDER page. Once enabled, a step will only be played if:
      <UL CLASS=CL>
        <LI>manually triggered in the MANUAL page
-       <LI>set with the new CC based step control feature (MIDI->Ext.Ctrl page)
+       <LI>set with the new CC based step control feature (MIDI-&gt;Ext.Ctrl page)
      </UL>
 
      Use cases:
@@ -1722,7 +1802,7 @@ HEADER 3 ChangeLog of MIDIbox SEQ
   <UL>
   <LI> support for OSC (requires MBHP_ETH module)-<BR>
     4 OSC ports are available, currently they only send MIDI packets.<BR>
-    A MIDI<-&gt;OSC proxy is currently only available for MacOS (on request).<BR>
+    A MIDI&lt;-&gt;OSC proxy is currently only available for MacOS (on request).<BR>
     An easy to use Juice based Proxy is planned and will be released soon.<BR>
     (Firmware-)configurable OSC packets will be available in one of the
     next releases.
