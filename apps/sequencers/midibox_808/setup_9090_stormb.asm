@@ -279,7 +279,7 @@ DEFAULT_TRKINFO MACRO
 ;; select the tracks to which the OH and CH are assigned in DEFAULT_909LIKE_HH_TRACK_OH/CH.
 ;; Change the DEFAULT_TRKINFO table in the header of this file, so that both track triggers share the same pin!
 ;; Then define the DOUT pin which should select OH/CH in DEFAULT_909LIKE_HH_SWITCH_SR/PIN below
-#define DEFAULT_909LIKE_HH_CONTROL_ENABLED  0  ; 0 to disable, 1 to enable
+#define DEFAULT_909LIKE_HH_CONTROL_ENABLED  1  ; 0 to disable, 1 to enable
 #define DEFAULT_909LIKE_HH_TRACK_OH         9  ; OH track number - this track will set the SWITCH pin to 0
 #define DEFAULT_909LIKE_HH_TRACK_CH         8  ; CH track number - will set the SWITCH pin to 1
 #define DEFAULT_909LIKE_HH_SWITCH_SR        4  ; DOUT shift register of the SWITCH (1..16, 0 disables the assignment)
