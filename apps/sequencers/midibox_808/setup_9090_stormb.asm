@@ -45,7 +45,7 @@ DEFAULT_TRKINFO MACRO
 ; define the track which is used for global accent
 ; (0=disabled, 1-16: track number)
 ; for 909 no global accent
-#define DEFAULT_GLOBAL_ACCENT_TRK 0
+#define DEFAULT_GLOBAL_ACCENT_TRK 16
 ;
 ;
 ; BankStick Mode & Allocation Map
