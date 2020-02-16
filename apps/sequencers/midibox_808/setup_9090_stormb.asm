@@ -31,8 +31,8 @@ DEFAULT_TRKINFO MACRO
 	db	"HT    ",  1,  2,   1,    0	; Track 5
 	db	"RS    ",  1,  1,   1,    0	; Track 6
 	db	"Clap  ",  1,  0,   1,    0	; Track 7
-	db	"CH    ",  4,  7,   1,    0	; Track 8
-	db	"OH    ",  4,  6,   1,    0	; Track 9
+	db	"CH    ",  4,  7,   1,    0	; Track 8 // shared with OH, Switch via 4.6 (see DEFAULT_909LIKE_HH_CONTROL_ENABLED)
+	db	"OH    ",  4,  7,   1,    0	; Track 9 // shared with CH, Switch via 4.6 (see DEFAULT_909LIKE_HH_CONTROL_ENABLED)
 	db	"Crash ",  4,  4,   1,    0	; Track 10
 	db	"Ride  ",  4,  3,   1,    0	; Track 11
 	db	"Ext1  ",  0,  0,   1,    0	; Track 12
@@ -44,7 +44,6 @@ DEFAULT_TRKINFO MACRO
 ;
 ; define the track which is used for global accent
 ; (0=disabled, 1-16: track number)
-; for 909 no global accent
 #define DEFAULT_GLOBAL_ACCENT_TRK 16
 ;
 ;
@@ -281,10 +280,10 @@ DEFAULT_TRKINFO MACRO
 ;; Change the DEFAULT_TRKINFO table in the header of this file, so that both track triggers share the same pin!
 ;; Then define the DOUT pin which should select OH/CH in DEFAULT_909LIKE_HH_SWITCH_SR/PIN below
 #define DEFAULT_909LIKE_HH_CONTROL_ENABLED  0  ; 0 to disable, 1 to enable
-#define DEFAULT_909LIKE_HH_TRACK_OH        11  ; OH track number - this track will set the SWITCH pin to 0
-#define DEFAULT_909LIKE_HH_TRACK_CH        12  ; CH track number - will set the SWITCH pin to 1
+#define DEFAULT_909LIKE_HH_TRACK_OH         9  ; OH track number - this track will set the SWITCH pin to 0
+#define DEFAULT_909LIKE_HH_TRACK_CH         8  ; CH track number - will set the SWITCH pin to 1
 #define DEFAULT_909LIKE_HH_SWITCH_SR        4  ; DOUT shift register of the SWITCH (1..16, 0 disables the assignment)
-#define DEFAULT_909LIKE_HH_SWITCH_PIN       2  ; switch pin (0..7 for D0..D7)
+#define DEFAULT_909LIKE_HH_SWITCH_PIN       6  ; switch pin (0..7 for D0..D7)
 
 
 ;; 0: disables swing pot
