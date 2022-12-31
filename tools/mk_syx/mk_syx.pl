@@ -501,7 +501,8 @@ while( <IN> )
 	    {
 	       parsing_error("'$events' invalid\nExpecting 4 hexadecimal digits for a Program Change event\nEXAMPLE: C0 05");
 	    }
-	    $event_3 = 0;
+#	    $event_3 = 0;
+	    $event_3 = $event_2; # duplicate since MB64 picks up MIDI_EVNT_VALUE
 	 }
 	 elsif( $event_1_0 eq "D" )
 	 {
@@ -509,7 +510,8 @@ while( <IN> )
 	    {
 	       parsing_error("'$events' invalid\nExpecting 4 hexadecimal digits for a Channel Aftertouch event\nEXAMPLE: D0 7F");
 	    }
-	    $event_3 = 0;
+#	    $event_3 = 0;
+	    $event_3 = $event_2; # duplicate event_2 since MB64 picks up MIDI_EVNT_VALUE
 	 }
 	 elsif( $event_1_0 eq "E" )
 	 {
