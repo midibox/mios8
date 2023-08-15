@@ -98,18 +98,6 @@ MIOS_CLCD_Init_Cmds_4Bit
 	clrf	MIOS_CLCD_LAT_D
 	movlw	1			; 1 mS delayed toggle
 	rcall	MIOS_CLCD_Strobe_DelayToggle			; DB7-DB4: 0000 (N/F)
-
-	movlw	1			; 1 mS delayed toggle
-	rcall	MIOS_CLCD_Strobe_DelayToggle			; DB7-DB4: 0000
-
-	movlw	0x10
-	movwf	MIOS_CLCD_LAT_D
-	movlw	1			; 1 mS delayed toggle
-	rcall	MIOS_CLCD_Strobe_DelayToggle			; DB7-DB4: 0001
-
-	clrf	MIOS_CLCD_LAT_D
-	movlw	1			; 1 mS delayed toggle
-	rcall	MIOS_CLCD_Strobe_DelayToggle			; DB7-DB4: 0000
 MIOS_CLCD_Init_Cmds_No4Bit
 
 	movlw	0x08			; Display Off
