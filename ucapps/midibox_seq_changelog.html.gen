@@ -1,13 +1,48 @@
 HEADER 3 ChangeLog of MIDIbox SEQ
 
 <CENTER><H1>MIDIbox SEQ V4 Change Log</H1></CENTER>
-<CENTER><H3>Last Release: 2020-01-06</H3></CENTER>
+<CENTER><H3>Last Release: 2022-10-07</H3></CENTER>
 
 <P CLASS=DESC>Current firmware, schematics, additional infos are located at <A HREF="midibox_seq.html">http://www.uCApps.de/midibox_seq.html</A>.</P>
 
 <IMG SRC="images/1x1dot.gif" height=10 ALT=""><BR>
 
 <UL CLASS=CL>
+
+<IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
+<LI><I>V4.097</I>
+  <UL CLASS=CL>
+   <LI> fixed "hanging gates" issue on CV_GATE_SR2..4
+   
+   <LI> Morph Page, GP Button #6 now allows to store the current morphed values into the original track
+     position (it takes over what you hear)
+     
+   <LI> Recording: Auto Track selection based on incoming channel can now be enabled by assigning
+     Jam MIDI Channel to "Auto" in MIDI Configuration Page.<BR>
+     Track will be switched if a MIDI event has been received on a new channel, and in the last second
+     no MIDI message has been received for the current selected track.
+     
+   <LI> Edit Page: if parameter layer assigned to Root or Scale: print it at the right upper quarter
+
+   <LI> loopback tracks assigned to Bus1..4: parameter layers assigned to Root or Scale will control
+     the global Root/Scale - this allows you to properly control *all* tracks which enabled
+     FTS (Force-to-Scale)
+     
+   <LI> Optimized synchronized/song pattern switches: now closer to next measure.
+     In case of problems, please report log output after entering
+        "set seq_pattern_log_load_time on"
+     in MIOS Terminal, and playing a song (the pattern switch time will be shown)
+
+   <LI> CV Page: added new clock Rates 0.063PPQN (4 Bars), 0.125 PPQN (2 bars), 0.25 (1 bar), 0.5 (1/2 bar),
+     + Stop/Start, Start Pulse and Stop Pulse function (e.g. a stop pulse can be used as a reset trigger)
+     
+   <LI> Fixed CV channel assignments when using the 9-12 and 13-15 channel ranges
+
+   <LI> DUPL FX "First Channel" parameter now considered as intended (and documented) in alternate/random modes.<BR>
+     Please note that this makes your existing tracks which are using this feature incompatible!<BR>
+     Please specify the intended "first channel" under FX->DUPL
+  </UL>
+</LI>
 
 <IMG SRC="images/1x1dot.gif" height=20 ALT=""><BR>
 <LI><I>V4.096</I>
