@@ -324,8 +324,8 @@ CS_MENU_DIN_TABLE
 	;;DIN_ENTRY	CS_MENU_BUTTON_???,	 16+5,	 2 ; **new** Menu Encoder button
 
 	DIN_ENTRY	CS_MENU_BUTTON_PageUp,   16+4,	 0 ; **new** Select A button (TK: could control PageUp)
-	DIN_ENTRY	CS_MENU_BUTTON_Inc,	 16+4,	 1 ; **new** Select B button
-	DIN_ENTRY	CS_MENU_BUTTON_Dec,	 16+4,	 2 ; **new** Select C button
+	DIN_ENTRY	CS_MENU_BUTTON_Dec,	 16+4,	 1 ; **new** Select B button
+	DIN_ENTRY	CS_MENU_BUTTON_Inc,	 16+4,	 2 ; **new** Select C button
 	DIN_ENTRY	CS_MENU_BUTTON_PageDown, 16+4,	 3 ; **new** Select D button (TK: could control PageDown)
 
 	DIN_ENTRY	CS_MENU_BUTTON_SID1,	 16+2,	 3
